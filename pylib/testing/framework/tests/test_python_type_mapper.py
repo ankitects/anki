@@ -3,9 +3,10 @@ import unittest
 
 from testing.framework.python.python_type_mapper import PythonTypeMapper
 from testing.framework.syntax.syntax_tree import SyntaxTree
+from testing.framework.tests.test_utils import GeneratorTestCase
 
 
-class PythonTypeMappingsGeneratorTests(unittest.TestCase):
+class PythonTypeMappingsGeneratorTests(GeneratorTestCase):
 
     def setUp(self):
         self.type_mapper = PythonTypeMapper()
@@ -37,9 +38,9 @@ class PythonTypeMappingsGeneratorTests(unittest.TestCase):
         self.assertEqual('Edge', args[0].type)
         self.assertEqual('a', args[0].name)
         self.assertEqual(1, len(type_defs.keys()))
-        self.assertEqual('''
+        self.assertEqualsIgnoreWhiteSpaces('''
             class Edge:\n\tdef __init__(self, a: int, b: int):\n\t\tself.a = a\n\t\tself.b = b
-        '''.strip(), type_defs['Edge'].strip())
+        ''', type_defs['Edge'])
 
     def test_object_list(self):
         tree = SyntaxTree.of(['list(object(int[a],int[b])<Edge>)[a]'])
@@ -48,15 +49,9 @@ class PythonTypeMappingsGeneratorTests(unittest.TestCase):
         self.assertEqual('List[Edge]', args[0].type)
         self.assertEqual('a', args[0].name)
         self.assertEqual(1, len(type_defs.keys()))
-        self.assertEqual(textwrap.dedent('''
+        self.assertEqualsIgnoreWhiteSpaces('''
             class Edge:\n\tdef __init__(self, a: int, b: int):\n\t\tself.a = a\n\t\tself.b = b
-        ''').strip(), type_defs['Edge'].strip())
-
-    def test_array_of_integers(self):
-        tree = SyntaxTree.of(['array(array(int))[a]'])
-        args, type_defs = self.type_mapper.get_args(tree)
-        self.assertEqual(1, len(args))
-        self.assertEqual('List[List[int]]', args[0].type)
+        ''', type_defs['Edge'])
 
     def test_map(self):
         tree = SyntaxTree.of(['map(string, list(object(int[a],int[b])<Edge>))[a]'])
@@ -65,6 +60,21 @@ class PythonTypeMappingsGeneratorTests(unittest.TestCase):
         self.assertEqual('Dict[str, List[Edge]]', args[0].type)
         self.assertEqual('a', args[0].name)
         self.assertEqual(1, len(type_defs.keys()))
-        self.assertEqual(textwrap.dedent('''
+        self.assertEqualsIgnoreWhiteSpaces('''
             class Edge:\n\tdef __init__(self, a: int, b: int):\n\t\tself.a = a\n\t\tself.b = b
-        ''').strip(), type_defs['Edge'].strip())
+        ''', type_defs['Edge'])
+
+    def test_linked_list(self):
+        tree = SyntaxTree.of(['linked_list(int)'])
+        args, type_defs = self.type_mapper.get_args(tree)
+        self.assertEqual(1, len(args))
+        self.assertEqual('ListNode[int]', args[0].type)
+        self.assertEqual(1, len(type_defs.keys()))
+        self.assertEqualsIgnoreWhiteSpaces('''
+            T = TypeVar('T')
+                
+            class ListNode(Generic[T]):
+                def __init__(self, data: Optional[Type[T]]=None):
+                    self.data = data
+                    self.next = None
+        ''', type_defs['linked_list'])

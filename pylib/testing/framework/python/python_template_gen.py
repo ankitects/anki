@@ -30,7 +30,7 @@ class PythonTemplateGenerator(TemplateGenerator):
         args, type_defs = self.type_mapper.get_args(tree)
         return render_template('''
             {% for line in description.split('\n') %}# {{line}}\n{% endfor %}
-            {% if type_defs|length > 0 %}{% for type_def in type_defs %}{{ type_def }}{% endfor %}{% endif %}
+            {% if type_defs|length > 0 %}{% for type_def in type_defs %}{{ type_def }}\n{% endfor %}{% endif %}
             def {{fn}}({% for a in l %}{{a.name}}: {{a.type}}{% if not loop.last %}, {% endif %}{% endfor %})->{{t}}:
             \t#Add code here
             \tpass

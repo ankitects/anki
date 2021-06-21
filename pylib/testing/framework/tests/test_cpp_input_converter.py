@@ -94,3 +94,23 @@ class CppInputConverterTests(unittest.TestCase):
             }
             return result;
         ''', 'jute::jValue', 'map<string, Edge>'), converters[5])
+
+    def test_linked_list(self):
+        tree = SyntaxTree.of(['linked_list(string)'])
+        arg_converters, converters = self.converter.get_converters(tree)
+        self.assertEqual(1, len(arg_converters))
+        self.assertEqual(2, len(converters))
+        self.assertEqual(ConverterFn('', '''return value.as_string();''', 'jute::jValue', 'string'), converters[0])
+        self.assertEqual(ConverterFn('', '''
+            ListNode<string>* head = new ListNode<string>;
+            ListNode<string>* node = head;
+            for (int i = 0; i < value.size(); i++) {
+                ListNode<string>* nextNode = new ListNode<string>;
+                nextNode->next = NULL;
+                string obj = converter1(value[i]);
+                nextNode->data = obj;
+                node->next = nextNode;
+                node = nextNode;
+            }
+            return *head->next;
+        ''', 'jute::jValue', 'ListNode<string>'), converters[1])

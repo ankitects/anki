@@ -140,3 +140,22 @@ class PythonOutputConverter(TypeConverter):
             {% endfor %}
             \treturn result''', converters=converters)
         return ConverterFn(node.name, src, node.node_type, 'List')
+
+    def visit_linked_list(self, node: SyntaxTree, context):
+        """
+        Converts linked-list to a list
+        linked_list(string):
+        LinkedList<String>() { "a", "b", "c" } -> ["a", "b", "c"]
+        """
+        child = self.render(node.first_child(), context)
+        src = render_template('''
+            \tresult = []
+            \tn = value
+            \twhile n is not None:
+            \t\tresult.append({{child.fn_name}}(n.data))
+            \t\tn = n.next
+            \t
+            \treturn result''', child=child)
+
+        return ConverterFn(node.name, src, 'List[' + child.ret_type + ']', 'ListNode[' + child.ret_type + ']')
+

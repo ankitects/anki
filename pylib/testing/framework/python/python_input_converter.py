@@ -133,3 +133,24 @@ class PythonInputConverter(TypeConverter):
             converters=converters)
         src = render_template('\treturn {{type}}({{arg_list}})', arg_list=arg_list, type=node.node_type)
         return ConverterFn(node.name, src, 'List', node.node_type)
+
+    def visit_linked_list(self, node: SyntaxTree, context):
+        """
+        Creates linked-list, for every input element invokes inner type converter and puts it inside linked list
+        linked_list(string):
+        ["a", "b", "c"] -> LinkedList<String>() { "a", "b", "c" }
+        """
+
+        child: ConverterFn = self.render(node.first_child(), context)
+        src = render_template('''
+            \thead = ListNode(None)
+            \tnode = head
+            \tfor item in value:
+                \t\tnextNode = ListNode({{child.fn_name}}(item))
+                \t\tnode.next = nextNode
+                \t\tnode = nextNode
+            \treturn head.next
+        ''', child=child)
+
+        return ConverterFn(node.name, src, '', 'ListNode[' + child.ret_type + ']')
+

@@ -158,3 +158,21 @@ class JavaOutputConverter(TypeConverter):
             {% endfor %}
             return result;''', converters=converters)
         return ConverterFn(node.name, src, node.node_type, 'List')
+
+    def visit_linked_list(self, node: SyntaxTree, context):
+        """
+        Converts linked-list to a list
+        linked_list(string):
+        LinkedList<String>() { "a", "b", "c" } -> ["a", "b", "c"]
+        """
+        child = self.render(node.first_child(), context)
+        src = render_template('''
+            \tList<{{child.ret_type}}> result = new ArrayList<>();
+            \twhile (value != null) {
+            \t\tresult.add(value.data);
+            \t\tvalue = value.next;
+            \t}
+            \treturn result;''', child=child)
+
+        return ConverterFn(node.name, src, 'ListNode<' + child.ret_type + '>', 'List<' + child.ret_type + '>')
+

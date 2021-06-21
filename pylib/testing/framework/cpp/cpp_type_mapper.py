@@ -121,3 +121,22 @@ class CppTypeMapper(TypeMapper):
         :return: C++ void-type declaration
         """
         return 'void'
+
+    def visit_linked_list(self, node: SyntaxTree, context):
+        """
+        c++ mapping for linked list type
+        :param node: target syntax tree node
+        :param context: generation context
+        :return: c++ linked-list type declaration
+        """
+        child: SyntaxTree = node.first_child()
+        if node.node_type not in context:
+            context[node.node_type] = '''
+                template<class T>
+                struct ListNode {
+                public:
+                    \tT data;
+                    \tListNode<T>* next;
+                };
+            '''
+        return 'ListNode<' + self.render(child, context) + '>'

@@ -2,9 +2,10 @@ import unittest
 
 from testing.framework.cpp.cpp_type_mapper import CppTypeMapper
 from testing.framework.syntax.syntax_tree import SyntaxTree
+from testing.framework.tests.test_utils import GeneratorTestCase
 
 
-class CppTypeMapperTests(unittest.TestCase):
+class CppTypeMapperTests(GeneratorTestCase):
     def setUp(self) -> None:
         self.type_mapper = CppTypeMapper()
 
@@ -45,4 +46,18 @@ class CppTypeMapperTests(unittest.TestCase):
         self.assertEqual('a', args[0].name)
         self.assertEqual(1, len(type_defs.keys()))
         self.assertEqual('''\nstruct Edge {\n\tint a;\n\tint b;\n};\n''', type_defs['Edge'])
+
+    def test_linked_list(self):
+        tree = SyntaxTree.of(['linked_list(int)'])
+        args, type_defs = self.type_mapper.get_args(tree)
+        self.assertEqual(1, len(args))
+        self.assertEqual('ListNode<int>', args[0].type)
+        self.assertEqual(1, len(type_defs.keys()))
+        self.assertEqualsIgnoreWhiteSpaces('''
+            template<class T>
+            struct ListNode {
+            public:
+                T data;
+                ListNode<T>* next;
+            };''', type_defs['linked_list'])
 

@@ -37,11 +37,14 @@ class JsTypeMappingsGeneratorTests(GeneratorTestCase):
         self.assertEqual('Edge', args[0].type)
         self.assertEqual('a', args[0].name)
         self.assertEqual(1, len(type_defs.keys()))
-        self.assertEqual(textwrap.dedent('''
-            * @typedef Edge
-            * @property { number } a
-            * @property { number } b 
-        ''').strip(), type_defs['Edge'].strip())
+        self.assertEqualsIgnoreWhiteSpaces('''
+            class Edge {
+                constructor(a, b) {
+                    this.a = a
+                    this.b = b
+                }
+            } 
+        ''', type_defs['Edge'].strip())
 
     def test_object_list(self):
         tree = SyntaxTree.of(['list(object(int[a],int[b])<Edge>)[a]'])
@@ -50,17 +53,14 @@ class JsTypeMappingsGeneratorTests(GeneratorTestCase):
         self.assertEqual('Edge[]', args[0].type)
         self.assertEqual('a', args[0].name)
         self.assertEqual(1, len(type_defs.keys()))
-        self.assertEqual(textwrap.dedent('''
-            * @typedef Edge
-            * @property { number } a
-            * @property { number } b
-        ''').strip(), type_defs['Edge'].strip())
-
-    def test_array_of_integers(self):
-        tree = SyntaxTree.of(['array(array(int))[a]'])
-        args, type_defs = self.type_mapper.get_args(tree)
-        self.assertEqual(1, len(args))
-        self.assertEqual('number[][]', args[0].type)
+        self.assertEqualsIgnoreWhiteSpaces('''
+            class Edge {
+                constructor(a, b) {
+                    this.a = a
+                    this.b = b
+                }
+            }
+        ''', type_defs['Edge'])
 
     def test_map(self):
         tree = SyntaxTree.of(['map(string, list(object(int[a],int[b])<Edge>))[a]'])
@@ -69,10 +69,26 @@ class JsTypeMappingsGeneratorTests(GeneratorTestCase):
         self.assertEqual('Map.<string, Edge[]>', args[0].type)
         self.assertEqual('a', args[0].name)
         self.assertEqual(1, len(type_defs.keys()))
-        self.assertEqual(textwrap.dedent('''
-            * @typedef Edge
-            * @property { number } a
-            * @property { number } b
-        ''').strip(), type_defs['Edge'].strip())
+        self.assertEqualsIgnoreWhiteSpaces('''
+            class Edge {
+                constructor(a, b) {
+                    this.a = a
+                    this.b = b
+                }
+            }
+        ''', type_defs['Edge'])
 
-
+    def test_linked_list(self):
+        tree = SyntaxTree.of(['linked_list(int)'])
+        args, type_defs = self.type_mapper.get_args(tree)
+        self.assertEqual(1, len(args))
+        self.assertEqual('ListNode<number>', args[0].type)
+        self.assertEqual(1, len(type_defs.keys()))
+        self.assertEqualsIgnoreWhiteSpaces(textwrap.dedent('''
+            class ListNode {
+                constructor(data = null) {
+                    this.data = data
+                    this.next = null
+                }
+            }
+        ''').strip(), type_defs['linked_list'].strip())

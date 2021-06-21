@@ -150,3 +150,22 @@ class JsOutputConverter(TypeConverter):
                 \tresult.push({{converter.fn_name}}(value.{{converter.prop_name}}))
             {% endfor %}
             \treturn result''', converters=converters), '')
+
+    def visit_linked_list(self, node: SyntaxTree, context):
+        """
+        Converts linked-list to a list
+        linked_list(string):
+        LinkedList<String>() { "a", "b", "c" } -> ["a", "b", "c"]
+        """
+        child = self.render(node.first_child(), context)
+        src = render_template('''
+            \tresult = []
+            \tn = value
+            \twhile (n != null) {
+            \t\tresult.push({{child.fn_name}}(n.data))
+            \t\tn = n.next
+            \t}
+            \treturn result''', child=child)
+
+        return ConverterFn(node.name, src, '')
+

@@ -105,6 +105,9 @@ class SyntaxTree:
         elif self.node_type == 'list':
             validate_list(self)
             return visitor.visit_list(self, context)
+        elif self.node_type == 'linked_list':
+            validate_list(self)
+            return visitor.visit_linked_list(self, context)
         elif self.node_type == 'map':
             validate_map(self)
             return visitor.visit_map(self, context)
@@ -131,7 +134,7 @@ class SyntaxTree:
         Returns whether a node's type is of container type or not
         :return: if type is map or list - true, false otherwise
         """
-        return self.node_type in ['list', 'map']
+        return self.node_type in ['list', 'map', 'linked_list']
 
     def is_array_type(self) -> bool:
         """
@@ -290,6 +293,15 @@ class SyntaxTreeVisitor(ABC):
     def visit_obj(self, node: SyntaxTree, context):
         """
         This method is invoked then processing "object" type node
+        :param node: target node
+        :param context: related data item
+        """
+        pass
+
+    @abstractmethod
+    def visit_linked_list(self, node: SyntaxTree, context):
+        """
+        This method is invoked then processing "linked_list" type node
         :param node: target node
         :param context: related data item
         """

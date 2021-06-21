@@ -168,3 +168,23 @@ class CppOutputConverter(TypeConverter):
             \tresult.set_type(jute::JBOOLEAN);
             \tresult.set_string(value ? "true" : "false");
             \treturn result;''', 'double', 'jute::jValue')
+
+    def visit_linked_list(self, node: SyntaxTree, context):
+        """
+        Converts linked-list to a list
+        linked_list(string):
+        LinkedList<String>() { "a", "b", "c" } -> ["a", "b", "c"]
+        """
+        child = self.render(node.first_child(), context)
+        src = render_template('''
+            \tjute::jValue result;
+            \tresult.set_type(jute::JARRAY);
+            \tListNode<{{child.arg_type}}>* n = &value;
+            \twhile (n != NULL) {
+            \t\tresult.add_element({{child.fn_name}}(n->data));
+            \t\tn = n->next;
+            \t}
+            \treturn result;''', child=child)
+
+        return ConverterFn(node.name, src, 'ListNode<' + child.arg_type + '>', 'jute::jValue')
+

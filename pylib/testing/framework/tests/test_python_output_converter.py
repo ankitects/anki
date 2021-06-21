@@ -67,3 +67,19 @@ class PythonOutputConverterTests(unittest.TestCase):
                 result.append(converter1(k))
                 result.append(converter5(value[k]))
             return result''', 'Dict', 'List'), converters[5])
+
+    def test_linked_list(self):
+        tree = SyntaxTree.of(['linked_list(int)'])
+        arg_converters, converters = self.converter.get_converters(tree)
+        self.assertEqual(1, len(arg_converters))
+        self.assertEqual(2, len(converters))
+        self.assertEqual(ConverterFn('', 'return value', 'int', 'int'), converters[0])
+        self.assertEqual(ConverterFn('', '''
+            result = []
+            n = value
+            while n is not None:
+                result.append(converter1(n.data))
+                n = n.next
+            
+            return result
+        ''', 'List[int]', 'ListNode[int]'), converters[1])

@@ -65,3 +65,19 @@ class PythonInputConverterTests(unittest.TestCase):
             \t\texcept StopIteration:
             \t\t\tbreak
             \treturn result''', 'List', 'Dict[str, Edge]'.strip()), converters[5])
+
+    def test_linked_list(self):
+        tree = SyntaxTree.of(['linked_list(string)'])
+        arg_converters, converters = self.converter.get_converters(tree)
+        self.assertEqual(1, len(arg_converters))
+        self.assertEqual(2, len(converters))
+        self.assertEqual(ConverterFn('', '\treturn str(value)', '', 'str'), converters[0])
+        self.assertEqual(ConverterFn('', '''
+            head = ListNode(None)
+            node = head
+            for item in value:
+                nextNode = ListNode(converter1(item))
+                node.next = nextNode
+                node = nextNode
+            return head.next
+        ''', '', 'ListNode[str]'), converters[1])

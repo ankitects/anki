@@ -94,3 +94,21 @@ class JavaInputConverterTests(unittest.TestCase):
                 result.put(key, val);
             }
             return result;''', 'JsonNode', 'Map<String, Edge>'), converters[5])
+
+    def test_linked_list(self):
+        tree = SyntaxTree.of(['linked_list(string)'])
+        arg_converters, converters = self.converter.get_converters(tree)
+        self.assertEqual(1, len(arg_converters))
+        self.assertEqual(2, len(converters))
+        self.assertEqual(ConverterFn('', '''return value.asText();''', 'JsonNode', 'String'), converters[0])
+        self.assertEqual(ConverterFn('', '''
+            ListNode<String> head = new ListNode<>();
+            ListNode<String> node = head;
+            for (JsonNode n : value) {
+                ListNode<String> nextNode = new ListNode<>();
+                nextNode.data = converter1(n);
+                node.next = nextNode;
+                node = nextNode;
+            }
+            return head.next;
+        ''', 'JsonNode', 'ListNode<String>'), converters[1])

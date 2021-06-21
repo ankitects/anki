@@ -77,3 +77,18 @@ class JsOutputConverterTests(unittest.TestCase):
                 result.push(converter5(v));
             }
             return result''', ''), converters[5])
+
+    def test_linked_list(self):
+        tree = SyntaxTree.of(['linked_list(int)'])
+        arg_converters, converters = self.converter.get_converters(tree)
+        self.assertEqual(1, len(arg_converters))
+        self.assertEqual(2, len(converters))
+        self.assertEqual(ConverterFn('', 'return value', ''), converters[0])
+        self.assertEqual(ConverterFn('', '''
+            result = []
+            n = value
+            while (n != null) {
+                result.push(converter1(n.data))
+                n = n.next
+            }
+            return result''', ''), converters[1])

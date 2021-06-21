@@ -54,7 +54,7 @@ class CppInputConverter(TypeConverter):
         :param context: generation context
         :return: converter fn
         """
-        inner_converter = self.render(node.first_child(), context)
+        inner_converter: ConverterFn = self.render(node.first_child(), context)
         src = render_template('''
             \tvector<{{converter.ret_type}}> result;
             \tfor (int i = 0; i < value.size(); i++) {
@@ -136,3 +136,26 @@ class CppInputConverter(TypeConverter):
         :return: converter fn
         """
         return ConverterFn(node.name, 'return value.as_bool();', 'jute::jValue', 'bool')
+
+    def visit_linked_list(self, node: SyntaxTree, context):
+        """
+        Creates linked-list, for every input element invokes inner type converter and puts it inside linked list
+        linked_list(string):
+        ["a", "b", "c"] -> LinkedList<String>() { "a", "b", "c" }
+        """
+        child: ConverterFn = self.render(node.first_child(), context)
+        src = render_template('''
+            ListNode<{{child.ret_type}}>* head = new ListNode<{{child.ret_type}}>;
+            ListNode<{{child.ret_type}}>* node = head;
+            \tfor (int i = 0; i < value.size(); i++) {
+                \t\tListNode<{{child.ret_type}}>* nextNode = new ListNode<{{child.ret_type}}>;
+                \t\tnextNode->next = NULL;
+                \t\t{{child.ret_type}} obj = {{child.fn_name}}(value[i]);
+                \t\tnextNode->data = obj;
+                \t\tnode->next = nextNode;
+                \t\tnode = nextNode;
+            \t}
+            return *head->next;
+        ''', child=child)
+        return ConverterFn(node.name, src, 'jute::jValue', 'ListNode<' + child.ret_type + '>')
+

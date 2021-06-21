@@ -2,9 +2,10 @@ import unittest
 
 from testing.framework.java.java_type_mapper import JavaTypeMapper
 from testing.framework.syntax.syntax_tree import SyntaxTree
+from testing.framework.tests.test_utils import GeneratorTestCase
 
 
-class JavaTypeMapperTests(unittest.TestCase):
+class JavaTypeMapperTests(GeneratorTestCase):
     def setUp(self) -> None:
         self.type_mapper = JavaTypeMapper()
 
@@ -54,4 +55,16 @@ class JavaTypeMapperTests(unittest.TestCase):
         self.assertEqual('a', args[0].name)
         self.assertEqual(1, len(type_defs.keys()))
         self.assertEqual('''class Edge {\n\tint a;\n\tint b;\n}\n''', type_defs['Edge'])
+
+    def test_linked_list(self):
+        tree = SyntaxTree.of(['linked_list(int)'])
+        args, type_defs = self.type_mapper.get_args(tree)
+        self.assertEqual(1, len(args))
+        self.assertEqual('ListNode<Integer>', args[0].type)
+        self.assertEqual(1, len(type_defs.keys()))
+        self.assertEqualsIgnoreWhiteSpaces('''
+            class ListNode<T> {
+                public T data;
+                public ListNode<T> next;
+            }''', type_defs['linked_list'])
 

@@ -112,3 +112,22 @@ class PythonTypeMapper(TypeMapper):
                     {%for p in l %}\t\tself.{{p.name}} = {{p.name}}\n{% endfor %}
             ''', l=args, type_name=node.node_type)
         return node.node_type
+
+    def visit_linked_list(self, node: SyntaxTree, context):
+        """
+        Python mapping for linked list type
+        :param node: target syntax tree node
+        :param context: generation context
+        :return: Python linked-list type declaration
+        """
+        child: SyntaxTree = node.first_child()
+        if node.node_type not in context:
+            context[node.node_type] = '''
+                T = TypeVar('T')
+                
+                class ListNode(Generic[T]):
+                    \tdef __init__(self, data: Optional[Type[T]]=None):
+                        \t\tself.data = data
+                        \t\tself.next = None
+                '''
+        return 'ListNode[' + self.render(child, context) + ']'

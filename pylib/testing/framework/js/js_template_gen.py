@@ -31,8 +31,7 @@ class JsTemplateGenerator(TemplateGenerator):
             /**
             {% for line in description.split('\n') %}* {{line}}\n{% endfor %}*/
             {% if type_defs|length > 0 %}
-            /**
-            {% for type_def in type_defs %}{{type_def}}* \n{% endfor %}*/
+            {% for type_def in type_defs %}{{type_def}}\n{% endfor %}
             {% endif %}
             /**
             {% for arg in p %}* @param { {{arg.type}} } {{arg.name}}\n{% endfor %}* @return {{ t }}

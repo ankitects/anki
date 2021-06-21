@@ -139,3 +139,20 @@ class JavaTypeMapper(TypeMapper):
         :return: Java void-type declaration
         """
         return 'void'
+
+    def visit_linked_list(self, node: SyntaxTree, context):
+        """
+        Java mapping for linked list type
+        :param node: target syntax tree node
+        :param context: generation context
+        :return: Java linked-list type declaration
+        """
+        child: SyntaxTree = node.first_child()
+        if node.node_type not in context:
+            context[node.node_type] = '''
+                class ListNode<T> {
+                    \tpublic T data;
+                    \tpublic ListNode<T> next;
+                }
+            '''
+        return 'ListNode<' + self.render(child, context) + '>'

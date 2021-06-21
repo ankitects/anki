@@ -145,3 +145,26 @@ class JsInputConverter(TypeConverter):
             {% endfor %}
             \treturn result
             ''', converters=converters), '')
+
+    def visit_linked_list(self, node: SyntaxTree, context):
+        """
+        Creates linked-list, for every input element invokes inner type converter and puts it inside linked list
+        linked_list(string):
+        ["a", "b", "c"] -> LinkedList<String>() { "a", "b", "c" }
+        """
+
+        child: ConverterFn = self.render(node.first_child(), context)
+        src = render_template('''
+            \thead = new ListNode(null)
+            \tnode = head
+            \tfor (let item of value) {
+                \t\tnextNode = new ListNode()
+                \t\tnextNode.data = {{child.fn_name}}(item)
+                \t\tnode.next = nextNode
+                \t\tnode = nextNode
+            \t}
+            \treturn head.next
+        ''', child=child)
+
+        return ConverterFn(node.name, src, '')
+

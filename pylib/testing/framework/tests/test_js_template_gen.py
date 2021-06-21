@@ -41,21 +41,24 @@ class JsTemplateGeneratorTests(unittest.TestCase):
             * calculate sum of 2 objects
             */
 
-            /**
-            * @typedef TypeA
-            * @property { number } val
-            * 
-            * @typedef TypeB
-            * @property { number } val
-            * 
-            */
+            class TypeA {
+                constructor(val) {
+                    this.val = val
+                }
+            }
+
+            class TypeB {
+                constructor(val) {
+                    this.val = val
+                }
+            }
 
             /**
             * @param { TypeA } a
             * @param { TypeB } b
             * @return number
             */
-
+ 
             function sum(a, b) {
                 //Add code here
             }''').lstrip(), self.generator.get_template(tree, ts))

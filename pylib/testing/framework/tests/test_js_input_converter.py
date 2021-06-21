@@ -55,3 +55,20 @@ class JsInputConverterTests(unittest.TestCase):
             result['b'] = converter3(value[1])
             return result
         ''', ''), converters[3])
+
+    def test_linked_list(self):
+        tree = SyntaxTree.of(['linked_list(string)'])
+        arg_converters, converters = self.converter.get_converters(tree)
+        self.assertEqual(1, len(arg_converters))
+        self.assertEqual(2, len(converters))
+        self.assertEqual(ConverterFn('', '''return value''', ''), converters[0])
+        self.assertEqual(ConverterFn('', '''
+            head = new ListNode(null)
+            node = head
+            for (let item of value) {
+                nextNode = new ListNode()
+                nextNode.data = converter1(item)
+                node.next = nextNode
+                node = nextNode
+            }
+            return head.next''', ''), converters[1])

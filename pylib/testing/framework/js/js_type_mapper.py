@@ -105,7 +105,29 @@ class JsTypeMapper(TypeMapper):
         props, _ = self.get_args(node, context)
         if node.node_type not in context:
             context[node.node_type] = render_template('''
-                * @typedef {{type_name}}
-                {% for p in props %}* @property { {{p.type}} } {{p.name}}
-                {% endfor %}''', props=props, type_name=node.node_type)
+                class {{type_name}} {
+                    \tconstructor({% for p in props %} {{p.name}}{% if not loop.last %},{% endif %}{% endfor %}) {
+                    {% for p in props %}\t\tthis.{{p.name}} = {{p.name}}{% if not loop.last %}\n{% endif %}{% endfor %}
+                    \t}
+                }
+                ''', props=props, type_name=node.node_type)
         return node.node_type
+
+    def visit_linked_list(self, node: SyntaxTree, context):
+        """
+        JS mapping for linked list type
+        :param node: target syntax tree node
+        :param context: generation context
+        :return: JS linked-list type declaration
+        """
+        if node.node_type not in context:
+            context[node.node_type] = '''
+                class ListNode {
+                    \tconstructor(data = null) {
+                    \t\tthis.data = data
+                    \t\tthis.next = null
+                    \t}
+                }
+                '''
+        child: SyntaxTree = node.first_child()
+        return 'ListNode<' + self.render(child, context) + '>'
