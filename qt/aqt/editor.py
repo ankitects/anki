@@ -32,6 +32,7 @@ from anki.utils import checksum, isLin, isWin, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
 from aqt.operations import QueryOp
 from aqt.operations.note import update_note
+from aqt.operations.notetype import update_notetype_legacy
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.theme import theme_manager
@@ -393,9 +394,12 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             (type, num) = cmd.split(":", 1)
             ord = int(num)
 
-            fld = self.note.model()["flds"][ord]
+            model = self.note.model()
+            fld = model["flds"][ord]
             new_state = not fld["sticky"]
             fld["sticky"] = new_state
+
+            update_notetype_legacy(parent=self.mw, notetype=model).run_in_background()
 
             return new_state
 
