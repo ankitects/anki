@@ -37,13 +37,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<WithDropdownMenu let:createDropdown let:menuId>
-    <Badge class={className} on:mount={(event) => createDropdown(event.detail.span)}>
+<WithDropdownMenu
+    disabled={!modified}
+    let:createDropdown
+    let:activateDropdown
+    let:menuId
+>
+    <Badge
+        class={className}
+        on:mount={(event) => createDropdown(event.detail.span)}
+        on:click={activateDropdown}
+    >
         {@html gearIcon}
     </Badge>
 
     <DropdownMenu id={menuId}>
-        <DropdownItem on:click={revert}>
+        <DropdownItem
+            on:click={() => {
+                revert();
+                // Otherwise the menu won't close when the item is clicked
+                // TODO: investigate why this is necessary
+                activateDropdown();
+            }}
+        >
             {tr.deckConfigRevertButtonTooltip()}<Badge>{@html revertIcon}</Badge>
         </DropdownItem>
     </DropdownMenu>

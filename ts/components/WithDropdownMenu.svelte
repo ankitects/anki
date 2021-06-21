@@ -8,6 +8,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { setContext } from "svelte";
     import { dropdownKey } from "./contextKeys";
 
+    export let disabled = false;
+
     setContext(dropdownKey, {
         dropdown: true,
         "data-bs-toggle": "dropdown",
@@ -17,8 +19,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const menuId = Math.random().toString(36).substring(2);
     let dropdown: Dropdown;
 
-    function activateDropdown(_event: MouseEvent): void {
-        dropdown.toggle();
+    function activateDropdown(): void {
+        if (!disabled) {
+            dropdown.toggle();
+        }
     }
 
     /* Normally dropdown and trigger are associated with a
