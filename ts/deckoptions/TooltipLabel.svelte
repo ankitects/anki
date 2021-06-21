@@ -14,14 +14,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { forId as for };
 </script>
 
-<span
-    ><Label for={forId}><slot /></Label><WithTooltip
-        tooltip={marked(markdownTooltip)}
-        let:createTooltip
-        ><Badge
+<span>
+    <Label for={forId}><slot /></Label>
+    <WithTooltip tooltip={marked(markdownTooltip)} let:createTooltip>
+        <Badge
             class="opacity-50"
             on:mount={(event) => createTooltip(event.detail.span)}
-            >{@html infoCircle}</Badge
-        ></WithTooltip
-    ></span
->
+        >
+            {@html infoCircle}
+        </Badge>
+    </WithTooltip>
+</span>
