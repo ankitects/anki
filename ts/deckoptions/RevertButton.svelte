@@ -10,6 +10,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Badge from "./Badge.svelte";
     import { gearIcon, revertIcon } from "./icons";
     import { isEqual as isEqualLodash, cloneDeep } from "lodash-es";
+    import { touchDeviceKey } from "components/contextKeys";
+    import { getContext } from "svelte";
 
     type T = unknown;
 
@@ -32,6 +34,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: modified = !isEqual(value, defaultValue);
     $: className = !modified ? "opacity-25" : "";
 
+    const isTouchDevice = getContext<boolean>(touchDeviceKey);
+
     function revert(): void {
         value = cloneDeep(defaultValue);
     }
@@ -53,7 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <DropdownMenu id={menuId}>
         <DropdownItem
-            class="spinner"
+            class={`spinner ${isTouchDevice ? "spin-always" : ""}`}
             on:click={() => {
                 revert();
                 // Otherwise the menu won't close when the item is clicked
@@ -67,7 +71,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </WithDropdownMenu>
 
 <style lang="scss">
-    :global(.spinner:hover .badge) {
+    :global(.spinner:hover .badge, .spinner.spin-always .badge) {
         animation: spin-animation 1s infinite;
         animation-timing-function: linear;
     }
