@@ -43,7 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    .nightMode {
+    .nightMode:not(:checked) {
         background-color: var(--frame-bg);
         border-color: var(--border);
     }
