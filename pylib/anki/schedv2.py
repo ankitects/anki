@@ -1409,32 +1409,39 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
         # bury related sources
         from anki.utils import stripHTML
 
-        def _getSource(field, note):
-            try:
-                return note[field]
-            except KeyError:
-                pass
-
-        def getSource(card):
-            note = card.note()
-            source = _getSource("Source", note) or _getSource("source", note)
+        def getSource(note):
+            if note is None: return None
+            def tryGet(field):
+                if field in note:
+                    return note[field]
+                return None
+            source = tryGet("Source") or tryGet("source")
             return stripHTML(source) if source else None
 
-        firstsource = getSource(card)
+        # print(f'card.id {card.id}')
+        firstsource = getSource(card.note())
+        burySet = set(toBury)
 
-        if self._burySiblingsOnAnswer and firstsource:
-            for cid, queue in self.col.db.execute(
-                f"""
-select id, queue from cards where nid!=? and id!=?
-and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
-                card.nid,
-                card.id,
-                self.today,
-            ):
-                source = getSource(self.col.getCard(cid))
+        if self._burySiblingsOnAnswer and firstsource and len(firstsource) > 0:
+            if not hasattr( self, 'cardSourceIds'):
+                self.cardSourceIds = {}
+                for nid, flds in self.col.db.execute(f"select id, flds from notes"):
+                    note = self.col.getNote(nid)
+                    source = getSource(note)
+                    if source and len(source) > 0:
+                        card_ids = note.card_ids()
+                        if source in self.cardSourceIds:
+                            self.cardSourceIds[source].append((card_ids, flds))
+                        else:
+                            self.cardSourceIds[source] = [(card_ids, flds)]
 
-                if source and source == firstsource and len(firstsource) > 0:
-                    toBury.append(cid)
+            if firstsource in self.cardSourceIds:
+                for card_ids, flds in self.cardSourceIds[firstsource]:
+                    for cid in card_ids:
+                        if cid != card.id:
+                            # print(f"Burring source card '{cid}, {firstsource}' = '{flds}'")
+                            burySet.add(cid)
+        toBury = list(burySet)
 
         # then bury
         if toBury:
