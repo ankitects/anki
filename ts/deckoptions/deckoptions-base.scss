@@ -4,7 +4,6 @@ $tooltip-max-width: 300px;
 
 @use "ts/sass/vars";
 @use "ts/sass/scrollbar";
-@use "ts/sass/bootstrap-dark";
 
 @import "ts/sass/base";
 @import "ts/sass/bootstrap/containers";
@@ -22,7 +21,6 @@ $tooltip-max-width: 300px;
 
 .night-mode {
     @include scrollbar.night-mode;
-    @include bootstrap-dark.night-mode;
 }
 
 .form-control,
