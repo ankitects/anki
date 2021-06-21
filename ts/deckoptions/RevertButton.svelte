@@ -44,7 +44,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let:menuId
 >
     <Badge
-        class={className}
+        class={`p-1 ${className}`}
         on:mount={(event) => createDropdown(event.detail.span)}
         on:click={activateDropdown}
     >
@@ -53,6 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <DropdownMenu id={menuId}>
         <DropdownItem
+            class="spinner"
             on:click={() => {
                 revert();
                 // Otherwise the menu won't close when the item is clicked
@@ -64,3 +65,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </DropdownItem>
     </DropdownMenu>
 </WithDropdownMenu>
+
+<style lang="scss">
+    :global(.spinner:hover .badge) {
+        animation: spin-animation 1s infinite;
+        animation-timing-function: linear;
+    }
+
+    @keyframes -global-spin-animation {
+        0% {
+            transform: rotate(360deg);
+        }
+        100% {
+            transform: rotate(0deg);
+        }
+    }
+</style>
