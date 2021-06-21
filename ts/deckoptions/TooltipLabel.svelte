@@ -12,8 +12,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let markdownTooltip: string;
 </script>
 
-<WithTooltip tooltip={marked(markdownTooltip)} let:createTooltip>
-    <Label on:mount={(event) => createTooltip(event.detail.span)}
-        ><slot /><Badge>{@html infoCircle}</Badge>
-    </Label>
-</WithTooltip>
+<Label
+    ><slot /><WithTooltip tooltip={marked(markdownTooltip)} let:createTooltip
+        ><Badge on:mount={(event) => createTooltip(event.detail.span)}
+            >{@html infoCircle}</Badge
+        ></WithTooltip
+    ></Label
+>
