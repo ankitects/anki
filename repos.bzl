@@ -66,11 +66,11 @@ def register_repos():
     maybe(
         http_archive,
         name = "com_github_ali5h_rules_pip",
-        strip_prefix = "rules_pip-anki-2020-11-30",
+        strip_prefix = "rules_pip-fb02cb7bf5c03bc8cd4269679e4aea2e1839b501",
         urls = [
-            "https://github.com/ankitects/rules_pip/archive/anki-2020-11-30.tar.gz",
+            "https://github.com/ali5h/rules_pip/archive/fb02cb7bf5c03bc8cd4269679e4aea2e1839b501.zip",
         ],
-        sha256 = "ab4f10967eb87985383a4172d4533dde568b3ff502aa550239eeccead249325b",
+        sha256 = "34195cd437d34a7490276665225de353421e31e34c048715b66918e31d735ff6",
     )
 
     # javascript
