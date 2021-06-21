@@ -34,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 />
 
 <style lang="scss">
-    @use "ts/sass/night-mode" as nightmode;
+    @use "ts/sass/night_mode" as nightmode;
 
     .nightMode {
         @include nightmode.input;
