@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import StickyBar from "components/StickyBar.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
-    import ButtonToolbarItem from "components/ButtonToolbarItem.svelte";
+    import Item from "components/Item.svelte";
     import ButtonGroup from "components/ButtonGroup.svelte";
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";
 
@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <StickyBar>
     <ButtonToolbar class="justify-content-between" size={2.3} wrap={false}>
-        <ButtonToolbarItem>
+        <Item>
             <ButtonGroup class="flex-grow-1">
                 <ButtonGroupItem>
                     <SelectButton class="flex-grow-1" on:change={blur}>
@@ -42,10 +42,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </SelectButton>
                 </ButtonGroupItem>
             </ButtonGroup>
-        </ButtonToolbarItem>
+        </Item>
 
-        <ButtonToolbarItem>
+        <Item>
             <SaveButton {state} />
-        </ButtonToolbarItem>
+        </Item>
     </ButtonToolbar>
 </StickyBar>

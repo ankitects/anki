@@ -38,6 +38,7 @@ copy_bootstrap_icons(
     icons = [
         "arrow-counterclockwise.svg",
         "info-circle.svg",
+        "gear.svg",
     ],
 )
 
@@ -133,6 +134,7 @@ svelte_check(
         "*.svelte",
     ]) + [
         "//ts/sass:button_mixins_lib",
+        "//ts/sass:night_mode_lib",
         "//ts/sass/bootstrap",
         "@npm//@types/bootstrap",
         "@npm//@types/lodash-es",
