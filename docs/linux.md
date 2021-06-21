@@ -81,6 +81,10 @@ This will build Anki and run it in place.
 The first build will take a while, as it downloads and builds a bunch of
 dependencies. When the build is complete, Anki will automatically start.
 
+The Javascript build code is currently a bit flaky, so the initial
+build may fail with an error. If you get an error when running/building,
+try repeating the command once or twice - it should pick up where it left off.
+
 To play and record audio, install mpv and lame.
 
 If you or your distro has made ccache the standard compiler, you will need to
