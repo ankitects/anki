@@ -155,17 +155,6 @@ cache build products and downloads:
 build --disk_cache=~/bazel/ankidisk --repository_cache=~/bazel/ankirepo
 ```
 
-If you're frequently modifying the Rust parts of Anki, you can place the
-following in your user.bazelrc file to enable incremental compilation
-when using ./run.
-
-```
-build --@rules_rust//:experimental_incremental_base=/home/myuser/bazel/incremental
-```
-
-The worker support is experimental, so you may need to remove it in future
-updates.
-
 ## Python editing
 
 PyCharm or IntelliJ IDEA seems to give the best Python editing experience. Make sure
