@@ -4,11 +4,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "lib/i18n";
-    import { getContext } from "svelte";
-    import WithTooltip from "./WithTooltip.svelte";
+    import WithDropdownMenu from "components/WithDropdownMenu.svelte";
+    import DropdownMenu from "components/DropdownMenu.svelte";
+    import DropdownItem from "components/DropdownItem.svelte";
     import Badge from "./Badge.svelte";
-    import { revertIcon } from "./icons";
-    import { touchDeviceKey } from "components/contextKeys";
+    import { gearIcon, revertIcon } from "./icons";
     import { isEqual as isEqualLodash, cloneDeep } from "lodash-es";
 
     type T = unknown;
@@ -30,28 +30,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let modified: boolean;
     $: modified = !isEqual(value, defaultValue);
+    $: className = !modified ? "opacity-25" : "";
 
     function revert(): void {
         value = cloneDeep(defaultValue);
     }
-
-    const touchDevice = getContext<boolean>(touchDeviceKey);
 </script>
 
-<span class:invisible={!modified}>
-    {#if touchDevice}
-        <Badge class="px-1" on:click={revert}>{@html revertIcon}</Badge>
-    {:else}
-        <WithTooltip
-            trigger="hover"
-            tooltip={tr.deckConfigRevertButtonTooltip()}
-            let:createTooltip
-        >
-            <Badge
-                class="px-1"
-                on:mount={(event) => createTooltip(event.detail.span)}
-                on:click={revert}>{@html revertIcon}</Badge
-            >
-        </WithTooltip>
-    {/if}
-</span>
+<WithDropdownMenu let:createDropdown let:menuId>
+    <Badge class={className} on:mount={(event) => createDropdown(event.detail.span)}>
+        {@html gearIcon}
+    </Badge>
+
+    <DropdownMenu id={menuId}>
+        <DropdownItem on:click={revert}>
+            {tr.deckConfigRevertButtonTooltip()}<Badge>{@html revertIcon}</Badge>
+        </DropdownItem>
+    </DropdownMenu>
+</WithDropdownMenu>

@@ -69,7 +69,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <ButtonGroupItem>
         <WithDropdownMenu let:createDropdown let:activateDropdown let:menuId>
-            <LabelButton on:mount={createDropdown} on:click={activateDropdown} />
+            <LabelButton
+                on:mount={(event) => createDropdown(event.detail.button)}
+                on:click={activateDropdown}
+            />
             <DropdownMenu id={menuId}>
                 <DropdownItem on:click={() => dispatch("add")}
                     >{tr.deckConfigAddGroup()}</DropdownItem

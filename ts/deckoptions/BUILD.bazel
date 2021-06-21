@@ -38,6 +38,7 @@ copy_bootstrap_icons(
     icons = [
         "arrow-counterclockwise.svg",
         "info-circle.svg",
+        "gear.svg",
     ],
 )
 

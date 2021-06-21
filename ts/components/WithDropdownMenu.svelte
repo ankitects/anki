@@ -23,20 +23,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     /* Normally dropdown and trigger are associated with a
     /* common ancestor with .dropdown class */
-    function createDropdown(event: CustomEvent): void {
-        const button: HTMLButtonElement = event.detail.button;
-
+    function createDropdown(element: HTMLElement): void {
         /* Prevent focus on menu activation */
         const noop = () => {};
-        Object.defineProperty(button, "focus", { value: noop });
+        Object.defineProperty(element, "focus", { value: noop });
 
-        const menu = (button.getRootNode() as Document) /* or shadow root */
+        const menu = (element.getRootNode() as Document) /* or shadow root */
             .getElementById(menuId);
 
         if (!menu) {
             console.log(`Could not find menu "${menuId}" for dropdown menu.`);
         } else {
-            dropdown = new Dropdown(button);
+            dropdown = new Dropdown(element);
 
             /* Set custom menu without using common element with .dropdown */
             (dropdown as any)._menu = menu;
