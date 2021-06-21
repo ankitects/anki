@@ -5,6 +5,9 @@
 <script lang="ts">
     import { onMount, createEventDispatcher } from "svelte";
 
+    let forId: string;
+    export { forId as for };
+
     const dispatch = createEventDispatcher();
 
     let spanRef: HTMLSpanElement;
@@ -14,4 +17,4 @@
     });
 </script>
 
-<span bind:this={spanRef}><slot /></span>
+<label bind:this={spanRef} for={forId}><slot /></label>
