@@ -18,7 +18,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ><Label for={forId}><slot /></Label><WithTooltip
         tooltip={marked(markdownTooltip)}
         let:createTooltip
-        ><Badge on:mount={(event) => createTooltip(event.detail.span)}
+        ><Badge
+            class="opacity-50"
+            on:mount={(event) => createTooltip(event.detail.span)}
             >{@html infoCircle}</Badge
         ></WithTooltip
     ></span
