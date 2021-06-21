@@ -3,15 +3,17 @@
 
 mod generated;
 
+use std::{
+    borrow::Cow,
+    sync::{Arc, Mutex},
+};
+
 use fluent::{types::FluentNumber, FluentArgs, FluentResource, FluentValue};
 use fluent_bundle::bundle::FluentBundle as FluentBundleOrig;
+use generated::{KEYS_BY_MODULE, STRINGS};
 use num_format::Locale;
 use serde::Serialize;
-use std::borrow::Cow;
-use std::sync::{Arc, Mutex};
 use unic_langid::LanguageIdentifier;
-
-use generated::{KEYS_BY_MODULE, STRINGS};
 
 type FluentBundle<T> = FluentBundleOrig<T, intl_memoizer::concurrent::IntlLangMemoizer>;
 
@@ -26,10 +28,7 @@ impl Number for u64 {}
 impl Number for usize {}
 
 fn remapped_lang_name(lang: &LanguageIdentifier) -> &str {
-    let region = match &lang.region {
-        Some(region) => Some(region.as_str()),
-        None => None,
-    };
+    let region = lang.region.as_ref().map(|v| v.as_str());
     match lang.language.as_str() {
         "en" => {
             match region {
@@ -425,13 +424,14 @@ pub struct ResourcesForJavascript {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use unic_langid::langid;
+
+    use super::*;
 
     #[test]
     fn numbers() {
-        assert_eq!(want_comma_as_decimal_separator(&[langid!("en-US")]), false);
-        assert_eq!(want_comma_as_decimal_separator(&[langid!("pl-PL")]), true);
+        assert!(!want_comma_as_decimal_separator(&[langid!("en-US")]));
+        assert!(want_comma_as_decimal_separator(&[langid!("pl-PL")]));
     }
 
     #[test]

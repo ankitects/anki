@@ -56,7 +56,7 @@ impl TemplateMap {
             .collect();
 
         let removed: Vec<_> = (0..old_template_count)
-            .filter(|idx| !seen.contains(&idx))
+            .filter(|idx| !seen.contains(idx))
             .collect();
 
         TemplateMap { removed, remapped }

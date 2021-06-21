@@ -82,35 +82,35 @@ mod test {
         let key = BoolKey::NormalizeNoteText;
 
         // not set by default, but defaults to true
-        assert_eq!(col.get_config_bool(key), true);
+        assert!(col.get_config_bool(key));
 
         // first set adds the key
         col.transact(op.clone(), |col| col.set_config_bool_inner(key, false))?;
-        assert_eq!(col.get_config_bool(key), false);
+        assert!(!col.get_config_bool(key));
 
         // mutate it twice
         col.transact(op.clone(), |col| col.set_config_bool_inner(key, true))?;
-        assert_eq!(col.get_config_bool(key), true);
+        assert!(col.get_config_bool(key));
         col.transact(op.clone(), |col| col.set_config_bool_inner(key, false))?;
-        assert_eq!(col.get_config_bool(key), false);
+        assert!(!col.get_config_bool(key));
 
         // when we remove it, it goes back to its default
         col.transact(op, |col| col.remove_config_inner(key))?;
-        assert_eq!(col.get_config_bool(key), true);
+        assert!(col.get_config_bool(key));
 
         // undo the removal
         col.undo()?;
-        assert_eq!(col.get_config_bool(key), false);
+        assert!(!col.get_config_bool(key));
 
         // undo the mutations
         col.undo()?;
-        assert_eq!(col.get_config_bool(key), true);
+        assert!(col.get_config_bool(key));
         col.undo()?;
-        assert_eq!(col.get_config_bool(key), false);
+        assert!(!col.get_config_bool(key));
 
         // and undo the initial add
         col.undo()?;
-        assert_eq!(col.get_config_bool(key), true);
+        assert!(col.get_config_bool(key));
 
         Ok(())
     }

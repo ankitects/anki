@@ -114,7 +114,7 @@ where
             };
 
             // make sure the filename is normalized
-            let fname = match filename_if_normalized(&disk_fname) {
+            let fname = match filename_if_normalized(disk_fname) {
                 Some(fname) => fname,
                 None => {
                     // not normalized; skip it

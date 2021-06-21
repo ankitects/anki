@@ -58,7 +58,7 @@ impl CardGenContext<'_> {
         CardGenContext {
             usn,
             last_deck,
-            notetype: &nt,
+            notetype: nt,
             cards: nt
                 .templates
                 .iter()
@@ -82,7 +82,7 @@ impl CardGenContext<'_> {
             }
         };
 
-        template.renders_with_fields(&nonempty_fields)
+        template.renders_with_fields(nonempty_fields)
     }
 
     /// Returns the cards that need to be generated for the provided note.
@@ -239,7 +239,7 @@ impl Collection {
         target_deck_id: Option<DeckId>,
         cache: &mut CardGenCache,
     ) -> Result<()> {
-        let cards = ctx.new_cards_required(note, &existing, true);
+        let cards = ctx.new_cards_required(note, existing, true);
         if cards.is_empty() {
             return Ok(());
         }
@@ -337,13 +337,9 @@ impl Collection {
 
     /// If deck exists and and is a normal deck, return its ID and config
     fn deck_conf_if_normal(&mut self, did: DeckId) -> Result<Option<(DeckId, DeckConfigId)>> {
-        Ok(self.get_deck(did)?.and_then(|d| {
-            if let Some(conf_id) = d.config_id() {
-                Some((did, conf_id))
-            } else {
-                None
-            }
-        }))
+        Ok(self
+            .get_deck(did)?
+            .and_then(|d| d.config_id().map(|conf_id| (did, conf_id))))
     }
 }
 

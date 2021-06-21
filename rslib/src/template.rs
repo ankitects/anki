@@ -656,7 +656,7 @@ impl ParsedTemplate {
     /// Given a map of old to new field names, update references to the new names.
     /// Returns true if any changes made.
     pub(crate) fn rename_and_remove_fields(&mut self, fields: &HashMap<String, Option<String>>) {
-        let old_nodes = std::mem::replace(&mut self.0, vec![]);
+        let old_nodes = std::mem::take(&mut self.0);
         self.0 = rename_and_remove_fields(old_nodes, fields);
     }
 }
@@ -746,12 +746,12 @@ fn nodes_to_string(buf: &mut String, nodes: &[ParsedNode]) {
             }
             ParsedNode::Conditional { key, children } => {
                 write!(buf, "{{{{#{}}}}}", key).unwrap();
-                nodes_to_string(buf, &children);
+                nodes_to_string(buf, children);
                 write!(buf, "{{{{/{}}}}}", key).unwrap();
             }
             ParsedNode::NegatedConditional { key, children } => {
                 write!(buf, "{{{{^{}}}}}", key).unwrap();
-                nodes_to_string(buf, &children);
+                nodes_to_string(buf, children);
                 write!(buf, "{{{{/{}}}}}", key).unwrap();
             }
         }
@@ -794,10 +794,10 @@ fn find_fields_with_filter<'a>(
                 }
             }
             ParsedNode::Conditional { children, .. } => {
-                find_fields_with_filter(&children, fields, filter);
+                find_fields_with_filter(children, fields, filter);
             }
             ParsedNode::NegatedConditional { children, .. } => {
-                find_fields_with_filter(&children, fields, filter);
+                find_fields_with_filter(children, fields, filter);
             }
         }
     }
@@ -819,13 +819,13 @@ mod test {
 
     #[test]
     fn field_empty() {
-        assert_eq!(field_is_empty(""), true);
-        assert_eq!(field_is_empty(" "), true);
-        assert_eq!(field_is_empty("x"), false);
-        assert_eq!(field_is_empty("<BR>"), true);
-        assert_eq!(field_is_empty("<div />"), true);
-        assert_eq!(field_is_empty(" <div> <br> </div>\n"), true);
-        assert_eq!(field_is_empty(" <div>x</div>\n"), false);
+        assert!(field_is_empty(""));
+        assert!(field_is_empty(" "));
+        assert!(!field_is_empty("x"));
+        assert!(field_is_empty("<BR>"));
+        assert!(field_is_empty("<div />"));
+        assert!(field_is_empty(" <div> <br> </div>\n"));
+        assert!(!field_is_empty(" <div>x</div>\n"));
     }
 
     #[test]
@@ -891,17 +891,17 @@ mod test {
     fn nonempty() {
         let fields = vec!["1", "3"].into_iter().collect();
         let mut tmpl = PT::from_text("{{2}}{{1}}").unwrap();
-        assert_eq!(tmpl.renders_with_fields(&fields), true);
+        assert!(tmpl.renders_with_fields(&fields));
         tmpl = PT::from_text("{{2}}").unwrap();
-        assert_eq!(tmpl.renders_with_fields(&fields), false);
+        assert!(!tmpl.renders_with_fields(&fields));
         tmpl = PT::from_text("{{2}}{{4}}").unwrap();
-        assert_eq!(tmpl.renders_with_fields(&fields), false);
+        assert!(!tmpl.renders_with_fields(&fields));
         tmpl = PT::from_text("{{#3}}{{^2}}{{1}}{{/2}}{{/3}}").unwrap();
-        assert_eq!(tmpl.renders_with_fields(&fields), true);
+        assert!(tmpl.renders_with_fields(&fields));
 
         tmpl = PT::from_text("{{^1}}{{3}}{{/1}}").unwrap();
-        assert_eq!(tmpl.renders_with_fields(&fields), false);
-        assert_eq!(tmpl.renders_with_fields_for_reqs(&fields), true);
+        assert!(!tmpl.renders_with_fields(&fields));
+        assert!(tmpl.renders_with_fields_for_reqs(&fields));
     }
 
     #[test]

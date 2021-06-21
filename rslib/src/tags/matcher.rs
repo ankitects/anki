@@ -131,17 +131,17 @@ mod test {
     #[test]
     fn regex() -> Result<()> {
         let re = TagMatcher::new("one two")?;
-        assert_eq!(re.is_match(" foo "), false);
-        assert_eq!(re.is_match(" foo one "), true);
-        assert_eq!(re.is_match(" two foo "), true);
+        assert!(!re.is_match(" foo "));
+        assert!(re.is_match(" foo one "));
+        assert!(re.is_match(" two foo "));
 
         let mut re = TagMatcher::new("foo")?;
-        assert_eq!(re.is_match("foo"), true);
-        assert_eq!(re.is_match(" foo "), true);
-        assert_eq!(re.is_match(" bar foo baz "), true);
-        assert_eq!(re.is_match(" bar FOO baz "), true);
-        assert_eq!(re.is_match(" bar foof baz "), false);
-        assert_eq!(re.is_match(" barfoo "), false);
+        assert!(re.is_match("foo"));
+        assert!(re.is_match(" foo "));
+        assert!(re.is_match(" bar foo baz "));
+        assert!(re.is_match(" bar FOO baz "));
+        assert!(!re.is_match(" bar foof baz "));
+        assert!(!re.is_match(" barfoo "));
 
         let mut as_xxx = |text| re.replace(text, "xxx");
 

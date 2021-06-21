@@ -48,7 +48,7 @@ impl TemplateOrdChanges {
             }
         }
 
-        changes.removed = removed.into_iter().filter_map(|v| v).collect();
+        changes.removed = removed.into_iter().flatten().collect();
 
         changes
     }
@@ -83,11 +83,10 @@ impl Collection {
                         false,
                     )?;
                 }
-                return Ok(());
             } else {
                 // nothing to do
-                return Ok(());
             }
+            return Ok(());
         }
 
         // fields have changed
@@ -192,11 +191,11 @@ mod test {
 
     #[test]
     fn ord_changes() {
-        assert_eq!(ords_changed(&[Some(0), Some(1)], 2), false);
-        assert_eq!(ords_changed(&[Some(0), Some(1)], 1), true);
-        assert_eq!(ords_changed(&[Some(1), Some(0)], 2), true);
-        assert_eq!(ords_changed(&[None, Some(1)], 2), true);
-        assert_eq!(ords_changed(&[Some(0), Some(1), None], 2), true);
+        assert!(!ords_changed(&[Some(0), Some(1)], 2));
+        assert!(ords_changed(&[Some(0), Some(1)], 1));
+        assert!(ords_changed(&[Some(1), Some(0)], 2));
+        assert!(ords_changed(&[None, Some(1)], 2));
+        assert!(ords_changed(&[Some(0), Some(1), None], 2));
     }
 
     #[test]

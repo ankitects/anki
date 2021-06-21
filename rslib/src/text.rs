@@ -359,7 +359,7 @@ pub(crate) fn to_custom_re<'a>(txt: &'a str, wildcard: &str) -> Cow<'a, str> {
     lazy_static! {
         static ref RE: Regex = Regex::new(r"\\?.").unwrap();
     }
-    RE.replace_all(&txt, |caps: &Captures| {
+    RE.replace_all(txt, |caps: &Captures| {
         let s = &caps[0];
         match s {
             r"\\" | r"\*" => s.to_string(),
@@ -377,7 +377,7 @@ pub(crate) fn to_sql(txt: &str) -> Cow<str> {
     lazy_static! {
         static ref RE: Regex = Regex::new(r"\\[\\*]|[*%]").unwrap();
     }
-    RE.replace_all(&txt, |caps: &Captures| {
+    RE.replace_all(txt, |caps: &Captures| {
         let s = &caps[0];
         match s {
             r"\\" => r"\\",
@@ -394,7 +394,7 @@ pub(crate) fn to_text(txt: &str) -> Cow<str> {
     lazy_static! {
         static ref RE: Regex = Regex::new(r"\\(.)").unwrap();
     }
-    RE.replace_all(&txt, "$1")
+    RE.replace_all(txt, "$1")
 }
 
 /// Escape Anki wildcards and the backslash for escaping them: \*_
@@ -402,7 +402,7 @@ pub(crate) fn escape_anki_wildcards(txt: &str) -> String {
     lazy_static! {
         static ref RE: Regex = Regex::new(r"[\\*_]").unwrap();
     }
-    RE.replace_all(&txt, r"\$0").into()
+    RE.replace_all(txt, r"\$0").into()
 }
 
 /// Escape Anki wildcards unless it's _*

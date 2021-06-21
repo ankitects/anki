@@ -229,17 +229,14 @@ mod test {
             removed_config_ids: vec![],
             apply_to_children: false,
         };
-        assert_eq!(
-            col.update_deck_configs(input.clone())?.changes.had_change(),
-            false
-        );
+        assert!(!col.update_deck_configs(input.clone())?.changes.had_change());
 
         // modifying a value should update the config, but not the deck
         input.configs[0].inner.new_per_day += 1;
         let changes = col.update_deck_configs(input.clone())?.changes.changes;
-        assert_eq!(changes.deck, false);
-        assert_eq!(changes.deck_config, true);
-        assert_eq!(changes.card, false);
+        assert!(!changes.deck);
+        assert!(changes.deck_config);
+        assert!(!changes.card);
 
         // adding a new config will update the deck as well
         let new_config = DeckConfig {
@@ -248,9 +245,9 @@ mod test {
         };
         input.configs.push(new_config);
         let changes = col.update_deck_configs(input.clone())?.changes.changes;
-        assert_eq!(changes.deck, true);
-        assert_eq!(changes.deck_config, true);
-        assert_eq!(changes.card, false);
+        assert!(changes.deck);
+        assert!(changes.deck_config);
+        assert!(!changes.card);
         let allocated_id = col.get_deck(DeckId(1))?.unwrap().normal()?.config_id;
         assert_ne!(allocated_id, 0);
         assert_ne!(allocated_id, 1);
@@ -260,10 +257,7 @@ mod test {
         reset_card1_pos(&mut col);
         assert_eq!(card1_pos(&mut col), 0);
         input.configs[1].inner.new_card_insert_order = NewCardInsertOrder::Random as i32;
-        assert_eq!(
-            col.update_deck_configs(input.clone())?.changes.changes.card,
-            true
-        );
+        assert!(col.update_deck_configs(input.clone())?.changes.changes.card);
         assert_ne!(card1_pos(&mut col), 0);
 
         // removing the config will assign the selected config (default in this case),
