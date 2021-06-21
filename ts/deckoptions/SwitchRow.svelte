@@ -13,15 +13,18 @@
     export let value: boolean;
     export let defaultValue: boolean;
     export let markdownTooltip: string | undefined = undefined;
+
+    const id = Math.random().toString(36).substring(2);
 </script>
 
 <Row>
     <Col>
-        {#if markdownTooltip}<TooltipLabel {markdownTooltip}><slot /></TooltipLabel
-            >{:else}<Label><slot /></Label>{/if}
+        {#if markdownTooltip}<TooltipLabel for={id} {markdownTooltip}
+                ><slot /></TooltipLabel
+            >{:else}<Label for={id}><slot /></Label>{/if}
     </Col>
     <Col grow={false}>
-        <Switch bind:value />
+        <Switch {id} bind:value />
         <RevertButton bind:value {defaultValue} />
     </Col>
 </Row>

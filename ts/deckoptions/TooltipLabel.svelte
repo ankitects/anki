@@ -10,12 +10,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Badge from "./Badge.svelte";
 
     export let markdownTooltip: string;
+    let forId: string;
+    export { forId as for };
 </script>
 
-<Label
-    ><slot /><WithTooltip tooltip={marked(markdownTooltip)} let:createTooltip
+<span
+    ><Label for={forId}><slot /></Label><WithTooltip
+        tooltip={marked(markdownTooltip)}
+        let:createTooltip
         ><Badge on:mount={(event) => createTooltip(event.detail.span)}
             >{@html infoCircle}</Badge
         ></WithTooltip
-    ></Label
+    ></span
 >
