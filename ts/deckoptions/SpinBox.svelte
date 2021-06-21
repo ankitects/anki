@@ -3,15 +3,14 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import ConfigEntry from "./ConfigEntry.svelte";
+    import { getContext } from "svelte";
+    import { nightModeKey } from "components/contextKeys";
 
-    export let label: string;
-    export let tooltip: string;
     export let value: number;
     export let min = 1;
     export let max = 9999;
-    export let warnings: string[] = [];
-    export let defaultValue: number = 0;
+
+    const nightMode = getContext<boolean>(nightModeKey);
 
     function checkMinMax() {
         if (value > max) {
@@ -22,13 +21,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<ConfigEntry {label} {tooltip} {warnings} bind:value {defaultValue}>
-    <input
-        type="number"
-        {min}
-        {max}
-        bind:value
-        class="form-control"
-        on:blur={checkMinMax}
-    />
-</ConfigEntry>
+<input
+    type="number"
+    pattern="[0-9]*"
+    inputmode="numeric"
+    {min}
+    {max}
+    bind:value
+    class="form-control"
+    class:nightMode
+    on:blur={checkMinMax}
+/>
+
+<style lang="scss">
+    @use "ts/sass/night_mode" as nightmode;
+
+    .nightMode {
+        @include nightmode.input;
+    }
+</style>

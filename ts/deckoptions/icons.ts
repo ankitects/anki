@@ -3,7 +3,6 @@
 
 // Import icons from bootstrap
 
-import revertIcon from "./arrow-counterclockwise.svg";
-import infoCircle from "./info-circle.svg";
-
-export { revertIcon, infoCircle };
+export { default as revertIcon } from "./arrow-counterclockwise.svg";
+export { default as infoCircle } from "./info-circle.svg";
+export { default as gearIcon } from "./gear.svg";

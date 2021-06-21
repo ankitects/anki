@@ -1,13 +1,18 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
-License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+    Copyright: Ankitects Pty Ltd and contributors
+    License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "lib/i18n";
-    import SpinBox from "./SpinBox.svelte";
+    import TitledContainer from "./TitledContainer.svelte";
+    import Item from "components/Item.svelte";
+    import SpinBoxRow from "./SpinBoxRow.svelte";
+    import Warning from "./Warning.svelte";
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;
+    export let api: Record<string, never>;
+
     let config = state.currentConfig;
     let defaults = state.defaults;
     let parentLimits = state.parentLimits;
@@ -33,22 +38,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             : "";
 </script>
 
-<h2>{tr.deckConfigDailyLimits()}</h2>
+<TitledContainer title={tr.deckConfigDailyLimits()} {api}>
+    <Item>
+        <SpinBoxRow
+            bind:value={$config.newPerDay}
+            defaultValue={defaults.newPerDay}
+            markdownTooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
+        >
+            {tr.schedulingNewCardsday()}
+        </SpinBoxRow>
 
-<SpinBox
-    label={tr.schedulingNewCardsday()}
-    tooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
-    min={0}
-    warnings={[newCardsGreaterThanParent]}
-    defaultValue={defaults.newPerDay}
-    bind:value={$config.newPerDay}
-/>
+        <Warning warning={newCardsGreaterThanParent} />
+    </Item>
 
-<SpinBox
-    label={tr.schedulingMaximumReviewsday()}
-    tooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
-    min={0}
-    warnings={[reviewsTooLow]}
-    defaultValue={defaults.reviewsPerDay}
-    bind:value={$config.reviewsPerDay}
-/>
+    <Item>
+        <SpinBoxRow
+            bind:value={$config.reviewsPerDay}
+            defaultValue={defaults.reviewsPerDay}
+            markdownTooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
+        >
+            {tr.schedulingMaximumReviewsday()}
+        </SpinBoxRow>
+
+        <Warning warning={reviewsTooLow} />
+    </Item>
+</TitledContainer>

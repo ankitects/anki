@@ -35,6 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="{className} form-select"
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
+    class:visible-down-arrow={nightMode}
     title={tooltip}
     on:change
 >
@@ -48,6 +49,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         height: var(--buttons-size);
         /* Long option name can create overflow */
         overflow-x: hidden;
+    }
+
+    .visible-down-arrow {
+        /* override the default down arrow */
+        background-image: button.down-arrow(white);
     }
 
     @include button.btn-day($with-hover: false);

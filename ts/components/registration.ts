@@ -1,10 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import type { SvelteComponentTyped } from "svelte/internal";
-import type { Readable } from "svelte/store";
+import type { Writable, Readable } from "svelte/store";
 import { writable } from "svelte/store";
 import type { Identifier } from "./identifier";
-import { find } from "./identifier";
+import { findElement } from "./identifier";
 
 export interface SvelteComponent {
     component: SvelteComponentTyped;
@@ -12,9 +12,13 @@ export interface SvelteComponent {
     props: Record<string, unknown> | undefined;
 }
 
-export type Register<T> = (index?: number, registration?: T) => T;
+export interface Registration {
+    detach: Writable<boolean>;
+}
 
-export interface RegistrationAPI<T> {
+export type Register<T extends Registration> = (index?: number, registration?: T) => T;
+
+export interface RegistrationAPI<T extends Registration> {
     registerComponent: Register<T>;
     items: Readable<T[]>;
     dynamicItems: Readable<[SvelteComponent, T][]>;
@@ -36,7 +40,9 @@ export function nodeIsElement(node: Node): node is Element {
     return node.nodeType === Node.ELEMENT_NODE;
 }
 
-export function makeInterface<T>(makeRegistration: () => T): RegistrationAPI<T> {
+export function makeInterface<T extends Registration>(
+    makeRegistration: () => T
+): RegistrationAPI<T> {
     const registrations: T[] = [];
     const items = writable(registrations);
 
@@ -92,7 +98,7 @@ export function makeInterface<T>(makeRegistration: () => T): RegistrationAPI<T> 
             update: (registration: T) => void,
             position: Identifier
         ): void {
-            const match = find(elementRef.children, position);
+            const match = findElement(elementRef.children, position);
 
             if (match) {
                 const [index] = match;

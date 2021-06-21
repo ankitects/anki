@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "lib/i18n";
     import TitledContainer from "./TitledContainer.svelte";
     import Item from "components/Item.svelte";
+    import SpinBoxRow from "./SpinBoxRow.svelte";
     import SwitchRow from "./SwitchRow.svelte";
     import type { DeckOptionsState } from "./lib";
 
@@ -16,24 +17,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let defaults = state.defaults;
 </script>
 
-<TitledContainer title={tr.deckConfigBuryTitle()} {api}>
+<TitledContainer title={tr.deckConfigTimerTitle()} {api}>
     <Item>
-        <SwitchRow
-            bind:value={$config.buryNew}
-            defaultValue={defaults.buryNew}
-            markdownTooltip={tr.deckConfigBuryTooltip()}
+        <SpinBoxRow
+            bind:value={$config.capAnswerTimeToSecs}
+            defaultValue={defaults.capAnswerTimeToSecs}
+            min={30}
+            max={600}
+            markdownTooltip={tr.deckConfigMaximumAnswerSecsTooltip()}
         >
-            {tr.deckConfigBuryNewSiblings()}
-        </SwitchRow>
+            {tr.deckConfigMaximumAnswerSecs()}
+        </SpinBoxRow>
     </Item>
 
     <Item>
         <SwitchRow
-            bind:value={$config.buryReviews}
-            defaultValue={defaults.buryReviews}
-            markdownTooltip={tr.deckConfigBuryTooltip()}
+            bind:value={$config.showTimer}
+            defaultValue={defaults.showTimer}
+            markdownTooltip={tr.deckConfigShowAnswerTimerTooltip()}
         >
-            {tr.deckConfigBuryReviewSiblings()}
+            {tr.schedulingShowAnswerTimer()}
         </SwitchRow>
     </Item>
 </TitledContainer>

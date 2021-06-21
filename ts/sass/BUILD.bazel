@@ -53,6 +53,14 @@ sass_library(
     visibility = ["//visibility:public"],
 )
 
+sass_library(
+    name = "night_mode_lib",
+    srcs = [
+        "night_mode.scss",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 exports_files(
     ["_vars.scss"],
     visibility = ["//visibility:public"],

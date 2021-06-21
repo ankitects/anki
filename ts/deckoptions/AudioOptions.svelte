@@ -16,24 +16,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let defaults = state.defaults;
 </script>
 
-<TitledContainer title={tr.deckConfigBuryTitle()} {api}>
+<TitledContainer title={tr.deckConfigAudioTitle()} {api}>
     <Item>
         <SwitchRow
-            bind:value={$config.buryNew}
-            defaultValue={defaults.buryNew}
-            markdownTooltip={tr.deckConfigBuryTooltip()}
+            bind:value={$config.disableAutoplay}
+            defaultValue={defaults.disableAutoplay}
         >
-            {tr.deckConfigBuryNewSiblings()}
+            {tr.deckConfigDisableAutoplay()}
         </SwitchRow>
     </Item>
 
     <Item>
         <SwitchRow
-            bind:value={$config.buryReviews}
-            defaultValue={defaults.buryReviews}
-            markdownTooltip={tr.deckConfigBuryTooltip()}
+            bind:value={$config.skipQuestionWhenReplayingAnswer}
+            defaultValue={defaults.skipQuestionWhenReplayingAnswer}
+            markdownTooltip={tr.deckConfigAlwaysIncludeQuestionAudioTooltip()}
         >
-            {tr.deckConfigBuryReviewSiblings()}
+            {tr.schedulingAlwaysIncludeQuestionSideWhenReplaying()}
         </SwitchRow>
     </Item>
 </TitledContainer>
