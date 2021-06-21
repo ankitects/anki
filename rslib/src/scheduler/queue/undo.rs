@@ -147,12 +147,12 @@ mod test {
 
             let note = col.storage.get_note(nid)?.unwrap();
             assert_eq!(note.tags, vec!["leech".to_string()]);
-            assert_eq!(col.storage.all_tags()?.is_empty(), false);
+            assert!(!col.storage.all_tags()?.is_empty());
 
             let deck = col.get_deck(DeckId(1))?.unwrap();
             assert_eq!(deck.common.review_studied, 1);
 
-            assert_eq!(col.get_next_card()?.is_some(), false);
+            assert!(!col.get_next_card()?.is_some());
 
             Ok(())
         };
@@ -172,12 +172,12 @@ mod test {
 
             // the note should no longer be tagged as a leech
             let note = col.storage.get_note(nid)?.unwrap();
-            assert_eq!(note.tags.is_empty(), true);
-            assert_eq!(col.storage.all_tags()?.is_empty(), true);
+            assert!(note.tags.is_empty());
+            assert!(col.storage.all_tags()?.is_empty());
 
             let deck = col.get_deck(DeckId(1))?.unwrap();
             assert_eq!(deck.common.review_studied, 0);
-            assert_eq!(col.get_next_card()?.is_some(), true);
+            assert!(col.get_next_card()?.is_some());
             assert_eq!(col.counts(), [0, 0, 1]);
 
             Ok(())

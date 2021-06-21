@@ -36,7 +36,7 @@ impl Collection {
 
     fn update_tag_inner(&mut self, tag: &mut Tag, original: Tag, usn: Usn) -> Result<()> {
         tag.set_modified(usn);
-        self.update_tag_undoable(&tag, original)
+        self.update_tag_undoable(tag, original)
     }
 }
 

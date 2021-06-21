@@ -260,7 +260,7 @@ impl Collection {
                     CardGenContext::new(&nt, self.get_last_deck_added_to_for_notetype(nt.id), usn)
                 });
                 self.update_note_inner_generating_cards(
-                    &ctx, &mut note, &original, false, norm, true,
+                    ctx, &mut note, &original, false, norm, true,
                 )?;
             }
         }
@@ -480,11 +480,9 @@ mod test {
                 ..Default::default()
             }
         );
-        assert_eq!(
-            col.storage
-                .db_scalar::<bool>("select ivl = lastIvl = 1 from revlog")?,
-            true
-        );
+        assert!(col
+            .storage
+            .db_scalar::<bool>("select ivl = lastIvl = 1 from revlog")?);
 
         Ok(())
     }
@@ -625,8 +623,8 @@ mod test {
 
         col.check_database(progress_fn)?;
 
-        assert_eq!(col.storage.get_tag("one")?.unwrap().expanded, true);
-        assert_eq!(col.storage.get_tag("two")?.unwrap().expanded, false);
+        assert!(col.storage.get_tag("one")?.unwrap().expanded);
+        assert!(!col.storage.get_tag("two")?.unwrap().expanded);
 
         Ok(())
     }

@@ -99,7 +99,7 @@ impl Default for Notetype {
 
 impl Notetype {
     pub fn new_note(&self) -> Note {
-        Note::new(&self)
+        Note::new(self)
     }
 
     /// Return the template for the given card ordinal. Cloze notetypes
@@ -200,7 +200,7 @@ impl Collection {
             return Err(AnkiError::NotFound);
         }
 
-        let nids_node: Node = SearchNode::NoteIds(comma_separated_ids(&note_ids)).into();
+        let nids_node: Node = SearchNode::NoteIds(comma_separated_ids(note_ids)).into();
         let note1 = self
             .storage
             .get_note(*note_ids.first().unwrap())?
@@ -663,7 +663,7 @@ impl Collection {
             // adding with existing id for old undo code, bypass undo
             self.state.notetype_cache.remove(&notetype.id);
             self.storage
-                .add_or_update_notetype_with_existing_id(&notetype)?;
+                .add_or_update_notetype_with_existing_id(notetype)?;
         }
 
         Ok(())

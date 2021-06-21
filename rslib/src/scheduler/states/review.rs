@@ -237,30 +237,30 @@ mod test {
 
     #[test]
     fn leech_threshold() {
-        assert_eq!(leech_threshold_met(0, 3), false);
-        assert_eq!(leech_threshold_met(1, 3), false);
-        assert_eq!(leech_threshold_met(2, 3), false);
-        assert_eq!(leech_threshold_met(3, 3), true);
-        assert_eq!(leech_threshold_met(4, 3), false);
-        assert_eq!(leech_threshold_met(5, 3), true);
-        assert_eq!(leech_threshold_met(6, 3), false);
-        assert_eq!(leech_threshold_met(7, 3), true);
+        assert!(!leech_threshold_met(0, 3));
+        assert!(!leech_threshold_met(1, 3));
+        assert!(!leech_threshold_met(2, 3));
+        assert!(leech_threshold_met(3, 3));
+        assert!(!leech_threshold_met(4, 3));
+        assert!(leech_threshold_met(5, 3));
+        assert!(!leech_threshold_met(6, 3));
+        assert!(leech_threshold_met(7, 3));
 
-        assert_eq!(leech_threshold_met(7, 8), false);
-        assert_eq!(leech_threshold_met(8, 8), true);
-        assert_eq!(leech_threshold_met(9, 8), false);
-        assert_eq!(leech_threshold_met(10, 8), false);
-        assert_eq!(leech_threshold_met(11, 8), false);
-        assert_eq!(leech_threshold_met(12, 8), true);
-        assert_eq!(leech_threshold_met(13, 8), false);
+        assert!(!leech_threshold_met(7, 8));
+        assert!(leech_threshold_met(8, 8));
+        assert!(!leech_threshold_met(9, 8));
+        assert!(!leech_threshold_met(10, 8));
+        assert!(!leech_threshold_met(11, 8));
+        assert!(leech_threshold_met(12, 8));
+        assert!(!leech_threshold_met(13, 8));
 
         // 0 means off
-        assert_eq!(leech_threshold_met(0, 0), false);
+        assert!(!leech_threshold_met(0, 0));
 
         // no div by zero; half of 1 is 1
-        assert_eq!(leech_threshold_met(0, 1), false);
-        assert_eq!(leech_threshold_met(1, 1), true);
-        assert_eq!(leech_threshold_met(2, 1), true);
-        assert_eq!(leech_threshold_met(3, 1), true);
+        assert!(!leech_threshold_met(0, 1));
+        assert!(leech_threshold_met(1, 1));
+        assert!(leech_threshold_met(2, 1));
+        assert!(leech_threshold_met(3, 1));
     }
 }

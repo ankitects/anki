@@ -109,8 +109,8 @@ mod test {
 
         col.set_tag_collapsed("one", false)?;
         col.clear_unused_tags()?;
-        assert_eq!(col.storage.get_tag("one")?.unwrap().expanded, true);
-        assert_eq!(col.storage.get_tag("two")?.unwrap().expanded, false);
+        assert!(col.storage.get_tag("one")?.unwrap().expanded);
+        assert!(!col.storage.get_tag("two")?.unwrap().expanded);
 
         // tag children are also cleared when clearing their parent
         col.storage.clear_all_tags()?;

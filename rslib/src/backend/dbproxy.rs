@@ -50,7 +50,7 @@ impl ToSql for SqlValue {
             SqlValue::String(v) => ValueRef::Text(v.as_bytes()),
             SqlValue::Int(v) => ValueRef::Integer(*v),
             SqlValue::Double(v) => ValueRef::Real(*v),
-            SqlValue::Blob(v) => ValueRef::Blob(&v),
+            SqlValue::Blob(v) => ValueRef::Blob(v),
         };
         Ok(ToSqlOutput::Borrowed(val))
     }

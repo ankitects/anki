@@ -36,8 +36,8 @@ impl CardRenderingService for Backend {
                         field_text,
                         lang,
                         voices,
-                        other_args,
                         speed,
+                        other_args,
                     })),
                 },
             })

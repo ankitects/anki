@@ -150,8 +150,8 @@ impl Card {
     pub fn new(note_id: NoteId, template_idx: u16, deck_id: DeckId, due: i32) -> Self {
         Card {
             note_id,
-            template_idx,
             deck_id,
+            template_idx,
             due,
             ..Default::default()
         }

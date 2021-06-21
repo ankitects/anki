@@ -21,7 +21,7 @@ impl ReschedulingFilterState {
     }
 
     pub(crate) fn next_states(self, ctx: &StateContext) -> NextCardStates {
-        let normal = self.original_state.next_states(&ctx);
+        let normal = self.original_state.next_states(ctx);
         if ctx.in_filtered_deck {
             NextCardStates {
                 current: self.into(),

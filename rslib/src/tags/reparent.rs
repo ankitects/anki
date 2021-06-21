@@ -82,12 +82,8 @@ fn old_to_new_names(
         .iter()
         // generate resulting names and filter out invalid ones
         .flat_map(|source_tag| {
-            if let Some(output_name) = reparented_name(source_tag, new_parent.as_deref()) {
-                Some((source_tag.as_str(), output_name))
-            } else {
-                // invalid rename, ignore this tag
-                None
-            }
+            reparented_name(source_tag, new_parent.as_deref())
+                .map(|output_name| (source_tag.as_str(), output_name))
         })
         .collect()
 }

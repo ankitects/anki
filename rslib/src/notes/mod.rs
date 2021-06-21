@@ -135,7 +135,7 @@ impl Note {
         }
     }
 
-    #[allow(clippy::clippy::too_many_arguments)]
+    #[allow(clippy::too_many_arguments)]
     pub(crate) fn new_from_storage(
         id: NoteId,
         guid: String,
@@ -323,7 +323,7 @@ fn invalid_char_for_field(c: char) -> bool {
 impl Collection {
     fn canonify_note_tags(&mut self, note: &mut Note, usn: Usn) -> Result<()> {
         if !note.tags.is_empty() {
-            let tags = std::mem::replace(&mut note.tags, vec![]);
+            let tags = std::mem::take(&mut note.tags);
             note.tags = self.canonify_tags(tags, usn)?.0;
         }
         Ok(())
@@ -337,7 +337,7 @@ impl Collection {
         normalize_text: bool,
     ) -> Result<()> {
         self.canonify_note_tags(note, ctx.usn)?;
-        note.prepare_for_update(&ctx.notetype, normalize_text)?;
+        note.prepare_for_update(ctx.notetype, normalize_text)?;
         note.set_modified(ctx.usn);
         self.add_note_only_undoable(note)?;
         self.generate_cards_for_new_note(ctx, note, did)?;
@@ -415,7 +415,7 @@ impl Collection {
     }
 
     // TODO: refactor into struct
-    #[allow(clippy::clippy::too_many_arguments)]
+    #[allow(clippy::too_many_arguments)]
     pub(crate) fn update_note_inner_without_cards(
         &mut self,
         note: &mut Note,
@@ -504,7 +504,7 @@ impl Collection {
                         )
                     });
                     self.update_note_inner_generating_cards(
-                        &ctx,
+                        ctx,
                         &mut note,
                         &original,
                         out.mark_modified,
@@ -559,7 +559,7 @@ impl Collection {
     }
 
     fn is_duplicate(&self, first_field: &str, note: &Note) -> Result<bool> {
-        let csum = field_checksum(&first_field);
+        let csum = field_checksum(first_field);
         Ok(self
             .storage
             .note_fields_by_checksum(note.notetype_id, csum)?
@@ -735,7 +735,7 @@ mod test {
                 col.storage.db_scalar::<u32>("select count() from graves")?,
                 0
             );
-            assert_eq!(col.get_next_card()?.is_some(), false);
+            assert!(!col.get_next_card()?.is_some());
             Ok(())
         };
 
@@ -746,7 +746,7 @@ mod test {
                 col.storage.db_scalar::<u32>("select count() from graves")?,
                 0
             );
-            assert_eq!(col.get_next_card()?.is_some(), true);
+            assert!(col.get_next_card()?.is_some());
             Ok(())
         };
 
@@ -774,7 +774,7 @@ mod test {
                 col.storage.db_scalar::<u32>("select count() from graves")?,
                 3
             );
-            assert_eq!(col.get_next_card()?.is_some(), false);
+            assert!(!col.get_next_card()?.is_some());
             Ok(())
         };
 

@@ -99,8 +99,8 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Pr
                 .to_string();
                 pb::progress::Value::DatabaseCheck(pb::progress::DatabaseCheck {
                     stage,
-                    stage_current,
                     stage_total,
+                    stage_current,
                 })
             }
         }

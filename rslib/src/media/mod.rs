@@ -106,7 +106,7 @@ impl MediaManager {
     {
         let pre_remove_folder_mtime = mtime_as_i64(&self.media_folder)?;
 
-        remove_files(&self.media_folder, &filenames)?;
+        remove_files(&self.media_folder, filenames)?;
 
         let post_remove_folder_mtime = mtime_as_i64(&self.media_folder)?;
 

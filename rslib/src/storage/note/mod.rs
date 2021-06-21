@@ -51,7 +51,7 @@ impl super::SqliteStorage {
             note.mtime,
             note.usn,
             join_tags(&note.tags),
-            join_fields(&note.fields()),
+            join_fields(note.fields()),
             note.sort_field.as_ref().unwrap(),
             note.checksum.unwrap(),
             note.id
@@ -69,7 +69,7 @@ impl super::SqliteStorage {
             note.mtime,
             note.usn,
             join_tags(&note.tags),
-            join_fields(&note.fields()),
+            join_fields(note.fields()),
             note.sort_field.as_ref().unwrap(),
             note.checksum.unwrap(),
         ])?;
@@ -87,7 +87,7 @@ impl super::SqliteStorage {
             note.mtime,
             note.usn,
             join_tags(&note.tags),
-            join_fields(&note.fields()),
+            join_fields(note.fields()),
             note.sort_field.as_ref().unwrap(),
             note.checksum.unwrap(),
         ])?;

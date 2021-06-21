@@ -49,8 +49,8 @@ impl CardState {
 
     pub(crate) fn next_states(self, ctx: &StateContext) -> NextCardStates {
         match self {
-            CardState::Normal(state) => state.next_states(&ctx),
-            CardState::Filtered(state) => state.next_states(&ctx),
+            CardState::Normal(state) => state.next_states(ctx),
+            CardState::Filtered(state) => state.next_states(ctx),
         }
     }
 

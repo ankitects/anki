@@ -428,7 +428,7 @@ mod test {
         syncer.set_full_sync_progress_fn(Some(Box::new(|progress, _throttle| {
             println!("progress {:?}", progress);
         })));
-        syncer.full_upload(&out_path.path(), false).await?;
+        syncer.full_upload(out_path.path(), false).await?;
 
         Ok(())
     }
