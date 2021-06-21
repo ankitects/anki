@@ -24,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </select>
 
 <style lang="scss">
-    @use "ts/sass/night-mode" as nightmode;
+    @use "ts/sass/night_mode" as nightmode;
     @use "ts/sass/button_mixins" as button;
 
     .nightMode {
