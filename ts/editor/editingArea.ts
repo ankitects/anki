@@ -17,6 +17,32 @@ function onCutOrCopy(): void {
     bridgeCommand("cutOrCopy");
 }
 
+const clozeTagPattern = /<anki-cloze *(?:card="(\d+)")?>(.*?)<\/anki-cloze>/gsu;
+
+function toClozeDelimiters(html: string): string {
+    const replaced = html.replace(
+        clozeTagPattern,
+        (_match: string, cardNumber: string | undefined, text: string) => {
+            return `{{c${cardNumber ?? 1}::${text}}}`;
+        }
+    );
+
+    return replaced;
+}
+
+const clozeDelimiterPattern = /\{\{c(\d+)::(.*?)\}\}/gsu;
+
+function toClozeTags(html: string): string {
+    const replaced = html.replace(
+        clozeDelimiterPattern,
+        (_match: string, cardNumber: string, text: string) => {
+            return `<anki-cloze card="${cardNumber}">${text}</anki-cloze>`;
+        }
+    );
+
+    return replaced;
+}
+
 export class EditingArea extends HTMLDivElement {
     editable: Editable;
     codable: Codable;
@@ -56,11 +82,11 @@ export class EditingArea extends HTMLDivElement {
     }
 
     set fieldHTML(content: string) {
-        this.activeInput.fieldHTML = content;
+        this.activeInput.fieldHTML = toClozeTags(content);
     }
 
     get fieldHTML(): string {
-        return this.activeInput.fieldHTML;
+        return toClozeDelimiters(this.activeInput.fieldHTML);
     }
 
     connectedCallback(): void {
@@ -92,7 +118,7 @@ export class EditingArea extends HTMLDivElement {
 
     initialize(color: string, content: string): void {
         this.setBaseColor(color);
-        this.editable.fieldHTML = content;
+        this.fieldHTML = content;
     }
 
     setBaseColor(color: string): void {
@@ -151,11 +177,11 @@ export class EditingArea extends HTMLDivElement {
         const hadFocus = this.hasFocus();
 
         if (this.codable.active) {
-            this.fieldHTML = this.codable.teardown();
+            this.editable.fieldHTML = this.codable.teardown();
             this.editable.hidden = false;
         } else {
             this.editable.hidden = true;
-            this.codable.setup(this.fieldHTML);
+            this.codable.setup(this.editable.fieldHTML);
         }
 
         if (hadFocus) {

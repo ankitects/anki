@@ -157,6 +157,14 @@ export class Cloze extends HTMLElement {
         return ["card"];
     }
 
+    attributeChangedCallback(name: string, _oldValue: string, newValue: string): void {
+        switch (name) {
+            case "card":
+                this.input.value = newValue;
+                break;
+        }
+    }
+
     connectedCallback(): void {
         this.decorate();
         this.observe();
@@ -168,14 +176,6 @@ export class Cloze extends HTMLElement {
         this.disconnect();
 
         this.input.removeEventListener("change", this.updateCardValue);
-    }
-
-    attributeChangedCallback(name: string, _oldValue: string, newValue: string): void {
-        switch (name) {
-            case "card":
-                this.input.value = newValue;
-                break;
-        }
     }
 
     updateCardValue(): void {
