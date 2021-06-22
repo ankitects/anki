@@ -8,9 +8,17 @@ function autoresizeInput(input: HTMLInputElement) {
     }
 }
 
-function noEmpty(input: HTMLInputElement) {
+function validateInput(input: HTMLInputElement) {
     if (input.value.length === 0) {
         input.value = "1";
+    } else {
+        const numeric = Number(input.value);
+
+        if (isNaN(numeric) || numeric < 1) {
+            input.value = "1";
+        } else if (numeric > 499) {
+            input.value = "499";
+        }
     }
 }
 
@@ -46,7 +54,7 @@ export class ClozeNumberInput extends HTMLInputElement {
     }
 
     onChange(): void {
-        noEmpty(this);
+        validateInput(this);
     }
 
     onInput(): void {
@@ -68,13 +76,21 @@ customElements.define("anki-cloze-number-input", ClozeNumberInput, {
     extends: "input",
 });
 
+const observationConfig = { childList: true };
+
 export class Cloze extends HTMLElement {
+    root: ShadowRoot | Document = document;
+    observer: MutationObserver;
+
     input: ClozeNumberInput;
     open: HTMLSpanElement;
     close: HTMLSpanElement;
 
+    restoreInput = false;
+
     constructor() {
         super();
+
         this.open = document.createElement("span");
         this.open.setAttribute("contenteditable", "false");
 
@@ -95,7 +111,10 @@ export class Cloze extends HTMLElement {
 
         this.decorate();
 
+        this.removeOnDelimiterDeletion = this.removeOnDelimiterDeletion.bind(this);
         this.updateCardValue = this.updateCardValue.bind(this);
+
+        this.observer = new MutationObserver(this.removeOnDelimiterDeletion);
     }
 
     static get observedAttributes() {
@@ -103,11 +122,13 @@ export class Cloze extends HTMLElement {
     }
 
     connectedCallback(): void {
-        const event = new CustomEvent('newcloze', {
+        this.root = this.getRootNode() as ShadowRoot;
+        const event = new CustomEvent("newcloze", {
             bubbles: true,
-            detail: { cloze: this },
         });
         this.dispatchEvent(event);
+
+        this.observe();
 
         this.input.addEventListener("change", this.updateCardValue);
     }
@@ -128,13 +149,52 @@ export class Cloze extends HTMLElement {
         this.setAttribute("card", this.input.value);
     }
 
-    cleanup(): void {
-        this.removeChild(this.open);
-        this.removeChild(this.close);
-    }
-
     decorate(): void {
         this.prepend(this.open);
         this.append(this.close);
+
+        if (this.restoreInput) {
+            this.input.focus();
+        }
+    }
+
+    cleanup(): void {
+        this.restoreInput = this.root.activeElement === this.input;
+
+        if (this.restoreInput) {
+            this.parentElement!.focus();
+        }
+
+        this.disconnect();
+        this.removeChild(this.open);
+        this.removeChild(this.close);
+        this.observe();
+    }
+
+    observe(): void {
+        this.observer.observe(this, observationConfig);
+    }
+
+    disconnect(): void {
+        this.observer.disconnect();
+    }
+
+    removeOnDelimiterDeletion(mutations: MutationRecord[]): void {
+        for (const mutation of mutations) {
+            if (
+                Array.prototype.includes.call(mutation.removedNodes, this.open) ||
+                Array.prototype.includes.call(mutation.removedNodes, this.close)
+            ) {
+                const parent = this.parentElement!;
+                const event = new CustomEvent("removecloze", {
+                    bubbles: true,
+                });
+                this.dispatchEvent(event);
+                this.replaceWith(...Array.prototype.slice.call(this.childNodes, 1, -1));
+                parent.normalize();
+
+                return;
+            }
+        }
     }
 }

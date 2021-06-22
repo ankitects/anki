@@ -45,9 +45,10 @@ export class Editable extends HTMLElement {
             cloze.cleanup();
         }
 
-        const result = containsInlineContent(this) && this.innerHTML.endsWith("<br>")
-            ? this.innerHTML.slice(0, -4) // trim trailing <br>
-            : this.innerHTML;
+        const result =
+            containsInlineContent(this) && this.innerHTML.endsWith("<br>")
+                ? this.innerHTML.slice(0, -4) // trim trailing <br>
+                : this.innerHTML;
 
         for (const cloze of this.containedClozes) {
             cloze.decorate();
@@ -59,10 +60,12 @@ export class Editable extends HTMLElement {
     connectedCallback(): void {
         this.setAttribute("contenteditable", "");
         this.addEventListener("newcloze", this.onNewCloze);
+        this.addEventListener("removecloze", this.onRemoveCloze);
     }
 
     disconnectedCallback(): void {
         this.removeEventListener("newcloze", this.onNewCloze);
+        this.removeEventListener("removecloze", this.onRemoveCloze);
     }
 
     focus(): void {
@@ -95,5 +98,12 @@ export class Editable extends HTMLElement {
 
     onNewCloze(event: Event): void {
         this.containedClozes.push(event.target as Cloze);
+    }
+
+    onRemoveCloze(event: Event): void {
+        this.containedClozes.splice(
+            this.containedClozes.indexOf(event.target as Cloze),
+            1
+        );
     }
 }
