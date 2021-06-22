@@ -42,6 +42,7 @@ export class ClozeNumberInput extends HTMLInputElement {
     constructor() {
         super();
         this.type = "number";
+        this.tabIndex = -1;
         this.min = "1";
         this.max = "499";
 
@@ -78,38 +79,29 @@ customElements.define("anki-cloze-number-input", ClozeNumberInput, {
 
 const observationConfig = { childList: true };
 
+function getLastPossiblePosition(node: Node): [Node, number] {
+    switch (node.nodeType) {
+        case Node.ELEMENT_NODE:
+            return node.lastChild ? getLastPossiblePosition(node.lastChild) : [node, 0];
+        case Node.COMMENT_NODE:
+        case Node.TEXT_NODE:
+        default:
+            return [node, node.textContent?.length || 0];
+    }
+}
+
 export class Cloze extends HTMLElement {
-    root: ShadowRoot | Document = document;
     observer: MutationObserver;
 
     input: ClozeNumberInput;
     open: HTMLSpanElement;
     close: HTMLSpanElement;
 
-    restoreInput = false;
-
     constructor() {
         super();
-
-        this.open = document.createElement("span");
-        this.open.setAttribute("contenteditable", "false");
-
-        const prefix = document.createTextNode("{{c");
-        this.open.append(prefix);
-
-        this.input = document.createElement("input", {
-            is: "anki-cloze-number-input",
-        }) as ClozeNumberInput;
-        this.open.append(this.input);
-
-        const infix = document.createTextNode("::");
-        this.open.appendChild(infix);
-
-        this.close = document.createElement("span");
-        this.close.textContent = "}}";
-        this.close.setAttribute("contenteditable", "false");
-
-        this.decorate();
+        this.open = this.constructOpen();
+        this.input = this.open.children[0] as ClozeNumberInput;
+        this.close = this.constructClose();
 
         this.removeOnDelimiterDeletion = this.removeOnDelimiterDeletion.bind(this);
         this.updateCardValue = this.updateCardValue.bind(this);
@@ -117,23 +109,64 @@ export class Cloze extends HTMLElement {
         this.observer = new MutationObserver(this.removeOnDelimiterDeletion);
     }
 
+    constructOpen(): HTMLSpanElement {
+        const alreadyOpen = this.querySelector(
+            '[data-cloze="open"]'
+        ) as HTMLSpanElement;
+
+        if (alreadyOpen) {
+            return alreadyOpen;
+        }
+
+        const open = document.createElement("span");
+        open.setAttribute("contenteditable", "false");
+        open.dataset.cloze = "open";
+
+        const prefix = document.createTextNode("{{c");
+        open.append(prefix);
+
+        const input = document.createElement("input", {
+            is: "anki-cloze-number-input",
+        }) as ClozeNumberInput;
+        open.append(input);
+
+        const infix = document.createTextNode("::");
+        open.appendChild(infix);
+
+        return open;
+    }
+
+    constructClose(): HTMLSpanElement {
+        const alreadyClose = this.querySelector(
+            '[data-cloze="close"]'
+        ) as HTMLSpanElement;
+
+        if (alreadyClose) {
+            return alreadyClose;
+        }
+
+        const close = document.createElement("span");
+        close.textContent = "}}";
+        close.setAttribute("contenteditable", "false");
+        close.dataset.cloze = "close";
+
+        return close;
+    }
+
     static get observedAttributes() {
         return ["card"];
     }
 
     connectedCallback(): void {
-        this.root = this.getRootNode() as ShadowRoot;
-        const event = new CustomEvent("newcloze", {
-            bubbles: true,
-        });
-        this.dispatchEvent(event);
-
+        this.decorate();
         this.observe();
 
         this.input.addEventListener("change", this.updateCardValue);
     }
 
     disconnectedCallback(): void {
+        this.disconnect();
+
         this.input.removeEventListener("change", this.updateCardValue);
     }
 
@@ -152,23 +185,11 @@ export class Cloze extends HTMLElement {
     decorate(): void {
         this.prepend(this.open);
         this.append(this.close);
-
-        if (this.restoreInput) {
-            this.input.focus();
-        }
     }
 
     cleanup(): void {
-        this.restoreInput = this.root.activeElement === this.input;
-
-        if (this.restoreInput) {
-            this.parentElement!.focus();
-        }
-
-        this.disconnect();
         this.removeChild(this.open);
         this.removeChild(this.close);
-        this.observe();
     }
 
     observe(): void {
@@ -180,21 +201,48 @@ export class Cloze extends HTMLElement {
     }
 
     removeOnDelimiterDeletion(mutations: MutationRecord[]): void {
-        for (const mutation of mutations) {
-            if (
-                Array.prototype.includes.call(mutation.removedNodes, this.open) ||
-                Array.prototype.includes.call(mutation.removedNodes, this.close)
-            ) {
-                const parent = this.parentElement!;
-                const event = new CustomEvent("removecloze", {
-                    bubbles: true,
-                });
-                this.dispatchEvent(event);
-                this.replaceWith(...Array.prototype.slice.call(this.childNodes, 1, -1));
-                parent.normalize();
+        let openRemoved = false;
+        let closeRemoved = false;
 
-                return;
+        for (const mutation of mutations) {
+            openRemoved =
+                openRemoved ||
+                Array.prototype.includes.call(mutation.removedNodes, this.open);
+            closeRemoved =
+                closeRemoved ||
+                Array.prototype.includes.call(mutation.removedNodes, this.close);
+        }
+
+        if (openRemoved || closeRemoved) {
+            const parent = this.parentElement;
+            const clozed = Array.prototype.slice.call(
+                this.childNodes,
+                openRemoved ? 0 : 1,
+                closeRemoved ? this.childNodes.length : -1
+            );
+
+            let movePosition: [Node, number] | null = null;
+            if (closeRemoved && !openRemoved) {
+                movePosition = getLastPossiblePosition(clozed[clozed.length - 1]);
             }
+
+            this.replaceWith(...clozed);
+
+            if (parent && movePosition) {
+                // place caret at the end of the inner text
+                const range = new Range();
+                range.setStart(...movePosition);
+                range.collapse(true);
+
+                const selection = (
+                    parent.getRootNode() as ShadowRoot | Document
+                ).getSelection()!;
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+
+            // anki-cloze could have been removed as well in the meantime
+            parent?.normalize();
         }
     }
 }

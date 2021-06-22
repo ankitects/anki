@@ -23,15 +23,6 @@ function containsInlineContent(field: Element): boolean {
 }
 
 export class Editable extends HTMLElement {
-    containedClozes: Cloze[];
-
-    constructor() {
-        super();
-        this.containedClozes = [];
-
-        this.onNewCloze = this.onNewCloze.bind(this);
-    }
-
     set fieldHTML(content: string) {
         this.innerHTML = content;
 
@@ -41,31 +32,19 @@ export class Editable extends HTMLElement {
     }
 
     get fieldHTML(): string {
-        for (const cloze of this.containedClozes) {
-            cloze.cleanup();
+        const clone = this.cloneNode(true) as Element;
+
+        for (const cloze of clone.getElementsByTagName("anki-cloze")) {
+            (cloze as Cloze).cleanup();
         }
 
-        const result =
-            containsInlineContent(this) && this.innerHTML.endsWith("<br>")
-                ? this.innerHTML.slice(0, -4) // trim trailing <br>
-                : this.innerHTML;
-
-        for (const cloze of this.containedClozes) {
-            cloze.decorate();
-        }
-
-        return result;
+        return containsInlineContent(clone) && clone.innerHTML.endsWith("<br>")
+            ? clone.innerHTML.slice(0, -4) // trim trailing <br>
+            : clone.innerHTML;
     }
 
     connectedCallback(): void {
         this.setAttribute("contenteditable", "");
-        this.addEventListener("newcloze", this.onNewCloze);
-        this.addEventListener("removecloze", this.onRemoveCloze);
-    }
-
-    disconnectedCallback(): void {
-        this.removeEventListener("newcloze", this.onNewCloze);
-        this.removeEventListener("removecloze", this.onRemoveCloze);
     }
 
     focus(): void {
@@ -94,16 +73,5 @@ export class Editable extends HTMLElement {
     onPaste(event: ClipboardEvent): void {
         bridgeCommand("paste");
         event.preventDefault();
-    }
-
-    onNewCloze(event: Event): void {
-        this.containedClozes.push(event.target as Cloze);
-    }
-
-    onRemoveCloze(event: Event): void {
-        this.containedClozes.splice(
-            this.containedClozes.indexOf(event.target as Cloze),
-            1
-        );
     }
 }
