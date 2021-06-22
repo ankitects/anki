@@ -88,7 +88,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonGroupItem>
         <WithDropdownMenu let:createDropdown let:menuId>
             <WithContext key={disabledKey} let:context={disabled}>
-                <IconButton {disabled} on:mount={createDropdown}>
+                <IconButton
+                    {disabled}
+                    on:mount={(event) => createDropdown(event.detail.button)}
+                >
                     {@html functionIcon}
                 </IconButton>
             </WithContext>
