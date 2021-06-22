@@ -39,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onCloze(event: KeyboardEvent | MouseEvent): void {
         const highestCloze = getCurrentHighestCloze(!event.getModifierState("Alt"));
-        wrapCurrent(`{{c${highestCloze}::`, "}}");
+        wrapCurrent(`<anki-cloze card="${highestCloze}">`, "</anki-cloze>");
     }
 </script>
 
