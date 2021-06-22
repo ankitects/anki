@@ -65,4 +65,9 @@ anki-cloze {
     font-family: inherit;
     font-weight: inherit;
     font-size: inherit;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+        opacity: 1;
+    }
 }

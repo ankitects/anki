@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import type { Cloze } from "./cloze";
 import { bridgeCommand } from "./lib";
 import { nodeIsInline, caretToEnd, getBlockElement } from "./helpers";
 import { setEditableButtons } from "./toolbar";
@@ -22,6 +23,15 @@ function containsInlineContent(field: Element): boolean {
 }
 
 export class Editable extends HTMLElement {
+    containedClozes: Cloze[];
+
+    constructor() {
+        super();
+        this.containedClozes = [];
+
+        this.onNewCloze = this.onNewCloze.bind(this);
+    }
+
     set fieldHTML(content: string) {
         this.innerHTML = content;
 
@@ -31,13 +41,28 @@ export class Editable extends HTMLElement {
     }
 
     get fieldHTML(): string {
-        return containsInlineContent(this) && this.innerHTML.endsWith("<br>")
+        for (const cloze of this.containedClozes) {
+            cloze.cleanup();
+        }
+
+        const result = containsInlineContent(this) && this.innerHTML.endsWith("<br>")
             ? this.innerHTML.slice(0, -4) // trim trailing <br>
             : this.innerHTML;
+
+        for (const cloze of this.containedClozes) {
+            cloze.decorate();
+        }
+
+        return result;
     }
 
     connectedCallback(): void {
         this.setAttribute("contenteditable", "");
+        this.addEventListener("newcloze", this.onNewCloze);
+    }
+
+    disconnectedCallback(): void {
+        this.removeEventListener("newcloze", this.onNewCloze);
     }
 
     focus(): void {
@@ -66,5 +91,9 @@ export class Editable extends HTMLElement {
     onPaste(event: ClipboardEvent): void {
         bridgeCommand("paste");
         event.preventDefault();
+    }
+
+    onNewCloze(event: Event): void {
+        this.containedClozes.push(event.target as Cloze);
     }
 }

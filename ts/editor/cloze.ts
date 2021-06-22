@@ -4,7 +4,6 @@
 function autoresizeInput(input: HTMLInputElement) {
     input.style.width = "0";
     while (input.style.width !== `${input.scrollWidth}px`) {
-        console.log("autoresize:", input.style.width, "to", `${input.scrollWidth}px`);
         input.style.width = `${input.scrollWidth}px`;
     }
 }
@@ -89,16 +88,32 @@ export class Cloze extends HTMLElement {
 
         const infix = document.createTextNode("::");
         this.open.appendChild(infix);
-        this.prepend(this.open);
 
         this.close = document.createElement("span");
         this.close.textContent = "}}";
         this.close.setAttribute("contenteditable", "false");
-        this.append(this.close);
+
+        this.decorate();
+
+        this.updateCardValue = this.updateCardValue.bind(this);
     }
 
     static get observedAttributes() {
         return ["card"];
+    }
+
+    connectedCallback(): void {
+        const event = new CustomEvent('newcloze', {
+            bubbles: true,
+            detail: { cloze: this },
+        });
+        this.dispatchEvent(event);
+
+        this.input.addEventListener("change", this.updateCardValue);
+    }
+
+    disconnectedCallback(): void {
+        this.input.removeEventListener("change", this.updateCardValue);
     }
 
     attributeChangedCallback(name: string, _oldValue: string, newValue: string): void {
@@ -107,5 +122,19 @@ export class Cloze extends HTMLElement {
                 this.input.value = newValue;
                 break;
         }
+    }
+
+    updateCardValue(): void {
+        this.setAttribute("card", this.input.value);
+    }
+
+    cleanup(): void {
+        this.removeChild(this.open);
+        this.removeChild(this.close);
+    }
+
+    decorate(): void {
+        this.prepend(this.open);
+        this.append(this.close);
     }
 }
