@@ -15,19 +15,17 @@ function noEmpty(input: HTMLInputElement) {
     }
 }
 
-function respondToVisibility(
-    element: HTMLElement,
-    callback: () => void
-) {
+function respondToVisibility(element: HTMLElement, callback: () => void) {
     const options = {
         root: document.documentElement,
     };
     const observer = new IntersectionObserver(
-        (entries) => entries.forEach((entry) => {
-            if (entry.intersectionRatio > 0) {
-                callback();
-            }
-        }),
+        (entries) =>
+            entries.forEach((entry) => {
+                if (entry.intersectionRatio > 0) {
+                    callback();
+                }
+            }),
         options
     );
     observer.observe(element);
@@ -45,7 +43,6 @@ export class ClozeNumberInput extends HTMLInputElement {
         this.onInput = this.onInput.bind(this);
         this.onChange = this.onChange.bind(this);
 
-        noEmpty(this);
         respondToVisibility(this, () => autoresizeInput(this));
     }
 
@@ -74,14 +71,41 @@ customElements.define("anki-cloze-number-input", ClozeNumberInput, {
 
 export class Cloze extends HTMLElement {
     input: ClozeNumberInput;
+    open: HTMLSpanElement;
+    close: HTMLSpanElement;
 
     constructor() {
         super();
+        this.open = document.createElement("span");
+        this.open.setAttribute("contenteditable", "false");
+
+        const prefix = document.createTextNode("{{c");
+        this.open.append(prefix);
+
         this.input = document.createElement("input", {
             is: "anki-cloze-number-input",
         }) as ClozeNumberInput;
-        this.appendChild(this.input);
+        this.open.append(this.input);
+
+        const infix = document.createTextNode("::");
+        this.open.appendChild(infix);
+        this.prepend(this.open);
+
+        this.close = document.createElement("span");
+        this.close.textContent = "}}";
+        this.close.setAttribute("contenteditable", "false");
+        this.append(this.close);
     }
 
-    connectedCallback(): void {}
+    static get observedAttributes() {
+        return ["card"];
+    }
+
+    attributeChangedCallback(name: string, _oldValue: string, newValue: string): void {
+        switch (name) {
+            case "card":
+                this.input.value = newValue;
+                break;
+        }
+    }
 }
