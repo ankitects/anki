@@ -153,7 +153,7 @@ export class Cloze extends HTMLElement {
         return close;
     }
 
-    static get observedAttributes() {
+    static get observedAttributes(): string[] {
         return ["card"];
     }
 
@@ -229,16 +229,19 @@ export class Cloze extends HTMLElement {
             this.replaceWith(...clozed);
 
             if (parent && movePosition) {
-                // place caret at the end of the inner text
-                const range = new Range();
-                range.setStart(...movePosition);
-                range.collapse(true);
-
                 const selection = (
                     parent.getRootNode() as ShadowRoot | Document
-                ).getSelection()!;
-                selection.removeAllRanges();
-                selection.addRange(range);
+                ).getSelection();
+
+                if (selection) {
+                    // place caret at the end of the inner text
+                    const range = new Range();
+                    range.setStart(...movePosition);
+                    range.collapse(true);
+
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
             }
 
             // anki-cloze could have been removed as well in the meantime
