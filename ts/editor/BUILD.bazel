@@ -27,17 +27,6 @@ compile_svelte(
 
 compile_sass(
     srcs = [
-        "editable.scss",
-    ],
-    group = "editable_scss",
-    visibility = ["//visibility:public"],
-    deps = [
-        "//ts/sass:scrollbar_lib",
-    ],
-)
-
-compile_sass(
-    srcs = [
         "fields.scss",
     ],
     group = "base_css",
@@ -45,6 +34,17 @@ compile_sass(
     deps = [
         "//ts/sass:base_lib",
         "//ts/sass:buttons_lib",
+        "//ts/sass:scrollbar_lib",
+    ],
+)
+
+compile_sass(
+    srcs = [
+        "editable.scss",
+    ],
+    group = "editable_scss",
+    visibility = ["//visibility:public"],
+    deps = [
         "//ts/sass:scrollbar_lib",
     ],
 )
