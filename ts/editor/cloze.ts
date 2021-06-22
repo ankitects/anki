@@ -222,7 +222,7 @@ export class Cloze extends HTMLElement {
             );
 
             let movePosition: [Node, number] | null = null;
-            if (closeRemoved && !openRemoved) {
+            if (closeRemoved && !openRemoved && clozed.length > 0) {
                 movePosition = getLastPossiblePosition(clozed[clozed.length - 1]);
             }
 
