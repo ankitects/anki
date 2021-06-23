@@ -18,6 +18,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         inputNew = true;
         tagInputNew.focus();
     }
+
+    function deleteTag({ detail }: CustomEvent) {
+        tags.splice(tags.indexOf(detail.name), 1);
+        tags = tags;
+    }
 </script>
 
 <StickyBottom>
@@ -25,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <Badge class="me-1">{@html tagIcon}</Badge>
 
         {#each tags as tag}
-            <Tag name={tag} />
+            <Tag name={tag} on:tagdelete={deleteTag} />
         {/each}
 
         {#if inputNew}
