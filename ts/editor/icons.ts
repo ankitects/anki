@@ -31,6 +31,8 @@ export { default as ellipseIcon } from "./contain.svg";
 export { default as functionIcon } from "./function-variant.svg";
 export { default as xmlIcon } from "./xml.svg";
 
+export { default as deleteIcon } from "./x.svg";
+
 export const arrowIcon =
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="transparent" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 5l6 6 6-6"/></svg>';
 
