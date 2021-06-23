@@ -178,6 +178,29 @@ export class Cloze extends HTMLElement {
         this.input.removeEventListener("change", this.updateCardValue);
     }
 
+    caretToEnd(): void {
+        const selection = (
+            this.getRootNode() as ShadowRoot | Document
+        ).getSelection();
+        const clozed = Array.prototype.slice.call(this.childNodes, 1, -1);
+        const range = new Range();
+
+        if (clozed.length === 0) {
+            range.setStart(this, 1);
+            range.collapse(true);
+        }
+        else {
+            const position = getLastPossiblePosition(clozed[clozed.length - 1]);
+            range.setStart(...position);
+        }
+
+        if (selection) {
+            // place caret at the end of the inner text
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+    }
+
     updateCardValue(): void {
         this.setAttribute("card", this.input.value);
     }

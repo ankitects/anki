@@ -10,9 +10,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithShortcut from "components/WithShortcut.svelte";
     import WithContext from "components/WithContext.svelte";
 
+    import type { Cloze } from "./cloze";
     import { bracketsIcon } from "./icons";
-    import { forEditorField } from ".";
-    import { wrapCurrent } from "./wrap";
+    import { forEditorField, getCurrentField } from ".";
 
     const clozePattern = /\{\{c(\d+)::/gu;
     function getCurrentHighestCloze(increment: boolean): number {
@@ -39,7 +39,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onCloze(event: KeyboardEvent | MouseEvent): void {
         const highestCloze = getCurrentHighestCloze(!event.getModifierState("Alt"));
-        wrapCurrent(`<anki-cloze card="${highestCloze}">`, "</anki-cloze>");
+        const clozeWrapper = document.createElement("anki-cloze") as Cloze;
+        clozeWrapper.setAttribute("card", String(highestCloze))
+
+        const currentField = getCurrentField()!;
+        const selection = currentField.getSelection()!;
+
+        const range = selection.getRangeAt(0);
+        range.surroundContents(clozeWrapper);
+        clozeWrapper.caretToEnd();
     }
 </script>
 
