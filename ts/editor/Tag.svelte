@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
+    import Badge from "components/Badge.svelte";
     import { deleteIcon } from "./icons";
 
     let active = false;
@@ -17,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {:else}
     <span class="tag text-nowrap bg-secondary rounded p-1 me-2" on:click={activate}>
         <slot />
-        {@html deleteIcon}
+        <Badge>{@html deleteIcon}</Badge>
     </span>
 {/if}
 

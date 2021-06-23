@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithDropdown from "components/WithDropdown.svelte";
     import DropdownMenu from "components/DropdownMenu.svelte";
     import DropdownItem from "components/DropdownItem.svelte";
-    import Badge from "./Badge.svelte";
+    import Badge from "components/Badge.svelte";
     import { revertIcon } from "./icons";
     import { isEqual as isEqualLodash, cloneDeep } from "lodash-es";
     import { touchDeviceKey } from "components/context-keys";
