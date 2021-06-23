@@ -8,6 +8,7 @@
             "es2019.array",
             "es2018.promise",
             "es2020.promise",
+            "es2019.string",
             "dom",
             "dom.iterable"
         ],
