@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {:else}
     <span class="tag text-nowrap bg-secondary rounded p-1 me-2" on:click={activate}>
         <slot />
-        <Badge>{@html deleteIcon}</Badge>
+        <Badge class="delete-icon">{@html deleteIcon}</Badge>
     </span>
 {/if}
 
@@ -27,5 +27,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /* important for tags with non-latin characters */
         line-height: 2ch;
         vertical-align: -webkit-baseline-middle;
+
+        :global(.delete-icon):hover {
+            $white-translucent: rgba(255, 255, 255, 0.5);
+            background-color: $white-translucent;
+        }
     }
 </style>

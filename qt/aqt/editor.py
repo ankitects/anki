@@ -84,6 +84,7 @@ _html = """
     <a href="#" onclick="pycmd('dupes');return false;">%s</a>
 </div>
 <div id="cloze-hint"></div>
+<div id="tag-editor-anchor" class="d-none"></div>
 """
 
 

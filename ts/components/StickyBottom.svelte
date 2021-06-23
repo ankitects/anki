@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     footer {
-        position: absolute;
+        position: sticky;
         bottom: 0;
         left: 0;
         right: 0;
