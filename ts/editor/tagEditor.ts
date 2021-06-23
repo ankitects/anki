@@ -23,7 +23,7 @@ export function initTagEditor(i18n: Promise<void>): Promise<TagEditor> {
     document.addEventListener("DOMContentLoaded", () =>
         i18n.then(() => {
             const target = document.body;
-            const anchor = document.getElementById("fields")!;
+            const anchor = document.getElementById("tag-editor-anchor")!;
 
             const context = new Map();
             context.set(disabledKey, disabled);

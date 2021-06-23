@@ -31,6 +31,7 @@ export { default as ellipseIcon } from "./contain.svg";
 export { default as functionIcon } from "./function-variant.svg";
 export { default as xmlIcon } from "./xml.svg";
 
+export { default as tagIcon } from "./tag-outline.svg";
 export { default as deleteIcon } from "./x.svg";
 
 export const arrowIcon =
