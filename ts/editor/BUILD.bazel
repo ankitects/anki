@@ -103,6 +103,9 @@ copy_bootstrap_icons(
         "text-center.svg",
         "text-indent-left.svg",
         "text-indent-right.svg",
+
+        # tag editor
+        "x.svg",
     ],
     visibility = ["//visibility:public"],
 )
