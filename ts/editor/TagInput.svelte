@@ -63,7 +63,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:nameChosen={setTagname}
     on:accept={onAccept}
 >
-    <label data-value={name} id={triggerId} class={triggerClass}>
+    <label id={triggerId} class={`p-1 ${triggerClass}`} data-value={name}>
         <input
             type="text"
             size="1"
@@ -82,6 +82,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     label {
         display: inline-grid;
+
         &::after,
         input {
             color: var(--text-fg);
@@ -96,6 +97,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             margin: 0;
             padding: 0;
         }
+
         &::after {
             /* 8 spaces to minimize reflow on clicking tag */
             content: attr(data-value) "        ";

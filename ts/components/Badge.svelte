@@ -41,6 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     span :global(svg) {
+        border-radius: inherit;
         vertical-align: -0.125rem;
     }
 </style>
