@@ -3,8 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import type Dropdown from "bootstrap/js/dist/dropdown";
-
     import { createEventDispatcher, onMount } from "svelte";
     import { normalizeTagname } from "./tags";
 
@@ -15,21 +13,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
-    function onFocus(event: FocusEvent, dropdown: Dropdown): void {
+    function onFocus(): void {
         /* dropdown.show(); */
     }
 
-    function onAccept(event: Event): void {
+    function onAccept(): void {
         name = normalizeTagname(name);
         dispatch("tagupdate", { name });
     }
 
-    function dropdownBlur(event: Event, dropdown: Dropdown): void {
-        onAccept(event);
+    function dropdownBlur(): void {
+        onAccept();
         /* dropdown.hide(); */
     }
 
-    function onKeydown(event: KeyboardEvent, dropdown: Dropdown): void {
+    function onKeydown(event: KeyboardEvent): void {
         if (event.code === "Space") {
             name += "::";
             event.preventDefault();
@@ -37,7 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             name = name.slice(0, -2);
             event.preventDefault();
         } else if (event.code === "Enter") {
-            onAccept(event);
+            onAccept();
             event.preventDefault();
         }
     }
@@ -66,7 +64,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bind:name
     let:triggerId
     let:triggerClass
-    let:dropdown
     on:nameChosen={setTagname}
     on:accept={onAccept}
 >
@@ -84,10 +81,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             tabindex="-1"
             size="1"
             bind:value={name}
-            on:focus={(event) => onFocus(event, dropdown)}
-            on:blur={(event) => dropdownBlur(event, dropdown)}
+            on:focus={onFocus}
+            on:blur={dropdownBlur}
             on:focusout
-            on:keydown={(event) => onKeydown(event, dropdown)}
+            on:keydown={onKeydown}
             on:paste={onPaste}
             on:click
         />

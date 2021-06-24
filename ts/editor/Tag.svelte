@@ -21,12 +21,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function deleteTag(event: Event): void {
-        dispatch("tagdelete", { name });
+        dispatch("tagdelete");
         event.stopPropagation();
     }
 
-    function updateTag() {
+    function updateTag(event: Event) {
         active = false;
+
+        if (name.length === 0) {
+            deleteTag(event);
+        }
     }
 </script>
 
@@ -41,7 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {:else}
     <span
         class="d-inline-flex align-items-center tag text-nowrap bg-secondary rounded ps-2 pe-1 me-1"
-        on:click|stopPropagation={checkForActivation}
+        on:click={checkForActivation}
     >
         <span>{name}</span>
         <Badge class="delete-icon rounded ms-1 mt-1" on:click={deleteTag}
