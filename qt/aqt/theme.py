@@ -35,6 +35,7 @@ class ThemeManager:
     _icon_cache_dark: Dict[str, QIcon] = {}
     _icon_size = 128
     _dark_mode_available: Optional[bool] = None
+    default_palette: Optional[QPalette] = None
 
     # Qt applies a gradient to the buttons in dark mode
     # from about #505050 to #606060.
@@ -133,6 +134,7 @@ class ThemeManager:
         return QColor(self.color(colors))
 
     def apply_style(self, app: QApplication) -> None:
+        self.default_palette = app.style().standardPalette()
         self._apply_palette(app)
         self._apply_style(app)
 
