@@ -6,15 +6,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import StickyBottom from "components/StickyBottom.svelte";
     import AddTagBadge from "./AddTagBadge.svelte";
     import Tag from "./Tag.svelte";
-    import TagInputNew from "./TagInputNew.svelte";
+    import TagInput from "./TagInput.svelte";
 
     export let tags = ["en::foobar", "zh::あっちこっち"];
 
     let tagInputNew: HTMLInputElement;
-    let inputNew = false;
+    let newName: string = "";
 
     function focusInputNew(): void {
-        inputNew = true;
         tagInputNew.focus();
     }
 
@@ -32,9 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Tag name={tag} on:tagdelete={deleteTag} />
         {/each}
 
-        <div d-none={!inputNew}>
-            <TagInputNew bind:input={tagInputNew} on:blur={() => (inputNew = false)} />
-        </div>
+        <TagInput bind:input={tagInputNew} name={newName} />
     </div>
 </StickyBottom>
 

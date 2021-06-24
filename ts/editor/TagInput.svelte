@@ -3,11 +3,12 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { createEventDispatcher } from "svelte";
-    import TagAutocomplete from "./TagAutocomplete.svelte";
+    import type Dropdown from "bootstrap/js/dist/dropdown";
+
+    import { createEventDispatcher, onMount } from "svelte";
     import { normalizeTagname } from "./tags";
 
-    import type Dropdown from "bootstrap/js/dist/dropdown";
+    import TagAutocomplete from "./TagAutocomplete.svelte";
 
     export let name: string;
     export let input: HTMLInputElement;
@@ -56,6 +57,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function setTagname({ detail }: CustomEvent): void {
         name = detail.name;
     }
+
+    onMount(() => dispatch("mount", { input }));
 </script>
 
 <TagAutocomplete
@@ -68,9 +71,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 >
     <label id={triggerId} class={`ps-2 pe-1 ${triggerClass}`} data-value={name}>
         <input
+            bind:this={input}
             type="text"
             size="1"
-            bind:this={input}
             bind:value={name}
             on:focus={(event) => onFocus(event, dropdown)}
             on:blur={(event) => dropdownBlur(event, dropdown)}

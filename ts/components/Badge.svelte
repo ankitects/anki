@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let className = "";
     export { className as class };
-    export let tooltip: string | undefined;
+    export let tooltip: string | undefined = undefined;
 
     const dispatch = createEventDispatcher();
 

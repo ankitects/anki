@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import { createEventDispatcher } from "svelte";
     import Badge from "components/Badge.svelte";
-    import TagInputEdit from "./TagInputEdit.svelte";
+    import TagInput from "./TagInput.svelte";
     import { deleteIcon } from "./icons";
 
     export let name: string;
@@ -13,11 +13,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const dispatch = createEventDispatcher();
 
     let active = false;
+    let input: HTMLInputElement;
 
     function checkForActivation(): void {
         const selection = window.getSelection()!;
         if (selection.isCollapsed) {
             active = true;
+            input.focus();
         }
     }
 
@@ -32,10 +34,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 {#if active}
-    <TagInputEdit
+    <TagInput
         bind:name
+        bind:input
         on:focusout={() => (active = false)}
         on:update={updateTag}
+        on:mount={(event) => event.detail.input.focus()}
     />
 {:else}
     <span
