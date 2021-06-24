@@ -49,7 +49,7 @@ pub struct NotetypeSchema11 {
     pub(crate) latex_pre: String,
     #[serde(default)]
     pub(crate) latex_post: String,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "default_on_invalid")]
     pub latexsvg: bool,
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) req: CardRequirementsSchema11,
