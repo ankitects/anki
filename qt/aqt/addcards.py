@@ -138,6 +138,7 @@ class AddCards(QDialog):
                     old_field_name = old.model()["flds"][n]["name"]
                     if old_field_name not in new_fields:
                         new.fields[n] = old.fields[n]
+            new.tags = old.tags
 
         # and update editor state
         self.editor.note = new
