@@ -31,11 +31,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /* } */
 </script>
 
-<TagInput
-    bind:name
-    bind:input
-    on:keydown={onKeydown}
-    on:focusout
-    on:update
-    on:add
-/>
+<TagInput bind:name bind:input on:keydown={onKeydown} on:focusout on:update on:add />

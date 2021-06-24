@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithState from "components/WithState.svelte";
     import OnlyEditable from "./OnlyEditable.svelte";
 
+    import { withButton } from "components/helpers";
     import { appendInParentheses } from "./helpers";
 
     export let key: string;
@@ -48,7 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 tooltip={appendInParentheses(tooltip, shortcutLabel)}
                 {disabled}
                 on:click={() => document.execCommand(key)}
-                on:mount={(event) => createShortcut(event.detail.button)}
+                on:mount={withButton(createShortcut)}
             >
                 <slot />
             </IconButton>
@@ -69,7 +70,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         document.execCommand(key);
                         updateState(event);
                     }}
-                    on:mount={(event) => createShortcut(event.detail.button)}
+                    on:mount={withButton(createShortcut)}
                 >
                     <slot />
                 </IconButton>
