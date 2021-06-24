@@ -82,6 +82,7 @@ class Preferences(QDialog):
         )
         form.paste_strips_formatting.setChecked(editing.paste_strips_formatting)
         form.pastePNG.setChecked(editing.paste_images_as_png)
+        form.default_search_text.setText(editing.default_search_text)
 
     def update_collection(self) -> None:
         form = self.form
@@ -104,6 +105,7 @@ class Preferences(QDialog):
         editing.adding_defaults_to_current_deck = not form.useCurrent.currentIndex()
         editing.paste_images_as_png = self.form.pastePNG.isChecked()
         editing.paste_strips_formatting = self.form.paste_strips_formatting.isChecked()
+        editing.default_search_text = self.form.default_search_text.text()
 
         self.mw.col.set_preferences(self.prefs)
         self.mw.apply_collection_options()

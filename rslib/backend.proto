@@ -1213,6 +1213,7 @@ message Preferences {
     bool adding_defaults_to_current_deck = 1;
     bool paste_images_as_png = 2;
     bool paste_strips_formatting = 3;
+    string default_search_text = 4;
   }
 
   Scheduling scheduling = 1;
@@ -1468,6 +1469,7 @@ message Config {
     enum Key {
       SET_DUE_BROWSER = 0;
       SET_DUE_REVIEWER = 1;
+      DEFAULT_SEARCH_TEXT = 2;
     }
     Key key = 1;
   }

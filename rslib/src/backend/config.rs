@@ -42,6 +42,7 @@ impl From<StringKeyProto> for StringKey {
         match k {
             StringKeyProto::SetDueBrowser => StringKey::SetDueBrowser,
             StringKeyProto::SetDueReviewer => StringKey::SetDueReviewer,
+            StringKeyProto::DefaultSearchText => StringKey::DefaultSearchText,
         }
     }
 }

@@ -36,3 +36,5 @@ preferences-user-interface-size = User interface size
 preferences-when-adding-default-to-current-deck = When adding, default to current deck
 preferences-you-can-restore-backups-via-fileswitch = You can restore backups via File>Switch Profile.
 preferences-legacy-timezone-handling = Legacy timezone handling (buggy, but required for AnkiDroid <= 2.14)
+preferences-default-search-text = Default search text
+preferences-default-search-text-example = eg. 'deck:current '

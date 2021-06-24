@@ -10,6 +10,7 @@ use crate::prelude::*;
 pub enum StringKey {
     SetDueBrowser,
     SetDueReviewer,
+    DefaultSearchText,
 }
 
 impl Collection {
@@ -17,7 +18,7 @@ impl Collection {
         let default = match key {
             StringKey::SetDueBrowser => "0",
             StringKey::SetDueReviewer => "1",
-            // other => "",
+            _other => "",
         };
         self.get_config_optional(key)
             .unwrap_or_else(|| default.to_string())

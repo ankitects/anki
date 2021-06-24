@@ -333,10 +333,16 @@ class Browser(QMainWindow):
         self.onSearchActivated()
 
     def _default_search(self, card: Optional[Card] = None) -> None:
-        search = self.col.build_search_string(SearchNode(deck="current"))
+        default = self.col.get_config_string(Config.String.DEFAULT_SEARCH_TEXT)
+        if default.strip():
+            search = default
+            prompt = default
+        else:
+            search = self.col.build_search_string(SearchNode(deck="current"))
+            prompt = ""
         if card is not None:
             search = gui_hooks.default_search(search, card)
-        self.search_for(search, "")
+        self.search_for(search, prompt)
 
     def onReset(self) -> None:
         self.sidebar.refresh()
