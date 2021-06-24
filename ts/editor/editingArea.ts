@@ -92,7 +92,7 @@ export class EditingArea extends HTMLDivElement {
 
     initialize(color: string, content: string): void {
         this.setBaseColor(color);
-        this.editable.fieldHTML = content;
+        this.fieldHTML = content;
     }
 
     setBaseColor(color: string): void {
@@ -155,7 +155,7 @@ export class EditingArea extends HTMLDivElement {
             this.editable.hidden = false;
         } else {
             this.editable.hidden = true;
-            this.codable.setup(this.fieldHTML);
+            this.codable.setup(this.editable.fieldHTML);
         }
 
         if (hadFocus) {
