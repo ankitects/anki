@@ -26,16 +26,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         console.log("onkeydown");
     }
 
-    function stopPropagation(event: Event): void {
-        event.stopPropagation();
-    }
+    /* function stopPropagation(event: Event): void { */
+    /*     event.stopPropagation(); */
+    /* } */
 </script>
 
 <TagInput
     bind:name
     bind:input
     on:keydown={onKeydown}
-    on:click={stopPropagation}
     on:focusout
     on:update
     on:add
