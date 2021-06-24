@@ -225,7 +225,7 @@
           <string notr="true"/>
          </property>
          <property name="text">
-          <string notr="true">2021 scheduler (experimental)</string>
+          <string notr="true">V3 scheduler (beta)</string>
          </property>
         </widget>
        </item>
