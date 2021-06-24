@@ -27,6 +27,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:dropdown-toggle={dropdownProps.dropdown}
     {...dropdownProps}
     on:click
+    on:mouseenter
+    on:mouseleave
 >
     <slot />
 </span>

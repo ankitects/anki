@@ -4,10 +4,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import StickyBottom from "components/StickyBottom.svelte";
-    import Badge from "components/Badge.svelte";
+    import AddTagBadge from "./AddTagBadge.svelte";
     import Tag from "./Tag.svelte";
     import TagInputNew from "./TagInputNew.svelte";
-    import { addTagIcon } from "./icons";
 
     export let tags = ["en::foobar", "zh::あっちこっち"];
 
@@ -27,9 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <StickyBottom>
     <div class="d-flex flex-wrap">
-        <Badge class="add-icon d-flex me-1" on:click={focusInputNew}
-            >{@html addTagIcon}</Badge
-        >
+        <AddTagBadge on:click={focusInputNew} />
 
         {#each tags as tag}
             <Tag name={tag} on:tagdelete={deleteTag} />
@@ -45,14 +42,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     div {
         font-size: 13px;
         fill: currentColor;
-
-        :global(.add-icon > svg) {
-            cursor: pointer;
-            opacity: 0.5;
-        }
-
-        :global(.add-icon > svg:hover) {
-            opacity: 1;
-        }
     }
 </style>
