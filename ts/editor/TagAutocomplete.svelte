@@ -51,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<div bind:this={menu} class="dropdown dropdown-reverse" on:keydown={onKeydown}>
+<div bind:this={menu} class="dropup dropdown-reverse" on:keydown={onKeydown}>
     <slot {triggerId} {triggerClass} {dropdown} />
 
     <DropdownMenu labelledby={triggerId}>
@@ -62,8 +62,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    .dropdown-reverse :global(.dropdown-menu) {
-        display: flex;
-        flex-direction: column-reverse;
-    }
+    /* .dropdown-reverse :global(.dropdown-menu) { */
+    /*     display: flex; */
+    /*     flex-direction: column-reverse; */
+    /* } */
 </style>
