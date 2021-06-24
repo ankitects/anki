@@ -21,6 +21,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tags.splice(tags.indexOf(detail.name), 1);
         tags = tags;
     }
+
+    function addTag({ detail }: CustomEvent) {
+        if (!tags.includes(detail.name) && detail.name.length > 0) {
+            tags.push(detail.name);
+        }
+        tags = tags;
+    }
 </script>
 
 <StickyBottom>
@@ -31,7 +38,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Tag name={tag} on:tagdelete={deleteTag} />
         {/each}
 
-        <TagInput bind:input={tagInputNew} name={newName} />
+        <TagInput bind:input={tagInputNew} name={newName} on:tagupdate={addTag} />
     </div>
 </StickyBottom>
 
