@@ -7,11 +7,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { dropdownKey } from "./context-keys";
 
     export let id: string | undefined = undefined;
+    export let labelledby: string | undefined = undefined;
 
     setContext(dropdownKey, null);
 </script>
 
-<div {id} class="dropdown-menu">
+<div {id} class="dropdown-menu" aria-labelledby={labelledby}>
     <slot />
 </div>
 

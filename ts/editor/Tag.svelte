@@ -17,10 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function checkForActivation(): void {
         const selection = window.getSelection()!;
-        if (selection.isCollapsed) {
-            active = true;
-            input.focus();
-        }
+        active = selection.isCollapsed;
     }
 
     function deleteTag(event: Event): void {
