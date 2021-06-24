@@ -34,6 +34,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } else if (event.code === "Backspace" && name.endsWith("::")) {
             name = name.slice(0, -2);
             event.preventDefault();
+        } else if (event.code === "Enter") {
+            onAccept(event);
+            event.preventDefault();
         }
     }
 
