@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let modified: boolean;
     $: modified = !isEqual(value, defaultValue);
-    $: className = !modified ? "opacity-25" : "";
+    $: className = !modified ? "opacity-0" : "";
 
     const isTouchDevice = getContext<boolean>(touchDeviceKey);
 
