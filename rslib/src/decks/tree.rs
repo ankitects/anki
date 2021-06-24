@@ -307,7 +307,7 @@ impl Collection {
         collapsed: bool,
         scope: DeckCollapseScope,
     ) -> Result<OpOutput<()>> {
-        self.transact(Op::ExpandCollapse, |col| {
+        self.transact(Op::SkipUndo, |col| {
             if let Some(mut deck) = col.storage.get_deck(did)? {
                 let original = deck.clone();
                 let c = &mut deck.common;

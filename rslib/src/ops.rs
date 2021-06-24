@@ -15,7 +15,6 @@ pub enum Op {
     ChangeNotetype,
     ClearUnusedTags,
     EmptyFilteredDeck,
-    ExpandCollapse,
     FindAndReplace,
     RebuildFilteredDeck,
     RemoveDeck,
@@ -42,6 +41,9 @@ pub enum Op {
     UpdateTag,
     UpdateNotetype,
     SetCurrentDeck,
+    /// Does not register changes in undo queue, but does not clear the current
+    /// queue either.
+    SkipUndo,
 }
 
 impl Op {
@@ -75,7 +77,6 @@ impl Op {
             Op::BuildFilteredDeck => tr.actions_build_filtered_deck(),
             Op::RebuildFilteredDeck => tr.actions_build_filtered_deck(),
             Op::EmptyFilteredDeck => tr.studying_empty(),
-            Op::ExpandCollapse => tr.actions_expand_collapse(),
             Op::SetCurrentDeck => tr.browsing_change_deck(),
             Op::UpdateDeckConfig => tr.deck_config_title(),
             Op::AddNotetype => tr.actions_add_notetype(),
@@ -84,6 +85,7 @@ impl Op {
             Op::UpdateConfig => tr.actions_update_config(),
             Op::Custom(name) => name.into(),
             Op::ChangeNotetype => tr.browsing_change_notetype(),
+            Op::SkipUndo => return "".to_string(),
         }
         .into()
     }
@@ -133,17 +135,11 @@ impl OpChanges {
     // These routines should return true even if the GUI may have
     // special handling for an action, since we need to do the right
     // thing when undoing, and if multiple windows of the same type are
-    // open. For example, while toggling the expand/collapse state
-    // in the sidebar will not normally trigger a full sidebar refresh,
-    // requires_browser_sidebar_redraw() should still return true.
+    // open.
 
     pub fn requires_browser_table_redraw(&self) -> bool {
         let c = &self.changes;
-        c.card
-            || c.notetype
-            || c.config
-            || (c.note && self.op != Op::AddNote)
-            || (c.deck && self.op != Op::ExpandCollapse)
+        c.card || c.notetype || c.config || (c.note && self.op != Op::AddNote) || c.deck
     }
 
     pub fn requires_browser_sidebar_redraw(&self) -> bool {
@@ -159,7 +155,7 @@ impl OpChanges {
     pub fn requires_study_queue_rebuild(&self) -> bool {
         let c = &self.changes;
         c.card
-            || (c.deck && self.op != Op::ExpandCollapse)
+            || c.deck
             || (c.config && matches!(self.op, Op::SetCurrentDeck | Op::UpdatePreferences))
             || c.deck_config
     }

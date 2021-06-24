@@ -76,11 +76,13 @@ impl Collection {
         value: bool,
         undoable: bool,
     ) -> Result<OpOutput<()>> {
-        self.transact(Op::UpdateConfig, |col| {
+        let op = if undoable {
+            Op::UpdateConfig
+        } else {
+            Op::SkipUndo
+        };
+        self.transact(op, |col| {
             col.set_config(key, &value)?;
-            if !undoable {
-                col.clear_current_undo_step_changes()?;
-            }
             Ok(())
         })
     }
