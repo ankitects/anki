@@ -20,7 +20,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function onAccept(event: Event): void {
-        dispatch("update", { tagname: normalizeTagname(name) });
+        dispatch("tagupdate", { name: normalizeTagname(name) });
+        input.value = "";
     }
 
     function dropdownBlur(event: Event, dropdown: Dropdown): void {
@@ -46,9 +47,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const splitted = pasted.split(" ");
         const last = splitted.pop();
         for (const token of splitted) {
-            const tagname = normalizeTagname(token);
-            if (tagname) {
-                dispatch("add", { tagname });
+            const name = normalizeTagname(token);
+            if (name) {
+                dispatch("tagadd", { name });
             }
         }
         name = last!;
@@ -73,6 +74,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <input
             bind:this={input}
             type="text"
+            tabindex="-1"
             size="1"
             bind:value={name}
             on:focus={(event) => onFocus(event, dropdown)}
