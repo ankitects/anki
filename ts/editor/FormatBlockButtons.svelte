@@ -65,7 +65,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonGroupItem>
         <WithDropdownMenu let:createDropdown let:menuId>
             <OnlyEditable let:disabled>
-                <IconButton {disabled} on:mount={createDropdown}>
+                <IconButton
+                    {disabled}
+                    on:mount={(event) => createDropdown(event.detail.button)}
+                >
                     {@html listOptionsIcon}
                 </IconButton>
             </OnlyEditable>
