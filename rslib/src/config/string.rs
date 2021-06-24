@@ -11,6 +11,7 @@ pub enum StringKey {
     SetDueBrowser,
     SetDueReviewer,
     DefaultSearchText,
+    CardStateCustomizer,
 }
 
 impl Collection {

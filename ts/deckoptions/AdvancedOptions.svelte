@@ -9,12 +9,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import type { DeckOptionsState } from "./lib";
+    import CardStateCustomizer from "./CardStateCustomizer.svelte";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
 
     let config = state.currentConfig;
     let defaults = state.defaults;
+    let cardStateCustomizer = state.cardStateCustomizer;
 </script>
 
 <TitledContainer title={tr.deckConfigAdvancedTitle()} {api}>
@@ -88,4 +90,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {tr.schedulingNewInterval()}
         </SpinBoxFloatRow>
     </Item>
+
+    {#if state.v3Scheduler}
+        <Item>
+            <CardStateCustomizer bind:value={$cardStateCustomizer} />
+        </Item>
+    {/if}
 </TitledContainer>

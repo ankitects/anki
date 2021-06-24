@@ -11,6 +11,7 @@ use std::{
 use crate::{
     backend_proto as pb,
     backend_proto::deck_configs_for_update::{ConfigWithExtra, CurrentDeck},
+    config::StringKey,
     prelude::*,
 };
 
@@ -21,6 +22,7 @@ pub struct UpdateDeckConfigsRequest {
     pub configs: Vec<DeckConfig>,
     pub removed_config_ids: Vec<DeckConfigId>,
     pub apply_to_children: bool,
+    pub card_state_customizer: String,
 }
 
 impl Collection {
@@ -39,6 +41,7 @@ impl Collection {
                 .schema_changed_since_sync(),
             v3_scheduler: self.get_config_bool(BoolKey::Sched2021),
             have_addons: false,
+            card_state_customizer: self.get_config_string(StringKey::CardStateCustomizer),
         })
     }
 
@@ -178,6 +181,8 @@ impl Collection {
             }
         }
 
+        self.set_config_string_inner(StringKey::CardStateCustomizer, &input.card_state_customizer)?;
+
         Ok(())
     }
 }
@@ -198,6 +203,9 @@ mod test {
             let mut note = nt.new_note();
             col.add_note(&mut note, DeckId(1))?;
         }
+
+        // add the key so it doesn't trigger a change below
+        col.set_config_string_inner(StringKey::CardStateCustomizer, "")?;
 
         // pretend we're in sync
         let stamps = col.storage.get_collection_timestamps()?;
@@ -228,6 +236,7 @@ mod test {
                 .collect(),
             removed_config_ids: vec![],
             apply_to_children: false,
+            card_state_customizer: "".to_string(),
         };
         assert!(!col.update_deck_configs(input.clone())?.changes.had_change());
 
