@@ -32,7 +32,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 {#if active}
-    <TagInputEdit bind:name on:focusout={() => (active = false)} on:update={updateTag} />
+    <TagInputEdit
+        bind:name
+        on:focusout={() => (active = false)}
+        on:update={updateTag}
+    />
 {:else}
     <span
         class="d-inline-flex align-items-center tag text-nowrap bg-secondary rounded ps-2 pe-1 me-1"

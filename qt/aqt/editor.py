@@ -300,9 +300,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
 
     def setupShortcuts(self) -> None:
         # if a third element is provided, enable shortcut even when no field selected
-        cuts: List[Tuple] = [
-            ("Ctrl+Shift+T", self.onFocusTags, True),
-        ]
+        cuts: List[Tuple] = []
         gui_hooks.editor_did_init_shortcuts(cuts, self)
         for row in cuts:
             if len(row) == 2:

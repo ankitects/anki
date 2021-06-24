@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "lib/i18n";
     import type { ChangeNotetypeState } from "./lib";
+    import { withButton } from "components/helpers";
 
     import ButtonGroup from "components/ButtonGroup.svelte";
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";
@@ -29,9 +30,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 theme="primary"
                 on:click={() => save()}
                 tooltip={shortcutLabel}
-                on:mount={(event) => createShortcut(event.detail.button)}
-                >{tr.actionsSave()}</LabelButton
-            >
+                on:mount={withButton(createShortcut)}
+            >{tr.actionsSave()}</LabelButton>
         </WithShortcut>
     </ButtonGroupItem>
 </ButtonGroup>

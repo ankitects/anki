@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let className = "";
     export { className as class };
+    export let tooltip: string | undefined;
 
     const dispatch = createEventDispatcher();
 
@@ -23,6 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <span
     bind:this={spanRef}
+    title={tooltip}
     class={`badge ${className}`}
     class:dropdown-toggle={dropdownProps.dropdown}
     {...dropdownProps}
