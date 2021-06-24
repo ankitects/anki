@@ -45,7 +45,7 @@ $tooltip-max-width: 300px;
     }
 }
 
-textarea {
+textarea.form-control {
     color: var(--text-fg);
-    background-color: var(--frame-bg);
+    background-color: var(--frame-bg) !important;
 }

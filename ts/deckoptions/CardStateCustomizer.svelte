@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </Col>
 </Row>
 
-<textarea bind:value />
+<textarea class="form-control" bind:value spellcheck="false" autocapitalize="none" />
 
 <style>
     .text {
