@@ -302,7 +302,9 @@ impl SqliteStorage {
     }
 
     pub(crate) fn upgrade_notetypes_to_schema15(&self) -> Result<()> {
-        let nts = self.get_schema11_notetypes()?;
+        let nts = self
+            .get_schema11_notetypes()
+            .map_err(|e| AnkiError::JsonError(format!("decoding models: {}", e)))?;
         let mut names = HashSet::new();
         for (mut ntid, nt) in nts {
             let mut nt = Notetype::from(nt);
