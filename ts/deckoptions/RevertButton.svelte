@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DropdownMenu from "components/DropdownMenu.svelte";
     import DropdownItem from "components/DropdownItem.svelte";
     import Badge from "./Badge.svelte";
-    import { gearIcon, revertIcon } from "./icons";
+    import { revertIcon } from "./icons";
     import { isEqual as isEqualLodash, cloneDeep } from "lodash-es";
     import { touchDeviceKey } from "components/contextKeys";
     import { getContext } from "svelte";
@@ -52,7 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:mount={(event) => createDropdown(event.detail.span)}
         on:click={activateDropdown}
     >
-        {@html gearIcon}
+        {@html revertIcon}
     </Badge>
 
     <DropdownMenu id={menuId}>
