@@ -17,7 +17,7 @@ impl Collection {
     }
 
     pub fn set_tag_collapsed(&mut self, tag: &str, collapsed: bool) -> Result<OpOutput<()>> {
-        self.transact(Op::ExpandCollapse, |col| {
+        self.transact(Op::SkipUndo, |col| {
             col.set_tag_collapsed_inner(tag, collapsed, col.usn()?)
         })
     }

@@ -9,6 +9,7 @@ impl Collection {
         F: FnOnce(&mut Collection) -> Result<R>,
     {
         let have_op = op.is_some();
+        let skip_undo_queue = op == Some(Op::SkipUndo);
 
         self.storage.begin_rust_trx()?;
         self.begin_undoable_operation(op);
@@ -36,7 +37,7 @@ impl Collection {
                         changes: StateChanges::default(),
                     }
                 };
-                self.end_undoable_operation();
+                self.end_undoable_operation(skip_undo_queue);
                 Ok(OpOutput { output, changes })
             })
             // roll back on error

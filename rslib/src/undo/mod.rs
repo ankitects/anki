@@ -94,17 +94,15 @@ impl UndoManager {
         });
     }
 
-    fn end_step(&mut self) {
+    fn end_step(&mut self, skip_undo: bool) {
         if let Some(step) = self.current_step.take() {
-            if step.has_changes() {
+            if step.has_changes() && !skip_undo {
                 if self.mode == UndoMode::Undoing {
                     self.redo_steps.push(step);
                 } else {
                     self.undo_steps.truncate(UNDO_LIMIT - 1);
                     self.undo_steps.push_front(step);
                 }
-            } else {
-                println!("no undo changes, discarding step");
             }
         }
     }
@@ -171,14 +169,8 @@ impl UndoManager {
     /// counter value, which can be used with `merge_undoable_ops`.
     fn add_custom_step(&mut self, name: String) -> usize {
         self.begin_step(Some(Op::Custom(name)));
-        self.end_step();
+        self.end_step(false);
         self.counter
-    }
-
-    fn clear_current_changes(&mut self) {
-        if let Some(op) = &mut self.current_step {
-            op.changes.clear();
-        }
     }
 }
 
@@ -234,8 +226,8 @@ impl Collection {
 
     /// Called at the end of a successful transaction.
     /// In most instances, this will also clear the study queues.
-    pub(crate) fn end_undoable_operation(&mut self) {
-        self.state.undo.end_step();
+    pub(crate) fn end_undoable_operation(&mut self, skip_undo: bool) {
+        self.state.undo.end_step(skip_undo);
     }
 
     pub(crate) fn discard_undo_and_study_queues(&mut self) {
@@ -251,17 +243,6 @@ impl Collection {
     #[inline]
     pub(crate) fn save_undo(&mut self, item: impl Into<UndoableChange>) {
         self.state.undo.save(item.into());
-    }
-
-    /// Forget any recorded changes in the current transaction, allowing
-    /// a minor change like a config update to bypass undo. Bumps mtime if
-    /// there were pending changes.
-    pub(crate) fn clear_current_undo_step_changes(&mut self) -> Result<()> {
-        if self.current_undo_step_has_changes() {
-            self.set_modified()?;
-        }
-        self.state.undo.clear_current_changes();
-        Ok(())
     }
 
     pub(crate) fn current_undo_op(&self) -> Option<&UndoableOp> {
@@ -554,13 +535,13 @@ mod test {
         );
         assert!(!out.changes.had_change());
 
-        // op output won't reflect changes were made
+        // op output will reflect changes were made
         let out = col.set_config_bool(BoolKey::AddingDefaultsToCurrentDeck, true, false)?;
         assert_ne!(
             col.storage.get_collection_timestamps()?.collection_change.0,
             0
         );
-        assert!(!out.changes.had_change());
+        assert!(out.changes.had_change());
 
         Ok(())
     }
