@@ -132,6 +132,7 @@ copy_mdi_icons(
 
         # tag editor
         "tag-outline.svg",
+        "tag.svg",
         "tag-plus.svg",
     ],
     visibility = ["//visibility:public"],
