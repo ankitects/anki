@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Tag from "./Tag.svelte";
     import TagInput from "./TagInput.svelte";
 
-    export let tags = ["en::foobar", "zh::あっちこっち"];
+    export let tags = ["en::foobar", "zh::あっちこっち", "test", "def"];
 
     let tagInputNew: HTMLInputElement;
     let newName: string = "";
@@ -17,12 +17,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tagInputNew.focus();
     }
 
-    function deleteTag({ detail }: CustomEvent) {
-        tags.splice(tags.indexOf(detail.name), 1);
+    function deleteTag(index: number): void {
+        tags.splice(index, 1);
         tags = tags;
     }
 
-    function addTag() {
+    function addTag(): void {
         if (!tags.includes(newName) && newName.length > 0) {
             tags.push(newName);
         }
@@ -35,11 +35,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div class="d-flex flex-wrap">
         <AddTagBadge on:click={focusInputNew} />
 
-        {#each tags as tag}
-            <Tag name={tag} on:tagdelete={deleteTag} />
+        {#each tags as tag, index}
+            <Tag bind:name={tag} on:tagdelete={() => deleteTag(index)} />
         {/each}
 
-        <TagInput bind:input={tagInputNew} name={newName} on:tagupdate={addTag} />
+        <TagInput bind:input={tagInputNew} bind:name={newName} on:tagupdate={addTag} />
     </div>
 </StickyBottom>
 

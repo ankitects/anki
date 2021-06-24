@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { createEventDispatcher, onMount, onDestroy } from "svelte";
+    import { createEventDispatcher } from "svelte";
 
     import DropdownMenu from "components/DropdownMenu.svelte";
     import DropdownItem from "components/DropdownItem.svelte";
@@ -27,43 +27,60 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         event.preventDefault();
     }
 
-    function onKeydown(event: KeyboardEvent) {
+    function switchUpDown(event: KeyboardEvent): void {
+        const target = event.currentTarget as HTMLButtonElement;
+        console.log(
+            event.code,
+            target.nextElementSibling,
+            target.previousElementSibling
+        );
         if (event.code === "ArrowUp") {
-            activeItem = activeItem === tagValues.length - 1 ? 0 : ++activeItem;
-            name = tagValues[activeItem];
+            if (target.nextElementSibling) {
+                (target.nextElementSibling as HTMLButtonElement).focus();
+            }
+
             event.preventDefault();
         } else if (event.code === "ArrowDown") {
-            activeItem = activeItem === 0 ? tagValues.length - 1 : --activeItem;
-            name = tagValues[activeItem];
+            if (target.previousElementSibling) {
+                (target.previousElementSibling as HTMLButtonElement).focus();
+            }
+
             event.preventDefault();
-        } else if (event.code === "Enter") {
-            /* const dropdownActive = dropdown._element.classList.contains("show"); */
-            /* if (dropdownActive) { */
-            /*     if (typeof activeItem === "number") { */
-            /*         name = tagValues[activeItem]; */
-            /*         activeItem = null; */
-            /*     } */
-            /*     dropdown.hide(); */
-            /* } else { */
-            /*     dispatch("accept"); */
-            /* } */
         }
     }
+
+    function updateActiveItem(even: FocusEvent): void {}
+
+    /* else if (event.code === "Enter") { */
+    /* const dropdownActive = dropdown._element.classList.contains("show"); */
+    /* if (dropdownActive) { */
+    /*     if (typeof activeItem === "number") { */
+    /*         name = tagValues[activeItem]; */
+    /*         activeItem = null; */
+    /*     } */
+    /*     dropdown.hide(); */
+    /* } else { */
+    /*     dispatch("accept"); */
+    /* } */
+    /* } */
 </script>
 
-<div bind:this={menu} class="dropup dropdown-reverse" on:keydown={onKeydown}>
+<div bind:this={menu} class="dropup dropdown-reverse">
     <slot {triggerId} {triggerClass} {dropdown} />
 
     <DropdownMenu labelledby={triggerId}>
         {#each suggestions as tag}
-            <DropdownItem>{tag}</DropdownItem>
+            <DropdownItem on:focus={updateActiveItem} on:keydown={switchUpDown}
+                >{tag}</DropdownItem
+            >
         {/each}
     </DropdownMenu>
 </div>
 
 <style lang="scss">
-    /* .dropdown-reverse :global(.dropdown-menu) { */
-    /*     display: flex; */
-    /*     flex-direction: column-reverse; */
-    /* } */
+    .dropdown-reverse :global(.dropdown-menu.show) {
+        display: flex;
+        flex-direction: column-reverse;
+        font-size: 13px;
+    }
 </style>

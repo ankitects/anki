@@ -28,6 +28,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:btn-night={nightMode}
     title={tooltip}
     on:click
+    on:focus
+    on:keydown
     on:mousedown|preventDefault
 >
     <slot />
@@ -43,7 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         font-size: calc(var(--buttons-size) / 2.3);
 
         background: none;
-        box-shadow: none;
+        box-shadow: none !important;
         border: none;
     }
 
