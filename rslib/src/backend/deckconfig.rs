@@ -88,6 +88,7 @@ impl From<pb::UpdateDeckConfigsRequest> for UpdateDeckConfigsRequest {
             configs: c.configs.into_iter().map(Into::into).collect(),
             removed_config_ids: c.removed_config_ids.into_iter().map(Into::into).collect(),
             apply_to_children: c.apply_to_children,
+            card_state_customizer: c.card_state_customizer,
         }
     }
 }

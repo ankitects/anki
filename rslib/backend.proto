@@ -965,6 +965,8 @@ message DeckConfigsForUpdate {
   bool schema_modified = 4;
   bool v3_scheduler = 5;
   bool have_addons = 6;
+  // only applies to v3 scheduler
+  string card_state_customizer = 7;
 }
 
 message UpdateDeckConfigsRequest {
@@ -974,6 +976,7 @@ message UpdateDeckConfigsRequest {
   repeated DeckConfig configs = 2;
   repeated int64 removed_config_ids = 3;
   bool apply_to_children = 4;
+  string card_state_customizer = 5;
 }
 
 message SetTagCollapsedRequest {
@@ -1470,6 +1473,7 @@ message Config {
       SET_DUE_BROWSER = 0;
       SET_DUE_REVIEWER = 1;
       DEFAULT_SEARCH_TEXT = 2;
+      CARD_STATE_CUSTOMIZER = 3;
     }
     Key key = 1;
   }

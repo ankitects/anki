@@ -55,6 +55,7 @@ export class DeckOptionsState {
     readonly currentAuxData: Writable<Record<string, unknown>>;
     readonly configList: Readable<ConfigListEntry[]>;
     readonly parentLimits: Readable<ParentLimits>;
+    readonly cardStateCustomizer: Writable<string>;
     readonly currentDeck: pb.BackendProto.DeckConfigsForUpdate.CurrentDeck;
     readonly defaults: ConfigInner;
     readonly addonComponents: Writable<DynamicSvelteComponent[]>;
@@ -88,6 +89,7 @@ export class DeckOptionsState {
         );
         this.v3Scheduler = data.v3Scheduler;
         this.haveAddons = data.haveAddons;
+        this.cardStateCustomizer = writable(data.cardStateCustomizer);
 
         // decrement the use count of the starting item, as we'll apply +1 to currently
         // selected one at display time
@@ -210,6 +212,7 @@ export class DeckOptionsState {
             removedConfigIds: this.removedConfigs,
             configs,
             applyToChildren,
+            cardStateCustomizer: get(this.cardStateCustomizer),
         });
     }
 

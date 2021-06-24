@@ -43,6 +43,7 @@ impl From<StringKeyProto> for StringKey {
             StringKeyProto::SetDueBrowser => StringKey::SetDueBrowser,
             StringKeyProto::SetDueReviewer => StringKey::SetDueReviewer,
             StringKeyProto::DefaultSearchText => StringKey::DefaultSearchText,
+            StringKeyProto::CardStateCustomizer => StringKey::CardStateCustomizer,
         }
     }
 }

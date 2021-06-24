@@ -44,3 +44,8 @@ $tooltip-max-width: 300px;
         color: #ffaaaa;
     }
 }
+
+textarea {
+    color: var(--text-fg);
+    background-color: var(--frame-bg);
+}
