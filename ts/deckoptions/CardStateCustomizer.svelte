@@ -25,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <textarea class="form-control" bind:value spellcheck="false" autocapitalize="none" />
 
-<style>
+<style lang="scss">
     .text {
         min-height: 2em;
     }
@@ -33,5 +33,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         width: 100%;
         height: 10em;
         font-family: monospace;
+    }
+
+    @supports (-webkit-touch-callout: none) {
+        // mobile compat
+        textarea {
+            font-size: 16px;
+            overflow-x: hidden;
+        }
     }
 </style>
