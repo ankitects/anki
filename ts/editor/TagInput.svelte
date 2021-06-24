@@ -70,7 +70,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:nameChosen={setTagname}
     on:accept={onAccept}
 >
-    <label id={triggerId} class={`ps-2 pe-1 ${triggerClass}`} data-value={name}>
+    <label
+        id={triggerId}
+        class={`ps-2 pe-1 ${triggerClass}`}
+        data-value={name}
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+        data-bs-reference="parent"
+    >
         <input
             bind:this={input}
             type="text"
