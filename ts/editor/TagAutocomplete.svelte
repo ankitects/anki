@@ -4,28 +4,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { createEventDispatcher, onMount, onDestroy } from "svelte";
-    import Dropdown from "bootstrap/js/dist/dropdown";
+
+    import DropdownMenu from "components/DropdownMenu.svelte";
+    import DropdownItem from "components/DropdownItem.svelte";
 
     export let name: string;
+    export const suggestions = ["en::idioms", "anki::functionality", "math"];
 
     const dispatch = createEventDispatcher();
     const triggerId = "tagLabel" + String(Math.random()).slice(2);
     const triggerClass = "dropdown-toggle";
 
-    let originalName = name;
     let menu: HTMLDivElement;
     let dropdown;
     let activeItem = -1;
 
-    const tagSuggestions = ["en::idioms", "anki::functionality", "math"];
-    $: tagValues = [...tagSuggestions, originalName];
-
-    onMount(() => {
-        const toggle = menu.querySelector(`#${triggerId}`)!;
-        dropdown = new Dropdown(toggle, {
-            reference: "parent",
-        });
-    });
+    $: tagValues = [...suggestions, name];
 
     function onItemClick(event: Event) {
         dispatch("nameChosen", { name: event.currentTarget!.innerText });
@@ -43,56 +37,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             name = tagValues[activeItem];
             event.preventDefault();
         } else if (event.code === "Enter") {
-            const dropdownActive = dropdown._element.classList.contains("show");
-            if (dropdownActive) {
-                if (typeof activeItem === "number") {
-                    name = tagValues[activeItem];
-                    activeItem = null;
-                }
-                dropdown.hide();
-            } else {
-                dispatch("accept");
-            }
+            /* const dropdownActive = dropdown._element.classList.contains("show"); */
+            /* if (dropdownActive) { */
+            /*     if (typeof activeItem === "number") { */
+            /*         name = tagValues[activeItem]; */
+            /*         activeItem = null; */
+            /*     } */
+            /*     dropdown.hide(); */
+            /* } else { */
+            /*     dispatch("accept"); */
+            /* } */
         }
     }
 </script>
 
-<div class="dropdown" bind:this={menu} on:keydown={onKeydown}>
+<div bind:this={menu} class="dropdown dropdown-reverse" on:keydown={onKeydown}>
     <slot {triggerId} {triggerClass} {dropdown} />
 
-    <ul class="dropdown-menu" aria-labelledby={triggerId}>
-        {#each tagSuggestions as tag, index}
-            <li>
-                <a
-                    href="#/"
-                    class="dropdown-item"
-                    class:dropdown-item-active={activeItem === index}
-                    on:click={onItemClick}
-                >
-                    {tag}
-                </a>
-            </li>
+    <DropdownMenu labelledby={triggerId}>
+        {#each suggestions as tag}
+            <DropdownItem>{tag}</DropdownItem>
         {/each}
-    </ul>
+    </DropdownMenu>
 </div>
 
 <style lang="scss">
-    :global(.show).dropdown-menu {
+    .dropdown-reverse :global(.dropdown-menu) {
         display: flex;
         flex-direction: column-reverse;
-    }
-    .dropdown-item {
-        padding: 0rem 0.3rem;
-        font-size: smaller;
-        &:focus {
-            outline: none;
-        }
-    }
-    .dropdown-item:hover {
-        background-color: #c3c5c7;
-    }
-    .dropdown-item-active {
-        color: #1e2125;
-        background-color: #c3c5c7;
     }
 </style>

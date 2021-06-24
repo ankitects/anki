@@ -22,10 +22,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tags = tags;
     }
 
-    function addTag({ detail }: CustomEvent) {
-        if (!tags.includes(detail.name) && detail.name.length > 0) {
-            tags.push(detail.name);
+    function addTag() {
+        if (!tags.includes(newName) && newName.length > 0) {
+            tags.push(newName);
         }
+        newName = "";
         tags = tags;
     }
 </script>

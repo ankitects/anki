@@ -16,17 +16,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const dispatch = createEventDispatcher();
 
     function onFocus(event: FocusEvent, dropdown: Dropdown): void {
-        dropdown.show();
+        /* dropdown.show(); */
     }
 
     function onAccept(event: Event): void {
-        dispatch("tagupdate", { name: normalizeTagname(name) });
-        input.value = "";
+        name = normalizeTagname(name);
+        dispatch("tagupdate", { name });
     }
 
     function dropdownBlur(event: Event, dropdown: Dropdown): void {
         onAccept(event);
-        dropdown.hide();
+        /* dropdown.hide(); */
     }
 
     function onKeydown(event: KeyboardEvent, dropdown: Dropdown): void {
