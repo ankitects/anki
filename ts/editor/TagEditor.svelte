@@ -40,6 +40,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </StickyBottom>
 
 <style lang="scss">
+    div {
+        font-size: 13px;
+    }
+
     :global(#mdi-tag-outline) {
         fill: currentColor;
         height: 100%;

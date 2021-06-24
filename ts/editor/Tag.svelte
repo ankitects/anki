@@ -24,11 +24,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <TagInputEdit bind:name on:focusout={() => (active = false)} />
 {:else}
     <span
-        class="tag text-nowrap bg-secondary rounded p-1 ps-2 me-2"
+        class="d-inline-flex align-items-center tag text-nowrap bg-secondary rounded ps-2 pe-1 me-1"
         on:click|stopPropagation={() => (active = true)}
     >
         <span>{name}</span>
-        <Badge class="rounded delete-icon" on:click={tagDelete}
+        <Badge class="rounded delete-icon ms-1 mt-1" on:click={tagDelete}
             >{@html deleteIcon}</Badge
         >
     </span>
@@ -37,13 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     $white-translucent: rgba(255, 255, 255, 0.5);
 
-    .tag :global(.delete-icon) {
-        & > :global(svg) {
-            vertical-align: text-bottom;
-        }
-
-        & > :global(svg:hover) {
-            background-color: $white-translucent;
-        }
+    .tag :global(.delete-icon > svg:hover) {
+        background-color: $white-translucent;
     }
 </style>
