@@ -688,7 +688,7 @@ class SidebarTreeView(QTreeView):
                 full_name = head + node.name
                 return lambda expanded: set_tag_collapsed(
                     parent=self, tag=full_name, collapsed=not expanded
-                ).run_in_background()
+                ).run_in_background(initiator=self)
 
             for node in nodes:
                 item = SidebarItem(
