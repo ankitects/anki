@@ -95,9 +95,6 @@ async function _updateQA(
         })
         .catch(renderError("MathJax"));
 
-    // defer display for up to 100ms to allow images to load
-    await Promise.race([allImagesLoaded(), new Promise((r) => setTimeout(r, 100))]);
-
     // and reveal card when processing is done
     qa.style.opacity = "1";
     await _runHook(onShownHook);
@@ -136,8 +133,7 @@ function _showAnswer(a: string, bodyclass: string): void {
                     document.body.className = bodyclass;
                 }
 
-                // avoid scrolling to the answer until images load, even if it
-                // takes more than 100ms
+                // avoid scrolling to the answer until images load
                 allImagesLoaded().then(scrollToAnswer);
             },
             function () {}
