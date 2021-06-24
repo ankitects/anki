@@ -227,7 +227,7 @@ where
             } else {
                 match data_for_file(&self.mgr.media_folder, disk_fname)? {
                     Some(data) => {
-                        let norm_name = self.normalize_file(ctx, &disk_fname, data)?;
+                        let norm_name = self.normalize_file(ctx, disk_fname, data)?;
                         out.renamed
                             .insert(disk_fname.to_string(), norm_name.to_string());
                         out.files.push(norm_name.into_owned());

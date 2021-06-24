@@ -22,27 +22,27 @@ impl SearchService for Backend {
         Ok(write_nodes(&node.into_node_list()).into())
     }
 
-    fn search_cards(&self, input: pb::SearchIn) -> Result<pb::SearchOut> {
+    fn search_cards(&self, input: pb::SearchRequest) -> Result<pb::SearchResponse> {
         self.with_col(|col| {
             let order = input.order.unwrap_or_default().value.into();
             let cids = col.search_cards(&input.search, order)?;
-            Ok(pb::SearchOut {
+            Ok(pb::SearchResponse {
                 ids: cids.into_iter().map(|v| v.0).collect(),
             })
         })
     }
 
-    fn search_notes(&self, input: pb::SearchIn) -> Result<pb::SearchOut> {
+    fn search_notes(&self, input: pb::SearchRequest) -> Result<pb::SearchResponse> {
         self.with_col(|col| {
             let order = input.order.unwrap_or_default().value.into();
             let nids = col.search_notes(&input.search, order)?;
-            Ok(pb::SearchOut {
+            Ok(pb::SearchResponse {
                 ids: nids.into_iter().map(|v| v.0).collect(),
             })
         })
     }
 
-    fn join_search_nodes(&self, input: pb::JoinSearchNodesIn) -> Result<pb::String> {
+    fn join_search_nodes(&self, input: pb::JoinSearchNodesRequest) -> Result<pb::String> {
         let sep = input.joiner().into();
         let existing_nodes = {
             let node: Node = input.existing_node.unwrap_or_default().try_into()?;
@@ -52,7 +52,7 @@ impl SearchService for Backend {
         Ok(concatenate_searches(sep, existing_nodes, additional_node).into())
     }
 
-    fn replace_search_node(&self, input: pb::ReplaceSearchNodeIn) -> Result<pb::String> {
+    fn replace_search_node(&self, input: pb::ReplaceSearchNodeRequest) -> Result<pb::String> {
         let existing = {
             let node = input.existing_node.unwrap_or_default().try_into()?;
             if let Node::Group(nodes) = node {
@@ -65,7 +65,7 @@ impl SearchService for Backend {
         Ok(replace_search_node(existing, replacement).into())
     }
 
-    fn find_and_replace(&self, input: pb::FindAndReplaceIn) -> Result<pb::OpChangesWithCount> {
+    fn find_and_replace(&self, input: pb::FindAndReplaceRequest) -> Result<pb::OpChangesWithCount> {
         let mut search = if input.regex {
             input.search
         } else {

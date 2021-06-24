@@ -24,7 +24,7 @@ impl CollectionService for Backend {
         Ok(().into())
     }
 
-    fn open_collection(&self, input: pb::OpenCollectionIn) -> Result<pb::Empty> {
+    fn open_collection(&self, input: pb::OpenCollectionRequest) -> Result<pb::Empty> {
         let mut col = self.col.lock().unwrap();
         if col.is_some() {
             return Err(AnkiError::CollectionAlreadyOpen);
@@ -53,7 +53,7 @@ impl CollectionService for Backend {
         Ok(().into())
     }
 
-    fn close_collection(&self, input: pb::CloseCollectionIn) -> Result<pb::Empty> {
+    fn close_collection(&self, input: pb::CloseCollectionRequest) -> Result<pb::Empty> {
         self.abort_media_sync_and_wait();
 
         let mut col = self.col.lock().unwrap();
@@ -72,14 +72,14 @@ impl CollectionService for Backend {
         Ok(().into())
     }
 
-    fn check_database(&self, _input: pb::Empty) -> Result<pb::CheckDatabaseOut> {
+    fn check_database(&self, _input: pb::Empty) -> Result<pb::CheckDatabaseResponse> {
         let mut handler = self.new_progress_handler();
         let progress_fn = move |progress, throttle| {
             handler.update(Progress::DatabaseCheck(progress), throttle);
         };
         self.with_col(|col| {
             col.check_database(progress_fn)
-                .map(|problems| pb::CheckDatabaseOut {
+                .map(|problems| pb::CheckDatabaseResponse {
                     problems: problems.to_i18n_strings(&col.tr),
                 })
         })

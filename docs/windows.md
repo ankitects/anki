@@ -61,12 +61,6 @@ Anki's source files do not need to be in a specific location other than on the
 same drive as `\bazel`, but it's best to avoid long paths, as they can cause
 problems.
 
-## Build failures
-
-The Javascript bundling on Windows is currently a bit flaky, so the initial
-build will likely fail with an error about a missing rollup module. If you
-get an error when running the commands below, try repeating them once or twice.
-
 ## Running Anki during development
 
 Open PowerShell and change to the top level of Anki's source folder,
@@ -80,6 +74,10 @@ This will build Anki and run it in place.
 
 The first build will take a while, as it downloads and builds a bunch of
 dependencies. When the build is complete, Anki will automatically start.
+
+The Javascript build code is currently a bit flaky, so the initial
+build may fail with an error. If you get an error when running/building,
+try repeating the command once or twice - it should pick up where it left off.
 
 To play and record audio, mpv.exe and lame.exe must be on the path.
 

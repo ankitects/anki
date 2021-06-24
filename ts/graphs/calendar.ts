@@ -53,7 +53,7 @@ type WeekdayType = pb.BackendProto.GraphPreferences.Weekday;
 const Weekday = pb.BackendProto.GraphPreferences.Weekday; /* enum */
 
 export function gatherData(
-    data: pb.BackendProto.GraphsOut,
+    data: pb.BackendProto.GraphsResponse,
     firstDayOfWeek: WeekdayType
 ): GraphData {
     const reviewCount = new Map<number, number>();

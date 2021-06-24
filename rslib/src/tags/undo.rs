@@ -36,7 +36,7 @@ impl Collection {
     /// Caller is responsible for setting usn.
     pub(super) fn register_tag_undoable(&mut self, tag: &Tag) -> Result<()> {
         self.save_undo(UndoableTagChange::Added(Box::new(tag.clone())));
-        self.storage.register_tag(&tag)
+        self.storage.register_tag(tag)
     }
 
     /// Remove a single tag from the tag list, saving an undo entry. Does not alter notes.

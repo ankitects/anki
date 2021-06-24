@@ -12,7 +12,7 @@ use crate::{
         parse_search, BoolSeparator, Node, PropertyKind, RatingKind, SearchNode, StateKind,
         TemplateKind,
     },
-    text::escape_anki_wildcards,
+    text::escape_anki_wildcards_for_search_node,
 };
 
 impl TryFrom<pb::SearchNode> for Node {
@@ -22,13 +22,15 @@ impl TryFrom<pb::SearchNode> for Node {
         use pb::search_node::{group::Joiner, Filter, Flag};
         Ok(if let Some(filter) = msg.filter {
             match filter {
-                Filter::Tag(s) => Node::Search(SearchNode::Tag(escape_anki_wildcards(&s))),
-                Filter::Deck(s) => Node::Search(SearchNode::Deck(if s == "*" {
-                    s
-                } else {
-                    escape_anki_wildcards(&s)
-                })),
-                Filter::Note(s) => Node::Search(SearchNode::Notetype(escape_anki_wildcards(&s))),
+                Filter::Tag(s) => {
+                    Node::Search(SearchNode::Tag(escape_anki_wildcards_for_search_node(&s)))
+                }
+                Filter::Deck(s) => {
+                    Node::Search(SearchNode::Deck(escape_anki_wildcards_for_search_node(&s)))
+                }
+                Filter::Note(s) => Node::Search(SearchNode::Notetype(
+                    escape_anki_wildcards_for_search_node(&s),
+                )),
                 Filter::Template(u) => {
                     Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
                 }
@@ -39,7 +41,7 @@ impl TryFrom<pb::SearchNode> for Node {
                     text: dupe.first_field,
                 }),
                 Filter::FieldName(s) => Node::Search(SearchNode::SingleField {
-                    field: escape_anki_wildcards(&s),
+                    field: escape_anki_wildcards_for_search_node(&s),
                     text: "*".to_string(),
                     is_re: false,
                 }),

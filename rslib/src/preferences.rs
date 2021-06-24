@@ -7,7 +7,7 @@ use crate::{
         Preferences,
     },
     collection::Collection,
-    config::BoolKey,
+    config::{BoolKey, StringKey},
     error::Result,
     prelude::*,
     scheduler::timing::local_minutes_west_for_stamp,
@@ -131,6 +131,7 @@ impl Collection {
                 .get_config_bool(BoolKey::AddingDefaultsToCurrentDeck),
             paste_images_as_png: self.get_config_bool(BoolKey::PasteImagesAsPng),
             paste_strips_formatting: self.get_config_bool(BoolKey::PasteStripsFormatting),
+            default_search_text: self.get_config_string(StringKey::DefaultSearchText),
         })
     }
 
@@ -142,6 +143,7 @@ impl Collection {
         )?;
         self.set_config_bool_inner(BoolKey::PasteImagesAsPng, s.paste_images_as_png)?;
         self.set_config_bool_inner(BoolKey::PasteStripsFormatting, s.paste_strips_formatting)?;
+        self.set_config_string_inner(StringKey::DefaultSearchText, &s.default_search_text)?;
         Ok(())
     }
 }

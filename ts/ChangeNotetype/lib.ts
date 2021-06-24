@@ -29,9 +29,10 @@ export async function getChangeNotetypeInfo(
 }
 
 export async function changeNotetype(
-    input: pb.BackendProto.ChangeNotetypeIn
+    input: pb.BackendProto.ChangeNotetypeRequest
 ): Promise<void> {
-    const data: Uint8Array = pb.BackendProto.ChangeNotetypeIn.encode(input).finish();
+    const data: Uint8Array =
+        pb.BackendProto.ChangeNotetypeRequest.encode(input).finish();
     await postRequest("/_anki/changeNotetype", data);
     return;
 }
@@ -113,13 +114,13 @@ export class ChangeNotetypeInfoWrapper {
         );
     }
 
-    input(): pb.BackendProto.ChangeNotetypeIn {
-        return this.info.input as pb.BackendProto.ChangeNotetypeIn;
+    input(): pb.BackendProto.ChangeNotetypeRequest {
+        return this.info.input as pb.BackendProto.ChangeNotetypeRequest;
     }
 
     /// Pack changes back into input message for saving.
-    intoInput(): pb.BackendProto.ChangeNotetypeIn {
-        const input = this.info.input as pb.BackendProto.ChangeNotetypeIn;
+    intoInput(): pb.BackendProto.ChangeNotetypeRequest {
+        const input = this.info.input as pb.BackendProto.ChangeNotetypeRequest;
         input.newFields = nullToNegativeOne(this.fields);
         if (this.templates) {
             input.newTemplates = nullToNegativeOne(this.templates);
@@ -202,7 +203,7 @@ export class ChangeNotetypeState {
         await changeNotetype(this.dataForSaving());
     }
 
-    dataForSaving(): pb.BackendProto.ChangeNotetypeIn {
+    dataForSaving(): pb.BackendProto.ChangeNotetypeRequest {
         return this.info_.intoInput();
     }
 

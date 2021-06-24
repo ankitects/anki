@@ -11,13 +11,13 @@ import { setupI18n, ModuleName } from "lib/i18n";
 
 import "./fields.css";
 
-import { caretToEnd } from "./helpers";
 import { saveField } from "./changeTimer";
 
 import { EditorField } from "./editorField";
 import { LabelContainer } from "./labelContainer";
 import { EditingArea } from "./editingArea";
 import { Editable } from "./editable";
+import { Codable } from "./codable";
 import { initToolbar } from "./toolbar";
 
 export { setNoteId, getNoteId } from "./noteId";
@@ -35,6 +35,7 @@ declare global {
 }
 
 customElements.define("anki-editable", Editable);
+customElements.define("anki-codable", Codable, { extends: "textarea" });
 customElements.define("anki-editing-area", EditingArea, { extends: "div" });
 customElements.define("anki-label-container", LabelContainer, { extends: "div" });
 customElements.define("anki-editor-field", EditorField, { extends: "div" });
@@ -49,8 +50,8 @@ export function focusField(n: number): void {
     const field = getEditorField(n);
 
     if (field) {
-        field.editingArea.focusEditable();
-        caretToEnd(field.editingArea);
+        field.editingArea.focus();
+        field.editingArea.caretToEnd();
         updateActiveButtons(new Event("manualfocus"));
     }
 }
@@ -60,7 +61,7 @@ export function focusIfField(x: number, y: number): boolean {
     for (let i = 0; i < elements.length; i++) {
         const elem = elements[i] as EditingArea;
         if (elem instanceof EditingArea) {
-            elem.focusEditable();
+            elem.focus();
             return true;
         }
     }
@@ -142,6 +143,10 @@ export function setBackgrounds(cols: ("dupe" | "")[]): void {
     document
         .getElementById("dupes")!
         .classList.toggle("is-inactive", !cols.includes("dupe"));
+}
+
+export function setClozeHint(cloze_hint: string): void {
+    document.getElementById("cloze-hint")!.innerHTML = cloze_hint;
 }
 
 export function setFonts(fonts: [string, number, boolean][]): void {

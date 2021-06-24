@@ -22,7 +22,10 @@ impl DecksService for Backend {
         })
     }
 
-    fn add_or_update_deck_legacy(&self, input: pb::AddOrUpdateDeckLegacyIn) -> Result<pb::DeckId> {
+    fn add_or_update_deck_legacy(
+        &self,
+        input: pb::AddOrUpdateDeckLegacyRequest,
+    ) -> Result<pb::DeckId> {
         self.with_col(|col| {
             let schema11: DeckSchema11 = serde_json::from_slice(&input.deck)?;
             let mut deck: Deck = schema11.into();
@@ -38,7 +41,7 @@ impl DecksService for Backend {
         })
     }
 
-    fn deck_tree(&self, input: pb::DeckTreeIn) -> Result<pb::DeckTreeNode> {
+    fn deck_tree(&self, input: pb::DeckTreeRequest) -> Result<pb::DeckTreeNode> {
         let lim = if input.top_deck_id > 0 {
             Some(DeckId(input.top_deck_id))
         } else {
@@ -118,7 +121,7 @@ impl DecksService for Backend {
         })
     }
 
-    fn get_deck_names(&self, input: pb::GetDeckNamesIn) -> Result<pb::DeckNames> {
+    fn get_deck_names(&self, input: pb::GetDeckNamesRequest) -> Result<pb::DeckNames> {
         self.with_col(|col| {
             let names = if input.include_filtered {
                 col.get_all_deck_names(input.skip_empty_default)?
@@ -151,7 +154,7 @@ impl DecksService for Backend {
             .map(Into::into)
     }
 
-    fn reparent_decks(&self, input: pb::ReparentDecksIn) -> Result<pb::OpChangesWithCount> {
+    fn reparent_decks(&self, input: pb::ReparentDecksRequest) -> Result<pb::OpChangesWithCount> {
         let deck_ids: Vec<_> = input.deck_ids.into_iter().map(Into::into).collect();
         let new_parent = if input.new_parent == 0 {
             None
@@ -162,7 +165,7 @@ impl DecksService for Backend {
             .map(Into::into)
     }
 
-    fn rename_deck(&self, input: pb::RenameDeckIn) -> Result<pb::OpChanges> {
+    fn rename_deck(&self, input: pb::RenameDeckRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| col.rename_deck(input.deck_id.into(), &input.new_name))
             .map(Into::into)
     }
@@ -185,7 +188,7 @@ impl DecksService for Backend {
         Ok(FilteredSearchOrder::labels(&self.tr).into())
     }
 
-    fn set_deck_collapsed(&self, input: pb::SetDeckCollapsedIn) -> Result<pb::OpChanges> {
+    fn set_deck_collapsed(&self, input: pb::SetDeckCollapsedRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| {
             col.set_deck_collapsed(input.deck_id.into(), input.collapsed, input.scope())
         })

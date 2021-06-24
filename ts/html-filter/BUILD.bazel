@@ -5,17 +5,18 @@ load("//ts:eslint.bzl", "eslint_test")
 
 ts_library(
     name = "html-filter",
-    module_name = "html-filter",
     srcs = glob(
         ["*.ts"],
         exclude = ["*.test.ts"],
     ),
+    module_name = "html-filter",
     tsconfig = "//ts:tsconfig.json",
     visibility = ["//visibility:public"],
     deps = [],
 )
 
 jest_test(
+    env = "jsdom",
     deps = [
         "html-filter",
     ],

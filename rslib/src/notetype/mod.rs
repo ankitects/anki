@@ -99,7 +99,7 @@ impl Default for Notetype {
 
 impl Notetype {
     pub fn new_note(&self) -> Note {
-        Note::new(&self)
+        Note::new(self)
     }
 
     /// Return the template for the given card ordinal. Cloze notetypes
@@ -200,7 +200,7 @@ impl Collection {
             return Err(AnkiError::NotFound);
         }
 
-        let nids_node: Node = SearchNode::NoteIds(comma_separated_ids(&note_ids)).into();
+        let nids_node: Node = SearchNode::NoteIds(comma_separated_ids(note_ids)).into();
         let note1 = self
             .storage
             .get_note(*note_ids.first().unwrap())?
@@ -548,6 +548,22 @@ impl Notetype {
     pub(crate) fn is_cloze(&self) -> bool {
         matches!(self.config.kind(), NotetypeKind::Cloze)
     }
+
+    /// Return all clozable fields. A field is clozable when it belongs to a cloze
+    /// notetype and a 'cloze' filter is applied to it in the template.
+    pub(crate) fn cloze_fields(&self) -> HashSet<usize> {
+        if !self.is_cloze() {
+            HashSet::new()
+        } else if let Some((Some(front), _)) = self.parsed_templates().get(0) {
+            front
+                .cloze_fields()
+                .iter()
+                .filter_map(|name| self.get_field_ord(name))
+                .collect()
+        } else {
+            HashSet::new()
+        }
+    }
 }
 
 /// True if the slice is empty or either template of the first tuple doesn't have a cloze field.
@@ -647,7 +663,7 @@ impl Collection {
             // adding with existing id for old undo code, bypass undo
             self.state.notetype_cache.remove(&notetype.id);
             self.storage
-                .add_or_update_notetype_with_existing_id(&notetype)?;
+                .add_or_update_notetype_with_existing_id(notetype)?;
         }
 
         Ok(())

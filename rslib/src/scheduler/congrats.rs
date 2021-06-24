@@ -14,7 +14,7 @@ pub(crate) struct CongratsInfo {
 }
 
 impl Collection {
-    pub fn congrats_info(&mut self) -> Result<pb::CongratsInfoOut> {
+    pub fn congrats_info(&mut self) -> Result<pb::CongratsInfoResponse> {
         let did = self.get_current_deck_id();
         let deck = self.get_deck(did)?.ok_or(AnkiError::NotFound)?;
         let today = self.timing_today()?.days_elapsed;
@@ -25,7 +25,7 @@ impl Collection {
             - self.learn_ahead_secs() as i64
             - TimestampSecs::now().0)
             .max(0) as u32;
-        Ok(pb::CongratsInfoOut {
+        Ok(pb::CongratsInfoResponse {
             learn_remaining: info.learn_count,
             review_remaining: info.review_remaining,
             new_remaining: info.new_remaining,
@@ -49,7 +49,7 @@ mod test {
         let info = col.congrats_info().unwrap();
         assert_eq!(
             info,
-            crate::backend_proto::CongratsInfoOut {
+            crate::backend_proto::CongratsInfoResponse {
                 learn_remaining: 0,
                 review_remaining: false,
                 new_remaining: false,

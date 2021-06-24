@@ -17,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { gatherData, prepareData } from "./ease";
     import type { TableDatum, SearchEventMap } from "./graph-helpers";
 
-    export let sourceData: pb.BackendProto.GraphsOut | null = null;
+    export let sourceData: pb.BackendProto.GraphsResponse | null = null;
     export let preferences: PreferenceStore<pb.BackendProto.GraphPreferences>;
 
     const dispatch = createEventDispatcher<SearchEventMap>();

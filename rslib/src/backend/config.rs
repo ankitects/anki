@@ -42,6 +42,8 @@ impl From<StringKeyProto> for StringKey {
         match k {
             StringKeyProto::SetDueBrowser => StringKey::SetDueBrowser,
             StringKeyProto::SetDueReviewer => StringKey::SetDueReviewer,
+            StringKeyProto::DefaultSearchText => StringKey::DefaultSearchText,
+            StringKeyProto::CardStateCustomizer => StringKey::CardStateCustomizer,
         }
     }
 }
@@ -62,7 +64,7 @@ impl ConfigService for Backend {
         })
     }
 
-    fn set_config_json(&self, input: pb::SetConfigJsonIn) -> Result<pb::OpChanges> {
+    fn set_config_json(&self, input: pb::SetConfigJsonRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| {
             let val: Value = serde_json::from_slice(&input.value_json)?;
             col.set_config_json(input.key.as_str(), &val, input.undoable)
@@ -70,7 +72,7 @@ impl ConfigService for Backend {
         .map(Into::into)
     }
 
-    fn set_config_json_no_undo(&self, input: pb::SetConfigJsonIn) -> Result<pb::Empty> {
+    fn set_config_json_no_undo(&self, input: pb::SetConfigJsonRequest) -> Result<pb::Empty> {
         self.with_col(|col| {
             let val: Value = serde_json::from_slice(&input.value_json)?;
             col.transact_no_undo(|col| col.set_config(input.key.as_str(), &val).map(|_| ()))
@@ -99,7 +101,7 @@ impl ConfigService for Backend {
         })
     }
 
-    fn set_config_bool(&self, input: pb::SetConfigBoolIn) -> Result<pb::OpChanges> {
+    fn set_config_bool(&self, input: pb::SetConfigBoolRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| col.set_config_bool(input.key().into(), input.value, input.undoable))
             .map(Into::into)
     }
@@ -112,7 +114,7 @@ impl ConfigService for Backend {
         })
     }
 
-    fn set_config_string(&self, input: pb::SetConfigStringIn) -> Result<pb::OpChanges> {
+    fn set_config_string(&self, input: pb::SetConfigStringRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| col.set_config_string(input.key().into(), &input.value, input.undoable))
             .map(Into::into)
     }

@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { isApplePlatform } from "lib/platform";
     import StickyBar from "components/StickyBar.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
-    import ButtonToolbarItem from "components/ButtonToolbarItem.svelte";
+    import Item from "components/Item.svelte";
 
     import NoteTypeButtons from "./NoteTypeButtons.svelte";
     import FormatInlineButtons from "./FormatInlineButtons.svelte";
@@ -41,37 +41,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ColorButtons from "./ColorButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
 
+    export let size = isApplePlatform() ? 1.6 : 2.0;
+    export let wrap = true;
+
     export const toolbar = {};
     export const notetypeButtons = {};
     export const formatInlineButtons = {};
     export const formatBlockButtons = {};
     export const colorButtons = {};
     export const templateButtons = {};
-
-    export let size = isApplePlatform() ? 1.6 : 2.0;
-    export let wrap = true;
 </script>
 
 <StickyBar>
     <ButtonToolbar {size} {wrap} api={toolbar}>
-        <ButtonToolbarItem id="notetype">
+        <Item id="notetype">
             <NoteTypeButtons api={notetypeButtons} />
-        </ButtonToolbarItem>
+        </Item>
 
-        <ButtonToolbarItem id="inlineFormatting">
+        <Item id="inlineFormatting">
             <FormatInlineButtons api={formatInlineButtons} />
-        </ButtonToolbarItem>
+        </Item>
 
-        <ButtonToolbarItem id="blockFormatting">
+        <Item id="blockFormatting">
             <FormatBlockButtons api={formatBlockButtons} />
-        </ButtonToolbarItem>
+        </Item>
 
-        <ButtonToolbarItem id="color">
+        <Item id="color">
             <ColorButtons api={colorButtons} />
-        </ButtonToolbarItem>
+        </Item>
 
-        <ButtonToolbarItem id="template">
+        <Item id="template">
             <TemplateButtons api={templateButtons} />
-        </ButtonToolbarItem>
+        </Item>
     </ButtonToolbar>
 </StickyBar>

@@ -65,7 +65,7 @@ impl Collection {
     pub(crate) fn register_tag(&mut self, tag: &mut Tag) -> Result<bool> {
         let is_new = self.prepare_tag_for_registering(tag)?;
         if is_new {
-            self.register_tag_undoable(&tag)?;
+            self.register_tag_undoable(tag)?;
         }
         Ok(is_new)
     }
@@ -100,7 +100,7 @@ impl Collection {
 impl Collection {
     /// If parent tag(s) exist and differ in case, return a rewritten tag.
     fn adjusted_case_for_parents(&self, tag: &str) -> Result<Option<String>> {
-        if let Some(parent_tag) = self.first_existing_parent_tag(&tag)? {
+        if let Some(parent_tag) = self.first_existing_parent_tag(tag)? {
             let child_split: Vec<_> = tag.split("::").collect();
             let parent_count = parent_tag.matches("::").count() + 1;
             Ok(Some(format!(

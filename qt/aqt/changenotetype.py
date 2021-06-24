@@ -8,7 +8,7 @@ from typing import Sequence
 import aqt
 import aqt.deckconf
 from anki.collection import OpChanges
-from anki.models import ChangeNotetypeIn, NotetypeId
+from anki.models import ChangeNotetypeRequest, NotetypeId
 from anki.notes import NoteId
 from aqt.operations.notetype import change_notetype_of_notes
 from aqt.qt import *
@@ -70,7 +70,7 @@ class ChangeNotetypeDialog(QDialog):
         QDialog.reject(self)
 
     def save(self, data: bytes) -> None:
-        input = ChangeNotetypeIn()
+        input = ChangeNotetypeRequest()
         input.ParseFromString(data)
 
         if not self.mw.confirm_schema_modification():

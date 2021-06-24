@@ -45,6 +45,11 @@ export function wrap(front: string, back: string): void {
     wrapInternal(front, back, false);
 }
 
+export function wrapCurrent(front: string, back: string): void {
+    const currentField = getCurrentField()!;
+    currentField.surroundSelection(front, back);
+}
+
 /* currently unused */
 export function wrapIntoText(front: string, back: string): void {
     wrapInternal(front, back, true);

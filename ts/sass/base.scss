@@ -6,6 +6,19 @@ $body-bg: var(--window-bg);
 $link-hover-color: var(--link);
 $link-hover-decoration: none;
 
+$utilities: (
+    "opacity": (
+        property: opacity,
+        values: (
+            0: 0,
+            25: 0.25,
+            50: 0.5,
+            75: 0.75,
+            100: 1,
+        ),
+    ),
+);
+
 @import "ts/sass/bootstrap/bootstrap-reboot";
 @import "ts/sass/bootstrap/bootstrap-utilities";
 

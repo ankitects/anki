@@ -65,7 +65,7 @@ class PartiallyRenderedCard:
     latex_svg: bool
 
     @classmethod
-    def from_proto(cls, out: _pb.RenderCardOut) -> PartiallyRenderedCard:
+    def from_proto(cls, out: _pb.RenderCardResponse) -> PartiallyRenderedCard:
         qnodes = cls.nodes_from_proto(out.question_nodes)
         anodes = cls.nodes_from_proto(out.answer_nodes)
 

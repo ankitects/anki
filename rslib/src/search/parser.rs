@@ -705,7 +705,7 @@ fn unescape(txt: &str) -> ParseResult<String> {
             lazy_static! {
                 static ref RE: Regex = Regex::new(r#"\\[\\":()-]"#).unwrap();
             }
-            RE.replace_all(&txt, |caps: &Captures| match &caps[0] {
+            RE.replace_all(txt, |caps: &Captures| match &caps[0] {
                 r"\\" => r"\\",
                 "\\\"" => "\"",
                 r"\:" => ":",

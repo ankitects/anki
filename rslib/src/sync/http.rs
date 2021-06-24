@@ -6,19 +6,19 @@ use std::{fs, path::PathBuf};
 use serde::{Deserialize, Serialize};
 
 use super::{Chunk, Graves, SanityCheckCounts, UnchunkedChanges};
-use crate::{backend_proto::sync_server_method_in::Method, prelude::*};
+use crate::{backend_proto::sync_server_method_request::Method, prelude::*};
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub enum SyncRequest {
-    HostKey(HostKeyIn),
-    Meta(MetaIn),
-    Start(StartIn),
-    ApplyGraves(ApplyGravesIn),
-    ApplyChanges(ApplyChangesIn),
+    HostKey(HostKeyRequest),
+    Meta(MetaRequest),
+    Start(StartRequest),
+    ApplyGraves(ApplyGravesRequest),
+    ApplyChanges(ApplyChangesRequest),
     Chunk,
-    ApplyChunk(ApplyChunkIn),
+    ApplyChunk(ApplyChunkRequest),
     #[serde(rename = "sanityCheck2")]
-    SanityCheck(SanityCheckIn),
+    SanityCheck(SanityCheckRequest),
     Finish,
     Abort,
     #[serde(rename = "upload")]
@@ -73,19 +73,19 @@ impl SyncRequest {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct HostKeyIn {
+pub struct HostKeyRequest {
     #[serde(rename = "u")]
     pub username: String,
     #[serde(rename = "p")]
     pub password: String,
 }
 #[derive(Serialize, Deserialize, Debug)]
-pub struct HostKeyOut {
+pub struct HostKeyResponse {
     pub key: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct MetaIn {
+pub struct MetaRequest {
     #[serde(rename = "v")]
     pub sync_version: u8,
     #[serde(rename = "cv")]
@@ -93,7 +93,7 @@ pub struct MetaIn {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct StartIn {
+pub struct StartRequest {
     #[serde(rename = "minUsn")]
     pub client_usn: Usn,
     #[serde(rename = "lnewer")]
@@ -104,21 +104,21 @@ pub struct StartIn {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct ApplyGravesIn {
+pub struct ApplyGravesRequest {
     pub chunk: Graves,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct ApplyChangesIn {
+pub struct ApplyChangesRequest {
     pub changes: UnchunkedChanges,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct ApplyChunkIn {
+pub struct ApplyChunkRequest {
     pub chunk: Chunk,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct SanityCheckIn {
+pub struct SanityCheckRequest {
     pub client: SanityCheckCounts,
 }

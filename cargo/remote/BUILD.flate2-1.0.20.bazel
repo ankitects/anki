@@ -98,7 +98,7 @@ rust_library(
     deps = [
         "@raze__cfg_if__1_0_0//:cfg_if",
         "@raze__crc32fast__1_2_1//:crc32fast",
-        "@raze__libc__0_2_94//:libc",
+        "@raze__libc__0_2_97//:libc",
         "@raze__miniz_oxide__0_4_4//:miniz_oxide",
     ],
 )

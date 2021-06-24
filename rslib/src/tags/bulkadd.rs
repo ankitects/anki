@@ -84,6 +84,6 @@ mod test {
 
         assert_eq!(&add_to(""), " abc DEF xyz ");
         assert_eq!(&add_to("XYZ deF aaa"), " aaa abc deF XYZ ");
-        assert_eq!(add_missing_tags("def xyz abc", &desired).is_none(), true);
+        assert!(add_missing_tags("def xyz abc", &desired).is_none());
     }
 }

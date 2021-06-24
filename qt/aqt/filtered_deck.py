@@ -111,7 +111,6 @@ class FilteredDeckConfigDialog(QDialog):
 
         self.form.name.setText(deck.name)
         self.form.name.setPlaceholderText(deck.name)
-        self.set_custom_searches(self._desired_search_1, self._desired_search_2)
 
         existing = deck.id != 0
         if existing:
@@ -151,6 +150,8 @@ class FilteredDeckConfigDialog(QDialog):
 
         form.secondFilter.setChecked(show_second)
         form.filter2group.setVisible(show_second)
+
+        self.set_custom_searches(self._desired_search_1, self._desired_search_2)
 
         self.setWindowTitle(
             without_unicode_isolation(tr.actions_options_for(val=self.deck.name))

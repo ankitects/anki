@@ -876,6 +876,11 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         args=["dialog: aqt.addons.AddonsDialog", "add_on: aqt.addons.AddonMeta"],
         doc="""Allows doing an action when a single add-on is selected.""",
     ),
+    Hook(
+        name="addons_dialog_will_delete_addons",
+        args=["dialog: aqt.addons.AddonsDialog", "ids: List[str]"],
+        doc="""Allows doing an action before an add-on is deleted.""",
+    ),
     # Model
     ###################
     Hook(

@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
     import { buttonGroupKey } from "./contextKeys";
     import type { Identifier } from "./identifier";
-    import { insert, add } from "./identifier";
+    import { insertElement, appendElement } from "./identifier";
     import type { ButtonRegistration } from "./buttons";
     import { ButtonPosition } from "./buttons";
     import type { SvelteComponent } from "./registration";
@@ -62,9 +62,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             getDynamicInterface(buttonGroupRef);
 
         const insertButton = (button: SvelteComponent, position: Identifier = 0) =>
-            addComponent(button, (added, parent) => insert(added, parent, position));
+            addComponent(button, (added, parent) =>
+                insertElement(added, parent, position)
+            );
         const appendButton = (button: SvelteComponent, position: Identifier = -1) =>
-            addComponent(button, (added, parent) => add(added, parent, position));
+            addComponent(button, (added, parent) =>
+                appendElement(added, parent, position)
+            );
 
         const showButton = (id: Identifier) =>
             updateRegistration(({ detach }) => detach.set(false), id);

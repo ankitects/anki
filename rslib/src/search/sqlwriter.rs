@@ -53,7 +53,7 @@ impl SqlWriter<'_> {
     ) -> Result<(String, Vec<String>)> {
         self.table = self.table.combine(table.combine(node.required_table()));
         self.write_table_sql();
-        self.write_node_to_sql(&node)?;
+        self.write_node_to_sql(node)?;
         Ok((self.sql, self.args))
     }
 

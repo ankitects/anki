@@ -73,6 +73,8 @@ ts_library(
         "//ts/html-filter",
         "//ts:image_module_support",
         "@npm//svelte",
+        "@npm//@types/codemirror",
+        "@npm//codemirror",
     ] + svelte_names,
 )
 
@@ -177,7 +179,7 @@ svelte_check(
     ]) + [
         "//ts/sass:button_mixins_lib",
         "//ts/sass/bootstrap",
-        "//ts/components:svelte_components",
         "@npm//@types/bootstrap",
+        "//ts/components",
     ],
 )

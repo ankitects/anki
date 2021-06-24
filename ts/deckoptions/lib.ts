@@ -21,9 +21,10 @@ export async function getDeckOptionsInfo(
 }
 
 export async function saveDeckOptions(
-    input: pb.BackendProto.UpdateDeckConfigsIn
+    input: pb.BackendProto.UpdateDeckConfigsRequest
 ): Promise<void> {
-    const data: Uint8Array = pb.BackendProto.UpdateDeckConfigsIn.encode(input).finish();
+    const data: Uint8Array =
+        pb.BackendProto.UpdateDeckConfigsRequest.encode(input).finish();
     await postRequest("/_anki/updateDeckConfigs", data);
     return;
 }
@@ -54,6 +55,7 @@ export class DeckOptionsState {
     readonly currentAuxData: Writable<Record<string, unknown>>;
     readonly configList: Readable<ConfigListEntry[]>;
     readonly parentLimits: Readable<ParentLimits>;
+    readonly cardStateCustomizer: Writable<string>;
     readonly currentDeck: pb.BackendProto.DeckConfigsForUpdate.CurrentDeck;
     readonly defaults: ConfigInner;
     readonly addonComponents: Writable<DynamicSvelteComponent[]>;
@@ -87,6 +89,7 @@ export class DeckOptionsState {
         );
         this.v3Scheduler = data.v3Scheduler;
         this.haveAddons = data.haveAddons;
+        this.cardStateCustomizer = writable(data.cardStateCustomizer);
 
         // decrement the use count of the starting item, as we'll apply +1 to currently
         // selected one at display time
@@ -190,7 +193,7 @@ export class DeckOptionsState {
         this.updateConfigList();
     }
 
-    dataForSaving(applyToChildren: boolean): pb.BackendProto.UpdateDeckConfigsIn {
+    dataForSaving(applyToChildren: boolean): pb.BackendProto.UpdateDeckConfigsRequest {
         const modifiedConfigsExcludingCurrent = this.configs
             .map((c) => c.config)
             .filter((c, idx) => {
@@ -204,11 +207,12 @@ export class DeckOptionsState {
             // current must come last, even if unmodified
             this.configs[this.selectedIdx].config,
         ];
-        return pb.BackendProto.UpdateDeckConfigsIn.create({
+        return pb.BackendProto.UpdateDeckConfigsRequest.create({
             targetDeckId: this.targetDeckId,
             removedConfigIds: this.removedConfigs,
             configs,
             applyToChildren,
+            cardStateCustomizer: get(this.cardStateCustomizer),
         });
     }
 

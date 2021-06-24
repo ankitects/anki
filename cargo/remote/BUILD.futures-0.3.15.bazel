@@ -1,0 +1,174 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
+])
+
+# Generated Targets
+
+rust_library(
+    name = "futures",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "alloc",
+        "async-await",
+        "default",
+        "executor",
+        "futures-executor",
+        "std",
+    ],
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.3.15",
+    # buildifier: leave-alone
+    deps = [
+        "@raze__futures_channel__0_3_15//:futures_channel",
+        "@raze__futures_core__0_3_15//:futures_core",
+        "@raze__futures_executor__0_3_15//:futures_executor",
+        "@raze__futures_io__0_3_15//:futures_io",
+        "@raze__futures_sink__0_3_15//:futures_sink",
+        "@raze__futures_task__0_3_15//:futures_task",
+        "@raze__futures_util__0_3_15//:futures_util",
+    ],
+)
+
+# Unsupported target "_require_features" with type "test" omitted
+
+# Unsupported target "async_await_macros" with type "test" omitted
+
+# Unsupported target "auto_traits" with type "test" omitted
+
+# Unsupported target "compat" with type "test" omitted
+
+# Unsupported target "eager_drop" with type "test" omitted
+
+# Unsupported target "eventual" with type "test" omitted
+
+# Unsupported target "future_abortable" with type "test" omitted
+
+# Unsupported target "future_basic_combinators" with type "test" omitted
+
+# Unsupported target "future_fuse" with type "test" omitted
+
+# Unsupported target "future_inspect" with type "test" omitted
+
+# Unsupported target "future_join_all" with type "test" omitted
+
+# Unsupported target "future_obj" with type "test" omitted
+
+# Unsupported target "future_select_all" with type "test" omitted
+
+# Unsupported target "future_select_ok" with type "test" omitted
+
+# Unsupported target "future_shared" with type "test" omitted
+
+# Unsupported target "future_try_flatten_stream" with type "test" omitted
+
+# Unsupported target "future_try_join_all" with type "test" omitted
+
+# Unsupported target "io_buf_reader" with type "test" omitted
+
+# Unsupported target "io_buf_writer" with type "test" omitted
+
+# Unsupported target "io_cursor" with type "test" omitted
+
+# Unsupported target "io_lines" with type "test" omitted
+
+# Unsupported target "io_read" with type "test" omitted
+
+# Unsupported target "io_read_exact" with type "test" omitted
+
+# Unsupported target "io_read_line" with type "test" omitted
+
+# Unsupported target "io_read_to_end" with type "test" omitted
+
+# Unsupported target "io_read_to_string" with type "test" omitted
+
+# Unsupported target "io_read_until" with type "test" omitted
+
+# Unsupported target "io_window" with type "test" omitted
+
+# Unsupported target "io_write" with type "test" omitted
+
+# Unsupported target "lock_mutex" with type "test" omitted
+
+# Unsupported target "macro_comma_support" with type "test" omitted
+
+# Unsupported target "object_safety" with type "test" omitted
+
+# Unsupported target "oneshot" with type "test" omitted
+
+# Unsupported target "ready_queue" with type "test" omitted
+
+# Unsupported target "recurse" with type "test" omitted
+
+# Unsupported target "sink" with type "test" omitted
+
+# Unsupported target "sink_fanout" with type "test" omitted
+
+# Unsupported target "stream" with type "test" omitted
+
+# Unsupported target "stream_abortable" with type "test" omitted
+
+# Unsupported target "stream_buffer_unordered" with type "test" omitted
+
+# Unsupported target "stream_catch_unwind" with type "test" omitted
+
+# Unsupported target "stream_futures_ordered" with type "test" omitted
+
+# Unsupported target "stream_futures_unordered" with type "test" omitted
+
+# Unsupported target "stream_into_async_read" with type "test" omitted
+
+# Unsupported target "stream_peekable" with type "test" omitted
+
+# Unsupported target "stream_select_all" with type "test" omitted
+
+# Unsupported target "stream_select_next_some" with type "test" omitted
+
+# Unsupported target "stream_split" with type "test" omitted
+
+# Unsupported target "stream_try_stream" with type "test" omitted
+
+# Unsupported target "stream_unfold" with type "test" omitted
+
+# Unsupported target "task_arc_wake" with type "test" omitted
+
+# Unsupported target "task_atomic_waker" with type "test" omitted
+
+# Unsupported target "test_macro" with type "test" omitted
+
+# Unsupported target "try_join" with type "test" omitted

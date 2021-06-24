@@ -27,11 +27,12 @@ from anki.collection import Config, SearchNode
 from anki.consts import MODEL_CLOZE
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
-from anki.notes import DuplicateOrEmptyResult, Note
+from anki.notes import Note, NoteFieldsCheckResult
 from anki.utils import checksum, isLin, isWin, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
 from aqt.operations import QueryOp
 from aqt.operations.note import update_note
+from aqt.operations.notetype import update_notetype_legacy
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.theme import theme_manager
@@ -79,8 +80,9 @@ audio = (
 _html = """
 <div id="fields"></div>
 <div id="dupes" class="is-inactive">
-    <a href="#" onclick="pycmd('dupes');return false;">%s</a>
+    <a href="#" onclick="pycmd('dupes');return false;">{}</a>
 </div>
+<div id="cloze-hint"></div>
 """
 
 
@@ -129,7 +131,7 @@ class Editor:
 
         # then load page
         self.web.stdHtml(
-            _html % tr.editing_show_duplicates(),
+            _html.format(tr.editing_show_duplicates()),
             css=[
                 "css/editor.css",
             ],
@@ -392,9 +394,12 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             (type, num) = cmd.split(":", 1)
             ord = int(num)
 
-            fld = self.note.model()["flds"][ord]
+            model = self.note.model()
+            fld = model["flds"][ord]
             new_state = not fld["sticky"]
             fld["sticky"] = new_state
+
+            update_notetype_legacy(parent=self.mw, notetype=model).run_in_background()
 
             return new_state
 
@@ -437,7 +442,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         self.widget.show()
         self.updateTags()
 
-        dupe_status = self.note.duplicate_or_empty()
+        note_fields_status = self.note.fields_check()
 
         def oncallback(arg: Any) -> None:
             if not self.note:
@@ -445,7 +450,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             self.setupForegroundButton()
             # we currently do this synchronously to ensure we load before the
             # sidebar on browser startup
-            self._update_duplicate_display(dupe_status)
+            self._update_duplicate_display(note_fields_status)
             if focusTo is not None:
                 self.web.setFocus()
             gui_hooks.editor_did_load_note(self)
@@ -494,25 +499,31 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         if not note:
             return
 
-        def on_done(result: DuplicateOrEmptyResult.V) -> None:
+        def on_done(result: NoteFieldsCheckResult.V) -> None:
             if self.note != note:
                 return
             self._update_duplicate_display(result)
 
         QueryOp(
             parent=self.parentWindow,
-            op=lambda _: note.duplicate_or_empty(),
+            op=lambda _: note.fields_check(),
             success=on_done,
         ).run_in_background()
 
     checkValid = _check_and_update_duplicate_display_async
 
-    def _update_duplicate_display(self, result: DuplicateOrEmptyResult.V) -> None:
+    def _update_duplicate_display(self, result: NoteFieldsCheckResult.V) -> None:
         cols = [""] * len(self.note.fields)
-        if result == DuplicateOrEmptyResult.DUPLICATE:
+        cloze_hint = ""
+        if result == NoteFieldsCheckResult.DUPLICATE:
             cols[0] = "dupe"
+        elif result == NoteFieldsCheckResult.NOTETYPE_NOT_CLOZE:
+            cloze_hint = tr.adding_cloze_outside_cloze_notetype()
+        elif result == NoteFieldsCheckResult.FIELD_NOT_CLOZE:
+            cloze_hint = tr.adding_cloze_outside_cloze_field()
 
         self.web.eval(f"setBackgrounds({json.dumps(cols)});")
+        self.web.eval(f"setClozeHint({json.dumps(cloze_hint)});")
 
     def showDupes(self) -> None:
         aqt.dialogs.open(

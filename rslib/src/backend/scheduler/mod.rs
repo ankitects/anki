@@ -19,7 +19,7 @@ use crate::{
 impl SchedulingService for Backend {
     /// This behaves like _updateCutoff() in older code - it also unburies at the start of
     /// a new day.
-    fn sched_timing_today(&self, _input: pb::Empty) -> Result<pb::SchedTimingTodayOut> {
+    fn sched_timing_today(&self, _input: pb::Empty) -> Result<pb::SchedTimingTodayResponse> {
         self.with_col(|col| {
             let timing = col.timing_today()?;
             col.unbury_if_day_rolled_over(timing)?;
@@ -33,11 +33,11 @@ impl SchedulingService for Backend {
     }
 
     /// Message rendering only, for old graphs.
-    fn studied_today_message(&self, input: pb::StudiedTodayMessageIn) -> Result<pb::String> {
+    fn studied_today_message(&self, input: pb::StudiedTodayMessageRequest) -> Result<pb::String> {
         Ok(studied_today(input.cards, input.seconds as f32, &self.tr).into())
     }
 
-    fn update_stats(&self, input: pb::UpdateStatsIn) -> Result<pb::Empty> {
+    fn update_stats(&self, input: pb::UpdateStatsRequest) -> Result<pb::Empty> {
         self.with_col(|col| {
             col.transact_no_undo(|col| {
                 let today = col.current_due_day(0)?;
@@ -47,7 +47,7 @@ impl SchedulingService for Backend {
         })
     }
 
-    fn extend_limits(&self, input: pb::ExtendLimitsIn) -> Result<pb::Empty> {
+    fn extend_limits(&self, input: pb::ExtendLimitsRequest) -> Result<pb::Empty> {
         self.with_col(|col| {
             col.transact_no_undo(|col| {
                 let today = col.current_due_day(0)?;
@@ -64,11 +64,11 @@ impl SchedulingService for Backend {
         })
     }
 
-    fn counts_for_deck_today(&self, input: pb::DeckId) -> Result<pb::CountsForDeckTodayOut> {
+    fn counts_for_deck_today(&self, input: pb::DeckId) -> Result<pb::CountsForDeckTodayResponse> {
         self.with_col(|col| col.counts_for_deck_today(input.did.into()))
     }
 
-    fn congrats_info(&self, _input: pb::Empty) -> Result<pb::CongratsInfoOut> {
+    fn congrats_info(&self, _input: pb::Empty) -> Result<pb::CongratsInfoResponse> {
         self.with_col(|col| col.congrats_info())
     }
 
@@ -77,7 +77,7 @@ impl SchedulingService for Backend {
         self.with_col(|col| col.unbury_or_unsuspend_cards(&cids).map(Into::into))
     }
 
-    fn unbury_deck(&self, input: pb::UnburyDeckIn) -> Result<pb::OpChanges> {
+    fn unbury_deck(&self, input: pb::UnburyDeckRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| {
             col.unbury_deck(input.deck_id.into(), input.mode())
                 .map(Into::into)
@@ -86,7 +86,7 @@ impl SchedulingService for Backend {
 
     fn bury_or_suspend_cards(
         &self,
-        input: pb::BuryOrSuspendCardsIn,
+        input: pb::BuryOrSuspendCardsRequest,
     ) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
             let mode = input.mode();
@@ -108,7 +108,7 @@ impl SchedulingService for Backend {
         self.with_col(|col| col.rebuild_filtered_deck(input.did.into()).map(Into::into))
     }
 
-    fn schedule_cards_as_new(&self, input: pb::ScheduleCardsAsNewIn) -> Result<pb::OpChanges> {
+    fn schedule_cards_as_new(&self, input: pb::ScheduleCardsAsNewRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| {
             let cids = input.card_ids.into_newtype(CardId);
             let log = input.log;
@@ -116,14 +116,14 @@ impl SchedulingService for Backend {
         })
     }
 
-    fn set_due_date(&self, input: pb::SetDueDateIn) -> Result<pb::OpChanges> {
+    fn set_due_date(&self, input: pb::SetDueDateRequest) -> Result<pb::OpChanges> {
         let config = input.config_key.map(Into::into);
         let days = input.days;
         let cids = input.card_ids.into_newtype(CardId);
         self.with_col(|col| col.set_due_date(&cids, &days, config).map(Into::into))
     }
 
-    fn sort_cards(&self, input: pb::SortCardsIn) -> Result<pb::OpChangesWithCount> {
+    fn sort_cards(&self, input: pb::SortCardsRequest) -> Result<pb::OpChangesWithCount> {
         let cids = input.card_ids.into_newtype(CardId);
         let (start, step, random, shift) = (
             input.starting_from,
@@ -142,7 +142,7 @@ impl SchedulingService for Backend {
         })
     }
 
-    fn sort_deck(&self, input: pb::SortDeckIn) -> Result<pb::OpChangesWithCount> {
+    fn sort_deck(&self, input: pb::SortDeckRequest) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
             col.sort_deck_legacy(input.deck_id.into(), input.randomize)
                 .map(Into::into)
@@ -176,7 +176,7 @@ impl SchedulingService for Backend {
             .map(Into::into)
     }
 
-    fn get_queued_cards(&self, input: pb::GetQueuedCardsIn) -> Result<pb::QueuedCards> {
+    fn get_queued_cards(&self, input: pb::GetQueuedCardsRequest) -> Result<pb::QueuedCards> {
         self.with_col(|col| {
             col.get_queued_cards(input.fetch_limit as usize, input.intraday_learning_only)
                 .map(Into::into)
@@ -184,9 +184,9 @@ impl SchedulingService for Backend {
     }
 }
 
-impl From<crate::scheduler::timing::SchedTimingToday> for pb::SchedTimingTodayOut {
-    fn from(t: crate::scheduler::timing::SchedTimingToday) -> pb::SchedTimingTodayOut {
-        pb::SchedTimingTodayOut {
+impl From<crate::scheduler::timing::SchedTimingToday> for pb::SchedTimingTodayResponse {
+    fn from(t: crate::scheduler::timing::SchedTimingToday) -> pb::SchedTimingTodayResponse {
+        pb::SchedTimingTodayResponse {
             days_elapsed: t.days_elapsed,
             next_day_at: t.next_day_at.0,
         }

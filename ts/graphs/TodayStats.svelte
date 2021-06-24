@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { TodayData } from "./today";
     import { gatherData } from "./today";
 
-    export let sourceData: pb.BackendProto.GraphsOut | null = null;
+    export let sourceData: pb.BackendProto.GraphsResponse | null = null;
 
     let todayData: TodayData | null = null;
     $: if (sourceData) {

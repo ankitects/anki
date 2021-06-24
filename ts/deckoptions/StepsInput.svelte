@@ -3,40 +3,34 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
+    import { getContext } from "svelte";
+    import { nightModeKey } from "components/contextKeys";
     import { stepsToString, stringToSteps } from "./steps";
-    import ConfigEntry from "./ConfigEntry.svelte";
-    import type { NumberValueEvent } from "./events";
 
-    export let label: string;
-    export let tooltip: string;
     export let value: number[];
-    export let defaultValue: number[];
-    export let warnings: string[] = [];
-
-    const dispatch = createEventDispatcher();
 
     let stringValue: string;
     $: stringValue = stepsToString(value);
 
-    function update(this: HTMLInputElement): void {
-        const value = stringToSteps(this.value);
-        dispatch("changed", { value });
-    }
+    const nightMode = getContext<boolean>(nightModeKey);
 
-    function revert(evt: NumberValueEvent): void {
-        dispatch("changed", { value: evt.detail.value });
+    function update(this: HTMLInputElement): void {
+        value = stringToSteps(this.value);
     }
 </script>
 
-<ConfigEntry
-    {label}
-    {tooltip}
-    {value}
-    {defaultValue}
-    {warnings}
-    wholeLine={value.length > 2}
-    on:revert={revert}
->
-    <input type="text" value={stringValue} on:blur={update} class="form-control" />
-</ConfigEntry>
+<input
+    type="text"
+    value={stringValue}
+    class="form-control"
+    class:nightMode
+    on:blur={update}
+/>
+
+<style lang="scss">
+    @use "ts/sass/night_mode" as nightmode;
+
+    .nightMode {
+        @include nightmode.input;
+    }
+</style>

@@ -107,7 +107,7 @@ def get_input_assign(msg):
 def render_method(service_idx, method_idx, method):
     input_name = method.input_type.name
     if (
-        (input_name.endswith("In") or len(method.input_type.fields) < 2)
+        (input_name.endswith("Request") or len(method.input_type.fields) < 2)
         and not method.input_type.oneofs
         and not method.name in SKIP_UNROLL_INPUT
     ):

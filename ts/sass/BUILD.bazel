@@ -8,7 +8,7 @@ sass_library(
         "bootstrap-dark.scss",
     ],
     visibility = ["//visibility:public"],
-    deps = ["//ts/sass/bootstrap"],
+    deps = ["//ts/sass/bootstrap", "//ts/sass/codemirror"],
 )
 
 sass_library(
@@ -49,6 +49,14 @@ sass_library(
     name = "button_mixins_lib",
     srcs = [
         "button_mixins.scss",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+sass_library(
+    name = "night_mode_lib",
+    srcs = [
+        "night_mode.scss",
     ],
     visibility = ["//visibility:public"],
 )

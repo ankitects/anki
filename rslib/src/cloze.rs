@@ -139,6 +139,10 @@ pub fn expand_clozes_to_reveal_latex(text: &str) -> String {
     buf
 }
 
+pub(crate) fn contains_cloze(text: &str) -> bool {
+    CLOZE.is_match(text)
+}
+
 pub fn cloze_numbers_in_string(html: &str) -> HashSet<u16> {
     let mut set = HashSet::with_capacity(4);
     add_cloze_numbers_in_string(html, &mut set);

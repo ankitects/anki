@@ -132,14 +132,14 @@ class RustBackend(RustBackendGenerated):
 
 def translate_string_in(
     module_index: int, message_index: int, **kwargs: Union[str, int, float]
-) -> pb.TranslateStringIn:
+) -> pb.TranslateStringRequest:
     args = {}
     for (k, v) in kwargs.items():
         if isinstance(v, str):
             args[k] = pb.TranslateArgValue(str=v)
         else:
             args[k] = pb.TranslateArgValue(number=v)
-    return pb.TranslateStringIn(
+    return pb.TranslateStringRequest(
         module_index=module_index, message_index=message_index, args=args
     )
 

@@ -49,10 +49,10 @@ rust_library(
     version = "0.7.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__anyhow__1_0_40//:anyhow",
+        "@raze__anyhow__1_0_41//:anyhow",
         "@raze__itertools__0_9_0//:itertools",
-        "@raze__proc_macro2__1_0_26//:proc_macro2",
+        "@raze__proc_macro2__1_0_27//:proc_macro2",
         "@raze__quote__1_0_9//:quote",
-        "@raze__syn__1_0_72//:syn",
+        "@raze__syn__1_0_73//:syn",
     ],
 )

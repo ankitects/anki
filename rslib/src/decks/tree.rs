@@ -13,7 +13,7 @@ use super::{
     limits::{remaining_limits_map, RemainingLimits},
     DueCounts,
 };
-pub use crate::backend_proto::set_deck_collapsed_in::Scope as DeckCollapseScope;
+pub use crate::backend_proto::set_deck_collapsed_request::Scope as DeckCollapseScope;
 use crate::{
     backend_proto::DeckTreeNode, config::SchedulerVersion, ops::OpOutput, prelude::*, undo::Op,
 };
@@ -271,13 +271,8 @@ impl Collection {
         }
 
         if let Some(now) = now {
-            let limit = top_deck_id.and_then(|did| {
-                if let Some(deck) = decks_map.get(&did) {
-                    Some(deck.name.as_native_str())
-                } else {
-                    None
-                }
-            });
+            let limit = top_deck_id
+                .and_then(|did| decks_map.get(&did).map(|deck| deck.name.as_native_str()));
             let days_elapsed = self.timing_for_timestamp(now)?.days_elapsed;
             let learn_cutoff = (now.0 as u32) + self.learn_ahead_secs();
             let sched_ver = self.scheduler_version();

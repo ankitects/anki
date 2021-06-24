@@ -498,8 +498,8 @@ mod test {
 
         // merge subsequent changes into our restore point
         let op = col.merge_undoable_ops(restore_point)?;
-        assert_eq!(op.changes.card, true);
-        assert_eq!(op.changes.config, true);
+        assert!(op.changes.card);
+        assert!(op.changes.config);
 
         // the last undo action should be at the end of the step list,
         // before the modtime bump
@@ -535,7 +535,7 @@ mod test {
             col.storage.get_collection_timestamps()?.collection_change.0,
             0
         );
-        assert_eq!(out.changes.had_change(), false);
+        assert!(!out.changes.had_change());
 
         // if there is an undoable step, mtime should change
         let out = col.set_config_bool(BoolKey::AddingDefaultsToCurrentDeck, false, true)?;
@@ -543,7 +543,7 @@ mod test {
             col.storage.get_collection_timestamps()?.collection_change.0,
             0
         );
-        assert_eq!(out.changes.had_change(), true);
+        assert!(out.changes.had_change());
 
         // when skipping undo, mtime should still only be bumped on a change
         col.storage.db.execute_batch("update col set mod = 0")?;
@@ -552,7 +552,7 @@ mod test {
             col.storage.get_collection_timestamps()?.collection_change.0,
             0
         );
-        assert_eq!(out.changes.had_change(), false);
+        assert!(!out.changes.had_change());
 
         // op output won't reflect changes were made
         let out = col.set_config_bool(BoolKey::AddingDefaultsToCurrentDeck, true, false)?;
@@ -560,7 +560,7 @@ mod test {
             col.storage.get_collection_timestamps()?.collection_change.0,
             0
         );
-        assert_eq!(out.changes.had_change(), false);
+        assert!(!out.changes.had_change());
 
         Ok(())
     }

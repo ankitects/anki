@@ -52,7 +52,7 @@ rust_library(
         "@raze__form_urlencoded__1_0_1//:form_urlencoded",
         "@raze__itoa__0_4_7//:itoa",
         "@raze__ryu__1_0_5//:ryu",
-        "@raze__serde__1_0_125//:serde",
+        "@raze__serde__1_0_126//:serde",
     ],
 )
 

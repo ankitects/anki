@@ -33,11 +33,11 @@ def register_repos():
     maybe(
         http_archive,
         name = "rules_rust",
-        strip_prefix = "rules_rust-anki-2021-04-09",
+        strip_prefix = "rules_rust-f66001a3ae396b7695e10ca451a6d89c024529a1",
         urls = [
-            "https://github.com/ankitects/rules_rust/archive/anki-2021-04-09.tar.gz",
+            "https://github.com/bazelbuild/rules_rust/archive/f66001a3ae396b7695e10ca451a6d89c024529a1.zip",
         ],
-        sha256 = "2821b22e065c1b4dc73610b1d6ccbed7ed4d755b316e7e0641cd079b7abe4900",
+        sha256 = "c6f1fe6056d8c3ed44a4eda4b8e6d327312a0ae17b36671c10fd849825edf55f",
     )
 
     # python
@@ -66,11 +66,11 @@ def register_repos():
     maybe(
         http_archive,
         name = "com_github_ali5h_rules_pip",
-        strip_prefix = "rules_pip-anki-2020-11-30",
+        strip_prefix = "rules_pip-fb02cb7bf5c03bc8cd4269679e4aea2e1839b501",
         urls = [
-            "https://github.com/ankitects/rules_pip/archive/anki-2020-11-30.tar.gz",
+            "https://github.com/ali5h/rules_pip/archive/fb02cb7bf5c03bc8cd4269679e4aea2e1839b501.zip",
         ],
-        sha256 = "ab4f10967eb87985383a4172d4533dde568b3ff502aa550239eeccead249325b",
+        sha256 = "34195cd437d34a7490276665225de353421e31e34c048715b66918e31d735ff6",
     )
 
     # javascript
@@ -128,12 +128,12 @@ def register_repos():
     ################
 
     core_i18n_repo = "anki-core-i18n"
-    core_i18n_commit = "dc07dd3bb4edff1414fc400ec8c6ba8c83408962"
-    core_i18n_zip_csum = "140df4c9a599f3ea305d22d464c7d6cd83b448d67dba274ea4d2b77609b34c64"
+    core_i18n_commit = "1c2de3f2c33f76401de24882e801f03c20246337"
+    core_i18n_zip_csum = "5826c63135135da9e13d9e0b3cc439fa88e7ef519334187dee26afd9febe8b57"
 
     qtftl_i18n_repo = "anki-desktop-ftl"
-    qtftl_i18n_commit = "ecce92f8adeaf90d276d5a04aa0be069cfcf5342"
-    qtftl_i18n_zip_csum = "d520b75dd3acc8a5545f05c05e1c1eff58482bcd9bf5d8ba3cb6949aa9d81ef8"
+    qtftl_i18n_commit = "e8a8f40d4a1228e4cd5334bd177f5388c7d7a298"
+    qtftl_i18n_zip_csum = "60e8f06753fcbc314048ceba5c2dd420a7526ffa5973ee8deed65304814a375e"
 
     i18n_build_content = """
 filegroup(

@@ -260,7 +260,7 @@ where
         let resp = self
             .client
             .get(&url)
-            .query(&[("k", hkey), ("v", &sync_client_version())])
+            .query(&[("k", hkey), ("v", sync_client_version())])
             .send()
             .await?
             .error_for_status()?;

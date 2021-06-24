@@ -63,7 +63,7 @@ cargo_build_script(
             "@rules_rust//rust/platform:x86_64-apple-darwin",
             "@rules_rust//rust/platform:x86_64-apple-ios",
         ): [
-            "@raze__security_framework_sys__2_2_0//:security_framework_sys",
+            "@raze__security_framework_sys__2_3_0//:security_framework_sys",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
@@ -119,9 +119,9 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-apple-ios",
         ): [
             "@raze__lazy_static__1_4_0//:lazy_static",
-            "@raze__libc__0_2_94//:libc",
-            "@raze__security_framework__2_2_0//:security_framework",
-            "@raze__security_framework_sys__2_2_0//:security_framework_sys",
+            "@raze__libc__0_2_97//:libc",
+            "@raze__security_framework__2_3_1//:security_framework",
+            "@raze__security_framework_sys__2_3_0//:security_framework_sys",
             "@raze__tempfile__3_2_0//:tempfile",
         ],
         "//conditions:default": [],
@@ -133,7 +133,7 @@ rust_library(
         ): [
             "@raze__log__0_4_14//:log",
             "@raze__openssl__0_10_34//:openssl",
-            "@raze__openssl_probe__0_1_2//:openssl_probe",
+            "@raze__openssl_probe__0_1_4//:openssl_probe",
             "@raze__openssl_sys__0_9_63//:openssl_sys",
         ],
         "//conditions:default": [],

@@ -19,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { gatherData, renderReviews } from "./reviews";
     import type { GraphData } from "./reviews";
 
-    export let sourceData: pb.BackendProto.GraphsOut | null = null;
+    export let sourceData: pb.BackendProto.GraphsResponse | null = null;
     export let revlogRange: RevlogRange;
     import * as tr from "lib/i18n";
 

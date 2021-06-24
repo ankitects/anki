@@ -14,7 +14,10 @@ use crate::{
 };
 
 impl CardRenderingService for Backend {
-    fn extract_av_tags(&self, input: pb::ExtractAvTagsIn) -> Result<pb::ExtractAvTagsOut> {
+    fn extract_av_tags(
+        &self,
+        input: pb::ExtractAvTagsRequest,
+    ) -> Result<pb::ExtractAvTagsResponse> {
         let (text, tags) = extract_av_tags(&input.text, input.question_side);
         let pt_tags = tags
             .into_iter()
@@ -33,20 +36,20 @@ impl CardRenderingService for Backend {
                         field_text,
                         lang,
                         voices,
-                        other_args,
                         speed,
+                        other_args,
                     })),
                 },
             })
             .collect();
 
-        Ok(pb::ExtractAvTagsOut {
+        Ok(pb::ExtractAvTagsResponse {
             text: text.into(),
             av_tags: pt_tags,
         })
     }
 
-    fn extract_latex(&self, input: pb::ExtractLatexIn) -> Result<pb::ExtractLatexOut> {
+    fn extract_latex(&self, input: pb::ExtractLatexRequest) -> Result<pb::ExtractLatexResponse> {
         let func = if input.expand_clozes {
             extract_latex_expanding_clozes
         } else {
@@ -54,7 +57,7 @@ impl CardRenderingService for Backend {
         };
         let (text, extracted) = func(&input.text, input.svg);
 
-        Ok(pb::ExtractLatexOut {
+        Ok(pb::ExtractLatexResponse {
             text,
             latex: extracted
                 .into_iter()
@@ -88,7 +91,10 @@ impl CardRenderingService for Backend {
         })
     }
 
-    fn render_existing_card(&self, input: pb::RenderExistingCardIn) -> Result<pb::RenderCardOut> {
+    fn render_existing_card(
+        &self,
+        input: pb::RenderExistingCardRequest,
+    ) -> Result<pb::RenderCardResponse> {
         self.with_col(|col| {
             col.render_existing_card(CardId(input.card_id), input.browser)
                 .map(Into::into)
@@ -97,8 +103,8 @@ impl CardRenderingService for Backend {
 
     fn render_uncommitted_card(
         &self,
-        input: pb::RenderUncommittedCardIn,
-    ) -> Result<pb::RenderCardOut> {
+        input: pb::RenderUncommittedCardRequest,
+    ) -> Result<pb::RenderCardResponse> {
         let template = input.template.ok_or(AnkiError::NotFound)?.into();
         let mut note = input
             .note
@@ -114,8 +120,8 @@ impl CardRenderingService for Backend {
 
     fn render_uncommitted_card_legacy(
         &self,
-        input: pb::RenderUncommittedCardLegacyIn,
-    ) -> Result<pb::RenderCardOut> {
+        input: pb::RenderUncommittedCardLegacyRequest,
+    ) -> Result<pb::RenderCardResponse> {
         let schema11: CardTemplateSchema11 = serde_json::from_slice(&input.template)?;
         let template = schema11.into();
         let mut note = input
@@ -136,7 +142,7 @@ impl CardRenderingService for Backend {
         })
     }
 
-    fn render_markdown(&self, input: pb::RenderMarkdownIn) -> Result<pb::String> {
+    fn render_markdown(&self, input: pb::RenderMarkdownRequest) -> Result<pb::String> {
         let mut text = render_markdown(&input.markdown);
         if input.sanitize {
             // currently no images
@@ -170,9 +176,9 @@ fn rendered_node_to_proto(node: RenderedNode) -> pb::rendered_template_node::Val
     }
 }
 
-impl From<RenderCardOutput> for pb::RenderCardOut {
+impl From<RenderCardOutput> for pb::RenderCardResponse {
     fn from(o: RenderCardOutput) -> Self {
-        pb::RenderCardOut {
+        pb::RenderCardResponse {
             question_nodes: rendered_nodes_to_proto(o.qnodes),
             answer_nodes: rendered_nodes_to_proto(o.anodes),
             css: o.css,

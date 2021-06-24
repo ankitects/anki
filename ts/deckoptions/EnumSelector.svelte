@@ -3,19 +3,36 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import ConfigEntry from "./ConfigEntry.svelte";
+    import { getContext } from "svelte";
+    import { nightModeKey } from "components/contextKeys";
 
-    export let label: string;
     export let choices: string[];
     export let value: number = 0;
-    export let defaultValue: number;
-    export let tooltip = "";
+
+    const nightMode = getContext<boolean>(nightModeKey);
 </script>
 
-<ConfigEntry {label} {tooltip} wholeLine={true} bind:value {defaultValue}>
-    <select bind:value class="form-select">
-        {#each choices as choice, idx}
-            <option value={idx}>{choice}</option>
-        {/each}
-    </select>
-</ConfigEntry>
+<select
+    bind:value
+    class:nightMode
+    class:visible-down-arrow={nightMode}
+    class="form-select"
+>
+    {#each choices as choice, idx}
+        <option value={idx}>{choice}</option>
+    {/each}
+</select>
+
+<style lang="scss">
+    @use "ts/sass/night_mode" as nightmode;
+    @use "ts/sass/button_mixins" as button;
+
+    .nightMode {
+        @include nightmode.input;
+    }
+
+    .visible-down-arrow {
+        /* override the default down arrow */
+        background-image: button.down-arrow(white);
+    }
+</style>

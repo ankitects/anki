@@ -80,7 +80,7 @@ impl AnkiError {
                 format!("{}<br>{}", header, details)
             }
             AnkiError::DbError(err) => err.localized_description(tr),
-            AnkiError::SearchError(kind) => kind.localized_description(&tr),
+            AnkiError::SearchError(kind) => kind.localized_description(tr),
             AnkiError::InvalidInput(info) => {
                 if info.is_empty() {
                     tr.errors_invalid_input_empty().into()

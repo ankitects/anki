@@ -31,39 +31,39 @@ pub(super) struct SyncState {
 #[derive(Default, Debug)]
 pub(super) struct RemoteSyncStatus {
     pub last_check: TimestampSecs,
-    pub last_response: pb::sync_status_out::Required,
+    pub last_response: pb::sync_status_response::Required,
 }
 
 impl RemoteSyncStatus {
-    pub(super) fn update(&mut self, required: pb::sync_status_out::Required) {
+    pub(super) fn update(&mut self, required: pb::sync_status_response::Required) {
         self.last_check = TimestampSecs::now();
         self.last_response = required
     }
 }
 
-impl From<SyncOutput> for pb::SyncCollectionOut {
+impl From<SyncOutput> for pb::SyncCollectionResponse {
     fn from(o: SyncOutput) -> Self {
-        pb::SyncCollectionOut {
+        pb::SyncCollectionResponse {
             host_number: o.host_number,
             server_message: o.server_message,
             required: match o.required {
                 SyncActionRequired::NoChanges => {
-                    pb::sync_collection_out::ChangesRequired::NoChanges as i32
+                    pb::sync_collection_response::ChangesRequired::NoChanges as i32
                 }
                 SyncActionRequired::FullSyncRequired {
                     upload_ok,
                     download_ok,
                 } => {
                     if !upload_ok {
-                        pb::sync_collection_out::ChangesRequired::FullDownload as i32
+                        pb::sync_collection_response::ChangesRequired::FullDownload as i32
                     } else if !download_ok {
-                        pb::sync_collection_out::ChangesRequired::FullUpload as i32
+                        pb::sync_collection_response::ChangesRequired::FullUpload as i32
                     } else {
-                        pb::sync_collection_out::ChangesRequired::FullSync as i32
+                        pb::sync_collection_response::ChangesRequired::FullSync as i32
                     }
                 }
                 SyncActionRequired::NormalSyncRequired => {
-                    pb::sync_collection_out::ChangesRequired::NormalSync as i32
+                    pb::sync_collection_response::ChangesRequired::NormalSync as i32
                 }
             },
         }
@@ -104,15 +104,15 @@ impl SyncService for Backend {
         self.with_col(|col| col.before_upload().map(Into::into))
     }
 
-    fn sync_login(&self, input: pb::SyncLoginIn) -> Result<pb::SyncAuth> {
+    fn sync_login(&self, input: pb::SyncLoginRequest) -> Result<pb::SyncAuth> {
         self.sync_login_inner(input)
     }
 
-    fn sync_status(&self, input: pb::SyncAuth) -> Result<pb::SyncStatusOut> {
+    fn sync_status(&self, input: pb::SyncAuth) -> Result<pb::SyncStatusResponse> {
         self.sync_status_inner(input)
     }
 
-    fn sync_collection(&self, input: pb::SyncAuth) -> Result<pb::SyncCollectionOut> {
+    fn sync_collection(&self, input: pb::SyncAuth) -> Result<pb::SyncCollectionResponse> {
         self.sync_collection_inner(input)
     }
 
@@ -126,7 +126,7 @@ impl SyncService for Backend {
         Ok(().into())
     }
 
-    fn sync_server_method(&self, input: pb::SyncServerMethodIn) -> Result<pb::Json> {
+    fn sync_server_method(&self, input: pb::SyncServerMethodRequest) -> Result<pb::Json> {
         let req = SyncRequest::from_method_and_data(input.method(), input.data)?;
         self.sync_server_method_inner(req).map(Into::into)
     }
@@ -221,7 +221,7 @@ impl Backend {
         }
     }
 
-    pub(super) fn sync_login_inner(&self, input: pb::SyncLoginIn) -> Result<pb::SyncAuth> {
+    pub(super) fn sync_login_inner(&self, input: pb::SyncLoginRequest) -> Result<pb::SyncAuth> {
         let (_guard, abort_reg) = self.sync_abort_handle()?;
 
         let rt = self.runtime_handle();
@@ -237,10 +237,10 @@ impl Backend {
         })
     }
 
-    pub(super) fn sync_status_inner(&self, input: pb::SyncAuth) -> Result<pb::SyncStatusOut> {
+    pub(super) fn sync_status_inner(&self, input: pb::SyncAuth) -> Result<pb::SyncStatusResponse> {
         // any local changes mean we can skip the network round-trip
         let req = self.with_col(|col| col.get_local_sync_status())?;
-        if req != pb::sync_status_out::Required::NoChanges {
+        if req != pb::sync_status_response::Required::NoChanges {
             return Ok(req.into());
         }
 
@@ -275,7 +275,7 @@ impl Backend {
     pub(super) fn sync_collection_inner(
         &self,
         input: pb::SyncAuth,
-    ) -> Result<pb::SyncCollectionOut> {
+    ) -> Result<pb::SyncCollectionResponse> {
         let (_guard, abort_reg) = self.sync_abort_handle()?;
 
         let rt = self.runtime_handle();
@@ -367,7 +367,7 @@ impl Backend {
                         .unwrap()
                         .sync
                         .remote_sync_status
-                        .update(pb::sync_status_out::Required::NoChanges);
+                        .update(pb::sync_status_response::Required::NoChanges);
                 }
                 sync_result
             }

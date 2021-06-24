@@ -4,68 +4,84 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "lib/i18n";
+    import WithDropdownMenu from "components/WithDropdownMenu.svelte";
+    import DropdownMenu from "components/DropdownMenu.svelte";
+    import DropdownItem from "components/DropdownItem.svelte";
+    import Badge from "./Badge.svelte";
     import { revertIcon } from "./icons";
-    import { createEventDispatcher } from "svelte";
     import { isEqual as isEqualLodash, cloneDeep } from "lodash-es";
-    // import { onMount } from "svelte";
-    // import Tooltip from "bootstrap/js/dist/tooltip";
+    import { touchDeviceKey } from "components/contextKeys";
+    import { getContext } from "svelte";
 
-    let ref: HTMLDivElement;
+    type T = unknown;
 
-    // fixme: figure out why this breaks halfway down the page
-    // onMount(() => {
-    //     new Tooltip(ref, {
-    //         placement: "bottom",
-    //         html: true,
-    //         offset: [0, 20],
-    //     });
-    // });
+    export let value: T;
+    export let defaultValue: T;
 
-    export let value: any;
-    export let defaultValue: any;
-
-    const dispatch = createEventDispatcher();
-
-    function isEqual(a: unknown, b: unknown): boolean {
+    function isEqual(a: T, b: T): boolean {
         if (typeof a === "number" && typeof b === "number") {
             // round to .01 precision before comparing,
             // so the values coming out of the UI match
             // the originals
-            return isEqualLodash(Math.round(a * 100) / 100, Math.round(b * 100) / 100);
-        } else {
-            return isEqualLodash(a, b);
+            a = Math.round(a * 100) / 100;
+            b = Math.round(b * 100) / 100;
         }
+
+        return isEqualLodash(a, b);
     }
 
     let modified: boolean;
     $: modified = !isEqual(value, defaultValue);
+    $: className = !modified ? "opacity-0" : "";
 
-    /// This component can be used either with bind:value, or by listening
-    /// to the revert event.
+    const isTouchDevice = getContext<boolean>(touchDeviceKey);
+
     function revert(): void {
         value = cloneDeep(defaultValue);
-        dispatch("revert", { value });
     }
 </script>
 
-{#if modified}
-    <div
-        class="img-div"
-        on:click={revert}
-        bind:this={ref}
-        title={tr.deckConfigRevertButtonTooltip()}
+<WithDropdownMenu
+    disabled={!modified}
+    let:createDropdown
+    let:activateDropdown
+    let:menuId
+>
+    <Badge
+        class={`p-1 ${className}`}
+        on:mount={(event) => createDropdown(event.detail.span)}
+        on:click={activateDropdown}
     >
         {@html revertIcon}
-    </div>
-{/if}
+    </Badge>
+
+    <DropdownMenu id={menuId}>
+        <DropdownItem
+            class={`spinner ${isTouchDevice ? "spin-always" : ""}`}
+            on:click={() => {
+                revert();
+                // Otherwise the menu won't close when the item is clicked
+                // TODO: investigate why this is necessary
+                activateDropdown();
+            }}
+        >
+            {tr.deckConfigRevertButtonTooltip()}<Badge>{@html revertIcon}</Badge>
+        </DropdownItem>
+    </DropdownMenu>
+</WithDropdownMenu>
 
 <style lang="scss">
-    .img-div {
-        display: flex;
+    :global(.spinner:hover .badge, .spinner.spin-always .badge) {
+        animation: spin-animation 1s infinite;
+        animation-timing-function: linear;
+    }
 
-        :global(svg) {
-            align-self: center;
-            opacity: 0.3;
+    @keyframes -global-spin-animation {
+        0% {
+            transform: rotate(360deg);
+        }
+        100% {
+            transform: rotate(0deg);
         }
     }
 </style>

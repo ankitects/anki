@@ -10,9 +10,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";
     import IconButton from "components/IconButton.svelte";
     import ButtonDropdown from "components/ButtonDropdown.svelte";
-    import ButtonToolbarItem from "components/ButtonToolbarItem.svelte";
-    import WithState from "components/WithState.svelte";
+    import Item from "components/Item.svelte";
     import WithDropdownMenu from "components/WithDropdownMenu.svelte";
+    import OnlyEditable from "./OnlyEditable.svelte";
+    import CommandIconButton from "./CommandIconButton.svelte";
 
     import { getListItem } from "./helpers";
     import {
@@ -46,159 +47,100 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ButtonGroup {api}>
     <ButtonGroupItem>
-        <WithState
+        <CommandIconButton
             key="insertUnorderedList"
-            update={() => document.queryCommandState("insertUnorderedList")}
-            let:state={active}
-            let:updateState
+            tooltip={tr.editingUnorderedList()}
+            withoutShortcut>{@html ulIcon}</CommandIconButton
         >
-            <IconButton
-                tooltip={tr.editingUnorderedList()}
-                {active}
-                on:click={(event) => {
-                    document.execCommand("insertUnorderedList");
-                    updateState(event);
-                }}
-            >
-                {@html ulIcon}
-            </IconButton>
-        </WithState>
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithState
+        <CommandIconButton
             key="insertOrderedList"
-            update={() => document.queryCommandState("insertOrderedList")}
-            let:state={active}
-            let:updateState
+            tooltip={tr.editingOrderedList()}
+            withoutShortcut>{@html olIcon}</CommandIconButton
         >
-            <IconButton
-                tooltip={tr.editingOrderedList()}
-                {active}
-                on:click={(event) => {
-                    document.execCommand("insertOrderedList");
-                    updateState(event);
-                }}
-            >
-                {@html olIcon}
-            </IconButton>
-        </WithState>
     </ButtonGroupItem>
 
     <ButtonGroupItem>
         <WithDropdownMenu let:createDropdown let:menuId>
-            <IconButton on:mount={createDropdown}>
-                {@html listOptionsIcon}
-            </IconButton>
+            <OnlyEditable let:disabled>
+                <IconButton
+                    {disabled}
+                    on:mount={(event) => createDropdown(event.detail.button)}
+                >
+                    {@html listOptionsIcon}
+                </IconButton>
+            </OnlyEditable>
 
             <ButtonDropdown id={menuId}>
-                <ButtonToolbarItem id="justify">
+                <Item id="justify">
                     <ButtonGroup>
                         <ButtonGroupItem>
-                            <WithState
+                            <CommandIconButton
                                 key="justifyLeft"
-                                update={() => document.queryCommandState("justifyLeft")}
-                                let:state={active}
-                                let:updateState
+                                tooltip={tr.editingAlignLeft()}
+                                withoutShortcut
+                                >{@html justifyLeftIcon}</CommandIconButton
                             >
-                                <IconButton
-                                    tooltip={tr.editingAlignLeft()}
-                                    {active}
-                                    on:click={(event) => {
-                                        document.execCommand("justifyLeft");
-                                        updateState(event);
-                                    }}
-                                >
-                                    {@html justifyLeftIcon}
-                                </IconButton>
-                            </WithState>
                         </ButtonGroupItem>
 
                         <ButtonGroupItem>
-                            <WithState
+                            <CommandIconButton
                                 key="justifyCenter"
-                                update={() =>
-                                    document.queryCommandState("justifyCenter")}
-                                let:state={active}
-                                let:updateState
+                                tooltip={tr.editingCenter()}
+                                withoutShortcut
+                                >{@html justifyCenterIcon}</CommandIconButton
                             >
-                                <IconButton
-                                    tooltip={tr.editingCenter()}
-                                    {active}
-                                    on:click={(event) => {
-                                        document.execCommand("justifyCenter");
-                                        updateState(event);
-                                    }}
-                                >
-                                    {@html justifyCenterIcon}
-                                </IconButton>
-                            </WithState>
                         </ButtonGroupItem>
 
                         <ButtonGroupItem>
-                            <WithState
+                            <CommandIconButton
                                 key="justifyRight"
-                                update={() =>
-                                    document.queryCommandState("justifyRight")}
-                                let:state={active}
-                                let:updateState
+                                tooltip={tr.editingAlignRight()}
+                                withoutShortcut
+                                >{@html justifyRightIcon}</CommandIconButton
                             >
-                                <IconButton
-                                    tooltip={tr.editingAlignRight()}
-                                    {active}
-                                    on:click={(event) => {
-                                        document.execCommand("justifyRight");
-                                        updateState(event);
-                                    }}
-                                >
-                                    {@html justifyRightIcon}
-                                </IconButton>
-                            </WithState>
                         </ButtonGroupItem>
 
                         <ButtonGroupItem>
-                            <WithState
+                            <CommandIconButton
                                 key="justifyFull"
-                                update={() => document.queryCommandState("justifyFull")}
-                                let:state={active}
-                                let:updateState
+                                tooltip={tr.editingJustify()}
+                                withoutShortcut
+                                >{@html justifyFullIcon}</CommandIconButton
                             >
-                                <IconButton
-                                    tooltip={tr.editingJustify()}
-                                    {active}
-                                    on:click={(event) => {
-                                        document.execCommand("justifyFull");
-                                        updateState(event);
-                                    }}
-                                >
-                                    {@html justifyFullIcon}
-                                </IconButton>
-                            </WithState>
                         </ButtonGroupItem>
                     </ButtonGroup>
-                </ButtonToolbarItem>
+                </Item>
 
-                <ButtonToolbarItem id="indentation">
+                <Item id="indentation">
                     <ButtonGroup>
                         <ButtonGroupItem>
-                            <IconButton
-                                on:click={outdentListItem}
-                                tooltip={tr.editingOutdent()}
-                            >
-                                {@html outdentIcon}
-                            </IconButton>
+                            <OnlyEditable let:disabled>
+                                <IconButton
+                                    on:click={outdentListItem}
+                                    tooltip={tr.editingOutdent()}
+                                    {disabled}
+                                >
+                                    {@html outdentIcon}
+                                </IconButton>
+                            </OnlyEditable>
                         </ButtonGroupItem>
 
                         <ButtonGroupItem>
-                            <IconButton
-                                on:click={indentListItem}
-                                tooltip={tr.editingIndent()}
-                            >
-                                {@html indentIcon}
-                            </IconButton>
+                            <OnlyEditable let:disabled>
+                                <IconButton
+                                    on:click={indentListItem}
+                                    tooltip={tr.editingIndent()}
+                                    {disabled}
+                                >
+                                    {@html indentIcon}
+                                </IconButton>
+                            </OnlyEditable>
                         </ButtonGroupItem>
                     </ButtonGroup>
-                </ButtonToolbarItem>
+                </Item>
             </ButtonDropdown>
         </WithDropdownMenu>
     </ButtonGroupItem>

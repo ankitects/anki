@@ -1,0 +1,91 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR (ISC OR MIT)"
+])
+
+# Generated Targets
+
+# Unsupported target "google" with type "example" omitted
+
+rust_library(
+    name = "rustls_native_certs",
+    srcs = glob(["**/*.rs"]),
+    aliases = {
+    },
+    crate_features = [
+        "default",
+        "rustls",
+    ],
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.5.0",
+    # buildifier: leave-alone
+    deps = [
+        "@raze__rustls__0_19_1//:rustls",
+    ] + selects.with_or({
+        # cfg(all(unix, not(target_os = "macos")))
+        (
+            "@rules_rust//rust/platform:aarch64-apple-ios",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:x86_64-apple-ios",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+        ): [
+            "@raze__openssl_probe__0_1_4//:openssl_probe",
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
+        # cfg(target_os = "macos")
+        (
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
+        ): [
+            "@raze__security_framework__2_3_1//:security_framework",
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
+        # cfg(windows)
+        (
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+        ): [
+            "@raze__schannel__0_1_19//:schannel",
+        ],
+        "//conditions:default": [],
+    }),
+)
+
+# Unsupported target "compare_mozilla" with type "test" omitted
+
+# Unsupported target "smoketests" with type "test" omitted

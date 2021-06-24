@@ -11,16 +11,18 @@ use std::{
 use crate::{
     backend_proto as pb,
     backend_proto::deck_configs_for_update::{ConfigWithExtra, CurrentDeck},
+    config::StringKey,
     prelude::*,
 };
 
 #[derive(Debug, Clone)]
-pub struct UpdateDeckConfigsIn {
+pub struct UpdateDeckConfigsRequest {
     pub target_deck_id: DeckId,
     /// Deck will be set to last provided deck config.
     pub configs: Vec<DeckConfig>,
     pub removed_config_ids: Vec<DeckConfigId>,
     pub apply_to_children: bool,
+    pub card_state_customizer: String,
 }
 
 impl Collection {
@@ -39,11 +41,12 @@ impl Collection {
                 .schema_changed_since_sync(),
             v3_scheduler: self.get_config_bool(BoolKey::Sched2021),
             have_addons: false,
+            card_state_customizer: self.get_config_string(StringKey::CardStateCustomizer),
         })
     }
 
     /// Information required for the deck options screen.
-    pub fn update_deck_configs(&mut self, input: UpdateDeckConfigsIn) -> Result<OpOutput<()>> {
+    pub fn update_deck_configs(&mut self, input: UpdateDeckConfigsRequest) -> Result<OpOutput<()>> {
         self.transact(Op::UpdateDeckConfig, |col| {
             col.update_deck_configs_inner(input)
         })
@@ -106,7 +109,7 @@ impl Collection {
             .collect())
     }
 
-    fn update_deck_configs_inner(&mut self, mut input: UpdateDeckConfigsIn) -> Result<()> {
+    fn update_deck_configs_inner(&mut self, mut input: UpdateDeckConfigsRequest) -> Result<()> {
         if input.configs.is_empty() {
             return Err(AnkiError::invalid_input("config not provided"));
         }
@@ -178,6 +181,8 @@ impl Collection {
             }
         }
 
+        self.set_config_string_inner(StringKey::CardStateCustomizer, &input.card_state_customizer)?;
+
         Ok(())
     }
 }
@@ -199,6 +204,9 @@ mod test {
             col.add_note(&mut note, DeckId(1))?;
         }
 
+        // add the key so it doesn't trigger a change below
+        col.set_config_string_inner(StringKey::CardStateCustomizer, "")?;
+
         // pretend we're in sync
         let stamps = col.storage.get_collection_timestamps()?;
         col.storage.set_last_sync(stamps.schema_change)?;
@@ -219,7 +227,7 @@ mod test {
 
         // if nothing changed, no changes should be made
         let output = col.get_deck_configs_for_update(DeckId(1))?;
-        let mut input = UpdateDeckConfigsIn {
+        let mut input = UpdateDeckConfigsRequest {
             target_deck_id: DeckId(1),
             configs: output
                 .all_config
@@ -228,18 +236,16 @@ mod test {
                 .collect(),
             removed_config_ids: vec![],
             apply_to_children: false,
+            card_state_customizer: "".to_string(),
         };
-        assert_eq!(
-            col.update_deck_configs(input.clone())?.changes.had_change(),
-            false
-        );
+        assert!(!col.update_deck_configs(input.clone())?.changes.had_change());
 
         // modifying a value should update the config, but not the deck
         input.configs[0].inner.new_per_day += 1;
         let changes = col.update_deck_configs(input.clone())?.changes.changes;
-        assert_eq!(changes.deck, false);
-        assert_eq!(changes.deck_config, true);
-        assert_eq!(changes.card, false);
+        assert!(!changes.deck);
+        assert!(changes.deck_config);
+        assert!(!changes.card);
 
         // adding a new config will update the deck as well
         let new_config = DeckConfig {
@@ -248,9 +254,9 @@ mod test {
         };
         input.configs.push(new_config);
         let changes = col.update_deck_configs(input.clone())?.changes.changes;
-        assert_eq!(changes.deck, true);
-        assert_eq!(changes.deck_config, true);
-        assert_eq!(changes.card, false);
+        assert!(changes.deck);
+        assert!(changes.deck_config);
+        assert!(!changes.card);
         let allocated_id = col.get_deck(DeckId(1))?.unwrap().normal()?.config_id;
         assert_ne!(allocated_id, 0);
         assert_ne!(allocated_id, 1);
@@ -260,10 +266,7 @@ mod test {
         reset_card1_pos(&mut col);
         assert_eq!(card1_pos(&mut col), 0);
         input.configs[1].inner.new_card_insert_order = NewCardInsertOrder::Random as i32;
-        assert_eq!(
-            col.update_deck_configs(input.clone())?.changes.changes.card,
-            true
-        );
+        assert!(col.update_deck_configs(input.clone())?.changes.changes.card);
         assert_ne!(card1_pos(&mut col), 0);
 
         // removing the config will assign the selected config (default in this case),

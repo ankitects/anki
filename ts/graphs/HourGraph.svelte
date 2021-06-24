@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { defaultGraphBounds, RevlogRange, GraphRange } from "./graph-helpers";
     import { renderHours } from "./hours";
 
-    export let sourceData: pb.BackendProto.GraphsOut | null = null;
+    export let sourceData: pb.BackendProto.GraphsResponse | null = null;
     import * as tr from "lib/i18n";
     export let revlogRange: RevlogRange;
     let graphRange: GraphRange = GraphRange.Year;

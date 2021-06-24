@@ -13,7 +13,7 @@ import anki._backend.backend_pb2 as _pb
 
 # public exports
 TR = anki._backend.LegacyTranslationEnum
-FormatTimeSpan = _pb.FormatTimespanIn
+FormatTimeSpan = _pb.FormatTimespanRequest
 
 
 langs = sorted(

@@ -51,7 +51,7 @@ rust_library(
     version = "4.4.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__arc_swap__1_2_0//:arc_swap",
+        "@raze__arc_swap__1_3_0//:arc_swap",
         "@raze__lazy_static__1_4_0//:lazy_static",
         "@raze__slog__2_7_0//:slog",
     ],

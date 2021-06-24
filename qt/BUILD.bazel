@@ -46,11 +46,15 @@ py_test(
         "aqt",
         "$(location mypy.ini)",
         "$(location @pyqt5//:__init__.py)",
+        "$(location //pip/stubs:extendsitepkgs)",
     ],
     data = [
         "mypy.ini",
+        "//pip/stubs",
+        "//pip/stubs:extendsitepkgs",
         "@pyqt5//:__init__.py",
     ],
+    env = {"EXTRA_SITE_PACKAGES": "$(location //pip/stubs)"},
     main = "tests/run_mypy.py",
     deps = [
         "//pylib/anki",
@@ -137,7 +141,10 @@ py_binary(
     data = [
         # ensure the binary's been built
         "//pip:dmypy",
+        "//pip/stubs",
+        "//pip/stubs:extendsitepkgs",
     ],
+    env = {"EXTRA_SITE_PACKAGES": "$(location //pip/stubs)"},
     imports = ["."],
     tags = ["manual"],
     deps = [

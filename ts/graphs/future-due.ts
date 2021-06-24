@@ -30,7 +30,7 @@ export interface GraphData {
     haveBacklog: boolean;
 }
 
-export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
+export function gatherData(data: pb.BackendProto.GraphsResponse): GraphData {
     const isLearning = (card: pb.BackendProto.Card): boolean =>
         [CardQueue.Learn, CardQueue.PreviewRepeat].includes(card.queue);
 
@@ -75,7 +75,7 @@ function binValue(d: Bin<Map<number, number>, number>): number {
     return sum(d, (d) => d[1]);
 }
 
-export interface FutureDueOut {
+export interface FutureDueResponse {
     histogramData: HistogramData | null;
     tableData: TableDatum[];
 }
@@ -96,7 +96,7 @@ export function buildHistogram(
     backlog: boolean,
     dispatch: SearchDispatch,
     browserLinksSupported: boolean
-): FutureDueOut {
+): FutureDueResponse {
     const output = { histogramData: null, tableData: [] };
     // get min/max
     const data = sourceData.dueCounts;

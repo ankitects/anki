@@ -361,7 +361,9 @@ impl SqliteStorage {
 
     pub(crate) fn upgrade_decks_to_schema15(&self, server: bool) -> Result<()> {
         let usn = self.usn(server)?;
-        let decks = self.get_schema11_decks()?;
+        let decks = self
+            .get_schema11_decks()
+            .map_err(|e| AnkiError::JsonError(format!("decoding decks: {}", e)))?;
         let mut names = HashSet::new();
         for (_id, deck) in decks {
             let oldname = deck.name().to_string();
