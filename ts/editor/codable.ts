@@ -28,24 +28,26 @@ const parser = new DOMParser();
 
 function parseHTML(html: string): string {
     const doc = parser.parseFromString(html, "text/html");
-    return doc.documentElement.innerHTML;
+    return doc.body.innerHTML;
 }
 
 export class Codable extends HTMLTextAreaElement {
     codeMirror: CodeMirror | undefined;
-    active: boolean;
 
-    constructor() {
-        super();
-        this.active = false;
+    get active(): boolean {
+        return Boolean(this.codeMirror);
     }
 
     set fieldHTML(content: string) {
-        this.value = content;
+        if (this.active) {
+            this.codeMirror.setValue(content);
+        } else {
+            this.value = content;
+        }
     }
 
     get fieldHTML(): string {
-        return parseHTML(this.codeMirror.getValue());
+        return parseHTML(this.active ? this.codeMirror.getValue() : this.value);
     }
 
     connectedCallback(): void {
@@ -53,16 +55,14 @@ export class Codable extends HTMLTextAreaElement {
     }
 
     setup(html: string): void {
-        this.active = true;
         this.fieldHTML = html;
         this.codeMirror = CodeMirror.fromTextArea(this, codeMirrorOptions);
     }
 
     teardown(): string {
-        this.active = false;
         this.codeMirror.toTextArea();
         this.codeMirror = undefined;
-        return parseHTML(this.value);
+        return this.fieldHTML;
     }
 
     focus(): void {
