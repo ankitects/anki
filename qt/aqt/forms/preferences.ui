@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>419</height>
+    <height>480</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -111,6 +111,20 @@
         <widget class="QComboBox" name="recording_driver">
          <property name="currentText">
           <string notr="true"/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="search_text_label">
+         <property name="text">
+          <string>preferences_default_search_text</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="default_search_text">
+         <property name="placeholderText">
+          <string>preferences_default_search_text_example</string>
          </property>
         </widget>
        </item>
@@ -603,6 +617,7 @@
   <tabstop>nightMode</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>recording_driver</tabstop>
+  <tabstop>default_search_text</tabstop>
   <tabstop>uiScale</tabstop>
   <tabstop>showEstimates</tabstop>
   <tabstop>showProgress</tabstop>
