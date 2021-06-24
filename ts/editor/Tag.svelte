@@ -14,6 +14,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let active = false;
 
+    function checkForActivation(): void {
+        const selection = window.getSelection()!;
+        if (selection.isCollapsed) {
+            active = true;
+        }
+    }
+
     function tagDelete(event: Event): void {
         dispatch("tagdelete", { name });
         event.stopPropagation();
@@ -25,10 +32,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {:else}
     <span
         class="d-inline-flex align-items-center tag text-nowrap bg-secondary rounded ps-2 pe-1 me-1"
-        on:click|stopPropagation={() => (active = true)}
+        on:click|stopPropagation={checkForActivation}
     >
         <span>{name}</span>
-        <Badge class="rounded delete-icon ms-1 mt-1" on:click={tagDelete}
+        <Badge class="delete-icon rounded ms-1 mt-1" on:click={tagDelete}
             >{@html deleteIcon}</Badge
         >
     </span>
