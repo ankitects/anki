@@ -30,7 +30,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function updateActiveItem(even: FocusEvent): void {}
+    function updateActiveItem(event: FocusEvent): void {
+        event.preventDefault();
+    }
 </script>
 
 <ButtonToolbar class={`dropup ${className}`} {size}>
@@ -38,8 +40,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <DropdownMenu class="d-flex flex-column-reverse">
         {#each suggestions as tag}
-            <DropdownItem on:focus={updateActiveItem} on:keydown={switchUpDown}
-                >{tag}</DropdownItem
+            <DropdownItem
+                tabbable={false}
+                on:focus={updateActiveItem}
+                on:keydown={switchUpDown}>{tag}</DropdownItem
             >
         {/each}
     </DropdownMenu>

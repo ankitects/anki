@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let tooltip: string | undefined = undefined;
+    export let tabbable: boolean = true;
 
     let buttonRef: HTMLButtonElement;
 
@@ -22,6 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <button
     {id}
+    tabindex={tabbable ? 0 : -1}
     bind:this={buttonRef}
     class={`btn dropdown-item ${className}`}
     class:btn-day={!nightMode}
