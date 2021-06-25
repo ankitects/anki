@@ -7,25 +7,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import AddTagBadge from "./AddTagBadge.svelte";
     import Tag from "./Tag.svelte";
     import TagInput from "./TagInput.svelte";
+    import { attachId, getName } from "./tags";
 
-    export let tags = ["en::foobar", "test", "def"];
+    export let initialNames = ["en::foobar", "test", "def"];
 
-    let tagInputNew: HTMLInputElement;
+    let tags = initialNames.map(attachId);
+    let newInput: HTMLInputElement;
     let newName: string = "";
 
     function focusInputNew(): void {
-        tagInputNew.focus();
+        newInput.focus();
     }
 
     const insertTagAt = (index: number) => () => {
-        const copy = tags.slice(0);
-        copy.splice(index, 1);
+        const names = tags.map(getName);
+        const nameToInsert = names.splice(index, 1)[0];
 
-        if (copy.includes(tags[index])) {
+        if (names.includes(nameToInsert)) {
             return;
         }
 
-        tags.splice(index - 1, 0, tags[index]);
+        tags.splice(index, 0, attachId(nameToInsert));
         tags = tags;
     };
 
@@ -35,11 +37,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
 
     function appendTag(): void {
-        if (!tags.includes(newName) && newName.length > 0) {
-            tags.push(newName);
+        const names = tags.map(getName);
+        if (!names.includes(newName) && newName.length > 0) {
+            tags.push(attachId(newName));
+            tags = tags;
         }
+
         newName = "";
-        tags = tags;
     }
 </script>
 
@@ -47,16 +51,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div class="d-flex flex-wrap">
         <AddTagBadge on:click={focusInputNew} />
 
-        {#each tags as tag, index}
+        {#each tags as tag, index (tag.id)}
             <Tag
-                bind:name={tag}
+                bind:name={tag.name}
                 on:tagadd={insertTagAt(index)}
                 on:tagdelete={deleteTagAt(index)}
             />
         {/each}
 
         <TagInput
-            bind:input={tagInputNew}
+            bind:input={newInput}
             bind:name={newName}
             on:tagupdate={appendTag}
             on:tagadd={appendTag}
