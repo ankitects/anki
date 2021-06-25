@@ -3,7 +3,7 @@
 
 use std::{collections::HashMap, path::Path};
 
-use rusqlite::{params, Connection, OptionalExtension, Row, Statement, NO_PARAMS};
+use rusqlite::{params, Connection, OptionalExtension, Row, Statement};
 
 use crate::error::Result;
 
@@ -31,12 +31,12 @@ fn initial_db_setup(db: &mut Connection) -> Result<()> {
     // tables already exist?
     if db
         .prepare("select null from sqlite_master where type = 'table' and name = 'media'")?
-        .exists(NO_PARAMS)?
+        .exists([])?
     {
         return Ok(());
     }
 
-    db.execute("begin", NO_PARAMS)?;
+    db.execute("begin", [])?;
     db.execute_batch(include_str!("schema.sql"))?;
     db.execute_batch("commit; vacuum; analyze;")?;
 
@@ -172,7 +172,7 @@ delete from media where fname=?"
     pub(super) fn get_meta(&mut self) -> Result<MediaDatabaseMetadata> {
         let mut stmt = self.db.prepare("select dirMod, lastUsn from meta")?;
 
-        stmt.query_row(NO_PARAMS, |row| {
+        stmt.query_row([], |row| {
             Ok(MediaDatabaseMetadata {
                 folder_mtime: row.get(0)?,
                 last_sync_usn: row.get(1)?,
@@ -192,7 +192,7 @@ delete from media where fname=?"
         self.db
             .query_row(
                 "select count(*) from media where csum is not null",
-                NO_PARAMS,
+                [],
                 |row| row.get(0),
             )
             .map_err(Into::into)
@@ -204,7 +204,7 @@ delete from media where fname=?"
             .prepare("select fname from media where dirty=1 limit ?")?;
         let results: Result<Vec<_>> = stmt
             .query_and_then(params![max_entries], |row| {
-                let fname = row.get_raw(0).as_str()?;
+                let fname = row.get_ref_unwrap(0).as_str()?;
                 Ok(self.get_entry(fname)?.unwrap())
             })?
             .collect();
@@ -217,7 +217,7 @@ delete from media where fname=?"
             .db
             .prepare("select fname, mtime from media where csum is not null")?;
         let map: std::result::Result<HashMap<String, i64>, rusqlite::Error> = stmt
-            .query_map(NO_PARAMS, |row| Ok((row.get(0)?, row.get(1)?)))?
+            .query_map([], |row| Ok((row.get(0)?, row.get(1)?)))?
             .collect();
         Ok(map?)
     }

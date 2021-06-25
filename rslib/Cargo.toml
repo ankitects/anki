@@ -37,7 +37,7 @@ slog-term = "=2.6.0"
 anki_i18n = { path="i18n" }
 
 askama = "0.10.5"
-async-compression = { version="0.3.8", features=["tokio", "gzip"] }
+async-compression = { version = "0.3.8", features = ["tokio", "gzip"] }
 blake3 = "0.3.8"
 bytes = "1.0.1"
 chrono = "0.4.19"
@@ -69,7 +69,7 @@ reqwest = { git="https://github.com/ankitects/reqwest.git", rev="7591444614de02b
     "rustls-tls-webpki-roots",
     "rustls-tls-native-roots",
 ] }
-rusqlite = { version="0.24.1", features=["trace", "functions", "collation", "bundled"] }
+rusqlite = { version = "0.25.3", features = ["trace", "functions", "collation", "bundled"] }
 scopeguard = "1.1.0"
 serde = "1.0.126"
 serde_derive = "1.0.126"
@@ -78,18 +78,18 @@ serde_repr = "0.1.7"
 serde_tuple = "0.5.0"
 serde-aux = "2.2.0"
 sha1 = "0.6.0"
-slog = { version="2.7.0", features=["max_level_trace", "release_max_level_debug"] }
+slog = { version = "2.7.0", features = ["max_level_trace", "release_max_level_debug"] }
 slog-async = "2.6.0"
 slog-envlogger = "2.2.0"
 tempfile = "3.2.0"
-tokio = { version="1.7.1", features=["fs", "rt-multi-thread"] }
-unic-langid = { version="0.9.0", features=["macros"] }
+tokio = { version = "1.7.1", features = ["fs", "rt-multi-thread"] }
+unic-langid = { version = "0.9.0", features = ["macros"] }
 unicode-normalization = "0.1.19"
 utime = "0.3.1"
-zip = { version="0.5.13", default-features=false, features=["deflate", "time"] }
+zip = { version = "0.5.13", default-features = false, features = ["deflate", "time"] }
 async-trait = "0.1.50"
 ammonia = "3.1.1"
 pulldown-cmark = "0.8.0"
 fnv = "1.0.7"
-strum = { version="0.21.0", features=["derive"] }
-tokio-util = { version="0.6.7", features=["io"] }
+strum = { version = "0.21.0", features = ["derive"] }
+tokio-util = { version = "0.6.7", features = ["io"] }

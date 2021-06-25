@@ -63,7 +63,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.20.1",
+    version = "0.22.2",
     visibility = ["//visibility:private"],
     deps = [
         "@raze__cc__1_0_68//:cc",
@@ -106,7 +106,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.20.1",
+    version = "0.22.2",
     # buildifier: leave-alone
     deps = [
         ":libsqlite3_sys_build_script",

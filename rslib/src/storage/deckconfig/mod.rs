@@ -4,7 +4,7 @@
 use std::collections::HashMap;
 
 use prost::Message;
-use rusqlite::{params, Row, NO_PARAMS};
+use rusqlite::{params, Row};
 use serde_json::Value;
 
 use super::SqliteStorage;
@@ -14,7 +14,7 @@ use crate::{
 };
 
 fn row_to_deckconf(row: &Row) -> Result<DeckConfig> {
-    let config = DeckConfigInner::decode(row.get_raw(4).as_blob()?)?;
+    let config = DeckConfigInner::decode(row.get_ref_unwrap(4).as_blob()?)?;
     Ok(DeckConfig {
         id: row.get(0)?,
         name: row.get(1)?,
@@ -28,14 +28,14 @@ impl SqliteStorage {
     pub(crate) fn all_deck_config(&self) -> Result<Vec<DeckConfig>> {
         self.db
             .prepare_cached(include_str!("get.sql"))?
-            .query_and_then(NO_PARAMS, row_to_deckconf)?
+            .query_and_then([], row_to_deckconf)?
             .collect()
     }
 
     pub(crate) fn get_deck_config_map(&self) -> Result<HashMap<DeckConfigId, DeckConfig>> {
         self.db
             .prepare_cached(include_str!("get.sql"))?
-            .query_and_then(NO_PARAMS, row_to_deckconf)?
+            .query_and_then([], row_to_deckconf)?
             .map(|res| res.map(|d| (d.id, d)))
             .collect()
     }
@@ -115,7 +115,7 @@ impl SqliteStorage {
     pub(crate) fn clear_deck_conf_usns(&self) -> Result<()> {
         self.db
             .prepare("update deck_config set usn = 0 where usn != 0")?
-            .execute(NO_PARAMS)?;
+            .execute([])?;
         Ok(())
     }
 
@@ -150,8 +150,8 @@ impl SqliteStorage {
     pub(super) fn upgrade_deck_conf_to_schema14(&self) -> Result<()> {
         let conf: HashMap<DeckConfigId, DeckConfSchema11> =
             self.db
-                .query_row_and_then("select dconf from col", NO_PARAMS, |row| -> Result<_> {
-                    let text = row.get_raw(0).as_str()?;
+                .query_row_and_then("select dconf from col", [], |row| -> Result<_> {
+                    let text = row.get_ref_unwrap(0).as_str()?;
                     // try direct parse
                     serde_json::from_str(text)
                         .or_else(|_| {
@@ -177,8 +177,8 @@ impl SqliteStorage {
     fn all_deck_config_schema14(&self) -> Result<Vec<DeckConfSchema11>> {
         self.db
             .prepare_cached("select config from deck_config")?
-            .query_and_then(NO_PARAMS, |row| -> Result<_> {
-                Ok(serde_json::from_slice(row.get_raw(0).as_blob()?)?)
+            .query_and_then([], |row| -> Result<_> {
+                Ok(serde_json::from_slice(row.get_ref_unwrap(0).as_blob()?)?)
             })?
             .collect()
     }

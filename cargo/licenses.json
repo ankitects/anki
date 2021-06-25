@@ -19,7 +19,7 @@
   },
   {
     "name": "ahash",
-    "version": "0.4.7",
+    "version": "0.7.4",
     "authors": "Tom Kaitchuck <Tom.Kaitchuck@gmail.com>",
     "repository": "https://github.com/tkaitchuck/ahash",
     "license": "Apache-2.0 OR MIT",
@@ -702,8 +702,17 @@
     "description": "A Rust port of Google's SwissTable hash map"
   },
   {
+    "name": "hashbrown",
+    "version": "0.11.2",
+    "authors": "Amanieu d'Antras <amanieu@gmail.com>",
+    "repository": "https://github.com/rust-lang/hashbrown",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A Rust port of Google's SwissTable hash map"
+  },
+  {
     "name": "hashlink",
-    "version": "0.6.0",
+    "version": "0.7.0",
     "authors": "kyren <kerriganw@gmail.com>",
     "repository": "https://github.com/kyren/hashlink",
     "license": "Apache-2.0 OR MIT",
@@ -1009,7 +1018,7 @@
   },
   {
     "name": "libsqlite3-sys",
-    "version": "0.20.1",
+    "version": "0.22.2",
     "authors": "The rusqlite developers",
     "repository": "https://github.com/rusqlite/rusqlite",
     "license": "MIT",
@@ -1792,7 +1801,7 @@
   },
   {
     "name": "rusqlite",
-    "version": "0.24.2",
+    "version": "0.25.3",
     "authors": "The rusqlite developers",
     "repository": "https://github.com/rusqlite/rusqlite",
     "license": "MIT",

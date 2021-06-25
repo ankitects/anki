@@ -52,6 +52,7 @@ rust_library(
         "default",
         "race",
         "std",
+        "unstable",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",

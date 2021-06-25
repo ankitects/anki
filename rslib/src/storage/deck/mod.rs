@@ -7,7 +7,7 @@ use std::{
 };
 
 use prost::Message;
-use rusqlite::{named_params, params, Row, NO_PARAMS};
+use rusqlite::{named_params, params, Row};
 use unicase::UniCase;
 
 use super::SqliteStorage;
@@ -20,12 +20,12 @@ use crate::{
 };
 
 fn row_to_deck(row: &Row) -> Result<Deck> {
-    let common = DeckCommon::decode(row.get_raw(4).as_blob()?)?;
-    let kind = DeckKindContainer::decode(row.get_raw(5).as_blob()?)?;
+    let common = DeckCommon::decode(row.get_ref_unwrap(4).as_blob()?)?;
+    let kind = DeckKindContainer::decode(row.get_ref_unwrap(5).as_blob()?)?;
     let id = row.get(0)?;
     Ok(Deck {
         id,
-        name: NativeDeckName::from_native_str(row.get_raw(1).as_str()?),
+        name: NativeDeckName::from_native_str(row.get_ref_unwrap(1).as_str()?),
         mtime_secs: row.get(2)?,
         usn: row.get(3)?,
         common,
@@ -69,7 +69,7 @@ impl SqliteStorage {
     pub(crate) fn get_deck(&self, did: DeckId) -> Result<Option<Deck>> {
         self.db
             .prepare_cached(concat!(include_str!("get_deck.sql"), " where id = ?"))?
-            .query_and_then(&[did], row_to_deck)?
+            .query_and_then([did], row_to_deck)?
             .next()
             .transpose()
     }
@@ -77,14 +77,14 @@ impl SqliteStorage {
     pub(crate) fn get_all_decks(&self) -> Result<Vec<Deck>> {
         self.db
             .prepare(include_str!("get_deck.sql"))?
-            .query_and_then(NO_PARAMS, row_to_deck)?
+            .query_and_then([], row_to_deck)?
             .collect()
     }
 
     pub(crate) fn get_decks_map(&self) -> Result<HashMap<DeckId, Deck>> {
         self.db
             .prepare(include_str!("get_deck.sql"))?
-            .query_and_then(NO_PARAMS, row_to_deck)?
+            .query_and_then([], row_to_deck)?
             .map(|res| res.map(|d| (d.id, d)))
             .collect()
     }
@@ -93,8 +93,11 @@ impl SqliteStorage {
     pub(crate) fn get_all_deck_names(&self) -> Result<Vec<(DeckId, String)>> {
         self.db
             .prepare("select id, name from decks order by name")?
-            .query_and_then(NO_PARAMS, |row| {
-                Ok((row.get(0)?, row.get_raw(1).as_str()?.replace('\x1f', "::")))
+            .query_and_then([], |row| {
+                Ok((
+                    row.get(0)?,
+                    row.get_ref_unwrap(1).as_str()?.replace('\x1f', "::"),
+                ))
             })?
             .collect()
     }
@@ -102,7 +105,7 @@ impl SqliteStorage {
     pub(crate) fn get_deck_id(&self, machine_name: &str) -> Result<Option<DeckId>> {
         self.db
             .prepare("select id from decks where name = ?")?
-            .query_and_then(&[machine_name], |row| row.get(0))?
+            .query_and_then([machine_name], |row| row.get(0))?
             .next()
             .transpose()
             .map_err(Into::into)
@@ -114,7 +117,7 @@ impl SqliteStorage {
         deck.id.0 = self
             .db
             .prepare(include_str!("alloc_id.sql"))?
-            .query_row(&[TimestampMillis::now()], |r| r.get(0))?;
+            .query_row([TimestampMillis::now()], |r| r.get(0))?;
         self.add_or_update_deck_with_existing_id(deck)
             .map_err(|err| {
                 // restore id of 0
@@ -184,14 +187,14 @@ impl SqliteStorage {
     pub(crate) fn remove_deck(&self, did: DeckId) -> Result<()> {
         self.db
             .prepare_cached("delete from decks where id = ?")?
-            .execute(&[did])?;
+            .execute([did])?;
         Ok(())
     }
 
     pub(crate) fn all_cards_in_single_deck(&self, did: DeckId) -> Result<Vec<CardId>> {
         self.db
             .prepare_cached(include_str!("cards_for_deck.sql"))?
-            .query_and_then(&[did], |r| r.get(0).map_err(Into::into))?
+            .query_and_then([did], |r| r.get(0).map_err(Into::into))?
             .collect()
     }
 
@@ -203,7 +206,7 @@ impl SqliteStorage {
                 include_str!("get_deck.sql"),
                 " where name >= ? and name < ?"
             ))?
-            .query_and_then(&[prefix_start, prefix_end], row_to_deck)?
+            .query_and_then([prefix_start, prefix_end], row_to_deck)?
             .collect()
     }
 
@@ -229,7 +232,7 @@ impl SqliteStorage {
                         include_str!("get_deck.sql"),
                         " where name > ? and name < ?"
                     ))?
-                    .query_and_then(&[prefix_start, prefix_end], row_to_deck)?,
+                    .query_and_then([prefix_start, prefix_end], row_to_deck)?,
             )
             .collect()
     }
@@ -303,7 +306,7 @@ impl SqliteStorage {
 
         self.db
             .prepare_cached(sql)?
-            .query_and_then_named(&params, |row| row_to_due_counts(row, v3))?
+            .query_and_then(&*params, |row| row_to_due_counts(row, v3))?
             .collect()
     }
 
@@ -311,14 +314,14 @@ impl SqliteStorage {
     pub(crate) fn missing_decks(&self) -> Result<Vec<DeckId>> {
         self.db
             .prepare(include_str!("missing-decks.sql"))?
-            .query_and_then(NO_PARAMS, |r| r.get(0).map_err(Into::into))?
+            .query_and_then([], |r| r.get(0).map_err(Into::into))?
             .collect()
     }
 
     pub(crate) fn deck_is_empty(&self, did: DeckId) -> Result<bool> {
         self.db
             .prepare_cached("select null from cards where did=?")?
-            .query(&[did])?
+            .query([did])?
             .next()
             .map(|o| o.is_none())
             .map_err(Into::into)
@@ -327,7 +330,7 @@ impl SqliteStorage {
     pub(crate) fn clear_deck_usns(&self) -> Result<()> {
         self.db
             .prepare("update decks set usn = 0 where usn != 0")?
-            .execute(NO_PARAMS)?;
+            .execute([])?;
         Ok(())
     }
 
@@ -344,7 +347,7 @@ impl SqliteStorage {
 
         self.db
             .prepare_cached(include_str!("update_active.sql"))?
-            .execute(&[top, prefix_start, prefix_end])?;
+            .execute([top, prefix_start, prefix_end])?;
 
         Ok(())
     }
@@ -382,7 +385,7 @@ impl SqliteStorage {
             }
             self.add_or_update_deck_with_existing_id(&deck)?;
         }
-        self.db.execute("update col set decks = ''", NO_PARAMS)?;
+        self.db.execute("update col set decks = ''", [])?;
         Ok(())
     }
 
@@ -394,9 +397,9 @@ impl SqliteStorage {
     fn get_schema11_decks(&self) -> Result<HashMap<DeckId, DeckSchema11>> {
         let mut stmt = self.db.prepare("select decks from col")?;
         let decks = stmt
-            .query_and_then(NO_PARAMS, |row| -> Result<HashMap<DeckId, DeckSchema11>> {
+            .query_and_then([], |row| -> Result<HashMap<DeckId, DeckSchema11>> {
                 let v: HashMap<DeckId, DeckSchema11> =
-                    serde_json::from_str(row.get_raw(0).as_str()?)?;
+                    serde_json::from_str(row.get_ref_unwrap(0).as_str()?)?;
                 Ok(v)
             })?
             .next()
@@ -406,7 +409,7 @@ impl SqliteStorage {
 
     pub(crate) fn set_schema11_decks(&self, decks: HashMap<DeckId, DeckSchema11>) -> Result<()> {
         let json = serde_json::to_string(&decks)?;
-        self.db.execute("update col set decks = ?", &[json])?;
+        self.db.execute("update col set decks = ?", [json])?;
         Ok(())
     }
 }
