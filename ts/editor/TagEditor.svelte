@@ -22,11 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let newName: string = "";
 
     function focusNewInput(): void {
-        if (document.activeElement === newInput) {
-            // refocus
-            newInput.blur();
-        }
-
         newInput.focus();
     }
 
@@ -81,26 +76,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
 
-        const before = tags.splice(index - 1, 1)[0];
-        tags.splice(index, 0, before);
+        tags[index - 1].active = true;
+        tags[index].active = false;
         tags = tags;
     }
 
     function moveToNextTag(index: number): void {
         if (index === tags.length - 1 || tags.length === 1) {
-            return;
+            focusNewInput();
         }
-        // TODO
+
+        tags[index].active = false;
+        tags[index + 1].active = true;
+        tags = tags;
     }
 
-    function appendTag(): void {
+    function appendTag(): boolean {
         const names = tags.map(getName);
+        let added = false;
+
         if (!names.includes(newName) && newName.length > 0) {
             tags.push(attachId(newName));
-            tags = tags;
+            added = true;
         }
 
+        tags = tags;
         newName = "";
+        return added;
     }
 
     function joinWithLastTag(): void {
@@ -113,7 +115,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function moveToLastTag(): void {
-        appendTag();
+        const newTag = appendTag() ? tags[tags.length - 2] : tags[tags.length - 1];
+        newTag.active = true;
     }
 </script>
 
@@ -131,8 +134,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {#each tags as tag, index (tag.id)}
                     <Tag
                         bind:name={tag.name}
-                        on:keydown={updateAutocomplete}
-                        on:blur={destroyAutocomplete}
+                        bind:active={tag.active}
+                        on:keydown={() => {}}
+                        on:blur={() => {}}
                         on:tagupdate={() => checkForDuplicateAt(index)}
                         on:tagadd={() => insertTagAt(index)}
                         on:tagdelete={() => deleteTagAt(index)}
@@ -146,8 +150,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <TagInput
                     bind:input={newInput}
                     bind:name={newName}
-                    on:keydown={updateAutocomplete}
-                    on:blur={destroyAutocomplete}
+                    on:keydown={() => {}}
+                    on:blur={() => {}}
                     on:tagupdate={appendTag}
                     on:tagadd={appendTag}
                     on:tagjoinprevious={joinWithLastTag}

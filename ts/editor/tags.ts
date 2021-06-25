@@ -17,11 +17,12 @@ export function normalizeTagname(tagname: string): string {
 
 interface Tag {
     name: string;
+    active: boolean;
     id: string;
 }
 
 export function attachId(name: string): Tag {
-    return { name, id: Math.random().toString(36).substring(2) };
+    return { name, active: false, id: Math.random().toString(36).substring(2) };
 }
 
 export function getName(tag: Tag): string {

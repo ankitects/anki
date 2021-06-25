@@ -9,10 +9,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { deleteIcon } from "./icons";
 
     export let name: string;
+    export let active: boolean;
 
     const dispatch = createEventDispatcher();
 
-    let active = false;
     let input: HTMLInputElement;
 
     function checkForActivation(): void {
@@ -75,5 +75,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     button {
         padding: 0;
+
+        &:focus,
+        &:active {
+            outline: none;
+        }
     }
 </style>
