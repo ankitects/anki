@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
+    import { isApplePlatform } from "lib/platform";
     import StickyBottom from "components/StickyBottom.svelte";
     import AddTagBadge from "./AddTagBadge.svelte";
     import Tag from "./Tag.svelte";
@@ -11,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { attachId, getName } from "./tags";
 
     export let initialNames = ["en::foobar", "test", "def"];
+    export let size = isApplePlatform() ? 1.6 : 2.0;
 
     let tags = initialNames.map(attachId);
     let newInput: HTMLInputElement;
@@ -88,7 +90,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <StickyBottom>
     <div class="font-size-13 row-gap">
-        <TagAutocomplete class="d-flex flex-wrap align-items-center row-gap">
+        <TagAutocomplete class="d-flex flex-wrap align-items-center">
             <AddTagBadge on:click={focusNewInput} />
 
             {#each tags as tag, index (tag.id)}

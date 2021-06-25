@@ -36,7 +36,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div bind:this={menu} class={`dropup dropdown-reverse ${className}`}>
     <slot />
 
-    <DropdownMenu>
+    <DropdownMenu class="d-flex flex-column-reverse">
         {#each suggestions as tag}
             <DropdownItem on:focus={updateActiveItem} on:keydown={switchUpDown}
                 >{tag}</DropdownItem
@@ -47,8 +47,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .dropdown-reverse :global(.dropdown-menu.show) {
-        display: flex;
-        flex-direction: column-reverse;
         font-size: 13px;
     }
 </style>
