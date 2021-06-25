@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import AddTagBadge from "./AddTagBadge.svelte";
     import Tag from "./Tag.svelte";
     import TagAutocomplete from "./TagAutocomplete.svelte";
+    import ButtonToolbar from "components/ButtonToolbar.svelte";
     import TagInput from "./TagInput.svelte";
     import { attachId, getName } from "./tags";
 
@@ -92,35 +93,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <StickyBottom>
     <div class="row-gap">
-        <TagAutocomplete
-            class="d-flex flex-wrap align-items-center"
-            {suggestions}
-            {size}
-            let:createDropdown
-            let:activateDropdown
-        >
-            <AddTagBadge on:click={focusNewInput} />
+        <ButtonToolbar class="dropup d-flex flex-wrap align-items-center" {size}>
+            <TagAutocomplete
+                class="d-flex flex-column-reverse"
+                {suggestions}
+                let:createDropdown
+                let:activateDropdown
+            >
+                <AddTagBadge on:click={focusNewInput} />
 
-            {#each tags as tag, index (tag.id)}
-                <Tag
-                    bind:name={tag.name}
-                    on:tagupdate={() => checkForDuplicateAt(index)}
-                    on:tagadd={() => insertTagAt(index)}
-                    on:tagdelete={() => deleteTagAt(index)}
-                    on:tagjoinprevious={() => joinWithPreviousTag(index)}
-                    on:tagjoinnext={() => joinWithNextTag(index)}
+                {#each tags as tag, index (tag.id)}
+                    <Tag
+                        bind:name={tag.name}
+                        on:tagupdate={() => checkForDuplicateAt(index)}
+                        on:tagadd={() => insertTagAt(index)}
+                        on:tagdelete={() => deleteTagAt(index)}
+                        on:tagjoinprevious={() => joinWithPreviousTag(index)}
+                        on:tagjoinnext={() => joinWithNextTag(index)}
+                    />
+                {/each}
+
+                <TagInput
+                    bind:input={newInput}
+                    bind:name={newName}
+                    on:focus={(event) => createDropdown(event.currentTarget)}
+                    on:tagupdate={appendTag}
+                    on:tagadd={appendTag}
+                    on:tagjoinprevious={joinWithLastTag}
                 />
-            {/each}
-
-            <TagInput
-                bind:input={newInput}
-                bind:name={newName}
-                on:focus={(event) => createDropdown(event.currentTarget)}
-                on:tagupdate={appendTag}
-                on:tagadd={appendTag}
-                on:tagjoinprevious={joinWithLastTag}
-            />
-        </TagAutocomplete>
+            </TagAutocomplete>
+        </ButtonToolbar>
     </div>
 </StickyBottom>
 
