@@ -11,6 +11,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
+    function setPosition(position: number): void {
+        setTimeout(() => input.setSelectionRange(position, position));
+    }
+
     function onAccept(): void {
         name = normalizeTagname(name);
         dispatch("tagupdate", { name });
@@ -18,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onBackspace(event: KeyboardEvent) {
         if (input.selectionStart === 0 && input.selectionEnd === 0) {
-            dispatch("tagjoinprevious");
+            dispatch("tagjoinprevious", { setPosition });
             event.preventDefault();
         } else if (name.endsWith("::")) {
             name = name.slice(0, -2);
@@ -31,7 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             input.selectionStart === input.value.length &&
             input.selectionEnd === input.value.length
         ) {
-            dispatch("tagjoinnext");
+            dispatch("tagjoinnext", { setPosition });
             event.preventDefault();
         } else if (name.endsWith("::")) {
             name = name.slice(0, -2);
@@ -91,10 +95,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <label class="ps-2 pe-1" data-value={name}>
     <input
         bind:this={input}
+        bind:value={name}
         type="text"
         tabindex="-1"
         size="1"
-        bind:value={name}
         on:focus
         on:blur
         on:blur={onAccept}
