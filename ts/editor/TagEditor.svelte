@@ -45,6 +45,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tags = tags;
     }
 
+    function joinWithPreviousTag(index: number): void {
+        if (index === 0) {
+            return;
+        }
+
+        const spliced = tags.splice(index - 1, 1)[0];
+        tags[index - 1].name = spliced.name + tags[index - 1].name;
+        tags = tags;
+    }
+
+    function joinWithNextTag(index: number): void {
+        if (index === tags.length - 1) {
+            return;
+        }
+
+        const spliced = tags.splice(index + 1, 1)[0];
+        tags[index].name = tags[index].name + spliced.name;
+        tags = tags;
+    }
+
     function appendTag(): void {
         const names = tags.map(getName);
         if (!names.includes(newName) && newName.length > 0) {
@@ -53,6 +73,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         newName = "";
+    }
+
+    function joinWithLastTag(): void {
+        const popped = tags.pop();
+        tags = tags;
+
+        if (popped) {
+            newName = popped.name + newName;
+        }
     }
 </script>
 
@@ -66,6 +95,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 on:tagupdate={() => checkForDuplicateAt(index)}
                 on:tagadd={() => insertTagAt(index)}
                 on:tagdelete={() => deleteTagAt(index)}
+                on:tagjoinprevious={() => joinWithPreviousTag(index)}
+                on:tagjoinnext={() => joinWithNextTag(index)}
             />
         {/each}
 
@@ -74,6 +105,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bind:name={newName}
             on:tagupdate={appendTag}
             on:tagadd={appendTag}
+            on:tagjoinprevious={joinWithLastTag}
         />
     </div>
 </StickyBottom>
