@@ -16,23 +16,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <WithShortcut shortcut="Control+Shift+T" let:createShortcut let:shortcutLabel>
-    <Badge
-        class="add-icon d-flex me-1"
-        tooltip={appendInParentheses(tooltip, shortcutLabel)}
-        on:click
-        on:mouseenter={() => (theTagIcon = addTagIcon)}
-        on:mouseleave={() => (theTagIcon = tagIcon)}
-        on:mount={withSpan(createShortcut)}>{@html theTagIcon}</Badge
-    >
+    <div class="add-icon">
+        <Badge
+            class="me-1"
+            tooltip={appendInParentheses(tooltip, shortcutLabel)}
+            on:click
+            on:mouseenter={() => (theTagIcon = addTagIcon)}
+            on:mouseleave={() => (theTagIcon = tagIcon)}
+            on:mount={withSpan(createShortcut)}>{@html theTagIcon}</Badge
+        >
+    </div>
 </WithShortcut>
 
 <style lang="scss">
-    :global(.add-icon > svg) {
-        cursor: pointer;
-        opacity: 0.6;
-    }
+    .add-icon {
+        line-height: 1;
 
-    :global(.add-icon > svg:hover) {
-        opacity: 1;
+        :global(svg) {
+            cursor: pointer;
+            fill: currentColor;
+            opacity: 0.6;
+        }
+
+        :global(svg:hover) {
+            opacity: 1;
+        }
     }
 </style>
