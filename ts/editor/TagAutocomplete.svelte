@@ -15,6 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     let autocomplete: Dropdown | undefined;
+    let displayed: string[] = [];
 
     function switchUpDown(event: KeyboardEvent): void {
         const target = event.currentTarget as HTMLButtonElement;
@@ -33,16 +34,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    const createAutocomplete =
+    const updateAutocomplete =
         (createDropdown: (element: HTMLElement) => Dropdown) =>
-        (element: HTMLElement) => {
-            autocomplete = createDropdown(element);
+        (event: KeyboardEvent): Dropdown => {
+            const target = event.target as HTMLElement;
+            autocomplete = createDropdown(target);
+            autocomplete.show();
+
             return autocomplete;
         };
+
+    function destroyAutocomplete(): void {
+        if (!autocomplete) {
+            return;
+        }
+
+        autocomplete.hide();
+    }
 </script>
 
 <WithDropdownMenu let:menuId let:createDropdown>
-    <slot createAutocomplete={createAutocomplete(createDropdown)} />
+    <slot
+        updateAutocomplete={updateAutocomplete(createDropdown)}
+        {destroyAutocomplete}
+    />
 
     <DropdownMenu id={menuId} class={className}>
         {#each suggestions as tag}

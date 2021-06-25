@@ -51,7 +51,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             onAccept();
             event.preventDefault();
         }
-        console.log("keydown");
     }
 
     function onPaste(event: ClipboardEvent): void {
@@ -100,6 +99,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:blur
         on:blur={onAccept}
         on:keydown={onKeydown}
+        on:keydown
         on:paste={onPaste}
         on:click
     />
