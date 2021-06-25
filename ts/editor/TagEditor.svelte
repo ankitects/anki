@@ -56,36 +56,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tags = tags;
     }
 
-    function joinWithPreviousTag(
-        index: number,
-        setPosition: (position: number) => void
-    ): void {
+    function joinWithPreviousTag(index: number): void {
         if (index === 0) {
             return;
         }
 
         const spliced = tags.splice(index - 1, 1)[0];
-        const length = spliced.name.length;
         tags[index - 1].name = spliced.name + tags[index - 1].name;
         tags = tags;
-
-        setPosition(length);
     }
 
-    function joinWithNextTag(
-        index: number,
-        setPosition: (position: number) => void
-    ): void {
+    function joinWithNextTag(index: number): void {
         if (index === tags.length - 1) {
             return;
         }
 
         const spliced = tags.splice(index + 1, 1)[0];
-        const length = tags[index].name.length;
         tags[index].name = tags[index].name + spliced.name;
         tags = tags;
-
-        setPosition(length);
     }
 
     function moveToPreviousTag(index: number): void {
@@ -115,13 +103,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         newName = "";
     }
 
-    function joinWithLastTag(setPosition: (position: number) => void): void {
+    function joinWithLastTag(): void {
         const popped = tags.pop();
         tags = tags;
 
         if (popped) {
             newName = popped.name + newName;
-            setPosition(popped.name.length);
         }
     }
 
@@ -149,10 +136,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         on:tagupdate={() => checkForDuplicateAt(index)}
                         on:tagadd={() => insertTagAt(index)}
                         on:tagdelete={() => deleteTagAt(index)}
-                        on:tagjoinprevious={({ detail }) =>
-                            joinWithPreviousTag(index, detail.setPosition)}
-                        on:tagjoinnext={({ detail }) =>
-                            joinWithNextTag(index, detail.setPosition)}
+                        on:tagjoinprevious={() => joinWithPreviousTag(index)}
+                        on:tagjoinnext={() => joinWithNextTag(index)}
                         on:tagmoveprevious={() => moveToPreviousTag(index)}
                         on:tagmovenext={() => moveToNextTag(index)}
                     />
@@ -165,8 +150,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:blur={destroyAutocomplete}
                     on:tagupdate={appendTag}
                     on:tagadd={appendTag}
-                    on:tagjoinprevious={({ detail }) =>
-                        joinWithLastTag(detail.setPosition)}
+                    on:tagjoinprevious={joinWithLastTag}
                     on:tagmoveprevious={moveToLastTag}
                 />
             </TagAutocomplete>

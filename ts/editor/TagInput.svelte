@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { createEventDispatcher, onMount } from "svelte";
+    import { createEventDispatcher, onMount, tick } from "svelte";
     import { normalizeTagname } from "./tags";
 
     export let name: string;
@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function setPosition(position: number): void {
-        setTimeout(() => input.setSelectionRange(position, position));
+        input.setSelectionRange(position, position);
     }
 
     function onAccept(): void {
@@ -31,9 +31,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         dispatch("tagupdate", { name });
     }
 
-    function onBackspace(event: KeyboardEvent) {
+    async function onBackspace(event: KeyboardEvent): Promise<void> {
         if (caretAtStart()) {
-            dispatch("tagjoinprevious", { setPosition });
+            const length = input.value.length;
+            dispatch("tagjoinprevious");
+            await tick();
+            setPosition(input.value.length - length);
             event.preventDefault();
         } else if (name.endsWith("::")) {
             name = name.slice(0, -2);
@@ -41,9 +44,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function onDelete(event: KeyboardEvent) {
+    async function onDelete(event: KeyboardEvent): Promise<void> {
         if (caretAtEnd()) {
-            dispatch("tagjoinnext", { setPosition });
+            const length = input.value.length;
+            dispatch("tagjoinnext");
+            await tick();
+            setPosition(length);
             event.preventDefault();
         } else if (name.endsWith("::")) {
             name = name.slice(0, -2);
