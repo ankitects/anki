@@ -49,15 +49,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:mount={(event) => event.detail.input.focus()}
     />
 {:else}
-    <span
-        class="d-inline-flex align-items-center tag text-nowrap bg-secondary rounded ps-2 pe-1 me-1"
+    <button
+        class="d-inline-flex align-items-center tag text-nowrap rounded ps-2 pe-1 me-1"
+        tabindex="-1"
         on:click={checkForActivation}
     >
         <span>{name}</span>
         <Badge class="delete-icon rounded ms-1 mt-1" on:click={deleteTag}
             >{@html deleteIcon}</Badge
         >
-    </span>
+    </button>
 {/if}
 
 <style lang="scss">
@@ -65,5 +66,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .tag :global(.delete-icon > svg:hover) {
         background-color: $white-translucent;
+    }
+
+    button {
+        padding: 0;
     }
 </style>
