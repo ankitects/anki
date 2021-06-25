@@ -128,7 +128,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             outline: none;
             border: none;
             margin: 0;
-            padding: 0;
+            /* adjust so deleting all tags does not cause a reflow */
+            padding: 1.5px 0;
         }
 
         &::after {

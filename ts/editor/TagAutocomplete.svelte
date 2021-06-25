@@ -37,7 +37,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         (createDropdown: (element: HTMLElement) => Dropdown) =>
         (element: HTMLElement) => {
             autocomplete = createDropdown(element);
-            autocomplete.show();
             return autocomplete;
         };
 </script>
