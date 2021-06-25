@@ -5,7 +5,7 @@ use std::{borrow::Cow, cmp::Ordering, hash::Hasher, path::Path, sync::Arc};
 
 use fnv::FnvHasher;
 use regex::Regex;
-use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
+use rusqlite::{functions::FunctionFlags, params, Connection};
 use unicase::UniCase;
 
 use super::upgrades::{SCHEMA_MAX_VERSION, SCHEMA_MIN_VERSION, SCHEMA_STARTING_VERSION};
@@ -135,16 +135,14 @@ fn add_regexp_function(db: &Connection) -> rusqlite::Result<()> {
 fn schema_version(db: &Connection) -> Result<(bool, u8)> {
     if !db
         .prepare("select null from sqlite_master where type = 'table' and name = 'col'")?
-        .exists(NO_PARAMS)?
+        .exists([])?
     {
         return Ok((true, SCHEMA_STARTING_VERSION));
     }
 
     Ok((
         false,
-        db.query_row("select ver from col", NO_PARAMS, |r| {
-            r.get(0).map_err(Into::into)
-        })?,
+        db.query_row("select ver from col", [], |r| r.get(0).map_err(Into::into))?,
     ))
 }
 
@@ -173,7 +171,7 @@ impl SqliteStorage {
 
         let upgrade = ver != SCHEMA_MAX_VERSION;
         if create || upgrade {
-            db.execute("begin exclusive", NO_PARAMS)?;
+            db.execute("begin exclusive", [])?;
         }
 
         if create {
@@ -227,22 +225,20 @@ impl SqliteStorage {
     //////////////////////////////////////
 
     pub(crate) fn begin_trx(&self) -> Result<()> {
-        self.db
-            .prepare_cached("begin exclusive")?
-            .execute(NO_PARAMS)?;
+        self.db.prepare_cached("begin exclusive")?.execute([])?;
         Ok(())
     }
 
     pub(crate) fn commit_trx(&self) -> Result<()> {
         if !self.db.is_autocommit() {
-            self.db.prepare_cached("commit")?.execute(NO_PARAMS)?;
+            self.db.prepare_cached("commit")?.execute([])?;
         }
         Ok(())
     }
 
     pub(crate) fn rollback_trx(&self) -> Result<()> {
         if !self.db.is_autocommit() {
-            self.db.execute("rollback", NO_PARAMS)?;
+            self.db.execute("rollback", [])?;
         }
         Ok(())
     }
@@ -256,21 +252,17 @@ impl SqliteStorage {
     // transition these to standard commits.
 
     pub(crate) fn begin_rust_trx(&self) -> Result<()> {
-        self.db
-            .prepare_cached("savepoint rust")?
-            .execute(NO_PARAMS)?;
+        self.db.prepare_cached("savepoint rust")?.execute([])?;
         Ok(())
     }
 
     pub(crate) fn commit_rust_trx(&self) -> Result<()> {
-        self.db.prepare_cached("release rust")?.execute(NO_PARAMS)?;
+        self.db.prepare_cached("release rust")?.execute([])?;
         Ok(())
     }
 
     pub(crate) fn rollback_rust_trx(&self) -> Result<()> {
-        self.db
-            .prepare_cached("rollback to rust")?
-            .execute(NO_PARAMS)?;
+        self.db.prepare_cached("rollback to rust")?.execute([])?;
         Ok(())
     }
 
@@ -296,8 +288,6 @@ impl SqliteStorage {
 
     #[cfg(test)]
     pub(crate) fn db_scalar<T: rusqlite::types::FromSql>(&self, sql: &str) -> Result<T> {
-        self.db
-            .query_row(sql, NO_PARAMS, |r| r.get(0))
-            .map_err(Into::into)
+        self.db.query_row(sql, [], |r| r.get(0)).map_err(Into::into)
     }
 }

@@ -8,7 +8,7 @@ use std::{collections::HashSet, convert::TryFrom, result};
 use rusqlite::{
     named_params, params,
     types::{FromSql, FromSqlError, ValueRef},
-    OptionalExtension, Row, NO_PARAMS,
+    OptionalExtension, Row,
 };
 
 use super::ids_to_string;
@@ -160,7 +160,7 @@ impl super::SqliteStorage {
     pub(crate) fn remove_card(&self, cid: CardId) -> Result<()> {
         self.db
             .prepare_cached("delete from cards where id = ?")?
-            .execute(&[cid])?;
+            .execute([cid])?;
         Ok(())
     }
 
@@ -292,21 +292,21 @@ impl super::SqliteStorage {
     pub(crate) fn delete_orphaned_cards(&self) -> Result<usize> {
         self.db
             .prepare("delete from cards where nid not in (select id from notes)")?
-            .execute(NO_PARAMS)
+            .execute([])
             .map_err(Into::into)
     }
 
     pub(crate) fn all_filtered_cards_by_deck(&self) -> Result<Vec<(CardId, DeckId)>> {
         self.db
             .prepare("select id, did from cards where odid > 0")?
-            .query_and_then(NO_PARAMS, |r| -> Result<_> { Ok((r.get(0)?, r.get(1)?)) })?
+            .query_and_then([], |r| -> Result<_> { Ok((r.get(0)?, r.get(1)?)) })?
             .collect()
     }
 
     pub(crate) fn max_new_card_position(&self) -> Result<u32> {
         self.db
             .prepare("select max(due)+1 from cards where type=0")?
-            .query_row(NO_PARAMS, |r| r.get(0))
+            .query_row([], |r| r.get(0))
             .map_err(Into::into)
     }
 
@@ -324,14 +324,14 @@ impl super::SqliteStorage {
     pub(crate) fn clear_pending_card_usns(&self) -> Result<()> {
         self.db
             .prepare("update cards set usn = 0 where usn = -1")?
-            .execute(NO_PARAMS)?;
+            .execute([])?;
         Ok(())
     }
 
     pub(crate) fn have_at_least_one_card(&self) -> Result<bool> {
         self.db
             .prepare_cached("select null from cards")?
-            .query(NO_PARAMS)?
+            .query([])?
             .next()
             .map(|o| o.is_some())
             .map_err(Into::into)
@@ -340,7 +340,7 @@ impl super::SqliteStorage {
     pub(crate) fn all_cards_of_note(&self, nid: NoteId) -> Result<Vec<Card>> {
         self.db
             .prepare_cached(concat!(include_str!("get_card.sql"), " where nid = ?"))?
-            .query_and_then(&[nid], |r| row_to_card(r).map_err(Into::into))?
+            .query_and_then([nid], |r| row_to_card(r).map_err(Into::into))?
             .collect()
     }
 
@@ -355,7 +355,7 @@ impl super::SqliteStorage {
                 include_str!("get_card.sql"),
                 " where nid in (select nid from search_nids) and ord > ?"
             ))?
-            .query_and_then(&[ordinal as i64], |r| row_to_card(r).map_err(Into::into))?
+            .query_and_then([ordinal as i64], |r| row_to_card(r).map_err(Into::into))?
             .collect()
     }
 
@@ -365,7 +365,7 @@ impl super::SqliteStorage {
     ) -> Result<Vec<CardId>> {
         self.db
             .prepare_cached("select id from cards where nid = ? order by ord")?
-            .query_and_then(&[nid], |r| Ok(CardId(r.get(0)?)))?
+            .query_and_then([nid], |r| Ok(CardId(r.get(0)?)))?
             .collect()
     }
 
@@ -375,7 +375,7 @@ impl super::SqliteStorage {
             .prepare_cached("select id from cards where nid = ?")?;
         let mut cids = vec![];
         for nid in nids {
-            for cid in stmt.query_map(&[nid], |row| row.get(0))? {
+            for cid in stmt.query_map([nid], |row| row.get(0))? {
                 cids.push(cid?);
             }
         }
@@ -411,7 +411,7 @@ impl super::SqliteStorage {
         let mut nids = HashSet::new();
         for cid in cids {
             if let Some(nid) = stmt
-                .query_row(&[cid], |r| r.get::<_, NoteId>(0))
+                .query_row([cid], |r| r.get::<_, NoteId>(0))
                 .optional()?
             {
                 nids.insert(nid);
@@ -426,7 +426,7 @@ impl super::SqliteStorage {
                 include_str!("get_card.sql"),
                 " where id in (select cid from search_cids)"
             ))?
-            .query_and_then(NO_PARAMS, |r| row_to_card(r).map_err(Into::into))?
+            .query_and_then([], |r| row_to_card(r).map_err(Into::into))?
             .collect()
     }
 
@@ -436,7 +436,7 @@ impl super::SqliteStorage {
                 include_str!("get_card.sql"),
                 ", search_cids where cards.id = search_cids.cid order by search_cids.rowid"
             ))?
-            .query_and_then(NO_PARAMS, |r| row_to_card(r).map_err(Into::into))?
+            .query_and_then([], |r| row_to_card(r).map_err(Into::into))?
             .collect()
     }
 
@@ -449,7 +449,7 @@ impl super::SqliteStorage {
             include_str!("get_card.sql"),
             " where id in (select cid from search_cids)"
         ))?;
-        let mut rows = stmt.query(NO_PARAMS)?;
+        let mut rows = stmt.query([])?;
         while let Some(row) = rows.next()? {
             let card = row_to_card(row)?;
             func(card)?
@@ -464,7 +464,7 @@ impl super::SqliteStorage {
         self.update_active_decks(current)?;
         self.db
             .prepare(include_str!("congrats.sql"))?
-            .query_and_then_named(
+            .query_and_then(
                 named_params! {
                     ":review_queue": CardQueue::Review as i8,
                     ":day_learn_queue": CardQueue::DayLearn as i8,
@@ -493,7 +493,7 @@ impl super::SqliteStorage {
         self.setup_searched_cards_table()?;
         self.db
             .prepare(include_str!("at_or_above_position.sql"))?
-            .execute(&[start, CardType::New as u32])?;
+            .execute([start, CardType::New as u32])?;
         Ok(())
     }
 
@@ -510,8 +510,7 @@ impl super::SqliteStorage {
     }
 
     pub(crate) fn clear_searched_cards_table(&self) -> Result<()> {
-        self.db
-            .execute("drop table if exists search_cids", NO_PARAMS)?;
+        self.db.execute("drop table if exists search_cids", [])?;
         Ok(())
     }
 
@@ -532,7 +531,7 @@ impl super::SqliteStorage {
             .db
             .prepare_cached("insert into search_cids values (?)")?;
         for cid in cards {
-            stmt.execute(&[cid])?;
+            stmt.execute([cid])?;
         }
 
         Ok(())

@@ -587,7 +587,7 @@ mod test {
         col.storage
             .db
             .prepare("delete from decks where id != ? and id != 1")?
-            .execute(&[deck.id])?;
+            .execute([deck.id])?;
         assert_eq!(col.storage.get_all_deck_names()?.len(), 2);
 
         let out = col.check_database(progress_fn)?;

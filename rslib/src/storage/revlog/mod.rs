@@ -6,7 +6,7 @@ use std::convert::TryFrom;
 use rusqlite::{
     params,
     types::{FromSql, FromSqlError, ValueRef},
-    Row, NO_PARAMS,
+    Row,
 };
 
 use super::SqliteStorage;
@@ -50,14 +50,14 @@ impl SqliteStorage {
     pub(crate) fn fix_revlog_properties(&self) -> Result<usize> {
         self.db
             .prepare(include_str!("fix_props.sql"))?
-            .execute(NO_PARAMS)
+            .execute([])
             .map_err(Into::into)
     }
 
     pub(crate) fn clear_pending_revlog_usns(&self) -> Result<()> {
         self.db
             .prepare("update revlog set usn = 0 where usn = -1")?
-            .execute(NO_PARAMS)?;
+            .execute([])?;
         Ok(())
     }
 
@@ -87,7 +87,7 @@ impl SqliteStorage {
     pub(crate) fn get_revlog_entry(&self, id: RevlogId) -> Result<Option<RevlogEntry>> {
         self.db
             .prepare_cached(concat!(include_str!("get.sql"), " where id=?"))?
-            .query_and_then(&[id], row_to_revlog_entry)?
+            .query_and_then([id], row_to_revlog_entry)?
             .next()
             .transpose()
     }
@@ -96,14 +96,14 @@ impl SqliteStorage {
     pub(crate) fn remove_revlog_entry(&self, id: RevlogId) -> Result<()> {
         self.db
             .prepare_cached("delete from revlog where id = ?")?
-            .execute(&[id])?;
+            .execute([id])?;
         Ok(())
     }
 
     pub(crate) fn get_revlog_entries_for_card(&self, cid: CardId) -> Result<Vec<RevlogEntry>> {
         self.db
             .prepare_cached(concat!(include_str!("get.sql"), " where cid=?"))?
-            .query_and_then(&[cid], row_to_revlog_entry)?
+            .query_and_then([cid], row_to_revlog_entry)?
             .collect()
     }
 
@@ -116,9 +116,7 @@ impl SqliteStorage {
                 include_str!("get.sql"),
                 " where cid in (select cid from search_cids) and id >= ?"
             ))?
-            .query_and_then(&[after.0 * 1000], |r| {
-                row_to_revlog_entry(r).map(Into::into)
-            })?
+            .query_and_then([after.0 * 1000], |r| row_to_revlog_entry(r).map(Into::into))?
             .collect()
     }
 
@@ -129,9 +127,7 @@ impl SqliteStorage {
     ) -> Result<Vec<pb::RevlogEntry>> {
         self.db
             .prepare_cached(concat!(include_str!("get.sql"), " where id >= ?"))?
-            .query_and_then(&[after.0 * 1000], |r| {
-                row_to_revlog_entry(r).map(Into::into)
-            })?
+            .query_and_then([after.0 * 1000], |r| row_to_revlog_entry(r).map(Into::into))?
             .collect()
     }
 
@@ -139,7 +135,7 @@ impl SqliteStorage {
         let start = day_cutoff.adding_secs(-86_400).as_millis();
         self.db
             .prepare_cached(include_str!("studied_today.sql"))?
-            .query_map(&[start.0, RevlogReviewKind::Manual as i64], |row| {
+            .query_map([start.0, RevlogReviewKind::Manual as i64], |row| {
                 Ok(StudiedToday {
                     cards: row.get(0)?,
                     seconds: row.get(1)?,
