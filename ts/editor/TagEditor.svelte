@@ -89,8 +89,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <StickyBottom>
-    <div class="font-size-13 row-gap">
-        <TagAutocomplete class="d-flex flex-wrap align-items-center">
+    <div class="row-gap">
+        <TagAutocomplete class="d-flex flex-wrap align-items-center" {size}>
             <AddTagBadge on:click={focusNewInput} />
 
             {#each tags as tag, index (tag.id)}
@@ -116,10 +116,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </StickyBottom>
 
 <style lang="scss">
-    .font-size-13 {
-        font-size: 13px;
-    }
-
     .row-gap > :global(.d-flex > *) {
         margin-bottom: 2px;
     }

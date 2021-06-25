@@ -3,15 +3,15 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
+    import ButtonToolbar from "components/ButtonToolbar.svelte";
     import DropdownMenu from "components/DropdownMenu.svelte";
     import DropdownItem from "components/DropdownItem.svelte";
 
     export const suggestions = ["en::idioms", "anki::functionality", "math"];
+    export let size: number;
 
     let className: string = "";
     export { className as class };
-
-    let menu: HTMLDivElement;
 
     function switchUpDown(event: KeyboardEvent): void {
         const target = event.currentTarget as HTMLButtonElement;
@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function updateActiveItem(even: FocusEvent): void {}
 </script>
 
-<div bind:this={menu} class={`dropup dropdown-reverse ${className}`}>
+<ButtonToolbar class={`dropup ${className}`} {size}>
     <slot />
 
     <DropdownMenu class="d-flex flex-column-reverse">
@@ -43,10 +43,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             >
         {/each}
     </DropdownMenu>
-</div>
-
-<style lang="scss">
-    .dropdown-reverse :global(.dropdown-menu.show) {
-        font-size: 13px;
-    }
-</style>
+</ButtonToolbar>
