@@ -14,3 +14,16 @@ export function normalizeTagname(tagname: string): string {
         }
     }
 }
+
+interface Tag {
+    name: string;
+    id: string;
+}
+
+export function attachId(name: string): Tag {
+    return { name, id: Math.random().toString(36).substring(2) };
+}
+
+export function getName(tag: Tag): string {
+    return tag.name;
+}
