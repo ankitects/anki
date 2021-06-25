@@ -68,7 +68,7 @@ alias(
 
 alias(
     name = "phf",
-    actual = "@raze__phf__0_8_0//:phf",
+    actual = "@raze__phf__0_9_0//:phf",
     tags = [
         "cargo-raze",
         "manual",

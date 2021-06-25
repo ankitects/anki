@@ -25,25 +25,21 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "strum",
+    name = "hermit_abi",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "derive",
-        "strum_macros",
+        "default",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
     edition = "2018",
-    proc_macro_deps = [
-        "@raze__strum_macros__0_20_1//:strum_macros",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -51,8 +47,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.20.0",
+    version = "0.1.19",
     # buildifier: leave-alone
     deps = [
+        "@raze__libc__0_2_97//:libc",
     ],
 )

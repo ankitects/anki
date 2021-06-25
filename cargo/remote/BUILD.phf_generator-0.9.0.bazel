@@ -30,20 +30,18 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "bench" with type "bench" omitted
+# Unsupported target "benches" with type "bench" omitted
 
-rust_library(
-    name = "phf_macros",
+rust_binary(
+    # Prefix bin name to disambiguate from (probable) collision with lib name
+    # N.B.: The exact form of this is subject to change.
+    name = "cargo_bin_gen_hash_test",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
-    crate_root = "src/lib.rs",
-    crate_type = "proc-macro",
+    crate_root = "src/bin/gen_hash_test.rs",
     data = [],
     edition = "2018",
-    proc_macro_deps = [
-        "@raze__proc_macro_hack__0_5_19//:proc_macro_hack",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -51,17 +49,35 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.8.0",
+    version = "0.9.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__phf_generator__0_8_0//:phf_generator",
-        "@raze__phf_shared__0_8_0//:phf_shared",
-        "@raze__proc_macro2__1_0_27//:proc_macro2",
-        "@raze__quote__1_0_9//:quote",
-        "@raze__syn__1_0_73//:syn",
+        ":phf_generator",
+        "@raze__phf_shared__0_9_0//:phf_shared",
+        "@raze__rand__0_8_4//:rand",
     ],
 )
 
-# Unsupported target "compiletest" with type "test" omitted
-
-# Unsupported target "test" with type "test" omitted
+rust_library(
+    name = "phf_generator",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+    ],
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.9.0",
+    # buildifier: leave-alone
+    deps = [
+        "@raze__phf_shared__0_9_0//:phf_shared",
+        "@raze__rand__0_8_4//:rand",
+    ],
+)

@@ -31,18 +31,22 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "serde_aux",
+    name = "phf",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "chrono",
         "default",
+        "macros",
+        "phf_macros",
+        "proc-macro-hack",
+        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
-    edition = "2015",
+    edition = "2018",
     proc_macro_deps = [
-        "@raze__serde_derive__1_0_126//:serde_derive",
+        "@raze__phf_macros__0_9_0//:phf_macros",
+        "@raze__proc_macro_hack__0_5_19//:proc_macro_hack",
     ],
     rustc_flags = [
         "--cap-lints=allow",
@@ -51,11 +55,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.6.1",
+    version = "0.9.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__chrono__0_4_19//:chrono",
-        "@raze__serde__1_0_126//:serde",
-        "@raze__serde_json__1_0_64//:serde_json",
+        "@raze__phf_shared__0_9_0//:phf_shared",
     ],
 )
