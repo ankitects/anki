@@ -27,7 +27,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             newInput.blur();
         }
 
-        console.log("focus");
         newInput.focus();
     }
 
@@ -105,13 +104,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <TagAutocomplete
                 class="d-flex flex-column-reverse"
                 {suggestions}
-                let:createAutocomplete
+                let:updateAutocomplete
+                let:destroyAutocomplete
             >
                 {#each tags as tag, index (tag.id)}
                     <Tag
                         bind:name={tag.name}
-                        on:keydown
-                        on:focus={(event) => createAutocomplete(event.target)}
+                        on:keydown={updateAutocomplete}
+                        on:blur={destroyAutocomplete}
                         on:tagupdate={() => checkForDuplicateAt(index)}
                         on:tagadd={() => insertTagAt(index)}
                         on:tagdelete={() => deleteTagAt(index)}
@@ -123,8 +123,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <TagInput
                     bind:input={newInput}
                     bind:name={newName}
-                    on:focus={(event) => createAutocomplete(event.target)}
-                    on:keydown
+                    on:keydown={updateAutocomplete}
+                    on:blur={destroyAutocomplete}
                     on:tagupdate={appendTag}
                     on:tagadd={appendTag}
                     on:tagjoinprevious={joinWithLastTag}
