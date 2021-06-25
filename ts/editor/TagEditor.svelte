@@ -22,6 +22,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let newName: string = "";
 
     function focusNewInput(): void {
+        if (document.activeElement === newInput) {
+            // refocus
+            newInput.blur();
+        }
+
+        console.log("focus");
         newInput.focus();
     }
 
@@ -94,17 +100,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <StickyBottom>
     <div class="row-gap">
         <ButtonToolbar class="dropup d-flex flex-wrap align-items-center" {size}>
+            <AddTagBadge on:click={focusNewInput} />
+
             <TagAutocomplete
                 class="d-flex flex-column-reverse"
                 {suggestions}
-                let:createDropdown
-                let:activateDropdown
+                let:createAutocomplete
             >
-                <AddTagBadge on:click={focusNewInput} />
-
                 {#each tags as tag, index (tag.id)}
                     <Tag
                         bind:name={tag.name}
+                        on:keydown
+                        on:focus={(event) => createAutocomplete(event.target)}
                         on:tagupdate={() => checkForDuplicateAt(index)}
                         on:tagadd={() => insertTagAt(index)}
                         on:tagdelete={() => deleteTagAt(index)}
@@ -116,7 +123,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <TagInput
                     bind:input={newInput}
                     bind:name={newName}
-                    on:focus={(event) => createDropdown(event.currentTarget)}
+                    on:focus={(event) => createAutocomplete(event.target)}
+                    on:keydown
                     on:tagupdate={appendTag}
                     on:tagadd={appendTag}
                     on:tagjoinprevious={joinWithLastTag}

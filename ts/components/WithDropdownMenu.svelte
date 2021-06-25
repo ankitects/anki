@@ -17,10 +17,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     const menuId = Math.random().toString(36).substring(2);
-    let dropdown: Dropdown;
+    let dropdown: Dropdown | undefined;
 
     function activateDropdown(): void {
-        if (!disabled) {
+        if (dropdown && !disabled) {
             dropdown.toggle();
         }
     }
@@ -30,10 +30,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function createDropdown(element: HTMLElement): Dropdown {
         /* Prevent focus on menu activation */
         const noop = () => {};
-        Object.defineProperty(element, "focus", { value: noop });
+        Object.defineProperty(element, "focus", { value: noop, configurable: true });
 
-        const menu = (element.getRootNode() as Document) /* or shadow root */
-            .getElementById(menuId);
+        const menu = (element.getRootNode() as Document | ShadowRoot).getElementById(
+            menuId
+        );
 
         if (!menu) {
             console.log(`Could not find menu "${menuId}" for dropdown menu.`);
@@ -44,7 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             (dropdown as any)._menu = menu;
         }
 
-        return dropdown;
+        return dropdown as Dropdown;
     }
 </script>
 
