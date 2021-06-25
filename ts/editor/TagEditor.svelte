@@ -15,11 +15,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let newInput: HTMLInputElement;
     let newName: string = "";
 
-    function focusInputNew(): void {
+    function focusNewInput(): void {
         newInput.focus();
     }
 
-    const insertTagAt = (index: number) => () => {
+    function checkForDuplicateAt(index: number): void {
+        const names = tags.map(getName);
+        const nameToUpdateTo = names.splice(index, 1)[0];
+
+        if (names.includes(nameToUpdateTo)) {
+            deleteTagAt(index);
+        }
+    }
+
+    function insertTagAt(index: number): void {
         const names = tags.map(getName);
         const nameToInsert = names.splice(index, 1)[0];
 
@@ -29,12 +38,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         tags.splice(index, 0, attachId(nameToInsert));
         tags = tags;
-    };
+    }
 
-    const deleteTagAt = (index: number) => () => {
+    function deleteTagAt(index: number): void {
         tags.splice(index, 1);
         tags = tags;
-    };
+    }
 
     function appendTag(): void {
         const names = tags.map(getName);
@@ -49,13 +58,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <StickyBottom>
     <div class="d-flex flex-wrap">
-        <AddTagBadge on:click={focusInputNew} />
+        <AddTagBadge on:click={focusNewInput} />
 
         {#each tags as tag, index (tag.id)}
             <Tag
                 bind:name={tag.name}
-                on:tagadd={insertTagAt(index)}
-                on:tagdelete={deleteTagAt(index)}
+                on:tagupdate={() => checkForDuplicateAt(index)}
+                on:tagadd={() => insertTagAt(index)}
+                on:tagdelete={() => deleteTagAt(index)}
             />
         {/each}
 
