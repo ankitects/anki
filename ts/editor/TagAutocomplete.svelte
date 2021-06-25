@@ -3,13 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import ButtonToolbar from "components/ButtonToolbar.svelte";
     import WithDropdownMenu from "components/WithDropdownMenu.svelte";
     import DropdownMenu from "components/DropdownMenu.svelte";
     import DropdownItem from "components/DropdownItem.svelte";
 
     export let suggestions: string[];
-    export let size: number;
 
     let className: string = "";
     export { className as class };
@@ -32,14 +30,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<ButtonToolbar class={`dropup ${className}`} {size}>
-    <WithDropdownMenu let:menuId let:createDropdown let:activateDropdown>
-        <slot {createDropdown} {activateDropdown} />
+<WithDropdownMenu let:menuId let:createDropdown let:activateDropdown>
+    <slot {createDropdown} {activateDropdown} />
 
-        <DropdownMenu id={menuId} class="d-flex flex-column-reverse">
-            {#each suggestions as tag}
-                <DropdownItem on:keydown={switchUpDown}>{tag}</DropdownItem>
-            {/each}
-        </DropdownMenu>
-    </WithDropdownMenu>
-</ButtonToolbar>
+    <DropdownMenu id={menuId} class={className}>
+        {#each suggestions as tag}
+            <DropdownItem on:keydown={switchUpDown}>{tag}</DropdownItem>
+        {/each}
+    </DropdownMenu>
+</WithDropdownMenu>
