@@ -49,6 +49,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:tagadd
         on:tagjoinprevious
         on:tagjoinnext
+        on:tagmoveprevious
+        on:tagmovenext
         on:mount={(event) => event.detail.input.focus()}
     />
 {:else}
