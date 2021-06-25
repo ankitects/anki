@@ -88,6 +88,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         setPosition(length);
     }
 
+    function moveToPreviousTag(index: number): void {
+        if (index === 0 || tags.length === 1) {
+            return;
+        }
+
+        const before = tags.splice(index - 1, 1)[0];
+        tags.splice(index, 0, before);
+        tags = tags;
+    }
+
+    function moveToNextTag(index: number): void {
+        if (index === tags.length - 1 || tags.length === 1) {
+            return;
+        }
+        // TODO
+    }
+
     function appendTag(): void {
         const names = tags.map(getName);
         if (!names.includes(newName) && newName.length > 0) {
@@ -106,6 +123,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             newName = popped.name + newName;
             setPosition(popped.name.length);
         }
+    }
+
+    function moveToLastTag(): void {
+        appendTag();
     }
 </script>
 
@@ -132,6 +153,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             joinWithPreviousTag(index, detail.setPosition)}
                         on:tagjoinnext={({ detail }) =>
                             joinWithNextTag(index, detail.setPosition)}
+                        on:tagmoveprevious={() => moveToPreviousTag(index)}
+                        on:tagmovenext={() => moveToNextTag(index)}
                     />
                 {/each}
 
@@ -144,6 +167,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:tagadd={appendTag}
                     on:tagjoinprevious={({ detail }) =>
                         joinWithLastTag(detail.setPosition)}
+                    on:tagmoveprevious={moveToLastTag}
                 />
             </TagAutocomplete>
         </ButtonToolbar>

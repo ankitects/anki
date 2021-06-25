@@ -11,6 +11,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
+    function caretAtStart(): boolean {
+        return input.selectionStart === 0 && input.selectionEnd === 0;
+    }
+
+    function caretAtEnd(): boolean {
+        return (
+            input.selectionStart === input.value.length &&
+            input.selectionEnd === input.value.length
+        );
+    }
+
     function setPosition(position: number): void {
         setTimeout(() => input.setSelectionRange(position, position));
     }
@@ -21,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function onBackspace(event: KeyboardEvent) {
-        if (input.selectionStart === 0 && input.selectionEnd === 0) {
+        if (caretAtStart()) {
             dispatch("tagjoinprevious", { setPosition });
             event.preventDefault();
         } else if (name.endsWith("::")) {
@@ -31,10 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function onDelete(event: KeyboardEvent) {
-        if (
-            input.selectionStart === input.value.length &&
-            input.selectionEnd === input.value.length
-        ) {
+        if (caretAtEnd()) {
             dispatch("tagjoinnext", { setPosition });
             event.preventDefault();
         } else if (name.endsWith("::")) {
@@ -46,6 +54,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function onKeydown(event: KeyboardEvent): void {
         if (event.code === "Space") {
             name += "::";
+            event.preventDefault();
+        } else if (event.code === "ArrowLeft" && caretAtStart()) {
+            dispatch("tagmoveprevious");
+            event.preventDefault();
+        } else if (event.code === "ArrowRight" && caretAtEnd()) {
+            dispatch("tagmovenext");
             event.preventDefault();
         } else if (event.code === "Backspace") {
             onBackspace(event);
