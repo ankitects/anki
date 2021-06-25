@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
+    import { tick } from "svelte";
     import { isApplePlatform } from "lib/platform";
     import StickyBottom from "components/StickyBottom.svelte";
     import AddTagBadge from "./AddTagBadge.svelte";
@@ -81,7 +82,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tags = tags;
     }
 
-    function moveToNextTag(index: number): void {
+    async function moveToNextTag(index: number): Promise<void> {
         if (index === tags.length - 1 || tags.length === 1) {
             focusNewInput();
         }
@@ -89,6 +90,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tags[index].active = false;
         tags[index + 1].active = true;
         tags = tags;
+
+        await tick();
+
+        (document.activeElement as HTMLInputElement).setSelectionRange(0, 0);
     }
 
     function appendTag(): boolean {
