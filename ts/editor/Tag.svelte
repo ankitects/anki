@@ -30,6 +30,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         if (name.length === 0) {
             deleteTag(event);
+        } else {
+            dispatch("tagupdate");
+            event.stopPropagation();
         }
     }
 </script>
