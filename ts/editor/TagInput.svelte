@@ -40,17 +40,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function onPaste({ clipboardData }: ClipboardEvent): void {
-        const pasted = name + clipboardData!.getData("text/plain");
-        const splitted = pasted.split(" ");
-        const last = splitted.pop();
-        for (const token of splitted) {
-            const name = normalizeTagname(token);
-            if (name) {
-                dispatch("tagadd", { name });
-            }
+    function onPaste(event: ClipboardEvent): void {
+        event.preventDefault();
+
+        if (!event.clipboardData) {
+            return;
         }
-        name = last!;
+
+        const pasted = name + event.clipboardData.getData("text/plain");
+        const splitted = pasted
+            .split(/\s+/)
+            .map(normalizeTagname)
+            .filter((name: string) => name.length > 0);
+
+        if (splitted.length === 0) {
+            return;
+        } else if (splitted.length === 1) {
+            name = splitted.shift()!;
+        } else {
+            name = splitted.shift()!;
+            dispatch("tagadd");
+
+            const last = splitted.pop()!;
+
+            for (const pastedName of splitted) {
+                name = pastedName;
+                dispatch("tagadd");
+            }
+
+            name = last;
+        }
     }
 
     function setTagname({ detail }: CustomEvent): void {
