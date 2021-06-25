@@ -40,6 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bind:input
         on:focusout={() => (active = false)}
         on:tagupdate={updateTag}
+        on:tagadd
         on:mount={(event) => event.detail.input.focus()}
     />
 {:else}

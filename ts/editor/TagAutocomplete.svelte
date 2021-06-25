@@ -8,7 +8,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DropdownMenu from "components/DropdownMenu.svelte";
     import DropdownItem from "components/DropdownItem.svelte";
 
-    export let name: string;
     export const suggestions = ["en::idioms", "anki::functionality", "math"];
 
     const dispatch = createEventDispatcher();
@@ -16,10 +15,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const triggerClass = "dropdown-toggle";
 
     let menu: HTMLDivElement;
-    let dropdown;
-    let activeItem = -1;
-
-    $: tagValues = [...suggestions, name];
 
     function onItemClick(event: Event) {
         dispatch("nameChosen", { name: event.currentTarget!.innerText });
@@ -29,11 +24,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function switchUpDown(event: KeyboardEvent): void {
         const target = event.currentTarget as HTMLButtonElement;
-        console.log(
-            event.code,
-            target.nextElementSibling,
-            target.previousElementSibling
-        );
         if (event.code === "ArrowUp") {
             if (target.nextElementSibling) {
                 (target.nextElementSibling as HTMLButtonElement).focus();
@@ -50,23 +40,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function updateActiveItem(even: FocusEvent): void {}
-
-    /* else if (event.code === "Enter") { */
-    /* const dropdownActive = dropdown._element.classList.contains("show"); */
-    /* if (dropdownActive) { */
-    /*     if (typeof activeItem === "number") { */
-    /*         name = tagValues[activeItem]; */
-    /*         activeItem = null; */
-    /*     } */
-    /*     dropdown.hide(); */
-    /* } else { */
-    /*     dispatch("accept"); */
-    /* } */
-    /* } */
 </script>
 
 <div bind:this={menu} class="dropup dropdown-reverse">
-    <slot {triggerId} {triggerClass} {dropdown} />
+    <slot {triggerId} {triggerClass} />
 
     <DropdownMenu labelledby={triggerId}>
         {#each suggestions as tag}
