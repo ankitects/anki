@@ -29,7 +29,7 @@ from anki.decks import DeckDict, DeckConfigDict
 from anki.hooks import runFilter, runHook
 from anki.models import NotetypeDict
 from anki.collection import OpChangesAfterUndo
-from aqt.qt import QDialog, QEvent, QMenu, QWidget
+from aqt.qt import QDialog, QEvent, QMenu, QModelIndex, QWidget
 from aqt.tagedit import TagEdit
 from aqt.undo import UndoActionsInfo
 """
@@ -353,6 +353,15 @@ hooks = [
         name="browser_will_show_context_menu",
         args=["browser: aqt.browser.Browser", "menu: QMenu"],
         legacy_hook="browser.onContextMenu",
+    ),
+    Hook(
+        name="browser_sidebar_will_show_context_menu",
+        args=[
+            "sidebar: aqt.browser.SidebarTreeView",
+            "menu: QMenu",
+            "item: aqt.browser.SidebarItem",
+            "index: QModelIndex",
+        ],
     ),
     Hook(
         name="browser_header_will_show_context_menu",
