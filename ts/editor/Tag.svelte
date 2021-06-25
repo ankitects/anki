@@ -41,7 +41,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <TagInput
         bind:name
         bind:input
-        on:focusout={() => (active = false)}
+        on:focus
+        on:blur={() => (active = false)}
         on:tagupdate={updateTag}
         on:tagadd
         on:tagjoinprevious
