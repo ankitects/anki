@@ -12,6 +12,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { attachId, getName } from "./tags";
 
     export let initialNames = ["en::foobar", "test", "def"];
+    export let suggestions = ["en::idioms", "anki::functionality", "math"];
+
     export let size = isApplePlatform() ? 1.6 : 2.0;
 
     let tags = initialNames.map(attachId);
@@ -90,7 +92,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <StickyBottom>
     <div class="row-gap">
-        <TagAutocomplete class="d-flex flex-wrap align-items-center" {size}>
+        <TagAutocomplete
+            class="d-flex flex-wrap align-items-center"
+            {suggestions}
+            {size}
+            let:createDropdown
+            let:activateDropdown
+        >
             <AddTagBadge on:click={focusNewInput} />
 
             {#each tags as tag, index (tag.id)}
@@ -107,6 +115,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <TagInput
                 bind:input={newInput}
                 bind:name={newName}
+                on:focus={(event) => createDropdown(event.currentTarget)}
                 on:tagupdate={appendTag}
                 on:tagadd={appendTag}
                 on:tagjoinprevious={joinWithLastTag}

@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let tooltip: string | undefined = undefined;
-    export let tabbable: boolean = true;
+    export let tabbable: boolean = false;
 
     let buttonRef: HTMLButtonElement;
 
@@ -54,7 +54,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .btn-day {
         color: black;
 
-        &:active {
+        &:active,
+        &.active {
             background-color: button.$focus-color;
             color: white;
         }
@@ -64,11 +65,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         color: white;
 
         &:hover,
-        &:focus {
+        &:focus,
+        &.focus {
             @include button.btn-night-base;
         }
 
-        &:active {
+        &:active,
+        &.active {
             background-color: button.$focus-color;
             color: white;
         }

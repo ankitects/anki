@@ -6,25 +6,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher, onMount } from "svelte";
     import { normalizeTagname } from "./tags";
 
-    import TagAutocomplete from "./TagAutocomplete.svelte";
-
     export let name: string;
     export let input: HTMLInputElement;
 
     const dispatch = createEventDispatcher();
 
-    function onFocus(): void {
-        /* dropdown.show(); */
-    }
-
     function onAccept(): void {
         name = normalizeTagname(name);
         dispatch("tagupdate", { name });
-    }
-
-    function dropdownBlur(): void {
-        onAccept();
-        /* dropdown.hide(); */
     }
 
     function onBackspace(event: KeyboardEvent) {
@@ -99,21 +88,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => dispatch("mount", { input }));
 </script>
 
-<label
-    class="ps-2 pe-1"
-    data-value={name}
-    data-bs-toggle="dropdown"
-    aria-expanded="false"
->
+<label class="ps-2 pe-1" data-value={name}>
     <input
         bind:this={input}
         type="text"
         tabindex="-1"
         size="1"
         bind:value={name}
-        on:focus={onFocus}
-        on:blur={dropdownBlur}
+        on:focus
         on:focusout
+        on:blur={onAccept}
         on:keydown={onKeydown}
         on:paste={onPaste}
         on:click
