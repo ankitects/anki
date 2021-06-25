@@ -113,7 +113,7 @@ impl<'a> StateContext<'a> {
             if lower >= upper {
                 lower
             } else {
-                rng.gen_range(lower, upper)
+                rng.gen_range(lower..upper)
             }
         } else {
             interval

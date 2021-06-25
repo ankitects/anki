@@ -31,14 +31,14 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "tokio_rustls",
+    name = "vcpkg",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
-    edition = "2018",
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -46,17 +46,8 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.22.0",
+    version = "0.2.15",
     # buildifier: leave-alone
     deps = [
-        "@raze__rustls__0_19_1//:rustls",
-        "@raze__tokio__1_7_1//:tokio",
-        "@raze__webpki__0_21_4//:webpki",
     ],
 )
-
-# Unsupported target "badssl" with type "test" omitted
-
-# Unsupported target "early-data" with type "test" omitted
-
-# Unsupported target "test" with type "test" omitted

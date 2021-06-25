@@ -67,7 +67,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "1.7.0",
+    version = "1.7.1",
     visibility = ["//visibility:private"],
     deps = [
         "@raze__autocfg__1_0_1//:autocfg",
@@ -124,7 +124,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.7.0",
+    version = "1.7.1",
     # buildifier: leave-alone
     deps = [
         ":tokio_build_script",

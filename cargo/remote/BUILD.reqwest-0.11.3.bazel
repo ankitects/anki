@@ -121,7 +121,7 @@ rust_library(
             "@raze__pin_project_lite__0_2_6//:pin_project_lite",
             "@raze__rustls__0_19_1//:rustls",
             "@raze__rustls_native_certs__0_5_0//:rustls_native_certs",
-            "@raze__tokio__1_7_0//:tokio",
+            "@raze__tokio__1_7_1//:tokio",
             "@raze__tokio_native_tls__0_3_0//:tokio_native_tls",
             "@raze__tokio_rustls__0_22_0//:tokio_rustls",
             "@raze__tokio_socks__0_5_1//:tokio_socks",

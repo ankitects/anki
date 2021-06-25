@@ -1,0 +1,156 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # MIT from expression "MIT"
+])
+
+# Generated Targets
+# buildifier: disable=out-of-order-load
+# buildifier: disable=load-on-top
+load(
+    "@rules_rust//cargo:cargo_build_script.bzl",
+    "cargo_build_script",
+)
+
+cargo_build_script(
+    name = "nom_build_script",
+    srcs = glob(["**/*.rs"]),
+    build_script_env = {
+    },
+    crate_features = [
+        "alloc",
+        "default",
+        "lexical",
+        "lexical-core",
+        "std",
+    ],
+    crate_root = "build.rs",
+    data = glob(["**"]),
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "7.0.0-alpha1",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@raze__version_check__0_9_3//:version_check",
+    ],
+)
+
+# Unsupported target "arithmetic" with type "bench" omitted
+
+# Unsupported target "http" with type "bench" omitted
+
+# Unsupported target "ini" with type "bench" omitted
+
+# Unsupported target "ini_complete" with type "bench" omitted
+
+# Unsupported target "ini_str" with type "bench" omitted
+
+# Unsupported target "json" with type "bench" omitted
+
+# Unsupported target "number" with type "bench" omitted
+
+# Unsupported target "json" with type "example" omitted
+
+# Unsupported target "s_expression" with type "example" omitted
+
+# Unsupported target "string" with type "example" omitted
+
+rust_library(
+    name = "nom",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "alloc",
+        "default",
+        "lexical",
+        "lexical-core",
+        "std",
+    ],
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "7.0.0-alpha1",
+    # buildifier: leave-alone
+    deps = [
+        ":nom_build_script",
+        "@raze__lexical_core__0_7_6//:lexical_core",
+        "@raze__memchr__2_4_0//:memchr",
+    ],
+)
+
+# Unsupported target "arithmetic" with type "test" omitted
+
+# Unsupported target "arithmetic_ast" with type "test" omitted
+
+# Unsupported target "bitstream" with type "test" omitted
+
+# Unsupported target "blockbuf-arithmetic" with type "test" omitted
+
+# Unsupported target "css" with type "test" omitted
+
+# Unsupported target "custom_errors" with type "test" omitted
+
+# Unsupported target "escaped" with type "test" omitted
+
+# Unsupported target "float" with type "test" omitted
+
+# Unsupported target "fnmut" with type "test" omitted
+
+# Unsupported target "inference" with type "test" omitted
+
+# Unsupported target "ini" with type "test" omitted
+
+# Unsupported target "ini_str" with type "test" omitted
+
+# Unsupported target "issues" with type "test" omitted
+
+# Unsupported target "json" with type "test" omitted
+
+# Unsupported target "mp4" with type "test" omitted
+
+# Unsupported target "multiline" with type "test" omitted
+
+# Unsupported target "named_args" with type "test" omitted
+
+# Unsupported target "overflow" with type "test" omitted
+
+# Unsupported target "reborrow_fold" with type "test" omitted
+
+# Unsupported target "test1" with type "test" omitted

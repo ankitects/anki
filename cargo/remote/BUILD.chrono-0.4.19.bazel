@@ -65,7 +65,7 @@ rust_library(
         "@raze__libc__0_2_97//:libc",
         "@raze__num_integer__0_1_44//:num_integer",
         "@raze__num_traits__0_2_14//:num_traits",
-        "@raze__time__0_1_43//:time",
+        "@raze__time__0_1_44//:time",
     ] + selects.with_or({
         # cfg(windows)
         (

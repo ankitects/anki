@@ -345,7 +345,7 @@ impl Collection {
 
 fn random_position(highest_position: u32) -> u32 {
     let mut rng = StdRng::seed_from_u64(highest_position as u64);
-    rng.gen_range(0, highest_position.max(1000))
+    rng.gen_range(0..highest_position.max(1000))
 }
 
 #[cfg(test)]
@@ -355,8 +355,8 @@ mod test {
     #[test]
     fn random() {
         // predictable output and a minimum range of 1000
-        assert_eq!(random_position(5), 626);
-        assert_eq!(random_position(500), 898);
-        assert_eq!(random_position(5001), 2282);
+        assert_eq!(random_position(5), 179);
+        assert_eq!(random_position(500), 12);
+        assert_eq!(random_position(5001), 3731);
     }
 }

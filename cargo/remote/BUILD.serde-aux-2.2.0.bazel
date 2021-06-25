@@ -25,15 +25,17 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # MIT from expression "MIT"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "tokio_rustls",
+    name = "serde_aux",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "chrono",
+        "default",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -46,17 +48,11 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.22.0",
+    version = "2.2.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__rustls__0_19_1//:rustls",
-        "@raze__tokio__1_7_1//:tokio",
-        "@raze__webpki__0_21_4//:webpki",
+        "@raze__chrono__0_4_19//:chrono",
+        "@raze__serde__1_0_126//:serde",
+        "@raze__serde_json__1_0_64//:serde_json",
     ],
 )
-
-# Unsupported target "badssl" with type "test" omitted
-
-# Unsupported target "early-data" with type "test" omitted
-
-# Unsupported target "test" with type "test" omitted
