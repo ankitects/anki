@@ -82,18 +82,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem id="cloze">
-        <ClozeButton />
+        <OnlyEditable>
+            <ClozeButton />
+        </OnlyEditable>
     </ButtonGroupItem>
 
     <ButtonGroupItem>
         <WithDropdownMenu let:createDropdown let:menuId>
             <WithContext key={disabledKey} let:context={disabled}>
-                <IconButton
-                    {disabled}
-                    on:mount={(event) => createDropdown(event.detail.button)}
-                >
-                    {@html functionIcon}
-                </IconButton>
+                <OnlyEditable let:disabled={inCodable}>
+                    <IconButton
+                        disabled={disabled || inCodable}
+                        on:mount={(event) => createDropdown(event.detail.button)}
+                    >
+                        {@html functionIcon}
+                    </IconButton>
+                </OnlyEditable>
             </WithContext>
 
             <DropdownMenu id={menuId}>
