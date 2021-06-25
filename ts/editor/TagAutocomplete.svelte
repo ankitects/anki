@@ -3,24 +3,15 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { createEventDispatcher } from "svelte";
-
     import DropdownMenu from "components/DropdownMenu.svelte";
     import DropdownItem from "components/DropdownItem.svelte";
 
     export const suggestions = ["en::idioms", "anki::functionality", "math"];
 
-    const dispatch = createEventDispatcher();
     const triggerId = "tagLabel" + String(Math.random()).slice(2);
     const triggerClass = "dropdown-toggle";
 
     let menu: HTMLDivElement;
-
-    function onItemClick(event: Event) {
-        dispatch("nameChosen", { name: event.currentTarget!.innerText });
-        event.stopPropagation();
-        event.preventDefault();
-    }
 
     function switchUpDown(event: KeyboardEvent): void {
         const target = event.currentTarget as HTMLButtonElement;
