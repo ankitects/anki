@@ -8,8 +8,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export const suggestions = ["en::idioms", "anki::functionality", "math"];
 
-    const triggerId = "tagLabel" + String(Math.random()).slice(2);
-    const triggerClass = "dropdown-toggle";
+    let className: string = "";
+    export { className as class };
 
     let menu: HTMLDivElement;
 
@@ -33,10 +33,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function updateActiveItem(even: FocusEvent): void {}
 </script>
 
-<div bind:this={menu} class="dropup dropdown-reverse">
-    <slot {triggerId} {triggerClass} />
+<div bind:this={menu} class={`dropup dropdown-reverse ${className}`}>
+    <slot />
 
-    <DropdownMenu labelledby={triggerId}>
+    <DropdownMenu>
         {#each suggestions as tag}
             <DropdownItem on:focus={updateActiveItem} on:keydown={switchUpDown}
                 >{tag}</DropdownItem

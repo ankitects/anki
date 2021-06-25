@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import StickyBottom from "components/StickyBottom.svelte";
     import AddTagBadge from "./AddTagBadge.svelte";
     import Tag from "./Tag.svelte";
+    import TagAutocomplete from "./TagAutocomplete.svelte";
     import TagInput from "./TagInput.svelte";
     import { attachId, getName } from "./tags";
 
@@ -86,33 +87,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <StickyBottom>
-    <div class="d-flex flex-wrap">
-        <AddTagBadge on:click={focusNewInput} />
+    <div class="font-size-13 row-gap">
+        <TagAutocomplete class="d-flex flex-wrap align-items-center row-gap">
+            <AddTagBadge on:click={focusNewInput} />
 
-        {#each tags as tag, index (tag.id)}
-            <Tag
-                bind:name={tag.name}
-                on:tagupdate={() => checkForDuplicateAt(index)}
-                on:tagadd={() => insertTagAt(index)}
-                on:tagdelete={() => deleteTagAt(index)}
-                on:tagjoinprevious={() => joinWithPreviousTag(index)}
-                on:tagjoinnext={() => joinWithNextTag(index)}
+            {#each tags as tag, index (tag.id)}
+                <Tag
+                    bind:name={tag.name}
+                    on:tagupdate={() => checkForDuplicateAt(index)}
+                    on:tagadd={() => insertTagAt(index)}
+                    on:tagdelete={() => deleteTagAt(index)}
+                    on:tagjoinprevious={() => joinWithPreviousTag(index)}
+                    on:tagjoinnext={() => joinWithNextTag(index)}
+                />
+            {/each}
+
+            <TagInput
+                bind:input={newInput}
+                bind:name={newName}
+                on:tagupdate={appendTag}
+                on:tagadd={appendTag}
+                on:tagjoinprevious={joinWithLastTag}
             />
-        {/each}
-
-        <TagInput
-            bind:input={newInput}
-            bind:name={newName}
-            on:tagupdate={appendTag}
-            on:tagadd={appendTag}
-            on:tagjoinprevious={joinWithLastTag}
-        />
+        </TagAutocomplete>
     </div>
 </StickyBottom>
 
 <style lang="scss">
-    div {
+    .font-size-13 {
         font-size: 13px;
-        fill: currentColor;
+    }
+
+    .row-gap > :global(.d-flex > *) {
+        margin-bottom: 2px;
     }
 </style>

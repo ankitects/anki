@@ -96,43 +96,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function setTagname({ detail }: CustomEvent): void {
-        name = detail.name;
-    }
-
     onMount(() => dispatch("mount", { input }));
 </script>
 
-<TagAutocomplete
-    bind:name
-    let:triggerId
-    let:triggerClass
-    on:nameChosen={setTagname}
-    on:accept={onAccept}
+<label
+    class="ps-2 pe-1"
+    data-value={name}
+    data-bs-toggle="dropdown"
+    aria-expanded="false"
 >
-    <label
-        id={triggerId}
-        class={`ps-2 pe-1 ${triggerClass}`}
-        data-value={name}
-        data-bs-toggle="dropdown"
-        aria-expanded="false"
-        data-bs-reference="parent"
-    >
-        <input
-            bind:this={input}
-            type="text"
-            tabindex="-1"
-            size="1"
-            bind:value={name}
-            on:focus={onFocus}
-            on:blur={dropdownBlur}
-            on:focusout
-            on:keydown={onKeydown}
-            on:paste={onPaste}
-            on:click
-        />
-    </label>
-</TagAutocomplete>
+    <input
+        bind:this={input}
+        type="text"
+        tabindex="-1"
+        size="1"
+        bind:value={name}
+        on:focus={onFocus}
+        on:blur={dropdownBlur}
+        on:focusout
+        on:keydown={onKeydown}
+        on:paste={onPaste}
+        on:click
+    />
+</label>
 
 <style lang="scss">
     label {
