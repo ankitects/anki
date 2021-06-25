@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 </script>
 
-<footer {id} class={`container-fluid py-1 ${className}`}>
+<footer {id} class={`container-fluid pt-1 ${className}`}>
     <slot />
 </footer>
 
