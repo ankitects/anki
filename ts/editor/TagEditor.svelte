@@ -85,6 +85,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function moveToNextTag(index: number): Promise<void> {
         if (index === tags.length - 1 || tags.length === 1) {
             focusNewInput();
+            return;
         }
 
         tags[index].active = false;

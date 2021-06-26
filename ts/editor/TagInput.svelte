@@ -149,6 +149,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             width: auto;
             grid-area: 1 / 1;
             font: inherit;
+            /* TODO we need something like --base-font-size for buttons' 13px */
+            font-size: 13px;
             outline: none;
             border: none;
             margin: 0;
@@ -157,8 +159,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         &::after {
-            /* 8 spaces to minimize reflow on clicking tag */
-            content: attr(data-value) "        ";
+            /* 7 spaces to minimize reflow on clicking tag */
+            content: attr(data-value) "       ";
             visibility: hidden;
             white-space: pre-wrap;
             position: relative;
