@@ -628,7 +628,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         if self.tags.col != self.mw.col:
             self.tags.setCol(self.mw.col)
         if not self.tags.text() or not self.addMode:
-            self.tags.setText(self.note.stringTags().strip())
+            self.tags.setText(self.note.string_tags().strip())
 
     def on_tag_focus_lost(self) -> None:
         self.note.tags = self.mw.col.tags.split(self.tags.text())

@@ -1,15 +1,17 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: enable=invalid-name
+
 from __future__ import annotations
 
 import copy
-import pprint
 from typing import Any, List, NewType, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki import hooks
+from anki._legacy import DeprecatedNamesMixin
 from anki.consts import MODEL_STD
 from anki.models import NotetypeDict, NotetypeId, TemplateDict
 from anki.utils import joinFields
@@ -21,7 +23,7 @@ NoteFieldsCheckResult = _pb.NoteFieldsCheckResponse.State
 NoteId = NewType("NoteId", int)
 
 
-class Note:
+class Note(DeprecatedNamesMixin):
     # not currently exposed
     flags = 0
     data = ""
@@ -47,18 +49,18 @@ class Note:
             self._load_from_backend_note(self.col._backend.new_note(notetype_id))
 
     def load(self) -> None:
-        n = self.col._backend.get_note(self.id)
-        assert n
-        self._load_from_backend_note(n)
+        note = self.col._backend.get_note(self.id)
+        assert note
+        self._load_from_backend_note(note)
 
-    def _load_from_backend_note(self, n: _pb.Note) -> None:
-        self.id = NoteId(n.id)
-        self.guid = n.guid
-        self.mid = NotetypeId(n.notetype_id)
-        self.mod = n.mtime_secs
-        self.usn = n.usn
-        self.tags = list(n.tags)
-        self.fields = list(n.fields)
+    def _load_from_backend_note(self, note: _pb.Note) -> None:
+        self.id = NoteId(note.id)
+        self.guid = note.guid
+        self.mid = NotetypeId(note.notetype_id)
+        self.mod = note.mtime_secs
+        self.usn = note.usn
+        self.tags = list(note.tags)
+        self.fields = list(note.fields)
         self._fmap = self.col.models.fieldMap(self.model())
 
     def _to_backend_note(self) -> _pb.Note:
@@ -81,12 +83,7 @@ class Note:
             note=self._to_backend_note(), skip_undo_entry=True
         )
 
-    def __repr__(self) -> str:
-        d = dict(self.__dict__)
-        del d["col"]
-        return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
-
-    def joinedFields(self) -> str:
+    def joined_fields(self) -> str:
         return joinFields(self.fields)
 
     def ephemeral_card(
@@ -145,20 +142,20 @@ class Note:
     def values(self) -> List[str]:
         return self.fields
 
-    def items(self) -> List[Tuple[Any, Any]]:
+    def items(self) -> List[Tuple[str, str]]:
         return [(f["name"], self.fields[ord]) for ord, f in sorted(self._fmap.values())]
 
-    def _fieldOrd(self, key: str) -> Any:
+    def _field_index(self, key: str) -> int:
         try:
             return self._fmap[key][0]
         except Exception as exc:
             raise KeyError(key) from exc
 
     def __getitem__(self, key: str) -> str:
-        return self.fields[self._fieldOrd(key)]
+        return self.fields[self._field_index(key)]
 
     def __setitem__(self, key: str, value: str) -> None:
-        self.fields[self._fieldOrd(key)] = value
+        self.fields[self._field_index(key)] = value
 
     def __contains__(self, key: str) -> bool:
         return key in self._fmap
@@ -171,25 +168,21 @@ class Note:
 
     def remove_tag(self, tag: str) -> None:
         rem = []
-        for t in self.tags:
-            if t.lower() == tag.lower():
-                rem.append(t)
-        for r in rem:
-            self.tags.remove(r)
+        for tag_ in self.tags:
+            if tag_.lower() == tag.lower():
+                rem.append(tag_)
+        for tag_ in rem:
+            self.tags.remove(tag_)
 
     def add_tag(self, tag: str) -> None:
         "Add tag. Duplicates will be stripped on save."
         self.tags.append(tag)
 
-    def stringTags(self) -> Any:
+    def string_tags(self) -> Any:
         return self.col.tags.join(self.col.tags.canonify(self.tags))
 
-    def setTagsFromStr(self, tags: str) -> None:
+    def set_tags_from_str(self, tags: str) -> None:
         self.tags = self.col.tags.split(tags)
-
-    hasTag = has_tag
-    addTag = add_tag
-    delTag = remove_tag
 
     # Unique/duplicate/cloze check
     ##################################################
@@ -198,3 +191,6 @@ class Note:
         return self.col._backend.note_fields_check(self._to_backend_note()).state
 
     dupeOrEmpty = duplicate_or_empty = fields_check
+
+
+Note.register_deprecated_aliases(delTag=Note.remove_tag, _fieldOrd=Note._field_index)
