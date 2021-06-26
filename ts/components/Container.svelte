@@ -10,9 +10,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let api: Record<string, never> | undefined = undefined;
+
+    export let rows: number | undefined = undefined;
+    $: style = (rows ? `--rows: ${rows}` : undefined)
 </script>
 
-<div {id} class={`container mb-1 ${className}`}>
+<div {id} class={`container mb-1 ${className}`} {style}>
     <Section {api}>
         <slot />
     </Section>

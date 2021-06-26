@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    let rows: number | undefined = undefined;
     import ConfigSelector from "./ConfigSelector.svelte";
     import Container from "components/Container.svelte";
     import Item from "components/Item.svelte";
@@ -57,7 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ConfigSelector {state} />
 
-<Container api={options} class="g-1 grid">
+<Container api={options} class="g-1 grid" {rows}>
     <Item>
         <DailyLimits {state} api={dailyLimits} />
     </Item>
