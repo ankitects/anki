@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { createEventDispatcher, onMount, tick } from "svelte";
+    import { onMount, createEventDispatcher, tick } from "svelte";
     import { normalizeTagname } from "./tags";
 
     export let name: string;
@@ -145,6 +145,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             name = last;
         }
     }
+
+    onMount(() => {
+        console.log("focus", input);
+        input.focus();
+    });
 </script>
 
 <label class="ps-2 pe-1" data-value={name}>
