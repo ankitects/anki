@@ -173,7 +173,7 @@ class TemplateRenderContext:
             fields = dict(self._note.items())
 
             # add (most) special fields
-            fields["Tags"] = self._note.stringTags().strip()
+            fields["Tags"] = self._note.string_tags().strip()
             fields["Type"] = self._note_type["name"]
             fields["Deck"] = self._col.decks.name(self._card.current_deck_id())
             fields["Subdeck"] = DeckManager.basename(fields["Deck"])
