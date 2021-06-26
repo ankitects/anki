@@ -68,7 +68,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function deleteTagAt(index: number): void {
-        console.log("eyo", index);
         tags.splice(index, 1);
         tags = tags;
     }
@@ -104,9 +103,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function moveToNextTag(index: number): Promise<void> {
-        if (index === tags.length - 1 || tags.length === 1) {
-            focusNewInput();
+        if (index === tags.length - 2) {
             return;
+            // TODO
+        } else if (index === tags.length - 1) {
+            tags[index].active = false;
+            tags = tags;
+
+            await tick();
+            focusNewInput();
         }
 
         tags[index].active = false;
@@ -114,7 +119,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tags = tags;
 
         await tick();
-
         (document.activeElement as HTMLInputElement).setSelectionRange(0, 0);
     }
 
