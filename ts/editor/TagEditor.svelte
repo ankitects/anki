@@ -3,7 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { tick } from "svelte";
     import { isApplePlatform } from "lib/platform";
     import StickyBottom from "components/StickyBottom.svelte";
     import AddTagBadge from "./AddTagBadge.svelte";
@@ -11,15 +10,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TagInput from "./TagInput.svelte";
     import TagAutocomplete from "./TagAutocomplete.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
+    import type { Tag as TagType } from "./tags";
     import { attachId, getName } from "./tags";
 
     export let initialNames = ["en::foobar", "test", "def"];
     export let suggestions = ["en::idioms", "anki::functionality", "math"];
 
     export let size = isApplePlatform() ? 1.6 : 2.0;
-
-    let active: number | null = null;
-    let activeAfterBlur: number | null = null;
 
     let input: HTMLInputElement;
     let tags = initialNames.map(attachId);
@@ -32,15 +29,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return index === tags.length - 1;
     }
 
-    function decideNextActive() {
-        if (typeof active === "number") {
-            active = activeAfterBlur;
-        }
+    let active: number | null = null;
+    let activeAfterBlur: number | null = null;
 
-        if (typeof activeAfterBlur === "number") {
-            active = activeAfterBlur;
-            activeAfterBlur = null;
+    function setActiveAfterBlur(value: number): void {
+        if (activeAfterBlur === null) {
+            activeAfterBlur = value;
         }
+    }
+
+    function updateActiveAfterBlur(update: (value: number) => number | null): void {
+        if (activeAfterBlur !== null) {
+            activeAfterBlur = update(activeAfterBlur);
+        }
+    }
+
+    function decideNextActive() {
+        console.log("dna", active, activeAfterBlur, JSON.stringify(tags));
+        active = activeAfterBlur;
+        activeAfterBlur = null;
     }
 
     async function addEmptyTag(): Promise<void> {
@@ -58,52 +65,69 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function insertEmptyTagAt(index: number): void {
         tags.splice(index, 0, attachId(""));
         tags = tags;
-        activeAfterBlur = index + 1;
+        setActiveAfterBlur(index);
     }
 
     function appendEmptyTagAt(index: number): void {
         tags.splice(index + 1, 0, attachId(""));
         tags = tags;
-        activeAfterBlur = index + 1;
+        setActiveAfterBlur(index + 1);
     }
 
-    function checkIfContainsNameAt(index: number): boolean {
+    function checkIfUniqueNameAt(index: number): boolean {
         const names = tags.map(getName);
         const newName = names.splice(index, 1, "")[0];
 
         const contained = names.indexOf(newName);
         if (contained >= 0) {
             tags[contained].blink = true;
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
-    function addTagAt(index: number): void {
-        if (checkIfContainsNameAt(index)) {
-            deleteTagAt(index);
-            insertEmptyTagAt(index);
-        } else {
-            appendEmptyTagAt(index);
-        }
+    function enterTag(tag: TagType, index: number): void {
+        appendEmptyTagAt(index);
     }
 
-    function insertTagAt(index: number): void {
+    function insertTag(tag: TagType, index: number): void {
         const name = tags.map(getName).splice(index, 1)[0];
 
-        if (!checkIfContainsNameAt(index)) {
+        if (!checkIfUniqueNameAt(index)) {
             tags.splice(index, 0, attachId(name));
             tags = tags;
         }
     }
 
-    function deleteTagAt(index: number): void {
+    function deleteTag(tag: TagType, index: number): void {
         tags.splice(index, 1);
         tags = tags;
+        active = null;
+
+        updateActiveAfterBlur((active: number) => {
+            if (active === index) {
+                return null;
+            } else if (active > index) {
+                return active - 1;
+            }
+
+            return active;
+        });
     }
 
-    function joinWithPreviousTag(index: number): void {
+    function deleteTagIfNotUnique(tag: TagType, index: number): void {
+        if (!tags.includes(tag)) {
+            // already deleted
+            return;
+        }
+
+        if (!checkIfUniqueNameAt(index)) {
+            deleteTag(tag, index);
+        }
+    }
+
+    function joinWithPreviousTag(tag: TagType, index: number): void {
         if (isFirst(index)) {
             return;
         }
@@ -113,7 +137,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tags = tags;
     }
 
-    function joinWithNextTag(index: number): void {
+    function joinWithNextTag(tag: TagType, index: number): void {
         if (isLast(index)) {
             return;
         }
@@ -123,28 +147,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tags = tags;
     }
 
-    function moveToPreviousTag(index: number): void {
+    function moveToPreviousTag(tag: TagType, index: number): void {
         if (isFirst(index)) {
             return;
         }
-
-        active = index - 1;
+        console.log("moveprev", index);
+        active = null;
+        activeAfterBlur = index - 1;
     }
 
-    async function moveToNextTag(index: number): Promise<void> {
+    async function moveToNextTag(tag: TagType, index: number): Promise<void> {
         if (isLast(index)) {
             addEmptyTag();
             return;
         }
+        console.log("movenext", index);
 
-        active = index + 1;
-
-        await tick();
-        input.setSelectionRange(0, 0);
-    }
-
-    function deactivate(index: number): void {
         active = null;
+        activeAfterBlur = index + 1;
+
+        /* await tick(); */
+        /* input.setSelectionRange(0, 0); */
     }
 
     async function activate(index: number): Promise<void> {
@@ -176,21 +199,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             id={tag.id}
                             bind:name={tag.name}
                             bind:input
+                            on:focus={() =>
+                                console.log(
+                                    "focused",
+                                    tag,
+                                    tag.name,
+                                    JSON.stringify(tags)
+                                )}
                             on:blur={decideNextActive}
-                            on:tagupdate={() => addTagAt(index)}
-                            on:tagadd={() => insertTagAt(index)}
-                            on:tagdelete={() => deleteTagAt(index)}
-                            on:tagjoinprevious={() => joinWithPreviousTag(index)}
-                            on:tagjoinnext={() => joinWithNextTag(index)}
-                            on:tagmoveprevious={() => moveToPreviousTag(index)}
-                            on:tagmovenext={() => moveToNextTag(index)}
+                            on:tagenter={() => enterTag(tag, index)}
+                            on:tagadd={() => insertTag(tag, index)}
+                            on:tagdelete={() => deleteTag(tag, index)}
+                            on:tagunique={() => deleteTagIfNotUnique(tag, index)}
+                            on:tagjoinprevious={() => joinWithPreviousTag(tag, index)}
+                            on:tagjoinnext={() => joinWithNextTag(tag, index)}
+                            on:tagmoveprevious={() => moveToPreviousTag(tag, index)}
+                            on:tagmovenext={() => moveToNextTag(tag, index)}
                         />
                     {:else}
                         <Tag
                             name={tag.name}
                             bind:blink={tag.blink}
                             on:click={() => checkForActivation(index)}
-                            on:tagdelete={() => deleteTagAt(index)}
+                            on:tagdelete={() => deleteTag(tag, index)}
                         />
                     {/if}
                 {/each}

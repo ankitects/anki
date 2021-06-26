@@ -35,11 +35,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         name = normalizeTagname(name);
     }
 
-    function onAccept(): void {
-        normalize();
-        dispatch(name.length > 0 ? "tagupdate" : "tagdelete");
-    }
-
     async function joinWithPreviousTag(event: Event): Promise<void> {
         const length = input.value.length;
         dispatch("tagjoinprevious");
@@ -74,33 +69,63 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    function onBlur(event: Event): void {
+        event.preventDefault();
+        normalize();
+
+        if (name.length === 0) {
+            dispatch("tagdelete");
+        }
+
+        dispatch("tagunique");
+    }
+
+    function onEnter(event: Event): void {
+        event.preventDefault();
+        dispatch("tagenter");
+        input.blur();
+    }
+
     function onKeydown(event: KeyboardEvent): void {
-        if (event.code === "Space") {
-            name += "::";
-            event.preventDefault();
-        } else if (event.code === "ArrowLeft" && caretAtStart()) {
-            normalize();
-            if (isEmpty()) {
-                joinWithPreviousTag(event);
-            } else {
-                dispatch("tagmoveprevious");
+        switch (event.code) {
+            case "Enter":
+                onEnter(event);
+                break;
+            case "Space":
+                // TODO
+                name += "::";
                 event.preventDefault();
-            }
-        } else if (event.code === "ArrowRight" && caretAtEnd()) {
-            if (isEmpty()) {
-                joinWithNextTag(event);
-            } else {
-                dispatch("tagmovenext");
-                event.preventDefault();
-            }
-        } else if (event.code === "Backspace") {
-            onBackspace(event);
-        } else if (event.code === "Delete") {
-            onDelete(event);
-        } else if (event.code === "Enter") {
-            /* onAccept(); */
-            input.blur();
-            event.preventDefault();
+
+            case "Backspace":
+                onBackspace(event);
+                break;
+            case "Delete":
+                onDelete(event);
+                break;
+
+            case "ArrowLeft":
+                if (!caretAtStart()) {
+                    break;
+                }
+                normalize();
+                if (isEmpty()) {
+                    joinWithPreviousTag(event);
+                } else {
+                    dispatch("tagmoveprevious");
+                    event.preventDefault();
+                }
+                break;
+
+            case "ArrowRight":
+                if (!caretAtEnd()) {
+                    break;
+                }
+                if (isEmpty()) {
+                    joinWithNextTag(event);
+                } else {
+                    dispatch("tagmovenext");
+                    event.preventDefault();
+                }
         }
     }
 
@@ -148,7 +173,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tabindex="-1"
         size="1"
         on:focus
-        on:blur={onAccept}
+        on:blur={onBlur}
         on:blur
         on:keydown={onKeydown}
         on:keydown
