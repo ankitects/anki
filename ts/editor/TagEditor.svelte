@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import StickyBottom from "components/StickyBottom.svelte";
     import AddTagBadge from "./AddTagBadge.svelte";
     import Tag from "./Tag.svelte";
+    import TagInput from "./TagInput.svelte";
     import TagAutocomplete from "./TagAutocomplete.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
     import { attachId, getName } from "./tags";
@@ -27,24 +28,34 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return index === tags.length - 1;
     }
 
-    function addEmptyTag(): void {
-        if (tags[tags.length - 1].name.length === 0) {
-            tags[tags.length - 1].active = true;
+    async function addEmptyTag(): Promise<void> {
+        const lastTag = tags[tags.length - 1];
+        if (lastTag.name.length === 0) {
+            lastTag.active = true;
             return;
         }
 
-        tags.push(attachId("", true));
+        const idx = tags.push(attachId("", true));
         tags = tags;
+
+        await tick();
+        tags[idx - 1].input?.focus();
     }
 
-    function insertEmptyTagAt(index: number): void {
+    async function insertEmptyTagAt(index: number): Promise<void> {
         tags.splice(index, 0, attachId("", true));
         tags = tags;
+
+        await tick();
+        tags[index].input?.focus();
     }
 
-    function appendEmptyTagAt(index: number): void {
+    async function appendEmptyTagAt(index: number): Promise<void> {
         tags.splice(index + 1, 0, attachId("", true));
         tags = tags;
+
+        await tick();
+        tags[index].input?.focus();
     }
 
     function checkIfContainsNameAt(index: number): boolean {
@@ -65,6 +76,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             deleteTagAt(index);
             insertEmptyTagAt(index);
         } else {
+            deactivate(index);
             appendEmptyTagAt(index);
         }
     }
@@ -79,6 +91,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function deleteTagAt(index: number): void {
+        deactivate(index);
         tags.splice(index, 1);
         tags = tags;
     }
@@ -126,6 +139,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         await tick();
         nextTag.input?.setSelectionRange(0, 0);
     }
+
+    function deactivate(index: number): void {
+        tags[index].active = false;
+    }
+
+    function checkForActivation(index: number): void {
+        const selection = window.getSelection()!;
+        tags[index].active = selection.isCollapsed;
+    }
 </script>
 
 <StickyBottom>
@@ -140,19 +162,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 let:destroyAutocomplete
             >
                 {#each tags as tag, index (tag.id)}
-                    <Tag
-                        bind:name={tag.name}
-                        bind:input={tag.input}
-                        bind:active={tag.active}
-                        bind:blink={tag.blink}
-                        on:tagupdate={() => addTagAt(index)}
-                        on:tagadd={() => insertTagAt(index)}
-                        on:tagdelete={() => deleteTagAt(index)}
-                        on:tagjoinprevious={() => joinWithPreviousTag(index)}
-                        on:tagjoinnext={() => joinWithNextTag(index)}
-                        on:tagmoveprevious={() => moveToPreviousTag(index)}
-                        on:tagmovenext={() => moveToNextTag(index)}
-                    />
+                    {#if tag.active}
+                        <TagInput
+                            bind:name={tag.name}
+                            bind:input={tag.input}
+                            on:blur={() => deactivate(index)}
+                            on:tagupdate={() => addTagAt(index)}
+                            on:tagadd={() => insertTagAt(index)}
+                            on:tagdelete={() => deleteTagAt(index)}
+                            on:tagjoinprevious={() => joinWithPreviousTag(index)}
+                            on:tagjoinnext={() => joinWithNextTag(index)}
+                            on:tagmoveprevious={() => moveToPreviousTag(index)}
+                            on:tagmovenext={() => moveToNextTag(index)}
+                        />
+                    {:else}
+                        <Tag
+                            bind:name={tag.name}
+                            bind:blink={tag.blink}
+                            on:click={() => checkForActivation(index)}
+                            on:tagdelete={() => deleteTagAt(index)}
+                        />
+                    {/if}
                 {/each}
 
                 <div
