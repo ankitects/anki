@@ -16,18 +16,19 @@ export function normalizeTagname(tagname: string): string {
 }
 
 interface Tag {
+    id: string;
     name: string;
+    input?: HTMLInputElement;
     active: boolean;
     blink: boolean;
-    id: string;
 }
 
 export function attachId(name: string, active = false): Tag {
     return {
+        id: Math.random().toString(36).substring(2),
         name,
         active,
         blink: false,
-        id: Math.random().toString(36).substring(2),
     };
 }
 

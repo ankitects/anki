@@ -9,12 +9,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { deleteIcon } from "./icons";
 
     export let name: string;
+    export let input: HTMLInputElement;
     export let active: boolean;
     export let blink: boolean = false;
 
     const dispatch = createEventDispatcher();
-
-    let input: HTMLInputElement;
 
     $: if (blink) {
         setTimeout(() => (blink = false), 300);

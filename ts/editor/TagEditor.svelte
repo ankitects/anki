@@ -69,18 +69,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function insertTagAt(index: number): boolean {
-        const names = tags.map(getName);
-        const newName = names.splice(index, 1)[0];
-        let added = false;
+    function insertTagAt(index: number): void {
+        const name = tags.map(getName).splice(index, 1)[0];
 
-        if (!checkIfContainsNameAt(index) && newName.length > 0) {
-            tags.splice(index, 0, attachId(newName));
-            added = true;
+        if (!checkIfContainsNameAt(index)) {
+            tags.splice(index, 0, attachId(name));
+            tags = tags;
         }
-
-        tags = tags;
-        return added;
     }
 
     function deleteTagAt(index: number): void {
@@ -89,7 +84,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function joinWithPreviousTag(index: number): void {
-        if (index === 0) {
+        if (isFirst(index)) {
             return;
         }
 
@@ -99,7 +94,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function joinWithNextTag(index: number): void {
-        if (index === tags.length - 1) {
+        if (isLast(index)) {
             return;
         }
 
@@ -109,12 +104,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function moveToPreviousTag(index: number): void {
-        if (index === 0 || tags.length === 1) {
+        if (isFirst(index)) {
             return;
         }
 
-        tags[index - 1].active = true;
-        tags[index].active = false;
+        const previousTag = tags[index - 1];
+        previousTag.active = true;
         tags = tags;
     }
 
@@ -124,11 +119,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
 
-        tags[index + 1].active = true;
+        const nextTag = tags[index + 1];
+        nextTag.active = true;
         tags = tags;
 
         await tick();
-        (document.activeElement as HTMLInputElement).setSelectionRange(0, 0);
+        nextTag.input?.setSelectionRange(0, 0);
     }
 </script>
 
@@ -146,6 +142,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {#each tags as tag, index (tag.id)}
                     <Tag
                         bind:name={tag.name}
+                        bind:input={tag.input}
                         bind:active={tag.active}
                         bind:blink={tag.blink}
                         on:tagupdate={() => addTagAt(index)}
