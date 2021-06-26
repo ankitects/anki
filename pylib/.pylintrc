@@ -43,3 +43,6 @@ disable=
   global-statement,
   protected-access,
   arguments-differ,
+
+[BASIC]
+good-names = id
