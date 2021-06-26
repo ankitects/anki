@@ -68,6 +68,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function deleteTagAt(index: number): void {
+        console.log("eyo", index);
         tags.splice(index, 1);
         tags = tags;
     }

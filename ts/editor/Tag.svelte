@@ -30,15 +30,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         event.stopPropagation();
     }
 
-    function updateTag(event: Event) {
+    function deactivate() {
         active = false;
-
-        if (name.length === 0) {
-            deleteTag(event);
-        } else {
-            dispatch("tagupdate");
-            event.stopPropagation();
-        }
     }
 </script>
 
@@ -47,10 +40,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bind:name
         bind:input
         on:focus
-        on:blur={() => (active = false)}
+        on:blur={deactivate}
         on:blur
         on:keydown
-        on:tagupdate={updateTag}
+        on:tagupdate={deactivate}
+        on:tagupdate
+        on:tagdelete={deactivate}
+        on:tagdelete
         on:tagadd
         on:tagjoinprevious
         on:tagjoinnext

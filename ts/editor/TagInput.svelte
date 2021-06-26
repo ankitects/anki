@@ -28,7 +28,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onAccept(): void {
         name = normalizeTagname(name);
-        dispatch("tagupdate", { name });
+        if (name.length > 0) {
+            dispatch("tagupdate");
+        } else {
+            console.log("dispatch delete in taginput", name);
+            dispatch("tagdelete");
+        }
     }
 
     async function onBackspace(event: KeyboardEvent): Promise<void> {
@@ -72,7 +77,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } else if (event.code === "Delete") {
             onDelete(event);
         } else if (event.code === "Enter") {
-            onAccept();
+            /* should probably do something else */
+            input.blur();
             event.preventDefault();
         }
     }
@@ -120,8 +126,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tabindex="-1"
         size="1"
         on:focus
-        on:blur
         on:blur={onAccept}
+        on:blur
         on:keydown={onKeydown}
         on:keydown
         on:paste={onPaste}
