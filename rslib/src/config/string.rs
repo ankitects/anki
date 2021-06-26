@@ -31,11 +31,13 @@ impl Collection {
         val: &str,
         undoable: bool,
     ) -> Result<OpOutput<()>> {
-        self.transact(Op::UpdateConfig, |col| {
+        let op = if undoable {
+            Op::UpdateConfig
+        } else {
+            Op::SkipUndo
+        };
+        self.transact(op, |col| {
             col.set_config_string_inner(key, val)?;
-            if !undoable {
-                col.clear_current_undo_step_changes()?;
-            }
             Ok(())
         })
     }

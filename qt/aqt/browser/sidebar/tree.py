@@ -829,6 +829,7 @@ class SidebarTreeView(QTreeView):
         self._maybe_add_rename_action(menu, item, index)
         self._maybe_add_search_actions(menu)
         self._maybe_add_tree_actions(menu)
+        gui_hooks.browser_sidebar_will_show_context_menu(self, menu, item, index)
         if menu.children():
             menu.exec_(QCursor.pos())
 

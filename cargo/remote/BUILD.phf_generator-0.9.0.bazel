@@ -25,17 +25,43 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR (Apache-2.0 OR MIT)"
+    "notice",  # MIT from expression "MIT"
 ])
 
 # Generated Targets
 
-rust_library(
-    name = "wasi",
+# Unsupported target "benches" with type "bench" omitted
+
+rust_binary(
+    # Prefix bin name to disambiguate from (probable) collision with lib name
+    # N.B.: The exact form of this is subject to change.
+    name = "cargo_bin_gen_hash_test",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "std",
+    ],
+    crate_root = "src/bin/gen_hash_test.rs",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.9.0",
+    # buildifier: leave-alone
+    deps = [
+        ":phf_generator",
+        "@raze__phf_shared__0_9_0//:phf_shared",
+        "@raze__rand__0_8_4//:rand",
+    ],
+)
+
+rust_library(
+    name = "phf_generator",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -48,8 +74,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.10.2+wasi-snapshot-preview1",
+    version = "0.9.0",
     # buildifier: leave-alone
     deps = [
+        "@raze__phf_shared__0_9_0//:phf_shared",
+        "@raze__rand__0_8_4//:rand",
     ],
 )

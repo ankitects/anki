@@ -4,7 +4,7 @@
 use std::convert::TryFrom;
 
 use num_enum::TryFromPrimitive;
-use rusqlite::{params, NO_PARAMS};
+use rusqlite::params;
 
 use super::SqliteStorage;
 use crate::{
@@ -26,7 +26,7 @@ enum GraveKind {
 
 impl SqliteStorage {
     pub(crate) fn clear_all_graves(&self) -> Result<()> {
-        self.db.execute("delete from graves", NO_PARAMS)?;
+        self.db.execute("delete from graves", [])?;
         Ok(())
     }
 
@@ -59,7 +59,7 @@ impl SqliteStorage {
             "select oid, type from graves where {}",
             pending_usn.pending_object_clause()
         ))?;
-        let mut rows = stmt.query(&[pending_usn])?;
+        let mut rows = stmt.query([pending_usn])?;
         let mut graves = Graves::default();
         while let Some(row) = rows.next()? {
             let oid: i64 = row.get(0)?;
@@ -77,7 +77,7 @@ impl SqliteStorage {
     pub(crate) fn update_pending_grave_usns(&self, new_usn: Usn) -> Result<()> {
         self.db
             .prepare("update graves set usn=? where usn=-1")?
-            .execute(&[new_usn])?;
+            .execute([new_usn])?;
         Ok(())
     }
 

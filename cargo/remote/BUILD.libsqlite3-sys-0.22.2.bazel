@@ -63,7 +63,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.20.1",
+    version = "0.22.2",
     visibility = ["//visibility:private"],
     deps = [
         "@raze__cc__1_0_68//:cc",
@@ -73,7 +73,7 @@ cargo_build_script(
         (
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
-            "@raze__vcpkg__0_2_14//:vcpkg",
+            "@raze__vcpkg__0_2_15//:vcpkg",
         ],
         "//conditions:default": [],
     }),
@@ -106,7 +106,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.20.1",
+    version = "0.22.2",
     # buildifier: leave-alone
     deps = [
         ":libsqlite3_sys_build_script",

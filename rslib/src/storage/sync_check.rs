@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use rusqlite::NO_PARAMS;
-
 use super::*;
 use crate::{
     error::SyncErrorKind,
@@ -15,16 +13,14 @@ impl SqliteStorage {
         Ok(self
             .db
             .prepare(&format!("select null from {} where usn=-1", table))?
-            .query(NO_PARAMS)?
+            .query([])?
             .next()?
             .is_some())
     }
 
     fn table_count(&self, table: &str) -> Result<u32> {
         self.db
-            .query_row(&format!("select count() from {}", table), NO_PARAMS, |r| {
-                r.get(0)
-            })
+            .query_row(&format!("select count() from {}", table), [], |r| r.get(0))
             .map_err(Into::into)
     }
 

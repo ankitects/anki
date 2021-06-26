@@ -37,7 +37,7 @@ load(
 )
 
 cargo_build_script(
-    name = "native_tls_build_script",
+    name = "ahash_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
@@ -45,7 +45,7 @@ cargo_build_script(
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -53,44 +53,31 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.7",
+    version = "0.7.4",
     visibility = ["//visibility:private"],
     deps = [
+        "@raze__version_check__0_9_3//:version_check",
     ] + selects.with_or({
-        # cfg(any(target_os = "macos", target_os = "ios"))
+        # cfg(any(target_os = "linux", target_os = "android", target_os = "windows", target_os = "macos", target_os = "ios", target_os = "freebsd", target_os = "openbsd", target_os = "netbsd", target_os = "dragonfly", target_os = "solaris", target_os = "illumos", target_os = "fuchsia", target_os = "redox", target_os = "cloudabi", target_os = "haiku", target_os = "vxworks", target_os = "emscripten", target_os = "wasi"))
         (
             "@rules_rust//rust/platform:aarch64-apple-ios",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-apple-darwin",
             "@rules_rust//rust/platform:x86_64-apple-ios",
-        ): [
-            "@raze__security_framework_sys__2_3_0//:security_framework_sys",
-        ],
-        "//conditions:default": [],
-    }) + selects.with_or({
-        # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
-        (
-            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
-        ): [
-            "@raze__openssl_sys__0_9_65//:openssl_sys",
-        ],
-        "//conditions:default": [],
-    }) + selects.with_or({
-        # cfg(target_os = "windows")
-        (
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
         ],
         "//conditions:default": [],
     }),
 )
 
-# Unsupported target "google-connect" with type "example" omitted
+# Unsupported target "ahash" with type "bench" omitted
 
-# Unsupported target "simple-server" with type "example" omitted
+# Unsupported target "map" with type "bench" omitted
 
 rust_library(
-    name = "native_tls",
+    name = "ahash",
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
@@ -99,7 +86,7 @@ rust_library(
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -107,43 +94,29 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.7",
+    version = "0.7.4",
     # buildifier: leave-alone
     deps = [
-        ":native_tls_build_script",
+        ":ahash_build_script",
     ] + selects.with_or({
-        # cfg(any(target_os = "macos", target_os = "ios"))
+        # cfg(any(target_os = "linux", target_os = "android", target_os = "windows", target_os = "macos", target_os = "ios", target_os = "freebsd", target_os = "openbsd", target_os = "netbsd", target_os = "dragonfly", target_os = "solaris", target_os = "illumos", target_os = "fuchsia", target_os = "redox", target_os = "cloudabi", target_os = "haiku", target_os = "vxworks", target_os = "emscripten", target_os = "wasi"))
         (
             "@rules_rust//rust/platform:aarch64-apple-ios",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-apple-darwin",
             "@rules_rust//rust/platform:x86_64-apple-ios",
-        ): [
-            "@raze__lazy_static__1_4_0//:lazy_static",
-            "@raze__libc__0_2_97//:libc",
-            "@raze__security_framework__2_3_1//:security_framework",
-            "@raze__security_framework_sys__2_3_0//:security_framework_sys",
-            "@raze__tempfile__3_2_0//:tempfile",
-        ],
-        "//conditions:default": [],
-    }) + selects.with_or({
-        # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
-        (
-            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@raze__log__0_4_14//:log",
-            "@raze__openssl__0_10_35//:openssl",
-            "@raze__openssl_probe__0_1_4//:openssl_probe",
-            "@raze__openssl_sys__0_9_65//:openssl_sys",
-        ],
-        "//conditions:default": [],
-    }) + selects.with_or({
-        # cfg(target_os = "windows")
-        (
-            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
-        ): [
-            "@raze__schannel__0_1_19//:schannel",
+            "@raze__getrandom__0_2_3//:getrandom",
+            "@raze__once_cell__1_8_0//:once_cell",
         ],
         "//conditions:default": [],
     }),
 )
+
+# Unsupported target "bench" with type "test" omitted
+
+# Unsupported target "map_tests" with type "test" omitted
+
+# Unsupported target "nopanic" with type "test" omitted

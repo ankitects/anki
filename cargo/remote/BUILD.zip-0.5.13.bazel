@@ -70,7 +70,7 @@ rust_library(
         "@raze__crc32fast__1_2_1//:crc32fast",
         "@raze__flate2__1_0_20//:flate2",
         "@raze__thiserror__1_0_25//:thiserror",
-        "@raze__time__0_1_43//:time",
+        "@raze__time__0_1_44//:time",
     ],
 )
 

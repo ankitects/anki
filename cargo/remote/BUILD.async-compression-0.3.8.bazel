@@ -61,7 +61,7 @@ rust_library(
         "@raze__futures_core__0_3_15//:futures_core",
         "@raze__memchr__2_4_0//:memchr",
         "@raze__pin_project_lite__0_2_6//:pin_project_lite",
-        "@raze__tokio__1_7_0//:tokio",
+        "@raze__tokio__1_7_1//:tokio",
     ],
 )
 

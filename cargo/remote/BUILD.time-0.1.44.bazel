@@ -31,8 +31,10 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "vcpkg",
+    name = "time",
     srcs = glob(["**/*.rs"]),
+    aliases = {
+    },
     crate_features = [
     ],
     crate_root = "src/lib.rs",
@@ -46,8 +48,17 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.14",
+    version = "0.1.44",
     # buildifier: leave-alone
     deps = [
-    ],
+        "@raze__libc__0_2_97//:libc",
+    ] + selects.with_or({
+        # cfg(windows)
+        (
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+        ): [
+            "@raze__winapi__0_3_9//:winapi",
+        ],
+        "//conditions:default": [],
+    }),
 )

@@ -109,7 +109,7 @@ rust_library(
             "@raze__native_tls__0_2_7//:native_tls",
             "@raze__percent_encoding__2_1_0//:percent_encoding",
             "@raze__pin_project_lite__0_2_6//:pin_project_lite",
-            "@raze__tokio__1_7_0//:tokio",
+            "@raze__tokio__1_7_1//:tokio",
             "@raze__tokio_native_tls__0_3_0//:tokio_native_tls",
             "@raze__tokio_socks__0_5_1//:tokio_socks",
         ],

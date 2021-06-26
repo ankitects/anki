@@ -10,7 +10,7 @@ use std::borrow::Cow;
 pub use parser::{
     parse as parse_search, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind,
 };
-use rusqlite::types::FromSql;
+use rusqlite::{params_from_iter, types::FromSql};
 use sqlwriter::{RequiredTable, SqlWriter};
 pub use writer::{concatenate_searches, replace_search_node, write_nodes, BoolSeparator};
 
@@ -158,7 +158,7 @@ impl Collection {
 
         let mut stmt = self.storage.db.prepare(&sql)?;
         let ids: Vec<_> = stmt
-            .query_map(&args, |row| row.get(0))?
+            .query_map(params_from_iter(args.iter()), |row| row.get(0))?
             .collect::<std::result::Result<_, _>>()?;
 
         Ok(ids)
@@ -210,7 +210,7 @@ impl Collection {
         self.storage
             .db
             .prepare(&sql)?
-            .execute(&args)
+            .execute(params_from_iter(args))
             .map_err(Into::into)
     }
 }

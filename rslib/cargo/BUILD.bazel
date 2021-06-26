@@ -167,7 +167,7 @@ alias(
 
 alias(
     name = "itertools",
-    actual = "@raze__itertools__0_9_0//:itertools",
+    actual = "@raze__itertools__0_10_1//:itertools",
     tags = [
         "cargo-raze",
         "manual",
@@ -185,7 +185,7 @@ alias(
 
 alias(
     name = "nom",
-    actual = "@raze__nom__6_1_2//:nom",
+    actual = "@raze__nom__7_0_0_alpha1//:nom",
     tags = [
         "cargo-raze",
         "manual",
@@ -266,7 +266,7 @@ alias(
 
 alias(
     name = "rand",
-    actual = "@raze__rand__0_7_3//:rand",
+    actual = "@raze__rand__0_8_4//:rand",
     tags = [
         "cargo-raze",
         "manual",
@@ -293,7 +293,7 @@ alias(
 
 alias(
     name = "rusqlite",
-    actual = "@raze__rusqlite__0_24_2//:rusqlite",
+    actual = "@raze__rusqlite__0_25_3//:rusqlite",
     tags = [
         "cargo-raze",
         "manual",
@@ -320,7 +320,7 @@ alias(
 
 alias(
     name = "serde_aux",
-    actual = "@raze__serde_aux__0_6_1//:serde_aux",
+    actual = "@raze__serde_aux__2_2_0//:serde_aux",
     tags = [
         "cargo-raze",
         "manual",
@@ -410,7 +410,7 @@ alias(
 
 alias(
     name = "strum",
-    actual = "@raze__strum__0_20_0//:strum",
+    actual = "@raze__strum__0_21_0//:strum",
     tags = [
         "cargo-raze",
         "manual",
@@ -428,7 +428,7 @@ alias(
 
 alias(
     name = "tokio",
-    actual = "@raze__tokio__1_7_0//:tokio",
+    actual = "@raze__tokio__1_7_1//:tokio",
     tags = [
         "cargo-raze",
         "manual",

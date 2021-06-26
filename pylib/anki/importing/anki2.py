@@ -34,7 +34,8 @@ class Anki2Importer(Importer):
         self._decks: Dict[DeckId, DeckId] = {}
         self.source_needs_upgrade = False
 
-    def run(self, media: None = None) -> None:
+    def run(self, media: None = None, importing_v2: bool = True) -> None:
+        self._importing_v2 = importing_v2
         self._prepareFiles()
         if media is not None:
             # Anki1 importer has provided us with a custom media folder
@@ -45,17 +46,16 @@ class Anki2Importer(Importer):
             self.src.close(save=False, downgrade=False)
 
     def _prepareFiles(self) -> None:
-        importingV2 = self.file.endswith(".anki21")
         self.source_needs_upgrade = False
 
         self.dst = self.col
         self.src = Collection(self.file)
 
-        if not importingV2 and self.col.schedVer() != 1:
+        if not self._importing_v2 and self.col.schedVer() != 1:
             # any scheduling included?
             if self.src.db.scalar("select 1 from cards where queue != 0 limit 1"):
                 self.source_needs_upgrade = True
-        elif importingV2 and self.col.schedVer() == 1:
+        elif self._importing_v2 and self.col.schedVer() == 1:
             raise Exception("must upgrade to new scheduler to import this file")
 
     def _import(self) -> None:

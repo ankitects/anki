@@ -25,15 +25,20 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
 # Generated Targets
 
+# Unsupported target "bench" with type "bench" omitted
+
 rust_library(
-    name = "tokio_rustls",
+    name = "hashbrown",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "ahash",
+        "default",
+        "inline-more",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -46,17 +51,17 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.22.0",
+    version = "0.11.2",
     # buildifier: leave-alone
     deps = [
-        "@raze__rustls__0_19_1//:rustls",
-        "@raze__tokio__1_7_1//:tokio",
-        "@raze__webpki__0_21_4//:webpki",
+        "@raze__ahash__0_7_4//:ahash",
     ],
 )
 
-# Unsupported target "badssl" with type "test" omitted
+# Unsupported target "hasher" with type "test" omitted
 
-# Unsupported target "early-data" with type "test" omitted
+# Unsupported target "rayon" with type "test" omitted
 
-# Unsupported target "test" with type "test" omitted
+# Unsupported target "serde" with type "test" omitted
+
+# Unsupported target "set" with type "test" omitted

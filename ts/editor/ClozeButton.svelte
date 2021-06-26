@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import * as tr from "lib/i18n";
     import { disabledKey } from "components/contextKeys";
+    import { inCodableKey } from "./contextKeys";
 
     import IconButton from "components/IconButton.svelte";
     import WithShortcut from "components/WithShortcut.svelte";
@@ -45,13 +46,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <WithShortcut shortcut={"Control+Alt?+Shift+C"} let:createShortcut let:shortcutLabel>
     <WithContext key={disabledKey} let:context={disabled}>
-        <IconButton
-            tooltip={`${tr.editingClozeDeletion()} (${shortcutLabel})`}
-            {disabled}
-            on:click={onCloze}
-            on:mount={createShortcut}
-        >
-            {@html bracketsIcon}
-        </IconButton>
+        <WithContext key={inCodableKey} let:context={inCodable}>
+            <IconButton
+                tooltip={`${tr.editingClozeDeletion()} (${shortcutLabel})`}
+                disabled={inCodable || disabled}
+                on:click={onCloze}
+                on:mount={createShortcut}
+            >
+                {@html bracketsIcon}
+            </IconButton>
+        </WithContext>
     </WithContext>
 </WithShortcut>

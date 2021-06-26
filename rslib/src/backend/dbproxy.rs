@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use rusqlite::{
+    params_from_iter,
     types::{FromSql, FromSqlError, ToSql, ToSqlOutput, ValueRef},
     OptionalExtension,
 };
@@ -132,7 +133,7 @@ pub(super) fn db_query_row(ctx: &SqliteStorage, sql: &str, args: &[SqlValue]) ->
     let columns = stmt.column_count();
 
     let row = stmt
-        .query_row(args, |row| {
+        .query_row(params_from_iter(args), |row| {
             let mut orow = Vec::with_capacity(columns);
             for i in 0..columns {
                 let v: SqlValue = row.get(i)?;
@@ -156,7 +157,7 @@ pub(super) fn db_query(ctx: &SqliteStorage, sql: &str, args: &[SqlValue]) -> Res
     let columns = stmt.column_count();
 
     let res: std::result::Result<Vec<Vec<_>>, rusqlite::Error> = stmt
-        .query_map(args, |row| {
+        .query_map(params_from_iter(args), |row| {
             let mut orow = Vec::with_capacity(columns);
             for i in 0..columns {
                 let v: SqlValue = row.get(i)?;
@@ -177,7 +178,7 @@ pub(super) fn db_execute_many(
     let mut stmt = ctx.db.prepare_cached(sql)?;
 
     for params in args {
-        stmt.execute(params)?;
+        stmt.execute(params_from_iter(params))?;
     }
 
     Ok(DbResult::None)

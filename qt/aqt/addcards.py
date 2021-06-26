@@ -232,6 +232,8 @@ class AddCards(QDialog):
 
     def _note_can_be_added(self, note: Note) -> bool:
         result = note.fields_check()
+        # no problem, duplicate, and confirmed cloze cases
+        problem = None
         if result == NoteFieldsCheckResult.EMPTY:
             problem = tr.adding_the_first_field_is_empty()
         elif result == NoteFieldsCheckResult.MISSING_CLOZE:
@@ -241,9 +243,6 @@ class AddCards(QDialog):
             problem = tr.adding_cloze_outside_cloze_notetype()
         elif result == NoteFieldsCheckResult.FIELD_NOT_CLOZE:
             problem = tr.adding_cloze_outside_cloze_field()
-        else:
-            # duplicate entries are allowed these days
-            problem = None
 
         # filter problem through add-ons
         problem = gui_hooks.add_cards_will_add_note(problem, note)

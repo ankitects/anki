@@ -80,7 +80,7 @@ audio = (
 _html = """
 <div id="fields"></div>
 <div id="dupes" class="is-inactive">
-    <a href="#" onclick="pycmd('dupes');return false;">{}</a>
+    <a href="#" onclick="pycmd('dupes');return false;">%s</a>
 </div>
 <div id="cloze-hint"></div>
 """
@@ -131,7 +131,7 @@ class Editor:
 
         # then load page
         self.web.stdHtml(
-            _html.format(tr.editing_show_duplicates()),
+            _html % tr.editing_show_duplicates(),
             css=[
                 "css/editor.css",
             ],

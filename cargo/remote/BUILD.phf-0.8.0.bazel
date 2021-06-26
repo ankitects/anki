@@ -35,19 +35,12 @@ rust_library(
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "default",
-        "macros",
-        "phf_macros",
-        "proc-macro-hack",
         "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
     edition = "2018",
-    proc_macro_deps = [
-        "@raze__phf_macros__0_8_0//:phf_macros",
-        "@raze__proc_macro_hack__0_5_19//:proc_macro_hack",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],

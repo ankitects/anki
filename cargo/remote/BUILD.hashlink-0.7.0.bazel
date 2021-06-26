@@ -46,10 +46,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.6.0",
+    version = "0.7.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__hashbrown__0_9_1//:hashbrown",
+        "@raze__hashbrown__0_11_2//:hashbrown",
     ],
 )
 

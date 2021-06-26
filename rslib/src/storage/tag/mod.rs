@@ -3,7 +3,7 @@
 
 use std::collections::HashMap;
 
-use rusqlite::{params, Row, NO_PARAMS};
+use rusqlite::{params, Row};
 
 use super::SqliteStorage;
 use crate::{error::Result, tags::Tag, types::Usn};
@@ -21,14 +21,14 @@ impl SqliteStorage {
     pub(crate) fn all_tags(&self) -> Result<Vec<Tag>> {
         self.db
             .prepare_cached(include_str!("get.sql"))?
-            .query_and_then(NO_PARAMS, row_to_tag)?
+            .query_and_then([], row_to_tag)?
             .collect()
     }
 
     pub(crate) fn expanded_tags(&self) -> Result<Vec<String>> {
         self.db
             .prepare_cached("select tag from tags where collapsed = false")?
-            .query_and_then(NO_PARAMS, |r| r.get::<_, String>(0).map_err(Into::into))?
+            .query_and_then([], |r| r.get::<_, String>(0).map_err(Into::into))?
             .collect::<Result<Vec<_>>>()
     }
 
@@ -37,7 +37,7 @@ impl SqliteStorage {
             .db
             .prepare_cached("update tags set collapsed = false where tag = ?")?;
         for tag in tags {
-            stmt.execute(&[tag])?;
+            stmt.execute([tag])?;
         }
         Ok(())
     }
@@ -45,7 +45,7 @@ impl SqliteStorage {
     pub(crate) fn get_tag(&self, name: &str) -> Result<Option<Tag>> {
         self.db
             .prepare_cached(&format!("{} where tag = ?", include_str!("get.sql")))?
-            .query_and_then(&[name], row_to_tag)?
+            .query_and_then([name], row_to_tag)?
             .next()
             .transpose()
     }
@@ -71,10 +71,10 @@ impl SqliteStorage {
         F: Fn(&str) -> bool,
     {
         let mut query_stmt = self.db.prepare_cached(include_str!("get.sql"))?;
-        let mut rows = query_stmt.query(NO_PARAMS)?;
+        let mut rows = query_stmt.query([])?;
         let mut output = vec![];
         while let Some(row) = rows.next()? {
-            let tag = row.get_raw(0).as_str()?;
+            let tag = row.get_ref_unwrap(0).as_str()?;
             if want(tag) {
                 output.push(Tag {
                     name: tag.to_owned(),
@@ -89,7 +89,7 @@ impl SqliteStorage {
     pub(crate) fn remove_single_tag(&self, tag: &str) -> Result<()> {
         self.db
             .prepare_cached("delete from tags where tag = ?")?
-            .execute(&[tag])?;
+            .execute([tag])?;
 
         Ok(())
     }
@@ -102,13 +102,13 @@ impl SqliteStorage {
     }
 
     pub(crate) fn clear_all_tags(&self) -> Result<()> {
-        self.db.execute("delete from tags", NO_PARAMS)?;
+        self.db.execute("delete from tags", [])?;
         Ok(())
     }
 
     pub(crate) fn clear_tag_usns(&self) -> Result<()> {
         self.db
-            .execute("update tags set usn = 0 where usn != 0", NO_PARAMS)?;
+            .execute("update tags set usn = 0 where usn != 0", [])?;
         Ok(())
     }
 
@@ -120,7 +120,7 @@ impl SqliteStorage {
                 "select tag from tags where {}",
                 usn.pending_object_clause()
             ))?
-            .query_and_then(&[usn], |r| r.get(0).map_err(Into::into))?
+            .query_and_then([usn], |r| r.get(0).map_err(Into::into))?
             .collect()
     }
 
@@ -139,9 +139,9 @@ impl SqliteStorage {
     pub(super) fn upgrade_tags_to_schema14(&self) -> Result<()> {
         let tags = self
             .db
-            .query_row_and_then("select tags from col", NO_PARAMS, |row| {
+            .query_row_and_then("select tags from col", [], |row| {
                 let tags: Result<HashMap<String, Usn>> =
-                    serde_json::from_str(row.get_raw(0).as_str()?).map_err(Into::into);
+                    serde_json::from_str(row.get_ref_unwrap(0).as_str()?).map_err(Into::into);
                 tags
             })?;
         let mut stmt = self
@@ -169,7 +169,7 @@ impl SqliteStorage {
         let tags = self
             .db
             .prepare_cached("select tag, usn from tags")?
-            .query_and_then(NO_PARAMS, |r| Ok(Tag::new(r.get(0)?, r.get(1)?)))?
+            .query_and_then([], |r| Ok(Tag::new(r.get(0)?, r.get(1)?)))?
             .collect::<Result<Vec<Tag>>>()?;
         self.db
             .execute_batch(include_str!["../upgrades/schema17_upgrade.sql"])?;

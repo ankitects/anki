@@ -58,6 +58,6 @@ rust_library(
         "@raze__log__0_4_14//:log",
         "@raze__mac__0_1_1//:mac",
         "@raze__markup5ever__0_10_1//:markup5ever",
-        "@raze__time__0_1_43//:time",
+        "@raze__time__0_1_44//:time",
     ],
 )

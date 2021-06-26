@@ -30,24 +30,18 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "cache" with type "bench" omitted
-
-# Unsupported target "exec" with type "bench" omitted
-
 rust_library(
-    name = "rusqlite",
+    name = "phf_macros",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "bundled",
-        "collation",
-        "functions",
-        "modern_sqlite",
-        "trace",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
+    crate_type = "proc-macro",
     data = [],
     edition = "2018",
+    proc_macro_deps = [
+        "@raze__proc_macro_hack__0_5_19//:proc_macro_hack",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -55,21 +49,13 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.24.2",
+    version = "0.9.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__bitflags__1_2_1//:bitflags",
-        "@raze__fallible_iterator__0_2_0//:fallible_iterator",
-        "@raze__fallible_streaming_iterator__0_1_9//:fallible_streaming_iterator",
-        "@raze__hashlink__0_6_0//:hashlink",
-        "@raze__libsqlite3_sys__0_20_1//:libsqlite3_sys",
-        "@raze__memchr__2_4_0//:memchr",
-        "@raze__smallvec__1_6_1//:smallvec",
+        "@raze__phf_generator__0_9_0//:phf_generator",
+        "@raze__phf_shared__0_9_0//:phf_shared",
+        "@raze__proc_macro2__1_0_27//:proc_macro2",
+        "@raze__quote__1_0_9//:quote",
+        "@raze__syn__1_0_73//:syn",
     ],
 )
-
-# Unsupported target "config_log" with type "test" omitted
-
-# Unsupported target "deny_single_threaded_sqlite_config" with type "test" omitted
-
-# Unsupported target "vtab" with type "test" omitted

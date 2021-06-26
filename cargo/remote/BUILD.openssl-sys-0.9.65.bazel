@@ -54,7 +54,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.9.63",
+    version = "0.9.65",
     visibility = ["//visibility:private"],
     deps = [
         "@raze__autocfg__1_0_1//:autocfg",
@@ -65,7 +65,7 @@ cargo_build_script(
         (
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
-            "@raze__vcpkg__0_2_14//:vcpkg",
+            "@raze__vcpkg__0_2_15//:vcpkg",
         ],
         "//conditions:default": [],
     }),
@@ -89,7 +89,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.9.63",
+    version = "0.9.65",
     # buildifier: leave-alone
     deps = [
         ":openssl_sys_build_script",

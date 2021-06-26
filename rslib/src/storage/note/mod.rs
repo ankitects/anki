@@ -3,7 +3,7 @@
 
 use std::collections::HashSet;
 
-use rusqlite::{params, Row, NO_PARAMS};
+use rusqlite::{params, Row};
 
 use crate::{
     error::Result,
@@ -97,21 +97,21 @@ impl super::SqliteStorage {
     pub(crate) fn remove_note(&self, nid: NoteId) -> Result<()> {
         self.db
             .prepare_cached("delete from notes where id = ?")?
-            .execute(&[nid])?;
+            .execute([nid])?;
         Ok(())
     }
 
     pub(crate) fn note_is_orphaned(&self, nid: NoteId) -> Result<bool> {
         self.db
             .prepare_cached(include_str!("is_orphaned.sql"))?
-            .query_row(&[nid], |r| r.get(0))
+            .query_row([nid], |r| r.get(0))
             .map_err(Into::into)
     }
 
     pub(crate) fn clear_pending_note_usns(&self) -> Result<()> {
         self.db
             .prepare("update notes set usn = 0 where usn = -1")?
-            .execute(NO_PARAMS)?;
+            .execute([])?;
         Ok(())
     }
 
@@ -119,7 +119,7 @@ impl super::SqliteStorage {
         self.db
             .query_row(
                 "select cast(flds as blob) from notes where id=?",
-                &[nid],
+                [nid],
                 |row| {
                     let fixed_flds: Vec<u8> = row.get(0)?;
                     let fixed_str = String::from_utf8_lossy(&fixed_flds);
@@ -151,7 +151,7 @@ impl super::SqliteStorage {
     pub(crate) fn total_notes(&self) -> Result<u32> {
         self.db
             .prepare("select count() from notes")?
-            .query_row(NO_PARAMS, |r| r.get(0))
+            .query_row([], |r| r.get(0))
             .map_err(Into::into)
     }
 
@@ -159,10 +159,10 @@ impl super::SqliteStorage {
         let mut stmt = self
             .db
             .prepare_cached("select tags from notes where tags != ''")?;
-        let mut query = stmt.query(NO_PARAMS)?;
+        let mut query = stmt.query([])?;
         let mut seen: HashSet<String> = HashSet::new();
         while let Some(rows) = query.next()? {
-            for tag in split_tags(rows.get_raw(0).as_str()?) {
+            for tag in split_tags(rows.get_ref_unwrap(0).as_str()?) {
                 if !seen.contains(tag) {
                     seen.insert(tag.to_string());
                 }
@@ -174,7 +174,7 @@ impl super::SqliteStorage {
     pub(crate) fn get_note_tags_by_id(&mut self, note_id: NoteId) -> Result<Option<NoteTags>> {
         self.db
             .prepare_cached(&format!("{} where id = ?", include_str!("get_tags.sql")))?
-            .query_and_then(&[note_id], row_to_note_tags)?
+            .query_and_then([note_id], row_to_note_tags)?
             .next()
             .transpose()
     }
@@ -190,7 +190,7 @@ impl super::SqliteStorage {
                 "{} where id in (select nid from search_nids)",
                 include_str!("get_tags.sql")
             ))?
-            .query_and_then(NO_PARAMS, row_to_note_tags)?
+            .query_and_then([], row_to_note_tags)?
             .collect::<Result<Vec<_>>>()?;
         self.clear_searched_notes_table()?;
         Ok(out)
@@ -201,10 +201,10 @@ impl super::SqliteStorage {
         F: Fn(&str) -> bool,
     {
         let mut query_stmt = self.db.prepare_cached(include_str!("get_tags.sql"))?;
-        let mut rows = query_stmt.query(NO_PARAMS)?;
+        let mut rows = query_stmt.query([])?;
         let mut output = vec![];
         while let Some(row) = rows.next()? {
-            let tags = row.get_raw(3).as_str()?;
+            let tags = row.get_ref_unwrap(3).as_str()?;
             if want(tags) {
                 output.push(row_to_note_tags(row)?)
             }
@@ -226,8 +226,7 @@ impl super::SqliteStorage {
     }
 
     pub(crate) fn clear_searched_notes_table(&self) -> Result<()> {
-        self.db
-            .execute("drop table if exists search_nids", NO_PARAMS)?;
+        self.db.execute("drop table if exists search_nids", [])?;
         Ok(())
     }
 
@@ -241,7 +240,7 @@ impl super::SqliteStorage {
             .db
             .prepare_cached("insert into search_nids values (?)")?;
         for nid in notes {
-            stmt.execute(&[nid])?;
+            stmt.execute([nid])?;
         }
 
         Ok(())
@@ -255,10 +254,10 @@ fn row_to_note(row: &Row) -> Result<Note> {
         row.get(2)?,
         row.get(3)?,
         row.get(4)?,
-        split_tags(row.get_raw(5).as_str()?)
+        split_tags(row.get_ref_unwrap(5).as_str()?)
             .map(Into::into)
             .collect(),
-        split_fields(row.get_raw(6).as_str()?),
+        split_fields(row.get_ref_unwrap(6).as_str()?),
         Some(row.get(7)?),
         Some(row.get(8).unwrap_or_default()),
     ))

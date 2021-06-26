@@ -42,7 +42,7 @@ rust_library(
     data = [],
     edition = "2018",
     proc_macro_deps = [
-        "@raze__strum_macros__0_20_1//:strum_macros",
+        "@raze__strum_macros__0_21_1//:strum_macros",
     ],
     rustc_flags = [
         "--cap-lints=allow",
@@ -51,7 +51,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.20.0",
+    version = "0.21.0",
     # buildifier: leave-alone
     deps = [
     ],
