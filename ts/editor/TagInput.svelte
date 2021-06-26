@@ -26,36 +26,58 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         input.setSelectionRange(position, position);
     }
 
-    function onAccept(): void {
+    function isEmpty(): boolean {
+        return name.length === 0;
+    }
+
+    function normalize(): void {
         name = normalizeTagname(name);
-        if (name.length > 0) {
-            dispatch("tagupdate");
-        } else {
-            console.log("dispatch delete in taginput", name);
-            dispatch("tagdelete");
+    }
+
+    function onAccept(): void {
+        normalize();
+        dispatch(name.length > 0 ? "tagupdate" : "tagdelete");
+    }
+
+    let acceptByEnter = true;
+
+    function onBlur(): void {
+        // do not cause double accept if accept causes blur
+        if (!acceptByEnter) {
+            onAccept();
         }
+
+        acceptByEnter = false;
+    }
+
+    async function joinWithPreviousTag(event: Event): Promise<void> {
+        const length = input.value.length;
+        dispatch("tagjoinprevious");
+        await tick();
+        setPosition(input.value.length - length);
+        event.preventDefault();
     }
 
     async function onBackspace(event: KeyboardEvent): Promise<void> {
         if (caretAtStart()) {
-            const length = input.value.length;
-            dispatch("tagjoinprevious");
-            await tick();
-            setPosition(input.value.length - length);
-            event.preventDefault();
+            joinWithPreviousTag(event);
         } else if (name.endsWith("::")) {
             name = name.slice(0, -2);
             event.preventDefault();
         }
     }
 
+    async function joinWithNextTag(event: Event): Promise<void> {
+        const length = input.value.length;
+        dispatch("tagjoinnext");
+        await tick();
+        setPosition(length);
+        event.preventDefault();
+    }
+
     async function onDelete(event: KeyboardEvent): Promise<void> {
         if (caretAtEnd()) {
-            const length = input.value.length;
-            dispatch("tagjoinnext");
-            await tick();
-            setPosition(length);
-            event.preventDefault();
+            joinWithNextTag(event);
         } else if (name.endsWith("::")) {
             name = name.slice(0, -2);
             event.preventDefault();
@@ -67,18 +89,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             name += "::";
             event.preventDefault();
         } else if (event.code === "ArrowLeft" && caretAtStart()) {
-            dispatch("tagmoveprevious");
-            event.preventDefault();
+            normalize();
+            if (isEmpty()) {
+                joinWithPreviousTag(event);
+            } else {
+                dispatch("tagmoveprevious");
+                event.preventDefault();
+            }
         } else if (event.code === "ArrowRight" && caretAtEnd()) {
-            dispatch("tagmovenext");
-            event.preventDefault();
+            if (isEmpty()) {
+                joinWithNextTag(event);
+            } else {
+                dispatch("tagmovenext");
+                event.preventDefault();
+            }
         } else if (event.code === "Backspace") {
             onBackspace(event);
         } else if (event.code === "Delete") {
             onDelete(event);
         } else if (event.code === "Enter") {
-            /* should probably do something else */
-            input.blur();
+            onAccept();
+            acceptByEnter = true;
             event.preventDefault();
         }
     }
@@ -126,7 +157,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tabindex="-1"
         size="1"
         on:focus
-        on:blur={onAccept}
+        on:blur={onBlur}
         on:blur
         on:keydown={onKeydown}
         on:keydown

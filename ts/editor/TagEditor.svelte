@@ -128,6 +128,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         tags = tags;
         newName = "";
+
         return added;
     }
 
@@ -140,7 +141,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function moveToLastTag(): void {
+    async function moveToLastTag(): Promise<void> {
         const newTag = appendTag() ? tags[tags.length - 2] : tags[tags.length - 1];
         newTag.active = true;
     }
@@ -183,6 +184,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:tagadd={appendTag}
                     on:tagjoinprevious={joinWithLastTag}
                     on:tagmoveprevious={moveToLastTag}
+                    on:tagmovenext={appendTag}
                 />
             </TagAutocomplete>
         </ButtonToolbar>
