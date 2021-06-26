@@ -19,6 +19,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let tags = initialNames.map((name) => attachId(name));
 
+    function isFirst(index: number): boolean {
+        return index === 0;
+    }
+
+    function isLast(index: number): boolean {
+        return index === tags.length - 1;
+    }
+
     function addEmptyTag(): void {
         if (tags[tags.length - 1].name.length === 0) {
             tags[tags.length - 1].active = true;
@@ -111,18 +119,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function moveToNextTag(index: number): Promise<void> {
-        if (index === tags.length - 2) {
+        if (isLast(index)) {
+            addEmptyTag();
             return;
-            // TODO
-        } else if (index === tags.length - 1) {
-            tags[index].active = false;
-            tags = tags;
-
-            await tick();
-            /* focusNewInput(); */
         }
 
-        tags[index].active = false;
         tags[index + 1].active = true;
         tags = tags;
 
@@ -143,31 +144,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 let:destroyAutocomplete
             >
                 {#each tags as tag, index (tag.id)}
-                    {#if index !== tags.length - 1}
-                        <Tag
-                            bind:name={tag.name}
-                            bind:active={tag.active}
-                            bind:blink={tag.blink}
-                            on:tagupdate={() => addTagAt(index)}
-                            on:tagadd={() => insertTagAt(index)}
-                            on:tagdelete={() => deleteTagAt(index)}
-                            on:tagjoinprevious={() => joinWithPreviousTag(index)}
-                            on:tagjoinnext={() => joinWithNextTag(index)}
-                            on:tagmoveprevious={() => moveToPreviousTag(index)}
-                            on:tagmovenext={() => moveToNextTag(index)}
-                        />
-                    {:else}
-                        <Tag
-                            bind:name={tag.name}
-                            bind:active={tag.active}
-                            bind:blink={tag.blink}
-                            on:tagupdate={() => addTagAt(index)}
-                            on:tagadd={() => insertTagAt(index)}
-                            on:tagjoinprevious={() => joinWithPreviousTag(index)}
-                            on:tagmoveprevious={() => moveToPreviousTag(index)}
-                            on:tagmovenext={() => moveToNextTag(index)}
-                        />
-                    {/if}
+                    <Tag
+                        bind:name={tag.name}
+                        bind:active={tag.active}
+                        bind:blink={tag.blink}
+                        on:tagupdate={() => addTagAt(index)}
+                        on:tagadd={() => insertTagAt(index)}
+                        on:tagdelete={() => deleteTagAt(index)}
+                        on:tagjoinprevious={() => joinWithPreviousTag(index)}
+                        on:tagjoinnext={() => joinWithNextTag(index)}
+                        on:tagmoveprevious={() => moveToPreviousTag(index)}
+                        on:tagmovenext={() => moveToNextTag(index)}
+                    />
                 {/each}
 
                 <div
