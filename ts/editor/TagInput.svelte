@@ -145,8 +145,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             name = last;
         }
     }
-
-    onMount(() => dispatch("mount", { input }));
 </script>
 
 <label class="ps-2 pe-1" data-value={name}>
