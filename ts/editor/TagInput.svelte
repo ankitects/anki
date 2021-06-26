@@ -171,12 +171,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: inline-grid;
         height: 100%;
 
-        cursor: text;
-
-        &:focus-within {
-            cursor: default;
-        }
-
         &::after,
         input {
             color: var(--text-fg);

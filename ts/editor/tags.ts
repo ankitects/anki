@@ -22,10 +22,10 @@ interface Tag {
     id: string;
 }
 
-export function attachId(name: string): Tag {
+export function attachId(name: string, active = false): Tag {
     return {
         name,
-        active: false,
+        active,
         blink: false,
         id: Math.random().toString(36).substring(2),
     };
