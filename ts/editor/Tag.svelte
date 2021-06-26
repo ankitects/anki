@@ -10,10 +10,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let name: string;
     export let active: boolean;
+    export let blink: boolean = false;
 
     const dispatch = createEventDispatcher();
 
     let input: HTMLInputElement;
+
+    $: if (blink) {
+        setTimeout(() => (blink = false), 300);
+    }
 
     function checkForActivation(): void {
         const selection = window.getSelection()!;
@@ -56,6 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {:else}
     <button
         class="d-inline-flex align-items-center tag text-nowrap rounded ps-2 pe-1 me-1"
+        class:blink
         tabindex="-1"
         on:click={checkForActivation}
     >
@@ -69,6 +75,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     $white-translucent: rgba(255, 255, 255, 0.5);
 
+    @keyframes blink {
+        0% {
+            filter: brightness(1);
+        }
+        50% {
+            filter: brightness(2);
+        }
+        100% {
+            filter: brightness(1);
+        }
+    }
+
     .tag :global(.delete-icon > svg:hover) {
         background-color: $white-translucent;
     }
@@ -79,6 +97,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &:focus,
         &:active {
             outline: none;
+        }
+
+        &.blink {
+            animation: blink 0.2s linear;
         }
     }
 </style>
