@@ -701,11 +701,11 @@ limit ?"""
             now = intTime()
         delays = delays[-left:]
         ok = 0
-        for i in range(len(delays)):
-            now += int(delays[i] * 60)
+        for idx, delay in enumerate(delays):
+            now += int(delay * 60)
             if now > self.dayCutoff:
                 break
-            ok = i
+            ok = idx
         return ok + 1
 
     def _graduatingIvl(

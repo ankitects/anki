@@ -683,7 +683,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
             f"select 1 from cards where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s limit 1"
             % sdids
         )
-        return not not cnt
+        return bool(cnt)
 
     # Next time reports
     ##########################################################################

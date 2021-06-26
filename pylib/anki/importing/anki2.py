@@ -452,8 +452,8 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""",
             self._writeDstMedia(lname, srcData)
             return match.group(0).replace(fname, lname)
 
-        for i in range(len(fields)):
-            fields[i] = self.dst.media.transformNames(fields[i], repl)
+        for idx, field in enumerate(fields):
+            fields[idx] = self.dst.media.transformNames(field, repl)
         return joinFields(fields)
 
     # Post-import cleanup
