@@ -49,3 +49,29 @@ textarea.form-control {
     color: var(--text-fg);
     background-color: var(--frame-bg) !important;
 }
+
+h1 {
+    font-size: clamp(1rem, calc(1.375rem + 1.5vw), 2rem);
+}
+
+.grid {
+    display: grid;
+    position: relative;
+}
+
+@media (min-width: 992px) {
+    .grid {
+        grid-auto-flow: column;
+        column-gap: 4em;
+        grid-template-rows: repeat(var(--rows), auto);
+        grid-template-columns: repeat(2, minmax(24em, 1fr));
+    }
+
+    .grid:after {
+        position: absolute;
+        content: "";
+        height: 100%;
+        left: 50%;
+        border-left: 1px solid var(--medium-border);
+    }
+}
