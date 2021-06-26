@@ -50,22 +50,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         activeAfterBlur = null;
     }
 
-    async function addEmptyTag(): Promise<void> {
-        const lastTag = tags[tags.length - 1];
-
-        if (lastTag.name.length === 0) {
-            return;
-        }
-
-        const index = tags.push(attachId("")) - 1;
-        tags = tags;
-        active = index;
-    }
-
     function insertEmptyTagAt(index: number): void {
+        /* used by tag badge and tag spacer */
         tags.splice(index, 0, attachId(""));
         tags = tags;
-        setActiveAfterBlur(index);
+        active = index;
     }
 
     function appendEmptyTagAt(index: number): void {
@@ -87,7 +76,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return true;
     }
 
-    function enterTag(tag: TagType, index: number): void {
+    function enterTag(_tag: TagType, index: number): void {
         appendEmptyTagAt(index);
     }
 
@@ -158,7 +147,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function moveToNextTag(tag: TagType, index: number): Promise<void> {
         if (isLast(index)) {
-            addEmptyTag();
+            if (tag.name.length !== 0) {
+                appendEmptyTagAt(index);
+            }
             return;
         }
         console.log("movenext", index);
@@ -166,8 +157,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         active = null;
         activeAfterBlur = index + 1;
 
-        /* await tick(); */
-        /* input.setSelectionRange(0, 0); */
+        await tick();
+        input.setSelectionRange(0, 0);
     }
 
     async function activate(index: number): Promise<void> {
@@ -185,7 +176,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <StickyBottom>
     <div class="row-gap">
         <ButtonToolbar class="dropup d-flex flex-wrap align-items-center" {size}>
-            <AddTagBadge on:click={addEmptyTag} />
+            <AddTagBadge on:click={() => insertEmptyTagAt(tags.length)} />
 
             <TagAutocomplete
                 class="d-flex flex-column-reverse"
@@ -228,7 +219,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
                 <div
                     class="tag-spacer flex-grow-1 align-self-stretch"
-                    on:click={addEmptyTag}
+                    on:click={() => insertEmptyTagAt(tags.length)}
                 />
             </TagAutocomplete>
 
