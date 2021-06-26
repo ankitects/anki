@@ -16,9 +16,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let initialNames = ["en::foobar", "test", "def"];
     export let suggestions = ["en::idioms", "anki::functionality", "math"];
 
+    export let active: number | null = null;
+    export let input: HTMLInputElement;
+
     export let size = isApplePlatform() ? 1.6 : 2.0;
 
-    let tags = initialNames.map((name) => attachId(name));
+    let tags = initialNames.map(attachId);
 
     function isFirst(index: number): boolean {
         return index === 0;
@@ -30,32 +33,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function addEmptyTag(): Promise<void> {
         const lastTag = tags[tags.length - 1];
+
         if (lastTag.name.length === 0) {
-            lastTag.active = true;
             return;
         }
 
-        const idx = tags.push(attachId("", true));
+        const index = tags.push(attachId("")) - 1;
         tags = tags;
-
-        await tick();
-        tags[idx - 1].input?.focus();
+        activate(index);
     }
 
     async function insertEmptyTagAt(index: number): Promise<void> {
-        tags.splice(index, 0, attachId("", true));
+        tags.splice(index, 0, attachId(""));
         tags = tags;
-
-        await tick();
-        tags[index].input?.focus();
+        active = index;
     }
 
     async function appendEmptyTagAt(index: number): Promise<void> {
-        tags.splice(index + 1, 0, attachId("", true));
+        tags.splice(index + 1, 0, attachId(""));
         tags = tags;
-
-        await tick();
-        tags[index].input?.focus();
+        activate(index + 1);
     }
 
     function checkIfContainsNameAt(index: number): boolean {
@@ -72,11 +69,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function addTagAt(index: number): void {
+        console.log("eyo");
         if (checkIfContainsNameAt(index)) {
             deleteTagAt(index);
             insertEmptyTagAt(index);
         } else {
-            deactivate(index);
             appendEmptyTagAt(index);
         }
     }
@@ -121,9 +118,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
 
-        const previousTag = tags[index - 1];
-        previousTag.active = true;
-        tags = tags;
+        active = index - 1;
     }
 
     async function moveToNextTag(index: number): Promise<void> {
@@ -132,21 +127,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
 
-        const nextTag = tags[index + 1];
-        nextTag.active = true;
-        tags = tags;
+        active = index + 1;
 
         await tick();
-        nextTag.input?.setSelectionRange(0, 0);
+        input.setSelectionRange(0, 0);
     }
 
     function deactivate(index: number): void {
-        tags[index].active = false;
+        active = null;
     }
 
-    function checkForActivation(index: number): void {
+    async function activate(index: number): Promise<void> {
+        active = index;
+    }
+
+    async function checkForActivation(index: number): Promise<void> {
         const selection = window.getSelection()!;
-        tags[index].active = selection.isCollapsed;
+        if (selection.isCollapsed) {
+            await activate(index);
+        }
     }
 </script>
 
@@ -162,10 +161,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 let:destroyAutocomplete
             >
                 {#each tags as tag, index (tag.id)}
-                    {#if tag.active}
+                    {#if index === active}
                         <TagInput
                             bind:name={tag.name}
-                            bind:input={tag.input}
+                            bind:input
                             on:blur={() => deactivate(index)}
                             on:tagupdate={() => addTagAt(index)}
                             on:tagadd={() => insertTagAt(index)}
@@ -177,7 +176,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         />
                     {:else}
                         <Tag
-                            bind:name={tag.name}
+                            name={tag.name}
                             bind:blink={tag.blink}
                             on:click={() => checkForActivation(index)}
                             on:tagdelete={() => deleteTagAt(index)}
@@ -190,6 +189,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:click={addEmptyTag}
                 />
             </TagAutocomplete>
+
+            <div>{JSON.stringify(tags)}</div>
         </ButtonToolbar>
     </div>
 </StickyBottom>
