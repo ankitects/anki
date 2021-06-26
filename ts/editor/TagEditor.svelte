@@ -156,8 +156,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <TagInput
                     bind:input={newInput}
                     bind:name={newName}
-                    on:keydown={() => {}}
-                    on:blur={() => {}}
+                    on:keydown={updateAutocomplete}
+                    on:blur={destroyAutocomplete}
                     on:tagupdate={appendTag}
                     on:tagadd={appendTag}
                     on:tagjoinprevious={joinWithLastTag}
