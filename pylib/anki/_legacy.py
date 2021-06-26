@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Tuple, Union
+from typing import Any, Callable, Dict, Optional, Tuple, Union
 
 import stringcase
 
@@ -41,3 +41,23 @@ class DeprecatedNamesMixin:
         are valid symbols, and we can't get a variable's name easily.
         """
         cls._deprecated_aliases = {k: _target_to_string(v) for k, v in kwargs.items()}
+
+
+def deprecated(replaced_by: Optional[Callable] = None, info: str = "") -> Callable:
+    """Print a deprecation warning, telling users to use `replaced_by`, or show `doc`."""
+
+    def decorator(func: Callable) -> Callable:
+        def decorated_func(*args: Any, **kwargs: Any) -> Any:
+            if replaced_by:
+                doc = f"please use {replaced_by.__name__} instead."
+            else:
+                doc = info
+            print(
+                f"'{func.__name__}' is deprecated, and will be removed in the future: ",
+                doc,
+            )
+            return func(*args, **kwargs)
+
+        return decorated_func
+
+    return decorator
