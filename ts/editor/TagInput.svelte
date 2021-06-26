@@ -3,9 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { onMount, createEventDispatcher, tick } from "svelte";
+    import { onMount, onDestroy, createEventDispatcher, tick } from "svelte";
     import { normalizeTagname } from "./tags";
 
+    export let id: string | undefined = undefined;
     export let name: string;
     export let input: HTMLInputElement;
 
@@ -37,17 +38,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function onAccept(): void {
         normalize();
         dispatch(name.length > 0 ? "tagupdate" : "tagdelete");
-    }
-
-    let acceptByEnter = true;
-
-    function onBlur(): void {
-        // do not cause double accept if accept causes blur
-        if (!acceptByEnter) {
-            onAccept();
-        }
-
-        acceptByEnter = false;
     }
 
     async function joinWithPreviousTag(event: Event): Promise<void> {
@@ -108,8 +98,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } else if (event.code === "Delete") {
             onDelete(event);
         } else if (event.code === "Enter") {
-            onAccept();
-            acceptByEnter = true;
+            /* onAccept(); */
+            input.blur();
             event.preventDefault();
         }
     }
@@ -146,21 +136,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    onMount(() => {
-        console.log("focus", input);
-        input.focus();
-    });
+    onMount(() => input.focus());
 </script>
 
 <label class="ps-2 pe-1" data-value={name}>
     <input
+        {id}
         bind:this={input}
         bind:value={name}
         type="text"
         tabindex="-1"
         size="1"
         on:focus
-        on:blur={onBlur}
+        on:blur={onAccept}
         on:blur
         on:keydown={onKeydown}
         on:keydown

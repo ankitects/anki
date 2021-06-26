@@ -16,11 +16,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let initialNames = ["en::foobar", "test", "def"];
     export let suggestions = ["en::idioms", "anki::functionality", "math"];
 
-    export let active: number | null = null;
-    export let input: HTMLInputElement;
-
     export let size = isApplePlatform() ? 1.6 : 2.0;
 
+    let active: number | null = null;
+    let activeAfterBlur: number | null = null;
+
+    let input: HTMLInputElement;
     let tags = initialNames.map(attachId);
 
     function isFirst(index: number): boolean {
@@ -29,6 +30,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function isLast(index: number): boolean {
         return index === tags.length - 1;
+    }
+
+    function decideNextActive() {
+        if (typeof active === "number") {
+            active = activeAfterBlur;
+        }
+
+        if (typeof activeAfterBlur === "number") {
+            active = activeAfterBlur;
+            activeAfterBlur = null;
+        }
     }
 
     async function addEmptyTag(): Promise<void> {
@@ -40,19 +52,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const index = tags.push(attachId("")) - 1;
         tags = tags;
-        activate(index);
-    }
-
-    async function insertEmptyTagAt(index: number): Promise<void> {
-        tags.splice(index, 0, attachId(""));
-        tags = tags;
         active = index;
     }
 
-    async function appendEmptyTagAt(index: number): Promise<void> {
+    function insertEmptyTagAt(index: number): void {
+        tags.splice(index, 0, attachId(""));
+        tags = tags;
+        activeAfterBlur = index + 1;
+    }
+
+    function appendEmptyTagAt(index: number): void {
         tags.splice(index + 1, 0, attachId(""));
         tags = tags;
-        activate(index + 1);
+        activeAfterBlur = index + 1;
     }
 
     function checkIfContainsNameAt(index: number): boolean {
@@ -69,7 +81,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function addTagAt(index: number): void {
-        console.log("eyo");
         if (checkIfContainsNameAt(index)) {
             deleteTagAt(index);
             insertEmptyTagAt(index);
@@ -88,7 +99,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function deleteTagAt(index: number): void {
-        deactivate(index);
         tags.splice(index, 1);
         tags = tags;
     }
@@ -163,9 +173,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {#each tags as tag, index (tag.id)}
                     {#if index === active}
                         <TagInput
+                            id={tag.id}
                             bind:name={tag.name}
                             bind:input
-                            on:blur={() => deactivate(index)}
+                            on:blur={decideNextActive}
                             on:tagupdate={() => addTagAt(index)}
                             on:tagadd={() => insertTagAt(index)}
                             on:tagdelete={() => deleteTagAt(index)}
