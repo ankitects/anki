@@ -26,25 +26,45 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         newInput.focus();
     }
 
-    function checkForDuplicateAt(index: number): void {
-        const names = tags.map(getName);
-        const nameToUpdateTo = names.splice(index, 1)[0];
+    function checkIfContains(newName: string, names: string[]): boolean {
+        const contained = names.indexOf(newName);
+        if (contained >= 0) {
+            tags[contained].blink = true;
+            return true;
+        }
 
-        if (names.includes(nameToUpdateTo)) {
+        return false;
+    }
+
+    function checkIfContainsName(newName: string): boolean {
+        const names = tags.map(getName);
+        return checkIfContains(newName, names);
+    }
+
+    function checkIfContainsNameAt(index: number): boolean {
+        const names = tags.map(getName);
+        const newName = names.splice(index, 1, "")[0];
+        return checkIfContains(newName, names);
+    }
+
+    function checkForDuplicateNameAt(index: number): void {
+        if (checkIfContainsNameAt(index)) {
             deleteTagAt(index);
         }
     }
 
-    function insertTagAt(index: number): void {
+    function insertTagAt(index: number): boolean {
         const names = tags.map(getName);
-        const nameToInsert = names.splice(index, 1)[0];
+        const newName = names.splice(index, 1)[0];
+        let added = false;
 
-        if (names.includes(nameToInsert)) {
-            return;
+        if (!checkIfContainsNameAt(index) && newName.length > 0) {
+            tags.splice(index, 0, attachId(newName));
+            added = true;
         }
 
-        tags.splice(index, 0, attachId(nameToInsert));
         tags = tags;
+        return added;
     }
 
     function deleteTagAt(index: number): void {
@@ -98,10 +118,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function appendTag(): boolean {
-        const names = tags.map(getName);
         let added = false;
 
-        if (!names.includes(newName) && newName.length > 0) {
+        if (!checkIfContainsName(newName)) {
             tags.push(attachId(newName));
             added = true;
         }
@@ -141,9 +160,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <Tag
                         bind:name={tag.name}
                         bind:active={tag.active}
+                        bind:blink={tag.blink}
                         on:keydown={() => {}}
                         on:blur={() => {}}
-                        on:tagupdate={() => checkForDuplicateAt(index)}
+                        on:tagupdate={() => checkForDuplicateNameAt(index)}
                         on:tagadd={() => insertTagAt(index)}
                         on:tagdelete={() => deleteTagAt(index)}
                         on:tagjoinprevious={() => joinWithPreviousTag(index)}
