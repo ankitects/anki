@@ -47,6 +47,7 @@ py_library(
         requirement("flask"),
         requirement("waitress"),
         requirement("markdown"),
+        requirement("stringcase"),
     ] + orjson_if_available(),
 )
 
