@@ -7,7 +7,7 @@ mod learning;
 mod main;
 pub(crate) mod undo;
 
-use std::{collections::VecDeque, time::Instant};
+use std::collections::VecDeque;
 
 pub(crate) use builder::{DueCard, NewCard};
 pub(crate) use entry::{QueueEntry, QueueEntryKind};
@@ -205,9 +205,7 @@ impl Collection {
             self.discard_undo_and_study_queues();
         }
         if self.state.card_queues.is_none() {
-            let now = Instant::now();
             self.state.card_queues = Some(self.build_queues(deck)?);
-            println!("queue build in {:?}", now.elapsed());
         }
 
         Ok(self.state.card_queues.as_mut().unwrap())

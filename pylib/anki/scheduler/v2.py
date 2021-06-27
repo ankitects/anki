@@ -105,7 +105,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             self.col.log(card)
             if not self._burySiblingsOnAnswer:
                 self._burySiblings(card)
-            card.startTimer()
+            card.start_timer()
             return card
         return None
 
@@ -494,7 +494,7 @@ limit ?"""
             card.did,
             new_delta=new_delta,
             review_delta=review_delta,
-            milliseconds_delta=+card.timeTaken(),
+            milliseconds_delta=+card.time_taken(),
         )
 
         # once a card has been answered once, the original due date
@@ -760,7 +760,7 @@ limit ?"""
                 ivl,
                 lastIvl,
                 card.factor,
-                card.timeTaken(),
+                card.time_taken(),
                 type,
             )
 
@@ -891,7 +891,7 @@ limit ?"""
                 -delay or card.ivl,
                 card.lastIvl,
                 card.factor,
-                card.timeTaken(),
+                card.time_taken(),
                 type,
             )
 

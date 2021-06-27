@@ -52,7 +52,7 @@ class CardLayout(QDialog):
         self.ord = ord
         self.col = self.mw.col.weakref()
         self.mm = self.mw.col.models
-        self.model = note.model()
+        self.model = note.note_type()
         self.templates = self.model["tmpls"]
         self.fill_empty_action_toggled = fill_empty
         self.night_mode_is_enabled = self.mw.pm.night_mode()
@@ -493,11 +493,11 @@ class CardLayout(QDialog):
         )
 
         if self.pform.preview_front.isChecked():
-            q = ti(self.mw.prepare_card_text_for_display(c.q()))
+            q = ti(self.mw.prepare_card_text_for_display(c.question()))
             q = gui_hooks.card_will_show(q, c, "clayoutQuestion")
             text = q
         else:
-            a = ti(self.mw.prepare_card_text_for_display(c.a()), type="a")
+            a = ti(self.mw.prepare_card_text_for_display(c.answer()), type="a")
             a = gui_hooks.card_will_show(a, c, "clayoutAnswer")
             text = a
 

@@ -128,14 +128,14 @@ class AddCards(QDialog):
         if old:
             old_fields = list(old.keys())
             new_fields = list(new.keys())
-            for n, f in enumerate(new.model()["flds"]):
+            for n, f in enumerate(new.note_type()["flds"]):
                 field_name = f["name"]
                 # copy identical fields
                 if field_name in old_fields:
                     new[field_name] = old[field_name]
-                elif n < len(old.model()["flds"]):
+                elif n < len(old.note_type()["flds"]):
                     # set non-identical fields by field index
-                    old_field_name = old.model()["flds"][n]["name"]
+                    old_field_name = old.note_type()["flds"][n]["name"]
                     if old_field_name not in new_fields:
                         new.fields[n] = old.fields[n]
             new.tags = old.tags
@@ -147,7 +147,7 @@ class AddCards(QDialog):
     def _load_new_note(self, sticky_fields_from: Optional[Note] = None) -> None:
         note = self._new_note()
         if old_note := sticky_fields_from:
-            flds = note.model()["flds"]
+            flds = note.note_type()["flds"]
             # copy fields from old note
             if old_note:
                 for n in range(min(len(note.fields), len(old_note.fields))):

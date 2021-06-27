@@ -36,7 +36,7 @@ def setup1():
     note = col.newNote()
     note["Front"] = "baz"
     note["Back"] = "qux"
-    note.model()["did"] = col.decks.id("new col")
+    note.note_type()["did"] = col.decks.id("new col")
     col.addNote(note)
 
 

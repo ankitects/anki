@@ -35,11 +35,3 @@ def test_flags():
     col.set_user_flag_for_cards(0, [c.id])
     c.load()
     assert c.user_flag() == 0
-
-    # should work with Cards method as well
-    c.set_user_flag(2)
-    assert c.user_flag() == 2
-    c.set_user_flag(3)
-    assert c.user_flag() == 3
-    c.set_user_flag(0)
-    assert c.user_flag() == 0

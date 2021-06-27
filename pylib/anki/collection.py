@@ -429,7 +429,7 @@ class Collection:
         return Note(self, self.models.current(forDeck))
 
     def addNote(self, note: Note) -> int:
-        self.add_note(note, note.model()["did"])
+        self.add_note(note, note.note_type()["did"])
         return len(note.cards())
 
     def remNotes(self, ids: Sequence[NoteId]) -> None:

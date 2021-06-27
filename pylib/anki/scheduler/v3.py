@@ -78,7 +78,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             new_state=new_state,
             rating=rating,
             answered_at_millis=intTime(1000),
-            milliseconds_taken=card.timeTaken(),
+            milliseconds_taken=card.time_taken(),
         )
 
     def answer_card(self, input: CardAnswer) -> OpChanges:
@@ -106,7 +106,7 @@ class Scheduler(SchedulerBaseWithLegacy):
 
         card = Card(self.col)
         card._load_from_backend_card(queued_card.card)
-        card.startTimer()
+        card.start_timer()
         return card
 
     def _is_finished(self) -> bool:
