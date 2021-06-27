@@ -64,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const contained = names.indexOf(newName);
         if (contained >= 0) {
-            tags[contained].blink = true;
+            tags[contained].blink();
             return false;
         }
 
@@ -101,7 +101,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const deleted = tags.splice(index, 1)[0];
         tags = tags;
 
-        console.log('dt', activeAfterBlur, index)
+        console.log("dt", activeAfterBlur, index);
         if (active !== null && active > index) {
             active--;
         }

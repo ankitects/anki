@@ -18,14 +18,16 @@ export function normalizeTagname(tagname: string): string {
 export interface Tag {
     id: string;
     name: string;
-    blink: boolean;
+    blink: () => void;
 }
+
+const noop = () => {};
 
 export function attachId(name: string): Tag {
     return {
         id: Math.random().toString(36).substring(2),
         name,
-        blink: false,
+        blink: noop,
     };
 }
 
