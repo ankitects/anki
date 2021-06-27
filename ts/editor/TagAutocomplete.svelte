@@ -9,13 +9,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DropdownMenu from "components/DropdownMenu.svelte";
     import DropdownItem from "components/DropdownItem.svelte";
 
-    export let suggestions: string[];
-
     let className: string = "";
     export { className as class };
 
+    export let suggestions: string[];
+    export let original: string | undefined;
+
     let autocomplete: Dropdown | undefined;
-    let original: string | undefined;
 
     let displayed: string[] = [];
     let selected: number | null = null;

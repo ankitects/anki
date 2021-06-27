@@ -208,6 +208,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <TagAutocomplete
                 class="d-flex flex-column-reverse"
                 {suggestions}
+                original={tags[active ?? -1]?.name}
                 let:updateAutocomplete
                 let:destroyAutocomplete
             >
