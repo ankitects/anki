@@ -78,7 +78,7 @@ def test_new():
     # qs = ("2", "3", "2", "3")
     # for n in range(4):
     #     c = col.sched.getCard()
-    #     assert qs[n] in c.q()
+    #     assert qs[n] in c.question()
     #     col.sched.answerCard(c, 2)
 
 
@@ -90,7 +90,7 @@ def test_newLimits():
         note = col.newNote()
         note["Front"] = str(i)
         if i > 4:
-            note.model()["did"] = deck2
+            note.note_type()["did"] = deck2
         col.addNote(note)
     # give the child deck a different configuration
     c2 = col.decks.add_config_returning_id("new conf")
@@ -224,17 +224,17 @@ def test_learn_collapsed():
     col.reset()
     # should get '1' first
     c = col.sched.getCard()
-    assert c.q().endswith("1")
+    assert c.question().endswith("1")
     # pass it so it's due in 10 minutes
     col.sched.answerCard(c, 2)
     # get the other card
     c = col.sched.getCard()
-    assert c.q().endswith("2")
+    assert c.question().endswith("2")
     # fail it so it's due in 1 minute
     col.sched.answerCard(c, 1)
     # we shouldn't get the same card again
     c = col.sched.getCard()
-    assert not c.q().endswith("2")
+    assert not c.question().endswith("2")
 
 
 def test_learn_day():
@@ -316,7 +316,7 @@ def test_reviews():
     c.reps = 3
     c.lapses = 1
     c.ivl = 100
-    c.startTimer()
+    c.start_timer()
     c.flush()
     # save it for later use as well
     cardcopy = copy.copy(c)
@@ -393,7 +393,7 @@ def test_button_spacing():
     c.due = col.sched.today
     c.reps = 1
     c.ivl = 1
-    c.startTimer()
+    c.start_timer()
     c.flush()
     col.reset()
     ni = col.sched.nextIvlStr
@@ -575,7 +575,7 @@ def test_cram():
     c.due = col.sched.today + 25
     c.mod = 1
     c.factor = STARTING_FACTOR
-    c.startTimer()
+    c.start_timer()
     c.flush()
     col.reset()
     assert col.sched.counts() == (0, 0, 0)
@@ -638,7 +638,7 @@ def test_cram():
     assert col.sched.nextIvl(c, 2) == 600
     assert col.sched.nextIvl(c, 3) == 86400
     # delete the deck, returning the card mid-study
-    col.decks.rem(col.decks.selected())
+    col.decks.remove([col.decks.selected()])
     assert len(col.sched.deck_due_tree().children) == 1
     c.load()
     assert c.ivl == 1
@@ -964,7 +964,7 @@ def test_deckDue():
     # and one that's a child
     note = col.newNote()
     note["Front"] = "two"
-    default1 = note.model()["did"] = col.decks.id("Default::1")
+    default1 = note.note_type()["did"] = col.decks.id("Default::1")
     col.addNote(note)
     # make it a review card
     c = note.cards()[0]
@@ -974,12 +974,12 @@ def test_deckDue():
     # add one more with a new deck
     note = col.newNote()
     note["Front"] = "two"
-    note.model()["did"] = col.decks.id("foo::bar")
+    note.note_type()["did"] = col.decks.id("foo::bar")
     col.addNote(note)
     # and one that's a sibling
     note = col.newNote()
     note["Front"] = "three"
-    note.model()["did"] = col.decks.id("foo::baz")
+    note.note_type()["did"] = col.decks.id("foo::baz")
     col.addNote(note)
     col.reset()
     assert len(col.decks.all_names_and_ids()) == 5
@@ -1010,12 +1010,12 @@ def test_deckFlow():
     # and one that's a child
     note = col.newNote()
     note["Front"] = "two"
-    note.model()["did"] = col.decks.id("Default::2")
+    note.note_type()["did"] = col.decks.id("Default::2")
     col.addNote(note)
     # and another that's higher up
     note = col.newNote()
     note["Front"] = "three"
-    default1 = note.model()["did"] = col.decks.id("Default::1")
+    default1 = note.note_type()["did"] = col.decks.id("Default::1")
     col.addNote(note)
     # should get top level one first, then ::1, then ::2
     col.reset()
@@ -1040,7 +1040,7 @@ def test_norelearn():
     c.reps = 3
     c.lapses = 1
     c.ivl = 100
-    c.startTimer()
+    c.start_timer()
     c.flush()
     col.reset()
     col.sched.answerCard(c, 1)
@@ -1062,7 +1062,7 @@ def test_failmult():
     c.factor = STARTING_FACTOR
     c.reps = 3
     c.lapses = 1
-    c.startTimer()
+    c.start_timer()
     c.flush()
     conf = col.sched._cardConf(c)
     conf["lapse"]["mult"] = 0.5

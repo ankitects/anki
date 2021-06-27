@@ -3,7 +3,11 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Optional, Tuple, Union
+import functools
+import os
+import pathlib
+import traceback
+from typing import Any, Callable, Dict, Optional, Tuple, Union, no_type_check
 
 import stringcase
 
@@ -18,20 +22,37 @@ def _target_to_string(target: DeprecatedAliasTarget) -> str:
         return target[1]  # type: ignore
 
 
+def partial_path(full_path: str, components: int) -> str:
+    path = pathlib.Path(full_path)
+    return os.path.join(*path.parts[-components:])
+
+
+def _print_deprecation_warning(old: str, doc: str) -> None:
+    path, linenum, fn, y = traceback.extract_stack(limit=5)[2]
+    path = partial_path(path, components=3)
+    print(f"{path}:{linenum}:{old} is deprecated: {doc}")
+
+
 class DeprecatedNamesMixin:
     "Expose instance methods/vars as camelCase for legacy callers."
 
+    # the @no_type_check lines are required to prevent mypy allowing arbitrary
+    # attributes on the consuming class
+
     _deprecated_aliases: Dict[str, str] = {}
 
+    @no_type_check
     def __getattr__(self, name: str) -> Any:
         remapped = self._deprecated_aliases.get(name) or stringcase.snakecase(name)
         if remapped == name:
             raise AttributeError
 
         out = getattr(self, remapped)
-        print(f"please use {remapped} instead of {name} on {self}")
+        _print_deprecation_warning(f"'{name}'", f"please use '{remapped}'")
+
         return out
 
+    @no_type_check
     @classmethod
     def register_deprecated_aliases(cls, **kwargs: DeprecatedAliasTarget) -> None:
         """Manually add aliases that are not a simple transform.
@@ -47,15 +68,15 @@ def deprecated(replaced_by: Optional[Callable] = None, info: str = "") -> Callab
     """Print a deprecation warning, telling users to use `replaced_by`, or show `doc`."""
 
     def decorator(func: Callable) -> Callable:
+        @functools.wraps(func)
         def decorated_func(*args: Any, **kwargs: Any) -> Any:
             if replaced_by:
                 doc = f"please use {replaced_by.__name__} instead."
             else:
                 doc = info
-            print(
-                f"'{func.__name__}' is deprecated, and will be removed in the future: ",
-                doc,
-            )
+
+            _print_deprecation_warning(f"{func.__name__}()", doc)
+
             return func(*args, **kwargs)
 
         return decorated_func

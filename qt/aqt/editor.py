@@ -325,7 +325,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
     def _onFields(self) -> None:
         from aqt.fields import FieldDialog
 
-        FieldDialog(self.mw, self.note.model(), parent=self.parentWindow)
+        FieldDialog(self.mw, self.note.note_type(), parent=self.parentWindow)
 
     def onCardLayout(self) -> None:
         self.call_after_note_saved(self._onCardLayout)
@@ -394,7 +394,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             (type, num) = cmd.split(":", 1)
             ord = int(num)
 
-            model = self.note.model()
+            model = self.note.note_type()
             fld = model["flds"][ord]
             new_state = not fld["sticky"]
             fld["sticky"] = new_state
@@ -463,7 +463,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         )
 
         if self.addMode:
-            sticky = [field["sticky"] for field in self.note.model()["flds"]]
+            sticky = [field["sticky"] for field in self.note.note_type()["flds"]]
             js += " setSticky(%s);" % json.dumps(sticky)
 
         js = gui_hooks.editor_will_load_note(js, self.note, self)
@@ -478,7 +478,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
     def fonts(self) -> List[Tuple[str, int, bool]]:
         return [
             (gui_hooks.editor_will_use_font_for_field(f["font"]), f["size"], f["rtl"])
-            for f in self.note.model()["flds"]
+            for f in self.note.note_type()["flds"]
         ]
 
     def call_after_note_saved(
@@ -532,7 +532,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             search=(
                 SearchNode(
                     dupe=SearchNode.Dupe(
-                        notetype_id=self.note.model()["id"],
+                        notetype_id=self.note.note_type()["id"],
                         first_field=self.note.fields[0],
                     )
                 ),
@@ -542,7 +542,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
     def fieldsAreBlank(self, previousNote: Optional[Note] = None) -> bool:
         if not self.note:
             return True
-        m = self.note.model()
+        m = self.note.note_type()
         for c, f in enumerate(self.note.fields):
             f = f.replace("<br>", "").strip()
             notChangedvalues = {"", "<br>"}
@@ -681,7 +681,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
 
     def _onCloze(self) -> None:
         # check that the model is set up for cloze deletion
-        if self.note.model()["type"] != MODEL_CLOZE:
+        if self.note.note_type()["type"] != MODEL_CLOZE:
             if self.addMode:
                 tooltip(tr.editing_warning_cloze_deletions_will_not_work())
             else:
@@ -1280,7 +1280,7 @@ gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
 
 
 def set_cloze_button(editor: Editor) -> None:
-    if editor.note.model()["type"] == MODEL_CLOZE:
+    if editor.note.note_type()["type"] == MODEL_CLOZE:
         editor.web.eval(
             '$editorToolbar.then(({ templateButtons }) => templateButtons.showButton("cloze")); '
         )

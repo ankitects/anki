@@ -53,12 +53,12 @@ def test_remove():
     deck1 = col.decks.id("deck1")
     note = col.newNote()
     note["Front"] = "1"
-    note.model()["did"] = deck1
+    note.note_type()["did"] = deck1
     col.addNote(note)
     c = note.cards()[0]
     assert c.did == deck1
     assert col.cardCount() == 1
-    col.decks.rem(deck1)
+    col.decks.remove([deck1])
     assert col.cardCount() == 0
     # if we try to get it, we get the default
     assert col.decks.name(c.did) == "[no deck]"
@@ -142,7 +142,7 @@ def test_renameForDragAndDrop():
     new_hsk_did = col.decks.id("hsk")
     col.decks.renameForDragAndDrop(new_hsk_did, chinese_did)
     assert deckNames() == ["Chinese", "Chinese::HSK", "Chinese::hsk+", "Languages"]
-    col.decks.rem(new_hsk_did)
+    col.decks.remove([new_hsk_did])
 
     # '' is a convenient alias for the top level DID
     col.decks.renameForDragAndDrop(hsk_did, "")

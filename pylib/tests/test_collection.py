@@ -72,7 +72,7 @@ def test_noteAddDelete():
     assert col.cardCount() == 4
     # check q/a generation
     c0 = note.cards()[0]
-    assert "three" in c0.q()
+    assert "three" in c0.question()
     # it should not be a duplicate
     assert not note.fields_check()
     # now let's make a duplicate
@@ -138,15 +138,15 @@ def test_furigana():
     n["Front"] = "foo[abc]"
     col.addNote(n)
     c = n.cards()[0]
-    assert c.q().endswith("abc")
+    assert c.question().endswith("abc")
     # and should avoid sound
     n["Front"] = "foo[sound:abc.mp3]"
     n.flush()
-    assert "anki:play" in c.q(reload=True)
+    assert "anki:play" in c.question(reload=True)
     # it shouldn't throw an error while people are editing
     m["tmpls"][0]["qfmt"] = "{{kana:}}"
     mm.save(m)
-    c.q(reload=True)
+    c.question(reload=True)
 
 
 def test_translate():

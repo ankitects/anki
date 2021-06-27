@@ -38,7 +38,7 @@ def test_anki2_mediadupes():
     # add a note that references a sound
     n = col.newNote()
     n["Front"] = "[sound:foo.mp3]"
-    mid = n.model()["id"]
+    mid = n.note_type()["id"]
     col.addNote(n)
     # add that sound to media folder
     with open(os.path.join(col.media.dir(), "foo.mp3"), "w") as note:

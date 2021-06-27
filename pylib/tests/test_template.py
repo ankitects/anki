@@ -15,4 +15,4 @@ def test_deferred_frontside():
     note["Back"] = ""
     col.addNote(note)
 
-    assert "xxtest" in note.cards()[0].a()
+    assert "xxtest" in note.cards()[0].answer()

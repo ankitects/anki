@@ -85,7 +85,7 @@ class Scheduler(V2):
             card.did,
             new_delta=new_delta,
             review_delta=review_delta,
-            milliseconds_delta=+card.timeTaken(),
+            milliseconds_delta=+card.time_taken(),
         )
 
         card.mod = intTime()
@@ -363,7 +363,7 @@ limit %d"""
                 ivl,
                 lastIvl,
                 card.factor,
-                card.timeTaken(),
+                card.time_taken(),
                 type,
             )
 

@@ -61,7 +61,7 @@ class Note(DeprecatedNamesMixin):
         self.usn = note.usn
         self.tags = list(note.tags)
         self.fields = list(note.fields)
-        self._fmap = self.col.models.fieldMap(self.model())
+        self._fmap = self.col.models.fieldMap(self.note_type())
 
     def _to_backend_note(self) -> _pb.Note:
         hooks.note_will_flush(self)
@@ -98,7 +98,7 @@ class Note(DeprecatedNamesMixin):
         card.ord = ord
         card.did = anki.decks.DEFAULT_DECK_ID
 
-        model = custom_note_type or self.model()
+        model = custom_note_type or self.note_type()
         template = copy.copy(
             custom_template
             or (
@@ -125,10 +125,10 @@ class Note(DeprecatedNamesMixin):
     def card_ids(self) -> Sequence[anki.cards.CardId]:
         return self.col.card_ids_of_note(self.id)
 
-    def model(self) -> Optional[NotetypeDict]:
+    def note_type(self) -> Optional[NotetypeDict]:
         return self.col.models.get(self.mid)
 
-    _model = property(model)
+    _note_type = property(note_type)
 
     def cloze_numbers_in_fields(self) -> Sequence[int]:
         return self.col._backend.cloze_numbers_in_note(self._to_backend_note())
@@ -193,4 +193,6 @@ class Note(DeprecatedNamesMixin):
     dupeOrEmpty = duplicate_or_empty = fields_check
 
 
-Note.register_deprecated_aliases(delTag=Note.remove_tag, _fieldOrd=Note._field_index)
+Note.register_deprecated_aliases(
+    delTag=Note.remove_tag, _fieldOrd=Note._field_index, model=Note.note_type
+)

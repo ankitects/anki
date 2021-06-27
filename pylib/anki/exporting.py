@@ -118,8 +118,8 @@ class TextCardExporter(Exporter):
         out = ""
         for cid in ids:
             c = self.col.getCard(cid)
-            out += esc(c.q())
-            out += "\t" + esc(c.a()) + "\n"
+            out += esc(c.question())
+            out += "\t" + esc(c.answer()) + "\n"
         file.write(out.encode("utf-8"))
 
 

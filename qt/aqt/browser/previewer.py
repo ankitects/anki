@@ -187,11 +187,11 @@ class Previewer(QDialog):
                 return
 
             # need to force reload even if answer
-            txt = c.q(reload=True)
+            txt = c.question(reload=True)
 
             if self._state == "answer":
                 func = "_showAnswer"
-                txt = c.a()
+                txt = c.answer()
             txt = re.sub(r"\[\[type:[^]]+\]\]", "", txt)
 
             bodyclass = theme_manager.body_classes_for_card_ord(c.ord)

@@ -112,7 +112,7 @@ def test_templates():
     # and should have updated the other cards' ordinals
     c = note.cards()[0]
     assert c.ord == 0
-    assert stripHTML(c.q()) == "1"
+    assert stripHTML(c.question()) == "1"
     # it shouldn't be possible to orphan notes by removing templates
     t = mm.newTemplate("template name")
     t["qfmt"] = "{{Front}}2"
@@ -158,14 +158,14 @@ def test_text():
     note = col.newNote()
     note["Front"] = "hello<b>world"
     col.addNote(note)
-    assert "helloworld" in note.cards()[0].q()
+    assert "helloworld" in note.cards()[0].question()
 
 
 def test_cloze():
     col = getEmptyCol()
     col.models.setCurrent(col.models.byName("Cloze"))
     note = col.newNote()
-    assert note.model()["name"] == "Cloze"
+    assert note.note_type()["name"] == "Cloze"
     # a cloze model with no clozes is not empty
     note["Text"] = "nothing"
     assert col.addNote(note)
@@ -173,30 +173,30 @@ def test_cloze():
     note = col.newNote()
     note["Text"] = "hello {{c1::world}}"
     assert col.addNote(note) == 1
-    assert "hello <span class=cloze>[...]</span>" in note.cards()[0].q()
-    assert "hello <span class=cloze>world</span>" in note.cards()[0].a()
+    assert "hello <span class=cloze>[...]</span>" in note.cards()[0].question()
+    assert "hello <span class=cloze>world</span>" in note.cards()[0].answer()
     # and with a comment
     note = col.newNote()
     note["Text"] = "hello {{c1::world::typical}}"
     assert col.addNote(note) == 1
-    assert "<span class=cloze>[typical]</span>" in note.cards()[0].q()
-    assert "<span class=cloze>world</span>" in note.cards()[0].a()
+    assert "<span class=cloze>[typical]</span>" in note.cards()[0].question()
+    assert "<span class=cloze>world</span>" in note.cards()[0].answer()
     # and with 2 clozes
     note = col.newNote()
     note["Text"] = "hello {{c1::world}} {{c2::bar}}"
     assert col.addNote(note) == 2
     (c1, c2) = note.cards()
-    assert "<span class=cloze>[...]</span> bar" in c1.q()
-    assert "<span class=cloze>world</span> bar" in c1.a()
-    assert "world <span class=cloze>[...]</span>" in c2.q()
-    assert "world <span class=cloze>bar</span>" in c2.a()
+    assert "<span class=cloze>[...]</span> bar" in c1.question()
+    assert "<span class=cloze>world</span> bar" in c1.answer()
+    assert "world <span class=cloze>[...]</span>" in c2.question()
+    assert "world <span class=cloze>bar</span>" in c2.answer()
     # if there are multiple answers for a single cloze, they are given in a
     # list
     note = col.newNote()
     note["Text"] = "a {{c1::b}} {{c1::c}}"
     assert col.addNote(note) == 1
     assert "<span class=cloze>b</span> <span class=cloze>c</span>" in (
-        note.cards()[0].a()
+        note.cards()[0].answer()
     )
     # if we add another cloze, a card should be generated
     cnt = col.cardCount()
@@ -218,11 +218,11 @@ def test_cloze_mathjax():
     ] = r"{{c1::ok}} \(2^2\) {{c2::not ok}} \(2^{{c3::2}}\) \(x^3\) {{c4::blah}} {{c5::text with \(x^2\) jax}}"
     assert col.addNote(note)
     assert len(note.cards()) == 5
-    assert "class=cloze" in note.cards()[0].q()
-    assert "class=cloze" in note.cards()[1].q()
-    assert "class=cloze" not in note.cards()[2].q()
-    assert "class=cloze" in note.cards()[3].q()
-    assert "class=cloze" in note.cards()[4].q()
+    assert "class=cloze" in note.cards()[0].question()
+    assert "class=cloze" in note.cards()[1].question()
+    assert "class=cloze" not in note.cards()[2].question()
+    assert "class=cloze" in note.cards()[3].question()
+    assert "class=cloze" in note.cards()[4].question()
 
     note = col.newNote()
     note["Text"] = r"\(a\) {{c1::b}} \[ {{c1::c}} \]"
@@ -230,7 +230,7 @@ def test_cloze_mathjax():
     assert len(note.cards()) == 1
     assert (
         note.cards()[0]
-        .q()
+        .question()
         .endswith(r"\(a\) <span class=cloze>[...]</span> \[ [...] \]")
     )
 
@@ -244,7 +244,7 @@ def test_typecloze():
     note = col.newNote()
     note["Text"] = "hello {{c1::world}}"
     col.addNote(note)
-    assert "[[type:cloze:Text]]" in note.cards()[0].q()
+    assert "[[type:cloze:Text]]" in note.cards()[0].question()
 
 
 def test_chained_mods():
@@ -275,11 +275,11 @@ def test_chained_mods():
     assert col.addNote(note) == 1
     assert (
         "This <span class=cloze>[sentence]</span> demonstrates <span class=cloze>[chained]</span> clozes."
-        in note.cards()[0].q()
+        in note.cards()[0].question()
     )
     assert (
         "This <span class=cloze>phrase</span> demonstrates <span class=cloze>en chaine</span> clozes."
-        in note.cards()[0].a()
+        in note.cards()[0].answer()
     )
 
 
@@ -309,16 +309,16 @@ def test_modelChange():
     # switch cards
     c0 = note.cards()[0]
     c1 = note.cards()[1]
-    assert "b123" in c0.q()
-    assert "note" in c1.q()
+    assert "b123" in c0.question()
+    assert "note" in c1.question()
     assert c0.ord == 0
     assert c1.ord == 1
     col.models.change(basic, [note.id], basic, noop, map)
     note.load()
     c0.load()
     c1.load()
-    assert "note" in c0.q()
-    assert "b123" in c1.q()
+    assert "note" in c0.question()
+    assert "b123" in c1.question()
     assert c0.ord == 1
     assert c1.ord == 0
     # .cards() returns cards in order
