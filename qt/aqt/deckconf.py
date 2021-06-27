@@ -79,7 +79,7 @@ class DeckConf(QDialog):
 
     def loadConfs(self) -> None:
         current = self.deck["conf"]
-        self.confList = self.mw.col.decks.allConf()
+        self.confList = self.mw.col.decks.all_config()
         self.confList.sort(key=itemgetter("name"))
         startOn = 0
         self.ignoreConfChange = True
@@ -117,7 +117,7 @@ class DeckConf(QDialog):
         self.deck["conf"] = conf["id"]
         self.mw.col.decks.save(self.deck)
         self.loadConf()
-        cnt = len(self.mw.col.decks.didsForConf(conf))
+        cnt = len(self.mw.col.decks.decks_using_config(conf))
         if cnt > 1:
             txt = tr.scheduling_your_changes_will_affect_multiple_decks()
         else:
@@ -190,7 +190,7 @@ class DeckConf(QDialog):
             return ""
         lim = -1
         for d in self.mw.col.decks.parents(self.deck["id"]):
-            c = self.mw.col.decks.confForDid(d["id"])
+            c = self.mw.col.decks.config_dict_for_deck_id(d["id"])
             x = c[type]["perDay"]
             if lim == -1:
                 lim = x
@@ -199,7 +199,7 @@ class DeckConf(QDialog):
         return tr.scheduling_parent_limit(val=lim)
 
     def loadConf(self) -> None:
-        self.conf = self.mw.col.decks.confForDid(self.deck["id"])
+        self.conf = self.mw.col.decks.config_dict_for_deck_id(self.deck["id"])
         # new
         c = self.conf["new"]
         f = self.form
@@ -240,7 +240,7 @@ class DeckConf(QDialog):
 
     def onRestore(self) -> None:
         self.mw.progress.start()
-        self.mw.col.decks.restoreToDefault(self.conf)
+        self.mw.col.decks.restore_to_default(self.conf)
         self.mw.progress.finish()
         self.loadConf()
 

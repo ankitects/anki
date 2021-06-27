@@ -210,7 +210,7 @@ class NoteImporter(Importer):
         # we randomize or order here, to ensure that siblings
         # have the same due#
         did = self.col.decks.selected()
-        conf = self.col.decks.confForDid(did)
+        conf = self.col.decks.config_dict_for_deck_id(did)
         # in order due?
         if conf["new"]["order"] == NEW_CARDS_RANDOM:
             self.col.sched.randomizeCards(did)

@@ -94,7 +94,7 @@ def test_newLimits():
         col.addNote(note)
     # give the child deck a different configuration
     c2 = col.decks.add_config_returning_id("new conf")
-    col.decks.setConf(col.decks.get(deck2), c2)
+    col.decks.set_config_id_for_deck_dict(col.decks.get(deck2), c2)
     col.reset()
     # both confs have defaulted to a limit of 20
     assert col.sched.newCount == 20
@@ -102,13 +102,13 @@ def test_newLimits():
     c = col.sched.getCard()
     assert c.did == 1
     # limit the parent to 10 cards, meaning we get 10 in total
-    conf1 = col.decks.confForDid(1)
+    conf1 = col.decks.config_dict_for_deck_id(1)
     conf1["new"]["perDay"] = 10
     col.decks.save(conf1)
     col.reset()
     assert col.sched.newCount == 10
     # if we limit child to 4, we should get 9
-    conf2 = col.decks.confForDid(deck2)
+    conf2 = col.decks.config_dict_for_deck_id(deck2)
     conf2["new"]["perDay"] = 4
     col.decks.save(conf2)
     col.reset()
@@ -444,7 +444,7 @@ def test_nextIvl():
     note["Back"] = "two"
     col.addNote(note)
     col.reset()
-    conf = col.decks.confForDid(1)
+    conf = col.decks.config_dict_for_deck_id(1)
     conf["new"]["delays"] = [0.5, 3, 10]
     conf["lapse"]["delays"] = [1, 5, 9]
     col.decks.save(conf)

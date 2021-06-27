@@ -97,7 +97,7 @@ class DeckChooser(QHBoxLayout):
             geomKey="selectDeck",
         )
         if ret.name:
-            self.selected_deck_id = self.mw.col.decks.byName(ret.name)["id"]
+            self.selected_deck_id = self.mw.col.decks.by_name(ret.name)["id"]
 
     # legacy
 

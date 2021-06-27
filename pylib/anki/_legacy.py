@@ -27,10 +27,14 @@ def partial_path(full_path: str, components: int) -> str:
     return os.path.join(*path.parts[-components:])
 
 
-def _print_deprecation_warning(old: str, doc: str) -> None:
-    path, linenum, fn, y = traceback.extract_stack(limit=5)[2]
+def print_deprecation_warning(msg: str, frame: int = 2) -> None:
+    path, linenum, fn, y = traceback.extract_stack(limit=5)[frame]
     path = partial_path(path, components=3)
-    print(f"{path}:{linenum}:{old} is deprecated: {doc}")
+    print(f"{path}:{linenum}:{msg}")
+
+
+def _print_warning(old: str, doc: str) -> None:
+    return print_deprecation_warning(f"{old} is deprecated: {doc}", frame=1)
 
 
 class DeprecatedNamesMixin:
@@ -48,7 +52,7 @@ class DeprecatedNamesMixin:
             raise AttributeError
 
         out = getattr(self, remapped)
-        _print_deprecation_warning(f"'{name}'", f"please use '{remapped}'")
+        _print_warning(f"'{name}'", f"please use '{remapped}'")
 
         return out
 
@@ -75,7 +79,7 @@ def deprecated(replaced_by: Optional[Callable] = None, info: str = "") -> Callab
             else:
                 doc = info
 
-            _print_deprecation_warning(f"{func.__name__}()", doc)
+            _print_warning(f"{func.__name__}()", doc)
 
             return func(*args, **kwargs)
 

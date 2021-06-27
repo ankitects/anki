@@ -251,7 +251,7 @@ select count() from
         "Limit for deck without parent limits."
         if g["dyn"]:
             return self.dynReportLimit
-        c = self.col.decks.confForDid(g["id"])
+        c = self.col.decks.config_dict_for_deck_id(g["id"])
         limit = max(0, c["new"]["perDay"] - self.counts_for_deck_today(g["id"]).new)
         return hooks.scheduler_new_limit_for_single_deck(limit, g)
 
@@ -400,7 +400,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         if d["dyn"]:
             return self.dynReportLimit
 
-        c = self.col.decks.confForDid(d["id"])
+        c = self.col.decks.config_dict_for_deck_id(d["id"])
         lim = max(0, c["rev"]["perDay"] - self.counts_for_deck_today(d["id"]).review)
 
         return hooks.scheduler_review_limit_for_single_deck(lim, d)
@@ -503,7 +503,7 @@ limit ?"""
             card.odue = 0
 
     def _cardConf(self, card: Card) -> DeckConfigDict:
-        return self.col.decks.confForDid(card.did)
+        return self.col.decks.config_dict_for_deck_id(card.did)
 
     def _deckLimit(self) -> str:
         return ids2str(self.col.decks.active())
@@ -517,7 +517,7 @@ limit ?"""
         if not card.odid:
             return conf["new"]
         # dynamic deck; override some attributes, use original deck for others
-        oconf = self.col.decks.confForDid(card.odid)
+        oconf = self.col.decks.config_dict_for_deck_id(card.odid)
         return dict(
             # original deck
             ints=oconf["new"]["ints"],
@@ -535,7 +535,7 @@ limit ?"""
         if not card.odid:
             return conf["lapse"]
         # dynamic deck; override some attributes, use original deck for others
-        oconf = self.col.decks.confForDid(card.odid)
+        oconf = self.col.decks.config_dict_for_deck_id(card.odid)
         return dict(
             # original deck
             minInt=oconf["lapse"]["minInt"],
@@ -824,7 +824,7 @@ limit ?"""
         if not card.odid:
             return conf["rev"]
         # dynamic deck
-        return self.col.decks.confForDid(card.odid)["rev"]
+        return self.col.decks.config_dict_for_deck_id(card.odid)["rev"]
 
     def _answerRevCard(self, card: Card, ease: int) -> None:
         delay = 0

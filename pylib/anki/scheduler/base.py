@@ -222,7 +222,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         self.col._backend.sort_deck(deck_id=did, randomize=False)
 
     def resortConf(self, conf: DeckConfigDict) -> None:
-        for did in self.col.decks.didsForConf(conf):
+        for did in self.col.decks.decks_using_config(conf):
             if conf["new"]["order"] == 0:
                 self.randomizeCards(did)
             else:
@@ -232,7 +232,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     def maybeRandomizeDeck(self, did: Optional[DeckId] = None) -> None:
         if not did:
             did = self.col.decks.selected()
-        conf = self.col.decks.confForDid(did)
+        conf = self.col.decks.config_dict_for_deck_id(did)
         # in order due?
         if conf["new"]["order"] == NEW_CARDS_RANDOM:
             self.randomizeCards(did)
