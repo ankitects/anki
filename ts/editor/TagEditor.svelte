@@ -32,6 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let active: number | null = null;
     let activeAfterBlur: number | null = null;
+    let activeName = "";
 
     let autocompletionChoice: string | undefined;
 
@@ -65,16 +66,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function appendTagAt(index: number, name: string): void {
+    function appendTagAtAndFocus(index: number, name: string): void {
         tags.splice(index + 1, 0, attachId(name));
         tags = tags;
+        active = null;
         setActiveAfterBlur(index + 1);
     }
 
-    function checkIfUniqueNameAt(index: number): boolean {
+    function checkIfUniqueName(newName: string): boolean {
         const names = tags.map(getName);
-        const newName = names.splice(index, 1, "")[0];
-
         const contained = names.indexOf(newName);
         if (contained >= 0) {
             tags[contained].blink();
@@ -84,33 +84,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return true;
     }
 
-    async function splitTag(
-        tag: TagType,
-        index: number,
-        start: number,
-        end: number
-    ): Promise<void> {
-        const current = tag.name.slice(0, start);
-        const splitOff = tag.name.slice(end);
+    async function splitTag(index: number, start: number, end: number): Promise<void> {
+        const current = activeName.slice(0, start);
+        const splitOff = activeName.slice(end);
 
-        tag.name = current;
-        appendTagAt(index, splitOff);
-        active = null;
+        activeName = current;
+        appendTagAtAndFocus(index, splitOff);
 
         await tick();
         input.setSelectionRange(0, 0);
     }
 
-    function insertTag(tag: TagType, index: number): void {
-        const name = tags.map(getName).splice(index, 1)[0];
-
-        if (!checkIfUniqueNameAt(index)) {
-            tags.splice(index, 0, attachId(name));
+    function insertTag(index: number): void {
+        if (!checkIfUniqueName(activeName)) {
+            tags.splice(index, 0, attachId(activeName));
             tags = tags;
         }
     }
 
-    function deleteTag(tag: TagType, index: number): TagType {
+    function deleteTag(index: number): TagType {
         const deleted = tags.splice(index, 1)[0];
         tags = tags;
 
@@ -142,36 +134,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
 
-        if (!checkIfUniqueNameAt(index)) {
+        if (!checkIfUniqueName(index)) {
             deleteActiveTag(tag, index);
         }
     }
 
-    function joinWithPreviousTag(tag: TagType, index: number): void {
+    function joinWithPreviousTag(index: number): void {
         if (isFirst(index)) {
             return;
         }
 
-        const deleted = deleteTag(
-            tag /* invalid, probably need to change signature of deleteTag */,
-            index - 1
-        );
-        tag.name = deleted.name + tag.name;
+        const deleted = deleteTag(index - 1);
+        activeName = deleted.name + activeName;
         tags = tags;
-        console.log(active, activeAfterBlur);
     }
 
-    function joinWithNextTag(tag: TagType, index: number): void {
+    function joinWithNextTag(index: number): void {
         if (isLast(index)) {
             return;
         }
 
-        const deleted = deleteTag(tag, index + 1);
-        tag.name = tag.name + deleted.name;
+        const deleted = deleteTag(index + 1);
+        activeName = activeName + deleted.name;
         tags = tags;
     }
 
-    function moveToPreviousTag(tag: TagType, index: number): void {
+    function moveToPreviousTag(index: number): void {
         if (isFirst(index)) {
             return;
         }
@@ -180,12 +168,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         activeAfterBlur = index - 1;
     }
 
-    async function moveToNextTag(tag: TagType, index: number): Promise<void> {
+    async function moveToNextTag(index: number): Promise<void> {
         if (isLast(index)) {
-            if (tag.name.length !== 0) {
-                appendTagAt(index, "");
-                active = null;
-                activeAfterBlur = index + 1;
+            if (activeName.length !== 0) {
+                appendTagAtAndFocus(index, "");
             }
             return;
         }
@@ -215,18 +201,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {#if index === active}
                         <TagInput
                             id={tag.id}
-                            bind:name={tag.name}
+                            bind:name={activeName}
                             bind:input
+                            on:focus={() => (activeName = tag.name)}
                             on:keydown={updateAutocomplete}
                             on:tagsplit={({ detail }) =>
-                                splitTag(tag, index, detail.start, detail.end)}
-                            on:tagadd={() => insertTag(tag, index)}
+                                splitTag(index, detail.start, detail.end)}
+                            on:tagadd={() => insertTag(index)}
                             on:tagdelete={() => deleteActiveTag(tag, index)}
-                            on:tagjoinprevious={() => joinWithPreviousTag(tag, index)}
-                            on:tagjoinnext={() => joinWithNextTag(tag, index)}
-                            on:tagmoveprevious={() => moveToPreviousTag(tag, index)}
-                            on:tagmovenext={() => moveToNextTag(tag, index)}
+                            on:tagjoinprevious={() => joinWithPreviousTag(index)}
+                            on:tagjoinnext={() => joinWithNextTag(index)}
+                            on:tagmoveprevious={() => moveToPreviousTag(index)}
+                            on:tagmovenext={() => moveToNextTag(index)}
                             on:tagaccept={() => {
+                                tag.name = activeName;
                                 deleteActiveTagIfNotUnique(tag, index);
                                 destroyAutocomplete();
                                 decideNextActive();
@@ -237,7 +225,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             name={tag.name}
                             bind:blink={tag.blink}
                             on:click={() => (active = index)}
-                            on:tagdelete={() => deleteTag(tag, index)}
+                            on:tagdelete={() => deleteTag(index)}
                         />
                     {/if}
                 {/each}
@@ -248,7 +236,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 />
             </TagAutocomplete>
 
-            <div>{JSON.stringify(tags)}</div>
+            <div>
+                a, aab, an: {active}
+                {activeAfterBlur} "{activeName}";<br />{JSON.stringify(tags)}
+            </div>
         </ButtonToolbar>
     </div>
 </StickyBottom>
