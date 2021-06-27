@@ -42,12 +42,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function decideNextActive() {
-        console.log("dna", active, activeAfterBlur);
-        active = activeAfterBlur;
-        activeAfterBlur = null;
-    }
-
     function appendEmptyTag(): void {
         // used by tag badge and tag spacer
         const lastTag = tags[tags.length - 1];
@@ -66,16 +60,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function appendTagAtAndFocus(index: number, name: string): void {
+    function appendTagAndFocusAt(index: number, name: string): void {
         tags.splice(index + 1, 0, attachId(name));
         tags = tags;
-        active = null;
         setActiveAfterBlur(index + 1);
     }
 
-    function checkIfUniqueName(newName: string): boolean {
-        const names = tags.map(getName);
-        const contained = names.indexOf(newName);
+    function isActiveNameUniqueAt(index: number): boolean {
+        const names = tags.map(getName)
+        names.splice(index, 1);
+
+        const contained = names.indexOf(activeName);
+        console.log('isActiveUnique', active, index, activeName, JSON.stringify(names), contained)
         if (contained >= 0) {
             tags[contained].blink();
             return false;
@@ -89,14 +85,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const splitOff = activeName.slice(end);
 
         activeName = current;
-        appendTagAtAndFocus(index, splitOff);
+        appendTagAndFocusAt(index, splitOff);
 
         await tick();
         input.setSelectionRange(0, 0);
     }
 
     function insertTag(index: number): void {
-        if (!checkIfUniqueName(activeName)) {
+        if (!isActiveNameUniqueAt(index)) {
             tags.splice(index, 0, attachId(activeName));
             tags = tags;
         }
@@ -128,17 +124,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return deleted;
     }
 
-    function deleteActiveTagIfNotUnique(tag: TagType, index: number): void {
-        if (!tags.includes(tag)) {
-            // already deleted
-            return;
-        }
-
-        if (!checkIfUniqueName(index)) {
-            deleteActiveTag(tag, index);
-        }
-    }
-
     function joinWithPreviousTag(index: number): void {
         if (isFirst(index)) {
             return;
@@ -146,6 +131,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const deleted = deleteTag(index - 1);
         activeName = deleted.name + activeName;
+        console.log('joinprevious', activeName, active);
         tags = tags;
     }
 
@@ -160,27 +146,47 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function moveToPreviousTag(index: number): void {
+        console.log('moveprevious', active, index)
+
         if (isFirst(index)) {
             return;
         }
-        console.log("moveprev", index);
-        active = null;
+
         activeAfterBlur = index - 1;
+        active = null;
     }
 
     async function moveToNextTag(index: number): Promise<void> {
         if (isLast(index)) {
             if (activeName.length !== 0) {
-                appendTagAtAndFocus(index, "");
+                appendTagAndFocusAt(index, "");
+                active = null;
             }
             return;
         }
 
-        active = null;
         activeAfterBlur = index + 1;
+        active = null;
 
         await tick();
         input.setSelectionRange(0, 0);
+    }
+
+    function deleteActiveTagIfNotUnique(tag: TagType, index: number): void {
+        if (!tags.includes(tag)) {
+            // already deleted
+            return;
+        }
+
+        if (!isActiveNameUniqueAt(index)) {
+            deleteActiveTag(tag, index);
+        }
+    }
+
+    function decideNextActive() {
+        console.log("dna", active, activeAfterBlur);
+        active = activeAfterBlur;
+        activeAfterBlur = null;
     }
 </script>
 
@@ -214,10 +220,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             on:tagmoveprevious={() => moveToPreviousTag(index)}
                             on:tagmovenext={() => moveToNextTag(index)}
                             on:tagaccept={() => {
-                                tag.name = activeName;
+                                console.log('accept', tag, index, activeName);
                                 deleteActiveTagIfNotUnique(tag, index);
                                 destroyAutocomplete();
                                 decideNextActive();
+                                tag.name = activeName;
                             }}
                         />
                     {:else}
