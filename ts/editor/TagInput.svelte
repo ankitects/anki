@@ -57,8 +57,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function joinWithNextTag(event: Event): Promise<void> {
         const length = input.value.length;
         dispatch("tagjoinnext");
+
         await tick();
         setPosition(length);
+
         event.preventDefault();
     }
 

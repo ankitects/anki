@@ -145,8 +145,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
 
-        const spliced = tags.splice(index + 1, 1)[0];
-        tags[index].name = tags[index].name + spliced.name;
+        const deleted = deleteTag(tag, index + 1);
+        tag.name = tag.name + deleted.name;
         tags = tags;
     }
 
@@ -163,10 +163,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (isLast(index)) {
             if (tag.name.length !== 0) {
                 appendEmptyTagAt(index);
+                active = null;
+                activeAfterBlur = index + 1;
             }
             return;
         }
-        console.log("movenext", index);
 
         active = null;
         activeAfterBlur = index + 1;
