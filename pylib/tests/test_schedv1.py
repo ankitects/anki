@@ -63,10 +63,10 @@ def test_new():
     # # the default order should ensure siblings are not seen together, and
     # # should show all cards
     # m = col.models.current(); mm = col.models
-    # t = mm.newTemplate("Reverse")
+    # t = mm.new_template("Reverse")
     # t['qfmt'] = "{{Back}}"
     # t['afmt'] = "{{Front}}"
-    # mm.addTemplate(m, t)
+    # mm.add_template(m, t)
     # mm.save(m)
     # note = col.newNote()
     # note['Front'] = u"2"; note['Back'] = u"2"
@@ -562,8 +562,8 @@ def test_suspend():
 
 def test_cram():
     col = getEmptyCol()
-    opt = col.models.byName("Basic (and reversed card)")
-    col.models.setCurrent(opt)
+    opt = col.models.by_name("Basic (and reversed card)")
+    col.models.set_current(opt)
     note = col.newNote()
     note["Front"] = "one"
     col.addNote(note)
@@ -806,14 +806,14 @@ def test_ordcycle():
     # add two more templates and set second active
     m = col.models.current()
     mm = col.models
-    t = mm.newTemplate("Reverse")
+    t = mm.new_template("Reverse")
     t["qfmt"] = "{{Back}}"
     t["afmt"] = "{{Front}}"
-    mm.addTemplate(m, t)
-    t = mm.newTemplate("f2")
+    mm.add_template(m, t)
+    t = mm.new_template("f2")
     t["qfmt"] = "{{Front}}2"
     t["afmt"] = "{{Back}}"
-    mm.addTemplate(m, t)
+    mm.add_template(m, t)
     mm.save(m)
     # create a new note; it should have 3 cards
     note = col.newNote()

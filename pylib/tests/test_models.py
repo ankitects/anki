@@ -17,7 +17,7 @@ def test_modelDelete():
     note["Back"] = "2"
     col.addNote(note)
     assert col.cardCount() == 1
-    col.models.rem(col.models.current())
+    col.models.remove(col.models.current()["id"])
     assert col.cardCount() == 0
 
 
@@ -47,7 +47,7 @@ def test_fields():
     assert "{{NewFront}}" in m["tmpls"][0]["qfmt"]
     h = col.models.scmhash(m)
     # add a field
-    field = col.models.newField("foo")
+    field = col.models.new_field("foo")
     col.models.addField(m, field)
     assert col.get_note(col.models.nids(m)[0]).fields == ["1", "2", ""]
     assert col.models.scmhash(m) != h
@@ -65,7 +65,7 @@ def test_fields():
     col.models.moveField(m, m["flds"][1], 0)
     assert col.get_note(col.models.nids(m)[0]).fields == ["1", ""]
     # add another and put in middle
-    field = col.models.newField("baz")
+    field = col.models.new_field("baz")
     col.models.addField(m, field)
     note = col.get_note(col.models.nids(m)[0])
     note["baz"] = "2"
@@ -86,10 +86,10 @@ def test_templates():
     col = getEmptyCol()
     m = col.models.current()
     mm = col.models
-    t = mm.newTemplate("Reverse")
+    t = mm.new_template("Reverse")
     t["qfmt"] = "{{Back}}"
     t["afmt"] = "{{Front}}"
-    mm.addTemplate(m, t)
+    mm.add_template(m, t)
     mm.save(m)
     note = col.newNote()
     note["Front"] = "1"
@@ -101,23 +101,26 @@ def test_templates():
     assert c.ord == 0
     assert c2.ord == 1
     # switch templates
-    col.models.moveTemplate(m, c.template(), 1)
+    col.models.reposition_template(m, c.template(), 1)
+    col.models.update(m)
     c.load()
     c2.load()
     assert c.ord == 1
     assert c2.ord == 0
     # removing a template should delete its cards
-    col.models.remTemplate(m, m["tmpls"][0])
+    col.models.remove_template(m, m["tmpls"][0])
+    col.models.update(m)
     assert col.cardCount() == 1
     # and should have updated the other cards' ordinals
     c = note.cards()[0]
     assert c.ord == 0
     assert stripHTML(c.question()) == "1"
     # it shouldn't be possible to orphan notes by removing templates
-    t = mm.newTemplate("template name")
+    t = mm.new_template("template name")
     t["qfmt"] = "{{Front}}2"
-    mm.addTemplate(m, t)
-    col.models.remTemplate(m, m["tmpls"][0])
+    mm.add_template(m, t)
+    col.models.remove_template(m, m["tmpls"][0])
+    col.models.update(m)
     assert (
         col.db.scalar(
             "select count() from cards where nid not in (select id from notes)"
@@ -128,17 +131,17 @@ def test_templates():
 
 def test_cloze_ordinals():
     col = getEmptyCol()
-    col.models.setCurrent(col.models.byName("Cloze"))
-    m = col.models.current()
+    m = col.models.by_name("Cloze")
     mm = col.models
 
     # We replace the default Cloze template
-    t = mm.newTemplate("ChainedCloze")
+    t = mm.new_template("ChainedCloze")
     t["qfmt"] = "{{text:cloze:Text}}"
     t["afmt"] = "{{text:cloze:Text}}"
-    mm.addTemplate(m, t)
+    mm.add_template(m, t)
     mm.save(m)
-    col.models.remTemplate(m, m["tmpls"][0])
+    col.models.remove_template(m, m["tmpls"][0])
+    col.models.update(m)
 
     note = col.newNote()
     note["Text"] = "{{c1::firstQ::firstA}}{{c2::secondQ::secondA}}"
@@ -163,26 +166,26 @@ def test_text():
 
 def test_cloze():
     col = getEmptyCol()
-    col.models.setCurrent(col.models.byName("Cloze"))
-    note = col.newNote()
+    m = col.models.by_name("Cloze")
+    note = col.new_note(m)
     assert note.note_type()["name"] == "Cloze"
     # a cloze model with no clozes is not empty
     note["Text"] = "nothing"
     assert col.addNote(note)
     # try with one cloze
-    note = col.newNote()
+    note = col.new_note(m)
     note["Text"] = "hello {{c1::world}}"
     assert col.addNote(note) == 1
     assert "hello <span class=cloze>[...]</span>" in note.cards()[0].question()
     assert "hello <span class=cloze>world</span>" in note.cards()[0].answer()
     # and with a comment
-    note = col.newNote()
+    note = col.new_note(m)
     note["Text"] = "hello {{c1::world::typical}}"
     assert col.addNote(note) == 1
     assert "<span class=cloze>[typical]</span>" in note.cards()[0].question()
     assert "<span class=cloze>world</span>" in note.cards()[0].answer()
     # and with 2 clozes
-    note = col.newNote()
+    note = col.new_note(m)
     note["Text"] = "hello {{c1::world}} {{c2::bar}}"
     assert col.addNote(note) == 2
     (c1, c2) = note.cards()
@@ -192,7 +195,7 @@ def test_cloze():
     assert "world <span class=cloze>bar</span>" in c2.answer()
     # if there are multiple answers for a single cloze, they are given in a
     # list
-    note = col.newNote()
+    note = col.new_note(m)
     note["Text"] = "a {{c1::b}} {{c1::c}}"
     assert col.addNote(note) == 1
     assert "<span class=cloze>b</span> <span class=cloze>c</span>" in (
@@ -211,8 +214,8 @@ def test_cloze():
 
 def test_cloze_mathjax():
     col = getEmptyCol()
-    col.models.setCurrent(col.models.byName("Cloze"))
-    note = col.newNote()
+    m = col.models.by_name("Cloze")
+    note = col.new_note(m)
     note[
         "Text"
     ] = r"{{c1::ok}} \(2^2\) {{c2::not ok}} \(2^{{c3::2}}\) \(x^3\) {{c4::blah}} {{c5::text with \(x^2\) jax}}"
@@ -224,7 +227,7 @@ def test_cloze_mathjax():
     assert "class=cloze" in note.cards()[3].question()
     assert "class=cloze" in note.cards()[4].question()
 
-    note = col.newNote()
+    note = col.new_note(m)
     note["Text"] = r"\(a\) {{c1::b}} \[ {{c1::c}} \]"
     assert col.addNote(note)
     assert len(note.cards()) == 1
@@ -237,11 +240,10 @@ def test_cloze_mathjax():
 
 def test_typecloze():
     col = getEmptyCol()
-    m = col.models.byName("Cloze")
-    col.models.setCurrent(m)
+    m = col.models.by_name("Cloze")
     m["tmpls"][0]["qfmt"] = "{{cloze:Text}}{{type:cloze:Text}}"
     col.models.save(m)
-    note = col.newNote()
+    note = col.new_note(m)
     note["Text"] = "hello {{c1::world}}"
     col.addNote(note)
     assert "[[type:cloze:Text]]" in note.cards()[0].question()
@@ -249,17 +251,17 @@ def test_typecloze():
 
 def test_chained_mods():
     col = getEmptyCol()
-    col.models.setCurrent(col.models.byName("Cloze"))
-    m = col.models.current()
+    m = col.models.by_name("Cloze")
     mm = col.models
 
     # We replace the default Cloze template
-    t = mm.newTemplate("ChainedCloze")
+    t = mm.new_template("ChainedCloze")
     t["qfmt"] = "{{cloze:text:Text}}"
     t["afmt"] = "{{cloze:text:Text}}"
-    mm.addTemplate(m, t)
+    mm.add_template(m, t)
     mm.save(m)
-    col.models.remTemplate(m, m["tmpls"][0])
+    col.models.remove_template(m, m["tmpls"][0])
+    col.models.update(m)
 
     note = col.newNote()
     q1 = '<span style="color:red">phrase</span>'
@@ -285,14 +287,14 @@ def test_chained_mods():
 
 def test_modelChange():
     col = getEmptyCol()
-    cloze = col.models.byName("Cloze")
+    cloze = col.models.by_name("Cloze")
     # enable second template and add a note
     m = col.models.current()
     mm = col.models
-    t = mm.newTemplate("Reverse")
+    t = mm.new_template("Reverse")
     t["qfmt"] = "{{Back}}"
     t["afmt"] = "{{Front}}"
-    mm.addTemplate(m, t)
+    mm.add_template(m, t)
     mm.save(m)
     basic = m
     note = col.newNote()
@@ -360,7 +362,8 @@ def test_modelChange():
     assert note["Text"] == "f2"
     assert len(note.cards()) == 2
     # back the other way, with deletion of second ord
-    col.models.remTemplate(basic, basic["tmpls"][1])
+    col.models.remove_template(basic, basic["tmpls"][1])
+    col.models.update(basic)
     assert col.db.scalar("select count() from cards where nid = ?", note.id) == 2
     map = {0: 0}
     col.models.change(cloze, [note.id], basic, map, map)
@@ -375,14 +378,14 @@ def test_req():
 
     col = getEmptyCol()
     mm = col.models
-    basic = mm.byName("Basic")
+    basic = mm.by_name("Basic")
     assert "req" in basic
     reqSize(basic)
     r = basic["req"][0]
     assert r[0] == 0
     assert r[1] in ("any", "all")
     assert r[2] == [0]
-    opt = mm.byName("Basic (optional reversed card)")
+    opt = mm.by_name("Basic (optional reversed card)")
     reqSize(opt)
     r = opt["req"][0]
     assert r[1] in ("any", "all")
@@ -397,7 +400,7 @@ def test_req():
     mm.save(opt, templates=True)
     assert opt["req"][1] == [1, "none", []]
 
-    opt = mm.byName("Basic (type in the answer)")
+    opt = mm.by_name("Basic (type in the answer)")
     reqSize(opt)
     r = opt["req"][0]
     assert r[1] in ("any", "all")

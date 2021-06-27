@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: disable=invalid-name
+
 import re
 import time
 from typing import cast
@@ -134,7 +136,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
             model["name"] = "Mnemosyne-FrontOnly"
         mm = self.col.models
         mm.save(model)
-        mm.setCurrent(model)
+        mm.set_current(model)
         self.model = model
         self._fields = len(model["flds"])
         self.initMapping()
@@ -145,34 +147,34 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
         m = addBasicModel(self.col)
         m["name"] = "Mnemosyne-FrontBack"
         mm = self.col.models
-        t = mm.newTemplate("Back")
+        t = mm.new_template("Back")
         t["qfmt"] = "{{Back}}"
         t["afmt"] = t["qfmt"] + "\n\n<hr id=answer>\n\n{{Front}}"  # type: ignore
-        mm.addTemplate(m, t)
+        mm.add_template(m, t)
         self._addFronts(notes, m)
 
     def _addVocabulary(self, notes):
         mm = self.col.models
         m = mm.new("Mnemosyne-Vocabulary")
         for f in "Expression", "Pronunciation", "Meaning", "Notes":
-            fm = mm.newField(f)
+            fm = mm.new_field(f)
             mm.addField(m, fm)
-        t = mm.newTemplate("Recognition")
+        t = mm.new_template("Recognition")
         t["qfmt"] = "{{Expression}}"
         t["afmt"] = (
             cast(str, t["qfmt"])
             + """\n\n<hr id=answer>\n\n\
 {{Pronunciation}}<br>\n{{Meaning}}<br>\n{{Notes}}"""
         )
-        mm.addTemplate(m, t)
-        t = mm.newTemplate("Production")
+        mm.add_template(m, t)
+        t = mm.new_template("Production")
         t["qfmt"] = "{{Meaning}}"
         t["afmt"] = (
             cast(str, t["qfmt"])
             + """\n\n<hr id=answer>\n\n\
 {{Expression}}<br>\n{{Pronunciation}}<br>\n{{Notes}}"""
         )
-        mm.addTemplate(m, t)
+        mm.add_template(m, t)
         mm.add(m)
         self._addFronts(notes, m, fields=("f", "p_1", "m_1", "n"))
 
@@ -206,7 +208,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
         model["name"] = "Mnemosyne-Cloze"
         mm = self.col.models
         mm.save(model)
-        mm.setCurrent(model)
+        mm.set_current(model)
         self.model = model
         self._fields = len(model["flds"])
         self.initMapping()

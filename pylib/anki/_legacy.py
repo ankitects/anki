@@ -28,7 +28,7 @@ def partial_path(full_path: str, components: int) -> str:
 
 
 def print_deprecation_warning(msg: str, frame: int = 2) -> None:
-    path, linenum, fn, y = traceback.extract_stack(limit=5)[frame]
+    path, linenum, _, _ = traceback.extract_stack(limit=5)[frame]
     path = partial_path(path, components=3)
     print(f"{path}:{linenum}:{msg}")
 

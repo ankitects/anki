@@ -57,10 +57,10 @@ def test_noteAddDelete():
     # test multiple cards - add another template
     m = col.models.current()
     mm = col.models
-    t = mm.newTemplate("Reverse")
+    t = mm.new_template("Reverse")
     t["qfmt"] = "{{Back}}"
     t["afmt"] = "{{Front}}"
-    mm.addTemplate(m, t)
+    mm.add_template(m, t)
     mm.save(m)
     assert col.cardCount() == 2
     # creating new notes should use both cards

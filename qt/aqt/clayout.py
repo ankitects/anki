@@ -226,7 +226,7 @@ class CardLayout(QDialog):
         tform.style_button.setText(tr.card_templates_template_styling())
         tform.groupBox.setTitle(tr.card_templates_template_box())
 
-        cnt = self.mw.col.models.useCount(self.model)
+        cnt = self.mw.col.models.use_count(self.model)
         self.tform.changes_affect_label.setText(
             self.col.tr.card_templates_changes_will_affect_notes(count=cnt)
         )
@@ -633,14 +633,14 @@ class CardLayout(QDialog):
         return name
 
     def onAddCard(self) -> None:
-        cnt = self.mw.col.models.useCount(self.model)
+        cnt = self.mw.col.models.use_count(self.model)
         txt = tr.card_templates_this_will_create_card_proceed(count=cnt)
         if not askUser(txt):
             return
         if not self.change_tracker.mark_schema():
             return
         name = self._newCardName()
-        t = self.mm.newTemplate(name)
+        t = self.mm.new_template(name)
         old = self.current_template()
         t["qfmt"] = old["qfmt"]
         t["afmt"] = old["afmt"]
