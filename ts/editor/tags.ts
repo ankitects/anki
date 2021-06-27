@@ -15,7 +15,7 @@ export function normalizeTagname(tagname: string): string {
     }
 }
 
-interface Tag {
+export interface Tag {
     id: string;
     name: string;
     blink: boolean;
