@@ -90,20 +90,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function deleteTag(tag: TagType, index: number): void {
-        tags.splice(index, 1);
+    function deleteTag(tag: TagType, index: number): TagType {
+        const deleted = tags.splice(index, 1)[0];
         tags = tags;
+
+        if (active !== null && active > index) {
+            active--;
+        }
+
+        return deleted;
+    }
+
+    function deleteActiveTag(tag: TagType, index: number): TagType {
+        const deleted = tags.splice(index, 1)[0];
+        tags = tags;
+
+        if (activeAfterBlur === index) {
+            activeAfterBlur = null;
+        } else if (activeAfterBlur !== null && activeAfterBlur > index) {
+            activeAfterBlur--;
+        }
+
         active = null;
-
-        updateActiveAfterBlur((active: number) => {
-            if (active === index) {
-                return null;
-            } else if (active > index) {
-                return active - 1;
-            }
-
-            return active;
-        });
+        return deleted;
     }
 
     function deleteTagIfNotUnique(tag: TagType, index: number): void {
@@ -122,9 +131,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
 
-        const spliced = tags.splice(index - 1, 1)[0];
-        tags[index - 1].name = spliced.name + tags[index - 1].name;
+        const deleted = deleteTag(
+            tag /* invalid, probably need to change signature of deleteTag */,
+            index - 1
+        );
+        tag.name = deleted.name + tag.name;
         tags = tags;
+        console.log(active, activeAfterBlur);
     }
 
     function joinWithNextTag(tag: TagType, index: number): void {
@@ -162,15 +175,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         input.setSelectionRange(0, 0);
     }
 
-    async function activate(index: number): Promise<void> {
+    function activate(index: number): void {
         active = index;
-    }
-
-    async function checkForActivation(index: number): Promise<void> {
-        const selection = window.getSelection()!;
-        if (selection.isCollapsed) {
-            await activate(index);
-        }
     }
 </script>
 
@@ -201,7 +207,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             on:blur={decideNextActive}
                             on:tagenter={() => enterTag(tag, index)}
                             on:tagadd={() => insertTag(tag, index)}
-                            on:tagdelete={() => deleteTag(tag, index)}
+                            on:tagdelete={() => deleteActiveTag(tag, index)}
                             on:tagunique={() => deleteTagIfNotUnique(tag, index)}
                             on:tagjoinprevious={() => joinWithPreviousTag(tag, index)}
                             on:tagjoinnext={() => joinWithNextTag(tag, index)}
@@ -212,7 +218,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <Tag
                             name={tag.name}
                             bind:blink={tag.blink}
-                            on:click={() => checkForActivation(index)}
+                            on:click={() => activate(index)}
                             on:tagdelete={() => deleteTag(tag, index)}
                         />
                     {/if}
