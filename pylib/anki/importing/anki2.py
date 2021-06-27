@@ -53,11 +53,11 @@ class Anki2Importer(Importer):
         self.dst = self.col
         self.src = Collection(self.file)
 
-        if not self._importing_v2 and self.col.schedVer() != 1:
+        if not self._importing_v2 and self.col.sched_ver() != 1:
             # any scheduling included?
             if self.src.db.scalar("select 1 from cards where queue != 0 limit 1"):
                 self.source_needs_upgrade = True
-        elif self._importing_v2 and self.col.schedVer() == 1:
+        elif self._importing_v2 and self.col.sched_ver() == 1:
             raise Exception("must upgrade to new scheduler to import this file")
 
     def _import(self) -> None:
@@ -186,7 +186,7 @@ class Anki2Importer(Importer):
         self.dst.db.executemany(
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)", update
         )
-        self.dst.updateFieldCache(dirty)
+        self.dst.after_note_updates(dirty, mark_modified=False, generate_cards=False)
 
     # determine if note is a duplicate, and adjust mid and/or guid as required
     # returns true if note should be added

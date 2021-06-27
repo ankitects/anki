@@ -16,8 +16,8 @@ def test_delete():
     col.reset()
     col.sched.answerCard(col.sched.getCard(), 2)
     col.remove_cards_and_orphaned_notes([cid])
-    assert col.cardCount() == 0
-    assert col.noteCount() == 0
+    assert col.card_count() == 0
+    assert col.note_count() == 0
     assert col.db.scalar("select count() from notes") == 0
     assert col.db.scalar("select count() from cards") == 0
     assert col.db.scalar("select count() from graves") == 2
@@ -72,7 +72,7 @@ def test_gendeck():
     note = col.new_note(cloze)
     note["Text"] = "{{c1::one}}"
     col.addNote(note)
-    assert col.cardCount() == 1
+    assert col.card_count() == 1
     assert note.cards()[0].did == 1
     # set the model to a new default col
     newId = col.decks.id("new")

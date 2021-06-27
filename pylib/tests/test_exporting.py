@@ -65,7 +65,7 @@ def test_export_anki():
     assert conf["id"] != 1
     # connect to new deck
     col2 = aopen(newname)
-    assert col2.cardCount() == 2
+    assert col2.card_count() == 2
     # as scheduling was reset, should also revert decks to default conf
     did = col2.decks.id("test", create=False)
     assert did
@@ -82,7 +82,7 @@ def test_export_anki():
     e.did = 1
     e.exportInto(newname)
     col2 = aopen(newname)
-    assert col2.cardCount() == 1
+    assert col2.card_count() == 1
 
 
 def test_export_ankipkg():
@@ -109,7 +109,6 @@ def test_export_anki_due():
     note["Front"] = "foo"
     col.addNote(note)
     col.crt -= 86400 * 10
-    col.flush()
     col.sched.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 3)

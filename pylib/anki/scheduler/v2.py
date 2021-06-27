@@ -104,7 +104,6 @@ class Scheduler(SchedulerBaseWithLegacy):
             self.reset()
         card = self._getCard()
         if card:
-            self.col.log(card)
             if not self._burySiblingsOnAnswer:
                 self._burySiblings(card)
             card.start_timer()
@@ -452,7 +451,6 @@ limit ?"""
     ##########################################################################
 
     def answerCard(self, card: Card, ease: int) -> None:
-        self.col.log()
         assert 1 <= ease <= 4
         assert 0 <= card.queue <= 4
         self.col.save_card_review_undo_info(card)

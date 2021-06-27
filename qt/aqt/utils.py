@@ -891,7 +891,7 @@ def supportText() -> str:
 
     def schedVer() -> str:
         try:
-            return str(mw.col.schedVer())
+            return str(mw.col.sched_ver())
         except:
             return "?"
 

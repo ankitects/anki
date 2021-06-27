@@ -400,7 +400,7 @@ and notes.mid = ? and cards.ord = ?""",
         cmap: Optional[Dict[int, Optional[int]]],
     ) -> None:
         # - maps are ord->ord, and there should not be duplicate targets
-        self.col.modSchema(check=True)
+        self.col.mod_schema(check=True)
         assert fmap
         field_map = self._convert_legacy_map(fmap, len(newModel["flds"]))
         if (

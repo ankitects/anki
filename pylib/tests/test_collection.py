@@ -62,14 +62,14 @@ def test_noteAddDelete():
     t["afmt"] = "{{Front}}"
     mm.add_template(m, t)
     mm.save(m)
-    assert col.cardCount() == 2
+    assert col.card_count() == 2
     # creating new notes should use both cards
     note = col.newNote()
     note["Front"] = "three"
     note["Back"] = "four"
     n = col.addNote(note)
     assert n == 2
-    assert col.cardCount() == 4
+    assert col.card_count() == 4
     # check q/a generation
     c0 = note.cards()[0]
     assert "three" in c0.question()

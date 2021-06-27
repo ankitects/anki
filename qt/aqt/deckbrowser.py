@@ -349,7 +349,7 @@ class DeckBrowser:
     ######################################################################
 
     def _v1_upgrade_message(self) -> str:
-        if self.mw.col.schedVer() == 2:
+        if self.mw.col.sched_ver() == 2:
             return ""
 
         return f"""
@@ -371,7 +371,7 @@ class DeckBrowser:
 """
 
     def _confirm_upgrade(self) -> None:
-        self.mw.col.modSchema(check=True)
+        self.mw.col.mod_schema(check=True)
         self.mw.col.upgrade_to_v2_scheduler()
 
         showInfo(tr.scheduling_update_done())

@@ -894,7 +894,7 @@ def test_ordcycle():
     note["Front"] = "1"
     note["Back"] = "1"
     col.addNote(note)
-    assert col.cardCount() == 3
+    assert col.card_count() == 3
 
     conf = col.decks.get_config(1)
     conf["new"]["bury"] = False

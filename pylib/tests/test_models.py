@@ -16,9 +16,9 @@ def test_modelDelete():
     note["Front"] = "1"
     note["Back"] = "2"
     col.addNote(note)
-    assert col.cardCount() == 1
+    assert col.card_count() == 1
     col.models.remove(col.models.current()["id"])
-    assert col.cardCount() == 0
+    assert col.card_count() == 0
 
 
 def test_modelCopy():
@@ -95,7 +95,7 @@ def test_templates():
     note["Front"] = "1"
     note["Back"] = "2"
     col.addNote(note)
-    assert col.cardCount() == 2
+    assert col.card_count() == 2
     (c, c2) = note.cards()
     # first card should have first ord
     assert c.ord == 0
@@ -110,7 +110,7 @@ def test_templates():
     # removing a template should delete its cards
     col.models.remove_template(m, m["tmpls"][0])
     col.models.update(m)
-    assert col.cardCount() == 1
+    assert col.card_count() == 1
     # and should have updated the other cards' ordinals
     c = note.cards()[0]
     assert c.ord == 0
@@ -146,7 +146,7 @@ def test_cloze_ordinals():
     note = col.newNote()
     note["Text"] = "{{c1::firstQ::firstA}}{{c2::secondQ::secondA}}"
     col.addNote(note)
-    assert col.cardCount() == 2
+    assert col.card_count() == 2
     (c, c2) = note.cards()
     # first card should have first ord
     assert c.ord == 0
@@ -202,10 +202,10 @@ def test_cloze():
         note.cards()[0].answer()
     )
     # if we add another cloze, a card should be generated
-    cnt = col.cardCount()
+    cnt = col.card_count()
     note["Text"] = "{{c2::hello}} {{c1::foo}}"
     note.flush()
-    assert col.cardCount() == cnt + 1
+    assert col.card_count() == cnt + 1
     # 0 or negative indices are not supported
     note["Text"] += "{{c0::zero}} {{c-1:foo}}"
     note.flush()

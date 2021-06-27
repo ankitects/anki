@@ -46,7 +46,6 @@ class Scheduler(V2):
         self._haveQueues = False
 
     def answerCard(self, card: Card, ease: int) -> None:
-        self.col.log()
         assert 1 <= ease <= 4
         self.col.save_card_review_undo_info(card)
         if self._burySiblingsOnAnswer:
