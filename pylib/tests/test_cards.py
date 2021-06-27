@@ -44,10 +44,10 @@ def test_genrem():
     m = col.models.current()
     mm = col.models
     # adding a new template should automatically create cards
-    t = mm.newTemplate("rev")
+    t = mm.new_template("rev")
     t["qfmt"] = "{{Front}}2"
     t["afmt"] = ""
-    mm.addTemplate(m, t)
+    mm.add_template(m, t)
     mm.save(m, templates=True)
     assert len(note.cards()) == 2
     # if the template is changed to remove cards, they'll be removed
@@ -68,9 +68,8 @@ def test_genrem():
 
 def test_gendeck():
     col = getEmptyCol()
-    cloze = col.models.byName("Cloze")
-    col.models.setCurrent(cloze)
-    note = col.newNote()
+    cloze = col.models.by_name("Cloze")
+    note = col.new_note(cloze)
     note["Text"] = "{{c1::one}}"
     col.addNote(note)
     assert col.cardCount() == 1

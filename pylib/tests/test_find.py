@@ -37,10 +37,10 @@ def test_findCards():
     m = col.models.current()
     m = col.models.copy(m)
     mm = col.models
-    t = mm.newTemplate("Reverse")
+    t = mm.new_template("Reverse")
     t["qfmt"] = "{{Back}}"
     t["afmt"] = "{{Front}}"
-    mm.addTemplate(m, t)
+    mm.add_template(m, t)
     mm.save(m)
     note = col.newNote()
     note["Front"] = "test"

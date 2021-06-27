@@ -45,4 +45,7 @@ disable=
   arguments-differ,
 
 [BASIC]
-good-names = id
+good-names =
+  id,
+  tr,
+  db,

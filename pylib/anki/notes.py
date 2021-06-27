@@ -61,7 +61,7 @@ class Note(DeprecatedNamesMixin):
         self.usn = note.usn
         self.tags = list(note.tags)
         self.fields = list(note.fields)
-        self._fmap = self.col.models.fieldMap(self.note_type())
+        self._fmap = self.col.models.field_map(self.note_type())
 
     def _to_backend_note(self) -> _pb.Note:
         hooks.note_will_flush(self)

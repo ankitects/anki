@@ -136,7 +136,7 @@ class FieldDialog(QDialog):
         if not self.change_tracker.mark_schema():
             return
         self.saveField()
-        f = self.mm.newField(name)
+        f = self.mm.new_field(name)
         self.mm.add_field(self.model, f)
         self.fillFields()
         self.form.fieldList.setCurrentRow(len(self.model["flds"]) - 1)
@@ -145,7 +145,7 @@ class FieldDialog(QDialog):
         if len(self.model["flds"]) < 2:
             showWarning(tr.fields_notes_require_at_least_one_field())
             return
-        count = self.mm.useCount(self.model)
+        count = self.mm.use_count(self.model)
         c = tr.browsing_note_count(count=count)
         if not askUser(tr.fields_delete_field_from(val=c)):
             return

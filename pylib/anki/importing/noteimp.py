@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: disable=invalid-name
+
 import html
 import unicodedata
 from typing import Dict, List, Optional, Tuple, Union
@@ -130,7 +132,7 @@ class NoteImporter(Importer):
                 csums[csum] = [id]
         firsts: Dict[str, bool] = {}
         fld0idx = self.mapping.index(self.model["flds"][0]["name"])
-        self._fmap = self.col.models.fieldMap(self.model)
+        self._fmap = self.col.models.field_map(self.model)
         self._nextID = NoteId(timestampID(self.col.db, "notes"))
         # loop through the notes
         updates: List[Updates] = []

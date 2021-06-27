@@ -189,7 +189,7 @@ def test_csv2():
     col = getEmptyCol()
     mm = col.models
     m = mm.current()
-    note = mm.newField("Three")
+    note = mm.new_field("Three")
     mm.addField(m, note)
     mm.save(m)
     n = col.newNote()
@@ -213,7 +213,7 @@ def test_tsv_tag_modified():
     col = getEmptyCol()
     mm = col.models
     m = mm.current()
-    note = mm.newField("Top")
+    note = mm.new_field("Top")
     mm.addField(m, note)
     mm.save(m)
     n = col.newNote()
@@ -249,7 +249,7 @@ def test_tsv_tag_multiple_tags():
     col = getEmptyCol()
     mm = col.models
     m = mm.current()
-    note = mm.newField("Top")
+    note = mm.new_field("Top")
     mm.addField(m, note)
     mm.save(m)
     n = col.newNote()
@@ -283,7 +283,7 @@ def test_csv_tag_only_if_modified():
     col = getEmptyCol()
     mm = col.models
     m = mm.current()
-    note = mm.newField("Left")
+    note = mm.new_field("Left")
     mm.addField(m, note)
     mm.save(m)
     n = col.newNote()
