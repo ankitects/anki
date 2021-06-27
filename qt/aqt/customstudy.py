@@ -140,7 +140,7 @@ class CustomStudy(QDialog):
         elif i == RADIO_CRAM:
             tags = self._getTags()
         # the rest create a filtered deck
-        cur = self.mw.col.decks.byName(tr.custom_study_custom_study_session())
+        cur = self.mw.col.decks.by_name(tr.custom_study_custom_study_session())
         if cur:
             if not cur["dyn"]:
                 showInfo(tr.custom_study_must_rename_deck())

@@ -636,7 +636,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
         if not card.odid:
             return conf["new"]
         # dynamic deck; override some attributes, use original deck for others
-        oconf = self.col.decks.confForDid(card.odid)
+        oconf = self.col.decks.config_dict_for_deck_id(card.odid)
         delays = conf["delays"] or oconf["new"]["delays"]
         return dict(
             # original deck
@@ -655,7 +655,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
         if not card.odid:
             return conf["lapse"]
         # dynamic deck; override some attributes, use original deck for others
-        oconf = self.col.decks.confForDid(card.odid)
+        oconf = self.col.decks.config_dict_for_deck_id(card.odid)
         delays = conf["delays"] or oconf["lapse"]["delays"]
         return dict(
             # original deck

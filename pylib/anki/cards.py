@@ -170,19 +170,21 @@ class Card(DeprecatedNamesMixin):
 
     def time_limit(self) -> int:
         "Time limit for answering in milliseconds."
-        conf = self.col.decks.confForDid(self.current_deck_id())
+        conf = self.col.decks.config_dict_for_deck_id(self.current_deck_id())
         return conf["maxTaken"] * 1000
 
     def should_show_timer(self) -> bool:
-        conf = self.col.decks.confForDid(self.current_deck_id())
+        conf = self.col.decks.config_dict_for_deck_id(self.current_deck_id())
         return conf["timer"]
 
     def replay_question_audio_on_answer_side(self) -> bool:
-        conf = self.col.decks.confForDid(self.current_deck_id())
+        conf = self.col.decks.config_dict_for_deck_id(self.current_deck_id())
         return conf.get("replayq", True)
 
     def autoplay(self) -> bool:
-        return self.col.decks.confForDid(self.current_deck_id())["autoplay"]
+        return self.col.decks.config_dict_for_deck_id(self.current_deck_id())[
+            "autoplay"
+        ]
 
     def time_taken(self) -> int:
         "Time taken to answer card, in integer MS."
