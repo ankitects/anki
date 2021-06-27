@@ -2,17 +2,8 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script context="module">
-    import { writable } from "svelte/store";
-    export const lineCount = writable(0);
-</script>
 
 <script lang="ts">
-    let rows: number | undefined = undefined;
-    $: {
-        rows = Math.ceil($lineCount / 2) + 1;
-    }
-
     import ConfigSelector from "./ConfigSelector.svelte";
     import Container from "components/Container.svelte";
     import Item from "components/Item.svelte";
@@ -63,6 +54,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export const audioOptions = {};
     export const addonOptions = {};
     export const advancedOptions = {};
+
+    let rows: number | undefined = undefined;
+    $: {
+        rows = Math.ceil($lineCount / 2) + 1;
+    }
+</script>
+
+<script context="module">
+    import { writable } from "svelte/store";
+    export const lineCount = writable(0);
 </script>
 
 <ConfigSelector {state} />
