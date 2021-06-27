@@ -40,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function decideNextActive() {
-        console.log("dna", active, activeAfterBlur, JSON.stringify(tags));
+        console.log("dna", active, activeAfterBlur);
         active = activeAfterBlur;
         activeAfterBlur = null;
     }
@@ -218,14 +218,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             id={tag.id}
                             bind:name={tag.name}
                             bind:input
-                            on:focus={() =>
-                                console.log(
-                                    "focused",
-                                    tag,
-                                    tag.name,
-                                    JSON.stringify(tags)
-                                )}
-                            on:blur={decideNextActive}
+                            on:keydown={updateAutocomplete}
+                            on:blur={() => {
+                                destroyAutocomplete();
+                                decideNextActive();
+                            }}
                             on:tagsplit={({ detail }) =>
                                 splitTag(tag, index, detail.start, detail.end)}
                             on:tagadd={() => insertTag(tag, index)}
