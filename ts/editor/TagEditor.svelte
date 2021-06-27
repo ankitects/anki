@@ -39,12 +39,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function updateActiveAfterBlur(update: (value: number) => number | null): void {
-        if (activeAfterBlur !== null) {
-            activeAfterBlur = update(activeAfterBlur);
-        }
-    }
-
     function decideNextActive() {
         console.log("dna", active, activeAfterBlur, JSON.stringify(tags));
         active = activeAfterBlur;
@@ -107,6 +101,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const deleted = tags.splice(index, 1)[0];
         tags = tags;
 
+        console.log('dt', activeAfterBlur, index)
         if (active !== null && active > index) {
             active--;
         }
@@ -128,14 +123,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return deleted;
     }
 
-    function deleteTagIfNotUnique(tag: TagType, index: number): void {
+    function deleteActiveTagIfNotUnique(tag: TagType, index: number): void {
         if (!tags.includes(tag)) {
             // already deleted
             return;
         }
 
         if (!checkIfUniqueNameAt(index)) {
-            deleteTag(tag, index);
+            deleteActiveTag(tag, index);
         }
     }
 
@@ -223,7 +218,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 splitTag(tag, index, detail.start, detail.end)}
                             on:tagadd={() => insertTag(tag, index)}
                             on:tagdelete={() => deleteActiveTag(tag, index)}
-                            on:tagunique={() => deleteTagIfNotUnique(tag, index)}
+                            on:tagunique={() => deleteActiveTagIfNotUnique(tag, index)}
                             on:tagjoinprevious={() => joinWithPreviousTag(tag, index)}
                             on:tagjoinnext={() => joinWithNextTag(tag, index)}
                             on:tagmoveprevious={() => moveToPreviousTag(tag, index)}
