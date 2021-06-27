@@ -33,6 +33,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let active: number | null = null;
     let activeAfterBlur: number | null = null;
 
+    let autocompletionChoice: string | undefined;
+
     function setActiveAfterBlur(value: number): void {
         if (activeAfterBlur === null) {
             activeAfterBlur = value;
@@ -204,7 +206,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <TagAutocomplete
                 class="d-flex flex-column-reverse"
                 {suggestions}
-                original={tags[active ?? -1]?.name}
+                search={tags[active ?? -1]?.name ?? ""}
+                bind:choice={autocompletionChoice}
                 let:updateAutocomplete
                 let:destroyAutocomplete
             >

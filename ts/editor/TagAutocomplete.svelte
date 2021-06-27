@@ -13,35 +13,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let suggestions: string[];
-    export let original: string | undefined;
+    export let search: string;
 
     let autocomplete: Dropdown | undefined;
 
     let displayed: string[] = [];
     let selected: number | null = null;
+
+    export let choice: string | undefined;
+    $: choice = displayed[selected ?? -1];
+
+    // blue highlight
     let active: boolean = false;
 
     function select(index: number) {
         selected = index;
-    }
-
-    function choose() {}
-
-    function switchUpDown(event: KeyboardEvent): void {
-        const target = event.currentTarget as HTMLButtonElement;
-        if (event.code === "ArrowUp") {
-            if (target.nextElementSibling) {
-                (target.nextElementSibling as HTMLButtonElement).focus();
-            }
-
-            event.preventDefault();
-        } else if (event.code === "ArrowDown") {
-            if (target.previousElementSibling) {
-                (target.previousElementSibling as HTMLButtonElement).focus();
-            }
-
-            event.preventDefault();
-        }
     }
 
     const updateAutocomplete =
@@ -99,7 +85,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <slot
         updateAutocomplete={updateAutocomplete(createDropdown)}
         {destroyAutocomplete}
-        selected={displayed[selected ?? -1]}
     />
 
     <DropdownMenu id={menuId} class={className}>
