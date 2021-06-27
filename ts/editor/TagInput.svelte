@@ -86,8 +86,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onEnter(event: Event): void {
         event.preventDefault();
-        dispatch("tagenter");
-        input.blur();
+        dispatch("tagsplit", { start: input.selectionStart, end: input.selectionEnd });
     }
 
     function onKeydown(event: KeyboardEvent): void {
