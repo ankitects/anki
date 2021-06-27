@@ -15,9 +15,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let span: number;
 
     onMount(() => {
-        span = 1;
+        span = container.querySelectorAll(".row").length | 1;
         lineCount.update((n) => n + span);
-        style = "--size: " + span;
+        style = `--size: ${span}`;
     });
 </script>
 
