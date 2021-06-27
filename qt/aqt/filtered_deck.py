@@ -95,7 +95,7 @@ class FilteredDeckConfigDialog(QDialog):
             self.form.buttonBox.helpRequested, lambda: openHelp(HelpPage.FILTERED_DECK)
         )
 
-        if self.col.schedVer() == 1:
+        if self.col.sched_ver() == 1:
             self.form.secondFilter.setVisible(False)
         restoreGeom(self, self.GEOMETRY_KEY)
 
@@ -127,7 +127,7 @@ class FilteredDeckConfigDialog(QDialog):
         form.order.setCurrentIndex(term1.order)
         form.limit.setValue(term1.limit)
 
-        if self.col.schedVer() == 1:
+        if self.col.sched_ver() == 1:
             if config.delays:
                 form.steps.setText(self.listToUser(list(config.delays)))
                 form.stepsOn.setChecked(True)
@@ -227,7 +227,7 @@ class FilteredDeckConfigDialog(QDialog):
         """Return a search node that matches learning cards if the old scheduler is enabled.
         If it's a rebuild, exclude cards from this filtered deck as those will be reset.
         """
-        if self.col.schedVer() == 1:
+        if self.col.sched_ver() == 1:
             if self.deck.id:
                 return (
                     self.col.group_searches(
@@ -252,7 +252,7 @@ class FilteredDeckConfigDialog(QDialog):
 
     def _onReschedToggled(self, _state: int) -> None:
         self.form.previewDelayWidget.setVisible(
-            not self.form.resched.isChecked() and self.col.schedVer() > 1
+            not self.form.resched.isChecked() and self.col.sched_ver() > 1
         )
 
     def _update_deck(self) -> bool:
@@ -266,7 +266,7 @@ class FilteredDeckConfigDialog(QDialog):
         config.reschedule = form.resched.isChecked()
 
         del config.delays[:]
-        if self.col.schedVer() == 1 and form.stepsOn.isChecked():
+        if self.col.sched_ver() == 1 and form.stepsOn.isChecked():
             if (delays := self.userToList(form.steps)) is None:
                 return False
             config.delays.extend(delays)

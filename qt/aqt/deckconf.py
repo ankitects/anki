@@ -144,7 +144,7 @@ class DeckConf(QDialog):
             showInfo(tr.scheduling_the_default_configuration_cant_be_removed(), self)
         else:
             gui_hooks.deck_conf_will_remove_config(self, self.deck, self.conf)
-            self.mw.col.modSchema(check=True)
+            self.mw.col.mod_schema(check=True)
             self.mw.col.decks.remove_config(self.conf["id"])
             self.conf = None
             self.deck["conf"] = 1
@@ -220,7 +220,7 @@ class DeckConf(QDialog):
         f.revplim.setText(self.parentLimText("rev"))
         f.buryRev.setChecked(c.get("bury", True))
         f.hardFactor.setValue(int(c.get("hardFactor", 1.2) * 100))
-        if self.mw.col.schedVer() == 1:
+        if self.mw.col.sched_ver() == 1:
             f.hardFactor.setVisible(False)
             f.hardFactorLabel.setVisible(False)
         # lapse

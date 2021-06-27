@@ -499,7 +499,7 @@ def _replaceWithApkg(mw: aqt.AnkiQt, filename: str, backup: bool) -> None:
         if not mw.loadCollection():
             return
         if backup:
-            mw.col.modSchema(check=False)
+            mw.col.mod_schema(check=False)
 
         tooltip(tr.importing_importing_complete())
 

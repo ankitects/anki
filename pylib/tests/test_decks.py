@@ -57,9 +57,9 @@ def test_remove():
     col.addNote(note)
     c = note.cards()[0]
     assert c.did == deck1
-    assert col.cardCount() == 1
+    assert col.card_count() == 1
     col.decks.remove([deck1])
-    assert col.cardCount() == 0
+    assert col.card_count() == 0
     # if we try to get it, we get the default
     assert col.decks.name(c.did) == "[no deck]"
 

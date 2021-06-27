@@ -349,7 +349,7 @@ class DeckManager(DeprecatedNamesMixin):
 
     def remove_config(self, id: DeckConfigId) -> None:
         "Remove a configuration and update all decks using it."
-        self.col.modSchema(check=True)
+        self.col.mod_schema(check=True)
         for deck in self.all():
             # ignore cram decks
             if "conf" not in deck:

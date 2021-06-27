@@ -115,9 +115,9 @@ def test_anki2_diffmodel_templates():
     imp.dupeOnSchemaChange = True
     imp.run()
     # collection should contain the note we imported
-    assert dst.noteCount() == 1
+    assert dst.note_count() == 1
     # the front template should contain the text added in the 2nd package
-    tcid = dst.findCards("")[0]  # only 1 note in collection
+    tcid = dst.find_cards("")[0]  # only 1 note in collection
     tnote = dst.getCard(tcid).note()
     assert "Changed Front Template" in tnote.cards()[0].template()["qfmt"]
 
@@ -138,7 +138,7 @@ def test_anki2_updates():
     assert imp.added == 0
     assert imp.updated == 0
     # importing a newer note should update
-    assert dst.noteCount() == 1
+    assert dst.note_count() == 1
     assert dst.db.scalar("select flds from notes").startswith("hello")
     col = getUpgradeDeckPath("update2.apkg")
     imp = AnkiPackageImporter(dst, col)
@@ -146,7 +146,7 @@ def test_anki2_updates():
     assert imp.dupes == 0
     assert imp.added == 0
     assert imp.updated == 1
-    assert dst.noteCount() == 1
+    assert dst.note_count() == 1
     assert dst.db.scalar("select flds from notes").startswith("goodbye")
 
 
@@ -176,12 +176,12 @@ def test_csv():
     i.run()
     assert i.total == 0
     # and if dupes mode, will reimport everything
-    assert col.cardCount() == 5
+    assert col.card_count() == 5
     i.importMode = 2
     i.run()
     # includes repeated field
     assert i.total == 6
-    assert col.cardCount() == 11
+    assert col.card_count() == 11
     col.close()
 
 
@@ -330,7 +330,7 @@ def test_mnemo():
     file = str(os.path.join(testDir, "support", "mnemo.db"))
     i = MnemosyneImporter(col, file)
     i.run()
-    assert col.cardCount() == 7
+    assert col.card_count() == 7
     assert "a_longer_tag" in col.tags.all()
     assert col.db.scalar(f"select count() from cards where type = {CARD_TYPE_NEW}") == 1
     col.close()

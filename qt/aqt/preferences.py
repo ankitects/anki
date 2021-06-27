@@ -203,7 +203,7 @@ for you than the default driver, please let us know on the Anki forums."""
             self.form.autoSyncMedia.isChecked() and 15 or 0
         )
         if self.form.fullSync.isChecked():
-            self.mw.col.modSchema(check=False)
+            self.mw.col.mod_schema(check=False)
 
     # Profile: backup
     ######################################################################

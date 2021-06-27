@@ -106,7 +106,7 @@ def display_options_for_deck_id(deck_id: DeckId) -> None:
 
 def display_options_for_deck(deck: DeckDict) -> None:
     if not deck["dyn"]:
-        if KeyboardModifiersPressed().shift or aqt.mw.col.schedVer() == 1:
+        if KeyboardModifiersPressed().shift or aqt.mw.col.sched_ver() == 1:
             deck_legacy = aqt.mw.col.decks.get(DeckId(deck["id"]))
             aqt.deckconf.DeckConf(aqt.mw, deck_legacy)
         else:

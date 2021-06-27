@@ -16,33 +16,33 @@ def getEmptyCol():
 def test_op():
     col = getEmptyCol()
     # should have no undo by default
-    assert not col.undoName()
+    assert not col.undo_status().undo
     # let's adjust a study option
     col.save("studyopts")
     col.conf["abc"] = 5
     # it should be listed as undoable
-    assert col.undoName() == "studyopts"
+    assert col.undo_status().undo == "studyopts"
     # with about 5 minutes until it's clobbered
     assert time.time() - col._last_checkpoint_at < 1
     # undoing should restore the old value
     col.undo_legacy()
-    assert not col.undoName()
+    assert not col.undo_status().undo
     assert "abc" not in col.conf
     # an (auto)save will clear the undo
     col.save("foo")
-    assert col.undoName() == "foo"
+    assert col.undo_status().undo == "foo"
     col.save()
-    assert not col.undoName()
+    assert not col.undo_status().undo
     # and a review will, too
     col.save("add")
     note = col.newNote()
     note["Front"] = "one"
     col.addNote(note)
     col.reset()
-    assert "add" in col.undoName().lower()
+    assert "add" in col.undo_status().undo.lower()
     c = col.sched.getCard()
     col.sched.answerCard(c, 2)
-    assert col.undoName() == "Review"
+    assert col.undo_status().undo == "Review"
 
 
 def test_review():
@@ -64,14 +64,14 @@ def test_review():
     assert col.sched.counts() == (1, 1, 0)
     assert c.queue == QUEUE_TYPE_LRN
     # undo
-    assert col.undoName()
+    assert col.undo_status().undo
     col.undo_legacy()
     col.reset()
     assert col.sched.counts() == (2, 0, 0)
     c.load()
     assert c.queue == QUEUE_TYPE_NEW
     assert c.left % 1000 != 1
-    assert not col.undoName()
+    assert not col.undo_status().undo
     # we should be able to undo multiple answers too
     c = col.sched.getCard()
     col.sched.answerCard(c, 3)
@@ -87,8 +87,8 @@ def test_review():
     # performing a normal op will clear the review queue
     c = col.sched.getCard()
     col.sched.answerCard(c, 3)
-    assert col.undoName() == "Review"
+    assert col.undo_status().undo == "Review"
     col.save("foo")
-    assert col.undoName() == "foo"
+    assert col.undo_status().undo == "foo"
     col.undo_legacy()
-    assert not col.undoName()
+    assert not col.undo_status().undo

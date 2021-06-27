@@ -53,4 +53,4 @@ def check_db(mw: aqt.AnkiQt) -> None:
                 n += 1
                 continue
 
-    mw.taskman.with_progress(mw.col.fixIntegrity, on_future_done)
+    mw.taskman.with_progress(mw.col.fix_integrity, on_future_done)

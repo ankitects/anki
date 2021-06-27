@@ -15,7 +15,7 @@ def getEmptyCol() -> Collection:
     col = getEmptyColOrig()
     # only safe in test environment
     col.set_config("schedVer", 1)
-    col._loadScheduler()
+    col._load_scheduler()
     return col
 
 
@@ -820,7 +820,7 @@ def test_ordcycle():
     note["Front"] = "1"
     note["Back"] = "1"
     col.addNote(note)
-    assert col.cardCount() == 3
+    assert col.card_count() == 3
     col.reset()
     # ordinals should arrive in order
     assert col.sched.getCard().ord == 0

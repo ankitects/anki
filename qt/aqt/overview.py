@@ -143,7 +143,7 @@ class Overview:
 
     def on_unbury(self) -> None:
         mode = UnburyDeck.Mode.ALL
-        if self.mw.col.schedVer() != 1:
+        if self.mw.col.sched_ver() != 1:
             info = self.mw.col.sched.congratulations_info()
             if info.have_sched_buried and info.have_user_buried:
                 opts = [
