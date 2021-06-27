@@ -67,11 +67,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function isActiveNameUniqueAt(index: number): boolean {
-        const names = tags.map(getName)
+        const names = tags.map(getName);
         names.splice(index, 1);
 
         const contained = names.indexOf(activeName);
-        console.log('isActiveUnique', active, index, activeName, JSON.stringify(names), contained)
+        console.log(
+            "isActiveUnique",
+            active,
+            index,
+            activeName,
+            JSON.stringify(names),
+            contained
+        );
         if (contained >= 0) {
             tags[contained].blink();
             return false;
@@ -131,7 +138,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const deleted = deleteTag(index - 1);
         activeName = deleted.name + activeName;
-        console.log('joinprevious', activeName, active);
+        console.log("joinprevious", activeName, active);
         tags = tags;
     }
 
@@ -146,7 +153,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function moveToPreviousTag(index: number): void {
-        console.log('moveprevious', active, index)
+        console.log("moveprevious", active, index);
 
         if (isFirst(index)) {
             return;
@@ -220,7 +227,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             on:tagmoveprevious={() => moveToPreviousTag(index)}
                             on:tagmovenext={() => moveToNextTag(index)}
                             on:tagaccept={() => {
-                                console.log('accept', tag, index, activeName);
+                                console.log("accept", tag, index, activeName);
                                 deleteActiveTagIfNotUnique(tag, index);
                                 destroyAutocomplete();
                                 decideNextActive();

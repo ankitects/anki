@@ -64,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 event.preventDefault();
                 active = true;
             } else {
-                original = target.value;
+                search = target.value;
             }
 
             return autocomplete;
@@ -89,11 +89,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <DropdownMenu id={menuId} class={className}>
         {#each displayed as tag, i}
-            <DropdownItem
-                class={i === selected ? (active ? "active" : "focus") : ""}
-                on:mouseenter={() => select(i)}
-                on:click>{tag}</DropdownItem
-            >
+            <div class="suggestion-item">
+                <DropdownItem
+                    class={i === selected ? (active ? "active" : "focus") : ""}
+                    on:click>{tag}</DropdownItem
+                >
+            </div>
         {/each}
     </DropdownMenu>
 </WithDropdownMenu>
+
+<style lang="scss">
+    .suggestion-item {
+        :global(.dropdown-item:hover) {
+            background-color: inherit !important;
+            border-color: inherit !important;
+        }
+    }
+</style>
