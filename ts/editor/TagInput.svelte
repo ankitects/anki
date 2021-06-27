@@ -38,8 +38,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function joinWithPreviousTag(event: Event): Promise<void> {
         const length = input.value.length;
         dispatch("tagjoinprevious");
+
         await tick();
         setPosition(input.value.length - length);
+
         event.preventDefault();
     }
 
@@ -72,7 +74,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function onBlur(event: Event): void {
         event.preventDefault();
         normalize();
-
+        console.log("taginput onblur");
         if (name.length === 0) {
             dispatch("tagdelete");
         }
@@ -95,6 +97,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 // TODO
                 name += "::";
                 event.preventDefault();
+                break;
 
             case "Backspace":
                 onBackspace(event);
@@ -111,8 +114,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 if (isEmpty()) {
                     joinWithPreviousTag(event);
                 } else {
-                    dispatch("tagmoveprevious");
                     event.preventDefault();
+                    dispatch("tagmoveprevious");
                 }
                 break;
 
@@ -123,9 +126,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 if (isEmpty()) {
                     joinWithNextTag(event);
                 } else {
-                    dispatch("tagmovenext");
                     event.preventDefault();
+                    dispatch("tagmovenext");
                 }
+                break;
         }
     }
 
