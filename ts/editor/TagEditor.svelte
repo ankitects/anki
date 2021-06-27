@@ -58,8 +58,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         active = index;
     }
 
-    function appendEmptyTagAt(index: number): void {
-        tags.splice(index + 1, 0, attachId(""));
+    function appendTagAt(index: number, name: string): void {
+        tags.splice(index + 1, 0, attachId(name));
         tags = tags;
         setActiveAfterBlur(index + 1);
     }
@@ -77,8 +77,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return true;
     }
 
-    function enterTag(_tag: TagType, index: number): void {
-        appendEmptyTagAt(index);
+    async function splitTag(
+        tag: TagType,
+        index: number,
+        start: number,
+        end: number
+    ): Promise<void> {
+        const current = tag.name.slice(0, start);
+        const splitOff = tag.name.slice(end);
+
+        tag.name = current;
+        appendTagAt(index, splitOff);
+        active = null;
+
+        await tick();
+        input.setSelectionRange(0, 0);
     }
 
     function insertTag(tag: TagType, index: number): void {
@@ -162,7 +175,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function moveToNextTag(tag: TagType, index: number): Promise<void> {
         if (isLast(index)) {
             if (tag.name.length !== 0) {
-                appendEmptyTagAt(index);
+                appendTagAt(index, "");
                 active = null;
                 activeAfterBlur = index + 1;
             }
@@ -206,7 +219,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                     JSON.stringify(tags)
                                 )}
                             on:blur={decideNextActive}
-                            on:tagenter={() => enterTag(tag, index)}
+                            on:tagsplit={({ detail }) =>
+                                splitTag(tag, index, detail.start, detail.end)}
                             on:tagadd={() => insertTag(tag, index)}
                             on:tagdelete={() => deleteActiveTag(tag, index)}
                             on:tagunique={() => deleteTagIfNotUnique(tag, index)}
