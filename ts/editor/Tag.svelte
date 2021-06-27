@@ -8,23 +8,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { deleteIcon } from "./icons";
 
     export let name: string;
-    export let blink: boolean = false;
 
     const dispatch = createEventDispatcher();
-
-    $: if (blink) {
-        setTimeout(() => (blink = false), 300);
-    }
 
     function deleteTag(event: Event): void {
         dispatch("tagdelete");
         event.stopPropagation();
     }
+
+    let isBlink: boolean = false;
+
+    export function blink() {
+        isBlink = true;
+        setTimeout(() => (isBlink = false), 300);
+    }
 </script>
 
 <button
     class="d-inline-flex align-items-center tag text-nowrap rounded ps-2 pe-1 me-1"
-    class:blink
+    class:blink={isBlink}
     tabindex="-1"
     on:click
 >
@@ -62,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         &.blink {
-            animation: blink 0.2s linear;
+            animation: blink 0.3s linear;
         }
     }
 </style>
