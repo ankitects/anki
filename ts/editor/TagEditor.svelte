@@ -45,11 +45,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         activeAfterBlur = null;
     }
 
-    function insertEmptyTagAt(index: number): void {
-        /* used by tag badge and tag spacer */
-        tags.splice(index, 0, attachId(""));
-        tags = tags;
-        active = index;
+    function appendEmptyTag(): void {
+        // used by tag badge and tag spacer
+        const lastTag = tags[tags.length - 1];
+
+        if (!lastTag || lastTag.name.length > 0) {
+            tags.splice(tags.length, 0, attachId(""));
+            tags = tags;
+        }
+
+        const tagsHadFocus = active === null;
+        active = null;
+        setActiveAfterBlur(tags.length - 1);
+
+        if (tagsHadFocus) {
+            decideNextActive();
+        }
     }
 
     function appendTagAt(index: number, name: string): void {
@@ -192,7 +203,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <StickyBottom>
     <div class="row-gap">
         <ButtonToolbar class="dropup d-flex flex-wrap align-items-center" {size}>
-            <AddTagBadge on:click={() => insertEmptyTagAt(tags.length)} />
+            <AddTagBadge on:click={appendEmptyTag} />
 
             <TagAutocomplete
                 class="d-flex flex-column-reverse"
@@ -236,7 +247,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
                 <div
                     class="tag-spacer flex-grow-1 align-self-stretch"
-                    on:click={() => insertEmptyTagAt(tags.length)}
+                    on:click={appendEmptyTag}
                 />
             </TagAutocomplete>
 
