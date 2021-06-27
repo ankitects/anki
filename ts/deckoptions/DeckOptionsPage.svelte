@@ -2,6 +2,10 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
+<script context="module">
+    import { writable } from "svelte/store";
+    export const lineCount = writable(0);
+</script>
 
 <script lang="ts">
     import ConfigSelector from "./ConfigSelector.svelte";
@@ -59,11 +63,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: {
         rows = Math.ceil($lineCount / 2) + 1;
     }
-</script>
-
-<script context="module">
-    import { writable } from "svelte/store";
-    export const lineCount = writable(0);
 </script>
 
 <ConfigSelector {state} />
