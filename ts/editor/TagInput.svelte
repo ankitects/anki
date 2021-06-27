@@ -81,7 +81,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             dispatch("tagdelete");
         }
 
-        dispatch("tagunique");
+        dispatch("tagaccept");
     }
 
     function onEnter(event: Event): void {
@@ -177,13 +177,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         type="text"
         tabindex="-1"
         size="1"
-        on:focus
         on:blur={onBlur}
-        on:blur
         on:keydown={onKeydown}
         on:keydown
         on:paste={onPaste}
-        on:click
     />
 </label>
 

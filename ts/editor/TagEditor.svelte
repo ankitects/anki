@@ -194,10 +194,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         await tick();
         input.setSelectionRange(0, 0);
     }
-
-    function activate(index: number): void {
-        active = index;
-    }
 </script>
 
 <StickyBottom>
@@ -219,25 +215,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             bind:name={tag.name}
                             bind:input
                             on:keydown={updateAutocomplete}
-                            on:blur={() => {
-                                destroyAutocomplete();
-                                decideNextActive();
-                            }}
                             on:tagsplit={({ detail }) =>
                                 splitTag(tag, index, detail.start, detail.end)}
                             on:tagadd={() => insertTag(tag, index)}
                             on:tagdelete={() => deleteActiveTag(tag, index)}
-                            on:tagunique={() => deleteActiveTagIfNotUnique(tag, index)}
                             on:tagjoinprevious={() => joinWithPreviousTag(tag, index)}
                             on:tagjoinnext={() => joinWithNextTag(tag, index)}
                             on:tagmoveprevious={() => moveToPreviousTag(tag, index)}
                             on:tagmovenext={() => moveToNextTag(tag, index)}
+                            on:tagaccept={() => {
+                                deleteActiveTagIfNotUnique(tag, index);
+                                destroyAutocomplete();
+                                decideNextActive();
+                            }}
                         />
                     {:else}
                         <Tag
                             name={tag.name}
                             bind:blink={tag.blink}
-                            on:click={() => activate(index)}
+                            on:click={() => (active = index)}
                             on:tagdelete={() => deleteTag(tag, index)}
                         />
                     {/if}
