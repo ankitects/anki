@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { createEventDispatcher, onDestroy } from "svelte";
+    import { createEventDispatcher, onDestroy, tick } from "svelte";
 
     import type Dropdown from "bootstrap/js/dist/dropdown";
 
@@ -15,11 +15,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let suggestions: string[];
-    export let search: string;
 
     let autocomplete: Dropdown | undefined;
-
-    let displayed: string[] = [];
     let selected: number | null = null;
 
     // blue highlight
@@ -29,12 +26,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const updateAutocomplete =
         (createDropdown: (element: HTMLElement) => Dropdown) =>
-        (event: KeyboardEvent): Dropdown => {
+        async (event: KeyboardEvent): Promise<void> => {
             const target = event.target as HTMLInputElement;
-            autocomplete = createDropdown(target);
-            autocomplete.show();
 
-            displayed = suggestions;
+            if (!autocomplete) {
+                autocomplete = createDropdown(target);
+            }
+
+            autocomplete.update();
 
             if (
                 event.code === "ArrowDown" ||
@@ -42,55 +41,55 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ) {
                 event.preventDefault();
                 if (selected === null) {
-                    selected = displayed.length - 1;
+                    selected = suggestions.length - 1;
                 } else if (selected === 0) {
                     selected = null;
                 } else {
                     selected--;
                 }
 
-                const choice = displayed[selected ?? -1];
+                const choice = suggestions[selected ?? -1];
                 dispatch("autocomplete", { choice });
             } else if (event.code === "ArrowUp" || event.code === "Tab") {
                 event.preventDefault();
                 if (selected === null) {
                     selected = 0;
-                } else if (selected >= displayed.length - 1) {
+                } else if (selected >= suggestions.length - 1) {
                     selected = null;
                 } else {
                     selected++;
                 }
 
-                const choice = displayed[selected ?? -1];
+                const choice = suggestions[selected ?? -1];
                 dispatch("autocomplete", { choice });
             } else if (event.code === "Enter") {
                 event.preventDefault();
                 active = true;
             } else {
-                search = target.value;
+                dispatch("update");
             }
 
-            return autocomplete;
+            await tick();
+
+            if (suggestions.length > 0) {
+                autocomplete.show();
+            } else {
+                autocomplete.hide();
+            }
         };
 
-    onDestroy(() => {
-        if (!autocomplete) {
-            return;
-        }
-
-        autocomplete.hide();
-    });
+    onDestroy(() => autocomplete?.dispose());
 </script>
 
 <WithDropdownMenu let:menuId let:createDropdown>
     <slot updateAutocomplete={updateAutocomplete(createDropdown)} />
 
     <DropdownMenu id={menuId} class={className}>
-        {#each displayed as tag, i}
+        {#each suggestions as suggestion, i}
             <div class="suggestion-item">
                 <DropdownItem
                     class={i === selected ? (active ? "active" : "focus") : ""}
-                    on:click>{tag}</DropdownItem
+                    on:click>{suggestion}</DropdownItem
                 >
             </div>
         {/each}

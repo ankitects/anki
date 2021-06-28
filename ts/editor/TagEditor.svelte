@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import AddTagBadge from "./AddTagBadge.svelte";
     import Tag from "./Tag.svelte";
     import TagInput from "./TagInput.svelte";
-    import TagAutocomplete from "./TagAutocomplete.svelte";
+    import WithAutocomplete from "./WithAutocomplete.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
     import type { Tag as TagType } from "./tags";
     import { attachId, getName } from "./tags";
@@ -44,6 +44,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             activeName = activeTag.name;
         }
     }
+
+    function updateSuggestions(): void {}
 
     function updateWithTagName(tag: TagType): void {
         tag.name = activeName;
@@ -217,11 +219,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             {#each tags as tag, index (tag.id)}
                 {#if index === active}
-                    <TagAutocomplete
+                    <WithAutocomplete
                         class="d-flex flex-column-reverse"
                         {suggestions}
-                        search={tags[active ?? -1]?.name ?? ""}
                         on:autocomplete={onAutocomplete}
+                        on:update={updateSuggestions}
                         let:updateAutocomplete
                     >
                         <TagInput
@@ -248,7 +250,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 decideNextActive();
                             }}
                         />
-                    </TagAutocomplete>
+                    </WithAutocomplete>
                 {:else}
                     <Tag
                         name={tag.name}
