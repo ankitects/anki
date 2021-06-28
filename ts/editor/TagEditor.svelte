@@ -39,9 +39,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         activeName = selected ?? activeTag.name;
     }
 
-    let suggestions: string[] = [];
+    let suggestionsPromise: Promise<string[]> = Promise.resolve([]);
 
-    function updateSuggestions(): void {}
+    function updateSuggestions(): void {
+        suggestionsPromise = Promise.resolve([
+            "en::vocabulary",
+            "en::idioms",
+            Math.random().toString(36).substring(2),
+        ]);
+    }
 
     function updateWithTagName(tag: TagType): void {
         tag.name = activeName;
@@ -244,6 +250,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 break;
 
             default:
+                if (event.code.startsWith("Arrow")) {
+                    return;
+                }
+
                 autocomplete.update();
                 break;
         }
@@ -259,7 +269,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {#if index === active}
                     <WithAutocomplete
                         class="d-flex flex-column-reverse"
-                        {suggestions}
+                        {suggestionsPromise}
                         on:autocomplete={onAutocomplete}
                         on:update={updateSuggestions}
                         let:createAutocomplete
