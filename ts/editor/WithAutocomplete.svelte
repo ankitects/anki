@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import WithDropdownMenu from "components/WithDropdownMenu.svelte";
     import DropdownMenu from "components/DropdownMenu.svelte";
-    import DropdownItem from "components/DropdownItem.svelte";
+    import AutocompleteItem from "./AutocompleteItem.svelte";
 
     let className: string = "";
     export { className as class };
@@ -26,32 +26,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
-    function selectNext() {
-        suggestionsPromise.then((suggestions) => {
-            if (selected === null) {
-                selected = 0;
-            } else if (selected >= suggestions.length - 1) {
-                selected = null;
-            } else {
-                selected++;
-            }
+    async function selectNext() {
+        const suggestions = await suggestionsPromise;
 
-            dispatch("autocomplete", { selected: suggestions[selected ?? -1] });
-        });
+        if (selected === null) {
+            selected = 0;
+        } else if (selected >= suggestions.length - 1) {
+            selected = null;
+        } else {
+            selected++;
+        }
+
+        dispatch("autocomplete", { selected: suggestions[selected ?? -1] });
     }
 
-    function selectPrevious() {
-        suggestionsPromise.then((suggestions) => {
-            if (selected === null) {
-                selected = suggestions.length - 1;
-            } else if (selected === 0) {
-                selected = null;
-            } else {
-                selected--;
-            }
+    async function selectPrevious() {
+        const suggestions = await suggestionsPromise;
 
-            dispatch("autocomplete", { selected: suggestions[selected ?? -1] });
-        });
+        if (selected === null) {
+            selected = suggestions.length - 1;
+        } else if (selected === 0) {
+            selected = null;
+        } else {
+            selected--;
+        }
+
+        dispatch("autocomplete", { selected: suggestions[selected ?? -1] });
     }
 
     function chooseSelected() {
@@ -63,18 +63,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         dropdown.update();
         dispatch("update");
 
-        await tick();
+        const [, suggestions] = await Promise.all([tick(), suggestionsPromise]);
 
-        suggestionsPromise.then((suggestions) => {
-            if (suggestions.length > 0) {
-                dropdown.show();
-                // disabled class will tell Bootstrap not to show menu on clicking
-                target.classList.remove("disabled");
-            } else {
-                dropdown.hide();
-                target.classList.add("disabled");
-            }
-        });
+        if (suggestions.length > 0) {
+            dropdown.show();
+            // disabled class will tell Bootstrap not to show menu on clicking
+            target.classList.remove("disabled");
+        } else {
+            dropdown.hide();
+            target.classList.add("disabled");
+        }
     }
 
     const createAutocomplete =
@@ -97,6 +95,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         };
 
     onDestroy(() => dropdown?.dispose());
+
+    function setSelected(index: number): void {
+        selected = index;
+    }
+
+    async function chooseIndex(index: number): Promise<void> {
+        const suggestions = await suggestionsPromise;
+        dispatch("autocomplete", { selected: suggestions[index] });
+    }
+
+    function selectIfMousedown(event: MouseEvent, index: number): void {
+        if (event.buttons === 1) {
+            setSelected(index);
+        }
+    }
 </script>
 
 <WithDropdownMenu let:menuId let:createDropdown>
@@ -104,27 +117,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <DropdownMenu id={menuId} class={className}>
         {#await suggestionsPromise}
-            <div class="suggestion-item">
-                <DropdownItem>...</DropdownItem>
-            </div>
+            <AutocompleteItem>...</AutocompleteItem>
         {:then suggestions}
-            {#each suggestions as suggestion, i}
-                <div class="suggestion-item">
-                    <DropdownItem
-                        class={i === selected ? (active ? "active" : "focus") : ""}
-                        on:click>{suggestion}</DropdownItem
-                    >
-                </div>
+            {#each suggestions as suggestion, index}
+                <AutocompleteItem
+                    selected={index === selected}
+                    active={index === selected && active}
+                    on:mousedown={() => setSelected(index)}
+                    on:mouseenter={(event) => selectIfMousedown(event, index)}
+                    on:mouseup={() => chooseIndex(index)}>{suggestion}</AutocompleteItem
+                >
             {/each}
         {/await}
     </DropdownMenu>
 </WithDropdownMenu>
-
-<style lang="scss">
-    .suggestion-item {
-        :global(.dropdown-item:hover) {
-            background-color: inherit !important;
-            border-color: inherit !important;
-        }
-    }
-</style>
