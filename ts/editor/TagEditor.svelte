@@ -46,10 +46,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function updateTagName() {
-        console.log("updatetagname");
-        const activeTag = tags[active!];
-        activeTag.name = activeName;
+    function updateWithTagName(tag: TagType): void {
+        tag.name = activeName;
         tags = tags;
     }
 
@@ -64,13 +62,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const lastTag = tags[tags.length - 1];
 
         if (!lastTag || lastTag.name.length > 0) {
-            tags.splice(tags.length, 0, attachId(""));
-            tags = tags;
+            appendTagAndFocusAt(tags.length - 1, "");
         }
 
         const tagsHadFocus = active === null;
         active = null;
-        setActiveAfterBlur(tags.length - 1);
 
         if (tagsHadFocus) {
             decideNextActive();
@@ -128,7 +124,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function deleteTag(index: number): TagType {
+    function deleteTagAt(index: number): TagType {
         const deleted = tags.splice(index, 1)[0];
         tags = tags;
 
@@ -140,28 +136,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return deleted;
     }
 
-    function deleteActiveTag(tag: TagType, index: number): TagType {
-        const deleted = tags.splice(index, 1)[0];
-        tags = tags;
-
-        console.log("dta", active, activeAfterBlur, index, JSON.stringify(tags));
-        if (activeAfterBlur === index) {
-            activeAfterBlur = null;
-        } else if (activeAfterBlur !== null && activeAfterBlur > index) {
-            activeAfterBlur--;
-        }
-
-        active = null;
-        return deleted;
-    }
-
     function joinWithPreviousTag(index: number): void {
         if (isFirst(index)) {
             return;
         }
 
-        const deleted = deleteTag(index - 1);
+        const deleted = deleteTagAt(index - 1);
         activeName = deleted.name + activeName;
+        active = active! - 1;
         console.log("joinprevious", activeName, active);
         tags = tags;
     }
@@ -171,7 +153,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
 
-        const deleted = deleteTag(index + 1);
+        const deleted = deleteTagAt(index + 1);
         activeName = activeName + deleted.name;
         tags = tags;
     }
@@ -203,14 +185,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         input.setSelectionRange(0, 0);
     }
 
-    function deleteActiveTagIfNotUnique(tag: TagType, index: number): void {
+    function deleteTagIfNotUnique(tag: TagType, index: number): void {
         if (!tags.includes(tag)) {
             // already deleted
             return;
         }
 
         if (!isActiveNameUniqueAt(index)) {
-            deleteActiveTag(tag, index);
+            deleteTagAt(index);
         }
     }
 
@@ -241,20 +223,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             bind:input
                             on:focus={() => (activeName = tag.name)}
                             on:keydown={updateAutocomplete}
-                            on:input={updateTagName}
+                            on:input={() => updateWithTagName(tag)}
                             on:tagsplit={({ detail }) =>
                                 splitTag(index, detail.start, detail.end)}
                             on:tagadd={() => insertTag(index)}
-                            on:tagdelete={() => deleteActiveTag(tag, index)}
+                            on:tagdelete={() => deleteTagAt(index)}
                             on:tagjoinprevious={() => joinWithPreviousTag(index)}
                             on:tagjoinnext={() => joinWithNextTag(index)}
                             on:tagmoveprevious={() => moveToPreviousTag(index)}
                             on:tagmovenext={() => moveToNextTag(index)}
                             on:tagaccept={() => {
                                 console.log("accept", tag, index, activeName);
-                                deleteActiveTagIfNotUnique(tag, index);
+                                deleteTagIfNotUnique(tag, index);
                                 decideNextActive();
-                                tag.name = activeName;
+                                if (tag) {
+                                    updateWithTagName(tag);
+                                }
                             }}
                         />
                     </TagAutocomplete>
@@ -263,7 +247,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         name={tag.name}
                         bind:blink={tag.blink}
                         on:click={() => (active = index)}
-                        on:tagdelete={() => deleteTag(index)}
+                        on:tagdelete={() => deleteTagAt(index)}
                     />
                 {/if}
             {/each}
@@ -272,6 +256,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 class="tag-spacer flex-grow-1 align-self-stretch"
                 on:click={appendEmptyTag}
             />
+            {active}
+            {activeAfterBlur}
         </ButtonToolbar>
     </div>
 </StickyBottom>
