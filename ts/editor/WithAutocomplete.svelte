@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className: string = "";
     export { className as class };
 
-    export let suggestions: string[];
+    export let suggestionsPromise: Promise<string[]>;
 
     let target: HTMLElement;
     let dropdown: Dropdown;
@@ -27,27 +27,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const dispatch = createEventDispatcher();
 
     function selectNext() {
-        if (selected === null) {
-            selected = 0;
-        } else if (selected >= suggestions.length - 1) {
-            selected = null;
-        } else {
-            selected++;
-        }
+        suggestionsPromise.then((suggestions) => {
+            if (selected === null) {
+                selected = 0;
+            } else if (selected >= suggestions.length - 1) {
+                selected = null;
+            } else {
+                selected++;
+            }
 
-        dispatch("autocomplete", { selected: suggestions[selected ?? -1] });
+            dispatch("autocomplete", { selected: suggestions[selected ?? -1] });
+        });
     }
 
     function selectPrevious() {
-        if (selected === null) {
-            selected = suggestions.length - 1;
-        } else if (selected === 0) {
-            selected = null;
-        } else {
-            selected--;
-        }
+        suggestionsPromise.then((suggestions) => {
+            if (selected === null) {
+                selected = suggestions.length - 1;
+            } else if (selected === 0) {
+                selected = null;
+            } else {
+                selected--;
+            }
 
-        dispatch("autocomplete", { selected: suggestions[selected ?? -1] });
+            dispatch("autocomplete", { selected: suggestions[selected ?? -1] });
+        });
     }
 
     function chooseSelected() {
@@ -61,14 +65,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         await tick();
 
-        if (suggestions.length > 0) {
-            dropdown.show();
-            // disabled class will tell Bootstrap not to show menu on clicking
-            target.classList.remove("disabled");
-        } else {
-            dropdown.hide();
-            target.classList.add("disabled");
-        }
+        suggestionsPromise.then((suggestions) => {
+            if (suggestions.length > 0) {
+                dropdown.show();
+                // disabled class will tell Bootstrap not to show menu on clicking
+                target.classList.remove("disabled");
+            } else {
+                dropdown.hide();
+                target.classList.add("disabled");
+            }
+        });
     }
 
     const createAutocomplete =
@@ -97,14 +103,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <slot createAutocomplete={createAutocomplete(createDropdown)} {autocomplete} />
 
     <DropdownMenu id={menuId} class={className}>
-        {#each suggestions as suggestion, i}
+        {#await suggestionsPromise}
             <div class="suggestion-item">
-                <DropdownItem
-                    class={i === selected ? (active ? "active" : "focus") : ""}
-                    on:click>{suggestion}</DropdownItem
-                >
+                <DropdownItem>...</DropdownItem>
             </div>
-        {/each}
+        {:then suggestions}
+            {#each suggestions as suggestion, i}
+                <div class="suggestion-item">
+                    <DropdownItem
+                        class={i === selected ? (active ? "active" : "focus") : ""}
+                        on:click>{suggestion}</DropdownItem
+                    >
+                </div>
+            {/each}
+        {/await}
     </DropdownMenu>
 </WithDropdownMenu>
 
