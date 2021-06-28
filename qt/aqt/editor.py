@@ -426,6 +426,14 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             (_, highlightColor) = cmd.split(":", 1)
             self.mw.pm.profile["lastHighlightColor"] = highlightColor
 
+        elif cmd.startswith("saveTags"):
+            (type, tagsJson) = cmd.split(":", 1)
+            self.note.tags = json.loads(tagsJson)
+
+            gui_hooks.editor_did_update_tags(self.note)
+            if not self.addMode:
+                self._save_current_note()
+
         elif cmd in self._links:
             self._links[cmd](self)
 

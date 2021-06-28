@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import { tick } from "svelte";
     import { isApplePlatform } from "lib/platform";
+    import { bridgeCommand } from "lib/bridgecommand";
     import StickyBottom from "components/StickyBottom.svelte";
     import AddTagBadge from "./AddTagBadge.svelte";
     import Tag from "./Tag.svelte";
@@ -20,8 +21,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let tags: TagType[] = [];
 
-    export function resetTags(names: string[]) {
+    export function resetTags(names: string[]): void {
         tags = names.map(attachId);
+    }
+
+    function saveTags(): void {
+        bridgeCommand(`saveTags:${JSON.stringify(tags.map((tag) => tag.name))}`);
     }
 
     let active: number | null = null;
@@ -236,12 +241,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             on:tagmoveprevious={() => moveToPreviousTag(index)}
                             on:tagmovenext={() => moveToNextTag(index)}
                             on:tagaccept={() => {
-                                console.log("accept", tag, index, activeName);
                                 deleteTagIfNotUnique(tag, index);
                                 decideNextActive();
                                 if (tag) {
                                     updateWithTagName(tag);
                                 }
+                                saveTags();
                             }}
                         />
                     </TagAutocomplete>
