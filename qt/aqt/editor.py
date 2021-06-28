@@ -481,12 +481,13 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         text_color = self.mw.pm.profile.get("lastTextColor", "#00f")
         highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#00f")
 
-        js = "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s); setColorButtons(%s);" % (
+        js = "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s); setColorButtons(%s); setTags(%s); " % (
             json.dumps(data),
             json.dumps(self.fonts()),
             json.dumps(focusTo),
             json.dumps(self.note.id),
             json.dumps([text_color, highlight_color]),
+            json.dumps(self.mw.col.tags.canonify(self.note.tags)),
         )
 
         if self.addMode:
