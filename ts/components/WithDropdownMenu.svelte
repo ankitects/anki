@@ -25,6 +25,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    function isVisible(): boolean {
+        return (dropdown as any)._menu.classList.contains("show");
+    }
+
     /* Normally dropdown and trigger are associated with a
     /* common ancestor with .dropdown class */
     function createDropdown(element: HTMLElement): Dropdown {
@@ -43,6 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             /* Set custom menu without using common element with .dropdown */
             (dropdown as any)._menu = menu;
+            Object.defineProperty(dropdown, "isVisible", { value: isVisible });
         }
 
         return dropdown as Dropdown;

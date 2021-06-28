@@ -16,9 +16,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { attachId, getName } from "./tags";
 
     export let size = isApplePlatform() ? 1.6 : 2.0;
-    export let tags: TagType[] = [];
 
-    export let suggestions = ["en::idioms", "anki::functionality", "math"];
+    export let tags: TagType[] = [];
 
     export function resetTags(names: string[]): void {
         tags = names.map(attachId);
@@ -35,31 +34,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onAutocomplete({ detail }) {
         const activeTag = tags[active!];
-        const autocompletionChoice = detail.choice;
+        const selected = detail.selected;
 
-        console.log(autocompletionChoice, activeTag);
-        if (autocompletionChoice) {
-            activeName = autocompletionChoice;
-        } else {
-            activeName = activeTag.name;
-        }
+        activeName = selected ?? activeTag.name;
     }
 
-    let addOrPop = true;
-    function updateSuggestions(): void {
-        if (suggestions.length === 0) {
-            addOrPop = false;
-        } else if (suggestions.length > 3) {
-            addOrPop = true;
-        }
+    let suggestions: string[] = [];
 
-        if (addOrPop) {
-            suggestions.pop();
-            suggestions = suggestions;
-        } else {
-            suggestions = suggestions.concat(["another"]);
-        }
-    }
+    function updateSuggestions(): void {}
 
     function updateWithTagName(tag: TagType): void {
         tag.name = activeName;
@@ -225,7 +207,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         activeAfterBlur = null;
     }
 
-    function update(event: KeyboardEvent, autocomplete): void {
+    function update(event: KeyboardEvent, autocomplete: any): void {
+        const visible = autocomplete.isVisible();
+
+        if (
+            !visible &&
+            (event.location === KeyboardEvent.DOM_KEY_LOCATION_STANDARD ||
+                event.location === KeyboardEvent.DOM_KEY_LOCATION_NUMPAD)
+        ) {
+            autocomplete.show();
+        }
+
         switch (event.code) {
             case "ArrowUp":
                 autocomplete.selectNext();
@@ -277,6 +269,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             id={tag.id}
                             bind:name={activeName}
                             bind:input={activeInput}
+                            on:click={(event) => event.stopPropagation()}
                             on:focus={() => {
                                 activeName = tag.name;
                                 createAutocomplete(activeInput);
