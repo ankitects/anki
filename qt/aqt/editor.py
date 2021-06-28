@@ -112,7 +112,6 @@ class Editor:
         self.setupOuter()
         self.setupWeb()
         self.setupShortcuts()
-        self.setupTags()
         gui_hooks.editor_did_init(self)
 
     # Initial setup
@@ -454,10 +453,8 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         self.currentField = None
         if self.note:
             self.loadNote(focusTo=focusTo)
-        else:
-            self.hideCompleters()
-            if hide:
-                self.widget.hide()
+        elif hide:
+            self.widget.hide()
 
     def loadNoteKeepingFocus(self) -> None:
         self.loadNote(self.currentField)
@@ -471,7 +468,6 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             for fld, val in self.note.items()
         ]
         self.widget.show()
-        self.updateTags()
 
         note_fields_status = self.note.fields_check()
 
@@ -525,7 +521,6 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             # calling code may not expect the callback to fire immediately
             self.mw.progress.timer(10, callback, False)
             return
-        self.blur_tags_if_focused()
         self.web.evalWithCallback("saveNow(%d)" % keepFocus, lambda res: callback())
 
     saveNow = call_after_note_saved
