@@ -219,16 +219,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <ButtonToolbar class="dropup d-flex flex-wrap align-items-center" {size}>
             <AddTagBadge on:click={appendEmptyTag} />
 
-            <TagAutocomplete
-                class="d-flex flex-column-reverse"
-                {suggestions}
-                search={tags[active ?? -1]?.name ?? ""}
-                on:autocomplete={onAutocomplete}
-                let:updateAutocomplete
-                let:destroyAutocomplete
-            >
-                {#each tags as tag, index (tag.id)}
-                    {#if index === active}
+            {#each tags as tag, index (tag.id)}
+                {#if index === active}
+                    <TagAutocomplete
+                        class="d-flex flex-column-reverse"
+                        {suggestions}
+                        search={tags[active ?? -1]?.name ?? ""}
+                        on:autocomplete={onAutocomplete}
+                        let:updateAutocomplete
+                        let:destroyAutocomplete
+                    >
                         <TagInput
                             id={tag.id}
                             bind:name={activeName}
@@ -252,21 +252,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 tag.name = activeName;
                             }}
                         />
-                    {:else}
-                        <Tag
-                            name={tag.name}
-                            bind:blink={tag.blink}
-                            on:click={() => (active = index)}
-                            on:tagdelete={() => deleteTag(index)}
-                        />
-                    {/if}
-                {/each}
+                    </TagAutocomplete>
+                {:else}
+                    <Tag
+                        name={tag.name}
+                        bind:blink={tag.blink}
+                        on:click={() => (active = index)}
+                        on:tagdelete={() => deleteTag(index)}
+                    />
+                {/if}
+            {/each}
 
-                <div
-                    class="tag-spacer flex-grow-1 align-self-stretch"
-                    on:click={appendEmptyTag}
-                />
-            </TagAutocomplete>
+            <div
+                class="tag-spacer flex-grow-1 align-self-stretch"
+                on:click={appendEmptyTag}
+            />
 
             <div>
                 a, aab, an, ac: {active}
