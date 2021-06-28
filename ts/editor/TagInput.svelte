@@ -181,6 +181,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:blur={onBlur}
         on:keydown={onKeydown}
         on:keydown
+        on:input
         on:paste={onPaste}
     />
 </label>
