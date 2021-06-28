@@ -45,7 +45,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function updateSuggestions(): void {}
+    let addOrPop = true;
+    function updateSuggestions(): void {
+        if (suggestions.length === 0) {
+            addOrPop = false;
+        } else if (suggestions.length > 3) {
+            addOrPop = true;
+        }
+
+        if (addOrPop) {
+            suggestions.pop();
+            suggestions = suggestions;
+        } else {
+            suggestions = suggestions.concat(["another"]);
+        }
+    }
 
     function updateWithTagName(tag: TagType): void {
         tag.name = activeName;
@@ -210,6 +224,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         active = activeAfterBlur;
         activeAfterBlur = null;
     }
+
+    function update(event: KeyboardEvent, autocomplete): void {
+        switch (event.code) {
+            case "ArrowUp":
+                autocomplete.selectNext();
+                event.preventDefault();
+                break;
+
+            case "ArrowDown":
+                autocomplete.selectPrevious();
+                event.preventDefault();
+                break;
+
+            case "Tab":
+                if (event.shiftKey) {
+                    autocomplete.selectNext();
+                } else {
+                    autocomplete.selectPrevious();
+                }
+                event.preventDefault();
+                break;
+
+            case "Enter":
+                autocomplete.chooseSelected();
+                event.preventDefault();
+                break;
+
+            default:
+                autocomplete.update();
+                break;
+        }
+    }
 </script>
 
 <StickyBottom>
@@ -224,14 +270,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         {suggestions}
                         on:autocomplete={onAutocomplete}
                         on:update={updateSuggestions}
-                        let:updateAutocomplete
+                        let:createAutocomplete
+                        let:autocomplete
                     >
                         <TagInput
                             id={tag.id}
                             bind:name={activeName}
                             bind:input={activeInput}
-                            on:focus={() => (activeName = tag.name)}
-                            on:keydown={updateAutocomplete}
+                            on:focus={() => {
+                                activeName = tag.name;
+                                createAutocomplete(activeInput);
+                            }}
+                            on:keydown={(event) => update(event, autocomplete)}
                             on:input={() => updateWithTagName(tag)}
                             on:tagsplit={({ detail }) =>
                                 splitTag(index, detail.start, detail.end)}
