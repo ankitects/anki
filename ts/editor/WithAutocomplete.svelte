@@ -16,32 +16,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let suggestions: string[];
 
-    let dropdown: Dropdown | undefined;
+    let target: HTMLElement;
+    let dropdown: Dropdown;
+    let autocomplete: any;
     let selected: number | null = null;
 
     // blue highlight
     let active: boolean = false;
 
     const dispatch = createEventDispatcher();
-
-    const createAutocomplete =
-        (createDropdown: (target: HTMLElement) => Dropdown) =>
-        (target: HTMLElement): void => {
-            dropdown = createDropdown(target);
-        };
-
-    function selectPrevious() {
-        if (selected === null) {
-            selected = suggestions.length - 1;
-        } else if (selected === 0) {
-            selected = null;
-        } else {
-            selected--;
-        }
-
-        const choice = suggestions[selected ?? -1];
-        dispatch("dropdown", { choice });
-    }
 
     function selectNext() {
         if (selected === null) {
@@ -52,8 +35,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             selected++;
         }
 
-        const choice = suggestions[selected ?? -1];
-        dispatch("autocomplete", { choice });
+        dispatch("autocomplete", { selected: suggestions[selected ?? -1] });
+    }
+
+    function selectPrevious() {
+        if (selected === null) {
+            selected = suggestions.length - 1;
+        } else if (selected === 0) {
+            selected = null;
+        } else {
+            selected--;
+        }
+
+        dispatch("autocomplete", { selected: suggestions[selected ?? -1] });
     }
 
     function chooseSelected() {
@@ -69,20 +63,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         if (suggestions.length > 0) {
             dropdown.show();
+            // disabled class will tell Bootstrap not to show menu on clicking
+            target.classList.remove("disabled");
         } else {
             dropdown.hide();
+            target.classList.add("disabled");
         }
     }
 
-    const autocomplete = {
-        hide: () => dropdown!.hide(),
-        show: () => dropdown!.show(),
-        toggle: () => dropdown!.toggle(),
-        selectPrevious,
-        selectNext,
-        chooseSelected,
-        update,
-    };
+    const createAutocomplete =
+        (createDropdown: (element: HTMLElement) => Dropdown) =>
+        (element: HTMLElement): any => {
+            target = element;
+            dropdown = createDropdown(element);
+            autocomplete = {
+                hide: dropdown.hide.bind(dropdown),
+                show: dropdown.show.bind(dropdown),
+                toggle: dropdown.toggle.bind(dropdown),
+                isVisible: (dropdown as any).isVisible,
+                selectPrevious,
+                selectNext,
+                chooseSelected,
+                update,
+            };
+
+            return autocomplete;
+        };
 
     onDestroy(() => dropdown?.dispose());
 </script>
