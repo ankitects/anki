@@ -28,7 +28,8 @@ $btn-base-color-day: white;
         @content ($btn-base-color-day);
 
         @if ($with-hover) {
-            &:hover {
+            &:hover,
+            &.hover {
                 background-color: darken($btn-base-color-day, 8%);
             }
         }
@@ -76,7 +77,8 @@ $btn-base-color-night: #666;
         @content ($btn-base-color-night);
 
         @if ($with-hover) {
-            &:hover {
+            &:hover,
+            &.hover {
                 background-color: lighten($btn-base-color-night, 8%);
                 border-color: lighten($btn-base-color-night, 8%);
             }

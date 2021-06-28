@@ -4,42 +4,41 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { onMount, createEventDispatcher, getContext } from "svelte";
-    import { nightModeKey } from "./context-keys";
+    import { nightModeKey } from "components/contextKeys";
 
     export let id: string | undefined = undefined;
     let className = "";
     export { className as class };
 
-    export let tooltip: string | undefined = undefined;
-    export let tabbable: boolean = false;
+    export let selected = false;
+    export let active = false;
+
+    const nightMode = getContext<boolean>(nightModeKey);
+    const dispatch = createEventDispatcher();
 
     let buttonRef: HTMLButtonElement;
 
-    const nightMode = getContext(nightModeKey);
-
-    const dispatch = createEventDispatcher();
     onMount(() => dispatch("mount", { button: buttonRef }));
 </script>
 
 <button
     {id}
-    tabindex={tabbable ? 0 : -1}
+    tabindex="-1"
     bind:this={buttonRef}
-    class={`btn dropdown-item ${className}`}
+    class={`btn ${className}`}
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
-    title={tooltip}
-    on:click
+    class:selected
+    class:active
+    on:mouseup
     on:mouseenter
-    on:focus
-    on:keydown
     on:mousedown|preventDefault
 >
     <slot />
 </button>
 
 <style lang="scss">
-    @use 'button-mixins' as button;
+    @use 'ts/sass/button_mixins' as button;
 
     button {
         display: flex;
@@ -51,22 +50,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         box-shadow: none !important;
         border: none;
 
-        &:active,
         &.active {
             background-color: button.$focus-color;
             color: white;
         }
     }
 
-    .btn-day {
-        color: black;
+    /* reset global CSS from buttons.scss */
+    :global(.nightMode) button:hover {
+        background-color: inherit;
     }
 
-    .btn-night {
+    /* extra specificity bc of global CSS reset above */
+    button.btn-day {
+        color: black;
+
+        &.selected {
+            background-color: #e9ecef;
+            border-color: #e9ecef;
+        }
+    }
+
+    button.btn-night {
         color: white;
 
-        &:hover,
-        &:focus {
+        &.selected {
             @include button.btn-night-base;
         }
     }
