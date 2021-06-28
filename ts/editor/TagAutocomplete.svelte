@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onDestroy } from "svelte";
 
     import type Dropdown from "bootstrap/js/dist/dropdown";
 
@@ -26,10 +26,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let active: boolean = false;
 
     const dispatch = createEventDispatcher();
-
-    function select(index: number) {
-        selected = index;
-    }
 
     const updateAutocomplete =
         (createDropdown: (element: HTMLElement) => Dropdown) =>
@@ -77,22 +73,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return autocomplete;
         };
 
-    function destroyAutocomplete(): void {
+    onDestroy(() => {
         if (!autocomplete) {
             return;
         }
 
         autocomplete.hide();
-        selected = null;
-        active = false;
-    }
+    });
 </script>
 
 <WithDropdownMenu let:menuId let:createDropdown>
-    <slot
-        updateAutocomplete={updateAutocomplete(createDropdown)}
-        {destroyAutocomplete}
-    />
+    <slot updateAutocomplete={updateAutocomplete(createDropdown)} />
 
     <DropdownMenu id={menuId} class={className}>
         {#each displayed as tag, i}
