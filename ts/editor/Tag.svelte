@@ -3,7 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { createEventDispatcher } from "svelte";
+    import { getContext, createEventDispatcher } from "svelte";
+    import { nightModeKey } from "components/contextKeys";
     import Badge from "components/Badge.svelte";
     import { deleteIcon } from "./icons";
 
@@ -11,22 +12,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
-    function deleteTag(event: Event): void {
+    function deleteTag(): void {
         dispatch("tagdelete");
-        event.stopPropagation();
     }
 
-    let isBlink: boolean = false;
+    let flashing: boolean = false;
 
-    export function blink() {
-        isBlink = true;
-        setTimeout(() => (isBlink = false), 300);
+    export function flash() {
+        flashing = true;
+        setTimeout(() => (flashing = false), 300);
     }
+
+    const nightMode = getContext<boolean>(nightModeKey);
 </script>
 
 <button
-    class="d-inline-flex align-items-center tag text-nowrap rounded ps-2 pe-1 me-1"
-    class:blink={isBlink}
+    class="btn d-inline-flex align-items-center text-nowrap rounded ps-2 pe-1 me-1"
+    class:flashing
+    class:btn-day={!nightMode}
+    class:btn-night={nightMode}
     tabindex="-1"
     on:click
 >
@@ -37,22 +41,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </button>
 
 <style lang="scss">
-    $white-translucent: rgba(255, 255, 255, 0.5);
+    @use "ts/sass/button_mixins" as button;
 
-    @keyframes blink {
+    @keyframes flash {
         0% {
-            filter: brightness(1);
+            filter: invert(0);
         }
         50% {
-            filter: brightness(2);
+            filter: invert(0.4);
         }
         100% {
-            filter: brightness(1);
+            filter: invert(0);
         }
-    }
-
-    .tag :global(.delete-icon > svg:hover) {
-        background-color: $white-translucent;
     }
 
     button {
@@ -63,8 +63,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             outline: none;
         }
 
-        &.blink {
-            animation: blink 0.3s linear;
+        &.flashing {
+            animation: flash 0.3s linear;
+        }
+    }
+
+    @include button.btn-day($with-active: false);
+    @include button.btn-night($with-active: false);
+
+    $white-translucent: rgba(255 255 255 / 0.5);
+    $dark-translucent: rgba(0 0 0 / 0.2);
+
+    :global(.delete-icon > svg:hover) {
+        .btn-day & {
+            background-color: $dark-translucent;
+        }
+
+        .btn-night & {
+            background-color: $white-translucent;
         }
     }
 </style>

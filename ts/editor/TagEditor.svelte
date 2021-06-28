@@ -16,10 +16,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { attachId, getName } from "./tags";
 
     export let size = isApplePlatform() ? 1.6 : 2.0;
+    export let tags: TagType[] = [];
 
     export let suggestions = ["en::idioms", "anki::functionality", "math"];
-
-    export let tags: TagType[] = [];
 
     export function resetTags(names: string[]): void {
         tags = names.map(attachId);
@@ -93,7 +92,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             contained
         );
         if (contained >= 0) {
-            tags[contained].blink();
+            tags[contained].flash();
             return false;
         }
 
@@ -253,7 +252,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {:else}
                     <Tag
                         name={tag.name}
-                        bind:blink={tag.blink}
+                        bind:flash={tag.flash}
                         on:click={() => (active = index)}
                         on:tagdelete={() => {
                             deleteTagAt(index);
