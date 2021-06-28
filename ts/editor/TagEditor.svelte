@@ -242,11 +242,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             on:tagmovenext={() => moveToNextTag(index)}
                             on:tagaccept={() => {
                                 deleteTagIfNotUnique(tag, index);
-                                decideNextActive();
                                 if (tag) {
                                     updateWithTagName(tag);
                                 }
                                 saveTags();
+                                decideNextActive();
                             }}
                         />
                     </TagAutocomplete>
@@ -255,7 +255,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         name={tag.name}
                         bind:blink={tag.blink}
                         on:click={() => (active = index)}
-                        on:tagdelete={() => deleteTagAt(index)}
+                        on:tagdelete={() => {
+                            deleteTagAt(index);
+                            saveTags();
+                        }}
                     />
                 {/if}
             {/each}
