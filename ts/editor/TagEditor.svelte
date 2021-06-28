@@ -110,8 +110,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         activeName = current;
         appendTagAndFocusAt(index, splitOff);
+        active = null;
 
         await tick();
+
+        if (index === active) {
+            // splitOff tag was rejected
+            return;
+        }
         input.setSelectionRange(0, 0);
     }
 
@@ -127,8 +133,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tags = tags;
 
         console.log("dt", activeAfterBlur, index);
-        if (active !== null && active > index) {
-            active--;
+        if (activeAfterBlur !== null && activeAfterBlur > index) {
+            activeAfterBlur--;
         }
 
         return deleted;
@@ -138,6 +144,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const deleted = tags.splice(index, 1)[0];
         tags = tags;
 
+        console.log("dta", active, activeAfterBlur, index, JSON.stringify(tags));
         if (activeAfterBlur === index) {
             activeAfterBlur = null;
         } else if (activeAfterBlur !== null && activeAfterBlur > index) {
@@ -227,7 +234,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         search={tags[active ?? -1]?.name ?? ""}
                         on:autocomplete={onAutocomplete}
                         let:updateAutocomplete
-                        let:destroyAutocomplete
                     >
                         <TagInput
                             id={tag.id}
@@ -247,7 +253,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             on:tagaccept={() => {
                                 console.log("accept", tag, index, activeName);
                                 deleteActiveTagIfNotUnique(tag, index);
-                                destroyAutocomplete();
                                 decideNextActive();
                                 tag.name = activeName;
                             }}
@@ -267,13 +272,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 class="tag-spacer flex-grow-1 align-self-stretch"
                 on:click={appendEmptyTag}
             />
-
-            <div>
-                a, aab, an, ac: {active}
-                {activeAfterBlur} "{activeName}";
-                <br />
-                {JSON.stringify(tags)}
-            </div>
         </ButtonToolbar>
     </div>
 </StickyBottom>
