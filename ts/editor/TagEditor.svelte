@@ -34,7 +34,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let activeAfterBlur: number | null = null;
     let activeName = "";
 
-    let autocompletionChoice: string | undefined;
+    function onAutocomplete({ detail }) {
+        const activeTag = tags[active!];
+        const autocompletionChoice = detail.choice;
+
+        console.log(autocompletionChoice, activeTag);
+        if (autocompletionChoice) {
+            activeName = autocompletionChoice;
+        } else {
+            activeName = activeTag.name;
+        }
+    }
+
+    function updateTagName() {
+        console.log("updatetagname");
+        const activeTag = tags[active!];
+        activeTag.name = activeName;
+        tags = tags;
+    }
 
     function setActiveAfterBlur(value: number): void {
         if (activeAfterBlur === null) {
@@ -206,7 +223,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 class="d-flex flex-column-reverse"
                 {suggestions}
                 search={tags[active ?? -1]?.name ?? ""}
-                bind:choice={autocompletionChoice}
+                on:autocomplete={onAutocomplete}
                 let:updateAutocomplete
                 let:destroyAutocomplete
             >
@@ -218,6 +235,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             bind:input
                             on:focus={() => (activeName = tag.name)}
                             on:keydown={updateAutocomplete}
+                            on:input={updateTagName}
                             on:tagsplit={({ detail }) =>
                                 splitTag(index, detail.start, detail.end)}
                             on:tagadd={() => insertTag(index)}
@@ -251,8 +269,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </TagAutocomplete>
 
             <div>
-                a, aab, an: {active}
-                {activeAfterBlur} "{activeName}";<br />{JSON.stringify(tags)}
+                a, aab, an, ac: {active}
+                {activeAfterBlur} "{activeName}";
+                <br />
+                {JSON.stringify(tags)}
             </div>
         </ButtonToolbar>
     </div>

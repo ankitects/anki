@@ -3,6 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
+    import { createEventDispatcher } from "svelte";
+
     import type Dropdown from "bootstrap/js/dist/dropdown";
 
     import WithDropdownMenu from "components/WithDropdownMenu.svelte";
@@ -20,11 +22,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let displayed: string[] = [];
     let selected: number | null = null;
 
-    export let choice: string | undefined;
-    $: choice = displayed[selected ?? -1];
-
     // blue highlight
     let active: boolean = false;
+
+    const dispatch = createEventDispatcher();
 
     function select(index: number) {
         selected = index;
@@ -51,6 +52,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 } else {
                     selected--;
                 }
+
+                const choice = displayed[selected ?? -1];
+                dispatch("autocomplete", { choice });
             } else if (event.code === "ArrowUp" || event.code === "Tab") {
                 event.preventDefault();
                 if (selected === null) {
@@ -60,6 +64,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 } else {
                     selected++;
                 }
+
+                const choice = displayed[selected ?? -1];
+                dispatch("autocomplete", { choice });
             } else if (event.code === "Enter") {
                 event.preventDefault();
                 active = true;
