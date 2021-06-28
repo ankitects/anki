@@ -195,6 +195,10 @@ export function setFormat(cmd: string, arg?: string, nosave = false): void {
     }
 }
 
+export function setTags(tags: string[]): void {
+    $tagEditor.then((tagEditor: TagEditor): void => tagEditor.resetTags(tags));
+}
+
 export const i18n = setupI18n({
     modules: [
         ModuleName.EDITING,

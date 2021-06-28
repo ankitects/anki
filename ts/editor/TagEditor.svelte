@@ -14,25 +14,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Tag as TagType } from "./tags";
     import { attachId, getName } from "./tags";
 
-    export let initialNames = ["en::foobar", "test", "def"];
-    export let suggestions = ["en::idioms", "anki::functionality", "math"];
-
     export let size = isApplePlatform() ? 1.6 : 2.0;
 
-    let input: HTMLInputElement;
-    let tags = initialNames.map(attachId);
+    export let suggestions = ["en::idioms", "anki::functionality", "math"];
 
-    function isFirst(index: number): boolean {
-        return index === 0;
-    }
+    export let tags: TagType[] = [];
 
-    function isLast(index: number): boolean {
-        return index === tags.length - 1;
+    export function resetTags(names: string[]) {
+        tags = names.map(attachId);
     }
 
     let active: number | null = null;
     let activeAfterBlur: number | null = null;
     let activeName = "";
+    let activeInput: HTMLInputElement;
 
     function onAutocomplete({ detail }) {
         const activeTag = tags[active!];
@@ -114,7 +109,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             // splitOff tag was rejected
             return;
         }
-        input.setSelectionRange(0, 0);
+        activeInput.setSelectionRange(0, 0);
     }
 
     function insertTag(index: number): void {
@@ -134,6 +129,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         return deleted;
+    }
+
+    function isFirst(index: number): boolean {
+        return index === 0;
+    }
+
+    function isLast(index: number): boolean {
+        return index === tags.length - 1;
     }
 
     function joinWithPreviousTag(index: number): void {
@@ -182,7 +185,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         active = null;
 
         await tick();
-        input.setSelectionRange(0, 0);
+        activeInput.setSelectionRange(0, 0);
     }
 
     function deleteTagIfNotUnique(tag: TagType, index: number): void {
@@ -220,7 +223,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <TagInput
                             id={tag.id}
                             bind:name={activeName}
-                            bind:input
+                            bind:input={activeInput}
                             on:focus={() => (activeName = tag.name)}
                             on:keydown={updateAutocomplete}
                             on:input={() => updateWithTagName(tag)}
