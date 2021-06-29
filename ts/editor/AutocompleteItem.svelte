@@ -51,8 +51,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border: none;
 
         &.active {
-            background-color: button.$focus-color;
-            color: white;
+            background-color: button.$focus-color !important;
+            color: white !important;
         }
     }
 

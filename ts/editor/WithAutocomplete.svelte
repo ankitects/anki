@@ -19,9 +19,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let target: HTMLElement;
     let dropdown: Dropdown;
     let autocomplete: any;
-    let selected: number | null = null;
 
-    // blue highlight
+    let selected: number | null = null;
     let active: boolean = false;
 
     const dispatch = createEventDispatcher();
@@ -54,8 +53,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         dispatch("autocomplete", { selected: suggestions[selected ?? -1] });
     }
 
-    function chooseSelected() {
+    async function chooseSelected() {
+        const suggestions = await suggestionsPromise;
+
         active = true;
+        dispatch("choose", { chosen: suggestions[selected ?? -1] });
     }
 
     async function update() {
@@ -102,7 +104,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function chooseIndex(index: number): Promise<void> {
         const suggestions = await suggestionsPromise;
-        dispatch("autocomplete", { selected: suggestions[index] });
+        dispatch("autocomplete", { name: suggestions[index] });
     }
 
     function selectIfMousedown(event: MouseEvent, index: number): void {

@@ -32,13 +32,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let activeName = "";
     let activeInput: HTMLInputElement;
 
-    function onAutocomplete({ detail }) {
-        const activeTag = tags[active!];
-        const selected = detail.selected;
-
-        activeName = selected ?? activeTag.name;
-    }
-
     let suggestionsPromise: Promise<string[]> = Promise.resolve([]);
 
     function updateSuggestions(): void {
@@ -47,6 +40,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             "en::idioms",
             Math.random().toString(36).substring(2),
         ]);
+    }
+
+    function onAutocomplete(selected: string): void {
+        const activeTag = tags[active!];
+
+        activeName = selected ?? activeTag.name;
+        activeInput.setSelectionRange(Infinity, Infinity);
+    }
+
+    function onChosen(chosen: string) {
+        onAutocomplete(chosen);
+        splitTag(active!, Infinity, Infinity);
     }
 
     function updateWithTagName(tag: TagType): void {
@@ -96,11 +101,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             contained
         );
         if (contained >= 0) {
-            tags[contained].flash();
+            tags[contained >= index ? contained + 1 : contained].flash();
             return false;
         }
 
         return true;
+    }
+
+    async function enterBehavior(
+        index: number,
+        start: number,
+        end: number,
+        autocomplete: any
+    ): Promise<void> {
+        if (autocomplete.isVisible()) {
+            autocomplete.chooseSelected();
+        } else {
+            splitTag(index, start, end);
+        }
     }
 
     async function splitTag(index: number, start: number, end: number): Promise<void> {
@@ -271,8 +289,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <WithAutocomplete
                         class="d-flex flex-column-reverse"
                         {suggestionsPromise}
-                        on:autocomplete={onAutocomplete}
                         on:update={updateSuggestions}
+                        on:autocomplete={({ detail }) =>
+                            onAutocomplete(detail.selected)}
+                        on:choose={({ detail }) => onChosen(detail.chosen)}
                         let:createAutocomplete
                         let:autocomplete
                     >
@@ -280,7 +300,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             id={tag.id}
                             bind:name={activeName}
                             bind:input={activeInput}
-                            on:click={(event) => event.stopPropagation()}
                             on:focus={() => {
                                 activeName = tag.name;
                                 createAutocomplete(activeInput);
@@ -288,7 +307,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             on:keydown={(event) => update(event, autocomplete)}
                             on:input={() => updateWithTagName(tag)}
                             on:tagsplit={({ detail }) =>
-                                splitTag(index, detail.start, detail.end)}
+                                enterBehavior(
+                                    index,
+                                    detail.start,
+                                    detail.end,
+                                    autocomplete
+                                )}
                             on:tagadd={() => insertTag(index)}
                             on:tagdelete={() => deleteTagAt(index)}
                             on:tagjoinprevious={() => joinWithPreviousTag(index)}
