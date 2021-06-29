@@ -53,7 +53,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /* Set custom menu without using common element with .dropdown */
         (dropdown as any)._menu = menu;
         Object.defineProperty(dropdown, "isVisible", { value: isVisible });
-
         return dropdown as Dropdown;
     }
 </script>

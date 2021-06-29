@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "lib/bridgecommand";
     import StickyBottom from "components/StickyBottom.svelte";
     import AddTagBadge from "./AddTagBadge.svelte";
+    import SelectedTagBadge from "./SelectedTagBadge.svelte";
     import Tag from "./Tag.svelte";
     import TagInput from "./TagInput.svelte";
     import WithAutocomplete from "./WithAutocomplete.svelte";
@@ -322,6 +323,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             deselect();
         }
     }
+
+    /* TODO replace with navigator.clipboard once available */
+    function copyToClipboard(content: string): void {
+        const textarea = document.createElement("textarea");
+        textarea.value = content;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "absolute";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+    }
+
+    function copySelectedTags() {
+        const content = tags
+            .filter((tag) => tag.selected)
+            .map((tag) => tag.name)
+            .join("\n");
+        copyToClipboard(content);
+        deselect();
+    }
+
+    function deleteSelectedTags() {
+        tags.map((tag, index) => [tag.selected, index])
+            .filter(([selected]) => selected)
+            .reverse()
+            .forEach(([, index]) => deleteTagAt(index as number));
+        deselect();
+        saveTags();
+    }
 </script>
 
 <StickyBottom>
@@ -330,8 +362,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {size}
         on:focusout={deselectIfLeave}
     >
-        <div class="pb-1">
-            <AddTagBadge on:click={appendEmptyTag} />
+        <div class="pb-1" on:mousedown|preventDefault>
+            {#if tags.some((tag) => tag.selected)}
+                <SelectedTagBadge
+                    on:tagcopy={copySelectedTags}
+                    on:tagdelete={deleteSelectedTags}
+                />
+            {:else}
+                <AddTagBadge on:click={appendEmptyTag} />
+            {/if}
         </div>
 
         {#each tags as tag, index (tag.id)}
