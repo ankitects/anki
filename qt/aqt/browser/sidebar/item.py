@@ -138,7 +138,11 @@ class SidebarItem:
         if other.item_type == self.item_type:
             if self.item_type == SidebarItemType.TAG:
                 return self.full_name == other.full_name
-            elif self.item_type == SidebarItemType.SAVED_SEARCH:
+            elif self.item_type in (
+                SidebarItemType.SAVED_SEARCH,
+                SidebarItemType.TODAY,
+                SidebarItemType.CARD_STATE,
+            ):
                 return self.name == other.name
             elif self.item_type == SidebarItemType.NOTETYPE_TEMPLATE:
                 return (
