@@ -1,38 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import * as tr from "./i18n";
-import { isApplePlatform } from "./platform";
+import type { Modifier } from "./keys";
+
 import { registerPackage } from "./register-package";
-
-export type Modifier = "Control" | "Alt" | "Shift" | "Meta";
-
-// how modifiers are mapped
-const platformModifiers = isApplePlatform()
-    ? ["Meta", "Alt", "Shift", "Control"]
-    : ["Control", "Alt", "Shift", "OS"];
-
-export function isControl(key: string): boolean {
-    return key === platformModifiers[0];
-}
-
-export function isShift(key: string): boolean {
-    return key === platformModifiers[2];
-}
-
-function modifiersToPlatformString(modifiers: string[]): string {
-    const displayModifiers = isApplePlatform()
-        ? ["^", "⌥", "⇧", "⌘"]
-        : [`${tr.keyboardCtrl()}+`, "Alt+", `${tr.keyboardShift()}+`, "Win+"];
-
-    let result = "";
-
-    for (const modifier of modifiers) {
-        result += displayModifiers[platformModifiers.indexOf(modifier)];
-    }
-
-    return result;
-}
+import { modifiersToPlatformString, checkModifiers } from "./keys";
 
 const keyCodeLookup = {
     Backspace: 8,
@@ -89,25 +61,6 @@ export function getPlatformString(keyCombinationString: string): string {
 function checkKey(event: KeyboardEvent, key: number): boolean {
     return event.which === key;
 }
-
-const allModifiers: Modifier[] = ["Control", "Alt", "Shift", "Meta"];
-
-const checkModifiers =
-    (required: Modifier[], optional: Modifier[] = []) =>
-    (event: KeyboardEvent): boolean => {
-        return allModifiers.reduce(
-            (
-                matches: boolean,
-                currentModifier: Modifier,
-                currentIndex: number
-            ): boolean =>
-                matches &&
-                (optional.includes(currentModifier as Modifier) ||
-                    event.getModifierState(platformModifiers[currentIndex]) ===
-                        required.includes(currentModifier)),
-            true
-        );
-    };
 
 function partition<T>(predicate: (t: T) => boolean, items: T[]): [T[], T[]] {
     const trueItems: T[] = [];
