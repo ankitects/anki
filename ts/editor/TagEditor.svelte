@@ -54,7 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         splitTag(active!, Infinity, Infinity);
     }
 
-    function updateWithTagName(tag: TagType): void {
+    function updateTagName(tag: TagType): void {
         tag.name = activeName;
         tags = tags;
     }
@@ -172,9 +172,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const deleted = deleteTagAt(index - 1);
         activeName = deleted.name + activeName;
-        active = active! - 1;
-        console.log("joinprevious", activeName, active);
-        tags = tags;
+        active!--;
+        updateTagName(tags[active!]);
     }
 
     function joinWithNextTag(index: number): void {
@@ -184,7 +183,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const deleted = deleteTagAt(index + 1);
         activeName = activeName + deleted.name;
-        tags = tags;
+        updateTagName(tags[active!]);
     }
 
     function moveToPreviousTag(index: number): void {
@@ -235,7 +234,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return (
             (event.location === KeyboardEvent.DOM_KEY_LOCATION_STANDARD ||
                 event.location === KeyboardEvent.DOM_KEY_LOCATION_NUMPAD) &&
-            !event.code.startsWith("Arrow")
+            !event.code.startsWith("Arrow") &&
+            event.code !== "Backspace" && event.code !== "Delete"
         );
     }
 
@@ -316,7 +316,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 createAutocomplete(activeInput);
                             }}
                             on:keydown={(event) => update(event, autocomplete)}
-                            on:input={() => updateWithTagName(tag)}
+                            on:input={() => updateTagName(tag)}
                             on:tagsplit={({ detail }) =>
                                 enterBehavior(
                                     index,
@@ -333,7 +333,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             on:tagaccept={() => {
                                 deleteTagIfNotUnique(tag, index);
                                 if (tag) {
-                                    updateWithTagName(tag);
+                                    updateTagName(tag);
                                 }
                                 saveTags();
                                 decideNextActive();
