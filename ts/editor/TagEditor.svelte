@@ -279,13 +279,46 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    let selectionAnchor: number | null = null;
+    let selectionFocus: number | null = null;
+
+    function select(index: number) {
+        tags[index].selected = !tags[index].selected;
+        tags = tags;
+
+        selectionAnchor = index;
+    }
+
+    function selectRange(index: number) {
+        if (selectionAnchor === null) {
+            select(index);
+            return;
+        }
+
+        selectionFocus = index;
+
+        const from = Math.min(selectionAnchor, selectionFocus);
+        const to = Math.max(selectionAnchor, selectionFocus);
+
+        for (let index = from; index <= to; index++) {
+            tags[index].selected = true;
+        }
+
+        tags = tags;
+    }
+
     function deselect() {
         tags = tags.map((tag: TagType): TagType => ({ ...tag, selected: false }));
+        selectionAnchor = null;
+        selectionFocus = null;
     }
 
     function deselectIfLeave(event: FocusEvent) {
         const toolbar = event.currentTarget as HTMLDivElement;
-        if (!toolbar.contains(event.relatedTarget as Element)) {
+        if (
+            event.relatedTarget === null ||
+            !toolbar.contains(event.relatedTarget as Node)
+        ) {
             deselect();
         }
     }
@@ -357,7 +390,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             active = index;
                             deselect();
                         }}
-                        on:tagrange={console.log}
+                        on:tagselect={() => select(index)}
+                        on:tagrange={() => selectRange(index)}
                         on:tagdelete={() => {
                             deleteTagAt(index);
                             saveTags();
