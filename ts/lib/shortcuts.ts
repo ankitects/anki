@@ -12,6 +12,14 @@ const platformModifiers = isApplePlatform()
     ? ["Meta", "Alt", "Shift", "Control"]
     : ["Control", "Alt", "Shift", "OS"];
 
+export function isControl(key: string): boolean {
+    return key === platformModifiers[0];
+}
+
+export function isShift(key: string): boolean {
+    return key === platformModifiers[2];
+}
+
 function modifiersToPlatformString(modifiers: string[]): string {
     const displayModifiers = isApplePlatform()
         ? ["^", "⌥", "⇧", "⌘"]
@@ -84,6 +92,23 @@ function checkKey(event: KeyboardEvent, key: number): boolean {
 
 const allModifiers: Modifier[] = ["Control", "Alt", "Shift", "Meta"];
 
+const checkModifiers =
+    (required: Modifier[], optional: Modifier[] = []) =>
+    (event: KeyboardEvent): boolean => {
+        return allModifiers.reduce(
+            (
+                matches: boolean,
+                currentModifier: Modifier,
+                currentIndex: number
+            ): boolean =>
+                matches &&
+                (optional.includes(currentModifier as Modifier) ||
+                    event.getModifierState(platformModifiers[currentIndex]) ===
+                        required.includes(currentModifier)),
+            true
+        );
+    };
+
 function partition<T>(predicate: (t: T) => boolean, items: T[]): [T[], T[]] {
     const trueItems: T[] = [];
     const falseItems: T[] = [];
@@ -100,28 +125,25 @@ function removeTrailing(modifier: string): string {
     return modifier.substring(0, modifier.length - 1);
 }
 
-function checkModifiers(event: KeyboardEvent, modifiers: string[]): boolean {
+// function checkModifiers(event: KeyboardEvent, modifiers: string[]): boolean {
+function separateRequiredOptionalModifiers(
+    modifiers: string[]
+): [Modifier[], Modifier[]] {
     const [requiredModifiers, otherModifiers] = partition(
         isRequiredModifier,
         modifiers
     );
 
     const optionalModifiers = otherModifiers.map(removeTrailing);
-
-    return allModifiers.reduce(
-        (matches: boolean, currentModifier: string, currentIndex: number): boolean =>
-            matches &&
-            (optionalModifiers.includes(currentModifier as Modifier) ||
-                event.getModifierState(platformModifiers[currentIndex]) ===
-                    requiredModifiers.includes(currentModifier)),
-        true
-    );
+    return [requiredModifiers as Modifier[], optionalModifiers as Modifier[]];
 }
 
 const check =
     (keyCode: number, modifiers: string[]) =>
     (event: KeyboardEvent): boolean => {
-        return checkKey(event, keyCode) && checkModifiers(event, modifiers);
+        const [required, optional] = separateRequiredOptionalModifiers(modifiers);
+
+        return checkKey(event, keyCode) && checkModifiers(required, optional)(event);
     };
 
 function keyToCode(key: string): number {
