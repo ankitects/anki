@@ -92,14 +92,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         names.splice(index, 1);
 
         const contained = names.indexOf(activeName);
-        console.log(
-            "isActiveUnique",
-            active,
-            index,
-            activeName,
-            JSON.stringify(names),
-            contained
-        );
         if (contained >= 0) {
             tags[contained >= index ? contained + 1 : contained].flash();
             return false;
@@ -149,7 +141,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const deleted = tags.splice(index, 1)[0];
         tags = tags;
 
-        console.log("dt", activeAfterBlur, index);
         if (activeAfterBlur !== null && activeAfterBlur > index) {
             activeAfterBlur--;
         }
@@ -187,8 +178,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function moveToPreviousTag(index: number): void {
-        console.log("moveprevious", active, index);
-
         if (isFirst(index)) {
             return;
         }
@@ -225,7 +214,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function decideNextActive() {
-        console.log("dna", active, activeAfterBlur);
         active = activeAfterBlur;
         activeAfterBlur = null;
     }
@@ -238,7 +226,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return event.code === "Backspace" || event.code === "Delete";
     }
 
-    function update(event: KeyboardEvent, autocomplete: any): void {
+    function onKeydown(event: KeyboardEvent, autocomplete: any): void {
         const visible = autocomplete.isVisible();
         const printable = isPrintableKey(event);
         const deletion = isDeletionKey(event);
@@ -249,10 +237,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             } else {
                 return;
             }
-        }
-
-        if (activeName.length === 0) {
-            autocomplete.hide();
         }
 
         switch (event.code) {
@@ -288,6 +272,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 break;
         }
     }
+
+    function onKeyup(_event: KeyboardEvent, autocomplete: any): void {
+        if (activeName.length === 0) {
+            autocomplete.hide();
+        }
+    }
 </script>
 
 <StickyBottom>
@@ -317,7 +307,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 activeName = tag.name;
                                 createAutocomplete(activeInput);
                             }}
-                            on:keydown={(event) => update(event, autocomplete)}
+                            on:keydown={(event) => onKeydown(event, autocomplete)}
+                            on:keyup={(event) => onKeyup(event, autocomplete)}
                             on:input={() => updateTagName(tag)}
                             on:tagsplit={({ detail }) =>
                                 enterBehavior(
@@ -360,8 +351,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             class="tag-spacer flex-grow-1 align-self-stretch"
             on:click={appendEmptyTag}
         />
-        {active}
-        {activeAfterBlur}
     </ButtonToolbar>
 </StickyBottom>
 

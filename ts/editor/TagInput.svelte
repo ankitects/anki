@@ -75,8 +75,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onBlur(event: Event): void {
         event.preventDefault();
+
         normalize();
-        console.log("taginput onblur");
         if (name.length === 0) {
             dispatch("tagdelete");
         }
@@ -182,6 +182,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:blur={onBlur}
         on:keydown={onKeydown}
         on:keydown
+        on:keyup
         on:input
         on:paste={onPaste}
     />
