@@ -150,6 +150,7 @@ impl SyncServer for LocalServer {
 
     async fn sanity_check(&mut self, mut client: SanityCheckCounts) -> Result<SanityCheckResponse> {
         client.counts = Default::default();
+        client.graves = 0;
         let server = self.col.storage.sanity_check_info()?;
         Ok(SanityCheckResponse {
             status: if client == server {
