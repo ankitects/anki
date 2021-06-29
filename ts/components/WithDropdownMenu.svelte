@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { dropdownKey } from "./contextKeys";
 
     export let disabled = false;
+    export let toggleOnClick = true;
 
     setContext(dropdownKey, {
         dropdown: true,
@@ -41,14 +42,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
 
         if (!menu) {
-            console.log(`Could not find menu "${menuId}" for dropdown menu.`);
-        } else {
-            dropdown = new Dropdown(element);
-
-            /* Set custom menu without using common element with .dropdown */
-            (dropdown as any)._menu = menu;
-            Object.defineProperty(dropdown, "isVisible", { value: isVisible });
+            throw Error(`Could not find menu "${menuId}" for dropdown menu.`);
         }
+
+        if (!toggleOnClick) {
+            (Dropdown.prototype as any)._addEventListeners = noop;
+        }
+        dropdown = new Dropdown(element);
+
+        /* Set custom menu without using common element with .dropdown */
+        (dropdown as any)._menu = menu;
+        Object.defineProperty(dropdown, "isVisible", { value: isVisible });
 
         return dropdown as Dropdown;
     }
