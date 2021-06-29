@@ -337,7 +337,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <Tag
                         name={tag.name}
                         bind:flash={tag.flash}
-                        on:click={() => (active = index)}
+                        bind:selected={tag.selected}
+                        on:tagedit={() => (active = index)}
+                        on:tagrange={console.log}
                         on:tagdelete={() => {
                             deleteTagAt(index);
                             saveTags();
