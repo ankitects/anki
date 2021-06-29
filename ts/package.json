@@ -59,7 +59,7 @@
         "@popperjs/core": "^2.9.2",
         "@types/lodash-es": "^4.17.4",
         "@types/marked": "^2.0.2",
-        "bootstrap": "=5.0.0-beta3",
+        "bootstrap": "^5.0.0",
         "bootstrap-icons": "^1.4.0",
         "codemirror": "^5.61.1",
         "css-browser-selector": "^0.6.5",
