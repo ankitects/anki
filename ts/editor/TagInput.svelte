@@ -207,7 +207,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             border: none;
             margin: 0;
             /* adjust so deleting all tags does not cause a reflow */
-            padding: 1.5px 0;
+            padding: 3.2px 0;
         }
 
         &::after {
