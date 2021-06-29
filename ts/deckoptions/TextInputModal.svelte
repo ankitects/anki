@@ -76,6 +76,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             id="prompt-input"
                             bind:this={inputRef}
                             type="text"
+                            class:nightMode
                             class="form-control"
                             bind:value
                         />
@@ -95,6 +96,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "ts/sass/night_mode" as nightmode;
+
+    .nightMode {
+        @include nightmode.input;
+    }
+
     .default-colors {
         background-color: var(--window-bg);
         color: var(--text-fg);
