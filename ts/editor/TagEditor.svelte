@@ -231,15 +231,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         activeAfterBlur = null;
     }
 
+    function printableKey(event: KeyboardEvent): boolean {
+        return (
+            (event.location === KeyboardEvent.DOM_KEY_LOCATION_STANDARD ||
+                event.location === KeyboardEvent.DOM_KEY_LOCATION_NUMPAD) &&
+            !event.code.startsWith("Arrow")
+        );
+    }
+
     function update(event: KeyboardEvent, autocomplete: any): void {
         const visible = autocomplete.isVisible();
+        const printable = printableKey(event);
 
-        if (
-            !visible &&
-            (event.location === KeyboardEvent.DOM_KEY_LOCATION_STANDARD ||
-                event.location === KeyboardEvent.DOM_KEY_LOCATION_NUMPAD)
-        ) {
-            autocomplete.show();
+        if (!visible) {
+            if (printable) {
+                autocomplete.show();
+            } else {
+                return;
+            }
         }
 
         switch (event.code) {
@@ -269,7 +278,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 break;
 
             default:
-                if (event.code.startsWith("Arrow")) {
+                if (!printable) {
                     return;
                 }
 
@@ -280,11 +289,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <StickyBottom>
-    <div class="row-gap">
-        <ButtonToolbar class="dropup d-flex flex-wrap align-items-center" {size}>
+    <ButtonToolbar class="dropup d-flex flex-wrap align-items-center" {size}>
+        <div class="pb-1">
             <AddTagBadge on:click={appendEmptyTag} />
+        </div>
 
-            {#each tags as tag, index (tag.id)}
+        {#each tags as tag, index (tag.id)}
+            <div class="pb-1">
                 {#if index === active}
                     <WithAutocomplete
                         class="d-flex flex-column-reverse"
@@ -340,23 +351,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         }}
                     />
                 {/if}
-            {/each}
+            </div>
+        {/each}
 
-            <div
-                class="tag-spacer flex-grow-1 align-self-stretch"
-                on:click={appendEmptyTag}
-            />
-            {active}
-            {activeAfterBlur}
-        </ButtonToolbar>
-    </div>
+        <div
+            class="tag-spacer flex-grow-1 align-self-stretch"
+            on:click={appendEmptyTag}
+        />
+        {active}
+        {activeAfterBlur}
+    </ButtonToolbar>
 </StickyBottom>
 
 <style lang="scss">
-    .row-gap > :global(.d-flex > *) {
-        margin-bottom: 2px;
-    }
-
     .tag-spacer {
         cursor: text;
     }
