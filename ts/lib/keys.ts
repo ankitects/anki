@@ -4,15 +4,17 @@
 import * as tr from "./i18n";
 import { isApplePlatform } from "./platform";
 
+// those are the modifiers that Anki works with
 export type Modifier = "Control" | "Alt" | "Shift" | "Meta";
-
-// how modifiers are mapped
 const allModifiers: Modifier[] = ["Control", "Alt", "Shift", "Meta"];
 
-const platformModifiers = isApplePlatform()
+const platformModifiers: string[] = isApplePlatform()
     ? ["Meta", "Alt", "Shift", "Control"]
     : ["Control", "Alt", "Shift", "OS"];
 
+function translateModifierToPlatform(modifier: Modifier): string {
+    return platformModifiers[allModifiers.indexOf(modifier)];
+}
 
 export const checkModifiers =
     (required: Modifier[], optional: Modifier[] = []) =>
@@ -31,15 +33,18 @@ export const checkModifiers =
         );
     };
 
-export const hasModifier = (modifier: Modifier) => (event: KeyboardEvent): boolean => event.getModifierState(platformModifiers[allModifiers.indexOf(modifier)]);
+const modifierPressed =
+    (modifier: Modifier) =>
+    (event: MouseEvent | KeyboardEvent): boolean => {
+        const translated = translateModifierToPlatform(modifier);
+        const state = event.getModifierState(translated);
+        return event.type === "keyup"
+            ? state && (event as KeyboardEvent).key !== translated
+            : state;
+    };
 
-export function isControl(key: string): boolean {
-    return key === platformModifiers[0];
-}
-
-export function isShift(key: string): boolean {
-    return key === platformModifiers[2];
-}
+export const controlPressed = modifierPressed("Control");
+export const shiftPressed = modifierPressed("Shift");
 
 export function modifiersToPlatformString(modifiers: string[]): string {
     const displayModifiers = isApplePlatform()
