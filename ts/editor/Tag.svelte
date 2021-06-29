@@ -39,8 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (shift) {
             dispatch("tagrange");
         } else if (control) {
-            console.log("control", control);
-            selected = !selected;
+            dispatch("tagselect");
         } else {
             dispatch("tagedit");
         }
