@@ -114,7 +114,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<WithDropdownMenu let:menuId let:createDropdown>
+<WithDropdownMenu toggleOnClick={false} let:menuId let:createDropdown>
     <slot createAutocomplete={createAutocomplete(createDropdown)} {autocomplete} />
 
     <DropdownMenu id={menuId} class={className}>
