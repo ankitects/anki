@@ -230,25 +230,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         activeAfterBlur = null;
     }
 
-    function printableKey(event: KeyboardEvent): boolean {
-        return (
-            (event.location === KeyboardEvent.DOM_KEY_LOCATION_STANDARD ||
-                event.location === KeyboardEvent.DOM_KEY_LOCATION_NUMPAD) &&
-            !event.code.startsWith("Arrow") &&
-            event.code !== "Backspace" && event.code !== "Delete"
-        );
+    function isPrintableKey(event: KeyboardEvent): boolean {
+        return event.key.length === 1;
+    }
+
+    function isDeletionKey(event: KeyboardEvent): boolean {
+        return event.code === "Backspace" || event.code === "Delete";
     }
 
     function update(event: KeyboardEvent, autocomplete: any): void {
         const visible = autocomplete.isVisible();
-        const printable = printableKey(event);
+        const printable = isPrintableKey(event);
+        const deletion = isDeletionKey(event);
 
         if (!visible) {
-            if (printable) {
+            if (printable || deletion) {
                 autocomplete.show();
             } else {
                 return;
             }
+        }
+
+        if (activeName.length === 0) {
+            autocomplete.hide();
         }
 
         switch (event.code) {
@@ -264,25 +268,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             case "Tab":
                 if (event.shiftKey) {
-                    autocomplete.selectNext();
-                } else {
                     autocomplete.selectPrevious();
+                } else {
+                    autocomplete.selectNext();
                 }
                 event.preventDefault();
                 break;
 
             case "Enter":
-                console.log("choose");
                 autocomplete.chooseSelected();
                 event.preventDefault();
                 break;
 
             default:
-                if (!printable) {
-                    return;
+                if (printable || deletion) {
+                    autocomplete.update();
                 }
 
-                autocomplete.update();
                 break;
         }
     }
@@ -298,7 +300,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <div class="pb-1">
                 {#if index === active}
                     <WithAutocomplete
-                        class="d-flex flex-column-reverse"
+                        class="d-flex flex-column-reverse dropup"
                         {suggestionsPromise}
                         on:update={updateSuggestions}
                         on:autocomplete={({ detail }) =>
