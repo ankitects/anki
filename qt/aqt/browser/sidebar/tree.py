@@ -215,17 +215,16 @@ class SidebarTreeView(QTreeView):
         # start from a collapsed state, as it's faster
         self.collapseAll()
         self.setColumnHidden(0, not self.model().search(text))
-        self._expand_where_necessary(
-            self.model(), searching=True, scroll_to_first_match=True
-        )
+        self._expand_where_necessary(self.model(), searching=True)
 
     def _expand_where_necessary(
         self,
         model: SidebarModel,
         parent: Optional[QModelIndex] = None,
         searching: bool = False,
-        scroll_to_first_match: bool = False,
     ) -> None:
+        scroll_to_first_match = searching
+
         def expand_node(parent: QModelIndex) -> None:
             nonlocal scroll_to_first_match
 
