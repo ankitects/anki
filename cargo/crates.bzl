@@ -153,16 +153,6 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__async_compression__0_3_8",
-        url = "https://crates.io/api/v1/crates/async-compression/0.3.8/download",
-        type = "tar.gz",
-        sha256 = "5443ccbb270374a2b1055fc72da40e1f237809cd6bb0e97e66d264cd138473a6",
-        strip_prefix = "async-compression-0.3.8",
-        build_file = Label("//cargo/remote:BUILD.async-compression-0.3.8.bazel"),
-    )
-
-    maybe(
-        http_archive,
         name = "raze__async_trait__0_1_50",
         url = "https://crates.io/api/v1/crates/async-trait/0.1.50/download",
         type = "tar.gz",

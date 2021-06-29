@@ -75,7 +75,6 @@ rust_library(
         ":build_script",
         "//rslib/cargo:ammonia",
         "//rslib/cargo:askama",
-        "//rslib/cargo:async_compression",
         "//rslib/cargo:blake3",
         "//rslib/cargo:bytes",
         "//rslib/cargo:chrono",

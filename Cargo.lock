@@ -56,7 +56,6 @@ dependencies = [
  "ammonia",
  "anki_i18n",
  "askama",
- "async-compression",
  "async-trait",
  "blake3",
  "bytes",
@@ -206,19 +205,6 @@ dependencies = [
  "serde",
  "syn",
  "toml",
-]
-
-[[package]]
-name = "async-compression"
-version = "0.3.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5443ccbb270374a2b1055fc72da40e1f237809cd6bb0e97e66d264cd138473a6"
-dependencies = [
- "flate2",
- "futures-core",
- "memchr",
- "pin-project-lite",
- "tokio",
 ]
 
 [[package]]

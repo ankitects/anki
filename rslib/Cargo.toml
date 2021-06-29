@@ -37,7 +37,6 @@ slog-term = "=2.6.0"
 anki_i18n = { path="i18n" }
 
 askama = "0.10.5"
-async-compression = { version = "0.3.8", features = ["tokio", "gzip"] }
 blake3 = "0.3.8"
 bytes = "1.0.1"
 chrono = "0.4.19"

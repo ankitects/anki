@@ -38,6 +38,7 @@ pub enum SyncErrorKind {
     ResyncRequired,
     DatabaseCheckRequired,
     SyncNotStarted,
+    UploadTooLarge,
 }
 
 impl AnkiError {
@@ -152,6 +153,7 @@ impl SyncError {
             SyncErrorKind::ClockIncorrect => tr.sync_clock_off(),
             SyncErrorKind::DatabaseCheckRequired => tr.sync_sanity_check_failed(),
             SyncErrorKind::SyncNotStarted => "sync not started".into(),
+            SyncErrorKind::UploadTooLarge => tr.sync_upload_too_large(&self.info),
         }
         .into()
     }

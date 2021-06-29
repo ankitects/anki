@@ -1,15 +1,23 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{io::prelude::*, mem::MaybeUninit, path::Path, time::Duration};
+use std::{
+    env,
+    io::{prelude::*, Cursor},
+    mem::MaybeUninit,
+    path::Path,
+    time::Duration,
+};
 
 use async_trait::async_trait;
 use bytes::Bytes;
 use flate2::{write::GzEncoder, Compression};
 use futures::{Stream, StreamExt};
+use lazy_static::lazy_static;
 use reqwest::{multipart, Body, Client, Response};
 use serde::de::DeserializeOwned;
 use tempfile::NamedTempFile;
+use tokio_util::io::ReaderStream;
 
 use super::{
     http::{
@@ -22,7 +30,16 @@ use super::{
 };
 use crate::{error::SyncErrorKind, notes::guid, prelude::*, version::sync_client_version};
 
-// fixme: 100mb limit
+lazy_static! {
+    // These limits are enforced server-side, but are made adjustable for users
+    // who are using a custom sync server.
+    static ref MAXIMUM_UPLOAD_MEGS_UNCOMPRESSED: usize = env::var("MAX_UPLOAD_MEGS_UNCOMP")
+        .map(|v| v.parse().expect("invalid upload limit"))
+        .unwrap_or(250);
+    static ref MAXIMUM_UPLOAD_MEGS_COMPRESSED: usize = env::var("MAX_UPLOAD_MEGS_COMP")
+        .map(|v| v.parse().expect("invalid upload limit"))
+        .unwrap_or(100);
+}
 
 pub type FullSyncProgressFn = Box<dyn FnMut(FullSyncProgress, bool) + Send + Sync + 'static>;
 
@@ -119,23 +136,23 @@ impl SyncServer for HttpSyncClient {
     async fn full_upload(mut self: Box<Self>, col_path: &Path, _can_consume: bool) -> Result<()> {
         let file = tokio::fs::File::open(col_path).await?;
         let total_bytes = file.metadata().await?.len() as usize;
+        check_upload_limit(total_bytes, *MAXIMUM_UPLOAD_MEGS_UNCOMPRESSED)?;
+        let compressed_data: Vec<u8> = gzipped_data_from_tokio_file(file).await?;
+        let compressed_size = compressed_data.len();
+        check_upload_limit(compressed_size, *MAXIMUM_UPLOAD_MEGS_COMPRESSED)?;
         let progress_fn = self
             .full_sync_progress_fn
             .take()
             .expect("progress func was not set");
-        let wrap1 = ProgressWrapper {
-            reader: file,
+        let with_progress = ProgressWrapper {
+            reader: Cursor::new(compressed_data),
             progress_fn,
             progress: FullSyncProgress {
                 transferred_bytes: 0,
-                total_bytes,
+                total_bytes: compressed_size,
             },
         };
-        let wrap2 =
-            tokio_util::io::ReaderStream::new(async_compression::tokio::bufread::GzipEncoder::new(
-                tokio_util::io::StreamReader::new(wrap1),
-            ));
-        let body = Body::wrap_stream(wrap2);
+        let body = Body::wrap_stream(with_progress);
         self.upload_inner(body).await?;
 
         Ok(())
@@ -171,6 +188,28 @@ impl SyncServer for HttpSyncClient {
         }
         progress_fn(progress, false);
         Ok(temp_file)
+    }
+}
+
+async fn gzipped_data_from_tokio_file(file: tokio::fs::File) -> Result<Vec<u8>> {
+    let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+    let mut stream = ReaderStream::new(file);
+    while let Some(chunk) = stream.next().await {
+        let chunk = chunk?;
+        encoder.write_all(&chunk)?;
+    }
+    encoder.finish().map_err(Into::into)
+}
+
+fn check_upload_limit(size: usize, limit_mb: usize) -> Result<()> {
+    let size_mb = size / 1024 / 1024;
+    if size_mb >= limit_mb {
+        Err(AnkiError::sync_error(
+            format!("{}MB > {}MB", size_mb, limit_mb),
+            SyncErrorKind::UploadTooLarge,
+        ))
+    } else {
+        Ok(())
     }
 }
 
