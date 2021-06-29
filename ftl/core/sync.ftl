@@ -41,6 +41,10 @@ sync-account-required =
     A free account is required to keep your collection synchronized. Please <a href="{ $link }">sign up</a> for an account, then enter your details below.
 sync-sanity-check-failed = Please use the Check Database function, then sync again. If problems persist, please force a full sync in the preferences screen.
 sync-clock-off = Unable to sync - your clock is not set to the correct time.
+sync-upload-too-large =
+    Your collection file is too large to send to AnkiWeb. You can reduce its
+    size by removing any unwanted decks (optionally exporting them first), and
+    then using Check Database to shrink the file size down. ({ $details })
 
 ## Buttons
 

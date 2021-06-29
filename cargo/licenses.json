@@ -153,15 +153,6 @@
     "description": "Shared code for Askama"
   },
   {
-    "name": "async-compression",
-    "version": "0.3.8",
-    "authors": "Wim Looman <wim@nemo157.com>|Allen Bui <fairingrey@gmail.com>",
-    "repository": "https://github.com/Nemo157/async-compression",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Adaptors between compression crates and Rust's modern asynchronous IO types."
-  },
-  {
     "name": "async-trait",
     "version": "0.1.50",
     "authors": "David Tolnay <dtolnay@gmail.com>",
