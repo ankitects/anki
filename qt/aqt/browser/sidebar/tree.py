@@ -225,25 +225,29 @@ class SidebarTreeView(QTreeView):
         parent: Optional[QModelIndex] = None,
         searching: bool = False,
         scroll_to_first_match: bool = False,
-    ) -> bool:
-        parent = parent or QModelIndex()
-        for row in range(model.rowCount(parent)):
-            idx = model.index(row, 0, parent)
-            if not idx.isValid():
-                continue
-            scroll_to_first_match = self._expand_where_necessary(
-                model, idx, searching, scroll_to_first_match
-            )
-            if item := model.item_for_index(idx):
-                if item.show_expanded(searching):
-                    self.setExpanded(idx, True)
-                if item.is_highlighted() and scroll_to_first_match:
-                    self.selectionModel().setCurrentIndex(
-                        idx, QItemSelectionModel.SelectCurrent
-                    )
-                    self.scrollTo(idx)
-                    scroll_to_first_match = False
-        return scroll_to_first_match
+    ) -> None:
+        def expand_node(parent: QModelIndex) -> None:
+            nonlocal scroll_to_first_match
+
+            for row in range(model.rowCount(parent)):
+                idx = model.index(row, 0, parent)
+                if not idx.isValid():
+                    continue
+
+                # descend into children first
+                expand_node(idx)
+
+                if item := model.item_for_index(idx):
+                    if item.show_expanded(searching):
+                        self.setExpanded(idx, True)
+                    if item.is_highlighted() and scroll_to_first_match:
+                        self.selectionModel().setCurrentIndex(
+                            idx, QItemSelectionModel.SelectCurrent
+                        )
+                        self.scrollTo(idx)
+                        scroll_to_first_match = False
+
+        expand_node(parent or QModelIndex())
 
     def update_search(
         self,
