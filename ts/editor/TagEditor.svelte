@@ -278,10 +278,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             autocomplete.hide();
         }
     }
+
+    function deselect() {
+        tags = tags.map((tag: TagType): TagType => ({ ...tag, selected: false }));
+    }
+
+    function deselectIfLeave(event: FocusEvent) {
+        const toolbar = event.currentTarget as HTMLDivElement;
+        if (!toolbar.contains(event.relatedTarget as Element)) {
+            deselect();
+        }
+    }
 </script>
 
 <StickyBottom>
-    <ButtonToolbar class="dropup d-flex flex-wrap align-items-center" {size}>
+    <ButtonToolbar
+        class="dropup d-flex flex-wrap align-items-center"
+        {size}
+        on:focusout={deselectIfLeave}
+    >
         <div class="pb-1">
             <AddTagBadge on:click={appendEmptyTag} />
         </div>
@@ -338,7 +353,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         name={tag.name}
                         bind:flash={tag.flash}
                         bind:selected={tag.selected}
-                        on:tagedit={() => (active = index)}
+                        on:tagedit={() => {
+                            active = index;
+                            deselect();
+                        }}
                         on:tagrange={console.log}
                         on:tagdelete={() => {
                             deleteTagAt(index);

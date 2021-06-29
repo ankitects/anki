@@ -81,6 +81,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class={`btn-toolbar container wrap-variable ${className}`}
     {style}
     role="toolbar"
+    on:focusout
 >
     <slot />
     {#each $dynamicItems as item}
