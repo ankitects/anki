@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: disable=invalid-name
+
 from typing import List, Optional, Tuple
 
 from anki.cards import Card, CardId
@@ -113,7 +115,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
     # legacy in v3 but used by unit tests; redefined in v2/v1
 
     def _cardConf(self, card: Card) -> DeckConfigDict:
-        return self.col.decks.confForDid(card.did)
+        return self.col.decks.config_dict_for_deck_id(card.did)
 
     def _fuzzIvlRange(self, ivl: int) -> Tuple[int, int]:
         return (ivl, ivl)

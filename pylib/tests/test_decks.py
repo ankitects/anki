@@ -53,13 +53,13 @@ def test_remove():
     deck1 = col.decks.id("deck1")
     note = col.newNote()
     note["Front"] = "1"
-    note.model()["did"] = deck1
+    note.note_type()["did"] = deck1
     col.addNote(note)
     c = note.cards()[0]
     assert c.did == deck1
-    assert col.cardCount() == 1
-    col.decks.rem(deck1)
-    assert col.cardCount() == 0
+    assert col.card_count() == 1
+    col.decks.remove([deck1])
+    assert col.card_count() == 0
     # if we try to get it, we get the default
     assert col.decks.name(c.did) == "[no deck]"
 
@@ -94,56 +94,3 @@ def test_rename():
     child = col.decks.get(childId)
     assertException(DeckRenameError, lambda: col.decks.rename(child, "filtered::child"))
     assertException(DeckRenameError, lambda: col.decks.rename(child, "FILTERED::child"))
-
-
-def test_renameForDragAndDrop():
-    col = getEmptyCol()
-
-    def deckNames():
-        return [n.name for n in col.decks.all_names_and_ids(skip_empty_default=True)]
-
-    languages_did = col.decks.id("Languages")
-    chinese_did = col.decks.id("Chinese")
-    hsk_did = col.decks.id("Chinese::HSK")
-
-    # Renaming also renames children
-    col.decks.renameForDragAndDrop(chinese_did, languages_did)
-    assert deckNames() == ["Languages", "Languages::Chinese", "Languages::Chinese::HSK"]
-
-    # Dragging a deck onto itself is a no-op
-    col.decks.renameForDragAndDrop(languages_did, languages_did)
-    assert deckNames() == ["Languages", "Languages::Chinese", "Languages::Chinese::HSK"]
-
-    # Dragging a deck onto its parent is a no-op
-    col.decks.renameForDragAndDrop(hsk_did, chinese_did)
-    assert deckNames() == ["Languages", "Languages::Chinese", "Languages::Chinese::HSK"]
-
-    # Dragging a deck onto a descendant is a no-op
-    col.decks.renameForDragAndDrop(languages_did, hsk_did)
-    assert deckNames() == ["Languages", "Languages::Chinese", "Languages::Chinese::HSK"]
-
-    # Can drag a grandchild onto its grandparent.  It becomes a child
-    col.decks.renameForDragAndDrop(hsk_did, languages_did)
-    assert deckNames() == ["Languages", "Languages::Chinese", "Languages::HSK"]
-
-    # Can drag a deck onto its sibling
-    col.decks.renameForDragAndDrop(hsk_did, chinese_did)
-    assert deckNames() == ["Languages", "Languages::Chinese", "Languages::Chinese::HSK"]
-
-    # Can drag a deck back to the top level
-    col.decks.renameForDragAndDrop(chinese_did, None)
-    assert deckNames() == ["Chinese", "Chinese::HSK", "Languages"]
-
-    # Dragging a top level col to the top level is a no-op
-    col.decks.renameForDragAndDrop(chinese_did, None)
-    assert deckNames() == ["Chinese", "Chinese::HSK", "Languages"]
-
-    # decks are renamed if necessary
-    new_hsk_did = col.decks.id("hsk")
-    col.decks.renameForDragAndDrop(new_hsk_did, chinese_did)
-    assert deckNames() == ["Chinese", "Chinese::HSK", "Chinese::hsk+", "Languages"]
-    col.decks.rem(new_hsk_did)
-
-    # '' is a convenient alias for the top level DID
-    col.decks.renameForDragAndDrop(hsk_did, "")
-    assert deckNames() == ["Chinese", "HSK", "Languages"]

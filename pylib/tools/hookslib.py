@@ -77,13 +77,13 @@ class Hook:
 class {self.classname()}:
 {classdoc}{self.list_code()}
     
-    def append(self, cb: {self.callable()}) -> None:
+    def append(self, callback: {self.callable()}) -> None:
         '''{appenddoc}'''
-        self._hooks.append(cb)
+        self._hooks.append(callback)
 
-    def remove(self, cb: {self.callable()}) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
+    def remove(self, callback: {self.callable()}) -> None:
+        if callback in self._hooks:
+            self._hooks.remove(callback)
 
     def count(self) -> int:
         return len(self._hooks)

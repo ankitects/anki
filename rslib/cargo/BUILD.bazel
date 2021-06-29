@@ -31,15 +31,6 @@ alias(
 )
 
 alias(
-    name = "async_compression",
-    actual = "@raze__async_compression__0_3_8//:async_compression",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-alias(
     name = "async_trait",
     actual = "@raze__async_trait__0_1_50//:async_trait",
     tags = [

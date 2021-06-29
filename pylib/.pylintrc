@@ -19,7 +19,17 @@ ignored-classes=
 output-format=colorized
 
 [MESSAGES CONTROL]
-disable=C,R,
+disable=
+  R,
+  invalid-name,
+  line-too-long,
+  too-many-lines,
+  missing-function-docstring,
+  missing-module-docstring,
+  missing-class-docstring,
+  import-outside-toplevel,
+  wrong-import-position,
+  wrong-import-order,
   fixme,
   unused-wildcard-import,
   attribute-defined-outside-init,
@@ -33,3 +43,10 @@ disable=C,R,
   global-statement,
   protected-access,
   arguments-differ,
+
+[BASIC]
+good-names =
+  id,
+  tr,
+  db,
+  ok,

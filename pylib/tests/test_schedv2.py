@@ -75,10 +75,10 @@ def test_new():
     # # the default order should ensure siblings are not seen together, and
     # # should show all cards
     # m = col.models.current(); mm = col.models
-    # t = mm.newTemplate("Reverse")
+    # t = mm.new_template("Reverse")
     # t['qfmt'] = "{{Back}}"
     # t['afmt'] = "{{Front}}"
-    # mm.addTemplate(m, t)
+    # mm.add_template(m, t)
     # mm.save(m)
     # note = col.newNote()
     # note['Front'] = u"2"; note['Back'] = u"2"
@@ -90,7 +90,7 @@ def test_new():
     # qs = ("2", "3", "2", "3")
     # for n in range(4):
     #     c = col.sched.getCard()
-    #     assert qs[n] in c.q()
+    #     assert qs[n] in c.question()
     #     col.sched.answerCard(c, 2)
 
 
@@ -102,11 +102,11 @@ def test_newLimits():
         note = col.newNote()
         note["Front"] = str(i)
         if i > 4:
-            note.model()["did"] = deck2
+            note.note_type()["did"] = deck2
         col.addNote(note)
     # give the child deck a different configuration
     c2 = col.decks.add_config_returning_id("new conf")
-    col.decks.setConf(col.decks.get(deck2), c2)
+    col.decks.set_config_id_for_deck_dict(col.decks.get(deck2), c2)
     col.reset()
     # both confs have defaulted to a limit of 20
     assert col.sched.newCount == 20
@@ -114,13 +114,13 @@ def test_newLimits():
     c = col.sched.getCard()
     assert c.did == 1
     # limit the parent to 10 cards, meaning we get 10 in total
-    conf1 = col.decks.confForDid(1)
+    conf1 = col.decks.config_dict_for_deck_id(1)
     conf1["new"]["perDay"] = 10
     col.decks.save(conf1)
     col.reset()
     assert col.sched.newCount == 10
     # if we limit child to 4, we should get 9
-    conf2 = col.decks.confForDid(deck2)
+    conf2 = col.decks.config_dict_for_deck_id(deck2)
     conf2["new"]["perDay"] = 4
     col.decks.save(conf2)
     col.reset()
@@ -245,7 +245,7 @@ def test_relearn_no_steps():
     c.type = QUEUE_TYPE_REV
     c.flush()
 
-    conf = col.decks.confForDid(1)
+    conf = col.decks.config_dict_for_deck_id(1)
     conf["lapse"]["delays"] = []
     col.decks.save(conf)
 
@@ -270,17 +270,17 @@ def test_learn_collapsed():
     col.reset()
     # should get '1' first
     c = col.sched.getCard()
-    assert c.q().endswith("1")
+    assert c.question().endswith("1")
     # pass it so it's due in 10 minutes
     col.sched.answerCard(c, 3)
     # get the other card
     c = col.sched.getCard()
-    assert c.q().endswith("2")
+    assert c.question().endswith("2")
     # fail it so it's due in 1 minute
     col.sched.answerCard(c, 1)
     # we shouldn't get the same card again
     c = col.sched.getCard()
-    assert not c.q().endswith("2")
+    assert not c.question().endswith("2")
 
 
 def test_learn_day():
@@ -374,7 +374,7 @@ def test_reviews():
     c.reps = 3
     c.lapses = 1
     c.ivl = 100
-    c.startTimer()
+    c.start_timer()
     c.flush()
     # save it for later use as well
     cardcopy = copy.copy(c)
@@ -415,7 +415,7 @@ def test_reviews():
     assert c.factor == 2650
     # leech handling
     ##################################################
-    conf = col.decks.getConf(1)
+    conf = col.decks.get_config(1)
     conf["lapse"]["leechAction"] = LEECH_SUSPEND
     col.decks.save(conf)
     c = copy.copy(cardcopy)
@@ -448,10 +448,10 @@ def review_limits_setup() -> Tuple[anki.collection.Collection, Dict]:
 
     pconf["rev"]["perDay"] = 5
     col.decks.update_config(pconf)
-    col.decks.setConf(parent, pconf["id"])
+    col.decks.set_config_id_for_deck_dict(parent, pconf["id"])
     cconf["rev"]["perDay"] = 10
     col.decks.update_config(cconf)
-    col.decks.setConf(child, cconf["id"])
+    col.decks.set_config_id_for_deck_dict(child, cconf["id"])
 
     m = col.models.current()
     m["did"] = child["id"]
@@ -509,7 +509,7 @@ def test_button_spacing():
     c.due = col.sched.today
     c.reps = 1
     c.ivl = 1
-    c.startTimer()
+    c.start_timer()
     c.flush()
     col.reset()
     ni = col.sched.nextIvlStr
@@ -519,7 +519,7 @@ def test_button_spacing():
     assert wo(ni(c, 4)) == "4d"
 
     # if hard factor is <= 1, then hard may not increase
-    conf = col.decks.confForDid(1)
+    conf = col.decks.config_dict_for_deck_id(1)
     conf["rev"]["hardFactor"] = 1
     col.decks.save(conf)
     assert wo(ni(c, 2)) == "1d"
@@ -566,7 +566,7 @@ def test_nextIvl():
     note["Back"] = "two"
     col.addNote(note)
     col.reset()
-    conf = col.decks.confForDid(1)
+    conf = col.decks.config_dict_for_deck_id(1)
     conf["new"]["delays"] = [0.5, 3, 10]
     conf["lapse"]["delays"] = [1, 5, 9]
     col.decks.save(conf)
@@ -731,7 +731,7 @@ def test_filt_reviewing_early_normal():
     c.due = col.sched.today + 25
     c.mod = 1
     c.factor = STARTING_FACTOR
-    c.startTimer()
+    c.start_timer()
     c.flush()
     col.reset()
     assert col.sched.counts() == (0, 0, 0)
@@ -880,21 +880,21 @@ def test_ordcycle():
     # add two more templates and set second active
     m = col.models.current()
     mm = col.models
-    t = mm.newTemplate("Reverse")
+    t = mm.new_template("Reverse")
     t["qfmt"] = "{{Back}}"
     t["afmt"] = "{{Front}}"
-    mm.addTemplate(m, t)
-    t = mm.newTemplate("f2")
+    mm.add_template(m, t)
+    t = mm.new_template("f2")
     t["qfmt"] = "{{Front}}2"
     t["afmt"] = "{{Back}}"
-    mm.addTemplate(m, t)
+    mm.add_template(m, t)
     mm.save(m)
     # create a new note; it should have 3 cards
     note = col.newNote()
     note["Front"] = "1"
     note["Back"] = "1"
     col.addNote(note)
-    assert col.cardCount() == 3
+    assert col.card_count() == 3
 
     conf = col.decks.get_config(1)
     conf["new"]["bury"] = False
@@ -1082,7 +1082,7 @@ def test_deckDue():
     # and one that's a child
     note = col.newNote()
     note["Front"] = "two"
-    default1 = note.model()["did"] = col.decks.id("Default::1")
+    default1 = note.note_type()["did"] = col.decks.id("Default::1")
     col.addNote(note)
     # make it a review card
     c = note.cards()[0]
@@ -1092,12 +1092,12 @@ def test_deckDue():
     # add one more with a new deck
     note = col.newNote()
     note["Front"] = "two"
-    note.model()["did"] = col.decks.id("foo::bar")
+    note.note_type()["did"] = col.decks.id("foo::bar")
     col.addNote(note)
     # and one that's a sibling
     note = col.newNote()
     note["Front"] = "three"
-    note.model()["did"] = col.decks.id("foo::baz")
+    note.note_type()["did"] = col.decks.id("foo::baz")
     col.addNote(note)
     col.reset()
     assert len(col.decks.all_names_and_ids()) == 5
@@ -1138,12 +1138,12 @@ def test_deckFlow():
     # and one that's a child
     note = col.newNote()
     note["Front"] = "two"
-    note.model()["did"] = col.decks.id("Default::2")
+    note.note_type()["did"] = col.decks.id("Default::2")
     col.addNote(note)
     # and another that's higher up
     note = col.newNote()
     note["Front"] = "three"
-    default1 = note.model()["did"] = col.decks.id("Default::1")
+    default1 = note.note_type()["did"] = col.decks.id("Default::1")
     col.addNote(note)
     col.reset()
     assert col.sched.counts() == (3, 0, 0)
@@ -1255,7 +1255,7 @@ def test_norelearn():
     c.reps = 3
     c.lapses = 1
     c.ivl = 100
-    c.startTimer()
+    c.start_timer()
     c.flush()
     col.reset()
     col.sched.answerCard(c, 1)
@@ -1277,7 +1277,7 @@ def test_failmult():
     c.factor = STARTING_FACTOR
     c.reps = 3
     c.lapses = 1
-    c.startTimer()
+    c.start_timer()
     c.flush()
     conf = col.sched._cardConf(c)
     conf["lapse"]["mult"] = 0.5

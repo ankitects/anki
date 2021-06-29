@@ -79,7 +79,7 @@ class DeckConf(QDialog):
 
     def loadConfs(self) -> None:
         current = self.deck["conf"]
-        self.confList = self.mw.col.decks.allConf()
+        self.confList = self.mw.col.decks.all_config()
         self.confList.sort(key=itemgetter("name"))
         startOn = 0
         self.ignoreConfChange = True
@@ -117,7 +117,7 @@ class DeckConf(QDialog):
         self.deck["conf"] = conf["id"]
         self.mw.col.decks.save(self.deck)
         self.loadConf()
-        cnt = len(self.mw.col.decks.didsForConf(conf))
+        cnt = len(self.mw.col.decks.decks_using_config(conf))
         if cnt > 1:
             txt = tr.scheduling_your_changes_will_affect_multiple_decks()
         else:
@@ -144,7 +144,7 @@ class DeckConf(QDialog):
             showInfo(tr.scheduling_the_default_configuration_cant_be_removed(), self)
         else:
             gui_hooks.deck_conf_will_remove_config(self, self.deck, self.conf)
-            self.mw.col.modSchema(check=True)
+            self.mw.col.mod_schema(check=True)
             self.mw.col.decks.remove_config(self.conf["id"])
             self.conf = None
             self.deck["conf"] = 1
@@ -190,7 +190,7 @@ class DeckConf(QDialog):
             return ""
         lim = -1
         for d in self.mw.col.decks.parents(self.deck["id"]):
-            c = self.mw.col.decks.confForDid(d["id"])
+            c = self.mw.col.decks.config_dict_for_deck_id(d["id"])
             x = c[type]["perDay"]
             if lim == -1:
                 lim = x
@@ -199,7 +199,7 @@ class DeckConf(QDialog):
         return tr.scheduling_parent_limit(val=lim)
 
     def loadConf(self) -> None:
-        self.conf = self.mw.col.decks.confForDid(self.deck["id"])
+        self.conf = self.mw.col.decks.config_dict_for_deck_id(self.deck["id"])
         # new
         c = self.conf["new"]
         f = self.form
@@ -220,7 +220,7 @@ class DeckConf(QDialog):
         f.revplim.setText(self.parentLimText("rev"))
         f.buryRev.setChecked(c.get("bury", True))
         f.hardFactor.setValue(int(c.get("hardFactor", 1.2) * 100))
-        if self.mw.col.schedVer() == 1:
+        if self.mw.col.sched_ver() == 1:
             f.hardFactor.setVisible(False)
             f.hardFactorLabel.setVisible(False)
         # lapse
@@ -240,7 +240,7 @@ class DeckConf(QDialog):
 
     def onRestore(self) -> None:
         self.mw.progress.start()
-        self.mw.col.decks.restoreToDefault(self.conf)
+        self.mw.col.decks.restore_to_default(self.conf)
         self.mw.progress.finish()
         self.loadConf()
 

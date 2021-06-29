@@ -52,7 +52,7 @@ class CardLayout(QDialog):
         self.ord = ord
         self.col = self.mw.col.weakref()
         self.mm = self.mw.col.models
-        self.model = note.model()
+        self.model = note.note_type()
         self.templates = self.model["tmpls"]
         self.fill_empty_action_toggled = fill_empty
         self.night_mode_is_enabled = self.mw.pm.night_mode()
@@ -226,7 +226,7 @@ class CardLayout(QDialog):
         tform.style_button.setText(tr.card_templates_template_styling())
         tform.groupBox.setTitle(tr.card_templates_template_box())
 
-        cnt = self.mw.col.models.useCount(self.model)
+        cnt = self.mw.col.models.use_count(self.model)
         self.tform.changes_affect_label.setText(
             self.col.tr.card_templates_changes_will_affect_notes(count=cnt)
         )
@@ -493,11 +493,11 @@ class CardLayout(QDialog):
         )
 
         if self.pform.preview_front.isChecked():
-            q = ti(self.mw.prepare_card_text_for_display(c.q()))
+            q = ti(self.mw.prepare_card_text_for_display(c.question()))
             q = gui_hooks.card_will_show(q, c, "clayoutQuestion")
             text = q
         else:
-            a = ti(self.mw.prepare_card_text_for_display(c.a()), type="a")
+            a = ti(self.mw.prepare_card_text_for_display(c.answer()), type="a")
             a = gui_hooks.card_will_show(a, c, "clayoutAnswer")
             text = a
 
@@ -633,14 +633,14 @@ class CardLayout(QDialog):
         return name
 
     def onAddCard(self) -> None:
-        cnt = self.mw.col.models.useCount(self.model)
+        cnt = self.mw.col.models.use_count(self.model)
         txt = tr.card_templates_this_will_create_card_proceed(count=cnt)
         if not askUser(txt):
             return
         if not self.change_tracker.mark_schema():
             return
         name = self._newCardName()
-        t = self.mm.newTemplate(name)
+        t = self.mm.new_template(name)
         old = self.current_template()
         t["qfmt"] = old["qfmt"]
         t["afmt"] = old["afmt"]

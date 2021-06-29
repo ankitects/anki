@@ -57,37 +57,57 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ConfigSelector {state} />
 
-<Container api={options} class="g-1">
-    <Item>
-        <DailyLimits {state} api={dailyLimits} />
-    </Item>
-
-    <Item>
-        <NewOptions {state} api={newOptions} />
-    </Item>
-    <Item>
-        <LapseOptions {state} api={lapseOptions} />
-    </Item>
-    <Item>
-        <BuryOptions {state} api={buryOptions} />
-    </Item>
-
-    {#if state.v3Scheduler}
+<Container api={options} class="g-1 mb-3 mt-3">
+    <div class="multi-column">
         <Item>
-            <DisplayOrder {state} api={displayOrder} />
+            <DailyLimits {state} api={dailyLimits} />
         </Item>
-    {/if}
 
-    <Item>
-        <TimerOptions {state} api={timerOptions} />
-    </Item>
-    <Item>
-        <AudioOptions {state} api={audioOptions} />
-    </Item>
-    <Item>
-        <Addons {state} api={addonOptions} />
-    </Item>
-    <Item>
-        <AdvancedOptions {state} api={advancedOptions} />
-    </Item>
+        <Item>
+            <NewOptions {state} api={newOptions} />
+        </Item>
+
+        <Item>
+            <LapseOptions {state} api={lapseOptions} />
+        </Item>
+
+        <Item>
+            <BuryOptions {state} api={buryOptions} />
+        </Item>
+
+        {#if state.v3Scheduler}
+            <Item>
+                <DisplayOrder {state} api={displayOrder} />
+            </Item>
+        {/if}
+
+        <Item>
+            <TimerOptions {state} api={timerOptions} />
+        </Item>
+
+        <Item>
+            <AudioOptions {state} api={audioOptions} />
+        </Item>
+
+        <Item>
+            <Addons {state} api={addonOptions} />
+        </Item>
+
+        <Item>
+            <AdvancedOptions {state} api={advancedOptions} />
+        </Item>
+    </div>
 </Container>
+
+<style lang="scss">
+    .multi-column {
+        column-count: 2;
+        column-gap: 5em;
+    }
+
+    @media (max-width: 1000px) {
+        .multi-column {
+            column-count: 1;
+        }
+    }
+</style>

@@ -23,7 +23,7 @@ def test_latex():
     # but since latex couldn't run, there's nothing there
     assert len(os.listdir(col.media.dir())) == 0
     # check the error message
-    msg = note.cards()[0].q()
+    msg = note.cards()[0].question()
     assert "executing nolatex" in without_unicode_isolation(msg)
     assert "installed" in msg
     # check if we have latex installed, and abort test if we don't
@@ -35,12 +35,12 @@ def test_latex():
     # check media db should cause latex to be generated
     col.media.render_all_latex()
     assert len(os.listdir(col.media.dir())) == 1
-    assert ".png" in note.cards()[0].q()
+    assert ".png" in note.cards()[0].question()
     # adding new notes should cause generation on question display
     note = col.newNote()
     note["Front"] = "[latex]world[/latex]"
     col.addNote(note)
-    note.cards()[0].q()
+    note.cards()[0].question()
     assert len(os.listdir(col.media.dir())) == 2
     # another note with the same media should reuse
     note = col.newNote()
@@ -48,7 +48,7 @@ def test_latex():
     col.addNote(note)
     assert len(os.listdir(col.media.dir())) == 2
     oldcard = note.cards()[0]
-    assert ".png" in oldcard.q()
+    assert ".png" in oldcard.question()
     # if we turn off building, then previous cards should work, but cards with
     # missing media will show a broken image
     anki.latex.build = False
@@ -56,7 +56,7 @@ def test_latex():
     note["Front"] = "[latex]foo[/latex]"
     col.addNote(note)
     assert len(os.listdir(col.media.dir())) == 2
-    assert ".png" in oldcard.q()
+    assert ".png" in oldcard.question()
     # turn it on again so other test don't suffer
     anki.latex.build = True
 
@@ -95,5 +95,5 @@ def _test_includes_bad_command(bad):
     note = col.newNote()
     note["Front"] = "[latex]%s[/latex]" % bad
     col.addNote(note)
-    q = without_unicode_isolation(note.cards()[0].q())
+    q = without_unicode_isolation(note.cards()[0].question())
     return ("'%s' is not allowed on cards" % bad in q, "Card content: %s" % q)

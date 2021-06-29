@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: disable=invalid-name
+
 from __future__ import annotations
 
 import random
@@ -44,7 +46,6 @@ class Scheduler(V2):
         self._haveQueues = False
 
     def answerCard(self, card: Card, ease: int) -> None:
-        self.col.log()
         assert 1 <= ease <= 4
         self.col.save_card_review_undo_info(card)
         if self._burySiblingsOnAnswer:
@@ -85,7 +86,7 @@ class Scheduler(V2):
             card.did,
             new_delta=new_delta,
             review_delta=review_delta,
-            milliseconds_delta=+card.timeTaken(),
+            milliseconds_delta=+card.time_taken(),
         )
 
         card.mod = intTime()
@@ -363,7 +364,7 @@ limit %d"""
                 ivl,
                 lastIvl,
                 card.factor,
-                card.timeTaken(),
+                card.time_taken(),
                 type,
             )
 
@@ -636,7 +637,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
         if not card.odid:
             return conf["new"]
         # dynamic deck; override some attributes, use original deck for others
-        oconf = self.col.decks.confForDid(card.odid)
+        oconf = self.col.decks.config_dict_for_deck_id(card.odid)
         delays = conf["delays"] or oconf["new"]["delays"]
         return dict(
             # original deck
@@ -655,7 +656,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
         if not card.odid:
             return conf["lapse"]
         # dynamic deck; override some attributes, use original deck for others
-        oconf = self.col.decks.confForDid(card.odid)
+        oconf = self.col.decks.config_dict_for_deck_id(card.odid)
         delays = conf["delays"] or oconf["lapse"]["delays"]
         return dict(
             # original deck
@@ -683,7 +684,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
             f"select 1 from cards where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s limit 1"
             % sdids
         )
-        return not not cnt
+        return bool(cnt)
 
     # Next time reports
     ##########################################################################

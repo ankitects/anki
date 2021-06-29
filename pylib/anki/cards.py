@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: enable=invalid-name
+
 from __future__ import annotations
 
 import pprint
@@ -10,6 +12,7 @@ from typing import List, NewType, Optional
 import anki  # pylint: disable=unused-import
 import anki._backend.backend_pb2 as _pb
 from anki import hooks
+from anki._legacy import DeprecatedNamesMixin, deprecated
 from anki.consts import *
 from anki.models import NotetypeDict, TemplateDict
 from anki.notes import Note
@@ -22,7 +25,7 @@ from anki.sound import AVTag
 # Queue: same as above, and:
 #        -1=suspended, -2=user buried, -3=sched buried
 # Due is used differently for different queues.
-# - new queue: note id or random int
+# - new queue: position
 # - rev queue: integer day
 # - lrn queue: integer timestamp
 
@@ -31,9 +34,8 @@ CardId = NewType("CardId", int)
 BackendCard = _pb.Card
 
 
-class Card:
+class Card(DeprecatedNamesMixin):
     _note: Optional[Note]
-    timerStarted: Optional[float]
     lastIvl: int
     ord: int
     nid: anki.notes.NoteId
@@ -50,7 +52,7 @@ class Card:
         backend_card: Optional[BackendCard] = None,
     ) -> None:
         self.col = col.weakref()
-        self.timerStarted = None
+        self.timer_started: Optional[float] = None
         self._render_output: Optional[anki.template.TemplateRenderOutput] = None
         if id:
             # existing card
@@ -63,31 +65,31 @@ class Card:
             self._load_from_backend_card(_pb.Card())
 
     def load(self) -> None:
-        c = self.col._backend.get_card(self.id)
-        assert c
-        self._load_from_backend_card(c)
+        card = self.col._backend.get_card(self.id)
+        assert card
+        self._load_from_backend_card(card)
 
-    def _load_from_backend_card(self, c: _pb.Card) -> None:
+    def _load_from_backend_card(self, card: _pb.Card) -> None:
         self._render_output = None
         self._note = None
-        self.id = CardId(c.id)
-        self.nid = anki.notes.NoteId(c.note_id)
-        self.did = anki.decks.DeckId(c.deck_id)
-        self.ord = c.template_idx
-        self.mod = c.mtime_secs
-        self.usn = c.usn
-        self.type = CardType(c.ctype)
-        self.queue = CardQueue(c.queue)
-        self.due = c.due
-        self.ivl = c.interval
-        self.factor = c.ease_factor
-        self.reps = c.reps
-        self.lapses = c.lapses
-        self.left = c.remaining_steps
-        self.odue = c.original_due
-        self.odid = anki.decks.DeckId(c.original_deck_id)
-        self.flags = c.flags
-        self.data = c.data
+        self.id = CardId(card.id)
+        self.nid = anki.notes.NoteId(card.note_id)
+        self.did = anki.decks.DeckId(card.deck_id)
+        self.ord = card.template_idx
+        self.mod = card.mtime_secs
+        self.usn = card.usn
+        self.type = CardType(card.ctype)
+        self.queue = CardQueue(card.queue)
+        self.due = card.due
+        self.ivl = card.interval
+        self.factor = card.ease_factor
+        self.reps = card.reps
+        self.lapses = card.lapses
+        self.left = card.remaining_steps
+        self.odue = card.original_due
+        self.odid = anki.decks.DeckId(card.original_deck_id)
+        self.flags = card.flags
+        self.data = card.data
 
     def _to_backend_card(self) -> _pb.Card:
         # mtime & usn are set by backend
@@ -131,10 +133,6 @@ class Card:
     def answer_av_tags(self) -> List[AVTag]:
         return self.render_output().answer_av_tags
 
-    # legacy
-    def css(self) -> str:
-        return f"<style>{self.render_output().css}</style>"
-
     def render_output(
         self, reload: bool = False, browser: bool = False
     ) -> anki.template.TemplateRenderOutput:
@@ -157,58 +155,50 @@ class Card:
     def note_type(self) -> NotetypeDict:
         return self.col.models.get(self.note().mid)
 
-    # legacy aliases
-    flushSched = flush
-    q = question
-    a = answer
-    model = note_type
-
     def template(self) -> TemplateDict:
-        m = self.model()
-        if m["type"] == MODEL_STD:
-            return self.model()["tmpls"][self.ord]
+        notetype = self.note_type()
+        if notetype["type"] == MODEL_STD:
+            return self.note_type()["tmpls"][self.ord]
         else:
-            return self.model()["tmpls"][0]
+            return self.note_type()["tmpls"][0]
 
-    def startTimer(self) -> None:
-        self.timerStarted = time.time()
+    def start_timer(self) -> None:
+        self.timer_started = time.time()
 
     def current_deck_id(self) -> anki.decks.DeckId:
         return anki.decks.DeckId(self.odid or self.did)
 
-    def timeLimit(self) -> int:
+    def time_limit(self) -> int:
         "Time limit for answering in milliseconds."
-        conf = self.col.decks.confForDid(self.current_deck_id())
+        conf = self.col.decks.config_dict_for_deck_id(self.current_deck_id())
         return conf["maxTaken"] * 1000
 
-    def shouldShowTimer(self) -> bool:
-        conf = self.col.decks.confForDid(self.current_deck_id())
+    def should_show_timer(self) -> bool:
+        conf = self.col.decks.config_dict_for_deck_id(self.current_deck_id())
         return conf["timer"]
 
     def replay_question_audio_on_answer_side(self) -> bool:
-        conf = self.col.decks.confForDid(self.current_deck_id())
+        conf = self.col.decks.config_dict_for_deck_id(self.current_deck_id())
         return conf.get("replayq", True)
 
     def autoplay(self) -> bool:
-        return self.col.decks.confForDid(self.current_deck_id())["autoplay"]
+        return self.col.decks.config_dict_for_deck_id(self.current_deck_id())[
+            "autoplay"
+        ]
 
-    def timeTaken(self) -> int:
+    def time_taken(self) -> int:
         "Time taken to answer card, in integer MS."
-        total = int((time.time() - self.timerStarted) * 1000)
-        return min(total, self.timeLimit())
+        total = int((time.time() - self.timer_started) * 1000)
+        return min(total, self.time_limit())
 
-    # legacy
-    def isEmpty(self) -> bool:
-        return False
-
-    def __repr__(self) -> str:
-        d = dict(self.__dict__)
+    def description(self) -> str:
+        dict_copy = dict(self.__dict__)
         # remove non-useful elements
-        del d["_note"]
-        del d["_render_output"]
-        del d["col"]
-        del d["timerStarted"]
-        return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
+        del dict_copy["_note"]
+        del dict_copy["_render_output"]
+        del dict_copy["col"]
+        del dict_copy["timerStarted"]
+        return f"{super().__repr__()} {pprint.pformat(dict_copy, width=300)}"
 
     def user_flag(self) -> int:
         return self.flags & 0b111
@@ -218,7 +208,18 @@ class Card:
         assert 0 <= flag <= 7
         self.flags = (self.flags & ~0b111) | flag
 
-    # legacy
+    @deprecated(info="use card.render_output() directly")
+    def css(self) -> str:
+        return f"<style>{self.render_output().css}</style>"
 
-    userFlag = user_flag
-    setUserFlag = set_user_flag
+    @deprecated(info="handled by template rendering")
+    def is_empty(self) -> bool:
+        return False
+
+
+Card.register_deprecated_aliases(
+    flushSched=Card.flush,
+    q=Card.question,
+    a=Card.answer,
+    model=Card.note_type,
+)

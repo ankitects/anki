@@ -99,7 +99,7 @@ class NotetypeChooser(QHBoxLayout):
         qconnect(edit.clicked, self.onEdit)
 
         def nameFunc() -> List[str]:
-            return sorted(self.mw.col.models.allNames())
+            return sorted(self.mw.col.models.all_names())
 
         ret = StudyDeck(
             self.mw,
@@ -116,7 +116,7 @@ class NotetypeChooser(QHBoxLayout):
         if not ret.name:
             return
 
-        notetype = self.mw.col.models.byName(ret.name)
+        notetype = self.mw.col.models.by_name(ret.name)
         if (id := notetype["id"]) != self._selected_notetype_id:
             self.selected_notetype_id = id
 

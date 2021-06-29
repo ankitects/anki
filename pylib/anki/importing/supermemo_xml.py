@@ -2,6 +2,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 # pytype: disable=attribute-error
 # type: ignore
+# pylint: disable=C
 
 import re
 import sys

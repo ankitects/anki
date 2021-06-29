@@ -645,7 +645,6 @@ impl Collection {
         let mut server = HttpSyncClient::new(Some(auth.hkey), auth.host_number);
         server.set_full_sync_progress_fn(Some(progress_fn));
         self.full_upload_inner(Box::new(server)).await
-        // remote.upload(&col_path, progress_fn).await?;
     }
 
     pub(crate) async fn full_upload_inner(mut self, server: Box<dyn SyncServer>) -> Result<()> {

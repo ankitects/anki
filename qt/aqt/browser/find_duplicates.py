@@ -65,7 +65,7 @@ class FindDuplicatesDialog(QDialog):
             field = fields[form.fields.currentIndex()]
             QueryOp(
                 parent=self.browser,
-                op=lambda col: col.findDupes(field, search_text),
+                op=lambda col: col.find_dupes(field, search_text),
                 success=self.show_duplicates_report,
             ).run_in_background()
 

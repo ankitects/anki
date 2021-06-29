@@ -527,7 +527,7 @@ class AnkiQt(QMainWindow):
 
     def _loadCollection(self) -> None:
         cpath = self.pm.collectionPath()
-        self.col = Collection(cpath, backend=self.backend, log=True)
+        self.col = Collection(cpath, backend=self.backend)
         self.setEnabled(True)
 
     def reopen(self) -> None:
@@ -1358,7 +1358,7 @@ title="%s" %s>%s</button>""" % (
     def confirm_schema_modification(self) -> bool:
         """If schema unmodified, ask user to confirm change.
         True if confirmed or already modified."""
-        if self.col.schemaChanged():
+        if self.col.schema_changed():
             return True
         return askUser(tr.qt_misc_the_requested_change_will_require_a())
 

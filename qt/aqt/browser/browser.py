@@ -521,7 +521,7 @@ class Browser(QMainWindow):
 
     def createFilteredDeck(self) -> None:
         search = self.current_search()
-        if self.mw.col.schedVer() != 1 and KeyboardModifiersPressed().alt:
+        if self.mw.col.sched_ver() != 1 and KeyboardModifiersPressed().alt:
             aqt.dialogs.open("FilteredDeckConfigDialog", self.mw, search_2=search)
         else:
             aqt.dialogs.open("FilteredDeckConfigDialog", self.mw, search=search)

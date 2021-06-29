@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: disable=invalid-name
+
 import json
 import os
 import re
@@ -118,8 +120,8 @@ class TextCardExporter(Exporter):
         out = ""
         for cid in ids:
             c = self.col.getCard(cid)
-            out += esc(c.q())
-            out += "\t" + esc(c.a()) + "\n"
+            out += esc(c.question())
+            out += "\t" + esc(c.answer()) + "\n"
         file.write(out.encode("utf-8"))
 
 
@@ -195,7 +197,7 @@ class AnkiExporter(Exporter):
 
     def exportInto(self, path: str) -> None:
         # sched info+v2 scheduler not compatible w/ older clients
-        self._v2sched = self.col.schedVer() != 1 and self.includeSched
+        self._v2sched = self.col.sched_ver() != 1 and self.includeSched
 
         # create a new collection at the target
         try:
@@ -244,7 +246,7 @@ class AnkiExporter(Exporter):
             # need to reset card state
             self.dst.sched.resetCards(cids)
         # models - start with zero
-        self.dst.modSchema(check=False)
+        self.dst.mod_schema(check=False)
         self.dst.models.remove_all_notetypes()
         for m in self.src.models.all():
             if int(m["id"]) in mids:
@@ -266,7 +268,7 @@ class AnkiExporter(Exporter):
                 d["conf"] = 1
             self.dst.decks.update(d)
         # copy used deck confs
-        for dc in self.src.decks.allConf():
+        for dc in self.src.decks.all_config():
             if dc["id"] in dconfs:
                 self.dst.decks.update_config(dc)
         # find used media
@@ -296,7 +298,7 @@ class AnkiExporter(Exporter):
         self.mediaFiles = list(media.keys())
         self.dst.crt = self.src.crt
         # todo: tags?
-        self.count = self.dst.cardCount()
+        self.count = self.dst.card_count()
         self.postExport()
         self.dst.close(downgrade=True)
 
@@ -424,8 +426,8 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
     def doExport(self, z, path):
         "Export collection. Caller must re-open afterwards."
         # close our deck & write it into the zip file
-        self.count = self.col.cardCount()
-        v2 = self.col.schedVer() != 1
+        self.count = self.col.card_count()
+        v2 = self.col.sched_ver() != 1
         mdir = self.col.media.dir()
         self.col.close(downgrade=True)
         if not v2:

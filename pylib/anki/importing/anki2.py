@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: disable=invalid-name
+
 import os
 import unicodedata
 from typing import Any, Dict, List, Optional, Tuple
@@ -51,11 +53,11 @@ class Anki2Importer(Importer):
         self.dst = self.col
         self.src = Collection(self.file)
 
-        if not self._importing_v2 and self.col.schedVer() != 1:
+        if not self._importing_v2 and self.col.sched_ver() != 1:
             # any scheduling included?
             if self.src.db.scalar("select 1 from cards where queue != 0 limit 1"):
                 self.source_needs_upgrade = True
-        elif self._importing_v2 and self.col.schedVer() == 1:
+        elif self._importing_v2 and self.col.sched_ver() == 1:
             raise Exception("must upgrade to new scheduler to import this file")
 
     def _import(self) -> None:
@@ -184,7 +186,7 @@ class Anki2Importer(Importer):
         self.dst.db.executemany(
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)", update
         )
-        self.dst.updateFieldCache(dirty)
+        self.dst.after_note_updates(dirty, mark_modified=False, generate_cards=False)
 
     # determine if note is a duplicate, and adjust mid and/or guid as required
     # returns true if note should be added
@@ -274,7 +276,7 @@ class Anki2Importer(Importer):
             idInSrc = self.src.decks.id(head)
             self._did(idInSrc)
         # if target is a filtered deck, we'll need a new deck name
-        deck = self.dst.decks.byName(name)
+        deck = self.dst.decks.by_name(name)
         if deck and deck["dyn"]:
             name = "%s %d" % (name, intTime())
         # create in local
@@ -452,8 +454,8 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""",
             self._writeDstMedia(lname, srcData)
             return match.group(0).replace(fname, lname)
 
-        for i in range(len(fields)):
-            fields[i] = self.dst.media.transformNames(fields[i], repl)
+        for idx, field in enumerate(fields):
+            fields[idx] = self.dst.media.transformNames(field, repl)
         return joinFields(fields)
 
     # Post-import cleanup

@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: enable=invalid-name
+
 from __future__ import annotations
 
 from typing import Any, Generator, List, Literal, Optional, Sequence, Tuple, Union, cast
@@ -8,6 +10,8 @@ from typing import Any, Generator, List, Literal, Optional, Sequence, Tuple, Uni
 import anki._backend.backend_pb2 as _pb
 
 # protobuf we publicly export - listed first to avoid circular imports
+from anki._legacy import DeprecatedNamesMixin, deprecated
+
 SearchNode = _pb.SearchNode
 Progress = _pb.Progress
 EmptyCardsReport = _pb.EmptyCardsReport
@@ -24,8 +28,6 @@ BrowserColumns = _pb.BrowserColumns
 
 import copy
 import os
-import pprint
-import re
 import sys
 import time
 import traceback
@@ -52,7 +54,6 @@ from anki.sync import SyncAuth, SyncOutput, SyncStatus
 from anki.tags import TagManager
 from anki.types import assert_exhaustive
 from anki.utils import (
-    devMode,
     from_json_bytes,
     ids2str,
     intTime,
@@ -81,7 +82,7 @@ class LegacyCheckpoint:
 LegacyUndoResult = Union[None, LegacyCheckpoint, LegacyReviewUndo]
 
 
-class Collection:
+class Collection(DeprecatedNamesMixin):
     sched: Union[V1Scheduler, V2Scheduler, V3Scheduler]
 
     def __init__(
@@ -104,7 +105,7 @@ class Collection:
         self.decks = DeckManager(self)
         self.tags = TagManager(self)
         self.conf = ConfigManager(self)
-        self._loadScheduler()
+        self._load_scheduler()
 
     def name(self) -> Any:
         return os.path.splitext(os.path.basename(self.path))[0]
@@ -142,17 +143,17 @@ class Collection:
     ##########################################################################
 
     # for backwards compatibility, v3 is represented as 2
-    supportedSchedulerVersions = (1, 2)
+    _supported_scheduler_versions = (1, 2)
 
-    def schedVer(self) -> Literal[1, 2]:
+    def sched_ver(self) -> Literal[1, 2]:
         ver = self.conf.get("schedVer", 1)
-        if ver in self.supportedSchedulerVersions:
+        if ver in self._supported_scheduler_versions:
             return ver
         else:
             raise Exception("Unsupported scheduler version")
 
-    def _loadScheduler(self) -> None:
-        ver = self.schedVer()
+    def _load_scheduler(self) -> None:
+        ver = self.sched_ver()
         if ver == 1:
             self.sched = V1Scheduler(self)
         elif ver == 2:
@@ -164,17 +165,17 @@ class Collection:
     def upgrade_to_v2_scheduler(self) -> None:
         self._backend.upgrade_scheduler()
         self.clear_python_undo()
-        self._loadScheduler()
+        self._load_scheduler()
 
     def v3_scheduler(self) -> bool:
         return self.get_config_bool(Config.Bool.SCHED_2021)
 
     def set_v3_scheduler(self, enabled: bool) -> None:
         if self.v3_scheduler() != enabled:
-            if enabled and self.schedVer() != 2:
+            if enabled and self.sched_ver() != 2:
                 raise Exception("must upgrade to v2 scheduler first")
             self.set_config_bool(Config.Bool.SCHED_2021, enabled)
-            self._loadScheduler()
+            self._load_scheduler()
 
     # DB-related
     ##########################################################################
@@ -192,14 +193,6 @@ class Collection:
     @property
     def mod(self) -> int:
         return self.db.scalar("select mod from col")
-
-    # legacy
-    def setMod(self) -> None:
-        # this is now a no-op, as modifications to things like the config
-        # will mark the collection modified automatically
-        pass
-
-    flush = setMod
 
     def modified_by_backend(self) -> bool:
         # Until we can move away from long-running transactions, the Python
@@ -242,7 +235,6 @@ class Collection:
             self._backend.close_collection(downgrade_to_schema11=downgrade)
             self.db = None
             self.media.close()
-            self._closeLog()
 
     def close_for_full_sync(self) -> None:
         # save and cleanup, but backend will take care of collection close
@@ -251,7 +243,6 @@ class Collection:
             self._clear_caches()
             self.db = None
             self.media.close()
-            self._closeLog()
 
     def rollback(self) -> None:
         self._clear_caches()
@@ -273,7 +264,7 @@ class Collection:
         log_path = ""
         should_log = not self.server and self._should_log
         if should_log:
-            log_path = self.path.replace(".anki2", "2.log")
+            log_path = self.path.replace(".anki2", ".log")
 
         # connect
         if not after_full_sync:
@@ -288,17 +279,18 @@ class Collection:
         self.db = DBProxy(weakref.proxy(self._backend))
         self.db.begin()
 
-        self._openLog()
-
-    def modSchema(self, check: bool) -> None:
-        "Mark schema modified. Call this first so user can abort if necessary."
-        if not self.schemaChanged():
-            if check and not hooks.schema_will_change(proceed=True):
-                raise AbortSchemaModification()
+    def set_schema_modified(self) -> None:
         self.db.execute("update col set scm=?", intTime(1000))
         self.save()
 
-    def schemaChanged(self) -> bool:
+    def mod_schema(self, check: bool) -> None:
+        "Mark schema modified. GUI catches this and will ask user if required."
+        if not self.schema_changed():
+            if check and not hooks.schema_will_change(proceed=True):
+                raise AbortSchemaModification()
+        self.set_schema_modified()
+
+    def schema_changed(self) -> bool:
         "True if schema changed since last sync."
         return self.db.scalar("select scm > ls from col")
 
@@ -307,12 +299,6 @@ class Collection:
             return self.db.scalar("select usn from col")
         else:
             return -1
-
-    def beforeUpload(self) -> None:
-        "Called before a full upload."
-        self.save(trx=False)
-        self._backend.before_upload()
-        self.close(save=False, downgrade=True)
 
     # Object helpers
     ##########################################################################
@@ -341,7 +327,9 @@ class Collection:
     # Utils
     ##########################################################################
 
-    def nextID(self, type: str, inc: bool = True) -> Any:
+    def nextID(  # pylint: disable=invalid-name
+        self, type: str, inc: bool = True
+    ) -> Any:
         type = f"next{type.capitalize()}"
         id = self.conf.get(type, 1)
         if inc:
@@ -352,15 +340,6 @@ class Collection:
         "Rebuild the queue and reload data after DB modified."
         self.autosave()
         self.sched.reset()
-
-    # Deletion logging
-    ##########################################################################
-
-    def _logRem(self, ids: List[Union[int, NoteId]], type: int) -> None:
-        self.db.executemany(
-            "insert into graves values (%d, ?, %d)" % (self.usn(), type),
-            ([x] for x in ids),
-        )
 
     # Notes
     ##########################################################################
@@ -419,32 +398,16 @@ class Collection:
             or None
         )
 
-    # legacy
-
-    def noteCount(self) -> int:
+    def note_count(self) -> int:
         return self.db.scalar("select count() from notes")
-
-    def newNote(self, forDeck: bool = True) -> Note:
-        "Return a new note with the current model."
-        return Note(self, self.models.current(forDeck))
-
-    def addNote(self, note: Note) -> int:
-        self.add_note(note, note.model()["did"])
-        return len(note.cards())
-
-    def remNotes(self, ids: Sequence[NoteId]) -> None:
-        self.remove_notes(ids)
-
-    def _remNotes(self, ids: List[NoteId]) -> None:
-        pass
 
     # Cards
     ##########################################################################
 
-    def isEmpty(self) -> bool:
+    def is_empty(self) -> bool:
         return not self.db.scalar("select 1 from cards limit 1")
 
-    def cardCount(self) -> Any:
+    def card_count(self) -> Any:
         return self.db.scalar("select count() from cards")
 
     def remove_cards_and_orphaned_notes(self, card_ids: Sequence[CardId]) -> None:
@@ -457,35 +420,16 @@ class Collection:
     def get_empty_cards(self) -> EmptyCardsReport:
         return self._backend.get_empty_cards()
 
-    # legacy
-
-    def remCards(self, ids: List[CardId], notes: bool = True) -> None:
-        self.remove_cards_and_orphaned_notes(ids)
-
-    def emptyCids(self) -> List[CardId]:
-        print("emptyCids() will go away")
-        return []
-
     # Card generation & field checksums/sort fields
     ##########################################################################
 
     def after_note_updates(
         self, nids: List[NoteId], mark_modified: bool, generate_cards: bool = True
     ) -> None:
+        "If notes modified directly in database, call this afterwards."
         self._backend.after_note_updates(
             nids=nids, generate_cards=generate_cards, mark_notes_modified=mark_modified
         )
-
-    # legacy
-
-    def updateFieldCache(self, nids: List[NoteId]) -> None:
-        self.after_note_updates(nids, mark_modified=False, generate_cards=False)
-
-    # this also updates field cache
-    def genCards(self, nids: List[NoteId]) -> List[int]:
-        self.after_note_updates(nids, mark_modified=False, generate_cards=True)
-        # previously returned empty cards, no longer does
-        return []
 
     # Finding cards
     ##########################################################################
@@ -591,21 +535,21 @@ class Collection:
         return self._backend.field_names_for_notes(nids)
 
     # returns array of ("dupestr", [nids])
-    def findDupes(self, fieldName: str, search: str = "") -> List[Tuple[str, list]]:
+    def find_dupes(self, field_name: str, search: str = "") -> List[Tuple[str, list]]:
         nids = self.find_notes(
-            self.build_search_string(search, SearchNode(field_name=fieldName))
+            self.build_search_string(search, SearchNode(field_name=field_name))
         )
         # go through notes
         vals: Dict[str, List[int]] = {}
         dupes = []
         fields: Dict[int, int] = {}
 
-        def ordForMid(mid: NotetypeId) -> int:
+        def ord_for_mid(mid: NotetypeId) -> int:
             if mid not in fields:
                 model = self.models.get(mid)
-                for c, f in enumerate(model["flds"]):
-                    if f["name"].lower() == fieldName.lower():
-                        fields[mid] = c
+                for idx, field in enumerate(model["flds"]):
+                    if field["name"].lower() == field_name.lower():
+                        fields[mid] = idx
                         break
             return fields[mid]
 
@@ -613,7 +557,7 @@ class Collection:
             f"select id, mid, flds from notes where id in {ids2str(nids)}"
         ):
             flds = splitFields(flds)
-            ord = ordForMid(mid)
+            ord = ord_for_mid(mid)
             if ord is None:
                 continue
             val = flds[ord]
@@ -625,10 +569,6 @@ class Collection:
             if len(vals[val]) == 2:
                 dupes.append((val, vals[val]))
         return dupes
-
-    findCards = find_cards
-    findNotes = find_notes
-    findReplace = find_and_replace
 
     # Search Strings
     ##########################################################################
@@ -880,35 +820,6 @@ table.review-log {{ {revlog_style} }}
         "Don't use this, it will likely go away in the future."
         return self._backend.congrats_info().SerializeToString()
 
-    # legacy
-
-    def cardStats(self, card: Card) -> str:
-        return self.card_stats(card.id, include_revlog=False)
-
-    # Timeboxing
-    ##########################################################################
-    # fixme: there doesn't seem to be a good reason why this code is in main.py
-    # instead of covered in reviewer, and the reps tracking is covered by both
-    # the scheduler and reviewer.py. in the future, we should probably move
-    # reps tracking to reviewer.py, and remove the startTimebox() calls from
-    # other locations like overview.py. We just need to make sure not to reset
-    # the count on things like edits, which we probably could do by checking
-    # the previous state in moveToState.
-
-    def startTimebox(self) -> None:
-        self._startTime = time.time()
-        self._startReps = self.sched.reps
-
-    def timeboxReached(self) -> Union[Literal[False], Tuple[Any, int]]:
-        "Return (elapsedTime, reps) if timebox reached, or False."
-        if not self.conf["timeLim"]:
-            # timeboxing disabled
-            return False
-        elapsed = time.time() - self._startTime
-        if elapsed > self.conf["timeLim"]:
-            return (self.conf["timeLim"], self.sched.reps - self._startReps)
-        return False
-
     # Undo
     ##########################################################################
 
@@ -1070,10 +981,10 @@ table.review-log {{ {revlog_style} }}
         )
 
         # update daily counts
-        n = card.queue
+        idx = card.queue
         if card.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
-            n = QUEUE_TYPE_LRN
-        type = ("new", "lrn", "rev")[n]
+            idx = QUEUE_TYPE_LRN
+        type = ("new", "lrn", "rev")[idx]
         self.sched._updateStats(card, type, -1)
         self.sched.reps -= 1
 
@@ -1082,20 +993,10 @@ table.review-log {{ {revlog_style} }}
 
         return entry
 
-    # legacy
-
-    clearUndo = clear_python_undo
-    markReview = save_card_review_undo_info
-
-    def undoName(self) -> Optional[str]:
-        "Undo menu item name, or None if undo unavailable."
-        status = self.undo_status()
-        return status.undo or None
-
     # DB maintenance
     ##########################################################################
 
-    def fixIntegrity(self) -> Tuple[str, bool]:
+    def fix_integrity(self) -> Tuple[str, bool]:
         """Fix possible problems and rebuild caches.
 
         Returns tuple of (error: str, ok: bool). 'ok' will be true if no
@@ -1106,8 +1007,8 @@ table.review-log {{ {revlog_style} }}
             problems = list(self._backend.check_database())
             ok = not problems
             problems.append(self.tr.database_check_rebuilt())
-        except DBError as e:
-            problems = [str(e.args[0])]
+        except DBError as err:
+            problems = [str(err.args[0])]
             ok = False
         finally:
             try:
@@ -1122,46 +1023,6 @@ table.review-log {{ {revlog_style} }}
         self.db.execute("vacuum")
         self.db.execute("analyze")
         self.db.begin()
-
-    # Logging
-    ##########################################################################
-
-    def log(self, *args: Any, **kwargs: Any) -> None:
-        if not self._should_log:
-            return
-
-        def customRepr(x: Any) -> str:
-            if isinstance(x, str):
-                return x
-            return pprint.pformat(x)
-
-        path, num, fn, y = traceback.extract_stack(limit=2 + kwargs.get("stack", 0))[0]
-        buf = "[%s] %s:%s(): %s" % (
-            intTime(),
-            os.path.basename(path),
-            fn,
-            ", ".join([customRepr(x) for x in args]),
-        )
-        self._logHnd.write(f"{buf}\n")
-        if devMode:
-            print(buf)
-
-    def _openLog(self) -> None:
-        if not self._should_log:
-            return
-        lpath = re.sub(r"\.anki2$", ".log", self.path)
-        if os.path.exists(lpath) and os.path.getsize(lpath) > 10 * 1024 * 1024:
-            lpath2 = f"{lpath}.old"
-            if os.path.exists(lpath2):
-                os.unlink(lpath2)
-            os.rename(lpath, lpath2)
-        self._logHnd = open(lpath, "a", encoding="utf8")
-
-    def _closeLog(self) -> None:
-        if not self._should_log:
-            return
-        self._logHnd.close()
-        self._logHnd = None
 
     ##########################################################################
 
@@ -1209,6 +1070,104 @@ table.review-log {{ {revlog_style} }}
     def render_markdown(self, text: str, sanitize: bool = True) -> str:
         "Not intended for public consumption at this time."
         return self._backend.render_markdown(markdown=text, sanitize=sanitize)
+
+    # Timeboxing
+    ##########################################################################
+    # fixme: there doesn't seem to be a good reason why this code is in main.py
+    # instead of covered in reviewer, and the reps tracking is covered by both
+    # the scheduler and reviewer.py. in the future, we should probably move
+    # reps tracking to reviewer.py, and remove the startTimebox() calls from
+    # other locations like overview.py. We just need to make sure not to reset
+    # the count on things like edits, which we probably could do by checking
+    # the previous state in moveToState.
+
+    # pylint: disable=invalid-name
+
+    def startTimebox(self) -> None:
+        self._startTime = time.time()
+        self._startReps = self.sched.reps
+
+    def timeboxReached(self) -> Union[Literal[False], Tuple[Any, int]]:
+        "Return (elapsedTime, reps) if timebox reached, or False."
+        if not self.conf["timeLim"]:
+            # timeboxing disabled
+            return False
+        elapsed = time.time() - self._startTime
+        if elapsed > self.conf["timeLim"]:
+            return (self.conf["timeLim"], self.sched.reps - self._startReps)
+        return False
+
+    # Legacy
+    ##########################################################################
+
+    @deprecated(info="no longer used")
+    def log(self, *args: Any, **kwargs: Any) -> None:
+        print(args, kwargs)
+
+    @deprecated(replaced_by=undo_status)
+    def undo_name(self) -> Optional[str]:
+        "Undo menu item name, or None if undo unavailable."
+        status = self.undo_status()
+        return status.undo or None
+
+    # @deprecated(replaced_by=new_note)
+    def newNote(self, forDeck: bool = True) -> Note:
+        "Return a new note with the current model."
+        return Note(self, self.models.current(forDeck))
+
+    # @deprecated(replaced_by=add_note)
+    def addNote(self, note: Note) -> int:
+        self.add_note(note, note.note_type()["did"])
+        return len(note.cards())
+
+    @deprecated(replaced_by=remove_notes)
+    def remNotes(self, ids: Sequence[NoteId]) -> None:
+        self.remove_notes(ids)
+
+    @deprecated(replaced_by=remove_notes)
+    def _remNotes(self, ids: List[NoteId]) -> None:
+        pass
+
+    @deprecated(replaced_by=card_stats)
+    def cardStats(self, card: Card) -> str:
+        return self.card_stats(card.id, include_revlog=False)
+
+    @deprecated(replaced_by=after_note_updates)
+    def updateFieldCache(self, nids: List[NoteId]) -> None:
+        self.after_note_updates(nids, mark_modified=False, generate_cards=False)
+
+    @deprecated(replaced_by=after_note_updates)
+    def genCards(self, nids: List[NoteId]) -> List[int]:
+        self.after_note_updates(nids, mark_modified=False, generate_cards=True)
+        # previously returned empty cards, no longer does
+        return []
+
+    @deprecated(info="no longer used")
+    def emptyCids(self) -> List[CardId]:
+        return []
+
+    @deprecated(info="handled by backend")
+    def _logRem(self, ids: List[Union[int, NoteId]], type: int) -> None:
+        self.db.executemany(
+            "insert into graves values (%d, ?, %d)" % (self.usn(), type),
+            ([x] for x in ids),
+        )
+
+    @deprecated(info="no longer required")
+    def setMod(self) -> None:
+        pass
+
+    @deprecated(info="no longer required")
+    def flush(self) -> None:
+        pass
+
+
+Collection.register_deprecated_aliases(
+    clearUndo=Collection.clear_python_undo,
+    markReview=Collection.save_card_review_undo_info,
+    findReplace=Collection.find_and_replace,
+    remCards=Collection.remove_cards_and_orphaned_notes,
+)
 
 
 # legacy name

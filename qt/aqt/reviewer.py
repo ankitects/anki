@@ -218,7 +218,7 @@ class Reviewer:
         if self.cardQueue:
             # undone/edited cards to show
             card = self.cardQueue.pop()
-            card.startTimer()
+            card.start_timer()
             self.hadCardQueue = True
         else:
             if self.hadCardQueue:
@@ -236,7 +236,7 @@ class Reviewer:
             return
         self._v3 = V3CardInfo.from_queue(output)
         self.card = Card(self.mw.col, backend_card=self._v3.top_card().card)
-        self.card.startTimer()
+        self.card.start_timer()
 
     def get_next_states(self) -> Optional[NextStates]:
         if v3 := self._v3:
@@ -320,7 +320,7 @@ class Reviewer:
         self.typedAnswer: str = None
         c = self.card
         # grab the question and play audio
-        q = c.q()
+        q = c.question()
         # play audio?
         if c.autoplay():
             AnkiWebView.setPlaybackRequiresGesture(False)
@@ -370,7 +370,7 @@ class Reviewer:
             return
         self.state = "answer"
         c = self.card
-        a = c.a()
+        a = c.answer()
         # play audio?
         if c.autoplay():
             sounds = c.answer_av_tags()
@@ -535,7 +535,7 @@ class Reviewer:
             clozeIdx = self.card.ord + 1
             fld = fld.split(":")[1]
         # loop through fields for a match
-        for f in self.card.model()["flds"]:
+        for f in self.card.note_type()["flds"]:
             if f["name"] == fld:
                 self.typeCorrect = self.card.note()[f["name"]]
                 if clozeIdx:
@@ -733,7 +733,7 @@ time = %(time)d;
             editkey=tr.actions_shortcut_key(val="E"),
             more=tr.studying_more(),
             downArrow=downArrow(),
-            time=self.card.timeTaken() // 1000,
+            time=self.card.time_taken() // 1000,
         )
 
     def _showAnswerButton(self) -> None:
@@ -749,8 +749,8 @@ time = %(time)d;
             "<table cellpadding=0><tr><td class=stat2 align=center>%s</td></tr></table>"
             % middle
         )
-        if self.card.shouldShowTimer():
-            maxTime = self.card.timeLimit() / 1000
+        if self.card.should_show_timer():
+            maxTime = self.card.time_limit() / 1000
         else:
             maxTime = 0
         self.bottom.web.eval("showQuestion(%s,%d);" % (json.dumps(middle), maxTime))

@@ -155,7 +155,7 @@ class TemplateRenderContext:
         self._fields: Optional[Dict] = None
         self._latex_svg = False
         if not notetype:
-            self._note_type = note.model()
+            self._note_type = note.note_type()
         else:
             self._note_type = notetype
 
@@ -173,7 +173,7 @@ class TemplateRenderContext:
             fields = dict(self._note.items())
 
             # add (most) special fields
-            fields["Tags"] = self._note.stringTags().strip()
+            fields["Tags"] = self._note.string_tags().strip()
             fields["Type"] = self._note_type["name"]
             fields["Deck"] = self._col.decks.name(self._card.current_deck_id())
             fields["Subdeck"] = DeckManager.basename(fields["Deck"])
@@ -190,7 +190,7 @@ class TemplateRenderContext:
     def card(self) -> Card:
         """Returns the card being rendered.
 
-        Be careful not to call .q() or .a() on the card, or you'll create an
+        Be careful not to call .question() or .answer() on the card, or you'll create an
         infinite loop."""
         return self._card
 
