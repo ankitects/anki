@@ -33,6 +33,7 @@ export { default as xmlIcon } from "./xml.svg";
 
 export { default as tagIcon } from "./tag.svg";
 export { default as addTagIcon } from "./tag-plus.svg";
+export { default as dotsIcon } from "./dots-vertical.svg";
 export { default as deleteIcon } from "./x.svg";
 
 export const arrowIcon =
