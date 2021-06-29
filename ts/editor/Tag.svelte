@@ -23,6 +23,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         setTimeout(() => (flashing = false), 300);
     }
 
+    let showDelete = true;
+
+    function hideDeleteOnCtrlShfit(event: MouseEvent) {
+        showDelete = !event.ctrlKey && !event.shiftKey;
+    }
+
+    function showDeleteOnLeave() {
+        showDelete = true;
+    }
+
+    function toggleDelete() {
+        // TODO
+    }
+
     const nightMode = getContext<boolean>(nightModeKey);
 </script>
 
@@ -32,11 +46,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
     tabindex="-1"
+    on:mousemove={hideDeleteOnCtrlShfit}
+    on:mouseleave={showDeleteOnLeave}
+    on:keydown={toggleDelete}
+    on:keyup={toggleDelete}
     on:click
 >
     <span>{name}</span>
-    <Badge class="delete-icon rounded ms-1 mt-1" on:click={deleteTag}
-        >{@html deleteIcon}</Badge
+    <Badge
+        class={`delete-icon rounded ms-1 mt-1${showDelete ? "" : " opacity-0"}`}
+        on:click={deleteTag}>{@html deleteIcon}</Badge
     >
 </button>
 
