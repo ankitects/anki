@@ -10,6 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { controlPressed, shiftPressed } from "lib/keys";
 
     export let name: string;
+    export let selected: boolean = false;
 
     const dispatch = createEventDispatcher();
 
@@ -19,19 +20,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let flashing: boolean = false;
 
-    export function flash() {
+    export function flash(): void {
         flashing = true;
         setTimeout(() => (flashing = false), 300);
     }
 
-    let hideDelete = false;
+    let control = false;
+    let shift = false;
 
-    function setDeleteIcon(event: KeyboardEvent | MouseEvent) {
-        hideDelete = controlPressed(event) || shiftPressed(event);
+    function setDeleteIcon(event: KeyboardEvent | MouseEvent): void {
+        control = controlPressed(event);
+        shift = shiftPressed(event);
     }
 
-    function showDeleteIcon() {
-        hideDelete = true;
+    $: selectMode = control || shift;
+
+    function onClick(): void {
+        if (shift) {
+            dispatch("tagrange");
+        } else if (control) {
+            console.log("control", control);
+            selected = !selected;
+        } else {
+            dispatch("tagedit");
+        }
     }
 
     const nightMode = getContext<boolean>(nightModeKey);
@@ -41,18 +53,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <button
     class="tag btn d-inline-flex align-items-center text-nowrap rounded ps-2 pe-1 me-1"
+    class:selected
     class:flashing
-    class:hide-delete={hideDelete}
+    class:select-mode={selectMode}
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
     tabindex="-1"
-    on:mouseleave={showDeleteIcon}
     on:mousemove={setDeleteIcon}
-    on:click
+    on:click={onClick}
 >
     <span>{name}</span>
-    <Badge class="delete-icon rounded ms-1 mt-1" on:click={deleteTag}
-        >{@html deleteIcon}</Badge
+    <Badge
+        class="delete-icon rounded ms-1 mt-1"
+        on:click={() => {
+            if (!selectMode) {
+                deleteTag();
+            }
+        }}>{@html deleteIcon}</Badge
     >
 </button>
 
@@ -77,30 +94,49 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &:focus,
         &:active {
             outline: none;
+            box-shadow: none;
         }
 
         &.flashing {
             animation: flash 0.3s linear;
         }
 
-        &.hide-delete:hover :global(.delete-icon) {
+        &.select-mode {
+            cursor: crosshair;
+        }
+    }
+
+    .selected {
+        box-shadow: 0 0 0 0.25rem transparentize(button.$focus-color, 0.5) !important;
+    }
+
+    :global(.delete-icon) {
+        .select-mode:hover & {
             opacity: 0;
         }
+
+        > :global(svg:hover) {
+            $white-translucent: rgba(255 255 255 / 0.5);
+            $dark-translucent: rgba(0 0 0 / 0.2);
+
+            .btn-day & {
+                background-color: $dark-translucent;
+            }
+
+            .btn-night & {
+                background-color: $white-translucent;
+            }
+        }
     }
 
-    :global(.delete-icon > svg:hover) {
-        $white-translucent: rgba(255 255 255 / 0.5);
-        $dark-translucent: rgba(0 0 0 / 0.2);
-
-        .btn-day & {
-            background-color: $dark-translucent;
-        }
-
-        .btn-night & {
-            background-color: $white-translucent;
-        }
-    }
-
-    @include button.btn-day($with-active: false);
-    @include button.btn-night($with-active: false);
+    @include button.btn-day(
+        $with-active: false,
+        $with-disabled: false,
+        $with-hover: false
+    );
+    @include button.btn-night(
+        $with-active: false,
+        $with-disabled: false,
+        $with-hover: false
+    );
 </style>
