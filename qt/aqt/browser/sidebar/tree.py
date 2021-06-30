@@ -522,14 +522,13 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _saved_searches_tree(self, root: SidebarItem) -> None:
-        icon = ":/icons/bookmark-outline.svg"
-        icon_multiple = ":/icons/bookmark-multiple-outline.svg"
+        icon = ":/icons/heart-outline.svg"
         saved = self._get_saved_searches()
 
         root = self._section_root(
             root=root,
             name=tr.browsing_sidebar_saved_searches(),
-            icon=icon_multiple,
+            icon=icon,
             collapse_key=Config.Bool.COLLAPSE_SAVED_SEARCHES,
             type=SidebarItemType.SAVED_SEARCH_ROOT,
         )
@@ -700,7 +699,6 @@ class SidebarTreeView(QTreeView):
 
     def _tag_tree(self, root: SidebarItem) -> None:
         icon = ":/icons/tag-outline.svg"
-        icon_multiple = ":/icons/tag-multiple-outline.svg"
         icon_off = ":/icons/tag-off-outline.svg"
 
         def render(
@@ -715,7 +713,7 @@ class SidebarTreeView(QTreeView):
             for node in nodes:
                 item = SidebarItem(
                     name=node.name,
-                    icon=icon_multiple if node.children else icon,
+                    icon=icon,
                     search_node=SearchNode(tag=head + node.name),
                     on_expanded=toggle_expand(node),
                     expanded=not node.collapsed,
@@ -730,7 +728,7 @@ class SidebarTreeView(QTreeView):
         root = self._section_root(
             root=root,
             name=tr.browsing_sidebar_tags(),
-            icon=icon_multiple,
+            icon=icon,
             collapse_key=Config.Bool.COLLAPSE_TAGS,
             type=SidebarItemType.TAG_ROOT,
         )
@@ -749,7 +747,6 @@ class SidebarTreeView(QTreeView):
 
     def _deck_tree(self, root: SidebarItem) -> None:
         icon = ":/icons/book-outline.svg"
-        icon_multiple = ":/icons/book-multiple-outline.svg"
         icon_current = ":/icons/book-clock-outline.svg"
         icon_filtered = ":/icons/book-cog-outline.svg"
 
@@ -769,11 +766,7 @@ class SidebarTreeView(QTreeView):
             for node in nodes:
                 item = SidebarItem(
                     name=node.name,
-                    icon=icon_filtered
-                    if node.filtered
-                    else icon_multiple
-                    if node.children
-                    else icon,
+                    icon=icon_filtered if node.filtered else icon,
                     search_node=SearchNode(deck=head + node.name),
                     on_expanded=toggle_expand(node),
                     expanded=not node.collapsed,
@@ -789,7 +782,7 @@ class SidebarTreeView(QTreeView):
         root = self._section_root(
             root=root,
             name=tr.browsing_sidebar_decks(),
-            icon=icon_multiple,
+            icon=icon,
             collapse_key=Config.Bool.COLLAPSE_DECKS,
             type=SidebarItemType.DECK_ROOT,
         )
@@ -808,15 +801,14 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _notetype_tree(self, root: SidebarItem) -> None:
-        notetype_icon = ":/icons/newspaper-variant-outline.svg"
-        notetype_multiple_icon = ":/icons/newspaper-variant-multiple-outline.svg"
-        template_icon = ":/icons/card-bulleted-outline.svg"
+        notetype_icon = ":/icons/newspaper.svg"
+        template_icon = ":/icons/iframe-braces-outline.svg"
         field_icon = ":/icons/form-textbox.svg"
 
         root = self._section_root(
             root=root,
             name=tr.browsing_sidebar_notetypes(),
-            icon=notetype_multiple_icon,
+            icon=notetype_icon,
             collapse_key=Config.Bool.COLLAPSE_NOTETYPES,
             type=SidebarItemType.NOTETYPE_ROOT,
         )
