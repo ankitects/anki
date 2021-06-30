@@ -5,8 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import * as tr from "lib/i18n";
     import { bridgeCommand } from "lib/bridgecommand";
-    import { disabledKey } from "components/contextKeys";
-    import { inCodableKey } from "./contextKeys";
+    import { disabledKey } from "components/context-keys";
+    import { inCodableKey } from "./context-keys";
 
     import ButtonGroup from "components/ButtonGroup.svelte";
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";

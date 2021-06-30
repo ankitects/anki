@@ -6,8 +6,8 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { disabledKey, nightModeKey } from "components/contextKeys";
-import { inCodableKey } from "./contextKeys";
+import { disabledKey, nightModeKey } from "components/context-keys";
+import { inCodableKey } from "./context-keys";
 import { writable } from "svelte/store";
 
 import EditorToolbar from "./EditorToolbar.svelte";

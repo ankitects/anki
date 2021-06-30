@@ -2,9 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { enableButtons, disableButtons } from "./toolbar";
-import type { EditingArea } from "./editingArea";
+import type { EditingArea } from "./editing-area";
 
-import { saveField } from "./changeTimer";
+import { saveField } from "./change-timer";
 import { bridgeCommand } from "./lib";
 
 export function onFocus(evt: FocusEvent): void {

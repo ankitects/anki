@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { DropdownProps } from "components/dropdown";
-    import { dropdownKey } from "components/contextKeys";
+    import { dropdownKey } from "components/context-keys";
     import { onMount, createEventDispatcher, getContext } from "svelte";
 
     let className = "";

@@ -1,4 +1,4 @@
-@use 'fusion_vars';
+@use 'fusion-vars';
 
 .isWin {
     button {
@@ -31,11 +31,11 @@
         /* match the fusion button gradient */
         background: linear-gradient(
             0deg,
-            fusion_vars.$button-gradient-start 0%,
-            fusion_vars.$button-gradient-end 100%
+            fusion-vars.$button-gradient-start 0%,
+            fusion-vars.$button-gradient-end 100%
         );
-        box-shadow: 0 0 3px fusion_vars.$button-outline;
-        border: 1px solid fusion_vars.$button-border;
+        box-shadow: 0 0 3px fusion-vars.$button-outline;
+        border: 1px solid fusion-vars.$button-border;
 
         border-radius: 2px;
         padding: 10px;
@@ -44,7 +44,7 @@
     }
 
     button:hover {
-        background: fusion_vars.$button-hover-bg;
+        background: fusion-vars.$button-hover-bg;
     }
 }
 

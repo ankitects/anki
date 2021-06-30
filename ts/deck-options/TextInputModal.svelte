@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @typescript-eslint/no-non-null-assertion: "off",
     */
     import { onMount, onDestroy, getContext } from "svelte";
-    import { nightModeKey, modalsKey } from "components/contextKeys";
+    import { nightModeKey, modalsKey } from "components/context-keys";
     import Modal from "bootstrap/js/dist/modal";
 
     export let title: string;
@@ -96,7 +96,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    @use "ts/sass/night_mode" as nightmode;
+    @use "ts/sass/night-mode" as nightmode;
 
     .nightMode {
         @include nightmode.input;

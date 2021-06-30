@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import type { Readable } from "svelte/store";
     import { onMount, createEventDispatcher, getContext } from "svelte";
-    import { disabledKey, nightModeKey } from "./contextKeys";
+    import { disabledKey, nightModeKey } from "./context-keys";
 
     export let id: string | undefined = undefined;
     let className = "";
@@ -43,7 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </select>
 
 <style lang="scss">
-    @use "ts/sass/button_mixins" as button;
+    @use "ts/sass/button-mixins" as button;
 
     select {
         height: var(--buttons-size);
