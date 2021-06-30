@@ -4,7 +4,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "lib/i18n";
-    import WithDropdownMenu from "components/WithDropdownMenu.svelte";
+    import type Dropdown from "bootstrap/js/dist/dropdown";
+    import WithDropdown from "components/WithDropdown.svelte";
     import DropdownMenu from "components/DropdownMenu.svelte";
     import DropdownItem from "components/DropdownItem.svelte";
     import Badge from "./Badge.svelte";
@@ -32,43 +33,41 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let modified: boolean;
     $: modified = !isEqual(value, defaultValue);
-    $: className = !modified ? "opacity-0" : "";
+
+    let dropdown: Dropdown;
 
     const isTouchDevice = getContext<boolean>(touchDeviceKey);
 
     function revert(): void {
         value = cloneDeep(defaultValue);
+        dropdown.hide();
     }
 </script>
 
-<WithDropdownMenu
-    disabled={!modified}
-    let:createDropdown
-    let:activateDropdown
-    let:menuId
->
-    <Badge
-        class={`p-1 ${className}`}
-        on:mount={(event) => createDropdown(event.detail.span)}
-        on:click={activateDropdown}
-    >
-        {@html revertIcon}
-    </Badge>
-
-    <DropdownMenu id={menuId}>
-        <DropdownItem
-            class={`spinner ${isTouchDevice ? "spin-always" : ""}`}
+<WithDropdown let:createDropdown>
+    <div class:hide={!modified}>
+        <Badge
+            class="p-1"
+            on:mount={(event) => (dropdown = createDropdown(event.detail.span))}
             on:click={() => {
-                revert();
-                // Otherwise the menu won't close when the item is clicked
-                // TODO: investigate why this is necessary
-                activateDropdown();
+                if (modified) {
+                    dropdown.toggle();
+                }
             }}
         >
-            {tr.deckConfigRevertButtonTooltip()}<Badge>{@html revertIcon}</Badge>
-        </DropdownItem>
-    </DropdownMenu>
-</WithDropdownMenu>
+            {@html revertIcon}
+        </Badge>
+
+        <DropdownMenu>
+            <DropdownItem
+                class={`spinner ${isTouchDevice ? "spin-always" : ""}`}
+                on:click={() => revert()}
+            >
+                {tr.deckConfigRevertButtonTooltip()}<Badge>{@html revertIcon}</Badge>
+            </DropdownItem>
+        </DropdownMenu>
+    </div>
+</WithDropdown>
 
 <style lang="scss">
     :global(.spinner:hover .badge, .spinner.spin-always .badge) {
@@ -83,5 +82,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         100% {
             transform: rotate(0deg);
         }
+    }
+
+    .hide :global(.badge) {
+        opacity: 0;
     }
 </style>
