@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { setContext } from "svelte";
     import { dropdownKey } from "./contextKeys";
 
-    export let id: string;
+    export let id: string | undefined = undefined;
 
     setContext(dropdownKey, null);
 </script>

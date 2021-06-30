@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "lib/i18n";
     import { createEventDispatcher } from "svelte";
     import type { DeckOptionsState } from "./lib";
+    import type Dropdown from "bootstrap/js/dist/dropdown";
 
     import ButtonGroup from "components/ButtonGroup.svelte";
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";
@@ -14,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DropdownMenu from "components/DropdownMenu.svelte";
     import DropdownItem from "components/DropdownItem.svelte";
     import DropdownDivider from "components/DropdownDivider.svelte";
-    import WithDropdownMenu from "components/WithDropdownMenu.svelte";
+    import WithDropdown from "components/WithDropdown.svelte";
     import WithShortcut from "components/WithShortcut.svelte";
 
     const dispatch = createEventDispatcher();
@@ -53,6 +54,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         commitEditing();
         state.save(applyToChildDecks);
     }
+
+    let dropdown: Dropdown;
 </script>
 
 <ButtonGroup>
@@ -68,12 +71,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithDropdownMenu let:createDropdown let:activateDropdown let:menuId>
+        <WithDropdown let:createDropdown>
             <LabelButton
-                on:mount={(event) => createDropdown(event.detail.button)}
-                on:click={activateDropdown}
+                on:mount={(event) => (dropdown = createDropdown(event.detail.button))}
+                on:click={() => dropdown.toggle()}
             />
-            <DropdownMenu id={menuId}>
+            <DropdownMenu>
                 <DropdownItem on:click={() => dispatch("add")}
                     >{tr.deckConfigAddGroup()}</DropdownItem
                 >
@@ -91,6 +94,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {tr.deckConfigSaveToAllSubdecks()}
                 </DropdownItem>
             </DropdownMenu>
-        </WithDropdownMenu>
+        </WithDropdown>
     </ButtonGroupItem>
 </ButtonGroup>
