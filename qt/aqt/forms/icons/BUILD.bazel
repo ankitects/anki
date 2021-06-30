@@ -4,8 +4,7 @@ copy_mdi_icons(
     name = "mdi-icons",
     icons = [
         # saved searches
-        "bookmark-outline.svg",
-        "bookmark-multiple-outline.svg",
+        "heart-outline.svg",
 
         # today
         "clock-outline.svg",
@@ -16,21 +15,18 @@ copy_mdi_icons(
 
         # decks
         "book-outline.svg",
-        "book-multiple-outline.svg",
         "book-clock-outline.svg",
         "book-cog-outline.svg",
 
         # notetypes
-        "newspaper-variant-outline.svg",
-        "newspaper-variant-multiple-outline.svg",
-        # cards
-        "card-bulleted-outline.svg",
+        "newspaper.svg",
+        # cardtype
+        "iframe-braces-outline.svg",
         # fields
         "form-textbox.svg",
 
         # tags
         "tag-outline.svg",
-        "tag-multiple-outline.svg",
         "tag-off-outline.svg",
     ],
 )
