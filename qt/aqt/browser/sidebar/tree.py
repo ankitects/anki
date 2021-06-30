@@ -666,15 +666,16 @@ class SidebarTreeView(QTreeView):
 
     def _flags_tree(self, root: SidebarItem) -> None:
         icon = ":/icons/flag.svg"
+        icon_outline = ":/icons/flag-outline.svg"
+
         root = self._section_root(
             root=root,
             name=tr.browsing_sidebar_flags(),
-            icon=icon,
+            icon=icon_outline,
             collapse_key=Config.Bool.COLLAPSE_FLAGS,
             type=SidebarItemType.FLAG_ROOT,
         )
         root.search_node = SearchNode(flag=SearchNode.FLAG_ANY)
-        colored_icon = ColoredIcon(path=icon, color=colors.DISABLED)
 
         for flag in load_flags(self.col):
             root.add_child(
@@ -689,7 +690,7 @@ class SidebarTreeView(QTreeView):
 
         root.add_simple(
             tr.browsing_no_flag(),
-            icon=colored_icon,
+            icon=icon_outline,
             type=SidebarItemType.FLAG,
             search_node=SearchNode(flag=SearchNode.FLAG_NONE),
         )

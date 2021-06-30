@@ -13,6 +13,10 @@ copy_mdi_icons(
         "circle.svg",
         "circle-outline.svg",
 
+        # flags
+        "flag.svg",
+        "flag-outline.svg",
+
         # decks
         "book-outline.svg",
         "book-clock-outline.svg",
