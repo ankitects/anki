@@ -52,7 +52,7 @@ class ChangeNotetypeDialog(QDialog):
 
         self.web = AnkiWebView(title=self.TITLE)
         self.web.setVisible(False)
-        self.web.load_ts_page("ChangeNotetype")
+        self.web.load_ts_page("change-notetype")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)

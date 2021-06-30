@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { getContext } from "svelte";
-    import { nightModeKey } from "components/contextKeys";
+    import { nightModeKey } from "components/context-keys";
     import { stepsToString, stringToSteps } from "./steps";
 
     export let value: number[];
@@ -28,7 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 />
 
 <style lang="scss">
-    @use "ts/sass/night_mode" as nightmode;
+    @use "ts/sass/night-mode" as nightmode;
 
     .nightMode {
         @include nightmode.input;

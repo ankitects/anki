@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroupItem from "./ButtonGroupItem.svelte";
     import { setContext } from "svelte";
     import { writable } from "svelte/store";
-    import { buttonGroupKey } from "./contextKeys";
+    import { buttonGroupKey } from "./context-keys";
     import type { Identifier } from "./identifier";
     import { insertElement, appendElement } from "./identifier";
     import type { ButtonRegistration } from "./buttons";
