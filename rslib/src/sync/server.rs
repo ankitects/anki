@@ -149,9 +149,13 @@ impl SyncServer for LocalServer {
     }
 
     async fn sanity_check(&mut self, mut client: SanityCheckCounts) -> Result<SanityCheckResponse> {
+        let mut server = self.col.storage.sanity_check_info()?;
         client.counts = Default::default();
+        // clients on schema 17 and below may send duplicate
+        // deletion markers, so we can't compare graves until
+        // the minimum syncing version is schema 18.
         client.graves = 0;
-        let server = self.col.storage.sanity_check_info()?;
+        server.graves = 0;
         Ok(SanityCheckResponse {
             status: if client == server {
                 SanityCheckStatus::Ok

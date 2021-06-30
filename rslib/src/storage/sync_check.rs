@@ -48,10 +48,7 @@ impl SqliteStorage {
             cards: self.table_count("cards")?,
             notes: self.table_count("notes")?,
             revlog: self.table_count("revlog")?,
-            // clients on schema 17 and below may send duplicate
-            // deletion markers, so we can't compare graves until
-            // the minimum syncing version is schema 18.
-            graves: 0,
+            graves: self.table_count("graves")?,
             notetypes: self.table_count("notetypes")?,
             decks: self.table_count("decks")?,
             deck_config: self.table_count("deck_config")?,
