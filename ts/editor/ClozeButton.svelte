@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithShortcut from "components/WithShortcut.svelte";
     import WithContext from "components/WithContext.svelte";
 
-    import { bracketsIcon } from "./icons";
+    import { ellipseIcon } from "./icons";
     import { forEditorField } from ".";
     import { wrapCurrent } from "./wrap";
 
@@ -53,7 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 on:click={onCloze}
                 on:mount={createShortcut}
             >
-                {@html bracketsIcon}
+                {@html ellipseIcon}
             </IconButton>
         </WithContext>
     </WithContext>
