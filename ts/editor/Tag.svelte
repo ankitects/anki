@@ -63,7 +63,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 >
     <span>{name}</span>
     <Badge
-        class="delete-icon rounded ms-1 mt-1"
+        class="delete-icon rounded d-flex align-items-center"
         on:click={() => {
             if (!selectMode) {
                 deleteTag();
@@ -102,29 +102,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         &.select-mode {
             cursor: crosshair;
+
+            &:hover :global(.delete-icon) {
+                opacity: 0;
+            }
+        }
+
+        &.selected {
+            box-shadow: 0 0 0 0.25rem transparentize(button.$focus-color, 0.5) !important;
         }
     }
 
-    .selected {
-        box-shadow: 0 0 0 0.25rem transparentize(button.$focus-color, 0.5) !important;
-    }
+    :global(.delete-icon > svg:hover) {
+        $white-translucent: rgba(255 255 255 / 0.5);
+        $dark-translucent: rgba(0 0 0 / 0.2);
 
-    :global(.delete-icon) {
-        .select-mode:hover & {
-            opacity: 0;
+        .btn-day & {
+            background-color: $dark-translucent;
         }
 
-        > :global(svg:hover) {
-            $white-translucent: rgba(255 255 255 / 0.5);
-            $dark-translucent: rgba(0 0 0 / 0.2);
-
-            .btn-day & {
-                background-color: $dark-translucent;
-            }
-
-            .btn-night & {
-                background-color: $white-translucent;
-            }
+        .btn-night & {
+            background-color: $white-translucent;
         }
     }
 
