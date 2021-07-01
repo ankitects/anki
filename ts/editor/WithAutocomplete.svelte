@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import type Dropdown from "bootstrap/js/dist/dropdown";
 
-    import WithDropdownMenu from "components/WithDropdownMenu.svelte";
+    import WithDropdown from "components/WithDropdown.svelte";
     import DropdownMenu from "components/DropdownMenu.svelte";
     import AutocompleteItem from "./AutocompleteItem.svelte";
 
@@ -18,7 +18,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let target: HTMLElement;
     let dropdown: Dropdown;
-    let autocomplete: any;
 
     let selected: number | null = null;
     let active: boolean = false;
@@ -82,10 +81,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         (element: HTMLElement): any => {
             target = element;
             dropdown = createDropdown(element);
-            autocomplete = {
-                hide: dropdown.hide.bind(dropdown),
-                show: dropdown.show.bind(dropdown),
-                toggle: dropdown.toggle.bind(dropdown),
+
+            const api = {
+                hide: dropdown.hide,
+                show: dropdown.show,
+                toggle: dropdown.toggle,
                 isVisible: (dropdown as any).isVisible,
                 selectPrevious,
                 selectNext,
@@ -93,7 +93,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 update,
             };
 
-            return autocomplete;
+            return api;
         };
 
     onDestroy(() => dropdown?.dispose());
@@ -114,10 +114,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<WithDropdownMenu toggleOnClick={false} let:menuId let:createDropdown>
-    <slot createAutocomplete={createAutocomplete(createDropdown)} {autocomplete} />
+<WithDropdown let:createDropdown>
+    <slot createAutocomplete={createAutocomplete(createDropdown)} />
 
-    <DropdownMenu id={menuId} class={className}>
+    <DropdownMenu class={className}>
         {#await suggestionsPromise}
             <AutocompleteItem>...</AutocompleteItem>
         {:then suggestions}
@@ -132,4 +132,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {/each}
         {/await}
     </DropdownMenu>
-</WithDropdownMenu>
+</WithDropdown>

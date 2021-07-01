@@ -33,6 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let activeName = "";
     let activeInput: HTMLInputElement;
 
+    let autocomplete: any;
     let suggestionsPromise: Promise<string[]> = Promise.resolve([]);
 
     function updateSuggestions(): void {
@@ -104,8 +105,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function enterBehavior(
         index: number,
         start: number,
-        end: number,
-        autocomplete: any
+        end: number
     ): Promise<void> {
         if (autocomplete.isVisible()) {
             autocomplete.chooseSelected();
@@ -227,7 +227,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return event.code === "Backspace" || event.code === "Delete";
     }
 
-    function onKeydown(event: KeyboardEvent, autocomplete: any): void {
+    function onKeydown(event: KeyboardEvent): void {
         const visible = autocomplete.isVisible();
         const printable = isPrintableKey(event);
         const deletion = isDeletionKey(event);
@@ -274,7 +274,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function onKeyup(_event: KeyboardEvent, autocomplete: any): void {
+    function onKeyup(_event: KeyboardEvent): void {
         if (activeName.length === 0) {
             autocomplete.hide();
         }
@@ -384,7 +384,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             onAutocomplete(detail.selected)}
                         on:choose={({ detail }) => onChosen(detail.chosen)}
                         let:createAutocomplete
-                        let:autocomplete
                     >
                         <TagInput
                             id={tag.id}
@@ -392,18 +391,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             bind:input={activeInput}
                             on:focus={() => {
                                 activeName = tag.name;
-                                createAutocomplete(activeInput);
+                                autocomplete = createAutocomplete(activeInput);
                             }}
-                            on:keydown={(event) => onKeydown(event, autocomplete)}
-                            on:keyup={(event) => onKeyup(event, autocomplete)}
+                            on:keydown={onKeydown}
+                            on:keyup={onKeyup}
                             on:input={() => updateTagName(tag)}
                             on:tagsplit={({ detail }) =>
-                                enterBehavior(
-                                    index,
-                                    detail.start,
-                                    detail.end,
-                                    autocomplete
-                                )}
+                                enterBehavior(index, detail.start, detail.end)}
                             on:tagadd={() => insertTag(index)}
                             on:tagdelete={() => deleteTagAt(index)}
                             on:tagjoinprevious={() => joinWithPreviousTag(index)}

@@ -19,12 +19,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     let dropdown: Dropdown;
-    let dropdownObject: Dropdown;
+    let api: Dropdown & { isVisible: () => boolean };
+
+    function isVisible() {
+        return (dropdown as any)._menu
+            ? (dropdown as any)._menu.classList.contains("show")
+            : false;
+    }
 
     const noop = () => {};
     function createDropdown(toggle: HTMLElement): Dropdown {
         /* avoid focusing element toggle on menu activation */
         toggle.focus = noop;
+
         dropdown = new Dropdown(toggle, {
             autoClose,
             popperConfig: (defaultConfig: Record<string, any>) => ({
@@ -37,22 +44,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             dropdown.show();
         }
 
-        dropdownObject = {
+        let api = {
             show: dropdown.show.bind(dropdown),
             toggle: dropdown.toggle.bind(dropdown),
             hide: dropdown.hide.bind(dropdown),
             update: dropdown.update.bind(dropdown),
             dispose: dropdown.dispose.bind(dropdown),
+            isVisible,
         };
 
-        return dropdownObject;
+        return api;
     }
 
     onDestroy(() => dropdown?.dispose());
 </script>
 
 <div class="dropdown">
-    <slot {createDropdown} {dropdownObject} />
+    <slot {createDropdown} dropdownObject={api} />
 </div>
 
 <style lang="scss">
