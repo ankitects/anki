@@ -100,7 +100,7 @@ async function _updateQA(
     await _runHook(onShownHook);
 }
 
-function _showQuestion(q: string, bodyclass: string): void {
+function _showQuestion(q: string, a: string, bodyclass: string): void {
     _queueAction(() =>
         _updateQA(
             q,
@@ -117,6 +117,8 @@ function _showQuestion(q: string, bodyclass: string): void {
                 if (typeans) {
                     typeans.focus();
                 }
+                // preload images
+                allImagesLoaded().then(() => preloadAnswerImages(q, a));
             }
         )
     );
@@ -202,4 +204,36 @@ function imageLoaded(img: HTMLImageElement): Promise<void> {
 
 function scrollToAnswer(): void {
     document.getElementById("answer")?.scrollIntoView();
+}
+
+function injectPreloadLink(href: string, as: string): void {
+    const link = document.createElement("link");
+    link.rel = "preload";
+    link.href = href;
+    link.as = as;
+    document.head.appendChild(link);
+}
+
+function clearPreloadLinks(): void {
+    document.head
+        .querySelectorAll("link[rel='preload']")
+        .forEach((link) => link.remove());
+}
+
+function extractImageSrcs(html: string): string[] {
+    const fragment = document.createRange().createContextualFragment(html);
+    const srcs = [...fragment.querySelectorAll("img[src]")].map(
+        (img) => (img as HTMLImageElement).src
+    );
+    return srcs;
+}
+
+function preloadAnswerImages(qHtml: string, aHtml: string): void {
+    clearPreloadLinks();
+    const aSrcs = extractImageSrcs(aHtml);
+    if (aSrcs.length) {
+        const qSrcs = extractImageSrcs(qHtml);
+        const diff = aSrcs.filter((src) => !qSrcs.includes(src));
+        diff.forEach((src) => injectPreloadLink(src, "image"));
+    }
 }
