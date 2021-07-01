@@ -10,8 +10,8 @@ import type { Codable } from "./codable";
 
 import { updateActiveButtons } from "./toolbar";
 import { bridgeCommand } from "./lib";
-import { onInput, onKey, onKeyUp } from "./inputHandlers";
-import { onFocus, onBlur } from "./focusHandlers";
+import { onInput, onKey, onKeyUp } from "./input-handlers";
+import { onFocus, onBlur } from "./focus-handlers";
 
 function onCutOrCopy(): void {
     bridgeCommand("cutOrCopy");

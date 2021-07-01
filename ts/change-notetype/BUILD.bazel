@@ -7,7 +7,7 @@ load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:jest.bzl", "jest_test")
 
 compile_sass(
-    srcs = ["ChangeNotetype-base.scss"],
+    srcs = ["change-notetype-base.scss"],
     group = "base_css",
     visibility = ["//visibility:public"],
     deps = [
@@ -48,7 +48,7 @@ ts_library(
     srcs = [
         "lib.ts",
     ],
-    module_name = "ChangeNotetype",
+    module_name = "change-notetype",
     deps = [
         "//ts/components",
         "//ts/lib",
@@ -60,7 +60,7 @@ ts_library(
 )
 
 esbuild(
-    name = "ChangeNotetype",
+    name = "change-notetype",
     srcs = [
         "//ts:protobuf-shim.js",
     ],
@@ -75,22 +75,22 @@ esbuild(
     external = [
         "protobufjs/light",
     ],
-    output_css = "ChangeNotetype.css",
+    output_css = "change-notetype.css",
     visibility = ["//visibility:public"],
     deps = [
         "index",
+        ":base_css",
+        "@npm//bootstrap",
+        "@npm//marked",
         "//ts/lib",
         "//ts/lib:backend_proto",
-        "@npm//bootstrap",
-        ":base_css",
         "//ts/sveltelib",
-        "@npm//marked",
         "//ts/components",
         "//ts/components:svelte_components",
     ] + svelte_names,
 )
 
-exports_files(["ChangeNotetype.html"])
+exports_files(["change-notetype.html"])
 
 # Tests
 ################

@@ -11,17 +11,17 @@ import { setupI18n, ModuleName } from "lib/i18n";
 
 import "./fields.css";
 
-import { saveField } from "./changeTimer";
+import { saveField } from "./change-timer";
 
-import { EditorField } from "./editorField";
-import { LabelContainer } from "./labelContainer";
-import { EditingArea } from "./editingArea";
+import { EditorField } from "./editor-field";
+import { LabelContainer } from "./label-container";
+import { EditingArea } from "./editing-area";
 import { Editable } from "./editable";
 import { Codable } from "./codable";
 import { initToolbar } from "./toolbar";
 
-export { setNoteId, getNoteId } from "./noteId";
-export { saveNow } from "./changeTimer";
+export { setNoteId, getNoteId } from "./note-id";
+export { saveNow } from "./change-timer";
 export { wrap, wrapIntoText } from "./wrap";
 export { editorToolbar } from "./toolbar";
 

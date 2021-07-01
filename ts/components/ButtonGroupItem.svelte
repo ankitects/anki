@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Register } from "./registration";
 
     import { getContext, hasContext } from "svelte";
-    import { buttonGroupKey } from "./contextKeys";
+    import { buttonGroupKey } from "./context-keys";
 
     export let id: string | undefined = undefined;
     export let registration: ButtonRegistration | undefined = undefined;
