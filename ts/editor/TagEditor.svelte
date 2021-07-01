@@ -362,7 +362,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {size}
         on:focusout={deselectIfLeave}
     >
-        <div class="pad" on:mousedown|preventDefault>
+        <div class="gap" on:mousedown|preventDefault>
             {#if tags.some((tag) => tag.selected)}
                 <SelectedTagBadge
                     on:tagcopy={copySelectedTags}
@@ -374,7 +374,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </div>
 
         {#each tags as tag, index (tag.id)}
-            <div class="position-relative pad" class:hide-tag={index === active}>
+            <div class="position-relative gap" class:hide-tag={index === active}>
                 <Tag
                     class="me-1"
                     name={tag.name}
@@ -393,45 +393,47 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 />
 
                 {#if index === active}
-                    <WithAutocomplete
-                        class="d-flex flex-column-reverse dropup"
-                        {suggestionsPromise}
-                        on:update={updateSuggestions}
-                        on:autocomplete={({ detail }) =>
-                            onAutocomplete(detail.selected)}
-                        on:choose={({ detail }) => onChosen(detail.chosen)}
-                        let:createAutocomplete
-                    >
-                        <TagInput
-                            id={tag.id}
-                            class="position-absolute top-0 start-0"
-                            bind:name={activeName}
-                            bind:input={activeInput}
-                            on:focus={() => {
-                                activeName = tag.name;
-                                autocomplete = createAutocomplete(activeInput);
-                            }}
-                            on:keydown={onKeydown}
-                            on:keyup={onKeyup}
-                            on:input={() => updateTagName(tag)}
-                            on:tagsplit={({ detail }) =>
-                                enterBehavior(index, detail.start, detail.end)}
-                            on:tagadd={() => insertTag(index)}
-                            on:tagdelete={() => deleteTagAt(index)}
-                            on:tagjoinprevious={() => joinWithPreviousTag(index)}
-                            on:tagjoinnext={() => joinWithNextTag(index)}
-                            on:tagmoveprevious={() => moveToPreviousTag(index)}
-                            on:tagmovenext={() => moveToNextTag(index)}
-                            on:tagaccept={() => {
-                                deleteTagIfNotUnique(tag, index);
-                                if (tag) {
-                                    updateTagName(tag);
-                                }
-                                saveTags();
-                                decideNextActive();
-                            }}
-                        />
-                    </WithAutocomplete>
+                    <div class="adjust-position">
+                        <WithAutocomplete
+                            class="d-flex flex-column-reverse dropup"
+                            {suggestionsPromise}
+                            on:update={updateSuggestions}
+                            on:autocomplete={({ detail }) =>
+                                onAutocomplete(detail.selected)}
+                            on:choose={({ detail }) => onChosen(detail.chosen)}
+                            let:createAutocomplete
+                        >
+                            <TagInput
+                                id={tag.id}
+                                class="tag-input position-absolute top-0 start-0 ps-2 py-0"
+                                bind:name={activeName}
+                                bind:input={activeInput}
+                                on:focus={() => {
+                                    activeName = tag.name;
+                                    autocomplete = createAutocomplete(activeInput);
+                                }}
+                                on:keydown={onKeydown}
+                                on:keyup={onKeyup}
+                                on:input={() => updateTagName(tag)}
+                                on:tagsplit={({ detail }) =>
+                                    enterBehavior(index, detail.start, detail.end)}
+                                on:tagadd={() => insertTag(index)}
+                                on:tagdelete={() => deleteTagAt(index)}
+                                on:tagjoinprevious={() => joinWithPreviousTag(index)}
+                                on:tagjoinnext={() => joinWithNextTag(index)}
+                                on:tagmoveprevious={() => moveToPreviousTag(index)}
+                                on:tagmovenext={() => moveToNextTag(index)}
+                                on:tagaccept={() => {
+                                    deleteTagIfNotUnique(tag, index);
+                                    if (tag) {
+                                        updateTagName(tag);
+                                    }
+                                    saveTags();
+                                    decideNextActive();
+                                }}
+                            />
+                        </WithAutocomplete>
+                    </div>
                 {/if}
             </div>
         {/each}
@@ -452,7 +454,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         opacity: 0;
     }
 
-    .pad {
-        padding-bottom: 0.15rem;
+    .gap {
+        margin-bottom: 0.15rem;
+    }
+
+    .adjust-position :global(.tag-input) {
+        /* recreates positioning of Tag component */
+        border-left: 1px solid transparent;
     }
 </style>
