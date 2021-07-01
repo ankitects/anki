@@ -374,7 +374,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </div>
 
         {#each tags as tag, index (tag.id)}
-            <div class="pb-1">
+            <div class="position-relative pb-1" class:hide-tag={index === active}>
+                <Tag
+                    name={tag.name}
+                    bind:flash={tag.flash}
+                    bind:selected={tag.selected}
+                    on:tagedit={() => {
+                        active = index;
+                        deselect();
+                    }}
+                    on:tagselect={() => select(index)}
+                    on:tagrange={() => selectRange(index)}
+                    on:tagdelete={() => {
+                        deleteTagAt(index);
+                        saveTags();
+                    }}
+                />
+
                 {#if index === active}
                     <WithAutocomplete
                         class="d-flex flex-column-reverse dropup"
@@ -387,6 +403,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     >
                         <TagInput
                             id={tag.id}
+                            class="position-absolute top-0 start-0"
                             bind:name={activeName}
                             bind:input={activeInput}
                             on:focus={() => {
@@ -414,22 +431,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             }}
                         />
                     </WithAutocomplete>
-                {:else}
-                    <Tag
-                        name={tag.name}
-                        bind:flash={tag.flash}
-                        bind:selected={tag.selected}
-                        on:tagedit={() => {
-                            active = index;
-                            deselect();
-                        }}
-                        on:tagselect={() => select(index)}
-                        on:tagrange={() => selectRange(index)}
-                        on:tagdelete={() => {
-                            deleteTagAt(index);
-                            saveTags();
-                        }}
-                    />
                 {/if}
             </div>
         {/each}
@@ -444,5 +445,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .tag-spacer {
         cursor: text;
+    }
+
+    .hide-tag :global(.tag) {
+        opacity: 0;
     }
 </style>

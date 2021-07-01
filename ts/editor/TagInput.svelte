@@ -3,10 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { onMount, onDestroy, createEventDispatcher, tick } from "svelte";
+    import { onMount, createEventDispatcher, tick } from "svelte";
     import { normalizeTagname } from "./tags";
 
     export let id: string | undefined = undefined;
+    let className: string = "";
+    export { className as class };
+
     export let name: string;
     export let input: HTMLInputElement;
 
@@ -170,54 +173,40 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => input.focus());
 </script>
 
-<label class="ps-2 pe-1" data-value={name}>
-    <input
-        {id}
-        bind:this={input}
-        bind:value={name}
-        type="text"
-        tabindex="-1"
-        size="1"
-        on:focus
-        on:blur={onBlur}
-        on:keydown={onKeydown}
-        on:keydown
-        on:keyup
-        on:input
-        on:paste={onPaste}
-    />
-</label>
+<input
+    {id}
+    class={className}
+    bind:this={input}
+    bind:value={name}
+    type="text"
+    tabindex="-1"
+    size="1"
+    on:focus
+    on:blur={onBlur}
+    on:keydown={onKeydown}
+    on:keydown
+    on:keyup
+    on:input
+    on:paste={onPaste}
+/>
 
 <style lang="scss">
-    label {
-        display: inline-grid;
+    input {
+        padding-left: 9.5px;
+        padding-bottom: 5.5px;
+
+        width: 100%;
         height: 100%;
 
-        &::after,
-        input {
-            color: var(--text-fg);
-            background: none;
-            resize: none;
-            appearance: none;
-            width: auto;
-            grid-area: 1 / 1;
-            font: inherit;
-            /* TODO we need something like --base-font-size for buttons' 13px */
-            font-size: 13px;
-            outline: none;
-            border: none;
-            margin: 0;
-            /* adjust so deleting all tags does not cause a reflow */
-            padding: 3.2px 0;
-        }
-
-        &::after {
-            /* 7 spaces to minimize reflow on clicking tag */
-            content: attr(data-value) "       ";
-            visibility: hidden;
-            white-space: pre-wrap;
-            position: relative;
-            top: -2rem;
-        }
+        color: var(--text-fg);
+        background: none;
+        resize: none;
+        appearance: none;
+        font: inherit;
+        /* TODO we need something like --base-font-size for buttons' 13px */
+        font-size: 13px;
+        outline: none;
+        border: none;
+        margin: 0;
     }
 </style>
