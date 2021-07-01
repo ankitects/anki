@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "components/IconButton.svelte";
     import ButtonDropdown from "components/ButtonDropdown.svelte";
     import Item from "components/Item.svelte";
-    import WithDropdownMenu from "components/WithDropdownMenu.svelte";
+    import WithDropdown from "components/WithDropdown.svelte";
     import OnlyEditable from "./OnlyEditable.svelte";
     import CommandIconButton from "./CommandIconButton.svelte";
 
@@ -63,7 +63,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithDropdownMenu let:createDropdown let:menuId>
+        <WithDropdown let:createDropdown>
             <OnlyEditable let:disabled>
                 <IconButton
                     {disabled}
@@ -73,7 +73,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </IconButton>
             </OnlyEditable>
 
-            <ButtonDropdown id={menuId}>
+            <ButtonDropdown>
                 <Item id="justify">
                     <ButtonGroup>
                         <ButtonGroupItem>
@@ -142,6 +142,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </ButtonGroup>
                 </Item>
             </ButtonDropdown>
-        </WithDropdownMenu>
+        </WithDropdown>
     </ButtonGroupItem>
 </ButtonGroup>

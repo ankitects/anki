@@ -1,8 +1,35 @@
-load("//ts:vendor.bzl", "copy_mdi_icons")
+load("//ts:vendor.bzl", "copy_mdi_icons", "copy_bootstrap_icons")
 
 copy_mdi_icons(
     name = "mdi-icons",
     icons = [
+        # saved searches
+        "heart-outline.svg",
+
+        # today
+        "clock-outline.svg",
+
+        # state
+        "circle.svg",
+        "circle-outline.svg",
+
+        # flags
+        "flag.svg",
+        "flag-outline.svg",
+
+        # decks
+        "book-outline.svg",
+        "book-clock-outline.svg",
+        "book-cog-outline.svg",
+
+        # notetypes
+        "newspaper.svg",
+        # cardtype
+        "iframe-braces-outline.svg",
+        # fields
+        "form-textbox.svg",
+
+        # tags
         "tag-outline.svg",
         "tag-off-outline.svg",
     ],

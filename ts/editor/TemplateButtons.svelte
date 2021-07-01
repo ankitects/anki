@@ -13,7 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "components/IconButton.svelte";
     import DropdownMenu from "components/DropdownMenu.svelte";
     import DropdownItem from "components/DropdownItem.svelte";
-    import WithDropdownMenu from "components/WithDropdownMenu.svelte";
+    import WithDropdown from "components/WithDropdown.svelte";
     import WithShortcut from "components/WithShortcut.svelte";
     import WithContext from "components/WithContext.svelte";
     import OnlyEditable from "./OnlyEditable.svelte";
@@ -88,7 +88,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithDropdownMenu let:createDropdown let:menuId>
+        <WithDropdown let:createDropdown>
             <WithContext key={disabledKey} let:context={disabled}>
                 <OnlyEditable let:disabled={inCodable}>
                     <IconButton
@@ -100,7 +100,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </OnlyEditable>
             </WithContext>
 
-            <DropdownMenu id={menuId}>
+            <DropdownMenu>
                 <WithShortcut
                     shortcut={"Control+M, M"}
                     let:createShortcut
@@ -185,7 +185,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </DropdownItem>
                 </WithShortcut>
             </DropdownMenu>
-        </WithDropdownMenu>
+        </WithDropdown>
     </ButtonGroupItem>
 
     <ButtonGroupItem>

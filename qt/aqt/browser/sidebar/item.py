@@ -25,6 +25,7 @@ class SidebarItemType(Enum):
     NOTETYPE_ROOT = auto()
     NOTETYPE = auto()
     NOTETYPE_TEMPLATE = auto()
+    NOTETYPE_FIELD = auto()
     TAG_ROOT = auto()
     TAG_NONE = auto()
     TAG = auto()
@@ -144,7 +145,10 @@ class SidebarItem:
                 SidebarItemType.CARD_STATE,
             ):
                 return self.name == other.name
-            elif self.item_type == SidebarItemType.NOTETYPE_TEMPLATE:
+            elif self.item_type in [
+                SidebarItemType.NOTETYPE_TEMPLATE,
+                SidebarItemType.NOTETYPE_FIELD,
+            ]:
                 return (
                     other.id == self.id
                     and other._parent_item.id == self._parent_item.id
