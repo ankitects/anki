@@ -112,7 +112,7 @@ copy_mdi_icons(
         "format-superscript.svg",
         "format-subscript.svg",
         "function-variant.svg",
-        "code-brackets.svg",
+        "contain.svg",
         "xml.svg",
 
         "format-color-text.svg",
