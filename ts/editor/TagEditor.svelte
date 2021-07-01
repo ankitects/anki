@@ -362,7 +362,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {size}
         on:focusout={deselectIfLeave}
     >
-        <div class="pb-1" on:mousedown|preventDefault>
+        <div class="pad" on:mousedown|preventDefault>
             {#if tags.some((tag) => tag.selected)}
                 <SelectedTagBadge
                     on:tagcopy={copySelectedTags}
@@ -374,8 +374,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </div>
 
         {#each tags as tag, index (tag.id)}
-            <div class="position-relative pb-1" class:hide-tag={index === active}>
+            <div class="position-relative pad" class:hide-tag={index === active}>
                 <Tag
+                    class="me-1"
                     name={tag.name}
                     bind:flash={tag.flash}
                     bind:selected={tag.selected}
@@ -449,5 +450,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .hide-tag :global(.tag) {
         opacity: 0;
+    }
+
+    .pad {
+        padding-bottom: 0.15rem;
     }
 </style>

@@ -9,6 +9,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { deleteIcon } from "./icons";
     import { controlPressed, shiftPressed } from "lib/keys";
 
+    let className: string = "";
+    export { className as class };
+
     export let name: string;
     export let selected: boolean = false;
 
@@ -51,7 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <svelte:body on:keydown={setDeleteIcon} on:keyup={setDeleteIcon} />
 
 <button
-    class="tag btn d-inline-flex align-items-center text-nowrap rounded ps-2 pe-1 me-1"
+    class={`tag btn d-inline-flex align-items-center text-nowrap rounded ps-2 pe-1 ${className}`}
     class:selected
     class:flashing
     class:select-mode={selectMode}
@@ -63,7 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 >
     <span>{name}</span>
     <Badge
-        class="delete-icon rounded d-flex align-items-center"
+        class="delete-icon rounded d-flex align-items-center ms-1"
         on:click={() => {
             if (!selectMode) {
                 deleteTag();
@@ -88,7 +91,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     button {
-        padding: 0;
+        padding-top: 0.1rem;
+        padding-bottom: 0.1rem;
 
         &:focus,
         &:active {
