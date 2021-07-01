@@ -54,7 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <svelte:body on:keydown={setDeleteIcon} on:keyup={setDeleteIcon} />
 
 <button
-    class={`tag btn d-inline-flex align-items-center text-nowrap rounded ps-2 pe-1 ${className}`}
+    class={`tag btn d-inline-flex align-items-center text-nowrap rounded ps-2 pe-1 m-0 ${className}`}
     class:selected
     class:flashing
     class:select-mode={selectMode}

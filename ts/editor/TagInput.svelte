@@ -192,9 +192,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     input {
-        padding-left: 9.5px;
-        padding-bottom: 5.5px;
-
         width: 100%;
         height: 100%;
 
