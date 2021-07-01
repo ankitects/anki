@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { setContext } from "svelte";
     import { writable } from "svelte/store";
     import Item from "./Item.svelte";
-    import { sectionKey } from "./contextKeys";
+    import { sectionKey } from "./context-keys";
     import type { Identifier } from "./identifier";
     import { insertElement, appendElement } from "./identifier";
     import type { SvelteComponent, Registration } from "./registration";

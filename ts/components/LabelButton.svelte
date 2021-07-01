@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import type { Readable } from "svelte/store";
     import { onMount, createEventDispatcher, getContext } from "svelte";
-    import { disabledKey, nightModeKey, dropdownKey } from "./contextKeys";
+    import { disabledKey, nightModeKey, dropdownKey } from "./context-keys";
     import type { DropdownProps } from "./dropdown";
 
     export let id: string | undefined = undefined;
@@ -53,7 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </button>
 
 <style lang="scss">
-    @use "ts/sass/button_mixins" as button;
+    @use "ts/sass/button-mixins" as button;
 
     button {
         padding: 0 calc(var(--buttons-size) / 3);

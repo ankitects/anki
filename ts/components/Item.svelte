@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Register, Registration } from "./registration";
 
     import { getContext, hasContext } from "svelte";
-    import { sectionKey } from "./contextKeys";
+    import { sectionKey } from "./context-keys";
 
     export let id: string | undefined = undefined;
     export let registration: Registration | undefined = undefined;

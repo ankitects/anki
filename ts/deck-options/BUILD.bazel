@@ -8,7 +8,7 @@ load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:jest.bzl", "jest_test")
 
 compile_sass(
-    srcs = ["deckoptions-base.scss"],
+    srcs = ["deck-options-base.scss"],
     group = "base_css",
     visibility = ["//visibility:public"],
     deps = [
@@ -76,7 +76,7 @@ ts_library(
 )
 
 esbuild(
-    name = "deckoptions",
+    name = "deck-options",
     srcs = [
         "//ts:protobuf-shim.js",
     ],
@@ -91,23 +91,23 @@ esbuild(
     external = [
         "protobufjs/light",
     ],
-    output_css = "deckoptions.css",
+    output_css = "deck-options.css",
     visibility = ["//visibility:public"],
     deps = [
         "index",
+        ":bootstrap-icons",
+        ":base_css",
+        "@npm//bootstrap",
+        "@npm//marked",
         "//ts/lib",
         "//ts/lib:backend_proto",
-        ":bootstrap-icons",
-        "@npm//bootstrap",
-        ":base_css",
         "//ts/sveltelib",
-        "@npm//marked",
         "//ts/components",
         "//ts/components:svelte_components",
     ] + svelte_names,
 )
 
-exports_files(["deckoptions.html"])
+exports_files(["deck-options.html"])
 
 # Tests
 ################

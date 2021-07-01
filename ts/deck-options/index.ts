@@ -14,7 +14,7 @@ import SpinBoxFloat from "./SpinBoxFloat.svelte";
 import EnumSelector from "./EnumSelector.svelte";
 import CheckBox from "./CheckBox.svelte";
 
-import { nightModeKey, touchDeviceKey, modalsKey } from "components/contextKeys";
+import { nightModeKey, touchDeviceKey, modalsKey } from "components/context-keys";
 
 export async function deckOptions(
     target: HTMLDivElement,

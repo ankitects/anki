@@ -3,8 +3,8 @@ load("//ts:copy.bzl", "copy_files_into_group")
 _pages = [
     "graphs",
     "congrats",
-    "deckoptions",
-    "ChangeNotetype",
+    "deck-options",
+    "change-notetype",
 ]
 
 [copy_files_into_group(

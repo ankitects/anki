@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { setContext } from "svelte";
-    import { dropdownKey } from "./contextKeys";
+    import { dropdownKey } from "./context-keys";
 
     import ButtonToolbar from "./ButtonToolbar.svelte";
 
