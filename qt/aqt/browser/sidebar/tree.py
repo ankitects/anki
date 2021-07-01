@@ -25,6 +25,7 @@ from aqt.browser.sidebar.model import SidebarModel
 from aqt.browser.sidebar.searchbar import SidebarSearchBar
 from aqt.browser.sidebar.toolbar import SidebarTool, SidebarToolbar
 from aqt.clayout import CardLayout
+from aqt.fields import FieldDialog
 from aqt.flags import load_flags
 from aqt.models import Models
 from aqt.operations import CollectionOp, QueryOp
@@ -521,7 +522,7 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _saved_searches_tree(self, root: SidebarItem) -> None:
-        icon = ":/icons/heart.svg"
+        icon = ":/icons/heart-outline.svg"
         saved = self._get_saved_searches()
 
         root = self._section_root(
@@ -545,7 +546,7 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _today_tree(self, root: SidebarItem) -> None:
-        icon = ":/icons/clock.svg"
+        icon = ":/icons/clock-outline.svg"
         root = self._section_root(
             root=root,
             name=tr.browsing_today(),
@@ -615,44 +616,47 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _card_state_tree(self, root: SidebarItem) -> None:
-        icon = ColoredIcon(path=":/icons/card-state.svg", color=colors.DISABLED)
+        icon = ":/icons/circle.svg"
+        icon_outline = ":/icons/circle-outline.svg"
+
         root = self._section_root(
             root=root,
             name=tr.browsing_sidebar_card_state(),
-            icon=icon,
+            icon=icon_outline,
             collapse_key=Config.Bool.COLLAPSE_CARD_STATE,
             type=SidebarItemType.CARD_STATE_ROOT,
         )
         type = SidebarItemType.CARD_STATE
+        colored_icon = ColoredIcon(path=icon, color=colors.DISABLED)
 
         root.add_simple(
             tr.actions_new(),
-            icon=icon.with_color(colors.NEW_COUNT),
+            icon=colored_icon.with_color(colors.NEW_COUNT),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_NEW),
         )
 
         root.add_simple(
             name=tr.scheduling_learning(),
-            icon=icon.with_color(colors.LEARN_COUNT),
+            icon=colored_icon.with_color(colors.LEARN_COUNT),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_LEARN),
         )
         root.add_simple(
             name=tr.scheduling_review(),
-            icon=icon.with_color(colors.REVIEW_COUNT),
+            icon=colored_icon.with_color(colors.REVIEW_COUNT),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_REVIEW),
         )
         root.add_simple(
             name=tr.browsing_suspended(),
-            icon=icon.with_color(colors.SUSPENDED_FG),
+            icon=colored_icon.with_color(colors.SUSPENDED_FG),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_SUSPENDED),
         )
         root.add_simple(
             name=tr.browsing_buried(),
-            icon=icon.with_color(colors.BURIED_FG),
+            icon=colored_icon.with_color(colors.BURIED_FG),
             type=type,
             search_node=SearchNode(card_state=SearchNode.CARD_STATE_BURIED),
         )
@@ -661,11 +665,13 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _flags_tree(self, root: SidebarItem) -> None:
-        icon = ColoredIcon(path=":/icons/flag.svg", color=colors.DISABLED)
+        icon = ":/icons/flag.svg"
+        icon_outline = ":/icons/flag-outline.svg"
+
         root = self._section_root(
             root=root,
             name=tr.browsing_sidebar_flags(),
-            icon=icon,
+            icon=icon_outline,
             collapse_key=Config.Bool.COLLAPSE_FLAGS,
             type=SidebarItemType.FLAG_ROOT,
         )
@@ -684,7 +690,7 @@ class SidebarTreeView(QTreeView):
 
         root.add_simple(
             tr.browsing_no_flag(),
-            icon=icon,
+            icon=icon_outline,
             type=SidebarItemType.FLAG,
             search_node=SearchNode(flag=SearchNode.FLAG_NONE),
         )
@@ -741,7 +747,9 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _deck_tree(self, root: SidebarItem) -> None:
-        icon = ":/icons/deck.svg"
+        icon = ":/icons/book-outline.svg"
+        icon_current = ":/icons/book-clock-outline.svg"
+        icon_filtered = ":/icons/book-cog-outline.svg"
 
         def render(
             root: SidebarItem, nodes: Iterable[DeckTreeNode], head: str = ""
@@ -759,7 +767,7 @@ class SidebarTreeView(QTreeView):
             for node in nodes:
                 item = SidebarItem(
                     name=node.name,
-                    icon=icon,
+                    icon=icon_filtered if node.filtered else icon,
                     search_node=SearchNode(deck=head + node.name),
                     on_expanded=toggle_expand(node),
                     expanded=not node.collapsed,
@@ -782,7 +790,7 @@ class SidebarTreeView(QTreeView):
         root.search_node = SearchNode(deck="_*")
         current = root.add_simple(
             name=tr.browsing_current_deck(),
-            icon=icon,
+            icon=icon_current,
             type=SidebarItemType.DECK_CURRENT,
             search_node=SearchNode(deck="current"),
         )
@@ -794,11 +802,14 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _notetype_tree(self, root: SidebarItem) -> None:
-        icon = ":/icons/notetype.svg"
+        notetype_icon = ":/icons/newspaper.svg"
+        template_icon = ":/icons/iframe-braces-outline.svg"
+        field_icon = ":/icons/form-textbox.svg"
+
         root = self._section_root(
             root=root,
             name=tr.browsing_sidebar_notetypes(),
-            icon=icon,
+            icon=notetype_icon,
             collapse_key=Config.Bool.COLLAPSE_NOTETYPES,
             type=SidebarItemType.NOTETYPE_ROOT,
         )
@@ -807,7 +818,7 @@ class SidebarTreeView(QTreeView):
         for nt in sorted(self.col.models.all(), key=lambda nt: nt["name"].lower()):
             item = SidebarItem(
                 nt["name"],
-                icon,
+                notetype_icon,
                 search_node=SearchNode(note=nt["name"]),
                 item_type=SidebarItemType.NOTETYPE,
                 id=nt["id"],
@@ -816,13 +827,25 @@ class SidebarTreeView(QTreeView):
             for c, tmpl in enumerate(nt["tmpls"]):
                 child = SidebarItem(
                     tmpl["name"],
-                    icon,
+                    template_icon,
                     search_node=self.col.group_searches(
                         SearchNode(note=nt["name"]), SearchNode(template=c)
                     ),
                     item_type=SidebarItemType.NOTETYPE_TEMPLATE,
                     name_prefix=f"{nt['name']}::",
                     id=tmpl["ord"],
+                )
+                item.add_child(child)
+
+            for c, fld in enumerate(nt["flds"]):
+                child = SidebarItem(
+                    fld["name"],
+                    field_icon,
+                    search_node=self.col.group_searches(
+                        SearchNode(note=nt["name"]), SearchNode(field_name=fld["name"])
+                    ),
+                    item_type=SidebarItemType.NOTETYPE_FIELD,
+                    id=fld["ord"],
                 )
                 item.add_child(child)
 
@@ -855,6 +878,8 @@ class SidebarTreeView(QTreeView):
             )
         elif item.item_type == SidebarItemType.NOTETYPE_TEMPLATE:
             menu.addAction(tr.notetypes_cards(), lambda: self.manage_template(item))
+        elif item.item_type == SidebarItemType.NOTETYPE_FIELD:
+            menu.addAction(tr.notetypes_fields(), lambda: self.manage_fields(item))
         elif item.item_type == SidebarItemType.SAVED_SEARCH_ROOT:
             menu.addAction(
                 tr.browsing_sidebar_save_current_search(), self.save_current_search
@@ -1095,6 +1120,10 @@ class SidebarTreeView(QTreeView):
     def manage_template(self, item: SidebarItem) -> None:
         note = Note(self.col, self.col.models.get(NotetypeId(item._parent_item.id)))
         CardLayout(self.mw, note, ord=item.id, parent=self, fill_empty=True)
+
+    def manage_fields(self, item: SidebarItem) -> None:
+        notetype = self.mw.col.models.get(NotetypeId(item._parent_item.id))
+        FieldDialog(self.mw, notetype, parent=self, open_at=item.id)
 
     # Helpers
     ####################################

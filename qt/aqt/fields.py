@@ -24,7 +24,11 @@ from aqt.utils import (
 
 class FieldDialog(QDialog):
     def __init__(
-        self, mw: AnkiQt, nt: NotetypeDict, parent: Optional[QWidget] = None
+        self,
+        mw: AnkiQt,
+        nt: NotetypeDict,
+        parent: Optional[QWidget] = None,
+        open_at: int = 0,
     ) -> None:
         QDialog.__init__(self, parent or mw)
         self.mw = mw
@@ -47,7 +51,7 @@ class FieldDialog(QDialog):
         self.setupSignals()
         self.form.fieldList.setDragDropMode(QAbstractItemView.InternalMove)
         self.form.fieldList.dropEvent = self.onDrop  # type: ignore[assignment]
-        self.form.fieldList.setCurrentRow(0)
+        self.form.fieldList.setCurrentRow(open_at)
         self.exec_()
 
     ##########################################################################
