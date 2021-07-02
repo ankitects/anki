@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let autoClose: boolean | "inside" | "outside" = true;
 
     export let placement = "bottom-start";
+    export let toggleOpen = true;
     export let drop: "down" | "up" | "left" | "right" = "down";
 
     $: dropClass = `drop${drop}`;
@@ -34,6 +35,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function createDropdown(toggle: HTMLElement): Dropdown {
         /* avoid focusing element toggle on menu activation */
         toggle.focus = noop;
+
+        if (!toggleOpen) {
+            /* do not open on clicking toggle */
+            toggle.addEventListener = noop;
+        }
 
         dropdown = new Dropdown(toggle, {
             autoClose,
