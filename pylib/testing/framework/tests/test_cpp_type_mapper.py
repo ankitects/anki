@@ -51,13 +51,42 @@ class CppTypeMapperTests(GeneratorTestCase):
         tree = SyntaxTree.of(['linked_list(int)'])
         args, type_defs = self.type_mapper.get_args(tree)
         self.assertEqual(1, len(args))
-        self.assertEqual('ListNode<int>', args[0].type)
+        self.assertEqual('shared_ptr<ListNode<int>>', args[0].type)
         self.assertEqual(1, len(type_defs.keys()))
         self.assertEqualsIgnoreWhiteSpaces('''
-            template<class T>
+            template<typename T>
             struct ListNode {
             public:
                 T data;
-                ListNode<T>* next;
+                shared_ptr<ListNode<T>> next;
+
+                ListNode() { }
+
+                ListNode(T data, shared_ptr<ListNode<T>> next) {
+                    this->data = data;
+                    this->next = next;
+                }
             };''', type_defs['linked_list'])
+
+    def test_binary_tree(self):
+        tree = SyntaxTree.of(['binary_tree(int)'])
+        args, type_defs = self.type_mapper.get_args(tree)
+        self.assertEqual(1, len(args))
+        self.assertEqual('shared_ptr<BinaryTreeNode<int>>', args[0].type)
+        self.assertEqual(1, len(type_defs.keys()))
+        self.assertEqualsIgnoreWhiteSpaces('''
+            template <typename T>
+            struct BinaryTreeNode {
+                T data;
+                shared_ptr<BinaryTreeNode<T>> left;
+                shared_ptr<BinaryTreeNode<T>> right;
+
+                BinaryTreeNode() { } 
+
+                BinaryTreeNode(T data, shared_ptr<BinaryTreeNode<T>> left, shared_ptr<BinaryTreeNode<T>> right) {
+                    this->data = data;
+                    this->left = left;
+                    this->right = right;
+                } 
+            };''', type_defs['binary_tree'])
 

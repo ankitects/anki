@@ -107,11 +107,48 @@ class CppOutputConverterTests(unittest.TestCase):
         self.assertEqual(ConverterFn('', '''
             jute::jValue result;
             result.set_type(jute::JARRAY);
-            ListNode<int>* n = &value;
-            while (n != NULL) {
+            shared_ptr<ListNode<int>> n = value;
+            while (n != nullptr) {
                 result.add_element(converter1(n->data));
                 n = n->next;
             }
             return result;
-        ''', 'ListNode<int>', 'jute::jValue'), converters[1])
+        ''', 'shared_ptr<ListNode<int>>', 'jute::jValue'), converters[1])
+
+    def test_binary_tree(self):
+        tree = SyntaxTree.of(['binary_tree(int)'])
+        arg_converters, converters = self.converter.get_converters(tree)
+        self.assertEqual(1, len(arg_converters))
+        self.assertEqual(2, len(converters))
+        self.assertEqual(ConverterFn('', '''
+            jute::jValue result;
+            result.set_type(jute::JNUMBER);
+            result.set_string(std::to_string(value));
+            return result;''', 'int', 'jute::jValue'), converters[0])
+        self.assertEqual(ConverterFn('', '''
+            jute::jValue result;
+            result.set_type(jute::JARRAY);
+            queue<shared_ptr<BinaryTreeNode<int>>> q;
+            set<shared_ptr<BinaryTreeNode<int>>> visited;
+            q.push(value);
+            while (!q.empty()) {
+                shared_ptr<BinaryTreeNode<int>> node = q.front();
+                q.pop();
+                if (node != nullptr) {
+                    visited.insert(node);
+                    result.add_element(converter1(node->data));
+                    if (node->left != nullptr && visited.count(node->left) == 0) {
+                        q.push(node->left);
+                    }
+                    if (node->right != nullptr && visited.count(node->right) == 0) {
+                        q.push(node->right);
+                    }
+                } else {
+                    jute::jValue empty(jute::JNULL);
+                    result.add_element(empty);
+                }
+            } 
+            result.reduce_right();
+            return result;
+        ''', 'shared_ptr<BinaryTreeNode<int>>', 'jute::jValue'), converters[1])
 

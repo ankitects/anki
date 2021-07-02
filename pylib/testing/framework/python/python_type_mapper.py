@@ -131,3 +131,24 @@ class PythonTypeMapper(TypeMapper):
                         \t\tself.next = None
                 '''
         return 'ListNode[' + self.render(child, context) + ']'
+
+    def visit_binary_tree(self, node: SyntaxTree, context):
+        """
+        Python mapping for binary tree type
+        :param node: target syntax tree node
+        :param context: generation context
+        :return: Python binary-tree type declaration
+        """
+
+        child: SyntaxTree = node.first_child()
+        if node.node_type not in context:
+            context[node.node_type] = '''
+                T = TypeVar('T')
+
+                class BinaryTreeNode(Generic[T]):
+                    \tdef __init__(self, data: Optional[Type[T]]=None, left=None, right=None):
+                        \t\tself.data = data
+                        \t\tself.left = left
+                        \t\tself.right = right
+                '''
+        return 'BinaryTreeNode[' + self.render(child, context) + ']'

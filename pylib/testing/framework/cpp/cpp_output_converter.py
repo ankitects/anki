@@ -173,18 +173,52 @@ class CppOutputConverter(TypeConverter):
         """
         Converts linked-list to a list
         linked_list(string):
-        LinkedList<String>() { "a", "b", "c" } -> ["a", "b", "c"]
+        ListNode<String>() { "a", "b", "c" } -> ["a", "b", "c"]
         """
         child = self.render(node.first_child(), context)
         src = render_template('''
             \tjute::jValue result;
             \tresult.set_type(jute::JARRAY);
-            \tListNode<{{child.arg_type}}>* n = &value;
-            \twhile (n != NULL) {
+            \tshared_ptr<ListNode<{{child.arg_type}}>> n = value;
+            \twhile (n != nullptr) {
             \t\tresult.add_element({{child.fn_name}}(n->data));
             \t\tn = n->next;
             \t}
             \treturn result;''', child=child)
 
-        return ConverterFn(node.name, src, 'ListNode<' + child.arg_type + '>', 'jute::jValue')
+        return ConverterFn(node.name, src, 'shared_ptr<ListNode<' + child.arg_type + '>>', 'jute::jValue')
+
+    def visit_binary_tree(self, node: SyntaxTree, context):
+        """
+        Converts binary-tree to a list
+        binary_tree(string):
+        BinaryTreeNode<String>() { "a", "b", "c" } -> ["a", "b", "c"]
+        """
+        child = self.render(node.first_child(), context)
+        src = render_template('''
+            jute::jValue result;
+            result.set_type(jute::JARRAY);
+            queue<shared_ptr<BinaryTreeNode<{{child.arg_type}}>>> q;
+            set<shared_ptr<BinaryTreeNode<{{child.arg_type}}>>> visited;
+            q.push(value);
+            while (!q.empty()) {
+            \tshared_ptr<BinaryTreeNode<{{child.arg_type}}>> node = q.front();
+            \tq.pop();
+            \tif (node != nullptr) {
+            \t\tvisited.insert(node);
+            \t\tresult.add_element({{child.fn_name}}(node->data));
+            \t\tif (node->left != nullptr && visited.count(node->left) == 0) {
+            \t\t\tq.push(node->left);
+            \t\t}
+            \t\tif (node->right != nullptr && visited.count(node->right) == 0) {
+            \t\t\tq.push(node->right);
+            \t\t}
+            \t} else {
+            \t\tjute::jValue empty(jute::JNULL);
+            \t\tresult.add_element(empty);
+            \t}
+            } 
+            result.reduce_right();
+            return result;''', child=child)
+        return ConverterFn(node.name, src, 'shared_ptr<BinaryTreeNode<' + child.arg_type + '>>', 'jute::jValue')
 

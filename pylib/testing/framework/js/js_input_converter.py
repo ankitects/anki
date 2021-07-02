@@ -155,16 +155,52 @@ class JsInputConverter(TypeConverter):
 
         child: ConverterFn = self.render(node.first_child(), context)
         src = render_template('''
-            \thead = new ListNode(null)
-            \tnode = head
+            \tconst head = new ListNode(null)
+            \tlet node = head
             \tfor (let item of value) {
-                \t\tnextNode = new ListNode()
-                \t\tnextNode.data = {{child.fn_name}}(item)
-                \t\tnode.next = nextNode
-                \t\tnode = nextNode
+            \t\tlet nextNode = new ListNode()
+            \t\tnextNode.data = {{child.fn_name}}(item)
+            \t\tnode.next = nextNode
+            \t\tnode = nextNode
             \t}
             \treturn head.next
         ''', child=child)
 
         return ConverterFn(node.name, src, '')
 
+    def visit_binary_tree(self, node: SyntaxTree, context):
+        """
+        Creates binary-tree, for every input element invokes inner type converter and puts it inside binary tree
+        binary_tree(string):
+        ["a", "b", "c"] -> BinaryTreeNode<String>() { "a", left: "b", right: "c" }
+        """
+        child: ConverterFn = self.render(node.first_child(), context)
+        src = render_template('''
+            const nodes = []
+            for (let n of value) {
+            \tlet node = new BinaryTreeNode()
+            \tif (n == null) {
+            \t\tnode = null
+            \t} else {
+            \t\tnode.data = {{child.fn_name}}(n)
+            \t}
+            \tnodes.push(node)
+            }
+            const children = []
+            for (n of nodes) {
+                children.push(n)
+            }
+            const root = children.shift()
+            for (let node of nodes) {
+            \tif (node != null) {
+            \t\tif (children.length) {
+            \t\t\tnode.left = children.shift()
+            \t\t}
+            \t\tif (children.length) {
+            \t\t\tnode.right = children.shift()
+            \t\t}
+            \t}
+            }
+            return root
+        ''', child=child)
+        return ConverterFn(node.name, src, '')

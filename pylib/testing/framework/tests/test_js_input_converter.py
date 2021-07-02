@@ -63,12 +63,47 @@ class JsInputConverterTests(unittest.TestCase):
         self.assertEqual(2, len(converters))
         self.assertEqual(ConverterFn('', '''return value''', ''), converters[0])
         self.assertEqual(ConverterFn('', '''
-            head = new ListNode(null)
-            node = head
+            const head = new ListNode(null)
+            let node = head
             for (let item of value) {
-                nextNode = new ListNode()
+                let nextNode = new ListNode()
                 nextNode.data = converter1(item)
                 node.next = nextNode
                 node = nextNode
             }
             return head.next''', ''), converters[1])
+
+    def test_binary_tree(self):
+        tree = SyntaxTree.of(['binary_tree(string)'])
+        arg_converters, converters = self.converter.get_converters(tree)
+        self.assertEqual(1, len(arg_converters))
+        self.assertEqual(2, len(converters))
+        self.assertEqual(ConverterFn('', '''return value''', ''), converters[0])
+        self.assertEqual(ConverterFn('', '''
+            const nodes = []
+            for (let n of value) {
+                let node = new BinaryTreeNode()
+                if (n == null) {
+                    node = null
+                } else {
+                    node.data = converter1(n)
+                }
+                nodes.push(node)
+            }
+            const children = []
+            for (n of nodes) {
+                children.push(n)
+            }
+            const root = children.shift()
+            for (let node of nodes) {
+                if (node != null) {
+                    if (children.length) {
+                        node.left = children.shift()
+                    }
+                    if (children.length) {
+                        node.right = children.shift()
+                    }
+                }
+            }
+            return root 
+            ''', ''), converters[1])

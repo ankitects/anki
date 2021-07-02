@@ -64,7 +64,35 @@ class JavaTypeMapperTests(GeneratorTestCase):
         self.assertEqual(1, len(type_defs.keys()))
         self.assertEqualsIgnoreWhiteSpaces('''
             class ListNode<T> {
-                public T data;
-                public ListNode<T> next;
+                T data;
+                ListNode<T> next;
+
+                public ListNode() { }
+
+                public ListNode(T data, ListNode<T> next) {
+                    this.data = data;
+                    this.next = next;
+                }
             }''', type_defs['linked_list'])
+
+    def test_binary_tree(self):
+        tree = SyntaxTree.of(['binary_tree(int)'])
+        args, type_defs = self.type_mapper.get_args(tree)
+        self.assertEqual(1, len(args))
+        self.assertEqual('BinaryTreeNode<Integer>', args[0].type)
+        self.assertEqual(1, len(type_defs.keys()))
+        self.assertEqualsIgnoreWhiteSpaces('''
+            class BinaryTreeNode<T> {
+                T data;
+                BinaryTreeNode<T> left;
+                BinaryTreeNode<T> right;
+
+                public BinaryTreeNode() { }
+
+                public BinaryTreeNode(T data, BinaryTreeNode<T> left, BinaryTreeNode<T> right) {
+                    this.data = data;
+                    this.left = left;
+                    this.right = right;
+                }
+            }''', type_defs['binary_tree'])
 

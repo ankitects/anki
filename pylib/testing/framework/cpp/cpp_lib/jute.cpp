@@ -97,8 +97,20 @@ void jValue::add_property(string key, jValue v) {
 void jValue::add_element(jValue v) {
     arr.push_back(v);
 }
+void jValue::reduce_right() {
+    for (int i = arr.size() - 1; i > 0; i--) {
+        if (arr[i].type == JNULL) {
+            arr.erase(arr.begin() + i);
+        } else {
+            break;
+        }
+    }
+}
 void jValue::set_string(string s) {
     svalue = s;
+}
+bool jValue::is_null() {
+    return svalue == "null";
 }
 int jValue::as_int() {
     stringstream ss;

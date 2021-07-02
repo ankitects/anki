@@ -81,3 +81,29 @@ class PythonInputConverterTests(unittest.TestCase):
                 node = nextNode
             return head.next
         ''', '', 'ListNode[str]'), converters[1])
+
+    def test_binary_tree(self):
+        tree = SyntaxTree.of(['binary_tree(string)'])
+        arg_converters, converters = self.converter.get_converters(tree)
+        self.assertEqual(1, len(arg_converters))
+        self.assertEqual(2, len(converters))
+        self.assertEqual(ConverterFn('', '\treturn str(value)', '', 'str'), converters[0])
+        self.assertEqual(ConverterFn('', '''
+            nodes = []
+            for item in value:
+                node = BinaryTreeNode()
+                if item is None:
+                    node = None
+                else:
+                    node.data = converter1(item)
+                nodes.append(node)
+            children = [n for n in nodes]
+            root = children.pop(0)
+            for node in nodes:
+                if node is not None:
+                    if children:
+                        node.left = children.pop(0)
+                    if children:
+                        node.right = children.pop(0)
+            return root
+        ''', '', 'BinaryTreeNode[str]'), converters[1])

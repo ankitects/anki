@@ -151,8 +151,41 @@ class JavaTypeMapper(TypeMapper):
         if node.node_type not in context:
             context[node.node_type] = '''
                 class ListNode<T> {
-                    \tpublic T data;
-                    \tpublic ListNode<T> next;
+                    \tT data;
+                    \tListNode<T> next;
+ 
+                    \tpublic ListNode() { }
+
+                    \tpublic ListNode(T data, ListNode<T> next) {
+                    \t\tthis.data = data;
+                    \t\tthis.next = next;
+                    \t}
                 }
             '''
         return 'ListNode<' + self.render(child, context) + '>'
+
+    def visit_binary_tree(self, node: SyntaxTree, context):
+        """
+        Java mapping for binary tree type
+        :param node: target syntax tree node
+        :param context: generation context
+        :return: Java binary-tree type declaration
+        """
+        child: SyntaxTree = node.first_child()
+        if node.node_type not in context:
+            context[node.node_type] = '''
+                class BinaryTreeNode<T> {
+                    \tT data;
+                    \tBinaryTreeNode<T> left;
+                    \tBinaryTreeNode<T> right;
+
+                    \tpublic BinaryTreeNode() { }
+ 
+                    \tpublic BinaryTreeNode(T data, BinaryTreeNode<T> left, BinaryTreeNode<T> right) {
+                    \t\tthis.data = data;
+                    \t\tthis.left = left;
+                    \t\tthis.right = right;
+                    \t}
+                }
+            '''
+        return 'BinaryTreeNode<' + self.render(child, context) + '>'

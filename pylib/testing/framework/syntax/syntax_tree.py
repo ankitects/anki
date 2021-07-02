@@ -42,6 +42,11 @@ def validate_primitive(node: SyntaxTree):
 
 
 def is_primitive_type(node: SyntaxTree):
+    """
+    checks whether type is array, user type or one of [int, double, bool, long, string]
+    :param node:
+    :return:
+    """
     return node.parent.is_root() or node.parent.is_array_type() or node.parent.user_type
 
 
@@ -108,6 +113,9 @@ class SyntaxTree:
         elif self.node_type == 'linked_list':
             validate_list(self)
             return visitor.visit_linked_list(self, context)
+        elif self.node_type == 'binary_tree':
+            validate_list(self)
+            return visitor.visit_binary_tree(self, context)
         elif self.node_type == 'map':
             validate_map(self)
             return visitor.visit_map(self, context)
@@ -134,7 +142,7 @@ class SyntaxTree:
         Returns whether a node's type is of container type or not
         :return: if type is map or list - true, false otherwise
         """
-        return self.node_type in ['list', 'map', 'linked_list']
+        return self.node_type in ['list', 'map', 'linked_list', 'binary_tree']
 
     def is_array_type(self) -> bool:
         """
@@ -302,6 +310,15 @@ class SyntaxTreeVisitor(ABC):
     def visit_linked_list(self, node: SyntaxTree, context):
         """
         This method is invoked then processing "linked_list" type node
+        :param node: target node
+        :param context: related data item
+        """
+        pass
+
+    @abstractmethod
+    def visit_binary_tree(self, node: SyntaxTree, context):
+        """
+        This method is invoked then processing "binary_tree" type node
         :param node: target node
         :param context: related data item
         """

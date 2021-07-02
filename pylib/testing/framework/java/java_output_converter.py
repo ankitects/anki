@@ -167,12 +167,48 @@ class JavaOutputConverter(TypeConverter):
         """
         child = self.render(node.first_child(), context)
         src = render_template('''
-            \tList<{{child.ret_type}}> result = new ArrayList<>();
-            \twhile (value != null) {
-            \t\tresult.add(value.data);
-            \t\tvalue = value.next;
+            List<{{child.ret_type}}> result = new ArrayList<>();
+            while (value != null) {
+            \tresult.add({{child.fn_name}}(value.data));
+            \tvalue = value.next;
+            }
+            return result;''', child=child)
+
+        return ConverterFn(node.name, src, 'ListNode<' + child.arg_type + '>', 'List<' + child.ret_type + '>')
+
+    def visit_binary_tree(self, node: SyntaxTree, context):
+        """
+        Converts binary-tree to a list
+        binary_tree(string):
+        BinaryTreeNode<String>() { "a", left: "b", right: "c" } -> ["a", "b", "c"]
+        """
+        child = self.render(node.first_child(), context)
+        src = render_template('''
+            List<{{child.ret_type}}> result = new ArrayList<>();
+            Queue<BinaryTreeNode<{{child.arg_type}}>> queue = new LinkedList<>();
+            Set<BinaryTreeNode<{{child.arg_type}}>> visited = new HashSet<>();
+            queue.add(value);
+            while (!queue.isEmpty()) {
+            \tBinaryTreeNode<{{child.arg_type}}> node = queue.poll();
+            \tif (node != null) {
+            \t\tvisited.add(node);
+            \t\tresult.add({{child.fn_name}}(node.data));
+            \t\tif (node.left != null && !visited.contains(node.left)) {
+            \t\t\tqueue.add(node.left);
+            \t\t}
+            \t\tif (node.right != null && !visited.contains(node.right)) {
+            \t\t\tqueue.add(node.right);
+            \t\t}
+            \t} else {
+            \t\tresult.add(null);
             \t}
-            \treturn result;''', child=child)
-
-        return ConverterFn(node.name, src, 'ListNode<' + child.ret_type + '>', 'List<' + child.ret_type + '>')
-
+            }
+            for (int i = result.size() - 1; i > 0; i--) {
+            \tif (result.get(i) == null) {
+            \t\tresult.remove(i);
+            \t} else {
+            \t\tbreak;
+            \t}
+            }
+            return result;''', child=child)
+        return ConverterFn(node.name, src, 'BinaryTreeNode<' + child.arg_type + '>', 'List<' + child.ret_type + '>')

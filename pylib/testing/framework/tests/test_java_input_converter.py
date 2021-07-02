@@ -112,3 +112,35 @@ class JavaInputConverterTests(unittest.TestCase):
             }
             return head.next;
         ''', 'JsonNode', 'ListNode<String>'), converters[1])
+
+    def test_binary_tree(self):
+        tree = SyntaxTree.of(['binary_tree(string)'])
+        arg_converters, converters = self.converter.get_converters(tree)
+        self.assertEqual(1, len(arg_converters))
+        self.assertEqual(2, len(converters))
+        self.assertEqual(ConverterFn('', '''return value.asText();''', 'JsonNode', 'String'), converters[0])
+        self.assertEqual(ConverterFn('', '''
+            List<BinaryTreeNode<String>> nodes = new ArrayList<>();
+            for (JsonNode n : value) {
+                BinaryTreeNode<String> node = new BinaryTreeNode<>();
+                if (n.isNull()) {
+                    node = null;
+                } else {
+                    node.data = converter1(n);
+                }
+                nodes.add(node);
+            }
+            Deque<BinaryTreeNode<String>> children = new LinkedList<>(nodes);
+            BinaryTreeNode<String> root = children.removeFirst();
+            for (BinaryTreeNode<String> node : nodes) {
+                if (node != null) {
+                    if (!children.isEmpty()) {
+                        node.left = children.removeFirst();
+                    }
+                    if (!children.isEmpty()) {
+                        node.right = children.removeFirst();
+                    }
+                }
+            }
+            return root;
+        ''', 'JsonNode', 'BinaryTreeNode<String>'), converters[1])

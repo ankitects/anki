@@ -123,11 +123,31 @@ class JsTypeMapper(TypeMapper):
         if node.node_type not in context:
             context[node.node_type] = '''
                 class ListNode {
-                    \tconstructor(data = null) {
+                    \tconstructor(data = null, next = null) {
                     \t\tthis.data = data
-                    \t\tthis.next = null
+                    \t\tthis.next = next
                     \t}
                 }
                 '''
         child: SyntaxTree = node.first_child()
         return 'ListNode<' + self.render(child, context) + '>'
+
+    def visit_binary_tree(self, node: SyntaxTree, context):
+        """
+        JS mapping for binary tree type
+        :param node: target syntax tree node
+        :param context: generation context
+        :return: JS binary-tree type declaration
+        """
+        if node.node_type not in context:
+            context[node.node_type] = '''
+                class BinaryTreeNode {
+                    \tconstructor(data = null, left = null, right = null) {
+                    \t\tthis.data = data
+                    \t\tthis.left = left
+                    \t\tthis.right = right
+                    \t}
+                }
+                '''
+        child: SyntaxTree = node.first_child()
+        return 'BinaryTreeNode<' + self.render(child, context) + '>'

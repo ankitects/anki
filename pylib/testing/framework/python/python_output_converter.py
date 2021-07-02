@@ -157,5 +157,38 @@ class PythonOutputConverter(TypeConverter):
             \t
             \treturn result''', child=child)
 
-        return ConverterFn(node.name, src, 'List[' + child.ret_type + ']', 'ListNode[' + child.ret_type + ']')
+        return ConverterFn(node.name, src, 'ListNode[' + child.arg_type + ']', 'List[' + child.ret_type + ']')
 
+    def visit_binary_tree(self, node: SyntaxTree, context):
+        """
+        Converts binary_tree to a list
+        linked_list(string):
+        LinkedList<String>() { "a", "b", "c" } -> ["a", "b", "c"]
+        """
+        child = self.render(node.first_child(), context)
+        src = render_template('''
+            \tresult = []
+            \tqueue = []
+            \tvisited = set([])
+            \tqueue.append(value)
+            \twhile queue:
+            \t\tnode = queue.pop(0)
+            \t\tif node is not None:
+            \t\t\tvisited.add(node)
+            \t\t\tresult.append({{child.fn_name}}(node.data))
+            \t\t\tif node.left is not None and not node.left in visited:
+            \t\t\t\tqueue.append(node.left)
+            \t\t\tif node.right is not None and not node.right in visited:
+            \t\t\t\tqueue.append(node.right)
+            \t\telse:
+            \t\t\tresult.append(None)
+            \tj = None
+            \tfor i in range(len(result) - 1, 1, -1):
+            \t\tif result[i] is None:
+            \t\t\tj = i
+            \t\telse:
+            \t\t\tbreak
+            \tif j is not None:
+            \t\tresult = result[:j]
+            \treturn result''', child=child)
+        return ConverterFn(node.name, src, 'BinaryTreeNode[' + child.arg_type + ']', 'List[' + child.ret_type + ']')

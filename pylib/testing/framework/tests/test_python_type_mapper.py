@@ -1,6 +1,3 @@
-import textwrap
-import unittest
-
 from testing.framework.python.python_type_mapper import PythonTypeMapper
 from testing.framework.syntax.syntax_tree import SyntaxTree
 from testing.framework.tests.test_utils import GeneratorTestCase
@@ -72,9 +69,23 @@ class PythonTypeMappingsGeneratorTests(GeneratorTestCase):
         self.assertEqual(1, len(type_defs.keys()))
         self.assertEqualsIgnoreWhiteSpaces('''
             T = TypeVar('T')
-                
             class ListNode(Generic[T]):
                 def __init__(self, data: Optional[Type[T]]=None):
                     self.data = data
                     self.next = None
         ''', type_defs['linked_list'])
+
+    def test_binary_tree(self):
+        tree = SyntaxTree.of(['binary_tree(int)'])
+        args, type_defs = self.type_mapper.get_args(tree)
+        self.assertEqual(1, len(args))
+        self.assertEqual('BinaryTreeNode[int]', args[0].type)
+        self.assertEqual(1, len(type_defs.keys()))
+        self.assertEqualsIgnoreWhiteSpaces('''
+            T = TypeVar('T')
+            class BinaryTreeNode(Generic[T]):
+                def __init__(self, data: Optional[Type[T]]=None, left=None, right=None):
+                    self.data = data
+                    self.left = left
+                    self.right = right
+        ''', type_defs['binary_tree'])

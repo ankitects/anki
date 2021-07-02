@@ -98,9 +98,43 @@ class JavaOutputConverterTests(unittest.TestCase):
         self.assertEqual(ConverterFn('', '''
             List<Integer> result = new ArrayList<>();
             while (value != null) {
-                result.add(value.data);
+                result.add(converter1(value.data));
                 value = value.next;
             }
-            return result;
-        ''', 'ListNode<Integer>', 'List<Integer>'), converters[1])
+            return result;''', 'ListNode<Integer>', 'List<Integer>'), converters[1])
+
+    def test_binary_tree(self):
+        tree = SyntaxTree.of(['binary_tree(int)'])
+        arg_converters, converters = self.converter.get_converters(tree)
+        self.assertEqual(1, len(arg_converters))
+        self.assertEqual(2, len(converters))
+        self.assertEqual(ConverterFn('', 'return value;', 'Integer', 'Integer'), converters[0])
+        self.assertEqual(ConverterFn('', '''
+            List<Integer> result = new ArrayList<>();
+            Queue<BinaryTreeNode<Integer>> queue = new LinkedList<>();
+            Set<BinaryTreeNode<Integer>> visited = new HashSet<>();
+            queue.add(value);
+            while (!queue.isEmpty()) {
+                BinaryTreeNode<Integer> node = queue.poll();
+                if (node != null) {
+                    visited.add(node);
+                    result.add(converter1(node.data));
+                    if (node.left != null && !visited.contains(node.left)) {
+                        queue.add(node.left);
+                    }
+                    if (node.right != null && !visited.contains(node.right)) {
+                        queue.add(node.right);
+                    }
+                } else {
+                    result.add(null);
+                }
+            }
+            for (int i = result.size() - 1; i > 0; i--) {
+                if (result.get(i) == null) {
+                    result.remove(i);
+                } else {
+                    break;
+                }
+            }
+            return result;''', 'BinaryTreeNode<Integer>', 'List<Integer>'), converters[1])
 

@@ -84,11 +84,25 @@ class JsTypeMappingsGeneratorTests(GeneratorTestCase):
         self.assertEqual(1, len(args))
         self.assertEqual('ListNode<number>', args[0].type)
         self.assertEqual(1, len(type_defs.keys()))
-        self.assertEqualsIgnoreWhiteSpaces(textwrap.dedent('''
+        self.assertEqualsIgnoreWhiteSpaces('''
             class ListNode {
-                constructor(data = null) {
+                constructor(data = null, next = null) {
                     this.data = data
-                    this.next = null
+                    this.next = next
                 }
-            }
-        ''').strip(), type_defs['linked_list'].strip())
+            }''', type_defs['linked_list'])
+
+    def test_binary_tree(self):
+        tree = SyntaxTree.of(['binary_tree(int)'])
+        args, type_defs = self.type_mapper.get_args(tree)
+        self.assertEqual(1, len(args))
+        self.assertEqual('BinaryTreeNode<number>', args[0].type)
+        self.assertEqual(1, len(type_defs.keys()))
+        self.assertEqualsIgnoreWhiteSpaces('''
+            class BinaryTreeNode {
+                constructor(data = null, left = null, right = null) {
+                    this.data = data
+                    this.left = left
+                    this.right = right
+                }
+            }''', type_defs['binary_tree'])

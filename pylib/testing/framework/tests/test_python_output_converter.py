@@ -82,4 +82,37 @@ class PythonOutputConverterTests(unittest.TestCase):
                 n = n.next
             
             return result
-        ''', 'List[int]', 'ListNode[int]'), converters[1])
+        ''', 'ListNode[int]', 'List[int]'), converters[1])
+
+    def test_binary_tree(self):
+        tree = SyntaxTree.of(['binary_tree(int)'])
+        arg_converters, converters = self.converter.get_converters(tree)
+        self.assertEqual(1, len(arg_converters))
+        self.assertEqual(2, len(converters))
+        self.assertEqual(ConverterFn('', 'return value', 'int', 'int'), converters[0])
+        self.assertEqual(ConverterFn('', '''
+            result = []
+            queue = []
+            visited = set([])
+            queue.append(value)
+            while queue:
+                node = queue.pop(0)
+                if node is not None:
+                    visited.add(node)
+                    result.append(converter1(node.data))
+                    if node.left is not None and not node.left in visited:
+                        queue.append(node.left)
+                    if node.right is not None and not node.right in visited:
+                        queue.append(node.right)
+                else:
+                    result.append(None)
+            j = None
+            for i in range(len(result) - 1, 1, -1):
+                if result[i] is None:
+                    j = i
+                else:
+                    break
+            if j is not None:
+                result = result[:j]
+            return result
+        ''', 'BinaryTreeNode[int]', 'List[int]'), converters[1])
