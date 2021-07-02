@@ -14,6 +14,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className: string = "";
     export { className as class };
 
+    export let drop: "down" | "up" | "left" | "right" = "down";
+
     export let suggestionsPromise: Promise<string[]>;
 
     let target: HTMLElement;
@@ -35,7 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             selected++;
         }
 
-        dispatch("autocomplete", { selected: suggestions[selected ?? -1] });
+        dispatch("select", { selected: suggestions[selected ?? -1] });
     }
 
     async function selectPrevious() {
@@ -49,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             selected--;
         }
 
-        dispatch("autocomplete", { selected: suggestions[selected ?? -1] });
+        dispatch("select", { selected: suggestions[selected ?? -1] });
     }
 
     async function chooseSelected() {
@@ -100,11 +102,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function setSelected(index: number): void {
         selected = index;
+        active = true;
     }
 
-    async function chooseIndex(index: number): Promise<void> {
+    function setSelectedAndActive(index: number): void {
+        setSelected(index);
+    }
+
+    async function selectIndex(index: number): Promise<void> {
         const suggestions = await suggestionsPromise;
-        dispatch("autocomplete", { name: suggestions[index] });
+        active = false;
+        dispatch("select", { selected: suggestions[index] });
     }
 
     function selectIfMousedown(event: MouseEvent, index: number): void {
@@ -114,7 +122,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<WithDropdown let:createDropdown>
+<WithDropdown {drop} let:createDropdown>
     <slot createAutocomplete={createAutocomplete(createDropdown)} />
 
     <DropdownMenu class={className}>
@@ -125,9 +133,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <AutocompleteItem
                     selected={index === selected}
                     active={index === selected && active}
-                    on:mousedown={() => setSelected(index)}
+                    on:mousedown={() => setSelectedAndActive(index)}
+                    on:mouseup={() => {
+                        selectIndex(index);
+                        chooseSelected();
+                    }}
                     on:mouseenter={(event) => selectIfMousedown(event, index)}
-                    on:mouseup={() => chooseIndex(index)}>{suggestion}</AutocompleteItem
+                    on:mouseleave={() => (active = false)}
+                    >{suggestion}</AutocompleteItem
                 >
             {/each}
         {/await}

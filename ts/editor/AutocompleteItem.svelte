@@ -30,9 +30,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:btn-night={nightMode}
     class:selected
     class:active
+    on:mousedown|preventDefault
     on:mouseup
     on:mouseenter
-    on:mousedown|preventDefault
+    on:mouseleave
 >
     <slot />
 </button>
