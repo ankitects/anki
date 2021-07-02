@@ -946,6 +946,11 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         args=["menu: QMenu", "deck_id: int"],
         legacy_hook="showDeckOptions",
     ),
+    Hook(
+        name="flag_label_did_change",
+        args=[],
+        doc="Used to update the GUI when a new flag label is assigned.",
+    ),
 ]
 
 suffix = ""

@@ -18,7 +18,6 @@ from anki.utils import isMac
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
-from aqt.flags import load_flags
 from aqt.operations.card import set_card_deck, set_card_flag
 from aqt.operations.collection import redo, undo
 from aqt.operations.note import remove_notes
@@ -175,7 +174,7 @@ class Browser(QMainWindow):
         def set_flag_func(desired_flag: int) -> Callable:
             return lambda: self.set_flag_of_selected_cards(desired_flag)
 
-        for flag in load_flags(self.col):
+        for flag in self.mw.flags.all():
             qconnect(
                 getattr(self.form, flag.action).triggered, set_flag_func(flag.index)
             )
@@ -212,6 +211,7 @@ class Browser(QMainWindow):
         self._cleanup_preview()
         self.editor.cleanup()
         self.table.cleanup()
+        self.sidebar.cleanup()
         saveSplitter(self.form.splitter, "editor3")
         saveGeom(self, "editor")
         saveState(self, "editor")
@@ -702,13 +702,13 @@ class Browser(QMainWindow):
         flag = self.card and self.card.user_flag()
         flag = flag or 0
 
-        for f in load_flags(self.col):
+        for f in self.mw.flags.all():
             getattr(self.form, f.action).setChecked(flag == f.index)
 
         qtMenuShortcutWorkaround(self.form.menuFlag)
 
     def _update_flag_labels(self) -> None:
-        for flag in load_flags(self.col):
+        for flag in self.mw.flags.all():
             getattr(self.form, flag.action).setText(flag.label)
 
     def toggle_mark_of_selected_notes(self, checked: bool) -> None:
@@ -782,6 +782,7 @@ class Browser(QMainWindow):
         gui_hooks.backend_did_block.append(self.table.on_backend_did_block)
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         gui_hooks.focus_did_change.append(self.on_focus_change)
+        gui_hooks.flag_label_did_change.append(self._update_flag_labels)
 
     def teardownHooks(self) -> None:
         gui_hooks.undo_state_did_change.remove(self.on_undo_state_change)
@@ -789,6 +790,7 @@ class Browser(QMainWindow):
         gui_hooks.backend_did_block.remove(self.table.on_backend_will_block)
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         gui_hooks.focus_did_change.remove(self.on_focus_change)
+        gui_hooks.flag_label_did_change.remove(self._update_flag_labels)
 
     # Undo
     ######################################################################
