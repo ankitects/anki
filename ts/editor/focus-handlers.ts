@@ -10,6 +10,12 @@ import { bridgeCommand } from "./lib";
 export function onFocus(evt: FocusEvent): void {
     const currentField = evt.currentTarget as EditingArea;
     currentField.focus();
+
+    if (currentField.shadowRoot!.getSelection()!.anchorNode === null) {
+        // selection is not inside editable after focusing
+        currentField.caretToEnd();
+    }
+
     bridgeCommand(`focus:${currentField.ord}`);
     enableButtons();
 }
