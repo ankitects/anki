@@ -139,8 +139,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function onPaste(event: ClipboardEvent): void {
-        event.preventDefault();
-
         if (!event.clipboardData) {
             return;
         }
@@ -153,21 +151,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         if (splitted.length === 0) {
             return;
-        } else if (splitted.length === 1) {
-            name = splitted.shift()!;
-        } else {
-            name = splitted.shift()!;
-            dispatch("tagadd");
-
-            const last = splitted.pop()!;
-
-            for (const pastedName of splitted) {
-                name = pastedName;
-                dispatch("tagadd");
-            }
-
-            name = last;
         }
+
+        const last = splitted.pop()!;
+
+        for (const pastedName of splitted.reverse()) {
+            name = pastedName;
+            dispatch("tagadd");
+        }
+
+        name = last;
     }
 
     onMount(() => input.focus());
@@ -187,7 +180,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:keydown
     on:keyup
     on:input
-    on:paste={onPaste}
+    on:paste|preventDefault={onPaste}
 />
 
 <style lang="scss">

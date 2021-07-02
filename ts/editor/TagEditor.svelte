@@ -132,9 +132,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         activeInput.setSelectionRange(0, 0);
     }
 
-    function insertTag(index: number): void {
-        if (!isActiveNameUniqueAt(index)) {
+    function insertTagKeepFocus(index: number): void {
+        if (isActiveNameUniqueAt(index)) {
             tags.splice(index, 0, attachId(activeName));
+            active!++;
             tags = tags;
         }
     }
@@ -418,7 +419,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 on:input={() => updateTagName(tag)}
                                 on:tagsplit={({ detail }) =>
                                     enterBehavior(index, detail.start, detail.end)}
-                                on:tagadd={() => insertTag(index)}
+                                on:tagadd={() => insertTagKeepFocus(index)}
                                 on:tagdelete={() => deleteTagAt(index)}
                                 on:tagjoinprevious={() => joinWithPreviousTag(index)}
                                 on:tagjoinnext={() => joinWithNextTag(index)}
