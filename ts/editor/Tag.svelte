@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { getContext, createEventDispatcher } from "svelte";
-    import { nightModeKey } from "components/contextKeys";
+    import { nightModeKey } from "components/context-keys";
     import Badge from "components/Badge.svelte";
     import { deleteIcon } from "./icons";
     import { controlPressed, shiftPressed } from "lib/keys";
@@ -76,7 +76,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </button>
 
 <style lang="scss">
-    @use "ts/sass/button_mixins" as button;
+    @use "ts/sass/button-mixins" as button;
 
     @keyframes flash {
         0% {

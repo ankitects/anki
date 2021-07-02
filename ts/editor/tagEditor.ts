@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { disabledKey, nightModeKey } from "components/contextKeys";
+import { disabledKey, nightModeKey } from "components/context-keys";
 import { writable } from "svelte/store";
 
 import TagEditor from "./TagEditor.svelte";
