@@ -358,7 +358,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <StickyBottom>
     <ButtonToolbar
-        class="dropup d-flex flex-wrap align-items-center"
+        class="d-flex flex-wrap align-items-center"
         {size}
         on:focusout={deselectIfLeave}
     >
@@ -395,11 +395,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {#if index === active}
                     <div class="adjust-position">
                         <WithAutocomplete
-                            class="d-flex flex-column-reverse dropup"
+                            drop="up"
+                            class="d-flex flex-column-reverse"
                             {suggestionsPromise}
                             on:update={updateSuggestions}
-                            on:autocomplete={({ detail }) =>
-                                onAutocomplete(detail.selected)}
+                            on:select={({ detail }) => onAutocomplete(detail.selected)}
                             on:choose={({ detail }) => onChosen(detail.chosen)}
                             let:createAutocomplete
                         >

@@ -12,6 +12,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let autoClose: boolean | "inside" | "outside" = true;
 
     export let placement = "bottom-start";
+    export let drop: "down" | "up" | "left" | "right" = "down";
+
+    $: dropClass = `drop${drop}`;
 
     setContext(dropdownKey, {
         dropdown: true,
@@ -59,7 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => dropdown?.dispose());
 </script>
 
-<div class="dropdown">
+<div class={dropClass}>
     <slot {createDropdown} dropdownObject={api} />
 </div>
 
