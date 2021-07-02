@@ -13,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TagInput from "./TagInput.svelte";
     import WithAutocomplete from "./WithAutocomplete.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
+    import { controlPressed } from "lib/keys";
     import type { Tag as TagType } from "./tags";
     import { attachId, getName } from "./tags";
 
@@ -220,7 +221,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function isPrintableKey(event: KeyboardEvent): boolean {
-        return event.key.length === 1;
+        return event.key.length === 1 && !controlPressed(event);
     }
 
     function isDeletionKey(event: KeyboardEvent): boolean {
