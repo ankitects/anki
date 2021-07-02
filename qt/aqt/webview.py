@@ -210,7 +210,11 @@ class WebContent:
 
 class AnkiWebView(QWebEngineView):
     def __init__(
-        self, parent: Optional[QWidget] = None, title: str = "default", *, mac_default_shortcuts: bool = True
+        self,
+        parent: Optional[QWidget] = None,
+        title: str = "default",
+        *,
+        mac_default_shortcuts: bool = True,
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
         self.set_title(title)
