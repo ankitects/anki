@@ -1052,7 +1052,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
 
 class EditorWebView(AnkiWebView):
     def __init__(self, parent: QWidget, editor: Editor) -> None:
-        AnkiWebView.__init__(self, title="editor")
+        AnkiWebView.__init__(self, title="editor", mac_default_shortcuts=False)
         self.editor = editor
         self.setAcceptDrops(True)
         self._markInternal = False

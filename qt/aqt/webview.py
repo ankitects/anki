@@ -210,7 +210,7 @@ class WebContent:
 
 class AnkiWebView(QWebEngineView):
     def __init__(
-        self, parent: Optional[QWidget] = None, title: str = "default"
+        self, parent: Optional[QWidget] = None, title: str = "default", *, mac_default_shortcuts: bool = True
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
         self.set_title(title)
@@ -238,7 +238,7 @@ class AnkiWebView(QWebEngineView):
             context=Qt.WidgetWithChildrenShortcut,
             activated=self.onEsc,
         )
-        if isMac:
+        if isMac and mac_default_shortcuts:
             for key, fn in [
                 (QKeySequence.Copy, self.onCopy),
                 (QKeySequence.Paste, self.onPaste),
@@ -248,6 +248,7 @@ class AnkiWebView(QWebEngineView):
                 QShortcut(  # type: ignore
                     key, self, context=Qt.WidgetWithChildrenShortcut, activated=fn
                 )
+
             QShortcut(  # type: ignore
                 QKeySequence("ctrl+shift+v"),
                 self,
