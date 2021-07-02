@@ -367,11 +367,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div class="gap" on:mousedown|preventDefault>
             {#if tags.some((tag) => tag.selected)}
                 <SelectedTagBadge
+                    --badge-align="-webkit-baseline-middle"
                     on:tagcopy={copySelectedTags}
                     on:tagdelete={deleteSelectedTags}
                 />
             {:else}
-                <AddTagBadge on:click={appendEmptyTag} />
+                <AddTagBadge
+                    --badge-align="-webkit-baseline-middle"
+                    on:click={appendEmptyTag}
+                />
             {/if}
         </div>
 
