@@ -377,7 +377,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <div class="position-relative gap" class:hide-tag={index === active}>
                 <Tag
                     class="me-1"
-                    name={tag.name}
+                    name={index === active ? activeName : tag.name}
                     bind:flash={tag.flash}
                     bind:selected={tag.selected}
                     on:tagedit={() => {
