@@ -82,6 +82,15 @@ class LegacyCheckpoint:
 LegacyUndoResult = Union[None, LegacyCheckpoint, LegacyReviewUndo]
 
 
+@dataclass
+class ConfigContext:
+    key: Optional[str] = None
+    bool_key: Optional[Config.Bool.Key.V] = None
+    string_key: Optional[Config.String.Key.V] = None
+    value: Any = None
+    default: Any = None
+
+
 class Collection(DeprecatedNamesMixin):
     sched: Union[V1Scheduler, V2Scheduler, V3Scheduler]
 
@@ -703,11 +712,21 @@ class Collection(DeprecatedNamesMixin):
     # Config
     ##########################################################################
 
-    def get_config(self, key: str, default: Any = None) -> Any:
+    def _get_config(self, context: ConfigContext) -> Any:
+        hooks.config_will_get(context)
+        if context.value is not None:
+            return context.value
+        if context.bool_key is not None:
+            return self._backend.get_config_bool(context.bool_key)
+        if context.string_key is not None:
+            return self._backend.get_config_string(context.string_key)
         try:
-            return self.conf.get_immutable(key)
+            return self.conf.get_immutable(context.key)
         except KeyError:
-            return default
+            return context.default
+
+    def get_config(self, key: str, default: Any = None) -> Any:
+        return self._get_config(ConfigContext(key=key, default=default))
 
     def set_config(self, key: str, val: Any, *, undoable: bool = False) -> OpChanges:
         """Set a single config variable to any JSON-serializable value. The config
@@ -729,7 +748,7 @@ class Collection(DeprecatedNamesMixin):
         return from_json_bytes(self._backend.get_all_config())
 
     def get_config_bool(self, key: Config.Bool.Key.V) -> bool:
-        return self._backend.get_config_bool(key)
+        return cast(bool, self._get_config(ConfigContext(bool_key=key)))
 
     def set_config_bool(
         self, key: Config.Bool.Key.V, value: bool, *, undoable: bool = False
@@ -737,7 +756,7 @@ class Collection(DeprecatedNamesMixin):
         return self._backend.set_config_bool(key=key, value=value, undoable=undoable)
 
     def get_config_string(self, key: Config.String.Key.V) -> str:
-        return self._backend.get_config_string(key)
+        return cast(str, self._get_config(ConfigContext(string_key=key)))
 
     def set_config_string(
         self, key: Config.String.Key.V, value: str, undoable: bool = False

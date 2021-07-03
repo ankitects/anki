@@ -31,6 +31,26 @@ hooks = [
         args=["col: anki.collection.Collection", "ids: Sequence[anki.notes.NoteId]"],
         legacy_hook="remNotes",
     ),
+    Hook(
+        name="config_will_get",
+        args=["context: anki.collection.ConfigContext"],
+        doc="""Allows to use custom config values.
+
+        Whichever of context.key, .bool_key, and .string_key is not None, specifies
+        the queried value. context can be mutated to return a different value:
+        If context.value is set, this value will be returned.
+        If context.bool_key is set, the corresponding config bool will be returned.
+        If context.string_key is set, the corresponding config string will be returned.
+        If none of the above is set, context.key will be used to query the config,
+        and context.default is returned if there is no entry for context.key.
+
+        E.g.:
+            def on_config_will_get(context):
+                if context.bool_key == Config.Bool.NORMALIZE_NOTE_TEXT:
+                    context.bool_key = None
+                    context.key = "myAddonConfigKey"
+        """,
+    ),
     Hook(name="media_files_did_export", args=["count: int"]),
     Hook(
         name="exporters_list_created",
