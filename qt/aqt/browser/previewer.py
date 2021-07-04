@@ -171,6 +171,7 @@ class Previewer(QDialog):
             return
         c = self.card()
         func = "_showQuestion"
+        ans_txt = ""
         if not c:
             txt = tr.qt_misc_please_select_1_card()
             bodyclass = ""
@@ -188,10 +189,11 @@ class Previewer(QDialog):
 
             # need to force reload even if answer
             txt = c.question(reload=True)
+            ans_txt = c.answer()
 
             if self._state == "answer":
                 func = "_showAnswer"
-                txt = c.answer()
+                txt = ans_txt
             txt = re.sub(r"\[\[type:[^]]+\]\]", "", txt)
 
             bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
@@ -218,7 +220,14 @@ class Previewer(QDialog):
             txt = self.mw.prepare_card_text_for_display(txt)
             txt = gui_hooks.card_will_show(txt, c, f"preview{self._state.capitalize()}")
             self._last_state = self._state_and_mod()
-        self._web.eval(f"{func}({json.dumps(txt)},'{bodyclass}');")
+
+        js: str
+        if self._state == "question":
+            ans_txt = self.mw.col.media.escape_media_filenames(ans_txt)
+            js = f"{func}({json.dumps(txt)}, {json.dumps(ans_txt)}, '{bodyclass}');"
+        else:
+            js = f"{func}({json.dumps(txt)}, '{bodyclass}');"
+        self._web.eval(js)
         self._card_changed = False
 
     def _on_show_both_sides(self, toggle: bool) -> None:
