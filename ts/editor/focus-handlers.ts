@@ -1,6 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+/* eslint
+@typescript-eslint/no-non-null-assertion: "off",
+ */
+
 import { enableButtons, disableButtons } from "./toolbar";
 import type { EditingArea } from "./editing-area";
 
@@ -10,6 +14,12 @@ import { bridgeCommand } from "./lib";
 export function onFocus(evt: FocusEvent): void {
     const currentField = evt.currentTarget as EditingArea;
     currentField.focus();
+
+    if (currentField.shadowRoot!.getSelection()!.anchorNode === null) {
+        // selection is not inside editable after focusing
+        currentField.caretToEnd();
+    }
+
     bridgeCommand(`focus:${currentField.ord}`);
     enableButtons();
 }
