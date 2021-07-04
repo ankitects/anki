@@ -19,7 +19,7 @@
     background: var(--frame-bg);
 
     &.dupe {
-        background: var(--flag1-bg);
+        background-image: linear-gradient(var(--flag1-bg), var(--flag1-bg));
     }
 }
 
