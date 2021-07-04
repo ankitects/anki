@@ -338,10 +338,9 @@ class Reviewer:
         self._run_state_mutation_hook()
 
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
-        a = self.mw.col.media.escape_media_filenames(c.answer())
 
         self.web.eval(
-            f"_showQuestion({json.dumps(q)}, {json.dumps(a)}, '{bodyclass}');"
+            f"_showQuestion({json.dumps(q)}, {json.dumps(c.answer())}, '{bodyclass}');"
         )
         self._update_flag_icon()
         self._update_mark_icon()
