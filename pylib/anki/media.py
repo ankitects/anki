@@ -8,13 +8,11 @@ import pprint
 import re
 import sys
 import time
-import urllib.error
-import urllib.parse
-import urllib.request
-from typing import Any, Callable, List, Match, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple
 
 import anki
 import anki._backend.backend_pb2 as _pb
+from anki._legacy import deprecated
 from anki.consts import *
 from anki.latex import render_latex, render_latex_returning_errors
 from anki.models import NotetypeId
@@ -186,27 +184,12 @@ class MediaManager:
             txt = re.sub(reg, "", txt)
         return txt
 
+    @deprecated(info="no longer required")
     def escapeImages(self, string: str, unescape: bool = False) -> str:
-        "escape_media_filenames alias for compatibility with add-ons."
-        return self.escape_media_filenames(string, unescape)
+        return string
 
+    @deprecated(info="no longer required")
     def escape_media_filenames(self, string: str, unescape: bool = False) -> str:
-        "Apply or remove percent encoding to filenames in html tags (audio, image, object)."
-        fn: Callable
-        if unescape:
-            fn = urllib.parse.unquote
-        else:
-            fn = urllib.parse.quote
-
-        def repl(match: Match) -> str:
-            tag = match.group(0)
-            fname = match.group("fname")
-            if re.match("(https?|ftp)://", fname):
-                return tag
-            return tag.replace(fname, fn(fname))
-
-        for reg in self.html_media_regexps:
-            string = re.sub(reg, repl, string)
         return string
 
     # Checking media
