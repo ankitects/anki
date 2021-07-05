@@ -5,8 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import * as tr from "lib/i18n";
     import { bridgeCommand } from "lib/bridgecommand";
-    import { disabledKey } from "components/context-keys";
-    import { inCodableKey } from "./context-keys";
+    import { fieldFocusedKey, inCodableKey } from "./context-keys";
 
     import ButtonGroup from "components/ButtonGroup.svelte";
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";
@@ -89,16 +88,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <ButtonGroupItem>
         <WithDropdown let:createDropdown>
-            <WithContext key={disabledKey} let:context={disabled}>
-                <OnlyEditable let:disabled={inCodable}>
-                    <IconButton
-                        disabled={disabled || inCodable}
-                        on:mount={(event) => createDropdown(event.detail.button)}
-                    >
-                        {@html functionIcon}
-                    </IconButton>
-                </OnlyEditable>
-            </WithContext>
+            <OnlyEditable let:disabled>
+                <IconButton
+                    {disabled}
+                    on:mount={(event) => createDropdown(event.detail.button)}
+                >
+                    {@html functionIcon}
+                </IconButton>
+            </OnlyEditable>
 
             <DropdownMenu>
                 <WithShortcut
@@ -189,7 +186,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithContext key={disabledKey} let:context={disabled}>
+        <WithContext key={fieldFocusedKey} let:context={fieldFocused}>
             <WithContext key={inCodableKey} let:context={inCodable}>
                 <WithShortcut
                     shortcut={"Control+Shift+X"}
@@ -202,8 +199,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             shortcutLabel
                         )}
                         iconSize={70}
-                        active={!disabled && inCodable}
-                        {disabled}
+                        active={inCodable}
+                        disabled={!fieldFocused}
                         on:click={onHtmlEdit}
                         on:mount={createShortcut}
                     >

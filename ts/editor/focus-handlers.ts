@@ -5,7 +5,7 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
-import { enableButtons, disableButtons } from "./toolbar";
+import { fieldFocused } from "./toolbar";
 import type { EditingArea } from "./editing-area";
 
 import { saveField } from "./change-timer";
@@ -21,7 +21,7 @@ export function onFocus(evt: FocusEvent): void {
     }
 
     bridgeCommand(`focus:${currentField.ord}`);
-    enableButtons();
+    fieldFocused.set(true);
 }
 
 export function onBlur(evt: FocusEvent): void {
@@ -29,5 +29,5 @@ export function onBlur(evt: FocusEvent): void {
     const currentFieldUnchanged = previousFocus === document.activeElement;
 
     saveField(previousFocus, currentFieldUnchanged ? "key" : "blur");
-    disableButtons();
+    fieldFocused.set(false);
 }
