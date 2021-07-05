@@ -5,6 +5,16 @@ load("//ts/svelte:svelte.bzl", "svelte", "svelte_check")
 load("//ts:esbuild.bzl", "esbuild")
 load("//ts:compile_sass.bzl", "compile_sass")
 
+compile_sass(
+    srcs = [
+        "reviewer.scss",
+    ],
+    group = "reviewer_scss",
+    visibility = ["//visibility:public"],
+    deps = [],
+)
+
+
 ts_library(
     name = "lib",
     srcs = glob(["*.ts"]),
@@ -12,12 +22,18 @@ ts_library(
 )
 
 esbuild(
-    name = "reviewer_extras",
+    name = "reviewer",
+    srcs = [
+        "//ts:protobuf-shim.js",
+    ],
     args = [
         "--resolve-extensions=.mjs,.js",
         "--log-level=warning",
     ],
-    entry_point = "index.ts",
+    entry_point = "index_wrapper.ts",
+    external = [
+        "protobufjs/light",
+    ],
     visibility = ["//visibility:public"],
     deps = [
         ":lib",

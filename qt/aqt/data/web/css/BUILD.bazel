@@ -26,11 +26,20 @@ copy_files_into_group(
     package = "//ts/editor",
 )
 
+copy_files_into_group(
+    name = "reviewer",
+    srcs = [
+        "reviewer.css",
+    ],
+    package = "//ts/reviewer",
+)
+
 filegroup(
     name = "css",
     srcs = [
         "css_local",
         "editor",
+        "reviewer",
     ],
     visibility = ["//qt:__subpackages__"],
 )
