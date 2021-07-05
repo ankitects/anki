@@ -6,7 +6,7 @@
  */
 
 import { filterHTML } from "html-filter";
-import { updateActiveButtons, disableButtons } from "./toolbar";
+import { updateActiveButtons } from "./toolbar";
 import { setupI18n, ModuleName } from "lib/i18n";
 import { registerShortcut } from "lib/shortcuts";
 import { bridgeCommand } from "./lib";
@@ -20,7 +20,7 @@ import { LabelContainer } from "./label-container";
 import { EditingArea } from "./editing-area";
 import { Editable } from "./editable";
 import { Codable } from "./codable";
-import { initToolbar } from "./toolbar";
+import { initToolbar, fieldFocused } from "./toolbar";
 
 export { setNoteId, getNoteId } from "./note-id";
 export { saveNow } from "./change-timer";
@@ -140,7 +140,7 @@ export function setFields(fields: [string, string][]): void {
 
     if (!getCurrentField()) {
         // when initial focus of the window is not on editor (e.g. browser)
-        disableButtons();
+        fieldFocused.set(false);
     }
 }
 

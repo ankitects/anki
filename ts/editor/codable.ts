@@ -9,7 +9,7 @@ import "codemirror/addon/fold/xml-fold";
 import "codemirror/addon/edit/matchtags.js";
 import "codemirror/addon/edit/closetag.js";
 
-import { setCodableButtons } from "./toolbar";
+import { inCodable } from "./toolbar";
 
 const codeMirrorOptions = {
     mode: "htmlmixed",
@@ -67,7 +67,7 @@ export class Codable extends HTMLTextAreaElement {
 
     focus(): void {
         this.codeMirror.focus();
-        setCodableButtons();
+        inCodable.set(true);
     }
 
     caretToEnd(): void {
