@@ -26,6 +26,7 @@ export { setNoteId, getNoteId } from "./note-id";
 export { saveNow } from "./change-timer";
 export { wrap, wrapIntoText } from "./wrap";
 export { editorToolbar } from "./toolbar";
+export { components } from "./Components.svelte";
 
 declare global {
     interface Selection {

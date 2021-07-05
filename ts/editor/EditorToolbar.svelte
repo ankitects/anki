@@ -15,17 +15,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         resetAllState(false);
     }
 
-    /* Export components */
+    /* Our dynamic components */
     import AddonButtons from "./AddonButtons.svelte";
     import PreviewButton from "./PreviewButton.svelte";
-    import LabelButton from "components/LabelButton.svelte";
-    import IconButton from "components/IconButton.svelte";
 
     export const editorToolbar = {
         AddonButtons,
         PreviewButton,
-        LabelButton,
-        IconButton,
     };
 </script>
 
