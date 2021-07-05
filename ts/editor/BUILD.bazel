@@ -33,6 +33,7 @@ compile_sass(
     visibility = ["//visibility:public"],
     deps = [
         "//ts/sass:scrollbar_lib",
+        "//ts/sass/codemirror",
     ],
 )
 

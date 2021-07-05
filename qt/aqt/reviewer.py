@@ -288,12 +288,8 @@ class Reviewer:
             self.revHtml(),
             css=["css/reviewer.css"],
             js=[
-                "js/vendor/jquery.min.js",
-                "js/vendor/css_browser_selector.min.js",
-                "js/mathjax.js",
-                "js/vendor/mathjax/tex-chtml.js",
+                "js/vendor/protobuf.min.js",
                 "js/reviewer.js",
-                "js/reviewer_extras.js",
             ],
             context=self,
         )
