@@ -4,7 +4,7 @@
 # coding: utf-8
 import pytest
 
-from anki.collection import Config
+from anki.browser import BrowserConfig
 from anki.consts import *
 from tests.shared import getEmptyCol, isNearCutoff
 
@@ -121,7 +121,7 @@ def test_find_cards():
     col.conf["sortType"] = "cardMod"
     assert col.find_cards("", order=True)[-1] in latestCardIds
     assert col.find_cards("", order=True)[0] == firstCardId
-    col.set_config_bool(Config.Bool.BROWSER_SORT_BACKWARDS, True)
+    col.set_config(BrowserConfig.CARDS_SORT_BACKWARDS_KEY, True)
     assert col.find_cards("", order=True)[0] in latestCardIds
     assert (
         col.find_cards("", order=col.get_browser_column("cardDue"), reverse=False)[0]
