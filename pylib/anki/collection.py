@@ -37,6 +37,7 @@ from dataclasses import dataclass, field
 import anki.latex
 from anki import hooks
 from anki._backend import RustBackend, Translations
+from anki.browser import BrowserConfig, BrowserDefaults
 from anki.cards import Card, CardId
 from anki.config import Config, ConfigManager
 from anki.consts import *
@@ -493,14 +494,10 @@ class Collection(DeprecatedNamesMixin):
             if order is False:
                 return _pb.SortOrder(none=_pb.Empty())
             # order=True: set args to sort column and reverse from config
-            sort_key = "noteSortType" if finding_notes else "sortType"
+            sort_key = BrowserConfig.sort_column_key(finding_notes)
             order = self.get_browser_column(self.get_config(sort_key))
-            reverse_key = (
-                Config.Bool.BROWSER_NOTE_SORT_BACKWARDS
-                if finding_notes
-                else Config.Bool.BROWSER_SORT_BACKWARDS
-            )
-            reverse = self.get_config_bool(reverse_key)
+            reverse_key = BrowserConfig.sort_backwards_key(finding_notes)
+            reverse = self.get_config(reverse_key)
         if isinstance(order, BrowserColumns.Column):
             if order.sorting != BrowserColumns.SORTING_NONE:
                 return _pb.SortOrder(
@@ -679,25 +676,25 @@ class Collection(DeprecatedNamesMixin):
     def load_browser_card_columns(self) -> List[str]:
         """Return the stored card column names and ensure the backend columns are set and in sync."""
         columns = self.get_config(
-            "activeCols", ["noteFld", "template", "cardDue", "deck"]
+            BrowserConfig.ACTIVE_CARD_COLUMNS_KEY, BrowserDefaults.CARD_COLUMNS
         )
         self._backend.set_active_browser_columns(columns)
         return columns
 
     def set_browser_card_columns(self, columns: List[str]) -> None:
-        self.set_config("activeCols", columns)
+        self.set_config(BrowserConfig.ACTIVE_CARD_COLUMNS_KEY, columns)
         self._backend.set_active_browser_columns(columns)
 
     def load_browser_note_columns(self) -> List[str]:
         """Return the stored note column names and ensure the backend columns are set and in sync."""
         columns = self.get_config(
-            "activeNoteCols", ["noteFld", "note", "noteCards", "noteTags"]
+            BrowserConfig.ACTIVE_NOTE_COLUMNS_KEY, BrowserDefaults.NOTE_COLUMNS
         )
         self._backend.set_active_browser_columns(columns)
         return columns
 
     def set_browser_note_columns(self, columns: List[str]) -> None:
-        self.set_config("activeNoteCols", columns)
+        self.set_config(BrowserConfig.ACTIVE_NOTE_COLUMNS_KEY, columns)
         self._backend.set_active_browser_columns(columns)
 
     # Config
