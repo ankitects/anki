@@ -78,6 +78,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    function hasSelected(): boolean {
+        return selected !== null;
+    }
+
     const createAutocomplete =
         (createDropdown: (element: HTMLElement) => Dropdown) =>
         (element: HTMLElement): any => {
@@ -92,6 +96,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 selectPrevious,
                 selectNext,
                 chooseSelected,
+                hasSelected,
                 update,
             };
 
