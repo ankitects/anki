@@ -365,7 +365,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <StickyBottom>
     <ButtonToolbar
-        class="d-flex flex-wrap align-items-center"
+        class="d-flex flex-wrap align-items-center mx-1"
         {size}
         on:focusout={deselectIfLeave}
     >
