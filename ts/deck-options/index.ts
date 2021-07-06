@@ -9,11 +9,6 @@ import { getDeckOptionsInfo, DeckOptionsState } from "./lib";
 import { setupI18n, ModuleName } from "lib/i18n";
 import { checkNightMode } from "lib/nightmode";
 import DeckOptionsPage from "./DeckOptionsPage.svelte";
-import SpinBox from "./SpinBox.svelte";
-import SpinBoxFloat from "./SpinBoxFloat.svelte";
-import EnumSelector from "./EnumSelector.svelte";
-import CheckBox from "./CheckBox.svelte";
-
 import { nightModeKey, touchDeviceKey, modalsKey } from "components/context-keys";
 
 export async function deckOptions(
@@ -49,9 +44,16 @@ export async function deckOptions(
     } as any);
 }
 
-export const deckConfigComponents = {
-    SpinBox,
-    SpinBoxFloat,
-    EnumSelector,
-    CheckBox,
+import TitledContainer from "./TitledContainer.svelte";
+import SpinBoxRow from "./SpinBoxRow.svelte";
+import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
+import EnumSelectorRow from "./EnumSelectorRow.svelte";
+import SwitchRow from "./SwitchRow.svelte";
+
+export const components = {
+    TitledContainer,
+    SpinBoxRow,
+    SpinBoxFloatRow,
+    EnumSelectorRow,
+    SwitchRow,
 };
