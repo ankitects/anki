@@ -53,11 +53,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         activeInput.setSelectionRange(Infinity, Infinity);
     }
 
-    function onChosen(chosen: string) {
-        onAutocomplete(chosen);
-        splitTag(active!, Infinity, Infinity);
-    }
-
     function updateTagName(tag: TagType): void {
         tag.name = activeName;
         tags = tags;
@@ -111,9 +106,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ): Promise<void> {
         if (autocomplete.hasSelected()) {
             autocomplete.chooseSelected();
-        } else {
-            splitTag(index, start, end);
+            await tick();
         }
+
+        splitTag(index, start, end);
     }
 
     async function splitTag(index: number, start: number, end: number): Promise<void> {
@@ -444,7 +440,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             {suggestionsPromise}
                             on:update={updateSuggestions}
                             on:select={({ detail }) => onAutocomplete(detail.selected)}
-                            on:choose={({ detail }) => onChosen(detail.chosen)}
+                            on:choose={({ detail }) => onAutocomplete(detail.chosen)}
                             let:createAutocomplete
                         >
                             <TagInput
