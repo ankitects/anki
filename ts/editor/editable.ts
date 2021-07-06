@@ -3,7 +3,7 @@
 
 import { bridgeCommand } from "./lib";
 import { nodeIsInline, caretToEnd, getBlockElement } from "./helpers";
-import { setEditableButtons } from "./toolbar";
+import { inCodable } from "./toolbar";
 import { wrap } from "./wrap";
 
 function containsInlineContent(field: Element): boolean {
@@ -42,7 +42,7 @@ export class Editable extends HTMLElement {
 
     focus(): void {
         super.focus();
-        setEditableButtons();
+        inCodable.set(false);
     }
 
     caretToEnd(): void {
