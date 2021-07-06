@@ -364,6 +364,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let height: number;
+    let badgeHeight: number;
+
+    // typically correct for rows < 7
+    $: assumedRows = Math.floor(height / badgeHeight);
+    $: shortenTags = shortenTags || assumedRows > 2;
+
+    function processTagName(name: string): string {
+        const parts = name.split("::");
+
+        if (parts.length === 1) {
+            return name;
+        }
+
+        return "…::" + parts[parts.length - 1];
+    }
+
+    function hasMultipleParts(name: string): boolean {
+        return name.split("::").length > 1;
+    }
 </script>
 
 <Spacer --height={`${height}px`} />
@@ -374,7 +393,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {size}
         on:focusout={deselectIfLeave}
     >
-        <div class="gap" on:mousedown|preventDefault>
+        <div class="gap" bind:offsetHeight={badgeHeight} on:mousedown|preventDefault>
             {#if tags.some((tag) => tag.selected)}
                 <SelectedTagBadge
                     --badge-align="-webkit-baseline-middle"
@@ -394,7 +413,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <div class="position-relative gap" class:hide-tag={index === active}>
                 <Tag
                     class="me-1"
-                    name={index === active ? activeName : tag.name}
+                    name={index === active
+                        ? activeName
+                        : shortenTags
+                        ? processTagName(tag.name)
+                        : tag.name}
+                    tooltip={shortenTags && hasMultipleParts(tag.name)
+                        ? tag.name
+                        : undefined}
                     bind:flash={tag.flash}
                     bind:selected={tag.selected}
                     on:tagedit={() => {
