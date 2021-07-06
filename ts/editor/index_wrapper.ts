@@ -6,3 +6,6 @@ import * as globals from "./index";
 for (const key in globals) {
     window[key] = globals[key];
 }
+
+// but also export as window.anki
+window["anki"] = globals;
