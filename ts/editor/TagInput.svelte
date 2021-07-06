@@ -15,6 +15,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
+    function isCollapsed(): boolean {
+        return input.selectionStart === input.selectionEnd;
+    }
+
     function caretAtStart(): boolean {
         return input.selectionStart === 0 && input.selectionEnd === 0;
     }
@@ -34,10 +38,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return name.length === 0;
     }
 
-    function normalize(): void {
-        name = normalizeTagname(name);
-    }
-
     async function joinWithPreviousTag(event: Event): Promise<void> {
         const length = input.value.length;
         dispatch("tagjoinprevious");
@@ -48,12 +48,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         event.preventDefault();
     }
 
-    async function onBackspace(event: KeyboardEvent): Promise<void> {
+    async function maybeDeleteDelimiter(event: Event, position: number): Promise<void> {
+        if (position > name.length) {
+            return;
+        }
+
+        const nameUptoCaret = name.slice(0, position);
+
+        if (nameUptoCaret.endsWith("::")) {
+            name = name.slice(0, position - 2) + name.slice(position, name.length);
+            await tick();
+
+            setPosition(position - 2);
+            event.preventDefault();
+        }
+    }
+
+    function onBackspace(event: KeyboardEvent): void {
         if (caretAtStart()) {
             joinWithPreviousTag(event);
-        } else if (name.endsWith("::")) {
-            name = name.slice(0, -2);
-            event.preventDefault();
+        } else {
+            maybeDeleteDelimiter(event, input.selectionStart!);
         }
     }
 
@@ -67,19 +82,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         event.preventDefault();
     }
 
-    async function onDelete(event: KeyboardEvent): Promise<void> {
+    function onDelete(event: KeyboardEvent): void {
         if (caretAtEnd()) {
             joinWithNextTag(event);
-        } else if (name.endsWith("::")) {
-            name = name.slice(0, -2);
-            event.preventDefault();
+        } else {
+            maybeDeleteDelimiter(event, input.selectionStart! + 2);
         }
     }
 
-    function onBlur(event: Event): void {
-        event.preventDefault();
+    function onBlur(): void {
+        name = normalizeTagname(name);
 
-        normalize();
         if (name.length === 0) {
             dispatch("tagdelete");
         }
@@ -88,9 +101,41 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function onEnter(event: Event): void {
-        event.preventDefault();
         dispatch("tagsplit", { start: input.selectionStart, end: input.selectionEnd });
         event.preventDefault();
+    }
+
+    async function onDelimiter(event: Event, single: boolean = false): Promise<void> {
+        event.preventDefault();
+
+        const positionStart = input.selectionStart!;
+        const positionEnd = input.selectionEnd!;
+
+        const before = name.slice(0, positionStart);
+        if (before.endsWith("::")) {
+            event.stopPropagation();
+            return;
+        }
+
+        name = `${before}${single ? ":" : "::"}${name.slice(positionEnd, name.length)}`;
+
+        await tick();
+        setPosition(positionStart + (single ? 1 : 2));
+    }
+
+    function maybeMovePastDelimiter(event: Event, forwards: boolean): void {
+        const position = input.selectionStart!;
+
+        const before = name.slice(0, position);
+        const after = name.slice(position, name.length);
+
+        if (!forwards && before.endsWith("::")) {
+            setPosition(position - 2);
+            event.preventDefault();
+        } else if (forwards && after.startsWith("::")) {
+            setPosition(position + 2);
+            event.preventDefault();
+        }
     }
 
     function onKeydown(event: KeyboardEvent): void {
@@ -98,43 +143,48 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             case "Enter":
                 onEnter(event);
                 break;
+
             case "Space":
-                // TODO
-                name += "::";
-                event.preventDefault();
+                onDelimiter(event);
                 break;
 
             case "Backspace":
-                onBackspace(event);
+                if (isCollapsed()) {
+                    onBackspace(event);
+                }
                 break;
+
             case "Delete":
-                onDelete(event);
+                if (isCollapsed()) {
+                    onDelete(event);
+                }
                 break;
 
             case "ArrowLeft":
-                if (!caretAtStart()) {
-                    break;
-                }
-                normalize();
                 if (isEmpty()) {
                     joinWithPreviousTag(event);
-                } else {
-                    event.preventDefault();
+                } else if (caretAtStart()) {
                     dispatch("tagmoveprevious");
+                    event.preventDefault();
+                } else if (isCollapsed()) {
+                    maybeMovePastDelimiter(event, false);
                 }
                 break;
 
             case "ArrowRight":
-                if (!caretAtEnd()) {
-                    break;
-                }
                 if (isEmpty()) {
                     joinWithNextTag(event);
-                } else {
-                    event.preventDefault();
+                } else if (caretAtEnd()) {
                     dispatch("tagmovenext");
+                    event.preventDefault();
+                } else if (isCollapsed()) {
+                    maybeMovePastDelimiter(event, true);
                 }
                 break;
+        }
+
+        if (event.key === ":") {
+            onDelimiter(event, true);
         }
     }
 
@@ -175,7 +225,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     tabindex="-1"
     size="1"
     on:focus
-    on:blur={onBlur}
+    on:blur|preventDefault={onBlur}
     on:keydown={onKeydown}
     on:keydown
     on:keyup

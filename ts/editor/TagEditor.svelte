@@ -117,9 +117,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const splitOff = activeName.slice(end);
 
         activeName = current;
+        // await tag to update its name, so it can normalize correctly
+        await tick();
+
         appendTagAndFocusAt(index, splitOff);
         active = null;
-
         await tick();
 
         if (index === active) {
@@ -273,7 +275,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function onKeyup(_event: KeyboardEvent): void {
+    function onKeyup(): void {
         if (activeName.length === 0) {
             autocomplete.hide();
         }
