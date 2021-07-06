@@ -57,8 +57,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ConfigSelector {state} />
 
-<Container api={options} class="g-1 mb-3 mt-3">
-    <div class="multi-column">
+<div class="multi-column">
+    <Container api={options} class="g-1 mb-3 mt-3">
         <Item>
             <DailyLimits {state} api={dailyLimits} />
         </Item>
@@ -96,17 +96,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <Item>
             <AdvancedOptions {state} api={advancedOptions} />
         </Item>
-    </div>
-</Container>
+    </Container>
+</div>
 
 <style lang="scss">
-    .multi-column {
+    .multi-column :global(.container) {
         column-count: 2;
         column-gap: 5em;
     }
 
     @media (max-width: 1000px) {
-        .multi-column {
+        .multi-column :global(.container) {
             column-count: 1;
         }
     }
