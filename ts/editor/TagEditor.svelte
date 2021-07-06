@@ -109,7 +109,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         start: number,
         end: number
     ): Promise<void> {
-        if (autocomplete.isVisible()) {
+        if (autocomplete.hasSelected()) {
             autocomplete.chooseSelected();
         } else {
             splitTag(index, start, end);
