@@ -16,8 +16,6 @@ impl From<BoolKeyProto> for BoolKey {
     fn from(k: BoolKeyProto) -> Self {
         match k {
             BoolKeyProto::BrowserTableShowNotesMode => BoolKey::BrowserTableShowNotesMode,
-            BoolKeyProto::BrowserSortBackwards => BoolKey::BrowserSortBackwards,
-            BoolKeyProto::BrowserNoteSortBackwards => BoolKey::BrowserNoteSortBackwards,
             BoolKeyProto::PreviewBothSides => BoolKey::PreviewBothSides,
             BoolKeyProto::CollapseTags => BoolKey::CollapseTags,
             BoolKeyProto::CollapseNotetypes => BoolKey::CollapseNotetypes,
