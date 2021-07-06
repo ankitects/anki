@@ -399,6 +399,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:tagselect={() => select(index)}
                     on:tagrange={() => selectRange(index)}
                     on:tagdelete={() => {
+                        deselect();
                         deleteTagAt(index);
                         saveTags();
                     }}
