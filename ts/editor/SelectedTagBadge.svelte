@@ -16,6 +16,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { dotsIcon } from "./icons";
 
     const dispatch = createEventDispatcher();
+
+    const allLabel = "Select all tags";
     const copyLabel = "Copy tags";
     const removeLabel = "Remove tags";
 </script>
@@ -25,7 +27,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <Badge class="me-1" on:mount={withSpan(createDropdown)}>{@html dotsIcon}</Badge>
 
         <DropdownMenu>
-            <WithShortcut shortcut="C" let:createShortcut let:shortcutLabel>
+            <WithShortcut shortcut="Control+A" let:createShortcut let:shortcutLabel>
+                <DropdownItem
+                    on:click={(event) => {
+                        dispatch("tagselectall");
+                        event.stopImmediatePropagation();
+                    }}
+                    on:mount={withButton(createShortcut)}
+                    >{appendInParentheses(allLabel, shortcutLabel)}</DropdownItem
+                >
+            </WithShortcut>
+            <WithShortcut shortcut="Control+C" let:createShortcut let:shortcutLabel>
                 <DropdownItem
                     on:click={() => dispatch("tagcopy")}
                     on:mount={withButton(createShortcut)}

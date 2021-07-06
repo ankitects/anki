@@ -339,6 +339,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         document.body.removeChild(textarea);
     }
 
+    function selectAllTags() {
+        tags.forEach((tag) => (tag.selected = true));
+        tags = tags;
+    }
+
     function copySelectedTags() {
         const content = tags
             .filter((tag) => tag.selected)
@@ -368,6 +373,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {#if tags.some((tag) => tag.selected)}
                 <SelectedTagBadge
                     --badge-align="-webkit-baseline-middle"
+                    on:tagselectall={selectAllTags}
                     on:tagcopy={copySelectedTags}
                     on:tagdelete={deleteSelectedTags}
                 />
