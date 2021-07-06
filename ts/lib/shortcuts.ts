@@ -4,7 +4,7 @@
 import type { Modifier } from "./keys";
 
 import { registerPackage } from "./register-package";
-import { modifiersToPlatformString, checkModifiers } from "./keys";
+import { modifiersToPlatformString, keyToPlatformString, checkModifiers } from "./keys";
 
 const keyCodeLookup = {
     Backspace: 8,
@@ -48,7 +48,7 @@ function toPlatformString(keyCombination: string[]): string {
     return (
         modifiersToPlatformString(
             keyCombination.slice(0, -1).filter(isRequiredModifier)
-        ) + keyCombination[keyCombination.length - 1]
+        ) + keyToPlatformString(keyCombination[keyCombination.length - 1])
     );
 }
 

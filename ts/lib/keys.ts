@@ -59,3 +59,17 @@ export function modifiersToPlatformString(modifiers: string[]): string {
 
     return result;
 }
+
+export function keyToPlatformString(key: string): string {
+    switch (key) {
+        case "Backspace":
+            return "⌫";
+        case "Delete":
+            return "⌦";
+        case "Escape":
+            return "⎋";
+
+        default:
+            return key;
+    }
+}
