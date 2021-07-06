@@ -14,7 +14,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let tooltip: string | undefined = undefined;
     export let active = false;
     export let disabled = false;
-    export const disables = false; /* unused */
     export let tabbable = false;
 
     export let iconSize: number = 75;
