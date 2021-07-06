@@ -6,9 +6,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let id: string | undefined = undefined;
     let className: string = "";
     export { className as class };
+
+    export let height: number;
 </script>
 
-<footer {id} class={`container-fluid pt-1 ${className}`}>
+<footer {id} bind:offsetHeight={height} class={`container-fluid pt-1 ${className}`}>
     <slot />
 </footer>
 

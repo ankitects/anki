@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { tick } from "svelte";
     import { isApplePlatform } from "lib/platform";
     import { bridgeCommand } from "lib/bridgecommand";
+    import Spacer from "components/Spacer.svelte";
     import StickyBottom from "components/StickyBottom.svelte";
     import AddTagBadge from "./AddTagBadge.svelte";
     import SelectedTagBadge from "./SelectedTagBadge.svelte";
@@ -361,9 +362,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         deselect();
         saveTags();
     }
+
+    let height: number;
 </script>
 
-<StickyBottom>
+<Spacer --height={`${height}px`} />
+
+<StickyBottom bind:height>
     <ButtonToolbar
         class="d-flex flex-wrap align-items-center mx-1"
         {size}
