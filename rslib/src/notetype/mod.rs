@@ -64,6 +64,7 @@ lazy_static! {
         "Subdeck",
         "Tags",
         "Type",
+        "CardOrdinal",
     ]);
 }
 

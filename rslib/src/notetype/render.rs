@@ -156,6 +156,8 @@ impl Collection {
             .or_insert_with(|| flag_name(card.flags).into());
         map.entry("Card")
             .or_insert_with(|| template.name.clone().into());
+        map.entry("CardOrdinal")
+            .or_insert_with(|| (card.template_idx + 1).to_string().into());
 
         Ok(())
     }
