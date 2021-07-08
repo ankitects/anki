@@ -16,18 +16,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonToolbar from "components/ButtonToolbar.svelte";
     import { controlPressed } from "lib/keys";
     import type { Tag as TagType } from "./tags";
-    import { attachId, getName } from "./tags";
+    import {
+        attachId,
+        getName,
+        delimChar,
+        replaceWithDelimChar,
+        replaceWithColon,
+    } from "./tags";
 
     export let size = isApplePlatform() ? 1.6 : 2.0;
 
     export let tags: TagType[] = [];
 
     export function resetTags(names: string[]): void {
-        tags = names.map(attachId);
+        tags = names.map(replaceWithDelimChar).map(attachId);
     }
 
     function saveTags(): void {
-        bridgeCommand(`saveTags:${JSON.stringify(tags.map((tag) => tag.name))}`);
+        bridgeCommand(
+            `saveTags:${JSON.stringify(
+                tags.map((tag) => tag.name).map(replaceWithColon)
+            )}`
+        );
     }
 
     let active: number | null = null;
@@ -43,7 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             "en::vocabulary",
             "en::idioms",
             Math.random().toString(36).substring(2),
-        ]);
+        ]).then((names: string[]): string[] => names.map(replaceWithDelimChar));
     }
 
     function onAutocomplete(selected: string): void {
@@ -369,17 +379,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: shortenTags = shortenTags || assumedRows > 2;
 
     function processTagName(name: string): string {
-        const parts = name.split("::");
+        const parts = name.split(delimChar);
 
         if (parts.length === 1) {
             return name;
         }
 
-        return "…::" + parts[parts.length - 1];
+        return `…${delimChar}` + parts[parts.length - 1];
     }
 
     function hasMultipleParts(name: string): boolean {
-        return name.split("::").length > 1;
+        return name.split(delimChar).length > 1;
     }
 </script>
 

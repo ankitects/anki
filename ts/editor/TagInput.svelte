@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { onMount, createEventDispatcher, tick } from "svelte";
-    import { normalizeTagname } from "./tags";
+    import { normalizeTagname, delimChar } from "./tags";
 
     export let id: string | undefined = undefined;
     let className: string = "";
@@ -55,11 +55,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const nameUptoCaret = name.slice(0, position);
 
-        if (nameUptoCaret.endsWith("::")) {
-            name = name.slice(0, position - 2) + name.slice(position, name.length);
+        if (nameUptoCaret.endsWith(delimChar)) {
+            name = name.slice(0, position - 1) + name.slice(position, name.length);
             await tick();
 
-            setPosition(position - 2);
+            setPosition(position - 1);
             event.preventDefault();
         }
     }
@@ -106,36 +106,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function onDelimiter(event: Event, single: boolean = false): Promise<void> {
-        event.preventDefault();
-
         const positionStart = input.selectionStart!;
         const positionEnd = input.selectionEnd!;
 
         const before = name.slice(0, positionStart);
-        if (before.endsWith("::")) {
+
+        if (before.endsWith(delimChar)) {
+            event.preventDefault();
             event.stopPropagation();
             return;
+        } else if (before.endsWith(":")) {
+            event.preventDefault();
+            name = `${before.slice(0, -1)}${delimChar}${name.slice(
+                positionEnd,
+                name.length
+            )}`;
+        } else if (single) {
+            return;
+        } else {
+            event.preventDefault();
+            name = `${before}${delimChar}${name.slice(positionEnd, name.length)}`;
         }
-
-        name = `${before}${single ? ":" : "::"}${name.slice(positionEnd, name.length)}`;
 
         await tick();
-        setPosition(positionStart + (single ? 1 : 2));
-    }
-
-    function maybeMovePastDelimiter(event: Event, forwards: boolean): void {
-        const position = input.selectionStart!;
-
-        const before = name.slice(0, position);
-        const after = name.slice(position, name.length);
-
-        if (!forwards && before.endsWith("::")) {
-            setPosition(position - 2);
-            event.preventDefault();
-        } else if (forwards && after.startsWith("::")) {
-            setPosition(position + 2);
-            event.preventDefault();
-        }
+        setPosition(positionStart + 1);
     }
 
     function onKeydown(event: KeyboardEvent): void {
@@ -166,8 +160,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 } else if (caretAtStart()) {
                     dispatch("tagmoveprevious");
                     event.preventDefault();
-                } else if (isCollapsed()) {
-                    maybeMovePastDelimiter(event, false);
                 }
                 break;
 
@@ -177,8 +169,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 } else if (caretAtEnd()) {
                     dispatch("tagmovenext");
                     event.preventDefault();
-                } else if (isCollapsed()) {
-                    maybeMovePastDelimiter(event, true);
                 }
                 break;
         }
