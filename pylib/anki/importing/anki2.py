@@ -21,6 +21,10 @@ MID = 2
 MOD = 3
 
 
+class V2ImportIntoV1(Exception):
+    pass
+
+
 class Anki2Importer(Importer):
 
     needMapper = False
@@ -58,7 +62,7 @@ class Anki2Importer(Importer):
             if self.src.db.scalar("select 1 from cards where queue != 0 limit 1"):
                 self.source_needs_upgrade = True
         elif self._importing_v2 and self.col.sched_ver() == 1:
-            raise Exception("must upgrade to new scheduler to import this file")
+            raise V2ImportIntoV1()
 
     def _import(self) -> None:
         self._decks = {}
