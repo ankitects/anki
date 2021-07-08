@@ -22,6 +22,7 @@ const codeMirrorOptions = {
     autoCloseTags: true,
     extraKeys: { Tab: false, "Shift-Tab": false },
     viewportMargin: Infinity,
+    lineWiseCopyCut: false,
 };
 
 const parser = new DOMParser();
