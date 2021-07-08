@@ -16,7 +16,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <span>
     <Label for={forId}><slot /></Label>
-    <WithTooltip tooltip={marked(markdownTooltip)} let:createTooltip>
+    <WithTooltip
+        tooltip={marked(markdownTooltip)}
+        showDelay={250}
+        offset={[0, 20]}
+        placement="bottom"
+        let:createTooltip
+    >
         <Badge
             class="opacity-50"
             on:mount={(event) => createTooltip(event.detail.span)}
