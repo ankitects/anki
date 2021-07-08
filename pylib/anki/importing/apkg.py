@@ -43,7 +43,7 @@ class AnkiPackageImporter(Anki2Importer):
 
             self.nameToNum[unicodedata.normalize("NFC", v)] = k
         # run anki2 importer
-        Anki2Importer.run(self)
+        Anki2Importer.run(self, importing_v2=suffix == ".anki21")
         # import static media
         for file, c in list(self.nameToNum.items()):
             if not file.startswith("_") and not file.startswith("latex-"):
