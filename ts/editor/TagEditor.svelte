@@ -10,19 +10,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import StickyBottom from "components/StickyBottom.svelte";
     import AddTagBadge from "./AddTagBadge.svelte";
     import SelectedTagBadge from "./SelectedTagBadge.svelte";
-    import Tag from "./Tag.svelte";
+    import TagWithTooltip from "./TagWithTooltip.svelte";
     import TagInput from "./TagInput.svelte";
     import WithAutocomplete from "./WithAutocomplete.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
     import { controlPressed } from "lib/keys";
     import type { Tag as TagType } from "./tags";
-    import {
-        attachId,
-        getName,
-        delimChar,
-        replaceWithDelimChar,
-        replaceWithColon,
-    } from "./tags";
+    import { attachId, getName, replaceWithDelimChar, replaceWithColon } from "./tags";
 
     export let size = isApplePlatform() ? 1.6 : 2.0;
 
@@ -377,20 +371,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     // typically correct for rows < 7
     $: assumedRows = Math.floor(height / badgeHeight);
     $: shortenTags = shortenTags || assumedRows > 2;
-
-    function processTagName(name: string): string {
-        const parts = name.split(delimChar);
-
-        if (parts.length === 1) {
-            return name;
-        }
-
-        return `…${delimChar}` + parts[parts.length - 1];
-    }
-
-    function hasMultipleParts(name: string): boolean {
-        return name.split(delimChar).length > 1;
-    }
 </script>
 
 <Spacer --height={`${height}px`} />
@@ -419,16 +399,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         {#each tags as tag, index (tag.id)}
             <div class="position-relative gap" class:hide-tag={index === active}>
-                <Tag
+                <TagWithTooltip
                     class="me-1"
-                    name={index === active
-                        ? activeName
-                        : shortenTags
-                        ? processTagName(tag.name)
-                        : tag.name}
-                    tooltip={shortenTags && hasMultipleParts(tag.name)
-                        ? tag.name
-                        : undefined}
+                    name={index === active ? activeName : tag.name}
+                    tooltip={tag.name}
+                    active={index === active}
+                    shorten={shortenTags}
                     bind:flash={tag.flash}
                     bind:selected={tag.selected}
                     on:tagedit={() => {

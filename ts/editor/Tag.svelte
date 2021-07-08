@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { getContext, createEventDispatcher } from "svelte";
+    import { onMount, getContext, createEventDispatcher } from "svelte";
     import { nightModeKey } from "components/context-keys";
     import Badge from "components/Badge.svelte";
     import { deleteIcon } from "./icons";
@@ -50,11 +50,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const nightMode = getContext<boolean>(nightModeKey);
+
+    let button: HTMLButtonElement;
+
+    onMount(() => dispatch("mount", { button }));
 </script>
 
 <svelte:body on:keydown={setDeleteIcon} on:keyup={setDeleteIcon} />
 
 <button
+    bind:this={button}
     class={`tag btn d-inline-flex align-items-center text-nowrap rounded ps-2 pe-1 m-0 ${className}`}
     class:selected
     class:flashing
