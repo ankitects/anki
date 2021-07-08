@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import marked from "marked";
     import { infoCircle } from "./icons";
-    import WithTooltip from "./WithTooltip.svelte";
+    import WithTooltip from "components/WithTooltip.svelte";
     import Label from "./Label.svelte";
     import Badge from "components/Badge.svelte";
 
