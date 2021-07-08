@@ -8,8 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "lib/bridgecommand";
     import Spacer from "components/Spacer.svelte";
     import StickyBottom from "components/StickyBottom.svelte";
-    import AddTagBadge from "./AddTagBadge.svelte";
-    import SelectedTagBadge from "./SelectedTagBadge.svelte";
+    import TagOptionsBadge from "./TagOptionsBadge.svelte";
     import TagWithTooltip from "./TagWithTooltip.svelte";
     import TagInput from "./TagInput.svelte";
     import WithAutocomplete from "./WithAutocomplete.svelte";
@@ -18,9 +17,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Tag as TagType } from "./tags";
     import { attachId, getName, replaceWithDelimChar, replaceWithColon } from "./tags";
 
-    export let size = isApplePlatform() ? 1.6 : 2.0;
-
     export let tags: TagType[] = [];
+
+    export let size = isApplePlatform() ? 1.6 : 2.0;
+    export let wrap = true;
 
     export function resetTags(names: string[]): void {
         tags = names.map(replaceWithDelimChar).map(attachId);
@@ -375,27 +375,35 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <Spacer --height={`${height}px`} />
 
-<StickyBottom bind:height>
+<StickyBottom class="d-flex" bind:height>
+    {#if !wrap}
+        <TagOptionsBadge
+            --button-size={`${size}rem`}
+            showSelectionsOptions={tags.some((tag) => tag.selected)}
+            bind:badgeHeight
+            on:tagselectall={selectAllTags}
+            on:tagcopy={copySelectedTags}
+            on:tagdelete={deleteSelectedTags}
+            on:click={appendEmptyTag}
+        />
+    {/if}
+
     <ButtonToolbar
-        class="d-flex flex-wrap align-items-center mx-1"
+        class="align-items-center mx-1"
         {size}
+        {wrap}
         on:focusout={deselectIfLeave}
     >
-        <div class="gap" bind:offsetHeight={badgeHeight} on:mousedown|preventDefault>
-            {#if tags.some((tag) => tag.selected)}
-                <SelectedTagBadge
-                    --badge-align="-webkit-baseline-middle"
-                    on:tagselectall={selectAllTags}
-                    on:tagcopy={copySelectedTags}
-                    on:tagdelete={deleteSelectedTags}
-                />
-            {:else}
-                <AddTagBadge
-                    --badge-align="-webkit-baseline-middle"
-                    on:click={appendEmptyTag}
-                />
-            {/if}
-        </div>
+        {#if wrap}
+            <TagOptionsBadge
+                showSelectionsOptions={tags.some((tag) => tag.selected)}
+                bind:badgeHeight
+                on:tagselectall={selectAllTags}
+                on:tagcopy={copySelectedTags}
+                on:tagdelete={deleteSelectedTags}
+                on:click={appendEmptyTag}
+            />
+        {/if}
 
         {#each tags as tag, index (tag.id)}
             <div class="position-relative gap" class:hide-tag={index === active}>

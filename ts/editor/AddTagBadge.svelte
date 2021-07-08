@@ -10,27 +10,40 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { appendInParentheses } from "./helpers";
     import { tagIcon, addTagIcon } from "./icons";
 
-    let theTagIcon = tagIcon;
-
     const tooltip = "Add tag";
 </script>
 
 <WithShortcut shortcut="Control+Shift+T" let:createShortcut let:shortcutLabel>
     <div class="add-icon">
         <Badge
-            class="me-1"
+            class="d-flex me-1"
             tooltip={appendInParentheses(tooltip, shortcutLabel)}
             on:click
-            on:mouseenter={() => (theTagIcon = addTagIcon)}
-            on:mouseleave={() => (theTagIcon = tagIcon)}
-            on:mount={withSpan(createShortcut)}>{@html theTagIcon}</Badge
+            on:mount={withSpan(createShortcut)}
         >
+            {@html tagIcon}
+            {@html addTagIcon}
+        </Badge>
     </div>
 </WithShortcut>
 
 <style lang="scss">
     .add-icon {
         line-height: 1;
+
+        :global(svg:last-child) {
+            display: none;
+        }
+
+        &:hover {
+            :global(svg:first-child) {
+                display: none;
+            }
+
+            :global(svg:last-child) {
+                display: block;
+            }
+        }
 
         :global(svg) {
             cursor: pointer;
