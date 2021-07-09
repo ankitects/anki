@@ -4,7 +4,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { onMount, createEventDispatcher, tick } from "svelte";
-    import { normalizeTagname, delimChar, replaceWithColon } from "./tags";
+    import {
+        normalizeTagname,
+        delimChar,
+        replaceWithDelimChar,
+        replaceWithColon,
+    } from "./tags";
 
     export let id: string | undefined = undefined;
     let className: string = "";
@@ -110,6 +115,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const positionEnd = input.selectionEnd!;
 
         const before = name.slice(0, positionStart);
+        const after = name.slice(positionEnd, name.length);
 
         if (before.endsWith(delimChar)) {
             event.preventDefault();
@@ -121,11 +127,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 positionEnd,
                 name.length
             )}`;
+
+            await tick();
+            setPosition(positionStart);
+            return;
+        } else if (after.startsWith(":")) {
+            event.preventDefault();
+            name = `${before}${delimChar}${name.slice(positionEnd + 1, name.length)}`;
         } else if (single) {
             return;
         } else {
             event.preventDefault();
-            name = `${before}${delimChar}${name.slice(positionEnd, name.length)}`;
+            name = `${before}${delimChar}${after}`;
         }
 
         await tick();
@@ -195,7 +208,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const splitted = pasted
             .split(/\s+/)
             .map(normalizeTagname)
-            .filter((name: string) => name.length > 0);
+            .filter((name: string) => name.length > 0)
+            .map(replaceWithDelimChar);
 
         if (splitted.length === 0) {
             return;
