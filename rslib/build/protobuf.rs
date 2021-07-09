@@ -80,7 +80,7 @@ pub fn write_backend_proto_rs() {
         proto_dir = backend_proto.parent().unwrap().to_owned();
     } else {
         backend_proto = PathBuf::from("backend.proto");
-        proto_dir = PathBuf::from(".");
+        proto_dir = PathBuf::from("../proto");
     }
     println!("cargo:rerun-if-changed={}", backend_proto.to_str().unwrap());
 

@@ -6,7 +6,7 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 py_proto_library_typed(
     name = "backend_pb2",
-    src = "//rslib:backend.proto",
+    src = "//proto:backend.proto",
     visibility = [
         "//visibility:public",
     ],
