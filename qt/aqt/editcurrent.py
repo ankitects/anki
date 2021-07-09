@@ -29,6 +29,8 @@ class EditCurrent(QDialog):
         self.editor.set_note(self.mw.reviewer.card.note(), focusTo=0)
         restoreGeom(self, "editcurrent")
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
+        gui_hooks.card_will_show.append(self.refresh_editor_on_review)
+        gui_hooks.reviewer_will_end.append(self.saveAndClose)
         self.show()
 
     def on_operation_did_execute(
@@ -46,8 +48,15 @@ class EditCurrent(QDialog):
 
             self.editor.set_note(note)
 
+    def refresh_editor_on_review(self, qa: str, card, type: str) -> None:
+        if type.startswith("review"):
+            self.editor.setNote(card.note())
+        return qa
+
     def cleanup_and_close(self) -> None:
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
+        gui_hooks.card_will_show.remove(self.refresh_editor_on_review)
+        gui_hooks.reviewer_will_end.remove(self.saveAndClose)
         self.editor.cleanup()
         saveGeom(self, "editcurrent")
         aqt.dialogs.markClosed("EditCurrent")
