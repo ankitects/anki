@@ -25,6 +25,8 @@ from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.browser.card_info import CardInfoDialog
 from aqt.deckoptions import confirm_deck_then_display_options
+from aqt.editcurrent import EditCurrent
+from aqt.editor import Editor
 from aqt.operations.card import set_card_flag
 from aqt.operations.note import remove_notes
 from aqt.operations.scheduling import (
@@ -160,6 +162,10 @@ class Reviewer:
             self.nextCard()
             self.mw.fade_in_webview()
             self._refresh_needed = None
+        elif self._refresh_needed is RefreshNeeded.NOTE_TEXT:
+            self._redraw_current_card()
+            self.mw.fade_in_webview()
+            self._refresh_needed = None
 
     def op_executed(
         self, changes: OpChanges, handler: Optional[object], focused: bool
@@ -168,7 +174,14 @@ class Reviewer:
             if changes.study_queues:
                 self._refresh_needed = RefreshNeeded.QUEUES
             elif changes.note_text:
-                self._redraw_current_card()
+                if (
+                    not self._refresh_needed
+                    and isinstance(handler, Editor)
+                    and isinstance(handler.parentWindow, EditCurrent)
+                ):
+                    self._redraw_current_card()
+                else:
+                    self._refresh_needed = RefreshNeeded.NOTE_TEXT
 
         if focused and self._refresh_needed:
             self.refresh_if_needed()
