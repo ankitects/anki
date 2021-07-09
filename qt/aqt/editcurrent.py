@@ -27,6 +27,11 @@ class EditCurrent(QDialog):
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)
         self.editor.card = self.mw.reviewer.card
         self.editor.set_note(self.mw.reviewer.card.note(), focusTo=0)
+        self.set_card_format(self.mw.reviewer.state)
+        self.editor.web.eval(
+            '$editorToolbar.then(({ templateButtons }) => templateButtons.appendButton({ component: editorToolbar.ObscureButton })); '
+        )
+
         restoreGeom(self, "editcurrent")
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         gui_hooks.card_will_show.append(self.refresh_editor_on_review)
@@ -48,11 +53,15 @@ class EditCurrent(QDialog):
 
             self.editor.set_note(note)
 
+    def set_card_format(self, format: str) -> None:
+        self.editor.web.eval(f'setCardFormat("{format}"); ')
+
     def refresh_editor_on_review(self, qa: str, card, type: str) -> None:
-        if type.startswith("review") and (
-            not self.editor.card or self.editor.card.nid != card.nid
-        ):
-            self.editor.setNote(card.note())
+        if type.startswith("review"):
+            if not self.editor.card or self.editor.card.nid != card.nid:
+                self.editor.setNote(card.note())
+
+            self.set_card_format(type[len("review"):].lower())
 
         return qa
 

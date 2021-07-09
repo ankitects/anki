@@ -20,7 +20,7 @@ import { LabelContainer } from "./label-container";
 import { EditingArea } from "./editing-area";
 import { Editable } from "./editable";
 import { Codable } from "./codable";
-import { initToolbar, fieldFocused } from "./toolbar";
+import { initToolbar, fieldFocused, cardFormat } from "./toolbar";
 
 export { setNoteId, getNoteId } from "./note-id";
 export { saveNow } from "./change-timer";
@@ -181,6 +181,10 @@ export function setFormat(cmd: string, arg?: string, nosave = false): void {
         saveField(getCurrentField() as EditingArea, "key");
         updateActiveButtons(new Event(cmd));
     }
+}
+
+export function setCardFormat(side: "question" | "answer"): void {
+    cardFormat.set(side);
 }
 
 const i18n = setupI18n({

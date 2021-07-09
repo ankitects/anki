@@ -7,12 +7,13 @@
  */
 
 import { nightModeKey } from "components/context-keys";
-import { fieldFocusedKey, inCodableKey } from "./context-keys";
+import { cardFormatKey, fieldFocusedKey, inCodableKey } from "./context-keys";
 import { writable } from "svelte/store";
 
 import EditorToolbar from "./EditorToolbar.svelte";
 import "./bootstrap.css";
 
+export const cardFormat = writable("unknown");
 export const fieldFocused = writable(false);
 export const inCodable = writable(false);
 
@@ -28,6 +29,7 @@ export function initToolbar(i18n: Promise<void>): Promise<EditorToolbar> {
             const anchor = document.getElementById("fields")!;
 
             const context = new Map();
+            context.set(cardFormatKey, cardFormat);
             context.set(fieldFocusedKey, fieldFocused);
             context.set(inCodableKey, inCodable);
             context.set(

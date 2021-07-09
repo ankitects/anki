@@ -102,6 +102,10 @@ copy_bootstrap_icons(
         "text-center.svg",
         "text-indent-left.svg",
         "text-indent-right.svg",
+
+        # obscure
+        "eye.svg",
+        "eye-slash.svg",
     ],
     visibility = ["//visibility:public"],
 )

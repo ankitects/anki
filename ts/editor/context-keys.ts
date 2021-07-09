@@ -3,3 +3,4 @@
 
 export const fieldFocusedKey = Symbol("fieldFocused");
 export const inCodableKey = Symbol("inCodable");
+export const cardFormatKey = Symbol("cardFormat");
