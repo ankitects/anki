@@ -6,13 +6,10 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { disabledKey, nightModeKey } from "components/context-keys";
-import { writable } from "svelte/store";
+import { nightModeKey } from "components/context-keys";
 
 import TagEditor from "./TagEditor.svelte";
 import "./bootstrap.css";
-
-const disabled = writable(false);
 
 export function initTagEditor(i18n: Promise<void>): Promise<TagEditor> {
     let tagEditorResolve: (value: TagEditor) => void;
@@ -26,7 +23,6 @@ export function initTagEditor(i18n: Promise<void>): Promise<TagEditor> {
             const anchor = document.getElementById("tag-editor-anchor")!;
 
             const context = new Map();
-            context.set(disabledKey, disabled);
             context.set(
                 nightModeKey,
                 document.documentElement.classList.contains("night-mode")

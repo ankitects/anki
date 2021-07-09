@@ -378,7 +378,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <StickyBottom class="d-flex" bind:height>
     {#if !wrap}
         <TagOptionsBadge
-            --button-size={`${size}rem`}
+            --buttons-size={`${size}rem`}
             showSelectionsOptions={tags.some((tag) => tag.selected)}
             bind:badgeHeight
             on:tagselectall={selectAllTags}
@@ -389,7 +389,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {/if}
 
     <ButtonToolbar
-        class="align-items-center mx-1"
+        class="d-flex align-items-center w-100 px-1"
         {size}
         {wrap}
         on:focusout={deselectIfLeave}

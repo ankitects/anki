@@ -47,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <OnlyEditable let:disabled>
         <IconButton
             tooltip={`${tr.editingClozeDeletion()} (${shortcutLabel})`}
-            disabled={disabled}
+            {disabled}
             on:click={onCloze}
             on:mount={withButton(createShortcut)}
         >
