@@ -89,10 +89,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonGroupItem>
         <WithDropdown let:createDropdown>
             <OnlyEditable let:disabled>
-                <IconButton
-                    {disabled}
-                    on:mount={withButton(createDropdown)}
-                >
+                <IconButton {disabled} on:mount={withButton(createDropdown)}>
                     {@html functionIcon}
                 </IconButton>
             </OnlyEditable>
