@@ -1,0 +1,18 @@
+# Copyright: Ankitects Pty Ltd and contributors
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("//proto:clang_format.bzl", "proto_format")
+
+proto_format(
+    name = "format",
+    srcs = ["backend.proto"],
+)
+
+proto_library(
+    name = "backend_proto_lib",
+    srcs = ["backend.proto"],
+    visibility = ["//visibility:public"],
+)
+
+exports_files(["backend.proto"])

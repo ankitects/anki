@@ -68,7 +68,7 @@ def proto_format(name, srcs, **kwargs):
     py_test(
         name = name,
         srcs = [
-            "proto_format.py",
+            "format.py",
         ],
         data = ["@clang_format//:clang_format"] + srcs,
         args = ["$(location @clang_format//:clang_format)"] + [native.package_name() + "/" + f for f in srcs],
