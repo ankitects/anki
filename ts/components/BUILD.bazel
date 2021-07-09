@@ -20,6 +20,7 @@ compile_svelte(
     visibility = ["//visibility:public"],
     deps = [
         "//ts/sass:button_mixins_lib",
+        "//ts/sass:scrollbar_lib",
         "//ts/sass/bootstrap",
     ],
 )
