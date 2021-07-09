@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import WithTheming from "components/WithTheming.svelte";
-    import Detachable from "components/Detachable.svelte";
+    import WithTheming from "./WithTheming.svelte";
+    import Detachable from "./Detachable.svelte";
 
     import type { ButtonRegistration } from "./buttons";
     import { ButtonPosition } from "./buttons";
