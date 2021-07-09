@@ -14,15 +14,15 @@ export function replaceWithColon(name: string): string {
 export function normalizeTagname(tagname: string): string {
     let trimmed = tagname.trim();
 
-    while (true) {
-        if (trimmed.startsWith(":") || trimmed.startsWith(delimChar)) {
-            trimmed = trimmed.slice(1).trimStart();
-        } else if (trimmed.endsWith(":") || trimmed.endsWith(delimChar)) {
-            trimmed = trimmed.slice(0, -1).trimEnd();
-        } else {
-            return trimmed;
-        }
+    while (trimmed.startsWith(":") || trimmed.startsWith(delimChar)) {
+        trimmed = trimmed.slice(1).trimStart();
     }
+
+    while (trimmed.endsWith(":") || trimmed.endsWith(delimChar)) {
+        trimmed = trimmed.slice(0, -1).trimEnd();
+    }
+
+    return trimmed;
 }
 
 export interface Tag {
@@ -32,14 +32,14 @@ export interface Tag {
     flash: () => void;
 }
 
-const noop = () => {};
-
 export function attachId(name: string): Tag {
     return {
         id: Math.random().toString(36).substring(2),
         name,
         selected: false,
-        flash: noop,
+        flash: () => {
+            /* noop */
+        },
     };
 }
 
