@@ -30,7 +30,7 @@ $tooltip-max-width: 300px;
 }
 
 .tooltip-inner {
-    text-align: left;
+    text-align: start;
 
     // marked transpiles tooltips into multiple paragraphs
     // where trailing <p>s cause a bottom margin
@@ -42,6 +42,7 @@ $tooltip-max-width: 300px;
     // want to add more of our own styling in the future
     code {
         color: #ffaaaa;
+        direction: inherit;
     }
 }
 
