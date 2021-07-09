@@ -219,7 +219,7 @@
     <string>qt_misc_create_filtered_deck</string>
    </property>
    <property name="shortcut">
-    <string notr="true">F</string>
+    <string notr="true">Ctrl+F</string>
    </property>
   </action>
   <action name="actionNoteTypes">

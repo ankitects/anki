@@ -54,8 +54,7 @@ class EditCurrent(QDialog):
         QDialog.reject(self)
 
     def reopen(self, mw: aqt.AnkiQt) -> None:
-        if card := self.mw.reviewer.card:
-            self.editor.set_note(card.note())
+        self.editor.web.setFocus()
 
     def reject(self) -> None:
         self.saveAndClose()

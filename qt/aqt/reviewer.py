@@ -160,10 +160,6 @@ class Reviewer:
             self.nextCard()
             self.mw.fade_in_webview()
             self._refresh_needed = None
-        elif self._refresh_needed is RefreshNeeded.NOTE_TEXT:
-            self._redraw_current_card()
-            self.mw.fade_in_webview()
-            self._refresh_needed = None
 
     def op_executed(
         self, changes: OpChanges, handler: Optional[object], focused: bool
@@ -172,7 +168,7 @@ class Reviewer:
             if changes.study_queues:
                 self._refresh_needed = RefreshNeeded.QUEUES
             elif changes.note_text:
-                self._refresh_needed = RefreshNeeded.NOTE_TEXT
+                self._redraw_current_card()
 
         if focused and self._refresh_needed:
             self.refresh_if_needed()
@@ -185,6 +181,13 @@ class Reviewer:
             self._showAnswer()
         else:
             self._showQuestion()
+
+    def _flip_current_card(self) -> None:
+        self.card.load()
+        if self.state == "answer":
+            self._showQuestion()
+        else:
+            self._getTypedAnswer()
 
     # Fetching a card
     ##########################################################################
@@ -440,12 +443,13 @@ class Reviewer:
     ) -> Sequence[Union[Tuple[str, Callable], Tuple[Qt.Key, Callable]]]:
         return [
             ("e", self.mw.onEditCurrent),
+            ("f", self._flip_current_card),
             (" ", self.onEnterKey),
             (Qt.Key_Return, self.onEnterKey),
             (Qt.Key_Enter, self.onEnterKey),
             ("m", self.showContextMenu),
             ("r", self.replayAudio),
-            (Qt.Key_F5, self.replayAudio),
+            (Qt.Key_F5, self._redraw_current_card),
             *(
                 (f"Ctrl+{flag.index}", self.set_flag_func(flag.index))
                 for flag in self.mw.flags.all()
