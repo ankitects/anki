@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { onMount, createEventDispatcher, tick } from "svelte";
-    import { normalizeTagname, delimChar } from "./tags";
+    import { normalizeTagname, delimChar, replaceWithColon } from "./tags";
 
     export let id: string | undefined = undefined;
     let className: string = "";
@@ -178,6 +178,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    function onCopy(event: ClipboardEvent): void {
+        const selection = document.getSelection();
+        event.clipboardData!.setData(
+            "text/plain",
+            replaceWithColon(selection!.toString())
+        );
+    }
+
     function onPaste(event: ClipboardEvent): void {
         if (!event.clipboardData) {
             return;
@@ -220,6 +228,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:keydown
     on:keyup
     on:input
+    on:copy|preventDefault={onCopy}
     on:paste|preventDefault={onPaste}
 />
 
