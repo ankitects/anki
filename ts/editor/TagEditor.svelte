@@ -350,7 +350,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function copySelectedTags() {
         const content = tags
             .filter((tag) => tag.selected)
-            .map((tag) => tag.name)
+            .map((tag) => replaceWithColon(tag.name))
             .join("\n");
         copyToClipboard(content);
         deselect();
