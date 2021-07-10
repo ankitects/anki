@@ -3,6 +3,7 @@
 from typing import Optional
 
 import aqt.editor
+from anki.cards import Card
 from anki.collection import OpChanges
 from anki.errors import NotFoundError
 from aqt import gui_hooks
@@ -26,7 +27,7 @@ class EditCurrent(QDialog):
         self.editor.set_note(self.mw.reviewer.card.note(), focusTo=0)
         self.set_card_format(self.mw.reviewer.state)
         self.editor.web.eval(
-            '$editorToolbar.then(({ templateButtons }) => templateButtons.appendButton({ component: editorToolbar.ObscureButton })); '
+            "$editorToolbar.then(({ templateButtons }) => templateButtons.appendButton({ component: editorToolbar.ObscureButton })); "
         )
         QShortcut(QKeySequence("Ctrl+Return"), self, activated=self.focus_reviewer)
         QShortcut(QKeySequence("Ctrl+W"), self, activated=self.saveAndClose)
@@ -59,9 +60,9 @@ class EditCurrent(QDialog):
     def set_card_format(self, format: str) -> None:
         self.editor.web.eval(f'setCardFormat("{format}"); ')
 
-    def refresh_editor_on_review(self, qa: str, card, type: str) -> None:
+    def refresh_editor_on_review(self, qa: str, card: Card, type: str) -> None:
         if type.startswith("review"):
-            self.set_card_format(type[len("review"):].lower())
+            self.set_card_format(type[len("review") :].lower())
 
             if not self.editor.card or self.editor.card.nid != card.nid:
                 self.editor.setNote(card.note())

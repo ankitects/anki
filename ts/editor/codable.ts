@@ -1,6 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+/* eslint
+@typescript-eslint/no-non-null-assertion: "off",
+ */
+
 import * as CodeMirror from "codemirror/lib/codemirror";
 import "codemirror/mode/htmlmixed/htmlmixed";
 import "codemirror/addon/fold/foldcode";
