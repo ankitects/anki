@@ -45,6 +45,14 @@ export class Editable extends HTMLElement {
         inCodable.set(false);
     }
 
+    obscure(): void {
+        this.classList.add("obscured");
+    }
+
+    unobscure(): void {
+        this.classList.remove("obscured");
+    }
+
     caretToEnd(): void {
         caretToEnd(this);
     }

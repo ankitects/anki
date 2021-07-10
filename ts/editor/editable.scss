@@ -6,6 +6,14 @@ anki-editable {
     overflow: auto;
     padding: 6px;
 
+    &.obscured {
+        opacity: 0;
+
+        &:focus {
+            opacity: inherit;
+        }
+    }
+
     &:empty::after {
         content: "\a";
         white-space: pre;
@@ -49,4 +57,14 @@ img.drawing {
 .CodeMirror {
     height: auto;
     padding: 6px 0;
+
+    > .CodeMirror-obscure {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: inherit;
+        z-index: 3;
+    }
 }

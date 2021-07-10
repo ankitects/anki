@@ -8,18 +8,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getContext } from "svelte";
     import { eyeIcon, eyeSlashIcon } from "./icons";
     import { cardFormatKey } from "./context-keys";
+    import { forEditorField } from ".";
 
     import WithShortcut from "components/WithShortcut.svelte";
     import IconButton from "components/IconButton.svelte";
 
-    let obscure = true;
+    let obscureMode = true;
+    let icon = eyeIcon;
+
     function toggleObscure(): void {
-        obscure = !obscure;
+        obscureMode = !obscureMode;
     }
 
     const cardFormat = getContext<Readable<"question" | "answer">>(cardFormatKey);
 
-    $: icon = obscure && $cardFormat === "question" ? eyeSlashIcon : eyeIcon;
+    $: obscure = obscureMode && $cardFormat === "question";
+
+    $: if (obscure) {
+        icon = eyeSlashIcon;
+        forEditorField([], (field) => field.editingArea.obscure());
+    } else {
+        icon = eyeIcon;
+        forEditorField([], (field) => field.editingArea.unobscure());
+    }
 </script>
 
 <WithShortcut shortcut={"Control+P"} let:createShortcut>
@@ -27,7 +38,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tooltip="Obscure fields while displaying front side"
         on:click={toggleObscure}
         on:mount={createShortcut}
-        active={obscure}
+        active={obscureMode}
     >
         {@html icon}
     </IconButton>

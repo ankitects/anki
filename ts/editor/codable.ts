@@ -71,6 +71,14 @@ export class Codable extends HTMLTextAreaElement {
         inCodable.set(true);
     }
 
+    obscure(): void {
+        // this.activeInput.obscure();
+    }
+
+    unobscure(): void {
+        // this.activeInput.obscure();
+    }
+
     caretToEnd(): void {
         this.codeMirror.setCursor(this.codeMirror.lineCount(), 0);
     }

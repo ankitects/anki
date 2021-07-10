@@ -24,6 +24,7 @@ export class EditingArea extends HTMLDivElement {
 
     constructor() {
         super();
+
         this.attachShadow({ mode: "open" });
         this.className = "field";
 
@@ -121,6 +122,14 @@ export class EditingArea extends HTMLDivElement {
 
     blur(): void {
         this.activeInput.blur();
+    }
+
+    obscure(): void {
+        this.activeInput.obscure();
+    }
+
+    unobscure(): void {
+        this.activeInput.unobscure();
     }
 
     caretToEnd(): void {
