@@ -28,6 +28,8 @@ class EditCurrent(QDialog):
         self.editor.web.eval(
             '$editorToolbar.then(({ templateButtons }) => templateButtons.appendButton({ component: editorToolbar.ObscureButton })); '
         )
+        QShortcut(QKeySequence("Ctrl+Return"), self, activated=self.focus_reviewer)
+        QShortcut(QKeySequence("Ctrl+W"), self, activated=self.saveAndClose)
 
         restoreGeom(self, "editcurrent")
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
@@ -49,6 +51,10 @@ class EditCurrent(QDialog):
                 return
 
             self.editor.set_note(note)
+
+    def focus_reviewer(self) -> None:
+        self.mw.activateWindow()
+        self.mw.raise_()
 
     def set_card_format(self, format: str) -> None:
         self.editor.web.eval(f'setCardFormat("{format}"); ')

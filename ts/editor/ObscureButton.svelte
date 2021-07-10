@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getContext } from "svelte";
     import { eyeIcon, eyeSlashIcon } from "./icons";
     import { cardFormatKey } from "./context-keys";
-    import { forEditorField } from ".";
+    import { getCurrentField, forEditorField } from ".";
 
     import WithShortcut from "components/WithShortcut.svelte";
     import IconButton from "components/IconButton.svelte";
@@ -31,11 +31,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         icon = eyeIcon;
         forEditorField([], (field) => field.editingArea.unobscure());
     }
+
+    function blurIfObscured(): void {
+        if (obscure) {
+            getCurrentField()?.blur();
+        }
+    }
 </script>
 
-<WithShortcut shortcut={"Control+P"} let:createShortcut>
+<svelte:window on:blur={blurIfObscured} />
+
+<WithShortcut shortcut={"Control+P"} let:createShortcut let:shortcutLabel>
     <IconButton
-        tooltip="Obscure fields while displaying front side"
+        tooltip={`Obscure fields while displaying front side (${shortcutLabel})`}
         on:click={toggleObscure}
         on:mount={createShortcut}
         active={obscureMode}

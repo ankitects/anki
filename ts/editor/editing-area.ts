@@ -127,6 +127,10 @@ export class EditingArea extends HTMLDivElement {
     obscure(): void {
         this.editable.obscure();
         this.codable.obscure();
+
+        if (document.activeElement === this) {
+            this.blur();
+        }
     }
 
     unobscure(): void {
