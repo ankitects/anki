@@ -14,9 +14,9 @@ def _impl(rctx):
 alias(
     name = "clang_format",
     actual = select({
-        "@anki//platforms:windows_x86_64": "@clang_format_windows_x86_64//:clang-format.exe",
-        "@anki//platforms:macos_x86_64": "@clang_format_macos_x86_64//:clang-format",
-        "@anki//platforms:linux_x86_64": "@clang_format_linux_x86_64//:clang-format",
+        "@ankidesktop//platforms:windows_x86_64": "@clang_format_windows_x86_64//:clang-format.exe",
+        "@ankidesktop//platforms:macos_x86_64": "@clang_format_macos_x86_64//:clang-format",
+        "@ankidesktop//platforms:linux_x86_64": "@clang_format_linux_x86_64//:clang-format",
     }),
     visibility = ["//visibility:public"]
 )
@@ -68,7 +68,7 @@ def proto_format(name, srcs, **kwargs):
     py_test(
         name = name,
         srcs = [
-            "@anki//proto:format.py",
+            "@ankidesktop//proto:format.py",
         ],
         data = ["@clang_format//:clang_format"] + srcs,
         args = ["$(location @clang_format//:clang_format)"] + [native.package_name() + "/" + f for f in srcs],

@@ -1,5 +1,5 @@
 workspace(
-    name = "anki",
+    name = "ankidesktop",
     managed_directories = {"@npm": [
         "ts/node_modules",
     ]},

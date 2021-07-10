@@ -14,7 +14,7 @@ def compile_sass(group, srcs, deps = [], visibility = ["//visibility:private"]):
             sourcemap = False,
             deps = deps,
             visibility = visibility,
-            include_paths = ["external/anki"],
+            include_paths = ["external/ankidesktop"],
         )
 
     native.filegroup(

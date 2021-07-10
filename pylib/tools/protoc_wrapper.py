@@ -13,7 +13,7 @@ import sys
 (protoc, mypy_protobuf, outdir, *protos) = sys.argv[1:]
 
 if protos[0].startswith("external"):
-    prefix = "external/anki/proto/"
+    prefix = "external/ankidesktop/proto/"
 else:
     prefix = "proto/"
 
@@ -25,7 +25,7 @@ subprocess.run(
         "--python_out=.",
         "--mypy_out=.",
         "-I" + prefix,
-        "-Iexternal/anki/" + prefix,
+        "-Iexternal/ankidesktop/" + prefix,
         *protos,
     ],
     # mypy prints to stderr on success :-(
