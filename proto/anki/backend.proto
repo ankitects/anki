@@ -7,7 +7,6 @@ package anki.backend;
 
 import "anki/generic.proto";
 import "anki/cards.proto";
-import "anki/decks.proto";
 import "anki/collection.proto";
 import "anki/notes.proto";
 import "anki/notetypes.proto";
@@ -19,12 +18,12 @@ import "anki/notetypes.proto";
 /// that information is not available in prost, so we define an enum to make
 /// sure all clients agree on the service index
 enum ServiceIndex {
-  SERVICE_INDEX_SCHEDULING = 0;
+  SERVICE_INDEX_SCHEDULER = 0;
   SERVICE_INDEX_DECKS = 1;
   SERVICE_INDEX_NOTES = 2;
   SERVICE_INDEX_SYNC = 3;
   SERVICE_INDEX_NOTETYPES = 4;
-  SERVICE_INDEX_CONFIG = 5;
+  SERVICE_INDEX_CONFIGS = 5;
   SERVICE_INDEX_CARD_RENDERING = 6;
   SERVICE_INDEX_DECK_CONFIG = 7;
   SERVICE_INDEX_TAGS = 8;
@@ -34,61 +33,6 @@ enum ServiceIndex {
   SERVICE_INDEX_I18N = 12;
   SERVICE_INDEX_COLLECTION = 13;
   SERVICE_INDEX_CARDS = 14;
-}
-
-service SchedulingService {
-  rpc SchedTimingToday(generic.Empty) returns (SchedTimingTodayResponse);
-  rpc StudiedToday(generic.Empty) returns (generic.String);
-  rpc StudiedTodayMessage(StudiedTodayMessageRequest) returns (generic.String);
-  rpc UpdateStats(UpdateStatsRequest) returns (generic.Empty);
-  rpc ExtendLimits(ExtendLimitsRequest) returns (generic.Empty);
-  rpc CountsForDeckToday(decks.DeckId) returns (CountsForDeckTodayResponse);
-  rpc CongratsInfo(generic.Empty) returns (CongratsInfoResponse);
-  rpc RestoreBuriedAndSuspendedCards(cards.CardIds)
-      returns (collection.OpChanges);
-  rpc UnburyDeck(UnburyDeckRequest) returns (collection.OpChanges);
-  rpc BuryOrSuspendCards(BuryOrSuspendCardsRequest)
-      returns (collection.OpChangesWithCount);
-  rpc EmptyFilteredDeck(decks.DeckId) returns (collection.OpChanges);
-  rpc RebuildFilteredDeck(decks.DeckId) returns (collection.OpChangesWithCount);
-  rpc ScheduleCardsAsNew(ScheduleCardsAsNewRequest)
-      returns (collection.OpChanges);
-  rpc SetDueDate(SetDueDateRequest) returns (collection.OpChanges);
-  rpc SortCards(SortCardsRequest) returns (collection.OpChangesWithCount);
-  rpc SortDeck(SortDeckRequest) returns (collection.OpChangesWithCount);
-  rpc GetNextCardStates(cards.CardId) returns (NextCardStates);
-  rpc DescribeNextStates(NextCardStates) returns (generic.StringList);
-  rpc StateIsLeech(SchedulingState) returns (generic.Bool);
-  rpc AnswerCard(CardAnswer) returns (collection.OpChanges);
-  rpc UpgradeScheduler(generic.Empty) returns (generic.Empty);
-  rpc GetQueuedCards(GetQueuedCardsRequest) returns (QueuedCards);
-}
-
-service SyncService {
-  rpc SyncMedia(SyncAuth) returns (generic.Empty);
-  rpc AbortSync(generic.Empty) returns (generic.Empty);
-  rpc AbortMediaSync(generic.Empty) returns (generic.Empty);
-  rpc BeforeUpload(generic.Empty) returns (generic.Empty);
-  rpc SyncLogin(SyncLoginRequest) returns (SyncAuth);
-  rpc SyncStatus(SyncAuth) returns (SyncStatusResponse);
-  rpc SyncCollection(SyncAuth) returns (SyncCollectionResponse);
-  rpc FullUpload(SyncAuth) returns (generic.Empty);
-  rpc FullDownload(SyncAuth) returns (generic.Empty);
-  rpc SyncServerMethod(SyncServerMethodRequest) returns (generic.Json);
-}
-
-service ConfigService {
-  rpc GetConfigJson(generic.String) returns (generic.Json);
-  rpc SetConfigJson(SetConfigJsonRequest) returns (collection.OpChanges);
-  rpc SetConfigJsonNoUndo(SetConfigJsonRequest) returns (generic.Empty);
-  rpc RemoveConfig(generic.String) returns (collection.OpChanges);
-  rpc GetAllConfig(generic.Empty) returns (generic.Json);
-  rpc GetConfigBool(Config.Bool) returns (generic.Bool);
-  rpc SetConfigBool(SetConfigBoolRequest) returns (collection.OpChanges);
-  rpc GetConfigString(Config.String) returns (generic.String);
-  rpc SetConfigString(SetConfigStringRequest) returns (collection.OpChanges);
-  rpc GetPreferences(generic.Empty) returns (Preferences);
-  rpc SetPreferences(Preferences) returns (collection.OpChanges);
 }
 
 service CardRenderingService {
@@ -119,19 +63,6 @@ service TagsService {
       returns (collection.OpChangesWithCount);
   rpc FindAndReplaceTag(FindAndReplaceTagRequest)
       returns (collection.OpChangesWithCount);
-}
-
-service SearchService {
-  rpc BuildSearchString(SearchNode) returns (generic.String);
-  rpc SearchCards(SearchRequest) returns (SearchResponse);
-  rpc SearchNotes(SearchRequest) returns (SearchResponse);
-  rpc JoinSearchNodes(JoinSearchNodesRequest) returns (generic.String);
-  rpc ReplaceSearchNode(ReplaceSearchNodeRequest) returns (generic.String);
-  rpc FindAndReplace(FindAndReplaceRequest)
-      returns (collection.OpChangesWithCount);
-  rpc AllBrowserColumns(generic.Empty) returns (BrowserColumns);
-  rpc BrowserRowForId(generic.Int64) returns (BrowserRow);
-  rpc SetActiveBrowserColumns(generic.StringList) returns (generic.Empty);
 }
 
 service StatsService {
@@ -193,11 +124,6 @@ message BackendError {
 
 // Messages
 ///////////////////////////////////////////////////////////
-
-message SchedTimingTodayResponse {
-  uint32 days_elapsed = 1;
-  int64 next_day_at = 2;
-}
 
 message RenderExistingCardRequest {
   int64 card_id = 1;
@@ -295,116 +221,9 @@ message TrashMediaFilesRequest {
   repeated string fnames = 1;
 }
 
-message StudiedTodayMessageRequest {
-  uint32 cards = 1;
-  double seconds = 2;
-}
-
 message CongratsLearnMessageRequest {
   float next_due = 1;
   uint32 remaining = 2;
-}
-
-message SearchRequest {
-  string search = 1;
-  SortOrder order = 2;
-}
-
-message SearchResponse {
-  repeated int64 ids = 1;
-}
-
-message SortOrder {
-  message Builtin {
-    string column = 1;
-    bool reverse = 2;
-  }
-  oneof value {
-    generic.Empty none = 1;
-    string custom = 2;
-    Builtin builtin = 3;
-  }
-}
-
-message SearchNode {
-  message Dupe {
-    int64 notetype_id = 1;
-    string first_field = 2;
-  }
-  enum Flag {
-    FLAG_NONE = 0;
-    FLAG_ANY = 1;
-    FLAG_RED = 2;
-    FLAG_ORANGE = 3;
-    FLAG_GREEN = 4;
-    FLAG_BLUE = 5;
-    FLAG_PINK = 6;
-    FLAG_TURQUOISE = 7;
-    FLAG_PURPLE = 8;
-  }
-  enum Rating {
-    RATING_ANY = 0;
-    RATING_AGAIN = 1;
-    RATING_HARD = 2;
-    RATING_GOOD = 3;
-    RATING_EASY = 4;
-    RATING_BY_RESCHEDULE = 5;
-  }
-  message Rated {
-    uint32 days = 1;
-    Rating rating = 2;
-  }
-  enum CardState {
-    CARD_STATE_NEW = 0;
-    CARD_STATE_LEARN = 1;
-    CARD_STATE_REVIEW = 2;
-    CARD_STATE_DUE = 3;
-    CARD_STATE_SUSPENDED = 4;
-    CARD_STATE_BURIED = 5;
-  }
-  message IdList {
-    repeated int64 ids = 1;
-  }
-  message Group {
-    enum Joiner {
-      AND = 0;
-      OR = 1;
-    }
-    repeated SearchNode nodes = 1;
-    Joiner joiner = 2;
-  }
-  oneof filter {
-    Group group = 1;
-    SearchNode negated = 2;
-    string parsable_text = 3;
-    uint32 template = 4;
-    int64 nid = 5;
-    Dupe dupe = 6;
-    string field_name = 7;
-    Rated rated = 8;
-    uint32 added_in_days = 9;
-    int32 due_in_days = 10;
-    Flag flag = 11;
-    CardState card_state = 12;
-    IdList nids = 13;
-    uint32 edited_in_days = 14;
-    string deck = 15;
-    int32 due_on_day = 16;
-    string tag = 17;
-    string note = 18;
-    uint32 introduced_in_days = 19;
-  }
-}
-
-message JoinSearchNodesRequest {
-  SearchNode.Group.Joiner joiner = 1;
-  SearchNode existing_node = 2;
-  SearchNode additional_node = 3;
-}
-
-message ReplaceSearchNodeRequest {
-  SearchNode existing_node = 1;
-  SearchNode replacement_node = 2;
 }
 
 message SetTagCollapsedRequest {
@@ -433,12 +252,6 @@ message RenameTagsRequest {
   string new_prefix = 2;
 }
 
-message SetConfigJsonRequest {
-  string key = 1;
-  bytes value_json = 2;
-  bool undoable = 3;
-}
-
 message EmptyCardsReport {
   message NoteWithEmptyCards {
     int64 note_id = 1;
@@ -447,59 +260,6 @@ message EmptyCardsReport {
   }
   string report = 1;
   repeated NoteWithEmptyCards notes = 2;
-}
-
-message FindAndReplaceRequest {
-  repeated int64 nids = 1;
-  string search = 2;
-  string replacement = 3;
-  bool regex = 4;
-  bool match_case = 5;
-  string field_name = 6;
-}
-
-message BrowserColumns {
-  enum Sorting {
-    SORTING_NONE = 0;
-    SORTING_NORMAL = 1;
-    SORTING_REVERSED = 2;
-  }
-  enum Alignment {
-    ALIGNMENT_START = 0;
-    ALIGNMENT_CENTER = 1;
-  }
-  message Column {
-    string key = 1;
-    string cards_mode_label = 2;
-    string notes_mode_label = 3;
-    Sorting sorting = 4;
-    bool uses_cell_font = 5;
-    Alignment alignment = 6;
-  }
-  repeated Column columns = 1;
-}
-
-message BrowserRow {
-  message Cell {
-    string text = 1;
-    bool is_rtl = 2;
-  }
-  enum Color {
-    COLOR_DEFAULT = 0;
-    COLOR_MARKED = 1;
-    COLOR_SUSPENDED = 2;
-    COLOR_FLAG_RED = 3;
-    COLOR_FLAG_ORANGE = 4;
-    COLOR_FLAG_GREEN = 5;
-    COLOR_FLAG_BLUE = 6;
-    COLOR_FLAG_PINK = 7;
-    COLOR_FLAG_TURQUOISE = 8;
-    COLOR_FLAG_PURPLE = 9;
-  }
-  repeated Cell cells = 1;
-  Color color = 2;
-  string font_name = 3;
-  uint32 font_size = 4;
 }
 
 message NoteIdsAndTagsRequest {
@@ -513,117 +273,6 @@ message FindAndReplaceTagRequest {
   string replacement = 3;
   bool regex = 4;
   bool match_case = 5;
-}
-
-message Preferences {
-  message Scheduling {
-    enum NewReviewMix {
-      DISTRIBUTE = 0;
-      REVIEWS_FIRST = 1;
-      NEW_FIRST = 2;
-    }
-
-    // read only; 1-3
-    uint32 scheduler_version = 1;
-
-    uint32 rollover = 2;
-    uint32 learn_ahead_secs = 3;
-    NewReviewMix new_review_mix = 4;
-
-    // v2 only
-    bool new_timezone = 5;
-    bool day_learn_first = 6;
-  }
-  message Reviewing {
-    bool hide_audio_play_buttons = 1;
-    bool interrupt_audio_when_answering = 2;
-    bool show_remaining_due_counts = 3;
-    bool show_intervals_on_buttons = 4;
-    uint32 time_limit_secs = 5;
-  }
-  message Editing {
-    bool adding_defaults_to_current_deck = 1;
-    bool paste_images_as_png = 2;
-    bool paste_strips_formatting = 3;
-    string default_search_text = 4;
-  }
-
-  Scheduling scheduling = 1;
-  Reviewing reviewing = 2;
-  Editing editing = 3;
-}
-
-message SyncLoginRequest {
-  string username = 1;
-  string password = 2;
-}
-
-message SyncStatusResponse {
-  enum Required {
-    NO_CHANGES = 0;
-    NORMAL_SYNC = 1;
-    FULL_SYNC = 2;
-  }
-  Required required = 1;
-}
-
-message SyncCollectionResponse {
-  enum ChangesRequired {
-    NO_CHANGES = 0;
-    NORMAL_SYNC = 1;
-    FULL_SYNC = 2;
-    // local collection has no cards; upload not an option
-    FULL_DOWNLOAD = 3;
-    // remote collection has no cards; download not an option
-    FULL_UPLOAD = 4;
-  }
-
-  uint32 host_number = 1;
-  string server_message = 2;
-  ChangesRequired required = 3;
-}
-
-message SyncAuth {
-  string hkey = 1;
-  uint32 host_number = 2;
-}
-
-message SyncServerMethodRequest {
-  enum Method {
-    HOST_KEY = 0;
-    META = 1;
-    START = 2;
-    APPLY_GRAVES = 3;
-    APPLY_CHANGES = 4;
-    CHUNK = 5;
-    APPLY_CHUNK = 6;
-    SANITY_CHECK = 7;
-    FINISH = 8;
-    ABORT = 9;
-    // caller must reopen after these two are called
-    FULL_UPLOAD = 10;
-    FULL_DOWNLOAD = 11;
-  }
-  Method method = 1;
-  bytes data = 2;
-}
-
-message UpdateStatsRequest {
-  int64 deck_id = 1;
-  int32 new_delta = 2;
-  int32 review_delta = 4;
-  int32 millisecond_delta = 5;
-}
-
-message ExtendLimitsRequest {
-  int64 deck_id = 1;
-  int32 new_delta = 2;
-  int32 review_delta = 3;
-}
-
-message CountsForDeckTodayResponse {
-  int32 new = 1;
-  int32 review = 2;
 }
 
 message GraphsRequest {
@@ -673,205 +322,7 @@ message RevlogEntry {
   uint32 taken_millis = 8;
   ReviewKind review_kind = 9;
 }
-
-message CongratsInfoResponse {
-  uint32 learn_remaining = 1;
-  uint32 secs_until_next_learn = 2;
-  bool review_remaining = 3;
-  bool new_remaining = 4;
-  bool have_sched_buried = 5;
-  bool have_user_buried = 6;
-  bool is_filtered_deck = 7;
-  bool bridge_commands_supported = 8;
-  string deck_description = 9;
-}
-
-message UnburyDeckRequest {
-  enum Mode {
-    ALL = 0;
-    SCHED_ONLY = 1;
-    USER_ONLY = 2;
-  }
-  int64 deck_id = 1;
-  Mode mode = 2;
-}
-
-message BuryOrSuspendCardsRequest {
-  enum Mode {
-    SUSPEND = 0;
-    BURY_SCHED = 1;
-    BURY_USER = 2;
-  }
-  repeated int64 card_ids = 1;
-  repeated int64 note_ids = 2;
-  Mode mode = 3;
-}
-
-message ScheduleCardsAsNewRequest {
-  repeated int64 card_ids = 1;
-  bool log = 2;
-}
-
-message SetDueDateRequest {
-  repeated int64 card_ids = 1;
-  string days = 2;
-  Config.String config_key = 3;
-}
-
-message SortCardsRequest {
-  repeated int64 card_ids = 1;
-  uint32 starting_from = 2;
-  uint32 step_size = 3;
-  bool randomize = 4;
-  bool shift_existing = 5;
-}
-
-message SortDeckRequest {
-  int64 deck_id = 1;
-  bool randomize = 2;
-}
-
-message Config {
-  message Bool {
-    enum Key {
-      BROWSER_TABLE_SHOW_NOTES_MODE = 0;
-      PREVIEW_BOTH_SIDES = 3;
-      COLLAPSE_TAGS = 4;
-      COLLAPSE_NOTETYPES = 5;
-      COLLAPSE_DECKS = 6;
-      COLLAPSE_SAVED_SEARCHES = 7;
-      COLLAPSE_TODAY = 8;
-      COLLAPSE_CARD_STATE = 9;
-      COLLAPSE_FLAGS = 10;
-      SCHED_2021 = 11;
-      ADDING_DEFAULTS_TO_CURRENT_DECK = 12;
-      HIDE_AUDIO_PLAY_BUTTONS = 13;
-      INTERRUPT_AUDIO_WHEN_ANSWERING = 14;
-      PASTE_IMAGES_AS_PNG = 15;
-      PASTE_STRIPS_FORMATTING = 16;
-      NORMALIZE_NOTE_TEXT = 17;
-    }
-    Key key = 1;
-  }
-
-  message String {
-    enum Key {
-      SET_DUE_BROWSER = 0;
-      SET_DUE_REVIEWER = 1;
-      DEFAULT_SEARCH_TEXT = 2;
-      CARD_STATE_CUSTOMIZER = 3;
-    }
-    Key key = 1;
-  }
-}
-
-message SetConfigBoolRequest {
-  Config.Bool.Key key = 1;
-  bool value = 2;
-  bool undoable = 3;
-}
-
-message SetConfigStringRequest {
-  Config.String.Key key = 1;
-  string value = 2;
-  bool undoable = 3;
-}
-
 message RenderMarkdownRequest {
   string markdown = 1;
   bool sanitize = 2;
-}
-
-message SchedulingState {
-  message New {
-    uint32 position = 1;
-  }
-  message Learning {
-    uint32 remaining_steps = 1;
-    uint32 scheduled_secs = 2;
-  }
-  message Review {
-    uint32 scheduled_days = 1;
-    uint32 elapsed_days = 2;
-    float ease_factor = 3;
-    uint32 lapses = 4;
-    bool leeched = 5;
-  }
-  message Relearning {
-    Review review = 1;
-    Learning learning = 2;
-  }
-  message Normal {
-    oneof value {
-      New new = 1;
-      Learning learning = 2;
-      Review review = 3;
-      Relearning relearning = 4;
-    }
-  }
-  message Preview {
-    uint32 scheduled_secs = 1;
-    bool finished = 2;
-  }
-  message ReschedulingFilter {
-    Normal original_state = 1;
-  }
-  message Filtered {
-    oneof value {
-      Preview preview = 1;
-      ReschedulingFilter rescheduling = 2;
-    }
-  }
-
-  oneof value {
-    Normal normal = 1;
-    Filtered filtered = 2;
-  }
-}
-
-message NextCardStates {
-  SchedulingState current = 1;
-  SchedulingState again = 2;
-  SchedulingState hard = 3;
-  SchedulingState good = 4;
-  SchedulingState easy = 5;
-}
-
-message CardAnswer {
-  enum Rating {
-    AGAIN = 0;
-    HARD = 1;
-    GOOD = 2;
-    EASY = 3;
-  }
-
-  int64 card_id = 1;
-  SchedulingState current_state = 2;
-  SchedulingState new_state = 3;
-  Rating rating = 4;
-  int64 answered_at_millis = 5;
-  uint32 milliseconds_taken = 6;
-}
-
-message GetQueuedCardsRequest {
-  uint32 fetch_limit = 1;
-  bool intraday_learning_only = 2;
-}
-
-message QueuedCards {
-  enum Queue {
-    NEW = 0;
-    LEARNING = 1;
-    REVIEW = 2;
-  }
-  message QueuedCard {
-    cards.Card card = 1;
-    Queue queue = 2;
-    NextCardStates next_states = 3;
-  }
-
-  repeated QueuedCard cards = 1;
-  uint32 new_count = 2;
-  uint32 learning_count = 3;
-  uint32 review_count = 4;
 }

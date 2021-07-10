@@ -1,0 +1,1 @@
+../../bazel-bin/pylib/anki/notetypes_pb2.pyi

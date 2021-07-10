@@ -4,12 +4,15 @@
 from __future__ import annotations
 
 import anki
-import anki.backend_pb2 as _pb
-from anki import decks_pb2
+from anki import decks_pb2, scheduler_pb2
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.config import Config
 
-SchedTimingToday = _pb.SchedTimingTodayResponse
+SchedTimingToday = scheduler_pb2.SchedTimingTodayResponse
+CongratsInfo = scheduler_pb2.CongratsInfoResponse
+UnburyDeck = scheduler_pb2.UnburyDeckRequest
+BuryOrSuspend = scheduler_pb2.BuryOrSuspendCardsRequest
+FilteredDeckForUpdate = decks_pb2.FilteredDeckForUpdate
 
 
 from typing import List, Optional, Sequence
@@ -19,11 +22,6 @@ from anki.consts import CARD_TYPE_NEW, NEW_CARDS_RANDOM, QUEUE_TYPE_NEW, QUEUE_T
 from anki.decks import DeckConfigDict, DeckId, DeckTreeNode
 from anki.notes import NoteId
 from anki.utils import ids2str, intTime
-
-CongratsInfo = _pb.CongratsInfoResponse
-UnburyDeck = _pb.UnburyDeckRequest
-BuryOrSuspend = _pb.BuryOrSuspendCardsRequest
-FilteredDeckForUpdate = decks_pb2.FilteredDeckForUpdate
 
 
 class SchedulerBase:

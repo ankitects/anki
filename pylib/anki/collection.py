@@ -8,22 +8,22 @@ from __future__ import annotations
 from typing import Any, Generator, List, Literal, Optional, Sequence, Tuple, Union, cast
 
 import anki.backend_pb2 as _pb
-from anki import collection_pb2
+from anki import collection_pb2, configs_pb2, generic_pb2, search_pb2
 from anki._legacy import DeprecatedNamesMixin, deprecated
 
 # protobuf we publicly export - listed first to avoid circular imports
-SearchNode = _pb.SearchNode
+SearchNode = search_pb2.SearchNode
 Progress = collection_pb2.Progress
 EmptyCardsReport = _pb.EmptyCardsReport
 GraphPreferences = _pb.GraphPreferences
-Preferences = _pb.Preferences
+Preferences = configs_pb2.Preferences
 UndoStatus = collection_pb2.UndoStatus
 OpChanges = collection_pb2.OpChanges
 OpChangesWithCount = collection_pb2.OpChangesWithCount
 OpChangesWithId = collection_pb2.OpChangesWithId
 OpChangesAfterUndo = collection_pb2.OpChangesAfterUndo
-BrowserRow = _pb.BrowserRow
-BrowserColumns = _pb.BrowserColumns
+BrowserRow = search_pb2.BrowserRow
+BrowserColumns = search_pb2.BrowserColumns
 
 import copy
 import os
@@ -34,7 +34,7 @@ import weakref
 from dataclasses import dataclass, field
 
 import anki.latex
-from anki import generic_pb2, hooks
+from anki import hooks
 from anki._backend import RustBackend, Translations
 from anki.browser import BrowserConfig, BrowserDefaults
 from anki.cards import Card, CardId
@@ -486,12 +486,12 @@ class Collection(DeprecatedNamesMixin):
         order: Union[bool, str, BrowserColumns.Column],
         reverse: bool,
         finding_notes: bool,
-    ) -> _pb.SortOrder:
+    ) -> search_pb2.SortOrder:
         if isinstance(order, str):
-            return _pb.SortOrder(custom=order)
+            return search_pb2.SortOrder(custom=order)
         if isinstance(order, bool):
             if order is False:
-                return _pb.SortOrder(none=generic_pb2.Empty())
+                return search_pb2.SortOrder(none=generic_pb2.Empty())
             # order=True: set args to sort column and reverse from config
             sort_key = BrowserConfig.sort_column_key(finding_notes)
             order = self.get_browser_column(self.get_config(sort_key))
@@ -499,13 +499,15 @@ class Collection(DeprecatedNamesMixin):
             reverse = self.get_config(reverse_key)
         if isinstance(order, BrowserColumns.Column):
             if order.sorting != BrowserColumns.SORTING_NONE:
-                return _pb.SortOrder(
-                    builtin=_pb.SortOrder.Builtin(column=order.key, reverse=reverse)
+                return search_pb2.SortOrder(
+                    builtin=search_pb2.SortOrder.Builtin(
+                        column=order.key, reverse=reverse
+                    )
                 )
 
         # eg, user is ordering on an add-on field with the add-on not installed
         print(f"{order} is not a valid sort order.")
-        return _pb.SortOrder(none=generic_pb2.Empty())
+        return search_pb2.SortOrder(none=generic_pb2.Empty())
 
     def find_and_replace(
         self,

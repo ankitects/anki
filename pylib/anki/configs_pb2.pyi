@@ -1,0 +1,1 @@
+../../bazel-bin/pylib/anki/configs_pb2.pyi

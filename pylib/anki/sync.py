@@ -1,12 +1,12 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import anki.backend_pb2 as _pb
+from anki import sync_pb2
 
 # public exports
-SyncAuth = _pb.SyncAuth
-SyncOutput = _pb.SyncCollectionResponse
-SyncStatus = _pb.SyncStatusResponse
+SyncAuth = sync_pb2.SyncAuth
+SyncOutput = sync_pb2.SyncCollectionResponse
+SyncStatus = sync_pb2.SyncStatusResponse
 
 
 # Legacy attributes some add-ons may be using
