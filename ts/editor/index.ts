@@ -30,7 +30,7 @@ import { EditableContainer } from "./editable-container";
 import { Editable } from "./editable";
 import { Codable } from "./codable";
 import { initToolbar, fieldFocused } from "./toolbar";
-import { initTagEditor } from "./tagEditor";
+import { initTagEditor } from "./tag-editor";
 
 export { setNoteId, getNoteId } from "./note-id";
 export { saveNow } from "./change-timer";
