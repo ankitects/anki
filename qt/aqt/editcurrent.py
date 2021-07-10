@@ -63,6 +63,7 @@ class EditCurrent(QDialog):
         if type.startswith("review"):
             if not self.editor.card or self.editor.card.nid != card.nid:
                 self.editor.setNote(card.note())
+                self.editor.card = card
 
             self.set_card_format(type[len("review"):].lower())
 
