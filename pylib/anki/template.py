@@ -32,7 +32,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki
-import anki._backend.backend_pb2 as _pb
+import anki.backend_pb2 as _pb
 from anki import hooks
 from anki.cards import Card
 from anki.decks import DeckManager

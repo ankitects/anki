@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import anki
-import anki._backend.backend_pb2 as _pb
+import anki.backend_pb2 as _pb
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.config import Config
 

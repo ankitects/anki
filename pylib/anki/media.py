@@ -11,7 +11,7 @@ import time
 from typing import Any, Callable, List, Optional, Tuple
 
 import anki
-import anki._backend.backend_pb2 as _pb
+import anki.backend_pb2 as _pb
 from anki._legacy import deprecated
 from anki.consts import *
 from anki.latex import render_latex, render_latex_returning_errors

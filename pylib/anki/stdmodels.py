@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import Any, Callable, List, Tuple
 
 import anki
-import anki._backend.backend_pb2 as _pb
+import anki.backend_pb2 as _pb
 from anki.utils import from_json_bytes
 
 # pylint: disable=no-member

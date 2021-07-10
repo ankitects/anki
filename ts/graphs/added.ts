@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type pb from "lib/backend_proto";
+import type { Backend } from "lib/proto";
 
 import {
     extent,
@@ -28,8 +28,8 @@ export interface GraphData {
     daysAdded: number[];
 }
 
-export function gatherData(data: pb.BackendProto.GraphsResponse): GraphData {
-    const daysAdded = (data.cards as pb.BackendProto.Card[]).map((card) => {
+export function gatherData(data: Backend.GraphsResponse): GraphData {
+    const daysAdded = (data.cards as Backend.Card[]).map((card) => {
         const elapsedSecs = (card.id as number) / 1000 - data.nextDayAtSecs;
         return Math.ceil(elapsedSecs / 86400);
     });

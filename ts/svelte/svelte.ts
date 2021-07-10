@@ -157,9 +157,9 @@ async function writeJs(
                 genDir,
                 // a nasty hack to ensure ts/sass/... resolves correctly
                 // when invoked from an external workspace
-                binDir + "/external/net_ankiweb_anki",
-                genDir + "/external/net_ankiweb_anki",
-                binDir + "/../../../external/net_ankiweb_anki",
+                binDir + "/external/anki",
+                genDir + "/external/anki",
+                binDir + "/../../../external/anki",
             ],
         },
     });

@@ -12,7 +12,7 @@ import time
 from typing import Any, Dict, List, NewType, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
-import anki._backend.backend_pb2 as _pb
+import anki.backend_pb2 as _pb
 from anki._legacy import DeprecatedNamesMixin, deprecated, print_deprecation_warning
 from anki.collection import OpChanges, OpChangesWithId
 from anki.consts import *

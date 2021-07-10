@@ -23,7 +23,7 @@ from typing import (
 if TYPE_CHECKING:
     import anki
 
-import anki._backend.backend_pb2 as _pb
+import anki.backend_pb2 as _pb
 from anki._legacy import DeprecatedNamesMixin, deprecated, print_deprecation_warning
 from anki.cards import CardId
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId

@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
 @typescript-eslint/ban-ts-comment: "off" */
 
-import type pb from "lib/backend_proto";
+import type { Backend } from "lib/proto";
 import type { Selection } from "d3";
 
 // amount of data to fetch from backend
@@ -28,8 +28,8 @@ export enum GraphRange {
 }
 
 export interface GraphsContext {
-    cards: pb.BackendProto.Card[];
-    revlog: pb.BackendProto.RevlogEntry[];
+    cards: Backend.Card[];
+    revlog: Backend.RevlogEntry[];
     revlogRange: RevlogRange;
     nightMode: boolean;
 }

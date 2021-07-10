@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from typing import List, Literal, Sequence, Tuple
 
-import anki._backend.backend_pb2 as _pb
+import anki.backend_pb2 as _pb
 from anki.cards import Card
 from anki.collection import OpChanges
 from anki.consts import *

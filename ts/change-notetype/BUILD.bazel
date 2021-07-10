@@ -52,7 +52,6 @@ ts_library(
     deps = [
         "//ts/components",
         "//ts/lib",
-        "//ts/lib:backend_proto",
         "//ts/sveltelib",
         "@npm//lodash-es",
         "@npm//svelte",
@@ -76,7 +75,6 @@ esbuild(
         "@npm//bootstrap",
         "@npm//marked",
         "//ts/lib",
-        "//ts/lib:backend_proto",
         "//ts/sveltelib",
         "//ts/components",
         "//ts/components:svelte_components",
@@ -123,7 +121,7 @@ jest_test(
     protobuf = True,
     deps = [
         ":lib",
-        "//ts/lib:backend_proto",
+        "//ts/lib",
         "@npm//protobufjs",
         "@npm//svelte",
     ],

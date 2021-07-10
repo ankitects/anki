@@ -3,14 +3,14 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import type pb from "lib/backend_proto";
+    import type { Backend } from "lib/proto";
 
     import Graph from "./Graph.svelte";
 
     import type { TodayData } from "./today";
     import { gatherData } from "./today";
 
-    export let sourceData: pb.BackendProto.GraphsResponse | null = null;
+    export let sourceData: Backend.GraphsResponse | null = null;
 
     let todayData: TodayData | null = null;
     $: if (sourceData) {

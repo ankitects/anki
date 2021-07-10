@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type pb from "lib/backend_proto";
+import type { Backend } from "lib/proto";
 import {
     extent,
     histogram,
@@ -30,13 +30,13 @@ export interface GraphData {
     haveBacklog: boolean;
 }
 
-export function gatherData(data: pb.BackendProto.GraphsResponse): GraphData {
-    const isLearning = (card: pb.BackendProto.Card): boolean =>
+export function gatherData(data: Backend.GraphsResponse): GraphData {
+    const isLearning = (card: Backend.Card): boolean =>
         [CardQueue.Learn, CardQueue.PreviewRepeat].includes(card.queue);
 
     let haveBacklog = false;
-    const due = (data.cards as pb.BackendProto.Card[])
-        .filter((c: pb.BackendProto.Card) => {
+    const due = (data.cards as Backend.Card[])
+        .filter((c: Backend.Card) => {
             // reviews
             return (
                 [CardQueue.Review, CardQueue.DayLearn].includes(c.queue) ||
@@ -44,7 +44,7 @@ export function gatherData(data: pb.BackendProto.GraphsResponse): GraphData {
                 isLearning(c)
             );
         })
-        .map((c: pb.BackendProto.Card) => {
+        .map((c: Backend.Card) => {
             let dueDay: number;
 
             if (isLearning(c)) {

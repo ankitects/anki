@@ -10,16 +10,9 @@ import shutil
 import subprocess
 import sys
 
-(protoc, mypy_protobuf, proto, outdir) = sys.argv[1:]
+(protoc, mypy_protobuf, outdir, *protos) = sys.argv[1:]
 
-# copy to current dir
-basename = os.path.basename(proto)
-shutil.copyfile(proto, basename)
-
-# output filenames
-without_ext = os.path.splitext(basename)[0]
-pb2_py = without_ext + "_pb2.py"
-pb2_pyi = without_ext + "_pb2.pyi"
+prefix = "proto/"
 
 # invoke protoc
 subprocess.run(
@@ -28,13 +21,17 @@ subprocess.run(
         "--plugin=protoc-gen-mypy=" + mypy_protobuf,
         "--python_out=.",
         "--mypy_out=.",
-        basename,
+        "-I" + prefix,
+        "-Iexternal/anki/" + prefix,
+        *protos,
     ],
     # mypy prints to stderr on success :-(
     stderr=subprocess.DEVNULL,
     check=True,
 )
 
-# move files into output
-shutil.move(pb2_py, outdir + "/" + pb2_py)
-shutil.move(pb2_pyi, outdir + "/" + pb2_pyi)
+for proto in protos:
+    without_prefix_and_ext, _ = os.path.splitext(proto[len(prefix) :])
+    for ext in "_pb2.py", "_pb2.pyi":
+        path = without_prefix_and_ext + ext
+        shutil.move(path, os.path.join(outdir, os.path.basename(path)))

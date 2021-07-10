@@ -17,7 +17,7 @@ pub trait Service {
         write!(
             buf,
             concat!("            ",
-            "{idx} => {{ let input = {input_type}::decode(input)?;\n",
+            "{idx} => {{ let input = super::{input_type}::decode(input)?;\n",
             "let output = self.{rust_method}(input)?;\n",
             "let mut out_bytes = Vec::new(); output.encode(&mut out_bytes)?; Ok(out_bytes) }}, "),
             idx = idx,
@@ -38,8 +38,8 @@ pub trait Service {
         write!(
             buf,
             concat!(
-                "    fn {method_name}(&self, input: {input_type}) -> ",
-                "Result<{output_type}>;\n"
+                "    fn {method_name}(&self, input: super::{input_type}) -> ",
+                "Result<super::{output_type}>;\n"
             ),
             method_name = method.name,
             input_type = method.input_type,
@@ -55,7 +55,6 @@ impl prost_build::ServiceGenerator for CustomGenerator {
         write!(
             buf,
             "pub mod {name}_service {{
-                use super::*;
                 use prost::Message;
                 use crate::error::Result;
                 ",
@@ -73,16 +72,32 @@ fn service_generator() -> Box<dyn prost_build::ServiceGenerator> {
 
 pub fn write_backend_proto_rs() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
-    let backend_proto;
-    let proto_dir;
-    if let Ok(proto) = env::var("BACKEND_PROTO") {
-        backend_proto = PathBuf::from(proto);
-        proto_dir = backend_proto.parent().unwrap().to_owned();
+    let proto_dir = if let Ok(proto) = env::var("PROTO_TOP") {
+        let backend_proto = PathBuf::from(proto);
+        backend_proto.parent().unwrap().to_owned()
     } else {
-        backend_proto = PathBuf::from("backend.proto");
-        proto_dir = PathBuf::from("../proto");
+        PathBuf::from("../proto")
+    };
+
+    let subfolders = &["anki"];
+    let mut paths = vec![];
+
+    for subfolder in subfolders {
+        for entry in proto_dir.join(subfolder).read_dir().unwrap() {
+            let entry = entry.unwrap();
+            let path = entry.path();
+            if path
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .ends_with(".proto")
+            {
+                println!("cargo:rerun-if-changed={}", path.to_str().unwrap());
+                paths.push(path);
+            }
+        }
     }
-    println!("cargo:rerun-if-changed={}", backend_proto.to_str().unwrap());
 
     let mut config = prost_build::Config::new();
     config
@@ -92,6 +107,6 @@ pub fn write_backend_proto_rs() {
             "Deck.Filtered.SearchTerm.Order",
             "#[derive(strum::EnumIter)]",
         )
-        .compile_protos(&[&backend_proto], &[&proto_dir, &out_dir])
+        .compile_protos(paths.as_slice(), &[proto_dir, out_dir])
         .unwrap();
 }

@@ -13,7 +13,7 @@ cargo_build_script(
     name = "build_script",
     srcs = glob(["build/*.rs"]),
     build_script_env = {
-        "BACKEND_PROTO": "$(location //proto:backend.proto)",
+        "PROTO_TOP": "$(location //proto:.top_level)",
         "PROTOC": "$(location @com_google_protobuf//:protoc)",
         "RSLIB_FTL_ROOT": "$(location @rslib_ftl//:l10n.toml)",
         "EXTRA_FTL_ROOT": "$(location @extra_ftl//:l10n.toml)",
@@ -22,9 +22,10 @@ cargo_build_script(
     crate_root = "build/main.rs",
     data = [
         "//ftl",
-        "//proto:backend.proto",
+        "//proto",
         "@com_google_protobuf//:protoc",
         # bazel requires us to list these out separately
+        "//proto:.top_level",
         "@rslib_ftl//:l10n.toml",
         "@extra_ftl//:l10n.toml",
     ],

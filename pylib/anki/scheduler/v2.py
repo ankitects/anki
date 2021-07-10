@@ -11,7 +11,7 @@ from heapq import *
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import anki  # pylint: disable=unused-import
-import anki._backend.backend_pb2 as _pb
+import anki.backend_pb2 as _pb
 from anki import hooks
 from anki.cards import Card, CardId
 from anki.consts import *

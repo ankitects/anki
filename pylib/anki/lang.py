@@ -9,7 +9,8 @@ import weakref
 from typing import Optional, Tuple
 
 import anki
-import anki._backend.backend_pb2 as _pb
+import anki._backend
+import anki.i18n_pb2 as _pb
 
 # public exports
 TR = anki._backend.LegacyTranslationEnum

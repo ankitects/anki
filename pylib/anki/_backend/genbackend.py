@@ -7,7 +7,10 @@ import re
 import sys
 
 import google.protobuf.descriptor
-import pylib.anki._backend.backend_pb2 as pb
+
+import anki.backend_pb2
+import anki.i18n_pb2
+
 import stringcase
 
 TYPE_DOUBLE = 1
@@ -73,11 +76,11 @@ def python_type_inner(field):
         raise Exception(f"unknown type: {type}")
 
 
-def fullname(fullname):
-    if "FluentString" in fullname:
-        return fullname.replace("BackendProto", "anki.fluent_pb2")
-    else:
-        return fullname.replace("BackendProto", "pb")
+def fullname(fullname: str) -> str:
+    # eg anki.generic.Empty -> anki.generic_pb2.Empty
+    components = fullname.split(".")
+    components[1] += "_pb2"
+    return ".".join(components)
 
 
 # get_deck_i_d -> get_deck_id etc
@@ -131,7 +134,7 @@ def render_method(service_idx, method_idx, method):
         return_type = python_type(f)
     else:
         single_field = ""
-        return_type = f"pb.{method.output_type.name}"
+        return_type = fullname(method.output_type.full_name)
 
     if method.name in SKIP_DECODE:
         return_type = "bytes"
@@ -144,7 +147,7 @@ def render_method(service_idx, method_idx, method):
         buf += f"""return self._run_command({service_idx}, {method_idx}, input)
 """
     else:
-        buf += f"""output = pb.{method.output_type.name}()
+        buf += f"""output = {fullname(method.output_type.full_name)}()
         output.ParseFromString(self._run_command({service_idx}, {method_idx}, input))
         return output{single_field}
 """
@@ -162,12 +165,14 @@ def render_service(
         out.append(render_method(service_index, method_index, method))
 
 
-for service in pb.ServiceIndex.DESCRIPTOR.values:
+service_modules = dict(I18N="i18n")
+
+for service in anki.backend_pb2.ServiceIndex.DESCRIPTOR.values:
     # SERVICE_INDEX_TEST -> _TESTSERVICE
-    service_var = (
-        "_" + service.name.replace("SERVICE_INDEX", "").replace("_", "") + "SERVICE"
-    )
-    service_obj = getattr(pb, service_var)
+    base = service.name.replace("SERVICE_INDEX_", "")
+    service_pkg = (service_modules.get(base) or "backend") + ""
+    service_var = "_" + base.replace("_", "") + "SERVICE"
+    service_obj = getattr(getattr(anki, service_pkg + "_pb2"), service_var)
     service_index = service.number
     render_service(service_obj, service_index)
 
@@ -194,7 +199,7 @@ col.decks.all_config()
     
 from typing import *
 
-import anki._backend.backend_pb2 as pb
+import anki
 
 class RustBackendGenerated:
     def _run_command(self, service: int, method: int, input: Any) -> bytes:

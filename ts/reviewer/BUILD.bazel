@@ -8,10 +8,7 @@ load("//ts:compile_sass.bzl", "compile_sass")
 ts_library(
     name = "lib",
     srcs = glob(["*.ts"]),
-    deps = [
-        "//ts/lib",
-        "//ts/lib:backend_proto",
-    ],
+    deps = ["//ts/lib"],
 )
 
 esbuild(
@@ -25,7 +22,6 @@ esbuild(
     deps = [
         ":lib",
         "//ts/lib",
-        "//ts/lib:backend_proto",
         "@npm//protobufjs",
     ],
 )

@@ -35,10 +35,7 @@ ts_library(
 ts_library(
     name = "lib",
     srcs = ["lib.ts"],
-    deps = [
-        "//ts/lib",
-        "//ts/lib:backend_proto",
-    ],
+    deps = ["//ts/lib"],
 )
 
 esbuild(
@@ -56,7 +53,6 @@ esbuild(
         ":base_css",
         ":index",
         "//ts/lib",
-        "//ts/lib:backend_proto",
         "@npm//protobufjs",
     ],
 )
