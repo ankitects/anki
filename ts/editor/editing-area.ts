@@ -12,6 +12,7 @@ import { updateActiveButtons } from "./toolbar";
 import { bridgeCommand } from "./lib";
 import { onInput, onKey, onKeyUp } from "./input-handlers";
 import { onFocus, onBlur } from "./focus-handlers";
+import { obscure as obscureStore } from "./ObscureButton.svelte";
 
 function onCutOrCopy(): void {
     bridgeCommand("cutOrCopy");
@@ -31,18 +32,26 @@ export class EditingArea extends HTMLDivElement {
         const rootStyle = document.createElement("link");
         rootStyle.setAttribute("rel", "stylesheet");
         rootStyle.setAttribute("href", "./_anki/css/editable.css");
-        this.shadowRoot!.appendChild(rootStyle);
 
         this.baseStyle = document.createElement("style");
         this.baseStyle.setAttribute("rel", "stylesheet");
-        this.shadowRoot!.appendChild(this.baseStyle);
 
         this.editable = document.createElement("anki-editable") as Editable;
-        this.shadowRoot!.appendChild(this.editable);
-
         this.codable = document.createElement("textarea", {
             is: "anki-codable",
         }) as Codable;
+
+        obscureStore.subscribe((value: boolean) => {
+            if (value) {
+                this.obscure();
+            } else {
+                this.unobscure();
+            }
+        });
+
+        this.shadowRoot!.appendChild(rootStyle);
+        this.shadowRoot!.appendChild(this.baseStyle);
+        this.shadowRoot!.appendChild(this.editable);
         this.shadowRoot!.appendChild(this.codable);
 
         this.onPaste = this.onPaste.bind(this);

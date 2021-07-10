@@ -37,6 +37,19 @@ declare global {
     }
 }
 
+const i18n = setupI18n({
+    modules: [
+        ModuleName.EDITING,
+        ModuleName.KEYBOARD,
+        ModuleName.ACTIONS,
+        ModuleName.BROWSING,
+    ],
+});
+
+import type EditorToolbar from "./EditorToolbar.svelte";
+
+export const $editorToolbar: Promise<EditorToolbar> = initToolbar(i18n);
+
 customElements.define("anki-editable", Editable);
 customElements.define("anki-codable", Codable, { extends: "textarea" });
 customElements.define("anki-editing-area", EditingArea, { extends: "div" });
@@ -186,16 +199,3 @@ export function setFormat(cmd: string, arg?: string, nosave = false): void {
 export function setCardFormat(side: "question" | "answer"): void {
     cardFormat.set(side);
 }
-
-const i18n = setupI18n({
-    modules: [
-        ModuleName.EDITING,
-        ModuleName.KEYBOARD,
-        ModuleName.ACTIONS,
-        ModuleName.BROWSING,
-    ],
-});
-
-import type EditorToolbar from "./EditorToolbar.svelte";
-
-export const $editorToolbar: Promise<EditorToolbar> = initToolbar(i18n);
