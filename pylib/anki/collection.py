@@ -7,15 +7,21 @@ from __future__ import annotations
 
 from typing import Any, Generator, List, Literal, Optional, Sequence, Tuple, Union, cast
 
-import anki.backend_pb2 as _pb
-from anki import collection_pb2, configs_pb2, generic_pb2, search_pb2
+from anki import (
+    card_rendering_pb2,
+    collection_pb2,
+    configs_pb2,
+    generic_pb2,
+    search_pb2,
+    stats_pb2,
+)
 from anki._legacy import DeprecatedNamesMixin, deprecated
 
 # protobuf we publicly export - listed first to avoid circular imports
 SearchNode = search_pb2.SearchNode
 Progress = collection_pb2.Progress
-EmptyCardsReport = _pb.EmptyCardsReport
-GraphPreferences = _pb.GraphPreferences
+EmptyCardsReport = card_rendering_pb2.EmptyCardsReport
+GraphPreferences = stats_pb2.GraphPreferences
 Preferences = configs_pb2.Preferences
 UndoStatus = collection_pb2.UndoStatus
 OpChanges = collection_pb2.OpChanges

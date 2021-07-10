@@ -7,7 +7,7 @@
  */
 
 import { CardQueue, CardType } from "lib/cards";
-import type { Backend, Cards } from "lib/proto";
+import type { Stats, Cards } from "lib/proto";
 import {
     schemeGreens,
     schemeBlues,
@@ -124,7 +124,7 @@ function countCards(cards: Cards.ICard[], separateInactive: boolean): Count[] {
 }
 
 export function gatherData(
-    data: Backend.GraphsResponse,
+    data: Stats.GraphsResponse,
     separateInactive: boolean
 ): GraphData {
     const totalCards = data.cards.length;

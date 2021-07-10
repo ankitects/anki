@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type { Backend, Cards } from "lib/proto";
+import type { Stats, Cards } from "lib/proto";
 import {
     extent,
     histogram,
@@ -36,7 +36,7 @@ export enum IntervalRange {
     All = 3,
 }
 
-export function gatherIntervalData(data: Backend.GraphsResponse): IntervalGraphData {
+export function gatherIntervalData(data: Stats.GraphsResponse): IntervalGraphData {
     const intervals = (data.cards as Cards.Card[])
         .filter((c) => [CardType.Review, CardType.Relearn].includes(c.ctype))
         .map((c) => c.interval);

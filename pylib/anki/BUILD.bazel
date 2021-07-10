@@ -32,7 +32,7 @@ py_library(
         "py.typed",
         ":buildinfo",
         ":hooks_gen",
-        ":proto",
+        ":proto_py",
         "//pylib/anki/_backend",
     ],
     imports = [
@@ -110,26 +110,17 @@ filegroup(
 load("//pylib:protobuf.bzl", "py_proto")
 
 py_proto(
-    name = "proto_files",
+    name = "proto_py",
     srcs = ["//proto"],
     visibility = [
         "//visibility:public",
     ],
 )
 
-filegroup(
-    name = "proto",
-    srcs = [
-        # "__init__.py",
-        ":proto_files",
-    ],
-    visibility = ["//pylib:__subpackages__"],
-)
-
 # only used for genbackend.py
 py_library(
     name = "proto_lib",
-    srcs = [":proto"],
+    srcs = [":proto_py", "__init__.py"],
     imports = [".."],
-    visibility = ["//pylib:__subpackages__"],
+    visibility = ["//visibility:public"],
 )

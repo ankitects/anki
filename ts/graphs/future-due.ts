@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type { Backend, Cards } from "lib/proto";
+import type { Stats, Cards } from "lib/proto";
 import {
     extent,
     histogram,
@@ -30,7 +30,7 @@ export interface GraphData {
     haveBacklog: boolean;
 }
 
-export function gatherData(data: Backend.GraphsResponse): GraphData {
+export function gatherData(data: Stats.GraphsResponse): GraphData {
     const isLearning = (card: Cards.Card): boolean =>
         [CardQueue.Learn, CardQueue.PreviewRepeat].includes(card.queue);
 
