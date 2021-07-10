@@ -1,0 +1,1 @@
+../../bazel-bin/pylib/anki/tags_pb2.pyi

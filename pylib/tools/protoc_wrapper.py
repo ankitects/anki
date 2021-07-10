@@ -12,7 +12,10 @@ import sys
 
 (protoc, mypy_protobuf, outdir, *protos) = sys.argv[1:]
 
-prefix = "proto/"
+if protos[0].startswith("external"):
+    prefix = "external/anki/proto/"
+else:
+    prefix = "proto/"
 
 # invoke protoc
 subprocess.run(

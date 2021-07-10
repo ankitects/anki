@@ -14,6 +14,7 @@ macro_rules! protobuf {
 }
 
 protobuf!(backend);
+protobuf!(card_rendering);
 protobuf!(cards);
 protobuf!(collection);
 protobuf!(configs);
@@ -21,8 +22,11 @@ protobuf!(deckconfig);
 protobuf!(decks);
 protobuf!(generic);
 protobuf!(i18n);
+protobuf!(media);
 protobuf!(notes);
 protobuf!(notetypes);
 protobuf!(scheduler);
 protobuf!(search);
+protobuf!(stats);
 protobuf!(sync);
+protobuf!(tags);

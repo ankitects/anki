@@ -8,6 +8,8 @@ import sys
 
 import google.protobuf.descriptor
 
+os.environ["PROTOS_ONLY"] = "1"
+
 import anki.backend_pb2
 import anki.i18n_pb2
 import anki.cards_pb2
@@ -20,6 +22,10 @@ import anki.scheduler_pb2
 import anki.sync_pb2
 import anki.configs_pb2
 import anki.search_pb2
+import anki.stats_pb2
+import anki.card_rendering_pb2
+import anki.tags_pb2
+import anki.media_pb2
 
 import stringcase
 
@@ -187,12 +193,16 @@ service_modules = dict(
     SYNC=anki.sync_pb2,
     CONFIGS=anki.configs_pb2,
     SEARCH=anki.search_pb2,
+    STATS=anki.stats_pb2,
+    CARD_RENDERING=anki.card_rendering_pb2,
+    TAGS=anki.tags_pb2,
+    MEDIA=anki.media_pb2,
 )
 
 for service in anki.backend_pb2.ServiceIndex.DESCRIPTOR.values:
     # SERVICE_INDEX_TEST -> _TESTSERVICE
     base = service.name.replace("SERVICE_INDEX_", "")
-    service_pkg = service_modules.get(base) or anki.backend_pb2
+    service_pkg = service_modules.get(base)
     service_var = "_" + base.replace("_", "") + "SERVICE"
     service_obj = getattr(service_pkg, service_var)
     service_index = service.number

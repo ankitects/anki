@@ -1,0 +1,32 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+package anki.media;
+
+import "anki/generic.proto";
+
+service MediaService {
+  rpc CheckMedia(generic.Empty) returns (CheckMediaResponse);
+  rpc TrashMediaFiles(TrashMediaFilesRequest) returns (generic.Empty);
+  rpc AddMediaFile(AddMediaFileRequest) returns (generic.String);
+  rpc EmptyTrash(generic.Empty) returns (generic.Empty);
+  rpc RestoreTrash(generic.Empty) returns (generic.Empty);
+}
+
+message CheckMediaResponse {
+  repeated string unused = 1;
+  repeated string missing = 2;
+  string report = 3;
+  bool have_trash = 4;
+}
+
+message TrashMediaFilesRequest {
+  repeated string fnames = 1;
+}
+
+message AddMediaFileRequest {
+  string desired_name = 1;
+  bytes data = 2;
+}

@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type { Backend, Cards } from "lib/proto";
+import type { Stats, Cards } from "lib/proto";
 
 import {
     extent,
@@ -28,7 +28,7 @@ export interface GraphData {
     daysAdded: number[];
 }
 
-export function gatherData(data: Backend.GraphsResponse): GraphData {
+export function gatherData(data: Stats.GraphsResponse): GraphData {
     const daysAdded = (data.cards as Cards.Card[]).map((card) => {
         const elapsedSecs = (card.id as number) / 1000 - data.nextDayAtSecs;
         return Math.ceil(elapsedSecs / 86400);

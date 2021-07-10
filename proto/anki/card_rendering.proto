@@ -1,0 +1,119 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+package anki.card_rendering;
+
+import "anki/generic.proto";
+import "anki/notes.proto";
+import "anki/notetypes.proto";
+
+service CardRenderingService {
+  rpc ExtractAVTags(ExtractAVTagsRequest) returns (ExtractAVTagsResponse);
+  rpc ExtractLatex(ExtractLatexRequest) returns (ExtractLatexResponse);
+  rpc GetEmptyCards(generic.Empty) returns (EmptyCardsReport);
+  rpc RenderExistingCard(RenderExistingCardRequest)
+      returns (RenderCardResponse);
+  rpc RenderUncommittedCard(RenderUncommittedCardRequest)
+      returns (RenderCardResponse);
+  rpc RenderUncommittedCardLegacy(RenderUncommittedCardLegacyRequest)
+      returns (RenderCardResponse);
+  rpc StripAVTags(generic.String) returns (generic.String);
+  rpc RenderMarkdown(RenderMarkdownRequest) returns (generic.String);
+}
+
+message ExtractAVTagsRequest {
+  string text = 1;
+  bool question_side = 2;
+}
+
+message ExtractAVTagsResponse {
+  string text = 1;
+  repeated AVTag av_tags = 2;
+}
+
+message AVTag {
+  oneof value {
+    string sound_or_video = 1;
+    TTSTag tts = 2;
+  }
+}
+
+message TTSTag {
+  string field_text = 1;
+  string lang = 2;
+  repeated string voices = 3;
+  float speed = 4;
+  repeated string other_args = 5;
+}
+
+message ExtractLatexRequest {
+  string text = 1;
+  bool svg = 2;
+  bool expand_clozes = 3;
+}
+
+message ExtractLatexResponse {
+  string text = 1;
+  repeated ExtractedLatex latex = 2;
+}
+
+message ExtractedLatex {
+  string filename = 1;
+  string latex_body = 2;
+}
+
+message EmptyCardsReport {
+  message NoteWithEmptyCards {
+    int64 note_id = 1;
+    repeated int64 card_ids = 2;
+    bool will_delete_note = 3;
+  }
+  string report = 1;
+  repeated NoteWithEmptyCards notes = 2;
+}
+
+message RenderExistingCardRequest {
+  int64 card_id = 1;
+  bool browser = 2;
+}
+
+message RenderUncommittedCardRequest {
+  notes.Note note = 1;
+  uint32 card_ord = 2;
+  notetypes.Notetype.Template template = 3;
+  bool fill_empty = 4;
+}
+
+message RenderUncommittedCardLegacyRequest {
+  notes.Note note = 1;
+  uint32 card_ord = 2;
+  bytes template = 3;
+  bool fill_empty = 4;
+}
+
+message RenderCardResponse {
+  repeated RenderedTemplateNode question_nodes = 1;
+  repeated RenderedTemplateNode answer_nodes = 2;
+  string css = 3;
+  bool latex_svg = 4;
+}
+
+message RenderedTemplateNode {
+  oneof value {
+    string text = 1;
+    RenderedTemplateReplacement replacement = 2;
+  }
+}
+
+message RenderedTemplateReplacement {
+  string field_name = 1;
+  string current_text = 2;
+  repeated string filters = 3;
+}
+
+message RenderMarkdownRequest {
+  string markdown = 1;
+  bool sanitize = 2;
+}

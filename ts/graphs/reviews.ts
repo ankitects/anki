@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { Backend } from "lib/proto";
+import { Stats } from "lib/proto";
 
 import { timeSpan, dayLabel } from "lib/time";
 import {
@@ -50,15 +50,15 @@ export interface GraphData {
     reviewTime: Map<number, Reviews>;
 }
 
-const ReviewKind = Backend.RevlogEntry.ReviewKind;
+const ReviewKind = Stats.RevlogEntry.ReviewKind;
 type BinType = Bin<Map<number, Reviews[]>, number>;
 
-export function gatherData(data: Backend.GraphsResponse): GraphData {
+export function gatherData(data: Stats.GraphsResponse): GraphData {
     const reviewCount = new Map<number, Reviews>();
     const reviewTime = new Map<number, Reviews>();
     const empty = { mature: 0, young: 0, learn: 0, relearn: 0, early: 0 };
 
-    for (const review of data.revlog as Backend.RevlogEntry[]) {
+    for (const review of data.revlog as Stats.RevlogEntry[]) {
         if (review.reviewKind == ReviewKind.MANUAL) {
             // don't count days with only manual scheduling
             continue;

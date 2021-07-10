@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import type { Backend } from "lib/proto";
+    import type { Stats } from "lib/proto";
     import type { PreferenceStore } from "sveltelib/preferences";
 
     import { createEventDispatcher } from "svelte";
@@ -18,8 +18,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { gatherData, renderCalendar } from "./calendar";
     import type { GraphData } from "./calendar";
 
-    export let sourceData: Backend.GraphsResponse;
-    export let preferences: PreferenceStore<Backend.GraphPreferences>;
+    export let sourceData: Stats.GraphsResponse;
+    export let preferences: PreferenceStore<Stats.GraphPreferences>;
     export let revlogRange: RevlogRange;
     import * as tr from "lib/i18n";
     export let nightMode: boolean;

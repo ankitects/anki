@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import type { Backend } from "lib/proto";
+    import type { Stats } from "lib/proto";
     import * as tr from "lib/i18n";
     import type { PreferenceStore } from "sveltelib/preferences";
 
@@ -17,8 +17,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { gatherData, prepareData } from "./ease";
     import type { TableDatum, SearchEventMap } from "./graph-helpers";
 
-    export let sourceData: Backend.GraphsResponse | null = null;
-    export let preferences: PreferenceStore<Backend.GraphPreferences>;
+    export let sourceData: Stats.GraphsResponse | null = null;
+    export let preferences: PreferenceStore<Stats.GraphPreferences>;
 
     const dispatch = createEventDispatcher<SearchEventMap>();
 

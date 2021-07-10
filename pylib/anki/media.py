@@ -10,8 +10,7 @@ import sys
 import time
 from typing import Any, Callable, List, Optional, Tuple
 
-import anki
-import anki.backend_pb2 as _pb
+from anki import media_pb2
 from anki._legacy import deprecated
 from anki.consts import *
 from anki.latex import render_latex, render_latex_returning_errors
@@ -27,7 +26,7 @@ def media_paths_from_col_path(col_path: str) -> Tuple[str, str]:
     return (media_folder, media_db)
 
 
-CheckMediaResponse = _pb.CheckMediaResponse
+CheckMediaResponse = media_pb2.CheckMediaResponse
 
 
 # fixme: look into whether we can drop chdir() below
