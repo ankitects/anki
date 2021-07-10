@@ -22,7 +22,6 @@ OpChanges = collection_pb2.OpChanges
 OpChangesWithCount = collection_pb2.OpChangesWithCount
 OpChangesWithId = collection_pb2.OpChangesWithId
 OpChangesAfterUndo = collection_pb2.OpChangesAfterUndo
-DefaultsForAdding = _pb.DeckAndNotetype
 BrowserRow = _pb.BrowserRow
 BrowserColumns = _pb.BrowserColumns
 
@@ -370,7 +369,7 @@ class Collection(DeprecatedNamesMixin):
 
     def defaults_for_adding(
         self, *, current_review_card: Optional[Card]
-    ) -> DefaultsForAdding:
+    ) -> anki.notes.DefaultsForAdding:
         """Get starting deck and notetype for add screen.
         An option in the preferences controls whether this will be based on the current deck
         or current notetype.

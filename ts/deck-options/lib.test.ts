@@ -5,7 +5,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { Backend } from "lib/proto";
+import { DeckConfig } from "lib/proto";
 import { DeckOptionsState } from "./lib";
 import { get } from "svelte/store";
 
@@ -94,7 +94,7 @@ const exampleData = {
 function startingState(): DeckOptionsState {
     return new DeckOptionsState(
         123,
-        Backend.DeckConfigsForUpdate.fromObject(exampleData)
+        DeckConfig.DeckConfigsForUpdate.fromObject(exampleData)
     );
 }
 

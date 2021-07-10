@@ -1,24 +1,24 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-pub mod backend {
-    include!(concat!(env!("OUT_DIR"), "/anki.backend.rs"));
-}
-pub mod i18n {
-    include!(concat!(env!("OUT_DIR"), "/anki.i18n.rs"));
-}
-pub mod generic {
-    include!(concat!(env!("OUT_DIR"), "/anki.generic.rs"));
-}
-pub mod cards {
-    include!(concat!(env!("OUT_DIR"), "/anki.cards.rs"));
-}
-pub mod collection {
-    include!(concat!(env!("OUT_DIR"), "/anki.collection.rs"));
+macro_rules! protobuf {
+    ($ident:ident) => {
+        pub mod $ident {
+            include!(concat!(
+                env!("OUT_DIR"),
+                concat!("/anki.", stringify!($ident), ".rs")
+            ));
+        }
+        pub use $ident::*;
+    };
 }
 
-pub use backend::*;
-pub use cards::*;
-pub use collection::*;
-pub use generic::*;
-pub use i18n::*;
+protobuf!(backend);
+protobuf!(notes);
+protobuf!(notetypes);
+protobuf!(decks);
+protobuf!(deckconfig);
+protobuf!(i18n);
+protobuf!(cards);
+protobuf!(generic);
+protobuf!(collection);

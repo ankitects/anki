@@ -12,7 +12,7 @@ import time
 from typing import Any, Dict, List, NewType, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
-import anki.backend_pb2 as _pb
+from anki import notetypes_pb2
 from anki._legacy import DeprecatedNamesMixin, deprecated, print_deprecation_warning
 from anki.collection import OpChanges, OpChangesWithId
 from anki.consts import *
@@ -22,11 +22,11 @@ from anki.stdmodels import StockNotetypeKind
 from anki.utils import checksum, from_json_bytes, to_json_bytes
 
 # public exports
-NotetypeNameId = _pb.NotetypeNameId
-NotetypeNameIdUseCount = _pb.NotetypeNameIdUseCount
-NotetypeNames = _pb.NotetypeNames
-ChangeNotetypeInfo = _pb.ChangeNotetypeInfo
-ChangeNotetypeRequest = _pb.ChangeNotetypeRequest
+NotetypeNameId = notetypes_pb2.NotetypeNameId
+NotetypeNameIdUseCount = notetypes_pb2.NotetypeNameIdUseCount
+NotetypeNames = notetypes_pb2.NotetypeNames
+ChangeNotetypeInfo = notetypes_pb2.ChangeNotetypeInfo
+ChangeNotetypeRequest = notetypes_pb2.ChangeNotetypeRequest
 
 # legacy types
 NotetypeDict = Dict[str, Any]
@@ -459,7 +459,9 @@ and notes.mid = ? and cards.ord = ?""",
     def _availClozeOrds(
         self, notetype: NotetypeDict, flds: str, allow_empty: bool = True
     ) -> List[int]:
-        note = _pb.Note(fields=[flds])
+        import anki.notes_pb2
+
+        note = anki.notes_pb2.Note(fields=[flds])
         return list(self.col._backend.cloze_numbers_in_note(note))
 
     # @deprecated(replaced_by=add_template)

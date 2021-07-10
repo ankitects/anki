@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import anki
 import anki.backend_pb2 as _pb
+from anki import decks_pb2
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.config import Config
 
@@ -22,7 +23,7 @@ from anki.utils import ids2str, intTime
 CongratsInfo = _pb.CongratsInfoResponse
 UnburyDeck = _pb.UnburyDeckRequest
 BuryOrSuspend = _pb.BuryOrSuspendCardsRequest
-FilteredDeckForUpdate = _pb.FilteredDeckForUpdate
+FilteredDeckForUpdate = decks_pb2.FilteredDeckForUpdate
 
 
 class SchedulerBase:
