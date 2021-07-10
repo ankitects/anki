@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type { Backend } from "lib/proto";
+import type { Backend, Cards } from "lib/proto";
 import {
     extent,
     histogram,
@@ -27,7 +27,7 @@ export interface GraphData {
 }
 
 export function gatherData(data: Backend.GraphsResponse): GraphData {
-    const eases = (data.cards as Backend.Card[])
+    const eases = (data.cards as Cards.Card[])
         .filter((c) => [CardType.Review, CardType.Relearn].includes(c.ctype))
         .map((c) => c.easeFactor / 10);
     return { eases };
