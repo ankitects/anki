@@ -1,19 +1,19 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import pb from "lib/backend_proto";
+import { Backend } from "lib/proto";
 import { postRequest } from "lib/postrequest";
 import { naturalUnit, unitAmount, unitName } from "lib/time";
 
 import * as tr from "lib/i18n";
 
-export async function getCongratsInfo(): Promise<pb.BackendProto.CongratsInfoResponse> {
-    return pb.BackendProto.CongratsInfoResponse.decode(
+export async function getCongratsInfo(): Promise<Backend.CongratsInfoResponse> {
+    return Backend.CongratsInfoResponse.decode(
         await postRequest("/_anki/congratsInfo", "")
     );
 }
 
-export function buildNextLearnMsg(info: pb.BackendProto.CongratsInfoResponse): string {
+export function buildNextLearnMsg(info: Backend.CongratsInfoResponse): string {
     const secsUntil = info.secsUntilNextLearn;
     // next learning card not due (/ until tomorrow)?
     if (secsUntil == 0 || secsUntil > 86_400) {

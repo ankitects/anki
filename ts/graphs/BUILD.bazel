@@ -45,7 +45,6 @@ ts_library(
     ),
     deps = [
         "//ts/lib",
-        "//ts/lib:backend_proto",
         "//ts/sveltelib",
         "@npm//@types/d3",
         "@npm//@types/lodash",
@@ -68,7 +67,6 @@ esbuild(
     deps = [
         "//ts/sveltelib",
         "//ts/lib",
-        "//ts/lib:backend_proto",
         ":index",
         ":base_css",
         "@npm//protobufjs",

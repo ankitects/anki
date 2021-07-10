@@ -3,11 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type pb from "lib/backend_proto";
+    import type { Backend } from "lib/proto";
     import { buildNextLearnMsg } from "./lib";
     import { bridgeLink } from "lib/bridgecommand";
 
-    export let info: pb.BackendProto.CongratsInfoResponse;
+    export let info: Backend.CongratsInfoResponse;
     import * as tr from "lib/i18n";
 
     const congrats = tr.schedulingCongratulationsFinished();

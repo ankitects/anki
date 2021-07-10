@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import type { PreferenceRaw, PreferencePayload } from "sveltelib/preferences";
 
-    import pb from "lib/backend_proto";
+    import { Backend } from "lib/proto";
     import { postRequest } from "lib/postrequest";
 
     import useAsync from "sveltelib/async";
@@ -21,24 +21,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function getGraphData(
         search: string,
         days: number
-    ): Promise<pb.BackendProto.GraphsResponse> {
-        return pb.BackendProto.GraphsResponse.decode(
+    ): Promise<Backend.GraphsResponse> {
+        return Backend.GraphsResponse.decode(
             await postRequest("/_anki/graphData", JSON.stringify({ search, days }))
         );
     }
 
-    async function getGraphPreferences(): Promise<pb.BackendProto.GraphPreferences> {
-        return pb.BackendProto.GraphPreferences.decode(
+    async function getGraphPreferences(): Promise<Backend.GraphPreferences> {
+        return Backend.GraphPreferences.decode(
             await postRequest("/_anki/graphPreferences", JSON.stringify({}))
         );
     }
 
     async function setGraphPreferences(
-        prefs: PreferencePayload<pb.BackendProto.GraphPreferences>
+        prefs: PreferencePayload<Backend.GraphPreferences>
     ): Promise<void> {
         await postRequest(
             "/_anki/setGraphPreferences",
-            pb.BackendProto.GraphPreferences.encode(prefs).finish()
+            Backend.GraphPreferences.encode(prefs).finish()
         );
     }
 
@@ -56,12 +56,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         getPreferences(
             getGraphPreferences,
             setGraphPreferences,
-            pb.BackendProto.GraphPreferences.toObject.bind(
-                pb.BackendProto.GraphPreferences
-            ) as (
-                preferences: pb.BackendProto.GraphPreferences,
+            Backend.GraphPreferences.toObject.bind(Backend.GraphPreferences) as (
+                preferences: Backend.GraphPreferences,
                 options: { defaults: boolean }
-            ) => PreferenceRaw<pb.BackendProto.GraphPreferences>
+            ) => PreferenceRaw<Backend.GraphPreferences>
         )
     );
 

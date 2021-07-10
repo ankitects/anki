@@ -1,59 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 syntax = "proto3";
 
-package BackendProto;
+package anki.backend;
 
-// Generic containers
-///////////////////////////////////////////////////////////
-
-message Empty {}
-
-message OptionalInt32 {
-  sint32 val = 1;
-}
-
-message OptionalUInt32 {
-  uint32 val = 1;
-}
-
-message Int32 {
-  sint32 val = 1;
-}
-
-message UInt32 {
-  uint32 val = 1;
-}
-
-message Int64 {
-  int64 val = 1;
-}
-
-message String {
-  string val = 1;
-}
-
-message Json {
-  bytes json = 1;
-}
-
-message Bool {
-  bool val = 1;
-}
-
-message StringList {
-  repeated string vals = 1;
-}
-
-message OpChangesWithCount {
-  uint32 count = 1;
-  OpChanges changes = 2;
-}
-
-message OpChangesWithId {
-  int64 id = 1;
-  OpChanges changes = 2;
-}
+import "anki/generic.proto";
 
 // IDs used in RPC calls
 ///////////////////////////////////////////////////////////
@@ -115,13 +67,13 @@ enum ServiceIndex {
 }
 
 service SchedulingService {
-  rpc SchedTimingToday(Empty) returns (SchedTimingTodayResponse);
-  rpc StudiedToday(Empty) returns (String);
-  rpc StudiedTodayMessage(StudiedTodayMessageRequest) returns (String);
-  rpc UpdateStats(UpdateStatsRequest) returns (Empty);
-  rpc ExtendLimits(ExtendLimitsRequest) returns (Empty);
+  rpc SchedTimingToday(generic.Empty) returns (SchedTimingTodayResponse);
+  rpc StudiedToday(generic.Empty) returns (generic.String);
+  rpc StudiedTodayMessage(StudiedTodayMessageRequest) returns (generic.String);
+  rpc UpdateStats(UpdateStatsRequest) returns (generic.Empty);
+  rpc ExtendLimits(ExtendLimitsRequest) returns (generic.Empty);
   rpc CountsForDeckToday(DeckId) returns (CountsForDeckTodayResponse);
-  rpc CongratsInfo(Empty) returns (CongratsInfoResponse);
+  rpc CongratsInfo(generic.Empty) returns (CongratsInfoResponse);
   rpc RestoreBuriedAndSuspendedCards(CardIds) returns (OpChanges);
   rpc UnburyDeck(UnburyDeckRequest) returns (OpChanges);
   rpc BuryOrSuspendCards(BuryOrSuspendCardsRequest)
@@ -133,35 +85,35 @@ service SchedulingService {
   rpc SortCards(SortCardsRequest) returns (OpChangesWithCount);
   rpc SortDeck(SortDeckRequest) returns (OpChangesWithCount);
   rpc GetNextCardStates(CardId) returns (NextCardStates);
-  rpc DescribeNextStates(NextCardStates) returns (StringList);
-  rpc StateIsLeech(SchedulingState) returns (Bool);
+  rpc DescribeNextStates(NextCardStates) returns (generic.StringList);
+  rpc StateIsLeech(SchedulingState) returns (generic.Bool);
   rpc AnswerCard(CardAnswer) returns (OpChanges);
-  rpc UpgradeScheduler(Empty) returns (Empty);
+  rpc UpgradeScheduler(generic.Empty) returns (generic.Empty);
   rpc GetQueuedCards(GetQueuedCardsRequest) returns (QueuedCards);
 }
 
 service DecksService {
-  rpc AddDeckLegacy(Json) returns (OpChangesWithId);
+  rpc AddDeckLegacy(generic.Json) returns (OpChangesWithId);
   rpc AddOrUpdateDeckLegacy(AddOrUpdateDeckLegacyRequest) returns (DeckId);
   rpc DeckTree(DeckTreeRequest) returns (DeckTreeNode);
-  rpc DeckTreeLegacy(Empty) returns (Json);
-  rpc GetAllDecksLegacy(Empty) returns (Json);
-  rpc GetDeckIdByName(String) returns (DeckId);
+  rpc DeckTreeLegacy(generic.Empty) returns (generic.Json);
+  rpc GetAllDecksLegacy(generic.Empty) returns (generic.Json);
+  rpc GetDeckIdByName(generic.String) returns (DeckId);
   rpc GetDeck(DeckId) returns (Deck);
   rpc UpdateDeck(Deck) returns (OpChanges);
-  rpc UpdateDeckLegacy(Json) returns (OpChanges);
+  rpc UpdateDeckLegacy(generic.Json) returns (OpChanges);
   rpc SetDeckCollapsed(SetDeckCollapsedRequest) returns (OpChanges);
-  rpc GetDeckLegacy(DeckId) returns (Json);
+  rpc GetDeckLegacy(DeckId) returns (generic.Json);
   rpc GetDeckNames(GetDeckNamesRequest) returns (DeckNames);
-  rpc NewDeckLegacy(Bool) returns (Json);
+  rpc NewDeckLegacy(generic.Bool) returns (generic.Json);
   rpc RemoveDecks(DeckIds) returns (OpChangesWithCount);
   rpc ReparentDecks(ReparentDecksRequest) returns (OpChangesWithCount);
   rpc RenameDeck(RenameDeckRequest) returns (OpChanges);
   rpc GetOrCreateFilteredDeck(DeckId) returns (FilteredDeckForUpdate);
   rpc AddOrUpdateFilteredDeck(FilteredDeckForUpdate) returns (OpChangesWithId);
-  rpc FilteredDeckOrderLabels(Empty) returns (StringList);
+  rpc FilteredDeckOrderLabels(generic.Empty) returns (generic.StringList);
   rpc SetCurrentDeck(DeckId) returns (OpChanges);
-  rpc GetCurrentDeck(Empty) returns (Deck);
+  rpc GetCurrentDeck(generic.Empty) returns (Deck);
 }
 
 service NotesService {
@@ -181,47 +133,48 @@ service NotesService {
 }
 
 service SyncService {
-  rpc SyncMedia(SyncAuth) returns (Empty);
-  rpc AbortSync(Empty) returns (Empty);
-  rpc AbortMediaSync(Empty) returns (Empty);
-  rpc BeforeUpload(Empty) returns (Empty);
+  rpc SyncMedia(SyncAuth) returns (generic.Empty);
+  rpc AbortSync(generic.Empty) returns (generic.Empty);
+  rpc AbortMediaSync(generic.Empty) returns (generic.Empty);
+  rpc BeforeUpload(generic.Empty) returns (generic.Empty);
   rpc SyncLogin(SyncLoginRequest) returns (SyncAuth);
   rpc SyncStatus(SyncAuth) returns (SyncStatusResponse);
   rpc SyncCollection(SyncAuth) returns (SyncCollectionResponse);
-  rpc FullUpload(SyncAuth) returns (Empty);
-  rpc FullDownload(SyncAuth) returns (Empty);
-  rpc SyncServerMethod(SyncServerMethodRequest) returns (Json);
+  rpc FullUpload(SyncAuth) returns (generic.Empty);
+  rpc FullDownload(SyncAuth) returns (generic.Empty);
+  rpc SyncServerMethod(SyncServerMethodRequest) returns (generic.Json);
 }
 
 service ConfigService {
-  rpc GetConfigJson(String) returns (Json);
+  rpc GetConfigJson(generic.String) returns (generic.Json);
   rpc SetConfigJson(SetConfigJsonRequest) returns (OpChanges);
-  rpc SetConfigJsonNoUndo(SetConfigJsonRequest) returns (Empty);
-  rpc RemoveConfig(String) returns (OpChanges);
-  rpc GetAllConfig(Empty) returns (Json);
-  rpc GetConfigBool(Config.Bool) returns (Bool);
+  rpc SetConfigJsonNoUndo(SetConfigJsonRequest) returns (generic.Empty);
+  rpc RemoveConfig(generic.String) returns (OpChanges);
+  rpc GetAllConfig(generic.Empty) returns (generic.Json);
+  rpc GetConfigBool(Config.Bool) returns (generic.Bool);
   rpc SetConfigBool(SetConfigBoolRequest) returns (OpChanges);
-  rpc GetConfigString(Config.String) returns (String);
+  rpc GetConfigString(Config.String) returns (generic.String);
   rpc SetConfigString(SetConfigStringRequest) returns (OpChanges);
-  rpc GetPreferences(Empty) returns (Preferences);
+  rpc GetPreferences(generic.Empty) returns (Preferences);
   rpc SetPreferences(Preferences) returns (OpChanges);
 }
 
 service NotetypesService {
   rpc AddNotetype(Notetype) returns (OpChangesWithId);
   rpc UpdateNotetype(Notetype) returns (OpChanges);
-  rpc AddNotetypeLegacy(Json) returns (OpChangesWithId);
-  rpc UpdateNotetypeLegacy(Json) returns (OpChanges);
+  rpc AddNotetypeLegacy(generic.Json) returns (OpChangesWithId);
+  rpc UpdateNotetypeLegacy(generic.Json) returns (OpChanges);
   rpc AddOrUpdateNotetype(AddOrUpdateNotetypeRequest) returns (NotetypeId);
-  rpc GetStockNotetypeLegacy(StockNotetype) returns (Json);
+  rpc GetStockNotetypeLegacy(StockNotetype) returns (generic.Json);
   rpc GetNotetype(NotetypeId) returns (Notetype);
-  rpc GetNotetypeLegacy(NotetypeId) returns (Json);
-  rpc GetNotetypeNames(Empty) returns (NotetypeNames);
-  rpc GetNotetypeNamesAndCounts(Empty) returns (NotetypeUseCounts);
-  rpc GetNotetypeIdByName(String) returns (NotetypeId);
+  rpc GetNotetypeLegacy(NotetypeId) returns (generic.Json);
+  rpc GetNotetypeNames(generic.Empty) returns (NotetypeNames);
+  rpc GetNotetypeNamesAndCounts(generic.Empty) returns (NotetypeUseCounts);
+  rpc GetNotetypeIdByName(generic.String) returns (NotetypeId);
   rpc RemoveNotetype(NotetypeId) returns (OpChanges);
-  rpc GetAuxNotetypeConfigKey(GetAuxConfigKeyRequest) returns (String);
-  rpc GetAuxTemplateConfigKey(GetAuxTemplateConfigKeyRequest) returns (String);
+  rpc GetAuxNotetypeConfigKey(GetAuxConfigKeyRequest) returns (generic.String);
+  rpc GetAuxTemplateConfigKey(GetAuxTemplateConfigKeyRequest)
+      returns (generic.String);
   rpc GetSingleNotetypeOfNotes(NoteIds) returns (NotetypeId);
   rpc GetChangeNotetypeInfo(GetChangeNotetypeInfoRequest)
       returns (ChangeNotetypeInfo);
@@ -231,34 +184,34 @@ service NotetypesService {
 service CardRenderingService {
   rpc ExtractAVTags(ExtractAVTagsRequest) returns (ExtractAVTagsResponse);
   rpc ExtractLatex(ExtractLatexRequest) returns (ExtractLatexResponse);
-  rpc GetEmptyCards(Empty) returns (EmptyCardsReport);
+  rpc GetEmptyCards(generic.Empty) returns (EmptyCardsReport);
   rpc RenderExistingCard(RenderExistingCardRequest)
       returns (RenderCardResponse);
   rpc RenderUncommittedCard(RenderUncommittedCardRequest)
       returns (RenderCardResponse);
   rpc RenderUncommittedCardLegacy(RenderUncommittedCardLegacyRequest)
       returns (RenderCardResponse);
-  rpc StripAVTags(String) returns (String);
-  rpc RenderMarkdown(RenderMarkdownRequest) returns (String);
+  rpc StripAVTags(generic.String) returns (generic.String);
+  rpc RenderMarkdown(RenderMarkdownRequest) returns (generic.String);
 }
 
 service DeckConfigService {
-  rpc AddOrUpdateDeckConfigLegacy(Json) returns (DeckConfigId);
+  rpc AddOrUpdateDeckConfigLegacy(generic.Json) returns (DeckConfigId);
   rpc GetDeckConfig(DeckConfigId) returns (DeckConfig);
-  rpc AllDeckConfigLegacy(Empty) returns (Json);
-  rpc GetDeckConfigLegacy(DeckConfigId) returns (Json);
-  rpc NewDeckConfigLegacy(Empty) returns (Json);
-  rpc RemoveDeckConfig(DeckConfigId) returns (Empty);
+  rpc AllDeckConfigLegacy(generic.Empty) returns (generic.Json);
+  rpc GetDeckConfigLegacy(DeckConfigId) returns (generic.Json);
+  rpc NewDeckConfigLegacy(generic.Empty) returns (generic.Json);
+  rpc RemoveDeckConfig(DeckConfigId) returns (generic.Empty);
   rpc GetDeckConfigsForUpdate(DeckId) returns (DeckConfigsForUpdate);
   rpc UpdateDeckConfigs(UpdateDeckConfigsRequest) returns (OpChanges);
 }
 
 service TagsService {
-  rpc ClearUnusedTags(Empty) returns (OpChangesWithCount);
-  rpc AllTags(Empty) returns (StringList);
-  rpc RemoveTags(String) returns (OpChangesWithCount);
+  rpc ClearUnusedTags(generic.Empty) returns (OpChangesWithCount);
+  rpc AllTags(generic.Empty) returns (generic.StringList);
+  rpc RemoveTags(generic.String) returns (OpChangesWithCount);
   rpc SetTagCollapsed(SetTagCollapsedRequest) returns (OpChanges);
-  rpc TagTree(Empty) returns (TagTreeNode);
+  rpc TagTree(generic.Empty) returns (TagTreeNode);
   rpc ReparentTags(ReparentTagsRequest) returns (OpChangesWithCount);
   rpc RenameTags(RenameTagsRequest) returns (OpChangesWithCount);
   rpc AddNoteTags(NoteIdsAndTagsRequest) returns (OpChangesWithCount);
@@ -267,55 +220,49 @@ service TagsService {
 }
 
 service SearchService {
-  rpc BuildSearchString(SearchNode) returns (String);
+  rpc BuildSearchString(SearchNode) returns (generic.String);
   rpc SearchCards(SearchRequest) returns (SearchResponse);
   rpc SearchNotes(SearchRequest) returns (SearchResponse);
-  rpc JoinSearchNodes(JoinSearchNodesRequest) returns (String);
-  rpc ReplaceSearchNode(ReplaceSearchNodeRequest) returns (String);
+  rpc JoinSearchNodes(JoinSearchNodesRequest) returns (generic.String);
+  rpc ReplaceSearchNode(ReplaceSearchNodeRequest) returns (generic.String);
   rpc FindAndReplace(FindAndReplaceRequest) returns (OpChangesWithCount);
-  rpc AllBrowserColumns(Empty) returns (BrowserColumns);
-  rpc BrowserRowForId(Int64) returns (BrowserRow);
-  rpc SetActiveBrowserColumns(StringList) returns (Empty);
+  rpc AllBrowserColumns(generic.Empty) returns (BrowserColumns);
+  rpc BrowserRowForId(generic.Int64) returns (BrowserRow);
+  rpc SetActiveBrowserColumns(generic.StringList) returns (generic.Empty);
 }
 
 service StatsService {
-  rpc CardStats(CardId) returns (String);
+  rpc CardStats(CardId) returns (generic.String);
   rpc Graphs(GraphsRequest) returns (GraphsResponse);
-  rpc GetGraphPreferences(Empty) returns (GraphPreferences);
-  rpc SetGraphPreferences(GraphPreferences) returns (Empty);
+  rpc GetGraphPreferences(generic.Empty) returns (GraphPreferences);
+  rpc SetGraphPreferences(GraphPreferences) returns (generic.Empty);
 }
 
 service MediaService {
-  rpc CheckMedia(Empty) returns (CheckMediaResponse);
-  rpc TrashMediaFiles(TrashMediaFilesRequest) returns (Empty);
-  rpc AddMediaFile(AddMediaFileRequest) returns (String);
-  rpc EmptyTrash(Empty) returns (Empty);
-  rpc RestoreTrash(Empty) returns (Empty);
-}
-
-service I18nService {
-  rpc TranslateString(TranslateStringRequest) returns (String);
-  rpc FormatTimespan(FormatTimespanRequest) returns (String);
-  rpc I18nResources(I18nResourcesRequest) returns (Json);
+  rpc CheckMedia(generic.Empty) returns (CheckMediaResponse);
+  rpc TrashMediaFiles(TrashMediaFilesRequest) returns (generic.Empty);
+  rpc AddMediaFile(AddMediaFileRequest) returns (generic.String);
+  rpc EmptyTrash(generic.Empty) returns (generic.Empty);
+  rpc RestoreTrash(generic.Empty) returns (generic.Empty);
 }
 
 service CollectionService {
-  rpc OpenCollection(OpenCollectionRequest) returns (Empty);
-  rpc CloseCollection(CloseCollectionRequest) returns (Empty);
-  rpc CheckDatabase(Empty) returns (CheckDatabaseResponse);
-  rpc GetUndoStatus(Empty) returns (UndoStatus);
-  rpc Undo(Empty) returns (OpChangesAfterUndo);
-  rpc Redo(Empty) returns (OpChangesAfterUndo);
-  rpc AddCustomUndoEntry(String) returns (UInt32);
-  rpc MergeUndoEntries(UInt32) returns (OpChanges);
-  rpc LatestProgress(Empty) returns (Progress);
-  rpc SetWantsAbort(Empty) returns (Empty);
+  rpc OpenCollection(OpenCollectionRequest) returns (generic.Empty);
+  rpc CloseCollection(CloseCollectionRequest) returns (generic.Empty);
+  rpc CheckDatabase(generic.Empty) returns (CheckDatabaseResponse);
+  rpc GetUndoStatus(generic.Empty) returns (UndoStatus);
+  rpc Undo(generic.Empty) returns (OpChangesAfterUndo);
+  rpc Redo(generic.Empty) returns (OpChangesAfterUndo);
+  rpc AddCustomUndoEntry(generic.String) returns (generic.UInt32);
+  rpc MergeUndoEntries(generic.UInt32) returns (OpChanges);
+  rpc LatestProgress(generic.Empty) returns (Progress);
+  rpc SetWantsAbort(generic.Empty) returns (generic.Empty);
 }
 
 service CardsService {
   rpc GetCard(CardId) returns (Card);
   rpc UpdateCard(UpdateCardRequest) returns (OpChanges);
-  rpc RemoveCards(RemoveCardsRequest) returns (Empty);
+  rpc RemoveCards(RemoveCardsRequest) returns (generic.Empty);
   rpc SetDeck(SetDeckRequest) returns (OpChangesWithCount);
   rpc SetFlag(SetFlagRequest) returns (OpChangesWithCount);
 }
@@ -525,7 +472,7 @@ message Notetype {
 
       bytes other = 255;
     }
-    OptionalUInt32 ord = 1;
+    generic.OptionalUInt32 ord = 1;
     string name = 2;
     Config config = 5;
   }
@@ -542,7 +489,7 @@ message Notetype {
       bytes other = 255;
     }
 
-    OptionalUInt32 ord = 1;
+    generic.OptionalUInt32 ord = 1;
     string name = 2;
     int64 mtime_secs = 3;
     sint32 usn = 4;
@@ -661,7 +608,7 @@ message Progress {
     uint32 stage_current = 3;
   }
   oneof value {
-    Empty none = 1;
+    generic.Empty none = 1;
     MediaSync media_sync = 2;
     string media_check = 3;
     FullSync full_sync = 4;
@@ -797,34 +744,6 @@ message TrashMediaFilesRequest {
   repeated string fnames = 1;
 }
 
-message TranslateStringRequest {
-  uint32 module_index = 1;
-  uint32 message_index = 2;
-  map<string, TranslateArgValue> args = 3;
-}
-
-message TranslateArgValue {
-  oneof value {
-    string str = 1;
-    double number = 2;
-  }
-}
-
-message FormatTimespanRequest {
-  enum Context {
-    PRECISE = 0;
-    ANSWER_BUTTONS = 1;
-    INTERVALS = 2;
-  }
-
-  float seconds = 1;
-  Context context = 2;
-}
-
-message I18nResourcesRequest {
-  repeated string modules = 1;
-}
-
 message StudiedTodayMessageRequest {
   uint32 cards = 1;
   double seconds = 2;
@@ -857,7 +776,7 @@ message SortOrder {
     bool reverse = 2;
   }
   oneof value {
-    Empty none = 1;
+    generic.Empty none = 1;
     string custom = 2;
     Builtin builtin = 3;
   }
@@ -1604,6 +1523,16 @@ message OpChanges {
   bool note_text = 9;
   // whether to call .reset() and getCard()
   bool study_queues = 10;
+}
+
+message OpChangesWithCount {
+  uint32 count = 1;
+  OpChanges changes = 2;
+}
+
+message OpChangesWithId {
+  int64 id = 1;
+  OpChanges changes = 2;
 }
 
 message UndoStatus {

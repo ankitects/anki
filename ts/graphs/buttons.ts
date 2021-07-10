@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import pb from "lib/backend_proto";
+import { Backend } from "lib/proto";
 
 import {
     interpolateRdYlGn,
@@ -36,18 +36,15 @@ export interface GraphData {
     mature: ButtonCounts;
 }
 
-const ReviewKind = pb.BackendProto.RevlogEntry.ReviewKind;
+const ReviewKind = Backend.RevlogEntry.ReviewKind;
 
-export function gatherData(
-    data: pb.BackendProto.GraphsResponse,
-    range: GraphRange
-): GraphData {
+export function gatherData(data: Backend.GraphsResponse, range: GraphRange): GraphData {
     const cutoff = millisecondCutoffForRange(range, data.nextDayAtSecs);
     const learning: ButtonCounts = [0, 0, 0, 0];
     const young: ButtonCounts = [0, 0, 0, 0];
     const mature: ButtonCounts = [0, 0, 0, 0];
 
-    for (const review of data.revlog as pb.BackendProto.RevlogEntry[]) {
+    for (const review of data.revlog as Backend.RevlogEntry[]) {
         if (cutoff && (review.id as number) < cutoff) {
             continue;
         }
@@ -99,7 +96,7 @@ interface TotalCorrect {
 export function renderButtons(
     svgElem: SVGElement,
     bounds: GraphBounds,
-    origData: pb.BackendProto.GraphsResponse,
+    origData: Backend.GraphsResponse,
     range: GraphRange
 ): void {
     const sourceData = gatherData(origData, range);

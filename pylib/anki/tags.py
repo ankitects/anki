@@ -16,7 +16,7 @@ import re
 from typing import Collection, List, Match, Optional, Sequence
 
 import anki  # pylint: disable=unused-import
-import anki._backend.backend_pb2 as _pb
+import anki.backend_pb2 as _pb
 import anki.collection
 from anki.collection import OpChanges, OpChangesWithCount
 from anki.decks import DeckId

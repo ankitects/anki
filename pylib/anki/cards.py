@@ -10,7 +10,7 @@ import time
 from typing import List, NewType, Optional
 
 import anki  # pylint: disable=unused-import
-import anki._backend.backend_pb2 as _pb
+import anki.backend_pb2 as _pb
 from anki import hooks
 from anki._legacy import DeprecatedNamesMixin, deprecated
 from anki.consts import *

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Any, Generator, List, Literal, Optional, Sequence, Tuple, Union, cast
 
-import anki._backend.backend_pb2 as _pb
+import anki.backend_pb2 as _pb
 
 # protobuf we publicly export - listed first to avoid circular imports
 from anki._legacy import DeprecatedNamesMixin, deprecated
@@ -35,7 +35,7 @@ import weakref
 from dataclasses import dataclass, field
 
 import anki.latex
-from anki import hooks
+from anki import generic_pb2, hooks
 from anki._backend import RustBackend, Translations
 from anki.browser import BrowserConfig, BrowserDefaults
 from anki.cards import Card, CardId
@@ -492,7 +492,7 @@ class Collection(DeprecatedNamesMixin):
             return _pb.SortOrder(custom=order)
         if isinstance(order, bool):
             if order is False:
-                return _pb.SortOrder(none=_pb.Empty())
+                return _pb.SortOrder(none=generic_pb2.Empty())
             # order=True: set args to sort column and reverse from config
             sort_key = BrowserConfig.sort_column_key(finding_notes)
             order = self.get_browser_column(self.get_config(sort_key))
@@ -506,7 +506,7 @@ class Collection(DeprecatedNamesMixin):
 
         # eg, user is ordering on an add-on field with the add-on not installed
         print(f"{order} is not a valid sort order.")
-        return _pb.SortOrder(none=_pb.Empty())
+        return _pb.SortOrder(none=generic_pb2.Empty())
 
     def find_and_replace(
         self,

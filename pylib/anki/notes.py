@@ -9,7 +9,7 @@ import copy
 from typing import Any, List, NewType, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
-import anki._backend.backend_pb2 as _pb
+import anki.backend_pb2 as _pb
 from anki import hooks
 from anki._legacy import DeprecatedNamesMixin
 from anki.consts import MODEL_STD

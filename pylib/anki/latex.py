@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from typing import Any, List, Optional, Tuple
 
 import anki
-import anki._backend.backend_pb2 as _pb
+import anki.backend_pb2 as _pb
 from anki import hooks
 from anki.models import NotetypeDict
 from anki.template import TemplateRenderContext, TemplateRenderOutput

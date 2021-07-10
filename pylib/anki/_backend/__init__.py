@@ -11,6 +11,7 @@ from weakref import ref
 from markdown import markdown
 
 import anki.buildinfo
+from anki import backend_pb2, i18n_pb2
 from anki._backend.generated import RustBackendGenerated
 from anki.dbproxy import Row as DBRow
 from anki.dbproxy import ValueForDB
@@ -32,7 +33,6 @@ from ..errors import (
     TemplateError,
     UndoEmpty,
 )
-from . import backend_pb2 as pb
 from . import rsbridge
 from .fluent import GeneratedTranslations, LegacyTranslationEnum
 
@@ -65,7 +65,7 @@ class RustBackend(RustBackendGenerated):
         if langs is None:
             langs = [anki.lang.currentLang]
 
-        init_msg = pb.BackendInit(
+        init_msg = backend_pb2.BackendInit(
             preferred_langs=langs,
             server=server,
         )
@@ -95,7 +95,7 @@ class RustBackend(RustBackendGenerated):
             return from_json_bytes(self._backend.db_command(to_json_bytes(input)))
         except Exception as e:
             err_bytes = bytes(e.args[0])
-        err = pb.BackendError()
+        err = backend_pb2.BackendError()
         err.ParseFromString(err_bytes)
         raise backend_exception_to_pylib(err)
 
@@ -125,21 +125,21 @@ class RustBackend(RustBackendGenerated):
             return self._backend.command(service, method, input_bytes)
         except Exception as e:
             err_bytes = bytes(e.args[0])
-        err = pb.BackendError()
+        err = backend_pb2.BackendError()
         err.ParseFromString(err_bytes)
         raise backend_exception_to_pylib(err)
 
 
 def translate_string_in(
     module_index: int, message_index: int, **kwargs: Union[str, int, float]
-) -> pb.TranslateStringRequest:
+) -> i18n_pb2.TranslateStringRequest:
     args = {}
     for (k, v) in kwargs.items():
         if isinstance(v, str):
-            args[k] = pb.TranslateArgValue(str=v)
+            args[k] = i18n_pb2.TranslateArgValue(str=v)
         else:
-            args[k] = pb.TranslateArgValue(number=v)
-    return pb.TranslateStringRequest(
+            args[k] = i18n_pb2.TranslateArgValue(number=v)
+    return i18n_pb2.TranslateStringRequest(
         module_index=module_index, message_index=message_index, args=args
     )
 
@@ -167,8 +167,8 @@ class Translations(GeneratedTranslations):
         )
 
 
-def backend_exception_to_pylib(err: pb.BackendError) -> Exception:
-    kind = pb.BackendError
+def backend_exception_to_pylib(err: backend_pb2.BackendError) -> Exception:
+    kind = backend_pb2.BackendError
     val = err.kind
     if val == kind.INTERRUPTED:
         return Interrupted()

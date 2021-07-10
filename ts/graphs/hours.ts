@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import pb from "lib/backend_proto";
+import { Backend } from "lib/proto";
 import {
     interpolateBlues,
     select,
@@ -37,15 +37,15 @@ interface Hour {
     correctCount: number;
 }
 
-const ReviewKind = pb.BackendProto.RevlogEntry.ReviewKind;
+const ReviewKind = Backend.RevlogEntry.ReviewKind;
 
-function gatherData(data: pb.BackendProto.GraphsResponse, range: GraphRange): Hour[] {
+function gatherData(data: Backend.GraphsResponse, range: GraphRange): Hour[] {
     const hours = [...Array(24)].map((_n, idx: number) => {
         return { hour: idx, totalCount: 0, correctCount: 0 } as Hour;
     });
     const cutoff = millisecondCutoffForRange(range, data.nextDayAtSecs);
 
-    for (const review of data.revlog as pb.BackendProto.RevlogEntry[]) {
+    for (const review of data.revlog as Backend.RevlogEntry[]) {
         switch (review.reviewKind) {
             case ReviewKind.LEARNING:
             case ReviewKind.REVIEW:
@@ -74,7 +74,7 @@ function gatherData(data: pb.BackendProto.GraphsResponse, range: GraphRange): Ho
 export function renderHours(
     svgElem: SVGElement,
     bounds: GraphBounds,
-    origData: pb.BackendProto.GraphsResponse,
+    origData: Backend.GraphsResponse,
     range: GraphRange
 ): void {
     const data = gatherData(origData, range);

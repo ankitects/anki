@@ -5,7 +5,7 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
-import pb from "lib/backend_proto";
+import { Backend } from "lib/proto";
 import {
     interpolateBlues,
     select,
@@ -49,16 +49,16 @@ interface DayDatum {
     date: Date;
 }
 
-type WeekdayType = pb.BackendProto.GraphPreferences.Weekday;
-const Weekday = pb.BackendProto.GraphPreferences.Weekday; /* enum */
+type WeekdayType = Backend.GraphPreferences.Weekday;
+const Weekday = Backend.GraphPreferences.Weekday; /* enum */
 
 export function gatherData(
-    data: pb.BackendProto.GraphsResponse,
+    data: Backend.GraphsResponse,
     firstDayOfWeek: WeekdayType
 ): GraphData {
     const reviewCount = new Map<number, number>();
 
-    for (const review of data.revlog as pb.BackendProto.RevlogEntry[]) {
+    for (const review of data.revlog as Backend.RevlogEntry[]) {
         if (review.buttonChosen == 0) {
             continue;
         }
