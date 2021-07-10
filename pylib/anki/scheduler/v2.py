@@ -11,8 +11,7 @@ from heapq import *
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import anki  # pylint: disable=unused-import
-import anki.backend_pb2 as _pb
-from anki import hooks
+from anki import hooks, scheduler_pb2
 from anki.cards import Card, CardId
 from anki.consts import *
 from anki.decks import DeckConfigDict, DeckDict, DeckId
@@ -20,8 +19,8 @@ from anki.lang import FormatTimeSpan
 from anki.scheduler.legacy import SchedulerBaseWithLegacy
 from anki.utils import ids2str, intTime
 
-CountsForDeckToday = _pb.CountsForDeckTodayResponse
-SchedTimingToday = _pb.SchedTimingTodayResponse
+CountsForDeckToday = scheduler_pb2.CountsForDeckTodayResponse
+SchedTimingToday = scheduler_pb2.SchedTimingTodayResponse
 
 # legacy type alias
 QueueConfig = Dict[str, Any]

@@ -14,11 +14,15 @@ macro_rules! protobuf {
 }
 
 protobuf!(backend);
+protobuf!(cards);
+protobuf!(collection);
+protobuf!(configs);
+protobuf!(deckconfig);
+protobuf!(decks);
+protobuf!(generic);
+protobuf!(i18n);
 protobuf!(notes);
 protobuf!(notetypes);
-protobuf!(decks);
-protobuf!(deckconfig);
-protobuf!(i18n);
-protobuf!(cards);
-protobuf!(generic);
-protobuf!(collection);
+protobuf!(scheduler);
+protobuf!(search);
+protobuf!(sync);

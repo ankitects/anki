@@ -40,7 +40,7 @@ use self::{
     card::CardsService,
     cardrendering::CardRenderingService,
     collection::CollectionService,
-    config::ConfigService,
+    config::ConfigsService,
     deckconfig::DeckConfigService,
     decks::DecksService,
     i18n::I18nService,
@@ -48,7 +48,7 @@ use self::{
     notes::NotesService,
     notetypes::NotetypesService,
     progress::ProgressState,
-    scheduler::SchedulingService,
+    scheduler::SchedulerService,
     search::SearchService,
     stats::StatsService,
     sync::{SyncService, SyncState},
@@ -117,11 +117,11 @@ impl Backend {
         pb::ServiceIndex::from_i32(service as i32)
             .ok_or_else(|| AnkiError::invalid_input("invalid service"))
             .and_then(|service| match service {
-                pb::ServiceIndex::Scheduling => SchedulingService::run_method(self, method, input),
+                pb::ServiceIndex::Scheduler => SchedulerService::run_method(self, method, input),
                 pb::ServiceIndex::Decks => DecksService::run_method(self, method, input),
                 pb::ServiceIndex::Notes => NotesService::run_method(self, method, input),
                 pb::ServiceIndex::Notetypes => NotetypesService::run_method(self, method, input),
-                pb::ServiceIndex::Config => ConfigService::run_method(self, method, input),
+                pb::ServiceIndex::Configs => ConfigsService::run_method(self, method, input),
                 pb::ServiceIndex::Sync => SyncService::run_method(self, method, input),
                 pb::ServiceIndex::Tags => TagsService::run_method(self, method, input),
                 pb::ServiceIndex::DeckConfig => DeckConfigService::run_method(self, method, input),

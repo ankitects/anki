@@ -6,4 +6,5 @@ import Backend = anki.backend;
 import Cards = anki.cards;
 import DeckConfig = anki.deckconfig;
 import Notetypes = anki.notetypes;
-export { Backend, Cards, DeckConfig, Notetypes };
+import Scheduler = anki.scheduler;
+export { Backend, Cards, DeckConfig, Notetypes, Scheduler };

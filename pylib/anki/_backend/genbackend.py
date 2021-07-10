@@ -16,6 +16,10 @@ import anki.decks_pb2
 import anki.deckconfig_pb2
 import anki.notes_pb2
 import anki.notetypes_pb2
+import anki.scheduler_pb2
+import anki.sync_pb2
+import anki.configs_pb2
+import anki.search_pb2
 
 import stringcase
 
@@ -179,6 +183,10 @@ service_modules = dict(
     DECKS=anki.decks_pb2,
     DECK_CONFIG=anki.deckconfig_pb2,
     NOTETYPES=anki.notetypes_pb2,
+    SCHEDULER=anki.scheduler_pb2,
+    SYNC=anki.sync_pb2,
+    CONFIGS=anki.configs_pb2,
+    SEARCH=anki.search_pb2,
 )
 
 for service in anki.backend_pb2.ServiceIndex.DESCRIPTOR.values:
