@@ -57,19 +57,12 @@ ts_library(
 
 esbuild(
     name = "graphs",
-    srcs = [
-        "//ts:protobuf-shim.js",
-    ],
     args = [
         "--global-name=anki",
-        "--inject:$(location //ts:protobuf-shim.js)",
         "--resolve-extensions=.mjs,.js",
         "--log-level=warning",
     ],
     entry_point = "index.ts",
-    external = [
-        "protobufjs/light",
-    ],
     output_css = "graphs.css",
     visibility = ["//visibility:public"],
     deps = [
@@ -78,6 +71,7 @@ esbuild(
         "//ts/lib:backend_proto",
         ":index",
         ":base_css",
+        "@npm//protobufjs",
     ] + svelte_names,
 )
 

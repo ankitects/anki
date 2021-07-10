@@ -16,23 +16,17 @@ ts_library(
 
 esbuild(
     name = "reviewer_extras",
-    srcs = [
-        "//ts:protobuf-shim.js",
-    ],
     args = [
-        "--inject:$(location //ts:protobuf-shim.js)",
         "--resolve-extensions=.mjs,.js",
         "--log-level=warning",
     ],
     entry_point = "index.ts",
-    external = [
-        "protobufjs/light",
-    ],
     visibility = ["//visibility:public"],
     deps = [
         ":lib",
         "//ts/lib",
         "//ts/lib:backend_proto",
+        "@npm//protobufjs",
     ],
 )
 

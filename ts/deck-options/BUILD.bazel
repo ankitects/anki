@@ -26,8 +26,8 @@ compile_svelte(
     name = "svelte",
     srcs = svelte_files,
     deps = [
-        "//ts/sveltelib",
         "//ts/components",
+        "//ts/sveltelib",
         "@npm//@types/bootstrap",
         "@npm//@types/marked",
     ],
@@ -48,8 +48,8 @@ ts_library(
     deps = [
         "DeckOptionsPage",
         "lib",
-        "//ts/lib",
         "//ts/components",
+        "//ts/lib",
         "@npm//@popperjs",
         "@npm//svelte2tsx",
     ],
@@ -66,10 +66,10 @@ ts_library(
     module_name = "deckoptions",
     deps = [
         "//ts:image_module_support",
+        "//ts/components",
         "//ts/lib",
         "//ts/lib:backend_proto",
         "//ts/sveltelib",
-        "//ts/components",
         "@npm//lodash-es",
         "@npm//svelte",
     ],
@@ -77,20 +77,13 @@ ts_library(
 
 esbuild(
     name = "deck-options",
-    srcs = [
-        "//ts:protobuf-shim.js",
-    ],
     args = [
         "--global-name=anki",
-        "--inject:$(location //ts:protobuf-shim.js)",
         "--resolve-extensions=.mjs,.js",
         "--log-level=warning",
         "--loader:.svg=text",
     ],
     entry_point = "index.ts",
-    external = [
-        "protobufjs/light",
-    ],
     output_css = "deck-options.css",
     visibility = ["//visibility:public"],
     deps = [
@@ -99,6 +92,7 @@ esbuild(
         ":base_css",
         "@npm//bootstrap",
         "@npm//marked",
+        "@npm//protobufjs",
         "//ts/lib",
         "//ts/lib:backend_proto",
         "//ts/sveltelib",
