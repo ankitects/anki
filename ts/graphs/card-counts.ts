@@ -7,7 +7,7 @@
  */
 
 import { CardQueue, CardType } from "lib/cards";
-import type { Backend } from "lib/proto";
+import type { Backend, Cards } from "lib/proto";
 import {
     schemeGreens,
     schemeBlues,
@@ -41,7 +41,7 @@ const barColours = [
     "grey" /* buried */,
 ];
 
-function countCards(cards: Backend.ICard[], separateInactive: boolean): Count[] {
+function countCards(cards: Cards.ICard[], separateInactive: boolean): Count[] {
     let newCards = 0;
     let learn = 0;
     let relearn = 0;
@@ -50,7 +50,7 @@ function countCards(cards: Backend.ICard[], separateInactive: boolean): Count[] 
     let suspended = 0;
     let buried = 0;
 
-    for (const card of cards as Backend.Card[]) {
+    for (const card of cards as Cards.Card[]) {
         if (separateInactive) {
             switch (card.queue) {
                 case CardQueue.Suspended:

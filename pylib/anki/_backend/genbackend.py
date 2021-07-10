@@ -10,6 +10,8 @@ import google.protobuf.descriptor
 
 import anki.backend_pb2
 import anki.i18n_pb2
+import anki.cards_pb2
+import anki.collection_pb2
 
 import stringcase
 
@@ -165,14 +167,18 @@ def render_service(
         out.append(render_method(service_index, method_index, method))
 
 
-service_modules = dict(I18N="i18n")
+service_modules = dict(
+    I18N=anki.i18n_pb2,
+    COLLECTION=anki.collection_pb2,
+    CARDS=anki.cards_pb2,
+)
 
 for service in anki.backend_pb2.ServiceIndex.DESCRIPTOR.values:
     # SERVICE_INDEX_TEST -> _TESTSERVICE
     base = service.name.replace("SERVICE_INDEX_", "")
-    service_pkg = (service_modules.get(base) or "backend") + ""
+    service_pkg = service_modules.get(base) or anki.backend_pb2
     service_var = "_" + base.replace("_", "") + "SERVICE"
-    service_obj = getattr(getattr(anki, service_pkg + "_pb2"), service_var)
+    service_obj = getattr(service_pkg, service_var)
     service_index = service.number
     render_service(service_obj, service_index)
 

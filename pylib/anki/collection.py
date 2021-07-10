@@ -8,20 +8,20 @@ from __future__ import annotations
 from typing import Any, Generator, List, Literal, Optional, Sequence, Tuple, Union, cast
 
 import anki.backend_pb2 as _pb
-
-# protobuf we publicly export - listed first to avoid circular imports
+from anki import collection_pb2
 from anki._legacy import DeprecatedNamesMixin, deprecated
 
+# protobuf we publicly export - listed first to avoid circular imports
 SearchNode = _pb.SearchNode
-Progress = _pb.Progress
+Progress = collection_pb2.Progress
 EmptyCardsReport = _pb.EmptyCardsReport
 GraphPreferences = _pb.GraphPreferences
 Preferences = _pb.Preferences
-UndoStatus = _pb.UndoStatus
-OpChanges = _pb.OpChanges
-OpChangesWithCount = _pb.OpChangesWithCount
-OpChangesWithId = _pb.OpChangesWithId
-OpChangesAfterUndo = _pb.OpChangesAfterUndo
+UndoStatus = collection_pb2.UndoStatus
+OpChanges = collection_pb2.OpChanges
+OpChangesWithCount = collection_pb2.OpChangesWithCount
+OpChangesWithId = collection_pb2.OpChangesWithId
+OpChangesAfterUndo = collection_pb2.OpChangesAfterUndo
 DefaultsForAdding = _pb.DeckAndNotetype
 BrowserRow = _pb.BrowserRow
 BrowserColumns = _pb.BrowserColumns

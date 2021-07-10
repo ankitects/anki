@@ -10,7 +10,15 @@ pub mod i18n {
 pub mod generic {
     include!(concat!(env!("OUT_DIR"), "/anki.generic.rs"));
 }
+pub mod cards {
+    include!(concat!(env!("OUT_DIR"), "/anki.cards.rs"));
+}
+pub mod collection {
+    include!(concat!(env!("OUT_DIR"), "/anki.collection.rs"));
+}
 
 pub use backend::*;
+pub use cards::*;
+pub use collection::*;
 pub use generic::*;
 pub use i18n::*;
