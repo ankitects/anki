@@ -21,9 +21,6 @@ class EditCurrent(QDialog):
         disable_help_button(self)
         self.setMinimumHeight(400)
         self.setMinimumWidth(250)
-        self.form.buttonBox.button(QDialogButtonBox.Close).setShortcut(
-            QKeySequence("Ctrl+Return")
-        )
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)
         self.editor.card = self.mw.reviewer.card
         self.editor.set_note(self.mw.reviewer.card.note(), focusTo=0)
