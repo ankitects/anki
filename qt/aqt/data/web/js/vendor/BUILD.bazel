@@ -1,17 +1,14 @@
 load(
     "//ts:vendor.bzl",
+    "copy_bootstrap_js",
     "copy_css_browser_selector",
     "copy_jquery",
     "copy_jquery_ui",
-    "copy_protobufjs",
-    "copy_bootstrap_js",
 )
 
 copy_jquery(name = "jquery")
 
 copy_jquery_ui(name = "jquery-ui")
-
-copy_protobufjs(name = "protobufjs")
 
 copy_css_browser_selector(name = "css-browser-selector")
 
@@ -20,7 +17,6 @@ copy_bootstrap_js(name = "bootstrap")
 files = [
     "jquery",
     "jquery-ui",
-    "protobufjs",
     "css-browser-selector",
     "bootstrap",
 ]

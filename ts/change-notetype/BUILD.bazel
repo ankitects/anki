@@ -61,20 +61,13 @@ ts_library(
 
 esbuild(
     name = "change-notetype",
-    srcs = [
-        "//ts:protobuf-shim.js",
-    ],
     args = [
         "--global-name=anki",
-        "--inject:$(location //ts:protobuf-shim.js)",
         "--resolve-extensions=.mjs,.js",
         "--log-level=warning",
         "--loader:.svg=text",
     ],
     entry_point = "index.ts",
-    external = [
-        "protobufjs/light",
-    ],
     output_css = "change-notetype.css",
     visibility = ["//visibility:public"],
     deps = [
@@ -87,6 +80,7 @@ esbuild(
         "//ts/sveltelib",
         "//ts/components",
         "//ts/components:svelte_components",
+        "@npm//protobufjs",
     ] + svelte_names,
 )
 

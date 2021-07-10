@@ -37,6 +37,7 @@
         "jsdoc": "^3.6.6",
         "license-checker-rseidelsohn": "^1.2.2",
         "minimist": "^1.2.5",
+        "patch-package": "^6.4.7",
         "prettier": "=2.3.0",
         "prettier-plugin-svelte": "=2.3.0",
         "sass": "=1.32.12",
@@ -51,7 +52,8 @@
         "uglify-js": "^3.13.1"
     },
     "scripts": {
-        "fix": "prettier --write */*.ts */*.svelte"
+        "fix": "prettier --write */*.ts */*.svelte",
+        "postinstall": "patch-package"
     },
     "dependencies": {
         "@fluent/bundle": "^0.15.1",

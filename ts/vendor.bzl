@@ -60,17 +60,6 @@ def copy_jquery_ui(name = "jquery-ui", visibility = ["//visibility:public"]):
         visibility = visibility,
     )
 
-def copy_protobufjs(name = "protobufjs", visibility = ["//visibility:public"]):
-    vendor_js_lib(
-        name = name,
-        pkg = pkg_from_name(name),
-        include = [
-            "dist/protobuf.min.js",
-        ],
-        strip_prefix = "dist/",
-        visibility = visibility,
-    )
-
 def copy_mathjax(name = "mathjax", visibility = ["//visibility:public"]):
     vendor_js_lib(
         name = name,
@@ -140,4 +129,3 @@ def copy_mdi_icons(name = "mdi-icons", icons = [], visibility = ["//visibility:p
         strip_prefix = "svg/",
         visibility = visibility,
     )
-

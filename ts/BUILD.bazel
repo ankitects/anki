@@ -29,7 +29,6 @@ exports_files([
     ".eslintrc.js",
     "licenses.json",
     "sql_format.ts",
-    "protobuf-shim.js",
     "jest.config.js",
     "package.json",
     "protobuf-no-long.js",
