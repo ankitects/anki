@@ -61,11 +61,11 @@ class EditCurrent(QDialog):
 
     def refresh_editor_on_review(self, qa: str, card, type: str) -> None:
         if type.startswith("review"):
+            self.set_card_format(type[len("review"):].lower())
+
             if not self.editor.card or self.editor.card.nid != card.nid:
                 self.editor.setNote(card.note())
                 self.editor.card = card
-
-            self.set_card_format(type[len("review"):].lower())
 
         return qa
 
