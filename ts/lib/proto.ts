@@ -4,4 +4,6 @@
 import { anki } from "./backend_proto";
 import Backend = anki.backend;
 import Cards = anki.cards;
-export { Backend, Cards };
+import DeckConfig = anki.deckconfig;
+import Notetypes = anki.notetypes;
+export { Backend, Cards, DeckConfig, Notetypes };

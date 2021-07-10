@@ -9,15 +9,15 @@ import copy
 from typing import Any, List, NewType, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
-import anki.backend_pb2 as _pb
-from anki import hooks
+from anki import hooks, notes_pb2
 from anki._legacy import DeprecatedNamesMixin
 from anki.consts import MODEL_STD
 from anki.models import NotetypeDict, NotetypeId, TemplateDict
 from anki.utils import joinFields
 
-DuplicateOrEmptyResult = _pb.NoteFieldsCheckResponse.State
-NoteFieldsCheckResult = _pb.NoteFieldsCheckResponse.State
+DuplicateOrEmptyResult = notes_pb2.NoteFieldsCheckResponse.State
+NoteFieldsCheckResult = notes_pb2.NoteFieldsCheckResponse.State
+DefaultsForAdding = notes_pb2.DeckAndNotetype
 
 # types
 NoteId = NewType("NoteId", int)
@@ -53,7 +53,7 @@ class Note(DeprecatedNamesMixin):
         assert note
         self._load_from_backend_note(note)
 
-    def _load_from_backend_note(self, note: _pb.Note) -> None:
+    def _load_from_backend_note(self, note: notes_pb2.Note) -> None:
         self.id = NoteId(note.id)
         self.guid = note.guid
         self.mid = NotetypeId(note.notetype_id)
@@ -63,9 +63,9 @@ class Note(DeprecatedNamesMixin):
         self.fields = list(note.fields)
         self._fmap = self.col.models.field_map(self.note_type())
 
-    def _to_backend_note(self) -> _pb.Note:
+    def _to_backend_note(self) -> notes_pb2.Note:
         hooks.note_will_flush(self)
-        return _pb.Note(
+        return notes_pb2.Note(
             id=self.id,
             guid=self.guid,
             notetype_id=self.mid,

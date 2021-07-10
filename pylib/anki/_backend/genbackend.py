@@ -12,6 +12,10 @@ import anki.backend_pb2
 import anki.i18n_pb2
 import anki.cards_pb2
 import anki.collection_pb2
+import anki.decks_pb2
+import anki.deckconfig_pb2
+import anki.notes_pb2
+import anki.notetypes_pb2
 
 import stringcase
 
@@ -171,6 +175,10 @@ service_modules = dict(
     I18N=anki.i18n_pb2,
     COLLECTION=anki.collection_pb2,
     CARDS=anki.cards_pb2,
+    NOTES=anki.notes_pb2,
+    DECKS=anki.decks_pb2,
+    DECK_CONFIG=anki.deckconfig_pb2,
+    NOTETYPES=anki.notetypes_pb2,
 )
 
 for service in anki.backend_pb2.ServiceIndex.DESCRIPTOR.values:

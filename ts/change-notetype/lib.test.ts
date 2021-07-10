@@ -5,7 +5,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { Backend } from "lib/proto";
+import { Notetypes } from "lib/proto";
 import { ChangeNotetypeState, negativeOneToNull, MapContext } from "./lib";
 import { get } from "svelte/store";
 
@@ -64,15 +64,15 @@ const exampleInfoSame = {
 
 function differentState(): ChangeNotetypeState {
     return new ChangeNotetypeState(
-        Backend.NotetypeNames.fromObject(exampleNames),
-        Backend.ChangeNotetypeInfo.fromObject(exampleInfoDifferent)
+        Notetypes.NotetypeNames.fromObject(exampleNames),
+        Notetypes.ChangeNotetypeInfo.fromObject(exampleInfoDifferent)
     );
 }
 
 function sameState(): ChangeNotetypeState {
     return new ChangeNotetypeState(
-        Backend.NotetypeNames.fromObject(exampleNames),
-        Backend.ChangeNotetypeInfo.fromObject(exampleInfoSame)
+        Notetypes.NotetypeNames.fromObject(exampleNames),
+        Notetypes.ChangeNotetypeInfo.fromObject(exampleInfoSame)
     );
 }
 

@@ -5,7 +5,7 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
-import { Backend } from "lib/proto";
+import { DeckConfig } from "lib/proto";
 import { postRequest } from "lib/postrequest";
 import { Writable, writable, get, Readable, readable } from "svelte/store";
 import { isEqual, cloneDeep } from "lodash-es";
@@ -14,16 +14,16 @@ import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
 export async function getDeckOptionsInfo(
     deckId: number
-): Promise<Backend.DeckConfigsForUpdate> {
-    return Backend.DeckConfigsForUpdate.decode(
+): Promise<DeckConfig.DeckConfigsForUpdate> {
+    return DeckConfig.DeckConfigsForUpdate.decode(
         await postRequest("/_anki/deckConfigsForUpdate", JSON.stringify({ deckId }))
     );
 }
 
 export async function saveDeckOptions(
-    input: Backend.UpdateDeckConfigsRequest
+    input: DeckConfig.UpdateDeckConfigsRequest
 ): Promise<void> {
-    const data: Uint8Array = Backend.UpdateDeckConfigsRequest.encode(input).finish();
+    const data: Uint8Array = DeckConfig.UpdateDeckConfigsRequest.encode(input).finish();
     await postRequest("/_anki/updateDeckConfigs", data);
     return;
 }
@@ -31,7 +31,7 @@ export async function saveDeckOptions(
 export type DeckOptionsId = number;
 
 export interface ConfigWithCount {
-    config: Backend.DeckConfig;
+    config: DeckConfig.DeckConfig;
     useCount: number;
 }
 
@@ -48,14 +48,14 @@ export interface ConfigListEntry {
     current: boolean;
 }
 
-type ConfigInner = Backend.DeckConfig.Config;
+type ConfigInner = DeckConfig.DeckConfig.Config;
 export class DeckOptionsState {
     readonly currentConfig: Writable<ConfigInner>;
     readonly currentAuxData: Writable<Record<string, unknown>>;
     readonly configList: Readable<ConfigListEntry[]>;
     readonly parentLimits: Readable<ParentLimits>;
     readonly cardStateCustomizer: Writable<string>;
-    readonly currentDeck: Backend.DeckConfigsForUpdate.CurrentDeck;
+    readonly currentDeck: DeckConfig.DeckConfigsForUpdate.CurrentDeck;
     readonly defaults: ConfigInner;
     readonly addonComponents: Writable<DynamicSvelteComponent[]>;
     readonly v3Scheduler: boolean;
@@ -70,12 +70,13 @@ export class DeckOptionsState {
     private removedConfigs: DeckOptionsId[] = [];
     private schemaModified: boolean;
 
-    constructor(targetDeckId: number, data: Backend.DeckConfigsForUpdate) {
+    constructor(targetDeckId: number, data: DeckConfig.DeckConfigsForUpdate) {
         this.targetDeckId = targetDeckId;
-        this.currentDeck = data.currentDeck as Backend.DeckConfigsForUpdate.CurrentDeck;
+        this.currentDeck =
+            data.currentDeck as DeckConfig.DeckConfigsForUpdate.CurrentDeck;
         this.defaults = data.defaults!.config! as ConfigInner;
         this.configs = data.allConfig.map((config) => {
-            const configInner = config.config as Backend.DeckConfig;
+            const configInner = config.config as DeckConfig.DeckConfig;
             return {
                 config: configInner,
                 useCount: config.useCount!,
@@ -150,9 +151,9 @@ export class DeckOptionsState {
     }
 
     /// Clone the current config, making it current.
-    private addConfigFrom(name: string, source: Backend.DeckConfig.IConfig): void {
+    private addConfigFrom(name: string, source: DeckConfig.DeckConfig.IConfig): void {
         const uniqueName = this.ensureNewNameUnique(name);
-        const config = Backend.DeckConfig.create({
+        const config = DeckConfig.DeckConfig.create({
             id: 0,
             name: uniqueName,
             config: cloneDeep(source),
@@ -188,7 +189,7 @@ export class DeckOptionsState {
         this.updateConfigList();
     }
 
-    dataForSaving(applyToChildren: boolean): Backend.UpdateDeckConfigsRequest {
+    dataForSaving(applyToChildren: boolean): DeckConfig.UpdateDeckConfigsRequest {
         const modifiedConfigsExcludingCurrent = this.configs
             .map((c) => c.config)
             .filter((c, idx) => {
@@ -202,7 +203,7 @@ export class DeckOptionsState {
             // current must come last, even if unmodified
             this.configs[this.selectedIdx].config,
         ];
-        return Backend.UpdateDeckConfigsRequest.create({
+        return DeckConfig.UpdateDeckConfigsRequest.create({
             targetDeckId: this.targetDeckId,
             removedConfigIds: this.removedConfigs,
             configs,

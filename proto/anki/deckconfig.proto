@@ -1,0 +1,145 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+package anki.deckconfig;
+
+import "anki/generic.proto";
+import "anki/collection.proto";
+import "anki/decks.proto";
+
+service DeckConfigService {
+  rpc AddOrUpdateDeckConfigLegacy(generic.Json) returns (DeckConfigId);
+  rpc GetDeckConfig(DeckConfigId) returns (DeckConfig);
+  rpc AllDeckConfigLegacy(generic.Empty) returns (generic.Json);
+  rpc GetDeckConfigLegacy(DeckConfigId) returns (generic.Json);
+  rpc NewDeckConfigLegacy(generic.Empty) returns (generic.Json);
+  rpc RemoveDeckConfig(DeckConfigId) returns (generic.Empty);
+  rpc GetDeckConfigsForUpdate(decks.DeckId) returns (DeckConfigsForUpdate);
+  rpc UpdateDeckConfigs(UpdateDeckConfigsRequest)
+      returns (collection.OpChanges);
+}
+
+message DeckConfigId {
+  int64 dcid = 1;
+}
+
+message DeckConfig {
+  message Config {
+    enum NewCardInsertOrder {
+      NEW_CARD_INSERT_ORDER_DUE = 0;
+      NEW_CARD_INSERT_ORDER_RANDOM = 1;
+    }
+    enum NewCardGatherPriority {
+      NEW_CARD_GATHER_PRIORITY_DECK = 0;
+      NEW_CARD_GATHER_PRIORITY_LOWEST_POSITION = 1;
+      NEW_CARD_GATHER_PRIORITY_HIGHEST_POSITION = 2;
+    }
+    enum NewCardSortOrder {
+      NEW_CARD_SORT_ORDER_TEMPLATE_THEN_LOWEST_POSITION = 0;
+      NEW_CARD_SORT_ORDER_TEMPLATE_THEN_HIGHEST_POSITION = 1;
+      NEW_CARD_SORT_ORDER_TEMPLATE_THEN_RANDOM = 2;
+      NEW_CARD_SORT_ORDER_LOWEST_POSITION = 3;
+      NEW_CARD_SORT_ORDER_HIGHEST_POSITION = 4;
+      NEW_CARD_SORT_ORDER_RANDOM = 5;
+    }
+    enum ReviewCardOrder {
+      REVIEW_CARD_ORDER_DAY = 0;
+      REVIEW_CARD_ORDER_DAY_THEN_DECK = 1;
+      REVIEW_CARD_ORDER_DECK_THEN_DAY = 2;
+      REVIEW_CARD_ORDER_INTERVALS_ASCENDING = 3;
+      REVIEW_CARD_ORDER_INTERVALS_DESCENDING = 4;
+      // REVIEW_CARD_ORDER_RELATIVE_OVERDUE = 3;
+    }
+    enum ReviewMix {
+      REVIEW_MIX_MIX_WITH_REVIEWS = 0;
+      REVIEW_MIX_AFTER_REVIEWS = 1;
+      REVIEW_MIX_BEFORE_REVIEWS = 2;
+    }
+    enum LeechAction {
+      LEECH_ACTION_SUSPEND = 0;
+      LEECH_ACTION_TAG_ONLY = 1;
+    }
+
+    repeated float learn_steps = 1;
+    repeated float relearn_steps = 2;
+
+    reserved 3 to 8;
+
+    uint32 new_per_day = 9;
+    uint32 reviews_per_day = 10;
+    uint32 new_per_day_minimum = 29;
+
+    float initial_ease = 11;
+    float easy_multiplier = 12;
+    float hard_multiplier = 13;
+    float lapse_multiplier = 14;
+    float interval_multiplier = 15;
+
+    uint32 maximum_review_interval = 16;
+    uint32 minimum_lapse_interval = 17;
+
+    uint32 graduating_interval_good = 18;
+    uint32 graduating_interval_easy = 19;
+
+    NewCardInsertOrder new_card_insert_order = 20;
+    NewCardGatherPriority new_card_gather_priority = 34;
+    NewCardSortOrder new_card_sort_order = 32;
+    ReviewMix new_mix = 30;
+
+    ReviewCardOrder review_order = 33;
+
+    ReviewMix interday_learning_mix = 31;
+
+    LeechAction leech_action = 21;
+    uint32 leech_threshold = 22;
+
+    bool disable_autoplay = 23;
+    uint32 cap_answer_time_to_secs = 24;
+    bool show_timer = 25;
+    bool skip_question_when_replaying_answer = 26;
+
+    bool bury_new = 27;
+    bool bury_reviews = 28;
+
+    bytes other = 255;
+  }
+
+  int64 id = 1;
+  string name = 2;
+  int64 mtime_secs = 3;
+  int32 usn = 4;
+  Config config = 5;
+}
+
+message DeckConfigsForUpdate {
+  message ConfigWithExtra {
+    DeckConfig config = 1;
+    uint32 use_count = 2;
+  }
+  message CurrentDeck {
+    string name = 1;
+    int64 config_id = 2;
+    repeated int64 parent_config_ids = 3;
+  }
+
+  repeated ConfigWithExtra all_config = 1;
+  CurrentDeck current_deck = 2;
+  DeckConfig defaults = 3;
+  bool schema_modified = 4;
+  bool v3_scheduler = 5;
+  bool have_addons = 6;
+  // only applies to v3 scheduler
+  string card_state_customizer = 7;
+}
+
+message UpdateDeckConfigsRequest {
+  int64 target_deck_id = 1;
+  /// Unchanged, non-selected configs can be omitted. Deck will
+  /// be set to whichever entry comes last.
+  repeated DeckConfig configs = 2;
+  repeated int64 removed_config_ids = 3;
+  bool apply_to_children = 4;
+  string card_state_customizer = 5;
+}
