@@ -34,6 +34,19 @@ function parseHTML(html: string): string {
 
 export class Codable extends HTMLTextAreaElement {
     codeMirror: CodeMirror | undefined;
+    obscureDiv: HTMLDivElement;
+
+    constructor() {
+        super();
+        this.obscureDiv = document.createElement("div");
+        this.obscureDiv.className = "CodeMirror-obscure";
+        this.obscureDiv.addEventListener("mousedown", this.focusTextarea.bind(this));
+    }
+
+    focusTextarea(event: Event): void {
+        this.codeMirror!.display.input.textarea.focus();
+        event.preventDefault();
+    }
 
     get active(): boolean {
         return Boolean(this.codeMirror);
@@ -58,6 +71,7 @@ export class Codable extends HTMLTextAreaElement {
     setup(html: string): void {
         this.fieldHTML = html;
         this.codeMirror = CodeMirror.fromTextArea(this, codeMirrorOptions);
+        this.codeMirror!.display.wrapper.appendChild(this.obscureDiv);
     }
 
     teardown(): string {
@@ -72,11 +86,11 @@ export class Codable extends HTMLTextAreaElement {
     }
 
     obscure(): void {
-        // this.activeInput.obscure();
+        this.classList.add("obscured");
     }
 
     unobscure(): void {
-        // this.activeInput.obscure();
+        this.classList.remove("obscured");
     }
 
     caretToEnd(): void {

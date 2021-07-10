@@ -58,13 +58,20 @@ img.drawing {
     height: auto;
     padding: 6px 0;
 
-    > .CodeMirror-obscure {
+    .CodeMirror-obscure {
         width: 100%;
         height: 100%;
         position: absolute;
         top: 0;
         left: 0;
         background-color: inherit;
-        z-index: 3;
+    }
+
+    .obscured + & .CodeMirror-obscure {
+        z-index: 4;
+    }
+
+    .obscured + &.CodeMirror-focused .CodeMirror-obscure {
+        z-index: initial;
     }
 }

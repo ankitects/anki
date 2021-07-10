@@ -125,11 +125,13 @@ export class EditingArea extends HTMLDivElement {
     }
 
     obscure(): void {
-        this.activeInput.obscure();
+        this.editable.obscure();
+        this.codable.obscure();
     }
 
     unobscure(): void {
-        this.activeInput.unobscure();
+        this.editable.unobscure();
+        this.codable.unobscure();
     }
 
     caretToEnd(): void {
