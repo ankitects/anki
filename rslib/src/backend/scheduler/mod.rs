@@ -117,7 +117,7 @@ impl SchedulerService for Backend {
     }
 
     fn set_due_date(&self, input: pb::SetDueDateRequest) -> Result<pb::OpChanges> {
-        let config = input.config_key.map(Into::into);
+        let config = input.config_key.map(|v| v.key().into());
         let days = input.days;
         let cids = input.card_ids.into_newtype(CardId);
         self.with_col(|col| col.set_due_date(&cids, &days, config).map(Into::into))

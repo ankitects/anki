@@ -30,7 +30,7 @@ from anki.collection import OpChanges
 from anki.errors import NotFoundError
 from anki.utils import from_json_bytes, to_json_bytes
 
-Config = configs_pb2.Config
+Config = configs_pb2.ConfigKey
 
 
 class ConfigManager:

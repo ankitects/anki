@@ -178,7 +178,7 @@ message ScheduleCardsAsNewRequest {
 message SetDueDateRequest {
   repeated int64 card_ids = 1;
   string days = 2;
-  configs.Config.String config_key = 3;
+  configs.OptionalStringConfigKey config_key = 3;
 }
 
 message SortCardsRequest {

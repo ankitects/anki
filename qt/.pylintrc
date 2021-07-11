@@ -9,7 +9,7 @@ ignored-classes=
   BrowserColumns,
   BrowserRow,
   SearchNode,
-  Config,
+  ConfigKey,
   OpChanges,
   UnburyDeckRequest,
   CardAnswer,
