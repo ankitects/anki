@@ -23,7 +23,7 @@ from typing import (
 if TYPE_CHECKING:
     import anki
 
-import anki._backend.backend_pb2 as _pb
+from anki import deckconfig_pb2, decks_pb2
 from anki._legacy import DeprecatedNamesMixin, deprecated, print_deprecation_warning
 from anki.cards import CardId
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
@@ -32,12 +32,12 @@ from anki.errors import NotFoundError
 from anki.utils import from_json_bytes, ids2str, intTime, to_json_bytes
 
 # public exports
-DeckTreeNode = _pb.DeckTreeNode
-DeckNameId = _pb.DeckNameId
-FilteredDeckConfig = _pb.Deck.Filtered
-DeckCollapseScope = _pb.SetDeckCollapsedRequest.Scope
-DeckConfigsForUpdate = _pb.DeckConfigsForUpdate
-UpdateDeckConfigs = _pb.UpdateDeckConfigsRequest
+DeckTreeNode = decks_pb2.DeckTreeNode
+DeckNameId = decks_pb2.DeckNameId
+FilteredDeckConfig = decks_pb2.Deck.Filtered
+DeckCollapseScope = decks_pb2.SetDeckCollapsedRequest.Scope
+DeckConfigsForUpdate = deckconfig_pb2.DeckConfigsForUpdate
+UpdateDeckConfigs = deckconfig_pb2.UpdateDeckConfigsRequest
 
 # type aliases until we can move away from dicts
 DeckDict = Dict[str, Any]

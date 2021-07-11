@@ -29,7 +29,7 @@ def set_due_date_dialog(
     *,
     parent: QWidget,
     card_ids: Sequence[CardId],
-    config_key: Optional[Config.String.Key.V],
+    config_key: Optional[Config.String.V],
 ) -> Optional[CollectionOp[OpChanges]]:
     assert aqt.mw
     if not card_ids:

@@ -1,0 +1,111 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+package anki.collection;
+
+import "anki/generic.proto";
+
+service CollectionService {
+  rpc OpenCollection(OpenCollectionRequest) returns (generic.Empty);
+  rpc CloseCollection(CloseCollectionRequest) returns (generic.Empty);
+  rpc CheckDatabase(generic.Empty) returns (CheckDatabaseResponse);
+  rpc GetUndoStatus(generic.Empty) returns (UndoStatus);
+  rpc Undo(generic.Empty) returns (OpChangesAfterUndo);
+  rpc Redo(generic.Empty) returns (OpChangesAfterUndo);
+  rpc AddCustomUndoEntry(generic.String) returns (generic.UInt32);
+  rpc MergeUndoEntries(generic.UInt32) returns (OpChanges);
+  rpc LatestProgress(generic.Empty) returns (Progress);
+  rpc SetWantsAbort(generic.Empty) returns (generic.Empty);
+}
+
+message OpenCollectionRequest {
+  string collection_path = 1;
+  string media_folder_path = 2;
+  string media_db_path = 3;
+  string log_path = 4;
+}
+
+message CloseCollectionRequest {
+  bool downgrade_to_schema11 = 1;
+}
+
+message CheckDatabaseResponse {
+  repeated string problems = 1;
+}
+
+message OpChanges {
+  bool card = 1;
+  bool note = 2;
+  bool deck = 3;
+  bool tag = 4;
+  bool notetype = 5;
+  bool config = 6;
+  bool deck_config = 11;
+  bool mtime = 12;
+
+  bool browser_table = 7;
+  bool browser_sidebar = 8;
+  // editor and displayed card in review screen
+  bool note_text = 9;
+  // whether to call .reset() and getCard()
+  bool study_queues = 10;
+}
+
+message OpChangesWithCount {
+  uint32 count = 1;
+  OpChanges changes = 2;
+}
+
+message OpChangesWithId {
+  int64 id = 1;
+  OpChanges changes = 2;
+}
+
+message UndoStatus {
+  string undo = 1;
+  string redo = 2;
+  uint32 last_step = 3;
+}
+
+message OpChangesAfterUndo {
+  OpChanges changes = 1;
+  string operation = 2;
+  int64 reverted_to_timestamp = 3;
+  UndoStatus new_status = 4;
+  uint32 counter = 5;
+}
+
+message Progress {
+  message MediaSync {
+    string checked = 1;
+    string added = 2;
+    string removed = 3;
+  }
+
+  message FullSync {
+    uint32 transferred = 1;
+    uint32 total = 2;
+  }
+
+  message NormalSync {
+    string stage = 1;
+    string added = 2;
+    string removed = 3;
+  }
+
+  message DatabaseCheck {
+    string stage = 1;
+    uint32 stage_total = 2;
+    uint32 stage_current = 3;
+  }
+  oneof value {
+    generic.Empty none = 1;
+    MediaSync media_sync = 2;
+    string media_check = 3;
+    FullSync full_sync = 4;
+    NormalSync normal_sync = 5;
+    DatabaseCheck database_check = 6;
+  }
+}

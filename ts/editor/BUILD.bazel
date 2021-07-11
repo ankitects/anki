@@ -114,7 +114,6 @@ copy_mdi_icons(
         "function-variant.svg",
         "contain.svg",
         "xml.svg",
-
         "format-color-text.svg",
         "format-color-highlight.svg",
         "color-helper.svg",
@@ -124,19 +123,12 @@ copy_mdi_icons(
 
 esbuild(
     name = "editor",
-    srcs = [
-        "//ts:protobuf-shim.js",
-    ],
     args = [
         "--loader:.svg=text",
-        "--inject:$(location //ts:protobuf-shim.js)",
         "--resolve-extensions=.mjs,.js",
         "--log-level=warning",
     ],
     entry_point = "index_wrapper.ts",
-    external = [
-        "protobufjs/light",
-    ],
     output_css = "editor.css",
     visibility = ["//visibility:public"],
     deps = [
@@ -148,6 +140,7 @@ esbuild(
         "svelte_components",
         "//ts/components",
         "//ts/components:svelte_components",
+        "@npm//protobufjs",
     ],
 )
 

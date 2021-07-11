@@ -1,0 +1,176 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+package anki.notetypes;
+
+import "anki/generic.proto";
+import "anki/collection.proto";
+
+service NotetypesService {
+  rpc AddNotetype(Notetype) returns (collection.OpChangesWithId);
+  rpc UpdateNotetype(Notetype) returns (collection.OpChanges);
+  rpc AddNotetypeLegacy(generic.Json) returns (collection.OpChangesWithId);
+  rpc UpdateNotetypeLegacy(generic.Json) returns (collection.OpChanges);
+  rpc AddOrUpdateNotetype(AddOrUpdateNotetypeRequest) returns (NotetypeId);
+  rpc GetStockNotetypeLegacy(StockNotetype) returns (generic.Json);
+  rpc GetNotetype(NotetypeId) returns (Notetype);
+  rpc GetNotetypeLegacy(NotetypeId) returns (generic.Json);
+  rpc GetNotetypeNames(generic.Empty) returns (NotetypeNames);
+  rpc GetNotetypeNamesAndCounts(generic.Empty) returns (NotetypeUseCounts);
+  rpc GetNotetypeIdByName(generic.String) returns (NotetypeId);
+  rpc RemoveNotetype(NotetypeId) returns (collection.OpChanges);
+  rpc GetAuxNotetypeConfigKey(GetAuxConfigKeyRequest) returns (generic.String);
+  rpc GetAuxTemplateConfigKey(GetAuxTemplateConfigKeyRequest)
+      returns (generic.String);
+  rpc GetChangeNotetypeInfo(GetChangeNotetypeInfoRequest)
+      returns (ChangeNotetypeInfo);
+  rpc ChangeNotetype(ChangeNotetypeRequest) returns (collection.OpChanges);
+}
+
+message NotetypeId {
+  int64 ntid = 1;
+}
+
+message Notetype {
+  message Config {
+    enum Kind {
+      KIND_NORMAL = 0;
+      KIND_CLOZE = 1;
+    }
+    message CardRequirement {
+      enum Kind {
+        KIND_NONE = 0;
+        KIND_ANY = 1;
+        KIND_ALL = 2;
+      }
+      uint32 card_ord = 1;
+      Kind kind = 2;
+      repeated uint32 field_ords = 3;
+    }
+
+    Kind kind = 1;
+    uint32 sort_field_idx = 2;
+    string css = 3;
+    /// This is now stored separately; retrieve with DefaultsForAdding()
+    int64 target_deck_id_unused = 4;
+    string latex_pre = 5;
+    string latex_post = 6;
+    bool latex_svg = 7;
+    repeated CardRequirement reqs = 8;
+
+    bytes other = 255;
+  }
+  message Field {
+    message Config {
+      bool sticky = 1;
+      bool rtl = 2;
+      string font_name = 3;
+      uint32 font_size = 4;
+
+      bytes other = 255;
+    }
+    generic.OptionalUInt32 ord = 1;
+    string name = 2;
+    Config config = 5;
+  }
+  message Template {
+    message Config {
+      string q_format = 1;
+      string a_format = 2;
+      string q_format_browser = 3;
+      string a_format_browser = 4;
+      int64 target_deck_id = 5;
+      string browser_font_name = 6;
+      uint32 browser_font_size = 7;
+
+      bytes other = 255;
+    }
+
+    generic.OptionalUInt32 ord = 1;
+    string name = 2;
+    int64 mtime_secs = 3;
+    sint32 usn = 4;
+    Config config = 5;
+  }
+
+  int64 id = 1;
+  string name = 2;
+  int64 mtime_secs = 3;
+  sint32 usn = 4;
+  Config config = 7;
+  repeated Field fields = 8;
+  repeated Template templates = 9;
+}
+
+message AddOrUpdateNotetypeRequest {
+  bytes json = 1;
+  bool preserve_usn_and_mtime = 2;
+}
+
+message StockNotetype {
+  enum Kind {
+    BASIC = 0;
+    BASIC_AND_REVERSED = 1;
+    BASIC_OPTIONAL_REVERSED = 2;
+    BASIC_TYPING = 3;
+    CLOZE = 4;
+  }
+
+  Kind kind = 1;
+}
+
+message NotetypeNames {
+  repeated NotetypeNameId entries = 1;
+}
+
+message NotetypeUseCounts {
+  repeated NotetypeNameIdUseCount entries = 1;
+}
+
+message NotetypeNameId {
+  int64 id = 1;
+  string name = 2;
+}
+
+message NotetypeNameIdUseCount {
+  int64 id = 1;
+  string name = 2;
+  uint32 use_count = 3;
+}
+
+message GetAuxConfigKeyRequest {
+  int64 id = 1;
+  string key = 2;
+}
+
+message GetAuxTemplateConfigKeyRequest {
+  int64 notetype_id = 1;
+  uint32 card_ordinal = 2;
+  string key = 3;
+}
+
+message GetChangeNotetypeInfoRequest {
+  int64 old_notetype_id = 1;
+  int64 new_notetype_id = 2;
+}
+
+message ChangeNotetypeRequest {
+  repeated int64 note_ids = 1;
+  // -1 is used to represent null, as nullable repeated fields
+  // are unwieldy in protobuf
+  repeated int32 new_fields = 2;
+  repeated int32 new_templates = 3;
+  int64 old_notetype_id = 4;
+  int64 new_notetype_id = 5;
+  int64 current_schema = 6;
+}
+
+message ChangeNotetypeInfo {
+  repeated string old_field_names = 1;
+  repeated string old_template_names = 2;
+  repeated string new_field_names = 3;
+  repeated string new_template_names = 4;
+  ChangeNotetypeRequest input = 5;
+}

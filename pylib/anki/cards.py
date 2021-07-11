@@ -10,8 +10,7 @@ import time
 from typing import List, NewType, Optional
 
 import anki  # pylint: disable=unused-import
-import anki._backend.backend_pb2 as _pb
-from anki import hooks
+from anki import cards_pb2, hooks
 from anki._legacy import DeprecatedNamesMixin, deprecated
 from anki.consts import *
 from anki.models import NotetypeDict, TemplateDict
@@ -31,7 +30,7 @@ from anki.sound import AVTag
 
 # types
 CardId = NewType("CardId", int)
-BackendCard = _pb.Card
+BackendCard = cards_pb2.Card
 
 
 class Card(DeprecatedNamesMixin):
@@ -62,14 +61,14 @@ class Card(DeprecatedNamesMixin):
             self._load_from_backend_card(backend_card)
         else:
             # new card with defaults
-            self._load_from_backend_card(_pb.Card())
+            self._load_from_backend_card(cards_pb2.Card())
 
     def load(self) -> None:
         card = self.col._backend.get_card(self.id)
         assert card
         self._load_from_backend_card(card)
 
-    def _load_from_backend_card(self, card: _pb.Card) -> None:
+    def _load_from_backend_card(self, card: cards_pb2.Card) -> None:
         self._render_output = None
         self._note = None
         self.id = CardId(card.id)
@@ -91,9 +90,9 @@ class Card(DeprecatedNamesMixin):
         self.flags = card.flags
         self.data = card.data
 
-    def _to_backend_card(self) -> _pb.Card:
+    def _to_backend_card(self) -> cards_pb2.Card:
         # mtime & usn are set by backend
-        return _pb.Card(
+        return cards_pb2.Card(
             id=self.id,
             note_id=self.nid,
             deck_id=self.did,

@@ -137,7 +137,6 @@ class Editor:
             ],
             js=[
                 "js/vendor/jquery.min.js",
-                "js/vendor/protobuf.min.js",
                 "js/editor.js",
             ],
             context=self,

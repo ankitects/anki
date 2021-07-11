@@ -4,6 +4,7 @@ load("@py_deps//:requirements.bzl", "requirement")
 load("@rules_python//experimental/python:wheel.bzl", "py_package", "py_wheel")
 load("//:defs.bzl", "anki_version")
 load("//pylib:orjson.bzl", "orjson_if_available")
+load("//pylib:protobuf.bzl", "py_proto")
 
 copy_file(
     name = "buildinfo",
@@ -39,6 +40,7 @@ py_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
+        ":proto",
         requirement("beautifulsoup4"),
         requirement("decorator"),
         requirement("distro"),
@@ -104,4 +106,25 @@ filegroup(
     visibility = [
         "//pylib:__subpackages__",
     ],
+)
+
+py_proto(
+    name = "proto_py",
+    srcs = ["//proto"],
+    visibility = [
+        "//visibility:public",
+    ],
+)
+
+py_library(
+    name = "proto",
+    srcs = [
+        "__init__.py",
+        # includes the .py files
+        ":proto_py",
+    ],
+    # includes the .pyi files
+    data = [":proto_py", "py.typed"],
+    imports = [".."],
+    visibility = ["//visibility:public"],
 )

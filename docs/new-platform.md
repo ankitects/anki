@@ -74,14 +74,14 @@ index eff3d9df2..fb2e9f7fe 100644
          python_runtime = "@python//:python",
      )
 
--    node_repositories(package_json = ["@net_ankiweb_anki//ts:package.json"])
+-    node_repositories(package_json = ["@ankidesktop//ts:package.json"])
 +    native.local_repository(
 +        name = "local_node",
 +        path = "local_node",
 +    )
 +
 +    node_repositories(
-+        package_json = ["@net_ankiweb_anki//ts:package.json"],
++        package_json = ["@ankidesktop//ts:package.json"],
 +        vendored_node = "@local_node//:node",
 +    )
 

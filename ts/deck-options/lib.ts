@@ -5,7 +5,7 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
-import pb from "lib/backend_proto";
+import { DeckConfig } from "lib/proto";
 import { postRequest } from "lib/postrequest";
 import { Writable, writable, get, Readable, readable } from "svelte/store";
 import { isEqual, cloneDeep } from "lodash-es";
@@ -14,17 +14,16 @@ import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
 export async function getDeckOptionsInfo(
     deckId: number
-): Promise<pb.BackendProto.DeckConfigsForUpdate> {
-    return pb.BackendProto.DeckConfigsForUpdate.decode(
+): Promise<DeckConfig.DeckConfigsForUpdate> {
+    return DeckConfig.DeckConfigsForUpdate.decode(
         await postRequest("/_anki/deckConfigsForUpdate", JSON.stringify({ deckId }))
     );
 }
 
 export async function saveDeckOptions(
-    input: pb.BackendProto.UpdateDeckConfigsRequest
+    input: DeckConfig.UpdateDeckConfigsRequest
 ): Promise<void> {
-    const data: Uint8Array =
-        pb.BackendProto.UpdateDeckConfigsRequest.encode(input).finish();
+    const data: Uint8Array = DeckConfig.UpdateDeckConfigsRequest.encode(input).finish();
     await postRequest("/_anki/updateDeckConfigs", data);
     return;
 }
@@ -32,7 +31,7 @@ export async function saveDeckOptions(
 export type DeckOptionsId = number;
 
 export interface ConfigWithCount {
-    config: pb.BackendProto.DeckConfig;
+    config: DeckConfig.DeckConfig;
     useCount: number;
 }
 
@@ -49,14 +48,14 @@ export interface ConfigListEntry {
     current: boolean;
 }
 
-type ConfigInner = pb.BackendProto.DeckConfig.Config;
+type ConfigInner = DeckConfig.DeckConfig.Config;
 export class DeckOptionsState {
     readonly currentConfig: Writable<ConfigInner>;
     readonly currentAuxData: Writable<Record<string, unknown>>;
     readonly configList: Readable<ConfigListEntry[]>;
     readonly parentLimits: Readable<ParentLimits>;
     readonly cardStateCustomizer: Writable<string>;
-    readonly currentDeck: pb.BackendProto.DeckConfigsForUpdate.CurrentDeck;
+    readonly currentDeck: DeckConfig.DeckConfigsForUpdate.CurrentDeck;
     readonly defaults: ConfigInner;
     readonly addonComponents: Writable<DynamicSvelteComponent[]>;
     readonly v3Scheduler: boolean;
@@ -71,13 +70,13 @@ export class DeckOptionsState {
     private removedConfigs: DeckOptionsId[] = [];
     private schemaModified: boolean;
 
-    constructor(targetDeckId: number, data: pb.BackendProto.DeckConfigsForUpdate) {
+    constructor(targetDeckId: number, data: DeckConfig.DeckConfigsForUpdate) {
         this.targetDeckId = targetDeckId;
         this.currentDeck =
-            data.currentDeck as pb.BackendProto.DeckConfigsForUpdate.CurrentDeck;
+            data.currentDeck as DeckConfig.DeckConfigsForUpdate.CurrentDeck;
         this.defaults = data.defaults!.config! as ConfigInner;
         this.configs = data.allConfig.map((config) => {
-            const configInner = config.config as pb.BackendProto.DeckConfig;
+            const configInner = config.config as DeckConfig.DeckConfig;
             return {
                 config: configInner,
                 useCount: config.useCount!,
@@ -152,12 +151,9 @@ export class DeckOptionsState {
     }
 
     /// Clone the current config, making it current.
-    private addConfigFrom(
-        name: string,
-        source: pb.BackendProto.DeckConfig.IConfig
-    ): void {
+    private addConfigFrom(name: string, source: DeckConfig.DeckConfig.IConfig): void {
         const uniqueName = this.ensureNewNameUnique(name);
-        const config = pb.BackendProto.DeckConfig.create({
+        const config = DeckConfig.DeckConfig.create({
             id: 0,
             name: uniqueName,
             config: cloneDeep(source),
@@ -193,7 +189,7 @@ export class DeckOptionsState {
         this.updateConfigList();
     }
 
-    dataForSaving(applyToChildren: boolean): pb.BackendProto.UpdateDeckConfigsRequest {
+    dataForSaving(applyToChildren: boolean): DeckConfig.UpdateDeckConfigsRequest {
         const modifiedConfigsExcludingCurrent = this.configs
             .map((c) => c.config)
             .filter((c, idx) => {
@@ -207,7 +203,7 @@ export class DeckOptionsState {
             // current must come last, even if unmodified
             this.configs[this.selectedIdx].config,
         ];
-        return pb.BackendProto.UpdateDeckConfigsRequest.create({
+        return DeckConfig.UpdateDeckConfigsRequest.create({
             targetDeckId: this.targetDeckId,
             removedConfigIds: this.removedConfigs,
             configs,

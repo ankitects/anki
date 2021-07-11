@@ -5,7 +5,7 @@ mod answering;
 mod states;
 
 use super::Backend;
-pub(super) use crate::backend_proto::scheduling_service::Service as SchedulingService;
+pub(super) use crate::backend_proto::scheduler_service::Service as SchedulerService;
 use crate::{
     backend_proto::{self as pb},
     prelude::*,
@@ -16,7 +16,7 @@ use crate::{
     stats::studied_today,
 };
 
-impl SchedulingService for Backend {
+impl SchedulerService for Backend {
     /// This behaves like _updateCutoff() in older code - it also unburies at the start of
     /// a new day.
     fn sched_timing_today(&self, _input: pb::Empty) -> Result<pb::SchedTimingTodayResponse> {
@@ -117,7 +117,7 @@ impl SchedulingService for Backend {
     }
 
     fn set_due_date(&self, input: pb::SetDueDateRequest) -> Result<pb::OpChanges> {
-        let config = input.config_key.map(Into::into);
+        let config = input.config_key.map(|v| v.key().into());
         let days = input.days;
         let cids = input.card_ids.into_newtype(CardId);
         self.with_col(|col| col.set_due_date(&cids, &days, config).map(Into::into))

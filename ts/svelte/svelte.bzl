@@ -91,7 +91,6 @@ def svelte_check(name = "svelte_check", srcs = []):
             "//ts:tsconfig.json",
             "//ts/sveltelib",
             "//ts/lib",
-            "//ts/lib:backend_proto",
             "@npm//sass",
         ] + srcs,
         env = {"SASS_PATH": "$(rootpath //ts:tsconfig.json)/../.."},

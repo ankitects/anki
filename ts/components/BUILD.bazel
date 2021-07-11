@@ -17,25 +17,24 @@ filegroup(
 compile_svelte(
     name = "svelte",
     srcs = svelte_files,
+    visibility = ["//visibility:public"],
     deps = [
         "//ts/sass:button_mixins_lib",
         "//ts/sass/bootstrap",
     ],
-    visibility = ["//visibility:public"],
 )
 
 ts_library(
     name = "components",
-    module_name = "components",
     srcs = glob(
         ["*.ts"],
         exclude = ["*.test.ts"],
     ),
+    module_name = "components",
     tsconfig = "//ts:tsconfig.json",
     visibility = ["//visibility:public"],
     deps = [
         "//ts/lib",
-        "//ts/lib:backend_proto",
         "//ts/sveltelib",
         "@npm//@popperjs/core",
         "@npm//@types/bootstrap",

@@ -34,8 +34,8 @@ from PyQt5.QtWidgets import (
 )
 
 import aqt
-from anki import Collection
 from anki._legacy import deprecated
+from anki.collection import Collection
 from anki.lang import TR, tr_legacyglobal  # pylint: disable=unused-import
 from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
 from aqt.qt import *

@@ -1,0 +1,177 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+package anki.search;
+
+import "anki/generic.proto";
+import "anki/collection.proto";
+
+service SearchService {
+  rpc BuildSearchString(SearchNode) returns (generic.String);
+  rpc SearchCards(SearchRequest) returns (SearchResponse);
+  rpc SearchNotes(SearchRequest) returns (SearchResponse);
+  rpc JoinSearchNodes(JoinSearchNodesRequest) returns (generic.String);
+  rpc ReplaceSearchNode(ReplaceSearchNodeRequest) returns (generic.String);
+  rpc FindAndReplace(FindAndReplaceRequest)
+      returns (collection.OpChangesWithCount);
+  rpc AllBrowserColumns(generic.Empty) returns (BrowserColumns);
+  rpc BrowserRowForId(generic.Int64) returns (BrowserRow);
+  rpc SetActiveBrowserColumns(generic.StringList) returns (generic.Empty);
+}
+
+message SearchNode {
+  message Dupe {
+    int64 notetype_id = 1;
+    string first_field = 2;
+  }
+  enum Flag {
+    FLAG_NONE = 0;
+    FLAG_ANY = 1;
+    FLAG_RED = 2;
+    FLAG_ORANGE = 3;
+    FLAG_GREEN = 4;
+    FLAG_BLUE = 5;
+    FLAG_PINK = 6;
+    FLAG_TURQUOISE = 7;
+    FLAG_PURPLE = 8;
+  }
+  enum Rating {
+    RATING_ANY = 0;
+    RATING_AGAIN = 1;
+    RATING_HARD = 2;
+    RATING_GOOD = 3;
+    RATING_EASY = 4;
+    RATING_BY_RESCHEDULE = 5;
+  }
+  message Rated {
+    uint32 days = 1;
+    Rating rating = 2;
+  }
+  enum CardState {
+    CARD_STATE_NEW = 0;
+    CARD_STATE_LEARN = 1;
+    CARD_STATE_REVIEW = 2;
+    CARD_STATE_DUE = 3;
+    CARD_STATE_SUSPENDED = 4;
+    CARD_STATE_BURIED = 5;
+  }
+  message IdList {
+    repeated int64 ids = 1;
+  }
+  message Group {
+    enum Joiner {
+      AND = 0;
+      OR = 1;
+    }
+    repeated SearchNode nodes = 1;
+    Joiner joiner = 2;
+  }
+  oneof filter {
+    Group group = 1;
+    SearchNode negated = 2;
+    string parsable_text = 3;
+    uint32 template = 4;
+    int64 nid = 5;
+    Dupe dupe = 6;
+    string field_name = 7;
+    Rated rated = 8;
+    uint32 added_in_days = 9;
+    int32 due_in_days = 10;
+    Flag flag = 11;
+    CardState card_state = 12;
+    IdList nids = 13;
+    uint32 edited_in_days = 14;
+    string deck = 15;
+    int32 due_on_day = 16;
+    string tag = 17;
+    string note = 18;
+    uint32 introduced_in_days = 19;
+  }
+}
+
+message SearchRequest {
+  string search = 1;
+  SortOrder order = 2;
+}
+
+message SearchResponse {
+  repeated int64 ids = 1;
+}
+
+message SortOrder {
+  message Builtin {
+    string column = 1;
+    bool reverse = 2;
+  }
+  oneof value {
+    generic.Empty none = 1;
+    string custom = 2;
+    Builtin builtin = 3;
+  }
+}
+
+message JoinSearchNodesRequest {
+  SearchNode.Group.Joiner joiner = 1;
+  SearchNode existing_node = 2;
+  SearchNode additional_node = 3;
+}
+
+message ReplaceSearchNodeRequest {
+  SearchNode existing_node = 1;
+  SearchNode replacement_node = 2;
+}
+
+message FindAndReplaceRequest {
+  repeated int64 nids = 1;
+  string search = 2;
+  string replacement = 3;
+  bool regex = 4;
+  bool match_case = 5;
+  string field_name = 6;
+}
+
+message BrowserColumns {
+  enum Sorting {
+    SORTING_NONE = 0;
+    SORTING_NORMAL = 1;
+    SORTING_REVERSED = 2;
+  }
+  enum Alignment {
+    ALIGNMENT_START = 0;
+    ALIGNMENT_CENTER = 1;
+  }
+  message Column {
+    string key = 1;
+    string cards_mode_label = 2;
+    string notes_mode_label = 3;
+    Sorting sorting = 4;
+    bool uses_cell_font = 5;
+    Alignment alignment = 6;
+  }
+  repeated Column columns = 1;
+}
+
+message BrowserRow {
+  message Cell {
+    string text = 1;
+    bool is_rtl = 2;
+  }
+  enum Color {
+    COLOR_DEFAULT = 0;
+    COLOR_MARKED = 1;
+    COLOR_SUSPENDED = 2;
+    COLOR_FLAG_RED = 3;
+    COLOR_FLAG_ORANGE = 4;
+    COLOR_FLAG_GREEN = 5;
+    COLOR_FLAG_BLUE = 6;
+    COLOR_FLAG_PINK = 7;
+    COLOR_FLAG_TURQUOISE = 8;
+    COLOR_FLAG_PURPLE = 9;
+  }
+  repeated Cell cells = 1;
+  Color color = 2;
+  string font_name = 3;
+  uint32 font_size = 4;
+}

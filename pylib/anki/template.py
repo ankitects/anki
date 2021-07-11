@@ -32,8 +32,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki
-import anki._backend.backend_pb2 as _pb
-from anki import hooks
+from anki import card_rendering_pb2, hooks
 from anki.cards import Card
 from anki.decks import DeckManager
 from anki.errors import TemplateError
@@ -65,7 +64,9 @@ class PartiallyRenderedCard:
     latex_svg: bool
 
     @classmethod
-    def from_proto(cls, out: _pb.RenderCardResponse) -> PartiallyRenderedCard:
+    def from_proto(
+        cls, out: card_rendering_pb2.RenderCardResponse
+    ) -> PartiallyRenderedCard:
         qnodes = cls.nodes_from_proto(out.question_nodes)
         anodes = cls.nodes_from_proto(out.answer_nodes)
 
@@ -73,7 +74,7 @@ class PartiallyRenderedCard:
 
     @staticmethod
     def nodes_from_proto(
-        nodes: Sequence[_pb.RenderedTemplateNode],
+        nodes: Sequence[card_rendering_pb2.RenderedTemplateNode],
     ) -> TemplateReplacementList:
         results: TemplateReplacementList = []
         for node in nodes:
@@ -90,7 +91,7 @@ class PartiallyRenderedCard:
         return results
 
 
-def av_tag_to_native(tag: _pb.AVTag) -> AVTag:
+def av_tag_to_native(tag: card_rendering_pb2.AVTag) -> AVTag:
     val = tag.WhichOneof("value")
     if val == "sound_or_video":
         return SoundOrVideoTag(filename=tag.sound_or_video)
@@ -104,7 +105,7 @@ def av_tag_to_native(tag: _pb.AVTag) -> AVTag:
         )
 
 
-def av_tags_to_native(tags: Sequence[_pb.AVTag]) -> List[AVTag]:
+def av_tags_to_native(tags: Sequence[card_rendering_pb2.AVTag]) -> List[AVTag]:
     return list(map(av_tag_to_native, tags))
 
 

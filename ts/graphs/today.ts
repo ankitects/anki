@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import pb from "lib/backend_proto";
+import { Stats } from "lib/proto";
 import { studiedToday } from "lib/time";
 
 import * as tr from "lib/i18n";
@@ -11,9 +11,9 @@ export interface TodayData {
     lines: string[];
 }
 
-const ReviewKind = pb.BackendProto.RevlogEntry.ReviewKind;
+const ReviewKind = Stats.RevlogEntry.ReviewKind;
 
-export function gatherData(data: pb.BackendProto.GraphsResponse): TodayData {
+export function gatherData(data: Stats.GraphsResponse): TodayData {
     let answerCount = 0;
     let answerMillis = 0;
     let correctCount = 0;
@@ -26,7 +26,7 @@ export function gatherData(data: pb.BackendProto.GraphsResponse): TodayData {
 
     const startOfTodayMillis = (data.nextDayAtSecs - 86400) * 1000;
 
-    for (const review of data.revlog as pb.BackendProto.RevlogEntry[]) {
+    for (const review of data.revlog as Stats.RevlogEntry[]) {
         if (review.id < startOfTodayMillis) {
             continue;
         }

@@ -48,7 +48,7 @@ use self::{
     notes::NotesService,
     notetypes::NotetypesService,
     progress::ProgressState,
-    scheduler::SchedulingService,
+    scheduler::SchedulerService,
     search::SearchService,
     stats::StatsService,
     sync::{SyncService, SyncState},
@@ -117,7 +117,7 @@ impl Backend {
         pb::ServiceIndex::from_i32(service as i32)
             .ok_or_else(|| AnkiError::invalid_input("invalid service"))
             .and_then(|service| match service {
-                pb::ServiceIndex::Scheduling => SchedulingService::run_method(self, method, input),
+                pb::ServiceIndex::Scheduler => SchedulerService::run_method(self, method, input),
                 pb::ServiceIndex::Decks => DecksService::run_method(self, method, input),
                 pb::ServiceIndex::Notes => NotesService::run_method(self, method, input),
                 pb::ServiceIndex::Notetypes => NotetypesService::run_method(self, method, input),
