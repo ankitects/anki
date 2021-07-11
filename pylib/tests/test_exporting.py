@@ -6,7 +6,7 @@
 import os
 import tempfile
 
-from anki import Collection as aopen
+from anki.collection import Collection as aopen
 from anki.exporting import *
 from anki.importing import Anki2Importer
 from tests.shared import errorsAfterMidnight

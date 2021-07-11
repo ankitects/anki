@@ -10,7 +10,8 @@ import json
 import time
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
-import anki
+import anki.cards
+import anki.collection
 from anki.consts import *
 from anki.lang import FormatTimeSpan
 from anki.utils import ids2str

@@ -31,6 +31,7 @@ py_test(
     main = "tests/run_mypy.py",
     deps = [
         "//pylib/anki",
+        "//pylib/anki:proto",
         requirement("mypy"),
     ],
 )

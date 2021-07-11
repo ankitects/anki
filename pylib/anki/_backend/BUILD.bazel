@@ -12,7 +12,7 @@ py_binary(
         requirement("black"),
         requirement("stringcase"),
         requirement("protobuf"),
-        "//pylib/anki:proto_lib",
+        "//pylib/anki:proto",
     ],
 )
 

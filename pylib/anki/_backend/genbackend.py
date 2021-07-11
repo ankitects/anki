@@ -8,8 +8,6 @@ import sys
 
 import google.protobuf.descriptor
 
-os.environ["PROTOS_ONLY"] = "1"
-
 import anki.backend_pb2
 import anki.i18n_pb2
 import anki.cards_pb2
@@ -232,6 +230,22 @@ col.decks.all_config()
 from typing import *
 
 import anki
+import anki.backend_pb2
+import anki.i18n_pb2
+import anki.cards_pb2
+import anki.collection_pb2
+import anki.decks_pb2
+import anki.deckconfig_pb2
+import anki.notes_pb2
+import anki.notetypes_pb2
+import anki.scheduler_pb2
+import anki.sync_pb2
+import anki.configs_pb2
+import anki.search_pb2
+import anki.stats_pb2
+import anki.card_rendering_pb2
+import anki.tags_pb2
+import anki.media_pb2
 
 class RustBackendGenerated:
     def _run_command(self, service: int, method: int, input: Any) -> bytes:

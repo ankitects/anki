@@ -76,7 +76,7 @@ class HttpClient:
         return buf.getvalue()
 
     def _agentName(self) -> str:
-        from anki import version
+        from anki.buildinfo import version
 
         return f"Anki {version}"
 

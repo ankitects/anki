@@ -5,7 +5,8 @@ from __future__ import annotations
 
 from typing import Any, Callable, List, Tuple
 
-import anki
+import anki.collection
+import anki.models
 from anki import notetypes_pb2
 from anki.utils import from_json_bytes
 

@@ -11,6 +11,7 @@ from weakref import ref
 from markdown import markdown
 
 import anki.buildinfo
+import anki.lang
 from anki import backend_pb2, i18n_pb2
 from anki._backend.generated import RustBackendGenerated
 from anki.dbproxy import Row as DBRow
