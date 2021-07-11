@@ -6,7 +6,7 @@
 import os
 import tempfile
 
-from anki import Collection as aopen
+from anki.collection import Collection as aopen
 from anki.dbproxy import emulate_named_args
 from anki.lang import TR, without_unicode_isolation
 from anki.stdmodels import addBasicModel, get_stock_notetypes

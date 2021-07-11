@@ -13,12 +13,26 @@ import traceback
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
 
 import anki.lang
-from anki import version as _version
 from anki._backend import RustBackend
+from anki.buildinfo import version as _version
+from anki.collection import Collection
 from anki.consts import HELP_SITE
 from anki.utils import checksum, isLin, isMac
 from aqt.qt import *
 from aqt.utils import TR, locale_dir, tr
+
+if sys.version_info[0] < 3 or sys.version_info[1] < 7:
+    raise Exception("Anki requires Python 3.7+")
+
+# ensure unicode filenames are supported
+try:
+    "テスト".encode(sys.getfilesystemencoding())
+except UnicodeEncodeError as exc:
+    raise Exception("Anki requires a UTF-8 locale.") from exc
+
+# compat aliases
+anki.version = _version  # type: ignore
+anki.Collection = Collection  # type: ignore
 
 # we want to be able to print unicode debug info to console without
 # fear of a traceback on systems with the console set to ASCII

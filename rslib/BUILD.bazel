@@ -1,11 +1,9 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-load("@rules_proto//proto:defs.bzl", "proto_library")
 load("@rules_rust//rust:rust.bzl", "rust_binary", "rust_library", "rust_test")
 load("@rules_rust//cargo:cargo_build_script.bzl", "cargo_build_script")
 load(":rustfmt.bzl", "rustfmt_fix", "rustfmt_test")
-load(":clang_format.bzl", "proto_format")
 load("//ts:sql_format.bzl", "sql_format")
 
 # Build script
@@ -15,7 +13,7 @@ cargo_build_script(
     name = "build_script",
     srcs = glob(["build/*.rs"]),
     build_script_env = {
-        "BACKEND_PROTO": "$(location backend.proto)",
+        "PROTO_TOP": "$(location //proto:.top_level)",
         "PROTOC": "$(location @com_google_protobuf//:protoc)",
         "RSLIB_FTL_ROOT": "$(location @rslib_ftl//:l10n.toml)",
         "EXTRA_FTL_ROOT": "$(location @extra_ftl//:l10n.toml)",
@@ -24,9 +22,10 @@ cargo_build_script(
     crate_root = "build/main.rs",
     data = [
         "//ftl",
-        "backend.proto",
+        "//proto",
         "@com_google_protobuf//:protoc",
         # bazel requires us to list these out separately
+        "//proto:.top_level",
         "@rslib_ftl//:l10n.toml",
         "@extra_ftl//:l10n.toml",
     ],
@@ -163,19 +162,3 @@ sql_format(
     name = "sql_format",
     srcs = glob(["**/*.sql"]),
 )
-
-proto_format(
-    name = "proto_format",
-    srcs = ["backend.proto"],
-)
-
-# backend.proto
-#######################
-
-proto_library(
-    name = "backend_proto_lib",
-    srcs = ["backend.proto"],
-    visibility = ["//visibility:public"],
-)
-
-exports_files(["backend.proto"])

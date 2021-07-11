@@ -5,13 +5,13 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
-import pb from "lib/backend_proto";
+import { Notetypes } from "lib/proto";
 import { postRequest } from "lib/postrequest";
 import { readable, Readable } from "svelte/store";
 import { isEqual } from "lodash-es";
 
-export async function getNotetypeNames(): Promise<pb.BackendProto.NotetypeNames> {
-    return pb.BackendProto.NotetypeNames.decode(
+export async function getNotetypeNames(): Promise<Notetypes.NotetypeNames> {
+    return Notetypes.NotetypeNames.decode(
         await postRequest("/_anki/notetypeNames", "")
     );
 }
@@ -19,8 +19,8 @@ export async function getNotetypeNames(): Promise<pb.BackendProto.NotetypeNames>
 export async function getChangeNotetypeInfo(
     oldNotetypeId: number,
     newNotetypeId: number
-): Promise<pb.BackendProto.ChangeNotetypeInfo> {
-    return pb.BackendProto.ChangeNotetypeInfo.decode(
+): Promise<Notetypes.ChangeNotetypeInfo> {
+    return Notetypes.ChangeNotetypeInfo.decode(
         await postRequest(
             "/_anki/changeNotetypeInfo",
             JSON.stringify({ oldNotetypeId, newNotetypeId })
@@ -29,10 +29,9 @@ export async function getChangeNotetypeInfo(
 }
 
 export async function changeNotetype(
-    input: pb.BackendProto.ChangeNotetypeRequest
+    input: Notetypes.ChangeNotetypeRequest
 ): Promise<void> {
-    const data: Uint8Array =
-        pb.BackendProto.ChangeNotetypeRequest.encode(input).finish();
+    const data: Uint8Array = Notetypes.ChangeNotetypeRequest.encode(input).finish();
     await postRequest("/_anki/changeNotetype", data);
     return;
 }
@@ -50,9 +49,9 @@ export function negativeOneToNull(list: number[]): (number | null)[] {
 export class ChangeNotetypeInfoWrapper {
     fields: (number | null)[];
     templates?: (number | null)[];
-    readonly info: pb.BackendProto.ChangeNotetypeInfo;
+    readonly info: Notetypes.ChangeNotetypeInfo;
 
-    constructor(info: pb.BackendProto.ChangeNotetypeInfo) {
+    constructor(info: Notetypes.ChangeNotetypeInfo) {
         this.info = info;
         const templates = info.input!.newTemplates!;
         if (templates.length > 0) {
@@ -114,13 +113,13 @@ export class ChangeNotetypeInfoWrapper {
         );
     }
 
-    input(): pb.BackendProto.ChangeNotetypeRequest {
-        return this.info.input as pb.BackendProto.ChangeNotetypeRequest;
+    input(): Notetypes.ChangeNotetypeRequest {
+        return this.info.input as Notetypes.ChangeNotetypeRequest;
     }
 
     /// Pack changes back into input message for saving.
-    intoInput(): pb.BackendProto.ChangeNotetypeRequest {
-        const input = this.info.input as pb.BackendProto.ChangeNotetypeRequest;
+    intoInput(): Notetypes.ChangeNotetypeRequest {
+        const input = this.info.input as Notetypes.ChangeNotetypeRequest;
         input.newFields = nullToNegativeOne(this.fields);
         if (this.templates) {
             input.newTemplates = nullToNegativeOne(this.templates);
@@ -146,12 +145,12 @@ export class ChangeNotetypeState {
 
     private info_: ChangeNotetypeInfoWrapper;
     private infoSetter!: (val: ChangeNotetypeInfoWrapper) => void;
-    private notetypeNames: pb.BackendProto.NotetypeNames;
+    private notetypeNames: Notetypes.NotetypeNames;
     private notetypesSetter!: (val: NotetypeListEntry[]) => void;
 
     constructor(
-        notetypes: pb.BackendProto.NotetypeNames,
-        info: pb.BackendProto.ChangeNotetypeInfo
+        notetypes: Notetypes.NotetypeNames,
+        info: Notetypes.ChangeNotetypeInfo
     ) {
         this.info_ = new ChangeNotetypeInfoWrapper(info);
         this.info = readable(this.info_, (set) => {
@@ -203,7 +202,7 @@ export class ChangeNotetypeState {
         await changeNotetype(this.dataForSaving());
     }
 
-    dataForSaving(): pb.BackendProto.ChangeNotetypeRequest {
+    dataForSaving(): Notetypes.ChangeNotetypeRequest {
         return this.info_.intoInput();
     }
 

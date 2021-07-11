@@ -9,7 +9,7 @@ load("//ts:jest.bzl", "jest_test")
 
 protobufjs_library(
     name = "backend_proto",
-    proto = "//rslib:backend_proto_lib",
+    proto = "//proto:backend_proto_lib",
     visibility = ["//visibility:public"],
 )
 

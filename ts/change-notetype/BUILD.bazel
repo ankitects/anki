@@ -52,7 +52,6 @@ ts_library(
     deps = [
         "//ts/components",
         "//ts/lib",
-        "//ts/lib:backend_proto",
         "//ts/sveltelib",
         "@npm//lodash-es",
         "@npm//svelte",
@@ -61,20 +60,13 @@ ts_library(
 
 esbuild(
     name = "change-notetype",
-    srcs = [
-        "//ts:protobuf-shim.js",
-    ],
     args = [
         "--global-name=anki",
-        "--inject:$(location //ts:protobuf-shim.js)",
         "--resolve-extensions=.mjs,.js",
         "--log-level=warning",
         "--loader:.svg=text",
     ],
     entry_point = "index.ts",
-    external = [
-        "protobufjs/light",
-    ],
     output_css = "change-notetype.css",
     visibility = ["//visibility:public"],
     deps = [
@@ -83,10 +75,10 @@ esbuild(
         "@npm//bootstrap",
         "@npm//marked",
         "//ts/lib",
-        "//ts/lib:backend_proto",
         "//ts/sveltelib",
         "//ts/components",
         "//ts/components:svelte_components",
+        "@npm//protobufjs",
     ] + svelte_names,
 )
 
@@ -129,7 +121,7 @@ jest_test(
     protobuf = True,
     deps = [
         ":lib",
-        "//ts/lib:backend_proto",
+        "//ts/lib",
         "@npm//protobufjs",
         "@npm//svelte",
     ],

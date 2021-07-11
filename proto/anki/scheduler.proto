@@ -1,0 +1,219 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+package anki.scheduler;
+
+import "anki/generic.proto";
+import "anki/cards.proto";
+import "anki/decks.proto";
+import "anki/collection.proto";
+import "anki/config.proto";
+
+service SchedulerService {
+  rpc GetQueuedCards(GetQueuedCardsRequest) returns (QueuedCards);
+  rpc AnswerCard(CardAnswer) returns (collection.OpChanges);
+  rpc SchedTimingToday(generic.Empty) returns (SchedTimingTodayResponse);
+  rpc StudiedToday(generic.Empty) returns (generic.String);
+  rpc StudiedTodayMessage(StudiedTodayMessageRequest) returns (generic.String);
+  rpc UpdateStats(UpdateStatsRequest) returns (generic.Empty);
+  rpc ExtendLimits(ExtendLimitsRequest) returns (generic.Empty);
+  rpc CountsForDeckToday(decks.DeckId) returns (CountsForDeckTodayResponse);
+  rpc CongratsInfo(generic.Empty) returns (CongratsInfoResponse);
+  rpc RestoreBuriedAndSuspendedCards(cards.CardIds)
+      returns (collection.OpChanges);
+  rpc UnburyDeck(UnburyDeckRequest) returns (collection.OpChanges);
+  rpc BuryOrSuspendCards(BuryOrSuspendCardsRequest)
+      returns (collection.OpChangesWithCount);
+  rpc EmptyFilteredDeck(decks.DeckId) returns (collection.OpChanges);
+  rpc RebuildFilteredDeck(decks.DeckId) returns (collection.OpChangesWithCount);
+  rpc ScheduleCardsAsNew(ScheduleCardsAsNewRequest)
+      returns (collection.OpChanges);
+  rpc SetDueDate(SetDueDateRequest) returns (collection.OpChanges);
+  rpc SortCards(SortCardsRequest) returns (collection.OpChangesWithCount);
+  rpc SortDeck(SortDeckRequest) returns (collection.OpChangesWithCount);
+  rpc GetNextCardStates(cards.CardId) returns (NextCardStates);
+  rpc DescribeNextStates(NextCardStates) returns (generic.StringList);
+  rpc StateIsLeech(SchedulingState) returns (generic.Bool);
+  rpc UpgradeScheduler(generic.Empty) returns (generic.Empty);
+}
+
+message SchedulingState {
+  message New {
+    uint32 position = 1;
+  }
+  message Learning {
+    uint32 remaining_steps = 1;
+    uint32 scheduled_secs = 2;
+  }
+  message Review {
+    uint32 scheduled_days = 1;
+    uint32 elapsed_days = 2;
+    float ease_factor = 3;
+    uint32 lapses = 4;
+    bool leeched = 5;
+  }
+  message Relearning {
+    Review review = 1;
+    Learning learning = 2;
+  }
+  message Normal {
+    oneof value {
+      New new = 1;
+      Learning learning = 2;
+      Review review = 3;
+      Relearning relearning = 4;
+    }
+  }
+  message Preview {
+    uint32 scheduled_secs = 1;
+    bool finished = 2;
+  }
+  message ReschedulingFilter {
+    Normal original_state = 1;
+  }
+  message Filtered {
+    oneof value {
+      Preview preview = 1;
+      ReschedulingFilter rescheduling = 2;
+    }
+  }
+
+  oneof value {
+    Normal normal = 1;
+    Filtered filtered = 2;
+  }
+}
+
+message QueuedCards {
+  enum Queue {
+    NEW = 0;
+    LEARNING = 1;
+    REVIEW = 2;
+  }
+  message QueuedCard {
+    cards.Card card = 1;
+    Queue queue = 2;
+    NextCardStates next_states = 3;
+  }
+
+  repeated QueuedCard cards = 1;
+  uint32 new_count = 2;
+  uint32 learning_count = 3;
+  uint32 review_count = 4;
+}
+
+message GetQueuedCardsRequest {
+  uint32 fetch_limit = 1;
+  bool intraday_learning_only = 2;
+}
+
+message SchedTimingTodayResponse {
+  uint32 days_elapsed = 1;
+  int64 next_day_at = 2;
+}
+
+message StudiedTodayMessageRequest {
+  uint32 cards = 1;
+  double seconds = 2;
+}
+
+message UpdateStatsRequest {
+  int64 deck_id = 1;
+  int32 new_delta = 2;
+  int32 review_delta = 4;
+  int32 millisecond_delta = 5;
+}
+
+message ExtendLimitsRequest {
+  int64 deck_id = 1;
+  int32 new_delta = 2;
+  int32 review_delta = 3;
+}
+
+message CountsForDeckTodayResponse {
+  int32 new = 1;
+  int32 review = 2;
+}
+
+message CongratsInfoResponse {
+  uint32 learn_remaining = 1;
+  uint32 secs_until_next_learn = 2;
+  bool review_remaining = 3;
+  bool new_remaining = 4;
+  bool have_sched_buried = 5;
+  bool have_user_buried = 6;
+  bool is_filtered_deck = 7;
+  bool bridge_commands_supported = 8;
+  string deck_description = 9;
+}
+
+message UnburyDeckRequest {
+  enum Mode {
+    ALL = 0;
+    SCHED_ONLY = 1;
+    USER_ONLY = 2;
+  }
+  int64 deck_id = 1;
+  Mode mode = 2;
+}
+
+message BuryOrSuspendCardsRequest {
+  enum Mode {
+    SUSPEND = 0;
+    BURY_SCHED = 1;
+    BURY_USER = 2;
+  }
+  repeated int64 card_ids = 1;
+  repeated int64 note_ids = 2;
+  Mode mode = 3;
+}
+
+message ScheduleCardsAsNewRequest {
+  repeated int64 card_ids = 1;
+  bool log = 2;
+}
+
+message SetDueDateRequest {
+  repeated int64 card_ids = 1;
+  string days = 2;
+  config.OptionalStringConfigKey config_key = 3;
+}
+
+message SortCardsRequest {
+  repeated int64 card_ids = 1;
+  uint32 starting_from = 2;
+  uint32 step_size = 3;
+  bool randomize = 4;
+  bool shift_existing = 5;
+}
+
+message SortDeckRequest {
+  int64 deck_id = 1;
+  bool randomize = 2;
+}
+
+message NextCardStates {
+  SchedulingState current = 1;
+  SchedulingState again = 2;
+  SchedulingState hard = 3;
+  SchedulingState good = 4;
+  SchedulingState easy = 5;
+}
+
+message CardAnswer {
+  enum Rating {
+    AGAIN = 0;
+    HARD = 1;
+    GOOD = 2;
+    EASY = 3;
+  }
+
+  int64 card_id = 1;
+  SchedulingState current_state = 2;
+  SchedulingState new_state = 3;
+  Rating rating = 4;
+  int64 answered_at_millis = 5;
+  uint32 milliseconds_taken = 6;
+}

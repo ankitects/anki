@@ -5,12 +5,13 @@ from __future__ import annotations
 
 from typing import Any, Callable, List, Tuple
 
-import anki
-import anki._backend.backend_pb2 as _pb
+import anki.collection
+import anki.models
+from anki import notetypes_pb2
 from anki.utils import from_json_bytes
 
 # pylint: disable=no-member
-StockNotetypeKind = _pb.StockNotetype.Kind
+StockNotetypeKind = notetypes_pb2.StockNotetype.Kind
 
 # add-on authors can add ("note type name", function)
 # to this list to have it shown in the add/clone note type screen

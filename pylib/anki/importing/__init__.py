@@ -3,7 +3,7 @@
 
 from typing import Any, Callable, Sequence, Tuple, Type, Union
 
-from anki import Collection
+from anki.collection import Collection
 from anki.importing.anki2 import Anki2Importer
 from anki.importing.apkg import AnkiPackageImporter
 from anki.importing.base import Importer

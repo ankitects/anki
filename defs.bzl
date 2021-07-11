@@ -1,10 +1,10 @@
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 load("@bazel_skylib//lib:versions.bzl", "versions")
 load("@rules_rust//rust:repositories.bzl", "rust_repositories")
-load("@net_ankiweb_anki//cargo:crates.bzl", "raze_fetch_remote_crates")
+load("@ankidesktop//cargo:crates.bzl", "raze_fetch_remote_crates")
 load(":python.bzl", "setup_local_python")
-load(":protobuf.bzl", "setup_protobuf_binary")
-load("//rslib:clang_format.bzl", "setup_clang_format")
+load("//proto:protobuf.bzl", "setup_protobuf_binary")
+load("//proto:format.bzl", "setup_clang_format")
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_repositories")
 load("@com_github_ali5h_rules_pip//:defs.bzl", "pip_import")
@@ -35,7 +35,7 @@ def setup_deps():
 
     pip_import(
         name = "py_deps",
-        requirements = "@net_ankiweb_anki//pip:requirements.txt",
+        requirements = "@ankidesktop//pip:requirements.txt",
         python_runtime = "@python//:python",
     )
 
@@ -44,12 +44,12 @@ def setup_deps():
         python_runtime = "@python//:python",
     )
 
-    node_repositories(package_json = ["@net_ankiweb_anki//ts:package.json"])
+    node_repositories(package_json = ["@ankidesktop//ts:package.json"])
 
     yarn_install(
         name = "npm",
-        package_json = "@net_ankiweb_anki//ts:package.json",
-        yarn_lock = "@net_ankiweb_anki//ts:yarn.lock",
+        package_json = "@ankidesktop//ts:package.json",
+        yarn_lock = "@ankidesktop//ts:yarn.lock",
     )
 
     sass_repositories()

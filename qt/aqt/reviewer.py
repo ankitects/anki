@@ -293,7 +293,6 @@ class Reviewer:
                 "js/mathjax.js",
                 "js/vendor/mathjax/tex-chtml.js",
                 "js/reviewer.js",
-                "js/vendor/protobuf.min.js",
                 "js/reviewer_extras.js",
             ],
             context=self,

@@ -502,7 +502,7 @@ class SidebarTreeView(QTreeView):
         root: SidebarItem,
         name: str,
         icon: Union[str, ColoredIcon],
-        collapse_key: Config.Bool.Key.V,
+        collapse_key: Config.Bool.V,
         type: Optional[SidebarItemType] = None,
     ) -> SidebarItem:
         def update(expanded: bool) -> None:

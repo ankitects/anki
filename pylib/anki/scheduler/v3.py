@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from typing import List, Literal, Sequence, Tuple
 
-import anki._backend.backend_pb2 as _pb
+from anki import scheduler_pb2
 from anki.cards import Card
 from anki.collection import OpChanges
 from anki.consts import *
@@ -24,10 +24,10 @@ from anki.scheduler.legacy import SchedulerBaseWithLegacy
 from anki.types import assert_exhaustive
 from anki.utils import intTime
 
-QueuedCards = _pb.QueuedCards
-SchedulingState = _pb.SchedulingState
-NextStates = _pb.NextCardStates
-CardAnswer = _pb.CardAnswer
+QueuedCards = scheduler_pb2.QueuedCards
+SchedulingState = scheduler_pb2.SchedulingState
+NextStates = scheduler_pb2.NextCardStates
+CardAnswer = scheduler_pb2.CardAnswer
 
 
 class Scheduler(SchedulerBaseWithLegacy):
@@ -171,7 +171,7 @@ class Scheduler(SchedulerBaseWithLegacy):
     ##########################################################################
     # fixme: move these into tests_schedv2 in the future
 
-    def _interval_for_state(self, state: _pb.SchedulingState) -> int:
+    def _interval_for_state(self, state: scheduler_pb2.SchedulingState) -> int:
         kind = state.WhichOneof("value")
         if kind == "normal":
             return self._interval_for_normal_state(state.normal)
@@ -181,7 +181,9 @@ class Scheduler(SchedulerBaseWithLegacy):
             assert_exhaustive(kind)
             return 0  # unreachable
 
-    def _interval_for_normal_state(self, normal: _pb.SchedulingState.Normal) -> int:
+    def _interval_for_normal_state(
+        self, normal: scheduler_pb2.SchedulingState.Normal
+    ) -> int:
         kind = normal.WhichOneof("value")
         if kind == "new":
             return 0
@@ -196,7 +198,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             return 0  # unreachable
 
     def _interval_for_filtered_state(
-        self, filtered: _pb.SchedulingState.Filtered
+        self, filtered: scheduler_pb2.SchedulingState.Filtered
     ) -> int:
         kind = filtered.WhichOneof("value")
         if kind == "preview":

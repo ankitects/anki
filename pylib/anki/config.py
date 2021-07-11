@@ -25,12 +25,12 @@ from typing import Any
 from weakref import ref
 
 import anki
-from anki._backend import backend_pb2 as _pb
+from anki import config_pb2
 from anki.collection import OpChanges
 from anki.errors import NotFoundError
 from anki.utils import from_json_bytes, to_json_bytes
 
-Config = _pb.Config
+Config = config_pb2.ConfigKey
 
 
 class ConfigManager:

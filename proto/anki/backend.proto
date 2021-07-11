@@ -1,0 +1,63 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+package anki.backend;
+
+/// while the protobuf descriptors expose the order services are defined in,
+/// that information is not available in prost, so we define an enum to make
+/// sure all clients agree on the service index
+enum ServiceIndex {
+  SERVICE_INDEX_SCHEDULER = 0;
+  SERVICE_INDEX_DECKS = 1;
+  SERVICE_INDEX_NOTES = 2;
+  SERVICE_INDEX_SYNC = 3;
+  SERVICE_INDEX_NOTETYPES = 4;
+  SERVICE_INDEX_CONFIG = 5;
+  SERVICE_INDEX_CARD_RENDERING = 6;
+  SERVICE_INDEX_DECK_CONFIG = 7;
+  SERVICE_INDEX_TAGS = 8;
+  SERVICE_INDEX_SEARCH = 9;
+  SERVICE_INDEX_STATS = 10;
+  SERVICE_INDEX_MEDIA = 11;
+  SERVICE_INDEX_I18N = 12;
+  SERVICE_INDEX_COLLECTION = 13;
+  SERVICE_INDEX_CARDS = 14;
+}
+
+message BackendInit {
+  repeated string preferred_langs = 1;
+  string locale_folder_path = 2;
+  bool server = 3;
+}
+
+message I18nBackendInit {
+  repeated string preferred_langs = 4;
+  string locale_folder_path = 5;
+}
+
+message BackendError {
+  enum Kind {
+    INVALID_INPUT = 0;
+    UNDO_EMPTY = 1;
+    INTERRUPTED = 2;
+    TEMPLATE_PARSE = 3;
+    IO_ERROR = 4;
+    DB_ERROR = 5;
+    NETWORK_ERROR = 6;
+    SYNC_AUTH_ERROR = 7;
+    SYNC_OTHER_ERROR = 8;
+    JSON_ERROR = 9;
+    PROTO_ERROR = 10;
+    NOT_FOUND_ERROR = 11;
+    EXISTS = 12;
+    FILTERED_DECK_ERROR = 13;
+    SEARCH_ERROR = 14;
+  }
+
+  // localized error description suitable for displaying to the user
+  string localized = 1;
+  // the error subtype
+  Kind kind = 2;
+}

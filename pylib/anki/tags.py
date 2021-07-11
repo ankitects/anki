@@ -16,15 +16,15 @@ import re
 from typing import Collection, List, Match, Optional, Sequence
 
 import anki  # pylint: disable=unused-import
-import anki._backend.backend_pb2 as _pb
 import anki.collection
+from anki import tags_pb2
 from anki.collection import OpChanges, OpChangesWithCount
 from anki.decks import DeckId
 from anki.notes import NoteId
 from anki.utils import ids2str
 
 # public exports
-TagTreeNode = _pb.TagTreeNode
+TagTreeNode = tags_pb2.TagTreeNode
 MARKED_TAG = "marked"
 
 

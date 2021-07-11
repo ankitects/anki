@@ -1,0 +1,188 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+package anki.decks;
+
+import "anki/generic.proto";
+import "anki/collection.proto";
+
+service DecksService {
+  rpc AddDeckLegacy(generic.Json) returns (collection.OpChangesWithId);
+  rpc AddOrUpdateDeckLegacy(AddOrUpdateDeckLegacyRequest) returns (DeckId);
+  rpc DeckTree(DeckTreeRequest) returns (DeckTreeNode);
+  rpc DeckTreeLegacy(generic.Empty) returns (generic.Json);
+  rpc GetAllDecksLegacy(generic.Empty) returns (generic.Json);
+  rpc GetDeckIdByName(generic.String) returns (DeckId);
+  rpc GetDeck(DeckId) returns (Deck);
+  rpc UpdateDeck(Deck) returns (collection.OpChanges);
+  rpc UpdateDeckLegacy(generic.Json) returns (collection.OpChanges);
+  rpc SetDeckCollapsed(SetDeckCollapsedRequest) returns (collection.OpChanges);
+  rpc GetDeckLegacy(DeckId) returns (generic.Json);
+  rpc GetDeckNames(GetDeckNamesRequest) returns (DeckNames);
+  rpc NewDeckLegacy(generic.Bool) returns (generic.Json);
+  rpc RemoveDecks(DeckIds) returns (collection.OpChangesWithCount);
+  rpc ReparentDecks(ReparentDecksRequest)
+      returns (collection.OpChangesWithCount);
+  rpc RenameDeck(RenameDeckRequest) returns (collection.OpChanges);
+  rpc GetOrCreateFilteredDeck(DeckId) returns (FilteredDeckForUpdate);
+  rpc AddOrUpdateFilteredDeck(FilteredDeckForUpdate)
+      returns (collection.OpChangesWithId);
+  rpc FilteredDeckOrderLabels(generic.Empty) returns (generic.StringList);
+  rpc SetCurrentDeck(DeckId) returns (collection.OpChanges);
+  rpc GetCurrentDeck(generic.Empty) returns (Deck);
+}
+
+message DeckId {
+  int64 did = 1;
+}
+
+message DeckIds {
+  repeated int64 dids = 1;
+}
+
+message Deck {
+  message Common {
+    bool study_collapsed = 1;
+    bool browser_collapsed = 2;
+
+    uint32 last_day_studied = 3;
+    int32 new_studied = 4;
+    int32 review_studied = 5;
+    int32 milliseconds_studied = 7;
+
+    // previously set in the v1 scheduler,
+    // but not currently used for anything
+    int32 learning_studied = 6;
+
+    reserved 8 to 13;
+
+    bytes other = 255;
+  }
+  message Normal {
+    int64 config_id = 1;
+    uint32 extend_new = 2;
+    uint32 extend_review = 3;
+    string description = 4;
+    bool markdown_description = 5;
+
+    reserved 6 to 11;
+  }
+  message Filtered {
+    message SearchTerm {
+      enum Order {
+        OLDEST_REVIEWED_FIRST = 0;
+        RANDOM = 1;
+        INTERVALS_ASCENDING = 2;
+        INTERVALS_DESCENDING = 3;
+        LAPSES = 4;
+        ADDED = 5;
+        DUE = 6;
+        REVERSE_ADDED = 7;
+        DUE_PRIORITY = 8;
+      }
+
+      string search = 1;
+      uint32 limit = 2;
+      Order order = 3;
+    }
+
+    bool reschedule = 1;
+    repeated SearchTerm search_terms = 2;
+    // v1 scheduler only
+    repeated float delays = 3;
+    // v2 scheduler only
+    uint32 preview_delay = 4;
+  }
+  // a container to store the deck specifics in the DB
+  // as a tagged enum
+  message KindContainer {
+    oneof kind {
+      Normal normal = 1;
+      Filtered filtered = 2;
+    }
+  }
+
+  int64 id = 1;
+  string name = 2;
+  int64 mtime_secs = 3;
+  int32 usn = 4;
+  Common common = 5;
+  // the specifics are inlined here when sending data to clients,
+  // as otherwise an extra level of indirection would be required
+  oneof kind {
+    Normal normal = 6;
+    Filtered filtered = 7;
+  }
+}
+
+message AddOrUpdateDeckLegacyRequest {
+  bytes deck = 1;
+  bool preserve_usn_and_mtime = 2;
+}
+
+message DeckTreeRequest {
+  // if non-zero, counts for the provided timestamp will be included
+  int64 now = 1;
+  int64 top_deck_id = 2;
+}
+
+message DeckTreeNode {
+  int64 deck_id = 1;
+  string name = 2;
+  uint32 level = 4;
+  bool collapsed = 5;
+
+  uint32 review_count = 6;
+  uint32 learn_count = 7;
+  uint32 new_count = 8;
+
+  bool filtered = 16;
+
+  // low index so key can be packed into a byte, but at bottom
+  // to make debug output easier to read
+  repeated DeckTreeNode children = 3;
+}
+
+message SetDeckCollapsedRequest {
+  enum Scope {
+    REVIEWER = 0;
+    BROWSER = 1;
+  }
+
+  int64 deck_id = 1;
+  bool collapsed = 2;
+  Scope scope = 3;
+}
+
+message GetDeckNamesRequest {
+  bool skip_empty_default = 1;
+  // if unset, implies skip_empty_default
+  bool include_filtered = 2;
+}
+
+message DeckNames {
+  repeated DeckNameId entries = 1;
+}
+
+message DeckNameId {
+  int64 id = 1;
+  string name = 2;
+}
+
+message ReparentDecksRequest {
+  repeated int64 deck_ids = 1;
+  int64 new_parent = 2;
+}
+
+message RenameDeckRequest {
+  int64 deck_id = 1;
+  string new_name = 2;
+}
+
+message FilteredDeckForUpdate {
+  int64 id = 1;
+  string name = 2;
+  Deck.Filtered config = 3;
+}

@@ -1,0 +1,13 @@
+diff --git a/node_modules/protobufjs/src/root.js b/node_modules/protobufjs/src/root.js
+index df6f11f..112f9e8 100644
+--- a/node_modules/protobufjs/src/root.js
++++ b/node_modules/protobufjs/src/root.js
+@@ -259,7 +259,7 @@ Root.prototype.resolveAll = function resolveAll() {
+ };
+ 
+ // only uppercased (and thus conflict-free) children are exposed, see below
+-var exposeRe = /^[A-Z]/;
++var exposeRe = /^[A-Za-z]/;
+ 
+ /**
+  * Handles a deferred declaring extension field by creating a sister field to represent it within its extended type.

@@ -1,26 +1,26 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import * as pb from "lib/backend_proto";
+import { Scheduler } from "lib/proto";
 import { postRequest } from "lib/postrequest";
 
-async function getNextStates(): Promise<pb.BackendProto.NextCardStates> {
-    return pb.BackendProto.NextCardStates.decode(
+async function getNextStates(): Promise<Scheduler.NextCardStates> {
+    return Scheduler.NextCardStates.decode(
         await postRequest("/_anki/nextCardStates", "")
     );
 }
 
 async function setNextStates(
     key: string,
-    states: pb.BackendProto.NextCardStates
+    states: Scheduler.NextCardStates
 ): Promise<void> {
-    const data: Uint8Array = pb.BackendProto.NextCardStates.encode(states).finish();
+    const data: Uint8Array = Scheduler.NextCardStates.encode(states).finish();
     await postRequest("/_anki/setNextCardStates", data, { key });
 }
 
 export async function mutateNextCardStates(
     key: string,
-    mutator: (states: pb.BackendProto.NextCardStates) => void
+    mutator: (states: Scheduler.NextCardStates) => void
 ): Promise<void> {
     const states = await getNextStates();
     mutator(states);
