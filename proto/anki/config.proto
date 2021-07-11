@@ -3,12 +3,12 @@
 
 syntax = "proto3";
 
-package anki.configs;
+package anki.config;
 
 import "anki/generic.proto";
 import "anki/collection.proto";
 
-service ConfigsService {
+service ConfigService {
   rpc GetConfigJson(generic.String) returns (generic.Json);
   rpc SetConfigJson(SetConfigJsonRequest) returns (collection.OpChanges);
   rpc SetConfigJsonNoUndo(SetConfigJsonRequest) returns (generic.Empty);

@@ -17,7 +17,7 @@ protobuf!(backend);
 protobuf!(card_rendering);
 protobuf!(cards);
 protobuf!(collection);
-protobuf!(configs);
+protobuf!(config);
 protobuf!(deckconfig);
 protobuf!(decks);
 protobuf!(generic);

@@ -10,7 +10,7 @@ from typing import Any, Generator, List, Literal, Optional, Sequence, Tuple, Uni
 from anki import (
     card_rendering_pb2,
     collection_pb2,
-    configs_pb2,
+    config_pb2,
     generic_pb2,
     search_pb2,
     stats_pb2,
@@ -22,7 +22,7 @@ SearchNode = search_pb2.SearchNode
 Progress = collection_pb2.Progress
 EmptyCardsReport = card_rendering_pb2.EmptyCardsReport
 GraphPreferences = stats_pb2.GraphPreferences
-Preferences = configs_pb2.Preferences
+Preferences = config_pb2.Preferences
 UndoStatus = collection_pb2.UndoStatus
 OpChanges = collection_pb2.OpChanges
 OpChangesWithCount = collection_pb2.OpChangesWithCount

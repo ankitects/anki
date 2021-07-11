@@ -17,7 +17,7 @@ FilteredDeckForUpdate = decks_pb2.FilteredDeckForUpdate
 
 from typing import List, Optional, Sequence
 
-from anki import configs_pb2
+from anki import config_pb2
 from anki.cards import CardId
 from anki.consts import CARD_TYPE_NEW, NEW_CARDS_RANDOM, QUEUE_TYPE_NEW, QUEUE_TYPE_REV
 from anki.decks import DeckConfigDict, DeckId, DeckTreeNode
@@ -167,9 +167,9 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         """Set cards to be due in `days`, turning them into review cards if necessary.
         `days` can be of the form '5' or '5..7'
         If `config_key` is provided, provided days will be remembered in config."""
-        key: Optional[configs_pb2.OptionalStringConfigKey]
+        key: Optional[config_pb2.OptionalStringConfigKey]
         if config_key is not None:
-            key = configs_pb2.OptionalStringConfigKey(key=config_key)
+            key = config_pb2.OptionalStringConfigKey(key=config_key)
         else:
             key = None
         return self.col._backend.set_due_date(
