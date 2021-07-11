@@ -732,19 +732,19 @@ class Collection(DeprecatedNamesMixin):
         "This is a debugging aid. Prefer .get_config() when you know the key you need."
         return from_json_bytes(self._backend.get_all_config())
 
-    def get_config_bool(self, key: Config.Bool.Key.V) -> bool:
+    def get_config_bool(self, key: Config.Bool.V) -> bool:
         return self._backend.get_config_bool(key)
 
     def set_config_bool(
-        self, key: Config.Bool.Key.V, value: bool, *, undoable: bool = False
+        self, key: Config.Bool.V, value: bool, *, undoable: bool = False
     ) -> OpChanges:
         return self._backend.set_config_bool(key=key, value=value, undoable=undoable)
 
-    def get_config_string(self, key: Config.String.Key.V) -> str:
+    def get_config_string(self, key: Config.String.V) -> str:
         return self._backend.get_config_string(key)
 
     def set_config_string(
-        self, key: Config.String.Key.V, value: str, undoable: bool = False
+        self, key: Config.String.V, value: str, undoable: bool = False
     ) -> OpChanges:
         return self._backend.set_config_string(key=key, value=value, undoable=undoable)
 
