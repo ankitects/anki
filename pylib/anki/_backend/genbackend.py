@@ -18,7 +18,7 @@ import anki.notes_pb2
 import anki.notetypes_pb2
 import anki.scheduler_pb2
 import anki.sync_pb2
-import anki.configs_pb2
+import anki.config_pb2
 import anki.search_pb2
 import anki.stats_pb2
 import anki.card_rendering_pb2
@@ -189,7 +189,7 @@ service_modules = dict(
     NOTETYPES=anki.notetypes_pb2,
     SCHEDULER=anki.scheduler_pb2,
     SYNC=anki.sync_pb2,
-    CONFIGS=anki.configs_pb2,
+    CONFIG=anki.config_pb2,
     SEARCH=anki.search_pb2,
     STATS=anki.stats_pb2,
     CARD_RENDERING=anki.card_rendering_pb2,
@@ -240,7 +240,7 @@ import anki.notes_pb2
 import anki.notetypes_pb2
 import anki.scheduler_pb2
 import anki.sync_pb2
-import anki.configs_pb2
+import anki.config_pb2
 import anki.search_pb2
 import anki.stats_pb2
 import anki.card_rendering_pb2

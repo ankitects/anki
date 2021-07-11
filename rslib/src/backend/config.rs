@@ -4,7 +4,7 @@
 use serde_json::Value;
 
 use super::Backend;
-pub(super) use crate::backend_proto::configs_service::Service as ConfigsService;
+pub(super) use crate::backend_proto::config_service::Service as ConfigService;
 use crate::{
     backend_proto as pb,
     backend_proto::config_key::{Bool as BoolKeyProto, String as StringKeyProto},
@@ -46,7 +46,7 @@ impl From<StringKeyProto> for StringKey {
     }
 }
 
-impl ConfigsService for Backend {
+impl ConfigService for Backend {
     fn get_config_json(&self, input: pb::String) -> Result<pb::Json> {
         self.with_col(|col| {
             let val: Option<Value> = col.get_config_optional(input.val.as_str());

@@ -9,7 +9,7 @@ import "anki/generic.proto";
 import "anki/cards.proto";
 import "anki/decks.proto";
 import "anki/collection.proto";
-import "anki/configs.proto";
+import "anki/config.proto";
 
 service SchedulerService {
   rpc GetQueuedCards(GetQueuedCardsRequest) returns (QueuedCards);
@@ -178,7 +178,7 @@ message ScheduleCardsAsNewRequest {
 message SetDueDateRequest {
   repeated int64 card_ids = 1;
   string days = 2;
-  configs.OptionalStringConfigKey config_key = 3;
+  config.OptionalStringConfigKey config_key = 3;
 }
 
 message SortCardsRequest {
