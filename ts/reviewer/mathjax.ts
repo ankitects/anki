@@ -7,7 +7,8 @@ import { RegisterHTMLHandler } from "mathjax-full/js/handlers/html";
 import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
 import "mathjax-full/js/util/entities/all";
 
-const adaptor = new HTMLAdaptor(window as any);
+// @ts-expect-error Minor interface mismatch: document.documentElement.nodeValue might be null
+const adaptor = new HTMLAdaptor(window);
 RegisterHTMLHandler(adaptor);
 
 const texOptions = {
