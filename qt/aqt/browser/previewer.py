@@ -125,7 +125,6 @@ class Previewer(QDialog):
 
     def _setup_web_view(self) -> None:
         jsinc = [
-            "js/vendor/jquery.min.js",
             "js/mathjax.js",
             "js/vendor/mathjax/tex-chtml.js",
             "js/vendor/protobuf.min.js",
