@@ -8,12 +8,15 @@ declare const MathJax: any;
 
 type Callback = () => void | Promise<void>;
 
-export const ankiPlatform = "desktop";
-export let typeans: HTMLElement | undefined;
-let _updatingQueue: Promise<void> = Promise.resolve();
-
 export const onUpdateHook: Array<Callback> = [];
 export const onShownHook: Array<Callback> = [];
+
+export const ankiPlatform = "desktop";
+let typeans: HTMLInputElement | undefined;
+
+export function getTypedAnswer(): string | null {
+    return typeans?.value ?? null;
+}
 
 function _runHook(arr: Array<Callback>): Promise<void[]> {
     const promises: (Promise<void> | void)[] = [];
@@ -24,6 +27,8 @@ function _runHook(arr: Array<Callback>): Promise<void[]> {
 
     return Promise.all(promises);
 }
+
+let _updatingQueue: Promise<void> = Promise.resolve();
 
 function _queueAction(action: Callback): void {
     _updatingQueue = _updatingQueue.then(action);
@@ -60,8 +65,11 @@ async function _updateQA(
     onupdate: Callback,
     onshown: Callback
 ): Promise<void> {
-    onUpdateHook.splice(0, Infinity, onupdate);
-    onShownHook.splice(0, Infinity, onshown);
+    onUpdateHook.length = 0;
+    onUpdateHook.push(onupdate);
+
+    onShownHook.length = 0;
+    onShownHook.push(onshown);
 
     const qa = document.getElementById("qa")!;
     const renderError =
@@ -116,7 +124,7 @@ export function _showQuestion(q: string, a: string, bodyclass: string): void {
             },
             function () {
                 // focus typing area if visible
-                typeans = document.getElementById("typeans") as HTMLElement;
+                typeans = document.getElementById("typeans") as HTMLInputElement;
                 if (typeans) {
                     typeans.focus();
                 }
