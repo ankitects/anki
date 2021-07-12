@@ -143,7 +143,9 @@ export function _showAnswer(a: string, bodyclass: string): void {
                 // avoid scrolling to the answer until images load
                 allImagesLoaded().then(scrollToAnswer);
             },
-            function () {/* noop */}
+            function () {
+                /* noop */
+            }
         )
     );
 }
