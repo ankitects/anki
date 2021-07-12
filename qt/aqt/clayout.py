@@ -330,16 +330,13 @@ class CardLayout(QDialog):
         )
         qconnect(pform.preview_settings.clicked, self.on_preview_settings)
 
-        jsinc = [
-            "js/mathjax.js",
-            "js/vendor/mathjax/tex-chtml.js",
-            "js/vendor/protobuf.min.js",
-            "js/reviewer.js",
-        ]
         self.preview_web.stdHtml(
             self.mw.reviewer.revHtml(),
             css=["css/reviewer.css"],
-            js=jsinc,
+            js=[
+                "js/vendor/protobuf.min.js",
+                "js/reviewer.js",
+            ],
             context=self,
         )
         self.preview_web.set_bridge_command(self._on_bridge_cmd, self)
