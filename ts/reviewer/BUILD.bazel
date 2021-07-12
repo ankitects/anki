@@ -16,9 +16,13 @@ compile_sass(
 
 
 ts_library(
-    name = "lib",
+    name = "reviewer_ts",
     srcs = glob(["*.ts"]),
-    deps = ["//ts/lib"],
+    deps = [
+        "//ts/lib",
+        "//ts/lib:backend_proto",
+        "@npm//css-browser-selector",
+    ],
 )
 
 esbuild(
@@ -36,7 +40,7 @@ esbuild(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        ":lib",
+        ":reviewer_ts",
         "//ts/lib",
         "@npm//protobufjs",
     ],
