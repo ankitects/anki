@@ -335,6 +335,7 @@ class CardLayout(QDialog):
             "js/vendor/css_browser_selector.min.js",
             "js/mathjax.js",
             "js/vendor/mathjax/tex-chtml.js",
+            "js/vendor/protobuf.min.js",
             "js/reviewer.js",
         ]
         self.preview_web.stdHtml(
