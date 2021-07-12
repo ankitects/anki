@@ -4,8 +4,10 @@
 import "css-browser-selector/css_browser_selector";
 import "jquery/dist/jquery";
 
-import { bridgeCommand } from "lib/bridgecommand";
 export { mutateNextCardStates } from "./answering";
+
+import { bridgeCommand } from "lib/bridgecommand";
+import { allImagesLoaded, preloadAnswerImages } from "./images";
 
 declare const MathJax: any;
 
@@ -202,53 +204,6 @@ export function _emulateMobile(enabled: boolean): void {
     }
 }
 
-function allImagesLoaded(): Promise<void[]> {
-    return Promise.all(
-        Array.from(document.getElementsByTagName("img")).map(imageLoaded)
-    );
-}
-
-function imageLoaded(img: HTMLImageElement): Promise<void> {
-    return img.complete
-        ? Promise.resolve()
-        : new Promise((resolve) => {
-              img.addEventListener("load", () => resolve());
-              img.addEventListener("error", () => resolve());
-          });
-}
-
 function scrollToAnswer(): void {
     document.getElementById("answer")?.scrollIntoView();
-}
-
-function injectPreloadLink(href: string, as: string): void {
-    const link = document.createElement("link");
-    link.rel = "preload";
-    link.href = href;
-    link.as = as;
-    document.head.appendChild(link);
-}
-
-function clearPreloadLinks(): void {
-    document.head
-        .querySelectorAll("link[rel='preload']")
-        .forEach((link) => link.remove());
-}
-
-function extractImageSrcs(html: string): string[] {
-    const fragment = document.createRange().createContextualFragment(html);
-    const srcs = [...fragment.querySelectorAll("img[src]")].map(
-        (img) => (img as HTMLImageElement).src
-    );
-    return srcs;
-}
-
-function preloadAnswerImages(qHtml: string, aHtml: string): void {
-    clearPreloadLinks();
-    const aSrcs = extractImageSrcs(aHtml);
-    if (aSrcs.length) {
-        const qSrcs = extractImageSrcs(qHtml);
-        const diff = aSrcs.filter((src) => !qSrcs.includes(src));
-        diff.forEach((src) => injectPreloadLink(src, "image"));
-    }
 }
