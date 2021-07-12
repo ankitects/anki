@@ -333,10 +333,7 @@ class CardLayout(QDialog):
         self.preview_web.stdHtml(
             self.mw.reviewer.revHtml(),
             css=["css/reviewer.css"],
-            js=[
-                "js/vendor/protobuf.min.js",
-                "js/reviewer.js",
-            ],
+            js=["js/reviewer.js"],
             context=self,
         )
         self.preview_web.set_bridge_command(self._on_bridge_cmd, self)

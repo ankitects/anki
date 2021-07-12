@@ -29,22 +29,16 @@ ts_library(
 
 esbuild(
     name = "reviewer",
-    srcs = [
-        "//ts:protobuf-shim.js",
-    ],
     args = [
         "--resolve-extensions=.mjs,.js",
         "--log-level=warning",
     ],
     entry_point = "index_wrapper.ts",
-    external = [
-        "protobufjs/light",
-    ],
     visibility = ["//visibility:public"],
     deps = [
         ":reviewer_ts",
-        "@npm//mathjax-full",
         "//ts/lib",
+        "//ts/lib:backend_proto",
         "@npm//protobufjs",
     ],
 )
