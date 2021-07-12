@@ -102,7 +102,7 @@ run: develop
 	@set -eu -o pipefail ${SHELLFLAGS}; \
 	. "${ACTIVATE_SCRIPT}"; \
 	echo "Starting Anki..."; \
-	python qt/runanki $(RUNFLAGS)
+	python -u qt/runanki $(RUNFLAGS)
 
 .PHONY: prepare
 prepare: rslib/ftl/repo qt/ftl/repo qt/po/repo
