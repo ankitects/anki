@@ -140,6 +140,10 @@ export function _showQuestion(q: string, a: string, bodyclass: string): void {
     );
 }
 
+function scrollToAnswer(): void {
+    document.getElementById("answer")?.scrollIntoView();
+}
+
 export function _showAnswer(a: string, bodyclass: string): void {
     _queueAction(() =>
         _updateQA(
@@ -159,33 +163,14 @@ export function _showAnswer(a: string, bodyclass: string): void {
     );
 }
 
-const _flagColours = {
-    1: "#e25252",
-    2: "#ffb347",
-    3: "#54c414",
-    4: "#578cff",
-    5: "#ff82ee",
-    6: "#00d1b5",
-    7: "#9649dd",
-};
-
 export function _drawFlag(flag: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7): void {
     const elem = document.getElementById("_flag")!;
-    if (flag === 0) {
-        elem.setAttribute("hidden", "");
-        return;
-    }
-    elem.removeAttribute("hidden");
-    elem.style.color = _flagColours[flag];
+    elem.toggleAttribute("hidden", flag === 0);
+    elem.style.color = `var(--flag${flag}-fg)`;
 }
 
 export function _drawMark(mark: boolean): void {
-    const elem = document.getElementById("_mark")!;
-    if (!mark) {
-        elem.setAttribute("hidden", "");
-    } else {
-        elem.removeAttribute("hidden");
-    }
+    document.getElementById("_mark")!.toggleAttribute("hidden", !mark);
 }
 
 export function _typeAnsPress(): void {
@@ -196,14 +181,5 @@ export function _typeAnsPress(): void {
 }
 
 export function _emulateMobile(enabled: boolean): void {
-    const list = document.documentElement.classList;
-    if (enabled) {
-        list.add("mobile");
-    } else {
-        list.remove("mobile");
-    }
-}
-
-function scrollToAnswer(): void {
-    document.getElementById("answer")?.scrollIntoView();
+    document.documentElement.classList.toggle("mobile", enabled);
 }
