@@ -71,17 +71,14 @@ fn service_generator() -> Box<dyn prost_build::ServiceGenerator> {
 }
 
 pub fn write_backend_proto_rs() {
-    let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
     let proto_dir = if let Ok(proto) = env::var("PROTO_TOP") {
-        let backend_proto = PathBuf::from(proto);
-        backend_proto.parent().unwrap().to_owned()
+        PathBuf::from(proto).parent().unwrap().to_owned()
     } else {
         PathBuf::from("../proto")
     };
 
     let subfolders = &["anki"];
     let mut paths = vec![];
-
     for subfolder in subfolders {
         for entry in proto_dir.join(subfolder).read_dir().unwrap() {
             let entry = entry.unwrap();
@@ -99,6 +96,7 @@ pub fn write_backend_proto_rs() {
         }
     }
 
+    let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
     let mut config = prost_build::Config::new();
     config
         .out_dir(&out_dir)
@@ -107,6 +105,6 @@ pub fn write_backend_proto_rs() {
             "Deck.Filtered.SearchTerm.Order",
             "#[derive(strum::EnumIter)]",
         )
-        .compile_protos(paths.as_slice(), &[proto_dir, out_dir])
+        .compile_protos(paths.as_slice(), &[proto_dir])
         .unwrap();
 }
