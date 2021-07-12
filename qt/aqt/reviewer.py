@@ -287,10 +287,7 @@ class Reviewer:
         self.web.stdHtml(
             self.revHtml(),
             css=["css/reviewer.css"],
-            js=[
-                "js/vendor/protobuf.min.js",
-                "js/reviewer.js",
-            ],
+            js=["js/reviewer.js"],
             context=self,
         )
         # show answer / ease buttons
