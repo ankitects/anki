@@ -86,19 +86,14 @@ async function _updateQA(
 
     const qa = document.getElementById("qa")!;
 
-    // hide current card
-    qa.style.opacity = "0";
-
     try {
         setInnerHTML(qa, convertMathJax(html));
     } catch (error) {
         setInnerHTML(qa, renderError(error));
     }
 
+    /* TODO redunancy */
     await _runHook(onUpdateHook);
-
-    // and reveal card when processing is done
-    qa.style.opacity = "1";
     await _runHook(onShownHook);
 }
 
