@@ -25,6 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setContext(sectionKey, registerComponent);
 
     export let api: Record<string, never> | undefined = undefined;
+    export let auxiliaryData: Record<string, unknown> = {};
     let sectionRef: HTMLDivElement;
 
     $: if (sectionRef && api) {
@@ -57,7 +58,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <slot />
     {#each $dynamicItems as item}
         <Item id={item[0].id} registration={item[1]}>
-            <svelte:component this={item[0].component} {...item[0].props} />
+            <svelte:component
+                this={item[0].component}
+                {...item[0].props}
+                {...auxiliaryData}
+            />
         </Item>
     {/each}
 </div>

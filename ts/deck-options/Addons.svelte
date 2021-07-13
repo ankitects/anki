@@ -14,7 +14,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 {#if $components.length || state.haveAddons}
-    <TitledContainer title="Add-ons" {api}>
+    <TitledContainer
+        title="Add-ons"
+        {api}
+        auxiliaryData={{ data: state.currentAuxData }}
+    >
         <p>
             If you're using an add-on that hasn't been updated to use this new screen
             yet, you can access the old deck options screen by holding down the shift

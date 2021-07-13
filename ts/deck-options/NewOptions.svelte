@@ -40,7 +40,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             : "";
 </script>
 
-<TitledContainer title={tr.schedulingNewCards()} {api}>
+<TitledContainer
+    title={tr.schedulingNewCards()}
+    {api}
+    auxiliaryData={{ data: state.currentAuxData }}
+>
     <Item>
         <StepsInputRow
             bind:value={$config.learnSteps}

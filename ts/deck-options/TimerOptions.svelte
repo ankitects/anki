@@ -17,7 +17,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let defaults = state.defaults;
 </script>
 
-<TitledContainer title={tr.deckConfigTimerTitle()} {api}>
+<TitledContainer
+    title={tr.deckConfigTimerTitle()}
+    {api}
+    auxiliaryData={{ data: state.currentAuxData }}
+>
     <Item>
         <SpinBoxRow
             bind:value={$config.capAnswerTimeToSecs}

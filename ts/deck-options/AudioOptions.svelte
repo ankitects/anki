@@ -16,7 +16,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let defaults = state.defaults;
 </script>
 
-<TitledContainer title={tr.deckConfigAudioTitle()} {api}>
+<TitledContainer
+    title={tr.deckConfigAudioTitle()}
+    {api}
+    auxiliaryData={{ data: state.currentAuxData }}
+>
     <Item>
         <SwitchRow
             bind:value={$config.disableAutoplay}

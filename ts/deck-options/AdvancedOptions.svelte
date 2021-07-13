@@ -19,7 +19,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let cardStateCustomizer = state.cardStateCustomizer;
 </script>
 
-<TitledContainer title={tr.deckConfigAdvancedTitle()} {api}>
+<TitledContainer
+    title={tr.deckConfigAdvancedTitle()}
+    {api}
+    auxiliaryData={{ data: state.currentAuxData }}
+>
     <Item>
         <SpinBoxRow
             bind:value={$config.maximumReviewInterval}

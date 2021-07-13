@@ -16,7 +16,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let defaults = state.defaults;
 </script>
 
-<TitledContainer title={tr.deckConfigBuryTitle()} {api}>
+<TitledContainer
+    title={tr.deckConfigBuryTitle()}
+    {api}
+    auxiliaryData={{ data: state.currentAuxData }}
+>
     <Item>
         <SwitchRow
             bind:value={$config.buryNew}

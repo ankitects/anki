@@ -38,7 +38,11 @@
             : "";
 </script>
 
-<TitledContainer title={tr.deckConfigDailyLimits()} {api}>
+<TitledContainer
+    title={tr.deckConfigDailyLimits()}
+    {api}
+    auxiliaryData={{ data: state.currentAuxData }}
+>
     <Item>
         <SpinBoxRow
             bind:value={$config.newPerDay}

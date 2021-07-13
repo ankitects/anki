@@ -41,7 +41,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ];
 </script>
 
-<TitledContainer title={tr.deckConfigOrderingTitle()} {api}>
+<TitledContainer
+    title={tr.deckConfigOrderingTitle()}
+    {api}
+    auxiliaryData={{ data: state.currentAuxData }}
+>
     <Item>
         <EnumSelectorRow
             bind:value={$config.newCardGatherPriority}
