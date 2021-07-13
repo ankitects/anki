@@ -19,6 +19,7 @@ from anki.notes import Note
 from anki.tags import TagTreeNode
 from anki.types import assert_exhaustive
 from aqt import colors, gui_hooks
+from aqt.browser.find_and_replace import FindAndReplaceDialog
 from aqt.browser.sidebar import _want_right_border
 from aqt.browser.sidebar.item import SidebarItem, SidebarItemType
 from aqt.browser.sidebar.model import SidebarModel
@@ -868,7 +869,8 @@ class SidebarTreeView(QTreeView):
         menu = QMenu()
         self._maybe_add_type_specific_actions(menu, item)
         self._maybe_add_delete_action(menu, item, index)
-        self._maybe_add_rename_action(menu, item, index)
+        self._maybe_add_rename_actions(menu, item, index)
+        self._maybe_add_find_and_replace_action(menu, item, index)
         self._maybe_add_search_actions(menu)
         self._maybe_add_tree_actions(menu)
         gui_hooks.browser_sidebar_will_show_context_menu(self, menu, item, index)
@@ -900,11 +902,27 @@ class SidebarTreeView(QTreeView):
         if self._enable_delete(item):
             menu.addAction(tr.actions_delete(), lambda: self._on_delete(item))
 
-    def _maybe_add_rename_action(
+    def _maybe_add_rename_actions(
         self, menu: QMenu, item: SidebarItem, index: QModelIndex
     ) -> None:
         if item.item_type.is_editable() and len(self._selected_items()) == 1:
             menu.addAction(tr.actions_rename(), lambda: self.edit(index))
+            if item.item_type in (SidebarItemType.TAG, SidebarItemType.DECK):
+                menu.addAction(
+                    tr.actions_rename_with_parents(),
+                    lambda: self._on_rename_with_parents(item),
+                )
+
+    def _maybe_add_find_and_replace_action(
+        self, menu: QMenu, item: SidebarItem, index: QModelIndex
+    ) -> None:
+        if (
+            len(self._selected_items()) == 1
+            and item.item_type is SidebarItemType.NOTETYPE_FIELD
+        ):
+            menu.addAction(
+                tr.browsing_find_and_replace(), lambda: self._on_find_and_replace(item)
+            )
 
     def _maybe_add_search_actions(self, menu: QMenu) -> None:
         nodes = [
@@ -960,6 +978,51 @@ class SidebarTreeView(QTreeView):
                 tr.browsing_sidebar_collapse_children(),
                 lambda: set_children_expanded(False),
             )
+
+    def _on_rename_with_parents(self, item: SidebarItem) -> None:
+        title = "Anki"
+        if item.item_type is SidebarItemType.TAG:
+            title = tr.actions_rename_tag()
+        elif item.item_type is SidebarItemType.DECK:
+            title = tr.actions_rename_deck()
+
+        new_name = getOnlyText(
+            tr.actions_new_name(), title=title, default=item.full_name
+        ).replace('"', "")
+        if not new_name or new_name == item.full_name:
+            return
+
+        if item.item_type is SidebarItemType.TAG:
+
+            def success(out: OpChangesWithCount) -> None:
+                if out.count:
+                    tooltip(tr.browsing_notes_updated(count=out.count), parent=self)
+                else:
+                    showInfo(tr.browsing_tag_rename_warning_empty(), parent=self)
+
+            rename_tag(
+                parent=self,
+                current_name=item.full_name,
+                new_name=new_name,
+            ).success(success).run_in_background()
+
+        elif item.item_type is SidebarItemType.DECK:
+            rename_deck(
+                parent=self,
+                deck_id=DeckId(item.id),
+                new_name=new_name,
+            ).run_in_background()
+
+    def _on_find_and_replace(self, item: SidebarItem) -> None:
+        field = None
+        if item.item_type is SidebarItemType.NOTETYPE_FIELD:
+            field = item.name
+        FindAndReplaceDialog(
+            self,
+            mw=self.mw,
+            note_ids=self.browser.selected_notes(),
+            field=field,
+        )
 
     # Flags
     ###########################

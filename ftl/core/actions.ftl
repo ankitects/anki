@@ -23,6 +23,7 @@ actions-rebuild = Rebuild
 actions-rename = Rename
 actions-rename-deck = Rename Deck
 actions-rename-tag = Rename Tag
+actions-rename-with-parents = Rename with Parents
 actions-remove-tag = Remove Tag
 actions-replay-audio = Replay Audio
 actions-reposition = Reposition
