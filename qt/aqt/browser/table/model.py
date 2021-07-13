@@ -302,8 +302,8 @@ def addon_column_fillin(key: str) -> Column:
     """
     return Column(
         key=key,
-        cards_mode_label=tr.browsing_addon(),
-        notes_mode_label=tr.browsing_addon(),
+        cards_mode_label=f"{tr.browsing_addon()} ({key})",
+        notes_mode_label=f"{tr.browsing_addon()} ({key})",
         sorting=Columns.SORTING_NONE,
         uses_cell_font=False,
         alignment=Columns.ALIGNMENT_CENTER,
