@@ -9,8 +9,9 @@
     import SpinBox from "./SpinBox.svelte";
     import RevertButton from "./RevertButton.svelte";
 
-    export let value: any;
-    export let defaultValue: any;
+    export let defaultValue: number;
+    export let value: number = defaultValue;
+
     export let min = 0;
     export let max: number | undefined = undefined;
     export let markdownTooltip: string;

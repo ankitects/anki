@@ -10,8 +10,9 @@
     import CheckBox from "./CheckBox.svelte";
     import RevertButton from "./RevertButton.svelte";
 
-    export let value: boolean;
     export let defaultValue: boolean;
+    export let value: boolean = defaultValue;
+
     export let markdownTooltip: string | undefined = undefined;
 </script>
 

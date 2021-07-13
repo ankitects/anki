@@ -9,8 +9,9 @@
     import StepsInput from "./StepsInput.svelte";
     import RevertButton from "./RevertButton.svelte";
 
-    export let value: any;
-    export let defaultValue: any;
+    export let defaultValue: number[];
+    export let value: number[] = defaultValue;
+
     export let markdownTooltip: string;
 </script>
 

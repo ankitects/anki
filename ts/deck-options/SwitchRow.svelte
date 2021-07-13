@@ -10,8 +10,9 @@
     import Switch from "./Switch.svelte";
     import RevertButton from "./RevertButton.svelte";
 
-    export let value: boolean;
     export let defaultValue: boolean;
+    export let value: boolean = defaultValue;
+
     export let markdownTooltip: string | undefined = undefined;
 
     const id = Math.random().toString(36).substring(2);

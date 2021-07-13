@@ -11,8 +11,9 @@
     import EnumSelector from "./EnumSelector.svelte";
     import RevertButton from "./RevertButton.svelte";
 
-    export let value: number;
     export let defaultValue: number;
+    export let value: number = defaultValue;
+
     export let breakpoint: Breakpoint = "md";
     export let choices: string[];
     export let markdownTooltip: string;
