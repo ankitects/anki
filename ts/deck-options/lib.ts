@@ -165,7 +165,7 @@ export class DeckOptionsState {
         this.updateConfigList();
     }
 
-    removalWilLForceFullSync(): boolean {
+    removalWillForceFullSync(): boolean {
         return !this.schemaModified && this.configs[this.selectedIdx].config.id !== 0;
     }
 

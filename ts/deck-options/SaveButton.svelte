@@ -36,7 +36,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 return;
             }
             const msg =
-                (state.removalWilLForceFullSync()
+                (state.removalWillForceFullSync()
                     ? tr.deckConfigWillRequireFullSync() + " "
                     : "") +
                 tr.deckConfigConfirmRemoveName({ name: state.getCurrentName() });
