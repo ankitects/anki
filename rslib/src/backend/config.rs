@@ -7,7 +7,7 @@ use super::Backend;
 pub(super) use crate::backend_proto::config_service::Service as ConfigService;
 use crate::{
     backend_proto as pb,
-    backend_proto::config::{bool::Key as BoolKeyProto, string::Key as StringKeyProto},
+    backend_proto::config_key::{Bool as BoolKeyProto, String as StringKeyProto},
     config::{BoolKey, StringKey},
     prelude::*,
 };
@@ -16,8 +16,6 @@ impl From<BoolKeyProto> for BoolKey {
     fn from(k: BoolKeyProto) -> Self {
         match k {
             BoolKeyProto::BrowserTableShowNotesMode => BoolKey::BrowserTableShowNotesMode,
-            BoolKeyProto::BrowserSortBackwards => BoolKey::BrowserSortBackwards,
-            BoolKeyProto::BrowserNoteSortBackwards => BoolKey::BrowserNoteSortBackwards,
             BoolKeyProto::PreviewBothSides => BoolKey::PreviewBothSides,
             BoolKeyProto::CollapseTags => BoolKey::CollapseTags,
             BoolKeyProto::CollapseNotetypes => BoolKey::CollapseNotetypes,
@@ -45,12 +43,6 @@ impl From<StringKeyProto> for StringKey {
             StringKeyProto::DefaultSearchText => StringKey::DefaultSearchText,
             StringKeyProto::CardStateCustomizer => StringKey::CardStateCustomizer,
         }
-    }
-}
-
-impl From<pb::config::String> for StringKey {
-    fn from(key: pb::config::String) -> Self {
-        key.key().into()
     }
 }
 
@@ -93,7 +85,7 @@ impl ConfigService for Backend {
         .map(Into::into)
     }
 
-    fn get_config_bool(&self, input: pb::config::Bool) -> Result<pb::Bool> {
+    fn get_config_bool(&self, input: pb::GetConfigBoolRequest) -> Result<pb::Bool> {
         self.with_col(|col| {
             Ok(pb::Bool {
                 val: col.get_config_bool(input.key().into()),
@@ -106,7 +98,7 @@ impl ConfigService for Backend {
             .map(Into::into)
     }
 
-    fn get_config_string(&self, input: pb::config::String) -> Result<pb::String> {
+    fn get_config_string(&self, input: pb::GetConfigStringRequest) -> Result<pb::String> {
         self.with_col(|col| {
             Ok(pb::String {
                 val: col.get_config_string(input.key().into()),

@@ -7,7 +7,7 @@ import re
 from re import Match
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
-import anki
+import anki._backend
 
 # DBValue is actually Union[str, int, float, None], but if defined
 # that way, every call site needs to do a type check prior to using

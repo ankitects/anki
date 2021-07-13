@@ -7,24 +7,29 @@ from __future__ import annotations
 
 from typing import Any, Generator, List, Literal, Optional, Sequence, Tuple, Union, cast
 
-import anki._backend.backend_pb2 as _pb
-
-# protobuf we publicly export - listed first to avoid circular imports
+from anki import (
+    card_rendering_pb2,
+    collection_pb2,
+    config_pb2,
+    generic_pb2,
+    search_pb2,
+    stats_pb2,
+)
 from anki._legacy import DeprecatedNamesMixin, deprecated
 
-SearchNode = _pb.SearchNode
-Progress = _pb.Progress
-EmptyCardsReport = _pb.EmptyCardsReport
-GraphPreferences = _pb.GraphPreferences
-Preferences = _pb.Preferences
-UndoStatus = _pb.UndoStatus
-OpChanges = _pb.OpChanges
-OpChangesWithCount = _pb.OpChangesWithCount
-OpChangesWithId = _pb.OpChangesWithId
-OpChangesAfterUndo = _pb.OpChangesAfterUndo
-DefaultsForAdding = _pb.DeckAndNotetype
-BrowserRow = _pb.BrowserRow
-BrowserColumns = _pb.BrowserColumns
+# protobuf we publicly export - listed first to avoid circular imports
+SearchNode = search_pb2.SearchNode
+Progress = collection_pb2.Progress
+EmptyCardsReport = card_rendering_pb2.EmptyCardsReport
+GraphPreferences = stats_pb2.GraphPreferences
+Preferences = config_pb2.Preferences
+UndoStatus = collection_pb2.UndoStatus
+OpChanges = collection_pb2.OpChanges
+OpChangesWithCount = collection_pb2.OpChangesWithCount
+OpChangesWithId = collection_pb2.OpChangesWithId
+OpChangesAfterUndo = collection_pb2.OpChangesAfterUndo
+BrowserRow = search_pb2.BrowserRow
+BrowserColumns = search_pb2.BrowserColumns
 
 import copy
 import os
@@ -37,6 +42,7 @@ from dataclasses import dataclass, field
 import anki.latex
 from anki import hooks
 from anki._backend import RustBackend, Translations
+from anki.browser import BrowserConfig, BrowserDefaults
 from anki.cards import Card, CardId
 from anki.config import Config, ConfigManager
 from anki.consts import *
@@ -369,7 +375,7 @@ class Collection(DeprecatedNamesMixin):
 
     def defaults_for_adding(
         self, *, current_review_card: Optional[Card]
-    ) -> DefaultsForAdding:
+    ) -> anki.notes.DefaultsForAdding:
         """Get starting deck and notetype for add screen.
         An option in the preferences controls whether this will be based on the current deck
         or current notetype.
@@ -486,30 +492,28 @@ class Collection(DeprecatedNamesMixin):
         order: Union[bool, str, BrowserColumns.Column],
         reverse: bool,
         finding_notes: bool,
-    ) -> _pb.SortOrder:
+    ) -> search_pb2.SortOrder:
         if isinstance(order, str):
-            return _pb.SortOrder(custom=order)
+            return search_pb2.SortOrder(custom=order)
         if isinstance(order, bool):
             if order is False:
-                return _pb.SortOrder(none=_pb.Empty())
+                return search_pb2.SortOrder(none=generic_pb2.Empty())
             # order=True: set args to sort column and reverse from config
-            sort_key = "noteSortType" if finding_notes else "sortType"
+            sort_key = BrowserConfig.sort_column_key(finding_notes)
             order = self.get_browser_column(self.get_config(sort_key))
-            reverse_key = (
-                Config.Bool.BROWSER_NOTE_SORT_BACKWARDS
-                if finding_notes
-                else Config.Bool.BROWSER_SORT_BACKWARDS
-            )
-            reverse = self.get_config_bool(reverse_key)
+            reverse_key = BrowserConfig.sort_backwards_key(finding_notes)
+            reverse = self.get_config(reverse_key)
         if isinstance(order, BrowserColumns.Column):
             if order.sorting != BrowserColumns.SORTING_NONE:
-                return _pb.SortOrder(
-                    builtin=_pb.SortOrder.Builtin(column=order.key, reverse=reverse)
+                return search_pb2.SortOrder(
+                    builtin=search_pb2.SortOrder.Builtin(
+                        column=order.key, reverse=reverse
+                    )
                 )
 
         # eg, user is ordering on an add-on field with the add-on not installed
         print(f"{order} is not a valid sort order.")
-        return _pb.SortOrder(none=_pb.Empty())
+        return search_pb2.SortOrder(none=generic_pb2.Empty())
 
     def find_and_replace(
         self,
@@ -679,25 +683,25 @@ class Collection(DeprecatedNamesMixin):
     def load_browser_card_columns(self) -> List[str]:
         """Return the stored card column names and ensure the backend columns are set and in sync."""
         columns = self.get_config(
-            "activeCols", ["noteFld", "template", "cardDue", "deck"]
+            BrowserConfig.ACTIVE_CARD_COLUMNS_KEY, BrowserDefaults.CARD_COLUMNS
         )
         self._backend.set_active_browser_columns(columns)
         return columns
 
     def set_browser_card_columns(self, columns: List[str]) -> None:
-        self.set_config("activeCols", columns)
+        self.set_config(BrowserConfig.ACTIVE_CARD_COLUMNS_KEY, columns)
         self._backend.set_active_browser_columns(columns)
 
     def load_browser_note_columns(self) -> List[str]:
         """Return the stored note column names and ensure the backend columns are set and in sync."""
         columns = self.get_config(
-            "activeNoteCols", ["noteFld", "note", "noteCards", "noteTags"]
+            BrowserConfig.ACTIVE_NOTE_COLUMNS_KEY, BrowserDefaults.NOTE_COLUMNS
         )
         self._backend.set_active_browser_columns(columns)
         return columns
 
     def set_browser_note_columns(self, columns: List[str]) -> None:
-        self.set_config("activeNoteCols", columns)
+        self.set_config(BrowserConfig.ACTIVE_NOTE_COLUMNS_KEY, columns)
         self._backend.set_active_browser_columns(columns)
 
     # Config
@@ -728,19 +732,19 @@ class Collection(DeprecatedNamesMixin):
         "This is a debugging aid. Prefer .get_config() when you know the key you need."
         return from_json_bytes(self._backend.get_all_config())
 
-    def get_config_bool(self, key: Config.Bool.Key.V) -> bool:
+    def get_config_bool(self, key: Config.Bool.V) -> bool:
         return self._backend.get_config_bool(key)
 
     def set_config_bool(
-        self, key: Config.Bool.Key.V, value: bool, *, undoable: bool = False
+        self, key: Config.Bool.V, value: bool, *, undoable: bool = False
     ) -> OpChanges:
         return self._backend.set_config_bool(key=key, value=value, undoable=undoable)
 
-    def get_config_string(self, key: Config.String.Key.V) -> str:
+    def get_config_string(self, key: Config.String.V) -> str:
         return self._backend.get_config_string(key)
 
     def set_config_string(
-        self, key: Config.String.Key.V, value: str, undoable: bool = False
+        self, key: Config.String.V, value: str, undoable: bool = False
     ) -> OpChanges:
         return self._backend.set_config_string(key=key, value=value, undoable=undoable)
 

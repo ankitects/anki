@@ -4,7 +4,7 @@
 import copy
 import time
 
-from anki import Collection
+from anki.collection import Collection
 from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.utils import intTime

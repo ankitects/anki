@@ -17,7 +17,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <ButtonGroup {api}>
     <ButtonGroupItem>
         <LabelButton
-            disables={false}
             tooltip={tr.editingCustomizeFields()}
             on:click={() => bridgeCommand("fields")}
         >
@@ -28,7 +27,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonGroupItem>
         <WithShortcut shortcut={"Control+L"} let:createShortcut let:shortcutLabel>
             <LabelButton
-                disables={false}
                 tooltip={`${tr.editingCustomizeCardTemplates()} (${shortcutLabel})`}
                 on:click={() => bridgeCommand("cards")}
                 on:mount={createShortcut}

@@ -9,7 +9,8 @@ import weakref
 from typing import Optional, Tuple
 
 import anki
-import anki._backend.backend_pb2 as _pb
+import anki._backend
+import anki.i18n_pb2 as _pb
 
 # public exports
 TR = anki._backend.LegacyTranslationEnum
@@ -56,9 +57,9 @@ langs = sorted(
         ("Ελληνικά", "el_GR"),
         ("Български", "bg_BG"),
         ("Монгол хэл", "mn_MN"),
-        ("русский язык", "ru_RU"),
+        ("Pусский язык", "ru_RU"),
         ("Српски", "sr_SP"),
-        ("українська мова", "uk_UA"),
+        ("Yкраїнська мова", "uk_UA"),
         ("Հայերեն", "hy_AM"),
         ("עִבְרִית", "he_IL"),
         ("العربية", "ar_SA"),

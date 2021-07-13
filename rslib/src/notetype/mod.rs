@@ -382,23 +382,15 @@ impl Notetype {
         })
     }
 
-    fn ensure_cloze_if_and_only_if_cloze_notetype(
+    fn ensure_cloze_if_cloze_notetype(
         &self,
         parsed_templates: &[(Option<ParsedTemplate>, Option<ParsedTemplate>)],
     ) -> Result<()> {
-        if self.is_cloze() {
-            if missing_cloze_filter(parsed_templates) {
-                return Err(AnkiError::TemplateSaveError(TemplateSaveError {
-                    notetype: self.name.clone(),
-                    ordinal: 0,
-                    details: TemplateSaveErrorDetails::MissingCloze,
-                }));
-            }
-        } else if let Some(i) = find_cloze_filter(parsed_templates) {
+        if self.is_cloze() && missing_cloze_filter(parsed_templates) {
             return Err(AnkiError::TemplateSaveError(TemplateSaveError {
                 notetype: self.name.clone(),
-                ordinal: i,
-                details: TemplateSaveErrorDetails::ExtraneousCloze,
+                ordinal: 0,
+                details: TemplateSaveErrorDetails::MissingCloze,
             }));
         }
         Ok(())
@@ -460,7 +452,7 @@ impl Notetype {
         self.config.reqs = reqs;
         self.ensure_template_fronts_unique()?;
         self.ensure_valid_parsed_templates(&parsed_templates)?;
-        self.ensure_cloze_if_and_only_if_cloze_notetype(&parsed_templates)?;
+        self.ensure_cloze_if_cloze_notetype(&parsed_templates)?;
 
         Ok(())
     }
@@ -573,19 +565,6 @@ fn missing_cloze_filter(
     parsed_templates
         .get(0)
         .map_or(true, |t| !has_cloze(&t.0) || !has_cloze(&t.1))
-}
-
-/// Return the index of the first tuple with a cloze field on either template.
-fn find_cloze_filter(
-    parsed_templates: &[(Option<ParsedTemplate>, Option<ParsedTemplate>)],
-) -> Option<usize> {
-    parsed_templates.iter().enumerate().find_map(|(i, t)| {
-        if has_cloze(&t.0) || has_cloze(&t.1) {
-            Some(i)
-        } else {
-            None
-        }
-    })
 }
 
 /// True if the template is non-empty and has a cloze field.

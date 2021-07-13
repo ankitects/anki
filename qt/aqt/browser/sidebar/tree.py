@@ -26,7 +26,6 @@ from aqt.browser.sidebar.searchbar import SidebarSearchBar
 from aqt.browser.sidebar.toolbar import SidebarTool, SidebarToolbar
 from aqt.clayout import CardLayout
 from aqt.fields import FieldDialog
-from aqt.flags import load_flags
 from aqt.models import Models
 from aqt.operations import CollectionOp, QueryOp
 from aqt.operations.deck import (
@@ -108,6 +107,11 @@ class SidebarTreeView(QTreeView):
         # these do not really belong here, they should be in a higher-level class
         self.toolbar = SidebarToolbar(self)
         self.searchBar = SidebarSearchBar(self)
+
+        gui_hooks.flag_label_did_change.append(self.refresh)
+
+    def cleanup(self) -> None:
+        gui_hooks.flag_label_did_change.remove(self.refresh)
 
     @property
     def tool(self) -> SidebarTool:
@@ -498,7 +502,7 @@ class SidebarTreeView(QTreeView):
         root: SidebarItem,
         name: str,
         icon: Union[str, ColoredIcon],
-        collapse_key: Config.Bool.Key.V,
+        collapse_key: Config.Bool.V,
         type: Optional[SidebarItemType] = None,
     ) -> SidebarItem:
         def update(expanded: bool) -> None:
@@ -677,7 +681,7 @@ class SidebarTreeView(QTreeView):
         )
         root.search_node = SearchNode(flag=SearchNode.FLAG_ANY)
 
-        for flag in load_flags(self.col):
+        for flag in self.mw.flags.all():
             root.add_child(
                 SidebarItem(
                     name=flag.label,
@@ -961,12 +965,8 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def rename_flag(self, item: SidebarItem, new_name: str) -> None:
-        labels = self.col.get_config("flagLabels", {})
-        labels[str(item.id)] = new_name
-        self.col.set_config("flagLabels", labels)
         item.name = new_name
-        self.browser._update_flag_labels()
-        self.refresh()
+        self.mw.flags.rename_flag(item.id, new_name)
 
     # Decks
     ###########################

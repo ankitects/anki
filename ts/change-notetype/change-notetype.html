@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" id="viewport" content="width=device-width" />
+        <link href="change-notetype-base.css" rel="stylesheet" />
+        <link href="change-notetype.css" rel="stylesheet" />
+        <script src="../js/vendor/bootstrap.bundle.min.js"></script>
+        <script src="change-notetype.js"></script>
+    </head>
+    <body>
+        <div id="main"></div>
+
+        <script>
+            // use #testXXXX where XXXX is notetype ID to test
+            if (window.location.hash.startsWith("#test")) {
+                const ntid = parseInt(window.location.hash.substr("#test".length), 10);
+                anki.changeNotetypePage(document.getElementById("main"), ntid, ntid);
+            }
+        </script>
+    </body>
+</html>

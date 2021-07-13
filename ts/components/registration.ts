@@ -50,8 +50,11 @@ export function makeInterface<T extends Registration>(
         index: number = registrations.length,
         registration = makeRegistration()
     ): T {
-        registrations.splice(index, 0, registration);
-        items.set(registrations);
+        items.update((registrations) => {
+            registrations.splice(index, 0, registration);
+            return registrations;
+        });
+
         return registration;
     }
 

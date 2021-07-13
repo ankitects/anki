@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Dropdown from "bootstrap/js/dist/dropdown";
 
     import { setContext, onDestroy } from "svelte";
-    import { dropdownKey } from "./contextKeys";
+    import { dropdownKey } from "./context-keys";
 
     setContext(dropdownKey, {
         dropdown: true,

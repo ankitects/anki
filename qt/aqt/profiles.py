@@ -17,7 +17,7 @@ from send2trash import send2trash
 import anki.lang
 import aqt.forms
 import aqt.sound
-from anki import Collection
+from anki.collection import Collection
 from anki.db import DB
 from anki.lang import without_unicode_isolation
 from anki.sync import SyncAuth

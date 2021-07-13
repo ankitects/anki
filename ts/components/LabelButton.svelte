@@ -3,9 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import type { Readable } from "svelte/store";
     import { onMount, createEventDispatcher, getContext } from "svelte";
-    import { disabledKey, nightModeKey, dropdownKey } from "./contextKeys";
+    import { nightModeKey, dropdownKey } from "./context-keys";
     import type { DropdownProps } from "./dropdown";
 
     export let id: string | undefined = undefined;
@@ -19,11 +18,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let tooltip: string | undefined = undefined;
     export let active = false;
-    export let disables = true;
+    export let disabled = false;
     export let tabbable = false;
-
-    const disabled = getContext<Readable<boolean>>(disabledKey);
-    $: _disabled = disables && $disabled;
 
     const nightMode = getContext<boolean>(nightModeKey);
     const dropdownProps = getContext<DropdownProps>(dropdownKey) ?? { dropdown: false };
@@ -44,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:btn-night={theme === "anki" && nightMode}
     title={tooltip}
     {...dropdownProps}
-    disabled={_disabled}
+    {disabled}
     tabindex={tabbable ? 0 : -1}
     on:click
     on:mousedown|preventDefault
@@ -53,7 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </button>
 
 <style lang="scss">
-    @use "ts/sass/button_mixins" as button;
+    @use "ts/sass/button-mixins" as button;
 
     button {
         padding: 0 calc(var(--buttons-size) / 3);

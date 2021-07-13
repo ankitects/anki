@@ -1,0 +1,52 @@
+$tooltip-padding-y: 0.45rem;
+$tooltip-padding-x: 0.65rem;
+$tooltip-max-width: 300px;
+
+@use "ts/sass/vars";
+@use "ts/sass/scrollbar";
+
+@import "ts/sass/base";
+@import "ts/sass/bootstrap/containers";
+@import "ts/sass/bootstrap/grid";
+@import "ts/sass/bootstrap/dropdown";
+@import "ts/sass/bootstrap/forms";
+@import "ts/sass/bootstrap/buttons";
+@import "ts/sass/bootstrap/button-group";
+@import "ts/sass/bootstrap/transitions";
+@import "ts/sass/bootstrap/modal";
+@import "ts/sass/bootstrap/close";
+@import "ts/sass/bootstrap/alert";
+@import "ts/sass/bootstrap/tooltip";
+@import "ts/sass/bootstrap/badge";
+
+.night-mode {
+    @include scrollbar.night-mode;
+}
+
+.form-control,
+.form-select {
+    // the unprefixed version wasn't added until Chrome 81
+    -webkit-appearance: none;
+}
+
+.tooltip-inner {
+    text-align: start;
+
+    // marked transpiles tooltips into multiple paragraphs
+    // where trailing <p>s cause a bottom margin
+    > p:last-child {
+        display: inline;
+    }
+
+    // the default code color in tooltips is difficult to read; we'll probably
+    // want to add more of our own styling in the future
+    code {
+        color: #ffaaaa;
+        direction: inherit;
+    }
+}
+
+textarea.form-control {
+    color: var(--text-fg);
+    background-color: var(--frame-bg) !important;
+}

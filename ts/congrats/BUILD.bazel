@@ -35,27 +35,17 @@ ts_library(
 ts_library(
     name = "lib",
     srcs = ["lib.ts"],
-    deps = [
-        "//ts/lib",
-        "//ts/lib:backend_proto",
-    ],
+    deps = ["//ts/lib"],
 )
 
 esbuild(
     name = "congrats",
-    srcs = [
-        "//ts:protobuf-shim.js",
-    ],
     args = [
         "--global-name=anki",
-        "--inject:$(location //ts:protobuf-shim.js)",
         "--resolve-extensions=.mjs,.js",
         "--log-level=warning",
     ],
     entry_point = "index.ts",
-    external = [
-        "protobufjs/light",
-    ],
     output_css = "congrats.css",
     visibility = ["//visibility:public"],
     deps = [
@@ -63,7 +53,7 @@ esbuild(
         ":base_css",
         ":index",
         "//ts/lib",
-        "//ts/lib:backend_proto",
+        "@npm//protobufjs",
     ],
 )
 

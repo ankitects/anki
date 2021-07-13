@@ -6,21 +6,24 @@ from __future__ import annotations
 from abc import ABC, abstractmethod, abstractproperty
 from typing import List, Sequence, Union, cast
 
+from anki.browser import BrowserConfig
 from anki.cards import Card, CardId
-from anki.collection import Collection, Config
+from anki.collection import Collection
 from anki.notes import Note, NoteId
 from anki.utils import ids2str
 from aqt.browser.table import Column, ItemId, ItemList
 
 
 class ItemState(ABC):
-    config_key_prefix: str
+    GEOMETRY_KEY_PREFIX: str
+    SORT_COLUMN_KEY: str
+    SORT_BACKWARDS_KEY: str
     _active_columns: List[str]
-    _sort_column: str
-    _sort_backwards: bool
 
     def __init__(self, col: Collection) -> None:
         self.col = col
+        self._sort_column = self.col.get_config(self.SORT_COLUMN_KEY)
+        self._sort_backwards = self.col.get_config(self.SORT_BACKWARDS_KEY, False)
 
     def is_notes_mode(self) -> bool:
         """Return True if the state is a NoteState."""
@@ -56,21 +59,23 @@ class ItemState(ABC):
     def toggle_active_column(self, column: str) -> None:
         """Add or remove an active column."""
 
-    @abstractproperty
+    @property
     def sort_column(self) -> str:
-        """Return the sort column from the config."""
+        return self._sort_column
 
     @sort_column.setter
     def sort_column(self, column: str) -> None:
-        """Save the sort column in the config."""
+        self.col.set_config(self.SORT_COLUMN_KEY, column)
+        self._sort_column = column
 
-    @abstractproperty
+    @property
     def sort_backwards(self) -> bool:
-        """Return the sort order from the config."""
+        return self._sort_backwards
 
     @sort_backwards.setter
     def sort_backwards(self, order: bool) -> None:
-        """Save the sort order in the config."""
+        self.col.set_config(self.SORT_BACKWARDS_KEY, order)
+        self._sort_backwards = order
 
     # Get objects
 
@@ -114,14 +119,13 @@ class ItemState(ABC):
 
 
 class CardState(ItemState):
+    GEOMETRY_KEY_PREFIX = "editor"
+    SORT_COLUMN_KEY = BrowserConfig.CARDS_SORT_COLUMN_KEY
+    SORT_BACKWARDS_KEY = BrowserConfig.CARDS_SORT_BACKWARDS_KEY
+
     def __init__(self, col: Collection) -> None:
         super().__init__(col)
-        self.config_key_prefix = "editor"
         self._active_columns = self.col.load_browser_card_columns()
-        self._sort_column = self.col.get_config("sortType")
-        self._sort_backwards = self.col.get_config_bool(
-            Config.Bool.BROWSER_SORT_BACKWARDS
-        )
 
     @property
     def active_columns(self) -> List[str]:
@@ -133,24 +137,6 @@ class CardState(ItemState):
         else:
             self._active_columns.append(column)
         self.col.set_browser_card_columns(self._active_columns)
-
-    @property
-    def sort_column(self) -> str:
-        return self._sort_column
-
-    @sort_column.setter
-    def sort_column(self, column: str) -> None:
-        self.col.set_config("sortType", column)
-        self._sort_column = column
-
-    @property
-    def sort_backwards(self) -> bool:
-        return self._sort_backwards
-
-    @sort_backwards.setter
-    def sort_backwards(self, order: bool) -> None:
-        self.col.set_config_bool(Config.Bool.BROWSER_SORT_BACKWARDS, order)
-        self._sort_backwards = order
 
     def get_card(self, item: ItemId) -> Card:
         return self.col.get_card(CardId(item))
@@ -180,14 +166,13 @@ class CardState(ItemState):
 
 
 class NoteState(ItemState):
+    GEOMETRY_KEY_PREFIX = "editorNotesMode"
+    SORT_COLUMN_KEY = BrowserConfig.NOTES_SORT_COLUMN_KEY
+    SORT_BACKWARDS_KEY = BrowserConfig.NOTES_SORT_BACKWARDS_KEY
+
     def __init__(self, col: Collection) -> None:
         super().__init__(col)
-        self.config_key_prefix = "editorNotesMode"
         self._active_columns = self.col.load_browser_note_columns()
-        self._sort_column = self.col.get_config("noteSortType")
-        self._sort_backwards = self.col.get_config_bool(
-            Config.Bool.BROWSER_NOTE_SORT_BACKWARDS
-        )
 
     @property
     def active_columns(self) -> List[str]:
@@ -199,24 +184,6 @@ class NoteState(ItemState):
         else:
             self._active_columns.append(column)
         self.col.set_browser_note_columns(self._active_columns)
-
-    @property
-    def sort_column(self) -> str:
-        return self._sort_column
-
-    @sort_column.setter
-    def sort_column(self, column: str) -> None:
-        self.col.set_config("noteSortType", column)
-        self._sort_column = column
-
-    @property
-    def sort_backwards(self) -> bool:
-        return self._sort_backwards
-
-    @sort_backwards.setter
-    def sort_backwards(self, order: bool) -> None:
-        self.col.set_config_bool(Config.Bool.BROWSER_NOTE_SORT_BACKWARDS, order)
-        self._sort_backwards = order
 
     def get_card(self, item: ItemId) -> Card:
         return self.get_note(item).cards()[0]

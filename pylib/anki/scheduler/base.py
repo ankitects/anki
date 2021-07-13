@@ -4,25 +4,25 @@
 from __future__ import annotations
 
 import anki
-import anki._backend.backend_pb2 as _pb
+from anki import decks_pb2, scheduler_pb2
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.config import Config
 
-SchedTimingToday = _pb.SchedTimingTodayResponse
+SchedTimingToday = scheduler_pb2.SchedTimingTodayResponse
+CongratsInfo = scheduler_pb2.CongratsInfoResponse
+UnburyDeck = scheduler_pb2.UnburyDeckRequest
+BuryOrSuspend = scheduler_pb2.BuryOrSuspendCardsRequest
+FilteredDeckForUpdate = decks_pb2.FilteredDeckForUpdate
 
 
 from typing import List, Optional, Sequence
 
+from anki import config_pb2
 from anki.cards import CardId
 from anki.consts import CARD_TYPE_NEW, NEW_CARDS_RANDOM, QUEUE_TYPE_NEW, QUEUE_TYPE_REV
 from anki.decks import DeckConfigDict, DeckId, DeckTreeNode
 from anki.notes import NoteId
 from anki.utils import ids2str, intTime
-
-CongratsInfo = _pb.CongratsInfoResponse
-UnburyDeck = _pb.UnburyDeckRequest
-BuryOrSuspend = _pb.BuryOrSuspendCardsRequest
-FilteredDeckForUpdate = _pb.FilteredDeckForUpdate
 
 
 class SchedulerBase:
@@ -162,14 +162,14 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         self,
         card_ids: Sequence[CardId],
         days: str,
-        config_key: Optional[Config.String.Key.V] = None,
+        config_key: Optional[Config.String.V] = None,
     ) -> OpChanges:
         """Set cards to be due in `days`, turning them into review cards if necessary.
         `days` can be of the form '5' or '5..7'
         If `config_key` is provided, provided days will be remembered in config."""
-        key: Optional[Config.String]
+        key: Optional[config_pb2.OptionalStringConfigKey]
         if config_key is not None:
-            key = Config.String(key=config_key)
+            key = config_pb2.OptionalStringConfigKey(key=config_key)
         else:
             key = None
         return self.col._backend.set_due_date(

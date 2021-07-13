@@ -1,0 +1,1 @@
+../../bazel-bin/pylib/anki/i18n_pb2.pyi

@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { getContext, onMount, createEventDispatcher } from "svelte";
-    import { nightModeKey, dropdownKey } from "./contextKeys";
+    import { nightModeKey, dropdownKey } from "./context-keys";
     import type { DropdownProps } from "./dropdown";
 
     export let id: string | undefined = undefined;
@@ -14,7 +14,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let tooltip: string | undefined = undefined;
     export let active = false;
     export let disabled = false;
-    export const disables = false; /* unused */
     export let tabbable = false;
 
     export let iconSize: number = 75;
@@ -49,7 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </button>
 
 <style lang="scss">
-    @use "ts/sass/button_mixins" as button;
+    @use "ts/sass/button-mixins" as button;
 
     button {
         padding: 0;

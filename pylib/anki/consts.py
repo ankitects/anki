@@ -6,8 +6,6 @@ from __future__ import annotations
 import sys
 from typing import Any, Dict, NewType, Optional
 
-import anki
-
 # whether new cards should be mixed with reviews, or shown first or last
 NEW_CARDS_DISTRIBUTE = 0
 NEW_CARDS_LAST = 1
@@ -92,6 +90,8 @@ REVLOG_RESCHED = 4
 
 # Labels
 ##########################################################################
+
+import anki.collection
 
 
 def _tr(col: Optional[anki.collection.Collection]) -> Any:

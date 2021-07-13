@@ -48,6 +48,7 @@ from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
 from aqt.dbcheck import check_db
 from aqt.emptycards import show_empty_cards
+from aqt.flags import FlagManager
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
@@ -113,6 +114,7 @@ class AnkiQt(QMainWindow):
         self.col: Optional[Collection] = None
         self.taskman = TaskManager(self)
         self.media_syncer = MediaSyncer(self)
+        self.flags = FlagManager(self)
         aqt.mw = self
         self.app = app
         self.pm = profileManager
@@ -482,7 +484,6 @@ class AnkiQt(QMainWindow):
             return aqt.sound.av_refs_to_play_icons(text)
 
     def prepare_card_text_for_display(self, text: str) -> str:
-        text = self.col.media.escape_media_filenames(text)
         text = self._add_play_buttons(text)
         return text
 

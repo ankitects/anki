@@ -1,0 +1,1 @@
+../../bazel-bin/pylib/anki/cards_pb2.pyi

@@ -11,7 +11,6 @@ use crate::prelude::*;
 #[strum(serialize_all = "camelCase")]
 pub enum BoolKey {
     BrowserTableShowNotesMode,
-    BrowserNoteSortBackwards,
     CardCountsSeparateInactive,
     CollapseCardState,
     CollapseDecks,
@@ -28,8 +27,6 @@ pub enum BoolKey {
     PreviewBothSides,
     Sched2021,
 
-    #[strum(to_string = "sortBackwards")]
-    BrowserSortBackwards,
     #[strum(to_string = "normalize_note_text")]
     NormalizeNoteText,
     #[strum(to_string = "dayLearnFirst")]
@@ -50,12 +47,6 @@ struct BoolLike(#[serde(deserialize_with = "deserialize_bool_from_anything")] bo
 impl Collection {
     pub fn get_config_bool(&self, key: BoolKey) -> bool {
         match key {
-            BoolKey::BrowserSortBackwards => {
-                // older clients were storing this as an int
-                self.get_config_default::<BoolLike, _>(BoolKey::BrowserSortBackwards)
-                    .0
-            }
-
             // some keys default to true
             BoolKey::InterruptAudioWhenAnswering
             | BoolKey::ShowIntervalsAboveAnswerButtons

@@ -25,7 +25,6 @@ from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.browser.card_info import CardInfoDialog
 from aqt.deckoptions import confirm_deck_then_display_options
-from aqt.flags import load_flags
 from aqt.operations.card import set_card_flag
 from aqt.operations.note import remove_notes
 from aqt.operations.scheduling import (
@@ -294,7 +293,6 @@ class Reviewer:
                 "js/mathjax.js",
                 "js/vendor/mathjax/tex-chtml.js",
                 "js/reviewer.js",
-                "js/vendor/protobuf.min.js",
                 "js/reviewer_extras.js",
             ],
             context=self,
@@ -340,7 +338,9 @@ class Reviewer:
 
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
-        self.web.eval(f"_showQuestion({json.dumps(q)},'{bodyclass}');")
+        self.web.eval(
+            f"_showQuestion({json.dumps(q)}, {json.dumps(c.answer())}, '{bodyclass}');"
+        )
         self._update_flag_icon()
         self._update_mark_icon()
         self._showAnswerButton()
@@ -447,7 +447,7 @@ class Reviewer:
             (Qt.Key_F5, self.replayAudio),
             *(
                 (f"Ctrl+{flag.index}", self.set_flag_func(flag.index))
-                for flag in load_flags(self.mw.col)
+                for flag in self.mw.flags.all()
             ),
             ("*", self.toggle_mark_on_current_note),
             ("=", self.bury_current_note),
@@ -904,7 +904,7 @@ time = %(time)d;
                         self.set_flag_func(flag.index),
                         dict(checked=currentFlag == flag.index),
                     ]
-                    for flag in load_flags(self.mw.col)
+                    for flag in self.mw.flags.all()
                 ],
             ],
             [tr.studying_bury_card(), "-", self.bury_current_card],

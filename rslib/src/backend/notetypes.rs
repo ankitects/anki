@@ -159,13 +159,6 @@ impl NotetypesService for Backend {
         })
     }
 
-    fn get_single_notetype_of_notes(&self, input: pb::NoteIds) -> Result<pb::NotetypeId> {
-        self.with_col(|col| {
-            col.get_single_notetype_of_notes(&input.note_ids.into_newtype(NoteId))
-                .map(Into::into)
-        })
-    }
-
     fn get_change_notetype_info(
         &self,
         input: pb::GetChangeNotetypeInfoRequest,

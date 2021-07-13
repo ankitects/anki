@@ -34,7 +34,8 @@ from PyQt5.QtWidgets import (
 )
 
 import aqt
-from anki import Collection
+from anki._legacy import deprecated
+from anki.collection import Collection
 from anki.lang import TR, tr_legacyglobal  # pylint: disable=unused-import
 from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
 from aqt.qt import *
@@ -679,9 +680,8 @@ def restore_combo_history(comboBox: QComboBox, name: str) -> List[str]:
     return history
 
 
+@deprecated(info="use mw.prepare_card_text_for_display()")
 def mungeQA(col: Collection, txt: str) -> str:
-    print("mungeQA() deprecated; use mw.prepare_card_text_for_display()")
-    txt = col.media.escape_media_filenames(txt)
     return txt
 
 

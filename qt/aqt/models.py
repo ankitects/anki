@@ -6,7 +6,8 @@ from operator import itemgetter
 from typing import Any, List, Optional, Sequence
 
 import aqt.clayout
-from anki import Collection, stdmodels
+from anki import stdmodels
+from anki.collection import Collection
 from anki.lang import without_unicode_isolation
 from anki.models import NotetypeDict, NotetypeId, NotetypeNameIdUseCount
 from anki.notes import Note

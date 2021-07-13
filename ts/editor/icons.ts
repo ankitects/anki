@@ -27,7 +27,7 @@ export { default as colorHelperIcon } from "./color-helper.svg";
 
 export { default as paperclipIcon } from "./paperclip.svg";
 export { default as micIcon } from "./mic.svg";
-export { default as bracketsIcon } from "./code-brackets.svg";
+export { default as ellipseIcon } from "./contain.svg";
 export { default as functionIcon } from "./function-variant.svg";
 export { default as xmlIcon } from "./xml.svg";
 

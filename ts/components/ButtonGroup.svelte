@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroupItem from "./ButtonGroupItem.svelte";
     import { setContext } from "svelte";
     import { writable } from "svelte/store";
-    import { buttonGroupKey } from "./contextKeys";
+    import { buttonGroupKey } from "./context-keys";
     import type { Identifier } from "./identifier";
     import { insertElement, appendElement } from "./identifier";
     import type { ButtonRegistration } from "./buttons";
@@ -41,15 +41,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         makeInterface(makeRegistration);
 
     $: for (const [index, item] of $items.entries()) {
-        if ($items.length === 1) {
-            item.position.set(ButtonPosition.Standalone);
-        } else if (index === 0) {
-            item.position.set(ButtonPosition.Leftmost);
-        } else if (index === $items.length - 1) {
-            item.position.set(ButtonPosition.Rightmost);
-        } else {
-            item.position.set(ButtonPosition.Center);
-        }
+        item.position.update(() => {
+            if ($items.length === 1) {
+                return ButtonPosition.Standalone;
+            } else if (index === 0) {
+                return ButtonPosition.Leftmost;
+            } else if (index === $items.length - 1) {
+                return ButtonPosition.Rightmost;
+            } else {
+                return ButtonPosition.Center;
+            }
+        });
     }
 
     setContext(buttonGroupKey, registerComponent);
@@ -99,7 +101,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     role="group"
 >
     <slot />
-    {#each $dynamicItems as item}
+    {#each $dynamicItems as item (item[0].id)}
         <ButtonGroupItem id={item[0].id} registration={item[1]}>
             <svelte:component this={item[0].component} {...item[0].props} />
         </ButtonGroupItem>

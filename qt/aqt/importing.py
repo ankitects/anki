@@ -14,6 +14,7 @@ import anki.importing as importing
 import aqt.deckchooser
 import aqt.forms
 import aqt.modelchooser
+from anki.importing.anki2 import V2ImportIntoV1
 from anki.importing.apkg import AnkiPackageImporter
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
@@ -394,6 +395,11 @@ def importFile(mw: AnkiQt, file: str) -> None:
                 future.result()
             except zipfile.BadZipfile:
                 showWarning(invalidZipMsg())
+            except V2ImportIntoV1:
+                showWarning(
+                    """\
+To import this deck, please click the Update button at the top of the deck list, then try again."""
+                )
             except Exception as e:
                 err = repr(str(e))
                 if "invalidFile" in err:
