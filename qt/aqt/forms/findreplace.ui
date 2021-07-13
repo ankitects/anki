@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>367</width>
+    <width>377</width>
     <height>224</height>
    </rect>
   </property>
@@ -16,15 +16,8 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>browsing_find</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="find">
+     <item row="1" column="1">
+      <widget class="QComboBox" name="replace">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>9</horstretch>
@@ -49,8 +42,46 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="replace">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>browsing_in</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>browsing_find</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QComboBox" name="field">
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QCheckBox" name="re">
+       <property name="text">
+        <string>browsing_treat_input_as_regular_expression</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QCheckBox" name="ignoreCase">
+       <property name="text">
+        <string>browsing_ignore_case</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="find">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>9</horstretch>
@@ -68,31 +99,10 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>browsing_in</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="field">
-       <property name="sizeAdjustPolicy">
-        <enum>QComboBox::AdjustToMinimumContentsLength</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QCheckBox" name="re">
-       <property name="text">
-        <string>browsing_treat_input_as_regular_expression</string>
-       </property>
-      </widget>
-     </item>
      <item row="3" column="1">
-      <widget class="QCheckBox" name="ignoreCase">
+      <widget class="QCheckBox" name="selected_notes">
        <property name="text">
-        <string>browsing_ignore_case</string>
+        <string>browsing_selected_notes_only</string>
        </property>
        <property name="checked">
         <bool>true</bool>

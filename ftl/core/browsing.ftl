@@ -92,6 +92,7 @@ browsing-reschedule = Reschedule
 browsing-search-bar-hint = Search cards/notes (type text, then press Enter)
 browsing-search-in = Search in:
 browsing-search-within-formatting-slow = Search within formatting (slow)
+browsing-selected-notes-only = Selected notes only
 browsing-shift-position-of-existing-cards = Shift position of existing cards
 browsing-sidebar = Sidebar
 browsing-sidebar-filter = Sidebar filter
