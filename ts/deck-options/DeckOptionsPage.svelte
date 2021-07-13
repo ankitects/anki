@@ -71,10 +71,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <LapseOptions {state} api={lapseOptions} />
         </Item>
 
-        <Item>
-            <BuryOptions {state} api={buryOptions} />
-        </Item>
-
         {#if state.v3Scheduler}
             <Item>
                 <DisplayOrder {state} api={displayOrder} />
@@ -83,6 +79,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <Item>
             <TimerOptions {state} api={timerOptions} />
+        </Item>
+
+        <Item>
+            <BuryOptions {state} api={buryOptions} />
         </Item>
 
         <Item>
