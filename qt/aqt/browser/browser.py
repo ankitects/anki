@@ -7,6 +7,7 @@ from typing import Callable, Optional, Sequence, Tuple, Union
 
 import aqt
 import aqt.forms
+from anki._legacy import deprecated
 from anki.cards import Card, CardId
 from anki.collection import Collection, Config, OpChanges, SearchNode
 from anki.consts import *
@@ -66,6 +67,26 @@ from .sidebar import SidebarTreeView
 from .table import Table
 
 
+class MockModel:
+    """This class only exists to support some legacy aliases."""
+
+    def __init__(self, browser: aqt.browser.Browser) -> None:
+        self.browser = browser
+
+    @deprecated(replaced_by=aqt.operations.CollectionOp)
+    def beginReset(self) -> None:
+        self.browser.begin_reset()
+
+    @deprecated(replaced_by=aqt.operations.CollectionOp)
+    def endReset(self) -> None:
+        self.browser.end_reset()
+
+    @deprecated(replaced_by=aqt.operations.CollectionOp)
+    def reset(self) -> None:
+        self.browser.begin_reset()
+        self.browser.end_reset()
+
+
 class Browser(QMainWindow):
     mw: AnkiQt
     col: Collection
@@ -105,6 +126,8 @@ class Browser(QMainWindow):
         self.setupEditor()
         # disable undo/redo
         self.on_undo_state_change(mw.undo_actions_info())
+        # legacy alias
+        self.model = MockModel(self)
         gui_hooks.browser_will_show(self)
         self.show()
         self.setupSearch(card, search)
