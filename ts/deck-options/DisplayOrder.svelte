@@ -17,6 +17,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let config = state.currentConfig;
     let defaults = state.defaults;
 
+    let currentDeck = "\n\n" + tr.deckConfigDisplayOrderWillUseCurrentDeck();
+
     const newGatherPriorityChoices = [
         tr.deckConfigNewGatherPriorityDeck(),
         tr.deckConfigNewGatherPriorityPositionLowestFirst(),
@@ -45,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bind:value={$config.newCardGatherPriority}
             defaultValue={defaults.newCardGatherPriority}
             choices={newGatherPriorityChoices}
-            markdownTooltip={tr.deckConfigNewGatherPriorityTooltip()}
+            markdownTooltip={tr.deckConfigNewGatherPriorityTooltip() + currentDeck}
         >
             {tr.deckConfigNewGatherPriority()}
         </EnumSelectorRow>
@@ -56,7 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bind:value={$config.newCardSortOrder}
             defaultValue={defaults.newCardSortOrder}
             choices={newSortOrderChoices}
-            markdownTooltip={tr.deckConfigNewCardSortOrderTooltip()}
+            markdownTooltip={tr.deckConfigNewCardSortOrderTooltip() + currentDeck}
         >
             {tr.deckConfigNewCardSortOrder()}
         </EnumSelectorRow>
@@ -67,7 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bind:value={$config.newMix}
             defaultValue={defaults.newMix}
             choices={reviewMixChoices()}
-            markdownTooltip={tr.deckConfigNewReviewPriorityTooltip()}
+            markdownTooltip={tr.deckConfigNewReviewPriorityTooltip() + currentDeck}
         >
             {tr.deckConfigNewReviewPriority()}
         </EnumSelectorRow>
@@ -78,7 +80,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bind:value={$config.interdayLearningMix}
             defaultValue={defaults.interdayLearningMix}
             choices={reviewMixChoices()}
-            markdownTooltip={tr.deckConfigInterdayStepPriorityTooltip()}
+            markdownTooltip={tr.deckConfigInterdayStepPriorityTooltip() + currentDeck}
         >
             {tr.deckConfigInterdayStepPriority()}
         </EnumSelectorRow>
@@ -89,7 +91,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bind:value={$config.reviewOrder}
             defaultValue={defaults.reviewOrder}
             choices={reviewOrderChoices}
-            markdownTooltip={tr.deckConfigReviewSortOrderTooltip()}
+            markdownTooltip={tr.deckConfigReviewSortOrderTooltip() + currentDeck}
         >
             {tr.deckConfigReviewSortOrder()}
         </EnumSelectorRow>
