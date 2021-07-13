@@ -132,6 +132,9 @@ deck-config-sort-order-due-date-then-deck = Due date, then deck
 deck-config-sort-order-deck-then-due-date = Deck, then due date
 deck-config-sort-order-ascending-intervals = Ascending intervals
 deck-config-sort-order-descending-intervals = Descending intervals
+deck-config-display-order-will-use-current-deck = 
+    Anki will use the display order from the deck you 
+    select to study, and not any subdecks it may have.
 
 ## Timer section
 
