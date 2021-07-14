@@ -13,9 +13,12 @@
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
 
-    let config = state.currentConfig;
-    let defaults = state.defaults;
-    let parentLimits = state.parentLimits;
+    const {
+        currentConfig: config,
+        currentAuxData: data,
+        defaults,
+        parentLimits,
+    } = state;
 
     const v3Extra = state.v3Scheduler
         ? "\n\n" +
@@ -38,11 +41,7 @@
             : "";
 </script>
 
-<TitledContainer
-    title={tr.deckConfigDailyLimits()}
-    {api}
-    auxiliaryData={{ data: state.currentAuxData }}
->
+<TitledContainer title={tr.deckConfigDailyLimits()} {api} auxiliaryData={{ data }}>
     <Item>
         <SpinBoxRow
             bind:value={$config.newPerDay}

@@ -14,16 +14,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
 
-    let config = state.currentConfig;
-    let defaults = state.defaults;
-    let cardStateCustomizer = state.cardStateCustomizer;
+    const {
+        currentConfig: config,
+        currentAuxData: data,
+        defaults,
+        cardStateCustomizer,
+    } = state;
 </script>
 
-<TitledContainer
-    title={tr.deckConfigAdvancedTitle()}
-    {api}
-    auxiliaryData={{ data: state.currentAuxData }}
->
+<TitledContainer title={tr.deckConfigAdvancedTitle()} {api} auxiliaryData={{ data }}>
     <Item>
         <SpinBoxRow
             bind:value={$config.maximumReviewInterval}

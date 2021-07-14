@@ -15,8 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let state: DeckOptionsState;
     export let api = {};
 
-    let config = state.currentConfig;
-    let defaults = state.defaults;
+    const { currentConfig: config, currentAuxData: data, defaults } = state;
 
     const newInsertOrderChoices = [
         tr.deckConfigNewInsertionOrderSequential(),
@@ -40,11 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             : "";
 </script>
 
-<TitledContainer
-    title={tr.schedulingNewCards()}
-    {api}
-    auxiliaryData={{ data: state.currentAuxData }}
->
+<TitledContainer title={tr.schedulingNewCards()} {api} auxiliaryData={{ data }}>
     <Item>
         <StepsInputRow
             bind:value={$config.learnSteps}

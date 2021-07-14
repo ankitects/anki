@@ -22,7 +22,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
 
     export let state: DeckOptionsState;
-    let addons = state.addonComponents;
+
+    const { currentAuxData: data, addonComponents: addons } = state;
 
     export function auxData(): Writable<Record<string, unknown>> {
         return state.currentAuxData;
@@ -58,11 +59,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <ConfigSelector {state} />
 
 <div class="multi-column">
-    <Container
-        class="g-1 mb-3 mt-3"
-        api={options}
-        auxiliaryData={{ data: state.currentAuxData }}
-    >
+    <Container class="g-1 mb-3 mt-3" api={options} auxiliaryData={{ data }}>
         <Item>
             <DailyLimits {state} api={dailyLimits} />
         </Item>

@@ -15,8 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let state: DeckOptionsState;
     export let api = {};
 
-    let config = state.currentConfig;
-    let defaults = state.defaults;
+    const { currentConfig: config, currentAuxData: data, defaults } = state;
 
     let stepsExceedMinimumInterval: string;
     $: {
@@ -32,11 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const leechChoices = [tr.actionsSuspendCard(), tr.schedulingTagOnly()];
 </script>
 
-<TitledContainer
-    title={tr.schedulingLapses()}
-    {api}
-    auxiliaryData={{ data: state.currentAuxData }}
->
+<TitledContainer title={tr.schedulingLapses()} {api} auxiliaryData={{ data }}>
     <Item>
         <StepsInputRow
             bind:value={$config.relearnSteps}

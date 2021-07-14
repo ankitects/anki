@@ -14,8 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
 
-    let config = state.currentConfig;
-    let defaults = state.defaults;
+    const { currentConfig: config, currentAuxData: data, defaults } = state;
 
     let currentDeck = "\n\n" + tr.deckConfigDisplayOrderWillUseCurrentDeck();
 
@@ -41,11 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ];
 </script>
 
-<TitledContainer
-    title={tr.deckConfigOrderingTitle()}
-    {api}
-    auxiliaryData={{ data: state.currentAuxData }}
->
+<TitledContainer title={tr.deckConfigOrderingTitle()} {api} auxiliaryData={{ data }}>
     <Item>
         <EnumSelectorRow
             bind:value={$config.newCardGatherPriority}
