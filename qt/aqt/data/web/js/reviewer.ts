@@ -173,7 +173,8 @@ function _drawMark(mark: boolean): void {
 }
 
 function _typeAnsPress(): void {
-    if ((window.event as KeyboardEvent).code === "Enter") {
+    const code = (window.event as KeyboardEvent).code;
+    if (["Enter", "NumpadEnter"].includes(code)) {
         pycmd("ans");
     }
 }
