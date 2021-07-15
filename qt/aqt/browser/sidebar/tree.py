@@ -1034,29 +1034,16 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def rename_deck(self, item: SidebarItem, new_name: str) -> None:
-        if not new_name:
+        if not new_name or new_name == item.name:
             return
 
         # update UI immediately, to avoid redraw
         item.name = new_name
 
-        full_name = item.name_prefix + new_name
-        deck_id = DeckId(item.id)
-
-        def after_fetch(name: str) -> None:
-            if full_name == name:
-                return
-
-            rename_deck(
-                parent=self,
-                deck_id=deck_id,
-                new_name=full_name,
-            ).run_in_background()
-
-        QueryOp(
-            parent=self.browser,
-            op=lambda col: col.decks.name(deck_id),
-            success=after_fetch,
+        rename_deck(
+            parent=self,
+            deck_id=DeckId(item.id),
+            new_name=item.name_prefix + new_name,
         ).run_in_background()
 
     def delete_decks(self, _item: SidebarItem) -> None:
