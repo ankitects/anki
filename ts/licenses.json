@@ -164,14 +164,6 @@
         "path": "node_modules/commander",
         "licenseFile": "node_modules/commander/LICENSE"
     },
-    "commander@8.0.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/tj/commander.js",
-        "publisher": "TJ Holowaychuk",
-        "email": "tj@vision-media.ca",
-        "path": "node_modules/speech-rule-engine/node_modules/commander",
-        "licenseFile": "node_modules/speech-rule-engine/node_modules/commander/LICENSE"
-    },
     "css-browser-selector@0.6.5": {
         "licenses": "CC-BY-SA-2.5",
         "repository": "https://github.com/verbatim/css_browser_selector",
@@ -434,14 +426,6 @@
         "path": "node_modules/delaunator",
         "licenseFile": "node_modules/delaunator/LICENSE"
     },
-    "esm@3.2.25": {
-        "licenses": "MIT",
-        "repository": "https://github.com/standard-things/esm",
-        "publisher": "John-David Dalton",
-        "email": "john.david.dalton@gmail.com",
-        "path": "node_modules/esm",
-        "licenseFile": "node_modules/esm/LICENSE"
-    },
     "iconv-lite@0.6.3": {
         "licenses": "MIT",
         "repository": "https://github.com/ashtuchkin/iconv-lite",
@@ -505,30 +489,11 @@
         "path": "node_modules/marked",
         "licenseFile": "node_modules/marked/LICENSE.md"
     },
-    "mathjax-full@3.2.0": {
-        "licenses": "Apache-2.0",
-        "repository": "https://github.com/mathjax/Mathjax-src",
-        "path": "node_modules/mathjax-full",
-        "licenseFile": "node_modules/mathjax-full/LICENSE"
-    },
     "mathjax@3.1.4": {
         "licenses": "Apache-2.0",
         "repository": "https://github.com/mathjax/MathJax",
         "path": "node_modules/mathjax",
         "licenseFile": "node_modules/mathjax/LICENSE"
-    },
-    "mhchemparser@4.1.1": {
-        "licenses": "Apache-2.0",
-        "repository": "https://github.com/mhchem/mhchemParser",
-        "publisher": "Martin Hensel",
-        "path": "node_modules/mhchemparser",
-        "licenseFile": "node_modules/mhchemparser/LICENSE.txt"
-    },
-    "mj-context-menu@0.6.1": {
-        "licenses": "Apache-2.0",
-        "repository": "https://github.com/zorkow/context-menu",
-        "path": "node_modules/mj-context-menu",
-        "licenseFile": "node_modules/mj-context-menu/README.md"
     },
     "protobufjs@6.11.2": {
         "licenses": "BSD-3-Clause",
@@ -561,28 +526,6 @@
         "url": "https://github.com/ChALkeR",
         "path": "node_modules/safer-buffer",
         "licenseFile": "node_modules/safer-buffer/LICENSE"
-    },
-    "speech-rule-engine@3.3.3": {
-        "licenses": "Apache-2.0",
-        "repository": "https://github.com/zorkow/speech-rule-engine",
-        "path": "node_modules/speech-rule-engine",
-        "licenseFile": "node_modules/speech-rule-engine/LICENSE"
-    },
-    "wicked-good-xpath@1.3.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/google/wicked-good-xpath",
-        "publisher": "Google Inc.",
-        "path": "node_modules/wicked-good-xpath",
-        "licenseFile": "node_modules/wicked-good-xpath/LICENSE"
-    },
-    "xmldom-sre@0.1.31": {
-        "licenses": "MIT*",
-        "repository": "https://github.com/zorkow/xmldom",
-        "publisher": "jindw",
-        "email": "jindw@xidea.org",
-        "url": "http://www.xidea.org",
-        "path": "node_modules/xmldom-sre",
-        "licenseFile": "node_modules/xmldom-sre/LICENSE"
     }
 }
 
