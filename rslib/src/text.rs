@@ -4,6 +4,7 @@
 use std::{borrow::Cow, ptr};
 
 use lazy_static::lazy_static;
+use pct_str::{IriReserved, PctStr, PctString};
 use regex::{Captures, Regex};
 use unicase::eq as uni_eq;
 use unicode_normalization::{
@@ -422,6 +423,56 @@ pub(crate) fn matches_glob(text: &str, search: &str) -> bool {
     } else {
         uni_eq(text, &to_text(search))
     }
+}
+
+lazy_static! {
+    pub(crate) static ref REMOTE_FILENAME: Regex = Regex::new("(?i)^https?://").unwrap();
+}
+
+/// IRI-encode unescaped local paths in HTML fragment.
+pub(crate) fn encode_iri_paths(unescaped_html: &str) -> Cow<str> {
+    transform_html_paths(unescaped_html, |fname| {
+        PctString::encode(fname.chars(), IriReserved::Segment)
+            .into_string()
+            .into()
+    })
+}
+
+/// URI-decode unescaped local paths in HTML fragment.
+pub(crate) fn decode_iri_paths(unescaped_html: &str) -> Cow<str> {
+    transform_html_paths(unescaped_html, |fname| {
+        match PctStr::new(fname) {
+            Ok(s) => s.decode().into(),
+            Err(_e) => {
+                // invalid percent encoding; return unchanged
+                fname.into()
+            }
+        }
+    })
+}
+
+/// Apply a transform to local filename references in tags like IMG.
+/// Required to display time, as Anki unfortunately stores the references
+/// in unencoded form in the database.
+fn transform_html_paths<F>(html: &str, transform: F) -> Cow<str>
+where
+    F: Fn(&str) -> Cow<str>,
+{
+    HTML_MEDIA_TAGS.replace_all(html, |caps: &Captures| {
+        let fname = caps
+            .get(1)
+            .or_else(|| caps.get(2))
+            .or_else(|| caps.get(3))
+            .unwrap()
+            .as_str()
+            .trim();
+        let full = caps.get(0).unwrap().as_str();
+        if REMOTE_FILENAME.is_match(fname) {
+            full.into()
+        } else {
+            full.replace(fname, &transform(fname))
+        }
+    })
 }
 
 #[cfg(test)]

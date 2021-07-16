@@ -10,7 +10,10 @@ use crate::{
     notetype::{CardTemplateSchema11, RenderCardOutput},
     prelude::*,
     template::RenderedNode,
-    text::{extract_av_tags, sanitize_html_no_images, strip_av_tags, AvTag},
+    text::{
+        decode_iri_paths, encode_iri_paths, extract_av_tags, sanitize_html_no_images,
+        strip_av_tags, AvTag,
+    },
 };
 
 impl CardRenderingService for Backend {
@@ -149,6 +152,14 @@ impl CardRenderingService for Backend {
             text = sanitize_html_no_images(&text);
         }
         Ok(text.into())
+    }
+
+    fn encode_iri_paths(&self, input: pb::String) -> Result<pb::String> {
+        Ok(encode_iri_paths(&input.val).to_string().into())
+    }
+
+    fn decode_iri_paths(&self, input: pb::String) -> Result<pb::String> {
+        Ok(decode_iri_paths(&input.val).to_string().into())
     }
 }
 

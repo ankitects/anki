@@ -8,10 +8,7 @@ import pprint
 import re
 import sys
 import time
-import urllib.error
-import urllib.parse
-import urllib.request
-from typing import Any, Callable, List, Match, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple
 
 from anki import media_pb2
 from anki.consts import *
@@ -191,22 +188,10 @@ class MediaManager:
 
     def escape_media_filenames(self, string: str, unescape: bool = False) -> str:
         "Apply or remove percent encoding to filenames in html tags (audio, image, object)."
-        fn: Callable
         if unescape:
-            fn = urllib.parse.unquote
+            return self.col._backend.decode_iri_paths(string)
         else:
-            fn = urllib.parse.quote
-
-        def repl(match: Match) -> str:
-            tag = match.group(0)
-            fname = match.group("fname")
-            if re.match("(https?|ftp)://", fname):
-                return tag
-            return tag.replace(fname, fn(fname))
-
-        for reg in self.html_media_regexps:
-            string = re.sub(reg, repl, string)
-        return string
+            return self.col._backend.encode_iri_paths(string)
 
     # Checking media
     ##########################################################################

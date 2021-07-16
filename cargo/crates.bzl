@@ -1472,6 +1472,16 @@ def raze_fetch_remote_crates():
     )
 
     maybe(
+        new_git_repository,
+        name = "raze__pct_str__1_1_0",
+        remote = "https://github.com/timothee-haudebourg/pct-str.git",
+        shallow_since = "1605376517 +0100",
+        commit = "4adccd8d4a222ab2672350a102f06ae832a0572d",
+        build_file = Label("//cargo/remote:BUILD.pct-str-1.1.0.bazel"),
+        init_submodules = True,
+    )
+
+    maybe(
         http_archive,
         name = "raze__percent_encoding__2_1_0",
         url = "https://crates.io/api/v1/crates/percent-encoding/2.1.0/download",
@@ -2739,6 +2749,16 @@ def raze_fetch_remote_crates():
         sha256 = "09cc8ee72d2a9becf2f2febe0205bbed8fc6615b7cb429ad062dc7b7ddd036a9",
         strip_prefix = "utf-8-0.7.6",
         build_file = Label("//cargo/remote:BUILD.utf-8-0.7.6.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__utf8_decode__1_0_1",
+        url = "https://crates.io/api/v1/crates/utf8-decode/1.0.1/download",
+        type = "tar.gz",
+        sha256 = "ca61eb27fa339aa08826a29f03e87b99b4d8f0fc2255306fd266bb1b6a9de498",
+        strip_prefix = "utf8-decode-1.0.1",
+        build_file = Label("//cargo/remote:BUILD.utf8-decode-1.0.1.bazel"),
     )
 
     maybe(

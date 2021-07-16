@@ -19,6 +19,8 @@ COMMITS_SHALLOW_SINCE = {
     "0cb6f7d14c62819e37cd221736f8b0555e823712": "1619519657 +1000",
     # tokio-io-timeout
     "1ee0892217e9a76bba4bb369ec5fab8854935a3c": "1619517354 +1000",
+    # pct-str
+    "4adccd8d4a222ab2672350a102f06ae832a0572d": "1605376517 +0100",
 }
 
 import glob

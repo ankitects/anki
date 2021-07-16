@@ -92,3 +92,4 @@ pulldown-cmark = "0.8.0"
 fnv = "1.0.7"
 strum = { version = "0.21.0", features = ["derive"] }
 tokio-util = { version = "0.6.7", features = ["io"] }
+pct-str = { git="https://github.com/timothee-haudebourg/pct-str.git", rev="4adccd8d4a222ab2672350a102f06ae832a0572d" }
