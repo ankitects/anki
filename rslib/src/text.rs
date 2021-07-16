@@ -438,9 +438,9 @@ pub(crate) fn encode_iri_paths(unescaped_html: &str) -> Cow<str> {
     })
 }
 
-/// URI-decode unescaped local paths in HTML fragment.
-pub(crate) fn decode_iri_paths(unescaped_html: &str) -> Cow<str> {
-    transform_html_paths(unescaped_html, |fname| {
+/// URI-decode escaped local paths in HTML fragment.
+pub(crate) fn decode_iri_paths(escaped_html: &str) -> Cow<str> {
+    transform_html_paths(escaped_html, |fname| {
         match PctStr::new(fname) {
             Ok(s) => s.decode().into(),
             Err(_e) => {
@@ -452,7 +452,7 @@ pub(crate) fn decode_iri_paths(unescaped_html: &str) -> Cow<str> {
 }
 
 /// Apply a transform to local filename references in tags like IMG.
-/// Required to display time, as Anki unfortunately stores the references
+/// Required at display time, as Anki unfortunately stores the references
 /// in unencoded form in the database.
 fn transform_html_paths<F>(html: &str, transform: F) -> Cow<str>
 where
