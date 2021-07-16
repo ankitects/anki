@@ -288,12 +288,9 @@ class Reviewer:
             self.revHtml(),
             css=["css/reviewer.css"],
             js=[
-                "js/vendor/jquery.min.js",
-                "js/vendor/css_browser_selector.min.js",
                 "js/mathjax.js",
                 "js/vendor/mathjax/tex-chtml.js",
                 "js/reviewer.js",
-                "js/reviewer_extras.js",
             ],
             context=self,
         )
@@ -699,7 +696,7 @@ class Reviewer:
         return s
 
     def _getTypedAnswer(self) -> None:
-        self.web.evalWithCallback("typeans ? typeans.value : null", self._onTypedAnswer)
+        self.web.evalWithCallback("getTypedAnswer();", self._onTypedAnswer)
 
     def _onTypedAnswer(self, val: None) -> None:
         self.typedAnswer = val or ""

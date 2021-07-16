@@ -124,17 +124,14 @@ class Previewer(QDialog):
         self._close_callback()
 
     def _setup_web_view(self) -> None:
-        jsinc = [
-            "js/vendor/jquery.min.js",
-            "js/vendor/css_browser_selector.min.js",
-            "js/mathjax.js",
-            "js/vendor/mathjax/tex-chtml.js",
-            "js/reviewer.js",
-        ]
         self._web.stdHtml(
             self.mw.reviewer.revHtml(),
             css=["css/reviewer.css"],
-            js=jsinc,
+            js=[
+                "js/mathjax.js",
+                "js/vendor/mathjax/tex-chtml.js",
+                "js/reviewer.js",
+            ],
             context=self,
         )
         self._web.set_bridge_command(self._on_bridge_cmd, self)
