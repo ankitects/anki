@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import "css-browser-selector/css_browser_selector";
+import "css-browser-selector/css_browser_selector.min";
 import "jquery/dist/jquery";
 
 export { mutateNextCardStates } from "./answering";
