@@ -8,9 +8,6 @@ use std::{
     path::Path,
 };
 
-use lazy_static::lazy_static;
-use regex::Regex;
-
 use crate::{
     collection::Collection,
     error::{AnkiError, DbErrorKind, Result},
@@ -25,12 +22,8 @@ use crate::{
         MediaManager,
     },
     notes::Note,
-    text::{extract_media_refs, normalize_to_nfc, MediaRef},
+    text::{extract_media_refs, normalize_to_nfc, MediaRef, REMOTE_FILENAME},
 };
-
-lazy_static! {
-    static ref REMOTE_FILENAME: Regex = Regex::new("(?i)^https?://").unwrap();
-}
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct MediaCheckOutput {

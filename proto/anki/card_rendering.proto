@@ -21,6 +21,8 @@ service CardRenderingService {
       returns (RenderCardResponse);
   rpc StripAVTags(generic.String) returns (generic.String);
   rpc RenderMarkdown(RenderMarkdownRequest) returns (generic.String);
+  rpc EncodeIriPaths(generic.String) returns (generic.String);
+  rpc DecodeIriPaths(generic.String) returns (generic.String);
 }
 
 message ExtractAVTagsRequest {

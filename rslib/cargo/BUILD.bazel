@@ -211,6 +211,15 @@ alias(
 )
 
 alias(
+    name = "pct_str",
+    actual = "@raze__pct_str__1_1_0//:pct_str",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "pin_project",
     actual = "@raze__pin_project__1_0_7//:pin_project",
     tags = [
