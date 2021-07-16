@@ -185,6 +185,24 @@ class CardLayout(QDialog):
             self,
             activated=self.tform.style_button.click,
         )
+        QShortcut(  # type: ignore
+            QKeySequence("F3"),
+            self,
+            activated=lambda: (
+                self.update_current_ordinal_and_redraw(self.ord - 1)
+                if self.ord - 1 > -1
+                else None
+            ),
+        )
+        QShortcut(  # type: ignore
+            QKeySequence("F4"),
+            self,
+            activated=lambda: (
+                self.update_current_ordinal_and_redraw(self.ord + 1)
+                if self.ord + 1 < len(self.templates)
+                else None
+            ),
+        )
         for i in range(min(len(self.cloze_numbers), 9)):
             QShortcut(  # type: ignore
                 QKeySequence(f"Alt+{i+1}"),
