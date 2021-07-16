@@ -6,7 +6,7 @@ mod search_node;
 
 use std::{convert::TryInto, str::FromStr, sync::Arc};
 
-use super::Backend;
+use super::{notes::to_note_ids, Backend};
 pub(super) use crate::backend_proto::search_service::Service as SearchService;
 use crate::{
     backend_proto as pb,
@@ -74,7 +74,7 @@ impl SearchService for Backend {
         if !input.match_case {
             search = format!("(?i){}", search);
         }
-        let nids = input.nids.into_iter().map(NoteId).collect();
+        let mut nids = to_note_ids(input.nids);
         let field_name = if input.field_name.is_empty() {
             None
         } else {
@@ -82,6 +82,9 @@ impl SearchService for Backend {
         };
         let repl = input.replacement;
         self.with_col(|col| {
+            if nids.is_empty() {
+                nids = col.search_notes_unordered("")?
+            };
             col.find_and_replace(nids, &search, &repl, field_name)
                 .map(Into::into)
         })
