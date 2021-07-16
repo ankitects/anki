@@ -835,7 +835,6 @@ class Browser(QMainWindow):
     ######################################################################
 
     @no_arg_trigger
-    @skip_if_selection_is_empty
     @ensure_editor_saved
     def onFindReplace(self) -> None:
         FindAndReplaceDialog(self, mw=self.mw, note_ids=self.selected_notes())
