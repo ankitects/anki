@@ -287,7 +287,11 @@ class Reviewer:
         self.web.stdHtml(
             self.revHtml(),
             css=["css/reviewer.css"],
-            js=["js/reviewer.js"],
+            js=[
+                "js/mathjax.js",
+                "js/vendor/mathjax/tex-chtml.js",
+                "js/reviewer.js",
+            ],
             context=self,
         )
         # show answer / ease buttons

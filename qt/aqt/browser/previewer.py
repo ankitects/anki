@@ -127,7 +127,11 @@ class Previewer(QDialog):
         self._web.stdHtml(
             self.mw.reviewer.revHtml(),
             css=["css/reviewer.css"],
-            js=["js/reviewer.js"],
+            js=[
+                "js/mathjax.js",
+                "js/vendor/mathjax/tex-chtml.js",
+                "js/reviewer.js",
+            ],
             context=self,
         )
         self._web.set_bridge_command(self._on_bridge_cmd, self)

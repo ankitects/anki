@@ -21,7 +21,6 @@ ts_library(
     deps = [
         "//ts/lib",
         "//ts/lib:backend_proto",
-        "@npm//mathjax-full",
         "@npm//css-browser-selector",
         "@npm//jquery",
     ],

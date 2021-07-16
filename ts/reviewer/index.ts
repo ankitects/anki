@@ -12,7 +12,7 @@ export { mutateNextCardStates } from "./answering";
 
 import { bridgeCommand } from "lib/bridgecommand";
 import { allImagesLoaded, preloadAnswerImages } from "./images";
-import { convertMathJax } from "./mathjax";
+declare const MathJax: any;
 
 type Callback = () => void | Promise<void>;
 
@@ -67,14 +67,16 @@ function setInnerHTML(element: Element, html: string): void {
     }
 }
 
-function renderError(error: Error): string {
-    const errorMessage = String(error).substring(0, 2000);
-    const errorStack = String(error.stack).substring(0, 2000);
-    return `<div>Error while rendering card: ${errorMessage}\n${errorStack}</div>`.replace(
-        /\n/g,
-        "<br>"
-    );
-}
+const renderError =
+    (type: string) =>
+    (error: Error): string => {
+        const errorMessage = String(error).substring(0, 2000);
+        const errorStack = String(error.stack).substring(0, 2000);
+        return `<div>Invalid ${type} on card: ${errorMessage}\n${errorStack}</div>`.replace(
+            /\n/g,
+            "<br>"
+        );
+    };
 
 async function _updateQA(
     html: string,
@@ -91,13 +93,23 @@ async function _updateQA(
     const qa = document.getElementById("qa")!;
 
     try {
-        setInnerHTML(qa, convertMathJax(html));
+        setInnerHTML(qa, html);
     } catch (error) {
-        setInnerHTML(qa, renderError(error));
+        setInnerHTML(qa, renderError("html")(error));
     }
 
-    /* TODO redunancy */
     await _runHook(onUpdateHook);
+
+    // wait for mathjax to ready
+    await MathJax.startup.promise
+        .then(() => {
+            // clear MathJax buffers from previous typesets
+            MathJax.typesetClear();
+
+            return MathJax.typesetPromise([qa]);
+        })
+        .catch(renderError("MathJax"));
+
     await _runHook(onShownHook);
 }
 
