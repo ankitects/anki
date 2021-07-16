@@ -5,23 +5,39 @@ load("//ts/svelte:svelte.bzl", "svelte", "svelte_check")
 load("//ts:esbuild.bzl", "esbuild")
 load("//ts:compile_sass.bzl", "compile_sass")
 
+compile_sass(
+    srcs = [
+        "reviewer.scss",
+    ],
+    group = "reviewer_scss",
+    visibility = ["//visibility:public"],
+    deps = [],
+)
+
+
 ts_library(
-    name = "lib",
+    name = "reviewer_ts",
     srcs = glob(["*.ts"]),
-    deps = ["//ts/lib"],
+    deps = [
+        "//ts/lib",
+        "//ts/lib:backend_proto",
+        "@npm//css-browser-selector",
+        "@npm//jquery",
+    ],
 )
 
 esbuild(
-    name = "reviewer_extras",
+    name = "reviewer",
     args = [
         "--resolve-extensions=.mjs,.js",
         "--log-level=warning",
     ],
-    entry_point = "index.ts",
+    entry_point = "index_wrapper.ts",
     visibility = ["//visibility:public"],
     deps = [
-        ":lib",
+        ":reviewer_ts",
         "//ts/lib",
+        "//ts/lib:backend_proto",
         "@npm//protobufjs",
     ],
 )
