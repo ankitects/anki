@@ -3,6 +3,7 @@
 
 /* eslint
 @typescript-eslint/no-non-null-assertion: "off",
+@typescript-eslint/no-explicit-any: "off",
  */
 
 import "css-browser-selector/css_browser_selector";
