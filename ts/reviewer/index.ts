@@ -79,7 +79,7 @@ const renderError =
         );
     };
 
-async function _updateQA(
+export async function _updateQA(
     html: string,
     _unusused: unknown,
     onupdate: Callback,
