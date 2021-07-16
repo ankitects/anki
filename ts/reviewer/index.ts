@@ -92,6 +92,8 @@ async function _updateQA(
 
     const qa = document.getElementById("qa")!;
 
+    qa.style.opacity = "0";
+
     try {
         setInnerHTML(qa, html);
     } catch (error) {
@@ -109,6 +111,8 @@ async function _updateQA(
             return MathJax.typesetPromise([qa]);
         })
         .catch(renderError("MathJax"));
+
+    qa.style.opacity = "1";
 
     await _runHook(onShownHook);
 }
