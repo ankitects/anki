@@ -12,6 +12,7 @@ use std::{
 use lazy_static::lazy_static;
 use regex::Regex;
 use sha1::Sha1;
+use unic_ucd_category::GeneralCategory;
 use unicode_normalization::{is_nfc, UnicodeNormalization};
 
 use crate::{
@@ -70,6 +71,8 @@ fn disallowed_char(char: char) -> bool {
     match char {
         '[' | ']' | '<' | '>' | ':' | '"' | '/' | '?' | '*' | '^' | '\\' | '|' => true,
         c if c.is_ascii_control() => true,
+        // Macs do not allow invalid Unicode characters like 05F8 to be in a filename.
+        c if GeneralCategory::of(c) == GeneralCategory::Unassigned => true,
         _ => false,
     }
 }
