@@ -26,7 +26,7 @@ p {
     }
 }
 
-:host-context(.nightMode) * {
+:host(.night-mode) * {
     @include scrollbar.night-mode;
 }
 

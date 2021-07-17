@@ -27,6 +27,10 @@ export class EditingArea extends HTMLDivElement {
         this.attachShadow({ mode: "open" });
         this.className = "field";
 
+        if (document.documentElement.classList.contains("night-mode")) {
+            this.classList.add("night-mode");
+        }
+
         const rootStyle = document.createElement("link");
         rootStyle.setAttribute("rel", "stylesheet");
         rootStyle.setAttribute("href", "./_anki/css/editable.css");
