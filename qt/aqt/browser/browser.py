@@ -396,7 +396,7 @@ class Browser(QMainWindow):
         self.form.gridLayout.addWidget(switch, 0, 0)
 
     def setupEditor(self) -> None:
-        QShortcut(QKeySequence("Ctrl+Shift+P"), self, lambda: self.onTogglePreview())
+        QShortcut(QKeySequence("Ctrl+Shift+P"), self, self.onTogglePreview)
 
         def add_preview_button(editor: Editor) -> None:
             editor._links["preview"] = lambda _editor: self.onTogglePreview()
