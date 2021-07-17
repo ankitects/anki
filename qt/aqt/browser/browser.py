@@ -396,9 +396,9 @@ class Browser(QMainWindow):
         self.form.gridLayout.addWidget(switch, 0, 0)
 
     def setupEditor(self) -> None:
-        def add_preview_button(editor: Editor) -> None:
-            preview_shortcut = "Ctrl+Shift+P"  # TODO
+        QShortcut(QKeySequence("Ctrl+Shift+P"), self, lambda: self.onTogglePreview())
 
+        def add_preview_button(editor: Editor) -> None:
             editor._links["preview"] = lambda _editor: self.onTogglePreview()
             editor.web.eval(
                 "$editorToolbar.then(({ notetypeButtons }) => notetypeButtons.appendButton({ component: editorToolbar.PreviewButton, id: 'preview' }));"
@@ -556,7 +556,7 @@ class Browser(QMainWindow):
         if self._previewer:
             self._previewer.close()
             self._on_preview_closed()
-        else:
+        elif self.editor.note:
             self._previewer = PreviewDialog(self, self.mw, self._on_preview_closed)
             self._previewer.open()
 
