@@ -2613,6 +2613,36 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "raze__unic_char_property__0_9_0",
+        url = "https://crates.io/api/v1/crates/unic-char-property/0.9.0/download",
+        type = "tar.gz",
+        sha256 = "a8c57a407d9b6fa02b4795eb81c5b6652060a15a7903ea981f3d723e6c0be221",
+        strip_prefix = "unic-char-property-0.9.0",
+        build_file = Label("//cargo/remote:BUILD.unic-char-property-0.9.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__unic_char_range__0_9_0",
+        url = "https://crates.io/api/v1/crates/unic-char-range/0.9.0/download",
+        type = "tar.gz",
+        sha256 = "0398022d5f700414f6b899e10b8348231abf9173fa93144cbc1a43b9793c1fbc",
+        strip_prefix = "unic-char-range-0.9.0",
+        build_file = Label("//cargo/remote:BUILD.unic-char-range-0.9.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__unic_common__0_9_0",
+        url = "https://crates.io/api/v1/crates/unic-common/0.9.0/download",
+        type = "tar.gz",
+        sha256 = "80d7ff825a6a654ee85a63e80f92f054f904f21e7d12da4e22f9834a4aaa35bc",
+        strip_prefix = "unic-common-0.9.0",
+        build_file = Label("//cargo/remote:BUILD.unic-common-0.9.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "raze__unic_langid__0_9_0",
         url = "https://crates.io/api/v1/crates/unic-langid/0.9.0/download",
         type = "tar.gz",
@@ -2649,6 +2679,26 @@ def raze_fetch_remote_crates():
         sha256 = "29396ffd97e27574c3e01368b1a64267d3064969e4848e2e130ff668be9daa9f",
         strip_prefix = "unic-langid-macros-impl-0.9.0",
         build_file = Label("//cargo/remote:BUILD.unic-langid-macros-impl-0.9.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__unic_ucd_category__0_9_0",
+        url = "https://crates.io/api/v1/crates/unic-ucd-category/0.9.0/download",
+        type = "tar.gz",
+        sha256 = "1b8d4591f5fcfe1bd4453baaf803c40e1b1e69ff8455c47620440b46efef91c0",
+        strip_prefix = "unic-ucd-category-0.9.0",
+        build_file = Label("//cargo/remote:BUILD.unic-ucd-category-0.9.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__unic_ucd_version__0_9_0",
+        url = "https://crates.io/api/v1/crates/unic-ucd-version/0.9.0/download",
+        type = "tar.gz",
+        sha256 = "96bd2f2237fe450fcd0a1d2f5f4e91711124f7857ba2e964247776ebeeb7b0c4",
+        strip_prefix = "unic-ucd-version-0.9.0",
+        build_file = Label("//cargo/remote:BUILD.unic-ucd-version-0.9.0.bazel"),
     )
 
     maybe(

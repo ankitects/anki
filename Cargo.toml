@@ -39,3 +39,9 @@ compile_data_attr = "glob([\"src/**/*.der\"])"
 
 [package.metadata.raze.crates.webpki.'*']
 compile_data_attr = "glob([\"src/**/*.der\"])"
+
+[package.metadata.raze.crates.unic-ucd-version.'*']
+compile_data_attr = "glob([\"**/*.rsv\"])"
+
+[package.metadata.raze.crates.unic-ucd-category.'*']
+compile_data_attr = "glob([\"**/*.rsv\"])"

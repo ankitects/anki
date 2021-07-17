@@ -2376,6 +2376,33 @@
     "description": "Typenum is a Rust library for type-level numbers evaluated at     compile time. It currently supports bits, unsigned integers, and signed     integers. It also provides a type-level array of type-level numbers, but its     implementation is incomplete."
   },
   {
+    "name": "unic-char-property",
+    "version": "0.9.0",
+    "authors": "The UNIC Project Developers",
+    "repository": "https://github.com/open-i18n/rust-unic/",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "UNIC — Unicode Character Tools — Character Property taxonomy, contracts and build macros"
+  },
+  {
+    "name": "unic-char-range",
+    "version": "0.9.0",
+    "authors": "The UNIC Project Developers",
+    "repository": "https://github.com/open-i18n/rust-unic/",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "UNIC — Unicode Character Tools — Character Range and Iteration"
+  },
+  {
+    "name": "unic-common",
+    "version": "0.9.0",
+    "authors": "The UNIC Project Developers",
+    "repository": "https://github.com/open-i18n/rust-unic/",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "UNIC — Common Utilities"
+  },
+  {
     "name": "unic-langid",
     "version": "0.9.0",
     "authors": "Zibi Braniecki <gandalf@mozilla.com>",
@@ -2410,6 +2437,24 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "API for managing Unicode Language Identifiers"
+  },
+  {
+    "name": "unic-ucd-category",
+    "version": "0.9.0",
+    "authors": "The UNIC Project Developers",
+    "repository": "https://github.com/open-i18n/rust-unic/",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "UNIC — Unicode Character Database — General Category"
+  },
+  {
+    "name": "unic-ucd-version",
+    "version": "0.9.0",
+    "authors": "The UNIC Project Developers",
+    "repository": "https://github.com/open-i18n/rust-unic/",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "UNIC — Unicode Character Database — Version"
   },
   {
     "name": "unicase",

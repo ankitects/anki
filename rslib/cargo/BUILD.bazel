@@ -454,6 +454,15 @@ alias(
 )
 
 alias(
+    name = "unic_ucd_category",
+    actual = "@raze__unic_ucd_category__0_9_0//:unic_ucd_category",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "unicase",
     actual = "@raze__unicase__2_6_0//:unicase",
     tags = [

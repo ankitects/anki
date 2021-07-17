@@ -114,6 +114,7 @@ rust_library(
         "//rslib/cargo:unic_langid",
         "//rslib/cargo:unicase",
         "//rslib/cargo:unicode_normalization",
+        "//rslib/cargo:unic_ucd_category",
         "//rslib/cargo:utime",
         "//rslib/cargo:zip",
         "//rslib/cargo:pct_str",
