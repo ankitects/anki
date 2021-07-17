@@ -28,17 +28,6 @@
         // (https://github.com/ankitects/anki/pull/1278)
         background-image: linear-gradient(var(--flag1-bg), var(--flag1-bg));
     }
-
-    .is-dragged > & {
-        border: 1px dashed var(--border);
-        background-color: red;
-    }
-}
-
-.fname {
-    .is-dragged > & {
-        visibility: hidden;
-    }
 }
 
 #dupes,
