@@ -6,15 +6,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let id: string | undefined = undefined;
     let className: string = "";
     export { className as class };
+    export let height: number;
 </script>
 
-<nav {id} class={`container-fluid pb-1 pt-1 ${className}`}>
+<nav {id} bind:offsetHeight={height} class={`container-fluid pb-1 pt-1 ${className}`}>
     <slot />
 </nav>
 
 <style lang="scss">
     nav {
-        position: sticky;
+        position: fixed;
         top: 0;
         left: 0;
         right: 0;

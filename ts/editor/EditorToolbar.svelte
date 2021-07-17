@@ -29,6 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { isApplePlatform } from "lib/platform";
     import StickyBar from "components/StickyBar.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
+    import Spacer from "components/Spacer.svelte";
     import Item from "components/Item.svelte";
 
     import NoteTypeButtons from "./NoteTypeButtons.svelte";
@@ -40,6 +41,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let size = isApplePlatform() ? 1.6 : 2.0;
     export let wrap = true;
 
+    let height: number;
+
     export const toolbar = {};
     export const notetypeButtons = {};
     export const formatInlineButtons = {};
@@ -48,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export const templateButtons = {};
 </script>
 
-<StickyBar>
+<StickyBar bind:height>
     <ButtonToolbar {size} {wrap} api={toolbar}>
         <Item id="notetype">
             <NoteTypeButtons api={notetypeButtons} />
@@ -71,3 +74,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Item>
     </ButtonToolbar>
 </StickyBar>
+
+<Spacer --height={`${height}px`} />
