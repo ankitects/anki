@@ -285,7 +285,7 @@ class Browser(QMainWindow):
         self.form.searchEdit.lineEdit().setPlaceholderText(
             tr.browsing_search_bar_hint()
         )
-        self.form.searchEdit.addItems(self.mw.pm.profile["searchHistory"])
+        self.form.searchEdit.addItems([""] + self.mw.pm.profile["searchHistory"])
         if search is not None:
             self.search_for_terms(*search)
         else:
