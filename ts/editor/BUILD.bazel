@@ -83,6 +83,7 @@ copy_bootstrap_icons(
     name = "bootstrap-icons",
     icons = [
         "pin-angle.svg",
+        "grip-vertical.svg",
 
         # inline formatting
         "type-bold.svg",

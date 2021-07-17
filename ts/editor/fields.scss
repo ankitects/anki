@@ -53,18 +53,23 @@
     }
 }
 
-.icon > svg {
-    fill: var(--text-fg);
-}
-
-.pin-icon {
+.icon {
     cursor: pointer;
+    opacity: 0.8;
 
     &.is-inactive {
         opacity: 0.1;
     }
 
     &.icon--hover {
-        opacity: 0.5;
+        opacity: 1;
+
+        &.icon-toggle {
+            opacity: 0.5;
+        }
+    }
+
+    > svg {
+        fill: var(--text-fg);
     }
 }

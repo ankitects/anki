@@ -3,6 +3,7 @@
 
 import { bridgeCommand } from "./lib";
 import pinIcon from "./pin-angle.svg";
+import gripIcon from "./grip-vertical.svg";
 
 function removeHoverIcon(evt: Event): void {
     const icon = evt.currentTarget as HTMLElement;
@@ -14,8 +15,27 @@ function hoverIcon(evt: Event): void {
     icon.classList.add("icon--hover");
 }
 
+function setFieldDraggable(evt: Event): void {
+    const icon = evt.currentTarget as HTMLElement;
+
+    // TODO make this event-based when moving to Svelte
+    const field = icon.parentElement!.parentElement!;
+    field.draggable = true;
+
+    let dragged: HTMLElement;
+
+    document.addEventListener("dragstart", (event) => {
+        dragged = event.target as HTMLElement;
+    });
+
+    document.addEventListener("dragend", () => {
+        dragged.draggable = false;
+    });
+}
+
 export class LabelContainer extends HTMLDivElement {
     sticky: HTMLSpanElement;
+    grip: HTMLSpanElement;
     label: HTMLSpanElement;
 
     constructor() {
@@ -26,11 +46,20 @@ export class LabelContainer extends HTMLDivElement {
         this.label.className = "fieldname";
         this.appendChild(this.label);
 
+        const spacer = document.createElement("span");
+        spacer.className = "flex-grow-1";
+        this.appendChild(spacer);
+
         this.sticky = document.createElement("span");
-        this.sticky.className = "icon pin-icon me-1";
+        this.sticky.className = "icon icon-toggle ms-1";
         this.sticky.innerHTML = pinIcon;
         this.sticky.hidden = true;
         this.appendChild(this.sticky);
+
+        this.grip = document.createElement("span");
+        this.grip.className = "icon ms-1";
+        this.grip.innerHTML = gripIcon;
+        this.appendChild(this.grip);
 
         this.toggleSticky = this.toggleSticky.bind(this);
     }
@@ -39,12 +68,18 @@ export class LabelContainer extends HTMLDivElement {
         this.sticky.addEventListener("click", this.toggleSticky);
         this.sticky.addEventListener("mouseenter", hoverIcon);
         this.sticky.addEventListener("mouseleave", removeHoverIcon);
+        this.grip.addEventListener("mousedown", setFieldDraggable);
+        this.grip.addEventListener("mouseenter", hoverIcon);
+        this.grip.addEventListener("mouseleave", removeHoverIcon);
     }
 
     disconnectedCallback(): void {
         this.sticky.removeEventListener("click", this.toggleSticky);
         this.sticky.removeEventListener("mouseenter", hoverIcon);
         this.sticky.removeEventListener("mouseleave", removeHoverIcon);
+        this.grip.removeEventListener("mousedown", setFieldDraggable);
+        this.grip.removeEventListener("mouseenter", hoverIcon);
+        this.grip.removeEventListener("mouseleave", removeHoverIcon);
     }
 
     initialize(labelName: string): void {
