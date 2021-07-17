@@ -26,9 +26,11 @@ function setFieldDraggable(evt: Event): void {
 
     document.addEventListener("dragstart", (event) => {
         dragged = event.target as HTMLElement;
+        dragged.classList.add("is-dragged");
     });
 
     document.addEventListener("dragend", () => {
+        dragged.classList.remove("is-dragged");
         dragged.draggable = false;
     });
 }
@@ -40,7 +42,7 @@ export class LabelContainer extends HTMLDivElement {
 
     constructor() {
         super();
-        this.className = "d-flex justify-content-between";
+        this.className = "fname d-flex justify-content-between";
 
         this.label = document.createElement("span");
         this.label.className = "fieldname";
