@@ -39,7 +39,7 @@ function _runHook(arr: Array<Callback>): Promise<void[]> {
 
 let _updatingQueue: Promise<void> = Promise.resolve();
 
-function _queueAction(action: Callback): void {
+export function _queueAction(action: Callback): void {
     _updatingQueue = _updatingQueue.then(action);
 }
 
