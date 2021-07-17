@@ -9,14 +9,19 @@
 }
 
 #fields {
-    display: flex;
-    flex-direction: column;
+    display: grid;
     margin: 5px;
+
+    > * {
+        display: flex;
+        flex-flow: column;
+    }
 }
 
 .field {
     border: 1px solid var(--border);
     background: var(--frame-bg);
+    flex-grow: 1;
 
     &.dupe {
         // this works around the background colour persisting in copy+paste
@@ -26,6 +31,7 @@
 }
 
 .fname {
+    white-space: nowrap;
     vertical-align: middle;
     padding: 0;
 }
