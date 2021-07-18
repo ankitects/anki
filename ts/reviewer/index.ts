@@ -27,14 +27,12 @@ export function getTypedAnswer(): string | null {
     return typeans?.value ?? null;
 }
 
-function _runHook(arr: Array<Callback>): Promise<void[]> {
-    const promises: (Promise<void> | void)[] = [];
-
-    for (let i = 0; i < arr.length; i++) {
-        promises.push(arr[i]());
+async function _runHook(arr: Array<Callback>): Promise<void> {
+    for (const callback of arr) {
+        const promise = new Promise((resolve) => resolve(callback()));
+        // swallow error to prevent webview from freezing
+        await promise.catch((e) => console.error(e));
     }
-
-    return Promise.all(promises);
 }
 
 let _updatingQueue: Promise<void> = Promise.resolve();
