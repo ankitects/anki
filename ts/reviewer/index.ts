@@ -28,13 +28,13 @@ export function getTypedAnswer(): string | null {
 }
 
 function _runHook(
-    arr: Array<Callback>
+    hooks: Array<Callback>
 ): Promise<PromiseSettledResult<void | Promise<void>>[]> {
     const promises: (Promise<void> | void)[] = [];
 
-    for (let i = 0; i < arr.length; i++) {
+    for (const hook of hooks) {
         try {
-            const result = arr[i]();
+            const result = hook();
             promises.push(result);
         } catch (error) {
             console.log("Hook failed: ", error);
