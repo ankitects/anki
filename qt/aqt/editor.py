@@ -954,6 +954,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         else:
             ext = "false"
         self.web.eval(f"pasteHTML({json.dumps(html)}, {json.dumps(internal)}, {ext});")
+        gui_hooks.editor_did_paste(self, html, internal, extended)
 
     def doDrop(self, html: str, internal: bool, extended: bool = False) -> None:
         def pasteIfField(ret: bool) -> None:
