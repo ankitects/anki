@@ -23,15 +23,18 @@ import { saveField } from "./change-timer";
 import { EditorField } from "./editor-field";
 import { LabelContainer } from "./label-container";
 import { EditingArea } from "./editing-area";
+import { EditableContainer } from "./editable-container";
 import { Editable } from "./editable";
 import { Codable } from "./codable";
 import { initToolbar, fieldFocused } from "./toolbar";
+import { getCurrentField } from "./helpers";
 
 export { setNoteId, getNoteId } from "./note-id";
 export { saveNow } from "./change-timer";
 export { wrap, wrapIntoText } from "./wrap";
 export { editorToolbar } from "./toolbar";
 export { activateStickyShortcuts } from "./label-container";
+export { getCurrentField } from "./helpers";
 export { components } from "./Components.svelte";
 
 declare global {
@@ -44,6 +47,7 @@ declare global {
 }
 
 customElements.define("anki-editable", Editable);
+customElements.define("anki-editable-container", EditableContainer, { extends: "div" });
 customElements.define("anki-codable", Codable, { extends: "textarea" });
 customElements.define("anki-editing-area", EditingArea, { extends: "div" });
 customElements.define("anki-label-container", LabelContainer, { extends: "div" });
@@ -51,12 +55,6 @@ customElements.define("anki-editor-field", EditorField, { extends: "div" });
 
 if (isApplePlatform()) {
     registerShortcut(() => bridgeCommand("paste"), "Control+Shift+V");
-}
-
-export function getCurrentField(): EditingArea | null {
-    return document.activeElement instanceof EditingArea
-        ? document.activeElement
-        : null;
 }
 
 export function focusField(n: number): void {

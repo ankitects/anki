@@ -5,6 +5,7 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
+import type { EditableContainer } from "./editable-container";
 import type { Editable } from "./editable";
 import type { Codable } from "./codable";
 
@@ -18,35 +19,25 @@ function onCutOrCopy(): void {
 }
 
 export class EditingArea extends HTMLDivElement {
+    editableContainer: EditableContainer;
     editable: Editable;
     codable: Codable;
-    baseStyle: HTMLStyleElement;
 
     constructor() {
         super();
-        this.attachShadow({ mode: "open" });
         this.className = "field";
 
-        if (document.documentElement.classList.contains("night-mode")) {
-            this.classList.add("night-mode");
-        }
-
-        const rootStyle = document.createElement("link");
-        rootStyle.setAttribute("rel", "stylesheet");
-        rootStyle.setAttribute("href", "./_anki/css/editable.css");
-        this.shadowRoot!.appendChild(rootStyle);
-
-        this.baseStyle = document.createElement("style");
-        this.baseStyle.setAttribute("rel", "stylesheet");
-        this.shadowRoot!.appendChild(this.baseStyle);
-
+        this.editableContainer = document.createElement("div", {
+            is: "anki-editable-container",
+        }) as EditableContainer;
         this.editable = document.createElement("anki-editable") as Editable;
-        this.shadowRoot!.appendChild(this.editable);
+        this.editableContainer.shadowRoot!.appendChild(this.editable);
+        this.appendChild(this.editableContainer);
 
         this.codable = document.createElement("textarea", {
             is: "anki-codable",
         }) as Codable;
-        this.shadowRoot!.appendChild(this.codable);
+        this.appendChild(this.codable);
 
         this.onPaste = this.onPaste.bind(this);
     }
@@ -71,23 +62,20 @@ export class EditingArea extends HTMLDivElement {
         this.addEventListener("keydown", onKey);
         this.addEventListener("keyup", onKeyUp);
         this.addEventListener("input", onInput);
-        this.addEventListener("focus", onFocus);
-        this.addEventListener("blur", onBlur);
+        this.addEventListener("focusin", onFocus);
+        this.addEventListener("focusout", onBlur);
         this.addEventListener("paste", this.onPaste);
         this.addEventListener("copy", onCutOrCopy);
         this.addEventListener("oncut", onCutOrCopy);
         this.addEventListener("mouseup", updateActiveButtons);
-
-        const baseStyleSheet = this.baseStyle.sheet as CSSStyleSheet;
-        baseStyleSheet.insertRule("anki-editable {}", 0);
     }
 
     disconnectedCallback(): void {
         this.removeEventListener("keydown", onKey);
         this.removeEventListener("keyup", onKeyUp);
         this.removeEventListener("input", onInput);
-        this.removeEventListener("focus", onFocus);
-        this.removeEventListener("blur", onBlur);
+        this.removeEventListener("focusin", onFocus);
+        this.removeEventListener("focusout", onBlur);
         this.removeEventListener("paste", this.onPaste);
         this.removeEventListener("copy", onCutOrCopy);
         this.removeEventListener("oncut", onCutOrCopy);
@@ -100,9 +88,7 @@ export class EditingArea extends HTMLDivElement {
     }
 
     setBaseColor(color: string): void {
-        const styleSheet = this.baseStyle.sheet as CSSStyleSheet;
-        const firstRule = styleSheet.cssRules[0] as CSSStyleRule;
-        firstRule.style.color = color;
+        this.editableContainer.setBaseColor(color);
     }
 
     quoteFontFamily(fontFamily: string): string {
@@ -114,17 +100,15 @@ export class EditingArea extends HTMLDivElement {
     }
 
     setBaseStyling(fontFamily: string, fontSize: string, direction: string): void {
-        const styleSheet = this.baseStyle.sheet as CSSStyleSheet;
-        const firstRule = styleSheet.cssRules[0] as CSSStyleRule;
-        firstRule.style.fontFamily = this.quoteFontFamily(fontFamily);
-        firstRule.style.fontSize = fontSize;
-        firstRule.style.direction = direction;
+        this.editableContainer.setBaseStyling(
+            this.quoteFontFamily(fontFamily),
+            fontSize,
+            direction,
+        );
     }
 
     isRightToLeft(): boolean {
-        const styleSheet = this.baseStyle.sheet as CSSStyleSheet;
-        const firstRule = styleSheet.cssRules[0] as CSSStyleRule;
-        return firstRule.style.direction === "rtl";
+        return this.editableContainer.isRightToLeft();
     }
 
     focus(): void {
@@ -140,11 +124,12 @@ export class EditingArea extends HTMLDivElement {
     }
 
     hasFocus(): boolean {
-        return document.activeElement === this;
+        return document.activeElement?.closest(".field") === this;
     }
 
     getSelection(): Selection {
-        return this.shadowRoot!.getSelection()!;
+        const root = this.activeInput.getRootNode() as Document | ShadowRoot;
+        return root.getSelection()!;
     }
 
     surroundSelection(before: string, after: string): void {

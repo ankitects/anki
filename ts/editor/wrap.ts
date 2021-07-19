@@ -5,7 +5,8 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
-import { getCurrentField, setFormat } from ".";
+import { getCurrentField } from "./helpers";
+import { setFormat } from ".";
 
 function wrappedExceptForWhitespace(text: string, front: string, back: string): string {
     const match = text.match(/^(\s*)([^]*?)(\s*)$/)!;
