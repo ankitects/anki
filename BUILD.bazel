@@ -1,5 +1,4 @@
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
-load("@rules_rust//rust:defs.bzl", "rust_analyzer")
 
 config_setting(
     name = "release",
@@ -38,11 +37,6 @@ pkg_tar(
     mode = "0644",
     package_dir = "bazel-dist",
     tags = ["manual"],
-)
-
-rust_analyzer(
-    name = "rust_analyzer",
-    targets = ["//rslib:anki"],
 )
 
 # for version info

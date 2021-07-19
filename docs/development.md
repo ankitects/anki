@@ -173,15 +173,19 @@ CPU usage, but Pylance doesn't do a great job understanding the type annotations
 
 ## Rust editing
 
-Rust editor support is still fairly new, but currently Visual Studio Code + Rust
-Analyzer seems to be the least-bad option. Once Rust Analyzer is installed,
-you'll want to enable the options to expand proc macros, and run cargo check on
-startup.
+Currently Visual Studio Code + Rust Analyzer seems to be the best option out
+there. Once Rust Analyzer is installed, you'll want to enable the options to
+expand proc macros and build scripts, and run cargo check on startup. Adding
+`+nightly` as an extra arg to rustfmt will get you nicer automatic formatting
+of `use` statements.
 
-After running 'code rslib' from the project root, it may take Rust Analyzer a
-while to become ready - if you check the running processes on your machine you should
-see it running in the background for a while.
+The Bazel build products will make RA start up slowly out of the box. For a much
+nicer experience, add each of the bazel-* folders to Rust Analyzer's excludeDirs
+settings, and ts/node_modules. Wildcards don't work unfortunately. Then adjust
+VS Code's "watcher exclude", and add `**/bazel-*`.
 
+After running 'code' from the project root, it may take a minute or two to be
+ready.
 ## TypeScript editing
 
 Visual Studio Code seems to give the best experience. Use 'code ts' from the project
