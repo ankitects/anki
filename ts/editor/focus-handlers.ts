@@ -10,12 +10,13 @@ import type { EditingArea } from "./editing-area";
 
 import { saveField } from "./change-timer";
 import { bridgeCommand } from "./lib";
+import { getCurrentField } from "./helpers";
 
 export function onFocus(evt: FocusEvent): void {
     const currentField = evt.currentTarget as EditingArea;
     currentField.focus();
 
-    if (currentField.shadowRoot!.getSelection()!.anchorNode === null) {
+    if (currentField.getSelection().anchorNode === null) {
         // selection is not inside editable after focusing
         currentField.caretToEnd();
     }
@@ -26,7 +27,7 @@ export function onFocus(evt: FocusEvent): void {
 
 export function onBlur(evt: FocusEvent): void {
     const previousFocus = evt.currentTarget as EditingArea;
-    const currentFieldUnchanged = previousFocus === document.activeElement;
+    const currentFieldUnchanged = previousFocus === getCurrentField();
 
     saveField(previousFocus, currentFieldUnchanged ? "key" : "blur");
     fieldFocused.set(false);
