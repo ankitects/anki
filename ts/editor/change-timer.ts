@@ -23,7 +23,9 @@ function clearChangeTimer(): void {
 
 export function saveField(currentField: EditingArea, type: "blur" | "key"): void {
     clearChangeTimer();
-    const command = `${type}:${currentField.ord}:${getNoteId()}:${currentField.fieldHTML}`
+    const command = `${type}:${currentField.ord}:${getNoteId()}:${
+        currentField.fieldHTML
+    }`;
     bridgeCommand(command);
 }
 

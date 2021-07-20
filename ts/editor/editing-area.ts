@@ -5,6 +5,8 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
+import ImageHandleContainer from "./ImageHandleContainer.svelte";
+
 import type { EditableContainer } from "./editable-container";
 import type { Editable } from "./editable";
 import type { Codable } from "./codable";
@@ -13,12 +15,14 @@ import { updateActiveButtons } from "./toolbar";
 import { bridgeCommand } from "./lib";
 import { onInput, onKey, onKeyUp } from "./input-handlers";
 import { onFocus, onBlur } from "./focus-handlers";
+import { nightModeKey } from "components/context-keys";
 
 function onCutOrCopy(): void {
     bridgeCommand("cutOrCopy");
 }
 
 export class EditingArea extends HTMLDivElement {
+    imageHandle: ImageHandleContainer;
     editableContainer: EditableContainer;
     editable: Editable;
     codable: Codable;
@@ -34,12 +38,32 @@ export class EditingArea extends HTMLDivElement {
         this.editableContainer.shadowRoot!.appendChild(this.editable);
         this.appendChild(this.editableContainer);
 
+        const context = new Map();
+        context.set(
+            nightModeKey,
+            document.documentElement.classList.contains("night-mode")
+        );
+
+        this.imageHandle = new ImageHandleContainer({
+            target: this,
+            anchor: this.editableContainer,
+            props: {
+                hidden: true,
+                top: 0,
+                left: 0,
+                width: 0,
+                height: 0,
+            },
+            context,
+        } as any);
+
         this.codable = document.createElement("textarea", {
             is: "anki-codable",
         }) as Codable;
         this.appendChild(this.codable);
 
         this.onPaste = this.onPaste.bind(this);
+        this.showImageHandle = this.showImageHandle.bind(this);
     }
 
     get activeInput(): Editable | Codable {
@@ -68,6 +92,7 @@ export class EditingArea extends HTMLDivElement {
         this.addEventListener("copy", onCutOrCopy);
         this.addEventListener("oncut", onCutOrCopy);
         this.addEventListener("mouseup", updateActiveButtons);
+        this.editable.addEventListener("click", this.showImageHandle);
     }
 
     disconnectedCallback(): void {
@@ -80,6 +105,7 @@ export class EditingArea extends HTMLDivElement {
         this.removeEventListener("copy", onCutOrCopy);
         this.removeEventListener("oncut", onCutOrCopy);
         this.removeEventListener("mouseup", updateActiveButtons);
+        this.editable.removeEventListener("click", this.showImageHandle);
     }
 
     initialize(color: string, content: string): void {
@@ -142,6 +168,26 @@ export class EditingArea extends HTMLDivElement {
 
     onPaste(event: ClipboardEvent): void {
         this.activeInput.onPaste(event);
+    }
+
+    showImageHandle(event: MouseEvent): void {
+        if (event.target instanceof HTMLImageElement) {
+            const image = event.target;
+            const imageRect = image.getBoundingClientRect();
+            const editableRect = this.editable.getBoundingClientRect();
+
+            (this.imageHandle as any).$set({
+                hidden: false,
+                top: imageRect.top - editableRect.top,
+                left: imageRect.left - editableRect.left,
+                width: image.clientWidth,
+                height: image.clientHeight,
+            });
+        } else {
+            (this.imageHandle as any).$set({
+                hidden: true,
+            });
+        }
     }
 
     toggleHtmlEdit(): void {
