@@ -215,14 +215,6 @@ will fail with a "no such file or directory node_modules/anki" message.
 
 You can run bazel with '-s' to print the commands that are being executed.
 
-## Subcomponents
-
-- pylib contains a Python module (anki) with the non-GUI Python code,
-  and a bridge to the Rust code.
-- qt contains the Qt GUI implementation (aqt).
-- rslib contains the parts of the code implemented in Rust.
-- ts and qt/aqt/data/web contain Anki's typescript and sass files.
-
 ## Environmental Variables
 
 If ANKIDEV is set before starting Anki, some extra log messages will be printed on stdout,
