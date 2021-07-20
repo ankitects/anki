@@ -32,4 +32,11 @@ former at build time.
 Anki uses Protocol Buffers to define backend methods, and the storage format of
 some items in a collection file. The definitions live in `proto/anki/`.
 
-The Python/Rust bridge uses them to pass data back and forth, and some of the TypeScript code also makes use of them, allowing data to be communicated in a type-safe manner between the different languages.
+The Python/Rust bridge uses them to pass data back and forth, and some of the
+TypeScript code also makes use of them, allowing data to be communicated in a
+type-safe manner between the different languages.
+
+At the moment, the protobuf is not considered public API. Some pylib methods
+expose a protobuf object directly to callers, but when they do so, they use a
+type alias, so callers outside pylib should never need to import a generated
+_pb2.py file.
