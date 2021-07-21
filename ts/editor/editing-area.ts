@@ -79,11 +79,17 @@ export class EditingArea extends HTMLDivElement {
     }
 
     connectedCallback(): void {
-        this.addEventListener("keydown", onKey);
+        this.addEventListener("keydown", (event) => {
+            this.resetImageHandle();
+            onKey(event);
+        });
         this.addEventListener("keyup", onKeyUp);
         this.addEventListener("input", onInput);
         this.addEventListener("focusin", onFocus);
-        this.addEventListener("focusout", onBlur);
+        this.addEventListener("focusout", (event) => {
+            this.resetImageHandle();
+            onBlur(event);
+        });
         this.addEventListener("paste", this.onPaste);
         this.addEventListener("copy", onCutOrCopy);
         this.addEventListener("oncut", onCutOrCopy);
@@ -166,6 +172,13 @@ export class EditingArea extends HTMLDivElement {
         this.activeInput.onPaste(event);
     }
 
+    resetImageHandle(): void {
+        (this.imageHandle as any).$set({
+            image: null,
+            imageRule: null,
+        });
+    }
+
     showImageHandle(event: MouseEvent): void {
         if (event.target instanceof HTMLImageElement) {
             (this.imageHandle as any).$set({
@@ -174,10 +187,7 @@ export class EditingArea extends HTMLDivElement {
                 isRtl: this.isRightToLeft(),
             });
         } else {
-            (this.imageHandle as any).$set({
-                image: null,
-                imageRule: null,
-            });
+            this.resetImageHandle();
         }
     }
 
