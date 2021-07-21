@@ -27,6 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let actualWidth = "";
     let actualHeight = "";
+    let customDimensions = false;
 
     let containerTop = 0;
     let containerLeft = 0;
@@ -71,12 +72,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         height = image!.clientHeight;
 
         const widthProperty = image!.style.width;
+        customDimensions = false;
+
         if (widthProperty) {
             actualWidth = widthProperty.endsWith("px")
                 ? widthProperty.substring(0, widthProperty.length - 2)
                 : widthProperty;
+            customDimensions = true;
         } else {
-            actualWidth = String(width);
+            actualWidth = String(naturalWidth);
         }
 
         const heightProperty = image!.style.height;
@@ -84,8 +88,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             actualHeight = heightProperty.endsWith("px")
                 ? heightProperty.substring(0, heightProperty.length - 2)
                 : heightProperty;
+            customDimensions = true;
         } else {
-            actualHeight = String(height);
+            actualHeight = String(naturalHeight);
         }
     }
 
@@ -162,7 +167,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </div>
         {#if showDimensions}
             <div class="image-handle-dimensions" class:is-rtl={isRtl}>
-                {actualWidth}&times;{actualHeight} (Original: {naturalWidth}&times;{naturalHeight})
+                <span>{actualWidth}&times;{actualHeight}</span>
+                {#if customDimensions}<span
+                        >(Original: {naturalWidth}&times;{naturalHeight})</span
+                    >{/if}
             </div>
         {/if}
         <div
@@ -240,6 +248,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         user-select: none;
 
         font-size: 13px;
+        color: white;
         background-color: rgba(0 0 0 / 0.3);
         border-color: black;
         border-radius: 0.25rem;
