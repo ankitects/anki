@@ -14,16 +14,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let image: HTMLImageElement;
     export let imageRule: CSSStyleRule;
-
-    const selector = `:not([src="${image.getAttribute("src")}"])`;
-
-    export let active = imageRule.selectorText.includes(selector);
+    export let selector: string;
+    export let active: boolean;
 
     $: icon = active ? sizeActual : sizeMinimized;
 
     const dispatch = createEventDispatcher();
 
-    function toggleActualSize() {
+    export function toggleActualSize() {
         if (!image.hasAttribute("src")) {
             return;
         }
@@ -36,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             active = true;
         }
 
-        dispatch("update");
+        dispatch("update", active);
     }
 </script>
 

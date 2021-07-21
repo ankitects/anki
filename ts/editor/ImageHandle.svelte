@@ -13,6 +13,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let imageRule: CSSStyleRule | null = null;
     export let container: HTMLElement;
 
+    $: showDimensions = image
+        ? parseInt(getComputedStyle(image).getPropertyValue("width")) > 220
+        : false;
+
+    $: selector = `:not([src="${image?.getAttribute("src")}"])`;
+    $: active = imageRule?.selectorText.includes(selector) as boolean;
+
     let naturalWidth = 0;
     let naturalHeight = 0;
 
@@ -65,19 +72,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const heightIncrease = dragHeight / naturalHeight;
 
         if (widthIncrease > heightIncrease) {
-            width = dragWidth;
-            height = naturalHeight * widthIncrease;
+            width = Math.trunc(dragWidth);
+            height = Math.trunc(naturalHeight * widthIncrease);
         } else {
-            height = dragHeight;
-            width = naturalWidth * heightIncrease;
+            height = Math.trunc(dragHeight);
+            width = Math.trunc(naturalWidth * heightIncrease);
         }
+
+        showDimensions = width > 220;
 
         image!.style.width = `${width}px`;
         image!.style.height = `${height}px`;
     }
 
+    let sizeSelect: any;
+
+    function onDblclick() {
+        sizeSelect.toggleActualSize();
+    }
+
     const nightMode = getContext(nightModeKey);
-    let active: boolean = false;
 </script>
 
 {#if image && imageRule}
@@ -85,21 +99,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         style="--top: {top}px; --left: {left}px; --width: {width}px; --height: {height}px;"
         class="image-handle-selection"
     >
-        <div class="image-handle-bg" />
+        <div class="image-handle-bg" on:dblclick={onDblclick} />
         <div class="image-handle-buttons">
             <ImageHandleButtons bind:float={image.style.float} />
         </div>
         <div class="image-handle-size-select">
             <ImageHandleSizeSelect
+                bind:this={sizeSelect}
+                bind:active
+                {selector}
                 {image}
                 {imageRule}
-                bind:active
                 on:update={updateSizes}
             />
         </div>
-        <div class="image-handle-dimensions">
-            {width}&times;{height} (Original: {naturalWidth}&times;{naturalHeight})
-        </div>
+        {#if showDimensions}
+            <div class="image-handle-dimensions">
+                {width}&times;{height} (Original: {naturalWidth}&times;{naturalHeight})
+            </div>
+        {/if}
         <div class:nightMode class="image-handle-control image-handle-control-nw" />
         <div class:nightMode class="image-handle-control image-handle-control-ne" />
         <div
