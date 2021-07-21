@@ -71,14 +71,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         height = image!.clientHeight;
 
         const widthProperty = image!.style.width;
-        actualWidth = widthProperty.endsWith("px")
-            ? widthProperty.substring(0, widthProperty.length - 2)
-            : widthProperty;
+        if (widthProperty) {
+            actualWidth = widthProperty.endsWith("px")
+                ? widthProperty.substring(0, widthProperty.length - 2)
+                : widthProperty;
+        } else {
+            actualWidth = String(width);
+        }
 
         const heightProperty = image!.style.height;
-        actualHeight = heightProperty.endsWith("px")
-            ? heightProperty.substring(0, heightProperty.length - 2)
-            : heightProperty;
+        if (heightProperty) {
+            actualHeight = heightProperty.endsWith("px")
+                ? heightProperty.substring(0, heightProperty.length - 2)
+                : heightProperty;
+        } else {
+            actualHeight = String(height);
+        }
     }
 
     function setPointerCapture(event: PointerEvent): void {
