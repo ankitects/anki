@@ -10,13 +10,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";
     import IconButton from "components/IconButton.svelte";
 
-    import { floatLeftIcon, floatRightIcon, resetIcon } from "./icons";
+    import { floatNoneIcon, floatLeftIcon, floatRightIcon } from "./icons";
 
     export let float: string;
 </script>
 
 <ButtonToolbar size={1.6} wrap={false}>
     <ButtonGroup>
+        <ButtonGroupItem>
+            <IconButton
+                tooltip={tr.editingFloatNone()}
+                active={float === "" || float === "none"}
+                on:click={() => (float = "")}>{@html floatNoneIcon}</IconButton
+            >
+        </ButtonGroupItem>
+
         <ButtonGroupItem>
             <IconButton
                 tooltip={tr.editingFloatLeft()}
@@ -30,14 +38,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 tooltip={tr.editingFloatRight()}
                 active={float === "right"}
                 on:click={() => (float = "right")}>{@html floatRightIcon}</IconButton
-            >
-        </ButtonGroupItem>
-
-        <ButtonGroupItem>
-            <IconButton
-                tooltip={tr.editingFloatRemove()}
-                active={float === "" || float === "none"}
-                on:click={() => (float = "")}>{@html resetIcon}</IconButton
             >
         </ButtonGroupItem>
     </ButtonGroup>

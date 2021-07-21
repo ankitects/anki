@@ -47,7 +47,9 @@ export class EditingArea extends HTMLDivElement {
         this.imageHandle = new ImageHandle({
             target: this,
             anchor: this.editableContainer,
-            props: { container: this.editable },
+            props: {
+                container: this.editable,
+            },
             context,
         } as any);
 
@@ -168,10 +170,12 @@ export class EditingArea extends HTMLDivElement {
         if (event.target instanceof HTMLImageElement) {
             (this.imageHandle as any).$set({
                 image: event.target,
+                imageRule: this.editableContainer.imageRule,
             });
         } else {
             (this.imageHandle as any).$set({
                 image: null,
+                imageRule: null,
             });
         }
     }

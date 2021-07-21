@@ -7,6 +7,8 @@
 
 export class EditableContainer extends HTMLDivElement {
     baseStyle: HTMLStyleElement;
+    baseRule?: CSSStyleRule;
+    imageRule?: CSSStyleRule;
 
     constructor() {
         super();
@@ -27,8 +29,16 @@ export class EditableContainer extends HTMLDivElement {
     }
 
     connectedCallback(): void {
-        const baseStyleSheet = this.baseStyle.sheet as CSSStyleSheet;
-        baseStyleSheet.insertRule("anki-editable {}", 0);
+        const sheet = this.baseStyle.sheet as CSSStyleSheet;
+        const baseIndex = sheet.insertRule("anki-editable {}");
+        this.baseRule = sheet.cssRules[baseIndex] as CSSStyleRule;
+
+        const imageIndex = sheet.insertRule("anki-editable img {}");
+        this.imageRule = sheet.cssRules[imageIndex] as CSSStyleRule;
+        this.imageRule.style.setProperty("width", "auto", "important");
+        this.imageRule.style.setProperty("height", "auto", "important");
+        this.imageRule.style.setProperty("max-width", "min(250px, 100%)", "important");
+        this.imageRule.style.setProperty("max-height", "min(250px, 100%)", "important");
     }
 
     initialize(color: string): void {
@@ -36,17 +46,17 @@ export class EditableContainer extends HTMLDivElement {
     }
 
     setBaseColor(color: string): void {
-        const styleSheet = this.baseStyle.sheet as CSSStyleSheet;
-        const firstRule = styleSheet.cssRules[0] as CSSStyleRule;
-        firstRule.style.color = color;
+        if (this.baseRule) {
+            this.baseRule.style.color = color;
+        }
     }
 
     setBaseStyling(fontFamily: string, fontSize: string, direction: string): void {
-        const styleSheet = this.baseStyle.sheet as CSSStyleSheet;
-        const firstRule = styleSheet.cssRules[0] as CSSStyleRule;
-        firstRule.style.fontFamily = fontFamily;
-        firstRule.style.fontSize = fontSize;
-        firstRule.style.direction = direction;
+        if (this.baseRule) {
+            this.baseRule.style.fontFamily = fontFamily;
+            this.baseRule.style.fontSize = fontSize;
+            this.baseRule.style.direction = direction;
+        }
     }
 
     isRightToLeft(): boolean {

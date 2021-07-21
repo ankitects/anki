@@ -1,3 +1,4 @@
+editing-actual-size = Actual size
 editing-add-media = Add Media
 editing-align-left = Align left
 editing-align-right = Align right
@@ -17,7 +18,7 @@ editing-edit-html = Edit HTML
 editing-fields = Fields
 editing-float-left = Float left
 editing-float-right = Float right
-editing-float-remove = Remove float
+editing-float-none = No float
 editing-html-editor = HTML Editor
 editing-indent = Increase indent
 editing-italic-text = Italic text

@@ -4,13 +4,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import ImageHandleButtons from "./ImageHandleButtons.svelte";
+    import ImageHandleSizeSelect from "./ImageHandleSizeSelect.svelte";
+
     import { getContext } from "svelte";
     import { nightModeKey } from "components/context-keys";
 
     export let image: HTMLImageElement | null = null;
-    export let container: HTMLElement | null = null;
-
-    let hidden = true;
+    export let imageRule: CSSStyleRule | null = null;
+    export let container: HTMLElement;
 
     let naturalWidth = 0;
     let naturalHeight = 0;
@@ -24,23 +25,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let height = 0;
 
     $: if (image) {
-        const imageRect = image.getBoundingClientRect();
+        updateSizes();
+    }
+
+    function updateSizes() {
+        const imageRect = image!.getBoundingClientRect();
         const containerRect = (
             container ?? document.documentElement
         ).getBoundingClientRect();
 
-        naturalWidth = image.naturalWidth;
-        naturalHeight = image.naturalHeight;
+        naturalWidth = image!.naturalWidth;
+        naturalHeight = image!.naturalHeight;
 
         containerTop = containerRect.top;
         containerLeft = containerRect.left;
         top = imageRect.top - containerTop;
         left = imageRect.left - containerLeft;
-        width = image.clientWidth;
-        height = image.clientHeight;
-        hidden = false;
-    } else {
-        hidden = true;
+        width = image!.clientWidth;
+        height = image!.clientHeight;
     }
 
     function setPointerCapture(event: PointerEvent): void {
@@ -75,17 +77,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const nightMode = getContext(nightModeKey);
+    let active: boolean = false;
 </script>
 
-{#if image}
+{#if image && imageRule}
     <div
         style="--top: {top}px; --left: {left}px; --width: {width}px; --height: {height}px;"
         class="image-handle-selection"
-        {hidden}
     >
         <div class="image-handle-bg" />
         <div class="image-handle-buttons">
             <ImageHandleButtons bind:float={image.style.float} />
+        </div>
+        <div class="image-handle-size-select">
+            <ImageHandleSizeSelect
+                {image}
+                {imageRule}
+                bind:active
+                on:update={updateSizes}
+            />
         </div>
         <div class="image-handle-dimensions">
             {width}&times;{height} (Original: {naturalWidth}&times;{naturalHeight})
@@ -94,13 +104,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div class:nightMode class="image-handle-control image-handle-control-ne" />
         <div
             class:nightMode
-            class="image-handle-control image-handle-control-sw is-active"
+            class:active
+            class="image-handle-control image-handle-control-sw"
             on:pointerdown={setPointerCapture}
             on:pointermove={resize}
         />
         <div
             class:nightMode
-            class="image-handle-control image-handle-control-se is-active"
+            class:active
+            class="image-handle-control image-handle-control-se"
             on:pointerdown={setPointerCapture}
             on:pointermove={resize}
         />
@@ -131,12 +143,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         left: 3px;
     }
 
+    .image-handle-size-select {
+        bottom: 3px;
+        left: 3px;
+    }
+
     .image-handle-dimensions {
         pointer-events: none;
         user-select: none;
         bottom: 3px;
         right: 3px;
 
+        font-size: 13px;
         background-color: rgba(0 0 0 / 0.3);
         border-color: black;
         border-radius: 0.25rem;
@@ -148,14 +166,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         height: 7px;
         border: 1px solid black;
 
-        &.is-active {
+        &.active {
             background-color: black;
         }
 
         &.nightMode {
             border-color: white;
 
-            &.is-active {
+            &.active {
                 background-color: white;
             }
         }
@@ -181,7 +199,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-top: none;
         border-right: none;
 
-        &.is-active {
+        &.active {
             cursor: sw-resize;
         }
     }
@@ -192,7 +210,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-top: none;
         border-left: none;
 
-        &.is-active {
+        &.active {
             cursor: se-resize;
         }
     }
