@@ -142,6 +142,7 @@ class Anki2Importer(Importer):
                             self._ignoredGuids[note[GUID]] = True
                     else:
                         dupesIdentical.append(note)
+                        self._ignoredGuids[note[GUID]] = True
 
         self.log.append(self.dst.tr.importing_notes_found_in_file(val=total))
 
