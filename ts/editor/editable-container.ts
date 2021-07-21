@@ -35,10 +35,8 @@ export class EditableContainer extends HTMLDivElement {
 
         const imageIndex = sheet.insertRule("anki-editable img {}");
         this.imageRule = sheet.cssRules[imageIndex] as CSSStyleRule;
-        this.imageRule.style.setProperty("width", "auto", "important");
-        this.imageRule.style.setProperty("height", "auto", "important");
         this.imageRule.style.setProperty("max-width", "min(250px, 100%)", "important");
-        this.imageRule.style.setProperty("max-height", "min(250px, 100%)", "important");
+        this.imageRule.style.setProperty("max-height", "200px", "important");
     }
 
     initialize(color: string): void {
