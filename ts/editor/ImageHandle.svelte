@@ -25,6 +25,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let naturalWidth = 0;
     let naturalHeight = 0;
 
+    let actualWidth = "";
+    let actualHeight = "";
+
     let containerTop = 0;
     let containerLeft = 0;
 
@@ -66,6 +69,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         left = imageRect.left - containerLeft;
         width = image!.clientWidth;
         height = image!.clientHeight;
+
+        const widthProperty = image!.style.width;
+        actualWidth = widthProperty.endsWith("px")
+            ? widthProperty.substring(0, widthProperty.length - 2)
+            : widthProperty;
+
+        const heightProperty = image!.style.height;
+        actualHeight = heightProperty.endsWith("px")
+            ? heightProperty.substring(0, heightProperty.length - 2)
+            : heightProperty;
     }
 
     function setPointerCapture(event: PointerEvent): void {
@@ -141,7 +154,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </div>
         {#if showDimensions}
             <div class="image-handle-dimensions" class:is-rtl={isRtl}>
-                {width}&times;{height} (Original: {naturalWidth}&times;{naturalHeight})
+                {actualWidth}&times;{actualHeight} (Original: {naturalWidth}&times;{naturalHeight})
             </div>
         {/if}
         <div
