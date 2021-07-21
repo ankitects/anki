@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
+    import ImageHandleButtons from "./ImageHandleButtons.svelte";
     import { getContext } from "svelte";
     import { nightModeKey } from "components/context-keys";
 
@@ -73,6 +74,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         image!.style.height = `${height}px`;
     }
 
+    function floatLeft(): void {
+        image!.style.float = "left";
+    }
+
+    function floatRight(): void {
+        image!.style.float = "right";
+    }
+
+    function floatReset(): void {
+        image!.style.float = "";
+    }
+
     const nightMode = getContext(nightModeKey);
 </script>
 
@@ -82,6 +95,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {hidden}
 >
     <div class="image-handle-bg" />
+    <div class="image-handle-buttons">
+        <ImageHandleButtons
+            on:floatleft={floatLeft}
+            on:floatright={floatRight}
+            on:floatreset={floatReset}
+        />
+    </div>
     <div class="image-handle-dimensions">
         {width}&times;{height} (Original: {naturalWidth}&times;{naturalHeight})
     </div>
@@ -113,6 +133,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         height: 100%;
         background-color: black;
         opacity: 0.2;
+    }
+
+    .image-handle-buttons {
+        top: 3px;
+        left: 3px;
     }
 
     .image-handle-dimensions {

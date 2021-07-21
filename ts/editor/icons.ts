@@ -33,3 +33,8 @@ export { default as xmlIcon } from "./xml.svg";
 
 export const arrowIcon =
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="transparent" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 5l6 6 6-6"/></svg>';
+
+// image handle
+export { default as floatLeftIcon } from "./format-float-left.svg";
+export { default as floatRightIcon } from "./format-float-right.svg";
+export { default as resetIcon } from "./close-circle-outline.svg";
