@@ -5,7 +5,7 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
-import ImageHandleContainer from "./ImageHandleContainer.svelte";
+import ImageHandle from "./ImageHandle.svelte";
 
 import type { EditableContainer } from "./editable-container";
 import type { Editable } from "./editable";
@@ -22,7 +22,7 @@ function onCutOrCopy(): void {
 }
 
 export class EditingArea extends HTMLDivElement {
-    imageHandle: ImageHandleContainer;
+    imageHandle: ImageHandle;
     editableContainer: EditableContainer;
     editable: Editable;
     codable: Codable;
@@ -44,16 +44,10 @@ export class EditingArea extends HTMLDivElement {
             document.documentElement.classList.contains("night-mode")
         );
 
-        this.imageHandle = new ImageHandleContainer({
+        this.imageHandle = new ImageHandle({
             target: this,
             anchor: this.editableContainer,
-            props: {
-                hidden: true,
-                top: 0,
-                left: 0,
-                width: 0,
-                height: 0,
-            },
+            props: { container: this.editable },
             context,
         } as any);
 
@@ -172,20 +166,12 @@ export class EditingArea extends HTMLDivElement {
 
     showImageHandle(event: MouseEvent): void {
         if (event.target instanceof HTMLImageElement) {
-            const image = event.target;
-            const imageRect = image.getBoundingClientRect();
-            const editableRect = this.editable.getBoundingClientRect();
-
             (this.imageHandle as any).$set({
-                hidden: false,
-                top: imageRect.top - editableRect.top,
-                left: imageRect.left - editableRect.left,
-                width: image.clientWidth,
-                height: image.clientHeight,
+                image: event.target,
             });
         } else {
             (this.imageHandle as any).$set({
-                hidden: true,
+                image: null,
             });
         }
     }

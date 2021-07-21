@@ -6,12 +6,41 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getContext } from "svelte";
     import { nightModeKey } from "components/context-keys";
 
-    export let hidden: boolean;
+    export let image: HTMLImageElement | null = null;
+    export let container: HTMLElement | null = null;
 
-    export let top: number = 0;
-    export let left: number = 0;
-    export let width: number = 0;
-    export let height: number = 0;
+    let hidden = true;
+
+    let naturalWidth = 0;
+    let naturalHeight = 0;
+
+    let containerTop = 0;
+    let containerLeft = 0;
+
+    let top = 0;
+    let left = 0;
+    let width = 0;
+    let height = 0;
+
+    $: if (image) {
+        const imageRect = image.getBoundingClientRect();
+        const containerRect = (
+            container ?? document.documentElement
+        ).getBoundingClientRect();
+
+        naturalWidth = image.naturalWidth;
+        naturalHeight = image.naturalHeight;
+
+        (containerTop = containerRect.top),
+            (containerLeft = containerRect.left),
+            (top = imageRect.top - containerTop),
+            (left = imageRect.left - containerLeft),
+            (width = image.clientWidth),
+            (height = image.clientHeight),
+            (hidden = false);
+    } else {
+        hidden = true;
+    }
 
     function setPointerCapture(event: PointerEvent): void {
         if (event.pointerId !== 1) {
@@ -25,6 +54,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (!(event.target as Element).hasPointerCapture(event.pointerId)) {
             return;
         }
+
+        const dragWidth = event.clientX - containerLeft - left;
+        const dragHeight = event.clientY - containerTop - top;
+
+        width = dragWidth;
+        image!.style.width = `${dragWidth}px`;
+        height = dragHeight;
+        image!.style.height = `${dragHeight}px`;
     }
 
     const nightMode = getContext(nightModeKey);
@@ -36,6 +73,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {hidden}
 >
     <div class="image-handle-bg" />
+    <div class="image-handle-dimensions">
+        {width}&times;{height} (Original: {naturalWidth}&times;{naturalHeight})
+    </div>
     <div class:nightMode class="image-handle-control image-handle-control-nw" />
     <div class:nightMode class="image-handle-control image-handle-control-ne" />
     <div class:nightMode class="image-handle-control image-handle-control-sw" />
@@ -64,6 +104,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         height: 100%;
         background-color: black;
         opacity: 0.2;
+    }
+
+    .image-handle-dimensions {
+        pointer-events: none;
+        user-select: none;
+        bottom: 3px;
+        right: 3px;
+
+        background-color: rgba(0 0 0 / 0.3);
+        border-color: black;
+        border-radius: 0.25rem;
+        padding: 0 5px;
     }
 
     .image-handle-control {
