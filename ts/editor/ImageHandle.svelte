@@ -31,13 +31,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         naturalWidth = image.naturalWidth;
         naturalHeight = image.naturalHeight;
 
-        (containerTop = containerRect.top),
-            (containerLeft = containerRect.left),
-            (top = imageRect.top - containerTop),
-            (left = imageRect.left - containerLeft),
-            (width = image.clientWidth),
-            (height = image.clientHeight),
-            (hidden = false);
+        containerTop = containerRect.top;
+        containerLeft = containerRect.left;
+        top = imageRect.top - containerTop;
+        left = imageRect.left - containerLeft;
+        width = image.clientWidth;
+        height = image.clientHeight;
+        hidden = false;
     } else {
         hidden = true;
     }
@@ -58,10 +58,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const dragWidth = event.clientX - containerLeft - left;
         const dragHeight = event.clientY - containerTop - top;
 
-        width = dragWidth;
-        image!.style.width = `${dragWidth}px`;
-        height = dragHeight;
-        image!.style.height = `${dragHeight}px`;
+        const widthIncrease = dragWidth / naturalWidth;
+        const heightIncrease = dragHeight / naturalHeight;
+
+        if (widthIncrease > heightIncrease) {
+            width = dragWidth;
+            height = naturalHeight * widthIncrease;
+        } else {
+            height = dragHeight;
+            width = naturalWidth * heightIncrease;
+        }
+
+        image!.style.width = `${width}px`;
+        image!.style.height = `${height}px`;
     }
 
     const nightMode = getContext(nightModeKey);
