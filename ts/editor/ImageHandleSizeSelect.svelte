@@ -16,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let imageRule: CSSStyleRule;
     export let selector: string;
     export let active: boolean;
+    export let isRtl: boolean;
 
     $: icon = active ? sizeActual : sizeMinimized;
 
@@ -42,6 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonGroupItem>
         <IconButton
             {active}
+            flipX={isRtl}
             tooltip={tr.editingActualSize()}
             on:click={toggleActualSize}>{@html icon}</IconButton
         >

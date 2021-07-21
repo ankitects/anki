@@ -58,8 +58,6 @@ export class EditableContainer extends HTMLDivElement {
     }
 
     isRightToLeft(): boolean {
-        const styleSheet = this.baseStyle.sheet as CSSStyleSheet;
-        const firstRule = styleSheet.cssRules[0] as CSSStyleRule;
-        return firstRule.style.direction === "rtl";
+        return this.baseRule!.style.direction === "rtl";
     }
 }

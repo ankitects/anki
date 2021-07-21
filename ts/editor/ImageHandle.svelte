@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import ImageHandleButtons from "./ImageHandleButtons.svelte";
+    import ImageHandleFloat from "./ImageHandleFloat.svelte";
     import ImageHandleSizeSelect from "./ImageHandleSizeSelect.svelte";
 
     import { getContext } from "svelte";
@@ -11,6 +11,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let image: HTMLImageElement | null = null;
     export let imageRule: CSSStyleRule | null = null;
+    export let isRtl: boolean = false;
+
     export let container: HTMLElement;
 
     $: showDimensions = image
@@ -37,9 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function updateSizes() {
         const imageRect = image!.getBoundingClientRect();
-        const containerRect = (
-            container ?? document.documentElement
-        ).getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
 
         naturalWidth = image!.naturalWidth;
         naturalHeight = image!.naturalHeight;
@@ -100,21 +100,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class="image-handle-selection"
     >
         <div class="image-handle-bg" on:dblclick={onDblclick} />
-        <div class="image-handle-buttons">
-            <ImageHandleButtons bind:float={image.style.float} />
+        <div class="image-handle-buttons" class:is-rtl={isRtl}>
+            <ImageHandleFloat {isRtl} bind:float={image.style.float} />
         </div>
-        <div class="image-handle-size-select">
+        <div class="image-handle-size-select" class:is-rtl={isRtl}>
             <ImageHandleSizeSelect
                 bind:this={sizeSelect}
                 bind:active
-                {selector}
                 {image}
                 {imageRule}
+                {selector}
+                {isRtl}
                 on:update={updateSizes}
             />
         </div>
         {#if showDimensions}
-            <div class="image-handle-dimensions">
+            <div class="image-handle-dimensions" class:is-rtl={isRtl}>
                 {width}&times;{height} (Original: {naturalWidth}&times;{naturalHeight})
             </div>
         {/if}
@@ -159,24 +160,40 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .image-handle-buttons {
         top: 3px;
         left: 3px;
+
+        &.is-rtl {
+            left: auto;
+            right: 3px;
+        }
     }
 
     .image-handle-size-select {
         bottom: 3px;
         left: 3px;
+
+        &.is-rtl {
+            left: auto;
+            right: 3px;
+        }
     }
 
     .image-handle-dimensions {
         pointer-events: none;
         user-select: none;
-        bottom: 3px;
-        right: 3px;
 
         font-size: 13px;
         background-color: rgba(0 0 0 / 0.3);
         border-color: black;
         border-radius: 0.25rem;
         padding: 0 5px;
+
+        bottom: 3px;
+        right: 3px;
+
+        &.is-rtl {
+            right: auto;
+            left: 3px;
+        }
     }
 
     .image-handle-control {
