@@ -3,8 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { createEventDispatcher } from "svelte";
-
     import ButtonToolbar from "components/ButtonToolbar.svelte";
     import ButtonGroup from "components/ButtonGroup.svelte";
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";
@@ -12,26 +10,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { floatLeftIcon, floatRightIcon, resetIcon } from "./icons";
 
-    const dispatch = createEventDispatcher();
+    export let float: string;
 </script>
 
 <ButtonToolbar size={1.6} wrap={false}>
     <ButtonGroup>
         <ButtonGroupItem>
-            <IconButton on:click={() => dispatch("floatleft")}
+            <IconButton active={float === "left"} on:click={() => (float = "left")}
                 >{@html floatLeftIcon}</IconButton
             >
         </ButtonGroupItem>
 
         <ButtonGroupItem>
-            <IconButton on:click={() => dispatch("floatright")}
+            <IconButton active={float === "right"} on:click={() => (float = "right")}
                 >{@html floatRightIcon}</IconButton
             >
         </ButtonGroupItem>
 
         <ButtonGroupItem>
-            <IconButton on:click={() => dispatch("floatreset")}
-                >{@html resetIcon}</IconButton
+            <IconButton
+                active={float === "" || float === "none"}
+                on:click={() => (float = "")}>{@html resetIcon}</IconButton
             >
         </ButtonGroupItem>
     </ButtonGroup>
