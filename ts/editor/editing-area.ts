@@ -58,6 +58,9 @@ export class EditingArea extends HTMLDivElement {
         }) as Codable;
         this.appendChild(this.codable);
 
+        this.onFocus = this.onFocus.bind(this);
+        this.onBlur = this.onBlur.bind(this);
+        this.onKey = this.onKey.bind(this);
         this.onPaste = this.onPaste.bind(this);
         this.showImageHandle = this.showImageHandle.bind(this);
     }
@@ -79,17 +82,11 @@ export class EditingArea extends HTMLDivElement {
     }
 
     connectedCallback(): void {
-        this.addEventListener("keydown", (event) => {
-            this.resetImageHandle();
-            onKey(event);
-        });
+        this.addEventListener("keydown", this.onKey);
         this.addEventListener("keyup", onKeyUp);
         this.addEventListener("input", onInput);
-        this.addEventListener("focusin", onFocus);
-        this.addEventListener("focusout", (event) => {
-            this.resetImageHandle();
-            onBlur(event);
-        });
+        this.addEventListener("focusin", this.onFocus);
+        this.addEventListener("focusout", this.onBlur);
         this.addEventListener("paste", this.onPaste);
         this.addEventListener("copy", onCutOrCopy);
         this.addEventListener("oncut", onCutOrCopy);
@@ -98,11 +95,11 @@ export class EditingArea extends HTMLDivElement {
     }
 
     disconnectedCallback(): void {
-        this.removeEventListener("keydown", onKey);
+        this.removeEventListener("keydown", this.onKey);
         this.removeEventListener("keyup", onKeyUp);
         this.removeEventListener("input", onInput);
-        this.removeEventListener("focusin", onFocus);
-        this.removeEventListener("focusout", onBlur);
+        this.removeEventListener("focusin", this.onFocus);
+        this.removeEventListener("focusout", this.onBlur);
         this.removeEventListener("paste", this.onPaste);
         this.removeEventListener("copy", onCutOrCopy);
         this.removeEventListener("oncut", onCutOrCopy);
@@ -164,11 +161,26 @@ export class EditingArea extends HTMLDivElement {
         this.activeInput.surroundSelection(before, after);
     }
 
+    onFocus(event: FocusEvent): void {
+        onFocus(event);
+    }
+
+    onBlur(event: FocusEvent): void {
+        this.resetImageHandle();
+        onBlur(event);
+    }
+
     onEnter(event: KeyboardEvent): void {
         this.activeInput.onEnter(event);
     }
 
+    onKey(event: KeyboardEvent): void {
+        this.resetImageHandle();
+        onKey(event);
+    }
+
     onPaste(event: ClipboardEvent): void {
+        this.resetImageHandle();
         this.activeInput.onPaste(event);
     }
 

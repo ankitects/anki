@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ImageHandleFloat from "./ImageHandleFloat.svelte";
     import ImageHandleSizeSelect from "./ImageHandleSizeSelect.svelte";
 
-    import { getContext } from "svelte";
+    import { onDestroy, getContext } from "svelte";
     import { nightModeKey } from "components/context-keys";
 
     export let image: HTMLImageElement | null = null;
@@ -37,6 +37,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         updateSizes();
     }
 
+    const observer = new ResizeObserver(() => {
+        if (image) {
+            updateSizes();
+        }
+    });
+
+    function startObserving() {
+        observer.observe(container);
+    }
+
+    function stopObserving() {
+        observer.unobserve(container);
+    }
+
+    startObserving();
+
     function updateSizes() {
         const imageRect = image!.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
@@ -57,11 +73,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
 
+        stopObserving();
         (event.target as Element).setPointerCapture(event.pointerId);
     }
 
     function resize(event: PointerEvent): void {
-        if (!(event.target as Element).hasPointerCapture(event.pointerId)) {
+        const element = event.target! as Element;
+
+        if (!element.hasPointerCapture(event.pointerId)) {
             return;
         }
 
@@ -92,6 +111,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const nightMode = getContext(nightModeKey);
+
+    onDestroy(() => observer.disconnect());
 </script>
 
 {#if image && imageRule}
@@ -99,7 +120,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         style="--top: {top}px; --left: {left}px; --width: {width}px; --height: {height}px;"
         class="image-handle-selection"
     >
-        <div class="image-handle-bg" on:dblclick={onDblclick} />
+        <div
+            class="image-handle-bg"
+            on:mousedown|preventDefault
+            on:dblclick={onDblclick}
+        />
         <div class="image-handle-buttons" class:is-rtl={isRtl}>
             <ImageHandleFloat {isRtl} bind:float={image.style.float} />
         </div>
@@ -119,20 +144,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {width}&times;{height} (Original: {naturalWidth}&times;{naturalHeight})
             </div>
         {/if}
-        <div class:nightMode class="image-handle-control image-handle-control-nw" />
-        <div class:nightMode class="image-handle-control image-handle-control-ne" />
+        <div
+            class:nightMode
+            class="image-handle-control image-handle-control-nw"
+            on:mousedown|preventDefault
+        />
+        <div
+            class:nightMode
+            class="image-handle-control image-handle-control-ne"
+            on:mousedown|preventDefault
+        />
         <div
             class:nightMode
             class:active
             class="image-handle-control image-handle-control-sw"
+            on:mousedown|preventDefault
             on:pointerdown={setPointerCapture}
+            on:pointerup={startObserving}
             on:pointermove={resize}
         />
         <div
             class:nightMode
             class:active
             class="image-handle-control image-handle-control-se"
+            on:mousedown|preventDefault
             on:pointerdown={setPointerCapture}
+            on:pointerup={startObserving}
             on:pointermove={resize}
         />
     </div>
