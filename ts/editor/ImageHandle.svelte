@@ -74,18 +74,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         image!.style.height = `${height}px`;
     }
 
-    function floatLeft(): void {
-        image!.style.float = "left";
-    }
-
-    function floatRight(): void {
-        image!.style.float = "right";
-    }
-
-    function floatReset(): void {
-        image!.style.float = "";
-    }
-
     const nightMode = getContext(nightModeKey);
 </script>
 
@@ -104,7 +92,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </div>
         <div class:nightMode class="image-handle-control image-handle-control-nw" />
         <div class:nightMode class="image-handle-control image-handle-control-ne" />
-        <div class:nightMode class="image-handle-control image-handle-control-sw" />
+        <div
+            class:nightMode
+            class="image-handle-control image-handle-control-sw is-active"
+            on:pointerdown={setPointerCapture}
+            on:pointermove={resize}
+        />
         <div
             class:nightMode
             class="image-handle-control image-handle-control-se is-active"
@@ -187,6 +180,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         left: -5px;
         border-top: none;
         border-right: none;
+
+        &.is-active {
+            cursor: sw-resize;
+        }
     }
 
     .image-handle-control-se {
