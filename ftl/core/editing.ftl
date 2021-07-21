@@ -1,4 +1,4 @@
-editing-actual-size = Actual size
+editing-actual-size = Toggle actual size
 editing-add-media = Add Media
 editing-align-left = Align left
 editing-align-right = Align right
