@@ -171,6 +171,7 @@ export class EditingArea extends HTMLDivElement {
             (this.imageHandle as any).$set({
                 image: event.target,
                 imageRule: this.editableContainer.imageRule,
+                isRtl: this.isRightToLeft(),
             });
         } else {
             (this.imageHandle as any).$set({

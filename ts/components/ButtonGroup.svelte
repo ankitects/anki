@@ -21,6 +21,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let size: number | undefined = undefined;
     export let wrap: boolean | undefined = undefined;
 
+    export let reverse = false;
+
     $: buttonSize = size ? `--buttons-size: ${size}rem; ` : "";
     let buttonWrap: string;
     $: if (wrap === undefined) {
@@ -95,7 +97,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     bind:this={buttonGroupRef}
     {id}
-    class={`btn-group ${className}`}
+    class="btn-group {className}"
+    class:reverse
     {style}
     dir="ltr"
     role="group"
@@ -110,8 +113,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     div {
+        flex-direction: row;
         flex-wrap: var(--buttons-wrap);
         padding: calc(var(--buttons-size) / 10);
         margin: 0;
+    }
+
+    .reverse {
+        flex-direction: row-reverse;
     }
 </style>
