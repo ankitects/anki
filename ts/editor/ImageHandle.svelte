@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let container: HTMLElement;
 
     $: showDimensions = image
-        ? parseInt(getComputedStyle(image).getPropertyValue("width")) > 220
+        ? parseInt(getComputedStyle(image).getPropertyValue("width")) > 100
         : false;
 
     $: selector = `:not([src="${image?.getAttribute("src")}"])`;
@@ -119,7 +119,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             width = Math.trunc(naturalWidth * heightIncrease);
         }
 
-        showDimensions = width > 220;
+        showDimensions = width > 100;
 
         image!.style.width = `${width}px`;
         image!.style.height = `${height}px`;
@@ -146,7 +146,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:mousedown|preventDefault
             on:dblclick={onDblclick}
         />
-        <div class="image-handle-buttons" class:is-rtl={isRtl}>
+        <div class="image-handle-float" class:is-rtl={isRtl}>
             <ImageHandleFloat {isRtl} bind:float={image.style.float} />
         </div>
         <div class="image-handle-size-select" class:is-rtl={isRtl}>
@@ -215,7 +215,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         opacity: 0.2;
     }
 
-    .image-handle-buttons {
+    .image-handle-float {
         top: 3px;
         left: 3px;
 
@@ -226,12 +226,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .image-handle-size-select {
-        bottom: 3px;
-        left: 3px;
+        top: 3px;
+        right: 3px;
 
         &.is-rtl {
-            left: auto;
-            right: 3px;
+            right: auto;
+            left: 3px;
         }
     }
 
