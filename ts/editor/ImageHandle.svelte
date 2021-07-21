@@ -89,32 +89,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const nightMode = getContext(nightModeKey);
 </script>
 
-<div
-    style="--top: {top}px; --left: {left}px; --width: {width}px; --height: {height}px;"
-    class="image-handle-selection"
-    {hidden}
->
-    <div class="image-handle-bg" />
-    <div class="image-handle-buttons">
-        <ImageHandleButtons
-            on:floatleft={floatLeft}
-            on:floatright={floatRight}
-            on:floatreset={floatReset}
+{#if image}
+    <div
+        style="--top: {top}px; --left: {left}px; --width: {width}px; --height: {height}px;"
+        class="image-handle-selection"
+        {hidden}
+    >
+        <div class="image-handle-bg" />
+        <div class="image-handle-buttons">
+            <ImageHandleButtons bind:float={image.style.float} />
+        </div>
+        <div class="image-handle-dimensions">
+            {width}&times;{height} (Original: {naturalWidth}&times;{naturalHeight})
+        </div>
+        <div class:nightMode class="image-handle-control image-handle-control-nw" />
+        <div class:nightMode class="image-handle-control image-handle-control-ne" />
+        <div class:nightMode class="image-handle-control image-handle-control-sw" />
+        <div
+            class:nightMode
+            class="image-handle-control image-handle-control-se is-active"
+            on:pointerdown={setPointerCapture}
+            on:pointermove={resize}
         />
     </div>
-    <div class="image-handle-dimensions">
-        {width}&times;{height} (Original: {naturalWidth}&times;{naturalHeight})
-    </div>
-    <div class:nightMode class="image-handle-control image-handle-control-nw" />
-    <div class:nightMode class="image-handle-control image-handle-control-ne" />
-    <div class:nightMode class="image-handle-control image-handle-control-sw" />
-    <div
-        class:nightMode
-        class="image-handle-control image-handle-control-se is-active"
-        on:pointerdown={setPointerCapture}
-        on:pointermove={resize}
-    />
-</div>
+{/if}
 
 <style lang="scss">
     div {
