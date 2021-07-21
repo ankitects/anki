@@ -214,11 +214,11 @@ class AnkiExporter(Exporter):
         for row in self.src.db.execute(
             "select * from cards where id in " + ids2str(cids)
         ):
-            nids[row[1]] = True
-            data.append(row)
             # clear flags
             row = list(row)
             row[-2] = 0
+            nids[row[1]] = True
+            data.append(row)
         self.dst.db.executemany(
             "insert into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", data
         )
