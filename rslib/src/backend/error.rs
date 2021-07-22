@@ -32,6 +32,7 @@ impl AnkiError {
             AnkiError::InvalidRegex(_) => Kind::InvalidInput,
             AnkiError::UndoEmpty => Kind::UndoEmpty,
             AnkiError::MultipleNotetypesSelected => Kind::InvalidInput,
+            AnkiError::DatabaseCheckRequired => Kind::InvalidInput,
         };
 
         pb::BackendError {
