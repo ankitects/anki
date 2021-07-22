@@ -34,7 +34,7 @@ from PyQt5.QtWidgets import (
 )
 
 import aqt
-from anki.collection import Collection
+from anki.collection import Collection, HelpPage
 from anki.lang import TR, tr_legacyglobal  # pylint: disable=unused-import
 from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
 from aqt.qt import *
@@ -69,42 +69,15 @@ def locale_dir() -> str:
 # shortcut to access Fluent translations; set as
 tr = tr_legacyglobal
 
-
-class HelpPage(Enum):
-    NOTE_TYPE = "getting-started#note-types"
-    BROWSING = "browsing"
-    BROWSING_FIND_AND_REPLACE = "browsing#find-and-replace"
-    BROWSING_NOTES_MENU = "browsing#notes"
-    KEYBOARD_SHORTCUTS = "studying#keyboard-shortcuts"
-    EDITING = "editing"
-    ADDING_CARD_AND_NOTE = "editing#adding-cards-and-notes"
-    ADDING_A_NOTE_TYPE = "editing#adding-a-note-type"
-    LATEX = "math#latex"
-    PREFERENCES = "preferences"
-    INDEX = ""
-    TEMPLATES = "templates/intro"
-    FILTERED_DECK = "filtered-decks"
-    IMPORTING = "importing"
-    CUSTOMIZING_FIELDS = "editing#customizing-fields"
-    DECK_OPTIONS = "deck-options"
-    EDITING_FEATURES = "editing#features"
-
-
-HelpPageArgument = Optional[Union[HelpPage, str]]
-"""This type represents what can be used as argument expecting a specific help page. Anki code should use HelpPage as
-argument. However, add-on may use string, and we want to accept this.
-
-"""
+HelpPageArgument = Union["HelpPage.HelpPage.V", str]
 
 
 def openHelp(section: HelpPageArgument) -> None:
-    link = aqt.appHelpSite
-    if section:
-        if isinstance(section, HelpPage):
-            link += section.value
-        else:
-            link += section
-    openLink(link)
+    if isinstance(section, str):
+        page = HelpPage(literal=section)
+    else:
+        page = HelpPage(variant=section)
+    openLink(tr.backend().help_page_link(page))
 
 
 def openLink(link: Union[str, QUrl]) -> None:

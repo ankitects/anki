@@ -12,12 +12,14 @@ from anki import (
     collection_pb2,
     config_pb2,
     generic_pb2,
+    links_pb2,
     search_pb2,
     stats_pb2,
 )
 from anki._legacy import DeprecatedNamesMixin, deprecated
 
 # protobuf we publicly export - listed first to avoid circular imports
+HelpPage = links_pb2.HelpPageLinkRequest
 SearchNode = search_pb2.SearchNode
 Progress = collection_pb2.Progress
 EmptyCardsReport = card_rendering_pb2.EmptyCardsReport

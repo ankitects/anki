@@ -6,6 +6,7 @@ persistent = no
 ignored-classes=
   BrowserColumns,
   BrowserRow,
+  HelpPage,
   FormatTimespanRequest,
   CardAnswer,
   QueuedCards,
