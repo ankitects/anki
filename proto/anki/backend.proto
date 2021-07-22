@@ -24,6 +24,7 @@ enum ServiceIndex {
   SERVICE_INDEX_I18N = 12;
   SERVICE_INDEX_COLLECTION = 13;
   SERVICE_INDEX_CARDS = 14;
+  SERVICE_INDEX_LINKS = 15;
 }
 
 message BackendInit {

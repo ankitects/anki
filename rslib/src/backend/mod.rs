@@ -15,6 +15,7 @@ mod decks;
 mod error;
 mod generic;
 mod i18n;
+mod links;
 mod media;
 mod notes;
 mod notetypes;
@@ -44,6 +45,7 @@ use self::{
     deckconfig::DeckConfigService,
     decks::DecksService,
     i18n::I18nService,
+    links::LinksService,
     media::MediaService,
     notes::NotesService,
     notetypes::NotetypesService,
@@ -132,6 +134,7 @@ impl Backend {
                 pb::ServiceIndex::Stats => StatsService::run_method(self, method, input),
                 pb::ServiceIndex::Search => SearchService::run_method(self, method, input),
                 pb::ServiceIndex::I18n => I18nService::run_method(self, method, input),
+                pb::ServiceIndex::Links => LinksService::run_method(self, method, input),
                 pb::ServiceIndex::Collection => CollectionService::run_method(self, method, input),
                 pb::ServiceIndex::Cards => CardsService::run_method(self, method, input),
             })
