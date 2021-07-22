@@ -1,54 +1,36 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use strum::{Display, EnumIter, EnumString};
+use crate::backend_proto::links::help_page_link_request::HelpPage;
 
 static HELP_SITE: &'static str = "https://docs.ankiweb.net/";
 
-#[derive(Debug, PartialEq, Clone, Copy, Display, EnumIter, EnumString)]
-pub enum HelpPage {
-    #[strum(serialize = "getting-started#note-types")]
-    Notetype,
-    #[strum(serialize = "browsing")]
-    Browsing,
-    #[strum(serialize = "browsing#find-and-replace")]
-    BrowsingFindAndReplace,
-    #[strum(serialize = "browsing#notes")]
-    BrowsingNotesMenu,
-    #[strum(serialize = "studying#keyboard-shortcuts")]
-    KeyboardShortcuts,
-    #[strum(serialize = "editing")]
-    Editing,
-    #[strum(serialize = "editing#adding-cards-and-notes")]
-    AddingCardAndNote,
-    #[strum(serialize = "editing#adding-a-note-type")]
-    AddingNotetype,
-    #[strum(serialize = "math#latex")]
-    Latex,
-    #[strum(serialize = "preferences")]
-    Preferences,
-    #[strum(serialize = "")]
-    Index,
-    #[strum(serialize = "templates/intro")]
-    Templates,
-    #[strum(serialize = "filtered-decks")]
-    FilteredDeck,
-    #[strum(serialize = "importing")]
-    Importing,
-    #[strum(serialize = "editing#customizing-fields")]
-    CustomizingFields,
-    #[strum(serialize = "deck-options")]
-    DeckOptions,
-    #[strum(serialize = "editing#features")]
-    EditingFeatures,
-}
+impl HelpPage {
+    pub fn to_link(self) -> String {
+        format!("{}{}", HELP_SITE, self.to_fragment())
+    }
 
-pub fn help_page_link(page: HelpPage) -> String {
-    format!("{}{}", HELP_SITE, page)
-}
-
-pub fn help_page_link_from_str(page: &str) -> String {
-    format!("{}{}", HELP_SITE, page)
+    fn to_fragment(self) -> &'static str {
+        match self {
+            HelpPage::NoteType => "getting-started#note-types",
+            HelpPage::Browsing => "browsing",
+            HelpPage::BrowsingFindAndReplace => "browsing#find-and-replace",
+            HelpPage::BrowsingNotesMenu => "browsing#notes",
+            HelpPage::KeyboardShortcuts => "studying#keyboard-shortcuts",
+            HelpPage::Editing => "editing",
+            HelpPage::AddingCardAndNote => "editing#adding-cards-and-notes",
+            HelpPage::AddingANoteType => "editing#adding-a-note-type",
+            HelpPage::Latex => "math#latex",
+            HelpPage::Preferences => "preferences",
+            HelpPage::Index => "",
+            HelpPage::Templates => "templates/intro",
+            HelpPage::FilteredDeck => "filtered-decks",
+            HelpPage::Importing => "importing",
+            HelpPage::CustomizingFields => "editing#customizing-fields",
+            HelpPage::DeckOptions => "deck-options",
+            HelpPage::EditingFeatures => "editing#features",
+        }
+    }
 }
 
 #[cfg(test)]
@@ -88,12 +70,14 @@ mod test {
     }
 
     async fn check_page(page: HelpPage, ctx: &BasicContext) -> Outcome {
-        match Url::parse(&help_page_link(page)) {
+        match Url::parse(&page.to_link()) {
             Ok(url) => match check_web(&url, ctx).await {
                 Ok(()) => Outcome::Valid,
-                Err(Reason::Dom) => {
-                    Outcome::Invalid(format!("'{}' not found on '{}'", page, HELP_SITE))
-                }
+                Err(Reason::Dom) => Outcome::Invalid(format!(
+                    "'{}' not found on '{}'",
+                    page.to_fragment(),
+                    HELP_SITE
+                )),
                 Err(Reason::Web(err)) => Outcome::Invalid(err.to_string()),
                 _ => unreachable!(),
             },
