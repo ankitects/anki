@@ -14,6 +14,7 @@ import anki.cards_pb2
 import anki.collection_pb2
 import anki.decks_pb2
 import anki.deckconfig_pb2
+import anki.links_pb2
 import anki.notes_pb2
 import anki.notetypes_pb2
 import anki.scheduler_pb2
@@ -195,6 +196,7 @@ service_modules = dict(
     CARD_RENDERING=anki.card_rendering_pb2,
     TAGS=anki.tags_pb2,
     MEDIA=anki.media_pb2,
+    LINKS=anki.links_pb2,
 )
 
 for service in anki.backend_pb2.ServiceIndex.DESCRIPTOR.values:
@@ -236,6 +238,7 @@ import anki.cards_pb2
 import anki.collection_pb2
 import anki.decks_pb2
 import anki.deckconfig_pb2
+import anki.links_pb2
 import anki.notes_pb2
 import anki.notetypes_pb2
 import anki.scheduler_pb2
