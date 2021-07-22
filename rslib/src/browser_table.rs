@@ -260,6 +260,9 @@ impl RowContext {
         if notes_mode {
             note = col.get_note_maybe_with_fields(NoteId(id), with_card_render)?;
             cards = col.storage.all_cards_of_note(note.id)?;
+            if cards.is_empty() {
+                return Err(AnkiError::DatabaseCheckRequired);
+            }
         } else {
             cards = vec![col
                 .storage

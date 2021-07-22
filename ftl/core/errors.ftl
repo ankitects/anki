@@ -8,3 +8,4 @@ errors-100-tags-max =
     tags you want instead of the ones you don't want is usually simpler, and there
     is no need to select child tags if you have selected a parent tag.
 errors-multiple-notetypes-selected = Please select notes from only one notetype.
+errors-please-check-database = Please use the Check Database action, then try again.
