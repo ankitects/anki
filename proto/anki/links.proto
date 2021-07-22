@@ -31,8 +31,5 @@ message HelpPageLinkRequest {
     DECK_OPTIONS = 15;
     EDITING_FEATURES = 16;
   }
-  oneof page {
-    HelpPage variant = 1;
-    string literal = 2;
-  }
+  HelpPage page = 1;
 }

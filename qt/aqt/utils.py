@@ -74,10 +74,10 @@ HelpPageArgument = Union["HelpPage.HelpPage.V", str]
 
 def openHelp(section: HelpPageArgument) -> None:
     if isinstance(section, str):
-        page = HelpPage(literal=section)
+        link = tr.backend().help_page_link(page=HelpPage.INDEX) + section
     else:
-        page = HelpPage(variant=section)
-    openLink(tr.backend().help_page_link(page))
+        link = tr.backend().help_page_link(page=section)
+    openLink(link)
 
 
 def openLink(link: Union[str, QUrl]) -> None:
