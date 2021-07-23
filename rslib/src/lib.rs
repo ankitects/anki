@@ -18,6 +18,7 @@ pub mod error;
 pub mod findreplace;
 pub mod i18n;
 pub mod latex;
+pub mod links;
 pub mod log;
 mod markdown;
 pub mod media;

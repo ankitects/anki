@@ -25,19 +25,19 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
 # Generated Targets
 
+# Unsupported target "fxhash" with type "bench" omitted
+
 rust_library(
-    name = "nodrop",
+    name = "fxhash",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "std",
     ],
-    crate_root = "src/lib.rs",
+    crate_root = "lib.rs",
     crate_type = "lib",
     data = [],
     edition = "2015",
@@ -48,8 +48,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.14",
+    version = "0.2.1",
     # buildifier: leave-alone
     deps = [
+        "@raze__byteorder__1_4_3//:byteorder",
     ],
 )

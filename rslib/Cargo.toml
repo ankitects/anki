@@ -18,6 +18,8 @@ prost-build = "0.7.0"
 
 [dev-dependencies]
 env_logger = "0.8.4"
+linkcheck = { git = "https://github.com/ankitects/linkcheck.git", rev = "2f20798ce521cc594d510d4e417e76d5eac04d4b" }
+tokio = { version = "*", features = ["macros"] }
 
 [dependencies]
 # pinned as any changes could invalidate sqlite indexes

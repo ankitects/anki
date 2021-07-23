@@ -21,6 +21,7 @@ COMMITS_SHALLOW_SINCE = {
     "1ee0892217e9a76bba4bb369ec5fab8854935a3c": "1619517354 +1000",
     # pct-str
     "4adccd8d4a222ab2672350a102f06ae832a0572d": "1605376517 +0100",
+    "2f20798ce521cc594d510d4e417e76d5eac04d4b": "1626729019 +0200",
 }
 
 import glob
@@ -100,7 +101,7 @@ maybe(
 """.splitlines()))
 
 def generated_reqwest_build_file():
-    return glob.glob("remote/*reqwest-*")[0]
+    return glob.glob("remote/*reqwest-0.11.3*")[0]
 
 
 def update_reqwest_deps():
@@ -125,6 +126,15 @@ def update_reqwest_deps():
             data = dep_with_version.sub(repl, file.read())
             file.seek(0)
             file.write(data)
+
+    with open("remote/BUILD.linkcheck-0.4.1-alpha.0.bazel") as f:
+        out = []
+        for line in f.readlines():
+            line = line.replace("@raze__reqwest__0_11_4//:reqwest","@reqwest_rustls//:reqwest")
+            out.append(line)
+    with open("remote/BUILD.linkcheck-0.4.1-alpha.0.bazel", "w") as f:
+        f.writelines(out)
+
 
 
 def stage_commit():
