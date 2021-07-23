@@ -70,18 +70,28 @@ mod test {
     }
 
     async fn check_page(page: HelpPage, ctx: &BasicContext) -> Outcome {
-        match Url::parse(&page.to_link()) {
-            Ok(url) => match check_web(&url, ctx).await {
-                Ok(()) => Outcome::Valid,
-                Err(Reason::Dom) => Outcome::Invalid(format!(
-                    "'#{}' not found on '{}{}'",
-                    url.fragment().unwrap(),
-                    url.domain().unwrap(),
-                    url.path(),
-                )),
-                Err(Reason::Web(err)) => Outcome::Invalid(err.to_string()),
-                _ => unreachable!(),
-            },
+        let link = page.to_link();
+        match Url::parse(&link) {
+            Ok(url) => {
+                if url.as_str() == link {
+                    match check_web(&url, ctx).await {
+                        Ok(()) => Outcome::Valid,
+                        Err(Reason::Dom) => Outcome::Invalid(format!(
+                            "'#{}' not found on '{}{}'",
+                            url.fragment().unwrap(),
+                            url.domain().unwrap(),
+                            url.path(),
+                        )),
+                        Err(Reason::Web(err)) => Outcome::Invalid(err.to_string()),
+                        _ => unreachable!(),
+                    }
+                } else {
+                    Outcome::Invalid(format!(
+                        "'{}' is not a valid URL part",
+                        page.to_link_suffix(),
+                    ))
+                }
+            }
             Err(err) => Outcome::Invalid(err.to_string()),
         }
     }
