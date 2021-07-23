@@ -3,7 +3,7 @@
 
 use crate::backend_proto::links::help_page_link_request::HelpPage;
 
-static HELP_SITE: &'static str = "https://docs.ankiweb.net/";
+static HELP_SITE: &str = "https://docs.ankiweb.net/";
 
 impl HelpPage {
     pub fn to_link(self) -> String {
@@ -64,8 +64,8 @@ mod test {
             .buffer_unordered(ctx.concurrency())
             .collect::<Outcomes>()
             .await;
-        if result.0.len() > 0 {
-            panic!(result.message());
+        if !result.0.is_empty() {
+            panic!("invalid links found: {}", result.message());
         }
     }
 
