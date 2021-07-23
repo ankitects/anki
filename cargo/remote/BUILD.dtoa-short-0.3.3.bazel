@@ -25,17 +25,15 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "reciprocal",  # MPL-2.0 from expression "MPL-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "nodrop",
+    name = "dtoa_short",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -48,8 +46,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.14",
+    version = "0.3.3",
     # buildifier: leave-alone
     deps = [
+        "@raze__dtoa__0_4_8//:dtoa",
     ],
 )

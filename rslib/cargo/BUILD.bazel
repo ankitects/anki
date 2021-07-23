@@ -175,6 +175,15 @@ alias(
 )
 
 alias(
+    name = "linkcheck",
+    actual = "@raze__linkcheck__0_4_1_alpha_0//:linkcheck",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "nom",
     actual = "@raze__nom__7_0_0_alpha1//:nom",
     tags = [
