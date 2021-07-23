@@ -12,30 +12,30 @@ impl HelpPage {
 
     fn to_link_suffix(self) -> &'static str {
         match self {
-            HelpPage::NoteType => "getting-started#note-types",
-            HelpPage::Browsing => "browsing",
-            HelpPage::BrowsingFindAndReplace => "browsing#find-and-replace",
-            HelpPage::BrowsingNotesMenu => "browsing#notes",
-            HelpPage::KeyboardShortcuts => "studying#keyboard-shortcuts",
-            HelpPage::Editing => "editing",
-            HelpPage::AddingCardAndNote => "editing#adding-cards-and-notes",
-            HelpPage::AddingANoteType => "editing#adding-a-note-type",
-            HelpPage::Latex => "math#latex",
-            HelpPage::Preferences => "preferences",
+            HelpPage::NoteType => "getting-started.html#note-types",
+            HelpPage::Browsing => "browsing.html",
+            HelpPage::BrowsingFindAndReplace => "browsing.html#find-and-replace",
+            HelpPage::BrowsingNotesMenu => "browsing.html#notes",
+            HelpPage::KeyboardShortcuts => "studying.html#keyboard-shortcuts",
+            HelpPage::Editing => "editing.html",
+            HelpPage::AddingCardAndNote => "editing.html#adding-cards-and-notes",
+            HelpPage::AddingANoteType => "editing.html#adding-a-note-type",
+            HelpPage::Latex => "math.html#latex",
+            HelpPage::Preferences => "preferences.html",
             HelpPage::Index => "",
-            HelpPage::Templates => "templates/intro",
-            HelpPage::FilteredDeck => "filtered-decks",
-            HelpPage::Importing => "importing",
-            HelpPage::CustomizingFields => "editing#customizing-fields",
-            HelpPage::DeckOptions => "deck-options",
-            HelpPage::EditingFeatures => "editing#features",
+            HelpPage::Templates => "templates/intro.html",
+            HelpPage::FilteredDeck => "filtered-decks.html",
+            HelpPage::Importing => "importing.html",
+            HelpPage::CustomizingFields => "editing.html#customizing-fields",
+            HelpPage::DeckOptions => "deck-options.html",
+            HelpPage::EditingFeatures => "editing.html#features",
         }
     }
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    use std::iter;
 
     use futures::StreamExt;
     use itertools::Itertools;
@@ -44,8 +44,9 @@ mod test {
         BasicContext,
     };
     use reqwest::Url;
-    use std::iter;
     use strum::IntoEnumIterator;
+
+    use super::*;
 
     /// Aggregates [`Outcome`]s by collecting the error messages of the invalid ones.
     #[derive(Default)]
