@@ -71,7 +71,7 @@ mod test {
             .collect::<Outcomes>()
             .await;
         if !result.0.is_empty() {
-            panic!("invalid links found: {}", result.message());
+            panic!("{}", result.message());
         }
     }
 
@@ -115,8 +115,8 @@ mod test {
 
     impl Outcomes {
         fn message(&self) -> String {
-            iter::once(&format!("{} link(s) could not be validated:", self.0.len()))
-                .chain(self.0.iter())
+            iter::once("invalid links found:")
+                .chain(self.0.iter().map(String::as_str))
                 .join("\n  - ")
         }
     }
