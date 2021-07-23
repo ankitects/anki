@@ -7,10 +7,10 @@ static HELP_SITE: &'static str = "https://docs.ankiweb.net/";
 
 impl HelpPage {
     pub fn to_link(self) -> String {
-        format!("{}{}", HELP_SITE, self.to_fragment())
+        format!("{}{}", HELP_SITE, self.to_link_suffix())
     }
 
-    fn to_fragment(self) -> &'static str {
+    fn to_link_suffix(self) -> &'static str {
         match self {
             HelpPage::NoteType => "getting-started#note-types",
             HelpPage::Browsing => "browsing",
@@ -74,9 +74,10 @@ mod test {
             Ok(url) => match check_web(&url, ctx).await {
                 Ok(()) => Outcome::Valid,
                 Err(Reason::Dom) => Outcome::Invalid(format!(
-                    "'{}' not found on '{}'",
-                    page.to_fragment(),
-                    HELP_SITE
+                    "'#{}' not found on '{}{}'",
+                    url.fragment().unwrap(),
+                    url.domain().unwrap(),
+                    url.path(),
                 )),
                 Err(Reason::Web(err)) => Outcome::Invalid(err.to_string()),
                 _ => unreachable!(),
@@ -98,7 +99,7 @@ mod test {
 
     impl Outcomes {
         fn message(&self) -> String {
-            iter::once(&format!("{} links could not be validated:", self.0.len()))
+            iter::once(&format!("{} link(s) could not be validated:", self.0.len()))
                 .chain(self.0.iter())
                 .join("\n  - ")
         }
