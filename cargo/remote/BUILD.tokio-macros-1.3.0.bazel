@@ -25,22 +25,20 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # MIT from expression "MIT"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "nodrop",
+    name = "tokio_macros",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "std",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
+    crate_type = "proc-macro",
     data = [],
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -48,8 +46,11 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.14",
+    version = "1.3.0",
     # buildifier: leave-alone
     deps = [
+        "@raze__proc_macro2__1_0_27//:proc_macro2",
+        "@raze__quote__1_0_9//:quote",
+        "@raze__syn__1_0_73//:syn",
     ],
 )
