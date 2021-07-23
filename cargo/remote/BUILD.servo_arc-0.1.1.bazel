@@ -31,13 +31,11 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "nodrop",
+    name = "servo_arc",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "std",
     ],
-    crate_root = "src/lib.rs",
+    crate_root = "lib.rs",
     crate_type = "lib",
     data = [],
     edition = "2015",
@@ -48,8 +46,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.14",
+    version = "0.1.1",
     # buildifier: leave-alone
     deps = [
+        "@raze__nodrop__0_1_14//:nodrop",
+        "@raze__stable_deref_trait__1_2_0//:stable_deref_trait",
     ],
 )

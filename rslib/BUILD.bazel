@@ -142,7 +142,8 @@ rust_test(
     rustc_env = _anki_rustc_env,
     deps = [
         "//rslib/cargo:env_logger",
-        "//rslib/i18n:anki_i18n",
+        "//rslib/cargo:linkcheck",
+        "//rslib/cargo:utime",
     ],
 )
 

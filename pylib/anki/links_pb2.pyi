@@ -1,0 +1,1 @@
+../../bazel-bin/pylib/anki/links_pb2.pyi
