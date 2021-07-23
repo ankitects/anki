@@ -6,7 +6,6 @@ import os
 import re
 import subprocess
 import sys
-from enum import Enum
 from functools import wraps
 from typing import (
     TYPE_CHECKING,
@@ -69,7 +68,7 @@ def locale_dir() -> str:
 # shortcut to access Fluent translations; set as
 tr = tr_legacyglobal
 
-HelpPageArgument = Union["HelpPage.HelpPage.V", str]
+HelpPageArgument = Union["HelpPage.V", str]
 
 
 def openHelp(section: HelpPageArgument) -> None:
