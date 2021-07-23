@@ -19,7 +19,7 @@ from anki import (
 from anki._legacy import DeprecatedNamesMixin, deprecated
 
 # protobuf we publicly export - listed first to avoid circular imports
-HelpPage = links_pb2.HelpPageLinkRequest
+HelpPage = links_pb2.HelpPageLinkRequest.HelpPage
 SearchNode = search_pb2.SearchNode
 Progress = collection_pb2.Progress
 EmptyCardsReport = card_rendering_pb2.EmptyCardsReport
