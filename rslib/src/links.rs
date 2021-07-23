@@ -35,7 +35,7 @@ impl HelpPage {
 
 #[cfg(test)]
 mod test {
-    use std::iter;
+    use std::{env, iter};
 
     use futures::StreamExt;
     use itertools::Itertools;
@@ -59,6 +59,11 @@ mod test {
 
     #[tokio::test]
     async fn check_links() {
+        if env::var("ANKI_CI").is_err() {
+            println!("Skip, ANKI_CI not set.");
+            return;
+        }
+
         let ctx = BasicContext::default();
         let result = futures::stream::iter(HelpPage::iter())
             .map(|page| check_page(page, &ctx))
