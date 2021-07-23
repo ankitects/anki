@@ -63,7 +63,7 @@ rust_library(
         "@raze__log__0_4_14//:log",
         "@raze__pulldown_cmark__0_8_0//:pulldown_cmark",
         "@raze__regex__1_5_4//:regex",
-        "@raze__reqwest__0_11_4//:reqwest",
+        "@reqwest_rustls//:reqwest",
         "@raze__serde__1_0_126//:serde",
         "@raze__thiserror__1_0_25//:thiserror",
         "@raze__url__2_2_2//:url",

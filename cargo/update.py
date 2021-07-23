@@ -127,6 +127,15 @@ def update_reqwest_deps():
             file.seek(0)
             file.write(data)
 
+    with open("remote/BUILD.linkcheck-0.4.1-alpha.0.bazel") as f:
+        out = []
+        for line in f.readlines():
+            line = line.replace("@raze__reqwest__0_11_4//:reqwest","@reqwest_rustls//:reqwest")
+            out.append(line)
+    with open("remote/BUILD.linkcheck-0.4.1-alpha.0.bazel", "w") as f:
+        f.writelines(out)
+
+
 
 def stage_commit():
     subprocess.run(
