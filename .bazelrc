@@ -26,7 +26,7 @@ test --test_output=errors
 # don't add empty __init__.py files
 build --incompatible_default_to_explicit_init_py
 
-build:ci --show_timestamps --isatty=0 --color=yes --show_progress_rate_limit=5 --action_env=ANKI_CI=1
+build:ci --show_timestamps --isatty=0 --color=yes --show_progress_rate_limit=5
 build:opt -c opt
 
 # the TypeScript workers on Windows choke when deps are changed while they're
