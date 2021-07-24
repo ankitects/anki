@@ -16,7 +16,7 @@ test -e /state/node_modules && mv /state/node_modules ts/
 $BAZEL build $BUILDARGS ...
 
 echo "+++ Running tests"
-$BAZEL test $BUILDARGS ...
+$BAZEL test $BUILDARGS ... //rslib:links
 
 echo "--- Building wheels"
 $BAZEL build dist
