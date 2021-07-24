@@ -13,7 +13,7 @@ from anki.utils import isLin, isMac, isWin
 from aqt import colors, gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
-from aqt.utils import openLink, showInfo, tr
+from aqt.utils import askUser, openLink, showInfo, tr
 
 serverbaseurl = re.compile(r"^.+:\/\/[^\/]+")
 
@@ -138,8 +138,11 @@ class AnkiWebPage(QWebEnginePage):
     def _onCmd(self, str: str) -> Any:
         return self._onBridgeCmd(str)
 
-    def javaScriptAlert(self, url: QUrl, text: str) -> None:
+    def javaScriptAlert(self, frame: Any, text: str) -> None:
         showInfo(text)
+
+    def javaScriptConfirm(self, frame: Any, text: str) -> bool:
+        return askUser(text)
 
 
 # Add-ons
