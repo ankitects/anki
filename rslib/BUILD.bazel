@@ -159,10 +159,15 @@ rust_test(
         "//rslib/cargo:futures",
         "//rslib/cargo:itertools",
         "//rslib/cargo:linkcheck",
-        "//rslib/cargo:reqwest",
         "//rslib/cargo:strum",
         "//rslib/cargo:tokio",
-    ],
+    ] + select({
+        # rustls on Linux
+        "//platforms:linux_x86_64": ["@reqwest_rustls//:reqwest"],
+        "//platforms:linux_arm64": ["@reqwest_rustls//:reqwest"],
+        # native tls on other platforms
+        "//conditions:default": ["//rslib/cargo:reqwest"],
+    }),
 )
 
 rustfmt_test(
