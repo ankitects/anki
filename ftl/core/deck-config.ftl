@@ -205,8 +205,11 @@ deck-config-revert-button-tooltip = Restore this setting to its default value.
 ## These strings are shown via the Description button at the bottom of the
 ## overview screen.
 
-deck-config-description-markdown = Enable markdown+clean HTML
-deck-config-description-markdown-hint = Will appear as text on Anki 2.1.40 and below.
+deck-config-description-new-handling = Anki 2.1.41+ handling
+deck-config-description-new-handling-hint =
+    Treats input as markdown, and cleans HTML input. When enabled, the
+    description will also be shown on the congratulations screen.
+    Markdown will appear as text on Anki 2.1.40 and below.
 
 ## Warnings shown to the user
 
