@@ -70,7 +70,8 @@ class DeckChooser(QHBoxLayout):
             self._update_button_label()
 
     def _ensure_selected_deck_valid(self) -> None:
-        if not self.mw.col.decks.get(self._selected_deck_id, default=False):
+        deck = self.mw.col.decks.get(self._selected_deck_id, default=False)
+        if not deck or deck["dyn"]:
             self.selected_deck_id = DEFAULT_DECK_ID
 
     def _update_button_label(self) -> None:
