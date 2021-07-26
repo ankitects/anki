@@ -15,15 +15,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let container: HTMLElement;
 
+    $: selector = `:not([src="${image?.getAttribute("src")}"])`;
+    $: naturalWidth = image?.naturalWidth;
+    $: naturalHeight = image?.naturalHeight;
+    $: aspectRatio = naturalWidth && naturalHeight ? naturalWidth / naturalHeight : NaN;
+
     $: showDimensions = image
         ? parseInt(getComputedStyle(image).getPropertyValue("width")) > 100
         : false;
 
-    $: selector = `:not([src="${image?.getAttribute("src")}"])`;
     $: active = imageRule?.selectorText.includes(selector) as boolean;
-
-    let naturalWidth = 0;
-    let naturalHeight = 0;
 
     let actualWidth = "";
     let actualHeight = "";
@@ -58,26 +59,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     startObserving();
 
     function updateSizes() {
-        const imageRect = image!.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
-
-        naturalWidth = image!.naturalWidth;
-        naturalHeight = image!.naturalHeight;
+        const imageRect = image!.getBoundingClientRect();
 
         containerTop = containerRect.top;
         containerLeft = containerRect.left;
-        top = imageRect.top - containerTop;
-        left = imageRect.left - containerLeft;
+        top = imageRect!.top - containerTop;
+        left = imageRect!.left - containerLeft;
         width = image!.clientWidth;
         height = image!.clientHeight;
 
+        /* we do not want the actual width, but rather the intended display width */
         const widthProperty = image!.style.width;
+        let inPixel = false;
         customDimensions = false;
 
         if (widthProperty) {
-            actualWidth = widthProperty.endsWith("px")
-                ? widthProperty.substring(0, widthProperty.length - 2)
-                : widthProperty;
+            if (widthProperty.endsWith("px")) {
+                actualWidth = widthProperty.substring(0, widthProperty.length - 2);
+                inPixel = true;
+            } else {
+                actualWidth = widthProperty;
+            }
+
             customDimensions = true;
         } else {
             actualWidth = String(naturalWidth);
@@ -89,6 +93,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 ? heightProperty.substring(0, heightProperty.length - 2)
                 : heightProperty;
             customDimensions = true;
+        } else if (inPixel) {
+            actualHeight = String(Math.trunc(Number(actualWidth) / aspectRatio));
         } else {
             actualHeight = String(naturalHeight);
         }
@@ -113,21 +119,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const dragWidth = event.clientX - containerLeft - left;
         const dragHeight = event.clientY - containerTop - top;
 
-        const widthIncrease = dragWidth / naturalWidth;
-        const heightIncrease = dragHeight / naturalHeight;
+        const widthIncrease = dragWidth / naturalWidth!;
+        const heightIncrease = dragHeight / naturalHeight!;
 
         if (widthIncrease > heightIncrease) {
             width = Math.trunc(dragWidth);
-            height = Math.trunc(naturalHeight * widthIncrease);
+            height = Math.trunc(naturalHeight! * widthIncrease);
         } else {
             height = Math.trunc(dragHeight);
-            width = Math.trunc(naturalWidth * heightIncrease);
+            width = Math.trunc(naturalWidth! * heightIncrease);
         }
 
         showDimensions = width > 100;
 
         image!.style.width = `${width}px`;
-        image!.style.height = `${height}px`;
+        image!.style.removeProperty("height");
     }
 
     let sizeSelect: any;
