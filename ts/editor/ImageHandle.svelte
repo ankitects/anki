@@ -256,10 +256,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         bottom: 3px;
         right: 3px;
+        margin-left: 3px;
 
         &.is-rtl {
             right: auto;
             left: 3px;
+            margin-right: 3px;
         }
     }
 
