@@ -29,7 +29,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 theme="primary"
                 on:click={() => save()}
                 tooltip={shortcutLabel}
-                on:mount={createShortcut}>{tr.actionsSave()}</LabelButton
+                on:mount={(event) => createShortcut(event.detail.button)}
+                >{tr.actionsSave()}</LabelButton
             >
         </WithShortcut>
     </ButtonGroupItem>

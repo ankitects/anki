@@ -53,7 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     iconSize={70}
                     {disabled}
                     on:click={onAttachment}
-                    on:mount={createShortcut}
+                    on:mount={(event) => createShortcut(event.detail.button)}
                 >
                     {@html paperclipIcon}
                 </IconButton>
@@ -72,7 +72,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     iconSize={70}
                     {disabled}
                     on:click={onRecord}
-                    on:mount={createShortcut}
+                    on:mount={(event) => createShortcut(event.detail.button)}
                 >
                     {@html micIcon}
                 </IconButton>
@@ -105,7 +105,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     <DropdownItem
                         on:click={() => wrapCurrent("\\(", "\\)")}
-                        on:mount={createShortcut}
+                        on:mount={(event) => createShortcut(event.detail.button)}
                     >
                         {tr.editingMathjaxInline()}
                         <span class="ps-1 float-end">{shortcutLabel}</span>
@@ -119,7 +119,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     <DropdownItem
                         on:click={() => wrapCurrent("\\[", "\\]")}
-                        on:mount={createShortcut}
+                        on:mount={(event) => createShortcut(event.detail.button)}
                     >
                         {tr.editingMathjaxBlock()}
                         <span class="ps-1 float-end">{shortcutLabel}</span>
@@ -133,7 +133,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     <DropdownItem
                         on:click={() => wrapCurrent("\\(\\ce{", "}\\)")}
-                        on:mount={createShortcut}
+                        on:mount={(event) => createShortcut(event.detail.button)}
                     >
                         {tr.editingMathjaxChemistry()}
                         <span class="ps-1 float-end">{shortcutLabel}</span>
@@ -147,7 +147,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     <DropdownItem
                         on:click={() => wrapCurrent("[latex]", "[/latex]")}
-                        on:mount={createShortcut}
+                        on:mount={(event) => createShortcut(event.detail.button)}
                     >
                         {tr.editingLatex()}
                         <span class="ps-1 float-end">{shortcutLabel}</span>
@@ -161,7 +161,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     <DropdownItem
                         on:click={() => wrapCurrent("[$]", "[/$]")}
-                        on:mount={createShortcut}
+                        on:mount={(event) => createShortcut(event.detail.button)}
                     >
                         {tr.editingLatexEquation()}
                         <span class="ps-1 float-end">{shortcutLabel}</span>
@@ -175,7 +175,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     <DropdownItem
                         on:click={() => wrapCurrent("[$$]", "[/$$]")}
-                        on:mount={createShortcut}
+                        on:mount={(event) => createShortcut(event.detail.button)}
                     >
                         {tr.editingLatexMathEnv()}
                         <span class="ps-1 float-end">{shortcutLabel}</span>
@@ -202,7 +202,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         active={inCodable}
                         disabled={!fieldFocused}
                         on:click={onHtmlEdit}
-                        on:mount={createShortcut}
+                        on:mount={(event) => createShortcut(event.detail.button)}
                     >
                         {@html xmlIcon}
                     </IconButton>
