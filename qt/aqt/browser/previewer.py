@@ -11,6 +11,7 @@ from typing import Any, Callable, Optional, Tuple, Union
 import aqt.browser
 from anki.cards import Card
 from anki.collection import Config
+from anki.tags import MARKED_TAG
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import (
     QCheckBox,
@@ -140,6 +141,15 @@ class Previewer(QDialog):
         if cmd.startswith("play:"):
             play_clicked_audio(cmd, self.card())
 
+    def _update_flag_and_mark_icons(self, card: Optional[Card]) -> None:
+        if card:
+            flag = card.user_flag()
+            marked = card.note(reload=True).has_tag(MARKED_TAG)
+        else:
+            flag = 0
+            marked = False
+        self._web.eval(f"_drawFlag({flag}); _drawMark({json.dumps(marked)});")
+
     def render_card(self) -> None:
         self.cancel_timer()
         # Keep track of whether render() has ever been called
@@ -167,6 +177,7 @@ class Previewer(QDialog):
         if not self._open:
             return
         c = self.card()
+        self._update_flag_and_mark_icons(c)
         func = "_showQuestion"
         ans_txt = ""
         if not c:
