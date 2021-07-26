@@ -48,7 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             tooltip={`${tr.editingClozeDeletion()} (${shortcutLabel})`}
             {disabled}
             on:click={onCloze}
-            on:mount={createShortcut}
+            on:mount={(event) => createShortcut(event.detail.button)}
         >
             {@html ellipseIcon}
         </IconButton>

@@ -48,7 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 tooltip={appendInParentheses(tooltip, shortcutLabel)}
                 {disabled}
                 on:click={() => document.execCommand(key)}
-                on:mount={createShortcut}
+                on:mount={(event) => createShortcut(event.detail.button)}
             >
                 <slot />
             </IconButton>
@@ -69,7 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         document.execCommand(key);
                         updateState(event);
                     }}
-                    on:mount={createShortcut}
+                    on:mount={(event) => createShortcut(event.detail.button)}
                 >
                     <slot />
                 </IconButton>

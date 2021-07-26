@@ -12,8 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let deregister: () => void;
 
-    function createShortcut({ detail }: CustomEvent): void {
-        const mounted: HTMLButtonElement = detail.button;
+    function createShortcut(mounted: HTMLElement): void {
         deregister = registerShortcut((event: KeyboardEvent) => {
             mounted.dispatchEvent(new MouseEvent("click", event));
             event.preventDefault();

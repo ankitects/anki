@@ -29,7 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <LabelButton
                 tooltip={`${tr.editingCustomizeCardTemplates()} (${shortcutLabel})`}
                 on:click={() => bridgeCommand("cards")}
-                on:mount={createShortcut}
+                on:mount={(event) => createShortcut(event.detail.button)}
             >
                 {tr.editingCards()}...
             </LabelButton>

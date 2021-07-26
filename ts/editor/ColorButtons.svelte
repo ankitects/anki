@@ -44,7 +44,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         )}
                         {disabled}
                         on:click={forecolorWrap}
-                        on:mount={createShortcut}
+                        on:mount={(event) => createShortcut(event.detail.button)}
                     >
                         {@html textColorIcon}
                         {@html colorHelperIcon}
@@ -68,7 +68,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 forecolorWrap = wrapWithForecolor(setColor(event));
                                 forecolorWrap();
                             }}
-                            on:mount={createShortcut}
+                            on:mount={(event) => createShortcut(event.detail.input)}
                         />
                     </IconButton>
                 </WithShortcut>
