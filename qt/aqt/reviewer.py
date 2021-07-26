@@ -412,6 +412,8 @@ class Reviewer:
             )
 
             def after_answer(changes: OpChanges) -> None:
+                if gui_hooks.reviewer_did_answer_card.count() > 0:
+                    self.card.load()
                 self._after_answering(ease)
                 if sched.state_is_leech(answer.new_state):
                     self.onLeech()
