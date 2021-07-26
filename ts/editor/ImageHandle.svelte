@@ -122,7 +122,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const widthIncrease = dragWidth / naturalWidth!;
         const heightIncrease = dragHeight / naturalHeight!;
 
-        if (widthIncrease < heightIncrease) {
+        if (widthIncrease > heightIncrease) {
             width = Math.trunc(dragWidth);
             height = Math.trunc(naturalHeight! * widthIncrease);
         } else {
