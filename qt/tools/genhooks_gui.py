@@ -843,6 +843,16 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         doc="""Allows changing the javascript commands to load note before
         executing it and do change in the QT editor.""",
     ),
+    Hook(
+        name="editor_did_paste",
+        args=[
+            "editor: aqt.editor.Editor",
+            "html: str",
+            "internal: bool",
+            "extended: bool",
+        ],
+        doc="""Called after some data is pasted by python into an editor field.""",
+    ),
     # Tag
     ###################
     Hook(name="tag_editor_did_process_key", args=["tag_edit: TagEdit", "evt: QEvent"]),
