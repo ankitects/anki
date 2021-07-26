@@ -95,7 +95,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function setPointerCapture(event: PointerEvent): void {
-        if (event.pointerId !== 1) {
+        if (!active || event.pointerId !== 1) {
             return;
         }
 
