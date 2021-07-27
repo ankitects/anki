@@ -21,7 +21,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: aspectRatio = naturalWidth && naturalHeight ? naturalWidth / naturalHeight : NaN;
 
     $: showDimensions = image
-        ? parseInt(getComputedStyle(image).getPropertyValue("width")) > 100
+        ? parseInt(getComputedStyle(image).getPropertyValue("height")) >= 50
+        : false;
+
+    $: showFloat = image
+        ? parseInt(getComputedStyle(image).getPropertyValue("width")) >= 100
         : false;
 
     $: active = imageRule?.selectorText.includes(selector) as boolean;
@@ -88,13 +92,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         const heightProperty = image!.style.height;
-        if (heightProperty) {
+        if (inPixel || heightProperty === "auto") {
+            actualHeight = String(Math.trunc(Number(actualWidth) / aspectRatio));
+        } else if (heightProperty) {
             actualHeight = heightProperty.endsWith("px")
                 ? heightProperty.substring(0, heightProperty.length - 2)
                 : heightProperty;
             customDimensions = true;
-        } else if (inPixel) {
-            actualHeight = String(Math.trunc(Number(actualWidth) / aspectRatio));
         } else {
             actualHeight = String(naturalHeight);
         }
@@ -123,14 +127,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const heightIncrease = dragHeight / naturalHeight!;
 
         if (widthIncrease > heightIncrease) {
-            width = Math.trunc(dragWidth);
-            height = Math.trunc(naturalHeight! * widthIncrease);
+            width = Math.max(Math.trunc(dragWidth), 12);
+            height = Math.trunc(naturalHeight! * (width / naturalWidth!));
         } else {
-            height = Math.trunc(dragHeight);
-            width = Math.trunc(naturalWidth! * heightIncrease);
+            height = Math.max(Math.trunc(dragHeight), 10);
+            width = Math.trunc(naturalWidth! * (height / naturalHeight!));
         }
 
-        showDimensions = width > 100;
+        showDimensions = height >= 50;
+        showFloat = width >= 100;
 
         image!.style.width = `${width}px`;
         image!.style.removeProperty("height");
@@ -157,9 +162,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:mousedown|preventDefault
             on:dblclick={onDblclick}
         />
-        <div class="image-handle-float" class:is-rtl={isRtl}>
-            <ImageHandleFloat {isRtl} bind:float={image.style.float} />
-        </div>
+        {#if showFloat}
+            <div class="image-handle-float" class:is-rtl={isRtl}>
+                <ImageHandleFloat {isRtl} bind:float={image.style.float} />
+            </div>
+        {/if}
         <div class="image-handle-size-select" class:is-rtl={isRtl}>
             <ImageHandleSizeSelect
                 bind:this={sizeSelect}
