@@ -14,10 +14,13 @@ compile_sass(
     deps = [],
 )
 
-
 ts_library(
     name = "reviewer_ts",
-    srcs = glob(["*.ts"]),
+    srcs = glob(
+        ["*.ts"],
+        exclude = ["reviewer_extras.ts"],
+    ),
+    module_name = "reviewer",
     deps = [
         "//ts/lib",
         "//ts/lib:backend_proto",
@@ -33,6 +36,25 @@ esbuild(
         "--log-level=warning",
     ],
     entry_point = "index_wrapper.ts",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":reviewer_ts",
+        "//ts/lib",
+        "//ts/lib:backend_proto",
+        "@npm//protobufjs",
+    ],
+)
+
+esbuild(
+    name = "reviewer_extras",
+    srcs = [
+        "reviewer_extras.ts",
+    ],
+    args = [
+        "--resolve-extensions=.mjs,.js",
+        "--log-level=warning",
+    ],
+    entry_point = "reviewer_extras.ts",
     visibility = ["//visibility:public"],
     deps = [
         ":reviewer_ts",
