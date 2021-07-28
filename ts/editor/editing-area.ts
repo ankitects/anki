@@ -23,7 +23,7 @@ function onCutOrCopy(): void {
 }
 
 export class EditingArea extends HTMLDivElement {
-    imageHandle: ImageHandle;
+    imageHandle: Promise<ImageHandle>;
     editableContainer: EditableContainer;
     editable: Editable;
     codable: Codable;
@@ -35,9 +35,12 @@ export class EditingArea extends HTMLDivElement {
         this.editableContainer = document.createElement("div", {
             is: "anki-editable-container",
         }) as EditableContainer;
+
+        const imageStyle = document.createElement("style");
+        imageStyle.setAttribute("rel", "stylesheet");
+        imageStyle.id = "imageHandleStyle";
+
         this.editable = document.createElement("anki-editable") as Editable;
-        this.editableContainer.shadowRoot!.appendChild(this.editable);
-        this.appendChild(this.editableContainer);
 
         const context = new Map();
         context.set(
@@ -45,14 +48,28 @@ export class EditingArea extends HTMLDivElement {
             document.documentElement.classList.contains("night-mode")
         );
 
-        this.imageHandle = new ImageHandle({
-            target: this,
-            anchor: this.editableContainer,
-            props: {
-                container: this.editable,
-            },
-            context,
-        } as any);
+        let imageHandleResolve: (value: ImageHandle) => void;
+        this.imageHandle = new Promise<ImageHandle>((resolve) => {
+            imageHandleResolve = resolve;
+        });
+
+        imageStyle.addEventListener("load", () =>
+            imageHandleResolve(
+                new ImageHandle({
+                    target: this,
+                    anchor: this.editableContainer,
+                    props: {
+                        container: this.editable,
+                        sheet: imageStyle.sheet,
+                    },
+                    context,
+                } as any)
+            )
+        );
+
+        this.editableContainer.shadowRoot!.appendChild(imageStyle);
+        this.editableContainer.shadowRoot!.appendChild(this.editable);
+        this.appendChild(this.editableContainer);
 
         this.codable = document.createElement("textarea", {
             is: "anki-codable",
@@ -75,7 +92,7 @@ export class EditingArea extends HTMLDivElement {
     }
 
     set fieldHTML(content: string) {
-        this.activeInput.fieldHTML = content;
+        this.imageHandle.then(() => (this.activeInput.fieldHTML = content));
     }
 
     get fieldHTML(): string {
@@ -186,19 +203,21 @@ export class EditingArea extends HTMLDivElement {
     }
 
     resetImageHandle(): void {
-        (this.imageHandle as any).$set({
-            image: null,
-            imageRule: null,
-        });
+        this.imageHandle.then((imageHandle) =>
+            (imageHandle as any).$set({
+                activeImage: null,
+            })
+        );
     }
 
     showImageHandle(event: MouseEvent): void {
         if (event.target instanceof HTMLImageElement) {
-            (this.imageHandle as any).$set({
-                image: event.target,
-                imageRule: this.editableContainer.imageRule,
-                isRtl: this.isRightToLeft(),
-            });
+            this.imageHandle.then((imageHandle) =>
+                (imageHandle as any).$set({
+                    activeImage: event.target,
+                    isRtl: this.isRightToLeft(),
+                })
+            );
         } else {
             this.resetImageHandle();
         }
@@ -211,6 +230,7 @@ export class EditingArea extends HTMLDivElement {
             this.fieldHTML = this.codable.teardown();
             this.editable.hidden = false;
         } else {
+            this.resetImageHandle();
             this.editable.hidden = true;
             this.codable.setup(this.editable.fieldHTML);
         }

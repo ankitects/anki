@@ -8,7 +8,7 @@
 export class EditableContainer extends HTMLDivElement {
     baseStyle: HTMLStyleElement;
     baseRule?: CSSStyleRule;
-    imageRule?: CSSStyleRule;
+    imageStyle?: HTMLStyleElement;
 
     constructor() {
         super();
@@ -25,6 +25,7 @@ export class EditableContainer extends HTMLDivElement {
 
         this.baseStyle = document.createElement("style");
         this.baseStyle.setAttribute("rel", "stylesheet");
+        this.baseStyle.id = "baseStyle";
         shadow.appendChild(this.baseStyle);
     }
 
@@ -32,11 +33,6 @@ export class EditableContainer extends HTMLDivElement {
         const sheet = this.baseStyle.sheet as CSSStyleSheet;
         const baseIndex = sheet.insertRule("anki-editable {}");
         this.baseRule = sheet.cssRules[baseIndex] as CSSStyleRule;
-
-        const imageIndex = sheet.insertRule("anki-editable img {}");
-        this.imageRule = sheet.cssRules[imageIndex] as CSSStyleRule;
-        this.imageRule.style.setProperty("max-width", "min(250px, 100%)", "important");
-        this.imageRule.style.setProperty("max-height", "200px", "important");
     }
 
     initialize(color: string): void {

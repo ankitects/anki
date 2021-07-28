@@ -2,33 +2,25 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script lang="typescript">
+<script lang="ts">
     import ImageHandleFloat from "./ImageHandleFloat.svelte";
     import ImageHandleSizeSelect from "./ImageHandleSizeSelect.svelte";
 
     import { onDestroy, getContext } from "svelte";
     import { nightModeKey } from "components/context-keys";
 
-    export let image: HTMLImageElement | null = null;
-    export let imageRule: CSSStyleRule | null = null;
+    export let container: HTMLElement;
+    export let sheet: CSSStyleSheet;
+    export let activeImage: HTMLImageElement | null = null;
     export let isRtl: boolean = false;
 
-    export let container: HTMLElement;
-
-    $: selector = `:not([src="${image?.getAttribute("src")}"])`;
-    $: naturalWidth = image?.naturalWidth;
-    $: naturalHeight = image?.naturalHeight;
+    $: naturalWidth = activeImage?.naturalWidth;
+    $: naturalHeight = activeImage?.naturalHeight;
     $: aspectRatio = naturalWidth && naturalHeight ? naturalWidth / naturalHeight : NaN;
 
-    $: showDimensions = image
-        ? parseInt(getComputedStyle(image).getPropertyValue("height")) >= 50
-        : false;
+    $: showDimensions = activeImage ? Number(activeImage!.height) >= 50 : false;
 
-    $: showFloat = image
-        ? parseInt(getComputedStyle(image).getPropertyValue("width")) >= 100
-        : false;
-
-    $: active = imageRule?.selectorText.includes(selector) as boolean;
+    $: showFloat = activeImage ? Number(activeImage!.width) >= 100 : false;
 
     let actualWidth = "";
     let actualHeight = "";
@@ -42,39 +34,48 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let width = 0;
     let height = 0;
 
-    $: if (image) {
+    $: if (activeImage) {
         updateSizes();
+    } else {
+        resetSizes();
     }
 
-    const observer = new ResizeObserver(() => {
-        if (image) {
+    const resizeObserver = new ResizeObserver(() => {
+        if (activeImage) {
             updateSizes();
         }
     });
 
     function startObserving() {
-        observer.observe(container);
+        resizeObserver.observe(container);
     }
 
     function stopObserving() {
-        observer.unobserve(container);
+        resizeObserver.unobserve(container);
     }
 
     startObserving();
 
+    function resetSizes() {
+        top = 0;
+        left = 0;
+        width = 0;
+        height = 0;
+    }
+
     function updateSizes() {
         const containerRect = container.getBoundingClientRect();
-        const imageRect = image!.getBoundingClientRect();
+        const imageRect = activeImage!.getBoundingClientRect();
 
         containerTop = containerRect.top;
         containerLeft = containerRect.left;
         top = imageRect!.top - containerTop;
         left = imageRect!.left - containerLeft;
-        width = image!.clientWidth;
-        height = image!.clientHeight;
+        width = activeImage!.clientWidth;
+        height = activeImage!.clientHeight;
 
         /* we do not want the actual width, but rather the intended display width */
-        const widthProperty = image!.style.width;
+        const widthProperty = activeImage!.style.width;
         let inPixel = false;
         customDimensions = false;
 
@@ -91,7 +92,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             actualWidth = String(naturalWidth);
         }
 
-        const heightProperty = image!.style.height;
+        const heightProperty = activeImage!.style.height;
         if (inPixel || heightProperty === "auto") {
             actualHeight = String(Math.trunc(Number(actualWidth) / aspectRatio));
         } else if (heightProperty) {
@@ -104,14 +105,43 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function setPointerCapture(event: PointerEvent): void {
-        if (!active || event.pointerId !== 1) {
-            return;
-        }
+    /* memoized position of image on resize start
+     * prevents frantic behavior when image shift into the next/previous line */
+    let getDragWidth: (event: PointerEvent) => number;
+    let getDragHeight: (event: PointerEvent) => number;
 
-        stopObserving();
-        (event.target as Element).setPointerCapture(event.pointerId);
-    }
+    const setPointerCapture =
+        (north: boolean, west: boolean) =>
+        (event: PointerEvent): void => {
+            if (!active || event.pointerId !== 1) {
+                return;
+            }
+
+            const containerRect = container.getBoundingClientRect();
+            const imageRect = activeImage!.getBoundingClientRect();
+
+            const originalContainerY = containerRect.top;
+            const originalContainerX = containerRect.left;
+            const originalY = imageRect!.top - containerTop;
+            const originalX = imageRect!.left - containerLeft;
+
+            getDragWidth = (event) =>
+                west
+                    ? activeImage!.clientWidth -
+                      event.clientX +
+                      (originalContainerX + originalX)
+                    : event.clientX - originalContainerX - originalX;
+
+            getDragHeight = (event) =>
+                north
+                    ? activeImage!.clientHeight -
+                      event.clientY +
+                      (originalContainerY + originalY)
+                    : event.clientY - originalContainerY - originalY;
+
+            stopObserving();
+            (event.target as Element).setPointerCapture(event.pointerId);
+        };
 
     function resize(event: PointerEvent): void {
         const element = event.target! as Element;
@@ -120,8 +150,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
 
-        const dragWidth = event.clientX - containerLeft - left;
-        const dragHeight = event.clientY - containerTop - top;
+        const dragWidth = getDragWidth(event);
+        const dragHeight = getDragHeight(event);
 
         const widthIncrease = dragWidth / naturalWidth!;
         const heightIncrease = dragHeight / naturalHeight!;
@@ -137,11 +167,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         showDimensions = height >= 50;
         showFloat = width >= 100;
 
-        image!.style.width = `${width}px`;
-        image!.style.removeProperty("height");
+        activeImage!.width = width;
     }
 
     let sizeSelect: any;
+    let active = false;
 
     function onDblclick() {
         sizeSelect.toggleActualSize();
@@ -149,35 +179,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const nightMode = getContext(nightModeKey);
 
-    onDestroy(() => observer.disconnect());
+    onDestroy(() => resizeObserver.disconnect());
 </script>
 
-{#if image && imageRule}
-    <div
-        style="--top: {top}px; --left: {left}px; --width: {width}px; --height: {height}px;"
-        class="image-handle-selection"
-    >
+<div
+    style="--top: {top}px; --left: {left}px; --width: {width}px; --height: {height}px;"
+    class="image-handle-selection"
+>
+    {#if activeImage}
         <div
             class="image-handle-bg"
             on:mousedown|preventDefault
             on:dblclick={onDblclick}
         />
+
         {#if showFloat}
-            <div class="image-handle-float" class:is-rtl={isRtl}>
-                <ImageHandleFloat {isRtl} bind:float={image.style.float} />
+            <div class="image-handle-float" class:is-rtl={isRtl} on:click={updateSizes}>
+                <ImageHandleFloat {activeImage} {isRtl} />
             </div>
         {/if}
-        <div class="image-handle-size-select" class:is-rtl={isRtl}>
-            <ImageHandleSizeSelect
-                bind:this={sizeSelect}
-                bind:active
-                {image}
-                {imageRule}
-                {selector}
-                {isRtl}
-                on:update={updateSizes}
-            />
-        </div>
+
         {#if showDimensions}
             <div class="image-handle-dimensions" class:is-rtl={isRtl}>
                 <span>{actualWidth}&times;{actualHeight}</span>
@@ -186,22 +207,47 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     >{/if}
             </div>
         {/if}
+    {/if}
+
+    {#if sheet}
+        <div class="image-handle-size-select" class:is-rtl={isRtl}>
+            <ImageHandleSizeSelect
+                bind:this={sizeSelect}
+                bind:active
+                {container}
+                {sheet}
+                {activeImage}
+                {isRtl}
+                on:update={updateSizes}
+            />
+        </div>
+    {/if}
+
+    {#if activeImage}
         <div
             class:nightMode
+            class:active
             class="image-handle-control image-handle-control-nw"
             on:mousedown|preventDefault
+            on:pointerdown={setPointerCapture(true, true)}
+            on:pointerup={startObserving}
+            on:pointermove={resize}
         />
         <div
             class:nightMode
+            class:active
             class="image-handle-control image-handle-control-ne"
             on:mousedown|preventDefault
+            on:pointerdown={setPointerCapture(true, false)}
+            on:pointerup={startObserving}
+            on:pointermove={resize}
         />
         <div
             class:nightMode
             class:active
             class="image-handle-control image-handle-control-sw"
             on:mousedown|preventDefault
-            on:pointerdown={setPointerCapture}
+            on:pointerdown={setPointerCapture(false, true)}
             on:pointerup={startObserving}
             on:pointermove={resize}
         />
@@ -210,12 +256,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             class:active
             class="image-handle-control image-handle-control-se"
             on:mousedown|preventDefault
-            on:pointerdown={setPointerCapture}
+            on:pointerdown={setPointerCapture(false, false)}
             on:pointerup={startObserving}
             on:pointermove={resize}
         />
-    </div>
-{/if}
+    {/if}
+</div>
 
 <style lang="scss">
     div {
@@ -301,6 +347,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         left: -5px;
         border-bottom: none;
         border-right: none;
+
+        &.active {
+            cursor: nw-resize;
+        }
     }
 
     .image-handle-control-ne {
@@ -308,6 +358,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         right: -5px;
         border-bottom: none;
         border-left: none;
+
+        &.active {
+            cursor: ne-resize;
+        }
     }
 
     .image-handle-control-sw {
