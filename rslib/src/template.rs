@@ -475,11 +475,16 @@ fn render_into(
             Conditional { key, children } => {
                 if context.evaluate_conditional(key.as_str(), false)? {
                     render_into(rendered_nodes, children.as_ref(), context, tr)?;
+                } else {
+                    // keep checking for errors, but discard rendered nodes
+                    render_into(&mut vec![], children.as_ref(), context, tr)?;
                 }
             }
             NegatedConditional { key, children } => {
                 if context.evaluate_conditional(key.as_str(), true)? {
                     render_into(rendered_nodes, children.as_ref(), context, tr)?;
+                } else {
+                    render_into(&mut vec![], children.as_ref(), context, tr)?;
                 }
             }
         };
@@ -1066,7 +1071,7 @@ mod test {
         assert_eq!(tmpl.render(&ctx, &tr).unwrap(), vec![]);
 
         // missing
-        tmpl = PT::from_text("{{^M}}A{{/M}}").unwrap();
+        tmpl = PT::from_text("{{#E}}}{{^M}}A{{/M}}{{/E}}}").unwrap();
         assert_eq!(
             tmpl.render(&ctx, &tr).unwrap_err(),
             TemplateError::NoSuchConditional("^M".to_string())
