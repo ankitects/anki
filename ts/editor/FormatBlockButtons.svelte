@@ -34,6 +34,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const currentField = document.activeElement as EditingArea;
         if (getListItem(currentField.shadowRoot!)) {
             document.execCommand("outdent");
+        } else {
+            alert("Indent/unindent currently only works with lists.");
         }
     }
 
@@ -41,6 +43,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const currentField = document.activeElement as EditingArea;
         if (getListItem(currentField.shadowRoot!)) {
             document.execCommand("indent");
+        } else {
+            alert("Indent/unindent currently only works with lists.");
         }
     }
 </script>
