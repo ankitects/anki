@@ -450,7 +450,7 @@ class Browser(QMainWindow):
 
     def setupSidebar(self) -> None:
         dw = self.sidebarDockWidget = QDockWidget(tr.browsing_sidebar(), self)
-        dw.setFeatures(QDockWidget.DockWidgetClosable)
+        dw.setFeatures(QDockWidget.NoDockWidgetFeatures)
         dw.setObjectName("Sidebar")
         dw.setAllowedAreas(Qt.LeftDockWidgetArea)
 
