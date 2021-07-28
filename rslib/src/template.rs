@@ -297,6 +297,12 @@ fn localized_template_error(tr: &I18n, err: TemplateError) -> String {
         TemplateError::FieldNotFound { field, filters } => tr
             .card_template_rendering_no_such_field(format!("{{{{{}{}}}}}", filters, field), field)
             .into(),
+        TemplateError::NoSuchConditional(condition) => tr
+            .card_template_rendering_no_such_conditional(
+                format!("{{{{{}}}}}", condition),
+                &condition[1..],
+            )
+            .into(),
     }
 }
 
@@ -467,12 +473,12 @@ fn render_into(
                 }
             }
             Conditional { key, children } => {
-                if context.nonempty_fields.contains(key.as_str()) {
+                if context.evaluate_conditional(key.as_str(), false)? {
                     render_into(rendered_nodes, children.as_ref(), context, tr)?;
                 }
             }
             NegatedConditional { key, children } => {
-                if !context.nonempty_fields.contains(key.as_str()) {
+                if context.evaluate_conditional(key.as_str(), true)? {
                     render_into(rendered_nodes, children.as_ref(), context, tr)?;
                 }
             }
@@ -480,6 +486,24 @@ fn render_into(
     }
 
     Ok(())
+}
+
+impl<'a> RenderContext<'a> {
+    fn evaluate_conditional(&self, key: &str, negated: bool) -> TemplateResult<bool> {
+        if self.nonempty_fields.contains(key) {
+            Ok(true ^ negated)
+        } else if self.fields.contains_key(key)
+            || (key.starts_with('c') && key[1..].parse::<u32>().is_ok())
+        {
+            Ok(false ^ negated)
+        } else {
+            let prefix = if negated { "^" } else { "#" };
+            Err(TemplateError::NoSuchConditional(format!(
+                "{}{}",
+                prefix, key
+            )))
+        }
+    }
 }
 
 /// Append to last node if last node is a string, else add new node.
@@ -1015,7 +1039,7 @@ mod test {
 
     #[test]
     fn render_single() {
-        let map: HashMap<_, _> = vec![("F", "f"), ("B", "b"), ("E", " ")]
+        let map: HashMap<_, _> = vec![("F", "f"), ("B", "b"), ("E", " "), ("c1", "1")]
             .into_iter()
             .map(|r| (r.0, r.1.into()))
             .collect();
@@ -1044,10 +1068,8 @@ mod test {
         // missing
         tmpl = PT::from_text("{{^M}}A{{/M}}").unwrap();
         assert_eq!(
-            tmpl.render(&ctx, &tr).unwrap(),
-            vec![FN::Text {
-                text: "A".to_owned()
-            },]
+            tmpl.render(&ctx, &tr).unwrap_err(),
+            TemplateError::NoSuchConditional("^M".to_string())
         );
 
         // nested
@@ -1056,6 +1078,15 @@ mod test {
             tmpl.render(&ctx, &tr).unwrap(),
             vec![FN::Text {
                 text: "12f".to_owned()
+            },]
+        );
+
+        // card conditionals
+        tmpl = PT::from_text("{{^c2}}1{{#c1}}2{{/c1}}{{/c2}}").unwrap();
+        assert_eq!(
+            tmpl.render(&ctx, &tr).unwrap(),
+            vec![FN::Text {
+                text: "12".to_owned()
             },]
         );
 
