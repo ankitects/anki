@@ -19,7 +19,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: aspectRatio = naturalWidth && naturalHeight ? naturalWidth / naturalHeight : NaN;
 
     $: showDimensions = activeImage ? Number(activeImage!.height) >= 50 : false;
-
     $: showFloat = activeImage ? Number(activeImage!.width) >= 100 : false;
 
     let actualWidth = "";
@@ -117,27 +116,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 return;
             }
 
-            const containerRect = container.getBoundingClientRect();
             const imageRect = activeImage!.getBoundingClientRect();
 
-            const originalContainerY = containerRect.top;
-            const originalContainerX = containerRect.left;
-            const originalY = imageRect!.top - containerTop;
-            const originalX = imageRect!.left - containerLeft;
+            const imageLeft = imageRect!.left;
+            const imageRight = imageRect!.right;
+            const [multX, imageX] = west ? [-1, imageRight] : [1, -imageLeft];
 
-            getDragWidth = (event) =>
-                west
-                    ? activeImage!.clientWidth -
-                      event.clientX +
-                      (originalContainerX + originalX)
-                    : event.clientX - originalContainerX - originalX;
+            getDragWidth = ({ clientX }) => multX * clientX + imageX;
 
-            getDragHeight = (event) =>
-                north
-                    ? activeImage!.clientHeight -
-                      event.clientY +
-                      (originalContainerY + originalY)
-                    : event.clientY - originalContainerY - originalY;
+            const imageTop = imageRect!.top;
+            const imageBottom = imageRect!.bottom;
+            const [multY, imageY] = north ? [-1, imageBottom] : [1, -imageTop];
+
+            getDragHeight = ({ clientY }) => multY * clientY + imageY;
 
             stopObserving();
             (event.target as Element).setPointerCapture(event.pointerId);
