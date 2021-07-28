@@ -12,6 +12,7 @@ mod stock;
 mod templates;
 pub(crate) mod undo;
 
+use regex::Regex;
 use std::{
     collections::{HashMap, HashSet},
     iter::FromIterator,
@@ -332,21 +333,24 @@ impl Notetype {
     }
 
     fn ensure_template_fronts_unique(&self) -> Result<()> {
-        let mut map = HashMap::new();
-        if let Some((index_1, index_2)) =
-            self.templates.iter().enumerate().find_map(|(index, card)| {
-                map.insert(&card.config.q_format, index)
-                    .map(|old_index| (old_index, index))
-            })
-        {
-            Err(AnkiError::TemplateSaveError(TemplateSaveError {
-                notetype: self.name.clone(),
-                ordinal: index_2,
-                details: TemplateSaveErrorDetails::Duplicate(index_1),
-            }))
-        } else {
-            Ok(())
+        lazy_static! {
+            static ref CARD_TAG: Regex = Regex::new(r"\{\{\s*Card\s*\}\}").unwrap();
         }
+
+        let mut map = HashMap::new();
+        for (index, card) in self.templates.iter().enumerate() {
+            if let Some(old_index) = map.insert(&card.config.q_format, index) {
+                if !CARD_TAG.is_match(&card.config.q_format) {
+                    return Err(AnkiError::TemplateSaveError(TemplateSaveError {
+                        notetype: self.name.clone(),
+                        ordinal: index,
+                        details: TemplateSaveErrorDetails::Duplicate(old_index),
+                    }));
+                }
+            }
+        }
+
+        Ok(())
     }
 
     /// Ensure no templates are None, every front template contains at least one
