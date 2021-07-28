@@ -19,6 +19,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let activeImage: HTMLImageElement | null;
     export let active: boolean = false;
 
+    $: {
+        const index = images.indexOf(activeImage!);
+
+        if (index >= 0) {
+            const rule = sheet.cssRules[index] as CSSStyleRule;
+            active = rule.cssText.endsWith("{ }");
+        }
+    }
+
     export let isRtl: boolean;
     export let maxWidth = 250;
     export let maxHeight = 125;
