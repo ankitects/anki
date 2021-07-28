@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { floatNoneIcon, floatLeftIcon, floatRightIcon } from "./icons";
 
-    export let float: string;
+    export let activeImage: HTMLImageElement;
     export let isRtl: boolean;
 
     const leftValues = {
@@ -33,18 +33,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonGroupItem>
         <IconButton
             tooltip={tr.editingFloatNone()}
-            active={float === "" || float === "none"}
+            active={activeImage.style.float === "" ||
+                activeImage.style.float === "none"}
             flipX={isRtl}
-            on:click={() => (float = "")}>{@html floatNoneIcon}</IconButton
+            on:click={() => (activeImage.style.float = "")}
+            >{@html floatNoneIcon}</IconButton
         >
     </ButtonGroupItem>
 
     <ButtonGroupItem>
         <IconButton
             tooltip={inlineStart.label}
-            active={float === inlineStart.position}
+            active={activeImage.style.float === inlineStart.position}
             flipX={isRtl}
-            on:click={() => (float = inlineStart.position)}
+            on:click={() => (activeImage.style.float = inlineStart.position)}
             >{@html floatLeftIcon}</IconButton
         >
     </ButtonGroupItem>
@@ -52,9 +54,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonGroupItem>
         <IconButton
             tooltip={inlineEnd.label}
-            active={float === inlineEnd.position}
+            active={activeImage.style.float === inlineEnd.position}
             flipX={isRtl}
-            on:click={() => (float = inlineEnd.position)}
+            on:click={() => (activeImage.style.float = inlineEnd.position)}
             >{@html floatRightIcon}</IconButton
         >
     </ButtonGroupItem>
