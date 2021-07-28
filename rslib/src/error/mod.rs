@@ -119,6 +119,7 @@ pub enum TemplateError {
         filters: String,
         field: String,
     },
+    NoSuchConditional(String),
 }
 
 impl From<io::Error> for AnkiError {

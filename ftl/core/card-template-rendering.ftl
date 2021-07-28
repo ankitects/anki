@@ -21,6 +21,9 @@ card-template-rendering-conditional-not-open = Found '{ $found }', but missing '
 # when the user referenced a field that doesn't exist
 # eg, Found '{{Field}}', but there is not field called 'Field'
 card-template-rendering-no-such-field = Found '{ $found }', but there is no field called '{ $field }'
+# when the user referenced a field that doesn't exist in a conditional, excepting card numbers like 'c1'
+# eg, Found '{{#Field}}', but neither is it a card number nor is there a field called 'Field'
+card-template-rendering-no-such-conditional = Found '{ $found }', but neither is it a card number nor is there a field called '{ $key }'
 # This message is shown when the front side of the card is blank,
 # either due to a badly-designed template, or because required fields
 # are missing.
