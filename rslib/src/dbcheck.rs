@@ -273,7 +273,7 @@ impl Collection {
         // one note type exists
         if self.storage.get_all_notetype_names()?.is_empty() {
             let mut nt = all_stock_notetypes(&self.tr).remove(0);
-            self.add_notetype_inner(&mut nt, usn)?;
+            self.add_notetype_inner(&mut nt, usn, true)?;
         }
 
         if out.card_ords_duplicated > 0
@@ -367,7 +367,7 @@ impl Collection {
         for n in 0..extra_cards_required {
             basic.add_template(&format!("Card {}", n + 2), &qfmt, &afmt);
         }
-        self.add_notetype(&mut basic)?;
+        self.add_notetype(&mut basic, true)?;
         Ok(Arc::new(basic))
     }
 

@@ -1386,7 +1386,7 @@ mod test {
         // and a new notetype
         let mut nt = all_stock_notetypes(&col1.tr).remove(0);
         nt.name = "new".into();
-        col1.add_notetype(&mut nt)?;
+        col1.add_notetype(&mut nt, false)?;
 
         // add another note+card+tag
         let mut note = nt.new_note();
@@ -1502,7 +1502,7 @@ mod test {
 
         let mut nt = col2.storage.get_notetype(nt.id)?.unwrap();
         nt.name = "newer".into();
-        col2.update_notetype(&mut nt)?;
+        col2.update_notetype(&mut nt, false)?;
 
         // sync the changes back
         let out = ctx.normal_sync(&mut col2).await;

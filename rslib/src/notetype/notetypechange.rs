@@ -394,7 +394,7 @@ mod test {
         basic.add_field("Text"); // 4
         basic.add_field("idx5");
         // re-fetch to get ordinals
-        col.update_notetype(&mut basic)?;
+        col.update_notetype(&mut basic, false)?;
         let basic = col.get_notetype(basic.id)?.unwrap();
 
         // if names match, assignments are out of order; unmatched entries
