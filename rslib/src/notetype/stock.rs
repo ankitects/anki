@@ -15,7 +15,7 @@ use crate::{
 impl SqliteStorage {
     pub(crate) fn add_stock_notetypes(&self, tr: &I18n) -> Result<()> {
         for (idx, mut nt) in all_stock_notetypes(tr).into_iter().enumerate() {
-            nt.prepare_for_update(None)?;
+            nt.prepare_for_update(None, true)?;
             self.add_notetype(&mut nt)?;
             if idx == Kind::Basic as usize {
                 self.set_config_entry(&ConfigEntry::boxed(

@@ -235,7 +235,7 @@ class Anki2Importer(Importer):
                 model = srcModel.copy()
                 model["id"] = mid
                 model["usn"] = self.col.usn()
-                self.dst.models.update(model)
+                self.dst.models.update(model, skip_checks=True)
                 break
             # there's an existing model; do the schemas match?
             dstModel = self.dst.models.get(mid)
@@ -246,7 +246,7 @@ class Anki2Importer(Importer):
                     model = srcModel.copy()
                     model["id"] = mid
                     model["usn"] = self.col.usn()
-                    self.dst.models.update(model)
+                    self.dst.models.update(model, skip_checks=True)
                 break
             # as they don't match, try next id
             mid = NotetypeId(mid + 1)

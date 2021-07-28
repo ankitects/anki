@@ -117,11 +117,15 @@ impl Notetype {
 
 impl Collection {
     /// Add a new notetype, and allocate it an ID.
-    pub fn add_notetype(&mut self, notetype: &mut Notetype) -> Result<OpOutput<()>> {
+    pub fn add_notetype(
+        &mut self,
+        notetype: &mut Notetype,
+        skip_checks: bool,
+    ) -> Result<OpOutput<()>> {
         self.transact(Op::AddNotetype, |col| {
             let usn = col.usn()?;
             notetype.set_modified(usn);
-            col.add_notetype_inner(notetype, usn)
+            col.add_notetype_inner(notetype, usn, skip_checks)
         })
     }
 
@@ -130,7 +134,11 @@ impl Collection {
     ///
     /// This does not assign ordinals to the provided notetype, so if you wish
     /// to make use of template_idx, the notetype must be fetched again.
-    pub fn update_notetype(&mut self, notetype: &mut Notetype) -> Result<OpOutput<()>> {
+    pub fn update_notetype(
+        &mut self,
+        notetype: &mut Notetype,
+        skip_checks: bool,
+    ) -> Result<OpOutput<()>> {
         self.transact(Op::UpdateNotetype, |col| {
             let original = col
                 .storage
@@ -138,7 +146,12 @@ impl Collection {
                 .ok_or(AnkiError::NotFound)?;
             let usn = col.usn()?;
             notetype.set_modified(usn);
-            col.add_or_update_notetype_with_existing_id_inner(notetype, Some(original), usn)
+            col.add_or_update_notetype_with_existing_id_inner(
+                notetype,
+                Some(original),
+                usn,
+                skip_checks,
+            )
         })
     }
 
@@ -147,11 +160,12 @@ impl Collection {
     pub fn add_or_update_notetype_with_existing_id(
         &mut self,
         notetype: &mut Notetype,
+        skip_checks: bool,
     ) -> Result<()> {
         self.transact_no_undo(|col| {
             let usn = col.usn()?;
             let existing = col.storage.get_notetype(notetype.id)?;
-            col.add_or_update_notetype_with_existing_id_inner(notetype, existing, usn)
+            col.add_or_update_notetype_with_existing_id_inner(notetype, existing, usn, skip_checks)
         })
     }
 
@@ -419,7 +433,11 @@ impl Notetype {
         self.templates.push(CardTemplate::new(name, qfmt, afmt));
     }
 
-    pub(crate) fn prepare_for_update(&mut self, existing: Option<&Notetype>) -> Result<()> {
+    pub(crate) fn prepare_for_update(
+        &mut self,
+        existing: Option<&Notetype>,
+        skip_checks: bool,
+    ) -> Result<()> {
         if self.fields.is_empty() {
             return Err(AnkiError::invalid_input("1 field required"));
         }
@@ -450,9 +468,11 @@ impl Notetype {
             }
         }
         self.config.reqs = reqs;
-        self.ensure_template_fronts_unique()?;
-        self.ensure_valid_parsed_templates(&parsed_templates)?;
-        self.ensure_cloze_if_cloze_notetype(&parsed_templates)?;
+        if !skip_checks {
+            self.ensure_template_fronts_unique()?;
+            self.ensure_valid_parsed_templates(&parsed_templates)?;
+            self.ensure_cloze_if_cloze_notetype(&parsed_templates)?;
+        }
 
         Ok(())
     }
@@ -610,8 +630,13 @@ impl Collection {
     }
 
     /// Caller must set notetype as modified if appropriate.
-    pub(crate) fn add_notetype_inner(&mut self, notetype: &mut Notetype, usn: Usn) -> Result<()> {
-        notetype.prepare_for_update(None)?;
+    pub(crate) fn add_notetype_inner(
+        &mut self,
+        notetype: &mut Notetype,
+        usn: Usn,
+        skip_checks: bool,
+    ) -> Result<()> {
+        notetype.prepare_for_update(None, skip_checks)?;
         self.ensure_notetype_name_unique(notetype, usn)?;
         self.add_notetype_undoable(notetype)?;
         self.set_current_notetype_id(notetype.id)
@@ -624,9 +649,10 @@ impl Collection {
         notetype: &mut Notetype,
         original: Option<Notetype>,
         usn: Usn,
+        skip_checks: bool,
     ) -> Result<()> {
         let normalize = self.get_config_bool(BoolKey::NormalizeNoteText);
-        notetype.prepare_for_update(original.as_ref())?;
+        notetype.prepare_for_update(original.as_ref(), skip_checks)?;
         self.ensure_notetype_name_unique(notetype, usn)?;
 
         if let Some(original) = original {
@@ -671,7 +697,7 @@ impl Collection {
         let all = self.storage.get_all_notetype_names()?;
         if all.is_empty() {
             let mut nt = all_stock_notetypes(&self.tr).remove(0);
-            self.add_notetype_inner(&mut nt, self.usn()?)?;
+            self.add_notetype_inner(&mut nt, self.usn()?, true)?;
             self.set_current_notetype_id(nt.id)
         } else {
             self.set_current_notetype_id(all[0].0)

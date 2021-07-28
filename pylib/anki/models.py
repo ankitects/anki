@@ -527,12 +527,19 @@ and notes.mid = ? and cards.ord = ?""",
         pass
 
     # @deprecated(replaced_by=update_dict)
-    def update(self, notetype: NotetypeDict, preserve_usn: bool = True) -> None:
+    def update(
+        self,
+        notetype: NotetypeDict,
+        preserve_usn: bool = True,
+        skip_checks: bool = False,
+    ) -> None:
         "Add or update an existing model. Use .update_dict() instead."
         self._remove_from_cache(notetype["id"])
         self.ensure_name_unique(notetype)
         notetype["id"] = self.col._backend.add_or_update_notetype(
-            json=to_json_bytes(notetype), preserve_usn_and_mtime=preserve_usn
+            json=to_json_bytes(notetype),
+            preserve_usn_and_mtime=preserve_usn,
+            skip_checks=skip_checks,
         )
         self.set_current(notetype)
         self._mutate_after_write(notetype)
