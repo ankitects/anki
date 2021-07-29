@@ -7,7 +7,8 @@
  */
 
 import "css-browser-selector/css_browser_selector.min";
-import "jquery/dist/jquery";
+
+export { default as $ } from "jquery/dist/jquery";
 
 export { mutateNextCardStates } from "./answering";
 
