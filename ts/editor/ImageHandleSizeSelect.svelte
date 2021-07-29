@@ -27,12 +27,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             active = rule.cssText.endsWith("{ }");
         }
     }
+    $: icon = active ? sizeActual : sizeMinimized;
 
     export let isRtl: boolean;
     export let maxWidth = 250;
     export let maxHeight = 125;
 
-    $: icon = active ? sizeActual : sizeMinimized;
+    $: restrictionAspectRatio = maxWidth / maxHeight;
 
     const dispatch = createEventDispatcher();
 
@@ -87,14 +88,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function setImageRule(image: HTMLImageElement, rule: CSSStyleRule): void {
-        const width = Number(image.getAttribute("width")) | image.width;
+        const aspectRatio = image.naturalWidth / image.naturalHeight;
 
-        rule.style.setProperty(
-            "width",
-            width < maxWidth ? `${width}px` : "auto",
-            "important"
-        );
-        rule.style.setProperty("height", "auto", "important");
+        if (restrictionAspectRatio - aspectRatio > 1) {
+            // restricted by height
+            rule.style.setProperty("width", "auto", "important");
+
+            const width = Number(image.getAttribute("width")) || image.width;
+            const height = Number(image.getAttribute("height")) || width / aspectRatio;
+            console.log(width, height);
+            rule.style.setProperty(
+                "height",
+                height < maxHeight ? `${height}px` : "auto",
+                "important"
+            );
+        } else {
+            // square or restricted by width
+            const width = Number(image.getAttribute("width")) || image.width;
+            rule.style.setProperty(
+                "width",
+                width < maxWidth ? `${width}px` : "auto",
+                "important"
+            );
+
+            rule.style.setProperty("height", "auto", "important");
+        }
+
         rule.style.setProperty("max-width", `min(${maxWidth}px, 100%)`, "important");
         rule.style.setProperty("max-height", `${maxHeight}px`, "important");
     }
