@@ -74,31 +74,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         height = activeImage!.clientHeight;
 
         /* we do not want the actual width, but rather the intended display width */
-        const widthProperty = activeImage!.style.width;
-        let inPixel = false;
+        const widthAttribute = activeImage!.getAttribute("width");
         customDimensions = false;
 
-        if (widthProperty) {
-            if (widthProperty.endsWith("px")) {
-                actualWidth = widthProperty.substring(0, widthProperty.length - 2);
-                inPixel = true;
-            } else {
-                actualWidth = widthProperty;
-            }
-
+        if (widthAttribute) {
+            actualWidth = widthAttribute;
             customDimensions = true;
         } else {
             actualWidth = String(naturalWidth);
         }
 
-        const heightProperty = activeImage!.style.height;
-        if (inPixel || heightProperty === "auto") {
-            actualHeight = String(Math.trunc(Number(actualWidth) / aspectRatio));
-        } else if (heightProperty) {
-            actualHeight = heightProperty.endsWith("px")
-                ? heightProperty.substring(0, heightProperty.length - 2)
-                : heightProperty;
+        const heightAttribute = activeImage!.getAttribute("height");
+        if (heightAttribute) {
+            actualHeight = heightAttribute;
             customDimensions = true;
+        } else if (customDimensions) {
+            actualHeight = String(Math.trunc(Number(actualWidth) / aspectRatio));
         } else {
             actualHeight = String(naturalHeight);
         }
