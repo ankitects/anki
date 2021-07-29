@@ -298,7 +298,7 @@ fn localized_template_error(tr: &I18n, err: TemplateError) -> String {
             .card_template_rendering_no_such_field(format!("{{{{{}{}}}}}", filters, field), field)
             .into(),
         TemplateError::NoSuchConditional(condition) => tr
-            .card_template_rendering_no_such_conditional(
+            .card_template_rendering_no_such_field(
                 format!("{{{{{}}}}}", condition),
                 &condition[1..],
             )
