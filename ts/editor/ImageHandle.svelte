@@ -125,6 +125,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             (event.target as Element).setPointerCapture(event.pointerId);
         };
 
+    $: [minResizeWidth, minResizeHeight] =
+        aspectRatio > 1 ? [5 * aspectRatio, 5] : [5, 5 / aspectRatio];
+
     function resize(event: PointerEvent): void {
         const element = event.target! as Element;
 
@@ -139,10 +142,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const heightIncrease = dragHeight / naturalHeight!;
 
         if (widthIncrease > heightIncrease) {
-            width = Math.max(Math.trunc(dragWidth), 12);
+            width = Math.max(Math.trunc(dragWidth), minResizeWidth);
             height = Math.trunc(naturalHeight! * (width / naturalWidth!));
         } else {
-            height = Math.max(Math.trunc(dragHeight), 10);
+            height = Math.max(Math.trunc(dragHeight), minResizeHeight);
             width = Math.trunc(naturalWidth! * (height / naturalHeight!));
         }
 
@@ -162,6 +165,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const nightMode = getContext(nightModeKey);
 
     onDestroy(() => resizeObserver.disconnect());
+
+    let overflowFix = 0;
+
+    function preventViewportIntersection(entries: IntersectionObserverEntry[]) {
+        const entry = entries[0];
+        console.log(entry.rootBounds!.width);
+        const overflow = isRtl
+            ? entry.rootBounds!.width -
+              entry.boundingClientRect.x -
+              entry.boundingClientRect.width
+            : entry.boundingClientRect.x;
+
+        overflowFix = Math.min(0, overflowFix + overflow, overflow);
+    }
+
+    function noViewportOverflow(element: HTMLElement) {
+        const dimensionsObserver = new IntersectionObserver(
+            preventViewportIntersection
+        );
+        dimensionsObserver.observe(element);
+
+        return {
+            destroy: () => dimensionsObserver.disconnect(),
+        };
+    }
 </script>
 
 <div
@@ -182,7 +210,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {/if}
 
         {#if showDimensions}
-            <div class="image-handle-dimensions" class:is-rtl={isRtl}>
+            <div
+                class="image-handle-dimensions"
+                class:is-rtl={isRtl}
+                style="--overflow-fix: {overflowFix}px"
+                use:noViewportOverflow
+            >
                 <span>{actualWidth}&times;{actualHeight}</span>
                 {#if customDimensions}<span
                         >(Original: {naturalWidth}&times;{naturalHeight})</span
@@ -298,11 +331,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bottom: 3px;
         right: 3px;
         margin-left: 3px;
+        margin-right: var(--overflow-fix, 0);
 
         &.is-rtl {
             right: auto;
             left: 3px;
             margin-right: 3px;
+            margin-left: var(--overflow-fix, 0);
         }
     }
 
