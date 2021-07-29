@@ -17,7 +17,7 @@ impl NotetypesService for Backend {
         let mut notetype: Notetype = input.into();
         self.with_col(|col| {
             Ok(col
-                .add_notetype(&mut notetype)?
+                .add_notetype(&mut notetype, false)?
                 .map(|_| notetype.id.0)
                 .into())
         })
@@ -25,7 +25,7 @@ impl NotetypesService for Backend {
 
     fn update_notetype(&self, input: pb::Notetype) -> Result<pb::OpChanges> {
         let mut notetype: Notetype = input.into();
-        self.with_col(|col| col.update_notetype(&mut notetype))
+        self.with_col(|col| col.update_notetype(&mut notetype, false))
             .map(Into::into)
     }
 
@@ -34,7 +34,7 @@ impl NotetypesService for Backend {
         let mut notetype: Notetype = legacy.into();
         self.with_col(|col| {
             Ok(col
-                .add_notetype(&mut notetype)?
+                .add_notetype(&mut notetype, false)?
                 .map(|_| notetype.id.0)
                 .into())
         })
@@ -43,7 +43,7 @@ impl NotetypesService for Backend {
     fn update_notetype_legacy(&self, input: pb::Json) -> Result<pb::OpChanges> {
         let legacy: NotetypeSchema11 = serde_json::from_slice(&input.json)?;
         let mut notetype: Notetype = legacy.into();
-        self.with_col(|col| col.update_notetype(&mut notetype))
+        self.with_col(|col| col.update_notetype(&mut notetype, false))
             .map(Into::into)
     }
 
@@ -58,11 +58,11 @@ impl NotetypesService for Backend {
                 nt.set_modified(col.usn()?);
             }
             if nt.id.0 == 0 {
-                col.add_notetype(&mut nt)?;
+                col.add_notetype(&mut nt, input.skip_checks)?;
             } else if !input.preserve_usn_and_mtime {
-                col.update_notetype(&mut nt)?;
+                col.update_notetype(&mut nt, input.skip_checks)?;
             } else {
-                col.add_or_update_notetype_with_existing_id(&mut nt)?;
+                col.add_or_update_notetype_with_existing_id(&mut nt, input.skip_checks)?;
             }
             Ok(pb::NotetypeId { ntid: nt.id.0 })
         })

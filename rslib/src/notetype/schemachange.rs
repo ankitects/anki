@@ -258,13 +258,13 @@ mod test {
         col.add_note(&mut note, DeckId(1))?;
 
         nt.add_field("three");
-        col.update_notetype(&mut nt)?;
+        col.update_notetype(&mut nt, false)?;
 
         let note = col.storage.get_note(note.id)?.unwrap();
         assert_eq!(note.fields(), &["one".to_string(), "two".into(), "".into()]);
 
         nt.fields.remove(1);
-        col.update_notetype(&mut nt)?;
+        col.update_notetype(&mut nt, false)?;
 
         let note = col.storage.get_note(note.id)?.unwrap();
         assert_eq!(note.fields(), &["one".to_string(), "".into()]);
@@ -281,13 +281,13 @@ mod test {
             .unwrap();
         nt.templates[0].config.q_format += "\n{{#Front}}{{some:Front}}{{Back}}{{/Front}}";
         nt.fields[0].name = "Test".into();
-        col.update_notetype(&mut nt)?;
+        col.update_notetype(&mut nt, false)?;
         assert_eq!(
             &nt.templates[0].config.q_format,
             "{{Test}}\n{{#Test}}{{some:Test}}{{Back}}{{/Test}}"
         );
         nt.fields.remove(0);
-        col.update_notetype(&mut nt)?;
+        col.update_notetype(&mut nt, false)?;
         assert_eq!(&nt.templates[0].config.q_format, "\n{{Back}}");
 
         Ok(())
@@ -313,7 +313,7 @@ mod test {
 
         // add an extra card template
         nt.add_template("card 2", "{{Front}}2", "");
-        col.update_notetype(&mut nt)?;
+        col.update_notetype(&mut nt, false)?;
 
         assert_eq!(
             col.search_cards(note.id, SortMode::NoOrder).unwrap().len(),

@@ -107,6 +107,7 @@ message Notetype {
 message AddOrUpdateNotetypeRequest {
   bytes json = 1;
   bool preserve_usn_and_mtime = 2;
+  bool skip_checks = 3;
 }
 
 message StockNotetype {
