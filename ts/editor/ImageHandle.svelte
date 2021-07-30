@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ImageHandleFloat from "./ImageHandleFloat.svelte";
     import ImageHandleSizeSelect from "./ImageHandleSizeSelect.svelte";
 
-    import { onDestroy, getContext } from "svelte";
+    import { onDestroy, getContext, tick } from "svelte";
     import { nightModeKey } from "components/context-keys";
 
     export let container: HTMLElement;
@@ -18,7 +18,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: naturalHeight = activeImage?.naturalHeight;
     $: aspectRatio = naturalWidth && naturalHeight ? naturalWidth / naturalHeight : NaN;
 
-    $: showDimensions = activeImage ? Number(activeImage!.height) >= 50 : false;
     $: showFloat = activeImage ? Number(activeImage!.width) >= 100 : false;
 
     let actualWidth = "";
@@ -33,28 +32,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let width = 0;
     let height = 0;
 
-    $: if (activeImage) {
-        updateSizes();
-    } else {
-        resetSizes();
-    }
-
-    const resizeObserver = new ResizeObserver(() => {
-        if (activeImage) {
-            updateSizes();
-        }
-    });
-
-    function startObserving() {
-        resizeObserver.observe(container);
-    }
-
-    function stopObserving() {
-        resizeObserver.unobserve(container);
-    }
-
-    startObserving();
-
     function resetSizes() {
         top = 0;
         left = 0;
@@ -62,17 +39,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         height = 0;
     }
 
-    function updateSizes() {
-        const containerRect = container.getBoundingClientRect();
-        const imageRect = activeImage!.getBoundingClientRect();
+    let overflowFix = 0;
 
-        containerTop = containerRect.top;
-        containerLeft = containerRect.left;
-        top = imageRect!.top - containerTop;
-        left = imageRect!.left - containerLeft;
-        width = activeImage!.clientWidth;
-        height = activeImage!.clientHeight;
-
+    async function updateDimensions(dimensions: HTMLDivElement) {
         /* we do not want the actual width, but rather the intended display width */
         const widthAttribute = activeImage!.getAttribute("width");
         customDimensions = false;
@@ -93,7 +62,59 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } else {
             actualHeight = String(naturalHeight);
         }
+
+        await tick();
+
+        const boundingClientRect = dimensions.getBoundingClientRect();
+        const overflow = isRtl
+            ? window.innerWidth - boundingClientRect.x - boundingClientRect.width
+            : boundingClientRect.x;
+
+        overflowFix = Math.min(0, overflowFix + overflow, overflow);
+        console.log("b", overflowFix);
     }
+
+    async function updateSizes(dimensions: HTMLDivElement) {
+        const containerRect = container.getBoundingClientRect();
+        const imageRect = activeImage!.getBoundingClientRect();
+
+        containerTop = containerRect.top;
+        containerLeft = containerRect.left;
+        top = imageRect!.top - containerTop;
+        left = imageRect!.left - containerLeft;
+        width = activeImage!.clientWidth;
+        height = activeImage!.clientHeight;
+
+        await updateDimensions(dimensions);
+    }
+
+    function initialUpdate(dimensions: HTMLDivElement) {
+        updateSizes(dimensions);
+        return { destroy: resetSizes };
+    }
+
+    let dimensions: HTMLDivElement;
+
+    async function updateSizesWithDimensions() {
+        await updateSizes(dimensions);
+    }
+
+    /* window resizing */
+    const resizeObserver = new ResizeObserver(async () => {
+        if (activeImage) {
+            await updateSizesWithDimensions();
+        }
+    });
+
+    function startObserving() {
+        resizeObserver.observe(container);
+    }
+
+    function stopObserving() {
+        resizeObserver.unobserve(container);
+    }
+
+    startObserving();
 
     /* memoized position of image on resize start
      * prevents frantic behavior when image shift into the next/previous line */
@@ -128,7 +149,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: [minResizeWidth, minResizeHeight] =
         aspectRatio > 1 ? [5 * aspectRatio, 5] : [5, 5 / aspectRatio];
 
-    function resize(event: PointerEvent): void {
+    async function resize(event: PointerEvent) {
         const element = event.target! as Element;
 
         if (!element.hasPointerCapture(event.pointerId)) {
@@ -149,10 +170,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             width = Math.trunc(naturalWidth! * (height / naturalHeight!));
         }
 
-        showDimensions = height >= 50;
         showFloat = width >= 100;
-
         activeImage!.width = width;
+
+        await updateSizesWithDimensions();
     }
 
     let sizeSelect: any;
@@ -165,31 +186,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const nightMode = getContext(nightModeKey);
 
     onDestroy(() => resizeObserver.disconnect());
-
-    let overflowFix = 0;
-
-    function preventViewportIntersection(entries: IntersectionObserverEntry[]) {
-        const entry = entries[0];
-        console.log(entry.rootBounds!.width);
-        const overflow = isRtl
-            ? entry.rootBounds!.width -
-              entry.boundingClientRect.x -
-              entry.boundingClientRect.width
-            : entry.boundingClientRect.x;
-
-        overflowFix = Math.min(0, overflowFix + overflow, overflow);
-    }
-
-    function noViewportOverflow(element: HTMLElement) {
-        const dimensionsObserver = new IntersectionObserver(
-            preventViewportIntersection
-        );
-        dimensionsObserver.observe(element);
-
-        return {
-            destroy: () => dimensionsObserver.disconnect(),
-        };
-    }
 </script>
 
 <div
@@ -204,24 +200,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         />
 
         {#if showFloat}
-            <div class="image-handle-float" class:is-rtl={isRtl} on:click={updateSizes}>
+            <div
+                class="image-handle-float"
+                class:is-rtl={isRtl}
+                on:click={updateSizesWithDimensions}
+            >
                 <ImageHandleFloat {activeImage} {isRtl} />
             </div>
         {/if}
 
-        {#if showDimensions}
-            <div
-                class="image-handle-dimensions"
-                class:is-rtl={isRtl}
-                style="--overflow-fix: {overflowFix}px"
-                use:noViewportOverflow
-            >
-                <span>{actualWidth}&times;{actualHeight}</span>
-                {#if customDimensions}<span
-                        >(Original: {naturalWidth}&times;{naturalHeight})</span
-                    >{/if}
-            </div>
-        {/if}
+        <div
+            bind:this={dimensions}
+            class="image-handle-dimensions"
+            class:is-rtl={isRtl}
+            style="--overflow-fix: {overflowFix}px"
+            use:initialUpdate
+        >
+            <span>{actualWidth}&times;{actualHeight}</span>
+            {#if customDimensions}<span
+                    >(Original: {naturalWidth}&times;{naturalHeight})</span
+                >{/if}
+        </div>
     {/if}
 
     {#if sheet}
@@ -233,7 +232,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {sheet}
                 {activeImage}
                 {isRtl}
-                on:update={updateSizes}
+                on:update={updateSizesWithDimensions}
             />
         </div>
     {/if}
