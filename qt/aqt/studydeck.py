@@ -175,6 +175,5 @@ class StudyDeck(QDialog):
 
             QDialog.accept(self)
 
-        add_deck_dialog(parent=self, default_text=default).success(
-            success
-        ).run_in_background()
+        if diag := add_deck_dialog(parent=self, default_text=default):
+            diag.success(success).run_in_background()
