@@ -96,7 +96,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             const width = Number(image.getAttribute("width")) || image.width;
             const height = Number(image.getAttribute("height")) || width / aspectRatio;
-            console.log(width, height);
             rule.style.setProperty(
                 "height",
                 height < maxHeight ? `${height}px` : "auto",
