@@ -17,13 +17,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: naturalWidth = activeImage?.naturalWidth;
     $: naturalHeight = activeImage?.naturalHeight;
     $: aspectRatio = naturalWidth && naturalHeight ? naturalWidth / naturalHeight : NaN;
-
     $: showFloat = activeImage ? Number(activeImage!.width) >= 100 : false;
 
-    let actualWidth = "";
-    let actualHeight = "";
-    let customDimensions = false;
-
+    /* SIZES */
     let containerTop = 0;
     let containerLeft = 0;
 
@@ -32,6 +28,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let width = 0;
     let height = 0;
 
+    function updateSizes() {
+        const containerRect = container.getBoundingClientRect();
+        const imageRect = activeImage!.getBoundingClientRect();
+
+        containerTop = containerRect.top;
+        containerLeft = containerRect.left;
+
+        top = imageRect!.top - containerTop;
+        left = imageRect!.left - containerLeft;
+        width = activeImage!.clientWidth;
+        height = activeImage!.clientHeight;
+    }
+
     function resetSizes() {
         top = 0;
         left = 0;
@@ -39,9 +48,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         height = 0;
     }
 
+    $: if (activeImage) {
+        updateSizes();
+    } else {
+        resetSizes();
+    }
+
+    let actualWidth = "";
+    let actualHeight = "";
+    let customDimensions = false;
     let overflowFix = 0;
 
-    async function updateDimensions(dimensions: HTMLDivElement) {
+    function updateDimensions(dimensions: HTMLDivElement) {
         /* we do not want the actual width, but rather the intended display width */
         const widthAttribute = activeImage!.getAttribute("width");
         customDimensions = false;
@@ -63,40 +81,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             actualHeight = String(naturalHeight);
         }
 
-        await tick();
+        tick().then(() => {
+            const boundingClientRect = dimensions.getBoundingClientRect();
+            const overflow = isRtl
+                ? window.innerWidth - boundingClientRect.x - boundingClientRect.width
+                : boundingClientRect.x;
 
-        const boundingClientRect = dimensions.getBoundingClientRect();
-        const overflow = isRtl
-            ? window.innerWidth - boundingClientRect.x - boundingClientRect.width
-            : boundingClientRect.x;
-
-        overflowFix = Math.min(0, overflowFix + overflow, overflow);
-        console.log("b", overflowFix);
-    }
-
-    async function updateSizes(dimensions: HTMLDivElement) {
-        const containerRect = container.getBoundingClientRect();
-        const imageRect = activeImage!.getBoundingClientRect();
-
-        containerTop = containerRect.top;
-        containerLeft = containerRect.left;
-        top = imageRect!.top - containerTop;
-        left = imageRect!.left - containerLeft;
-        width = activeImage!.clientWidth;
-        height = activeImage!.clientHeight;
-
-        await updateDimensions(dimensions);
-    }
-
-    function initialUpdate(dimensions: HTMLDivElement) {
-        updateSizes(dimensions);
-        return { destroy: resetSizes };
+            overflowFix = Math.min(0, overflowFix + overflow, overflow);
+        });
     }
 
     let dimensions: HTMLDivElement;
 
     async function updateSizesWithDimensions() {
-        await updateSizes(dimensions);
+        updateSizes();
+        updateDimensions(dimensions);
     }
 
     /* window resizing */
@@ -214,7 +213,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             class="image-handle-dimensions"
             class:is-rtl={isRtl}
             style="--overflow-fix: {overflowFix}px"
-            use:initialUpdate
+            use:updateDimensions
         >
             <span>{actualWidth}&times;{actualHeight}</span>
             {#if customDimensions}<span
