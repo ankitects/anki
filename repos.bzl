@@ -128,12 +128,12 @@ def register_repos():
     ################
 
     core_i18n_repo = "anki-core-i18n"
-    core_i18n_commit = "51d5c7c5b17b5401fd17ec00750d9686ab9ac156"
-    core_i18n_zip_csum = "63b1e727aed5da8f1cf6b2c0a0a02e43c7fd02a8ab97fc6c10c9a228d814a2a9"
+    core_i18n_commit = "c21692c4c126f866d0965661a0d518483d825ca2"
+    core_i18n_zip_csum = "6ecdf1482288a8939692229c9eff11d78fdefdf0375bb19dc28a740f94f17956"
 
     qtftl_i18n_repo = "anki-desktop-ftl"
-    qtftl_i18n_commit = "19b5faa3dfbb99faffbb5703c01b658eb9213473"
-    qtftl_i18n_zip_csum = "b5cc3c073e86e674ec89b99ab61b4cfd5c485eb68af26190335071107df3737a"
+    qtftl_i18n_commit = "9d6b415d518530b661b7ad8457a820aa4030a248"
+    qtftl_i18n_zip_csum = "69ba0a869f7c6b16416c0cdfeb841169240ec6e9cc8a0186693daacf4040f254"
 
     i18n_build_content = """
 filegroup(
