@@ -178,7 +178,8 @@ export class ChangeNotetypeState {
 
     setOldIndex(ctx: MapContext, newIdx: number, oldIdx: number): void {
         const list = this.info_.mapForContext(ctx);
-        const realOldIdx = oldIdx < list.length ? oldIdx : null;
+        const oldNames = this.info_.getOldNames(ctx);
+        const realOldIdx = oldIdx < oldNames.length ? oldIdx : null;
         const allowDupes = ctx == MapContext.Field;
 
         // remove any existing references?
