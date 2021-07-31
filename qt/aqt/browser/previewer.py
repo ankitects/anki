@@ -124,17 +124,14 @@ class Previewer(QDialog):
         self._close_callback()
 
     def _setup_web_view(self) -> None:
-        jsinc = [
-            "js/vendor/jquery.min.js",
-            "js/vendor/css_browser_selector.min.js",
-            "js/mathjax.js",
-            "js/vendor/mathjax/tex-chtml.js",
-            "js/reviewer.js",
-        ]
         self._web.stdHtml(
             self.mw.reviewer.revHtml(),
             css=["css/reviewer.css"],
-            js=jsinc,
+            js=[
+                "js/mathjax.js",
+                "js/vendor/mathjax/tex-chtml.js",
+                "js/reviewer.js",
+            ],
             context=self,
         )
         self._web.set_bridge_command(self._on_bridge_cmd, self)
@@ -170,6 +167,7 @@ class Previewer(QDialog):
         if not self._open:
             return
         c = self.card()
+        func = "_showQuestion"
         ans_txt = ""
         if not c:
             txt = tr.qt_misc_please_select_1_card()
@@ -189,7 +187,9 @@ class Previewer(QDialog):
             # need to force reload even if answer
             txt = c.question(reload=True)
             ans_txt = c.answer()
+
             if self._state == "answer":
+                func = "_showAnswer"
                 txt = ans_txt
             txt = re.sub(r"\[\[type:[^]]+\]\]", "", txt)
 
@@ -218,10 +218,12 @@ class Previewer(QDialog):
             txt = gui_hooks.card_will_show(txt, c, f"preview{self._state.capitalize()}")
             self._last_state = self._state_and_mod()
 
+        js: str
         if self._state == "question":
-            js = f"_showQuestion({json.dumps(txt)}, {json.dumps(ans_txt)}, '{bodyclass}');"
+            ans_txt = self.mw.col.media.escape_media_filenames(ans_txt)
+            js = f"{func}({json.dumps(txt)}, {json.dumps(ans_txt)}, '{bodyclass}');"
         else:
-            js = f"_showAnswer({json.dumps(txt)}, '{bodyclass}');"
+            js = f"{func}({json.dumps(txt)}, '{bodyclass}');"
         self._web.eval(js)
         self._card_changed = False
 

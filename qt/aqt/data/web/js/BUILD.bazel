@@ -38,9 +38,9 @@ copy_files_into_group(
 )
 
 copy_files_into_group(
-    name = "reviewer_extras",
+    name = "reviewer",
     srcs = [
-        "reviewer_extras.js",
+        "reviewer.js",
     ],
     package = "//ts/reviewer",
 )
@@ -50,8 +50,8 @@ filegroup(
     srcs = [
         "aqt_es5",
         "editor",
+        "reviewer",
         "mathjax.js",
-        "reviewer_extras",
         "//qt/aqt/data/web/js/vendor",
     ],
     visibility = ["//qt:__subpackages__"],

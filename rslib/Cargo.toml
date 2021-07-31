@@ -18,6 +18,8 @@ prost-build = "0.7.0"
 
 [dev-dependencies]
 env_logger = "0.8.4"
+linkcheck = { git = "https://github.com/ankitects/linkcheck.git", rev = "2f20798ce521cc594d510d4e417e76d5eac04d4b" }
+tokio = { version = "*", features = ["macros"] }
 
 [dependencies]
 # pinned as any changes could invalidate sqlite indexes
@@ -92,3 +94,5 @@ pulldown-cmark = "0.8.0"
 fnv = "1.0.7"
 strum = { version = "0.21.0", features = ["derive"] }
 tokio-util = { version = "0.6.7", features = ["io"] }
+pct-str = { git="https://github.com/timothee-haudebourg/pct-str.git", rev="4adccd8d4a222ab2672350a102f06ae832a0572d" }
+unic-ucd-category = "0.9.0"

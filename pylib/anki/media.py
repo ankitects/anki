@@ -11,7 +11,6 @@ import time
 from typing import Any, Callable, List, Optional, Tuple
 
 from anki import media_pb2
-from anki._legacy import deprecated
 from anki.consts import *
 from anki.latex import render_latex, render_latex_returning_errors
 from anki.models import NotetypeId
@@ -183,13 +182,16 @@ class MediaManager:
             txt = re.sub(reg, "", txt)
         return txt
 
-    @deprecated(info="no longer required")
     def escapeImages(self, string: str, unescape: bool = False) -> str:
-        return string
+        "escape_media_filenames alias for compatibility with add-ons."
+        return self.escape_media_filenames(string, unescape)
 
-    @deprecated(info="no longer required")
     def escape_media_filenames(self, string: str, unescape: bool = False) -> str:
-        return string
+        "Apply or remove percent encoding to filenames in html tags (audio, image, object)."
+        if unescape:
+            return self.col._backend.decode_iri_paths(string)
+        else:
+            return self.col._backend.encode_iri_paths(string)
 
     # Checking media
     ##########################################################################

@@ -214,7 +214,7 @@ class NoteImporter(Importer):
         did = self.col.decks.selected()
         conf = self.col.decks.config_dict_for_deck_id(did)
         # in order due?
-        if conf["new"]["order"] == NEW_CARDS_RANDOM:
+        if not conf["dyn"] and conf["new"]["order"] == NEW_CARDS_RANDOM:
             self.col.sched.randomizeCards(did)
 
         part1 = self.col.tr.importing_note_added(count=len(new))

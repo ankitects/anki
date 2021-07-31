@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <LabelButton
         tooltip={tr.browsingPreviewSelectedCard({ val: shortcutLabel })}
         on:click={() => bridgeCommand("preview")}
-        on:mount={createShortcut}
+        on:mount={(event) => createShortcut(event.detail.button)}
     >
         {tr.actionsPreview()}
     </LabelButton>

@@ -1,0 +1,55 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "reciprocal",  # MPL-2.0 from expression "MPL-2.0"
+])
+
+# Generated Targets
+
+rust_library(
+    name = "cssparser_macros",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+    ],
+    crate_root = "lib.rs",
+    crate_type = "proc-macro",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.6.0",
+    # buildifier: leave-alone
+    deps = [
+        "@raze__quote__1_0_9//:quote",
+        "@raze__syn__1_0_73//:syn",
+    ],
+)

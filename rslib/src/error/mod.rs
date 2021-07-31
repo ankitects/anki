@@ -40,6 +40,7 @@ pub enum AnkiError {
     InvalidRegex(String),
     UndoEmpty,
     MultipleNotetypesSelected,
+    DatabaseCheckRequired,
 }
 
 impl Display for AnkiError {
@@ -92,6 +93,7 @@ impl AnkiError {
             AnkiError::FilteredDeckError(err) => err.localized_description(tr),
             AnkiError::InvalidRegex(err) => format!("<pre>{}</pre>", err),
             AnkiError::MultipleNotetypesSelected => tr.errors_multiple_notetypes_selected().into(),
+            AnkiError::DatabaseCheckRequired => tr.errors_please_check_database().into(),
             AnkiError::IoError(_)
             | AnkiError::JsonError(_)
             | AnkiError::ProtoError(_)
@@ -117,6 +119,7 @@ pub enum TemplateError {
         filters: String,
         field: String,
     },
+    NoSuchConditional(String),
 }
 
 impl From<io::Error> for AnkiError {

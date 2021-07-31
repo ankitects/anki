@@ -175,6 +175,15 @@ alias(
 )
 
 alias(
+    name = "linkcheck",
+    actual = "@raze__linkcheck__0_4_1_alpha_0//:linkcheck",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "nom",
     actual = "@raze__nom__7_0_0_alpha1//:nom",
     tags = [
@@ -204,6 +213,15 @@ alias(
 alias(
     name = "once_cell",
     actual = "@raze__once_cell__1_8_0//:once_cell",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "pct_str",
+    actual = "@raze__pct_str__1_1_0//:pct_str",
     tags = [
         "cargo-raze",
         "manual",
@@ -438,6 +456,15 @@ alias(
 alias(
     name = "unic_langid",
     actual = "@raze__unic_langid__0_9_0//:unic_langid",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "unic_ucd_category",
+    actual = "@raze__unic_ucd_category__0_9_0//:unic_ucd_category",
     tags = [
         "cargo-raze",
         "manual",

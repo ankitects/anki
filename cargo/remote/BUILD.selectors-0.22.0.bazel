@@ -1,0 +1,97 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "reciprocal",  # MPL-2.0 from expression "MPL-2.0"
+])
+
+# Generated Targets
+# buildifier: disable=out-of-order-load
+# buildifier: disable=load-on-top
+load(
+    "@rules_rust//cargo:cargo_build_script.bzl",
+    "cargo_build_script",
+)
+
+cargo_build_script(
+    name = "selectors_build_script",
+    srcs = glob(["**/*.rs"]),
+    build_script_env = {
+    },
+    crate_features = [
+    ],
+    crate_root = "build.rs",
+    data = glob(["**"]),
+    edition = "2015",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.22.0",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@raze__phf_codegen__0_8_0//:phf_codegen",
+    ],
+)
+
+rust_library(
+    name = "selectors",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+    ],
+    crate_root = "lib.rs",
+    crate_type = "lib",
+    data = [],
+    edition = "2015",
+    proc_macro_deps = [
+        "@raze__derive_more__0_99_16//:derive_more",
+    ],
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.22.0",
+    # buildifier: leave-alone
+    deps = [
+        ":selectors_build_script",
+        "@raze__bitflags__1_2_1//:bitflags",
+        "@raze__cssparser__0_27_2//:cssparser",
+        "@raze__fxhash__0_2_1//:fxhash",
+        "@raze__log__0_4_14//:log",
+        "@raze__matches__0_1_8//:matches",
+        "@raze__phf__0_8_0//:phf",
+        "@raze__precomputed_hash__0_1_1//:precomputed_hash",
+        "@raze__servo_arc__0_1_1//:servo_arc",
+        "@raze__smallvec__1_6_1//:smallvec",
+        "@raze__thin_slice__0_1_1//:thin_slice",
+    ],
+)

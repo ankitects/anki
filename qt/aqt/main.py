@@ -484,6 +484,7 @@ class AnkiQt(QMainWindow):
             return aqt.sound.av_refs_to_play_icons(text)
 
     def prepare_card_text_for_display(self, text: str) -> str:
+        text = self.col.media.escape_media_filenames(text)
         text = self._add_play_buttons(text)
         return text
 

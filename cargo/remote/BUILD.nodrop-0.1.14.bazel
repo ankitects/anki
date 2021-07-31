@@ -34,6 +34,8 @@ rust_library(
     name = "nodrop",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
+        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",

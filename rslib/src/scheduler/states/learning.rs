@@ -44,8 +44,10 @@ impl LearnState {
             }
             .into()
         } else {
+            // steps modified while card in learning
             ReviewState {
                 scheduled_days: ctx.fuzzed_graduating_interval_good(),
+                ease_factor: ctx.initial_ease_factor,
                 ..Default::default()
             }
             .into()
@@ -62,6 +64,7 @@ impl LearnState {
         } else {
             ReviewState {
                 scheduled_days: ctx.fuzzed_graduating_interval_good(),
+                ease_factor: ctx.initial_ease_factor,
                 ..Default::default()
             }
             .into()
@@ -71,6 +74,7 @@ impl LearnState {
     fn answer_easy(self, ctx: &StateContext) -> ReviewState {
         ReviewState {
             scheduled_days: ctx.fuzzed_graduating_interval_easy(),
+            ease_factor: ctx.initial_ease_factor,
             ..Default::default()
         }
     }

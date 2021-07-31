@@ -33,6 +33,7 @@ compile_sass(
     visibility = ["//visibility:public"],
     deps = [
         "//ts/sass:scrollbar_lib",
+        "//ts/sass/codemirror",
     ],
 )
 
@@ -132,10 +133,10 @@ esbuild(
     output_css = "editor.css",
     visibility = ["//visibility:public"],
     deps = [
-        "base_css",
-        "bootstrap-icons",
         "editor_ts",
+        "base_css",
         "local_css",
+        "bootstrap-icons",
         "mdi-icons",
         "svelte_components",
         "//ts/components",

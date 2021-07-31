@@ -6,6 +6,7 @@ persistent = no
 ignored-classes=
   BrowserColumns,
   BrowserRow,
+  HelpPage,
   FormatTimespanRequest,
   CardAnswer,
   QueuedCards,
@@ -15,6 +16,7 @@ ignored-classes=
   BackendError,
   SetDeckCollapsedRequest,
   ConfigKey,
+  HelpPageLinkRequest
 
 [REPORTS]
 output-format=colorized

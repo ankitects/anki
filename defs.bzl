@@ -11,7 +11,7 @@ load("@com_github_ali5h_rules_pip//:defs.bzl", "pip_import")
 load("//pip/pyqt5:defs.bzl", "install_pyqt5")
 load("@esbuild_toolchain//:esbuild_repo.bzl", "esbuild_dependencies")
 
-anki_version = "2.1.45"
+anki_version = "2.1.46"
 
 def setup_deps():
     bazel_skylib_workspace()
@@ -20,7 +20,7 @@ def setup_deps():
 
     rust_repositories(
         edition = "2018",
-        include_rustc_srcs = True,
+        include_rustc_srcs = False,
     )
 
     raze_fetch_remote_crates()

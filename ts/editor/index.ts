@@ -8,8 +8,9 @@
 import { filterHTML } from "html-filter";
 import { updateActiveButtons } from "./toolbar";
 import { setupI18n, ModuleName } from "lib/i18n";
+import { isApplePlatform } from "lib/platform";
 import { registerShortcut } from "lib/shortcuts";
-import { bridgeCommand } from "./lib";
+import { bridgeCommand } from "lib/bridgecommand";
 
 import "./fields.css";
 
@@ -43,10 +44,9 @@ customElements.define("anki-editing-area", EditingArea, { extends: "div" });
 customElements.define("anki-label-container", LabelContainer, { extends: "div" });
 customElements.define("anki-editor-field", EditorField, { extends: "div" });
 
-registerShortcut(() => document.execCommand("copy"), "Control+C");
-registerShortcut(() => document.execCommand("cut"), "Control+X");
-registerShortcut(() => document.execCommand("selectAll"), "Control+A");
-registerShortcut(() => bridgeCommand("paste"), "Control+Shift+V");
+if (isApplePlatform()) {
+    registerShortcut(() => bridgeCommand("paste"), "Control+Shift+V");
+}
 
 export function getCurrentField(): EditingArea | null {
     return document.activeElement instanceof EditingArea

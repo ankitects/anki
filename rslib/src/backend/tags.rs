@@ -73,8 +73,13 @@ impl TagsService for Backend {
         input: pb::FindAndReplaceTagRequest,
     ) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
+            let note_ids = if input.note_ids.is_empty() {
+                col.search_notes_unordered("")?
+            } else {
+                to_note_ids(input.note_ids)
+            };
             col.find_and_replace_tag(
-                &to_note_ids(input.note_ids),
+                &note_ids,
                 &input.search,
                 &input.replacement,
                 input.regex,

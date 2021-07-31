@@ -48,11 +48,8 @@ class DeckDescriptionDialog(QDialog):
 
         box = QVBoxLayout()
 
-        label = QLabel(tr.scheduling_description_to_show_on_overview_screen())
-        box.addWidget(label)
-
-        self.enable_markdown = QCheckBox(tr.deck_config_description_markdown())
-        self.enable_markdown.setToolTip(tr.deck_config_description_markdown_hint())
+        self.enable_markdown = QCheckBox(tr.deck_config_description_new_handling())
+        self.enable_markdown.setToolTip(tr.deck_config_description_new_handling_hint())
         self.enable_markdown.setChecked(self.deck.get("md", False))
         box.addWidget(self.enable_markdown)
 

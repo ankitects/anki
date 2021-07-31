@@ -288,12 +288,9 @@ class Reviewer:
             self.revHtml(),
             css=["css/reviewer.css"],
             js=[
-                "js/vendor/jquery.min.js",
-                "js/vendor/css_browser_selector.min.js",
                 "js/mathjax.js",
                 "js/vendor/mathjax/tex-chtml.js",
                 "js/reviewer.js",
-                "js/reviewer_extras.js",
             ],
             context=self,
         )
@@ -337,9 +334,10 @@ class Reviewer:
         self._run_state_mutation_hook()
 
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
+        a = self.mw.col.media.escape_media_filenames(c.answer())
 
         self.web.eval(
-            f"_showQuestion({json.dumps(q)}, {json.dumps(c.answer())}, '{bodyclass}');"
+            f"_showQuestion({json.dumps(q)}, {json.dumps(a)}, '{bodyclass}');"
         )
         self._update_flag_icon()
         self._update_mark_icon()
@@ -414,6 +412,8 @@ class Reviewer:
             )
 
             def after_answer(changes: OpChanges) -> None:
+                if gui_hooks.reviewer_did_answer_card.count() > 0:
+                    self.card.load()
                 self._after_answering(ease)
                 if sched.state_is_leech(answer.new_state):
                     self.onLeech()
@@ -698,7 +698,7 @@ class Reviewer:
         return s
 
     def _getTypedAnswer(self) -> None:
-        self.web.evalWithCallback("typeans ? typeans.value : null", self._onTypedAnswer)
+        self.web.evalWithCallback("getTypedAnswer();", self._onTypedAnswer)
 
     def _onTypedAnswer(self, val: None) -> None:
         self.typedAnswer = val or ""

@@ -285,7 +285,7 @@ class Browser(QMainWindow):
         self.form.searchEdit.lineEdit().setPlaceholderText(
             tr.browsing_search_bar_hint()
         )
-        self.form.searchEdit.addItems(self.mw.pm.profile["searchHistory"])
+        self.form.searchEdit.addItems([""] + self.mw.pm.profile["searchHistory"])
         if search is not None:
             self.search_for_terms(*search)
         else:
@@ -396,9 +396,9 @@ class Browser(QMainWindow):
         self.form.gridLayout.addWidget(switch, 0, 0)
 
     def setupEditor(self) -> None:
-        def add_preview_button(editor: Editor) -> None:
-            preview_shortcut = "Ctrl+Shift+P"  # TODO
+        QShortcut(QKeySequence("Ctrl+Shift+P"), self, self.onTogglePreview)
 
+        def add_preview_button(editor: Editor) -> None:
             editor._links["preview"] = lambda _editor: self.onTogglePreview()
             editor.web.eval(
                 "$editorToolbar.then(({ notetypeButtons }) => notetypeButtons.appendButton({ component: editorToolbar.PreviewButton, id: 'preview' }));"
@@ -450,7 +450,7 @@ class Browser(QMainWindow):
 
     def setupSidebar(self) -> None:
         dw = self.sidebarDockWidget = QDockWidget(tr.browsing_sidebar(), self)
-        dw.setFeatures(QDockWidget.DockWidgetClosable)
+        dw.setFeatures(QDockWidget.NoDockWidgetFeatures)
         dw.setObjectName("Sidebar")
         dw.setAllowedAreas(Qt.LeftDockWidgetArea)
 
@@ -556,7 +556,7 @@ class Browser(QMainWindow):
         if self._previewer:
             self._previewer.close()
             self._on_preview_closed()
-        else:
+        elif self.editor.note:
             self._previewer = PreviewDialog(self, self.mw, self._on_preview_closed)
             self._previewer.open()
 
@@ -835,7 +835,6 @@ class Browser(QMainWindow):
     ######################################################################
 
     @no_arg_trigger
-    @skip_if_selection_is_empty
     @ensure_editor_saved
     def onFindReplace(self) -> None:
         FindAndReplaceDialog(self, mw=self.mw, note_ids=self.selected_notes())

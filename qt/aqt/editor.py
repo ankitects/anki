@@ -434,7 +434,10 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         if not self.note:
             return
 
-        data = self.note.items()
+        data = [
+            (fld, self.mw.col.media.escape_media_filenames(val))
+            for fld, val in self.note.items()
+        ]
         self.widget.show()
         self.updateTags()
 
@@ -584,9 +587,13 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         if html.find(">") > -1:
             # filter html through beautifulsoup so we can strip out things like a
             # leading </div>
+            html_escaped = self.mw.col.media.escape_media_filenames(html)
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", UserWarning)
-                html = str(BeautifulSoup(html, "html.parser"))
+                html_escaped = str(BeautifulSoup(html_escaped, "html.parser"))
+                html = self.mw.col.media.escape_media_filenames(
+                    html_escaped, unescape=True
+                )
         self.note.fields[field] = html
         if not self.addMode:
             self._save_current_note()
@@ -947,6 +954,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         else:
             ext = "false"
         self.web.eval(f"pasteHTML({json.dumps(html)}, {json.dumps(internal)}, {ext});")
+        gui_hooks.editor_did_paste(self, html, internal, extended)
 
     def doDrop(self, html: str, internal: bool, extended: bool = False) -> None:
         def pasteIfField(ret: bool) -> None:
@@ -1260,9 +1268,15 @@ def remove_null_bytes(txt: str, editor: Editor) -> str:
     return txt.replace("\x00", "")
 
 
+def reverse_url_quoting(txt: str, editor: Editor) -> str:
+    # reverse the url quoting we added to get images to display
+    return editor.mw.col.media.escape_media_filenames(txt, unescape=True)
+
+
 gui_hooks.editor_will_use_font_for_field.append(fontMungeHack)
 gui_hooks.editor_will_munge_html.append(munge_html)
 gui_hooks.editor_will_munge_html.append(remove_null_bytes)
+gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
 
 
 def set_cloze_button(editor: Editor) -> None:

@@ -1,0 +1,71 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
+])
+
+# Generated Targets
+
+rust_library(
+    name = "linkcheck",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "default",
+        "serde",
+        "serde-1",
+    ],
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.4.1-alpha.0",
+    # buildifier: leave-alone
+    deps = [
+        "@raze__bytes__1_0_1//:bytes",
+        "@raze__codespan__0_11_1//:codespan",
+        "@raze__dunce__1_0_2//:dunce",
+        "@raze__futures__0_3_15//:futures",
+        "@raze__http__0_2_4//:http",
+        "@raze__kuchiki__0_8_1//:kuchiki",
+        "@raze__lazy_static__1_4_0//:lazy_static",
+        "@raze__linkify__0_5_0//:linkify",
+        "@raze__log__0_4_14//:log",
+        "@raze__pulldown_cmark__0_8_0//:pulldown_cmark",
+        "@raze__regex__1_5_4//:regex",
+        "@reqwest_rustls//:reqwest",
+        "@raze__serde__1_0_126//:serde",
+        "@raze__thiserror__1_0_25//:thiserror",
+        "@raze__url__2_2_2//:url",
+    ],
+)

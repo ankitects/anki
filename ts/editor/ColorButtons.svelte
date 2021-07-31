@@ -39,12 +39,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <WithShortcut shortcut={"F7"} let:createShortcut let:shortcutLabel>
                     <IconButton
                         tooltip={appendInParentheses(
-                            tr.editingSetForegroundColor(),
+                            tr.editingSetTextColor(),
                             shortcutLabel
                         )}
                         {disabled}
                         on:click={forecolorWrap}
-                        on:mount={createShortcut}
+                        on:mount={(event) => createShortcut(event.detail.button)}
                     >
                         {@html textColorIcon}
                         {@html colorHelperIcon}
@@ -68,7 +68,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 forecolorWrap = wrapWithForecolor(setColor(event));
                                 forecolorWrap();
                             }}
-                            on:mount={createShortcut}
+                            on:mount={(event) => createShortcut(event.detail.input)}
                         />
                     </IconButton>
                 </WithShortcut>
@@ -79,7 +79,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <WithColorHelper color={initialColor} let:colorHelperIcon let:setColor>
         <OnlyEditable let:disabled>
             <ButtonGroupItem>
-                <IconButton on:click={backcolorWrap} {disabled}>
+                <IconButton
+                    tooltip={tr.editingSetTextHighlightColor()}
+                    {disabled}
+                    on:click={backcolorWrap}
+                >
                     {@html highlightColorIcon}
                     {@html colorHelperIcon}
                 </IconButton>

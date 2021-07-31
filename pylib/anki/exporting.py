@@ -10,7 +10,7 @@ import shutil
 import unicodedata
 import zipfile
 from io import BufferedWriter
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 from zipfile import ZipFile
 
 from anki import hooks
@@ -210,15 +210,15 @@ class AnkiExporter(Exporter):
         cids = self.cardIds()
         # copy cards, noting used nids
         nids = {}
-        data = []
+        data: List[Sequence] = []
         for row in self.src.db.execute(
             "select * from cards where id in " + ids2str(cids)
         ):
-            nids[row[1]] = True
-            data.append(row)
             # clear flags
             row = list(row)
             row[-2] = 0
+            nids[row[1]] = True
+            data.append(row)
         self.dst.db.executemany(
             "insert into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", data
         )

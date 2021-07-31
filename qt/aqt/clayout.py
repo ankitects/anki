@@ -185,6 +185,24 @@ class CardLayout(QDialog):
             self,
             activated=self.tform.style_button.click,
         )
+        QShortcut(  # type: ignore
+            QKeySequence("F3"),
+            self,
+            activated=lambda: (
+                self.update_current_ordinal_and_redraw(self.ord - 1)
+                if self.ord - 1 > -1
+                else None
+            ),
+        )
+        QShortcut(  # type: ignore
+            QKeySequence("F4"),
+            self,
+            activated=lambda: (
+                self.update_current_ordinal_and_redraw(self.ord + 1)
+                if self.ord + 1 < len(self.templates)
+                else None
+            ),
+        )
         for i in range(min(len(self.cloze_numbers), 9)):
             QShortcut(  # type: ignore
                 QKeySequence(f"Alt+{i+1}"),
@@ -312,17 +330,14 @@ class CardLayout(QDialog):
         )
         qconnect(pform.preview_settings.clicked, self.on_preview_settings)
 
-        jsinc = [
-            "js/vendor/jquery.min.js",
-            "js/vendor/css_browser_selector.min.js",
-            "js/mathjax.js",
-            "js/vendor/mathjax/tex-chtml.js",
-            "js/reviewer.js",
-        ]
         self.preview_web.stdHtml(
             self.mw.reviewer.revHtml(),
             css=["css/reviewer.css"],
-            js=jsinc,
+            js=[
+                "js/mathjax.js",
+                "js/vendor/mathjax/tex-chtml.js",
+                "js/reviewer.js",
+            ],
             context=self,
         )
         self.preview_web.set_bridge_command(self._on_bridge_cmd, self)

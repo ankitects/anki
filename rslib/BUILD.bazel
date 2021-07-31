@@ -114,8 +114,10 @@ rust_library(
         "//rslib/cargo:unic_langid",
         "//rslib/cargo:unicase",
         "//rslib/cargo:unicode_normalization",
+        "//rslib/cargo:unic_ucd_category",
         "//rslib/cargo:utime",
         "//rslib/cargo:zip",
+        "//rslib/cargo:pct_str",
         "//rslib/i18n:anki_i18n",
     ] + select({
         # rustls on Linux
@@ -140,8 +142,32 @@ rust_test(
     rustc_env = _anki_rustc_env,
     deps = [
         "//rslib/cargo:env_logger",
-        "//rslib/i18n:anki_i18n",
+        "//rslib/cargo:linkcheck",
+        "//rslib/cargo:utime",
     ],
+)
+
+rust_test(
+    name = "links",
+    srcs = ["tests/links.rs"],
+    tags = [
+        "ci",
+        "manual",
+    ],
+    deps = [
+        ":anki",
+        "//rslib/cargo:futures",
+        "//rslib/cargo:itertools",
+        "//rslib/cargo:linkcheck",
+        "//rslib/cargo:strum",
+        "//rslib/cargo:tokio",
+    ] + select({
+        # rustls on Linux
+        "//platforms:linux_x86_64": ["@reqwest_rustls//:reqwest"],
+        "//platforms:linux_arm64": ["@reqwest_rustls//:reqwest"],
+        # native tls on other platforms
+        "//conditions:default": ["//rslib/cargo:reqwest"],
+    }),
 )
 
 rustfmt_test(

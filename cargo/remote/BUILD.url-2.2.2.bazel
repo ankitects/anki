@@ -36,6 +36,7 @@ rust_library(
     name = "url",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "serde",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -55,6 +56,7 @@ rust_library(
         "@raze__idna__0_2_3//:idna",
         "@raze__matches__0_1_8//:matches",
         "@raze__percent_encoding__2_1_0//:percent_encoding",
+        "@raze__serde__1_0_126//:serde",
     ],
 )
 

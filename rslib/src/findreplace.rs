@@ -20,6 +20,12 @@ pub struct FindReplaceContext {
     field_name: Option<String>,
 }
 
+enum FieldForNotetype {
+    Any,
+    Index(usize),
+    None,
+}
+
 impl FindReplaceContext {
     pub fn new(
         nids: Vec<NoteId>,
@@ -62,17 +68,22 @@ impl Collection {
 
     fn find_and_replace_inner(&mut self, ctx: FindReplaceContext) -> Result<usize> {
         let mut last_ntid = None;
-        let mut field_ord = None;
+        let mut field_for_notetype = FieldForNotetype::None;
         self.transform_notes(&ctx.nids, |note, nt| {
             if last_ntid != Some(nt.id) {
-                field_ord = ctx.field_name.as_ref().and_then(|n| nt.get_field_ord(n));
+                field_for_notetype = match ctx.field_name.as_ref() {
+                    None => FieldForNotetype::Any,
+                    Some(name) => match nt.get_field_ord(name) {
+                        None => FieldForNotetype::None,
+                        Some(ord) => FieldForNotetype::Index(ord),
+                    },
+                };
                 last_ntid = Some(nt.id);
             }
 
             let mut changed = false;
-            match field_ord {
-                None => {
-                    // all fields
+            match field_for_notetype {
+                FieldForNotetype::Any => {
                     for txt in note.fields_mut() {
                         if let Cow::Owned(otxt) = ctx.replace_text(txt) {
                             changed = true;
@@ -80,8 +91,7 @@ impl Collection {
                         }
                     }
                 }
-                Some(ord) => {
-                    // single field
+                FieldForNotetype::Index(ord) => {
                     if let Some(txt) = note.fields_mut().get_mut(ord) {
                         if let Cow::Owned(otxt) = ctx.replace_text(txt) {
                             changed = true;
@@ -89,6 +99,7 @@ impl Collection {
                         }
                     }
                 }
+                FieldForNotetype::None => (),
             }
 
             Ok(TransformNoteOutput {
@@ -142,12 +153,11 @@ mod test {
             ]
         );
         let out = col.find_and_replace(nids, "BBB", "ccc", Some("Front".into()))?;
-        // still 2, as the caller is expected to provide only note ids that have
-        // that field, and if we can't find the field we fall back on all fields
-        assert_eq!(out.output, 2);
+        // 1, because notes without the specified field should be skipped
+        assert_eq!(out.output, 1);
 
         let note = col.storage.get_note(note.id)?.unwrap();
-        // but the update should be limited to the specified field when it was available
+        // the update should be limited to the specified field when it was available
         assert_eq!(&note.fields()[..], &["one ccc", "two BBB"]);
 
         Ok(())
