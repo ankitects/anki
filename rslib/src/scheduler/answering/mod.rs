@@ -65,6 +65,7 @@ impl CardStateUpdater {
             steps: self.learn_steps(),
             graduating_interval_good: self.config.inner.graduating_interval_good,
             graduating_interval_easy: self.config.inner.graduating_interval_easy,
+            initial_ease_factor: self.config.inner.initial_ease,
             hard_multiplier: self.config.inner.hard_multiplier,
             easy_multiplier: self.config.inner.easy_multiplier,
             interval_multiplier: self.config.inner.interval_multiplier,

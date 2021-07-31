@@ -75,6 +75,7 @@ pub(crate) struct StateContext<'a> {
     pub steps: LearningSteps<'a>,
     pub graduating_interval_good: u32,
     pub graduating_interval_easy: u32,
+    pub initial_ease_factor: f32,
 
     // reviewing
     pub hard_multiplier: f32,
