@@ -40,6 +40,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let size = isApplePlatform() ? 1.6 : 2.0;
     export let wrap = true;
 
+    export let textColor: string;
+    export let highlightColor: string;
+
     export const toolbar = {};
     export const notetypeButtons = {};
     export const formatInlineButtons = {};
@@ -63,7 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Item>
 
         <Item id="color">
-            <ColorButtons api={colorButtons} />
+            <ColorButtons {textColor} {highlightColor} api={colorButtons} />
         </Item>
 
         <Item id="template">

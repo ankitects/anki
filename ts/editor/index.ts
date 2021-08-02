@@ -3,6 +3,7 @@
 
 /* eslint
 @typescript-eslint/no-non-null-assertion: "off",
+@typescript-eslint/no-explicit-any: "off",
  */
 
 import { filterHTML } from "html-filter";
@@ -166,6 +167,12 @@ export function setFonts(fonts: [string, number, boolean][]): void {
         ) => {
             field.setBaseStyling(fontFamily, `${fontSize}px`, isRtl ? "rtl" : "ltr");
         }
+    );
+}
+
+export function setColorButtons([textColor, highlightColor]: [string, string]): void {
+    $editorToolbar.then((editorToolbar) =>
+        (editorToolbar as any).$set({ textColor, highlightColor })
     );
 }
 

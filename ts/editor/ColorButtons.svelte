@@ -13,10 +13,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithColorHelper from "./WithColorHelper.svelte";
     import OnlyEditable from "./OnlyEditable.svelte";
 
+    import { bridgeCommand } from "lib/bridgecommand";
     import { textColorIcon, highlightColorIcon, arrowIcon } from "./icons";
     import { appendInParentheses } from "./helpers";
 
     export let api = {};
+    export let textColor: string;
+    export let highlightColor: string;
+
+    $: forecolorWrap = wrapWithForecolor(textColor);
+    $: backcolorWrap = wrapWithBackcolor(highlightColor);
 
     const wrapWithForecolor = (color: string) => () => {
         document.execCommand("forecolor", false, color);
@@ -25,15 +31,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const wrapWithBackcolor = (color: string) => () => {
         document.execCommand("backcolor", false, color);
     };
-
-    const initialColor = "black";
-
-    let forecolorWrap = wrapWithForecolor(initialColor);
-    let backcolorWrap = wrapWithForecolor(initialColor);
 </script>
 
 <ButtonGroup {api}>
-    <WithColorHelper color={initialColor} let:colorHelperIcon let:setColor>
+    <WithColorHelper color={textColor} let:colorHelperIcon let:setColor>
         <OnlyEditable let:disabled>
             <ButtonGroupItem>
                 <WithShortcut shortcut={"F7"} let:createShortcut let:shortcutLabel>
@@ -65,6 +66,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         {@html arrowIcon}
                         <ColorPicker
                             on:change={(event) => {
+                                const textColor = setColor(event);
+                                bridgeCommand(`lastTextColor:${textColor}`);
                                 forecolorWrap = wrapWithForecolor(setColor(event));
                                 forecolorWrap();
                             }}
@@ -76,7 +79,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </OnlyEditable>
     </WithColorHelper>
 
-    <WithColorHelper color={initialColor} let:colorHelperIcon let:setColor>
+    <WithColorHelper color={highlightColor} let:colorHelperIcon let:setColor>
         <OnlyEditable let:disabled>
             <ButtonGroupItem>
                 <IconButton
@@ -98,7 +101,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {@html arrowIcon}
                     <ColorPicker
                         on:change={(event) => {
-                            backcolorWrap = wrapWithBackcolor(setColor(event));
+                            const highlightColor = setColor(event);
+                            bridgeCommand(`lastHighlightColor:${highlightColor}`);
+                            backcolorWrap = wrapWithBackcolor(highlightColor);
                             backcolorWrap();
                         }}
                     />
