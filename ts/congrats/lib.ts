@@ -15,8 +15,8 @@ export async function getCongratsInfo(): Promise<Scheduler.CongratsInfoResponse>
 
 export function buildNextLearnMsg(info: Scheduler.CongratsInfoResponse): string {
     const secsUntil = info.secsUntilNextLearn;
-    // next learning card not due (/ until tomorrow)?
-    if (secsUntil == 0 || secsUntil > 86_400) {
+    // next learning card not due today?
+    if (secsUntil >= 86_400) {
         return "";
     }
 
