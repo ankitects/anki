@@ -159,19 +159,25 @@ impl Card {
 }
 
 impl Collection {
-    pub(crate) fn update_card_maybe_undoable(
+    pub(crate) fn update_cards_maybe_undoable(
         &mut self,
-        card: &mut Card,
+        cards: Vec<Card>,
         undoable: bool,
     ) -> Result<OpOutput<()>> {
-        let existing = self.storage.get_card(card.id)?.ok_or(AnkiError::NotFound)?;
         if undoable {
             self.transact(Op::UpdateCard, |col| {
-                col.update_card_inner(card, existing, col.usn()?)
+                for mut card in cards {
+                    let existing = col.storage.get_card(card.id)?.ok_or(AnkiError::NotFound)?;
+                    col.update_card_inner(&mut card, existing, col.usn()?)?
+                }
+                Ok(())
             })
         } else {
             self.transact_no_undo(|col| {
-                col.update_card_inner(card, existing, col.usn()?)?;
+                for mut card in cards {
+                    let existing = col.storage.get_card(card.id)?.ok_or(AnkiError::NotFound)?;
+                    col.update_card_inner(&mut card, existing, col.usn()?)?;
+                }
                 Ok(OpOutput {
                     output: (),
                     changes: OpChanges {
