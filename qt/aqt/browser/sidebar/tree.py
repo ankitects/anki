@@ -193,7 +193,7 @@ class SidebarTreeView(QTreeView):
             self.selectionModel().setCurrentIndex(
                 index, QItemSelectionModel.SelectCurrent
             )
-            self.scrollTo(index)
+            self.scrollTo(index, QAbstractItemView.PositionAtCenter)
 
     def find_item(
         self,
@@ -249,7 +249,7 @@ class SidebarTreeView(QTreeView):
                         self.selectionModel().setCurrentIndex(
                             idx, QItemSelectionModel.SelectCurrent
                         )
-                        self.scrollTo(idx)
+                        self.scrollTo(idx, QAbstractItemView.PositionAtCenter)
                         scroll_to_first_match = False
 
         expand_node(parent or QModelIndex())
