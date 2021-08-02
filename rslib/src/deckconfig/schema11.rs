@@ -29,8 +29,11 @@ pub struct DeckConfSchema11 {
     timer: u8,
     #[serde(default)]
     replayq: bool,
+    #[serde(deserialize_with = "default_on_invalid")]
     pub(crate) new: NewConfSchema11,
+    #[serde(deserialize_with = "default_on_invalid")]
     pub(crate) rev: RevConfSchema11,
+    #[serde(deserialize_with = "default_on_invalid")]
     pub(crate) lapse: LapseConfSchema11,
     #[serde(rename = "dyn", default, deserialize_with = "default_on_invalid")]
     dynamic: bool,
