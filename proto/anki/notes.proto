@@ -15,7 +15,7 @@ service NotesService {
   rpc AddNote(AddNoteRequest) returns (AddNoteResponse);
   rpc DefaultsForAdding(DefaultsForAddingRequest) returns (DeckAndNotetype);
   rpc DefaultDeckForNotetype(notetypes.NotetypeId) returns (decks.DeckId);
-  rpc UpdateNote(UpdateNoteRequest) returns (collection.OpChanges);
+  rpc UpdateNotes(UpdateNotesRequest) returns (collection.OpChanges);
   rpc GetNote(NoteId) returns (Note);
   rpc RemoveNotes(RemoveNotesRequest) returns (collection.OpChangesWithCount);
   rpc ClozeNumbersInNote(Note) returns (ClozeNumbersInNoteResponse);
@@ -56,8 +56,8 @@ message AddNoteResponse {
   collection.OpChanges changes = 2;
 }
 
-message UpdateNoteRequest {
-  Note note = 1;
+message UpdateNotesRequest {
+  repeated Note notes = 1;
   bool skip_undo_entry = 2;
 }
 

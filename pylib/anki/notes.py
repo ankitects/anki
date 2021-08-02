@@ -79,8 +79,8 @@ class Note(DeprecatedNamesMixin):
         """This preserves any current checkpoint.
         For an undo entry, use col.update_note() instead."""
         assert self.id != 0
-        self.col._backend.update_note(
-            note=self._to_backend_note(), skip_undo_entry=True
+        self.col._backend.update_notes(
+            notes=[self._to_backend_note()], skip_undo_entry=True
         )
 
     def joined_fields(self) -> str:

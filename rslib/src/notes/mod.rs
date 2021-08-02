@@ -348,19 +348,26 @@ impl Collection {
 
     #[cfg(test)]
     pub(crate) fn update_note(&mut self, note: &mut Note) -> Result<OpOutput<()>> {
-        self.update_note_maybe_undoable(note, true)
+        self.transact(Op::UpdateNote, |col| col.update_note_inner(note))
     }
 
-    pub(crate) fn update_note_maybe_undoable(
+    pub(crate) fn update_notes_maybe_undoable(
         &mut self,
-        note: &mut Note,
+        notes: Vec<Note>,
         undoable: bool,
     ) -> Result<OpOutput<()>> {
         if undoable {
-            self.transact(Op::UpdateNote, |col| col.update_note_inner(note))
+            self.transact(Op::UpdateNote, |col| {
+                for mut note in notes {
+                    col.update_note_inner(&mut note)?;
+                }
+                Ok(())
+            })
         } else {
             self.transact_no_undo(|col| {
-                col.update_note_inner(note)?;
+                for mut note in notes {
+                    col.update_note_inner(&mut note)?;
+                }
                 Ok(OpOutput {
                     output: (),
                     changes: OpChanges {

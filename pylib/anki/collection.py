@@ -329,12 +329,17 @@ class Collection(DeprecatedNamesMixin):
     def get_note(self, id: NoteId) -> Note:
         return Note(self, id=id)
 
+    def update_notes(self, notes: Sequence[Note]) -> OpChanges:
+        """Save note changes to database, and add an undo entry.
+        Unlike note.flush(), this will invalidate any current checkpoint."""
+        return self._backend.update_notes(
+            notes=[n._to_backend_note() for n in notes], skip_undo_entry=False
+        )
+
     def update_note(self, note: Note) -> OpChanges:
         """Save note changes to database, and add an undo entry.
         Unlike note.flush(), this will invalidate any current checkpoint."""
-        return self._backend.update_note(
-            note=note._to_backend_note(), skip_undo_entry=False
-        )
+        return self.update_notes([note])
 
     getCard = get_card
     getNote = get_note
