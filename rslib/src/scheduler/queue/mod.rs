@@ -26,8 +26,9 @@ pub(crate) struct CardQueues {
     selected_deck: DeckId,
     current_day: u32,
     learn_ahead_secs: i64,
-    /// Updated each time a card is answered. Ensures we don't show a newly-due
-    /// learning card after a user returns from editing a review card.
+    /// Updated each time a card is answered, and by get_queued_cards() when the
+    /// counts are zero. Ensures we don't show a newly-due learning card after a
+    /// user returns from editing a review card.
     current_learning_cutoff: TimestampSecs,
 }
 
@@ -36,6 +37,12 @@ pub struct Counts {
     pub new: usize,
     pub learning: usize,
     pub review: usize,
+}
+
+impl Counts {
+    fn all_zero(self) -> bool {
+        self.new == 0 && self.learning == 0 && self.review == 0
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -148,7 +155,14 @@ impl CardQueues {
         }
     }
 
-    pub(crate) fn counts(&self) -> Counts {
+    /// Return the current due counts. If there are no due cards, the learning
+    /// cutoff is updated to the current time first, and any newly-due learning
+    /// cards are added to the counts.
+    pub(crate) fn counts(&mut self) -> Counts {
+        if self.counts.all_zero() {
+            // we discard the returned undo information in this case
+            self.update_learning_cutoff_and_count();
+        }
         self.counts
     }
 
@@ -179,7 +193,7 @@ impl Collection {
         if let Some(queues) = &mut self.state.card_queues {
             let entry = queues.pop_entry(card.id)?;
             let requeued_learning = queues.maybe_requeue_learning_card(card, timing);
-            let cutoff_change = queues.check_for_newly_due_intraday_learning();
+            let cutoff_change = queues.update_learning_cutoff_and_count();
             self.save_queue_update_undo(Box::new(QueueUpdate {
                 entry,
                 learning_requeue: requeued_learning,
