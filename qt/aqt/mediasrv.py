@@ -274,6 +274,8 @@ def set_graph_preferences() -> None:
 
 
 def congrats_info() -> bytes:
+    if not aqt.mw.col.sched._is_finished():
+        aqt.mw.taskman.run_on_main(lambda: aqt.mw.moveToState("review"))
     return aqt.mw.col.congrats_info()
 
 

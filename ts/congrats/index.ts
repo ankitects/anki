@@ -11,8 +11,13 @@ export async function congrats(target: HTMLDivElement): Promise<void> {
     checkNightMode();
     await setupI18n({ modules: [ModuleName.SCHEDULING] });
     const info = await getCongratsInfo();
-    new CongratsPage({
+    const page = new CongratsPage({
         target,
         props: { info },
     });
+    setInterval(() => {
+        getCongratsInfo().then((info) => {
+            page.$set({ info });
+        });
+    }, 60000);
 }
