@@ -21,10 +21,14 @@ impl CardsService for Backend {
         })
     }
 
-    fn update_card(&self, input: pb::UpdateCardRequest) -> Result<pb::OpChanges> {
+    fn update_cards(&self, input: pb::UpdateCardsRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| {
-            let mut card: Card = input.card.ok_or(AnkiError::NotFound)?.try_into()?;
-            col.update_card_maybe_undoable(&mut card, !input.skip_undo_entry)
+            let cards = input
+                .cards
+                .into_iter()
+                .map(TryInto::try_into)
+                .collect::<Result<Vec<Card>, AnkiError>>()?;
+            col.update_cards_maybe_undoable(cards, !input.skip_undo_entry)
         })
         .map(Into::into)
     }

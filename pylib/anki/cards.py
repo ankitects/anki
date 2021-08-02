@@ -114,8 +114,8 @@ class Card(DeprecatedNamesMixin):
     def flush(self) -> None:
         hooks.card_will_flush(self)
         if self.id != 0:
-            self.col._backend.update_card(
-                card=self._to_backend_card(), skip_undo_entry=True
+            self.col._backend.update_cards(
+                cards=[self._to_backend_card()], skip_undo_entry=True
             )
         else:
             raise Exception("card.flush() expects an existing card")
