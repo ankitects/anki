@@ -40,7 +40,7 @@ impl CardQueues {
             learning_count: self.counts.learning,
             learning_cutoff: self.current_learning_cutoff,
         };
-        let cutoff = self.current_learning_cutoff;
+        self.current_learning_cutoff = TimestampSecs::now();
         let ahead_cutoff = self.current_learn_ahead_cutoff();
         let new_learning_cards = self
             .intraday_learning
@@ -49,7 +49,6 @@ impl CardQueues {
             .take_while(|e| e.due <= ahead_cutoff)
             .count();
         self.counts.learning += new_learning_cards;
-        self.current_learning_cutoff = cutoff;
 
         Box::new(change)
     }
