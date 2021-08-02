@@ -402,6 +402,14 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
 
             return new_state
 
+        elif cmd.startswith("lastTextColor"):
+            (_, textColor) = cmd.split(":", 1)
+            self.mw.pm.profile["lastTextColor"] = textColor
+
+        elif cmd.startswith("lastHighlightColor"):
+            (_, highlightColor) = cmd.split(":", 1)
+            self.mw.pm.profile["lastHighlightColor"] = highlightColor
+
         elif cmd in self._links:
             self._links[cmd](self)
 
@@ -454,11 +462,15 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
                 self.web.setFocus()
             gui_hooks.editor_did_load_note(self)
 
-        js = "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s);" % (
+        text_color = self.mw.pm.profile.get("lastTextColor", "#00f")
+        highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#00f")
+
+        js = "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s); setColorButtons(%s);" % (
             json.dumps(data),
             json.dumps(self.fonts()),
             json.dumps(focusTo),
             json.dumps(self.note.id),
+            json.dumps([text_color, highlight_color]),
         )
 
         if self.addMode:
