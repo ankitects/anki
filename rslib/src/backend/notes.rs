@@ -49,10 +49,14 @@ impl NotesService for Backend {
         })
     }
 
-    fn update_note(&self, input: pb::UpdateNoteRequest) -> Result<pb::OpChanges> {
+    fn update_notes(&self, input: pb::UpdateNotesRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| {
-            let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
-            col.update_note_maybe_undoable(&mut note, !input.skip_undo_entry)
+            let notes = input
+                .notes
+                .into_iter()
+                .map(Into::into)
+                .collect::<Vec<Note>>();
+            col.update_notes_maybe_undoable(notes, !input.skip_undo_entry)
         })
         .map(Into::into)
     }
