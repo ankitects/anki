@@ -151,11 +151,13 @@ class Browser(QMainWindow):
                         return
                     self.editor.set_note(note)
 
-            self._renderPreview()
-
         if changes.browser_table and changes.card:
             self.card = self.table.get_current_card()
             self._update_context_actions()
+
+        # changes.card is required for updating flag icon
+        if changes.note_text or changes.card:
+            self._renderPreview()
 
     def on_focus_change(self, new: Optional[QWidget], old: Optional[QWidget]) -> None:
         if current_window() == self:
