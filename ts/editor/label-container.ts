@@ -2,10 +2,12 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { EditorField } from "./editor-field";
+import * as tr from "lib/i18n";
 
 import { registerShortcut } from "lib/shortcuts";
 import { bridgeCommand } from "./lib";
-import { getCurrentField, forEditorField } from ".";
+import { appendInParentheses } from "./helpers";
+import { getCurrentField, forEditorField, i18n } from ".";
 import pinIcon from "./pin-angle.svg";
 
 function toggleStickyCurrentField() {
@@ -36,6 +38,10 @@ export class LabelContainer extends HTMLDivElement {
     constructor() {
         super();
         this.className = "d-flex justify-content-between";
+
+        i18n.then(() => {
+            this.title = appendInParentheses(tr.editingToggleSticky(), "F9");
+        });
 
         this.label = document.createElement("span");
         this.label.className = "fieldname";
