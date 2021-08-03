@@ -65,3 +65,5 @@ export class EditorField extends HTMLDivElement {
         this.editingArea.setBaseStyling(fontFamily, fontSize, direction);
     }
 }
+
+customElements.define("anki-editor-field", EditorField, { extends: "div" });

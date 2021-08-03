@@ -1,10 +1,19 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { bridgeCommand } from "./lib";
-import { elementIsBlock, caretToEnd, getBlockElement } from "./helpers";
-import { inCodable } from "./toolbar";
-import { wrap } from "./wrap";
+import { bridgeCommand } from "lib/bridgecommand";
+import { elementIsBlock, getBlockElement } from "lib/dom";
+// import { inCodable } from "./toolbar";
+// import { wrap } from "./wrap";
+
+export function caretToEnd(node: Node): void {
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    range.collapse(false);
+    const selection = (node.getRootNode() as Document | ShadowRoot).getSelection()!;
+    selection.removeAllRanges();
+    selection.addRange(range);
+}
 
 function containsInlineContent(element: Element): boolean {
     for (const child of element.children) {
@@ -37,7 +46,8 @@ export class Editable extends HTMLElement {
 
     focus(): void {
         super.focus();
-        inCodable.set(false);
+        // TODO
+        // inCodable.set(false);
     }
 
     caretToEnd(): void {
@@ -45,7 +55,8 @@ export class Editable extends HTMLElement {
     }
 
     surroundSelection(before: string, after: string): void {
-        wrap(before, after);
+        // TODO
+        // wrap(before, after);
     }
 
     onEnter(event: KeyboardEvent): void {
@@ -63,3 +74,5 @@ export class Editable extends HTMLElement {
         event.preventDefault();
     }
 }
+
+customElements.define("anki-editable", Editable);

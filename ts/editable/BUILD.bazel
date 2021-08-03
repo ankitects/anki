@@ -1,0 +1,102 @@
+load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
+load("//ts:prettier.bzl", "prettier_test")
+load("//ts:eslint.bzl", "eslint_test")
+load("//ts:esbuild.bzl", "esbuild")
+load("//ts:vendor.bzl", "copy_bootstrap_icons", "copy_mdi_icons")
+load("//ts:compile_sass.bzl", "compile_sass")
+
+svelte_files = glob(["*.svelte"])
+
+svelte_names = [f.replace(".svelte", "") for f in svelte_files]
+
+filegroup(
+    name = "svelte_components",
+    srcs = svelte_names,
+    visibility = ["//visibility:public"],
+)
+
+compile_svelte(
+    name = "svelte",
+    srcs = svelte_files,
+    visibility = ["//visibility:public"],
+    deps = [
+        "//ts/components",
+    ],
+)
+
+compile_sass(
+    srcs = [
+        "editable-base.scss",
+    ],
+    group = "editable_scss",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//ts/sass:scrollbar_lib",
+        "//ts/sass/codemirror",
+    ],
+)
+
+ts_library(
+    name = "editable",
+    srcs = glob(["*.ts"]),
+    module_name = "editable",
+    tsconfig = "//ts:tsconfig.json",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//ts/lib",
+        "//ts/sveltelib",
+        "//ts/components",
+        "//ts:image_module_support",
+        "@npm//svelte",
+    ] + svelte_names,
+)
+
+esbuild(
+    name = "editable-build",
+    args = [
+        "--loader:.svg=text",
+        "--resolve-extensions=.mjs,.js",
+        "--log-level=warning",
+    ],
+    entry_point = "index.ts",
+    output_css = "editable-build.css",
+    visibility = ["//visibility:public"],
+    deps = [
+        "editable_ts",
+        "svelte_components",
+        "//ts/components",
+        "//ts/components:svelte_components",
+        "@npm//protobufjs",
+    ],
+)
+
+# Tests
+################
+
+prettier_test(
+    name = "format_check",
+    srcs = glob([
+        "*.ts",
+        "*.svelte",
+    ]),
+)
+
+eslint_test(
+    name = "eslint",
+    srcs = glob(
+        [
+            "*.ts",
+        ],
+    ),
+)
+
+svelte_check(
+    name = "svelte_check",
+    srcs = glob([
+        "*.ts",
+        "*.svelte",
+    ]) + [
+        "//ts/components",
+    ],
+)

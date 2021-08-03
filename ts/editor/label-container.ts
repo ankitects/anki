@@ -127,3 +127,5 @@ export class LabelContainer extends HTMLDivElement {
         this.toggleSticky();
     }
 }
+
+customElements.define("anki-label-container", LabelContainer, { extends: "div" });

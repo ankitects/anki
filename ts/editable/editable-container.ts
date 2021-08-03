@@ -57,3 +57,5 @@ export class EditableContainer extends HTMLDivElement {
         return this.baseRule!.style.direction === "rtl";
     }
 }
+
+customElements.define("anki-editable-container", EditableContainer, { extends: "div" });

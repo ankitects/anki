@@ -13,22 +13,23 @@ import type EditorToolbar from "./EditorToolbar.svelte";
 import type TagEditor from "./TagEditor.svelte";
 
 import { filterHTML } from "html-filter";
-import { updateActiveButtons } from "./toolbar";
 import { setupI18n, ModuleName } from "lib/i18n";
 import { isApplePlatform } from "lib/platform";
 import { registerShortcut } from "lib/shortcuts";
 import { bridgeCommand } from "lib/bridgecommand";
+import { updateActiveButtons } from "./toolbar";
+import { saveField } from "./change-timer";
 
 import "./fields.css";
 
-import { saveField } from "./change-timer";
-
-import { EditorField } from "./editor-field";
-import { LabelContainer } from "./label-container";
+import "editable/editable";
+import "editable/editable-container";
+import "./label-container";
+import "./codable";
+import "./editor-field";
+import type { EditorField } from "./editor-field";
 import { EditingArea } from "./editing-area";
-import { EditableContainer } from "./editable-container";
-import { Editable } from "./editable";
-import { Codable } from "./codable";
+
 import { initToolbar, fieldFocused } from "./toolbar";
 import { initTagEditor } from "./tag-editor";
 import { getCurrentField } from "./helpers";
@@ -49,13 +50,6 @@ declare global {
         getRangeAt(n: number): Range;
     }
 }
-
-customElements.define("anki-editable", Editable);
-customElements.define("anki-editable-container", EditableContainer, { extends: "div" });
-customElements.define("anki-codable", Codable, { extends: "textarea" });
-customElements.define("anki-editing-area", EditingArea, { extends: "div" });
-customElements.define("anki-label-container", LabelContainer, { extends: "div" });
-customElements.define("anki-editor-field", EditorField, { extends: "div" });
 
 if (isApplePlatform()) {
     registerShortcut(() => bridgeCommand("paste"), "Control+Shift+V");

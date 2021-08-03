@@ -8,8 +8,8 @@
 
 import ImageHandle from "./ImageHandle.svelte";
 
-import type { EditableContainer } from "./editable-container";
-import type { Editable } from "./editable";
+import type { EditableContainer } from "editable/editable-container";
+import type { Editable } from "editable/editable";
 import type { Codable } from "./codable";
 
 import { updateActiveButtons } from "./toolbar";
@@ -254,3 +254,5 @@ export class EditingArea extends HTMLDivElement {
         blur();
     }
 }
+
+customElements.define("anki-editing-area", EditingArea, { extends: "div" });
