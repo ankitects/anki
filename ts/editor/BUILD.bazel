@@ -27,18 +27,6 @@ compile_svelte(
 
 compile_sass(
     srcs = [
-        "editable.scss",
-    ],
-    group = "editable_scss",
-    visibility = ["//visibility:public"],
-    deps = [
-        "//ts/sass:scrollbar_lib",
-        "//ts/sass/codemirror",
-    ],
-)
-
-compile_sass(
-    srcs = [
         "fields.scss",
     ],
     group = "base_css",
@@ -71,6 +59,7 @@ ts_library(
         "//ts/lib",
         "//ts/sveltelib",
         "//ts/components",
+        "//ts/editable",
         "//ts/html-filter",
         "//ts:image_module_support",
         "@npm//svelte",
@@ -156,6 +145,7 @@ esbuild(
         "bootstrap-icons",
         "mdi-icons",
         "svelte_components",
+        "//ts/editable",
         "//ts/components",
         "//ts/components:svelte_components",
         "@npm//protobufjs",

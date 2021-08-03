@@ -88,3 +88,5 @@ export class Codable extends HTMLTextAreaElement {
         /* default */
     }
 }
+
+customElements.define("anki-codable", Codable, { extends: "textarea" });

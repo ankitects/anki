@@ -5,9 +5,9 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
+import { nodeIsElement } from "lib/dom";
 import { updateActiveButtons } from "./toolbar";
 import { EditingArea } from "./editing-area";
-import { nodeIsElement } from "./helpers";
 import { triggerChangeTimer } from "./change-timer";
 import { registerShortcut } from "lib/shortcuts";
 
