@@ -39,6 +39,7 @@ editing-subscript = Subscript
 editing-superscript = Superscript
 editing-tags = Tags
 editing-to-make-a-cloze-deletion-on = To make a cloze deletion on an existing note, you need to change it to a cloze type first, via 'Notes>Change Note Type'
+editing-toggle-sticky = Toggle sticky
 editing-underline-text = Underline text
 editing-unordered-list = Unordered list
 editing-warning-cloze-deletions-will-not-work = Warning, cloze deletions will not work until you switch the type at the top to Cloze.
