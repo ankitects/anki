@@ -148,6 +148,7 @@ esbuild(
         "//ts/editable",
         "//ts/components",
         "//ts/components:svelte_components",
+        "//ts/editable:svelte_components",
         "@npm//protobufjs",
     ],
 )
