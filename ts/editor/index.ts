@@ -22,13 +22,14 @@ import { saveField } from "./change-timer";
 
 import "./fields.css";
 
-import "editable/editable";
-import "editable/editable-container";
 import "./label-container";
 import "./codable";
 import "./editor-field";
 import type { EditorField } from "./editor-field";
 import { EditingArea } from "./editing-area";
+import "editable/editable-container";
+import "editable/editable";
+import "editable/mathjax-components";
 
 import { initToolbar, fieldFocused } from "./toolbar";
 import { initTagEditor } from "./tag-editor";

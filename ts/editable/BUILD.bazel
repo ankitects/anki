@@ -49,6 +49,7 @@ ts_library(
         "//ts/components",
         "//ts:image_module_support",
         "@npm//svelte",
+        "@npm//mathjax-full",
     ] + svelte_names,
 )
 
@@ -63,7 +64,7 @@ esbuild(
     output_css = "editable-build.css",
     visibility = ["//visibility:public"],
     deps = [
-        "editable_ts",
+        "editable",
         "svelte_components",
         "//ts/components",
         "//ts/components:svelte_components",
