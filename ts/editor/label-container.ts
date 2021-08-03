@@ -10,7 +10,7 @@ import { appendInParentheses } from "./helpers";
 import { getCurrentField, forEditorField, i18n } from ".";
 import pinIcon from "./pin-angle.svg";
 
-function toggleStickyCurrentField() {
+function toggleStickyCurrentField(): void {
     const currentField = getCurrentField();
 
     if (currentField) {
@@ -20,13 +20,13 @@ function toggleStickyCurrentField() {
     }
 }
 
-function toggleStickyAll() {
+function toggleStickyAll(): void {
     bridgeCommand("toggleStickyAll", (values: boolean[]) =>
         forEditorField(values, (field, value) => field.labelContainer.setSticky(value))
     );
 }
 
-export function activateStickyShortcuts() {
+export function activateStickyShortcuts(): void {
     registerShortcut(toggleStickyCurrentField, "F9");
     registerShortcut(toggleStickyAll, "Shift+F9");
 }
