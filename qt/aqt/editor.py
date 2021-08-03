@@ -389,6 +389,22 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             self.currentField = int(num)
             gui_hooks.editor_did_focus_field(self.note, self.currentField)
 
+        elif cmd.startswith("toggleStickyAll"):
+            model = self.note.note_type()
+            flds = model["flds"]
+
+            any_sticky = any([fld["sticky"] for fld in flds])
+            result = []
+            for fld in flds:
+                if not any_sticky or fld["sticky"]:
+                    fld["sticky"] = not fld["sticky"]
+
+                result.append(fld["sticky"])
+
+            update_notetype_legacy(parent=self.mw, notetype=model).run_in_background()
+
+            return result
+
         elif cmd.startswith("toggleSticky"):
             (type, num) = cmd.split(":", 1)
             ord = int(num)
