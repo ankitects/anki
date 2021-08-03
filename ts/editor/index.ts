@@ -28,6 +28,7 @@ export { setNoteId, getNoteId } from "./note-id";
 export { saveNow } from "./change-timer";
 export { wrap, wrapIntoText } from "./wrap";
 export { editorToolbar } from "./toolbar";
+export { activateStickyShortcuts } from "./label-container";
 export { components } from "./Components.svelte";
 
 declare global {
@@ -190,7 +191,7 @@ export function setFormat(cmd: string, arg?: string, nosave = false): void {
     }
 }
 
-const i18n = setupI18n({
+export const i18n = setupI18n({
     modules: [
         ModuleName.EDITING,
         ModuleName.KEYBOARD,
