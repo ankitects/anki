@@ -20,7 +20,7 @@ export class EditableContainer extends HTMLDivElement {
 
         const rootStyle = document.createElement("link");
         rootStyle.setAttribute("rel", "stylesheet");
-        rootStyle.setAttribute("href", "./_anki/css/editable.css");
+        rootStyle.setAttribute("href", "./_anki/css/editable-build.css");
         shadow.appendChild(rootStyle);
 
         this.baseStyle = document.createElement("style");

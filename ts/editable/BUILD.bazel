@@ -65,6 +65,7 @@ esbuild(
     visibility = ["//visibility:public"],
     deps = [
         "editable",
+        "editable_scss",
         "svelte_components",
         "//ts/components",
         "//ts/components:svelte_components",
