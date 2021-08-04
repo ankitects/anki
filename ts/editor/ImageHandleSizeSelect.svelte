@@ -62,7 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return createPathRecursive([], element).join(" > ");
     }
 
-    export let images: HTMLImageElement[] = [];
+    export const images: HTMLImageElement[] = [];
 
     $: for (const [index, image] of images.entries()) {
         const rule = sheet.cssRules[index] as CSSStyleRule;
@@ -136,8 +136,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
         const rule = sheet.cssRules[index] as CSSStyleRule;
         setImageRule(image, rule);
-
-        images = images;
     }
 
     function addImageOnLoad(image: HTMLImageElement): void {
@@ -176,8 +174,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         for (const image of removedImages) {
             removeImage(image);
         }
-
-        images = images;
     });
 
     $: if (container) {
