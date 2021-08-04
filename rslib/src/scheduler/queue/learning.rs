@@ -164,7 +164,10 @@ impl CardQueues {
                     .current_learning_cutoff
                     .adding_secs(self.learn_ahead_secs)
             {
-                self.counts.learning -= 1;
+                // The saturating_sub() deals with a corner case: one remaining
+                // learning card, delayed so it doesn't appear twice. Will be
+                // within the current cutoff but not included in the count.
+                self.counts.learning = self.counts.learning.saturating_sub(1);
             }
             Some(entry)
         } else {
