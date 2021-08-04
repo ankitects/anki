@@ -8,16 +8,39 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let mathjax: string;
     export let type: "inline" | "block" | "chemistry";
 
-    $: delimiters = type === "inline" ? ["\\[", "\\]"] : ["\\(", "\\)"];
+    let edit = false;
+    $: delimiters = type === "inline" ? ["\\(", "\\)"] : ["\\[", "\\]"];
     $: converted = convertMathjax(`${delimiters[0]}${mathjax}${delimiters[1]}`);
+
+    function autofocus(element: HTMLElement): void {
+        element.focus();
+    }
 </script>
 
-<div on:click={console.log}>
-    {@html converted}
-</div>
+{#if edit}
+    {#if type === "block"}
+        <div
+            contenteditable="true"
+            bind:innerHTML={mathjax}
+            on:blur={() => (edit = false)}
+            use:autofocus
+        />
+    {:else}
+        <span
+            contenteditable="true"
+            bind:innerHTML={mathjax}
+            on:blur={() => (edit = false)}
+            use:autofocus
+        />
+    {/if}
+{:else}
+    <div class="d-contents" on:click={() => (edit = true)}>
+        {@html converted}
+    </div>
+{/if}
 
 <style lang="scss">
-    div {
+    .d-contents {
         display: contents;
     }
 </style>
