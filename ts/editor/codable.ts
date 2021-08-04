@@ -2,7 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import * as CodeMirror from "codemirror/lib/codemirror";
+import "codemirror/mode/python/python";
 import "codemirror/mode/htmlmixed/htmlmixed";
+import "codemirror/mode/stex/stex";
 import "codemirror/addon/fold/foldcode";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/xml-fold";
@@ -11,8 +13,22 @@ import "codemirror/addon/edit/closetag.js";
 
 import { inCodable } from "./toolbar";
 
+const latex = {
+    name: "stex",
+    inMathMode: true,
+};
+
+const htmlanki = {
+    name: "htmlmixed",
+    tags: {
+        "anki-mathjax-inline": [[null, null, latex]],
+        "anki-mathjax-block": [[null, null, latex]],
+        "anki-mathjax-chemistry": [[null, null, latex]],
+    },
+};
+
 const codeMirrorOptions = {
-    mode: "htmlmixed",
+    mode: htmlanki,
     theme: "monokai",
     lineNumbers: true,
     lineWrapping: true,
