@@ -70,7 +70,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 continue;
             }
 
-            if (node.tagName === "IMG") {
+            if (node.tagName === "IMG" && !(node as HTMLElement).dataset.anki) {
                 result.push(node as HTMLImageElement);
             } else {
                 result.push(...filterImages(node.children));
