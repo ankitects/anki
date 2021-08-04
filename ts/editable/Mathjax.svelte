@@ -8,39 +8,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let mathjax: string;
     export let type: "inline" | "block" | "chemistry";
 
-    let edit = false;
-    $: delimiters = type === "inline" ? ["\\(", "\\)"] : ["\\[", "\\]"];
-    $: converted = convertMathjax(`${delimiters[0]}${mathjax}${delimiters[1]}`);
-
-    function autofocus(element: HTMLElement): void {
-        element.focus();
-    }
+    $: converted = convertMathjax(mathjax);
+    $: encoded = encodeURIComponent(converted);
 </script>
 
-{#if edit}
-    {#if type === "block"}
-        <div
-            contenteditable="true"
-            bind:innerHTML={mathjax}
-            on:blur={() => (edit = false)}
-            use:autofocus
-        />
-    {:else}
-        <span
-            contenteditable="true"
-            bind:innerHTML={mathjax}
-            on:blur={() => (edit = false)}
-            use:autofocus
-        />
-    {/if}
-{:else}
-    <div class="d-contents" on:click={() => (edit = true)}>
-        {@html converted}
-    </div>
-{/if}
+<img
+    src="data:image/svg+xml,{encoded}"
+    class:block={type === "block"}
+    alt="Mathjax"
+    data-anki="mathjax"
+    data-mathjax={mathjax}
+/>
 
 <style lang="scss">
-    .d-contents {
-        display: contents;
+    img {
+        vertical-align: middle;
+
+        &.block {
+            display: block;
+            text-align: center;
+        }
     }
 </style>

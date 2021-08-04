@@ -1,38 +1,16 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { mathjax } from "mathjax-full/js/mathjax";
-import { TeX } from "mathjax-full/js/input/tex";
-import { CHTML } from "mathjax-full/js/output/chtml";
-import { HTMLAdaptor } from "mathjax-full/js/adaptors/HTMLAdaptor";
-import { RegisterHTMLHandler } from "mathjax-full/js/handlers/html";
-
-import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
-import "mathjax-full/js/util/entities/all";
-
-// @ts-expect-error Minor interface mismatch: document.documentElement.nodeValue might be null
-const adaptor = new HTMLAdaptor(window);
-RegisterHTMLHandler(adaptor);
-
-const texOptions = {
-    displayMath: [["\\[", "\\]"]],
-    processRefs: false,
-    processEnvironments: false,
-    processEscapes: false,
-    packages: AllPackages,
-};
+import "mathjax/es5/tex-svg-full";
 
 export function convertMathjax(input: string): string {
-    const tex = new TeX(texOptions);
-    const chtml = new CHTML({
-        fontURL: "/_anki/js/vendor/mathjax/output/chtml/fonts/woff-v2",
-    });
+    const svg = globalThis.MathJax.tex2svg(input).children[0];
 
-    const html = mathjax.document(input, { InputJax: tex, OutputJax: chtml });
-    html.render();
+    const style = document.createElement("style") as HTMLStyleElement;
 
-    return (
-        adaptor.innerHTML(adaptor.head(html.document)) +
-        adaptor.innerHTML(adaptor.body(html.document))
-    );
+    const styles = `svg { color: white; font-size: 24px; }`;
+    style.appendChild(document.createTextNode(styles));
+
+    svg.insertBefore(style, svg.children[0]);
+    return svg.outerHTML;
 }

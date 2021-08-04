@@ -6,8 +6,6 @@ class MathjaxInline extends HTMLElement {
     }
 
     decorate(): void {
-        this.contentEditable = "false";
-
         const mathjax = (this.dataset.mathjax = this.innerText);
         const type = "inline";
         this.innerHTML = "";
@@ -19,7 +17,6 @@ class MathjaxInline extends HTMLElement {
     }
 
     undecorate(): void {
-        this.removeAttribute("contentEditable");
         this.innerHTML = this.dataset.mathjax ?? "";
         delete this.dataset.mathjax;
     }
@@ -33,8 +30,6 @@ class MathjaxBlock extends HTMLElement {
     }
 
     decorate(): void {
-        this.contentEditable = "false";
-
         const mathjax = (this.dataset.mathjax = this.innerText);
         const type = "block";
         this.innerHTML = "";
@@ -46,7 +41,6 @@ class MathjaxBlock extends HTMLElement {
     }
 
     undecorate(): void {
-        this.removeAttribute("contentEditable");
         this.innerHTML = this.dataset.mathjax ?? "";
         delete this.dataset.mathjax;
     }
