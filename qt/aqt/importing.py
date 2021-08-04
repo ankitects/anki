@@ -119,7 +119,7 @@ class ImportDialog(QDialog):
         self.deck = aqt.deckchooser.DeckChooser(self.mw, self.frm.deckArea, label=False)
 
     def modelChanged(self, unused: Any = None) -> None:
-        self.importer.note_type = self.mw.col.models.current()
+        self.importer.model = self.mw.col.models.current()
         self.importer.initMapping()
         self.showMapping()
 
@@ -192,9 +192,9 @@ class ImportDialog(QDialog):
         self.importer.tagModified = self.frm.tagModified.text()
         self.mw.pm.profile["tagModified"] = self.importer.tagModified
         self.mw.col.set_aux_notetype_config(
-            self.importer.note_type["id"], "lastDeck", self.deck.selected_deck_id
+            self.importer.model["id"], "lastDeck", self.deck.selected_deck_id
         )
-        self.mw.col.models.save(self.importer.note_type, updateReqs=False)
+        self.mw.col.models.save(self.importer.model, updateReqs=False)
         self.mw.progress.start()
         self.mw.checkpoint(tr.actions_import())
 
@@ -274,7 +274,7 @@ class ImportDialog(QDialog):
             qconnect(button.clicked, lambda _, s=self, n=num: s.changeMappingNum(n))
 
     def changeMappingNum(self, n: int) -> None:
-        f = ChangeMap(self.mw, self.importer.note_type, self.mapping[n]).getField()
+        f = ChangeMap(self.mw, self.importer.model, self.mapping[n]).getField()
         try:
             # make sure we don't have it twice
             index = self.mapping.index(f)
