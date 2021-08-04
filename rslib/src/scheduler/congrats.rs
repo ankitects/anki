@@ -15,8 +15,7 @@ pub(crate) struct CongratsInfo {
 
 impl Collection {
     pub fn congrats_info(&mut self) -> Result<pb::CongratsInfoResponse> {
-        let did = self.get_current_deck_id();
-        let deck = self.get_deck(did)?.ok_or(AnkiError::NotFound)?;
+        let deck = self.get_current_deck()?;
         let today = self.timing_today()?.days_elapsed;
         let info = self.storage.congrats_info(&deck, today)?;
         let is_filtered_deck = deck.is_filtered();
