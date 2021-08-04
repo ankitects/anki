@@ -62,7 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return createPathRecursive([], element).join(" > ");
     }
 
-    export const images: HTMLImageElement[] = [];
+    export let images: HTMLImageElement[] = [];
 
     $: for (const [index, image] of images.entries()) {
         const rule = sheet.cssRules[index] as CSSStyleRule;
