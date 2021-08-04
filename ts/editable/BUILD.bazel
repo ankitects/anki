@@ -50,6 +50,7 @@ ts_library(
         "//ts:image_module_support",
         "@npm//svelte",
         "@npm//mathjax-full",
+        "@npm//mathjax",
     ] + svelte_names,
 )
 
