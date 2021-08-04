@@ -26,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         &.block {
             display: block;
-            text-align: center;
+            margin: auto;
         }
     }
 </style>
