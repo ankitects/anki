@@ -12,4 +12,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: converted = convertMathjax(`${delimiters[0]}${mathjax}${delimiters[1]}`);
 </script>
 
-{@html converted}
+<div on:click={console.log}>
+    {@html converted}
+</div>
+
+<style lang="scss">
+    div {
+        display: contents;
+    }
+</style>

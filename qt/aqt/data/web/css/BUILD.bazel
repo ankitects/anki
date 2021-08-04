@@ -47,6 +47,7 @@ filegroup(
     srcs = [
         "css_local",
         "editor",
+        "editable",
         "reviewer",
     ],
     visibility = ["//qt:__subpackages__"],
