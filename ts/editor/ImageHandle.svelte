@@ -8,8 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ImageHandleFloat from "./ImageHandleFloat.svelte";
     import ImageHandleSizeSelect from "./ImageHandleSizeSelect.svelte";
 
-    import { onDestroy, getContext, tick } from "svelte";
-    import { nightModeKey } from "components/context-keys";
+    import { onDestroy, tick } from "svelte";
 
     export let container: HTMLElement;
     export let sheet: CSSStyleSheet;
@@ -185,8 +184,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function onDblclick() {
         sizeSelect.toggleActualSize();
     }
-
-    const nightMode = getContext(nightModeKey);
 
     onDestroy(() => resizeObserver.disconnect());
 </script>
