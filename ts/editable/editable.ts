@@ -25,6 +25,8 @@ function containsInlineContent(element: Element): boolean {
     return true;
 }
 
+const components = ["anki-mathjax-block", "anki-mathjax-inline"];
+
 export class Editable extends HTMLElement {
     set fieldHTML(content: string) {
         this.innerHTML = content;
@@ -35,9 +37,17 @@ export class Editable extends HTMLElement {
     }
 
     get fieldHTML(): string {
-        return containsInlineContent(this) && this.innerHTML.endsWith("<br>")
-            ? this.innerHTML.slice(0, -4) // trim trailing <br>
-            : this.innerHTML;
+        const clone = this.cloneNode(true) as Element;
+
+        for (const component of components) {
+            for (const element of clone.getElementsByTagName(component)) {
+                (element as any).undecorate();
+            }
+        }
+
+        return containsInlineContent(clone) && this.innerHTML.endsWith("<br>")
+            ? clone.innerHTML.slice(0, -4) // trim trailing <br>
+            : clone.innerHTML;
     }
 
     connectedCallback(): void {

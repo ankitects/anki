@@ -1,35 +1,74 @@
-import MathjaxBlock_svelte from "./MathjaxBlock.svelte";
+import Mathjax_svelte from "./Mathjax.svelte";
 
-class MathjaxBlock extends HTMLElement {
+class MathjaxInline extends HTMLElement {
     connectedCallback() {
+        this.decorate();
+    }
+
+    decorate(): void {
         this.contentEditable = "false";
 
         const mathjax = (this.dataset.mathjax = this.innerText);
+        const type = "inline";
         this.innerHTML = "";
 
-        new MathjaxBlock_svelte({
+        new Mathjax_svelte({
             target: this,
-            props: { mathjax },
+            props: { mathjax, type },
         });
+    }
+
+    undecorate(): void {
+        this.removeAttribute("contentEditable");
+        this.innerHTML = this.dataset.mathjax ?? "";
+        delete this.dataset.mathjax;
     }
 }
 
-// customElements.define("anki-mathjax-inline", MathjaxInline);
+customElements.define("anki-mathjax-inline", MathjaxInline);
+
+class MathjaxBlock extends HTMLElement {
+    connectedCallback() {
+        this.decorate();
+    }
+
+    decorate(): void {
+        this.contentEditable = "false";
+
+        const mathjax = (this.dataset.mathjax = this.innerText);
+        const type = "block";
+        this.innerHTML = "";
+
+        new Mathjax_svelte({
+            target: this,
+            props: { mathjax, type },
+        });
+    }
+
+    undecorate(): void {
+        this.removeAttribute("contentEditable");
+        this.innerHTML = this.dataset.mathjax ?? "";
+        delete this.dataset.mathjax;
+    }
+}
+
 customElements.define("anki-mathjax-block", MathjaxBlock);
 
+// TODO mathjax regex will prob. fail at double quotes
 const mathjaxInlineTagPattern =
-    /<anki-mathjax-inline.*?>(.*?)<\/anki-mathjax-inline>/gsu;
-const mathjaxBlockTagPattern = /<anki-mathjax-block.*?>(.*?)<\/anki-mathjax-block>/gsu;
+    /<anki-mathjax-inline[^>]*?data-mathjax="(.*?)"[^>]*?>.*?<\/anki-mathjax-inline>/gsu;
+const mathjaxBlockTagPattern =
+    /<anki-mathjax-block[^>]*?data-mathjax="(.*?)"[^>]*?>.*?<\/anki-mathjax-block>/gsu;
 
 export function toMathjaxDelimiters(html: string): string {
     return html
         .replace(
             mathjaxInlineTagPattern,
-            (_match: string, text: string) => `\(${text}\)`
+            (_match: string, text: string) => `\\(${text}\\)`
         )
         .replace(
             mathjaxBlockTagPattern,
-            (_match: string, text: string) => `\[${text}\]`
+            (_match: string, text: string) => `\\[${text}\\]`
         );
 }
 
