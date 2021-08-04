@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import HandleSelection from "./HandleSelection.svelte";
+    import HandleControl from "./HandleControl.svelte";
     import ImageHandleFloat from "./ImageHandleFloat.svelte";
     import ImageHandleSizeSelect from "./ImageHandleSizeSelect.svelte";
 
@@ -117,30 +118,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let getDragWidth: (event: PointerEvent) => number;
     let getDragHeight: (event: PointerEvent) => number;
 
-    const setPointerCapture =
-        (north: boolean, west: boolean) =>
-        (event: PointerEvent): void => {
-            if (!active || event.pointerId !== 1) {
-                return;
-            }
+    function setPointerCapture({ detail }: CustomEvent): void {
+        if (!active || detail.originalEvent.pointerId !== 1) {
+            return;
+        }
 
-            const imageRect = activeImage!.getBoundingClientRect();
+        const imageRect = activeImage!.getBoundingClientRect();
 
-            const imageLeft = imageRect!.left;
-            const imageRight = imageRect!.right;
-            const [multX, imageX] = west ? [-1, imageRight] : [1, -imageLeft];
+        const imageLeft = imageRect!.left;
+        const imageRight = imageRect!.right;
+        const [multX, imageX] = detail.west ? [-1, imageRight] : [1, -imageLeft];
 
-            getDragWidth = ({ clientX }) => multX * clientX + imageX;
+        getDragWidth = ({ clientX }) => multX * clientX + imageX;
 
-            const imageTop = imageRect!.top;
-            const imageBottom = imageRect!.bottom;
-            const [multY, imageY] = north ? [-1, imageBottom] : [1, -imageTop];
+        const imageTop = imageRect!.top;
+        const imageBottom = imageRect!.bottom;
+        const [multY, imageY] = detail.north ? [-1, imageBottom] : [1, -imageTop];
 
-            getDragHeight = ({ clientY }) => multY * clientY + imageY;
+        getDragHeight = ({ clientY }) => multY * clientY + imageY;
 
-            stopObserving();
-            (event.target as Element).setPointerCapture(event.pointerId);
-        };
+        stopObserving();
+
+        const target = detail.originalEvent.target as Element;
+        target.setPointerCapture(detail.originalEvent.pointerId);
+    }
 
     $: [minResizeWidth, minResizeHeight] =
         aspectRatio > 1 ? [5 * aspectRatio, 5] : [5, 5 / aspectRatio];
@@ -242,39 +243,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {/if}
 
     {#if activeImage}
-        <div
-            class:nightMode
-            class:active
-            class="image-handle-control image-handle-control-nw"
-            on:mousedown|preventDefault
-            on:pointerdown={setPointerCapture(true, true)}
-            on:pointerup={startObserving}
-            on:pointermove={resize}
-        />
-        <div
-            class:nightMode
-            class:active
-            class="image-handle-control image-handle-control-ne"
-            on:mousedown|preventDefault
-            on:pointerdown={setPointerCapture(true, false)}
-            on:pointerup={startObserving}
-            on:pointermove={resize}
-        />
-        <div
-            class:nightMode
-            class:active
-            class="image-handle-control image-handle-control-sw"
-            on:mousedown|preventDefault
-            on:pointerdown={setPointerCapture(false, true)}
-            on:pointerup={startObserving}
-            on:pointermove={resize}
-        />
-        <div
-            class:nightMode
-            class:active
-            class="image-handle-control image-handle-control-se"
-            on:mousedown|preventDefault
-            on:pointerdown={setPointerCapture(false, false)}
+        <HandleControl
+            {active}
+            on:pointerclick={setPointerCapture}
             on:pointerup={startObserving}
             on:pointermove={resize}
         />
@@ -284,13 +255,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     div {
         position: absolute;
-    }
-
-    .image-handle-selection {
-        top: var(--top);
-        left: var(--left);
-        width: var(--width);
-        height: var(--height);
     }
 
     .image-handle-bg {
@@ -341,68 +305,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             left: 3px;
             margin-right: 3px;
             margin-left: var(--overflow-fix, 0);
-        }
-    }
-
-    .image-handle-control {
-        width: 7px;
-        height: 7px;
-        border: 1px solid black;
-
-        &.active {
-            background-color: black;
-        }
-
-        &.nightMode {
-            border-color: white;
-
-            &.active {
-                background-color: white;
-            }
-        }
-    }
-
-    .image-handle-control-nw {
-        top: -5px;
-        left: -5px;
-        border-bottom: none;
-        border-right: none;
-
-        &.active {
-            cursor: nw-resize;
-        }
-    }
-
-    .image-handle-control-ne {
-        top: -5px;
-        right: -5px;
-        border-bottom: none;
-        border-left: none;
-
-        &.active {
-            cursor: ne-resize;
-        }
-    }
-
-    .image-handle-control-sw {
-        bottom: -5px;
-        left: -5px;
-        border-top: none;
-        border-right: none;
-
-        &.active {
-            cursor: sw-resize;
-        }
-    }
-
-    .image-handle-control-se {
-        bottom: -5px;
-        right: -5px;
-        border-top: none;
-        border-left: none;
-
-        &.active {
-            cursor: se-resize;
         }
     }
 </style>
