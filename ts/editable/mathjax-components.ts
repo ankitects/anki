@@ -41,10 +41,11 @@ export function toMathjaxTags(html: string): string {
         .replace(
             mathjaxInlineDelimiterPattern,
             (_match: string, text: string) =>
-                `<anki-mathjax-inline>${text}</anki-cloze>`
+                `<anki-mathjax-inline>${text}</anki-mathjax-inline>`
         )
         .replace(
             mathjaxBlockDelimiterPattern,
-            (_match: string, text: string) => `<anki-mathjax-block>${text}</anki-cloze>`
+            (_match: string, text: string) =>
+                `<anki-mathjax-block>${text}</anki-mathjax-block>`
         );
 }
