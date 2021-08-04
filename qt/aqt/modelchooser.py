@@ -76,7 +76,7 @@ class ModelChooser(QHBoxLayout):
         edit = QPushButton(tr.qt_misc_manage(), clicked=self.onEdit)  # type: ignore
 
         def nameFunc() -> List[str]:
-            return sorted(self.deck.models.all_names())
+            return [nt.name for nt in self.deck.models.all_names_and_ids()]
 
         ret = StudyDeck(
             self.mw,
