@@ -42,16 +42,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function resetSizes() {
+        activeImage = null;
+
         top = 0;
         left = 0;
         width = 0;
         height = 0;
-    }
-
-    $: if (activeImage) {
-        updateSizes();
-    } else {
-        resetSizes();
     }
 
     let actualWidth = "";
@@ -177,6 +173,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let sizeSelect: any;
     let active = false;
+
+    $: if (activeImage && sizeSelect?.images.includes(activeImage)) {
+        updateSizes();
+    } else {
+        resetSizes();
+    }
 
     function onDblclick() {
         sizeSelect.toggleActualSize();
