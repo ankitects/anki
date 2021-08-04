@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import HandleSelection from "./HandleSelection.svelte";
     import ImageHandleFloat from "./ImageHandleFloat.svelte";
     import ImageHandleSizeSelect from "./ImageHandleSizeSelect.svelte";
 
@@ -20,11 +21,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: showFloat = activeImage ? Number(activeImage!.width) >= 100 : false;
 
     /* SIZES */
-    let containerTop = 0;
     let containerLeft = 0;
+    let containerTop = 0;
 
-    let top = 0;
     let left = 0;
+    let top = 0;
     let width = 0;
     let height = 0;
 
@@ -32,11 +33,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const containerRect = container.getBoundingClientRect();
         const imageRect = activeImage!.getBoundingClientRect();
 
-        containerTop = containerRect.top;
         containerLeft = containerRect.left;
+        containerTop = containerRect.top;
 
-        top = imageRect!.top - containerTop;
         left = imageRect!.left - containerLeft;
+        top = imageRect!.top - containerTop;
         width = activeImage!.clientWidth;
         height = activeImage!.clientHeight;
     }
@@ -44,8 +45,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function resetSizes() {
         activeImage = null;
 
-        top = 0;
         left = 0;
+        top = 0;
         width = 0;
         height = 0;
     }
@@ -189,9 +190,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => resizeObserver.disconnect());
 </script>
 
-<div
-    style="--top: {top}px; --left: {left}px; --width: {width}px; --height: {height}px;"
-    class="image-handle-selection"
+<HandleSelection
+    --left="{left}px"
+    --top="{top}px"
+    --width="{width}px"
+    --height="{height}px"
 >
     {#if activeImage}
         <div
@@ -276,7 +279,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:pointermove={resize}
         />
     {/if}
-</div>
+</HandleSelection>
 
 <style lang="scss">
     div {
