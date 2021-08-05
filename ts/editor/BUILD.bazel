@@ -119,6 +119,10 @@ copy_mdi_icons(
         "image-size-select-large.svg",
         "image-size-select-actual.svg",
 
+        # mathjax handle
+        "format-wrap-square.svg",
+        "format-wrap-top-bottom.svg",
+
         # tag editor
         "tag-outline.svg",
         "tag.svg",
