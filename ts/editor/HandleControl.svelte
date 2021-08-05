@@ -6,7 +6,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher, getContext } from "svelte";
     import { nightModeKey } from "components/context-keys";
 
-    export let active: boolean;
+    export let offsetX = 0;
+    export let offsetY = 0;
+
+    export let active = false;
+    export let activeSize = 5;
 
     const dispatch = createEventDispatcher();
     const nightMode = getContext(nightModeKey);
@@ -19,48 +23,57 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div
-    class:nightMode
-    class:active
-    class="nw"
-    on:mousedown|preventDefault
-    on:pointerdown={onPointerdown(true, true)}
-    on:pointerup
-    on:pointermove
-/>
-<div
-    class:nightMode
-    class:active
-    class="ne"
-    on:mousedown|preventDefault
-    on:pointerdown={onPointerdown(true, false)}
-    on:pointerup
-    on:pointermove
-/>
-<div
-    class:nightMode
-    class:active
-    class="sw"
-    on:mousedown|preventDefault
-    on:pointerdown={onPointerdown(false, true)}
-    on:pointerup
-    on:pointermove
-/>
-<div
-    class:nightMode
-    class:active
-    class="se"
-    on:mousedown|preventDefault
-    on:pointerdown={onPointerdown(false, false)}
-    on:pointerup
-    on:pointermove
-/>
+    class="d-contents"
+    style="--offsetX: {offsetX}px; --offsetY: {offsetY}px; --activeSize: {activeSize}px;"
+>
+    <div
+        class:nightMode
+        class:active
+        class="nw"
+        on:mousedown|preventDefault
+        on:pointerdown={onPointerdown(true, true)}
+        on:pointerup
+        on:pointermove
+    />
+    <div
+        class:nightMode
+        class:active
+        class="ne"
+        on:mousedown|preventDefault
+        on:pointerdown={onPointerdown(true, false)}
+        on:pointerup
+        on:pointermove
+    />
+    <div
+        class:nightMode
+        class:active
+        class="sw"
+        on:mousedown|preventDefault
+        on:pointerdown={onPointerdown(false, true)}
+        on:pointerup
+        on:pointermove
+    />
+    <div
+        class:nightMode
+        class:active
+        class="se"
+        on:mousedown|preventDefault
+        on:pointerdown={onPointerdown(false, false)}
+        on:pointerup
+        on:pointermove
+    />
+</div>
 
 <style lang="scss">
-    div {
+    .d-contents {
+        display: contents;
+    }
+
+    div > div {
         position: absolute;
 
-        width: 7px;
-        height: 7px;
+        width: var(--activeSize);
+        height: var(--activeSize);
         border: 1px solid black;
 
         &.active {
@@ -74,49 +87,49 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 background-color: white;
             }
         }
-    }
 
-    .nw {
-        top: -5px;
-        left: -5px;
-        border-bottom: none;
-        border-right: none;
+        &.nw {
+            top: calc(0px - var(--offsetY));
+            left: calc(0px - var(--offsetX));
+            border-bottom: none;
+            border-right: none;
 
-        &.active {
-            cursor: nw-resize;
+            &.active {
+                cursor: nw-resize;
+            }
         }
-    }
 
-    .ne {
-        top: -5px;
-        right: -5px;
-        border-bottom: none;
-        border-left: none;
+        &.ne {
+            top: calc(0px - var(--offsetY));
+            right: calc(0px - var(--offsetX));
+            border-bottom: none;
+            border-left: none;
 
-        &.active {
-            cursor: ne-resize;
+            &.active {
+                cursor: ne-resize;
+            }
         }
-    }
 
-    .sw {
-        bottom: -5px;
-        left: -5px;
-        border-top: none;
-        border-right: none;
+        &.sw {
+            bottom: calc(0px - var(--offsetY));
+            left: calc(0px - var(--offsetX));
+            border-top: none;
+            border-right: none;
 
-        &.active {
-            cursor: sw-resize;
+            &.active {
+                cursor: sw-resize;
+            }
         }
-    }
 
-    .se {
-        bottom: -5px;
-        right: -5px;
-        border-top: none;
-        border-left: none;
+        &.se {
+            bottom: calc(0px - var(--offsetY));
+            right: calc(0px - var(--offsetX));
+            border-top: none;
+            border-left: none;
 
-        &.active {
-            cursor: se-resize;
+            &.active {
+                cursor: se-resize;
+            }
         }
     }
 </style>

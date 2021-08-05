@@ -179,6 +179,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <HandleControl
             {active}
+            activeSize={7}
+            offsetX={5}
+            offsetY={5}
             on:pointerclick={setPointerCapture}
             on:pointerup={startObserving}
             on:pointermove={resize}
