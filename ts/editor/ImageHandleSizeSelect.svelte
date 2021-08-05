@@ -25,6 +25,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (index >= 0) {
             const rule = sheet.cssRules[index] as CSSStyleRule;
             active = rule.cssText.endsWith("{ }");
+        } else {
+            activeImage = null;
         }
     }
     $: icon = active ? sizeActual : sizeMinimized;

@@ -22,37 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: aspectRatio = naturalWidth && naturalHeight ? naturalWidth / naturalHeight : NaN;
     $: showFloat = activeImage ? Number(activeImage!.width) >= 100 : false;
 
-    /* SIZES */
-    let containerLeft = 0;
-    let containerTop = 0;
-
-    let left = 0;
-    let top = 0;
-    let width = 0;
-    let height = 0;
-
-    function updateSizes() {
-        const containerRect = container.getBoundingClientRect();
-        const imageRect = activeImage!.getBoundingClientRect();
-
-        containerLeft = containerRect.left;
-        containerTop = containerRect.top;
-
-        left = imageRect!.left - containerLeft;
-        top = imageRect!.top - containerTop;
-        width = activeImage!.clientWidth;
-        height = activeImage!.clientHeight;
-    }
-
-    function resetSizes() {
-        activeImage = null;
-
-        left = 0;
-        top = 0;
-        width = 0;
-        height = 0;
-    }
-
     let customDimensions: boolean = false;
     let actualWidth = "";
     let actualHeight = "";
@@ -80,8 +49,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    let updateSelection: () => void;
+
     async function updateSizesWithDimensions() {
-        updateSizes();
+        updateSelection();
         updateDimensions();
     }
 
@@ -148,11 +119,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const widthIncrease = dragWidth / naturalWidth!;
         const heightIncrease = dragHeight / naturalHeight!;
 
+        let width: number;
+
         if (widthIncrease > heightIncrease) {
             width = Math.max(Math.trunc(dragWidth), minResizeWidth);
-            height = Math.trunc(naturalHeight! * (width / naturalWidth!));
         } else {
-            height = Math.max(Math.trunc(dragHeight), minResizeHeight);
+            let height = Math.max(Math.trunc(dragHeight), minResizeHeight);
             width = Math.trunc(naturalWidth! * (height / naturalHeight!));
         }
 
@@ -162,36 +134,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         await updateSizesWithDimensions();
     }
 
-    let sizeSelect: any;
+    let toggleActualSize: () => void;
     let active = false;
-
-    $: if (activeImage && sizeSelect?.images.includes(activeImage)) {
-        updateSizes();
-    } else {
-        resetSizes();
-    }
-
-    function onDblclick() {
-        sizeSelect.toggleActualSize();
-    }
 
     onDestroy(() => resizeObserver.disconnect());
 </script>
 
-<HandleSelection
-    --left="{left}px"
-    --top="{top}px"
-    --width="{width}px"
-    --height="{height}px"
->
+<HandleSelection bind:updateSelection {container} {activeImage}>
     {#if activeImage}
-        <HandleBackground on:dblclick={onDblclick} />
+        <HandleBackground on:dblclick={toggleActualSize} />
     {/if}
 
     {#if sheet}
         <div class="image-handle-size-select" class:is-rtl={isRtl}>
             <ImageHandleSizeSelect
-                bind:this={sizeSelect}
+                bind:toggleActualSize
                 bind:active
                 {container}
                 {sheet}
