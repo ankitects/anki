@@ -80,6 +80,7 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
     disconnect: () => void = () => {
         /* noop */
     };
+    component?: Mathjax_svelte;
 
     constructor() {
         super();
@@ -100,13 +101,14 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
 
     attributeChangedCallback(_name: string, _old: string, newValue: string): void {
         this.block = newValue !== "false";
+        this.component?.$set({ block: this.block });
     }
 
     decorate(): void {
         const mathjax = (this.dataset.mathjax = this.innerText);
         this.innerHTML = "";
 
-        new Mathjax_svelte({
+        this.component = new Mathjax_svelte({
             target: this,
             props: { mathjax, block: this.block },
         });
@@ -115,6 +117,9 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
     undecorate(): void {
         this.innerHTML = this.dataset.mathjax ?? "";
         delete this.dataset.mathjax;
+
+        this.component?.$destroy();
+        this.component = undefined;
 
         if (this.block) {
             this.setAttribute("block", "true");
