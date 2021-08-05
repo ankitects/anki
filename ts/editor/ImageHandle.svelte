@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HandleBackground from "./HandleBackground.svelte";
     import HandleSelection from "./HandleSelection.svelte";
     import HandleControl from "./HandleControl.svelte";
+    import HandleLabel from "./HandleLabel.svelte";
     import ImageHandleFloat from "./ImageHandleFloat.svelte";
     import ImageHandleSizeSelect from "./ImageHandleSizeSelect.svelte";
 
@@ -52,12 +53,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         height = 0;
     }
 
+    let customDimensions: boolean = false;
     let actualWidth = "";
     let actualHeight = "";
-    let customDimensions = false;
-    let overflowFix = 0;
 
-    function updateDimensions(dimensions: HTMLDivElement) {
+    function updateDimensions() {
         /* we do not want the actual width, but rather the intended display width */
         const widthAttribute = activeImage!.getAttribute("width");
         customDimensions = false;
@@ -78,22 +78,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } else {
             actualHeight = String(naturalHeight);
         }
-
-        tick().then(() => {
-            const boundingClientRect = dimensions.getBoundingClientRect();
-            const overflow = isRtl
-                ? window.innerWidth - boundingClientRect.x - boundingClientRect.width
-                : boundingClientRect.x;
-
-            overflowFix = Math.min(0, overflowFix + overflow, overflow);
-        });
     }
-
-    let dimensions: HTMLDivElement;
 
     async function updateSizesWithDimensions() {
         updateSizes();
-        updateDimensions(dimensions);
+        updateDimensions();
     }
 
     /* window resizing */
@@ -224,18 +213,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </div>
         {/if}
 
-        <div
-            bind:this={dimensions}
-            class="image-handle-dimensions"
-            class:is-rtl={isRtl}
-            style="--overflow-fix: {overflowFix}px"
-            use:updateDimensions
-        >
+        <HandleLabel {isRtl} on:mount={updateDimensions}>
             <span>{actualWidth}&times;{actualHeight}</span>
-            {#if customDimensions}<span
-                    >(Original: {naturalWidth}&times;{naturalHeight})</span
-                >{/if}
-        </div>
+            {#if customDimensions}
+                <span>(Original: {naturalWidth}&times;{naturalHeight})</span>
+            {/if}
+        </HandleLabel>
 
         <HandleControl
             {active}
@@ -252,8 +235,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .image-handle-float {
-        top: 3px;
         left: 3px;
+        top: 3px;
 
         &.is-rtl {
             left: auto;
@@ -262,36 +245,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .image-handle-size-select {
+        right: 3px;
         top: 3px;
-        right: 3px;
 
         &.is-rtl {
             right: auto;
             left: 3px;
-        }
-    }
-
-    .image-handle-dimensions {
-        pointer-events: none;
-        user-select: none;
-
-        font-size: 13px;
-        color: white;
-        background-color: rgba(0 0 0 / 0.3);
-        border-color: black;
-        border-radius: 0.25rem;
-        padding: 0 5px;
-
-        bottom: 3px;
-        right: 3px;
-        margin-left: 3px;
-        margin-right: var(--overflow-fix, 0);
-
-        &.is-rtl {
-            right: auto;
-            left: 3px;
-            margin-right: 3px;
-            margin-left: var(--overflow-fix, 0);
         }
     }
 </style>
