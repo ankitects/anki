@@ -17,7 +17,7 @@ import { bridgeCommand } from "./lib";
 import { onInput, onKey, onKeyUp } from "./input-handlers";
 import { onFocus, onBlur } from "./focus-handlers";
 import { nightModeKey } from "components/context-keys";
-import { toMathjaxTags, toMathjaxDelimiters } from "editable/mathjax-component";
+import { decoratedComponents } from "editable/decorated";
 
 function onCutOrCopy(): void {
     bridgeCommand("cutOrCopy");
@@ -93,13 +93,23 @@ export class EditingArea extends HTMLDivElement {
     }
 
     set fieldHTML(content: string) {
-        this.imageHandle.then(
-            () => (this.activeInput.fieldHTML = toMathjaxTags(content))
-        );
+        this.imageHandle.then(() => {
+            let result = content;
+            for (const component of decoratedComponents) {
+                result = component.toUndecorated(result);
+            }
+
+            this.activeInput.fieldHTML = result;
+        });
     }
 
     get fieldHTML(): string {
-        return toMathjaxDelimiters(this.activeInput.fieldHTML);
+        let result = this.activeInput.fieldHTML;
+        for (const component of decoratedComponents) {
+            result = component.toStored(result);
+        }
+
+        return result;
     }
 
     connectedCallback(): void {
