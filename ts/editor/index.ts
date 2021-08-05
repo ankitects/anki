@@ -29,7 +29,7 @@ import type { EditorField } from "./editor-field";
 import { EditingArea } from "./editing-area";
 import "editable/editable-container";
 import "editable/editable";
-import "editable/mathjax-components";
+import "editable/mathjax-component";
 
 import { initToolbar, fieldFocused } from "./toolbar";
 import { initTagEditor } from "./tag-editor";

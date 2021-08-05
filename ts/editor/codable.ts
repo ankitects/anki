@@ -21,9 +21,7 @@ const latex = {
 const htmlanki = {
     name: "htmlmixed",
     tags: {
-        "anki-mathjax-inline": [[null, null, latex]],
-        "anki-mathjax-block": [[null, null, latex]],
-        "anki-mathjax-chemistry": [[null, null, latex]],
+        "anki-mathjax": [[null, null, latex]],
     },
 };
 

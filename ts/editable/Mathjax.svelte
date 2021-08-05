@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { convertMathjax } from "./mathjax";
 
     export let mathjax: string;
-    export let type: "inline" | "block" | "chemistry";
+    export let block: boolean;
 
     $: converted = convertMathjax(mathjax);
     $: encoded = encodeURIComponent(converted);
@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <img
     src="data:image/svg+xml,{encoded}"
-    class:block={type === "block"}
+    class:block
     alt="Mathjax"
     data-anki="mathjax"
     data-mathjax={mathjax}
