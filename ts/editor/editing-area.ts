@@ -17,7 +17,7 @@ import { bridgeCommand } from "./lib";
 import { onInput, onKey, onKeyUp } from "./input-handlers";
 import { onFocus, onBlur } from "./focus-handlers";
 import { nightModeKey } from "components/context-keys";
-import { toMathjaxTags, toMathjaxDelimiters } from "editable/mathjax-components";
+import { toMathjaxTags, toMathjaxDelimiters } from "editable/mathjax-component";
 
 function onCutOrCopy(): void {
     bridgeCommand("cutOrCopy");

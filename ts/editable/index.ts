@@ -4,4 +4,4 @@
 import "./editable-base.css";
 import "./editable-container";
 import "./editable";
-import "./mathjax-components";
+import "./mathjax-component";
