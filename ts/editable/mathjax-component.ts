@@ -1,4 +1,7 @@
 import "mathjax/es5/tex-svg-full";
+
+import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
+import { decoratedComponents } from "./decorated";
 import { nodeIsElement } from "lib/dom";
 
 import Mathjax_svelte from "./Mathjax.svelte";
@@ -37,9 +40,44 @@ function moveNodesInsertedBeforeEndToAfterEnd(element: Element): () => void {
     return () => observer.disconnect();
 }
 
-class Mathjax extends HTMLElement {
-    block: boolean = false;
-    disconnect: () => void = () => {};
+const mathjaxTagPattern =
+    /<anki-mathjax(?:[^>]*?block="(.*?)")?[^>]*?>(.*?)<\/anki-mathjax>/gsu;
+
+const mathjaxBlockDelimiterPattern = /\\\[(.*?)\\\]/gsu;
+const mathjaxInlineDelimiterPattern = /\\\((.*?)\\\)/gsu;
+
+export const Mathjax: DecoratedElementConstructor = class Mathjax
+    extends HTMLElement
+    implements DecoratedElement
+{
+    static tagName = "anki-mathjax";
+
+    static toStored(undecorated: string): string {
+        return undecorated.replace(
+            mathjaxTagPattern,
+            (_match: string, block: string | undefined, text: string) => {
+                return typeof block === "string" && block !== "false"
+                    ? `\\[${text}\\]`
+                    : `\\(${text}\\)`;
+            }
+        );
+    }
+
+    static toUndecorated(stored: string): string {
+        return stored
+            .replace(
+                mathjaxBlockDelimiterPattern,
+                (_match: string, text: string) =>
+                    `<anki-mathjax block="true">${text}</anki-mathjax>`
+            )
+            .replace(
+                mathjaxInlineDelimiterPattern,
+                (_match: string, text: string) => `<anki-mathjax>${text}</anki-mathjax>`
+            );
+    }
+
+    block = false;
+    disconnect: () => void = () => {/* noop */};
 
     constructor() {
         super();
@@ -82,40 +120,6 @@ class Mathjax extends HTMLElement {
             this.removeAttribute("block");
         }
     }
-}
+};
 
-customElements.define("anki-mathjax", Mathjax);
-
-const mathjaxTagPattern =
-    /<anki-mathjax(?:[^>]*?block="(.*?)")?[^>]*?>(.*?)<\/anki-mathjax>/gsu;
-
-export function toMathjaxDelimiters(html: string): string {
-    return html.replace(
-        mathjaxTagPattern,
-        (_match: string, block: string | undefined, text: string) => {
-            console.log("delim", _match, block, "text", text);
-            return typeof block === "string" && block !== "false"
-                ? `\\[${text}\\]`
-                : `\\(${text}\\)`;
-        }
-    );
-}
-
-const mathjaxBlockDelimiterPattern = /\\\[(.*?)\\\]/gsu;
-const mathjaxInlineDelimiterPattern = /\\\((.*?)\\\)/gsu;
-
-export function toMathjaxTags(html: string): string {
-    return html
-        .replace(
-            mathjaxBlockDelimiterPattern,
-            (_match: string, text: string) => (
-                console.log(text), `<anki-mathjax block="true">${text}</anki-mathjax>`
-            )
-        )
-        .replace(
-            mathjaxInlineDelimiterPattern,
-            (_match: string, text: string) => (
-                console.log(text), `<anki-mathjax>${text}</anki-mathjax>`
-            )
-        );
-}
+decoratedComponents.push(Mathjax);

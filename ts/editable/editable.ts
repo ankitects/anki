@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import type { DecoratedElement } from "./decorated";
+import { decoratedComponents } from "./decorated";
 import { bridgeCommand } from "lib/bridgecommand";
 import { elementIsBlock, getBlockElement } from "lib/dom";
 // import { inCodable } from "./toolbar";
@@ -25,13 +27,6 @@ function containsInlineContent(element: Element): boolean {
     return true;
 }
 
-interface DecoratedElement extends HTMLElement {
-    decorate(): void;
-    undecorate(): void;
-}
-
-const decoratedTags = ["anki-mathjax"];
-
 export class Editable extends HTMLElement {
     set fieldHTML(content: string) {
         this.innerHTML = content;
@@ -44,8 +39,8 @@ export class Editable extends HTMLElement {
     get fieldHTML(): string {
         const clone = this.cloneNode(true) as Element;
 
-        for (const component of decoratedTags) {
-            for (const element of clone.getElementsByTagName(component)) {
+        for (const component of decoratedComponents) {
+            for (const element of clone.getElementsByTagName(component.tagName)) {
                 (element as DecoratedElement).undecorate();
             }
         }
