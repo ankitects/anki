@@ -6,6 +6,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let container: HTMLElement;
     export let activeImage: HTMLImageElement | null;
 
+    export let offsetX = 0;
+    export let offsetY = 0;
+
     $: if (activeImage) {
         updateSelection();
     } else {
@@ -41,7 +44,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div
-    style="--left: {left}px; --top: {top}px; --width: {width}px; --height: {height}px;"
+    style="--left: {left}px; --top: {top}px; --width: {width}px; --height: {height}px; --offsetX: {offsetX}px; --offsetY: {offsetY}px;"
 >
     <slot />
 </div>
@@ -50,9 +53,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     div {
         position: absolute;
 
-        left: var(--left, 0);
-        top: var(--top, 0);
-        width: var(--width);
-        height: var(--height);
+        left: calc(var(--left, 0px) - var(--offsetX, 0px));
+        top: calc(var(--top, 0px) - var(--offsetY, 0px));
+        width: calc(var(--width) + 2 * var(--offsetX, 0px));
+        height: calc(var(--height) + 2 * var(--offsetY, 0px));
     }
 </style>
