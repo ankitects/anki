@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ImageHandleFloat from "./ImageHandleFloat.svelte";
     import ImageHandleSizeSelect from "./ImageHandleSizeSelect.svelte";
 
-    import { onDestroy, tick } from "svelte";
+    import { onDestroy } from "svelte";
 
     export let container: HTMLElement;
     export let sheet: CSSStyleSheet;
