@@ -77,7 +77,9 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
     }
 
     block = false;
-    disconnect: () => void = () => {/* noop */};
+    disconnect: () => void = () => {
+        /* noop */
+    };
 
     constructor() {
         super();

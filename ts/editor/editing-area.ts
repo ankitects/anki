@@ -81,7 +81,7 @@ export class EditingArea extends HTMLDivElement {
         this.onBlur = this.onBlur.bind(this);
         this.onKey = this.onKey.bind(this);
         this.onPaste = this.onPaste.bind(this);
-        this.showImageHandle = this.showImageHandle.bind(this);
+        this.showHandles = this.showHandles.bind(this);
     }
 
     get activeInput(): Editable | Codable {
@@ -122,7 +122,7 @@ export class EditingArea extends HTMLDivElement {
         this.addEventListener("copy", onCutOrCopy);
         this.addEventListener("oncut", onCutOrCopy);
         this.addEventListener("mouseup", updateActiveButtons);
-        this.editable.addEventListener("click", this.showImageHandle);
+        this.editable.addEventListener("click", this.showHandles);
     }
 
     disconnectedCallback(): void {
@@ -135,7 +135,7 @@ export class EditingArea extends HTMLDivElement {
         this.removeEventListener("copy", onCutOrCopy);
         this.removeEventListener("oncut", onCutOrCopy);
         this.removeEventListener("mouseup", updateActiveButtons);
-        this.editable.removeEventListener("click", this.showImageHandle);
+        this.editable.removeEventListener("click", this.showHandles);
     }
 
     initialize(color: string, content: string): void {
@@ -223,8 +223,8 @@ export class EditingArea extends HTMLDivElement {
         );
     }
 
-    showImageHandle(event: MouseEvent): void {
-        if (event.target instanceof HTMLImageElement) {
+    showHandles(event: MouseEvent): void {
+        if (event.target instanceof HTMLImageElement && !event.target.dataset.anki) {
             this.imageHandle.then((imageHandle) =>
                 (imageHandle as any).$set({
                     activeImage: event.target,
