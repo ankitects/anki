@@ -50,9 +50,12 @@ export class Editable extends HTMLElement {
             }
         }
 
-        return containsInlineContent(clone) && this.innerHTML.endsWith("<br>")
-            ? clone.innerHTML.slice(0, -4) // trim trailing <br>
-            : clone.innerHTML;
+        const result =
+            containsInlineContent(clone) && clone.innerHTML.endsWith("<br>")
+                ? clone.innerHTML.slice(0, -4) // trim trailing <br>
+                : clone.innerHTML;
+
+        return result;
     }
 
     connectedCallback(): void {
