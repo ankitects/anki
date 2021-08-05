@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import HandleBackground from "./HandleBackground.svelte";
     import HandleSelection from "./HandleSelection.svelte";
     import HandleControl from "./HandleControl.svelte";
     import ImageHandleFloat from "./ImageHandleFloat.svelte";
@@ -195,12 +196,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     --height="{height}px"
 >
     {#if activeImage}
-        <div
-            class="image-handle-bg"
-            on:mousedown|preventDefault
-            on:dblclick={onDblclick}
-        />
+        <HandleBackground on:dblclick={onDblclick} />
+    {/if}
 
+    {#if sheet}
+        <div class="image-handle-size-select" class:is-rtl={isRtl}>
+            <ImageHandleSizeSelect
+                bind:this={sizeSelect}
+                bind:active
+                {container}
+                {sheet}
+                {activeImage}
+                {isRtl}
+                on:update={updateSizesWithDimensions}
+            />
+        </div>
+    {/if}
+
+    {#if activeImage}
         {#if showFloat}
             <div
                 class="image-handle-float"
@@ -223,23 +236,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     >(Original: {naturalWidth}&times;{naturalHeight})</span
                 >{/if}
         </div>
-    {/if}
 
-    {#if sheet}
-        <div class="image-handle-size-select" class:is-rtl={isRtl}>
-            <ImageHandleSizeSelect
-                bind:this={sizeSelect}
-                bind:active
-                {container}
-                {sheet}
-                {activeImage}
-                {isRtl}
-                on:update={updateSizesWithDimensions}
-            />
-        </div>
-    {/if}
-
-    {#if activeImage}
         <HandleControl
             {active}
             on:pointerclick={setPointerCapture}
@@ -252,13 +249,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     div {
         position: absolute;
-    }
-
-    .image-handle-bg {
-        width: 100%;
-        height: 100%;
-        background-color: black;
-        opacity: 0.2;
     }
 
     .image-handle-float {
