@@ -28,7 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="dropdown">
-    <slot {createDropdown} />
+    <slot {createDropdown} dropdownObject={dropdown} />
 </div>
 
 <style lang="scss">

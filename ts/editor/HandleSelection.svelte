@@ -3,47 +3,40 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { onMount, createEventDispatcher } from "svelte";
     export let container: HTMLElement;
-    export let activeImage: HTMLImageElement | null;
+    export let image: HTMLImageElement;
 
     export let offsetX = 0;
     export let offsetY = 0;
-
-    $: if (activeImage) {
-        updateSelection();
-    } else {
-        reset();
-    }
 
     let left: number;
     let top: number;
     let width: number;
     let height: number;
 
-    export function updateSelection() {
+    export function updateSelection(_div: HTMLDivElement): void {
         const containerRect = container.getBoundingClientRect();
-        const imageRect = activeImage!.getBoundingClientRect();
+        const imageRect = image!.getBoundingClientRect();
 
         const containerLeft = containerRect.left;
         const containerTop = containerRect.top;
 
         left = imageRect!.left - containerLeft;
         top = imageRect!.top - containerTop;
-        width = activeImage!.clientWidth;
-        height = activeImage!.clientHeight;
+        width = image!.clientWidth;
+        height = image!.clientHeight;
     }
 
-    function reset() {
-        activeImage = null;
+    const dispatch = createEventDispatcher();
+    let selection: HTMLDivElement;
 
-        left = 0;
-        top = 0;
-        width = 0;
-        height = 0;
-    }
+    onMount(() => dispatch("mount", { selection }));
 </script>
 
 <div
+    bind:this={selection}
+    use:updateSelection
     style="--left: {left}px; --top: {top}px; --width: {width}px; --height: {height}px; --offsetX: {offsetX}px; --offsetY: {offsetY}px;"
 >
     <slot />
