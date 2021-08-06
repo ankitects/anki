@@ -15,8 +15,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let updateSelection: () => void;
 </script>
 
-<HandleSelection {container} {activeImage} offsetX={2} offsetY={2} bind:updateSelection>
-    {#if activeImage}
+{#if activeImage}
+    <HandleSelection
+        image={activeImage}
+        {container}
+        offsetX={2}
+        offsetY={2}
+        bind:updateSelection
+    >
         <HandleBackground />
 
         <div
@@ -28,8 +34,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </div>
 
         <HandleControl />
-    {/if}
-</HandleSelection>
+    </HandleSelection>
+{/if}
 
 <style lang="scss">
     div {
