@@ -6,33 +6,58 @@ import { nodeIsElement } from "lib/dom";
 
 import Mathjax_svelte from "./Mathjax.svelte";
 
-function moveNodesInsertedBeforeEndToAfterEnd(element: Element): () => void {
-    const allowedChildNodes = element.childNodes.length;
+function moveNodeOutOfElement(
+    element: Element,
+    node: Node,
+    placement: "beforebegin" | "afterend"
+): Node {
+    element.removeChild(node);
 
+    let referenceNode: Node;
+
+    if (nodeIsElement(node)) {
+        referenceNode = element.insertAdjacentElement(placement, node)!;
+    } else {
+        element.insertAdjacentText(placement, (node as Text).wholeText);
+        referenceNode =
+            placement === "beforebegin"
+                ? element.previousSibling!
+                : element.nextSibling!;
+    }
+
+    return referenceNode;
+}
+
+function placeCaretAfter(node: Node): void {
+    const range = document.createRange();
+    range.setStartAfter(node);
+    range.collapse(false);
+
+    const selection = document.getSelection()!;
+    selection.removeAllRanges();
+    selection.addRange(range);
+}
+
+function moveNodesInsertedOutside(element: Element, allowedChild: Node): () => void {
     const observer = new MutationObserver(() => {
-        for (const node of [...element.childNodes].slice(allowedChildNodes)) {
-            element.removeChild(node);
+        const childNodes = [...element.childNodes];
+        const allowedIndex = childNodes.findIndex((child) => child === allowedChild);
 
-            let referenceNode: Node;
+        const beforeChildren = childNodes.slice(0, allowedIndex);
+        const afterChildren = childNodes.slice(allowedIndex + 1);
 
-            if (nodeIsElement(node)) {
-                referenceNode = element.insertAdjacentElement("afterend", node)!;
-            } else {
-                element.insertAdjacentText("afterend", (node as Text).wholeText);
-                referenceNode = element.nextSibling!;
-            }
+        let lastNode: Node | null = null;
 
-            if (!referenceNode) {
-                continue;
-            }
+        for (const node of beforeChildren) {
+            lastNode = moveNodeOutOfElement(element, node, "beforebegin");
+        }
 
-            const range = document.createRange();
-            range.setStartAfter(referenceNode);
-            range.collapse(false);
+        for (const node of afterChildren) {
+            lastNode = moveNodeOutOfElement(element, node, "afterend");
+        }
 
-            const selection = document.getSelection()!;
-            selection.removeAllRanges();
-            selection.addRange(range);
+        if (lastNode) {
+            placeCaretAfter(lastNode);
         }
     });
 
@@ -92,7 +117,8 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
 
     connectedCallback(): void {
         this.decorate();
-        this.disconnect = moveNodesInsertedBeforeEndToAfterEnd(this);
+        // TODO text is assigned white-space: normal
+        this.disconnect = moveNodesInsertedOutside(this, this.children[0]);
     }
 
     disconnectedCallback(): void {
