@@ -3,6 +3,7 @@
 
 @use 'base';
 @use 'scrollbar';
+@use 'button-mixins';
 
 .nightMode {
     @include scrollbar.night-mode;
@@ -29,6 +30,11 @@
     }
 }
 
+.editorfield {
+    margin: 0 2px;
+}
+
+/* editing-area */
 .field {
     position: relative;
 
@@ -39,6 +45,14 @@
         // this works around the background colour persisting in copy+paste
         // (https://github.com/ankitects/anki/pull/1278)
         background-image: linear-gradient(var(--flag1-bg), var(--flag1-bg));
+    }
+
+    &:focus-within {
+        outline: 2px solid button-mixins.$focus-color;
+    }
+
+    &:focus {
+        outline: none;
     }
 }
 

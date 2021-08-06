@@ -87,7 +87,7 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
     }
 
     static get observedAttributes(): string[] {
-        return ["block"];
+        return ["block", "data-mathjax"];
     }
 
     connectedCallback(): void {
@@ -99,9 +99,14 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
         this.disconnect();
     }
 
-    attributeChangedCallback(_name: string, _old: string, newValue: string): void {
-        this.block = newValue !== "false";
-        this.component?.$set({ block: this.block });
+    attributeChangedCallback(name: string, _old: string, newValue: string): void {
+        switch (name) {
+            case "block":
+                this.block = newValue !== "false";
+                this.component?.$set({ block: this.block });
+            case "data-mathjax":
+                this.component?.$set({ mathjax: newValue });
+        }
     }
 
     decorate(): void {

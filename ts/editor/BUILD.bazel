@@ -33,8 +33,9 @@ compile_sass(
     visibility = ["//visibility:public"],
     deps = [
         "//ts/sass:base_lib",
-        "//ts/sass:buttons_lib",
         "//ts/sass:scrollbar_lib",
+        "//ts/sass:buttons_lib",
+        "//ts/sass:button_mixins_lib",
     ],
 )
 

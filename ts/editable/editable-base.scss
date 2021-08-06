@@ -10,6 +10,10 @@ anki-editable {
         outline: none;
     }
 
+    &:focus {
+        outline: none;
+    }
+
     * {
         max-width: 100%;
     }
