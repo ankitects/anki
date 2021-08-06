@@ -55,7 +55,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <DropdownMenu>
                 <MathjaxHandleEditor
                     initialValue={activeImage.parentElement?.dataset.mathjax ?? ""}
-                    on:update={onUpdate}
+                    on:update={(event) => {
+                        onUpdate(event);
+                        setTimeout(dropdownObject.update);
+                    }}
                 />
             </DropdownMenu>
         {:else}
