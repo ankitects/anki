@@ -18,6 +18,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let container: HTMLElement;
     export let isRtl: boolean;
 
+    const resizeObserver = new ResizeObserver(() => {
+        if (activeImage) {
+            updateSelection();
+        }
+    });
+
+    resizeObserver.observe(container);
+
     let updateSelection: () => void;
     let edit = false;
 
