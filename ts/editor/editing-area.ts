@@ -16,7 +16,7 @@ import type { Codable } from "./codable";
 import { updateActiveButtons } from "./toolbar";
 import { bridgeCommand } from "./lib";
 import { onInput, onKey, onKeyUp } from "./input-handlers";
-import { onFocus, onBlur } from "./focus-handlers";
+import { deferFocusDown, saveFieldIfFieldChanged } from "./focus-handlers";
 import { nightModeKey } from "components/context-keys";
 import { decoratedComponents } from "editable/decorated";
 
@@ -202,13 +202,12 @@ export class EditingArea extends HTMLDivElement {
         this.activeInput.surroundSelection(before, after);
     }
 
-    onFocus(event: FocusEvent): void {
-        onFocus(event);
+    onFocus(): void {
+        deferFocusDown(this);
     }
 
     onBlur(event: FocusEvent): void {
-        this.resetHandles();
-        onBlur(event);
+        saveFieldIfFieldChanged(this, event.relatedTarget as Element);
     }
 
     onEnter(event: KeyboardEvent): void {

@@ -46,12 +46,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <!-- <textarea bind:value use:openCodemirror /> -->
 <div on:click|stopPropagation on:focus|stopPropagation on:keydown|stopPropagation>
+    <!-- TODO no focusin for now, as EditingArea will defer to Editable/Codable -->
     <textarea
         value={initialValue}
         on:mouseup|preventDefault|stopPropagation
         on:click|stopPropagation
         on:focusin|stopPropagation
-        on:focusout|stopPropagation
         use:autofocus
     />
 </div>
