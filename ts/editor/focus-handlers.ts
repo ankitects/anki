@@ -8,7 +8,7 @@
 import { fieldFocused } from "./toolbar";
 import type { EditingArea } from "./editing-area";
 
-import { saveField } from "./change-timer";
+import { saveField } from "./saving";
 import { bridgeCommand } from "./lib";
 import { getCurrentField } from "./helpers";
 

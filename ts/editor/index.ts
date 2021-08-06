@@ -18,7 +18,7 @@ import { isApplePlatform } from "lib/platform";
 import { registerShortcut } from "lib/shortcuts";
 import { bridgeCommand } from "lib/bridgecommand";
 import { updateActiveButtons } from "./toolbar";
-import { saveField } from "./change-timer";
+import { saveField } from "./saving";
 
 import "./fields.css";
 
@@ -36,7 +36,7 @@ import { initTagEditor } from "./tag-editor";
 import { getCurrentField } from "./helpers";
 
 export { setNoteId, getNoteId } from "./note-id";
-export { saveNow } from "./change-timer";
+export { saveNow } from "./saving";
 export { wrap, wrapIntoText } from "./wrap";
 export { editorToolbar } from "./toolbar";
 export { activateStickyShortcuts } from "./label-container";
