@@ -3,6 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
+    import { onMount, createEventDispatcher } from "svelte";
+
     import * as CodeMirror from "codemirror/lib/codemirror";
     import "codemirror/mode/stex/stex";
     import "codemirror/addon/fold/foldcode";
@@ -39,8 +41,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         codeMirror.setCursor(codeMirror.lineCount(), 0);
     }
 
-    function autofocus(textarea: HTMLTextAreaElement): void {
-        textarea.focus();
+    const dispatch = createEventDispatcher();
+    let textarea: HTMLTextAreaElement;
+
+    onMount(() => textarea.focus());
+
+    function onInput() {
+        dispatch("update", { mathjax: textarea.value });
     }
 </script>
 
@@ -48,10 +55,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div on:click|stopPropagation on:focus|stopPropagation on:keydown|stopPropagation>
     <!-- TODO no focusin for now, as EditingArea will defer to Editable/Codable -->
     <textarea
+        bind:this={textarea}
         value={initialValue}
         on:mouseup|preventDefault|stopPropagation
+        on:keyup|stopPropagation
         on:click|stopPropagation
         on:focusin|stopPropagation
-        use:autofocus
+        on:input={onInput}
     />
 </div>

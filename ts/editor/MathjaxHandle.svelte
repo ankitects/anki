@@ -20,6 +20,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let updateSelection: () => void;
     let edit = false;
+
+    function onUpdate(event: CustomEvent) {
+        activeImage!.parentElement!.dataset.mathjax = event.detail.mathjax;
+        setTimeout(updateSelection);
+    }
 </script>
 
 <WithDropdown
@@ -40,7 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         >
             <HandleBackground
                 on:click={(event) => event.stopPropagation()}
-                on:dblclick={() => (edit = true)}
+                on:dblclick={() => (edit = !edit)}
             />
 
             <HandleControl offsetX={1} offsetY={1} />
@@ -50,6 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <DropdownMenu>
                 <MathjaxHandleEditor
                     initialValue={activeImage.parentElement?.dataset.mathjax ?? ""}
+                    on:update={onUpdate}
                 />
             </DropdownMenu>
         {:else}
