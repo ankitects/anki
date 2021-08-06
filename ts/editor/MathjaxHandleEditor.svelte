@@ -23,36 +23,43 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const codeMirrorOptions = {
         mode: latex,
         theme: "monokai",
-        /* lineNumbers: true, */
-        /* lineWrapping: true, */
-        /* foldGutter: true, */
-        /* gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"], */
-        /* matchTags: { bothTags: true }, */
-        /* extraKeys: { Tab: false, "Shift-Tab": false }, */
-        /* viewportMargin: Infinity, */
-        /* lineWiseCopyCut: false, */
-        /* autofocus: true, */
+        lineWrapping: true,
+        matchTags: { bothTags: true },
+        extraKeys: { Tab: false, "Shift-Tab": false },
+        viewportMargin: Infinity,
+        lineWiseCopyCut: false,
+        autofocus: true,
     };
 
     let codeMirror: CodeMirror;
 
+    function onInput() {
+        dispatch("update", { mathjax: codeMirror.getValue() });
+    }
+
     function openCodemirror(textarea: HTMLTextAreaElement): void {
         codeMirror = CodeMirror.fromTextArea(textarea, codeMirrorOptions);
-        codeMirror.setCursor(codeMirror.lineCount(), 0);
+        codeMirror.on("change", onInput);
     }
 
     const dispatch = createEventDispatcher();
     let textarea: HTMLTextAreaElement;
 
-    onMount(() => textarea.focus());
-
-    function onInput() {
-        dispatch("update", { mathjax: textarea.value });
-    }
+    onMount(() => {
+        codeMirror.focus();
+        codeMirror.setCursor(codeMirror.lineCount(), 0);
+    });
 </script>
 
 <!-- <textarea bind:value use:openCodemirror /> -->
-<div on:click|stopPropagation on:focus|stopPropagation on:keydown|stopPropagation>
+<div
+    on:click|stopPropagation
+    on:focus|stopPropagation
+    on:keydown|stopPropagation
+    on:focusin|stopPropagation
+    on:keyup|stopPropagation
+    on:mouseup|stopPropagation
+>
     <!-- TODO no focusin for now, as EditingArea will defer to Editable/Codable -->
     <textarea
         bind:this={textarea}
@@ -62,5 +69,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:click|stopPropagation
         on:focusin|stopPropagation
         on:input={onInput}
+        use:openCodemirror
     />
 </div>
