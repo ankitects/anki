@@ -26,5 +26,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .dropdown-menu {
         background-color: var(--frame-bg);
         border-color: var(--medium-border);
+        min-width: 1rem;
     }
 </style>
