@@ -10,14 +10,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let dimensions: HTMLDivElement;
     let overflowFix = 0;
 
-    afterUpdate(() => {
+    function updateOverflow(dimensions: HTMLDivElement) {
         const boundingClientRect = dimensions.getBoundingClientRect();
         const overflow = isRtl
             ? window.innerWidth - boundingClientRect.x - boundingClientRect.width
             : boundingClientRect.x;
 
         overflowFix = Math.min(0, overflowFix + overflow, overflow);
-    });
+    }
+
+    function updateOverflowAsync(dimensions: HTMLDivElement) {
+        setTimeout(() => updateOverflow(dimensions));
+    }
+
+    afterUpdate(() => updateOverflow(dimensions));
 
     const dispatch = createEventDispatcher();
 
@@ -29,6 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="image-handle-dimensions"
     class:is-rtl={isRtl}
     style="--overflow-fix: {overflowFix}px"
+    use:updateOverflowAsync
 >
     <slot />
 </div>
