@@ -133,24 +133,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         activeImage!.width = width;
-
-        await updateSizesWithDimensions();
     }
 
     onDestroy(() => resizeObserver.disconnect());
 </script>
 
 {#if sheet}
-    <WithImageConstrained
-        {sheet}
-        {container}
-        {activeImage}
-        on:update={updateSizesWithDimensions}
-        let:toggleActualSize
-        let:active
+    <WithDropdown
+        placement="bottom"
+        autoOpen={true}
+        autoClose={false}
+        let:createDropdown
+        let:dropdownObject
     >
-        {#if activeImage}
-            <WithDropdown let:createDropdown>
+        <WithImageConstrained
+            {sheet}
+            {container}
+            {activeImage}
+            on:update={() => {
+                updateSizesWithDimensions();
+                dropdownObject.update();
+            }}
+            let:toggleActualSize
+            let:active
+        >
+            {#if activeImage}
                 <HandleSelection
                     bind:updateSelection
                     {container}
@@ -158,8 +165,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:mount={(event) => createDropdown(event.detail.selection)}
                 >
                     <HandleBackground
+                        on:click={(event) => event.stopPropagation()}
                         on:dblclick={toggleActualSize}
-                        on:mount={(event) => createDropdown(event.detail.background)}
                     />
 
                     <HandleLabel {isRtl} on:mount={updateDimensions}>
@@ -175,19 +182,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         activeSize={7}
                         offsetX={5}
                         offsetY={5}
+                        on:click={(event) => event.stopPropagation()}
                         on:pointerclick={(event) => {
                             if (active) {
                                 setPointerCapture(event);
                             }
                         }}
                         on:pointerup={startObserving}
-                        on:pointermove={resize}
+                        on:pointermove={(event) => {
+                            resize(event);
+                            updateSizesWithDimensions();
+                            dropdownObject.update();
+                        }}
                     />
                 </HandleSelection>
                 <ButtonDropdown>
                     <div on:click={updateSizesWithDimensions}>
                         <Item>
-                            <ImageHandleFloat image={activeImage} {isRtl} />
+                            <ImageHandleFloat
+                                image={activeImage}
+                                {isRtl}
+                                on:update={dropdownObject.update}
+                            />
                         </Item>
                         <Item>
                             <ImageHandleSizeSelect
@@ -198,7 +214,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         </Item>
                     </div>
                 </ButtonDropdown>
-            </WithDropdown>
-        {/if}
-    </WithImageConstrained>
+            {/if}
+        </WithImageConstrained>
+    </WithDropdown>
 {/if}
