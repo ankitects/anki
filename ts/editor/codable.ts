@@ -39,9 +39,10 @@ const codeMirrorOptions = {
 };
 
 const parser = new DOMParser();
+const parseStyle = "<style>anki-mathjax { white-space: pre; }</style>";
 
 function parseHTML(html: string): string {
-    const doc = parser.parseFromString(html, "text/html");
+    const doc = parser.parseFromString(`${parseStyle}${html}`, "text/html");
     return doc.body.innerHTML;
 }
 
