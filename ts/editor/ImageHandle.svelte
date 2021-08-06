@@ -3,6 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import WithDropdown from "components/WithDropdown.svelte";
+    import ButtonDropdown from "components/ButtonDropdown.svelte";
+    import Item from "components/Item.svelte";
+
+    import WithImageConstrained from "./WithImageConstrained.svelte";
     import HandleBackground from "./HandleBackground.svelte";
     import HandleSelection from "./HandleSelection.svelte";
     import HandleControl from "./HandleControl.svelte";
@@ -20,7 +25,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: naturalWidth = activeImage?.naturalWidth;
     $: naturalHeight = activeImage?.naturalHeight;
     $: aspectRatio = naturalWidth && naturalHeight ? naturalWidth / naturalHeight : NaN;
-    $: showFloat = activeImage ? Number(activeImage!.width) >= 100 : false;
 
     let customDimensions: boolean = false;
     let actualWidth = "";
@@ -79,7 +83,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let getDragHeight: (event: PointerEvent) => number;
 
     function setPointerCapture({ detail }: CustomEvent): void {
-        if (!active || detail.originalEvent.pointerId !== 1) {
+        if (detail.originalEvent.pointerId !== 1) {
             return;
         }
 
@@ -128,89 +132,73 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             width = Math.trunc(naturalWidth! * (height / naturalHeight!));
         }
 
-        showFloat = width >= 100;
         activeImage!.width = width;
 
         await updateSizesWithDimensions();
     }
 
-    let toggleActualSize: () => void;
-    let active = false;
-
     onDestroy(() => resizeObserver.disconnect());
 </script>
 
-<HandleSelection bind:updateSelection {container} {activeImage}>
-    {#if activeImage}
-        <HandleBackground on:dblclick={toggleActualSize} />
-    {/if}
+{#if sheet}
+    <WithImageConstrained
+        {sheet}
+        {container}
+        {activeImage}
+        on:update={updateSizesWithDimensions}
+        let:toggleActualSize
+        let:active
+    >
+        {#if activeImage}
+            <WithDropdown let:createDropdown>
+                <HandleSelection
+                    bind:updateSelection
+                    {container}
+                    image={activeImage}
+                    on:mount={(event) => createDropdown(event.detail.selection)}
+                >
+                    <HandleBackground
+                        on:dblclick={toggleActualSize}
+                        on:mount={(event) => createDropdown(event.detail.background)}
+                    />
 
-    {#if sheet}
-        <div class="image-handle-size-select" class:is-rtl={isRtl}>
-            <ImageHandleSizeSelect
-                bind:toggleActualSize
-                bind:active
-                {container}
-                {sheet}
-                {activeImage}
-                {isRtl}
-                on:update={updateSizesWithDimensions}
-            />
-        </div>
-    {/if}
+                    <HandleLabel {isRtl} on:mount={updateDimensions}>
+                        <span>{actualWidth}&times;{actualHeight}</span>
+                        {#if customDimensions}
+                            <span>(Original: {naturalWidth}&times;{naturalHeight})</span
+                            >
+                        {/if}
+                    </HandleLabel>
 
-    {#if activeImage}
-        {#if showFloat}
-            <div
-                class="image-handle-float"
-                class:is-rtl={isRtl}
-                on:click={updateSizesWithDimensions}
-            >
-                <ImageHandleFloat {activeImage} {isRtl} />
-            </div>
+                    <HandleControl
+                        {active}
+                        activeSize={7}
+                        offsetX={5}
+                        offsetY={5}
+                        on:pointerclick={(event) => {
+                            if (active) {
+                                setPointerCapture(event);
+                            }
+                        }}
+                        on:pointerup={startObserving}
+                        on:pointermove={resize}
+                    />
+                </HandleSelection>
+                <ButtonDropdown>
+                    <div on:click={updateSizesWithDimensions}>
+                        <Item>
+                            <ImageHandleFloat image={activeImage} {isRtl} />
+                        </Item>
+                        <Item>
+                            <ImageHandleSizeSelect
+                                {active}
+                                {isRtl}
+                                on:click={toggleActualSize}
+                            />
+                        </Item>
+                    </div>
+                </ButtonDropdown>
+            </WithDropdown>
         {/if}
-
-        <HandleLabel {isRtl} on:mount={updateDimensions}>
-            <span>{actualWidth}&times;{actualHeight}</span>
-            {#if customDimensions}
-                <span>(Original: {naturalWidth}&times;{naturalHeight})</span>
-            {/if}
-        </HandleLabel>
-
-        <HandleControl
-            {active}
-            activeSize={7}
-            offsetX={5}
-            offsetY={5}
-            on:pointerclick={setPointerCapture}
-            on:pointerup={startObserving}
-            on:pointermove={resize}
-        />
-    {/if}
-</HandleSelection>
-
-<style lang="scss">
-    div {
-        position: absolute;
-    }
-
-    .image-handle-float {
-        left: 3px;
-        top: 3px;
-
-        &.is-rtl {
-            left: auto;
-            right: 3px;
-        }
-    }
-
-    .image-handle-size-select {
-        right: 3px;
-        top: 3px;
-
-        &.is-rtl {
-            right: auto;
-            left: 3px;
-        }
-    }
-</style>
+    </WithImageConstrained>
+{/if}

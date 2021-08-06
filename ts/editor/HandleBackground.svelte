@@ -2,7 +2,16 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<div on:mousedown|preventDefault on:click on:dblclick />
+<script lang="ts">
+    import { onMount, createEventDispatcher } from "svelte";
+
+    let background: HTMLDivElement;
+    const dispatch = createEventDispatcher();
+
+    onMount(() => dispatch("mount", { background }));
+</script>
+
+<div bind:this={background} on:mousedown|preventDefault on:click on:dblclick />
 
 <style lang="scss">
     div {
