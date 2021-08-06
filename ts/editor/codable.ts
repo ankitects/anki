@@ -2,7 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import * as CodeMirror from "codemirror/lib/codemirror";
-import "codemirror/mode/python/python";
 import "codemirror/mode/htmlmixed/htmlmixed";
 import "codemirror/mode/stex/stex";
 import "codemirror/addon/fold/foldcode";
