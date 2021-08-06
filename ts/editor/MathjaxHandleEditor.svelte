@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { onMount, createEventDispatcher } from "svelte";
+    import { ChangeTimer } from "./change-timer";
 
     import * as CodeMirror from "codemirror/lib/codemirror";
     import "codemirror/mode/stex/stex";
@@ -32,9 +33,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
 
     let codeMirror: CodeMirror;
+    const changeTimer = new ChangeTimer();
 
     function onInput() {
-        dispatch("update", { mathjax: codeMirror.getValue() });
+        changeTimer.schedule(
+            () => dispatch("update", { mathjax: codeMirror.getValue() }),
+            400
+        );
     }
 
     function openCodemirror(textarea: HTMLTextAreaElement): void {
