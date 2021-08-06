@@ -39,12 +39,7 @@ export class EditingArea extends HTMLDivElement {
             is: "anki-editable-container",
         }) as EditableContainer;
 
-        const imageStyle = document.createElement("style");
-        imageStyle.setAttribute("rel", "stylesheet");
-        imageStyle.id = "imageHandleStyle";
-
         this.editable = document.createElement("anki-editable") as Editable;
-        this.editableContainer.shadowRoot!.appendChild(imageStyle);
         this.editableContainer.shadowRoot!.appendChild(this.editable);
         this.appendChild(this.editableContainer);
 
@@ -55,18 +50,18 @@ export class EditingArea extends HTMLDivElement {
         );
 
         let imageHandleResolve: (value: ImageHandle) => void;
-        this.imageHandle = new Promise<ImageHandle>((resolve) => {
-            imageHandleResolve = resolve;
-        });
+        this.imageHandle = new Promise<ImageHandle>(
+            (resolve) => (imageHandleResolve = resolve)
+        );
 
-        imageStyle.addEventListener("load", () =>
+        this.editableContainer.imagePromise.then(() =>
             imageHandleResolve(
                 new ImageHandle({
                     target: this,
                     anchor: this.editableContainer,
                     props: {
                         container: this.editable,
-                        sheet: imageStyle.sheet,
+                        sheet: this.editableContainer.imageStyle.sheet,
                     },
                     context,
                 } as any)
@@ -105,6 +100,7 @@ export class EditingArea extends HTMLDivElement {
     set fieldHTML(content: string) {
         this.imageHandle.then(() => {
             let result = content;
+
             for (const component of decoratedComponents) {
                 result = component.toUndecorated(result);
             }
@@ -149,8 +145,10 @@ export class EditingArea extends HTMLDivElement {
     }
 
     initialize(color: string, content: string): void {
-        this.setBaseColor(color);
-        this.fieldHTML = content;
+        this.editableContainer.stylePromise.then(() => {
+            this.setBaseColor(color);
+            this.fieldHTML = content;
+        });
     }
 
     setBaseColor(color: string): void {

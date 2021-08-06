@@ -5,10 +5,41 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
+function loadStyleLink(container: Node, href: string): Promise<void> {
+    const rootStyle = document.createElement("link");
+    rootStyle.setAttribute("rel", "stylesheet");
+    rootStyle.setAttribute("href", href);
+
+    let styleResolve: () => void;
+    const stylePromise = new Promise<void>((resolve) => (styleResolve = resolve));
+
+    rootStyle.addEventListener("load", () => styleResolve());
+    container.appendChild(rootStyle);
+
+    return stylePromise;
+}
+
+function loadStyleTag(container: Node): [HTMLStyleElement, Promise<void>] {
+    const style = document.createElement("style");
+    style.setAttribute("rel", "stylesheet");
+
+    let styleResolve: () => void;
+    const stylePromise = new Promise<void>((resolve) => (styleResolve = resolve));
+
+    style.addEventListener("load", () => styleResolve());
+    container.appendChild(style);
+
+    return [style, stylePromise];
+}
+
 export class EditableContainer extends HTMLDivElement {
     baseStyle: HTMLStyleElement;
+    imageStyle: HTMLStyleElement;
+
+    imagePromise: Promise<void>;
+    stylePromise: Promise<void>;
+
     baseRule?: CSSStyleRule;
-    imageStyle?: HTMLStyleElement;
 
     constructor() {
         super();
@@ -18,15 +49,19 @@ export class EditableContainer extends HTMLDivElement {
             this.classList.add("night-mode");
         }
 
-        const rootStyle = document.createElement("link");
-        rootStyle.setAttribute("rel", "stylesheet");
-        rootStyle.setAttribute("href", "./_anki/css/editable-build.css");
-        shadow.appendChild(rootStyle);
+        const rootPromise = loadStyleLink(shadow, "./_anki/css/editable-build.css");
+        const [baseStyle, basePromise] = loadStyleTag(shadow);
+        const [imageStyle, imagePromise] = loadStyleTag(shadow);
 
-        this.baseStyle = document.createElement("style");
-        this.baseStyle.setAttribute("rel", "stylesheet");
-        this.baseStyle.id = "baseStyle";
-        shadow.appendChild(this.baseStyle);
+        this.baseStyle = baseStyle;
+        this.imageStyle = imageStyle;
+
+        this.imagePromise = imagePromise;
+        this.stylePromise = Promise.all([
+            rootPromise,
+            basePromise,
+            imagePromise,
+        ]) as unknown as Promise<void>;
     }
 
     connectedCallback(): void {
