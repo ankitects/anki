@@ -31,6 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class:active
         class="nw"
         on:mousedown|preventDefault
+        on:click
         on:pointerdown={onPointerdown(true, true)}
         on:pointerup
         on:pointermove
@@ -40,6 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class:active
         class="ne"
         on:mousedown|preventDefault
+        on:click
         on:pointerdown={onPointerdown(true, false)}
         on:pointerup
         on:pointermove
@@ -49,6 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class:active
         class="sw"
         on:mousedown|preventDefault
+        on:click
         on:pointerdown={onPointerdown(false, true)}
         on:pointerup
         on:pointermove
@@ -58,6 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class:active
         class="se"
         on:mousedown|preventDefault
+        on:click
         on:pointerdown={onPointerdown(false, false)}
         on:pointerup
         on:pointermove
