@@ -22,6 +22,8 @@ compile_svelte(
     visibility = ["//visibility:public"],
     deps = [
         "//ts/components",
+        "@npm//@types/codemirror",
+        "@npm//codemirror",
     ],
 )
 

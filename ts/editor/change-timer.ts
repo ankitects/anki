@@ -4,12 +4,12 @@
 export class ChangeTimer {
     private value: number | null = null;
 
-    schedule(action: () => void, delay: number) {
+    schedule(action: () => void, delay: number): void {
         this.clear();
         this.value = setTimeout(action, delay);
     }
 
-    clear() {
+    clear(): void {
         if (this.value) {
             clearTimeout(this.value);
             this.value = null;
