@@ -101,7 +101,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrapCurrent("<anki-mathjax>", "</anki-mathjax>")}
+                        on:click={() =>
+                            wrapCurrent("<anki-mathjax>", "</anki-mathjax>")}
                         on:mount={withButton(createShortcut)}
                     >
                         {tr.editingMathjaxInline()}
@@ -115,7 +116,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrapCurrent("<anki-mathjax block=\"true\">", "</anki-matjax>")}
+                        on:click={() =>
+                            wrapCurrent(
+                                '<anki-mathjax block="true">',
+                                "</anki-matjax>"
+                            )}
                         on:mount={withButton(createShortcut)}
                     >
                         {tr.editingMathjaxBlock()}
@@ -129,7 +134,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrapCurrent("<anki-mathjax>\\ce{", "}</anki-mathjax>")}
+                        on:click={() =>
+                            wrapCurrent("<anki-mathjax>\\ce{", "}</anki-mathjax>")}
                         on:mount={withButton(createShortcut)}
                     >
                         {tr.editingMathjaxChemistry()}

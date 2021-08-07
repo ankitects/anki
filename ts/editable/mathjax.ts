@@ -11,10 +11,6 @@ function getCSS(nightMode: boolean, fontSize: number): string {
     return `svg { color: ${color}; fill: ${color}; font-size: ${fontSize}px; }`;
 }
 
-function getErrorCSS(fontSize: number): string {
-    return `svg { color: yellow; font-size: ${fontSize}px; }`;
-}
-
 function getStyle(css: string): HTMLStyleElement {
     const style = document.createElement("style") as HTMLStyleElement;
     style.appendChild(document.createTextNode(css));
@@ -26,7 +22,7 @@ function getEmptyIcon(style: HTMLStyleElement): [string, string] {
     const svg = icon.children[0];
     svg.insertBefore(style, svg.children[0]);
 
-    return [svg.outerHTML, ""];
+    return [svg.outerHTML, "MathJax"];
 }
 
 export function convertMathjax(
