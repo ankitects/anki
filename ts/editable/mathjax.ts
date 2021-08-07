@@ -7,7 +7,8 @@ const parser = new DOMParser();
 
 function getStyle(): HTMLStyleElement {
     const style = document.createElement("style") as HTMLStyleElement;
-    const css = `svg { color: white; font-size: 20px; }`;
+    /* color is set for Maths, fill for the empty icon */
+    const css = `svg { color: white; fill: white; font-size: 20px; }`;
     style.appendChild(document.createTextNode(css));
 
     return style;

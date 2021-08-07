@@ -5,8 +5,7 @@ import type { DecoratedElement } from "./decorated";
 import { decoratedComponents } from "./decorated";
 import { bridgeCommand } from "lib/bridgecommand";
 import { elementIsBlock, getBlockElement } from "lib/dom";
-// import { inCodable } from "./toolbar";
-// import { wrap } from "./wrap";
+import { wrapInternal } from "lib/wrap";
 
 export function caretToEnd(node: Node): void {
     const range = document.createRange();
@@ -62,8 +61,7 @@ export class Editable extends HTMLElement {
     }
 
     surroundSelection(before: string, after: string): void {
-        // TODO
-        // wrap(before, after);
+        wrapInternal(this.getRootNode() as ShadowRoot, before, after, false);
     }
 
     onEnter(event: KeyboardEvent): void {
