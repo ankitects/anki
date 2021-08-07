@@ -222,8 +222,8 @@ export class EditingArea extends HTMLDivElement {
         this.activeInput.onPaste(event);
     }
 
-    resetHandles(): void {
-        this.imageHandle.then((imageHandle) =>
+    resetHandles(): Promise<void> {
+        const promise = this.imageHandle.then((imageHandle) =>
             (imageHandle as any).$set({
                 activeImage: null,
             })
@@ -232,12 +232,16 @@ export class EditingArea extends HTMLDivElement {
         (this.mathjaxHandle as any).$set({
             activeImage: null,
         });
+
+        return promise;
     }
 
-    showHandles(event: MouseEvent): void {
+    async showHandles(event: MouseEvent): Promise<void> {
         if (event.target instanceof HTMLImageElement) {
+            await this.resetHandles();
+
             if (!event.target.dataset.anki) {
-                this.imageHandle.then((imageHandle) =>
+                await this.imageHandle.then((imageHandle) =>
                     (imageHandle as any).$set({
                         activeImage: event.target,
                         isRtl: this.isRightToLeft(),
@@ -250,7 +254,7 @@ export class EditingArea extends HTMLDivElement {
                 });
             }
         } else {
-            this.resetHandles();
+            await this.resetHandles();
         }
     }
 

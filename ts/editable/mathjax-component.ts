@@ -130,7 +130,6 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
 
     connectedCallback(): void {
         this.decorate();
-        // TODO text is assigned white-space: normal
         this.disconnect = moveNodesInsertedOutside(this, this.children[0]);
     }
 

@@ -12,7 +12,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: encoded = encodeURIComponent(converted);
 </script>
 
-<img src="data:image/svg+xml,{encoded}" class:block alt="Mathjax" data-anki="mathjax" />
+<img
+    src="data:image/svg+xml,{encoded}"
+    class:block
+    alt="Mathjax"
+    data-anki="mathjax"
+    on:dragstart|preventDefault
+/>
 
 <style lang="scss">
     img {
