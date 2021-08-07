@@ -40,11 +40,24 @@ function placeCaretAfter(node: Node): void {
 
 function moveNodesInsertedOutside(element: Element, allowedChild: Node): () => void {
     const observer = new MutationObserver(() => {
+        if (element.childNodes.length === 1) {
+            return;
+        }
+
         const childNodes = [...element.childNodes];
         const allowedIndex = childNodes.findIndex((child) => child === allowedChild);
 
         const beforeChildren = childNodes.slice(0, allowedIndex);
         const afterChildren = childNodes.slice(allowedIndex + 1);
+
+        // Special treatment for pressing return after mathjax block
+        if (
+            afterChildren.length === 2 &&
+            afterChildren.every((child) => (child as Element).tagName === "BR")
+        ) {
+            const first = afterChildren.pop();
+            element.removeChild(first!);
+        }
 
         let lastNode: Node | null = null;
 
@@ -140,6 +153,7 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
     decorate(): void {
         const mathjax = (this.dataset.mathjax = this.innerText);
         this.innerHTML = "";
+        this.style.whiteSpace = "normal";
 
         this.component = new Mathjax_svelte({
             target: this,
@@ -150,6 +164,7 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
     undecorate(): void {
         this.innerHTML = this.dataset.mathjax ?? "";
         delete this.dataset.mathjax;
+        this.removeAttribute("style");
 
         this.component?.$destroy();
         this.component = undefined;
