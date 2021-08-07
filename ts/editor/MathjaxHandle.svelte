@@ -27,10 +27,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     resizeObserver.observe(container);
 
     let updateSelection: () => void;
+    let title: string;
 
     function onUpdate(event: CustomEvent) {
         activeImage!.parentElement!.dataset.mathjax = event.detail.mathjax;
-        setTimeout(updateSelection);
+        setTimeout(() => {
+            updateSelection();
+            title = activeImage!.title;
+        });
     }
 </script>
 
@@ -50,7 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bind:updateSelection
             on:mount={(event) => createDropdown(event.detail.selection)}
         >
-            <HandleBackground on:click={(event) => event.stopPropagation()} />
+            <HandleBackground {title} />
 
             <HandleControl offsetX={1} offsetY={1} />
         </HandleSelection>
