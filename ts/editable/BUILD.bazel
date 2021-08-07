@@ -3,7 +3,7 @@ load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
-load("//ts:vendor.bzl", "copy_bootstrap_icons", "copy_mdi_icons")
+load("//ts:vendor.bzl", "copy_mdi_icons")
 load("//ts:compile_sass.bzl", "compile_sass")
 
 svelte_files = glob(["*.svelte"])
@@ -37,6 +37,14 @@ compile_sass(
     ],
 )
 
+copy_mdi_icons(
+    name = "mdi-icons",
+    icons = [
+        "math-integral-box.svg",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 ts_library(
     name = "editable",
     srcs = glob(["*.ts"]),
@@ -65,6 +73,7 @@ esbuild(
     output_css = "editable-build.css",
     visibility = ["//visibility:public"],
     deps = [
+        "mdi-icons",
         "editable",
         "editable_scss",
         "svelte_components",
