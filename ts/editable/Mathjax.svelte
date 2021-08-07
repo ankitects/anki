@@ -9,9 +9,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let mathjax: string;
     export let block: boolean;
-    export let fontSize: number = 20;
+    /* have fixed fontSize for normal */
+    export const fontSize: number = 20;
 
-    const nightMode = getContext(nightModeKey);
+    const nightMode = getContext<boolean>(nightModeKey);
 
     $: [converted, title] = convertMathjax(mathjax, nightMode, fontSize);
     $: encoded = encodeURIComponent(converted);
