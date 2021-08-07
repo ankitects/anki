@@ -3,12 +3,17 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { getContext } from "svelte";
+    import { nightModeKey } from "components/context-keys";
     import { convertMathjax } from "./mathjax";
 
     export let mathjax: string;
     export let block: boolean;
+    export let fontSize: number = 20;
 
-    $: [converted, title] = convertMathjax(mathjax);
+    const nightMode = getContext(nightModeKey);
+
+    $: [converted, title] = convertMathjax(mathjax, nightMode, fontSize);
     $: encoded = encodeURIComponent(converted);
 </script>
 

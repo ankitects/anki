@@ -5,17 +5,19 @@ import { mathIcon } from "./icons";
 
 const parser = new DOMParser();
 
-function getStyle(): HTMLStyleElement {
+function getStyle(nightMode: boolean, fontSize: number): HTMLStyleElement {
     const style = document.createElement("style") as HTMLStyleElement;
+    const color = nightMode ? "white" : "black";
+
     /* color is set for Maths, fill for the empty icon */
-    const css = `svg { color: white; fill: white; font-size: 20px; }`;
+    const css = `svg { color: ${color}; fill: ${color}; font-size: ${fontSize}px; }`;
     style.appendChild(document.createTextNode(css));
 
     return style;
 }
 
-function getEmptyIcon(): [string, string] {
-    const style = getStyle();
+function getEmptyIcon(nightMode: boolean, fontSize: number): [string, string] {
+    const style = getStyle(nightMode, fontSize);
 
     const icon = parser.parseFromString(mathIcon, "image/svg+xml");
     const svg = icon.children[0];
@@ -24,16 +26,20 @@ function getEmptyIcon(): [string, string] {
     return [svg.outerHTML, ""];
 }
 
-export function convertMathjax(input: string): [string, string] {
+export function convertMathjax(
+    input: string,
+    nightMode: boolean,
+    fontSize: number
+): [string, string] {
     if (input.trim().length === 0) {
-        return getEmptyIcon();
+        return getEmptyIcon(nightMode, fontSize);
     }
 
     const output = globalThis.MathJax.tex2svg(input);
     const svg = output.children[0];
 
     if (svg.viewBox.baseVal.height === 16) {
-        return getEmptyIcon();
+        return getEmptyIcon(nightMode, fontSize);
     }
 
     let title = "";
@@ -43,7 +49,7 @@ export function convertMathjax(input: string): [string, string] {
         svg.querySelector("text").setAttribute("color", "red");
         title = svg.querySelector("title").innerHTML;
     } else {
-        const style = getStyle();
+        const style = getStyle(nightMode, fontSize);
         svg.insertBefore(style, svg.children[0]);
     }
 
