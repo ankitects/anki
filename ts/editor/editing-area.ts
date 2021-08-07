@@ -238,18 +238,19 @@ export class EditingArea extends HTMLDivElement {
 
     async showHandles(event: MouseEvent): Promise<void> {
         if (event.target instanceof HTMLImageElement) {
+            const image = event.target as HTMLImageElement;
             await this.resetHandles();
 
-            if (!event.target.dataset.anki) {
+            if (!image.dataset.anki) {
                 await this.imageHandle.then((imageHandle) =>
                     (imageHandle as any).$set({
-                        activeImage: event.target,
+                        activeImage: image,
                         isRtl: this.isRightToLeft(),
                     })
                 );
-            } else if (event.target.dataset.anki === "mathjax") {
+            } else if (image.dataset.anki === "mathjax") {
                 (this.mathjaxHandle as any).$set({
-                    activeImage: event.target,
+                    activeImage: image,
                     isRtl: this.isRightToLeft(),
                 });
             }

@@ -8,7 +8,7 @@ const parser = new DOMParser();
 function getCSS(nightMode: boolean, fontSize: number): string {
     const color = nightMode ? "white" : "black";
     /* color is set for Maths, fill for the empty icon */
-    return `svg { color: ${color}; fill: ${color}; font-size: ${fontSize}px; }`;
+    return `svg { color: ${color}; fill: ${color}; font-size: ${fontSize}px; };`;
 }
 
 function getStyle(css: string): HTMLStyleElement {
