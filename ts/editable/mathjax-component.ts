@@ -130,8 +130,10 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
             case "block":
                 this.block = newValue !== "false";
                 this.component?.$set({ block: this.block });
+                break;
             case "data-mathjax":
                 this.component?.$set({ mathjax: newValue });
+                break;
         }
     }
 
