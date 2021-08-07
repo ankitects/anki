@@ -57,12 +57,6 @@ export class Editable extends HTMLElement {
         this.setAttribute("contenteditable", "");
     }
 
-    focus(): void {
-        super.focus();
-        // TODO
-        // inCodable.set(false);
-    }
-
     caretToEnd(): void {
         caretToEnd(this);
     }

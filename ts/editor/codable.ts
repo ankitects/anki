@@ -72,6 +72,7 @@ export class Codable extends HTMLTextAreaElement {
     setup(html: string): void {
         this.fieldHTML = html;
         this.codeMirror = CodeMirror.fromTextArea(this, codeMirrorOptions);
+        this.codeMirror.on("blur", () => inCodable.set(false));
     }
 
     teardown(): string {
