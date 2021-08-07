@@ -4,11 +4,10 @@
 import { mathIcon } from "./icons";
 
 const parser = new DOMParser();
-const errorPattern = /<title>(.*?)<\/title>/gsu;
 
 function getStyle(): HTMLStyleElement {
     const style = document.createElement("style") as HTMLStyleElement;
-    const css = `svg { color: white; fill: white; font-size: 20px; }`;
+    const css = `svg { color: white; font-size: 20px; }`;
     style.appendChild(document.createTextNode(css));
 
     return style;
@@ -36,13 +35,13 @@ export function convertMathjax(input: string): string {
         return getEmptyIcon();
     }
 
-    if (!svg.innerHTML.includes("data-mjx-error")) {
+    if (svg.innerHTML.includes("data-mjx-error")) {
+        svg.querySelector("rect").setAttribute("fill", "yellow");
+        svg.querySelector("text").setAttribute("color", "red");
+    } else {
         const style = getStyle();
         svg.insertBefore(style, svg.children[0]);
-
-        return svg.outerHTML;
-    } else {
-        const match = errorPattern.exec(svg.innerHTML);
-        throw match ? match[1] : "Unknown error";
     }
+
+    return svg.outerHTML;
 }
