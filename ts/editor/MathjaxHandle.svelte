@@ -27,7 +27,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     resizeObserver.observe(container);
 
     let updateSelection: () => void;
-    let edit = false;
 
     function onUpdate(event: CustomEvent) {
         activeImage!.parentElement!.dataset.mathjax = event.detail.mathjax;
@@ -51,37 +50,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bind:updateSelection
             on:mount={(event) => createDropdown(event.detail.selection)}
         >
-            <HandleBackground
-                on:click={(event) => event.stopPropagation()}
-                on:dblclick={() => (edit = !edit)}
-            />
+            <HandleBackground on:click={(event) => event.stopPropagation()} />
 
             <HandleControl offsetX={1} offsetY={1} />
         </HandleSelection>
 
-        {#if !edit}
-            <DropdownMenu>
-                <MathjaxHandleEditor
-                    initialValue={activeImage.parentElement?.dataset.mathjax ?? ""}
-                    on:update={(event) => {
-                        onUpdate(event);
-                        setTimeout(dropdownObject.update);
-                    }}
-                />
-            </DropdownMenu>
-        {:else}
-            <ButtonDropdown>
-                <div
-                    on:click={() => {
-                        updateSelection();
-                        dropdownObject.update();
-                    }}
-                >
-                    <Item>
-                        <MathjaxHandleInlineBlock {activeImage} {isRtl} />
-                    </Item>
-                </div>
-            </ButtonDropdown>
-        {/if}
+        <DropdownMenu>
+            <MathjaxHandleEditor
+                initialValue={activeImage.parentElement?.dataset.mathjax ?? ""}
+                on:update={(event) => {
+                    onUpdate(event);
+                    setTimeout(dropdownObject.update);
+                }}
+            />
+            <div
+                on:click={() => {
+                    updateSelection();
+                    dropdownObject.update();
+                }}
+            >
+                <Item>
+                    <MathjaxHandleInlineBlock {activeImage} {isRtl} />
+                </Item>
+            </div>
+        </DropdownMenu>
     {/if}
 </WithDropdown>
