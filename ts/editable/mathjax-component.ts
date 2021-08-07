@@ -121,10 +121,6 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
     };
     component?: Mathjax_svelte;
 
-    constructor() {
-        super();
-    }
-
     static get observedAttributes(): string[] {
         return ["block", "data-mathjax"];
     }
