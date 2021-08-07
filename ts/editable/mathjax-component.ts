@@ -163,7 +163,11 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
 
         this.component = new Mathjax_svelte({
             target: this,
-            props: { mathjax, block: this.block },
+            props: {
+                mathjax,
+                block: this.block,
+                autofocus: this.hasAttribute("focusonmount"),
+            },
             context,
         } as any);
     }
@@ -172,6 +176,7 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
         this.innerHTML = this.dataset.mathjax ?? "";
         delete this.dataset.mathjax;
         this.removeAttribute("style");
+        this.removeAttribute("focusonmount");
 
         this.component?.$destroy();
         this.component = undefined;
