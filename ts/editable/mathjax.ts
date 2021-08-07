@@ -5,20 +5,23 @@ import { mathIcon } from "./icons";
 
 const parser = new DOMParser();
 
-function getStyle(nightMode: boolean, fontSize: number): HTMLStyleElement {
-    const style = document.createElement("style") as HTMLStyleElement;
+function getCSS(nightMode: boolean, fontSize: number): string {
     const color = nightMode ? "white" : "black";
-
     /* color is set for Maths, fill for the empty icon */
-    const css = `svg { color: ${color}; fill: ${color}; font-size: ${fontSize}px; }`;
-    style.appendChild(document.createTextNode(css));
+    return `svg { color: ${color}; fill: ${color}; font-size: ${fontSize}px; }`;
+}
 
+function getErrorCSS(fontSize: number): string {
+    return `svg { color: yellow; font-size: ${fontSize}px; }`;
+}
+
+function getStyle(css: string): HTMLStyleElement {
+    const style = document.createElement("style") as HTMLStyleElement;
+    style.appendChild(document.createTextNode(css));
     return style;
 }
 
-function getEmptyIcon(nightMode: boolean, fontSize: number): [string, string] {
-    const style = getStyle(nightMode, fontSize);
-
+function getEmptyIcon(style: HTMLStyleElement): [string, string] {
     const icon = parser.parseFromString(mathIcon, "image/svg+xml");
     const svg = icon.children[0];
     svg.insertBefore(style, svg.children[0]);
@@ -31,15 +34,17 @@ export function convertMathjax(
     nightMode: boolean,
     fontSize: number
 ): [string, string] {
+    const style = getStyle(getCSS(nightMode, fontSize));
+
     if (input.trim().length === 0) {
-        return getEmptyIcon(nightMode, fontSize);
+        return getEmptyIcon(style);
     }
 
     const output = globalThis.MathJax.tex2svg(input);
     const svg = output.children[0];
 
     if (svg.viewBox.baseVal.height === 16) {
-        return getEmptyIcon(nightMode, fontSize);
+        return getEmptyIcon(style);
     }
 
     let title = "";
@@ -49,7 +54,6 @@ export function convertMathjax(
         svg.querySelector("text").setAttribute("color", "red");
         title = svg.querySelector("title").innerHTML;
     } else {
-        const style = getStyle(nightMode, fontSize);
         svg.insertBefore(style, svg.children[0]);
     }
 
