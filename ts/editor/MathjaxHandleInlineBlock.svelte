@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             tooltip={tr.editingMathjaxInline()}
             active={activeImage.getAttribute("block") === "true"}
             on:click={() => mathjaxElement.setAttribute("block", "false")}
-            >{@html inlineIcon}</IconButton
+            on:click>{@html inlineIcon}</IconButton
         >
     </ButtonGroupItem>
 
@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             tooltip={tr.editingMathjaxBlock()}
             active={activeImage.getAttribute("block") === "false"}
             on:click={() => mathjaxElement.setAttribute("block", "true")}
-            >{@html blockIcon}</IconButton
+            on:click>{@html blockIcon}</IconButton
         >
     </ButtonGroupItem>
 </ButtonGroup>
