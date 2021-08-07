@@ -24,7 +24,7 @@ export const htmlanki = {
     },
 };
 
-const noop = () => {
+const noop = (): void => {
     /* noop */
 };
 
