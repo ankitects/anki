@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount, createEventDispatcher } from "svelte";
     import { ChangeTimer } from "./change-timer";
 
-    import * as CodeMirror from "codemirror/lib/codemirror";
+    import CodeMirror from "codemirror";
     import "codemirror/mode/stex/stex";
     import "codemirror/addon/fold/foldcode";
     import "codemirror/addon/fold/foldgutter";
@@ -21,18 +21,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         inMathMode: true,
     };
 
+    const noop = () => {
+        /* noop */
+    };
+
     const codeMirrorOptions = {
         mode: latex,
         theme: "monokai",
         lineWrapping: true,
         matchTags: { bothTags: true },
-        extraKeys: { Tab: false, "Shift-Tab": false },
+        extraKeys: { Tab: noop, "Shift-Tab": noop },
         viewportMargin: Infinity,
         lineWiseCopyCut: false,
         autofocus: true,
     };
 
-    let codeMirror: CodeMirror;
+    let codeMirror: CodeMirror.EditorFromTextArea;
     const changeTimer = new ChangeTimer();
 
     function onInput() {

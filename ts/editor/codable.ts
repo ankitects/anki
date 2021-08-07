@@ -1,7 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import * as CodeMirror from "codemirror/lib/codemirror";
+/* eslint
+@typescript-eslint/no-non-null-assertion: "off",
+*/
+
+import CodeMirror from "codemirror";
 import "codemirror/mode/htmlmixed/htmlmixed";
 import "codemirror/mode/stex/stex";
 import "codemirror/addon/fold/foldcode";
@@ -24,6 +28,10 @@ const htmlanki = {
     },
 };
 
+const noop = () => {
+    /* noop */
+};
+
 const codeMirrorOptions = {
     mode: htmlanki,
     theme: "monokai",
@@ -33,7 +41,7 @@ const codeMirrorOptions = {
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
     matchTags: { bothTags: true },
     autoCloseTags: true,
-    extraKeys: { Tab: false, "Shift-Tab": false },
+    extraKeys: { Tab: noop, "Shift-Tab": noop },
     viewportMargin: Infinity,
     lineWiseCopyCut: false,
 };
@@ -47,7 +55,7 @@ function parseHTML(html: string): string {
 }
 
 export class Codable extends HTMLTextAreaElement {
-    codeMirror: CodeMirror | undefined;
+    codeMirror: CodeMirror.EditorFromTextArea | undefined;
 
     get active(): boolean {
         return Boolean(this.codeMirror);
@@ -55,14 +63,14 @@ export class Codable extends HTMLTextAreaElement {
 
     set fieldHTML(content: string) {
         if (this.active) {
-            this.codeMirror.setValue(content);
+            this.codeMirror?.setValue(content);
         } else {
             this.value = content;
         }
     }
 
     get fieldHTML(): string {
-        return parseHTML(this.active ? this.codeMirror.getValue() : this.value);
+        return parseHTML(this.active ? this.codeMirror!.getValue() : this.value);
     }
 
     connectedCallback(): void {
@@ -76,23 +84,23 @@ export class Codable extends HTMLTextAreaElement {
     }
 
     teardown(): string {
-        this.codeMirror.toTextArea();
+        this.codeMirror!.toTextArea();
         this.codeMirror = undefined;
         return this.fieldHTML;
     }
 
     focus(): void {
-        this.codeMirror.focus();
+        this.codeMirror!.focus();
         inCodable.set(true);
     }
 
     caretToEnd(): void {
-        this.codeMirror.setCursor(this.codeMirror.lineCount(), 0);
+        this.codeMirror!.setCursor(this.codeMirror!.lineCount(), 0);
     }
 
     surroundSelection(before: string, after: string): void {
-        const selection = this.codeMirror.getSelection();
-        this.codeMirror.replaceSelection(before + selection + after);
+        const selection = this.codeMirror!.getSelection();
+        this.codeMirror!.replaceSelection(before + selection + after);
     }
 
     onEnter(): void {

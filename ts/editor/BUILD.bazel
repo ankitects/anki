@@ -191,5 +191,7 @@ svelte_check(
         "//ts/sass/bootstrap",
         "@npm//@types/bootstrap",
         "//ts/components",
+        "@npm//@types/codemirror",
+        "@npm//codemirror",
     ],
 )
