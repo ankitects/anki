@@ -61,7 +61,7 @@ function moveNodesInsertedOutside(element: Element, allowedChild: Node): () => v
         }
     });
 
-    observer.observe(element, { characterData: true, subtree: true });
+    observer.observe(element, { childList: true, characterData: true });
     return () => observer.disconnect();
 }
 
