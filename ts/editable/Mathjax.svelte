@@ -15,12 +15,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const nightMode = getContext<boolean>(nightModeKey);
 
     $: [converted, title] = convertMathjax(mathjax, nightMode, fontSize);
+    $: empty = title === "MathJax";
     $: encoded = encodeURIComponent(converted);
 </script>
 
 <img
     src="data:image/svg+xml,{encoded}"
     class:block
+    class:empty
     alt="Mathjax"
     {title}
     data-anki="mathjax"
@@ -31,5 +33,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .block {
         display: block;
         margin: auto;
+    }
+
+    .empty {
+        vertical-align: sub;
     }
 </style>
