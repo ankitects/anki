@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let mathjax: string;
     export let block: boolean;
 
-    $: converted = convertMathjax(mathjax);
+    $: [converted, title] = convertMathjax(mathjax);
     $: encoded = encodeURIComponent(converted);
 </script>
 
@@ -16,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     src="data:image/svg+xml,{encoded}"
     class:block
     alt="Mathjax"
+    {title}
     data-anki="mathjax"
     on:dragstart|preventDefault
 />

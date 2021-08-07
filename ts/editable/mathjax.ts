@@ -13,17 +13,17 @@ function getStyle(): HTMLStyleElement {
     return style;
 }
 
-function getEmptyIcon(): string {
+function getEmptyIcon(): [string, string] {
     const style = getStyle();
 
     const icon = parser.parseFromString(mathIcon, "image/svg+xml");
     const svg = icon.children[0];
     svg.insertBefore(style, svg.children[0]);
 
-    return svg.outerHTML;
+    return [svg.outerHTML, ""];
 }
 
-export function convertMathjax(input: string): string {
+export function convertMathjax(input: string): [string, string] {
     if (input.trim().length === 0) {
         return getEmptyIcon();
     }
@@ -35,13 +35,16 @@ export function convertMathjax(input: string): string {
         return getEmptyIcon();
     }
 
+    let title = "";
+
     if (svg.innerHTML.includes("data-mjx-error")) {
         svg.querySelector("rect").setAttribute("fill", "yellow");
         svg.querySelector("text").setAttribute("color", "red");
+        title = svg.querySelector("title").innerHTML;
     } else {
         const style = getStyle();
         svg.insertBefore(style, svg.children[0]);
     }
 
-    return svg.outerHTML;
+    return [svg.outerHTML, title];
 }
