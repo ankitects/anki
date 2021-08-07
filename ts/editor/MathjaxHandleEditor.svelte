@@ -5,35 +5,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import { onMount, createEventDispatcher } from "svelte";
     import { ChangeTimer } from "./change-timer";
-
-    import CodeMirror from "codemirror";
-    import "codemirror/mode/stex/stex";
-    import "codemirror/addon/fold/foldcode";
-    import "codemirror/addon/fold/foldgutter";
-    import "codemirror/addon/fold/xml-fold";
-    import "codemirror/addon/edit/matchtags.js";
-    import "codemirror/addon/edit/closetag.js";
+    import { CodeMirror, latex, baseOptions } from "./codeMirror";
 
     export let initialValue: string;
 
-    const latex = {
-        name: "stex",
-        inMathMode: true,
-    };
-
-    const noop = () => {
-        /* noop */
-    };
-
     const codeMirrorOptions = {
         mode: latex,
-        theme: "monokai",
-        lineWrapping: true,
-        matchTags: { bothTags: true },
-        extraKeys: { Tab: noop, "Shift-Tab": noop },
-        viewportMargin: Infinity,
-        lineWiseCopyCut: false,
-        autofocus: true,
+        ...baseOptions,
     };
 
     let codeMirror: CodeMirror.EditorFromTextArea;
