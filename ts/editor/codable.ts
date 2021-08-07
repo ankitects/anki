@@ -5,45 +5,13 @@
 @typescript-eslint/no-non-null-assertion: "off",
 */
 
-import CodeMirror from "codemirror";
-import "codemirror/mode/htmlmixed/htmlmixed";
-import "codemirror/mode/stex/stex";
-import "codemirror/addon/fold/foldcode";
-import "codemirror/addon/fold/foldgutter";
-import "codemirror/addon/fold/xml-fold";
-import "codemirror/addon/edit/matchtags.js";
-import "codemirror/addon/edit/closetag.js";
-
+import { CodeMirror, htmlanki, baseOptions, gutterOptions } from "./codeMirror";
 import { inCodable } from "./toolbar";
-
-const latex = {
-    name: "stex",
-    inMathMode: true,
-};
-
-const htmlanki = {
-    name: "htmlmixed",
-    tags: {
-        "anki-mathjax": [[null, null, latex]],
-    },
-};
-
-const noop = () => {
-    /* noop */
-};
 
 const codeMirrorOptions = {
     mode: htmlanki,
-    theme: "monokai",
-    lineNumbers: true,
-    lineWrapping: true,
-    foldGutter: true,
-    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-    matchTags: { bothTags: true },
-    autoCloseTags: true,
-    extraKeys: { Tab: noop, "Shift-Tab": noop },
-    viewportMargin: Infinity,
-    lineWiseCopyCut: false,
+    ...baseOptions,
+    ...gutterOptions,
 };
 
 const parser = new DOMParser();
