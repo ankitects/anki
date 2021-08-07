@@ -3,8 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { tick } from "svelte";
+
     import WithDropdown from "components/WithDropdown.svelte";
-    import ButtonDropdown from "components/ButtonDropdown.svelte";
+    import ButtonToolbar from "components/ButtonToolbar.svelte";
     import DropdownMenu from "components/DropdownMenu.svelte";
     import Item from "components/Item.svelte";
 
@@ -67,16 +69,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     setTimeout(dropdownObject.update);
                 }}
             />
-            <div
-                on:click={() => {
-                    updateSelection();
-                    dropdownObject.update();
-                }}
-            >
-                <Item>
-                    <MathjaxHandleInlineBlock {activeImage} {isRtl} />
-                </Item>
-            </div>
-        </DropdownMenu>
+            <div class="margin-x">
+                <ButtonToolbar>
+                    <Item>
+                        <MathjaxHandleInlineBlock
+                            {activeImage}
+                            {isRtl}
+                            on:click={async () => {
+                                await tick();
+                                updateSelection();
+                                dropdownObject.update();
+                            }}
+                        />
+                    </Item>
+                </ButtonToolbar>
+                <div />
+            </div></DropdownMenu
+        >
     {/if}
 </WithDropdown>
+
+<style lang="scss">
+    .margin-x {
+        margin: 0 0.125rem;
+    }
+</style>
