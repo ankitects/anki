@@ -151,6 +151,7 @@ esbuild(
         "mdi-icons",
         "svelte_components",
         "//ts/editable",
+        "//ts/editable:mdi-icons",
         "//ts/components",
         "//ts/components:svelte_components",
         "//ts/editable:svelte_components",
