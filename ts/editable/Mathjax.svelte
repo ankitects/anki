@@ -28,12 +28,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 />
 
 <style lang="scss">
-    img {
-        vertical-align: middle;
-
-        &.block {
-            display: block;
-            margin: auto;
-        }
+    .block {
+        display: block;
+        margin: auto;
     }
 </style>
