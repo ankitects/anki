@@ -18,7 +18,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: [converted, title] = convertMathjax(mathjax, nightMode, fontSize);
     $: empty = title === "MathJax";
-    $: encoded = encodeURIComponent(converted);
+
+    let encoded: string;
+    let imageHeight: number;
+
+    $: {
+        encoded = encodeURIComponent(converted);
+
+        setTimeout(() => {
+            imageHeight = image.getBoundingClientRect().height;
+        });
+    }
 
     let image: HTMLImageElement;
 
@@ -34,6 +44,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     src="data:image/svg+xml,{encoded}"
     class:block
     class:empty
+    style="--vertical-center: {-imageHeight / 2 + fontSize / 4}px;"
     alt="Mathjax"
     {title}
     data-anki="mathjax"
@@ -41,6 +52,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 />
 
 <style lang="scss">
+    img {
+        vertical-align: var(--vertical-center);
+    }
+
     .block {
         display: block;
         margin: auto;
