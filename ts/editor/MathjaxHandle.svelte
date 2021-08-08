@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let title: string;
 
     function getComponent(image: HTMLImageElement): HTMLElement {
-        return (image.closest("anki-mathjax")! as HTMLElement);
+        return image.closest("anki-mathjax")! as HTMLElement;
     }
 
     function onUpdate(event: CustomEvent) {
