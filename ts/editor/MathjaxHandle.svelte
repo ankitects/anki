@@ -31,8 +31,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let updateSelection: () => void;
     let title: string;
 
+    function getComponent(image: HTMLImageElement): HTMLElement {
+        return (image.closest("anki-mathjax")! as HTMLElement);
+    }
+
     function onUpdate(event: CustomEvent) {
-        activeImage!.parentElement!.dataset.mathjax = event.detail.mathjax;
+        getComponent(activeImage!).dataset.mathjax = event.detail.mathjax;
         setTimeout(() => {
             updateSelection();
             title = activeImage!.title;
@@ -63,7 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <DropdownMenu>
             <MathjaxHandleEditor
-                initialValue={activeImage.parentElement?.dataset.mathjax ?? ""}
+                initialValue={getComponent(activeImage).dataset.mathjax ?? ""}
                 on:update={(event) => {
                     onUpdate(event);
                     setTimeout(dropdownObject.update);
