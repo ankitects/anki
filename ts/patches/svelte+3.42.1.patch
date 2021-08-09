@@ -1,0 +1,135 @@
+diff --git a/node_modules/svelte/internal/index.mjs b/node_modules/svelte/internal/index.mjs
+index 59116ca..a76c710 100644
+--- a/node_modules/svelte/internal/index.mjs
++++ b/node_modules/svelte/internal/index.mjs
+@@ -1,5 +1,5 @@
+ function noop() { }
+-const identity = x => x;
++const identity = globalThis.svelteCrossUnit.identity = x => x;
+ function assign(tar, src) {
+     // @ts-ignore
+     for (const k in src)
+@@ -151,12 +151,12 @@ function set_store_value(store, ret, value) {
+     store.set(value);
+     return ret;
+ }
+-const has_prop = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
++const has_prop = globalThis.svelteCrossUnit.has_prop = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+ function action_destroyer(action_result) {
+     return action_result && is_function(action_result.destroy) ? action_result.destroy : noop;
+ }
+ 
+-const is_client = typeof window !== 'undefined';
++const is_client = globalThis.svelteCrossUnit.is_client = typeof window !== 'undefined';
+ let now = is_client
+     ? () => window.performance.now()
+     : () => Date.now();
+@@ -169,7 +169,7 @@ function set_raf(fn) {
+     raf = fn;
+ }
+ 
+-const tasks = new Set();
++const tasks = globalThis.svelteCrossUnit.tasks = new Set();
+ function run_tasks(now) {
+     tasks.forEach(task => {
+         if (!task.c(now)) {
+@@ -792,7 +792,7 @@ function get_custom_elements_slots(element) {
+     return result;
+ }
+ 
+-const active_docs = new Set();
++const active_docs = globalThis.svelteCrossUnit.active_docs = new Set();
+ let active = 0;
+ // https://github.com/darkskyapp/string-hash/blob/master/index.js
+ function hash(str) {
+@@ -980,12 +980,12 @@ function bubble(component, event) {
+     }
+ }
+ 
+-const dirty_components = [];
+-const intros = { enabled: false };
+-const binding_callbacks = [];
+-const render_callbacks = [];
+-const flush_callbacks = [];
+-const resolved_promise = Promise.resolve();
++const dirty_components = globalThis.svelteCrossUnit.dirty_components = [];
++const intros = globalThis.svelteCrossUnit.intros = { enabled: false };
++const binding_callbacks = globalThis.svelteCrossUnit.binding_callbacks = [];
++const render_callbacks = globalThis.svelteCrossUnit.render_callbacks = [];
++const flush_callbacks = globalThis.svelteCrossUnit.flush_callbacks = [];
++const resolved_promise = globalThis.svelteCrossUnit.resolved_promise = Promise.resolve();
+ let update_scheduled = false;
+ function schedule_update() {
+     if (!update_scheduled) {
+@@ -1004,7 +1004,7 @@ function add_flush_callback(fn) {
+     flush_callbacks.push(fn);
+ }
+ let flushing = false;
+-const seen_callbacks = new Set();
++const seen_callbacks = globalThis.svelteCrossUnit.seen_callbacks = new Set();
+ function flush() {
+     if (flushing)
+         return;
+@@ -1065,7 +1065,7 @@ function wait() {
+ function dispatch(node, direction, kind) {
+     node.dispatchEvent(custom_event(`${direction ? 'intro' : 'outro'}${kind}`));
+ }
+-const outroing = new Set();
++const outroing = globalThis.svelteCrossUnit.outroing = new Set();
+ let outros;
+ function group_outros() {
+     outros = {
+@@ -1102,7 +1102,7 @@ function transition_out(block, local, detach, callback) {
+         block.o(local);
+     }
+ }
+-const null_transition = { duration: 0 };
++const null_transition = globalThis.svelteCrossUnit.null_transition = { duration: 0 };
+ function create_in_transition(node, fn, params) {
+     let config = fn(node, params);
+     let running = false;
+@@ -1410,7 +1410,7 @@ function update_await_block_branch(info, ctx, dirty) {
+     info.block.p(child_ctx, dirty);
+ }
+ 
+-const globals = (typeof window !== 'undefined'
++const globals = globalThis.svelteCrossUnit.globals = (typeof window !== 'undefined'
+     ? window
+     : typeof globalThis !== 'undefined'
+         ? globalThis
+@@ -1557,7 +1557,7 @@ function get_spread_object(spread_props) {
+ }
+ 
+ // source: https://html.spec.whatwg.org/multipage/indices.html
+-const boolean_attributes = new Set([
++const boolean_attributes = globalThis.svelteCrossUnit.boolean_attributes = new Set([
+     'allowfullscreen',
+     'allowpaymentrequest',
+     'async',
+@@ -1584,7 +1584,7 @@ const boolean_attributes = new Set([
+     'selected'
+ ]);
+ 
+-const invalid_attribute_name_character = /[\s'">/=\u{FDD0}-\u{FDEF}\u{FFFE}\u{FFFF}\u{1FFFE}\u{1FFFF}\u{2FFFE}\u{2FFFF}\u{3FFFE}\u{3FFFF}\u{4FFFE}\u{4FFFF}\u{5FFFE}\u{5FFFF}\u{6FFFE}\u{6FFFF}\u{7FFFE}\u{7FFFF}\u{8FFFE}\u{8FFFF}\u{9FFFE}\u{9FFFF}\u{AFFFE}\u{AFFFF}\u{BFFFE}\u{BFFFF}\u{CFFFE}\u{CFFFF}\u{DFFFE}\u{DFFFF}\u{EFFFE}\u{EFFFF}\u{FFFFE}\u{FFFFF}\u{10FFFE}\u{10FFFF}]/u;
++const invalid_attribute_name_character = globalThis.svelteCrossUnit.invalid_attribute_name_character = /[\s'">/=\u{FDD0}-\u{FDEF}\u{FFFE}\u{FFFF}\u{1FFFE}\u{1FFFF}\u{2FFFE}\u{2FFFF}\u{3FFFE}\u{3FFFF}\u{4FFFE}\u{4FFFF}\u{5FFFE}\u{5FFFF}\u{6FFFE}\u{6FFFF}\u{7FFFE}\u{7FFFF}\u{8FFFE}\u{8FFFF}\u{9FFFE}\u{9FFFF}\u{AFFFE}\u{AFFFF}\u{BFFFE}\u{BFFFF}\u{CFFFE}\u{CFFFF}\u{DFFFE}\u{DFFFF}\u{EFFFE}\u{EFFFF}\u{FFFFE}\u{FFFFF}\u{10FFFE}\u{10FFFF}]/u;
+ // https://html.spec.whatwg.org/multipage/syntax.html#attributes-2
+ // https://infra.spec.whatwg.org/#noncharacter
+ function spread(args, classes_to_add) {
+@@ -1614,7 +1614,7 @@ function spread(args, classes_to_add) {
+     });
+     return str;
+ }
+-const escaped = {
++const escaped = globalThis.svelteCrossUnit.escaped = {
+     '"': '&quot;',
+     "'": '&#39;',
+     '&': '&amp;',
+@@ -1641,7 +1641,7 @@ function each(items, fn) {
+     }
+     return str;
+ }
+-const missing_component = {
++const missing_component = globalThis.svelteCrossUnit.missing_component = {
+     $$render: () => ''
+ };
+ function validate_component(component, name) {
