@@ -22,8 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <input
     type="number"
-    pattern="[0-9]*"
-    inputmode="decimal"
     class="form-control"
     class:nightMode
     {min}
