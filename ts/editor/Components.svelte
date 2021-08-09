@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "components/IconButton.svelte";
     import LabelButton from "components/LabelButton.svelte";
     import WithContext from "components/WithContext.svelte";
+    import WithShortcut from "components/WithShortcut.svelte";
     import WithState from "components/WithState.svelte";
 
     import * as contextKeys from "components/context-keys";
@@ -15,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         IconButton,
         LabelButton,
         WithContext,
+        WithShortcut,
         WithState,
         contextKeys: { ...contextKeys, ...editorContextKeys },
     };
