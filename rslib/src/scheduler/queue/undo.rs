@@ -40,10 +40,10 @@ impl Collection {
             }
             UndoableQueueChange::CardAnswerUndone(update) => {
                 let queues = self.get_queues()?;
+                queues.pop_entry(update.entry.card_id())?;
                 if let Some(learning) = update.learning_requeue {
                     queues.insert_intraday_learning_card(learning);
                 }
-                queues.pop_entry(update.entry.card_id())?;
                 self.save_undo(UndoableQueueChange::CardAnswered(update));
 
                 Ok(())
