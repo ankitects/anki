@@ -148,7 +148,7 @@ fn write_rated(days: &u32, ease: &RatingKind) -> String {
 
 /// Escape double quotes and backslashes: \"
 fn write_dupe(notetype_id: &NotetypeId, text: &str) -> String {
-    let esc = text.replace(r"\", r"\\").replace('"', r#"\""#);
+    let esc = text.replace(r"\", r"\\");
     maybe_quote(&format!("dupe:{},{}", notetype_id, esc))
 }
 
