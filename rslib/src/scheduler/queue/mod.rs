@@ -208,7 +208,7 @@ impl Collection {
 
     pub(crate) fn get_queues(&mut self) -> Result<&mut CardQueues> {
         let timing = self.timing_today()?;
-        let deck = self.get_current_deck_id();
+        let deck = self.get_current_deck()?;
         let day_rolled_over = self
             .state
             .card_queues
@@ -219,7 +219,7 @@ impl Collection {
             self.discard_undo_and_study_queues();
         }
         if self.state.card_queues.is_none() {
-            self.state.card_queues = Some(self.build_queues(deck)?);
+            self.state.card_queues = Some(self.build_queues(deck.id)?);
         }
 
         Ok(self.state.card_queues.as_mut().unwrap())
