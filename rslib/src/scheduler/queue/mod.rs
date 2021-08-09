@@ -127,24 +127,21 @@ impl CardQueues {
     /// Remove the provided card from the top of the queues and
     /// adjust the counts. If it was not at the top, return an error.
     fn pop_entry(&mut self, id: CardId) -> Result<QueueEntry> {
-        let mut entry = self.iter().next();
-        if entry.is_none() && *crate::PYTHON_UNIT_TESTS {
-            // the existing Python tests answer learning cards
-            // before they're due; try the first non-due learning
-            // card as a backup
-            entry = self.intraday_learning.front().map(Into::into)
-        }
-        if let Some(entry) = entry {
-            match entry {
-                QueueEntry::IntradayLearning(e) if e.id == id => {
-                    self.pop_intraday_learning().map(Into::into)
-                }
-                QueueEntry::Main(e) if e.id == id => self.pop_main().map(Into::into),
-                _ => None,
-            }
-            .ok_or_else(|| AnkiError::invalid_input("not at top of queue"))
+        // This ignores the current cutoff, so may match if the provided
+        // learning card is not yet due. It should not happen in normal
+        // practice, but does happen in the Python unit tests, as they answer
+        // learning cards early.
+        if self
+            .intraday_learning
+            .front()
+            .filter(|e| e.id == id)
+            .is_some()
+        {
+            Ok(self.pop_intraday_learning().unwrap().into())
+        } else if self.main.front().filter(|e| e.id == id).is_some() {
+            Ok(self.pop_main().unwrap().into())
         } else {
-            Err(AnkiError::invalid_input("queues are empty"))
+            Err(AnkiError::invalid_input("not at top of queue"))
         }
     }
 
