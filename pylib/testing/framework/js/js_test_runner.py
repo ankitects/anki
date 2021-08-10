@@ -5,7 +5,7 @@ JS Test Runner API Implementation
 """
 
 from testing.framework.string_utils import get_line_number_prefix
-from testing.framework.test_runner import TestRunner
+from testing.framework.test_runner import TestRunner, LIBS_FOLDER
 from testing.framework.types import SrcFile
 
 
@@ -36,9 +36,9 @@ class JsTestRunner(TestRunner):
         :return: shell command to execute a source file
         """
         if is_win:
-            return f'{resource_path}/libs/node/node.exe {src_file.file.name}'
+            return f'{resource_path}/{LIBS_FOLDER}/js/node.exe {src_file.file.name}'
         else:
-            return f'cd {resource_path}/libs/node && {resource_path}/libs/node/bin/node {src_file.file.name}'
+            return f'cd {resource_path}/{LIBS_FOLDER}/js && {resource_path}/libs/js/bin/node {src_file.file.name}'
 
     def get_error_message(self, error: str, file_name: str, code_offset: int) -> str:
         """

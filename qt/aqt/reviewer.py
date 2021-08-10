@@ -12,7 +12,8 @@ import threading
 import unicodedata as ucd
 from typing import List, Optional, Tuple
 
-from testing.framework.anki_testing_api import get_solution_template, run_tests, stop_tests
+from testing.framework.anki_testing_api import get_solution_template, run_tests, stop_tests, get_lang_title, \
+    get_supported_languages
 from testing.framework.console_logger import ConsoleLogger
 
 from anki import hooks
@@ -37,9 +38,12 @@ class ReviewerBottomBar:
         self.reviewer = reviewer
 
 
-THEMES = ['dracula', 'agate', 'github', 'solarized-dark', 'code-brewer', 'solarized-light', 'railscasts', 'monokai-sublime',
+THEMES = ['dracula', 'agate', 'github', 'solarized-dark', 'code-brewer', 'solarized-light', 'railscasts',
+          'monokai-sublime',
           'mono-blue', 'zenburn', 'androidstudio', 'atom-one-light', 'rainbow', 'atom-one-dark', 'tommorow', 'vs']
 DEFAULT_THEME_KEY = 'defaultCodeTheme'
+STORED_LANG_KEY = 'defaultCodeLang'
+
 
 def replay_audio(card: Card, question_side: bool) -> None:
     if question_side:
@@ -823,38 +827,17 @@ time = %(time)d;
         return menu
 
     def _langContextMenu(self):
-        lang = self._getCurrentLang()
+        curr_lang = self._getCurrentLang()
         return [
-            [
-                "Java",
-                "",
-                lambda: self.switchLang("java"),
-                dict(checked=lang == "java"),
-            ],
-            [
-                "Python",
-                "",
-                lambda: self.switchLang("python"),
-                dict(checked=lang == "python"),
-            ],
-            [
-                "C++",
-                "",
-                lambda: self.switchLang("cpp"),
-                dict(checked=lang == "cpp"),
-            ],
-            [
-                "JavaScript",
-                "",
-                lambda: self.switchLang("js"),
-                dict(checked=lang == "js"),
-            ],
+            [get_lang_title(lang), '', (lambda l: lambda: self.switchLang(l))(lang), dict(checked=curr_lang == lang)]
+            for lang in get_supported_languages()
         ]
 
     def _getCurrentLang(self):
-        lang = 'java'
-        if 'defaultCodeLang' in self.mw.pm.meta:
-            lang = self.mw.pm.meta['defaultCodeLang']
+        lang = get_supported_languages()[0]
+        if STORED_LANG_KEY in self.mw.pm.meta \
+                and self.mw.pm.meta[STORED_LANG_KEY] in get_supported_languages():
+            lang = self.mw.pm.meta[STORED_LANG_KEY]
         return lang
 
     # note the shortcuts listed here also need to be defined above

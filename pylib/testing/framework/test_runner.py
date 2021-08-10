@@ -3,7 +3,7 @@
 """
 Test Runner API
 """
-
+import functools
 import json
 import os
 import subprocess
@@ -32,6 +32,7 @@ isLin = sys.platform.startswith("linux")
 
 ERROR_LINE_OUTPUT_LIMIT = 100
 
+LIBS_FOLDER = 'libs'
 
 def create_src_file(src: str, name: str) -> SrcFile:
     """

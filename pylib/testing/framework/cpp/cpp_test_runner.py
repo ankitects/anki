@@ -4,7 +4,7 @@
 C++ Test Runner API Implementation
 """
 from testing.framework.string_utils import get_line_number_prefix
-from testing.framework.test_runner import TestRunner
+from testing.framework.test_runner import TestRunner, LIBS_FOLDER
 from testing.framework.types import SrcFile
 
 
@@ -41,11 +41,11 @@ class CppTestRunner(TestRunner):
         """
         libs_path = f'{resource_path}/cpp_lib'
         if is_win:
-            return f'{resource_path}/libs/cpp/bin/g++.exe {libs_path}/*.cpp {src_file.file.name} ' + \
+            return f'{resource_path}/{LIBS_FOLDER}/cpp/bin/g++.exe {libs_path}/*.cpp {src_file.file.name} ' + \
                    f'-I {resource_path} -liconv -static -std=c++11 -o {src_file.file.name}.run'
         else:
-            return f'export CPATH={resource_path}/libs/cpp/headers:{resource_path} &&' + \
-                   f'{resource_path}/libs/cpp/bin/clang++ -Werror=return-type -std=c++14 -pedantic ' + \
+            return f'export CPATH={resource_path}/{LIBS_FOLDER}/cpp/headers:{resource_path} &&' + \
+                   f'{resource_path}/{LIBS_FOLDER}/cpp/bin/clang++ -Werror=return-type -std=c++14 -pedantic ' + \
                    f'{libs_path}/*.cpp {src_file.file.name} -o {src_file.file.name}.run'
 
     def get_error_message(self, error: str, file_name: str, code_offset: int) -> str:

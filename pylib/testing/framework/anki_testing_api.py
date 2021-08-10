@@ -3,13 +3,14 @@
 """
 Facade API to the Testing framework which is accessed from ANKI
 """
-
+import functools
+import os
 import sys
 from typing import Tuple, List, Callable, Optional
 from anki.cards import Card
 from aqt.utils import run_async
 from testing.framework.lang_factory import get_lang_factory, AbstractLangFactory
-from testing.framework.test_runner import TestRunner
+from testing.framework.test_runner import TestRunner, LIBS_FOLDER, get_resource_path
 from testing.framework.types import TestSuite, TestSuiteExecOpts
 from testing.framework.console_logger import ConsoleLogger
 from testing.framework.syntax.syntax_tree import SyntaxTree
@@ -106,3 +107,33 @@ def stop_tests():
     global runner
     if runner is not None:
         runner.kill()
+
+
+LANGUAGE_MAPPINGS = {
+    'cpp': 'C++',
+    'java': 'Java',
+    'js': 'JavaScript',
+    'python': 'Python'
+}
+
+
+def get_lang_title(alias):
+    """
+    Give title of programming language based on its alias
+    :param alias: target alias
+    :return: value from LANGUAGE_MAPPINGS dictionary
+    """
+    return LANGUAGE_MAPPINGS[alias]
+
+
+@functools.lru_cache(maxsize=None)
+def get_supported_languages():
+    """
+    Scans lib folder and returns list of supported programming languages in the system
+    :return: list of programming language aliases
+    """
+    result = []
+    for name in os.listdir(os.path.join(get_resource_path().replace('"', ''), LIBS_FOLDER)):
+        if name in LANGUAGE_MAPPINGS:
+            result.append(name)
+    return result

@@ -7,7 +7,7 @@ Python Test Runner API Implementation
 import re
 
 from testing.framework.string_utils import get_line_number_prefix
-from testing.framework.test_runner import TestRunner
+from testing.framework.test_runner import TestRunner, LIBS_FOLDER
 from testing.framework.types import SrcFile
 
 
@@ -26,12 +26,12 @@ class PythonTestRunner(TestRunner):
         :return: shell command to execute source file
         """
         if is_win:
-            cmd = f'set PYTHONPATH={resource_path}/libs/python && ' + \
-                  f'{resource_path}/libs/python/python.exe -u {src_file.file.name}'
+            cmd = f'set PYTHONPATH={resource_path}/{LIBS_FOLDER}/python && ' + \
+                  f'{resource_path}/{LIBS_FOLDER}/python/python.exe -u {src_file.file.name}'
         else:
-            cmd = f'PYTHONPATH={resource_path}/libs/python/lib/python3:{resource_path}' + \
-                  '/libs/python/lib/python3/lib-dynload ' + \
-                  f'{resource_path}/libs/python/bin/python3 -u {src_file.file.name}'
+            cmd = f'PYTHONPATH={resource_path}/{LIBS_FOLDER}/python/lib/python3:{resource_path}' + \
+                  f'/{LIBS_FOLDER}/python/lib/python3/lib-dynload ' + \
+                  f'{resource_path}/{LIBS_FOLDER}/python/bin/python3 -u {src_file.file.name}'
         return cmd
 
     def get_compile_cmd(self, src_file: SrcFile, resource_path: str, is_win: bool) -> str:
