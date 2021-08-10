@@ -104,8 +104,8 @@ class CppTypeMapper(TypeMapper):
         :return: C++ object-type declaration
         """
         type_name = node.node_type
-        props, _ = self.get_args(node, context)
         if type_name not in context:
+            props, _ = self.get_args(node, context)
             typedef = render_template(''' 
                 struct {{type_name}} {
                     {% for prop in props %}\t{{prop.type}} {{prop.name}};\n{% endfor %}};
@@ -138,13 +138,9 @@ class CppTypeMapper(TypeMapper):
                 public:
                     \tT data;
                     \tshared_ptr<ListNode<T>> next;
-
                     \tListNode() { }
-
-                    \tListNode(T data, shared_ptr<ListNode<T>> next) {
-                    \t\tthis->data = data;
-                    \t\tthis->next = next;
-                    \t}
+                    \tListNode(T data) : data{data}, next{nullptr} { }
+                    \tListNode(T data, shared_ptr<ListNode<T>> next) : data{data}, next{next} { }
                 };
             '''
         return 'shared_ptr<ListNode<' + self.render(child, context) + '>>'
@@ -165,9 +161,7 @@ class CppTypeMapper(TypeMapper):
                     \tT data;
                     \tshared_ptr<BinaryTreeNode<T>> left;
                     \tshared_ptr<BinaryTreeNode<T>> right;
-
                     \tBinaryTreeNode() { } 
-
                     \tBinaryTreeNode(T data, shared_ptr<BinaryTreeNode<T>> left, shared_ptr<BinaryTreeNode<T>> right) {
                     \t\tthis->data = data;
                     \t\tthis->left = left;

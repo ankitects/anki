@@ -85,13 +85,15 @@ class JsOutputConverterTests(unittest.TestCase):
         self.assertEqual(2, len(converters))
         self.assertEqual(ConverterFn('', 'return value', ''), converters[0])
         self.assertEqual(ConverterFn('', '''
-            result = []
-            n = value
-            while (n != null) {
-                result.push(converter1(n.data))
-                n = n.next
+            const visited = new Set()
+            const result = []
+            while (value != null && !visited.has(value)) {
+                result.push(converter1(value.data))
+                visited.add(value)
+                value = value.next
             }
-            return result''', ''), converters[1])
+            return result
+        ''', ''), converters[1])
 
     def test_binary_tree(self):
         tree = SyntaxTree.of(['binary_tree(int)'])
@@ -109,14 +111,14 @@ class JsOutputConverterTests(unittest.TestCase):
                 if (node) {
                     visited.add(node)
                     result.push(converter1(node.data))
-                    if (node.left != null && !visited.has(node.left)) {
-                        queue.push(node.left)
-                    }
-                    if (node.right != null && !visited.has(node.right)) {
-                        queue.push(node.right)
-                    }
                 } else {
                     result.push(null);
+                }
+                if (node != null && !visited.has(node.left)) {
+                    queue.push(node.left)
+                }
+                if (node != null && !visited.has(node.right)) {
+                    queue.push(node.right)
                 }
             }
             for (let i = result.length - 1; i > 0; i--) {

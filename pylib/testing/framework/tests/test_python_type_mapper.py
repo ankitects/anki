@@ -70,7 +70,7 @@ class PythonTypeMappingsGeneratorTests(GeneratorTestCase):
         self.assertEqualsIgnoreWhiteSpaces('''
             T = TypeVar('T')
             class ListNode(Generic[T]):
-                def __init__(self, data: Optional[Type[T]]=None):
+                def __init__(self, data: Optional[Type[T]]=None, next: Optional=None):
                     self.data = data
                     self.next = None
         ''', type_defs['linked_list'])

@@ -73,13 +73,19 @@ class PythonInputConverterTests(unittest.TestCase):
         self.assertEqual(2, len(converters))
         self.assertEqual(ConverterFn('', '\treturn str(value)', '', 'str'), converters[0])
         self.assertEqual(ConverterFn('', '''
-            head = ListNode(None)
-            node = head
-            for item in value:
-                nextNode = ListNode(converter1(item))
-                node.next = nextNode
-                node = nextNode
-            return head.next
+            nodes = []
+            for i in range(0, len(value), 2):
+                n = value[i]
+                node = ListNode(converter1(n))
+                nodes.append(node)
+            for i in range(1, len(value), 2):
+                n = value[i]
+                node = nodes[int((i - 1) / 2)]
+                nextIndex = n
+                if nextIndex >= 0:
+                    nextNode = nodes[nextIndex]
+                    node.next = nextNode
+            return None if len(nodes) == 0 else nodes[0]
         ''', '', 'ListNode[str]'), converters[1])
 
     def test_binary_tree(self):

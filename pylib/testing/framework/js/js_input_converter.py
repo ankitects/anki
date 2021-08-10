@@ -150,20 +150,28 @@ class JsInputConverter(TypeConverter):
         """
         Creates linked-list, for every input element invokes inner type converter and puts it inside linked list
         linked_list(string):
-        ["a", "b", "c"] -> LinkedList<String>() { "a", "b", "c" }
+        ["a", 1, "b", 2, "c"] -> LinkedListNode("a") => LinkedListNode("b") => LinkedListNode("c")
         """
 
         child: ConverterFn = self.render(node.first_child(), context)
         src = render_template('''
-            \tconst head = new ListNode(null)
-            \tlet node = head
-            \tfor (let item of value) {
-            \t\tlet nextNode = new ListNode()
-            \t\tnextNode.data = {{child.fn_name}}(item)
+            const nodes = []
+            for (let i = 0; i < value.length; i += 2) {
+            \tconst n = value[i]
+            \tconst node = new ListNode()
+            \tnode.data = {{child.fn_name}}(n)
+            \tnodes.push(node)
+            }
+            for (let i = 1; i < value.length; i += 2) {
+            \tconst n = value[i]
+            \tconst node = nodes[Math.floor((i - 1) / 2)]
+            \tconst nextIndex = n
+            \tif (nextIndex >= 0) {
+            \t\tconst nextNode = nodes[nextIndex]
             \t\tnode.next = nextNode
-            \t\tnode = nextNode
             \t}
-            \treturn head.next
+            }
+            return nodes.length == 0 ? null : nodes[0]
         ''', child=child)
 
         return ConverterFn(node.name, src, '')

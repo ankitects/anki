@@ -143,13 +143,19 @@ class PythonInputConverter(TypeConverter):
 
         child: ConverterFn = self.render(node.first_child(), context)
         src = render_template('''
-            \thead = ListNode(None)
-            \tnode = head
-            \tfor item in value:
-            \t\tnextNode = ListNode({{child.fn_name}}(item))
-            \t\tnode.next = nextNode
-            \t\tnode = nextNode
-            \treturn head.next
+            \tnodes = []
+            \tfor i in range(0, len(value), 2):
+            \t\tn = value[i]
+            \t\tnode = ListNode({{child.fn_name}}(n))
+            \t\tnodes.append(node)
+            \tfor i in range(1, len(value), 2):
+            \t\tn = value[i]
+            \t\tnode = nodes[int((i - 1) / 2)]
+            \t\tnextIndex = n
+            \t\tif nextIndex >= 0:
+            \t\t\tnextNode = nodes[nextIndex]
+            \t\t\tnode.next = nextNode
+            \treturn None if len(nodes) == 0 else nodes[0]
         ''', child=child)
 
         return ConverterFn(node.name, src, '', 'ListNode[' + child.ret_type + ']')

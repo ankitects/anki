@@ -16,14 +16,14 @@ class JavaOutputConverterTests(unittest.TestCase):
         self.assertEqual(3, len(converters))
         self.assertEqual(ConverterFn('', 'return value;', 'int', 'int'), converters[0])
         self.assertEqual(ConverterFn('', '''
-            int result[] = new int[value.size()];
+            int result[] = new int[value.length];
             int i = 0;
             for (int item : value) {
                 result[i++] = converter1(item);
             }
             return result;''', 'int[]', 'int[]'), converters[1])
         self.assertEqual(ConverterFn('a', '''
-            int[] result[] = new int[value.size()][];
+            int[] result[] = new int[value.length][];
             int i = 0;
             for (int[] item : value) {
                 result[i++] = converter2(item);
@@ -96,12 +96,15 @@ class JavaOutputConverterTests(unittest.TestCase):
         self.assertEqual(2, len(converters))
         self.assertEqual(ConverterFn('', 'return value;', 'Integer', 'Integer'), converters[0])
         self.assertEqual(ConverterFn('', '''
-            List<Integer> result = new ArrayList<>();
-            while (value != null) {
+            Set<ListNode<Integer>> visited = new HashSet<>();
+            List result = new ArrayList();
+            while (value != null && !visited.contains(value)) {
                 result.add(converter1(value.data));
+                visited.add(value);
                 value = value.next;
             }
-            return result;''', 'ListNode<Integer>', 'List<Integer>'), converters[1])
+            return result;
+        ''', 'ListNode<Integer>', 'List'), converters[1])
 
     def test_binary_tree(self):
         tree = SyntaxTree.of(['binary_tree(int)'])
@@ -119,14 +122,14 @@ class JavaOutputConverterTests(unittest.TestCase):
                 if (node != null) {
                     visited.add(node);
                     result.add(converter1(node.data));
-                    if (node.left != null && !visited.contains(node.left)) {
-                        queue.add(node.left);
-                    }
-                    if (node.right != null && !visited.contains(node.right)) {
-                        queue.add(node.right);
-                    }
                 } else {
                     result.add(null);
+                }
+                if (node != null && !visited.contains(node.left)) {
+                    queue.add(node.left);
+                }
+                if (node != null && !visited.contains(node.right)) {
+                    queue.add(node.right);
                 }
             }
             for (int i = result.size() - 1; i > 0; i--) {

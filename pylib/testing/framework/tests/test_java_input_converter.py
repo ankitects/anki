@@ -102,15 +102,23 @@ class JavaInputConverterTests(unittest.TestCase):
         self.assertEqual(2, len(converters))
         self.assertEqual(ConverterFn('', '''return value.asText();''', 'JsonNode', 'String'), converters[0])
         self.assertEqual(ConverterFn('', '''
-            ListNode<String> head = new ListNode<>();
-            ListNode<String> node = head;
-            for (JsonNode n : value) {
-                ListNode<String> nextNode = new ListNode<>();
-                nextNode.data = converter1(n);
-                node.next = nextNode;
-                node = nextNode;
+            List<ListNode<String>> nodes = new ArrayList<>();
+            for (int i = 0; i < value.size(); i += 2) {
+                JsonNode n = value.get(i);
+                ListNode<String> node = new ListNode<>();
+                node.data = converter1(n);
+                nodes.add(node);
             }
-            return head.next;
+            for (int i = 1; i < value.size(); i += 2) {
+                JsonNode n = value.get(i);
+                ListNode<String> node = nodes.get((i - 1) / 2);
+                int nextIndex = n.asInt();
+                if (nextIndex >= 0) {
+                    ListNode<String> nextNode = nodes.get(nextIndex); 
+                    node.next = nextNode;
+                }
+            }
+            return nodes.isEmpty() ? null : nodes.get(0);
         ''', 'JsonNode', 'ListNode<String>'), converters[1])
 
     def test_binary_tree(self):

@@ -1,3 +1,4 @@
+import sys
 from abc import ABC
 
 from testing.framework.cpp.cpp_template_gen import CppTemplateGenerator
@@ -75,7 +76,7 @@ class CppLangFactory(AbstractLangFactory):
 
     def __init__(self):
         super().__init__(CppTemplateGenerator(),
-                         CppTestSuiteGenerator(),
+                         CppTestSuiteGenerator(sys.platform.startswith("win32")),
                          CppTestRunner())
 
 

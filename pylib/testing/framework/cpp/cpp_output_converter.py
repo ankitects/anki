@@ -177,14 +177,15 @@ class CppOutputConverter(TypeConverter):
         """
         child = self.render(node.first_child(), context)
         src = render_template('''
-            \tjute::jValue result;
-            \tresult.set_type(jute::JARRAY);
-            \tshared_ptr<ListNode<{{child.arg_type}}>> n = value;
-            \twhile (n != nullptr) {
-            \t\tresult.add_element({{child.fn_name}}(n->data));
-            \t\tn = n->next;
-            \t}
-            \treturn result;''', child=child)
+            set<shared_ptr<ListNode<{{child.arg_type}}>>> visited;
+            jute::jValue result;
+            result.set_type(jute::JARRAY);
+            while (value != nullptr && visited.count(value) == 0) {
+            \tresult.add_element({{child.fn_name}}(value->data));
+            \tvisited.insert(value);
+            \tvalue = value->next;
+            }
+            return result;''', child=child)
 
         return ConverterFn(node.name, src, 'shared_ptr<ListNode<' + child.arg_type + '>>', 'jute::jValue')
 
@@ -207,15 +208,15 @@ class CppOutputConverter(TypeConverter):
             \tif (node != nullptr) {
             \t\tvisited.insert(node);
             \t\tresult.add_element({{child.fn_name}}(node->data));
-            \t\tif (node->left != nullptr && visited.count(node->left) == 0) {
-            \t\t\tq.push(node->left);
-            \t\t}
-            \t\tif (node->right != nullptr && visited.count(node->right) == 0) {
-            \t\t\tq.push(node->right);
-            \t\t}
             \t} else {
             \t\tjute::jValue empty(jute::JNULL);
             \t\tresult.add_element(empty);
+            \t}
+            \tif (node != nullptr && visited.count(node->left) == 0) {
+            \t\tq.push(node->left);
+            \t}
+            \tif (node != nullptr && visited.count(node->right) == 0) {
+            \t\tq.push(node->right);
             \t}
             } 
             result.reduce_right();

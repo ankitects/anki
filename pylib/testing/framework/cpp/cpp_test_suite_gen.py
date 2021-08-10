@@ -3,6 +3,7 @@
 """
 C++ Test Runner API Implementation
 """
+import sys
 
 from testing.framework.cpp.cpp_input_converter import CppInputConverter
 from testing.framework.cpp.cpp_output_converter import CppOutputConverter
@@ -16,14 +17,15 @@ class CppTestSuiteGenerator(TestSuiteGenerator):
     Generates a test suite source code in C++.
     """
 
-    def __init__(self):
+    def __init__(self, isWin: bool):
         super().__init__(input_converter=CppInputConverter(), output_converter=CppOutputConverter())
+        self.isWin = isWin
 
     def get_imports(self):
         """
         :return: string containing C++ includes
         """
-        return '''
+        return render_template('''
             \t#include <vector>
             \t#include <array>
             \t#include "cpp_lib/jute.h"
@@ -33,7 +35,14 @@ class CppTestSuiteGenerator(TestSuiteGenerator):
             \t#include <chrono>
             \t#include <queue> 
             \t#include <set>
-            \tusing namespace std;'''
+            \t#include <math.h>
+            {% if not isWin %}
+                \t#include <iostream>
+                \t#include <string>
+                \t#include <termios.h>
+                \t#include <unistd.h>
+            {% endif %}
+            \tusing namespace std;''', isWin=self.isWin)
 
     def get_testing_src(self, ts: TestSuite, converters: TestSuiteConverters, solution_src: str):
         """
@@ -51,6 +60,15 @@ class CppTestSuiteGenerator(TestSuiteGenerator):
                 }
             {% endfor %}
             int main() {
+            {% if not isWin %}
+            \tstruct termios told;
+            \tif (isatty(STDIN_FILENO)) {
+            \t\ttcgetattr(STDIN_FILENO, &told);
+            \t\tstruct termios tnew = told;
+            \t\ttnew.c_lflag &= ~ICANON;
+            \t\ttcsetattr(STDIN_FILENO, TCSAFLUSH, &tnew);
+            \t}
+            {% endif %}
             \tSolution solution;
             \tstd::string buf;
             \twhile (true) {
@@ -74,4 +92,4 @@ class CppTestSuiteGenerator(TestSuiteGenerator):
             \t\tstd::cout << response.to_string() << endl;
             \t}
             \treturn 0;
-            }''', ts=ts, src=solution_src, converters=converters)
+            }''', ts=ts, src=solution_src, converters=converters, isWin=self.isWin)

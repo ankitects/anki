@@ -68,7 +68,7 @@ def compare(obj1, obj2, ignore_order=True) -> bool:
     Performs deep difference between two objects
     :return True - if objects are equal, False otherwise
     """
-    return DeepDiff(obj1, obj2, ignore_order=ignore_order, significant_digits=4) == {}
+    return DeepDiff(obj1, obj2, ignore_order=ignore_order, significant_digits=2, ignore_numeric_type_changes=True) == {}
 
 
 def get_code_offset(src: str, user_src_start_marker: str) -> int:

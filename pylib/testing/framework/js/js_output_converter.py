@@ -155,15 +155,16 @@ class JsOutputConverter(TypeConverter):
         """
         Converts linked-list to a list
         linked_list(string):
-        LinkedList<String>() { "a", "b", "c" } -> ["a", "b", "c"]
+        LinkedListNode("a") => LinkedListNode("b") => LinkedListNode("c") -> ["a", "b", "c"]
         """
         child = self.render(node.first_child(), context)
         src = render_template('''
-            result = []
-            n = value
-            while (n != null) {
-            \tresult.push({{child.fn_name}}(n.data))
-            \tn = n.next
+            const visited = new Set()
+            const result = []
+            while (value != null && !visited.has(value)) {
+            \tresult.push({{child.fn_name}}(value.data))
+            \tvisited.add(value)
+            \tvalue = value.next
             }
             return result''', child=child)
 
@@ -186,14 +187,14 @@ class JsOutputConverter(TypeConverter):
             \tif (node) {
             \t\tvisited.add(node)
             \t\tresult.push({{child.fn_name}}(node.data))
-            \t\tif (node.left != null && !visited.has(node.left)) {
-            \t\t\tqueue.push(node.left)
-            \t\t}
-            \t\tif (node.right != null && !visited.has(node.right)) {
-            \t\t\tqueue.push(node.right)
-            \t\t}
             \t} else {
             \t\tresult.push(null);
+            \t}
+            \tif (node != null && !visited.has(node.left)) {
+            \t\tqueue.push(node.left)
+            \t}
+            \tif (node != null && !visited.has(node.right)) {
+            \t\tqueue.push(node.right)
             \t}
             }
             for (let i = result.length - 1; i > 0; i--) {

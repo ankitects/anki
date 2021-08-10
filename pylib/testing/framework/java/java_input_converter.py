@@ -11,17 +11,18 @@ from testing.framework.types import ConverterFn
 from testing.framework.syntax.syntax_tree import SyntaxTree, is_primitive_type
 
 
-def wrap_array_declaration(inner_type: str) -> str:
+def generate_array_declaration(inner_type: str, size_method: str) -> str:
     """
     generates java array declaration
     :param inner_type: type to be wrapped
+    :param size_method: value size method's name
     :return: string containing the variable array declaration
     """
     if '[' in inner_type:
         idx = inner_type.index('[')
-        initializer = inner_type[:idx] + '[value.size()]' + inner_type[idx:]
+        initializer = inner_type[:idx] + '[value.' + size_method + ']' + inner_type[idx:]
     else:
-        initializer = inner_type + '[value.size()]'
+        initializer = inner_type + '[value.' + size_method + ']'
     return f'{inner_type} result[] = new {initializer};'
 
 
@@ -41,7 +42,7 @@ class JavaInputConverter(TypeConverter):
         :return: converter fn
         """
         child = self.render(node.first_child(), context)
-        array_declaration: str = wrap_array_declaration(child.ret_type)
+        array_declaration: str = generate_array_declaration(child.ret_type, 'size()')
         src = render_template('''
             \t{{array_declaration}}
             \tint i = 0;
@@ -167,20 +168,28 @@ class JavaInputConverter(TypeConverter):
         """
         Creates linked-list, for every input element invokes inner type converter and puts it inside linked list
         linked_list(string):
-        ["a", "b", "c"] -> ListNode<String>() { "a", "b", "c" }
+        ["a", 1, "b", 2, "c"] -> LinkedListNode("a") => LinkedListNode("b") => LinkedListNode("c")
         """
 
         child: ConverterFn = self.render(node.first_child(), context)
         src = render_template('''
-            ListNode<{{child.ret_type}}> head = new ListNode<>();
-            ListNode<{{child.ret_type}}> node = head;
-            \tfor (JsonNode n : value) {
-            \t\tListNode<{{child.ret_type}}> nextNode = new ListNode<>();
-            \t\tnextNode.data = {{child.fn_name}}(n);
+            List<ListNode<{{child.ret_type}}>> nodes = new ArrayList<>();
+            for (int i = 0; i < value.size(); i += 2) {
+            \tJsonNode n = value.get(i);
+            \tListNode<{{child.ret_type}}> node = new ListNode<>();
+            \tnode.data = {{child.fn_name}}(n);
+            \tnodes.add(node);
+            }
+            for (int i = 1; i < value.size(); i += 2) {
+            \tJsonNode n = value.get(i);
+            \tListNode<{{child.ret_type}}> node = nodes.get((i - 1) / 2);
+            \tint nextIndex = n.asInt();
+            \tif (nextIndex >= 0) {
+            \t\tListNode<{{child.ret_type}}> nextNode = nodes.get(nextIndex); 
             \t\tnode.next = nextNode;
-            \t\tnode = nextNode;
             \t}
-            return head.next;
+            }
+            return nodes.isEmpty() ? null : nodes.get(0);
         ''', child=child)
         return ConverterFn(node.name, src, 'JsonNode', 'ListNode<' + child.ret_type + '>')
 

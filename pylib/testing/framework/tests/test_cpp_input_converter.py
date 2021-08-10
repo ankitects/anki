@@ -102,22 +102,35 @@ class CppInputConverterTests(unittest.TestCase):
         self.assertEqual(2, len(converters))
         self.assertEqual(ConverterFn('', '''return value.as_string();''', 'jute::jValue', 'string'), converters[0])
         self.assertEqual(ConverterFn('', '''
-            if (value.size() == 0) {
-                return nullptr;
-            }
-            shared_ptr<ListNode<string>> head = make_shared<ListNode<string>>();
-            head->data = converter1(value[0]);
-            head->next = nullptr;
-
-            shared_ptr<ListNode<string>> node = head;
-                for (int i = 1; i < value.size(); i++) {
-                    shared_ptr<ListNode<string>> nextNode = make_shared<ListNode<string>>();
-                    string obj = converter1(value[i]);
-                    nextNode->data = obj;
-                    nextNode->next = nullptr;
-                    node->next = nextNode;
-                    node = nextNode;
+            set<int> visited;
+            shared_ptr<ListNode<string>> head = nullptr;
+            shared_ptr<ListNode<string>> node = nullptr;
+            int i = 1;
+            while (visited.count(i) == 0 && i <= value.size()) {
+                string data = converter1(value[i - 1]);
+                auto tmp = make_shared<ListNode<string>>(data);
+                if (head == nullptr) {
+                    head = tmp;
+                    node = head;
+                } else {
+                    node->next = tmp;
+                    node = tmp;
                 }
+                if (i >= value.size()) {
+                    break;
+                }
+                visited.insert(i);
+                i = 2 * value[i].as_int() + 1;
+            }
+            if (visited.count(i) != 0 && i < value.size()) {
+                i = (i / 2);
+                shared_ptr<ListNode<int>> iter = head;
+                int j = 0;
+                while (i-- != j) {
+                    iter = iter->next;
+                }
+                node->next = iter;
+            }
             return head;
         ''', 'jute::jValue', 'shared_ptr<ListNode<string>>'), converters[1])
 
@@ -130,8 +143,7 @@ class CppInputConverterTests(unittest.TestCase):
         self.assertEqual(ConverterFn('', '''
             vector<shared_ptr<BinaryTreeNode<string>>> nodes;
             for (int i = 0; i < value.size(); i++) {
-                shared_ptr<BinaryTreeNode<string>> node =
-            make_shared<BinaryTreeNode<string>>();
+                shared_ptr<BinaryTreeNode<string>> node = make_shared<BinaryTreeNode<string>>();
                 node->left = nullptr;
                 node->right = nullptr;
                 if (value[i].is_null()) {

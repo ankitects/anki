@@ -7,7 +7,7 @@ from testing.framework.syntax.syntax_tree import SyntaxTree
 class CppTestSuiteGeneratorTests(GeneratorTestCase):
 
     def setUp(self) -> None:
-        self.generator = CppTestSuiteGenerator()
+        self.generator = CppTestSuiteGenerator(isWin=False)
         ConverterFn.reset_counter()
 
     def test_solution_generation_simple_int(self):
@@ -31,6 +31,11 @@ class CppTestSuiteGeneratorTests(GeneratorTestCase):
             #include <chrono>
             #include <queue>
             #include <set>
+            #include <math.h>
+            #include <iostream>
+            #include <string>
+            #include <termios.h>
+            #include <unistd.h>
             using namespace std;
 
             //begin_user_src
@@ -70,6 +75,13 @@ class CppTestSuiteGeneratorTests(GeneratorTestCase):
             }
 
             int main() {
+                struct termios told;
+                if (isatty(STDIN_FILENO)) {
+                    tcgetattr(STDIN_FILENO, &told);
+                    struct termios tnew = told;
+                    tnew.c_lflag &= ~ICANON;
+                    tcsetattr(STDIN_FILENO, TCSAFLUSH, &tnew);
+                }
                 Solution solution;
                 std::string buf;
                 while (true) {
