@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             defaultValue={defaults.skipQuestionWhenReplayingAnswer}
             markdownTooltip={tr.deckConfigAlwaysIncludeQuestionAudioTooltip()}
         >
-            {tr.schedulingAlwaysIncludeQuestionSideWhenReplaying()}
+            {tr.deckConfigSkipQuestionWhenReplaying()}
         </SwitchRow>
     </Item>
 </TitledContainer>
