@@ -36,6 +36,7 @@ class CppTestSuiteGenerator(TestSuiteGenerator):
             \t#include <queue> 
             \t#include <set>
             \t#include <math.h>
+            \t#include <memory>
             {% if not isWin %}
                 \t#include <iostream>
                 \t#include <string>
