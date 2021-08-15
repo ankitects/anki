@@ -82,7 +82,7 @@ py_wheel(
         "beautifulsoup4",
         "requests[socks]",
         "decorator",
-        "protobuf",
+        "protobuf>=3.17",
         "markdown",
         "stringcase",
         'orjson; platform_machine == "x86_64"',
