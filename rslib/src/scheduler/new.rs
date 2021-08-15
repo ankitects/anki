@@ -24,7 +24,7 @@ impl Card {
 
     /// If the card is new, change its position, and return true.
     fn set_new_position(&mut self, position: u32) -> bool {
-        if self.queue != CardQueue::New || self.ctype != CardType::New {
+        if self.ctype != CardType::New {
             false
         } else {
             self.due = position as i32;
