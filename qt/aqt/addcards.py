@@ -191,6 +191,9 @@ class AddCards(QDialog):
                     txt = f"{txt[:30]}..."
                 line = tr.adding_edit(val=txt)
                 line = gui_hooks.addcards_will_add_history_entry(line, note)
+                line = line.replace("&", "&&")
+                # In qt action "&i" means "underline i, trigger this line when i is pressed".
+                # except for "&&" which is replaced by a single "&"
                 a = m.addAction(line)
                 qconnect(a.triggered, lambda b, nid=nid: self.editHistory(nid))
             else:
