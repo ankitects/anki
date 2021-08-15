@@ -152,6 +152,7 @@ deck-config-show-answer-timer-tooltip =
 
 deck-config-audio-title = Audio
 deck-config-disable-autoplay = Don't play audio automatically
+deck-config-skip-question-when-replaying = Skip question when replaying answer
 deck-config-always-include-question-audio-tooltip =
     Whether the question audio should be included when the Replay action is
     used while looking at the answer side of a card.
