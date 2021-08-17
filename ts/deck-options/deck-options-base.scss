@@ -2,22 +2,22 @@ $tooltip-padding-y: 0.45rem;
 $tooltip-padding-x: 0.65rem;
 $tooltip-max-width: 300px;
 
-@use "ts/sass/vars";
-@use "ts/sass/scrollbar";
+@use "vars";
+@use "scrollbar";
 
-@import "ts/sass/base";
-@import "ts/sass/bootstrap/containers";
-@import "ts/sass/bootstrap/grid";
-@import "ts/sass/bootstrap/dropdown";
-@import "ts/sass/bootstrap/forms";
-@import "ts/sass/bootstrap/buttons";
-@import "ts/sass/bootstrap/button-group";
-@import "ts/sass/bootstrap/transitions";
-@import "ts/sass/bootstrap/modal";
-@import "ts/sass/bootstrap/close";
-@import "ts/sass/bootstrap/alert";
-@import "ts/sass/bootstrap/tooltip";
-@import "ts/sass/bootstrap/badge";
+@import "base";
+@import "bootstrap/scss/containers";
+@import "bootstrap/scss/grid";
+@import "bootstrap/scss/dropdown";
+@import "bootstrap/scss/forms";
+@import "bootstrap/scss/buttons";
+@import "bootstrap/scss/button-group";
+@import "bootstrap/scss/transitions";
+@import "bootstrap/scss/modal";
+@import "bootstrap/scss/close";
+@import "bootstrap/scss/alert";
+@import "bootstrap/scss/tooltip";
+@import "bootstrap/scss/badge";
 
 .night-mode {
     @include scrollbar.night-mode;

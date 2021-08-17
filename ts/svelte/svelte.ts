@@ -153,6 +153,7 @@ async function writeJs(
     const preprocessOptions = preprocess({
         scss: {
             includePaths: [
+                "ts/sass",
                 `${binDir}/ts/sass`,
                 `${genDir}/ts/sass`,
                 // a nasty hack to ensure ts/sass/... resolves correctly
