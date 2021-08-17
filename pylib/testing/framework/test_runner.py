@@ -30,10 +30,10 @@ isMac = sys.platform.startswith("darwin")
 isWin = sys.platform.startswith("win32")
 isLin = sys.platform.startswith("linux")
 
-WIN_KILL_SLEEP_DELAY_SEC = 10
 ERROR_LINE_OUTPUT_LIMIT = 100
 
 LIBS_FOLDER = 'libs'
+
 
 def create_src_file(src: str, name: str) -> SrcFile:
     """
@@ -269,20 +269,24 @@ class TestRunner(ABC):
                 self.stopped = True
                 parent = psutil.Process(self.pid)
                 children = parent.children(recursive=True)
-                for child in children:
-                    try:
-                        child.kill()
-                    except psutil.AccessDenied:
-                        pass
+                active = children.copy()
+                while active:
+                    for child in active:
+                        try:
+                            child.kill()
+                            active.remove(child)
+                        except psutil.AccessDenied:
+                            pass
+                        except psutil.NoSuchProcess:
+                            active.remove(child)
+                            pass
                 psutil.wait_procs(children, timeout=5)
                 try:
                     parent.kill()
                 except psutil.AccessDenied:
                     pass
-                if isWin:
-                    # prevent win error 'access denied' when deleting temp src folder
-                    # see create_src_file function
-                    time.sleep(WIN_KILL_SLEEP_DELAY_SEC)
+                except psutil.NoSuchProcess:
+                    pass
             except:
                 pass
             finally:
