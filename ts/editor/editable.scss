@@ -1,4 +1,4 @@
-@use 'ts/sass/scrollbar';
+@use 'scrollbar';
 
 anki-editable {
     display: block;
@@ -37,9 +37,9 @@ img.drawing {
     display: none;
 }
 
-@import "ts/sass/codemirror/lib/codemirror";
-@import "ts/sass/codemirror/theme/monokai";
-@import "ts/sass/codemirror/addon/fold/foldgutter";
+@import "codemirror/lib/codemirror";
+@import "codemirror/theme/monokai";
+@import "codemirror/addon/fold/foldgutter";
 
 .CodeMirror {
     height: auto;
