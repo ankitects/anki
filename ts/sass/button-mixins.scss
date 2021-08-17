@@ -1,5 +1,5 @@
-@import "ts/sass/bootstrap/functions";
-@import "ts/sass/bootstrap/variables";
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
 
 @mixin btn-border-radius {
     border-top-left-radius: var(--border-left-radius);
