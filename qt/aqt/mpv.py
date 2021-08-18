@@ -554,7 +554,7 @@ class MPV(MPVBase):
 
         # XXX We manually have to check for the existence of the property name.
         # Apparently observe_property does not check it :-(
-        proplist = self.command("get_property", "property-list")
+        proplist = self.command("get_property", "property-list", timeout=5)
         if name not in proplist:
             raise MPVError(f"no such property {name!r}")
 
