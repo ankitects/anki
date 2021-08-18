@@ -31,7 +31,9 @@ function clearPreloadLinks(): void {
 }
 
 function extractImageSrcs(html: string): string[] {
-    const fragment = document.createRange().createContextualFragment(html);
+    const tmpl = document.createElement("template");
+    tmpl.innerHTML = html;
+    const fragment = tmpl.content;
     const srcs = [...fragment.querySelectorAll("img[src]")].map(
         (img) => (img as HTMLImageElement).src
     );
