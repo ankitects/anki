@@ -93,7 +93,7 @@ def svelte_check(name = "svelte_check", srcs = []):
             "//ts/lib",
             "@npm//sass",
         ] + srcs,
-        env = {"SASS_PATH": "$(rootpath //ts:tsconfig.json)/../.."},
+        env = {"SASS_PATH": "ts/sass"},
         # a lack of sandboxing on Windows breaks the local svelte_check
         # tests, so we need to disable them on Windows for now
         target_compatible_with = select({
