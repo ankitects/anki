@@ -608,6 +608,9 @@
    <property name="text">
     <string>qt_accel_forget</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+N</string>
+   </property>
   </action>
   <action name="action_toggle_mode">
    <property name="text">
