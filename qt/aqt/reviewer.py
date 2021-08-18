@@ -208,11 +208,6 @@ class Reviewer:
 
         self._showQuestion()
 
-        # Qt seems to get stuck if the timebox modal gets invoked when the
-        # webview is being loaded
-        # https://forums.ankiweb.net/t/anki-2-1-45-alpha/10061/96
-        self.mw.progress.timer(10, self.check_timebox, False)
-
     def _get_next_v1_v2_card(self) -> None:
         if self.cardQueue:
             # undone/edited cards to show
@@ -429,7 +424,8 @@ class Reviewer:
         gui_hooks.reviewer_did_answer_card(self, self.card, ease)
         self._answeredIds.append(self.card.id)
         self.mw.autosave()
-        self.nextCard()
+        if not self.check_timebox():
+            self.nextCard()
 
     # Handlers
     ############################################################
