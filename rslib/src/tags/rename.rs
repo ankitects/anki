@@ -1,8 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{is_tag_separator, matcher::TagMatcher, Tag};
+use super::{is_tag_separator, matcher::TagMatcher};
 use crate::prelude::*;
+use crate::tags::register::normalize_tag_name;
 
 impl Collection {
     /// Rename a given tag and its children on all notes that reference it, returning changed
@@ -29,10 +30,14 @@ impl Collection {
 
         let usn = self.usn()?;
 
-        // match existing case if available, and ensure normalized.
-        let mut tag = Tag::new(new_prefix.to_string(), usn);
-        self.prepare_tag_for_registering(&mut tag)?;
-        let new_prefix = &tag.name;
+        // ensure normalized+matching parent case, but not case of existing tag.
+        // The matching of parent case is mainly to be consistent with the way
+        // decks are handled.
+        let new_prefix = normalize_tag_name(new_prefix)?;
+        let new_prefix = self
+            .adjusted_case_for_parents(&new_prefix)?
+            .map(Into::into)
+            .unwrap_or(new_prefix);
 
         // gather tags that need replacing
         let mut re = TagMatcher::new(old_prefix)?;
@@ -53,7 +58,7 @@ impl Collection {
         // replace tags
         for mut note in matched_notes {
             let original = note.clone();
-            note.tags = re.replace(&note.tags, new_prefix);
+            note.tags = re.replace(&note.tags, &new_prefix);
             note.set_modified(usn);
             self.update_note_tags_undoable(&note, original)?;
         }
