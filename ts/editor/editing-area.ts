@@ -105,10 +105,18 @@ export class EditingArea extends HTMLDivElement {
         firstRule.style.color = color;
     }
 
+    quoteFontFamily(fontFamily: string): string {
+        // generic families (e.g. sans-serif) must not be quoted
+        if (!/^[a-z|-]+$/.test(fontFamily)) {
+            fontFamily = `"${fontFamily}"`;
+        }
+        return fontFamily;
+    }
+
     setBaseStyling(fontFamily: string, fontSize: string, direction: string): void {
         const styleSheet = this.baseStyle.sheet as CSSStyleSheet;
         const firstRule = styleSheet.cssRules[0] as CSSStyleRule;
-        firstRule.style.fontFamily = fontFamily;
+        firstRule.style.fontFamily = this.quoteFontFamily(fontFamily);
         firstRule.style.fontSize = fontSize;
         firstRule.style.direction = direction;
     }
