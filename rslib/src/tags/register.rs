@@ -73,11 +73,7 @@ impl Collection {
     /// Create a tag object, normalize text, and match parents/existing case if available.
     /// True if tag is new.
     pub(super) fn prepare_tag_for_registering(&self, tag: &mut Tag) -> Result<bool> {
-        let normalized_name = normalize_tag_name(&tag.name);
-        if normalized_name.is_empty() {
-            // this should not be possible
-            return Err(AnkiError::invalid_input("blank tag"));
-        }
+        let normalized_name = normalize_tag_name(&tag.name)?;
         if let Some(existing_tag) = self.storage.get_tag(&normalized_name)? {
             tag.name = existing_tag.name;
             Ok(false)
@@ -99,7 +95,7 @@ impl Collection {
 
 impl Collection {
     /// If parent tag(s) exist and differ in case, return a rewritten tag.
-    fn adjusted_case_for_parents(&self, tag: &str) -> Result<Option<String>> {
+    pub(super) fn adjusted_case_for_parents(&self, tag: &str) -> Result<Option<String>> {
         if let Some(parent_tag) = self.first_existing_parent_tag(tag)? {
             let child_split: Vec<_> = tag.split("::").collect();
             let parent_count = parent_tag.matches("::").count() + 1;
@@ -144,8 +140,8 @@ fn normalized_tag_name_component(comp: &str) -> Cow<str> {
     }
 }
 
-fn normalize_tag_name(name: &str) -> Cow<str> {
-    if name
+pub(super) fn normalize_tag_name(name: &str) -> Result<Cow<str>> {
+    let normalized_name: Cow<str> = if name
         .split("::")
         .any(|comp| matches!(normalized_tag_name_component(comp), Cow::Owned(_)))
     {
@@ -157,6 +153,12 @@ fn normalize_tag_name(name: &str) -> Cow<str> {
     } else {
         // no changes required
         name.into()
+    };
+    if normalized_name.is_empty() {
+        // this should not be possible
+        Err(AnkiError::invalid_input("blank tag"))
+    } else {
+        Ok(normalized_name)
     }
 }
 
