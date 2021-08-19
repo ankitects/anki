@@ -19,7 +19,7 @@ use crate::{
 };
 
 /// Temporary holder for review cards that will be built into a queue.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Clone)]
 pub(crate) struct DueCard {
     pub id: CardId,
     pub note_id: NoteId,
@@ -29,6 +29,13 @@ pub(crate) struct DueCard {
     pub hash: u64,
     pub current_deck_id: DeckId,
     pub original_deck_id: DeckId,
+    pub kind: DueCardKind,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum DueCardKind {
+    Review,
+    Learning,
 }
 
 /// Temporary holder for new cards that will be built into a queue.
@@ -48,7 +55,10 @@ impl From<DueCard> for MainQueueEntry {
         MainQueueEntry {
             id: c.id,
             mtime: c.mtime,
-            kind: MainQueueEntryKind::Review,
+            kind: match c.kind {
+                DueCardKind::Review => MainQueueEntryKind::Review,
+                DueCardKind::Learning => MainQueueEntryKind::InterdayLearning,
+            },
         }
     }
 }
@@ -117,25 +127,33 @@ impl QueueBuilder {
     ) -> CardQueues {
         self.sort_new();
 
-        // intraday learning
-        let learning = sort_learning(self.learning);
+        // intraday learning and total learn count
+        let intraday_learning = sort_learning(self.learning);
         let now = TimestampSecs::now();
         let cutoff = now.adding_secs(learn_ahead_secs);
-        let learn_count = learning.iter().take_while(|e| e.due <= cutoff).count();
+        let learn_count = intraday_learning
+            .iter()
+            .take_while(|e| e.due <= cutoff)
+            .count()
+            + self.day_learning.len();
 
-        // merge interday learning into main, and cap to parent review count
-        let main_iter = merge_day_learning(
+        // cap and note down review + new counts
+        self.review.truncate(top_deck_limits.review as usize);
+        let review_count = self.review.len();
+        self.new.truncate(top_deck_limits.new as usize);
+        let new_count = self.new.len();
+
+        // merge interday and new cards into main
+        let with_interday_learn = merge_day_learning(
             self.review,
             self.day_learning,
             self.sort_options.day_learn_mix,
         );
-        let main_iter = main_iter.take(top_deck_limits.review as usize);
-        let review_count = main_iter.len();
-
-        // cap to parent new count, note down the new count, then merge new in
-        self.new.truncate(top_deck_limits.new as usize);
-        let new_count = self.new.len();
-        let main_iter = merge_new(main_iter, self.new, self.sort_options.new_review_mix);
+        let main_iter = merge_new(
+            with_interday_learn,
+            self.new,
+            self.sort_options.new_review_mix,
+        );
 
         CardQueues {
             counts: Counts {
@@ -144,7 +162,7 @@ impl QueueBuilder {
                 learning: learn_count,
             },
             main: main_iter.collect(),
-            intraday_learning: learning,
+            intraday_learning,
             learn_ahead_secs,
             selected_deck,
             current_day,
@@ -192,7 +210,7 @@ impl Collection {
         let now = TimestampSecs::now();
         let timing = self.timing_for_timestamp(now)?;
         let decks = self.storage.deck_with_children(deck_id)?;
-        // need full map, since filtered decks may contain cards from decks/
+        // need full map, since filtered decks may contain cards from decks
         // outside tree
         let deck_map = self.storage.get_decks_map()?;
         let config = self.storage.get_deck_config_map()?;
@@ -245,18 +263,31 @@ impl Collection {
                 queues.add_intraday_learning_card(card, bury)
             })?;
 
-        // reviews and interday learning next
+        // interday learning
+        self.storage.for_each_due_card_in_active_decks(
+            timing.days_elapsed,
+            sort_options.review_order,
+            DueCardKind::Learning,
+            |card| {
+                let bury = get_bury_mode(card.original_deck_id.or(card.current_deck_id));
+                queues.add_due_card(card, bury);
+                true
+            },
+        )?;
+
+        // reviews
         if selected_deck_limits.review != 0 {
-            self.storage.for_each_review_card_in_active_decks(
+            self.storage.for_each_due_card_in_active_decks(
                 timing.days_elapsed,
                 sort_options.review_order,
-                |queue, card| {
+                DueCardKind::Review,
+                |card| {
                     if selected_deck_limits.review == 0 {
                         return false;
                     }
                     let bury = get_bury_mode(card.original_deck_id.or(card.current_deck_id));
                     let limits = remaining.get_mut(&card.current_deck_id).unwrap();
-                    if limits.review != 0 && queues.add_due_card(queue, card, bury) {
+                    if limits.review != 0 && queues.add_due_card(card, bury) {
                         selected_deck_limits.review -= 1;
                         limits.review -= 1;
                     }

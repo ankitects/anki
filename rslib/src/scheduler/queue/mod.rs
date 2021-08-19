@@ -9,7 +9,7 @@ pub(crate) mod undo;
 
 use std::collections::VecDeque;
 
-pub(crate) use builder::{DueCard, NewCard};
+pub(crate) use builder::{DueCard, DueCardKind, NewCard};
 pub(crate) use entry::{QueueEntry, QueueEntryKind};
 pub(crate) use learning::LearningQueueEntry;
 pub(crate) use main::{MainQueueEntry, MainQueueEntryKind};

@@ -181,8 +181,8 @@ impl CardQueues {
     }
 }
 
-/// Adapted from the Rust stdlib VecDeque implementation; we can drop this when the following
-/// lands: https://github.com/rust-lang/rust/issues/78021
+/// Adapted from the Rust stdlib VecDeque implementation; we can drop this after updating
+/// to Rust 1.54.0
 fn binary_search_by<'a, F, T>(deque: &'a VecDeque<T>, mut f: F) -> Result<usize, usize>
 where
     F: FnMut(&'a T) -> Ordering,

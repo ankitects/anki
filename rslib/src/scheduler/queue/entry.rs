@@ -31,6 +31,7 @@ impl QueueEntry {
             QueueEntry::Main(e) => match e.kind {
                 MainQueueEntryKind::New => QueueEntryKind::New,
                 MainQueueEntryKind::Review => QueueEntryKind::Review,
+                MainQueueEntryKind::InterdayLearning => QueueEntryKind::Learning,
             },
         }
     }

@@ -315,7 +315,7 @@ impl Collection {
         let mut review_delta = 0;
         match from_queue {
             CardQueue::New => new_delta += 1,
-            CardQueue::Review | CardQueue::DayLearn => review_delta += 1,
+            CardQueue::Review => review_delta += 1,
             _ => {}
         }
         self.update_deck_stats(
