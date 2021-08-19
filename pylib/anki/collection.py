@@ -1026,7 +1026,7 @@ table.review-log {{ {revlog_style} }}
             ok = not problems
             problems.append(self.tr.database_check_rebuilt())
         except DBError as err:
-            problems = [str(err.args[0])]
+            problems = [str(err)]
             ok = False
         finally:
             try:
