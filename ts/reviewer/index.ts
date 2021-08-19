@@ -10,7 +10,9 @@ import "css-browser-selector/css_browser_selector.min";
 
 export { default as $, default as jQuery } from "jquery/dist/jquery";
 
-export { mutateNextCardStates } from "./answering";
+import { mutateNextCardStates } from "./answering";
+globalThis.anki = globalThis.anki || {};
+globalThis.anki.mutateNextCardStates = mutateNextCardStates;
 
 import { bridgeCommand } from "lib/bridgecommand";
 import { allImagesLoaded, preloadAnswerImages } from "./images";
