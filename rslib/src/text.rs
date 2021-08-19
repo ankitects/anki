@@ -219,7 +219,7 @@ pub(crate) fn extract_media_refs(text: &str) -> Vec<MediaRef> {
             .or_else(|| caps.get(3))
             .unwrap()
             .as_str();
-        let fname_decoded = fname.into();
+        let fname_decoded = decode_entities(fname);
         out.push(MediaRef {
             full_ref: caps.get(0).unwrap().as_str(),
             fname,
