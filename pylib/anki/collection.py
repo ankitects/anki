@@ -1082,8 +1082,8 @@ table.review-log {{ {revlog_style} }}
     def get_preferences(self) -> Preferences:
         return self._backend.get_preferences()
 
-    def set_preferences(self, prefs: Preferences) -> None:
-        self._backend.set_preferences(prefs)
+    def set_preferences(self, prefs: Preferences) -> OpChanges:
+        return self._backend.set_preferences(prefs)
 
     def render_markdown(self, text: str, sanitize: bool = True) -> str:
         "Not intended for public consumption at this time."

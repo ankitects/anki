@@ -5,8 +5,10 @@ from typing import Any, cast
 
 import anki.lang
 import aqt
+from anki.collection import OpChanges
 from anki.consts import newCardSchedulingLabels
 from aqt import AnkiQt
+from aqt.operations.collection import set_preferences
 from aqt.profiles import RecordingDriver, VideoDriver
 from aqt.qt import *
 from aqt.utils import HelpPage, disable_help_button, openHelp, showInfo, showWarning, tr
@@ -35,12 +37,15 @@ class Preferences(QDialog):
         # avoid exception if main window is already closed
         if not self.mw.col:
             return
-        self.update_collection()
-        self.update_profile()
-        self.update_global()
-        self.mw.pm.save()
-        self.done(0)
-        aqt.dialogs.markClosed("Preferences")
+
+        def after_collection_update() -> None:
+            self.update_profile()
+            self.update_global()
+            self.mw.pm.save()
+            self.done(0)
+            aqt.dialogs.markClosed("Preferences")
+
+        self.update_collection(after_collection_update)
 
     def reject(self) -> None:
         self.accept()
@@ -84,7 +89,7 @@ class Preferences(QDialog):
         form.pastePNG.setChecked(editing.paste_images_as_png)
         form.default_search_text.setText(editing.default_search_text)
 
-    def update_collection(self) -> None:
+    def update_collection(self, on_done: Callable[[], None]) -> None:
         form = self.form
 
         scheduling = self.prefs.scheduling
@@ -107,13 +112,18 @@ class Preferences(QDialog):
         editing.paste_strips_formatting = self.form.paste_strips_formatting.isChecked()
         editing.default_search_text = self.form.default_search_text.text()
 
-        self.mw.col.set_preferences(self.prefs)
-        self.mw.apply_collection_options()
+        def after_prefs_update(changes: OpChanges) -> None:
+            self.mw.apply_collection_options()
+            if scheduling.scheduler_version > 1:
+                want_v3 = form.sched2021.isChecked()
+                if self.mw.col.v3_scheduler() != want_v3:
+                    self.mw.col.set_v3_scheduler(want_v3)
 
-        if scheduling.scheduler_version > 1:
-            want_v3 = form.sched2021.isChecked()
-            if self.mw.col.v3_scheduler() != want_v3:
-                self.mw.col.set_v3_scheduler(want_v3)
+            on_done()
+
+        set_preferences(parent=self, preferences=self.prefs).success(
+            after_prefs_update
+        ).run_in_background()
 
     # Preferences stored in the profile
     ######################################################################

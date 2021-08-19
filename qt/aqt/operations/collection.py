@@ -3,7 +3,13 @@
 
 from __future__ import annotations
 
-from anki.collection import LegacyCheckpoint, LegacyReviewUndo, OpChangesAfterUndo
+from anki.collection import (
+    LegacyCheckpoint,
+    LegacyReviewUndo,
+    OpChanges,
+    OpChangesAfterUndo,
+    Preferences,
+)
 from anki.errors import UndoEmpty
 from anki.types import assert_exhaustive
 from aqt import gui_hooks
@@ -87,3 +93,9 @@ def _legacy_undo(*, parent: QWidget) -> None:
     tooltip(tr.undo_action_undone(action=name), parent=parent)
     gui_hooks.state_did_revert(name)
     mw.update_undo_actions()
+
+
+def set_preferences(
+    *, parent: QWidget, preferences: Preferences
+) -> CollectionOp[OpChanges]:
+    return CollectionOp(parent, lambda col: col.set_preferences(preferences))
