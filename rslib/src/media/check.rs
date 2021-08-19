@@ -723,9 +723,19 @@ Unused: unused.jpg
 
     #[test]
     fn html_encoding() {
-        let field = "[sound:a &amp; b.mp3]";
+        let mut field = "[sound:a &amp; b.mp3]";
         let mut seen = Default::default();
         normalize_and_maybe_rename_files(field, &HashMap::new(), &mut seen, Path::new("/tmp"));
         assert!(seen.contains("a & b.mp3"));
+
+        field = r#"<img src="a&b.jpg">"#;
+        seen = Default::default();
+        normalize_and_maybe_rename_files(field, &HashMap::new(), &mut seen, Path::new("/tmp"));
+        assert!(seen.contains("a&b.jpg"));
+
+        field = r#"<img src="a&amp;b.jpg">"#;
+        seen = Default::default();
+        normalize_and_maybe_rename_files(field, &HashMap::new(), &mut seen, Path::new("/tmp"));
+        assert!(seen.contains("a&b.jpg"));
     }
 }
