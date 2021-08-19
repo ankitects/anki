@@ -317,11 +317,7 @@ def test_learn_day():
     c.due -= 1
     c.flush()
     col.reset()
-    if is_2021():
-        # it appears in the review queue
-        assert col.sched.counts() == (0, 0, 1)
-    else:
-        assert col.sched.counts() == (0, 1, 0)
+    assert col.sched.counts() == (0, 1, 0)
     c = col.sched.getCard()
     # nextIvl should work
     assert ni(c, 3) == 86400 * 2

@@ -1,5 +1,4 @@
-SELECT queue,
-  id,
+SELECT id,
   nid,
   due,
   cast(ivl AS integer),
@@ -12,6 +11,6 @@ WHERE did IN (
     FROM active_decks
   )
   AND (
-    queue IN (2, 3)
+    queue = ?
     AND due <= ?
   )

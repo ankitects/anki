@@ -15,6 +15,7 @@ pub(crate) struct MainQueueEntry {
 pub(crate) enum MainQueueEntryKind {
     New,
     Review,
+    InterdayLearning,
 }
 
 impl CardQueues {
@@ -24,6 +25,7 @@ impl CardQueues {
             match head.kind {
                 MainQueueEntryKind::New => self.counts.new -= 1,
                 MainQueueEntryKind::Review => self.counts.review -= 1,
+                MainQueueEntryKind::InterdayLearning => self.counts.learning -= 1,
             };
             head
         })
@@ -34,6 +36,7 @@ impl CardQueues {
         match entry.kind {
             MainQueueEntryKind::New => self.counts.new += 1,
             MainQueueEntryKind::Review => self.counts.review += 1,
+            MainQueueEntryKind::InterdayLearning => self.counts.learning += 1,
         };
         self.main.push_front(entry);
     }

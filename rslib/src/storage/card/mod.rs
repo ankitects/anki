@@ -20,7 +20,7 @@ use crate::{
     notes::NoteId,
     scheduler::{
         congrats::CongratsInfo,
-        queue::{DueCard, NewCard},
+        queue::{DueCard, DueCardKind, NewCard},
     },
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
@@ -184,20 +184,24 @@ impl super::SqliteStorage {
                 original_deck_id: row.get(5)?,
                 interval: 0,
                 hash: 0,
+                kind: DueCardKind::Learning,
             })
         }
 
         Ok(())
     }
 
-    pub(crate) fn for_each_review_card_in_active_decks<F>(
+    /// Call func() for each review card or interday learning card, stopping
+    /// when it returns false or no more cards found.
+    pub(crate) fn for_each_due_card_in_active_decks<F>(
         &self,
         day_cutoff: u32,
         order: ReviewCardOrder,
+        kind: DueCardKind,
         mut func: F,
     ) -> Result<()>
     where
-        F: FnMut(CardQueue, DueCard) -> bool,
+        F: FnMut(DueCard) -> bool,
     {
         let order_clause = review_order_sql(order);
         let mut stmt = self.db.prepare_cached(&format!(
@@ -205,22 +209,23 @@ impl super::SqliteStorage {
             include_str!("due_cards.sql"),
             order_clause
         ))?;
-        let mut rows = stmt.query(params![day_cutoff])?;
+        let queue = match kind {
+            DueCardKind::Review => CardQueue::Review,
+            DueCardKind::Learning => CardQueue::DayLearn,
+        };
+        let mut rows = stmt.query(params![queue as i8, day_cutoff])?;
         while let Some(row) = rows.next()? {
-            let queue: CardQueue = row.get(0)?;
-            if !func(
-                queue,
-                DueCard {
-                    id: row.get(1)?,
-                    note_id: row.get(2)?,
-                    due: row.get(3).ok().unwrap_or_default(),
-                    interval: row.get(4)?,
-                    mtime: row.get(5)?,
-                    current_deck_id: row.get(6)?,
-                    original_deck_id: row.get(7)?,
-                    hash: 0,
-                },
-            ) {
+            if !func(DueCard {
+                id: row.get(0)?,
+                note_id: row.get(1)?,
+                due: row.get(2).ok().unwrap_or_default(),
+                interval: row.get(3)?,
+                mtime: row.get(4)?,
+                current_deck_id: row.get(5)?,
+                original_deck_id: row.get(6)?,
+                hash: 0,
+                kind,
+            }) {
                 break;
             }
         }
