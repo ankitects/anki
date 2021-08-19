@@ -213,14 +213,14 @@ fn revlog_to_text(e: RevlogEntry, tr: &I18n) -> RevlogText {
         RevlogReviewKind::Learning => tr.card_stats_review_log_type_learn().into(),
         RevlogReviewKind::Review => tr.card_stats_review_log_type_review().into(),
         RevlogReviewKind::Relearning => tr.card_stats_review_log_type_relearn().into(),
-        RevlogReviewKind::EarlyReview => tr.card_stats_review_log_type_filtered().into(),
+        RevlogReviewKind::Filtered => tr.card_stats_review_log_type_filtered().into(),
         RevlogReviewKind::Manual => tr.card_stats_review_log_type_manual().into(),
     };
     let kind_class = match e.review_kind {
         RevlogReviewKind::Learning => String::from("revlog-learn"),
         RevlogReviewKind::Review => String::from("revlog-review"),
         RevlogReviewKind::Relearning => String::from("revlog-relearn"),
-        RevlogReviewKind::EarlyReview => String::from("revlog-filtered"),
+        RevlogReviewKind::Filtered => String::from("revlog-filtered"),
         RevlogReviewKind::Manual => String::from("revlog-manual"),
     };
     let rating = e.button_chosen.to_string();

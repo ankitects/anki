@@ -20,10 +20,10 @@ impl FilteredState {
         }
     }
 
-    pub(crate) fn revlog_kind(self) -> Option<RevlogReviewKind> {
+    pub(crate) fn revlog_kind(self) -> RevlogReviewKind {
         match self {
-            FilteredState::Preview(_state) => None,
-            FilteredState::Rescheduling(state) => Some(state.revlog_kind()),
+            FilteredState::Preview(state) => state.revlog_kind(),
+            FilteredState::Rescheduling(state) => state.revlog_kind(),
         }
     }
 

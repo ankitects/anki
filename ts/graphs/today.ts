@@ -63,7 +63,7 @@ export function gatherData(data: Stats.GraphsResponse): TodayData {
             case ReviewKind.RELEARNING:
                 relearnCount += 1;
                 break;
-            case ReviewKind.EARLY_REVIEW:
+            case ReviewKind.FILTERED:
                 earlyReviewCount += 1;
                 break;
         }

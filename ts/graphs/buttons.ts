@@ -65,12 +65,13 @@ export function gatherData(data: Stats.GraphsResponse, range: GraphRange): Graph
                 break;
 
             case ReviewKind.REVIEW:
-            case ReviewKind.EARLY_REVIEW:
                 if (review.lastInterval < 21) {
                     buttons = young;
                 } else {
                     buttons = mature;
                 }
+                break;
+            case ReviewKind.FILTERED:
                 break;
         }
 

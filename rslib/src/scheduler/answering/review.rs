@@ -12,7 +12,7 @@ impl CardStateUpdater {
         &mut self,
         current: CardState,
         next: ReviewState,
-    ) -> Option<RevlogEntryPartial> {
+    ) -> RevlogEntryPartial {
         self.card.queue = CardQueue::Review;
         self.card.ctype = CardType::Review;
         self.card.interval = next.scheduled_days;
@@ -21,7 +21,7 @@ impl CardStateUpdater {
         self.card.lapses = next.lapses;
         self.card.remaining_steps = 0;
 
-        RevlogEntryPartial::maybe_new(
+        RevlogEntryPartial::new(
             current,
             next.into(),
             next.ease_factor,
