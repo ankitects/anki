@@ -42,8 +42,6 @@ pub struct CardAnswer {
     pub milliseconds_taken: u32,
 }
 
-// fixme: log preview review
-
 /// Holds the information required to determine a given card's
 /// current state, and to apply a state change to it.
 struct CardStateUpdater {
@@ -103,7 +101,7 @@ impl CardStateUpdater {
         &mut self,
         current: CardState,
         next: CardState,
-    ) -> Result<Option<RevlogEntryPartial>> {
+    ) -> Result<RevlogEntryPartial> {
         let revlog = match next {
             CardState::Normal(normal) => {
                 // transitioning from filtered state?
@@ -141,7 +139,7 @@ impl CardStateUpdater {
         &mut self,
         current: CardState,
         next: NormalState,
-    ) -> Option<RevlogEntryPartial> {
+    ) -> RevlogEntryPartial {
         self.card.reps += 1;
         self.card.original_due = 0;
 
@@ -259,9 +257,9 @@ impl Collection {
                 current_state, answer.current_state,
             )));
         }
-        if let Some(revlog_partial) = updater.apply_study_state(current_state, answer.new_state)? {
-            self.add_partial_revlog(revlog_partial, usn, answer)?;
-        }
+        let revlog_partial = updater.apply_study_state(current_state, answer.new_state)?;
+        self.add_partial_revlog(revlog_partial, usn, answer)?;
+
         self.update_deck_stats_from_answer(usn, answer, &updater, original.queue)?;
         self.maybe_bury_siblings(&original, &updater.config)?;
         let timing = updater.timing;

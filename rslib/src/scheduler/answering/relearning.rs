@@ -12,7 +12,7 @@ impl CardStateUpdater {
         &mut self,
         current: CardState,
         next: RelearnState,
-    ) -> Option<RevlogEntryPartial> {
+    ) -> RevlogEntryPartial {
         self.card.interval = next.review.scheduled_days;
         self.card.remaining_steps = next.learning.remaining_steps;
         self.card.ctype = CardType::Relearn;
@@ -33,7 +33,7 @@ impl CardStateUpdater {
             }
         }
 
-        RevlogEntryPartial::maybe_new(
+        RevlogEntryPartial::new(
             current,
             next.into(),
             next.review.ease_factor,

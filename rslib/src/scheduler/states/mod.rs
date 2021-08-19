@@ -40,9 +40,9 @@ impl CardState {
         }
     }
 
-    pub(crate) fn revlog_kind(self) -> Option<RevlogReviewKind> {
+    pub(crate) fn revlog_kind(self) -> RevlogReviewKind {
         match self {
-            CardState::Normal(normal) => Some(normal.revlog_kind()),
+            CardState::Normal(normal) => normal.revlog_kind(),
             CardState::Filtered(filtered) => filtered.revlog_kind(),
         }
     }

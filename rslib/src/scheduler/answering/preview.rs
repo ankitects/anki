@@ -9,17 +9,16 @@ use crate::{
 };
 
 impl CardStateUpdater {
-    // fixme: check learning card moved into preview
-    // restores correctly in both learn and day-learn case
     pub(super) fn apply_preview_state(
         &mut self,
         current: CardState,
         next: PreviewState,
-    ) -> Option<RevlogEntryPartial> {
+    ) -> RevlogEntryPartial {
+        let revlog = RevlogEntryPartial::new(current, next.into(), 0.0, self.secs_until_rollover());
         if next.finished {
             self.card
                 .remove_from_filtered_deck_restoring_queue(SchedulerVersion::V2);
-            return None;
+            return revlog;
         }
 
         self.card.queue = CardQueue::PreviewRepeat;
@@ -34,7 +33,7 @@ impl CardStateUpdater {
             }
         }
 
-        RevlogEntryPartial::maybe_new(current, next.into(), 0.0, self.secs_until_rollover())
+        revlog
     }
 }
 

@@ -51,7 +51,7 @@ function gatherData(data: Stats.GraphsResponse, range: GraphRange): Hour[] {
             case ReviewKind.REVIEW:
             case ReviewKind.RELEARNING:
                 break; // from switch
-            case ReviewKind.EARLY_REVIEW:
+            case ReviewKind.FILTERED:
             case ReviewKind.MANUAL:
                 continue; // next loop iteration
         }

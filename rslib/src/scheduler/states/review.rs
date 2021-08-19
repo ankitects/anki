@@ -46,7 +46,7 @@ impl ReviewState {
 
     pub(crate) fn revlog_kind(self) -> RevlogReviewKind {
         if self.days_late() < 0 {
-            RevlogReviewKind::EarlyReview
+            RevlogReviewKind::Filtered
         } else {
             RevlogReviewKind::Review
         }

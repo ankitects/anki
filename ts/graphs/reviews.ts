@@ -41,7 +41,7 @@ interface Reviews {
     relearn: number;
     young: number;
     mature: number;
-    early: number;
+    filtered: number;
 }
 
 export interface GraphData {
@@ -56,7 +56,7 @@ type BinType = Bin<Map<number, Reviews[]>, number>;
 export function gatherData(data: Stats.GraphsResponse): GraphData {
     const reviewCount = new Map<number, Reviews>();
     const reviewTime = new Map<number, Reviews>();
-    const empty = { mature: 0, young: 0, learn: 0, relearn: 0, early: 0 };
+    const empty = { mature: 0, young: 0, learn: 0, relearn: 0, filtered: 0 };
 
     for (const review of data.revlog as Stats.RevlogEntry[]) {
         if (review.reviewKind == ReviewKind.MANUAL) {
@@ -89,9 +89,9 @@ export function gatherData(data: Stats.GraphsResponse): GraphData {
                     timeEntry.mature += review.takenMillis;
                 }
                 break;
-            case ReviewKind.EARLY_REVIEW:
-                countEntry.early += 1;
-                timeEntry.early += review.takenMillis;
+            case ReviewKind.FILTERED:
+                countEntry.filtered += 1;
+                timeEntry.filtered += review.takenMillis;
                 break;
         }
     }
@@ -106,7 +106,7 @@ function totalsForBin(bin: BinType): number[] {
         total[1] += entry[1].relearn;
         total[2] += entry[1].young;
         total[3] += entry[1].mature;
-        total[4] += entry[1].early;
+        total[4] += entry[1].filtered;
     }
 
     return total;
@@ -246,7 +246,7 @@ export function renderReviews(
             [reds(1), tr.statisticsCountsRelearningCards(), valueLabel(totals[1])],
             [lighterGreens(1), tr.statisticsCountsYoungCards(), valueLabel(totals[2])],
             [darkerGreens(1), tr.statisticsCountsMatureCards(), valueLabel(totals[3])],
-            [purples(1), tr.statisticsCountsEarlyCards(), valueLabel(totals[4])],
+            [purples(1), tr.statisticsCountsFilteredCards(), valueLabel(totals[4])],
             ["transparent", tr.statisticsRunningTotal(), valueLabel(cumulative)],
         ];
         for (const [colour, label, detail] of lines) {
