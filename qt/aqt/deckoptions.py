@@ -74,7 +74,7 @@ def confirm_deck_then_display_options(active_card: Optional[Card] = None) -> Non
             decks.append(aqt.mw.col.decks.get(card.odid))
 
         if not any(d["id"] == card.did for d in decks):
-            decks.append(aqt.mw.col.decks.get(card.odid))
+            decks.append(aqt.mw.col.decks.get(card.did))
 
     if len(decks) == 1:
         display_options_for_deck(decks[0])
