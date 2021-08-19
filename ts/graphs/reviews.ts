@@ -28,6 +28,7 @@ import {
     sum,
     max,
     cumsum,
+    ScaleSequential,
 } from "d3";
 import type { Bin } from "d3";
 
@@ -99,14 +100,22 @@ export function gatherData(data: Stats.GraphsResponse): GraphData {
     return { reviewCount, reviewTime };
 }
 
+enum BinIndex {
+    Mature = 0,
+    Young = 1,
+    Relearn = 2,
+    Learn = 3,
+    Filtered = 4,
+}
+
 function totalsForBin(bin: BinType): number[] {
     const total = [0, 0, 0, 0, 0];
     for (const entry of bin) {
-        total[0] += entry[1].learn;
-        total[1] += entry[1].relearn;
-        total[2] += entry[1].young;
-        total[3] += entry[1].mature;
-        total[4] += entry[1].filtered;
+        total[BinIndex.Mature] += entry[1].mature;
+        total[BinIndex.Young] += entry[1].young;
+        total[BinIndex.Relearn] += entry[1].relearn;
+        total[BinIndex.Learn] += entry[1].learn;
+        total[BinIndex.Filtered] += entry[1].filtered;
     }
 
     return total;
@@ -228,6 +237,21 @@ export function renderReviews(
         x.domain() as any
     );
 
+    function binColor(idx: BinIndex): ScaleSequential<string> {
+        switch (idx) {
+            case BinIndex.Mature:
+                return darkerGreens;
+            case BinIndex.Young:
+                return lighterGreens;
+            case BinIndex.Learn:
+                return oranges;
+            case BinIndex.Relearn:
+                return reds;
+            case BinIndex.Filtered:
+                return purples;
+        }
+    }
+
     function valueLabel(n: number): string {
         if (showTime) {
             return timeSpan(n / 1000);
@@ -241,17 +265,26 @@ export function renderReviews(
         const totals = totalsForBin(d);
         const dayTotal = valueLabel(sum(totals));
         let buf = `<table><tr><td>${day}</td><td align=right>${dayTotal}</td></tr>`;
-        const lines = [
-            [oranges(1), tr.statisticsCountsLearningCards(), valueLabel(totals[0])],
-            [reds(1), tr.statisticsCountsRelearningCards(), valueLabel(totals[1])],
-            [lighterGreens(1), tr.statisticsCountsYoungCards(), valueLabel(totals[2])],
-            [darkerGreens(1), tr.statisticsCountsMatureCards(), valueLabel(totals[3])],
-            [purples(1), tr.statisticsCountsFilteredCards(), valueLabel(totals[4])],
-            ["transparent", tr.statisticsRunningTotal(), valueLabel(cumulative)],
+        const lines: [BinIndex | null, string][] = [
+            [BinIndex.Filtered, tr.statisticsCountsFilteredCards()],
+            [BinIndex.Learn, tr.statisticsCountsLearningCards()],
+            [BinIndex.Relearn, tr.statisticsCountsRelearningCards()],
+            [BinIndex.Young, tr.statisticsCountsYoungCards()],
+            [BinIndex.Mature, tr.statisticsCountsMatureCards()],
+            [null, tr.statisticsRunningTotal()],
         ];
-        for (const [colour, label, detail] of lines) {
+        for (const [idx, label] of lines) {
+            let color;
+            let detail;
+            if (idx == null) {
+                color = "transparent";
+                detail = valueLabel(cumulative);
+            } else {
+                color = binColor(idx)(1);
+                detail = valueLabel(totals[idx]);
+            }
             buf += `<tr>
-            <td><span style="color: ${colour};">■</span> ${label}</td>
+            <td><span style="color: ${color};">■</span> ${label}</td>
             <td align=right>${detail}</td>
             </tr>`;
         }
@@ -265,20 +298,7 @@ export function renderReviews(
             .attr("x", (d: any) => x(d.x0))
             .attr("y", (d: any) => y(cumulativeBinValue(d, idx))!)
             .attr("height", (d: any) => y(0)! - y(cumulativeBinValue(d, idx))!)
-            .attr("fill", (d: any) => {
-                switch (idx) {
-                    case 0:
-                        return oranges(d.x0);
-                    case 1:
-                        return reds(d.x0);
-                    case 2:
-                        return lighterGreens(d.x0);
-                    case 3:
-                        return darkerGreens(d.x0);
-                    case 4:
-                        return purples(d.x0);
-                }
-            });
+            .attr("fill", (d: any) => binColor(idx)(d.x0));
     };
 
     for (const barNum of [0, 1, 2, 3, 4]) {
