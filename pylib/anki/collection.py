@@ -150,10 +150,12 @@ class Collection(DeprecatedNamesMixin):
     # Scheduler
     ##########################################################################
 
-    # for backwards compatibility, v3 is represented as 2
     _supported_scheduler_versions = (1, 2)
 
     def sched_ver(self) -> Literal[1, 2]:
+        """For backwards compatibility, the v3 scheduler currently returns 2.
+        Use the separate v3_scheduler() method to check if it is active."""
+        # for backwards compatibility, v3 is represented as 2
         ver = self.conf.get("schedVer", 1)
         if ver in self._supported_scheduler_versions:
             return ver
@@ -176,7 +178,7 @@ class Collection(DeprecatedNamesMixin):
         self._load_scheduler()
 
     def v3_scheduler(self) -> bool:
-        return self.get_config_bool(Config.Bool.SCHED_2021)
+        return self.sched_ver() == 2 and self.get_config_bool(Config.Bool.SCHED_2021)
 
     def set_v3_scheduler(self, enabled: bool) -> None:
         if self.v3_scheduler() != enabled:
