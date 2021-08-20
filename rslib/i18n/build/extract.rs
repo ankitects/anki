@@ -1,11 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::gather::TranslationsByLang;
-use fluent_syntax::ast::{Entry, Expression, InlineExpression, Pattern, PatternElement};
-use fluent_syntax::parser::parse;
-use serde::Serialize;
 use std::{collections::HashSet, fmt::Write};
+
+use fluent_syntax::{
+    ast::{Entry, Expression, InlineExpression, Pattern, PatternElement},
+    parser::parse,
+};
+use serde::Serialize;
+
+use crate::gather::TranslationsByLang;
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Serialize)]
 pub struct Module {
     pub name: String,
@@ -148,7 +152,7 @@ impl Visitor {
     fn visit_expression(&mut self, expression: &Expression<&str>) {
         match expression {
             Expression::Select { selector, variants } => {
-                self.visit_inline_expression(&selector, true);
+                self.visit_inline_expression(selector, true);
                 self.visit_pattern(&variants.last().unwrap().value)
             }
             Expression::Inline(expr) => self.visit_inline_expression(expr, false),
