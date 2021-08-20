@@ -5,21 +5,21 @@ import { dynamicComponent } from "sveltelib/dynamicComponent";
 
 /* components */
 import IconButton from "./IconButton.svelte";
-export const iconButton = dynamicComponent(IconButton as any);
+export const iconButton = dynamicComponent(IconButton);
 
 /* decorators */
 import WithContext from "./WithContext.svelte";
-export const withContext = dynamicComponent(WithContext as any);
+export const withContext = dynamicComponent(WithContext);
 
 import WithState from "./WithState.svelte";
-export const withState = dynamicComponent(WithState as any);
+export const withState = dynamicComponent(WithState);
 
 import WithShortcut from "./WithShortcut.svelte";
-export const withShortcut = dynamicComponent(WithShortcut as any);
+export const withShortcut = dynamicComponent(WithShortcut);
 
 /* slots */
 import Slotted from "./Slotted.svelte";
-export const slotted = dynamicComponent(Slotted as any);
+export const slotted = dynamicComponent(Slotted);
 
 import SlottedHTML from "./SlottedHTML.svelte";
-export const slottedHtml = dynamicComponent(SlottedHTML as any);
+export const slottedHtml = dynamicComponent(SlottedHTML);
