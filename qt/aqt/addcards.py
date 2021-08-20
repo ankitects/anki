@@ -5,6 +5,7 @@ from typing import Callable, List, Optional
 
 import aqt.editor
 import aqt.forms
+from anki._legacy import deprecated
 from anki.collection import OpChanges, SearchNode
 from anki.decks import DeckId
 from anki.models import NotetypeId
@@ -38,8 +39,9 @@ class AddCards(QDialog):
         mw.garbage_collect_on_dialog_finish(self)
         self.mw = mw
         self.col = mw.col
-        self.form = aqt.forms.addcards.Ui_Dialog()
-        self.form.setupUi(self)
+        form = aqt.forms.addcards.Ui_Dialog()
+        form.setupUi(self)
+        self.form = form
         self.setWindowTitle(tr.actions_add())
         disable_help_button(self)
         self.setMinimumHeight(300)
@@ -297,15 +299,20 @@ class AddCards(QDialog):
 
     @property
     def deckChooser(self) -> DeckChooser:
-        print("deckChooser is deprecated; use deck_chooser instead")
+        if getattr(self, "form", None):
+            # show this warning only after Qt form has been initialized,
+            # or PyQt's introspection triggers it
+            print("deckChooser is deprecated; use deck_chooser instead")
         return self.deck_chooser
 
     addCards = add_current_note
     _addCards = _add_current_note
     onModelChange = on_notetype_change
 
+    @deprecated(info="obsolete")
     def addNote(self, note: Note) -> None:
-        print("addNote() is obsolete")
+        pass
 
+    @deprecated(info="does nothing; will go away")
     def removeTempNote(self, note: Note) -> None:
-        print("removeTempNote() will go away")
+        pass
