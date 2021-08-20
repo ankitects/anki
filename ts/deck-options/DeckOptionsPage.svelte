@@ -39,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 component: HtmlAddon,
                 html,
                 mounted,
-            },
+            } as unknown as DynamicSvelteComponent,
         ];
     }
 
