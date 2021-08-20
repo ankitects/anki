@@ -863,7 +863,10 @@ def supportText() -> str:
 
     def schedVer() -> str:
         try:
-            return str(mw.col.sched_ver())
+            if mw.col.v3_scheduler():
+                return "3"
+            else:
+                return str(mw.col.sched_ver())
         except:
             return "?"
 
