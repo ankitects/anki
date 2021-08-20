@@ -22,6 +22,7 @@ compile_svelte(
     visibility = ["//visibility:public"],
     deps = [
         "//ts/components",
+        "//ts/addons",
     ],
 )
 
@@ -71,6 +72,7 @@ ts_library(
         "//ts/lib",
         "//ts/sveltelib",
         "//ts/components",
+        "//ts/addons",
         "//ts/html-filter",
         "//ts:image_module_support",
         "@npm//svelte",
@@ -141,6 +143,8 @@ esbuild(
         "svelte_components",
         "//ts/components",
         "//ts/components:svelte_components",
+        "//ts/addons",
+        "//ts/addons:svelte_components",
         "@npm//protobufjs",
     ],
 )
@@ -175,5 +179,6 @@ svelte_check(
         "//ts/sass/bootstrap",
         "@npm//@types/bootstrap",
         "//ts/components",
+        "//ts/addons",
     ],
 )

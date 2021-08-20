@@ -6,16 +6,11 @@ export interface DynamicSvelteComponent<
     T extends typeof SvelteComponentDev = typeof SvelteComponentDev
 > {
     component: T;
-    [k: string]: unknown;
+    props: Record<string, unknown>;
 }
 
 export const dynamicComponent =
-    <
-        Comp extends typeof SvelteComponentDev,
-        DefaultProps = NonNullable<ConstructorParameters<Comp>[0]["props"]>
-    >(
-        component: Comp
-    ) =>
-    <Props = DefaultProps>(props: Props): DynamicSvelteComponent<Comp> & Props => {
-        return { component, ...props };
+    <Comp extends typeof SvelteComponentDev>(component: Comp) =>
+    (props: Record<string, unknown>): DynamicSvelteComponent<Comp> => {
+        return { component, props };
     };
