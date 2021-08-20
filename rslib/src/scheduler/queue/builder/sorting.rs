@@ -26,6 +26,14 @@ impl QueueBuilder {
                 self.new.iter_mut().for_each(NewCard::hash_id_and_mtime);
                 self.new.sort_unstable_by(new_hash)
             }
+            NewCardSortOrder::TemplateOnly => {
+                // stable sort to preserve gather order
+                self.new
+                    .sort_by(|a, b| a.template_index.cmp(&b.template_index))
+            }
+            NewCardSortOrder::NoSort => {
+                // preserve gather order
+            }
         }
     }
 }
