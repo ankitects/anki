@@ -31,12 +31,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <button
     bind:this={buttonRef}
     {id}
-    class={`btn ${className}`}
+    class="btn {className}"
     class:active
     class:dropdown-toggle={dropdownProps.dropdown}
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
-    style={`--icon-size: ${iconSize}%`}
+    style="--icon-size: {iconSize}%"
     title={tooltip}
     {...dropdownProps}
     {disabled}

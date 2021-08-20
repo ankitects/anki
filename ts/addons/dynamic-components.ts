@@ -3,12 +3,9 @@
 
 import { dynamicComponent } from "sveltelib/dynamicComponent";
 
-/* event handlers */
-import OnClick from "./OnClick.svelte";
-export const onClick = dynamicComponent(OnClick as any);
-
-import OnMount from "./OnMount.svelte";
-export const onMount = dynamicComponent(OnMount as any);
+/* components */
+import IconButton from "./IconButton.svelte";
+export const iconButton = dynamicComponent(IconButton as any);
 
 /* decorators */
 import WithContext from "./WithContext.svelte";
