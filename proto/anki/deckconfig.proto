@@ -43,6 +43,10 @@ message DeckConfig {
       NEW_CARD_SORT_ORDER_LOWEST_POSITION = 3;
       NEW_CARD_SORT_ORDER_HIGHEST_POSITION = 4;
       NEW_CARD_SORT_ORDER_RANDOM = 5;
+      // Sorts by template, preserving original gather order.
+      NEW_CARD_SORT_ORDER_TEMPLATE_ONLY = 6;
+      // Preserves original gather order (eg deck order)
+      NEW_CARD_SORT_ORDER_NO_SORT = 7;
     }
     enum ReviewCardOrder {
       REVIEW_CARD_ORDER_DAY = 0;
