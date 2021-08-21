@@ -166,6 +166,7 @@ impl QueueBuilder {
             learn_ahead_secs,
             selected_deck,
             current_day,
+            build_time: TimestampMillis::now(),
             current_learning_cutoff: now,
         }
     }

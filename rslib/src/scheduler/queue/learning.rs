@@ -35,7 +35,7 @@ impl CardQueues {
 
     /// Increase the cutoff to the current time, and increase the learning count
     /// for any new cards that now fall within the cutoff.
-    pub(super) fn update_learning_cutoff_and_count(&mut self) -> Box<CutoffSnapshot> {
+    pub(super) fn update_learning_cutoff_and_count(&mut self) -> CutoffSnapshot {
         let change = CutoffSnapshot {
             learning_count: self.counts.learning,
             learning_cutoff: self.current_learning_cutoff,
@@ -50,7 +50,7 @@ impl CardQueues {
             .count();
         self.counts.learning += new_learning_cards;
 
-        Box::new(change)
+        change
     }
 
     /// Given the just-answered `card`, place it back in the learning queues if it's still
