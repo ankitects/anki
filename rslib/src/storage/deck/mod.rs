@@ -42,15 +42,18 @@ fn row_to_due_counts(row: &Row) -> Result<(DeckId, DueCounts)> {
     let deck_id = row.get(0)?;
     let new = row.get(1)?;
     let review = row.get(2)?;
-    let interday: u32 = row.get(3)?;
-    let intraday: u32 = row.get(4)?;
-    let learning = intraday + interday;
+    let interday_learning: u32 = row.get(3)?;
+    let intraday_learning: u32 = row.get(4)?;
+    // used as-is in v1/v2; recalculated in v3 after limits are applied
+    let learning = intraday_learning + interday_learning;
     Ok((
         deck_id,
         DueCounts {
             new,
             review,
             learning,
+            intraday_learning,
+            interday_learning,
         },
     ))
 }
