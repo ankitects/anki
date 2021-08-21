@@ -26,6 +26,7 @@ pub(crate) struct CardQueues {
     selected_deck: DeckId,
     current_day: u32,
     learn_ahead_secs: i64,
+    build_time: TimestampMillis,
     /// Updated each time a card is answered, and by get_queued_cards() when the
     /// counts are zero. Ensures we don't show a newly-due learning card after a
     /// user returns from editing a review card.
@@ -190,12 +191,14 @@ impl Collection {
         if let Some(queues) = &mut self.state.card_queues {
             let entry = queues.pop_entry(card.id)?;
             let requeued_learning = queues.maybe_requeue_learning_card(card, timing);
-            let cutoff_change = queues.update_learning_cutoff_and_count();
+            let cutoff_snapshot = queues.update_learning_cutoff_and_count();
+            let queue_build_time = queues.build_time;
             self.save_queue_update_undo(Box::new(QueueUpdate {
                 entry,
                 learning_requeue: requeued_learning,
+                queue_build_time,
+                cutoff_snapshot,
             }));
-            self.save_cutoff_change(cutoff_change);
         } else {
             // we currenly allow the queues to be empty for unit tests
         }
@@ -203,9 +206,40 @@ impl Collection {
         Ok(())
     }
 
+    /// Get the card queues, building if necessary.
     pub(crate) fn get_queues(&mut self) -> Result<&mut CardQueues> {
-        let timing = self.timing_today()?;
         let deck = self.get_current_deck()?;
+        self.clear_queues_if_day_changed()?;
+        if self.state.card_queues.is_none() {
+            self.state.card_queues = Some(self.build_queues(deck.id)?);
+        }
+
+        Ok(self.state.card_queues.as_mut().unwrap())
+    }
+
+    // Returns queues if they are valid and have not been rebuilt. If build time has changed,
+    // they are cleared.
+    pub(crate) fn get_or_invalidate_queues(
+        &mut self,
+        build_time: TimestampMillis,
+    ) -> Result<Option<&mut CardQueues>> {
+        self.clear_queues_if_day_changed()?;
+        let same_build = self
+            .state
+            .card_queues
+            .as_ref()
+            .map(|q| q.build_time == build_time)
+            .unwrap_or_default();
+        if same_build {
+            Ok(self.state.card_queues.as_mut())
+        } else {
+            self.clear_study_queues();
+            Ok(None)
+        }
+    }
+
+    fn clear_queues_if_day_changed(&mut self) -> Result<()> {
+        let timing = self.timing_today()?;
         let day_rolled_over = self
             .state
             .card_queues
@@ -215,11 +249,7 @@ impl Collection {
         if day_rolled_over {
             self.discard_undo_and_study_queues();
         }
-        if self.state.card_queues.is_none() {
-            self.state.card_queues = Some(self.build_queues(deck.id)?);
-        }
-
-        Ok(self.state.card_queues.as_mut().unwrap())
+        Ok(())
     }
 }
 
