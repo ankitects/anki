@@ -263,45 +263,40 @@ impl Collection {
                 queues.add_intraday_learning_card(card, bury)
             })?;
 
-        // interday learning
-        self.storage.for_each_due_card_in_active_decks(
-            timing.days_elapsed,
-            sort_options.review_order,
-            DueCardKind::Learning,
-            |card| {
-                let bury = get_bury_mode(card.original_deck_id.or(card.current_deck_id));
-                queues.add_due_card(card, bury);
-                true
-            },
-        )?;
+        // interday learning, then reviews
+        let mut add_due_cards = |kind: DueCardKind| -> Result<()> {
+            if selected_deck_limits.review != 0 {
+                self.storage.for_each_due_card_in_active_decks(
+                    timing.days_elapsed,
+                    sort_options.review_order,
+                    kind,
+                    |card| {
+                        if selected_deck_limits.review == 0 {
+                            return false;
+                        }
+                        let bury = get_bury_mode(card.original_deck_id.or(card.current_deck_id));
+                        let limits = remaining.get_mut(&card.current_deck_id).unwrap();
+                        if limits.review != 0 && queues.add_due_card(card, bury) {
+                            selected_deck_limits.review -= 1;
+                            limits.review -= 1;
+                        }
 
-        // reviews
-        if selected_deck_limits.review != 0 {
-            self.storage.for_each_due_card_in_active_decks(
-                timing.days_elapsed,
-                sort_options.review_order,
-                DueCardKind::Review,
-                |card| {
-                    if selected_deck_limits.review == 0 {
-                        return false;
-                    }
-                    let bury = get_bury_mode(card.original_deck_id.or(card.current_deck_id));
-                    let limits = remaining.get_mut(&card.current_deck_id).unwrap();
-                    if limits.review != 0 && queues.add_due_card(card, bury) {
-                        selected_deck_limits.review -= 1;
-                        limits.review -= 1;
-                    }
+                        true
+                    },
+                )?;
+            }
+            Ok(())
+        };
+        add_due_cards(DueCardKind::Learning)?;
+        add_due_cards(DueCardKind::Review)?;
 
-                    true
-                },
-            )?;
-        }
-
-        // New cards last
+        // cap new cards to the remaining review limit
         for limit in remaining.values_mut() {
             limit.new = limit.new.min(limit.review).min(selected_deck_limits.review);
         }
         selected_deck_limits.new = selected_deck_limits.new.min(selected_deck_limits.review);
+
+        // new cards last
         let can_exit_early = sort_options.new_gather_priority == NewCardGatherPriority::Deck;
         let reverse = sort_options.new_gather_priority == NewCardGatherPriority::HighestPosition;
         for deck in &decks {

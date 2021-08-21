@@ -8,7 +8,11 @@ use crate::{backend_proto as pb, prelude::*};
 pub(crate) struct DueCounts {
     pub new: u32,
     pub review: u32,
+    /// interday+intraday
     pub learning: u32,
+
+    pub intraday_learning: u32,
+    pub interday_learning: u32,
 }
 
 impl Deck {
