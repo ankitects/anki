@@ -21,6 +21,8 @@
         ? "\n\n" +
           tr.deckConfigLimitNewBoundByReviews() +
           "\n\n" +
+          tr.deckConfigLimitInterdayBoundByReviews() +
+          "\n\n" +
           tr.deckConfigLimitDeckV3()
         : "";
 
