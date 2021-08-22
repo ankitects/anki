@@ -44,6 +44,7 @@ fn row_to_due_counts(row: &Row) -> Result<(DeckId, DueCounts)> {
     let review = row.get(2)?;
     let interday_learning: u32 = row.get(3)?;
     let intraday_learning: u32 = row.get(4)?;
+    let total_cards: u32 = row.get(5)?;
     // used as-is in v1/v2; recalculated in v3 after limits are applied
     let learning = intraday_learning + interday_learning;
     Ok((
@@ -54,6 +55,7 @@ fn row_to_due_counts(row: &Row) -> Result<(DeckId, DueCounts)> {
             learning,
             intraday_learning,
             interday_learning,
+            total_cards,
         },
     ))
 }
@@ -293,7 +295,7 @@ impl SqliteStorage {
             });
             sql = concat!(
                 include_str!("due_counts.sql"),
-                " and did in (select id from decks where name = :top_deck ",
+                " where did in (select id from decks where name = :top_deck ",
                 "or (name >= :prefix_start and name < :prefix_end)) group by did "
             );
         } else {
