@@ -54,7 +54,8 @@ message DeckConfig {
       REVIEW_CARD_ORDER_DECK_THEN_DAY = 2;
       REVIEW_CARD_ORDER_INTERVALS_ASCENDING = 3;
       REVIEW_CARD_ORDER_INTERVALS_DESCENDING = 4;
-      // REVIEW_CARD_ORDER_RELATIVE_OVERDUE = 3;
+      REVIEW_CARD_ORDER_EASE_ASCENDING = 5;
+      REVIEW_CARD_ORDER_EASE_DESCENDING = 6;
     }
     enum ReviewMix {
       REVIEW_MIX_MIX_WITH_REVIEWS = 0;
@@ -73,6 +74,8 @@ message DeckConfig {
 
     uint32 new_per_day = 9;
     uint32 reviews_per_day = 10;
+
+    // not currently used
     uint32 new_per_day_minimum = 29;
 
     float initial_ease = 11;

@@ -584,6 +584,8 @@ enum ReviewOrderSubclause {
     Random,
     IntervalsAscending,
     IntervalsDescending,
+    EaseAscending,
+    EaseDescending,
 }
 
 impl ReviewOrderSubclause {
@@ -594,6 +596,8 @@ impl ReviewOrderSubclause {
             ReviewOrderSubclause::Random => "fnvhash(id, mod)",
             ReviewOrderSubclause::IntervalsAscending => "ivl asc",
             ReviewOrderSubclause::IntervalsDescending => "ivl desc",
+            ReviewOrderSubclause::EaseAscending => "factor asc",
+            ReviewOrderSubclause::EaseDescending => "factor desc",
         }
     }
 }
@@ -605,6 +609,8 @@ fn review_order_sql(order: ReviewCardOrder) -> String {
         ReviewCardOrder::DeckThenDay => vec![ReviewOrderSubclause::Deck, ReviewOrderSubclause::Day],
         ReviewCardOrder::IntervalsAscending => vec![ReviewOrderSubclause::IntervalsAscending],
         ReviewCardOrder::IntervalsDescending => vec![ReviewOrderSubclause::IntervalsDescending],
+        ReviewCardOrder::EaseAscending => vec![ReviewOrderSubclause::EaseAscending],
+        ReviewCardOrder::EaseDescending => vec![ReviewOrderSubclause::EaseDescending],
     };
     subclauses.push(ReviewOrderSubclause::Random);
 
