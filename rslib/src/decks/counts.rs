@@ -13,6 +13,7 @@ pub(crate) struct DueCounts {
 
     pub intraday_learning: u32,
     pub interday_learning: u32,
+    pub total_cards: u32,
 }
 
 impl Deck {

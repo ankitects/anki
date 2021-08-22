@@ -134,14 +134,20 @@ message DeckTreeNode {
   uint32 level = 4;
   bool collapsed = 5;
 
-  // counts after limits applied
+  // counts after adding children+applying limits
   uint32 review_count = 6;
   uint32 learn_count = 7;
   uint32 new_count = 8;
 
-  // due counts without limits applied
-  uint32 intraday_learning_total = 9;
-  uint32 interday_learning_total = 10;
+  // card counts without children or limits applied
+  uint32 intraday_learning = 9;
+  uint32 interday_learning_uncapped = 10;
+  uint32 new_uncapped = 11;
+  uint32 review_uncapped = 12;
+  uint32 total_in_deck = 13;
+
+  uint32 total_including_children = 14;
+
   bool filtered = 16;
 
   // low index so key can be packed into a byte, but at bottom
