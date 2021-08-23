@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import "sveltelib/cross-unit";
+import "sveltelib/export-internal";
 
 import { filterHTML } from "html-filter";
 import { updateActiveButtons } from "./toolbar";
