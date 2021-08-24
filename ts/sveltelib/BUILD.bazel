@@ -13,6 +13,7 @@ ts_library(
     tsconfig = "//:tsconfig.json",
     visibility = ["//visibility:public"],
     deps = [
+        "//ts/lib",
         "@npm//svelte",
         "@npm//tslib",
     ],
