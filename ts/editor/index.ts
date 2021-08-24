@@ -6,6 +6,8 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import "sveltelib/export-runtime";
+
 import { filterHTML } from "html-filter";
 import { updateActiveButtons } from "./toolbar";
 import { setupI18n, ModuleName } from "lib/i18n";

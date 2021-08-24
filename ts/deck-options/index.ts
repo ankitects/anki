@@ -5,6 +5,8 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import "sveltelib/export-runtime";
+
 import { getDeckOptionsInfo, DeckOptionsState } from "./lib";
 import { setupI18n, ModuleName } from "lib/i18n";
 import { checkNightMode } from "lib/nightmode";
