@@ -61,7 +61,10 @@ export class I18n {
 
     weekdayLabel(n: number): string {
         const firstLang = this.bundles[0].locales[0];
-        return new Date(86_400_000 * (3 + n)).toLocaleDateString(firstLang, {
+        const now = new Date();
+        const daysFromToday = -now.getDay() + n;
+        const desiredDay = new Date(now.getTime() + daysFromToday * 86_400_000);
+        return desiredDay.toLocaleDateString(firstLang, {
             weekday: "narrow",
         });
     }
