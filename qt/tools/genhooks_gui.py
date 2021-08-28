@@ -736,6 +736,17 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         Note that the media sync did not necessarily finish at this point.""",
     ),
     Hook(name="media_check_will_start", args=[]),
+    # Dialog Manager
+    ###################
+    Hook(
+        name="dialog_manager_did_open_dialog",
+        args=[
+            "dialog_manager: aqt.DialogManager",
+            "dialog_name: str",
+            "dialog_instance: QWidget",
+        ],
+        doc="""Executed after aqt.dialogs creates a dialog window""",
+    ),
     # Adding cards
     ###################
     Hook(
