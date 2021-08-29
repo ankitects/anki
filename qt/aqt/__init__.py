@@ -18,6 +18,7 @@ from anki.buildinfo import version as _version
 from anki.collection import Collection
 from anki.consts import HELP_SITE
 from anki.utils import checksum, isLin, isMac
+from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import TR, locale_dir, tr
 
@@ -114,6 +115,7 @@ class DialogManager:
         else:
             instance = creator(*args, **kwargs)
             self._dialogs[name][1] = instance
+        gui_hooks.dialog_manager_did_open_dialog(self, name, instance)
         return instance
 
     def markClosed(self, name: str) -> None:
