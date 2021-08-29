@@ -7,7 +7,7 @@ from zipfile import ZipFile
 
 from mock import MagicMock
 
-from aqt.addons import AddonManager, extract_update_info
+from aqt.addons import AddonManager, extract_update_info, package_name_valid
 
 
 def test_readMinimalManifest():
@@ -94,3 +94,11 @@ def test_update_info():
     r = extract_update_info(20, 1, json_info)
     assert r.current_branch_max_point_ver == -25
     assert r.suitable_branch_last_modified == 333
+
+
+def test_package_name_validation():
+    assert not package_name_valid("")
+    assert not package_name_valid("/")
+    assert not package_name_valid("a/b")
+    assert not package_name_valid("..")
+    assert package_name_valid("ab")
