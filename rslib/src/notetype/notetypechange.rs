@@ -254,7 +254,7 @@ impl Collection {
         let ctx = CardGenContext::new(&notetype, last_deck, usn);
 
         for nid in note_ids {
-            let mut note = self.storage.get_note(*nid)?.unwrap();
+            let mut note = self.storage.get_note(*nid)?.ok_or(AnkiError::NotFound)?;
             let original = note.clone();
             remap_fields(note.fields_mut(), new_fields);
             note.notetype_id = new_notetype_id;
