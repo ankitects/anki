@@ -3,6 +3,14 @@
 
 @use 'ts/sass/card-counts';
 
+:root {
+    --focus-color: #0078d7;
+
+    .isMac {
+        --focus-color: rgba(0 103 244 / 0.247);
+    }
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -42,13 +50,13 @@ button {
 }
 
 .focus {
-    outline: 5px auto rgba(0, 103, 244, 0.247);
+    outline: 5px auto var(--focus-color);
 
     #innertable:focus-within & {
         outline: unset;
 
         &:focus {
-            outline: 5px auto rgba(0, 103, 244, 0.247);
+            outline: 5px auto var(--focus-color);
         }
     }
 }
