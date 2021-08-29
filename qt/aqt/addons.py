@@ -157,7 +157,7 @@ class AddonManager:
         "type": "object",
         "properties": {
             # the name of the folder
-            "package": {"type": "string", "meta": False},
+            "package": {"type": "string", "minLength": 1, "meta": False},
             # the displayed name to the user
             "name": {"type": "string", "meta": True},
             # the time the add-on was last modified
