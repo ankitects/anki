@@ -906,7 +906,10 @@ class SidebarTreeView(QTreeView):
     ) -> None:
         if item.item_type.is_editable() and len(self._selected_items()) == 1:
             menu.addAction(tr.actions_rename(), lambda: self.edit(index))
-            if item.item_type in (SidebarItemType.TAG, SidebarItemType.DECK):
+            if (
+                item.item_type in (SidebarItemType.TAG, SidebarItemType.DECK)
+                and item.name_prefix
+            ):
                 menu.addAction(
                     tr.actions_rename_with_parents(),
                     lambda: self._on_rename_with_parents(item),
