@@ -146,7 +146,7 @@ export class EditingArea extends HTMLDivElement {
         this.editableContainer.setBaseStyling(
             this.quoteFontFamily(fontFamily),
             fontSize,
-            direction,
+            direction
         );
     }
 
