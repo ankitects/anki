@@ -7,6 +7,7 @@
  */
 
 import "sveltelib/export-runtime";
+import "lib/register-package";
 
 import { filterHTML } from "html-filter";
 import { updateActiveButtons } from "./toolbar";
