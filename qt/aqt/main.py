@@ -114,7 +114,6 @@ class AnkiQt(QMainWindow):
         self.col: Optional[Collection] = None
         self.taskman = TaskManager(self)
         self.media_syncer = MediaSyncer(self)
-        self.flags = FlagManager(self)
         aqt.mw = self
         self.app = app
         self.pm = profileManager
@@ -404,6 +403,7 @@ class AnkiQt(QMainWindow):
         if not self.loadCollection():
             return
 
+        self.flags = FlagManager(self)
         # show main window
         if self.pm.profile["mainWindowState"]:
             restoreGeom(self, "mainWindow")
