@@ -2,18 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { bridgeCommand } from "./lib";
-import { nodeIsInline, caretToEnd, getBlockElement } from "./helpers";
+import { elementIsBlock, caretToEnd, getBlockElement } from "./helpers";
 import { inCodable } from "./toolbar";
 import { wrap } from "./wrap";
 
-function containsInlineContent(field: Element): boolean {
-    if (field.childNodes.length === 0) {
-        // for now, for all practical purposes, empty fields are in block mode
-        return false;
-    }
-
-    for (const child of field.children) {
-        if (!nodeIsInline(child)) {
+function containsInlineContent(element: Element): boolean {
+    for (const child of element.children) {
+        if (elementIsBlock(child) || !containsInlineContent(child)) {
             return false;
         }
     }
@@ -25,7 +20,7 @@ export class Editable extends HTMLElement {
     set fieldHTML(content: string) {
         this.innerHTML = content;
 
-        if (containsInlineContent(this)) {
+        if (content.length > 0 && containsInlineContent(this)) {
             this.appendChild(document.createElement("br"));
         }
     }
