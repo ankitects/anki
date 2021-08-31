@@ -12,13 +12,32 @@
     display: flex;
     overflow-x: hidden;
     flex-direction: column;
-    margin: 5px;
+    margin: 3px 0;
+}
+
+.editor-field {
+    margin: 3px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+
+    &:focus-within {
+        box-shadow: 0 0 0 3px var(--focus-shadow);
+        border-color: var(--focus-border);
+    }
 }
 
 .field {
     position: relative;
-    border: 1px solid var(--border);
+
     background: var(--frame-bg);
+    border-width: 1px 0 0;
+    border-style: dashed;
+    border-color: var(--border);
+    border-radius: 0 0 6px 6px;
+
+    &:focus-within {
+        border-color: var(--focus-border);
+    }
 
     &.dupe {
         // this works around the background colour persisting in copy+paste
@@ -28,8 +47,8 @@
 }
 
 .fname {
-    vertical-align: middle;
-    padding: 0;
+    border-radius: 6px 6px 0 0;
+    padding: 0px 6px;
 }
 
 #dupes,
@@ -71,5 +90,6 @@
 
 .CodeMirror {
     height: auto;
+    border-radius: 0 0 6px 6px;
     padding: 6px 0;
 }

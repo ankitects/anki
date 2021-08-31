@@ -37,7 +37,7 @@ export class LabelContainer extends HTMLDivElement {
 
     constructor() {
         super();
-        this.className = "d-flex justify-content-between";
+        this.className = "fname d-flex justify-content-between";
 
         i18n.then(() => {
             this.title = appendInParentheses(tr.editingToggleSticky(), "F9");
