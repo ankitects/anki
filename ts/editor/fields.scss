@@ -17,7 +17,7 @@
 
 .editor-field {
     margin: 3px;
-    border-radius: 6px;
+    border-radius: 5px;
     border: 1px solid var(--border);
 
     &:focus-within {
@@ -33,7 +33,7 @@
     border-width: 1px 0 0;
     border-style: dashed;
     border-color: var(--border);
-    border-radius: 0 0 6px 6px;
+    border-radius: 0 0 5px 5px;
 
     &:focus-within {
         border-color: var(--focus-border);
@@ -47,7 +47,7 @@
 }
 
 .fname {
-    border-radius: 6px 6px 0 0;
+    border-radius: 5px 5px 0 0;
     padding: 0px 6px;
 }
 
@@ -90,6 +90,6 @@
 
 .CodeMirror {
     height: auto;
-    border-radius: 0 0 6px 6px;
+    border-radius: 0 0 5px 5px;
     padding: 6px 0;
 }
