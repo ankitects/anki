@@ -10,6 +10,8 @@ export class EditorField extends HTMLDivElement {
 
     constructor() {
         super();
+        this.classList.add("editor-field");
+
         this.labelContainer = document.createElement("div", {
             is: "anki-label-container",
         }) as LabelContainer;
