@@ -26,10 +26,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="d-contents"
     style="--offsetX: {offsetX}px; --offsetY: {offsetY}px; --activeSize: {activeSize}px;"
 >
+    <div class:nightMode class="bordered" on:mousedown|preventDefault />
     <div
         class:nightMode
         class:active
-        class="nw"
+        class="control nw"
         on:mousedown|preventDefault
         on:click
         on:pointerdown={onPointerdown(true, true)}
@@ -39,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div
         class:nightMode
         class:active
-        class="ne"
+        class="control ne"
         on:mousedown|preventDefault
         on:click
         on:pointerdown={onPointerdown(true, false)}
@@ -49,7 +50,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div
         class:nightMode
         class:active
-        class="sw"
+        class="control sw"
         on:mousedown|preventDefault
         on:click
         on:pointerdown={onPointerdown(false, true)}
@@ -59,7 +60,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div
         class:nightMode
         class:active
-        class="se"
+        class="control se"
         on:mousedown|preventDefault
         on:click
         on:pointerdown={onPointerdown(false, false)}
@@ -73,12 +74,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: contents;
     }
 
-    div > div {
+    .bordered {
+        position: absolute;
+
+        top: calc(0px - var(--activeSize) + var(--offsetY));
+        bottom: calc(0px - var(--activeSize) + var(--offsetY));
+        left: calc(0px - var(--activeSize) + var(--offsetX));
+        right: calc(0px - var(--activeSize) + var(--offsetX));
+
+        pointer-events: none;
+        border: 2px dashed black;
+
+        &.nightMode {
+            border-color: white;
+        }
+    }
+
+    .control {
         position: absolute;
 
         width: var(--activeSize);
         height: var(--activeSize);
-        border: 1px solid black;
 
         &.active {
             background-color: black;
@@ -95,8 +111,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &.nw {
             top: calc(0px - var(--offsetY));
             left: calc(0px - var(--offsetX));
-            border-bottom: none;
-            border-right: none;
 
             &.active {
                 cursor: nw-resize;
@@ -106,8 +120,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &.ne {
             top: calc(0px - var(--offsetY));
             right: calc(0px - var(--offsetX));
-            border-bottom: none;
-            border-left: none;
 
             &.active {
                 cursor: ne-resize;
@@ -117,8 +129,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &.sw {
             bottom: calc(0px - var(--offsetY));
             left: calc(0px - var(--offsetX));
-            border-top: none;
-            border-right: none;
 
             &.active {
                 cursor: sw-resize;
@@ -128,8 +138,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &.se {
             bottom: calc(0px - var(--offsetY));
             right: calc(0px - var(--offsetX));
-            border-top: none;
-            border-left: none;
 
             &.active {
                 cursor: se-resize;

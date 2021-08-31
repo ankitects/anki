@@ -179,7 +179,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
                     <HandleControl
                         {active}
-                        activeSize={7}
+                        activeSize={8}
                         offsetX={5}
                         offsetY={5}
                         on:click={(event) => event.stopPropagation()}
