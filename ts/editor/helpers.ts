@@ -9,6 +9,7 @@ export function nodeIsElement(node: Node): node is Element {
     return node.nodeType === Node.ELEMENT_NODE;
 }
 
+// https://developer.mozilla.org/en-US/docs/Web/HTML/Block-level_elements
 const BLOCK_TAGS = [
     "ADDRESS",
     "ARTICLE",
