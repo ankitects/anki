@@ -168,7 +168,7 @@ class DeckManager(DeprecatedNamesMixin):
             return None
 
     def have(self, id: DeckId) -> bool:
-        return not self.get_legacy(id)
+        return bool(self.get_legacy(id))
 
     def get_all_legacy(self) -> List[DeckDict]:
         return list(from_json_bytes(self.col._backend.get_all_decks_legacy()).values())
