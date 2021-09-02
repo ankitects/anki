@@ -62,20 +62,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     /* window resizing */
     const resizeObserver = new ResizeObserver(async () => {
-        if (activeImage) {
-            await updateSizesWithDimensions();
-        }
+        await updateSizesWithDimensions();
     });
 
     function startObserving() {
+    console.log('start observe');
         resizeObserver.observe(container);
     }
 
     function stopObserving() {
+    console.log('stop observe');
         resizeObserver.unobserve(container);
     }
 
-    startObserving();
+    $: observes = Boolean(activeImage);
+    $: if (observes) {
+        startObserving();
+    } else {
+        stopObserving();
+    }
 
     /* memoized position of image on resize start
      * prevents frantic behavior when image shift into the next/previous line */
@@ -83,7 +88,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let getDragHeight: (event: PointerEvent) => number;
 
     function setPointerCapture({ detail }: CustomEvent): void {
-        if (detail.originalEvent.pointerId !== 1) {
+        const pointerId = detail.originalEvent.pointerId;
+
+        if (pointerId !== 1) {
             return;
         }
 
@@ -101,10 +108,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         getDragHeight = ({ clientY }) => multY * clientY + imageY;
 
-        stopObserving();
-
         const target = detail.originalEvent.target as Element;
-        target.setPointerCapture(detail.originalEvent.pointerId);
+        target.setPointerCapture(pointerId);
     }
 
     $: [minResizeWidth, minResizeHeight] =
@@ -165,7 +170,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:mount={(event) => createDropdown(event.detail.selection)}
                 >
                     <HandleBackground
-                        on:click={(event) => event.stopPropagation()}
                         on:dblclick={toggleActualSize}
                     />
 
@@ -182,13 +186,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         activeSize={8}
                         offsetX={5}
                         offsetY={5}
-                        on:click={(event) => event.stopPropagation()}
                         on:pointerclick={(event) => {
                             if (active) {
                                 setPointerCapture(event);
                             }
                         }}
-                        on:pointerup={startObserving}
                         on:pointermove={(event) => {
                             resize(event);
                             updateSizesWithDimensions();
