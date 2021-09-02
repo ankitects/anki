@@ -32,8 +32,10 @@ export function activateStickyShortcuts(): void {
 }
 
 export class LabelContainer extends HTMLDivElement {
-    sticky: HTMLSpanElement;
     label: HTMLSpanElement;
+    fieldState: HTMLSpanElement;
+
+    sticky: HTMLSpanElement;
 
     constructor() {
         super();
@@ -47,11 +49,15 @@ export class LabelContainer extends HTMLDivElement {
         this.label.className = "fieldname";
         this.appendChild(this.label);
 
+        this.fieldState = document.createElement("span");
+        this.fieldState.className = "field-state d-flex justify-content-between";
+        this.appendChild(this.fieldState);
+
         this.sticky = document.createElement("span");
-        this.sticky.className = "icon pin-icon me-1";
+        this.sticky.className = "icon pin-icon";
         this.sticky.innerHTML = pinIcon;
         this.sticky.hidden = true;
-        this.appendChild(this.sticky);
+        this.fieldState.appendChild(this.sticky);
 
         this.setSticky = this.setSticky.bind(this);
         this.hoverIcon = this.hoverIcon.bind(this);
