@@ -3,6 +3,7 @@
 
 import * as tr from "./i18n";
 import { isApplePlatform } from "./platform";
+import { registerPackage } from "./register-package";
 
 export type Modifier = "Control" | "Alt" | "Shift" | "Meta";
 
@@ -183,3 +184,8 @@ export function registerShortcut(
     document.addEventListener("keydown", handler);
     return (): void => document.removeEventListener("keydown", handler);
 }
+
+registerPackage("anki/shortcuts", {
+    registerShortcut,
+    getPlatformString,
+});
