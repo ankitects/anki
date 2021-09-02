@@ -19,9 +19,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let size: number | undefined = undefined;
-    export let wrap: boolean | undefined = undefined;
 
-    export let reverse = false;
+    export let wrap: boolean | undefined = undefined;
 
     $: buttonSize = size ? `--buttons-size: ${size}rem; ` : "";
     let buttonWrap: string;
@@ -47,9 +46,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             if ($items.length === 1) {
                 return ButtonPosition.Standalone;
             } else if (index === 0) {
-                return ButtonPosition.Leftmost;
+                return ButtonPosition.InlineStart;
             } else if (index === $items.length - 1) {
-                return ButtonPosition.Rightmost;
+                return ButtonPosition.InlineEnd;
             } else {
                 return ButtonPosition.Center;
             }
@@ -98,7 +97,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bind:this={buttonGroupRef}
     {id}
     class="btn-group {className}"
-    class:reverse
     {style}
     dir="ltr"
     role="group"
@@ -117,9 +115,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         flex-wrap: var(--buttons-wrap);
         padding: calc(var(--buttons-size) / 10);
         margin: 0;
-    }
-
-    .reverse {
-        flex-direction: row-reverse;
     }
 </style>

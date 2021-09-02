@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HandleSelection from "./HandleSelection.svelte";
     import HandleControl from "./HandleControl.svelte";
     import HandleLabel from "./HandleLabel.svelte";
-    import ImageHandleFloat from "./ImageHandleFloat.svelte";
+    import ImageHandleFloatButtons from "./ImageHandleFloatButtons.svelte";
     import ImageHandleSizeSelect from "./ImageHandleSizeSelect.svelte";
 
     import { onDestroy } from "svelte";
@@ -65,21 +65,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         await updateSizesWithDimensions();
     });
 
-    function startObserving() {
-    console.log('start observe');
-        resizeObserver.observe(container);
-    }
-
-    function stopObserving() {
-    console.log('stop observe');
-        resizeObserver.unobserve(container);
-    }
-
     $: observes = Boolean(activeImage);
     $: if (observes) {
-        startObserving();
+        resizeObserver.observe(container);
     } else {
-        stopObserving();
+        resizeObserver.unobserve(container);
     }
 
     /* memoized position of image on resize start
@@ -169,9 +159,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     image={activeImage}
                     on:mount={(event) => createDropdown(event.detail.selection)}
                 >
-                    <HandleBackground
-                        on:dblclick={toggleActualSize}
-                    />
+                    <HandleBackground on:dblclick={toggleActualSize} />
 
                     <HandleLabel {isRtl} on:mount={updateDimensions}>
                         <span>{actualWidth}&times;{actualHeight}</span>
@@ -201,7 +189,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <ButtonDropdown>
                     <div on:click={updateSizesWithDimensions}>
                         <Item>
-                            <ImageHandleFloat
+                            <ImageHandleFloatButtons
                                 image={activeImage}
                                 {isRtl}
                                 on:update={dropdownObject.update}
