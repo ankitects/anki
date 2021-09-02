@@ -15,11 +15,7 @@ import { getCurrentField } from "./helpers";
 export function onFocus(evt: FocusEvent): void {
     const currentField = evt.currentTarget as EditingArea;
     currentField.focus();
-
-    if (currentField.getSelection().anchorNode === null) {
-        // selection is not inside editable after focusing
-        currentField.caretToEnd();
-    }
+    currentField.caretToEnd();
 
     bridgeCommand(`focus:${currentField.ord}`);
     fieldFocused.set(true);
