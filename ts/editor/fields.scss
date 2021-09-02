@@ -18,11 +18,14 @@
 .editor-field {
     margin: 3px;
     border-radius: 5px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
+
+    --border-color: var(--border);
 
     &:focus-within {
         box-shadow: 0 0 0 3px var(--focus-shadow);
-        border-color: var(--focus-border);
+
+        --border-color: var(--focus-border);
     }
 }
 
@@ -30,14 +33,7 @@
     position: relative;
 
     background: var(--frame-bg);
-    border-width: 1px 0 0;
-    border-style: dashed;
-    border-color: var(--border);
     border-radius: 0 0 5px 5px;
-
-    &:focus-within {
-        border-color: var(--focus-border);
-    }
 
     &.dupe {
         // this works around the background colour persisting in copy+paste
@@ -47,8 +43,16 @@
 }
 
 .fname {
+    border-width: 0 0 1px;
+    border-style: dashed;
+    border-color: var(--border-color);
     border-radius: 5px 5px 0 0;
+
     padding: 0px 6px;
+}
+
+.fieldname {
+    user-select: none;
 }
 
 #dupes,
