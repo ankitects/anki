@@ -15,24 +15,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let image: HTMLImageElement;
     export let isRtl: boolean;
 
-    const leftValues = {
-        position: "left",
-        label: tr.editingFloatLeft(),
-        icon: floatLeftIcon,
-    };
-
-    const rightValues = {
-        position: "right",
-        label: tr.editingFloatRight(),
-    };
-
-    $: inlineStart = isRtl ? rightValues : leftValues;
-    $: inlineEnd = isRtl ? leftValues : rightValues;
+    const [inlineStartIcon, inlineEndIcon] = isRtl
+        ? [floatRightIcon, floatLeftIcon]
+        : [floatLeftIcon, floatRightIcon];
 
     const dispatch = createEventDispatcher();
 </script>
 
-<ButtonGroup size={1.6} wrap={false} reverse={isRtl}>
+<ButtonGroup size={1.6} wrap={false}>
+    <ButtonGroupItem>
+        <IconButton
+            tooltip={tr.editingFloatLeft()}
+            active={image.style.float === "left"}
+            flipX={isRtl}
+            on:click={() => {
+                image.style.float = "left";
+                setTimeout(() => dispatch("update"));
+            }}>{@html inlineStartIcon}</IconButton
+        >
+    </ButtonGroupItem>
+
     <ButtonGroupItem>
         <IconButton
             tooltip={tr.editingFloatNone()}
@@ -47,25 +49,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <ButtonGroupItem>
         <IconButton
-            tooltip={inlineStart.label}
-            active={image.style.float === inlineStart.position}
+            tooltip={tr.editingFloatRight()}
+            active={image.style.float === "right"}
             flipX={isRtl}
             on:click={() => {
-                image.style.float = inlineStart.position;
+                image.style.float = "right";
                 setTimeout(() => dispatch("update"));
-            }}>{@html floatLeftIcon}</IconButton
-        >
-    </ButtonGroupItem>
-
-    <ButtonGroupItem>
-        <IconButton
-            tooltip={inlineEnd.label}
-            active={image.style.float === inlineEnd.position}
-            flipX={isRtl}
-            on:click={() => {
-                image.style.float = inlineEnd.position;
-                setTimeout(() => dispatch("update"));
-            }}>{@html floatRightIcon}</IconButton
+            }}>{@html inlineEndIcon}</IconButton
         >
     </ButtonGroupItem>
 </ButtonGroup>

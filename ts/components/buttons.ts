@@ -5,9 +5,9 @@ import type { Registration } from "./registration";
 
 export enum ButtonPosition {
     Standalone,
-    Leftmost,
+    InlineStart,
     Center,
-    Rightmost,
+    InlineEnd,
 }
 
 export interface ButtonRegistration extends Registration {

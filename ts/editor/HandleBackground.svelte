@@ -11,11 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => dispatch("mount", { background }));
 </script>
 
-<div
-    bind:this={background}
-    on:mousedown|preventDefault
-    on:dblclick
-/>
+<div bind:this={background} on:mousedown|preventDefault on:dblclick />
 
 <style lang="scss">
     div {
