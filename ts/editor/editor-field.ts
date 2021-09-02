@@ -21,6 +21,8 @@ export class EditorField extends HTMLDivElement {
             is: "anki-editing-area",
         }) as EditingArea;
         this.appendChild(this.editingArea);
+
+        this.focusIfNotFocused = this.focusIfNotFocused.bind(this);
     }
 
     static get observedAttributes(): string[] {
@@ -29,6 +31,21 @@ export class EditorField extends HTMLDivElement {
 
     set ord(n: number) {
         this.setAttribute("ord", String(n));
+    }
+
+    focusIfNotFocused(): void {
+        if (!this.editingArea.hasFocus()) {
+            this.editingArea.focus();
+            this.editingArea.caretToEnd();
+        }
+    }
+
+    connectedCallback(): void {
+        this.labelContainer.addEventListener("mousedown", this.focusIfNotFocused);
+    }
+
+    disconnectedCallback(): void {
+        this.labelContainer.removeEventListener("mousedown", this.focusIfNotFocused);
     }
 
     attributeChangedCallback(name: string, _oldValue: string, newValue: string): void {
