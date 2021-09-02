@@ -47,6 +47,7 @@ class Reviewer:
         self.mw = mw
         self.web = mw.web
         self.card: Optional[Card] = None
+        self.lastcard: Optional[Card] = None
         self.cardQueue: List[Card] = []
         self.hadCardQueue = False
         self._answeredIds: List[int] = []
@@ -108,6 +109,7 @@ class Reviewer:
                 self.mw.col.reset()
                 self.hadCardQueue = False
             c = self.mw.col.sched.getCard()
+        self.lastcard = self.card
         self.card = c
         if not c:
             self.mw.moveToState("overview")
@@ -121,6 +123,13 @@ class Reviewer:
     ##########################################################################
 
     def cardInfo(self) -> None:
+        self._cardInfo(self.card)
+
+    def lastCardInfo(self) -> None:
+        if self.lastcard:
+            self._cardInfo(self.lastcard)
+
+    def _cardInfo(self, card) -> None:
         from anki.stats import CardStats
         from aqt.qt import QDialog
         from PyQt5 import QtCore, QtGui, QtWidgets
@@ -128,7 +137,7 @@ class Reviewer:
         from aqt import QDialogButtonBox, qconnect, Qt
         from aqt.utils import saveGeom, restoreGeom
 
-        cs = CardStats(self.mw.col, self.mw.reviewer.card)
+        cs = CardStats(self.mw.col, card)
         info = cs.report(include_revlog=True)
         reps = ""
 
@@ -335,6 +344,7 @@ class Reviewer:
             ("r", self.replayAudio),
             (Qt.Key_F5, self.replayAudio),
             ("Ctrl+i", self.cardInfo),
+            ("Ctrl+o", self.lastCardInfo),
             ("Ctrl+1", lambda: self.setFlag(1)),
             ("Ctrl+2", lambda: self.setFlag(2)),
             ("Ctrl+3", lambda: self.setFlag(3)),
@@ -785,6 +795,7 @@ time = %(time)d;
             # [_("Options"), "O", self.onOptions],
             None,
             [_("Card Info"), "Ctrl+I", self.cardInfo],
+            [_("Last Card Info"), "Ctrl+P", self.lastCardInfo],
             [_("Replay Audio"), "R", self.replayAudio],
             [_("Pause Audio"), "5", self.on_pause_audio],
             [_("Audio -5s"), "6", self.on_seek_backward],
