@@ -29,6 +29,7 @@ const INLINE_TAGS = [
     "DFN",
     "EM",
     "EMBED",
+    "FONT",
     "I",
     "IFRAME",
     "IMG",
