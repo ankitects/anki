@@ -32,9 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class:active
         class="control nw"
         on:mousedown|preventDefault
-        on:click
         on:pointerdown={onPointerdown(true, true)}
-        on:pointerup
         on:pointermove
     />
     <div
@@ -42,9 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class:active
         class="control ne"
         on:mousedown|preventDefault
-        on:click
         on:pointerdown={onPointerdown(true, false)}
-        on:pointerup
         on:pointermove
     />
     <div
@@ -52,9 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class:active
         class="control sw"
         on:mousedown|preventDefault
-        on:click
         on:pointerdown={onPointerdown(false, true)}
-        on:pointerup
         on:pointermove
     />
     <div
@@ -62,9 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class:active
         class="control se"
         on:mousedown|preventDefault
-        on:click
         on:pointerdown={onPointerdown(false, false)}
-        on:pointerup
         on:pointermove
     />
 </div>

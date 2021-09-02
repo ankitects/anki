@@ -37,6 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     bind:this={selection}
     use:updateSelection
+    on:click={(event) => /* prevent triggering Bootstrap dropdown */ event.stopImmediatePropagation()}
     style="--left: {left}px; --top: {top}px; --width: {width}px; --height: {height}px; --offsetX: {offsetX}px; --offsetY: {offsetY}px;"
 >
     <slot />
