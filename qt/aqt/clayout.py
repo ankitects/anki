@@ -790,10 +790,13 @@ class CardLayout(QDialog):
 
     def _addField(self, field: str, font: str, size: int) -> None:
         text = self.tform.edit_area.toPlainText()
-        text += "\n<div style='font-family: %s; font-size: %spx;'>{{%s}}</div>\n" % (
-            font,
-            size,
-            field,
+        text += (
+            "\n<div style='font-family: \"%s\"; font-size: %spx;'>{{%s}}</div>\n"
+            % (
+                font,
+                size,
+                field,
+            )
         )
         self.tform.edit_area.setPlainText(text)
         self.change_tracker.mark_basic()
