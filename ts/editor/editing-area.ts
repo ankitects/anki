@@ -107,7 +107,7 @@ export class EditingArea extends HTMLDivElement {
 
     quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
-        if (!/^[a-z|-]+$/.test(fontFamily)) {
+        if (!/^[-a-z]+$/.test(fontFamily)) {
             fontFamily = `"${fontFamily}"`;
         }
         return fontFamily;
