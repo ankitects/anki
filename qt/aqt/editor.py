@@ -1172,7 +1172,8 @@ class EditorWebView(AnkiWebView):
 
         # try various content types in turn
         if mime.hasHtml():
-            return mime.html().replace("<!--anki-->", ""), internal
+            html_content = mime.html()[11:] if internal else mime.html()
+            return html_content, internal
 
         # favour url if it's a local link
         if mime.hasUrls() and mime.urls()[0].toString().startswith("file://"):
