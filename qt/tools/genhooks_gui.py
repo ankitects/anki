@@ -29,7 +29,7 @@ from anki.decks import DeckDict, DeckConfigDict
 from anki.hooks import runFilter, runHook
 from anki.models import NotetypeDict
 from anki.collection import OpChangesAfterUndo
-from aqt.qt import QDialog, QEvent, QMenu, QModelIndex, QWidget
+from aqt.qt import QDialog, QEvent, QMenu, QModelIndex, QWidget, QMimeData
 from aqt.tagedit import TagEdit
 from aqt.undo import UndoActionsInfo
 """
@@ -867,8 +867,8 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     Hook(
         name="editor_will_process_mime",
         args=[
-            "editor_web_view: aqt.editor.EditorWebView",
             "mime: QMimeData",
+            "editor_web_view: aqt.editor.EditorWebView",
             "internal: bool",
             "extended: bool",
             "drop_event: bool",

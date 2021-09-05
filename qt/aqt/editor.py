@@ -863,12 +863,16 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         self.web.eval(f"pasteHTML({json.dumps(html)}, {json.dumps(internal)}, {ext});")
         gui_hooks.editor_did_paste(self, html, internal, extended)
 
-    def doDrop(self, html: str, internal: bool, extended: bool, cursor_pos: QPoint) -> None:
+    def doDrop(
+        self, html: str, internal: bool, extended: bool, cursor_pos: QPoint
+    ) -> None:
         def pasteIfField(ret: bool) -> None:
             if ret:
                 self.doPaste(html, internal, extended)
 
-        self.web.evalWithCallback(f"focusIfField({cursor_pos.x()}, {cursor_pos.y()});", pasteIfField)
+        self.web.evalWithCallback(
+            f"focusIfField({cursor_pos.x()}, {cursor_pos.y()});", pasteIfField
+        )
 
     def onPaste(self) -> None:
         self.web.onPaste()
@@ -1151,7 +1155,9 @@ class EditorWebView(AnkiWebView):
         self.editor.doDrop(html, internal, extended, cursor_pos)
 
     # returns (html, isInternal)
-    def _processMime(self, mime: QMimeData, extended: bool = False, drop_event: bool = False) -> Tuple[str, bool]:
+    def _processMime(
+        self, mime: QMimeData, extended: bool = False, drop_event: bool = False
+    ) -> Tuple[str, bool]:
         # print("html=%s image=%s urls=%s txt=%s" % (
         #     mime.hasHtml(), mime.hasImage(), mime.hasUrls(), mime.hasText()))
         # print("html", mime.html())
@@ -1160,11 +1166,13 @@ class EditorWebView(AnkiWebView):
 
         internal = mime.html().startswith("<!--anki-->")
 
-        mime = gui_hooks.editor_will_process_mime(self, mime, internal, extended, drop_event)
+        mime = gui_hooks.editor_will_process_mime(
+            mime, self, internal, extended, drop_event
+        )
 
         # try various content types in turn
         if mime.hasHtml():
-            return mime.html().replace("<!--anki-->", ''), internal
+            return mime.html().replace("<!--anki-->", ""), internal
 
         # favour url if it's a local link
         if mime.hasUrls() and mime.urls()[0].toString().startswith("file://"):
