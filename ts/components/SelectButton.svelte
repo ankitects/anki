@@ -39,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </select>
 
 <style lang="scss">
-    @use "ts/sass/button-mixins" as button;
+    @use "button-mixins" as button;
 
     select {
         height: var(--buttons-size);

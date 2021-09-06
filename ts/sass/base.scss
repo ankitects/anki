@@ -19,8 +19,8 @@ $utilities: (
     ),
 );
 
-@import "ts/sass/bootstrap/bootstrap-reboot";
-@import "ts/sass/bootstrap/bootstrap-utilities";
+@import "bootstrap/scss/bootstrap-reboot";
+@import "bootstrap/scss/bootstrap-utilities";
 
 /* Bootstrap "extensions" */
 .flex-basis-100 {

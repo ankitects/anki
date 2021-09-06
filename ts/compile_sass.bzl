@@ -14,7 +14,10 @@ def compile_sass(group, srcs, deps = [], visibility = ["//visibility:private"]):
             sourcemap = False,
             deps = deps,
             visibility = visibility,
-            include_paths = ["external/ankidesktop"],
+            include_paths = [
+                "ts/sass",
+                "external/ankidesktop/ts/sass",
+            ],
         )
 
     native.filegroup(
