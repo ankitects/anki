@@ -52,6 +52,7 @@ filegroup(
         "editor",
         "reviewer",
         "mathjax.js",
+        "ankimedia.js",
         "//qt/aqt/data/web/js/vendor",
     ],
     visibility = ["//qt:__subpackages__"],

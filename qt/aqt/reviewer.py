@@ -118,6 +118,7 @@ class Reviewer:
         self.mw = mw
         self.web = mw.web
         self.card: Optional[Card] = None
+        self.lastcard: Optional[Card] = None
         self.cardQueue: List[Card] = []
         self.hadCardQueue = False
         self._answeredIds: List[CardId] = []
@@ -221,6 +222,7 @@ class Reviewer:
                 self.mw.col.reset()
                 self.hadCardQueue = False
             card = self.mw.col.sched.getCard()
+        self.lastcard = self.card
         self.card = card
 
     def _get_next_v3_card(self) -> None:
@@ -229,6 +231,7 @@ class Reviewer:
         if not output.cards:
             return
         self._v3 = V3CardInfo.from_queue(output)
+        self.lastcard = self.card
         self.card = Card(self.mw.col, backend_card=self._v3.top_card().card)
         self.card.start_timer()
 
@@ -259,6 +262,9 @@ class Reviewer:
             replay_audio(self.card, True)
         elif self.state == "answer":
             replay_audio(self.card, False)
+            if not self.card.replay_question_audio_on_answer_side():
+                self.web.eval("ankimedia.skip_front = true;")
+        self.web.eval("ankimedia.replay();")
 
     # Initializing the webview
     ##########################################################################
@@ -285,6 +291,7 @@ class Reviewer:
             js=[
                 "js/mathjax.js",
                 "js/vendor/mathjax/tex-chtml.js",
+                "js/ankimedia.js",
                 "js/reviewer.js",
             ],
             context=self,
@@ -330,6 +337,10 @@ class Reviewer:
 
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
         a = self.mw.col.media.escape_media_filenames(c.answer())
+
+        self.web.eval("ankimedia._reset();")
+        if not c.autoplay():
+            self.web.eval("ankimedia.autoplay = false;")
 
         self.web.eval(
             f"_showQuestion({json.dumps(q)}, {json.dumps(a)}, '{bodyclass}');"
@@ -438,24 +449,25 @@ class Reviewer:
             (" ", self.onEnterKey),
             (Qt.Key_Return, self.onEnterKey),
             (Qt.Key_Enter, self.onEnterKey),
-            ("m", self.showContextMenu),
+            # ("m", self.showContextMenu),
             ("r", self.replayAudio),
             (Qt.Key_F5, self.replayAudio),
             *(
                 (f"Ctrl+{flag.index}", self.set_flag_func(flag.index))
                 for flag in self.mw.flags.all()
             ),
-            ("*", self.toggle_mark_on_current_note),
-            ("=", self.bury_current_note),
-            ("-", self.bury_current_card),
-            ("!", self.suspend_current_note),
-            ("@", self.suspend_current_card),
-            ("Ctrl+Delete", self.delete_current_note),
+            # ("*", self.toggle_mark_on_current_note),
+            # ("=", self.bury_current_note),
+            # ("-", self.bury_current_card),
+            # ("!", self.suspend_current_note),
+            # ("@", self.suspend_current_card),
+            # ("Ctrl+Delete", self.delete_current_note),
             ("Ctrl+Shift+D", self.on_set_due),
             ("v", self.onReplayRecorded),
             ("Shift+v", self.onRecordVoice),
-            ("o", self.onOptions),
-            ("i", self.on_card_info),
+            # ("o", self.onOptions),
+            ("Ctrl+i", self.on_card_info),
+            ("Ctrl+o", self.on_last_card_info),
             ("1", lambda: self._answerCard(1)),
             ("2", lambda: self._answerCard(2)),
             ("3", lambda: self._answerCard(3)),
@@ -907,7 +919,8 @@ time = %(time)d;
             [tr.actions_set_due_date(), "Ctrl+Shift+D", self.on_set_due],
             [tr.actions_suspend_card(), "@", self.suspend_current_card],
             [tr.actions_options(), "O", self.onOptions],
-            [tr.actions_card_info(), "I", self.on_card_info],
+            [tr.actions_card_info(), "Ctrl+I", self.on_card_info],
+            ["Last Card Info", "Ctrl+o", self.on_last_card_info],
             None,
             [tr.studying_mark_note(), "*", self.toggle_mark_on_current_note],
             [tr.studying_bury_note(), "=", self.bury_current_note],
@@ -957,6 +970,10 @@ time = %(time)d;
 
     def onOptions(self) -> None:
         confirm_deck_then_display_options(self.card)
+
+    def on_last_card_info(self) -> None:
+        if self.lastcard:
+            CardInfoDialog(parent=self.mw, mw=self.mw, card=self.lastcard)
 
     def on_card_info(self) -> None:
         if self.card:

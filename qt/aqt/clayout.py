@@ -223,6 +223,10 @@ class CardLayout(QDialog):
         split.addWidget(left)
         split.setCollapsible(0, False)
 
+        from aqt.utils import setupSyntaxHighlighter
+
+        setupSyntaxHighlighter(tform, "edit_area", "verticalLayout")
+
         right = QWidget()
         self.pform = aqt.forms.preview.Ui_Form()
         pform = self.pform
@@ -287,35 +291,50 @@ class CardLayout(QDialog):
         self._renderPreview()
 
     def on_editor_toggled(self) -> None:
+        from aqt.utils import changeSyntaxName
+
         if self.tform.front_button.isChecked():
             self.current_editor_index = 0
             self.pform.preview_front.setChecked(True)
             self.on_preview_toggled()
             self.add_field_button.setHidden(False)
+            changeSyntaxName(self.tform.edit_area, "QsciLexerHTML")
         elif self.tform.back_button.isChecked():
             self.current_editor_index = 1
             self.pform.preview_back.setChecked(True)
             self.on_preview_toggled()
             self.add_field_button.setHidden(False)
+            changeSyntaxName(self.tform.edit_area, "QsciLexerHTML")
         else:
             self.current_editor_index = 2
             self.add_field_button.setHidden(True)
+            changeSyntaxName(self.tform.edit_area, "QsciLexerCSS")
 
         self.fill_fields_from_template()
 
-    def on_search_changed(self, text: str) -> None:
+    def on_search_changed(self, text: str, selectNext: bool = False) -> None:
         editor = self.tform.edit_area
-        if not editor.find(text):
-            # try again from top
-            cursor = editor.textCursor()
-            cursor.movePosition(QTextCursor.Start)
-            editor.setTextCursor(cursor)
-            if not editor.find(text):
+        from aqt import utils as aqtUtils
+
+        if aqtUtils.Qsci and aqtUtils.QsciEnabled:
+            if not selectNext:
+                line_from, index_from, line_to, index_to = editor.getSelection()
+                editor.setSelection(line_from, index_from, line_from, index_from)
+
+            if not editor.findFirst(text, True, False, False, True):
                 tooltip("No matches found.")
+        else:
+            if not editor.find(text):
+                # try again from top
+                cursor = editor.textCursor()
+                cursor.movePosition(QTextCursor.Start)
+                editor.setTextCursor(cursor)
+                if not editor.find(text):
+                    tooltip("No matches found.")
 
     def on_search_next(self) -> None:
         text = self.tform.search_edit.text()
-        self.on_search_changed(text)
+        self.on_search_changed(text, selectNext=True)
 
     def setup_preview(self) -> None:
         pform = self.pform
@@ -336,11 +355,17 @@ class CardLayout(QDialog):
             js=[
                 "js/mathjax.js",
                 "js/vendor/mathjax/tex-chtml.js",
+                "js/ankimedia.js",
                 "js/reviewer.js",
             ],
             context=self,
         )
         self.preview_web.set_bridge_command(self._on_bridge_cmd, self)
+
+        if qtmajor == 5 and qtminor >= 11 or qtmajor > 5:
+            self.preview_web._page.settings().setAttribute(
+                QWebEngineSettings.PlaybackRequiresUserGesture, False
+            )
 
         if self._isCloze():
             nums = list(self.note.cloze_numbers_in_fields())
@@ -507,6 +532,12 @@ class CardLayout(QDialog):
             c.ord, self.night_mode_is_enabled
         )
 
+        if not self.have_autoplayed:
+            self.preview_web.eval("ankimedia._reset();")
+
+            if not c.autoplay():
+                self.preview_web.eval("ankimedia.autoplay = false;")
+
         if self.pform.preview_front.isChecked():
             q = ti(self.mw.prepare_card_text_for_display(c.question()))
             q = gui_hooks.card_will_show(q, c, "clayoutQuestion")
@@ -515,6 +546,7 @@ class CardLayout(QDialog):
             a = ti(self.mw.prepare_card_text_for_display(c.answer()), type="a")
             a = gui_hooks.card_will_show(a, c, "clayoutAnswer")
             text = a
+            self.preview_web.eval("ankimedia.skip_front = true;")
 
         # use _showAnswer to avoid the longer delay
         self.preview_web.eval(f"_showAnswer({json.dumps(text)},'{bodyclass}');")

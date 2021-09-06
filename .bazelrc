@@ -33,4 +33,5 @@ build:opt -c opt
 # still running, so shut them down at the end of the build.
 build:windows --worker_quit_after_build
 
+build --disk_cache=./ankidisk --repository_cache=./ankirepo
 try-import %workspace%/user.bazelrc

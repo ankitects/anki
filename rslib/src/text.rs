@@ -99,11 +99,13 @@ lazy_static! {
     // videos are also in sound tags
     static ref AV_TAGS: Regex = Regex::new(
         r#"(?xs)
-            \[sound:(.+?)\]     # 1 - the filename in a sound tag
+            \[sound:(?P<soundname>[^\]|]+)
+                (?:\|(?P<soundargs>[^\]]*))?
+            \]
             |
             \[anki:tts\]
-                \[(.*?)\]       # 2 - arguments to tts call
-                (.*?)           # 3 - field text
+                \[(?P<ttsargs>.*?)\]
+                (?P<ttstext>.*?)
             \[/anki:tts\]
             "#).unwrap();
 
@@ -185,17 +187,27 @@ pub fn extract_av_tags(text: &str, question_side: bool) -> (Cow<str>, Vec<AvTag>
     let context = if question_side { 'q' } else { 'a' };
     let replaced_text = AV_TAGS.replace_all(text, |caps: &Captures| {
         // extract
-        let tag = if let Some(av_file) = caps.get(1) {
+        let tag = if let Some(av_file) = caps.name("soundname") {
             AvTag::SoundOrVideo(decode_entities(av_file.as_str()).into())
         } else {
-            let args = caps.get(2).unwrap();
-            let field_text = caps.get(3).unwrap();
+            let args = caps.name("ttsargs").unwrap();
+            let field_text = caps.name("ttstext").unwrap();
             tts_tag_from_string(field_text.as_str(), args.as_str())
         };
-        tags.push(tag);
 
         // and replace with reference
-        format!("[anki:play:{}:{}]", context, tags.len() - 1)
+        if caps.name("soundargs").is_some()
+            && caps
+                .name("soundargs")
+                .unwrap()
+                .as_str()
+                .contains("fileonly")
+        {
+            caps.name("soundname").unwrap().as_str().to_string()
+        } else {
+            tags.push(tag);
+            format!("[anki:play:{}:{}]", context, tags.len() - 1)
+        }
     });
 
     (replaced_text, tags)
@@ -228,7 +240,7 @@ pub(crate) fn extract_media_refs(text: &str) -> Vec<MediaRef> {
     }
 
     for caps in AV_TAGS.captures_iter(text) {
-        if let Some(m) = caps.get(1) {
+        if let Some(m) = caps.name("soundname") {
             let fname = m.as_str();
             let fname_decoded = decode_entities(fname);
             out.push(MediaRef {

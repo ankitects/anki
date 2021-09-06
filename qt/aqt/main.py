@@ -852,6 +852,11 @@ title="%s" %s>%s</button>""" % (
             for webview in self.web, self.bottomWeb:
                 webview.force_load_hack()
 
+        if qtmajor == 5 and qtminor >= 11 or qtmajor > 5:
+            self.web._page.settings().setAttribute(
+                QWebEngineSettings.PlaybackRequiresUserGesture, False
+            )
+
     def closeAllWindows(self, onsuccess: Callable) -> None:
         aqt.dialogs.closeAll(onsuccess)
 
@@ -1021,6 +1026,7 @@ title="%s" %s>%s</button>""" % (
             ("a", self.onAddCard),
             ("b", self.onBrowse),
             ("t", self.onStats),
+            ("Ctrl+t", self.onStats),
             ("y", self.on_sync_button_clicked),
         ]
         self.applyShortcuts(globalShortcuts)

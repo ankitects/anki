@@ -33,6 +33,7 @@ preferences-synchronize-audio-and-images-too = Synchronize audio and images too
 preferences-this-will-reset-any-cards-in = This will reset any cards in learning, clear filtered decks, and change the scheduler version. Proceed?
 preferences-timebox-time-limit = Timebox time limit
 preferences-user-interface-size = User interface size
+preferences-enable-syntax-highlighting-on-text-editors = Enable syntax highlighting on text editors
 preferences-when-adding-default-to-current-deck = When adding, default to current deck
 preferences-you-can-restore-backups-via-fileswitch = You can restore backups via File>Switch Profile.
 preferences-legacy-timezone-handling = Legacy timezone handling (buggy, but required for AnkiDroid <= 2.14)

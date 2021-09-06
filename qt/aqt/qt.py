@@ -30,6 +30,19 @@ except ImportError:
     import sip  # type: ignore
 
 
+try:
+    # pylint: disable=no-name-in-module
+    from PyQt5 import Qsci
+except Exception as error:
+    from anki.utils import devMode
+
+    Qsci = None
+    if devMode:
+        sys.stderr.write(
+            f"Could not create the syntax highlighter: {error}\n{traceback.format_exc()}\n"
+        )
+
+
 def debug() -> None:
     from pdb import set_trace
 

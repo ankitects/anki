@@ -2,7 +2,7 @@
 name = "anki"
 version = "0.0.0"
 edition = "2018"
-authors = ["Ankitects Pty Ltd and contributors"]
+authors = ["Ankitects Pty Ltd and contributors <pypi@cargo.bug>"]
 license = "AGPL-3.0-or-later"
 description = "Anki's Rust library code"
 build = "build/main.rs"

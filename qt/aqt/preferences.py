@@ -231,6 +231,7 @@ for you than the default driver, please let us know on the Anki forums."""
         "Setup options global to all profiles."
         self.form.uiScale.setValue(int(self.mw.pm.uiScale() * 100))
         self.form.nightMode.setChecked(self.mw.pm.night_mode())
+        self.form.enableSyntaxHighlight.setChecked(self.mw.pm.syntax_highlight())
 
         self.setup_language()
         self.setup_video_driver()
@@ -250,6 +251,8 @@ for you than the default driver, please let us know on the Anki forums."""
         if self.mw.pm.night_mode() != self.form.nightMode.isChecked():
             self.mw.pm.set_night_mode(not self.mw.pm.night_mode())
             restart_required = True
+
+        self.mw.pm.set_syntax_highlight(self.form.enableSyntaxHighlight.isChecked())
 
         if restart_required:
             showInfo(tr.preferences_changes_will_take_effect_when_you())

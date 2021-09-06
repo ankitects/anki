@@ -94,6 +94,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="enableSyntaxHighlight">
+         <property name="text">
+          <string>preferences_enable_syntax_highlighting_on_text_editors</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QComboBox" name="useCurrent">
          <item>
           <property name="text">
@@ -615,6 +622,7 @@
   <tabstop>pastePNG</tabstop>
   <tabstop>paste_strips_formatting</tabstop>
   <tabstop>nightMode</tabstop>
+  <tabstop>enableSyntaxHighlight</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>recording_driver</tabstop>
   <tabstop>default_search_text</tabstop>

@@ -101,7 +101,13 @@ class Scheduler(SchedulerBaseWithLegacy):
         self._checkDay()
         if not self._haveQueues:
             self.reset()
-        card = self._getCard()
+        while True:
+            card = self._getCard()
+            if not card:
+                break
+            # https://anki.tenderapp.com/discussions/beta-testing/1850-cards-marked-as-buried-are-being-scheduled
+            if card.queue > -1:
+                break
         if card:
             if not self._burySiblingsOnAnswer:
                 self._burySiblings(card)
@@ -1109,6 +1115,44 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
                 queue_obj.remove(cid)
             except ValueError:
                 pass
+
+        # bury related sources
+        from anki.utils import stripHTML
+
+        def getSource(note):
+            if note is None: return None
+            def tryGet(field):
+                if field in note:
+                    return note[field]
+                return None
+            source = tryGet("Source") or tryGet("source")
+            return stripHTML(source) if source else None
+
+        # print(f'card.id {card.id}')
+        firstsource = getSource(card.note())
+        burySet = set(toBury)
+
+        if self._burySiblingsOnAnswer and firstsource and len(firstsource) > 0:
+            if not hasattr( self, 'cardSourceIds'):
+                self.cardSourceIds = {}
+                for nid, flds in self.col.db.execute(f"select id, flds from notes"):
+                    note = self.col.getNote(nid)
+                    source = getSource(note)
+                    if source and len(source) > 0:
+                        card_ids = note.card_ids()
+                        if source in self.cardSourceIds:
+                            self.cardSourceIds[source].append((card_ids, flds))
+                        else:
+                            self.cardSourceIds[source] = [(card_ids, flds)]
+
+            if firstsource in self.cardSourceIds:
+                for card_ids, flds in self.cardSourceIds[firstsource]:
+                    for cid in card_ids:
+                        if cid != card.id:
+                            # print(f"Burring source card '{cid}, {firstsource}' = '{flds}'")
+                            burySet.add(cid)
+        toBury = list(burySet)
+
         # then bury
         if toBury:
             self.bury_cards(toBury, manual=False)

@@ -1,3 +1,7 @@
+*.sublime-workspace
+.idea
+ankirepo
+ankidisk
 __pycache__
 .DS_Store
 /bazel-*
