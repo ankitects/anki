@@ -29,7 +29,7 @@ from anki.decks import DeckDict, DeckConfigDict
 from anki.hooks import runFilter, runHook
 from anki.models import NotetypeDict
 from anki.collection import OpChangesAfterUndo
-from aqt.qt import QDialog, QEvent, QMenu, QModelIndex, QWidget
+from aqt.qt import QDialog, QEvent, QMenu, QModelIndex, QWidget, QMimeData
 from aqt.tagedit import TagEdit
 from aqt.undo import UndoActionsInfo
 """
@@ -863,6 +863,31 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
             "extended: bool",
         ],
         doc="""Called after some data is pasted by python into an editor field.""",
+    ),
+    Hook(
+        name="editor_will_process_mime",
+        args=[
+            "mime: QMimeData",
+            "editor_web_view: aqt.editor.EditorWebView",
+            "internal: bool",
+            "extended: bool",
+            "drop_event: bool",
+        ],
+        return_type="QMimeData",
+        doc="""
+        Used to modify MIME data stored in the clipboard after a drop or a paste.
+        Called after the user pastes or drag-and-drops something to Anki
+        before Anki processes the data.
+
+        The function should return a new or existing QMimeData object.
+
+        "mime" contains the corresponding QMimeData object.
+        "internal" indicates whether the drop or paste is performed between Anki fields.
+        Most likely you want to skip processing if "internal" was set to True.
+        "extended" indicates whether the user requested an extended paste.
+        "drop_event" indicates whether the event was triggered by a drag-and-drop
+        or by a right-click paste.
+        """,
     ),
     # Tag
     ###################
