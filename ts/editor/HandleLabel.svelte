@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let dimensions: HTMLDivElement;
     let overflowFix = 0;
 
-    function updateOverflow(dimensions: HTMLDivElement) {
+    function updateOverflow(dimensions: HTMLDivElement): void {
         const boundingClientRect = dimensions.getBoundingClientRect();
         const overflow = isRtl
             ? window.innerWidth - boundingClientRect.x - boundingClientRect.width
@@ -19,11 +19,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         overflowFix = Math.min(0, overflowFix + overflow, overflow);
     }
 
-    function updateOverflowAsync(dimensions: HTMLDivElement) {
+    afterUpdate(() => updateOverflow(dimensions));
+
+    function updateOverflowAsync(dimensions: HTMLDivElement): void {
         setTimeout(() => updateOverflow(dimensions));
     }
-
-    afterUpdate(() => updateOverflow(dimensions));
 
     const dispatch = createEventDispatcher();
 
