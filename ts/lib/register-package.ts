@@ -3,6 +3,8 @@
 
 import { runtimeLibraries } from "./runtime-require";
 
+const prohibit = () => false;
+
 export function registerPackage(
     name: string,
     entries: Record<string, unknown>,
@@ -10,6 +12,9 @@ export function registerPackage(
 ): void {
     const pack = deprecation
         ? new Proxy(entries, {
+              set: prohibit,
+              defineProperty: prohibit,
+              deleteProperty: prohibit,
               get: (target, name: string) => {
                   if (name in deprecation) {
                       console.log(`anki: ${name} is deprecated: ${deprecation[name]}`);
