@@ -863,13 +863,16 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         self.web.eval(f"pasteHTML({json.dumps(html)}, {json.dumps(internal)}, {ext});")
         gui_hooks.editor_did_paste(self, html, internal, extended)
 
-    def doDrop(self, html: str, internal: bool, extended: bool = False) -> None:
+    def doDrop(
+        self, html: str, internal: bool, extended: bool, cursor_pos: QPoint
+    ) -> None:
         def pasteIfField(ret: bool) -> None:
             if ret:
                 self.doPaste(html, internal, extended)
 
-        p = self.web.mapFromGlobal(QCursor.pos())
-        self.web.evalWithCallback(f"focusIfField({p.x()}, {p.y()});", pasteIfField)
+        self.web.evalWithCallback(
+            f"focusIfField({cursor_pos.x()}, {cursor_pos.y()});", pasteIfField
+        )
 
     def onPaste(self) -> None:
         self.web.onPaste()
@@ -1138,30 +1141,39 @@ class EditorWebView(AnkiWebView):
     def dropEvent(self, evt: QDropEvent) -> None:
         extended = self._wantsExtendedPaste()
         mime = evt.mimeData()
+        cursor_pos = self.mapFromGlobal(QCursor.pos())
 
         if evt.source() and mime.hasHtml():
             # don't filter html from other fields
             html, internal = mime.html(), True
         else:
-            html, internal = self._processMime(mime, extended)
+            html, internal = self._processMime(mime, extended, drop_event=True)
 
         if not html:
             return
 
-        self.editor.doDrop(html, internal, extended)
+        self.editor.doDrop(html, internal, extended, cursor_pos)
 
     # returns (html, isInternal)
-    def _processMime(self, mime: QMimeData, extended: bool = False) -> Tuple[str, bool]:
+    def _processMime(
+        self, mime: QMimeData, extended: bool = False, drop_event: bool = False
+    ) -> Tuple[str, bool]:
         # print("html=%s image=%s urls=%s txt=%s" % (
         #     mime.hasHtml(), mime.hasImage(), mime.hasUrls(), mime.hasText()))
         # print("html", mime.html())
         # print("urls", mime.urls())
         # print("text", mime.text())
 
+        internal = mime.html().startswith("<!--anki-->")
+
+        mime = gui_hooks.editor_will_process_mime(
+            mime, self, internal, extended, drop_event
+        )
+
         # try various content types in turn
-        html, internal = self._processHtml(mime)
-        if html:
-            return html, internal
+        if mime.hasHtml():
+            html_content = mime.html()[11:] if internal else mime.html()
+            return html_content, internal
 
         # favour url if it's a local link
         if mime.hasUrls() and mime.urls()[0].toString().startswith("file://"):
@@ -1226,17 +1238,6 @@ class EditorWebView(AnkiWebView):
         # remove last <br>
         processed.pop()
         return "".join(processed)
-
-    def _processHtml(self, mime: QMimeData) -> Tuple[Optional[str], bool]:
-        if not mime.hasHtml():
-            return None, False
-        html = mime.html()
-
-        # no filtering required for internal pastes
-        if html.startswith("<!--anki-->"):
-            return html[11:], True
-
-        return html, False
 
     def _processImage(self, mime: QMimeData, extended: bool = False) -> Optional[str]:
         if not mime.hasImage():
