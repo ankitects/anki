@@ -42,6 +42,7 @@ qt-misc-processing = Processing...
 qt-misc-replace-your-collection-with-an-earlier = Replace your collection with an earlier backup?
 qt-misc-revert-to-backup = Revert to backup
 qt-misc-reverted-to-state-prior-to = Reverted to state prior to '{ $val }'.
+# please do not change the quote character, and please only change the font name if you have confirmed the new name is a valid Windows font
 qt-misc-segoe-ui = "Segoe UI"
 qt-misc-shift-key-was-held-down-skipping = Shift key was held down. Skipping automatic syncing and add-on loading.
 qt-misc-shortcut-key-left-arrow = Shortcut key: Left arrow
