@@ -5,6 +5,12 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
+import type { EditingArea } from "./editing-area";
+
+export function getCurrentField(): EditingArea | null {
+    return document.activeElement?.closest(".field") ?? null;
+}
+
 export function nodeIsElement(node: Node): node is Element {
     return node.nodeType === Node.ELEMENT_NODE;
 }

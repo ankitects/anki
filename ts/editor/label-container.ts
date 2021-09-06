@@ -32,12 +32,14 @@ export function activateStickyShortcuts(): void {
 }
 
 export class LabelContainer extends HTMLDivElement {
-    sticky: HTMLSpanElement;
     label: HTMLSpanElement;
+    fieldState: HTMLSpanElement;
+
+    sticky: HTMLSpanElement;
 
     constructor() {
         super();
-        this.className = "d-flex justify-content-between";
+        this.className = "fname d-flex justify-content-between";
 
         i18n.then(() => {
             this.title = appendInParentheses(tr.editingToggleSticky(), "F9");
@@ -47,25 +49,36 @@ export class LabelContainer extends HTMLDivElement {
         this.label.className = "fieldname";
         this.appendChild(this.label);
 
+        this.fieldState = document.createElement("span");
+        this.fieldState.className = "field-state d-flex justify-content-between";
+        this.appendChild(this.fieldState);
+
         this.sticky = document.createElement("span");
-        this.sticky.className = "icon pin-icon me-1";
+        this.sticky.className = "icon pin-icon";
         this.sticky.innerHTML = pinIcon;
         this.sticky.hidden = true;
-        this.appendChild(this.sticky);
+        this.fieldState.appendChild(this.sticky);
 
         this.setSticky = this.setSticky.bind(this);
         this.hoverIcon = this.hoverIcon.bind(this);
         this.removeHoverIcon = this.removeHoverIcon.bind(this);
         this.toggleSticky = this.toggleSticky.bind(this);
+        this.keepFocus = this.keepFocus.bind(this);
+    }
+
+    keepFocus(event: Event): void {
+        event.preventDefault();
     }
 
     connectedCallback(): void {
+        this.addEventListener("mousedown", this.keepFocus);
         this.sticky.addEventListener("click", this.toggleSticky);
         this.sticky.addEventListener("mouseenter", this.hoverIcon);
         this.sticky.addEventListener("mouseleave", this.removeHoverIcon);
     }
 
     disconnectedCallback(): void {
+        this.removeEventListener("mousedown", this.keepFocus);
         this.sticky.removeEventListener("click", this.toggleSticky);
         this.sticky.removeEventListener("mouseenter", this.hoverIcon);
         this.sticky.removeEventListener("mouseleave", this.removeHoverIcon);

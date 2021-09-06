@@ -3,7 +3,7 @@
 
 import type { EditingArea } from "./editing-area";
 
-import { getCurrentField } from ".";
+import { getCurrentField } from "./helpers";
 import { bridgeCommand } from "./lib";
 import { getNoteId } from "./note-id";
 
@@ -23,9 +23,10 @@ function clearChangeTimer(): void {
 
 export function saveField(currentField: EditingArea, type: "blur" | "key"): void {
     clearChangeTimer();
-    bridgeCommand(
-        `${type}:${currentField.ord}:${getNoteId()}:${currentField.fieldHTML}`
-    );
+    const command = `${type}:${currentField.ord}:${getNoteId()}:${
+        currentField.fieldHTML
+    }`;
+    bridgeCommand(command);
 }
 
 export function saveNow(keepFocus: boolean): void {

@@ -6,6 +6,10 @@ anki-editable {
     overflow: auto;
     padding: 6px;
 
+    &:focus {
+        outline: none;
+    }
+
     * {
         max-width: 100%;
     }

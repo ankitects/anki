@@ -10,13 +10,30 @@
 
 #fields {
     display: flex;
+    overflow-x: hidden;
     flex-direction: column;
-    margin: 5px;
+    margin: 3px 0;
+}
+
+.editor-field {
+    margin: 3px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+
+    --border-color: var(--border);
+
+    &:focus-within {
+        box-shadow: 0 0 0 3px var(--focus-shadow);
+
+        --border-color: var(--focus-border);
+    }
 }
 
 .field {
-    border: 1px solid var(--border);
+    position: relative;
+
     background: var(--frame-bg);
+    border-radius: 0 0 5px 5px;
 
     &.dupe {
         // this works around the background colour persisting in copy+paste
@@ -26,8 +43,16 @@
 }
 
 .fname {
-    vertical-align: middle;
-    padding: 0;
+    border-width: 0 0 1px;
+    border-style: dashed;
+    border-color: var(--border-color);
+    border-radius: 5px 5px 0 0;
+
+    padding: 0px 6px;
+}
+
+.fieldname {
+    user-select: none;
 }
 
 #dupes,
@@ -61,4 +86,14 @@
     &.icon--hover {
         opacity: 0.5;
     }
+}
+
+@import "ts/sass/codemirror/lib/codemirror";
+@import "ts/sass/codemirror/theme/monokai";
+@import "ts/sass/codemirror/addon/fold/foldgutter";
+
+.CodeMirror {
+    height: auto;
+    border-radius: 0 0 5px 5px;
+    padding: 6px 0;
 }
