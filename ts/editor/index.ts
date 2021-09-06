@@ -31,6 +31,7 @@ import { Editable } from "./editable";
 import { Codable } from "./codable";
 import { initToolbar, fieldFocused } from "./toolbar";
 import { initTagEditor } from "./tag-editor";
+import { getCurrentField } from "./helpers";
 
 export { setNoteId, getNoteId } from "./note-id";
 export { saveNow } from "./change-timer";
