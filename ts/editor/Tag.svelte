@@ -60,7 +60,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <button
     bind:this={button}
-    class={`tag btn d-inline-flex align-items-center text-nowrap rounded ps-2 pe-1 m-0 ${className}`}
+    class="tag btn d-inline-flex align-items-center text-nowrap ps-2 pe-1 m-0 {className}"
     class:selected
     class:flashing
     class:select-mode={selectMode}
@@ -73,7 +73,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 >
     <span>{name}</span>
     <Badge
-        class="delete-icon rounded d-flex align-items-center ms-1"
+        class="delete-icon rounded-circle d-flex align-items-center ms-1"
         on:click={() => {
             if (!selectMode) {
                 deleteTag();
@@ -105,6 +105,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &:active {
             outline: none;
             box-shadow: none;
+        }
+
+        &.tag {
+            border-radius: 5px;
         }
 
         &.flashing {
