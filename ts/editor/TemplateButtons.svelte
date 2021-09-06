@@ -18,8 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import OnlyEditable from "./OnlyEditable.svelte";
     import ClozeButton from "./ClozeButton.svelte";
 
-    import { getCurrentField } from ".";
-    import { appendInParentheses } from "./helpers";
+    import { getCurrentField, appendInParentheses } from "./helpers";
     import { wrapCurrent } from "./wrap";
     import { paperclipIcon, micIcon, functionIcon, xmlIcon } from "./icons";
 

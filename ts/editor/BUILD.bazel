@@ -118,6 +118,14 @@ copy_mdi_icons(
         "format-color-text.svg",
         "format-color-highlight.svg",
         "color-helper.svg",
+
+        # image handle
+        "format-float-none.svg",
+        "format-float-left.svg",
+        "format-float-right.svg",
+
+        "image-size-select-large.svg",
+        "image-size-select-actual.svg",
     ],
     visibility = ["//visibility:public"],
 )
