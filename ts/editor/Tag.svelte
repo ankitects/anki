@@ -108,6 +108,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         &.tag {
+            --border-color: var(--medium-border);
+
+            border: 1px solid var(--border-color) !important;
             border-radius: 5px;
         }
 
@@ -124,7 +127,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         &.selected {
-            box-shadow: 0 0 0 0.25rem transparentize(button.$focus-color, 0.5) !important;
+            box-shadow: 0 0 0 2px var(--focus-shadow);
+            --border-color: var(--focus-border);
         }
     }
 
