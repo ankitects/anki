@@ -16,13 +16,18 @@ function fixFile(relpath: string, newText: string): void {
 }
 
 function formatText(text: string): string {
-    const newText: string = sqlFormatter.format(text, {
+    let newText: string = sqlFormatter.format(text, {
         indent: "  ",
         reservedWordCase: "upper",
     });
-    // 'type' is treated as a reserved word, but Anki uses it in various sql
-    // tables, so we don't want it uppercased
-    return newText.replace(/\bTYPE\b/g, "type");
+    // downcase some keywords that Anki uses in tables/columns
+    for (const keyword of ["type", "fields"]) {
+        newText = newText.replace(
+            new RegExp(`\\b${keyword.toUpperCase()}\\b`, "g"),
+            keyword
+        );
+    }
+    return newText;
 }
 
 let errorFound = false;
