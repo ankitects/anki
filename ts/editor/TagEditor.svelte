@@ -247,12 +247,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         switch (event.code) {
             case "ArrowUp":
-                autocomplete.selectNext();
+                autocomplete.selectPrevious();
                 event.preventDefault();
                 break;
 
             case "ArrowDown":
-                autocomplete.selectPrevious();
+                autocomplete.selectNext();
                 event.preventDefault();
                 break;
 
@@ -432,7 +432,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <div class="adjust-position">
                         <WithAutocomplete
                             drop="up"
-                            class="d-flex flex-column-reverse"
+                            class="d-flex flex-column"
                             {suggestionsPromise}
                             on:update={updateSuggestions}
                             on:select={({ detail }) => onAutocomplete(detail.selected)}
