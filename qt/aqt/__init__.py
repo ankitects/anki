@@ -68,6 +68,11 @@ except ImportError as e:
     raise
 
 
+import tracemalloc
+
+tracemalloc.start()
+
+
 # Dialog manager
 ##########################################################################
 # ensures only one copy of the window is open at once, and provides
