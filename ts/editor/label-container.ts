@@ -67,16 +67,21 @@ export class LabelContainer extends HTMLDivElement {
         this.toggleSticky = this.toggleSticky.bind(this);
         this.toggleStickyEvent = this.toggleStickyEvent.bind(this);
         this.keepFocus = this.keepFocus.bind(this);
+        this.stopPropagation = this.stopPropagation.bind(this);
     }
 
     keepFocus(event: Event): void {
-        event.stopPropagation();
         event.preventDefault();
+    }
+
+    stopPropagation(event: Event): void {
+        this.keepFocus(event);
+        event.stopPropagation();
     }
 
     connectedCallback(): void {
         this.addEventListener("mousedown", this.keepFocus);
-        this.sticky.addEventListener("mousedown", this.keepFocus);
+        this.sticky.addEventListener("mousedown", this.stopPropagation);
         this.sticky.addEventListener("click", this.toggleStickyEvent);
         this.sticky.addEventListener("mouseenter", this.hoverIcon);
         this.sticky.addEventListener("mouseleave", this.removeHoverIcon);
@@ -84,7 +89,7 @@ export class LabelContainer extends HTMLDivElement {
 
     disconnectedCallback(): void {
         this.removeEventListener("mousedown", this.keepFocus);
-        this.sticky.removeEventListener("mousedown", this.keepFocus);
+        this.sticky.removeEventListener("mousedown", this.stopPropagation);
         this.sticky.removeEventListener("click", this.toggleStickyEvent);
         this.sticky.removeEventListener("mouseenter", this.hoverIcon);
         this.sticky.removeEventListener("mouseleave", this.removeHoverIcon);
