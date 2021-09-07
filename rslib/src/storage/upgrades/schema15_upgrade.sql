@@ -1,11 +1,11 @@
-CREATE TABLE FIELDS (
+CREATE TABLE fields (
   ntid integer NOT NULL,
   ord integer NOT NULL,
   name text NOT NULL COLLATE unicase,
   config blob NOT NULL,
   PRIMARY KEY (ntid, ord)
 ) without rowid;
-CREATE UNIQUE INDEX idx_fields_name_ntid ON FIELDS (name, ntid);
+CREATE UNIQUE INDEX idx_fields_name_ntid ON fields (name, ntid);
 CREATE TABLE templates (
   ntid integer NOT NULL,
   ord integer NOT NULL,

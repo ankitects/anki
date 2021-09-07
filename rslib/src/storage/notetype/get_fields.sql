@@ -1,6 +1,6 @@
 SELECT ord,
   name,
   config
-FROM FIELDS
+FROM fields
 WHERE ntid = ?
 ORDER BY ord
