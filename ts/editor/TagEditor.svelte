@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TagOptionsBadge from "./TagOptionsBadge.svelte";
     import TagWithTooltip from "./TagWithTooltip.svelte";
     import TagInput from "./TagInput.svelte";
+    import Tag from "./Tag.svelte";
     import WithAutocomplete from "./WithAutocomplete.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
     import { controlPressed } from "lib/keys";
@@ -478,6 +479,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             class="tag-spacer flex-grow-1 align-self-stretch"
             on:click={appendEmptyTag}
         />
+
+        <div class="position-relative gap hide-tag zero-width-tag">
+            <Tag name="SPACER" />
+        </div>
     </ButtonToolbar>
 </StickyBottom>
 
@@ -488,6 +493,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .hide-tag :global(.tag) {
         opacity: 0;
+    }
+
+    .zero-width-tag :global(.tag) {
+        width: 0;
+        pointer-events: none;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
     }
 
     .gap {
