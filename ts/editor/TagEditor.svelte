@@ -374,12 +374,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: shortenTags = shortenTags || assumedRows > 2;
 </script>
 
-<Spacer --height={`${height}px`} />
+<Spacer --height="{height}px" />
 
 <StickyBottom class="d-flex" bind:height>
     {#if !wrap}
         <TagOptionsBadge
-            --buttons-size={`${size}rem`}
+            --buttons-size="{size}rem"
             showSelectionsOptions={tags.some((tag) => tag.selected)}
             bind:badgeHeight
             on:tagselectall={selectAllTags}

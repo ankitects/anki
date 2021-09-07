@@ -46,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         :global(svg) {
-            padding: 1px;
+            padding: 0px 1px 2px;
             cursor: pointer;
             fill: currentColor;
             opacity: 0.6;
