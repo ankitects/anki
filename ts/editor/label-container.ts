@@ -42,10 +42,6 @@ export class LabelContainer extends HTMLDivElement {
         super();
         this.className = "fname d-flex justify-content-between";
 
-        i18n.then(() => {
-            this.title = appendInParentheses(tr.editingToggleSticky(), "F9");
-        });
-
         this.label = document.createElement("span");
         this.label.className = "fieldname";
         this.appendChild(this.label);
@@ -58,6 +54,11 @@ export class LabelContainer extends HTMLDivElement {
         this.sticky.className = "icon pin-icon";
         this.sticky.innerHTML = pinIcon;
         this.sticky.hidden = true;
+
+        i18n.then(() => {
+            this.sticky.title = appendInParentheses(tr.editingToggleSticky(), "F9");
+        });
+
         this.fieldState.appendChild(this.sticky);
 
         this.setSticky = this.setSticky.bind(this);
