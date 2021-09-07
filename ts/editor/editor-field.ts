@@ -41,11 +41,11 @@ export class EditorField extends HTMLDivElement {
     }
 
     connectedCallback(): void {
-        this.labelContainer.addEventListener("mousedown", this.focusIfNotFocused);
+        this.addEventListener("mousedown", this.focusIfNotFocused);
     }
 
     disconnectedCallback(): void {
-        this.labelContainer.removeEventListener("mousedown", this.focusIfNotFocused);
+        this.removeEventListener("mousedown", this.focusIfNotFocused);
     }
 
     attributeChangedCallback(name: string, _oldValue: string, newValue: string): void {
