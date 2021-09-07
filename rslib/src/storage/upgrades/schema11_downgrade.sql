@@ -1,7 +1,7 @@
 DROP TABLE config;
 DROP TABLE deck_config;
 DROP TABLE tags;
-DROP TABLE FIELDS;
+DROP TABLE fields;
 DROP TABLE templates;
 DROP TABLE notetypes;
 DROP TABLE decks;

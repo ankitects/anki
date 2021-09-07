@@ -1,5 +1,5 @@
 SELECT DISTINCT name
-FROM FIELDS
+FROM fields
 WHERE ntid IN (
     SELECT mid
     FROM notes
