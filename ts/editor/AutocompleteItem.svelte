@@ -25,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {id}
     tabindex="-1"
     bind:this={buttonRef}
-    class={`btn ${className}`}
+    class="autocomplete-item btn {className}"
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
     class:selected
@@ -40,6 +40,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     @use 'button-mixins' as button;
+
+    .autocomplete-item {
+        padding: 1px 7px 2px;
+    }
 
     button {
         display: flex;
