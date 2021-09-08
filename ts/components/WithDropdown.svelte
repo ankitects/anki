@@ -11,9 +11,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let autoOpen = false;
     export let autoClose: boolean | "inside" | "outside" = true;
 
-    export let placement = "bottom-start";
     export let toggleOpen = true;
     export let drop: "down" | "up" | "left" | "right" = "down";
+
+    let placement: string;
+    $: switch (drop) {
+        case "down":
+            placement = "bottom";
+            break;
+        case "up":
+            placement = "top";
+            break;
+    }
 
     $: dropClass = `drop${drop}`;
 

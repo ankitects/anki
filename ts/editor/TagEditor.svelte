@@ -62,7 +62,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function updateSuggestions(): void {
-        suggestionsPromise = fetchSuggestions(activeName).then(
+        const activeTag = tags[active!];
+
+        suggestionsPromise = fetchSuggestions(activeTag.name).then(
             (names: string[]): string[] => names.map(replaceWithUnicodeSeparator)
         );
     }
@@ -74,11 +76,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         activeInput.setSelectionRange(Infinity, Infinity);
     }
 
-    function updateTagName(tag: TagType): void {
+    async function updateTagName(tag: TagType): Promise<void> {
         tag.name = activeName;
         tags = tags;
 
-        autocomplete.update();
+        await tick();
+        if (activeInput) {
+            autocomplete.update();
+        }
     }
 
     function setActiveAfterBlur(value: number): void {
