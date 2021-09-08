@@ -224,9 +224,6 @@ class AddCards(QDialog):
 
             self.addHistory(note)
 
-            # workaround for PyQt focus bug
-            self.editor.hideCompleters()
-
             tooltip(tr.adding_added(), period=500)
             av_player.stop_and_clear_queue()
             self._load_new_note(sticky_fields_from=note)
