@@ -29,9 +29,9 @@ sync-confirm-empty-download = Local collection has no cards. Download from AnkiW
 sync-conflict-explanation =
     Your decks here and on AnkiWeb differ in such a way that they can't be merged together, so it's necessary to overwrite the decks on one side with the decks from the other.
     
-    If you choose download, Anki will download the collection from AnkiWeb, and any changes you have made on your computer since the last sync will be lost.
+    If you choose download, Anki will fetch the collection from AnkiWeb, and any changes you have made on this device since the last sync will be lost.
     
-    If you choose upload, Anki will upload your collection to AnkiWeb, and any changes you have made on AnkiWeb or your other devices since the last sync to this device will be lost.
+    If you choose upload, Anki will send this device's data to AnkiWeb, and any changes that are waiting on AnkiWeb will be lost.
     
     After all devices are in sync, future reviews and added cards can be merged automatically.
 sync-ankiweb-id-label = AnkiWeb ID:
