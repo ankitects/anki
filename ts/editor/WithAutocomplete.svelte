@@ -83,10 +83,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function chooseSelected() {
         active = true;
         dispatch("choose", { chosen: suggestionsItems[selected ?? -1] });
+        await tick();
     }
 
     async function update() {
-        dropdown = dropdown as Dropdown;
         dropdown.update();
         await tick();
 
@@ -95,6 +95,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function hasSelected(): boolean {
         return selected !== null;
+    }
+
+    function disable(): void {
+        disabled = true;
     }
 
     const createAutocomplete =
@@ -110,8 +114,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 selectPrevious,
                 selectNext,
                 chooseSelected,
-                hasSelected,
                 update,
+                hasSelected,
+                disable,
             };
 
             return api;

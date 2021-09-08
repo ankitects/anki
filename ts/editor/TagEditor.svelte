@@ -48,7 +48,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let activeInput: HTMLInputElement;
 
     let autocomplete: any;
-    let suggestionsPromise: Promise<string[]> = Promise.resolve([]);
+
+    const noSuggestions = Promise.resolve([]);
+    let suggestionsPromise: Promise<string[]> = noSuggestions;
 
     async function fetchSuggestions(input: string): Promise<string[]> {
         const data = await postRequest(
@@ -63,10 +65,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function updateSuggestions(): void {
         const activeTag = tags[active!];
+        const activeName = activeTag.name;
 
-        suggestionsPromise = fetchSuggestions(activeTag.name).then(
-            (names: string[]): string[] => names.map(replaceWithUnicodeSeparator)
-        );
+        suggestionsPromise =
+            activeName.length === 0
+                ? noSuggestions
+                : fetchSuggestions(activeTag.name).then((names: string[]): string[] =>
+                      names.map(replaceWithUnicodeSeparator)
+                  );
     }
 
     function onAutocomplete(selected: string): void {
