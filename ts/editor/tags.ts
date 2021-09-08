@@ -3,11 +3,11 @@
 
 export const delimChar = "\u2237";
 
-export function replaceWithDelimChar(name: string): string {
+export function replaceWithUnicodeSeparator(name: string): string {
     return name.replace(/::/g, delimChar);
 }
 
-export function replaceWithColon(name: string): string {
+export function replaceWithColons(name: string): string {
     return name.replace(/\u2237/gu, "::");
 }
 

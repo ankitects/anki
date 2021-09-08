@@ -7,8 +7,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import {
         normalizeTagname,
         delimChar,
-        replaceWithDelimChar,
-        replaceWithColon,
+        replaceWithUnicodeSeparator,
+        replaceWithColons,
     } from "./tags";
 
     export let id: string | undefined = undefined;
@@ -195,7 +195,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const selection = document.getSelection();
         event.clipboardData!.setData(
             "text/plain",
-            replaceWithColon(selection!.toString())
+            replaceWithColons(selection!.toString())
         );
     }
 
@@ -209,7 +209,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             .split(/\s+/)
             .map(normalizeTagname)
             .filter((name: string) => name.length > 0)
-            .map(replaceWithDelimChar);
+            .map(replaceWithUnicodeSeparator);
 
         if (splitted.length === 0) {
             return;

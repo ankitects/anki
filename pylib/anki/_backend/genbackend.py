@@ -58,10 +58,11 @@ SKIP_UNROLL_INPUT = {
     "UpdateDeckConfigs",
     "AnswerCard",
     "ChangeNotetype",
+    "CompleteTag",
 }
 SKIP_UNROLL_OUTPUT = {"GetPreferences"}
 
-SKIP_DECODE = {"Graphs", "GetGraphPreferences", "GetChangeNotetypeInfo"}
+SKIP_DECODE = {"Graphs", "GetGraphPreferences", "GetChangeNotetypeInfo", "CompleteTag"}
 
 
 def python_type(field):

@@ -7,4 +7,5 @@ import DeckConfig = anki.deckconfig;
 import Notetypes = anki.notetypes;
 import Scheduler = anki.scheduler;
 import Stats = anki.stats;
-export { Stats, Cards, DeckConfig, Notetypes, Scheduler };
+import Tags = anki.tags;
+export { Stats, Cards, DeckConfig, Notetypes, Scheduler, Tags };
