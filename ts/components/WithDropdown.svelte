@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let autoClose: boolean | "inside" | "outside" = true;
 
     export let toggleOpen = true;
-    export let drop: "down" | "up" | "left" | "right" = "down";
+    export let drop: "down" | "up" = "down";
 
     let placement: string;
     $: switch (drop) {
