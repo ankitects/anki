@@ -472,7 +472,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 }}
                                 on:keydown={onKeydown}
                                 on:keyup={onKeyup}
-                                on:input={() => updateTagName(tag)}
+                                on:taginput={() => updateTagName(tag)}
                                 on:tagsplit={({ detail }) =>
                                     enterBehavior(index, detail.start, detail.end)}
                                 on:tagadd={() => insertTagKeepFocus(index)}

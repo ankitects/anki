@@ -65,8 +65,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             name = name.slice(0, position - 1) + name.slice(position, name.length);
             await tick();
 
-            setPosition(position - 1);
             event.preventDefault();
+            setPosition(position - 1);
+            dispatch("taginput");
         }
     }
 
@@ -144,6 +145,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         await tick();
         setPosition(positionStart + 1);
+        dispatch("taginput");
     }
 
     function onKeydown(event: KeyboardEvent): void {
@@ -243,7 +245,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:keydown={onKeydown}
     on:keydown
     on:keyup
-    on:input
+    on:input={() => dispatch("taginput")}
     on:copy|preventDefault={onCopy}
     on:paste|preventDefault={onPaste}
 />
