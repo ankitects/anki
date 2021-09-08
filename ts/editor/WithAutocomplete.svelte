@@ -41,7 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /**
      * select as currently highlighted item
      */
-    async function selectNext() {
+    function incrementSelected(): void {
         if (selected === null) {
             selected = 0;
         } else if (selected >= suggestionsItems.length - 1) {
@@ -49,11 +49,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } else {
             selected++;
         }
-
-        dispatch("select", { selected: suggestionsItems[selected ?? -1] });
     }
 
-    async function selectPrevious() {
+    function decrementSelected(): void {
         if (selected === null) {
             selected = suggestionsItems.length - 1;
         } else if (selected === 0) {
@@ -61,8 +59,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } else {
             selected--;
         }
+    }
 
+    async function updateSelected(): Promise<void> {
         dispatch("select", { selected: suggestionsItems[selected ?? -1] });
+        await tick();
+        dropdown.update();
+    }
+
+    async function selectNext(): Promise<void> {
+        incrementSelected();
+        await updateSelected();
+    }
+
+    async function selectPrevious(): Promise<void> {
+        decrementSelected();
+        await updateSelected();
     }
 
     /**
