@@ -14,21 +14,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className: string = "";
     export { className as class };
 
-    export let drop: "down" | "up" | "left" | "right" = "down";
+    export let drop: "down" | "up" = "down";
     export let suggestionsPromise: Promise<string[]>;
 
-    let target: HTMLElement;
+    let disabled = true;
     let dropdown: Dropdown;
 
     let suggestionsItems: string[] = [];
     $: suggestionsPromise.then((items) => {
         if (items.length > 0) {
-            // disabled class will tell Bootstrap not to show menu on clicking
-            target.classList.remove("disabled");
+            disabled = false;
             dropdown.show();
         } else {
             dropdown.hide();
-            target.classList.add("disabled");
+            disabled = true;
         }
 
         suggestionsItems = items;
@@ -90,7 +89,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         (createDropdown: (element: HTMLElement) => Dropdown) =>
         (element: HTMLElement): any => {
             dropdown = createDropdown(element);
-            target = element;
 
             const api = {
                 hide: dropdown.hide,
@@ -131,7 +129,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <WithDropdown {drop} toggleOpen={false} let:createDropdown>
-    <slot createAutocomplete={createAutocomplete(createDropdown)} />
+    <slot createAutocomplete={createAutocomplete(createDropdown)} {disabled} />
 
     <DropdownMenu class={className}>
         {#each suggestionsItems as suggestion, index}

@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div {id} class="dropdown-menu" aria-labelledby={labelledby}>
-    <div class={`dropdown-content ${className}`}>
+    <div class="dropdown-content {className}">
         <slot />
     </div>
 </div>

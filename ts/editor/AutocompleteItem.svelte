@@ -22,9 +22,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <button
+    bind:this={buttonRef}
     {id}
     tabindex="-1"
-    bind:this={buttonRef}
     class="autocomplete-item btn {className}"
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
