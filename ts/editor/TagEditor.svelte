@@ -16,7 +16,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonToolbar from "components/ButtonToolbar.svelte";
     import { controlPressed } from "lib/keys";
     import type { Tag as TagType } from "./tags";
-    import { attachId, getName, replaceWithDelimChar, replaceWithColon } from "./tags";
+    import {
+        attachId,
+        getName,
+        replaceWithUnicodeSeparator,
+        replaceWithColons,
+    } from "./tags";
+    import { Tags } from "lib/proto";
+    import { postRequest } from "lib/postrequest";
 
     export let tags: TagType[] = [];
 
@@ -24,13 +31,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let wrap = true;
 
     export function resetTags(names: string[]): void {
-        tags = names.map(replaceWithDelimChar).map(attachId);
+        tags = names.map(replaceWithUnicodeSeparator).map(attachId);
     }
 
     function saveTags(): void {
         bridgeCommand(
             `saveTags:${JSON.stringify(
-                tags.map((tag) => tag.name).map(replaceWithColon)
+                tags.map((tag) => tag.name).map(replaceWithColons)
             )}`
         );
     }
@@ -43,12 +50,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let autocomplete: any;
     let suggestionsPromise: Promise<string[]> = Promise.resolve([]);
 
+    async function fetchSuggestions(input: string): Promise<string[]> {
+        const data = await postRequest(
+            "/_anki/completeTag",
+            Tags.CompleteTagRequest.encode(
+                Tags.CompleteTagRequest.create({ input: replaceWithColons(input) })
+            ).finish()
+        );
+        const response = Tags.CompleteTagResponse.decode(data);
+        return response.tags;
+    }
+
     function updateSuggestions(): void {
-        suggestionsPromise = Promise.resolve([
-            "en::vocabulary",
-            "en::idioms",
-            Math.random().toString(36).substring(2),
-        ]).then((names: string[]): string[] => names.map(replaceWithDelimChar));
+        const currentInput = tags[tags.length - 1].name;
+        suggestionsPromise = fetchSuggestions(currentInput).then(
+            (names: string[]): string[] => names.map(replaceWithUnicodeSeparator)
+        );
     }
 
     function onAutocomplete(selected: string): void {
@@ -351,7 +368,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function copySelectedTags() {
         const content = tags
             .filter((tag) => tag.selected)
-            .map((tag) => replaceWithColon(tag.name))
+            .map((tag) => replaceWithColons(tag.name))
             .join("\n");
         copyToClipboard(content);
         deselect();

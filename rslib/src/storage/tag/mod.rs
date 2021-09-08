@@ -66,9 +66,9 @@ impl SqliteStorage {
             .map_err(Into::into)
     }
 
-    pub(crate) fn get_tags_by_predicate<F>(&self, want: F) -> Result<Vec<Tag>>
+    pub(crate) fn get_tags_by_predicate<F>(&self, mut want: F) -> Result<Vec<Tag>>
     where
-        F: Fn(&str) -> bool,
+        F: FnMut(&str) -> bool,
     {
         let mut query_stmt = self.db.prepare_cached(include_str!("get.sql"))?;
         let mut rows = query_stmt.query([])?;

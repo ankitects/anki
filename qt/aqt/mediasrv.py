@@ -351,6 +351,10 @@ def change_notetype() -> bytes:
     return b""
 
 
+def complete_tag() -> bytes:
+    return aqt.mw.col.tags.complete_tag(request.data)
+
+
 post_handlers = {
     "graphData": graph_data,
     "graphPreferences": graph_preferences,
@@ -365,6 +369,7 @@ post_handlers = {
     # pylint: disable=unnecessary-lambda
     "i18nResources": i18n_resources,
     "congratsInfo": congrats_info,
+    "completeTag": complete_tag,
 }
 
 
