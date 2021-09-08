@@ -2,6 +2,7 @@
 .idea
 ankirepo
 ankidisk
+bazel.log
 __pycache__
 .DS_Store
 /bazel-*
