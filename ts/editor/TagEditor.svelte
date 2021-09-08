@@ -14,7 +14,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Tag from "./Tag.svelte";
     import WithAutocomplete from "./WithAutocomplete.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
-    import { controlPressed } from "lib/keys";
     import type { Tag as TagType } from "./tags";
     import {
         attachId,
@@ -34,12 +33,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tags = names.map(replaceWithUnicodeSeparator).map(attachId);
     }
 
+    const noSuggestions = Promise.resolve([]);
+    let suggestionsPromise: Promise<string[]> = noSuggestions;
+
     function saveTags(): void {
         bridgeCommand(
             `saveTags:${JSON.stringify(
                 tags.map((tag) => tag.name).map(replaceWithColons)
             )}`
         );
+
+        suggestionsPromise = noSuggestions;
     }
 
     let active: number | null = null;
@@ -48,9 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let activeInput: HTMLInputElement;
 
     let autocomplete: any;
-
-    const noSuggestions = Promise.resolve([]);
-    let suggestionsPromise: Promise<string[]> = noSuggestions;
+    let autocompleteDisabled: boolean = false;
 
     async function fetchSuggestions(input: string): Promise<string[]> {
         const data = await postRequest(
@@ -67,12 +69,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const activeTag = tags[active!];
         const activeName = activeTag.name;
 
-        suggestionsPromise =
-            activeName.length === 0
-                ? noSuggestions
-                : fetchSuggestions(activeTag.name).then((names: string[]): string[] =>
-                      names.map(replaceWithUnicodeSeparator)
-                  );
+        autocompleteDisabled = activeName.length === 0;
+        suggestionsPromise = autocompleteDisabled
+            ? noSuggestions
+            : fetchSuggestions(activeTag.name).then((names: string[]): string[] => {
+                  autocompleteDisabled = names.length === 0;
+                  return names.map(replaceWithUnicodeSeparator);
+              });
     }
 
     function onAutocomplete(selected: string): void {
@@ -254,27 +257,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         activeAfterBlur = null;
     }
 
-    function isPrintableKey(event: KeyboardEvent): boolean {
-        return event.key.length === 1 && !controlPressed(event);
-    }
-
-    function isDeletionKey(event: KeyboardEvent): boolean {
-        return event.code === "Backspace" || event.code === "Delete";
-    }
-
     function onKeydown(event: KeyboardEvent): void {
-        const visible = autocomplete.isVisible();
-        const printable = isPrintableKey(event);
-        const deletion = isDeletionKey(event);
-
-        if (!visible) {
-            if (printable || deletion) {
-                autocomplete.show();
-            } else {
-                return;
-            }
-        }
-
         switch (event.code) {
             case "ArrowUp":
                 autocomplete.selectPrevious();
@@ -464,12 +447,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             on:select={({ detail }) => onAutocomplete(detail.selected)}
                             on:choose={({ detail }) => onAutocomplete(detail.chosen)}
                             let:createAutocomplete
-                            let:disabled
                         >
                             <TagInput
                                 id={tag.id}
                                 class="tag-input position-absolute start-0 top-0 ps-2 py-0"
-                                {disabled}
+                                disabled={autocompleteDisabled}
                                 bind:name={activeName}
                                 bind:input={activeInput}
                                 on:focus={() => {

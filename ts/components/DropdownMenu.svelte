@@ -11,11 +11,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let labelledby: string | undefined = undefined;
+    export let show = false;
 
     setContext(dropdownKey, null);
 </script>
 
-<div {id} class="dropdown-menu" aria-labelledby={labelledby}>
+<div {id} class="dropdown-menu" class:show aria-labelledby={labelledby}>
     <div class="dropdown-content {className}">
         <slot />
     </div>

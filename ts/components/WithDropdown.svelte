@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let toggleOpen = true;
     export let drop: "down" | "up" = "down";
 
-    let placement: string;
+    let placement: "bottom" | "top";
     $: switch (drop) {
         case "down":
             placement = "bottom";
@@ -52,10 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         dropdown = new Dropdown(toggle, {
             autoClose,
-            popperConfig: (defaultConfig: Record<string, any>) => ({
-                ...defaultConfig,
-                placement,
-            }),
+            popperConfig: { placement },
         } as any);
 
         if (autoOpen) {
