@@ -97,7 +97,9 @@ class MediaServer(threading.Thread):
         for socket in sockets:
             socket.handle_close()
         # https://github.com/Pylons/webtest/blob/4b8a3ebf984185ff4fefb31b4d0cf82682e1fcf7/webtest/http.py#L93-L104
+        self.server.maintenance(0)
         self.server.task_dispatcher.shutdown()
+        self.server.close()
 
     def getPort(self) -> int:
         self._ready.wait()
