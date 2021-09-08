@@ -17,17 +17,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let drop: "down" | "up" = "down";
     export let suggestionsPromise: Promise<string[]>;
 
-    let disabled = true;
     let dropdown: Dropdown;
+    let show = false;
 
     let suggestionsItems: string[] = [];
     $: suggestionsPromise.then((items) => {
-        if (items.length > 0) {
-            disabled = false;
+        show = items.length > 0;
+
+        if (show) {
             dropdown.show();
         } else {
             dropdown.hide();
-            disabled = true;
         }
 
         suggestionsItems = items;
@@ -83,7 +83,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function chooseSelected() {
         active = true;
         dispatch("choose", { chosen: suggestionsItems[selected ?? -1] });
+
         await tick();
+        show = false;
     }
 
     async function update() {
@@ -95,10 +97,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function hasSelected(): boolean {
         return selected !== null;
-    }
-
-    function disable(): void {
-        disabled = true;
     }
 
     const createAutocomplete =
@@ -116,7 +114,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 chooseSelected,
                 update,
                 hasSelected,
-                disable,
             };
 
             return api;
@@ -141,14 +138,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setSelected(index);
         }
     }
-
-    onDestroy(() => dropdown?.dispose());
 </script>
 
 <WithDropdown {drop} toggleOpen={false} let:createDropdown>
-    <slot createAutocomplete={createAutocomplete(createDropdown)} {disabled} />
+    <slot createAutocomplete={createAutocomplete(createDropdown)} />
 
-    <DropdownMenu class={className}>
+    <DropdownMenu class={className} {show}>
         {#each suggestionsItems as suggestion, index}
             <AutocompleteItem
                 selected={index === selected}
