@@ -15,67 +15,71 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let drop: "down" | "up" | "left" | "right" = "down";
-
     export let suggestionsPromise: Promise<string[]>;
 
     let target: HTMLElement;
     let dropdown: Dropdown;
+
+    let suggestionsItems: string[] = [];
+    $: suggestionsPromise.then((items) => {
+        if (items.length > 0) {
+            // disabled class will tell Bootstrap not to show menu on clicking
+            target.classList.remove("disabled");
+            dropdown.show();
+        } else {
+            dropdown.hide();
+            target.classList.add("disabled");
+        }
+
+        suggestionsItems = items;
+    });
 
     let selected: number | null = null;
     let active: boolean = false;
 
     const dispatch = createEventDispatcher();
 
+    /**
+     * select as currently highlighted item
+     */
     async function selectNext() {
-        const suggestions = await suggestionsPromise;
-
         if (selected === null) {
             selected = 0;
-        } else if (selected >= suggestions.length - 1) {
+        } else if (selected >= suggestionsItems.length - 1) {
             selected = null;
         } else {
             selected++;
         }
 
-        dispatch("select", { selected: suggestions[selected ?? -1] });
+        dispatch("select", { selected: suggestionsItems[selected ?? -1] });
     }
 
     async function selectPrevious() {
-        const suggestions = await suggestionsPromise;
-
         if (selected === null) {
-            selected = suggestions.length - 1;
+            selected = suggestionsItems.length - 1;
         } else if (selected === 0) {
             selected = null;
         } else {
             selected--;
         }
 
-        dispatch("select", { selected: suggestions[selected ?? -1] });
+        dispatch("select", { selected: suggestionsItems[selected ?? -1] });
     }
 
+    /**
+     * choose as accepted suggestion
+     */
     async function chooseSelected() {
-        const suggestions = await suggestionsPromise;
-
         active = true;
-        dispatch("choose", { chosen: suggestions[selected ?? -1] });
+        dispatch("choose", { chosen: suggestionsItems[selected ?? -1] });
     }
 
     async function update() {
         dropdown = dropdown as Dropdown;
         dropdown.update();
+        await tick();
+
         dispatch("update");
-
-        const [, suggestions] = await Promise.all([tick(), suggestionsPromise]);
-
-        if (suggestions.length > 0) {
-            dropdown.show();
-            // disabled class will tell Bootstrap not to show menu on clicking
-            target.classList.remove("disabled");
-        } else {
-            dropdown.hide();
-            target.classList.add("disabled");
-        }
     }
 
     function hasSelected(): boolean {
@@ -85,8 +89,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const createAutocomplete =
         (createDropdown: (element: HTMLElement) => Dropdown) =>
         (element: HTMLElement): any => {
-            target = element;
             dropdown = createDropdown(element);
+            target = element;
 
             const api = {
                 hide: dropdown.hide,
@@ -103,8 +107,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return api;
         };
 
-    onDestroy(() => dropdown?.dispose());
-
     function setSelected(index: number): void {
         selected = index;
         active = true;
@@ -115,9 +117,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function selectIndex(index: number): Promise<void> {
-        const suggestions = await suggestionsPromise;
         active = false;
-        dispatch("select", { selected: suggestions[index] });
+        dispatch("select", { selected: suggestionsItems[index] });
     }
 
     function selectIfMousedown(event: MouseEvent, index: number): void {
@@ -125,29 +126,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setSelected(index);
         }
     }
+
+    onDestroy(() => dropdown?.dispose());
 </script>
 
 <WithDropdown {drop} toggleOpen={false} let:createDropdown>
     <slot createAutocomplete={createAutocomplete(createDropdown)} />
 
     <DropdownMenu class={className}>
-        {#await suggestionsPromise}
-            <AutocompleteItem>...</AutocompleteItem>
-        {:then suggestions}
-            {#each suggestions as suggestion, index}
-                <AutocompleteItem
-                    selected={index === selected}
-                    active={index === selected && active}
-                    on:mousedown={() => setSelectedAndActive(index)}
-                    on:mouseup={() => {
-                        selectIndex(index);
-                        chooseSelected();
-                    }}
-                    on:mouseenter={(event) => selectIfMousedown(event, index)}
-                    on:mouseleave={() => (active = false)}
-                    >{suggestion}</AutocompleteItem
-                >
-            {/each}
-        {/await}
+        {#each suggestionsItems as suggestion, index}
+            <AutocompleteItem
+                selected={index === selected}
+                active={index === selected && active}
+                on:mousedown={() => setSelectedAndActive(index)}
+                on:mouseup={() => {
+                    selectIndex(index);
+                    chooseSelected();
+                }}
+                on:mouseenter={(event) => selectIfMousedown(event, index)}
+                on:mouseleave={() => (active = false)}>{suggestion}</AutocompleteItem
+            >
+        {/each}
     </DropdownMenu>
 </WithDropdown>

@@ -62,8 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function updateSuggestions(): void {
-        const currentInput = tags[tags.length - 1].name;
-        suggestionsPromise = fetchSuggestions(currentInput).then(
+        suggestionsPromise = fetchSuggestions(activeName).then(
             (names: string[]): string[] => names.map(replaceWithUnicodeSeparator)
         );
     }
@@ -78,6 +77,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function updateTagName(tag: TagType): void {
         tag.name = activeName;
         tags = tags;
+
+        autocomplete.update();
     }
 
     function setActiveAfterBlur(value: number): void {
@@ -286,13 +287,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             case "Enter":
                 autocomplete.chooseSelected();
                 event.preventDefault();
-                break;
-
-            default:
-                if (printable || deletion) {
-                    autocomplete.update();
-                }
-
                 break;
         }
     }
