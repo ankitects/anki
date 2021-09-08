@@ -191,6 +191,7 @@ class Reviewer:
     ##########################################################################
 
     def nextCard(self) -> None:
+        self.lastcard = self.card
         self.card = None
         self._v3 = None
 
@@ -222,7 +223,6 @@ class Reviewer:
                 self.mw.col.reset()
                 self.hadCardQueue = False
             card = self.mw.col.sched.getCard()
-        self.lastcard = self.card
         self.card = card
 
     def _get_next_v3_card(self) -> None:
@@ -231,7 +231,6 @@ class Reviewer:
         if not output.cards:
             return
         self._v3 = V3CardInfo.from_queue(output)
-        self.lastcard = self.card
         self.card = Card(self.mw.col, backend_card=self._v3.top_card().card)
         self.card.start_timer()
 
@@ -974,6 +973,8 @@ time = %(time)d;
     def on_last_card_info(self) -> None:
         if self.lastcard:
             CardInfoDialog(parent=self.mw, mw=self.mw, card=self.lastcard)
+        else:
+            print("No last card available yet")
 
     def on_card_info(self) -> None:
         if self.card:
