@@ -407,9 +407,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {/if}
 
         {#each tags as tag, index (tag.id)}
-            <div class="position-relative gap" class:hide-tag={index === active}>
+            <div
+                class="position-relative tag-margins"
+                class:hide-tag={index === active}
+            >
                 <TagWithTooltip
-                    class="me-1"
+                    class="ms-0 tag-margins-inner"
                     name={index === active ? activeName : tag.name}
                     tooltip={tag.name}
                     active={index === active}
@@ -480,7 +483,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:click={appendEmptyTag}
         />
 
-        <div class="position-relative gap hide-tag zero-width-tag">
+        <div class="position-relative tag-margins hide-tag zero-width-tag">
             <Tag name="SPACER" />
         </div>
     </ButtonToolbar>
@@ -502,8 +505,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding-right: 0 !important;
     }
 
-    .gap {
+    .tag-margins {
         margin-bottom: 0.15rem;
+
+        :global(.tag-margins-inner) {
+            margin-right: 2px;
+        }
     }
 
     .adjust-position :global(.tag-input) {
