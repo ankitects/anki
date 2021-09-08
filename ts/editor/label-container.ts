@@ -7,6 +7,7 @@ import * as tr from "lib/i18n";
 import { registerShortcut } from "lib/shortcuts";
 import { bridgeCommand } from "./lib";
 import { appendInParentheses } from "./helpers";
+import { saveField } from "./change-timer";
 import { getCurrentField, forEditorField, i18n } from ".";
 import pinIcon from "./pin-angle.svg";
 
@@ -41,10 +42,6 @@ export class LabelContainer extends HTMLDivElement {
         super();
         this.className = "fname d-flex justify-content-between";
 
-        i18n.then(() => {
-            this.title = appendInParentheses(tr.editingToggleSticky(), "F9");
-        });
-
         this.label = document.createElement("span");
         this.label.className = "fieldname";
         this.appendChild(this.label);
@@ -57,29 +54,43 @@ export class LabelContainer extends HTMLDivElement {
         this.sticky.className = "icon pin-icon";
         this.sticky.innerHTML = pinIcon;
         this.sticky.hidden = true;
+
+        i18n.then(() => {
+            this.sticky.title = appendInParentheses(tr.editingToggleSticky(), "F9");
+        });
+
         this.fieldState.appendChild(this.sticky);
 
         this.setSticky = this.setSticky.bind(this);
         this.hoverIcon = this.hoverIcon.bind(this);
         this.removeHoverIcon = this.removeHoverIcon.bind(this);
         this.toggleSticky = this.toggleSticky.bind(this);
+        this.toggleStickyEvent = this.toggleStickyEvent.bind(this);
         this.keepFocus = this.keepFocus.bind(this);
+        this.stopPropagation = this.stopPropagation.bind(this);
     }
 
     keepFocus(event: Event): void {
         event.preventDefault();
     }
 
+    stopPropagation(event: Event): void {
+        this.keepFocus(event);
+        event.stopPropagation();
+    }
+
     connectedCallback(): void {
         this.addEventListener("mousedown", this.keepFocus);
-        this.sticky.addEventListener("click", this.toggleSticky);
+        this.sticky.addEventListener("mousedown", this.stopPropagation);
+        this.sticky.addEventListener("click", this.toggleStickyEvent);
         this.sticky.addEventListener("mouseenter", this.hoverIcon);
         this.sticky.addEventListener("mouseleave", this.removeHoverIcon);
     }
 
     disconnectedCallback(): void {
         this.removeEventListener("mousedown", this.keepFocus);
-        this.sticky.removeEventListener("click", this.toggleSticky);
+        this.sticky.removeEventListener("mousedown", this.stopPropagation);
+        this.sticky.removeEventListener("click", this.toggleStickyEvent);
         this.sticky.removeEventListener("mouseenter", this.hoverIcon);
         this.sticky.removeEventListener("mouseleave", this.removeHoverIcon);
     }
@@ -106,7 +117,13 @@ export class LabelContainer extends HTMLDivElement {
     }
 
     toggleSticky(): void {
+        saveField((this.parentElement as EditorField).editingArea, "key");
         bridgeCommand(`toggleSticky:${this.getAttribute("ord")}`, this.setSticky);
         this.removeHoverIcon();
+    }
+
+    toggleStickyEvent(event: Event): void {
+        event.stopPropagation();
+        this.toggleSticky();
     }
 }
