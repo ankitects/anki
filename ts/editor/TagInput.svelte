@@ -17,6 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let name: string;
     export let input: HTMLInputElement;
+    export let disabled: boolean;
 
     const dispatch = createEventDispatcher();
 
@@ -231,6 +232,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <input
     {id}
     class={className}
+    class:disabled
     bind:this={input}
     bind:value={name}
     type="text"

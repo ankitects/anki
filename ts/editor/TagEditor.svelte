@@ -452,16 +452,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <div class="adjust-position">
                         <WithAutocomplete
                             drop="up"
-                            class="d-flex flex-column"
+                            class="d-flex flex-column cap-items"
                             {suggestionsPromise}
                             on:update={updateSuggestions}
                             on:select={({ detail }) => onAutocomplete(detail.selected)}
                             on:choose={({ detail }) => onAutocomplete(detail.chosen)}
                             let:createAutocomplete
+                            let:disabled
                         >
                             <TagInput
                                 id={tag.id}
-                                class="tag-input position-absolute top-0 start-0 ps-2 py-0"
+                                class="tag-input position-absolute start-0 top-0 ps-2 py-0"
+                                {disabled}
                                 bind:name={activeName}
                                 bind:input={activeInput}
                                 on:focus={() => {
@@ -529,8 +531,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    .adjust-position :global(.tag-input) {
-        /* recreates positioning of Tag component */
-        border-left: 1px solid transparent;
+    .adjust-position {
+        :global(.tag-input) {
+            /* recreates positioning of Tag component */
+            border-left: 1px solid transparent;
+        }
+
+        :global(.cap-items) {
+            max-height: 7rem;
+            overflow-y: scroll;
+        }
     }
 </style>
