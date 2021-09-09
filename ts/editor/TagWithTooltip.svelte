@@ -82,7 +82,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <TagDeleteBadge class="delete-icon" on:click={onClickDelete} />
         </Tag>
     {:else if shorten && hasMultipleParts(name)}
-        <WithTooltip {tooltip} placement="auto" let:createTooltip>
+        <WithTooltip {tooltip} trigger="hover" placement="auto" let:createTooltip>
             <Tag
                 class={className}
                 bind:flash
