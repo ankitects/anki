@@ -58,7 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const data = await postRequest(
             "/_anki/completeTag",
             Tags.CompleteTagRequest.encode(
-                Tags.CompleteTagRequest.create({ input: replaceWithColons(input) })
+                Tags.CompleteTagRequest.create({ input, amount: 500 })
             ).finish()
         );
         const response = Tags.CompleteTagResponse.decode(data);
@@ -72,10 +72,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         autocompleteDisabled = activeName.length === 0;
         suggestionsPromise = autocompleteDisabled
             ? noSuggestions
-            : fetchSuggestions(activeTag.name).then((names: string[]): string[] => {
-                  autocompleteDisabled = names.length === 0;
-                  return names.map(replaceWithUnicodeSeparator);
-              });
+            : fetchSuggestions(replaceWithColons(activeTag.name)).then(
+                  (names: string[]): string[] => {
+                      autocompleteDisabled = names.length === 0;
+                      return names.map(replaceWithUnicodeSeparator);
+                  }
+              );
     }
 
     function onAutocomplete(selected: string): void {

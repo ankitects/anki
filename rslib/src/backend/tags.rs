@@ -91,7 +91,7 @@ impl TagsService for Backend {
 
     fn complete_tag(&self, input: pb::CompleteTagRequest) -> Result<pb::CompleteTagResponse> {
         self.with_col(|col| {
-            let tags = col.complete_tag(&input.input)?;
+            let tags = col.complete_tag(&input.input, input.amount)?;
             Ok(pb::CompleteTagResponse { tags })
         })
     }
