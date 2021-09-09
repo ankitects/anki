@@ -80,8 +80,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     bind:this={buttonToolbarRef}
     {id}
-    class={`btn-toolbar container wrap-variable ${className}`}
-    class:overflow={!wrap}
+    class="btn-toolbar container wrap-variable {className}"
     class:nightMode
     {style}
     role="toolbar"
@@ -104,9 +103,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .wrap-variable {
         flex-wrap: var(--buttons-wrap);
-    }
-
-    .overflow {
-        overflow-x: auto;
     }
 </style>
