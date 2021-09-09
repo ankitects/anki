@@ -313,6 +313,8 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
             if self._terminate_flag:
                 self._process.terminate()
                 self._process.wait(1)
+                if self._process.stdin:
+                    self._process.stdin.close()
                 self._process = None
                 return
 
