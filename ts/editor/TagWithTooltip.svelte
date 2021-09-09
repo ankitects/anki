@@ -3,9 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import WithTooltip from "components/WithTooltip.svelte";
     import Tag from "./Tag.svelte";
-    import TagDeleteBadge from "./TagDeleteBadge.svelte";
+    import WithTooltip from "components/WithTooltip.svelte";
 
     import { createEventDispatcher, getContext } from "svelte";
     import { nightModeKey } from "components/context-keys";
@@ -26,16 +25,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
-    function deleteTag(): void {
-        dispatch("tagdelete");
-    }
-
     let control = false;
     let shift = false;
 
     $: selectMode = control || shift;
 
-    function setDeleteIcon(event: KeyboardEvent | MouseEvent): void {
+    function setControlShift(event: KeyboardEvent | MouseEvent): void {
         control = controlPressed(event);
         shift = shiftPressed(event);
     }
@@ -46,7 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } else if (control) {
             dispatch("tagselect");
         } else {
-            dispatch("tagedit");
+            dispatch("tagclick");
         }
     }
 
@@ -64,62 +59,61 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return name.split(delimChar).length > 1;
     }
 
-    function onClickDelete() {
-        if (!selectMode) {
-            deleteTag();
-        }
-    }
-
     const nightMode = getContext<boolean>(nightModeKey);
+    const hoverClass = "tag-icon-hover";
 </script>
 
-<svelte:body on:keydown={setDeleteIcon} on:keyup={setDeleteIcon} />
+<svelte:body on:keydown={setControlShift} on:keyup={setControlShift} />
 
-<div class:select-mode={selectMode} class:night-mode={nightMode}>
-    {#if active}
-        <Tag class={className} on:mousemove={setDeleteIcon} on:click={onClick}>
-            {name}
-            <TagDeleteBadge class="delete-icon" on:click={onClickDelete} />
-        </Tag>
-    {:else if shorten && hasMultipleParts(name)}
-        <WithTooltip {tooltip} trigger="hover" placement="auto" let:createTooltip>
-            <Tag
-                class={className}
-                bind:flash
-                bind:selected
-                on:mousemove={setDeleteIcon}
-                on:click={onClick}
-                on:mount={(event) => createTooltip(event.detail.button)}
-            >
-                <span>{processTagName(name)}</span>
-                <TagDeleteBadge class="delete-icon" on:click={onClickDelete} />
-            </Tag>
-        </WithTooltip>
-    {:else}
+{#if active}
+    <Tag class={className} on:mousemove={setControlShift} on:click={onClick}>
+        {name}
+        <div class:select-mode={selectMode} class:night-mode={nightMode}>
+            <slot {selectMode} {hoverClass} />
+        </div>
+    </Tag>
+{:else if shorten && hasMultipleParts(name)}
+    <WithTooltip {tooltip} trigger="hover" placement="auto" let:createTooltip>
         <Tag
             class={className}
             bind:flash
             bind:selected
-            on:mousemove={setDeleteIcon}
+            on:mousemove={setControlShift}
             on:click={onClick}
+            on:mount={(event) => createTooltip(event.detail.button)}
         >
-            <span>{name}</span>
-            <TagDeleteBadge class="delete-icon" on:click={onClickDelete} />
+            <span>{processTagName(name)}</span>
+            <div class:select-mode={selectMode} class:night-mode={nightMode}>
+                <slot {selectMode} {hoverClass} />
+            </div>
         </Tag>
-    {/if}
-</div>
+    </WithTooltip>
+{:else}
+    <Tag
+        class={className}
+        bind:flash
+        bind:selected
+        on:mousemove={setControlShift}
+        on:click={onClick}
+    >
+        <span>{name}</span>
+        <div class:select-mode={selectMode} class:night-mode={nightMode}>
+            <slot {selectMode} {hoverClass} />
+        </div>
+    </Tag>
+{/if}
 
 <style lang="scss">
-    .select-mode :global(button:hover) {
+    :global(button:hover) .select-mode {
         display: contents;
         cursor: crosshair;
 
-        :global(.delete-icon) {
+        :global(.tag-icon-hover) {
             opacity: 0;
         }
     }
 
-    :global(.delete-icon):hover {
+    :global(.tag-icon-hover):hover {
         $white-translucent: rgba(255 255 255 / 0.5);
         $dark-translucent: rgba(0 0 0 / 0.2);
 
