@@ -13,15 +13,35 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let toggleOpen = true;
     export let drop: "down" | "up" = "down";
+    export let align: "start" | "end" | "auto" = "auto";
 
-    let placement: "bottom" | "top";
-    $: switch (drop) {
-        case "down":
-            placement = "bottom";
-            break;
-        case "up":
-            placement = "top";
-            break;
+    let placement: string;
+
+    $: {
+        let blockPlacement: string;
+
+        switch (drop) {
+            case "down":
+                blockPlacement = "bottom";
+                break;
+            case "up":
+                blockPlacement = "top";
+                break;
+        }
+
+        let inlinePlacement: string;
+
+        switch (align) {
+            case "start":
+            case "end":
+                inlinePlacement = `-${align}`;
+                break;
+            default:
+                inlinePlacement = "";
+                break;
+        }
+
+        placement = `${blockPlacement}${inlinePlacement}`;
     }
 
     $: dropClass = `drop${drop}`;

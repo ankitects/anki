@@ -50,6 +50,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .autocomplete-item {
         padding: 1px 7px 2px;
+
+        text-align: start;
+        white-space: nowrap;
     }
 
     button {
