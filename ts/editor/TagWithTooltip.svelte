@@ -110,7 +110,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    .select-mode :global(button) {
+    .select-mode :global(button:hover) {
         display: contents;
         cursor: crosshair;
 
