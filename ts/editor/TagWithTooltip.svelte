@@ -65,46 +65,42 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <svelte:body on:keydown={setControlShift} on:keyup={setControlShift} />
 
-{#if active}
-    <Tag class={className} on:mousemove={setControlShift} on:click={onClick}>
-        {name}
-        <div class:select-mode={selectMode} class:night-mode={nightMode}>
+<div class:select-mode={selectMode} class:night-mode={nightMode}>
+    {#if active}
+        <Tag class={className} on:mousemove={setControlShift} on:click={onClick}>
+            {name}
             <slot {selectMode} {hoverClass} />
-        </div>
-    </Tag>
-{:else if shorten && hasMultipleParts(name)}
-    <WithTooltip {tooltip} trigger="hover" placement="auto" let:createTooltip>
+        </Tag>
+    {:else if shorten && hasMultipleParts(name)}
+        <WithTooltip {tooltip} trigger="hover" placement="auto" let:createTooltip>
+            <Tag
+                class={className}
+                bind:flash
+                bind:selected
+                on:mousemove={setControlShift}
+                on:click={onClick}
+                on:mount={(event) => createTooltip(event.detail.button)}
+            >
+                <span>{processTagName(name)}</span>
+                <slot {selectMode} {hoverClass} />
+            </Tag>
+        </WithTooltip>
+    {:else}
         <Tag
             class={className}
             bind:flash
             bind:selected
             on:mousemove={setControlShift}
             on:click={onClick}
-            on:mount={(event) => createTooltip(event.detail.button)}
         >
-            <span>{processTagName(name)}</span>
-            <div class:select-mode={selectMode} class:night-mode={nightMode}>
-                <slot {selectMode} {hoverClass} />
-            </div>
-        </Tag>
-    </WithTooltip>
-{:else}
-    <Tag
-        class={className}
-        bind:flash
-        bind:selected
-        on:mousemove={setControlShift}
-        on:click={onClick}
-    >
-        <span>{name}</span>
-        <div class:select-mode={selectMode} class:night-mode={nightMode}>
+            <span>{name}</span>
             <slot {selectMode} {hoverClass} />
-        </div>
-    </Tag>
-{/if}
+        </Tag>
+    {/if}
+</div>
 
 <style lang="scss">
-    :global(button:hover) .select-mode {
+    .select-mode :global(button:hover) {
         display: contents;
         cursor: crosshair;
 
