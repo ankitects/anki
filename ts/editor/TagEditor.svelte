@@ -491,7 +491,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <div class="position-relative tag-margins hide-tag zero-width-tag">
             <!-- makes sure footer does not resize when adding first tag -->
-            <Tag name="SPACER" />
+            <Tag>SPACER</Tag>
         </div>
     </ButtonToolbar>
 </StickyBottom>
