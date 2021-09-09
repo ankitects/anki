@@ -18,6 +18,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let buttonRef: HTMLButtonElement;
 
+    export function scroll() {
+        /* TODO will not work on Gecko */
+        (buttonRef as any)?.scrollIntoViewIfNeeded(false);
+
+        /* buttonRef.scrollIntoView({ behavior: "smooth", block: "start" }); */
+    }
+
     onMount(() => dispatch("mount", { button: buttonRef }));
 </script>
 

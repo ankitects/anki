@@ -138,6 +138,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setSelected(index);
         }
     }
+
+    let scroll: () => void;
+
+    $: if (scroll) {
+        scroll();
+    }
 </script>
 
 <WithDropdown {drop} toggleOpen={false} let:createDropdown>
@@ -145,17 +151,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <DropdownMenu class={className} {show}>
         {#each suggestionsItems as suggestion, index}
-            <AutocompleteItem
-                selected={index === selected}
-                active={index === selected && active}
-                on:mousedown={() => setSelectedAndActive(index)}
-                on:mouseup={() => {
-                    selectIndex(index);
-                    chooseSelected();
-                }}
-                on:mouseenter={(event) => selectIfMousedown(event, index)}
-                on:mouseleave={() => (active = false)}>{suggestion}</AutocompleteItem
-            >
+            {#if index === selected}
+                <AutocompleteItem
+                    bind:scroll
+                    selected
+                    {active}
+                    on:mousedown={() => setSelectedAndActive(index)}
+                    on:mouseup={() => {
+                        selectIndex(index);
+                        chooseSelected();
+                    }}
+                    on:mouseenter={(event) => selectIfMousedown(event, index)}
+                    on:mouseleave={() => (active = false)}
+                    >{suggestion}</AutocompleteItem
+                >
+            {:else}
+                <AutocompleteItem
+                    on:mousedown={() => setSelectedAndActive(index)}
+                    on:mouseup={() => {
+                        selectIndex(index);
+                        chooseSelected();
+                    }}
+                    on:mouseenter={(event) => selectIfMousedown(event, index)}
+                    >{suggestion}</AutocompleteItem
+                >
+            {/if}
         {/each}
     </DropdownMenu>
 </WithDropdown>
