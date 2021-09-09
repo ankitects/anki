@@ -35,6 +35,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => {
         codeMirror.focus();
         codeMirror.setCursor(codeMirror.lineCount(), 0);
+
+        const codeMirrorElement = textarea.nextElementSibling!;
+        codeMirrorElement.classList.add("mathjax-editor");
     });
 </script>
 
@@ -59,3 +62,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         use:openCodemirror
     />
 </div>
+
+<style lang="scss">
+    /* TODO there is global CSS in fields.scss */
+    div :global(.mathjax-editor) {
+        border-radius: 0;
+        border-width: 0 1px;
+        border-color: var(--medium-border);
+    }
+</style>
