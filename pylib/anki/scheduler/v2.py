@@ -1120,11 +1120,14 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
         from anki.utils import stripHTML
 
         def getSource(note):
-            if note is None: return None
+            if note is None:
+                return None
+
             def tryGet(field):
                 if field in note:
                     return note[field]
                 return None
+
             source = tryGet("Source") or tryGet("source")
             return stripHTML(source) if source else None
 
@@ -1133,7 +1136,7 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
         burySet = set(toBury)
 
         if self._burySiblingsOnAnswer and firstsource and len(firstsource) > 0:
-            if not hasattr( self, 'cardSourceIds'):
+            if not hasattr(self, "cardSourceIds"):
                 self.cardSourceIds = {}
                 for nid, flds in self.col.db.execute(f"select id, flds from notes"):
                     note = self.col.getNote(nid)
