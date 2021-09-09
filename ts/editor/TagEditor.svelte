@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Spacer from "components/Spacer.svelte";
     import StickyBottom from "components/StickyBottom.svelte";
     import TagOptionsBadge from "./TagOptionsBadge.svelte";
-    import TagWithTooltip from "./TagWithTooltip.svelte";
+    import TagEditMode from "./TagEditMode.svelte";
     import TagInput from "./TagInput.svelte";
     import Tag from "./Tag.svelte";
     import WithAutocomplete from "./WithAutocomplete.svelte";
@@ -416,7 +416,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 class="position-relative tag-margins"
                 class:hide-tag={index === active}
             >
-                <TagWithTooltip
+                <TagEditMode
                     class="ms-0 tag-margins-inner"
                     name={index === active ? activeName : tag.name}
                     tooltip={tag.name}
