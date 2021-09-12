@@ -2,19 +2,18 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use regex::Regex;
-use std::convert::TryInto;
 
 use crate::prelude::*;
 
 impl Collection {
-    pub fn complete_tag(&self, input: &str, amount: u32) -> Result<Vec<String>> {
+    pub fn complete_tag(&self, input: &str, limit: usize) -> Result<Vec<String>> {
         let filters: Vec<_> = input
             .split("::")
             .map(component_to_regex)
             .collect::<Result<_, _>>()?;
         let mut tags = vec![];
         self.storage.get_tags_by_predicate(|tag| {
-            if tags.len() <= amount.try_into().unwrap() && filters_match(&filters, tag) {
+            if tags.len() <= limit && filters_match(&filters, tag) {
                 tags.push(tag.to_string());
             }
             // we only need the tag name

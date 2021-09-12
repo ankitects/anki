@@ -63,7 +63,7 @@ message FindAndReplaceTagRequest {
 message CompleteTagRequest {
   // a partial tag, optionally delimited with ::
   string input = 1;
-  uint32 amount = 2;
+  uint32 match_limit = 2;
 }
 
 message CompleteTagResponse {
