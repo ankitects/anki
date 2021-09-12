@@ -86,12 +86,14 @@ class MediaServer(threading.Thread):
 
             self._ready.set()
             self.server.run()
+            print("Close media server")
 
         except Exception:
             if not self.is_shutdown:
                 raise
 
     def shutdown(self) -> None:
+        print("Starting to close media server")
         self.is_shutdown = True
         sockets = list(self.server._map.values())  # type: ignore
         for socket in sockets:
@@ -99,7 +101,6 @@ class MediaServer(threading.Thread):
         # https://github.com/Pylons/webtest/blob/4b8a3ebf984185ff4fefb31b4d0cf82682e1fcf7/webtest/http.py#L93-L104
         self.server.maintenance(0)  # type: ignore
         self.server.task_dispatcher.shutdown()
-        self.server.close()
 
     def getPort(self) -> int:
         self._ready.wait()
