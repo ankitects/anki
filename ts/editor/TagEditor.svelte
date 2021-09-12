@@ -58,7 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const data = await postRequest(
             "/_anki/completeTag",
             Tags.CompleteTagRequest.encode(
-                Tags.CompleteTagRequest.create({ input, amount: 500 })
+                Tags.CompleteTagRequest.create({ input, matchLimit: 500 })
             ).finish()
         );
         const response = Tags.CompleteTagResponse.decode(data);
