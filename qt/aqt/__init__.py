@@ -477,10 +477,6 @@ def _run(argv: Optional[List[str]] = None, exec: bool = True) -> Optional[AnkiAp
         profiler = cProfile.Profile()
         profiler.enable()
 
-    if getattr(sys, "frozen", False) and os.getenv("QT_QPA_PLATFORM") == "wayland":
-        # the packaged builds currently do not support wayland natively
-        os.environ["QT_QPA_PLATFORM"] = "xcb"
-
     # default to specified/system language before getting user's preference so that we can localize some more strings
     lang = anki.lang.get_def_lang(opts.lang)
     anki.lang.set_lang(lang[1])
