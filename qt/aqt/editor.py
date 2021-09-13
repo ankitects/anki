@@ -106,6 +106,9 @@ class Editor:
         self.note: Optional[Note] = None
         self.addMode = addMode
         self.currentField: Optional[int] = None
+        # Similar to currentField, but not set to None on a blur. May be
+        # outside the bounds of the current notetype.
+        self.last_field_index: Optional[int] = None
         # current card, for card layout
         self.card: Optional[Card] = None
         self.setupOuter()
@@ -387,7 +390,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         # focused into field?
         elif cmd.startswith("focus"):
             (type, num) = cmd.split(":", 1)
-            self.currentField = int(num)
+            self.last_field_index = self.currentField = int(num)
             gui_hooks.editor_did_focus_field(self.note, self.currentField)
 
         elif cmd.startswith("toggleStickyAll"):
