@@ -313,6 +313,8 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
             if self._terminate_flag:
                 self._process.terminate()
                 self._process.wait(1)
+                if self._process.stdin:
+                    self._process.stdin.close()
                 self._process = None
                 return
 
@@ -321,6 +323,8 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
                 self._process.wait(0.1)
                 if self._process.returncode != 0:
                     print(f"player got return code: {self._process.returncode}")
+                if self._process.stdin:
+                    self._process.stdin.close()
                 self._process = None
                 return
             except subprocess.TimeoutExpired:
