@@ -50,6 +50,7 @@ actions-remove-notetype = Remove Notetype
 actions-update-notetype = Update Notetype
 actions-update-config = Update Config
 actions-card-info = Card Info
+actions-previous-card-info = Previous Card Info
 
 ## Flags
 
