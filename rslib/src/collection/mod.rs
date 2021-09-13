@@ -5,7 +5,11 @@ pub(crate) mod timestamps;
 mod transact;
 pub(crate) mod undo;
 
-use std::{collections::HashMap, path::PathBuf, sync::Arc};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
 use crate::{
     browser_table,
@@ -63,6 +67,15 @@ pub fn open_test_collection_with_server(server: bool) -> Collection {
     use crate::log;
     let tr = I18n::template_only();
     open_collection(":memory:", "", "", server, tr, log::terminal()).unwrap()
+}
+
+/// Helper used by syncing to make sure the file can be opened. This should be replaced
+/// with a builder in the future.
+pub(crate) fn open_and_check_collection(col_path: &Path) -> Result<Collection> {
+    use crate::log;
+    let tr = I18n::template_only();
+    let empty = Path::new("");
+    open_collection(col_path, &empty, &empty, true, tr, log::terminal())
 }
 
 #[derive(Debug, Default)]
