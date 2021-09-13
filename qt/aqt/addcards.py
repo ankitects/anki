@@ -145,7 +145,9 @@ class AddCards(QDialog):
 
         # and update editor state
         self.editor.note = new
-        self.editor.loadNote()
+        self.editor.loadNote(
+            focusTo=min(self.editor.last_field_index or 0, len(new.fields) - 1)
+        )
 
     def _load_new_note(self, sticky_fields_from: Optional[Note] = None) -> None:
         note = self._new_note()
