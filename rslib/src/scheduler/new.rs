@@ -7,6 +7,7 @@ use rand::seq::SliceRandom;
 
 use crate::{
     card::{CardQueue, CardType},
+    config::SchedulerVersion,
     deckconfig::NewCardInsertOrder,
     prelude::*,
     search::{SearchNode, SortMode, StateKind},
@@ -23,12 +24,19 @@ impl Card {
     }
 
     /// If the card is new, change its position, and return true.
-    fn set_new_position(&mut self, position: u32) -> bool {
-        if self.ctype != CardType::New {
-            false
-        } else {
+    fn set_new_position(&mut self, position: u32, v2: bool) -> bool {
+        if v2 && self.ctype == CardType::New {
+            if self.is_filtered() {
+                self.original_due = position as i32;
+            } else {
+                self.due = position as i32;
+            }
+            true
+        } else if self.queue == CardQueue::New {
             self.due = position as i32;
             true
+        } else {
+            false
         }
     }
 }
@@ -146,8 +154,9 @@ impl Collection {
         shift: bool,
         usn: Usn,
     ) -> Result<usize> {
+        let v2 = self.scheduler_version() != SchedulerVersion::V1;
         if shift {
-            self.shift_existing_cards(starting_from, step * cids.len() as u32, usn)?;
+            self.shift_existing_cards(starting_from, step * cids.len() as u32, usn, v2)?;
         }
         self.storage.set_search_table_to_card_ids(cids, true)?;
         let cards = self.storage.all_searched_cards_in_search_order()?;
@@ -155,7 +164,7 @@ impl Collection {
         let mut count = 0;
         for mut card in cards {
             let original = card.clone();
-            if card.set_new_position(sorter.position(&card)) {
+            if card.set_new_position(sorter.position(&card), v2) {
                 count += 1;
                 self.update_card_inner(&mut card, original, usn)?;
             }
@@ -193,11 +202,11 @@ impl Collection {
         self.sort_cards_inner(&cids, 1, 1, order.into(), false, usn)
     }
 
-    fn shift_existing_cards(&mut self, start: u32, by: u32, usn: Usn) -> Result<()> {
+    fn shift_existing_cards(&mut self, start: u32, by: u32, usn: Usn, v2: bool) -> Result<()> {
         self.storage.search_cards_at_or_above_position(start)?;
         for mut card in self.storage.all_searched_cards()? {
             let original = card.clone();
-            card.set_new_position(card.due as u32 + by);
+            card.set_new_position(card.due as u32 + by, v2);
             self.update_card_inner(&mut card, original, usn)?;
         }
         self.storage.clear_searched_cards_table()?;

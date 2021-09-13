@@ -115,4 +115,8 @@ impl Card {
 
         self.original_due = 0;
     }
+
+    pub(crate) fn is_filtered(&self) -> bool {
+        self.original_deck_id.0 > 0
+    }
 }
