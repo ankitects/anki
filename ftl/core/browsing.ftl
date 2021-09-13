@@ -72,7 +72,6 @@ browsing-note = Note
 browsing-note-initial = N
 browsing-notes-tagged = Notes tagged.
 browsing-nothing = Nothing
-browsing-only-new-cards-can-be-repositioned = Only new cards can be repositioned.
 browsing-optional-filter = Optional filter:
 browsing-override-back-template = Override back template:
 browsing-override-font = Override font:
@@ -175,3 +174,7 @@ browsing-reparented-decks =
         [one] Renamed { $count } deck.
        *[other] Renamed { $count } decks.
     }
+
+## obsolete; no need to translate
+
+browsing-only-new-cards-can-be-repositioned = Only new cards can be repositioned.

@@ -52,7 +52,6 @@ from aqt.utils import (
     saveGeom,
     saveSplitter,
     saveState,
-    showInfo,
     showWarning,
     skip_if_selection_is_empty,
     tr,
@@ -753,10 +752,6 @@ class Browser(QMainWindow):
     @skip_if_selection_is_empty
     @ensure_editor_saved
     def reposition(self) -> None:
-        if self.card and self.card.queue != QUEUE_TYPE_NEW:
-            showInfo(tr.browsing_only_new_cards_can_be_repositioned(), parent=self)
-            return
-
         if op := reposition_new_cards_dialog(
             parent=self, card_ids=self.selected_cards()
         ):
