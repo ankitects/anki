@@ -8,6 +8,7 @@ use tempfile::NamedTempFile;
 
 use super::ChunkableIds;
 use crate::{
+    collection::open_and_check_collection,
     prelude::*,
     storage::open_and_check_sqlite_file,
     sync::{
@@ -197,12 +198,13 @@ impl SyncServer for LocalServer {
             col_path = new_file.path();
         }
 
-        open_and_check_sqlite_file(col_path).map_err(|check_err| {
-            match fs::remove_file(col_path) {
+        // ensure it's a valid sqlite file, and a valid collection
+        open_and_check_sqlite_file(col_path)
+            .and_then(|_| open_and_check_collection(col_path))
+            .map_err(|check_err| match fs::remove_file(col_path) {
                 Ok(_) => check_err,
                 Err(remove_err) => remove_err.into(),
-            }
-        })?;
+            })?;
 
         let target_col_path = self.col.col_path.clone();
         self.col.close(false)?;
