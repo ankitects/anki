@@ -8,8 +8,8 @@ from typing import Optional, Sequence
 from anki.collection import OpChanges, OpChangesWithCount
 from anki.decks import DeckId
 from anki.notes import Note, NoteId
+from aqt.mediasrv import remove_notes_queue, update_note_queue
 from aqt.operations import CollectionOp
-from aqt.mediasrv import update_note_bus, remove_notes_bus
 from aqt.qt import QWidget
 from aqt.utils import tooltip, tr
 
@@ -24,7 +24,7 @@ def add_note(
 
 
 def update_note(*, parent: QWidget, note: Note) -> CollectionOp[OpChanges]:
-    update_note_bus.dispatch(note)
+    update_note_queue.dispatch(note)
     return CollectionOp(parent, lambda col: col.update_note(note))
 
 
@@ -33,7 +33,7 @@ def remove_notes(
     parent: QWidget,
     note_ids: Sequence[NoteId],
 ) -> CollectionOp[OpChangesWithCount]:
-    remove_notes_bus.dispatch(note_ids)
+    remove_notes_queue.dispatch(note_ids)
     return CollectionOp(parent, lambda col: col.remove_notes(note_ids)).success(
         lambda out: tooltip(tr.browsing_cards_deleted(count=out.count)),
     )

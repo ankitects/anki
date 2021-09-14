@@ -4,9 +4,9 @@
 from __future__ import annotations
 
 import json
-from functools import wraps
 import logging
 import os
+import queue
 import re
 import sys
 import threading
@@ -148,8 +148,7 @@ def allroutes(pathin: str) -> Response:
         if flask.request.method == "POST":
             return handle_post(path)
         elif flask.request.method == "GET" and path.startswith("_stream/"):
-            shortened = path[len("_stream/"):]
-            print("eyo lets start stream", shortened, request.args)
+            shortened = path[len("_stream/") :]
             return handle_stream(shortened)
 
         if fullpath.endswith(".css"):
@@ -397,72 +396,76 @@ def handle_post(path: str) -> Response:
     return response
 
 
-def add_to_bus(func):
-    @wraps
-    def decorator(bus):
-        gen = func()
-        gen.send(None)
+class EventQueue:
+    def __init__(self):
+        self.listeners = []
 
-        bus.register(gen)
+    def listen(self) -> None:
+        q = queue.Queue(maxsize=5)
+        self.listeners.append(q)
+        return q
 
-        return gen
-
-    return decorator
-
-class EventBus:
-    listeners = []
-
-    def register(self, listener) -> None:
-        self.listeners.append(listener)
-
-    def unregister(self, listener) -> None:
-        self.listeners.remove(listener)
+    def unlisten(self, q: queue.Queue) -> None:
+        self.listeners.remove(q)
 
     def dispatch(self, data) -> None:
         for listener in self.listeners:
-            listener.send(data)
+            try:
+                print("put data", data)
+                listener.put_nowait(data)
+            except queue.Full:
+                pass
 
-update_note_bus = EventBus()
 
-@add_to_bus(update_note_bus)
+update_note_queue = EventQueue()
+
+
 def update_note_hook(noteid_str: str) -> str:
-    print('updatestart', noteid_str)
+    q = update_note_queue.listen()
     noteid = int(noteid_str)
-
 
     try:
         yield "event: open\n\n"
 
         while True:
-            time.sleep(1)
-            yield f'data: {json.dumps({})}\n\n'
+            note = q.get()
+
+            if note.id == noteid:
+                yield f"data: {json.dumps(dict(note))}\n\n"
 
     finally:
-        print("cleanup")
+        print("update note cleanup")
+        update_note_queue.unlisten(q)
 
 
-remove_notes_bus = EventBus()
+remove_notes_queue = EventQueue()
 
-@add_to_bus(remove_notes_bus)
+
 def remove_notes_hook(noteid_str: str) -> str:
-    print('removestart', noteid_str)
+    q = remove_notes_queue.listen()
     noteid = int(noteid_str)
 
     try:
         yield "event: open\n\n"
 
-        for update in remove_notes_bus:
-            time.sleep(1)
-            yield f'data: {json.dumps({})}\n\n'
+        while True:
+            noteids = q.get()
+
+            if noteid in noteids:
+                yield f"data: {json.dumps(noteids)}\n\n"
 
     finally:
-        print("cleanup")
+        print("remove_notes cleanup")
+        remove_notes_queue.unlisten(q)
 
+
+from concurrent import futures
 
 stream_handlers = {
     "update_note": update_note_hook,
     "remove_notes": remove_notes_hook,
 }
+
 
 def handle_stream(path: str) -> Response:
     cmd, *args = path.split("/")
@@ -470,8 +473,10 @@ def handle_stream(path: str) -> Response:
     data = stream_handlers[cmd](*args)
     response = Response(
         data,
-        mimetype = "text/event-stream",
-        headers = {"Cache-Control": "no-cache"},
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+        },
     )
 
     return response
