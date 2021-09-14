@@ -119,6 +119,7 @@ class Reviewer:
         self.web = mw.web
         self.card: Optional[Card] = None
         self.cardQueue: List[Card] = []
+        self.previous_card: Optional[Card] = None
         self.hadCardQueue = False
         self._answeredIds: List[CardId] = []
         self._recordedAudio: Optional[str] = None
