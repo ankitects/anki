@@ -1,6 +1,7 @@
 filegroup(
     name = "imgs",
     srcs = glob([
+        "**/*.ico",
         "**/*.png",
         "**/*.svg",
     ]),
