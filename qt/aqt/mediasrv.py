@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import json
+from functools import wraps
 import logging
 import os
 import re
@@ -15,7 +17,7 @@ from typing import Tuple
 
 import flask
 import flask_cors  # type: ignore
-from flask import Response, request
+from flask import Response, request, stream_with_context
 from waitress.server import create_server
 
 import aqt
@@ -145,6 +147,10 @@ def allroutes(pathin: str) -> Response:
     try:
         if flask.request.method == "POST":
             return handle_post(path)
+        elif flask.request.method == "GET" and path.startswith("_stream/"):
+            shortened = path[len("_stream/"):]
+            print("eyo lets start stream", shortened, request.args)
+            return handle_stream(shortened)
 
         if fullpath.endswith(".css"):
             # some users may have invalid mime type in the Windows registry
@@ -381,11 +387,91 @@ def handle_post(path: str) -> Response:
             else:
                 response = flask.make_response("", HTTPStatus.NO_CONTENT)
         except Exception as e:
-            return flask.make_response(str(e), HTTPStatus.INTERNAL_SERVER_ERROR)
+            response = flask.make_response(str(e), HTTPStatus.INTERNAL_SERVER_ERROR)
     else:
         response = flask.make_response(
             f"Unhandled post to {path}",
             HTTPStatus.FORBIDDEN,
         )
+
+    return response
+
+
+def add_to_bus(func):
+    @wraps
+    def decorator(bus):
+        gen = func()
+        gen.send(None)
+
+        bus.register(gen)
+
+        return gen
+
+    return decorator
+
+class EventBus:
+    listeners = []
+
+    def register(self, listener) -> None:
+        self.listeners.append(listener)
+
+    def unregister(self, listener) -> None:
+        self.listeners.remove(listener)
+
+    def dispatch(self, data) -> None:
+        for listener in self.listeners:
+            listener.send(data)
+
+update_note_bus = EventBus()
+
+@add_to_bus(update_note_bus)
+def update_note_hook(noteid_str: str) -> str:
+    print('updatestart', noteid_str)
+    noteid = int(noteid_str)
+
+
+    try:
+        yield "event: open\n\n"
+
+        while True:
+            time.sleep(1)
+            yield f'data: {json.dumps({})}\n\n'
+
+    finally:
+        print("cleanup")
+
+
+remove_notes_bus = EventBus()
+
+@add_to_bus(remove_notes_bus)
+def remove_notes_hook(noteid_str: str) -> str:
+    print('removestart', noteid_str)
+    noteid = int(noteid_str)
+
+    try:
+        yield "event: open\n\n"
+
+        for update in remove_notes_bus:
+            time.sleep(1)
+            yield f'data: {json.dumps({})}\n\n'
+
+    finally:
+        print("cleanup")
+
+
+stream_handlers = {
+    "update_note": update_note_hook,
+    "remove_notes": remove_notes_hook,
+}
+
+def handle_stream(path: str) -> Response:
+    cmd, *args = path.split("/")
+
+    data = stream_handlers[cmd](*args)
+    response = Response(
+        data,
+        mimetype = "text/event-stream",
+        headers = {"Cache-Control": "no-cache"},
+    )
 
     return response
