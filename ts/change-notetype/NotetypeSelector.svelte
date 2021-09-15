@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { ChangeNotetypeState } from "./lib";
 
-    import StickyBar from "components/StickyBar.svelte";
+    import StickyHeader from "components/StickyHeader.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
     import Item from "components/Item.svelte";
     import ButtonGroup from "components/ButtonGroup.svelte";
@@ -25,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<StickyBar>
+<StickyHeader>
     <ButtonToolbar class="justify-content-between" size={2.3} wrap={false}>
         <Item>
             <ButtonGroup class="flex-grow-1">
@@ -48,4 +48,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <SaveButton {state} />
         </Item>
     </ButtonToolbar>
-</StickyBar>
+</StickyHeader>

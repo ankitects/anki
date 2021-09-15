@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type Modal from "bootstrap/js/dist/modal";
 
     import TextInputModal from "./TextInputModal.svelte";
-    import StickyBar from "components/StickyBar.svelte";
+    import StickyHeader from "components/StickyHeader.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
     import Item from "components/Item.svelte";
     import ButtonGroup from "components/ButtonGroup.svelte";
@@ -87,7 +87,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bind:modalKey
 />
 
-<StickyBar class="g-1">
+<StickyHeader class="g-1">
     <ButtonToolbar class="justify-content-between" size={2.3} wrap={false}>
         <Item>
             <ButtonGroup class="flex-grow-1">
@@ -115,4 +115,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             />
         </Item>
     </ButtonToolbar>
-</StickyBar>
+</StickyHeader>

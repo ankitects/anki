@@ -6,23 +6,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let id: string | undefined = undefined;
     let className: string = "";
     export { className as class };
-
-    export let height: number = 0;
 </script>
 
-<footer {id} bind:offsetHeight={height} class={`container-fluid pt-1 ${className}`}>
+<header {id} class="container-fluid pb-1 {className}">
     <slot />
-</footer>
+</header>
 
 <style lang="scss">
-    footer {
+    header {
         position: sticky;
-        bottom: 0;
+        top: 0;
         left: 0;
         right: 0;
         z-index: 10;
 
         background: var(--window-bg);
-        border-top: 1px solid var(--medium-border);
+        border-bottom: 1px solid var(--medium-border);
     }
 </style>
