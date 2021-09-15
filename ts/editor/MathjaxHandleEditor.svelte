@@ -41,23 +41,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<!-- <textarea bind:value use:openCodemirror /> -->
 <div
     on:click|stopPropagation
     on:focus|stopPropagation
     on:keydown|stopPropagation
-    on:focusin|stopPropagation
     on:keyup|stopPropagation
+    on:focusin|stopPropagation
+    on:mousedown|preventDefault|stopPropagation
     on:mouseup|stopPropagation
 >
     <!-- TODO no focusin for now, as EditingArea will defer to Editable/Codable -->
     <textarea
         bind:this={textarea}
         value={initialValue}
-        on:mouseup|preventDefault|stopPropagation
-        on:keyup|stopPropagation
-        on:click|stopPropagation
-        on:focusin|stopPropagation
         on:input={onInput}
         use:openCodemirror
     />
