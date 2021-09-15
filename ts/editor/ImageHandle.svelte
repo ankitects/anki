@@ -135,7 +135,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 {#if sheet}
     <WithDropdown
-        placement="bottom"
+        drop="down"
         autoOpen={true}
         autoClose={false}
         let:createDropdown
