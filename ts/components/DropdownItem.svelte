@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let tooltip: string | undefined = undefined;
+    export let tabbable: boolean = false;
 
     let buttonRef: HTMLButtonElement;
 
@@ -22,12 +23,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <button
     {id}
+    tabindex={tabbable ? 0 : -1}
     bind:this={buttonRef}
     class={`btn dropdown-item ${className}`}
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
     title={tooltip}
     on:click
+    on:mouseenter
+    on:focus
+    on:keydown
     on:mousedown|preventDefault
 >
     <slot />
@@ -43,17 +48,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         font-size: calc(var(--buttons-size) / 2.3);
 
         background: none;
-        box-shadow: none;
+        box-shadow: none !important;
         border: none;
+
+        &:active,
+        &.active {
+            background-color: button.$focus-color;
+            color: white;
+        }
     }
 
     .btn-day {
         color: black;
-
-        &:active {
-            background-color: button.$focus-color;
-            color: white;
-        }
     }
 
     .btn-night {
@@ -62,11 +68,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &:hover,
         &:focus {
             @include button.btn-night-base;
-        }
-
-        &:active {
-            background-color: button.$focus-color;
-            color: white;
         }
     }
 </style>

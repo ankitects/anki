@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithShortcut from "components/WithShortcut.svelte";
     import OnlyEditable from "./OnlyEditable.svelte";
 
+    import { withButton } from "components/helpers";
     import { ellipseIcon } from "./icons";
     import { forEditorField } from ".";
     import { wrapCurrent } from "./wrap";
@@ -48,7 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             tooltip={`${tr.editingClozeDeletion()} (${shortcutLabel})`}
             {disabled}
             on:click={onCloze}
-            on:mount={(event) => createShortcut(event.detail.button)}
+            on:mount={withButton(createShortcut)}
         >
             {@html ellipseIcon}
         </IconButton>

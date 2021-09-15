@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod bulkadd;
+mod complete;
 mod findreplace;
 mod matcher;
 mod register;

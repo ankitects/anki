@@ -3,10 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { setContext } from "svelte";
+    import { getContext, setContext } from "svelte";
     import { writable } from "svelte/store";
     import Item from "./Item.svelte";
-    import { sectionKey } from "./context-keys";
+    import { sectionKey, nightModeKey } from "./context-keys";
     import type { Identifier } from "./identifier";
     import { insertElement, appendElement } from "./identifier";
     import type { SvelteComponent, Registration } from "./registration";
@@ -73,14 +73,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             toggleGroup,
         });
     }
+
+    const nightMode = getContext<boolean>(nightModeKey);
 </script>
 
 <div
     bind:this={buttonToolbarRef}
     {id}
-    class={`btn-toolbar container wrap-variable ${className}`}
+    class="btn-toolbar container wrap-variable {className}"
+    class:nightMode
     {style}
     role="toolbar"
+    on:focusout
 >
     <slot />
     {#each $dynamicItems as item}
@@ -91,6 +95,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use 'scrollbar';
+
+    .nightMode {
+        @include scrollbar.night-mode;
+    }
+
     .wrap-variable {
         flex-wrap: var(--buttons-wrap);
     }

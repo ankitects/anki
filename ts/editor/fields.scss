@@ -88,9 +88,9 @@
     }
 }
 
-@import "ts/sass/codemirror/lib/codemirror";
-@import "ts/sass/codemirror/theme/monokai";
-@import "ts/sass/codemirror/addon/fold/foldgutter";
+@import "codemirror/lib/codemirror";
+@import "codemirror/theme/monokai";
+@import "codemirror/addon/fold/foldgutter";
 
 .CodeMirror {
     height: auto;

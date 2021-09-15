@@ -14,6 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import OnlyEditable from "./OnlyEditable.svelte";
 
     import { bridgeCommand } from "lib/bridgecommand";
+    import { withButton } from "components/helpers";
     import { textColorIcon, highlightColorIcon, arrowIcon } from "./icons";
     import { appendInParentheses } from "./helpers";
 
@@ -45,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         )}
                         {disabled}
                         on:click={forecolorWrap}
-                        on:mount={(event) => createShortcut(event.detail.button)}
+                        on:mount={withButton(createShortcut)}
                     >
                         {@html textColorIcon}
                         {@html colorHelperIcon}
@@ -71,7 +72,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 forecolorWrap = wrapWithForecolor(setColor(event));
                                 forecolorWrap();
                             }}
-                            on:mount={(event) => createShortcut(event.detail.input)}
+                            on:mount={withButton(createShortcut)}
                         />
                     </IconButton>
                 </WithShortcut>
