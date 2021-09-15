@@ -16,7 +16,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setContext(dropdownKey, null);
 </script>
 
-<div {id} class="dropdown-menu" class:show aria-labelledby={labelledby}>
+<div
+    {id}
+    class="dropdown-menu"
+    class:show
+    aria-labelledby={labelledby}
+    on:mousedown|preventDefault|stopPropagation
+>
     <div class="dropdown-content {className}">
         <slot />
     </div>
