@@ -6,7 +6,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { tick } from "svelte";
     import { isApplePlatform } from "lib/platform";
     import { bridgeCommand } from "lib/bridgecommand";
-    import Spacer from "components/Spacer.svelte";
     import StickyBottom from "components/StickyBottom.svelte";
     import TagOptionsBadge from "./TagOptionsBadge.svelte";
     import TagEditMode from "./TagEditMode.svelte";
