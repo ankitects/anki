@@ -79,7 +79,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             dropdown.show();
         }
 
-        let api = {
+        api = {
             show: dropdown.show.bind(dropdown),
             toggle: dropdown.toggle.bind(dropdown),
             hide: dropdown.hide.bind(dropdown),
