@@ -29,28 +29,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     resizeObserver.observe(container);
 
     let updateSelection: () => void;
+    let dropdownApi: any;
     let title: string;
 
     function getComponent(image: HTMLImageElement): HTMLElement {
         return image.closest("anki-mathjax")! as HTMLElement;
     }
 
-    function onUpdate(event: CustomEvent) {
+    function scheduleDropdownUpdate() {
+        setTimeout(async () => {
+            await tick();
+            dropdownApi.update();
+        });
+    }
+
+    async function onEditorUpdate(event: CustomEvent) {
         getComponent(activeImage!).dataset.mathjax = event.detail.mathjax;
+
         setTimeout(() => {
             updateSelection();
             title = activeImage!.title;
+            scheduleDropdownUpdate();
         });
     }
 </script>
 
-<WithDropdown
-    placement="bottom"
-    autoOpen={true}
-    autoClose={false}
-    let:createDropdown
-    let:dropdownObject
->
+<WithDropdown drop="down" autoOpen={true} autoClose={false} let:createDropdown>
     {#if activeImage}
         <HandleSelection
             image={activeImage}
@@ -58,7 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             offsetX={2}
             offsetY={2}
             bind:updateSelection
-            on:mount={(event) => createDropdown(event.detail.selection)}
+            on:mount={(event) => (dropdownApi = createDropdown(event.detail.selection))}
         >
             <HandleBackground {title} />
 
@@ -68,10 +72,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <DropdownMenu>
             <MathjaxHandleEditor
                 initialValue={getComponent(activeImage).dataset.mathjax ?? ""}
-                on:update={(event) => {
-                    onUpdate(event);
-                    setTimeout(dropdownObject.update);
-                }}
+                on:update={onEditorUpdate}
             />
             <div class="margin-x">
                 <ButtonToolbar>
@@ -79,17 +80,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <MathjaxHandleInlineBlock
                             {activeImage}
                             {isRtl}
-                            on:click={async () => {
-                                await tick();
+                            on:click={() => {
                                 updateSelection();
-                                dropdownObject.update();
+                                scheduleDropdownUpdate();
                             }}
                         />
                     </Item>
                 </ButtonToolbar>
-                <div />
-            </div></DropdownMenu
-        >
+            </div>
+        </DropdownMenu>
     {/if}
 </WithDropdown>
 
