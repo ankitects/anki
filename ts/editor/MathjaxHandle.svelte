@@ -3,8 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { tick } from "svelte";
-
     import WithDropdown from "components/WithDropdown.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
     import DropdownMenu from "components/DropdownMenu.svelte";
@@ -60,6 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     drop="down"
     autoOpen={true}
     autoClose={false}
+    distance={4}
     let:createDropdown
     let:dropdownObject
 >
