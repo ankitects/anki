@@ -65,19 +65,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return response.tags;
     }
 
+    const colonAtStartOrEnd = /^:?|:?$/g;
+
     function updateSuggestions(): void {
         const activeTag = tags[active!];
         const activeName = activeTag.name;
 
         autocompleteDisabled = activeName.length === 0;
-        suggestionsPromise = autocompleteDisabled
-            ? noSuggestions
-            : fetchSuggestions(replaceWithColons(activeTag.name)).then(
-                  (names: string[]): string[] => {
-                      autocompleteDisabled = names.length === 0;
-                      return names.map(replaceWithUnicodeSeparator);
-                  }
-              );
+
+        if (autocompleteDisabled) {
+            suggestionsPromise = noSuggestions;
+        } else {
+            const cleanedName = replaceWithColons(activeName).replace(
+                colonAtStartOrEnd,
+                ""
+            );
+            suggestionsPromise = fetchSuggestions(cleanedName).then(
+                (names: string[]): string[] => {
+                    autocompleteDisabled = names.length === 0;
+                    return names.map(replaceWithUnicodeSeparator);
+                }
+            );
+        }
     }
 
     function onAutocomplete(selected: string): void {
