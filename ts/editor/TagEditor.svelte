@@ -65,7 +65,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return response.tags;
     }
 
-    const colonAtStartOrEnd = /^:?|:?$/g;
+    const withoutSingleColonAtStartOrEnd = /^:?([^:].*?[^:]):?$/;
 
     function updateSuggestions(): void {
         const activeTag = tags[active!];
@@ -76,11 +76,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (autocompleteDisabled) {
             suggestionsPromise = noSuggestions;
         } else {
-            const cleanedName = replaceWithColons(activeName).replace(
-                colonAtStartOrEnd,
-                ""
-            );
-            suggestionsPromise = fetchSuggestions(cleanedName).then(
+            const withColons = replaceWithColons(activeName);
+            const withoutSingleColons = withoutSingleColonAtStartOrEnd.test(withColons)
+                ? withColons.replace(withoutSingleColonAtStartOrEnd, "$1")
+                : withColons;
+
+            suggestionsPromise = fetchSuggestions(withoutSingleColons).then(
                 (names: string[]): string[] => {
                     autocompleteDisabled = names.length === 0;
                     return names.map(replaceWithUnicodeSeparator);
