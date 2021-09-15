@@ -152,11 +152,14 @@ export function setBackgrounds(cols: ("dupe" | "")[]): void {
     );
     document
         .getElementById("dupes")!
-        .classList.toggle("is-inactive", !cols.includes("dupe"));
+        .classList.toggle("d-none", !cols.includes("dupe"));
 }
 
-export function setClozeHint(cloze_hint: string): void {
-    document.getElementById("cloze-hint")!.innerHTML = cloze_hint;
+export function setClozeHint(hint: string): void {
+    const clozeHint = document.getElementById("cloze-hint")!;
+
+    clozeHint.innerHTML = hint;
+    clozeHint.classList.toggle("d-none", hint.length === 0);
 }
 
 export function setFonts(fonts: [string, number, boolean][]): void {
