@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let width: number;
     let height: number;
 
-    export function updateSelection(_div: HTMLDivElement): void {
+    function setSelection(_selection?: HTMLDivElement): void {
         const containerRect = container.getBoundingClientRect();
         const imageRect = image!.getBoundingClientRect();
 
@@ -28,6 +28,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         height = image!.clientHeight;
     }
 
+    export function updateSelection(): Promise<void> {
+        let updateResolve: () => void;
+        const afterUpdate: Promise<void> = new Promise((resolve) => {
+            updateResolve = resolve;
+        });
+
+        setSelection();
+        setTimeout(() => updateResolve());
+
+        return afterUpdate;
+    }
+
     const dispatch = createEventDispatcher();
     let selection: HTMLDivElement;
 
@@ -36,7 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div
     bind:this={selection}
-    use:updateSelection
+    use:setSelection
     on:click={(event) =>
         /* prevent triggering Bootstrap dropdown */ event.stopImmediatePropagation()}
     style="--left: {left}px; --top: {top}px; --width: {width}px; --height: {height}px; --offsetX: {offsetX}px; --offsetY: {offsetY}px;"

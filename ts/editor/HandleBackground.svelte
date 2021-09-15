@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { onMount, createEventDispatcher } from "svelte";
 
-    export let title: string | undefined = undefined;
+    export let tooltip: string | undefined = undefined;
 
     let background: HTMLDivElement;
     const dispatch = createEventDispatcher();
@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div
     bind:this={background}
-    {title}
+    title={tooltip}
     on:mousedown|preventDefault
     on:click|stopPropagation
     on:dblclick
