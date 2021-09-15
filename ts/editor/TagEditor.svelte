@@ -390,9 +390,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: shortenTags = shortenTags || assumedRows > 2;
 </script>
 
-<Spacer --height="{height}px" />
-
-<StickyBottom class="d-flex" bind:height>
+<StickyBottom bind:height class="d-flex">
     {#if !wrap}
         <TagOptionsBadge
             --buttons-size="{size}rem"

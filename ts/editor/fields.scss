@@ -5,14 +5,25 @@
 @use 'scrollbar';
 @use 'button-mixins';
 
+html,
+body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
 .nightMode {
     @include scrollbar.night-mode;
 }
 
 #fields {
     display: flex;
-    overflow-x: hidden;
     flex-direction: column;
+    flex-grow: 1;
+    overflow-x: hidden;
     margin: 3px 0;
 }
 
@@ -65,10 +76,6 @@
 
     text-align: center;
     background-color: var(--window-bg);
-
-    &.is-inactive {
-        display: none;
-    }
 
     a {
         color: var(--link);

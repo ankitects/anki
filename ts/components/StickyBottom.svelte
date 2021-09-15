@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className: string = "";
     export { className as class };
 
-    export let height: number;
+    export let height: number = 0;
 </script>
 
 <footer {id} bind:offsetHeight={height} class={`container-fluid pt-1 ${className}`}>
@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     footer {
-        position: fixed;
+        position: sticky;
         bottom: 0;
         left: 0;
         right: 0;
