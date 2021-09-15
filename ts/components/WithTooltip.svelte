@@ -42,3 +42,11 @@
 </script>
 
 <slot {createTooltip} {tooltipObject} />
+
+<style lang="scss">
+    /* tooltip is inserted under the body tag
+    /* long tooltips can cause x-overflow */
+    :global(body) {
+        overflow-x: hidden;
+    }
+</style>
