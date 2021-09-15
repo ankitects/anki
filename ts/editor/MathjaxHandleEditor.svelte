@@ -44,11 +44,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     on:click|stopPropagation
     on:focus|stopPropagation
+    on:focusin|stopPropagation
     on:keydown|stopPropagation
     on:keyup|stopPropagation
-    on:focusin|stopPropagation
     on:mousedown|preventDefault|stopPropagation
     on:mouseup|stopPropagation
+    on:paste|stopPropagation
 >
     <!-- TODO no focusin for now, as EditingArea will defer to Editable/Codable -->
     <textarea
