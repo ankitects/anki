@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { tick } from "svelte";
     import { isApplePlatform } from "lib/platform";
     import { bridgeCommand } from "lib/bridgecommand";
-    import StickyBottom from "components/StickyBottom.svelte";
+    import StickyFooter from "components/StickyFooter.svelte";
     import TagOptionsBadge from "./TagOptionsBadge.svelte";
     import TagEditMode from "./TagEditMode.svelte";
     import TagInput from "./TagInput.svelte";
@@ -390,7 +390,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: shortenTags = shortenTags || assumedRows > 2;
 </script>
 
-<StickyBottom bind:height class="d-flex">
+<StickyFooter bind:height class="d-flex">
     {#if !wrap}
         <TagOptionsBadge
             --buttons-size="{size}rem"
@@ -503,7 +503,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Tag>SPACER</Tag>
         </div>
     </ButtonToolbar>
-</StickyBottom>
+</StickyFooter>
 
 <style lang="scss">
     .tag-spacer {
