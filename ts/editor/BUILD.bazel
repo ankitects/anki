@@ -103,6 +103,9 @@ copy_bootstrap_icons(
         "text-center.svg",
         "text-indent-left.svg",
         "text-indent-right.svg",
+
+        # tag editor
+        "x.svg",
     ],
     visibility = ["//visibility:public"],
 )
@@ -126,6 +129,12 @@ copy_mdi_icons(
 
         "image-size-select-large.svg",
         "image-size-select-actual.svg",
+
+        # tag editor
+        "tag-outline.svg",
+        "tag.svg",
+        "tag-plus.svg",
+        "dots-vertical.svg",
     ],
     visibility = ["//visibility:public"],
 )

@@ -84,6 +84,7 @@ _html = """
     <a href="#" onclick="pycmd('dupes');return false;">%s</a>
 </div>
 <div id="cloze-hint"></div>
+<div id="tag-editor-anchor" class="d-none"></div>
 """
 
 
@@ -114,7 +115,6 @@ class Editor:
         self.setupOuter()
         self.setupWeb()
         self.setupShortcuts()
-        self.setupTags()
         gui_hooks.editor_did_init(self)
 
     # Initial setup
@@ -302,9 +302,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
 
     def setupShortcuts(self) -> None:
         # if a third element is provided, enable shortcut even when no field selected
-        cuts: List[Tuple] = [
-            ("Ctrl+Shift+T", self.onFocusTags, True),
-        ]
+        cuts: List[Tuple] = []
         gui_hooks.editor_did_init_shortcuts(cuts, self)
         for row in cuts:
             if len(row) == 2:
@@ -430,6 +428,14 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             (_, highlightColor) = cmd.split(":", 1)
             self.mw.pm.profile["lastHighlightColor"] = highlightColor
 
+        elif cmd.startswith("saveTags"):
+            (type, tagsJson) = cmd.split(":", 1)
+            self.note.tags = json.loads(tagsJson)
+
+            gui_hooks.editor_did_update_tags(self.note)
+            if not self.addMode:
+                self._save_current_note()
+
         elif cmd in self._links:
             self._links[cmd](self)
 
@@ -450,10 +456,8 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         self.currentField = None
         if self.note:
             self.loadNote(focusTo=focusTo)
-        else:
-            self.hideCompleters()
-            if hide:
-                self.widget.hide()
+        elif hide:
+            self.widget.hide()
 
     def loadNoteKeepingFocus(self) -> None:
         self.loadNote(self.currentField)
@@ -467,7 +471,6 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             for fld, val in self.note.items()
         ]
         self.widget.show()
-        self.updateTags()
 
         note_fields_status = self.note.fields_check()
 
@@ -485,12 +488,13 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         text_color = self.mw.pm.profile.get("lastTextColor", "#00f")
         highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#00f")
 
-        js = "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s); setColorButtons(%s);" % (
+        js = "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s); setColorButtons(%s); setTags(%s); " % (
             json.dumps(data),
             json.dumps(self.fonts()),
             json.dumps(focusTo),
             json.dumps(self.note.id),
             json.dumps([text_color, highlight_color]),
+            json.dumps(self.mw.col.tags.canonify(self.note.tags)),
         )
 
         if self.addMode:
@@ -520,7 +524,6 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             # calling code may not expect the callback to fire immediately
             self.mw.progress.timer(10, callback, False)
             return
-        self.blur_tags_if_focused()
         self.web.evalWithCallback("saveNow(%d)" % keepFocus, lambda res: callback())
 
     saveNow = call_after_note_saved

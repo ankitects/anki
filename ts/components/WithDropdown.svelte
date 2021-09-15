@@ -11,7 +11,40 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let autoOpen = false;
     export let autoClose: boolean | "inside" | "outside" = true;
 
-    export let placement = "bottom-start";
+    export let toggleOpen = true;
+    export let drop: "down" | "up" = "down";
+    export let align: "start" | "end" | "auto" = "auto";
+
+    let placement: string;
+
+    $: {
+        let blockPlacement: string;
+
+        switch (drop) {
+            case "down":
+                blockPlacement = "bottom";
+                break;
+            case "up":
+                blockPlacement = "top";
+                break;
+        }
+
+        let inlinePlacement: string;
+
+        switch (align) {
+            case "start":
+            case "end":
+                inlinePlacement = `-${align}`;
+                break;
+            default:
+                inlinePlacement = "";
+                break;
+        }
+
+        placement = `${blockPlacement}${inlinePlacement}`;
+    }
+
+    $: dropClass = `drop${drop}`;
 
     setContext(dropdownKey, {
         dropdown: true,
@@ -19,40 +52,50 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     let dropdown: Dropdown;
-    let dropdownObject: Dropdown;
+    let api: Dropdown & { isVisible: () => boolean };
+
+    function isVisible() {
+        return (dropdown as any)._menu
+            ? (dropdown as any)._menu.classList.contains("show")
+            : false;
+    }
 
     const noop = () => {};
     function createDropdown(toggle: HTMLElement): Dropdown {
         /* avoid focusing element toggle on menu activation */
         toggle.focus = noop;
+
+        if (!toggleOpen) {
+            /* do not open on clicking toggle */
+            toggle.addEventListener = noop;
+        }
+
         dropdown = new Dropdown(toggle, {
             autoClose,
-            popperConfig: (defaultConfig: Record<string, any>) => ({
-                ...defaultConfig,
-                placement,
-            }),
+            popperConfig: { placement },
         } as any);
 
         if (autoOpen) {
             dropdown.show();
         }
 
-        dropdownObject = {
+        let api = {
             show: dropdown.show.bind(dropdown),
             toggle: dropdown.toggle.bind(dropdown),
             hide: dropdown.hide.bind(dropdown),
             update: dropdown.update.bind(dropdown),
             dispose: dropdown.dispose.bind(dropdown),
+            isVisible,
         };
 
-        return dropdownObject;
+        return api;
     }
 
     onDestroy(() => dropdown?.dispose());
 </script>
 
-<div class="dropdown">
-    <slot {createDropdown} {dropdownObject} />
+<div class={dropClass}>
+    <slot {createDropdown} dropdownObject={api} />
 </div>
 
 <style lang="scss">

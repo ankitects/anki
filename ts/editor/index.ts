@@ -9,6 +9,9 @@
 import "sveltelib/export-runtime";
 import "lib/register-package";
 
+import type EditorToolbar from "./EditorToolbar.svelte";
+import type TagEditor from "./TagEditor.svelte";
+
 import { filterHTML } from "html-filter";
 import { updateActiveButtons } from "./toolbar";
 import { setupI18n, ModuleName } from "lib/i18n";
@@ -27,6 +30,7 @@ import { EditableContainer } from "./editable-container";
 import { Editable } from "./editable";
 import { Codable } from "./codable";
 import { initToolbar, fieldFocused } from "./toolbar";
+import { initTagEditor } from "./tag-editor";
 import { getCurrentField } from "./helpers";
 
 export { setNoteId, getNoteId } from "./note-id";
@@ -192,6 +196,10 @@ export function setFormat(cmd: string, arg?: string, nosave = false): void {
     }
 }
 
+export function setTags(tags: string[]): void {
+    $tagEditor.then((tagEditor: TagEditor): void => tagEditor.resetTags(tags));
+}
+
 export const i18n = setupI18n({
     modules: [
         ModuleName.EDITING,
@@ -201,6 +209,5 @@ export const i18n = setupI18n({
     ],
 });
 
-import type EditorToolbar from "./EditorToolbar.svelte";
-
 export const $editorToolbar: Promise<EditorToolbar> = initToolbar(i18n);
+export const $tagEditor: Promise<TagEditor> = initTagEditor(i18n);

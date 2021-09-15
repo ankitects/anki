@@ -5,9 +5,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import marked from "marked";
     import { infoCircle } from "./icons";
-    import WithTooltip from "./WithTooltip.svelte";
+    import WithTooltip from "components/WithTooltip.svelte";
     import Label from "./Label.svelte";
-    import Badge from "./Badge.svelte";
+    import Badge from "components/Badge.svelte";
 
     export let markdownTooltip: string;
     let forId: string;
@@ -16,7 +16,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <span>
     <Label for={forId}><slot /></Label>
-    <WithTooltip tooltip={marked(markdownTooltip)} let:createTooltip>
+    <WithTooltip
+        tooltip={marked(markdownTooltip)}
+        showDelay={250}
+        offset={[0, 20]}
+        placement="bottom"
+        let:createTooltip
+    >
         <Badge
             class="opacity-50"
             on:mount={(event) => createTooltip(event.detail.span)}

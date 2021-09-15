@@ -19,7 +19,10 @@ compile_svelte(
     srcs = svelte_files,
     visibility = ["//visibility:public"],
     deps = [
+        "//ts/lib",
+        "//ts/sass:base_lib",
         "//ts/sass:button_mixins_lib",
+        "//ts/sass:scrollbar_lib",
         "//ts/sass/bootstrap",
     ],
 )
@@ -69,7 +72,9 @@ svelte_check(
         "*.ts",
         "*.svelte",
     ]) + [
+        "//ts/sass:base_lib",
         "//ts/sass:button_mixins_lib",
+        "//ts/sass:scrollbar_lib",
         "//ts/sass/bootstrap",
         "@npm//@types/bootstrap",
     ],

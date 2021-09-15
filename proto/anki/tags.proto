@@ -22,6 +22,7 @@ service TagsService {
       returns (collection.OpChangesWithCount);
   rpc FindAndReplaceTag(FindAndReplaceTagRequest)
       returns (collection.OpChangesWithCount);
+  rpc CompleteTag(CompleteTagRequest) returns (CompleteTagResponse);
 }
 
 message SetTagCollapsedRequest {
@@ -57,4 +58,14 @@ message FindAndReplaceTagRequest {
   string replacement = 3;
   bool regex = 4;
   bool match_case = 5;
+}
+
+message CompleteTagRequest {
+  // a partial tag, optionally delimited with ::
+  string input = 1;
+  uint32 match_limit = 2;
+}
+
+message CompleteTagResponse {
+  repeated string tags = 1;
 }
