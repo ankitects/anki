@@ -24,10 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: {
         encoded = encodeURIComponent(converted);
-
-        setTimeout(() => {
-            imageHeight = image.getBoundingClientRect().height;
-        });
+        setTimeout(() => (imageHeight = image.getBoundingClientRect().height));
     }
 
     let image: HTMLImageElement;

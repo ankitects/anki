@@ -20,51 +20,57 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let container: HTMLElement;
     export let isRtl: boolean;
 
-    const resizeObserver = new ResizeObserver(() => {
+    let dropdownApi: any;
+
+    const resizeObserver = new ResizeObserver(async () => {
         if (activeImage) {
-            updateSelection();
+            await updateSelection();
+            dropdownApi.update();
         }
     });
 
     resizeObserver.observe(container);
 
-    let updateSelection: () => void;
-    let dropdownApi: any;
-    let title: string;
+    let updateSelection: () => Promise<void>;
+    let errorMessage: string;
 
     function getComponent(image: HTMLImageElement): HTMLElement {
         return image.closest("anki-mathjax")! as HTMLElement;
     }
 
-    function scheduleDropdownUpdate() {
-        setTimeout(async () => {
-            await tick();
-            dropdownApi.update();
-        });
-    }
-
-    async function onEditorUpdate(event: CustomEvent) {
+    function onEditorUpdate(event: CustomEvent) {
         getComponent(activeImage!).dataset.mathjax = event.detail.mathjax;
 
-        setTimeout(() => {
-            updateSelection();
-            title = activeImage!.title;
-            scheduleDropdownUpdate();
+        let selectionResolve: (value: void) => void;
+        const afterSelectionUpdate = new Promise((resolve) => {
+            selectionResolve = resolve;
         });
+
+        setTimeout(async () => {
+            errorMessage = activeImage!.title;
+            await updateSelection();
+            selectionResolve();
+        });
+
+        return afterSelectionUpdate;
     }
 </script>
 
-<WithDropdown drop="down" autoOpen={true} autoClose={false} let:createDropdown>
+<WithDropdown
+    drop="down"
+    autoOpen={true}
+    autoClose={false}
+    let:createDropdown
+    let:dropdownObject
+>
     {#if activeImage}
         <HandleSelection
             image={activeImage}
             {container}
-            offsetX={2}
-            offsetY={2}
             bind:updateSelection
             on:mount={(event) => (dropdownApi = createDropdown(event.detail.selection))}
         >
-            <HandleBackground {title} />
+            <HandleBackground tooltip={errorMessage} />
 
             <HandleControl offsetX={1} offsetY={1} />
         </HandleSelection>
@@ -72,7 +78,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <DropdownMenu>
             <MathjaxHandleEditor
                 initialValue={getComponent(activeImage).dataset.mathjax ?? ""}
-                on:update={onEditorUpdate}
+                on:update={async (event) => {
+                    await onEditorUpdate(event);
+                    dropdownObject.update();
+                }}
             />
             <div class="margin-x">
                 <ButtonToolbar>
@@ -80,10 +89,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <MathjaxHandleInlineBlock
                             {activeImage}
                             {isRtl}
-                            on:click={() => {
-                                updateSelection();
-                                scheduleDropdownUpdate();
-                            }}
+                            on:click={updateSelection}
                         />
                     </Item>
                 </ButtonToolbar>
