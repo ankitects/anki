@@ -10,6 +10,7 @@ import "./editor-base.css";
 
 import "../sveltelib/export-runtime";
 import "../lib/register-package";
+import "../lib/surround";
 
 import { filterHTML } from "../html-filter";
 import { execCommand } from "./helpers";

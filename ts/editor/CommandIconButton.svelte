@@ -18,7 +18,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let withoutShortcut = false;
     export let withoutState = false;
 
-    const { focusInRichText } = getNoteEditor();
+    const { focusInRichText, activeInput: inputStore } = getNoteEditor();
+
     $: disabled = !$focusInRichText;
 </script>
 
