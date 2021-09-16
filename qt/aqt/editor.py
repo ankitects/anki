@@ -80,10 +80,10 @@ audio = (
 
 _html = """
 <div id="fields"></div>
-<div id="dupes" class="is-inactive">
+<div id="dupes" class="d-none">
     <a href="#" onclick="pycmd('dupes');return false;">%s</a>
 </div>
-<div id="cloze-hint"></div>
+<div id="cloze-hint" class="d-none"></div>
 <div id="tag-editor-anchor" class="d-none"></div>
 """
 

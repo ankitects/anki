@@ -7,16 +7,18 @@
  */
 
 import ImageHandle from "./ImageHandle.svelte";
+import MathjaxHandle from "./MathjaxHandle.svelte";
 
-import type { EditableContainer } from "./editable-container";
-import type { Editable } from "./editable";
+import type { EditableContainer } from "editable/editable-container";
+import type { Editable } from "editable/editable";
 import type { Codable } from "./codable";
 
 import { updateActiveButtons } from "./toolbar";
 import { bridgeCommand } from "./lib";
 import { onInput, onKey, onKeyUp } from "./input-handlers";
-import { onFocus, onBlur } from "./focus-handlers";
+import { deferFocusDown, saveFieldIfFieldChanged } from "./focus-handlers";
 import { nightModeKey } from "components/context-keys";
+import { decoratedComponents } from "editable/decorated";
 
 function onCutOrCopy(): void {
     bridgeCommand("cutOrCopy");
@@ -24,6 +26,7 @@ function onCutOrCopy(): void {
 
 export class EditingArea extends HTMLDivElement {
     imageHandle: Promise<ImageHandle>;
+    mathjaxHandle: MathjaxHandle;
     editableContainer: EditableContainer;
     editable: Editable;
     codable: Codable;
@@ -36,11 +39,9 @@ export class EditingArea extends HTMLDivElement {
             is: "anki-editable-container",
         }) as EditableContainer;
 
-        const imageStyle = document.createElement("style");
-        imageStyle.setAttribute("rel", "stylesheet");
-        imageStyle.id = "imageHandleStyle";
-
         this.editable = document.createElement("anki-editable") as Editable;
+        this.editableContainer.shadowRoot!.appendChild(this.editable);
+        this.appendChild(this.editableContainer);
 
         const context = new Map();
         context.set(
@@ -49,27 +50,32 @@ export class EditingArea extends HTMLDivElement {
         );
 
         let imageHandleResolve: (value: ImageHandle) => void;
-        this.imageHandle = new Promise<ImageHandle>((resolve) => {
-            imageHandleResolve = resolve;
-        });
+        this.imageHandle = new Promise<ImageHandle>(
+            (resolve) => (imageHandleResolve = resolve)
+        );
 
-        imageStyle.addEventListener("load", () =>
+        this.editableContainer.imagePromise.then(() =>
             imageHandleResolve(
                 new ImageHandle({
                     target: this,
                     anchor: this.editableContainer,
                     props: {
                         container: this.editable,
-                        sheet: imageStyle.sheet,
+                        sheet: this.editableContainer.imageStyle.sheet,
                     },
                     context,
                 } as any)
             )
         );
 
-        this.editableContainer.shadowRoot!.appendChild(imageStyle);
-        this.editableContainer.shadowRoot!.appendChild(this.editable);
-        this.appendChild(this.editableContainer);
+        this.mathjaxHandle = new MathjaxHandle({
+            target: this,
+            anchor: this.editableContainer,
+            props: {
+                container: this.editable,
+            },
+            context,
+        } as any);
 
         this.codable = document.createElement("textarea", {
             is: "anki-codable",
@@ -80,7 +86,7 @@ export class EditingArea extends HTMLDivElement {
         this.onBlur = this.onBlur.bind(this);
         this.onKey = this.onKey.bind(this);
         this.onPaste = this.onPaste.bind(this);
-        this.showImageHandle = this.showImageHandle.bind(this);
+        this.showHandles = this.showHandles.bind(this);
     }
 
     get activeInput(): Editable | Codable {
@@ -92,11 +98,24 @@ export class EditingArea extends HTMLDivElement {
     }
 
     set fieldHTML(content: string) {
-        this.imageHandle.then(() => (this.activeInput.fieldHTML = content));
+        this.imageHandle.then(() => {
+            let result = content;
+
+            for (const component of decoratedComponents) {
+                result = component.toUndecorated(result);
+            }
+
+            this.activeInput.fieldHTML = result;
+        });
     }
 
     get fieldHTML(): string {
-        return this.activeInput.fieldHTML;
+        let result = this.activeInput.fieldHTML;
+        for (const component of decoratedComponents) {
+            result = component.toStored(result);
+        }
+
+        return result;
     }
 
     connectedCallback(): void {
@@ -109,7 +128,7 @@ export class EditingArea extends HTMLDivElement {
         this.addEventListener("copy", onCutOrCopy);
         this.addEventListener("oncut", onCutOrCopy);
         this.addEventListener("mouseup", updateActiveButtons);
-        this.editable.addEventListener("click", this.showImageHandle);
+        this.editable.addEventListener("click", this.showHandles);
     }
 
     disconnectedCallback(): void {
@@ -122,12 +141,14 @@ export class EditingArea extends HTMLDivElement {
         this.removeEventListener("copy", onCutOrCopy);
         this.removeEventListener("oncut", onCutOrCopy);
         this.removeEventListener("mouseup", updateActiveButtons);
-        this.editable.removeEventListener("click", this.showImageHandle);
+        this.editable.removeEventListener("click", this.showHandles);
     }
 
     initialize(color: string, content: string): void {
-        this.setBaseColor(color);
-        this.fieldHTML = content;
+        this.editableContainer.stylePromise.then(() => {
+            this.setBaseColor(color);
+            this.fieldHTML = content;
+        });
     }
 
     setBaseColor(color: string): void {
@@ -179,13 +200,12 @@ export class EditingArea extends HTMLDivElement {
         this.activeInput.surroundSelection(before, after);
     }
 
-    onFocus(event: FocusEvent): void {
-        onFocus(event);
+    onFocus(): void {
+        deferFocusDown(this);
     }
 
     onBlur(event: FocusEvent): void {
-        this.resetImageHandle();
-        onBlur(event);
+        saveFieldIfFieldChanged(this, event.relatedTarget as Element);
     }
 
     onEnter(event: KeyboardEvent): void {
@@ -193,33 +213,49 @@ export class EditingArea extends HTMLDivElement {
     }
 
     onKey(event: KeyboardEvent): void {
-        this.resetImageHandle();
+        this.resetHandles();
         onKey(event);
     }
 
     onPaste(event: ClipboardEvent): void {
-        this.resetImageHandle();
+        this.resetHandles();
         this.activeInput.onPaste(event);
     }
 
-    resetImageHandle(): void {
-        this.imageHandle.then((imageHandle) =>
+    resetHandles(): Promise<void> {
+        const promise = this.imageHandle.then((imageHandle) =>
             (imageHandle as any).$set({
                 activeImage: null,
             })
         );
+
+        (this.mathjaxHandle as any).$set({
+            activeImage: null,
+        });
+
+        return promise;
     }
 
-    showImageHandle(event: MouseEvent): void {
+    async showHandles(event: MouseEvent): Promise<void> {
         if (event.target instanceof HTMLImageElement) {
-            this.imageHandle.then((imageHandle) =>
-                (imageHandle as any).$set({
-                    activeImage: event.target,
+            const image = event.target as HTMLImageElement;
+            await this.resetHandles();
+
+            if (!image.dataset.anki) {
+                await this.imageHandle.then((imageHandle) =>
+                    (imageHandle as any).$set({
+                        activeImage: image,
+                        isRtl: this.isRightToLeft(),
+                    })
+                );
+            } else if (image.dataset.anki === "mathjax") {
+                (this.mathjaxHandle as any).$set({
+                    activeImage: image,
                     isRtl: this.isRightToLeft(),
-                })
-            );
+                });
+            }
         } else {
-            this.resetImageHandle();
+            await this.resetHandles();
         }
     }
 
@@ -230,7 +266,7 @@ export class EditingArea extends HTMLDivElement {
             this.fieldHTML = this.codable.teardown();
             this.editable.hidden = false;
         } else {
-            this.resetImageHandle();
+            this.resetHandles();
             this.editable.hidden = true;
             this.codable.setup(this.editable.fieldHTML);
         }
@@ -254,3 +290,5 @@ export class EditingArea extends HTMLDivElement {
         blur();
     }
 }
+
+customElements.define("anki-editing-area", EditingArea, { extends: "div" });

@@ -22,18 +22,8 @@ compile_svelte(
     visibility = ["//visibility:public"],
     deps = [
         "//ts/components",
-    ],
-)
-
-compile_sass(
-    srcs = [
-        "editable.scss",
-    ],
-    group = "editable_scss",
-    visibility = ["//visibility:public"],
-    deps = [
-        "//ts/sass:scrollbar_lib",
-        "//ts/sass/codemirror",
+        "@npm//@types/codemirror",
+        "@npm//codemirror",
     ],
 )
 
@@ -45,8 +35,9 @@ compile_sass(
     visibility = ["//visibility:public"],
     deps = [
         "//ts/sass:base_lib",
-        "//ts/sass:buttons_lib",
         "//ts/sass:scrollbar_lib",
+        "//ts/sass:buttons_lib",
+        "//ts/sass:button_mixins_lib",
     ],
 )
 
@@ -71,6 +62,7 @@ ts_library(
         "//ts/lib",
         "//ts/sveltelib",
         "//ts/components",
+        "//ts/editable",
         "//ts/html-filter",
         "//ts:image_module_support",
         "@npm//svelte",
@@ -130,6 +122,10 @@ copy_mdi_icons(
         "image-size-select-large.svg",
         "image-size-select-actual.svg",
 
+        # mathjax handle
+        "format-wrap-square.svg",
+        "format-wrap-top-bottom.svg",
+
         # tag editor
         "tag-outline.svg",
         "tag.svg",
@@ -156,8 +152,11 @@ esbuild(
         "bootstrap-icons",
         "mdi-icons",
         "svelte_components",
+        "//ts/editable",
+        "//ts/editable:mdi-icons",
         "//ts/components",
         "//ts/components:svelte_components",
+        "//ts/editable:svelte_components",
         "@npm//protobufjs",
     ],
 )
@@ -192,5 +191,7 @@ svelte_check(
         "//ts/sass/bootstrap",
         "@npm//@types/bootstrap",
         "//ts/components",
+        "@npm//@types/codemirror",
+        "@npm//codemirror",
     ],
 )

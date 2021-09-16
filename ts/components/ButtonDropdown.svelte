@@ -19,14 +19,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ButtonToolbar
     {id}
-    class={`dropdown-menu btn-dropdown-menu ${className}`}
+    class="dropdown-menu btn-dropdown-menu {className}"
     wrap={false}
     {api}
 >
-    <slot />
+    <div on:mousedown|preventDefault|stopPropagation>
+        <slot />
+    </div>
 </ButtonToolbar>
 
 <style lang="scss">
+    div {
+        display: contents;
+    }
+
     :global(.dropdown-menu.btn-dropdown-menu) {
         display: none;
         min-width: 0;
