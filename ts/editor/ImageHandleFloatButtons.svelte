@@ -41,7 +41,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             active={image.style.float === "" || image.style.float === "none"}
             flipX={isRtl}
             on:click={() => {
-                image.style.float = "";
+                image.style.removeProperty("float");
+
+                if (image.getAttribute("style")?.length === 0) {
+                    image.removeAttribute("style");
+                }
+
                 setTimeout(() => dispatch("update"));
             }}>{@html floatNoneIcon}</IconButton
         >

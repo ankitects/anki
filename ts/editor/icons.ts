@@ -46,3 +46,6 @@ export { default as floatRightIcon } from "./format-float-right.svg";
 
 export { default as sizeActual } from "./image-size-select-actual.svg";
 export { default as sizeMinimized } from "./image-size-select-large.svg";
+
+export { default as inlineIcon } from "./format-wrap-square.svg";
+export { default as blockIcon } from "./format-wrap-top-bottom.svg";

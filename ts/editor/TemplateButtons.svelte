@@ -101,7 +101,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrapCurrent("\\(", "\\)")}
+                        on:click={() =>
+                            wrapCurrent(
+                                "<anki-mathjax focusonmount>",
+                                "</anki-mathjax>"
+                            )}
                         on:mount={withButton(createShortcut)}
                     >
                         {tr.editingMathjaxInline()}
@@ -115,7 +119,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrapCurrent("\\[", "\\]")}
+                        on:click={() =>
+                            wrapCurrent(
+                                '<anki-mathjax block="true" focusonmount>',
+                                "</anki-matjax>"
+                            )}
                         on:mount={withButton(createShortcut)}
                     >
                         {tr.editingMathjaxBlock()}
@@ -129,7 +137,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrapCurrent("\\(\\ce{", "}\\)")}
+                        on:click={() =>
+                            wrapCurrent(
+                                "<anki-mathjax focusonmount>\\ce{",
+                                "}</anki-mathjax>"
+                            )}
                         on:mount={withButton(createShortcut)}
                     >
                         {tr.editingMathjaxChemistry()}

@@ -3,6 +3,17 @@
 
 @use 'base';
 @use 'scrollbar';
+@use 'button-mixins';
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
 
 .nightMode {
     @include scrollbar.night-mode;
@@ -10,13 +21,15 @@
 
 #fields {
     display: flex;
-    overflow-x: hidden;
     flex-direction: column;
+    flex-grow: 1;
+    overflow-x: hidden;
     margin: 3px 0;
 }
 
-.editor-field {
+.editorfield {
     margin: 3px;
+
     border-radius: 5px;
     border: 1px solid var(--border-color);
 
@@ -29,6 +42,7 @@
     }
 }
 
+/* editing-area */
 .field {
     position: relative;
 
@@ -62,10 +76,6 @@
 
     text-align: center;
     background-color: var(--window-bg);
-
-    &.is-inactive {
-        display: none;
-    }
 
     a {
         color: var(--link);

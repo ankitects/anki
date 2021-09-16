@@ -21,9 +21,17 @@ copy_files_into_group(
     name = "editor",
     srcs = [
         "editor.css",
-        "editable.css",
     ],
     package = "//ts/editor",
+)
+
+
+copy_files_into_group(
+    name = "editable",
+    srcs = [
+        "editable-build.css",
+    ],
+    package = "//ts/editable",
 )
 
 copy_files_into_group(
@@ -39,6 +47,7 @@ filegroup(
     srcs = [
         "css_local",
         "editor",
+        "editable",
         "reviewer",
     ],
     visibility = ["//qt:__subpackages__"],

@@ -7,7 +7,7 @@ import * as tr from "lib/i18n";
 import { registerShortcut } from "lib/shortcuts";
 import { bridgeCommand } from "./lib";
 import { appendInParentheses } from "./helpers";
-import { saveField } from "./change-timer";
+import { saveField } from "./saving";
 import { getCurrentField, forEditorField, i18n } from ".";
 import pinIcon from "./pin-angle.svg";
 
@@ -127,3 +127,5 @@ export class LabelContainer extends HTMLDivElement {
         this.toggleSticky();
     }
 }
+
+customElements.define("anki-label-container", LabelContainer, { extends: "div" });

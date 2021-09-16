@@ -46,6 +46,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: dropClass = `drop${drop}`;
 
+    export let skidding = 0;
+    export let distance = 2;
+
     setContext(dropdownKey, {
         dropdown: true,
         "data-bs-toggle": "dropdown",
@@ -72,6 +75,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         dropdown = new Dropdown(toggle, {
             autoClose,
+            offset: [skidding, distance],
             popperConfig: { placement },
         } as any);
 
@@ -79,7 +83,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             dropdown.show();
         }
 
-        let api = {
+        api = {
             show: dropdown.show.bind(dropdown),
             toggle: dropdown.toggle.bind(dropdown),
             hide: dropdown.hide.bind(dropdown),

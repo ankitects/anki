@@ -1,10 +1,24 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { bridgeCommand } from "./lib";
-import { elementIsBlock, caretToEnd, getBlockElement } from "./helpers";
-import { inCodable } from "./toolbar";
-import { wrap } from "./wrap";
+/* eslint
+@typescript-eslint/no-non-null-assertion: "off",
+ */
+
+import type { DecoratedElement } from "./decorated";
+import { decoratedComponents } from "./decorated";
+import { bridgeCommand } from "lib/bridgecommand";
+import { elementIsBlock, getBlockElement } from "lib/dom";
+import { wrapInternal } from "lib/wrap";
+
+export function caretToEnd(node: Node): void {
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    range.collapse(false);
+    const selection = (node.getRootNode() as Document | ShadowRoot).getSelection()!;
+    selection.removeAllRanges();
+    selection.addRange(range);
+}
 
 function containsInlineContent(element: Element): boolean {
     for (const child of element.children) {
@@ -26,18 +40,24 @@ export class Editable extends HTMLElement {
     }
 
     get fieldHTML(): string {
-        return containsInlineContent(this) && this.innerHTML.endsWith("<br>")
-            ? this.innerHTML.slice(0, -4) // trim trailing <br>
-            : this.innerHTML;
+        const clone = this.cloneNode(true) as Element;
+
+        for (const component of decoratedComponents) {
+            for (const element of clone.getElementsByTagName(component.tagName)) {
+                (element as DecoratedElement).undecorate();
+            }
+        }
+
+        const result =
+            containsInlineContent(clone) && clone.innerHTML.endsWith("<br>")
+                ? clone.innerHTML.slice(0, -4) // trim trailing <br>
+                : clone.innerHTML;
+
+        return result;
     }
 
     connectedCallback(): void {
         this.setAttribute("contenteditable", "");
-    }
-
-    focus(): void {
-        super.focus();
-        inCodable.set(false);
     }
 
     caretToEnd(): void {
@@ -45,7 +65,7 @@ export class Editable extends HTMLElement {
     }
 
     surroundSelection(before: string, after: string): void {
-        wrap(before, after);
+        wrapInternal(this.getRootNode() as ShadowRoot, before, after, false);
     }
 
     onEnter(event: KeyboardEvent): void {
@@ -63,3 +83,5 @@ export class Editable extends HTMLElement {
         event.preventDefault();
     }
 }
+
+customElements.define("anki-editable", Editable);

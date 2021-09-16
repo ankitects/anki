@@ -17,9 +17,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { onDestroy } from "svelte";
 
+    export let activeImage: HTMLImageElement | null = null;
     export let container: HTMLElement;
     export let sheet: CSSStyleSheet;
-    export let activeImage: HTMLImageElement | null = null;
     export let isRtl: boolean = false;
 
     $: naturalWidth = activeImage?.naturalWidth;
@@ -53,10 +53,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    let updateSelection: () => void;
+    let updateSelection: () => Promise<void>;
 
     async function updateSizesWithDimensions() {
-        updateSelection();
+        await updateSelection();
         updateDimensions();
     }
 
@@ -135,9 +135,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 {#if sheet}
     <WithDropdown
-        placement="bottom"
+        drop="down"
         autoOpen={true}
         autoClose={false}
+        distance={3}
         let:createDropdown
         let:dropdownObject
     >

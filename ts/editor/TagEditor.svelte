@@ -6,8 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { tick } from "svelte";
     import { isApplePlatform } from "lib/platform";
     import { bridgeCommand } from "lib/bridgecommand";
-    import Spacer from "components/Spacer.svelte";
-    import StickyBottom from "components/StickyBottom.svelte";
+    import StickyFooter from "components/StickyFooter.svelte";
     import TagOptionsBadge from "./TagOptionsBadge.svelte";
     import TagEditMode from "./TagEditMode.svelte";
     import TagInput from "./TagInput.svelte";
@@ -65,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return response.tags;
     }
 
-    const colonAtStartOrEnd = /^:?|:?$/g;
+    const withoutSingleColonAtStartOrEnd = /^:?([^:].*?[^:]):?$/;
 
     function updateSuggestions(): void {
         const activeTag = tags[active!];
@@ -76,11 +75,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (autocompleteDisabled) {
             suggestionsPromise = noSuggestions;
         } else {
-            const cleanedName = replaceWithColons(activeName).replace(
-                colonAtStartOrEnd,
-                ""
-            );
-            suggestionsPromise = fetchSuggestions(cleanedName).then(
+            const withColons = replaceWithColons(activeName);
+            const withoutSingleColons = withoutSingleColonAtStartOrEnd.test(withColons)
+                ? withColons.replace(withoutSingleColonAtStartOrEnd, "$1")
+                : withColons;
+
+            suggestionsPromise = fetchSuggestions(withoutSingleColons).then(
                 (names: string[]): string[] => {
                     autocompleteDisabled = names.length === 0;
                     return names.map(replaceWithUnicodeSeparator);
@@ -390,9 +390,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: shortenTags = shortenTags || assumedRows > 2;
 </script>
 
-<Spacer --height="{height}px" />
-
-<StickyBottom class="d-flex" bind:height>
+<StickyFooter bind:height class="d-flex">
     {#if !wrap}
         <TagOptionsBadge
             --buttons-size="{size}rem"
@@ -505,7 +503,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Tag>SPACER</Tag>
         </div>
     </ButtonToolbar>
-</StickyBottom>
+</StickyFooter>
 
 <style lang="scss">
     .tag-spacer {

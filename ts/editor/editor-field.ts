@@ -10,7 +10,7 @@ export class EditorField extends HTMLDivElement {
 
     constructor() {
         super();
-        this.classList.add("editor-field");
+        this.className = "editorfield";
 
         this.labelContainer = document.createElement("div", {
             is: "anki-label-container",
@@ -65,3 +65,5 @@ export class EditorField extends HTMLDivElement {
         this.editingArea.setBaseStyling(fontFamily, fontSize, direction);
     }
 }
+
+customElements.define("anki-editor-field", EditorField, { extends: "div" });
