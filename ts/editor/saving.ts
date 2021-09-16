@@ -29,12 +29,11 @@ export function saveNow(keepFocus: boolean): void {
         return;
     }
 
-    saveFieldTimer.clear();
-
     if (keepFocus) {
-        saveField(currentField, "key");
+        saveFieldTimer.fireImmediately();
     } else {
         // triggers onBlur, which saves
+        saveFieldTimer.clear();
         currentField.blur();
     }
 }
