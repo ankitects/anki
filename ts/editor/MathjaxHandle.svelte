@@ -36,19 +36,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return image.closest("anki-mathjax")! as HTMLElement;
     }
 
-    function onEditorUpdate(event: CustomEvent) {
-        getComponent(activeImage!).dataset.mathjax = event.detail.mathjax;
+    const onImageResize = (resolve: () => void) => (): void => {
+        errorMessage = activeImage!.title;
+        updateSelection().then(resolve);
+    };
 
+    function onEditorUpdate(event: CustomEvent): Promise<void> {
         let selectionResolve: (value: void) => void;
-        const afterSelectionUpdate = new Promise((resolve) => {
+        const afterSelectionUpdate = new Promise((resolve: (value: void) => void) => {
             selectionResolve = resolve;
         });
 
-        setTimeout(async () => {
-            errorMessage = activeImage!.title;
-            await updateSelection();
-            selectionResolve();
-        });
+        const imageResize = onImageResize(selectionResolve!);
+
+        activeImage!.addEventListener("resize", imageResize, { once: true });
+        /* this updates the image in Mathjax.svelte */
+        getComponent(activeImage!).dataset.mathjax = event.detail.mathjax;
 
         return afterSelectionUpdate;
     }
