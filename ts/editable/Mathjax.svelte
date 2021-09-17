@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onMount, onDestroy, getContext } from "svelte";
+    import { onMount, onDestroy, getContext, tick } from "svelte";
     import { nightModeKey } from "components/context-keys";
     import { convertMathjax } from "./mathjax";
 
@@ -26,8 +26,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let image: HTMLImageElement;
 
-    const observer = new ResizeObserver(() => {
+    const observer = new ResizeObserver(async () => {
         imageHeight = image.getBoundingClientRect().height;
+        await tick();
         setTimeout(() => image.dispatchEvent(new Event("resize")));
     });
 
