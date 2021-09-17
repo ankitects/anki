@@ -38,7 +38,12 @@ export function wrapInternal(
         document.execCommand("inserthtml", false, new_);
     }
 
-    if (!span.innerHTML) {
+    if (
+        !span.innerHTML &&
+        /* ugly solution: treat <anki-mathjax> differently than other wraps */ !front.includes(
+            "<anki-mathjax"
+        )
+    ) {
         moveCursorPastPostfix(selection, back);
     }
 }
