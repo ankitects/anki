@@ -201,6 +201,23 @@ class Table:
     def to_last_row(self) -> None:
         self._move_current_to_row(self._model.len_rows() - 1)
 
+    def to_unselected_note_row(self) -> None:
+        """Try to select and set focus to a row whose note is not selected,
+        starting with the nearest rows above, then below the focused row.
+        Return success.
+        """
+        nids = self.get_selected_note_ids()
+        for i in range(self._current().row(), -1, -1):
+            nid = self._model.get_note_ids([self._model.index(i, 0)])[0]
+            if not nid in nids:
+                self._move_current_to_row(i)
+                return
+        for i in range(self._current().row() + 1, self.len()):
+            nid = self._model.get_note_ids([self._model.index(i, 0)])[0]
+            if not nid in nids:
+                self._move_current_to_row(i)
+                return
+
     # Private methods
     ######################################################################
 

@@ -595,7 +595,7 @@ class Browser(QMainWindow):
         nids = self.table.get_selected_note_ids()
         # select the next card if there is one
         self.focusTo = self.editor.currentField
-        self.table.to_next_row()
+        self.table.to_unselected_note_row()
 
         remove_notes(parent=self, note_ids=nids).run_in_background()
 
