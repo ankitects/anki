@@ -219,6 +219,11 @@ class Table:
                 return True
         return False
 
+    def clear_current(self) -> None:
+        self._view.selectionModel().setCurrentIndex(
+            QModelIndex(), QItemSelectionModel.NoUpdate
+        )
+
     # Private methods
     ######################################################################
 

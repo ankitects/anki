@@ -597,6 +597,7 @@ class Browser(QMainWindow):
         # if possible, select a row that will not be deleted
         self.focusTo = self.editor.currentField
         if not self.table.to_unselected_note_row():
+            self.table.clear_current()
             # no row change will fire
             op.success(lambda _: self.onRowChanged(None, None), append=True)
 
