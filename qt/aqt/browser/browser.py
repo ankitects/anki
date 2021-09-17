@@ -436,9 +436,38 @@ class Browser(QMainWindow):
         gui_hooks.browser_did_change_row(self)
 
     def _update_context_actions(self) -> None:
+        self._update_enabled_actions()
         self._update_flags_menu()
         self._update_toggle_mark_action()
         self._update_toggle_suspend_action()
+
+    def _update_enabled_actions(self) -> None:
+        has_rows = bool(self.table.len())
+        self.form.actionSelectAll.setEnabled(has_rows)
+        self.form.actionInvertSelection.setEnabled(has_rows)
+        self.form.actionFirstCard.setEnabled(has_rows)
+        self.form.actionLastCard.setEnabled(has_rows)
+
+        self.form.action_Info.setEnabled(bool(self.card))
+
+        self.form.actionPreviousCard.setEnabled(self.table.has_previous())
+
+        self.form.actionNextCard.setEnabled(self.table.has_next())
+
+        has_selection = bool(self.table.len_selection())
+        self.form.actionSelectNotes.setEnabled(has_selection)
+        self.form.actionExport.setEnabled(has_selection)
+        self.form.actionAdd_Tags.setEnabled(has_selection)
+        self.form.actionRemove_Tags.setEnabled(has_selection)
+        self.form.actionToggle_Mark.setEnabled(has_selection)
+        self.form.actionChangeModel.setEnabled(has_selection)
+        self.form.actionDelete.setEnabled(has_selection)
+        self.form.actionChange_Deck.setEnabled(has_selection)
+        self.form.action_set_due_date.setEnabled(has_selection)
+        self.form.action_forget.setEnabled(has_selection)
+        self.form.actionReposition.setEnabled(has_selection)
+        self.form.actionToggle_Suspend.setEnabled(has_selection)
+        self.form.menuFlag.setEnabled(has_selection)
 
     @ensure_editor_saved
     def on_table_state_changed(self, checked: bool) -> None:
