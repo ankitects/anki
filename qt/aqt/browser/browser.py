@@ -592,12 +592,15 @@ class Browser(QMainWindow):
         if focus != self.form.tableView:
             return
 
-        nids = self.table.get_selected_note_ids()
-        # select the next card if there is one
-        self.focusTo = self.editor.currentField
-        self.table.to_unselected_note_row()
+        op = remove_notes(parent=self, note_ids=self.table.get_selected_note_ids())
 
-        remove_notes(parent=self, note_ids=nids).run_in_background()
+        # if possible, select a row that will not be deleted
+        self.focusTo = self.editor.currentField
+        if not self.table.to_unselected_note_row():
+            # no row change will fire
+            op.success(lambda _: self.onRowChanged(None, None), append=True)
+
+        op.run_in_background()
 
     # legacy
 

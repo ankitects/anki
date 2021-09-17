@@ -69,9 +69,20 @@ class CollectionOp(Generic[ResultWithChanges]):
         self._op = op
 
     def success(
-        self, success: Optional[Callable[[ResultWithChanges], Any]]
+        self,
+        success: Optional[Callable[[ResultWithChanges], Any]],
+        append: bool = False,
     ) -> CollectionOp[ResultWithChanges]:
-        self._success = success
+        if append and self._success and success:
+            old_success = self._success
+
+            def new_success(res: ResultWithChanges) -> Any:
+                old_success(res)
+                return success(res)  # type: ignore
+
+            self._success = new_success
+        else:
+            self._success = success
         return self
 
     def failure(
