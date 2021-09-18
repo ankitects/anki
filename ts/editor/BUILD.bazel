@@ -22,6 +22,7 @@ compile_svelte(
     visibility = ["//visibility:public"],
     deps = [
         "//ts/components",
+        "//ts/editable",
         "@npm//@types/codemirror",
         "@npm//codemirror",
     ],
@@ -154,9 +155,9 @@ esbuild(
         "svelte_components",
         "//ts/editable",
         "//ts/editable:mdi-icons",
+        "//ts/editable:svelte_components",
         "//ts/components",
         "//ts/components:svelte_components",
-        "//ts/editable:svelte_components",
         "@npm//protobufjs",
     ],
 )
@@ -191,6 +192,7 @@ svelte_check(
         "//ts/sass/bootstrap",
         "@npm//@types/bootstrap",
         "//ts/components",
+        "//ts/editable",
         "@npm//@types/codemirror",
         "@npm//codemirror",
     ],

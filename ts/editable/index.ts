@@ -2,6 +2,4 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import "./editable-base.css";
-import "./editable-container";
-import "./editable";
 import "./mathjax-component";

@@ -9,8 +9,8 @@
 import "sveltelib/export-runtime";
 import "lib/register-package";
 
-import type EditorToolbar from "./EditorToolbar.svelte";
-import type TagEditor from "./TagEditor.svelte";
+// import type EditorToolbar from "./EditorToolbar.svelte";
+// import type TagEditor from "./TagEditor.svelte";
 
 import { filterHTML } from "html-filter";
 import { setupI18n, ModuleName } from "lib/i18n";
@@ -27,12 +27,12 @@ import "./codable";
 import "./editor-field";
 import type { EditorField } from "./editor-field";
 import { EditingArea } from "./editing-area";
-import "editable/editable-container";
-import "editable/editable";
+// import "editable/editable-container";
+// import "editable/editable";
 import "editable/mathjax-component";
 
-import { initToolbar, fieldFocused } from "./toolbar";
-import { initTagEditor } from "./tag-editor";
+// import { initToolbar, fieldFocused } from "./toolbar";
+// import { initTagEditor } from "./tag-editor";
 import { getCurrentField } from "./helpers";
 
 export { setNoteId, getNoteId } from "./note-id";
@@ -91,19 +91,17 @@ export function pasteHTML(
 }
 
 function adjustFieldAmount(amount: number): void {
-    const fieldsContainer = document.getElementById("fields")!;
-
-    while (fieldsContainer.childElementCount < amount) {
-        const newField = document.createElement("div", {
-            is: "anki-editor-field",
-        }) as EditorField;
-        newField.ord = fieldsContainer.childElementCount;
-        fieldsContainer.appendChild(newField);
-    }
-
-    while (fieldsContainer.childElementCount > amount) {
-        fieldsContainer.removeChild(fieldsContainer.lastElementChild as Node);
-    }
+    // const fieldsContainer = document.getElementById("fields")!;
+    // while (fieldsContainer.childElementCount < amount) {
+    //     const newField = document.createElement("div", {
+    //         is: "anki-editor-field",
+    //     }) as EditorField;
+    //     newField.ord = fieldsContainer.childElementCount;
+    //     fieldsContainer.appendChild(newField);
+    // }
+    // while (fieldsContainer.childElementCount > amount) {
+    //     fieldsContainer.removeChild(fieldsContainer.lastElementChild as Node);
+    // }
 }
 
 export function getEditorField(n: number): EditorField | null {
@@ -119,47 +117,44 @@ export function forEditorField<T>(
     values: T[],
     func: (field: EditorField, value: T) => void
 ): void {
-    const fields = document.getElementById("fields")!.children;
-    for (let i = 0; i < fields.length; i++) {
-        const field = fields[i] as EditorField;
-        func(field, values[i]);
-    }
+    // const fields = document.getElementById("fields")!.children;
+    // for (let i = 0; i < fields.length; i++) {
+    //     const field = fields[i] as EditorField;
+    //     func(field, values[i]);
+    // }
 }
 
 export function setFields(fields: [string, string][]): void {
     // webengine will include the variable after enter+backspace
     // if we don't convert it to a literal colour
-    const color = window
-        .getComputedStyle(document.documentElement)
-        .getPropertyValue("--text-fg");
-
-    adjustFieldAmount(fields.length);
-    forEditorField(
-        fields,
-        (field: EditorField, [name, fieldContent]: [string, string]): void =>
-            field.initialize(name, color, fieldContent)
-    );
-
-    if (!getCurrentField()) {
-        // when initial focus of the window is not on editor (e.g. browser)
-        fieldFocused.set(false);
-    }
+    // const color = window
+    //     .getComputedStyle(document.documentElement)
+    //     .getPropertyValue("--text-fg");
+    // adjustFieldAmount(fields.length);
+    // forEditorField(
+    //     fields,
+    //     (field: EditorField, [name, fieldContent]: [string, string]): void =>
+    //         field.initialize(name, color, fieldContent)
+    // );
+    // if (!getCurrentField()) {
+    //     // when initial focus of the window is not on editor (e.g. browser)
+    //     fieldFocused.set(false);
+    // }
 }
 
 export function setBackgrounds(cols: ("dupe" | "")[]): void {
     forEditorField(cols, (field: EditorField, value: "dupe" | "") =>
         field.editingArea.classList.toggle("dupe", value === "dupe")
     );
-    document
-        .getElementById("dupes")!
-        .classList.toggle("d-none", !cols.includes("dupe"));
+    // document
+    //     .getElementById("dupes")!
+    //     .classList.toggle("d-none", !cols.includes("dupe"));
 }
 
 export function setClozeHint(hint: string): void {
-    const clozeHint = document.getElementById("cloze-hint")!;
-
-    clozeHint.innerHTML = hint;
-    clozeHint.classList.toggle("d-none", hint.length === 0);
+    // const clozeHint = document.getElementById("cloze-hint")!;
+    // clozeHint.innerHTML = hint;
+    // clozeHint.classList.toggle("d-none", hint.length === 0);
 }
 
 export function setFonts(fonts: [string, number, boolean][]): void {
@@ -175,9 +170,9 @@ export function setFonts(fonts: [string, number, boolean][]): void {
 }
 
 export function setColorButtons([textColor, highlightColor]: [string, string]): void {
-    $editorToolbar.then((editorToolbar) =>
-        (editorToolbar as any).$set({ textColor, highlightColor })
-    );
+    // $editorToolbar.then((editorToolbar) =>
+    //     (editorToolbar as any).$set({ textColor, highlightColor })
+    // );
 }
 
 export function setSticky(stickies: boolean[]): void {
@@ -195,7 +190,7 @@ export function setFormat(cmd: string, arg?: string, nosave = false): void {
 }
 
 export function setTags(tags: string[]): void {
-    $tagEditor.then((tagEditor: TagEditor): void => tagEditor.resetTags(tags));
+    // $tagEditor.then((tagEditor: TagEditor): void => tagEditor.resetTags(tags));
 }
 
 export const i18n = setupI18n({
@@ -207,5 +202,23 @@ export const i18n = setupI18n({
     ],
 });
 
-export const $editorToolbar: Promise<EditorToolbar> = initToolbar(i18n);
-export const $tagEditor: Promise<TagEditor> = initTagEditor(i18n);
+import NoteEditor from "./NoteEditor.svelte";
+
+function setupNoteEditor(i18n: Promise<void>): Promise<NoteEditor> {
+    let editorResolve: (value: NoteEditor) => void;
+    const editorPromise = new Promise<NoteEditor>((resolve) => {
+        editorResolve = resolve;
+    });
+
+    document.addEventListener("DOMContentLoaded", () =>
+        i18n.then(() =>
+            editorResolve(
+                new NoteEditor({ target: document.getElementById("editor")! })
+            )
+        )
+    );
+
+    return editorPromise;
+}
+
+export const noteEditorPromise = setupNoteEditor(i18n);

@@ -1,12 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { EditingArea } from "./editing-area";
+// import type { EditingArea } from "./editing-area";
+import EditingArea from "./EditingArea.svelte";
 import type { LabelContainer } from "./label-container";
 
 export class EditorField extends HTMLDivElement {
     labelContainer: LabelContainer;
-    editingArea: EditingArea;
+    editingArea: any;
 
     constructor() {
         super();
@@ -17,10 +18,7 @@ export class EditorField extends HTMLDivElement {
         }) as LabelContainer;
         this.appendChild(this.labelContainer);
 
-        this.editingArea = document.createElement("div", {
-            is: "anki-editing-area",
-        }) as EditingArea;
-        this.appendChild(this.editingArea);
+        new EditingArea({ target: this });
 
         this.focusIfNotFocused = this.focusIfNotFocused.bind(this);
     }

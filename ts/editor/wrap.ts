@@ -12,7 +12,7 @@ export function wrap(front: string, back: string): void {
     const editingArea = getCurrentField();
 
     if (editingArea) {
-        wrapInternal(editingArea.editableContainer.shadowRoot!, front, back, false);
+        // wrapInternal(editingArea.editableContainer.shadowRoot!, front, back, false);
     }
 }
 
@@ -26,6 +26,6 @@ export function wrapIntoText(front: string, back: string): void {
     const editingArea = getCurrentField();
 
     if (editingArea) {
-        wrapInternal(editingArea.editableContainer.shadowRoot!, front, back, false);
+        // wrapInternal(editingArea.editableContainer.shadowRoot!, front, back, false);
     }
 }

@@ -27,7 +27,7 @@ export function onKey(evt: KeyboardEvent): void {
 
     // prefer <br> instead of <div></div>
     if (evt.code === "Enter") {
-        return currentField.onEnter(evt);
+        return currentField.onEnter();
     }
 
     // // fix Ctrl+right/left handling in RTL fields

@@ -6,11 +6,10 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import ImageHandle from "./ImageHandle.svelte";
-import MathjaxHandle from "./MathjaxHandle.svelte";
+import type ImageHandle from "./ImageHandle.svelte";
+// import type MathjaxHandle from "./MathjaxHandle.svelte";
+// import EditableContainer from "editable/EditableContainer.svelte";
 
-import type { EditableContainer } from "editable/editable-container";
-import type { Editable } from "editable/editable";
 import type { Codable } from "./codable";
 
 import { updateActiveButtons } from "./toolbar";
@@ -26,22 +25,22 @@ function onCutOrCopy(): void {
 
 export class EditingArea extends HTMLDivElement {
     imageHandle: Promise<ImageHandle>;
-    mathjaxHandle: MathjaxHandle;
-    editableContainer: EditableContainer;
-    editable: Editable;
+    // mathjaxHandle: MathjaxHandle;
+    // editableContainer: EditableContainer;
+    // editable: Editable;
     codable: Codable;
 
     constructor() {
         super();
         this.className = "field";
 
-        this.editableContainer = document.createElement("div", {
-            is: "anki-editable-container",
-        }) as EditableContainer;
+        // new EditableContainer({
+        //     target: this,
+        // });
 
-        this.editable = document.createElement("anki-editable") as Editable;
-        this.editableContainer.shadowRoot!.appendChild(this.editable);
-        this.appendChild(this.editableContainer);
+        // this.editable = document.createElement("anki-editable") as Editable;
+        // this.editableContainer.shadowRoot!.appendChild(this.editable);
+        // this.appendChild(this.editableContainer);
 
         const context = new Map();
         context.set(
@@ -54,28 +53,28 @@ export class EditingArea extends HTMLDivElement {
             (resolve) => (imageHandleResolve = resolve)
         );
 
-        this.editableContainer.imagePromise.then(() =>
-            imageHandleResolve(
-                new ImageHandle({
-                    target: this,
-                    anchor: this.editableContainer,
-                    props: {
-                        container: this.editable,
-                        sheet: this.editableContainer.imageStyle.sheet,
-                    },
-                    context,
-                } as any)
-            )
-        );
+        // this.editableContainer.imagePromise.then(() =>
+        //     imageHandleResolve(
+        //         new ImageHandle({
+        //             target: this,
+        //             anchor: this.editableContainer,
+        //             props: {
+        //                 container: this.editable,
+        //                 sheet: this.editableContainer.imageStyle.sheet,
+        //             },
+        //             context,
+        //         } as any)
+        //     )
+        // );
 
-        this.mathjaxHandle = new MathjaxHandle({
-            target: this,
-            anchor: this.editableContainer,
-            props: {
-                container: this.editable,
-            },
-            context,
-        } as any);
+        // this.mathjaxHandle = new MathjaxHandle({
+        //     target: this,
+        //     anchor: this.editableContainer,
+        //     props: {
+        //         container: this.editable,
+        //     },
+        //     context,
+        // } as any);
 
         this.codable = document.createElement("textarea", {
             is: "anki-codable",
@@ -89,8 +88,8 @@ export class EditingArea extends HTMLDivElement {
         this.showHandles = this.showHandles.bind(this);
     }
 
-    get activeInput(): Editable | Codable {
-        return this.codable.active ? this.codable : this.editable;
+    get activeInput(): /* Editable | */ Codable {
+        return this.codable; //this.codable.active ? this.codable : this.editable;
     }
 
     get ord(): number {
@@ -128,7 +127,7 @@ export class EditingArea extends HTMLDivElement {
         this.addEventListener("copy", onCutOrCopy);
         this.addEventListener("oncut", onCutOrCopy);
         this.addEventListener("mouseup", updateActiveButtons);
-        this.editable.addEventListener("click", this.showHandles);
+        // this.editable.addEventListener("click", this.showHandles);
     }
 
     disconnectedCallback(): void {
@@ -141,18 +140,18 @@ export class EditingArea extends HTMLDivElement {
         this.removeEventListener("copy", onCutOrCopy);
         this.removeEventListener("oncut", onCutOrCopy);
         this.removeEventListener("mouseup", updateActiveButtons);
-        this.editable.removeEventListener("click", this.showHandles);
+        // this.editable.removeEventListener("click", this.showHandles);
     }
 
     initialize(color: string, content: string): void {
-        this.editableContainer.stylePromise.then(() => {
-            this.setBaseColor(color);
-            this.fieldHTML = content;
-        });
+        // this.editableContainer.stylePromise.then(() => {
+        //     this.setBaseColor(color);
+        //     this.fieldHTML = content;
+        // });
     }
 
     setBaseColor(color: string): void {
-        this.editableContainer.setBaseColor(color);
+        // this.editableContainer.setBaseColor(color);
     }
 
     quoteFontFamily(fontFamily: string): string {
@@ -164,15 +163,16 @@ export class EditingArea extends HTMLDivElement {
     }
 
     setBaseStyling(fontFamily: string, fontSize: string, direction: string): void {
-        this.editableContainer.setBaseStyling(
-            this.quoteFontFamily(fontFamily),
-            fontSize,
-            direction
-        );
+        // this.editableContainer.setBaseStyling(
+        //     this.quoteFontFamily(fontFamily),
+        //     fontSize,
+        //     direction
+        // );
     }
 
     isRightToLeft(): boolean {
-        return this.editableContainer.isRightToLeft();
+        return false;
+        // return this.editableContainer.isRightToLeft();
     }
 
     focus(): void {
@@ -208,8 +208,8 @@ export class EditingArea extends HTMLDivElement {
         saveFieldIfFieldChanged(this, event.relatedTarget as Element);
     }
 
-    onEnter(event: KeyboardEvent): void {
-        this.activeInput.onEnter(event);
+    onEnter(): void {
+        this.activeInput.onEnter();
     }
 
     onKey(event: KeyboardEvent): void {
@@ -217,9 +217,9 @@ export class EditingArea extends HTMLDivElement {
         onKey(event);
     }
 
-    onPaste(event: ClipboardEvent): void {
+    onPaste(): void {
         this.resetHandles();
-        this.activeInput.onPaste(event);
+        this.activeInput.onPaste();
     }
 
     resetHandles(): Promise<void> {
@@ -229,9 +229,9 @@ export class EditingArea extends HTMLDivElement {
             })
         );
 
-        (this.mathjaxHandle as any).$set({
-            activeImage: null,
-        });
+        // (this.mathjaxHandle as any).$set({
+        //     activeImage: null,
+        // });
 
         return promise;
     }
@@ -249,10 +249,10 @@ export class EditingArea extends HTMLDivElement {
                     })
                 );
             } else if (image.dataset.anki === "mathjax") {
-                (this.mathjaxHandle as any).$set({
-                    activeImage: image,
-                    isRtl: this.isRightToLeft(),
-                });
+                // (this.mathjaxHandle as any).$set({
+                //     activeImage: image,
+                //     isRtl: this.isRightToLeft(),
+                // });
             }
         } else {
             await this.resetHandles();
@@ -264,11 +264,11 @@ export class EditingArea extends HTMLDivElement {
 
         if (this.codable.active) {
             this.fieldHTML = this.codable.teardown();
-            this.editable.hidden = false;
+            // this.editable.hidden = false;
         } else {
             this.resetHandles();
-            this.editable.hidden = true;
-            this.codable.setup(this.editable.fieldHTML);
+            // this.editable.hidden = true;
+            // this.codable.setup(this.editable.fieldHTML);
         }
 
         if (hadFocus) {

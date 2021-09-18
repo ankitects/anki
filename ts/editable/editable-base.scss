@@ -1,20 +1,5 @@
 @use 'scrollbar';
 
-anki-editable {
-    display: block;
-    overflow-wrap: break-word;
-    overflow: auto;
-    padding: 6px;
-
-    &:focus {
-        outline: none;
-    }
-
-    * {
-        max-width: 100%;
-    }
-}
-
 anki-mathjax {
     white-space: pre;
 }

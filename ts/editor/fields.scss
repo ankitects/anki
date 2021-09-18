@@ -27,48 +27,6 @@ body {
     margin: 3px 0;
 }
 
-.editorfield {
-    margin: 3px;
-
-    border-radius: 5px;
-    border: 1px solid var(--border-color);
-
-    --border-color: var(--border);
-
-    &:focus-within {
-        box-shadow: 0 0 0 3px var(--focus-shadow);
-
-        --border-color: var(--focus-border);
-    }
-}
-
-/* editing-area */
-.field {
-    position: relative;
-
-    background: var(--frame-bg);
-    border-radius: 0 0 5px 5px;
-
-    &.dupe {
-        // this works around the background colour persisting in copy+paste
-        // (https://github.com/ankitects/anki/pull/1278)
-        background-image: linear-gradient(var(--flag1-bg), var(--flag1-bg));
-    }
-}
-
-.fname {
-    border-width: 0 0 1px;
-    border-style: dashed;
-    border-color: var(--border-color);
-    border-radius: 5px 5px 0 0;
-
-    padding: 0px 6px;
-}
-
-.fieldname {
-    user-select: none;
-}
-
 #dupes,
 #cloze-hint {
     position: sticky;
