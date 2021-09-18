@@ -1,7 +1,11 @@
 @use 'scrollbar';
 
-anki-mathjax {
-    white-space: pre;
+* {
+    max-width: 100%;
+
+    :host(.nightMode) & {
+        @include scrollbar.night-mode;
+    }
 }
 
 p {
@@ -14,27 +18,10 @@ p {
     }
 }
 
-:host(.nightMode) * {
-    @include scrollbar.night-mode;
-}
-
-img.drawing {
-    zoom: 50%;
-
-    .nightMode & {
-        filter: unquote("invert() hue-rotate(180deg)");
-    }
+anki-mathjax {
+    white-space: pre;
 }
 
 [hidden] {
     display: none;
-}
-
-@import "codemirror/lib/codemirror";
-@import "codemirror/theme/monokai";
-@import "codemirror/addon/fold/foldgutter";
-
-.CodeMirror {
-    height: auto;
-    padding: 6px 0;
 }

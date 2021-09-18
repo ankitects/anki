@@ -4,22 +4,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import Editable from "./Editable.svelte";
-    import { onMount, getContext } from "svelte";
+    import { getContext, onDestroy } from "svelte";
     import { nightModeKey } from "components/context-keys";
     import { loadStyleLink, loadStyleTag } from "./style";
 
-    let editableContainer: HTMLDivElement;
     let shadow: ShadowRoot;
 
     export function addStyleLink(href: string): [HTMLLinkElement, Promise<void>] {
-        return loadStyleLink(shadow, href);
+        return loadStyleLink(href, shadow);
     }
 
     export function addStyleTag(): [HTMLStyleElement, Promise<void>] {
         return loadStyleTag(shadow);
     }
 
-    /* const rootPromise = loadStyleLink(shadow, "./_anki/css/editable-build.css"); */
+    let rootStyle: HTMLLinkElement;
+    let rootPromise: Promise<void>;
+
     /* const [baseStyle, basePromise] = loadStyleTag(shadow); */
     /* const [imageStyle, imagePromise] = loadStyleTag(shadow); */
 
@@ -51,12 +52,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /*     return this.baseRule!.style.direction === "rtl"; */
     /* } */
 
-    onMount(() => {
-        shadow = editableContainer.attachShadow({ mode: "open" });
+    const mutationObserver = new MutationObserver(console.log);
+
+    function attachMutationObserver(element: Element) {
+        mutationObserver.observe(element, { childList: true });
+    }
+
+    function attachShadow(element: Element) {
+        shadow = element.attachShadow({ mode: "open" });
+        [rootStyle, rootPromise] = addStyleLink("./_anki/css/editable-build.css");
+
         new Editable({ target: shadow as any });
-    });
+    }
 
     const nightMode = getContext(nightModeKey);
+
+    onDestroy(() => mutationObserver.disconnect());
 </script>
 
-<div bind:this={editableContainer} class:night-mode={nightMode} />
+<div
+    use:attachMutationObserver
+    use:attachShadow
+    class="editable-container"
+    class:night-mode={nightMode}
+/>

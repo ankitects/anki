@@ -56,14 +56,17 @@ if (isApplePlatform()) {
     registerShortcut(() => bridgeCommand("paste"), "Control+Shift+V");
 }
 
-export function focusField(n: number): void {
-    const field = getEditorField(n);
+export const $editorToolbar = new Promise(() => {
+    /* noop */
+});
 
-    if (field) {
-        field.editingArea.focus();
-        field.editingArea.caretToEnd();
-        updateActiveButtons(new Event("manualfocus"));
-    }
+export function focusField(n: number): void {
+    // const field = getEditorField(n);
+    // if (field) {
+    //     field.editingArea.focus();
+    //     field.editingArea.caretToEnd();
+    //     updateActiveButtons(new Event("manualfocus"));
+    // }
 }
 
 export function focusIfField(x: number, y: number): boolean {
@@ -105,8 +108,8 @@ function adjustFieldAmount(amount: number): void {
 }
 
 export function getEditorField(n: number): EditorField | null {
-    const fields = document.getElementById("fields")!.children;
-    return (fields[n] as EditorField) ?? null;
+    // const fields = document.getElementById("fields")!.children;
+    return /*(fields[n] as EditorField) ??*/ null;
 }
 
 /// forEachEditorFieldAndProvidedValue:
@@ -210,11 +213,14 @@ function setupNoteEditor(i18n: Promise<void>): Promise<NoteEditor> {
         editorResolve = resolve;
     });
 
-    document.addEventListener("DOMContentLoaded", () =>
-        i18n.then(() =>
-            editorResolve(
-                new NoteEditor({ target: document.getElementById("editor")! })
-            )
+    i18n.then(() =>
+        editorResolve(
+            new NoteEditor({
+                target: document.body,
+                props: {
+                    class: "h-100",
+                },
+            })
         )
     );
 

@@ -78,10 +78,6 @@ audio = (
     "webm",
 )
 
-_html = """
-<div id="editor"></div>
-"""
-
 
 class Editor:
     """The screen that embeds an editing widget should listen for changes via
@@ -130,7 +126,7 @@ class Editor:
 
         # then load page
         self.web.stdHtml(
-            _html, # % tr.editing_show_duplicates(),
+            "", # % tr.editing_show_duplicates(),
             css=["css/editor.css"],
             js=["js/editor.js"],
             context=self,
