@@ -8,6 +8,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { nightModeKey } from "components/context-keys";
     import { loadStyleLink, loadStyleTag } from "./style";
 
+    export let content: string;
+
     let shadow: ShadowRoot;
 
     export function addStyleLink(href: string): [HTMLLinkElement, Promise<void>] {
@@ -62,7 +64,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         shadow = element.attachShadow({ mode: "open" });
         [rootStyle, rootPromise] = addStyleLink("./_anki/css/editable-build.css");
 
-        new Editable({ target: shadow as any });
+        new Editable({
+            target: shadow as any,
+            props: { content },
+        });
     }
 
     const nightMode = getContext(nightModeKey);

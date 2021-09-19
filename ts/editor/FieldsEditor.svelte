@@ -3,6 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type { FieldData } from "./adapter-types";
+
     import EditorField from "./EditorField.svelte";
 
     import LabelContainer from "./LabelContainer.svelte";
@@ -15,19 +17,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import EditableContainer from "editable/EditableContainer.svelte";
     import Codable from "./Codable.svelte";
 
-    export let data = [1, 2, 3, 4];
+    export let fields: FieldData[];
+
+    let className: string = "";
+    export { className as class };
 </script>
 
-<main class="fields-editor">
-    {#each data as _foo}
+<main class="fields-editor {className}">
+    {#each fields as field}
         <EditorField>
             <LabelContainer>
-                <LabelName />
+                <LabelName>{field.fieldName}</LabelName>
                 <FieldState />
             </LabelContainer>
             <EditingArea>
                 {#if true}
-                    <EditableContainer />
+                    <EditableContainer content={field.fieldContent} />
 
                     <div class="editable-handles">
                         <ImageHandle
@@ -52,9 +57,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .fields-editor {
-        display: grid;
-        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+
         overflow-x: hidden;
-        margin: 3px 0;
+        padding: 3px 0;
     }
 </style>

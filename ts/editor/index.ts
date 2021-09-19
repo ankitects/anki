@@ -60,14 +60,14 @@ export const $editorToolbar = new Promise(() => {
     /* noop */
 });
 
-export function focusField(n: number): void {
-    // const field = getEditorField(n);
-    // if (field) {
-    //     field.editingArea.focus();
-    //     field.editingArea.caretToEnd();
-    //     updateActiveButtons(new Event("manualfocus"));
-    // }
-}
+// export function focusField(n: number): void {
+//     // const field = getEditorField(n);
+//     // if (field) {
+//     //     field.editingArea.focus();
+//     //     field.editingArea.caretToEnd();
+//     //     updateActiveButtons(new Event("manualfocus"));
+//     // }
+// }
 
 export function focusIfField(x: number, y: number): boolean {
     const elements = document.elementsFromPoint(x, y);
@@ -127,62 +127,62 @@ export function forEditorField<T>(
     // }
 }
 
-export function setFields(fields: [string, string][]): void {
-    // webengine will include the variable after enter+backspace
-    // if we don't convert it to a literal colour
-    // const color = window
-    //     .getComputedStyle(document.documentElement)
-    //     .getPropertyValue("--text-fg");
-    // adjustFieldAmount(fields.length);
-    // forEditorField(
-    //     fields,
-    //     (field: EditorField, [name, fieldContent]: [string, string]): void =>
-    //         field.initialize(name, color, fieldContent)
-    // );
-    // if (!getCurrentField()) {
-    //     // when initial focus of the window is not on editor (e.g. browser)
-    //     fieldFocused.set(false);
-    // }
-}
+// export function setFields(fields: [string, string][]): void {
+//     // webengine will include the variable after enter+backspace
+//     // if we don't convert it to a literal colour
+//     // const color = window
+//     //     .getComputedStyle(document.documentElement)
+//     //     .getPropertyValue("--text-fg");
+//     // adjustFieldAmount(fields.length);
+//     // forEditorField(
+//     //     fields,
+//     //     (field: EditorField, [name, fieldContent]: [string, string]): void =>
+//     //         field.initialize(name, color, fieldContent)
+//     // );
+//     // if (!getCurrentField()) {
+//     //     // when initial focus of the window is not on editor (e.g. browser)
+//     //     fieldFocused.set(false);
+//     // }
+// }
 
-export function setBackgrounds(cols: ("dupe" | "")[]): void {
-    forEditorField(cols, (field: EditorField, value: "dupe" | "") =>
-        field.editingArea.classList.toggle("dupe", value === "dupe")
-    );
-    // document
-    //     .getElementById("dupes")!
-    //     .classList.toggle("d-none", !cols.includes("dupe"));
-}
+// export function setBackgrounds(cols: ("dupe" | "")[]): void {
+//     forEditorField(cols, (field: EditorField, value: "dupe" | "") =>
+//         field.editingArea.classList.toggle("dupe", value === "dupe")
+//     );
+//     // document
+//     //     .getElementById("dupes")!
+//     //     .classList.toggle("d-none", !cols.includes("dupe"));
+// }
 
-export function setClozeHint(hint: string): void {
-    // const clozeHint = document.getElementById("cloze-hint")!;
-    // clozeHint.innerHTML = hint;
-    // clozeHint.classList.toggle("d-none", hint.length === 0);
-}
+// export function setClozeHint(hint: string): void {
+//     // const clozeHint = document.getElementById("cloze-hint")!;
+//     // clozeHint.innerHTML = hint;
+//     // clozeHint.classList.toggle("d-none", hint.length === 0);
+// }
 
-export function setFonts(fonts: [string, number, boolean][]): void {
-    forEditorField(
-        fonts,
-        (
-            field: EditorField,
-            [fontFamily, fontSize, isRtl]: [string, number, boolean]
-        ) => {
-            field.setBaseStyling(fontFamily, `${fontSize}px`, isRtl ? "rtl" : "ltr");
-        }
-    );
-}
+// export function setFonts(fonts: [string, number, boolean][]): void {
+//     forEditorField(
+//         fonts,
+//         (
+//             field: EditorField,
+//             [fontFamily, fontSize, isRtl]: [string, number, boolean]
+//         ) => {
+//             field.setBaseStyling(fontFamily, `${fontSize}px`, isRtl ? "rtl" : "ltr");
+//         }
+//     );
+// }
 
-export function setColorButtons([textColor, highlightColor]: [string, string]): void {
-    // $editorToolbar.then((editorToolbar) =>
-    //     (editorToolbar as any).$set({ textColor, highlightColor })
-    // );
-}
+// export function setColorButtons([textColor, highlightColor]: [string, string]): void {
+//     // $editorToolbar.then((editorToolbar) =>
+//     //     (editorToolbar as any).$set({ textColor, highlightColor })
+//     // );
+// }
 
-export function setSticky(stickies: boolean[]): void {
-    forEditorField(stickies, (field: EditorField, isSticky: boolean) => {
-        field.labelContainer.activateSticky(isSticky);
-    });
-}
+// export function setSticky(stickies: boolean[]): void {
+//     forEditorField(stickies, (field: EditorField, isSticky: boolean) => {
+//         field.labelContainer.activateSticky(isSticky);
+//     });
+// }
 
 export function setFormat(cmd: string, arg?: string, nosave = false): void {
     document.execCommand(cmd, false, arg);
@@ -192,9 +192,9 @@ export function setFormat(cmd: string, arg?: string, nosave = false): void {
     }
 }
 
-export function setTags(tags: string[]): void {
-    // $tagEditor.then((tagEditor: TagEditor): void => tagEditor.resetTags(tags));
-}
+// export function setTags(tags: string[]): void {
+// $tagEditor.then((tagEditor: TagEditor): void => tagEditor.resetTags(tags));
+// }
 
 export const i18n = setupI18n({
     modules: [
@@ -205,24 +205,35 @@ export const i18n = setupI18n({
     ],
 });
 
-import NoteEditor from "./NoteEditor.svelte";
+import OldEditorAdapter from "./OldEditorAdapter.svelte";
 
-function setupNoteEditor(i18n: Promise<void>): Promise<NoteEditor> {
-    let editorResolve: (value: NoteEditor) => void;
-    const editorPromise = new Promise<NoteEditor>((resolve) => {
+function setupNoteEditor(i18n: Promise<void>): Promise<OldEditorAdapter> {
+    let editorResolve: (value: OldEditorAdapter) => void;
+    const editorPromise = new Promise<OldEditorAdapter>((resolve) => {
         editorResolve = resolve;
     });
 
-    i18n.then(() =>
-        editorResolve(
-            new NoteEditor({
-                target: document.body,
-                props: {
-                    class: "h-100",
-                },
-            })
-        )
-    );
+    i18n.then(() => {
+        const noteEditor = new OldEditorAdapter({
+            target: document.body,
+            props: {
+                class: "h-100",
+            },
+        });
+
+        Object.assign(globalThis, {
+            setFields: noteEditor.setFields,
+            setFonts: noteEditor.setFonts,
+            focusField: noteEditor.focusField,
+            setColorButtons: noteEditor.setColorButtons,
+            setTags: noteEditor.setTags,
+            setSticky: noteEditor.setSticky,
+            setBackgrounds: noteEditor.setBackgrounds,
+            setClozeHint: noteEditor.setClozeHint,
+        });
+
+        editorResolve(noteEditor);
+    });
 
     return editorPromise;
 }

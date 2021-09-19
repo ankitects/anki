@@ -10,16 +10,8 @@ body {
     height: 100%;
 }
 
-body {
-    display: flex;
-    flex-direction: column;
-}
-
 .nightMode {
     @include scrollbar.night-mode;
-}
-
-#fields {
 }
 
 #dupes,

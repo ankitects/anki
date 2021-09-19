@@ -1,9 +1,4 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
-License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
--->
-
-<!--
 /* import type { DecoratedElement } from "./decorated"; */
 /* import { decoratedComponents } from "./decorated"; */
 /* import { bridgeCommand } from "lib/bridgecommand"; */
@@ -83,8 +78,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 /*     } */
 /* } */
 -->
+<script lang="ts">
+    export let content: string;
+</script>
 
-<anki-editable contenteditable="true" />
+<!--
+Copyright: Ankitects Pty Ltd and contributors
+License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+-->
+
+<anki-editable contenteditable="true">{@html content}</anki-editable>
 
 <style lang="scss">
     anki-editable {
