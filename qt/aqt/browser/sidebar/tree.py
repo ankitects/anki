@@ -867,10 +867,13 @@ class SidebarTreeView(QTreeView):
     def show_context_menu(self, item: SidebarItem, index: QModelIndex) -> None:
         menu = QMenu()
         self._maybe_add_type_specific_actions(menu, item)
+        menu.addSeparator()
         self._maybe_add_delete_action(menu, item, index)
         self._maybe_add_rename_actions(menu, item, index)
         self._maybe_add_find_and_replace_action(menu, item, index)
+        menu.addSeparator()
         self._maybe_add_search_actions(menu)
+        menu.addSeparator()
         self._maybe_add_tree_actions(menu)
         gui_hooks.browser_sidebar_will_show_context_menu(self, menu, item, index)
         if menu.children():
@@ -932,7 +935,6 @@ class SidebarTreeView(QTreeView):
         ]
         if not nodes:
             return
-        menu.addSeparator()
         if len(nodes) == 1:
             menu.addAction(tr.actions_search(), lambda: self.update_search(*nodes))
             return
@@ -963,7 +965,6 @@ class SidebarTreeView(QTreeView):
         if not any(item.children for item in selected_items):
             return
 
-        menu.addSeparator()
         if any(not item.expanded for item in selected_items if item.children):
             menu.addAction(tr.browsing_sidebar_expand(), lambda: set_expanded(True))
         if any(item.expanded for item in selected_items if item.children):
