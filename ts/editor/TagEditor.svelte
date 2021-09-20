@@ -26,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     /* TODO currently tags is only used for the initial setting */
     export let tags: string[] = [];
-    let tagTypes: TagType[] = tags.map((tag) =>
+    export let tagTypes: TagType[] = tags.map((tag) =>
         attachId(replaceWithUnicodeSeparator(tag))
     ) as TagType[];
 

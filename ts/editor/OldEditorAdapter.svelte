@@ -60,7 +60,6 @@
     }
 
     function saveTags(event: CustomEvent): void {
-        console.log("foo", event.detail.tags);
         bridgeCommand(`saveTags:${JSON.stringify(event.detail.tags)}`);
     }
 </script>

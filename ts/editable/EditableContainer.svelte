@@ -21,8 +21,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return loadStyleTag(shadow);
     }
 
-    let rootStyle: HTMLLinkElement;
-    let rootPromise: Promise<void>;
+    let rootResolve: (value: HTMLLinkElement) => void;
+    export const rootStyle: Promise<HTMLLinkElement> = new Promise(
+        (resolve) => (rootResolve = resolve)
+    );
+
+    /* userBaseStyle === */
+    /* userTemplateStyle */
+    /* imageOverlayStyle */
 
     /* const [baseStyle, basePromise] = loadStyleTag(shadow); */
     /* const [imageStyle, imagePromise] = loadStyleTag(shadow); */
@@ -63,7 +69,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function attachShadow(element: Element) {
         shadow = element.attachShadow({ mode: "open" });
-        [rootStyle, rootPromise] = addStyleLink("./_anki/css/editable-build.css");
+        const [rootStyle, rootPromise] = addStyleLink("./_anki/css/editable-build.css");
+        rootPromise.then(() => rootResolve(rootStyle));
 
         new Editable({
             target: shadow as any,
