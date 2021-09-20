@@ -1,5 +1,6 @@
 <script lang="ts">
     import NoteEditor from "./NoteEditor.svelte";
+    import { bridgeCommand } from "lib/bridgecommand";
 
     let fields: [string, string][] = [];
     export function setFields(fs: [string, string][]): void {
@@ -57,6 +58,11 @@
     export function setClozeHint(hnt: string): void {
         hint = hnt;
     }
+
+    function saveTags(event: CustomEvent): void {
+        console.log("foo", event.detail.tags);
+        bridgeCommand(`saveTags:${JSON.stringify(event.detail.tags)}`);
+    }
 </script>
 
-<NoteEditor {data} {...$$restProps} />
+<NoteEditor {data} {...$$restProps} on:tagsupdate={saveTags} />

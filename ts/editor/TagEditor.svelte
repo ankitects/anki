@@ -3,9 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { tick } from "svelte";
-    import { isApplePlatform } from "lib/platform";
-    import { bridgeCommand } from "lib/bridgecommand";
+    import { createEventDispatcher, tick } from "svelte";
     import StickyFooter from "components/StickyFooter.svelte";
     import TagOptionsBadge from "./TagOptionsBadge.svelte";
     import TagEditMode from "./TagEditMode.svelte";
@@ -23,26 +21,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Tags } from "lib/proto";
     import { postRequest } from "lib/postrequest";
 
-    export let tags: TagType[] = [];
+    export let size: number;
+    export let wrap: boolean;
 
-    export let size = isApplePlatform() ? 1.6 : 2.0;
-    export let wrap = true;
+    /* TODO currently tags is only used for the initial setting */
+    export let tags: string[] = [];
+    let tagTypes: TagType[] = tags.map((tag) =>
+        attachId(replaceWithUnicodeSeparator(tag))
+    ) as TagType[];
 
-    export function resetTags(names: string[]): void {
-        tags = names.map(replaceWithUnicodeSeparator).map(attachId);
-    }
-
+    const dispatch = createEventDispatcher();
     const noSuggestions = Promise.resolve([]);
     let suggestionsPromise: Promise<string[]> = noSuggestions;
 
     function saveTags(): void {
-        bridgeCommand(
-            `saveTags:${JSON.stringify(
-                tags.map((tag) => tag.name).map(replaceWithColons)
-            )}`
-        );
+        const tags = tagTypes.map((tag) => tag.name).map(replaceWithColons);
+        dispatch("tagsupdate", { tags });
 
         suggestionsPromise = noSuggestions;
+    }
+
+    export function resetTags(tags: string[]): void {
+        /* TODO I think once we move to Rust calls (web socket?) we might be able to refactor
+        /* the process of setting tags on the TagEditor */
+        tagTypes = tags.map((tag) => attachId(replaceWithUnicodeSeparator(tag)));
     }
 
     let active: number | null = null;
@@ -67,7 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const withoutSingleColonAtStartOrEnd = /^:?([^:].*?[^:]):?$/;
 
     function updateSuggestions(): void {
-        const activeTag = tags[active!];
+        const activeTag = tagTypes[active!];
         const activeName = activeTag.name;
 
         autocompleteDisabled = activeName.length === 0;
@@ -90,7 +92,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function onAutocomplete(selected: string): void {
-        const activeTag = tags[active!];
+        const activeTag = tagTypes[active!];
 
         activeName = selected ?? activeTag.name;
         activeInput.setSelectionRange(Infinity, Infinity);
@@ -98,7 +100,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function updateTagName(tag: TagType): Promise<void> {
         tag.name = activeName;
-        tags = tags;
+        tagTypes = tagTypes;
 
         await tick();
         if (activeInput) {
@@ -114,10 +116,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function appendEmptyTag(): void {
         // used by tag badge and tag spacer
-        const lastTag = tags[tags.length - 1];
+        const lastTag = tagTypes[tagTypes.length - 1];
 
         if (!lastTag || lastTag.name.length > 0) {
-            appendTagAndFocusAt(tags.length - 1, "");
+            appendTagAndFocusAt(tagTypes.length - 1, "");
         }
 
         const tagsHadFocus = active === null;
@@ -129,18 +131,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function appendTagAndFocusAt(index: number, name: string): void {
-        tags.splice(index + 1, 0, attachId(name));
-        tags = tags;
+        tagTypes.splice(index + 1, 0, attachId(name));
+        tagTypes = tagTypes;
         setActiveAfterBlur(index + 1);
     }
 
     function isActiveNameUniqueAt(index: number): boolean {
-        const names = tags.map(getName);
+        const names = tagTypes.map(getName);
         names.splice(index, 1);
 
         const contained = names.indexOf(activeName);
         if (contained >= 0) {
-            tags[contained >= index ? contained + 1 : contained].flash();
+            tagTypes[contained >= index ? contained + 1 : contained].flash();
             return false;
         }
 
@@ -181,15 +183,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function insertTagKeepFocus(index: number): void {
         if (isActiveNameUniqueAt(index)) {
-            tags.splice(index, 0, attachId(activeName));
+            tagTypes.splice(index, 0, attachId(activeName));
             active!++;
-            tags = tags;
+            tagTypes = tagTypes;
         }
     }
 
     function deleteTagAt(index: number): TagType {
-        const deleted = tags.splice(index, 1)[0];
-        tags = tags;
+        const deleted = tagTypes.splice(index, 1)[0];
+        tagTypes = tagTypes;
 
         if (activeAfterBlur !== null && activeAfterBlur > index) {
             activeAfterBlur--;
@@ -203,7 +205,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function isLast(index: number): boolean {
-        return index === tags.length - 1;
+        return index === tagTypes.length - 1;
     }
 
     function joinWithPreviousTag(index: number): void {
@@ -214,7 +216,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const deleted = deleteTagAt(index - 1);
         activeName = deleted.name + activeName;
         active!--;
-        updateTagName(tags[active!]);
+        updateTagName(tagTypes[active!]);
     }
 
     function joinWithNextTag(index: number): void {
@@ -224,7 +226,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const deleted = deleteTagAt(index + 1);
         activeName = activeName + deleted.name;
-        updateTagName(tags[active!]);
+        updateTagName(tagTypes[active!]);
     }
 
     function moveToPreviousTag(index: number): void {
@@ -253,7 +255,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function deleteTagIfNotUnique(tag: TagType, index: number): void {
-        if (!tags.includes(tag)) {
+        if (!tagTypes.includes(tag)) {
             // already deleted
             return;
         }
@@ -306,8 +308,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let selectionFocus: number | null = null;
 
     function select(index: number) {
-        tags[index].selected = !tags[index].selected;
-        tags = tags;
+        tagTypes[index].selected = !tagTypes[index].selected;
+        tagTypes = tagTypes;
 
         selectionAnchor = index;
     }
@@ -324,14 +326,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const to = Math.max(selectionAnchor, selectionFocus);
 
         for (let index = from; index <= to; index++) {
-            tags[index].selected = true;
+            tagTypes[index].selected = true;
         }
 
-        tags = tags;
+        tagTypes = tagTypes;
     }
 
     function deselect() {
-        tags = tags.map((tag: TagType): TagType => ({ ...tag, selected: false }));
+        tagTypes = tagTypes.map(
+            (tag: TagType): TagType => ({ ...tag, selected: false })
+        );
         selectionAnchor = null;
         selectionFocus = null;
     }
@@ -360,12 +364,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function selectAllTags() {
-        tags.forEach((tag) => (tag.selected = true));
-        tags = tags;
+        tagTypes.forEach((tag) => (tag.selected = true));
+        tagTypes = tagTypes;
     }
 
     function copySelectedTags() {
-        const content = tags
+        const content = tagTypes
             .filter((tag) => tag.selected)
             .map((tag) => replaceWithColons(tag.name))
             .join("\n");
@@ -374,7 +378,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function deleteSelectedTags() {
-        tags.map((tag, index) => [tag.selected, index])
+        tagTypes
+            .map((tag, index) => [tag.selected, index])
             .filter(([selected]) => selected)
             .reverse()
             .forEach(([, index]) => deleteTagAt(index as number));
@@ -394,7 +399,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {#if !wrap}
         <TagOptionsBadge
             --buttons-size="{size}rem"
-            showSelectionsOptions={tags.some((tag) => tag.selected)}
+            showSelectionsOptions={tagTypes.some((tag) => tag.selected)}
             bind:badgeHeight
             on:tagselectall={selectAllTags}
             on:tagcopy={copySelectedTags}
@@ -411,7 +416,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     >
         {#if wrap}
             <TagOptionsBadge
-                showSelectionsOptions={tags.some((tag) => tag.selected)}
+                showSelectionsOptions={tagTypes.some((tag) => tag.selected)}
                 bind:badgeHeight
                 on:tagselectall={selectAllTags}
                 on:tagcopy={copySelectedTags}
@@ -420,7 +425,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             />
         {/if}
 
-        {#each tags as tag, index (tag.id)}
+        {#each tagTypes as tag, index (tag.id)}
             <div
                 class="position-relative tag-margins"
                 class:hide-tag={index === active}

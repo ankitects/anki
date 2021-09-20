@@ -50,6 +50,16 @@ export function elementIsBlock(element: Element): boolean {
     return BLOCK_TAGS.includes(element.tagName);
 }
 
+export function elementContainsInlineContent(element: Element): boolean {
+    for (const child of element.children) {
+        if (elementIsBlock(child) || !elementContainsInlineContent(child)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 export function caretToEnd(node: Node): void {
     const range = document.createRange();
     range.selectNodeContents(node);

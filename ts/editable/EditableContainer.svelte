@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { loadStyleLink, loadStyleTag } from "./style";
 
     export let content: string;
+    export let focusOnMount: boolean = false;
 
     let shadow: ShadowRoot;
 
@@ -66,7 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         new Editable({
             target: shadow as any,
-            props: { content },
+            props: { content, focusOnMount },
         });
     }
 

@@ -79,7 +79,53 @@
 /* } */
 -->
 <script lang="ts">
+    import { afterUpdate } from "svelte";
+    import { elementContainsInlineContent, caretToEnd } from "lib/dom";
+    import type { DecoratedElement } from "./decorated";
+    import { decoratedComponents } from "./decorated";
+
     export let content: string;
+    export let focusOnMount: boolean = false;
+
+    let editable: HTMLElement;
+
+    export function containsInlineContent(): boolean {
+        return elementContainsInlineContent(editable);
+    }
+
+    export function fieldHTML(): string {
+        const clone = editable.cloneNode(true) as Element;
+
+        for (const component of decoratedComponents) {
+            for (const element of clone.getElementsByTagName(component.tagName)) {
+                (element as DecoratedElement).undecorate();
+            }
+        }
+
+        /* TODO expose as api */
+        const result =
+            elementContainsInlineContent(clone) && clone.innerHTML.endsWith("<br>")
+                ? clone.innerHTML.slice(0, -4) // trim trailing <br>
+                : clone.innerHTML;
+
+        return result;
+    }
+
+    export function moveCaretToEnd(): void {
+        caretToEnd(editable);
+    }
+
+    afterUpdate(() => {
+        if (editable && content.length > 0 && containsInlineContent()) {
+            editable.appendChild(document.createElement("br"));
+        }
+    });
+
+    function autofocus(editable: HTMLElement): void {
+        if (focusOnMount) {
+            editable.focus();
+        }
+    }
 </script>
 
 <!--
@@ -87,7 +133,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 
-<anki-editable contenteditable="true">{@html content}</anki-editable>
+
+<anki-editable
+    bind:this={editable}
+    bind:innerHTML={content}
+    contenteditable="true"
+    use:autofocus
+/>
 
 <style lang="scss">
     anki-editable {

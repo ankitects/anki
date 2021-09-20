@@ -18,13 +18,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Codable from "./Codable.svelte";
 
     export let fields: FieldData[];
+    export let focusTo: number;
 
     let className: string = "";
     export { className as class };
 </script>
 
 <main class="fields-editor {className}">
-    {#each fields as field}
+    {#each fields as field, index}
         <EditorField>
             <LabelContainer>
                 <LabelName>{field.fieldName}</LabelName>
@@ -32,7 +33,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </LabelContainer>
             <EditingArea>
                 {#if true}
-                    <EditableContainer content={field.fieldContent} />
+                    <EditableContainer
+                        content={field.fieldContent}
+                        focusOnMount={index === focusTo}
+                    />
 
                     <div class="editable-handles">
                         <ImageHandle

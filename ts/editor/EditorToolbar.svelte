@@ -26,7 +26,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="typescript">
-    import { isApplePlatform } from "lib/platform";
     import StickyHeader from "components/StickyHeader.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
     import Item from "components/Item.svelte";
