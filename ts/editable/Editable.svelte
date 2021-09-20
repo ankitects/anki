@@ -33,31 +33,6 @@
 /*         } */
 /*     } */
 
-/*     get fieldHTML(): string { */
-/*         const clone = this.cloneNode(true) as Element; */
-
-/*         for (const component of decoratedComponents) { */
-/*             for (const element of clone.getElementsByTagName(component.tagName)) { */
-/*                 (element as DecoratedElement).undecorate(); */
-/*             } */
-/*         } */
-
-/*         const result = */
-/*             containsInlineContent(clone) && clone.innerHTML.endsWith("<br>") */
-/*                 ? clone.innerHTML.slice(0, -4) // trim trailing <br> */
-/*                 : clone.innerHTML; */
-
-/*         return result; */
-/*     } */
-
-/*     connectedCallback(): void { */
-/*         this.setAttribute("contenteditable", ""); */
-/*     } */
-
-/*     caretToEnd(): void { */
-/*         caretToEnd(this); */
-/*     } */
-
 /*     surroundSelection(before: string, after: string): void { */
 /*         wrapInternal(this.getRootNode() as ShadowRoot, before, after, false); */
 /*     } */
@@ -79,10 +54,27 @@
 /* } */
 -->
 <script lang="ts">
-    import { afterUpdate } from "svelte";
+    import CustomStyles from "./CustomStyles.svelte";
+    import type { StyleType, StyleObject } from "./CustomStyles.svelte";
+
     import { elementContainsInlineContent, caretToEnd } from "lib/dom";
     import type { DecoratedElement } from "./decorated";
     import { decoratedComponents } from "./decorated";
+
+    export let styles: StyleType[] = [];
+    let customStyles: CustomStyles;
+
+    export function addStyleTag(id: string): Promise<StyleObject> {
+        return customStyles ? customStyles.addStyleTag(id) : Promise.reject();
+    }
+
+    export function addStyleLink(id: string, href: string): Promise<StyleObject> {
+        return customStyles ? customStyles.addStyleLink(id, href) : Promise.reject();
+    }
+
+    export function getStyleMap(): Map<string, StyleObject> | undefined {
+        return customStyles?.getStyleMap();
+    }
 
     export let content: string;
     export let focusOnMount: boolean = false;
@@ -115,15 +107,16 @@
         caretToEnd(editable);
     }
 
-    afterUpdate(() => {
-        if (editable && content.length > 0 && containsInlineContent()) {
-            editable.appendChild(document.createElement("br"));
-        }
-    });
+    /* afterUpdate(() => { */
+    /*     if (editable && content.length > 0 && containsInlineContent()) { */
+    /*         editable.appendChild(document.createElement("br")); */
+    /*     } */
+    /* }); */
 
     function autofocus(editable: HTMLElement): void {
         if (focusOnMount) {
             editable.focus();
+            caretToEnd(editable);
         }
     }
 </script>
@@ -132,6 +125,8 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
+
+<CustomStyles bind:this={customStyles} {styles} />
 
 <anki-editable
     bind:this={editable}

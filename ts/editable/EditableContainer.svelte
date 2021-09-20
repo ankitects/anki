@@ -4,27 +4,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import Editable from "./Editable.svelte";
+    import type { StyleType } from "./CustomStyles.svelte";
     import { getContext, onDestroy } from "svelte";
     import { nightModeKey } from "components/context-keys";
-    import { loadStyleLink, loadStyleTag } from "./style";
 
     export let content: string;
     export let focusOnMount: boolean = false;
 
+    export let customStyles: StyleType[] = [];
+    $: styles = [
+        {
+            type: "link",
+            href: "./_anki/css/editable-build.css",
+        },
+        ...customStyles,
+    ] as StyleType[];
+
     let shadow: ShadowRoot;
-
-    export function addStyleLink(href: string): [HTMLLinkElement, Promise<void>] {
-        return loadStyleLink(href, shadow);
-    }
-
-    export function addStyleTag(): [HTMLStyleElement, Promise<void>] {
-        return loadStyleTag(shadow);
-    }
-
-    let rootResolve: (value: HTMLLinkElement) => void;
-    export const rootStyle: Promise<HTMLLinkElement> = new Promise(
-        (resolve) => (rootResolve = resolve)
-    );
+    export let editable: Editable;
 
     /* userBaseStyle === */
     /* userTemplateStyle */
@@ -69,13 +66,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function attachShadow(element: Element) {
         shadow = element.attachShadow({ mode: "open" });
-        const [rootStyle, rootPromise] = addStyleLink("./_anki/css/editable-build.css");
-        rootPromise.then(() => rootResolve(rootStyle));
-
-        new Editable({
+        editable = new Editable({
             target: shadow as any,
-            props: { content, focusOnMount },
+            props: {
+                content,
+                focusOnMount,
+                styles,
+            },
         });
+        console.log(editable);
     }
 
     const nightMode = getContext(nightModeKey);

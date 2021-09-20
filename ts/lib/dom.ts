@@ -61,7 +61,7 @@ export function elementContainsInlineContent(element: Element): boolean {
 }
 
 export function caretToEnd(node: Node): void {
-    const range = document.createRange();
+    const range = new Range();
     range.selectNodeContents(node);
     range.collapse(false);
     const selection = (node.getRootNode() as Document | ShadowRoot).getSelection()!;
