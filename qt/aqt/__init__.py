@@ -483,6 +483,8 @@ def _run(argv: Optional[List[str]] = None, exec: bool = True) -> Optional[AnkiAp
         and not os.getenv("ANKI_WAYLAND")
     ):
         # users need to opt in to wayland support, given the issues it has
+        print("Wayland support is disabled by default due to bugs.")
+        print("You can force it on with an env var: ANKI_WAYLAND=1")
         os.environ["QT_QPA_PLATFORM"] = "xcb"
 
     # default to specified/system language before getting user's preference so that we can localize some more strings
