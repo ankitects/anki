@@ -30,7 +30,7 @@ compile_svelte(
 
 compile_sass(
     srcs = [
-        "fields.scss",
+        "editor-base.scss",
     ],
     group = "base_css",
     visibility = ["//visibility:public"],

@@ -12,7 +12,7 @@ import type ImageHandle from "./ImageHandle.svelte";
 
 import type { Codable } from "./codable";
 
-import { updateActiveButtons } from "./toolbar";
+// import { updateActiveButtons } from "./toolbar";
 import { bridgeCommand } from "./lib";
 import { onInput, onKey, onKeyUp } from "./input-handlers";
 import { deferFocusDown, saveFieldIfFieldChanged } from "./focus-handlers";
@@ -126,7 +126,7 @@ export class EditingArea extends HTMLDivElement {
         this.addEventListener("paste", this.onPaste);
         this.addEventListener("copy", onCutOrCopy);
         this.addEventListener("oncut", onCutOrCopy);
-        this.addEventListener("mouseup", updateActiveButtons);
+        // this.addEventListener("mouseup", updateActiveButtons);
         // this.editable.addEventListener("click", this.showHandles);
     }
 
@@ -139,7 +139,7 @@ export class EditingArea extends HTMLDivElement {
         this.removeEventListener("paste", this.onPaste);
         this.removeEventListener("copy", onCutOrCopy);
         this.removeEventListener("oncut", onCutOrCopy);
-        this.removeEventListener("mouseup", updateActiveButtons);
+        // this.removeEventListener("mouseup", updateActiveButtons);
         // this.editable.removeEventListener("click", this.showHandles);
     }
 

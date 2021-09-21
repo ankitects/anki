@@ -17,10 +17,8 @@ import { setupI18n, ModuleName } from "lib/i18n";
 import { isApplePlatform } from "lib/platform";
 import { registerShortcut } from "lib/shortcuts";
 import { bridgeCommand } from "lib/bridgecommand";
-import { updateActiveButtons } from "./toolbar";
+// import { updateActiveButtons } from "./toolbar";
 import { saveField } from "./saving";
-
-import "./fields.css";
 
 import "./label-container";
 import "./codable";
@@ -38,7 +36,7 @@ import { getCurrentField } from "./helpers";
 export { setNoteId, getNoteId } from "./note-id";
 export { saveNow } from "./saving";
 export { wrap, wrapIntoText } from "./wrap";
-export { editorToolbar } from "./toolbar";
+// export { editorToolbar } from "./toolbar";
 export { activateStickyShortcuts } from "./label-container";
 export { getCurrentField } from "./helpers";
 export { components } from "./Components.svelte";
@@ -188,7 +186,7 @@ export function setFormat(cmd: string, arg?: string, nosave = false): void {
     document.execCommand(cmd, false, arg);
     if (!nosave) {
         saveField(getCurrentField() as EditingArea, "key");
-        updateActiveButtons(new Event(cmd));
+        // updateActiveButtons(new Event(cmd));
     }
 }
 
@@ -206,6 +204,11 @@ export const i18n = setupI18n({
 });
 
 import OldEditorAdapter from "./OldEditorAdapter.svelte";
+import { nightModeKey } from "components/context-keys";
+
+import "./editor-base.css";
+import "./bootstrap.css";
+import "./legacy.css";
 
 function setupNoteEditor(i18n: Promise<void>): Promise<OldEditorAdapter> {
     let editorResolve: (value: OldEditorAdapter) => void;
@@ -213,13 +216,21 @@ function setupNoteEditor(i18n: Promise<void>): Promise<OldEditorAdapter> {
         editorResolve = resolve;
     });
 
+    const context = new Map<Symbol, unknown>();
+
+    context.set(
+        nightModeKey,
+        document.documentElement.classList.contains("night-mode")
+    );
+
     i18n.then(() => {
         const noteEditor = new OldEditorAdapter({
             target: document.body,
             props: {
                 class: "h-100",
             },
-        });
+            context,
+        } as any);
 
         Object.assign(globalThis, {
             setFields: noteEditor.setFields,

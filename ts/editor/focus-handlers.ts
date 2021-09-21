@@ -5,7 +5,7 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
-import { fieldFocused } from "./toolbar";
+// import { fieldFocused } from "./toolbar";
 import type { EditingArea } from "./editing-area";
 
 import { saveField } from "./saving";
@@ -22,7 +22,7 @@ export function deferFocusDown(editingArea: EditingArea): void {
     }
 
     bridgeCommand(`focus:${editingArea.ord}`);
-    fieldFocused.set(true);
+    // fieldFocused.set(true);
 }
 
 export function saveFieldIfFieldChanged(
@@ -33,7 +33,7 @@ export function saveFieldIfFieldChanged(
         editingArea !== getCurrentField() && !editingArea.contains(focusTo);
 
     saveField(editingArea, fieldChanged ? "blur" : "key");
-    fieldFocused.set(false);
+    // fieldFocused.set(false);
 
     if (fieldChanged) {
         editingArea.resetHandles();

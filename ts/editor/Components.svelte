@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithState from "components/WithState.svelte";
 
     import * as contextKeys from "components/context-keys";
-    import * as editorContextKeys from "./context-keys";
+    import * as editorContextKeys from "./NoteEditor.svelte";
 
     export const components = {
         IconButton,

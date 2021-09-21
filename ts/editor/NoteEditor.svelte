@@ -2,6 +2,11 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
+<script context="module" lang="ts">
+    export const fieldFocusedKey = Symbol("fieldFocused");
+    export const inCodableKey = Symbol("inCodable");
+</script>
+
 <script lang="ts">
     import EditorToolbar from "./EditorToolbar.svelte";
     import FieldsArea from "./FieldsArea.svelte";
@@ -15,24 +20,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import EditingArea from "./EditingArea.svelte";
     import ImageHandle from "./ImageHandle.svelte";
-    import MathjaxHandle from "./ImageHandle.svelte";
+    import MathjaxHandle from "./MathjaxHandle.svelte";
     import EditableContainer from "editable/EditableContainer.svelte";
     import Codable from "./Codable.svelte";
 
+    import { setContext } from "svelte";
+    import { writable } from "svelte/store";
     import { isApplePlatform } from "lib/platform";
     import type { AdapterData } from "./adapter-types";
 
     export let data: AdapterData;
     export let size: number = isApplePlatform() ? 1.6 : 2.0;
-    export let wrap: boolean = false;
-
-    let resetTags: (tags: string[]) => void = () => {
-        /* noop */
-    };
-    $: resetTags(data.tags);
+    export let wrap: boolean = true;
 
     let className: string = "";
     export { className as class };
+
+    setContext(fieldFocusedKey, writable(false));
+    setContext(inCodableKey, writable(false));
 </script>
 
 <div class="note-editor {className}">
@@ -89,7 +94,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </EditingArea>
         </EditorField>
     </FieldsArea>
-    <TagEditor {size} {wrap} tags={data.tags} bind:resetTags on:tagsupdate />
+    <TagEditor {size} {wrap} tags={data.tags} on:tagsupdate />
 </div>
 
 <style lang="scss">

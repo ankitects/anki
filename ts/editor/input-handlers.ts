@@ -6,7 +6,7 @@
  */
 
 import { nodeIsElement } from "lib/dom";
-import { updateActiveButtons } from "./toolbar";
+// import { updateActiveButtons } from "./toolbar";
 import { EditingArea } from "./editing-area";
 import { triggerChangeTimer } from "./saving";
 import { registerShortcut } from "lib/shortcuts";
@@ -14,7 +14,7 @@ import { registerShortcut } from "lib/shortcuts";
 export function onInput(event: Event): void {
     // make sure IME changes get saved
     triggerChangeTimer(event.currentTarget as EditingArea);
-    updateActiveButtons(event);
+    // updateActiveButtons(event);
 }
 
 export function onKey(evt: KeyboardEvent): void {
@@ -55,7 +55,7 @@ function updateFocus(evt: FocusEvent) {
     const newFocusTarget = evt.target;
     if (newFocusTarget instanceof EditingArea) {
         newFocusTarget.caretToEnd();
-        updateActiveButtons(evt);
+        // updateActiveButtons(evt);
     }
 }
 

@@ -6,7 +6,7 @@
 */
 
 import { CodeMirror, htmlanki, baseOptions, gutterOptions } from "./codeMirror";
-import { inCodable } from "./toolbar";
+// import { inCodable } from "./toolbar";
 
 const codeMirrorOptions = {
     mode: htmlanki,
@@ -48,7 +48,7 @@ export class Codable extends HTMLTextAreaElement {
     setup(html: string): void {
         this.fieldHTML = html;
         this.codeMirror = CodeMirror.fromTextArea(this, codeMirrorOptions);
-        this.codeMirror.on("blur", () => inCodable.set(false));
+        // this.codeMirror.on("blur", () => inCodable.set(false));
     }
 
     teardown(): string {
@@ -59,7 +59,7 @@ export class Codable extends HTMLTextAreaElement {
 
     focus(): void {
         this.codeMirror!.focus();
-        inCodable.set(true);
+        // inCodable.set(true);
     }
 
     caretToEnd(): void {
