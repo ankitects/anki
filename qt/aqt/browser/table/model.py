@@ -291,7 +291,9 @@ class DataModel(QAbstractTableModel):
         return None
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlags:
-        if self.get_row(index).is_deleted:
+        item = self.get_item(index)
+        row = self._rows.get(item)
+        if row and row.is_deleted:
             return Qt.ItemFlags(Qt.NoItemFlags)
         return cast(Qt.ItemFlags, Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
