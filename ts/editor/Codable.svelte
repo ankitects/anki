@@ -7,7 +7,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import { CodeMirror, htmlanki, baseOptions, gutterOptions } from "./codeMirror";
     import { activeInputKey, focusInCodableKey } from "lib/context-keys";
-    import type { EditorInputAPI } from "./EditingArea.svelte";
+    import type { ActiveInputAPI } from "./EditingArea.svelte";
+
+    const name = "Codable";
 
     const codeMirrorOptions = {
         mode: htmlanki,
@@ -84,11 +86,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /*     } */
     /* } */
 
-    const activeInput = getContext<Writable<EditorInputAPI | null>>(activeInputKey);
+    const activeInput = getContext<Writable<ActiveInputAPI | null>>(activeInputKey);
 
     function openCodeMirror(textarea: HTMLTextAreaElement): void {
         codeMirror = CodeMirror.fromTextArea(textarea, codeMirrorOptions);
-        $activeInput = { focus, moveCaretToEnd };
+        $activeInput = { name, focus, moveCaretToEnd };
     }
 
     onDestroy(() => ($activeInput = null));

@@ -3,38 +3,30 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    export interface EditorInputAPI {
-        focus: () => void;
-        moveCaretToEnd: () => void;
+    import type { EditingAreaAPI } from "./EditorField.svelte";
+
+    export interface ActiveInputAPI {
+        readonly name: string;
+        focus(): void;
+        moveCaretToEnd(): void;
     }
 </script>
 
 <script lang="ts">
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
-    import { setContext, getContext, createEventDispatcher } from "svelte";
-    import { activeInputKey, fieldFocusedKey } from "lib/context-keys";
-
-    let editingArea: HTMLElement;
+    import { setContext, getContext, createEventDispatcher, onMount } from "svelte";
+    import { editingAreaKey, activeInputKey, fieldFocusedKey } from "lib/context-keys";
 
     const dispatch = createEventDispatcher();
     const fieldFocused = getContext<Writable<boolean>>(fieldFocusedKey);
 
-    export const activeInput: Writable<EditorInputAPI | null> = writable(null);
-
+    const activeInput: Writable<ActiveInputAPI | null> = writable(null);
     setContext(activeInputKey, activeInput);
 
-    function focus(): void {
-        $activeInput?.focus();
-    }
-
-    function moveCaretToEnd(): void {
-        $activeInput?.moveCaretToEnd();
-    }
-
     function onFocusIn(): void {
-        focus();
-        moveCaretToEnd();
+        $activeInput?.focus();
+        $activeInput?.moveCaretToEnd();
 
         dispatch("fieldfocus", 1);
         fieldFocused.set(true);
@@ -46,20 +38,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /*     editingArea !== getCurrentField() && !editingArea.contains(focusTo); */
 
         /* saveField(editingArea, fieldChanged ? "blur" : "key"); */
-        fieldFocused.set(false);
 
         /* if (fieldChanged) { */
         /*     editingArea.resetHandles(); */
         /* } */
+
+        fieldFocused.set(false);
     }
+
+    const editingArea = getContext<Writable<EditingAreaAPI | null>>(editingAreaKey);
+
+    onMount(
+        () =>
+            ($editingArea = Object.defineProperty({}, "activeInput", {
+                get: () => $activeInput,
+            }))
+    );
 </script>
 
-<div
-    bind:this={editingArea}
-    class="editing-area"
-    on:focusin={onFocusIn}
-    on:focusout={onFocusOut}
->
+<div class="editing-area" on:focusin={onFocusIn} on:focusout={onFocusOut}>
     <slot deferFocus />
 </div>
 

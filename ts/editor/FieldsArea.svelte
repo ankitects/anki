@@ -3,13 +3,24 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    interface FieldObject {}
+    import type { EditingAreaAPI } from "./EditorField.svelte";
+
+    export interface EditorFieldAPI {
+        readonly editingArea: EditingAreaAPI | null;
+    }
+
+    export interface FieldsRegisterAPI {
+        register(editorField: EditorFieldAPI): number;
+        deregister(index: number): void;
+    }
 </script>
 
 <script lang="ts">
     import { setContext } from "svelte";
+    import { writable } from "svelte/store";
+    import type { Writable } from "svelte/store";
     import type { FieldData } from "./adapter-types";
-    import { fieldsKey } from "lib/context-keys";
+    import { fieldsKey, currentFieldKey } from "lib/context-keys";
 
     export let fields: FieldData[];
     export let focusTo: number;
@@ -17,24 +28,44 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className: string = "";
     export { className as class };
 
-    export const fieldsList: FieldObject[] = [];
+    export const fieldsList: EditorFieldAPI[] = [];
 
-    function register(index: string, object: FieldObject): void {
-        fieldsList[index] = object;
+    function register(object: EditorFieldAPI): number {
+        return fieldsList.push(object);
     }
 
-    function deregister(index: string): void {
+    function deregister(index: number): void {
         delete fieldsList[index];
     }
 
-    setContext(fieldsKey, { register, deregister });
+    setContext(fieldsKey, { register, deregister } as FieldsRegisterAPI);
+
+    const currentField: Writable<EditorFieldAPI | null> = writable(null);
+    setContext(currentFieldKey, currentField);
+
+    function getCurrentField(): EditorFieldAPI | null {
+        return $currentField;
+    }
+
+    const fieldsAPI = Object.defineProperties(
+        {},
+        {
+            fields: {
+                value: fieldsList,
+            },
+            currentField: {
+                get: getCurrentField,
+            },
+        }
+    );
+
+    console.log(fieldsAPI);
 </script>
 
 <main class="fields-editor {className}">
     {#each fields as field, index}
         <slot
             {field}
-            ord={index}
             focusOnMount={index === focusTo}
             fieldName={field.fieldName}
             content={field.fieldContent}

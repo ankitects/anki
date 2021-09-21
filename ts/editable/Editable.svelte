@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { activeInputKey } from "lib/context-keys";
     import type { DecoratedElement } from "./decorated";
     import { decoratedComponents } from "./decorated";
-    import type { EditorInputAPI } from "editor/EditingArea.svelte";
+    import type { ActiveInputAPI } from "editor/EditingArea.svelte";
 
     export let content: string;
     export let focusOnMount: boolean = false;
@@ -36,14 +36,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 : clone.innerHTML;
 
         return result;
-    }
-
-    function focus() {
-        editable.focus();
-    }
-
-    function moveCaretToEnd(): void {
-        caretToEnd(editable);
     }
 
     /* import type { DecoratedElement } from "./decorated"; */
@@ -104,9 +96,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    const activeInput = getContext<Writable<EditorInputAPI | null>>(activeInputKey);
+    const activeInput = getContext<Writable<ActiveInputAPI | null>>(activeInputKey);
+    const name = "Editable";
 
-    onMount(() => ($activeInput = { focus, moveCaretToEnd }));
+    function focus() {
+        editable.focus();
+    }
+
+    function moveCaretToEnd(): void {
+        caretToEnd(editable);
+    }
+
+    onMount(() => ($activeInput = { name, focus, moveCaretToEnd }));
     onDestroy(() => ($activeInput = null));
 </script>
 

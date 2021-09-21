@@ -21,7 +21,7 @@ import { bridgeCommand } from "lib/bridgecommand";
 import { saveField } from "./saving";
 
 import "./label-container";
-import "./codable";
+// import "./codable";
 import "./editor-field";
 import type { EditorField } from "./editor-field";
 import { EditingArea } from "./editing-area";

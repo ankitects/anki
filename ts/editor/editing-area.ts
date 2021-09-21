@@ -10,7 +10,7 @@ import type ImageHandle from "./ImageHandle.svelte";
 // import type MathjaxHandle from "./MathjaxHandle.svelte";
 // import EditableContainer from "editable/EditableContainer.svelte";
 
-import type { Codable } from "./codable";
+// import type { Codable } from "./codable";
 
 // import { updateActiveButtons } from "./toolbar";
 import { bridgeCommand } from "./lib";
@@ -28,7 +28,7 @@ export class EditingArea extends HTMLDivElement {
     // mathjaxHandle: MathjaxHandle;
     // editableContainer: EditableContainer;
     // editable: Editable;
-    codable: Codable;
+    codable: any;
 
     constructor() {
         super();
@@ -78,7 +78,7 @@ export class EditingArea extends HTMLDivElement {
 
         this.codable = document.createElement("textarea", {
             is: "anki-codable",
-        }) as Codable;
+        }) as any;
         this.appendChild(this.codable);
 
         this.onFocus = this.onFocus.bind(this);
@@ -88,7 +88,7 @@ export class EditingArea extends HTMLDivElement {
         this.showHandles = this.showHandles.bind(this);
     }
 
-    get activeInput(): /* Editable | */ Codable {
+    get activeInput(): /* Editable | */ any {
         return this.codable; //this.codable.active ? this.codable : this.editable;
     }
 
