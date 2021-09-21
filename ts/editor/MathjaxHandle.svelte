@@ -20,6 +20,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let dropdownApi: any;
 
+    let removeEventListener: () => void = () => {
+        /* noop */
+    };
+
+    function onImageResize(): void {
+        if (activeImage) {
+            errorMessage = activeImage.title;
+            updateSelection().then(() => dropdownApi.update());
+        }
+    }
+
+    $: if (activeImage) {
+        activeImage.addEventListener("resize", onImageResize);
+
+        const lastImage = activeImage;
+        removeEventListener = () =>
+            lastImage.removeEventListener("resize", onImageResize);
+    } else {
+        removeEventListener();
+    }
+
     const resizeObserver = new ResizeObserver(async () => {
         if (activeImage) {
             await updateSelection();
@@ -36,21 +57,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return image.closest("anki-mathjax")! as HTMLElement;
     }
 
-    function onEditorUpdate(event: CustomEvent) {
+    function onEditorUpdate(event: CustomEvent): void {
+        /* this updates the image in Mathjax.svelte */
         getComponent(activeImage!).dataset.mathjax = event.detail.mathjax;
-
-        let selectionResolve: (value: void) => void;
-        const afterSelectionUpdate = new Promise((resolve) => {
-            selectionResolve = resolve;
-        });
-
-        setTimeout(async () => {
-            errorMessage = activeImage!.title;
-            await updateSelection();
-            selectionResolve();
-        });
-
-        return afterSelectionUpdate;
     }
 </script>
 
@@ -60,7 +69,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     autoClose={false}
     distance={4}
     let:createDropdown
-    let:dropdownObject
 >
     {#if activeImage}
         <HandleSelection
@@ -77,10 +85,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <DropdownMenu>
             <MathjaxHandleEditor
                 initialValue={getComponent(activeImage).dataset.mathjax ?? ""}
-                on:update={async (event) => {
-                    await onEditorUpdate(event);
-                    dropdownObject.update();
-                }}
+                on:update={onEditorUpdate}
             />
             <div class="margin-x">
                 <ButtonToolbar>
