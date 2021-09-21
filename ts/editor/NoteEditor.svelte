@@ -3,16 +3,14 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import MultiRootEditor from "./MultiRootEditor.svelte";
     import EditorToolbar from "./EditorToolbar.svelte";
-    import FieldsArea from "./FieldsArea.svelte";
     import TagEditor from "./TagEditor.svelte";
 
     import EditorField from "./EditorField.svelte";
-
     import LabelContainer from "./LabelContainer.svelte";
     import LabelName from "./LabelName.svelte";
     import FieldState from "./FieldState.svelte";
-
     import EditingArea from "./EditingArea.svelte";
     import ImageHandle from "./ImageHandle.svelte";
     import MathjaxHandle from "./MathjaxHandle.svelte";
@@ -39,13 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="note-editor {className}">
-    <EditorToolbar
-        {size}
-        {wrap}
-        textColor={data.textColor}
-        highlightColor={data.highlightColor}
-    />
-    <FieldsArea
+    <MultiRootEditor
         class="flex-grow-1"
         fields={data.fieldsData}
         focusTo={data.focusTo}
@@ -56,13 +48,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         let:fontSize
         let:direction
     >
-        <EditorField>
+        <EditorToolbar
+            slot="toolbar"
+            {size}
+            {wrap}
+            textColor={data.textColor}
+            highlightColor={data.highlightColor}
+        />
+
+        <EditorField slot="field">
             <LabelContainer>
                 <LabelName>{fieldName}</LabelName>
                 <FieldState />
             </LabelContainer>
-            <EditingArea>
-                {#if true}
+            <EditingArea let:activeInput>
+                {#if activeInput === "editable"}
                     <EditableContainer
                         {content}
                         {focusOnMount}
@@ -86,12 +86,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             isRtl={direction === "rtl"}
                         />
                     </EditableContainer>
-                {:else}
+                {:else if activeInput === "codable"}
                     <Codable />
                 {/if}
             </EditingArea>
         </EditorField>
-    </FieldsArea>
+    </MultiRootEditor>
+
     <TagEditor {size} {wrap} tags={data.tags} on:tagsupdate />
 </div>
 

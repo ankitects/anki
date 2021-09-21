@@ -5,7 +5,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import * as tr from "lib/i18n";
     import { bridgeCommand } from "lib/bridgecommand";
-    import { fieldFocusedKey, focusInCodableKey } from "lib/context-keys";
+    import {
+        fieldFocusedKey,
+        currentFieldKey,
+        focusInCodableKey,
+    } from "lib/context-keys";
 
     import ButtonGroup from "components/ButtonGroup.svelte";
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";
@@ -18,7 +22,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import OnlyEditable from "./OnlyEditable.svelte";
     import ClozeButton from "./ClozeButton.svelte";
 
-    import { getCurrentField, appendInParentheses } from "./helpers";
+    import type { Writable } from "svelte/store";
+    import { getContext } from "svelte";
+    import type { EditorFieldAPI } from "./MultiRootEditor.svelte";
+    import { appendInParentheses } from "./helpers";
     import { withButton } from "components/helpers";
     import { wrapCurrent } from "./wrap";
     import { paperclipIcon, micIcon, functionIcon, xmlIcon } from "./icons";
@@ -33,11 +40,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bridgeCommand("record");
     }
 
+    const currentField = getContext<Writable<EditorFieldAPI | null>>(currentFieldKey);
+
     function onHtmlEdit() {
-        const currentField = getCurrentField();
-        if (currentField) {
-            currentField.toggleHtmlEdit();
-        }
+        $currentField?.editingArea!.toggleCodable();
     }
 </script>
 

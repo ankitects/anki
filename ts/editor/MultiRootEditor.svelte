@@ -59,12 +59,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     );
 
-    console.log(fieldsAPI);
+    console.log("fieldsAPI", fieldsAPI);
 </script>
+
+<slot name="toolbar" />
 
 <main class="fields-editor {className}">
     {#each fields as field, index}
         <slot
+            name="field"
             {field}
             focusOnMount={index === focusTo}
             fieldName={field.fieldName}

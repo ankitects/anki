@@ -21,6 +21,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const dispatch = createEventDispatcher();
     const fieldFocused = getContext<Writable<boolean>>(fieldFocusedKey);
 
+    let codableActive = false;
+
     const activeInput: Writable<ActiveInputAPI | null> = writable(null);
     setContext(activeInputKey, activeInput);
 
@@ -50,14 +52,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     onMount(
         () =>
-            ($editingArea = Object.defineProperty({}, "activeInput", {
-                get: () => $activeInput,
-            }))
+            ($editingArea = Object.defineProperties(
+                {},
+                {
+                    activeInput: {
+                        get: () => $activeInput,
+                    },
+                    toggleCodable: {
+                        value: () => (codableActive = !codableActive),
+                    },
+                }
+            ))
     );
 </script>
 
 <div class="editing-area" on:focusin={onFocusIn} on:focusout={onFocusOut}>
-    <slot deferFocus />
+    <slot activeInput={codableActive ? "codable" : "editable"} />
 </div>
 
 <style>
