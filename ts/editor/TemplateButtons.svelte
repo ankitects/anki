@@ -43,7 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ButtonGroup {api}>
     <ButtonGroupItem>
-        <WithShortcut shortcut={"F3"} let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut="F3" let:createShortcut let:shortcutLabel>
             <OnlyEditable let:disabled>
                 <IconButton
                     tooltip={appendInParentheses(
@@ -62,7 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut shortcut={"F5"} let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut="F5" let:createShortcut let:shortcutLabel>
             <OnlyEditable let:disabled>
                 <IconButton
                     tooltip={appendInParentheses(
@@ -96,7 +96,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             <DropdownMenu>
                 <WithShortcut
-                    shortcut={"Control+M, M"}
+                    shortcut="Control+M, M"
                     let:createShortcut
                     let:shortcutLabel
                 >
@@ -114,7 +114,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </WithShortcut>
 
                 <WithShortcut
-                    shortcut={"Control+M, E"}
+                    shortcut="Control+M, E"
                     let:createShortcut
                     let:shortcutLabel
                 >
@@ -132,7 +132,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </WithShortcut>
 
                 <WithShortcut
-                    shortcut={"Control+M, C"}
+                    shortcut="Control+M, C"
                     let:createShortcut
                     let:shortcutLabel
                 >
@@ -150,7 +150,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </WithShortcut>
 
                 <WithShortcut
-                    shortcut={"Control+T, T"}
+                    shortcut="Control+T, T"
                     let:createShortcut
                     let:shortcutLabel
                 >
@@ -164,7 +164,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </WithShortcut>
 
                 <WithShortcut
-                    shortcut={"Control+T, E"}
+                    shortcut="Control+T, E"
                     let:createShortcut
                     let:shortcutLabel
                 >
@@ -178,7 +178,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </WithShortcut>
 
                 <WithShortcut
-                    shortcut={"Control+T, M"}
+                    shortcut="Control+T, M"
                     let:createShortcut
                     let:shortcutLabel
                 >
@@ -198,7 +198,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <WithContext key={fieldFocusedKey} let:context={fieldFocused}>
             <WithContext key={focusInCodableKey} let:context={focusInCodable}>
                 <WithShortcut
-                    shortcut={"Control+Shift+X"}
+                    shortcut="Control+Shift+X"
                     let:createShortcut
                     let:shortcutLabel
                 >
