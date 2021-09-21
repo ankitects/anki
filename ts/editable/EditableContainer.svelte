@@ -4,55 +4,44 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import Editable from "./Editable.svelte";
-    import type { StyleType } from "./CustomStyles.svelte";
+    import CustomStyles from "./CustomStyles.svelte";
+
+    import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
     import { getContext, onDestroy } from "svelte";
     import { nightModeKey } from "components/context-keys";
 
     export let content: string;
     export let focusOnMount: boolean = false;
 
-    export let customStyles: StyleType[] = [];
-    $: styles = [
-        {
-            type: "link",
-            href: "./_anki/css/editable-build.css",
-        },
-        ...customStyles,
-    ] as StyleType[];
-
     let shadow: ShadowRoot;
+
     export let editable: Editable;
+    export let customStyles: CustomStyles;
 
-    /* userBaseStyle === */
-    /* userTemplateStyle */
-    /* imageOverlayStyle */
+    let userBaseResolve: (object: StyleObject) => void;
+    export const userBaseStyle = new Promise<StyleObject>(
+        (resolve) => (userBaseResolve = resolve)
+    );
 
-    /* const [baseStyle, basePromise] = loadStyleTag(shadow); */
-    /* const [imageStyle, imagePromise] = loadStyleTag(shadow); */
+    let userBaseRuleResolve: (rule: CSSStyleRule) => void;
+    export const userBaseRule = new Promise<CSSStyleRule>(
+        (resolve) => (userBaseRuleResolve = resolve)
+    );
 
-    /* connectedCallback(): void { */
-    /*     const sheet = this.baseStyle.sheet as CSSStyleSheet; */
-    /*     const baseIndex = sheet.insertRule("anki-editable {}"); */
-    /*     this.baseRule = sheet.cssRules[baseIndex] as CSSStyleRule; */
-    /* } */
+    let imageOverlayResolve: (object: StyleObject) => void;
+    export const imageOverlayStyle = new Promise<StyleObject>(
+        (resolve) => (imageOverlayResolve = resolve)
+    );
 
-    /* initialize(color: string): void { */
-    /*     this.setBaseColor(color); */
-    /* } */
+    export let color: string;
+    export let fontName: string;
+    export let fontSize: string;
+    export let direction: string;
 
-    /* setBaseColor(color: string): void { */
-    /*     if (this.baseRule) { */
-    /*         this.baseRule.style.color = color; */
-    /*     } */
-    /* } */
-
-    /* setBaseStyling(fontFamily: string, fontSize: string, direction: string): void { */
-    /*     if (this.baseRule) { */
-    /*         this.baseRule.style.fontFamily = fontFamily; */
-    /*         this.baseRule.style.fontSize = fontSize; */
-    /*         this.baseRule.style.direction = direction; */
-    /*     } */
-    /* } */
+    $: userBaseRule.then((rule) => (rule.style.color = color));
+    $: userBaseRule.then((rule) => (rule.style.fontFamily = fontName));
+    $: userBaseRule.then((rule) => (rule.style.fontSize = `${fontSize}px`));
+    $: userBaseRule.then((rule) => (rule.style.direction = direction));
 
     /* isRightToLeft(): boolean { */
     /*     return this.baseRule!.style.direction === "rtl"; */
@@ -66,15 +55,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function attachShadow(element: Element) {
         shadow = element.attachShadow({ mode: "open" });
+        const styles = [
+            {
+                id: "rootStyle",
+                type: "link" as "link",
+                href: "./_anki/css/editable-build.css",
+            } as StyleLinkType,
+        ];
+
+        customStyles = new CustomStyles({
+            target: shadow as any,
+            props: { styles },
+        });
+
+        customStyles.addStyleTag("userBase").then(userBaseResolve);
+
+        userBaseStyle.then((baseStyle) => {
+            const sheet = baseStyle.element.sheet as CSSStyleSheet;
+            const baseIndex = sheet.insertRule("anki-editable {}");
+            userBaseRuleResolve(sheet.cssRules[baseIndex] as CSSStyleRule);
+        });
+
+        customStyles.addStyleTag("imageOverlay").then(imageOverlayResolve);
+
         editable = new Editable({
             target: shadow as any,
             props: {
                 content,
                 focusOnMount,
-                styles,
             },
         });
-        console.log(editable);
     }
 
     const nightMode = getContext(nightModeKey);
@@ -82,9 +92,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => mutationObserver.disconnect());
 </script>
 
-<div
-    use:attachMutationObserver
-    use:attachShadow
-    class="editable-container"
-    class:night-mode={nightMode}
-/>
+<div>
+    <div
+        use:attachMutationObserver
+        use:attachShadow
+        class="editable-container"
+        class:night-mode={nightMode}
+    />
+
+    <slot {imageOverlayStyle} />
+</div>

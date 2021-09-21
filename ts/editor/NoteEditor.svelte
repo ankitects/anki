@@ -49,6 +49,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         let:focusOnMount
         let:fieldName
         let:content
+        let:fontName
+        let:fontSize
+        let:direction
     >
         <EditorField>
             <LabelContainer>
@@ -57,9 +60,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </LabelContainer>
             <EditingArea let:editingArea>
                 {#if true}
-                    <EditableContainer {content} {focusOnMount} />
-
-                    <div class="editable-handles">
+                    <EditableContainer
+                        {content}
+                        {focusOnMount}
+                        {fontName}
+                        {fontSize}
+                        {direction}
+                        let:imageOverlayStyle
+                    >
                         <!--<ImageHandle
                             activeImage={null}
                             container={null}
@@ -71,7 +79,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             isRtl={field.rtl}
                             />-->
                         <!-- TODO extensible -->
-                    </div>
+                    </EditableContainer>
                 {:else}
                     <Codable />
                 {/if}

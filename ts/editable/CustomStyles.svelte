@@ -7,12 +7,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         id: string;
     }
 
-    interface StyleLinkType extends Identifiable {
+    export interface StyleLinkType extends Identifiable {
         type: "link";
         href: string;
     }
 
-    interface StyleTagType extends Identifiable {
+    export interface StyleTagType extends Identifiable {
         type: "style";
     }
 
@@ -35,10 +35,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let styles: StyleType[];
     export const styleMap = new Map<string, StyleObject>();
-
-    export function getStyleMap(): Map<string, StyleObject> {
-        return styleMap;
-    }
 
     const resolvers = new Map<string, (object: StyleObject) => void>();
 

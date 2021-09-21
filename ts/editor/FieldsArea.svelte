@@ -20,6 +20,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             focusOnMount={index === focusTo}
             fieldName={field.fieldName}
             content={field.fieldContent}
+            fontName={field.fontName}
+            fontSize={field.fontSize}
+            direction={field.rtl ? "rtl" : "ltr"}
         />
     {/each}
 </main>
