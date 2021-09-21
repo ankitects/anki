@@ -1,6 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+/* eslint
+@typescript-eslint/no-explicit-any: "off",
+ */
+
 import { mathIcon } from "./icons";
 
 const parser = new DOMParser();
@@ -36,19 +40,25 @@ export function convertMathjax(
         return getEmptyIcon(style);
     }
 
-    const output = globalThis.MathJax.tex2svg(input);
-    const svg = output.children[0];
+    let output: Element;
+    try {
+        output = globalThis.MathJax.tex2svg(input);
+    } catch (e) {
+        return ["Mathjax Error", String(e)];
+    }
 
-    if (svg.viewBox.baseVal.height === 16) {
+    const svg = output.children[0] as SVGElement;
+
+    if ((svg as any).viewBox.baseVal.height === 16) {
         return getEmptyIcon(style);
     }
 
     let title = "";
 
     if (svg.innerHTML.includes("data-mjx-error")) {
-        svg.querySelector("rect").setAttribute("fill", "yellow");
-        svg.querySelector("text").setAttribute("color", "red");
-        title = svg.querySelector("title").innerHTML;
+        svg.querySelector("rect")?.setAttribute("fill", "yellow");
+        svg.querySelector("text")?.setAttribute("color", "red");
+        title = svg.querySelector("title")?.innerHTML ?? "";
     } else {
         svg.insertBefore(style, svg.children[0]);
     }

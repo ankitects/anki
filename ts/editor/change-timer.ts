@@ -3,10 +3,16 @@
 
 export class ChangeTimer {
     private value: number | null = null;
+    private action: (() => void) | null = null;
+
+    constructor() {
+        this.fireImmediately = this.fireImmediately.bind(this);
+    }
 
     schedule(action: () => void, delay: number): void {
         this.clear();
-        this.value = setTimeout(action, delay);
+        this.action = action;
+        this.value = setTimeout(this.fireImmediately, delay);
     }
 
     clear(): void {
@@ -14,5 +20,14 @@ export class ChangeTimer {
             clearTimeout(this.value);
             this.value = null;
         }
+    }
+
+    fireImmediately(): void {
+        if (this.action) {
+            this.action();
+            this.action = null;
+        }
+
+        this.clear();
     }
 }

@@ -16,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let codeMirror: CodeMirror.EditorFromTextArea;
     const changeTimer = new ChangeTimer();
+    const dispatch = createEventDispatcher();
 
     function onInput() {
         changeTimer.schedule(
@@ -24,12 +25,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
     }
 
+    function onBlur() {
+        changeTimer.fireImmediately();
+    }
+
     function openCodemirror(textarea: HTMLTextAreaElement): void {
         codeMirror = CodeMirror.fromTextArea(textarea, codeMirrorOptions);
         codeMirror.on("change", onInput);
+        codeMirror.on("blur", onBlur);
     }
 
-    const dispatch = createEventDispatcher();
     let textarea: HTMLTextAreaElement;
 
     onMount(() => {
