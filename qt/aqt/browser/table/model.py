@@ -6,6 +6,7 @@ from __future__ import annotations
 import time
 from typing import Any, Dict, List, Optional, Sequence, Union, cast
 
+import aqt
 from anki.cards import Card, CardId
 from anki.collection import BrowserColumns as Columns
 from anki.collection import Collection
@@ -43,6 +44,7 @@ class DataModel(QAbstractTableModel):
         self._rows: Dict[int, CellRow] = {}
         self._block_updates = False
         self._stale_cutoff = 0.0
+        self._want_tooltips = aqt.mw.pm.show_browser_table_tooltips()
 
     # Row Object Interface
     ######################################################################
@@ -274,12 +276,14 @@ class DataModel(QAbstractTableModel):
             qfont.setFamily(row.font_name)
             qfont.setPixelSize(row.font_size)
             return qfont
-        if role == Qt.TextAlignmentRole:
+        elif role == Qt.TextAlignmentRole:
             align: Union[Qt.AlignmentFlag, int] = Qt.AlignVCenter
             if self.column_at(index).alignment == Columns.ALIGNMENT_CENTER:
                 align |= Qt.AlignHCenter
             return align
-        if role in (Qt.DisplayRole, Qt.ToolTipRole):
+        elif role == Qt.DisplayRole:
+            return self.get_cell(index).text
+        elif role == Qt.ToolTipRole and self._want_tooltips:
             return self.get_cell(index).text
         return QVariant()
 

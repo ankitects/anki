@@ -657,3 +657,9 @@ create table if not exists profiles
 
     def set_recording_driver(self, driver: RecordingDriver) -> None:
         self.profile["recordingDriver"] = driver.value
+
+    def show_browser_table_tooltips(self) -> bool:
+        return self.profile.get("browserTableTooltips", True)
+
+    def set_show_browser_table_tooltips(self, val: bool) -> None:
+        self.profile["browserTableTooltips"] = val
