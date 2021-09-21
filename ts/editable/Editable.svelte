@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { activeInputKey } from "lib/context-keys";
     import type { DecoratedElement } from "./decorated";
     import { decoratedComponents } from "./decorated";
-    import type { EditorInput } from "editor/EditingArea.svelte";
+    import type { EditorInputAPI } from "editor/EditingArea.svelte";
 
     export let content: string;
     export let focusOnMount: boolean = false;
@@ -38,33 +38,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return result;
     }
 
-    export function moveCaretToEnd(): void {
-        caretToEnd(editable);
-    }
-
     function focus() {
         editable.focus();
     }
 
-    const activeInput = getContext<Writable<EditorInput | null>>(activeInputKey);
-
-    onMount(() => $activeInput = { focus });
-    onDestroy(() => $activeInput = null);
+    function moveCaretToEnd(): void {
+        caretToEnd(editable);
+    }
 
     /* import type { DecoratedElement } from "./decorated"; */
     /* import { decoratedComponents } from "./decorated"; */
     /* import { bridgeCommand } from "lib/bridgecommand"; */
     /* import { elementIsBlock, getBlockElement } from "lib/dom"; */
     /* import { wrapInternal } from "lib/wrap"; */
-
-    /* export function caretToEnd(node: Node): void { */
-    /*     const range = document.createRange(); */
-    /*     range.selectNodeContents(node); */
-    /*     range.collapse(false); */
-    /*     const selection = (node.getRootNode() as Document | ShadowRoot).getSelection()!; */
-    /*     selection.removeAllRanges(); */
-    /*     selection.addRange(range); */
-    /* } */
 
     /* function containsInlineContent(element: Element): boolean { */
     /*     for (const child of element.children) { */
@@ -117,6 +103,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             caretToEnd(editable);
         }
     }
+
+    const activeInput = getContext<Writable<EditorInputAPI | null>>(activeInputKey);
+
+    onMount(() => ($activeInput = { focus, moveCaretToEnd }));
+    onDestroy(() => ($activeInput = null));
 </script>
 
 <anki-editable

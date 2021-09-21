@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className: string = "";
     export { className as class };
 
-    const focusInCodable = writable(false)
+    const focusInCodable = writable(false);
 
     setContext(fieldFocusedKey, writable(false));
     setContext(focusInCodableKey, focusInCodable);

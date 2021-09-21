@@ -3,8 +3,9 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    export interface EditorInput {
+    export interface EditorInputAPI {
         focus: () => void;
+        moveCaretToEnd: () => void;
     }
 </script>
 
@@ -19,22 +20,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const dispatch = createEventDispatcher();
     const fieldFocused = getContext<Writable<boolean>>(fieldFocusedKey);
 
-    export const activeInput: Writable<EditorInput | null> = writable(null);
+    export const activeInput: Writable<EditorInputAPI | null> = writable(null);
 
     setContext(activeInputKey, activeInput);
 
-    export function focus(): void {
+    function focus(): void {
         $activeInput?.focus();
+    }
 
-        /* editingArea.caretToEnd(); */
-
-        /* if (editingArea.getSelection().anchorNode === null) { */
-        /*     // selection is not inside editable after focusing */
-        /*     editingArea.caretToEnd(); */
-        /* } */
+    function moveCaretToEnd(): void {
+        $activeInput?.moveCaretToEnd();
     }
 
     function onFocusIn(): void {
+        focus();
+        moveCaretToEnd();
+
         dispatch("fieldfocus", 1);
         fieldFocused.set(true);
     }

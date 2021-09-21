@@ -53,6 +53,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         mutationObserver.observe(element, { childList: true });
     }
 
+    const allContexts = getAllContexts();
+
     function attachShadow(element: Element) {
         shadow = element.attachShadow({ mode: "open" });
 
@@ -79,14 +81,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         customStyles.addStyleTag("imageOverlay").then(imageOverlayResolve);
 
-        editable = new Editable({
-            target: shadow as any,
-            props: {
-                content,
-                focusOnMount,
-            },
-            context: getAllContexts(),
-        } as any);
+        // make component initiation asynchronous
+        // https://github.com/sveltejs/svelte/issues/6753#issuecomment-924344561
+        setTimeout(
+            () =>
+                (editable = new Editable({
+                    target: shadow as any,
+                    props: {
+                        content,
+                        focusOnMount,
+                    },
+                    context: allContexts,
+                } as any))
+        );
     }
 
     const nightMode = getContext(nightModeKey);
