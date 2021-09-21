@@ -897,6 +897,15 @@ class SidebarTreeView(QTreeView):
                 tr.browsing_update_saved_search(),
                 lambda: self.update_saved_search(item),
             )
+        elif item.item_type == SidebarItemType.TAG:
+            if all(s.item_type == item.item_type for s in self._selected_items()):
+                menu.addAction(
+                    tr.browsing_add_to_selected_notes(), self.add_tags_to_selected_notes
+                )
+                menu.addAction(
+                    tr.browsing_remove_from_selected_notes(),
+                    self.remove_tags_from_selected_notes,
+                )
 
     def _maybe_add_delete_action(
         self, menu: QMenu, item: SidebarItem, index: QModelIndex
@@ -1089,6 +1098,14 @@ class SidebarTreeView(QTreeView):
             current_name=old_full_name,
             new_name=new_full_name,
         ).success(success).run_in_background()
+
+    def add_tags_to_selected_notes(self) -> None:
+        tags = " ".join(item.full_name for item in self._selected_items())
+        self.browser.add_tags_to_selected_notes(tags)
+
+    def remove_tags_from_selected_notes(self) -> None:
+        tags = " ".join(item.full_name for item in self._selected_items())
+        self.browser.remove_tags_from_selected_notes(tags)
 
     # Saved searches
     ####################################
