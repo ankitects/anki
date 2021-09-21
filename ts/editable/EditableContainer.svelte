@@ -90,9 +90,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const nightMode = getContext(nightModeKey);
 
     onDestroy(() => mutationObserver.disconnect());
+
+    let overlayRelative: HTMLElement;
 </script>
 
-<div>
+<div bind:this={overlayRelative} class="overlay-relative">
     <div
         use:attachMutationObserver
         use:attachShadow
@@ -100,5 +102,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class:night-mode={nightMode}
     />
 
-    <slot {imageOverlayStyle} />
+    <!-- slot for overlays -->
+    {#if overlayRelative}
+        <slot
+            {overlayRelative}
+            imageOverlaySheet={imageOverlayStyle.then((object) => object.element.sheet)}
+        />
+    {/if}
 </div>
+
+<style lang="scss">
+    .overlay-relative {
+        position: relative;
+    }
+</style>

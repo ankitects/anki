@@ -58,7 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <LabelName>{fieldName}</LabelName>
                 <FieldState />
             </LabelContainer>
-            <EditingArea let:editingArea>
+            <EditingArea>
                 {#if true}
                     <EditableContainer
                         {content}
@@ -66,19 +66,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         {fontName}
                         {fontSize}
                         {direction}
-                        let:imageOverlayStyle
+                        let:imageOverlaySheet
+                        let:overlayRelative={container}
                     >
-                        <!--<ImageHandle
-                            activeImage={null}
-                            container={null}
-                            isRtl={field.rtl}
-                        />
+                        {#await imageOverlaySheet then sheet}
+                            <ImageHandle
+                                activeImage={null}
+                                {container}
+                                isRtl={direction === "rtl"}
+                                {sheet}
+                            />
+                        {/await}
                         <MathjaxHandle
                             activeImage={null}
-                            container={null}
-                            isRtl={field.rtl}
-                            />-->
-                        <!-- TODO extensible -->
+                            {container}
+                            isRtl={direction === "rtl"}
+                        />
                     </EditableContainer>
                 {:else}
                     <Codable />
