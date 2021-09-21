@@ -345,7 +345,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             self.note,
             ord=ord,
             parent=self.parentWindow,
-            fill_empty=self.addMode,
+            fill_empty=False,
         )
         if isWin:
             self.parentWindow.activateWindow()
