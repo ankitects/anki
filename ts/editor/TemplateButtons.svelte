@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import * as tr from "lib/i18n";
     import { bridgeCommand } from "lib/bridgecommand";
-    import { fieldFocusedKey, inCodableKey } from "./NoteEditor.svelte";
+    import { fieldFocusedKey, focusInCodableKey } from "lib/context-keys";
 
     import ButtonGroup from "components/ButtonGroup.svelte";
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";
@@ -196,7 +196,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <ButtonGroupItem>
         <WithContext key={fieldFocusedKey} let:context={fieldFocused}>
-            <WithContext key={inCodableKey} let:context={inCodable}>
+            <WithContext key={focusInCodableKey} let:context={focusInCodable}>
                 <WithShortcut
                     shortcut={"Control+Shift+X"}
                     let:createShortcut
@@ -208,7 +208,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             shortcutLabel
                         )}
                         iconSize={70}
-                        active={inCodable}
+                        active={focusInCodable}
                         disabled={!fieldFocused}
                         on:click={onHtmlEdit}
                         on:mount={withButton(createShortcut)}

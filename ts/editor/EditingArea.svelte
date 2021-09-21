@@ -2,32 +2,45 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
+<script context="module" lang="ts">
+    export interface EditorInput {
+        focus: () => void;
+    }
+</script>
+
 <script lang="ts">
     import type { Writable } from "svelte/store";
-    import { getContext, createEventDispatcher } from "svelte";
-    import { fieldFocusedKey } from "./NoteEditor.svelte";
+    import { writable } from "svelte/store";
+    import { setContext, getContext, createEventDispatcher } from "svelte";
+    import { activeInputKey, fieldFocusedKey } from "lib/context-keys";
 
     let editingArea: HTMLElement;
 
     const dispatch = createEventDispatcher();
     const fieldFocused = getContext<Writable<boolean>>(fieldFocusedKey);
 
-    function deferFocusDown(): void {
-        /* editingArea.focus(); */
+    export const activeInput: Writable<EditorInput | null> = writable(null);
+
+    setContext(activeInputKey, activeInput);
+
+    export function focus(): void {
+        $activeInput?.focus();
+
         /* editingArea.caretToEnd(); */
 
         /* if (editingArea.getSelection().anchorNode === null) { */
         /*     // selection is not inside editable after focusing */
         /*     editingArea.caretToEnd(); */
         /* } */
+    }
 
-        /* bridgeCommand(`focus:${editingArea.ord}`); */
+    function onFocusIn(): void {
         dispatch("fieldfocus", 1);
         fieldFocused.set(true);
     }
 
-    function saveFieldIfFieldChanged(event: FocusEvent): void {
-        const focusTo = event.relatedTarget!;
+    function onFocusOut(event: FocusEvent): void {
+        /* const focusTo = event.relatedTarget!; */
         /* const fieldChanged = */
         /*     editingArea !== getCurrentField() && !editingArea.contains(focusTo); */
 
@@ -43,10 +56,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     bind:this={editingArea}
     class="editing-area"
-    on:focusin={deferFocusDown}
-    on:focusout={saveFieldIfFieldChanged}
+    on:focusin={onFocusIn}
+    on:focusout={onFocusOut}
 >
-    <slot />
+    <slot deferFocus />
 </div>
 
 <style>

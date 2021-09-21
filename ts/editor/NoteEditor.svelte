@@ -2,11 +2,6 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script context="module" lang="ts">
-    export const fieldFocusedKey = Symbol("fieldFocused");
-    export const inCodableKey = Symbol("inCodable");
-</script>
-
 <script lang="ts">
     import EditorToolbar from "./EditorToolbar.svelte";
     import FieldsArea from "./FieldsArea.svelte";
@@ -27,6 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { setContext } from "svelte";
     import { writable } from "svelte/store";
     import { isApplePlatform } from "lib/platform";
+    import { fieldFocusedKey, focusInCodableKey } from "lib/context-keys";
     import type { AdapterData } from "./adapter-types";
 
     export let data: AdapterData;
@@ -36,8 +32,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className: string = "";
     export { className as class };
 
+    const focusInCodable = writable(false)
+
     setContext(fieldFocusedKey, writable(false));
-    setContext(inCodableKey, writable(false));
+    setContext(focusInCodableKey, focusInCodable);
 </script>
 
 <div class="note-editor {className}">

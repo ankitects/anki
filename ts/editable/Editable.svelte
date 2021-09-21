@@ -3,9 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { getContext, onMount, onDestroy } from "svelte";
+    import type { Writable } from "svelte/store";
     import { elementContainsInlineContent, caretToEnd } from "lib/dom";
+    import { activeInputKey } from "lib/context-keys";
     import type { DecoratedElement } from "./decorated";
     import { decoratedComponents } from "./decorated";
+    import type { EditorInput } from "editor/EditingArea.svelte";
 
     export let content: string;
     export let focusOnMount: boolean = false;
@@ -37,6 +41,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export function moveCaretToEnd(): void {
         caretToEnd(editable);
     }
+
+    function focus() {
+        editable.focus();
+    }
+
+    const activeInput = getContext<Writable<EditorInput | null>>(activeInputKey);
+
+    onMount(() => $activeInput = { focus });
+    onDestroy(() => $activeInput = null);
 
     /* import type { DecoratedElement } from "./decorated"; */
     /* import { decoratedComponents } from "./decorated"; */

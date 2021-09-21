@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import CustomStyles from "./CustomStyles.svelte";
 
     import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
-    import { getContext, onDestroy } from "svelte";
+    import { getContext, getAllContexts, onDestroy } from "svelte";
     import { nightModeKey } from "components/context-keys";
 
     export let content: string;
@@ -55,6 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function attachShadow(element: Element) {
         shadow = element.attachShadow({ mode: "open" });
+
         const styles = [
             {
                 id: "rootStyle",
@@ -84,7 +85,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 content,
                 focusOnMount,
             },
-        });
+            context: getAllContexts(),
+        } as any);
     }
 
     const nightMode = getContext(nightModeKey);
