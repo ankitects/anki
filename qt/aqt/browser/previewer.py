@@ -47,6 +47,7 @@ class Previewer(QDialog):
         self, parent: QWidget, mw: AnkiQt, on_close: Callable[[], None]
     ) -> None:
         super().__init__(None, Qt.Window)
+        mw.garbage_collect_on_dialog_finish(self)
         self._open = True
         self._parent = parent
         self._close_callback = on_close
@@ -123,6 +124,7 @@ class Previewer(QDialog):
     def _on_close(self) -> None:
         self._open = False
         self._close_callback()
+        self._web = None
 
     def _setup_web_view(self) -> None:
         self._web.stdHtml(
