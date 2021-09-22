@@ -17,23 +17,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import EditableContainer from "editable/EditableContainer.svelte";
     import Codable from "./Codable.svelte";
 
-    import { setContext } from "svelte";
     import { writable } from "svelte/store";
-    import { isApplePlatform } from "lib/platform";
-    import { fieldFocusedKey, focusInCodableKey } from "lib/context-keys";
+    import { setContext, createEventDispatcher } from "svelte";
+    import { fieldFocusedKey } from "lib/context-keys";
     import type { AdapterData } from "./adapter-types";
 
     export let data: AdapterData;
-    export let size: number = isApplePlatform() ? 1.6 : 2.0;
-    export let wrap: boolean = true;
+    export let size: number;
+    export let wrap: boolean;
 
     let className: string = "";
     export { className as class };
 
-    const focusInCodable = writable(false);
+    const dispatch = createEventDispatcher();
 
-    setContext(fieldFocusedKey, writable(false));
-    setContext(focusInCodableKey, focusInCodable);
+    const fieldFocused = writable(false);
+    setContext(fieldFocusedKey, fieldFocused);
 </script>
 
 <div class="note-editor {className}">
@@ -56,41 +55,52 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             highlightColor={data.highlightColor}
         />
 
-        <EditorField slot="field">
-            <LabelContainer>
-                <LabelName>{fieldName}</LabelName>
-                <FieldState />
-            </LabelContainer>
-            <EditingArea let:activeInput>
-                {#if activeInput === "editable"}
-                    <EditableContainer
-                        {content}
-                        {focusOnMount}
-                        {fontName}
-                        {fontSize}
-                        {direction}
-                        let:imageOverlaySheet
-                        let:overlayRelative={container}
-                    >
-                        {#await imageOverlaySheet then sheet}
-                            <ImageHandle
+        <svelte:fragment slot="field">
+            <EditorField let:index>
+                <LabelContainer>
+                    <LabelName>{fieldName}</LabelName>
+                    <FieldState />
+                </LabelContainer>
+                <EditingArea
+                    {content}
+                    let:activeInput
+                    on:focusin={() => ($fieldFocused = true)}
+                    on:input={() => dispatch("fieldupdate", index)}
+                    on:focusout={() => {
+                        $fieldFocused = false;
+                        dispatch("fieldblur", index);
+                    }}
+                >
+                    {#if activeInput === "editable"}
+                        <EditableContainer
+                            {content}
+                            {focusOnMount}
+                            {fontName}
+                            {fontSize}
+                            {direction}
+                            let:imageOverlaySheet
+                            let:overlayRelative={container}
+                        >
+                            {#await imageOverlaySheet then sheet}
+                                <ImageHandle
+                                    activeImage={null}
+                                    {container}
+                                    isRtl={direction === "rtl"}
+                                    {sheet}
+                                />
+                            {/await}
+                            <MathjaxHandle
                                 activeImage={null}
                                 {container}
                                 isRtl={direction === "rtl"}
-                                {sheet}
                             />
-                        {/await}
-                        <MathjaxHandle
-                            activeImage={null}
-                            {container}
-                            isRtl={direction === "rtl"}
-                        />
-                    </EditableContainer>
-                {:else if activeInput === "codable"}
-                    <Codable />
-                {/if}
-            </EditingArea>
-        </EditorField>
+                        </EditableContainer>
+                    {:else if activeInput === "codable"}
+                        <Codable {content} />
+                    {/if}
+                </EditingArea>
+            </EditorField>
+        </svelte:fragment>
     </MultiRootEditor>
 
     <TagEditor {size} {wrap} tags={data.tags} on:tagsupdate />

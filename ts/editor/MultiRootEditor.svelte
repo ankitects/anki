@@ -20,7 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
     import type { Writable } from "svelte/store";
     import type { FieldData } from "./adapter-types";
-    import { fieldsKey, currentFieldKey } from "lib/context-keys";
+    import { fieldsKey, currentFieldKey, focusInCodableKey } from "lib/context-keys";
 
     export let fields: FieldData[];
     export let focusTo: number;
@@ -28,7 +28,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className: string = "";
     export { className as class };
 
-    export const fieldsList: EditorFieldAPI[] = [];
+    setContext(focusInCodableKey, writable(false));
+
+    const fieldsList: EditorFieldAPI[] = [];
 
     function register(object: EditorFieldAPI): number {
         return fieldsList.push(object);
@@ -43,10 +45,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const currentField: Writable<EditorFieldAPI | null> = writable(null);
     setContext(currentFieldKey, currentField);
 
-    function getCurrentField(): EditorFieldAPI | null {
-        return $currentField;
-    }
-
     const fieldsAPI = Object.defineProperties(
         {},
         {
@@ -54,7 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 value: fieldsList,
             },
             currentField: {
-                get: getCurrentField,
+                get: () => $currentField,
             },
         }
     );

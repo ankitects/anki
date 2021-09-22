@@ -9,6 +9,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { activeInputKey, focusInCodableKey } from "lib/context-keys";
     import type { ActiveInputAPI } from "./EditingArea.svelte";
 
+    export let content: string;
+
     const codeMirrorOptions = {
         mode: htmlanki,
         ...baseOptions,
@@ -27,15 +29,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return doc.body.innerHTML;
     }
 
-    /* export class Codable extends HTMLTextAreaElement { */
-    /*     codeMirror: CodeMirror.EditorFromTextArea | undefined; */
-
     /*     get active(): boolean { */
     /*         return Boolean(this.codeMirror); */
-    /*     } */
-
-    /*     connectedCallback(): void { */
-    /*         this.setAttribute("hidden", ""); */
     /*     } */
 
     /*     teardown(): string { */
@@ -56,7 +51,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /*     onPaste(): void { */
     /*         /1* default *1/ */
     /*     } */
-    /* } */
 
     function focus(): void {
         codeMirror.focus();

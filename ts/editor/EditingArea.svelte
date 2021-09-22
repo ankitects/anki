@@ -17,22 +17,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
     import { setContext, getContext, createEventDispatcher } from "svelte";
-    import { editingAreaKey, activeInputKey, fieldFocusedKey } from "lib/context-keys";
+    import { editingAreaKey, activeInputKey } from "lib/context-keys";
+
+    export let content: string;
 
     const dispatch = createEventDispatcher();
-    const fieldFocused = getContext<Writable<boolean>>(fieldFocusedKey);
 
     let codableActive = false;
 
     const activeInput: Writable<ActiveInputAPI | null> = writable(null);
+
     setContext(activeInputKey, activeInput);
 
-    function onFocusIn(): void {
-        dispatch("fieldfocus", 1);
-        fieldFocused.set(true);
-    }
-
     function onFocusOut(event: FocusEvent): void {
+        console.log("testo");
         /* const focusTo = event.relatedTarget!; */
         /* const fieldChanged = */
         /*     editingArea !== getCurrentField() && !editingArea.contains(focusTo); */
@@ -43,11 +41,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /*     editingArea.resetHandles(); */
         /* } */
 
-        fieldFocused.set(false);
+        dispatch("fieldblur");
     }
 
-    const editingArea = getContext<Writable<EditingAreaAPI | null>>(editingAreaKey);
-    $editingArea = Object.defineProperties(
+    const editingAreaAPI = getContext<Writable<EditingAreaAPI | null>>(editingAreaKey);
+    $editingAreaAPI = Object.defineProperties(
         {},
         {
             activeInput: {
@@ -60,8 +58,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     );
 </script>
 
-<div class="editing-area" on:focusin={onFocusIn} on:focusout={onFocusOut}>
-    <slot activeInput={codableActive ? "codable" : "editable"} />
+<div class="editing-area" on:focusin on:focusout on:input>
+    <slot {content} activeInput={codableActive ? "codable" : "editable"} />
 </div>
 
 <style>

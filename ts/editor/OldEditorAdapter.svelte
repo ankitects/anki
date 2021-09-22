@@ -1,6 +1,10 @@
 <script lang="ts">
     import NoteEditor from "./NoteEditor.svelte";
     import { bridgeCommand } from "lib/bridgecommand";
+    import { isApplePlatform } from "lib/platform";
+    import { ChangeTimer } from "./change-timer";
+
+    let noteEditor: NoteEditor;
 
     let fields: [string, string][] = [];
     export function setFields(fs: [string, string][]): void {
@@ -62,6 +66,30 @@
     function saveTags(event: CustomEvent): void {
         bridgeCommand(`saveTags:${JSON.stringify(event.detail.tags)}`);
     }
+
+    const fieldSave = new ChangeTimer();
+
+    function onFieldUpdate({ detail: index }): void {
+        fieldSave.schedule(
+            /* () => bridgeCommand(`key:${index}:${noteId}:${noteEditor.fields[index].editingArea.activeInput.fieldHTML}`), */
+            () => console.log("save!"),
+            600
+        );
+    }
+
+    function onFieldBlur({ detail }): void {
+        /* this will also be a key save */
+        fieldSave.fireImmediately();
+    }
 </script>
 
-<NoteEditor {data} {...$$restProps} on:tagsupdate={saveTags} />
+<NoteEditor
+    bind:this={noteEditor}
+    {data}
+    size={isApplePlatform() ? 1.6 : 2.0}
+    wrap
+    {...$$restProps}
+    on:tagsupdate={saveTags}
+    on:fieldupdate={onFieldUpdate}
+    on:fieldblur={onFieldBlur}
+/>

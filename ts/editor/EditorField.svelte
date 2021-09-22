@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
     import type { Writable } from "svelte/store";
     import { editingAreaKey, currentFieldKey, fieldsKey } from "lib/context-keys";
-    import type { EditorFieldAPI, FieldsRegisterAPI } from "./FieldsArea.svelte";
+    import type { EditorFieldAPI, FieldsRegisterAPI } from "./MultiRootEditor.svelte";
 
     const editingAreaStore: Writable<EditingAreaAPI | null> = writable(null);
     setContext(editingAreaKey, editingAreaStore);
@@ -30,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         get: editingArea,
     });
 
-    const index = fields.register(editorField);
+    const index = fields.register(editorField) - 1;
     const currentField = getContext<Writable<EditorFieldAPI | null>>(currentFieldKey);
 
     onDestroy(() => fields.deregister(index));
@@ -41,7 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:focusin={() => ($currentField = editorField)}
     on:focusout={() => ($currentField = null)}
 >
-    <slot />
+    <slot {index} />
 </div>
 
 <style lang="scss">
