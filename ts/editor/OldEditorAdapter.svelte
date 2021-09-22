@@ -99,7 +99,8 @@
 
     function onFieldBlur(): void {
         /* this will also be a key save */
-        fieldSave.fireImmediately();
+        /* reactivate when EditingArea.fieldHTML works */
+        /* fieldSave.fireImmediately(); */
     }
 </script>
 

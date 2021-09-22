@@ -16,12 +16,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
-    import { setContext, getContext, createEventDispatcher } from "svelte";
+    import { setContext, getContext } from "svelte";
     import { editingAreaKey, activeInputKey } from "lib/context-keys";
 
     export let content: string;
-
-    const dispatch = createEventDispatcher();
 
     let codableActive = false;
 
@@ -29,37 +27,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     setContext(activeInputKey, activeInput);
 
-    function onFocusOut(event: FocusEvent): void {
-        console.log("testo");
-        /* const focusTo = event.relatedTarget!; */
-        /* const fieldChanged = */
-        /*     editingArea !== getCurrentField() && !editingArea.contains(focusTo); */
-
-        /* saveField(editingArea, fieldChanged ? "blur" : "key"); */
-
-        /* if (fieldChanged) { */
-        /*     editingArea.resetHandles(); */
-        /* } */
-
-        dispatch("fieldblur");
+    function fetchContent() {
+        content = $activeInput!.fieldHTML;
     }
 
-    const editingAreaAPI = getContext<Writable<EditingAreaAPI | null>>(editingAreaKey);
-    $editingAreaAPI = Object.defineProperties(
-        {},
-        {
-            activeInput: {
-                get: () => $activeInput,
-            },
-            toggleCodable: {
-                value: () => (codableActive = !codableActive),
-            },
-        }
-    );
+    /* if (fieldChanged) { */
+    /*     editingArea.resetHandles(); */
+    /* } */
+
+    const editingAreaAPI = getContext<Partial<EditingAreaAPI>>(editingAreaKey);
+    Object.defineProperties(editingAreaAPI, {
+        activeInput: {
+            get: () => $activeInput,
+        },
+        toggleCodable: {
+            value: () => (codableActive = !codableActive),
+        },
+    });
 </script>
 
-<div class="editing-area" on:focusin on:focusout on:input>
-    <slot {content} activeInput={codableActive ? "codable" : "editable"} />
+<div class="editing-area" on:focusin on:input={fetchContent} on:input on:focusout>
+    <slot {content} />
 </div>
 
 <style>

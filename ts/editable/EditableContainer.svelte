@@ -7,16 +7,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import CustomStyles from "./CustomStyles.svelte";
 
     import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
-    import { getContext, getAllContexts, onDestroy } from "svelte";
+    import { getContext, getAllContexts } from "svelte";
     import { nightModeKey } from "components/context-keys";
 
     export let content: string;
     export let focusOnMount: boolean = false;
 
+    $: {
+        content;
+        console.log("editablecontainer", content);
+    }
+
     let shadow: ShadowRoot;
 
-    export let editable: Editable;
-    export let customStyles: CustomStyles;
+    let editableResolve: (editable: Editable) => void;
+    const editablePromise: Promise<Editable> = new Promise(
+        (resolve) => (editableResolve = resolve)
+    );
+
+    $: editablePromise.then((editable) => editable.$set({ content }));
+
+    let customStyles: CustomStyles;
 
     let userBaseResolve: (object: StyleObject) => void;
     export const userBaseStyle = new Promise<StyleObject>(
@@ -46,12 +57,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /* isRightToLeft(): boolean { */
     /*     return this.baseRule!.style.direction === "rtl"; */
     /* } */
-
-    const mutationObserver = new MutationObserver(console.log);
-
-    function attachMutationObserver(element: Element) {
-        mutationObserver.observe(element, { childList: true });
-    }
 
     const allContexts = getAllContexts();
 
@@ -83,33 +88,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         // make component initiation asynchronous
         // https://github.com/sveltejs/svelte/issues/6753#issuecomment-924344561
-        setTimeout(
-            () =>
-                (editable = new Editable({
+        setTimeout(() =>
+            editableResolve(
+                new Editable({
                     target: shadow as any,
                     props: {
                         content,
                         focusOnMount,
                     },
                     context: allContexts,
-                } as any))
+                } as any)
+            )
         );
     }
 
     const nightMode = getContext(nightModeKey);
 
-    onDestroy(() => mutationObserver.disconnect());
-
     let overlayRelative: HTMLElement;
 </script>
 
 <div bind:this={overlayRelative} class="overlay-relative">
-    <div
-        use:attachMutationObserver
-        use:attachShadow
-        class="editable-container"
-        class:night-mode={nightMode}
-    />
+    <div use:attachShadow class="editable-container" class:night-mode={nightMode} />
 
     <!-- slot for overlays -->
     {#if overlayRelative}

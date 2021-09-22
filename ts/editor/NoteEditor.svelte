@@ -27,7 +27,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Codable from "./Codable.svelte";
 
     import { writable } from "svelte/store";
-    import type { Writable } from "svelte/store";
     import { setContext, createEventDispatcher } from "svelte";
     import { fieldFocusedKey, multiRootEditorKey } from "lib/context-keys";
     import type { AdapterData } from "./adapter-types";
@@ -44,7 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const fieldFocused = writable(false);
     setContext(fieldFocusedKey, fieldFocused);
 
-    const multiRootEditor: Writable<MultiRootEditorAPI | null> = writable(null);
+    const multiRootEditor: Partial<MultiRootEditorAPI> = {};
     setContext(multiRootEditorKey, multiRootEditor);
 
     // TODO end of downwards tree for now
@@ -52,14 +51,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {},
         {
             multiRootEditor: {
-                get: () => $multiRootEditor,
+                get: () => multiRootEditor,
             },
         }
     );
 </script>
 
 <div class="note-editor {className}">
-    <DecoratedComponents>
+    <DecoratedComponents contextKey={multiRootEditorKey}>
         <MultiRootEditor
             class="flex-grow-1"
             fields={data.fieldsData}
@@ -81,41 +80,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     </LabelContainer>
                     <EditingArea
                         {content}
-                        let:activeInput
                         on:focusin={() => ($fieldFocused = true)}
                         on:input={() => dispatch("fieldupdate", index)}
                         on:focusout={() => {
                             $fieldFocused = false;
                             dispatch("fieldblur", index);
                         }}
+                        let:content
                     >
-                        {#if activeInput === "editable"}
-                            <EditableContainer
-                                {content}
-                                {focusOnMount}
-                                {fontName}
-                                {fontSize}
-                                {direction}
-                                let:imageOverlaySheet
-                                let:overlayRelative={container}
-                            >
-                                {#await imageOverlaySheet then sheet}
-                                    <ImageHandle
-                                        activeImage={null}
-                                        {container}
-                                        isRtl={direction === "rtl"}
-                                        {sheet}
-                                    />
-                                {/await}
-                                <MathjaxHandle
+                        <EditableContainer
+                            {content}
+                            {focusOnMount}
+                            {fontName}
+                            {fontSize}
+                            {direction}
+                            let:imageOverlaySheet
+                            let:overlayRelative={container}
+                        >
+                            {#await imageOverlaySheet then sheet}
+                                <ImageHandle
                                     activeImage={null}
                                     {container}
                                     isRtl={direction === "rtl"}
+                                    {sheet}
                                 />
-                            </EditableContainer>
-                        {:else if activeInput === "codable"}
-                            <Codable {content} />
-                        {/if}
+                            {/await}
+                            <MathjaxHandle
+                                activeImage={null}
+                                {container}
+                                isRtl={direction === "rtl"}
+                            />
+                        </EditableContainer>
+                        <Codable {content} />
                     </EditingArea>
                 </EditorField>
             </svelte:fragment>

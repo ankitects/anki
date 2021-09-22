@@ -52,21 +52,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     setContext(currentFieldKey, currentField);
 
-    /* const decoratedComponents = getContext(decoratedComponentsKey); */
-
     const multiRootEditor =
-        getContext<Writable<MultiRootEditorAPI | null>>(multiRootEditorKey);
-    $multiRootEditor = Object.defineProperties(
-        {},
-        {
-            fields: {
-                value: editorFields,
-            },
-            currentField: {
-                get: () => $currentField,
-            },
-        }
-    );
+        getContext<Writable<Partial<MultiRootEditorAPI>>>(multiRootEditorKey);
+    Object.defineProperties(multiRootEditor, {
+        fields: {
+            value: editorFields,
+        },
+        currentField: {
+            get: () => $currentField,
+        },
+    });
 </script>
 
 <slot name="toolbar" />

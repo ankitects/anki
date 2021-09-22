@@ -13,17 +13,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="ts">
     import { setContext, getContext, onDestroy } from "svelte";
-    import { writable } from "svelte/store";
     import type { Writable } from "svelte/store";
     import { editingAreaKey, currentFieldKey, fieldsKey } from "lib/context-keys";
     import type { EditorFieldAPI, FieldsRegisterAPI } from "./MultiRootEditor.svelte";
 
-    const editingAreaAPI: Writable<EditingAreaAPI | null> = writable(null);
+    const editingAreaAPI: Partial<EditingAreaAPI> = {};
     setContext(editingAreaKey, editingAreaAPI);
 
     const fields = getContext<FieldsRegisterAPI>(fieldsKey);
     const editorField = Object.defineProperty({}, "editingArea", {
-        get: () => $editingAreaAPI,
+        get: () => editingAreaAPI,
     });
 
     const index = fields.register(editorField) - 1;

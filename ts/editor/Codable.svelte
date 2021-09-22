@@ -29,28 +29,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return doc.body.innerHTML;
     }
 
-    /*     get active(): boolean { */
-    /*         return Boolean(this.codeMirror); */
-    /*     } */
+    /*   teardown(): string { */
+    /*       this.codeMirror!.toTextArea(); */
+    /*       this.codeMirror = undefined; */
+    /*       return this.fieldHTML; */
+    /*   } */
 
-    /*     teardown(): string { */
-    /*         this.codeMirror!.toTextArea(); */
-    /*         this.codeMirror = undefined; */
-    /*         return this.fieldHTML; */
-    /*     } */
+    /*   onEnter(): void { */
+    /*       /1* default *1/ */
+    /*   } */
 
-    /*     surroundSelection(before: string, after: string): void { */
-    /*         const selection = this.codeMirror!.getSelection(); */
-    /*         this.codeMirror!.replaceSelection(before + selection + after); */
-    /*     } */
-
-    /*     onEnter(): void { */
-    /*         /1* default *1/ */
-    /*     } */
-
-    /*     onPaste(): void { */
-    /*         /1* default *1/ */
-    /*     } */
+    /*   onPaste(): void { */
+    /*       /1* default *1/ */
+    /*   } */
 
     function focus(): void {
         codeMirror.focus();
@@ -59,6 +50,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function moveCaretToEnd(): void {
         codeMirror.setCursor(codeMirror.lineCount(), 0);
+    }
+
+    function surround(before: string, after: string): void {
+        const selection = codeMirror.getSelection();
+        codeMirror.replaceSelection(before + selection + after);
     }
 
     function getFieldHTML(): string {
@@ -71,20 +67,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const activeInput = getContext<Writable<ActiveInputAPI | null>>(activeInputKey);
 
+    const codableAPI = Object.defineProperties(
+        {},
+        {
+            name: { value: "codable" },
+            focus: { value: focus },
+            moveCaretToEnd: { value: moveCaretToEnd },
+            surround: { value: surround },
+            fieldHTML: { get: getFieldHTML, set: setFieldHTML },
+            codeMirror: { get: () => codeMirror },
+        }
+    );
+
     function openCodeMirror(textarea: HTMLTextAreaElement): void {
         codeMirror = CodeMirror.fromTextArea(textarea, codeMirrorOptions);
-        $activeInput = Object.defineProperties(
-            {},
-            {
-                name: { value: "codable" },
-                focus: { value: focus },
-                moveCaretToEnd: { value: moveCaretToEnd },
-                fieldHTML: { get: getFieldHTML, set: setFieldHTML },
-            }
-        );
+        codeMirror.on("focus", () => ($activeInput = codableAPI));
+        codeMirror.on("blur", () => ($activeInput = null));
     }
 
     onDestroy(() => ($activeInput = null));
+
+    $: if (codeMirror && $activeInput !== codableAPI) {
+        setFieldHTML(content);
+    }
 </script>
 
 <div>

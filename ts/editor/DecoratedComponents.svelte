@@ -8,11 +8,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const decoratedComponents = new DefineArray();
 </script>
 
-<script>
-    import { setContext } from "svelte";
-    import { decoratedComponentsKey } from "lib/context-keys";
+<script lang="ts">
+    import { getContext } from "svelte";
 
-    setContext(decoratedComponentsKey, decoratedComponents);
+    export let contextKey: Symbol;
+
+    const context = getContext(contextKey);
+
+    Object.defineProperty(context, "decoratedComponents", decoratedComponents);
 </script>
 
 <slot />
