@@ -85,7 +85,7 @@ def svelte_check(name = "svelte_check", srcs = []):
             "--workspace",
             native.package_name(),
             "--fail-on-warnings",
-            "--fail-on-hints",
+            #"--fail-on-hints",
         ],
         data = [
             "//ts:tsconfig.json",
