@@ -20,24 +20,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return elementContainsInlineContent(editable);
     }
 
-    export function fieldHTML(): string {
-        const clone = editable.cloneNode(true) as Element;
-
-        for (const component of decoratedComponents) {
-            for (const element of clone.getElementsByTagName(component.tagName)) {
-                (element as DecoratedElement).undecorate();
-            }
-        }
-
-        /* TODO expose as api */
-        const result =
-            elementContainsInlineContent(clone) && clone.innerHTML.endsWith("<br>")
-                ? clone.innerHTML.slice(0, -4) // trim trailing <br>
-                : clone.innerHTML;
-
-        return result;
-    }
-
     /* import type { DecoratedElement } from "./decorated"; */
     /* import { decoratedComponents } from "./decorated"; */
     /* import { bridgeCommand } from "lib/bridgecommand"; */
@@ -55,14 +37,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /* } */
 
     /* export class Editable extends HTMLElement { */
-    /*     set fieldHTML(content: string) { */
-    /*         this.innerHTML = content; */
-
-    /*         if (content.length > 0 && containsInlineContent(this)) { */
-    /*             this.appendChild(document.createElement("br")); */
-    /*         } */
-    /*     } */
-
     /*     surroundSelection(before: string, after: string): void { */
     /*         wrapInternal(this.getRootNode() as ShadowRoot, before, after, false); */
     /*     } */
@@ -97,17 +71,43 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const activeInput = getContext<Writable<ActiveInputAPI | null>>(activeInputKey);
-    const name = "Editable";
 
-    function focus() {
-        editable.focus();
+    function getFieldHTML(): string {
+        const clone = editable.cloneNode(true) as Element;
+
+        for (const component of decoratedComponents) {
+            for (const element of clone.getElementsByTagName(component.tagName)) {
+                (element as DecoratedElement).undecorate();
+            }
+        }
+
+        /* TODO expose as api */
+        const result =
+            elementContainsInlineContent(clone) && clone.innerHTML.endsWith("<br>")
+                ? clone.innerHTML.slice(0, -4) // trim trailing <br>
+                : clone.innerHTML;
+
+        return result;
     }
 
-    function moveCaretToEnd(): void {
-        caretToEnd(editable);
+    function setFieldHTML(content: string) {
+        editable.innerHTML = content;
+
+        if (content.length > 0 && containsInlineContent()) {
+            editable.appendChild(document.createElement("br"));
+        }
     }
 
-    onMount(() => ($activeInput = { name, focus, moveCaretToEnd }));
+    $activeInput = Object.defineProperties(
+        {},
+        {
+            name: { value: "editable" },
+            focus: { value: () => editable.focus },
+            moveCaretToEnd: { value: () => caretToEnd(editable) },
+            fieldHTML: { get: getFieldHTML, set: setFieldHTML },
+        }
+    );
+
     onDestroy(() => ($activeInput = null));
 </script>
 

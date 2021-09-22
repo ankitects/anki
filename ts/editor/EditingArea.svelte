@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export interface ActiveInputAPI {
         readonly name: string;
+        fieldHTML: string;
         focus(): void;
         moveCaretToEnd(): void;
     }
@@ -15,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
-    import { setContext, getContext, createEventDispatcher, onMount } from "svelte";
+    import { setContext, getContext, createEventDispatcher } from "svelte";
     import { editingAreaKey, activeInputKey, fieldFocusedKey } from "lib/context-keys";
 
     const dispatch = createEventDispatcher();
@@ -27,9 +28,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setContext(activeInputKey, activeInput);
 
     function onFocusIn(): void {
-        $activeInput?.focus();
-        $activeInput?.moveCaretToEnd();
-
         dispatch("fieldfocus", 1);
         fieldFocused.set(true);
     }
@@ -49,20 +47,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const editingArea = getContext<Writable<EditingAreaAPI | null>>(editingAreaKey);
-
-    onMount(
-        () =>
-            ($editingArea = Object.defineProperties(
-                {},
-                {
-                    activeInput: {
-                        get: () => $activeInput,
-                    },
-                    toggleCodable: {
-                        value: () => (codableActive = !codableActive),
-                    },
-                }
-            ))
+    $editingArea = Object.defineProperties(
+        {},
+        {
+            activeInput: {
+                get: () => $activeInput,
+            },
+            toggleCodable: {
+                value: () => (codableActive = !codableActive),
+            },
+        }
     );
 </script>
 
@@ -74,6 +68,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .editing-area {
         background: var(--frame-bg);
         border-radius: 0 0 5px 5px;
+
+        transition: height 5s;
 
         /* TODO move this up one layer */
         /* &.dupe { */

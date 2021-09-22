@@ -9,8 +9,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { activeInputKey, focusInCodableKey } from "lib/context-keys";
     import type { ActiveInputAPI } from "./EditingArea.svelte";
 
-    const name = "Codable";
-
     const codeMirrorOptions = {
         mode: htmlanki,
         ...baseOptions,
@@ -24,10 +22,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let codeMirror: CodeMirror.EditorFromTextArea;
 
-    /* function parseHTML(html: string): string { */
-    /*     const doc = parser.parseFromString(`${parseStyle}${html}`, "text/html"); */
-    /*     return doc.body.innerHTML; */
-    /* } */
+    function parseHTML(html: string): string {
+        const doc = parser.parseFromString(`${parseStyle}${html}`, "text/html");
+        return doc.body.innerHTML;
+    }
 
     /* export class Codable extends HTMLTextAreaElement { */
     /*     codeMirror: CodeMirror.EditorFromTextArea | undefined; */
@@ -36,25 +34,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /*         return Boolean(this.codeMirror); */
     /*     } */
 
-    /*     set fieldHTML(content: string) { */
-    /*         if (this.active) { */
-    /*             this.codeMirror?.setValue(content); */
-    /*         } else { */
-    /*             this.value = content; */
-    /*         } */
-    /*     } */
-
-    /*     get fieldHTML(): string { */
-    /*         return parseHTML(this.active ? this.codeMirror!.getValue() : this.value); */
-    /*     } */
-
     /*     connectedCallback(): void { */
     /*         this.setAttribute("hidden", ""); */
-    /*     } */
-
-    /*     setup(html: string): void { */
-    /*         this.fieldHTML = html; */
-    /*         // this.codeMirror.on("blur", () => inCodable.set(false)); */
     /*     } */
 
     /*     teardown(): string { */
@@ -62,15 +43,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /*         this.codeMirror = undefined; */
     /*         return this.fieldHTML; */
     /*     } */
-
-    function focus(): void {
-        codeMirror.focus();
-        $focusInCodable = true;
-    }
-
-    function moveCaretToEnd(): void {
-        codeMirror.setCursor(codeMirror.lineCount(), 0);
-    }
 
     /*     surroundSelection(before: string, after: string): void { */
     /*         const selection = this.codeMirror!.getSelection(); */
@@ -86,16 +58,41 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /*     } */
     /* } */
 
+    function focus(): void {
+        codeMirror.focus();
+        $focusInCodable = true;
+    }
+
+    function moveCaretToEnd(): void {
+        codeMirror.setCursor(codeMirror.lineCount(), 0);
+    }
+
+    function getFieldHTML(): string {
+        return parseHTML(codeMirror.getValue());
+    }
+
+    function setFieldHTML(content: string) {
+        codeMirror.setValue(content);
+    }
+
     const activeInput = getContext<Writable<ActiveInputAPI | null>>(activeInputKey);
 
     function openCodeMirror(textarea: HTMLTextAreaElement): void {
         codeMirror = CodeMirror.fromTextArea(textarea, codeMirrorOptions);
-        $activeInput = { name, focus, moveCaretToEnd };
+        $activeInput = Object.defineProperties(
+            {},
+            {
+                name: { value: "codable" },
+                focus: { value: focus },
+                moveCaretToEnd: { value: moveCaretToEnd },
+                fieldHTML: { get: getFieldHTML, set: setFieldHTML },
+            }
+        );
     }
 
     onDestroy(() => ($activeInput = null));
 </script>
 
 <div>
-    <textarea use:openCodeMirror />
+    <textarea hidden use:openCodeMirror />
 </div>
