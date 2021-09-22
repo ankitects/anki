@@ -9,7 +9,6 @@
 import "mathjax/es5/tex-svg-full";
 
 import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
-import { decoratedComponents } from "./decorated";
 import { nodeIsElement } from "lib/dom";
 import { nightModeKey } from "components/context-keys";
 
@@ -192,5 +191,3 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
         }
     }
 };
-
-decoratedComponents.push(Mathjax);

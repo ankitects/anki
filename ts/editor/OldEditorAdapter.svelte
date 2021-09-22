@@ -6,6 +6,14 @@
     import { ChangeTimer } from "./change-timer";
     import { getNoteId } from "./note-id";
 
+    function quoteFontFamily(fontFamily: string): string {
+        // generic families (e.g. sans-serif) must not be quoted
+        if (!/^[-a-z]+$/.test(fontFamily)) {
+            fontFamily = `"${fontFamily}"`;
+        }
+        return fontFamily;
+    }
+
     let noteEditor: NoteEditor;
     let size = isApplePlatform() ? 1.6 : 2.0;
     let wrap = true;
@@ -51,7 +59,7 @@
         fieldsData: fields.map(([fieldName, fieldContent], index) => ({
             fieldName,
             fieldContent,
-            fontName: fonts[index][0],
+            fontName: quoteFontFamily(fonts[index][0]),
             fontSize: fonts[index][1],
             rtl: fonts[index][2],
             sticky: stickies ? stickies[index] : null,

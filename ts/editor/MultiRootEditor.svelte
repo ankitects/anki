@@ -23,8 +23,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import {
         fieldsKey,
         currentFieldKey,
-        focusInCodableKey,
         multiRootEditorKey,
+        focusInCodableKey,
     } from "lib/context-keys";
     import type { MultiRootEditorAPI } from "./NoteEditor.svelte";
 
@@ -51,6 +51,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const currentField: Writable<EditorFieldAPI | null> = writable(null);
 
     setContext(currentFieldKey, currentField);
+
+    /* const decoratedComponents = getContext(decoratedComponentsKey); */
 
     const multiRootEditor =
         getContext<Writable<MultiRootEditorAPI | null>>(multiRootEditorKey);

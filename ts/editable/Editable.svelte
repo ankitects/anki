@@ -3,12 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { getContext, onMount, onDestroy } from "svelte";
+    import { getContext, hasContext, onDestroy } from "svelte";
     import type { Writable } from "svelte/store";
     import { elementContainsInlineContent, caretToEnd } from "lib/dom";
-    import { activeInputKey } from "lib/context-keys";
-    import type { DecoratedElement } from "./decorated";
-    import { decoratedComponents } from "./decorated";
+    import { activeInputKey, decoratedComponentsKey } from "lib/context-keys";
     import type { ActiveInputAPI } from "editor/EditingArea.svelte";
 
     export let content: string;
@@ -20,8 +18,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return elementContainsInlineContent(editable);
     }
 
+    const decoratedComponents = hasContext(decoratedComponentsKey)
+        ? getContext(decoratedComponentsKey)
+        : [];
+
     /* import type { DecoratedElement } from "./decorated"; */
-    /* import { decoratedComponents } from "./decorated"; */
     /* import { bridgeCommand } from "lib/bridgecommand"; */
     /* import { elementIsBlock, getBlockElement } from "lib/dom"; */
     /* import { wrapInternal } from "lib/wrap"; */
@@ -102,6 +103,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {},
         {
             name: { value: "editable" },
+
             focus: { value: () => editable.focus },
             moveCaretToEnd: { value: () => caretToEnd(editable) },
             fieldHTML: { get: getFieldHTML, set: setFieldHTML },

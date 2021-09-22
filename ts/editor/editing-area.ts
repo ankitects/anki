@@ -17,7 +17,7 @@ import { bridgeCommand } from "./lib";
 import { onInput, onKey, onKeyUp } from "./input-handlers";
 import { deferFocusDown, saveFieldIfFieldChanged } from "./focus-handlers";
 import { nightModeKey } from "components/context-keys";
-import { decoratedComponents } from "editable/decorated";
+// import { decoratedComponents } from "editable/decorated";
 
 function onCutOrCopy(): void {
     bridgeCommand("cutOrCopy");
@@ -100,9 +100,9 @@ export class EditingArea extends HTMLDivElement {
         this.imageHandle.then(() => {
             let result = content;
 
-            for (const component of decoratedComponents) {
-                result = component.toUndecorated(result);
-            }
+            // for (const component of decoratedComponents) {
+            //     result = component.toUndecorated(result);
+            // }
 
             this.activeInput.fieldHTML = result;
         });
@@ -110,9 +110,9 @@ export class EditingArea extends HTMLDivElement {
 
     get fieldHTML(): string {
         let result = this.activeInput.fieldHTML;
-        for (const component of decoratedComponents) {
-            result = component.toStored(result);
-        }
+        // for (const component of decoratedComponents) {
+        //     result = component.toStored(result);
+        // }
 
         return result;
     }
@@ -152,14 +152,6 @@ export class EditingArea extends HTMLDivElement {
 
     setBaseColor(color: string): void {
         // this.editableContainer.setBaseColor(color);
-    }
-
-    quoteFontFamily(fontFamily: string): string {
-        // generic families (e.g. sans-serif) must not be quoted
-        if (!/^[-a-z]+$/.test(fontFamily)) {
-            fontFamily = `"${fontFamily}"`;
-        }
-        return fontFamily;
     }
 
     setBaseStyling(fontFamily: string, fontSize: string, direction: string): void {

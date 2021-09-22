@@ -4,6 +4,7 @@
 // Editor
 export const fieldFocusedKey = Symbol("fieldFocused");
 export const focusInCodableKey = Symbol("focusInCodable");
+export const decoratedComponentsKey = Symbol("decoratedComponents");
 
 export const noteEditorKey = Symbol("noteEditor");
 export const multiRootEditorKey = Symbol("multiRootEditor");
