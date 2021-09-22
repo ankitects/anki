@@ -14,7 +14,7 @@
         "path": "node_modules/@mdi/svg",
         "licenseFile": "node_modules/@mdi/svg/LICENSE"
     },
-    "@popperjs/core@2.9.2": {
+    "@popperjs/core@2.10.1": {
         "licenses": "MIT",
         "repository": "https://github.com/popperjs/popper-core",
         "publisher": "Federico Zivolo",
@@ -102,13 +102,13 @@
         "path": "node_modules/@protobufjs/utf8",
         "licenseFile": "node_modules/@protobufjs/utf8/LICENSE"
     },
-    "@types/lodash-es@4.17.4": {
+    "@types/lodash-es@4.17.5": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/@types/lodash-es",
         "licenseFile": "node_modules/@types/lodash-es/LICENSE"
     },
-    "@types/lodash@4.14.170": {
+    "@types/lodash@4.14.173": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/@types/lodash",
@@ -120,13 +120,13 @@
         "path": "node_modules/@types/long",
         "licenseFile": "node_modules/@types/long/LICENSE"
     },
-    "@types/marked@2.0.3": {
+    "@types/marked@2.0.5": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/@types/marked",
         "licenseFile": "node_modules/@types/marked/LICENSE"
     },
-    "@types/node@15.12.2": {
+    "@types/node@16.9.6": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/protobufjs/node_modules/@types/node",
@@ -147,7 +147,7 @@
         "path": "node_modules/bootstrap",
         "licenseFile": "node_modules/bootstrap/LICENSE"
     },
-    "codemirror@5.61.1": {
+    "codemirror@5.63.0": {
         "licenses": "MIT",
         "repository": "https://github.com/codemirror/CodeMirror",
         "publisher": "Marijn Haverbeke",
@@ -164,7 +164,7 @@
         "path": "node_modules/commander",
         "licenseFile": "node_modules/commander/LICENSE"
     },
-    "commander@8.1.0": {
+    "commander@8.2.0": {
         "licenses": "MIT",
         "repository": "https://github.com/tj/commander.js",
         "publisher": "TJ Holowaychuk",
@@ -179,7 +179,7 @@
         "path": "node_modules/css-browser-selector",
         "licenseFile": "node_modules/css-browser-selector/README.mkdn"
     },
-    "d3-array@3.0.1": {
+    "d3-array@3.0.4": {
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-array",
         "publisher": "Mike Bostock",
@@ -355,7 +355,7 @@
         "path": "node_modules/d3-scale-chromatic",
         "licenseFile": "node_modules/d3-scale-chromatic/LICENSE"
     },
-    "d3-scale@4.0.0": {
+    "d3-scale@4.0.1": {
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-scale",
         "publisher": "Mike Bostock",
@@ -419,7 +419,7 @@
         "path": "node_modules/d3-zoom",
         "licenseFile": "node_modules/d3-zoom/LICENSE"
     },
-    "d3@7.0.0": {
+    "d3@7.0.3": {
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3",
         "publisher": "Mike Bostock",
@@ -450,7 +450,7 @@
         "path": "node_modules/iconv-lite",
         "licenseFile": "node_modules/iconv-lite/LICENSE"
     },
-    "internmap@2.0.1": {
+    "internmap@2.0.3": {
         "licenses": "ISC",
         "repository": "https://github.com/mbostock/internmap",
         "publisher": "Mike Bostock",
@@ -458,7 +458,7 @@
         "path": "node_modules/internmap",
         "licenseFile": "node_modules/internmap/LICENSE"
     },
-    "intl-pluralrules@1.2.2": {
+    "intl-pluralrules@1.3.1": {
         "licenses": "ISC",
         "repository": "https://github.com/eemeli/intl-pluralrules",
         "publisher": "Eemeli Aro",
@@ -511,7 +511,7 @@
         "path": "node_modules/mathjax-full",
         "licenseFile": "node_modules/mathjax-full/LICENSE"
     },
-    "mathjax@3.1.4": {
+    "mathjax@3.2.0": {
         "licenses": "Apache-2.0",
         "repository": "https://github.com/mathjax/MathJax",
         "path": "node_modules/mathjax",
