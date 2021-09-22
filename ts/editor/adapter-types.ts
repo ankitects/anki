@@ -13,7 +13,5 @@ export interface FieldData {
 export interface AdapterData {
     fieldsData: FieldData[];
     tags: string[];
-    textColor: string;
-    highlightColor: string;
     focusTo: number;
 }

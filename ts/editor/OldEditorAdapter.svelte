@@ -1,10 +1,14 @@
 <script lang="ts">
     import NoteEditor from "./NoteEditor.svelte";
+    import EditorToolbar from "./EditorToolbar.svelte";
     import { bridgeCommand } from "lib/bridgecommand";
     import { isApplePlatform } from "lib/platform";
     import { ChangeTimer } from "./change-timer";
+    import { getNoteId } from "./note-id";
 
     let noteEditor: NoteEditor;
+    let size = isApplePlatform() ? 1.6 : 2.0;
+    let wrap = true;
 
     let fields: [string, string][] = [];
     export function setFields(fs: [string, string][]): void {
@@ -38,6 +42,11 @@
         stickies = sts;
     }
 
+    let noteId: number | null = null;
+    export function setNoteId(ntid: number): void {
+        noteId = ntid;
+    }
+
     $: data = {
         fieldsData: fields.map(([fieldName, fieldContent], index) => ({
             fieldName,
@@ -48,8 +57,6 @@
             sticky: stickies ? stickies[index] : null,
         })),
         tags,
-        textColor,
-        highlightColor,
         focusTo,
     };
 
@@ -71,13 +78,18 @@
 
     function onFieldUpdate({ detail: index }): void {
         fieldSave.schedule(
-            /* () => bridgeCommand(`key:${index}:${noteId}:${noteEditor.fields[index].editingArea.activeInput.fieldHTML}`), */
-            () => console.log("save!"),
+            () =>
+                bridgeCommand(
+                    `key:${index}:${getNoteId()}:${
+                        noteEditor.noteEditor.multiRootEditor.fields[index].editingArea
+                            .activeInput.fieldHTML
+                    }`
+                ),
             600
         );
     }
 
-    function onFieldBlur({ detail }): void {
+    function onFieldBlur(): void {
         /* this will also be a key save */
         fieldSave.fireImmediately();
     }
@@ -86,10 +98,12 @@
 <NoteEditor
     bind:this={noteEditor}
     {data}
-    size={isApplePlatform() ? 1.6 : 2.0}
-    wrap
+    {size}
+    {wrap}
     {...$$restProps}
     on:tagsupdate={saveTags}
     on:fieldupdate={onFieldUpdate}
     on:fieldblur={onFieldBlur}
-/>
+>
+    <EditorToolbar slot="toolbar" {size} {wrap} {textColor} {highlightColor} />
+</NoteEditor>

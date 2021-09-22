@@ -18,16 +18,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { editingAreaKey, currentFieldKey, fieldsKey } from "lib/context-keys";
     import type { EditorFieldAPI, FieldsRegisterAPI } from "./MultiRootEditor.svelte";
 
-    const editingAreaStore: Writable<EditingAreaAPI | null> = writable(null);
-    setContext(editingAreaKey, editingAreaStore);
-
-    function editingArea(): EditingAreaAPI | null {
-        return $editingAreaStore;
-    }
+    const editingAreaAPI: Writable<EditingAreaAPI | null> = writable(null);
+    setContext(editingAreaKey, editingAreaAPI);
 
     const fields = getContext<FieldsRegisterAPI>(fieldsKey);
     const editorField = Object.defineProperty({}, "editingArea", {
-        get: editingArea,
+        get: () => $editingAreaAPI,
     });
 
     const index = fields.register(editorField) - 1;
@@ -48,15 +44,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .editor-field {
         margin: 3px;
 
+        --border-color: var(--border);
+
         border-radius: 5px;
         border: 1px solid var(--border-color);
 
-        --border-color: var(--border);
-
         &:focus-within {
-            box-shadow: 0 0 0 3px var(--focus-shadow);
-
             --border-color: var(--focus-border);
+
+            box-shadow: 0 0 0 3px var(--focus-shadow);
         }
     }
 </style>

@@ -2,9 +2,17 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
+<script context="module" lang="ts">
+    import type { EditorFieldAPI } from "./MultiRootEditor.svelte";
+
+    export interface MultiRootEditorAPI {
+        readonly fields: EditorFieldAPI[];
+        readonly currentField: EditorFieldAPI | null;
+    }
+</script>
+
 <script lang="ts">
     import MultiRootEditor from "./MultiRootEditor.svelte";
-    import EditorToolbar from "./EditorToolbar.svelte";
     import TagEditor from "./TagEditor.svelte";
 
     import EditorField from "./EditorField.svelte";
@@ -18,8 +26,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Codable from "./Codable.svelte";
 
     import { writable } from "svelte/store";
+    import type { Writable } from "svelte/store";
     import { setContext, createEventDispatcher } from "svelte";
-    import { fieldFocusedKey } from "lib/context-keys";
+    import { fieldFocusedKey, multiRootEditorKey } from "lib/context-keys";
     import type { AdapterData } from "./adapter-types";
 
     export let data: AdapterData;
@@ -33,6 +42,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const fieldFocused = writable(false);
     setContext(fieldFocusedKey, fieldFocused);
+
+    const multiRootEditor: Writable<MultiRootEditorAPI | null> = writable(null);
+    setContext(multiRootEditorKey, multiRootEditor);
+
+    // TODO end of downwards tree for now
+    export const noteEditor = Object.defineProperties(
+        {},
+        {
+            multiRootEditor: {
+                get: () => $multiRootEditor,
+            },
+        }
+    );
 </script>
 
 <div class="note-editor {className}">
@@ -47,13 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         let:fontSize
         let:direction
     >
-        <EditorToolbar
-            slot="toolbar"
-            {size}
-            {wrap}
-            textColor={data.textColor}
-            highlightColor={data.highlightColor}
-        />
+        <slot name="toolbar" slot="toolbar" />
 
         <svelte:fragment slot="field">
             <EditorField let:index>
