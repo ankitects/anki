@@ -20,12 +20,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         codable.api.fieldHTML = content;
     }
 
+    const parseStyle = "<style>anki-mathjax { white-space: pre; }</style>";
+
     const dispatch = createEventDispatcher();
     const focusInCodable = getContext<Writable<boolean>>(focusInCodableKey);
 </script>
 
 <Codable
     bind:this={codable}
+    {parseStyle}
     on:codablefocus={() => {
         dispatch("editingfocus");
         $focusInCodable = true;

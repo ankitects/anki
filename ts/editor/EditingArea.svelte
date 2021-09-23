@@ -12,10 +12,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import EditableContainer from "editable/EditableContainer.svelte";
-    import ImageHandle from "./ImageHandle.svelte";
-    import MathjaxHandle from "./MathjaxHandle.svelte";
-    import Codable from "./Codable.svelte";
+    import EditableAdapter from "./EditableAdapter.svelte";
+    import CodableAdapter from "./CodableAdapter.svelte";
 
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
@@ -78,14 +76,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <!-- Could be generalized -->
 <div class="editing-area">
-    <!-- <EditableContainer {content} let:imageOverlaySheet let:overlayRelative={container}>
-        {#await imageOverlaySheet then sheet}
-            <ImageHandle activeImage={null} {container} {sheet} />
-        {/await}
-        <MathjaxHandle activeImage={null} {container} />
-    </EditableContainer>
+    <EditableAdapter
+        {content}
+        on:editingfocus
+        on:editinginput={fetchContent}
+        on:editinginput
+        on:editingblur={fetchContent}
+        on:editingblur
+    />
 
-    <Codable {content} /> -->
+    <CodableAdapter
+        {content}
+        on:editingfocus
+        on:editinginput={fetchContent}
+        on:editinginput
+        on:editingblur={fetchContent}
+        on:editingblur
+    />
 </div>
 
 <style>

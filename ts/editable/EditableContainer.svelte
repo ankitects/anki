@@ -8,17 +8,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { promiseResolve } from "lib/promise";
     import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
-    import { getContext, getAllContexts } from "svelte";
+    import { getContext, getAllContexts, createEventDispatcher } from "svelte";
     import type { Readable } from "svelte/store";
     import { nightModeKey } from "components/context-keys";
 
     import { fontFamilyKey, fontSizeKey, directionKey } from "lib/context-keys";
 
-    export let content: string;
+    let editable: Editable;
 
     const [editablePromise, editableResolve] = promiseResolve<Editable>();
-
-    $: editablePromise.then((editable: Editable) => editable.$set({ content }));
+    export { editablePromise };
 
     let customStyles: CustomStyles;
 
@@ -44,6 +43,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /* } */
 
     const allContexts = getAllContexts();
+    const dispatch = createEventDispatcher();
+
     let shadow: ShadowRoot;
 
     function attachShadow(element: Element) {
@@ -72,19 +73,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         customStyles.addStyleTag("imageOverlay").then(imageOverlayResolve);
 
-        // make component initiation asynchronous
-        // https://github.com/sveltejs/svelte/issues/6753#issuecomment-924344561
-        setTimeout(() =>
-            editableResolve(
-                new Editable({
-                    target: shadow as any,
-                    props: {
-                        content,
-                    },
-                    context: allContexts,
-                } as any)
-            )
-        );
+        editable = new Editable({
+            target: shadow as any,
+            context: allContexts,
+        } as any);
+
+        editable.$on("editablefocus", () => dispatch("editablefocus"));
+        editable.$on("editableinput", () => dispatch("editableinput"));
+        editable.$on("editableblur", () => dispatch("editableblur"));
+
+        editableResolve(editable);
     }
 
     const nightMode = getContext(nightModeKey);

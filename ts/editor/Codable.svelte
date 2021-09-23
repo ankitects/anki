@@ -15,6 +15,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher } from "svelte";
     import { CodeMirror, htmlanki, baseOptions, gutterOptions } from "./codeMirror";
 
+    export let parseStyle: string = "";
+
     const codeMirrorOptions = {
         mode: htmlanki,
         ...baseOptions,
@@ -23,13 +25,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const parser = new DOMParser();
 
-    /* TODO this should also be moved elsewhere + made configurable */
-    const parseStyle = "<style>anki-mathjax { white-space: pre; }</style>";
-
-    let codeMirror: CodeMirror.EditorFromTextArea;
-
     function parseHTML(html: string): string {
-        const doc = parser.parseFromString(`${parseStyle}${html}`, "text/html");
+        const doc = parser.parseFromString(parseStyle + html, "text/html");
         return doc.body.innerHTML;
     }
 
@@ -41,25 +38,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /*       /1* default *1/ */
     /*   } */
 
+    let codeMirror: CodeMirror.EditorFromTextArea;
+
     function focus(): void {
-        codeMirror.focus();
+        codeMirror?.focus();
     }
 
     function moveCaretToEnd(): void {
-        codeMirror.setCursor(codeMirror.lineCount(), 0);
+        codeMirror?.setCursor(codeMirror.lineCount(), 0);
     }
 
     function surround(before: string, after: string): void {
-        const selection = codeMirror.getSelection();
-        codeMirror.replaceSelection(before + selection + after);
+        const selection = codeMirror?.getSelection();
+        codeMirror?.replaceSelection(before + selection + after);
     }
 
+    let initialRender: string = "";
+
     function getFieldHTML(): string {
-        return parseHTML(codeMirror.getValue());
+        return codeMirror ? parseHTML(codeMirror.getValue()) : initialRender;
     }
 
     function setFieldHTML(content: string) {
-        codeMirror.setValue(content);
+        if (codeMirror) {
+            codeMirror.setValue(content);
+        } else {
+            initialRender = content;
+        }
     }
 
     const dispatch = createEventDispatcher();
@@ -67,8 +72,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function openCodeMirror(textarea: HTMLTextAreaElement): void {
         codeMirror = CodeMirror.fromTextArea(textarea, codeMirrorOptions);
         codeMirror.on("focus", () => dispatch("codablefocus"));
-        codeMirror.on("changes", () => dispatch("codableinput"));
+        codeMirror.on(
+            "change",
+            (_instance: CodeMirror.Editor, change: CodeMirror.EditorChange) => {
+                if (change.origin !== "setValue") {
+                    dispatch("codableinput");
+                }
+            }
+        );
         codeMirror.on("blur", () => dispatch("codableblur"));
+        setFieldHTML(initialRender);
     }
 
     export const api: CodableAPI = Object.defineProperties(

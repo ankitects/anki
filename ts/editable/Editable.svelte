@@ -2,66 +2,47 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script lang="ts">
-    import { getContext, hasContext } from "svelte";
-    import type { Writable } from "svelte/store";
-    import { elementContainsInlineContent, caretToEnd } from "lib/dom";
-    import { activeInputKey, decoratedComponentsKey } from "lib/context-keys";
-    import type { ActiveInputAPI } from "editor/EditingArea.svelte";
+<script context="module" lang="ts">
+    interface EditableAPI {
+        readonly name: string;
+        focus(): void;
+        moveCaretToEnd(): void;
+        fieldHTML: string;
+    }
+</script>
 
-    export let content: string;
-    export let focusOnMount: boolean = false;
+<script lang="ts">
+    import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
+    import { elementContainsInlineContent, caretToEnd } from "lib/dom";
+    import { createEventDispatcher } from "svelte";
+
+    export let decoratedComponents: DecoratedElementConstructor[] = [];
+
+    /*  surroundSelection(before: string, after: string): void { */
+    /*      wrapInternal(this.getRootNode() as ShadowRoot, before, after, false); */
+    /*  } */
+
+    /*  onEnter(event: KeyboardEvent): void { */
+    /*      if ( */
+    /*          !getBlockElement(this.getRootNode() as Document | ShadowRoot) !== */
+    /*          event.shiftKey */
+    /*      ) { */
+    /*          event.preventDefault(); */
+    /*          document.execCommand("insertLineBreak"); */
+    /*      } */
+    /*  } */
+
+    /*  onPaste(event: ClipboardEvent): void { */
+    /*      bridgeCommand("paste"); */
+    /*      event.preventDefault(); */
+    /*  } */
 
     let editable: HTMLElement;
 
-    export function containsInlineContent(): boolean {
-        return elementContainsInlineContent(editable);
-    }
-
-    /* const decoratedComponents = hasContext(decoratedComponentsKey) */
-    /*     ? getContext(decoratedComponentsKey) */
-    /*     : []; */
-
-    /* import type { DecoratedElement } from "./decorated"; */
-    /* import { bridgeCommand } from "lib/bridgecommand"; */
-    /* import { elementIsBlock, getBlockElement } from "lib/dom"; */
-    /* import { wrapInternal } from "lib/wrap"; */
-
-    /* export class Editable extends HTMLElement { */
-    /*     surroundSelection(before: string, after: string): void { */
-    /*         wrapInternal(this.getRootNode() as ShadowRoot, before, after, false); */
-    /*     } */
-
-    /*     onEnter(event: KeyboardEvent): void { */
-    /*         if ( */
-    /*             !getBlockElement(this.getRootNode() as Document | ShadowRoot) !== */
-    /*             event.shiftKey */
-    /*         ) { */
-    /*             event.preventDefault(); */
-    /*             document.execCommand("insertLineBreak"); */
-    /*         } */
-    /*     } */
-
-    /*     onPaste(event: ClipboardEvent): void { */
-    /*         bridgeCommand("paste"); */
-    /*         event.preventDefault(); */
-    /*     } */
-    /* } */
-
-    function autofocus(editable: HTMLElement): void {
-        if (focusOnMount) {
-            editable.focus();
-            caretToEnd(editable);
-        }
-    }
-
     function setFieldHTML(content: string) {
         editable.innerHTML = content;
-        uponSetting(editable);
-    }
 
-    function uponSetting(editable: HTMLElement) {
-        if (editable.innerHTML.length > 0 && containsInlineContent()) {
+        if (editable.innerHTML.length > 0 && elementContainsInlineContent(editable)) {
             editable.appendChild(document.createElement("br"));
         }
     }
@@ -69,13 +50,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function getFieldHTML(): string {
         const clone = editable.cloneNode(true) as Element;
 
-        /* for (const component of decoratedComponents) { */
-        /*     for (const element of clone.getElementsByTagName(component.tagName)) { */
-        /*         (element as DecoratedElement).undecorate(); */
-        /*     } */
-        /* } */
+        for (const component of decoratedComponents) {
+            for (const element of clone.getElementsByTagName(component.tagName)) {
+                (element as DecoratedElement).undecorate();
+            }
+        }
 
-        /* TODO expose as api */
         const result =
             elementContainsInlineContent(clone) && clone.innerHTML.endsWith("<br>")
                 ? clone.innerHTML.slice(0, -4) // trim trailing <br>
@@ -84,32 +64,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return result;
     }
 
-    const editableAPI = Object.defineProperties(
+    export const api: EditableAPI = Object.defineProperties(
         {},
         {
             name: { value: "editable" },
-
             focus: { value: () => editable.focus },
             moveCaretToEnd: { value: () => caretToEnd(editable) },
             fieldHTML: { get: getFieldHTML, set: setFieldHTML },
         }
     );
 
-    const activeInput = getContext<Writable<ActiveInputAPI | null>>(activeInputKey);
-
-    $: if (editable && $activeInput !== editableAPI) {
-        setFieldHTML(content);
-    }
+    const dispatch = createEventDispatcher();
 </script>
 
 <anki-editable
-    innerHTML={content}
     bind:this={editable}
     contenteditable="true"
-    on:focus={() => ($activeInput = editableAPI)}
-    on:blur={() => ($activeInput = null)}
-    use:autofocus
-    use:uponSetting
+    on:focus={() => dispatch("editablefocus")}
+    on:input={() => dispatch("editableinput")}
+    on:blur={() => dispatch("editableblur")}
 />
 
 <style lang="scss">

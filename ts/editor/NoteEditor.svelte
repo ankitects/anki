@@ -65,12 +65,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <FieldState />
                     </LabelContainer>
                     <EditingArea
-                        fontName={field.fontName}
+                        fontFamily={field.fontName}
                         fontSize={field.fontSize}
                         content={field.fieldContent}
-                        on:focusin={() => ($fieldFocused = true)}
-                        on:input={() => dispatch("fieldupdate", index)}
-                        on:focusout={() => {
+                        on:editingfocus={() => ($fieldFocused = true)}
+                        on:editinginput={() => dispatch("fieldupdate", index)}
+                        on:editingblur={() => {
                             $fieldFocused = false;
                             dispatch("fieldblur", index);
                         }}
