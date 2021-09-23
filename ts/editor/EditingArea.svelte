@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    export interface ActiveInputAPI {
+    export interface EditingInputAPI {
         readonly name: string;
         fieldHTML: string;
         focus(): void;
@@ -53,7 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /* TODO unused */
     let codableActive = false;
 
-    const activeInput: Writable<ActiveInputAPI | null> = writable(null);
+    const activeInput: Writable<EditingInputAPI | null> = writable(null);
 
     setContext(activeInputKey, activeInput);
 
@@ -78,14 +78,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <!-- Could be generalized -->
 <div class="editing-area">
-    <EditableContainer {content} let:imageOverlaySheet let:overlayRelative={container}>
+    <!-- <EditableContainer {content} let:imageOverlaySheet let:overlayRelative={container}>
         {#await imageOverlaySheet then sheet}
             <ImageHandle activeImage={null} {container} {sheet} />
         {/await}
         <MathjaxHandle activeImage={null} {container} />
     </EditableContainer>
 
-    <Codable {content} />
+    <Codable {content} /> -->
 </div>
 
 <style>

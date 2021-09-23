@@ -2,14 +2,18 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script lang="typescript">
-    import { onDestroy, getContext } from "svelte";
-    import type { Writable } from "svelte/store";
-    import { CodeMirror, htmlanki, baseOptions, gutterOptions } from "./codeMirror";
-    import { activeInputKey, focusInCodableKey } from "lib/context-keys";
-    import type { ActiveInputAPI } from "./EditingArea.svelte";
+<script context="module" lang="ts">
+    export interface CodableAPI {
+        readonly name: string;
+        focus(): void;
+        moveCaretToEnd(): void;
+        fieldHTML: string;
+    }
+</script>
 
-    export let content: string;
+<script lang="typescript">
+    import { createEventDispatcher } from "svelte";
+    import { CodeMirror, htmlanki, baseOptions, gutterOptions } from "./codeMirror";
 
     const codeMirrorOptions = {
         mode: htmlanki,
@@ -18,9 +22,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
 
     const parser = new DOMParser();
-    const parseStyle = "<style>anki-mathjax { white-space: pre; }</style>";
 
-    const focusInCodable = getContext<Writable<boolean>>(focusInCodableKey);
+    /* TODO this should also be moved elsewhere + made configurable */
+    const parseStyle = "<style>anki-mathjax { white-space: pre; }</style>";
 
     let codeMirror: CodeMirror.EditorFromTextArea;
 
@@ -28,12 +32,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const doc = parser.parseFromString(`${parseStyle}${html}`, "text/html");
         return doc.body.innerHTML;
     }
-
-    /*   teardown(): string { */
-    /*       this.codeMirror!.toTextArea(); */
-    /*       this.codeMirror = undefined; */
-    /*       return this.fieldHTML; */
-    /*   } */
 
     /*   onEnter(): void { */
     /*       /1* default *1/ */
@@ -45,7 +43,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function focus(): void {
         codeMirror.focus();
-        $focusInCodable = true;
     }
 
     function moveCaretToEnd(): void {
@@ -65,9 +62,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         codeMirror.setValue(content);
     }
 
-    const activeInput = getContext<Writable<ActiveInputAPI | null>>(activeInputKey);
+    const dispatch = createEventDispatcher();
 
-    const codableAPI = Object.defineProperties(
+    function openCodeMirror(textarea: HTMLTextAreaElement): void {
+        codeMirror = CodeMirror.fromTextArea(textarea, codeMirrorOptions);
+        codeMirror.on("focus", () => dispatch("codablefocus"));
+        codeMirror.on("changes", () => dispatch("codableinput"));
+        codeMirror.on("blur", () => dispatch("codableblur"));
+    }
+
+    export const api: CodableAPI = Object.defineProperties(
         {},
         {
             name: { value: "codable" },
@@ -78,18 +82,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             codeMirror: { get: () => codeMirror },
         }
     );
-
-    function openCodeMirror(textarea: HTMLTextAreaElement): void {
-        codeMirror = CodeMirror.fromTextArea(textarea, codeMirrorOptions);
-        codeMirror.on("focus", () => ($activeInput = codableAPI));
-        codeMirror.on("blur", () => ($activeInput = null));
-    }
-
-    onDestroy(() => ($activeInput = null));
-
-    $: if (codeMirror && $activeInput !== codableAPI) {
-        setFieldHTML(content);
-    }
 </script>
 
 <div>
