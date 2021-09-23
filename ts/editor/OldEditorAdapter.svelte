@@ -92,7 +92,7 @@
                 bridgeCommand(
                     `key:${index}:${getNoteId()}:${
                         noteEditor.noteEditor.multiRootEditor.fields[index].editingArea
-                            .activeInput.fieldHTML
+                            .fieldHTML
                     }`
                 ),
             600
@@ -101,8 +101,7 @@
 
     function onFieldBlur(): void {
         /* this will also be a key save */
-        /* reactivate when EditingArea.fieldHTML works */
-        /* fieldSave.fireImmediately(); */
+        fieldSave.fireImmediately();
     }
 </script>
 

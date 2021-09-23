@@ -51,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:editableinput={() => {
         dispatch("editinginput");
     }}
-    on:editablelur={() => {
+    on:editableblur={() => {
         dispatch("editingblur");
         $activeInput = null;
     }}

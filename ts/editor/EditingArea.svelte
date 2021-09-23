@@ -28,6 +28,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let editingInputs: typeof SvelteComponent[];
 
+    const editingInputsList: EditingInputAPI[] = [];
+    setContext(editingInputsKey, editingInputsList);
+
+    export let content: string;
+
+    function fetchContent() {
+        content = $activeInput!.fieldHTML;
+    }
+
     export let fontFamily: string;
     export let fontSize: number;
 
@@ -39,24 +48,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: $fontSizeStore = fontSize;
     setContext(fontSizeKey, fontSizeStore);
 
-    export let content: string;
-
-    function fetchContent() {
-        content = $activeInput!.fieldHTML;
-    }
-
     /* if (fieldChanged) { */
     /*     editingArea.resetHandles(); */
     /* } */
-
-    const editingInputsList: EditingInputAPI[] = [];
-    setContext(editingInputsKey, editingInputsList);
 
     const activeInput: Writable<EditingInputAPI | null> = writable(null);
     setContext(activeInputKey, activeInput);
 
     const editingAreaAPI = getContext<EditorFieldAPI>(editorFieldKey).editingArea;
     Object.defineProperties(editingAreaAPI, {
+        fieldHTML: {
+            get: () => content,
+            set: (value: string) => (content = value),
+        },
         fontFamily: {
             get: () => $fontFamilyStore,
             set: (value: string) => ($fontFamilyStore = value),
