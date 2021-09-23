@@ -22,12 +22,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import FieldState from "./FieldState.svelte";
     import EditingArea from "./EditingArea.svelte";
 
+    import type { SvelteComponent } from "svelte";
+    import type { AdapterData } from "./adapter-types";
     import { writable } from "svelte/store";
     import { setContext, createEventDispatcher } from "svelte";
     import { fieldFocusedKey, multiRootEditorKey } from "lib/context-keys";
-    import type { AdapterData } from "./adapter-types";
 
     export let data: AdapterData;
+    export let editingInputs: typeof SvelteComponent[];
     export let size: number;
     export let wrap: boolean;
 
@@ -65,6 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <FieldState />
                     </LabelContainer>
                     <EditingArea
+                        {editingInputs}
                         fontFamily={field.fontName}
                         fontSize={field.fontSize}
                         content={field.fieldContent}

@@ -16,4 +16,5 @@ export const fieldsKey = Symbol("fields");
 export const currentFieldKey = Symbol("currentField");
 export const editorFieldKey = Symbol("editorField");
 export const editingAreaKey = Symbol("editingArea");
+export const editingInputsKey = Symbol("editingInputs");
 export const activeInputKey = Symbol("activeInput");

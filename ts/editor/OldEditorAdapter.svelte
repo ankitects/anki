@@ -1,6 +1,8 @@
 <script lang="ts">
     import NoteEditor from "./NoteEditor.svelte";
     import EditorToolbar from "./EditorToolbar.svelte";
+    import EditableAdapter from "./EditableAdapter.svelte";
+    import CodableAdapter from "./CodableAdapter.svelte";
     import { bridgeCommand } from "lib/bridgecommand";
     import { isApplePlatform } from "lib/platform";
     import { ChangeTimer } from "./change-timer";
@@ -106,6 +108,7 @@
 
 <NoteEditor
     bind:this={noteEditor}
+    editingInputs={[EditableAdapter, CodableAdapter]}
     {data}
     {size}
     {wrap}

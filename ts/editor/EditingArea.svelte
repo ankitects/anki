@@ -12,10 +12,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import EditableAdapter from "./EditableAdapter.svelte";
-    import CodableAdapter from "./CodableAdapter.svelte";
-
     import type { Writable } from "svelte/store";
+    import type { SvelteComponent } from "svelte";
     import { writable } from "svelte/store";
     import { setContext, getContext } from "svelte";
     import {
@@ -23,9 +21,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fontSizeKey,
         editorFieldKey,
         editingAreaKey,
+        editingInputsKey,
         activeInputKey,
     } from "lib/context-keys";
     import type { EditorFieldAPI } from "./MultiRootEditor.svelte";
+
+    export let editingInputs: typeof SvelteComponent[];
 
     export let fontFamily: string;
     export let fontSize: number;
@@ -48,51 +49,43 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /*     editingArea.resetHandles(); */
     /* } */
 
-    /* TODO unused */
-    let codableActive = false;
+    const editingInputsList: EditingInputAPI[] = [];
+    setContext(editingInputsKey, editingInputsList);
 
     const activeInput: Writable<EditingInputAPI | null> = writable(null);
-
     setContext(activeInputKey, activeInput);
 
     const editingAreaAPI = getContext<EditorFieldAPI>(editorFieldKey).editingArea;
     Object.defineProperties(editingAreaAPI, {
-        activeInput: {
-            get: () => $activeInput,
-        },
-        toggleCodable: {
-            value: () => (codableActive = !codableActive),
-        },
         fontFamily: {
             get: () => $fontFamilyStore,
         },
         fontSize: {
             get: () => $fontSizeStore,
         },
+        activeInput: {
+            get: () => $activeInput,
+        },
+        editingInputs: {
+            value: editingInputsList,
+        },
     });
 
     setContext(editingAreaKey, editingAreaAPI);
 </script>
 
-<!-- Could be generalized -->
 <div class="editing-area">
-    <EditableAdapter
-        {content}
-        on:editingfocus
-        on:editinginput={fetchContent}
-        on:editinginput
-        on:editingblur={fetchContent}
-        on:editingblur
-    />
-
-    <CodableAdapter
-        {content}
-        on:editingfocus
-        on:editinginput={fetchContent}
-        on:editinginput
-        on:editingblur={fetchContent}
-        on:editingblur
-    />
+    {#each editingInputs as component}
+        <svelte:component
+            this={component}
+            {content}
+            on:editingfocus
+            on:editinginput={fetchContent}
+            on:editinginput
+            on:editingblur={fetchContent}
+            on:editingblur
+        />
+    {/each}
 </div>
 
 <style>
