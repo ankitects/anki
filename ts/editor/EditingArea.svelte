@@ -3,6 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
+    export interface EditingAreaAPI {
+        focus(): void;
+    }
+
     export interface EditingInputAPI {
         readonly name: string;
         fieldHTML: string;
@@ -24,7 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         editingInputsKey,
         activeInputKey,
     } from "lib/context-keys";
-    import type { EditorFieldAPI } from "./MultiRootEditor.svelte";
+    import type { EditorFieldAPI } from "./EditorField.svelte";
 
     export let editingInputs: typeof SvelteComponent[];
 
@@ -48,39 +52,57 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: $fontSizeStore = fontSize;
     setContext(fontSizeKey, fontSizeStore);
 
-    /* if (fieldChanged) { */
-    /*     editingArea.resetHandles(); */
-    /* } */
-
     const activeInput: Writable<EditingInputAPI | null> = writable(null);
     setContext(activeInputKey, activeInput);
 
-    const editingAreaAPI = getContext<EditorFieldAPI>(editorFieldKey).editingArea;
-    Object.defineProperties(editingAreaAPI, {
-        fieldHTML: {
-            get: () => content,
-            set: (value: string) => (content = value),
-        },
-        fontFamily: {
-            get: () => $fontFamilyStore,
-            set: (value: string) => ($fontFamilyStore = value),
-        },
-        fontSize: {
-            get: () => $fontSizeStore,
-            set: (value: number) => ($fontSizeStore = value),
-        },
-        activeInput: {
-            get: () => $activeInput,
-        },
-        editingInputs: {
-            value: editingInputsList,
-        },
-    });
+    let editingArea: HTMLElement;
+
+    const editingAreaAPI = Object.defineProperties(
+        {},
+        {
+            fieldHTML: {
+                get: () => content,
+                set: (value: string) => (content = value),
+            },
+            fontFamily: {
+                get: () => $fontFamilyStore,
+                set: (value: string) => ($fontFamilyStore = value),
+            },
+            fontSize: {
+                get: () => $fontSizeStore,
+                set: (value: number) => ($fontSizeStore = value),
+            },
+            activeInput: {
+                get: () => $activeInput,
+            },
+            editingInputs: {
+                value: editingInputsList,
+            },
+            focus: {
+                value: () => {
+                    if (editingArea.contains(document.activeElement)) {
+                        // do nothing
+                    } else if (editingInputsList.length > 0) {
+                        const firstInput = editingInputsList[0];
+                        firstInput.focus();
+                        firstInput.moveCaretToEnd();
+                    } else {
+                        editingArea.focus();
+                    }
+                },
+            },
+        }
+    );
 
     setContext(editingAreaKey, editingAreaAPI);
+
+    const editorFieldAPI = getContext<EditorFieldAPI>(editorFieldKey);
+    Object.defineProperty(editorFieldAPI, "editingArea", { value: editingAreaAPI });
 </script>
 
-<div class="editing-area">
+<slot name="label" />
+
+<div bind:this={editingArea} class="editing-area">
     {#each editingInputs as component}
         <svelte:component
             this={component}
@@ -88,7 +110,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:editingfocus
             on:editinginput={fetchContent}
             on:editinginput
-            on:editingblur={fetchContent}
             on:editingblur
         />
     {/each}
@@ -98,8 +119,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .editing-area {
         background: var(--frame-bg);
         border-radius: 0 0 5px 5px;
-
-        transition: height 5s;
 
         /* TODO move this up one layer */
         /* &.dupe { */

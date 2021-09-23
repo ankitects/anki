@@ -91,7 +91,7 @@
             () =>
                 bridgeCommand(
                     `key:${index}:${getNoteId()}:${
-                        noteEditor.noteEditor.multiRootEditor.fields[index].editingArea
+                        (noteEditor.api.multiRootEditor!.fields[index] as any).editingArea
                             .fieldHTML
                     }`
                 ),

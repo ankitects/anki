@@ -25,17 +25,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
+    /* if (fieldChanged) { */
+    /*     resetHandles(); */
+    /* } */
+
     const dispatch = createEventDispatcher();
 
-    const editingInputs = getContext<EditingInputAPI[]>(editingInputsKey);
-    let editingInputIndex: number;
+    const editingInputs = getContext<Partial<EditingInputAPI>[]>(editingInputsKey);
+    const editingInputIndex = editingInputs.push({}) - 1;
 
     onMount(() =>
-        editableContainer.editablePromise.then((editable: Editable) => {
-            editingInputIndex = editingInputs.push(editable.api) - 1;
-        })
+        editableContainer.editablePromise.then((editable: Editable) =>
+            editingInputs.splice(editingInputIndex, 1, editable.api)
+        )
     );
-
     onDestroy(() => editingInputs.splice(editingInputIndex, 1));
 </script>
 

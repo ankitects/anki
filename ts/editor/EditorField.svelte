@@ -3,11 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import type { ActiveInputAPI } from "./EditingArea.svelte";
+    import type { Extensible } from "lib/types";
 
-    export interface EditingAreaAPI {
-        readonly activeInput: ActiveInputAPI | null;
-        toggleCodable(): void;
+    export interface EditorFieldAPI extends Extensible {
+        direction: "ltr" | "rtl";
     }
 </script>
 
@@ -21,7 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         currentFieldKey,
         fieldsKey,
     } from "lib/context-keys";
-    import type { EditorFieldAPI, FieldsRegisterAPI } from "./MultiRootEditor.svelte";
+    import type { FieldsRegisterAPI } from "./MultiRootEditor.svelte";
 
     export let direction: "ltr" | "rtl";
 
@@ -30,23 +29,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: $directionStore = direction;
 
-    const editingAreaAPI: Partial<EditingAreaAPI> = {};
-    const editorField = Object.defineProperties(
+    const editorFieldAPI: EditorFieldAPI = Object.defineProperties(
         {},
         {
-            editingArea: {
-                get: () => editingAreaAPI,
-            },
             direction: {
                 get: () => $directionStore,
             },
         }
     );
 
-    setContext(editorFieldKey, editorField);
+    setContext(editorFieldKey, editorFieldAPI);
 
     const fields = getContext<FieldsRegisterAPI>(fieldsKey);
-    const index = fields.register(editorField) - 1;
+    const index = fields.register(editorFieldAPI) - 1;
     const currentField = getContext<Writable<EditorFieldAPI | null>>(currentFieldKey);
 
     onDestroy(() => fields.deregister(index));
@@ -54,7 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div
     class="editor-field"
-    on:focusin={() => ($currentField = editorField)}
+    on:focusin={() => ($currentField = editorFieldAPI)}
     on:focusout={() => ($currentField = null)}
 >
     <slot />
@@ -72,6 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &:focus-within {
             --border-color: var(--focus-border);
 
+            outline: none;
             box-shadow: 0 0 0 3px var(--focus-shadow);
         }
     }

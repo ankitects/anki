@@ -3,15 +3,16 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import type { EditingAreaAPI } from "./EditorField.svelte";
-
-    export interface EditorFieldAPI {
-        readonly editingArea: EditingAreaAPI | null;
-    }
+    export interface MultiRootFieldAPI {}
 
     export interface FieldsRegisterAPI {
-        register(editorField: EditorFieldAPI): number;
+        register(editorField: MultiRootFieldAPI): number;
         deregister(index: number): void;
+    }
+
+    export interface MultiRootEditorAPI {
+        fields: MultiRootFieldAPI[];
+        currentField: MultiRootFieldAPI | null;
     }
 </script>
 
@@ -24,17 +25,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         currentFieldKey,
         multiRootEditorKey,
         focusInCodableKey,
+        noteEditorKey,
     } from "lib/context-keys";
-    import type { MultiRootEditorAPI } from "./NoteEditor.svelte";
 
     let className: string = "";
     export { className as class };
 
     setContext(focusInCodableKey, writable(false));
 
-    const editorFields: EditorFieldAPI[] = [];
+    const editorFields: MultiRootFieldAPI[] = [];
 
-    function register(object: EditorFieldAPI): number {
+    function register(object: MultiRootFieldAPI): number {
         return editorFields.push(object);
     }
 
@@ -44,13 +45,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     setContext(fieldsKey, { register, deregister } as FieldsRegisterAPI);
 
-    const currentField: Writable<EditorFieldAPI | null> = writable(null);
+    const currentField: Writable<MultiRootFieldAPI | null> = writable(null);
 
     setContext(currentFieldKey, currentField);
 
-    const multiRootEditor =
-        getContext<Writable<Partial<MultiRootEditorAPI>>>(multiRootEditorKey);
-    Object.defineProperties(multiRootEditor, {
+    const api: MultiRootEditorAPI = Object.defineProperties({}, {
         fields: {
             value: editorFields,
         },
@@ -58,6 +57,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             get: () => $currentField,
         },
     });
+
+    setContext(multiRootEditorKey, api);
+
+    const noteEditorAPI = getContext(noteEditorKey);
+    Object.defineProperty(noteEditorAPI, "multiRootEditor", { value: api });
 </script>
 
 <slot name="toolbar" />

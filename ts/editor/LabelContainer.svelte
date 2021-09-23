@@ -2,16 +2,21 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script>
-    import { getContext } from "svelte";
-    import { directionKey } from "lib/context-keys";
+<script lang="ts">
+    import type { EditingAreaAPI } from "./EditingArea.svelte";
+    import type { Readable } from "svelte/store";
+    import { getContext, getAllContexts } from "svelte";
+    import { directionKey, editingAreaKey } from "lib/context-keys";
 
-    const direction = getContext(directionKey);
+    const editingArea = getContext<EditingAreaAPI>(editingAreaKey);
+    const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
 </script>
 
 <div
     class="label-container d-flex justify-content-between"
     class:rtl={$direction === "rtl"}
+    on:mousedown|preventDefault
+    on:click={() => editingArea.focus()}
 >
     <slot />
 </div>
