@@ -7,23 +7,34 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import type { Writable } from "svelte/store";
     import type { EditingInputAPI } from "./EditingArea.svelte";
-    import { getContext, createEventDispatcher } from "svelte";
-    import { activeInputKey, focusInCodableKey } from "lib/context-keys";
+    import { getContext, createEventDispatcher, onMount, onDestroy } from "svelte";
+    import {
+        focusInCodableKey,
+        activeInputKey,
+        editingInputsKey,
+    } from "lib/context-keys";
 
     export let content: string;
 
     let codable: Codable;
 
+    const focusInCodable = getContext<Writable<boolean>>(focusInCodableKey);
     const activeInput = getContext<Writable<EditingInputAPI | null>>(activeInputKey);
 
     $: if (codable && $activeInput !== codable.api) {
         codable.api.fieldHTML = content;
     }
 
+    // TODO Expose this somehow
     const parseStyle = "<style>anki-mathjax { white-space: pre; }</style>";
 
     const dispatch = createEventDispatcher();
-    const focusInCodable = getContext<Writable<boolean>>(focusInCodableKey);
+
+    const editingInputs = getContext<EditingInputAPI[]>(editingInputsKey);
+    let editingInputIndex: number;
+
+    onMount(() => (editingInputIndex = editingInputs.push(codable.api) - 1));
+    onDestroy(() => editingInputs.splice(editingInputIndex, 1));
 </script>
 
 <Codable

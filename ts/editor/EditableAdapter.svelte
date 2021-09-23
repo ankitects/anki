@@ -10,8 +10,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import type { Writable } from "svelte/store";
     import type { EditingInputAPI } from "./EditingArea.svelte";
-    import { getContext, createEventDispatcher } from "svelte";
-    import { activeInputKey } from "lib/context-keys";
+    import { getContext, createEventDispatcher, onMount, onDestroy } from "svelte";
+    import { activeInputKey, editingInputsKey } from "lib/context-keys";
 
     export let content: string;
 
@@ -26,6 +26,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const dispatch = createEventDispatcher();
+
+    const editingInputs = getContext<EditingInputAPI[]>(editingInputsKey);
+    let editingInputIndex: number;
+
+    onMount(() =>
+        editableContainer.editablePromise.then((editable: Editable) => {
+            editingInputIndex = editingInputs.push(editable.api) - 1;
+        })
+    );
+
+    onDestroy(() => editingInputs.splice(editingInputIndex, 1));
 </script>
 
 <EditableContainer

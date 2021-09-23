@@ -59,9 +59,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     Object.defineProperties(editingAreaAPI, {
         fontFamily: {
             get: () => $fontFamilyStore,
+            set: (value: string) => ($fontFamilyStore = value),
         },
         fontSize: {
             get: () => $fontSizeStore,
+            set: (value: number) => ($fontSizeStore = value),
         },
         activeInput: {
             get: () => $activeInput,
