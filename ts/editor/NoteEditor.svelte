@@ -21,10 +21,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LabelName from "./LabelName.svelte";
     import FieldState from "./FieldState.svelte";
     import EditingArea from "./EditingArea.svelte";
-    import ImageHandle from "./ImageHandle.svelte";
-    import MathjaxHandle from "./MathjaxHandle.svelte";
-    import EditableContainer from "editable/EditableContainer.svelte";
-    import Codable from "./Codable.svelte";
 
     import { writable } from "svelte/store";
     import { setContext, createEventDispatcher } from "svelte";
@@ -59,62 +55,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="note-editor {className}">
     <DecoratedComponents contextKey={multiRootEditorKey}>
-        <MultiRootEditor
-            class="flex-grow-1"
-            fields={data.fieldsData}
-            focusTo={data.focusTo}
-            let:focusOnMount
-            let:fieldName
-            let:content
-            let:fontName
-            let:fontSize
-            let:direction
-        >
+        <MultiRootEditor class="flex-grow-1">
             <slot name="toolbar" slot="toolbar" />
 
-            <svelte:fragment slot="field">
-                <EditorField let:index>
+            {#each data.fieldsData as field, index}
+                <EditorField slot="field" direction={field.rtl ? "rtl" : "ltr"}>
                     <LabelContainer>
-                        <LabelName>{fieldName}</LabelName>
+                        <LabelName>{field.fieldName}</LabelName>
                         <FieldState />
                     </LabelContainer>
                     <EditingArea
-                        {content}
+                        fontName={field.fontName}
+                        fontSize={field.fontSize}
+                        content={field.fieldContent}
                         on:focusin={() => ($fieldFocused = true)}
                         on:input={() => dispatch("fieldupdate", index)}
                         on:focusout={() => {
                             $fieldFocused = false;
                             dispatch("fieldblur", index);
                         }}
-                        let:content
-                    >
-                        <EditableContainer
-                            {content}
-                            {focusOnMount}
-                            {fontName}
-                            {fontSize}
-                            {direction}
-                            let:imageOverlaySheet
-                            let:overlayRelative={container}
-                        >
-                            {#await imageOverlaySheet then sheet}
-                                <ImageHandle
-                                    activeImage={null}
-                                    {container}
-                                    isRtl={direction === "rtl"}
-                                    {sheet}
-                                />
-                            {/await}
-                            <MathjaxHandle
-                                activeImage={null}
-                                {container}
-                                isRtl={direction === "rtl"}
-                            />
-                        </EditableContainer>
-                        <Codable {content} />
-                    </EditingArea>
+                    />
                 </EditorField>
-            </svelte:fragment>
+            {/each}
         </MultiRootEditor>
     </DecoratedComponents>
 

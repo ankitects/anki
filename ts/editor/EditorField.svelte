@@ -14,17 +14,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { setContext, getContext, onDestroy } from "svelte";
     import type { Writable } from "svelte/store";
-    import { editingAreaKey, currentFieldKey, fieldsKey } from "lib/context-keys";
+    import { writable } from "svelte/store";
+    import {
+        directionKey,
+        editorFieldKey,
+        currentFieldKey,
+        fieldsKey,
+    } from "lib/context-keys";
     import type { EditorFieldAPI, FieldsRegisterAPI } from "./MultiRootEditor.svelte";
 
+    export let direction: "ltr" | "rtl";
+
+    const directionStore = writable();
+    setContext(directionKey, directionStore);
+
+    $: $directionStore = direction;
+
     const editingAreaAPI: Partial<EditingAreaAPI> = {};
-    setContext(editingAreaKey, editingAreaAPI);
+    const editorField = Object.defineProperties(
+        {},
+        {
+            editingArea: {
+                get: () => editingAreaAPI,
+            },
+            direction: {
+                get: () => $directionStore,
+            },
+        }
+    );
+
+    setContext(editorFieldKey, editorField);
 
     const fields = getContext<FieldsRegisterAPI>(fieldsKey);
-    const editorField = Object.defineProperty({}, "editingArea", {
-        get: () => editingAreaAPI,
-    });
-
     const index = fields.register(editorField) - 1;
     const currentField = getContext<Writable<EditorFieldAPI | null>>(currentFieldKey);
 
@@ -36,7 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:focusin={() => ($currentField = editorField)}
     on:focusout={() => ($currentField = null)}
 >
-    <slot {index} />
+    <slot />
 </div>
 
 <style lang="scss">

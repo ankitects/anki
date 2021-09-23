@@ -19,7 +19,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { setContext, getContext } from "svelte";
     import { writable } from "svelte/store";
     import type { Writable } from "svelte/store";
-    import type { FieldData } from "./adapter-types";
     import {
         fieldsKey,
         currentFieldKey,
@@ -27,9 +26,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         focusInCodableKey,
     } from "lib/context-keys";
     import type { MultiRootEditorAPI } from "./NoteEditor.svelte";
-
-    export let fields: FieldData[];
-    export let focusTo: number;
 
     let className: string = "";
     export { className as class };
@@ -67,18 +63,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <slot name="toolbar" />
 
 <main class="fields-editor {className}">
-    {#each fields as field, index}
-        <slot
-            name="field"
-            {field}
-            focusOnMount={index === focusTo}
-            fieldName={field.fieldName}
-            content={field.fieldContent}
-            fontName={field.fontName}
-            fontSize={field.fontSize}
-            direction={field.rtl ? "rtl" : "ltr"}
-        />
-    {/each}
+    <slot />
 </main>
 
 <style lang="scss">

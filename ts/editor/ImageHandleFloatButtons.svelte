@@ -4,6 +4,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import * as tr from "lib/i18n";
+    import type { Readable } from "svelte/store";
+    import { getContext } from "svelte";
+    import { directionKey } from "lib/context-keys";
 
     import ButtonGroup from "components/ButtonGroup.svelte";
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";
@@ -13,11 +16,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { floatNoneIcon, floatLeftIcon, floatRightIcon } from "./icons";
 
     export let image: HTMLImageElement;
-    export let isRtl: boolean;
 
-    const [inlineStartIcon, inlineEndIcon] = isRtl
-        ? [floatRightIcon, floatLeftIcon]
-        : [floatLeftIcon, floatRightIcon];
+    const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
+    const [inlineStartIcon, inlineEndIcon] =
+        $direction === "ltr"
+            ? [floatLeftIcon, floatRightIcon]
+            : [floatRightIcon, floatLeftIcon];
 
     const dispatch = createEventDispatcher();
 </script>
@@ -27,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconButton
             tooltip={tr.editingFloatLeft()}
             active={image.style.float === "left"}
-            flipX={isRtl}
+            flipX={$direction === "rtl"}
             on:click={() => {
                 image.style.float = "left";
                 setTimeout(() => dispatch("update"));
@@ -39,7 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconButton
             tooltip={tr.editingFloatNone()}
             active={image.style.float === "" || image.style.float === "none"}
-            flipX={isRtl}
+            flipX={$direction === "rtl"}
             on:click={() => {
                 image.style.removeProperty("float");
 
@@ -56,7 +60,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <IconButton
             tooltip={tr.editingFloatRight()}
             active={image.style.float === "right"}
-            flipX={isRtl}
+            flipX={$direction === "rtl"}
             on:click={() => {
                 image.style.float = "right";
                 setTimeout(() => dispatch("update"));

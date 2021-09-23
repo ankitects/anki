@@ -12,12 +12,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { inlineIcon, blockIcon } from "./icons";
 
     export let activeImage: HTMLImageElement;
-    export let isRtl: boolean;
 
     $: mathjaxElement = activeImage.parentElement!;
 </script>
 
-<ButtonGroup size={1.6} wrap={false} reverse={isRtl}>
+<ButtonGroup size={1.6} wrap={false}>
     <ButtonGroupItem>
         <IconButton
             tooltip={tr.editingMathjaxInline()}

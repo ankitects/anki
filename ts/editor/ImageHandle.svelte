@@ -20,7 +20,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let activeImage: HTMLImageElement | null = null;
     export let container: HTMLElement;
     export let sheet: CSSStyleSheet;
-    export let isRtl: boolean = false;
 
     $: naturalWidth = activeImage?.naturalWidth;
     $: naturalHeight = activeImage?.naturalHeight;
@@ -162,7 +161,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     <HandleBackground on:dblclick={toggleActualSize} />
 
-                    <HandleLabel {isRtl} on:mount={updateDimensions}>
+                    <HandleLabel on:mount={updateDimensions}>
                         <span>{actualWidth}&times;{actualHeight}</span>
                         {#if customDimensions}
                             <span>(Original: {naturalWidth}&times;{naturalHeight})</span
@@ -192,7 +191,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <Item>
                             <ImageHandleFloatButtons
                                 image={activeImage}
-                                {isRtl}
                                 on:update={dropdownObject.update}
                             />
                         </Item>

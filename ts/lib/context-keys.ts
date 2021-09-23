@@ -6,6 +6,10 @@ export const fieldFocusedKey = Symbol("fieldFocused");
 export const focusInCodableKey = Symbol("focusInCodable");
 export const decoratedComponentsKey = Symbol("decoratedComponents");
 
+export const fontFamilyKey = Symbol("fontFamily");
+export const fontSizeKey = Symbol("fontSize");
+export const directionKey = Symbol("direction");
+
 export const noteEditorKey = Symbol("noteEditor");
 export const multiRootEditorKey = Symbol("multiRootEditor");
 export const fieldsKey = Symbol("fields");

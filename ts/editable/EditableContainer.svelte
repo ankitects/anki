@@ -6,59 +6,45 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Editable from "./Editable.svelte";
     import CustomStyles from "./CustomStyles.svelte";
 
+    import { promiseResolve } from "lib/promise";
     import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
     import { getContext, getAllContexts } from "svelte";
+    import type { Readable } from "svelte/store";
     import { nightModeKey } from "components/context-keys";
 
+    import { fontFamilyKey, fontSizeKey, directionKey } from "lib/context-keys";
+
     export let content: string;
-    export let focusOnMount: boolean = false;
 
-    $: {
-        content;
-        console.log("editablecontainer", content);
-    }
+    const [editablePromise, editableResolve] = promiseResolve<Editable>();
 
-    let shadow: ShadowRoot;
-
-    let editableResolve: (editable: Editable) => void;
-    const editablePromise: Promise<Editable> = new Promise(
-        (resolve) => (editableResolve = resolve)
-    );
-
-    $: editablePromise.then((editable) => editable.$set({ content }));
+    $: editablePromise.then((editable: Editable) => editable.$set({ content }));
 
     let customStyles: CustomStyles;
 
-    let userBaseResolve: (object: StyleObject) => void;
-    export const userBaseStyle = new Promise<StyleObject>(
-        (resolve) => (userBaseResolve = resolve)
-    );
-
-    let userBaseRuleResolve: (rule: CSSStyleRule) => void;
-    export const userBaseRule = new Promise<CSSStyleRule>(
-        (resolve) => (userBaseRuleResolve = resolve)
-    );
-
-    let imageOverlayResolve: (object: StyleObject) => void;
-    export const imageOverlayStyle = new Promise<StyleObject>(
-        (resolve) => (imageOverlayResolve = resolve)
-    );
+    const [userBaseStyle, userBaseResolve] = promiseResolve<StyleObject>();
+    const [userBaseRule, userBaseRuleResolve] = promiseResolve<CSSStyleRule>();
+    const [imageOverlayStyle, imageOverlayResolve] = promiseResolve<StyleObject>();
 
     export let color: string;
-    export let fontName: string;
-    export let fontSize: string;
-    export let direction: string;
 
-    $: userBaseRule.then((rule) => (rule.style.color = color));
-    $: userBaseRule.then((rule) => (rule.style.fontFamily = fontName));
-    $: userBaseRule.then((rule) => (rule.style.fontSize = `${fontSize}px`));
-    $: userBaseRule.then((rule) => (rule.style.direction = direction));
+    const fontFamily = getContext<Readable<string>>(fontFamilyKey);
+    const fontSize = getContext<Readable<number>>(fontSizeKey);
+    const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
+
+    $: userBaseRule.then((rule: CSSStyleRule) => (rule.style.color = color));
+    $: userBaseRule.then((rule: CSSStyleRule) => (rule.style.fontFamily = $fontFamily));
+    $: userBaseRule.then(
+        (rule: CSSStyleRule) => (rule.style.fontSize = `${$fontSize}px`)
+    );
+    $: userBaseRule.then((rule: CSSStyleRule) => (rule.style.direction = $direction));
 
     /* isRightToLeft(): boolean { */
     /*     return this.baseRule!.style.direction === "rtl"; */
     /* } */
 
     const allContexts = getAllContexts();
+    let shadow: ShadowRoot;
 
     function attachShadow(element: Element) {
         shadow = element.attachShadow({ mode: "open" });
@@ -78,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         customStyles.addStyleTag("userBase").then(userBaseResolve);
 
-        userBaseStyle.then((baseStyle) => {
+        userBaseStyle.then((baseStyle: StyleObject) => {
             const sheet = baseStyle.element.sheet as CSSStyleSheet;
             const baseIndex = sheet.insertRule("anki-editable {}");
             userBaseRuleResolve(sheet.cssRules[baseIndex] as CSSStyleRule);
@@ -94,7 +80,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     target: shadow as any,
                     props: {
                         content,
-                        focusOnMount,
                     },
                     context: allContexts,
                 } as any)

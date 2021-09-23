@@ -16,7 +16,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let activeImage: HTMLImageElement | null = null;
     export let container: HTMLElement;
-    export let isRtl: boolean;
 
     let dropdownApi: any;
 
@@ -92,7 +91,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <Item>
                         <MathjaxHandleInlineBlock
                             {activeImage}
-                            {isRtl}
                             on:click={updateSelection}
                         />
                     </Item>

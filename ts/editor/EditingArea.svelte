@@ -3,8 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import type { EditingAreaAPI } from "./EditorField.svelte";
-
     export interface ActiveInputAPI {
         readonly name: string;
         fieldHTML: string;
@@ -14,18 +12,35 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import EditableContainer from "editable/EditableContainer.svelte";
+    import ImageHandle from "./ImageHandle.svelte";
+    import MathjaxHandle from "./MathjaxHandle.svelte";
+    import Codable from "./Codable.svelte";
+
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
     import { setContext, getContext } from "svelte";
-    import { editingAreaKey, activeInputKey } from "lib/context-keys";
+    import {
+        fontFamilyKey,
+        fontSizeKey,
+        editorFieldKey,
+        editingAreaKey,
+        activeInputKey,
+    } from "lib/context-keys";
+    import type { EditorFieldAPI } from "./MultiRootEditor.svelte";
+
+    export let fontFamily: string;
+    export let fontSize: number;
+
+    const fontFamilyStore = writable();
+    $: $fontFamilyStore = fontFamily;
+    setContext(fontFamilyKey, fontFamilyStore);
+
+    const fontSizeStore = writable();
+    $: $fontSizeStore = fontSize;
+    setContext(fontSizeKey, fontSizeStore);
 
     export let content: string;
-
-    let codableActive = false;
-
-    const activeInput: Writable<ActiveInputAPI | null> = writable(null);
-
-    setContext(activeInputKey, activeInput);
 
     function fetchContent() {
         content = $activeInput!.fieldHTML;
@@ -35,7 +50,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /*     editingArea.resetHandles(); */
     /* } */
 
-    const editingAreaAPI = getContext<Partial<EditingAreaAPI>>(editingAreaKey);
+    /* TODO unused */
+    let codableActive = false;
+
+    const activeInput: Writable<ActiveInputAPI | null> = writable(null);
+
+    setContext(activeInputKey, activeInput);
+
+    const editingAreaAPI = getContext<EditorFieldAPI>(editorFieldKey).editingArea;
     Object.defineProperties(editingAreaAPI, {
         activeInput: {
             get: () => $activeInput,
@@ -43,11 +65,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         toggleCodable: {
             value: () => (codableActive = !codableActive),
         },
+        fontFamily: {
+            get: () => $fontFamilyStore,
+        },
+        fontSize: {
+            get: () => $fontSizeStore,
+        },
     });
+
+    setContext(editingAreaKey, editingAreaAPI);
 </script>
 
-<div class="editing-area" on:focusin on:input={fetchContent} on:input on:focusout>
-    <slot {content} />
+<!-- Could be generalized -->
+<div class="editing-area">
+    <EditableContainer {content} let:imageOverlaySheet let:overlayRelative={container}>
+        {#await imageOverlaySheet then sheet}
+            <ImageHandle activeImage={null} {container} {sheet} />
+        {/await}
+        <MathjaxHandle activeImage={null} {container} />
+    </EditableContainer>
+
+    <Codable {content} />
 </div>
 
 <style>

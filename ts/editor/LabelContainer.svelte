@@ -2,7 +2,17 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<div class="label-container d-flex justify-content-between">
+<script>
+    import { getContext } from "svelte";
+    import { directionKey } from "lib/context-keys";
+
+    const direction = getContext(directionKey);
+</script>
+
+<div
+    class="label-container d-flex justify-content-between"
+    class:rtl={$direction === "rtl"}
+>
     <slot />
 </div>
 
@@ -14,5 +24,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-radius: 5px 5px 0 0;
 
         padding: 0px 6px;
+    }
+
+    .rtl {
+        direction: rtl;
     }
 </style>
