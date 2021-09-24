@@ -6,26 +6,24 @@
  */
 
 import { wrapInternal } from "lib/wrap";
-import { getCurrentField } from ".";
+// import { getCurrentField } from ".";
 
 export function wrap(front: string, back: string): void {
-    const editingArea = getCurrentField();
-
-    if (editingArea) {
-        // wrapInternal(editingArea.editableContainer.shadowRoot!, front, back, false);
-    }
+    // const editingArea = getCurrentField();
+    // if (editingArea) {
+    // wrapInternal(editingArea.editableContainer.shadowRoot!, front, back, false);
+    // }
 }
 
 export function wrapCurrent(front: string, back: string): void {
-    const currentField = getCurrentField()!;
-    currentField.surroundSelection(front, back);
+    // const currentField = getCurrentField()!;
+    // currentField.surroundSelection(front, back);
 }
 
 /* currently unused */
 export function wrapIntoText(front: string, back: string): void {
-    const editingArea = getCurrentField();
-
-    if (editingArea) {
-        // wrapInternal(editingArea.editableContainer.shadowRoot!, front, back, false);
-    }
+    // const editingArea = getCurrentField();
+    // if (editingArea) {
+    // wrapInternal(editingArea.editableContainer.shadowRoot!, front, back, false);
+    // }
 }

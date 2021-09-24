@@ -19,10 +19,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let container: HTMLElement;
 
+    let activeImage: HTMLImageElement | null = null;
     /* TODO refactor to get its own sheet in custom styles through context */
     let sheet: CSSStyleSheet;
 
-    let activeImage: HTMLImageElement | null = null;
+    function resetHandle(): void {
+        activeImage = null;
+    }
+
+    function maybeShowHandle(event: Event): void {
+        if (event.target instanceof HTMLImageElement) {
+            const image = event.target;
+            resetHandle();
+
+            if (!image.dataset.anki) {
+                activeImage = image;
+            }
+        }
+    }
+
+    container.addEventListener("click", maybeShowHandle);
 
     $: naturalWidth = activeImage?.naturalWidth;
     $: naturalHeight = activeImage?.naturalHeight;
@@ -132,7 +148,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         activeImage!.width = width;
     }
 
-    onDestroy(() => resizeObserver.disconnect());
+    onDestroy(() => {
+        resizeObserver.disconnect();
+        container.removeEventListener("click", maybeShowHandle);
+    });
 </script>
 
 {#if sheet}

@@ -6,36 +6,36 @@
  */
 
 // import { fieldFocused } from "./toolbar";
-import type { EditingArea } from "./editing-area";
+// import type { EditingArea } from "./editing-area";
 
-import { saveField } from "./saving";
-import { bridgeCommand } from "./lib";
-import { getCurrentField } from "./helpers";
+// import { saveField } from "./saving";
+// import { bridgeCommand } from "./lib";
+// import { getCurrentField } from "./helpers";
 
-export function deferFocusDown(editingArea: EditingArea): void {
-    editingArea.focus();
-    editingArea.caretToEnd();
+// export function deferFocusDown(editingArea: EditingArea): void {
+//     editingArea.focus();
+//     editingArea.caretToEnd();
 
-    if (editingArea.getSelection().anchorNode === null) {
-        // selection is not inside editable after focusing
-        editingArea.caretToEnd();
-    }
+//     if (editingArea.getSelection().anchorNode === null) {
+//         // selection is not inside editable after focusing
+//         editingArea.caretToEnd();
+//     }
 
-    bridgeCommand(`focus:${editingArea.ord}`);
-    // fieldFocused.set(true);
-}
+//     bridgeCommand(`focus:${editingArea.ord}`);
+//     // fieldFocused.set(true);
+// }
 
-export function saveFieldIfFieldChanged(
-    editingArea: EditingArea,
-    focusTo: Element | null
-): void {
-    const fieldChanged =
-        editingArea !== getCurrentField() && !editingArea.contains(focusTo);
+// export function saveFieldIfFieldChanged(
+//     editingArea: EditingArea,
+//     focusTo: Element | null
+// ): void {
+//     const fieldChanged =
+//         editingArea !== getCurrentField() && !editingArea.contains(focusTo);
 
-    saveField(editingArea, fieldChanged ? "blur" : "key");
-    // fieldFocused.set(false);
+//     saveField(editingArea, fieldChanged ? "blur" : "key");
+//     // fieldFocused.set(false);
 
-    if (fieldChanged) {
-        editingArea.resetHandles();
-    }
-}
+//     if (fieldChanged) {
+//         editingArea.resetHandles();
+//     }
+// }

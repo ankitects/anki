@@ -11,24 +11,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { withButton } from "components/helpers";
     import { ellipseIcon } from "./icons";
-    import { forEditorField } from ".";
+    /* import { forEditorField } from "."; */
     import { wrapCurrent } from "./wrap";
 
     const clozePattern = /\{\{c(\d+)::/gu;
     function getCurrentHighestCloze(increment: boolean): number {
         let highest = 0;
 
-        forEditorField([], (field) => {
-            const fieldHTML = field.editingArea.fieldHTML;
-            const matches: number[] = [];
-            let match: RegExpMatchArray | null = null;
+        /* forEditorField([], (field) => { */
+        /*     const fieldHTML = field.editingArea.fieldHTML; */
+        /*     const matches: number[] = []; */
+        /*     let match: RegExpMatchArray | null = null; */
 
-            while ((match = clozePattern.exec(fieldHTML))) {
-                matches.push(Number(match[1]));
-            }
+        /*     while ((match = clozePattern.exec(fieldHTML))) { */
+        /*         matches.push(Number(match[1])); */
+        /*     } */
 
-            highest = Math.max(highest, ...matches);
-        });
+        /*     highest = Math.max(highest, ...matches); */
+        /* }); */
 
         if (increment) {
             highest++;
