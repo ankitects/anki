@@ -126,7 +126,7 @@ class Editor:
 
         # then load page
         self.web.stdHtml(
-            "", # % tr.editing_show_duplicates(),
+            "",  # % tr.editing_show_duplicates(),
             css=["css/editor.css"],
             js=["js/editor.js"],
             context=self,
@@ -488,7 +488,9 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             js += " setSticky(%s);" % json.dumps(sticky)
 
         js = gui_hooks.editor_will_load_note(js, self.note, self)
-        self.web.evalWithCallback(js, oncallback)
+        self.web.evalWithCallback(
+            f"noteEditorPromise.then(() => {{ {js} }})", oncallback
+        )
 
     def _save_current_note(self) -> None:
         "Call after note is updated with data from webview."
