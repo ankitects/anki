@@ -14,11 +14,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import MathjaxHandleInlineBlock from "./MathjaxHandleInlineBlock.svelte";
     import MathjaxHandleEditor from "./MathjaxHandleEditor.svelte";
 
-    export let activeImage: HTMLImageElement | null = null;
+    import { onDestroy } from "svelte";
+
     export let container: HTMLElement;
 
-    let dropdownApi: any;
+    let activeImage: HTMLImageElement | null = null;
 
+    function resetHandle(): void {
+        activeImage = null;
+    }
+
+    function maybeShowHandle(event: Event): void {
+        if (event.target instanceof HTMLImageElement) {
+            const image = event.target;
+            resetHandle();
+
+            if (image.dataset.anki === "mathjax") {
+                activeImage = image;
+            }
+        }
+    }
+
+    container.addEventListener("click", maybeShowHandle);
+
+    let dropdownApi: any;
     let removeEventListener: () => void = () => {
         /* noop */
     };
@@ -60,6 +79,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /* this updates the image in Mathjax.svelte */
         getComponent(activeImage!).dataset.mathjax = event.detail.mathjax;
     }
+
+    onDestroy(() => {
+        container.removeEventListener("click", maybeShowHandle);
+    });
 </script>
 
 <WithDropdown

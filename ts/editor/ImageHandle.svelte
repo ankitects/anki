@@ -17,9 +17,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { onDestroy } from "svelte";
 
-    export let activeImage: HTMLImageElement | null = null;
     export let container: HTMLElement;
-    export let sheet: CSSStyleSheet;
+
+    /* TODO refactor to get its own sheet in custom styles through context */
+    let sheet: CSSStyleSheet;
+
+    let activeImage: HTMLImageElement | null = null;
 
     $: naturalWidth = activeImage?.naturalWidth;
     $: naturalHeight = activeImage?.naturalHeight;

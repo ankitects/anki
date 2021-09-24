@@ -89,20 +89,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const nightMode = getContext(nightModeKey);
-
-    let overlayRelative: HTMLElement;
 </script>
 
-<div bind:this={overlayRelative} class="overlay-relative">
+<div class="overlay-relative">
     <div use:attachShadow class="editable-container" class:night-mode={nightMode} />
 
     <!-- slot for overlays -->
-    {#if overlayRelative}
-        <slot
-            {overlayRelative}
-            imageOverlaySheet={imageOverlayStyle.then((object) => object.element.sheet)}
-        />
-    {/if}
+    {#await editablePromise then editableComponent}
+        {#await editableComponent.editablePromise then editableDiv}
+            <slot
+                editable={editableDiv}
+                imageOverlaySheet={imageOverlayStyle.then(
+                    (object) => object.element.sheet
+                )}
+            />
+        {/await}
+    {/await}
 </div>
 
 <style lang="scss">

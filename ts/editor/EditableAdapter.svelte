@@ -63,10 +63,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $activeInput = null;
     }}
     let:imageOverlaySheet
-    let:overlayRelative={container}
+    let:editable={container}
 >
-    {#await imageOverlaySheet then sheet}
-        <ImageHandle activeImage={null} {container} {sheet} />
-    {/await}
-    <MathjaxHandle activeImage={null} {container} />
+    <ImageHandle {container} />
+    <MathjaxHandle {container} />
 </EditableContainer>

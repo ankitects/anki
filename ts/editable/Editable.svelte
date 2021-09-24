@@ -13,8 +13,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="ts">
     import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
-    import { elementContainsInlineContent, caretToEnd } from "lib/dom";
     import { createEventDispatcher } from "svelte";
+    import { elementContainsInlineContent, caretToEnd } from "lib/dom";
+    import { promiseResolve } from "lib/promise";
 
     export let decoratedComponents: DecoratedElementConstructor[] = [];
 
@@ -36,6 +37,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /*      bridgeCommand("paste"); */
     /*      event.preventDefault(); */
     /*  } */
+
+    const [editablePromise, editableResolve] = promiseResolve<HTMLElement>();
+    export { editablePromise };
 
     let editable: HTMLElement;
 
@@ -83,6 +87,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:focus={() => dispatch("editablefocus")}
     on:input={() => dispatch("editableinput")}
     on:blur={() => dispatch("editableblur")}
+    use:editableResolve
 />
 
 <style lang="scss">
