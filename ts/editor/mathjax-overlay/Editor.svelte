@@ -4,8 +4,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { onMount, createEventDispatcher } from "svelte";
-    import { ChangeTimer } from "./change-timer";
-    import { CodeMirror, latex, baseOptions } from "./codeMirror";
+    import { ChangeTimer } from "../change-timer";
+    import { CodeMirror, latex, baseOptions } from "../code-mirror";
 
     export let initialValue: string;
 

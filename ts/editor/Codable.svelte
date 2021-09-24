@@ -13,7 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="typescript">
     import { createEventDispatcher } from "svelte";
-    import { CodeMirror, htmlanki, baseOptions, gutterOptions } from "./codeMirror";
+    import { CodeMirror, htmlanki, baseOptions, gutterOptions } from "./code-mirror";
 
     export let parseStyle: string = "";
 

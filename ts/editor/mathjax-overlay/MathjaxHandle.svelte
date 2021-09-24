@@ -8,11 +8,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DropdownMenu from "components/DropdownMenu.svelte";
     import Item from "components/Item.svelte";
 
-    import HandleSelection from "./HandleSelection.svelte";
-    import HandleBackground from "./HandleBackground.svelte";
-    import HandleControl from "./HandleControl.svelte";
-    import MathjaxHandleInlineBlock from "./MathjaxHandleInlineBlock.svelte";
-    import MathjaxHandleEditor from "./MathjaxHandleEditor.svelte";
+    import HandleSelection from "../HandleSelection.svelte";
+    import HandleBackground from "../HandleBackground.svelte";
+    import HandleControl from "../HandleControl.svelte";
+
+    import InlineBlock from "./InlineBlock.svelte";
+    import Editor from "./Editor.svelte";
 
     import { onDestroy } from "svelte";
 
@@ -105,17 +106,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </HandleSelection>
 
         <DropdownMenu>
-            <MathjaxHandleEditor
+            <Editor
                 initialValue={getComponent(activeImage).dataset.mathjax ?? ""}
                 on:update={onEditorUpdate}
             />
             <div class="margin-x">
                 <ButtonToolbar>
                     <Item>
-                        <MathjaxHandleInlineBlock
-                            {activeImage}
-                            on:click={updateSelection}
-                        />
+                        <InlineBlock {activeImage} on:click={updateSelection} />
                     </Item>
                 </ButtonToolbar>
             </div>

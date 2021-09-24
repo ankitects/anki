@@ -7,13 +7,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonDropdown from "components/ButtonDropdown.svelte";
     import Item from "components/Item.svelte";
 
+    import HandleBackground from "../HandleBackground.svelte";
+    import HandleSelection from "../HandleSelection.svelte";
+    import HandleControl from "../HandleControl.svelte";
+    import HandleLabel from "../HandleLabel.svelte";
+
     import WithImageConstrained from "./WithImageConstrained.svelte";
-    import HandleBackground from "./HandleBackground.svelte";
-    import HandleSelection from "./HandleSelection.svelte";
-    import HandleControl from "./HandleControl.svelte";
-    import HandleLabel from "./HandleLabel.svelte";
-    import ImageHandleFloatButtons from "./ImageHandleFloatButtons.svelte";
-    import ImageHandleSizeSelect from "./ImageHandleSizeSelect.svelte";
+    import FloatButtons from "./FloatButtons.svelte";
+    import SizeSelect from "./SizeSelect.svelte";
 
     import { onDestroy } from "svelte";
 
@@ -211,17 +212,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <ButtonDropdown>
                     <div on:click={updateSizesWithDimensions}>
                         <Item>
-                            <ImageHandleFloatButtons
+                            <FloatButtons
                                 image={activeImage}
                                 on:update={dropdownObject.update}
                             />
                         </Item>
                         <Item>
-                            <ImageHandleSizeSelect
-                                {active}
-                                {isRtl}
-                                on:click={toggleActualSize}
-                            />
+                            <SizeSelect {active} on:click={toggleActualSize} />
                         </Item>
                     </div>
                 </ButtonDropdown>

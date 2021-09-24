@@ -6,7 +6,7 @@ load("//ts:esbuild.bzl", "esbuild")
 load("//ts:vendor.bzl", "copy_bootstrap_icons", "copy_mdi_icons")
 load("//ts:compile_sass.bzl", "compile_sass")
 
-svelte_files = glob(["*.svelte"])
+svelte_files = glob(["**/*.svelte"])
 
 svelte_names = [f.replace(".svelte", "") for f in svelte_files]
 
@@ -57,7 +57,7 @@ compile_sass(
 
 ts_library(
     name = "editor_ts",
-    srcs = glob(["*.ts"]),
+    srcs = glob(["**/*.ts"]),
     tsconfig = "//ts:tsconfig.json",
     deps = [
         "//ts/lib",
@@ -168,25 +168,21 @@ esbuild(
 prettier_test(
     name = "format_check",
     srcs = glob([
-        "*.ts",
-        "*.svelte",
+        "**/*.ts",
+        "**/*.svelte",
     ]),
 )
 
 eslint_test(
     name = "eslint",
-    srcs = glob(
-        [
-            "*.ts",
-        ],
-    ),
+    srcs = glob(["**/*.ts"]),
 )
 
 svelte_check(
     name = "svelte_check",
     srcs = glob([
-        "*.ts",
-        "*.svelte",
+        "**/*.ts",
+        "**/*.svelte",
     ]) + [
         "//ts/sass:button_mixins_lib",
         "//ts/sass/bootstrap",

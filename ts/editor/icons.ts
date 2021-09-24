@@ -38,14 +38,3 @@ export { default as deleteIcon } from "./x.svg";
 
 export const arrowIcon =
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="transparent" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 5l6 6 6-6"/></svg>';
-
-// image handle
-export { default as floatNoneIcon } from "./format-float-none.svg";
-export { default as floatLeftIcon } from "./format-float-left.svg";
-export { default as floatRightIcon } from "./format-float-right.svg";
-
-export { default as sizeActual } from "./image-size-select-actual.svg";
-export { default as sizeMinimized } from "./image-size-select-large.svg";
-
-export { default as inlineIcon } from "./format-wrap-square.svg";
-export { default as blockIcon } from "./format-wrap-top-bottom.svg";

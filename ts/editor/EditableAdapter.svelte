@@ -4,8 +4,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import EditableContainer from "editable/EditableContainer.svelte";
-    import ImageHandle from "./ImageHandle.svelte";
-    import MathjaxHandle from "./MathjaxHandle.svelte";
+    import { ImageHandle } from "./image-overlay";
+    import { MathjaxHandle } from "./mathjax-overlay";
 
     import type Editable from "editable/Editable.svelte";
     import type { DecoratedElement } from "editable/decorated";
