@@ -34,11 +34,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /*      } */
     /*  } */
 
-    /*  onPaste(event: ClipboardEvent): void { */
-    /*      bridgeCommand("paste"); */
-    /*      event.preventDefault(); */
-    /*  } */
-
     const [editablePromise, editableResolve] = promiseResolve<HTMLElement>();
     export { editablePromise };
 
@@ -82,11 +77,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const dispatch = createEventDispatcher();
 </script>
 
+<!-- custominput event can be dispatched by inner elements if they want to trigger an update -->
 <anki-editable
     bind:this={editable}
     contenteditable="true"
     on:focus={() => dispatch("editablefocus")}
     on:input={() => dispatch("editableinput")}
+    on:custominput|stopPropagation={() => dispatch("editableinput")}
     on:blur={() => dispatch("editableblur")}
     on:paste|preventDefault={() => bridgeCommand("paste")}
     on:cut|preventDefault={() => bridgeCommand("cutOrCopy")}

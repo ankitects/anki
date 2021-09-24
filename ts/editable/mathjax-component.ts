@@ -14,6 +14,8 @@ import { nightModeKey } from "components/context-keys";
 
 import Mathjax_svelte from "./Mathjax.svelte";
 
+const customInputEvent = new Event("custominput", { bubbles: true });
+
 function moveNodeOutOfElement(
     element: Element,
     node: Node,
@@ -33,11 +35,13 @@ function moveNodeOutOfElement(
                 : element.nextSibling!;
     }
 
+    element.dispatchEvent(customInputEvent);
+
     return referenceNode;
 }
 
 function placeCaretAfter(node: Node): void {
-    const range = document.createRange();
+    const range = new Range();
     range.setStartAfter(node);
     range.collapse(false);
 
