@@ -15,16 +15,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { fontFamilyKey, fontSizeKey, directionKey } from "lib/context-keys";
 
-    let editable: Editable;
-
     const [editablePromise, editableResolve] = promiseResolve<Editable>();
     export { editablePromise };
 
-    let customStyles: CustomStyles;
+    const [customStylesPromise, customStylesResolve] = promiseResolve<CustomStyles>();
 
     const [userBaseStyle, userBaseResolve] = promiseResolve<StyleObject>();
     const [userBaseRule, userBaseRuleResolve] = promiseResolve<CSSStyleRule>();
-    const [imageOverlayStyle, imageOverlayResolve] = promiseResolve<StyleObject>();
 
     export let color: string;
     export let decoratedComponents: DecoratedElementConstructor[];
@@ -60,7 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             } as StyleLinkType,
         ];
 
-        customStyles = new CustomStyles({
+        const customStyles = new CustomStyles({
             target: shadow as any,
             props: { styles },
         });
@@ -73,9 +70,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             userBaseRuleResolve(sheet.cssRules[baseIndex] as CSSStyleRule);
         });
 
-        customStyles.addStyleTag("imageOverlay").then(imageOverlayResolve);
+        customStylesResolve(customStyles);
 
-        editable = new Editable({
+        const editable = new Editable({
             target: shadow as any,
             props: { decoratedComponents },
             context: allContexts,
@@ -95,14 +92,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div use:attachShadow class="editable-container" class:night-mode={nightMode} />
 
     <!-- slot for overlays -->
-    {#await editablePromise then editableComponent}
-        {#await editableComponent.editablePromise then editableDiv}
-            <slot
-                editable={editableDiv}
-                imageOverlaySheet={imageOverlayStyle.then(
-                    (object) => object.element.sheet
-                )}
-            />
+    {#await customStylesPromise then customStyles}
+        {#await editablePromise then editableComponent}
+            {#await editableComponent.editablePromise then editable}
+                <slot {editable} {customStyles} />
+            {/await}
         {/await}
     {/await}
 </div>

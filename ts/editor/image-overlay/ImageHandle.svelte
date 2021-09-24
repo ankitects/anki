@@ -17,12 +17,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SizeSelect from "./SizeSelect.svelte";
 
     import { onDestroy } from "svelte";
+    import type CustomStyles from "editable/CustomStyles.svelte";
+    import type { StyleObject } from "editable/CustomStyles.svelte";
+
+    export let customStyles: CustomStyles;
+
+    const sheetPromise = customStyles.addStyleTag("imageOverlay")
+        .then((styleObject: StyleObject) => styleObject.element.sheet!);
 
     export let container: HTMLElement;
 
     let activeImage: HTMLImageElement | null = null;
-    /* TODO refactor to get its own sheet in custom styles through context */
-    let sheet: CSSStyleSheet;
 
     function resetHandle(): void {
         activeImage = null;
@@ -30,6 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function maybeShowHandle(event: Event): void {
         if (event.target instanceof HTMLImageElement) {
+            console.log('show?');
             const image = event.target;
             resetHandle();
 
@@ -75,7 +81,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let updateSelection: () => Promise<void>;
 
     async function updateSizesWithDimensions() {
-        await updateSelection();
+        await updateSelection?.();
         updateDimensions();
     }
 
@@ -155,7 +161,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-{#if sheet}
+{#await sheetPromise then sheet}
     <WithDropdown
         drop="down"
         autoOpen={true}
@@ -225,4 +231,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {/if}
         </WithImageConstrained>
     </WithDropdown>
-{/if}
+{/await}
