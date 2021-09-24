@@ -13,8 +13,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         activeInputKey,
         editingInputsKey,
     } from "lib/context-keys";
+    import type { DecoratedElement } from "editable/decorated";
 
     export let content: string;
+    export let decoratedComponents: DecoratedElement[];
 
     let codable: Codable;
 

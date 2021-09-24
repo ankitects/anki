@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { promiseResolve } from "lib/promise";
     import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
+    import type { DecoratedElementConstructor } from "./decorated";
     import { getContext, getAllContexts, createEventDispatcher } from "svelte";
     import type { Readable } from "svelte/store";
     import { nightModeKey } from "components/context-keys";
@@ -26,6 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const [imageOverlayStyle, imageOverlayResolve] = promiseResolve<StyleObject>();
 
     export let color: string;
+    export let decoratedComponents: DecoratedElementConstructor[];
 
     const fontFamily = getContext<Readable<string>>(fontFamilyKey);
     const fontSize = getContext<Readable<number>>(fontSizeKey);
@@ -75,6 +77,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         editable = new Editable({
             target: shadow as any,
+            props: { decoratedComponents },
             context: allContexts,
         } as any);
 

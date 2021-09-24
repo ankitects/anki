@@ -4,9 +4,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import EditableContainer from "editable/EditableContainer.svelte";
-    import type Editable from "editable/Editable.svelte";
     import ImageHandle from "./ImageHandle.svelte";
     import MathjaxHandle from "./MathjaxHandle.svelte";
+
+    import type Editable from "editable/Editable.svelte";
+    import type { DecoratedElement } from "editable/decorated";
 
     import type { Writable } from "svelte/store";
     import type { EditingInputAPI } from "./EditingArea.svelte";
@@ -14,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { activeInputKey, editingInputsKey } from "lib/context-keys";
 
     export let content: string;
+    export let decoratedComponents: DecoratedElement[];
 
     let editableContainer: EditableContainer;
 
@@ -45,6 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <EditableContainer
     bind:this={editableContainer}
     {content}
+    {decoratedComponents}
     on:editablefocus={() => {
         dispatch("editingfocus");
         editableContainer.editablePromise.then(

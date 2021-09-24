@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Extensible } from "lib/types";
     import type { MultiRootEditorAPI } from "./MultiRootEditor.svelte";
     export interface NoteEditorAPI extends Extensible {
-        readonly multiRootEditor: MultiRootEditorAPI,
+        readonly multiRootEditor: MultiRootEditorAPI;
     }
 </script>
 

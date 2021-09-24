@@ -49,14 +49,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     setContext(currentFieldKey, currentField);
 
-    const api: MultiRootEditorAPI = Object.defineProperties({}, {
-        fields: {
-            value: editorFields,
-        },
-        currentField: {
-            get: () => $currentField,
-        },
-    });
+    const api: MultiRootEditorAPI = Object.defineProperties(
+        {},
+        {
+            fields: {
+                value: editorFields,
+            },
+            currentField: {
+                get: () => $currentField,
+            },
+        }
+    );
 
     setContext(multiRootEditorKey, api);
 
