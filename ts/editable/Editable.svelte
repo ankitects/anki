@@ -16,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher } from "svelte";
     import { elementContainsInlineContent, caretToEnd } from "lib/dom";
     import { promiseResolve } from "lib/promise";
+    import { bridgeCommand } from "lib/bridgecommand";
 
     export let decoratedComponents: DecoratedElementConstructor[] = [];
 
@@ -87,6 +88,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:focus={() => dispatch("editablefocus")}
     on:input={() => dispatch("editableinput")}
     on:blur={() => dispatch("editableblur")}
+    on:paste|preventDefault={() => bridgeCommand("paste")}
+    on:cut|preventDefault={() => bridgeCommand("cutOrCopy")}
+    on:copy|preventDefault={() => bridgeCommand("cutOrCopy")}
     use:editableResolve
 />
 

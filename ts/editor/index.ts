@@ -9,6 +9,29 @@
 export { setNoteId } from "./note-id";
 export const $editorToolbar = new Promise(() => {});
 
+import { filterHTML } from "html-filter";
+
+export function pasteHTML(
+    html: string,
+    internal: boolean,
+    extendedMode: boolean
+): void {
+    html = filterHTML(html, internal, extendedMode);
+
+    if (html !== "") {
+        setFormat("inserthtml", html);
+    }
+}
+
+export function setFormat(cmd: string, arg?: string, nosave = false): void {
+    document.execCommand(cmd, false, arg);
+    // TODO ... maybe we also need to copy/paste/cut code entirely to JS
+    // if (!nosave) {
+    //     saveField(getCurrentField() as EditingArea, "key");
+    //     updateActiveButtons(new Event(cmd));
+    // }
+}
+
 import "sveltelib/export-runtime";
 import "lib/register-package";
 
