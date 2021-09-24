@@ -16,28 +16,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import FloatButtons from "./FloatButtons.svelte";
     import SizeSelect from "./SizeSelect.svelte";
 
-    import { onDestroy } from "svelte";
+    import { tick, onDestroy } from "svelte";
     import type CustomStyles from "editable/CustomStyles.svelte";
     import type { StyleObject } from "editable/CustomStyles.svelte";
 
     export let customStyles: CustomStyles;
 
-    const sheetPromise = customStyles.addStyleTag("imageOverlay")
+    const sheetPromise = customStyles
+        .addStyleTag("imageOverlay")
         .then((styleObject: StyleObject) => styleObject.element.sheet!);
 
     export let container: HTMLElement;
 
     let activeImage: HTMLImageElement | null = null;
 
-    function resetHandle(): void {
+    async function resetHandle(): Promise<void> {
         activeImage = null;
+        await tick();
     }
 
-    function maybeShowHandle(event: Event): void {
+    async function maybeShowHandle(event: Event): Promise<void> {
+        await resetHandle();
+
         if (event.target instanceof HTMLImageElement) {
-            console.log('show?');
             const image = event.target;
-            resetHandle();
 
             if (!image.dataset.anki) {
                 activeImage = image;
@@ -46,6 +48,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     container.addEventListener("click", maybeShowHandle);
+    container.addEventListener("key", resetHandle);
+    container.addEventListener("paste", resetHandle);
 
     $: naturalWidth = activeImage?.naturalWidth;
     $: naturalHeight = activeImage?.naturalHeight;
@@ -158,22 +162,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => {
         resizeObserver.disconnect();
         container.removeEventListener("click", maybeShowHandle);
+        container.removeEventListener("key", resetHandle);
+        container.removeEventListener("paste", resetHandle);
     });
 </script>
 
-{#await sheetPromise then sheet}
-    <WithDropdown
-        drop="down"
-        autoOpen={true}
-        autoClose={false}
-        distance={3}
-        let:createDropdown
-        let:dropdownObject
-    >
+<WithDropdown
+    drop="down"
+    autoOpen={true}
+    autoClose={false}
+    distance={3}
+    let:createDropdown
+    let:dropdownObject
+>
+    {#await sheetPromise then sheet}
         <WithImageConstrained
             {sheet}
             {container}
             {activeImage}
+            maxWidth={250}
+            maxHeight={125}
             on:update={() => {
                 updateSizesWithDimensions();
                 dropdownObject.update();
@@ -230,5 +238,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </ButtonDropdown>
             {/if}
         </WithImageConstrained>
-    </WithDropdown>
-{/await}
+    {/await}
+</WithDropdown>

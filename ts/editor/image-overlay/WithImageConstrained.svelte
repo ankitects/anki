@@ -23,8 +23,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    export let maxWidth = 250;
-    export let maxHeight = 125;
+    export let maxWidth: number;
+    export let maxHeight: number;
 
     $: restrictionAspectRatio = maxWidth / maxHeight;
 
@@ -55,7 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return createPathRecursive([], element).join(" > ");
     }
 
-    export const images: HTMLImageElement[] = [];
+    const images: HTMLImageElement[] = [];
 
     $: for (const [index, image] of images.entries()) {
         const rule = sheet.cssRules[index] as CSSStyleRule;
@@ -132,12 +132,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function addImageOnLoad(image: HTMLImageElement): void {
-        if (image.complete && image.naturalWidth !== 0 && image.naturalHeight !== 0) {
+        if (image.complete && image.naturalWidth > 0 && image.naturalHeight > 0) {
             addImage(image);
         } else {
-            image.addEventListener("load", () => {
-                addImage(image);
-            });
+            image.addEventListener("load", () => addImage(image));
         }
     }
 
@@ -169,9 +167,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     });
 
-    $: if (container) {
-        mutationObserver.observe(container, { childList: true, subtree: true });
+    mutationObserver.observe(container, {
+        childList: true,
+        subtree: true,
+    });
+
+    for (const image of filterImages([...container.childNodes])) {
+        addImageOnLoad(image);
     }
+
+    onDestroy(() => mutationObserver.disconnect());
 
     export function toggleActualSize() {
         const index = images.indexOf(activeImage!);
@@ -190,8 +195,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         dispatch("update", active);
     }
-
-    onDestroy(() => mutationObserver.disconnect());
 </script>
 
 {#if activeImage}

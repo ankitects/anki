@@ -64,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }}
     let:imageOverlaySheet
     let:editable={container}
-    let:customStyles={customStyles}
+    let:customStyles
 >
     <ImageHandle {container} {customStyles} />
     <MathjaxHandle {container} {customStyles} />
