@@ -175,6 +175,8 @@ class DataModel(QAbstractTableModel):
 
     def get_card(self, index: QModelIndex) -> Optional[Card]:
         """Try to return the indicated, possibly deleted card."""
+        if not index.isValid():
+            return None
         try:
             return self._state.get_card(self.get_item(index))
         except NotFoundError:
@@ -182,6 +184,8 @@ class DataModel(QAbstractTableModel):
 
     def get_note(self, index: QModelIndex) -> Optional[Note]:
         """Try to return the indicated, possibly deleted note."""
+        if not index.isValid():
+            return None
         try:
             return self._state.get_note(self.get_item(index))
         except NotFoundError:

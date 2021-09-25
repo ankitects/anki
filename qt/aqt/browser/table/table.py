@@ -78,13 +78,9 @@ class Table:
     # Get objects
 
     def get_current_card(self) -> Optional[Card]:
-        if not self.has_current():
-            return None
         return self._model.get_card(self._current())
 
     def get_current_note(self) -> Optional[Note]:
-        if not self.has_current():
-            return None
         return self._model.get_note(self._current())
 
     def get_single_selected_card(self) -> Optional[Card]:
