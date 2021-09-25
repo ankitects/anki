@@ -119,6 +119,10 @@ class DataModel(QAbstractTableModel):
         )
         return row
 
+    def get_cached_row(self, index: QModelIndex) -> Optional[CellRow]:
+        """Get row if it is cached, regardless of staleness."""
+        return self._rows.get(self.get_item(index))
+
     # Reset
 
     def mark_cache_stale(self) -> None:
@@ -326,8 +330,10 @@ class DataModel(QAbstractTableModel):
         return None
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlags:
-        if self.get_row(index).is_deleted:
-            return Qt.ItemFlags(Qt.NoItemFlags)
+        # shortcut for large selections (Ctrl+A) to avoid fetching large numbers of rows at once
+        if row := self.get_cached_row(index):
+            if row.is_deleted:
+                return Qt.ItemFlags(Qt.NoItemFlags)
         return cast(Qt.ItemFlags, Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
 
