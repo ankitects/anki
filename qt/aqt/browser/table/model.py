@@ -184,6 +184,11 @@ class DataModel(QAbstractTableModel):
     def get_note_ids(self, indices: List[QModelIndex]) -> Sequence[NoteId]:
         return self._state.get_note_ids(self.get_items(indices))
 
+    def get_note_id(self, index: QModelIndex) -> Optional[NoteId]:
+        if nid_list := self._state.get_note_ids([self.get_item(index)]):
+            return nid_list[0]
+        return None
+
     # Get row numbers from items
 
     def get_item_row(self, item: ItemId) -> Optional[int]:

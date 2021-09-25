@@ -207,6 +207,25 @@ class Table:
     def to_last_row(self) -> None:
         self._move_current_to_row(self._model.len_rows() - 1)
 
+    def to_row_of_unselected_note(self) -> None:
+        """Select and set focus to a row whose note is not selected,
+        starting with the nearest row below, then above the focused row.
+        If that's not possible, clear selection.
+        """
+        nids = self.get_selected_note_ids()
+        for row in range(self._current().row(), self.len()):
+            nid = self._model.get_note_id(self._model.index(row, 0))
+            if nid is not None and nid not in nids:
+                self._move_current_to_row(row)
+                return
+        for row in range(self._current().row() - 1, -1, -1):
+            nid = self._model.get_note_id(self._model.index(row, 0))
+            if nid is not None and nid not in nids:
+                self._move_current_to_row(row)
+                return
+        self.clear_selection()
+        self.clear_current()
+
     def clear_current(self) -> None:
         self._view.selectionModel().setCurrentIndex(
             QModelIndex(), QItemSelectionModel.NoUpdate
