@@ -69,16 +69,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <slot name="toolbar" />
 
-<main class="fields-editor {className}">
+<main class="multi-root-editor {className}">
     <slot />
 </main>
 
 <style lang="scss">
-    .fields-editor {
-        display: flex;
-        flex-direction: column;
+    .multi-root-editor {
+        display: grid;
+        grid-auto-rows: min-content;
+
+        grid-gap: 3px;
 
         overflow-x: hidden;
-        padding: 3px 0;
+
+        > :global(*) {
+            min-width: 0;
+        }
     }
 </style>
