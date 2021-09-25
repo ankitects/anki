@@ -148,6 +148,7 @@ class AddCards(QDialog):
         self.editor.loadNote(
             focusTo=min(self.editor.last_field_index or 0, len(new.fields) - 1)
         )
+        gui_hooks.add_cards_did_change_note_type(old.note_type(), new.note_type())
 
     def _load_new_note(self, sticky_fields_from: Optional[Note] = None) -> None:
         note = self._new_note()
