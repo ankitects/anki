@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Dict, List, Optional, Sequence, Union, cast
+from typing import Any, Callable, Dict, List, Optional, Sequence, Union, cast
 
 import aqt
 from anki.cards import Card, CardId
@@ -32,7 +32,13 @@ class DataModel(QAbstractTableModel):
     _stale_cutoff -- A threshold to decide whether a cached row has gone stale.
     """
 
-    def __init__(self, col: Collection, state: ItemState) -> None:
+    def __init__(
+        self,
+        col: Collection,
+        state: ItemState,
+        row_state_will_change_callback: Callable,
+        row_state_changed_callback: Callable,
+    ) -> None:
         QAbstractTableModel.__init__(self)
         self.col: Collection = col
         self.columns: Dict[str, Column] = dict(
@@ -44,6 +50,8 @@ class DataModel(QAbstractTableModel):
         self._rows: Dict[int, CellRow] = {}
         self._block_updates = False
         self._stale_cutoff = 0.0
+        self._on_row_state_will_change = row_state_will_change_callback
+        self._on_row_state_changed = row_state_changed_callback
         self._want_tooltips = aqt.mw.pm.show_browser_table_tooltips()
 
     # Row Object Interface
@@ -59,15 +67,34 @@ class DataModel(QAbstractTableModel):
         if row := self._rows.get(item):
             if not self._block_updates and row.is_stale(self._stale_cutoff):
                 # need to refresh
-                self._rows[item] = self._fetch_row_from_backend(item)
-                return self._rows[item]
+                return self._fetch_row_and_update_cache(index, item, row)
             # return row, even if it's stale
             return row
         if self._block_updates:
             # blank row until we unblock
             return CellRow.placeholder(self.len_columns())
         # missing row, need to build
-        self._rows[item] = self._fetch_row_from_backend(item)
+        return self._fetch_row_and_update_cache(index, item, None)
+
+    def _fetch_row_and_update_cache(
+        self, index: QModelIndex, item: ItemId, old_row: Optional[CellRow]
+    ) -> CellRow:
+        """Fetch a row from the backend, add it to the cache and return it.
+        Thereby, handle callbacks if the row is being deleted or restored.
+        """
+        new_row = self._fetch_row_from_backend(item)
+        # row state has changed if existence of cached and fetched counterparts differ
+        # if the row was previously uncached, it is assumed to have existed
+        state_change = (
+            new_row.is_deleted
+            if old_row is None
+            else old_row.is_deleted != new_row.is_deleted
+        )
+        if state_change:
+            self._on_row_state_will_change(index, not new_row.is_deleted)
+        self._rows[item] = new_row
+        if state_change:
+            self._on_row_state_changed(index, not new_row.is_deleted)
         return self._rows[item]
 
     def _fetch_row_from_backend(self, item: ItemId) -> CellRow:
