@@ -1,29 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import * as tr from "./i18n";
-import { isApplePlatform } from "./platform";
+import type { Modifier } from "./keys";
 
-export type Modifier = "Control" | "Alt" | "Shift" | "Meta";
-
-// how modifiers are mapped
-const platformModifiers = isApplePlatform()
-    ? ["Meta", "Alt", "Shift", "Control"]
-    : ["Control", "Alt", "Shift", "OS"];
-
-function modifiersToPlatformString(modifiers: string[]): string {
-    const displayModifiers = isApplePlatform()
-        ? ["^", "⌥", "⇧", "⌘"]
-        : [`${tr.keyboardCtrl()}+`, "Alt+", `${tr.keyboardShift()}+`, "Win+"];
-
-    let result = "";
-
-    for (const modifier of modifiers) {
-        result += displayModifiers[platformModifiers.indexOf(modifier)];
-    }
-
-    return result;
-}
+import { registerPackage } from "./register-package";
+import { modifiersToPlatformString, keyToPlatformString, checkModifiers } from "./keys";
 
 const keyCodeLookup = {
     Backspace: 8,
@@ -67,7 +48,7 @@ function toPlatformString(keyCombination: string[]): string {
     return (
         modifiersToPlatformString(
             keyCombination.slice(0, -1).filter(isRequiredModifier)
-        ) + keyCombination[keyCombination.length - 1]
+        ) + keyToPlatformString(keyCombination[keyCombination.length - 1])
     );
 }
 
@@ -80,8 +61,6 @@ export function getPlatformString(keyCombinationString: string): string {
 function checkKey(event: KeyboardEvent, key: number): boolean {
     return event.which === key;
 }
-
-const allModifiers: Modifier[] = ["Control", "Alt", "Shift", "Meta"];
 
 function partition<T>(predicate: (t: T) => boolean, items: T[]): [T[], T[]] {
     const trueItems: T[] = [];
@@ -99,28 +78,25 @@ function removeTrailing(modifier: string): string {
     return modifier.substring(0, modifier.length - 1);
 }
 
-function checkModifiers(event: KeyboardEvent, modifiers: string[]): boolean {
+// function checkModifiers(event: KeyboardEvent, modifiers: string[]): boolean {
+function separateRequiredOptionalModifiers(
+    modifiers: string[]
+): [Modifier[], Modifier[]] {
     const [requiredModifiers, otherModifiers] = partition(
         isRequiredModifier,
         modifiers
     );
 
     const optionalModifiers = otherModifiers.map(removeTrailing);
-
-    return allModifiers.reduce(
-        (matches: boolean, currentModifier: string, currentIndex: number): boolean =>
-            matches &&
-            (optionalModifiers.includes(currentModifier as Modifier) ||
-                event.getModifierState(platformModifiers[currentIndex]) ===
-                    requiredModifiers.includes(currentModifier)),
-        true
-    );
+    return [requiredModifiers as Modifier[], optionalModifiers as Modifier[]];
 }
 
 const check =
     (keyCode: number, modifiers: string[]) =>
     (event: KeyboardEvent): boolean => {
-        return checkKey(event, keyCode) && checkModifiers(event, modifiers);
+        const [required, optional] = separateRequiredOptionalModifiers(modifiers);
+
+        return checkKey(event, keyCode) && checkModifiers(required, optional)(event);
     };
 
 function keyToCode(key: string): number {
@@ -183,3 +159,8 @@ export function registerShortcut(
     document.addEventListener("keydown", handler);
     return (): void => document.removeEventListener("keydown", handler);
 }
+
+registerPackage("anki/shortcuts", {
+    registerShortcut,
+    getPlatformString,
+});

@@ -19,24 +19,34 @@
     export let tooltip: string;
     export let trigger: TriggerType = "hover focus";
 
+    export let placement: "auto" | "top" | "bottom" | "left" | "right" = "top";
+    export let html = true;
+    export let offset: Tooltip.Offset = [0, 0];
+    export let showDelay = 0;
+    export let hideDelay = 0;
+
     let tooltipObject: Tooltip;
 
     function createTooltip(element: HTMLElement): void {
         element.title = tooltip;
         tooltipObject = new Tooltip(element, {
-            placement: "bottom",
-            html: true,
-            offset: [0, 20],
-            delay: { show: 250, hide: 0 },
+            placement,
+            html,
+            offset,
+            delay: { show: showDelay, hide: hideDelay },
             trigger,
         });
     }
 
-    onDestroy(() => {
-        if (tooltipObject) {
-            tooltipObject.dispose();
-        }
-    });
+    onDestroy(() => tooltipObject?.dispose());
 </script>
 
 <slot {createTooltip} {tooltipObject} />
+
+<style lang="scss">
+    /* tooltip is inserted under the body tag
+    /* long tooltips can cause x-overflow */
+    :global(body) {
+        overflow-x: hidden;
+    }
+</style>

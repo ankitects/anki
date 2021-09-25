@@ -45,10 +45,10 @@
         "svelte": "^3.25.0",
         "svelte-check": "^1.0.61",
         "svelte-preprocess": "^4.6.9",
-        "svelte2tsx": "^0.1.133",
+        "svelte2tsx": "^0.4.6",
         "tmp": "^0.2.1",
         "tslib": "^2.0.3",
-        "typescript": "^4.2.4",
+        "typescript": "^4.4.0",
         "uglify-js": "^3.13.1"
     },
     "scripts": {
@@ -61,7 +61,7 @@
         "@popperjs/core": "^2.9.2",
         "@types/lodash-es": "^4.17.4",
         "@types/marked": "^2.0.2",
-        "bootstrap": "^5.0.0",
+        "bootstrap": "=5.0.2",
         "bootstrap-icons": "^1.4.0",
         "codemirror": "^5.61.1",
         "css-browser-selector": "^0.6.5",
@@ -72,6 +72,7 @@
         "lodash-es": "^4.17.21",
         "marked": "=2.0.5",
         "mathjax": "^3.1.2",
+        "mathjax-full": "^3.2.0",
         "protobufjs": "^6.10.2"
     },
     "resolutions": {

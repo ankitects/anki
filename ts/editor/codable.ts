@@ -1,39 +1,29 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import * as CodeMirror from "codemirror/lib/codemirror";
-import "codemirror/mode/htmlmixed/htmlmixed";
-import "codemirror/addon/fold/foldcode";
-import "codemirror/addon/fold/foldgutter";
-import "codemirror/addon/fold/xml-fold";
-import "codemirror/addon/edit/matchtags.js";
-import "codemirror/addon/edit/closetag.js";
+/* eslint
+@typescript-eslint/no-non-null-assertion: "off",
+*/
 
+import { CodeMirror, htmlanki, baseOptions, gutterOptions } from "./codeMirror";
 import { inCodable } from "./toolbar";
 
 const codeMirrorOptions = {
-    mode: "htmlmixed",
-    theme: "monokai",
-    lineNumbers: true,
-    lineWrapping: true,
-    foldGutter: true,
-    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-    matchTags: { bothTags: true },
-    autoCloseTags: true,
-    extraKeys: { Tab: false, "Shift-Tab": false },
-    viewportMargin: Infinity,
-    lineWiseCopyCut: false,
+    mode: htmlanki,
+    ...baseOptions,
+    ...gutterOptions,
 };
 
 const parser = new DOMParser();
+const parseStyle = "<style>anki-mathjax { white-space: pre; }</style>";
 
 function parseHTML(html: string): string {
-    const doc = parser.parseFromString(html, "text/html");
+    const doc = parser.parseFromString(`${parseStyle}${html}`, "text/html");
     return doc.body.innerHTML;
 }
 
 export class Codable extends HTMLTextAreaElement {
-    codeMirror: CodeMirror | undefined;
+    codeMirror: CodeMirror.EditorFromTextArea | undefined;
 
     get active(): boolean {
         return Boolean(this.codeMirror);
@@ -41,14 +31,14 @@ export class Codable extends HTMLTextAreaElement {
 
     set fieldHTML(content: string) {
         if (this.active) {
-            this.codeMirror.setValue(content);
+            this.codeMirror?.setValue(content);
         } else {
             this.value = content;
         }
     }
 
     get fieldHTML(): string {
-        return parseHTML(this.active ? this.codeMirror.getValue() : this.value);
+        return parseHTML(this.active ? this.codeMirror!.getValue() : this.value);
     }
 
     connectedCallback(): void {
@@ -58,26 +48,27 @@ export class Codable extends HTMLTextAreaElement {
     setup(html: string): void {
         this.fieldHTML = html;
         this.codeMirror = CodeMirror.fromTextArea(this, codeMirrorOptions);
+        this.codeMirror.on("blur", () => inCodable.set(false));
     }
 
     teardown(): string {
-        this.codeMirror.toTextArea();
+        this.codeMirror!.toTextArea();
         this.codeMirror = undefined;
         return this.fieldHTML;
     }
 
     focus(): void {
-        this.codeMirror.focus();
+        this.codeMirror!.focus();
         inCodable.set(true);
     }
 
     caretToEnd(): void {
-        this.codeMirror.setCursor(this.codeMirror.lineCount(), 0);
+        this.codeMirror!.setCursor(this.codeMirror!.lineCount(), 0);
     }
 
     surroundSelection(before: string, after: string): void {
-        const selection = this.codeMirror.getSelection();
-        this.codeMirror.replaceSelection(before + selection + after);
+        const selection = this.codeMirror!.getSelection();
+        this.codeMirror!.replaceSelection(before + selection + after);
     }
 
     onEnter(): void {
@@ -88,3 +79,5 @@ export class Codable extends HTMLTextAreaElement {
         /* default */
     }
 }
+
+customElements.define("anki-codable", Codable, { extends: "textarea" });

@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="typescript">
     import { isApplePlatform } from "lib/platform";
-    import StickyBar from "components/StickyBar.svelte";
+    import StickyHeader from "components/StickyHeader.svelte";
     import ButtonToolbar from "components/ButtonToolbar.svelte";
     import Item from "components/Item.svelte";
 
@@ -40,6 +40,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let size = isApplePlatform() ? 1.6 : 2.0;
     export let wrap = true;
 
+    export let textColor: string;
+    export let highlightColor: string;
+
     export const toolbar = {};
     export const notetypeButtons = {};
     export const formatInlineButtons = {};
@@ -48,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export const templateButtons = {};
 </script>
 
-<StickyBar>
+<StickyHeader>
     <ButtonToolbar {size} {wrap} api={toolbar}>
         <Item id="notetype">
             <NoteTypeButtons api={notetypeButtons} />
@@ -63,11 +66,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Item>
 
         <Item id="color">
-            <ColorButtons api={colorButtons} />
+            <ColorButtons {textColor} {highlightColor} api={colorButtons} />
         </Item>
 
         <Item id="template">
             <TemplateButtons api={templateButtons} />
         </Item>
     </ButtonToolbar>
-</StickyBar>
+</StickyHeader>

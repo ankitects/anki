@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import WithTheming from "components/WithTheming.svelte";
-    import Detachable from "components/Detachable.svelte";
+    import WithTheming from "./WithTheming.svelte";
+    import Detachable from "./Detachable.svelte";
 
     import type { ButtonRegistration } from "./buttons";
     import { ButtonPosition } from "./buttons";
@@ -20,21 +20,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let position_: ButtonPosition;
     let style: string;
 
-    const radius = "calc(var(--buttons-size) / 7.5)";
+    const radius = "5px";
+
+    const leftStyle = `--border-left-radius: ${radius}; --border-right-radius: 0; `;
+    const rightStyle = `--border-left-radius: 0; --border-right-radius: ${radius}; `;
 
     $: {
         switch (position_) {
             case ButtonPosition.Standalone:
                 style = `--border-left-radius: ${radius}; --border-right-radius: ${radius}; `;
                 break;
-            case ButtonPosition.Leftmost:
-                style = `--border-left-radius: ${radius}; --border-right-radius: 0; `;
+            case ButtonPosition.InlineStart:
+                style = leftStyle;
                 break;
             case ButtonPosition.Center:
                 style = "--border-left-radius: 0; --border-right-radius: 0; ";
                 break;
-            case ButtonPosition.Rightmost:
-                style = `--border-left-radius: 0; --border-right-radius: ${radius}; `;
+            case ButtonPosition.InlineEnd:
+                style = rightStyle;
                 break;
         }
     }

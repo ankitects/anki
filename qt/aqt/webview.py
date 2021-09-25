@@ -106,6 +106,9 @@ class AnkiWebPage(QWebEnginePage):
         if "MathJax localStorage" in buf:
             # silence localStorage noise
             return
+        elif "link preload" in buf:
+            # silence 'link preload' warning on the first card
+            return
         # ensure we don't try to write characters the terminal can't handle
         buf = buf.encode(sys.stdout.encoding, "backslashreplace").decode(
             sys.stdout.encoding

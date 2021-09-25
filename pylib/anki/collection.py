@@ -150,10 +150,12 @@ class Collection(DeprecatedNamesMixin):
     # Scheduler
     ##########################################################################
 
-    # for backwards compatibility, v3 is represented as 2
     _supported_scheduler_versions = (1, 2)
 
     def sched_ver(self) -> Literal[1, 2]:
+        """For backwards compatibility, the v3 scheduler currently returns 2.
+        Use the separate v3_scheduler() method to check if it is active."""
+        # for backwards compatibility, v3 is represented as 2
         ver = self.conf.get("schedVer", 1)
         if ver in self._supported_scheduler_versions:
             return ver
@@ -176,7 +178,7 @@ class Collection(DeprecatedNamesMixin):
         self._load_scheduler()
 
     def v3_scheduler(self) -> bool:
-        return self.get_config_bool(Config.Bool.SCHED_2021)
+        return self.sched_ver() == 2 and self.get_config_bool(Config.Bool.SCHED_2021)
 
     def set_v3_scheduler(self, enabled: bool) -> None:
         if self.v3_scheduler() != enabled:
@@ -314,20 +316,32 @@ class Collection(DeprecatedNamesMixin):
     def get_card(self, id: CardId) -> Card:
         return Card(self, id)
 
-    def update_card(self, card: Card) -> None:
+    def update_cards(self, cards: Sequence[Card]) -> OpChanges:
         """Save card changes to database, and add an undo entry.
         Unlike card.flush(), this will invalidate any current checkpoint."""
-        self._backend.update_card(card=card._to_backend_card(), skip_undo_entry=False)
+        return self._backend.update_cards(
+            cards=[c._to_backend_card() for c in cards], skip_undo_entry=False
+        )
+
+    def update_card(self, card: Card) -> OpChanges:
+        """Save card changes to database, and add an undo entry.
+        Unlike card.flush(), this will invalidate any current checkpoint."""
+        return self.update_cards([card])
 
     def get_note(self, id: NoteId) -> Note:
         return Note(self, id=id)
 
+    def update_notes(self, notes: Sequence[Note]) -> OpChanges:
+        """Save note changes to database, and add an undo entry.
+        Unlike note.flush(), this will invalidate any current checkpoint."""
+        return self._backend.update_notes(
+            notes=[n._to_backend_note() for n in notes], skip_undo_entry=False
+        )
+
     def update_note(self, note: Note) -> OpChanges:
         """Save note changes to database, and add an undo entry.
         Unlike note.flush(), this will invalidate any current checkpoint."""
-        return self._backend.update_note(
-            note=note._to_backend_note(), skip_undo_entry=False
-        )
+        return self.update_notes([note])
 
     getCard = get_card
     getNote = get_note
@@ -1014,7 +1028,7 @@ table.review-log {{ {revlog_style} }}
             ok = not problems
             problems.append(self.tr.database_check_rebuilt())
         except DBError as err:
-            problems = [str(err.args[0])]
+            problems = [str(err)]
             ok = False
         finally:
             try:
@@ -1070,8 +1084,8 @@ table.review-log {{ {revlog_style} }}
     def get_preferences(self) -> Preferences:
         return self._backend.get_preferences()
 
-    def set_preferences(self, prefs: Preferences) -> None:
-        self._backend.set_preferences(prefs)
+    def set_preferences(self, prefs: Preferences) -> OpChanges:
+        return self._backend.set_preferences(prefs)
 
     def render_markdown(self, text: str, sanitize: bool = True) -> str:
         "Not intended for public consumption at this time."

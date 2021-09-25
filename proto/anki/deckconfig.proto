@@ -43,6 +43,10 @@ message DeckConfig {
       NEW_CARD_SORT_ORDER_LOWEST_POSITION = 3;
       NEW_CARD_SORT_ORDER_HIGHEST_POSITION = 4;
       NEW_CARD_SORT_ORDER_RANDOM = 5;
+      // Sorts by template, preserving original gather order.
+      NEW_CARD_SORT_ORDER_TEMPLATE_ONLY = 6;
+      // Preserves original gather order (eg deck order)
+      NEW_CARD_SORT_ORDER_NO_SORT = 7;
     }
     enum ReviewCardOrder {
       REVIEW_CARD_ORDER_DAY = 0;
@@ -50,7 +54,8 @@ message DeckConfig {
       REVIEW_CARD_ORDER_DECK_THEN_DAY = 2;
       REVIEW_CARD_ORDER_INTERVALS_ASCENDING = 3;
       REVIEW_CARD_ORDER_INTERVALS_DESCENDING = 4;
-      // REVIEW_CARD_ORDER_RELATIVE_OVERDUE = 3;
+      REVIEW_CARD_ORDER_EASE_ASCENDING = 5;
+      REVIEW_CARD_ORDER_EASE_DESCENDING = 6;
     }
     enum ReviewMix {
       REVIEW_MIX_MIX_WITH_REVIEWS = 0;
@@ -69,6 +74,8 @@ message DeckConfig {
 
     uint32 new_per_day = 9;
     uint32 reviews_per_day = 10;
+
+    // not currently used
     uint32 new_per_day_minimum = 29;
 
     float initial_ease = 11;

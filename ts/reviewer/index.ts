@@ -10,7 +10,9 @@ import "css-browser-selector/css_browser_selector.min";
 
 export { default as $, default as jQuery } from "jquery/dist/jquery";
 
-export { mutateNextCardStates } from "./answering";
+import { mutateNextCardStates } from "./answering";
+globalThis.anki = globalThis.anki || {};
+globalThis.anki.mutateNextCardStates = mutateNextCardStates;
 
 import { bridgeCommand } from "lib/bridgecommand";
 import { allImagesLoaded, preloadAnswerImages } from "./images";
@@ -78,9 +80,14 @@ function setInnerHTML(element: Element, html: string): void {
 
 const renderError =
     (type: string) =>
-    (error: Error): string => {
+    (error: unknown): string => {
         const errorMessage = String(error).substring(0, 2000);
-        const errorStack = String(error.stack).substring(0, 2000);
+        let errorStack: string;
+        if (error instanceof Error) {
+            errorStack = String(error.stack).substring(0, 2000);
+        } else {
+            errorStack = "";
+        }
         return `<div>Invalid ${type} on card: ${errorMessage}\n${errorStack}</div>`.replace(
             /\n/g,
             "<br>"

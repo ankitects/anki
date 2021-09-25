@@ -1,5 +1,7 @@
 SELECT did,
+  -- new
   sum(queue = :new_queue),
+  -- reviews
   sum(
     queue = :review_queue
     AND due <= :day_cutoff
@@ -35,6 +37,7 @@ SELECT did,
         )
       END
     )
-  )
+  ),
+  -- total
+  COUNT(1)
 FROM cards
-WHERE queue >= 0

@@ -9,7 +9,13 @@ import aqt
 import aqt.forms
 from anki._legacy import deprecated
 from anki.cards import Card, CardId
-from anki.collection import Collection, Config, OpChanges, SearchNode
+from anki.collection import (
+    Collection,
+    Config,
+    OpChanges,
+    OpChangesWithCount,
+    SearchNode,
+)
 from anki.consts import *
 from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
@@ -52,9 +58,9 @@ from aqt.utils import (
     saveGeom,
     saveSplitter,
     saveState,
-    showInfo,
     showWarning,
     skip_if_selection_is_empty,
+    tooltip,
     tr,
 )
 
@@ -151,11 +157,13 @@ class Browser(QMainWindow):
                         return
                     self.editor.set_note(note)
 
-            self._renderPreview()
-
         if changes.browser_table and changes.card:
             self.card = self.table.get_current_card()
             self._update_context_actions()
+
+        # changes.card is required for updating flag icon
+        if changes.note_text or changes.card:
+            self._renderPreview()
 
     def on_focus_change(self, new: Optional[QWidget], old: Optional[QWidget]) -> None:
         if current_window() == self:
@@ -435,9 +443,38 @@ class Browser(QMainWindow):
         gui_hooks.browser_did_change_row(self)
 
     def _update_context_actions(self) -> None:
+        self._update_enabled_actions()
         self._update_flags_menu()
         self._update_toggle_mark_action()
         self._update_toggle_suspend_action()
+
+    def _update_enabled_actions(self) -> None:
+        has_rows = bool(self.table.len())
+        self.form.actionSelectAll.setEnabled(has_rows)
+        self.form.actionInvertSelection.setEnabled(has_rows)
+        self.form.actionFirstCard.setEnabled(has_rows)
+        self.form.actionLastCard.setEnabled(has_rows)
+
+        self.form.action_Info.setEnabled(bool(self.card))
+
+        self.form.actionPreviousCard.setEnabled(self.table.has_previous())
+
+        self.form.actionNextCard.setEnabled(self.table.has_next())
+
+        has_selection = bool(self.table.len_selection())
+        self.form.actionSelectNotes.setEnabled(has_selection)
+        self.form.actionExport.setEnabled(has_selection)
+        self.form.actionAdd_Tags.setEnabled(has_selection)
+        self.form.actionRemove_Tags.setEnabled(has_selection)
+        self.form.actionToggle_Mark.setEnabled(has_selection)
+        self.form.actionChangeModel.setEnabled(has_selection)
+        self.form.actionDelete.setEnabled(has_selection)
+        self.form.actionChange_Deck.setEnabled(has_selection)
+        self.form.action_set_due_date.setEnabled(has_selection)
+        self.form.action_forget.setEnabled(has_selection)
+        self.form.actionReposition.setEnabled(has_selection)
+        self.form.actionToggle_Suspend.setEnabled(has_selection)
+        self.form.menuFlag.setEnabled(has_selection)
 
     @ensure_editor_saved
     def on_table_state_changed(self, checked: bool) -> None:
@@ -592,11 +629,16 @@ class Browser(QMainWindow):
             return
 
         nids = self.table.get_selected_note_ids()
-        # select the next card if there is one
-        self.focusTo = self.editor.currentField
-        self.table.to_next_row()
 
-        remove_notes(parent=self, note_ids=nids).run_in_background()
+        def after_remove(changes: OpChangesWithCount) -> None:
+            tooltip(tr.browsing_cards_deleted(count=changes.count))
+            # select the next card if there is one
+            self.focusTo = self.editor.currentField
+            self.table.to_next_row()
+
+        remove_notes(parent=self, note_ids=nids).success(
+            after_remove
+        ).run_in_background()
 
     # legacy
 
@@ -751,10 +793,6 @@ class Browser(QMainWindow):
     @skip_if_selection_is_empty
     @ensure_editor_saved
     def reposition(self) -> None:
-        if self.card and self.card.queue != QUEUE_TYPE_NEW:
-            showInfo(tr.browsing_only_new_cards_can_be_repositioned(), parent=self)
-            return
-
         if op := reposition_new_cards_dialog(
             parent=self, card_ids=self.selected_cards()
         ):

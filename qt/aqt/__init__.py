@@ -18,6 +18,7 @@ from anki.buildinfo import version as _version
 from anki.collection import Collection
 from anki.consts import HELP_SITE
 from anki.utils import checksum, isLin, isMac
+from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import TR, locale_dir, tr
 
@@ -114,6 +115,7 @@ class DialogManager:
         else:
             instance = creator(*args, **kwargs)
             self._dialogs[name][1] = instance
+        gui_hooks.dialog_manager_did_open_dialog(self, name, instance)
         return instance
 
     def markClosed(self, name: str) -> None:
@@ -475,8 +477,14 @@ def _run(argv: Optional[List[str]] = None, exec: bool = True) -> Optional[AnkiAp
         profiler = cProfile.Profile()
         profiler.enable()
 
-    if getattr(sys, "frozen", False) and os.getenv("QT_QPA_PLATFORM") == "wayland":
-        # the packaged builds currently do not support wayland natively
+    if (
+        getattr(sys, "frozen", False)
+        and os.getenv("QT_QPA_PLATFORM") == "wayland"
+        and not os.getenv("ANKI_WAYLAND")
+    ):
+        # users need to opt in to wayland support, given the issues it has
+        print("Wayland support is disabled by default due to bugs.")
+        print("You can force it on with an env var: ANKI_WAYLAND=1")
         os.environ["QT_QPA_PLATFORM"] = "xcb"
 
     # default to specified/system language before getting user's preference so that we can localize some more strings

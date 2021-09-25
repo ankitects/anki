@@ -9,7 +9,6 @@ vendor_js_lib(
     ],
     base = "external/npm/node_modules/bootstrap/",
     pkg = pkg_from_name("bootstrap"),
-    strip_prefix = "scss/",
     visibility = ["//visibility:private"],
 )
 

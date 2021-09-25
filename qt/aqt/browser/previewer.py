@@ -11,6 +11,7 @@ from typing import Any, Callable, Optional, Tuple, Union
 import aqt.browser
 from anki.cards import Card
 from anki.collection import Config
+from anki.tags import MARKED_TAG
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import (
     QCheckBox,
@@ -46,6 +47,7 @@ class Previewer(QDialog):
         self, parent: QWidget, mw: AnkiQt, on_close: Callable[[], None]
     ) -> None:
         super().__init__(None, Qt.Window)
+        mw.garbage_collect_on_dialog_finish(self)
         self._open = True
         self._parent = parent
         self._close_callback = on_close
@@ -122,6 +124,7 @@ class Previewer(QDialog):
     def _on_close(self) -> None:
         self._open = False
         self._close_callback()
+        self._web = None
 
     def _setup_web_view(self) -> None:
         self._web.stdHtml(
@@ -139,6 +142,15 @@ class Previewer(QDialog):
     def _on_bridge_cmd(self, cmd: str) -> Any:
         if cmd.startswith("play:"):
             play_clicked_audio(cmd, self.card())
+
+    def _update_flag_and_mark_icons(self, card: Optional[Card]) -> None:
+        if card:
+            flag = card.user_flag()
+            marked = card.note(reload=True).has_tag(MARKED_TAG)
+        else:
+            flag = 0
+            marked = False
+        self._web.eval(f"_drawFlag({flag}); _drawMark({json.dumps(marked)});")
 
     def render_card(self) -> None:
         self.cancel_timer()
@@ -167,6 +179,7 @@ class Previewer(QDialog):
         if not self._open:
             return
         c = self.card()
+        self._update_flag_and_mark_icons(c)
         func = "_showQuestion"
         ans_txt = ""
         if not c:

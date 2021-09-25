@@ -1,46 +1,33 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { EditingArea } from "./editing-area";
+export class ChangeTimer {
+    private value: number | null = null;
+    private action: (() => void) | null = null;
 
-import { getCurrentField } from ".";
-import { bridgeCommand } from "./lib";
-import { getNoteId } from "./note-id";
-
-let changeTimer: number | null = null;
-
-export function triggerChangeTimer(currentField: EditingArea): void {
-    clearChangeTimer();
-    changeTimer = setTimeout(() => saveField(currentField, "key"), 600);
-}
-
-function clearChangeTimer(): void {
-    if (changeTimer) {
-        clearTimeout(changeTimer);
-        changeTimer = null;
-    }
-}
-
-export function saveField(currentField: EditingArea, type: "blur" | "key"): void {
-    clearChangeTimer();
-    bridgeCommand(
-        `${type}:${currentField.ord}:${getNoteId()}:${currentField.fieldHTML}`
-    );
-}
-
-export function saveNow(keepFocus: boolean): void {
-    const currentField = getCurrentField();
-
-    if (!currentField) {
-        return;
+    constructor() {
+        this.fireImmediately = this.fireImmediately.bind(this);
     }
 
-    clearChangeTimer();
+    schedule(action: () => void, delay: number): void {
+        this.clear();
+        this.action = action;
+        this.value = setTimeout(this.fireImmediately, delay);
+    }
 
-    if (keepFocus) {
-        saveField(currentField, "key");
-    } else {
-        // triggers onBlur, which saves
-        currentField.blur();
+    clear(): void {
+        if (this.value) {
+            clearTimeout(this.value);
+            this.value = null;
+        }
+    }
+
+    fireImmediately(): void {
+        if (this.action) {
+            this.action();
+            this.action = null;
+        }
+
+        this.clear();
     }
 }

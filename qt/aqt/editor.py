@@ -22,6 +22,7 @@ from bs4 import BeautifulSoup
 
 import aqt
 import aqt.sound
+from anki._legacy import deprecated
 from anki.cards import Card
 from anki.collection import Config, SearchNode
 from anki.consts import MODEL_CLOZE
@@ -79,10 +80,11 @@ audio = (
 
 _html = """
 <div id="fields"></div>
-<div id="dupes" class="is-inactive">
+<div id="dupes" class="d-none">
     <a href="#" onclick="pycmd('dupes');return false;">%s</a>
 </div>
-<div id="cloze-hint"></div>
+<div id="cloze-hint" class="d-none"></div>
+<div id="tag-editor-anchor" class="d-none"></div>
 """
 
 
@@ -105,12 +107,14 @@ class Editor:
         self.note: Optional[Note] = None
         self.addMode = addMode
         self.currentField: Optional[int] = None
+        # Similar to currentField, but not set to None on a blur. May be
+        # outside the bounds of the current notetype.
+        self.last_field_index: Optional[int] = None
         # current card, for card layout
         self.card: Optional[Card] = None
         self.setupOuter()
         self.setupWeb()
         self.setupShortcuts()
-        self.setupTags()
         gui_hooks.editor_did_init(self)
 
     # Initial setup
@@ -298,9 +302,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
 
     def setupShortcuts(self) -> None:
         # if a third element is provided, enable shortcut even when no field selected
-        cuts: List[Tuple] = [
-            ("Ctrl+Shift+T", self.onFocusTags, True),
-        ]
+        cuts: List[Tuple] = []
         gui_hooks.editor_did_init_shortcuts(cuts, self)
         for row in cuts:
             if len(row) == 2:
@@ -341,7 +343,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             self.note,
             ord=ord,
             parent=self.parentWindow,
-            fill_empty=self.addMode,
+            fill_empty=False,
         )
         if isWin:
             self.parentWindow.activateWindow()
@@ -386,8 +388,24 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         # focused into field?
         elif cmd.startswith("focus"):
             (type, num) = cmd.split(":", 1)
-            self.currentField = int(num)
+            self.last_field_index = self.currentField = int(num)
             gui_hooks.editor_did_focus_field(self.note, self.currentField)
+
+        elif cmd.startswith("toggleStickyAll"):
+            model = self.note.note_type()
+            flds = model["flds"]
+
+            any_sticky = any([fld["sticky"] for fld in flds])
+            result = []
+            for fld in flds:
+                if not any_sticky or fld["sticky"]:
+                    fld["sticky"] = not fld["sticky"]
+
+                result.append(fld["sticky"])
+
+            update_notetype_legacy(parent=self.mw, notetype=model).run_in_background()
+
+            return result
 
         elif cmd.startswith("toggleSticky"):
             (type, num) = cmd.split(":", 1)
@@ -401,6 +419,22 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             update_notetype_legacy(parent=self.mw, notetype=model).run_in_background()
 
             return new_state
+
+        elif cmd.startswith("lastTextColor"):
+            (_, textColor) = cmd.split(":", 1)
+            self.mw.pm.profile["lastTextColor"] = textColor
+
+        elif cmd.startswith("lastHighlightColor"):
+            (_, highlightColor) = cmd.split(":", 1)
+            self.mw.pm.profile["lastHighlightColor"] = highlightColor
+
+        elif cmd.startswith("saveTags"):
+            (type, tagsJson) = cmd.split(":", 1)
+            self.note.tags = json.loads(tagsJson)
+
+            gui_hooks.editor_did_update_tags(self.note)
+            if not self.addMode:
+                self._save_current_note()
 
         elif cmd in self._links:
             self._links[cmd](self)
@@ -422,10 +456,8 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         self.currentField = None
         if self.note:
             self.loadNote(focusTo=focusTo)
-        else:
-            self.hideCompleters()
-            if hide:
-                self.widget.hide()
+        elif hide:
+            self.widget.hide()
 
     def loadNoteKeepingFocus(self) -> None:
         self.loadNote(self.currentField)
@@ -439,7 +471,6 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             for fld, val in self.note.items()
         ]
         self.widget.show()
-        self.updateTags()
 
         note_fields_status = self.note.fields_check()
 
@@ -454,11 +485,16 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
                 self.web.setFocus()
             gui_hooks.editor_did_load_note(self)
 
-        js = "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s);" % (
+        text_color = self.mw.pm.profile.get("lastTextColor", "#00f")
+        highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#00f")
+
+        js = "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s); setColorButtons(%s); setTags(%s); " % (
             json.dumps(data),
             json.dumps(self.fonts()),
             json.dumps(focusTo),
             json.dumps(self.note.id),
+            json.dumps([text_color, highlight_color]),
+            json.dumps(self.mw.col.tags.canonify(self.note.tags)),
         )
 
         if self.addMode:
@@ -488,7 +524,6 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             # calling code may not expect the callback to fire immediately
             self.mw.progress.timer(10, callback, False)
             return
-        self.blur_tags_if_focused()
         self.web.evalWithCallback("saveNow(%d)" % keepFocus, lambda res: callback())
 
     saveNow = call_after_note_saved
@@ -560,46 +595,6 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
 
     setNote = set_note
 
-    # HTML editing
-    ######################################################################
-
-    def onHtmlEdit(self) -> None:
-        field = self.currentField
-        self.call_after_note_saved(lambda: self._onHtmlEdit(field))
-
-    def _onHtmlEdit(self, field: int) -> None:
-        d = QDialog(self.widget, Qt.Window)
-        form = aqt.forms.edithtml.Ui_Dialog()
-        form.setupUi(d)
-        restoreGeom(d, "htmlEditor")
-        disable_help_button(d)
-        qconnect(
-            form.buttonBox.helpRequested, lambda: openHelp(HelpPage.EDITING_FEATURES)
-        )
-        font = QFont("Courier")
-        font.setStyleHint(QFont.TypeWriter)
-        form.textEdit.setFont(font)
-        form.textEdit.setPlainText(self.note.fields[field])
-        d.show()
-        form.textEdit.moveCursor(QTextCursor.End)
-        d.exec_()
-        html = form.textEdit.toPlainText()
-        if html.find(">") > -1:
-            # filter html through beautifulsoup so we can strip out things like a
-            # leading </div>
-            html_escaped = self.mw.col.media.escape_media_filenames(html)
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", UserWarning)
-                html_escaped = str(BeautifulSoup(html_escaped, "html.parser"))
-                html = self.mw.col.media.escape_media_filenames(
-                    html_escaped, unescape=True
-                )
-        self.note.fields[field] = html
-        if not self.addMode:
-            self._save_current_note()
-        self.loadNote(focusTo=field)
-        saveGeom(d, "htmlEditor")
-
     # Tag handling
     ######################################################################
 
@@ -653,88 +648,6 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         pass
 
     saveTags = blur_tags_if_focused
-
-    # Format buttons
-    ######################################################################
-
-    def toggleBold(self) -> None:
-        self.web.eval("setFormat('bold');")
-
-    def toggleItalic(self) -> None:
-        self.web.eval("setFormat('italic');")
-
-    def toggleUnderline(self) -> None:
-        self.web.eval("setFormat('underline');")
-
-    def toggleSuper(self) -> None:
-        self.web.eval("setFormat('superscript');")
-
-    def toggleSub(self) -> None:
-        self.web.eval("setFormat('subscript');")
-
-    def removeFormat(self) -> None:
-        self.web.eval("setFormat('removeFormat');")
-
-    def onCloze(self) -> None:
-        self.call_after_note_saved(self._onCloze, keepFocus=True)
-
-    def _onCloze(self) -> None:
-        # check that the model is set up for cloze deletion
-        if self.note.note_type()["type"] != MODEL_CLOZE:
-            if self.addMode:
-                tooltip(tr.editing_warning_cloze_deletions_will_not_work())
-            else:
-                showInfo(tr.editing_to_make_a_cloze_deletion_on())
-                return
-        # find the highest existing cloze
-        highest = 0
-        for name, val in list(self.note.items()):
-            m = re.findall(r"\{\{c(\d+)::", val)
-            if m:
-                highest = max(highest, sorted([int(x) for x in m])[-1])
-        # reuse last?
-        if not KeyboardModifiersPressed().alt:
-            highest += 1
-        # must start at 1
-        highest = max(1, highest)
-        self.web.eval("wrap('{{c%d::', '}}');" % highest)
-
-    # Foreground colour
-    ######################################################################
-
-    def setupForegroundButton(self) -> None:
-        self.fcolour = self.mw.pm.profile.get("lastColour", "#00f")
-        self.onColourChanged()
-
-    # use last colour
-    def onForeground(self) -> None:
-        self._wrapWithColour(self.fcolour)
-
-    # choose new colour
-    def onChangeCol(self) -> None:
-        if isLin:
-            new = QColorDialog.getColor(
-                QColor(self.fcolour), None, None, QColorDialog.DontUseNativeDialog
-            )
-        else:
-            new = QColorDialog.getColor(QColor(self.fcolour), None)
-        # native dialog doesn't refocus us for some reason
-        self.parentWindow.activateWindow()
-        if new.isValid():
-            self.fcolour = new.name()
-            self.onColourChanged()
-            self._wrapWithColour(self.fcolour)
-
-    def _updateForegroundButton(self) -> None:
-        # self.web.eval(f"setFGButton('{self.fcolour}')")
-        pass
-
-    def onColourChanged(self) -> None:
-        self._updateForegroundButton()
-        self.mw.pm.profile["lastColour"] = self.fcolour
-
-    def _wrapWithColour(self, colour: str) -> None:
-        self.web.eval(f"setFormat('forecolor', '{colour}')")
 
     # Audio/video/images
     ######################################################################
@@ -956,13 +869,16 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         self.web.eval(f"pasteHTML({json.dumps(html)}, {json.dumps(internal)}, {ext});")
         gui_hooks.editor_did_paste(self, html, internal, extended)
 
-    def doDrop(self, html: str, internal: bool, extended: bool = False) -> None:
+    def doDrop(
+        self, html: str, internal: bool, extended: bool, cursor_pos: QPoint
+    ) -> None:
         def pasteIfField(ret: bool) -> None:
             if ret:
                 self.doPaste(html, internal, extended)
 
-        p = self.web.mapFromGlobal(QCursor.pos())
-        self.web.evalWithCallback(f"focusIfField({p.x()}, {p.y()});", pasteIfField)
+        self.web.evalWithCallback(
+            f"focusIfField({cursor_pos.x()}, {cursor_pos.y()});", pasteIfField
+        )
 
     def onPaste(self) -> None:
         self.web.onPaste()
@@ -970,9 +886,138 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
     def onCutOrCopy(self) -> None:
         self.web.flagAnkiText()
 
-    # Advanced menu
+    # Legacy editing routines
     ######################################################################
 
+    _js_legacy = "this routine has been moved into JS, and will be removed soon"
+
+    @deprecated(info=_js_legacy)
+    def onHtmlEdit(self) -> None:
+        field = self.currentField
+        self.call_after_note_saved(lambda: self._onHtmlEdit(field))
+
+    @deprecated(info=_js_legacy)
+    def _onHtmlEdit(self, field: int) -> None:
+        d = QDialog(self.widget, Qt.Window)
+        form = aqt.forms.edithtml.Ui_Dialog()
+        form.setupUi(d)
+        restoreGeom(d, "htmlEditor")
+        disable_help_button(d)
+        qconnect(
+            form.buttonBox.helpRequested, lambda: openHelp(HelpPage.EDITING_FEATURES)
+        )
+        font = QFont("Courier")
+        font.setStyleHint(QFont.TypeWriter)
+        form.textEdit.setFont(font)
+        form.textEdit.setPlainText(self.note.fields[field])
+        d.show()
+        form.textEdit.moveCursor(QTextCursor.End)
+        d.exec_()
+        html = form.textEdit.toPlainText()
+        if html.find(">") > -1:
+            # filter html through beautifulsoup so we can strip out things like a
+            # leading </div>
+            html_escaped = self.mw.col.media.escape_media_filenames(html)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", UserWarning)
+                html_escaped = str(BeautifulSoup(html_escaped, "html.parser"))
+                html = self.mw.col.media.escape_media_filenames(
+                    html_escaped, unescape=True
+                )
+        self.note.fields[field] = html
+        if not self.addMode:
+            self._save_current_note()
+        self.loadNote(focusTo=field)
+        saveGeom(d, "htmlEditor")
+
+    @deprecated(info=_js_legacy)
+    def toggleBold(self) -> None:
+        self.web.eval("setFormat('bold');")
+
+    @deprecated(info=_js_legacy)
+    def toggleItalic(self) -> None:
+        self.web.eval("setFormat('italic');")
+
+    @deprecated(info=_js_legacy)
+    def toggleUnderline(self) -> None:
+        self.web.eval("setFormat('underline');")
+
+    @deprecated(info=_js_legacy)
+    def toggleSuper(self) -> None:
+        self.web.eval("setFormat('superscript');")
+
+    @deprecated(info=_js_legacy)
+    def toggleSub(self) -> None:
+        self.web.eval("setFormat('subscript');")
+
+    @deprecated(info=_js_legacy)
+    def removeFormat(self) -> None:
+        self.web.eval("setFormat('removeFormat');")
+
+    @deprecated(info=_js_legacy)
+    def onCloze(self) -> None:
+        self.call_after_note_saved(self._onCloze, keepFocus=True)
+
+    @deprecated(info=_js_legacy)
+    def _onCloze(self) -> None:
+        # check that the model is set up for cloze deletion
+        if self.note.note_type()["type"] != MODEL_CLOZE:
+            if self.addMode:
+                tooltip(tr.editing_warning_cloze_deletions_will_not_work())
+            else:
+                showInfo(tr.editing_to_make_a_cloze_deletion_on())
+                return
+        # find the highest existing cloze
+        highest = 0
+        for name, val in list(self.note.items()):
+            m = re.findall(r"\{\{c(\d+)::", val)
+            if m:
+                highest = max(highest, sorted([int(x) for x in m])[-1])
+        # reuse last?
+        if not KeyboardModifiersPressed().alt:
+            highest += 1
+        # must start at 1
+        highest = max(1, highest)
+        self.web.eval("wrap('{{c%d::', '}}');" % highest)
+
+    def setupForegroundButton(self) -> None:
+        self.fcolour = self.mw.pm.profile.get("lastColour", "#00f")
+
+    # use last colour
+    @deprecated(info=_js_legacy)
+    def onForeground(self) -> None:
+        self._wrapWithColour(self.fcolour)
+
+    # choose new colour
+    @deprecated(info=_js_legacy)
+    def onChangeCol(self) -> None:
+        if isLin:
+            new = QColorDialog.getColor(
+                QColor(self.fcolour), None, None, QColorDialog.DontUseNativeDialog
+            )
+        else:
+            new = QColorDialog.getColor(QColor(self.fcolour), None)
+        # native dialog doesn't refocus us for some reason
+        self.parentWindow.activateWindow()
+        if new.isValid():
+            self.fcolour = new.name()
+            self.onColourChanged()
+            self._wrapWithColour(self.fcolour)
+
+    @deprecated(info=_js_legacy)
+    def _updateForegroundButton(self) -> None:
+        pass
+
+    @deprecated(info=_js_legacy)
+    def onColourChanged(self) -> None:
+        self._updateForegroundButton()
+        self.mw.pm.profile["lastColour"] = self.fcolour
+
+    @deprecated(info=_js_legacy)
+    def _wrapWithColour(self, colour: str) -> None:
+        self.web.eval(f"setFormat('forecolor', '{colour}')")
+
+    @deprecated(info=_js_legacy)
     def onAdvanced(self) -> None:
         m = QMenu(self.mw)
 
@@ -997,24 +1042,27 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
 
         m.exec_(QCursor.pos())
 
-    # LaTeX
-    ######################################################################
-
+    @deprecated(info=_js_legacy)
     def insertLatex(self) -> None:
         self.web.eval("wrap('[latex]', '[/latex]');")
 
+    @deprecated(info=_js_legacy)
     def insertLatexEqn(self) -> None:
         self.web.eval("wrap('[$]', '[/$]');")
 
+    @deprecated(info=_js_legacy)
     def insertLatexMathEnv(self) -> None:
         self.web.eval("wrap('[$$]', '[/$$]');")
 
+    @deprecated(info=_js_legacy)
     def insertMathjaxInline(self) -> None:
         self.web.eval("wrap('\\\\(', '\\\\)');")
 
+    @deprecated(info=_js_legacy)
     def insertMathjaxBlock(self) -> None:
         self.web.eval("wrap('\\\\[', '\\\\]');")
 
+    @deprecated(info=_js_legacy)
     def insertMathjaxChemistry(self) -> None:
         self.web.eval("wrap('\\\\(\\\\ce{', '}\\\\)');")
 
@@ -1099,30 +1147,39 @@ class EditorWebView(AnkiWebView):
     def dropEvent(self, evt: QDropEvent) -> None:
         extended = self._wantsExtendedPaste()
         mime = evt.mimeData()
+        cursor_pos = self.mapFromGlobal(QCursor.pos())
 
         if evt.source() and mime.hasHtml():
             # don't filter html from other fields
             html, internal = mime.html(), True
         else:
-            html, internal = self._processMime(mime, extended)
+            html, internal = self._processMime(mime, extended, drop_event=True)
 
         if not html:
             return
 
-        self.editor.doDrop(html, internal, extended)
+        self.editor.doDrop(html, internal, extended, cursor_pos)
 
     # returns (html, isInternal)
-    def _processMime(self, mime: QMimeData, extended: bool = False) -> Tuple[str, bool]:
+    def _processMime(
+        self, mime: QMimeData, extended: bool = False, drop_event: bool = False
+    ) -> Tuple[str, bool]:
         # print("html=%s image=%s urls=%s txt=%s" % (
         #     mime.hasHtml(), mime.hasImage(), mime.hasUrls(), mime.hasText()))
         # print("html", mime.html())
         # print("urls", mime.urls())
         # print("text", mime.text())
 
+        internal = mime.html().startswith("<!--anki-->")
+
+        mime = gui_hooks.editor_will_process_mime(
+            mime, self, internal, extended, drop_event
+        )
+
         # try various content types in turn
-        html, internal = self._processHtml(mime)
-        if html:
-            return html, internal
+        if mime.hasHtml():
+            html_content = mime.html()[11:] if internal else mime.html()
+            return html_content, internal
 
         # favour url if it's a local link
         if mime.hasUrls() and mime.urls()[0].toString().startswith("file://"):
@@ -1187,17 +1244,6 @@ class EditorWebView(AnkiWebView):
         # remove last <br>
         processed.pop()
         return "".join(processed)
-
-    def _processHtml(self, mime: QMimeData) -> Tuple[Optional[str], bool]:
-        if not mime.hasHtml():
-            return None, False
-        html = mime.html()
-
-        # no filtering required for internal pastes
-        if html.startswith("<!--anki-->"):
-            return html[11:], True
-
-        return html, False
 
     def _processImage(self, mime: QMimeData, extended: bool = False) -> Optional[str]:
         if not mime.hasImage():

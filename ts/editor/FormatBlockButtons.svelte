@@ -3,7 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import type { EditingArea } from "./editing-area";
     import * as tr from "lib/i18n";
 
     import ButtonGroup from "components/ButtonGroup.svelte";
@@ -15,7 +14,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import OnlyEditable from "./OnlyEditable.svelte";
     import CommandIconButton from "./CommandIconButton.svelte";
 
-    import { getListItem } from "./helpers";
+    import { getListItem } from "lib/dom";
+    import { getCurrentField } from "./helpers";
     import {
         ulIcon,
         olIcon,
@@ -31,8 +31,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let api = {};
 
     function outdentListItem() {
-        const currentField = document.activeElement as EditingArea;
-        if (getListItem(currentField.shadowRoot!)) {
+        const currentField = getCurrentField();
+        if (getListItem(currentField!.editableContainer.shadowRoot!)) {
             document.execCommand("outdent");
         } else {
             alert("Indent/unindent currently only works with lists.");
@@ -40,8 +40,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function indentListItem() {
-        const currentField = document.activeElement as EditingArea;
-        if (getListItem(currentField.shadowRoot!)) {
+        const currentField = getCurrentField();
+        if (getListItem(currentField!.editableContainer.shadowRoot!)) {
             document.execCommand("indent");
         } else {
             alert("Indent/unindent currently only works with lists.");

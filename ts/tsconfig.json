@@ -8,11 +8,13 @@
             "es2019.array",
             "es2018.promise",
             "es2020.promise",
+            "es2019.string",
             "dom",
             "dom.iterable"
         ],
         "baseUrl": ".",
         "paths": {
+            "editable/*": ["../bazel-bin/ts/editable/*"],
             "lib/*": ["../bazel-bin/ts/lib/*"],
             "html-filter/*": ["../bazel-bin/ts/html-filter/*"]
             /* "sveltelib/*": ["../bazel-bin/ts/sveltelib/*"], */

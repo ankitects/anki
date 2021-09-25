@@ -119,6 +119,7 @@ class Reviewer:
         self.web = mw.web
         self.card: Optional[Card] = None
         self.cardQueue: List[Card] = []
+        self.previous_card: Optional[Card] = None
         self.hadCardQueue = False
         self._answeredIds: List[CardId] = []
         self._recordedAudio: Optional[str] = None
@@ -190,6 +191,7 @@ class Reviewer:
     ##########################################################################
 
     def nextCard(self) -> None:
+        self.previous_card = self.card
         self.card = None
         self._v3 = None
 
@@ -207,11 +209,6 @@ class Reviewer:
             self._initWeb()
 
         self._showQuestion()
-
-        # Qt seems to get stuck if the timebox modal gets invoked when the
-        # webview is being loaded
-        # https://forums.ankiweb.net/t/anki-2-1-45-alpha/10061/96
-        self.mw.progress.timer(10, self.check_timebox, False)
 
     def _get_next_v1_v2_card(self) -> None:
         if self.cardQueue:
@@ -429,7 +426,8 @@ class Reviewer:
         gui_hooks.reviewer_did_answer_card(self, self.card, ease)
         self._answeredIds.append(self.card.id)
         self.mw.autosave()
-        self.nextCard()
+        if not self.check_timebox():
+            self.nextCard()
 
     # Handlers
     ############################################################
@@ -460,6 +458,7 @@ class Reviewer:
             ("Shift+v", self.onRecordVoice),
             ("o", self.onOptions),
             ("i", self.on_card_info),
+            ("Alt+i", self.on_previous_card_info),
             ("1", lambda: self._answerCard(1)),
             ("2", lambda: self._answerCard(2)),
             ("3", lambda: self._answerCard(3)),
@@ -912,6 +911,7 @@ time = %(time)d;
             [tr.actions_suspend_card(), "@", self.suspend_current_card],
             [tr.actions_options(), "O", self.onOptions],
             [tr.actions_card_info(), "I", self.on_card_info],
+            [tr.actions_previous_card_info(), "Alt+I", self.on_previous_card_info],
             None,
             [tr.studying_mark_note(), "*", self.toggle_mark_on_current_note],
             [tr.studying_bury_note(), "=", self.bury_current_note],
@@ -961,6 +961,10 @@ time = %(time)d;
 
     def onOptions(self) -> None:
         confirm_deck_then_display_options(self.card)
+
+    def on_previous_card_info(self) -> None:
+        if self.previous_card:
+            CardInfoDialog(parent=self.mw, mw=self.mw, card=self.previous_card)
 
     def on_card_info(self) -> None:
         if self.card:

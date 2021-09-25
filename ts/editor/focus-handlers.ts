@@ -8,26 +8,34 @@
 import { fieldFocused } from "./toolbar";
 import type { EditingArea } from "./editing-area";
 
-import { saveField } from "./change-timer";
+import { saveField } from "./saving";
 import { bridgeCommand } from "./lib";
+import { getCurrentField } from "./helpers";
 
-export function onFocus(evt: FocusEvent): void {
-    const currentField = evt.currentTarget as EditingArea;
-    currentField.focus();
+export function deferFocusDown(editingArea: EditingArea): void {
+    editingArea.focus();
+    editingArea.caretToEnd();
 
-    if (currentField.shadowRoot!.getSelection()!.anchorNode === null) {
+    if (editingArea.getSelection().anchorNode === null) {
         // selection is not inside editable after focusing
-        currentField.caretToEnd();
+        editingArea.caretToEnd();
     }
 
-    bridgeCommand(`focus:${currentField.ord}`);
+    bridgeCommand(`focus:${editingArea.ord}`);
     fieldFocused.set(true);
 }
 
-export function onBlur(evt: FocusEvent): void {
-    const previousFocus = evt.currentTarget as EditingArea;
-    const currentFieldUnchanged = previousFocus === document.activeElement;
+export function saveFieldIfFieldChanged(
+    editingArea: EditingArea,
+    focusTo: Element | null
+): void {
+    const fieldChanged =
+        editingArea !== getCurrentField() && !editingArea.contains(focusTo);
 
-    saveField(previousFocus, currentFieldUnchanged ? "key" : "blur");
+    saveField(editingArea, fieldChanged ? "blur" : "key");
     fieldFocused.set(false);
+
+    if (fieldChanged) {
+        editingArea.resetHandles();
+    }
 }

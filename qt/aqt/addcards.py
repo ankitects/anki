@@ -5,6 +5,7 @@ from typing import Callable, List, Optional
 
 import aqt.editor
 import aqt.forms
+from anki._legacy import deprecated
 from anki.collection import OpChanges, SearchNode
 from anki.decks import DeckId
 from anki.models import NotetypeId
@@ -38,8 +39,9 @@ class AddCards(QDialog):
         mw.garbage_collect_on_dialog_finish(self)
         self.mw = mw
         self.col = mw.col
-        self.form = aqt.forms.addcards.Ui_Dialog()
-        self.form.setupUi(self)
+        form = aqt.forms.addcards.Ui_Dialog()
+        form.setupUi(self)
+        self.form = form
         self.setWindowTitle(tr.actions_add())
         disable_help_button(self)
         self.setMinimumHeight(300)
@@ -58,6 +60,7 @@ class AddCards(QDialog):
 
     def setupEditor(self) -> None:
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self, True)
+        self.editor.web.eval("activateStickyShortcuts();")
 
     def setup_choosers(self) -> None:
         defaults = self.col.defaults_for_adding(
@@ -142,7 +145,9 @@ class AddCards(QDialog):
 
         # and update editor state
         self.editor.note = new
-        self.editor.loadNote()
+        self.editor.loadNote(
+            focusTo=min(self.editor.last_field_index or 0, len(new.fields) - 1)
+        )
 
     def _load_new_note(self, sticky_fields_from: Optional[Note] = None) -> None:
         note = self._new_note()
@@ -190,6 +195,9 @@ class AddCards(QDialog):
                     txt = f"{txt[:30]}..."
                 line = tr.adding_edit(val=txt)
                 line = gui_hooks.addcards_will_add_history_entry(line, note)
+                line = line.replace("&", "&&")
+                # In qt action "&i" means "underline i, trigger this line when i is pressed".
+                # except for "&&" which is replaced by a single "&"
                 a = m.addAction(line)
                 qconnect(a.triggered, lambda b, nid=nid: self.editHistory(nid))
             else:
@@ -217,9 +225,6 @@ class AddCards(QDialog):
             self._last_added_note = note
 
             self.addHistory(note)
-
-            # workaround for PyQt focus bug
-            self.editor.hideCompleters()
 
             tooltip(tr.adding_added(), period=500)
             av_player.stop_and_clear_queue()
@@ -293,15 +298,20 @@ class AddCards(QDialog):
 
     @property
     def deckChooser(self) -> DeckChooser:
-        print("deckChooser is deprecated; use deck_chooser instead")
+        if getattr(self, "form", None):
+            # show this warning only after Qt form has been initialized,
+            # or PyQt's introspection triggers it
+            print("deckChooser is deprecated; use deck_chooser instead")
         return self.deck_chooser
 
     addCards = add_current_note
     _addCards = _add_current_note
     onModelChange = on_notetype_change
 
+    @deprecated(info="obsolete")
     def addNote(self, note: Note) -> None:
-        print("addNote() is obsolete")
+        pass
 
+    @deprecated(info="does nothing; will go away")
     def removeTempNote(self, note: Note) -> None:
-        print("removeTempNote() will go away")
+        pass

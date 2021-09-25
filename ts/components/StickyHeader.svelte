@@ -8,12 +8,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 </script>
 
-<nav {id} class={`container-fluid pb-1 pt-1 ${className}`}>
+<header {id} class="container-fluid pb-1 {className}">
     <slot />
-</nav>
+</header>
 
 <style lang="scss">
-    nav {
+    header {
         position: sticky;
         top: 0;
         left: 0;

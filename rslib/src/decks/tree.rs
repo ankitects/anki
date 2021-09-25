@@ -4,6 +4,7 @@
 use std::{
     collections::{HashMap, HashSet},
     iter::Peekable,
+    ops::AddAssign,
 };
 
 use serde_tuple::Serialize_tuple;
@@ -85,6 +86,11 @@ fn add_counts(node: &mut DeckTreeNode, counts: &HashMap<DeckId, DueCounts>) {
         node.new_count = counts.new;
         node.review_count = counts.review;
         node.learn_count = counts.learning;
+        node.intraday_learning = counts.intraday_learning;
+        node.interday_learning_uncapped = counts.interday_learning;
+        node.new_uncapped = counts.new;
+        node.review_uncapped = counts.review;
+        node.total_in_deck = counts.total_cards;
     }
     for child in &mut node.children {
         add_counts(child, counts);
@@ -92,7 +98,7 @@ fn add_counts(node: &mut DeckTreeNode, counts: &HashMap<DeckId, DueCounts>) {
 }
 
 /// Apply parent limits to children, and add child counts to parents.
-fn apply_limits_v1(
+fn sum_counts_and_apply_limits_v1(
     node: &mut DeckTreeNode,
     limits: &HashMap<DeckId, RemainingLimits>,
     parent_limits: RemainingLimits,
@@ -107,7 +113,7 @@ fn apply_limits_v1(
     let mut child_new_total = 0;
     let mut child_rev_total = 0;
     for child in &mut node.children {
-        apply_limits_v1(child, limits, remaining);
+        sum_counts_and_apply_limits_v1(child, limits, remaining);
         child_new_total += child.new_count;
         child_rev_total += child.review_count;
         // no limit on learning cards
@@ -122,7 +128,7 @@ fn apply_limits_v1(
 /// Apply parent new limits to children, and add child counts to parents. Unlike
 /// v1, reviews are not capped by their parents, and we
 /// return the uncapped review amount to add to the parent.
-fn apply_limits_v2(
+fn sum_counts_and_apply_limits_v2(
     node: &mut DeckTreeNode,
     limits: &HashMap<DeckId, RemainingLimits>,
     parent_limits: RemainingLimits,
@@ -138,7 +144,7 @@ fn apply_limits_v2(
     let mut child_new_total = 0;
     let mut child_rev_total = 0;
     for child in &mut node.children {
-        child_rev_total += apply_limits_v2(child, limits, remaining);
+        child_rev_total += sum_counts_and_apply_limits_v2(child, limits, remaining);
         child_new_total += child.new_count;
         // no limit on learning cards
         node.learn_count += child.learn_count;
@@ -151,51 +157,79 @@ fn apply_limits_v2(
     original_rev_count + child_rev_total
 }
 
-/// Add child counts, then limit to remaining limit. The v3 scheduler does not
-/// propagate limits down the tree. Limits for a deck affect only the amount
-/// that deck itself will gather.
-/// The v3 scheduler also caps the new limit to the remaining review limit,
-/// so no new cards will be introduced when there is a backlog that exceeds
-/// the review limits.
-fn apply_limits_v3(
+/// A temporary container used during count summation and limit application.
+#[derive(Default, Clone)]
+struct NodeCountsV3 {
+    new: u32,
+    review: u32,
+    intraday_learning: u32,
+    interday_learning: u32,
+    total: u32,
+}
+
+impl NodeCountsV3 {
+    fn capped(&self, remaining: &RemainingLimits) -> Self {
+        let mut capped = self.clone();
+        // apply review limit to interday learning
+        capped.interday_learning = capped.interday_learning.min(remaining.review);
+        let mut remaining_reviews = remaining.review.saturating_sub(capped.interday_learning);
+        // any remaining review limit is applied to reviews
+        capped.review = capped.review.min(remaining_reviews);
+        remaining_reviews = remaining_reviews.saturating_sub(capped.review);
+        // new cards last, capped to new and remaining review limits
+        capped.new = capped.new.min(remaining_reviews).min(remaining.new);
+        capped
+    }
+}
+impl AddAssign for NodeCountsV3 {
+    fn add_assign(&mut self, rhs: Self) {
+        self.new += rhs.new;
+        self.review += rhs.review;
+        self.intraday_learning += rhs.intraday_learning;
+        self.interday_learning += rhs.interday_learning;
+        self.total += rhs.total;
+    }
+}
+
+/// Adjust new, review and learning counts based on the daily limits.
+/// As part of this process, the separate interday and intraday learning
+/// counts are combined after the limits have been applied.
+fn sum_counts_and_apply_limits_v3(
     node: &mut DeckTreeNode,
     limits: &HashMap<DeckId, RemainingLimits>,
-) -> (u32, u32) {
-    let mut remaining = limits
+) -> NodeCountsV3 {
+    let remaining = limits
         .get(&DeckId(node.deck_id))
         .copied()
         .unwrap_or_default();
 
-    // recurse into children, tallying their counts
-    let mut child_new_total = 0;
-    let mut child_rev_total = 0;
+    // cap current node's own cards
+    let this_node_uncapped = NodeCountsV3 {
+        new: node.new_count,
+        review: node.review_count,
+        intraday_learning: node.intraday_learning,
+        interday_learning: node.interday_learning_uncapped,
+        total: node.total_in_deck,
+    };
+    let mut individually_capped_total = this_node_uncapped.capped(&remaining);
+    // and add the capped values from child decks
     for child in &mut node.children {
-        let child_counts = apply_limits_v3(child, limits);
-        child_new_total += child_counts.0;
-        child_rev_total += child_counts.1;
-        // no limit on learning cards
-        node.learn_count += child.learn_count;
+        individually_capped_total += sum_counts_and_apply_limits_v3(child, limits);
     }
+    node.total_including_children = individually_capped_total.total;
 
-    // new limits capped to review limits
-    remaining.new = remaining.new.min(
-        remaining
-            .review
-            .saturating_sub(node.review_count)
-            .saturating_sub(child_rev_total),
-    );
+    // We already have a sum of the current deck's capped cards+its child decks'
+    // capped cards, which we'll return to the parent. But because clicking on a
+    // given deck imposes that deck's limits on the total number of cards shown,
+    // the sum we'll display needs to be capped again by the limits of the current
+    // deck.
+    let total_constrained_by_current_deck = individually_capped_total.capped(&remaining);
+    node.new_count = total_constrained_by_current_deck.new;
+    node.review_count = total_constrained_by_current_deck.review;
+    node.learn_count = total_constrained_by_current_deck.intraday_learning
+        + total_constrained_by_current_deck.interday_learning;
 
-    // parents want the child total without caps
-    let out = (
-        node.new_count.min(remaining.new) + child_new_total,
-        node.review_count.min(remaining.review) + child_rev_total,
-    );
-
-    // but the current node needs to cap after adding children
-    node.new_count = (node.new_count + child_new_total).min(remaining.new);
-    node.review_count = (node.review_count + child_rev_total).min(remaining.review);
-
-    out
+    individually_capped_total
 }
 
 fn hide_default_deck(node: &mut DeckTreeNode) {
@@ -277,18 +311,18 @@ impl Collection {
             let learn_cutoff = (now.0 as u32) + self.learn_ahead_secs();
             let sched_ver = self.scheduler_version();
             let v3 = self.get_config_bool(BoolKey::Sched2021);
-            let counts = self.due_counts(days_elapsed, learn_cutoff, limit, v3)?;
+            let counts = self.due_counts(days_elapsed, learn_cutoff, limit)?;
             let dconf = self.storage.get_deck_config_map()?;
             add_counts(&mut tree, &counts);
             let limits = remaining_limits_map(decks_map.values(), &dconf, days_elapsed);
             if sched_ver == SchedulerVersion::V2 {
                 if v3 {
-                    apply_limits_v3(&mut tree, &limits);
+                    sum_counts_and_apply_limits_v3(&mut tree, &limits);
                 } else {
-                    apply_limits_v2(&mut tree, &limits, RemainingLimits::default());
+                    sum_counts_and_apply_limits_v2(&mut tree, &limits, RemainingLimits::default());
                 }
             } else {
-                apply_limits_v1(&mut tree, &limits, RemainingLimits::default());
+                sum_counts_and_apply_limits_v1(&mut tree, &limits, RemainingLimits::default());
             }
         }
 

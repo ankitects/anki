@@ -18,8 +18,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import OnlyEditable from "./OnlyEditable.svelte";
     import ClozeButton from "./ClozeButton.svelte";
 
-    import { getCurrentField } from ".";
-    import { appendInParentheses } from "./helpers";
+    import { getCurrentField, appendInParentheses } from "./helpers";
+    import { withButton } from "components/helpers";
     import { wrapCurrent } from "./wrap";
     import { paperclipIcon, micIcon, functionIcon, xmlIcon } from "./icons";
 
@@ -53,7 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     iconSize={70}
                     {disabled}
                     on:click={onAttachment}
-                    on:mount={(event) => createShortcut(event.detail.button)}
+                    on:mount={withButton(createShortcut)}
                 >
                     {@html paperclipIcon}
                 </IconButton>
@@ -72,7 +72,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     iconSize={70}
                     {disabled}
                     on:click={onRecord}
-                    on:mount={(event) => createShortcut(event.detail.button)}
+                    on:mount={withButton(createShortcut)}
                 >
                     {@html micIcon}
                 </IconButton>
@@ -89,10 +89,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonGroupItem>
         <WithDropdown let:createDropdown>
             <OnlyEditable let:disabled>
-                <IconButton
-                    {disabled}
-                    on:mount={(event) => createDropdown(event.detail.button)}
-                >
+                <IconButton {disabled} on:mount={withButton(createDropdown)}>
                     {@html functionIcon}
                 </IconButton>
             </OnlyEditable>
@@ -104,8 +101,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrapCurrent("\\(", "\\)")}
-                        on:mount={(event) => createShortcut(event.detail.button)}
+                        on:click={() =>
+                            wrapCurrent(
+                                "<anki-mathjax focusonmount>",
+                                "</anki-mathjax>"
+                            )}
+                        on:mount={withButton(createShortcut)}
                     >
                         {tr.editingMathjaxInline()}
                         <span class="ps-1 float-end">{shortcutLabel}</span>
@@ -118,8 +119,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrapCurrent("\\[", "\\]")}
-                        on:mount={(event) => createShortcut(event.detail.button)}
+                        on:click={() =>
+                            wrapCurrent(
+                                '<anki-mathjax block="true" focusonmount>',
+                                "</anki-matjax>"
+                            )}
+                        on:mount={withButton(createShortcut)}
                     >
                         {tr.editingMathjaxBlock()}
                         <span class="ps-1 float-end">{shortcutLabel}</span>
@@ -132,8 +137,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => wrapCurrent("\\(\\ce{", "}\\)")}
-                        on:mount={(event) => createShortcut(event.detail.button)}
+                        on:click={() =>
+                            wrapCurrent(
+                                "<anki-mathjax focusonmount>\\ce{",
+                                "}</anki-mathjax>"
+                            )}
+                        on:mount={withButton(createShortcut)}
                     >
                         {tr.editingMathjaxChemistry()}
                         <span class="ps-1 float-end">{shortcutLabel}</span>
@@ -147,7 +156,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     <DropdownItem
                         on:click={() => wrapCurrent("[latex]", "[/latex]")}
-                        on:mount={(event) => createShortcut(event.detail.button)}
+                        on:mount={withButton(createShortcut)}
                     >
                         {tr.editingLatex()}
                         <span class="ps-1 float-end">{shortcutLabel}</span>
@@ -161,7 +170,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     <DropdownItem
                         on:click={() => wrapCurrent("[$]", "[/$]")}
-                        on:mount={(event) => createShortcut(event.detail.button)}
+                        on:mount={withButton(createShortcut)}
                     >
                         {tr.editingLatexEquation()}
                         <span class="ps-1 float-end">{shortcutLabel}</span>
@@ -175,7 +184,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     <DropdownItem
                         on:click={() => wrapCurrent("[$$]", "[/$$]")}
-                        on:mount={(event) => createShortcut(event.detail.button)}
+                        on:mount={withButton(createShortcut)}
                     >
                         {tr.editingLatexMathEnv()}
                         <span class="ps-1 float-end">{shortcutLabel}</span>
@@ -202,7 +211,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         active={inCodable}
                         disabled={!fieldFocused}
                         on:click={onHtmlEdit}
-                        on:mount={(event) => createShortcut(event.detail.button)}
+                        on:mount={withButton(createShortcut)}
                     >
                         {@html xmlIcon}
                     </IconButton>

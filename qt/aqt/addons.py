@@ -149,6 +149,19 @@ class AddonMeta:
         )
 
 
+def package_name_valid(name: str) -> bool:
+    # embedded /?
+    base = os.path.basename(name)
+    if base != name:
+        return False
+    # tries to escape to parent?
+    root = os.getcwd()
+    subfolder = os.path.abspath(os.path.join(root, name))
+    if root.startswith(subfolder):
+        return False
+    return True
+
+
 # fixme: this class should not have any GUI code in it
 class AddonManager:
 
@@ -157,7 +170,7 @@ class AddonManager:
         "type": "object",
         "properties": {
             # the name of the folder
-            "package": {"type": "string", "meta": False},
+            "package": {"type": "string", "minLength": 1, "meta": False},
             # the displayed name to the user
             "name": {"type": "string", "meta": True},
             # the time the add-on was last modified
@@ -202,7 +215,7 @@ class AddonManager:
 
     def addonsFolder(self, dir: Optional[str] = None) -> str:
         root = self.mw.pm.addonFolder()
-        if not dir:
+        if dir is None:
             return root
         return os.path.join(root, dir)
 
@@ -381,6 +394,8 @@ class AddonManager:
             if not manifest:
                 return InstallError(errmsg="manifest")
             package = manifest["package"]
+            if not package_name_valid(package):
+                return InstallError(errmsg="invalid package")
             conflicts = manifest.get("conflicts", [])
             found_conflicts = self._disableConflicting(package, conflicts)
             meta = self.addonMeta(package)

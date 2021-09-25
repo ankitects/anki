@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{BuryMode, DueCard, NewCard, QueueBuilder};
-use crate::{card::CardQueue, prelude::*};
+use crate::{prelude::*, scheduler::queue::DueCardKind};
 
 impl QueueBuilder {
     pub(in super::super) fn add_intraday_learning_card(
@@ -15,12 +15,7 @@ impl QueueBuilder {
     }
 
     /// True if limit should be decremented.
-    pub(in super::super) fn add_due_card(
-        &mut self,
-        queue: CardQueue,
-        card: DueCard,
-        bury_mode: BuryMode,
-    ) -> bool {
+    pub(in super::super) fn add_due_card(&mut self, card: DueCard, bury_mode: BuryMode) -> bool {
         let bury_this_card = self
             .get_and_update_bury_mode_for_note(card.note_id, bury_mode)
             .map(|mode| mode.bury_reviews)
@@ -28,14 +23,9 @@ impl QueueBuilder {
         if bury_this_card {
             false
         } else {
-            match queue {
-                CardQueue::DayLearn => {
-                    self.day_learning.push(card);
-                }
-                CardQueue::Review => {
-                    self.review.push(card);
-                }
-                _ => unreachable!(),
+            match card.kind {
+                DueCardKind::Review => self.review.push(card),
+                DueCardKind::Learning => self.day_learning.push(card),
             }
 
             true

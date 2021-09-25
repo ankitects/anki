@@ -50,6 +50,7 @@ ts_library(
         "lib",
         "//ts/components",
         "//ts/lib",
+        "//ts/sveltelib",
         "@npm//@popperjs",
         "@npm//svelte2tsx",
     ],

@@ -1,5 +1,5 @@
-@import "ts/sass/bootstrap/functions";
-@import "ts/sass/bootstrap/variables";
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
 
 @mixin btn-border-radius {
     border-top-left-radius: var(--border-left-radius);
@@ -28,7 +28,8 @@ $btn-base-color-day: white;
         @content ($btn-base-color-day);
 
         @if ($with-hover) {
-            &:hover {
+            &:hover,
+            &.hover {
                 background-color: darken($btn-base-color-day, 8%);
             }
         }
@@ -76,7 +77,8 @@ $btn-base-color-night: #666;
         @content ($btn-base-color-night);
 
         @if ($with-hover) {
-            &:hover {
+            &:hover,
+            &.hover {
                 background-color: lighten($btn-base-color-night, 8%);
                 border-color: lighten($btn-base-color-night, 8%);
             }
@@ -110,7 +112,7 @@ $btn-base-color-night: #666;
 }
 
 // should be similar to -webkit-focus-ring-color
-$focus-color: $blue;
+$focus-color: rgba(21 97 174);
 
 @mixin impressed-shadow($intensity) {
     box-shadow: inset 0 calc(var(--buttons-size) / 15) calc(var(--buttons-size) / 5)

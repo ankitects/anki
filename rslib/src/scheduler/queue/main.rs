@@ -15,6 +15,7 @@ pub(crate) struct MainQueueEntry {
 pub(crate) enum MainQueueEntryKind {
     New,
     Review,
+    InterdayLearning,
 }
 
 impl CardQueues {
@@ -24,6 +25,12 @@ impl CardQueues {
             match head.kind {
                 MainQueueEntryKind::New => self.counts.new -= 1,
                 MainQueueEntryKind::Review => self.counts.review -= 1,
+                MainQueueEntryKind::InterdayLearning => {
+                    // the bug causing learning counts to go below zero should
+                    // hopefully be fixed at this point, but ensure we don't wrap
+                    // if it isn't
+                    self.counts.learning = self.counts.learning.saturating_sub(1)
+                }
             };
             head
         })
@@ -34,6 +41,7 @@ impl CardQueues {
         match entry.kind {
             MainQueueEntryKind::New => self.counts.new += 1,
             MainQueueEntryKind::Review => self.counts.review += 1,
+            MainQueueEntryKind::InterdayLearning => self.counts.learning += 1,
         };
         self.main.push_front(entry);
     }

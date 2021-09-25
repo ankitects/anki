@@ -8,7 +8,12 @@ use crate::{backend_proto as pb, prelude::*};
 pub(crate) struct DueCounts {
     pub new: u32,
     pub review: u32,
+    /// interday+intraday
     pub learning: u32,
+
+    pub intraday_learning: u32,
+    pub interday_learning: u32,
+    pub total_cards: u32,
 }
 
 impl Deck {
@@ -30,14 +35,12 @@ impl Collection {
         days_elapsed: u32,
         learn_cutoff: u32,
         limit_to: Option<&str>,
-        v3: bool,
     ) -> Result<HashMap<DeckId, DueCounts>> {
         self.storage.due_counts(
             self.scheduler_version(),
             days_elapsed,
             learn_cutoff,
             limit_to,
-            v3,
         )
     }
 

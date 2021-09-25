@@ -32,6 +32,9 @@ deck-config-limit-new-bound-by-reviews =
     set to 200, and you have 190 reviews waiting, a maximum of 10 new cards will
     be introduced. If your review limit has been reached, no new cards will be
     shown.
+deck-config-limit-interday-bound-by-reviews =
+    The review limit also affects interday learning cards. When applying the limit,
+    interday learning cards are fetched first, then reviews, and finally new cards.
 
 ## New Cards section
 
@@ -90,7 +93,7 @@ deck-config-bury-tooltip =
 ## Ordering section
 
 deck-config-ordering-title = Display Order
-deck-config-new-gather-priority = New card gather priority
+deck-config-new-gather-priority = New card gather order
 deck-config-new-gather-priority-tooltip =
     `Deck`: gathers cards from each subdeck in order, and stops when the
     limit of the selected deck has been exceeded. This is faster, and allows you
@@ -113,10 +116,17 @@ deck-config-sort-order-card-template-then-random = Card template, then random
 deck-config-sort-order-lowest-position = Ascending position
 deck-config-sort-order-highest-position = Descending position
 deck-config-sort-order-random = Random
-deck-config-new-review-priority = New/review priority
+deck-config-sort-order-template-then-gather = Card template, then order gathered
+deck-config-sort-order-gather = Order gathered
+deck-config-new-review-priority = New/review order
 deck-config-new-review-priority-tooltip = When to show new cards in relation to review cards.
-deck-config-interday-step-priority = Interday learning/review priority
-deck-config-interday-step-priority-tooltip = When to show (re)learning cards that cross a day boundary.
+deck-config-interday-step-priority = Interday learning/review order
+deck-config-interday-step-priority-tooltip =
+    When to show (re)learning cards that cross a day boundary.
+    
+    The review limit is always applied first to interday learning cards, and
+    then reviews. This option will control the order the gathered cards are shown in,
+    but interday learning cards will always be gathered first.
 deck-config-review-mix-mix-with-reviews = Mix with reviews
 deck-config-review-mix-show-after-reviews = Show after reviews
 deck-config-review-mix-show-before-reviews = Show before reviews
@@ -132,6 +142,8 @@ deck-config-sort-order-due-date-then-deck = Due date, then deck
 deck-config-sort-order-deck-then-due-date = Deck, then due date
 deck-config-sort-order-ascending-intervals = Ascending intervals
 deck-config-sort-order-descending-intervals = Descending intervals
+deck-config-sort-order-ascending-ease = Ascending ease
+deck-config-sort-order-descending-ease = Descending ease
 deck-config-display-order-will-use-current-deck =
     Anki will use the display order from the deck you 
     select to study, and not any subdecks it may have.
@@ -152,6 +164,7 @@ deck-config-show-answer-timer-tooltip =
 
 deck-config-audio-title = Audio
 deck-config-disable-autoplay = Don't play audio automatically
+deck-config-skip-question-when-replaying = Skip question when replaying answer
 deck-config-always-include-question-audio-tooltip =
     Whether the question audio should be included when the Replay action is
     used while looking at the answer side of a card.

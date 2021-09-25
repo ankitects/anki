@@ -15,19 +15,19 @@ impl CardStateUpdater {
         &mut self,
         current: CardState,
         next: NewState,
-    ) -> Option<RevlogEntryPartial> {
+    ) -> RevlogEntryPartial {
         self.card.ctype = CardType::New;
         self.card.queue = CardQueue::New;
         self.card.due = next.position as i32;
 
-        RevlogEntryPartial::maybe_new(current, next.into(), 0.0, self.secs_until_rollover())
+        RevlogEntryPartial::new(current, next.into(), 0.0, self.secs_until_rollover())
     }
 
     pub(super) fn apply_learning_state(
         &mut self,
         current: CardState,
         next: LearnState,
-    ) -> Option<RevlogEntryPartial> {
+    ) -> RevlogEntryPartial {
         self.card.remaining_steps = next.remaining_steps;
         self.card.ctype = CardType::Learn;
 
@@ -45,7 +45,7 @@ impl CardStateUpdater {
             }
         }
 
-        RevlogEntryPartial::maybe_new(current, next.into(), 0.0, self.secs_until_rollover())
+        RevlogEntryPartial::new(current, next.into(), 0.0, self.secs_until_rollover())
     }
 
     /// Adds secs + fuzz to current time

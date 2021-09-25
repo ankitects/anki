@@ -90,7 +90,8 @@ profileConf: Dict[str, Any] = dict(
     lastOptimize=intTime(),
     # editing
     searchHistory=[],
-    lastColour="#00f",
+    lastTextColor="#00f",
+    lastHighlightColor="#00f",
     # syncing
     syncKey=None,
     syncMedia=True,
@@ -100,6 +101,7 @@ profileConf: Dict[str, Any] = dict(
     importMode=1,
     # these are not used, but Anki 2.1.42 and below
     # expect these keys to exist
+    lastColour="#00f",
     stripHTML=True,
     deleteMedia=False,
 )
@@ -655,3 +657,9 @@ create table if not exists profiles
 
     def set_recording_driver(self, driver: RecordingDriver) -> None:
         self.profile["recordingDriver"] = driver.value
+
+    def show_browser_table_tooltips(self) -> bool:
+        return self.profile.get("browserTableTooltips", True)
+
+    def set_show_browser_table_tooltips(self, val: bool) -> None:
+        self.profile["browserTableTooltips"] = val

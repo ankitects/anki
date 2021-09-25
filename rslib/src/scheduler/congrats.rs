@@ -15,16 +15,18 @@ pub(crate) struct CongratsInfo {
 
 impl Collection {
     pub fn congrats_info(&mut self) -> Result<pb::CongratsInfoResponse> {
-        let did = self.get_current_deck_id();
-        let deck = self.get_deck(did)?.ok_or(AnkiError::NotFound)?;
+        let deck = self.get_current_deck()?;
         let today = self.timing_today()?.days_elapsed;
         let info = self.storage.congrats_info(&deck, today)?;
         let is_filtered_deck = deck.is_filtered();
         let deck_description = deck.rendered_description();
-        let secs_until_next_learn = ((info.next_learn_due as i64)
-            - self.learn_ahead_secs() as i64
-            - TimestampSecs::now().0)
-            .max(0) as u32;
+        let secs_until_next_learn = if info.next_learn_due == 0 {
+            // signal to the frontend that no learning cards are due later
+            86_400
+        } else {
+            ((info.next_learn_due as i64) - self.learn_ahead_secs() as i64 - TimestampSecs::now().0)
+                .max(60) as u32
+        };
         Ok(pb::CongratsInfoResponse {
             learn_remaining: info.learn_count,
             review_remaining: info.review_remaining,
@@ -56,7 +58,7 @@ mod test {
                 have_sched_buried: false,
                 have_user_buried: false,
                 is_filtered_deck: false,
-                secs_until_next_learn: 0,
+                secs_until_next_learn: 86_400,
                 bridge_commands_supported: true,
                 deck_description: "".to_string()
             }

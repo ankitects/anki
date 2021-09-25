@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher } from "svelte";
     import type { DeckOptionsState } from "./lib";
     import type Dropdown from "bootstrap/js/dist/dropdown";
+    import { withButton } from "components/helpers";
 
     import ButtonGroup from "components/ButtonGroup.svelte";
     import ButtonGroupItem from "components/ButtonGroupItem.svelte";
@@ -65,7 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 theme="primary"
                 on:click={() => save(false)}
                 tooltip={shortcutLabel}
-                on:mount={(event) => createShortcut(event.detail.button)}
+                on:mount={withButton(createShortcut)}
                 >{tr.deckConfigSaveButton()}</LabelButton
             >
         </WithShortcut>

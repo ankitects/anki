@@ -1,8 +1,19 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use 'ts/sass/base';
-@use 'ts/sass/scrollbar';
+@use 'base';
+@use 'scrollbar';
+@use 'button-mixins';
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
 
 .nightMode {
     @include scrollbar.night-mode;
@@ -11,12 +22,32 @@
 #fields {
     display: flex;
     flex-direction: column;
-    margin: 5px;
+    flex-grow: 1;
+    overflow-x: hidden;
+    margin: 3px 0;
 }
 
+.editorfield {
+    margin: 3px;
+
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+
+    --border-color: var(--border);
+
+    &:focus-within {
+        box-shadow: 0 0 0 3px var(--focus-shadow);
+
+        --border-color: var(--focus-border);
+    }
+}
+
+/* editing-area */
 .field {
-    border: 1px solid var(--border);
+    position: relative;
+
     background: var(--frame-bg);
+    border-radius: 0 0 5px 5px;
 
     &.dupe {
         // this works around the background colour persisting in copy+paste
@@ -26,8 +57,16 @@
 }
 
 .fname {
-    vertical-align: middle;
-    padding: 0;
+    border-width: 0 0 1px;
+    border-style: dashed;
+    border-color: var(--border-color);
+    border-radius: 5px 5px 0 0;
+
+    padding: 0px 6px;
+}
+
+.fieldname {
+    user-select: none;
 }
 
 #dupes,
@@ -37,10 +76,6 @@
 
     text-align: center;
     background-color: var(--window-bg);
-
-    &.is-inactive {
-        display: none;
-    }
 
     a {
         color: var(--link);
@@ -55,10 +90,20 @@
     cursor: pointer;
 
     &.is-inactive {
-        opacity: 0.1;
+        opacity: 0.2;
     }
 
     &.icon--hover {
         opacity: 0.5;
     }
+}
+
+@import "codemirror/lib/codemirror";
+@import "codemirror/theme/monokai";
+@import "codemirror/addon/fold/foldgutter";
+
+.CodeMirror {
+    height: auto;
+    border-radius: 0 0 5px 5px;
+    padding: 6px 0;
 }

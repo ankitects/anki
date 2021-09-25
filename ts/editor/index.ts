@@ -3,30 +3,44 @@
 
 /* eslint
 @typescript-eslint/no-non-null-assertion: "off",
+@typescript-eslint/no-explicit-any: "off",
  */
 
+import "sveltelib/export-runtime";
+import "lib/register-package";
+
+import type EditorToolbar from "./EditorToolbar.svelte";
+import type TagEditor from "./TagEditor.svelte";
+
 import { filterHTML } from "html-filter";
-import { updateActiveButtons } from "./toolbar";
 import { setupI18n, ModuleName } from "lib/i18n";
 import { isApplePlatform } from "lib/platform";
 import { registerShortcut } from "lib/shortcuts";
 import { bridgeCommand } from "lib/bridgecommand";
+import { updateActiveButtons } from "./toolbar";
+import { saveField } from "./saving";
 
 import "./fields.css";
 
-import { saveField } from "./change-timer";
-
-import { EditorField } from "./editor-field";
-import { LabelContainer } from "./label-container";
+import "./label-container";
+import "./codable";
+import "./editor-field";
+import type { EditorField } from "./editor-field";
 import { EditingArea } from "./editing-area";
-import { Editable } from "./editable";
-import { Codable } from "./codable";
+import "editable/editable-container";
+import "editable/editable";
+import "editable/mathjax-component";
+
 import { initToolbar, fieldFocused } from "./toolbar";
+import { initTagEditor } from "./tag-editor";
+import { getCurrentField } from "./helpers";
 
 export { setNoteId, getNoteId } from "./note-id";
-export { saveNow } from "./change-timer";
+export { saveNow } from "./saving";
 export { wrap, wrapIntoText } from "./wrap";
 export { editorToolbar } from "./toolbar";
+export { activateStickyShortcuts } from "./label-container";
+export { getCurrentField } from "./helpers";
 export { components } from "./Components.svelte";
 
 declare global {
@@ -38,20 +52,8 @@ declare global {
     }
 }
 
-customElements.define("anki-editable", Editable);
-customElements.define("anki-codable", Codable, { extends: "textarea" });
-customElements.define("anki-editing-area", EditingArea, { extends: "div" });
-customElements.define("anki-label-container", LabelContainer, { extends: "div" });
-customElements.define("anki-editor-field", EditorField, { extends: "div" });
-
 if (isApplePlatform()) {
     registerShortcut(() => bridgeCommand("paste"), "Control+Shift+V");
-}
-
-export function getCurrentField(): EditingArea | null {
-    return document.activeElement instanceof EditingArea
-        ? document.activeElement
-        : null;
 }
 
 export function focusField(n: number): void {
@@ -150,11 +152,14 @@ export function setBackgrounds(cols: ("dupe" | "")[]): void {
     );
     document
         .getElementById("dupes")!
-        .classList.toggle("is-inactive", !cols.includes("dupe"));
+        .classList.toggle("d-none", !cols.includes("dupe"));
 }
 
-export function setClozeHint(cloze_hint: string): void {
-    document.getElementById("cloze-hint")!.innerHTML = cloze_hint;
+export function setClozeHint(hint: string): void {
+    const clozeHint = document.getElementById("cloze-hint")!;
+
+    clozeHint.innerHTML = hint;
+    clozeHint.classList.toggle("d-none", hint.length === 0);
 }
 
 export function setFonts(fonts: [string, number, boolean][]): void {
@@ -166,6 +171,12 @@ export function setFonts(fonts: [string, number, boolean][]): void {
         ) => {
             field.setBaseStyling(fontFamily, `${fontSize}px`, isRtl ? "rtl" : "ltr");
         }
+    );
+}
+
+export function setColorButtons([textColor, highlightColor]: [string, string]): void {
+    $editorToolbar.then((editorToolbar) =>
+        (editorToolbar as any).$set({ textColor, highlightColor })
     );
 }
 
@@ -183,7 +194,11 @@ export function setFormat(cmd: string, arg?: string, nosave = false): void {
     }
 }
 
-const i18n = setupI18n({
+export function setTags(tags: string[]): void {
+    $tagEditor.then((tagEditor: TagEditor): void => tagEditor.resetTags(tags));
+}
+
+export const i18n = setupI18n({
     modules: [
         ModuleName.EDITING,
         ModuleName.KEYBOARD,
@@ -192,6 +207,5 @@ const i18n = setupI18n({
     ],
 });
 
-import type EditorToolbar from "./EditorToolbar.svelte";
-
 export const $editorToolbar: Promise<EditorToolbar> = initToolbar(i18n);
+export const $tagEditor: Promise<TagEditor> = initTagEditor(i18n);

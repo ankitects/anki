@@ -35,12 +35,12 @@ impl CardQueues {
 
     /// Increase the cutoff to the current time, and increase the learning count
     /// for any new cards that now fall within the cutoff.
-    pub(super) fn check_for_newly_due_intraday_learning(&mut self) -> Box<CutoffSnapshot> {
+    pub(super) fn update_learning_cutoff_and_count(&mut self) -> CutoffSnapshot {
         let change = CutoffSnapshot {
             learning_count: self.counts.learning,
             learning_cutoff: self.current_learning_cutoff,
         };
-        let cutoff = self.current_learning_cutoff;
+        self.current_learning_cutoff = TimestampSecs::now();
         let ahead_cutoff = self.current_learn_ahead_cutoff();
         let new_learning_cards = self
             .intraday_learning
@@ -49,9 +49,8 @@ impl CardQueues {
             .take_while(|e| e.due <= ahead_cutoff)
             .count();
         self.counts.learning += new_learning_cards;
-        self.current_learning_cutoff = cutoff;
 
-        Box::new(change)
+        change
     }
 
     /// Given the just-answered `card`, place it back in the learning queues if it's still
@@ -95,22 +94,14 @@ impl CardQueues {
         mut entry: LearningQueueEntry,
     ) -> LearningQueueEntry {
         let cutoff = self.current_learn_ahead_cutoff();
+
+        // if the provided entry would be shown again immediately, see if we
+        // can place it after the next card instead
         if entry.due <= cutoff && self.learning_collapsed() {
             if let Some(next) = self.intraday_learning.front() {
-                // ensure the card is scheduled after the next due card
-                if next.due >= entry.due {
-                    if next.due < cutoff {
-                        entry.due = next.due.adding_secs(1)
-                    } else {
-                        // or outside the cutoff, in cases where the next due
-                        // card is due later than the cutoff
-                        entry.due = cutoff.adding_secs(60);
-                    }
+                if next.due >= entry.due && next.due.adding_secs(1) < cutoff {
+                    entry.due = next.due.adding_secs(1);
                 }
-            } else {
-                // nothing else waiting to review; make this due a minute after
-                // cutoff
-                entry.due = cutoff.adding_secs(60);
             }
         }
 
@@ -165,7 +156,8 @@ impl CardQueues {
                     .current_learning_cutoff
                     .adding_secs(self.learn_ahead_secs)
             {
-                self.counts.learning -= 1;
+                // Theoretically this should never go below zero.
+                self.counts.learning = self.counts.learning.saturating_sub(1);
             }
             Some(entry)
         } else {
@@ -179,8 +171,8 @@ impl CardQueues {
     }
 }
 
-/// Adapted from the Rust stdlib VecDeque implementation; we can drop this when the following
-/// lands: https://github.com/rust-lang/rust/issues/78021
+/// Adapted from the Rust stdlib VecDeque implementation; we can drop this after updating
+/// to Rust 1.54.0
 fn binary_search_by<'a, F, T>(deque: &'a VecDeque<T>, mut f: F) -> Result<usize, usize>
 where
     F: FnMut(&'a T) -> Ordering,

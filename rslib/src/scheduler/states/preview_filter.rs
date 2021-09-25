@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{IntervalKind, NextCardStates, StateContext};
+use crate::revlog::RevlogReviewKind;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct PreviewState {
@@ -12,6 +13,10 @@ pub struct PreviewState {
 impl PreviewState {
     pub(crate) fn interval_kind(self) -> IntervalKind {
         IntervalKind::InSecs(self.scheduled_secs)
+    }
+
+    pub(crate) fn revlog_kind(self) -> RevlogReviewKind {
+        RevlogReviewKind::Filtered
     }
 
     pub(crate) fn next_states(self, ctx: &StateContext) -> NextCardStates {

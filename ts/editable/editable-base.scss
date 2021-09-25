@@ -1,4 +1,4 @@
-@use 'ts/sass/scrollbar';
+@use 'scrollbar';
 
 anki-editable {
     display: block;
@@ -6,14 +6,17 @@ anki-editable {
     overflow: auto;
     padding: 6px;
 
-    &:empty::after {
-        content: "\a";
-        white-space: pre;
+    &:focus {
+        outline: none;
     }
 
     * {
         max-width: 100%;
     }
+}
+
+anki-mathjax {
+    white-space: pre;
 }
 
 p {
@@ -42,9 +45,9 @@ img.drawing {
     display: none;
 }
 
-@import "ts/sass/codemirror/lib/codemirror";
-@import "ts/sass/codemirror/theme/monokai";
-@import "ts/sass/codemirror/addon/fold/foldgutter";
+@import "codemirror/lib/codemirror";
+@import "codemirror/theme/monokai";
+@import "codemirror/addon/fold/foldgutter";
 
 .CodeMirror {
     height: auto;

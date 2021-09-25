@@ -312,6 +312,7 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
             # should we abort playing?
             if self._terminate_flag:
                 self._process.terminate()
+                self._process.wait(1)
                 self._process = None
                 return
 

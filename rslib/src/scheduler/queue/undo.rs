@@ -8,13 +8,14 @@ use crate::prelude::*;
 pub(crate) enum UndoableQueueChange {
     CardAnswered(Box<QueueUpdate>),
     CardAnswerUndone(Box<QueueUpdate>),
-    CutoffChange(Box<CutoffSnapshot>),
 }
 
 #[derive(Debug)]
 pub(crate) struct QueueUpdate {
     pub entry: QueueEntry,
     pub learning_requeue: Option<LearningQueueEntry>,
+    pub queue_build_time: TimestampMillis,
+    pub cutoff_snapshot: CutoffSnapshot,
 }
 
 /// Stores the old learning count and cutoff prior to the
@@ -29,29 +30,26 @@ impl Collection {
     pub(crate) fn undo_queue_change(&mut self, change: UndoableQueueChange) -> Result<()> {
         match change {
             UndoableQueueChange::CardAnswered(update) => {
-                let queues = self.get_queues()?;
-                if let Some(learning) = &update.learning_requeue {
-                    queues.remove_intraday_learning_card(learning.id);
+                if let Some(queues) = self.get_or_invalidate_queues(update.queue_build_time)? {
+                    queues.restore_cutoff(&update.cutoff_snapshot);
+                    if let Some(learning) = &update.learning_requeue {
+                        queues.remove_intraday_learning_card(learning.id);
+                    }
+                    queues.push_undo_entry(update.entry);
                 }
-                queues.push_undo_entry(update.entry);
                 self.save_undo(UndoableQueueChange::CardAnswerUndone(update));
 
                 Ok(())
             }
             UndoableQueueChange::CardAnswerUndone(update) => {
-                let queues = self.get_queues()?;
-                if let Some(learning) = update.learning_requeue {
-                    queues.insert_intraday_learning_card(learning);
+                if let Some(queues) = self.get_or_invalidate_queues(update.queue_build_time)? {
+                    queues.pop_entry(update.entry.card_id())?;
+                    if let Some(learning) = update.learning_requeue {
+                        queues.insert_intraday_learning_card(learning);
+                    }
+                    queues.restore_cutoff(&update.cutoff_snapshot);
                 }
-                queues.pop_entry(update.entry.card_id())?;
                 self.save_undo(UndoableQueueChange::CardAnswered(update));
-
-                Ok(())
-            }
-            UndoableQueueChange::CutoffChange(change) => {
-                let queues = self.get_queues()?;
-                let current = queues.restore_cutoff(&change);
-                self.save_cutoff_change(current);
 
                 Ok(())
             }
@@ -60,10 +58,6 @@ impl Collection {
 
     pub(super) fn save_queue_update_undo(&mut self, change: Box<QueueUpdate>) {
         self.save_undo(UndoableQueueChange::CardAnswered(change))
-    }
-
-    pub(super) fn save_cutoff_change(&mut self, change: Box<CutoffSnapshot>) {
-        self.save_undo(UndoableQueueChange::CutoffChange(change))
     }
 }
 
@@ -216,9 +210,7 @@ mod test {
         // first card graduates
         col.answer_good();
         assert_eq!(col.counts(), [0, 1, 0]);
-        // other card is all that is left, so the
-        // last step is deferred
-        col.answer_good();
+        col.answer_easy();
         assert_eq!(col.counts(), [0, 0, 0]);
 
         // now work backwards
@@ -248,6 +240,40 @@ mod test {
         assert_eq!(col.counts(), [0, 1, 0]);
         col.redo()?;
         assert_eq!(col.counts(), [0, 0, 0]);
+
+        Ok(())
+    }
+
+    #[test]
+    fn redo_after_queue_invalidation_bug() -> Result<()> {
+        // add a note to the default deck
+        let mut col = open_test_collection();
+        let _nid = add_note(&mut col, true)?;
+
+        // add a deck and select it
+        let mut deck = Deck::new_normal();
+        deck.name = NativeDeckName::from_human_name("foo");
+        col.add_deck(&mut deck)?;
+        col.set_current_deck(deck.id)?;
+
+        // select default again, which invalidates current queues
+        col.set_current_deck(DeckId(1))?;
+
+        // get the first card and answer it
+        col.answer_easy();
+
+        // undo answer
+        col.undo()?;
+
+        // undo deck select, which invalidates the queues again
+        col.undo()?;
+
+        // redo deck select (another invalidation)
+        col.redo()?;
+
+        // when the card answer is redone, it shouldn't fail because
+        // the queues are rebuilt after the card state is restored
+        col.redo()?;
 
         Ok(())
     }

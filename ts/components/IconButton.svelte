@@ -18,6 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let iconSize: number = 75;
     export let widthMultiplier: number = 1;
+    export let flipX: boolean = false;
 
     let buttonRef: HTMLButtonElement;
 
@@ -44,11 +45,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:click
     on:mousedown|preventDefault
 >
-    <span style={`--width-multiplier: ${widthMultiplier};`}> <slot /> </span>
+    <span class:flip-x={flipX} style={`--width-multiplier: ${widthMultiplier};`}>
+        <slot />
+    </span>
 </button>
 
 <style lang="scss">
-    @use "ts/sass/button-mixins" as button;
+    @use "button-mixins" as button;
 
     button {
         padding: 0;
@@ -79,6 +82,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             fill: currentColor;
             vertical-align: unset;
+        }
+
+        &.flip-x > :global(svg),
+        &.flip-x > :global(img) {
+            transform: scaleX(-1);
         }
     }
 

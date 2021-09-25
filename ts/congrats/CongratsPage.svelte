@@ -11,7 +11,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "lib/i18n";
 
     const congrats = tr.schedulingCongratulationsFinished();
-    const nextLearnMsg = buildNextLearnMsg(info);
+    let nextLearnMsg: string;
+    $: nextLearnMsg = buildNextLearnMsg(info);
     const today_reviews = tr.schedulingTodayReviewLimitReached();
     const today_new = tr.schedulingTodayNewLimitReached();
 

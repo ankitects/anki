@@ -88,4 +88,11 @@ impl TagsService for Backend {
             .map(Into::into)
         })
     }
+
+    fn complete_tag(&self, input: pb::CompleteTagRequest) -> Result<pb::CompleteTagResponse> {
+        self.with_col(|col| {
+            let tags = col.complete_tag(&input.input, input.match_limit as usize)?;
+            Ok(pb::CompleteTagResponse { tags })
+        })
+    }
 }
