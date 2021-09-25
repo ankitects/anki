@@ -39,8 +39,14 @@ class Table:
             if self.col.get_config_bool(Config.Bool.BROWSER_TABLE_SHOW_NOTES_MODE)
             else CardState(self.col)
         )
-        self._model = DataModel(self.col, self._state)
+        self._model = DataModel(
+            self.col,
+            self._state,
+            self._on_row_state_will_change,
+            self._on_row_state_changed,
+        )
         self._view: Optional[QTableView] = None
+        self._len_selection = 0
         self._current_item: Optional[ItemId] = None
         self._selected_items: Sequence[ItemId] = []
 
@@ -60,8 +66,12 @@ class Table:
     def len(self) -> int:
         return self._model.len_rows()
 
-    def len_selection(self) -> int:
-        return len(self._view.selectionModel().selectedRows())
+    def len_selection(self, refresh: bool = False) -> int:
+        # This may be slow because Qt queries flags() for the whole selection,
+        # so we update the cached value directly where possible
+        if refresh:
+            self._len_selection = len(self._view.selectionModel().selectedRows())
+        return self._len_selection
 
     def has_current(self) -> bool:
         return self._view.selectionModel().currentIndex().isValid()
@@ -197,6 +207,11 @@ class Table:
     def to_last_row(self) -> None:
         self._move_current_to_row(self._model.len_rows() - 1)
 
+    def clear_current(self) -> None:
+        self._view.selectionModel().setCurrentIndex(
+            QModelIndex(), QItemSelectionModel.NoUpdate
+        )
+
     # Private methods
     ######################################################################
 
@@ -265,7 +280,7 @@ class Table:
         self._view.selectionModel()
         self._view.setItemDelegate(StatusDelegate(self.browser, self._model))
         qconnect(
-            self._view.selectionModel().selectionChanged, self.browser.onRowChanged
+            self._view.selectionModel().selectionChanged, self._on_selection_changed
         )
         self._view.setWordWrap(False)
         self._view.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
@@ -310,6 +325,43 @@ class Table:
         qconnect(hh.sectionMoved, self._on_column_moved)
 
     # Slots
+
+    def _on_selection_changed(self, _c: Any, _p: Any) -> None:
+        self.len_selection(refresh=True)
+        self.browser.on_row_changed()
+
+    def _on_row_state_will_change(self, index: QModelIndex, was_restored: bool) -> None:
+        if not was_restored:
+            row_changed = False
+            if self._view.selectionModel().isSelected(index):
+                # calculate directly, because 'self.len_selection()' is slow and
+                # this method will be called a lot if a lot of rows were deleted
+                self._len_selection -= 1
+                row_changed = True
+            if index.row() == self._current().row():
+                # avoid focus on deleted (disabled) rows
+                self.clear_current()
+                row_changed = True
+            if row_changed:
+                self.browser.on_row_changed()
+
+    def _on_row_state_changed(self, index: QModelIndex, was_restored: bool) -> None:
+        if was_restored:
+            if self._view.selectionModel().isSelected(index):
+                self._len_selection += 1
+            if not self._current().isValid() and self.len_selection() == 0:
+                # restore focus for convenience
+                self._select_rows([index.row()])
+                self._set_current(index.row())
+                self._scroll_to_row(index.row())
+                # row change has been triggered
+                return
+            self.browser.on_row_changed()
+        # Workaround for a bug where the flags for the first column don't update
+        # automatically (due to the shortcut in 'model.flags()')
+        top_left = self._model.index(index.row(), 0)
+        bottom_right = self._model.index(index.row(), self._model.len_columns() - 1)
+        self._model.dataChanged.emit(top_left, bottom_right)  # type: ignore
 
     def _on_context_menu(self, _point: QPoint) -> None:
         menu = QMenu()
@@ -404,9 +456,9 @@ class Table:
             self._select_rows(rows)
             self._set_current(current)
             self._scroll_to_row(current)
-        if self.len_selection() == 0:
+        if self.len_selection(refresh=True) == 0:
             # no row change will fire
-            self.browser.onRowChanged(QItemSelection(), QItemSelection())
+            self.browser.on_row_changed()
         self._selected_items = []
         self._current_item = None
 
