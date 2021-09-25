@@ -81,10 +81,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <anki-editable
     bind:this={editable}
     contenteditable="true"
-    on:focus={() => dispatch("editablefocus")}
-    on:input={() => dispatch("editableinput")}
-    on:custominput|stopPropagation={() => dispatch("editableinput")}
-    on:blur={() => dispatch("editableblur")}
+    on:focus
+    on:input
+    on:custominput
+    on:blur
     on:paste|preventDefault={() => bridgeCommand("paste")}
     on:cut|preventDefault={() => bridgeCommand("cutOrCopy")}
     on:copy|preventDefault={() => bridgeCommand("cutOrCopy")}

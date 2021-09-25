@@ -44,7 +44,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const allContexts = getAllContexts();
     const dispatch = createEventDispatcher();
 
+    let overlayRelative: HTMLElement;
     let shadow: ShadowRoot;
+
+    function focusChangeWithinContainer(event: FocusEvent): boolean {
+        return overlayRelative!.contains(event.relatedTarget as Node);
+    }
+
+    const ifEventOutsideContainer =
+        (eventName: string) =>
+        (event: FocusEvent): void => {
+            if (!focusChangeWithinContainer(event)) {
+                dispatch(eventName);
+            }
+        };
 
     function attachShadow(element: Element) {
         shadow = element.attachShadow({ mode: "open" });
@@ -78,9 +91,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             context: allContexts,
         } as any);
 
-        editable.$on("editablefocus", () => dispatch("editablefocus"));
-        editable.$on("editableinput", () => dispatch("editableinput"));
-        editable.$on("editableblur", () => dispatch("editableblur"));
+        editable.$on("focus", ifEventOutsideContainer("editablefocus"));
+        editable.$on("input", () => dispatch("editableinput"));
+        editable.$on("custominput", () => dispatch("editableinput"));
+        editable.$on("blur", ifEventOutsideContainer("editableblur"));
 
         editableResolve(editable);
     }
@@ -88,7 +102,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const nightMode = getContext(nightModeKey);
 </script>
 
-<div class="overlay-relative">
+<div
+    bind:this={overlayRelative}
+    class="overlay-relative"
+    on:blur={ifEventOutsideContainer("editableblur")}
+>
     <div use:attachShadow class="editable-container" class:night-mode={nightMode} />
 
     <!-- slot for overlays -->

@@ -34,6 +34,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
+    function onEditableFocus(): void {
+        dispatch("editingfocus");
+        editableContainer.editablePromise.then(
+            (editable: Editable) => ($activeInput = editable.api)
+        );
+    }
+
+    function onEditableBlur(): void {
+        dispatch("editingblur");
+        $activeInput = null;
+    }
+
     const editingInputs = getContext<Partial<EditingInputAPI>[]>(editingInputsKey);
     const editingInputIndex = editingInputs.push({}) - 1;
 
@@ -49,20 +61,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bind:this={editableContainer}
     {content}
     {decoratedComponents}
-    on:editablefocus={() => {
-        dispatch("editingfocus");
-        editableContainer.editablePromise.then(
-            (editable) => ($activeInput = editable.api)
-        );
-    }}
-    on:editableinput={() => {
-        dispatch("editinginput");
-    }}
-    on:editableblur={() => {
-        dispatch("editingblur");
-        $activeInput = null;
-    }}
-    let:imageOverlaySheet
+    on:editablefocus={onEditableFocus}
+    on:editableinput={() => dispatch("editinginput")}
+    on:editableblur={onEditableBlur}
     let:editable={container}
     let:customStyles
 >

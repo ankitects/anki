@@ -15,20 +15,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import InlineBlock from "./InlineBlock.svelte";
     import Editor from "./Editor.svelte";
 
-    import { onDestroy } from "svelte";
+    import { onDestroy, tick } from "svelte";
 
     export let container: HTMLElement;
 
     let activeImage: HTMLImageElement | null = null;
 
-    function resetHandle(): void {
+    async function resetHandle(): Promise<void> {
         activeImage = null;
+        await tick();
     }
 
-    function maybeShowHandle(event: Event): void {
+    async function maybeShowHandle(event: Event): Promise<void> {
+        await resetHandle();
+
         if (event.target instanceof HTMLImageElement) {
             const image = event.target;
-            resetHandle();
 
             if (image.dataset.anki === "mathjax") {
                 activeImage = image;
@@ -37,6 +39,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     container.addEventListener("click", maybeShowHandle);
+    container.addEventListener("key", resetHandle);
+    container.addEventListener("paste", resetHandle);
 
     let dropdownApi: any;
     let removeEventListener: () => void = () => {
@@ -76,13 +80,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return image.closest("anki-mathjax")! as HTMLElement;
     }
 
+    import { signifyCustomInput } from "editable/editable";
+
     function onEditorUpdate(event: CustomEvent): void {
         /* this updates the image in Mathjax.svelte */
         getComponent(activeImage!).dataset.mathjax = event.detail.mathjax;
+        signifyCustomInput(activeImage!);
     }
 
     onDestroy(() => {
         container.removeEventListener("click", maybeShowHandle);
+        container.removeEventListener("key", resetHandle);
+        container.removeEventListener("paste", resetHandle);
     });
 </script>
 
@@ -109,6 +118,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Editor
                 initialValue={getComponent(activeImage).dataset.mathjax ?? ""}
                 on:update={onEditorUpdate}
+                on:codemirrorblur={resetHandle}
             />
             <div class="margin-x">
                 <ButtonToolbar>

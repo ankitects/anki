@@ -14,6 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { createEventDispatcher } from "svelte";
     import { floatNoneIcon, floatLeftIcon, floatRightIcon } from "./icons";
+    import { signifyCustomInput } from "editable/editable";
 
     export let image: HTMLImageElement;
 
@@ -34,6 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             flipX={$direction === "rtl"}
             on:click={() => {
                 image.style.float = "left";
+                signifyCustomInput(image);
                 setTimeout(() => dispatch("update"));
             }}>{@html inlineStartIcon}</IconButton
         >
@@ -51,6 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     image.removeAttribute("style");
                 }
 
+                signifyCustomInput(image);
                 setTimeout(() => dispatch("update"));
             }}>{@html floatNoneIcon}</IconButton
         >
@@ -63,6 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             flipX={$direction === "rtl"}
             on:click={() => {
                 image.style.float = "right";
+                signifyCustomInput(image);
                 setTimeout(() => dispatch("update"));
             }}>{@html inlineEndIcon}</IconButton
         >

@@ -19,6 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { tick, onDestroy } from "svelte";
     import type CustomStyles from "editable/CustomStyles.svelte";
     import type { StyleObject } from "editable/CustomStyles.svelte";
+    import { signifyCustomInput } from "editable/editable";
 
     export let customStyles: CustomStyles;
 
@@ -48,6 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     container.addEventListener("click", maybeShowHandle);
+    container.addEventListener("blur", resetHandle);
     container.addEventListener("key", resetHandle);
     container.addEventListener("paste", resetHandle);
 
@@ -157,11 +159,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         activeImage!.width = width;
+        signifyCustomInput(activeImage!);
     }
 
     onDestroy(() => {
         resizeObserver.disconnect();
         container.removeEventListener("click", maybeShowHandle);
+        container.removeEventListener("blur", resetHandle);
         container.removeEventListener("key", resetHandle);
         container.removeEventListener("paste", resetHandle);
     });
