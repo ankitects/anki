@@ -2,10 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 // languageServerHost taken from MIT sources - see below.
 
-const fs = require("fs");
-const worker = require("@bazel/worker");
-const svelte2tsx = require("svelte2tsx");
-const preprocess = require("svelte-preprocess");
+import * as fs from "fs";
+import * as worker from "@bazel/worker";
+import { svelte2tsx } from "svelte2tsx";
+import preprocess from "svelte-preprocess";
 import { basename } from "path";
 import * as ts from "typescript";
 import * as svelte from "svelte/compiler.js";
@@ -132,13 +132,10 @@ async function writeDts(tsPath, dtsPath, tsLibs) {
 function writeTs(svelteSource, sveltePath, tsPath): void {
     let tsSource = svelte2tsx(svelteSource, {
         filename: sveltePath,
-        strictMode: true,
         isTsFile: true,
+        mode: "dts",
     });
     let codeLines = tsSource.code.split("\n");
-    // replace the "///<reference types="svelte" />" with a line
-    // turning off checking, as we'll use svelte-check for that
-    codeLines[0] = "// @ts-nocheck";
     updateFileContent(tsPath, codeLines.join("\n"));
 }
 
@@ -164,10 +161,11 @@ async function writeJs(
             ],
         },
     });
-    preprocessOptions.filename = inputFilename;
 
     try {
-        const processed = await svelte.preprocess(source, preprocessOptions);
+        const processed = await svelte.preprocess(source, preprocessOptions, {
+            filename: inputFilename,
+        });
         const result = svelte.compile(processed.toString!(), {
             format: "esm",
             css: false,

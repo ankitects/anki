@@ -4306,10 +4306,10 @@ svelte-preprocess@^4.0.0, svelte-preprocess@^4.6.9:
     sorcery "^0.10.0"
     strip-indent "^3.0.0"
 
-svelte2tsx@^0.1.133:
-  version "0.1.193"
-  resolved "https://registry.yarnpkg.com/svelte2tsx/-/svelte2tsx-0.1.193.tgz#16fe594898ef455e4f715ac317d219c9c757656b"
-  integrity sha512-vzy4YQNYDnoqp2iZPnJy7kpPAY6y121L0HKrSBjU/IWW7DQ6T7RMJed2VVHFmVYm0zAGYMDl9urPc6R4DDUyhg==
+svelte2tsx@^0.4.6:
+  version "0.4.6"
+  resolved "https://registry.yarnpkg.com/svelte2tsx/-/svelte2tsx-0.4.6.tgz#3435064962c910c0a075b4a1c04e91eaf568f5e5"
+  integrity sha512-flljgh/MbJDijo6Z1HhCfyzdRgn1Nd7QTuuxk9Oq5CzyBXZl/NJYh4otZZwUHnx5poy8k7Oxr2CBE3IBh89tmQ==
   dependencies:
     dedent-js "^1.0.1"
     pascal-case "^3.1.1"
