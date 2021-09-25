@@ -7,7 +7,9 @@
  */
 
 export { setNoteId } from "./note-id";
-export const $editorToolbar = new Promise(() => {});
+export const $editorToolbar = new Promise(() => {
+    /* noop */
+});
 
 import { filterHTML } from "html-filter";
 
@@ -23,7 +25,7 @@ export function pasteHTML(
     }
 }
 
-export function setFormat(cmd: string, arg?: string, nosave = false): void {
+export function setFormat(cmd: string, arg?: string, _nosave = false): void {
     document.execCommand(cmd, false, arg);
     // TODO ... maybe we also need to copy/paste/cut code entirely to JS
     // if (!nosave) {
@@ -75,7 +77,7 @@ function setupNoteEditor(i18n: Promise<void>): Promise<OldEditorAdapter> {
         editorResolve = resolve;
     });
 
-    const context = new Map<Symbol, unknown>();
+    const context = new Map<symbol, unknown>();
 
     context.set(
         nightModeKey,

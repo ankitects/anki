@@ -3,6 +3,6 @@
 
 const customInput = new Event("custominput", { bubbles: true });
 
-export function signifyCustomInput(element: Element) {
+export function signifyCustomInput(element: Element): void {
     element.dispatchEvent(customInput);
 }

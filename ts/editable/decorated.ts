@@ -34,7 +34,7 @@ export interface DecoratedElementConstructor extends CustomElementConstructor {
 }
 
 export class DefineArray extends Array {
-    push(...elements: DecoratedElementConstructor[]) {
+    push(...elements: DecoratedElementConstructor[]): number {
         for (const element of elements) {
             customElements.define(element.tagName, element);
         }

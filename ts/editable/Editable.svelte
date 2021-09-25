@@ -13,7 +13,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="ts">
     import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
-    import { createEventDispatcher } from "svelte";
     import { elementContainsInlineContent, caretToEnd } from "lib/dom";
     import { promiseResolve } from "lib/promise";
     import { bridgeCommand } from "lib/bridgecommand";
@@ -73,8 +72,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             fieldHTML: { get: getFieldHTML, set: setFieldHTML },
         }
     );
-
-    const dispatch = createEventDispatcher();
 </script>
 
 <!-- custominput event can be dispatched by inner elements if they want to trigger an update -->

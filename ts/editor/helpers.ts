@@ -3,8 +3,8 @@
 
 // import type { EditingArea } from "./editing-area";
 
-export function getCurrentField(): any | null {
-    return document.activeElement?.closest(".field") ?? null;
+export function getCurrentField(): null {
+    return null;
 }
 
 export function appendInParentheses(text: string, appendix: string): string {
