@@ -417,9 +417,7 @@ class Browser(QMainWindow):
         gui_hooks.editor_did_init.remove(add_preview_button)
 
     @ensure_editor_saved
-    def onRowChanged(
-        self, _current: Optional[QItemSelection], _previous: Optional[QItemSelection]
-    ) -> None:
+    def on_row_changed(self) -> None:
         """Update current note and hide/show editor."""
         if self._closeEventHasCleanedUp:
             return
