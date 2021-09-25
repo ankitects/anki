@@ -3,7 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import WithTheming from "./WithTheming.svelte";
     import Detachable from "./Detachable.svelte";
 
     import type { ButtonRegistration } from "./buttons";
@@ -58,9 +57,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<!-- div in WithTheming is necessary to preserve item position -->
-<WithTheming {id} {style}>
+<!-- div is necessary to preserve item position -->
+<div {id} {style}>
     <Detachable {detached}>
         <slot />
     </Detachable>
-</WithTheming>
+</div>

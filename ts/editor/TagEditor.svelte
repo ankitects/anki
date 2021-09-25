@@ -398,7 +398,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <StickyFooter bind:height class="d-flex">
     {#if !wrap}
         <TagOptionsBadge
-            --buttons-size="{size}rem"
             showSelectionsOptions={tagTypes.some((tag) => tag.selected)}
             bind:badgeHeight
             on:tagselectall={selectAllTags}
@@ -426,12 +425,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {/if}
 
         {#each tagTypes as tag, index (tag.id)}
-            <div
-                class="position-relative tag-margins"
-                class:hide-tag={index === active}
-            >
+            <div class="position-relative" class:hide-tag={index === active}>
                 <TagEditMode
-                    class="ms-0 tag-margins-inner"
+                    class="ms-0"
                     name={index === active ? activeName : tag.name}
                     tooltip={tag.name}
                     active={index === active}
@@ -503,7 +499,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:click={appendEmptyTag}
         />
 
-        <div class="position-relative tag-margins hide-tag zero-width-tag">
+        <div class="position-relative hide-tag zero-width-tag">
             <!-- makes sure footer does not resize when adding first tag -->
             <Tag>SPACER</Tag>
         </div>
@@ -524,14 +520,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         pointer-events: none;
         padding-left: 0 !important;
         padding-right: 0 !important;
-    }
-
-    .tag-margins {
-        margin-bottom: 0.15rem;
-
-        :global(.tag-margins-inner) {
-            margin-right: 2px;
-        }
     }
 
     .adjust-position {
