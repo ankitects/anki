@@ -867,10 +867,13 @@ class SidebarTreeView(QTreeView):
     def show_context_menu(self, item: SidebarItem, index: QModelIndex) -> None:
         menu = QMenu()
         self._maybe_add_type_specific_actions(menu, item)
+        menu.addSeparator()
         self._maybe_add_delete_action(menu, item, index)
         self._maybe_add_rename_actions(menu, item, index)
         self._maybe_add_find_and_replace_action(menu, item, index)
+        menu.addSeparator()
         self._maybe_add_search_actions(menu)
+        menu.addSeparator()
         self._maybe_add_tree_actions(menu)
         gui_hooks.browser_sidebar_will_show_context_menu(self, menu, item, index)
         if menu.children():
@@ -894,6 +897,15 @@ class SidebarTreeView(QTreeView):
                 tr.browsing_update_saved_search(),
                 lambda: self.update_saved_search(item),
             )
+        elif item.item_type == SidebarItemType.TAG:
+            if all(s.item_type == item.item_type for s in self._selected_items()):
+                menu.addAction(
+                    tr.browsing_add_to_selected_notes(), self.add_tags_to_selected_notes
+                )
+                menu.addAction(
+                    tr.browsing_remove_from_selected_notes(),
+                    self.remove_tags_from_selected_notes,
+                )
 
     def _maybe_add_delete_action(
         self, menu: QMenu, item: SidebarItem, index: QModelIndex
@@ -932,7 +944,6 @@ class SidebarTreeView(QTreeView):
         ]
         if not nodes:
             return
-        menu.addSeparator()
         if len(nodes) == 1:
             menu.addAction(tr.actions_search(), lambda: self.update_search(*nodes))
             return
@@ -963,7 +974,6 @@ class SidebarTreeView(QTreeView):
         if not any(item.children for item in selected_items):
             return
 
-        menu.addSeparator()
         if any(not item.expanded for item in selected_items if item.children):
             menu.addAction(tr.browsing_sidebar_expand(), lambda: set_expanded(True))
         if any(item.expanded for item in selected_items if item.children):
@@ -1088,6 +1098,14 @@ class SidebarTreeView(QTreeView):
             current_name=old_full_name,
             new_name=new_full_name,
         ).success(success).run_in_background()
+
+    def add_tags_to_selected_notes(self) -> None:
+        tags = " ".join(item.full_name for item in self._selected_items())
+        self.browser.add_tags_to_selected_notes(tags)
+
+    def remove_tags_from_selected_notes(self) -> None:
+        tags = " ".join(item.full_name for item in self._selected_items())
+        self.browser.remove_tags_from_selected_notes(tags)
 
     # Saved searches
     ####################################

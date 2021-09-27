@@ -1,6 +1,8 @@
 browsing-add-notes = Add Notes...
 browsing-add-tags = Add Tags
 browsing-add-tags2 = Add Tags...
+browsing-add-to-selected-notes = Add to Selected Notes
+browsing-remove-from-selected-notes = Remove from Selected Notes
 browsing-addon = Add-on
 browsing-all-card-types = All Card Types
 browsing-all-fields = All Fields
