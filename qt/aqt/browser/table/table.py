@@ -67,10 +67,9 @@ class Table:
         return self._model.len_rows()
 
     def len_selection(self, refresh: bool = False) -> int:
-        # This may be slow because Qt queries flags() for the whole selection,
-        # so we update the cached value directly where possible
-        if refresh:
-            self._len_selection = len(self._view.selectionModel().selectedRows())
+        # `len(self._view.selectionModel().selectedRows())` is slow for large
+        # selections, because Qt queries flags() for every selected cell, so we
+        # calculate the number of selected rows ourselves
         return self._len_selection
 
     def has_current(self) -> bool:
@@ -117,6 +116,7 @@ class Table:
         self._view.selectAll()
 
     def clear_selection(self) -> None:
+        self._len_selection = 0
         self._view.selectionModel().clear()
 
     def invert_selection(self) -> None:
@@ -345,8 +345,11 @@ class Table:
 
     # Slots
 
-    def _on_selection_changed(self, _c: Any, _p: Any) -> None:
-        self.len_selection(refresh=True)
+    def _on_selection_changed(
+        self, selected: QItemSelection, deselected: QItemSelection
+    ) -> None:
+        self._len_selection += len(selected.indexes()) // self._model.len_columns()
+        self._len_selection -= len(deselected.indexes()) // self._model.len_columns()
         self.browser.on_row_changed()
 
     def _on_row_state_will_change(self, index: QModelIndex, was_restored: bool) -> None:
@@ -475,7 +478,7 @@ class Table:
             self._select_rows(rows)
             self._set_current(current)
             self._scroll_to_row(current)
-        if self.len_selection(refresh=True) == 0:
+        if self.len_selection() == 0:
             # no row change will fire
             self.browser.on_row_changed()
         self._selected_items = []
