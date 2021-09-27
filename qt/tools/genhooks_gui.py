@@ -781,6 +781,12 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         return_type="str",
         doc="""Allows changing the history line in the add-card window.""",
     ),
+    Hook(
+        name="add_cards_did_change_note_type",
+        args=["old: anki.models.NoteType", "new: anki.models.NoteType"],
+        doc="""Executed after the user selects a new note type when adding
+        cards.""",
+    ),
     # Editing
     ###################
     Hook(
