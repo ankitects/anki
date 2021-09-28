@@ -384,10 +384,9 @@ class Table:
         if KeyboardModifiersPressed().shift or KeyboardModifiersPressed().control:
             # Current selection is modified. The number of added/removed rows is
             # usually smaller than the number of rows in the resulting selection.
-            self._len_selection += len(selected.indexes()) // self._model.len_columns()
-            self._len_selection -= (
-                len(deselected.indexes()) // self._model.len_columns()
-            )
+            self._len_selection += (
+                len(selected.indexes()) - len(deselected.indexes())
+            ) // self._model.len_columns()
         else:
             # New selection is created. Usually a single row or none at all.
             self._len_selection = len(self._view.selectionModel().selectedRows())
