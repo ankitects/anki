@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import CommandIconButton from "./CommandIconButton.svelte";
 
     import { getListItem } from "lib/dom";
-    import { getCurrentField } from "./helpers";
+    import { getCurrentField, execCommand } from "./helpers";
     import {
         ulIcon,
         olIcon,
@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function outdentListItem() {
         const currentField = getCurrentField();
         if (getListItem(currentField!.editableContainer.shadowRoot!)) {
-            document.execCommand("outdent");
+            execCommand("outdent");
         } else {
             alert("Indent/unindent currently only works with lists.");
         }
@@ -42,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function indentListItem() {
         const currentField = getCurrentField();
         if (getListItem(currentField!.editableContainer.shadowRoot!)) {
-            document.execCommand("indent");
+            execCommand("indent");
         } else {
             alert("Indent/unindent currently only works with lists.");
         }

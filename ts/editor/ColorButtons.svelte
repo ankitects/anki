@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "lib/bridgecommand";
     import { withButton } from "components/helpers";
     import { textColorIcon, highlightColorIcon, arrowIcon } from "./icons";
-    import { appendInParentheses } from "./helpers";
+    import { appendInParentheses, execCommand } from "./helpers";
 
     export let api = {};
     export let textColor: string;
@@ -26,11 +26,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: backcolorWrap = wrapWithBackcolor(highlightColor);
 
     const wrapWithForecolor = (color: string) => () => {
-        document.execCommand("forecolor", false, color);
+        execCommand("forecolor", false, color);
     };
 
     const wrapWithBackcolor = (color: string) => () => {
-        document.execCommand("backcolor", false, color);
+        execCommand("backcolor", false, color);
     };
 </script>
 
