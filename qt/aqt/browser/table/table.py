@@ -46,7 +46,10 @@ class Table:
             self._on_row_state_changed,
         )
         self._view: Optional[QTableView] = None
+        # cached for performance
         self._len_selection = 0
+        self._selected_rows: Optional[List[QModelIndex]] = None
+        # temporarily set for selection preservation
         self._current_item: Optional[ItemId] = None
         self._selected_items: Sequence[ItemId] = []
 
@@ -117,6 +120,7 @@ class Table:
 
     def clear_selection(self) -> None:
         self._len_selection = 0
+        self._selected_rows = None
         self._view.selectionModel().clear()
 
     def invert_selection(self) -> None:
@@ -242,7 +246,9 @@ class Table:
         return self._view.selectionModel().currentIndex()
 
     def _selected(self) -> List[QModelIndex]:
-        return self._view.selectionModel().selectedRows()
+        if self._selected_rows is None:
+            self._selected_rows = self._view.selectionModel().selectedRows()
+        return self._selected_rows
 
     def _set_current(self, row: int, column: int = 0) -> None:
         index = self._model.index(
@@ -251,9 +257,13 @@ class Table:
         self._view.selectionModel().setCurrentIndex(index, QItemSelectionModel.NoUpdate)
 
     def _reset_selection(self) -> None:
-        """Remove selection and focus without emitting signals."""
+        """Remove selection and focus without emitting signals.
+        If no selection change is triggerd afterwards, `browser.on_row_changed()`
+        must be called.
+        """
         self._view.selectionModel().reset()
         self._len_selection = 0
+        self._selected_rows = None
 
     def _select_rows(self, rows: List[int]) -> None:
         selection = QItemSelection()
@@ -362,10 +372,13 @@ class Table:
             # Current selection is modified. The number of added/removed rows is
             # usually smaller than the number of rows in the resulting selection.
             self._len_selection += len(selected.indexes()) // self._model.len_columns()
-            self._len_selection -= len(deselected.indexes()) // self._model.len_columns()
+            self._len_selection -= (
+                len(deselected.indexes()) // self._model.len_columns()
+            )
         else:
             # New selection is created. Usually a single row or none at all.
             self._len_selection = len(self._view.selectionModel().selectedRows())
+        self._selected_rows = None
         self.browser.on_row_changed()
 
     def _on_row_state_will_change(self, index: QModelIndex, was_restored: bool) -> None:
@@ -376,6 +389,7 @@ class Table:
                 # this method will be called a lot if a lot of rows were deleted
                 self._len_selection -= 1
                 row_changed = True
+                self._selected_rows = None
             if index.row() == self._current().row():
                 # avoid focus on deleted (disabled) rows
                 self.clear_current()
@@ -387,6 +401,7 @@ class Table:
         if was_restored:
             if self._view.selectionModel().isSelected(index):
                 self._len_selection += 1
+                self._selected_rows = None
             if not self._current().isValid() and self.len_selection() == 0:
                 # restore focus for convenience
                 self._select_rows([index.row()])
