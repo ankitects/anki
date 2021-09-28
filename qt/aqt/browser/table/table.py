@@ -213,24 +213,37 @@ class Table:
     def to_last_row(self) -> None:
         self._move_current_to_row(self._model.len_rows() - 1)
 
-    def to_row_of_unselected_note(self) -> None:
-        """Select and set focus to a row whose note is not selected,
-        starting with the nearest row below, then above the focused row.
+    def to_row_of_unselected_note(self) -> Sequence[NoteId]:
+        """Select and set focus to a row whose note is not selected, trying
+        the rows below the bottomost, then above the topmost selected row.
         If that's not possible, clear selection.
+        Return previously selected note ids.
         """
         nids = self.get_selected_note_ids()
-        for row in range(self._current().row(), self.len()):
-            nid = self._model.get_note_id(self._model.index(row, 0))
-            if nid is not None and nid not in nids:
-                self._move_current_to_row(row)
-                return
-        for row in range(self._current().row() - 1, -1, -1):
-            nid = self._model.get_note_id(self._model.index(row, 0))
-            if nid is not None and nid not in nids:
-                self._move_current_to_row(row)
-                return
+
+        bottom = max(r.row() for r in self._selected()) + 1
+        for row in range(bottom, self.len()):
+            index = self._model.index(row, 0)
+            if self._model.get_row(index).is_deleted:
+                continue
+            if self._model.get_note_id(index) in nids:
+                continue
+            self._move_current_to_row(row)
+            return nids
+
+        top = min(r.row() for r in self._selected()) - 1
+        for row in range(top, -1, -1):
+            index = self._model.index(row, 0)
+            if self._model.get_row(index).is_deleted:
+                continue
+            if self._model.get_note_id(index) in nids:
+                continue
+            self._move_current_to_row(row)
+            return nids
+
         self._reset_selection()
         self.browser.on_row_changed()
+        return nids
 
     def clear_current(self) -> None:
         self._view.selectionModel().setCurrentIndex(

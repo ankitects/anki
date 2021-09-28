@@ -619,8 +619,7 @@ class Browser(QMainWindow):
         if focus != self.form.tableView:
             return
 
-        nids = self.table.get_selected_note_ids()
-        self.table.to_row_of_unselected_note()
+        nids = self.table.to_row_of_unselected_note()
         remove_notes(parent=self, note_ids=nids).run_in_background()
 
     # legacy
