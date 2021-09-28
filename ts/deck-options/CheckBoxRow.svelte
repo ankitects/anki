@@ -5,7 +5,6 @@
 <script lang="ts">
     import Row from "./Row.svelte";
     import Col from "./Col.svelte";
-    import Label from "./Label.svelte";
     import TooltipLabel from "./TooltipLabel.svelte";
     import CheckBox from "./CheckBox.svelte";
     import RevertButton from "./RevertButton.svelte";
@@ -20,7 +19,7 @@
         <RevertButton bind:value {defaultValue} />
         <CheckBox bind:value
             >{#if markdownTooltip}<TooltipLabel {markdownTooltip}><slot /></TooltipLabel
-                >{:else}<Label><slot /></Label>{/if}</CheckBox
+                >{:else}<slot />{/if}</CheckBox
         >
     </Col>
 </Row>

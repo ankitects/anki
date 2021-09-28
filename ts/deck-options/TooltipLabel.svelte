@@ -10,12 +10,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Badge from "components/Badge.svelte";
 
     export let markdownTooltip: string;
-    let forId: string;
+    let forId: string | undefined = undefined;
     export { forId as for };
 </script>
 
 <span>
-    <Label for={forId}><slot /></Label>
+    {#if forId}
+        <Label for={forId}><slot /></Label>
+    {:else}
+        <slot />
+    {/if}
     <WithTooltip
         tooltip={marked(markdownTooltip)}
         showDelay={250}
