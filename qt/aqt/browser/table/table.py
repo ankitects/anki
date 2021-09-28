@@ -355,8 +355,17 @@ class Table:
     def _on_selection_changed(
         self, selected: QItemSelection, deselected: QItemSelection
     ) -> None:
-        self._len_selection += len(selected.indexes()) // self._model.len_columns()
-        self._len_selection -= len(deselected.indexes()) // self._model.len_columns()
+        # `selection.indexes()` calls `flags()` for all the selection's indexes,
+        # whereas `selectedRows()` calls it for the indexes of the resulting selection.
+        # Both may be slow, so we try to optimise.
+        if KeyboardModifiersPressed().shift or KeyboardModifiersPressed().control:
+            # Current selection is modified. The number of added/removed rows is
+            # usually smaller than the number of rows in the resulting selection.
+            self._len_selection += len(selected.indexes()) // self._model.len_columns()
+            self._len_selection -= len(deselected.indexes()) // self._model.len_columns()
+        else:
+            # New selection is created. Usually a single row or none at all.
+            self._len_selection = len(self._view.selectionModel().selectedRows())
         self.browser.on_row_changed()
 
     def _on_row_state_will_change(self, index: QModelIndex, was_restored: bool) -> None:
