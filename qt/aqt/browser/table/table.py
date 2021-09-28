@@ -132,10 +132,12 @@ class Table:
 
     def select_single_card(self, card_id: CardId) -> None:
         """Try to set the selection to the item corresponding to the given card."""
-        self.clear_selection()
+        self._reset_selection()
         if (row := self._model.get_card_row(card_id)) is not None:
             self._view.selectRow(row)
             self._scroll_to_row(row, scroll_even_if_visible=True)
+        else:
+            self.browser.on_row_changed()
 
     # Reset
 
@@ -223,8 +225,8 @@ class Table:
             if nid is not None and nid not in nids:
                 self._move_current_to_row(row)
                 return
-        self.clear_selection()
-        self.clear_current()
+        self._reset_selection()
+        self.browser.on_row_changed()
 
     def clear_current(self) -> None:
         self._view.selectionModel().setCurrentIndex(
@@ -247,6 +249,11 @@ class Table:
             row, self._view.horizontalHeader().logicalIndex(column)
         )
         self._view.selectionModel().setCurrentIndex(index, QItemSelectionModel.NoUpdate)
+
+    def _reset_selection(self) -> None:
+        """Remove selection and focus without emitting signals."""
+        self._view.selectionModel().reset()
+        self._len_selection = 0
 
     def _select_rows(self, rows: List[int]) -> None:
         selection = QItemSelection()
@@ -470,7 +477,7 @@ class Table:
         """Restore the saved selection and current element as far as possible and scroll to the
         new current element. Clear the saved selection.
         """
-        self.clear_selection()
+        self._reset_selection()
         if not self._model.is_empty():
             rows, current = new_selected_and_current()
             rows = self._qualify_selected_rows(rows, current)
