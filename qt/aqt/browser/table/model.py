@@ -80,7 +80,7 @@ class DataModel(QAbstractTableModel):
         self, index: QModelIndex, item: ItemId, old_row: Optional[CellRow]
     ) -> CellRow:
         """Fetch a row from the backend, add it to the cache and return it.
-        Thereby, handle callbacks if the row is being deleted or restored.
+        Then fire callbacks if the row is being deleted or restored.
         """
         new_row = self._fetch_row_from_backend(item)
         # row state has changed if existence of cached and fetched counterparts differ
