@@ -43,7 +43,7 @@
         "sass": "=1.32.12",
         "semver": "^7.3.4",
         "svelte": "^3.25.0",
-        "svelte-check": "^1.0.61",
+        "svelte-check": "^2.2.6",
         "svelte-preprocess": "^4.6.9",
         "svelte2tsx": "^0.4.6",
         "tmp": "^0.2.1",
