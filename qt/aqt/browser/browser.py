@@ -517,8 +517,6 @@ class Browser(QMainWindow):
         self.mw.progress.timer(10, self.sidebar.refresh, False)
 
     def showSidebar(self) -> None:
-        # workaround for PyQt focus bug
-        self.editor.hideCompleters()
         self.sidebarDockWidget.setVisible(True)
 
     def focusSidebar(self) -> None:
@@ -911,16 +909,10 @@ class Browser(QMainWindow):
         self.table.to_last_row()
 
     def onFind(self) -> None:
-        # workaround for PyQt focus bug
-        self.editor.hideCompleters()
-
         self.form.searchEdit.setFocus()
         self.form.searchEdit.lineEdit().selectAll()
 
     def onNote(self) -> None:
-        # workaround for PyQt focus bug
-        self.editor.hideCompleters()
-
         self.editor.web.setFocus()
         self.editor.loadNote(focusTo=0)
 
