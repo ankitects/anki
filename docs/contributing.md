@@ -79,7 +79,7 @@ The qt code tends to use the second form, as the hooks tend to focus on
 particular screens. The pylib code tends to use the first form, as the focus
 is usually subjects like cards, notes, etc.
 
-Using "did change" instead of the past test "changed" can seem awkward, but
+Using "did change" instead of the past tense "changed" can seem awkward, but
 makes it consistent with "will", and is similar to the naming style used in
 iOS's libraries.
 
