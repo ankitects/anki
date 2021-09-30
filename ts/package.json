@@ -6,8 +6,9 @@
     "license": "AGPL-3.0-or-later",
     "description": "Anki JS support files",
     "devDependencies": {
-        "@bazel/typescript": "=3.5.1",
-        "@bazel/worker": "=3.5.1",
+        "@bazel/esbuild": "=4.3.0",
+        "@bazel/typescript": "=4.3.0",
+        "@bazel/worker": "=4.3.0",
         "@pyoner/svelte-types": "^3.4.4-2",
         "@sqltools/formatter": "^1.2.2",
         "@tsconfig/svelte": "^1.0.10",

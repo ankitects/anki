@@ -4,8 +4,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import ConfigSelector from "./ConfigSelector.svelte";
-    import Container from "components/Container.svelte";
-    import Item from "components/Item.svelte";
+    import Container from "../components/Container.svelte";
+    import Item from "../components/Item.svelte";
     import DailyLimits from "./DailyLimits.svelte";
     import DisplayOrder from "./DisplayOrder.svelte";
     import NewOptions from "./NewOptions.svelte";
@@ -19,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { DeckOptionsState } from "./lib";
     import type { Writable } from "svelte/store";
     import HtmlAddon from "./HtmlAddon.svelte";
-    import type { DynamicSvelteComponent } from "sveltelib/dynamicComponent";
+    import type { DynamicSvelteComponent } from "../sveltelib/dynamicComponent";
 
     export let state: DeckOptionsState;
     let addons = state.addonComponents;

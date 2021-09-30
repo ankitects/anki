@@ -8,4 +8,5 @@ import Notetypes = anki.notetypes;
 import Scheduler = anki.scheduler;
 import Stats = anki.stats;
 import Tags = anki.tags;
+
 export { Stats, Cards, DeckConfig, Notetypes, Scheduler, Tags };

@@ -3,21 +3,21 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "lib/i18n";
+    import * as tr from "../lib/i18n";
     import { createEventDispatcher } from "svelte";
     import type { DeckOptionsState } from "./lib";
     import type Dropdown from "bootstrap/js/dist/dropdown";
-    import { withButton } from "components/helpers";
+    import { withButton } from "../components/helpers";
 
-    import ButtonGroup from "components/ButtonGroup.svelte";
-    import ButtonGroupItem from "components/ButtonGroupItem.svelte";
+    import ButtonGroup from "../components/ButtonGroup.svelte";
+    import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
 
-    import LabelButton from "components/LabelButton.svelte";
-    import DropdownMenu from "components/DropdownMenu.svelte";
-    import DropdownItem from "components/DropdownItem.svelte";
-    import DropdownDivider from "components/DropdownDivider.svelte";
-    import WithDropdown from "components/WithDropdown.svelte";
-    import WithShortcut from "components/WithShortcut.svelte";
+    import LabelButton from "../components/LabelButton.svelte";
+    import DropdownMenu from "../components/DropdownMenu.svelte";
+    import DropdownItem from "../components/DropdownItem.svelte";
+    import DropdownDivider from "../components/DropdownDivider.svelte";
+    import WithDropdown from "../components/WithDropdown.svelte";
+    import WithShortcut from "../components/WithShortcut.svelte";
 
     const dispatch = createEventDispatcher();
 

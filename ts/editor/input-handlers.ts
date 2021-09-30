@@ -5,11 +5,11 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
-import { nodeIsElement } from "lib/dom";
+import { nodeIsElement } from "../lib/dom";
 import { updateActiveButtons } from "./toolbar";
 import { EditingArea } from "./editing-area";
 import { triggerChangeTimer } from "./saving";
-import { registerShortcut } from "lib/shortcuts";
+import { registerShortcut } from "../lib/shortcuts";
 
 export function onInput(event: Event): void {
     // make sure IME changes get saved

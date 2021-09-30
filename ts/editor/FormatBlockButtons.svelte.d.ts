@@ -1,0 +1,1 @@
+../../bazel-bin/ts/editor/FormatBlockButtons.svelte.d.ts

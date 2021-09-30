@@ -1,9 +1,9 @@
-load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
 load("//ts:compile_sass.bzl", "compile_sass")
+load("//ts:typescript.bzl", "typescript")
 
 compile_sass(
     srcs = ["graphs-base.scss"],
@@ -15,37 +15,19 @@ compile_sass(
     ],
 )
 
-svelte_files = glob(["*.svelte"])
+compile_svelte()
 
-svelte_names = [f.replace(".svelte", "") for f in svelte_files]
-
-compile_svelte(
-    name = "svelte",
-    srcs = svelte_files,
-)
-
-ts_library(
+typescript(
     name = "index",
-    srcs = ["index.ts"],
-    deps = [
-        "GraphsPage",
-        "lib",
-        "//ts/lib",
-        "//ts/sveltelib",
-        "@npm//svelte",
-        "@npm//svelte2tsx",
-    ],
-)
-
-ts_library(
-    name = "lib",
     srcs = glob(
         ["*.ts"],
-        exclude = ["index.ts"],
+        exclude = ["*.svelte.d.ts"],
     ),
     deps = [
+        ":svelte",
         "//ts/lib",
         "//ts/sveltelib",
+        "@npm//@fluent",
         "@npm//@types/d3",
         "@npm//@types/lodash",
         "@npm//d3",
@@ -56,21 +38,17 @@ ts_library(
 
 esbuild(
     name = "graphs",
-    args = [
-        "--global-name=anki",
-        "--resolve-extensions=.mjs,.js",
-        "--log-level=warning",
-    ],
+    args = {
+        "globalName": "anki",
+    },
     entry_point = "index.ts",
     output_css = "graphs.css",
     visibility = ["//visibility:public"],
     deps = [
-        "//ts/sveltelib",
-        "//ts/lib",
-        ":index",
         ":base_css",
-        "@npm//protobufjs",
-    ] + svelte_names,
+        ":index",
+        ":svelte",
+    ],
 )
 
 exports_files(["graphs.html"])
@@ -78,27 +56,17 @@ exports_files(["graphs.html"])
 # Tests
 ################
 
-prettier_test(
-    name = "format_check",
-    srcs = glob([
-        "*.ts",
-        "*.svelte",
-    ]),
-)
+prettier_test()
 
-eslint_test(
-    name = "eslint",
-    srcs = glob(
-        [
-            "*.ts",
-        ],
-    ),
-)
+eslint_test()
 
 svelte_check(
     name = "svelte_check",
     srcs = glob([
         "*.ts",
         "*.svelte",
-    ]),
+    ]) + [
+        "//ts/lib",
+        "//ts/sveltelib",
+    ],
 )

@@ -1,31 +1,10 @@
-load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
-load("//ts:vendor.bzl", "copy_bootstrap_icons", "copy_mdi_icons")
+load("//ts:vendor.bzl", "copy_bootstrap_icons")
 load("//ts:compile_sass.bzl", "compile_sass")
-
-svelte_files = glob(["*.svelte"])
-
-svelte_names = [f.replace(".svelte", "") for f in svelte_files]
-
-filegroup(
-    name = "svelte_components",
-    srcs = svelte_names,
-    visibility = ["//visibility:public"],
-)
-
-compile_svelte(
-    name = "svelte",
-    srcs = svelte_files,
-    visibility = ["//visibility:public"],
-    deps = [
-        "//ts/components",
-        "@npm//@types/codemirror",
-        "@npm//codemirror",
-    ],
-)
+load("//ts:typescript.bzl", "typescript")
 
 compile_sass(
     srcs = [
@@ -35,9 +14,9 @@ compile_sass(
     visibility = ["//visibility:public"],
     deps = [
         "//ts/sass:base_lib",
-        "//ts/sass:scrollbar_lib",
-        "//ts/sass:buttons_lib",
         "//ts/sass:button_mixins_lib",
+        "//ts/sass:buttons_lib",
+        "//ts/sass:scrollbar_lib",
     ],
 )
 
@@ -54,109 +33,42 @@ compile_sass(
     ],
 )
 
-ts_library(
+compile_svelte()
+
+typescript(
     name = "editor_ts",
-    srcs = glob(["*.ts"]),
-    tsconfig = "//ts:tsconfig.json",
+    srcs = glob(
+        ["*.ts"],
+        exclude = ["*.svelte.d.ts"],
+    ),
     deps = [
-        "//ts/lib",
-        "//ts/sveltelib",
+        ":svelte",
         "//ts/components",
         "//ts/editable",
         "//ts/html-filter",
-        "//ts:image_module_support",
-        "@npm//svelte",
+        "//ts/lib",
+        "//ts/sveltelib",
+        "@npm//@fluent",
         "@npm//@types/codemirror",
         "@npm//codemirror",
-    ] + svelte_names,
-)
-
-copy_bootstrap_icons(
-    name = "bootstrap-icons",
-    icons = [
-        "pin-angle.svg",
-
-        # inline formatting
-        "type-bold.svg",
-        "type-italic.svg",
-        "type-underline.svg",
-        "eraser.svg",
-        "square-fill.svg",
-        "paperclip.svg",
-        "mic.svg",
-
-        # block formatting
-        "list-ul.svg",
-        "list-ol.svg",
-        "text-paragraph.svg",
-        "justify.svg",
-        "text-left.svg",
-        "text-right.svg",
-        "text-center.svg",
-        "text-indent-left.svg",
-        "text-indent-right.svg",
-
-        # tag editor
-        "x.svg",
+        "@npm//svelte",
     ],
-    visibility = ["//visibility:public"],
-)
-
-copy_mdi_icons(
-    name = "mdi-icons",
-    icons = [
-        "format-superscript.svg",
-        "format-subscript.svg",
-        "function-variant.svg",
-        "contain.svg",
-        "xml.svg",
-        "format-color-text.svg",
-        "format-color-highlight.svg",
-        "color-helper.svg",
-
-        # image handle
-        "format-float-none.svg",
-        "format-float-left.svg",
-        "format-float-right.svg",
-
-        "image-size-select-large.svg",
-        "image-size-select-actual.svg",
-
-        # mathjax handle
-        "format-wrap-square.svg",
-        "format-wrap-top-bottom.svg",
-
-        # tag editor
-        "tag-outline.svg",
-        "tag.svg",
-        "tag-plus.svg",
-        "dots-vertical.svg",
-    ],
-    visibility = ["//visibility:public"],
 )
 
 esbuild(
     name = "editor",
-    args = [
-        "--loader:.svg=text",
-        "--resolve-extensions=.mjs,.js",
-        "--log-level=warning",
-    ],
+    args = {
+        "loader": {".svg": "text"},
+    },
     entry_point = "index_wrapper.ts",
     output_css = "editor.css",
     visibility = ["//visibility:public"],
     deps = [
-        "editor_ts",
-        "base_css",
-        "local_css",
-        "bootstrap-icons",
-        "mdi-icons",
-        "svelte_components",
-        "//ts/editable",
-        "//ts/editable:mdi-icons",
-        "//ts/components",
-        "//ts/components:svelte_components",
-        "//ts/editable:svelte_components",
+        ":base_css",
+        ":editor_ts",
+        ":local_css",
+        "@npm//@mdi",
+        "@npm//bootstrap-icons",
         "@npm//protobufjs",
     ],
 )
@@ -164,22 +76,9 @@ esbuild(
 # Tests
 ################
 
-prettier_test(
-    name = "format_check",
-    srcs = glob([
-        "*.ts",
-        "*.svelte",
-    ]),
-)
+prettier_test()
 
-eslint_test(
-    name = "eslint",
-    srcs = glob(
-        [
-            "*.ts",
-        ],
-    ),
-)
+eslint_test()
 
 svelte_check(
     name = "svelte_check",

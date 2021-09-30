@@ -5,7 +5,7 @@
 // If they were to bundle their own runtime, things like bindings and contexts
 // would not work.
 
-import { runtimeLibraries } from "lib/runtime-require";
+import { runtimeLibraries } from "../lib/runtime-require";
 import * as svelteRuntime from "svelte/internal";
 
 runtimeLibraries["svelte/internal"] = svelteRuntime;

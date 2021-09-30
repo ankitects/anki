@@ -3,21 +3,21 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "lib/i18n";
+    import * as tr from "../lib/i18n";
     import { getContext } from "svelte";
-    import { modalsKey } from "components/context-keys";
+    import { modalsKey } from "../components/context-keys";
     import type { DeckOptionsState, ConfigListEntry } from "./lib";
     import type Modal from "bootstrap/js/dist/modal";
 
     import TextInputModal from "./TextInputModal.svelte";
-    import StickyHeader from "components/StickyHeader.svelte";
-    import ButtonToolbar from "components/ButtonToolbar.svelte";
-    import Item from "components/Item.svelte";
-    import ButtonGroup from "components/ButtonGroup.svelte";
-    import ButtonGroupItem from "components/ButtonGroupItem.svelte";
+    import StickyHeader from "../components/StickyHeader.svelte";
+    import ButtonToolbar from "../components/ButtonToolbar.svelte";
+    import Item from "../components/Item.svelte";
+    import ButtonGroup from "../components/ButtonGroup.svelte";
+    import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
 
-    import SelectButton from "components/SelectButton.svelte";
-    import SelectOption from "components/SelectOption.svelte";
+    import SelectButton from "../components/SelectButton.svelte";
+    import SelectOption from "../components/SelectOption.svelte";
     import SaveButton from "./SaveButton.svelte";
 
     export let state: DeckOptionsState;

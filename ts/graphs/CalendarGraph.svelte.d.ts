@@ -1,0 +1,1 @@
+../../bazel-bin/ts/graphs/CalendarGraph.svelte.d.ts

@@ -1,0 +1,1 @@
+../../bazel-bin/ts/editor/OnlyEditable.svelte.d.ts

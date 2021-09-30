@@ -1,6 +1,10 @@
 load("@npm//eslint:index.bzl", _eslint_test = "eslint_test")
 
-def eslint_test(name = "eslint", srcs = []):
+def eslint_test(name = "eslint", srcs = None, exclude = []):
+    if not srcs:
+        srcs = native.glob([
+            "*.ts",
+        ], exclude = ["*.svelte.d.ts"] + exclude)
     _eslint_test(
         name = name,
         args = [

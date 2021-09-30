@@ -6,17 +6,17 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import "sveltelib/export-runtime";
-import "lib/register-package";
+import "../sveltelib/export-runtime";
+import "../lib/register-package";
 
 import type EditorToolbar from "./EditorToolbar.svelte";
 import type TagEditor from "./TagEditor.svelte";
 
-import { filterHTML } from "html-filter";
-import { setupI18n, ModuleName } from "lib/i18n";
-import { isApplePlatform } from "lib/platform";
-import { registerShortcut } from "lib/shortcuts";
-import { bridgeCommand } from "lib/bridgecommand";
+import { filterHTML } from "../html-filter";
+import { setupI18n, ModuleName } from "../lib/i18n";
+import { isApplePlatform } from "../lib/platform";
+import { registerShortcut } from "../lib/shortcuts";
+import { bridgeCommand } from "../lib/bridgecommand";
 import { updateActiveButtons } from "./toolbar";
 import { saveField } from "./saving";
 
@@ -27,9 +27,9 @@ import "./codable";
 import "./editor-field";
 import type { EditorField } from "./editor-field";
 import { EditingArea } from "./editing-area";
-import "editable/editable-container";
-import "editable/editable";
-import "editable/mathjax-component";
+import "../editable/editable-container";
+import "../editable/editable";
+import "../editable/mathjax-component";
 
 import { initToolbar, fieldFocused } from "./toolbar";
 import { initTagEditor } from "./tag-editor";

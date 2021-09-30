@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { getContext } from "svelte";
-    import { nightModeKey } from "components/context-keys";
+    import { nightModeKey } from "../components/context-keys";
 
     export let choices: string[];
     export let value: number = 0;

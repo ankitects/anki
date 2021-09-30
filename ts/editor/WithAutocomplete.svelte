@@ -7,8 +7,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import type Dropdown from "bootstrap/js/dist/dropdown";
 
-    import WithDropdown from "components/WithDropdown.svelte";
-    import DropdownMenu from "components/DropdownMenu.svelte";
+    import WithDropdown from "../components/WithDropdown.svelte";
+    import DropdownMenu from "../components/DropdownMenu.svelte";
     import AutocompleteItem from "./AutocompleteItem.svelte";
 
     let className: string = "";

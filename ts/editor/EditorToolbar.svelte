@@ -4,8 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="typescript">
     import "./legacy.css";
-    // @ts-expect-error Insufficient typing
-    import { updateAllState, resetAllState } from "components/WithState.svelte";
+    import { updateAllState, resetAllState } from "../components/WithState.svelte";
 
     export function updateActiveButtons(event: Event) {
         updateAllState(event);
@@ -26,10 +25,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="typescript">
-    import { isApplePlatform } from "lib/platform";
-    import StickyHeader from "components/StickyHeader.svelte";
-    import ButtonToolbar from "components/ButtonToolbar.svelte";
-    import Item from "components/Item.svelte";
+    import { isApplePlatform } from "../lib/platform";
+    import StickyHeader from "../components/StickyHeader.svelte";
+    import ButtonToolbar from "../components/ButtonToolbar.svelte";
+    import Item from "../components/Item.svelte";
 
     import NoteTypeButtons from "./NoteTypeButtons.svelte";
     import FormatInlineButtons from "./FormatInlineButtons.svelte";

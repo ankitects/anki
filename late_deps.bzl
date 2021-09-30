@@ -2,7 +2,9 @@
 
 load("@py_deps//:requirements.bzl", "pip_install")
 load("@rules_rust//tools/rust_analyzer/raze:crates.bzl", "rules_rust_tools_rust_analyzer_fetch_remote_crates")
+load("@build_bazel_rules_nodejs//toolchains/esbuild:esbuild_repositories.bzl", "esbuild_repositories")
 
 def setup_late_deps():
     pip_install()
     rules_rust_tools_rust_analyzer_fetch_remote_crates()
+    esbuild_repositories()

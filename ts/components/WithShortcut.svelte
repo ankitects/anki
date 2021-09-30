@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { onDestroy } from "svelte";
-    import { registerShortcut, getPlatformString } from "lib/shortcuts";
+    import { registerShortcut, getPlatformString } from "../lib/shortcuts";
 
     export let shortcut: string;
 

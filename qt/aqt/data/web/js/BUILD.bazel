@@ -6,6 +6,7 @@ load("//ts:eslint.bzl", "eslint_test")
 ts_library(
     name = "pycmd",
     srcs = ["pycmd.d.ts"],
+    tsconfig = "tsconfig.json",
     visibility = ["//qt/aqt/data/web/js:__subpackages__"],
 )
 
@@ -50,8 +51,8 @@ filegroup(
     srcs = [
         "aqt_es5",
         "editor",
-        "reviewer",
         "mathjax.js",
+        "reviewer",
         "//qt/aqt/data/web/js/vendor",
     ],
     visibility = ["//qt:__subpackages__"],
