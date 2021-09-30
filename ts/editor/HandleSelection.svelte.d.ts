@@ -1,0 +1,1 @@
+../../bazel-bin/ts/editor/HandleSelection.svelte.d.ts

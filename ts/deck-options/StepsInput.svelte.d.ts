@@ -1,0 +1,1 @@
+../../bazel-bin/ts/deck-options/StepsInput.svelte.d.ts

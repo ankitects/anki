@@ -1,0 +1,1 @@
+../../bazel-bin/ts/graphs/NoDataOverlay.svelte.d.ts

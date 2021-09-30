@@ -1,17 +1,14 @@
-load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("@npm//@bazel/typescript:index.bzl", "ts_project")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
+load("//ts:typescript.bzl", "typescript")
 
 # Anki Library
 ################
 
-ts_library(
+typescript(
     name = "sveltelib",
     srcs = glob(["**/*.ts"]),
-    data = [],
-    module_name = "sveltelib",
-    tsconfig = "//:tsconfig.json",
-    visibility = ["//visibility:public"],
     deps = [
         "//ts/lib",
         "@npm//svelte",
@@ -22,12 +19,6 @@ ts_library(
 # Tests
 ################
 
-prettier_test(
-    name = "format_check",
-    srcs = glob(["*.ts"]),
-)
+prettier_test()
 
-eslint_test(
-    name = "eslint",
-    srcs = glob(["*.ts"]),
-)
+eslint_test()

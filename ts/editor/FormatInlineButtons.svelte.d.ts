@@ -1,0 +1,1 @@
+../../bazel-bin/ts/editor/FormatInlineButtons.svelte.d.ts

@@ -5,13 +5,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
 
-    import Badge from "components/Badge.svelte";
-    import WithDropdown from "components/WithDropdown.svelte";
-    import WithShortcut from "components/WithShortcut.svelte";
-    import DropdownMenu from "components/DropdownMenu.svelte";
-    import DropdownItem from "components/DropdownItem.svelte";
+    import Badge from "../components/Badge.svelte";
+    import WithDropdown from "../components/WithDropdown.svelte";
+    import WithShortcut from "../components/WithShortcut.svelte";
+    import DropdownMenu from "../components/DropdownMenu.svelte";
+    import DropdownItem from "../components/DropdownItem.svelte";
 
-    import { withSpan, withButton } from "components/helpers";
+    import { withSpan, withButton } from "../components/helpers";
     import { appendInParentheses } from "./helpers";
     import { dotsIcon } from "./icons";
 

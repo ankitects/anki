@@ -1,0 +1,1 @@
+../../bazel-bin/ts/graphs/TodayStats.svelte.d.ts

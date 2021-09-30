@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { Stats } from "lib/proto";
+import { Stats } from "../lib/proto";
 import {
     interpolateBlues,
     select,
@@ -29,7 +29,7 @@ import {
     millisecondCutoffForRange,
 } from "./graph-helpers";
 import { oddTickClass } from "./graph-styles";
-import * as tr from "lib/i18n";
+import * as tr from "../lib/i18n";
 
 interface Hour {
     hour: number;

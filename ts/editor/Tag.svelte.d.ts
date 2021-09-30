@@ -1,0 +1,1 @@
+../../bazel-bin/ts/editor/Tag.svelte.d.ts

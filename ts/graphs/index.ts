@@ -3,8 +3,8 @@
 
 import type { SvelteComponent } from "svelte/internal";
 
-import { setupI18n, ModuleName } from "lib/i18n";
-import { checkNightMode } from "lib/nightmode";
+import { setupI18n, ModuleName } from "../lib/i18n";
+import { checkNightMode } from "../lib/nightmode";
 
 import GraphsPage from "./GraphsPage.svelte";
 

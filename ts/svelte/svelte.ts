@@ -90,8 +90,8 @@ const languageServiceHost: ts.LanguageServiceHost = {
 
 const languageService = ts.createLanguageService(languageServiceHost);
 
-function compile(tsPath: string, tsLibs: string[]) {
-    parsedCommandLine.fileNames = [tsPath, ...tsLibs];
+function compile(tsPath: string) {
+    parsedCommandLine.fileNames = [tsPath];
     const program = languageService.getProgram()!;
     const tsHost = ts.createCompilerHost(parsedCommandLine.options);
     const createdFiles = {};
@@ -124,8 +124,8 @@ function readFile(file) {
     });
 }
 
-async function writeDts(tsPath, dtsPath, tsLibs) {
-    const dtsSource = compile(tsPath, tsLibs);
+async function writeDts(tsPath, dtsPath) {
+    const dtsSource = compile(tsPath);
     await writeFile(dtsPath, dtsSource);
 }
 
@@ -192,12 +192,12 @@ async function writeJs(
 }
 
 async function compileSvelte(args) {
-    const [sveltePath, mjsPath, dtsPath, cssPath, binDir, genDir, ...tsLibs] = args;
+    const [sveltePath, mjsPath, dtsPath, cssPath, binDir, genDir] = args;
     const svelteSource = (await readFile(sveltePath)) as string;
 
     const mockTsPath = sveltePath + ".tsx";
     writeTs(svelteSource, sveltePath, mockTsPath);
-    await writeDts(mockTsPath, dtsPath, tsLibs);
+    await writeDts(mockTsPath, dtsPath);
     await writeJs(svelteSource, sveltePath, mjsPath, cssPath, binDir, genDir);
 
     return true;

@@ -1,0 +1,1 @@
+../../bazel-bin/ts/deck-options/Warning.svelte.d.ts

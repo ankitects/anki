@@ -1,23 +1,16 @@
-load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:protobuf.bzl", "protobufjs_library")
+load("//ts:typescript.bzl", "typescript")
+load("@rules_python//python:defs.bzl", "py_binary")
+load("@py_deps//:requirements.bzl", "requirement")
 load("//ts:jest.bzl", "jest_test")
-
-# Protobuf
-#############
 
 protobufjs_library(
     name = "backend_proto",
     proto = "//proto:backend_proto_lib",
     visibility = ["//visibility:public"],
 )
-
-# Translations
-################
-
-load("@rules_python//python:defs.bzl", "py_binary")
-load("@py_deps//:requirements.bzl", "requirement")
 
 py_binary(
     name = "genfluent",
@@ -40,26 +33,27 @@ genrule(
     ],
 )
 
-# Anki Library
-################
+_generated = [
+    "backend_proto.d.ts",
+    "i18n.ts",
+]
 
-ts_library(
+typescript(
     name = "lib",
     srcs = glob(
-        ["**/*.ts"],
-        exclude = ["*.test.ts"],
-    ) + [":i18n.ts"],
-    data = [
-        "backend_proto",
+        ["*.ts"],
+        exclude = _generated,
+    ),
+    generated = [
+        ":i18n.ts",
     ],
-    module_name = "lib",
-    tsconfig = "//:tsconfig.json",
-    visibility = ["//visibility:public"],
     deps = [
-        "backend_proto",
+        ":backend_proto",
         "@npm//@fluent/bundle",
+        "@npm//@types/jest",
         "@npm//@types/long",
         "@npm//intl-pluralrules",
+        "@npm//protobufjs",
         "@npm//tslib",
     ],
 )
@@ -67,15 +61,9 @@ ts_library(
 # Tests
 ################
 
-prettier_test(
-    name = "format_check",
-    srcs = glob(["*.ts"]),
-)
+prettier_test(exclude = _generated)
 
-eslint_test(
-    name = "eslint",
-    srcs = glob(["*.ts"]),
-)
+eslint_test(exclude = _generated)
 
 jest_test(
     deps = [

@@ -1,0 +1,1 @@
+../../bazel-bin/ts/editor/TagWithTooltip.svelte.d.ts

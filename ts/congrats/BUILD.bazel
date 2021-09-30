@@ -4,6 +4,7 @@ load("//ts:eslint.bzl", "eslint_test")
 load("//ts/svelte:svelte.bzl", "svelte", "svelte_check")
 load("//ts:esbuild.bzl", "esbuild")
 load("//ts:compile_sass.bzl", "compile_sass")
+load("//ts:typescript.bzl", "typescript")
 
 compile_sass(
     srcs = ["congrats-base.scss"],
@@ -20,31 +21,26 @@ svelte(
     entry_point = "CongratsPage.svelte",
 )
 
-ts_library(
+typescript(
     name = "index",
-    srcs = ["index.ts"],
+    srcs = [
+        "index.ts",
+        "lib.ts",
+    ],
     deps = [
         "CongratsPage",
-        "lib",
         "//ts/lib",
+        "@npm//@fluent",
         "@npm//svelte",
         "@npm//svelte2tsx",
     ],
 )
 
-ts_library(
-    name = "lib",
-    srcs = ["lib.ts"],
-    deps = ["//ts/lib"],
-)
-
 esbuild(
     name = "congrats",
-    args = [
-        "--global-name=anki",
-        "--resolve-extensions=.mjs,.js",
-        "--log-level=warning",
-    ],
+    args = {
+        "globalName": "anki",
+    },
     entry_point = "index.ts",
     output_css = "congrats.css",
     visibility = ["//visibility:public"],
@@ -62,25 +58,16 @@ exports_files(["congrats.html"])
 # Tests
 ################
 
-prettier_test(
-    name = "format_check",
-    srcs = glob([
-        "*.ts",
-        "*.svelte",
-    ]),
-)
+prettier_test()
 
-eslint_test(
-    name = "eslint",
-    srcs = glob([
-        "*.ts",
-    ]),
-)
+eslint_test()
 
 svelte_check(
     name = "svelte_check",
     srcs = glob([
         "*.ts",
         "*.svelte",
-    ]),
+    ]) + [
+        "//ts/lib:lib_pkg",
+    ],
 )

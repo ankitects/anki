@@ -4,11 +4,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import Tag from "./Tag.svelte";
-    import WithTooltip from "components/WithTooltip.svelte";
+    import WithTooltip from "../components/WithTooltip.svelte";
 
     import { createEventDispatcher, getContext } from "svelte";
-    import { nightModeKey } from "components/context-keys";
-    import { controlPressed, shiftPressed } from "lib/keys";
+    import { nightModeKey } from "../components/context-keys";
+    import { controlPressed, shiftPressed } from "../lib/keys";
     import { delimChar } from "./tags";
 
     export let name: string;
