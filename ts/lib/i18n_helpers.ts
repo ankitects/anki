@@ -5,7 +5,7 @@
 // so you should not need to access this file directly.
 
 import "intl-pluralrules";
-import { FluentBundle, FluentResource, FluentNumber } from "@fluent/bundle/compat";
+import { FluentBundle, FluentResource, FluentNumber } from "@fluent/bundle";
 
 type RecordVal = number | string | FluentNumber;
 
