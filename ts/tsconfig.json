@@ -20,6 +20,7 @@
         "module": "es6",
         "lib": [
             "es2017",
+            "es2018.intl",
             "es2019.array",
             "es2018.promise",
             "es2020.promise",
