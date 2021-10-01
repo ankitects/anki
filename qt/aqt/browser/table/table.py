@@ -141,7 +141,8 @@ class Table:
             self._view.selectRow(row)
             self._scroll_to_row(row, scroll_even_if_visible=True)
         else:
-            self.browser.on_row_changed()
+            self.browser.on_all_or_selected_rows_changed()
+            self.browser.on_current_row_changed()
 
     # Reset
 
@@ -242,7 +243,8 @@ class Table:
             return nids
 
         self._reset_selection()
-        self.browser.on_row_changed()
+        self.browser.on_all_or_selected_rows_changed()
+        self.browser.on_current_row_changed()
         return nids
 
     def clear_current(self) -> None:
@@ -271,8 +273,8 @@ class Table:
 
     def _reset_selection(self) -> None:
         """Remove selection and focus without emitting signals.
-        If no selection change is triggerd afterwards, `browser.on_row_changed()`
-        must be called.
+        If no selection change is triggerd afterwards, `browser.on_all_or_selected_rows_changed()`
+        and `browser.on_current_row_changed()` must be called.
         """
         self._view.selectionModel().reset()
         self._len_selection = 0
@@ -331,6 +333,7 @@ class Table:
         qconnect(
             self._view.selectionModel().selectionChanged, self._on_selection_changed
         )
+        qconnect(self._view.selectionModel().currentChanged, self._on_current_changed)
         self._view.setWordWrap(False)
         self._view.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
         self._view.horizontalScrollBar().setSingleStep(10)
@@ -375,6 +378,10 @@ class Table:
 
     # Slots
 
+    def _on_current_changed(self, current: QModelIndex, previous: QModelIndex) -> None:
+        if current.row() != previous.row():
+            self.browser.on_current_row_changed()
+
     def _on_selection_changed(
         self, selected: QItemSelection, deselected: QItemSelection
     ) -> None:
@@ -391,37 +398,32 @@ class Table:
             # New selection is created. Usually a single row or none at all.
             self._len_selection = len(self._view.selectionModel().selectedRows())
         self._selected_rows = None
-        self.browser.on_row_changed()
+        self.browser.on_all_or_selected_rows_changed()
 
     def _on_row_state_will_change(self, index: QModelIndex, was_restored: bool) -> None:
         if not was_restored:
-            row_changed = False
             if self._view.selectionModel().isSelected(index):
-                # calculate directly, because 'self.len_selection()' is slow and
-                # this method will be called a lot if a lot of rows were deleted
                 self._len_selection -= 1
-                row_changed = True
                 self._selected_rows = None
+                self.browser.on_all_or_selected_rows_changed()
             if index.row() == self._current().row():
                 # avoid focus on deleted (disabled) rows
                 self.clear_current()
-                row_changed = True
-            if row_changed:
-                self.browser.on_row_changed()
+                self.browser.on_current_row_changed()
 
     def _on_row_state_changed(self, index: QModelIndex, was_restored: bool) -> None:
         if was_restored:
             if self._view.selectionModel().isSelected(index):
                 self._len_selection += 1
                 self._selected_rows = None
-            if not self._current().isValid() and self.len_selection() == 0:
+                self.browser.on_all_or_selected_rows_changed()
+            elif not self._current().isValid() and self.len_selection() == 0:
                 # restore focus for convenience
                 self._select_rows([index.row()])
                 self._set_current(index.row())
                 self._scroll_to_row(index.row())
-                # row change has been triggered
+                # row change and redraw have been triggered
                 return
-            self.browser.on_row_changed()
         # Workaround for a bug where the flags for the first column don't update
         # automatically (due to the shortcut in 'model.flags()')
         top_left = self._model.index(index.row(), 0)
@@ -525,7 +527,8 @@ class Table:
             self._scroll_to_row(current)
         if self.len_selection() == 0:
             # no row change will fire
-            self.browser.on_row_changed()
+            self.browser.on_all_or_selected_rows_changed()
+            self.browser.on_current_row_changed()
         self._selected_items = []
         self._current_item = None
 
