@@ -32,6 +32,7 @@ OpChangesWithId = collection_pb2.OpChangesWithId
 OpChangesAfterUndo = collection_pb2.OpChangesAfterUndo
 BrowserRow = search_pb2.BrowserRow
 BrowserColumns = search_pb2.BrowserColumns
+StripHtmlMode = card_rendering_pb2.StripHtmlRequest
 
 import copy
 import os

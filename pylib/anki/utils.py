@@ -17,8 +17,7 @@ import time
 import traceback
 from contextlib import contextmanager
 from hashlib import sha1
-from html.entities import name2codepoint
-from typing import Any, Iterable, Iterator, List, Match, Optional, Union
+from typing import Any, Iterable, Iterator, List, Optional, Union
 
 from anki.dbproxy import DBProxy
 
@@ -55,37 +54,23 @@ def intTime(scale: int = 1) -> int:
 
 # HTML
 ##############################################################################
-reComment = re.compile("(?s)<!--.*?-->")
-reStyle = re.compile("(?si)<style.*?>.*?</style>")
-reScript = re.compile("(?si)<script.*?>.*?</script>")
-reTag = re.compile("(?s)<.*?>")
-reEnts = re.compile(r"&#?\w+;")
-reMedia = re.compile("(?i)<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>")
 
 
 def stripHTML(s: str) -> str:
-    s = reComment.sub("", s)
-    s = reStyle.sub("", s)
-    s = reScript.sub("", s)
-    s = reTag.sub("", s)
-    s = entsToTxt(s)
-    return s
+    import anki.lang
+    from anki.collection import StripHtmlMode
+
+    return anki.lang.current_i18n.strip_html(text=s, mode=StripHtmlMode.NORMAL)
 
 
 def stripHTMLMedia(s: str) -> str:
     "Strip HTML but keep media filenames"
-    s = reMedia.sub(" \\1 ", s)
-    return stripHTML(s)
+    import anki.lang
+    from anki.collection import StripHtmlMode
 
-
-def minimizeHTML(s: str) -> str:
-    "Correct Qt's verbose bold/underline/etc."
-    s = re.sub('<span style="font-weight:600;">(.*?)</span>', "<b>\\1</b>", s)
-    s = re.sub('<span style="font-style:italic;">(.*?)</span>', "<i>\\1</i>", s)
-    s = re.sub(
-        '<span style="text-decoration: underline;">(.*?)</span>', "<u>\\1</u>", s
+    return anki.lang.current_i18n.strip_html(
+        text=s, mode=StripHtmlMode.PRESERVE_MEDIA_FILENAMES
     )
-    return s
 
 
 def htmlToTextLine(s: str) -> str:
@@ -98,33 +83,6 @@ def htmlToTextLine(s: str) -> str:
     s = stripHTMLMedia(s)
     s = s.strip()
     return s
-
-
-def entsToTxt(html: str) -> str:
-    # entitydefs defines nbsp as \xa0 instead of a standard space, so we
-    # replace it first
-    html = html.replace("&nbsp;", " ")
-
-    def fixup(m: Match) -> str:
-        text = m.group(0)
-        if text[:2] == "&#":
-            # character reference
-            try:
-                if text[:3] == "&#x":
-                    return chr(int(text[3:-1], 16))
-                else:
-                    return chr(int(text[2:-1]))
-            except ValueError:
-                pass
-        else:
-            # named entity
-            try:
-                text = chr(name2codepoint[text[1:-1]])
-            except KeyError:
-                pass
-        return text  # leave as is
-
-    return reEnts.sub(fixup, html)
 
 
 # IDs

@@ -23,6 +23,7 @@ service CardRenderingService {
   rpc RenderMarkdown(RenderMarkdownRequest) returns (generic.String);
   rpc EncodeIriPaths(generic.String) returns (generic.String);
   rpc DecodeIriPaths(generic.String) returns (generic.String);
+  rpc StripHtml(StripHtmlRequest) returns (generic.String);
 }
 
 message ExtractAVTagsRequest {
@@ -118,4 +119,14 @@ message RenderedTemplateReplacement {
 message RenderMarkdownRequest {
   string markdown = 1;
   bool sanitize = 2;
+}
+
+message StripHtmlRequest {
+  enum Mode {
+    NORMAL = 0;
+    PRESERVE_MEDIA_FILENAMES = 1;
+  }
+
+  string text = 1;
+  Mode mode = 2;
 }

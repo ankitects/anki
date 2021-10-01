@@ -12,7 +12,7 @@ use crate::{
     template::RenderedNode,
     text::{
         decode_iri_paths, encode_iri_paths, extract_av_tags, sanitize_html_no_images,
-        strip_av_tags, AvTag,
+        strip_av_tags, strip_html, strip_html_preserving_media_filenames, AvTag,
     },
 };
 
@@ -160,6 +160,17 @@ impl CardRenderingService for Backend {
 
     fn decode_iri_paths(&self, input: pb::String) -> Result<pb::String> {
         Ok(decode_iri_paths(&input.val).to_string().into())
+    }
+
+    fn strip_html(&self, input: pb::StripHtmlRequest) -> Result<pb::String> {
+        Ok(match input.mode() {
+            pb::strip_html_request::Mode::Normal => strip_html(&input.text),
+            pb::strip_html_request::Mode::PreserveMediaFilenames => {
+                strip_html_preserving_media_filenames(&input.text)
+            }
+        }
+        .to_string()
+        .into())
     }
 }
 
