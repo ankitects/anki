@@ -6,9 +6,9 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { Stats } from "lib/proto";
+import { Stats } from "../lib/proto";
 
-import { timeSpan, dayLabel } from "lib/time";
+import { timeSpan, dayLabel } from "../lib/time";
 import {
     interpolateGreens,
     interpolateReds,
@@ -35,7 +35,7 @@ import type { Bin } from "d3";
 import type { TableDatum } from "./graph-helpers";
 import { GraphBounds, setDataAvailable, GraphRange } from "./graph-helpers";
 import { showTooltip, hideTooltip } from "./tooltip";
-import * as tr from "lib/i18n";
+import * as tr from "../lib/i18n";
 
 interface Reviews {
     learn: number;

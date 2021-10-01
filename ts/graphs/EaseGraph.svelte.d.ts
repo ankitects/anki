@@ -1,0 +1,1 @@
+../../bazel-bin/ts/graphs/EaseGraph.svelte.d.ts

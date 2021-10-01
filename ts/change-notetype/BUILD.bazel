@@ -1,9 +1,9 @@
-load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:esbuild.bzl", "esbuild")
 load("//ts:compile_sass.bzl", "compile_sass")
+load("//ts:typescript.bzl", "typescript")
 load("//ts:jest.bzl", "jest_test")
 
 compile_sass(
@@ -17,69 +17,44 @@ compile_sass(
     ],
 )
 
-svelte_files = glob(["*.svelte"])
+compile_svelte()
 
-svelte_names = [f.replace(".svelte", "") for f in svelte_files]
-
-compile_svelte(
-    name = "svelte",
-    srcs = svelte_files,
-    deps = [
-        "//ts/components",
-        "//ts/sveltelib",
-        "@npm//@types/bootstrap",
-    ],
-)
-
-ts_library(
+typescript(
     name = "index",
-    srcs = ["index.ts"],
+    srcs = glob(["*.ts"]),
     deps = [
-        "ChangeNotetypePage",
-        "lib",
-        "//ts/components",
-        "//ts/lib",
-        "@npm//svelte2tsx",
-    ],
-)
-
-ts_library(
-    name = "lib",
-    srcs = [
-        "lib.ts",
-    ],
-    module_name = "change-notetype",
-    deps = [
+        ":svelte",
         "//ts/components",
         "//ts/lib",
         "//ts/sveltelib",
+        "@npm//@fluent",
+        "@npm//@types/jest",
         "@npm//lodash-es",
         "@npm//svelte",
+        "@npm//svelte2tsx",
     ],
 )
 
 esbuild(
     name = "change-notetype",
-    args = [
-        "--global-name=anki",
-        "--resolve-extensions=.mjs,.js",
-        "--log-level=warning",
-        "--loader:.svg=text",
-    ],
+    args = {
+        "globalName": "anki",
+        "loader": {".svg": "text"},
+    },
     entry_point = "index.ts",
     output_css = "change-notetype.css",
     visibility = ["//visibility:public"],
     deps = [
-        "index",
         ":base_css",
-        "@npm//bootstrap",
-        "@npm//marked",
+        ":index",
+        ":svelte",
+        "//ts/components",
         "//ts/lib",
         "//ts/sveltelib",
-        "//ts/components",
-        "//ts/components:svelte_components",
+        "@npm//bootstrap",
+        "@npm//marked",
         "@npm//protobufjs",
-    ] + svelte_names,
+    ],
 )
 
 exports_files(["change-notetype.html"])
@@ -87,20 +62,9 @@ exports_files(["change-notetype.html"])
 # Tests
 ################
 
-prettier_test(
-    name = "format_check",
-    srcs = glob([
-        "*.ts",
-        "*.svelte",
-    ]),
-)
+prettier_test()
 
-eslint_test(
-    name = "eslint",
-    srcs = glob([
-        "*.ts",
-    ]),
-)
+eslint_test()
 
 svelte_check(
     name = "svelte_check",
@@ -120,9 +84,6 @@ svelte_check(
 jest_test(
     protobuf = True,
     deps = [
-        ":lib",
-        "//ts/lib",
-        "@npm//protobufjs",
-        "@npm//svelte",
+        ":index",
     ],
 )

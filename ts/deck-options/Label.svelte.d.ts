@@ -1,0 +1,1 @@
+../../bazel-bin/ts/deck-options/Label.svelte.d.ts

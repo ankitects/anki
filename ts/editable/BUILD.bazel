@@ -1,29 +1,9 @@
-load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
-load("//ts:vendor.bzl", "copy_mdi_icons")
 load("//ts:compile_sass.bzl", "compile_sass")
-
-svelte_files = glob(["*.svelte"])
-
-svelte_names = [f.replace(".svelte", "") for f in svelte_files]
-
-filegroup(
-    name = "svelte_components",
-    srcs = svelte_names,
-    visibility = ["//visibility:public"],
-)
-
-compile_svelte(
-    name = "svelte",
-    srcs = svelte_files,
-    visibility = ["//visibility:public"],
-    deps = [
-        "//ts/components",
-    ],
-)
+load("//ts:typescript.bzl", "typescript")
 
 compile_sass(
     srcs = [
@@ -37,48 +17,38 @@ compile_sass(
     ],
 )
 
-copy_mdi_icons(
-    name = "mdi-icons",
-    icons = [
-        "math-integral-box.svg",
-    ],
-    visibility = ["//visibility:public"],
-)
+compile_svelte()
 
-ts_library(
+typescript(
     name = "editable",
-    srcs = glob(["*.ts"]),
-    module_name = "editable",
-    tsconfig = "//ts:tsconfig.json",
-    visibility = ["//visibility:public"],
+    srcs = glob(
+        ["*.ts"],
+        exclude = ["*.svelte.d.ts"],
+    ),
     deps = [
+        ":svelte",
+        "//ts/components",
         "//ts/lib",
         "//ts/sveltelib",
-        "//ts/components",
-        "//ts:image_module_support",
-        "@npm//svelte",
-        "@npm//mathjax-full",
         "@npm//mathjax",
-    ] + svelte_names,
+        "@npm//mathjax-full",
+        "@npm//svelte",
+    ],
 )
 
 esbuild(
     name = "editable-build",
-    args = [
-        "--loader:.svg=text",
-        "--resolve-extensions=.mjs,.js",
-        "--log-level=warning",
-    ],
+    args = {
+        "loader": {".svg": "text"},
+    },
     entry_point = "index.ts",
     output_css = "editable-build.css",
     visibility = ["//visibility:public"],
     deps = [
-        "mdi-icons",
         "editable",
         "editable_scss",
-        "svelte_components",
         "//ts/components",
-        "//ts/components:svelte_components",
+        "@npm//@mdi",
         "@npm//protobufjs",
     ],
 )
@@ -86,22 +56,9 @@ esbuild(
 # Tests
 ################
 
-prettier_test(
-    name = "format_check",
-    srcs = glob([
-        "*.ts",
-        "*.svelte",
-    ]),
-)
+prettier_test()
 
-eslint_test(
-    name = "eslint",
-    srcs = glob(
-        [
-            "*.ts",
-        ],
-    ),
-)
+eslint_test()
 
 svelte_check(
     name = "svelte_check",

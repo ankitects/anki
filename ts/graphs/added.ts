@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type { Stats, Cards } from "lib/proto";
+import type { Stats, Cards } from "../lib/proto";
 
 import {
     extent,
@@ -19,10 +19,10 @@ import {
 import type { Bin } from "d3";
 import type { HistogramData } from "./histogram-graph";
 
-import { dayLabel } from "lib/time";
+import { dayLabel } from "../lib/time";
 import { GraphRange } from "./graph-helpers";
 import type { TableDatum, SearchDispatch } from "./graph-helpers";
-import * as tr from "lib/i18n";
+import * as tr from "../lib/i18n";
 
 export interface GraphData {
     daysAdded: number[];

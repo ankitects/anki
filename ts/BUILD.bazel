@@ -1,30 +1,17 @@
 load("//ts:prettier.bzl", "prettier", "prettier_test")
 load("//ts:sql_format.bzl", "sql_format_setup")
-load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
 
 prettier()
 
-prettier_test(
-    name = "format_check",
-    srcs = glob([
-        "*.ts",
-        "*.js",
-    ]),
-)
+prettier_test()
 
 sql_format_setup()
-
-ts_library(
-    name = "image_module_support",
-    srcs = ["images.d.ts"],
-    visibility = ["//visibility:public"],
-)
 
 # Exported files
 #################
 
 exports_files([
-    "tsconfig.json",
     ".prettierrc",
     ".eslintrc.js",
     "licenses.json",
@@ -33,6 +20,14 @@ exports_files([
     "package.json",
     "protobuf-no-long.js",
 ])
+
+# a copy needs to be placed in bazel-bin for libs with
+# generated files
+copy_to_bin(
+    name = "tsconfig_bin",
+    srcs = ["tsconfig.json"],
+    visibility = ["//visibility:public"],
+)
 
 alias(
     name = "yarn",

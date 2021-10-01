@@ -89,21 +89,8 @@ def register_repos():
     maybe(
         http_archive,
         name = "build_bazel_rules_nodejs",
-        sha256 = "4a5d654a4ccd4a4c24eca5d319d85a88a650edf119601550c95bf400c8cc897e",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/3.5.1/rules_nodejs-3.5.1.tar.gz"],
-    )
-
-    # native.local_repository(
-    #     name = "esbuild_toolchain",
-    #     path = "../esbuild_toolchain",
-    # )
-
-    maybe(
-        http_archive,
-        name = "esbuild_toolchain",
-        sha256 = "7385dfb2acce6517fcfdb16480cf18d1959bafb83d8cddc0c1e95779609f762c",
-        urls = ["https://github.com/ankitects/esbuild_toolchain/archive/refs/tags/anki-2021-06-01.tar.gz"],
-        strip_prefix = "esbuild_toolchain-anki-2021-06-01",
+        sha256 = "3635797a96c7bfcd0d265dacd722a07335e64d6ded9834af8d3f1b7ba5a25bba",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.3.0/rules_nodejs-4.3.0.tar.gz"],
     )
 
     # sass
@@ -117,11 +104,11 @@ def register_repos():
     maybe(
         http_archive,
         name = "io_bazel_rules_sass",
-        strip_prefix = "rules_sass-anki-2020-12-23",
+        strip_prefix = "rules_sass-d0cda2205a6e9706ded30f7dd7d30c82b1301fbe",
         urls = [
-            "https://github.com/ankitects/rules_sass/archive/anki-2020-12-23.tar.gz",
+            "https://github.com/bazelbuild/rules_sass/archive/d0cda2205a6e9706ded30f7dd7d30c82b1301fbe.zip",
         ],
-        sha256 = "224ae14b8d2166b3ab4c5fa9b2ae1828f30620ac628dc152e6c0859c7853bb97",
+        sha256 = "640ad20f878a6656968e35f35343359446db91a773224ddf52ae110f1e48bb20",
     )
 
     # translations

@@ -4,14 +4,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import type { Writable } from "svelte/store";
-    import type { PreferenceRaw, PreferencePayload } from "sveltelib/preferences";
+    import type { PreferenceRaw, PreferencePayload } from "../sveltelib/preferences";
 
-    import { Stats } from "lib/proto";
-    import { postRequest } from "lib/postrequest";
+    import { Stats } from "../lib/proto";
+    import { postRequest } from "../lib/postrequest";
 
-    import useAsync from "sveltelib/async";
-    import useAsyncReactive from "sveltelib/asyncReactive";
-    import { getPreferences } from "sveltelib/preferences";
+    import useAsync from "../sveltelib/async";
+    import useAsyncReactive from "../sveltelib/asyncReactive";
+    import { getPreferences } from "../sveltelib/preferences";
 
     import { daysToRevlogRange } from "./graph-helpers";
 

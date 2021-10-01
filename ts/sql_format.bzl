@@ -11,6 +11,7 @@ def sql_format_setup():
             "@npm//@types/diff",
             "@npm//diff",
         ],
+        tsconfig = "//ts:tsconfig_bin",
         visibility = ["//visibility:public"],
     )
 

@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type { Stats, Cards } from "lib/proto";
+import type { Stats, Cards } from "../lib/proto";
 import {
     extent,
     histogram,
@@ -16,11 +16,11 @@ import {
     interpolateRdYlGn,
 } from "d3";
 import type { Bin, ScaleLinear } from "d3";
-import { CardType } from "lib/cards";
+import { CardType } from "../lib/cards";
 import type { HistogramData } from "./histogram-graph";
 
 import type { TableDatum, SearchDispatch } from "./graph-helpers";
-import * as tr from "lib/i18n";
+import * as tr from "../lib/i18n";
 
 export interface GraphData {
     eases: number[];

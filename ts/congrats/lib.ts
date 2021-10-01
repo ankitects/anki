@@ -1,11 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { Scheduler } from "lib/proto";
-import { postRequest } from "lib/postrequest";
-import { naturalUnit, unitAmount, unitName } from "lib/time";
+import { Scheduler } from "../lib/proto";
+import { postRequest } from "../lib/postrequest";
+import { naturalUnit, unitAmount, unitName } from "../lib/time";
 
-import * as tr from "lib/i18n";
+import * as tr from "../lib/i18n";
 
 export async function getCongratsInfo(): Promise<Scheduler.CongratsInfoResponse> {
     return Scheduler.CongratsInfoResponse.decode(

@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
 @typescript-eslint/ban-ts-comment: "off" */
 
-import type { Stats, Cards } from "lib/proto";
+import type { Stats, Cards } from "../lib/proto";
 import type { Selection } from "d3";
 
 // amount of data to fetch from backend

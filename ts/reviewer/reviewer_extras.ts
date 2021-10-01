@@ -4,6 +4,6 @@
 // A standalone bundle that adds mutateNextCardStates to the anki namespace.
 // When all clients are using reviewer.js directly, we can get rid of this.
 
-import { mutateNextCardStates } from "reviewer/answering";
+import { mutateNextCardStates } from "./answering";
 
 globalThis.anki.mutateNextCardStates = mutateNextCardStates;
