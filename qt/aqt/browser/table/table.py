@@ -451,10 +451,12 @@ class Table:
     def _on_header_context(self, pos: QPoint) -> None:
         gpos = self._view.mapToGlobal(pos)
         m = QMenu()
+        m.setToolTipsVisible(True)
         for key, column in self._model.columns.items():
             a = m.addAction(self._state.column_label(column))
             a.setCheckable(True)
             a.setChecked(self._model.active_column_index(key) is not None)
+            a.setToolTip(self._state.column_tooltip(column))
             qconnect(
                 a.toggled,
                 lambda checked, key=key: self._on_column_toggled(checked, key),
