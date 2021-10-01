@@ -1,1 +1,0 @@
-../../bazel-bin/ts/editor/MathjaxHandleInlineBlock.svelte.d.ts

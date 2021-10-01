@@ -1,1 +1,0 @@
-../../bazel-bin/ts/deck-options/DeckOptionsPage.svelte.d.ts

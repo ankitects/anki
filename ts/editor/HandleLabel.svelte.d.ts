@@ -1,1 +1,0 @@
-../../bazel-bin/ts/editor/HandleLabel.svelte.d.ts

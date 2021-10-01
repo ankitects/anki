@@ -1,1 +1,0 @@
-../../bazel-bin/ts/editor/WithAutocomplete.svelte.d.ts

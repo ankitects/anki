@@ -3,11 +3,14 @@ load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin", "js_library")
 
 def typescript(
         name,
-        srcs = [],
+        srcs = None,
         generated = [],
         tsconfig = "tsconfig.json",
         visibility = ["//visibility:public"],
         **kwargs):
+    if not srcs:
+        srcs = native.glob(["**/*.ts"])
+
     # all tsconfig files must be in the bazel-out folder
     copy_to_bin(
         name = tsconfig + "_bin",

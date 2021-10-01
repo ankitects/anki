@@ -1,1 +1,0 @@
-../../bazel-bin/ts/editor/EditorToolbar.svelte.d.ts

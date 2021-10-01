@@ -1,1 +1,0 @@
-../../bazel-bin/ts/editor/NoteTypeButtons.svelte.d.ts

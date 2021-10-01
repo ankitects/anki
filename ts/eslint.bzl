@@ -4,7 +4,7 @@ def eslint_test(name = "eslint", srcs = None, exclude = []):
     if not srcs:
         srcs = native.glob([
             "*.ts",
-        ], exclude = ["*.svelte.d.ts"] + exclude)
+        ], exclude = exclude)
     _eslint_test(
         name = name,
         args = [

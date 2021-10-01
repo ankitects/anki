@@ -1,1 +1,0 @@
-../../bazel-bin/ts/editor/ColorButtons.svelte.d.ts

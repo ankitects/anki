@@ -1,1 +1,0 @@
-../../bazel-bin/ts/deck-options/Switch.svelte.d.ts

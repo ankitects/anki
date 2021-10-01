@@ -1,1 +1,0 @@
-../../bazel-bin/ts/editor/ClozeButton.svelte.d.ts

@@ -1,1 +1,0 @@
-../../bazel-bin/ts/editor/TagEditMode.svelte.d.ts

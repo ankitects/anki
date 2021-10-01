@@ -19,10 +19,6 @@ compile_svelte()
 
 typescript(
     name = "index",
-    srcs = glob(
-        ["*.ts"],
-        exclude = ["*.svelte.d.ts"],
-    ),
     deps = [
         ":svelte",
         "//ts/lib",

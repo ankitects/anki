@@ -1,1 +1,0 @@
-../../bazel-bin/ts/editor/AddTagBadge.svelte.d.ts

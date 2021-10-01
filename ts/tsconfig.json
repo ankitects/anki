@@ -28,8 +28,15 @@
             "dom",
             "dom.iterable"
         ],
+        // uncomment for building with tsc directly
+        // "outDir": "dist",
+        // "rootDir": "..",
         "rootDir": ".",
-        "rootDirs": ["."],
+        "rootDirs": [
+            ".",
+            // for VS code
+            "../bazel-bin/ts"
+        ],
         "baseUrl": ".",
         "paths": {},
         "types": [],
