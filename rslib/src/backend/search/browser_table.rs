@@ -14,6 +14,8 @@ impl browser_table::Column {
             sorting: self.sorting() as i32,
             uses_cell_font: self.uses_cell_font(),
             alignment: self.alignment() as i32,
+            cards_mode_tooltip: self.cards_mode_tooltip(i18n),
+            notes_mode_tooltip: self.notes_mode_tooltip(i18n),
         }
     }
 }

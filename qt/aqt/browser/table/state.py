@@ -47,6 +47,11 @@ class ItemState(ABC):
             column.notes_mode_label if self.is_notes_mode() else column.cards_mode_label
         )
 
+    def column_tooltip(self, column: Column) -> str:
+        if self.is_notes_mode():
+            return column.notes_mode_tooltip
+        return column.cards_mode_tooltip
+
     # Columns and sorting
 
     # abstractproperty is deprecated but used due to mypy limitations
