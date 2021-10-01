@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { onMount, createEventDispatcher, getContext } from "svelte";
-    import { nightModeKey } from "components/context-keys";
+    import { nightModeKey } from "../components/context-keys";
 
     export let id: string | undefined = undefined;
     let className = "";
@@ -46,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </button>
 
 <style lang="scss">
-    @use 'button-mixins' as button;
+    @use "button-mixins" as button;
 
     .autocomplete-item {
         padding: 1px 7px 2px;

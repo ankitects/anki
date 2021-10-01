@@ -1,10 +1,26 @@
 {
-    "exclude": ["node_modules", "dist"],
+    "include": [],
+    "exclude": ["node_modules"],
+    "references": [
+        { "path": "components" },
+        { "path": "congrats" },
+        { "path": "deck-options" },
+        { "path": "editable" },
+        { "path": "editor" },
+        { "path": "graphs" },
+        { "path": "html-filter" },
+        { "path": "lib" },
+        { "path": "reviewer" },
+        { "path": "sveltelib" }
+    ],
     "compilerOptions": {
+        "declaration": true,
+        "composite": true,
         "target": "es6",
         "module": "es6",
         "lib": [
             "es2017",
+            "es2018.intl",
             "es2019.array",
             "es2018.promise",
             "es2020.promise",
@@ -12,16 +28,12 @@
             "dom",
             "dom.iterable"
         ],
+        "rootDir": ".",
+        "rootDirs": ["."],
         "baseUrl": ".",
-        "paths": {
-            "editable/*": ["../bazel-bin/ts/editable/*"],
-            "lib/*": ["../bazel-bin/ts/lib/*"],
-            "html-filter/*": ["../bazel-bin/ts/html-filter/*"]
-            /* "sveltelib/*": ["../bazel-bin/ts/sveltelib/*"], */
-            /* "components/*": ["../bazel-bin/ts/components/*"], */
-        },
+        "paths": {},
+        "types": [],
         "importsNotUsedAsValues": "error",
-        "outDir": "dist",
         /* Strict Type-Checking Options */
         "strict": true /* Enable all strict type-checking options. */,
         "noImplicitAny": false /* Raise error on expressions and declarations with an implied 'any' type. */,
@@ -36,7 +48,6 @@
         "allowSyntheticDefaultImports": true /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */,
         "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
         "jsx": "react",
-        "types": ["svelte", "long", "node", "jest"],
         "noEmitHelpers": true,
         "importHelpers": true
     }

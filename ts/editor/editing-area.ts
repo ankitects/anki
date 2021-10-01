@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+/// <reference types="../lib/shadow-dom" />
+
 /* eslint
 @typescript-eslint/no-non-null-assertion: "off",
 @typescript-eslint/no-explicit-any: "off",
@@ -9,16 +11,16 @@
 import ImageHandle from "./ImageHandle.svelte";
 import MathjaxHandle from "./MathjaxHandle.svelte";
 
-import type { EditableContainer } from "editable/editable-container";
-import type { Editable } from "editable/editable";
+import type { EditableContainer } from "../editable/editable-container";
+import type { Editable } from "../editable/editable";
 import type { Codable } from "./codable";
 
 import { updateActiveButtons } from "./toolbar";
 import { bridgeCommand } from "./lib";
 import { onInput, onKey, onKeyUp } from "./input-handlers";
 import { deferFocusDown, saveFieldIfFieldChanged } from "./focus-handlers";
-import { nightModeKey } from "components/context-keys";
-import { decoratedComponents } from "editable/decorated";
+import { nightModeKey } from "../components/context-keys";
+import { decoratedComponents } from "../editable/decorated";
 
 function onCutOrCopy(): void {
     bridgeCommand("cutOrCopy");

@@ -1,0 +1,1 @@
+../../bazel-bin/ts/editor/TagInput.svelte.d.ts

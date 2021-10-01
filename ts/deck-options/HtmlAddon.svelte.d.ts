@@ -1,0 +1,1 @@
+../../bazel-bin/ts/deck-options/HtmlAddon.svelte.d.ts

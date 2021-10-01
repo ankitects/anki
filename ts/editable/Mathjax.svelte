@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { onMount, onDestroy, getContext, tick } from "svelte";
-    import { nightModeKey } from "components/context-keys";
+    import { nightModeKey } from "../components/context-keys";
     import { convertMathjax } from "./mathjax";
 
     export let mathjax: string;

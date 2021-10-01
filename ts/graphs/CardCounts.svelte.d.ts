@@ -1,0 +1,1 @@
+../../bazel-bin/ts/graphs/CardCounts.svelte.d.ts

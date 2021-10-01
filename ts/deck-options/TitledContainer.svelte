@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Section from "components/Section.svelte";
+    import Section from "../components/Section.svelte";
 
     export let title: string;
     export let api: Record<string, never> | undefined = undefined;

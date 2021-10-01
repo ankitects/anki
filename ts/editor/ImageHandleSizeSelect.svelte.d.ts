@@ -1,0 +1,1 @@
+../../bazel-bin/ts/editor/ImageHandleSizeSelect.svelte.d.ts

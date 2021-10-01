@@ -1,9 +1,8 @@
-load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
-load("//ts/svelte:svelte.bzl", "svelte", "svelte_check")
 load("//ts:esbuild.bzl", "esbuild")
 load("//ts:compile_sass.bzl", "compile_sass")
+load("//ts:typescript.bzl", "typescript")
 
 compile_sass(
     srcs = [
@@ -14,16 +13,13 @@ compile_sass(
     deps = [],
 )
 
-ts_library(
+typescript(
     name = "reviewer_ts",
     srcs = glob(
         ["*.ts"],
-        exclude = ["reviewer_extras.ts"],
     ),
-    module_name = "reviewer",
     deps = [
         "//ts/lib",
-        "//ts/lib:backend_proto",
         "@npm//css-browser-selector",
         "@npm//jquery",
     ],
@@ -31,35 +27,22 @@ ts_library(
 
 esbuild(
     name = "reviewer",
-    args = [
-        "--resolve-extensions=.mjs,.js",
-        "--log-level=warning",
-    ],
     entry_point = "index_wrapper.ts",
     visibility = ["//visibility:public"],
     deps = [
         ":reviewer_ts",
         "//ts/lib",
-        "//ts/lib:backend_proto",
         "@npm//protobufjs",
     ],
 )
 
 esbuild(
-    name = "reviewer_extras",
-    srcs = [
-        "reviewer_extras.ts",
-    ],
-    args = [
-        "--resolve-extensions=.mjs,.js",
-        "--log-level=warning",
-    ],
+    name = "reviewer_extras_bundle",
     entry_point = "reviewer_extras.ts",
     visibility = ["//visibility:public"],
     deps = [
         ":reviewer_ts",
         "//ts/lib",
-        "//ts/lib:backend_proto",
         "@npm//protobufjs",
     ],
 )
@@ -67,16 +50,6 @@ esbuild(
 # Tests
 ################
 
-prettier_test(
-    name = "format_check",
-    srcs = glob([
-        "*.ts",
-    ]),
-)
+prettier_test()
 
-eslint_test(
-    name = "eslint",
-    srcs = glob([
-        "*.ts",
-    ]),
-)
+eslint_test()

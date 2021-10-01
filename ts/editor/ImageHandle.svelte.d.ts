@@ -1,0 +1,1 @@
+../../bazel-bin/ts/editor/ImageHandle.svelte.d.ts

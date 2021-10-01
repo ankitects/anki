@@ -1,8 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-// Import icons from bootstrap
+/// <reference types="../lib/image-import" />
 
-export { default as revertIcon } from "./arrow-counterclockwise.svg";
-export { default as infoCircle } from "./info-circle.svg";
-export { default as gearIcon } from "./gear.svg";
+// Import icons from bootstrap
+export { default as revertIcon } from "bootstrap-icons/icons/arrow-counterclockwise.svg";
+export { default as infoCircle } from "bootstrap-icons/icons/info-circle.svg";
+export { default as gearIcon } from "bootstrap-icons/icons/gear.svg";

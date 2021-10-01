@@ -3,13 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import * as tr from "lib/i18n";
+    import * as tr from "../lib/i18n";
 
-    import IconButton from "components/IconButton.svelte";
-    import WithShortcut from "components/WithShortcut.svelte";
+    import IconButton from "../components/IconButton.svelte";
+    import WithShortcut from "../components/WithShortcut.svelte";
     import OnlyEditable from "./OnlyEditable.svelte";
 
-    import { withButton } from "components/helpers";
+    import { withButton } from "../components/helpers";
     import { ellipseIcon } from "./icons";
     import { forEditorField } from ".";
     import { wrapCurrent } from "./wrap";

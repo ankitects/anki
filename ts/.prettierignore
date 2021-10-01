@@ -1,2 +1,4 @@
 licenses.json
 vendor
+*.svelte.d.ts
+backend_proto.d.ts

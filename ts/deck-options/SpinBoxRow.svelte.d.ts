@@ -1,0 +1,1 @@
+../../bazel-bin/ts/deck-options/SpinBoxRow.svelte.d.ts

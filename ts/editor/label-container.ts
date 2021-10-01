@@ -2,14 +2,14 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { EditorField } from "./editor-field";
-import * as tr from "lib/i18n";
+import * as tr from "../lib/i18n";
 
-import { registerShortcut } from "lib/shortcuts";
+import { registerShortcut } from "../lib/shortcuts";
 import { bridgeCommand } from "./lib";
 import { appendInParentheses } from "./helpers";
 import { saveField } from "./saving";
 import { getCurrentField, forEditorField, i18n } from ".";
-import pinIcon from "./pin-angle.svg";
+import pinIcon from "bootstrap-icons/icons/pin-angle.svg";
 
 function toggleStickyCurrentField(): void {
     const currentField = getCurrentField();

@@ -1,6 +1,7 @@
 load("@npm//svelte-check:index.bzl", _svelte_check = "svelte_check_test")
 load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "declaration_info")
 load("@io_bazel_rules_sass//:defs.bzl", "SassInfo")
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 
 def _get_dep_sources(dep):
     if SassInfo in dep:
@@ -24,36 +25,28 @@ def _svelte(ctx):
     args.add(ctx.outputs.css.path)
     args.add(ctx.var["BINDIR"])
     args.add(ctx.var["GENDIR"])
-    args.add_all(ctx.files._shims)
-
-    deps = _get_sources(ctx.attr.deps).to_list()
 
     ctx.actions.run(
         execution_requirements = {"supports-workers": "1"},
         executable = ctx.executable._svelte_bin,
         outputs = [ctx.outputs.mjs, ctx.outputs.dts, ctx.outputs.css],
-        inputs = [ctx.file.entry_point] + ctx.files._shims + deps,
+        inputs = [ctx.file.entry_point],
         mnemonic = "Svelte",
         arguments = [args],
     )
 
     return [
-        declaration_info(depset([ctx.outputs.dts]), deps = [ctx.attr._shims]),
+        declaration_info(depset([ctx.outputs.dts]), deps = []),
     ]
 
 svelte = rule(
     implementation = _svelte,
     attrs = {
         "entry_point": attr.label(allow_single_file = True),
-        "deps": attr.label_list(),
         "_svelte_bin": attr.label(
             default = Label("//ts/svelte:svelte_bin"),
             executable = True,
             cfg = "host",
-        ),
-        "_shims": attr.label(
-            default = Label("@npm//svelte2tsx:svelte2tsx__typings"),
-            allow_files = True,
         ),
     },
     outputs = {
@@ -63,18 +56,19 @@ svelte = rule(
     },
 )
 
-def compile_svelte(name, srcs, deps = [], visibility = ["//visibility:private"]):
+def compile_svelte(name = "svelte", srcs = None, visibility = ["//visibility:private"]):
+    if not srcs:
+        srcs = native.glob(["*.svelte"])
     for src in srcs:
         svelte(
             name = src.replace(".svelte", ""),
             entry_point = src,
-            deps = deps,
             visibility = visibility,
         )
 
-    native.filegroup(
+    js_library(
         name = name,
-        srcs = srcs,
+        srcs = [s.replace(".svelte", "") for s in srcs],
         visibility = visibility,
     )
 
@@ -88,17 +82,8 @@ def svelte_check(name = "svelte_check", srcs = []):
             "--fail-on-hints",
         ],
         data = [
-            "//ts:tsconfig.json",
-            "//ts/sveltelib",
-            "//ts/lib",
+            "//ts:tsconfig_bin",
             "@npm//sass",
         ] + srcs,
         env = {"SASS_PATH": "ts/sass"},
-        # a lack of sandboxing on Windows breaks the local svelte_check
-        # tests, so we need to disable them on Windows for now
-        target_compatible_with = select({
-            "@platforms//os:osx": [],
-            "@platforms//os:linux": [],
-            "//conditions:default": ["@platforms//os:linux"],
-        }),
     )

@@ -1,4 +1,3 @@
-load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte", "svelte_check")
@@ -6,6 +5,7 @@ load("//ts:esbuild.bzl", "esbuild")
 load("//ts:vendor.bzl", "copy_bootstrap_icons")
 load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:jest.bzl", "jest_test")
+load("//ts:typescript.bzl", "typescript")
 
 compile_sass(
     srcs = ["deck-options-base.scss"],
@@ -18,58 +18,23 @@ compile_sass(
     ],
 )
 
-svelte_files = glob(["*.svelte"])
+compile_svelte()
 
-svelte_names = [f.replace(".svelte", "") for f in svelte_files]
-
-compile_svelte(
-    name = "svelte",
-    srcs = svelte_files,
-    deps = [
-        "//ts/components",
-        "//ts/sveltelib",
-        "@npm//@types/bootstrap",
-        "@npm//@types/marked",
-    ],
-)
-
-copy_bootstrap_icons(
-    name = "bootstrap-icons",
-    icons = [
-        "arrow-counterclockwise.svg",
-        "info-circle.svg",
-        "gear.svg",
-    ],
-)
-
-ts_library(
+typescript(
     name = "index",
-    srcs = ["index.ts"],
+    srcs = glob(
+        ["*.ts"],
+        exclude = ["*.svelte.d.ts"],
+    ),
     deps = [
-        "DeckOptionsPage",
-        "lib",
+        ":svelte",
         "//ts/components",
         "//ts/lib",
         "//ts/sveltelib",
+        "@npm//@fluent",
         "@npm//@popperjs",
-        "@npm//svelte2tsx",
-    ],
-)
-
-ts_library(
-    name = "lib",
-    srcs = [
-        "icons.ts",
-        "lib.ts",
-        "steps.ts",
-        "strings.ts",
-    ],
-    module_name = "deckoptions",
-    deps = [
-        "//ts:image_module_support",
-        "//ts/components",
-        "//ts/lib",
-        "//ts/sveltelib",
+        "@npm//@types/jest",
+        "@npm//bootstrap-icons",
         "@npm//lodash-es",
         "@npm//svelte",
     ],
@@ -77,27 +42,24 @@ ts_library(
 
 esbuild(
     name = "deck-options",
-    args = [
-        "--global-name=anki",
-        "--resolve-extensions=.mjs,.js",
-        "--log-level=warning",
-        "--loader:.svg=text",
-    ],
+    args = {
+        "globalName": "anki",
+        "loader": {".svg": "text"},
+    },
     entry_point = "index.ts",
     output_css = "deck-options.css",
     visibility = ["//visibility:public"],
     deps = [
         "index",
-        ":bootstrap-icons",
         ":base_css",
+        ":svelte",
+        "//ts/components",
+        "//ts/lib",
+        "//ts/sveltelib",
         "@npm//bootstrap",
         "@npm//marked",
         "@npm//protobufjs",
-        "//ts/lib",
-        "//ts/sveltelib",
-        "//ts/components",
-        "//ts/components:svelte_components",
-    ] + svelte_names,
+    ],
 )
 
 exports_files(["deck-options.html"])
@@ -105,20 +67,9 @@ exports_files(["deck-options.html"])
 # Tests
 ################
 
-prettier_test(
-    name = "format_check",
-    srcs = glob([
-        "*.ts",
-        "*.svelte",
-    ]),
-)
+prettier_test()
 
-eslint_test(
-    name = "eslint",
-    srcs = glob([
-        "*.ts",
-    ]),
-)
+eslint_test()
 
 svelte_check(
     name = "svelte_check",
@@ -133,15 +84,13 @@ svelte_check(
         "@npm//@types/lodash-es",
         "@npm//@types/marked",
         "//ts/components",
+        "//ts/sveltelib:sveltelib_pkg",
     ],
 )
 
 jest_test(
     protobuf = True,
     deps = [
-        ":lib",
-        "//ts/lib",
-        "@npm//protobufjs",
-        "@npm//svelte",
+        ":index",
     ],
 )

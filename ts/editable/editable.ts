@@ -1,15 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+/// <reference types="../lib/shadow-dom" />
+
 /* eslint
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
 import type { DecoratedElement } from "./decorated";
 import { decoratedComponents } from "./decorated";
-import { bridgeCommand } from "lib/bridgecommand";
-import { elementIsBlock, getBlockElement } from "lib/dom";
-import { wrapInternal } from "lib/wrap";
+import { bridgeCommand } from "../lib/bridgecommand";
+import { elementIsBlock, getBlockElement } from "../lib/dom";
+import { wrapInternal } from "../lib/wrap";
 
 export function caretToEnd(node: Node): void {
     const range = document.createRange();

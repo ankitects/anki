@@ -5,14 +5,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import { createEventDispatcher } from "svelte";
 
-    import type { Stats } from "lib/proto";
+    import type { Stats } from "../lib/proto";
 
     import Graph from "./Graph.svelte";
     import InputBox from "./InputBox.svelte";
     import HistogramGraph from "./HistogramGraph.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
     import TableData from "./TableData.svelte";
-    import type { PreferenceStore } from "sveltelib/preferences";
+    import type { PreferenceStore } from "../sveltelib/preferences";
 
     import type { HistogramData } from "./histogram-graph";
     import { GraphRange, RevlogRange } from "./graph-helpers";
@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { GraphData } from "./future-due";
 
     export let sourceData: Stats.GraphsResponse | null = null;
-    import * as tr from "lib/i18n";
+    import * as tr from "../lib/i18n";
     export let preferences: PreferenceStore<Stats.GraphPreferences>;
 
     const dispatch = createEventDispatcher<SearchEventMap>();
