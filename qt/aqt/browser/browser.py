@@ -437,6 +437,10 @@ class Browser(QMainWindow):
         self._update_selection_actions()
         gui_hooks.browser_did_change_row(self)
 
+    @deprecated(info="please use on_all_or_selected_rows_changed() instead.")
+    def onRowChanged(self, *args: Any) -> None:
+        self.on_all_or_selected_rows_changed()
+
     def on_current_row_changed(self) -> None:
         """Called after the row of the current element has changed."""
         if self._closeEventHasCleanedUp:
