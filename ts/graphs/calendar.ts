@@ -5,7 +5,7 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
-import { Stats } from "lib/proto";
+import { Stats } from "../lib/proto";
 import {
     interpolateBlues,
     select,
@@ -29,8 +29,8 @@ import {
     SearchDispatch,
 } from "./graph-helpers";
 import { clickableClass } from "./graph-styles";
-import { i18n } from "lib/i18n";
-import * as tr from "lib/i18n";
+import { i18n } from "../lib/i18n";
+import * as tr from "../lib/i18n";
 
 export interface GraphData {
     // indexed by day, where day is relative to today

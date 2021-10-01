@@ -156,6 +156,27 @@ impl Column {
         .into()
     }
 
+    pub fn cards_mode_tooltip(self, i18n: &I18n) -> String {
+        match self {
+            Self::Answer => i18n.browsing_tooltip_answer(),
+            Self::CardMod => i18n.browsing_tooltip_card_modified(),
+            Self::Cards => i18n.browsing_tooltip_card(),
+            Self::NoteMod => i18n.browsing_tooltip_note_modified(),
+            Self::Notetype => i18n.browsing_tooltip_notetype(),
+            Self::Question => i18n.browsing_tooltip_question(),
+            _ => "".into(),
+        }
+        .into()
+    }
+
+    pub fn notes_mode_tooltip(self, i18n: &I18n) -> String {
+        match self {
+            Self::Cards => i18n.browsing_tooltip_cards(),
+            _ => return self.cards_mode_label(i18n),
+        }
+        .into()
+    }
+
     pub fn sorting(self) -> pb::browser_columns::Sorting {
         use pb::browser_columns::Sorting;
         match self {

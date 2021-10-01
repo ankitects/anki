@@ -110,6 +110,7 @@ class AddonMeta:
     branch_index: int
     human_version: Optional[str]
     update_enabled: bool
+    homepage: Optional[str]
 
     def human_name(self) -> str:
         return self.provided_name or self.dir_name
@@ -133,6 +134,11 @@ class AddonMeta:
     def is_latest(self, server_update_time: int) -> bool:
         return self.installed_at >= server_update_time
 
+    def page(self) -> Optional[str]:
+        if self.ankiweb_id():
+            return f"{aqt.appShared}info/{self.dir_name}"
+        return self.homepage
+
     @staticmethod
     def from_json_meta(dir_name: str, json_meta: Dict[str, Any]) -> AddonMeta:
         return AddonMeta(
@@ -146,6 +152,7 @@ class AddonMeta:
             branch_index=json_meta.get("branch_index", 0) or 0,
             human_version=json_meta.get("human_version"),
             update_enabled=json_meta.get("update_enabled", True),
+            homepage=json_meta.get("homepage"),
         )
 
 
@@ -186,6 +193,8 @@ class AddonManager:
             "branch_index": {"type": "number", "meta": True},
             # version string set by the add-on creator
             "human_version": {"type": "string", "meta": True},
+            # add-on page on AnkiWeb or some other webpage
+            "homepage": {"type": "string", "meta": True},
         },
         "required": ["package", "name"],
     }
@@ -806,7 +815,7 @@ class AddonsDialog(QDialog):
             addon = self.addons[row_int]
         except IndexError:
             return
-        self.form.viewPage.setEnabled(addon.ankiweb_id() is not None)
+        self.form.viewPage.setEnabled(addon.page() is not None)
         self.form.config.setEnabled(
             bool(
                 self.mgr.getConfig(addon.dir_name)
@@ -827,19 +836,24 @@ class AddonsDialog(QDialog):
             return None
         return dirs[0]
 
+    def selected_addon_meta(self) -> Optional[AddonMeta]:
+        idxs = [x.row() for x in self.form.addonList.selectedIndexes()]
+        if len(idxs) != 1:
+            showInfo(tr.addons_please_select_a_single_addon_first())
+            return None
+        return self.addons[idxs[0]]
+
     def onToggleEnabled(self) -> None:
         for dir in self.selectedAddons():
             self.mgr.toggleEnabled(dir)
         self.redrawAddons()
 
     def onViewPage(self) -> None:
-        addon = self.onlyOneSelected()
+        addon = self.selected_addon_meta()
         if not addon:
             return
-        if re.match(r"^\d+$", addon):
-            openLink(f"{aqt.appShared}info/{addon}")
-        else:
-            showWarning(tr.addons_addon_was_not_downloaded_from_ankiweb())
+        if page := addon.page():
+            openLink(page)
 
     def onViewFiles(self) -> None:
         # if nothing selected, open top level folder

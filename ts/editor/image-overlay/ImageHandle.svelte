@@ -3,9 +3,9 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import WithDropdown from "components/WithDropdown.svelte";
-    import ButtonDropdown from "components/ButtonDropdown.svelte";
-    import Item from "components/Item.svelte";
+    import WithDropdown from "../../components/WithDropdown.svelte";
+    import ButtonDropdown from "../../components/ButtonDropdown.svelte";
+    import Item from "../../components/Item.svelte";
 
     import HandleBackground from "../HandleBackground.svelte";
     import HandleSelection from "../HandleSelection.svelte";
@@ -17,9 +17,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SizeSelect from "./SizeSelect.svelte";
 
     import { tick, onDestroy } from "svelte";
-    import type CustomStyles from "editable/CustomStyles.svelte";
-    import type { StyleObject } from "editable/CustomStyles.svelte";
-    import { signifyCustomInput } from "editable/editable";
+    import type CustomStyles from "../../editable/CustomStyles.svelte";
+    import type { StyleObject } from "../../editable/CustomStyles.svelte";
+    import { signifyCustomInput } from "../../editable/editable";
 
     export let customStyles: CustomStyles;
 

@@ -10,3 +10,17 @@ export function getCurrentField(): null {
 export function appendInParentheses(text: string, appendix: string): string {
     return `${text} (${appendix})`;
 }
+
+/// trivial wrapper to silence Svelte deprecation warnings
+export function execCommand(
+    command: string,
+    showUI?: boolean | undefined,
+    value?: string | undefined
+): void {
+    document.execCommand(command, showUI, value);
+}
+
+/// trivial wrapper to silence Svelte deprecation warnings
+export function queryCommandState(command: string): boolean {
+    return document.queryCommandState(command);
+}

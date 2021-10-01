@@ -13,9 +13,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="ts">
     import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
-    import { elementContainsInlineContent, caretToEnd } from "lib/dom";
-    import { promiseResolve } from "lib/promise";
-    import { bridgeCommand } from "lib/bridgecommand";
+    import { elementContainsInlineContent, caretToEnd } from "../lib/dom";
+    import { promiseResolve } from "../lib/promise";
+    import { bridgeCommand } from "../lib/bridgecommand";
 
     export let decoratedComponents: DecoratedElementConstructor[] = [];
 

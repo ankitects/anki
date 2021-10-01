@@ -6,14 +6,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Editable from "./Editable.svelte";
     import CustomStyles from "./CustomStyles.svelte";
 
-    import { promiseResolve } from "lib/promise";
+    import { promiseResolve } from "../lib/promise";
     import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
     import type { DecoratedElementConstructor } from "./decorated";
     import { getContext, getAllContexts, createEventDispatcher } from "svelte";
     import type { Readable } from "svelte/store";
-    import { nightModeKey } from "components/context-keys";
+    import { nightModeKey } from "../components/context-keys";
 
-    import { fontFamilyKey, fontSizeKey, directionKey } from "lib/context-keys";
+    import { fontFamilyKey, fontSizeKey, directionKey } from "../lib/context-keys";
 
     const [editablePromise, editableResolve] = promiseResolve<Editable>();
     export { editablePromise };

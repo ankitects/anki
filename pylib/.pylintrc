@@ -16,7 +16,8 @@ ignored-classes=
   BackendError,
   SetDeckCollapsedRequest,
   ConfigKey,
-  HelpPageLinkRequest
+  HelpPageLinkRequest,
+  StripHtmlRequest
 
 [REPORTS]
 output-format=colorized

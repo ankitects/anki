@@ -3,17 +3,17 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import EditableContainer from "editable/EditableContainer.svelte";
+    import EditableContainer from "../editable/EditableContainer.svelte";
     import { ImageHandle } from "./image-overlay";
     import { MathjaxHandle } from "./mathjax-overlay";
 
-    import type Editable from "editable/Editable.svelte";
-    import type { DecoratedElement } from "editable/decorated";
+    import type Editable from "../editable/Editable.svelte";
+    import type { DecoratedElement } from "../editable/decorated";
 
     import type { Writable } from "svelte/store";
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import { getContext, createEventDispatcher, onMount, onDestroy } from "svelte";
-    import { activeInputKey, editingInputsKey } from "lib/context-keys";
+    import { activeInputKey, editingInputsKey } from "../lib/context-keys";
 
     export let content: string;
     export let decoratedComponents: DecoratedElement[];

@@ -3,8 +3,8 @@
     import EditorToolbar from "./EditorToolbar.svelte";
     import EditableAdapter from "./EditableAdapter.svelte";
     import CodableAdapter from "./CodableAdapter.svelte";
-    import { bridgeCommand } from "lib/bridgecommand";
-    import { isApplePlatform } from "lib/platform";
+    import { bridgeCommand } from "../lib/bridgecommand";
+    import { isApplePlatform } from "../lib/platform";
     import { ChangeTimer } from "./change-timer";
     import { getNoteId } from "./note-id";
 

@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import type { Extensible } from "lib/types";
+    import type { Extensible } from "../lib/types";
     import type { MultiRootEditorAPI } from "./MultiRootEditor.svelte";
     export interface NoteEditorAPI extends Extensible {
         readonly multiRootEditor: MultiRootEditorAPI;
@@ -24,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { AdapterData } from "./adapter-types";
     import { writable } from "svelte/store";
     import { setContext, createEventDispatcher } from "svelte";
-    import { fieldFocusedKey, noteEditorKey } from "lib/context-keys";
+    import { fieldFocusedKey, noteEditorKey } from "../lib/context-keys";
 
     export let data: AdapterData;
     export let editingInputs: typeof SvelteComponent[];

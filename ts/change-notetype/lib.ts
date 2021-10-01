@@ -5,8 +5,8 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
-import { Notetypes } from "lib/proto";
-import { postRequest } from "lib/postrequest";
+import { Notetypes } from "../lib/proto";
+import { postRequest } from "../lib/postrequest";
 import { readable, Readable } from "svelte/store";
 import { isEqual } from "lodash-es";
 

@@ -22,12 +22,6 @@ genrule(
     visibility = ["//visibility:public"],
 )
 
-alias(
-    name = "tsconfig.json",
-    actual = "//ts:tsconfig.json",
-    visibility = ["//visibility:public"],
-)
-
 pkg_tar(
     name = "dist",
     srcs = [

@@ -4,8 +4,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { createEventDispatcher } from "svelte";
-    import type { Stats } from "lib/proto";
-    import type { PreferenceStore } from "sveltelib/preferences";
+    import type { Stats } from "../lib/proto";
+    import type { PreferenceStore } from "../sveltelib/preferences";
 
     import Graph from "./Graph.svelte";
     import InputBox from "./InputBox.svelte";
@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { GraphData, TableDatum } from "./card-counts";
 
     export let sourceData: Stats.GraphsResponse;
-    import * as tr2 from "lib/i18n";
+    import * as tr2 from "../lib/i18n";
     export let preferences: PreferenceStore<Stats.GraphPreferences>;
 
     let { cardCountsSeparateInactive, browserLinksSupported } = preferences;

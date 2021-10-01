@@ -149,6 +149,8 @@ message BrowserColumns {
     Sorting sorting = 4;
     bool uses_cell_font = 5;
     Alignment alignment = 6;
+    string cards_mode_tooltip = 7;
+    string notes_mode_tooltip = 8;
   }
   repeated Column columns = 1;
 }

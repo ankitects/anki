@@ -26,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         multiRootEditorKey,
         focusInCodableKey,
         noteEditorKey,
-    } from "lib/context-keys";
+    } from "../lib/context-keys";
 
     let className: string = "";
     export { className as class };

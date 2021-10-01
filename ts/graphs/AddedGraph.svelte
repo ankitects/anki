@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import type { Stats } from "lib/proto";
-    import type { PreferenceStore } from "sveltelib/preferences";
+    import type { Stats } from "../lib/proto";
+    import type { PreferenceStore } from "../sveltelib/preferences";
     import { createEventDispatcher } from "svelte";
 
     import Graph from "./Graph.svelte";
@@ -20,7 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { GraphData } from "./added";
 
     export let sourceData: Stats.GraphsResponse | null = null;
-    import * as tr from "lib/i18n";
+    import * as tr from "../lib/i18n";
     export let preferences: PreferenceStore<Stats.GraphPreferences>;
 
     let histogramData = null as HistogramData | null;

@@ -3,30 +3,29 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import * as tr from "lib/i18n";
-    import { bridgeCommand } from "lib/bridgecommand";
+    import * as tr from "../lib/i18n";
+    import { bridgeCommand } from "../lib/bridgecommand";
     import {
         fieldFocusedKey,
         currentFieldKey,
         focusInCodableKey,
-    } from "lib/context-keys";
+    } from "../lib/context-keys";
 
-    import ButtonGroup from "components/ButtonGroup.svelte";
-    import ButtonGroupItem from "components/ButtonGroupItem.svelte";
-    import IconButton from "components/IconButton.svelte";
-    import DropdownMenu from "components/DropdownMenu.svelte";
-    import DropdownItem from "components/DropdownItem.svelte";
-    import WithDropdown from "components/WithDropdown.svelte";
-    import WithShortcut from "components/WithShortcut.svelte";
-    import WithContext from "components/WithContext.svelte";
+    import ButtonGroup from "../components/ButtonGroup.svelte";
+    import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
+    import IconButton from "../components/IconButton.svelte";
+    import DropdownMenu from "../components/DropdownMenu.svelte";
+    import DropdownItem from "../components/DropdownItem.svelte";
+    import WithDropdown from "../components/WithDropdown.svelte";
+    import WithShortcut from "../components/WithShortcut.svelte";
+    import WithContext from "../components/WithContext.svelte";
     import OnlyEditable from "./OnlyEditable.svelte";
     import ClozeButton from "./ClozeButton.svelte";
 
     import type { Writable } from "svelte/store";
     import { getContext } from "svelte";
-    import type { EditorFieldAPI } from "./MultiRootEditor.svelte";
     import { appendInParentheses } from "./helpers";
-    import { withButton } from "components/helpers";
+    import { withButton } from "../components/helpers";
     import { wrapCurrent } from "./wrap";
     import { paperclipIcon, micIcon, functionIcon, xmlIcon } from "./icons";
 
@@ -40,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bridgeCommand("record");
     }
 
-    const currentField = getContext<Writable<EditorFieldAPI | null>>(currentFieldKey);
+    const currentField = getContext<Writable<any>>(currentFieldKey);
 
     function onHtmlEdit() {
         $currentField?.editingArea!.toggleCodable();

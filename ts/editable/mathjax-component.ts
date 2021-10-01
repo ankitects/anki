@@ -9,8 +9,8 @@
 import "mathjax/es5/tex-svg-full";
 
 import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
-import { nodeIsElement } from "lib/dom";
-import { nightModeKey } from "components/context-keys";
+import { nodeIsElement } from "../lib/dom";
+import { nightModeKey } from "../components/context-keys";
 import { signifyCustomInput } from "./editable";
 
 import Mathjax_svelte from "./Mathjax.svelte";

@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import type { Extensible } from "lib/types";
+    import type { Extensible } from "../lib/types";
 
     export interface EditorFieldAPI extends Extensible {
         direction: "ltr" | "rtl";
@@ -19,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         editorFieldKey,
         currentFieldKey,
         fieldsKey,
-    } from "lib/context-keys";
+    } from "../lib/context-keys";
     import type { FieldsRegisterAPI } from "./MultiRootEditor.svelte";
 
     export let direction: "ltr" | "rtl";

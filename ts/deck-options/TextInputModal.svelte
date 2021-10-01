@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @typescript-eslint/no-non-null-assertion: "off",
     */
     import { onMount, onDestroy, getContext } from "svelte";
-    import { nightModeKey, modalsKey } from "components/context-keys";
+    import { nightModeKey, modalsKey } from "../components/context-keys";
     import Modal from "bootstrap/js/dist/modal";
 
     export let title: string;

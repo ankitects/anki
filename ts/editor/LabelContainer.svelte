@@ -5,8 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { EditingAreaAPI } from "./EditingArea.svelte";
     import type { Readable } from "svelte/store";
-    import { getContext, getAllContexts } from "svelte";
-    import { directionKey, editingAreaKey } from "lib/context-keys";
+    import { getContext } from "svelte";
+    import { directionKey, editingAreaKey } from "../lib/context-keys";
 
     const editingArea = getContext<EditingAreaAPI>(editingAreaKey);
     const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);

@@ -422,6 +422,10 @@ pub struct ResourcesForJavascript {
     resources: Vec<String>,
 }
 
+pub fn without_unicode_isolation(s: &str) -> String {
+    s.replace(|c| c == '\u{2068}' || c == '\u{2069}', "")
+}
+
 #[cfg(test)]
 mod test {
     use unic_langid::langid;

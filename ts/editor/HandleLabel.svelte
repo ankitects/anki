@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { Readable } from "svelte/store";
     import { getContext } from "svelte";
-    import { directionKey } from "lib/context-keys";
+    import { directionKey } from "../lib/context-keys";
     import { afterUpdate, createEventDispatcher, onMount } from "svelte";
 
     let dimensions: HTMLDivElement;

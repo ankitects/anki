@@ -14,7 +14,7 @@ import { mutateNextCardStates } from "./answering";
 globalThis.anki = globalThis.anki || {};
 globalThis.anki.mutateNextCardStates = mutateNextCardStates;
 
-import { bridgeCommand } from "lib/bridgecommand";
+import { bridgeCommand } from "../lib/bridgecommand";
 import { allImagesLoaded, preloadAnswerImages } from "./images";
 declare const MathJax: any;
 
