@@ -25,6 +25,8 @@ use crate::{
     text::{extract_media_refs, normalize_to_nfc, MediaRef, REMOTE_FILENAME},
 };
 
+use anki_i18n::without_unicode_isolation;
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct MediaCheckOutput {
     pub unused: Vec<String>,
@@ -125,7 +127,9 @@ where
             buf += &i.media_check_renamed_header();
             buf.push('\n');
             for (old, new) in &output.renamed {
-                buf += &i.media_check_renamed_file(old.as_str(), new.as_str());
+                buf += &without_unicode_isolation(
+                    &i.media_check_renamed_file(old.as_str(), new.as_str()),
+                );
                 buf.push('\n');
             }
             buf.push('\n')
@@ -136,7 +140,7 @@ where
             buf += &i.media_check_oversize_header();
             buf.push('\n');
             for fname in &output.oversize {
-                buf += &i.media_check_oversize_file(fname.as_str());
+                buf += &without_unicode_isolation(&i.media_check_oversize_file(fname.as_str()));
                 buf.push('\n');
             }
             buf.push('\n')
@@ -147,7 +151,7 @@ where
             buf += &i.media_check_subfolder_header();
             buf.push('\n');
             for fname in &output.dirs {
-                buf += &i.media_check_subfolder_file(fname.as_str());
+                buf += &without_unicode_isolation(&i.media_check_subfolder_file(fname.as_str()));
                 buf.push('\n');
             }
             buf.push('\n')
@@ -158,7 +162,7 @@ where
             buf += &i.media_check_missing_header();
             buf.push('\n');
             for fname in &output.missing {
-                buf += &i.media_check_missing_file(fname.as_str());
+                buf += &without_unicode_isolation(&i.media_check_missing_file(fname.as_str()));
                 buf.push('\n');
             }
             buf.push('\n')
@@ -169,7 +173,7 @@ where
             buf += &i.media_check_unused_header();
             buf.push('\n');
             for fname in &output.unused {
-                buf += &i.media_check_unused_file(fname.as_str());
+                buf += &without_unicode_isolation(&i.media_check_unused_file(fname.as_str()));
                 buf.push('\n');
             }
         }
