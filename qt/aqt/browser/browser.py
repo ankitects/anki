@@ -9,13 +9,7 @@ import aqt
 import aqt.forms
 from anki._legacy import deprecated
 from anki.cards import Card, CardId
-from anki.collection import (
-    Collection,
-    Config,
-    OpChanges,
-    OpChangesWithCount,
-    SearchNode,
-)
+from anki.collection import Collection, Config, OpChanges, SearchNode
 from anki.consts import *
 from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
@@ -60,7 +54,6 @@ from aqt.utils import (
     saveState,
     showWarning,
     skip_if_selection_is_empty,
-    tooltip,
     tr,
 )
 
@@ -417,9 +410,7 @@ class Browser(QMainWindow):
         gui_hooks.editor_did_init.remove(add_preview_button)
 
     @ensure_editor_saved
-    def onRowChanged(
-        self, _current: Optional[QItemSelection], _previous: Optional[QItemSelection]
-    ) -> None:
+    def on_row_changed(self) -> None:
         """Update current note and hide/show editor."""
         if self._closeEventHasCleanedUp:
             return
@@ -628,17 +619,8 @@ class Browser(QMainWindow):
         if focus != self.form.tableView:
             return
 
-        nids = self.table.get_selected_note_ids()
-
-        def after_remove(changes: OpChangesWithCount) -> None:
-            tooltip(tr.browsing_cards_deleted(count=changes.count))
-            # select the next card if there is one
-            self.focusTo = self.editor.currentField
-            self.table.to_next_row()
-
-        remove_notes(parent=self, note_ids=nids).success(
-            after_remove
-        ).run_in_background()
+        nids = self.table.to_row_of_unselected_note()
+        remove_notes(parent=self, note_ids=nids).run_in_background()
 
     # legacy
 
