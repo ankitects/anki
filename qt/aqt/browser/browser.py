@@ -118,7 +118,9 @@ class Browser(QMainWindow):
         restoreState(self, "editor")
         restoreSplitter(self.form.splitter, "editor3")
         self.form.splitter.setChildrenCollapsible(False)
+        # set if exactly 1 row is selected; used by the previewer
         self.card: Optional[Card] = None
+        self.current_card: Optional[Card] = None
         self.setup_table()
         self.setupMenus()
         self.setupHooks()
@@ -151,8 +153,9 @@ class Browser(QMainWindow):
                     self.editor.set_note(note)
 
         if changes.browser_table and changes.card:
-            self.card = self.table.get_current_card()
-            self._update_context_actions()
+            self.card = self.table.get_single_selected_card()
+            self.current_card = self.table.get_current_card()
+            self._update_current_actions()
 
         # changes.card is required for updating flag icon
         if changes.note_text or changes.card:
@@ -410,48 +413,45 @@ class Browser(QMainWindow):
         gui_hooks.editor_did_init.remove(add_preview_button)
 
     @ensure_editor_saved
-    def on_row_changed(self) -> None:
-        """Update current note and hide/show editor."""
+    def on_all_or_selected_rows_changed(self) -> None:
+        """Called after the selected or all rows (searching, toggling mode) have
+        changed. Update window title, card preview, context actions, and editor.
+        """
         if self._closeEventHasCleanedUp:
             return
 
         self.updateTitle()
-        # the current card is used for context actions
-        self.card = self.table.get_current_card()
         # if there is only one selected card, use it in the editor
         # it might differ from the current card
-        card = self.table.get_single_selected_card()
-        self.singleCard = bool(card)
+        self.card = self.table.get_single_selected_card()
+        self.singleCard = bool(self.card)
         self.form.splitter.widget(1).setVisible(self.singleCard)
         if self.singleCard:
-            self.editor.set_note(card.note(), focusTo=self.focusTo)
+            self.editor.set_note(self.card.note(), focusTo=self.focusTo)
             self.focusTo = None
-            self.editor.card = card
+            self.editor.card = self.card
         else:
             self.editor.set_note(None)
         self._renderPreview()
-        self._update_context_actions()
+        self._update_row_actions()
+        self._update_selection_actions()
         gui_hooks.browser_did_change_row(self)
 
-    def _update_context_actions(self) -> None:
-        self._update_enabled_actions()
-        self._update_flags_menu()
-        self._update_toggle_mark_action()
-        self._update_toggle_suspend_action()
+    def on_current_row_changed(self) -> None:
+        """Called after the row of the current element has changed."""
+        if self._closeEventHasCleanedUp:
+            return
+        self.current_card = self.table.get_current_card()
+        self._update_current_actions()
 
-    def _update_enabled_actions(self) -> None:
+    def _update_row_actions(self) -> None:
         has_rows = bool(self.table.len())
         self.form.actionSelectAll.setEnabled(has_rows)
         self.form.actionInvertSelection.setEnabled(has_rows)
         self.form.actionFirstCard.setEnabled(has_rows)
         self.form.actionLastCard.setEnabled(has_rows)
 
-        self.form.action_Info.setEnabled(bool(self.card))
-
-        self.form.actionPreviousCard.setEnabled(self.table.has_previous())
-
-        self.form.actionNextCard.setEnabled(self.table.has_next())
-
+    def _update_selection_actions(self) -> None:
         has_selection = bool(self.table.len_selection())
         self.form.actionSelectNotes.setEnabled(has_selection)
         self.form.actionExport.setEnabled(has_selection)
@@ -466,6 +466,14 @@ class Browser(QMainWindow):
         self.form.actionReposition.setEnabled(has_selection)
         self.form.actionToggle_Suspend.setEnabled(has_selection)
         self.form.menuFlag.setEnabled(has_selection)
+
+    def _update_current_actions(self) -> None:
+        self._update_flags_menu()
+        self._update_toggle_mark_action()
+        self._update_toggle_suspend_action()
+        self.form.action_Info.setEnabled(self.table.has_current())
+        self.form.actionPreviousCard.setEnabled(self.table.has_previous())
+        self.form.actionNextCard.setEnabled(self.table.has_next())
 
     @ensure_editor_saved
     def on_table_state_changed(self, checked: bool) -> None:
@@ -533,10 +541,10 @@ class Browser(QMainWindow):
     ######################################################################
 
     def showCardInfo(self) -> None:
-        if not self.card:
+        if not self.current_card:
             return
 
-        CardInfoDialog(parent=self, mw=self.mw, card=self.card)
+        CardInfoDialog(parent=self, mw=self.mw, card=self.current_card)
 
     # Menu helpers
     ######################################################################
@@ -705,7 +713,9 @@ class Browser(QMainWindow):
     ######################################################################
 
     def _update_toggle_suspend_action(self) -> None:
-        is_suspended = bool(self.card and self.card.queue == QUEUE_TYPE_SUSPENDED)
+        is_suspended = bool(
+            self.current_card and self.current_card.queue == QUEUE_TYPE_SUSPENDED
+        )
         self.form.actionToggle_Suspend.setChecked(is_suspended)
 
     @skip_if_selection_is_empty
@@ -732,11 +742,11 @@ class Browser(QMainWindow):
     @skip_if_selection_is_empty
     @ensure_editor_saved
     def set_flag_of_selected_cards(self, flag: int) -> None:
-        if not self.card:
+        if not self.current_card:
             return
 
         # flag needs toggling off?
-        if flag == self.card.user_flag():
+        if flag == self.current_card.user_flag():
             flag = 0
 
         set_card_flag(
@@ -744,7 +754,7 @@ class Browser(QMainWindow):
         ).run_in_background()
 
     def _update_flags_menu(self) -> None:
-        flag = self.card and self.card.user_flag()
+        flag = self.current_card and self.current_card.user_flag()
         flag = flag or 0
 
         for f in self.mw.flags.all():
@@ -763,7 +773,9 @@ class Browser(QMainWindow):
             self.remove_tags_from_selected_notes(tags=MARKED_TAG)
 
     def _update_toggle_mark_action(self) -> None:
-        is_marked = bool(self.card and self.card.note().has_tag(MARKED_TAG))
+        is_marked = bool(
+            self.current_card and self.current_card.note().has_tag(MARKED_TAG)
+        )
         self.form.actionToggle_Mark.setChecked(is_marked)
 
     # Scheduling
