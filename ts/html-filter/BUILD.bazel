@@ -5,7 +5,6 @@ load("//ts:typescript.bzl", "typescript")
 
 typescript(
     name = "html-filter",
-    srcs = glob(["*.ts"]),
     deps = ["@npm//@types/jest"],
 )
 

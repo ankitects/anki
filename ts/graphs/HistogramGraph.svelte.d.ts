@@ -1,1 +1,0 @@
-../../bazel-bin/ts/graphs/HistogramGraph.svelte.d.ts

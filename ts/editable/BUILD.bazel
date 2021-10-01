@@ -21,10 +21,6 @@ compile_svelte()
 
 typescript(
     name = "editable",
-    srcs = glob(
-        ["*.ts"],
-        exclude = ["*.svelte.d.ts"],
-    ),
     deps = [
         ":svelte",
         "//ts/components",

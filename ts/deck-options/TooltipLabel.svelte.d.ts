@@ -1,1 +1,0 @@
-../../bazel-bin/ts/deck-options/TooltipLabel.svelte.d.ts

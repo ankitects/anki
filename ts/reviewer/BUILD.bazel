@@ -15,9 +15,6 @@ compile_sass(
 
 typescript(
     name = "reviewer_ts",
-    srcs = glob(
-        ["*.ts"],
-    ),
     deps = [
         "//ts/lib",
         "@npm//css-browser-selector",

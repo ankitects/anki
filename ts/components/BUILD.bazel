@@ -7,10 +7,6 @@ compile_svelte()
 
 typescript(
     name = "components",
-    srcs = glob(
-        ["*.ts"],
-        exclude = ["*.test.ts"],
-    ),
     deps = [
         ":svelte",
         "//ts/lib",

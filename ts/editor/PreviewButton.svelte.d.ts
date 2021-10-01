@@ -1,1 +1,0 @@
-../../bazel-bin/ts/editor/PreviewButton.svelte.d.ts

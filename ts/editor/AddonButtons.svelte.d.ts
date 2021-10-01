@@ -1,1 +1,0 @@
-../../bazel-bin/ts/editor/AddonButtons.svelte.d.ts

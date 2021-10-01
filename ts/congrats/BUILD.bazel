@@ -23,10 +23,6 @@ svelte(
 
 typescript(
     name = "index",
-    srcs = [
-        "index.ts",
-        "lib.ts",
-    ],
     deps = [
         "CongratsPage",
         "//ts/lib",

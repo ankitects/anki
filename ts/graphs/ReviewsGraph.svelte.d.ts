@@ -1,1 +1,0 @@
-../../bazel-bin/ts/graphs/ReviewsGraph.svelte.d.ts

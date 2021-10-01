@@ -9,7 +9,7 @@ def prettier_test(name = "format_check", srcs = None, exclude = [], **kwargs):
             "*.ts",
             "*.js",
             "*.svelte",
-        ], exclude = ["*.svelte.d.ts"] + exclude)
+        ], exclude = exclude)
 
     _prettier_test(
         name = name,
