@@ -158,6 +158,7 @@ class MacVoice(TTSVoice):
     original_name: str
 
 
+# pylint: disable=no-member
 class MacTTSPlayer(TTSProcessPlayer):
     "Invokes a process to play the audio in the background."
 

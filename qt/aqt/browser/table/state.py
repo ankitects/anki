@@ -56,7 +56,7 @@ class ItemState(ABC):
 
     # abstractproperty is deprecated but used due to mypy limitations
     # (https://github.com/python/mypy/issues/1362)
-    @abstractproperty
+    @abstractproperty  # pylint: disable=deprecated-decorator
     def active_columns(self) -> List[str]:
         """Return the saved or default columns for the state."""
 
