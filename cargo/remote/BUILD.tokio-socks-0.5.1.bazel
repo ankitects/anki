@@ -56,9 +56,9 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__either__1_6_1//:either",
-        "@raze__futures_util__0_3_15//:futures_util",
-        "@raze__thiserror__1_0_25//:thiserror",
-        "@raze__tokio__1_7_1//:tokio",
+        "@raze__futures_util__0_3_17//:futures_util",
+        "@raze__thiserror__1_0_29//:thiserror",
+        "@raze__tokio__1_12_0//:tokio",
     ],
 )
 

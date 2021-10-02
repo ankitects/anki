@@ -8,8 +8,8 @@ def _impl(rctx):
         "python.exe",
     ]
     path = None
-    if rctx.os.environ.get("PYTHON_SYS_EXECUTABLE"):
-        path = rctx.os.environ.get("PYTHON_SYS_EXECUTABLE")
+    if rctx.os.environ.get("PYO3_PYTHON"):
+        path = rctx.os.environ.get("PYO3_PYTHON")
     else:
         for name in names:
             path = rctx.which(name)
@@ -17,7 +17,7 @@ def _impl(rctx):
                 break
 
     if not path:
-        fail("python3 or python.exe not found on path, and PYTHON_SYS_EXECUTABLE not set")
+        fail("python3 or python.exe not found on path, and PYO3_PYTHON not set")
 
     rctx.symlink(path, "python")
     rctx.file("BUILD.bazel", """

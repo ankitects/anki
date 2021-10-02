@@ -52,6 +52,6 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__codespan_reporting__0_11_1//:codespan_reporting",
-        "@raze__serde__1_0_126//:serde",
+        "@raze__serde__1_0_130//:serde",
     ],
 )

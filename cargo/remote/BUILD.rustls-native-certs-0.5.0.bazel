@@ -72,7 +72,7 @@ rust_library(
         (
             "@rules_rust//rust/platform:x86_64-apple-darwin",
         ): [
-            "@raze__security_framework__2_3_1//:security_framework",
+            "@raze__security_framework__2_4_2//:security_framework",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

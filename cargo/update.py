@@ -86,9 +86,12 @@ def update_crates_bzl():
     with open("crates.bzl", "w") as file:
         for line in output_lines:
             file.write(line)
-        
+
         # add rustls version
-        file.write("\n".join(" "*4 + l for l in """
+        file.write(
+            "\n".join(
+                " " * 4 + l
+                for l in """
 maybe(
     new_git_repository,
     name = "reqwest_rustls",
@@ -98,13 +101,16 @@ maybe(
     build_file = Label("//cargo:BUILD.reqwest.rustls.bazel"),
     init_submodules = True,
 )
-""".splitlines()))
+""".splitlines()
+            )
+        )
+
 
 def generated_reqwest_build_file():
     return glob.glob("remote/*reqwest-0.11.3*")[0]
 
 
-def update_reqwest_deps():
+def update_deps():
     "Update version numbers in our custom reqwest build files."
     dep_with_version = re.compile(r"@raze__(.+?)__([\d_]+)//")
 
@@ -130,11 +136,17 @@ def update_reqwest_deps():
     with open("remote/BUILD.linkcheck-0.4.1-alpha.0.bazel") as f:
         out = []
         for line in f.readlines():
-            line = line.replace("@raze__reqwest__0_11_4//:reqwest","@reqwest_rustls//:reqwest")
+            line = line.replace(
+                "@raze__reqwest__0_11_4//:reqwest", "@reqwest_rustls//:reqwest"
+            )
             out.append(line)
     with open("remote/BUILD.linkcheck-0.4.1-alpha.0.bazel", "w") as f:
         f.writelines(out)
 
+    with open("BUILD.term-0.7.0.bazel") as f:
+        buf = f.read()
+    with open("remote/BUILD.term-0.7.0.bazel", "w") as f:
+        f.write(buf)
 
 
 def stage_commit():
@@ -154,5 +166,5 @@ update_cargo_lock()
 run_cargo_raze()
 write_licenses()
 update_crates_bzl()
-update_reqwest_deps()
+update_deps()
 stage_commit()

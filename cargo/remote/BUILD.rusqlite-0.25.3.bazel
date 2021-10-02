@@ -58,13 +58,13 @@ rust_library(
     version = "0.25.3",
     # buildifier: leave-alone
     deps = [
-        "@raze__bitflags__1_2_1//:bitflags",
+        "@raze__bitflags__1_3_2//:bitflags",
         "@raze__fallible_iterator__0_2_0//:fallible_iterator",
         "@raze__fallible_streaming_iterator__0_1_9//:fallible_streaming_iterator",
         "@raze__hashlink__0_7_0//:hashlink",
         "@raze__libsqlite3_sys__0_22_2//:libsqlite3_sys",
-        "@raze__memchr__2_4_0//:memchr",
-        "@raze__smallvec__1_6_1//:smallvec",
+        "@raze__memchr__2_4_1//:memchr",
+        "@raze__smallvec__1_7_0//:smallvec",
     ],
 )
 
