@@ -46,6 +46,7 @@ class FindDuplicatesDialog(QDialog):
         form.fields.addItems(fields)
         restore_combo_index_for_session(form.fields, fields, "findDupesFields")
         self._dupesButton: Optional[QPushButton] = None
+        self._dupes: List[Tuple[str, List[NoteId]]] = []
 
         # links
         form.webView.set_title("find duplicates")
@@ -76,11 +77,12 @@ class FindDuplicatesDialog(QDialog):
         self.show()
 
     def show_duplicates_report(self, dupes: List[Tuple[str, List[NoteId]]]) -> None:
+        self._dupes = dupes
         if not self._dupesButton:
             self._dupesButton = b = self.form.buttonBox.addButton(
                 tr.browsing_tag_duplicates(), QDialogButtonBox.ActionRole
             )
-            qconnect(b.clicked, lambda: self._tag_duplicates(dupes))
+            qconnect(b.clicked, lambda: self._tag_duplicates(self._dupes))
         text = ""
         groups = len(dupes)
         notes = sum(len(r[1]) for r in dupes)
