@@ -1,15 +1,10 @@
 This folder integrates Rust crates.io fetching into Bazel.
 
 To update dependencies, ensure a local Rust environment is available
-(eg install rustup), then fetch this commit of cargo raze:
-
-https://github.com/google/cargo-raze/commit/1edfb5366d7a6a59c3f9e354a3818a649146548c
-
-then from the folder:
+(eg install rustup), then install this version of cargo raze:
 
 ```
-cd impl
-cargo install --path .
+cargo install --git https://github.com/ankitects/cargo-raze.git --branch build-deps cargo-raze
 cargo install cargo-license
 ```
 
