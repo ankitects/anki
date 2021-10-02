@@ -8,7 +8,7 @@ from __future__ import annotations
 import random
 import time
 from heapq import *
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
 
 import anki  # pylint: disable=unused-import
 from anki import hooks, scheduler_pb2
@@ -329,8 +329,7 @@ limit %d"""
             % (self._deckLimit(), self.reportLimit),
             cutoff,
         )
-        for i in range(len(self._lrnQueue)):
-            self._lrnQueue[i] = (self._lrnQueue[i][0], self._lrnQueue[i][1])
+        self._lrnQueue = [cast(Tuple[int, CardId], tuple(e)) for e in self._lrnQueue]
         # as it arrives sorted by did first, we need to sort it
         self._lrnQueue.sort()
         return self._lrnQueue

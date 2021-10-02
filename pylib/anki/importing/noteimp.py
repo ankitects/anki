@@ -143,12 +143,12 @@ class NoteImporter(Importer):
         dupeCount = 0
         dupes: List[str] = []
         for n in notes:
-            for c in range(len(n.fields)):
+            for c, field in enumerate(n.fields):
                 if not self.allowHTML:
-                    n.fields[c] = html.escape(n.fields[c], quote=False)
-                n.fields[c] = n.fields[c].strip()
+                    n.fields[c] = html.escape(field, quote=False)
+                n.fields[c] = field.strip()
                 if not self.allowHTML:
-                    n.fields[c] = n.fields[c].replace("\n", "<br>")
+                    n.fields[c] = field.replace("\n", "<br>")
             fld0 = unicodedata.normalize("NFC", n.fields[fld0idx])
             # first field must exist
             if not fld0:
