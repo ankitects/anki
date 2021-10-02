@@ -3,7 +3,7 @@
 
 import type { SvelteComponent } from "svelte/internal";
 
-import { setupI18n, ModuleName } from "../lib/i18n";
+import { setupI18n, tr } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
 
 import GraphsPage from "./GraphsPage.svelte";
@@ -33,16 +33,18 @@ export function graphs(
 ): void {
     const nightMode = checkNightMode();
 
-    setupI18n({ modules: [ModuleName.STATISTICS, ModuleName.SCHEDULING] }).then(() => {
-        new GraphsPage({
-            target,
-            props: {
-                graphs,
-                nightMode,
-                initialSearch: search,
-                initialDays: days,
-                controller,
-            },
-        });
-    });
+    setupI18n({ modules: [tr.ModuleName.STATISTICS, tr.ModuleName.SCHEDULING] }).then(
+        () => {
+            new GraphsPage({
+                target,
+                props: {
+                    graphs,
+                    nightMode,
+                    initialSearch: search,
+                    initialDays: days,
+                    controller,
+                },
+            });
+        }
+    );
 }

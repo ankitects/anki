@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "../lib/i18n";
+    import { tr } from "../lib/i18n";
     import { createEventDispatcher } from "svelte";
     import type { DeckOptionsState } from "./lib";
     import type Dropdown from "bootstrap/js/dist/dropdown";

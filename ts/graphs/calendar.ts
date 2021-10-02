@@ -29,8 +29,7 @@ import {
     SearchDispatch,
 } from "./graph-helpers";
 import { clickableClass } from "./graph-styles";
-import { i18n } from "../lib/i18n";
-import * as tr from "../lib/i18n";
+import { tr, i18n } from "../lib/i18n";
 
 export interface GraphData {
     // indexed by day, where day is relative to today

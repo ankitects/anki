@@ -4,10 +4,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import type { Stats } from "../lib/proto";
-    import * as tr from "../lib/i18n";
     import type { PreferenceStore } from "../sveltelib/preferences";
 
     import { createEventDispatcher } from "svelte";
+    import { tr } from "../lib/i18n";
 
     import HistogramGraph from "./HistogramGraph.svelte";
     import Graph from "./Graph.svelte";

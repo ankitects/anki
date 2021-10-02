@@ -3,8 +3,7 @@
 
 import { Stats } from "../lib/proto";
 import { studiedToday } from "../lib/time";
-
-import * as tr from "../lib/i18n";
+import { tr } from "../lib/i18n";
 
 export interface TodayData {
     title: string;

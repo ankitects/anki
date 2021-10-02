@@ -3,8 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import type { Stats } from "../lib/proto";
-
     import Graph from "./Graph.svelte";
     import InputBox from "./InputBox.svelte";
     import AxisTicks from "./AxisTicks.svelte";
@@ -12,11 +10,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
     import CumulativeOverlay from "./CumulativeOverlay.svelte";
     import HoverColumns from "./HoverColumns.svelte";
+
+    import type { Stats } from "../lib/proto";
+    import { tr } from "../lib/i18n";
     import { defaultGraphBounds, RevlogRange, GraphRange } from "./graph-helpers";
     import { renderHours } from "./hours";
 
     export let sourceData: Stats.GraphsResponse | null = null;
-    import * as tr from "../lib/i18n";
     export let revlogRange: RevlogRange;
     let graphRange: GraphRange = GraphRange.Year;
 

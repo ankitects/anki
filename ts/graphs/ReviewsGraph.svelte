@@ -3,8 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import type { Stats } from "../lib/proto";
-
     import Graph from "./Graph.svelte";
     import InputBox from "./InputBox.svelte";
     import NoDataOverlay from "./NoDataOverlay.svelte";
@@ -14,6 +12,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import AxisTicks from "./AxisTicks.svelte";
     import HoverColumns from "./HoverColumns.svelte";
 
+    import type { Stats } from "../lib/proto";
+    import { tr } from "../lib/i18n";
     import { defaultGraphBounds, RevlogRange, GraphRange } from "./graph-helpers";
     import type { TableDatum } from "./graph-helpers";
     import { gatherData, renderReviews } from "./reviews";
@@ -21,7 +21,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let sourceData: Stats.GraphsResponse | null = null;
     export let revlogRange: RevlogRange;
-    import * as tr from "../lib/i18n";
 
     let graphData: GraphData | null = null;
 

@@ -6,7 +6,7 @@
  */
 
 import { ChangeNotetypeState, getChangeNotetypeInfo, getNotetypeNames } from "./lib";
-import { setupI18n, ModuleName } from "../lib/i18n";
+import { setupI18n, tr } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
 import ChangeNotetypePage from "./ChangeNotetypePage.svelte";
 import { nightModeKey } from "../components/context-keys";
@@ -20,7 +20,7 @@ export async function changeNotetypePage(
         getChangeNotetypeInfo(oldNotetypeId, newNotetypeId),
         getNotetypeNames(),
         setupI18n({
-            modules: [ModuleName.ACTIONS, ModuleName.CHANGE_NOTETYPE],
+            modules: [tr.ModuleName.ACTIONS, tr.ModuleName.CHANGE_NOTETYPE],
         }),
     ]);
 

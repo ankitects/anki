@@ -79,7 +79,7 @@ export class I18n {
 // global singleton
 export const i18n = new I18n();
 
-import type { ModuleName } from "./i18n";
+import type { ModuleName } from "./i18n-generated";
 
 export async function setupI18n(args: { modules: ModuleName[] }): Promise<void> {
     const resp = await fetch("/_anki/i18nResources", {
@@ -102,3 +102,5 @@ export async function setupI18n(args: { modules: ModuleName[] }): Promise<void> 
     }
     i18n.langs = json.langs;
 }
+
+export * as tr from "./i18n-generated";

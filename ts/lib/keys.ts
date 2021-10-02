@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import * as tr from "./i18n";
+import { tr } from "./i18n";
 import { isApplePlatform } from "./platform";
 
 // those are the modifiers that Anki works with

@@ -25,7 +25,7 @@ py_binary(
 
 genrule(
     name = "fluent_gen",
-    outs = ["i18n.ts"],
+    outs = ["i18n-generated.ts"],
     cmd = "$(location genfluent) $(location //rslib/i18n:strings.json) $@",
     tools = [
         "genfluent",
@@ -36,7 +36,7 @@ genrule(
 typescript(
     name = "lib",
     generated = [
-        ":i18n.ts",
+        ":i18n-generated.ts",
     ],
     deps = [
         ":backend_proto",

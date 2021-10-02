@@ -1,6 +1,7 @@
 {
     "extends": "../tsconfig.json",
-    "include": ["*", "../../bazel-bin/ts/lib"],
+    "include": ["*"],
+    "rootDirs": ["../../bazel-bin/ts/lib"],
     "references": [],
     "compilerOptions": {
         "types": ["jest"]

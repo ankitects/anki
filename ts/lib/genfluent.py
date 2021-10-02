@@ -18,8 +18,7 @@ class Variable(TypedDict):
 
 def methods() -> str:
     out = [
-        'import { i18n } from "./i18n_helpers";',
-        'export { i18n, setupI18n } from "./i18n_helpers";',
+        'import { i18n } from "./i18n";',
     ]
     for module in modules:
         for translation in module["translations"]:
