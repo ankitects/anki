@@ -1141,7 +1141,7 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
             return self.col.tr.scheduling_end()
         s = self.col.format_timespan(ivl_secs, FormatTimeSpan.ANSWER_BUTTONS)
         if ivl_secs < self.col.conf["collapseTime"]:
-            s = "<" + s
+            s = f"<{s}"
         return s
 
     def _is_finished(self) -> bool:

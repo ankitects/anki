@@ -93,7 +93,7 @@ def test_latex():
 def _test_includes_bad_command(bad):
     col = getEmptyCol()
     note = col.newNote()
-    note["Front"] = "[latex]%s[/latex]" % bad
+    note["Front"] = f"[latex]{bad}[/latex]"
     col.addNote(note)
     q = without_unicode_isolation(note.cards()[0].question())
-    return ("'%s' is not allowed on cards" % bad in q, "Card content: %s" % q)
+    return (f"'{bad}' is not allowed on cards" in q, f"Card content: {q}")

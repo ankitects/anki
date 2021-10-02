@@ -36,7 +36,7 @@ class Hook:
         types = []
         for arg in self.args or []:
             (name, type) = arg.split(":")
-            type = '"' + type.strip() + '"'
+            type = f'"{type.strip()}"'
             types.append(type)
         types_str = ", ".join(types)
         return f"Callable[[{types_str}], {self.return_type or 'None'}]"
@@ -60,7 +60,7 @@ class Hook:
             return "hook"
 
     def classname(self) -> str:
-        return "_" + stringcase.pascalcase(self.full_name())
+        return f"_{stringcase.pascalcase(self.full_name())}"
 
     def list_code(self) -> str:
         return f"""\
@@ -126,7 +126,7 @@ class {self.classname()}:
         # legacy support
         anki.hooks.runHook({self.legacy_args()})
 """
-        return out + "\n\n"
+        return f"{out}\n\n"
 
     def filter_fire_code(self) -> str:
         arg_names = self.arg_names()
@@ -150,16 +150,16 @@ class {self.classname()}:
         out += f"""\
         return {arg_names[0]}
 """
-        return out + "\n\n"
+        return f"{out}\n\n"
 
 
 def write_file(path: str, hooks: List[Hook], prefix: str, suffix: str):
     hooks.sort(key=attrgetter("name"))
-    code = prefix + "\n"
+    code = f"{prefix}\n"
     for hook in hooks:
         code += hook.code()
 
-    code += "\n" + suffix
+    code += f"\n{suffix}"
 
     # work around issue with latest black
     if sys.platform == "win32" and "HOME" in os.environ:

@@ -63,7 +63,7 @@ def test_anki2_mediadupes():
         note.write("bar")
     imp = Anki2Importer(empty, col.path)
     imp.run()
-    assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", "foo_%s.mp3" % mid]
+    assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", f"foo_{mid}.mp3"]
     n = empty.get_note(empty.db.scalar("select id from notes"))
     assert "_" in n.fields[0]
     # if the localized media file already exists, we rewrite the note and
@@ -73,8 +73,8 @@ def test_anki2_mediadupes():
         note.write("bar")
     imp = Anki2Importer(empty, col.path)
     imp.run()
-    assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", "foo_%s.mp3" % mid]
-    assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", "foo_%s.mp3" % mid]
+    assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", f"foo_{mid}.mp3"]
+    assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", f"foo_{mid}.mp3"]
     n = empty.get_note(empty.db.scalar("select id from notes"))
     assert "_" in n.fields[0]
 

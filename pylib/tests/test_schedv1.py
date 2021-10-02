@@ -910,7 +910,7 @@ def test_timing():
     # add a few review cards, due today
     for i in range(5):
         note = col.newNote()
-        note["Front"] = "num" + str(i)
+        note["Front"] = f"num{str(i)}"
         col.addNote(note)
         c = note.cards()[0]
         c.type = CARD_TYPE_REV

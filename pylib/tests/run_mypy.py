@@ -32,7 +32,7 @@ if __name__ == "__main__":
         # strip off prefix
         for entry in sys.path:
             if "__mypy_" in entry:
-                typeshed = entry[4:] + "\\mypy\\typeshed"
+                typeshed = f"{entry[4:]}\\mypy\\typeshed"
                 args.append("--custom-typeshed-dir")
                 args.append(typeshed)
 

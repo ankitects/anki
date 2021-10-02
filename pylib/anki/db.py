@@ -47,7 +47,7 @@ class DB:
             res = self._db.execute(sql, a)
         if self.echo:
             # print a, ka
-            print(sql, "%0.3fms" % ((time.time() - t) * 1000))
+            print(sql, f"{(time.time() - t) * 1000:0.3f}ms")
             if self.echo == "2":
                 print(a, ka)
         return res
@@ -57,7 +57,7 @@ class DB:
         t = time.time()
         self._db.executemany(sql, l)
         if self.echo:
-            print(sql, "%0.3fms" % ((time.time() - t) * 1000))
+            print(sql, f"{(time.time() - t) * 1000:0.3f}ms")
             if self.echo == "2":
                 print(l)
 
@@ -65,7 +65,7 @@ class DB:
         t = time.time()
         self._db.commit()
         if self.echo:
-            print("commit %0.3fms" % ((time.time() - t) * 1000))
+            print(f"commit {(time.time() - t) * 1000:0.3f}ms")
 
     def executescript(self, sql: str) -> None:
         self.mod = True

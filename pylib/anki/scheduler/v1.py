@@ -381,9 +381,7 @@ limit %d"""
         else:
             # benchmarks indicate it's about 10x faster to search all decks
             # with the index than scan the table
-            extra = " and did in " + ids2str(
-                d.id for d in self.col.decks.all_names_and_ids()
-            )
+            extra = f" and did in {ids2str(d.id for d in self.col.decks.all_names_and_ids())}"
         # review cards in relearning
         self.col.db.execute(
             f"""
