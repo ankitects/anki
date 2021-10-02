@@ -460,19 +460,20 @@ html {{ {font} }}
         context: Optional[Any] = None,
         default_css: bool = True,
     ) -> None:
-
+        css = (["css/webview.css"] if default_css else []) + (
+            [] if css is None else css
+        )
         web_content = WebContent(
             body=body,
             head=head,
             js=["js/webview.js"] + (["js/vendor/jquery.min.js"] if js is None else js),
-            css=(["css/webview.css"] if default_css else [])
-            + ([] if css is None else css),
+            css=css,
         )
 
         gui_hooks.webview_will_set_content(web_content, context)
 
         csstxt = ""
-        if "css/webview.css" in web_content.css:
+        if "css/webview.css" in css:
             # we want our dynamic styling to override the defaults in
             # css/webview.css, but come before user-provided stylesheets so that
             # they can override us if necessary
