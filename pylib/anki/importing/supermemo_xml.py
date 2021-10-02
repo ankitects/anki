@@ -311,7 +311,7 @@ class SupermemoXmlImporter(NoteImporter):
 
         # try to open with native open function (if source is pathname)
         try:
-            return open(source)
+            return open(source, encoding="utf8")
         except OSError:
             pass
 
@@ -324,7 +324,7 @@ class SupermemoXmlImporter(NoteImporter):
         """Load source file and parse with xml.dom.minidom"""
         self.source = source
         self.logger("Load started...")
-        sock = open(self.source)
+        sock = open(self.source, encoding="utf8")
         self.xmldoc = minidom.parse(sock).documentElement
         sock.close()
         self.logger("Load done.")

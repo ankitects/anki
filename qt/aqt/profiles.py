@@ -573,14 +573,14 @@ create table if not exists profiles
     def video_driver(self) -> VideoDriver:
         path = self._gldriver_path()
         try:
-            with open(path) as file:
+            with open(path, encoding="utf8") as file:
                 text = file.read().strip()
                 return VideoDriver(text).constrained_to_platform()
         except (ValueError, OSError):
             return VideoDriver.default_for_platform()
 
     def set_video_driver(self, driver: VideoDriver) -> None:
-        with open(self._gldriver_path(), "w") as file:
+        with open(self._gldriver_path(), "w", encoding="utf8") as file:
             file.write(driver.value)
 
     def set_next_video_driver(self) -> None:
