@@ -142,7 +142,7 @@ def _save_latex_image(
         ext = "png"
 
     # write into a temp file
-    log = open(namedtmp("latex_log.txt"), "w")
+    log = open(namedtmp("latex_log.txt"), "w", encoding="utf8")
     texpath = namedtmp("tmp.tex")
     texfile = open(texpath, "w", encoding="utf8")
     texfile.write(latex)
@@ -170,7 +170,7 @@ def _errMsg(col: anki.collection.Collection, type: str, texpath: str) -> Any:
     msg = f"{col.tr.media_error_executing(val=type)}<br>"
     msg += f"{col.tr.media_generated_file(val=texpath)}<br>"
     try:
-        with open(namedtmp("latex_log.txt", rm=False)) as f:
+        with open(namedtmp("latex_log.txt", rm=False), encoding="utf8") as f:
             log = f.read()
         if not log:
             raise Exception()
