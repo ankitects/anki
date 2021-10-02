@@ -6,10 +6,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../components/IconButton.svelte";
     import WithShortcut from "../components/WithShortcut.svelte";
     import WithState from "../components/WithState.svelte";
-    import OnlyEditable from "./OnlyEditable.svelte";
 
     import { withButton } from "../components/helpers";
     import { appendInParentheses, execCommand, queryCommandState } from "./helpers";
+    import { getContext, focusInEditableKey } from "./context";
 
     export let key: string;
     export let tooltip: string;
@@ -17,14 +17,47 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let withoutShortcut = false;
     export let withoutState = false;
+
+    const focusInEditable = getContext(focusInEditableKey);
+    $: disabled = !$focusInEditable;
 </script>
 
-<OnlyEditable let:disabled>
-    {#if withoutShortcut && withoutState}
-        <IconButton {tooltip} {disabled} on:click={() => execCommand(key)}>
+{#if withoutShortcut && withoutState}
+    <IconButton {tooltip} {disabled} on:click={() => execCommand(key)}>
+        <slot />
+    </IconButton>
+{:else if withoutShortcut}
+    <WithState
+        {key}
+        update={() => queryCommandState(key)}
+        let:state={active}
+        let:updateState
+    >
+        <IconButton
+            {tooltip}
+            {active}
+            {disabled}
+            on:click={(event) => {
+                execCommand(key);
+                updateState(event);
+            }}
+        >
             <slot />
         </IconButton>
-    {:else if withoutShortcut}
+    </WithState>
+{:else if withoutState}
+    <WithShortcut {shortcut} let:createShortcut let:shortcutLabel>
+        <IconButton
+            tooltip={appendInParentheses(tooltip, shortcutLabel)}
+            {disabled}
+            on:click={() => execCommand(key)}
+            on:mount={withButton(createShortcut)}
+        >
+            <slot />
+        </IconButton>
+    </WithShortcut>
+{:else}
+    <WithShortcut {shortcut} let:createShortcut let:shortcutLabel>
         <WithState
             {key}
             update={() => queryCommandState(key)}
@@ -32,49 +65,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             let:updateState
         >
             <IconButton
-                {tooltip}
+                tooltip={appendInParentheses(tooltip, shortcutLabel)}
                 {active}
                 {disabled}
                 on:click={(event) => {
                     execCommand(key);
                     updateState(event);
                 }}
-            >
-                <slot />
-            </IconButton>
-        </WithState>
-    {:else if withoutState}
-        <WithShortcut {shortcut} let:createShortcut let:shortcutLabel>
-            <IconButton
-                tooltip={appendInParentheses(tooltip, shortcutLabel)}
-                {disabled}
-                on:click={() => execCommand(key)}
                 on:mount={withButton(createShortcut)}
             >
                 <slot />
             </IconButton>
-        </WithShortcut>
-    {:else}
-        <WithShortcut {shortcut} let:createShortcut let:shortcutLabel>
-            <WithState
-                {key}
-                update={() => queryCommandState(key)}
-                let:state={active}
-                let:updateState
-            >
-                <IconButton
-                    tooltip={appendInParentheses(tooltip, shortcutLabel)}
-                    {active}
-                    {disabled}
-                    on:click={(event) => {
-                        execCommand(key);
-                        updateState(event);
-                    }}
-                    on:mount={withButton(createShortcut)}
-                >
-                    <slot />
-                </IconButton>
-            </WithState>
-        </WithShortcut>
-    {/if}
-</OnlyEditable>
+        </WithState>
+    </WithShortcut>
+{/if}

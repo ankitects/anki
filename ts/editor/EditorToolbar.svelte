@@ -25,7 +25,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="typescript">
-    import { isApplePlatform } from "../lib/platform";
     import StickyHeader from "../components/StickyHeader.svelte";
     import ButtonToolbar from "../components/ButtonToolbar.svelte";
     import Item from "../components/Item.svelte";
@@ -36,8 +35,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ColorButtons from "./ColorButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
 
-    export let size = isApplePlatform() ? 1.6 : 2.0;
-    export let wrap = true;
+    export let size: number;
+    export let wrap: boolean;
 
     export let textColor: string;
     export let highlightColor: string;

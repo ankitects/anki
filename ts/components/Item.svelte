@@ -28,14 +28,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <!-- div is necessary to preserve item position -->
-<div {id}>
+<div class="item" {id}>
     <Detachable {detached}>
         <slot />
     </Detachable>
 </div>
 
 <style lang="scss">
-    div {
-        display: contents;
-    }
+    /* TODO reactivate this once we can use CSS gap */
+    /* .item { */
+    /*     display: contents; */
+    /* } */
 </style>

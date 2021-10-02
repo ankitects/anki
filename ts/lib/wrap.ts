@@ -19,7 +19,7 @@ function moveCursorPastPostfix(selection: Selection, postfix: string): void {
 }
 
 export function wrapInternal(
-    root: Document | ShadowRoot,
+    root: DocumentOrShadowRoot,
     front: string,
     back: string,
     plainText: boolean

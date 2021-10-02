@@ -80,7 +80,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     bind:this={buttonToolbarRef}
     {id}
-    class="btn-toolbar container wrap-variable {className}"
+    class="button-toolbar btn-toolbar {className}"
     class:nightMode
     {style}
     role="toolbar"
@@ -101,7 +101,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         @include scrollbar.night-mode;
     }
 
-    .wrap-variable {
+    .button-toolbar {
         flex-wrap: var(--buttons-wrap);
+
+        > :global(*) {
+            /* TODO replace with gap once available */
+            margin-inline-end: 0.15rem;
+            margin-block-end: 0.15rem;
+        }
     }
 </style>

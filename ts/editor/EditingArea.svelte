@@ -1,0 +1,140 @@
+<!--
+Copyright: Ankitects Pty Ltd and contributors
+License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+-->
+<script context="module" lang="ts">
+    import type { Writable } from "svelte/store";
+
+    export interface EditingInputAPI {
+        readonly name: string;
+        focusable: boolean;
+        focus(): void;
+    }
+
+    export interface EditingAreaAPI {
+        content: Writable<string>;
+        editingInputs: Writable<EditingInputAPI[]>;
+        focus(): void;
+    }
+</script>
+
+<script lang="ts">
+    import { writable } from "svelte/store";
+    import { setContext as svelteSetContext, createEventDispatcher } from "svelte";
+    import { setContext, editingAreaKey } from "./context";
+    import { fontFamilyKey, fontSizeKey } from "../lib/context-keys";
+
+    export let fontFamily: string;
+    export let fontSize: number;
+
+    const fontFamilyStore = writable();
+    $: $fontFamilyStore = fontFamily;
+    svelteSetContext(fontFamilyKey, fontFamilyStore);
+
+    const fontSizeStore = writable();
+    $: $fontSizeStore = fontSize;
+    svelteSetContext(fontSizeKey, fontSizeStore);
+
+    export let content: string;
+
+    const contentStore = writable(content);
+    const dispatch = createEventDispatcher();
+
+    $: dispatch("editinginput", $contentStore);
+
+    let editingArea: HTMLElement;
+    let focusTrap: HTMLInputElement;
+
+    const inputsStore = writable<EditingInputAPI[]>([]);
+
+    $: editingInputs = $inputsStore;
+
+    function focusEditingInputIfAvailable(): boolean {
+        const availableInput = editingInputs.find((input) => input.focusable);
+
+        if (availableInput) {
+            availableInput.focus();
+            return true;
+        }
+
+        return false;
+    }
+
+    function focusEditingInputIfFocusTrapFocused(): void {
+        if (document.activeElement === focusTrap) {
+            focusEditingInputIfAvailable();
+        }
+    }
+
+    $: {
+        $inputsStore;
+        focusEditingInputIfFocusTrapFocused();
+    }
+
+    function focus(): void {
+        if (editingArea.contains(document.activeElement)) {
+            // do nothing
+        } else if (!focusEditingInputIfAvailable()) {
+            focusTrap.focus();
+        }
+    }
+
+    function focusEditingInputInsteadIfAvailable(event: FocusEvent): void {
+        if (focusEditingInputIfAvailable()) {
+            event.preventDefault();
+        }
+    }
+
+    // prevents editor field being entirely deselected when
+    // closing active field
+    function trapFocusOnBlurOut(event: FocusEvent): void {
+        if (!event.relatedTarget && editingInputs.every((input) => !input.focusable)) {
+            focusTrap.focus();
+            event.preventDefault();
+        }
+    }
+
+    export const api = setContext(editingAreaKey, {
+        content: contentStore,
+        editingInputs: inputsStore,
+        focus,
+    });
+</script>
+
+<input
+    bind:this={focusTrap}
+    readonly
+    tabindex="-1"
+    class="focus-trap"
+    on:focus={focusEditingInputInsteadIfAvailable}
+/>
+
+<div bind:this={editingArea} class="editing-area" on:focusout={trapFocusOnBlurOut}>
+    <slot />
+</div>
+
+<style lang="scss">
+    .editing-area {
+        position: relative;
+        background: var(--frame-bg);
+        border-radius: 0 0 5px 5px;
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    .focus-trap {
+        display: block;
+        width: 0px;
+        height: 0;
+        padding: 0;
+        margin: 0;
+        border: none;
+        outline: none;
+        -webkit-appearance: none;
+        background: none;
+        resize: none;
+        appearance: none;
+    }
+</style>

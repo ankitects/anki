@@ -8,7 +8,7 @@ load("//ts:typescript.bzl", "typescript")
 
 compile_sass(
     srcs = [
-        "fields.scss",
+        "editor-base.scss",
     ],
     group = "base_css",
     visibility = ["//visibility:public"],
@@ -79,13 +79,14 @@ eslint_test()
 svelte_check(
     name = "svelte_check",
     srcs = glob([
-        "*.ts",
-        "*.svelte",
+        "**/*.ts",
+        "**/*.svelte",
     ]) + [
         "//sass:button_mixins_lib",
         "//sass/bootstrap",
-        "@npm//@types/bootstrap",
         "//ts/components",
+        "//ts/editable",
+        "@npm//@types/bootstrap",
         "@npm//@types/codemirror",
         "@npm//codemirror",
     ],
