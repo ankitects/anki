@@ -14,7 +14,17 @@ if __name__ == "__main__":
 
     sys.exit(
         subprocess.run(
-            [sys.executable, "-m", "pylint", module, "-j", "0", "--rcfile", ini],
+            [
+                sys.executable,
+                "-m",
+                "pylint",
+                module,
+                "-j",
+                "0",
+                "--rcfile",
+                ini,
+                "--persistent=no",
+            ],
             check=False,
         ).returncode
     )
