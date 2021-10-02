@@ -1,5 +1,6 @@
 {
     "extends": "../tsconfig.json",
+    "rootDirs": ["../../bazel-bin/ts/editor"],
     "include": ["*"],
     "references": [
         { "path": "../components" },

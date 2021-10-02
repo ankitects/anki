@@ -1,5 +1,6 @@
 {
     "extends": "../tsconfig.json",
+    "rootDirs": ["../../bazel-bin/ts/components"],
     "include": ["*"],
     "references": [{ "path": "../lib" }, { "path": "../sveltelib" }]
 }

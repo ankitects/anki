@@ -32,11 +32,6 @@
         // "outDir": "dist",
         // "rootDir": "..",
         "rootDir": ".",
-        "rootDirs": [
-            ".",
-            // for VS code
-            "../bazel-bin/ts"
-        ],
         "baseUrl": ".",
         "paths": {},
         "types": [],
