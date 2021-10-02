@@ -149,7 +149,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
         mm = self.col.models
         t = mm.new_template("Back")
         t["qfmt"] = "{{Back}}"
-        t["afmt"] = t["qfmt"] + "\n\n<hr id=answer>\n\n{{Front}}"  # type: ignore
+        t["afmt"] = f"{t['qfmt']}\n\n<hr id=answer>\n\n{{{{Front}}}}"  # type: ignore
         mm.add_template(m, t)
         self._addFronts(notes, m)
 
@@ -161,19 +161,15 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
             mm.addField(m, fm)
         t = mm.new_template("Recognition")
         t["qfmt"] = "{{Expression}}"
-        t["afmt"] = (
-            cast(str, t["qfmt"])
-            + """\n\n<hr id=answer>\n\n\
-{{Pronunciation}}<br>\n{{Meaning}}<br>\n{{Notes}}"""
-        )
+        t[
+            "afmt"
+        ] = f"{cast(str, t['qfmt'])}\n\n<hr id=answer>\n\n{{{{Pronunciation}}}}<br>\n{{{{Meaning}}}}<br>\n{{{{Notes}}}}"
         mm.add_template(m, t)
         t = mm.new_template("Production")
         t["qfmt"] = "{{Meaning}}"
-        t["afmt"] = (
-            cast(str, t["qfmt"])
-            + """\n\n<hr id=answer>\n\n\
-{{Expression}}<br>\n{{Pronunciation}}<br>\n{{Notes}}"""
-        )
+        t[
+            "afmt"
+        ] = f"{cast(str, t['qfmt'])}\n\n<hr id=answer>\n\n{{{{Expression}}}}<br>\n{{{{Pronunciation}}}}<br>\n{{{{Notes}}}}"
         mm.add_template(m, t)
         mm.add(m)
         self._addFronts(notes, m, fields=("f", "p_1", "m_1", "n"))

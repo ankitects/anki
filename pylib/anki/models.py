@@ -214,7 +214,7 @@ class ModelManager(DeprecatedNamesMixin):
     def ensure_name_unique(self, notetype: NotetypeDict) -> None:
         existing_id = self.id_for_name(notetype["name"])
         if existing_id is not None and existing_id != notetype["id"]:
-            notetype["name"] += "-" + checksum(str(time.time()))[:5]
+            notetype["name"] += f"-{checksum(str(time.time()))[:5]}"
 
     def update_dict(self, notetype: NotetypeDict) -> OpChanges:
         "Update a NotetypeDict. Caller will need to re-load notetype if new fields/cards added."

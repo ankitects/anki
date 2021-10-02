@@ -71,10 +71,9 @@ else
 end)
 """
         self.col.db.execute(
-            """
-update cards set did = odid, %s,
-due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? where %s"""
-            % (queue, lim),
+            f"""
+update cards set did = odid, {queue},
+due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? where {lim}""",
             self.col.usn(),
         )
 

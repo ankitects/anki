@@ -91,7 +91,7 @@ def htmlToTextLine(s: str) -> str:
 
 def ids2str(ids: Iterable[Union[int, str]]) -> str:
     """Given a list of integers, return a string '(int1,int2,...)'."""
-    return "(%s)" % ",".join(str(i) for i in ids)
+    return f"({','.join(str(i) for i in ids)})"
 
 
 def timestampID(db: DBProxy, table: str) -> int:

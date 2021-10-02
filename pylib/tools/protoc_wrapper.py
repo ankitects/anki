@@ -21,11 +21,11 @@ else:
 subprocess.run(
     [
         protoc,
-        "--plugin=protoc-gen-mypy=" + mypy_protobuf,
+        f"--plugin=protoc-gen-mypy={mypy_protobuf}",
         "--python_out=.",
         "--mypy_out=.",
-        "-I" + prefix,
-        "-Iexternal/ankidesktop/" + prefix,
+        f"-I{prefix}",
+        f"-Iexternal/ankidesktop/{prefix}",
         *protos,
     ],
     # mypy prints to stderr on success :-(

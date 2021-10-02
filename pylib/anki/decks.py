@@ -234,9 +234,9 @@ class DeckManager(DeprecatedNamesMixin):
             dids = set(dids)
         if include_subdecks:
             dids.update([child[1] for did in dids for child in self.children(did)])
+        str_ids = ids2str(dids)
         count = self.col.db.scalar(
-            "select count() from cards where did in {0} or "
-            "odid in {0}".format(ids2str(dids))
+            f"select count() from cards where did in {str_ids} or odid in {str_ids}"
         )
         return count
 
