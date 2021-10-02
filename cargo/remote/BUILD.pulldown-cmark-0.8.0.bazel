@@ -89,9 +89,9 @@ rust_binary(
     deps = [
         ":pulldown_cmark",
         ":pulldown_cmark_build_script",
-        "@raze__bitflags__1_2_1//:bitflags",
+        "@raze__bitflags__1_3_2//:bitflags",
         "@raze__getopts__0_2_21//:getopts",
-        "@raze__memchr__2_4_0//:memchr",
+        "@raze__memchr__2_4_1//:memchr",
         "@raze__unicase__2_6_0//:unicase",
     ],
 )
@@ -124,9 +124,9 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":pulldown_cmark_build_script",
-        "@raze__bitflags__1_2_1//:bitflags",
+        "@raze__bitflags__1_3_2//:bitflags",
         "@raze__getopts__0_2_21//:getopts",
-        "@raze__memchr__2_4_0//:memchr",
+        "@raze__memchr__2_4_1//:memchr",
         "@raze__unicase__2_6_0//:unicase",
     ],
 )

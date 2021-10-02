@@ -55,7 +55,7 @@ rust_library(
     deps = [
         "@raze__cssparser__0_27_2//:cssparser",
         "@raze__html5ever__0_25_1//:html5ever",
-        "@raze__matches__0_1_8//:matches",
+        "@raze__matches__0_1_9//:matches",
         "@raze__selectors__0_22_0//:selectors",
     ],
 )

@@ -51,7 +51,7 @@ rust_library(
     deps = [
         "@raze__phf_generator__0_8_0//:phf_generator",
         "@raze__phf_shared__0_8_0//:phf_shared",
-        "@raze__proc_macro2__1_0_27//:proc_macro2",
+        "@raze__proc_macro2__1_0_29//:proc_macro2",
         "@raze__quote__1_0_9//:quote",
     ],
 )

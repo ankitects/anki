@@ -51,6 +51,6 @@ rust_library(
     version = "0.7.18",
     # buildifier: leave-alone
     deps = [
-        "@raze__memchr__2_4_0//:memchr",
+        "@raze__memchr__2_4_1//:memchr",
     ],
 )

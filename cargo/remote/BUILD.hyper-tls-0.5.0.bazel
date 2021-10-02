@@ -51,10 +51,10 @@ rust_library(
     version = "0.5.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__bytes__1_0_1//:bytes",
-        "@raze__hyper__0_14_9//:hyper",
-        "@raze__native_tls__0_2_7//:native_tls",
-        "@raze__tokio__1_7_1//:tokio",
+        "@raze__bytes__1_1_0//:bytes",
+        "@raze__hyper__0_14_13//:hyper",
+        "@raze__native_tls__0_2_8//:native_tls",
+        "@raze__tokio__1_12_0//:tokio",
         "@raze__tokio_native_tls__0_3_0//:tokio_native_tls",
     ],
 )
