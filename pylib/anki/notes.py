@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 import copy
-from typing import Any, List, NewType, Optional, Sequence, Tuple, Union
+from typing import Any, NewType, Sequence
 
 import anki  # pylint: disable=unused-import
 from anki import hooks, notes_pb2
@@ -33,8 +33,8 @@ class Note(DeprecatedNamesMixin):
     def __init__(
         self,
         col: anki.collection.Collection,
-        model: Optional[Union[NotetypeDict, NotetypeId]] = None,
-        id: Optional[NoteId] = None,
+        model: NotetypeDict | NotetypeId | None = None,
+        id: NoteId | None = None,
     ) -> None:
         assert not (model and id)
         notetype_id = model["id"] if isinstance(model, dict) else model
@@ -119,13 +119,13 @@ class Note(DeprecatedNamesMixin):
         card._note = self
         return card
 
-    def cards(self) -> List[anki.cards.Card]:
+    def cards(self) -> list[anki.cards.Card]:
         return [self.col.getCard(id) for id in self.card_ids()]
 
     def card_ids(self) -> Sequence[anki.cards.CardId]:
         return self.col.card_ids_of_note(self.id)
 
-    def note_type(self) -> Optional[NotetypeDict]:
+    def note_type(self) -> NotetypeDict | None:
         return self.col.models.get(self.mid)
 
     _note_type = property(note_type)
@@ -136,13 +136,13 @@ class Note(DeprecatedNamesMixin):
     # Dict interface
     ##################################################
 
-    def keys(self) -> List[str]:
+    def keys(self) -> list[str]:
         return list(self._fmap.keys())
 
-    def values(self) -> List[str]:
+    def values(self) -> list[str]:
         return self.fields
 
-    def items(self) -> List[Tuple[str, str]]:
+    def items(self) -> list[tuple[str, str]]:
         return [(f["name"], self.fields[ord]) for ord, f in sorted(self._fmap.values())]
 
     def _field_index(self, key: str) -> int:

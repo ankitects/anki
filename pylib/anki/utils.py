@@ -17,11 +17,11 @@ import time
 import traceback
 from contextlib import contextmanager
 from hashlib import sha1
-from typing import Any, Iterable, Iterator, List, Optional, Union
+from typing import Any, Iterable, Iterator
 
 from anki.dbproxy import DBProxy
 
-_tmpdir: Optional[str]
+_tmpdir: str | None
 
 try:
     # pylint: disable=c-extension-no-member
@@ -89,7 +89,7 @@ def htmlToTextLine(s: str) -> str:
 ##############################################################################
 
 
-def ids2str(ids: Iterable[Union[int, str]]) -> str:
+def ids2str(ids: Iterable[int | str]) -> str:
     """Given a list of integers, return a string '(int1,int2,...)'."""
     return f"({','.join(str(i) for i in ids)})"
 
@@ -140,11 +140,11 @@ def guid64() -> str:
 ##############################################################################
 
 
-def joinFields(list: List[str]) -> str:
+def joinFields(list: list[str]) -> str:
     return "\x1f".join(list)
 
 
-def splitFields(string: str) -> List[str]:
+def splitFields(string: str) -> list[str]:
     return string.split("\x1f")
 
 
@@ -152,7 +152,7 @@ def splitFields(string: str) -> List[str]:
 ##############################################################################
 
 
-def checksum(data: Union[bytes, str]) -> str:
+def checksum(data: bytes | str) -> str:
     if isinstance(data, str):
         data = data.encode("utf-8")
     return sha1(data).hexdigest()
@@ -218,7 +218,7 @@ def noBundledLibs() -> Iterator[None]:
         os.environ["LD_LIBRARY_PATH"] = oldlpath
 
 
-def call(argv: List[str], wait: bool = True, **kwargs: Any) -> int:
+def call(argv: list[str], wait: bool = True, **kwargs: Any) -> int:
     "Execute a command. If WAIT, return exit code."
     # ensure we don't open a separate window for forking process on windows
     if isWin:
@@ -262,7 +262,7 @@ devMode = os.getenv("ANKIDEV", "")
 invalidFilenameChars = ':*?"<>|'
 
 
-def invalidFilename(str: str, dirsep: bool = True) -> Optional[str]:
+def invalidFilename(str: str, dirsep: bool = True) -> str | None:
     for c in invalidFilenameChars:
         if c in str:
             return c

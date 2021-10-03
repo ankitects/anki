@@ -6,7 +6,7 @@ from __future__ import annotations
 import time
 from concurrent.futures import Future
 from dataclasses import dataclass
-from typing import Any, Callable, List, Optional, Union
+from typing import Any, Callable, Union
 
 import aqt
 from anki.collection import Progress
@@ -30,8 +30,8 @@ class MediaSyncer:
     def __init__(self, mw: aqt.main.AnkiQt) -> None:
         self.mw = mw
         self._syncing: bool = False
-        self._log: List[LogEntryWithTime] = []
-        self._progress_timer: Optional[QTimer] = None
+        self._log: list[LogEntryWithTime] = []
+        self._progress_timer: QTimer | None = None
         gui_hooks.media_sync_did_start_or_stop.append(self._on_start_stop)
 
     def _on_progress(self) -> None:
@@ -98,7 +98,7 @@ class MediaSyncer:
         self._log_and_notify(tr.sync_media_failed())
         showWarning(str(exc))
 
-    def entries(self) -> List[LogEntryWithTime]:
+    def entries(self) -> list[LogEntryWithTime]:
         return self._log
 
     def abort(self) -> None:
@@ -125,7 +125,7 @@ class MediaSyncer:
         diag: MediaSyncDialog = aqt.dialogs.open("sync_log", self.mw, self, True)
         diag.show()
 
-        timer: Optional[QTimer] = None
+        timer: QTimer | None = None
 
         def check_finished() -> None:
             if not self.is_syncing():

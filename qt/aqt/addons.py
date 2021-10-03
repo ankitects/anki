@@ -11,7 +11,7 @@ from collections import defaultdict
 from concurrent.futures import Future
 from dataclasses import dataclass
 from datetime import datetime
-from typing import IO, Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
+from typing import IO, Any, Callable, Iterable, Union
 from urllib.parse import parse_qs, urlparse
 from zipfile import ZipFile
 
@@ -53,7 +53,7 @@ class AbortAddonImport(Exception):
 @dataclass
 class InstallOk:
     name: str
-    conflicts: List[str]
+    conflicts: list[str]
     compatible: bool
 
 
@@ -75,13 +75,13 @@ class DownloadOk:
 @dataclass
 class DownloadError:
     # set if result was not 200
-    status_code: Optional[int] = None
+    status_code: int | None = None
     # set if an exception occurred
-    exception: Optional[Exception] = None
+    exception: Exception | None = None
 
 
 # first arg is add-on id
-DownloadLogEntry = Tuple[int, Union[DownloadError, InstallError, InstallOk]]
+DownloadLogEntry = tuple[int, Union[DownloadError, InstallError, InstallOk]]
 
 
 @dataclass
@@ -101,21 +101,21 @@ current_point_version = anki.utils.pointVersion()
 @dataclass
 class AddonMeta:
     dir_name: str
-    provided_name: Optional[str]
+    provided_name: str | None
     enabled: bool
     installed_at: int
-    conflicts: List[str]
+    conflicts: list[str]
     min_point_version: int
     max_point_version: int
     branch_index: int
-    human_version: Optional[str]
+    human_version: str | None
     update_enabled: bool
-    homepage: Optional[str]
+    homepage: str | None
 
     def human_name(self) -> str:
         return self.provided_name or self.dir_name
 
-    def ankiweb_id(self) -> Optional[int]:
+    def ankiweb_id(self) -> int | None:
         m = ANKIWEB_ID_RE.match(self.dir_name)
         if m:
             return int(m.group(0))
@@ -134,13 +134,13 @@ class AddonMeta:
     def is_latest(self, server_update_time: int) -> bool:
         return self.installed_at >= server_update_time
 
-    def page(self) -> Optional[str]:
+    def page(self) -> str | None:
         if self.ankiweb_id():
             return f"{aqt.appShared}info/{self.dir_name}"
         return self.homepage
 
     @staticmethod
-    def from_json_meta(dir_name: str, json_meta: Dict[str, Any]) -> AddonMeta:
+    def from_json_meta(dir_name: str, json_meta: dict[str, Any]) -> AddonMeta:
         return AddonMeta(
             dir_name=dir_name,
             provided_name=json_meta.get("name"),
@@ -207,7 +207,7 @@ class AddonManager:
         sys.path.insert(0, self.addonsFolder())
 
     # in new code, you may want all_addon_meta() instead
-    def allAddons(self) -> List[str]:
+    def allAddons(self) -> list[str]:
         l = []
         for d in os.listdir(self.addonsFolder()):
             path = self.addonsFolder(d)
@@ -222,7 +222,7 @@ class AddonManager:
     def all_addon_meta(self) -> Iterable[AddonMeta]:
         return map(self.addon_meta, self.allAddons())
 
-    def addonsFolder(self, dir: Optional[str] = None) -> str:
+    def addonsFolder(self, dir: str | None = None) -> str:
         root = self.mw.pm.addonFolder()
         if dir is None:
             return root
@@ -280,7 +280,7 @@ class AddonManager:
         return os.path.join(self.addonsFolder(dir), "meta.json")
 
     # in new code, use self.addon_meta() instead
-    def addonMeta(self, dir: str) -> Dict[str, Any]:
+    def addonMeta(self, dir: str) -> dict[str, Any]:
         path = self._addonMetaPath(dir)
         try:
             with open(path, encoding="utf8") as f:
@@ -293,12 +293,12 @@ class AddonManager:
             return dict()
 
     # in new code, use write_addon_meta() instead
-    def writeAddonMeta(self, dir: str, meta: Dict[str, Any]) -> None:
+    def writeAddonMeta(self, dir: str, meta: dict[str, Any]) -> None:
         path = self._addonMetaPath(dir)
         with open(path, "w", encoding="utf8") as f:
             json.dump(meta, f)
 
-    def toggleEnabled(self, dir: str, enable: Optional[bool] = None) -> None:
+    def toggleEnabled(self, dir: str, enable: bool | None = None) -> None:
         addon = self.addon_meta(dir)
         should_enable = enable if enable is not None else not addon.enabled
         if should_enable is True:
@@ -316,7 +316,7 @@ class AddonManager:
         addon.enabled = should_enable
         self.write_addon_meta(addon)
 
-    def ankiweb_addons(self) -> List[int]:
+    def ankiweb_addons(self) -> list[int]:
         ids = []
         for meta in self.all_addon_meta():
             if meta.ankiweb_id() is not None:
@@ -332,7 +332,7 @@ class AddonManager:
     def addonName(self, dir: str) -> str:
         return self.addon_meta(dir).human_name()
 
-    def addonConflicts(self, dir: str) -> List[str]:
+    def addonConflicts(self, dir: str) -> list[str]:
         return self.addon_meta(dir).conflicts
 
     def annotatedName(self, dir: str) -> str:
@@ -345,8 +345,8 @@ class AddonManager:
     # Conflict resolution
     ######################################################################
 
-    def allAddonConflicts(self) -> Dict[str, List[str]]:
-        all_conflicts: Dict[str, List[str]] = defaultdict(list)
+    def allAddonConflicts(self) -> dict[str, list[str]]:
+        all_conflicts: dict[str, list[str]] = defaultdict(list)
         for addon in self.all_addon_meta():
             if not addon.enabled:
                 continue
@@ -354,7 +354,7 @@ class AddonManager:
                 all_conflicts[other_dir].append(addon.dir_name)
         return all_conflicts
 
-    def _disableConflicting(self, dir: str, conflicts: List[str] = None) -> List[str]:
+    def _disableConflicting(self, dir: str, conflicts: list[str] = None) -> list[str]:
         conflicts = conflicts or self.addonConflicts(dir)
 
         installed = self.allAddons()
@@ -371,7 +371,7 @@ class AddonManager:
     # Installing and deleting add-ons
     ######################################################################
 
-    def readManifestFile(self, zfile: ZipFile) -> Dict[Any, Any]:
+    def readManifestFile(self, zfile: ZipFile) -> dict[Any, Any]:
         try:
             with zfile.open("manifest.json") as f:
                 data = json.loads(f.read())
@@ -385,8 +385,8 @@ class AddonManager:
         return manifest
 
     def install(
-        self, file: Union[IO, str], manifest: Dict[str, Any] = None
-    ) -> Union[InstallOk, InstallError]:
+        self, file: IO | str, manifest: dict[str, Any] = None
+    ) -> InstallOk | InstallError:
         """Install add-on from path or file-like object. Metadata is read
         from the manifest file, with keys overriden by supplying a 'manifest'
         dictionary"""
@@ -463,8 +463,8 @@ class AddonManager:
     ######################################################################
 
     def processPackages(
-        self, paths: List[str], parent: QWidget = None
-    ) -> Tuple[List[str], List[str]]:
+        self, paths: list[str], parent: QWidget = None
+    ) -> tuple[list[str], list[str]]:
 
         log = []
         errs = []
@@ -493,7 +493,7 @@ class AddonManager:
 
     def _installationErrorReport(
         self, result: InstallError, base: str, mode: str = "download"
-    ) -> List[str]:
+    ) -> list[str]:
 
         messages = {
             "zip": tr.addons_corrupt_addon_file(),
@@ -511,7 +511,7 @@ class AddonManager:
 
     def _installationSuccessReport(
         self, result: InstallOk, base: str, mode: str = "download"
-    ) -> List[str]:
+    ) -> list[str]:
 
         name = result.name or base
         if mode == "download":
@@ -536,8 +536,8 @@ class AddonManager:
     # Updating
     ######################################################################
 
-    def extract_update_info(self, items: List[Dict]) -> List[UpdateInfo]:
-        def extract_one(item: Dict) -> UpdateInfo:
+    def extract_update_info(self, items: list[dict]) -> list[UpdateInfo]:
+        def extract_one(item: dict) -> UpdateInfo:
             id = item["id"]
             meta = self.addon_meta(str(id))
             branch_idx = meta.branch_index
@@ -545,7 +545,7 @@ class AddonManager:
 
         return list(map(extract_one, items))
 
-    def update_supported_versions(self, items: List[UpdateInfo]) -> None:
+    def update_supported_versions(self, items: list[UpdateInfo]) -> None:
         for item in items:
             self.update_supported_version(item)
 
@@ -581,7 +581,7 @@ class AddonManager:
         if updated:
             self.write_addon_meta(addon)
 
-    def updates_required(self, items: List[UpdateInfo]) -> List[UpdateInfo]:
+    def updates_required(self, items: list[UpdateInfo]) -> list[UpdateInfo]:
         """Return ids of add-ons requiring an update."""
         need_update = []
         for item in items:
@@ -600,10 +600,10 @@ class AddonManager:
     # Add-on Config
     ######################################################################
 
-    _configButtonActions: Dict[str, Callable[[], Optional[bool]]] = {}
-    _configUpdatedActions: Dict[str, Callable[[Any], None]] = {}
+    _configButtonActions: dict[str, Callable[[], bool | None]] = {}
+    _configUpdatedActions: dict[str, Callable[[Any], None]] = {}
 
-    def addonConfigDefaults(self, dir: str) -> Optional[Dict[str, Any]]:
+    def addonConfigDefaults(self, dir: str) -> dict[str, Any] | None:
         path = os.path.join(self.addonsFolder(dir), "config.json")
         try:
             with open(path, encoding="utf8") as f:
@@ -622,7 +622,7 @@ class AddonManager:
     def addonFromModule(self, module: str) -> str:
         return module.split(".")[0]
 
-    def configAction(self, addon: str) -> Callable[[], Optional[bool]]:
+    def configAction(self, addon: str) -> Callable[[], bool | None]:
         return self._configButtonActions.get(addon)
 
     def configUpdatedAction(self, addon: str) -> Callable[[Any], None]:
@@ -649,7 +649,7 @@ class AddonManager:
     # Add-on Config API
     ######################################################################
 
-    def getConfig(self, module: str) -> Optional[Dict[str, Any]]:
+    def getConfig(self, module: str) -> dict[str, Any] | None:
         addon = self.addonFromModule(module)
         # get default config
         config = self.addonConfigDefaults(addon)
@@ -661,7 +661,7 @@ class AddonManager:
         config.update(userConf)
         return config
 
-    def setConfigAction(self, module: str, fn: Callable[[], Optional[bool]]) -> None:
+    def setConfigAction(self, module: str, fn: Callable[[], bool | None]) -> None:
         addon = self.addonFromModule(module)
         self._configButtonActions[addon] = fn
 
@@ -700,7 +700,7 @@ class AddonManager:
     # Web Exports
     ######################################################################
 
-    _webExports: Dict[str, str] = {}
+    _webExports: dict[str, str] = {}
 
     def setWebExports(self, module: str, pattern: str) -> None:
         addon = self.addonFromModule(module)
@@ -825,18 +825,18 @@ class AddonsDialog(QDialog):
         gui_hooks.addons_dialog_did_change_selected_addon(self, addon)
         return
 
-    def selectedAddons(self) -> List[str]:
+    def selectedAddons(self) -> list[str]:
         idxs = [x.row() for x in self.form.addonList.selectedIndexes()]
         return [self.addons[idx].dir_name for idx in idxs]
 
-    def onlyOneSelected(self) -> Optional[str]:
+    def onlyOneSelected(self) -> str | None:
         dirs = self.selectedAddons()
         if len(dirs) != 1:
             showInfo(tr.addons_please_select_a_single_addon_first())
             return None
         return dirs[0]
 
-    def selected_addon_meta(self) -> Optional[AddonMeta]:
+    def selected_addon_meta(self) -> AddonMeta | None:
         idxs = [x.row() for x in self.form.addonList.selectedIndexes()]
         if len(idxs) != 1:
             showInfo(tr.addons_please_select_a_single_addon_first())
@@ -887,14 +887,14 @@ class AddonsDialog(QDialog):
         if obj.ids:
             download_addons(self, self.mgr, obj.ids, self.after_downloading)
 
-    def after_downloading(self, log: List[DownloadLogEntry]) -> None:
+    def after_downloading(self, log: list[DownloadLogEntry]) -> None:
         self.redrawAddons()
         if log:
             show_log_to_user(self, log)
         else:
             tooltip(tr.addons_no_updates_available())
 
-    def onInstallFiles(self, paths: Optional[List[str]] = None) -> Optional[bool]:
+    def onInstallFiles(self, paths: list[str] | None = None) -> bool | None:
         if not paths:
             key = f"{tr.addons_packaged_anki_addon()} (*{self.mgr.ext})"
             paths_ = getFile(
@@ -943,7 +943,7 @@ class GetAddons(QDialog):
         self.addonsDlg = dlg
         self.mgr = dlg.mgr
         self.mw = self.mgr.mw
-        self.ids: List[int] = []
+        self.ids: list[int] = []
         self.form = aqt.forms.getaddons.Ui_Dialog()
         self.form.setupUi(self)
         b = self.form.buttonBox.addButton(
@@ -974,7 +974,7 @@ class GetAddons(QDialog):
 ######################################################################
 
 
-def download_addon(client: HttpClient, id: int) -> Union[DownloadOk, DownloadError]:
+def download_addon(client: HttpClient, id: int) -> DownloadOk | DownloadError:
     "Fetch a single add-on from AnkiWeb."
     try:
         resp = client.get(
@@ -1025,7 +1025,7 @@ def extract_meta_from_download_url(url: str) -> ExtractedDownloadMeta:
     return meta
 
 
-def download_log_to_html(log: List[DownloadLogEntry]) -> str:
+def download_log_to_html(log: list[DownloadLogEntry]) -> str:
     return "<br>".join(map(describe_log_entry, log))
 
 
@@ -1053,7 +1053,7 @@ def describe_log_entry(id_and_entry: DownloadLogEntry) -> str:
     return buf
 
 
-def download_encountered_problem(log: List[DownloadLogEntry]) -> bool:
+def download_encountered_problem(log: list[DownloadLogEntry]) -> bool:
     return any(not isinstance(e[1], InstallOk) for e in log)
 
 
@@ -1099,10 +1099,10 @@ class DownloaderInstaller(QObject):
         self.client.progress_hook = bg_thread_progress
 
     def download(
-        self, ids: List[int], on_done: Callable[[List[DownloadLogEntry]], None]
+        self, ids: list[int], on_done: Callable[[list[DownloadLogEntry]], None]
     ) -> None:
         self.ids = ids
-        self.log: List[DownloadLogEntry] = []
+        self.log: list[DownloadLogEntry] = []
 
         self.dl_bytes = 0
         self.last_tooltip = 0
@@ -1135,7 +1135,7 @@ class DownloaderInstaller(QObject):
         self.mgr.mw.progress.timer(50, lambda: self.on_done(self.log), False)
 
 
-def show_log_to_user(parent: QWidget, log: List[DownloadLogEntry]) -> None:
+def show_log_to_user(parent: QWidget, log: list[DownloadLogEntry]) -> None:
     have_problem = download_encountered_problem(log)
 
     if have_problem:
@@ -1153,9 +1153,9 @@ def show_log_to_user(parent: QWidget, log: List[DownloadLogEntry]) -> None:
 def download_addons(
     parent: QWidget,
     mgr: AddonManager,
-    ids: List[int],
-    on_done: Callable[[List[DownloadLogEntry]], None],
-    client: Optional[HttpClient] = None,
+    ids: list[int],
+    on_done: Callable[[list[DownloadLogEntry]], None],
+    client: HttpClient | None = None,
 ) -> None:
     if client is None:
         client = HttpClient()
@@ -1174,7 +1174,7 @@ class ChooseAddonsToUpdateList(QListWidget):
         self,
         parent: QWidget,
         mgr: AddonManager,
-        updated_addons: List[UpdateInfo],
+        updated_addons: list[UpdateInfo],
     ) -> None:
         QListWidget.__init__(self, parent)
         self.mgr = mgr
@@ -1266,7 +1266,7 @@ class ChooseAddonsToUpdateList(QListWidget):
                 return
         self.check_item(self.header_item, Qt.Checked)
 
-    def get_selected_addon_ids(self) -> List[int]:
+    def get_selected_addon_ids(self) -> list[int]:
         addon_ids = []
         for i in range(1, self.count()):
             item = self.item(i)
@@ -1286,7 +1286,7 @@ class ChooseAddonsToUpdateList(QListWidget):
 
 class ChooseAddonsToUpdateDialog(QDialog):
     def __init__(
-        self, parent: QWidget, mgr: AddonManager, updated_addons: List[UpdateInfo]
+        self, parent: QWidget, mgr: AddonManager, updated_addons: list[UpdateInfo]
     ) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(tr.addons_choose_update_window_title())
@@ -1312,7 +1312,7 @@ class ChooseAddonsToUpdateDialog(QDialog):
         layout.addWidget(button_box)
         self.setLayout(layout)
 
-    def ask(self) -> List[int]:
+    def ask(self) -> list[int]:
         "Returns a list of selected addons' ids"
         ret = self.exec_()
         saveGeom(self, "addonsChooseUpdate")
@@ -1323,9 +1323,9 @@ class ChooseAddonsToUpdateDialog(QDialog):
             return []
 
 
-def fetch_update_info(client: HttpClient, ids: List[int]) -> List[Dict]:
+def fetch_update_info(client: HttpClient, ids: list[int]) -> list[dict]:
     """Fetch update info from AnkiWeb in one or more batches."""
-    all_info: List[Dict] = []
+    all_info: list[dict] = []
 
     while ids:
         # get another chunk
@@ -1340,7 +1340,7 @@ def fetch_update_info(client: HttpClient, ids: List[int]) -> List[Dict]:
 
 def _fetch_update_info_batch(
     client: HttpClient, chunk: Iterable[str]
-) -> Iterable[Dict]:
+) -> Iterable[dict]:
     """Get update info from AnkiWeb.
 
     Chunk must not contain more than 25 ids."""
@@ -1354,21 +1354,21 @@ def _fetch_update_info_batch(
 def check_and_prompt_for_updates(
     parent: QWidget,
     mgr: AddonManager,
-    on_done: Callable[[List[DownloadLogEntry]], None],
+    on_done: Callable[[list[DownloadLogEntry]], None],
     requested_by_user: bool = True,
 ) -> None:
-    def on_updates_received(client: HttpClient, items: List[Dict]) -> None:
+    def on_updates_received(client: HttpClient, items: list[dict]) -> None:
         handle_update_info(parent, mgr, client, items, on_done, requested_by_user)
 
     check_for_updates(mgr, on_updates_received)
 
 
 def check_for_updates(
-    mgr: AddonManager, on_done: Callable[[HttpClient, List[Dict]], None]
+    mgr: AddonManager, on_done: Callable[[HttpClient, list[dict]], None]
 ) -> None:
     client = HttpClient()
 
-    def check() -> List[Dict]:
+    def check() -> list[dict]:
         return fetch_update_info(client, mgr.ankiweb_addons())
 
     def update_info_received(future: Future) -> None:
@@ -1395,7 +1395,7 @@ def check_for_updates(
 
 
 def extract_update_info(
-    current_point_version: int, current_branch_idx: int, info_json: Dict
+    current_point_version: int, current_branch_idx: int, info_json: dict
 ) -> UpdateInfo:
     "Process branches to determine the updated mod time and min/max versions."
     branches = info_json["branches"]
@@ -1425,8 +1425,8 @@ def handle_update_info(
     parent: QWidget,
     mgr: AddonManager,
     client: HttpClient,
-    items: List[Dict],
-    on_done: Callable[[List[DownloadLogEntry]], None],
+    items: list[dict],
+    on_done: Callable[[list[DownloadLogEntry]], None],
     requested_by_user: bool = True,
 ) -> None:
     update_info = mgr.extract_update_info(items)
@@ -1445,8 +1445,8 @@ def prompt_to_update(
     parent: QWidget,
     mgr: AddonManager,
     client: HttpClient,
-    updated_addons: List[UpdateInfo],
-    on_done: Callable[[List[DownloadLogEntry]], None],
+    updated_addons: list[UpdateInfo],
+    on_done: Callable[[list[DownloadLogEntry]], None],
     requested_by_user: bool = True,
 ) -> None:
     if not requested_by_user:
@@ -1468,7 +1468,7 @@ def prompt_to_update(
 
 
 class ConfigEditor(QDialog):
-    def __init__(self, dlg: AddonsDialog, addon: str, conf: Dict) -> None:
+    def __init__(self, dlg: AddonsDialog, addon: str, conf: dict) -> None:
         super().__init__(dlg)
         self.addon = addon
         self.conf = conf
@@ -1509,7 +1509,7 @@ class ConfigEditor(QDialog):
         else:
             self.form.scrollArea.setVisible(False)
 
-    def updateText(self, conf: Dict[str, Any]) -> None:
+    def updateText(self, conf: dict[str, Any]) -> None:
         text = json.dumps(
             conf,
             ensure_ascii=False,
@@ -1584,8 +1584,8 @@ class ConfigEditor(QDialog):
 
 def installAddonPackages(
     addonsManager: AddonManager,
-    paths: List[str],
-    parent: Optional[QWidget] = None,
+    paths: list[str],
+    parent: QWidget | None = None,
     warn: bool = False,
     strictly_modal: bool = False,
     advise_restart: bool = False,

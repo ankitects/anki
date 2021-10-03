@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, cast
+from typing import cast
 
 import aqt
 from anki.collection import SearchNode
@@ -33,9 +33,9 @@ class Flag:
 class FlagManager:
     def __init__(self, mw: aqt.main.AnkiQt) -> None:
         self.mw = mw
-        self._flags: Optional[List[Flag]] = None
+        self._flags: list[Flag] | None = None
 
-    def all(self) -> List[Flag]:
+    def all(self) -> list[Flag]:
         """Return a list of all flags."""
         if self._flags is None:
             self._load_flags()
@@ -55,7 +55,7 @@ class FlagManager:
         gui_hooks.flag_label_did_change()
 
     def _load_flags(self) -> None:
-        labels = cast(Dict[str, str], self.mw.col.get_config("flagLabels", {}))
+        labels = cast(dict[str, str], self.mw.col.get_config("flagLabels", {}))
         icon = ColoredIcon(path=":/icons/flag.svg", color=colors.DISABLED)
 
         self._flags = [

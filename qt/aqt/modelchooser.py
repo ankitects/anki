@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-from typing import List, Optional
+
+from typing import Optional
 
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
@@ -75,7 +76,7 @@ class ModelChooser(QHBoxLayout):
         # edit button
         edit = QPushButton(tr.qt_misc_manage(), clicked=self.onEdit)  # type: ignore
 
-        def nameFunc() -> List[str]:
+        def nameFunc() -> list[str]:
             return [nt.name for nt in self.deck.models.all_names_and_ids()]
 
         ret = StudyDeck(

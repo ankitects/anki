@@ -12,7 +12,7 @@ as '2' internally.
 
 from __future__ import annotations
 
-from typing import List, Literal, Sequence, Tuple
+from typing import Literal, Optional, Sequence
 
 from anki import scheduler_pb2
 from anki.cards import Card
@@ -113,7 +113,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         "Don't use this, it is a stop-gap until this code is refactored."
         return not self.get_queued_cards().cards
 
-    def counts(self, card: Optional[Card] = None) -> Tuple[int, int, int]:
+    def counts(self, card: Optional[Card] = None) -> tuple[int, int, int]:
         info = self.get_queued_cards()
         return (info.new_count, info.learning_count, info.review_count)
 
@@ -230,7 +230,7 @@ class Scheduler(SchedulerBaseWithLegacy):
 
     # called by col.decks.active(), which add-ons are using
     @property
-    def active_decks(self) -> List[DeckId]:
+    def active_decks(self) -> list[DeckId]:
         try:
             return self.col.db.list("select id from active_decks")
         except DBError:

@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import argparse
 import builtins
 import cProfile
@@ -10,7 +12,7 @@ import os
 import sys
 import tempfile
 import traceback
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Callable, Optional, cast
 
 import anki.lang
 from anki._backend import RustBackend
@@ -90,7 +92,7 @@ from aqt import stats, about, preferences, mediasync  # isort:skip
 
 class DialogManager:
 
-    _dialogs: Dict[str, list] = {
+    _dialogs: dict[str, list] = {
         "AddCards": [addcards.AddCards, None],
         "AddonsDialog": [addons.AddonsDialog, None],
         "Browser": [browser.Browser, None],
@@ -267,7 +269,7 @@ class AnkiApp(QApplication):
     KEY = f"anki{checksum(getpass.getuser())}"
     TMOUT = 30000
 
-    def __init__(self, argv: List[str]) -> None:
+    def __init__(self, argv: list[str]) -> None:
         QApplication.__init__(self, argv)
         self._argv = argv
 
@@ -328,7 +330,7 @@ class AnkiApp(QApplication):
         return QApplication.event(self, evt)
 
 
-def parseArgs(argv: List[str]) -> Tuple[argparse.Namespace, List[str]]:
+def parseArgs(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
     "Returns (opts, args)."
     # py2app fails to strip this in some instances, then anki dies
     # as there's no such profile
@@ -444,7 +446,7 @@ def run() -> None:
         )
 
 
-def _run(argv: Optional[List[str]] = None, exec: bool = True) -> Optional[AnkiApp]:
+def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiApp]:
     """Start AnkiQt application or reuse an existing instance if one exists.
 
     If the function is invoked with exec=False, the AnkiQt will not enter

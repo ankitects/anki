@@ -9,7 +9,7 @@ import copy
 import pprint
 import sys
 import time
-from typing import Any, Dict, List, NewType, Optional, Sequence, Tuple, Union
+from typing import Any, NewType, Sequence, Union
 
 import anki  # pylint: disable=unused-import
 from anki import notetypes_pb2
@@ -29,10 +29,10 @@ ChangeNotetypeInfo = notetypes_pb2.ChangeNotetypeInfo
 ChangeNotetypeRequest = notetypes_pb2.ChangeNotetypeRequest
 
 # legacy types
-NotetypeDict = Dict[str, Any]
+NotetypeDict = dict[str, Any]
 NoteType = NotetypeDict
-FieldDict = Dict[str, Any]
-TemplateDict = Dict[str, Union[str, int, None]]
+FieldDict = dict[str, Any]
+TemplateDict = dict[str, Union[str, int, None]]
 NotetypeId = NewType("NotetypeId", int)
 sys.modules["anki.models"].NoteType = NotetypeDict  # type: ignore
 
@@ -97,7 +97,7 @@ class ModelManager(DeprecatedNamesMixin):
     # need to cache responses from the backend. Please do not
     # access the cache directly!
 
-    _cache: Dict[NotetypeId, NotetypeDict] = {}
+    _cache: dict[NotetypeId, NotetypeDict] = {}
 
     def _update_cache(self, notetype: NotetypeDict) -> None:
         self._cache[notetype["id"]] = notetype
@@ -106,7 +106,7 @@ class ModelManager(DeprecatedNamesMixin):
         if ntid in self._cache:
             del self._cache[ntid]
 
-    def _get_cached(self, ntid: NotetypeId) -> Optional[NotetypeDict]:
+    def _get_cached(self, ntid: NotetypeId) -> NotetypeDict | None:
         return self._cache.get(ntid)
 
     def _clear_cache(self) -> None:
@@ -142,13 +142,13 @@ class ModelManager(DeprecatedNamesMixin):
     # Retrieving and creating models
     #############################################################
 
-    def id_for_name(self, name: str) -> Optional[NotetypeId]:
+    def id_for_name(self, name: str) -> NotetypeId | None:
         try:
             return NotetypeId(self.col._backend.get_notetype_id_by_name(name))
         except NotFoundError:
             return None
 
-    def get(self, id: NotetypeId) -> Optional[NotetypeDict]:
+    def get(self, id: NotetypeId) -> NotetypeDict | None:
         "Get model with ID, or None."
         # deal with various legacy input types
         if id is None:
@@ -165,11 +165,11 @@ class ModelManager(DeprecatedNamesMixin):
                 return None
         return notetype
 
-    def all(self) -> List[NotetypeDict]:
+    def all(self) -> list[NotetypeDict]:
         "Get all models."
         return [self.get(NotetypeId(nt.id)) for nt in self.all_names_and_ids()]
 
-    def by_name(self, name: str) -> Optional[NotetypeDict]:
+    def by_name(self, name: str) -> NotetypeDict | None:
         "Get model with NAME."
         id = self.id_for_name(name)
         if id:
@@ -231,7 +231,7 @@ class ModelManager(DeprecatedNamesMixin):
     # Tools
     ##################################################
 
-    def nids(self, ntid: NotetypeId) -> List[anki.notes.NoteId]:
+    def nids(self, ntid: NotetypeId) -> list[anki.notes.NoteId]:
         "Note ids for M."
         if isinstance(ntid, dict):
             # legacy callers passed in note type
@@ -261,11 +261,11 @@ class ModelManager(DeprecatedNamesMixin):
     # Fields
     ##################################################
 
-    def field_map(self, notetype: NotetypeDict) -> Dict[str, Tuple[int, FieldDict]]:
+    def field_map(self, notetype: NotetypeDict) -> dict[str, tuple[int, FieldDict]]:
         "Mapping of field name -> (ord, field)."
         return {f["name"]: (f["ord"], f) for f in notetype["flds"]}
 
-    def field_names(self, notetype: NotetypeDict) -> List[str]:
+    def field_names(self, notetype: NotetypeDict) -> list[str]:
         return [f["name"] for f in notetype["flds"]]
 
     def sort_idx(self, notetype: NotetypeDict) -> int:
@@ -394,10 +394,10 @@ and notes.mid = ? and cards.ord = ?""",
     def change(  # pylint: disable=invalid-name
         self,
         notetype: NotetypeDict,
-        nids: List[anki.notes.NoteId],
+        nids: list[anki.notes.NoteId],
         newModel: NotetypeDict,
-        fmap: Dict[int, Optional[int]],
-        cmap: Optional[Dict[int, Optional[int]]],
+        fmap: dict[int, int | None],
+        cmap: dict[int, int | None] | None,
     ) -> None:
         # - maps are ord->ord, and there should not be duplicate targets
         self.col.mod_schema(check=True)
@@ -424,8 +424,8 @@ and notes.mid = ? and cards.ord = ?""",
         )
 
     def _convert_legacy_map(
-        self, old_to_new: Dict[int, Optional[int]], new_count: int
-    ) -> List[int]:
+        self, old_to_new: dict[int, int | None], new_count: int
+    ) -> list[int]:
         "Convert old->new map to list of old indexes"
         new_to_old = {v: k for k, v in old_to_new.items() if v is not None}
         out = []
@@ -458,7 +458,7 @@ and notes.mid = ? and cards.ord = ?""",
     @deprecated(info="use note.cloze_numbers_in_fields()")
     def _availClozeOrds(
         self, notetype: NotetypeDict, flds: str, allow_empty: bool = True
-    ) -> List[int]:
+    ) -> list[int]:
         import anki.notes_pb2
 
         note = anki.notes_pb2.Note(fields=[flds])
@@ -515,11 +515,11 @@ and notes.mid = ? and cards.ord = ?""",
         self.col.set_config("curModel", m["id"])
 
     @deprecated(replaced_by=all_names_and_ids)
-    def all_names(self) -> List[str]:
+    def all_names(self) -> list[str]:
         return [n.name for n in self.all_names_and_ids()]
 
     @deprecated(replaced_by=all_names_and_ids)
-    def ids(self) -> List[NotetypeId]:
+    def ids(self) -> list[NotetypeId]:
         return [NotetypeId(n.id) for n in self.all_names_and_ids()]
 
     @deprecated(info="no longer required")

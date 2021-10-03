@@ -12,7 +12,7 @@ from __future__ import annotations
 from concurrent.futures import Future
 from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Lock
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
@@ -29,7 +29,7 @@ class TaskManager(QObject):
         QObject.__init__(self)
         self.mw = mw.weakref()
         self._executor = ThreadPoolExecutor()
-        self._closures: List[Closure] = []
+        self._closures: list[Closure] = []
         self._closures_lock = Lock()
         qconnect(self._closures_pending, self._on_closures_pending)
 
@@ -42,8 +42,8 @@ class TaskManager(QObject):
     def run_in_background(
         self,
         task: Callable,
-        on_done: Optional[Callable[[Future], None]] = None,
-        args: Optional[Dict[str, Any]] = None,
+        on_done: Callable[[Future], None] | None = None,
+        args: dict[str, Any] | None = None,
     ) -> Future:
         """Use QueryOp()/CollectionOp() in new code.
 
@@ -76,9 +76,9 @@ class TaskManager(QObject):
     def with_progress(
         self,
         task: Callable,
-        on_done: Optional[Callable[[Future], None]] = None,
-        parent: Optional[QWidget] = None,
-        label: Optional[str] = None,
+        on_done: Callable[[Future], None] | None = None,
+        parent: QWidget | None = None,
+        label: str | None = None,
         immediate: bool = False,
     ) -> None:
         "Use QueryOp()/CollectionOp() in new code."

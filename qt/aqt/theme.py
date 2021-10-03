@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import platform
 from dataclasses import dataclass
-from typing import Dict, Optional, Tuple, Union
 
 from anki.utils import isMac
 from aqt import QApplication, colors, gui_hooks, isWin
@@ -17,7 +16,7 @@ from aqt.qt import QColor, QIcon, QPainter, QPalette, QPixmap, QStyleFactory, Qt
 class ColoredIcon:
     path: str
     # (day, night)
-    color: Tuple[str, str]
+    color: tuple[str, str]
 
     def current_color(self, night_mode: bool) -> str:
         if night_mode:
@@ -25,17 +24,17 @@ class ColoredIcon:
         else:
             return self.color[0]
 
-    def with_color(self, color: Tuple[str, str]) -> ColoredIcon:
+    def with_color(self, color: tuple[str, str]) -> ColoredIcon:
         return ColoredIcon(path=self.path, color=color)
 
 
 class ThemeManager:
     _night_mode_preference = False
-    _icon_cache_light: Dict[str, QIcon] = {}
-    _icon_cache_dark: Dict[str, QIcon] = {}
+    _icon_cache_light: dict[str, QIcon] = {}
+    _icon_cache_dark: dict[str, QIcon] = {}
     _icon_size = 128
-    _dark_mode_available: Optional[bool] = None
-    default_palette: Optional[QPalette] = None
+    _dark_mode_available: bool | None = None
+    default_palette: QPalette | None = None
 
     # Qt applies a gradient to the buttons in dark mode
     # from about #505050 to #606060.
@@ -65,7 +64,7 @@ class ThemeManager:
 
     night_mode = property(get_night_mode, set_night_mode)
 
-    def icon_from_resources(self, path: Union[str, ColoredIcon]) -> QIcon:
+    def icon_from_resources(self, path: str | ColoredIcon) -> QIcon:
         "Fetch icon from Qt resources, and invert if in night mode."
         if self.night_mode:
             cache = self._icon_cache_light
@@ -101,7 +100,7 @@ class ThemeManager:
 
         return cache.setdefault(path, icon)
 
-    def body_class(self, night_mode: Optional[bool] = None) -> str:
+    def body_class(self, night_mode: bool | None = None) -> str:
         "Returns space-separated class list for platform/theme."
         classes = []
         if isWin:
@@ -120,17 +119,17 @@ class ThemeManager:
         return " ".join(classes)
 
     def body_classes_for_card_ord(
-        self, card_ord: int, night_mode: Optional[bool] = None
+        self, card_ord: int, night_mode: bool | None = None
     ) -> str:
         "Returns body classes used when showing a card."
         return f"card card{card_ord+1} {self.body_class(night_mode)}"
 
-    def color(self, colors: Tuple[str, str]) -> str:
+    def color(self, colors: tuple[str, str]) -> str:
         """Given day/night colors, return the correct one for the current theme."""
         idx = 1 if self.night_mode else 0
         return colors[idx]
 
-    def qcolor(self, colors: Tuple[str, str]) -> QColor:
+    def qcolor(self, colors: tuple[str, str]) -> QColor:
         return QColor(self.color(colors))
 
     def apply_style(self, app: QApplication) -> None:
@@ -166,27 +165,27 @@ QToolTip {
 
             if not self.macos_dark_mode():
                 buf += """
-QScrollBar { background-color: %s; }
-QScrollBar::handle { background-color: %s; border-radius: 5px; } 
+QScrollBar {{ background-color: {}; }}
+QScrollBar::handle {{ background-color: {}; border-radius: 5px; }} 
 
-QScrollBar:horizontal { height: 12px; }
-QScrollBar::handle:horizontal { min-width: 50px; } 
+QScrollBar:horizontal {{ height: 12px; }}
+QScrollBar::handle:horizontal {{ min-width: 50px; }} 
 
-QScrollBar:vertical { width: 12px; }
-QScrollBar::handle:vertical { min-height: 50px; } 
+QScrollBar:vertical {{ width: 12px; }}
+QScrollBar::handle:vertical {{ min-height: 50px; }} 
     
-QScrollBar::add-line {
+QScrollBar::add-line {{
       border: none;
       background: none;
-}
+}}
 
-QScrollBar::sub-line {
+QScrollBar::sub-line {{
       border: none;
       background: none;
-}
+}}
 
-QTabWidget { background-color: %s; }
-""" % (
+QTabWidget {{ background-color: {}; }}
+""".format(
                     self.color(colors.WINDOW_BG),
                     # fushion-button-hover-bg
                     "#656565",

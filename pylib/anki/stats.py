@@ -8,7 +8,7 @@ from __future__ import annotations
 import datetime
 import json
 import time
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Sequence
 
 import anki.cards
 import anki.collection
@@ -37,12 +37,12 @@ class CardStats:
 
     # legacy
 
-    def addLine(self, k: str, v: Union[int, str]) -> None:
+    def addLine(self, k: str, v: int | str) -> None:
         self.txt += self.makeLine(k, v)
 
-    def makeLine(self, k: str, v: Union[str, int]) -> str:
+    def makeLine(self, k: str, v: str | int) -> str:
         txt = "<tr><td align=left style='padding-right: 3px;'>"
-        txt += "<b>%s</b></td><td>%s</td></tr>" % (k, v)
+        txt += f"<b>{k}</b></td><td>{v}</td></tr>"
         return txt
 
     def date(self, tm: float) -> str:
@@ -183,7 +183,7 @@ from revlog where id > ? """
     # Due and cumulative due
     ######################################################################
 
-    def get_start_end_chunk(self, by: str = "review") -> Tuple[int, Optional[int], int]:
+    def get_start_end_chunk(self, by: str = "review") -> tuple[int, int | None, int]:
         start = 0
         if self.type == PERIOD_MONTH:
             end, chunk = 31, 1
@@ -245,7 +245,7 @@ from revlog where id > ? """
         return txt
 
     def _dueInfo(self, tot: int, num: int) -> str:
-        i: List[str] = []
+        i: list[str] = []
         self._line(
             i,
             "Total",
@@ -264,7 +264,7 @@ and due = ?"""
         return self._lineTbl(i)
 
     def _due(
-        self, start: Optional[int] = None, end: Optional[int] = None, chunk: int = 1
+        self, start: int | None = None, end: int | None = None, chunk: int = 1
     ) -> Any:
         lim = ""
         if start is not None:
@@ -293,7 +293,7 @@ group by day order by day"""
         data = self._added(days, chunk)
         if not data:
             return ""
-        conf: Dict[str, Any] = dict(
+        conf: dict[str, Any] = dict(
             xaxis=dict(tickDecimals=0, max=0.5),
             yaxes=[dict(min=0), dict(position="right", min=0)],
         )
@@ -311,12 +311,12 @@ group by day order by day"""
         txt = self._title("Added", "The number of new cards you have added.")
         txt += plot("intro", repdata, ylabel="Cards", ylabel2="Cumulative Cards")
         # total and per day average
-        tot = sum([i[1] for i in data])
+        tot = sum(i[1] for i in data)
         period = self._periodDays()
         if not period:
             # base off date of earliest added card
             period = self._deckAge("add")
-        i: List[str] = []
+        i: list[str] = []
         self._line(i, "Total", "%d cards" % tot)
         self._line(i, "Average", self._avgDay(tot, period, "cards"))
         txt += self._lineTbl(i)
@@ -328,7 +328,7 @@ group by day order by day"""
         data = self._done(days, chunk)
         if not data:
             return ""
-        conf: Dict[str, Any] = dict(
+        conf: dict[str, Any] = dict(
             xaxis=dict(tickDecimals=0, max=0.5),
             yaxes=[dict(min=0), dict(position="right", min=0)],
         )
@@ -384,20 +384,20 @@ group by day order by day"""
 
     def _ansInfo(
         self,
-        totd: List[Tuple[int, float]],
+        totd: list[tuple[int, float]],
         studied: int,
         first: int,
         unit: str,
         convHours: bool = False,
-        total: Optional[int] = None,
-    ) -> Tuple[str, int]:
+        total: int | None = None,
+    ) -> tuple[str, int]:
         assert totd
         tot = totd[-1][1]
         period = self._periodDays()
         if not period:
             # base off earliest repetition date
             period = self._deckAge("review")
-        i: List[str] = []
+        i: list[str] = []
         self._line(
             i,
             "Days studied",
@@ -432,12 +432,12 @@ group by day order by day"""
 
     def _splitRepData(
         self,
-        data: List[Tuple[Any, ...]],
-        spec: Sequence[Tuple[int, str, str]],
-    ) -> Tuple[List[Dict[str, Any]], List[Tuple[Any, Any]]]:
-        sep: Dict[int, Any] = {}
+        data: list[tuple[Any, ...]],
+        spec: Sequence[tuple[int, str, str]],
+    ) -> tuple[list[dict[str, Any]], list[tuple[Any, Any]]]:
+        sep: dict[int, Any] = {}
         totcnt = {}
-        totd: Dict[int, Any] = {}
+        totd: dict[int, Any] = {}
         alltot = []
         allcnt: float = 0
         for (n, col, lab) in spec:
@@ -471,7 +471,7 @@ group by day order by day"""
                 )
         return (ret, alltot)
 
-    def _added(self, num: Optional[int] = 7, chunk: int = 1) -> Any:
+    def _added(self, num: int | None = 7, chunk: int = 1) -> Any:
         lims = []
         if num is not None:
             lims.append(
@@ -498,7 +498,7 @@ group by day order by day"""
             chunk,
         )
 
-    def _done(self, num: Optional[int] = 7, chunk: int = 1) -> Any:
+    def _done(self, num: int | None = 7, chunk: int = 1) -> Any:
         lims = []
         if num is not None:
             lims.append(
@@ -605,12 +605,12 @@ group by day order by day)"""
                 yaxes=[dict(), dict(position="right", max=105)],
             ),
         )
-        i: List[str] = []
+        i: list[str] = []
         self._line(i, "Average interval", self.col.format_timespan(avg * 86400))
         self._line(i, "Longest interval", self.col.format_timespan(max_ * 86400))
         return txt + self._lineTbl(i)
 
-    def _ivls(self) -> Tuple[List[Any], int]:
+    def _ivls(self) -> tuple[list[Any], int]:
         start, end, chunk = self.get_start_end_chunk()
         lim = "and grp <= %d" % end if end else ""
         data = [
@@ -643,7 +643,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
         # 3 + 4 + 4 + spaces on sides and middle = 15
         # yng starts at 1+3+1 = 5
         # mtr starts at 5+4+1 = 10
-        d: Dict[str, List] = {"lrn": [], "yng": [], "mtr": []}
+        d: dict[str, list] = {"lrn": [], "yng": [], "mtr": []}
         types = ("lrn", "yng", "mtr")
         eases = self._eases()
         for (type, ease, cnt) in eases:
@@ -685,7 +685,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
         txt += self._easeInfo(eases)
         return txt
 
-    def _easeInfo(self, eases: List[Tuple[int, int, int]]) -> str:
+    def _easeInfo(self, eases: list[tuple[int, int, int]]) -> str:
         types = {PERIOD_MONTH: [0, 0], PERIOD_YEAR: [0, 0], PERIOD_LIFE: [0, 0]}
         for (type, ease, cnt) in eases:
             if ease == 1:
@@ -752,7 +752,7 @@ order by thetype, ease"""
         shifted = []
         counts = []
         mcount = 0
-        trend: List[Tuple[int, int]] = []
+        trend: list[tuple[int, int]] = []
         peak = 0
         for d in data:
             hour = (d[0] - 4) % 24
@@ -852,9 +852,9 @@ group by hour having count() > 30 order by hour"""
                 ("Suspended+Buried", colSusp),
             )
         ):
-            d.append(dict(data=div[c], label="%s: %s" % (t, div[c]), color=col))
+            d.append(dict(data=div[c], label=f"{t}: {div[c]}", color=col))
         # text data
-        i: List[str] = []
+        i: list[str] = []
         (c, f) = self.col.db.first(
             """
 select count(id), count(distinct nid) from cards
@@ -880,9 +880,7 @@ when you answer "good" on a review."""
         )
         return txt
 
-    def _line(
-        self, i: List[str], a: str, b: Union[int, str], bold: bool = True
-    ) -> None:
+    def _line(self, i: list[str], a: str, b: int | str, bold: bool = True) -> None:
         # T: Symbols separating first and second column in a statistics table. Eg in "Total:    3 reviews".
         colon = ":"
         if bold:
@@ -896,7 +894,7 @@ when you answer "good" on a review."""
                 % (a, colon, b)
             )
 
-    def _lineTbl(self, i: List[str]) -> str:
+    def _lineTbl(self, i: list[str]) -> str:
         return "<table width=400>" + "".join(i) + "</table>"
 
     def _factors(self) -> Any:
@@ -945,7 +943,7 @@ from cards where did in %s"""
         self,
         id: str,
         data: Any,
-        conf: Optional[Any] = None,
+        conf: Any | None = None,
         type: str = "bars",
         xunit: int = 1,
         ylabel: str = "Cards",
@@ -1069,7 +1067,7 @@ $(function () {
         )
 
     def _title(self, title: str, subtitle: str = "") -> str:
-        return "<h1>%s</h1>%s" % (title, subtitle)
+        return f"<h1>{title}</h1>{subtitle}"
 
     def _deckAge(self, by: str) -> int:
         lim = self._revlogLimit()
@@ -1089,7 +1087,7 @@ $(function () {
             period = max(1, int(1 + ((self.col.sched.dayCutoff - (t / 1000)) / 86400)))
         return period
 
-    def _periodDays(self) -> Optional[int]:
+    def _periodDays(self) -> int | None:
         start, end, chunk = self.get_start_end_chunk()
         if end is None:
             return None

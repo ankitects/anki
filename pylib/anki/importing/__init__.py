@@ -1,7 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Any, Callable, Sequence, Tuple, Type, Union
+from typing import Any, Callable, Sequence, Type, Union
 
 from anki.collection import Collection
 from anki.importing.anki2 import Anki2Importer
@@ -14,7 +14,7 @@ from anki.importing.supermemo_xml import SupermemoXmlImporter  # type: ignore
 from anki.lang import TR
 
 
-def importers(col: Collection) -> Sequence[Tuple[str, Type[Importer]]]:
+def importers(col: Collection) -> Sequence[tuple[str, type[Importer]]]:
     return (
         (col.tr.importing_text_separated_by_tabs_or_semicolons(), TextImporter),
         (

@@ -1,9 +1,11 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 from concurrent.futures import Future
 from operator import itemgetter
-from typing import Any, List, Optional, Sequence
+from typing import Any, Optional, Sequence
 
 import aqt.clayout
 from anki import stdmodels
@@ -239,7 +241,7 @@ class AddModel(QDialog):
         self.dialog.setupUi(self)
         disable_help_button(self)
         # standard models
-        self.notetypes: List[
+        self.notetypes: list[
             Union[NotetypeDict, Callable[[Collection], NotetypeDict]]
         ] = []
         for (name, func) in stdmodels.get_stock_notetypes(self.col):

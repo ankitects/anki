@@ -12,8 +12,6 @@ modifying it.
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List
-
 import decorator
 
 # You can find the definitions in ../tools/genhooks.py
@@ -22,7 +20,7 @@ from anki.hooks_gen import *
 # Legacy hook handling
 ##############################################################################
 
-_hooks: Dict[str, List[Callable[..., Any]]] = {}
+_hooks: dict[str, list[Callable[..., Any]]] = {}
 
 
 def runHook(hook: str, *args: Any) -> None:

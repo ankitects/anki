@@ -1,7 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import List, Optional, Tuple
+from __future__ import annotations
 
 import aqt
 from anki.collection import OpChangesWithId, SearchNode
@@ -36,8 +36,8 @@ class FilteredDeckConfigDialog(QDialog):
         self,
         mw: AnkiQt,
         deck_id: DeckId = DeckId(0),
-        search: Optional[str] = None,
-        search_2: Optional[str] = None,
+        search: str | None = None,
+        search_2: str | None = None,
     ) -> None:
         """If 'deck_id' is non-zero, load and modify its settings.
         Otherwise, build a new deck and derive settings from the current deck.
@@ -162,15 +162,13 @@ class FilteredDeckConfigDialog(QDialog):
     def reopen(
         self,
         _mw: AnkiQt,
-        search: Optional[str] = None,
-        search_2: Optional[str] = None,
-        _deck: Optional[DeckDict] = None,
+        search: str | None = None,
+        search_2: str | None = None,
+        _deck: DeckDict | None = None,
     ) -> None:
         self.set_custom_searches(search, search_2)
 
-    def set_custom_searches(
-        self, search: Optional[str], search_2: Optional[str]
-    ) -> None:
+    def set_custom_searches(self, search: str | None, search_2: str | None) -> None:
         if search is not None:
             self.form.search.setText(search)
         self.form.search.setFocus()
@@ -218,12 +216,12 @@ class FilteredDeckConfigDialog(QDialog):
         else:
             aqt.dialogs.open("Browser", self.mw, search=(search,))
 
-    def _second_filter(self) -> Tuple[str, ...]:
+    def _second_filter(self) -> tuple[str, ...]:
         if self.form.secondFilter.isChecked():
             return (self.form.search_2.text(),)
         return ()
 
-    def _learning_search_node(self) -> Tuple[SearchNode, ...]:
+    def _learning_search_node(self) -> tuple[SearchNode, ...]:
         """Return a search node that matches learning cards if the old scheduler is enabled.
         If it's a rebuild, exclude cards from this filtered deck as those will be reset.
         """
@@ -238,7 +236,7 @@ class FilteredDeckConfigDialog(QDialog):
             return (SearchNode(card_state=SearchNode.CARD_STATE_LEARN),)
         return ()
 
-    def _filtered_search_node(self) -> Tuple[SearchNode]:
+    def _filtered_search_node(self) -> tuple[SearchNode]:
         """Return a search node that matches cards in filtered decks, if applicable excluding those
         in the deck being rebuild."""
         if self.deck.id:
@@ -320,12 +318,12 @@ class FilteredDeckConfigDialog(QDialog):
     ########################################################
     # fixme: remove once we drop support for v1
 
-    def listToUser(self, values: List[Union[float, int]]) -> str:
+    def listToUser(self, values: list[Union[float, int]]) -> str:
         return " ".join(
             [str(int(val)) if int(val) == val else str(val) for val in values]
         )
 
-    def userToList(self, line: QLineEdit, minSize: int = 1) -> Optional[List[float]]:
+    def userToList(self, line: QLineEdit, minSize: int = 1) -> list[float] | None:
         items = str(line.text()).split(" ")
         ret = []
         for item in items:

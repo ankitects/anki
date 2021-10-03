@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 from enum import Enum, auto
-from typing import Callable, Tuple
 
 import aqt
 from aqt.qt import *
@@ -18,7 +17,7 @@ class SidebarTool(Enum):
 
 
 class SidebarToolbar(QToolBar):
-    _tools: Tuple[Tuple[SidebarTool, str, Callable[[], str]], ...] = (
+    _tools: tuple[tuple[SidebarTool, str, Callable[[], str]], ...] = (
         (SidebarTool.SEARCH, ":/icons/magnifying_glass.svg", tr.actions_search),
         (SidebarTool.SELECT, ":/icons/select.svg", tr.actions_select),
     )

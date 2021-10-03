@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, List, Tuple
+from typing import Any, Callable
 
 import anki.collection
 import anki.models
@@ -15,7 +15,7 @@ StockNotetypeKind = notetypes_pb2.StockNotetype.Kind
 
 # add-on authors can add ("note type name", function)
 # to this list to have it shown in the add/clone note type screen
-models: List[Tuple] = []
+models: list[tuple] = []
 
 
 def _get_stock_notetype(
@@ -26,9 +26,9 @@ def _get_stock_notetype(
 
 def get_stock_notetypes(
     col: anki.collection.Collection,
-) -> List[Tuple[str, Callable[[anki.collection.Collection], anki.models.NotetypeDict]]]:
-    out: List[
-        Tuple[str, Callable[[anki.collection.Collection], anki.models.NotetypeDict]]
+) -> list[tuple[str, Callable[[anki.collection.Collection], anki.models.NotetypeDict]]]:
+    out: list[
+        tuple[str, Callable[[anki.collection.Collection], anki.models.NotetypeDict]]
     ] = []
     # add standard
     for kind in [

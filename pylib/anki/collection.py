@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Generator, List, Literal, Optional, Sequence, Tuple, Union, cast
+from typing import Any, Generator, Literal, Sequence, Union, cast
 
 from anki import (
     card_rendering_pb2,
@@ -92,17 +92,17 @@ LegacyUndoResult = Union[None, LegacyCheckpoint, LegacyReviewUndo]
 
 
 class Collection(DeprecatedNamesMixin):
-    sched: Union[V1Scheduler, V2Scheduler, V3Scheduler]
+    sched: V1Scheduler | V2Scheduler | V3Scheduler
 
     def __init__(
         self,
         path: str,
-        backend: Optional[RustBackend] = None,
+        backend: RustBackend | None = None,
         server: bool = False,
         log: bool = False,
     ) -> None:
         self._backend = backend or RustBackend(server=server)
-        self.db: Optional[DBProxy] = None
+        self.db: DBProxy | None = None
         self._should_log = log
         self.server = server
         self.path = os.path.abspath(path)
@@ -211,7 +211,7 @@ class Collection(DeprecatedNamesMixin):
         # to check if the backend updated the modification time.
         return self.db.last_begin_at != self.mod
 
-    def save(self, name: Optional[str] = None, trx: bool = True) -> None:
+    def save(self, name: str | None = None, trx: bool = True) -> None:
         "Flush, commit DB, and take out another write lock if trx=True."
         # commit needed?
         if self.db.modified_in_python or self.modified_by_backend():
@@ -379,7 +379,7 @@ class Collection(DeprecatedNamesMixin):
         hooks.notes_will_be_deleted(self, note_ids)
         return self._backend.remove_notes(note_ids=note_ids, card_ids=[])
 
-    def remove_notes_by_card(self, card_ids: List[CardId]) -> None:
+    def remove_notes_by_card(self, card_ids: list[CardId]) -> None:
         if hooks.notes_will_be_deleted.count():
             nids = self.db.list(
                 f"select nid from cards where id in {ids2str(card_ids)}"
@@ -391,7 +391,7 @@ class Collection(DeprecatedNamesMixin):
         return [CardId(id) for id in self._backend.cards_of_note(note_id)]
 
     def defaults_for_adding(
-        self, *, current_review_card: Optional[Card]
+        self, *, current_review_card: Card | None
     ) -> anki.notes.DefaultsForAdding:
         """Get starting deck and notetype for add screen.
         An option in the preferences controls whether this will be based on the current deck
@@ -406,7 +406,7 @@ class Collection(DeprecatedNamesMixin):
             home_deck_of_current_review_card=home_deck,
         )
 
-    def default_deck_for_notetype(self, notetype_id: NotetypeId) -> Optional[DeckId]:
+    def default_deck_for_notetype(self, notetype_id: NotetypeId) -> DeckId | None:
         """If 'change deck depending on notetype' is enabled in the preferences,
         return the last deck used with the provided notetype, if any.."""
         if self.get_config_bool(Config.Bool.ADDING_DEFAULTS_TO_CURRENT_DECK):
@@ -447,7 +447,7 @@ class Collection(DeprecatedNamesMixin):
     ##########################################################################
 
     def after_note_updates(
-        self, nids: List[NoteId], mark_modified: bool, generate_cards: bool = True
+        self, nids: list[NoteId], mark_modified: bool, generate_cards: bool = True
     ) -> None:
         "If notes modified directly in database, call this afterwards."
         self._backend.after_note_updates(
@@ -460,7 +460,7 @@ class Collection(DeprecatedNamesMixin):
     def find_cards(
         self,
         query: str,
-        order: Union[bool, str, BrowserColumns.Column] = False,
+        order: bool | str | BrowserColumns.Column = False,
         reverse: bool = False,
     ) -> Sequence[CardId]:
         """Return card ids matching the provided search.
@@ -491,7 +491,7 @@ class Collection(DeprecatedNamesMixin):
     def find_notes(
         self,
         query: str,
-        order: Union[bool, str, BrowserColumns.Column] = False,
+        order: bool | str | BrowserColumns.Column = False,
         reverse: bool = False,
     ) -> Sequence[NoteId]:
         """Return note ids matching the provided search.
@@ -506,7 +506,7 @@ class Collection(DeprecatedNamesMixin):
 
     def _build_sort_mode(
         self,
-        order: Union[bool, str, BrowserColumns.Column],
+        order: bool | str | BrowserColumns.Column,
         reverse: bool,
         finding_notes: bool,
     ) -> search_pb2.SortOrder:
@@ -539,7 +539,7 @@ class Collection(DeprecatedNamesMixin):
         search: str,
         replacement: str,
         regex: bool = False,
-        field_name: Optional[str] = None,
+        field_name: str | None = None,
         match_case: bool = False,
     ) -> OpChangesWithCount:
         "Find and replace fields in a note. Returns changed note count."
@@ -556,14 +556,14 @@ class Collection(DeprecatedNamesMixin):
         return self._backend.field_names_for_notes(nids)
 
     # returns array of ("dupestr", [nids])
-    def find_dupes(self, field_name: str, search: str = "") -> List[Tuple[str, list]]:
+    def find_dupes(self, field_name: str, search: str = "") -> list[tuple[str, list]]:
         nids = self.find_notes(
             self.build_search_string(search, SearchNode(field_name=field_name))
         )
         # go through notes
-        vals: Dict[str, List[int]] = {}
+        vals: dict[str, list[int]] = {}
         dupes = []
-        fields: Dict[int, int] = {}
+        fields: dict[int, int] = {}
 
         def ord_for_mid(mid: NotetypeId) -> int:
             if mid not in fields:
@@ -596,7 +596,7 @@ class Collection(DeprecatedNamesMixin):
 
     def build_search_string(
         self,
-        *nodes: Union[str, SearchNode],
+        *nodes: str | SearchNode,
         joiner: SearchJoiner = "AND",
     ) -> str:
         """Join one or more searches, and return a normalized search string.
@@ -612,7 +612,7 @@ class Collection(DeprecatedNamesMixin):
 
     def group_searches(
         self,
-        *nodes: Union[str, SearchNode],
+        *nodes: str | SearchNode,
         joiner: SearchJoiner = "AND",
     ) -> SearchNode:
         """Join provided search nodes and strings into a single SearchNode.
@@ -680,7 +680,7 @@ class Collection(DeprecatedNamesMixin):
     def all_browser_columns(self) -> Sequence[BrowserColumns.Column]:
         return self._backend.all_browser_columns()
 
-    def get_browser_column(self, key: str) -> Optional[BrowserColumns.Column]:
+    def get_browser_column(self, key: str) -> BrowserColumns.Column | None:
         for column in self._backend.all_browser_columns():
             if column.key == key:
                 return column
@@ -688,7 +688,7 @@ class Collection(DeprecatedNamesMixin):
 
     def browser_row_for_id(
         self, id_: int
-    ) -> Tuple[Generator[Tuple[str, bool], None, None], BrowserRow.Color.V, str, int]:
+    ) -> tuple[Generator[tuple[str, bool], None, None], BrowserRow.Color.V, str, int]:
         row = self._backend.browser_row_for_id(id_)
         return (
             ((cell.text, cell.is_rtl) for cell in row.cells),
@@ -697,7 +697,7 @@ class Collection(DeprecatedNamesMixin):
             row.font_size,
         )
 
-    def load_browser_card_columns(self) -> List[str]:
+    def load_browser_card_columns(self) -> list[str]:
         """Return the stored card column names and ensure the backend columns are set and in sync."""
         columns = self.get_config(
             BrowserConfig.ACTIVE_CARD_COLUMNS_KEY, BrowserDefaults.CARD_COLUMNS
@@ -705,11 +705,11 @@ class Collection(DeprecatedNamesMixin):
         self._backend.set_active_browser_columns(columns)
         return columns
 
-    def set_browser_card_columns(self, columns: List[str]) -> None:
+    def set_browser_card_columns(self, columns: list[str]) -> None:
         self.set_config(BrowserConfig.ACTIVE_CARD_COLUMNS_KEY, columns)
         self._backend.set_active_browser_columns(columns)
 
-    def load_browser_note_columns(self) -> List[str]:
+    def load_browser_note_columns(self) -> list[str]:
         """Return the stored note column names and ensure the backend columns are set and in sync."""
         columns = self.get_config(
             BrowserConfig.ACTIVE_NOTE_COLUMNS_KEY, BrowserDefaults.NOTE_COLUMNS
@@ -717,7 +717,7 @@ class Collection(DeprecatedNamesMixin):
         self._backend.set_active_browser_columns(columns)
         return columns
 
-    def set_browser_note_columns(self, columns: List[str]) -> None:
+    def set_browser_note_columns(self, columns: list[str]) -> None:
         self.set_config(BrowserConfig.ACTIVE_NOTE_COLUMNS_KEY, columns)
         self._backend.set_active_browser_columns(columns)
 
@@ -745,7 +745,7 @@ class Collection(DeprecatedNamesMixin):
     def remove_config(self, key: str) -> OpChanges:
         return self.conf.remove(key)
 
-    def all_config(self) -> Dict[str, Any]:
+    def all_config(self) -> dict[str, Any]:
         "This is a debugging aid. Prefer .get_config() when you know the key you need."
         return from_json_bytes(self._backend.get_all_config())
 
@@ -802,7 +802,7 @@ class Collection(DeprecatedNamesMixin):
     # Stats
     ##########################################################################
 
-    def stats(self) -> "anki.stats.CollectionStats":
+    def stats(self) -> anki.stats.CollectionStats:
         from anki.stats import CollectionStats
 
         return CollectionStats(self)
@@ -926,7 +926,7 @@ table.review-log {{ {revlog_style} }}
                     return True
         return False
 
-    def _check_backend_undo_status(self) -> Optional[UndoStatus]:
+    def _check_backend_undo_status(self) -> UndoStatus | None:
         """Return undo status if undo available on backend.
         If backend has undo available, clear the Python undo state."""
         status = self._backend.get_undo_status()
@@ -956,7 +956,7 @@ table.review-log {{ {revlog_style} }}
         self.clear_python_undo()
         return undo
 
-    def _save_checkpoint(self, name: Optional[str]) -> None:
+    def _save_checkpoint(self, name: str | None) -> None:
         "Call via .save(). If name not provided, clear any existing checkpoint."
         self._last_checkpoint_at = time.time()
         if name:
@@ -1017,7 +1017,7 @@ table.review-log {{ {revlog_style} }}
     # DB maintenance
     ##########################################################################
 
-    def fix_integrity(self) -> Tuple[str, bool]:
+    def fix_integrity(self) -> tuple[str, bool]:
         """Fix possible problems and rebuild caches.
 
         Returns tuple of (error: str, ok: bool). 'ok' will be true if no
@@ -1108,7 +1108,7 @@ table.review-log {{ {revlog_style} }}
         self._startTime = time.time()
         self._startReps = self.sched.reps
 
-    def timeboxReached(self) -> Union[Literal[False], Tuple[Any, int]]:
+    def timeboxReached(self) -> Literal[False] | tuple[Any, int]:
         "Return (elapsedTime, reps) if timebox reached, or False."
         if not self.conf["timeLim"]:
             # timeboxing disabled
@@ -1126,7 +1126,7 @@ table.review-log {{ {revlog_style} }}
         print(args, kwargs)
 
     @deprecated(replaced_by=undo_status)
-    def undo_name(self) -> Optional[str]:
+    def undo_name(self) -> str | None:
         "Undo menu item name, or None if undo unavailable."
         status = self.undo_status()
         return status.undo or None
@@ -1146,7 +1146,7 @@ table.review-log {{ {revlog_style} }}
         self.remove_notes(ids)
 
     @deprecated(replaced_by=remove_notes)
-    def _remNotes(self, ids: List[NoteId]) -> None:
+    def _remNotes(self, ids: list[NoteId]) -> None:
         pass
 
     @deprecated(replaced_by=card_stats)
@@ -1154,21 +1154,21 @@ table.review-log {{ {revlog_style} }}
         return self.card_stats(card.id, include_revlog=False)
 
     @deprecated(replaced_by=after_note_updates)
-    def updateFieldCache(self, nids: List[NoteId]) -> None:
+    def updateFieldCache(self, nids: list[NoteId]) -> None:
         self.after_note_updates(nids, mark_modified=False, generate_cards=False)
 
     @deprecated(replaced_by=after_note_updates)
-    def genCards(self, nids: List[NoteId]) -> List[int]:
+    def genCards(self, nids: list[NoteId]) -> list[int]:
         self.after_note_updates(nids, mark_modified=False, generate_cards=True)
         # previously returned empty cards, no longer does
         return []
 
     @deprecated(info="no longer used")
-    def emptyCids(self) -> List[CardId]:
+    def emptyCids(self) -> list[CardId]:
         return []
 
     @deprecated(info="handled by backend")
-    def _logRem(self, ids: List[Union[int, NoteId]], type: int) -> None:
+    def _logRem(self, ids: list[int | NoteId], type: int) -> None:
         self.db.executemany(
             "insert into graves values (%d, ?, %d)" % (self.usn(), type),
             ([x] for x in ids),
@@ -1197,7 +1197,7 @@ _Collection = Collection
 
 @dataclass
 class _ReviewsUndo:
-    entries: List[LegacyReviewUndo] = field(default_factory=list)
+    entries: list[LegacyReviewUndo] = field(default_factory=list)
 
 
 _UndoInfo = Union[_ReviewsUndo, LegacyCheckpoint, None]

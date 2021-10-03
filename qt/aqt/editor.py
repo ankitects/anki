@@ -14,7 +14,7 @@ import urllib.parse
 import urllib.request
 import warnings
 from random import randrange
-from typing import Any, Callable, Dict, List, Match, Optional, Tuple, cast
+from typing import Any, Callable, Match, cast
 
 import bs4
 import requests
@@ -104,14 +104,14 @@ class Editor:
         self.mw = mw
         self.widget = widget
         self.parentWindow = parentWindow
-        self.note: Optional[Note] = None
+        self.note: Note | None = None
         self.addMode = addMode
-        self.currentField: Optional[int] = None
+        self.currentField: int | None = None
         # Similar to currentField, but not set to None on a blur. May be
         # outside the bounds of the current notetype.
-        self.last_field_index: Optional[int] = None
+        self.last_field_index: int | None = None
         # current card, for card layout
-        self.card: Optional[Card] = None
+        self.card: Card | None = None
         self.setupOuter()
         self.setupWeb()
         self.setupShortcuts()
@@ -147,7 +147,7 @@ class Editor:
             default_css=True,
         )
 
-        lefttopbtns: List[str] = []
+        lefttopbtns: list[str] = []
         gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
 
         lefttopbtns_defs = [
@@ -156,7 +156,7 @@ class Editor:
         ]
         lefttopbtns_js = "\n".join(lefttopbtns_defs)
 
-        righttopbtns: List[str] = []
+        righttopbtns: list[str] = []
         gui_hooks.editor_did_init_buttons(righttopbtns, self)
         # legacy filter
         righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
@@ -191,9 +191,9 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
 
     def addButton(
         self,
-        icon: Optional[str],
+        icon: str | None,
         cmd: str,
-        func: Callable[["Editor"], None],
+        func: Callable[[Editor], None],
         tip: str = "",
         label: str = "",
         id: str = None,
@@ -242,11 +242,11 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
 
     def _addButton(
         self,
-        icon: Optional[str],
+        icon: str | None,
         cmd: str,
         tip: str = "",
         label: str = "",
-        id: Optional[str] = None,
+        id: str | None = None,
         toggleable: bool = False,
         disables: bool = True,
         rightside: bool = True,
@@ -302,7 +302,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
 
     def setupShortcuts(self) -> None:
         # if a third element is provided, enable shortcut even when no field selected
-        cuts: List[Tuple] = []
+        cuts: list[tuple] = []
         gui_hooks.editor_did_init_shortcuts(cuts, self)
         for row in cuts:
             if len(row) == 2:
@@ -449,7 +449,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
     ######################################################################
 
     def set_note(
-        self, note: Optional[Note], hide: bool = True, focusTo: Optional[int] = None
+        self, note: Note | None, hide: bool = True, focusTo: int | None = None
     ) -> None:
         "Make NOTE the current note."
         self.note = note
@@ -462,7 +462,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
     def loadNoteKeepingFocus(self) -> None:
         self.loadNote(self.currentField)
 
-    def loadNote(self, focusTo: Optional[int] = None) -> None:
+    def loadNote(self, focusTo: int | None = None) -> None:
         if not self.note:
             return
 
@@ -488,7 +488,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         text_color = self.mw.pm.profile.get("lastTextColor", "#00f")
         highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#00f")
 
-        js = "setFields(%s); setFonts(%s); focusField(%s); setNoteId(%s); setColorButtons(%s); setTags(%s); " % (
+        js = "setFields({}); setFonts({}); focusField({}); setNoteId({}); setColorButtons({}); setTags({}); ".format(
             json.dumps(data),
             json.dumps(self.fonts()),
             json.dumps(focusTo),
@@ -510,7 +510,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             initiator=self
         )
 
-    def fonts(self) -> List[Tuple[str, int, bool]]:
+    def fonts(self) -> list[tuple[str, int, bool]]:
         return [
             (gui_hooks.editor_will_use_font_for_field(f["font"]), f["size"], f["rtl"])
             for f in self.note.note_type()["flds"]
@@ -573,7 +573,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             ),
         )
 
-    def fieldsAreBlank(self, previousNote: Optional[Note] = None) -> bool:
+    def fieldsAreBlank(self, previousNote: Note | None = None) -> bool:
         if not self.note:
             return True
         m = self.note.note_type()
@@ -700,7 +700,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
     # Media downloads
     ######################################################################
 
-    def urlToLink(self, url: str) -> Optional[str]:
+    def urlToLink(self, url: str) -> str | None:
         fname = self.urlToFile(url)
         if not fname:
             return None
@@ -715,7 +715,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             av_player.play_file(fname)
             return f"[sound:{html.escape(fname, quote=False)}]"
 
-    def urlToFile(self, url: str) -> Optional[str]:
+    def urlToFile(self, url: str) -> str | None:
         l = url.lower()
         for suffix in pics + audio:
             if l.endswith(f".{suffix}"):
@@ -760,7 +760,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         fname = f"paste-{csum}{ext}"
         return self._addMediaFromData(fname, data)
 
-    def _retrieveURL(self, url: str) -> Optional[str]:
+    def _retrieveURL(self, url: str) -> str | None:
         "Download file into media folder and return local filename or None."
         # urllib doesn't understand percent-escaped utf8, but requires things like
         # '#' to be escaped.
@@ -774,7 +774,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         # fetch it into a temporary folder
         self.mw.progress.start(immediate=not local, parent=self.parentWindow)
         content_type = None
-        error_msg: Optional[str] = None
+        error_msg: str | None = None
         try:
             if local:
                 req = urllib.request.Request(
@@ -972,7 +972,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         for name, val in list(self.note.items()):
             m = re.findall(r"\{\{c(\d+)::", val)
             if m:
-                highest = max(highest, sorted([int(x) for x in m])[-1])
+                highest = max(highest, sorted(int(x) for x in m)[-1])
         # reuse last?
         if not KeyboardModifiersPressed().alt:
             highest += 1
@@ -1069,7 +1069,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
     # Links from HTML
     ######################################################################
 
-    _links: Dict[str, Callable] = dict(
+    _links: dict[str, Callable] = dict(
         fields=onFields,
         cards=onCardLayout,
         bold=toggleBold,
@@ -1163,7 +1163,7 @@ class EditorWebView(AnkiWebView):
     # returns (html, isInternal)
     def _processMime(
         self, mime: QMimeData, extended: bool = False, drop_event: bool = False
-    ) -> Tuple[str, bool]:
+    ) -> tuple[str, bool]:
         # print("html=%s image=%s urls=%s txt=%s" % (
         #     mime.hasHtml(), mime.hasImage(), mime.hasUrls(), mime.hasText()))
         # print("html", mime.html())
@@ -1193,7 +1193,7 @@ class EditorWebView(AnkiWebView):
                 return html, True
         return "", False
 
-    def _processUrls(self, mime: QMimeData, extended: bool = False) -> Optional[str]:
+    def _processUrls(self, mime: QMimeData, extended: bool = False) -> str | None:
         if not mime.hasUrls():
             return None
 
@@ -1206,7 +1206,7 @@ class EditorWebView(AnkiWebView):
 
         return buf
 
-    def _processText(self, mime: QMimeData, extended: bool = False) -> Optional[str]:
+    def _processText(self, mime: QMimeData, extended: bool = False) -> str | None:
         if not mime.hasText():
             return None
 
@@ -1245,7 +1245,7 @@ class EditorWebView(AnkiWebView):
         processed.pop()
         return "".join(processed)
 
-    def _processImage(self, mime: QMimeData, extended: bool = False) -> Optional[str]:
+    def _processImage(self, mime: QMimeData, extended: bool = False) -> str | None:
         if not mime.hasImage():
             return None
         im = QImage(mime.imageData())

@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 import re
 import time
-from typing import Any, Callable, Optional, Tuple, Union
+from typing import Any, Callable
 
 import aqt.browser
 from anki.cards import Card
@@ -33,14 +33,14 @@ from aqt.theme import theme_manager
 from aqt.utils import disable_help_button, restoreGeom, saveGeom, tr
 from aqt.webview import AnkiWebView
 
-LastStateAndMod = Tuple[str, int, int]
+LastStateAndMod = tuple[str, int, int]
 
 
 class Previewer(QDialog):
-    _last_state: Optional[LastStateAndMod] = None
+    _last_state: LastStateAndMod | None = None
     _card_changed = False
-    _last_render: Union[int, float] = 0
-    _timer: Optional[QTimer] = None
+    _last_render: int | float = 0
+    _timer: QTimer | None = None
     _show_both_sides = False
 
     def __init__(
@@ -57,7 +57,7 @@ class Previewer(QDialog):
         disable_help_button(self)
         self.setWindowIcon(icon)
 
-    def card(self) -> Optional[Card]:
+    def card(self) -> Card | None:
         raise NotImplementedError
 
     def card_changed(self) -> bool:
@@ -143,7 +143,7 @@ class Previewer(QDialog):
         if cmd.startswith("play:"):
             play_clicked_audio(cmd, self.card())
 
-    def _update_flag_and_mark_icons(self, card: Optional[Card]) -> None:
+    def _update_flag_and_mark_icons(self, card: Card | None) -> None:
         if card:
             flag = card.user_flag()
             marked = card.note(reload=True).has_tag(MARKED_TAG)
@@ -247,7 +247,7 @@ class Previewer(QDialog):
             self._state = "question"
         self.render_card()
 
-    def _state_and_mod(self) -> Tuple[str, int, int]:
+    def _state_and_mod(self) -> tuple[str, int, int]:
         c = self.card()
         n = c.note()
         n.load()
@@ -258,7 +258,7 @@ class Previewer(QDialog):
 
 
 class MultiCardPreviewer(Previewer):
-    def card(self) -> Optional[Card]:
+    def card(self) -> Card | None:
         # need to state explicitly it's not implement to avoid W0223
         raise NotImplementedError
 
@@ -321,14 +321,14 @@ class MultiCardPreviewer(Previewer):
 
 class BrowserPreviewer(MultiCardPreviewer):
     _last_card_id = 0
-    _parent: Optional[aqt.browser.Browser]
+    _parent: aqt.browser.Browser | None
 
     def __init__(
         self, parent: aqt.browser.Browser, mw: AnkiQt, on_close: Callable[[], None]
     ) -> None:
         super().__init__(parent=parent, mw=mw, on_close=on_close)
 
-    def card(self) -> Optional[Card]:
+    def card(self) -> Card | None:
         if self._parent.singleCard:
             return self._parent.card
         else:

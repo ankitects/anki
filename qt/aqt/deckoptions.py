@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 import aqt
 import aqt.deckconf
 from anki.cards import Card
@@ -67,7 +65,7 @@ class DeckOptionsDialog(QDialog):
         QDialog.reject(self)
 
 
-def confirm_deck_then_display_options(active_card: Optional[Card] = None) -> None:
+def confirm_deck_then_display_options(active_card: Card | None = None) -> None:
     decks = [aqt.mw.col.decks.current()]
     if card := active_card:
         if card.odid and card.odid != decks[0]["id"]:
@@ -83,7 +81,7 @@ def confirm_deck_then_display_options(active_card: Optional[Card] = None) -> Non
         _deck_prompt_dialog(decks)
 
 
-def _deck_prompt_dialog(decks: List[DeckDict]) -> None:
+def _deck_prompt_dialog(decks: list[DeckDict]) -> None:
     diag = QDialog(aqt.mw.app.activeWindow())
     diag.setWindowTitle("Anki")
     box = QVBoxLayout()
