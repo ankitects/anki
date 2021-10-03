@@ -8,7 +8,6 @@ import pickle
 import random
 import shutil
 import traceback
-import warnings
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -283,12 +282,11 @@ class ProfileManager:
         return up.load()
 
     def _pickle(self, obj: Any) -> bytes:
-        # pyqt needs to be updated to fix
-        # 'PY_SSIZE_T_CLEAN will be required for '#' formats' warning
-        # check if this is still required for pyqt6
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            return pickle.dumps(obj, protocol=4)
+        for key, val in obj.items():
+            if isinstance(val, QByteArray):
+                obj[key] = bytes(val)  # type: ignore
+
+        return pickle.dumps(obj, protocol=4)
 
     def load(self, name: str) -> bool:
         assert name != "_global"
