@@ -1,0 +1,1 @@
+../../bazel-bin/ts/lib/backend_proto.d.ts

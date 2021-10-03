@@ -6,6 +6,10 @@ load("@rules_python//python:defs.bzl", "py_binary")
 load("@py_deps//:requirements.bzl", "requirement")
 load("//ts:jest.bzl", "jest_test")
 
+_generated = [
+    "i18n-generated.ts",
+]
+
 protobufjs_library(
     name = "backend_proto",
     proto = "//proto:backend_proto_lib",
@@ -35,9 +39,11 @@ genrule(
 
 typescript(
     name = "lib",
-    generated = [
-        ":i18n-generated.ts",
-    ],
+    srcs = glob(
+        ["*.ts"],
+        exclude = _generated,
+    ),
+    generated = [":" + file for file in _generated],
     deps = [
         ":backend_proto",
         "@npm//@fluent/bundle",
@@ -52,9 +58,9 @@ typescript(
 # Tests
 ################
 
-prettier_test()
+prettier_test(exclude = _generated)
 
-eslint_test()
+eslint_test(exclude = _generated)
 
 jest_test(
     deps = [
