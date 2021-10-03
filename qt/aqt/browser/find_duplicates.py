@@ -82,7 +82,7 @@ class FindDuplicatesDialog(QDialog):
             self._dupesButton = b = self.form.buttonBox.addButton(
                 tr.browsing_tag_duplicates(), QDialogButtonBox.ActionRole
             )
-            qconnect(b.clicked, lambda: self._tag_duplicates())
+            qconnect(b.clicked, self._tag_duplicates)
         text = ""
         groups = len(dupes)
         notes = sum(len(r[1]) for r in dupes)
