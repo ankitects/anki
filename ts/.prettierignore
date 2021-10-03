@@ -1,4 +1,5 @@
 licenses.json
 vendor
-i18n-generated.ts
+i18n-translate.ts
+i18n-modules.ts
 backend_proto.d.ts

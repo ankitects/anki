@@ -13,7 +13,7 @@ import type EditorToolbar from "./EditorToolbar.svelte";
 import type TagEditor from "./TagEditor.svelte";
 
 import { filterHTML } from "../html-filter";
-import { setupI18n, tr } from "../lib/i18n";
+import { setupI18n, ModuleName } from "../lib/i18n";
 import { isApplePlatform } from "../lib/platform";
 import { registerShortcut } from "../lib/shortcuts";
 import { bridgeCommand } from "../lib/bridgecommand";
@@ -200,10 +200,10 @@ export function setTags(tags: string[]): void {
 
 export const i18n = setupI18n({
     modules: [
-        tr.ModuleName.EDITING,
-        tr.ModuleName.KEYBOARD,
-        tr.ModuleName.ACTIONS,
-        tr.ModuleName.BROWSING,
+        ModuleName.EDITING,
+        ModuleName.KEYBOARD,
+        ModuleName.ACTIONS,
+        ModuleName.BROWSING,
     ],
 });
 

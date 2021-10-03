@@ -8,7 +8,7 @@
 import "../sveltelib/export-runtime";
 
 import { getDeckOptionsInfo, DeckOptionsState } from "./lib";
-import { setupI18n, tr } from "../lib/i18n";
+import { setupI18n, ModuleName } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
 import DeckOptionsPage from "./DeckOptionsPage.svelte";
 import { nightModeKey, touchDeviceKey, modalsKey } from "../components/context-keys";
@@ -21,9 +21,9 @@ export async function deckOptions(
         getDeckOptionsInfo(deckId),
         setupI18n({
             modules: [
-                tr.ModuleName.SCHEDULING,
-                tr.ModuleName.ACTIONS,
-                tr.ModuleName.DECK_CONFIG,
+                ModuleName.SCHEDULING,
+                ModuleName.ACTIONS,
+                ModuleName.DECK_CONFIG,
             ],
         }),
     ]);

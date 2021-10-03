@@ -7,7 +7,7 @@ from typing import List, Literal, TypedDict
 
 import stringcase
 
-strings_json, outfile = sys.argv[1:]
+strings_json, translate_out, modules_out = sys.argv[1:]
 modules = json.load(open(strings_json, encoding="utf8"))
 
 
@@ -101,17 +101,17 @@ def module_names() -> str:
     return buf
 
 
-out = ""
-
-out += methods()
-out += module_names()
-
-open(outfile, "wb").write(
-    (
-        """// Copyright: Ankitects Pty Ltd and contributors
+def write(outfile, out) -> None:
+    open(outfile, "wb").write(
+        (
+            f"""// Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 """
-        + out
-    ).encode("utf8")
-)
+            + out
+        ).encode("utf8")
+    )
+
+
+write(translate_out, str(methods()))
+write(modules_out, str(module_names()))

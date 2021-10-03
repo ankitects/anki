@@ -6,8 +6,13 @@ load("@rules_python//python:defs.bzl", "py_binary")
 load("@py_deps//:requirements.bzl", "requirement")
 load("//ts:jest.bzl", "jest_test")
 
-_generated = [
-    "i18n-generated.ts",
+_i18n_files = [
+    "i18n-translate.ts",
+    "i18n-modules.ts",
+]
+
+_generated = _i18n_files + [
+    "backend_proto.d.ts",
 ]
 
 protobufjs_library(
@@ -29,8 +34,8 @@ py_binary(
 
 genrule(
     name = "fluent_gen",
-    outs = ["i18n-generated.ts"],
-    cmd = "$(location genfluent) $(location //rslib/i18n:strings.json) $@",
+    outs = _i18n_files,
+    cmd = "$(location genfluent) $(location //rslib/i18n:strings.json) $(OUTS)",
     tools = [
         "genfluent",
         "//rslib/i18n:strings.json",
