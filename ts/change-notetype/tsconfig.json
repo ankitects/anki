@@ -1,6 +1,5 @@
 {
     "extends": "../tsconfig.json",
-    "rootDirs": ["../../bazel-bin/ts/change-notetype"],
     "include": ["*"],
     "references": [
         { "path": "../lib" },

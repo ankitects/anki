@@ -1,6 +1,5 @@
 {
     "extends": "../tsconfig.json",
-    "rootDirs": ["../../bazel-bin/ts/deck-options"],
     "include": ["*"],
     "references": [
         { "path": "../lib" },

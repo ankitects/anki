@@ -1,6 +1,5 @@
 {
     "extends": "../tsconfig.json",
-    "rootDirs": ["../../bazel-bin/ts/reviewer"],
     "include": ["*"],
     "references": [{ "path": "../lib" }]
 }

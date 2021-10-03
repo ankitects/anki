@@ -1,6 +1,5 @@
 {
     "extends": "../tsconfig.json",
-    "rootDirs": ["../../bazel-bin/ts/html-filter"],
     "include": ["*"],
     "references": [],
     "compilerOptions": {
