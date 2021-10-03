@@ -82,7 +82,7 @@ class FindDuplicatesDialog(QDialog):
             self._dupesButton = b = self.form.buttonBox.addButton(
                 tr.browsing_tag_duplicates(), QDialogButtonBox.ActionRole
             )
-            qconnect(b.clicked, lambda: self._tag_duplicates(self._dupes))
+            qconnect(b.clicked, lambda: self._tag_duplicates())
         text = ""
         groups = len(dupes)
         notes = sum(len(r[1]) for r in dupes)
@@ -106,12 +106,12 @@ class FindDuplicatesDialog(QDialog):
         text += "</ol>"
         self.form.webView.stdHtml(text, context=self)
 
-    def _tag_duplicates(self, dupes: List[Tuple[str, List[NoteId]]]) -> None:
-        if not dupes:
+    def _tag_duplicates(self) -> None:
+        if not self._dupes:
             return
 
         note_ids = set()
-        for _, nids in dupes:
+        for _, nids in self._dupes:
             note_ids.update(nids)
 
         add_tags_to_notes(
