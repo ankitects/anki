@@ -7,14 +7,14 @@ import json
 import os
 import unicodedata
 import zipfile
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from anki.importing.anki2 import Anki2Importer
 from anki.utils import tmpfile
 
 
 class AnkiPackageImporter(Anki2Importer):
-    nameToNum: Dict[str, str]
+    nameToNum: dict[str, str]
     zip: Optional[zipfile.ZipFile]
 
     def run(self) -> None:  # type: ignore

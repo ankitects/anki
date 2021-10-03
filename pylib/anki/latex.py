@@ -7,7 +7,7 @@ import html
 import os
 import re
 from dataclasses import dataclass
-from typing import Any, List, Optional, Tuple
+from typing import Any
 
 import anki
 from anki import card_rendering_pb2, hooks
@@ -41,7 +41,7 @@ class ExtractedLatex:
 @dataclass
 class ExtractedLatexOutput:
     html: str
-    latex: List[ExtractedLatex]
+    latex: list[ExtractedLatex]
 
     @staticmethod
     def from_proto(
@@ -80,7 +80,7 @@ def render_latex_returning_errors(
     model: NotetypeDict,
     col: anki.collection.Collection,
     expand_clozes: bool = False,
-) -> Tuple[str, List[str]]:
+) -> tuple[str, list[str]]:
     """Returns (text, errors).
 
     errors will be non-empty if LaTeX failed to render."""
@@ -111,7 +111,7 @@ def _save_latex_image(
     header: str,
     footer: str,
     svg: bool,
-) -> Optional[str]:
+) -> str | None:
     # add header/footer
     latex = f"{header}\n{extracted.latex_body}\n{footer}"
     # it's only really secure if run in a jail, but these are the most common

@@ -6,7 +6,7 @@ from __future__ import annotations
 import enum
 import os
 from concurrent.futures import Future
-from typing import Callable, Tuple
+from typing import Callable
 
 import aqt
 from anki.errors import Interrupted, SyncError, SyncErrorKind
@@ -288,7 +288,7 @@ def ask_user_to_decide_direction() -> FullSyncChoice:
 
 def get_id_and_pass_from_user(
     mw: aqt.main.AnkiQt, username: str = "", password: str = ""
-) -> Tuple[str, str]:
+) -> tuple[str, str]:
     diag = QDialog(mw)
     diag.setWindowTitle("Anki")
     disable_help_button(diag)

@@ -11,7 +11,6 @@ import threading
 import time
 import traceback
 from http import HTTPStatus
-from typing import Tuple
 
 import flask
 import flask_cors  # type: ignore
@@ -179,7 +178,7 @@ def allroutes(pathin: str) -> Response:
         )
 
 
-def _redirectWebExports(path: str) -> Tuple[str, str]:
+def _redirectWebExports(path: str) -> tuple[str, str]:
     # catch /_anki references and rewrite them to web export folder
     targetPath = "_anki/"
     if path.startswith(targetPath):

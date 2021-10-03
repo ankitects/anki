@@ -9,12 +9,14 @@ but this class is still used by aqt's profile manager, and a number
 of add-ons rely on it.
 """
 
+from __future__ import annotations
+
 import os
 import pprint
 import time
 from sqlite3 import Cursor
 from sqlite3 import dbapi2 as sqlite
-from typing import Any, List, Type
+from typing import Any
 
 DBError = sqlite.Error
 
@@ -82,7 +84,7 @@ class DB:
             return res[0]
         return None
 
-    def all(self, *a: Any, **kw: Any) -> List:
+    def all(self, *a: Any, **kw: Any) -> list:
         return self.execute(*a, **kw).fetchall()
 
     def first(self, *a: Any, **kw: Any) -> Any:
@@ -91,7 +93,7 @@ class DB:
         c.close()
         return res
 
-    def list(self, *a: Any, **kw: Any) -> List:
+    def list(self, *a: Any, **kw: Any) -> list:
         return [x[0] for x in self.execute(*a, **kw)]
 
     def close(self) -> None:
@@ -124,5 +126,5 @@ class DB:
     def _textFactory(self, data: bytes) -> str:
         return str(data, errors="ignore")
 
-    def cursor(self, factory: Type[Cursor] = Cursor) -> Cursor:
+    def cursor(self, factory: type[Cursor] = Cursor) -> Cursor:
         return self._db.cursor(factory)

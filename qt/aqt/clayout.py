@@ -3,7 +3,7 @@
 import json
 import re
 from concurrent.futures import Future
-from typing import Any, Dict, List, Match, Optional
+from typing import Any, Match, Optional
 
 import aqt
 from anki.collection import OpChanges
@@ -135,7 +135,7 @@ class CardLayout(QDialog):
         combo.setEnabled(not self._isCloze())
         self.ignore_change_signals = False
 
-    def _summarizedName(self, idx: int, tmpl: Dict) -> str:
+    def _summarizedName(self, idx: int, tmpl: dict) -> str:
         return "{}: {}: {} -> {}".format(
             idx + 1,
             tmpl["name"],
@@ -146,7 +146,7 @@ class CardLayout(QDialog):
     def _fieldsOnTemplate(self, fmt: str) -> str:
         matches = re.findall("{{[^#/}]+?}}", fmt)
         chars_allowed = 30
-        field_names: List[str] = []
+        field_names: list[str] = []
         for m in matches:
             # strip off mustache
             m = re.sub(r"[{}]", "", m)
@@ -440,7 +440,7 @@ class CardLayout(QDialog):
     # Reading/writing question/answer/css
     ##########################################################################
 
-    def current_template(self) -> Dict:
+    def current_template(self) -> dict:
         if self._isCloze():
             return self.templates[0]
         return self.templates[self.ord]
@@ -592,7 +592,7 @@ class CardLayout(QDialog):
 
         self.mw.taskman.with_progress(get_count, on_done)
 
-    def onRemoveInner(self, template: Dict) -> None:
+    def onRemoveInner(self, template: dict) -> None:
         self.mm.remove_template(self.model, template)
 
         # ensure current ordinal is within bounds
@@ -668,7 +668,7 @@ class CardLayout(QDialog):
         self._flipQA(old, old)
         self.redraw_everything()
 
-    def _flipQA(self, src: Dict, dst: Dict) -> None:
+    def _flipQA(self, src: dict, dst: dict) -> None:
         m = re.match("(?s)(.+)<hr id=answer>(.+)", src["afmt"])
         if not m:
             showInfo(tr.card_templates_anki_couldnt_find_the_line_between())

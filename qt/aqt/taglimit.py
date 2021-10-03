@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/agpl.html
-from typing import List, Optional
+
+from typing import Optional
 
 import aqt
 from anki.lang import with_collapsed_whitespace
@@ -14,7 +15,7 @@ class TagLimit(QDialog):
     def __init__(self, mw: AnkiQt, parent: CustomStudy) -> None:
         QDialog.__init__(self, parent, Qt.Window)
         self.tags: str = ""
-        self.tags_list: List[str] = []
+        self.tags_list: list[str] = []
         self.mw = mw
         self.parent_: Optional[CustomStudy] = parent
         self.deck = self.parent_.deck

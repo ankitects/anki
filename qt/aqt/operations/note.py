@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, Sequence
+from typing import Sequence
 
 from anki.collection import OpChanges, OpChangesWithCount
 from anki.decks import DeckId
@@ -43,7 +43,7 @@ def find_and_replace(
     search: str,
     replacement: str,
     regex: bool,
-    field_name: Optional[str],
+    field_name: str | None,
     match_case: bool,
 ) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(

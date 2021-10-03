@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
 import time
-from typing import Any, Callable, Dict, List, Optional, Sequence, Union, cast
+from typing import Any, Callable, Sequence, cast
 
 import aqt
 from anki.cards import Card, CardId
@@ -41,13 +40,13 @@ class DataModel(QAbstractTableModel):
     ) -> None:
         QAbstractTableModel.__init__(self)
         self.col: Collection = col
-        self.columns: Dict[str, Column] = dict(
-            ((c.key, c) for c in self.col.all_browser_columns())
-        )
+        self.columns: dict[str, Column] = {
+            c.key: c for c in self.col.all_browser_columns()
+        }
         gui_hooks.browser_did_fetch_columns(self.columns)
         self._state: ItemState = state
         self._items: Sequence[ItemId] = []
-        self._rows: Dict[int, CellRow] = {}
+        self._rows: dict[int, CellRow] = {}
         self._block_updates = False
         self._stale_cutoff = 0.0
         self._on_row_state_will_change = row_state_will_change_callback
@@ -77,7 +76,7 @@ class DataModel(QAbstractTableModel):
         return self._fetch_row_and_update_cache(index, item, None)
 
     def _fetch_row_and_update_cache(
-        self, index: QModelIndex, item: ItemId, old_row: Optional[CellRow]
+        self, index: QModelIndex, item: ItemId, old_row: CellRow | None
     ) -> CellRow:
         """Fetch a row from the backend, add it to the cache and return it.
         Then fire callbacks if the row is being deleted or restored.
@@ -119,7 +118,7 @@ class DataModel(QAbstractTableModel):
         )
         return row
 
-    def get_cached_row(self, index: QModelIndex) -> Optional[CellRow]:
+    def get_cached_row(self, index: QModelIndex) -> CellRow | None:
         """Get row if it is cached, regardless of staleness."""
         return self._rows.get(self.get_item(index))
 
@@ -175,41 +174,41 @@ class DataModel(QAbstractTableModel):
     def get_item(self, index: QModelIndex) -> ItemId:
         return self._items[index.row()]
 
-    def get_items(self, indices: List[QModelIndex]) -> Sequence[ItemId]:
+    def get_items(self, indices: list[QModelIndex]) -> Sequence[ItemId]:
         return [self.get_item(index) for index in indices]
 
-    def get_card_ids(self, indices: List[QModelIndex]) -> Sequence[CardId]:
+    def get_card_ids(self, indices: list[QModelIndex]) -> Sequence[CardId]:
         return self._state.get_card_ids(self.get_items(indices))
 
-    def get_note_ids(self, indices: List[QModelIndex]) -> Sequence[NoteId]:
+    def get_note_ids(self, indices: list[QModelIndex]) -> Sequence[NoteId]:
         return self._state.get_note_ids(self.get_items(indices))
 
-    def get_note_id(self, index: QModelIndex) -> Optional[NoteId]:
+    def get_note_id(self, index: QModelIndex) -> NoteId | None:
         if nid_list := self._state.get_note_ids([self.get_item(index)]):
             return nid_list[0]
         return None
 
     # Get row numbers from items
 
-    def get_item_row(self, item: ItemId) -> Optional[int]:
+    def get_item_row(self, item: ItemId) -> int | None:
         for row, i in enumerate(self._items):
             if i == item:
                 return row
         return None
 
-    def get_item_rows(self, items: Sequence[ItemId]) -> List[int]:
+    def get_item_rows(self, items: Sequence[ItemId]) -> list[int]:
         rows = []
         for row, i in enumerate(self._items):
             if i in items:
                 rows.append(row)
         return rows
 
-    def get_card_row(self, card_id: CardId) -> Optional[int]:
+    def get_card_row(self, card_id: CardId) -> int | None:
         return self.get_item_row(self._state.get_item_from_card_id(card_id))
 
     # Get objects (cards or notes)
 
-    def get_card(self, index: QModelIndex) -> Optional[Card]:
+    def get_card(self, index: QModelIndex) -> Card | None:
         """Try to return the indicated, possibly deleted card."""
         if not index.isValid():
             return None
@@ -218,7 +217,7 @@ class DataModel(QAbstractTableModel):
         except NotFoundError:
             return None
 
-    def get_note(self, index: QModelIndex) -> Optional[Note]:
+    def get_note(self, index: QModelIndex) -> Note | None:
         """Try to return the indicated, possibly deleted note."""
         if not index.isValid():
             return None
@@ -280,7 +279,7 @@ class DataModel(QAbstractTableModel):
             self.columns[key] = addon_column_fillin(key)
             return self.columns[key]
 
-    def active_column_index(self, column: str) -> Optional[int]:
+    def active_column_index(self, column: str) -> int | None:
         return (
             self._state.active_columns.index(column)
             if column in self._state.active_columns
@@ -317,7 +316,7 @@ class DataModel(QAbstractTableModel):
             qfont.setPixelSize(row.font_size)
             return qfont
         elif role == Qt.TextAlignmentRole:
-            align: Union[Qt.AlignmentFlag, int] = Qt.AlignVCenter
+            align: Qt.AlignmentFlag | int = Qt.AlignVCenter
             if self.column_at(index).alignment == Columns.ALIGNMENT_CENTER:
                 align |= Qt.AlignHCenter
             return align
@@ -329,7 +328,7 @@ class DataModel(QAbstractTableModel):
 
     def headerData(
         self, section: int, orientation: Qt.Orientation, role: int = 0
-    ) -> Optional[str]:
+    ) -> str | None:
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return self._state.column_label(self.column_at_section(section))
         return None

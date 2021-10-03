@@ -6,7 +6,6 @@ from __future__ import annotations
 import locale
 import re
 import weakref
-from typing import Optional, Tuple
 
 import anki
 import anki._backend
@@ -153,7 +152,7 @@ currentLang = "en"
 # not reference this, and should use col.tr instead. The global
 # instance exists for legacy reasons, and as a convenience for the
 # Qt code.
-current_i18n: Optional[anki._backend.RustBackend] = None
+current_i18n: anki._backend.RustBackend | None = None
 tr_legacyglobal = anki._backend.Translations(None)
 
 
@@ -174,7 +173,7 @@ def set_lang(lang: str) -> None:
     tr_legacyglobal.backend = weakref.ref(current_i18n)
 
 
-def get_def_lang(lang: Optional[str] = None) -> Tuple[int, str]:
+def get_def_lang(lang: str | None = None) -> tuple[int, str]:
     """Return lang converted to name used on disk and its index, defaulting to system language
     or English if not available."""
     try:

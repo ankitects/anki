@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from operator import itemgetter
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from PyQt5.QtWidgets import QLineEdit
 
@@ -30,7 +30,7 @@ from aqt.utils import (
 
 
 class DeckConf(QDialog):
-    def __init__(self, mw: aqt.AnkiQt, deck: Dict) -> None:
+    def __init__(self, mw: aqt.AnkiQt, deck: dict) -> None:
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = deck
@@ -74,7 +74,7 @@ class DeckConf(QDialog):
 
     def setupConfs(self) -> None:
         qconnect(self.form.dconf.currentIndexChanged, self.onConfChange)
-        self.conf: Optional[DeckConfigDict] = None
+        self.conf: DeckConfigDict | None = None
         self.loadConfs()
 
     def loadConfs(self) -> None:
@@ -175,7 +175,7 @@ class DeckConf(QDialog):
     # Loading
     ##################################################
 
-    def listToUser(self, l: List[Union[int, float]]) -> str:
+    def listToUser(self, l: list[Union[int, float]]) -> str:
         def num_to_user(n: Union[int, float]) -> str:
             if n == round(n):
                 return str(int(n))

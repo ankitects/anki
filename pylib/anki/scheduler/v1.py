@@ -8,7 +8,6 @@ from __future__ import annotations
 import random
 import time
 from heapq import *
-from typing import Any, List, Optional, Tuple, Union
 
 import anki
 from anki import hooks
@@ -93,7 +92,7 @@ class Scheduler(V2):
         card.usn = self.col.usn()
         card.flush()
 
-    def counts(self, card: Optional[Card] = None) -> Tuple[int, int, int]:
+    def counts(self, card: Card | None = None) -> tuple[int, int, int]:
         counts = [self.newCount, self.lrnCount, self.revCount]
         if card:
             idx = self.countIdx(card)
@@ -127,7 +126,7 @@ class Scheduler(V2):
     # Getting the next card
     ##########################################################################
 
-    def _getCard(self) -> Optional[Card]:
+    def _getCard(self) -> Card | None:
         "Return the next due card id, or None."
         # learning card due?
         c = self._getLrnCard()
@@ -179,12 +178,12 @@ and due <= ? limit %d"""
 
     def _resetLrn(self) -> None:
         self._resetLrnCount()
-        self._lrnQueue: List[Any] = []
-        self._lrnDayQueue: List[Any] = []
+        self._lrnQueue: list[Any] = []
+        self._lrnDayQueue: list[Any] = []
         self._lrnDids = self.col.decks.active()[:]
 
     # sub-day learning
-    def _fillLrn(self) -> Union[bool, List[Any]]:
+    def _fillLrn(self) -> bool | list[Any]:
         if not self.lrnCount:
             return False
         if self._lrnQueue:
@@ -202,7 +201,7 @@ limit %d"""
         self._lrnQueue.sort()
         return self._lrnQueue
 
-    def _getLrnCard(self, collapse: bool = False) -> Optional[Card]:
+    def _getLrnCard(self, collapse: bool = False) -> Card | None:
         if self._fillLrn():
             cutoff = time.time()
             if collapse:
@@ -374,7 +373,7 @@ limit %d"""
             time.sleep(0.01)
             log()
 
-    def removeLrn(self, ids: Optional[List[int]] = None) -> None:
+    def removeLrn(self, ids: list[int] | None = None) -> None:
         "Remove cards from the learning queues."
         if ids:
             extra = f" and id in {ids2str(ids)}"
@@ -429,7 +428,7 @@ and due <= ? limit ?)""",
         return self._deckNewLimit(did, self._deckRevLimitSingle)
 
     def _resetRev(self) -> None:
-        self._revQueue: List[Any] = []
+        self._revQueue: list[Any] = []
         self._revDids = self.col.decks.active()[:]
 
     def _fillRev(self, recursing: bool = False) -> bool:

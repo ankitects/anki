@@ -36,7 +36,7 @@ import threading
 from concurrent.futures import Future
 from dataclasses import dataclass
 from operator import attrgetter
-from typing import Any, List, Optional, cast
+from typing import Any, cast
 
 import anki
 from anki import hooks
@@ -61,17 +61,17 @@ class TTSVoiceMatch:
 
 class TTSPlayer:
     default_rank = 0
-    _available_voices: Optional[List[TTSVoice]] = None
+    _available_voices: list[TTSVoice] | None = None
 
-    def get_available_voices(self) -> List[TTSVoice]:
+    def get_available_voices(self) -> list[TTSVoice]:
         return []
 
-    def voices(self) -> List[TTSVoice]:
+    def voices(self) -> list[TTSVoice]:
         if self._available_voices is None:
             self._available_voices = self.get_available_voices()
         return self._available_voices
 
-    def voice_for_tag(self, tag: TTSTag) -> Optional[TTSVoiceMatch]:
+    def voice_for_tag(self, tag: TTSTag) -> TTSVoiceMatch | None:
         avail_voices = self.voices()
 
         rank = self.default_rank
@@ -103,7 +103,7 @@ class TTSPlayer:
 
 class TTSProcessPlayer(SimpleProcessPlayer, TTSPlayer):
     # mypy gets confused if rank_for_tag is defined in TTSPlayer
-    def rank_for_tag(self, tag: AVTag) -> Optional[int]:
+    def rank_for_tag(self, tag: AVTag) -> int | None:
         if not isinstance(tag, TTSTag):
             return None
 
@@ -118,10 +118,10 @@ class TTSProcessPlayer(SimpleProcessPlayer, TTSPlayer):
 ##########################################################################
 
 
-def all_tts_voices() -> List[TTSVoice]:
+def all_tts_voices() -> list[TTSVoice]:
     from aqt.sound import av_player
 
-    all_voices: List[TTSVoice] = []
+    all_voices: list[TTSVoice] = []
     for p in av_player.players:
         getter = getattr(p, "voices", None)
         if not getter:
@@ -185,7 +185,7 @@ class MacTTSPlayer(TTSProcessPlayer):
         self._process.stdin.close()
         self._wait_for_termination(tag)
 
-    def get_available_voices(self) -> List[TTSVoice]:
+    def get_available_voices(self) -> list[TTSVoice]:
         cmd = subprocess.run(
             ["say", "-v", "?"], capture_output=True, check=True, encoding="utf8"
         )
@@ -197,7 +197,7 @@ class MacTTSPlayer(TTSProcessPlayer):
                 voices.append(voice)
         return voices
 
-    def _parse_voice_line(self, line: str) -> Optional[TTSVoice]:
+    def _parse_voice_line(self, line: str) -> TTSVoice | None:
         m = self.VOICE_HELP_LINE_RE.match(line)
         if not m:
             return None
@@ -484,7 +484,7 @@ if isWin:
         except:
             speaker = None
 
-        def get_available_voices(self) -> List[TTSVoice]:
+        def get_available_voices(self) -> list[TTSVoice]:
             if self.speaker is None:
                 return []
             return list(map(self._voice_to_object, self.speaker.GetVoices()))
@@ -533,7 +533,7 @@ if isWin:
         id: Any
 
     class WindowsRTTTSFilePlayer(TTSProcessPlayer):
-        voice_list: List[Any] = []
+        voice_list: list[Any] = []
         tmppath = os.path.join(tmpdir(), "tts.wav")
 
         def import_voices(self) -> None:
@@ -545,7 +545,7 @@ if isWin:
                 print("winrt tts voices unavailable:", e)
                 self.voice_list = []
 
-        def get_available_voices(self) -> List[TTSVoice]:
+        def get_available_voices(self) -> list[TTSVoice]:
             t = threading.Thread(target=self.import_voices)
             t.start()
             t.join()

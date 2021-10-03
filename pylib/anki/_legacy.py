@@ -7,11 +7,11 @@ import functools
 import os
 import pathlib
 import traceback
-from typing import Any, Callable, Dict, Optional, Tuple, Union, no_type_check
+from typing import Any, Callable, Union, no_type_check
 
 import stringcase
 
-VariableTarget = Tuple[Any, str]
+VariableTarget = tuple[Any, str]
 DeprecatedAliasTarget = Union[Callable, VariableTarget]
 
 
@@ -43,7 +43,7 @@ class DeprecatedNamesMixin:
     # the @no_type_check lines are required to prevent mypy allowing arbitrary
     # attributes on the consuming class
 
-    _deprecated_aliases: Dict[str, str] = {}
+    _deprecated_aliases: dict[str, str] = {}
 
     @no_type_check
     def __getattr__(self, name: str) -> Any:
@@ -68,7 +68,7 @@ class DeprecatedNamesMixin:
         cls._deprecated_aliases = {k: _target_to_string(v) for k, v in kwargs.items()}
 
 
-def deprecated(replaced_by: Optional[Callable] = None, info: str = "") -> Callable:
+def deprecated(replaced_by: Callable | None = None, info: str = "") -> Callable:
     """Print a deprecation warning, telling users to use `replaced_by`, or show `doc`."""
 
     def decorator(func: Callable) -> Callable:

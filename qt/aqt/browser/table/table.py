@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
-from typing import Any, Callable, List, Optional, Sequence, Tuple, cast
+from typing import Any, Callable, Sequence, cast
 
 import aqt
 import aqt.forms
@@ -45,12 +44,12 @@ class Table:
             self._on_row_state_will_change,
             self._on_row_state_changed,
         )
-        self._view: Optional[QTableView] = None
+        self._view: QTableView | None = None
         # cached for performance
         self._len_selection = 0
-        self._selected_rows: Optional[List[QModelIndex]] = None
+        self._selected_rows: list[QModelIndex] | None = None
         # temporarily set for selection preservation
-        self._current_item: Optional[ItemId] = None
+        self._current_item: ItemId | None = None
         self._selected_items: Sequence[ItemId] = []
 
     def set_view(self, view: QTableView) -> None:
@@ -89,13 +88,13 @@ class Table:
 
     # Get objects
 
-    def get_current_card(self) -> Optional[Card]:
+    def get_current_card(self) -> Card | None:
         return self._model.get_card(self._current())
 
-    def get_current_note(self) -> Optional[Note]:
+    def get_current_note(self) -> Note | None:
         return self._model.get_note(self._current())
 
-    def get_single_selected_card(self) -> Optional[Card]:
+    def get_single_selected_card(self) -> Card | None:
         """If there is only one row selected return its card, else None.
         This may be a different one than the current card."""
         if self.len_selection() != 1:
@@ -171,7 +170,7 @@ class Table:
         self._model.redraw_cells()
 
     def op_executed(
-        self, changes: OpChanges, handler: Optional[object], focused: bool
+        self, changes: OpChanges, handler: object | None, focused: bool
     ) -> None:
         if changes.browser_table:
             self._model.mark_cache_stale()
@@ -260,7 +259,7 @@ class Table:
     def _current(self) -> QModelIndex:
         return self._view.selectionModel().currentIndex()
 
-    def _selected(self) -> List[QModelIndex]:
+    def _selected(self) -> list[QModelIndex]:
         if self._selected_rows is None:
             self._selected_rows = self._view.selectionModel().selectedRows()
         return self._selected_rows
@@ -280,7 +279,7 @@ class Table:
         self._len_selection = 0
         self._selected_rows = None
 
-    def _select_rows(self, rows: List[int]) -> None:
+    def _select_rows(self, rows: list[int]) -> None:
         selection = QItemSelection()
         for row in rows:
             selection.select(
@@ -532,9 +531,7 @@ class Table:
         self._selected_items = []
         self._current_item = None
 
-    def _qualify_selected_rows(
-        self, rows: List[int], current: Optional[int]
-    ) -> List[int]:
+    def _qualify_selected_rows(self, rows: list[int], current: int | None) -> list[int]:
         """Return between 1 and SELECTION_LIMIT rows, as far as possible from rows or current."""
         if rows:
             if len(rows) < self.SELECTION_LIMIT:
@@ -544,7 +541,7 @@ class Table:
             return rows[0:1]
         return [current if current else 0]
 
-    def _intersected_selection(self) -> Tuple[List[int], Optional[int]]:
+    def _intersected_selection(self) -> tuple[list[int], int | None]:
         """Return all rows of items that were in the saved selection and the row of the saved
         current element if present.
         """
@@ -554,7 +551,7 @@ class Table:
         )
         return selected_rows, current_row
 
-    def _toggled_selection(self) -> Tuple[List[int], Optional[int]]:
+    def _toggled_selection(self) -> tuple[list[int], int | None]:
         """Convert the items of the saved selection and current element to the new state and
         return their rows.
         """

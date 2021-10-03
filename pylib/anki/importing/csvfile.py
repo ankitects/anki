@@ -1,9 +1,11 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import csv
 import re
-from typing import Any, List, Optional, TextIO, Union
+from typing import Any, Optional, TextIO
 
 from anki.collection import Collection
 from anki.importing.noteimp import ForeignNote, NoteImporter
@@ -19,12 +21,12 @@ class TextImporter(NoteImporter):
         self.lines = None
         self.fileobj: Optional[TextIO] = None
         self.delimiter: Optional[str] = None
-        self.tagsToAdd: List[str] = []
+        self.tagsToAdd: list[str] = []
         self.numFields = 0
         self.dialect: Optional[Any]
-        self.data: Optional[Union[str, List[str]]]
+        self.data: Optional[str | list[str]]
 
-    def foreignNotes(self) -> List[ForeignNote]:
+    def foreignNotes(self) -> list[ForeignNote]:
         self.open()
         # process all lines
         log = []
@@ -144,7 +146,7 @@ class TextImporter(NoteImporter):
             # pylint: disable=no-member
             zuper.__del__(self)  # type: ignore
 
-    def noteFromFields(self, fields: List[str]) -> ForeignNote:
+    def noteFromFields(self, fields: list[str]) -> ForeignNote:
         note = ForeignNote()
         note.fields.extend([x for x in fields])
         note.tags.extend(self.tagsToAdd)

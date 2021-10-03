@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 System File Locations
 Retrieves common system path names on Windows XP/Vista
@@ -15,7 +13,7 @@ __author__ = "Ryan Ginstrom"
 __description__ = "Retrieves common Windows system paths as Unicode strings"
 
 
-class PathConstants(object):
+class PathConstants:
     """
     Define constants here to avoid dependency on shellcon.
     Put it in a class to avoid polluting namespace

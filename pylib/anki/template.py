@@ -29,7 +29,7 @@ template_legacy.py file, using the legacy addHook() system.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Sequence, Union
 
 import anki
 from anki import card_rendering_pb2, hooks
@@ -50,10 +50,10 @@ CARD_BLANK_HELP = (
 class TemplateReplacement:
     field_name: str
     current_text: str
-    filters: List[str]
+    filters: list[str]
 
 
-TemplateReplacementList = List[Union[str, TemplateReplacement]]
+TemplateReplacementList = list[Union[str, TemplateReplacement]]
 
 
 @dataclass
@@ -105,7 +105,7 @@ def av_tag_to_native(tag: card_rendering_pb2.AVTag) -> AVTag:
         )
 
 
-def av_tags_to_native(tags: Sequence[card_rendering_pb2.AVTag]) -> List[AVTag]:
+def av_tags_to_native(tags: Sequence[card_rendering_pb2.AVTag]) -> list[AVTag]:
     return list(map(av_tag_to_native, tags))
 
 
@@ -125,7 +125,7 @@ class TemplateRenderContext:
         note: Note,
         card: Card,
         notetype: NotetypeDict,
-        template: Dict,
+        template: dict,
         fill_empty: bool,
     ) -> TemplateRenderContext:
         return TemplateRenderContext(
@@ -144,7 +144,7 @@ class TemplateRenderContext:
         note: Note,
         browser: bool = False,
         notetype: NotetypeDict = None,
-        template: Optional[Dict] = None,
+        template: dict | None = None,
         fill_empty: bool = False,
     ) -> None:
         self._col = col.weakref()
@@ -153,7 +153,7 @@ class TemplateRenderContext:
         self._browser = browser
         self._template = template
         self._fill_empty = fill_empty
-        self._fields: Optional[Dict] = None
+        self._fields: dict | None = None
         self._latex_svg = False
         if not notetype:
             self._note_type = note.note_type()
@@ -162,12 +162,12 @@ class TemplateRenderContext:
 
         # if you need to store extra state to share amongst rendering
         # hooks, you can insert it into this dictionary
-        self.extra_state: Dict[str, Any] = {}
+        self.extra_state: dict[str, Any] = {}
 
     def col(self) -> anki.collection.Collection:
         return self._col
 
-    def fields(self) -> Dict[str, str]:
+    def fields(self) -> dict[str, str]:
         print(".fields() is obsolete, use .note() or .card()")
         if not self._fields:
             # fields from note
@@ -269,8 +269,8 @@ class TemplateRenderOutput:
     "Stores the rendered templates and extracted AV tags."
     question_text: str
     answer_text: str
-    question_av_tags: List[AVTag]
-    answer_av_tags: List[AVTag]
+    question_av_tags: list[AVTag]
+    answer_av_tags: list[AVTag]
     css: str = ""
 
     def question_and_style(self) -> str:
@@ -281,7 +281,7 @@ class TemplateRenderOutput:
 
 
 # legacy
-def templates_for_card(card: Card, browser: bool) -> Tuple[str, str]:
+def templates_for_card(card: Card, browser: bool) -> tuple[str, str]:
     template = card.template()
     if browser:
         q, a = template.get("bqfmt"), template.get("bafmt")
@@ -295,7 +295,7 @@ def templates_for_card(card: Card, browser: bool) -> Tuple[str, str]:
 def apply_custom_filters(
     rendered: TemplateReplacementList,
     ctx: TemplateRenderContext,
-    front_side: Optional[str],
+    front_side: str | None,
 ) -> str:
     "Complete rendering by applying any pending custom filters."
     # template already fully rendered?

@@ -8,7 +8,7 @@ import traceback
 import unicodedata
 import zipfile
 from concurrent.futures import Future
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import anki.importing as importing
 import aqt.deckchooser
@@ -34,7 +34,7 @@ from aqt.utils import (
 
 
 class ChangeMap(QDialog):
-    def __init__(self, mw: AnkiQt, model: Dict, current: str) -> None:
+    def __init__(self, mw: AnkiQt, model: dict, current: str) -> None:
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.model = model

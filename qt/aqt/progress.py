@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import time
-from typing import Callable, Optional
 
 import aqt.forms
 from aqt.qt import *
@@ -19,9 +18,9 @@ class ProgressManager:
         self.app = mw.app
         self.inDB = False
         self.blockUpdates = False
-        self._show_timer: Optional[QTimer] = None
-        self._busy_cursor_timer: Optional[QTimer] = None
-        self._win: Optional[ProgressDialog] = None
+        self._show_timer: QTimer | None = None
+        self._busy_cursor_timer: QTimer | None = None
+        self._win: ProgressDialog | None = None
         self._levels = 0
 
     # Safer timers
@@ -74,10 +73,10 @@ class ProgressManager:
         self,
         max: int = 0,
         min: int = 0,
-        label: Optional[str] = None,
-        parent: Optional[QWidget] = None,
+        label: str | None = None,
+        parent: QWidget | None = None,
         immediate: bool = False,
-    ) -> Optional[ProgressDialog]:
+    ) -> ProgressDialog | None:
         self._levels += 1
         if self._levels > 1:
             return None
@@ -112,11 +111,11 @@ class ProgressManager:
 
     def update(
         self,
-        label: Optional[str] = None,
-        value: Optional[int] = None,
+        label: str | None = None,
+        value: int | None = None,
         process: bool = True,
         maybeShow: bool = True,
-        max: Optional[int] = None,
+        max: int | None = None,
     ) -> None:
         # print self._min, self._counter, self._max, label, time.time() - self._lastTime
         if not self.mw.inMainThread():

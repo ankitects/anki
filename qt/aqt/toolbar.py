@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import aqt
 from anki.sync import SyncStatus
@@ -29,7 +29,7 @@ class Toolbar:
     def __init__(self, mw: aqt.AnkiQt, web: AnkiWebView) -> None:
         self.mw = mw
         self.web = web
-        self.link_handlers: Dict[str, Callable] = {
+        self.link_handlers: dict[str, Callable] = {
             "study": self._studyLinkHandler,
         }
         self.web.setFixedHeight(30)
@@ -38,8 +38,8 @@ class Toolbar:
     def draw(
         self,
         buf: str = "",
-        web_context: Optional[Any] = None,
-        link_handler: Optional[Callable[[str], Any]] = None,
+        web_context: Any | None = None,
+        link_handler: Callable[[str], Any] | None = None,
     ) -> None:
         web_context = web_context or TopToolbar(self)
         link_handler = link_handler or self._linkHandler
@@ -65,8 +65,8 @@ class Toolbar:
         cmd: str,
         label: str,
         func: Callable,
-        tip: Optional[str] = None,
-        id: Optional[str] = None,
+        tip: str | None = None,
+        id: str | None = None,
     ) -> str:
         """Generates HTML link element and registers link handler
 
@@ -218,8 +218,8 @@ class BottomBar(Toolbar):
     def draw(
         self,
         buf: str = "",
-        web_context: Optional[Any] = None,
-        link_handler: Optional[Callable[[str], Any]] = None,
+        web_context: Any | None = None,
+        link_handler: Callable[[str], Any] | None = None,
     ) -> None:
         # note: some screens may override this
         web_context = web_context or BottomToolbar(self)

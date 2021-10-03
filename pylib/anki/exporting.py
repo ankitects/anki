@@ -3,6 +3,8 @@
 
 # pylint: disable=invalid-name
 
+from __future__ import annotations
+
 import json
 import os
 import re
@@ -10,7 +12,7 @@ import shutil
 import unicodedata
 import zipfile
 from io import BufferedWriter
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Optional, Sequence
 from zipfile import ZipFile
 
 from anki import hooks
@@ -21,7 +23,7 @@ from anki.utils import ids2str, namedtmp, splitFields, stripHTML
 
 
 class Exporter:
-    includeHTML: Union[bool, None] = None
+    includeHTML: bool | None = None
     ext: Optional[str] = None
     includeTags: Optional[bool] = None
     includeSched: Optional[bool] = None
@@ -31,7 +33,7 @@ class Exporter:
         self,
         col: Collection,
         did: Optional[DeckId] = None,
-        cids: Optional[List[CardId]] = None,
+        cids: Optional[list[CardId]] = None,
     ) -> None:
         self.col = col.weakref()
         self.did = did
@@ -177,7 +179,7 @@ where cards.id in %s)"""
 class AnkiExporter(Exporter):
 
     ext = ".anki2"
-    includeSched: Union[bool, None] = False
+    includeSched: bool | None = False
     includeMedia = True
 
     def __init__(self, col: Collection) -> None:
@@ -187,7 +189,7 @@ class AnkiExporter(Exporter):
     def key(col: Collection) -> str:
         return col.tr.exporting_anki_20_deck()
 
-    def deckIds(self) -> List[DeckId]:
+    def deckIds(self) -> list[DeckId]:
         if self.cids:
             return self.col.decks.for_card_ids(self.cids)
         elif self.did:
@@ -210,7 +212,7 @@ class AnkiExporter(Exporter):
         cids = self.cardIds()
         # copy cards, noting used nids
         nids = {}
-        data: List[Sequence] = []
+        data: list[Sequence] = []
         for row in self.src.db.execute(
             "select * from cards where id in " + ids2str(cids)
         ):
@@ -344,7 +346,7 @@ class AnkiPackageExporter(AnkiExporter):
         z.writestr("media", json.dumps(media))
         z.close()
 
-    def doExport(self, z: ZipFile, path: str) -> Dict[str, str]:  # type: ignore
+    def doExport(self, z: ZipFile, path: str) -> dict[str, str]:  # type: ignore
         # export into the anki2 file
         colfile = path.replace(".apkg", ".anki2")
         AnkiExporter.exportInto(self, colfile)
@@ -368,7 +370,7 @@ class AnkiPackageExporter(AnkiExporter):
         shutil.rmtree(path.replace(".apkg", ".media"))
         return media
 
-    def _exportMedia(self, z: ZipFile, files: List[str], fdir: str) -> Dict[str, str]:
+    def _exportMedia(self, z: ZipFile, files: list[str], fdir: str) -> dict[str, str]:
         media = {}
         for c, file in enumerate(files):
             cStr = str(c)
@@ -445,13 +447,13 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
 ##########################################################################
 
 
-def exporters(col: Collection) -> List[Tuple[str, Any]]:
+def exporters(col: Collection) -> list[tuple[str, Any]]:
     def id(obj):
         if callable(obj.key):
             key_str = obj.key(col)
         else:
             key_str = obj.key
-        return ("%s (*%s)" % (key_str, obj.ext), obj)
+        return (f"{key_str} (*{obj.ext})", obj)
 
     exps = [
         id(AnkiCollectionPackageExporter),
