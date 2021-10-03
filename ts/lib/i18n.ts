@@ -1,43 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-// An i18n singleton and setupI18n is re-exported via the generated i18n.ts file,
-// so you should not need to access this file directly.
-
 import "intl-pluralrules";
-import { FluentBundle, FluentResource, FluentNumber } from "@fluent/bundle";
+import { FluentBundle, FluentResource } from "@fluent/bundle";
+
+import { firstLanguage, setBundles } from "./i18n-bundles";
 import type { ModuleName } from "./i18n-modules";
 
-type RecordVal = number | string | FluentNumber;
-
-function formatNumbers(args: Record<string, RecordVal>): void {
-    for (const key of Object.keys(args)) {
-        if (typeof args[key] === "number") {
-            args[key] = new FluentNumber(args[key] as number, {
-                maximumFractionDigits: 2,
-            });
-        }
-    }
-}
-
-let bundles: FluentBundle[] = [];
-
-export function translate(key: string, args?: Record<string, RecordVal>): string {
-    if (args) {
-        formatNumbers(args);
-    }
-
-    for (const bundle of bundles) {
-        const msg = bundle.getMessage(key);
-        if (msg && msg.value) {
-            return bundle.formatPattern(msg.value, args);
-        }
-    }
-    return `missing key: ${key}`;
-}
-
 export function supportsVerticalText(): boolean {
-    const firstLang = bundles[0].locales[0];
+    const firstLang = firstLanguage();
     return (
         firstLang.startsWith("ja") ||
         firstLang.startsWith("zh") ||
@@ -46,7 +17,7 @@ export function supportsVerticalText(): boolean {
 }
 
 export function direction(): string {
-    const firstLang = bundles[0].locales[0];
+    const firstLang = firstLanguage();
     if (
         firstLang.startsWith("ar") ||
         firstLang.startsWith("he") ||
@@ -59,7 +30,7 @@ export function direction(): string {
 }
 
 export function weekdayLabel(n: number): string {
-    const firstLang = bundles[0].locales[0];
+    const firstLang = firstLanguage();
     const now = new Date();
     const daysFromToday = -now.getDay() + n;
     const desiredDay = new Date(now.getTime() + daysFromToday * 86_400_000);
@@ -95,17 +66,18 @@ export async function setupI18n(args: { modules: ModuleName[] }): Promise<void> 
     }
     const json = await resp.json();
 
-    bundles = [];
+    const newBundles: FluentBundle[] = [];
     for (const i in json.resources) {
         const text = json.resources[i];
         const lang = json.langs[i];
         const bundle = new FluentBundle([lang, "en-US"]);
         const resource = new FluentResource(text);
         bundle.addResource(resource);
-        bundles.push(bundle);
+        newBundles.push(bundle);
     }
 
-    langs = json.langs;
+    setBundles(...newBundles);
+    langs.splice(0, langs.length, ...json.langs);
 }
 
 export { ModuleName } from "./i18n-modules";
