@@ -29,7 +29,7 @@ import {
     SearchDispatch,
 } from "./graph-helpers";
 import { clickableClass } from "./graph-styles";
-import { tr, i18n } from "../lib/i18n";
+import { tr, weekdayLabel, toLocaleString } from "../lib/i18n";
 
 export interface GraphData {
     // indexed by day, where day is relative to today
@@ -154,7 +154,7 @@ export function renderCalendar(
         .interpolator((n) => interpolateBlues(cappedRange(n)!));
 
     function tooltipText(d: DayDatum): string {
-        const date = d.date.toLocaleString(i18n.langs, {
+        const date = toLocaleString(d.date, {
             weekday: "long",
             year: "numeric",
             month: "long",
@@ -171,7 +171,7 @@ export function renderCalendar(
         .selectAll("text")
         .data(sourceData.weekdayLabels)
         .join("text")
-        .text((d: number) => i18n.weekdayLabel(d))
+        .text((d: number) => weekdayLabel(d))
         .attr("width", x(-1)! - 2)
         .attr("height", height - 2)
         .attr("x", x(1)! - 3)

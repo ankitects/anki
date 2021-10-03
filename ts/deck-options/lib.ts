@@ -9,7 +9,7 @@ import { DeckConfig } from "../lib/proto";
 import { postRequest } from "../lib/postrequest";
 import { Writable, writable, get, Readable, readable } from "svelte/store";
 import { isEqual, cloneDeep } from "lodash-es";
-import { i18n } from "../lib/i18n";
+import { localeCompare } from "../lib/i18n";
 import type { DynamicSvelteComponent } from "../sveltelib/dynamicComponent";
 
 export async function getDeckOptionsInfo(
@@ -278,9 +278,7 @@ export class DeckOptionsState {
                 useCount,
             };
         });
-        list.sort((a, b) =>
-            a.name.localeCompare(b.name, i18n.langs, { sensitivity: "base" })
-        );
+        list.sort((a, b) => localeCompare(a.name, b.name, { sensitivity: "base" }));
         return list;
     }
 

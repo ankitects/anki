@@ -18,7 +18,7 @@ class Variable(TypedDict):
 
 def methods() -> str:
     out = [
-        'import { i18n } from "./i18n";',
+        'import { translate } from "./i18n";',
     ]
     for module in modules:
         for translation in module["translations"]:
@@ -30,7 +30,7 @@ def methods() -> str:
                 f"""
 /** {doc} */
 export function {key}({arg_types}): string {{
-    return i18n.translate("{translation["key"]}"{args})
+    return translate("{translation["key"]}"{args})
 }}
 """
             )

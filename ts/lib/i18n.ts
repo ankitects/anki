@@ -6,13 +6,11 @@
 
 import "intl-pluralrules";
 import { FluentBundle, FluentResource, FluentNumber } from "@fluent/bundle";
+import type { ModuleName } from "./i18n-modules";
 
 type RecordVal = number | string | FluentNumber;
 
-function formatNumbers(args?: Record<string, RecordVal>): void {
-    if (!args) {
-        return;
-    }
+function formatNumbers(args: Record<string, RecordVal>): void {
     for (const key of Object.keys(args)) {
         if (typeof args[key] === "number") {
             args[key] = new FluentNumber(args[key] as number, {
@@ -22,64 +20,70 @@ function formatNumbers(args?: Record<string, RecordVal>): void {
     }
 }
 
-export class I18n {
-    bundles: FluentBundle[] = [];
-    langs: string[] = [];
+let bundles: FluentBundle[] = [];
 
-    translate(key: string, args?: Record<string, RecordVal>): string {
+export function translate(key: string, args?: Record<string, RecordVal>): string {
+    if (args) {
         formatNumbers(args);
-        for (const bundle of this.bundles) {
-            const msg = bundle.getMessage(key);
-            if (msg && msg.value) {
-                return bundle.formatPattern(msg.value, args);
-            }
-        }
-        return `missing key: ${key}`;
     }
 
-    supportsVerticalText(): boolean {
-        const firstLang = this.bundles[0].locales[0];
-        return (
-            firstLang.startsWith("ja") ||
-            firstLang.startsWith("zh") ||
-            firstLang.startsWith("ko")
-        );
-    }
-
-    direction(): string {
-        const firstLang = this.bundles[0].locales[0];
-        if (
-            firstLang.startsWith("ar") ||
-            firstLang.startsWith("he") ||
-            firstLang.startsWith("fa")
-        ) {
-            return "rtl";
-        } else {
-            return "ltr";
+    for (const bundle of bundles) {
+        const msg = bundle.getMessage(key);
+        if (msg && msg.value) {
+            return bundle.formatPattern(msg.value, args);
         }
     }
+    return `missing key: ${key}`;
+}
 
-    weekdayLabel(n: number): string {
-        const firstLang = this.bundles[0].locales[0];
-        const now = new Date();
-        const daysFromToday = -now.getDay() + n;
-        const desiredDay = new Date(now.getTime() + daysFromToday * 86_400_000);
-        return desiredDay.toLocaleDateString(firstLang, {
-            weekday: "narrow",
-        });
-    }
+export function supportsVerticalText(): boolean {
+    const firstLang = bundles[0].locales[0];
+    return (
+        firstLang.startsWith("ja") ||
+        firstLang.startsWith("zh") ||
+        firstLang.startsWith("ko")
+    );
+}
 
-    /// Treat text like HTML, merging multiple spaces and converting
-    /// newlines to spaces.
-    withCollapsedWhitespace(s: string): string {
-        return s.replace(/\s+/g, " ");
+export function direction(): string {
+    const firstLang = bundles[0].locales[0];
+    if (
+        firstLang.startsWith("ar") ||
+        firstLang.startsWith("he") ||
+        firstLang.startsWith("fa")
+    ) {
+        return "rtl";
+    } else {
+        return "ltr";
     }
 }
 
-// global singleton
-export const i18n = new I18n();
+export function weekdayLabel(n: number): string {
+    const firstLang = bundles[0].locales[0];
+    const now = new Date();
+    const daysFromToday = -now.getDay() + n;
+    const desiredDay = new Date(now.getTime() + daysFromToday * 86_400_000);
+    return desiredDay.toLocaleDateString(firstLang, {
+        weekday: "narrow",
+    });
+}
 
-import type { ModuleName } from "./i18n-modules";
+let langs: string[] = [];
+
+export function toLocaleString(
+    date: Date,
+    options?: Intl.DateTimeFormatOptions
+): string {
+    return date.toLocaleDateString(langs, options);
+}
+
+export function localeCompare(
+    first: string,
+    second: string,
+    options?: Intl.CollatorOptions
+): number {
+    return first.localeCompare(second, langs, options);
+}
 
 export async function setupI18n(args: { modules: ModuleName[] }): Promise<void> {
     const resp = await fetch("/_anki/i18nResources", {
@@ -91,16 +95,17 @@ export async function setupI18n(args: { modules: ModuleName[] }): Promise<void> 
     }
     const json = await resp.json();
 
-    i18n.bundles = [];
+    bundles = [];
     for (const i in json.resources) {
         const text = json.resources[i];
         const lang = json.langs[i];
         const bundle = new FluentBundle([lang, "en-US"]);
         const resource = new FluentResource(text);
         bundle.addResource(resource);
-        i18n.bundles.push(bundle);
+        bundles.push(bundle);
     }
-    i18n.langs = json.langs;
+
+    langs = json.langs;
 }
 
 export { ModuleName } from "./i18n-modules";
