@@ -1,5 +1,5 @@
 licenses.json
 vendor
-i18n-translate.ts
-i18n-modules.ts
+lib/i18n/translate.ts
+lib/i18n/modules.ts
 backend_proto.d.ts

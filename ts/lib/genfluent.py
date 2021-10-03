@@ -17,7 +17,7 @@ class Variable(TypedDict):
 
 
 def methods() -> str:
-    out = [ 'import { translate } from "./i18n-bundles";' ]
+    out = [ 'import { translate } from "./bundles";' ]
     for module in modules:
         for translation in module["translations"]:
             key = stringcase.camelcase(translation["key"].replace("-", "_"))

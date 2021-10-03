@@ -1,6 +1,6 @@
 {
     "extends": "../tsconfig.json",
-    "include": ["*"],
+    "include": ["*", "i18n/*"],
     "references": [],
     "compilerOptions": {
         "types": ["jest"]

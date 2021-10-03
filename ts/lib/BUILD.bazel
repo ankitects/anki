@@ -1,25 +1,10 @@
+load("@rules_python//python:defs.bzl", "py_binary")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:protobuf.bzl", "protobufjs_library")
 load("//ts:typescript.bzl", "typescript")
-load("@rules_python//python:defs.bzl", "py_binary")
 load("@py_deps//:requirements.bzl", "requirement")
 load("//ts:jest.bzl", "jest_test")
-
-_i18n_files = [
-    "i18n-translate.ts",
-    "i18n-modules.ts",
-]
-
-_generated = _i18n_files + [
-    "backend_proto.d.ts",
-]
-
-protobufjs_library(
-    name = "backend_proto",
-    proto = "//proto:backend_proto_lib",
-    visibility = ["//visibility:public"],
-)
 
 py_binary(
     name = "genfluent",
@@ -31,10 +16,14 @@ py_binary(
         requirement("stringcase"),
     ],
 )
+_i18n_generated = [
+    "i18n/translate.ts",
+    "i18n/modules.ts",
+]
 
 genrule(
     name = "fluent_gen",
-    outs = _i18n_files,
+    outs = _i18n_generated,
     cmd = "$(location genfluent) $(location //rslib/i18n:strings.json) $(OUTS)",
     tools = [
         "genfluent",
@@ -42,13 +31,24 @@ genrule(
     ],
 )
 
+protobufjs_library(
+    name = "backend_proto",
+    proto = "//proto:backend_proto_lib",
+    visibility = ["//visibility:public"],
+)
+
+_generated = [
+    "backend_proto.d.ts",
+] + _i18n_generated
+
 typescript(
     name = "lib",
-    srcs = glob(
-        ["*.ts"],
-        exclude = _generated,
-    ),
-    generated = [":" + file for file in _generated],
+    exclude = _generated,
+    generated = [
+        ":backend_proto.d.ts",
+        ":i18n/translate.ts",
+        ":i18n/modules.ts",
+    ],
     deps = [
         ":backend_proto",
         "@npm//@fluent/bundle",
@@ -63,9 +63,19 @@ typescript(
 # Tests
 ################
 
-prettier_test(exclude = _generated)
+prettier_test(
+    srcs = glob(
+        ["**/*.ts"],
+        exclude = _generated,
+    ),
+)
 
-eslint_test(exclude = _generated)
+eslint_test(
+    srcs = glob(
+        ["**/*.ts"],
+        exclude = _generated,
+    ),
+)
 
 jest_test(
     deps = [

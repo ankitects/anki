@@ -4,8 +4,8 @@
 import "intl-pluralrules";
 import { FluentBundle, FluentResource } from "@fluent/bundle";
 
-import { firstLanguage, setBundles } from "./i18n-bundles";
-import type { ModuleName } from "./i18n-modules";
+import { firstLanguage, setBundles } from "./bundles";
+import type { ModuleName } from "./modules";
 
 export function supportsVerticalText(): boolean {
     const firstLang = firstLanguage();
@@ -79,6 +79,3 @@ export async function setupI18n(args: { modules: ModuleName[] }): Promise<void> 
     setBundles(...newBundles);
     langs.splice(0, langs.length, ...json.langs);
 }
-
-export { ModuleName } from "./i18n-modules";
-export * as tr from "./i18n-translate";

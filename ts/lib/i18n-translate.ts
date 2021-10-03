@@ -1,1 +1,0 @@
-../../bazel-bin/ts/lib/i18n-translate.ts
