@@ -15,14 +15,14 @@ Pre-built Python packages are available on PyPI. They are useful if you wish to:
 - Get code completion when developing add-ons
 - Make command line scripts that modify .anki2 files via Anki's Python libraries
 
-You will need the 64 bit version of Python 3.8 or 3.9 installed. If you do not
+You will need the 64 bit version of Python 3.9 or 3.10 installed. If you do not
 have Python yet, please see the platform-specific instructions in the "Building
 from source" section below for more info.
 
 **Mac/Linux**:
 
 ```
-$ python3.8 -m venv ~/pyenv
+$ python3.9 -m venv ~/pyenv
 $ ~/pyenv/bin/pip install --upgrade pip
 $ ~/pyenv/bin/pip install aqt
 ```
