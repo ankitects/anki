@@ -526,14 +526,12 @@ class CardLayout(QDialog):
             self.have_autoplayed = True
 
             if c.autoplay():
-                AnkiWebView.setPlaybackRequiresGesture(False)
                 if self.pform.preview_front.isChecked():
                     audio = c.question_av_tags()
                 else:
                     audio = c.answer_av_tags()
                 av_player.play_tags(audio)
             else:
-                AnkiWebView.setPlaybackRequiresGesture(True)
                 av_player.clear_queue_and_maybe_interrupt()
 
         self.updateCardNames()

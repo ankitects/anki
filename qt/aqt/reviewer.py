@@ -42,7 +42,6 @@ from aqt.sound import av_player, play_clicked_audio, record_audio
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
 from aqt.utils import askUserDialog, downArrow, qtMenuShortcutWorkaround, tooltip, tr
-from aqt.webview import AnkiWebView
 
 
 class RefreshNeeded(Enum):
@@ -315,12 +314,10 @@ class Reviewer:
         q = c.question()
         # play audio?
         if c.autoplay():
-            AnkiWebView.setPlaybackRequiresGesture(False)
             sounds = c.question_av_tags()
             gui_hooks.reviewer_will_play_question_sounds(c, sounds)
             av_player.play_tags(sounds)
         else:
-            AnkiWebView.setPlaybackRequiresGesture(True)
             av_player.clear_queue_and_maybe_interrupt()
             sounds = []
             gui_hooks.reviewer_will_play_question_sounds(c, sounds)
