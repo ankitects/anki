@@ -61,14 +61,7 @@ mw: Optional[AnkiQt] = None  # set on init
 
 moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
 
-try:
-    import aqt.forms
-except ImportError as e:
-    if "forms" in str(e):
-        print("If you're running from git, did you run build_ui.sh?")
-        print()
-    raise
-
+import aqt.forms
 
 # Dialog manager
 ##########################################################################
