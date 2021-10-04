@@ -24,8 +24,8 @@ from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import TR, locale_dir, tr
 
-if sys.version_info[0] < 3 or sys.version_info[1] < 7:
-    raise Exception("Anki requires Python 3.7+")
+if sys.version_info[0] < 3 or sys.version_info[1] < 9:
+    raise Exception("Anki requires Python 3.9+")
 
 # ensure unicode filenames are supported
 try:
