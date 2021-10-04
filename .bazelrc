@@ -3,7 +3,7 @@ common --experimental_repository_cache_hardlinks
 
 # specify python path for pyo3 compile
 build:windows --action_env="PYO3_PYTHON=c:/python/python.exe"
-#build:linux --action_env="PYO3_PYTHON=/usr/local/bin/python3.8"
+#build:linux --action_env="PYO3_PYTHON=/usr/local/bin/python3.9"
 
 # only affects the ankihelper library
 #build:macos --macos_cpus=x86_64,arm64
