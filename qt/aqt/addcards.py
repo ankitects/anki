@@ -1,7 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Callable, List, Optional
+from typing import Callable, Optional
 
 import aqt.editor
 import aqt.forms
@@ -50,7 +50,7 @@ class AddCards(QDialog):
         self.setupEditor()
         self.setupButtons()
         self._load_new_note()
-        self.history: List[NoteId] = []
+        self.history: list[NoteId] = []
         self._last_added_note: Optional[Note] = None
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         restoreGeom(self, "add")

@@ -5,7 +5,9 @@
 Legacy support
 """
 
-from typing import Any, List
+from __future__ import annotations
+
+from typing import Any
 
 import anki
 import aqt
@@ -20,7 +22,7 @@ def bodyClass(col, card) -> str:  # type: ignore
     return theme_manager.body_classes_for_card_ord(card.ord)
 
 
-def allSounds(text) -> List:  # type: ignore
+def allSounds(text) -> list:  # type: ignore
     print("allSounds() deprecated")
     return aqt.mw.col.media._extract_filenames(text)
 

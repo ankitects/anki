@@ -3,9 +3,11 @@
 
 # pylint: disable=invalid-name
 
+from __future__ import annotations
+
 import html
 import unicodedata
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 from anki.collection import Collection
 from anki.config import Config
@@ -22,9 +24,9 @@ from anki.utils import (
     timestampID,
 )
 
-TagMappedUpdate = Tuple[int, int, str, str, NoteId, str, str]
-TagModifiedUpdate = Tuple[int, int, str, str, NoteId, str]
-NoTagUpdate = Tuple[int, int, str, NoteId, str]
+TagMappedUpdate = tuple[int, int, str, str, NoteId, str, str]
+TagModifiedUpdate = tuple[int, int, str, str, NoteId, str]
+NoTagUpdate = tuple[int, int, str, NoteId, str]
 Updates = Union[TagMappedUpdate, TagModifiedUpdate, NoTagUpdate]
 
 # Stores a list of fields, tags and deck
@@ -35,10 +37,10 @@ class ForeignNote:
     "An temporary object storing fields and attributes."
 
     def __init__(self) -> None:
-        self.fields: List[str] = []
-        self.tags: List[str] = []
+        self.fields: list[str] = []
+        self.tags: list[str] = []
         self.deck = None
-        self.cards: Dict[int, ForeignCard] = {}  # map of ord -> card
+        self.cards: dict[int, ForeignCard] = {}  # map of ord -> card
         self.fieldsStr = ""
 
 
@@ -75,7 +77,7 @@ class NoteImporter(Importer):
     needDelimiter = False
     allowHTML = False
     importMode = UPDATE_MODE
-    mapping: Optional[List[str]]
+    mapping: Optional[list[str]]
     tagModified: Optional[str]
 
     def __init__(self, col: Collection, file: str) -> None:
@@ -109,11 +111,11 @@ class NoteImporter(Importer):
     def mappingOk(self) -> bool:
         return self.model["flds"][0]["name"] in self.mapping
 
-    def foreignNotes(self) -> List:
+    def foreignNotes(self) -> list:
         "Return a list of foreign notes for importing."
         return []
 
-    def importNotes(self, notes: List[ForeignNote]) -> None:
+    def importNotes(self, notes: list[ForeignNote]) -> None:
         "Convert each card into a note, apply attributes and add to col."
         assert self.mappingOk()
         # note whether tags are mapped
@@ -122,7 +124,7 @@ class NoteImporter(Importer):
             if f == "_tags":
                 self._tagsMapped = True
         # gather checks for duplicate comparison
-        csums: Dict[str, List[NoteId]] = {}
+        csums: dict[str, list[NoteId]] = {}
         for csum, id in self.col.db.execute(
             "select csum, id from notes where mid = ?", self.model["id"]
         ):
@@ -130,18 +132,18 @@ class NoteImporter(Importer):
                 csums[csum].append(id)
             else:
                 csums[csum] = [id]
-        firsts: Dict[str, bool] = {}
+        firsts: dict[str, bool] = {}
         fld0idx = self.mapping.index(self.model["flds"][0]["name"])
         self._fmap = self.col.models.field_map(self.model)
         self._nextID = NoteId(timestampID(self.col.db, "notes"))
         # loop through the notes
-        updates: List[Updates] = []
+        updates: list[Updates] = []
         updateLog = []
         new = []
-        self._ids: List[NoteId] = []
-        self._cards: List[Tuple] = []
+        self._ids: list[NoteId] = []
+        self._cards: list[tuple] = []
         dupeCount = 0
-        dupes: List[str] = []
+        dupes: list[str] = []
         for n in notes:
             for c, field in enumerate(n.fields):
                 if not self.allowHTML:
@@ -232,7 +234,7 @@ class NoteImporter(Importer):
 
     def newData(
         self, n: ForeignNote
-    ) -> Tuple[NoteId, str, NotetypeId, int, int, str, str, str, int, int, str]:
+    ) -> tuple[NoteId, str, NotetypeId, int, int, str, str, str, int, int, str]:
         id = self._nextID
         self._nextID = NoteId(self._nextID + 1)
         self._ids.append(id)
@@ -256,8 +258,8 @@ class NoteImporter(Importer):
 
     def addNew(
         self,
-        rows: List[
-            Tuple[NoteId, str, NotetypeId, int, int, str, str, str, int, int, str]
+        rows: list[
+            tuple[NoteId, str, NotetypeId, int, int, str, str, str, int, int, str]
         ],
     ) -> None:
         self.col.db.executemany(
@@ -265,7 +267,7 @@ class NoteImporter(Importer):
         )
 
     def updateData(
-        self, n: ForeignNote, id: NoteId, sflds: List[str]
+        self, n: ForeignNote, id: NoteId, sflds: list[str]
     ) -> Optional[Updates]:
         self._ids.append(id)
         self.processFields(n, sflds)
@@ -280,7 +282,7 @@ class NoteImporter(Importer):
         else:
             return (intTime(), self.col.usn(), n.fieldsStr, id, n.fieldsStr)
 
-    def addUpdates(self, rows: List[Updates]) -> None:
+    def addUpdates(self, rows: list[Updates]) -> None:
         changes = self.col.db.scalar("select total_changes()")
         if self._tagsMapped:
             self.col.db.executemany(
@@ -307,7 +309,7 @@ where id = ? and flds != ?""",
         self.updateCount = changes2 - changes
 
     def processFields(
-        self, note: ForeignNote, fields: Optional[List[str]] = None
+        self, note: ForeignNote, fields: Optional[list[str]] = None
     ) -> None:
         if not fields:
             fields = [""] * len(self.model["flds"])

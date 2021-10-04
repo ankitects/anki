@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import re
 from re import Match
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import Any, Iterable, Sequence, Union
 
 import anki._backend
 
@@ -49,7 +49,7 @@ class DBProxy:
         *args: ValueForDB,
         first_row_only: bool = False,
         **kwargs: ValueForDB,
-    ) -> List[Row]:
+    ) -> list[Row]:
         # mark modified?
         s = sql.strip().lower()
         for stmt in "insert", "update", "delete":
@@ -62,15 +62,15 @@ class DBProxy:
     # Query shortcuts
     ###################
 
-    def all(self, sql: str, *args: ValueForDB, **kwargs: ValueForDB) -> List[Row]:
+    def all(self, sql: str, *args: ValueForDB, **kwargs: ValueForDB) -> list[Row]:
         return self._query(sql, *args, first_row_only=False, **kwargs)
 
     def list(
         self, sql: str, *args: ValueForDB, **kwargs: ValueForDB
-    ) -> List[ValueFromDB]:
+    ) -> list[ValueFromDB]:
         return [x[0] for x in self._query(sql, *args, first_row_only=False, **kwargs)]
 
-    def first(self, sql: str, *args: ValueForDB, **kwargs: ValueForDB) -> Optional[Row]:
+    def first(self, sql: str, *args: ValueForDB, **kwargs: ValueForDB) -> Row | None:
         rows = self._query(sql, *args, first_row_only=True, **kwargs)
         if rows:
             return rows[0]
@@ -102,8 +102,8 @@ class DBProxy:
 
 # convert kwargs to list format
 def emulate_named_args(
-    sql: str, args: Tuple, kwargs: Dict[str, Any]
-) -> Tuple[str, Sequence[ValueForDB]]:
+    sql: str, args: tuple, kwargs: dict[str, Any]
+) -> tuple[str, Sequence[ValueForDB]]:
     # nothing to do?
     if not kwargs:
         return sql, args

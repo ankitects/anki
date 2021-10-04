@@ -50,7 +50,7 @@ def methods() -> str:
     return "\n".join(out) + "\n"
 
 
-def get_arg_types(args: List[Variable]) -> str:
+def get_arg_types(args: list[Variable]) -> str:
 
     return ", ".join(
         [f"{stringcase.snakecase(arg['name'])}: {arg_kind(arg)}" for arg in args]
@@ -68,7 +68,7 @@ def arg_kind(arg: Variable) -> str:
         return "str"
 
 
-def get_args(args: List[Variable]) -> str:
+def get_args(args: list[Variable]) -> str:
     return ", ".join(
         [f'"{arg["name"]}": {stringcase.snakecase(arg["name"])}' for arg in args]
     )

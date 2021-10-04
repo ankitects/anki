@@ -1,7 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import List, Optional
+from typing import Optional
 
 import aqt
 from anki.collection import OpChangesWithId
@@ -34,7 +34,7 @@ class StudyDeck(QDialog):
         cancel: bool = True,
         parent: Optional[QWidget] = None,
         dyn: bool = False,
-        buttons: Optional[List[Union[str, QPushButton]]] = None,
+        buttons: Optional[list[Union[str, QPushButton]]] = None,
         geomKey: str = "default",
     ) -> None:
         QDialog.__init__(self, parent or mw)

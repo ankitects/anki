@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, Optional, Sequence, Tuple, Union
+from typing import Callable, Sequence
 
 import aqt
 import aqt.forms
@@ -89,14 +89,14 @@ class MockModel:
 class Browser(QMainWindow):
     mw: AnkiQt
     col: Collection
-    editor: Optional[Editor]
+    editor: Editor | None
     table: Table
 
     def __init__(
         self,
         mw: AnkiQt,
-        card: Optional[Card] = None,
-        search: Optional[Tuple[Union[str, SearchNode]]] = None,
+        card: Card | None = None,
+        search: tuple[str | SearchNode] | None = None,
     ) -> None:
         """
         card -- try to select the provided card after executing "search" or
@@ -108,8 +108,8 @@ class Browser(QMainWindow):
         self.mw = mw
         self.col = self.mw.col
         self.lastFilter = ""
-        self.focusTo: Optional[int] = None
-        self._previewer: Optional[Previewer] = None
+        self.focusTo: int | None = None
+        self._previewer: Previewer | None = None
         self._closeEventHasCleanedUp = False
         self.form = aqt.forms.browser.Ui_Dialog()
         self.form.setupUi(self)
@@ -119,8 +119,8 @@ class Browser(QMainWindow):
         restoreSplitter(self.form.splitter, "editor3")
         self.form.splitter.setChildrenCollapsible(False)
         # set if exactly 1 row is selected; used by the previewer
-        self.card: Optional[Card] = None
-        self.current_card: Optional[Card] = None
+        self.card: Card | None = None
+        self.current_card: Card | None = None
         self.setup_table()
         self.setupMenus()
         self.setupHooks()
@@ -134,7 +134,7 @@ class Browser(QMainWindow):
         self.setupSearch(card, search)
 
     def on_operation_did_execute(
-        self, changes: OpChanges, handler: Optional[object]
+        self, changes: OpChanges, handler: object | None
     ) -> None:
         focused = current_window() == self
         self.table.op_executed(changes, handler, focused)
@@ -161,7 +161,7 @@ class Browser(QMainWindow):
         if changes.note_text or changes.card:
             self._renderPreview()
 
-    def on_focus_change(self, new: Optional[QWidget], old: Optional[QWidget]) -> None:
+    def on_focus_change(self, new: QWidget | None, old: QWidget | None) -> None:
         if current_window() == self:
             self.setUpdatesEnabled(True)
             self.table.redraw_cells()
@@ -263,8 +263,8 @@ class Browser(QMainWindow):
     def reopen(
         self,
         _mw: AnkiQt,
-        card: Optional[Card] = None,
-        search: Optional[Tuple[Union[str, SearchNode]]] = None,
+        card: Card | None = None,
+        search: tuple[str | SearchNode] | None = None,
     ) -> None:
         if search is not None:
             self.search_for_terms(*search)
@@ -281,8 +281,8 @@ class Browser(QMainWindow):
 
     def setupSearch(
         self,
-        card: Optional[Card] = None,
-        search: Optional[Tuple[Union[str, SearchNode]]] = None,
+        card: Card | None = None,
+        search: tuple[str | SearchNode] | None = None,
     ) -> None:
         qconnect(self.form.searchEdit.lineEdit().returnPressed, self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
@@ -310,7 +310,7 @@ class Browser(QMainWindow):
             self.search_for(normed)
             self.update_history()
 
-    def search_for(self, search: str, prompt: Optional[str] = None) -> None:
+    def search_for(self, search: str, prompt: str | None = None) -> None:
         """Keep track of search string so that we reuse identical search when
         refreshing, rather than whatever is currently in the search field.
         Optionally set the search bar to a different text than the actual search.
@@ -354,12 +354,12 @@ class Browser(QMainWindow):
             without_unicode_isolation(tr_title(total=cur, selected=selected))
         )
 
-    def search_for_terms(self, *search_terms: Union[str, SearchNode]) -> None:
+    def search_for_terms(self, *search_terms: str | SearchNode) -> None:
         search = self.col.build_search_string(*search_terms)
         self.form.searchEdit.setEditText(search)
         self.onSearchActivated()
 
-    def _default_search(self, card: Optional[Card] = None) -> None:
+    def _default_search(self, card: Card | None = None) -> None:
         default = self.col.get_config_string(Config.String.DEFAULT_SEARCH_TEXT)
         if default.strip():
             search = default
@@ -674,7 +674,7 @@ class Browser(QMainWindow):
     @ensure_editor_saved
     def add_tags_to_selected_notes(
         self,
-        tags: Optional[str] = None,
+        tags: str | None = None,
     ) -> None:
         "Shows prompt if tags not provided."
         if not (tags := tags or self._prompt_for_tags(tr.browsing_enter_tags_to_add())):
@@ -686,7 +686,7 @@ class Browser(QMainWindow):
     @no_arg_trigger
     @skip_if_selection_is_empty
     @ensure_editor_saved
-    def remove_tags_from_selected_notes(self, tags: Optional[str] = None) -> None:
+    def remove_tags_from_selected_notes(self, tags: str | None = None) -> None:
         "Shows prompt if tags not provided."
         if not (
             tags := tags or self._prompt_for_tags(tr.browsing_enter_tags_to_delete())
@@ -697,7 +697,7 @@ class Browser(QMainWindow):
             parent=self, note_ids=self.selected_notes(), space_separated_tags=tags
         ).run_in_background(initiator=self)
 
-    def _prompt_for_tags(self, prompt: str) -> Optional[str]:
+    def _prompt_for_tags(self, prompt: str) -> str | None:
         (tags, ok) = getTag(self, self.col, prompt)
         if not ok:
             return None

@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import pprint
 import time
-from typing import List, NewType, Optional
 
 import anki  # pylint: disable=unused-import
 from anki import cards_pb2, hooks
@@ -34,7 +33,7 @@ BackendCard = cards_pb2.Card
 
 
 class Card(DeprecatedNamesMixin):
-    _note: Optional[Note]
+    _note: Note | None
     lastIvl: int
     ord: int
     nid: anki.notes.NoteId
@@ -47,12 +46,12 @@ class Card(DeprecatedNamesMixin):
     def __init__(
         self,
         col: anki.collection.Collection,
-        id: Optional[CardId] = None,
-        backend_card: Optional[BackendCard] = None,
+        id: CardId | None = None,
+        backend_card: BackendCard | None = None,
     ) -> None:
         self.col = col.weakref()
-        self.timer_started: Optional[float] = None
-        self._render_output: Optional[anki.template.TemplateRenderOutput] = None
+        self.timer_started: float | None = None
+        self._render_output: anki.template.TemplateRenderOutput | None = None
         if id:
             # existing card
             self.id = id
@@ -126,10 +125,10 @@ class Card(DeprecatedNamesMixin):
     def answer(self) -> str:
         return self.render_output().answer_and_style()
 
-    def question_av_tags(self) -> List[AVTag]:
+    def question_av_tags(self) -> list[AVTag]:
         return self.render_output().question_av_tags
 
-    def answer_av_tags(self) -> List[AVTag]:
+    def answer_av_tags(self) -> list[AVTag]:
         return self.render_output().answer_av_tags
 
     def render_output(

@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import html
-from typing import Any, List, Optional, Tuple
+from typing import Any
 
 import anki
 import anki.find
@@ -45,8 +45,8 @@ class FindDuplicatesDialog(QDialog):
         )
         form.fields.addItems(fields)
         restore_combo_index_for_session(form.fields, fields, "findDupesFields")
-        self._dupesButton: Optional[QPushButton] = None
-        self._dupes: List[Tuple[str, List[NoteId]]] = []
+        self._dupesButton: QPushButton | None = None
+        self._dupes: list[tuple[str, list[NoteId]]] = []
 
         # links
         form.webView.set_title("find duplicates")
@@ -76,7 +76,7 @@ class FindDuplicatesDialog(QDialog):
         qconnect(search.clicked, on_click)
         self.show()
 
-    def show_duplicates_report(self, dupes: List[Tuple[str, List[NoteId]]]) -> None:
+    def show_duplicates_report(self, dupes: list[tuple[str, list[NoteId]]]) -> None:
         self._dupes = dupes
         if not self._dupesButton:
             self._dupesButton = b = self.form.buttonBox.addButton(

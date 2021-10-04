@@ -18,18 +18,18 @@ $ sudo apt install bash grep findutils curl gcc g++ git
 
 The 'find' utility is 'findutils' on Debian.
 
-**Install Python 3.8**:
+**Install Python 3.9**:
 
 If you're on a modern distribution, you may be able to install Python from the repo:
 
 ```
-$  sudo apt install python3.8
+$  sudo apt install python3.9
 ```
 
 If you are using a packaged Python version that is installed in /usr/bin, you can jump
-immediately to the next section after ensuring python3.8-distutils is installed.
+immediately to the next section after ensuring python3.9-distutils is installed.
 
-If Python 3.8 is not available in your distro, you can download it from
+If Python 3.9 is not available in your distro, you can download it from
 python.org, compile it, and install it in /usr/local. If you're on a basic
 Debian install, make sure you have the following installed before building
 Python:
@@ -41,12 +41,12 @@ other than /usr/bin, you'll need to put the following into a file called user.ba
 at the top of this repo before proceeding:
 
 ```
-build --action_env=PYO3_PYTHON=/usr/local/bin/python3.8
+build --action_env=PYO3_PYTHON=/usr/local/bin/python3.9
 ```
 
 If you're building Anki from a docker container or distro that has no `python` command in
 /usr/bin, you'll need to symlink `python` to `/usr/bin/python`. `/usr/bin/python` does not
-need to be Python 3.8; any version will do. `apt install python-is-python3` can also be
+need to be Python 3.9; any version will do. `apt install python-is-python3` can also be
 used to link python3 to python.
 
 If your system only has Python 3.9, you should be able to build Anki with it,

@@ -8,9 +8,8 @@ import pickle
 import random
 import shutil
 import traceback
-import warnings
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from send2trash import send2trash
 
@@ -63,7 +62,7 @@ class VideoDriver(Enum):
             return VideoDriver.Software
 
     @staticmethod
-    def all_for_platform() -> List[VideoDriver]:
+    def all_for_platform() -> list[VideoDriver]:
         all = [VideoDriver.OpenGL]
         if isWin:
             all.append(VideoDriver.ANGLE)
@@ -82,7 +81,7 @@ metaConf = dict(
     defaultLang=None,
 )
 
-profileConf: Dict[str, Any] = dict(
+profileConf: dict[str, Any] = dict(
     # profile
     mainWindowGeom=None,
     mainWindowState=None,
@@ -119,12 +118,12 @@ class AnkiRestart(SystemExit):
 
 
 class ProfileManager:
-    def __init__(self, base: Optional[str] = None) -> None:  #
+    def __init__(self, base: str | None = None) -> None:  #
         ## Settings which should be forgotten each Anki restart
-        self.session: Dict[str, Any] = {}
-        self.name: Optional[str] = None
-        self.db: Optional[DB] = None
-        self.profile: Optional[Dict] = None
+        self.session: dict[str, Any] = {}
+        self.name: str | None = None
+        self.db: DB | None = None
+        self.profile: dict | None = None
         # instantiate base folder
         self.base: str
         self._setBaseFolder(base)
@@ -246,8 +245,8 @@ class ProfileManager:
     # Profile load/save
     ######################################################################
 
-    def profiles(self) -> List:
-        def names() -> List:
+    def profiles(self) -> list:
+        def names() -> list:
             return self.db.list("select name from profiles where name != '_global'")
 
         n = names()
@@ -283,12 +282,11 @@ class ProfileManager:
         return up.load()
 
     def _pickle(self, obj: Any) -> bytes:
-        # pyqt needs to be updated to fix
-        # 'PY_SSIZE_T_CLEAN will be required for '#' formats' warning
-        # check if this is still required for pyqt6
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            return pickle.dumps(obj, protocol=4)
+        for key, val in obj.items():
+            if isinstance(val, QByteArray):
+                obj[key] = bytes(val)  # type: ignore
+
+        return pickle.dumps(obj, protocol=4)
 
     def load(self, name: str) -> bool:
         assert name != "_global"
@@ -395,7 +393,7 @@ class ProfileManager:
     # Downgrade
     ######################################################################
 
-    def downgrade(self, profiles: List[str]) -> List[str]:
+    def downgrade(self, profiles: list[str]) -> list[str]:
         "Downgrade all profiles. Return a list of profiles that couldn't be opened."
         problem_profiles = []
         for name in profiles:
@@ -422,7 +420,7 @@ class ProfileManager:
             os.makedirs(path)
         return path
 
-    def _setBaseFolder(self, cmdlineBase: Optional[str]) -> None:
+    def _setBaseFolder(self, cmdlineBase: str | None) -> None:
         if cmdlineBase:
             self.base = os.path.abspath(cmdlineBase)
         elif os.environ.get("ANKI_BASE"):
@@ -614,13 +612,13 @@ create table if not exists profiles
     # Profile-specific
     ######################################################################
 
-    def set_sync_key(self, val: Optional[str]) -> None:
+    def set_sync_key(self, val: str | None) -> None:
         self.profile["syncKey"] = val
 
-    def set_sync_username(self, val: Optional[str]) -> None:
+    def set_sync_username(self, val: str | None) -> None:
         self.profile["syncUser"] = val
 
-    def set_host_number(self, val: Optional[int]) -> None:
+    def set_host_number(self, val: int | None) -> None:
         self.profile["hostNum"] = val or 0
 
     def media_syncing_enabled(self) -> bool:
@@ -629,7 +627,7 @@ create table if not exists profiles
     def auto_syncing_enabled(self) -> bool:
         return self.profile["autoSync"]
 
-    def sync_auth(self) -> Optional[SyncAuth]:
+    def sync_auth(self) -> SyncAuth | None:
         hkey = self.profile.get("syncKey")
         if not hkey:
             return None

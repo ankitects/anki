@@ -13,19 +13,7 @@ import zipfile
 from argparse import Namespace
 from concurrent.futures import Future
 from threading import Thread
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    List,
-    Literal,
-    Optional,
-    Sequence,
-    TextIO,
-    Tuple,
-    TypeVar,
-    cast,
-)
+from typing import Any, Literal, Sequence, TextIO, TypeVar, cast
 
 import anki
 import aqt
@@ -105,13 +93,13 @@ class AnkiQt(QMainWindow):
         profileManager: ProfileManagerType,
         backend: _RustBackend,
         opts: Namespace,
-        args: List[Any],
+        args: list[Any],
     ) -> None:
         QMainWindow.__init__(self)
         self.backend = backend
         self.state: MainWindowState = "startup"
         self.opts = opts
-        self.col: Optional[Collection] = None
+        self.col: Collection | None = None
         self.taskman = TaskManager(self)
         self.media_syncer = MediaSyncer(self)
         aqt.mw = self
@@ -230,7 +218,7 @@ class AnkiQt(QMainWindow):
             self.pm.meta["firstRun"] = False
             self.pm.save()
 
-        self.pendingImport: Optional[str] = None
+        self.pendingImport: str | None = None
         self.restoringBackup = False
         # profile not provided on command line?
         if not self.pm.name:
@@ -380,7 +368,7 @@ class AnkiQt(QMainWindow):
         self.progress.start()
         profiles = self.pm.profiles()
 
-        def downgrade() -> List[str]:
+        def downgrade() -> list[str]:
             return self.pm.downgrade(profiles)
 
         def on_done(future: Future) -> None:
@@ -399,7 +387,7 @@ class AnkiQt(QMainWindow):
 
         self.taskman.run_in_background(downgrade, on_done)
 
-    def loadProfile(self, onsuccess: Optional[Callable] = None) -> None:
+    def loadProfile(self, onsuccess: Callable | None = None) -> None:
         if not self.loadCollection():
             return
 
@@ -678,7 +666,7 @@ class AnkiQt(QMainWindow):
         self.maybe_check_for_addon_updates()
         self.deckBrowser.show()
 
-    def _selectedDeck(self) -> Optional[DeckDict]:
+    def _selectedDeck(self) -> DeckDict | None:
         did = self.col.decks.selected()
         if not self.col.decks.name_if_exists(did):
             showInfo(tr.qt_misc_please_select_a_deck())
@@ -721,7 +709,7 @@ class AnkiQt(QMainWindow):
         gui_hooks.operation_did_execute(op, None)
 
     def on_operation_did_execute(
-        self, changes: OpChanges, handler: Optional[object]
+        self, changes: OpChanges, handler: object | None
     ) -> None:
         "Notify current screen of changes."
         focused = current_window() == self
@@ -741,7 +729,7 @@ class AnkiQt(QMainWindow):
             self.toolbar.update_sync_status()
 
     def on_focus_did_change(
-        self, new_focus: Optional[QWidget], _old: Optional[QWidget]
+        self, new_focus: QWidget | None, _old: QWidget | None
     ) -> None:
         "If main window has received focus, ensure current UI state is updated."
         if new_focus and new_focus.window() == self:
@@ -799,7 +787,7 @@ class AnkiQt(QMainWindow):
         self,
         link: str,
         name: str,
-        key: Optional[str] = None,
+        key: str | None = None,
         class_: str = "",
         id: str = "",
         extra: str = "",
@@ -810,8 +798,8 @@ class AnkiQt(QMainWindow):
         else:
             key = ""
         return """
-<button id="%s" class="%s" onclick="pycmd('%s');return false;"
-title="%s" %s>%s</button>""" % (
+<button id="{}" class="{}" onclick="pycmd('{}');return false;"
+title="{}" {}>{}</button>""".format(
             id,
             class_,
             link,
@@ -878,7 +866,7 @@ title="%s" %s>%s</button>""" % (
 
         self.errorHandler = aqt.errors.ErrorHandler(self)
 
-    def setupAddons(self, args: Optional[List]) -> None:
+    def setupAddons(self, args: list | None) -> None:
         import aqt.addons
 
         self.addonManager = aqt.addons.AddonManager(self)
@@ -903,7 +891,7 @@ title="%s" %s>%s</button>""" % (
             )
             self.pm.set_last_addon_update_check(intTime())
 
-    def on_updates_installed(self, log: List[DownloadLogEntry]) -> None:
+    def on_updates_installed(self, log: list[DownloadLogEntry]) -> None:
         if log:
             show_log_to_user(self, log)
 
@@ -1024,11 +1012,11 @@ title="%s" %s>%s</button>""" % (
             ("y", self.on_sync_button_clicked),
         ]
         self.applyShortcuts(globalShortcuts)
-        self.stateShortcuts: List[QShortcut] = []
+        self.stateShortcuts: list[QShortcut] = []
 
     def applyShortcuts(
-        self, shortcuts: Sequence[Tuple[str, Callable]]
-    ) -> List[QShortcut]:
+        self, shortcuts: Sequence[tuple[str, Callable]]
+    ) -> list[QShortcut]:
         qshortcuts = []
         for key, fn in shortcuts:
             scut = QShortcut(QKeySequence(key), self, activated=fn)  # type: ignore
@@ -1036,7 +1024,7 @@ title="%s" %s>%s</button>""" % (
             qshortcuts.append(scut)
         return qshortcuts
 
-    def setStateShortcuts(self, shortcuts: List[Tuple[str, Callable]]) -> None:
+    def setStateShortcuts(self, shortcuts: list[tuple[str, Callable]]) -> None:
         gui_hooks.state_shortcuts_will_change(self.state, shortcuts)
         # legacy hook
         runHook(f"{self.state}StateShortcuts", shortcuts)
@@ -1154,7 +1142,7 @@ title="%s" %s>%s</button>""" % (
 
     # legacy
 
-    def onDeckConf(self, deck: Optional[DeckDict] = None) -> None:
+    def onDeckConf(self, deck: DeckDict | None = None) -> None:
         pass
 
     # Importing & exporting
@@ -1175,7 +1163,7 @@ title="%s" %s>%s</button>""" % (
 
         aqt.importing.onImport(self)
 
-    def onExport(self, did: Optional[DeckId] = None) -> None:
+    def onExport(self, did: DeckId | None = None) -> None:
         import aqt.exporting
 
         aqt.exporting.ExportDialog(self, did=did)
@@ -1246,7 +1234,7 @@ title="%s" %s>%s</button>""" % (
         if self.pm.meta.get("suppressUpdate", None) != ver:
             aqt.update.askAndUpdate(self, ver)
 
-    def newMsg(self, data: Dict) -> None:
+    def newMsg(self, data: dict) -> None:
         aqt.update.showMessages(self, data)
 
     def clockIsOff(self, diff: int) -> None:
@@ -1299,7 +1287,7 @@ title="%s" %s>%s</button>""" % (
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         gui_hooks.focus_did_change.append(self.on_focus_did_change)
 
-        self._activeWindowOnPlay: Optional[QWidget] = None
+        self._activeWindowOnPlay: QWidget | None = None
 
     def onOdueInvalid(self) -> None:
         showWarning(tr.qt_misc_invalid_property_found_on_card_please())
@@ -1486,12 +1474,12 @@ title="%s" %s>%s</button>""" % (
         c._render_output = None
         pprint.pprint(c.__dict__)
 
-    def _debugCard(self) -> Optional[anki.cards.Card]:
+    def _debugCard(self) -> anki.cards.Card | None:
         card = self.reviewer.card
         self._card_repr(card)
         return card
 
-    def _debugBrowserCard(self) -> Optional[anki.cards.Card]:
+    def _debugBrowserCard(self) -> anki.cards.Card | None:
         card = aqt.dialogs._dialogs["Browser"][1].card
         self._card_repr(card)
         return card
@@ -1564,7 +1552,7 @@ title="%s" %s>%s</button>""" % (
             _dummy1 = windll
             _dummy2 = wintypes
 
-    def maybeHideAccelerators(self, tgt: Optional[Any] = None) -> None:
+    def maybeHideAccelerators(self, tgt: Any | None = None) -> None:
         if not self.hideMenuAccels:
             return
         tgt = tgt or self

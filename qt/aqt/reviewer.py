@@ -11,7 +11,7 @@ import re
 import unicodedata as ucd
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Any, Callable, List, Literal, Match, Optional, Sequence, Tuple, cast
+from typing import Any, Callable, Literal, Match, Sequence, cast
 
 from PyQt5.QtCore import Qt
 
@@ -85,7 +85,7 @@ class V3CardInfo:
     def top_card(self) -> QueuedCards.QueuedCard:
         return self.queued_cards.cards[0]
 
-    def counts(self) -> Tuple[int, List[int]]:
+    def counts(self) -> tuple[int, list[int]]:
         "Returns (idx, counts)."
         counts = [
             self.queued_cards.new_count,
@@ -117,16 +117,16 @@ class Reviewer:
     def __init__(self, mw: AnkiQt) -> None:
         self.mw = mw
         self.web = mw.web
-        self.card: Optional[Card] = None
-        self.cardQueue: List[Card] = []
-        self.previous_card: Optional[Card] = None
+        self.card: Card | None = None
+        self.cardQueue: list[Card] = []
+        self.previous_card: Card | None = None
         self.hadCardQueue = False
-        self._answeredIds: List[CardId] = []
-        self._recordedAudio: Optional[str] = None
+        self._answeredIds: list[CardId] = []
+        self._recordedAudio: str | None = None
         self.typeCorrect: str = None  # web init happens before this is set
-        self.state: Optional[str] = None
-        self._refresh_needed: Optional[RefreshNeeded] = None
-        self._v3: Optional[V3CardInfo] = None
+        self.state: str | None = None
+        self._refresh_needed: RefreshNeeded | None = None
+        self._v3: V3CardInfo | None = None
         self._state_mutation_key = str(random.randint(0, 2 ** 64 - 1))
         self.bottom = BottomBar(mw, mw.bottomWeb)
         hooks.card_did_leech.append(self.onLeech)
@@ -141,7 +141,7 @@ class Reviewer:
         self.refresh_if_needed()
 
     # this is only used by add-ons
-    def lastCard(self) -> Optional[Card]:
+    def lastCard(self) -> Card | None:
         if self._answeredIds:
             if not self.card or self._answeredIds[-1] != self.card.id:
                 try:
@@ -167,7 +167,7 @@ class Reviewer:
             self._refresh_needed = None
 
     def op_executed(
-        self, changes: OpChanges, handler: Optional[object], focused: bool
+        self, changes: OpChanges, handler: object | None, focused: bool
     ) -> bool:
         if handler is not self:
             if changes.study_queues:
@@ -234,7 +234,7 @@ class Reviewer:
         self.card = Card(self.mw.col, backend_card=self._v3.top_card().card)
         self.card.start_timer()
 
-    def get_next_states(self) -> Optional[NextStates]:
+    def get_next_states(self) -> NextStates | None:
         if v3 := self._v3:
             return v3.next_states
         else:
@@ -434,7 +434,7 @@ class Reviewer:
 
     def _shortcutKeys(
         self,
-    ) -> Sequence[Union[Tuple[str, Callable], Tuple[Qt.Key, Callable]]]:
+    ) -> Sequence[Union[tuple[str, Callable], tuple[Qt.Key, Callable]]]:
         return [
             ("e", self.mw.onEditCurrent),
             (" ", self.onEnterKey),
@@ -587,7 +587,7 @@ class Reviewer:
             # can't pass a string in directly, and can't use re.escape as it
             # escapes too much
             s = """
-<span style="font-family: '%s'; font-size: %spx">%s</span>""" % (
+<span style="font-family: '{}'; font-size: {}px">{}</span>""".format(
                 self.typeFont,
                 self.typeSize,
                 res,
@@ -620,23 +620,23 @@ class Reviewer:
 
     def tokenizeComparison(
         self, given: str, correct: str
-    ) -> Tuple[List[Tuple[bool, str]], List[Tuple[bool, str]]]:
+    ) -> tuple[list[tuple[bool, str]], list[tuple[bool, str]]]:
         # compare in NFC form so accents appear correct
         given = ucd.normalize("NFC", given)
         correct = ucd.normalize("NFC", correct)
         s = difflib.SequenceMatcher(None, given, correct, autojunk=False)
-        givenElems: List[Tuple[bool, str]] = []
-        correctElems: List[Tuple[bool, str]] = []
+        givenElems: list[tuple[bool, str]] = []
+        correctElems: list[tuple[bool, str]] = []
         givenPoint = 0
         correctPoint = 0
         offby = 0
 
-        def logBad(old: int, new: int, s: str, array: List[Tuple[bool, str]]) -> None:
+        def logBad(old: int, new: int, s: str, array: list[tuple[bool, str]]) -> None:
             if old != new:
                 array.append((False, s[old:new]))
 
         def logGood(
-            start: int, cnt: int, s: str, array: List[Tuple[bool, str]]
+            start: int, cnt: int, s: str, array: list[tuple[bool, str]]
         ) -> None:
             if cnt:
                 array.append((True, s[start : start + cnt]))
@@ -737,8 +737,8 @@ time = %(time)d;
 
     def _showAnswerButton(self) -> None:
         middle = """
-<span class=stattxt>%s</span><br>
-<button title="%s" id="ansbut" class="focus" onclick='pycmd("ans");'>%s</button>""" % (
+<span class=stattxt>{}</span><br>
+<button title="{}" id="ansbut" class="focus" onclick='pycmd("ans");'>{}</button>""".format(
             self._remaining(),
             tr.actions_shortcut_key(val=tr.studying_space()),
             tr.studying_show_answer(),
@@ -763,10 +763,10 @@ time = %(time)d;
         if not self.mw.col.conf["dueCounts"]:
             return ""
 
-        counts: List[Union[int, str]]
+        counts: list[Union[int, str]]
         if v3 := self._v3:
             idx, counts_ = v3.counts()
-            counts = cast(List[Union[int, str]], counts_)
+            counts = cast(list[Union[int, str]], counts_)
         else:
             # v1/v2 scheduler
             if self.hadCardQueue:
@@ -790,10 +790,10 @@ time = %(time)d;
         else:
             return 2
 
-    def _answerButtonList(self) -> Tuple[Tuple[int, str], ...]:
+    def _answerButtonList(self) -> tuple[tuple[int, str], ...]:
         button_count = self.mw.col.sched.answerButtons(self.card)
         if button_count == 2:
-            buttons_tuple: Tuple[Tuple[int, str], ...] = (
+            buttons_tuple: tuple[tuple[int, str], ...] = (
                 (1, tr.studying_again()),
                 (2, tr.studying_good()),
             )
@@ -847,7 +847,7 @@ time = %(time)d;
         buf += "</tr></table>"
         return buf
 
-    def _buttonTime(self, i: int, v3_labels: Optional[Sequence[str]] = None) -> str:
+    def _buttonTime(self, i: int, v3_labels: Sequence[str] | None = None) -> str:
         if not self.mw.col.conf["estTimes"]:
             return "<div class=spacer></div>"
         if v3_labels:
@@ -859,7 +859,7 @@ time = %(time)d;
     # Leeches
     ##########################################################################
 
-    def onLeech(self, card: Optional[Card] = None) -> None:
+    def onLeech(self, card: Card | None = None) -> None:
         # for now
         s = tr.studying_card_was_a_leech()
         # v3 scheduler doesn't report this
@@ -891,7 +891,7 @@ time = %(time)d;
     ##########################################################################
 
     # note the shortcuts listed here also need to be defined above
-    def _contextMenu(self) -> List[Any]:
+    def _contextMenu(self) -> list[Any]:
         currentFlag = self.card and self.card.user_flag()
         opts = [
             [

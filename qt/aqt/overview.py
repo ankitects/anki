@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable
 
 import aqt
 from anki.collection import OpChanges
@@ -72,7 +72,7 @@ class Overview:
             self.refresh()
 
     def op_executed(
-        self, changes: OpChanges, handler: Optional[object], focused: bool
+        self, changes: OpChanges, handler: object | None, focused: bool
     ) -> bool:
         if changes.study_queues:
             self._refresh_needed = True
@@ -115,7 +115,7 @@ class Overview:
             openLink(url)
         return False
 
-    def _shortcutKeys(self) -> List[Tuple[str, Callable]]:
+    def _shortcutKeys(self) -> list[tuple[str, Callable]]:
         return [
             ("o", lambda: display_options_for_deck(self.mw.col.decks.current())),
             ("r", self.rebuild_current_filtered_deck),
@@ -202,7 +202,7 @@ class Overview:
     def _show_finished_screen(self) -> None:
         self.web.load_ts_page("congrats")
 
-    def _desc(self, deck: Dict[str, Any]) -> str:
+    def _desc(self, deck: dict[str, Any]) -> str:
         if deck["dyn"]:
             desc = tr.studying_this_is_a_special_deck_for()
             desc += f" {tr.studying_cards_will_be_automatically_returned_to()}"
@@ -219,19 +219,19 @@ class Overview:
             dyn = ""
         return f'<div class="descfont descmid description {dyn}">{desc}</div>'
 
-    def _table(self) -> Optional[str]:
+    def _table(self) -> str | None:
         counts = list(self.mw.col.sched.counts())
         but = self.mw.button
         return """
 <table width=400 cellpadding=5>
 <tr><td align=center valign=top>
 <table cellspacing=5>
-<tr><td>%s:</td><td><b><span class=new-count>%s</span></b></td></tr>
-<tr><td>%s:</td><td><b><span class=learn-count>%s</span></b></td></tr>
-<tr><td>%s:</td><td><b><span class=review-count>%s</span></b></td></tr>
+<tr><td>{}:</td><td><b><span class=new-count>{}</span></b></td></tr>
+<tr><td>{}:</td><td><b><span class=learn-count>{}</span></b></td></tr>
+<tr><td>{}:</td><td><b><span class=review-count>{}</span></b></td></tr>
 </table>
 </td><td align=center>
-%s</td></tr></table>""" % (
+{}</td></tr></table>""".format(
             tr.actions_new(),
             counts[0],
             tr.scheduling_learning(),

@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import re
-from typing import Iterable, List, Optional, Union
+from typing import Iterable
 
 from anki.collection import Collection
 from aqt import gui_hooks
@@ -12,14 +12,14 @@ from aqt.qt import *
 
 
 class TagEdit(QLineEdit):
-    _completer: Union[QCompleter, TagCompleter]
+    _completer: QCompleter | TagCompleter
 
     lostFocus = pyqtSignal()
 
     # 0 = tags, 1 = decks
     def __init__(self, parent: QWidget, type: int = 0) -> None:
         QLineEdit.__init__(self, parent)
-        self.col: Optional[Collection] = None
+        self.col: Collection | None = None
         self.model = QStringListModel()
         self.type = type
         if type == 0:
@@ -112,11 +112,11 @@ class TagCompleter(QCompleter):
         edit: TagEdit,
     ) -> None:
         QCompleter.__init__(self, model, parent)
-        self.tags: List[str] = []
+        self.tags: list[str] = []
         self.edit = edit
-        self.cursor: Optional[int] = None
+        self.cursor: int | None = None
 
-    def splitPath(self, tags: str) -> List[str]:
+    def splitPath(self, tags: str) -> list[str]:
         stripped_tags = tags.strip()
         stripped_tags = re.sub("  +", " ", stripped_tags)
         self.tags = self.edit.col.tags.split(stripped_tags)

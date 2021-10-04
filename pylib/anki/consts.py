@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import sys
-from typing import Any, Dict, NewType, Optional
+from typing import Any, NewType
 
 # whether new cards should be mixed with reviews, or shown first or last
 NEW_CARDS_DISTRIBUTE = 0
@@ -94,7 +94,7 @@ REVLOG_RESCHED = 4
 import anki.collection
 
 
-def _tr(col: Optional[anki.collection.Collection]) -> Any:
+def _tr(col: anki.collection.Collection | None) -> Any:
     if col:
         return col.tr
     else:
@@ -107,7 +107,7 @@ def _tr(col: Optional[anki.collection.Collection]) -> Any:
         return tr_legacyglobal
 
 
-def newCardOrderLabels(col: Optional[anki.collection.Collection]) -> Dict[int, Any]:
+def newCardOrderLabels(col: anki.collection.Collection | None) -> dict[int, Any]:
     tr = _tr(col)
     return {
         0: tr.scheduling_show_new_cards_in_random_order(),
@@ -116,8 +116,8 @@ def newCardOrderLabels(col: Optional[anki.collection.Collection]) -> Dict[int, A
 
 
 def newCardSchedulingLabels(
-    col: Optional[anki.collection.Collection],
-) -> Dict[int, Any]:
+    col: anki.collection.Collection | None,
+) -> dict[int, Any]:
     tr = _tr(col)
     return {
         0: tr.scheduling_mix_new_cards_and_reviews(),

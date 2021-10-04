@@ -8,7 +8,7 @@ from __future__ import annotations
 import random
 import time
 from heapq import *
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Callable, cast
 
 import anki  # pylint: disable=unused-import
 from anki import hooks, scheduler_pb2
@@ -23,7 +23,7 @@ CountsForDeckToday = scheduler_pb2.CountsForDeckTodayResponse
 SchedTimingToday = scheduler_pb2.SchedTimingTodayResponse
 
 # legacy type alias
-QueueConfig = Dict[str, Any]
+QueueConfig = dict[str, Any]
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
@@ -49,11 +49,11 @@ class Scheduler(SchedulerBaseWithLegacy):
         self.reps = 0
         self._haveQueues = False
         self._lrnCutoff = 0
-        self._active_decks: List[DeckId] = []
+        self._active_decks: list[DeckId] = []
         self._current_deck_id = DeckId(1)
 
     @property
-    def active_decks(self) -> List[DeckId]:
+    def active_decks(self) -> list[DeckId]:
         "Caller must make sure to make a copy."
         return self._active_decks
 
@@ -96,7 +96,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             self.revCount = node.review_count
             self._immediate_learn_count = node.learn_count
 
-    def getCard(self) -> Optional[Card]:
+    def getCard(self) -> Card | None:
         """Pop the next card from the queue. None if finished."""
         self._checkDay()
         if not self._haveQueues:
@@ -109,7 +109,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             return card
         return None
 
-    def _getCard(self) -> Optional[Card]:
+    def _getCard(self) -> Card | None:
         """Return the next due card, or None."""
         # learning card due?
         c = self._getLrnCard()
@@ -153,7 +153,7 @@ class Scheduler(SchedulerBaseWithLegacy):
 
     def _resetNew(self) -> None:
         self._newDids = self.col.decks.active()[:]
-        self._newQueue: List[CardId] = []
+        self._newQueue: list[CardId] = []
         self._updateNewCardRatio()
 
     def _fillNew(self, recursing: bool = False) -> bool:
@@ -188,7 +188,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         self._resetNew()
         return self._fillNew(recursing=True)
 
-    def _getNewCard(self) -> Optional[Card]:
+    def _getNewCard(self) -> Card | None:
         if self._fillNew():
             self.newCount -= 1
             return self.col.getCard(self._newQueue.pop())
@@ -204,7 +204,7 @@ class Scheduler(SchedulerBaseWithLegacy):
                 return
         self.newCardModulus = 0
 
-    def _timeForNewCard(self) -> Optional[bool]:
+    def _timeForNewCard(self) -> bool | None:
         "True if it's time to display a new card when distributing."
         if not self.newCount:
             return False
@@ -219,7 +219,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             return None
 
     def _deckNewLimit(
-        self, did: DeckId, fn: Optional[Callable[[DeckDict], int]] = None
+        self, did: DeckId, fn: Callable[[DeckDict], int] | None = None
     ) -> int:
         if not fn:
             fn = self._deckNewLimitSingle
@@ -310,12 +310,12 @@ select count() from cards where did in %s and queue = {QUEUE_TYPE_PREVIEW}
     def _resetLrn(self) -> None:
         self._updateLrnCutoff(force=True)
         self._resetLrnCount()
-        self._lrnQueue: List[Tuple[int, CardId]] = []
-        self._lrnDayQueue: List[CardId] = []
+        self._lrnQueue: list[tuple[int, CardId]] = []
+        self._lrnDayQueue: list[CardId] = []
         self._lrnDids = self.col.decks.active()[:]
 
     # sub-day learning
-    def _fillLrn(self) -> Union[bool, List[Any]]:
+    def _fillLrn(self) -> bool | list[Any]:
         if not self.lrnCount:
             return False
         if self._lrnQueue:
@@ -329,12 +329,12 @@ limit %d"""
             % (self._deckLimit(), self.reportLimit),
             cutoff,
         )
-        self._lrnQueue = [cast(Tuple[int, CardId], tuple(e)) for e in self._lrnQueue]
+        self._lrnQueue = [cast(tuple[int, CardId], tuple(e)) for e in self._lrnQueue]
         # as it arrives sorted by did first, we need to sort it
         self._lrnQueue.sort()
         return self._lrnQueue
 
-    def _getLrnCard(self, collapse: bool = False) -> Optional[Card]:
+    def _getLrnCard(self, collapse: bool = False) -> Card | None:
         self._maybeResetLrn(force=collapse and self.lrnCount == 0)
         if self._fillLrn():
             cutoff = time.time()
@@ -348,7 +348,7 @@ limit %d"""
         return None
 
     # daily learning
-    def _fillLrnDay(self) -> Optional[bool]:
+    def _fillLrnDay(self) -> bool | None:
         if not self.lrnCount:
             return False
         if self._lrnDayQueue:
@@ -378,7 +378,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         # shouldn't reach here
         return False
 
-    def _getLrnDayCard(self) -> Optional[Card]:
+    def _getLrnDayCard(self) -> Card | None:
         if self._fillLrnDay():
             self.lrnCount -= 1
             return self.col.getCard(self._lrnDayQueue.pop())
@@ -391,7 +391,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         d = self.col.decks.get(self.col.decks.selected(), default=False)
         return self._deckRevLimitSingle(d)
 
-    def _deckRevLimitSingle(self, d: Dict[str, Any]) -> int:
+    def _deckRevLimitSingle(self, d: dict[str, Any]) -> int:
         # invalid deck selected?
         if not d:
             return 0
@@ -405,7 +405,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         return hooks.scheduler_review_limit_for_single_deck(lim, d)
 
     def _resetRev(self) -> None:
-        self._revQueue: List[CardId] = []
+        self._revQueue: list[CardId] = []
 
     def _fillRev(self, recursing: bool = False) -> bool:
         "True if a review card can be fetched."
@@ -439,7 +439,7 @@ limit ?"""
         self._resetRev()
         return self._fillRev(recursing=True)
 
-    def _getRevCard(self) -> Optional[Card]:
+    def _getRevCard(self) -> Card | None:
         if self._fillRev():
             self.revCount -= 1
             return self.col.getCard(self._revQueue.pop())
@@ -601,7 +601,7 @@ limit ?"""
         self._rescheduleLrnCard(card, conf, delay=delay)
 
     def _rescheduleLrnCard(
-        self, card: Card, conf: QueueConfig, delay: Optional[int] = None
+        self, card: Card, conf: QueueConfig, delay: int | None = None
     ) -> Any:
         # normal delay for the current step?
         if delay is None:
@@ -690,9 +690,9 @@ limit ?"""
 
     def _leftToday(
         self,
-        delays: List[int],
+        delays: list[int],
         left: int,
-        now: Optional[int] = None,
+        now: int | None = None,
     ) -> int:
         "The number of steps that can be completed by the day cutoff."
         if not now:
@@ -927,7 +927,7 @@ limit ?"""
         min, max = self._fuzzIvlRange(ivl)
         return random.randint(min, max)
 
-    def _fuzzIvlRange(self, ivl: int) -> Tuple[int, int]:
+    def _fuzzIvlRange(self, ivl: int) -> tuple[int, int]:
         if ivl < 2:
             return (1, 1)
         elif ivl == 2:
@@ -1080,7 +1080,7 @@ limit ?"""
     ##########################################################################
 
     def _burySiblings(self, card: Card) -> None:
-        toBury: List[CardId] = []
+        toBury: list[CardId] = []
         nconf = self._newConf(card)
         buryNew = nconf.get("bury", True)
         rconf = self._revConf(card)
@@ -1115,7 +1115,7 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
     # Review-related UI helpers
     ##########################################################################
 
-    def counts(self, card: Optional[Card] = None) -> Tuple[int, int, int]:
+    def counts(self, card: Card | None = None) -> tuple[int, int, int]:
         counts = [self.newCount, self.lrnCount, self.revCount]
         if card:
             idx = self.countIdx(card)

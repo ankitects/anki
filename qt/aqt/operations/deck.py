@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, Sequence
+from typing import Sequence
 
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.decks import DeckCollapseScope, DeckDict, DeckId, UpdateDeckConfigs
@@ -50,7 +50,7 @@ def add_deck_dialog(
     *,
     parent: QWidget,
     default_text: str = "",
-) -> Optional[CollectionOp[OpChangesWithId]]:
+) -> CollectionOp[OpChangesWithId] | None:
     if name := getOnlyText(
         tr.decks_new_deck_name(), default=default_text, parent=parent
     ).strip():

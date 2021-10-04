@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum, auto
-from typing import Dict, Iterable, List, Optional, Tuple, cast
+from typing import Iterable, cast
 
 import aqt
 from anki.collection import (
@@ -75,8 +75,8 @@ class SidebarTreeView(QTreeView):
         self.browser = browser
         self.mw = browser.mw
         self.col = self.mw.col
-        self.current_search: Optional[str] = None
-        self.valid_drop_types: Tuple[SidebarItemType, ...] = ()
+        self.current_search: str | None = None
+        self.valid_drop_types: tuple[SidebarItemType, ...] = ()
         self._refresh_needed = False
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -140,7 +140,7 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def op_executed(
-        self, changes: OpChanges, handler: Optional[object], focused: bool
+        self, changes: OpChanges, handler: object | None, focused: bool
     ) -> None:
         if changes.browser_sidebar and not handler is self:
             self._refresh_needed = True
@@ -198,9 +198,9 @@ class SidebarTreeView(QTreeView):
     def find_item(
         self,
         is_target: Callable[[SidebarItem], bool],
-        parent: Optional[SidebarItem] = None,
-    ) -> Optional[SidebarItem]:
-        def find_item_rec(parent: SidebarItem) -> Optional[SidebarItem]:
+        parent: SidebarItem | None = None,
+    ) -> SidebarItem | None:
+        def find_item_rec(parent: SidebarItem) -> SidebarItem | None:
             if is_target(parent):
                 return parent
             for child in parent.children:
@@ -226,7 +226,7 @@ class SidebarTreeView(QTreeView):
     def _expand_where_necessary(
         self,
         model: SidebarModel,
-        parent: Optional[QModelIndex] = None,
+        parent: QModelIndex | None = None,
         searching: bool = False,
     ) -> None:
         scroll_to_first_match = searching
@@ -348,7 +348,7 @@ class SidebarTreeView(QTreeView):
 
         self.valid_drop_types = tuple(valid_drop_types)
 
-    def handle_drag_drop(self, sources: List[SidebarItem], target: SidebarItem) -> bool:
+    def handle_drag_drop(self, sources: list[SidebarItem], target: SidebarItem) -> bool:
         if target.item_type in (SidebarItemType.DECK, SidebarItemType.DECK_ROOT):
             return self._handle_drag_drop_decks(sources, target)
         if target.item_type in (SidebarItemType.TAG, SidebarItemType.TAG_ROOT):
@@ -361,7 +361,7 @@ class SidebarTreeView(QTreeView):
         return False
 
     def _handle_drag_drop_decks(
-        self, sources: List[SidebarItem], target: SidebarItem
+        self, sources: list[SidebarItem], target: SidebarItem
     ) -> bool:
         deck_ids = [
             DeckId(source.id)
@@ -380,7 +380,7 @@ class SidebarTreeView(QTreeView):
         return True
 
     def _handle_drag_drop_tags(
-        self, sources: List[SidebarItem], target: SidebarItem
+        self, sources: list[SidebarItem], target: SidebarItem
     ) -> bool:
         tags = [
             source.full_name
@@ -402,7 +402,7 @@ class SidebarTreeView(QTreeView):
         return True
 
     def _handle_drag_drop_saved_search(
-        self, sources: List[SidebarItem], _target: SidebarItem
+        self, sources: list[SidebarItem], _target: SidebarItem
     ) -> bool:
         if len(sources) != 1 or sources[0].search_node is None:
             return False
@@ -464,7 +464,7 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _root_tree(self) -> SidebarItem:
-        root: Optional[SidebarItem] = None
+        root: SidebarItem | None = None
 
         for stage in SidebarStage:
             if stage == SidebarStage.ROOT:
@@ -504,7 +504,7 @@ class SidebarTreeView(QTreeView):
         name: str,
         icon: Union[str, ColoredIcon],
         collapse_key: Config.Bool.V,
-        type: Optional[SidebarItemType] = None,
+        type: SidebarItemType | None = None,
     ) -> SidebarItem:
         def update(expanded: bool) -> None:
             CollectionOp(
@@ -1112,13 +1112,13 @@ class SidebarTreeView(QTreeView):
 
     _saved_searches_key = "savedFilters"
 
-    def _get_saved_searches(self) -> Dict[str, str]:
+    def _get_saved_searches(self) -> dict[str, str]:
         return self.col.get_config(self._saved_searches_key, {})
 
-    def _set_saved_searches(self, searches: Dict[str, str]) -> None:
+    def _set_saved_searches(self, searches: dict[str, str]) -> None:
         self.col.set_config(self._saved_searches_key, searches)
 
-    def _get_current_search(self) -> Optional[str]:
+    def _get_current_search(self) -> str | None:
         try:
             return self.col.build_search_string(self.browser.current_search())
         except Exception as e:
@@ -1198,24 +1198,24 @@ class SidebarTreeView(QTreeView):
     # Helpers
     ####################################
 
-    def _selected_items(self) -> List[SidebarItem]:
+    def _selected_items(self) -> list[SidebarItem]:
         return [self.model().item_for_index(idx) for idx in self.selectedIndexes()]
 
-    def _selected_decks(self) -> List[DeckId]:
+    def _selected_decks(self) -> list[DeckId]:
         return [
             DeckId(item.id)
             for item in self._selected_items()
             if item.item_type == SidebarItemType.DECK
         ]
 
-    def _selected_saved_searches(self) -> List[str]:
+    def _selected_saved_searches(self) -> list[str]:
         return [
             item.name
             for item in self._selected_items()
             if item.item_type == SidebarItemType.SAVED_SEARCH
         ]
 
-    def _selected_tags(self) -> List[str]:
+    def _selected_tags(self) -> list[str]:
         return [
             item.full_name
             for item in self._selected_items()

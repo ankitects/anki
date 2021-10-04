@@ -7,18 +7,7 @@ import re
 import subprocess
 import sys
 from functools import wraps
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    List,
-    Literal,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Literal, Sequence, cast
 
 from PyQt5.QtWidgets import (
     QAction,
@@ -79,7 +68,7 @@ def openHelp(section: HelpPageArgument) -> None:
     openLink(link)
 
 
-def openLink(link: Union[str, QUrl]) -> None:
+def openLink(link: str | QUrl) -> None:
     tooltip(tr.qt_misc_loading(), period=1000)
     with noBundledLibs():
         QDesktopServices.openUrl(QUrl(link))
@@ -87,10 +76,10 @@ def openLink(link: Union[str, QUrl]) -> None:
 
 def showWarning(
     text: str,
-    parent: Optional[QWidget] = None,
+    parent: QWidget | None = None,
     help: HelpPageArgument = "",
     title: str = "Anki",
-    textFormat: Optional[TextFormat] = None,
+    textFormat: TextFormat | None = None,
 ) -> int:
     "Show a small warning with an OK button."
     return showInfo(text, parent, help, "warning", title=title, textFormat=textFormat)
@@ -98,10 +87,10 @@ def showWarning(
 
 def showCritical(
     text: str,
-    parent: Optional[QDialog] = None,
+    parent: QDialog | None = None,
     help: str = "",
     title: str = "Anki",
-    textFormat: Optional[TextFormat] = None,
+    textFormat: TextFormat | None = None,
 ) -> int:
     "Show a small critical error with an OK button."
     return showInfo(text, parent, help, "critical", title=title, textFormat=textFormat)
@@ -109,12 +98,12 @@ def showCritical(
 
 def showInfo(
     text: str,
-    parent: Optional[QWidget] = None,
+    parent: QWidget | None = None,
     help: HelpPageArgument = "",
     type: str = "info",
     title: str = "Anki",
-    textFormat: Optional[TextFormat] = None,
-    customBtns: Optional[List[QMessageBox.StandardButton]] = None,
+    textFormat: TextFormat | None = None,
+    customBtns: list[QMessageBox.StandardButton] | None = None,
 ) -> int:
     "Show a small info window with an OK button."
     parent_widget: QWidget
@@ -157,16 +146,16 @@ def showInfo(
 
 def showText(
     txt: str,
-    parent: Optional[QWidget] = None,
+    parent: QWidget | None = None,
     type: str = "text",
     run: bool = True,
-    geomKey: Optional[str] = None,
+    geomKey: str | None = None,
     minWidth: int = 500,
     minHeight: int = 400,
     title: str = "Anki",
     copyBtn: bool = False,
     plain_text_edit: bool = False,
-) -> Optional[Tuple[QDialog, QDialogButtonBox]]:
+) -> tuple[QDialog, QDialogButtonBox] | None:
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
     diag = QDialog(parent)
@@ -174,7 +163,7 @@ def showText(
     disable_help_button(diag)
     layout = QVBoxLayout(diag)
     diag.setLayout(layout)
-    text: Union[QPlainTextEdit, QTextBrowser]
+    text: QPlainTextEdit | QTextBrowser
     if plain_text_edit:
         # used by the importer
         text = QPlainTextEdit()
@@ -228,7 +217,7 @@ def askUser(
     parent: QWidget = None,
     help: HelpPageArgument = None,
     defaultno: bool = False,
-    msgfunc: Optional[Callable] = None,
+    msgfunc: Callable | None = None,
     title: str = "Anki",
 ) -> bool:
     "Show a yes/no question. Return true if yes."
@@ -256,13 +245,13 @@ class ButtonedDialog(QMessageBox):
     def __init__(
         self,
         text: str,
-        buttons: List[str],
-        parent: Optional[QWidget] = None,
+        buttons: list[str],
+        parent: QWidget | None = None,
         help: HelpPageArgument = None,
         title: str = "Anki",
     ):
         QMessageBox.__init__(self, parent)
-        self._buttons: List[QPushButton] = []
+        self._buttons: list[QPushButton] = []
         self.setWindowTitle(title)
         self.help = help
         self.setIcon(QMessageBox.Warning)
@@ -289,8 +278,8 @@ class ButtonedDialog(QMessageBox):
 
 def askUserDialog(
     text: str,
-    buttons: List[str],
-    parent: Optional[QWidget] = None,
+    buttons: list[str],
+    parent: QWidget | None = None,
     help: HelpPageArgument = None,
     title: str = "Anki",
 ) -> ButtonedDialog:
@@ -303,10 +292,10 @@ def askUserDialog(
 class GetTextDialog(QDialog):
     def __init__(
         self,
-        parent: Optional[QWidget],
+        parent: QWidget | None,
         question: str,
         help: HelpPageArgument = None,
-        edit: Optional[QLineEdit] = None,
+        edit: QLineEdit | None = None,
         default: str = "",
         title: str = "Anki",
         minWidth: int = 400,
@@ -350,14 +339,14 @@ class GetTextDialog(QDialog):
 
 def getText(
     prompt: str,
-    parent: Optional[QWidget] = None,
+    parent: QWidget | None = None,
     help: HelpPageArgument = None,
-    edit: Optional[QLineEdit] = None,
+    edit: QLineEdit | None = None,
     default: str = "",
     title: str = "Anki",
-    geomKey: Optional[str] = None,
+    geomKey: str | None = None,
     **kwargs: Any,
-) -> Tuple[str, int]:
+) -> tuple[str, int]:
     "Returns (string, succeeded)."
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
@@ -384,7 +373,7 @@ def getOnlyText(*args: Any, **kwargs: Any) -> str:
 # fixme: these utilities could be combined into a single base class
 # unused by Anki, but used by add-ons
 def chooseList(
-    prompt: str, choices: List[str], startrow: int = 0, parent: Any = None
+    prompt: str, choices: list[str], startrow: int = 0, parent: Any = None
 ) -> int:
     if not parent:
         parent = aqt.mw.app.activeWindow()
@@ -408,7 +397,7 @@ def chooseList(
 
 def getTag(
     parent: QWidget, deck: Collection, question: str, **kwargs: Any
-) -> Tuple[str, int]:
+) -> tuple[str, int]:
     from aqt.tagedit import TagEdit
 
     te = TagEdit(parent)
@@ -433,12 +422,12 @@ def getFile(
     parent: QWidget,
     title: str,
     # single file returned unless multi=True
-    cb: Optional[Callable[[Union[str, Sequence[str]]], None]],
+    cb: Callable[[str | Sequence[str]], None] | None,
     filter: str = "*.*",
-    dir: Optional[str] = None,
-    key: Optional[str] = None,
+    dir: str | None = None,
+    key: str | None = None,
     multi: bool = False,  # controls whether a single or multiple files is returned
-) -> Optional[Union[Sequence[str], str]]:
+) -> Sequence[str] | str | None:
     "Ask the user for a file."
     assert not dir or not key
     if not dir:
@@ -480,7 +469,7 @@ def getSaveFile(
     dir_description: str,
     key: str,
     ext: str,
-    fname: Optional[str] = None,
+    fname: str | None = None,
 ) -> str:
     """Ask the user for a file to save. Use DIR_DESCRIPTION as config
     variable. The file dialog will default to open with FNAME."""
@@ -520,7 +509,7 @@ def saveGeom(widget: QWidget, key: str) -> None:
 
 
 def restoreGeom(
-    widget: QWidget, key: str, offset: Optional[int] = None, adjustSize: bool = False
+    widget: QWidget, key: str, offset: int | None = None, adjustSize: bool = False
 ) -> None:
     key += "Geom"
     if aqt.mw.pm.profile.get(key):
@@ -562,12 +551,12 @@ def ensureWidgetInScreenBoundaries(widget: QWidget) -> None:
         widget.move(x, y)
 
 
-def saveState(widget: Union[QFileDialog, QMainWindow], key: str) -> None:
+def saveState(widget: QFileDialog | QMainWindow, key: str) -> None:
     key += "State"
     aqt.mw.pm.profile[key] = widget.saveState()
 
 
-def restoreState(widget: Union[QFileDialog, QMainWindow], key: str) -> None:
+def restoreState(widget: QFileDialog | QMainWindow, key: str) -> None:
     key += "State"
     if aqt.mw.pm.profile.get(key):
         widget.restoreState(aqt.mw.pm.profile[key])
@@ -614,7 +603,7 @@ def save_combo_index_for_session(widget: QComboBox, key: str) -> None:
 
 
 def restore_combo_index_for_session(
-    widget: QComboBox, history: List[str], key: str
+    widget: QComboBox, history: list[str], key: str
 ) -> None:
     textKey = f"{key}ComboActiveText"
     indexKey = f"{key}ComboActiveIndex"
@@ -625,7 +614,7 @@ def restore_combo_index_for_session(
             widget.setCurrentIndex(index)
 
 
-def save_combo_history(comboBox: QComboBox, history: List[str], name: str) -> str:
+def save_combo_history(comboBox: QComboBox, history: list[str], name: str) -> str:
     name += "BoxHistory"
     text_input = comboBox.lineEdit().text()
     if text_input in history:
@@ -639,7 +628,7 @@ def save_combo_history(comboBox: QComboBox, history: List[str], name: str) -> st
     return text_input
 
 
-def restore_combo_history(comboBox: QComboBox, name: str) -> List[str]:
+def restore_combo_history(comboBox: QComboBox, name: str) -> list[str]:
     name += "BoxHistory"
     history = aqt.mw.pm.profile.get(name, [])
     comboBox.addItems([""] + history)
@@ -693,7 +682,7 @@ def downArrow() -> str:
     return "▾"
 
 
-def current_window() -> Optional[QWidget]:
+def current_window() -> QWidget | None:
     if widget := QApplication.focusWidget():
         return widget.window()
     else:
@@ -703,14 +692,14 @@ def current_window() -> Optional[QWidget]:
 # Tooltips
 ######################################################################
 
-_tooltipTimer: Optional[QTimer] = None
-_tooltipLabel: Optional[QLabel] = None
+_tooltipTimer: QTimer | None = None
+_tooltipLabel: QLabel | None = None
 
 
 def tooltip(
     msg: str,
     period: int = 3000,
-    parent: Optional[QWidget] = None,
+    parent: QWidget | None = None,
     x_offset: int = 0,
     y_offset: int = 100,
 ) -> None:
@@ -785,7 +774,7 @@ class MenuList:
         print(
             "MenuList will be removed; please copy it into your add-on's code if you need it."
         )
-        self.children: List[MenuListChild] = []
+        self.children: list[MenuListChild] = []
 
     def addItem(self, title: str, func: Callable) -> MenuItem:
         item = MenuItem(title, func)
@@ -800,7 +789,7 @@ class MenuList:
         self.children.append(submenu)
         return submenu
 
-    def addChild(self, child: Union[SubMenu, QAction, MenuList]) -> None:
+    def addChild(self, child: SubMenu | QAction | MenuList) -> None:
         self.children.append(child)
 
     def renderTo(self, qmenu: QMenu) -> None:
@@ -894,7 +883,7 @@ Add-ons, last update check: {}
 ######################################################################
 
 # adapted from version detection in qutebrowser
-def opengl_vendor() -> Optional[str]:
+def opengl_vendor() -> str | None:
     old_context = QOpenGLContext.currentContext()
     old_surface = None if old_context is None else old_context.surface()
 

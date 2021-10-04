@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import io
 import os
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable
 
 import requests
 from requests import Response
@@ -24,9 +24,9 @@ class HttpClient:
     verify = True
     timeout = 60
     # args are (upload_bytes_in_chunk, download_bytes_in_chunk)
-    progress_hook: Optional[ProgressCallback] = None
+    progress_hook: ProgressCallback | None = None
 
-    def __init__(self, progress_hook: Optional[ProgressCallback] = None) -> None:
+    def __init__(self, progress_hook: ProgressCallback | None = None) -> None:
         self.progress_hook = progress_hook
         self.session = requests.Session()
 
@@ -44,9 +44,7 @@ class HttpClient:
     def __del__(self) -> None:
         self.close()
 
-    def post(
-        self, url: str, data: bytes, headers: Optional[Dict[str, str]]
-    ) -> Response:
+    def post(self, url: str, data: bytes, headers: dict[str, str] | None) -> Response:
         headers["User-Agent"] = self._agentName()
         return self.session.post(
             url,
@@ -57,7 +55,7 @@ class HttpClient:
             verify=self.verify,
         )  # pytype: disable=wrong-arg-types
 
-    def get(self, url: str, headers: Dict[str, str] = None) -> Response:
+    def get(self, url: str, headers: dict[str, str] = None) -> Response:
         if headers is None:
             headers = {}
         headers["User-Agent"] = self._agentName()

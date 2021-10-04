@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Set
+from typing import TYPE_CHECKING
 
 from anki.hooks import *
 from anki.notes import NoteId
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 class Finder:
-    def __init__(self, col: Optional[Collection]) -> None:
+    def __init__(self, col: Collection | None) -> None:
         self.col = col.weakref()
         print("Finder() is deprecated, please use col.find_cards() or .find_notes()")
 
@@ -34,7 +34,7 @@ def findReplace(
     src: str,
     dst: str,
     regex: bool = False,
-    field: Optional[str] = None,
+    field: str | None = None,
     fold: bool = True,
 ) -> int:
     "Find and replace fields in a note. Returns changed note count."
@@ -58,7 +58,7 @@ def fieldNamesForNotes(col: Collection, nids: List[NoteId]) -> List[str]:
 
 
 def fieldNames(col: Collection, downcase: bool = True) -> List:
-    fields: Set[str] = set()
+    fields: set[str] = set()
     for m in col.models.all():
         for f in m["flds"]:
             name = f["name"].lower() if downcase else f["name"]

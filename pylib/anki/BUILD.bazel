@@ -77,7 +77,7 @@ py_wheel(
         "//platforms:linux_arm64": "manylinux2014_aarch64",
     }),
     python_tag = "cp38",
-    python_version = ">=3.8",
+    python_version = ">=3.9",
     requires = [
         "beautifulsoup4",
         "requests[socks]",

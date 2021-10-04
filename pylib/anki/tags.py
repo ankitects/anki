@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import pprint
 import re
-from typing import Collection, List, Match, Optional, Sequence
+from typing import Collection, Match, Sequence
 
 import anki  # pylint: disable=unused-import
 import anki.collection
@@ -33,7 +33,7 @@ class TagManager:
         self.col = col.weakref()
 
     # legacy add-on code expects a List return type
-    def all(self) -> List[str]:
+    def all(self) -> list[str]:
         return list(self.col._backend.all_tags())
 
     def __repr__(self) -> str:
@@ -50,7 +50,7 @@ class TagManager:
     def clear_unused_tags(self) -> OpChangesWithCount:
         return self.col._backend.clear_unused_tags()
 
-    def byDeck(self, did: DeckId, children: bool = False) -> List[str]:
+    def byDeck(self, did: DeckId, children: bool = False) -> list[str]:
         basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
         if not children:
             query = f"{basequery} AND c.did=?"
@@ -123,11 +123,11 @@ class TagManager:
     # String-based utilities
     ##########################################################################
 
-    def split(self, tags: str) -> List[str]:
+    def split(self, tags: str) -> list[str]:
         "Parse a string and return a list of tags."
         return [t for t in tags.replace("\u3000", " ").split(" ") if t]
 
-    def join(self, tags: List[str]) -> str:
+    def join(self, tags: list[str]) -> str:
         "Join tags into a single string, with leading and trailing spaces."
         if not tags:
             return ""
@@ -164,30 +164,30 @@ class TagManager:
     ##########################################################################
 
     # this is now a no-op - the tags are canonified when the note is saved
-    def canonify(self, tagList: List[str]) -> List[str]:
+    def canonify(self, tagList: list[str]) -> list[str]:
         return tagList
 
-    def inList(self, tag: str, tags: List[str]) -> bool:
+    def inList(self, tag: str, tags: list[str]) -> bool:
         "True if TAG is in TAGS. Ignore case."
         return tag.lower() in [t.lower() for t in tags]
 
     # legacy
     ##########################################################################
 
-    def registerNotes(self, nids: Optional[List[int]] = None) -> None:
+    def registerNotes(self, nids: list[int] | None = None) -> None:
         self.clear_unused_tags()
 
     def register(
-        self, tags: Collection[str], usn: Optional[int] = None, clear: bool = False
+        self, tags: Collection[str], usn: int | None = None, clear: bool = False
     ) -> None:
         print("tags.register() is deprecated and no longer works")
 
-    def bulkAdd(self, ids: List[NoteId], tags: str, add: bool = True) -> None:
+    def bulkAdd(self, ids: list[NoteId], tags: str, add: bool = True) -> None:
         "Add tags in bulk. TAGS is space-separated."
         if add:
             self.bulk_add(ids, tags)
         else:
             self.bulk_remove(ids, tags)
 
-    def bulkRem(self, ids: List[NoteId], tags: str) -> None:
+    def bulkRem(self, ids: list[NoteId], tags: str) -> None:
         self.bulkAdd(ids, tags, False)

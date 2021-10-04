@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from concurrent.futures._base import Future
-from typing import Any, Callable, Generic, Optional, Protocol, TypeVar, Union
+from typing import Any, Callable, Generic, Protocol, TypeVar, Union
 
 import aqt
 from anki.collection import (
@@ -61,26 +61,26 @@ class CollectionOp(Generic[ResultWithChanges]):
     passed to `failure` if it is provided.
     """
 
-    _success: Optional[Callable[[ResultWithChanges], Any]] = None
-    _failure: Optional[Callable[[Exception], Any]] = None
+    _success: Callable[[ResultWithChanges], Any] | None = None
+    _failure: Callable[[Exception], Any] | None = None
 
     def __init__(self, parent: QWidget, op: Callable[[Collection], ResultWithChanges]):
         self._parent = parent
         self._op = op
 
     def success(
-        self, success: Optional[Callable[[ResultWithChanges], Any]]
+        self, success: Callable[[ResultWithChanges], Any] | None
     ) -> CollectionOp[ResultWithChanges]:
         self._success = success
         return self
 
     def failure(
-        self, failure: Optional[Callable[[Exception], Any]]
+        self, failure: Callable[[Exception], Any] | None
     ) -> CollectionOp[ResultWithChanges]:
         self._failure = failure
         return self
 
-    def run_in_background(self, *, initiator: Optional[object] = None) -> None:
+    def run_in_background(self, *, initiator: object | None = None) -> None:
         from aqt import mw
 
         assert mw
@@ -121,7 +121,7 @@ class CollectionOp(Generic[ResultWithChanges]):
     def _fire_change_hooks_after_op_performed(
         self,
         result: ResultWithChanges,
-        handler: Optional[object],
+        handler: object | None,
     ) -> None:
         from aqt import mw
 
@@ -158,8 +158,8 @@ class QueryOp(Generic[T]):
     passed to `failure` if it is provided.
     """
 
-    _failure: Optional[Callable[[Exception], Any]] = None
-    _progress: Union[bool, str] = False
+    _failure: Callable[[Exception], Any] | None = None
+    _progress: bool | str = False
 
     def __init__(
         self,
@@ -172,11 +172,11 @@ class QueryOp(Generic[T]):
         self._op = op
         self._success = success
 
-    def failure(self, failure: Optional[Callable[[Exception], Any]]) -> QueryOp[T]:
+    def failure(self, failure: Callable[[Exception], Any] | None) -> QueryOp[T]:
         self._failure = failure
         return self
 
-    def with_progress(self, label: Optional[str] = None) -> QueryOp[T]:
+    def with_progress(self, label: str | None = None) -> QueryOp[T]:
         self._progress = label or True
         return self
 
@@ -190,7 +190,7 @@ class QueryOp(Generic[T]):
         def wrapped_op() -> T:
             assert mw
             if self._progress:
-                label: Optional[str]
+                label: str | None
                 if isinstance(self._progress, str):
                     label = self._progress
                 else:

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import re
 from concurrent.futures import Future
-from typing import Any, List
+from typing import Any
 
 import aqt
 from anki.cards import CardId
@@ -89,7 +89,7 @@ class EmptyCardsDialog(QDialog):
         self.mw.taskman.run_in_background(delete, on_done)
 
     def _delete_cards(self, keep_notes: bool) -> int:
-        to_delete: List[CardId] = []
+        to_delete: list[CardId] = []
         note: EmptyCardsReport.NoteWithEmptyCards
         for note in self.report.notes:
             if keep_notes and note.will_delete_note:

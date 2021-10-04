@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Sequence
+from typing import Sequence
 
 import aqt
 from anki.notes import NoteId
@@ -39,7 +39,7 @@ class FindAndReplaceDialog(QDialog):
         *,
         mw: AnkiQt,
         note_ids: Sequence[NoteId],
-        field: Optional[str] = None,
+        field: str | None = None,
     ) -> None:
         """
         If 'field' is passed, only this is added to the field selector.
@@ -48,7 +48,7 @@ class FindAndReplaceDialog(QDialog):
         super().__init__(parent)
         self.mw = mw
         self.note_ids = note_ids
-        self.field_names: List[str] = []
+        self.field_names: list[str] = []
         self._field = field
 
         if field:

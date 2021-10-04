@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 import aqt
 from anki.collection import OpChanges
@@ -79,7 +79,7 @@ class DeckBrowser:
             self.refresh()
 
     def op_executed(
-        self, changes: OpChanges, handler: Optional[object], focused: bool
+        self, changes: OpChanges, handler: object | None, focused: bool
     ) -> bool:
         if changes.study_queues and handler is not self:
             self._refresh_needed = True
@@ -175,11 +175,11 @@ class DeckBrowser:
 
     def _renderDeckTree(self, top: DeckTreeNode) -> str:
         buf = """
-<tr><th colspan=5 align=start>%s</th>
-<th class=count>%s</th>
+<tr><th colspan=5 align=start>{}</th>
+<th class=count>{}</th>
 <th class=count></th>
-<th class=count>%s</th>
-<th class=optscol></th></tr>""" % (
+<th class=count>{}</th>
+<th class=optscol></th></tr>""".format(
             tr.decks_deck(),
             tr.actions_new(),
             tr.statistics_due_count(),
