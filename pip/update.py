@@ -17,6 +17,12 @@ cli.add_command(compile.cli, "compile")
 
 print("Updating deps...")
 os.chdir("pip")
-sys.argv[1:] = ["compile", "--allow-unsafe", "--upgrade", "--no-header"]
+sys.argv[1:] = [
+    "compile",
+    "--allow-unsafe",
+    "--upgrade",
+    "--no-header",
+    "--strip-extras",
+]
 
 cli()
