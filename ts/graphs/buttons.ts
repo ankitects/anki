@@ -18,7 +18,7 @@ import {
     sum,
 } from "d3";
 import { Stats } from "../lib/proto";
-import { tr } from "../lib/i18n";
+import * as tr from "../lib/translate";
 import { showTooltip, hideTooltip } from "./tooltip";
 import {
     GraphBounds,

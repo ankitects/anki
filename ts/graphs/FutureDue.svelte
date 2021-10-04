@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TableData from "./TableData.svelte";
     import type { PreferenceStore } from "../sveltelib/preferences";
 
-    import { tr } from "../lib/i18n";
+    import * as tr from "../lib/translate";
     import type { HistogramData } from "./histogram-graph";
     import { GraphRange, RevlogRange } from "./graph-helpers";
     import type { TableDatum, SearchEventMap } from "./graph-helpers";

@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { EditorField } from "./editor-field";
-import { tr } from "../lib/i18n";
+import * as tr from "../lib/translate";
 import { registerShortcut } from "../lib/shortcuts";
 import { bridgeCommand } from "./lib";
 import { appendInParentheses } from "./helpers";

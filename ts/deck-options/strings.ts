@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { tr } from "../lib/i18n";
+import * as tr from "../lib/translate";
 
 export const reviewMixChoices = (): string[] => [
     tr.deckConfigReviewMixMixWithReviews(),

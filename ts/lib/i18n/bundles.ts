@@ -2,8 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { FluentNumber } from "@fluent/bundle";
-import type { FluentBundle } from "@fluent/bundle";
-type RecordVal = number | string | FluentNumber;
+import type { FluentBundle, FluentVariable } from "@fluent/bundle";
 
 let bundles: FluentBundle[] = [];
 
@@ -15,26 +14,33 @@ export function firstLanguage(): string {
     return bundles[0].locales[0];
 }
 
-function formatNumbers(args: Record<string, RecordVal>): void {
-    for (const key of Object.keys(args)) {
-        if (typeof args[key] === "number") {
-            args[key] = new FluentNumber(args[key] as number, {
-                maximumFractionDigits: 2,
-            });
-        }
-    }
+function toFluentNumber(num: number): FluentNumber {
+    return new FluentNumber(num, {
+        maximumFractionDigits: 2,
+    });
 }
 
-export function translate(key: string, args?: Record<string, RecordVal>): string {
-    if (args) {
-        formatNumbers(args);
-    }
+function formatArgs(
+    args: Record<string, FluentVariable>
+): Record<string, FluentVariable> {
+    return Object.fromEntries(
+        Object.entries(args).map(([key, value]) => [
+            key,
+            typeof value === "number" ? toFluentNumber(value) : value,
+        ])
+    );
+}
 
+export function getMessage(
+    key: string,
+    args: Record<string, FluentVariable> = {}
+): string | null {
     for (const bundle of bundles) {
         const msg = bundle.getMessage(key);
         if (msg && msg.value) {
-            return bundle.formatPattern(msg.value, args);
+            return bundle.formatPattern(msg.value, formatArgs(args));
         }
     }
-    return `missing key: ${key}`;
+
+    return null;
 }

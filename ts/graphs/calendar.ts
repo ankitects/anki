@@ -29,7 +29,8 @@ import {
     SearchDispatch,
 } from "./graph-helpers";
 import { clickableClass } from "./graph-styles";
-import { tr, weekdayLabel, toLocaleString } from "../lib/i18n";
+import { weekdayLabel, toLocaleString } from "../lib/i18n";
+import * as tr from "../lib/translate";
 
 export interface GraphData {
     // indexed by day, where day is relative to today

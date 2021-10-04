@@ -17,7 +17,12 @@ class Variable(TypedDict):
 
 
 def methods() -> str:
-    out = [ 'import { translate } from "./bundles";' ]
+    out = [ """import type { FluentVariable } from "@fluent/bundle";
+import { getMessage } from "./i18n";
+
+function translate(key: string, args: Record<string, FluentVariable> = {}): string {
+    return getMessage(key, args) ?? `missing key: ${key}`;
+}""" ]
     for module in modules:
         for translation in module["translations"]:
             key = stringcase.camelcase(translation["key"].replace("-", "_"))

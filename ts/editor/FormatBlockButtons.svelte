@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import OnlyEditable from "./OnlyEditable.svelte";
     import CommandIconButton from "./CommandIconButton.svelte";
 
-    import { tr } from "../lib/i18n";
+    import * as tr from "../lib/translate";
     import { getListItem } from "../lib/dom";
     import { getCurrentField, execCommand } from "./helpers";
     import {

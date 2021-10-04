@@ -21,7 +21,7 @@ import {
     curveBasis,
 } from "d3";
 
-import { tr } from "../lib/i18n";
+import * as tr from "../lib/translate";
 import { showTooltip, hideTooltip } from "./tooltip";
 import {
     GraphBounds,

@@ -17,7 +17,7 @@ py_binary(
     ],
 )
 _i18n_generated = [
-    "i18n/translate.ts",
+    "translate.ts",
     "i18n/modules.ts",
 ]
 
@@ -46,7 +46,7 @@ typescript(
     exclude = _generated,
     generated = [
         ":backend_proto.d.ts",
-        ":i18n/translate.ts",
+        ":translate.ts",
         ":i18n/modules.ts",
     ],
     deps = [

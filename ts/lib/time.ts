@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { tr } from "./i18n";
+import * as tr from "./translate";
 
 export const SECOND = 1.0;
 export const MINUTE = 60.0 * SECOND;

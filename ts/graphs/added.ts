@@ -19,7 +19,7 @@ import {
 import type { Bin } from "d3";
 import type { HistogramData } from "./histogram-graph";
 
-import { tr } from "../lib/i18n";
+import * as tr from "../lib/translate";
 import { dayLabel } from "../lib/time";
 import { GraphRange } from "./graph-helpers";
 import type { TableDatum, SearchDispatch } from "./graph-helpers";

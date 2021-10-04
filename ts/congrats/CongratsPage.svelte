@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Scheduler } from "../lib/proto";
     import { buildNextLearnMsg } from "./lib";
     import { bridgeLink } from "../lib/bridgecommand";
-    import { tr } from "../lib/i18n";
+    import * as tr from "../lib/translate";
 
     export let info: Scheduler.CongratsInfoResponse;
 

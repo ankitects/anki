@@ -1,3 +1,3 @@
+export * from "./bundles";
+export * from "./modules";
 export * from "./utils";
-export * as tr from "./translate";
-export { ModuleName } from "./modules";

@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TitledContainer from "./TitledContainer.svelte";
     import Item from "../components/Item.svelte";
     import SwitchRow from "./SwitchRow.svelte";
-    import { tr } from "../lib/i18n";
+    import * as tr from "../lib/translate";
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;

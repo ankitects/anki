@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import type { Stats } from "../lib/proto";
-    import { tr } from "../lib/i18n";
+    import * as tr from "../lib/translate";
 
     import Graph from "./Graph.svelte";
     import InputBox from "./InputBox.svelte";
