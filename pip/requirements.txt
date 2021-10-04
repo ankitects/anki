@@ -33,12 +33,12 @@ decorator==5.1.0
     # via -r requirements.in
 distro==1.6.0
     # via -r requirements.in
-flask-cors==3.0.10
-    # via -r requirements.in
 flask==2.0.1
     # via
     #   -r requirements.in
     #   flask-cors
+flask-cors==3.0.10
+    # via -r requirements.in
 fluent.syntax==0.18.1
     # via
     #   -r requirements.in
@@ -67,13 +67,13 @@ mccabe==0.6.1
     # via pylint
 mock==4.0.3
     # via -r requirements.in
+mypy==0.910
+    # via -r requirements.in
 mypy-extensions==0.4.3
     # via
     #   black
     #   mypy
 mypy-protobuf==2.10
-    # via -r requirements.in
-mypy==0.910
     # via -r requirements.in
 orjson==3.6.4
     # via -r requirements.in
@@ -115,7 +115,7 @@ pywin32==301 ; sys_platform == "win32"
     # via -r requirements.in
 regex==2021.9.30
     # via black
-requests[socks]==2.26.0
+requests==2.26.0
     # via -r requirements.in
 send2trash==1.8.0
     # via -r requirements.in
