@@ -361,12 +361,6 @@ class AnkiWebView(QWebEngineView):
         newFactor = desiredScale / qtIntScale
         return max(1, newFactor)
 
-    @staticmethod
-    def setPlaybackRequiresGesture(value: bool) -> None:
-        QWebEngineSettings.globalSettings().setAttribute(
-            QWebEngineSettings.PlaybackRequiresUserGesture, value
-        )
-
     def _getQtIntScale(self, screen: QWidget) -> int:
         # try to detect if Qt has scaled the screen
         # - qt will round the scale factor to a whole number, so a dpi of 125% = 1x,
