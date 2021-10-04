@@ -6,8 +6,8 @@ import type { FluentBundle, FluentVariable } from "@fluent/bundle";
 
 let bundles: FluentBundle[] = [];
 
-export function setBundles(...newBundles: FluentBundle[]): void {
-    bundles.splice(0, bundles.length, ...newBundles);
+export function setBundles(newBundles: FluentBundle[]): void {
+    bundles = newBundles;
 }
 
 export function firstLanguage(): string {

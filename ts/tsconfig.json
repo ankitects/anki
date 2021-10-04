@@ -18,11 +18,7 @@
         "composite": true,
         "target": "es6",
         "module": "es2020",
-        "lib": [
-            "es2020",
-            "dom",
-            "dom.iterable"
-        ],
+        "lib": ["es2020", "dom", "dom.iterable"],
         // uncomment for building with tsc directly
         // "outDir": "dist",
         // "rootDir": "..",

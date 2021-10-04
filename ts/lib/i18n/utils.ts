@@ -76,6 +76,6 @@ export async function setupI18n(args: { modules: ModuleName[] }): Promise<void> 
         newBundles.push(bundle);
     }
 
-    setBundles(...newBundles);
-    langs.splice(0, langs.length, ...json.langs);
+    setBundles(newBundles);
+    langs = json.langs;
 }
