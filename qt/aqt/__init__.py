@@ -54,7 +54,7 @@ appUpdate = "https://ankiweb.net/update/desktop"
 appHelpSite = HELP_SITE
 
 from aqt.main import AnkiQt  # isort:skip
-from aqt.profiles import ProfileManager, AnkiRestart, VideoDriver  # isort:skip
+from aqt.profiles import ProfileManager, VideoDriver  # isort:skip
 
 profiler: Optional[cProfile.Profile] = None
 mw: Optional[AnkiQt] = None  # set on init
@@ -498,10 +498,6 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
     try:
         pm = ProfileManager(opts.base)
         pmLoadResult = pm.setupMeta()
-    except AnkiRestart as error:
-        if error.exitcode:
-            sys.exit(error.exitcode)
-        return None
     except:
         # will handle below
         traceback.print_exc()
