@@ -147,28 +147,6 @@ class ProfileManager:
     def ensureBaseExists(self) -> None:
         self._ensureExists(self.base)
 
-    # Folder migration
-    ######################################################################
-
-    def _oldFolderLocation(self) -> str:
-        if isMac:
-            return os.path.expanduser("~/Documents/Anki")
-        elif isWin:
-            from aqt.winpaths import get_personal
-
-            return os.path.join(get_personal(), "Anki")
-        else:
-            p = os.path.expanduser("~/Anki")
-            if os.path.isdir(p):
-                return p
-            return os.path.expanduser("~/Documents/Anki")
-
-    def maybeMigrateFolder(self) -> None:
-        oldBase = self._oldFolderLocation()
-
-        if oldBase and not os.path.exists(self.base) and os.path.isdir(oldBase):
-            shutil.move(oldBase, self.base)
-
     # Profile load/save
     ######################################################################
 
@@ -354,7 +332,6 @@ class ProfileManager:
             self.base = os.path.abspath(os.environ["ANKI_BASE"])
         else:
             self.base = self._defaultBase()
-            self.maybeMigrateFolder()
         self.ensureBaseExists()
 
     def _defaultBase(self) -> str:
