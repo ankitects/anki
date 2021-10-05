@@ -6,8 +6,6 @@ from __future__ import annotations
 from operator import itemgetter
 from typing import Any
 
-from PyQt5.QtWidgets import QLineEdit
-
 import aqt
 from anki.consts import NEW_CARDS_RANDOM
 from anki.decks import DeckConfigDict

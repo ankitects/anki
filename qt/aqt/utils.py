@@ -9,18 +9,6 @@ import sys
 from functools import wraps
 from typing import TYPE_CHECKING, Any, Literal, Sequence, cast
 
-from PyQt5.QtWidgets import (
-    QAction,
-    QDialog,
-    QDialogButtonBox,
-    QFileDialog,
-    QHeaderView,
-    QMenu,
-    QPushButton,
-    QSplitter,
-    QWidget,
-)
-
 import aqt
 from anki.collection import Collection, HelpPage
 from anki.lang import TR, tr_legacyglobal  # pylint: disable=unused-import

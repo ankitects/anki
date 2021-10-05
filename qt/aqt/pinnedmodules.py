@@ -26,8 +26,12 @@ import typing
 import uuid
 
 # other modules we require that may not be automatically included
-import PyQt5.QtSvg
-import PyQt5.QtMultimedia
+try:
+    import PyQt6.QtSvg  # type: ignore
+    import PyQt6.QtMultimedia  # type: ignore
+except:
+    import PyQt5.QtSvg  # type: ignore
+    import PyQt5.QtMultimedia  # type: ignore
 import socks
 import pyaudio
 
