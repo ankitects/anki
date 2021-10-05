@@ -527,7 +527,7 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _saved_searches_tree(self, root: SidebarItem) -> None:
-        icon = ":/icons/heart-outline.svg"
+        icon = "icons:heart-outline.svg"
         saved = self._get_saved_searches()
 
         root = self._section_root(
@@ -551,7 +551,7 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _today_tree(self, root: SidebarItem) -> None:
-        icon = ":/icons/clock-outline.svg"
+        icon = "icons:clock-outline.svg"
         root = self._section_root(
             root=root,
             name=tr.browsing_today(),
@@ -621,8 +621,8 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _card_state_tree(self, root: SidebarItem) -> None:
-        icon = ":/icons/circle.svg"
-        icon_outline = ":/icons/circle-outline.svg"
+        icon = "icons:circle.svg"
+        icon_outline = "icons:circle-outline.svg"
 
         root = self._section_root(
             root=root,
@@ -670,8 +670,8 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _flags_tree(self, root: SidebarItem) -> None:
-        icon = ":/icons/flag.svg"
-        icon_outline = ":/icons/flag-outline.svg"
+        icon = "icons:flag.svg"
+        icon_outline = "icons:flag-outline.svg"
 
         root = self._section_root(
             root=root,
@@ -704,8 +704,8 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _tag_tree(self, root: SidebarItem) -> None:
-        icon = ":/icons/tag-outline.svg"
-        icon_off = ":/icons/tag-off-outline.svg"
+        icon = "icons:tag-outline.svg"
+        icon_off = "icons:tag-off-outline.svg"
 
         def render(
             root: SidebarItem, nodes: Iterable[TagTreeNode], head: str = ""
@@ -752,9 +752,9 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _deck_tree(self, root: SidebarItem) -> None:
-        icon = ":/icons/book-outline.svg"
-        icon_current = ":/icons/book-clock-outline.svg"
-        icon_filtered = ":/icons/book-cog-outline.svg"
+        icon = "icons:book-outline.svg"
+        icon_current = "icons:book-clock-outline.svg"
+        icon_filtered = "icons:book-cog-outline.svg"
 
         def render(
             root: SidebarItem, nodes: Iterable[DeckTreeNode], head: str = ""
@@ -807,9 +807,9 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _notetype_tree(self, root: SidebarItem) -> None:
-        notetype_icon = ":/icons/newspaper.svg"
-        template_icon = ":/icons/iframe-braces-outline.svg"
-        field_icon = ":/icons/form-textbox.svg"
+        notetype_icon = "icons:newspaper.svg"
+        template_icon = "icons:iframe-braces-outline.svg"
+        field_icon = "icons:form-textbox.svg"
 
         root = self._section_root(
             root=root,

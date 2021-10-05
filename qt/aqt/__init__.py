@@ -587,6 +587,11 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         )
         return None
 
+    # make image resources available
+    from aqt.utils import aqt_data_folder
+
+    QDir.addSearchPath("icons", os.path.join(aqt_data_folder(), "qt", "icons"))
+
     if pmLoadResult.firstTime:
         pm.setDefaultLang(lang[0])
 
