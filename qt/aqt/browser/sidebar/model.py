@@ -76,35 +76,48 @@ class SidebarModel(QAbstractItemModel):
 
         return self.createIndex(row, 0, parentItem)
 
-    def data(self, index: QModelIndex, role: int = Qt.DisplayRole) -> QVariant:
+    def data(
+        self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole
+    ) -> QVariant:
         if not index.isValid():
             return QVariant()
 
-        if role not in (Qt.DisplayRole, Qt.DecorationRole, Qt.ToolTipRole, Qt.EditRole):
+        if role not in (
+            Qt.ItemDataRole.DisplayRole,
+            Qt.ItemDataRole.DecorationRole,
+            Qt.ItemDataRole.ToolTipRole,
+            Qt.ItemDataRole.EditRole,
+        ):
             return QVariant()
 
         item: SidebarItem = index.internalPointer()
 
-        if role in (Qt.DisplayRole, Qt.EditRole):
+        if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
             return QVariant(item.name)
-        if role == Qt.ToolTipRole:
+        if role == Qt.ItemDataRole.ToolTipRole:
             return QVariant(item.tooltip)
         return QVariant(theme_manager.icon_from_resources(item.icon))
 
-    def setData(self, index: QModelIndex, text: str, _role: int = Qt.EditRole) -> bool:
+    def setData(
+        self, index: QModelIndex, text: str, _role: int = Qt.ItemDataRole.EditRole
+    ) -> bool:
         return self.sidebar._on_rename(index.internalPointer(), text)
 
-    def supportedDropActions(self) -> Qt.DropActions:
-        return cast(Qt.DropActions, Qt.MoveAction)
+    def supportedDropActions(self) -> Qt.DropAction:
+        return cast(Qt.DropAction, Qt.DropAction.MoveAction)
 
-    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         if not index.isValid():
-            return cast(Qt.ItemFlags, Qt.ItemIsEnabled)
-        flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled
+            return cast(Qt.ItemFlag, Qt.ItemFlag.ItemIsEnabled)
+        flags = (
+            Qt.ItemFlag.ItemIsEnabled
+            | Qt.ItemFlag.ItemIsSelectable
+            | Qt.ItemFlag.ItemIsDragEnabled
+        )
         item: SidebarItem = index.internalPointer()
         if item.item_type in self.sidebar.valid_drop_types:
-            flags |= Qt.ItemIsDropEnabled
+            flags |= Qt.ItemFlag.ItemIsDropEnabled
         if item.item_type.is_editable():
-            flags |= Qt.ItemIsEditable
+            flags |= Qt.ItemFlag.ItemIsEditable
 
-        return cast(Qt.ItemFlags, flags)
+        return flags

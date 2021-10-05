@@ -1,6 +1,6 @@
 [MASTER]
 persistent = no
-extension-pkg-whitelist=PyQt5,PyQt6
+extension-pkg-whitelist=PyQt6
 ignore = forms,hooks_gen.py
 
 [TYPECHECK]

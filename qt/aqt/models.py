@@ -48,7 +48,7 @@ class Models(QDialog):
         parent = parent or mw
         self.fromMain = fromMain
         self.selected_notetype_id = selected_notetype_id
-        QDialog.__init__(self, parent, Qt.Window)
+        QDialog.__init__(self, parent, Qt.WindowType.Window)
         self.col = mw.col.weakref()
         assert self.col
         self.mm = self.col.models
@@ -97,7 +97,7 @@ class Models(QDialog):
         default_buttons.append((tr.notetypes_options(), self.onAdvanced))
 
         for label, func in gui_hooks.models_did_init_buttons(default_buttons, self):
-            button = box.addButton(label, QDialogButtonBox.ActionRole)
+            button = box.addButton(label, QDialogButtonBox.ButtonRole.ActionRole)
             qconnect(button.clicked, func)
 
         qconnect(f.modelsList.itemDoubleClicked, self.onRename)
@@ -235,7 +235,7 @@ class AddModel(QDialog):
         self.parent_ = parent or mw
         self.mw = mw
         self.col = mw.col
-        QDialog.__init__(self, self.parent_, Qt.Window)
+        QDialog.__init__(self, self.parent_, Qt.WindowType.Window)
         self.model = None
         self.dialog = aqt.forms.addmodel.Ui_Dialog()
         self.dialog.setupUi(self)

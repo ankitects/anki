@@ -92,7 +92,9 @@ class ThemeManager:
             icon = QIcon(path.path)
             pixmap = icon.pixmap(16)
             painter = QPainter(pixmap)
-            painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
+            painter.setCompositionMode(
+                QPainter.CompositionMode.CompositionMode_SourceIn
+            )
             painter.fillRect(pixmap.rect(), QColor(path.current_color(self.night_mode)))
             painter.end()
             icon = QIcon(pixmap)
@@ -207,34 +209,44 @@ QTabWidget {{ background-color: {}; }}
         palette = QPalette()
 
         text_fg = self.qcolor(colors.TEXT_FG)
-        palette.setColor(QPalette.WindowText, text_fg)
-        palette.setColor(QPalette.ToolTipText, text_fg)
-        palette.setColor(QPalette.Text, text_fg)
-        palette.setColor(QPalette.ButtonText, text_fg)
+        palette.setColor(QPalette.ColorRole.WindowText, text_fg)
+        palette.setColor(QPalette.ColorRole.ToolTipText, text_fg)
+        palette.setColor(QPalette.ColorRole.Text, text_fg)
+        palette.setColor(QPalette.ColorRole.ButtonText, text_fg)
 
         hlbg = self.qcolor(colors.HIGHLIGHT_BG)
         hlbg.setAlpha(64)
-        palette.setColor(QPalette.HighlightedText, self.qcolor(colors.HIGHLIGHT_FG))
-        palette.setColor(QPalette.Highlight, hlbg)
+        palette.setColor(
+            QPalette.ColorRole.HighlightedText, self.qcolor(colors.HIGHLIGHT_FG)
+        )
+        palette.setColor(QPalette.ColorRole.Highlight, hlbg)
 
         window_bg = self.qcolor(colors.WINDOW_BG)
-        palette.setColor(QPalette.Window, window_bg)
-        palette.setColor(QPalette.AlternateBase, window_bg)
+        palette.setColor(QPalette.ColorRole.Window, window_bg)
+        palette.setColor(QPalette.ColorRole.AlternateBase, window_bg)
 
-        palette.setColor(QPalette.Button, QColor("#454545"))
+        palette.setColor(QPalette.ColorRole.Button, QColor("#454545"))
 
         frame_bg = self.qcolor(colors.FRAME_BG)
-        palette.setColor(QPalette.Base, frame_bg)
-        palette.setColor(QPalette.ToolTipBase, frame_bg)
+        palette.setColor(QPalette.ColorRole.Base, frame_bg)
+        palette.setColor(QPalette.ColorRole.ToolTipBase, frame_bg)
 
         disabled_color = self.qcolor(colors.DISABLED)
-        palette.setColor(QPalette.Disabled, QPalette.Text, disabled_color)
-        palette.setColor(QPalette.Disabled, QPalette.ButtonText, disabled_color)
-        palette.setColor(QPalette.Disabled, QPalette.HighlightedText, disabled_color)
+        palette.setColor(
+            QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, disabled_color
+        )
+        palette.setColor(
+            QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, disabled_color
+        )
+        palette.setColor(
+            QPalette.ColorGroup.Disabled,
+            QPalette.ColorRole.HighlightedText,
+            disabled_color,
+        )
 
-        palette.setColor(QPalette.Link, self.qcolor(colors.LINK))
+        palette.setColor(QPalette.ColorRole.Link, self.qcolor(colors.LINK))
 
-        palette.setColor(QPalette.BrightText, Qt.red)
+        palette.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
 
         app.setPalette(palette)
 

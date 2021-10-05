@@ -292,7 +292,7 @@ def get_id_and_pass_from_user(
     diag = QDialog(mw)
     diag.setWindowTitle("Anki")
     disable_help_button(diag)
-    diag.setWindowModality(Qt.WindowModal)
+    diag.setWindowModality(Qt.WindowModality.WindowModal)
     vbox = QVBoxLayout()
     info_label = QLabel(
         without_unicode_isolation(
@@ -313,11 +313,11 @@ def get_id_and_pass_from_user(
     g.addWidget(l2, 1, 0)
     passwd = QLineEdit()
     passwd.setText(password)
-    passwd.setEchoMode(QLineEdit.Password)
+    passwd.setEchoMode(QLineEdit.EchoMode.Password)
     g.addWidget(passwd, 1, 1)
     vbox.addLayout(g)
-    bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)  # type: ignore
-    bb.button(QDialogButtonBox.Ok).setAutoDefault(True)
+    bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)  # type: ignore
+    bb.button(QDialogButtonBox.StandardButton.Ok).setAutoDefault(True)
     qconnect(bb.accepted, diag.accept)
     qconnect(bb.rejected, diag.reject)
     vbox.addWidget(bb)

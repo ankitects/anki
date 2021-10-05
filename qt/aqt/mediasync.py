@@ -162,7 +162,9 @@ class MediaSyncDialog(QDialog):
         self.abort_button = QPushButton(tr.sync_abort_button())
         qconnect(self.abort_button.clicked, self._on_abort)
         self.abort_button.setAutoDefault(False)
-        self.form.buttonBox.addButton(self.abort_button, QDialogButtonBox.ActionRole)
+        self.form.buttonBox.addButton(
+            self.abort_button, QDialogButtonBox.ButtonRole.ActionRole
+        )
         self.abort_button.setHidden(not self._syncer.is_syncing())
 
         gui_hooks.media_sync_did_progress.append(self._on_log_entry)
@@ -171,7 +173,7 @@ class MediaSyncDialog(QDialog):
         self.form.plainTextEdit.setPlainText(
             "\n".join(self._entry_to_text(x) for x in syncer.entries())
         )
-        self.form.plainTextEdit.moveCursor(QTextCursor.End)
+        self.form.plainTextEdit.moveCursor(QTextCursor.MoveOperation.End)
         self.show()
 
     def reject(self) -> None:

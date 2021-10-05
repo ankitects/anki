@@ -461,9 +461,9 @@ create table if not exists profiles
         code = obj[1]
         name = obj[0]
         r = QMessageBox.question(
-            None, "Anki", tr.profiles_confirm_lang_choice(lang=name), QMessageBox.Yes | QMessageBox.No, QMessageBox.No  # type: ignore
+            None, "Anki", tr.profiles_confirm_lang_choice(lang=name), QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No  # type: ignore
         )
-        if r != QMessageBox.Yes:
+        if r != QMessageBox.StandardButton.Yes:
             return self.setDefaultLang(f.lang.currentRow())
         self.setLang(code)
 

@@ -79,14 +79,14 @@ class SidebarTreeView(QTreeView):
         self.valid_drop_types: tuple[SidebarItemType, ...] = ()
         self._refresh_needed = False
 
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
         self.setUniformRowHeights(True)
         self.setHeaderHidden(True)
         self.setIndentation(15)
         self.setAutoExpandDelay(600)
         self.setDragDropOverwriteMode(False)
-        self.setEditTriggers(QAbstractItemView.EditKeyPressed)
+        self.setEditTriggers(QAbstractItemView.EditTrigger.EditKeyPressed)
 
         qconnect(self.expanded, self._on_expansion)
         qconnect(self.collapsed, self._on_collapse)
@@ -122,12 +122,12 @@ class SidebarTreeView(QTreeView):
     def tool(self, tool: SidebarTool) -> None:
         self._tool = tool
         if tool == SidebarTool.SEARCH:
-            selection_mode = QAbstractItemView.SingleSelection
-            drag_drop_mode = QAbstractItemView.NoDragDrop
+            selection_mode = QAbstractItemView.SelectionMode.SingleSelection
+            drag_drop_mode = QAbstractItemView.DragDropMode.NoDragDrop
             double_click_expands = False
         else:
-            selection_mode = QAbstractItemView.ExtendedSelection
-            drag_drop_mode = QAbstractItemView.InternalMove
+            selection_mode = QAbstractItemView.SelectionMode.ExtendedSelection
+            drag_drop_mode = QAbstractItemView.DragDropMode.InternalMove
             double_click_expands = True
         self.setSelectionMode(selection_mode)
         self.setDragDropMode(drag_drop_mode)
@@ -191,9 +191,9 @@ class SidebarTreeView(QTreeView):
         if current := self.find_item(current.has_same_id):
             index = self.model().index_for_item(current)
             self.selectionModel().setCurrentIndex(
-                index, QItemSelectionModel.SelectCurrent
+                index, QItemSelectionModel.SelectionFlag.SelectCurrent
             )
-            self.scrollTo(index, QAbstractItemView.PositionAtCenter)
+            self.scrollTo(index, QAbstractItemView.ScrollHint.PositionAtCenter)
 
     def find_item(
         self,
@@ -247,9 +247,12 @@ class SidebarTreeView(QTreeView):
                         self.setExpanded(idx, True)
                     if item.is_highlighted() and scroll_to_first_match:
                         self.selectionModel().setCurrentIndex(
-                            idx, QItemSelectionModel.SelectCurrent
+                            idx,
+                            QItemSelectionModel.SelectionFlag.SelectCurrent,
                         )
-                        self.scrollTo(idx, QAbstractItemView.PositionAtCenter)
+                        self.scrollTo(
+                            idx, QAbstractItemView.ScrollHint.PositionAtCenter
+                        )
                         scroll_to_first_match = False
 
         expand_node(parent or QModelIndex())
@@ -301,22 +304,29 @@ class SidebarTreeView(QTreeView):
 
     def dropEvent(self, event: QDropEvent) -> None:
         model = self.model()
-        target_item = model.item_for_index(self.indexAt(event.pos()))
+        if qtmajor == 5:
+            pos = event.pos()  # type: ignore
+        else:
+            pos = event.position().toPoint()
+        target_item = model.item_for_index(self.indexAt(pos))
         if self.handle_drag_drop(self._selected_items(), target_item):
             event.acceptProposedAction()
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         super().mouseReleaseEvent(event)
-        if self.tool == SidebarTool.SEARCH and event.button() == Qt.LeftButton:
+        if (
+            self.tool == SidebarTool.SEARCH
+            and event.button() == Qt.MouseButton.LeftButton
+        ):
             if (index := self.currentIndex()) == self.indexAt(event.pos()):
                 self._on_search(index)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         index = self.currentIndex()
-        if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+        if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             if not self.isPersistentEditorOpen(index):
                 self._on_search(index)
-        elif event.key() == Qt.Key_Delete:
+        elif event.key() == Qt.Key.Key_Delete:
             self._on_delete_key(index)
         else:
             super().keyPressEvent(event)

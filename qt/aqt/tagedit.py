@@ -26,9 +26,9 @@ class TagEdit(QLineEdit):
             self._completer = TagCompleter(self.model, parent, self)
         else:
             self._completer = QCompleter(self.model, parent)
-        self._completer.setCompletionMode(QCompleter.PopupCompletion)
-        self._completer.setCaseSensitivity(Qt.CaseInsensitive)
-        self._completer.setFilterMode(Qt.MatchContains)
+        self._completer.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
+        self._completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self._completer.setFilterMode(Qt.MatchFlag.MatchContains)
         self.setCompleter(self._completer)
 
     def setCol(self, col: Collection) -> None:
@@ -45,12 +45,15 @@ class TagEdit(QLineEdit):
         QLineEdit.focusInEvent(self, evt)
 
     def keyPressEvent(self, evt: QKeyEvent) -> None:
-        if evt.key() in (Qt.Key_Up, Qt.Key_Down):
+        if evt.key() in (Qt.Key.Key_Up, Qt.Key.Key_Down):
             # show completer on arrow key up/down
             if not self._completer.popup().isVisible():
                 self.showCompleter()
             return
-        if evt.key() == Qt.Key_Tab and int(evt.modifiers()) & Qt.ControlModifier:
+        if (
+            evt.key() == Qt.Key.Key_Tab
+            and evt.modifiers() & Qt.KeyboardModifier.ControlModifier
+        ):
             # select next completion
             if not self._completer.popup().isVisible():
                 self.showCompleter()
@@ -61,7 +64,7 @@ class TagEdit(QLineEdit):
                 self._completer.setCurrentRow(0)
             return
         if (
-            evt.key() in (Qt.Key_Enter, Qt.Key_Return)
+            evt.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return)
             and self._completer.popup().isVisible()
         ):
             # apply first completion if no suggestion selected
@@ -78,13 +81,13 @@ class TagEdit(QLineEdit):
             # if it's a modifier, don't show
             return
         if evt.key() not in (
-            Qt.Key_Enter,
-            Qt.Key_Return,
-            Qt.Key_Escape,
-            Qt.Key_Space,
-            Qt.Key_Tab,
-            Qt.Key_Backspace,
-            Qt.Key_Delete,
+            Qt.Key.Key_Enter,
+            Qt.Key.Key_Return,
+            Qt.Key.Key_Escape,
+            Qt.Key.Key_Space,
+            Qt.Key.Key_Tab,
+            Qt.Key.Key_Backspace,
+            Qt.Key.Key_Delete,
         ):
             self.showCompleter()
         gui_hooks.tag_editor_did_process_key(self, evt)

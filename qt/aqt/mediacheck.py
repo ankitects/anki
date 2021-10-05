@@ -105,33 +105,33 @@ class MediaChecker:
         text = QPlainTextEdit()
         text.setReadOnly(True)
         text.setPlainText(report)
-        text.setWordWrapMode(QTextOption.NoWrap)
+        text.setWordWrapMode(QTextOption.WrapMode.NoWrap)
         layout.addWidget(text)
-        box = QDialogButtonBox(QDialogButtonBox.Close)
+        box = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         layout.addWidget(box)
 
         if output.unused:
             b = QPushButton(tr.media_check_delete_unused())
             b.setAutoDefault(False)
-            box.addButton(b, QDialogButtonBox.RejectRole)
+            box.addButton(b, QDialogButtonBox.ButtonRole.RejectRole)
             qconnect(b.clicked, lambda c: self._on_trash_files(output.unused))
 
         if output.missing:
             if any(map(lambda x: x.startswith("latex-"), output.missing)):
                 b = QPushButton(tr.media_check_render_latex())
                 b.setAutoDefault(False)
-                box.addButton(b, QDialogButtonBox.RejectRole)
+                box.addButton(b, QDialogButtonBox.ButtonRole.RejectRole)
                 qconnect(b.clicked, self._on_render_latex)
 
         if output.have_trash:
             b = QPushButton(tr.media_check_empty_trash())
             b.setAutoDefault(False)
-            box.addButton(b, QDialogButtonBox.RejectRole)
+            box.addButton(b, QDialogButtonBox.ButtonRole.RejectRole)
             qconnect(b.clicked, lambda c: self._on_empty_trash())
 
             b = QPushButton(tr.media_check_restore_trash())
             b.setAutoDefault(False)
-            box.addButton(b, QDialogButtonBox.RejectRole)
+            box.addButton(b, QDialogButtonBox.ButtonRole.RejectRole)
             qconnect(b.clicked, lambda c: self._on_restore_trash())
 
         qconnect(box.rejected, diag.reject)

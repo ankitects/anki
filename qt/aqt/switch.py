@@ -28,7 +28,7 @@ class Switch(QAbstractButton):
         super().__init__(parent=parent)
         self.setCheckable(True)
         super().setChecked(False)
-        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self._left_label = left_label
         self._right_label = right_label
         self._left_color = left_color
@@ -76,8 +76,8 @@ class Switch(QAbstractButton):
 
     def paintEvent(self, _event: QPaintEvent) -> None:
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setPen(Qt.NoPen)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        painter.setPen(Qt.PenStyle.NoPen)
         self._paint_path(painter)
         self._paint_knob(painter)
         self._paint_label(painter)
@@ -113,15 +113,17 @@ class Switch(QAbstractButton):
         font = painter.font()
         font.setPixelSize(int(1.2 * self._knob_radius))
         painter.setFont(font)
-        painter.drawText(self._current_knob_rectangle(), Qt.AlignCenter, self.label)
+        painter.drawText(
+            self._current_knob_rectangle(), Qt.AlignmentFlag.AlignCenter, self.label
+        )
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         super().mouseReleaseEvent(event)
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             self._animate_toggle()
 
-    def enterEvent(self, event: QEvent) -> None:
-        self.setCursor(Qt.PointingHandCursor)
+    def enterEvent(self, event: QEnterEvent) -> None:
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
         super().enterEvent(event)
 
     def toggle(self) -> None:

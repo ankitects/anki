@@ -92,7 +92,7 @@ class ProgressManager:
         self._win.form.progressBar.setTextVisible(False)
         self._win.form.label.setText(label)
         self._win.setWindowTitle("Anki")
-        self._win.setWindowModality(Qt.ApplicationModal)
+        self._win.setWindowModality(Qt.WindowModality.ApplicationModal)
         self._win.setMinimumWidth(300)
         self._busy_cursor_timer = QTimer(self.mw)
         self._busy_cursor_timer.setSingleShot(True)
@@ -177,7 +177,7 @@ class ProgressManager:
                 elap = time.time() - self._shown
                 if elap >= 0.5:
                     break
-                self.app.processEvents(QEventLoop.ExcludeUserInputEvents)  # type: ignore #possibly related to https://github.com/python/mypy/issues/6910
+                self.app.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)  # type: ignore #possibly related to https://github.com/python/mypy/issues/6910
         # if the parent window has been deleted, the progress dialog may have
         # already been dropped; delete it if it hasn't been
         if not sip.isdeleted(self._win):
@@ -186,7 +186,7 @@ class ProgressManager:
         self._shown = 0
 
     def _set_busy_cursor(self) -> None:
-        self.mw.app.setOverrideCursor(QCursor(Qt.WaitCursor))
+        self.mw.app.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
 
     def _restore_cursor(self) -> None:
         self.app.restoreOverrideCursor()
@@ -235,6 +235,6 @@ class ProgressDialog(QDialog):
             evt.ignore()
 
     def keyPressEvent(self, evt: QKeyEvent) -> None:
-        if evt.key() == Qt.Key_Escape:
+        if evt.key() == Qt.Key.Key_Escape:
             evt.ignore()
             self.wantCancel = True

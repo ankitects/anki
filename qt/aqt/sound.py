@@ -666,15 +666,18 @@ class RecordDialog(QDialog):
         hbox.addWidget(self.label)
         v = QVBoxLayout()
         v.addLayout(hbox)
-        buts = QDialogButtonBox.Save | QDialogButtonBox.Cancel
+        buts = (
+            QDialogButtonBox.StandardButton.Save
+            | QDialogButtonBox.StandardButton.Cancel
+        )
         b = QDialogButtonBox(buts)  # type: ignore
         v.addWidget(b)
         self.setLayout(v)
-        save_button = b.button(QDialogButtonBox.Save)
+        save_button = b.button(QDialogButtonBox.StandardButton.Save)
         save_button.setDefault(True)
         save_button.setAutoDefault(True)
         qconnect(save_button.clicked, self.accept)
-        cancel_button = b.button(QDialogButtonBox.Cancel)
+        cancel_button = b.button(QDialogButtonBox.StandardButton.Cancel)
         cancel_button.setDefault(False)
         cancel_button.setAutoDefault(False)
         qconnect(cancel_button.clicked, self.reject)
