@@ -13,8 +13,6 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Any, Callable, Literal, Match, Sequence, cast
 
-from PyQt5.QtCore import Qt
-
 from anki import hooks
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount

@@ -6,7 +6,10 @@ import os
 import subprocess
 import sys
 
-import PyQt5
+try:
+    import PyQt6
+except:
+    import PyQt5
 from pylint.lint import Run
 
 if __name__ == "__main__":
