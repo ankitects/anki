@@ -934,7 +934,7 @@ time = %(time)d;
 
         gui_hooks.reviewer_will_show_context_menu(self, m)
         qtMenuShortcutWorkaround(m)
-        m.exec_(QCursor.pos())
+        m.exec(QCursor.pos())
 
     def _addMenuItems(self, m: QMenu, rows: Sequence) -> None:
         for row in rows:

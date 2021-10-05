@@ -389,7 +389,7 @@ class CardLayout(QDialog):
         a.setChecked(self.mobile_emulation_enabled)
         qconnect(a.toggled, self.on_mobile_class_action_toggled)
 
-        m.exec_(self.pform.preview_settings.mapToGlobal(QPoint(0, 0)))
+        m.exec(self.pform.preview_settings.mapToGlobal(QPoint(0, 0)))
 
     def on_preview_toggled(self) -> None:
         self.have_autoplayed = False
@@ -706,7 +706,7 @@ class CardLayout(QDialog):
         a = m.addAction(tr.card_templates_browser_appearance())
         qconnect(a.triggered, self.onBrowserDisplay)
 
-        m.exec_(self.topAreaForm.templateOptions.mapToGlobal(QPoint(0, 0)))
+        m.exec(self.topAreaForm.templateOptions.mapToGlobal(QPoint(0, 0)))
 
     def onBrowserDisplay(self) -> None:
         d = QDialog()
@@ -721,7 +721,7 @@ class CardLayout(QDialog):
         f.font.setCurrentFont(QFont(t.get("bfont") or "Arial"))
         f.fontSize.setValue(t.get("bsize") or 12)
         qconnect(f.buttonBox.accepted, lambda: self.onBrowserDisplayOk(f))
-        d.exec_()
+        d.exec()
 
     def onBrowserDisplayOk(self, f: Ui_Dialog) -> None:
         t = self.current_template()
@@ -761,7 +761,7 @@ class CardLayout(QDialog):
         qconnect(bb.rejected, d.close)
         l.addWidget(bb)
         d.setLayout(l)
-        d.exec_()
+        d.exec()
         self.change_tracker.mark_basic()
         if not te.text().strip():
             t["did"] = None
@@ -778,7 +778,7 @@ class CardLayout(QDialog):
         form.fields.setCurrentRow(0)
         form.font.setCurrentFont(QFont("Arial"))
         form.size.setValue(20)
-        if not diag.exec_():
+        if not diag.exec():
             return
         row = form.fields.currentIndex().row()
         if row >= 0:

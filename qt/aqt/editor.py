@@ -916,7 +916,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
         form.textEdit.setPlainText(self.note.fields[field])
         d.show()
         form.textEdit.moveCursor(QTextCursor.End)
-        d.exec_()
+        d.exec()
         html = form.textEdit.toPlainText()
         if html.find(">") > -1:
             # filter html through beautifulsoup so we can strip out things like a
@@ -1044,7 +1044,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
 
         qtMenuShortcutWorkaround(m)
 
-        m.exec_(QCursor.pos())
+        m.exec(QCursor.pos())
 
     @deprecated(info=_js_legacy)
     def insertLatex(self) -> None:

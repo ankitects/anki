@@ -102,7 +102,7 @@ def reposition_new_cards_dialog(
     frm.label.setText(txt)
 
     frm.start.selectAll()
-    if not d.exec_():
+    if not d.exec():
         return None
 
     start = frm.start.value()

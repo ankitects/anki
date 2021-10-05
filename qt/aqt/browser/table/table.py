@@ -447,7 +447,7 @@ class Table:
             sub_menu.addAction(action)
         gui_hooks.browser_will_show_context_menu(self.browser, menu)
         qtMenuShortcutWorkaround(menu)
-        menu.exec_(QCursor.pos())
+        menu.exec(QCursor.pos())
 
     def _on_header_context(self, pos: QPoint) -> None:
         gpos = self._view.mapToGlobal(pos)
@@ -463,7 +463,7 @@ class Table:
                 lambda checked, key=key: self._on_column_toggled(checked, key),
             )
         gui_hooks.browser_header_will_show_context_menu(self.browser, m)
-        m.exec_(gpos)
+        m.exec(gpos)
 
     def _on_column_moved(self, *_args: Any) -> None:
         self._set_column_sizes()

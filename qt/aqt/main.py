@@ -1422,7 +1422,7 @@ title="{}" {}>{}</button>""".format(
                 a = menu.addAction("Clear Code")
                 a.setShortcut(QKeySequence("ctrl+shift+l"))
                 qconnect(a.triggered, frm.text.clear)
-            menu.exec_(QCursor.pos())
+            menu.exec(QCursor.pos())
 
         frm.log.contextMenuEvent = lambda ev: addContextMenu(ev, "log")  # type: ignore[assignment]
         frm.text.contextMenuEvent = lambda ev: addContextMenu(ev, "text")  # type: ignore[assignment]

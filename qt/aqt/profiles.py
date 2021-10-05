@@ -205,7 +205,7 @@ class ProfileManager:
         confirmation.setText(
             "Anki needs to move its data folder from Documents/Anki to a new location. Proceed?"
         )
-        retval = confirmation.exec_()
+        retval = confirmation.exec()
 
         if retval == QMessageBox.Ok:
             progress = QMessageBox()
@@ -227,7 +227,7 @@ class ProfileManager:
             completion.setWindowTitle(window_title)
             completion.setText("Migration complete. Please start Anki again.")
             completion.show()
-            completion.exec_()
+            completion.exec()
         else:
             diag = QMessageBox()
             diag.setIcon(QMessageBox.Warning)
@@ -238,7 +238,7 @@ class ProfileManager:
                 "Migration aborted. If you would like to keep the old folder location, please "
                 "see the Startup Options section of the manual. Anki will now quit."
             )
-            diag.exec_()
+            diag.exec()
 
         raise AnkiRestart(exitcode=0)
 
@@ -542,7 +542,7 @@ create table if not exists profiles
         # update list
         f.lang.addItems([x[0] for x in anki.lang.langs])
         f.lang.setCurrentRow(idx)
-        d.exec_()
+        d.exec()
 
     def _onLangSelected(self) -> None:
         f = self.langForm

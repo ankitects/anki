@@ -61,7 +61,7 @@ class Models(QDialog):
         self.models: Sequence[NotetypeNameIdUseCount] = []
         self.setupModels()
         restoreGeom(self, "models")
-        self.exec_()
+        self.exec()
 
     # Models
     ##########################################################################
@@ -196,7 +196,7 @@ class Models(QDialog):
         qconnect(frm.buttonBox.helpRequested, lambda: openHelp(HelpPage.LATEX))
         restoreGeom(d, "modelopts")
         gui_hooks.models_advanced_will_show(d)
-        d.exec_()
+        d.exec()
         saveGeom(d, "modelopts")
         nt["latexsvg"] = frm.latexsvg.isChecked()
         nt["latexPre"] = str(frm.latexHeader.toPlainText())
@@ -261,7 +261,7 @@ class AddModel(QDialog):
         qconnect(self.dialog.buttonBox.helpRequested, self.onHelp)
 
     def get(self) -> Optional[NotetypeDict]:
-        self.exec_()
+        self.exec()
         return self.model
 
     def reject(self) -> None:
