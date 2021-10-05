@@ -50,7 +50,6 @@ aqt_deps = [
     requirement("waitress"),
     requirement("send2trash"),
     requirement("jsonschema"),
-    "@pyqt6//:pkg",
 ] + select({
     "@bazel_tools//src/conditions:host_windows": [
         requirement("psutil"),
@@ -66,7 +65,9 @@ py_library(
     srcs = _py_srcs_and_forms,
     data = aqt_core_data,
     visibility = ["//visibility:public"],
-    deps = aqt_deps,
+    deps = aqt_deps + [
+        "@pyqt6//:pkg",
+    ],
 )
 
 py_library(
@@ -74,7 +75,19 @@ py_library(
     srcs = _py_srcs_and_forms,
     data = aqt_core_data + ["//qt/aqt/data"],
     visibility = ["//visibility:public"],
-    deps = aqt_deps,
+    deps = aqt_deps + [
+        "@pyqt6//:pkg",
+    ],
+)
+
+py_library(
+    name = "aqt_with_data_qt5",
+    srcs = _py_srcs_and_forms,
+    data = aqt_core_data + ["//qt/aqt/data"],
+    visibility = ["//visibility:public"],
+    deps = aqt_deps + [
+        "@pyqt5//:pkg",
+    ],
 )
 
 py_package(
