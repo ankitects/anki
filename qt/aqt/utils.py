@@ -515,7 +515,7 @@ def restoreGeom(
     if aqt.mw.pm.profile.get(key):
         widget.restoreGeometry(aqt.mw.pm.profile[key])
         if isMac and offset:
-            if qtminor > 6:
+            if qtmajor > 5 or qtminor > 6:
                 # bug in osx toolkit
                 s = widget.size()
                 widget.resize(s.width(), s.height() + offset * 2)
@@ -828,8 +828,6 @@ class MenuItem:
 
 
 def qtMenuShortcutWorkaround(qmenu: QMenu) -> None:
-    if qtminor < 10:
-        return
     for act in qmenu.actions():
         act.setShortcutVisibleInContextMenu(True)
 

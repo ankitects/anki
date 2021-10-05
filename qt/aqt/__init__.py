@@ -515,6 +515,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
 
     if (
         isWin
+        and qtmajor == 5
         and (qtminor == 14 or (qtminor == 15 and qtpoint == 0))
         and "QT_QPA_PLATFORM" not in os.environ
     ):

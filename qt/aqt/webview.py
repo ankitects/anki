@@ -346,13 +346,7 @@ class AnkiWebView(QWebEngineView):
         if isLin:
             factor = max(1, factor)
             return factor
-        # compensate for qt's integer scaling on windows?
-        if qtminor >= 14:
-            return 1
-        qtIntScale = self._getQtIntScale(screen)
-        desiredScale = factor * qtIntScale
-        newFactor = desiredScale / qtIntScale
-        return max(1, newFactor)
+        return 1
 
     def _getQtIntScale(self, screen: QWidget) -> int:
         # try to detect if Qt has scaled the screen
