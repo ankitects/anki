@@ -53,7 +53,7 @@ class Previewer(QDialog):
         self._close_callback = on_close
         self.mw = mw
         icon = QIcon()
-        icon.addPixmap(QPixmap(":/icons/anki.png"), QIcon.Normal, QIcon.Off)
+        icon.addPixmap(QPixmap("icons:anki.png"), QIcon.Normal, QIcon.Off)
         disable_help_button(self)
         self.setWindowIcon(icon)
 

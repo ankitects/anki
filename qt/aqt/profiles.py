@@ -190,7 +190,7 @@ class ProfileManager:
         app = QtWidgets.QApplication([])
         icon = QtGui.QIcon()
         icon.addPixmap(
-            QtGui.QPixmap(":/icons/anki.png"),
+            QtGui.QPixmap("icons:anki.png"),
             QtGui.QIcon.Normal,
             QtGui.QIcon.Off,
         )

@@ -32,7 +32,6 @@ _py_srcs = glob(
 
 _py_srcs_and_forms = _py_srcs + [
     "//qt/aqt/forms:forms",
-    "//qt/aqt/forms:icons",
 ]
 
 aqt_core_data = [

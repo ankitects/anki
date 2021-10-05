@@ -15,35 +15,3 @@ py_binary(
     legacy_create_init = False,
     deps = ["@pyqt5//:pkg"],
 )
-
-py_binary(
-    name = "build_qrc",
-    srcs = ["build_qrc.py"],
-    legacy_create_init = False,
-    deps = ["@pyqt5//:pkg"],
-)
-
-py_binary(
-    name = "build_rcc",
-    srcs = ["build_rcc.py"],
-    legacy_create_init = False,
-    deps = ["@pyqt5//:pkg"],
-)
-
-genrule(
-    name = "icons_qrc",
-    srcs = ["//qt/aqt/forms/icons"],
-    outs = ["icons.qrc"],
-    cmd = "$(location build_qrc) $(location icons.qrc) $(SRCS)",
-    tools = ["build_qrc"],
-    visibility = ["//qt/aqt:__pkg__"],
-)
-
-genrule(
-    name = "icons",
-    srcs = ["icons_qrc", "//qt/aqt/forms/icons"],
-    outs = ["icons_rc.py"],
-    cmd = "$(location build_rcc) $(location icons_qrc) $(location icons_rc.py)",
-    tools = ["build_rcc"],
-    visibility = ["//qt/aqt:__pkg__"],
-)
