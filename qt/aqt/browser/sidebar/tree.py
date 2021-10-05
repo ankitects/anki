@@ -877,7 +877,7 @@ class SidebarTreeView(QTreeView):
         self._maybe_add_tree_actions(menu)
         gui_hooks.browser_sidebar_will_show_context_menu(self, menu, item, index)
         if menu.children():
-            menu.exec_(QCursor.pos())
+            menu.exec(QCursor.pos())
 
     def _maybe_add_type_specific_actions(self, menu: QMenu, item: SidebarItem) -> None:
         if item.item_type in (SidebarItemType.NOTETYPE, SidebarItemType.NOTETYPE_ROOT):

@@ -952,7 +952,7 @@ class GetAddons(QDialog):
         qconnect(b.clicked, self.onBrowse)
         disable_help_button(self)
         restoreGeom(self, "getaddons", adjustSize=True)
-        self.exec_()
+        self.exec()
         saveGeom(self, "getaddons")
 
     def onBrowse(self) -> None:
@@ -1246,7 +1246,7 @@ class ChooseAddonsToUpdateList(QListWidget):
         m = QMenu()
         a = m.addAction(tr.addons_view_addon_page())
         qconnect(a.triggered, lambda _: openLink(f"{aqt.appShared}info/{addon_id}"))
-        m.exec_(QCursor.pos())
+        m.exec(QCursor.pos())
 
     def check_item(self, item: QListWidgetItem, check: Qt.CheckState) -> None:
         "call item.setCheckState without triggering on_check"
@@ -1314,7 +1314,7 @@ class ChooseAddonsToUpdateDialog(QDialog):
 
     def ask(self) -> list[int]:
         "Returns a list of selected addons' ids"
-        ret = self.exec_()
+        ret = self.exec()
         saveGeom(self, "addonsChooseUpdate")
         self.addons_list_widget.save_check_state()
         if ret == QDialog.Accepted:

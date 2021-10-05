@@ -138,7 +138,7 @@ class MediaChecker:
         diag.setMinimumHeight(400)
         diag.setMinimumWidth(500)
         restoreGeom(diag, "checkmediadb")
-        diag.exec_()
+        diag.exec()
         saveGeom(diag, "checkmediadb")
 
     def _on_render_latex(self) -> None:

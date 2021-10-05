@@ -95,7 +95,7 @@ def _deck_prompt_dialog(decks: list[DeckDict]) -> None:
     qconnect(button.clicked, diag.close)
     box.addWidget(button)
     diag.setLayout(box)
-    diag.exec_()
+    diag.exec()
 
 
 def display_options_for_deck_id(deck_id: DeckId) -> None:

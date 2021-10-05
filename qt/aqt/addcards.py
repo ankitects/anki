@@ -205,7 +205,7 @@ class AddCards(QDialog):
                 a = m.addAction(tr.adding_note_deleted())
                 a.setEnabled(False)
         gui_hooks.add_cards_will_show_history_menu(self, m)
-        m.exec_(self.historyButton.mapToGlobal(QPoint(0, 0)))
+        m.exec(self.historyButton.mapToGlobal(QPoint(0, 0)))
 
     def editHistory(self, nid: NoteId) -> None:
         aqt.dialogs.open("Browser", self.mw, search=(SearchNode(nid=nid),))
