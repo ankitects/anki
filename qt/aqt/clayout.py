@@ -257,11 +257,8 @@ class CardLayout(QDialog):
         self.current_editor_index = 0
         self.tform.edit_area.setAcceptRichText(False)
         self.tform.edit_area.setFont(QFont("Courier"))
-        if qtminor < 10:
-            self.tform.edit_area.setTabStopWidth(30)
-        else:
-            tab_width = self.fontMetrics().width(" " * 4)
-            self.tform.edit_area.setTabStopDistance(tab_width)
+        tab_width = self.fontMetrics().horizontalAdvance(" " * 4)
+        self.tform.edit_area.setTabStopDistance(tab_width)
 
         widg = tform.search_edit
         widg.setPlaceholderText("Search")
