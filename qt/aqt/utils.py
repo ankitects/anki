@@ -7,7 +7,7 @@ import re
 import subprocess
 import sys
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Literal, Sequence, cast
+from typing import TYPE_CHECKING, Any, Literal, Sequence
 
 import aqt
 from anki.collection import Collection, HelpPage
@@ -96,16 +96,16 @@ def showInfo(
     else:
         parent_widget = parent
     if type == "warning":
-        icon = QMessageBox.Warning
+        icon = QMessageBox.Icon.Warning
     elif type == "critical":
-        icon = QMessageBox.Critical
+        icon = QMessageBox.Icon.Critical
     else:
-        icon = QMessageBox.Information
+        icon = QMessageBox.Icon.Information
     mb = QMessageBox(parent_widget)  #
     if textFormat == "plain":
-        mb.setTextFormat(Qt.PlainText)
+        mb.setTextFormat(Qt.TextFormat.PlainText)
     elif textFormat == "rich":
-        mb.setTextFormat(Qt.RichText)
+        mb.setTextFormat(Qt.TextFormat.RichText)
     elif textFormat is not None:
         raise Exception("unexpected textFormat type")
     mb.setText(text)
@@ -119,10 +119,10 @@ def showInfo(
                 default = b
         mb.setDefaultButton(default)
     else:
-        b = mb.addButton(QMessageBox.Ok)
+        b = mb.addButton(QMessageBox.StandardButton.Ok)
         b.setDefault(True)
     if help:
-        b = mb.addButton(QMessageBox.Help)
+        b = mb.addButton(QMessageBox.StandardButton.Help)
         qconnect(b.clicked, lambda: openHelp(help))
         b.setAutoDefault(False)
     return mb.exec()
@@ -152,7 +152,7 @@ def showText(
         # used by the importer
         text = QPlainTextEdit()
         text.setReadOnly(True)
-        text.setWordWrapMode(QTextOption.NoWrap)
+        text.setWordWrapMode(QTextOption.WrapMode.NoWrap)
         text.setPlainText(txt)
     else:
         text = QTextBrowser()
@@ -162,7 +162,7 @@ def showText(
         else:
             text.setHtml(txt)
     layout.addWidget(text)
-    box = QDialogButtonBox(QDialogButtonBox.Close)
+    box = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
     layout.addWidget(box)
     if copyBtn:
 
@@ -171,7 +171,7 @@ def showText(
 
         btn = QPushButton(tr.qt_misc_copy_to_clipboard())
         qconnect(btn.clicked, onCopy)
-        box.addButton(btn, QDialogButtonBox.ActionRole)
+        box.addButton(btn, QDialogButtonBox.ButtonRole.ActionRole)
 
     def onReject() -> None:
         if geomKey:
@@ -209,20 +209,20 @@ def askUser(
         parent = aqt.mw.app.activeWindow()
     if not msgfunc:
         msgfunc = QMessageBox.question
-    sb = QMessageBox.Yes | QMessageBox.No
+    sb = QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
     if help:
-        sb |= QMessageBox.Help
+        sb |= QMessageBox.StandardButton.Help
     while 1:
         if defaultno:
-            default = QMessageBox.No
+            default = QMessageBox.StandardButton.No
         else:
-            default = QMessageBox.Yes
-        r = msgfunc(parent, title, text, cast(QMessageBox.StandardButtons, sb), default)
-        if r == QMessageBox.Help:
+            default = QMessageBox.StandardButton.Yes
+        r = msgfunc(parent, title, text, sb, default)
+        if r == QMessageBox.StandardButton.Help:
             openHelp(help)
         else:
             break
-    return r == QMessageBox.Yes
+    return r == QMessageBox.StandardButton.Yes
 
 
 class ButtonedDialog(QMessageBox):
@@ -238,12 +238,12 @@ class ButtonedDialog(QMessageBox):
         self._buttons: list[QPushButton] = []
         self.setWindowTitle(title)
         self.help = help
-        self.setIcon(QMessageBox.Warning)
+        self.setIcon(QMessageBox.Icon.Warning)
         self.setText(text)
         for b in buttons:
-            self._buttons.append(self.addButton(b, QMessageBox.AcceptRole))
+            self._buttons.append(self.addButton(b, QMessageBox.ButtonRole.AcceptRole))
         if help:
-            self.addButton(tr.actions_help(), QMessageBox.HelpRole)
+            self.addButton(tr.actions_help(), QMessageBox.ButtonRole.HelpRole)
             buttons.append(tr.actions_help())
 
     def run(self) -> str:
@@ -300,16 +300,21 @@ class GetTextDialog(QDialog):
             self.l.setText(default)
             self.l.selectAll()
         v.addWidget(self.l)
-        buts = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        buts = (
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        )
         if help:
-            buts |= QDialogButtonBox.Help
+            buts |= QDialogButtonBox.StandardButton.Help
         b = QDialogButtonBox(buts)  # type: ignore
         v.addWidget(b)
         self.setLayout(v)
-        qconnect(b.button(QDialogButtonBox.Ok).clicked, self.accept)
-        qconnect(b.button(QDialogButtonBox.Cancel).clicked, self.reject)
+        qconnect(b.button(QDialogButtonBox.StandardButton.Ok).clicked, self.accept)
+        qconnect(b.button(QDialogButtonBox.StandardButton.Cancel).clicked, self.reject)
         if help:
-            qconnect(b.button(QDialogButtonBox.Help).clicked, self.helpRequested)
+            qconnect(
+                b.button(QDialogButtonBox.StandardButton.Help).clicked,
+                self.helpRequested,
+            )
 
     def accept(self) -> None:
         return QDialog.accept(self)
@@ -337,7 +342,7 @@ def getText(
     d = GetTextDialog(
         parent, prompt, help=help, edit=edit, default=default, title=title, **kwargs
     )
-    d.setWindowModality(Qt.WindowModal)
+    d.setWindowModality(Qt.WindowModality.WindowModal)
     if geomKey:
         restoreGeom(d, geomKey)
     ret = d.exec()
@@ -363,7 +368,7 @@ def chooseList(
         parent = aqt.mw.app.activeWindow()
     d = QDialog(parent)
     disable_help_button(d)
-    d.setWindowModality(Qt.WindowModal)
+    d.setWindowModality(Qt.WindowModality.WindowModal)
     l = QVBoxLayout()
     d.setLayout(l)
     t = QLabel(prompt)
@@ -372,7 +377,7 @@ def chooseList(
     c.addItems(choices)
     c.setCurrentRow(startrow)
     l.addWidget(c)
-    bb = QDialogButtonBox(QDialogButtonBox.Ok)
+    bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
     qconnect(bb.accepted, d.accept)
     l.addWidget(bb)
     d.exec()
@@ -393,9 +398,9 @@ def getTag(
 
 def disable_help_button(widget: QWidget) -> None:
     "Disable the help button in the window titlebar."
-    flags_int = int(widget.windowFlags()) & ~Qt.WindowContextHelpButtonHint
-    flags = Qt.WindowFlags(flags_int)  # type: ignore
-    widget.setWindowFlags(flags)
+    widget.setWindowFlags(
+        widget.windowFlags() & ~Qt.WindowType.WindowContextHelpButtonHint
+    )
 
 
 # File handling
@@ -420,7 +425,11 @@ def getFile(
     else:
         dirkey = None
     d = QFileDialog(parent)
-    mode = QFileDialog.ExistingFiles if multi else QFileDialog.ExistingFile
+    mode = (
+        QFileDialog.FileMode.ExistingFiles
+        if multi
+        else QFileDialog.FileMode.ExistingFile
+    )
     d.setFileMode(mode)
     if os.path.exists(dir):
         d.setDirectory(dir)
@@ -459,7 +468,9 @@ def getSaveFile(
     variable. The file dialog will default to open with FNAME."""
     config_key = f"{dir_description}Directory"
 
-    defaultPath = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
+    defaultPath = QStandardPaths.writableLocation(
+        QStandardPaths.StandardLocation.DocumentsLocation
+    )
     base = aqt.mw.pm.profile.get(config_key, defaultPath)
     path = os.path.join(base, fname)
     file = QFileDialog.getSaveFileName(
@@ -467,7 +478,7 @@ def getSaveFile(
         title,
         path,
         f"{key} (*{ext})",
-        options=QFileDialog.DontConfirmOverwrite,
+        options=QFileDialog.Option.DontConfirmOverwrite,
     )[0]
     if file:
         # add extension
@@ -485,7 +496,7 @@ def getSaveFile(
 
 def saveGeom(widget: QWidget, key: str) -> None:
     key += "Geom"
-    if isMac and int(widget.windowState()) & Qt.WindowFullScreen:
+    if isMac and (widget.windowState() & Qt.WindowState.WindowFullScreen):
         geom = None
     else:
         geom = widget.saveGeometry()
@@ -646,7 +657,7 @@ def shortcut(key: str) -> str:
 
 def maybeHideClose(bbox: QDialogButtonBox) -> None:
     if isMac:
-        b = bbox.button(QDialogButtonBox.Close)
+        b = bbox.button(QDialogButtonBox.StandardButton.Close)
         if b:
             bbox.removeButton(b)
 
@@ -706,13 +717,13 @@ def tooltip(
 </table>""",
         aw,
     )
-    lab.setFrameStyle(QFrame.Panel)
+    lab.setFrameStyle(QFrame.Shape.Panel)
     lab.setLineWidth(2)
-    lab.setWindowFlags(Qt.ToolTip)
+    lab.setWindowFlags(Qt.WindowType.ToolTip)
     if not theme_manager.night_mode:
         p = QPalette()
-        p.setColor(QPalette.Window, QColor("#feffc4"))
-        p.setColor(QPalette.WindowText, QColor("#000000"))
+        p.setColor(QPalette.ColorRole.Window, QColor("#feffc4"))
+        p.setColor(QPalette.ColorRole.WindowText, QColor("#000000"))
         lab.setPalette(p)
     lab.move(aw.mapToGlobal(QPoint(0 + x_offset, aw.height() - y_offset)))
     lab.show()
@@ -888,7 +899,7 @@ def opengl_vendor() -> str | None:
             # Can't use versionFunctions there
             return None
 
-        vp = QOpenGLVersionProfile()  # type: ignore
+        vp = QOpenGLVersionProfile()  # type: ignore  # pylint: disable=undefined-variable
         vp.setVersion(2, 0)
 
         try:
@@ -969,16 +980,16 @@ class KeyboardModifiersPressed:
     def __init__(self) -> None:
         from aqt import mw
 
-        self._modifiers = int(mw.app.keyboardModifiers())
+        self._modifiers = mw.app.keyboardModifiers()
 
     @property
     def shift(self) -> bool:
-        return bool(self._modifiers & Qt.ShiftModifier)
+        return bool(self._modifiers & Qt.KeyboardModifier.ShiftModifier)
 
     @property
     def control(self) -> bool:
-        return bool(self._modifiers & Qt.ControlModifier)
+        return bool(self._modifiers & Qt.KeyboardModifier.ControlModifier)
 
     @property
     def alt(self) -> bool:
-        return bool(self._modifiers & Qt.AltModifier)
+        return bool(self._modifiers & Qt.KeyboardModifier.AltModifier)

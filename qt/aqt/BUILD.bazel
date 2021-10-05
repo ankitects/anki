@@ -50,7 +50,7 @@ aqt_deps = [
     requirement("waitress"),
     requirement("send2trash"),
     requirement("jsonschema"),
-    "@pyqt5//:pkg",
+    "@pyqt6//:pkg",
 ] + select({
     "@bazel_tools//src/conditions:host_windows": [
         requirement("psutil"),

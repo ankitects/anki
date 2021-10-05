@@ -433,11 +433,11 @@ class Reviewer:
         return [
             ("e", self.mw.onEditCurrent),
             (" ", self.onEnterKey),
-            (Qt.Key_Return, self.onEnterKey),
-            (Qt.Key_Enter, self.onEnterKey),
+            (Qt.Key.Key_Return, self.onEnterKey),
+            (Qt.Key.Key_Enter, self.onEnterKey),
             ("m", self.showContextMenu),
             ("r", self.replayAudio),
-            (Qt.Key_F5, self.replayAudio),
+            (Qt.Key.Key_F5, self.replayAudio),
             *(
                 (f"Ctrl+{flag.index}", self.set_flag_func(flag.index))
                 for flag in self.mw.flags.all()
@@ -875,7 +875,7 @@ time = %(time)d;
             part2 = tr.studying_minute(count=mins)
             fin = tr.studying_finish()
             diag = askUserDialog(f"{part1} {part2}", [tr.studying_continue(), fin])
-            diag.setIcon(QMessageBox.Information)
+            diag.setIcon(QMessageBox.Icon.Information)
             if diag.run() == fin:
                 self.mw.moveToState("deckBrowser")
                 return True

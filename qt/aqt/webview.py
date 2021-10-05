@@ -48,7 +48,7 @@ class AnkiWebPage(QWebEnginePage):
 
         qwebchannel = ":/qtwebchannel/qwebchannel.js"
         jsfile = QFile(qwebchannel)
-        if not jsfile.open(QIODevice.ReadOnly):
+        if not jsfile.open(QIODevice.OpenModeFlag.ReadOnly):
             print(f"Error opening '{qwebchannel}': {jsfile.error()}", file=sys.stderr)
         jstext = bytes(cast(bytes, jsfile.readAll())).decode("utf-8")
         jsfile.close()
@@ -74,8 +74,8 @@ class AnkiWebPage(QWebEnginePage):
             });
         """
         )
-        script.setWorldId(QWebEngineScript.MainWorld)
-        script.setInjectionPoint(QWebEngineScript.DocumentReady)
+        script.setWorldId(QWebEngineScript.ScriptWorldId.MainWorld)
+        script.setInjectionPoint(QWebEngineScript.InjectionPoint.DocumentReady)
         script.setRunsOnSubFrames(False)
         self.profile().scripts().insert(script)
 
@@ -92,11 +92,11 @@ class AnkiWebPage(QWebEnginePage):
             srcID = ""
         else:
             srcID = serverbaseurl.sub("", srcID[:80], 1)
-        if level == QWebEnginePage.InfoMessageLevel:
+        if level == QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel:
             level_str = "info"
-        elif level == QWebEnginePage.WarningMessageLevel:
+        elif level == QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel:
             level_str = "warning"
-        elif level == QWebEnginePage.ErrorMessageLevel:
+        elif level == QWebEnginePage.JavaScriptConsoleMessageLevel.ErrorMessageLevel:
             level_str = "error"
         else:
             level_str = str(level)
@@ -135,7 +135,9 @@ class AnkiWebPage(QWebEnginePage):
         # catch buggy <a href='#' onclick='func()'> links
         from aqt import mw
 
-        if url.matches(QUrl(mw.serverURL()), cast(Any, QUrl.RemoveFragment)):
+        if url.matches(
+            QUrl(mw.serverURL()), cast(Any, QUrl.UrlFormattingOption.RemoveFragment)
+        ):
             print("onclick handler needs to return false")
             return False
         # load all other links in browser
@@ -240,14 +242,14 @@ class AnkiWebView(QWebEngineView):
         self.requiresCol = True
         self.setPage(self._page)
 
-        self._page.profile().setHttpCacheType(QWebEngineProfile.NoCache)
+        self._page.profile().setHttpCacheType(QWebEngineProfile.HttpCacheType.NoCache)
         self.resetHandlers()
         self.allowDrops = False
         self._filterSet = False
         QShortcut(  # type: ignore
             QKeySequence("Esc"),
             self,
-            context=Qt.WidgetWithChildrenShortcut,
+            context=Qt.ShortcutContext.WidgetWithChildrenShortcut,
             activated=self.onEsc,
         )
 
@@ -258,8 +260,11 @@ class AnkiWebView(QWebEngineView):
         # disable pinch to zoom gesture
         if isinstance(evt, QNativeGestureEvent):
             return True
-        elif isinstance(evt, QMouseEvent) and evt.type() == QEvent.MouseButtonRelease:
-            if evt.button() == Qt.MidButton and isLin:
+        elif (
+            isinstance(evt, QMouseEvent)
+            and evt.type() == QEvent.Type.MouseButtonRelease
+        ):
+            if evt.button() == Qt.MouseButton.MiddleButton and isLin:
                 self.onMiddleClickPaste()
                 return True
             return False
@@ -286,19 +291,19 @@ class AnkiWebView(QWebEngineView):
             w = w.parent()
 
     def onCopy(self) -> None:
-        self.triggerPageAction(QWebEnginePage.Copy)
+        self.triggerPageAction(QWebEnginePage.WebAction.Copy)
 
     def onCut(self) -> None:
-        self.triggerPageAction(QWebEnginePage.Cut)
+        self.triggerPageAction(QWebEnginePage.WebAction.Cut)
 
     def onPaste(self) -> None:
-        self.triggerPageAction(QWebEnginePage.Paste)
+        self.triggerPageAction(QWebEnginePage.WebAction.Paste)
 
     def onMiddleClickPaste(self) -> None:
-        self.triggerPageAction(QWebEnginePage.Paste)
+        self.triggerPageAction(QWebEnginePage.WebAction.Paste)
 
     def onSelectAll(self) -> None:
-        self.triggerPageAction(QWebEnginePage.SelectAll)
+        self.triggerPageAction(QWebEnginePage.WebAction.SelectAll)
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)
@@ -386,11 +391,11 @@ class AnkiWebView(QWebEngineView):
             # standard palette does not return correct window color on macOS
             return QColor("#ececec")
         else:
-            return theme_manager.default_palette.color(QPalette.Window)
+            return theme_manager.default_palette.color(QPalette.ColorRole.Window)
 
     def standard_css(self) -> str:
         palette = theme_manager.default_palette
-        color_hl = palette.color(QPalette.Highlight).name()
+        color_hl = palette.color(QPalette.ColorRole.Highlight).name()
 
         if isWin:
             # T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
@@ -406,8 +411,8 @@ button { -webkit-appearance: none; background: #fff; border: 1px solid #ccc;
 border-radius:5px; font-family: Helvetica }"""
         else:
             family = self.font().family()
-            color_hl_txt = palette.color(QPalette.HighlightedText).name()
-            color_btn = palette.color(QPalette.Button).name()
+            color_hl_txt = palette.color(QPalette.ColorRole.HighlightedText).name()
+            color_btn = palette.color(QPalette.ColorRole.Button).name()
             font = f'font-size:14px;font-family:"{family}";'
             button_style = """
 /* Buttons */

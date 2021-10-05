@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
-from typing import Any, Callable, Sequence, cast
+from typing import Any, Callable, Sequence
 
 import aqt
 import aqt.forms
@@ -127,10 +127,8 @@ class Table:
         self.select_all()
         self._view.selectionModel().select(
             selection,
-            cast(
-                QItemSelectionModel.SelectionFlags,
-                QItemSelectionModel.Deselect | QItemSelectionModel.Rows,
-            ),
+            QItemSelectionModel.SelectionFlag.Deselect
+            | QItemSelectionModel.SelectionFlag.Rows,
         )
 
     def select_single_card(self, card_id: CardId) -> None:
@@ -202,10 +200,10 @@ class Table:
     # Move cursor
 
     def to_previous_row(self) -> None:
-        self._move_current(QAbstractItemView.MoveUp)
+        self._move_current(QAbstractItemView.CursorAction.MoveUp)
 
     def to_next_row(self) -> None:
-        self._move_current(QAbstractItemView.MoveDown)
+        self._move_current(QAbstractItemView.CursorAction.MoveDown)
 
     def to_first_row(self) -> None:
         self._move_current_to_row(0)
@@ -248,7 +246,8 @@ class Table:
 
     def clear_current(self) -> None:
         self._view.selectionModel().setCurrentIndex(
-            QModelIndex(), QItemSelectionModel.NoUpdate
+            QModelIndex(),
+            QItemSelectionModel.SelectionFlag.NoUpdate,
         )
 
     # Private methods
@@ -268,7 +267,10 @@ class Table:
         index = self._model.index(
             row, self._view.horizontalHeader().logicalIndex(column)
         )
-        self._view.selectionModel().setCurrentIndex(index, QItemSelectionModel.NoUpdate)
+        self._view.selectionModel().setCurrentIndex(
+            index,
+            QItemSelectionModel.SelectionFlag.NoUpdate,
+        )
 
     def _reset_selection(self) -> None:
         """Remove selection and focus without emitting signals.
@@ -286,7 +288,9 @@ class Table:
                 self._model.index(row, 0),
                 self._model.index(row, self._model.len_columns() - 1),
             )
-        self._view.selectionModel().select(selection, QItemSelectionModel.SelectCurrent)
+        self._view.selectionModel().select(
+            selection, QItemSelectionModel.SelectionFlag.SelectCurrent
+        )
 
     def _set_sort_indicator(self) -> None:
         hh = self._view.horizontalHeader()
@@ -295,9 +299,9 @@ class Table:
             hh.setSortIndicatorShown(False)
             return
         if self._state.sort_backwards:
-            order = Qt.DescendingOrder
+            order = Qt.SortOrder.DescendingOrder
         else:
-            order = Qt.AscendingOrder
+            order = Qt.SortOrder.AscendingOrder
         hh.blockSignals(True)
         hh.setSortIndicator(index, order)
         hh.blockSignals(False)
@@ -305,9 +309,10 @@ class Table:
 
     def _set_column_sizes(self) -> None:
         hh = self._view.horizontalHeader()
-        hh.setSectionResizeMode(QHeaderView.Interactive)
+        hh.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
         hh.setSectionResizeMode(
-            hh.logicalIndex(self._model.len_columns() - 1), QHeaderView.Stretch
+            hh.logicalIndex(self._model.len_columns() - 1),
+            QHeaderView.ResizeMode.Stretch,
         )
         # this must be set post-resize or it doesn't work
         hh.setCascadingSectionResizes(False)
@@ -334,7 +339,7 @@ class Table:
         )
         qconnect(self._view.selectionModel().currentChanged, self._on_current_changed)
         self._view.setWordWrap(False)
-        self._view.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
+        self._view.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self._view.horizontalScrollBar().setSingleStep(10)
         self._update_font()
         if not theme_manager.night_mode:
@@ -346,7 +351,7 @@ class Table:
             self._view.setStyleSheet(
                 f"QTableView {{ gridline-color: {colors.FRAME_BG} }}"
             )
-        self._view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self._view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         qconnect(self._view.customContextMenuRequested, self._on_context_menu)
 
     def _update_font(self) -> None:
@@ -369,7 +374,7 @@ class Table:
         hh.setHighlightSections(False)
         hh.setMinimumSectionSize(50)
         hh.setSectionsMovable(True)
-        hh.setContextMenuPolicy(Qt.CustomContextMenu)
+        hh.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._restore_header()
         qconnect(hh.customContextMenuRequested, self._on_header_context)
         qconnect(hh.sortIndicatorChanged, self._on_sort_column_changed)
@@ -573,7 +578,9 @@ class Table:
         visible = top_border >= 0 and bottom_border < self._view.viewport().height()
         if not visible or scroll_even_if_visible:
             horizontal = self._view.horizontalScrollBar().value()
-            self._view.scrollTo(self._model.index(row, 0), self._view.PositionAtTop)
+            self._view.scrollTo(
+                self._model.index(row, 0), QAbstractItemView.ScrollHint.PositionAtTop
+            )
             self._view.horizontalScrollBar().setValue(horizontal)
 
     def _scroll_to_column(self, column: int) -> None:
@@ -583,26 +590,26 @@ class Table:
         if not visible:
             vertical = self._view.verticalScrollBar().value()
             self._view.scrollTo(
-                self._model.index(0, column), self._view.PositionAtCenter
+                self._model.index(0, column),
+                QAbstractItemView.ScrollHint.PositionAtCenter,
             )
             self._view.verticalScrollBar().setValue(vertical)
 
-    def _move_current(self, direction: int, index: QModelIndex = None) -> None:
+    def _move_current(
+        self, direction: QAbstractItemView.CursorAction, index: QModelIndex = None
+    ) -> None:
         if not self.has_current():
             return
         if index is None:
             index = self._view.moveCursor(
-                cast(QAbstractItemView.CursorAction, direction),
+                direction,
                 self.browser.mw.app.keyboardModifiers(),
             )
         self._view.selectionModel().setCurrentIndex(
             index,
-            cast(
-                QItemSelectionModel.SelectionFlag,
-                QItemSelectionModel.Clear
-                | QItemSelectionModel.Select
-                | QItemSelectionModel.Rows,
-            ),
+            QItemSelectionModel.SelectionFlag.Clear
+            | QItemSelectionModel.SelectionFlag.Select
+            | QItemSelectionModel.SelectionFlag.Rows,
         )
 
     def _move_current_to_row(self, row: int) -> None:
@@ -614,10 +621,8 @@ class Table:
         selection = QItemSelection(new, old)
         self._view.selectionModel().select(
             selection,
-            cast(
-                QItemSelectionModel.SelectionFlag,
-                QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows,
-            ),
+            QItemSelectionModel.SelectionFlag.SelectCurrent
+            | QItemSelectionModel.SelectionFlag.Rows,
         )
 
 
@@ -630,7 +635,7 @@ class StatusDelegate(QItemDelegate):
         self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex
     ) -> None:
         if self._model.get_cell(index).is_rtl:
-            option.direction = Qt.RightToLeft
+            option.direction = Qt.LayoutDirection.RightToLeft
         if row_color := self._model.get_row(index).color:
             brush = QBrush(theme_manager.qcolor(row_color))
             painter.save()

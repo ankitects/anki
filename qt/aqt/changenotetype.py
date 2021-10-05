@@ -43,7 +43,7 @@ class ChangeNotetypeDialog(QDialog):
         self.show()
 
     def _setup_ui(self, notetype_id: NotetypeId) -> None:
-        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.mw.garbage_collect_on_dialog_finish(self)
         self.setMinimumWidth(400)
         disable_help_button(self)

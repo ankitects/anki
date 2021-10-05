@@ -107,10 +107,7 @@ class AnkiQt(QMainWindow):
         self.pm = profileManager
         # init rest of app
         self.safeMode = (
-            bool(
-                cast(Qt.KeyboardModifier, self.app.queryKeyboardModifiers())
-                & Qt.ShiftModifier
-            )
+            bool(self.app.queryKeyboardModifiers() & Qt.KeyboardModifier.ShiftModifier)
             or self.opts.safemode
         )
         try:
@@ -817,15 +814,15 @@ title="{}" {}>{}</button>""".format(
         self.form.setupUi(self)
         # toolbar
         tweb = self.toolbarWeb = aqt.webview.AnkiWebView(title="top toolbar")
-        tweb.setFocusPolicy(Qt.WheelFocus)
+        tweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.toolbar = aqt.toolbar.Toolbar(self, tweb)
         # main area
         self.web = aqt.webview.AnkiWebView(title="main webview")
-        self.web.setFocusPolicy(Qt.WheelFocus)
+        self.web.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.web.setMinimumWidth(400)
         # bottom area
         sweb = self.bottomWeb = aqt.webview.AnkiWebView(title="bottom toolbar")
-        sweb.setFocusPolicy(Qt.WheelFocus)
+        sweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         # add in a layout
         self.mainLayout = QVBoxLayout()
         self.mainLayout.setContentsMargins(0, 0, 0, 0)
@@ -991,7 +988,7 @@ title="{}" {}>{}</button>""".format(
     def raiseMain(self) -> bool:
         if not self.app.activeWindow():
             # make sure window is shown
-            self.setWindowState(self.windowState() & ~Qt.WindowMinimized)  # type: ignore
+            self.setWindowState(self.windowState() & ~Qt.WindowState.WindowMinimized)  # type: ignore
         return True
 
     def setupStyle(self) -> None:
@@ -1393,7 +1390,7 @@ title="{}" {}>{}</button>""".format(
         frm.setupUi(d)
         restoreGeom(d, "DebugConsoleWindow")
         restoreSplitter(frm.splitter, "DebugConsoleWindow")
-        font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        font = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
         font.setPointSize(frm.text.font().pointSize() + 1)
         frm.text.setFont(font)
         frm.log.setFont(font)
@@ -1485,7 +1482,7 @@ title="{}" {}>{}</button>""".format(
     def onDebugPrint(self, frm: aqt.forms.debug.Ui_Dialog) -> None:
         cursor = frm.text.textCursor()
         position = cursor.position()
-        cursor.select(QTextCursor.LineUnderCursor)
+        cursor.select(QTextCursor.SelectionType.LineUnderCursor)
         line = cursor.selectedText()
         pfx, sfx = "pp(", ")"
         if not line.startswith(pfx):
@@ -1566,7 +1563,7 @@ title="{}" {}>{}</button>""".format(
             cast(QAction, action).setStatusTip("")
 
     def onMacMinimize(self) -> None:
-        self.setWindowState(self.windowState() | Qt.WindowMinimized)  # type: ignore
+        self.setWindowState(self.windowState() | Qt.WindowState.WindowMinimized)  # type: ignore
 
     # Single instance support
     ##########################################################################
@@ -1606,7 +1603,7 @@ title="{}" {}>{}</button>""".format(
         if isWin:
             # on windows we can raise the window by minimizing and restoring
             self.showMinimized()
-            self.setWindowState(Qt.WindowActive)
+            self.setWindowState(Qt.WindowState.WindowActive)
             self.showNormal()
         else:
             # on osx we can raise the window. on unity the icon in the tray will just flash.

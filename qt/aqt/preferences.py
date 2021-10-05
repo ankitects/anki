@@ -16,14 +16,18 @@ from aqt.utils import HelpPage, disable_help_button, openHelp, showInfo, showWar
 
 class Preferences(QDialog):
     def __init__(self, mw: AnkiQt) -> None:
-        QDialog.__init__(self, mw, Qt.Window)
+        QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
         self.prof = self.mw.pm.profile
         self.form = aqt.forms.preferences.Ui_Preferences()
         self.form.setupUi(self)
         disable_help_button(self)
-        self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
-        self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
+        self.form.buttonBox.button(QDialogButtonBox.StandardButton.Help).setAutoDefault(
+            False
+        )
+        self.form.buttonBox.button(
+            QDialogButtonBox.StandardButton.Close
+        ).setAutoDefault(False)
         qconnect(
             self.form.buttonBox.helpRequested, lambda: openHelp(HelpPage.PREFERENCES)
         )

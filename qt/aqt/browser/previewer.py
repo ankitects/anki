@@ -46,14 +46,14 @@ class Previewer(QDialog):
     def __init__(
         self, parent: QWidget, mw: AnkiQt, on_close: Callable[[], None]
     ) -> None:
-        super().__init__(None, Qt.Window)
+        super().__init__(None, Qt.WindowType.Window)
         mw.garbage_collect_on_dialog_finish(self)
         self._open = True
         self._parent = parent
         self._close_callback = on_close
         self.mw = mw
         icon = QIcon()
-        icon.addPixmap(QPixmap("icons:anki.png"), QIcon.Normal, QIcon.Off)
+        icon.addPixmap(QPixmap("icons:anki.png"), QIcon.Mode.Normal, QIcon.State.Off)
         disable_help_button(self)
         self.setWindowIcon(icon)
 
@@ -86,7 +86,7 @@ class Previewer(QDialog):
         self.bbox = QDialogButtonBox()
 
         self._replay = self.bbox.addButton(
-            tr.actions_replay_audio(), QDialogButtonBox.ActionRole
+            tr.actions_replay_audio(), QDialogButtonBox.ButtonRole.ActionRole
         )
         self._replay.setAutoDefault(False)
         self._replay.setShortcut(QKeySequence("R"))
@@ -96,7 +96,7 @@ class Previewer(QDialog):
         both_sides_button = QCheckBox(tr.qt_misc_back_side_only())
         both_sides_button.setShortcut(QKeySequence("B"))
         both_sides_button.setToolTip(tr.actions_shortcut_key(val="B"))
-        self.bbox.addButton(both_sides_button, QDialogButtonBox.ActionRole)
+        self.bbox.addButton(both_sides_button, QDialogButtonBox.ButtonRole.ActionRole)
         self._show_both_sides = self.mw.col.get_config_bool(
             Config.Bool.PREVIEW_BOTH_SIDES
         )
@@ -266,12 +266,12 @@ class MultiCardPreviewer(Previewer):
 
     def _create_gui(self) -> None:
         super()._create_gui()
-        self._prev = self.bbox.addButton("<", QDialogButtonBox.ActionRole)
+        self._prev = self.bbox.addButton("<", QDialogButtonBox.ButtonRole.ActionRole)
         self._prev.setAutoDefault(False)
         self._prev.setShortcut(QKeySequence("Left"))
         self._prev.setToolTip(tr.qt_misc_shortcut_key_left_arrow())
 
-        self._next = self.bbox.addButton(">", QDialogButtonBox.ActionRole)
+        self._next = self.bbox.addButton(">", QDialogButtonBox.ButtonRole.ActionRole)
         self._next.setAutoDefault(True)
         self._next.setShortcut(QKeySequence("Right"))
         self._next.setToolTip(tr.qt_misc_shortcut_key_right_arrow_or_enter())

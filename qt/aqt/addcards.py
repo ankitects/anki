@@ -35,7 +35,7 @@ from aqt.utils import (
 
 class AddCards(QDialog):
     def __init__(self, mw: AnkiQt) -> None:
-        QDialog.__init__(self, None, Qt.Window)
+        QDialog.__init__(self, None, Qt.WindowType.Window)
         mw.garbage_collect_on_dialog_finish(self)
         self.mw = mw
         self.col = mw.col
@@ -85,7 +85,7 @@ class AddCards(QDialog):
 
     def setupButtons(self) -> None:
         bb = self.form.buttonBox
-        ar = QDialogButtonBox.ActionRole
+        ar = QDialogButtonBox.ButtonRole.ActionRole
         # add
         self.addButton = bb.addButton(tr.actions_add(), ar)
         qconnect(self.addButton.clicked, self.add_current_note)
@@ -97,11 +97,11 @@ class AddCards(QDialog):
         # close
         self.closeButton = QPushButton(tr.actions_close())
         self.closeButton.setAutoDefault(False)
-        bb.addButton(self.closeButton, QDialogButtonBox.RejectRole)
+        bb.addButton(self.closeButton, QDialogButtonBox.ButtonRole.RejectRole)
         # help
         self.helpButton = QPushButton(tr.actions_help(), clicked=self.helpRequested)  # type: ignore
         self.helpButton.setAutoDefault(False)
-        bb.addButton(self.helpButton, QDialogButtonBox.HelpRole)
+        bb.addButton(self.helpButton, QDialogButtonBox.ButtonRole.HelpRole)
         # history
         b = bb.addButton(f"{tr.adding_history()} {downArrow()}", ar)
         if isMac:
@@ -266,7 +266,10 @@ class AddCards(QDialog):
 
     def keyPressEvent(self, evt: QKeyEvent) -> None:
         "Show answer on RET or register answer."
-        if evt.key() in (Qt.Key_Enter, Qt.Key_Return) and self.editor.tags.hasFocus():
+        if (
+            evt.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return)
+            and self.editor.tags.hasFocus()
+        ):
             evt.accept()
             return
         return QDialog.keyPressEvent(self, evt)

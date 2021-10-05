@@ -71,7 +71,7 @@ class FindDuplicatesDialog(QDialog):
             ).run_in_background()
 
         search = form.buttonBox.addButton(
-            tr.actions_search(), QDialogButtonBox.ActionRole
+            tr.actions_search(), QDialogButtonBox.ButtonRole.ActionRole
         )
         qconnect(search.clicked, on_click)
         self.show()
@@ -80,7 +80,7 @@ class FindDuplicatesDialog(QDialog):
         self._dupes = dupes
         if not self._dupesButton:
             self._dupesButton = b = self.form.buttonBox.addButton(
-                tr.browsing_tag_duplicates(), QDialogButtonBox.ActionRole
+                tr.browsing_tag_duplicates(), QDialogButtonBox.ButtonRole.ActionRole
             )
             qconnect(b.clicked, self._tag_duplicates)
         text = ""
