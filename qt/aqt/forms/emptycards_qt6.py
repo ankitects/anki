@@ -1,0 +1,1 @@
+../../../bazel-bin/qt/aqt/forms/emptycards_qt6.py

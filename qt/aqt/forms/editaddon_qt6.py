@@ -1,0 +1,1 @@
+../../../bazel-bin/qt/aqt/forms/editaddon_qt6.py

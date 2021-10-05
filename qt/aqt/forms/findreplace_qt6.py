@@ -1,0 +1,1 @@
+../../../bazel-bin/qt/aqt/forms/findreplace_qt6.py
