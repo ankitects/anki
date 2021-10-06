@@ -37,13 +37,8 @@ protobufjs_library(
     visibility = ["//visibility:public"],
 )
 
-_generated = [
-    "backend_proto.d.ts",
-] + _i18n_generated
-
 typescript(
     name = "lib",
-    exclude = _generated,
     generated = [
         ":backend_proto.d.ts",
         ":ftl.ts",
@@ -63,19 +58,9 @@ typescript(
 # Tests
 ################
 
-prettier_test(
-    srcs = glob(
-        ["**/*.ts"],
-        exclude = _generated,
-    ),
-)
+prettier_test()
 
-eslint_test(
-    srcs = glob(
-        ["**/*.ts"],
-        exclude = _generated,
-    ),
-)
+eslint_test()
 
 jest_test(
     deps = [
