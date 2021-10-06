@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher } from "svelte";
     import type { Stats } from "../lib/proto";
     import type { PreferenceStore } from "../sveltelib/preferences";
-    import * as tr from "../lib/translate";
+    import * as tr from "../lib/ftl";
 
     import Graph from "./Graph.svelte";
     import InputBox from "./InputBox.svelte";

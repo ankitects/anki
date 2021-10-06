@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithColorHelper from "./WithColorHelper.svelte";
     import OnlyEditable from "./OnlyEditable.svelte";
 
-    import * as tr from "../lib/translate";
+    import * as tr from "../lib/ftl";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { withButton } from "../components/helpers";
     import { textColorIcon, highlightColorIcon, arrowIcon } from "./icons";

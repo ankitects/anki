@@ -18,7 +18,7 @@ import {
     interpolateBlues,
 } from "d3";
 import type { Bin } from "d3";
-import * as tr from "../lib/translate";
+import * as tr from "../lib/ftl";
 import { timeSpan } from "../lib/time";
 import { CardType } from "../lib/cards";
 import type { HistogramData } from "./histogram-graph";

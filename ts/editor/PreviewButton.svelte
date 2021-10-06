@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { bridgeCommand } from "../lib/bridgecommand";
-    import * as tr from "../lib/translate";
+    import * as tr from "../lib/ftl";
     import { withButton } from "../components/helpers";
 
     import WithShortcut from "../components/WithShortcut.svelte";

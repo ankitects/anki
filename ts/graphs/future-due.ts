@@ -17,7 +17,7 @@ import {
     interpolateGreens,
 } from "d3";
 import type { Bin } from "d3";
-import * as tr from "../lib/translate";
+import * as tr from "../lib/ftl";
 import { CardQueue } from "../lib/cards";
 import type { HistogramData } from "./histogram-graph";
 import { dayLabel } from "../lib/time";

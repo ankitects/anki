@@ -32,7 +32,7 @@ import {
 } from "d3";
 import type { Bin } from "d3";
 
-import * as tr from "../lib/translate";
+import * as tr from "../lib/ftl";
 import type { TableDatum } from "./graph-helpers";
 import { GraphBounds, setDataAvailable, GraphRange } from "./graph-helpers";
 import { showTooltip, hideTooltip } from "./tooltip";

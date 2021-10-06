@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher } from "svelte";
     import type { Stats } from "../lib/proto";
     import type { PreferenceStore } from "../sveltelib/preferences";
-    import * as translate from "../lib/translate";
+    import * as translate from "../lib/ftl";
     import { defaultGraphBounds } from "./graph-helpers";
     import type { SearchEventMap } from "./graph-helpers";
     import { gatherData, renderCards } from "./card-counts";

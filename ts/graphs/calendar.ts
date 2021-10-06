@@ -30,7 +30,7 @@ import {
 } from "./graph-helpers";
 import { clickableClass } from "./graph-styles";
 import { weekdayLabel, toLocaleString } from "../lib/i18n";
-import * as tr from "../lib/translate";
+import * as tr from "../lib/ftl";
 
 export interface GraphData {
     // indexed by day, where day is relative to today

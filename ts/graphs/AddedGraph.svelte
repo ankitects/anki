@@ -13,7 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
     import TableData from "./TableData.svelte";
 
-    import * as tr from "../lib/translate";
+    import * as tr from "../lib/ftl";
     import { RevlogRange, GraphRange } from "./graph-helpers";
     import type { TableDatum, SearchEventMap } from "./graph-helpers";
     import type { HistogramData } from "./histogram-graph";

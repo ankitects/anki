@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import InputBox from "./InputBox.svelte";
 
     import type { Writable } from "svelte/store";
-    import * as tr from "../lib/translate";
+    import * as tr from "../lib/ftl";
     import { RevlogRange, daysToRevlogRange } from "./graph-helpers";
 
     enum SearchRange {

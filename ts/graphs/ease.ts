@@ -16,7 +16,7 @@ import {
     interpolateRdYlGn,
 } from "d3";
 import type { Bin, ScaleLinear } from "d3";
-import * as tr from "../lib/translate";
+import * as tr from "../lib/ftl";
 import { CardType } from "../lib/cards";
 import type { HistogramData } from "./histogram-graph";
 import type { TableDatum, SearchDispatch } from "./graph-helpers";

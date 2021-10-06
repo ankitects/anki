@@ -13,7 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HoverColumns from "./HoverColumns.svelte";
 
     import type { Stats } from "../lib/proto";
-    import * as tr from "../lib/translate";
+    import * as tr from "../lib/ftl";
     import { defaultGraphBounds, RevlogRange, GraphRange } from "./graph-helpers";
     import type { TableDatum } from "./graph-helpers";
     import { gatherData, renderReviews } from "./reviews";

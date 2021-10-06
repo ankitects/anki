@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Warning from "./Warning.svelte";
 
     import type { DeckOptionsState } from "./lib";
-    import * as tr from "../lib/translate";
+    import * as tr from "../lib/ftl";
 
     export let state: DeckOptionsState;
     export let api = {};

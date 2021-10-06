@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import * as tr from "../lib/translate";
+import * as tr from "../lib/ftl";
 import { CardQueue, CardType } from "../lib/cards";
 import type { Stats, Cards } from "../lib/proto";
 import {
