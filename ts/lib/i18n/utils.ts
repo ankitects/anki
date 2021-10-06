@@ -56,6 +56,12 @@ export function localeCompare(
     return first.localeCompare(second, langs, options);
 }
 
+/// Treat text like HTML, merging multiple spaces and converting
+/// newlines to spaces.
+export function withCollapsedWhitespace(s: string): string {
+    return s.replace(/\s+/g, " ");
+}
+
 export async function setupI18n(args: { modules: ModuleName[] }): Promise<void> {
     const resp = await fetch("/_anki/i18nResources", {
         method: "POST",

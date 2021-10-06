@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { DeckOptionsState } from "./lib";
     import type Dropdown from "bootstrap/js/dist/dropdown";
     import { withButton } from "../components/helpers";
+    import { withCollapsedWhitespace } from "../lib/i18n";
 
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
@@ -29,12 +30,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    /// Treat text like HTML, merging multiple spaces and converting
-    /// newlines to spaces.
-    export function collapseWhitespace(s: string): string {
-        return s.replace(/\s+/g, " ");
-    }
-
     function removeConfig(): void {
         // show pop-up after dropdown has gone away
         setTimeout(() => {
@@ -47,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     ? tr.deckConfigWillRequireFullSync() + " "
                     : "") +
                 tr.deckConfigConfirmRemoveName({ name: state.getCurrentName() });
-            if (confirm(collapseWhitespace(msg))) {
+            if (confirm(withCollapsedWhitespace(msg))) {
                 try {
                     state.removeCurrentConfig();
                 } catch (err) {
