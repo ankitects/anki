@@ -5,7 +5,7 @@
 
 import os
 import unicodedata
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Optional
 
 from anki.cards import CardId
 from anki.collection import Collection
@@ -37,7 +37,7 @@ class Anki2Importer(Importer):
         super().__init__(col, file)
 
         # set later, defined here for typechecking
-        self._decks: Dict[DeckId, DeckId] = {}
+        self._decks: dict[DeckId, DeckId] = {}
         self.source_needs_upgrade = False
 
     def run(self, media: None = None, importing_v2: bool = True) -> None:
@@ -80,14 +80,14 @@ class Anki2Importer(Importer):
     # Notes
     ######################################################################
 
-    def _logNoteRow(self, action: str, noteRow: List[str]) -> None:
+    def _logNoteRow(self, action: str, noteRow: list[str]) -> None:
         self.log.append(
-            "[%s] %s" % (action, stripHTMLMedia(noteRow[6].replace("\x1f", ", ")))
+            "[{}] {}".format(action, stripHTMLMedia(noteRow[6].replace("\x1f", ", ")))
         )
 
     def _importNotes(self) -> None:
         # build guid -> (id,mod,mid) hash & map of existing note ids
-        self._notes: Dict[str, Tuple[NoteId, int, NotetypeId]] = {}
+        self._notes: dict[str, tuple[NoteId, int, NotetypeId]] = {}
         existing = {}
         for id, guid, mod, mid in self.dst.db.execute(
             "select id, guid, mod, mid from notes"
@@ -96,7 +96,7 @@ class Anki2Importer(Importer):
             existing[id] = True
         # we ignore updates to changed schemas. we need to note the ignored
         # guids, so we avoid importing invalid cards
-        self._ignoredGuids: Dict[str, bool] = {}
+        self._ignoredGuids: dict[str, bool] = {}
         # iterate over source collection
         add = []
         update = []
@@ -194,7 +194,7 @@ class Anki2Importer(Importer):
 
     # determine if note is a duplicate, and adjust mid and/or guid as required
     # returns true if note should be added
-    def _uniquifyNote(self, note: List[Any]) -> bool:
+    def _uniquifyNote(self, note: list[Any]) -> bool:
         origGuid = note[GUID]
         srcMid = note[MID]
         dstMid = self._mid(srcMid)
@@ -218,7 +218,7 @@ class Anki2Importer(Importer):
 
     def _prepareModels(self) -> None:
         "Prepare index of schema hashes."
-        self._modelMap: Dict[NotetypeId, NotetypeId] = {}
+        self._modelMap: dict[NotetypeId, NotetypeId] = {}
 
     def _mid(self, srcMid: NotetypeId) -> Any:
         "Return local id for remote MID."
@@ -308,7 +308,7 @@ class Anki2Importer(Importer):
         if self.source_needs_upgrade:
             self.src.upgrade_to_v2_scheduler()
         # build map of (guid, ord) -> cid and used id cache
-        self._cards: Dict[Tuple[str, int], CardId] = {}
+        self._cards: dict[tuple[str, int], CardId] = {}
         existing = {}
         for guid, ord, cid in self.dst.db.execute(
             "select f.guid, c.ord, c.id from cards c, notes f " "where c.nid = f.id"

@@ -80,7 +80,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":generic_array_build_script",
-        "@raze__typenum__1_13_0//:typenum",
+        "@raze__typenum__1_14_0//:typenum",
     ],
 )
 

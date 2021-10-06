@@ -15,7 +15,7 @@ BuryOrSuspend = scheduler_pb2.BuryOrSuspendCardsRequest
 FilteredDeckForUpdate = decks_pb2.FilteredDeckForUpdate
 
 
-from typing import List, Optional, Sequence
+from typing import Sequence
 
 from anki import config_pb2
 from anki.cards import CardId
@@ -115,7 +115,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     def unsuspend_cards(self, ids: Sequence[CardId]) -> OpChanges:
         return self.col._backend.restore_buried_and_suspended_cards(ids)
 
-    def unbury_cards(self, ids: List[CardId]) -> OpChanges:
+    def unbury_cards(self, ids: list[CardId]) -> OpChanges:
         return self.col._backend.restore_buried_and_suspended_cards(ids)
 
     def unbury_deck(
@@ -162,12 +162,12 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         self,
         card_ids: Sequence[CardId],
         days: str,
-        config_key: Optional[Config.String.V] = None,
+        config_key: Config.String.V | None = None,
     ) -> OpChanges:
         """Set cards to be due in `days`, turning them into review cards if necessary.
         `days` can be of the form '5' or '5..7'
         If `config_key` is provided, provided days will be remembered in config."""
-        key: Optional[config_pb2.OptionalStringConfigKey]
+        key: config_pb2.OptionalStringConfigKey | None
         if config_key is not None:
             key = config_pb2.OptionalStringConfigKey(key=config_key)
         else:
@@ -179,7 +179,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             config_key=key,  # type: ignore
         )
 
-    def resetCards(self, ids: List[CardId]) -> None:
+    def resetCards(self, ids: list[CardId]) -> None:
         "Completely reset cards for export."
         sids = ids2str(ids)
         assert self.col.db
@@ -229,7 +229,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
                 self.orderCards(did)
 
     # for post-import
-    def maybeRandomizeDeck(self, did: Optional[DeckId] = None) -> None:
+    def maybeRandomizeDeck(self, did: DeckId | None = None) -> None:
         if not did:
             did = self.col.decks.selected()
         conf = self.col.decks.config_dict_for_deck_id(did)
@@ -240,7 +240,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # legacy
     def sortCards(
         self,
-        cids: List[CardId],
+        cids: list[CardId],
         start: int = 1,
         step: int = 1,
         shuffle: bool = False,

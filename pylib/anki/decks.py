@@ -6,19 +6,7 @@
 from __future__ import annotations
 
 import copy
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterable,
-    List,
-    NewType,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-    no_type_check,
-)
+from typing import TYPE_CHECKING, Any, Iterable, NewType, Sequence, no_type_check
 
 if TYPE_CHECKING:
     import anki
@@ -40,8 +28,8 @@ DeckConfigsForUpdate = deckconfig_pb2.DeckConfigsForUpdate
 UpdateDeckConfigs = deckconfig_pb2.UpdateDeckConfigsRequest
 
 # type aliases until we can move away from dicts
-DeckDict = Dict[str, Any]
-DeckConfigDict = Dict[str, Any]
+DeckDict = dict[str, Any]
+DeckConfigDict = dict[str, Any]
 
 DeckId = NewType("DeckId", int)
 DeckConfigId = NewType("DeckConfigId", int)
@@ -96,7 +84,7 @@ class DeckManager(DeprecatedNamesMixin):
         self.col = col.weakref()
         self.decks = DecksDictProxy(col)
 
-    def save(self, deck_or_config: Union[DeckDict, DeckConfigDict] = None) -> None:
+    def save(self, deck_or_config: DeckDict | DeckConfigDict = None) -> None:
         "Can be called with either a deck or a deck configuration."
         if not deck_or_config:
             print("col.decks.save() should be passed the changed deck")
@@ -131,7 +119,7 @@ class DeckManager(DeprecatedNamesMixin):
         name: str,
         create: bool = True,
         type: DeckConfigId = DeckConfigId(0),
-    ) -> Optional[DeckId]:
+    ) -> DeckId | None:
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
         id = self.id_for_name(name)
         if id:
@@ -155,13 +143,13 @@ class DeckManager(DeprecatedNamesMixin):
             skip_empty_default=skip_empty_default, include_filtered=include_filtered
         )
 
-    def id_for_name(self, name: str) -> Optional[DeckId]:
+    def id_for_name(self, name: str) -> DeckId | None:
         try:
             return DeckId(self.col._backend.get_deck_id_by_name(name))
         except NotFoundError:
             return None
 
-    def get_legacy(self, did: DeckId) -> Optional[DeckDict]:
+    def get_legacy(self, did: DeckId) -> DeckDict | None:
         try:
             return from_json_bytes(self.col._backend.get_deck_legacy(did))
         except NotFoundError:
@@ -170,7 +158,7 @@ class DeckManager(DeprecatedNamesMixin):
     def have(self, id: DeckId) -> bool:
         return bool(self.get_legacy(id))
 
-    def get_all_legacy(self) -> List[DeckDict]:
+    def get_all_legacy(self) -> list[DeckDict]:
         return list(from_json_bytes(self.col._backend.get_all_decks_legacy()).values())
 
     def new_deck_legacy(self, filtered: bool) -> DeckDict:
@@ -191,7 +179,7 @@ class DeckManager(DeprecatedNamesMixin):
     @classmethod
     def find_deck_in_tree(
         cls, node: DeckTreeNode, deck_id: DeckId
-    ) -> Optional[DeckTreeNode]:
+    ) -> DeckTreeNode | None:
         if node.deck_id == deck_id:
             return node
         for child in node.children:
@@ -200,7 +188,7 @@ class DeckManager(DeprecatedNamesMixin):
                 return match
         return None
 
-    def all(self) -> List[DeckDict]:
+    def all(self) -> list[DeckDict]:
         "All decks. Expensive; prefer all_names_and_ids()"
         return self.get_all_legacy()
 
@@ -226,7 +214,7 @@ class DeckManager(DeprecatedNamesMixin):
         return len(self.all_names_and_ids())
 
     def card_count(
-        self, dids: Union[DeckId, Iterable[DeckId]], include_subdecks: bool
+        self, dids: DeckId | Iterable[DeckId], include_subdecks: bool
     ) -> Any:
         if isinstance(dids, int):
             dids = {dids}
@@ -234,13 +222,13 @@ class DeckManager(DeprecatedNamesMixin):
             dids = set(dids)
         if include_subdecks:
             dids.update([child[1] for did in dids for child in self.children(did)])
+        str_ids = ids2str(dids)
         count = self.col.db.scalar(
-            "select count() from cards where did in {0} or "
-            "odid in {0}".format(ids2str(dids))
+            f"select count() from cards where did in {str_ids} or odid in {str_ids}"
         )
         return count
 
-    def get(self, did: Union[DeckId, str], default: bool = True) -> Optional[DeckDict]:
+    def get(self, did: DeckId | str, default: bool = True) -> DeckDict | None:
         if not did:
             if default:
                 return self.get_legacy(DEFAULT_DECK_ID)
@@ -255,7 +243,7 @@ class DeckManager(DeprecatedNamesMixin):
         else:
             return None
 
-    def by_name(self, name: str) -> Optional[DeckDict]:
+    def by_name(self, name: str) -> DeckDict | None:
         """Get deck with NAME, ignoring case."""
         id = self.id_for_name(name)
         if id:
@@ -271,7 +259,7 @@ class DeckManager(DeprecatedNamesMixin):
     def update_dict(self, deck: DeckDict) -> OpChanges:
         return self.col._backend.update_deck_legacy(json=to_json_bytes(deck))
 
-    def rename(self, deck: Union[DeckDict, DeckId], new_name: str) -> OpChanges:
+    def rename(self, deck: DeckDict | DeckId, new_name: str) -> OpChanges:
         "Rename deck prefix to NAME if not exists. Updates children."
         if isinstance(deck, int):
             deck_id = deck
@@ -300,7 +288,7 @@ class DeckManager(DeprecatedNamesMixin):
     def update_deck_configs(self, input: UpdateDeckConfigs) -> OpChanges:
         return self.col._backend.update_deck_configs(input=input)
 
-    def all_config(self) -> List[DeckConfigDict]:
+    def all_config(self) -> list[DeckConfigDict]:
         "A list of all deck config."
         return list(from_json_bytes(self.col._backend.all_deck_config_legacy()))
 
@@ -318,7 +306,7 @@ class DeckManager(DeprecatedNamesMixin):
         # dynamic decks have embedded conf
         return deck
 
-    def get_config(self, conf_id: DeckConfigId) -> Optional[DeckConfigDict]:
+    def get_config(self, conf_id: DeckConfigId) -> DeckConfigDict | None:
         try:
             return from_json_bytes(self.col._backend.get_deck_config_legacy(conf_id))
         except NotFoundError:
@@ -331,7 +319,7 @@ class DeckManager(DeprecatedNamesMixin):
         )
 
     def add_config(
-        self, name: str, clone_from: Optional[DeckConfigDict] = None
+        self, name: str, clone_from: DeckConfigDict | None = None
     ) -> DeckConfigDict:
         if clone_from is not None:
             conf = copy.deepcopy(clone_from)
@@ -343,7 +331,7 @@ class DeckManager(DeprecatedNamesMixin):
         return conf
 
     def add_config_returning_id(
-        self, name: str, clone_from: Optional[DeckConfigDict] = None
+        self, name: str, clone_from: DeckConfigDict | None = None
     ) -> DeckConfigId:
         return self.add_config(name, clone_from)["id"]
 
@@ -363,7 +351,7 @@ class DeckManager(DeprecatedNamesMixin):
         deck["conf"] = id
         self.save(deck)
 
-    def decks_using_config(self, conf: DeckConfigDict) -> List[DeckId]:
+    def decks_using_config(self, conf: DeckConfigDict) -> list[DeckId]:
         dids = []
         for deck in self.all():
             if "conf" in deck and deck["conf"] == conf["id"]:
@@ -389,13 +377,13 @@ class DeckManager(DeprecatedNamesMixin):
             return deck["name"]
         return self.col.tr.decks_no_deck()
 
-    def name_if_exists(self, did: DeckId) -> Optional[str]:
+    def name_if_exists(self, did: DeckId) -> str | None:
         deck = self.get(did, default=False)
         if deck:
             return deck["name"]
         return None
 
-    def cids(self, did: DeckId, children: bool = False) -> List[CardId]:
+    def cids(self, did: DeckId, children: bool = False) -> list[CardId]:
         if not children:
             return self.col.db.list("select id from cards where did=?", did)
         dids = [did]
@@ -403,7 +391,7 @@ class DeckManager(DeprecatedNamesMixin):
             dids.append(id)
         return self.col.db.list(f"select id from cards where did in {ids2str(dids)}")
 
-    def for_card_ids(self, cids: List[CardId]) -> List[DeckId]:
+    def for_card_ids(self, cids: list[CardId]) -> list[DeckId]:
         return self.col.db.list(f"select did from cards where id in {ids2str(cids)}")
 
     # Deck selection
@@ -419,7 +407,7 @@ class DeckManager(DeprecatedNamesMixin):
     def current(self) -> DeckDict:
         return self.get(self.selected())
 
-    def active(self) -> List[DeckId]:
+    def active(self) -> list[DeckId]:
         # some add-ons assume this will always be non-empty
         return self.col.sched.active_decks or [DeckId(1)]
 
@@ -435,7 +423,7 @@ class DeckManager(DeprecatedNamesMixin):
     #############################################################
 
     @staticmethod
-    def path(name: str) -> List[str]:
+    def path(name: str) -> list[str]:
         return name.split("::")
 
     @classmethod
@@ -443,21 +431,21 @@ class DeckManager(DeprecatedNamesMixin):
         return cls.path(name)[-1]
 
     @classmethod
-    def immediate_parent_path(cls, name: str) -> List[str]:
+    def immediate_parent_path(cls, name: str) -> list[str]:
         return cls.path(name)[:-1]
 
     @classmethod
-    def immediate_parent(cls, name: str) -> Optional[str]:
+    def immediate_parent(cls, name: str) -> str | None:
         parent_path = cls.immediate_parent_path(name)
         if parent_path:
             return "::".join(parent_path)
         return None
 
     @classmethod
-    def key(cls, deck: DeckDict) -> List[str]:
+    def key(cls, deck: DeckDict) -> list[str]:
         return cls.path(deck["name"])
 
-    def children(self, did: DeckId) -> List[Tuple[str, DeckId]]:
+    def children(self, did: DeckId) -> list[tuple[str, DeckId]]:
         "All children of did, as (name, id)."
         name = self.get(did)["name"]
         actv = []
@@ -472,24 +460,24 @@ class DeckManager(DeprecatedNamesMixin):
             DeckId(d.id) for d in self.all_names_and_ids() if d.name.startswith(prefix)
         )
 
-    def deck_and_child_ids(self, deck_id: DeckId) -> List[DeckId]:
+    def deck_and_child_ids(self, deck_id: DeckId) -> list[DeckId]:
         parent_name = self.name(deck_id)
         out = [deck_id]
         out.extend(self.child_ids(parent_name))
         return out
 
     def parents(
-        self, did: DeckId, name_map: Optional[Dict[str, DeckDict]] = None
-    ) -> List[DeckDict]:
+        self, did: DeckId, name_map: dict[str, DeckDict] | None = None
+    ) -> list[DeckDict]:
         "All parents of did."
         # get parent and grandparent names
-        parents_names: List[str] = []
+        parents_names: list[str] = []
         for part in self.immediate_parent_path(self.get(did)["name"]):
             if not parents_names:
                 parents_names.append(part)
             else:
                 parents_names.append(f"{parents_names[-1]}::{part}")
-        parents: List[DeckDict] = []
+        parents: list[DeckDict] = []
         # convert to objects
         for parent_name in parents_names:
             if name_map:
@@ -499,13 +487,13 @@ class DeckManager(DeprecatedNamesMixin):
             parents.append(deck)
         return parents
 
-    def parents_by_name(self, name: str) -> List[DeckDict]:
+    def parents_by_name(self, name: str) -> list[DeckDict]:
         "All existing parents of name"
         if "::" not in name:
             return []
         names = self.immediate_parent_path(name)
         head = []
-        parents: List[DeckDict] = []
+        parents: list[DeckDict] = []
 
         while names:
             head.append(names.pop(0))
@@ -524,7 +512,7 @@ class DeckManager(DeprecatedNamesMixin):
         self.select(did)
         return did
 
-    def is_filtered(self, did: Union[DeckId, str]) -> bool:
+    def is_filtered(self, did: DeckId | str) -> bool:
         return bool(self.get(did)["dyn"])
 
     # Legacy
@@ -546,11 +534,11 @@ class DeckManager(DeprecatedNamesMixin):
         self.remove([did])
 
     @deprecated(replaced_by=all_names_and_ids)
-    def name_map(self) -> Dict[str, DeckDict]:
+    def name_map(self) -> dict[str, DeckDict]:
         return {d["name"]: d for d in self.all()}
 
     @deprecated(info="use col.set_deck() instead")
-    def set_deck(self, cids: List[CardId], did: DeckId) -> None:
+    def set_deck(self, cids: list[CardId], did: DeckId) -> None:
         self.col.set_deck(card_ids=cids, deck_id=did)
         self.col.db.execute(
             f"update cards set did=?,usn=?,mod=? where id in {ids2str(cids)}",
@@ -560,11 +548,11 @@ class DeckManager(DeprecatedNamesMixin):
         )
 
     @deprecated(replaced_by=all_names_and_ids)
-    def all_ids(self) -> List[str]:
+    def all_ids(self) -> list[str]:
         return [str(x.id) for x in self.all_names_and_ids()]
 
     @deprecated(replaced_by=all_names_and_ids)
-    def all_names(self, dyn: bool = True, force_default: bool = True) -> List[str]:
+    def all_names(self, dyn: bool = True, force_default: bool = True) -> list[str]:
         return [
             x.name
             for x in self.all_names_and_ids(

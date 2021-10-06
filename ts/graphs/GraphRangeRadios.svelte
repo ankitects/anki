@@ -4,9 +4,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { RevlogRange, GraphRange } from "./graph-helpers";
-    import { timeSpan, MONTH, YEAR } from "lib/time";
+    import { timeSpan, MONTH, YEAR } from "../lib/time";
 
-    import * as tr from "lib/i18n";
+    import * as tr from "../lib/i18n";
     export let revlogRange: RevlogRange;
     export let graphRange: GraphRange;
     export let followRevlog: boolean = false;

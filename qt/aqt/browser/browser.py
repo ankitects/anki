@@ -3,19 +3,13 @@
 
 from __future__ import annotations
 
-from typing import Callable, Optional, Sequence, Tuple, Union
+from typing import Callable, Sequence
 
 import aqt
 import aqt.forms
 from anki._legacy import deprecated
 from anki.cards import Card, CardId
-from anki.collection import (
-    Collection,
-    Config,
-    OpChanges,
-    OpChangesWithCount,
-    SearchNode,
-)
+from anki.collection import Collection, Config, OpChanges, SearchNode
 from anki.consts import *
 from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
@@ -60,7 +54,6 @@ from aqt.utils import (
     saveState,
     showWarning,
     skip_if_selection_is_empty,
-    tooltip,
     tr,
 )
 
@@ -96,14 +89,14 @@ class MockModel:
 class Browser(QMainWindow):
     mw: AnkiQt
     col: Collection
-    editor: Optional[Editor]
+    editor: Editor | None
     table: Table
 
     def __init__(
         self,
         mw: AnkiQt,
-        card: Optional[Card] = None,
-        search: Optional[Tuple[Union[str, SearchNode]]] = None,
+        card: Card | None = None,
+        search: tuple[str | SearchNode] | None = None,
     ) -> None:
         """
         card -- try to select the provided card after executing "search" or
@@ -115,8 +108,8 @@ class Browser(QMainWindow):
         self.mw = mw
         self.col = self.mw.col
         self.lastFilter = ""
-        self.focusTo: Optional[int] = None
-        self._previewer: Optional[Previewer] = None
+        self.focusTo: int | None = None
+        self._previewer: Previewer | None = None
         self._closeEventHasCleanedUp = False
         self.form = aqt.forms.browser.Ui_Dialog()
         self.form.setupUi(self)
@@ -125,7 +118,9 @@ class Browser(QMainWindow):
         restoreState(self, "editor")
         restoreSplitter(self.form.splitter, "editor3")
         self.form.splitter.setChildrenCollapsible(False)
-        self.card: Optional[Card] = None
+        # set if exactly 1 row is selected; used by the previewer
+        self.card: Card | None = None
+        self.current_card: Card | None = None
         self.setup_table()
         self.setupMenus()
         self.setupHooks()
@@ -139,7 +134,7 @@ class Browser(QMainWindow):
         self.setupSearch(card, search)
 
     def on_operation_did_execute(
-        self, changes: OpChanges, handler: Optional[object]
+        self, changes: OpChanges, handler: object | None
     ) -> None:
         focused = current_window() == self
         self.table.op_executed(changes, handler, focused)
@@ -158,14 +153,15 @@ class Browser(QMainWindow):
                     self.editor.set_note(note)
 
         if changes.browser_table and changes.card:
-            self.card = self.table.get_current_card()
-            self._update_context_actions()
+            self.card = self.table.get_single_selected_card()
+            self.current_card = self.table.get_current_card()
+            self._update_current_actions()
 
         # changes.card is required for updating flag icon
         if changes.note_text or changes.card:
             self._renderPreview()
 
-    def on_focus_change(self, new: Optional[QWidget], old: Optional[QWidget]) -> None:
+    def on_focus_change(self, new: QWidget | None, old: QWidget | None) -> None:
         if current_window() == self:
             self.setUpdatesEnabled(True)
             self.table.redraw_cells()
@@ -267,8 +263,8 @@ class Browser(QMainWindow):
     def reopen(
         self,
         _mw: AnkiQt,
-        card: Optional[Card] = None,
-        search: Optional[Tuple[Union[str, SearchNode]]] = None,
+        card: Card | None = None,
+        search: tuple[str | SearchNode] | None = None,
     ) -> None:
         if search is not None:
             self.search_for_terms(*search)
@@ -285,8 +281,8 @@ class Browser(QMainWindow):
 
     def setupSearch(
         self,
-        card: Optional[Card] = None,
-        search: Optional[Tuple[Union[str, SearchNode]]] = None,
+        card: Card | None = None,
+        search: tuple[str | SearchNode] | None = None,
     ) -> None:
         qconnect(self.form.searchEdit.lineEdit().returnPressed, self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
@@ -314,7 +310,7 @@ class Browser(QMainWindow):
             self.search_for(normed)
             self.update_history()
 
-    def search_for(self, search: str, prompt: Optional[str] = None) -> None:
+    def search_for(self, search: str, prompt: str | None = None) -> None:
         """Keep track of search string so that we reuse identical search when
         refreshing, rather than whatever is currently in the search field.
         Optionally set the search bar to a different text than the actual search.
@@ -358,12 +354,12 @@ class Browser(QMainWindow):
             without_unicode_isolation(tr_title(total=cur, selected=selected))
         )
 
-    def search_for_terms(self, *search_terms: Union[str, SearchNode]) -> None:
+    def search_for_terms(self, *search_terms: str | SearchNode) -> None:
         search = self.col.build_search_string(*search_terms)
         self.form.searchEdit.setEditText(search)
         self.onSearchActivated()
 
-    def _default_search(self, card: Optional[Card] = None) -> None:
+    def _default_search(self, card: Card | None = None) -> None:
         default = self.col.get_config_string(Config.String.DEFAULT_SEARCH_TEXT)
         if default.strip():
             search = default
@@ -417,50 +413,49 @@ class Browser(QMainWindow):
         gui_hooks.editor_did_init.remove(add_preview_button)
 
     @ensure_editor_saved
-    def onRowChanged(
-        self, _current: Optional[QItemSelection], _previous: Optional[QItemSelection]
-    ) -> None:
-        """Update current note and hide/show editor."""
+    def on_all_or_selected_rows_changed(self) -> None:
+        """Called after the selected or all rows (searching, toggling mode) have
+        changed. Update window title, card preview, context actions, and editor.
+        """
         if self._closeEventHasCleanedUp:
             return
 
         self.updateTitle()
-        # the current card is used for context actions
-        self.card = self.table.get_current_card()
         # if there is only one selected card, use it in the editor
         # it might differ from the current card
-        card = self.table.get_single_selected_card()
-        self.singleCard = bool(card)
+        self.card = self.table.get_single_selected_card()
+        self.singleCard = bool(self.card)
         self.form.splitter.widget(1).setVisible(self.singleCard)
         if self.singleCard:
-            self.editor.set_note(card.note(), focusTo=self.focusTo)
+            self.editor.set_note(self.card.note(), focusTo=self.focusTo)
             self.focusTo = None
-            self.editor.card = card
+            self.editor.card = self.card
         else:
             self.editor.set_note(None)
         self._renderPreview()
-        self._update_context_actions()
+        self._update_row_actions()
+        self._update_selection_actions()
         gui_hooks.browser_did_change_row(self)
 
-    def _update_context_actions(self) -> None:
-        self._update_enabled_actions()
-        self._update_flags_menu()
-        self._update_toggle_mark_action()
-        self._update_toggle_suspend_action()
+    @deprecated(info="please use on_all_or_selected_rows_changed() instead.")
+    def onRowChanged(self, *args: Any) -> None:
+        self.on_all_or_selected_rows_changed()
 
-    def _update_enabled_actions(self) -> None:
+    def on_current_row_changed(self) -> None:
+        """Called after the row of the current element has changed."""
+        if self._closeEventHasCleanedUp:
+            return
+        self.current_card = self.table.get_current_card()
+        self._update_current_actions()
+
+    def _update_row_actions(self) -> None:
         has_rows = bool(self.table.len())
         self.form.actionSelectAll.setEnabled(has_rows)
         self.form.actionInvertSelection.setEnabled(has_rows)
         self.form.actionFirstCard.setEnabled(has_rows)
         self.form.actionLastCard.setEnabled(has_rows)
 
-        self.form.action_Info.setEnabled(bool(self.card))
-
-        self.form.actionPreviousCard.setEnabled(self.table.has_previous())
-
-        self.form.actionNextCard.setEnabled(self.table.has_next())
-
+    def _update_selection_actions(self) -> None:
         has_selection = bool(self.table.len_selection())
         self.form.actionSelectNotes.setEnabled(has_selection)
         self.form.actionExport.setEnabled(has_selection)
@@ -475,6 +470,14 @@ class Browser(QMainWindow):
         self.form.actionReposition.setEnabled(has_selection)
         self.form.actionToggle_Suspend.setEnabled(has_selection)
         self.form.menuFlag.setEnabled(has_selection)
+
+    def _update_current_actions(self) -> None:
+        self._update_flags_menu()
+        self._update_toggle_mark_action()
+        self._update_toggle_suspend_action()
+        self.form.action_Info.setEnabled(self.table.has_current())
+        self.form.actionPreviousCard.setEnabled(self.table.has_previous())
+        self.form.actionNextCard.setEnabled(self.table.has_next())
 
     @ensure_editor_saved
     def on_table_state_changed(self, checked: bool) -> None:
@@ -517,8 +520,6 @@ class Browser(QMainWindow):
         self.mw.progress.timer(10, self.sidebar.refresh, False)
 
     def showSidebar(self) -> None:
-        # workaround for PyQt focus bug
-        self.editor.hideCompleters()
         self.sidebarDockWidget.setVisible(True)
 
     def focusSidebar(self) -> None:
@@ -544,10 +545,10 @@ class Browser(QMainWindow):
     ######################################################################
 
     def showCardInfo(self) -> None:
-        if not self.card:
+        if not self.current_card:
             return
 
-        CardInfoDialog(parent=self, mw=self.mw, card=self.card)
+        CardInfoDialog(parent=self, mw=self.mw, card=self.current_card)
 
     # Menu helpers
     ######################################################################
@@ -628,17 +629,8 @@ class Browser(QMainWindow):
         if focus != self.form.tableView:
             return
 
-        nids = self.table.get_selected_note_ids()
-
-        def after_remove(changes: OpChangesWithCount) -> None:
-            tooltip(tr.browsing_cards_deleted(count=changes.count))
-            # select the next card if there is one
-            self.focusTo = self.editor.currentField
-            self.table.to_next_row()
-
-        remove_notes(parent=self, note_ids=nids).success(
-            after_remove
-        ).run_in_background()
+        nids = self.table.to_row_of_unselected_note()
+        remove_notes(parent=self, note_ids=nids).run_in_background()
 
     # legacy
 
@@ -682,7 +674,7 @@ class Browser(QMainWindow):
     @ensure_editor_saved
     def add_tags_to_selected_notes(
         self,
-        tags: Optional[str] = None,
+        tags: str | None = None,
     ) -> None:
         "Shows prompt if tags not provided."
         if not (tags := tags or self._prompt_for_tags(tr.browsing_enter_tags_to_add())):
@@ -694,7 +686,7 @@ class Browser(QMainWindow):
     @no_arg_trigger
     @skip_if_selection_is_empty
     @ensure_editor_saved
-    def remove_tags_from_selected_notes(self, tags: Optional[str] = None) -> None:
+    def remove_tags_from_selected_notes(self, tags: str | None = None) -> None:
         "Shows prompt if tags not provided."
         if not (
             tags := tags or self._prompt_for_tags(tr.browsing_enter_tags_to_delete())
@@ -705,7 +697,7 @@ class Browser(QMainWindow):
             parent=self, note_ids=self.selected_notes(), space_separated_tags=tags
         ).run_in_background(initiator=self)
 
-    def _prompt_for_tags(self, prompt: str) -> Optional[str]:
+    def _prompt_for_tags(self, prompt: str) -> str | None:
         (tags, ok) = getTag(self, self.col, prompt)
         if not ok:
             return None
@@ -725,7 +717,9 @@ class Browser(QMainWindow):
     ######################################################################
 
     def _update_toggle_suspend_action(self) -> None:
-        is_suspended = bool(self.card and self.card.queue == QUEUE_TYPE_SUSPENDED)
+        is_suspended = bool(
+            self.current_card and self.current_card.queue == QUEUE_TYPE_SUSPENDED
+        )
         self.form.actionToggle_Suspend.setChecked(is_suspended)
 
     @skip_if_selection_is_empty
@@ -752,11 +746,11 @@ class Browser(QMainWindow):
     @skip_if_selection_is_empty
     @ensure_editor_saved
     def set_flag_of_selected_cards(self, flag: int) -> None:
-        if not self.card:
+        if not self.current_card:
             return
 
         # flag needs toggling off?
-        if flag == self.card.user_flag():
+        if flag == self.current_card.user_flag():
             flag = 0
 
         set_card_flag(
@@ -764,7 +758,7 @@ class Browser(QMainWindow):
         ).run_in_background()
 
     def _update_flags_menu(self) -> None:
-        flag = self.card and self.card.user_flag()
+        flag = self.current_card and self.current_card.user_flag()
         flag = flag or 0
 
         for f in self.mw.flags.all():
@@ -783,7 +777,9 @@ class Browser(QMainWindow):
             self.remove_tags_from_selected_notes(tags=MARKED_TAG)
 
     def _update_toggle_mark_action(self) -> None:
-        is_marked = bool(self.card and self.card.note().has_tag(MARKED_TAG))
+        is_marked = bool(
+            self.current_card and self.current_card.note().has_tag(MARKED_TAG)
+        )
         self.form.actionToggle_Mark.setChecked(is_marked)
 
     # Scheduling
@@ -911,16 +907,10 @@ class Browser(QMainWindow):
         self.table.to_last_row()
 
     def onFind(self) -> None:
-        # workaround for PyQt focus bug
-        self.editor.hideCompleters()
-
         self.form.searchEdit.setFocus()
         self.form.searchEdit.lineEdit().selectAll()
 
     def onNote(self) -> None:
-        # workaround for PyQt focus bug
-        self.editor.hideCompleters()
-
         self.editor.web.setFocus()
         self.editor.loadNote(focusTo=0)
 

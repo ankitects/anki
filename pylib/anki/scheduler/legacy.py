@@ -3,7 +3,7 @@
 
 # pylint: disable=invalid-name
 
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from anki.cards import Card, CardId
 from anki.consts import CARD_TYPE_RELEARNING, QUEUE_TYPE_DAY_LEARN_RELEARN
@@ -17,7 +17,7 @@ class SchedulerBaseWithLegacy(SchedulerBase):
     "Legacy aliases and helpers. These will go away in the future."
 
     def reschedCards(
-        self, card_ids: List[CardId], min_interval: int, max_interval: int
+        self, card_ids: list[CardId], min_interval: int, max_interval: int
     ) -> None:
         self.set_due_date(card_ids, f"{min_interval}-{max_interval}!")
 
@@ -71,14 +71,13 @@ else
 end)
 """
         self.col.db.execute(
-            """
-update cards set did = odid, %s,
-due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? where %s"""
-            % (queue, lim),
+            f"""
+update cards set did = odid, {queue},
+due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? where {lim}""",
             self.col.usn(),
         )
 
-    def remFromDyn(self, cids: List[CardId]) -> None:
+    def remFromDyn(self, cids: list[CardId]) -> None:
         self.emptyDyn(None, f"id in {ids2str(cids)} and odid")
 
     # used by v2 scheduler and some add-ons
@@ -105,7 +104,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
         elif type == "time":
             self.update_stats(did, milliseconds_delta=cnt)
 
-    def deckDueTree(self) -> List:
+    def deckDueTree(self) -> list:
         "List of (base name, did, rev, lrn, new, children)"
         print(
             "deckDueTree() is deprecated; use decks.deck_tree() for a tree without counts, or sched.deck_due_tree()"
@@ -117,7 +116,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
     def _cardConf(self, card: Card) -> DeckConfigDict:
         return self.col.decks.config_dict_for_deck_id(card.did)
 
-    def _fuzzIvlRange(self, ivl: int) -> Tuple[int, int]:
+    def _fuzzIvlRange(self, ivl: int) -> tuple[int, int]:
         return (ivl, ivl)
 
     # simple aliases

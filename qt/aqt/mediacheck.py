@@ -6,7 +6,7 @@ from __future__ import annotations
 import itertools
 import time
 from concurrent.futures import Future
-from typing import Iterable, List, Optional, Sequence, TypeVar
+from typing import Iterable, Sequence, TypeVar
 
 import aqt
 from anki.collection import SearchNode
@@ -26,7 +26,7 @@ from aqt.utils import (
 T = TypeVar("T")
 
 
-def chunked_list(l: Iterable[T], n: int) -> Iterable[List[T]]:
+def chunked_list(l: Iterable[T], n: int) -> Iterable[list[T]]:
     l = iter(l)
     while True:
         res = list(itertools.islice(l, n))
@@ -41,11 +41,11 @@ def check_media_db(mw: aqt.AnkiQt) -> None:
 
 
 class MediaChecker:
-    progress_dialog: Optional[aqt.progress.ProgressDialog]
+    progress_dialog: aqt.progress.ProgressDialog | None
 
     def __init__(self, mw: aqt.AnkiQt) -> None:
         self.mw = mw
-        self._progress_timer: Optional[QTimer] = None
+        self._progress_timer: QTimer | None = None
 
     def check(self) -> None:
         self.progress_dialog = self.mw.progress.start()

@@ -1,6 +1,7 @@
 [MASTER]
 ignore-patterns=.*_pb2.*
 persistent = no
+extension-pkg-whitelist=orjson
 
 [TYPECHECK]
 ignored-classes=
@@ -16,7 +17,8 @@ ignored-classes=
   BackendError,
   SetDeckCollapsedRequest,
   ConfigKey,
-  HelpPageLinkRequest
+  HelpPageLinkRequest,
+  StripHtmlRequest
 
 [REPORTS]
 output-format=colorized
@@ -46,6 +48,8 @@ disable=
   global-statement,
   protected-access,
   arguments-differ,
+  arguments-renamed,
+  consider-using-f-string,
 
 [BASIC]
 good-names =

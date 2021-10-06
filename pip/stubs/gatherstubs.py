@@ -26,5 +26,7 @@ if __name__ == "__main__":
     folder = os.path.join(os.path.dirname(__file__), "../../external")
     os.chdir(folder)
     for folder in os.listdir("."):
+        if "futures" in folder:
+            continue
         if match := name_re.search(folder):
             copy_folder(match.group(1), folder, outbase)

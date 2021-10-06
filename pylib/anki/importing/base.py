@@ -1,7 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from anki.collection import Collection
 from anki.utils import maxID
@@ -18,7 +18,7 @@ class Importer:
 
     def __init__(self, col: Collection, file: str) -> None:
         self.file = file
-        self.log: List[str] = []
+        self.log: list[str] = []
         self.col = col.weakref()
         self.total = 0
         self.dst = None

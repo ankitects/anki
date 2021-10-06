@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum, auto
-from typing import Callable, Iterable, List, Optional, Union
+from typing import Callable, Iterable
 
 from anki.collection import SearchNode
 from aqt.theme import ColoredIcon
@@ -59,8 +59,8 @@ class SidebarItem:
     def __init__(
         self,
         name: str,
-        icon: Union[str, ColoredIcon],
-        search_node: Optional[SearchNode] = None,
+        icon: str | ColoredIcon,
+        search_node: SearchNode | None = None,
         on_expanded: Callable[[bool], None] = None,
         expanded: bool = False,
         item_type: SidebarItemType = SidebarItemType.CUSTOM,
@@ -75,24 +75,24 @@ class SidebarItem:
         self.id = id
         self.search_node = search_node
         self.on_expanded = on_expanded
-        self.children: List["SidebarItem"] = []
-        self.tooltip: Optional[str] = None
-        self._parent_item: Optional["SidebarItem"] = None
+        self.children: list[SidebarItem] = []
+        self.tooltip: str | None = None
+        self._parent_item: SidebarItem | None = None
         self._expanded = expanded
-        self._row_in_parent: Optional[int] = None
+        self._row_in_parent: int | None = None
         self._search_matches_self = False
         self._search_matches_child = False
 
-    def add_child(self, cb: "SidebarItem") -> None:
+    def add_child(self, cb: SidebarItem) -> None:
         self.children.append(cb)
         cb._parent_item = self
 
     def add_simple(
         self,
         name: str,
-        icon: Union[str, ColoredIcon],
+        icon: str | ColoredIcon,
         type: SidebarItemType,
-        search_node: Optional[SearchNode],
+        search_node: SearchNode | None,
     ) -> SidebarItem:
         "Add child sidebar item, and return it."
         item = SidebarItem(

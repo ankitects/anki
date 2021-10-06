@@ -7,7 +7,6 @@ import os
 import re
 import time
 from concurrent.futures import Future
-from typing import List, Optional
 
 import aqt
 from anki import hooks
@@ -29,21 +28,21 @@ class ExportDialog(QDialog):
     def __init__(
         self,
         mw: aqt.main.AnkiQt,
-        did: Optional[DeckId] = None,
-        cids: Optional[List[CardId]] = None,
+        did: DeckId | None = None,
+        cids: list[CardId] | None = None,
     ):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.col = mw.col.weakref()
         self.frm = aqt.forms.exporting.Ui_ExportDialog()
         self.frm.setupUi(self)
-        self.exporter: Optional[Exporter] = None
+        self.exporter: Exporter | None = None
         self.cids = cids
         disable_help_button(self)
         self.setup(did)
         self.exec_()
 
-    def setup(self, did: Optional[DeckId]) -> None:
+    def setup(self, did: DeckId | None) -> None:
         self.exporters = exporters(self.col)
         # if a deck specified, start with .apkg type selected
         idx = 0

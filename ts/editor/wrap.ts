@@ -5,7 +5,7 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
-import { wrapInternal } from "lib/wrap";
+import { wrapInternal } from "../lib/wrap";
 import { getCurrentField } from ".";
 
 export function wrap(front: string, back: string): void {

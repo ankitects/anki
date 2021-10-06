@@ -16,4 +16,5 @@ module.exports = {
         ],
     },
     env: { browser: true },
+    ignorePatterns: ["backend_proto.d.ts", "*.svelte.d.ts"],
 };

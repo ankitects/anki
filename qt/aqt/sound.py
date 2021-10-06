@@ -15,7 +15,7 @@ import wave
 from abc import ABC, abstractmethod
 from concurrent.futures import Future
 from operator import itemgetter
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 from markdown import markdown
 
@@ -60,7 +60,7 @@ class Player(ABC):
         """
 
     @abstractmethod
-    def rank_for_tag(self, tag: AVTag) -> Optional[int]:
+    def rank_for_tag(self, tag: AVTag) -> int | None:
         """How suited this player is to playing tag.
 
         AVPlayer will choose the player that returns the highest rank
@@ -105,7 +105,7 @@ def is_audio_file(fname: str) -> bool:
 class SoundOrVideoPlayer(Player):  # pylint: disable=abstract-method
     default_rank = 0
 
-    def rank_for_tag(self, tag: AVTag) -> Optional[int]:
+    def rank_for_tag(self, tag: AVTag) -> int | None:
         if isinstance(tag, SoundOrVideoTag):
             return self.default_rank
         else:
@@ -115,7 +115,7 @@ class SoundOrVideoPlayer(Player):  # pylint: disable=abstract-method
 class SoundPlayer(Player):  # pylint: disable=abstract-method
     default_rank = 0
 
-    def rank_for_tag(self, tag: AVTag) -> Optional[int]:
+    def rank_for_tag(self, tag: AVTag) -> int | None:
         if isinstance(tag, SoundOrVideoTag) and is_audio_file(tag.filename):
             return self.default_rank
         else:
@@ -125,7 +125,7 @@ class SoundPlayer(Player):  # pylint: disable=abstract-method
 class VideoPlayer(Player):  # pylint: disable=abstract-method
     default_rank = 0
 
-    def rank_for_tag(self, tag: AVTag) -> Optional[int]:
+    def rank_for_tag(self, tag: AVTag) -> int | None:
         if isinstance(tag, SoundOrVideoTag) and not is_audio_file(tag.filename):
             return self.default_rank
         else:
@@ -137,16 +137,16 @@ class VideoPlayer(Player):  # pylint: disable=abstract-method
 
 
 class AVPlayer:
-    players: List[Player] = []
+    players: list[Player] = []
     # when a new batch of audio is played, should the currently playing
     # audio be stopped?
     interrupt_current_audio = True
 
     def __init__(self) -> None:
-        self._enqueued: List[AVTag] = []
-        self.current_player: Optional[Player] = None
+        self._enqueued: list[AVTag] = []
+        self.current_player: Player | None = None
 
-    def play_tags(self, tags: List[AVTag]) -> None:
+    def play_tags(self, tags: list[AVTag]) -> None:
         """Clear the existing queue, then start playing provided tags."""
         self.clear_queue_and_maybe_interrupt()
         self._enqueued = tags[:]
@@ -185,7 +185,7 @@ class AVPlayer:
         if self.current_player:
             self.current_player.stop()
 
-    def _pop_next(self) -> Optional[AVTag]:
+    def _pop_next(self) -> AVTag | None:
         if not self._enqueued:
             return None
         return self._enqueued.pop(0)
@@ -212,7 +212,7 @@ class AVPlayer:
         else:
             tooltip(f"no players found for {tag}")
 
-    def _best_player_for_tag(self, tag: AVTag) -> Optional[Player]:
+    def _best_player_for_tag(self, tag: AVTag) -> Player | None:
         ranked = []
         for p in self.players:
             rank = p.rank_for_tag(tag)
@@ -234,7 +234,7 @@ av_player = AVPlayer()
 
 # return modified command array that points to bundled command, and return
 # required environment
-def _packagedCmd(cmd: List[str]) -> Tuple[Any, Dict[str, str]]:
+def _packagedCmd(cmd: list[str]) -> tuple[Any, dict[str, str]]:
     cmd = cmd[:]
     env = os.environ.copy()
     if "LD_LIBRARY_PATH" in env:
@@ -275,13 +275,13 @@ def retryWait(proc: subprocess.Popen) -> int:
 class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
     "A player that invokes a new process for each tag to play."
 
-    args: List[str] = []
-    env: Optional[Dict[str, str]] = None
+    args: list[str] = []
+    env: dict[str, str] | None = None
 
     def __init__(self, taskman: TaskManager) -> None:
         self._taskman = taskman
         self._terminate_flag = False
-        self._process: Optional[subprocess.Popen] = None
+        self._process: subprocess.Popen | None = None
 
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         self._terminate_flag = False
@@ -313,6 +313,11 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
             if self._terminate_flag:
                 self._process.terminate()
                 self._process.wait(1)
+                try:
+                    if self._process.stdin:
+                        self._process.stdin.close()
+                except Exception as e:
+                    print("unable to close stdin:", e)
                 self._process = None
                 return
 
@@ -321,6 +326,11 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
                 self._process.wait(0.1)
                 if self._process.returncode != 0:
                     print(f"player got return code: {self._process.returncode}")
+                try:
+                    if self._process.stdin:
+                        self._process.stdin.close()
+                except Exception as e:
+                    print("unable to close stdin:", e)
                 self._process = None
                 return
             except subprocess.TimeoutExpired:
@@ -378,7 +388,7 @@ class MpvManager(MPV, SoundOrVideoPlayer):
     def __init__(self, base_path: str) -> None:
         mpvPath, self.popenEnv = _packagedCmd(["mpv"])
         self.executable = mpvPath[0]
-        self._on_done: Optional[OnDoneCallback] = None
+        self._on_done: OnDoneCallback | None = None
         self.default_argv += [f"--config-dir={base_path}"]
         super().__init__(window_id=None, debug=False)
 
@@ -625,7 +635,7 @@ except:
 
 
 PYAU_CHANNELS = 1
-PYAU_INPUT_INDEX: Optional[int] = None
+PYAU_INPUT_INDEX: int | None = None
 
 
 class PyAudioThreadedRecorder(threading.Thread):
@@ -829,7 +839,7 @@ def playFromText(text: Any) -> None:
 # legacy globals
 _player = play
 _queueEraser = clearAudioQueue
-mpvManager: Optional["MpvManager"] = None
+mpvManager: MpvManager | None = None
 
 # add everything from this module into anki.sound for backwards compat
 _exports = [i for i in locals().items() if not i[0].startswith("__")]

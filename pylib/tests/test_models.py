@@ -268,7 +268,9 @@ def test_chained_mods():
     a1 = "<b>sentence</b>"
     q2 = '<span style="color:red">en chaine</span>'
     a2 = "<i>chained</i>"
-    note["Text"] = "This {{c1::%s::%s}} demonstrates {{c1::%s::%s}} clozes." % (
+    note[
+        "Text"
+    ] = "This {{{{c1::{}::{}}}}} demonstrates {{{{c1::{}::{}}}}} clozes.".format(
         q1,
         a1,
         q2,

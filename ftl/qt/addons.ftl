@@ -10,7 +10,6 @@ addons-config-validation-error = There was a problem with the provided configura
 addons-window-title = Add-ons
 addons-addon-has-no-configuration = Add-on has no configuration.
 addons-addon-installation-error = Add-on installation error
-addons-addon-was-not-downloaded-from-ankiweb = Add-on was not downloaded from AnkiWeb.
 addons-browse-addons = Browse Add-ons
 addons-changes-will-take-effect-when-anki = Changes will take effect when Anki is restarted.
 addons-check-for-updates = Check for Updates

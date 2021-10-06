@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
-from typing import Any, Callable, List, Optional, Sequence, Tuple, cast
+from typing import Any, Callable, Sequence, cast
 
 import aqt
 import aqt.forms
@@ -39,9 +38,18 @@ class Table:
             if self.col.get_config_bool(Config.Bool.BROWSER_TABLE_SHOW_NOTES_MODE)
             else CardState(self.col)
         )
-        self._model = DataModel(self.col, self._state)
-        self._view: Optional[QTableView] = None
-        self._current_item: Optional[ItemId] = None
+        self._model = DataModel(
+            self.col,
+            self._state,
+            self._on_row_state_will_change,
+            self._on_row_state_changed,
+        )
+        self._view: QTableView | None = None
+        # cached for performance
+        self._len_selection = 0
+        self._selected_rows: list[QModelIndex] | None = None
+        # temporarily set for selection preservation
+        self._current_item: ItemId | None = None
         self._selected_items: Sequence[ItemId] = []
 
     def set_view(self, view: QTableView) -> None:
@@ -60,8 +68,11 @@ class Table:
     def len(self) -> int:
         return self._model.len_rows()
 
-    def len_selection(self) -> int:
-        return len(self._view.selectionModel().selectedRows())
+    def len_selection(self, refresh: bool = False) -> int:
+        # `len(self._view.selectionModel().selectedRows())` is slow for large
+        # selections, because Qt queries flags() for every selected cell, so we
+        # calculate the number of selected rows ourselves
+        return self._len_selection
 
     def has_current(self) -> bool:
         return self._view.selectionModel().currentIndex().isValid()
@@ -77,17 +88,13 @@ class Table:
 
     # Get objects
 
-    def get_current_card(self) -> Optional[Card]:
-        if not self.has_current():
-            return None
+    def get_current_card(self) -> Card | None:
         return self._model.get_card(self._current())
 
-    def get_current_note(self) -> Optional[Note]:
-        if not self.has_current():
-            return None
+    def get_current_note(self) -> Note | None:
         return self._model.get_note(self._current())
 
-    def get_single_selected_card(self) -> Optional[Card]:
+    def get_single_selected_card(self) -> Card | None:
         """If there is only one row selected return its card, else None.
         This may be a different one than the current card."""
         if self.len_selection() != 1:
@@ -111,6 +118,8 @@ class Table:
         self._view.selectAll()
 
     def clear_selection(self) -> None:
+        self._len_selection = 0
+        self._selected_rows = None
         self._view.selectionModel().clear()
 
     def invert_selection(self) -> None:
@@ -126,10 +135,13 @@ class Table:
 
     def select_single_card(self, card_id: CardId) -> None:
         """Try to set the selection to the item corresponding to the given card."""
-        self.clear_selection()
+        self._reset_selection()
         if (row := self._model.get_card_row(card_id)) is not None:
             self._view.selectRow(row)
             self._scroll_to_row(row, scroll_even_if_visible=True)
+        else:
+            self.browser.on_all_or_selected_rows_changed()
+            self.browser.on_current_row_changed()
 
     # Reset
 
@@ -158,7 +170,7 @@ class Table:
         self._model.redraw_cells()
 
     def op_executed(
-        self, changes: OpChanges, handler: Optional[object], focused: bool
+        self, changes: OpChanges, handler: object | None, focused: bool
     ) -> None:
         if changes.browser_table:
             self._model.mark_cache_stale()
@@ -201,6 +213,44 @@ class Table:
     def to_last_row(self) -> None:
         self._move_current_to_row(self._model.len_rows() - 1)
 
+    def to_row_of_unselected_note(self) -> Sequence[NoteId]:
+        """Select and set focus to a row whose note is not selected, trying
+        the rows below the bottomost, then above the topmost selected row.
+        If that's not possible, clear selection.
+        Return previously selected note ids.
+        """
+        nids = self.get_selected_note_ids()
+
+        bottom = max(r.row() for r in self._selected()) + 1
+        for row in range(bottom, self.len()):
+            index = self._model.index(row, 0)
+            if self._model.get_row(index).is_deleted:
+                continue
+            if self._model.get_note_id(index) in nids:
+                continue
+            self._move_current_to_row(row)
+            return nids
+
+        top = min(r.row() for r in self._selected()) - 1
+        for row in range(top, -1, -1):
+            index = self._model.index(row, 0)
+            if self._model.get_row(index).is_deleted:
+                continue
+            if self._model.get_note_id(index) in nids:
+                continue
+            self._move_current_to_row(row)
+            return nids
+
+        self._reset_selection()
+        self.browser.on_all_or_selected_rows_changed()
+        self.browser.on_current_row_changed()
+        return nids
+
+    def clear_current(self) -> None:
+        self._view.selectionModel().setCurrentIndex(
+            QModelIndex(), QItemSelectionModel.NoUpdate
+        )
+
     # Private methods
     ######################################################################
 
@@ -209,8 +259,10 @@ class Table:
     def _current(self) -> QModelIndex:
         return self._view.selectionModel().currentIndex()
 
-    def _selected(self) -> List[QModelIndex]:
-        return self._view.selectionModel().selectedRows()
+    def _selected(self) -> list[QModelIndex]:
+        if self._selected_rows is None:
+            self._selected_rows = self._view.selectionModel().selectedRows()
+        return self._selected_rows
 
     def _set_current(self, row: int, column: int = 0) -> None:
         index = self._model.index(
@@ -218,7 +270,16 @@ class Table:
         )
         self._view.selectionModel().setCurrentIndex(index, QItemSelectionModel.NoUpdate)
 
-    def _select_rows(self, rows: List[int]) -> None:
+    def _reset_selection(self) -> None:
+        """Remove selection and focus without emitting signals.
+        If no selection change is triggerd afterwards, `browser.on_all_or_selected_rows_changed()`
+        and `browser.on_current_row_changed()` must be called.
+        """
+        self._view.selectionModel().reset()
+        self._len_selection = 0
+        self._selected_rows = None
+
+    def _select_rows(self, rows: list[int]) -> None:
         selection = QItemSelection()
         for row in rows:
             selection.select(
@@ -269,8 +330,9 @@ class Table:
         self._view.selectionModel()
         self._view.setItemDelegate(StatusDelegate(self.browser, self._model))
         qconnect(
-            self._view.selectionModel().selectionChanged, self.browser.onRowChanged
+            self._view.selectionModel().selectionChanged, self._on_selection_changed
         )
+        qconnect(self._view.selectionModel().currentChanged, self._on_current_changed)
         self._view.setWordWrap(False)
         self._view.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
         self._view.horizontalScrollBar().setSingleStep(10)
@@ -315,6 +377,58 @@ class Table:
 
     # Slots
 
+    def _on_current_changed(self, current: QModelIndex, previous: QModelIndex) -> None:
+        if current.row() != previous.row():
+            self.browser.on_current_row_changed()
+
+    def _on_selection_changed(
+        self, selected: QItemSelection, deselected: QItemSelection
+    ) -> None:
+        # `selection.indexes()` calls `flags()` for all the selection's indexes,
+        # whereas `selectedRows()` calls it for the indexes of the resulting selection.
+        # Both may be slow, so we try to optimise.
+        if KeyboardModifiersPressed().shift or KeyboardModifiersPressed().control:
+            # Current selection is modified. The number of added/removed rows is
+            # usually smaller than the number of rows in the resulting selection.
+            self._len_selection += (
+                len(selected.indexes()) - len(deselected.indexes())
+            ) // self._model.len_columns()
+        else:
+            # New selection is created. Usually a single row or none at all.
+            self._len_selection = len(self._view.selectionModel().selectedRows())
+        self._selected_rows = None
+        self.browser.on_all_or_selected_rows_changed()
+
+    def _on_row_state_will_change(self, index: QModelIndex, was_restored: bool) -> None:
+        if not was_restored:
+            if self._view.selectionModel().isSelected(index):
+                self._len_selection -= 1
+                self._selected_rows = None
+                self.browser.on_all_or_selected_rows_changed()
+            if index.row() == self._current().row():
+                # avoid focus on deleted (disabled) rows
+                self.clear_current()
+                self.browser.on_current_row_changed()
+
+    def _on_row_state_changed(self, index: QModelIndex, was_restored: bool) -> None:
+        if was_restored:
+            if self._view.selectionModel().isSelected(index):
+                self._len_selection += 1
+                self._selected_rows = None
+                self.browser.on_all_or_selected_rows_changed()
+            elif not self._current().isValid() and self.len_selection() == 0:
+                # restore focus for convenience
+                self._select_rows([index.row()])
+                self._set_current(index.row())
+                self._scroll_to_row(index.row())
+                # row change and redraw have been triggered
+                return
+        # Workaround for a bug where the flags for the first column don't update
+        # automatically (due to the shortcut in 'model.flags()')
+        top_left = self._model.index(index.row(), 0)
+        bottom_right = self._model.index(index.row(), self._model.len_columns() - 1)
+        self._model.dataChanged.emit(top_left, bottom_right)  # type: ignore
+
     def _on_context_menu(self, _point: QPoint) -> None:
         menu = QMenu()
         if self.is_notes_mode():
@@ -338,10 +452,12 @@ class Table:
     def _on_header_context(self, pos: QPoint) -> None:
         gpos = self._view.mapToGlobal(pos)
         m = QMenu()
+        m.setToolTipsVisible(True)
         for key, column in self._model.columns.items():
             a = m.addAction(self._state.column_label(column))
             a.setCheckable(True)
             a.setChecked(self._model.active_column_index(key) is not None)
+            a.setToolTip(self._state.column_tooltip(column))
             qconnect(
                 a.toggled,
                 lambda checked, key=key: self._on_column_toggled(checked, key),
@@ -400,7 +516,7 @@ class Table:
         """Restore the saved selection and current element as far as possible and scroll to the
         new current element. Clear the saved selection.
         """
-        self.clear_selection()
+        self._reset_selection()
         if not self._model.is_empty():
             rows, current = new_selected_and_current()
             rows = self._qualify_selected_rows(rows, current)
@@ -410,13 +526,12 @@ class Table:
             self._scroll_to_row(current)
         if self.len_selection() == 0:
             # no row change will fire
-            self.browser.onRowChanged(QItemSelection(), QItemSelection())
+            self.browser.on_all_or_selected_rows_changed()
+            self.browser.on_current_row_changed()
         self._selected_items = []
         self._current_item = None
 
-    def _qualify_selected_rows(
-        self, rows: List[int], current: Optional[int]
-    ) -> List[int]:
+    def _qualify_selected_rows(self, rows: list[int], current: int | None) -> list[int]:
         """Return between 1 and SELECTION_LIMIT rows, as far as possible from rows or current."""
         if rows:
             if len(rows) < self.SELECTION_LIMIT:
@@ -426,7 +541,7 @@ class Table:
             return rows[0:1]
         return [current if current else 0]
 
-    def _intersected_selection(self) -> Tuple[List[int], Optional[int]]:
+    def _intersected_selection(self) -> tuple[list[int], int | None]:
         """Return all rows of items that were in the saved selection and the row of the saved
         current element if present.
         """
@@ -436,7 +551,7 @@ class Table:
         )
         return selected_rows, current_row
 
-    def _toggled_selection(self) -> Tuple[List[int], Optional[int]]:
+    def _toggled_selection(self) -> tuple[list[int], int | None]:
         """Convert the items of the saved selection and current element to the new state and
         return their rows.
         """

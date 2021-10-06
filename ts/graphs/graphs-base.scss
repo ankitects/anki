@@ -1,5 +1,5 @@
-@use 'base';
-@use 'scrollbar';
+@use "base";
+@use "scrollbar";
 
 .night-mode {
     @include scrollbar.night-mode;

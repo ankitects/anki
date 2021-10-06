@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import sys
 import traceback
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Sequence, Union
 from weakref import ref
 
 from markdown import markdown
@@ -59,7 +59,7 @@ class RustBackend(RustBackendGenerated):
 
     def __init__(
         self,
-        langs: Optional[List[str]] = None,
+        langs: list[str] | None = None,
         server: bool = False,
     ) -> None:
         # pick up global defaults if not provided
@@ -74,12 +74,12 @@ class RustBackend(RustBackendGenerated):
 
     def db_query(
         self, sql: str, args: Sequence[ValueForDB], first_row_only: bool
-    ) -> List[DBRow]:
+    ) -> list[DBRow]:
         return self._db_command(
             dict(kind="query", sql=sql, args=args, first_row_only=first_row_only)
         )
 
-    def db_execute_many(self, sql: str, args: List[List[ValueForDB]]) -> List[DBRow]:
+    def db_execute_many(self, sql: str, args: list[list[ValueForDB]]) -> list[DBRow]:
         return self._db_command(dict(kind="executemany", sql=sql, args=args))
 
     def db_begin(self) -> None:
@@ -91,17 +91,18 @@ class RustBackend(RustBackendGenerated):
     def db_rollback(self) -> None:
         return self._db_command(dict(kind="rollback"))
 
-    def _db_command(self, input: Dict[str, Any]) -> Any:
+    def _db_command(self, input: dict[str, Any]) -> Any:
+        bytes_input = to_json_bytes(input)
         try:
-            return from_json_bytes(self._backend.db_command(to_json_bytes(input)))
+            return from_json_bytes(self._backend.db_command(bytes_input))
         except Exception as e:
-            err_bytes = bytes(e.args[0])
+            err_bytes = e.args[0]
         err = backend_pb2.BackendError()
         err.ParseFromString(err_bytes)
         raise backend_exception_to_pylib(err)
 
     def translate(
-        self, module_index: int, message_index: int, **kwargs: Union[str, int, float]
+        self, module_index: int, message_index: int, **kwargs: str | int | float
     ) -> str:
         return self.translate_string(
             translate_string_in(
@@ -132,7 +133,7 @@ class RustBackend(RustBackendGenerated):
 
 
 def translate_string_in(
-    module_index: int, message_index: int, **kwargs: Union[str, int, float]
+    module_index: int, message_index: int, **kwargs: str | int | float
 ) -> i18n_pb2.TranslateStringRequest:
     args = {}
     for (k, v) in kwargs.items():
@@ -146,10 +147,10 @@ def translate_string_in(
 
 
 class Translations(GeneratedTranslations):
-    def __init__(self, backend: Optional[ref[RustBackend]]):
+    def __init__(self, backend: ref[RustBackend] | None):
         self.backend = backend
 
-    def __call__(self, key: Tuple[int, int], **kwargs: Any) -> str:
+    def __call__(self, key: tuple[int, int], **kwargs: Any) -> str:
         "Mimic the old col.tr / TR interface"
         if "pytest" not in sys.modules:
             traceback.print_stack(file=sys.stdout)
@@ -161,7 +162,7 @@ class Translations(GeneratedTranslations):
         )
 
     def _translate(
-        self, module: int, message: int, args: Dict[str, Union[str, int, float]]
+        self, module: int, message: int, args: dict[str, str | int | float]
     ) -> str:
         return self.backend().translate(
             module_index=module, message_index=message, **args

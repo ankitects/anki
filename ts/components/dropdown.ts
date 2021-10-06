@@ -3,5 +3,5 @@
 export interface DropdownProps {
     dropdown: boolean;
     "data-bs-toggle"?: string;
-    "aria-expanded"?: string;
+    "aria-expanded"?: boolean | "true" | "false";
 }

@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import List, Union
+from typing import Union
 
 
 @dataclass
@@ -23,10 +23,10 @@ class TTSTag:
 
     field_text: str
     lang: str
-    voices: List[str]
+    voices: list[str]
     speed: float
     # each arg should be in the form 'foo=bar'
-    other_args: List[str]
+    other_args: list[str]
 
 
 @dataclass

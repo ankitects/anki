@@ -46,6 +46,8 @@ compile_data_attr = "glob([\"**/*.rsv\"])"
 [package.metadata.raze.crates.unic-ucd-category.'*']
 compile_data_attr = "glob([\"**/*.rsv\"])"
 
+[package.metadata.raze.crates.pyo3-build-config.'*']
+buildrs_additional_environment_variables = { "PYO3_NO_PYTHON" = "1" }
 
 [patch.crates-io]
 reqwest = { git="https://github.com/ankitects/reqwest.git", rev="7591444614de02b658ddab125efba7b2bb4e2335" }

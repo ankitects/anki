@@ -75,7 +75,7 @@ pub(crate) fn open_and_check_collection(col_path: &Path) -> Result<Collection> {
     use crate::log;
     let tr = I18n::template_only();
     let empty = Path::new("");
-    open_collection(col_path, &empty, &empty, true, tr, log::terminal())
+    open_collection(col_path, empty, empty, true, tr, log::terminal())
 }
 
 #[derive(Debug, Default)]

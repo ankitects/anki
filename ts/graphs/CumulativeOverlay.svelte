@@ -1,9 +1,11 @@
-<path class="cumulative-overlay" />
-
 <!--
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
+<script lang="ts"></script>
+
+<path class="cumulative-overlay" />
+
 <style lang="scss">
     :global(:root) {
         --area-fill: #000000;

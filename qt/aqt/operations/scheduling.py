@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, Sequence
+from typing import Sequence
 
 import aqt
 from anki.cards import CardId
@@ -29,8 +29,8 @@ def set_due_date_dialog(
     *,
     parent: QWidget,
     card_ids: Sequence[CardId],
-    config_key: Optional[Config.String.V],
-) -> Optional[CollectionOp[OpChanges]]:
+    config_key: Config.String.V | None,
+) -> CollectionOp[OpChanges] | None:
     assert aqt.mw
     if not card_ids:
         return None
@@ -77,7 +77,7 @@ def forget_cards(
 
 def reposition_new_cards_dialog(
     *, parent: QWidget, card_ids: Sequence[CardId]
-) -> Optional[CollectionOp[OpChangesWithCount]]:
+) -> CollectionOp[OpChangesWithCount] | None:
     from aqt import mw
 
     assert mw

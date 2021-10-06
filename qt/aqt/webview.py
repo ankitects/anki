@@ -5,7 +5,7 @@ import dataclasses
 import json
 import re
 import sys
-from typing import Any, Callable, List, Optional, Sequence, Tuple, cast
+from typing import Any, Callable, Optional, Sequence, cast
 
 import anki
 from anki.lang import is_rtl
@@ -206,8 +206,8 @@ class WebContent:
 
     body: str = ""
     head: str = ""
-    css: List[str] = dataclasses.field(default_factory=lambda: [])
-    js: List[str] = dataclasses.field(default_factory=lambda: [])
+    css: list[str] = dataclasses.field(default_factory=lambda: [])
+    js: list[str] = dataclasses.field(default_factory=lambda: [])
 
 
 # Main web view
@@ -232,7 +232,7 @@ class AnkiWebView(QWebEngineView):
         self.onBridgeCmd: Callable[[str], Any] = self.defaultOnBridgeCmd
 
         self._domDone = True
-        self._pendingActions: List[Tuple[str, Sequence[Any]]] = []
+        self._pendingActions: list[tuple[str, Sequence[Any]]] = []
         self.requiresCol = True
         self.setPage(self._page)
 
@@ -415,22 +415,22 @@ border-radius:5px; font-family: Helvetica }"""
             font = f'font-size:14px;font-family:"{family}";'
             button_style = """
 /* Buttons */
-button{ 
-        background-color: %(color_btn)s;
-        font-family:"%(family)s"; }
-button:focus{ border-color: %(color_hl)s }
-button:active, button:active:hover { background-color: %(color_hl)s; color: %(color_hl_txt)s;}
+button{{ 
+        background-color: {color_btn};
+        font-family:"{family}"; }}
+button:focus{{ border-color: {color_hl} }}
+button:active, button:active:hover {{ background-color: {color_hl}; color: {color_hl_txt};}}
 /* Input field focus outline */
 textarea:focus, input:focus, input[type]:focus, .uneditable-input:focus,
-div[contenteditable="true"]:focus {   
+div[contenteditable="true"]:focus {{   
     outline: 0 none;
-    border-color: %(color_hl)s;
-}""" % {
-                "family": family,
-                "color_btn": color_btn,
-                "color_hl": color_hl,
-                "color_hl_txt": color_hl_txt,
-            }
+    border-color: {color_hl};
+}}""".format(
+                family=family,
+                color_btn=color_btn,
+                color_hl=color_hl,
+                color_hl_txt=color_hl_txt,
+            )
 
         zoom = self.zoomFactor()
 
@@ -454,25 +454,26 @@ html {{ {font} }}
     def stdHtml(
         self,
         body: str,
-        css: Optional[List[str]] = None,
-        js: Optional[List[str]] = None,
+        css: Optional[list[str]] = None,
+        js: Optional[list[str]] = None,
         head: str = "",
         context: Optional[Any] = None,
         default_css: bool = True,
     ) -> None:
-
+        css = (["css/webview.css"] if default_css else []) + (
+            [] if css is None else css
+        )
         web_content = WebContent(
             body=body,
             head=head,
             js=["js/webview.js"] + (["js/vendor/jquery.min.js"] if js is None else js),
-            css=(["css/webview.css"] if default_css else [])
-            + ([] if css is None else css),
+            css=css,
         )
 
         gui_hooks.webview_will_set_content(web_content, context)
 
         csstxt = ""
-        if "css/webview.css" in web_content.css:
+        if "css/webview.css" in css:
             # we want our dynamic styling to override the defaults in
             # css/webview.css, but come before user-provided stylesheets so that
             # they can override us if necessary

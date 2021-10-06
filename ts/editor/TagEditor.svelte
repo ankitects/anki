@@ -4,15 +4,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { tick } from "svelte";
-    import { isApplePlatform } from "lib/platform";
-    import { bridgeCommand } from "lib/bridgecommand";
-    import StickyFooter from "components/StickyFooter.svelte";
+    import { isApplePlatform } from "../lib/platform";
+    import { bridgeCommand } from "../lib/bridgecommand";
+    import StickyFooter from "../components/StickyFooter.svelte";
     import TagOptionsBadge from "./TagOptionsBadge.svelte";
     import TagEditMode from "./TagEditMode.svelte";
     import TagInput from "./TagInput.svelte";
     import Tag from "./Tag.svelte";
     import WithAutocomplete from "./WithAutocomplete.svelte";
-    import ButtonToolbar from "components/ButtonToolbar.svelte";
+    import ButtonToolbar from "../components/ButtonToolbar.svelte";
     import type { Tag as TagType } from "./tags";
     import {
         attachId,
@@ -20,8 +20,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         replaceWithUnicodeSeparator,
         replaceWithColons,
     } from "./tags";
-    import { Tags } from "lib/proto";
-    import { postRequest } from "lib/postrequest";
+    import { Tags } from "../lib/proto";
+    import { postRequest } from "../lib/postrequest";
+    import { execCommand } from "./helpers";
 
     export let tags: TagType[] = [];
 
@@ -355,7 +356,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         textarea.style.left = "-9999px";
         document.body.appendChild(textarea);
         textarea.select();
-        document.execCommand("copy");
+        execCommand("copy");
         document.body.removeChild(textarea);
     }
 

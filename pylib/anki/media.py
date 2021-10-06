@@ -8,7 +8,7 @@ import pprint
 import re
 import sys
 import time
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Callable
 
 from anki import media_pb2
 from anki.consts import *
@@ -19,7 +19,7 @@ from anki.template import av_tags_to_native
 from anki.utils import intTime
 
 
-def media_paths_from_col_path(col_path: str) -> Tuple[str, str]:
+def media_paths_from_col_path(col_path: str) -> tuple[str, str]:
     media_folder = re.sub(r"(?i)\.(anki2)$", ".media", col_path)
     media_db = f"{media_folder}.db2"
     return (media_folder, media_db)
@@ -50,7 +50,7 @@ class MediaManager:
 
     def __init__(self, col: anki.collection.Collection, server: bool) -> None:
         self.col = col.weakref()
-        self._dir: Optional[str] = None
+        self._dir: str | None = None
         if server:
             return
         # media directory
@@ -88,7 +88,7 @@ class MediaManager:
                 # may have been deleted
                 pass
 
-    def dir(self) -> Optional[str]:
+    def dir(self) -> str | None:
         return self._dir
 
     def force_resync(self) -> None:
@@ -106,7 +106,7 @@ class MediaManager:
     def strip_av_tags(self, text: str) -> str:
         return self.col._backend.strip_av_tags(text)
 
-    def _extract_filenames(self, text: str) -> List[str]:
+    def _extract_filenames(self, text: str) -> list[str]:
         "This only exists do support a legacy function; do not use."
         out = self.col._backend.extract_av_tags(text=text, question_side=True)
         return [
@@ -148,7 +148,7 @@ class MediaManager:
     def have(self, fname: str) -> bool:
         return os.path.exists(os.path.join(self.dir(), fname))
 
-    def trash_files(self, fnames: List[str]) -> None:
+    def trash_files(self, fnames: list[str]) -> None:
         "Move provided files to the trash."
         self.col._backend.trash_media_files(fnames)
 
@@ -157,7 +157,7 @@ class MediaManager:
 
     def filesInStr(
         self, mid: NotetypeId, string: str, includeRemote: bool = False
-    ) -> List[str]:
+    ) -> list[str]:
         l = []
         model = self.col.models.get(mid)
         # handle latex
@@ -204,8 +204,8 @@ class MediaManager:
         return output
 
     def render_all_latex(
-        self, progress_cb: Optional[Callable[[int], bool]] = None
-    ) -> Optional[Tuple[int, str]]:
+        self, progress_cb: Callable[[int], bool] | None = None
+    ) -> tuple[int, str] | None:
         """Render any LaTeX that is missing.
 
         If a progress callback is provided and it returns false, the operation
@@ -260,7 +260,7 @@ class MediaManager:
 
     addFile = add_file
 
-    def writeData(self, opath: str, data: bytes, typeHint: Optional[str] = None) -> str:
+    def writeData(self, opath: str, data: bytes, typeHint: str | None = None) -> str:
         fname = os.path.basename(opath)
         if typeHint:
             fname = self.add_extension_based_on_mime(fname, typeHint)

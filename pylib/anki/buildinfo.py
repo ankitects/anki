@@ -3,7 +3,6 @@
 
 import os
 import sys
-from typing import Dict
 
 
 def _build_info_path() -> str:
@@ -19,9 +18,9 @@ def _build_info_path() -> str:
     raise Exception("missing buildinfo.txt")
 
 
-def _get_build_info() -> Dict[str, str]:
+def _get_build_info() -> dict[str, str]:
     info = {}
-    with open(_build_info_path()) as file:
+    with open(_build_info_path(), encoding="utf8") as file:
         for line in file.readlines():
             elems = line.split()
             if len(elems) == 2:

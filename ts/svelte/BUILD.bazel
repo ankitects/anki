@@ -14,6 +14,7 @@ _deps = [
 ts_library(
     name = "svelte_bin_ts",
     srcs = ["svelte.ts"],
+    tsconfig = "//ts:tsconfig_bin",
     deps = _deps,
 )
 

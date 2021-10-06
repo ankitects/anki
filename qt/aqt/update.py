@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import time
-from typing import Any, Dict
+from typing import Any
 
 import requests
 
@@ -24,7 +24,7 @@ class LatestVersionFinder(QThread):
         self.main = main
         self.config = main.pm.meta
 
-    def _data(self) -> Dict[str, Any]:
+    def _data(self) -> dict[str, Any]:
         return {
             "ver": versionWithBuild(),
             "os": platDesc(),
@@ -73,6 +73,6 @@ def askAndUpdate(mw: aqt.AnkiQt, ver: str) -> None:
         openLink(aqt.appWebsite)
 
 
-def showMessages(mw: aqt.AnkiQt, data: Dict) -> None:
+def showMessages(mw: aqt.AnkiQt, data: dict) -> None:
     showText(data["msg"], parent=mw, type="html")
     mw.pm.meta["lastMsg"] = data["msgId"]

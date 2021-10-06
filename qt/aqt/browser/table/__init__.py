@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
 import time
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Generator, Optional, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, Generator, Sequence, Union
 
 import aqt
 from anki.cards import CardId
@@ -24,10 +23,10 @@ ItemList = Union[Sequence[CardId], Sequence[NoteId]]
 class SearchContext:
     search: str
     browser: aqt.browser.Browser
-    order: Union[bool, str, Column] = True
+    order: bool | str | Column = True
     reverse: bool = False
     # if set, provided ids will be used instead of the regular search
-    ids: Optional[Sequence[ItemId]] = None
+    ids: Sequence[ItemId] | None = None
 
 
 @dataclass
@@ -41,14 +40,14 @@ class CellRow:
 
     def __init__(
         self,
-        cells: Generator[Tuple[str, bool], None, None],
+        cells: Generator[tuple[str, bool], None, None],
         color: BrowserRow.Color.V,
         font_name: str,
         font_size: int,
     ) -> None:
         self.refreshed_at: float = time.time()
-        self.cells: Tuple[Cell, ...] = tuple(Cell(*cell) for cell in cells)
-        self.color: Optional[Tuple[str, str]] = backend_color_to_aqt_color(color)
+        self.cells: tuple[Cell, ...] = tuple(Cell(*cell) for cell in cells)
+        self.color: tuple[str, str] | None = backend_color_to_aqt_color(color)
         self.font_name: str = font_name or "arial"
         self.font_size: int = font_size if font_size > 0 else 12
 
@@ -75,7 +74,7 @@ class CellRow:
         return row
 
 
-def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> Optional[Tuple[str, str]]:
+def backend_color_to_aqt_color(color: BrowserRow.Color.V) -> tuple[str, str] | None:
     if color == BrowserRow.COLOR_MARKED:
         return colors.MARKED_BG
     if color == BrowserRow.COLOR_SUSPENDED:

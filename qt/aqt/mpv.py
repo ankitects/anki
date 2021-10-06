@@ -1,4 +1,3 @@
-# coding: utf-8
 # ------------------------------------------------------------------------------
 #
 # mpv.py - Control mpv from Python using JSON IPC
@@ -41,7 +40,7 @@ from distutils.spawn import (  # pylint: disable=import-error,no-name-in-module
     find_executable,
 )
 from queue import Empty, Full, Queue
-from typing import Dict, Optional
+from typing import Optional
 
 from anki.utils import isWin
 
@@ -80,7 +79,7 @@ class MPVBase:
     """
 
     executable = find_executable("mpv")
-    popenEnv: Optional[Dict[str, str]] = None
+    popenEnv: Optional[dict[str, str]] = None
 
     default_argv = [
         "--idle",

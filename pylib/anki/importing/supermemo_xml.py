@@ -9,7 +9,7 @@ import sys
 import time
 import unicodedata
 from string import capwords
-from typing import List, Optional, Union
+from typing import Optional, Union
 from xml.dom import minidom
 from xml.dom.minidom import Element, Text
 
@@ -185,7 +185,7 @@ class SupermemoXmlImporter(NoteImporter):
 
     ## DEFAULT IMPORTER METHODS
 
-    def foreignNotes(self) -> List[ForeignNote]:
+    def foreignNotes(self) -> list[ForeignNote]:
 
         # Load file and parse it by minidom
         self.loadSource(self.file)
@@ -311,7 +311,7 @@ class SupermemoXmlImporter(NoteImporter):
 
         # try to open with native open function (if source is pathname)
         try:
-            return open(source)
+            return open(source, encoding="utf8")
         except OSError:
             pass
 
@@ -324,7 +324,7 @@ class SupermemoXmlImporter(NoteImporter):
         """Load source file and parse with xml.dom.minidom"""
         self.source = source
         self.logger("Load started...")
-        sock = open(self.source)
+        sock = open(self.source, encoding="utf8")
         self.xmldoc = minidom.parse(sock).documentElement
         sock.close()
         self.logger("Load done.")
@@ -415,7 +415,7 @@ class SupermemoXmlImporter(NoteImporter):
                     self.logger("-" * 45, level=3)
                     for key in list(smel.keys()):
                         self.logger(
-                            "\t%s %s" % ((key + ":").ljust(15), smel[key]), level=3
+                            "\t{} {}".format((key + ":").ljust(15), smel[key]), level=3
                         )
             else:
                 self.logger("Element skiped  \t- no valid Q and A ...", level=3)

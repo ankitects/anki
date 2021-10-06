@@ -17,12 +17,11 @@ import time
 import traceback
 from contextlib import contextmanager
 from hashlib import sha1
-from html.entities import name2codepoint
-from typing import Any, Iterable, Iterator, List, Match, Optional, Union
+from typing import Any, Iterable, Iterator
 
 from anki.dbproxy import DBProxy
 
-_tmpdir: Optional[str]
+_tmpdir: str | None
 
 try:
     # pylint: disable=c-extension-no-member
@@ -55,37 +54,23 @@ def intTime(scale: int = 1) -> int:
 
 # HTML
 ##############################################################################
-reComment = re.compile("(?s)<!--.*?-->")
-reStyle = re.compile("(?si)<style.*?>.*?</style>")
-reScript = re.compile("(?si)<script.*?>.*?</script>")
-reTag = re.compile("(?s)<.*?>")
-reEnts = re.compile(r"&#?\w+;")
-reMedia = re.compile("(?i)<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>")
 
 
 def stripHTML(s: str) -> str:
-    s = reComment.sub("", s)
-    s = reStyle.sub("", s)
-    s = reScript.sub("", s)
-    s = reTag.sub("", s)
-    s = entsToTxt(s)
-    return s
+    import anki.lang
+    from anki.collection import StripHtmlMode
+
+    return anki.lang.current_i18n.strip_html(text=s, mode=StripHtmlMode.NORMAL)
 
 
 def stripHTMLMedia(s: str) -> str:
     "Strip HTML but keep media filenames"
-    s = reMedia.sub(" \\1 ", s)
-    return stripHTML(s)
+    import anki.lang
+    from anki.collection import StripHtmlMode
 
-
-def minimizeHTML(s: str) -> str:
-    "Correct Qt's verbose bold/underline/etc."
-    s = re.sub('<span style="font-weight:600;">(.*?)</span>', "<b>\\1</b>", s)
-    s = re.sub('<span style="font-style:italic;">(.*?)</span>', "<i>\\1</i>", s)
-    s = re.sub(
-        '<span style="text-decoration: underline;">(.*?)</span>', "<u>\\1</u>", s
+    return anki.lang.current_i18n.strip_html(
+        text=s, mode=StripHtmlMode.PRESERVE_MEDIA_FILENAMES
     )
-    return s
 
 
 def htmlToTextLine(s: str) -> str:
@@ -100,40 +85,13 @@ def htmlToTextLine(s: str) -> str:
     return s
 
 
-def entsToTxt(html: str) -> str:
-    # entitydefs defines nbsp as \xa0 instead of a standard space, so we
-    # replace it first
-    html = html.replace("&nbsp;", " ")
-
-    def fixup(m: Match) -> str:
-        text = m.group(0)
-        if text[:2] == "&#":
-            # character reference
-            try:
-                if text[:3] == "&#x":
-                    return chr(int(text[3:-1], 16))
-                else:
-                    return chr(int(text[2:-1]))
-            except ValueError:
-                pass
-        else:
-            # named entity
-            try:
-                text = chr(name2codepoint[text[1:-1]])
-            except KeyError:
-                pass
-        return text  # leave as is
-
-    return reEnts.sub(fixup, html)
-
-
 # IDs
 ##############################################################################
 
 
-def ids2str(ids: Iterable[Union[int, str]]) -> str:
+def ids2str(ids: Iterable[int | str]) -> str:
     """Given a list of integers, return a string '(int1,int2,...)'."""
-    return "(%s)" % ",".join(str(i) for i in ids)
+    return f"({','.join(str(i) for i in ids)})"
 
 
 def timestampID(db: DBProxy, table: str) -> int:
@@ -182,11 +140,11 @@ def guid64() -> str:
 ##############################################################################
 
 
-def joinFields(list: List[str]) -> str:
+def joinFields(list: list[str]) -> str:
     return "\x1f".join(list)
 
 
-def splitFields(string: str) -> List[str]:
+def splitFields(string: str) -> list[str]:
     return string.split("\x1f")
 
 
@@ -194,7 +152,7 @@ def splitFields(string: str) -> List[str]:
 ##############################################################################
 
 
-def checksum(data: Union[bytes, str]) -> str:
+def checksum(data: bytes | str) -> str:
     if isinstance(data, str):
         data = data.encode("utf-8")
     return sha1(data).hexdigest()
@@ -260,7 +218,7 @@ def noBundledLibs() -> Iterator[None]:
         os.environ["LD_LIBRARY_PATH"] = oldlpath
 
 
-def call(argv: List[str], wait: bool = True, **kwargs: Any) -> int:
+def call(argv: list[str], wait: bool = True, **kwargs: Any) -> int:
     "Execute a command. If WAIT, return exit code."
     # ensure we don't open a separate window for forking process on windows
     if isWin:
@@ -304,7 +262,7 @@ devMode = os.getenv("ANKIDEV", "")
 invalidFilenameChars = ':*?"<>|'
 
 
-def invalidFilename(str: str, dirsep: bool = True) -> Optional[str]:
+def invalidFilename(str: str, dirsep: bool = True) -> str | None:
     for c in invalidFilenameChars:
         if c in str:
             return c

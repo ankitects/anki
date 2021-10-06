@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-from typing import Tuple
 
 from aqt import colors
 from aqt.qt import *
@@ -22,8 +20,8 @@ class Switch(QAbstractButton):
         radius: int = 10,
         left_label: str = "",
         right_label: str = "",
-        left_color: Tuple[str, str] = colors.FLAG4_BG,
-        right_color: Tuple[str, str] = colors.FLAG3_BG,
+        left_color: tuple[str, str] = colors.FLAG4_BG,
+        right_color: tuple[str, str] = colors.FLAG3_BG,
         parent: QWidget = None,
     ) -> None:
         super().__init__(parent=parent)

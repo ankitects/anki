@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-from typing import List, Optional
+
+from typing import Optional
 
 from anki.models import NotetypeId
 from aqt import AnkiQt, gui_hooks
@@ -98,7 +99,7 @@ class NotetypeChooser(QHBoxLayout):
         edit = QPushButton(tr.qt_misc_manage())
         qconnect(edit.clicked, self.onEdit)
 
-        def nameFunc() -> List[str]:
+        def nameFunc() -> list[str]:
             return sorted(self.mw.col.models.all_names())
 
         ret = StudyDeck(

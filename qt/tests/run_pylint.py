@@ -21,5 +21,6 @@ if __name__ == "__main__":
             "-j",
             str(min(4, multiprocessing.cpu_count())),
             "-v",
+            "--persistent=no",
         ]
     )

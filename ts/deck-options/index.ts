@@ -5,13 +5,13 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import "sveltelib/export-runtime";
+import "../sveltelib/export-runtime";
 
 import { getDeckOptionsInfo, DeckOptionsState } from "./lib";
-import { setupI18n, ModuleName } from "lib/i18n";
-import { checkNightMode } from "lib/nightmode";
+import { setupI18n, ModuleName } from "../lib/i18n";
+import { checkNightMode } from "../lib/nightmode";
 import DeckOptionsPage from "./DeckOptionsPage.svelte";
-import { nightModeKey, touchDeviceKey, modalsKey } from "components/context-keys";
+import { nightModeKey, touchDeviceKey, modalsKey } from "../components/context-keys";
 
 export async function deckOptions(
     target: HTMLDivElement,

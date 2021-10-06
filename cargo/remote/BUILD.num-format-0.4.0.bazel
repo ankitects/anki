@@ -54,7 +54,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__arrayvec__0_4_12//:arrayvec",
-        "@raze__itoa__0_4_7//:itoa",
+        "@raze__itoa__0_4_8//:itoa",
     ] + selects.with_or({
         # cfg(unix)
         (

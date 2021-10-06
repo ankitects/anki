@@ -3,13 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import IconButton from "components/IconButton.svelte";
-    import WithShortcut from "components/WithShortcut.svelte";
-    import WithState from "components/WithState.svelte";
+    import IconButton from "../components/IconButton.svelte";
+    import WithShortcut from "../components/WithShortcut.svelte";
+    import WithState from "../components/WithState.svelte";
     import OnlyEditable from "./OnlyEditable.svelte";
 
-    import { withButton } from "components/helpers";
-    import { appendInParentheses } from "./helpers";
+    import { withButton } from "../components/helpers";
+    import { appendInParentheses, execCommand, queryCommandState } from "./helpers";
 
     export let key: string;
     export let tooltip: string;
@@ -21,13 +21,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <OnlyEditable let:disabled>
     {#if withoutShortcut && withoutState}
-        <IconButton {tooltip} {disabled} on:click={() => document.execCommand(key)}>
+        <IconButton {tooltip} {disabled} on:click={() => execCommand(key)}>
             <slot />
         </IconButton>
     {:else if withoutShortcut}
         <WithState
             {key}
-            update={() => document.queryCommandState(key)}
+            update={() => queryCommandState(key)}
             let:state={active}
             let:updateState
         >
@@ -36,7 +36,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {active}
                 {disabled}
                 on:click={(event) => {
-                    document.execCommand(key);
+                    execCommand(key);
                     updateState(event);
                 }}
             >
@@ -48,7 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <IconButton
                 tooltip={appendInParentheses(tooltip, shortcutLabel)}
                 {disabled}
-                on:click={() => document.execCommand(key)}
+                on:click={() => execCommand(key)}
                 on:mount={withButton(createShortcut)}
             >
                 <slot />
@@ -58,7 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <WithShortcut {shortcut} let:createShortcut let:shortcutLabel>
             <WithState
                 {key}
-                update={() => document.queryCommandState(key)}
+                update={() => queryCommandState(key)}
                 let:state={active}
                 let:updateState
             >
@@ -67,7 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {active}
                     {disabled}
                     on:click={(event) => {
-                        document.execCommand(key);
+                        execCommand(key);
                         updateState(event);
                     }}
                     on:mount={withButton(createShortcut)}

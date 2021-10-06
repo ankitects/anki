@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
 from abc import ABC, abstractmethod, abstractproperty
-from typing import List, Sequence, Union, cast
+from typing import Sequence, cast
 
 from anki.browser import BrowserConfig
 from anki.cards import Card, CardId
@@ -18,7 +17,7 @@ class ItemState(ABC):
     GEOMETRY_KEY_PREFIX: str
     SORT_COLUMN_KEY: str
     SORT_BACKWARDS_KEY: str
-    _active_columns: List[str]
+    _active_columns: list[str]
 
     def __init__(self, col: Collection) -> None:
         self.col = col
@@ -47,12 +46,17 @@ class ItemState(ABC):
             column.notes_mode_label if self.is_notes_mode() else column.cards_mode_label
         )
 
+    def column_tooltip(self, column: Column) -> str:
+        if self.is_notes_mode():
+            return column.notes_mode_tooltip
+        return column.cards_mode_tooltip
+
     # Columns and sorting
 
     # abstractproperty is deprecated but used due to mypy limitations
     # (https://github.com/python/mypy/issues/1362)
-    @abstractproperty
-    def active_columns(self) -> List[str]:
+    @abstractproperty  # pylint: disable=deprecated-decorator
+    def active_columns(self) -> list[str]:
         """Return the saved or default columns for the state."""
 
     @abstractmethod
@@ -91,7 +95,7 @@ class ItemState(ABC):
 
     @abstractmethod
     def find_items(
-        self, search: str, order: Union[bool, str, Column], reverse: bool
+        self, search: str, order: bool | str | Column, reverse: bool
     ) -> Sequence[ItemId]:
         """Return the item ids fitting the given search and order."""
 
@@ -128,7 +132,7 @@ class CardState(ItemState):
         self._active_columns = self.col.load_browser_card_columns()
 
     @property
-    def active_columns(self) -> List[str]:
+    def active_columns(self) -> list[str]:
         return self._active_columns
 
     def toggle_active_column(self, column: str) -> None:
@@ -145,7 +149,7 @@ class CardState(ItemState):
         return self.get_card(item).note()
 
     def find_items(
-        self, search: str, order: Union[bool, str, Column], reverse: bool
+        self, search: str, order: bool | str | Column, reverse: bool
     ) -> Sequence[ItemId]:
         return self.col.find_cards(search, order, reverse)
 
@@ -175,7 +179,7 @@ class NoteState(ItemState):
         self._active_columns = self.col.load_browser_note_columns()
 
     @property
-    def active_columns(self) -> List[str]:
+    def active_columns(self) -> list[str]:
         return self._active_columns
 
     def toggle_active_column(self, column: str) -> None:
@@ -192,7 +196,7 @@ class NoteState(ItemState):
         return self.col.get_note(NoteId(item))
 
     def find_items(
-        self, search: str, order: Union[bool, str, Column], reverse: bool
+        self, search: str, order: bool | str | Column, reverse: bool
     ) -> Sequence[ItemId]:
         return self.col.find_notes(search, order, reverse)
 

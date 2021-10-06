@@ -17,9 +17,9 @@ Then install deps:
 $ brew install rsync bazelisk
 ```
 
-**Install Python 3.8**:
+**Install Python 3.9**:
 
-Install Python 3.8 from <https://python.org>. We have heard reports
+Install Python 3.9 from <https://python.org>. We have heard reports
 of issues with pyenv and homebrew, so the package from python.org is
 the only recommended approach.
 
@@ -29,10 +29,10 @@ You do not need to set up a Python venv prior to building Anki.
 
 When you run "python" in a shell, if it shows Python 2.x, you may get a
 bunch of hashlib warnings during build. You can work around this by
-pointing python to python3.8:
+pointing python to python3.9:
 
 ```
-$ ln -sf /usr/local/bin/{python3.8,python}
+$ ln -sf /usr/local/bin/{python3.9,python}
 ```
 
 This linking will not work if you're using the system Python from Big Sur,

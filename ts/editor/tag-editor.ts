@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { nightModeKey } from "components/context-keys";
+import { nightModeKey } from "../components/context-keys";
 
 import TagEditor from "./TagEditor.svelte";
 import "./bootstrap.css";
