@@ -120,7 +120,11 @@ class AnkiWebPage(QWebEnginePage):
     def acceptNavigationRequest(
         self, url: QUrl, navType: Any, isMainFrame: bool
     ) -> bool:
-        if not self.open_links_externally or "_anki/pages" in url.path():
+        if (
+            not self.open_links_externally
+            or "_anki/pages" in url.path()
+            or url.path() == "/_anki/legacyPageData"
+        ):
             return super().acceptNavigationRequest(url, navType, isMainFrame)
 
         if not isMainFrame:
@@ -315,12 +319,23 @@ class AnkiWebView(QWebEngineView):
         self.show()
 
     def _setHtml(self, html: str) -> None:
+        """Send page data to media server, then surf to it.
+
+        This function used to be implemented by QWebEngine's
+        .setHtml() call. It is no longer used, as it has a
+        maximum size limit, and due to security changes, it
+        will stop working in the future."""
         from aqt import mw
 
         oldFocus = mw.app.focusWidget()
         self._domDone = False
-        self._page.setHtml(html)
+
+        webview_id = id(self)
+        mw.mediaServer.set_page_html(webview_id, html)
+        self.load_url(QUrl(f"{mw.serverURL()}_anki/legacyPageData?id={webview_id}"))
+
         # work around webengine stealing focus on setHtml()
+        # fixme: check which if any qt versions this is still required on
         if oldFocus:
             oldFocus.setFocus()
 
@@ -646,4 +661,9 @@ document.head.appendChild(style);
         Must be done on Windows prior to changing current working directory."""
         self.requiresCol = False
         self._domReady = False
-        self._page.setContent(bytes("", "ascii"))
+        self._page.setContent(cast(QByteArray, bytes("", "ascii")))
+
+    def __del__(self) -> None:
+        from aqt import mw
+
+        mw.mediaServer.clear_page_html(id(self))

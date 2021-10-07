@@ -78,6 +78,8 @@ class MediaServer(threading.Thread):
     def __init__(self, mw: aqt.main.AnkiQt) -> None:
         super().__init__()
         self.is_shutdown = False
+        # map of webview ids to pages
+        self._page_html: dict[int, str] = {}
 
     def run(self) -> None:
         try:
@@ -118,6 +120,18 @@ class MediaServer(threading.Thread):
     def getPort(self) -> int:
         self._ready.wait()
         return int(self.server.effective_port)  # type: ignore
+
+    def set_page_html(self, id: int, html: str) -> None:
+        self._page_html[id] = html
+
+    def get_page_html(self, id: int) -> str | None:
+        return self._page_html.get(id)
+
+    def clear_page_html(self, id: int) -> None:
+        try:
+            del self._page_html[id]
+        except KeyError:
+            pass
 
 
 def _handle_local_file_request(request: LocalFileRequest) -> Response:
@@ -220,6 +234,8 @@ def _extract_internal_request(
     if dirname == "_anki":
         if flask.request.method == "POST":
             return _extract_collection_post_request(filename)
+        elif get_handler := _extract_dynamic_get_request(filename):
+            return get_handler
         # remap legacy top-level references
         base, ext = os.path.splitext(filename)
         if ext == ".css":
@@ -395,6 +411,7 @@ def complete_tag() -> bytes:
     return aqt.mw.col.tags.complete_tag(request.data)
 
 
+# these require a collection
 post_handlers = {
     "graphData": graph_data,
     "graphPreferences": graph_preferences,
@@ -435,3 +452,20 @@ def _handle_dynamic_request(request: DynamicRequest) -> Response:
         return request()
     except Exception as e:
         return flask.make_response(str(e), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+
+def legacy_page_data() -> Response:
+    id = int(request.args["id"])
+    if html := aqt.mw.mediaServer.get_page_html(id):
+        return Response(html, mimetype="text/html")
+    else:
+        return flask.make_response("page not found", HTTPStatus.NOT_FOUND)
+
+
+# this currently only handles a single method; in the future, idempotent
+# requests like i18nResources should probably be moved here
+def _extract_dynamic_get_request(path: str) -> DynamicRequest | None:
+    if path == "legacyPageData":
+        return legacy_page_data
+    else:
+        return None
