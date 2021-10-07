@@ -241,6 +241,7 @@ QTabWidget {{ background-color: {}; }}
         palette.setColor(QPalette.ColorRole.ToolTipBase, frame_bg)
 
         disabled_color = self.qcolor(colors.DISABLED)
+        palette.setColor(QPalette.ColorRole.PlaceholderText, disabled_color)
         palette.setColor(
             QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, disabled_color
         )
