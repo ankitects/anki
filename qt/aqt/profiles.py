@@ -520,6 +520,7 @@ create table if not exists profiles
                         link=f"{appHelpSite}files#startup-options",
                     )
                 )
+                + "\n"
             )
 
     # Default language
