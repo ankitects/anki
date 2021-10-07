@@ -30,8 +30,7 @@
         ],
         // uncomment for building with tsc directly
         // "outDir": "dist",
-        // "rootDir": "..",
-        "rootDir": ".",
+        "rootDir": "..",
         "rootDirs": [
             ".",
             // for VS code

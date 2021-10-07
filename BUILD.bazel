@@ -33,5 +33,7 @@ pkg_tar(
     tags = ["manual"],
 )
 
-# for version info
-exports_files(["defs.bzl"])
+exports_files([
+    "defs.bzl",
+    "package.json",
+])

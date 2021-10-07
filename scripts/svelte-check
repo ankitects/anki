@@ -1,3 +1,5 @@
 #!/bin/bash
 
-SASS_PATH=$(pwd)/bazel-bin ts/node_modules/.bin/svelte-check --workspace ts
+SASS_PATH=ts/sass:$(pwd)/bazel-bin/ts/sass \
+    node_modules/.bin/svelte-check \
+    --workspace ts
