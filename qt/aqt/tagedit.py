@@ -99,7 +99,7 @@ class TagEdit(QLineEdit):
         self._completer.popup().hide()
 
     def hideCompleter(self) -> None:
-        if sip.isdeleted(self._completer):
+        if sip.isdeleted(self._completer):  # type: ignore
             return
         self._completer.popup().hide()
 

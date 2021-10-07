@@ -350,9 +350,9 @@ class AnkiWebView(QWebEngineView):
         if webscale:
             return float(webscale)
 
-        if isMac:
+        if qtmajor > 5 or isMac:
             return 1
-        screen = QApplication.desktop().screen()
+        screen = QApplication.desktop().screen()  # type: ignore
         if screen is None:
             return 1
 

@@ -372,8 +372,6 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
             category = "debug"
         elif category == QtFatalMsg:
             category = "fatal"
-        elif category == QtSystemMsg:
-            category = "system"
         else:
             category = "unknown"
         context = ""

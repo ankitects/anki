@@ -1,5 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+from typing import cast
 
 from aqt import colors
 from aqt.qt import *
@@ -128,7 +129,7 @@ class Switch(QAbstractButton):
         self._animate_toggle()
 
     def _animate_toggle(self) -> None:
-        animation = QPropertyAnimation(self, b"position", self)
+        animation = QPropertyAnimation(self, cast(QByteArray, b"position"), self)
         animation.setDuration(100)
         animation.setStartValue(self.start_position)
         animation.setEndValue(self.end_position)
