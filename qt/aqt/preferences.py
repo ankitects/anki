@@ -307,6 +307,7 @@ for you than the default driver, please let us know on the Anki forums."""
         self.form.video_driver.setCurrentIndex(
             self.video_drivers.index(self.mw.pm.video_driver())
         )
+        self.form.video_driver.setVisible(qtmajor == 5)
 
     def update_video_driver(self) -> None:
         new_driver = self.video_drivers[self.form.video_driver.currentIndex()]
