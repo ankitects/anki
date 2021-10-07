@@ -1,16 +1,10 @@
+load("@rules_python//python:defs.bzl", "py_binary")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:protobuf.bzl", "protobufjs_library")
 load("//ts:typescript.bzl", "typescript")
-load("@rules_python//python:defs.bzl", "py_binary")
 load("@py_deps//:requirements.bzl", "requirement")
 load("//ts:jest.bzl", "jest_test")
-
-protobufjs_library(
-    name = "backend_proto",
-    proto = "//proto:backend_proto_lib",
-    visibility = ["//visibility:public"],
-)
 
 py_binary(
     name = "genfluent",
@@ -22,21 +16,33 @@ py_binary(
         requirement("stringcase"),
     ],
 )
+_i18n_generated = [
+    "ftl.ts",
+    "i18n/modules.ts",
+]
 
 genrule(
     name = "fluent_gen",
-    outs = ["i18n.ts"],
-    cmd = "$(location genfluent) $(location //rslib/i18n:strings.json) $@",
+    outs = _i18n_generated,
+    cmd = "$(location genfluent) $(location //rslib/i18n:strings.json) $(OUTS)",
     tools = [
         "genfluent",
         "//rslib/i18n:strings.json",
     ],
 )
 
+protobufjs_library(
+    name = "backend_proto",
+    proto = "//proto:backend_proto_lib",
+    visibility = ["//visibility:public"],
+)
+
 typescript(
     name = "lib",
     generated = [
-        ":i18n.ts",
+        ":backend_proto.d.ts",
+        ":ftl.ts",
+        ":i18n/modules.ts",
     ],
     deps = [
         ":backend_proto",

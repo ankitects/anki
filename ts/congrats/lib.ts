@@ -4,8 +4,7 @@
 import { Scheduler } from "../lib/proto";
 import { postRequest } from "../lib/postrequest";
 import { naturalUnit, unitAmount, unitName } from "../lib/time";
-
-import * as tr from "../lib/i18n";
+import * as tr from "../lib/ftl";
 
 export async function getCongratsInfo(): Promise<Scheduler.CongratsInfoResponse> {
     return Scheduler.CongratsInfoResponse.decode(

@@ -3,20 +3,19 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import { createEventDispatcher } from "svelte";
-    import type { Stats } from "../lib/proto";
-    import type { PreferenceStore } from "../sveltelib/preferences";
-
     import Graph from "./Graph.svelte";
     import InputBox from "./InputBox.svelte";
 
+    import { createEventDispatcher } from "svelte";
+    import type { Stats } from "../lib/proto";
+    import type { PreferenceStore } from "../sveltelib/preferences";
+    import * as translate from "../lib/ftl";
     import { defaultGraphBounds } from "./graph-helpers";
     import type { SearchEventMap } from "./graph-helpers";
     import { gatherData, renderCards } from "./card-counts";
     import type { GraphData, TableDatum } from "./card-counts";
 
     export let sourceData: Stats.GraphsResponse;
-    import * as tr2 from "../lib/i18n";
     export let preferences: PreferenceStore<Stats.GraphPreferences>;
 
     let { cardCountsSeparateInactive, browserLinksSupported } = preferences;
@@ -36,8 +35,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tableData = renderCards(svg as any, bounds, graphData);
     }
 
-    const label = tr2.statisticsCountsSeparateSuspendedBuriedCards();
-    const total = tr2.statisticsCountsTotalCards();
+    const label = translate.statisticsCountsSeparateSuspendedBuriedCards();
+    const total = translate.statisticsCountsTotalCards();
 </script>
 
 <Graph title={graphData.title}>

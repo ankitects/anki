@@ -18,12 +18,12 @@ import {
     interpolateBlues,
 } from "d3";
 import type { Bin } from "d3";
+import * as tr from "../lib/ftl";
+import { timeSpan } from "../lib/time";
 import { CardType } from "../lib/cards";
 import type { HistogramData } from "./histogram-graph";
 
 import type { TableDatum, SearchDispatch } from "./graph-helpers";
-import { timeSpan } from "../lib/time";
-import * as tr from "../lib/i18n";
 
 export interface IntervalGraphData {
     intervals: number[];
