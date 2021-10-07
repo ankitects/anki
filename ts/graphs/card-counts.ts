@@ -6,6 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import * as tr from "../lib/ftl";
 import { CardQueue, CardType } from "../lib/cards";
 import type { Stats, Cards } from "../lib/proto";
 import {
@@ -21,8 +22,6 @@ import {
     cumsum,
 } from "d3";
 import type { GraphBounds } from "./graph-helpers";
-
-import * as tr from "../lib/i18n";
 
 type Count = [string, number, boolean, string];
 export interface GraphData {

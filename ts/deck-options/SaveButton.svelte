@@ -3,11 +3,12 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "../lib/i18n";
+    import * as tr from "../lib/ftl";
     import { createEventDispatcher } from "svelte";
     import type { DeckOptionsState } from "./lib";
     import type Dropdown from "bootstrap/js/dist/dropdown";
     import { withButton } from "../components/helpers";
+    import { withCollapsedWhitespace } from "../lib/i18n";
 
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
@@ -41,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     ? tr.deckConfigWillRequireFullSync() + " "
                     : "") +
                 tr.deckConfigConfirmRemoveName({ name: state.getCurrentName() });
-            if (confirm(tr.i18n.withCollapsedWhitespace(msg))) {
+            if (confirm(withCollapsedWhitespace(msg))) {
                 try {
                     state.removeCurrentConfig();
                 } catch (err) {

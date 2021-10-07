@@ -17,13 +17,13 @@ import {
     interpolateGreens,
 } from "d3";
 import type { Bin } from "d3";
+import * as tr from "../lib/ftl";
 import { CardQueue } from "../lib/cards";
 import type { HistogramData } from "./histogram-graph";
 import { dayLabel } from "../lib/time";
 
 import { GraphRange } from "./graph-helpers";
 import type { TableDatum, SearchDispatch } from "./graph-helpers";
-import * as tr from "../lib/i18n";
 
 export interface GraphData {
     dueCounts: Map<number, number>;

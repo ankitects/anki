@@ -14,6 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TableData from "./TableData.svelte";
     import type { PreferenceStore } from "../sveltelib/preferences";
 
+    import * as tr from "../lib/ftl";
     import type { HistogramData } from "./histogram-graph";
     import { GraphRange, RevlogRange } from "./graph-helpers";
     import type { TableDatum, SearchEventMap } from "./graph-helpers";
@@ -21,7 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { GraphData } from "./future-due";
 
     export let sourceData: Stats.GraphsResponse | null = null;
-    import * as tr from "../lib/i18n";
     export let preferences: PreferenceStore<Stats.GraphPreferences>;
 
     const dispatch = createEventDispatcher<SearchEventMap>();

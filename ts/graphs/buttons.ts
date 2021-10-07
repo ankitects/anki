@@ -6,8 +6,6 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { Stats } from "../lib/proto";
-
 import {
     interpolateRdYlGn,
     select,
@@ -19,6 +17,8 @@ import {
     axisLeft,
     sum,
 } from "d3";
+import { Stats } from "../lib/proto";
+import * as tr from "../lib/ftl";
 import { showTooltip, hideTooltip } from "./tooltip";
 import {
     GraphBounds,
@@ -26,7 +26,6 @@ import {
     GraphRange,
     millisecondCutoffForRange,
 } from "./graph-helpers";
-import * as tr from "../lib/i18n";
 
 type ButtonCounts = [number, number, number, number];
 
