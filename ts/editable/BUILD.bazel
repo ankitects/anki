@@ -12,8 +12,8 @@ compile_sass(
     group = "editable_scss",
     visibility = ["//visibility:public"],
     deps = [
-        "//ts/sass:scrollbar_lib",
-        "//ts/sass/codemirror",
+        "//sass:scrollbar_lib",
+        "//sass/codemirror",
     ],
 )
 

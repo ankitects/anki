@@ -15,8 +15,10 @@ def compile_sass(group, srcs, deps = [], visibility = ["//visibility:private"]):
             deps = deps,
             visibility = visibility,
             include_paths = [
-                "ts/sass",
-                "external/ankidesktop/ts/sass",
+                ".",
+                "sass",
+                "external/ankidesktop",
+                "external/ankidesktop/sass",
             ],
         )
 

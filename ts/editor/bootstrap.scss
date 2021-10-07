@@ -1,13 +1,13 @@
-@import "bootstrap/scss/functions";
-@import "bootstrap/scss/variables";
-@import "bootstrap/scss/mixins";
+@import "sass/bootstrap/scss/functions";
+@import "sass/bootstrap/scss/variables";
+@import "sass/bootstrap/scss/mixins";
 
 $btn-disabled-opacity: 0.4;
 
-@import "bootstrap/scss/buttons";
-@import "bootstrap/scss/button-group";
-@import "bootstrap/scss/dropdown";
+@import "sass/bootstrap/scss/buttons";
+@import "sass/bootstrap/scss/button-group";
+@import "sass/bootstrap/scss/dropdown";
 
 $tooltip-max-width: 600px;
 
-@import "bootstrap/scss/tooltip";
+@import "sass/bootstrap/scss/tooltip";

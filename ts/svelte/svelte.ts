@@ -150,14 +150,13 @@ async function writeJs(
     const preprocessOptions = preprocess({
         scss: {
             includePaths: [
-                "ts/sass",
-                `${binDir}/ts/sass`,
-                `${genDir}/ts/sass`,
-                // a nasty hack to ensure ts/sass/... resolves correctly
+                binDir,
+                genDir,
+                // a nasty hack to ensure sass/... resolves correctly
                 // when invoked from an external workspace
-                `${binDir}/external/ankidesktop/ts/sass`,
-                `${genDir}/external/ankidesktop/ts/sass`,
-                `${binDir}/../../../external/ankidesktop/ts/sass`,
+                `${binDir}/external/ankidesktop`,
+                `${genDir}/external/ankidesktop`,
+                `${binDir}/../../../external/ankidesktop`,
             ],
         },
     });
