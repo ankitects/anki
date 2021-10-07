@@ -163,25 +163,32 @@ class ProfileManager:
 
     def _unpickle(self, data: bytes) -> Any:
         class Unpickler(pickle.Unpickler):
-            def find_class(self, module: str, name: str) -> Any:
-                if module == "PyQt5.sip":
-                    try:
-                        import PyQt5.sip  # pylint: disable=unused-import
-                    except:
-                        # use old sip location
-                        module = "sip"
-                fn = super().find_class(module, name)
-                if module == "sip" and name == "_unpickle_type":
+            def find_class(self, class_module: str, name: str) -> Any:
+                # handle sip lookup ourselves, mapping to current Qt version
+                if class_module == "sip" or class_module.endswith(".sip"):
 
-                    def wrapper(mod, obj, args) -> Any:  # type: ignore
-                        if mod.startswith("PyQt4") and obj == "QByteArray":
-                            # can't trust str objects from python 2
-                            return QByteArray()
-                        return fn(mod, obj, args)
+                    def unpickle_type(module: str, klass: str, args: Any) -> Any:
+                        if qtmajor > 5:
+                            module = module.replace("Qt5", "Qt6")
+                        else:
+                            module = module.replace("Qt6", "Qt5")
+                        if klass == "QByteArray":
+                            if module.startswith("PyQt4"):
+                                # can't trust str objects from python 2
+                                return QByteArray()
+                            else:
+                                # return the bytes directly
+                                return args[0]
+                        elif name == "_unpickle_enum":
+                            if qtmajor == 5:
+                                return sip._unpickle_enum(module, klass, args)  # type: ignore
+                            else:
+                                # old style enums can't be unpickled
+                                return None
+                        else:
+                            return sip._unpickle_type(module, klass, args)  # type: ignore
 
-                    return wrapper
-                else:
-                    return fn
+                    return unpickle_type
 
         up = Unpickler(io.BytesIO(data), errors="ignore")
         return up.load()

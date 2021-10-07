@@ -866,6 +866,8 @@ Add-ons, last update check: {}
 
 # adapted from version detection in qutebrowser
 def opengl_vendor() -> str | None:
+    if qtmajor != 5:
+        return "unknown"
     old_context = QOpenGLContext.currentContext()
     old_surface = None if old_context is None else old_context.surface()
 
@@ -886,11 +888,11 @@ def opengl_vendor() -> str | None:
             # Can't use versionFunctions there
             return None
 
-        vp = QOpenGLVersionProfile()
+        vp = QOpenGLVersionProfile()  # type: ignore
         vp.setVersion(2, 0)
 
         try:
-            vf = ctx.versionFunctions(vp)
+            vf = ctx.versionFunctions(vp)  # type: ignore
         except ImportError as e:
             return None
 

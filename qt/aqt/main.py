@@ -1032,7 +1032,7 @@ title="{}" {}>{}</button>""".format(
 
     def clearStateShortcuts(self) -> None:
         for qs in self.stateShortcuts:
-            sip.delete(qs)
+            sip.delete(qs)  # type: ignore
         self.stateShortcuts = []
 
     def onStudyKey(self) -> None:

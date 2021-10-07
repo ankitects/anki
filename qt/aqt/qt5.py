@@ -23,7 +23,11 @@ class QtAudioInputRecorder(Recorder):
         self.mw = mw
         self._parent = parent
 
-        from PyQt5.QtMultimedia import QAudioDeviceInfo, QAudioFormat, QAudioInput
+        from PyQt5.QtMultimedia import (  # type: ignore
+            QAudioDeviceInfo,
+            QAudioFormat,
+            QAudioInput,
+        )
 
         format = QAudioFormat()
         format.setChannelCount(1)

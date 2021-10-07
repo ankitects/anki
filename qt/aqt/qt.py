@@ -57,6 +57,9 @@ if qtmajor < 5 or (qtmajor == 5 and qtminor < 14):
     raise Exception("Anki does not support your Qt version.")
 
 
-def qconnect(signal: Union[Callable, pyqtSignal], func: Callable) -> None:
-    "Helper to work around type checking not working with signal.connect(func)."
+def qconnect(
+    signal: Union[Callable, pyqtSignal, pyqtBoundSignal], func: Callable
+) -> None:
+    """Helper to work around type checking not working with signal.connect(func).
+    Not needed in PyQt6"""
     signal.connect(func)  # type: ignore
