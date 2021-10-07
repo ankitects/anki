@@ -6,3 +6,4 @@ target
 user.bazelrc
 .dmypy.json
 rust-project.json
+node_modules
