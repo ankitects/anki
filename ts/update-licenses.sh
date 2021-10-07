@@ -3,6 +3,6 @@
 
 set -e
 
-./node_modules/.bin/license-checker-rseidelsohn --production --json \
+cd .. && ./node_modules/.bin/license-checker-rseidelsohn --production --json \
     --excludePackages anki --relativeLicensePath \
-    --relativeModulePath > licenses.json
+    --relativeModulePath > ts/licenses.json

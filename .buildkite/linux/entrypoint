@@ -11,7 +11,7 @@ BAZEL="bazel --output_user_root=/state/bazel --output_base=/state/bazel/anki"
 BUILDARGS="--config=ci --experimental_convenience_symlinks=ignore --disk_cache=/state/bazel/disk --repository_cache=/state/bazel/repo"
 
 # move existing node_modules into tree
-test -e /state/node_modules && mv /state/node_modules ts/
+test -e /state/node_modules && mv /state/node_modules .
 
 $BAZEL build $BUILDARGS ...
 
@@ -26,4 +26,4 @@ python scripts/copyright_headers.py
 
 echo "--- Cleanup"
 # if tests succeed, back up node_modules folder
-mv ts/node_modules /state/
+mv node_modules /state/
