@@ -3,6 +3,7 @@
 
 use std::collections::HashMap;
 
+use serde::{Deserialize as DeTrait, Deserializer};
 use serde_aux::field_attributes::deserialize_number_from_string;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::Value;
@@ -66,7 +67,7 @@ pub struct NewConfSchema11 {
     #[serde(deserialize_with = "default_on_invalid")]
     delays: Vec<f32>,
     initial_factor: u16,
-    #[serde(deserialize_with = "default_on_invalid")]
+    #[serde(deserialize_with = "deserialize_new_intervals")]
     ints: NewCardIntervals,
     #[serde(deserialize_with = "default_on_invalid")]
     pub(crate) order: NewCardOrderSchema11,
@@ -77,7 +78,7 @@ pub struct NewConfSchema11 {
     other: HashMap<String, Value>,
 }
 
-#[derive(Serialize_tuple, Deserialize, Debug, PartialEq, Clone)]
+#[derive(Serialize_tuple, Debug, PartialEq, Clone)]
 pub struct NewCardIntervals {
     good: u16,
     easy: u16,
@@ -89,9 +90,32 @@ impl Default for NewCardIntervals {
         Self {
             good: 1,
             easy: 4,
-            _unused: 7,
+            _unused: 0,
         }
     }
+}
+
+/// This extra logic is required because AnkiDroid's options screen was creating
+/// a 2 element array instead of a 3 element one.
+fn deserialize_new_intervals<'de, D>(deserializer: D) -> Result<NewCardIntervals, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let vals: Result<Vec<u16>, _> = DeTrait::deserialize(deserializer);
+    Ok(vals
+        .ok()
+        .and_then(|vals| {
+            if vals.len() >= 2 {
+                Some(NewCardIntervals {
+                    good: vals[0],
+                    easy: vals[1],
+                    _unused: 0,
+                })
+            } else {
+                None
+            }
+        })
+        .unwrap_or_default())
 }
 
 #[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Clone)]
@@ -394,5 +418,53 @@ fn clear_other_duplicates(top_other: &mut HashMap<String, Value>) {
         "newGatherPriority",
     ] {
         top_other.remove(*key);
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use serde::de::IntoDeserializer;
+    use serde_json::{json, Value};
+
+    use super::*;
+
+    #[test]
+    fn new_intervals() {
+        let decode = |value: Value| -> NewCardIntervals {
+            deserialize_new_intervals(value.into_deserializer()).unwrap()
+        };
+        assert_eq!(
+            decode(json!([2, 4, 6])),
+            NewCardIntervals {
+                good: 2,
+                easy: 4,
+                _unused: 0
+            }
+        );
+        assert_eq!(
+            decode(json!([3, 9])),
+            NewCardIntervals {
+                good: 3,
+                easy: 9,
+                _unused: 0
+            }
+        );
+        // invalid input will yield defaults
+        assert_eq!(
+            decode(json!([4])),
+            NewCardIntervals {
+                good: 1,
+                easy: 4,
+                _unused: 0
+            }
+        );
+        assert_eq!(
+            decode(json!([-5, 4, 3])),
+            NewCardIntervals {
+                good: 1,
+                easy: 4,
+                _unused: 0
+            }
+        );
     }
 }
