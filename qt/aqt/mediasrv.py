@@ -10,6 +10,7 @@ import sys
 import threading
 import time
 import traceback
+from dataclasses import dataclass
 from http import HTTPStatus
 
 import flask
@@ -51,6 +52,22 @@ def _getExportFolder() -> str:
 _exportFolder = _getExportFolder()
 app = flask.Flask(__name__)
 flask_cors.CORS(app)
+
+
+@dataclass
+class LocalFileRequest:
+    # base folder, eg media folder
+    root: str
+    # path to file relative to root folder
+    path: str
+
+
+@dataclass
+class NotFound:
+    message: str
+
+
+DynamicRequest = Callable[[], Response]
 
 
 class MediaServer(threading.Thread):
@@ -103,16 +120,9 @@ class MediaServer(threading.Thread):
         return int(self.server.effective_port)  # type: ignore
 
 
-@app.route("/<path:pathin>", methods=["GET", "POST"])
-def allroutes(pathin: str) -> Response:
-    try:
-        directory, path = _redirectWebExports(pathin)
-    except TypeError:
-        return flask.make_response(
-            f"Invalid path: {pathin}",
-            HTTPStatus.FORBIDDEN,
-        )
-
+def _handle_local_file_request(request: LocalFileRequest) -> Response:
+    directory = request.root
+    path = request.path
     try:
         isdir = os.path.isdir(os.path.join(directory, path))
     except ValueError:
@@ -138,13 +148,7 @@ def allroutes(pathin: str) -> Response:
             HTTPStatus.FORBIDDEN,
         )
 
-    if devMode:
-        print(f"{time.time():.3f} {flask.request.method} /{pathin}")
-
     try:
-        if flask.request.method == "POST":
-            return handle_post(path)
-
         if fullpath.endswith(".css"):
             # some users may have invalid mime type in the Windows registry
             mimetype = "text/css"
@@ -156,9 +160,9 @@ def allroutes(pathin: str) -> Response:
         if os.path.exists(fullpath):
             return flask.send_file(fullpath, mimetype=mimetype, conditional=True)
         else:
-            print(f"Not found: {ascii(pathin)}")
+            print(f"Not found: {path}")
             return flask.make_response(
-                f"Invalid path: {pathin}",
+                f"Invalid path: {path}",
                 HTTPStatus.NOT_FOUND,
             )
 
@@ -178,83 +182,120 @@ def allroutes(pathin: str) -> Response:
         )
 
 
-def _redirectWebExports(path: str) -> tuple[str, str]:
-    # catch /_anki references and rewrite them to web export folder
-    targetPath = "_anki/"
-    if path.startswith(targetPath):
-        dirname = os.path.dirname(path)
-        filename = os.path.basename(path)
-        addprefix = None
+@app.route("/<path:pathin>", methods=["GET", "POST"])
+def handle_request(pathin: str) -> Response:
+    request = _extract_request(pathin)
+    if devMode:
+        print(f"{time.time():.3f} {flask.request.method} /{pathin}")
 
-        # remap legacy top-level references
-        if dirname == "_anki":
-            base, ext = os.path.splitext(filename)
-            if ext == ".css":
-                addprefix = "css/"
-            elif ext == ".js":
-                if base in ("browsersel", "jquery-ui", "jquery", "plot"):
-                    addprefix = "js/vendor/"
-                else:
-                    addprefix = "js/"
+    if isinstance(request, NotFound):
+        print(request.message)
+        return flask.make_response(
+            f"Invalid path: {pathin}",
+            HTTPStatus.NOT_FOUND,
+        )
+    elif callable(request):
+        return _handle_dynamic_request(request)
+    elif isinstance(request, LocalFileRequest):
+        return _handle_local_file_request(request)
+    else:
+        return flask.make_response(
+            f"unexpected request: {pathin}",
+            HTTPStatus.FORBIDDEN,
+        )
 
-        elif dirname == "_anki/js/vendor":
-            base, ext = os.path.splitext(filename)
 
-            if base == "jquery":
-                base = "jquery.min"
-                addprefix = "js/vendor/"
-
-            elif base == "jquery-ui":
-                base = "jquery-ui.min"
-                addprefix = "js/vendor/"
-
-            elif base == "browsersel":
-                base = "css_browser_selector.min"
-                addprefix = "js/vendor/"
-
-        if addprefix:
-            oldpath = path
-            path = f"{targetPath}{addprefix}{base}{ext}"
-            print(f"legacy {oldpath} remapped to {path}")
-
-        return _exportFolder, path[len(targetPath) :]
-
-    # catch /_addons references and rewrite them to addons folder
-    targetPath = "_addons/"
-    if path.startswith(targetPath):
-        addonPath = path[len(targetPath) :]
-
-        try:
-            addMgr = aqt.mw.addonManager
-        except AttributeError as error:
-            if devMode:
-                print(f"_redirectWebExports: {error}")
-            return None
-
-        try:
-            addon, subPath = addonPath.split("/", 1)
-        except ValueError:
-            return None
-        if not addon:
-            return None
-
-        pattern = addMgr.getWebExports(addon)
-        if not pattern:
-            return None
-
-        if re.fullmatch(pattern, subPath):
-            return addMgr.addonsFolder(), addonPath
-
-        print(f"couldn't locate item in add-on folder {path}")
+def _extract_internal_request(
+    path: str,
+) -> LocalFileRequest | DynamicRequest | NotFound | None:
+    "Catch /_anki references and rewrite them to web export folder."
+    prefix = "_anki/"
+    if not path.startswith(prefix):
         return None
+
+    dirname = os.path.dirname(path)
+    filename = os.path.basename(path)
+    additional_prefix = None
+
+    if dirname == "_anki":
+        if flask.request.method == "POST":
+            return _extract_collection_post_request(filename)
+        # remap legacy top-level references
+        base, ext = os.path.splitext(filename)
+        if ext == ".css":
+            additional_prefix = "css/"
+        elif ext == ".js":
+            if base in ("browsersel", "jquery-ui", "jquery", "plot"):
+                additional_prefix = "js/vendor/"
+            else:
+                additional_prefix = "js/"
+    # handle requests for vendored libraries
+    elif dirname == "_anki/js/vendor":
+        base, ext = os.path.splitext(filename)
+
+        if base == "jquery":
+            base = "jquery.min"
+            additional_prefix = "js/vendor/"
+
+        elif base == "jquery-ui":
+            base = "jquery-ui.min"
+            additional_prefix = "js/vendor/"
+
+        elif base == "browsersel":
+            base = "css_browser_selector.min"
+            additional_prefix = "js/vendor/"
+
+    if additional_prefix:
+        oldpath = path
+        path = f"{prefix}{additional_prefix}{base}{ext}"
+        print(f"legacy {oldpath} remapped to {path}")
+
+    return LocalFileRequest(root=_exportFolder, path=path[len(prefix) :])
+
+
+def _extract_addon_request(path: str) -> LocalFileRequest | NotFound | None:
+    "Catch /_addons references and rewrite them to addons folder."
+    prefix = "_addons/"
+    if not path.startswith(prefix):
+        return None
+
+    addon_path = path[len(prefix) :]
+
+    try:
+        manager = aqt.mw.addonManager
+    except AttributeError as error:
+        if devMode:
+            print(f"_redirectWebExports: {error}")
+        return None
+
+    try:
+        addon, sub_path = addon_path.split("/", 1)
+    except ValueError:
+        return None
+    if not addon:
+        return None
+
+    pattern = manager.getWebExports(addon)
+    if not pattern:
+        return None
+
+    if re.fullmatch(pattern, sub_path):
+        return LocalFileRequest(root=manager.addonsFolder(), path=addon_path)
+
+    return NotFound(message=f"couldn't locate item in add-on folder {path}")
+
+
+def _extract_request(path: str) -> LocalFileRequest | DynamicRequest | NotFound:
+    if internal := _extract_internal_request(path):
+        return internal
+    elif addon := _extract_addon_request(path):
+        return addon
 
     if not aqt.mw.col:
-        print(f"collection not open, ignore request for {path}")
-        return None
+        return NotFound(message=f"collection not open, ignore request for {path}")
 
     path = hooks.media_file_filter(path)
-
-    return aqt.mw.col.media.dir(), path
+    return LocalFileRequest(root=aqt.mw.col.media.dir(), path=path)
 
 
 def graph_data() -> bytes:
@@ -365,31 +406,32 @@ post_handlers = {
     "changeNotetypeInfo": change_notetype_info,
     "notetypeNames": notetype_names,
     "changeNotetype": change_notetype,
-    # pylint: disable=unnecessary-lambda
     "i18nResources": i18n_resources,
     "congratsInfo": congrats_info,
     "completeTag": complete_tag,
 }
 
 
-def handle_post(path: str) -> Response:
+def _extract_collection_post_request(path: str) -> DynamicRequest | NotFound:
     if not aqt.mw.col:
-        print(f"collection not open, ignore request for {path}")
-        return flask.make_response("Collection not open", HTTPStatus.NOT_FOUND)
-
-    if path in post_handlers:
-        try:
-            if data := post_handlers[path]():
+        return NotFound(message=f"collection not open, ignore request for {path}")
+    if handler := post_handlers.get(path):
+        # convert bytes/None into response
+        def wrapped() -> Response:
+            if data := handler():
                 response = flask.make_response(data)
                 response.headers["Content-Type"] = "application/binary"
             else:
                 response = flask.make_response("", HTTPStatus.NO_CONTENT)
-        except Exception as e:
-            return flask.make_response(str(e), HTTPStatus.INTERNAL_SERVER_ERROR)
-    else:
-        response = flask.make_response(
-            f"Unhandled post to {path}",
-            HTTPStatus.FORBIDDEN,
-        )
+            return response
 
-    return response
+        return wrapped
+    else:
+        return NotFound(message=f"{path} not found")
+
+
+def _handle_dynamic_request(request: DynamicRequest) -> Response:
+    try:
+        return request()
+    except Exception as e:
+        return flask.make_response(str(e), HTTPStatus.INTERNAL_SERVER_ERROR)
