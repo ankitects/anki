@@ -17,7 +17,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: mathjaxElement = activeImage.parentElement!;
 </script>
 
-<ButtonGroup size={1.6} wrap={false} reverse={isRtl}>
+<ButtonGroup size={1.6} wrap={false}>
+    {#if isRtl}
+        <!-- fixme -->
+    {/if}
     <ButtonGroupItem>
         <IconButton
             tooltip={tr.editingMathjaxInline()}
