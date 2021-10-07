@@ -9,7 +9,16 @@ from dataclasses import dataclass
 from anki.utils import isMac
 from aqt import QApplication, colors, gui_hooks, isWin
 from aqt.platform import set_dark_mode
-from aqt.qt import QColor, QIcon, QPainter, QPalette, QPixmap, QStyleFactory, Qt
+from aqt.qt import (
+    QColor,
+    QGuiApplication,
+    QIcon,
+    QPainter,
+    QPalette,
+    QPixmap,
+    QStyleFactory,
+    Qt,
+)
 
 
 @dataclass
@@ -135,7 +144,7 @@ class ThemeManager:
         return QColor(self.color(colors))
 
     def apply_style(self, app: QApplication) -> None:
-        self.default_palette = app.style().standardPalette()
+        self.default_palette = QGuiApplication.palette()
         self._apply_palette(app)
         self._apply_style(app)
 
