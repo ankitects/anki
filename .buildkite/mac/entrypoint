@@ -7,7 +7,7 @@ BAZEL="bazel --output_user_root=~/bazel --output_base=~/bazel/anki"
 BUILDARGS="--config=ci --experimental_convenience_symlinks=ignore"
 
 # move existing node_modules into tree
-test -e ~/node_modules && mv ~/node_modules ts/
+test -e ~/node_modules && mv ~/node_modules .
 
 $BAZEL build $BUILDARGS ...
 
@@ -16,4 +16,4 @@ $BAZEL test $BUILDARGS ...
 
 echo "--- Cleanup"
 # if tests succeed, back up node_modules folder
-mv ts/node_modules ~/
+mv node_modules ~/

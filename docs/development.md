@@ -181,7 +181,7 @@ of `use` statements.
 
 The Bazel build products will make RA start up slowly out of the box. For a much
 nicer experience, add each of the bazel-* folders to Rust Analyzer's excludeDirs
-settings, and ts/node_modules. Wildcards don't work unfortunately. Then adjust
+settings, and node_modules. Wildcards don't work unfortunately. Then adjust
 VS Code's "watcher exclude", and add `**/bazel-*`.
 
 After running 'code' from the project root, it may take a minute or two to be
@@ -203,12 +203,12 @@ Recording also requires `lame` to be in your system path.
 ## Build errors and cleaning
 
 If you get errors with @npm and node_modules in the message, try deleting the
-ts/node_modules folder.
+node_modules folder.
 
 Unlike the old Make system, a "clean build" should almost never be required
 unless you are debugging issues with the build system. But if you need to get
-things to a fresh state, you can run `bazel clean --expunge`. Afte doing so,
-make sure you remove the ts/node_modules folder, or subsequent build commands
+things to a fresh state, you can run `bazel clean --expunge`. After doing so,
+make sure you remove the node_modules folder, or subsequent build commands
 will fail with a "no such file or directory node_modules/anki" message.
 
 ## Tracing build problems

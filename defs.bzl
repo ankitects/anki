@@ -43,12 +43,12 @@ def setup_deps():
         python_runtime = "@python//:python",
     )
 
-    node_repositories(package_json = ["@ankidesktop//ts:package.json"])
+    node_repositories(package_json = ["@ankidesktop//:package.json"])
 
     yarn_install(
         name = "npm",
-        package_json = "@ankidesktop//ts:package.json",
-        yarn_lock = "@ankidesktop//ts:yarn.lock",
+        package_json = "@ankidesktop//:package.json",
+        yarn_lock = "@ankidesktop//:yarn.lock",
     )
 
     sass_repositories()

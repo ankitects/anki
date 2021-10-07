@@ -3,7 +3,7 @@ set BAZEL=\bazel\bazel.exe --output_user_root=\bazel\ankici --output_base=\bazel
 set BUILDARGS=--config=ci
 
 if exist \bazel\node_modules (
-    move \bazel\node_modules ts\node_modules
+    move \bazel\node_modules .\node_modules
 )
 
 :: rollup may fail on the first build, so we build once without checking return code
@@ -37,4 +37,4 @@ IF %ERRORLEVEL% NEQ 0 exit /B 1
 @REM echo Import succesful.
 
 echo --- Cleanup
-move ts\node_modules \bazel\node_modules
+move node_modules \bazel\node_modules
