@@ -4,6 +4,7 @@
 import os
 import tempfile
 
+from anki.collection import CardStats
 from tests.shared import getEmptyCol
 
 
@@ -14,12 +15,15 @@ def test_stats():
     col.addNote(note)
     c = note.cards()[0]
     # card stats
-    assert col.card_stats(c.id, include_revlog=True)
+    card_stats = CardStats()
+    card_stats.ParseFromString(col.card_stats(c.id))
+    assert card_stats.note_id == str(note.id)
     col.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 3)
     col.sched.answerCard(c, 2)
-    assert col.card_stats(c.id, include_revlog=True)
+    card_stats.ParseFromString(col.card_stats(c.id))
+    assert len(card_stats.revlog) == 2
 
 
 def test_graphs_empty():

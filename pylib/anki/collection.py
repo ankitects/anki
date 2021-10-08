@@ -24,6 +24,7 @@ SearchNode = search_pb2.SearchNode
 Progress = collection_pb2.Progress
 EmptyCardsReport = card_rendering_pb2.EmptyCardsReport
 GraphPreferences = stats_pb2.GraphPreferences
+CardStats = stats_pb2.CardStatsResponse
 Preferences = config_pb2.Preferences
 UndoStatus = collection_pb2.UndoStatus
 OpChanges = collection_pb2.OpChanges
