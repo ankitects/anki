@@ -73,8 +73,8 @@ py_wheel(
     platform = select({
         "//platforms:windows_x86_64": "win_amd64",
         "//platforms:macos_x86_64": "macosx_10_7_x86_64",
-        "//platforms:linux_x86_64": "manylinux2014_x86_64",
-        "//platforms:linux_arm64": "manylinux2014_aarch64",
+        "//platforms:linux_x86_64": "manylinux_2_28_x86_64",
+        "//platforms:linux_arm64": "manylinux_2_28_aarch64",
     }),
     python_tag = "cp39",
     python_version = ">=3.9",
@@ -124,7 +124,10 @@ py_library(
         ":proto_py",
     ],
     # includes the .pyi files
-    data = [":proto_py", "py.typed"],
+    data = [
+        "py.typed",
+        ":proto_py",
+    ],
     imports = [".."],
     visibility = ["//visibility:public"],
 )
