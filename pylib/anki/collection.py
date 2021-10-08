@@ -807,23 +807,8 @@ class Collection(DeprecatedNamesMixin):
 
         return CollectionStats(self)
 
-    def card_stats(self, card_id: CardId, include_revlog: bool) -> str:
-        import anki.stats as st
-
-        if include_revlog:
-            revlog_style = "margin-top: 2em;"
-        else:
-            revlog_style = "display: none;"
-
-        style = f"""<style>
-.revlog-learn {{ color: {st.colLearn} }}
-.revlog-review {{ color: {st.colMature} }}
-.revlog-relearn {{ color: {st.colRelearn} }}
-.revlog-ease1 {{ color: {st.colRelearn} }}
-table.review-log {{ {revlog_style} }}
-</style>"""
-
-        return style + self._backend.card_stats(card_id)
+    def card_stats(self, card_id: CardId) -> bytes:
+        return self._backend.card_stats(card_id)
 
     def studied_today(self) -> str:
         return self._backend.studied_today()

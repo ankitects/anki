@@ -1,0 +1,88 @@
+load("//ts:prettier.bzl", "prettier_test")
+load("//ts:eslint.bzl", "eslint_test")
+load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
+load("//ts:esbuild.bzl", "esbuild")
+load("//ts:compile_sass.bzl", "compile_sass")
+load("//ts:typescript.bzl", "typescript")
+load("//ts:jest.bzl", "jest_test")
+
+compile_sass(
+    srcs = ["card-info-base.scss"],
+    group = "base_css",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//ts/sass:base_lib",
+        "//ts/sass:scrollbar_lib",
+        "//ts/sass/bootstrap",
+    ],
+)
+
+compile_svelte()
+
+typescript(
+    name = "index",
+    deps = [
+        ":svelte",
+        "//ts/components",
+        "//ts/lib",
+        "//ts/sveltelib",
+        "@npm//@fluent",
+        "@npm//@types/jest",
+        "@npm//lodash-es",
+        "@npm//svelte",
+        "@npm//svelte2tsx",
+    ],
+)
+
+esbuild(
+    name = "card-info",
+    args = {
+        "globalName": "anki",
+        "loader": {".svg": "text"},
+    },
+    entry_point = "index.ts",
+    output_css = "card-info.css",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":base_css",
+        ":index",
+        ":svelte",
+        "//ts/components",
+        "//ts/lib",
+        "//ts/sveltelib",
+        "@npm//bootstrap",
+        "@npm//marked",
+        "@npm//protobufjs",
+    ],
+)
+
+exports_files(["card-info.html"])
+
+# Tests
+################
+
+prettier_test()
+
+eslint_test()
+
+svelte_check(
+    name = "svelte_check",
+    srcs = glob([
+        "*.ts",
+        "*.svelte",
+    ]) + [
+        "//ts/sass:button_mixins_lib",
+        "//ts/sass/bootstrap",
+        "@npm//@types/bootstrap",
+        "@npm//@types/lodash-es",
+        "@npm//@types/marked",
+        "//ts/components",
+    ],
+)
+
+jest_test(
+    protobuf = True,
+    deps = [
+        ":index",
+    ],
+)
