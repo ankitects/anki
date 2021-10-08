@@ -15,7 +15,7 @@ import wave
 from abc import ABC, abstractmethod
 from concurrent.futures import Future
 from operator import itemgetter
-from typing import Any, Callable
+from typing import Any, Callable, cast
 
 from markdown import markdown
 
@@ -551,6 +551,78 @@ def prompt_for_mic_permission() -> None:
         from .qt5 import prompt_for_mic_permission
 
         prompt_for_mic_permission()
+    else:
+        # no longer seems to be required, perhaps due to newer macOS sdk?
+        pass
+
+
+class QtAudioInputRecorder(Recorder):
+    def __init__(self, output_path: str, mw: aqt.AnkiQt, parent: QWidget) -> None:
+        super().__init__(output_path)
+
+        self.mw = mw
+        self._parent = parent
+
+        from PyQt6.QtMultimedia import QAudioFormat, QAudioSource  # type: ignore
+
+        format = QAudioFormat()
+        format.setChannelCount(1)
+        format.setSampleRate(44100)
+        format.setSampleFormat(QAudioFormat.SampleFormat.Int16)
+
+        source = QAudioSource(format, parent)
+
+        self._format = source.format()
+        self._audio_input = source
+
+    def start(self, on_done: Callable[[], None]) -> None:
+        self._iodevice = self._audio_input.start()
+        self._buffer = bytearray()
+        qconnect(self._iodevice.readyRead, self._on_read_ready)
+        super().start(on_done)
+
+    def _on_read_ready(self) -> None:
+        self._buffer.extend(cast(bytes, self._iodevice.readAll()))
+
+    def stop(self, on_done: Callable[[str], None]) -> None:
+        from PyQt6.QtMultimedia import QAudio
+
+        def on_stop_timer() -> None:
+            # read anything remaining in buffer & stop
+            self._on_read_ready()
+            self._audio_input.stop()
+
+            if (err := self._audio_input.error()) != QAudio.Error.NoError:
+                showWarning(f"recording failed: {err}")
+                return
+
+            def write_file() -> None:
+                # swallow the first 300ms to allow audio device to quiesce
+                wait = int(44100 * self.STARTUP_DELAY)
+                if len(self._buffer) <= wait:
+                    return
+                self._buffer = self._buffer[wait:]
+
+                # write out the wave file
+                wf = wave.open(self.output_path, "wb")
+                wf.setnchannels(self._format.channelCount())
+                wf.setsampwidth(2)
+                wf.setframerate(self._format.sampleRate())
+                wf.writeframes(self._buffer)
+                wf.close()
+
+            def and_then(fut: Future) -> None:
+                fut.result()
+                Recorder.stop(self, on_done)
+
+            self.mw.taskman.run_in_background(write_file, and_then)
+
+        # schedule the stop for half a second in the future,
+        # to avoid truncating the end of the recording
+        self._stop_timer = t = QTimer(self._parent)
+        t.timeout.connect(on_stop_timer)  # type: ignore
+        t.setSingleShot(True)
+        t.start(500)
 
 
 # PyAudio recording
@@ -689,14 +761,17 @@ class RecordDialog(QDialog):
 
     def _start_recording(self) -> None:
         driver = self.mw.pm.recording_driver()
-        if driver is RecordingDriver.PyAudio or qtmajor > 5:
+        if driver is RecordingDriver.PyAudio:
             self._recorder = PyAudioRecorder(self.mw, namedtmp("rec.wav"))
         elif driver is RecordingDriver.QtAudioInput:
-            from .qt5 import QtAudioInputRecorder
+            if qtmajor > 5:
+                self._recorder = QtAudioInputRecorder(
+                    namedtmp("rec.wav"), self.mw, self._parent
+                )
+            else:
+                from .qt5 import QtAudioInputRecorder as Qt5Recorder
 
-            self._recorder = QtAudioInputRecorder(
-                namedtmp("rec.wav"), self.mw, self._parent
-            )
+                self._recorder = Qt5Recorder(namedtmp("rec.wav"), self.mw, self._parent)
         else:
             assert_exhaustive(driver)
         self._recorder.start(self._start_timer)
