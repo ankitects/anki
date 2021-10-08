@@ -19,6 +19,7 @@ COPY --from=build /opt/anki/bazel-dist/ wheels/
 # Use virtual environment.
 ENV PATH=/opt/anki/venv/bin:$PATH
 RUN python -m venv venv \
+    && /opt/anki/venv/bin/python -m pip install --no-cache-dir setuptools wheel \
     && /opt/anki/venv/bin/python -m pip install --no-cache-dir /opt/anki/wheels/*.whl
 # Install run-time dependencies.
 RUN apt-get update \
@@ -37,10 +38,12 @@ RUN apt-get update \
         libxcb-render-util0 \
         libxcb-shape0 \
         libxcb-xinerama0 \
+        libxcb-xkb1 \
         libxcomposite1 \
         libxcursor1 \
         libxi6 \
         libxkbcommon0 \
+        libxkbcommon-x11-0 \
         libxrandr2 \
         libxrender1 \
         libxtst6 \
