@@ -1135,10 +1135,6 @@ class Collection(DeprecatedNamesMixin):
     def _remNotes(self, ids: list[NoteId]) -> None:
         pass
 
-    @deprecated(replaced_by=card_stats)
-    def cardStats(self, card: Card) -> str:
-        return self.card_stats(card.id, include_revlog=False)
-
     @deprecated(replaced_by=after_note_updates)
     def updateFieldCache(self, nids: list[NoteId]) -> None:
         self.after_note_updates(nids, mark_modified=False, generate_cards=False)

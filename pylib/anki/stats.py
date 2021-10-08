@@ -13,44 +13,7 @@ from typing import Sequence
 import anki.cards
 import anki.collection
 from anki.consts import *
-from anki.lang import FormatTimeSpan
 from anki.utils import ids2str
-
-# Card stats
-##########################################################################
-
-
-class CardStats:
-    """
-    New code should just call collection.card_stats() directly - this class
-    is only left around for backwards compatibility.
-    """
-
-    def __init__(self, col: anki.collection.Collection, card: anki.cards.Card) -> None:
-        if col:
-            self.col = col.weakref()
-        self.card = card
-        self.txt = ""
-
-    def report(self, include_revlog: bool = False) -> str:
-        return self.col.card_stats(self.card.id, include_revlog=include_revlog)
-
-    # legacy
-
-    def addLine(self, k: str, v: int | str) -> None:
-        self.txt += self.makeLine(k, v)
-
-    def makeLine(self, k: str, v: str | int) -> str:
-        txt = "<tr><td align=left style='padding-right: 3px;'>"
-        txt += f"<b>{k}</b></td><td>{v}</td></tr>"
-        return txt
-
-    def date(self, tm: float) -> str:
-        return time.strftime("%Y-%m-%d", time.localtime(tm))
-
-    def time(self, tm: float) -> str:
-        return self.col.format_timespan(tm, context=FormatTimeSpan.PRECISE)
-
 
 # Collection stats
 ##########################################################################
