@@ -52,12 +52,12 @@ class QtAudioInputRecorder(Recorder):
 
     def start(self, on_done: Callable[[], None]) -> None:
         self._iodevice = self._audio_input.start()
-        self._buffer = b""
-        self._iodevice.readyRead.connect(self._on_read_ready)  # type: ignore
+        self._buffer = bytearray()
+        qconnect(self._iodevice.readyRead, self._on_read_ready)
         super().start(on_done)
 
     def _on_read_ready(self) -> None:
-        self._buffer += cast(bytes, self._iodevice.readAll())
+        self._buffer.extend(cast(bytes, self._iodevice.readAll()))
 
     def stop(self, on_done: Callable[[str], None]) -> None:
         def on_stop_timer() -> None:
