@@ -9,10 +9,10 @@ compile_sass(
     ),
     group = "css_local",
     deps = [
-        "//ts/sass:core_lib",
-        "//ts/sass:buttons_lib",
-        "//ts/sass:scrollbar_lib",
-        "//ts/sass:card_counts_lib",
+        "//sass:core_lib",
+        "//sass:buttons_lib",
+        "//sass:scrollbar_lib",
+        "//sass:card_counts_lib",
     ],
     visibility = ["//visibility:private"],
 )

@@ -10,8 +10,8 @@ compile_sass(
     group = "base_css",
     visibility = ["//visibility:public"],
     deps = [
-        "//ts/sass:base_lib",
-        "//ts/sass:scrollbar_lib",
+        "//sass:base_lib",
+        "//sass:scrollbar_lib",
     ],
 )
 

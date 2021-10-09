@@ -78,5 +78,5 @@ def svelte_check(name = "svelte_check", srcs = []):
         data = [
             "@npm//sass",
         ] + srcs,
-        env = {"SASS_PATH": "ts/sass"},
+        env = {"SASS_PATH": "sass"},
     )
