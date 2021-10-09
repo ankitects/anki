@@ -403,7 +403,9 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
 
                 result.append(fld["sticky"])
 
-            update_notetype_legacy(parent=self.mw, notetype=model).run_in_background()
+            update_notetype_legacy(parent=self.mw, notetype=model).run_in_background(
+                initiator=self
+            )
 
             return result
 
@@ -416,7 +418,9 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             new_state = not fld["sticky"]
             fld["sticky"] = new_state
 
-            update_notetype_legacy(parent=self.mw, notetype=model).run_in_background()
+            update_notetype_legacy(parent=self.mw, notetype=model).run_in_background(
+                initiator=self
+            )
 
             return new_state
 
