@@ -36,4 +36,5 @@ pkg_tar(
 exports_files([
     "defs.bzl",
     "package.json",
+    ".prettierrc",
 ])
