@@ -1,15 +1,15 @@
-@use "vars";
-@use "scrollbar";
-@use "bootstrap-dark";
+@use "sass/vars";
+@use "sass/scrollbar";
+@use "sass/bootstrap-dark";
 
-@import "base";
+@import "sass/base";
 
-@import "bootstrap/scss/alert";
-@import "bootstrap/scss/forms";
-@import "bootstrap/scss/buttons";
-@import "bootstrap/scss/button-group";
-@import "bootstrap/scss/close";
-@import "bootstrap/scss/grid";
+@import "sass/bootstrap/scss/alert";
+@import "sass/bootstrap/scss/forms";
+@import "sass/bootstrap/scss/buttons";
+@import "sass/bootstrap/scss/button-group";
+@import "sass/bootstrap/scss/close";
+@import "sass/bootstrap/scss/grid";
 
 .night-mode {
     @include scrollbar.night-mode;

@@ -14,7 +14,7 @@ genrule(
 genrule(
     name = "extract_sass_colors",
     srcs = [
-        "//ts/sass:_vars.scss",
+        "//sass:_vars.scss",
     ],
     outs = ["colors.py"],
     cmd = "$(location //qt:extract_sass_colors) $< $@",
