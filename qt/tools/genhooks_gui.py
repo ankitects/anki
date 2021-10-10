@@ -787,6 +787,12 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         doc="""Executed after the user selects a new note type when adding
         cards.""",
     ),
+    Hook(
+        name="add_cards_did_change_deck",
+        args=["new_deck_id: int"],
+        doc="""Executed after the user selects a new different deck when 
+        adding cards.""",
+    ),
     # Editing
     ###################
     Hook(
