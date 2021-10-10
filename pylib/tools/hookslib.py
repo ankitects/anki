@@ -28,6 +28,8 @@ class Hook:
     legacy_hook: Optional[str] = None
     # if legacy hook takes no arguments but the new hook does, set this
     legacy_no_args: bool = False
+    # if legacy hook takes only part of the new hook arguments, set the names here
+    legacy_arg_names: list[str] = None
     # docstring to add to hook class
     doc: Optional[str] = None
 
@@ -105,8 +107,12 @@ class {self.classname()}:
         if self.legacy_no_args:
             # hook name only
             return f'"{self.legacy_hook}"'
-        else:
-            return ", ".join([f'"{self.legacy_hook}"'] + self.arg_names())
+        _arg_names = self.arg_names()
+        if self.legacy_arg_names:
+            for _arg_name in _arg_names:
+                if _arg_name not in self.legacy_arg_names:
+                    _arg_names.remove(_arg_name)
+        return ", ".join([f'"{self.legacy_hook}"'] + _arg_names)
 
     def hook_fire_code(self) -> str:
         arg_names = self.arg_names()
