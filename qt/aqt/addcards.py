@@ -230,7 +230,7 @@ class AddCards(QDialog):
             tooltip(tr.adding_added(), period=500)
             av_player.stop_and_clear_queue()
             self._load_new_note(sticky_fields_from=note)
-            gui_hooks.add_cards_did_add_note(note)
+            gui_hooks.add_cards_did_add_note(note, target_deck_id)
 
         add_note(parent=self, note=note, target_deck_id=target_deck_id).success(
             on_success
