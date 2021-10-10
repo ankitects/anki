@@ -38,6 +38,16 @@ $ ln -sf /usr/local/bin/{python3.9,python}
 This linking will not work if you're using the system Python from Big Sur,
 which is one of the reasons why we recommend using Python from python.org.
 
+But even so, if you still have a Python 2 binary on your system linked to 
+/usr/bin/python, it can happen that Bazel uses that, causing the build 
+process to error. In that case you can force Bazel to use the symlinked 
+/usr/local/python instead of /usr/bin/python by putting the following into 
+a file called user.bazelrc at the top of this repo before proceeding.
+
+```
+build --action_env=PYO3_PYTHON=/usr/local/bin/python
+```
+
 ## Running Anki during development
 
 From the top level of Anki's source folder:
