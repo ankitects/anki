@@ -59,8 +59,6 @@ from aqt.profiles import ProfileManager, VideoDriver  # isort:skip
 profiler: Optional[cProfile.Profile] = None
 mw: Optional[AnkiQt] = None  # set on init
 
-moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-
 import aqt.forms
 
 # Dialog manager
