@@ -50,10 +50,6 @@ def aqt_data_folder() -> str:
     return "."
 
 
-def locale_dir() -> str:
-    return os.path.join(aqt_data_folder(), "locale")
-
-
 # shortcut to access Fluent translations; set as
 tr = tr_legacyglobal
 
