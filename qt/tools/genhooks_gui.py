@@ -762,7 +762,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         name="add_cards_did_add_note",
         args=["note: anki.notes.Note", "deck_id: int"],
         legacy_hook="AddCards.noteAdded",
-        legacy_arg_names="[note]"
+        legacy_arg_names="[note]",
     ),
     Hook(
         name="add_cards_will_add_note",
