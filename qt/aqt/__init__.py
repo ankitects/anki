@@ -22,7 +22,7 @@ from anki.consts import HELP_SITE
 from anki.utils import checksum, isLin, isMac
 from aqt import gui_hooks
 from aqt.qt import *
-from aqt.utils import TR, locale_dir, tr
+from aqt.utils import TR, tr
 
 if sys.version_info[0] < 3 or sys.version_info[1] < 9:
     raise Exception("Anki requires Python 3.9+")
