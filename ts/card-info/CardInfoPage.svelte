@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Stats } from "../lib/proto";
 
     export let stats: Stats.CardStatsResponse;
-    import * as tr2 from "../lib/i18n";
+    import * as tr2 from "../lib/ftl";
 
     class StatsRow {
         constructor(public label: string, public value: string) {}
