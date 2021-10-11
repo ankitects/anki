@@ -73,7 +73,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {#each statsRows as row, _index}
                 {#if row.value}
                     <tr>
-                        <th>{row.label}</th>
+                        <th style="text-align:start">{row.label}</th>
                         <td>{row.value}</td>
                     </tr>
                 {/if}
@@ -119,15 +119,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .stats-table {
         width: 100%;
-        text-align: left;
+        text-align: start;
     }
 
     .left {
-        text-align: left;
+        text-align: start;
     }
 
     .right {
-        text-align: right;
+        text-align: end;
     }
 
     .center {
