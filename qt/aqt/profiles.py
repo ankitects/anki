@@ -31,11 +31,6 @@ from aqt.utils import disable_help_button, showWarning, tr
 # - Saves in sqlite rather than a flat file so the config can't be corrupted
 
 
-class RecordingDriver(Enum):
-    PyAudio = "PyAudio"
-    QtAudioInput = "Qt"
-
-
 class VideoDriver(Enum):
     OpenGL = "auto"
     ANGLE = "angle"
@@ -555,18 +550,6 @@ create table if not exists profiles
 
     def set_auto_sync_media_minutes(self, val: int) -> None:
         self.profile["autoSyncMediaMinutes"] = val
-
-    def recording_driver(self) -> RecordingDriver:
-        if driver := self.profile.get("recordingDriver"):
-            try:
-                return RecordingDriver(driver)
-            except ValueError:
-                # revert to default
-                pass
-        return RecordingDriver.QtAudioInput
-
-    def set_recording_driver(self, driver: RecordingDriver) -> None:
-        self.profile["recordingDriver"] = driver.value
 
     def show_browser_table_tooltips(self) -> bool:
         return self.profile.get("browserTableTooltips", True)

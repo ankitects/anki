@@ -33,7 +33,6 @@ except:
     import PyQt5.QtSvg  # type: ignore
     import PyQt5.QtMultimedia  # type: ignore
 import socks
-import pyaudio
 
 # legacy compat
 import anki.storage

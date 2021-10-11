@@ -96,9 +96,3 @@ class QtAudioInputRecorder(Recorder):
         t.timeout.connect(on_stop_timer)  # type: ignore
         t.setSingleShot(True)
         t.start(500)
-
-
-def prompt_for_mic_permission() -> None:
-    from PyQt5.QtMultimedia import QAudioDeviceInfo
-
-    QAudioDeviceInfo.defaultInputDevice()

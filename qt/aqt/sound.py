@@ -9,7 +9,6 @@ import platform
 import re
 import subprocess
 import sys
-import threading
 import time
 import wave
 from abc import ABC, abstractmethod
@@ -23,11 +22,9 @@ import aqt
 from anki import hooks
 from anki.cards import Card
 from anki.sound import AV_REF_RE, AVTag, SoundOrVideoTag
-from anki.types import assert_exhaustive
 from anki.utils import isLin, isMac, isWin, namedtmp
 from aqt import gui_hooks
 from aqt.mpv import MPV, MPVBase, MPVCommandError
-from aqt.profiles import RecordingDriver
 from aqt.qt import *
 from aqt.taskman import TaskManager
 from aqt.utils import (
@@ -546,16 +543,6 @@ class Recorder(ABC):
 ##########################################################################
 
 
-def prompt_for_mic_permission() -> None:
-    if qtmajor == 5 and isMac:
-        from .qt5 import prompt_for_mic_permission
-
-        prompt_for_mic_permission()
-    else:
-        # no longer seems to be required, perhaps due to newer macOS sdk?
-        pass
-
-
 class QtAudioInputRecorder(Recorder):
     def __init__(self, output_path: str, mw: aqt.AnkiQt, parent: QWidget) -> None:
         super().__init__(output_path)
@@ -625,87 +612,6 @@ class QtAudioInputRecorder(Recorder):
         t.start(500)
 
 
-# PyAudio recording
-##########################################################################
-
-try:
-    import pyaudio
-except:
-    pyaudio = None
-
-
-PYAU_CHANNELS = 1
-PYAU_INPUT_INDEX: int | None = None
-
-
-class PyAudioThreadedRecorder(threading.Thread):
-    def __init__(self, output_path: str, startup_delay: float) -> None:
-        threading.Thread.__init__(self)
-        self._output_path = output_path
-        self._startup_delay = startup_delay
-        self.finish = False
-        # though we're using pyaudio here, we rely on Qt to trigger
-        # the permission prompt
-        prompt_for_mic_permission()
-
-    def run(self) -> None:
-        chunk = 1024
-        p = pyaudio.PyAudio()
-
-        rate = int(p.get_default_input_device_info()["defaultSampleRate"])
-        PYAU_FORMAT = pyaudio.paInt16
-
-        stream = p.open(
-            format=PYAU_FORMAT,
-            channels=PYAU_CHANNELS,
-            rate=rate,
-            input=True,
-            input_device_index=PYAU_INPUT_INDEX,
-            frames_per_buffer=chunk,
-        )
-
-        # swallow the first 300ms to allow audio device to quiesce
-        wait = int(rate * self._startup_delay)
-        stream.read(wait, exception_on_overflow=False)
-
-        # read data in a loop until self.finish is set
-        data = b""
-        while not self.finish:
-            data += stream.read(chunk, exception_on_overflow=False)
-
-        # write out the wave file
-        stream.close()
-        p.terminate()
-        wf = wave.open(self._output_path, "wb")
-        wf.setnchannels(PYAU_CHANNELS)
-        wf.setsampwidth(p.get_sample_size(PYAU_FORMAT))
-        wf.setframerate(rate)
-        wf.writeframes(data)
-        wf.close()
-
-
-class PyAudioRecorder(Recorder):
-    def __init__(self, mw: aqt.AnkiQt, output_path: str) -> None:
-        super().__init__(output_path)
-        self.mw = mw
-
-    def start(self, on_done: Callable[[], None]) -> None:
-        self.thread = PyAudioThreadedRecorder(self.output_path, self.STARTUP_DELAY)
-        self.thread.start()
-        super().start(on_done)
-
-    def stop(self, on_done: Callable[[str], None]) -> None:
-        # ensure at least a second captured
-        while self.duration() < 1:
-            time.sleep(0.1)
-
-        def func(fut: Future) -> None:
-            Recorder.stop(self, on_done)
-
-        self.thread.finish = True
-        self.mw.taskman.run_in_background(self.thread.join, func)
-
-
 # Recording dialog
 ##########################################################################
 
@@ -760,20 +666,14 @@ class RecordDialog(QDialog):
         saveGeom(self, "audioRecorder2")
 
     def _start_recording(self) -> None:
-        driver = self.mw.pm.recording_driver()
-        if driver is RecordingDriver.PyAudio:
-            self._recorder = PyAudioRecorder(self.mw, namedtmp("rec.wav"))
-        elif driver is RecordingDriver.QtAudioInput:
-            if qtmajor > 5:
-                self._recorder = QtAudioInputRecorder(
-                    namedtmp("rec.wav"), self.mw, self._parent
-                )
-            else:
-                from .qt5 import QtAudioInputRecorder as Qt5Recorder
-
-                self._recorder = Qt5Recorder(namedtmp("rec.wav"), self.mw, self._parent)
+        if qtmajor > 5:
+            self._recorder = QtAudioInputRecorder(
+                namedtmp("rec.wav"), self.mw, self._parent
+            )
         else:
-            assert_exhaustive(driver)
+            from .qt5 import QtAudioInputRecorder as Qt5Recorder
+
+            self._recorder = Qt5Recorder(namedtmp("rec.wav"), self.mw, self._parent)
         self._recorder.start(self._start_timer)
 
     def _start_timer(self) -> None:
