@@ -664,6 +664,10 @@ document.head.appendChild(style);
         self._page.setContent(cast(QByteArray, bytes("", "ascii")))
 
     def __del__(self) -> None:
-        from aqt import mw
+        try:
+            from aqt import mw
+        except ImportError:
+            # this will fail when __del__ is called during app shutdown
+            return
 
         mw.mediaServer.clear_page_html(id(self))
