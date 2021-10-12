@@ -32,4 +32,4 @@ class BrowserConfig:
 
 class BrowserDefaults:
     CARD_COLUMNS = ["noteFld", "template", "cardDue", "deck"]
-    NOTE_COLUMNS = ["noteFld", "note", "noteCards", "noteTags"]
+    NOTE_COLUMNS = ["noteFld", "note", "template", "noteTags"]
