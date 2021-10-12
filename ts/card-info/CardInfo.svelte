@@ -23,14 +23,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     statsRows.push({ label: tr2.cardStatsAdded(), value: dateString(stats.added) });
 
     const firstReview = unwrapOptionalNumber(stats.firstReview);
-    if (firstReview) {
+    if (firstReview !== undefined) {
         statsRows.push({
             label: tr2.cardStatsFirstReview(),
             value: dateString(firstReview),
         });
     }
     const latestReview = unwrapOptionalNumber(stats.latestReview);
-    if (latestReview) {
+    if (latestReview !== undefined) {
         statsRows.push({
             label: tr2.cardStatsLatestReview(),
             value: dateString(latestReview),
@@ -38,11 +38,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const dueDate = unwrapOptionalNumber(stats.dueDate);
-    if (dueDate) {
+    if (dueDate !== undefined) {
         statsRows.push({ label: tr2.statisticsDueDate(), value: dateString(dueDate) });
     }
     const duePosition = unwrapOptionalNumber(stats.duePosition);
-    if (duePosition) {
+    if (duePosition !== undefined) {
         statsRows.push({
             label: tr2.cardStatsNewCardPosition(),
             value: dateString(duePosition),
