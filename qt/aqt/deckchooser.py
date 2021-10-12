@@ -28,7 +28,6 @@ class DeckChooser(QHBoxLayout):
         if starting_deck_id is None:
             starting_deck_id = DeckId(self.mw.col.get_config("curDeck", default=1) or 1)
         self.selected_deck_id = starting_deck_id
-        self.on_deck_changed = None
         self.on_deck_changed = on_deck_changed
 
     def _setup_ui(self, show_label: bool) -> None:
