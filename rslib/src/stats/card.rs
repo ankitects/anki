@@ -1,12 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use chrono::prelude::*;
-
-use crate::{
-    backend_proto as pb, card::CardQueue, i18n::I18n, prelude::*, revlog::RevlogEntry,
-    scheduler::timespan::time_span,
-};
+use crate::{backend_proto as pb, card::CardQueue, prelude::*, revlog::RevlogEntry};
 
 impl Collection {
     pub fn card_stats(&mut self, cid: CardId) -> Result<pb::CardStatsResponse> {
@@ -24,22 +19,26 @@ impl Collection {
             .ok_or(AnkiError::NotFound)?;
         let revlog = self.storage.get_revlog_entries_for_card(card.id)?;
 
-        let (average_secs, total_secs) = average_and_total_secs_strings(&self.tr, &revlog);
+        let (average_secs, total_secs) = average_and_total_secs_strings(&revlog);
         let (due_date, due_position) = self.due_date_and_position_strings(&card)?;
 
         Ok(pb::CardStatsResponse {
-            card_id: card.id.to_string(),
-            note_id: card.note_id.to_string(),
+            card_id: card.id.into(),
+            note_id: card.note_id.into(),
             deck: deck.human_name(),
-            added: card.id.as_secs().date_string(),
-            first_review: first_review_string(&revlog),
-            latest_review: latest_review_string(&revlog),
+            added: card.id.as_secs().0,
+            first_review: revlog.first().map(|entry| pb::generic::Int64 {
+                val: entry.id.as_secs().0,
+            }),
+            latest_review: revlog.last().map(|entry| pb::generic::Int64 {
+                val: entry.id.as_secs().0,
+            }),
             due_date,
             due_position,
-            interval: interval_string(&self.tr, &card),
-            ease: ease_string(card.ease_factor as u32),
-            reviews: card.reps.to_string(),
-            lapses: card.lapses.to_string(),
+            interval: card.interval,
+            ease: card.ease_factor as u32,
+            reviews: card.reps,
+            lapses: card.lapses,
             average_secs,
             total_secs,
             card_type: nt.get_template(card.template_idx)?.name.clone(),
@@ -47,103 +46,63 @@ impl Collection {
             revlog: revlog
                 .iter()
                 .rev()
-                .map(|entry| stats_revlog_entry(&self.tr, entry))
+                .map(|entry| stats_revlog_entry(entry))
                 .collect(),
         })
     }
 
-    fn due_date_and_position_strings(&mut self, card: &Card) -> Result<(String, String)> {
+    fn due_date_and_position_strings(
+        &mut self,
+        card: &Card,
+    ) -> Result<(Option<pb::generic::Int64>, Option<pb::generic::Int32>)> {
         let due = if card.original_due != 0 {
             card.original_due
         } else {
             card.due
         };
         Ok(match card.queue {
-            CardQueue::New => ("".to_string(), due.to_string()),
-            CardQueue::Learn => (TimestampSecs::now().date_string(), "".to_string()),
+            CardQueue::New => (None, Some(pb::generic::Int32 { val: due })),
+            CardQueue::Learn => (
+                Some(pb::generic::Int64 {
+                    val: TimestampSecs::now().0,
+                }),
+                None,
+            ),
             CardQueue::Review | CardQueue::DayLearn => (
                 {
                     let days_remaining = due - (self.timing_today()?.days_elapsed as i32);
                     let mut due = TimestampSecs::now();
                     due.0 += (days_remaining as i64) * 86_400;
-                    due.date_string()
+                    Some(pb::generic::Int64 { val: due.0 })
                 },
-                "".to_string(),
+                None,
             ),
-            _ => ("".to_string(), "".to_string()),
+            _ => (None, None),
         })
     }
 }
 
-fn first_review_string(revlog: &[RevlogEntry]) -> String {
-    if let Some(entry) = revlog.first() {
-        entry.id.as_secs().date_string()
-    } else {
-        "".to_string()
-    }
-}
-
-fn latest_review_string(revlog: &[RevlogEntry]) -> String {
-    if let Some(entry) = revlog.last() {
-        entry.id.as_secs().date_string()
-    } else {
-        "".to_string()
-    }
-}
-
-fn ease_string(ease_factor: u32) -> String {
-    if ease_factor > 0 {
-        format!("{}%", ease_factor / 10)
-    } else {
-        "".to_string()
-    }
-}
-
-fn interval_string(tr: &I18n, card: &Card) -> String {
-    if card.interval > 0 {
-        time_span((card.interval * 86_400) as f32, tr, true)
-    } else {
-        "".to_string()
-    }
-}
-
-fn average_and_total_secs_strings(tr: &I18n, revlog: &[RevlogEntry]) -> (String, String) {
+fn average_and_total_secs_strings(revlog: &[RevlogEntry]) -> (f32, f32) {
     let normal_answer_count = revlog.iter().filter(|r| r.button_chosen > 0).count();
     let total_secs: f32 = revlog
         .iter()
         .map(|entry| (entry.taken_millis as f32) / 1000.0)
         .sum();
     if normal_answer_count == 0 || total_secs == 0.0 {
-        ("".to_string(), "".to_string())
+        (0.0, 0.0)
     } else {
-        let average_secs = total_secs / normal_answer_count as f32;
-        (
-            time_span(average_secs, tr, true),
-            time_span(average_secs, tr, true),
-        )
+        (total_secs / normal_answer_count as f32, total_secs)
     }
 }
 
-fn stats_revlog_entry(tr: &I18n, entry: &RevlogEntry) -> pb::card_stats_response::StatsRevlogEntry {
-    let dt = Local.timestamp(entry.id.as_secs().0, 0);
-    let time = dt.format("%Y-%m-%d @ %H:%M").to_string();
-    let interval = if entry.interval == 0 {
-        String::from("")
-    } else {
-        let interval_secs = entry.interval_secs();
-        time_span(interval_secs as f32, tr, true)
-    };
-    let taken_secs = tr
-        .statistics_seconds_taken((entry.taken_millis / 1000) as i32)
-        .into();
-
+fn stats_revlog_entry(entry: &RevlogEntry) -> pb::card_stats_response::StatsRevlogEntry {
     pb::card_stats_response::StatsRevlogEntry {
-        time,
+        time: entry.id.as_secs().0,
         review_kind: entry.review_kind.into(),
         button_chosen: entry.button_chosen as u32,
-        interval,
-        ease: ease_string(entry.ease_factor),
-        taken_secs,
+        interval: entry.interval_secs(),
+        ease: entry.ease_factor,
+        taken_secs: entry.taken_millis as f32 / 1000.,
     }
 }
 

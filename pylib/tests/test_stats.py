@@ -17,7 +17,7 @@ def test_stats():
     # card stats
     card_stats = CardStats()
     card_stats.ParseFromString(col.card_stats(c.id))
-    assert card_stats.note_id == str(note.id)
+    assert card_stats.note_id == note.id
     col.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 3)

@@ -14,7 +14,13 @@ export async function cardInfoPage(
     checkNightMode();
     const [stats] = await Promise.all([
         getCardStats(cardId),
-        setupI18n({ modules: [ModuleName.CARD_STATS, ModuleName.STATISTICS] }),
+        setupI18n({
+            modules: [
+                ModuleName.CARD_STATS,
+                ModuleName.SCHEDULING,
+                ModuleName.STATISTICS,
+            ],
+        }),
     ]);
     return new CardInfoPage({
         target,

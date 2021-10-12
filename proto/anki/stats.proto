@@ -17,27 +17,32 @@ service StatsService {
 
 message CardStatsResponse {
   message StatsRevlogEntry {
-    string time = 1;
+    int64 time = 1;
     RevlogEntry.ReviewKind review_kind = 2;
     uint32 button_chosen = 3;
-    string interval = 4;
-    string ease = 5;
-    string taken_secs = 6;
+    // seconds
+    uint32 interval = 4;
+    // per mill
+    uint32 ease = 5;
+    float taken_secs = 6;
   }
-  string card_id = 1;
-  string note_id = 2;
+  int64 card_id = 1;
+  int64 note_id = 2;
   string deck = 3;
-  string added = 4;
-  string first_review = 5;
-  string latest_review = 6;
-  string due_date = 7;
-  string due_position = 8;
-  string interval = 9;
-  string ease = 10;
-  string reviews = 11;
-  string lapses = 12;
-  string average_secs = 13;
-  string total_secs = 14;
+  // Unix timestamps
+  int64 added = 4;
+  generic.Int64 first_review = 5;
+  generic.Int64 latest_review = 6;
+  generic.Int64 due_date = 7;
+  generic.Int32 due_position = 8;
+  // days
+  uint32 interval = 9;
+  // per mill
+  uint32 ease = 10;
+  uint32 reviews = 11;
+  uint32 lapses = 12;
+  float average_secs = 13;
+  float total_secs = 14;
   string card_type = 15;
   string notetype = 16;
   repeated StatsRevlogEntry revlog = 17;

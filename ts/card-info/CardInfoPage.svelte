@@ -3,35 +3,78 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { Stats } from "../lib/proto";
+    import * as tr2 from "../lib/ftl";
+    import { Stats, unwrapOptionalNumber } from "../lib/proto";
+    import { Timestamp, timeSpan, DAY } from "../lib/time";
 
     export let stats: Stats.CardStatsResponse;
-    import * as tr2 from "../lib/ftl";
 
-    class StatsRow {
-        constructor(public label: string, public value: string) {}
+    function dateString(timestamp: number): string {
+        return new Timestamp(timestamp).dateString();
     }
 
-    let statsRows: StatsRow[] = [
-        new StatsRow(tr2.cardStatsAdded(), stats.added),
-        new StatsRow(tr2.cardStatsFirstReview(), stats.firstReview),
-        new StatsRow(tr2.cardStatsLatestReview(), stats.latestReview),
-        new StatsRow(tr2.statisticsDueDate(), stats.dueDate),
-        new StatsRow(tr2.cardStatsNewCardPosition(), stats.duePosition),
-        new StatsRow(tr2.cardStatsInterval(), stats.interval),
-        new StatsRow(tr2.cardStatsEase(), stats.ease),
-        new StatsRow(tr2.cardStatsReviewCount(), stats.reviews),
-        new StatsRow(tr2.cardStatsLapseCount(), stats.lapses),
-        new StatsRow(tr2.cardStatsAverageTime(), stats.averageSecs),
-        new StatsRow(tr2.cardStatsTotalTime(), stats.totalSecs),
-        new StatsRow(tr2.cardStatsCardTemplate(), stats.cardType),
-        new StatsRow(tr2.cardStatsNoteType(), stats.notetype),
-        new StatsRow(tr2.cardStatsDeckName(), stats.deck),
-        new StatsRow(tr2.cardStatsCardId(), stats.cardId),
-        new StatsRow(tr2.cardStatsNoteId(), stats.noteId),
-    ];
+    class StatsRow {
+        constructor(public label: string, public value: string | number) {}
+    }
+
+    const statsRows: StatsRow[] = [];
+
+    statsRows.push(new StatsRow(tr2.cardStatsAdded(), dateString(stats.added)));
+
+    const firstReview = unwrapOptionalNumber(stats.firstReview);
+    if (firstReview) {
+        statsRows.push(
+            new StatsRow(tr2.cardStatsFirstReview(), dateString(firstReview))
+        );
+    }
+    const latestReview = unwrapOptionalNumber(stats.latestReview);
+    if (latestReview) {
+        statsRows.push(
+            new StatsRow(tr2.cardStatsLatestReview(), dateString(latestReview))
+        );
+    }
+
+    const dueDate = unwrapOptionalNumber(stats.dueDate);
+    if (dueDate) {
+        statsRows.push(new StatsRow(tr2.statisticsDueDate(), dateString(dueDate)));
+    }
+    const duePosition = unwrapOptionalNumber(stats.duePosition);
+    if (duePosition) {
+        statsRows.push(
+            new StatsRow(tr2.cardStatsNewCardPosition(), dateString(duePosition))
+        );
+    }
+
+    if (stats.interval) {
+        statsRows.push(
+            new StatsRow(tr2.cardStatsInterval(), timeSpan(stats.interval * DAY))
+        );
+    }
+    if (stats.ease) {
+        statsRows.push(new StatsRow(tr2.cardStatsEase(), `${stats.ease / 10}%`));
+    }
+
+    statsRows.push(new StatsRow(tr2.cardStatsReviewCount(), stats.reviews));
+    statsRows.push(new StatsRow(tr2.cardStatsLapseCount(), stats.lapses));
+
+    if (stats.totalSecs) {
+        statsRows.push(
+            new StatsRow(tr2.cardStatsAverageTime(), timeSpan(stats.averageSecs))
+        );
+        statsRows.push(
+            new StatsRow(tr2.cardStatsTotalTime(), timeSpan(stats.totalSecs))
+        );
+    }
+
+    statsRows.push(new StatsRow(tr2.cardStatsCardTemplate(), stats.cardType));
+    statsRows.push(new StatsRow(tr2.cardStatsNoteType(), stats.notetype));
+    statsRows.push(new StatsRow(tr2.cardStatsDeckName(), stats.deck));
+
+    statsRows.push(new StatsRow(tr2.cardStatsCardId(), stats.cardId));
+    statsRows.push(new StatsRow(tr2.cardStatsNoteId(), stats.noteId));
 
     type IStatsRevlogEntry = Stats.CardStatsResponse.IStatsRevlogEntry;
+
     function reviewKindClass(entry: IStatsRevlogEntry): string {
         switch (entry.reviewKind) {
             case Stats.RevlogEntry.ReviewKind.LEARNING:
@@ -65,18 +108,42 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
         return "";
     }
+
+    class RevlogRow {
+        public date: string;
+        public time: string;
+        public reviewKind: string;
+        public reviewKindClass: string;
+        public rating: number;
+        public ratingClass: string;
+        public interval: string;
+        public ease: string;
+        public takenSecs: string;
+        constructor(entry: IStatsRevlogEntry) {
+            const timestamp = new Timestamp(entry.time!);
+            this.date = timestamp.dateString();
+            this.time = timestamp.timeString();
+            this.reviewKind = reviewKindLabel(entry);
+            this.reviewKindClass = reviewKindClass(entry);
+            this.rating = entry.buttonChosen!;
+            this.ratingClass = ratingClass(entry);
+            this.interval = timeSpan(entry.interval!);
+            this.ease = entry.ease ? `${entry.ease / 10}%` : "";
+            this.takenSecs = timeSpan(entry.takenSecs!, true);
+        }
+    }
+
+    const revlogRows: RevlogRow[] = stats.revlog.map((entry) => new RevlogRow(entry));
 </script>
 
 <div class="container">
     <div>
         <table class="stats-table">
             {#each statsRows as row, _index}
-                {#if row.value}
-                    <tr>
-                        <th style="text-align:start">{row.label}</th>
-                        <td>{row.value}</td>
-                    </tr>
-                {/if}
+                <tr>
+                    <th style="text-align:start">{row.label}</th>
+                    <td>{row.value}</td>
+                </tr>
             {/each}
         </table>
         {#if stats.revlog.length}
@@ -90,18 +157,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <th>{tr2.cardStatsEase()}</th>
                         <th>{tr2.cardStatsReviewLogTimeTaken()}</th>
                     </tr>
-                    {#each stats.revlog as entry, _index}
+                    {#each revlogRows as row, _index}
                         <tr>
-                            <td class="left">{entry.time}</td>
-                            <td class="center {reviewKindClass(entry)}">
-                                {reviewKindLabel(entry)}
+                            <td class="left"><b>{row.date}</b> @ {row.time}</td>
+                            <td class="center {row.reviewKindClass}">
+                                {row.reviewKind}
                             </td>
-                            <td class="center {ratingClass(entry)}"
-                                >{entry.buttonChosen}</td
-                            >
-                            <td class="center">{entry.interval}</td>
-                            <td class="center">{entry.ease}</td>
-                            <td class="right">{entry.takenSecs}</td>
+                            <td class="center {row.ratingClass}">{row.rating}</td>
+                            <td class="center">{row.interval}</td>
+                            <td class="center">{row.ease}</td>
+                            <td class="right">{row.takenSecs}</td>
                         </tr>
                     {/each}
                 </table>
