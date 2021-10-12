@@ -1,4 +1,5 @@
-load("//ts:vendor.bzl", "copy_mdi_icons", "copy_bootstrap_icons")
+load("//ts:vendor.bzl", "copy_mdi_icons")
+load("@rules_python//python:defs.bzl", "py_binary")
 
 copy_mdi_icons(
     name = "mdi-icons",
@@ -37,6 +38,9 @@ copy_mdi_icons(
 
 filegroup(
     name = "icons",
-    srcs = ["mdi-icons"] + glob(["*.svg", "*.png"]),
+    srcs = ["mdi-icons"] + glob([
+        "*.svg",
+        "*.png",
+    ]),
     visibility = ["//visibility:public"],
 )

@@ -324,7 +324,7 @@ def get_id_and_pass_from_user(
     diag.setLayout(vbox)
     diag.show()
 
-    accepted = diag.exec_()
+    accepted = diag.exec()
     if not accepted:
         return ("", "")
     return (user.text().strip(), passwd.text())

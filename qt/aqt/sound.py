@@ -734,7 +734,7 @@ class RecordDialog(QDialog):
     def _setup_dialog(self) -> None:
         self.setWindowTitle("Anki")
         icon = QLabel()
-        icon.setPixmap(QPixmap(":/icons/media-record.png"))
+        icon.setPixmap(QPixmap("icons:media-record.png"))
         self.label = QLabel("...")
         hbox = QHBoxLayout()
         hbox.addWidget(icon)

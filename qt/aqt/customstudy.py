@@ -33,7 +33,7 @@ class CustomStudy(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setupSignals()
         f.radioNew.click()
-        self.exec_()
+        self.exec()
 
     def setupSignals(self) -> None:
         f = self.form

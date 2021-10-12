@@ -120,7 +120,11 @@ class AnkiWebPage(QWebEnginePage):
     def acceptNavigationRequest(
         self, url: QUrl, navType: Any, isMainFrame: bool
     ) -> bool:
-        if not self.open_links_externally or "_anki/pages" in url.path():
+        if (
+            not self.open_links_externally
+            or "_anki/pages" in url.path()
+            or url.path() == "/_anki/legacyPageData"
+        ):
             return super().acceptNavigationRequest(url, navType, isMainFrame)
 
         if not isMainFrame:
@@ -282,14 +286,7 @@ class AnkiWebView(QWebEngineView):
             w = w.parent()
 
     def onCopy(self) -> None:
-        if not self.selectedText():
-            if not isMac:
-                # crashes on a mac when clicking in the main window and pressing cmd+c
-                ctx = self._page.contextMenuData()
-                if ctx and ctx.mediaType() == QWebEngineContextMenuData.MediaTypeImage:
-                    self.triggerPageAction(QWebEnginePage.CopyImageToClipboard)
-        else:
-            self.triggerPageAction(QWebEnginePage.Copy)
+        self.triggerPageAction(QWebEnginePage.Copy)
 
     def onCut(self) -> None:
         self.triggerPageAction(QWebEnginePage.Cut)
@@ -322,12 +319,23 @@ class AnkiWebView(QWebEngineView):
         self.show()
 
     def _setHtml(self, html: str) -> None:
+        """Send page data to media server, then surf to it.
+
+        This function used to be implemented by QWebEngine's
+        .setHtml() call. It is no longer used, as it has a
+        maximum size limit, and due to security changes, it
+        will stop working in the future."""
         from aqt import mw
 
         oldFocus = mw.app.focusWidget()
         self._domDone = False
-        self._page.setHtml(html)
+
+        webview_id = id(self)
+        mw.mediaServer.set_page_html(webview_id, html)
+        self.load_url(QUrl(f"{mw.serverURL()}_anki/legacyPageData?id={webview_id}"))
+
         # work around webengine stealing focus on setHtml()
+        # fixme: check which if any qt versions this is still required on
         if oldFocus:
             oldFocus.setFocus()
 
@@ -353,19 +361,7 @@ class AnkiWebView(QWebEngineView):
         if isLin:
             factor = max(1, factor)
             return factor
-        # compensate for qt's integer scaling on windows?
-        if qtminor >= 14:
-            return 1
-        qtIntScale = self._getQtIntScale(screen)
-        desiredScale = factor * qtIntScale
-        newFactor = desiredScale / qtIntScale
-        return max(1, newFactor)
-
-    @staticmethod
-    def setPlaybackRequiresGesture(value: bool) -> None:
-        QWebEngineSettings.globalSettings().setAttribute(
-            QWebEngineSettings.PlaybackRequiresUserGesture, value
-        )
+        return 1
 
     def _getQtIntScale(self, screen: QWidget) -> int:
         # try to detect if Qt has scaled the screen
@@ -665,4 +661,13 @@ document.head.appendChild(style);
         Must be done on Windows prior to changing current working directory."""
         self.requiresCol = False
         self._domReady = False
-        self._page.setContent(bytes("", "ascii"))
+        self._page.setContent(cast(QByteArray, bytes("", "ascii")))
+
+    def __del__(self) -> None:
+        try:
+            from aqt import mw
+        except ImportError:
+            # this will fail when __del__ is called during app shutdown
+            return
+
+        mw.mediaServer.clear_page_html(id(self))

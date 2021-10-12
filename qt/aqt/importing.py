@@ -60,7 +60,7 @@ class ChangeMap(QDialog):
         self.field: Optional[str] = None
 
     def getField(self) -> str:
-        self.exec_()
+        self.exec()
         return self.field
 
     def accept(self) -> None:
@@ -109,7 +109,7 @@ class ImportDialog(QDialog):
         # import button
         b = QPushButton(tr.actions_import())
         self.frm.buttonBox.addButton(b, QDialogButtonBox.AcceptRole)
-        self.exec_()
+        self.exec()
 
     def setupOptions(self) -> None:
         self.model = self.mw.col.models.current()

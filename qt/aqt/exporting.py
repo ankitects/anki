@@ -40,7 +40,7 @@ class ExportDialog(QDialog):
         self.cids = cids
         disable_help_button(self)
         self.setup(did)
-        self.exec_()
+        self.exec()
 
     def setup(self, did: DeckId | None) -> None:
         self.exporters = exporters(self.col)

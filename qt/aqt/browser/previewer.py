@@ -53,7 +53,7 @@ class Previewer(QDialog):
         self._close_callback = on_close
         self.mw = mw
         icon = QIcon()
-        icon.addPixmap(QPixmap(":/icons/anki.png"), QIcon.Normal, QIcon.Off)
+        icon.addPixmap(QPixmap("icons:anki.png"), QIcon.Normal, QIcon.Off)
         disable_help_button(self)
         self.setWindowIcon(icon)
 
@@ -209,7 +209,6 @@ class Previewer(QDialog):
             bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
             if c.autoplay():
-                AnkiWebView.setPlaybackRequiresGesture(False)
                 if self._show_both_sides:
                     # if we're showing both sides at once, remove any audio
                     # from the answer that's appeared on the question already
@@ -224,7 +223,6 @@ class Previewer(QDialog):
                     audio = c.answer_av_tags()
                 av_player.play_tags(audio)
             else:
-                AnkiWebView.setPlaybackRequiresGesture(True)
                 av_player.clear_queue_and_maybe_interrupt()
 
             txt = self.mw.prepare_card_text_for_display(txt)

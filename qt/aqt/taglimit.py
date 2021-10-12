@@ -32,7 +32,7 @@ class TagLimit(QDialog):
         qconnect(s.activated, self.dialog.inactiveList.clearSelection)
         self.rebuildTagList()
         restoreGeom(self, "tagLimit")
-        self.exec_()
+        self.exec()
 
     def rebuildTagList(self) -> None:
         usertags = self.mw.col.tags.byDeck(self.deck["id"], True)

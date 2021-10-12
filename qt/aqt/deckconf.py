@@ -59,7 +59,7 @@ class DeckConf(QDialog):
         restoreGeom(self, "deckconf", adjustSize=True)
         gui_hooks.deck_conf_will_show(self)
         self.show()
-        self.exec_()
+        self.exec()
         saveGeom(self, "deckconf")
 
     def setupCombos(self) -> None:
@@ -106,7 +106,7 @@ class DeckConf(QDialog):
         qconnect(a.triggered, self.setChildren)
         if not self.childDids:
             a.setEnabled(False)
-        m.exec_(QCursor.pos())
+        m.exec(QCursor.pos())
 
     def onConfChange(self, idx: int) -> None:
         if self.ignoreConfChange:
