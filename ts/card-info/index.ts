@@ -5,12 +5,12 @@ import { getCardStats } from "./lib";
 import { setupI18n, ModuleName } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
 
-import CardInfoPage from "./CardInfoPage.svelte";
+import CardInfo from "./CardInfo.svelte";
 
-export async function cardInfoPage(
+export async function cardInfo(
     target: HTMLDivElement,
     cardId: number
-): Promise<CardInfoPage> {
+): Promise<CardInfo> {
     checkNightMode();
     const [stats] = await Promise.all([
         getCardStats(cardId),
@@ -22,7 +22,7 @@ export async function cardInfoPage(
             ],
         }),
     ]);
-    return new CardInfoPage({
+    return new CardInfo({
         target,
         props: { stats },
     });
