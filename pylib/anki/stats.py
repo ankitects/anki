@@ -7,13 +7,65 @@ from __future__ import annotations
 
 import datetime
 import json
+import random
 import time
 from typing import Sequence
 
 import anki.cards
 import anki.collection
 from anki.consts import *
-from anki.utils import ids2str
+from anki.lang import FormatTimeSpan
+from anki.utils import base62, ids2str
+
+# Card stats
+##########################################################################
+
+
+def _legacy_card_stats(
+    col: anki.collection.Collection, card_id: anki.cards.CardId, include_revlog: bool
+) -> str:
+    "A quick hack to preserve compatibility with the old HTML string API."
+    random_id = f"cardinfo-{base62(random.randint(0, 2 ** 64 - 1))}"
+    return f"""
+<div id="{random_id}"></div>
+<script src="js/vendor/bootstrap.bundle.min.js"></script>
+<link href="pages/card-info-base.css" rel="stylesheet" />
+<link href="pages/card-info.css" rel="stylesheet" />
+<script src="pages/card-info.js"></script>
+<script>
+    anki.cardInfo(document.getElementById('{random_id}'), {card_id}, {include_revlog});
+</script>
+    """
+
+
+class CardStats:
+    """Do not use - this class is only left around for backwards compatibility."""
+
+    def __init__(self, col: anki.collection.Collection, card: anki.cards.Card) -> None:
+        if col:
+            self.col = col.weakref()
+        self.card = card
+        self.txt = ""
+
+    def report(self, include_revlog: bool = False) -> str:
+        return _legacy_card_stats(self.col, self.card.id, include_revlog)
+
+    # legacy
+
+    def addLine(self, k: str, v: int | str) -> None:
+        self.txt += self.makeLine(k, v)
+
+    def makeLine(self, k: str, v: str | int) -> str:
+        txt = "<tr><td align=left style='padding-right: 3px;'>"
+        txt += f"<b>{k}</b></td><td>{v}</td></tr>"
+        return txt
+
+    def date(self, tm: float) -> str:
+        return time.strftime("%Y-%m-%d", time.localtime(tm))
+
+    def time(self, tm: float) -> str:
+        return self.col.format_timespan(tm, context=FormatTimeSpan.PRECISE)
+
 
 # Collection stats
 ##########################################################################
