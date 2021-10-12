@@ -4,7 +4,6 @@ load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:esbuild.bzl", "esbuild")
 load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:typescript.bzl", "typescript")
-load("//ts:jest.bzl", "jest_test")
 
 compile_sass(
     srcs = ["card-info-base.scss"],
@@ -25,12 +24,7 @@ typescript(
         ":svelte",
         "//ts/components",
         "//ts/lib",
-        "//ts/sveltelib",
         "@npm//@fluent",
-        "@npm//@types/jest",
-        "@npm//lodash-es",
-        "@npm//svelte",
-        "@npm//svelte2tsx",
     ],
 )
 
@@ -49,9 +43,6 @@ esbuild(
         ":svelte",
         "//ts/components",
         "//ts/lib",
-        "//ts/sveltelib",
-        "@npm//bootstrap",
-        "@npm//marked",
         "@npm//protobufjs",
     ],
 )
@@ -73,16 +64,6 @@ svelte_check(
     ]) + [
         "//sass:button_mixins_lib",
         "//sass/bootstrap",
-        "@npm//@types/bootstrap",
-        "@npm//@types/lodash-es",
-        "@npm//@types/marked",
         "//ts/components",
-    ],
-)
-
-jest_test(
-    protobuf = True,
-    deps = [
-        ":index",
     ],
 )
