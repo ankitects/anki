@@ -290,8 +290,9 @@ def platDesc() -> str:
             elif system == "Linux":
                 import distro  # pytype: disable=import-error # pylint: disable=import-error
 
-                r = distro.linux_distribution(full_distribution_name=False)
-                theos = f"lin:{r[0]}:{r[1]}"
+                dist_id = distro.id()
+                dist_version = distro.version()
+                theos = f"lin:{dist_id}:{dist_version}"
             else:
                 theos = system
             break
