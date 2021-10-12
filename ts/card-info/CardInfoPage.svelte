@@ -13,65 +13,72 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return new Timestamp(timestamp).dateString();
     }
 
-    class StatsRow {
-        constructor(public label: string, public value: string | number) {}
+    interface StatsRow {
+        label: string;
+        value: string | number;
     }
 
     const statsRows: StatsRow[] = [];
 
-    statsRows.push(new StatsRow(tr2.cardStatsAdded(), dateString(stats.added)));
+    statsRows.push({ label: tr2.cardStatsAdded(), value: dateString(stats.added) });
 
     const firstReview = unwrapOptionalNumber(stats.firstReview);
     if (firstReview) {
-        statsRows.push(
-            new StatsRow(tr2.cardStatsFirstReview(), dateString(firstReview))
-        );
+        statsRows.push({
+            label: tr2.cardStatsFirstReview(),
+            value: dateString(firstReview),
+        });
     }
     const latestReview = unwrapOptionalNumber(stats.latestReview);
     if (latestReview) {
-        statsRows.push(
-            new StatsRow(tr2.cardStatsLatestReview(), dateString(latestReview))
-        );
+        statsRows.push({
+            label: tr2.cardStatsLatestReview(),
+            value: dateString(latestReview),
+        });
     }
 
     const dueDate = unwrapOptionalNumber(stats.dueDate);
     if (dueDate) {
-        statsRows.push(new StatsRow(tr2.statisticsDueDate(), dateString(dueDate)));
+        statsRows.push({ label: tr2.statisticsDueDate(), value: dateString(dueDate) });
     }
     const duePosition = unwrapOptionalNumber(stats.duePosition);
     if (duePosition) {
-        statsRows.push(
-            new StatsRow(tr2.cardStatsNewCardPosition(), dateString(duePosition))
-        );
+        statsRows.push({
+            label: tr2.cardStatsNewCardPosition(),
+            value: dateString(duePosition),
+        });
     }
 
     if (stats.interval) {
-        statsRows.push(
-            new StatsRow(tr2.cardStatsInterval(), timeSpan(stats.interval * DAY))
-        );
+        statsRows.push({
+            label: tr2.cardStatsInterval(),
+            value: timeSpan(stats.interval * DAY),
+        });
     }
     if (stats.ease) {
-        statsRows.push(new StatsRow(tr2.cardStatsEase(), `${stats.ease / 10}%`));
+        statsRows.push({ label: tr2.cardStatsEase(), value: `${stats.ease / 10}%` });
     }
 
-    statsRows.push(new StatsRow(tr2.cardStatsReviewCount(), stats.reviews));
-    statsRows.push(new StatsRow(tr2.cardStatsLapseCount(), stats.lapses));
+    statsRows.push({ label: tr2.cardStatsReviewCount(), value: stats.reviews });
+    statsRows.push({ label: tr2.cardStatsLapseCount(), value: stats.lapses });
 
     if (stats.totalSecs) {
-        statsRows.push(
-            new StatsRow(tr2.cardStatsAverageTime(), timeSpan(stats.averageSecs))
-        );
-        statsRows.push(
-            new StatsRow(tr2.cardStatsTotalTime(), timeSpan(stats.totalSecs))
-        );
+        statsRows.push({
+            label: tr2.cardStatsAverageTime(),
+            value: timeSpan(stats.averageSecs),
+        });
+        statsRows.push({
+            label: tr2.cardStatsTotalTime(),
+            value: timeSpan(stats.totalSecs),
+        });
     }
 
-    statsRows.push(new StatsRow(tr2.cardStatsCardTemplate(), stats.cardType));
-    statsRows.push(new StatsRow(tr2.cardStatsNoteType(), stats.notetype));
-    statsRows.push(new StatsRow(tr2.cardStatsDeckName(), stats.deck));
+    statsRows.push({ label: tr2.cardStatsCardTemplate(), value: stats.cardType });
+    statsRows.push({ label: tr2.cardStatsNoteType(), value: stats.notetype });
+    statsRows.push({ label: tr2.cardStatsDeckName(), value: stats.deck });
 
-    statsRows.push(new StatsRow(tr2.cardStatsCardId(), stats.cardId));
-    statsRows.push(new StatsRow(tr2.cardStatsNoteId(), stats.noteId));
+    statsRows.push({ label: tr2.cardStatsCardId(), value: stats.cardId });
+    statsRows.push({ label: tr2.cardStatsNoteId(), value: stats.noteId });
 
     type IStatsRevlogEntry = Stats.CardStatsResponse.IStatsRevlogEntry;
 
@@ -109,31 +116,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return "";
     }
 
-    class RevlogRow {
-        public date: string;
-        public time: string;
-        public reviewKind: string;
-        public reviewKindClass: string;
-        public rating: number;
-        public ratingClass: string;
-        public interval: string;
-        public ease: string;
-        public takenSecs: string;
-        constructor(entry: IStatsRevlogEntry) {
-            const timestamp = new Timestamp(entry.time!);
-            this.date = timestamp.dateString();
-            this.time = timestamp.timeString();
-            this.reviewKind = reviewKindLabel(entry);
-            this.reviewKindClass = reviewKindClass(entry);
-            this.rating = entry.buttonChosen!;
-            this.ratingClass = ratingClass(entry);
-            this.interval = timeSpan(entry.interval!);
-            this.ease = entry.ease ? `${entry.ease / 10}%` : "";
-            this.takenSecs = timeSpan(entry.takenSecs!, true);
-        }
+    interface RevlogRow {
+        date: string;
+        time: string;
+        reviewKind: string;
+        reviewKindClass: string;
+        rating: number;
+        ratingClass: string;
+        interval: string;
+        ease: string;
+        takenSecs: string;
     }
 
-    const revlogRows: RevlogRow[] = stats.revlog.map((entry) => new RevlogRow(entry));
+    function revlogRowFromEntry(entry: IStatsRevlogEntry): RevlogRow {
+        const timestamp = new Timestamp(entry.time!);
+        return {
+            date: timestamp.dateString(),
+            time: timestamp.timeString(),
+            reviewKind: reviewKindLabel(entry),
+            reviewKindClass: reviewKindClass(entry),
+            rating: entry.buttonChosen!,
+            ratingClass: ratingClass(entry),
+            interval: timeSpan(entry.interval!),
+            ease: entry.ease ? `${entry.ease / 10}%` : "",
+            takenSecs: timeSpan(entry.takenSecs!, true),
+        };
+    }
+
+    const revlogRows: RevlogRow[] = stats.revlog.map((entry) =>
+        revlogRowFromEntry(entry)
+    );
 </script>
 
 <div class="container">
