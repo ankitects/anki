@@ -9,7 +9,8 @@ import CardInfo from "./CardInfo.svelte";
 
 export async function cardInfo(
     target: HTMLDivElement,
-    cardId: number
+    cardId: number,
+    includeRevlog: boolean
 ): Promise<CardInfo> {
     checkNightMode();
     const [stats] = await Promise.all([
@@ -22,6 +23,9 @@ export async function cardInfo(
             ],
         }),
     ]);
+    if (!includeRevlog) {
+        stats.revlog = [];
+    }
     return new CardInfo({
         target,
         props: { stats },

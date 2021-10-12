@@ -46,7 +46,9 @@ class CardInfoDialog(QDialog):
         qconnect(buttons.rejected, self.reject)
         self.setLayout(layout)
 
-        self.web.eval(f"anki.cardInfo(document.getElementById('main'), {card_id});")
+        self.web.eval(
+            f"anki.cardInfo(document.getElementById('main'), {card_id}, true);"
+        )
 
     def reject(self) -> None:
         self.web = None
