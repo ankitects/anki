@@ -1,5 +1,5 @@
-@use "core";
-@use "scrollbar";
+@use "sass/core";
+@use "sass/scrollbar";
 
 .night-mode {
     @include scrollbar.night-mode;

@@ -9,7 +9,7 @@ sass_library(
         "bootstrap-dark.scss",
     ],
     visibility = ["//visibility:public"],
-    deps = ["//ts/sass/bootstrap", "//ts/sass/codemirror"],
+    deps = ["//sass/bootstrap", "//sass/codemirror"],
 )
 
 sass_library(

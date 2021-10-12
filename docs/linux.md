@@ -93,6 +93,21 @@ If you or your distro has made ccache the standard compiler, you will need to
 set CC and CXX to point directly to gcc/g++ or clang/clang++ prior to building
 Anki.
 
+## Missing Libraries
+
+If you get errors during startup, try starting with
+
+QT_DEBUG_PLUGINS=1 ./run
+
+It will likely complain about missing libraries, which you can install with
+your package manager. Some of the libraries that might be required on Debian
+for example:
+
+```
+sudo apt install libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+  libxcb-randr0 libxcb-render-util0
+```
+
 ## Optimized builds
 
 The `./run` command will create a non-optimized build by default. This is faster

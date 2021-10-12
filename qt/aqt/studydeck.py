@@ -87,7 +87,7 @@ class StudyDeck(QDialog):
         self.show()
         # redraw after show so position at center correct
         self.redraw("", current)
-        self.exec_()
+        self.exec()
 
     def eventFilter(self, obj: QObject, evt: QEvent) -> bool:
         if isinstance(evt, QKeyEvent) and evt.type() == QEvent.KeyPress:

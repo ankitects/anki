@@ -3,12 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import * as tr from "../lib/i18n";
-
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
     import IconButton from "../components/IconButton.svelte";
 
+    import * as tr from "../lib/ftl";
     import { inlineIcon, blockIcon } from "./icons";
 
     export let activeImage: HTMLImageElement;
@@ -17,7 +16,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: mathjaxElement = activeImage.parentElement!;
 </script>
 
-<ButtonGroup size={1.6} wrap={false} reverse={isRtl}>
+<ButtonGroup size={1.6} wrap={false}>
+    {#if isRtl}
+        <!-- fixme -->
+    {/if}
     <ButtonGroupItem>
         <IconButton
             tooltip={tr.editingMathjaxInline()}

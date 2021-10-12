@@ -21,6 +21,7 @@ import {
     curveBasis,
 } from "d3";
 
+import * as tr from "../lib/ftl";
 import { showTooltip, hideTooltip } from "./tooltip";
 import {
     GraphBounds,
@@ -29,7 +30,6 @@ import {
     millisecondCutoffForRange,
 } from "./graph-helpers";
 import { oddTickClass } from "./graph-styles";
-import * as tr from "../lib/i18n";
 
 interface Hour {
     hour: number;

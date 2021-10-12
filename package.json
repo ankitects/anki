@@ -51,7 +51,7 @@
     },
     "scripts": {
         "fix": "prettier --write */*.ts */*.svelte",
-        "postinstall": "patch-package"
+        "postinstall": "patch-package --patch-dir ts/patches"
     },
     "dependencies": {
         "@fluent/bundle": "^0.17.0",

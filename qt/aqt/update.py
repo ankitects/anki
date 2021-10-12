@@ -65,7 +65,7 @@ def askAndUpdate(mw: aqt.AnkiQt, ver: str) -> None:
     button = QPushButton(tr.qt_misc_ignore_this_update())
     msg.addButton(button, QMessageBox.RejectRole)
     msg.setDefaultButton(QMessageBox.Yes)
-    ret = msg.exec_()
+    ret = msg.exec()
     if msg.clickedButton() == button:
         # ignore this update
         mw.pm.meta["suppressUpdate"] = ver

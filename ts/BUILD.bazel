@@ -12,7 +12,6 @@ sql_format_setup()
 #################
 
 exports_files([
-    ".prettierrc",
     ".eslintrc.js",
     "licenses.json",
     "sql_format.ts",

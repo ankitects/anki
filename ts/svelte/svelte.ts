@@ -90,8 +90,8 @@ const languageServiceHost: ts.LanguageServiceHost = {
 
 const languageService = ts.createLanguageService(languageServiceHost);
 
-function compile(tsPath: string) {
-    parsedCommandLine.fileNames = [tsPath];
+function compile(tsPath: string, tsLibs: string[]) {
+    parsedCommandLine.fileNames = [tsPath, ...tsLibs];
     const program = languageService.getProgram()!;
     const tsHost = ts.createCompilerHost(parsedCommandLine.options);
     const createdFiles = {};
@@ -124,8 +124,8 @@ function readFile(file) {
     });
 }
 
-async function writeDts(tsPath, dtsPath) {
-    const dtsSource = compile(tsPath);
+async function writeDts(tsPath, dtsPath, tsLibs) {
+    const dtsSource = compile(tsPath, tsLibs);
     await writeFile(dtsPath, dtsSource);
 }
 
@@ -150,14 +150,13 @@ async function writeJs(
     const preprocessOptions = preprocess({
         scss: {
             includePaths: [
-                "ts/sass",
-                `${binDir}/ts/sass`,
-                `${genDir}/ts/sass`,
-                // a nasty hack to ensure ts/sass/... resolves correctly
+                binDir,
+                genDir,
+                // a nasty hack to ensure sass/... resolves correctly
                 // when invoked from an external workspace
-                `${binDir}/external/ankidesktop/ts/sass`,
-                `${genDir}/external/ankidesktop/ts/sass`,
-                `${binDir}/../../../external/ankidesktop/ts/sass`,
+                `${binDir}/external/ankidesktop`,
+                `${genDir}/external/ankidesktop`,
+                `${binDir}/../../../external/ankidesktop`,
             ],
         },
     });
@@ -192,12 +191,12 @@ async function writeJs(
 }
 
 async function compileSvelte(args) {
-    const [sveltePath, mjsPath, dtsPath, cssPath, binDir, genDir] = args;
+    const [sveltePath, mjsPath, dtsPath, cssPath, binDir, genDir, ...tsLibs] = args;
     const svelteSource = (await readFile(sveltePath)) as string;
 
     const mockTsPath = sveltePath + ".tsx";
     writeTs(svelteSource, sveltePath, mockTsPath);
-    await writeDts(mockTsPath, dtsPath);
+    await writeDts(mockTsPath, dtsPath, tsLibs);
     await writeJs(svelteSource, sveltePath, mjsPath, cssPath, binDir, genDir);
 
     return true;

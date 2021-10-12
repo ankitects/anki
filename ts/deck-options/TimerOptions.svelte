@@ -3,11 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "../lib/i18n";
     import TitledContainer from "./TitledContainer.svelte";
     import Item from "../components/Item.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import SwitchRow from "./SwitchRow.svelte";
+    import * as tr from "../lib/ftl";
     import type { DeckOptionsState } from "./lib";
 
     export let state: DeckOptionsState;

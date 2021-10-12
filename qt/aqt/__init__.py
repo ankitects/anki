@@ -22,10 +22,10 @@ from anki.consts import HELP_SITE
 from anki.utils import checksum, isLin, isMac
 from aqt import gui_hooks
 from aqt.qt import *
-from aqt.utils import TR, locale_dir, tr
+from aqt.utils import TR, tr
 
-if sys.version_info[0] < 3 or sys.version_info[1] < 7:
-    raise Exception("Anki requires Python 3.7+")
+if sys.version_info[0] < 3 or sys.version_info[1] < 9:
+    raise Exception("Anki requires Python 3.9+")
 
 # ensure unicode filenames are supported
 try:
@@ -54,21 +54,12 @@ appUpdate = "https://ankiweb.net/update/desktop"
 appHelpSite = HELP_SITE
 
 from aqt.main import AnkiQt  # isort:skip
-from aqt.profiles import ProfileManager, AnkiRestart, VideoDriver  # isort:skip
+from aqt.profiles import ProfileManager, VideoDriver  # isort:skip
 
 profiler: Optional[cProfile.Profile] = None
 mw: Optional[AnkiQt] = None  # set on init
 
-moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-
-try:
-    import aqt.forms
-except ImportError as e:
-    if "forms" in str(e):
-        print("If you're running from git, did you run build_ui.sh?")
-        print()
-    raise
-
+import aqt.forms
 
 # Dialog manager
 ##########################################################################
@@ -498,10 +489,6 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
     try:
         pm = ProfileManager(opts.base)
         pmLoadResult = pm.setupMeta()
-    except AnkiRestart as error:
-        if error.exitcode:
-            sys.exit(error.exitcode)
-        return None
     except:
         # will handle below
         traceback.print_exc()
@@ -526,6 +513,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
 
     if (
         isWin
+        and qtmajor == 5
         and (qtminor == 14 or (qtminor == 15 and qtpoint == 0))
         and "QT_QPA_PLATFORM" not in os.environ
     ):
@@ -586,6 +574,11 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
             tr.qt_misc_no_temp_folder(),
         )
         return None
+
+    # make image resources available
+    from aqt.utils import aqt_data_folder
+
+    QDir.addSearchPath("icons", os.path.join(aqt_data_folder(), "qt", "icons"))
 
     if pmLoadResult.firstTime:
         pm.setDefaultLang(lang[0])

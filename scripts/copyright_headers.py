@@ -18,7 +18,7 @@ nonstandard_header = {
 ignored_folders = [
     "bazel-",
     "qt/forms",
-    "ts/node_modules",
+    "node_modules",
 ]
 
 if not os.path.exists("WORKSPACE"):

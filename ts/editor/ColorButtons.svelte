@@ -3,8 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
-    import * as tr from "../lib/i18n";
-
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
     import IconButton from "../components/IconButton.svelte";
@@ -13,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithColorHelper from "./WithColorHelper.svelte";
     import OnlyEditable from "./OnlyEditable.svelte";
 
+    import * as tr from "../lib/ftl";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { withButton } from "../components/helpers";
     import { textColorIcon, highlightColorIcon, arrowIcon } from "./icons";

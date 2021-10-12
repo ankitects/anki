@@ -14,7 +14,7 @@ genrule(
 genrule(
     name = "extract_sass_colors",
     srcs = [
-        "//ts/sass:_vars.scss",
+        "//sass:_vars.scss",
     ],
     outs = ["colors.py"],
     cmd = "$(location //qt:extract_sass_colors) $< $@",
@@ -32,7 +32,6 @@ _py_srcs = glob(
 
 _py_srcs_and_forms = _py_srcs + [
     "//qt/aqt/forms:forms",
-    "//qt/aqt/forms:icons",
 ]
 
 aqt_core_data = [

@@ -3,17 +3,6 @@ load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "declaratio
 load("@io_bazel_rules_sass//:defs.bzl", "SassInfo")
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 
-def _get_dep_sources(dep):
-    if SassInfo in dep:
-        return dep[SassInfo].transitive_sources
-    elif DeclarationInfo in dep:
-        return dep[DeclarationInfo].transitive_declarations
-    else:
-        return []
-
-def _get_sources(deps):
-    return depset([], transitive = [_get_dep_sources(dep) for dep in deps])
-
 def _svelte(ctx):
     args = ctx.actions.args()
     args.use_param_file("@%s", use_always = True)
@@ -25,18 +14,19 @@ def _svelte(ctx):
     args.add(ctx.outputs.css.path)
     args.add(ctx.var["BINDIR"])
     args.add(ctx.var["GENDIR"])
+    args.add_all(ctx.files._shims)
 
     ctx.actions.run(
         execution_requirements = {"supports-workers": "1"},
         executable = ctx.executable._svelte_bin,
         outputs = [ctx.outputs.mjs, ctx.outputs.dts, ctx.outputs.css],
-        inputs = [ctx.file.entry_point],
+        inputs = [ctx.file.entry_point] + ctx.files._shims,
         mnemonic = "Svelte",
         arguments = [args],
     )
 
     return [
-        declaration_info(depset([ctx.outputs.dts]), deps = []),
+        declaration_info(depset([ctx.outputs.dts]), deps = [ctx.attr._shims]),
     ]
 
 svelte = rule(
@@ -47,6 +37,10 @@ svelte = rule(
             default = Label("//ts/svelte:svelte_bin"),
             executable = True,
             cfg = "host",
+        ),
+        "_shims": attr.label(
+            default = Label("@npm//svelte2tsx:svelte2tsx__typings"),
+            allow_files = True,
         ),
     },
     outputs = {
@@ -82,8 +76,7 @@ def svelte_check(name = "svelte_check", srcs = []):
             "--fail-on-hints",
         ],
         data = [
-            "//ts:tsconfig_bin",
             "@npm//sass",
         ] + srcs,
-        env = {"SASS_PATH": "ts/sass"},
+        env = {"SASS_PATH": "sass"},
     )

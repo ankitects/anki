@@ -29,6 +29,9 @@ for line in outdata.splitlines():
         if substr in line:
             line = line + "  # type: ignore"
             break
+    if line == "from . import icons_rc":
+        continue
+    line = line.replace(":/icons/", "icons:")
     outlines.append(line)
 
 with open(py_file, "w") as file:
