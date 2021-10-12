@@ -26,26 +26,26 @@ message CardStatsResponse {
     uint32 ease = 5;
     float taken_secs = 6;
   }
-  int64 card_id = 1;
-  int64 note_id = 2;
-  string deck = 3;
+  repeated StatsRevlogEntry revlog = 1;
+  int64 card_id = 2;
+  int64 note_id = 3;
+  string deck = 4;
   // Unix timestamps
-  int64 added = 4;
-  generic.Int64 first_review = 5;
-  generic.Int64 latest_review = 6;
-  generic.Int64 due_date = 7;
-  generic.Int32 due_position = 8;
+  int64 added = 5;
+  generic.Int64 first_review = 6;
+  generic.Int64 latest_review = 7;
+  generic.Int64 due_date = 8;
+  generic.Int32 due_position = 9;
   // days
-  uint32 interval = 9;
+  uint32 interval = 10;
   // per mill
-  uint32 ease = 10;
-  uint32 reviews = 11;
-  uint32 lapses = 12;
-  float average_secs = 13;
-  float total_secs = 14;
-  string card_type = 15;
-  string notetype = 16;
-  repeated StatsRevlogEntry revlog = 17;
+  uint32 ease = 11;
+  uint32 reviews = 12;
+  uint32 lapses = 13;
+  float average_secs = 14;
+  float total_secs = 15;
+  string card_type = 16;
+  string notetype = 17;
 }
 
 message GraphsRequest {
