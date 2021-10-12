@@ -74,7 +74,10 @@ class AddCards(QDialog):
             on_notetype_changed=self.on_notetype_change,
         )
         self.deck_chooser = DeckChooser(
-            self.mw, self.form.deckArea, starting_deck_id=DeckId(defaults.deck_id)
+            self.mw,
+            self.form.deckArea,
+            starting_deck_id=DeckId(defaults.deck_id),
+            on_deck_changed=self.on_deck_changed,
         )
 
     def helpRequested(self) -> None:
@@ -116,6 +119,9 @@ class AddCards(QDialog):
 
     def show_notetype_selector(self) -> None:
         self.editor.call_after_note_saved(self.notetype_chooser.choose_notetype)
+
+    def on_deck_changed(self, deck_id: int) -> None:
+        gui_hooks.add_cards_did_change_deck(deck_id)
 
     def on_notetype_change(self, notetype_id: NotetypeId) -> None:
         # need to adjust current deck?

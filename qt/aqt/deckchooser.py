@@ -16,6 +16,7 @@ class DeckChooser(QHBoxLayout):
         widget: QWidget,
         label: bool = True,
         starting_deck_id: Optional[DeckId] = None,
+        on_deck_changed: Optional[Callable[[int], None]] = None,
     ) -> None:
         QHBoxLayout.__init__(self)
         self._widget = widget  # type: ignore
@@ -27,6 +28,7 @@ class DeckChooser(QHBoxLayout):
         if starting_deck_id is None:
             starting_deck_id = DeckId(self.mw.col.get_config("curDeck", default=1) or 1)
         self.selected_deck_id = starting_deck_id
+        self.on_deck_changed = on_deck_changed
 
     def _setup_ui(self, show_label: bool) -> None:
         self.setContentsMargins(0, 0, 0, 0)
@@ -98,7 +100,11 @@ class DeckChooser(QHBoxLayout):
             geomKey="selectDeck",
         )
         if ret.name:
-            self.selected_deck_id = self.mw.col.decks.by_name(ret.name)["id"]
+            new_selected_deck_id = self.mw.col.decks.by_name(ret.name)["id"]
+            if self.selected_deck_id != new_selected_deck_id:
+                self.selected_deck_id = new_selected_deck_id
+                if func := self.on_deck_changed:
+                    func(new_selected_deck_id)
 
     # legacy
 
