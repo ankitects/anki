@@ -30,7 +30,6 @@ anki_i18n = { path="i18n" }
 nom = "7.0.0"
 proc-macro-nested = "0.1.7"
 slog-term = "2.8.0"
-askama = "0.10.5"
 blake3 = "1.0.0"
 bytes = "1.1.0"
 chrono = "0.4.19"
