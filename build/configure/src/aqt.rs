@@ -202,7 +202,8 @@ fn build_vendor_js(build: &mut Build) -> Result<()> {
                 ":node_modules:jquery-ui",
                 ":node_modules:css-browser-selector",
                 ":node_modules:bootstrap-dist",
-                "qt/aqt/data/web/js/vendor/plot.js"
+                "qt/aqt/data/web/js/vendor/plot.js",
+                "qt/aqt/data/web/js/vendor/ankimedia.js"
             ],
             output_folder: "qt/_aqt/data/web/js/vendor",
         },
