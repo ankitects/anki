@@ -20,6 +20,8 @@ from anki.utils import base62, ids2str
 # Card stats
 ##########################################################################
 
+_legacy_nightmode = False
+
 
 def _legacy_card_stats(
     col: anki.collection.Collection, card_id: anki.cards.CardId, include_revlog: bool
@@ -33,6 +35,9 @@ def _legacy_card_stats(
 <link href="pages/card-info.css" rel="stylesheet" />
 <script src="pages/card-info.js"></script>
 <script>
+    if ({1 if _legacy_nightmode else 0}) {{
+        document.documentElement.className = "night-mode";
+    }}
     anki.cardInfo(document.getElementById('{random_id}'), {card_id}, {include_revlog});
 </script>
     """
