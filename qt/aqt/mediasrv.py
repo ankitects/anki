@@ -413,7 +413,8 @@ def complete_tag() -> bytes:
 
 
 def card_stats() -> bytes:
-    return aqt.mw.col.card_stats_data(CardId(int(request.data)))
+    args = from_json_bytes(request.data)
+    return aqt.mw.col.card_stats_data(CardId(args["cardId"]))
 
 
 # these require a collection
