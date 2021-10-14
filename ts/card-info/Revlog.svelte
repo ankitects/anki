@@ -81,22 +81,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div class="revlog-container">
         <table class="revlog-table">
             <tr>
-                <th>{tr2.cardStatsReviewLogDate()}</th>
-                <th>{tr2.cardStatsReviewLogType()}</th>
+                <th class="left">{tr2.cardStatsReviewLogDate()}</th>
+                <th class="hidden-xs">{tr2.cardStatsReviewLogType()}</th>
                 <th>{tr2.cardStatsReviewLogRating()}</th>
                 <th>{tr2.cardStatsInterval()}</th>
-                <th>{tr2.cardStatsEase()}</th>
+                <th class="hidden-xs">{tr2.cardStatsEase()}</th>
                 <th>{tr2.cardStatsReviewLogTimeTaken()}</th>
             </tr>
             {#each revlogRows as row, _index}
                 <tr>
                     <td class="left"><b>{row.date}</b> @ {row.time}</td>
-                    <td class="center {row.reviewKindClass}">
+                    <td class="center hidden-xs {row.reviewKindClass}">
                         {row.reviewKind}
                     </td>
                     <td class="center {row.ratingClass}">{row.rating}</td>
                     <td class="center">{row.interval}</td>
-                    <td class="center">{row.ease}</td>
+                    <td class="center hidden-xs">{row.ease}</td>
                     <td class="right">{row.takenSecs}</td>
                 </tr>
             {/each}
@@ -118,12 +118,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .revlog-container {
-        margin: 4em -2em 0 -2em;
+        margin-top: 2em;
     }
 
     .revlog-table {
         width: 100%;
-        border-spacing: 2em 0em;
+        border-spacing: 1em 0;
+        border-collapse: collapse;
     }
 
     .revlog-learn {
@@ -137,5 +138,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .revlog-relearn,
     .revlog-ease1 {
         color: var(--learn-count);
+    }
+
+    @media only screen and (max-device-width: 480px) and (orientation: portrait) {
+        .hidden-xs {
+            display: none;
+        }
     }
 </style>
