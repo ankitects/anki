@@ -264,16 +264,6 @@ class AddCards(QDialog):
 
         return True
 
-    def keyPressEvent(self, evt: QKeyEvent) -> None:
-        "Show answer on RET or register answer."
-        if (
-            evt.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return)
-            and self.editor.tags.hasFocus()
-        ):
-            evt.accept()
-            return
-        return QDialog.keyPressEvent(self, evt)
-
     def reject(self) -> None:
         self.ifCanClose(self._reject)
 
