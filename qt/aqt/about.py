@@ -208,6 +208,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "叶峻峣",
             "RumovZ",
             "学习骇客",
+            "ready-research",
         )
     )
 
