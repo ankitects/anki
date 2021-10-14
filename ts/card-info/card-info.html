@@ -10,5 +10,13 @@
     </head>
     <body>
         <div id="main"></div>
+
+        <script>
+            // use #testXXXX where XXXX is card ID to test
+            if (window.location.hash.startsWith("#test")) {
+                const cid = parseInt(window.location.hash.substr("#test".length), 10);
+                anki.cardInfo(document.getElementById("main"), cid, true);
+            }
+        </script>
     </body>
 </html>
