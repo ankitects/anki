@@ -52,6 +52,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let fieldStores: Writable<string>[] = [];
     let fieldNames: string[] = [];
     export function setFields(fs: [string, string][]): void {
+        // this is a bit of a mess -- when moving to Rust calls, we should make
+        // sure to have two backend endpoints for:
+        // * the note, which can be set through this view
+        // * the fieldname, font, etc., which cannot be set
+
         const newFieldNames: string[] = [];
 
         for (const [index, [fieldName]] of fs.entries()) {
