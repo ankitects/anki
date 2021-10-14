@@ -20,7 +20,7 @@ import type {
     CustomElementArray,
     DecoratedElementConstructor,
 } from "../editable/decorated";
-// import type { NoteEditorAPI } from "./NoteEditor.svelte";
+import type { NoteEditorAPI } from "./OldEditorAdapter.svelte";
 import type { EditorFieldAPI } from "./EditorField.svelte";
 import type { EditingAreaAPI } from "./EditingArea.svelte";
 import type { EditableAPI, EditableContextAPI } from "./Editable.svelte";
@@ -31,7 +31,7 @@ export type EditorContext<T extends symbol> = T extends typeof decoratedElements
     : T extends typeof focusInEditableKey
     ? Readable<boolean>
     : T extends typeof noteEditorKey
-    ? any /* NoteEditorAPI */
+    ? NoteEditorAPI
     : T extends typeof editorFieldKey
     ? EditorFieldAPI
     : T extends typeof editingAreaKey

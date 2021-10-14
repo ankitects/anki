@@ -2,11 +2,21 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
+<script context="module" lang="ts">
+    import type { EditorFieldAPI } from "./EditorField.svelte";
+
+    export interface NoteEditorAPI {
+        currentField: Writable<EditorFieldAPI>;
+        fields: EditorFieldAPI[];
+    }
+</script>
+
 <script lang="ts">
     import NoteEditor from "./NoteEditor.svelte";
-    import MultiRootEditor from "./MultiRootEditor.svelte";
+    import FieldsEditor from "./FieldsEditor.svelte";
     import Fields from "./Fields.svelte";
     import EditorField from "./EditorField.svelte";
+    import type { FieldData } from "./EditorField.svelte";
     import TagEditor from "./TagEditor.svelte";
 
     import EditorToolbar from "./EditorToolbar.svelte";
@@ -132,14 +142,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         hint = hnt;
     }
 
-    $: fieldsData = fieldNames.map((fieldName, index) => ({
-        fieldName,
-        fontName: quoteFontFamily(fonts[index][0]),
+    $: fieldsData = fieldNames.map((name, index) => ({
+        name,
+        fontFamily: quoteFontFamily(fonts[index][0]),
         fontSize: fonts[index][1],
-        rtl: fonts[index][2],
-        sticky: stickies ? stickies[index] : null,
-        dupe: cols[index] === "dupe",
-    }));
+        direction: fonts[index][2] ? "rtl" : "ltr",
+    })) as FieldData[];
 
     function saveTags({ detail }: CustomEvent): void {
         bridgeCommand(`saveTags:${JSON.stringify(detail.tags)}`);
@@ -227,7 +235,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <NoteEditor>
-    <MultiRootEditor>
+    <FieldsEditor>
         <EditorToolbar {size} {wrap} {textColor} {highlightColor} />
 
         {#if hint}
@@ -254,6 +262,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:focusout={() => {
                         $currentField = null;
                     }}
+                    --label-color={cols[index] === "dupe"
+                        ? "var(--flag1-bg)"
+                        : "transparent"}
                 >
                     <svelte:fragment slot="field-state">
                         <EditableBadge bind:off={editablesHidden[index]} />
@@ -298,7 +309,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </EditorField>
             {/each}
         </Fields>
-    </MultiRootEditor>
+    </FieldsEditor>
 
     <TagEditor {size} {wrap} {tags} on:tagsupdate={saveTags} />
 </NoteEditor>

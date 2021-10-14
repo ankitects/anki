@@ -5,6 +5,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import type { EditingAreaAPI } from "./EditingArea.svelte";
 
+    export interface FieldData {
+        name: string;
+        fontFamily: string;
+        fontSize: number;
+        direction: "ltr" | "rtl";
+    }
+
     export interface EditorFieldAPI {
         element: HTMLElement;
         index: number;
@@ -19,23 +26,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LabelName from "./LabelName.svelte";
     import FieldState from "./FieldState.svelte";
 
-    import type { FieldData } from "./adapter-types";
     import { setContext as svelteSetContext } from "svelte";
     import { writable } from "svelte/store";
     import type { Writable } from "svelte/store";
     import { directionKey } from "../lib/context-keys";
     import { setContext, editorFieldKey } from "./context";
 
-    export let field: FieldData;
     export let content: Writable<string>;
+    export let field: FieldData;
     export let autofocus = false;
-
-    let direction: "ltr" | "rtl" = field.rtl ? "rtl" : "ltr";
 
     const directionStore = writable();
     svelteSetContext(directionKey, directionStore);
 
-    $: $directionStore = direction;
+    $: $directionStore = field.direction;
 
     const obj = {};
 
@@ -55,14 +59,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div bind:this={editorField} class="editor-field" on:focusin on:focusout>
-    <LabelContainer --label-color={field.dupe ? "var(--flag1-bg)" : "transparent"}>
-        <LabelName>{field.fieldName}</LabelName>
+    <LabelContainer>
+        <LabelName>{field.name}</LabelName>
         <FieldState><slot name="field-state" /></FieldState>
     </LabelContainer>
     <EditingArea
         {content}
         {autofocus}
-        fontFamily={field.fontName}
+        fontFamily={field.fontFamily}
         fontSize={field.fontSize}
         bind:api={api.editingArea}
         on:editinginput
