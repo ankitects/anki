@@ -24,6 +24,7 @@ SearchNode = search_pb2.SearchNode
 Progress = collection_pb2.Progress
 EmptyCardsReport = card_rendering_pb2.EmptyCardsReport
 GraphPreferences = stats_pb2.GraphPreferences
+CardStats = stats_pb2.CardStatsResponse
 Preferences = config_pb2.Preferences
 UndoStatus = collection_pb2.UndoStatus
 OpChanges = collection_pb2.OpChanges
@@ -807,23 +808,8 @@ class Collection(DeprecatedNamesMixin):
 
         return CollectionStats(self)
 
-    def card_stats(self, card_id: CardId, include_revlog: bool) -> str:
-        import anki.stats as st
-
-        if include_revlog:
-            revlog_style = "margin-top: 2em;"
-        else:
-            revlog_style = "display: none;"
-
-        style = f"""<style>
-.revlog-learn {{ color: {st.colLearn} }}
-.revlog-review {{ color: {st.colMature} }}
-.revlog-relearn {{ color: {st.colRelearn} }}
-.revlog-ease1 {{ color: {st.colRelearn} }}
-table.review-log {{ {revlog_style} }}
-</style>"""
-
-        return style + self._backend.card_stats(card_id)
+    def card_stats_data(self, card_id: CardId) -> bytes:
+        return self._backend.card_stats(card_id)
 
     def studied_today(self) -> str:
         return self._backend.studied_today()
@@ -1149,9 +1135,17 @@ table.review-log {{ {revlog_style} }}
     def _remNotes(self, ids: list[NoteId]) -> None:
         pass
 
-    @deprecated(replaced_by=card_stats)
+    @deprecated(replaced_by=card_stats_data)
+    def card_stats(self, card_id: CardId, include_revlog: bool) -> str:
+        from anki.stats import _legacy_card_stats
+
+        return _legacy_card_stats(self, card_id, include_revlog)
+
+    @deprecated(replaced_by=card_stats_data)
     def cardStats(self, card: Card) -> str:
-        return self.card_stats(card.id, include_revlog=False)
+        from anki.stats import _legacy_card_stats
+
+        return _legacy_card_stats(self, card.id, False)
 
     @deprecated(replaced_by=after_note_updates)
     def updateFieldCache(self, nids: list[NoteId]) -> None:

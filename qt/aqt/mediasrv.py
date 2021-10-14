@@ -20,6 +20,7 @@ from waitress.server import create_server
 
 import aqt
 from anki import hooks
+from anki.cards import CardId
 from anki.collection import GraphPreferences, OpChanges
 from anki.decks import UpdateDeckConfigs
 from anki.models import NotetypeNames
@@ -411,6 +412,10 @@ def complete_tag() -> bytes:
     return aqt.mw.col.tags.complete_tag(request.data)
 
 
+def card_stats() -> bytes:
+    return aqt.mw.col.card_stats_data(CardId(int(request.data)))
+
+
 # these require a collection
 post_handlers = {
     "graphData": graph_data,
@@ -426,6 +431,7 @@ post_handlers = {
     "i18nResources": i18n_resources,
     "congratsInfo": congrats_info,
     "completeTag": complete_tag,
+    "cardStats": card_stats,
 }
 
 

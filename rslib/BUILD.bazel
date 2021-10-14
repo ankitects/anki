@@ -45,7 +45,6 @@ _anki_compile_data = glob([
 ]) + [
     "Cargo.toml",  # prevents a warning about num_enum
     "//:buildinfo.txt",
-    "templates/.empty",  # required for askama
 ]
 
 _anki_features = [
@@ -73,7 +72,6 @@ rust_library(
     deps = [
         ":build_script",
         "//rslib/cargo:ammonia",
-        "//rslib/cargo:askama",
         "//rslib/cargo:blake3",
         "//rslib/cargo:bytes",
         "//rslib/cargo:chrono",
