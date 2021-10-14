@@ -18,7 +18,11 @@ compile_sass(
     ],
 )
 
-compile_svelte()
+compile_svelte(
+    deps = [
+        "//sass/bootstrap",
+    ],
+)
 
 typescript(
     name = "index",
