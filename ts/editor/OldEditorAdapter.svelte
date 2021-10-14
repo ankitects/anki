@@ -36,7 +36,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { onMount, onDestroy } from "svelte";
     import type { Writable } from "svelte/store";
-    import { writable } from "svelte/store";
+    import { writable, get } from "svelte/store";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { isApplePlatform } from "../lib/platform";
     import {
@@ -258,9 +258,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     bind:this={editorFields[index]}
                     on:focusin={() => {
                         $currentField = editorFields[index].api;
+                        bridgeCommand(`focus:${index}`);
                     }}
                     on:focusout={() => {
                         $currentField = null;
+                        bridgeCommand(
+                            `blur:${index}:${getNoteId()}:${get(fieldStores[index])}`
+                        );
                     }}
                     --label-color={cols[index] === "dupe"
                         ? "var(--flag1-bg)"
