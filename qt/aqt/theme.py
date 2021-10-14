@@ -246,6 +246,7 @@ QTabWidget {{ background-color: {}; }}
         s.colCram = self.color(colors.SUSPENDED_BG)
         s.colSusp = self.color(colors.SUSPENDED_BG)
         s.colMature = self.color(colors.REVIEW_COUNT)
+        s._legacy_nightmode = self._night_mode_preference
 
 
 theme_manager = ThemeManager()

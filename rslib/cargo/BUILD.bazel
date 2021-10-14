@@ -22,15 +22,6 @@ alias(
 )
 
 alias(
-    name = "askama",
-    actual = "@raze__askama__0_10_5//:askama",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-alias(
     name = "async_trait",
     actual = "@raze__async_trait__0_1_51//:async_trait",
     tags = [

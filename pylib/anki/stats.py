@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import datetime
 import json
+import random
 import time
 from typing import Sequence
 
@@ -14,17 +15,36 @@ import anki.cards
 import anki.collection
 from anki.consts import *
 from anki.lang import FormatTimeSpan
-from anki.utils import ids2str
+from anki.utils import base62, ids2str
 
 # Card stats
 ##########################################################################
 
+_legacy_nightmode = False
+
+
+def _legacy_card_stats(
+    col: anki.collection.Collection, card_id: anki.cards.CardId, include_revlog: bool
+) -> str:
+    "A quick hack to preserve compatibility with the old HTML string API."
+    random_id = f"cardinfo-{base62(random.randint(0, 2 ** 64 - 1))}"
+    return f"""
+<div id="{random_id}"></div>
+<script src="js/vendor/bootstrap.bundle.min.js"></script>
+<link href="pages/card-info-base.css" rel="stylesheet" />
+<link href="pages/card-info.css" rel="stylesheet" />
+<script src="pages/card-info.js"></script>
+<script>
+    if ({1 if _legacy_nightmode else 0}) {{
+        document.documentElement.className = "night-mode";
+    }}
+    anki.cardInfo(document.getElementById('{random_id}'), {card_id}, {include_revlog});
+</script>
+    """
+
 
 class CardStats:
-    """
-    New code should just call collection.card_stats() directly - this class
-    is only left around for backwards compatibility.
-    """
+    """Do not use - this class is only left around for backwards compatibility."""
 
     def __init__(self, col: anki.collection.Collection, card: anki.cards.Card) -> None:
         if col:
@@ -33,7 +53,7 @@ class CardStats:
         self.txt = ""
 
     def report(self, include_revlog: bool = False) -> str:
-        return self.col.card_stats(self.card.id, include_revlog=include_revlog)
+        return _legacy_card_stats(self.col, self.card.id, include_revlog)
 
     # legacy
 

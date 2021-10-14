@@ -44,7 +44,6 @@ cargo_build_script(
     },
     crate_features = [
         "abi3",
-        "abi3-py38",
         "abi3-py39",
         "default",
         "resolve-config",
@@ -70,7 +69,6 @@ rust_library(
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "abi3",
-        "abi3-py38",
         "abi3-py39",
         "default",
         "resolve-config",

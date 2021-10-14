@@ -5,6 +5,7 @@ _pages = [
     "congrats",
     "deck-options",
     "change-notetype",
+    "card-info",
 ]
 
 [copy_files_into_group(
