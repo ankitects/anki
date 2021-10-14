@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const editingArea = getContext(editingAreaKey);
     const decoratedElements = getContext(decoratedElementsKey);
     const content = editingArea.content;
-    const htmlStore = writable($content);
+    const code = writable($content);
 
     function adjustInputHTML(html: string): string {
         for (const component of decoratedElements) {
@@ -123,10 +123,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $editingInputs = $editingInputs;
 
         const unsubscribeFromEditingArea = content.subscribe((value: string): void => {
-            htmlStore.set(adjustInputHTML(value));
+            const adjusted = adjustInputHTML(value);
+            code.set(adjusted);
         });
 
-        const unsubscribeToEditingArea = htmlStore.subscribe((value: string): void => {
+        const unsubscribeToEditingArea = code.subscribe((value: string): void => {
             const parsed = parseAsHTML(value);
             content.set(adjustOutputHTML(parsed));
         });
@@ -141,9 +142,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div class:hidden on:focusin on:focusout>
     <CodeMirror
         {configuration}
-        code={htmlStore}
+        {code}
         bind:api={codeMirror}
         on:focus={moveCaretToEnd}
+        on:change={({ detail: html }) => code.set(parseAsHTML(html))}
     />
 </div>
 
