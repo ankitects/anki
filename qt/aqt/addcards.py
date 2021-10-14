@@ -60,7 +60,7 @@ class AddCards(QDialog):
 
     def setupEditor(self) -> None:
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self, True)
-        self.editor.web.eval("activateStickyShortcuts();")
+        self.editor.web.eval("noteEditorPromise.then(() => activateStickyShortcuts());")
 
     def setup_choosers(self) -> None:
         defaults = self.col.defaults_for_adding(

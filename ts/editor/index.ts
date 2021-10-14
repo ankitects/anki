@@ -6,11 +6,11 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-export const $editorToolbar = new Promise(() => {
-    /* noop */
-});
-
 import { filterHTML } from "../html-filter";
+import { updateAllState } from "../components/WithState.svelte";
+import { noop } from "../lib/functional";
+
+export const $editorToolbar = new Promise(noop);
 
 export function pasteHTML(
     html: string,
@@ -26,11 +26,7 @@ export function pasteHTML(
 
 export function setFormat(cmd: string, arg?: string, _nosave = false): void {
     document.execCommand(cmd, false, arg);
-    // TODO ... maybe we also need to copy/paste/cut code entirely to JS
-    // if (!nosave) {
-    //     saveField(getCurrentField() as EditingArea, "key");
-    //     updateActiveButtons(new Event(cmd));
-    // }
+    updateAllState(new Event(cmd));
 }
 
 import "../sveltelib/export-runtime";
