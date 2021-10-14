@@ -98,13 +98,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style>
     .container {
-        display: flex;
-        justify-content: center;
-        white-space: nowrap;
+        max-width: 40em;
     }
 
     .stats-table {
         width: 100%;
+        border-spacing: 1em 0;
+        border-collapse: collapse;
         text-align: start;
     }
 </style>
