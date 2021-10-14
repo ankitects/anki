@@ -20,27 +20,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="ts">
     import { writable } from "svelte/store";
-    import { setContext as svelteSetContext, createEventDispatcher } from "svelte";
+    import { onMount, setContext as svelteSetContext } from "svelte";
     import { setContext, editingAreaKey } from "./context";
     import { fontFamilyKey, fontSizeKey } from "../lib/context-keys";
 
     export let fontFamily: string;
-    export let fontSize: number;
-
-    const fontFamilyStore = writable();
+    const fontFamilyStore = writable(fontFamily);
     $: $fontFamilyStore = fontFamily;
     svelteSetContext(fontFamilyKey, fontFamilyStore);
 
-    const fontSizeStore = writable();
+    export let fontSize: number;
+    const fontSizeStore = writable(fontSize);
     $: $fontSizeStore = fontSize;
     svelteSetContext(fontSizeKey, fontSizeStore);
 
-    export let content: string;
-
-    const contentStore = writable(content);
-    const dispatch = createEventDispatcher();
-
-    $: dispatch("editinginput", $contentStore);
+    export let content: Writable<string>;
+    export let autofocus = false;
 
     let editingArea: HTMLElement;
     let focusTrap: HTMLInputElement;
@@ -95,9 +90,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export const api = setContext(editingAreaKey, {
-        content: contentStore,
+        content,
         editingInputs: inputsStore,
         focus,
+    });
+
+    onMount(() => {
+        if (autofocus) {
+            focus();
+        }
     });
 </script>
 

@@ -22,10 +22,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { FieldData } from "./adapter-types";
     import { setContext as svelteSetContext } from "svelte";
     import { writable } from "svelte/store";
+    import type { Writable } from "svelte/store";
     import { directionKey } from "../lib/context-keys";
     import { setContext, editorFieldKey } from "./context";
 
     export let field: FieldData;
+    export let content: Writable<string>;
+    export let autofocus = false;
 
     let direction: "ltr" | "rtl" = field.rtl ? "rtl" : "ltr";
 
@@ -57,9 +60,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <FieldState><slot name="field-state" /></FieldState>
     </LabelContainer>
     <EditingArea
+        {content}
+        {autofocus}
         fontFamily={field.fontName}
         fontSize={field.fontSize}
-        content={field.fieldContent}
         bind:api={api.editingArea}
         on:editinginput
     >

@@ -4,6 +4,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import NoteEditor from "./NoteEditor.svelte";
+    import MultiRootEditor from "./MultiRootEditor.svelte";
+    import Fields from "./Fields.svelte";
+    import EditorField from "./EditorField.svelte";
+    import TagEditor from "./TagEditor.svelte";
 
     import EditorToolbar from "./EditorToolbar.svelte";
     import Notification from "./Notification.svelte";
@@ -21,10 +25,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import StickyBadge from "./StickyBadge.svelte";
 
     import { onMount, onDestroy } from "svelte";
+    import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { isApplePlatform } from "../lib/platform";
-    import { setContext, focusInEditableKey, activeInputKey } from "./context";
+    import {
+        setContext,
+        noteEditorKey,
+        focusInEditableKey,
+        activeInputKey,
+    } from "./context";
     import { ChangeTimer } from "./change-timer";
     import { alertIcon } from "./icons";
 
@@ -36,13 +46,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return fontFamily;
     }
 
-    let noteEditor: NoteEditor;
     let size = isApplePlatform() ? 1.6 : 2.0;
     let wrap = true;
 
-    let fields: [string, string][] = [];
+    let fieldStores: Writable<string>[] = [];
+    let fieldNames: string[] = [];
     export function setFields(fs: [string, string][]): void {
-        fields = fs;
+        const newFieldNames: string[] = [];
+
+        for (const [index, [fieldName]] of fs.entries()) {
+            newFieldNames[index] = fieldName;
+        }
+
+        for (let i = fieldStores.length; i < newFieldNames.length; i++) {
+            const newStore = writable("");
+            fieldStores[i] = newStore;
+            newStore.subscribe((value) => updateField(i, value));
+        }
+
+        for (let i = fieldStores.length; i > newFieldNames.length; i++) {
+            fieldStores.pop();
+        }
+
+        for (const [index, [_, fieldContent]] of fs.entries()) {
+            fieldStores[index].set(fieldContent);
+        }
+
+        fieldNames = newFieldNames;
     }
 
     let fonts: [string, number, boolean][] = [];
@@ -51,6 +81,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export function setFonts(fs: [string, number, boolean][]): void {
         fonts = fs;
+
         editablesHidden = fonts.map(() => false);
         codablesHidden = fonts.map(() => true);
     }
@@ -67,9 +98,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         highlightColor = highlightClr;
     }
 
-    let tags: string[] = [];
+    let tags = writable<string[]>([]);
     export function setTags(ts: string[]): void {
-        tags = ts;
+        $tags = ts;
     }
 
     let stickies: boolean[] | null = null;
@@ -96,29 +127,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         hint = hnt;
     }
 
-    $: data = {
-        fieldsData: fields.map(([fieldName, fieldContent], index) => ({
-            fieldName,
-            fieldContent,
-            fontName: quoteFontFamily(fonts[index][0]),
-            fontSize: fonts[index][1],
-            rtl: fonts[index][2],
-            sticky: stickies ? stickies[index] : null,
-            dupe: cols[index] === "dupe",
-        })),
-        tags,
-        focusTo,
-    };
+    $: fieldsData = fieldNames.map((fieldName, index) => ({
+        fieldName,
+        fontName: quoteFontFamily(fonts[index][0]),
+        fontSize: fonts[index][1],
+        rtl: fonts[index][2],
+        sticky: stickies ? stickies[index] : null,
+        dupe: cols[index] === "dupe",
+    }));
 
-    function saveTags(event: CustomEvent): void {
-        bridgeCommand(`saveTags:${JSON.stringify(event.detail.tags)}`);
+    function saveTags({ detail }: CustomEvent): void {
+        bridgeCommand(`saveTags:${JSON.stringify(detail.tags)}`);
     }
 
     const fieldSave = new ChangeTimer();
 
-    function onFieldUpdate({ detail }): void {
-        const { index, content } = detail;
-
+    function updateField(index: number, content: string): void {
         fieldSave.schedule(
             () => bridgeCommand(`key:${index}:${getNoteId()}:${content}`),
             600
@@ -172,6 +196,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const activeInput = setContext(activeInputKey, writable(null));
 
+    const currentField = writable(null);
+    let editorFields: EditorField[] = [];
+
+    $: fieldApis = editorFields.filter(Boolean).map((field) => field.api);
+
+    export const api = setContext(
+        noteEditorKey,
+        Object.create(
+            {
+                currentField,
+            },
+            {
+                fields: { get: () => fieldApis },
+            }
+        )
+    );
+
     onMount(() => {
         document.addEventListener("visibilitychange", saveOnPageHide);
         return () => document.removeEventListener("visibilitychange", saveOnPageHide);
@@ -180,17 +221,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => deregisterSticky);
 </script>
 
-<NoteEditor
-    bind:this={noteEditor}
-    {data}
-    {size}
-    {wrap}
-    {...$$restProps}
-    on:tagsupdate={saveTags}
-    on:fieldupdate={onFieldUpdate}
->
-    <svelte:fragment slot="widgets">
+<NoteEditor>
+    <MultiRootEditor>
         <EditorToolbar {size} {wrap} {textColor} {highlightColor} />
+
         {#if hint}
             <Absolute bottom right --margin="10px">
                 <Notification>
@@ -201,45 +235,65 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </Notification>
             </Absolute>
         {/if}
-    </svelte:fragment>
 
-    <svelte:fragment slot="field-state" let:index>
-        <EditableBadge bind:off={editablesHidden[index]} />
-        <CodableBadge bind:off={codablesHidden[index]} />
-        {#if stickies}
-            <StickyBadge active={stickies[index]} {index} />
-        {/if}
-    </svelte:fragment>
+        <Fields>
+            {#each fieldsData as field, index}
+                <EditorField
+                    {field}
+                    content={fieldStores[index]}
+                    autofocus={index === focusTo}
+                    bind:this={editorFields[index]}
+                    on:focusin={() => {
+                        $currentField = editorFields[index].api;
+                    }}
+                    on:focusout={() => {
+                        $currentField = null;
+                    }}
+                >
+                    <svelte:fragment slot="field-state">
+                        <EditableBadge bind:off={editablesHidden[index]} />
+                        <CodableBadge bind:off={codablesHidden[index]} />
+                        {#if stickies}
+                            <StickyBadge active={stickies[index]} {index} />
+                        {/if}
+                    </svelte:fragment>
 
-    <svelte:fragment slot="editing-inputs" let:index>
-        <DecoratedElements>
-            <Editable
-                hidden={editablesHidden[index]}
-                on:focusin={() => {
-                    $focusInEditable = true;
-                    $activeInput = editables[index].api;
-                }}
-                on:focusout={() => {
-                    $focusInEditable = false;
-                    $activeInput = null;
-                    saveFieldNow();
-                }}
-                bind:this={editables[index]}
-            >
-                <ImageHandle />
-                <MathjaxHandle />
-            </Editable>
-            <Codable
-                hidden={codablesHidden[index]}
-                on:focusin={() => {
-                    $activeInput = codables[index].api;
-                }}
-                on:focusout={() => {
-                    $activeInput = null;
-                    saveFieldNow();
-                }}
-                bind:this={codables[index]}
-            />
-        </DecoratedElements>
-    </svelte:fragment>
+                    <svelte:fragment slot="editing-inputs">
+                        <DecoratedElements>
+                            <Editable
+                                hidden={editablesHidden[index]}
+                                on:focusin={() => {
+                                    $focusInEditable = true;
+                                    $activeInput = editables[index].api;
+                                }}
+                                on:focusout={() => {
+                                    $focusInEditable = false;
+                                    $activeInput = null;
+                                    saveFieldNow();
+                                }}
+                                bind:this={editables[index]}
+                            >
+                                <ImageHandle />
+                                <MathjaxHandle />
+                            </Editable>
+
+                            <Codable
+                                hidden={codablesHidden[index]}
+                                on:focusin={() => {
+                                    $activeInput = codables[index].api;
+                                }}
+                                on:focusout={() => {
+                                    $activeInput = null;
+                                    saveFieldNow();
+                                }}
+                                bind:this={codables[index]}
+                            />
+                        </DecoratedElements>
+                    </svelte:fragment>
+                </EditorField>
+            {/each}
+        </Fields>
+    </MultiRootEditor>
+
+    <TagEditor {size} {wrap} {tags} on:tagsupdate={saveTags} />
 </NoteEditor>

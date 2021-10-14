@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
     import { createEventDispatcher, tick } from "svelte";
+    import type { Writable } from "svelte/store";
     import StickyFooter from "../components/StickyFooter.svelte";
     import TagOptionsBadge from "./TagOptionsBadge.svelte";
     import TagEditMode from "./TagEditMode.svelte";
@@ -24,28 +25,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let size: number;
     export let wrap: boolean;
+    export let tags: Writable<string[]>;
 
-    /* TODO currently tags is only used for the initial setting */
-    export let tags: string[] = [];
-    export let tagTypes: TagType[] = tags.map((tag) =>
-        attachId(replaceWithUnicodeSeparator(tag))
-    ) as TagType[];
+    let tagTypes: TagType[];
+    function tagsToTagTypes(tags: string[]): void {
+        tagTypes = tags.map(
+            (tag: string): TagType => attachId(replaceWithUnicodeSeparator(tag))
+        );
+    }
+
+    $: tagsToTagTypes($tags);
 
     const dispatch = createEventDispatcher();
     const noSuggestions = Promise.resolve([]);
     let suggestionsPromise: Promise<string[]> = noSuggestions;
 
     function saveTags(): void {
-        const tags = tagTypes.map((tag) => tag.name).map(replaceWithColons);
+        const tags = tagTypes.map((tag: TagType) => tag.name).map(replaceWithColons);
         dispatch("tagsupdate", { tags });
 
         suggestionsPromise = noSuggestions;
-    }
-
-    export function resetTags(tags: string[]): void {
-        /* TODO I think once we move to Rust calls (web socket?) we might be able to refactor
-        /* the process of setting tags on the TagEditor */
-        tagTypes = tags.map((tag) => attachId(replaceWithUnicodeSeparator(tag)));
     }
 
     let active: number | null = null;
