@@ -45,9 +45,12 @@
       <widget class="QComboBox" name="templatesBox">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>10</horstretch>
+         <horstretch>30</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="maxVisibleItems">
+        <number>30</number>
        </property>
       </widget>
      </item>
