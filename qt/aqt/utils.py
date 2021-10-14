@@ -50,10 +50,6 @@ def aqt_data_folder() -> str:
     return "."
 
 
-def locale_dir() -> str:
-    return os.path.join(aqt_data_folder(), "locale")
-
-
 # shortcut to access Fluent translations; set as
 tr = tr_legacyglobal
 
@@ -141,7 +137,7 @@ def showInfo(
         b = mb.addButton(QMessageBox.Help)
         qconnect(b.clicked, lambda: openHelp(help))
         b.setAutoDefault(False)
-    return mb.exec_()
+    return mb.exec()
 
 
 def showText(
@@ -206,7 +202,7 @@ def showText(
     if geomKey:
         restoreGeom(diag, geomKey)
     if run:
-        diag.exec_()
+        diag.exec()
         return None
     else:
         return diag, box
@@ -263,7 +259,7 @@ class ButtonedDialog(QMessageBox):
             buttons.append(tr.actions_help())
 
     def run(self) -> str:
-        self.exec_()
+        self.exec()
         but = self.clickedButton().text()
         if but == "Help":
             # FIXME stop dialog closing?
@@ -356,7 +352,7 @@ def getText(
     d.setWindowModality(Qt.WindowModal)
     if geomKey:
         restoreGeom(d, geomKey)
-    ret = d.exec_()
+    ret = d.exec()
     if geomKey and ret:
         saveGeom(d, geomKey)
     return (str(d.l.text()), ret)
@@ -391,7 +387,7 @@ def chooseList(
     bb = QDialogButtonBox(QDialogButtonBox.Ok)
     qconnect(bb.accepted, d.accept)
     l.addWidget(bb)
-    d.exec_()
+    d.exec()
     return c.currentRow()
 
 
@@ -457,7 +453,7 @@ def getFile(
     qconnect(d.accepted, accept)
     if key:
         restoreState(d, key)
-    d.exec_()
+    d.exec()
     if key:
         saveState(d, key)
     return ret[0] if ret else None
@@ -515,7 +511,7 @@ def restoreGeom(
     if aqt.mw.pm.profile.get(key):
         widget.restoreGeometry(aqt.mw.pm.profile[key])
         if isMac and offset:
-            if qtminor > 6:
+            if qtmajor > 5 or qtminor > 6:
                 # bug in osx toolkit
                 s = widget.size()
                 widget.resize(s.width(), s.height() + offset * 2)
@@ -804,7 +800,7 @@ class MenuList:
     def popupOver(self, widget: QPushButton) -> None:
         qmenu = QMenu()
         self.renderTo(qmenu)
-        qmenu.exec_(widget.mapToGlobal(QPoint(0, 0)))
+        qmenu.exec(widget.mapToGlobal(QPoint(0, 0)))
 
 
 class SubMenu(MenuList):
@@ -828,8 +824,6 @@ class MenuItem:
 
 
 def qtMenuShortcutWorkaround(qmenu: QMenu) -> None:
-    if qtminor < 10:
-        return
     for act in qmenu.actions():
         act.setShortcutVisibleInContextMenu(True)
 

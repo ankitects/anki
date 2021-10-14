@@ -2,6 +2,7 @@ filegroup(
     name = "data",
     srcs = [
         "//qt/aqt/data/lib",
+        "//qt/aqt/data/qt",
         "//qt/aqt/data/web",
     ],
     visibility = ["//qt:__subpackages__"],

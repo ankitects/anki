@@ -1204,8 +1204,6 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionAbout.triggered, self.onAbout)
         qconnect(m.actionUndo.triggered, self.undo)
         qconnect(m.actionRedo.triggered, self.redo)
-        if qtminor < 11:
-            m.actionUndo.setShortcut(QKeySequence("Ctrl+Alt+Z"))
         qconnect(m.actionFullDatabaseCheck.triggered, self.onCheckDB)
         qconnect(m.actionCheckMediaDatabase.triggered, self.on_check_media_db)
         qconnect(m.actionDocumentation.triggered, self.onDocumentation)
@@ -1422,7 +1420,7 @@ title="{}" {}>{}</button>""".format(
                 a = menu.addAction("Clear Code")
                 a.setShortcut(QKeySequence("ctrl+shift+l"))
                 qconnect(a.triggered, frm.text.clear)
-            menu.exec_(QCursor.pos())
+            menu.exec(QCursor.pos())
 
         frm.log.contextMenuEvent = lambda ev: addContextMenu(ev, "log")  # type: ignore[assignment]
         frm.text.contextMenuEvent = lambda ev: addContextMenu(ev, "text")  # type: ignore[assignment]

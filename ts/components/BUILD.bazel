@@ -3,7 +3,9 @@ load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:typescript.bzl", "typescript")
 
-compile_svelte()
+compile_svelte(
+    deps = ["//sass/bootstrap"],
+)
 
 typescript(
     name = "components",
@@ -31,10 +33,10 @@ svelte_check(
         "*.ts",
         "*.svelte",
     ]) + [
-        "//ts/sass:base_lib",
-        "//ts/sass:button_mixins_lib",
-        "//ts/sass:scrollbar_lib",
-        "//ts/sass/bootstrap",
+        "//sass:base_lib",
+        "//sass:button_mixins_lib",
+        "//sass:scrollbar_lib",
+        "//sass/bootstrap",
         "@npm//@types/bootstrap",
         "//ts/sveltelib:sveltelib_pkg",
     ],

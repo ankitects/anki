@@ -13,10 +13,10 @@ compile_sass(
     group = "base_css",
     visibility = ["//visibility:public"],
     deps = [
-        "//ts/sass:base_lib",
-        "//ts/sass:button_mixins_lib",
-        "//ts/sass:buttons_lib",
-        "//ts/sass:scrollbar_lib",
+        "//sass:base_lib",
+        "//sass:button_mixins_lib",
+        "//sass:buttons_lib",
+        "//sass:scrollbar_lib",
     ],
 )
 
@@ -28,8 +28,8 @@ compile_sass(
     group = "local_css",
     visibility = ["//visibility:public"],
     deps = [
-        "//ts/sass:button_mixins_lib",
-        "//ts/sass/bootstrap",
+        "//sass:button_mixins_lib",
+        "//sass/bootstrap",
     ],
 )
 
@@ -82,8 +82,8 @@ svelte_check(
         "*.ts",
         "*.svelte",
     ]) + [
-        "//ts/sass:button_mixins_lib",
-        "//ts/sass/bootstrap",
+        "//sass:button_mixins_lib",
+        "//sass/bootstrap",
         "@npm//@types/bootstrap",
         "//ts/components",
         "@npm//@types/codemirror",

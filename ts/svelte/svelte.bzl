@@ -3,6 +3,17 @@ load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "declaratio
 load("@io_bazel_rules_sass//:defs.bzl", "SassInfo")
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 
+def _get_dep_sources(dep):
+    if SassInfo in dep:
+        return dep[SassInfo].transitive_sources
+    elif DeclarationInfo in dep:
+        return dep[DeclarationInfo].transitive_declarations
+    else:
+        return []
+
+def _get_sources(deps):
+    return depset([], transitive = [_get_dep_sources(dep) for dep in deps])
+
 def _svelte(ctx):
     args = ctx.actions.args()
     args.use_param_file("@%s", use_always = True)
@@ -16,11 +27,13 @@ def _svelte(ctx):
     args.add(ctx.var["GENDIR"])
     args.add_all(ctx.files._shims)
 
+    deps = _get_sources(ctx.attr.deps).to_list()
+
     ctx.actions.run(
         execution_requirements = {"supports-workers": "1"},
         executable = ctx.executable._svelte_bin,
         outputs = [ctx.outputs.mjs, ctx.outputs.dts, ctx.outputs.css],
-        inputs = [ctx.file.entry_point] + ctx.files._shims,
+        inputs = [ctx.file.entry_point] + deps + ctx.files._shims,
         mnemonic = "Svelte",
         arguments = [args],
     )
@@ -33,6 +46,7 @@ svelte = rule(
     implementation = _svelte,
     attrs = {
         "entry_point": attr.label(allow_single_file = True),
+        "deps": attr.label_list(),
         "_svelte_bin": attr.label(
             default = Label("//ts/svelte:svelte_bin"),
             executable = True,
@@ -50,13 +64,14 @@ svelte = rule(
     },
 )
 
-def compile_svelte(name = "svelte", srcs = None, visibility = ["//visibility:private"]):
+def compile_svelte(name = "svelte", srcs = None, deps = [], visibility = ["//visibility:private"]):
     if not srcs:
         srcs = native.glob(["*.svelte"])
     for src in srcs:
         svelte(
             name = src.replace(".svelte", ""),
             entry_point = src,
+            deps = deps,
             visibility = visibility,
         )
 
@@ -78,5 +93,5 @@ def svelte_check(name = "svelte_check", srcs = []):
         data = [
             "@npm//sass",
         ] + srcs,
-        env = {"SASS_PATH": "ts/sass"},
+        env = {"SASS_PATH": "sass"},
     )

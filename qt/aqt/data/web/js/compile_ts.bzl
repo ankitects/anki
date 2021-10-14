@@ -9,7 +9,7 @@ def compile_ts(group, srcs):
             name = name,
             src = ts_file,
             sourcemap = False,
-            deps = ["//ts/sass:core_lib"],
+            deps = ["//sass:core_lib"],
         )
 
     native.filegroup(

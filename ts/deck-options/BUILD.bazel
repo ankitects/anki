@@ -12,13 +12,17 @@ compile_sass(
     group = "base_css",
     visibility = ["//visibility:public"],
     deps = [
-        "//ts/sass:base_lib",
-        "//ts/sass:scrollbar_lib",
-        "//ts/sass/bootstrap",
+        "//sass:base_lib",
+        "//sass:scrollbar_lib",
+        "//sass/bootstrap",
     ],
 )
 
-compile_svelte()
+compile_svelte(
+    deps = [
+        "//sass/bootstrap",
+    ],
+)
 
 typescript(
     name = "index",
@@ -73,9 +77,9 @@ svelte_check(
         "*.ts",
         "*.svelte",
     ]) + [
-        "//ts/sass:button_mixins_lib",
-        "//ts/sass:night_mode_lib",
-        "//ts/sass/bootstrap",
+        "//sass:button_mixins_lib",
+        "//sass:night_mode_lib",
+        "//sass/bootstrap",
         "@npm//@types/bootstrap",
         "@npm//@types/lodash-es",
         "@npm//@types/marked",

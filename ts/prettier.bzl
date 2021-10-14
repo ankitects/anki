@@ -15,11 +15,11 @@ def prettier_test(name = "format_check", srcs = None, exclude = [], **kwargs):
         name = name,
         args = [
             "--config",
-            "$(location //ts:.prettierrc)",
+            "$(location //:.prettierrc)",
             "--check",
         ] + [native.package_name() + "/" + f for f in srcs],
         data = [
-            "//ts:.prettierrc",
+            "//:.prettierrc",
             "@npm//prettier-plugin-svelte",
         ] + srcs,
         **kwargs

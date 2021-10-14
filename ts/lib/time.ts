@@ -177,3 +177,27 @@ export function dayLabel(daysStart: number, daysEnd: number): string {
         }
     }
 }
+
+/** Helper for converting Unix timestamps to date strings. */
+export class Timestamp {
+    private date: Date;
+
+    constructor(seconds: number) {
+        this.date = new Date(seconds * 1000);
+    }
+
+    /** YYYY-MM-DD */
+    dateString(): string {
+        const year = this.date.getFullYear();
+        const month = ("0" + (this.date.getMonth() + 1)).slice(-2);
+        const date = ("0" + this.date.getDate()).slice(-2);
+        return `${year}-${month}-${date}`;
+    }
+
+    /** HH:MM */
+    timeString(): string {
+        const hours = ("0" + this.date.getHours()).slice(-2);
+        const minutes = ("0" + this.date.getMinutes()).slice(-2);
+        return `${hours}:${minutes}`;
+    }
+}
