@@ -1,20 +1,3 @@
-def compile(name, ui_file, qt5_file, qt6_file, builder):
-    native.genrule(
-        name = name,
-        srcs = [ui_file],
-        outs = [qt5_file, qt6_file],
-        cmd = "$(location {builder}) $(location {ui_file}) $(location {qt5_file}) $(location {qt6_file})".format(
-            builder = builder,
-            ui_file = ui_file,
-            qt5_file = qt5_file,
-            qt6_file = qt6_file,
-        ),
-        tools = [
-            builder,
-        ],
-        message = "Building UI",
-    )
-
 def compile_all(name, builder, srcs):
     py_files = []
     for ui_file in srcs:
@@ -22,7 +5,21 @@ def compile_all(name, builder, srcs):
         qt5_file = base + "_qt5.py"
         qt6_file = base + "_qt6.py"
         py_files.extend([qt5_file, qt6_file])
-        compile(base, ui_file, qt5_file, qt6_file, builder)
+
+    native.genrule(
+        name = name + "_build",
+        srcs = srcs,
+        outs = py_files,
+        cmd = "$(location {builder}) $(location {first_ui}) $(location {first_py})".format(
+            builder = builder,
+            first_ui = srcs[0],
+            first_py = py_files[0],
+        ),
+        tools = [
+            builder,
+        ],
+        message = "Building Qt UI",
+    )
 
     native.filegroup(
         name = name,
