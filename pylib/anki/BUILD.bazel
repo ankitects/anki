@@ -76,7 +76,7 @@ py_wheel(
         "//platforms:linux_x86_64": "manylinux2014_x86_64",
         "//platforms:linux_arm64": "manylinux2014_aarch64",
     }),
-    python_tag = "cp38",
+    python_tag = "cp39",
     python_version = ">=3.9",
     requires = [
         "beautifulsoup4",

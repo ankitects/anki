@@ -107,10 +107,20 @@ py_wheel(
     entry_points = {
         "console_scripts": ["anki = aqt:run"],
     },
+    extra_requires = {
+        "qt5": [
+            "pyqt5>=5.14",
+            "pyqtwebengine",
+        ],
+        "qt6": [
+            "pyqt6>=6.2",
+            "pyqt6-webengine>=6.2",
+        ],
+    },
     homepage = "https://apps.ankiweb.net",
     license = "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     python_tag = "py3",
-    python_version = ">=3.8",
+    python_version = ">=3.9",
     requires = [
         "beautifulsoup4",
         "requests",
@@ -119,12 +129,9 @@ py_wheel(
         "flask",
         "flask_cors",
         "waitress",
-        "pyqt5>=5.12",
-        "pyqtwebengine",
         'psutil; sys.platform == "win32"',
         'pywin32; sys.platform == "win32"',
-        'winrt==1.0.20239.1; sys.platform == "win32" and platform_release == "10" and python_version == "3.8"',
-        'winrt; sys.platform == "win32" and platform_release == "10" and python_version >= "3.9"',
+        'winrt; sys.platform == "win32"',
         "anki==" + anki_version,
     ],
     strip_path_prefixes = [
