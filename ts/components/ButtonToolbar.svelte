@@ -106,8 +106,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         > :global(*) {
             /* TODO replace with gap once available */
-            margin-inline-end: 0.15rem;
-            margin-block-end: 0.15rem;
+            margin-right: 0.15rem;
+            margin-bottom: 0.15rem;
         }
     }
 </style>
