@@ -1,7 +1,7 @@
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("@rules_python//python:defs.bzl", "py_library")
 load("@py_deps//:requirements.bzl", "requirement")
-load("@rules_python//experimental/python:wheel.bzl", "py_package", "py_wheel")
+load("@rules_python//python:packaging.bzl", "py_package", "py_wheel")
 load("//:defs.bzl", "anki_version")
 
 genrule(
@@ -120,7 +120,6 @@ py_wheel(
     homepage = "https://apps.ankiweb.net",
     license = "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     python_tag = "py3",
-    python_version = ">=3.9",
     requires = [
         "beautifulsoup4",
         "requests",
