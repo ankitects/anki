@@ -15,17 +15,6 @@ Install the [Visual Studio build tools](https://visualstudio.microsoft.com/downl
 Make sure the "C++ build tools" box is selected, and leave the default optional
 components enabled on the right.
 
-**Python 3.9**:
-
-Download the 64 bit Python 3.9 from <https://python.org>. Run the installer,
-and customize the installation. Select "install for all users", and choose
-the install path as c:\python. Currently the build scripts require
-Python to be installed in that location.
-
-When the install is done, click on the "remove the path limit" button.
-
-Python 3.9 is not currently recommended, as pylint does not support it yet.
-
 **MSYS**:
 
 Install [msys2](https://www.msys2.org/) into the default folder location.
@@ -49,11 +38,8 @@ PS> cd \bazel
 Then grab Bazelisk:
 
 ```
-PS> \msys64\usr\bin\curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.7.4/bazelisk-windows-amd64.exe -o bazel.exe
+PS> \msys64\usr\bin\curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-windows-amd64.exe -o bazel.exe
 ```
-
-NOTE: At the time of writing, Windows Defender is claiming this file has a virus. If it disappears
-the first time you run Bazel, restoring it from the Defender settings should allow you to proceed.
 
 **Source folder**:
 

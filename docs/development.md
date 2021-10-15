@@ -11,13 +11,13 @@ https://betas.ankiweb.net/
 
 Pre-built Python packages are available on PyPI. They are useful if you wish to:
 
-- Run Anki from a local Python installation without building it yourself
-- Get code completion when developing add-ons
-- Make command line scripts that modify .anki2 files via Anki's Python libraries
+-   Run Anki from a local Python installation without building it yourself
+-   Get code completion when developing add-ons
+-   Make command line scripts that modify .anki2 files via Anki's Python libraries
 
-You will need the 64 bit version of Python 3.9 or 3.10 installed. If you do not
-have Python yet, please see the platform-specific instructions in the "Building
-from source" section below for more info.
+You will need the 64 bit version of Python 3.9 or 3.10 installed. 3.9 is recommended,
+as Anki has only received minimal testing on 3.10 so far, and some dependencies have not
+been fully updated yet. You can install Python from python.org or from your distro.
 
 **Mac/Linux**:
 
@@ -51,13 +51,10 @@ c:\> \pyenv\scripts\anki
 
 Platform-specific instructions:
 
-- [Windows](./windows.md)
-- [Mac](./mac.md)
-- [Linux](./linux.md)
-- [Other Platforms](./new-platform.md)
-
-Don't name the Git checkout ~/Anki or ~/Documents/Anki, as those folders
-were used on old Anki versions and will be automatically moved.
+-   [Windows](./windows.md)
+-   [Mac](./mac.md)
+-   [Linux](./linux.md)
+-   [Other Platforms](./new-platform.md)
 
 Before contributing code, please see [Contributing](./contributing.md).
 
@@ -186,6 +183,7 @@ VS Code's "watcher exclude", and add `**/bazel-*`.
 
 After running 'code' from the project root, it may take a minute or two to be
 ready.
+
 ## TypeScript editing
 
 Visual Studio Code seems to give the best experience. Use 'code ts' from the project
@@ -235,7 +233,7 @@ Anki to load a specific profile.
 
 If you're using PyCharm:
 
-- right click on the "run" file in the root of the PyCharm Anki folder
-- click "Edit 'run'..." - in Script options and enter:
-  "-p [dev profile name]" without the quotes
-- click "Ok"
+-   right click on the "run" file in the root of the PyCharm Anki folder
+-   click "Edit 'run'..." - in Script options and enter:
+    "-p [dev profile name]" without the quotes
+-   click "Ok"
