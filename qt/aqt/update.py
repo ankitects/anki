@@ -59,17 +59,17 @@ class LatestVersionFinder(QThread):
 def askAndUpdate(mw: aqt.AnkiQt, ver: str) -> None:
     baseStr = tr.qt_misc_anki_updatedanki_has_been_released(val=ver)
     msg = QMessageBox(mw)
-    msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)  # type: ignore
-    msg.setIcon(QMessageBox.Information)
+    msg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)  # type: ignore
+    msg.setIcon(QMessageBox.Icon.Information)
     msg.setText(baseStr + tr.qt_misc_would_you_like_to_download_it())
     button = QPushButton(tr.qt_misc_ignore_this_update())
-    msg.addButton(button, QMessageBox.RejectRole)
-    msg.setDefaultButton(QMessageBox.Yes)
+    msg.addButton(button, QMessageBox.ButtonRole.RejectRole)
+    msg.setDefaultButton(QMessageBox.StandardButton.Yes)
     ret = msg.exec()
     if msg.clickedButton() == button:
         # ignore this update
         mw.pm.meta["suppressUpdate"] = ver
-    elif ret == QMessageBox.Yes:
+    elif ret == QMessageBox.StandardButton.Yes:
         openLink(aqt.appWebsite)
 
 

@@ -1,0 +1,1 @@
+../../../bazel-bin/qt/aqt/forms/build_ui_qt5_qt6.py
