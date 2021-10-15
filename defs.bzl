@@ -7,9 +7,9 @@ load("//proto:protobuf.bzl", "setup_protobuf_binary")
 load("//proto:format.bzl", "setup_clang_format")
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_repositories")
-load("@com_github_ali5h_rules_pip//:defs.bzl", "pip_import")
 load("//pip/pyqt5:defs.bzl", "install_pyqt5")
 load("//pip/pyqt6:defs.bzl", "install_pyqt6")
+load("@rules_python//python:pip.bzl", "pip_parse")
 
 anki_version = "2.1.49"
 
@@ -33,10 +33,10 @@ def setup_deps():
 
     native.register_toolchains("@python//:python3_toolchain")
 
-    pip_import(
+    pip_parse(
         name = "py_deps",
-        requirements = "@ankidesktop//pip:requirements.txt",
-        python_runtime = "@python//:python",
+        requirements_lock = "@ankidesktop//pip:requirements.txt",
+        python_interpreter_target = "@python//:python",
     )
 
     install_pyqt5(

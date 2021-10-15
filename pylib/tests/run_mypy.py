@@ -31,7 +31,7 @@ if __name__ == "__main__":
         # bazel passes in \\?\c:\... path; mypy can't handle it, so we
         # strip off prefix
         for entry in sys.path:
-            if "__mypy_" in entry:
+            if entry.endswith("__mypy"):
                 typeshed = f"{entry[4:]}\\mypy\\typeshed"
                 args.append("--custom-typeshed-dir")
                 args.append(typeshed)
