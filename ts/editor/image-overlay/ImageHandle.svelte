@@ -18,9 +18,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { tick, onDestroy } from "svelte";
     import type { StyleObject } from "../CustomStyles.svelte";
-    import { getContext, editableKey } from "../context";
+    import { getEditable } from "../Editable.svelte";
+    import type { EditableContextAPI } from "../Editable.svelte";
 
-    const { container, styles } = getContext(editableKey);
+    const { container, styles } = getEditable() as EditableContextAPI;
 
     const sheetPromise = styles
         .addStyleTag("imageOverlay")

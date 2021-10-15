@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import type CustomStyles from "./CustomStyles.svelte";
     import type { EditingInputAPI } from "./EditingArea.svelte";
+    import contextProperty from "../sveltelib/context-property";
 
     export interface EditableAPI extends EditingInputAPI {
         name: "editable";
@@ -19,6 +20,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         container: HTMLElement;
         api: EditableAPI;
     }
+
+    const key = Symbol("editable");
+    const [set, getEditable, hasEditable] = contextProperty<EditableContextAPI>(key);
+
+    export { getEditable, hasEditable };
 </script>
 
 <script lang="ts">
@@ -33,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fragmentToString,
         caretToEnd,
     } from "../lib/dom";
-    import { getContext, editableKey, decoratedElementsKey } from "./context";
+    import { getDecoratedElements } from "./DecoratedElements.svelte";
     import { getEditingArea } from "./EditingArea.svelte";
     import type { EditingAreaAPI } from "./EditingArea.svelte";
     import { promiseResolve } from "../lib/promise";
@@ -45,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let hidden: boolean;
 
     const { content, editingInputs } = getEditingArea() as EditingAreaAPI;
-    const decoratedElements = getContext(decoratedElementsKey);
+    const decoratedElements = getDecoratedElements();
 
     const range = document.createRange();
 
@@ -228,7 +234,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <div class="editable-widgets">
         {#await Promise.all([editablePromise, stylesPromise]) then [container, styles]}
-            <SetContext key={editableKey} value={{ container, styles, api }}>
+            <SetContext setter={set} value={{ container, styles, api }}>
                 <slot />
             </SetContext>
         {/await}

@@ -16,10 +16,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Editor from "./Editor.svelte";
 
     import { onMount, tick } from "svelte";
-    import { getContext, editableKey } from "../context";
+    import { getEditable } from "../Editable.svelte";
+    import type { EditableContextAPI } from "../Editable.svelte";
     import { noop } from "../../lib/functional";
 
-    const { container, api } = getContext(editableKey);
+    const { container, api } = getEditable() as EditableContextAPI;
 
     let activeImage: HTMLImageElement | null = null;
     let allow: () => void;
