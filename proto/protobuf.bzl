@@ -13,6 +13,7 @@ alias(
     name = "protoc",
     actual = select({
         "@ankidesktop//platforms:windows_x86_64": "@protoc_bin_windows//:bin/protoc.exe",
+        "@ankidesktop//platforms:macos_arm64": "@protoc_bin_macos//:bin/protoc",
         "@ankidesktop//platforms:macos_x86_64": "@protoc_bin_macos//:bin/protoc",
         "@ankidesktop//platforms:linux_x86_64": "@protoc_bin_linux_x86_64//:bin/protoc",
         "@ankidesktop//platforms:linux_arm64": "@protoc_bin_linux_arm64//:bin/protoc"

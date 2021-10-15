@@ -15,6 +15,7 @@ alias(
     name = "clang_format",
     actual = select({
         "@ankidesktop//platforms:windows_x86_64": "@clang_format_windows_x86_64//:clang-format.exe",
+        "@ankidesktop//platforms:macos_arm64": "@clang_format_macos_x86_64//:clang-format",
         "@ankidesktop//platforms:macos_x86_64": "@clang_format_macos_x86_64//:clang-format",
         "@ankidesktop//platforms:linux_x86_64": "@clang_format_linux_x86_64//:clang-format",
     }),
