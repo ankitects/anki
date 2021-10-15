@@ -568,15 +568,19 @@ def restoreSplitter(widget: QSplitter, key: str) -> None:
         widget.restoreState(aqt.mw.pm.profile[key])
 
 
+def _header_key(key: str) -> str:
+    # not compatible across major versions
+    qt_suffix = f"Qt{qtmajor}" if qtmajor > 5 else ""
+    return f"{key}Header{qt_suffix}"
+
+
 def saveHeader(widget: QHeaderView, key: str) -> None:
-    key += "Header"
-    aqt.mw.pm.profile[key] = widget.saveState()
+    aqt.mw.pm.profile[_header_key(key)] = widget.saveState()
 
 
 def restoreHeader(widget: QHeaderView, key: str) -> None:
-    key += "Header"
-    if aqt.mw.pm.profile.get(key):
-        widget.restoreState(aqt.mw.pm.profile[key])
+    if state := aqt.mw.pm.profile.get(_header_key(key)):
+        widget.restoreState(state)
 
 
 def save_is_checked(widget: QCheckBox, key: str) -> None:
