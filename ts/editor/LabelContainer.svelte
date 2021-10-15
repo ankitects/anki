@@ -6,9 +6,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Readable } from "svelte/store";
     import { getContext as svelteGetContext } from "svelte";
     import { directionKey } from "../lib/context-keys";
-    import { getContext, editorFieldKey } from "./context";
+    import { getEditorField } from "./EditorField.svelte";
 
-    const editorField = getContext(editorFieldKey);
+    const editorField = getEditorField();
     const direction = svelteGetContext<Readable<"ltr" | "rtl">>(directionKey);
 </script>
 

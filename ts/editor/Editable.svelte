@@ -33,12 +33,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fragmentToString,
         caretToEnd,
     } from "../lib/dom";
-    import {
-        getContext,
-        editingAreaKey,
-        editableKey,
-        decoratedElementsKey,
-    } from "./context";
+    import { getContext, editableKey, decoratedElementsKey } from "./context";
+    import { getEditingArea } from "./EditingArea.svelte";
+    import type { EditingAreaAPI } from "./EditingArea.svelte";
     import { promiseResolve } from "../lib/promise";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { wrapInternal } from "../lib/wrap";
@@ -47,7 +44,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let hidden: boolean;
 
-    const editingArea = getContext(editingAreaKey);
+    const { content, editingInputs } = getEditingArea() as EditingAreaAPI;
     const decoratedElements = getContext(decoratedElementsKey);
 
     const range = document.createRange();
@@ -112,7 +109,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         adjustOutputFragment(clone);
 
         const output = adjustOutputHTML(fragmentToString(clone));
-        editingArea.content.set(output);
+        content.set(output);
     }
 
     function attachShadow(element: Element): void {
@@ -172,8 +169,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    const editingInputs = editingArea.editingInputs;
-
     export const api: EditableAPI = {
         name: "editable",
         focus() {
@@ -207,8 +202,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $editingInputs.push(api);
         $editingInputs = $editingInputs;
 
-        const unsubscribeFromEditingArea =
-            editingArea.content.subscribe(writeFromEditingArea);
+        const unsubscribeFromEditingArea = content.subscribe(writeFromEditingArea);
         const unsubscribeToEditingArea = nodes.subscribe(writeToEditingArea);
 
         return () => {

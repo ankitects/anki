@@ -19,7 +19,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { tick, onMount } from "svelte";
     import { writable } from "svelte/store";
-    import { getContext, editingAreaKey, decoratedElementsKey } from "./context";
+    import { getContext, decoratedElementsKey } from "./context";
+    import { getEditingArea } from "./EditingArea.svelte";
+    import type { EditingAreaAPI } from "./EditingArea.svelte";
     import { htmlanki, baseOptions, gutterOptions } from "./code-mirror";
 
     export let hidden = false;
@@ -30,9 +32,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ...gutterOptions,
     };
 
-    const editingArea = getContext(editingAreaKey);
+    const { editingInputs, content } = getEditingArea() as EditingAreaAPI;
     const decoratedElements = getContext(decoratedElementsKey);
-    const content = editingArea.content;
     const code = writable($content);
 
     function adjustInputHTML(html: string): string {
@@ -88,8 +89,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const selection = codeMirror?.editor.getSelection();
         codeMirror?.editor.replaceSelection(before + selection + after);
     }
-
-    const editingInputs = editingArea.editingInputs;
 
     export const api = {
         name: "codable",

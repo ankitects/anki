@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { EditingAreaAPI } from "./EditingArea.svelte";
+    import contextProperty from "../sveltelib/context-property";
 
     export interface FieldData {
         name: string;
@@ -18,6 +19,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         direction: "ltr" | "rtl";
         editingArea?: EditingAreaAPI;
     }
+
+    const key = Symbol("editorField");
+    const [set, getEditorField, hasEditorField] = contextProperty<EditorFieldAPI>(key);
+
+    export { getEditorField, hasEditorField };
 </script>
 
 <script lang="ts">
@@ -30,7 +36,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
     import type { Writable } from "svelte/store";
     import { directionKey } from "../lib/context-keys";
-    import { setContext, editorFieldKey } from "./context";
 
     export let content: Writable<string>;
     export let field: FieldData;
@@ -41,20 +46,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: $directionStore = field.direction;
 
-    const obj = {};
-
     let editorField: HTMLElement;
 
-    export const api = setContext(
-        editorFieldKey,
-        Object.defineProperties(obj, {
-            element: {
-                get: () => editorField,
-            },
-            direction: {
-                get: () => $directionStore,
-            },
-        }) as EditorFieldAPI
+    export const api = set(
+        Object.create(
+            {},
+            {
+                element: {
+                    get: () => editorField,
+                },
+                direction: {
+                    get: () => $directionStore,
+                },
+            }
+        ) as EditorFieldAPI
     );
 </script>
 

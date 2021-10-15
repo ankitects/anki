@@ -83,8 +83,8 @@ export function caretToEnd(node: Node): void {
 
 const getAnchorParent =
     <T extends Element>(predicate: (element: Element) => element is T) =>
-    (currentField: DocumentOrShadowRoot): T | null => {
-        const anchor = currentField.getSelection()?.anchorNode;
+    (root: DocumentOrShadowRoot): T | null => {
+        const anchor = root.getSelection()?.anchorNode;
 
         if (!anchor) {
             return null;

@@ -14,12 +14,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import * as tr from "../lib/ftl";
     import { bridgeCommand } from "../lib/bridgecommand";
-    import { getContext, focusInEditableKey, activeInputKey } from "./context";
+    import { getNoteEditor } from "./OldEditorAdapter.svelte";
+    import type { NoteEditorAPI } from "./OldEditorAdapter.svelte";
     import { appendInParentheses } from "./helpers";
     import { withButton } from "../components/helpers";
     import { paperclipIcon, micIcon, functionIcon } from "./icons";
 
     export let api = {};
+    const { focusInEditable, activeInput } = getNoteEditor() as NoteEditorAPI;
 
     function onAttachment(): void {
         bridgeCommand("attach");
@@ -29,8 +31,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bridgeCommand("record");
     }
 
-    const activeInput = getContext(activeInputKey);
-    const focusInEditable = getContext(focusInEditableKey);
     $: disabled = !$focusInEditable;
 </script>
 

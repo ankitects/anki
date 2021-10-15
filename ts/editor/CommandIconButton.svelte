@@ -9,7 +9,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { withButton } from "../components/helpers";
     import { appendInParentheses, execCommand, queryCommandState } from "./helpers";
-    import { getContext, focusInEditableKey } from "./context";
+    import { getNoteEditor } from "./OldEditorAdapter.svelte";
+    import type { NoteEditorAPI } from "./OldEditorAdapter.svelte";
 
     export let key: string;
     export let tooltip: string;
@@ -18,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let withoutShortcut = false;
     export let withoutState = false;
 
-    const focusInEditable = getContext(focusInEditableKey);
+    const { focusInEditable } = getNoteEditor() as NoteEditorAPI;
     $: disabled = !$focusInEditable;
 </script>
 

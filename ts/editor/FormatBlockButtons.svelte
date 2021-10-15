@@ -25,7 +25,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         indentIcon,
         outdentIcon,
     } from "./icons";
-    import { getContext, focusInEditableKey } from "./context";
+    import { getNoteEditor } from "./OldEditorAdapter.svelte";
+    import type { NoteEditorAPI } from "./OldEditorAdapter.svelte";
 
     export let api = {};
 
@@ -45,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    const focusInEditable = getContext(focusInEditableKey);
+    const { focusInEditable } = getNoteEditor() as NoteEditorAPI;
     $: disabled = !$focusInEditable;
 </script>
 

@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { Writable } from "svelte/store";
+    import contextProperty from "../sveltelib/context-property";
 
     export interface EditingInputAPI {
         readonly name: string;
@@ -16,12 +17,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         editingInputs: Writable<EditingInputAPI[]>;
         focus(): void;
     }
+
+    const key = Symbol("editingArea");
+    const [set, getEditingArea, hasEditingArea] = contextProperty<EditingAreaAPI>(key);
+
+    export { getEditingArea, hasEditingArea };
 </script>
 
 <script lang="ts">
     import { writable } from "svelte/store";
     import { onMount, setContext as svelteSetContext } from "svelte";
-    import { setContext, editingAreaKey } from "./context";
     import { fontFamilyKey, fontSizeKey } from "../lib/context-keys";
 
     export let fontFamily: string;
@@ -89,7 +94,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    export const api = setContext(editingAreaKey, {
+    export const api = set({
         content,
         editingInputs: inputsStore,
         focus,

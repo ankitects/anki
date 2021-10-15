@@ -4,11 +4,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { EditorFieldAPI } from "./EditorField.svelte";
+    import type { EditableAPI } from "./Editable.svelte";
+    import type { CodableAPI } from "./Codable.svelte";
+    import contextProperty from "../sveltelib/context-property";
 
     export interface NoteEditorAPI {
-        currentField: Writable<EditorFieldAPI>;
         fields: EditorFieldAPI[];
+        currentField: Writable<EditorFieldAPI>;
+        activeInput: Writable<EditableAPI | CodableAPI | null>;
+        focusInEditable: Writable<boolean>;
     }
+
+    const key = Symbol("noteEditor");
+    const [set, getNoteEditor, hasNoteEditor] = contextProperty<NoteEditorAPI>(key);
+
+    export { getNoteEditor, hasNoteEditor };
 </script>
 
 <script lang="ts">
@@ -39,12 +49,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable, get } from "svelte/store";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { isApplePlatform } from "../lib/platform";
-    import {
-        setContext,
-        noteEditorKey,
-        focusInEditableKey,
-        activeInputKey,
-    } from "./context";
     import { ChangeTimer } from "./change-timer";
     import { alertIcon } from "./icons";
 
@@ -198,27 +202,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return false;
     }
 
-    const focusInEditable = writable(false);
-    setContext(focusInEditableKey, focusInEditable);
-
     let editables: Editable[] = [];
     $: editables = editables.filter(Boolean);
 
     let codables: Codable[] = [];
     $: codables = codables.filter(Boolean);
 
-    const activeInput = setContext(activeInputKey, writable(null));
-
-    const currentField = writable(null);
     let editorFields: EditorField[] = [];
-
     $: fieldApis = editorFields.filter(Boolean).map((field) => field.api);
 
-    export const api = setContext(
-        noteEditorKey,
+    const currentField = writable<EditorFieldAPI | null>(null);
+    const activeInput = writable<EditableAPI | CodableAPI | null>(null);
+    const focusInEditable = writable<boolean>(false);
+
+    export const api = set(
         Object.create(
             {
                 currentField,
+                activeInput,
+                focusInEditable,
             },
             {
                 fields: { get: () => fieldApis },
@@ -257,7 +259,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     autofocus={index === focusTo}
                     bind:this={editorFields[index]}
                     on:focusin={() => {
-                        $currentField = editorFields[index].api;
+                        $currentField = api.fields[index];
                         bridgeCommand(`focus:${index}`);
                     }}
                     on:focusout={() => {

@@ -15,7 +15,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { withButton } from "../components/helpers";
     import { textColorIcon, highlightColorIcon, arrowIcon } from "./icons";
     import { appendInParentheses, execCommand } from "./helpers";
-    import { getContext, focusInEditableKey } from "./context";
+    import { getNoteEditor } from "./OldEditorAdapter.svelte";
+    import type { NoteEditorAPI } from "./OldEditorAdapter.svelte";
 
     export let api = {};
     export let textColor: string;
@@ -32,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         execCommand("backcolor", false, color);
     };
 
-    const focusInEditable = getContext(focusInEditableKey);
+    const { focusInEditable } = getNoteEditor() as NoteEditorAPI;
     $: disabled = !$focusInEditable;
 </script>
 
