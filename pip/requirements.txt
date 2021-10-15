@@ -113,8 +113,10 @@ pytoml==0.1.21
     # via compare-locales
 pywin32==302 ; sys_platform == "win32"
     # via -r requirements.in
-regex==2021.10.8
-    # via black
+regex==2021.9.30
+    # via
+    #   -r requirements.in
+    #   black
 requests==2.26.0
     # via -r requirements.in
 send2trash==1.8.0
