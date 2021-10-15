@@ -6,6 +6,12 @@ load("//rslib:rustfmt.bzl", "rustfmt_fix", "rustfmt_test")
 cargo_build_script(
     name = "build_script",
     srcs = ["build.rs"],
+    build_script_env = {
+        "PYO3_PYTHON": "$(location @python)",
+    },
+    data = [
+        "@python",
+    ],
 )
 
 rust_library(

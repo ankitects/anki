@@ -17,33 +17,18 @@ Then install deps:
 $ brew install rsync bazelisk
 ```
 
-**Install Python 3.9**:
+**Python**:
 
-Install Python 3.9 from <https://python.org>. We have heard reports
-of issues with pyenv and homebrew, so the package from python.org is
-the only recommended approach.
+The build system will automatically download a copy of Python 3.9 as part
+of the build.
 
-Python 3.9 is not currently recommended, as pylint does not support it yet.
+It is also possible to override the Python 3.9 that the build system uses.
+We only recommend you do this if you have downloaded Python from python.org,
+as we have heard reports of things failing when using a Python 3 from macOS
+or Homebrew.
 
-You do not need to set up a Python venv prior to building Anki.
-
-When you run "python" in a shell, if it shows Python 2.x, you may get a
-bunch of hashlib warnings during build. You can work around this by
-pointing python to python3.9:
-
-```
-$ ln -sf /usr/local/bin/{python3.9,python}
-```
-
-This linking will not work if you're using the system Python from Big Sur,
-which is one of the reasons why we recommend using Python from python.org.
-
-But even so, if you still have a Python 2 binary on your system linked to 
-/usr/bin/python, it can happen that Bazel uses it and the build process 
-errors. In that case you might want to try forcing Bazel to use the 
-Python 3 binary by putting the following into a file called user.bazelrc at 
-the top of this repo (assuming /usr/local/bin/python links to your Python 
-3.9 binary).
+To override Python, put the following into a file called user.bazelrc at the top
+of this repo (assuming /usr/local/bin/python links to your Python 3.9 binary).
 
 ```
 build --action_env=PYO3_PYTHON=/usr/local/bin/python

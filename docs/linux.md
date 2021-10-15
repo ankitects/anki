@@ -18,50 +18,30 @@ $ sudo apt install bash grep findutils curl gcc g++ git
 
 The 'find' utility is 'findutils' on Debian.
 
-**Install Python 3.9**:
+**Python**:
 
-If you're on a modern distribution, you may be able to install Python from the repo:
+For building and running from source, Python is required, but the version is
+flexible - any version from 2.7 onwards should work. The build system expects to
+find the command `python`, so if your system only has a `python3`, you'll need
+to link it to `python`, or do something like `sudo apt install python-is-python3`.
 
-```
-$  sudo apt install python3.9
-```
+The system Python is only used for running scripts, and the build system will
+download a copy of Python 3.9 into a local folder as part of the build.
 
-If you are using a packaged Python version that is installed in /usr/bin, you can jump
-immediately to the next section after ensuring python3.9-distutils is installed.
-
-If Python 3.9 is not available in your distro, you can download it from
-python.org, compile it, and install it in /usr/local. If you're on a basic
-Debian install, make sure you have the following installed before building
-Python:
-
-gcc g++ make libsqlite3-dev libreadline-dev libssl-dev zlib1g-dev libffi-dev
-
-Bazel does not look in /usr/local by default. If you've installed Python somewhere
-other than /usr/bin, you'll need to put the following into a file called user.bazelrc
-at the top of this repo before proceeding:
+You can have it use a locally installed Python instead, by putting something
+like the following into a file called user.bazelrc at the top of this repo
+before proceeding:
 
 ```
 build --action_env=PYO3_PYTHON=/usr/local/bin/python3.9
 ```
-
-If you're building Anki from a docker container or distro that has no `python` command in
-/usr/bin, you'll need to symlink `python` to `/usr/bin/python`. `/usr/bin/python` does not
-need to be Python 3.9; any version will do. `apt install python-is-python3` can also be
-used to link python3 to python.
-
-If your system only has Python 3.9, you should be able to build Anki with it,
-but the pylint tests may fail.
-
-Anki's build system will not place packages in system locations, so you do not
-need to build with an active Python virtual environment, and building outside
-of one is recommended.
 
 **Install Bazelisk**:
 
 Download it under the name 'bazel':
 
 ```
-$ curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.7.4/bazelisk-linux-amd64 -o ./bazel
+$ curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-linux-amd64 -o ./bazel
 ```
 
 And put it on your path:
