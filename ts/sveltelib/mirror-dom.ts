@@ -68,8 +68,8 @@ function getDOMMirror(): DOMMirror {
         /* do not update when focused as it will reset caret */
         element.addEventListener("focus", unsubscribe);
 
-        const unsubResubscription = allowResubscription.subscribe((value) => {
-            if (value) {
+        const unsubResubscription = allowResubscription.subscribe((allow: boolean): void => {
+            if (allow) {
                 element.addEventListener("blur", subscribe);
 
                 const root = element.getRootNode() as Document | ShadowRoot;
