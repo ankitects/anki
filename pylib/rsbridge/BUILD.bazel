@@ -18,7 +18,7 @@ rust_library(
         ): [
             "-Clink-arg=-undefined",
             "-Clink-arg=dynamic_lookup",
-            "-Clink-arg=-mmacosx-version-min=10.7",
+            "-Clink-arg=-mmacosx-version-min=10.13",
         ],
         "//conditions:default": [],
     }),

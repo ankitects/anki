@@ -99,8 +99,10 @@ class DialogManager:
     def open(self, name: str, *args: Any, **kwargs: Any) -> Any:
         (creator, instance) = self._dialogs[name]
         if instance:
-            if instance.windowState() & Qt.WindowMinimized:
-                instance.setWindowState(instance.windowState() & ~Qt.WindowMinimized)
+            if instance.windowState() & Qt.WindowState.WindowMinimized:
+                instance.setWindowState(
+                    instance.windowState() & ~Qt.WindowState.WindowMinimized
+                )
             instance.activateWindow()
             instance.raise_()
             if hasattr(instance, "reopen"):
@@ -224,9 +226,9 @@ def setupLangAndBackend(
 
     # switch direction for RTL languages
     if anki.lang.is_rtl(lang):
-        app.setLayoutDirection(Qt.RightToLeft)
+        app.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
     else:
-        app.setLayoutDirection(Qt.LeftToRight)
+        app.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
     # load qt translations
     _qtrans = QTranslator()
@@ -238,7 +240,10 @@ def setupLangAndBackend(
             os.path.join(aqt_data_folder(), "..", "qt_translations")
         )
     else:
-        qt_dir = QLibraryInfo.location(QLibraryInfo.TranslationsPath)
+        if qtmajor == 5:
+            qt_dir = QLibraryInfo.location(QLibraryInfo.TranslationsPath)  # type: ignore
+        else:
+            qt_dir = QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
     qt_lang = lang.replace("-", "_")
     if _qtrans.load(f"qtbase_{qt_lang}", qt_dir):
         app.installTranslator(_qtrans)
@@ -285,7 +290,7 @@ class AnkiApp(QApplication):
 
     def sendMsg(self, txt: str) -> bool:
         sock = QLocalSocket(self)
-        sock.connectToServer(self.KEY, QIODevice.WriteOnly)
+        sock.connectToServer(self.KEY, QIODevice.OpenModeFlag.WriteOnly)
         if not sock.waitForConnected(self.TMOUT):
             # first instance or previous instance dead
             return False
@@ -315,7 +320,7 @@ class AnkiApp(QApplication):
     ##################################################
 
     def event(self, evt: QEvent) -> bool:
-        if evt.type() == QEvent.FileOpen:
+        if evt.type() == QEvent.Type.FileOpen:
             self.appMsg.emit(evt.file() or "raise")  # type: ignore
             return True
         return QApplication.event(self, evt)
@@ -360,20 +365,18 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
 
     # catch opengl errors
     def msgHandler(category: Any, ctx: Any, msg: Any) -> None:
-        if category == QtDebugMsg:
+        if category == QtMsgType.QtDebugMsg:
             category = "debug"
-        elif category == QtInfoMsg:
+        elif category == QtMsgType.QtInfoMsg:
             category = "info"
-        elif category == QtWarningMsg:
+        elif category == QtMsgType.QtWarningMsg:
             category = "warning"
-        elif category == QtCriticalMsg:
+        elif category == QtMsgType.QtCriticalMsg:
             category = "critical"
-        elif category == QtDebugMsg:
+        elif category == QtMsgType.QtDebugMsg:
             category = "debug"
-        elif category == QtFatalMsg:
+        elif category == QtMsgType.QtFatalMsg:
             category = "fatal"
-        elif category == QtSystemMsg:
-            category = "system"
         else:
             category = "unknown"
         context = ""
@@ -407,7 +410,7 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
         if isWin:
             os.environ["QT_OPENGL"] = driver.value
         elif isMac:
-            QCoreApplication.setAttribute(Qt.AA_UseSoftwareOpenGL)
+            QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL)
         elif isLin:
             os.environ["QT_XCB_FORCE_SOFTWARE_OPENGL"] = "1"
 
@@ -501,15 +504,15 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         os.environ["QT_SCALE_FACTOR"] = str(pm.uiScale())
 
     # opt in to full hidpi support?
-    if not os.environ.get("ANKI_NOHIGHDPI"):
-        QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-        QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
+    if not os.environ.get("ANKI_NOHIGHDPI") and qtmajor == 5:
+        QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)  # type: ignore
+        QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)  # type: ignore
         os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
         os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] = "PassThrough"
 
     # Opt into software rendering. Useful for buggy systems.
     if os.environ.get("ANKI_SOFTWAREOPENGL"):
-        QCoreApplication.setAttribute(Qt.AA_UseSoftwareOpenGL)
+        QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL)
 
     if (
         isWin
@@ -537,11 +540,13 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
 
     # disable icons on mac; this must be done before window created
     if isMac:
-        app.setAttribute(Qt.AA_DontShowIconsInMenus)
+        app.setAttribute(Qt.ApplicationAttribute.AA_DontShowIconsInMenus)
 
     # disable help button in title bar on qt versions that support it
-    if isWin and qtminor >= 10:
-        QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton)
+    if isWin and qtmajor == 5 and qtminor >= 10:
+        QApplication.setAttribute(
+            QApplication.Attribute.AA_DisableWindowContextHelpButton  # type: ignore
+        )
 
     # proxy configured?
     from urllib.request import getproxies, proxy_bypass
@@ -561,7 +566,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
     if disable_proxies:
         print("webview proxy use disabled")
         proxy = QNetworkProxy()
-        proxy.setType(QNetworkProxy.NoProxy)
+        proxy.setType(QNetworkProxy.ProxyType.NoProxy)
         QNetworkProxy.setApplicationProxy(proxy)
 
     # we must have a usable temp dir

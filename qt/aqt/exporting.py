@@ -31,7 +31,7 @@ class ExportDialog(QDialog):
         did: DeckId | None = None,
         cids: list[CardId] | None = None,
     ):
-        QDialog.__init__(self, mw, Qt.Window)
+        QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
         self.col = mw.col.weakref()
         self.frm = aqt.forms.exporting.Ui_ExportDialog()
@@ -64,7 +64,7 @@ class ExportDialog(QDialog):
         self.frm.deck.addItems(self.decks)
         # save button
         b = QPushButton(tr.exporting_export())
-        self.frm.buttonBox.addButton(b, QDialogButtonBox.AcceptRole)
+        self.frm.buttonBox.addButton(b, QDialogButtonBox.ButtonRole.AcceptRole)
         # set default option if accessed through deck button
         if did:
             name = self.mw.col.decks.get(did)["name"]

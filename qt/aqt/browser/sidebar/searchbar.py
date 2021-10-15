@@ -43,9 +43,9 @@ class SidebarSearchBar(QLineEdit):
         self.sidebar.search_for(self.text())
 
     def keyPressEvent(self, evt: QKeyEvent) -> None:
-        if evt.key() in (Qt.Key_Up, Qt.Key_Down):
+        if evt.key() in (Qt.Key.Key_Up, Qt.Key.Key_Down):
             self.sidebar.setFocus()
-        elif evt.key() in (Qt.Key_Enter, Qt.Key_Return):
+        elif evt.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             self.onSearch()
         else:
             QLineEdit.keyPressEvent(self, evt)

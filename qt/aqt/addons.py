@@ -804,7 +804,7 @@ class AddonsDialog(QDialog):
             name = self.name_for_addon_list(addon)
             item = QListWidgetItem(name, addonList)
             if self.should_grey(addon):
-                item.setForeground(Qt.gray)
+                item.setForeground(Qt.GlobalColor.gray)
             if addon.dir_name in selected:
                 item.setSelected(True)
 
@@ -947,7 +947,7 @@ class GetAddons(QDialog):
         self.form = aqt.forms.getaddons.Ui_Dialog()
         self.form.setupUi(self)
         b = self.form.buttonBox.addButton(
-            tr.addons_browse_addons(), QDialogButtonBox.ActionRole
+            tr.addons_browse_addons(), QDialogButtonBox.ButtonRole.ActionRole
         )
         qconnect(b.clicked, self.onBrowse)
         disable_help_button(self)
@@ -1183,7 +1183,7 @@ class ChooseAddonsToUpdateList(QListWidget):
         )
         self.ignore_check_evt = False
         self.setup()
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         qconnect(self.itemClicked, self.on_click)
         qconnect(self.itemChanged, self.on_check)
         qconnect(self.itemDoubleClicked, self.on_double_click)
@@ -1191,7 +1191,9 @@ class ChooseAddonsToUpdateList(QListWidget):
 
     def setup(self) -> None:
         header_item = QListWidgetItem(tr.addons_choose_update_update_all(), self)
-        header_item.setFlags(Qt.ItemFlag(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled))
+        header_item.setFlags(
+            Qt.ItemFlag(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
+        )
         self.header_item = header_item
         for update_info in self.updated_addons:
             addon_id = update_info.id
@@ -1204,22 +1206,22 @@ class ChooseAddonsToUpdateList(QListWidget):
             addon_label = f"{update_time:%Y-%m-%d}   {addon_name}"
             item = QListWidgetItem(addon_label, self)
             # Not user checkable because it overlaps with itemClicked signal
-            item.setFlags(Qt.ItemFlag(Qt.ItemIsEnabled))
+            item.setFlags(Qt.ItemFlag(Qt.ItemFlag.ItemIsEnabled))
             if update_enabled:
-                item.setCheckState(Qt.Checked)
+                item.setCheckState(Qt.CheckState.Checked)
             else:
-                item.setCheckState(Qt.Unchecked)
+                item.setCheckState(Qt.CheckState.Unchecked)
             item.setData(self.ADDON_ID_ROLE, addon_id)
         self.refresh_header_check_state()
 
     def bool_to_check(self, check_bool: bool) -> Qt.CheckState:
         if check_bool:
-            return Qt.Checked
+            return Qt.CheckState.Checked
         else:
-            return Qt.Unchecked
+            return Qt.CheckState.Unchecked
 
     def checked(self, item: QListWidgetItem) -> bool:
-        return item.checkState() == Qt.Checked
+        return item.checkState() == Qt.CheckState.Checked
 
     def on_click(self, item: QListWidgetItem) -> None:
         if item == self.header_item:
@@ -1262,9 +1264,9 @@ class ChooseAddonsToUpdateList(QListWidget):
         for i in range(1, self.count()):
             item = self.item(i)
             if not self.checked(item):
-                self.check_item(self.header_item, Qt.Unchecked)
+                self.check_item(self.header_item, Qt.CheckState.Unchecked)
                 return
-        self.check_item(self.header_item, Qt.Checked)
+        self.check_item(self.header_item, Qt.CheckState.Checked)
 
     def get_selected_addon_ids(self) -> list[int]:
         addon_ids = []
@@ -1290,7 +1292,7 @@ class ChooseAddonsToUpdateDialog(QDialog):
     ) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(tr.addons_choose_update_window_title())
-        self.setWindowModality(Qt.WindowModal)
+        self.setWindowModality(Qt.WindowModality.WindowModal)
         self.mgr = mgr
         self.updated_addons = updated_addons
         self.setup()
@@ -1306,9 +1308,14 @@ class ChooseAddonsToUpdateDialog(QDialog):
         layout.addWidget(addons_list_widget)
         self.addons_list_widget = addons_list_widget
 
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)  # type: ignore
-        qconnect(button_box.button(QDialogButtonBox.Ok).clicked, self.accept)
-        qconnect(button_box.button(QDialogButtonBox.Cancel).clicked, self.reject)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)  # type: ignore
+        qconnect(
+            button_box.button(QDialogButtonBox.StandardButton.Ok).clicked, self.accept
+        )
+        qconnect(
+            button_box.button(QDialogButtonBox.StandardButton.Cancel).clicked,
+            self.reject,
+        )
         layout.addWidget(button_box)
         self.setLayout(layout)
 
@@ -1317,7 +1324,7 @@ class ChooseAddonsToUpdateDialog(QDialog):
         ret = self.exec()
         saveGeom(self, "addonsChooseUpdate")
         self.addons_list_widget.save_check_state()
-        if ret == QDialog.Accepted:
+        if ret == QDialog.DialogCode.Accepted:
             return self.addons_list_widget.get_selected_addon_ids()
         else:
             return []
@@ -1475,7 +1482,9 @@ class ConfigEditor(QDialog):
         self.mgr = dlg.mgr
         self.form = aqt.forms.addonconf.Ui_Dialog()
         self.form.setupUi(self)
-        restore = self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults)
+        restore = self.form.buttonBox.button(
+            QDialogButtonBox.StandardButton.RestoreDefaults
+        )
         qconnect(restore.clicked, self.onRestoreDefaults)
         self.setupFonts()
         self.updateHelp()
@@ -1498,7 +1507,7 @@ class ConfigEditor(QDialog):
         tooltip(tr.addons_restored_defaults(), parent=self)
 
     def setupFonts(self) -> None:
-        font_mono = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        font_mono = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
         font_mono.setPointSize(font_mono.pointSize() + 1)
         self.form.editor.setFont(font_mono)
 
@@ -1600,9 +1609,12 @@ def installAddonPackages(
                 parent=parent,
                 title=tr.addons_install_anki_addon(),
                 type="warning",
-                customBtns=[QMessageBox.No, QMessageBox.Yes],
+                customBtns=[
+                    QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.Yes,
+                ],
             )
-            == QMessageBox.Yes
+            == QMessageBox.StandardButton.Yes
         ):
             return False
 

@@ -31,11 +31,6 @@ from aqt.utils import disable_help_button, showWarning, tr
 # - Saves in sqlite rather than a flat file so the config can't be corrupted
 
 
-class RecordingDriver(Enum):
-    PyAudio = "PyAudio"
-    QtAudioInput = "Qt"
-
-
 class VideoDriver(Enum):
     OpenGL = "auto"
     ANGLE = "angle"
@@ -163,25 +158,32 @@ class ProfileManager:
 
     def _unpickle(self, data: bytes) -> Any:
         class Unpickler(pickle.Unpickler):
-            def find_class(self, module: str, name: str) -> Any:
-                if module == "PyQt5.sip":
-                    try:
-                        import PyQt5.sip  # pylint: disable=unused-import
-                    except:
-                        # use old sip location
-                        module = "sip"
-                fn = super().find_class(module, name)
-                if module == "sip" and name == "_unpickle_type":
+            def find_class(self, class_module: str, name: str) -> Any:
+                # handle sip lookup ourselves, mapping to current Qt version
+                if class_module == "sip" or class_module.endswith(".sip"):
 
-                    def wrapper(mod, obj, args) -> Any:  # type: ignore
-                        if mod.startswith("PyQt4") and obj == "QByteArray":
-                            # can't trust str objects from python 2
-                            return QByteArray()
-                        return fn(mod, obj, args)
+                    def unpickle_type(module: str, klass: str, args: Any) -> Any:
+                        if qtmajor > 5:
+                            module = module.replace("Qt5", "Qt6")
+                        else:
+                            module = module.replace("Qt6", "Qt5")
+                        if klass == "QByteArray":
+                            if module.startswith("PyQt4"):
+                                # can't trust str objects from python 2
+                                return QByteArray()
+                            else:
+                                # return the bytes directly
+                                return args[0]
+                        elif name == "_unpickle_enum":
+                            if qtmajor == 5:
+                                return sip._unpickle_enum(module, klass, args)  # type: ignore
+                            else:
+                                # old style enums can't be unpickled
+                                return None
+                        else:
+                            return sip._unpickle_type(module, klass, args)  # type: ignore
 
-                    return wrapper
-                else:
-                    return fn
+                    return unpickle_type
 
         up = Unpickler(io.BytesIO(data), errors="ignore")
         return up.load()
@@ -454,9 +456,9 @@ create table if not exists profiles
         code = obj[1]
         name = obj[0]
         r = QMessageBox.question(
-            None, "Anki", tr.profiles_confirm_lang_choice(lang=name), QMessageBox.Yes | QMessageBox.No, QMessageBox.No  # type: ignore
+            None, "Anki", tr.profiles_confirm_lang_choice(lang=name), QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No  # type: ignore
         )
-        if r != QMessageBox.Yes:
+        if r != QMessageBox.StandardButton.Yes:
             return self.setDefaultLang(f.lang.currentRow())
         self.setLang(code)
 
@@ -548,18 +550,6 @@ create table if not exists profiles
 
     def set_auto_sync_media_minutes(self, val: int) -> None:
         self.profile["autoSyncMediaMinutes"] = val
-
-    def recording_driver(self) -> RecordingDriver:
-        if driver := self.profile.get("recordingDriver"):
-            try:
-                return RecordingDriver(driver)
-            except ValueError:
-                # revert to default
-                pass
-        return RecordingDriver.QtAudioInput
-
-    def set_recording_driver(self, driver: RecordingDriver) -> None:
-        self.profile["recordingDriver"] = driver.value
 
     def show_browser_table_tooltips(self) -> bool:
         return self.profile.get("browserTableTooltips", True)

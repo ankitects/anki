@@ -30,7 +30,7 @@ class CustomStudy(QDialog):
         self.created_custom_study = False
         f.setupUi(self)
         disable_help_button(self)
-        self.setWindowModality(Qt.WindowModal)
+        self.setWindowModality(Qt.WindowModality.WindowModal)
         self.setupSignals()
         f.radioNew.click()
         self.exec()
@@ -116,7 +116,7 @@ class CustomStudy(QDialog):
         f.spin.setValue(sval)
         f.preSpin.setText(pre)
         f.postSpin.setText(post)
-        f.buttonBox.button(QDialogButtonBox.Ok).setText(ok)
+        f.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setText(ok)
         self.radioIdx = idx
 
     def accept(self) -> None:

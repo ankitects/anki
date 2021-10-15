@@ -902,7 +902,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
 
     @deprecated(info=_js_legacy)
     def _onHtmlEdit(self, field: int) -> None:
-        d = QDialog(self.widget, Qt.Window)
+        d = QDialog(self.widget, Qt.WindowType.Window)
         form = aqt.forms.edithtml.Ui_Dialog()
         form.setupUi(d)
         restoreGeom(d, "htmlEditor")
@@ -911,11 +911,11 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             form.buttonBox.helpRequested, lambda: openHelp(HelpPage.EDITING_FEATURES)
         )
         font = QFont("Courier")
-        font.setStyleHint(QFont.TypeWriter)
+        font.setStyleHint(QFont.StyleHint.TypeWriter)
         form.textEdit.setFont(font)
         form.textEdit.setPlainText(self.note.fields[field])
         d.show()
-        form.textEdit.moveCursor(QTextCursor.End)
+        form.textEdit.moveCursor(QTextCursor.MoveOperation.End)
         d.exec()
         html = form.textEdit.toPlainText()
         if html.find(">") > -1:
@@ -997,7 +997,10 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
     def onChangeCol(self) -> None:
         if isLin:
             new = QColorDialog.getColor(
-                QColor(self.fcolour), None, None, QColorDialog.DontUseNativeDialog
+                QColor(self.fcolour),
+                None,
+                None,
+                QColorDialog.ColorDialogOption.DontUseNativeDialog,
             )
         else:
             new = QColorDialog.getColor(QColor(self.fcolour), None)
@@ -1118,10 +1121,10 @@ class EditorWebView(AnkiWebView):
             self._flagAnkiText()
 
     def onCut(self) -> None:
-        self.triggerPageAction(QWebEnginePage.Cut)
+        self.triggerPageAction(QWebEnginePage.WebAction.Cut)
 
     def onCopy(self) -> None:
-        self.triggerPageAction(QWebEnginePage.Copy)
+        self.triggerPageAction(QWebEnginePage.WebAction.Copy)
 
     def _wantsExtendedPaste(self) -> bool:
         strip_html = self.editor.mw.col.get_config_bool(
@@ -1140,10 +1143,10 @@ class EditorWebView(AnkiWebView):
         self.editor.doPaste(html, internal, extended)
 
     def onPaste(self) -> None:
-        self._onPaste(QClipboard.Clipboard)
+        self._onPaste(QClipboard.Mode.Clipboard)
 
     def onMiddleClickPaste(self) -> None:
-        self._onPaste(QClipboard.Selection)
+        self._onPaste(QClipboard.Mode.Selection)
 
     def dragEnterEvent(self, evt: QDragEnterEvent) -> None:
         evt.accept()

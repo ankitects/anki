@@ -28,7 +28,7 @@ class CardInfoDialog(QDialog):
         self.show()
 
     def _setup_ui(self, card_id: CardId) -> None:
-        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.mw.garbage_collect_on_dialog_finish(self)
         disable_help_button(self)
         restoreGeom(self, self.GEOMETRY_KEY)
@@ -40,7 +40,7 @@ class CardInfoDialog(QDialog):
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web)
-        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         buttons.setContentsMargins(10, 0, 10, 10)
         layout.addWidget(buttons)
         qconnect(buttons.rejected, self.reject)

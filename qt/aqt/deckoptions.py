@@ -28,14 +28,14 @@ class DeckOptionsDialog(QDialog):
     silentlyClose = True
 
     def __init__(self, mw: aqt.main.AnkiQt, deck: DeckDict) -> None:
-        QDialog.__init__(self, mw, Qt.Window)
+        QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
         self._deck = deck
         self._setup_ui()
         self.show()
 
     def _setup_ui(self) -> None:
-        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.mw.garbage_collect_on_dialog_finish(self)
         self.setMinimumWidth(400)
         disable_help_button(self)

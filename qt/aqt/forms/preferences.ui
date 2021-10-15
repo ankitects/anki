@@ -108,13 +108,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="recording_driver">
-         <property name="currentText">
-          <string notr="true"/>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QLabel" name="search_text_label">
          <property name="text">
           <string>preferences_default_search_text</string>
@@ -616,7 +609,6 @@
   <tabstop>paste_strips_formatting</tabstop>
   <tabstop>nightMode</tabstop>
   <tabstop>useCurrent</tabstop>
-  <tabstop>recording_driver</tabstop>
   <tabstop>default_search_text</tabstop>
   <tabstop>uiScale</tabstop>
   <tabstop>showEstimates</tabstop>

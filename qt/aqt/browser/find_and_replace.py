@@ -73,16 +73,18 @@ class FindAndReplaceDialog(QDialog):
         disable_help_button(self)
         self.form = aqt.forms.findreplace.Ui_Dialog()
         self.form.setupUi(self)
-        self.setWindowModality(Qt.WindowModal)
+        self.setWindowModality(Qt.WindowModality.WindowModal)
 
         self._find_history = restore_combo_history(
             self.form.find, self.COMBO_NAME + "Find"
         )
-        self.form.find.completer().setCaseSensitivity(Qt.CaseSensitive)
+        self.form.find.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
         self._replace_history = restore_combo_history(
             self.form.replace, self.COMBO_NAME + "Replace"
         )
-        self.form.replace.completer().setCaseSensitivity(Qt.CaseSensitive)
+        self.form.replace.completer().setCaseSensitivity(
+            Qt.CaseSensitivity.CaseSensitive
+        )
 
         if not self.note_ids:
             # no selected notes to affect

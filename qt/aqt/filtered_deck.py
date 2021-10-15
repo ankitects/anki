@@ -90,7 +90,7 @@ class FilteredDeckConfigDialog(QDialog):
             QPushButton[label="hint"] {{ color: {grey} }}"""
         )
         disable_help_button(self)
-        self.setWindowModality(Qt.WindowModal)
+        self.setWindowModality(Qt.WindowModality.WindowModal)
         qconnect(
             self.form.buttonBox.helpRequested, lambda: openHelp(HelpPage.FILTERED_DECK)
         )
@@ -117,7 +117,9 @@ class FilteredDeckConfigDialog(QDialog):
             build_label = tr.actions_rebuild()
         else:
             build_label = tr.decks_build()
-        self.form.buttonBox.button(QDialogButtonBox.Ok).setText(build_label)
+        self.form.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setText(
+            build_label
+        )
 
         form.resched.setChecked(config.reschedule)
         self._onReschedToggled(0)
