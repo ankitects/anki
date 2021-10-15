@@ -68,18 +68,20 @@ function getDOMMirror(): DOMMirror {
         /* do not update when focused as it will reset caret */
         element.addEventListener("focus", unsubscribe);
 
-        const unsubResubscription = allowResubscription.subscribe((allow: boolean): void => {
-            if (allow) {
-                element.addEventListener("blur", subscribe);
+        const unsubResubscription = allowResubscription.subscribe(
+            (allow: boolean): void => {
+                if (allow) {
+                    element.addEventListener("blur", subscribe);
 
-                const root = element.getRootNode() as Document | ShadowRoot;
-                if (root.activeElement !== element) {
-                    subscribe();
+                    const root = element.getRootNode() as Document | ShadowRoot;
+                    if (root.activeElement !== element) {
+                        subscribe();
+                    }
+                } else {
+                    element.removeEventListener("blur", subscribe);
                 }
-            } else {
-                element.removeEventListener("blur", subscribe);
             }
-        });
+        );
 
         return {
             destroy() {

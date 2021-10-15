@@ -124,8 +124,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bridgeCommand("paste");
         }
 
-        function onCutOrCopy(event: Event): void {
-            event.preventDefault();
+        function onCutOrCopy(): void {
             bridgeCommand("cutOrCopy");
         }
 
