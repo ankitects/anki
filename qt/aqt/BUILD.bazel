@@ -84,6 +84,7 @@ py_library(
     name = "aqt_with_data_qt5",
     srcs = _py_srcs_and_forms,
     data = aqt_core_data + ["//qt/aqt/data"],
+    tags = ["manual"],
     visibility = ["//visibility:public"],
     deps = aqt_deps + [
         "@pyqt5//:pkg",
