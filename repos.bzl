@@ -59,21 +59,6 @@ def register_repos():
         ],
     )
 
-    # native.local_repository(
-    #     name = "com_github_ali5h_rules_pip",
-    #     path = "../rules_pip",
-    # )
-
-    maybe(
-        http_archive,
-        name = "com_github_ali5h_rules_pip",
-        strip_prefix = "rules_pip-fb02cb7bf5c03bc8cd4269679e4aea2e1839b501",
-        urls = [
-            "https://github.com/ali5h/rules_pip/archive/fb02cb7bf5c03bc8cd4269679e4aea2e1839b501.zip",
-        ],
-        sha256 = "34195cd437d34a7490276665225de353421e31e34c048715b66918e31d735ff6",
-    )
-
     # javascript
     ##############
 
