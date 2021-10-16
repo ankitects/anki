@@ -14,6 +14,7 @@ from aqt.utils import (
     qconnect,
     restoreGeom,
     saveGeom,
+    tr,
 )
 from aqt.webview import AnkiWebView
 
@@ -116,3 +117,19 @@ class CardInfoManager:
     def _on_close(self) -> None:
         self._dialog = None
 
+
+class BrowserCardInfo(CardInfoManager):
+    def __init__(self, mw: aqt.AnkiQt):
+        super().__init__(mw, "revlog", tr.card_stats_browser_card())
+
+
+class ReviewerCardInfo(CardInfoManager):
+    def __init__(self, mw: aqt.AnkiQt):
+        super().__init__(mw, "reviewerCardInfo", tr.card_stats_reviewer_card())
+
+
+class PreviousReviewerCardInfo(CardInfoManager):
+    def __init__(self, mw: aqt.AnkiQt):
+        super().__init__(
+            mw, "previousReviewerCardInfo", tr.card_stats_previous_reviewer_card()
+        )

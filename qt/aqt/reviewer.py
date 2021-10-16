@@ -21,7 +21,7 @@ from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.tags import MARKED_TAG
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
-from aqt.browser.card_info import CardInfoDialog
+from aqt.browser.card_info import PreviousReviewerCardInfo, ReviewerCardInfo
 from aqt.deckoptions import confirm_deck_then_display_options
 from aqt.operations.card import set_card_flag
 from aqt.operations.note import remove_notes
@@ -126,6 +126,8 @@ class Reviewer:
         self._v3: V3CardInfo | None = None
         self._state_mutation_key = str(random.randint(0, 2 ** 64 - 1))
         self.bottom = BottomBar(mw, mw.bottomWeb)
+        self._card_info = ReviewerCardInfo(self.mw)
+        self._previous_card_info = PreviousReviewerCardInfo(self.mw)
         hooks.card_did_leech.append(self.onLeech)
 
     def show(self) -> None:
@@ -196,6 +198,9 @@ class Reviewer:
             self._get_next_v1_v2_card()
         else:
             self._get_next_v3_card()
+
+        self._previous_card_info.set_card(self.previous_card)
+        self._card_info.set_card(self.card)
 
         if not self.card:
             self.mw.moveToState("overview")
@@ -958,12 +963,10 @@ time = %(time)d;
         confirm_deck_then_display_options(self.card)
 
     def on_previous_card_info(self) -> None:
-        if self.previous_card:
-            CardInfoDialog(parent=self.mw, mw=self.mw, card=self.previous_card)
+        self._previous_card_info.toggle()
 
     def on_card_info(self) -> None:
-        if self.card:
-            CardInfoDialog(parent=self.mw, mw=self.mw, card=self.card)
+        self._card_info.toggle()
 
     def set_flag_on_current_card(self, desired_flag: int) -> None:
         def redraw_flag(out: OpChangesWithCount) -> None:
