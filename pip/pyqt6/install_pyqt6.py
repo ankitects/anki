@@ -8,6 +8,7 @@ import re
 import shutil
 import subprocess
 import sys
+import platform
 
 from pip._internal.commands import create_command
 
@@ -104,6 +105,14 @@ def main():
             # install package in subfolder
             folder = os.path.join(base, "temp")
             pip_args = []
+            if sys.platform.startswith("darwin") and platform.machine() == "arm64":
+                if name in ("pyqt6-qt6", "pyqt6-webengine-qt6"):
+                    # pyqt messed up the architecture tags
+                    pip_args.extend(
+                        [
+                            "--platform=macosx_10_14_arm64",
+                            "--only-binary=:all:",
+                        ])
             install_package(with_version, folder, pip_args)
             # merge into parent
             merge_files(base, folder)
