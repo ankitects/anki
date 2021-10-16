@@ -81,7 +81,7 @@ py_test(
         "//pylib/anki",
         "//qt/aqt:aqt_without_data",
         requirement("pylint"),
-        "@pyqt5//:pkg",
+        "@pyqt6//:pkg",
     ],
 )
 
@@ -141,6 +141,7 @@ py_binary(
     ],
     imports = ["."],
     main = "runanki.py",
+    tags = ["manual"],
     deps = [
         "//pylib/anki",
         "//qt/aqt:aqt_with_data_qt5",
