@@ -75,3 +75,44 @@ class CardInfoDialog(QDialog):
         self.web = None
         saveGeom(self, self.GEOMETRY_KEY)
         return QDialog.reject(self)
+
+
+class CardInfoManager:
+    """Wrapper class to conveniently toggle, update and close a card info dialog."""
+
+    def __init__(self, mw: aqt.AnkiQt, geometry_key: str, window_title: str):
+        self.mw = mw
+        self.geometry_key = geometry_key
+        self.window_title = window_title
+        self._card: Card | None = None
+        self._dialog: CardInfoDialog | None = None
+
+    def toggle(self) -> None:
+        """Opening requires a card to be set."""
+        if not self._dialog and self._card:
+            self._dialog = CardInfoDialog(
+                None,
+                self.mw,
+                self._card,
+                self._on_close,
+                self.geometry_key,
+                self.window_title,
+            )
+        elif self._dialog:
+            self._dialog.reject()
+
+    def set_card(self, card: Card | None) -> None:
+        """Closes the dialog if card is None."""
+        self._card = card
+        if self._dialog and self._card:
+            self._dialog.update_card(card.id)
+        elif self._dialog:
+            self._dialog.reject()
+
+    def close(self) -> None:
+        if self._dialog:
+            self.toggle()
+
+    def _on_close(self) -> None:
+        self._dialog = None
+
