@@ -11,8 +11,6 @@ import shutil
 import subprocess
 import sys
 
-import pkginfo
-
 from pip._internal.commands import create_command
 from pip._vendor import pkg_resources
 
@@ -74,9 +72,6 @@ def install_package(pkg, directory, pip_args):
                 if ignored in dirnames:
                     dirnames.remove(ignored)
             _create_nspkg_init(dirpath)
-
-    return pkginfo.Wheel(dist_info)
-
 
 def _cleanup(directory, pattern):
     for p in glob.glob(os.path.join(directory, pattern)):
@@ -149,7 +144,7 @@ def main():
         for (name, with_version) in packages:
             # install package in subfolder
             folder = os.path.join(base, "temp")
-            _pkg = install_package(with_version, folder, [])
+            install_package(with_version, folder, [])
             # merge into parent
             merge_files(base, folder)
             shutil.rmtree(folder)

@@ -1,12 +1,7 @@
 # based off https://github.com/ali5h/rules_pip/blob/master/defs.bzl
 
-pip_vendor_label = Label("@com_github_ali5h_rules_pip//:third_party/py/easy_install.py")
-
 def _execute(repository_ctx, arguments, quiet = False):
-    pip_vendor = str(repository_ctx.path(pip_vendor_label).dirname)
-    return repository_ctx.execute(arguments, environment = {
-        "PYTHONPATH": pip_vendor,
-    }, quiet = quiet)
+    return repository_ctx.execute(arguments, environment = {}, quiet = quiet)
 
 def _install_pyqt5_impl(repository_ctx):
     python_interpreter = repository_ctx.attr.python_interpreter
