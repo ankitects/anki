@@ -19,67 +19,80 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         value: string | number;
     }
 
-    const statsRows: StatsRow[] = [];
+    function rowsFromStats(stats: Stats.CardStatsResponse): StatsRow[] {
+        const statsRows: StatsRow[] = [];
 
-    statsRows.push({ label: tr2.cardStatsAdded(), value: dateString(stats.added) });
+        statsRows.push({ label: tr2.cardStatsAdded(), value: dateString(stats.added) });
 
-    const firstReview = unwrapOptionalNumber(stats.firstReview);
-    if (firstReview !== undefined) {
-        statsRows.push({
-            label: tr2.cardStatsFirstReview(),
-            value: dateString(firstReview),
-        });
+        const firstReview = unwrapOptionalNumber(stats.firstReview);
+        if (firstReview !== undefined) {
+            statsRows.push({
+                label: tr2.cardStatsFirstReview(),
+                value: dateString(firstReview),
+            });
+        }
+        const latestReview = unwrapOptionalNumber(stats.latestReview);
+        if (latestReview !== undefined) {
+            statsRows.push({
+                label: tr2.cardStatsLatestReview(),
+                value: dateString(latestReview),
+            });
+        }
+
+        const dueDate = unwrapOptionalNumber(stats.dueDate);
+        if (dueDate !== undefined) {
+            statsRows.push({
+                label: tr2.statisticsDueDate(),
+                value: dateString(dueDate),
+            });
+        }
+        const duePosition = unwrapOptionalNumber(stats.duePosition);
+        if (duePosition !== undefined) {
+            statsRows.push({
+                label: tr2.cardStatsNewCardPosition(),
+                value: dateString(duePosition),
+            });
+        }
+
+        if (stats.interval) {
+            statsRows.push({
+                label: tr2.cardStatsInterval(),
+                value: timeSpan(stats.interval * DAY),
+            });
+        }
+        if (stats.ease) {
+            statsRows.push({
+                label: tr2.cardStatsEase(),
+                value: `${stats.ease / 10}%`,
+            });
+        }
+
+        statsRows.push({ label: tr2.cardStatsReviewCount(), value: stats.reviews });
+        statsRows.push({ label: tr2.cardStatsLapseCount(), value: stats.lapses });
+
+        if (stats.totalSecs) {
+            statsRows.push({
+                label: tr2.cardStatsAverageTime(),
+                value: timeSpan(stats.averageSecs),
+            });
+            statsRows.push({
+                label: tr2.cardStatsTotalTime(),
+                value: timeSpan(stats.totalSecs),
+            });
+        }
+
+        statsRows.push({ label: tr2.cardStatsCardTemplate(), value: stats.cardType });
+        statsRows.push({ label: tr2.cardStatsNoteType(), value: stats.notetype });
+        statsRows.push({ label: tr2.cardStatsDeckName(), value: stats.deck });
+
+        statsRows.push({ label: tr2.cardStatsCardId(), value: stats.cardId });
+        statsRows.push({ label: tr2.cardStatsNoteId(), value: stats.noteId });
+
+        return statsRows;
     }
-    const latestReview = unwrapOptionalNumber(stats.latestReview);
-    if (latestReview !== undefined) {
-        statsRows.push({
-            label: tr2.cardStatsLatestReview(),
-            value: dateString(latestReview),
-        });
-    }
 
-    const dueDate = unwrapOptionalNumber(stats.dueDate);
-    if (dueDate !== undefined) {
-        statsRows.push({ label: tr2.statisticsDueDate(), value: dateString(dueDate) });
-    }
-    const duePosition = unwrapOptionalNumber(stats.duePosition);
-    if (duePosition !== undefined) {
-        statsRows.push({
-            label: tr2.cardStatsNewCardPosition(),
-            value: dateString(duePosition),
-        });
-    }
-
-    if (stats.interval) {
-        statsRows.push({
-            label: tr2.cardStatsInterval(),
-            value: timeSpan(stats.interval * DAY),
-        });
-    }
-    if (stats.ease) {
-        statsRows.push({ label: tr2.cardStatsEase(), value: `${stats.ease / 10}%` });
-    }
-
-    statsRows.push({ label: tr2.cardStatsReviewCount(), value: stats.reviews });
-    statsRows.push({ label: tr2.cardStatsLapseCount(), value: stats.lapses });
-
-    if (stats.totalSecs) {
-        statsRows.push({
-            label: tr2.cardStatsAverageTime(),
-            value: timeSpan(stats.averageSecs),
-        });
-        statsRows.push({
-            label: tr2.cardStatsTotalTime(),
-            value: timeSpan(stats.totalSecs),
-        });
-    }
-
-    statsRows.push({ label: tr2.cardStatsCardTemplate(), value: stats.cardType });
-    statsRows.push({ label: tr2.cardStatsNoteType(), value: stats.notetype });
-    statsRows.push({ label: tr2.cardStatsDeckName(), value: stats.deck });
-
-    statsRows.push({ label: tr2.cardStatsCardId(), value: stats.cardId });
-    statsRows.push({ label: tr2.cardStatsNoteId(), value: stats.noteId });
+    let statsRows: StatsRow[];
+    $: statsRows = rowsFromStats(stats);
 </script>
 
 <div class="container">
