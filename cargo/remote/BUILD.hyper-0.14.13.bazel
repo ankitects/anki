@@ -122,6 +122,7 @@ rust_library(
     ] + selects.with_or({
         # cfg(any(target_os = "linux", target_os = "macos"))
         (
+            "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-apple-darwin",
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
