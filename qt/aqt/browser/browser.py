@@ -58,7 +58,7 @@ from aqt.utils import (
 )
 
 from ..changenotetype import change_notetype_dialog
-from .card_info import CardInfoDialog
+from .card_info import BrowserCardInfo
 from .find_and_replace import FindAndReplaceDialog
 from .previewer import BrowserPreviewer as PreviewDialog
 from .previewer import Previewer
@@ -110,6 +110,7 @@ class Browser(QMainWindow):
         self.lastFilter = ""
         self.focusTo: int | None = None
         self._previewer: Previewer | None = None
+        self._card_info = BrowserCardInfo(self.mw)
         self._closeEventHasCleanedUp = False
         self.form = aqt.forms.browser.Ui_Dialog()
         self.form.setupUi(self)
@@ -155,6 +156,7 @@ class Browser(QMainWindow):
         if changes.browser_table and changes.card:
             self.card = self.table.get_single_selected_card()
             self.current_card = self.table.get_current_card()
+            self._update_card_info()
             self._update_current_actions()
 
         # changes.card is required for updating flag icon
@@ -236,6 +238,7 @@ class Browser(QMainWindow):
 
     def _closeWindow(self) -> None:
         self._cleanup_preview()
+        self._card_info.close()
         self.editor.cleanup()
         self.table.cleanup()
         self.sidebar.cleanup()
@@ -447,6 +450,7 @@ class Browser(QMainWindow):
             return
         self.current_card = self.table.get_current_card()
         self._update_current_actions()
+        self._update_card_info()
 
     def _update_row_actions(self) -> None:
         has_rows = bool(self.table.len())
@@ -545,10 +549,10 @@ class Browser(QMainWindow):
     ######################################################################
 
     def showCardInfo(self) -> None:
-        if not self.current_card:
-            return
+        self._card_info.toggle()
 
-        CardInfoDialog(parent=self, mw=self.mw, card=self.current_card)
+    def _update_card_info(self) -> None:
+        self._card_info.set_card(self.current_card)
 
     # Menu helpers
     ######################################################################
