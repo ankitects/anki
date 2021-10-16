@@ -307,7 +307,9 @@ impl Collection {
         if let Some(now) = now {
             let limit = top_deck_id
                 .and_then(|did| decks_map.get(&did).map(|deck| deck.name.as_native_str()));
-            let days_elapsed = self.timing_for_timestamp(now)?.days_elapsed;
+            let timing = self.timing_for_timestamp(now)?;
+            self.unbury_if_day_rolled_over(timing)?;
+            let days_elapsed = timing.days_elapsed;
             let learn_cutoff = (now.0 as u32) + self.learn_ahead_secs();
             let sched_ver = self.scheduler_version();
             let v3 = self.get_config_bool(BoolKey::Sched2021);
