@@ -43,3 +43,17 @@ def fix_extraneous_path_in_bazel():
     # source folder conflicts with bazel-out source
     if sys.path[0].endswith("qt"):
         del sys.path[0]
+
+
+def fix_run_on_macos():
+    if not sys.platform.startswith("darwin"):
+        return
+    exec_folder = os.path.dirname(sys.argv[0])
+    qt_version = 5 if "runanki_qt5" in exec_folder else 6
+    pyqt_repo = os.path.join(exec_folder, f"../../../../../../../external/pyqt{qt_version}")
+    if os.path.exists(pyqt_repo):
+        # pyqt must point to real folder, not a symlink
+        sys.path.insert(0, pyqt_repo)
+            # set the correct data folder base
+        data = os.path.join(exec_folder, "aqt", "data")
+        os.environ["AQT_DATA_FOLDER"] = data

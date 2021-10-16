@@ -11,10 +11,10 @@ so it installs the command line tools.
 
 Install Homebrew from <https://brew.sh/>
 
-Then install deps:
+Then install Bazel:
 
 ```
-$ brew install rsync bazelisk
+$ brew install bazelisk
 ```
 
 **Python**:

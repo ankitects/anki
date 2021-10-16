@@ -21,6 +21,9 @@ if TYPE_CHECKING:
 
 
 def aqt_data_folder() -> str:
+    # running in Bazel on macOS?
+    if path := os.getenv("AQT_DATA_FOLDER"):
+        return path
     # running in place?
     dir = os.path.join(os.path.dirname(__file__), "data")
     if os.path.exists(dir):
