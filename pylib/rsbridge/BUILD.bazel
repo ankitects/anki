@@ -21,6 +21,7 @@ rust_library(
     rustc_flags = selects.with_or({
         (
             "@rules_rust//rust/platform:x86_64-apple-darwin",
+            "@rules_rust//rust/platform:aarch64-apple-darwin",
         ): [
             "-Clink-arg=-undefined",
             "-Clink-arg=dynamic_lookup",

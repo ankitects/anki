@@ -30,6 +30,10 @@ types-protobuf
 types-requests
 types-waitress
 
+# transitive dependency of black; pinned due to broken wheel
+# https://bitbucket.org/mrabarnett/mrab-regex/issues/399/missing-wheel-for-macosx-and-the-new-m1
+regex==2021.9.30
+
 # windows only
 psutil; sys.platform == "win32"
 pywin32; sys.platform == "win32"

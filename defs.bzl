@@ -49,7 +49,10 @@ def setup_deps():
         python_runtime = "@python//:python",
     )
 
-    node_repositories(package_json = ["@ankidesktop//:package.json"])
+    node_repositories(
+        package_json = ["@ankidesktop//:package.json"],
+        node_version = "16.10.0",
+    )
 
     yarn_install(
         name = "npm",

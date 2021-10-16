@@ -8,6 +8,7 @@ import re
 import shutil
 import subprocess
 import sys
+import platform
 
 from pip._internal.commands import create_command
 
@@ -71,6 +72,10 @@ def merge_files(root, source):
                 else:
                     shutil.copy2(source_path, target_path)
 
+def fix_webengine_codesigning(base: str):
+    "Fix a codesigning issue in the 6.2.0 release."
+    path = os.path.join(base, "PyQt6/Qt6/lib/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess")
+    subprocess.run(["codesign", "-s", "-", path], check=True)
 
 def main():
     base = sys.argv[1]
@@ -100,10 +105,20 @@ def main():
             ("pyqt6-sip", "pyqt6_sip==13.1.0"),
         ]
 
+        arm_darwin = sys.platform.startswith("darwin") and platform.machine() == "arm64"
+
         for (name, with_version) in packages:
             # install package in subfolder
             folder = os.path.join(base, "temp")
             pip_args = []
+            if arm_darwin:
+                if name in ("pyqt6-qt6", "pyqt6-webengine-qt6"):
+                    # pyqt messed up the architecture tags
+                    pip_args.extend(
+                        [
+                            "--platform=macosx_10_14_arm64",
+                            "--only-binary=:all:",
+                        ])
             install_package(with_version, folder, pip_args)
             # merge into parent
             merge_files(base, folder)
@@ -111,6 +126,9 @@ def main():
 
         with open(os.path.join(base, "__init__.py"), "w") as file:
             file.write("__path__ = __import__('pkgutil').extend_path(__path__, __name__)")
+
+        if arm_darwin:
+            fix_webengine_codesigning(base)
 
     # add missing py.typed file
     with open(os.path.join(base, "py.typed"), "w") as file:
