@@ -2,9 +2,7 @@
 # MIT
 
 """downloads and parses info of a pkg and generates a BUILD file for it"""
-import argparse
 import glob
-import logging
 import os
 import re
 import shutil
@@ -12,17 +10,6 @@ import subprocess
 import sys
 
 from pip._internal.commands import create_command
-from pip._vendor import pkg_resources
-
-
-def _create_nspkg_init(dirpath):
-    """Creates an init file to enable namespacing"""
-    if not os.path.exists(dirpath):
-        # Handle missing namespace packages by ignoring them
-        return
-    nspkg_init = os.path.join(dirpath, "__init__.py")
-    with open(nspkg_init, "w") as nspkg:
-        nspkg.write("__path__ = __import__('pkgutil').extend_path(__path__, __name__)")
 
 
 def install_package(pkg, directory, pip_args):
@@ -48,30 +35,6 @@ def install_package(pkg, directory, pip_args):
     ] + pip_args
     cmd = create_command("install")
     cmd.main(pip_args)
-
-    # need dist-info directory for pkg_resources to be able to find the packages
-    dist_info = glob.glob(os.path.join(directory, "*.dist-info"))[0]
-    # fix namespace packages by adding proper __init__.py files
-    namespace_packages = os.path.join(dist_info, "namespace_packages.txt")
-    if os.path.exists(namespace_packages):
-        with open(namespace_packages) as nspkg:
-            for line in nspkg.readlines():
-                namespace = line.strip().replace(".", os.sep)
-                if namespace:
-                    _create_nspkg_init(os.path.join(directory, namespace))
-
-    # PEP 420 -- Implicit Namespace Packages
-    if (sys.version_info[0], sys.version_info[1]) >= (3, 3):
-        for dirpath, dirnames, filenames in os.walk(directory):
-            # we are only interested in dirs with no init file
-            if "__init__.py" in filenames:
-                dirnames[:] = []
-                continue
-            # remove bin and dist-info dirs
-            for ignored in ("bin", os.path.basename(dist_info)):
-                if ignored in dirnames:
-                    dirnames.remove(ignored)
-            _create_nspkg_init(dirpath)
 
 def _cleanup(directory, pattern):
     for p in glob.glob(os.path.join(directory, pattern)):
@@ -148,6 +111,9 @@ def main():
             # merge into parent
             merge_files(base, folder)
             shutil.rmtree(folder)
+
+        with open(os.path.join(base, "__init__.py"), "w") as file:
+            file.write("__path__ = __import__('pkgutil').extend_path(__path__, __name__)")
 
     # add missing py.typed file
     with open(os.path.join(base, "py.typed"), "w") as file:
