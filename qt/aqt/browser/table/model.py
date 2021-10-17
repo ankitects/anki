@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Callable, Sequence, cast
+from typing import Any, Callable, Sequence
 
 import aqt
 from anki.cards import Card, CardId
@@ -307,7 +307,7 @@ class DataModel(QAbstractTableModel):
     def data(self, index: QModelIndex = QModelIndex(), role: int = 0) -> Any:
         if not index.isValid():
             return QVariant()
-        if role == Qt.FontRole:
+        if role == Qt.ItemDataRole.FontRole:
             if not self.column_at(index).uses_cell_font:
                 return QVariant()
             qfont = QFont()
@@ -315,30 +315,33 @@ class DataModel(QAbstractTableModel):
             qfont.setFamily(row.font_name)
             qfont.setPixelSize(row.font_size)
             return qfont
-        elif role == Qt.TextAlignmentRole:
-            align: Qt.AlignmentFlag | int = Qt.AlignVCenter
+        elif role == Qt.ItemDataRole.TextAlignmentRole:
+            align: Qt.AlignmentFlag | int = Qt.AlignmentFlag.AlignVCenter
             if self.column_at(index).alignment == Columns.ALIGNMENT_CENTER:
-                align |= Qt.AlignHCenter
+                align |= Qt.AlignmentFlag.AlignHCenter
             return align
-        elif role == Qt.DisplayRole:
+        elif role == Qt.ItemDataRole.DisplayRole:
             return self.get_cell(index).text
-        elif role == Qt.ToolTipRole and self._want_tooltips:
+        elif role == Qt.ItemDataRole.ToolTipRole and self._want_tooltips:
             return self.get_cell(index).text
         return QVariant()
 
     def headerData(
         self, section: int, orientation: Qt.Orientation, role: int = 0
     ) -> str | None:
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+        if (
+            orientation == Qt.Orientation.Horizontal
+            and role == Qt.ItemDataRole.DisplayRole
+        ):
             return self._state.column_label(self.column_at_section(section))
         return None
 
-    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         # shortcut for large selections (Ctrl+A) to avoid fetching large numbers of rows at once
         if row := self.get_cached_row(index):
             if row.is_deleted:
-                return Qt.ItemFlags(Qt.NoItemFlags)
-        return cast(Qt.ItemFlags, Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+                return Qt.ItemFlag(Qt.ItemFlag.NoItemFlags)
+        return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
 
 
 def addon_column_fillin(key: str) -> Column:

@@ -104,7 +104,7 @@ class Browser(QMainWindow):
         search -- set and perform search; caller must ensure validity
         """
 
-        QMainWindow.__init__(self, None, Qt.Window)
+        QMainWindow.__init__(self, None, Qt.WindowType.Window)
         self.mw = mw
         self.col = self.mw.col
         self.lastFilter = ""
@@ -255,7 +255,7 @@ class Browser(QMainWindow):
         onsuccess()
 
     def keyPressEvent(self, evt: QKeyEvent) -> None:
-        if evt.key() == Qt.Key_Escape:
+        if evt.key() == Qt.Key.Key_Escape:
             self.close()
         else:
             super().keyPressEvent(evt)
@@ -490,9 +490,9 @@ class Browser(QMainWindow):
 
     def setupSidebar(self) -> None:
         dw = self.sidebarDockWidget = QDockWidget(tr.browsing_sidebar(), self)
-        dw.setFeatures(QDockWidget.NoDockWidgetFeatures)
+        dw.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
         dw.setObjectName("Sidebar")
-        dw.setAllowedAreas(Qt.LeftDockWidgetArea)
+        dw.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea)
 
         self.sidebar = SidebarTreeView(self)
         self.sidebarTree = self.sidebar  # legacy alias
@@ -513,7 +513,7 @@ class Browser(QMainWindow):
         self.sidebarDockWidget.setFloating(False)
 
         self.sidebarDockWidget.setTitleBarWidget(QWidget())
-        self.addDockWidget(Qt.LeftDockWidgetArea, dw)
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, dw)
 
         # schedule sidebar to refresh after browser window has loaded, so the
         # UI is more responsive

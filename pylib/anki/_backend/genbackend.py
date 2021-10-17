@@ -62,7 +62,13 @@ SKIP_UNROLL_INPUT = {
 }
 SKIP_UNROLL_OUTPUT = {"GetPreferences"}
 
-SKIP_DECODE = {"Graphs", "GetGraphPreferences", "GetChangeNotetypeInfo", "CompleteTag"}
+SKIP_DECODE = {
+    "Graphs",
+    "GetGraphPreferences",
+    "GetChangeNotetypeInfo",
+    "CompleteTag",
+    "CardStats",
+}
 
 
 def python_type(field):

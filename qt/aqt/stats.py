@@ -25,7 +25,7 @@ class NewDeckStats(QDialog):
     """New deck stats."""
 
     def __init__(self, mw: aqt.main.AnkiQt) -> None:
-        QDialog.__init__(self, mw, Qt.Window)
+        QDialog.__init__(self, mw, Qt.WindowType.Window)
         mw.garbage_collect_on_dialog_finish(self)
         self.mw = mw
         self.name = "deckStats"
@@ -40,7 +40,9 @@ class NewDeckStats(QDialog):
         f.groupBox.setVisible(False)
         f.groupBox_2.setVisible(False)
         restoreGeom(self, self.name)
-        b = f.buttonBox.addButton(tr.statistics_save_pdf(), QDialogButtonBox.ActionRole)
+        b = f.buttonBox.addButton(
+            tr.statistics_save_pdf(), QDialogButtonBox.ButtonRole.ActionRole
+        )
         qconnect(b.clicked, self.saveImage)
         b.setAutoDefault(False)
         maybeHideClose(self.form.buttonBox)
@@ -104,7 +106,7 @@ class DeckStats(QDialog):
     """Legacy deck stats, used by some add-ons."""
 
     def __init__(self, mw: aqt.main.AnkiQt) -> None:
-        QDialog.__init__(self, mw, Qt.Window)
+        QDialog.__init__(self, mw, Qt.WindowType.Window)
         mw.garbage_collect_on_dialog_finish(self)
         self.mw = mw
         self.name = "deckStats"
@@ -123,7 +125,9 @@ class DeckStats(QDialog):
             self.setStyleSheet("QGroupBox { border: 0; }")
         f.setupUi(self)
         restoreGeom(self, self.name)
-        b = f.buttonBox.addButton(tr.statistics_save_pdf(), QDialogButtonBox.ActionRole)
+        b = f.buttonBox.addButton(
+            tr.statistics_save_pdf(), QDialogButtonBox.ButtonRole.ActionRole
+        )
         qconnect(b.clicked, self.saveImage)
         b.setAutoDefault(False)
         qconnect(f.groups.clicked, lambda: self.changeScope("deck"))

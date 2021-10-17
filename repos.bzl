@@ -52,26 +52,11 @@ def register_repos():
     maybe(
         http_archive,
         name = "rules_python",
-        strip_prefix = "rules_python-anki-2020-11-04",
+        sha256 = "954aa89b491be4a083304a2cb838019c8b8c3720a7abb9c4cb81ac7a24230cea",
         urls = [
-            "https://github.com/ankitects/rules_python/archive/anki-2020-11-04.tar.gz",
+            "https://mirror.bazel.build/github.com/bazelbuild/rules_python/releases/download/0.4.0/rules_python-0.4.0.tar.gz",
+            "https://github.com/bazelbuild/rules_python/releases/download/0.4.0/rules_python-0.4.0.tar.gz",
         ],
-        sha256 = "00e444dc3872a87838c2cb0cf50a15d92ca669385b72998f796d2fd6814356a3",
-    )
-
-    # native.local_repository(
-    #     name = "com_github_ali5h_rules_pip",
-    #     path = "../rules_pip",
-    # )
-
-    maybe(
-        http_archive,
-        name = "com_github_ali5h_rules_pip",
-        strip_prefix = "rules_pip-fb02cb7bf5c03bc8cd4269679e4aea2e1839b501",
-        urls = [
-            "https://github.com/ali5h/rules_pip/archive/fb02cb7bf5c03bc8cd4269679e4aea2e1839b501.zip",
-        ],
-        sha256 = "34195cd437d34a7490276665225de353421e31e34c048715b66918e31d735ff6",
     )
 
     # javascript
@@ -116,12 +101,12 @@ def register_repos():
     ################
 
     core_i18n_repo = "anki-core-i18n"
-    core_i18n_commit = "284659a08719a6d3c0aa2449cf09379d910fda15"
-    core_i18n_zip_csum = "fa5f15b0c4b86c7d1d1f6cbfd407e2876c848980b3fa17ea88daee9e564a0f9c"
+    core_i18n_commit = "a82798624c009ac2e82ad1ba3823aae52126fda2"
+    core_i18n_zip_csum = "093dbb1646afb59b30773a1f303b21b967a0cff3db7f03fdbe4bb8907790f6a7"
 
     qtftl_i18n_repo = "anki-desktop-ftl"
-    qtftl_i18n_commit = "5359f84328c1484c5db69edbb6b851acc4160095"
-    qtftl_i18n_zip_csum = "aa7c9ea94d05d2996eb02c198f228cc2bb171ebcda6ac802d7793027191ac73d"
+    qtftl_i18n_commit = "f9b08fc62208516c184736912309df75919b2459"
+    qtftl_i18n_zip_csum = "fe1d224ea597df0126f9f5a0c2d2276af33baef4a2bff72d5f5f1eeb56395f42"
 
     i18n_build_content = """
 filegroup(

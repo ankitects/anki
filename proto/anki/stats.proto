@@ -9,10 +9,43 @@ import "anki/generic.proto";
 import "anki/cards.proto";
 
 service StatsService {
-  rpc CardStats(cards.CardId) returns (generic.String);
+  rpc CardStats(cards.CardId) returns (CardStatsResponse);
   rpc Graphs(GraphsRequest) returns (GraphsResponse);
   rpc GetGraphPreferences(generic.Empty) returns (GraphPreferences);
   rpc SetGraphPreferences(GraphPreferences) returns (generic.Empty);
+}
+
+message CardStatsResponse {
+  message StatsRevlogEntry {
+    int64 time = 1;
+    RevlogEntry.ReviewKind review_kind = 2;
+    uint32 button_chosen = 3;
+    // seconds
+    uint32 interval = 4;
+    // per mill
+    uint32 ease = 5;
+    float taken_secs = 6;
+  }
+  repeated StatsRevlogEntry revlog = 1;
+  int64 card_id = 2;
+  int64 note_id = 3;
+  string deck = 4;
+  // Unix timestamps
+  int64 added = 5;
+  generic.Int64 first_review = 6;
+  generic.Int64 latest_review = 7;
+  generic.Int64 due_date = 8;
+  generic.Int32 due_position = 9;
+  // days
+  uint32 interval = 10;
+  // per mill
+  uint32 ease = 11;
+  uint32 reviews = 12;
+  uint32 lapses = 13;
+  float average_secs = 14;
+  float total_secs = 15;
+  string card_type = 16;
+  string notetype = 17;
 }
 
 message GraphsRequest {

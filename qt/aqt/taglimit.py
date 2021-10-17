@@ -13,7 +13,7 @@ from aqt.utils import disable_help_button, restoreGeom, saveGeom, showWarning, t
 
 class TagLimit(QDialog):
     def __init__(self, mw: AnkiQt, parent: CustomStudy) -> None:
-        QDialog.__init__(self, parent, Qt.Window)
+        QDialog.__init__(self, parent, Qt.WindowType.Window)
         self.tags: str = ""
         self.tags_list: list[str] = []
         self.mw = mw
@@ -23,11 +23,15 @@ class TagLimit(QDialog):
         self.dialog.setupUi(self)
         disable_help_button(self)
         s = QShortcut(
-            QKeySequence("ctrl+d"), self.dialog.activeList, context=Qt.WidgetShortcut
+            QKeySequence("ctrl+d"),
+            self.dialog.activeList,
+            context=Qt.ShortcutContext.WidgetShortcut,
         )
         qconnect(s.activated, self.dialog.activeList.clearSelection)
         s = QShortcut(
-            QKeySequence("ctrl+d"), self.dialog.inactiveList, context=Qt.WidgetShortcut
+            QKeySequence("ctrl+d"),
+            self.dialog.inactiveList,
+            context=Qt.ShortcutContext.WidgetShortcut,
         )
         qconnect(s.activated, self.dialog.inactiveList.clearSelection)
         self.rebuildTagList()
@@ -54,19 +58,19 @@ class TagLimit(QDialog):
                 item = QListWidgetItem(t.replace("_", " "))
                 self.dialog.activeList.addItem(item)
                 if t in yesHash:
-                    mode = QItemSelectionModel.Select
+                    mode = QItemSelectionModel.SelectionFlag.Select
                     self.dialog.activeCheck.setChecked(True)
                 else:
-                    mode = QItemSelectionModel.Deselect
+                    mode = QItemSelectionModel.SelectionFlag.Deselect
                 idx = self.dialog.activeList.indexFromItem(item)
                 self.dialog.activeList.selectionModel().select(idx, mode)
                 # inactive
                 item = QListWidgetItem(t.replace("_", " "))
                 self.dialog.inactiveList.addItem(item)
                 if t in noHash:
-                    mode = QItemSelectionModel.Select
+                    mode = QItemSelectionModel.SelectionFlag.Select
                 else:
-                    mode = QItemSelectionModel.Deselect
+                    mode = QItemSelectionModel.SelectionFlag.Deselect
                 idx = self.dialog.inactiveList.indexFromItem(item)
                 self.dialog.inactiveList.selectionModel().select(idx, mode)
 

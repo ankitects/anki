@@ -17,7 +17,7 @@ class DeckDescriptionDialog(QDialog):
     silentlyClose = True
 
     def __init__(self, mw: aqt.main.AnkiQt) -> None:
-        QDialog.__init__(self, mw, Qt.Window)
+        QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
 
         # set on success
@@ -39,7 +39,7 @@ class DeckDescriptionDialog(QDialog):
 
     def _setup_ui(self) -> None:
         self.setWindowTitle(tr.scheduling_description())
-        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.mw.garbage_collect_on_dialog_finish(self)
         self.setMinimumWidth(400)
         disable_help_button(self)
@@ -58,7 +58,7 @@ class DeckDescriptionDialog(QDialog):
         box.addWidget(self.description)
 
         button_box = QDialogButtonBox()
-        ok = button_box.addButton(QDialogButtonBox.Ok)
+        ok = button_box.addButton(QDialogButtonBox.StandardButton.Ok)
         qconnect(ok.clicked, self.save_and_accept)
         box.addWidget(button_box)
 

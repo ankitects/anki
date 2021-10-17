@@ -1,7 +1,7 @@
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("@rules_python//python:defs.bzl", "py_library")
 load("@py_deps//:requirements.bzl", "requirement")
-load("@rules_python//experimental/python:wheel.bzl", "py_package", "py_wheel")
+load("@rules_python//python:packaging.bzl", "py_package", "py_wheel")
 load("//:defs.bzl", "anki_version")
 
 genrule(
@@ -50,7 +50,6 @@ aqt_deps = [
     requirement("waitress"),
     requirement("send2trash"),
     requirement("jsonschema"),
-    "@pyqt5//:pkg",
 ] + select({
     "@bazel_tools//src/conditions:host_windows": [
         requirement("psutil"),
@@ -66,7 +65,9 @@ py_library(
     srcs = _py_srcs_and_forms,
     data = aqt_core_data,
     visibility = ["//visibility:public"],
-    deps = aqt_deps,
+    deps = aqt_deps + [
+        "@pyqt6//:pkg",
+    ],
 )
 
 py_library(
@@ -74,7 +75,20 @@ py_library(
     srcs = _py_srcs_and_forms,
     data = aqt_core_data + ["//qt/aqt/data"],
     visibility = ["//visibility:public"],
-    deps = aqt_deps,
+    deps = aqt_deps + [
+        "@pyqt6//:pkg",
+    ],
+)
+
+py_library(
+    name = "aqt_with_data_qt5",
+    srcs = _py_srcs_and_forms,
+    data = aqt_core_data + ["//qt/aqt/data"],
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = aqt_deps + [
+        "@pyqt5//:pkg",
+    ],
 )
 
 py_package(
@@ -94,10 +108,19 @@ py_wheel(
     entry_points = {
         "console_scripts": ["anki = aqt:run"],
     },
+    extra_requires = {
+        "qt5": [
+            "pyqt5>=5.14",
+            "pyqtwebengine",
+        ],
+        "qt6": [
+            "pyqt6>=6.2",
+            "pyqt6-webengine>=6.2",
+        ],
+    },
     homepage = "https://apps.ankiweb.net",
     license = "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     python_tag = "py3",
-    python_version = ">=3.8",
     requires = [
         "beautifulsoup4",
         "requests",
@@ -106,12 +129,9 @@ py_wheel(
         "flask",
         "flask_cors",
         "waitress",
-        "pyqt5>=5.12",
-        "pyqtwebengine",
         'psutil; sys.platform == "win32"',
         'pywin32; sys.platform == "win32"',
-        'winrt==1.0.20239.1; sys.platform == "win32" and platform_release == "10" and python_version == "3.8"',
-        'winrt; sys.platform == "win32" and platform_release == "10" and python_version >= "3.9"',
+        'winrt; sys.platform == "win32"',
         "anki==" + anki_version,
     ],
     strip_path_prefixes = [

@@ -12,7 +12,7 @@ from aqt.utils import disable_help_button, restoreGeom, saveGeom, tr
 
 class EditCurrent(QDialog):
     def __init__(self, mw: aqt.AnkiQt) -> None:
-        QDialog.__init__(self, None, Qt.Window)
+        QDialog.__init__(self, None, Qt.WindowType.Window)
         mw.garbage_collect_on_dialog_finish(self)
         self.mw = mw
         self.form = aqt.forms.editcurrent.Ui_Dialog()
@@ -21,7 +21,7 @@ class EditCurrent(QDialog):
         disable_help_button(self)
         self.setMinimumHeight(400)
         self.setMinimumWidth(250)
-        self.form.buttonBox.button(QDialogButtonBox.Close).setShortcut(
+        self.form.buttonBox.button(QDialogButtonBox.StandardButton.Close).setShortcut(
             QKeySequence("Ctrl+Return")
         )
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)

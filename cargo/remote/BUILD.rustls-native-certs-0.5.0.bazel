@@ -70,6 +70,7 @@ rust_library(
     }) + selects.with_or({
         # cfg(target_os = "macos")
         (
+            "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:x86_64-apple-darwin",
         ): [
             "@raze__security_framework__2_4_2//:security_framework",

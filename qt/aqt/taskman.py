@@ -14,10 +14,8 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Lock
 from typing import Any, Callable
 
-from PyQt5.QtCore import QObject, pyqtSignal
-
 import aqt
-from aqt.qt import QWidget, qconnect
+from aqt.qt import *
 
 Closure = Callable[[], None]
 

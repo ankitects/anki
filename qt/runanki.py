@@ -10,6 +10,7 @@ try:
 
     bazelfixes.fix_pywin32_in_bazel()
     bazelfixes.fix_extraneous_path_in_bazel()
+    bazelfixes.fix_run_on_macos()
 except ImportError:
     pass
 

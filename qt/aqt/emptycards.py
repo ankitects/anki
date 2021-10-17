@@ -63,7 +63,7 @@ class EmptyCardsDialog(QDialog):
         qconnect(self.finished, on_finished)
 
         self._delete_button = self.form.buttonBox.addButton(
-            tr.empty_cards_delete_button(), QDialogButtonBox.ActionRole
+            tr.empty_cards_delete_button(), QDialogButtonBox.ButtonRole.ActionRole
         )
         self._delete_button.setAutoDefault(False)
         qconnect(self._delete_button.clicked, self._on_delete)

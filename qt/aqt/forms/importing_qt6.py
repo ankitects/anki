@@ -1,0 +1,1 @@
+../../../bazel-bin/qt/aqt/forms/importing_qt6.py

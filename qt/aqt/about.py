@@ -88,8 +88,8 @@ def show(mw: aqt.AnkiQt) -> QDialog:
 
     btn = QPushButton(tr.about_copy_debug_info())
     qconnect(btn.clicked, onCopy)
-    abt.buttonBox.addButton(btn, QDialogButtonBox.ActionRole)
-    abt.buttonBox.button(QDialogButtonBox.Ok).setFocus()
+    abt.buttonBox.addButton(btn, QDialogButtonBox.ButtonRole.ActionRole)
+    abt.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setFocus()
 
     # WebView contents
     ######################################################################
@@ -208,6 +208,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "叶峻峣",
             "RumovZ",
             "学习骇客",
+            "ready-research",
         )
     )
 

@@ -9,21 +9,25 @@ from anki.collection import OpChanges
 from anki.consts import newCardSchedulingLabels
 from aqt import AnkiQt
 from aqt.operations.collection import set_preferences
-from aqt.profiles import RecordingDriver, VideoDriver
+from aqt.profiles import VideoDriver
 from aqt.qt import *
 from aqt.utils import HelpPage, disable_help_button, openHelp, showInfo, showWarning, tr
 
 
 class Preferences(QDialog):
     def __init__(self, mw: AnkiQt) -> None:
-        QDialog.__init__(self, mw, Qt.Window)
+        QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
         self.prof = self.mw.pm.profile
         self.form = aqt.forms.preferences.Ui_Preferences()
         self.form.setupUi(self)
         disable_help_button(self)
-        self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
-        self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
+        self.form.buttonBox.button(QDialogButtonBox.StandardButton.Help).setAutoDefault(
+            False
+        )
+        self.form.buttonBox.button(
+            QDialogButtonBox.StandardButton.Close
+        ).setAutoDefault(False)
         qconnect(
             self.form.buttonBox.helpRequested, lambda: openHelp(HelpPage.PREFERENCES)
         )
@@ -130,47 +134,12 @@ class Preferences(QDialog):
 
     def setup_profile(self) -> None:
         "Setup options stored in the user profile."
-        self.setup_recording_driver()
         self.setup_network()
         self.setup_backup()
 
     def update_profile(self) -> None:
-        self.update_recording_driver()
         self.update_network()
         self.update_backup()
-
-    # Profile: recording driver
-    ######################################################################
-
-    def setup_recording_driver(self) -> None:
-        self._recording_drivers = [
-            RecordingDriver.QtAudioInput,
-            RecordingDriver.PyAudio,
-        ]
-        # The plan is to phase out PyAudio soon, so will hold off on
-        # making this string translatable for now.
-        self.form.recording_driver.addItems(
-            [
-                f"Voice recording driver: {driver.value}"
-                for driver in self._recording_drivers
-            ]
-        )
-        self.form.recording_driver.setCurrentIndex(
-            self._recording_drivers.index(self.mw.pm.recording_driver())
-        )
-
-    def update_recording_driver(self) -> None:
-        new_audio_driver = self._recording_drivers[
-            self.form.recording_driver.currentIndex()
-        ]
-        if self.mw.pm.recording_driver() != new_audio_driver:
-            self.mw.pm.set_recording_driver(new_audio_driver)
-            if new_audio_driver == RecordingDriver.PyAudio:
-                showInfo(
-                    """\
-The PyAudio driver will likely be removed in a future update. If you find it works better \
-for you than the default driver, please let us know on the Anki forums."""
-                )
 
     # Profile: network
     ######################################################################
@@ -303,6 +272,7 @@ for you than the default driver, please let us know on the Anki forums."""
         self.form.video_driver.setCurrentIndex(
             self.video_drivers.index(self.mw.pm.video_driver())
         )
+        self.form.video_driver.setVisible(qtmajor == 5)
 
     def update_video_driver(self) -> None:
         new_driver = self.video_drivers[self.form.video_driver.currentIndex()]

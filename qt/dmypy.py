@@ -36,7 +36,7 @@ if subprocess.run(
         os.path.abspath("pip/stubs/extendsitepkgs"),
     ],
     env={
-        "MYPYPATH": "bazel-bin/qt/dmypy.runfiles/pyqt5",
+        "MYPYPATH": "bazel-bin/qt/dmypy.runfiles/pyqt6",
         "EXTRA_SITE_PACKAGES": os.path.abspath(os.getenv("EXTRA_SITE_PACKAGES")),
     },
     cwd=workspace,

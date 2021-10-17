@@ -1,0 +1,69 @@
+load("//ts:prettier.bzl", "prettier_test")
+load("//ts:eslint.bzl", "eslint_test")
+load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
+load("//ts:esbuild.bzl", "esbuild")
+load("//ts:compile_sass.bzl", "compile_sass")
+load("//ts:typescript.bzl", "typescript")
+
+compile_sass(
+    srcs = ["card-info-base.scss"],
+    group = "base_css",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//sass:base_lib",
+        "//sass:scrollbar_lib",
+        "//sass/bootstrap",
+    ],
+)
+
+compile_svelte()
+
+typescript(
+    name = "index",
+    deps = [
+        ":svelte",
+        "//ts/components",
+        "//ts/lib",
+        "@npm//@fluent",
+    ],
+)
+
+esbuild(
+    name = "card-info",
+    args = {
+        "globalName": "anki",
+        "loader": {".svg": "text"},
+    },
+    entry_point = "index.ts",
+    output_css = "card-info.css",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":base_css",
+        ":index",
+        ":svelte",
+        "//ts/components",
+        "//ts/lib",
+        "@npm//protobufjs",
+    ],
+)
+
+exports_files(["card-info.html"])
+
+# Tests
+################
+
+prettier_test()
+
+eslint_test()
+
+svelte_check(
+    name = "svelte_check",
+    srcs = glob([
+        "*.ts",
+        "*.svelte",
+    ]) + [
+        "//sass:button_mixins_lib",
+        "//sass/bootstrap",
+        "//ts/components",
+    ],
+)

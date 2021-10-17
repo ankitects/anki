@@ -35,7 +35,7 @@ from aqt.utils import (
 
 class ChangeMap(QDialog):
     def __init__(self, mw: AnkiQt, model: dict, current: str) -> None:
-        QDialog.__init__(self, mw, Qt.Window)
+        QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
         self.model = model
         self.frm = aqt.forms.changemap.Ui_ChangeMap()
@@ -85,13 +85,14 @@ class ImportDialog(QDialog):
     _DEFAULT_FILE_DELIMITER = "\t"
 
     def __init__(self, mw: AnkiQt, importer: Any) -> None:
-        QDialog.__init__(self, mw, Qt.Window)
+        QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
         self.importer = importer
         self.frm = aqt.forms.importing.Ui_ImportDialog()
         self.frm.setupUi(self)
         qconnect(
-            self.frm.buttonBox.button(QDialogButtonBox.Help).clicked, self.helpRequested
+            self.frm.buttonBox.button(QDialogButtonBox.StandardButton.Help).clicked,
+            self.helpRequested,
         )
         disable_help_button(self)
         self.setupMappingFrame()
@@ -108,7 +109,7 @@ class ImportDialog(QDialog):
         self.frm.tagModified.setCol(self.mw.col)
         # import button
         b = QPushButton(tr.actions_import())
-        self.frm.buttonBox.addButton(b, QDialogButtonBox.AcceptRole)
+        self.frm.buttonBox.addButton(b, QDialogButtonBox.ButtonRole.AcceptRole)
         self.exec()
 
     def setupOptions(self) -> None:

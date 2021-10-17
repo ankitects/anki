@@ -29,7 +29,7 @@ class SidebarToolbar(QToolBar):
         qconnect(self._action_group.triggered, self._on_action_group_triggered)
         self._setup_tools()
         self.setIconSize(QSize(16, 16))
-        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.setStyle(QStyleFactory.create("fusion"))
 
     def _setup_tools(self) -> None:

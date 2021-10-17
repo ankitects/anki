@@ -93,7 +93,7 @@ def reposition_new_cards_dialog(
 
     d = QDialog(parent)
     disable_help_button(d)
-    d.setWindowModality(Qt.WindowModal)
+    d.setWindowModality(Qt.WindowModality.WindowModal)
     frm = aqt.forms.reposition.Ui_Dialog()
     frm.setupUi(d)
 

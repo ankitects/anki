@@ -45,21 +45,21 @@ py_test(
     args = [
         "aqt",
         "$(location mypy.ini)",
-        "$(location @pyqt5//:__init__.py)",
+        "$(location @pyqt6//:__init__.py)",
         "$(location //pip/stubs:extendsitepkgs)",
     ],
     data = [
         "mypy.ini",
         "//pip/stubs",
         "//pip/stubs:extendsitepkgs",
-        "@pyqt5//:__init__.py",
+        "@pyqt6//:__init__.py",
     ],
     env = {"EXTRA_SITE_PACKAGES": "$(location //pip/stubs)"},
     main = "tests/run_mypy.py",
     deps = [
         "//pylib/anki",
         "//qt/aqt:aqt_without_data",
-        "@pyqt5//:pkg",
+        "@pyqt6//:pkg",
         requirement("mypy"),
     ],
 )
@@ -81,7 +81,7 @@ py_test(
         "//pylib/anki",
         "//qt/aqt:aqt_without_data",
         requirement("pylint"),
-        "@pyqt5//:pkg",
+        "@pyqt6//:pkg",
     ],
 )
 
@@ -130,6 +130,21 @@ py_binary(
     deps = [
         "//pylib/anki",
         "//qt/aqt:aqt_with_data",
+    ],
+)
+
+py_binary(
+    name = "runanki_qt5",
+    srcs = [
+        "bazelfixes.py",
+        "runanki.py",
+    ],
+    imports = ["."],
+    main = "runanki.py",
+    tags = ["manual"],
+    deps = [
+        "//pylib/anki",
+        "//qt/aqt:aqt_with_data_qt5",
     ],
 )
 

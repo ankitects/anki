@@ -49,18 +49,18 @@ class StudyDeck(QDialog):
         disable_help_button(self)
         if not cancel:
             self.form.buttonBox.removeButton(
-                self.form.buttonBox.button(QDialogButtonBox.Cancel)
+                self.form.buttonBox.button(QDialogButtonBox.StandardButton.Cancel)
             )
         if buttons is not None:
             for button_or_label in buttons:
                 self.form.buttonBox.addButton(
-                    button_or_label, QDialogButtonBox.ActionRole
+                    button_or_label, QDialogButtonBox.ButtonRole.ActionRole
                 )
         else:
             b = QPushButton(tr.actions_add())
             b.setShortcut(QKeySequence("Ctrl+N"))
             b.setToolTip(shortcut(tr.decks_add_new_deck_ctrlandn()))
-            self.form.buttonBox.addButton(b, QDialogButtonBox.ActionRole)
+            self.form.buttonBox.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
             qconnect(b.clicked, self.onAddDeck)
         if title:
             self.setWindowTitle(title)
@@ -78,9 +78,9 @@ class StudyDeck(QDialog):
             self.origNames = names()
         self.name: Optional[str] = None
         self.ok = self.form.buttonBox.addButton(
-            accept or tr.decks_study(), QDialogButtonBox.AcceptRole
+            accept or tr.decks_study(), QDialogButtonBox.ButtonRole.AcceptRole
         )
-        self.setWindowModality(Qt.WindowModal)
+        self.setWindowModality(Qt.WindowModality.WindowModal)
         qconnect(self.form.buttonBox.helpRequested, lambda: openHelp(help))
         qconnect(self.form.filter.textEdited, self.redraw)
         qconnect(self.form.list.itemDoubleClicked, self.accept)
@@ -90,20 +90,20 @@ class StudyDeck(QDialog):
         self.exec()
 
     def eventFilter(self, obj: QObject, evt: QEvent) -> bool:
-        if isinstance(evt, QKeyEvent) and evt.type() == QEvent.KeyPress:
+        if isinstance(evt, QKeyEvent) and evt.type() == QEvent.Type.KeyPress:
             new_row = current_row = self.form.list.currentRow()
             rows_count = self.form.list.count()
             key = evt.key()
 
-            if key == Qt.Key_Up:
+            if key == Qt.Key.Key_Up:
                 new_row = current_row - 1
-            elif key == Qt.Key_Down:
+            elif key == Qt.Key.Key_Down:
                 new_row = current_row + 1
             elif (
-                int(evt.modifiers()) & Qt.ControlModifier
-                and Qt.Key_1 <= key <= Qt.Key_9
+                evt.modifiers() & Qt.KeyboardModifier.ControlModifier
+                and Qt.Key.Key_1 <= key <= Qt.Key.Key_9
             ):
-                row_index = key - Qt.Key_1
+                row_index = key - Qt.Key.Key_1
                 if row_index < rows_count:
                     new_row = row_index
 
@@ -126,7 +126,7 @@ class StudyDeck(QDialog):
         else:
             idx = 0
         l.setCurrentRow(idx)
-        l.scrollToItem(l.item(idx), QAbstractItemView.PositionAtCenter)
+        l.scrollToItem(l.item(idx), QAbstractItemView.ScrollHint.PositionAtCenter)
 
     def _matches(self, name: str, filt: str) -> bool:
         name = name.lower()

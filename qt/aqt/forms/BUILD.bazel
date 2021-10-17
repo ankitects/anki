@@ -1,17 +1,32 @@
 load("@rules_python//python:defs.bzl", "py_binary")
 load("compile.bzl", "compile_all")
 
-compile_all(
-    srcs = glob(["*.ui"]),
-    group = "forms",
-    visibility = [
-        "//qt/aqt:__pkg__",
-    ],
-)
-
 py_binary(
     name = "build_ui",
     srcs = ["build_ui.py"],
     legacy_create_init = False,
-    deps = ["@pyqt5//:pkg"],
+    deps = ["@pyqt6//:pkg"],
+)
+
+compile_all(
+    name = "generated_forms",
+    srcs = glob(["*.ui"]),
+    builder = "build_ui",
+)
+
+filegroup(
+    name = "forms",
+    srcs = glob(
+        ["*.py"],
+        exclude = [
+            "*_qt5.py",
+            "*_qt6.py",
+            "build_ui*.py",
+        ],
+    ) + [
+        ":generated_forms",
+    ],
+    visibility = [
+        "//qt/aqt:__pkg__",
+    ],
 )

@@ -1,0 +1,6 @@
+@use "core";
+@use "scrollbar";
+
+.night-mode {
+    @include scrollbar.night-mode;
+}

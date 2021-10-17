@@ -6,8 +6,6 @@ from __future__ import annotations
 from operator import itemgetter
 from typing import Any
 
-from PyQt5.QtWidgets import QLineEdit
-
 import aqt
 from anki.consts import NEW_CARDS_RANDOM
 from anki.decks import DeckConfigDict
@@ -42,13 +40,15 @@ class DeckConf(QDialog):
         self.mw.checkpoint(tr.actions_options())
         self.setupCombos()
         self.setupConfs()
-        self.setWindowModality(Qt.WindowModal)
+        self.setWindowModality(Qt.WindowModality.WindowModal)
         qconnect(
             self.form.buttonBox.helpRequested, lambda: openHelp(HelpPage.DECK_OPTIONS)
         )
         qconnect(self.form.confOpts.clicked, self.confOpts)
         qconnect(
-            self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults).clicked,
+            self.form.buttonBox.button(
+                QDialogButtonBox.StandardButton.RestoreDefaults
+            ).clicked,
             self.onRestore,
         )
         self.setWindowTitle(

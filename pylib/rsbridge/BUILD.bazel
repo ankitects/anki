@@ -6,6 +6,12 @@ load("//rslib:rustfmt.bzl", "rustfmt_fix", "rustfmt_test")
 cargo_build_script(
     name = "build_script",
     srcs = ["build.rs"],
+    build_script_env = {
+        "PYO3_PYTHON": "$(location @python)",
+    },
+    data = [
+        "@python",
+    ],
 )
 
 rust_library(
@@ -15,10 +21,11 @@ rust_library(
     rustc_flags = selects.with_or({
         (
             "@rules_rust//rust/platform:x86_64-apple-darwin",
+            "@rules_rust//rust/platform:aarch64-apple-darwin",
         ): [
             "-Clink-arg=-undefined",
             "-Clink-arg=dynamic_lookup",
-            "-Clink-arg=-mmacosx-version-min=10.7",
+            "-Clink-arg=-mmacosx-version-min=10.13",
         ],
         "//conditions:default": [],
     }),

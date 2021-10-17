@@ -45,7 +45,7 @@ class CardLayout(QDialog):
         parent: Optional[QWidget] = None,
         fill_empty: bool = False,
     ) -> None:
-        QDialog.__init__(self, parent or mw, Qt.Window)
+        QDialog.__init__(self, parent or mw, Qt.WindowType.Window)
         mw.garbage_collect_on_dialog_finish(self)
         self.mw = aqt.mw
         self.note = note
@@ -80,7 +80,7 @@ class CardLayout(QDialog):
         self.redraw_everything()
         restoreGeom(self, "CardLayout")
         restoreSplitter(self.mainArea, "CardLayoutMainArea")
-        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.show()
         # take the focus away from the first input area when starting up,
         # as users tend to accidentally type into the template
@@ -108,7 +108,9 @@ class CardLayout(QDialog):
 
     def setupTopArea(self) -> None:
         self.topArea = QWidget()
-        self.topArea.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.topArea.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
         self.topAreaForm = aqt.forms.clayout_top.Ui_Form()
         self.topAreaForm.setupUi(self.topArea)
         self.topAreaForm.templateOptions.setText(
@@ -215,8 +217,8 @@ class CardLayout(QDialog):
 
     def setupMainArea(self) -> None:
         split = self.mainArea = QSplitter()
-        split.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        split.setOrientation(Qt.Horizontal)
+        split.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        split.setOrientation(Qt.Orientation.Horizontal)
         left = QWidget()
         tform = self.tform = aqt.forms.template.Ui_Form()
         tform.setupUi(left)
@@ -305,7 +307,7 @@ class CardLayout(QDialog):
         if not editor.find(text):
             # try again from top
             cursor = editor.textCursor()
-            cursor.movePosition(QTextCursor.Start)
+            cursor.movePosition(QTextCursor.MoveOperation.Start)
             editor.setTextCursor(cursor)
             if not editor.find(text):
                 tooltip("No matches found.")
@@ -752,7 +754,7 @@ class CardLayout(QDialog):
         if t["did"]:
             te.setText(self.col.decks.get(t["did"])["name"])
             te.selectAll()
-        bb = QDialogButtonBox(QDialogButtonBox.Close)
+        bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         qconnect(bb.rejected, d.close)
         l.addWidget(bb)
         d.setLayout(l)

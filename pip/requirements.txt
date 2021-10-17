@@ -1,4 +1,4 @@
-astroid==2.8.0
+astroid==2.8.2
     # via pylint
 atomicwrites==1.4.0 ; sys_platform == "win32"
     # via
@@ -12,11 +12,11 @@ beautifulsoup4==4.10.0
     # via -r requirements.in
 black==21.9b0
     # via -r requirements.in
-certifi==2021.5.30
+certifi==2021.10.8
     # via requests
-charset-normalizer==2.0.6
+charset-normalizer==2.0.7
     # via requests
-click==8.0.1
+click==8.0.3
     # via
     #   black
     #   flask
@@ -33,7 +33,7 @@ decorator==5.1.0
     # via -r requirements.in
 distro==1.6.0
     # via -r requirements.in
-flask==2.0.1
+flask==2.0.2
     # via
     #   -r requirements.in
     #   flask-cors
@@ -43,7 +43,7 @@ fluent.syntax==0.18.1
     # via
     #   -r requirements.in
     #   compare-locales
-idna==3.2
+idna==3.3
     # via requests
 iniconfig==1.1.1
     # via pytest
@@ -53,9 +53,9 @@ isort==5.9.3
     #   pylint
 itsdangerous==2.0.1
     # via flask
-jinja2==3.0.1
+jinja2==3.0.2
     # via flask
-jsonschema==4.0.1
+jsonschema==4.1.0
     # via -r requirements.in
 lazy-object-proxy==1.6.0
     # via astroid
@@ -73,7 +73,7 @@ mypy-extensions==0.4.3
     # via
     #   black
     #   mypy
-mypy-protobuf==2.10
+mypy-protobuf==3.0.0
     # via -r requirements.in
 orjson==3.6.4
     # via -r requirements.in
@@ -83,7 +83,7 @@ pathspec==0.9.0
     # via black
 pep517==0.11.0
     # via pip-tools
-pip-tools==6.3.0
+pip-tools==6.4.0
     # via -r requirements.in
 platformdirs==2.4.0
     # via
@@ -91,7 +91,7 @@ platformdirs==2.4.0
     #   pylint
 pluggy==1.0.0
     # via pytest
-protobuf==3.18.0
+protobuf==3.18.1
     # via
     #   -r requirements.in
     #   mypy-protobuf
@@ -111,10 +111,12 @@ pytest==6.2.5
     # via -r requirements.in
 pytoml==0.1.21
     # via compare-locales
-pywin32==301 ; sys_platform == "win32"
+pywin32==302 ; sys_platform == "win32"
     # via -r requirements.in
 regex==2021.9.30
-    # via black
+    # via
+    #   -r requirements.in
+    #   black
 requests==2.26.0
     # via -r requirements.in
 send2trash==1.8.0
@@ -140,31 +142,31 @@ tomli==1.2.1
     #   pep517
 tornado==6.1
     # via snakeviz
-types-click==7.1.5
+types-click==7.1.7
     # via types-flask
-types-decorator==0.1.7
+types-decorator==5.1.0
     # via -r requirements.in
-types-flask==1.1.3
+types-flask==1.1.4
     # via -r requirements.in
-types-futures==3.3.0
+types-futures==3.3.1
     # via types-protobuf
-types-jinja2==2.11.6
+types-jinja2==2.11.8
     # via types-flask
-types-markdown==3.3.3
+types-markdown==3.3.6
     # via -r requirements.in
-types-markupsafe==1.1.6
+types-markupsafe==1.1.8
     # via types-jinja2
-types-orjson==3.6.0
+types-orjson==3.6.1
     # via -r requirements.in
-types-protobuf==3.17.4
+types-protobuf==3.18.0
     # via
     #   -r requirements.in
     #   mypy-protobuf
-types-requests==2.25.9
+types-requests==2.25.11
     # via -r requirements.in
-types-waitress==0.1.9
+types-waitress==2.0.1
     # via -r requirements.in
-types-werkzeug==1.0.5
+types-werkzeug==1.0.7
     # via types-flask
 typing-extensions==3.10.0.2
     # via
@@ -176,7 +178,7 @@ urllib3==1.26.7
     # via requests
 waitress==2.0.0
     # via -r requirements.in
-werkzeug==2.0.1
+werkzeug==2.0.2
     # via flask
 wheel==0.37.0
     # via pip-tools
@@ -186,7 +188,7 @@ wrapt==1.12.1
     # via astroid
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==21.2.4
+pip==21.3
     # via pip-tools
 setuptools==58.2.0
     # via
