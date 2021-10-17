@@ -64,7 +64,7 @@ class CardInfoDialog(QDialog):
         self.setLayout(layout)
 
         self.web.eval(
-            "let cardInfo = anki.cardInfo(document.getElementById('main'));\n" \
+            "const cardInfo = anki.cardInfo(document.getElementById('main'));\n" \
             "cardInfo.then((c) => c.$set({ includeRevlog: true }));"
         )
         self.update_card(card_id)

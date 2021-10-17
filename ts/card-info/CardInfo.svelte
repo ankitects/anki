@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let cardId: number | undefined = undefined;
     export let includeRevlog: boolean | undefined = undefined;
 
-    let stats: Stats.CardStatsResponse | undefined = undefined;
+    let stats: Stats.CardStatsResponse | undefined;
 
     $: if (cardId === undefined) {
         stats = undefined;
