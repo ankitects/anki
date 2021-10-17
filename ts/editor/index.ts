@@ -51,13 +51,13 @@ declare global {
         getRangeAt(n: number): Range;
     }
 }
-
 if (isApplePlatform()) {
     registerShortcut(() => bridgeCommand("paste"), "Control+Shift+V");
 }
 
-export function focusField(n: number): void {
-    const field = getEditorField(n);
+export function focusField(fieldOrOrd: number | EditorField): void {
+    const field =
+        fieldOrOrd instanceof EditorField ? fieldOrOrd : getEditorField(fieldOrOrd);
 
     if (field) {
         field.editingArea.focus();
