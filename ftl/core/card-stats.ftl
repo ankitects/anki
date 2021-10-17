@@ -25,6 +25,5 @@ card-stats-review-log-type-manual = Manual
 
 ## Window Titles
 
-card-stats-browser-card = Browser Card
-card-stats-reviewer-card = Reviewer Card
-card-stats-previous-reviewer-card = Previous Reviewer Card
+card-stats-current-card = Current Card ({ $context })
+card-stats-previous-card = Previous Card ({ $context })
