@@ -3,6 +3,8 @@
 
 use std::collections::{HashMap, HashSet};
 
+use std::cmp::Reverse;
+
 use rand::seq::SliceRandom;
 
 use crate::{
@@ -49,6 +51,7 @@ pub enum NewCardDueOrder {
     NoteId,
     Random,
     Preserve,
+    NoteIdReversed,
 }
 
 impl NewCardSorter {
@@ -86,6 +89,9 @@ fn nids_in_desired_order(cards: &[Card], order: NewCardDueOrder) -> Vec<NoteId> 
         match order {
             NewCardDueOrder::NoteId => {
                 nids.sort_unstable();
+            }
+            NewCardDueOrder::NoteIdReversed => {
+                nids.sort_unstable_by_key(|&num| Reverse(num));
             }
             NewCardDueOrder::Random => {
                 nids.shuffle(&mut rand::thread_rng());
@@ -240,6 +246,12 @@ mod test {
         assert_eq!(sorter.position(&c2), 5);
         assert_eq!(sorter.position(&c1), 7);
 
+        // NoteIdReversed
+        let sorter = NewCardSorter::new(&cards, 0, 1, NewCardDueOrder::NoteIdReversed);
+        assert_eq!(sorter.position(&c3), 2);
+        assert_eq!(sorter.position(&c2), 1);
+        assert_eq!(sorter.position(&c1), 0);
+
         // Random
         let mut c1_positions = HashSet::new();
         for _ in 1..100 {
@@ -258,6 +270,7 @@ impl From<NewCardInsertOrder> for NewCardDueOrder {
         match o {
             NewCardInsertOrder::Due => NewCardDueOrder::NoteId,
             NewCardInsertOrder::Random => NewCardDueOrder::Random,
+            NewCardInsertOrder::DueReversed => NewCardDueOrder::NoteIdReversed,
         }
     }
 }

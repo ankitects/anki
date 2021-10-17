@@ -315,6 +315,7 @@ impl Collection {
         {
             crate::deckconfig::NewCardInsertOrder::Random => Ok(random_position(next_pos)),
             crate::deckconfig::NewCardInsertOrder::Due => Ok(next_pos),
+            crate::deckconfig::NewCardInsertOrder::DueReversed => Ok(next_pos.wrapping_neg()),
         }
     }
 

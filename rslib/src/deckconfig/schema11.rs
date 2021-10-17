@@ -123,6 +123,7 @@ where
 pub enum NewCardOrderSchema11 {
     Random = 0,
     Due = 1,
+    DueReversed = 2,
 }
 
 impl Default for NewCardOrderSchema11 {
@@ -296,6 +297,7 @@ impl From<DeckConfSchema11> for DeckConfig {
                 new_card_insert_order: match c.new.order {
                     NewCardOrderSchema11::Random => NewCardInsertOrder::Random,
                     NewCardOrderSchema11::Due => NewCardInsertOrder::Due,
+                    NewCardOrderSchema11::DueReversed => NewCardInsertOrder::DueReversed,
                 } as i32,
                 new_card_gather_priority: c.new_gather_priority,
                 new_card_sort_order: c.new_sort_order,
@@ -366,6 +368,7 @@ impl From<DeckConfig> for DeckConfSchema11 {
                 order: match new_order {
                     NewCardInsertOrder::Random => NewCardOrderSchema11::Random,
                     NewCardInsertOrder::Due => NewCardOrderSchema11::Due,
+                    NewCardInsertOrder::DueReversed => NewCardOrderSchema11::DueReversed,
                 },
                 per_day: i.new_per_day,
                 other: new_other,

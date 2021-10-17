@@ -60,6 +60,7 @@ deck-config-new-insertion-order-tooltip =
     this option will automatically update the existing position of new cards.
 deck-config-new-insertion-order-sequential = Sequential (oldest cards first)
 deck-config-new-insertion-order-random = Random
+deck-config-new-insertion-order-sequential-reversed = Sequential (newest cards first)
 
 ## Lapses section
 

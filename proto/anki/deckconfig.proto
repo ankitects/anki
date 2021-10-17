@@ -30,6 +30,7 @@ message DeckConfig {
     enum NewCardInsertOrder {
       NEW_CARD_INSERT_ORDER_DUE = 0;
       NEW_CARD_INSERT_ORDER_RANDOM = 1;
+      NEW_CARD_INSERT_ORDER_DUE_REVERSED = 2;
     }
     enum NewCardGatherPriority {
       NEW_CARD_GATHER_PRIORITY_DECK = 0;
