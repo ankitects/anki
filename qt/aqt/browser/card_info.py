@@ -7,6 +7,7 @@ from typing import Callable
 
 import aqt
 from anki.cards import Card, CardId
+from anki.lang import without_unicode_isolation
 from aqt.qt import *
 from aqt.utils import (
     addCloseShortcut,
@@ -119,16 +120,32 @@ class CardInfoManager:
 
 class BrowserCardInfo(CardInfoManager):
     def __init__(self, mw: aqt.AnkiQt):
-        super().__init__(mw, "revlog", tr.card_stats_browser_card())
+        super().__init__(
+            mw,
+            "revlog",
+            without_unicode_isolation(
+                tr.card_stats_current_card(context=tr.qt_misc_browse())
+            ),
+        )
 
 
 class ReviewerCardInfo(CardInfoManager):
     def __init__(self, mw: aqt.AnkiQt):
-        super().__init__(mw, "reviewerCardInfo", tr.card_stats_reviewer_card())
+        super().__init__(
+            mw,
+            "reviewerCardInfo",
+            without_unicode_isolation(
+                tr.card_stats_current_card(context=tr.decks_study())
+            ),
+        )
 
 
 class PreviousReviewerCardInfo(CardInfoManager):
     def __init__(self, mw: aqt.AnkiQt):
         super().__init__(
-            mw, "previousReviewerCardInfo", tr.card_stats_previous_reviewer_card()
+            mw,
+            "previousReviewerCardInfo",
+            without_unicode_isolation(
+                tr.card_stats_previous_card(context=tr.decks_study())
+            ),
         )
