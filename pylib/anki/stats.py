@@ -28,7 +28,7 @@ def _legacy_card_stats(
 ) -> str:
     "A quick hack to preserve compatibility with the old HTML string API."
     random_id = f"cardinfo-{base62(random.randint(0, 2 ** 64 - 1))}"
-    varName = random_id.replace('-', '')
+    varName = random_id.replace("-", "")
     return f"""
 <div id="{random_id}"></div>
 <script src="js/vendor/bootstrap.bundle.min.js"></script>
