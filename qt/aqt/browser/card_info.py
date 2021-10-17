@@ -14,6 +14,7 @@ from aqt.utils import (
     qconnect,
     restoreGeom,
     saveGeom,
+    setWindowIcon,
     tr,
 )
 from aqt.webview import AnkiWebView
@@ -47,9 +48,7 @@ class CardInfoDialog(QDialog):
         disable_help_button(self)
         restoreGeom(self, self.GEOMETRY_KEY)
         addCloseShortcut(self)
-        icon = QIcon()
-        icon.addPixmap(QPixmap("icons:anki.png"), QIcon.Mode.Normal, QIcon.State.Off)
-        self.setWindowIcon(icon)
+        setWindowIcon(self)
 
         self.web = AnkiWebView(title=self.TITLE)
         self.web.setVisible(False)
