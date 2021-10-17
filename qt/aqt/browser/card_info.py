@@ -30,7 +30,7 @@ class CardInfoDialog(QDialog):
         self,
         parent: QWidget | None,
         mw: aqt.AnkiQt,
-        card: Card,
+        card: Card | None,
         on_close: Callable | None = None,
         geometry_key: str | None = None,
         window_title: str | None = None,
@@ -41,10 +41,10 @@ class CardInfoDialog(QDialog):
         self.GEOMETRY_KEY = geometry_key or self.GEOMETRY_KEY
         if window_title:
             self.setWindowTitle(window_title)
-        self._setup_ui(card.id)
+        self._setup_ui(card and card.id)
         self.show()
 
-    def _setup_ui(self, card_id: CardId) -> None:
+    def _setup_ui(self, card_id: CardId | None) -> None:
         self.mw.garbage_collect_on_dialog_finish(self)
         disable_help_button(self)
         restoreGeom(self, self.GEOMETRY_KEY)
@@ -69,8 +69,9 @@ class CardInfoDialog(QDialog):
         )
         self.update_card(card_id)
 
-    def update_card(self, card_id: CardId) -> None:
-        self.web.eval(f"cardInfo.then((c) => c.$set({{ cardId: {card_id} }}));")
+    def update_card(self, card_id: CardId | None) -> None:
+        val = "undefined" if card_id is None else card_id
+        self.web.eval(f"cardInfo.then((c) => c.$set({{ cardId: {val} }}));")
 
     def reject(self) -> None:
         if self._on_close:
@@ -91,8 +92,9 @@ class CardInfoManager:
         self._dialog: CardInfoDialog | None = None
 
     def toggle(self) -> None:
-        """Opening requires a card to be set."""
-        if not self._dialog and self._card:
+        if self._dialog:
+            self._dialog.reject()
+        else:
             self._dialog = CardInfoDialog(
                 None,
                 self.mw,
@@ -101,16 +103,11 @@ class CardInfoManager:
                 self.geometry_key,
                 self.window_title,
             )
-        elif self._dialog:
-            self._dialog.reject()
 
     def set_card(self, card: Card | None) -> None:
-        """Closes the dialog if card is None."""
         self._card = card
-        if self._dialog and self._card:
-            self._dialog.update_card(card.id)
-        elif self._dialog:
-            self._dialog.reject()
+        if self._dialog:
+            self._dialog.update_card(card and card.id)
 
     def close(self) -> None:
         if self._dialog:
