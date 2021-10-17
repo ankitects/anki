@@ -22,6 +22,7 @@ card-stats-review-log-type-review = Review
 card-stats-review-log-type-relearn = Relearn
 card-stats-review-log-type-filtered = Filtered
 card-stats-review-log-type-manual = Manual
+card-stats-no-card = (No card to display.)
 
 ## Window Titles
 
