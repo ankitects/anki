@@ -13,17 +13,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let includeRevlog: boolean | undefined = undefined;
 
     let stats: Stats.CardStatsResponse | undefined = undefined;
-    let _updatingQueue: Promise<void> = Promise.resolve();
 
-    $: _updatingQueue = _updatingQueue.then(() => {
-        if (cardId === undefined) {
-            stats = undefined;
-        } else {
-            getCardStats(cardId).then((s) => {
+    $: if (cardId === undefined) {
+        stats = undefined;
+    } else {
+        const sentCardId = cardId;
+        getCardStats(sentCardId).then((s) => {
+            /* Skip if another update has been triggered in the meantime. */
+            if (sentCardId === cardId) {
                 stats = s;
-            });
-        }
-    });
+            }
+        });
+    };
 </script>
 
 <div class="container">
