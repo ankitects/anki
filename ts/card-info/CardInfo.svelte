@@ -24,21 +24,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 stats = s;
             }
         });
-    };
+    }
 </script>
 
-<div class="container">
-    <div>
-        {#if stats}
+{#if stats}
+    <div class="container">
+        <div>
             <CardStats {stats} />
             {#if includeRevlog}
                 <Revlog {stats} />
             {/if}
-        {:else}
-            <span class="placeholder">{tr.cardStatsNoCard()}</span>
-        {/if}
+        </div>
     </div>
-</div>
+{:else}
+    <div class="placeholder">{tr.cardStatsNoCard()}</div>
+{/if}
 
 <style>
     .container {
@@ -46,6 +46,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .placeholder {
-        text-align: center;
+        margin: 0;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
     }
 </style>
