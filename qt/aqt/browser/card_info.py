@@ -64,11 +64,13 @@ class CardInfoDialog(QDialog):
         self.setLayout(layout)
 
         self.web.eval(
-            f"let cardInfo = anki.cardInfo(document.getElementById('main'), {card_id}, true);"
+            "let cardInfo = anki.cardInfo(document.getElementById('main'));\n" \
+            "cardInfo.then((c) => c.$set({ includeRevlog: true }));"
         )
+        self.update_card(card_id)
 
     def update_card(self, card_id: CardId) -> None:
-        self.web.eval(f"anki.updateCardInfo(cardInfo, {card_id}, true);")
+        self.web.eval(f"cardInfo.then((c) => c.$set({{ cardId: {card_id} }}));")
 
     def reject(self) -> None:
         if self._on_close:

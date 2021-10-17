@@ -3,22 +3,48 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "../lib/ftl";
     import type { Stats } from "../lib/proto";
+    import { getCardStats } from "./lib";
     import CardStats from "./CardStats.svelte";
     import Revlog from "./Revlog.svelte";
 
-    export let stats: Stats.CardStatsResponse;
+    export let cardId: number | undefined = undefined;
+    export let includeRevlog: boolean | undefined = undefined;
+
+    let stats: Stats.CardStatsResponse | undefined = undefined;
+    let _updatingQueue: Promise<void> = Promise.resolve();
+
+    $: _updatingQueue = _updatingQueue.then(() => {
+        if (cardId === undefined) {
+            stats = undefined;
+        } else {
+            getCardStats(cardId).then((s) => {
+                stats = s;
+            });
+        }
+    });
 </script>
 
 <div class="container">
     <div>
-        <CardStats {stats} />
-        <Revlog {stats} />
+        {#if stats}
+            <CardStats {stats} />
+            {#if includeRevlog}
+                <Revlog {stats} />
+            {/if}
+        {:else}
+            <span class="placeholder">{tr.cardStatsNoCard()}</span>
+        {/if}
     </div>
 </div>
 
 <style>
     .container {
         max-width: 40em;
+    }
+
+    .placeholder {
+        text-align: center;
     }
 </style>
