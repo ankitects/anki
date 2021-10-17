@@ -41,7 +41,7 @@ class CardInfoDialog(QDialog):
         self.GEOMETRY_KEY = geometry_key or self.GEOMETRY_KEY
         if window_title:
             self.setWindowTitle(window_title)
-        self._setup_ui(card and card.id)
+        self._setup_ui(card.id if card else None)
         self.show()
 
     def _setup_ui(self, card_id: CardId | None) -> None:
@@ -107,7 +107,7 @@ class CardInfoManager:
     def set_card(self, card: Card | None) -> None:
         self._card = card
         if self._dialog:
-            self._dialog.update_card(card and card.id)
+            self._dialog.update_card(card.id if card else None)
 
     def close(self) -> None:
         if self._dialog:
