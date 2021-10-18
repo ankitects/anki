@@ -34,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SetContext from "./SetContext.svelte";
     import ContentEditable from "../editable/ContentEditable.svelte";
 
-    import { onMount, getAllContexts } from "svelte";
+    import { onMount, getContext, getAllContexts } from "svelte";
     import {
         nodeIsElement,
         nodeContainsInlineContent,
@@ -48,6 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { wrapInternal } from "../lib/wrap";
     import { nodeStore } from "../sveltelib/node-store";
     import type { DecoratedElement } from "../editable/decorated";
+    import { nightModeKey } from "../components/context-keys";
 
     export let hidden: boolean;
 
@@ -222,10 +223,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             unsubscribeToEditingArea();
         };
     });
+
+    const nightMode = getContext<boolean>(nightModeKey);
 </script>
 
 <RichTextStyles
-    color="white"
+    color={nightMode ? "white" : "black"}
     let:attachToShadow={attachStyles}
     let:promise={stylesPromise}
     let:stylesDidLoad
