@@ -8,7 +8,7 @@ import { svelte2tsx } from "svelte2tsx";
 import preprocess from "svelte-preprocess";
 import { basename } from "path";
 import * as ts from "typescript";
-import * as svelte from "svelte/compiler.js";
+import * as svelte from "svelte/compiler";
 
 const parsedCommandLine: ts.ParsedCommandLine = {
     fileNames: [],
