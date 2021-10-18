@@ -17,18 +17,22 @@ compile_sass(
     ],
 )
 
-compile_svelte()
+
+_ts_deps = [
+    "//ts/components",
+    "//ts/lib",
+    "//ts/sveltelib",
+    "@npm//mathjax",
+    "@npm//mathjax-full",
+    "@npm//svelte",
+]
+
+compile_svelte(deps = _ts_deps)
 
 typescript(
     name = "editable",
-    deps = [
+    deps = _ts_deps + [
         ":svelte",
-        "//ts/components",
-        "//ts/lib",
-        "//ts/sveltelib",
-        "@npm//mathjax",
-        "@npm//mathjax-full",
-        "@npm//svelte",
     ],
 )
 

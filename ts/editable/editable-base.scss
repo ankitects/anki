@@ -1,22 +1,11 @@
 @use "sass/scrollbar";
 
-anki-editable {
-    display: block;
-    overflow-wrap: break-word;
-    overflow: auto;
-    padding: 6px;
+* {
+    max-width: 100%;
 
-    &:focus {
-        outline: none;
+    :host(.nightMode) & {
+        @include scrollbar.night-mode;
     }
-
-    * {
-        max-width: 100%;
-    }
-}
-
-anki-mathjax {
-    white-space: pre;
 }
 
 p {
@@ -29,27 +18,6 @@ p {
     }
 }
 
-:host(.nightMode) * {
-    @include scrollbar.night-mode;
-}
-
-img.drawing {
-    zoom: 50%;
-
-    .nightMode & {
-        filter: unquote("invert() hue-rotate(180deg)");
-    }
-}
-
 [hidden] {
     display: none;
-}
-
-@import "codemirror/lib/codemirror";
-@import "codemirror/theme/monokai";
-@import "codemirror/addon/fold/foldgutter";
-
-.CodeMirror {
-    height: auto;
-    padding: 6px 0;
 }

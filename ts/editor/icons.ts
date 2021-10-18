@@ -31,7 +31,6 @@ export { default as paperclipIcon } from "@mdi/svg/svg/paperclip.svg";
 export { default as micIcon } from "bootstrap-icons/icons/mic.svg";
 export { default as ellipseIcon } from "@mdi/svg/svg/contain.svg";
 export { default as functionIcon } from "@mdi/svg/svg/function-variant.svg";
-export { default as xmlIcon } from "@mdi/svg/svg/xml.svg";
 
 export { default as tagIcon } from "@mdi/svg/svg/tag.svg";
 export { default as addTagIcon } from "@mdi/svg/svg/tag-plus.svg";
@@ -41,13 +40,13 @@ export { default as deleteIcon } from "bootstrap-icons/icons/x.svg";
 export const arrowIcon =
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="transparent" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 5l6 6 6-6"/></svg>';
 
-// image handle
-export { default as floatNoneIcon } from "@mdi/svg/svg/format-float-none.svg";
-export { default as floatLeftIcon } from "@mdi/svg/svg/format-float-left.svg";
-export { default as floatRightIcon } from "@mdi/svg/svg/format-float-right.svg";
+export { default as alertIcon } from "@mdi/svg/svg/alert.svg";
 
-export { default as sizeActual } from "@mdi/svg/svg/image-size-select-actual.svg";
-export { default as sizeMinimized } from "@mdi/svg/svg/image-size-select-large.svg";
+export { default as richTextOn } from "@mdi/svg/svg/eye-outline.svg";
+export { default as richTextOff } from "@mdi/svg/svg/eye-off-outline.svg";
 
-export { default as inlineIcon } from "@mdi/svg/svg/format-wrap-square.svg";
-export { default as blockIcon } from "@mdi/svg/svg/format-wrap-top-bottom.svg";
+export { default as htmlOn } from "@mdi/svg/svg/code-tags.svg";
+export { default as htmlOff } from "@mdi/svg/svg/xml.svg";
+
+export { default as stickyOn } from "@mdi/svg/svg/pin-outline.svg";
+export { default as stickyOff } from "@mdi/svg/svg/pin-off-outline.svg";

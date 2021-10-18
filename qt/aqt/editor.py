@@ -78,15 +78,6 @@ audio = (
     "webm",
 )
 
-_html = """
-<div id="fields"></div>
-<div id="dupes" class="d-none">
-    <a href="#" onclick="pycmd('dupes');return false;">%s</a>
-</div>
-<div id="cloze-hint" class="d-none"></div>
-<div id="tag-editor-anchor" class="d-none"></div>
-"""
-
 
 class Editor:
     """The screen that embeds an editing widget should listen for changes via
@@ -135,14 +126,9 @@ class Editor:
 
         # then load page
         self.web.stdHtml(
-            _html % tr.editing_show_duplicates(),
-            css=[
-                "css/editor.css",
-            ],
-            js=[
-                "js/vendor/jquery.min.js",
-                "js/editor.js",
-            ],
+            "",  # % tr.editing_show_duplicates(),
+            css=["css/editor.css"],
+            js=["js/editor.js"],
             context=self,
             default_css=True,
         )
@@ -506,7 +492,9 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             js += " setSticky(%s);" % json.dumps(sticky)
 
         js = gui_hooks.editor_will_load_note(js, self.note, self)
-        self.web.evalWithCallback(js, oncallback)
+        self.web.evalWithCallback(
+            f"noteEditorPromise.then(() => {{ {js} }})", oncallback
+        )
 
     def _save_current_note(self) -> None:
         "Call after note is updated with data from webview."

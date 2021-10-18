@@ -111,9 +111,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     div {
+        display: flex;
         flex-direction: row;
         flex-wrap: var(--buttons-wrap);
-        padding: calc(var(--buttons-size) / 10);
-        margin: 0;
     }
 </style>
