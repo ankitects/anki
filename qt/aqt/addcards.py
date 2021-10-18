@@ -60,7 +60,7 @@ class AddCards(QDialog):
 
     def setupEditor(self) -> None:
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self, True)
-        self.editor.web.eval("activateStickyShortcuts();")
+        self.editor.web.eval("noteEditorPromise.then(() => activateStickyShortcuts());")
 
     def setup_choosers(self) -> None:
         defaults = self.col.defaults_for_adding(
@@ -263,16 +263,6 @@ class AddCards(QDialog):
             return False
 
         return True
-
-    def keyPressEvent(self, evt: QKeyEvent) -> None:
-        "Show answer on RET or register answer."
-        if (
-            evt.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return)
-            and self.editor.tags.hasFocus()
-        ):
-            evt.accept()
-            return
-        return QDialog.keyPressEvent(self, evt)
 
     def reject(self) -> None:
         self.ifCanClose(self._reject)

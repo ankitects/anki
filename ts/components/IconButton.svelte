@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="typescript">
+    import IconConstrain from "./IconConstrain.svelte";
     import { getContext, onMount, createEventDispatcher } from "svelte";
     import { nightModeKey, dropdownKey } from "./context-keys";
     import type { DropdownProps } from "./dropdown";
@@ -16,9 +17,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let disabled = false;
     export let tabbable = false;
 
-    export let iconSize: number = 75;
-    export let widthMultiplier: number = 1;
-    export let flipX: boolean = false;
+    export let iconSize = 75;
+    export let widthMultiplier = 1;
+    export let flipX = false;
 
     let buttonRef: HTMLButtonElement;
 
@@ -32,12 +33,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <button
     bind:this={buttonRef}
     {id}
-    class={`btn ${className}`}
+    class="btn {className}"
     class:active
     class:dropdown-toggle={dropdownProps.dropdown}
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
-    style={`--icon-size: ${iconSize}%`}
     title={tooltip}
     {...dropdownProps}
     {disabled}
@@ -45,9 +45,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:click
     on:mousedown|preventDefault
 >
-    <span class:flip-x={flipX} style={`--width-multiplier: ${widthMultiplier};`}>
+    <IconConstrain {flipX} {widthMultiplier} {iconSize}>
         <slot />
-    </span>
+    </IconConstrain>
 </button>
 
 <style lang="scss">
@@ -60,35 +60,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     @include button.btn-day;
     @include button.btn-night;
-
-    span {
-        display: inline-block;
-        position: relative;
-        vertical-align: middle;
-
-        /* constrain icon */
-        width: calc((var(--buttons-size) - 2px) * var(--width-multiplier));
-        height: calc(var(--buttons-size) - 2px);
-
-        & > :global(svg),
-        & > :global(img) {
-            position: absolute;
-            width: var(--icon-size);
-            height: var(--icon-size);
-            top: calc((100% - var(--icon-size)) / 2);
-            bottom: calc((100% - var(--icon-size)) / 2);
-            left: calc((100% - var(--icon-size)) / 2);
-            right: calc((100% - var(--icon-size)) / 2);
-
-            fill: currentColor;
-            vertical-align: unset;
-        }
-
-        &.flip-x > :global(svg),
-        &.flip-x > :global(img) {
-            transform: scaleX(-1);
-        }
-    }
 
     .dropdown-toggle::after {
         margin-right: 0.25rem;

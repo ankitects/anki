@@ -116,6 +116,7 @@ const GENERAL_KEY = 0;
 const NUMPAD_KEY = 3;
 
 function innerShortcut(
+    target: EventTarget | Document,
     lastEvent: KeyboardEvent,
     callback: (event: KeyboardEvent) => void,
     ...checks: ((event: KeyboardEvent) => boolean)[]
@@ -128,7 +129,7 @@ function innerShortcut(
         const [nextCheck, ...restChecks] = checks;
         const handler = (event: KeyboardEvent): void => {
             if (nextCheck(event)) {
-                innerShortcut(event, callback, ...restChecks);
+                innerShortcut(target, event, callback, ...restChecks);
                 clearTimeout(interval);
             } else if (
                 event.location === GENERAL_KEY ||
@@ -145,19 +146,20 @@ function innerShortcut(
 
 export function registerShortcut(
     callback: (event: KeyboardEvent) => void,
-    keyCombinationString: string
+    keyCombinationString: string,
+    target: EventTarget | Document = document
 ): () => void {
     const [check, ...restChecks] =
         splitKeyCombinationString(keyCombinationString).map(keyCombinationToCheck);
 
     const handler = (event: KeyboardEvent): void => {
         if (check(event)) {
-            innerShortcut(event, callback, ...restChecks);
+            innerShortcut(target, event, callback, ...restChecks);
         }
     };
 
-    document.addEventListener("keydown", handler);
-    return (): void => document.removeEventListener("keydown", handler);
+    target.addEventListener("keydown", handler as EventListener);
+    return (): void => target.removeEventListener("keydown", handler as EventListener);
 }
 
 registerPackage("anki/shortcuts", {

@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import IconConstrain from "./IconConstrain.svelte";
     import type { DropdownProps } from "./dropdown";
     import { dropdownKey } from "./context-keys";
     import { onMount, createEventDispatcher, getContext } from "svelte";
@@ -10,6 +11,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className = "";
     export { className as class };
     export let tooltip: string | undefined = undefined;
+
+    export let iconSize = 100;
+    export let widthMultiplier = 1;
+    export let flipX = false;
 
     const dispatch = createEventDispatcher();
 
@@ -25,27 +30,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <span
     bind:this={spanRef}
     title={tooltip}
-    class={`badge ${className}`}
+    class="badge {className}"
     class:dropdown-toggle={dropdownProps.dropdown}
     {...dropdownProps}
     on:click
     on:mouseenter
     on:mouseleave
 >
-    <slot />
+    <IconConstrain {iconSize} {widthMultiplier} {flipX}>
+        <slot />
+    </IconConstrain>
 </span>
 
 <style>
     .badge {
-        color: inherit;
+        color: var(--badge-color, inherit);
     }
 
     .dropdown-toggle::after {
         display: none;
-    }
-
-    span :global(svg) {
-        border-radius: inherit;
-        vertical-align: var(--badge-align, -0.125rem);
     }
 </style>
