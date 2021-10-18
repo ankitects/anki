@@ -11,7 +11,7 @@ function injectPreloadLink(href: string, as: string): void {
 
 export function allImagesLoaded(): Promise<void[]> {
     return Promise.all(
-        Array.from(document.getElementsByTagName("img")).map(imageLoaded)
+        Array.from(document.getElementsByTagName("img")).map(imageLoaded),
     );
 }
 
@@ -35,7 +35,7 @@ function extractImageSrcs(html: string): string[] {
     tmpl.innerHTML = html;
     const fragment = tmpl.content;
     const srcs = [...fragment.querySelectorAll("img[src]")].map(
-        (img) => (img as HTMLImageElement).src
+        (img) => (img as HTMLImageElement).src,
     );
     return srcs;
 }

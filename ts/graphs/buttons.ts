@@ -97,7 +97,7 @@ export function renderButtons(
     svgElem: SVGElement,
     bounds: GraphBounds,
     origData: Stats.GraphsResponse,
-    range: GraphRange
+    range: GraphRange,
 ): void {
     const sourceData = gatherData(origData, range);
     const data = [
@@ -129,7 +129,7 @@ export function renderButtons(
         const total = sum(groupData, (d) => d.count);
         const correct = sum(
             groupData.filter((d) => d.buttonNum > 1),
-            (d) => d.count
+            (d) => d.count,
         );
         const percent = total ? ((correct / total) * 100).toFixed(2) : "0";
         return { total, correct, percent };
@@ -170,8 +170,8 @@ export function renderButtons(
                         }
                         return `${kind} \u200e(${totalCorrect(d).percent}%)`;
                     }) as any)
-                    .tickSizeOuter(0)
-            )
+                    .tickSizeOuter(0),
+            ),
         )
         .attr("direction", "ltr");
 
@@ -193,8 +193,8 @@ export function renderButtons(
             selection.transition(trans).call(
                 axisLeft(y)
                     .ticks(bounds.height / 50)
-                    .tickSizeOuter(0)
-            )
+                    .tickSizeOuter(0),
+            ),
         )
         .attr("direction", "ltr");
 
@@ -207,7 +207,7 @@ export function renderButtons(
             .transition(trans)
             .attr(
                 "x",
-                (d: Datum) => xGroup(d.group)! + xButton(d.buttonNum.toString())!
+                (d: Datum) => xGroup(d.group)! + xButton(d.buttonNum.toString())!,
             )
             .attr("y", (d: Datum) => y(d.count)!)
             .attr("height", (d: Datum) => y(0)! - y(d.count)!)
@@ -225,7 +225,7 @@ export function renderButtons(
                     .attr(
                         "x",
                         (d: Datum) =>
-                            xGroup(d.group)! + xButton(d.buttonNum.toString())!
+                            xGroup(d.group)! + xButton(d.buttonNum.toString())!,
                     )
                     .attr("y", y(0)!)
                     .attr("height", 0)
@@ -233,8 +233,8 @@ export function renderButtons(
             (update) => update.call(updateBar),
             (remove) =>
                 remove.call((remove) =>
-                    remove.transition(trans).attr("height", 0).attr("y", y(0)!)
-                )
+                    remove.transition(trans).attr("height", 0).attr("y", y(0)!),
+                ),
         );
 
     // hover/tooltip

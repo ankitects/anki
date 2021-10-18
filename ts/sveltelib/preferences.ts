@@ -22,7 +22,7 @@ export type PreferenceRaw<T> = {
 
 function createPreference<T>(
     initialValue: T,
-    savePreferences: () => void
+    savePreferences: () => void,
 ): CustomStore<T> {
     const { subscribe, set, update } = writable(initialValue);
 
@@ -42,7 +42,7 @@ function createPreference<T>(
 function preparePreferences<T>(
     Preferences: T,
     setter: (payload: PreferencePayload<T>) => Promise<void>,
-    toObject: (preferences: T, options: { defaults: boolean }) => PreferenceRaw<T>
+    toObject: (preferences: T, options: { defaults: boolean }) => PreferenceRaw<T>,
 ): PreferenceStore<T> {
     const preferences: Partial<PreferenceStore<T>> = {};
 
@@ -61,7 +61,7 @@ function preparePreferences<T>(
     }
 
     for (const [key, value] of Object.entries(
-        toObject(Preferences, { defaults: true })
+        toObject(Preferences, { defaults: true }),
     )) {
         preferences[key] = createPreference(value, savePreferences);
     }
@@ -72,7 +72,7 @@ function preparePreferences<T>(
 export async function getPreferences<T>(
     getter: () => Promise<T>,
     setter: (payload: PreferencePayload<T>) => Promise<void>,
-    toObject: (preferences: T, options: { defaults: boolean }) => PreferenceRaw<T>
+    toObject: (preferences: T, options: { defaults: boolean }) => PreferenceRaw<T>,
 ): Promise<PreferenceStore<T>> {
     const initialPreferences = await getter();
     return preparePreferences(initialPreferences, setter, toObject);

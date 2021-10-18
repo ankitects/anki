@@ -66,7 +66,7 @@ export function gatherData(data: Stats.GraphsResponse): GraphData {
     const dueCounts = rollup(
         due,
         (v) => v.length,
-        (d) => d
+        (d) => d,
     );
     return { dueCounts, haveBacklog };
 }
@@ -95,7 +95,7 @@ export function buildHistogram(
     range: GraphRange,
     backlog: boolean,
     dispatch: SearchDispatch,
-    browserLinksSupported: boolean
+    browserLinksSupported: boolean,
 ): FutureDueResponse {
     const output = { histogramData: null, tableData: [] };
     // get min/max
@@ -143,7 +143,7 @@ export function buildHistogram(
 
     const adjustedRange = scaleLinear().range([0.7, 0.3]);
     const colourScale = scaleSequential((n) =>
-        interpolateGreens(adjustedRange(n)!)
+        interpolateGreens(adjustedRange(n)!),
     ).domain([xMin!, xMax!]);
 
     const total = sum(bins as any, binValue);
@@ -151,7 +151,7 @@ export function buildHistogram(
     function hoverText(
         bin: Bin<number, number>,
         cumulative: number,
-        _percent: number
+        _percent: number,
     ): string {
         const days = dayLabel(bin.x0!, bin.x1!);
         const cards = tr.statisticsCardsDue({

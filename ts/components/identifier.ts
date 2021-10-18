@@ -4,7 +4,7 @@ export type Identifier = string | number;
 
 export function findElement(
     collection: HTMLCollection,
-    idOrIndex: Identifier
+    idOrIndex: Identifier,
 ): [number, Element] | null {
     let result: [number, Element] | null = null;
 
@@ -37,7 +37,7 @@ export function findElement(
 export function insertElement(
     element: Element,
     collection: Element,
-    idOrIndex: Identifier
+    idOrIndex: Identifier,
 ): number {
     const match = findElement(collection.children, idOrIndex);
 
@@ -54,7 +54,7 @@ export function insertElement(
 export function appendElement(
     element: Element,
     collection: Element,
-    idOrIndex: Identifier
+    idOrIndex: Identifier,
 ): number {
     const match = findElement(collection.children, idOrIndex);
 
@@ -72,7 +72,7 @@ export function appendElement(
 export function updateElement(
     f: (element: Element) => void,
     collection: Element,
-    idOrIndex: Identifier
+    idOrIndex: Identifier,
 ): number {
     const match = findElement(collection.children, idOrIndex);
 

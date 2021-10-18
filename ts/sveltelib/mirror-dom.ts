@@ -15,7 +15,7 @@ const config = {
 interface DOMMirror {
     mirror(
         element: Element,
-        params: { store: Writable<DocumentFragment> }
+        params: { store: Writable<DocumentFragment> },
     ): { destroy(): void };
     preventResubscription(): () => void;
 }
@@ -33,7 +33,7 @@ function getDOMMirror(): DOMMirror {
 
     function mirror(
         element: Element,
-        { store }: { store: Writable<DocumentFragment> }
+        { store }: { store: Writable<DocumentFragment> },
     ): { destroy(): void } {
         function saveHTMLToStore(): void {
             const range = document.createRange();
@@ -80,7 +80,7 @@ function getDOMMirror(): DOMMirror {
                 } else {
                     element.removeEventListener("blur", subscribe);
                 }
-            }
+            },
         );
 
         return {

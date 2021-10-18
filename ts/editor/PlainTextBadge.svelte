@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     onMount(() =>
-        registerShortcut(toggle, keyCombination, editorField.element as HTMLElement)
+        registerShortcut(toggle, keyCombination, editorField.element as HTMLElement),
     );
 </script>
 

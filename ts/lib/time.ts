@@ -107,7 +107,7 @@ export function studiedToday(cards: number, secs: number): string {
 
 function i18nFuncForUnit(
     unit: TimespanUnit,
-    short: boolean
+    short: boolean,
 ): ({ amount: number }) => string {
     if (short) {
         switch (unit) {

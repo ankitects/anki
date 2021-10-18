@@ -17,7 +17,7 @@ import Mathjax_svelte from "./Mathjax.svelte";
 function moveNodeOutOfElement(
     element: Element,
     node: Node,
-    placement: "beforebegin" | "afterend"
+    placement: "beforebegin" | "afterend",
 ): Node {
     element.removeChild(node);
 
@@ -105,7 +105,7 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
                 return typeof block === "string" && block !== "false"
                     ? `\\[${text}\\]`
                     : `\\(${text}\\)`;
-            }
+            },
         );
     }
 
@@ -114,11 +114,12 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
             .replace(
                 mathjaxBlockDelimiterPattern,
                 (_match: string, text: string) =>
-                    `<anki-mathjax block="true">${text}</anki-mathjax>`
+                    `<anki-mathjax block="true">${text}</anki-mathjax>`,
             )
             .replace(
                 mathjaxInlineDelimiterPattern,
-                (_match: string, text: string) => `<anki-mathjax>${text}</anki-mathjax>`
+                (_match: string, text: string) =>
+                    `<anki-mathjax>${text}</anki-mathjax>`,
             );
     }
 
@@ -161,7 +162,7 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
         const context = new Map();
         context.set(
             nightModeKey,
-            document.documentElement.classList.contains("night-mode")
+            document.documentElement.classList.contains("night-mode"),
         );
 
         this.component = new Mathjax_svelte({

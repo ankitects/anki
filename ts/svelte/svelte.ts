@@ -76,7 +76,7 @@ const languageServiceHost: ts.LanguageServiceHost = {
             },
             getLength: () => text.length,
             getChangeRange: (
-                _oldSnapshot: ts.IScriptSnapshot
+                _oldSnapshot: ts.IScriptSnapshot,
             ): ts.TextChangeRange | undefined => {
                 return undefined;
             },
@@ -140,7 +140,7 @@ function readFile(file) {
 async function compileSingleSvelte(
     input: SvelteInput,
     binDir: string,
-    genDir: string
+    genDir: string,
 ): Promise<void> {
     const preprocessOptions = preprocess({
         scss: {
@@ -215,7 +215,7 @@ async function extractArgsAndData(args: string[]): Promise<Args> {
 }
 
 async function extractSvelteAndDeps(
-    files: string[]
+    files: string[],
 ): Promise<[SvelteInput[], InputFile[]]> {
     const svelte: SvelteInput[] = [];
     const deps: InputFile[] = [];
@@ -249,7 +249,7 @@ function remapBinToSrcDir(file: string): string {
 async function compileSvelte(
     svelte: SvelteInput[],
     binDir: string,
-    genDir: string
+    genDir: string,
 ): Promise<void> {
     for (const file of svelte) {
         await compileSingleSvelte(file, binDir, genDir);

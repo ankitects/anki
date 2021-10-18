@@ -12,7 +12,7 @@ interface StoreAccessors {
 function storeSubscribe<T>(
     store: Readable<T>,
     callback: (value: T) => void,
-    start = true
+    start = true,
 ): StoreAccessors {
     function subscribe(): Unsubscriber {
         return store.subscribe(callback);

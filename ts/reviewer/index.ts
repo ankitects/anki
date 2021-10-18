@@ -31,7 +31,7 @@ export function getTypedAnswer(): string | null {
 }
 
 function _runHook(
-    hooks: Array<Callback>
+    hooks: Array<Callback>,
 ): Promise<PromiseSettledResult<void | Promise<void>>[]> {
     const promises: (Promise<void> | void)[] = [];
 
@@ -90,7 +90,7 @@ const renderError =
         }
         return `<div>Invalid ${type} on card: ${errorMessage}\n${errorStack}</div>`.replace(
             /\n/g,
-            "<br>"
+            "<br>",
         );
     };
 
@@ -98,7 +98,7 @@ export async function _updateQA(
     html: string,
     _unusused: unknown,
     onupdate: Callback,
-    onshown: Callback
+    onshown: Callback,
 ): Promise<void> {
     onUpdateHook.length = 0;
     onUpdateHook.push(onupdate);
@@ -152,8 +152,8 @@ export function _showQuestion(q: string, a: string, bodyclass: string): void {
                 }
                 // preload images
                 allImagesLoaded().then(() => preloadAnswerImages(q, a));
-            }
-        )
+            },
+        ),
     );
 }
 
@@ -177,8 +177,8 @@ export function _showAnswer(a: string, bodyclass: string): void {
             },
             function () {
                 /* noop */
-            }
-        )
+            },
+        ),
     );
 }
 
