@@ -15,13 +15,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../lib/ftl";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
-    import type { NoteEditorAPI } from "./OldEditorAdapter.svelte";
     import { appendInParentheses } from "./helpers";
     import { withButton } from "../components/helpers";
     import { paperclipIcon, micIcon, functionIcon } from "./icons";
 
     export let api = {};
-    const { focusInRichText, activeInput } = getNoteEditor() as NoteEditorAPI;
+    const { focusInRichText, activeInput } = getNoteEditor();
 
     function onAttachment(): void {
         bridgeCommand("attach");

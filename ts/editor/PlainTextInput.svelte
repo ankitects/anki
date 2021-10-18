@@ -21,7 +21,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
     import { getDecoratedElements } from "./DecoratedElements.svelte";
     import { getEditingArea } from "./EditingArea.svelte";
-    import type { EditingAreaAPI } from "./EditingArea.svelte";
     import { htmlanki, baseOptions, gutterOptions } from "./code-mirror";
 
     export let hidden = false;
@@ -32,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ...gutterOptions,
     };
 
-    const { editingInputs, content } = getEditingArea() as EditingAreaAPI;
+    const { editingInputs, content } = getEditingArea();
     const decoratedElements = getDecoratedElements();
     const code = writable($content);
 

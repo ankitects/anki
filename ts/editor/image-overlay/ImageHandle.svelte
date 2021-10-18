@@ -19,9 +19,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { tick, onDestroy } from "svelte";
     import type { StyleObject } from "../CustomStyles.svelte";
     import { getRichTextInput } from "../RichTextInput.svelte";
-    import type { RichTextInputContextAPI } from "../RichTextInput.svelte";
 
-    const { container, styles } = getRichTextInput() as RichTextInputContextAPI;
+    const { container, styles } = getRichTextInput();
 
     const sheetPromise = styles
         .addStyleTag("imageOverlay")

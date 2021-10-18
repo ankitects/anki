@@ -10,7 +10,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { withButton } from "../components/helpers";
     import { appendInParentheses, execCommand, queryCommandState } from "./helpers";
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
-    import type { NoteEditorAPI } from "./OldEditorAdapter.svelte";
 
     export let key: string;
     export let tooltip: string;
@@ -19,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let withoutShortcut = false;
     export let withoutState = false;
 
-    const { focusInRichText } = getNoteEditor() as NoteEditorAPI;
+    const { focusInRichText } = getNoteEditor();
     $: disabled = !$focusInRichText;
 </script>
 

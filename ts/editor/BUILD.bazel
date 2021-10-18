@@ -33,21 +33,24 @@ compile_sass(
     ],
 )
 
-compile_svelte()
+_ts_deps = [
+    "//ts/components",
+    "//ts/editable",
+    "//ts/html-filter",
+    "//ts/lib",
+    "//ts/sveltelib",
+    "@npm//@fluent",
+    "@npm//@types/codemirror",
+    "@npm//codemirror",
+    "@npm//svelte",
+]
+
+compile_svelte(deps = _ts_deps)
 
 typescript(
     name = "editor_ts",
-    deps = [
+    deps = _ts_deps + [
         ":svelte",
-        "//ts/components",
-        "//ts/editable",
-        "//ts/html-filter",
-        "//ts/lib",
-        "//ts/sveltelib",
-        "@npm//@fluent",
-        "@npm//@types/codemirror",
-        "@npm//codemirror",
-        "@npm//svelte",
     ],
 )
 

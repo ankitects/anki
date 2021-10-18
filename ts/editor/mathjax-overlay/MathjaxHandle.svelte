@@ -17,10 +17,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { onMount, tick } from "svelte";
     import { getRichTextInput } from "../RichTextInput.svelte";
-    import type { RichTextInputContextAPI } from "../RichTextInput.svelte";
     import { noop } from "../../lib/functional";
 
-    const { container, api } = getRichTextInput() as RichTextInputContextAPI;
+    const { container, api } = getRichTextInput();
 
     let activeImage: HTMLImageElement | null = null;
     let allow: () => void;

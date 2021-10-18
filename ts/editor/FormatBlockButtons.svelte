@@ -26,7 +26,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         outdentIcon,
     } from "./icons";
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
-    import type { NoteEditorAPI } from "./OldEditorAdapter.svelte";
 
     export let api = {};
 
@@ -46,7 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    const { focusInRichText } = getNoteEditor() as NoteEditorAPI;
+    const { focusInRichText } = getNoteEditor();
     $: disabled = !$focusInRichText;
 </script>
 

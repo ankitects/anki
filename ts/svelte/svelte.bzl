@@ -87,14 +87,6 @@ def compile_svelte(name = "svelte", srcs = None, deps = [], visibility = ["//vis
             "**/*.ts",
         ])
 
-    for src in srcs:
-        svelte(
-            name = src.replace(".svelte", ""),
-            entry_point = src,
-            deps = deps,
-            visibility = visibility,
-        )
-
     svelte(
         name = name,
         srcs = srcs,

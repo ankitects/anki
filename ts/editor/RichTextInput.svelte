@@ -42,7 +42,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "../lib/dom";
     import { getDecoratedElements } from "./DecoratedElements.svelte";
     import { getEditingArea } from "./EditingArea.svelte";
-    import type { EditingAreaAPI } from "./EditingArea.svelte";
     import { promiseWithResolver } from "../lib/promise";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { wrapInternal } from "../lib/wrap";
@@ -51,7 +50,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let hidden: boolean;
 
-    const { content, editingInputs } = getEditingArea() as EditingAreaAPI;
+    const { content, editingInputs } = getEditingArea();
     const decoratedElements = getDecoratedElements();
 
     const range = document.createRange();

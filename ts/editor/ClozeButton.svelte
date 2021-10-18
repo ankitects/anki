@@ -11,9 +11,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { ellipseIcon } from "./icons";
     import { get } from "svelte/store";
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
-    import type { NoteEditorAPI } from "./OldEditorAdapter.svelte";
 
-    const noteEditor = getNoteEditor() as NoteEditorAPI;
+    const noteEditor = getNoteEditor();
     const { focusInRichText, activeInput } = noteEditor;
 
     const clozePattern = /\{\{c(\d+)::/gu;

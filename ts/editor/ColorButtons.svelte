@@ -16,7 +16,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { textColorIcon, highlightColorIcon, arrowIcon } from "./icons";
     import { appendInParentheses, execCommand } from "./helpers";
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
-    import type { NoteEditorAPI } from "./OldEditorAdapter.svelte";
 
     export let api = {};
     export let textColor: string;
@@ -33,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         execCommand("backcolor", false, color);
     };
 
-    const { focusInRichText } = getNoteEditor() as NoteEditorAPI;
+    const { focusInRichText } = getNoteEditor();
     $: disabled = !$focusInRichText;
 </script>
 
