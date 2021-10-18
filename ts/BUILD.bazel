@@ -1,12 +1,9 @@
 load("//ts:prettier.bzl", "prettier", "prettier_test")
-load("//ts:sql_format.bzl", "sql_format_setup")
 load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
 
 prettier()
 
 prettier_test()
-
-sql_format_setup()
 
 # Exported files
 #################
