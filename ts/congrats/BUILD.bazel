@@ -1,7 +1,7 @@
 load("@npm//@bazel/typescript:index.bzl", "ts_library")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
-load("//ts/svelte:svelte.bzl", "svelte", "svelte_check")
+load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:esbuild.bzl", "esbuild")
 load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:typescript.bzl", "typescript")
@@ -16,15 +16,14 @@ compile_sass(
     ],
 )
 
-svelte(
-    name = "CongratsPage",
-    entry_point = "CongratsPage.svelte",
+compile_svelte(
+    deps = ["//ts/lib"],
 )
 
 typescript(
     name = "index",
     deps = [
-        "CongratsPage",
+        ":svelte",
         "//ts/lib",
         "@npm//@fluent",
         "@npm//svelte",
@@ -41,9 +40,9 @@ esbuild(
     output_css = "congrats.css",
     visibility = ["//visibility:public"],
     deps = [
-        "CongratsPage",
         ":base_css",
         ":index",
+        ":svelte",
         "//ts/lib",
         "@npm//protobufjs",
     ],
