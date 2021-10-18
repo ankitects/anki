@@ -72,9 +72,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         };
     }
 
-    const revlogRows: RevlogRow[] = stats.revlog.map((entry) =>
-        revlogRowFromEntry(entry)
-    );
+    let revlogRows: RevlogRow[];
+    $: revlogRows = stats.revlog.map((entry) => revlogRowFromEntry(entry));
 </script>
 
 {#if stats.revlog.length}
