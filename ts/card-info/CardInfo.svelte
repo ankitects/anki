@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Revlog from "./Revlog.svelte";
 
     export let cardId: number | undefined = undefined;
-    export let includeRevlog: boolean | undefined = undefined;
+    export let includeRevlog: boolean = true;
 
     let stats: Stats.CardStatsResponse | undefined;
 
