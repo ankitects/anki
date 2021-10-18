@@ -43,7 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <IconButton
                     tooltip={appendInParentheses(
                         tr.editingSetTextColor(),
-                        shortcutLabel
+                        shortcutLabel,
                     )}
                     {disabled}
                     on:click={forecolorWrap}
@@ -60,7 +60,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <IconButton
                     tooltip={appendInParentheses(
                         tr.editingChangeColor(),
-                        shortcutLabel
+                        shortcutLabel,
                     )}
                     {disabled}
                     widthMultiplier={0.5}

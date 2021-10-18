@@ -74,7 +74,7 @@ export function gatherData(data: Stats.GraphsResponse): TodayData {
         const againCount = answerCount - correctCount;
         let againCountText = tr.statisticsTodayAgainCount();
         againCountText += ` ${againCount} (${((againCount / answerCount) * 100).toFixed(
-            2
+            2,
         )}%)`;
         const typeCounts = tr.statisticsTodayTypeCounts({
             learnCount,

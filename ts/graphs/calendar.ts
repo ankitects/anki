@@ -54,7 +54,7 @@ const Weekday = Stats.GraphPreferences.Weekday; /* enum */
 
 export function gatherData(
     data: Stats.GraphsResponse,
-    firstDayOfWeek: WeekdayType
+    firstDayOfWeek: WeekdayType,
 ): GraphData {
     const reviewCount = new Map<number, number>();
 
@@ -63,7 +63,7 @@ export function gatherData(
             continue;
         }
         const day = Math.ceil(
-            ((review.id as number) / 1000 - data.nextDayAtSecs) / 86400
+            ((review.id as number) / 1000 - data.nextDayAtSecs) / 86400,
         );
         const count = reviewCount.get(day) ?? 0;
         reviewCount.set(day, count + 1);
@@ -86,7 +86,7 @@ export function renderCalendar(
     targetYear: number,
     nightMode: boolean,
     revlogRange: RevlogRange,
-    setFirstDayOfWeek: (d: number) => void
+    setFirstDayOfWeek: (d: number) => void,
 ): void {
     const svg = select(svgElem);
     const now = new Date();
@@ -187,8 +187,8 @@ export function renderCalendar(
         .on("click", null)
         .filter((d: number) =>
             [Weekday.SUNDAY, Weekday.MONDAY, Weekday.FRIDAY, Weekday.SATURDAY].includes(
-                d
-            )
+                d,
+            ),
         )
         .on("click", (_event: MouseEvent, d: number) => setFirstDayOfWeek(d));
 

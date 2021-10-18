@@ -66,11 +66,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const insertButton = (button: SvelteComponent, position: Identifier = 0) =>
             addComponent(button, (added, parent) =>
-                insertElement(added, parent, position)
+                insertElement(added, parent, position),
             );
         const appendButton = (button: SvelteComponent, position: Identifier = -1) =>
             addComponent(button, (added, parent) =>
-                appendElement(added, parent, position)
+                appendElement(added, parent, position),
             );
 
         const showButton = (id: Identifier) =>
@@ -80,7 +80,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const toggleButton = (id: Identifier) =>
             updateRegistration(
                 ({ detach }) => detach.update((old: boolean): boolean => !old),
-                id
+                id,
             );
 
         Object.assign(api, {

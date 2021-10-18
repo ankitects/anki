@@ -56,7 +56,7 @@ export function defaultGraphBounds(): GraphBounds {
 
 export function setDataAvailable(
     svg: Selection<SVGElement, any, any, any>,
-    available: boolean
+    available: boolean,
 ): void {
     svg.select(".no-data")
         .attr("pointer-events", available ? "none" : "all")
@@ -67,7 +67,7 @@ export function setDataAvailable(
 
 export function millisecondCutoffForRange(
     range: GraphRange,
-    nextDayAtSecs: number
+    nextDayAtSecs: number,
 ): number {
     let days;
     switch (range) {
@@ -96,5 +96,5 @@ export interface TableDatum {
 export type SearchEventMap = { search: { query: string } };
 export type SearchDispatch = <EventKey extends Extract<keyof SearchEventMap, string>>(
     type: EventKey,
-    detail: SearchEventMap[EventKey]
+    detail: SearchEventMap[EventKey],
 ) => void;

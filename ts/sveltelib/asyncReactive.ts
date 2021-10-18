@@ -11,13 +11,13 @@ interface AsyncReactiveData<T, E> {
 
 function useAsyncReactive<T, E>(
     asyncFunction: () => Promise<T>,
-    dependencies: [Readable<unknown>, ...Readable<unknown>[]]
+    dependencies: [Readable<unknown>, ...Readable<unknown>[]],
 ): AsyncReactiveData<T, E> {
     const promise = derived(
         dependencies,
         (_, set: (value: Promise<T> | null) => void): void => set(asyncFunction()),
         // initialize with null to avoid duplicate fetch on init
-        null
+        null,
     );
 
     const value = derived(
@@ -25,7 +25,7 @@ function useAsyncReactive<T, E>(
         ($promise, set: (value: T) => void): void => {
             $promise?.then((value: T) => set(value));
         },
-        null
+        null,
     );
 
     const error = derived(
@@ -34,7 +34,7 @@ function useAsyncReactive<T, E>(
             $promise?.catch((error: E) => set(error));
             return (): void => set(null);
         },
-        null
+        null,
     );
 
     const loading = derived(
@@ -43,7 +43,7 @@ function useAsyncReactive<T, E>(
             $promise?.finally(() => set(false));
             return (): void => set(true);
         },
-        true
+        true,
     );
 
     return { value, error, loading };

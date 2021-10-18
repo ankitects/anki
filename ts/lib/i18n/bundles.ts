@@ -21,19 +21,19 @@ function toFluentNumber(num: number): FluentNumber {
 }
 
 function formatArgs(
-    args: Record<string, FluentVariable>
+    args: Record<string, FluentVariable>,
 ): Record<string, FluentVariable> {
     return Object.fromEntries(
         Object.entries(args).map(([key, value]) => [
             key,
             typeof value === "number" ? toFluentNumber(value) : value,
-        ])
+        ]),
     );
 }
 
 export function getMessage(
     key: string,
-    args: Record<string, FluentVariable> = {}
+    args: Record<string, FluentVariable> = {},
 ): string | null {
     for (const bundle of bundles) {
         const msg = bundle.getMessage(key);

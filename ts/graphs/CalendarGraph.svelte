@@ -64,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             targetYear,
             nightMode,
             revlogRange,
-            calendarFirstDayOfWeek.set
+            calendarFirstDayOfWeek.set,
         );
     }
 

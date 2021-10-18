@@ -46,7 +46,7 @@ export function gatherIntervalData(data: Stats.GraphsResponse): IntervalGraphDat
 export function intervalLabel(
     daysStart: number,
     daysEnd: number,
-    cards: number
+    cards: number,
 ): string {
     if (daysEnd - daysStart <= 1) {
         // singular
@@ -79,7 +79,7 @@ export function prepareIntervalData(
     data: IntervalGraphData,
     range: IntervalRange,
     dispatch: SearchDispatch,
-    browserLinksSupported: boolean
+    browserLinksSupported: boolean,
 ): [HistogramData | null, TableDatum[]] {
     // get min/max
     const allIntervals = data.intervals;
@@ -122,7 +122,7 @@ export function prepareIntervalData(
 
     const prescale = scaleLinear().domain([xMin!, xMax!]);
     const scale = scaleLinear().domain(
-        (niceNecessary ? prescale.nice() : prescale).domain().map(increment)
+        (niceNecessary ? prescale.nice() : prescale).domain().map(increment),
     );
 
     const bins = histogram()
@@ -137,13 +137,13 @@ export function prepareIntervalData(
 
     const adjustedRange = scaleLinear().range([0.7, 0.3]);
     const colourScale = scaleSequential((n) =>
-        interpolateBlues(adjustedRange(n)!)
+        interpolateBlues(adjustedRange(n)!),
     ).domain([xMax!, xMin!]);
 
     function hoverText(
         bin: Bin<number, number>,
         _cumulative: number,
-        percent: number
+        percent: number,
     ): string {
         // const day = dayLabel(bin.x0!, bin.x1!);
         const interval = intervalLabel(bin.x0!, bin.x1!, bin.length);

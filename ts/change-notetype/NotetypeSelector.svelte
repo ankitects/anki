@@ -20,7 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function blur(event: Event): Promise<void> {
         await state.setTargetNotetypeIndex(
-            parseInt((event.target! as HTMLSelectElement).value)
+            parseInt((event.target! as HTMLSelectElement).value),
         );
     }
 </script>

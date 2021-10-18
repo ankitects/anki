@@ -15,7 +15,7 @@ export const $editorToolbar = new Promise(noop);
 export function pasteHTML(
     html: string,
     internal: boolean,
-    extendedMode: boolean
+    extendedMode: boolean,
 ): void {
     html = filterHTML(html, internal, extendedMode);
 
@@ -76,7 +76,7 @@ function setupNoteEditor(i18n: Promise<void>): Promise<OldEditorAdapter> {
 
     context.set(
         nightModeKey,
-        document.documentElement.classList.contains("night-mode")
+        document.documentElement.classList.contains("night-mode"),
     );
 
     i18n.then(() => {

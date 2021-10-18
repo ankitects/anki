@@ -14,7 +14,7 @@ export interface NodeStore<T extends Node> extends Writable<T> {
 
 export function nodeStore<T extends Node>(
     node?: T,
-    preprocess: (node: T) => void = noop
+    preprocess: (node: T) => void = noop,
 ): NodeStore<T> {
     const subscribers: Set<Subscriber<T>> = new Set();
 

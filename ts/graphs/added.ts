@@ -51,7 +51,7 @@ export function buildHistogram(
     data: GraphData,
     range: GraphRange,
     dispatch: SearchDispatch,
-    browserLinksSupported: boolean
+    browserLinksSupported: boolean,
 ): [HistogramData | null, TableDatum[]] {
     // get min/max
     const total = data.daysAdded.length;
@@ -91,7 +91,7 @@ export function buildHistogram(
 
     const adjustedRange = scaleLinear().range([0.7, 0.3]);
     const colourScale = scaleSequential((n) =>
-        interpolateBlues(adjustedRange(n)!)
+        interpolateBlues(adjustedRange(n)!),
     ).domain([xMax!, xMin!]);
 
     const totalInPeriod = sum(bins, (bin) => bin.length);
@@ -111,7 +111,7 @@ export function buildHistogram(
     function hoverText(
         bin: Bin<number, number>,
         cumulative: number,
-        _percent: number
+        _percent: number,
     ): string {
         const day = dayLabel(bin.x0!, bin.x1!);
         const cards = tr.statisticsCards({ cards: bin.length });

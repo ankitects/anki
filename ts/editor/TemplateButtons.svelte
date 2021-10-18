@@ -39,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <IconButton
                 tooltip={appendInParentheses(
                     tr.editingAttachPicturesaudiovideo(),
-                    shortcutLabel
+                    shortcutLabel,
                 )}
                 iconSize={70}
                 {disabled}
@@ -85,7 +85,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         on:click={() =>
                             $activeInput?.surround(
                                 "<anki-mathjax focusonmount>",
-                                "</anki-mathjax>"
+                                "</anki-mathjax>",
                             )}
                         on:mount={withButton(createShortcut)}
                     >
@@ -103,7 +103,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         on:click={() =>
                             $activeInput?.surround(
                                 '<anki-mathjax block="true" focusonmount>',
-                                "</anki-matjax>"
+                                "</anki-matjax>",
                             )}
                         on:mount={withButton(createShortcut)}
                     >
@@ -121,7 +121,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         on:click={() =>
                             $activeInput?.surround(
                                 "<anki-mathjax focusonmount>\\ce{",
-                                "}</anki-mathjax>"
+                                "}</anki-mathjax>",
                             )}
                         on:mount={withButton(createShortcut)}
                     >

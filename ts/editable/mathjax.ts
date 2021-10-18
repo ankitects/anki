@@ -32,7 +32,7 @@ function getEmptyIcon(style: HTMLStyleElement): [string, string] {
 export function convertMathjax(
     input: string,
     nightMode: boolean,
-    fontSize: number
+    fontSize: number,
 ): [string, string] {
     const style = getStyle(getCSS(nightMode, fontSize));
 

@@ -4,7 +4,7 @@
 export async function postRequest(
     path: string,
     body: string | Uint8Array,
-    headers: Record<string, string> = {}
+    headers: Record<string, string> = {},
 ): Promise<Uint8Array> {
     if (body instanceof Uint8Array) {
         headers["Content-type"] = "application/octet-stream";

@@ -8,7 +8,7 @@ import * as tr from "../lib/ftl";
 
 export async function getCongratsInfo(): Promise<Scheduler.CongratsInfoResponse> {
     return Scheduler.CongratsInfoResponse.decode(
-        await postRequest("/_anki/congratsInfo", "")
+        await postRequest("/_anki/congratsInfo", ""),
     );
 }
 

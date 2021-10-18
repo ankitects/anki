@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export function updateAllState(event: Event): void {
         updateAllStateWithCallback((key: KeyType): boolean =>
-            updaterMap.get(key)!(event)
+            updaterMap.get(key)!(event),
         );
     }
 

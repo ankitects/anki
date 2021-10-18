@@ -7,7 +7,7 @@ export function removeNode(element: Node): void {
 
 function iterateElement(
     filter: (node: Node) => void,
-    fragment: DocumentFragment | Element
+    fragment: DocumentFragment | Element,
 ): void {
     for (const child of [...fragment.childNodes]) {
         filter(child);

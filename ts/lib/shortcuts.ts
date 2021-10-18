@@ -47,7 +47,7 @@ function splitKeyCombinationString(keyCombinationString: string): string[][] {
 function toPlatformString(keyCombination: string[]): string {
     return (
         modifiersToPlatformString(
-            keyCombination.slice(0, -1).filter(isRequiredModifier)
+            keyCombination.slice(0, -1).filter(isRequiredModifier),
         ) + keyToPlatformString(keyCombination[keyCombination.length - 1])
     );
 }
@@ -80,11 +80,11 @@ function removeTrailing(modifier: string): string {
 
 // function checkModifiers(event: KeyboardEvent, modifiers: string[]): boolean {
 function separateRequiredOptionalModifiers(
-    modifiers: string[]
+    modifiers: string[],
 ): [Modifier[], Modifier[]] {
     const [requiredModifiers, otherModifiers] = partition(
         isRequiredModifier,
-        modifiers
+        modifiers,
     );
 
     const optionalModifiers = otherModifiers.map(removeTrailing);
@@ -104,7 +104,7 @@ function keyToCode(key: string): number {
 }
 
 function keyCombinationToCheck(
-    keyCombination: string[]
+    keyCombination: string[],
 ): (event: KeyboardEvent) => boolean {
     const keyCode = keyToCode(keyCombination[keyCombination.length - 1]);
     const modifiers = keyCombination.slice(0, -1);
@@ -147,7 +147,7 @@ function innerShortcut(
 export function registerShortcut(
     callback: (event: KeyboardEvent) => void,
     keyCombinationString: string,
-    target: EventTarget | Document = document
+    target: EventTarget | Document = document,
 ): () => void {
     const [check, ...restChecks] =
         splitKeyCombinationString(keyCombinationString).map(keyCombinationToCheck);

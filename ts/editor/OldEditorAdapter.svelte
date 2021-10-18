@@ -168,7 +168,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function updateField(index: number, content: string): void {
         fieldSave.schedule(
             () => bridgeCommand(`key:${index}:${getNoteId()}:${content}`),
-            600
+            600,
         );
     }
 
@@ -230,8 +230,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             },
             {
                 fields: { get: () => fieldApis },
-            }
-        )
+            },
+        ),
     );
 
     onMount(() => {
@@ -271,7 +271,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     on:focusout={() => {
                         $currentField = null;
                         bridgeCommand(
-                            `blur:${index}:${getNoteId()}:${get(fieldStores[index])}`
+                            `blur:${index}:${getNoteId()}:${get(fieldStores[index])}`,
                         );
                     }}
                     --label-color={cols[index] === "dupe"

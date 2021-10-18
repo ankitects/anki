@@ -30,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let tagTypes: TagType[];
     function tagsToTagTypes(tags: string[]): void {
         tagTypes = tags.map(
-            (tag: string): TagType => attachId(replaceWithUnicodeSeparator(tag))
+            (tag: string): TagType => attachId(replaceWithUnicodeSeparator(tag)),
         );
     }
 
@@ -59,8 +59,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const data = await postRequest(
             "/_anki/completeTag",
             Tags.CompleteTagRequest.encode(
-                Tags.CompleteTagRequest.create({ input, matchLimit: 500 })
-            ).finish()
+                Tags.CompleteTagRequest.create({ input, matchLimit: 500 }),
+            ).finish(),
         );
         const response = Tags.CompleteTagResponse.decode(data);
         return response.tags;
@@ -86,7 +86,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 (names: string[]): string[] => {
                     autocompleteDisabled = names.length === 0;
                     return names.map(replaceWithUnicodeSeparator);
-                }
+                },
             );
         }
     }
@@ -152,7 +152,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function enterBehavior(
         index: number,
         start: number,
-        end: number
+        end: number,
     ): Promise<void> {
         if (autocomplete.hasSelected()) {
             autocomplete.chooseSelected();
@@ -334,7 +334,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function deselect() {
         tagTypes = tagTypes.map(
-            (tag: TagType): TagType => ({ ...tag, selected: false })
+            (tag: TagType): TagType => ({ ...tag, selected: false }),
         );
         selectionAnchor = null;
         selectionFocus = null;

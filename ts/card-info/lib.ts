@@ -6,6 +6,6 @@ import { postRequest } from "../lib/postrequest";
 
 export async function getCardStats(cardId: number): Promise<Stats.CardStatsResponse> {
     return Stats.CardStatsResponse.decode(
-        await postRequest("/_anki/cardStats", JSON.stringify({ cardId }))
+        await postRequest("/_anki/cardStats", JSON.stringify({ cardId })),
     );
 }

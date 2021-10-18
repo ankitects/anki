@@ -51,9 +51,9 @@ const filterStyling =
     };
 
 export const filterStylingNightMode = filterStyling(
-    allowPropertiesBlockValues(stylingNightMode)
+    allowPropertiesBlockValues(stylingNightMode),
 );
 export const filterStylingLightMode = filterStyling(
-    allowPropertiesBlockValues(stylingLightMode)
+    allowPropertiesBlockValues(stylingLightMode),
 );
 export const filterStylingInternal = filterStyling(blockProperties(stylingInternal));
