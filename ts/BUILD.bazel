@@ -29,3 +29,8 @@ alias(
     name = "yarn",
     actual = "@nodejs//:yarn",
 )
+
+alias(
+    name = "node",
+    actual = "@nodejs//:node",
+)
