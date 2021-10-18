@@ -1,33 +1,26 @@
-load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+load("//ts:typescript.bzl", "typescript")
 load("//ts:copy.bzl", "copy_files_into_group")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 
-ts_library(
+js_library(
     name = "pycmd",
     srcs = ["pycmd.d.ts"],
-    tsconfig = "tsconfig.json",
     visibility = ["//qt/aqt/data/web/js:__subpackages__"],
 )
 
-ts_library(
+typescript(
     name = "aqt",
     srcs = glob(
         ["*.ts"],
         exclude = ["*.d.ts"],
     ),
-    tsconfig = "tsconfig.json",
     deps = [
         "pycmd",
         "@npm//@types/jquery",
         "@npm//@types/jqueryui",
     ],
-)
-
-filegroup(
-    name = "aqt_es5",
-    srcs = ["aqt"],
-    output_group = "es5_sources",
 )
 
 copy_files_into_group(
@@ -49,7 +42,7 @@ copy_files_into_group(
 filegroup(
     name = "js",
     srcs = [
-        "aqt_es5",
+        "aqt",
         "editor",
         "mathjax.js",
         "reviewer",
