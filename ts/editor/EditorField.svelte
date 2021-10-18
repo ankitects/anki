@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LabelName from "./LabelName.svelte";
     import FieldState from "./FieldState.svelte";
 
-    import { setContext as svelteSetContext } from "svelte";
+    import { setContext } from "svelte";
     import { writable } from "svelte/store";
     import type { Writable } from "svelte/store";
     import { directionKey } from "../lib/context-keys";
@@ -42,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let autofocus = false;
 
     const directionStore = writable();
-    svelteSetContext(directionKey, directionStore);
+    setContext(directionKey, directionStore);
 
     $: $directionStore = field.direction;
 
@@ -63,7 +63,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     );
 </script>
 
-<div bind:this={editorField} class="editor-field" on:focusin on:focusout>
+<div
+    bind:this={editorField}
+    class="editor-field"
+    on:focusin
+    on:focusout
+    on:click={() => api.editingArea?.focus()}
+>
     <LabelContainer>
         <LabelName>{field.name}</LabelName>
         <FieldState><slot name="field-state" /></FieldState>
@@ -74,7 +80,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fontFamily={field.fontFamily}
         fontSize={field.fontSize}
         bind:api={api.editingArea}
-        on:editinginput
     >
         <slot name="editing-inputs" />
     </EditingArea>

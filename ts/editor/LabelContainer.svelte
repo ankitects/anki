@@ -4,19 +4,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { Readable } from "svelte/store";
-    import { getContext as svelteGetContext } from "svelte";
+    import { getContext } from "svelte";
     import { directionKey } from "../lib/context-keys";
-    import { getEditorField } from "./EditorField.svelte";
 
-    const editorField = getEditorField();
-    const direction = svelteGetContext<Readable<"ltr" | "rtl">>(directionKey);
+    const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
 </script>
 
 <div
     class="label-container"
     class:rtl={$direction === "rtl"}
     on:mousedown|preventDefault
-    on:click={() => editorField.editingArea?.focus()}
 >
     <slot />
 </div>
