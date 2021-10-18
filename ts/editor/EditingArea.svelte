@@ -10,12 +10,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         readonly name: string;
         focusable: boolean;
         focus(): void;
+        refocus(): void;
     }
 
     export interface EditingAreaAPI {
         content: Writable<string>;
         editingInputs: Writable<EditingInputAPI[]>;
         focus(): void;
+        refocus(): void;
     }
 
     const key = Symbol("editingArea");
@@ -49,8 +51,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: editingInputs = $inputsStore;
 
+    function getAvailableInput(): EditingInputAPI | undefined {
+        return editingInputs.find((input) => input.focusable);
+    }
+
     function focusEditingInputIfAvailable(): boolean {
-        const availableInput = editingInputs.find((input) => input.focusable);
+        const availableInput = getAvailableInput();
 
         if (availableInput) {
             availableInput.focus();
@@ -79,6 +85,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    function refocus(): void {
+        const availableInput = getAvailableInput();
+
+        if (availableInput) {
+            availableInput.refocus();
+        } else {
+            focusTrap.blur();
+            focusTrap.focus();
+        }
+    }
+
     function focusEditingInputInsteadIfAvailable(event: FocusEvent): void {
         if (focusEditingInputIfAvailable()) {
             event.preventDefault();
@@ -98,6 +115,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         content,
         editingInputs: inputsStore,
         focus,
+        refocus,
     });
 
     onMount(() => {

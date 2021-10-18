@@ -80,6 +80,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         codeMirror?.editor.focus();
     }
 
+    function refocus(): void {
+        (codeMirror?.editor as any).display.input.blur();
+        focus();
+    }
+
     function moveCaretToEnd(): void {
         codeMirror?.editor.setCursor(codeMirror.editor.lineCount(), 0);
     }
@@ -94,6 +99,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         focus,
         focusable: !hidden,
         moveCaretToEnd,
+        refocus,
         toggle(): boolean {
             hidden = !hidden;
             return hidden;

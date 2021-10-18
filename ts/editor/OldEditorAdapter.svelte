@@ -101,13 +101,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export function setFonts(fs: [string, number, boolean][]): void {
         fonts = fs;
 
-        richTextsHidden = fonts.map(() => false);
-        plainTextsHidden = fonts.map(() => true);
+        richTextsHidden = fonts.map((_, index) => richTextsHidden[index] ?? false);
+        plainTextsHidden = fonts.map((_, index) => plainTextsHidden[index] ?? true);
     }
 
     let focusTo: number = 0;
     export function focusField(n: number): void {
         focusTo = n;
+
+        fieldApis[focusTo]?.editingArea?.refocus();
     }
 
     let textColor: string = "black";

@@ -10,6 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export interface RichTextInputAPI extends EditingInputAPI {
         name: "rich-text";
         moveCaretToEnd(): void;
+        refocus(): void;
         toggle(): boolean;
         surround(before: string, after: string): void;
         preventResubscription(): () => void;
@@ -178,6 +179,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         name: "rich-text",
         focus() {
             richTextPromise.then((richText) => richText.focus());
+        },
+        refocus() {
+            richTextPromise.then((richText) => {
+                richText.blur();
+                richText.focus();
+            });
         },
         moveCaretToEnd,
         focusable: !hidden,
