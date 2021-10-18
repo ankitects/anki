@@ -43,8 +43,6 @@ esbuild(
         ":base_css",
         ":index",
         ":svelte",
-        "//ts/lib",
-        "@npm//protobufjs",
     ],
 )
 
