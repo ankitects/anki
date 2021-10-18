@@ -2,13 +2,13 @@ load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 load("@bazel_skylib//lib:versions.bzl", "versions")
 load("@rules_rust//rust:repositories.bzl", "rust_repositories")
 load("@ankidesktop//cargo:crates.bzl", "raze_fetch_remote_crates")
-load(":python.bzl", "setup_local_python")
+load("//python:python.bzl", "setup_local_python")
 load("//proto:protobuf.bzl", "setup_protobuf_binary")
 load("//proto:clang_format.bzl", "setup_clang_format")
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_repositories")
-load("//pip/pyqt5:defs.bzl", "install_pyqt5")
-load("//pip/pyqt6:defs.bzl", "install_pyqt6")
+load("//python/pyqt5:defs.bzl", "install_pyqt5")
+load("//python/pyqt6:defs.bzl", "install_pyqt6")
 load("@rules_python//python:pip.bzl", "pip_parse")
 
 anki_version = "2.1.49"
@@ -35,7 +35,7 @@ def setup_deps():
 
     pip_parse(
         name = "py_deps",
-        requirements_lock = "@ankidesktop//pip:requirements.txt",
+        requirements_lock = "@ankidesktop//python:requirements.txt",
         python_interpreter_target = "@python//:python",
     )
 
