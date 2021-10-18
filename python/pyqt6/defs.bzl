@@ -3,7 +3,7 @@
 def _execute(repository_ctx, arguments, quiet = False):
     return repository_ctx.execute(arguments, environment = {}, quiet = quiet)
 
-def _install_pyqt5_impl(repository_ctx):
+def _install_pyqt6_impl(repository_ctx):
     python_interpreter = repository_ctx.attr.python_interpreter
     if repository_ctx.attr.python_runtime:
         python_interpreter = repository_ctx.path(repository_ctx.attr.python_runtime)
@@ -18,7 +18,7 @@ def _install_pyqt5_impl(repository_ctx):
     if result.return_code:
         fail("failed: %s (%s)" % (result.stdout, result.stderr))
 
-install_pyqt5 = repository_rule(
+install_pyqt6 = repository_rule(
     attrs = {
         "python_interpreter": attr.string(default = "python", doc = """
 The command to run the Python interpreter used to invoke pip and unpack the
@@ -30,7 +30,7 @@ If the label is specified it will overwrite the python_interpreter attribute.
 """),
         "_script": attr.label(
             executable = True,
-            default = Label("//pip/pyqt5:install_pyqt5.py"),
+            default = Label("//python/pyqt6:install_pyqt6.py"),
             cfg = "host",
         ),
         "quiet": attr.bool(
@@ -38,5 +38,5 @@ If the label is specified it will overwrite the python_interpreter attribute.
             doc = "If stdout and stderr should be printed to the terminal.",
         ),
     },
-    implementation = _install_pyqt5_impl,
+    implementation = _install_pyqt6_impl,
 )

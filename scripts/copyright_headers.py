@@ -6,8 +6,8 @@ import sys
 from pathlib import Path
 
 nonstandard_header = {
-    "pip/pyqt5/install_pyqt5.py",
-    "pip/pyqt6/install_pyqt6.py",
+    "python/pyqt5/install_pyqt5.py",
+    "python/pyqt6/install_pyqt6.py",
     "pylib/anki/importing/pauker.py",
     "pylib/anki/importing/supermemo_xml.py",
     "pylib/anki/statsbg.py",

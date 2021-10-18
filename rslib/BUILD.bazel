@@ -4,7 +4,7 @@
 load("@rules_rust//rust:rust.bzl", "rust_binary", "rust_library", "rust_test")
 load("@rules_rust//cargo:cargo_build_script.bzl", "cargo_build_script")
 load(":rustfmt.bzl", "rustfmt_fix", "rustfmt_test")
-load("//ts:sql_format.bzl", "sql_format")
+load("//ts/sql_format:defs.bzl", "sql_format")
 
 # Build script
 #######################
