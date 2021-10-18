@@ -127,7 +127,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             event.preventDefault();
             name = `${before.slice(0, -1)}${delimChar}${name.slice(
                 positionEnd,
-                name.length
+                name.length,
             )}`;
 
             await tick();
@@ -199,7 +199,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const selection = document.getSelection();
         event.clipboardData!.setData(
             "text/plain",
-            replaceWithColons(selection!.toString())
+            replaceWithColons(selection!.toString()),
         );
     }
 

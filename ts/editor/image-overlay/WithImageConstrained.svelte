@@ -37,7 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             const nth =
                 Array.prototype.indexOf.call(
                     (element.parentNode! as Document | ShadowRoot).children,
-                    element
+                    element,
                 ) + 1;
             return [`${tagName}:nth-child(${nth})`, ...tokens];
         } else {
@@ -46,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 1;
             return createPathRecursive(
                 [`${tagName}:nth-child(${nth})`, ...tokens],
-                element.parentElement
+                element.parentElement,
             );
         }
     }
@@ -92,7 +92,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             rule.style.setProperty(
                 "height",
                 height < maxHeight ? `${height}px` : "auto",
-                "important"
+                "important",
             );
         } else {
             // square or restricted by width
@@ -100,7 +100,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             rule.style.setProperty(
                 "width",
                 width < maxWidth ? `${width}px` : "auto",
-                "important"
+                "important",
             );
 
             rule.style.setProperty("height", "auto", "important");
@@ -125,7 +125,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         images.push(image);
         const index = sheet.insertRule(
             `${createPath(image)} {}`,
-            sheet.cssRules.length
+            sheet.cssRules.length,
         );
         const rule = sheet.cssRules[index] as CSSStyleRule;
         setImageRule(image, rule);
@@ -151,7 +151,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const mutationObserver = new MutationObserver((mutations) => {
         const addedImages = mutations.flatMap((mutation) =>
-            filterImages([...mutation.addedNodes])
+            filterImages([...mutation.addedNodes]),
         );
 
         for (const image of addedImages) {
@@ -159,7 +159,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         const removedImages = mutations.flatMap((mutation) =>
-            filterImages([...mutation.removedNodes])
+            filterImages([...mutation.removedNodes]),
         );
 
         for (const image of removedImages) {

@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let resolve: (editable: HTMLElement) => void;
     export let mirror: (
         editable: HTMLElement,
-        params: { store: Writable<DocumentFragment> }
+        params: { store: Writable<DocumentFragment> },
     ) => void;
 </script>
 

@@ -39,7 +39,7 @@ export interface DecoratedElementConstructor
 }
 
 export class CustomElementArray<
-    T extends CustomElementConstructor & WithTagName
+    T extends CustomElementConstructor & WithTagName,
 > extends Array<T> {
     push(...elements: T[]): number {
         for (const element of elements) {

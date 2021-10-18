@@ -61,7 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         for (const decorated of decoratedElements) {
             for (const element of fragment.querySelectorAll(
-                decorated.tagName
+                decorated.tagName,
             ) as NodeListOf<DecoratedElement>) {
                 element.undecorate();
             }
@@ -194,7 +194,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         },
         surround(before: string, after: string) {
             richTextPromise.then((richText) =>
-                wrapInternal(richText.getRootNode() as any, before, after, false)
+                wrapInternal(richText.getRootNode() as any, before, after, false),
             );
         },
         preventResubscription,

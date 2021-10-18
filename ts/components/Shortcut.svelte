@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         registerShortcut(
             (event: KeyboardEvent) => dispatch("action", { originalEvent: event }),
             keyCombination,
-            target as any
-        )
+            target as any,
+        ),
     );
 </script>

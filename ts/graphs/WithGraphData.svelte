@@ -20,25 +20,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function getGraphData(
         search: string,
-        days: number
+        days: number,
     ): Promise<Stats.GraphsResponse> {
         return Stats.GraphsResponse.decode(
-            await postRequest("/_anki/graphData", JSON.stringify({ search, days }))
+            await postRequest("/_anki/graphData", JSON.stringify({ search, days })),
         );
     }
 
     async function getGraphPreferences(): Promise<Stats.GraphPreferences> {
         return Stats.GraphPreferences.decode(
-            await postRequest("/_anki/graphPreferences", JSON.stringify({}))
+            await postRequest("/_anki/graphPreferences", JSON.stringify({})),
         );
     }
 
     async function setGraphPreferences(
-        prefs: PreferencePayload<Stats.GraphPreferences>
+        prefs: PreferencePayload<Stats.GraphPreferences>,
     ): Promise<void> {
         await postRequest(
             "/_anki/setGraphPreferences",
-            Stats.GraphPreferences.encode(prefs).finish()
+            Stats.GraphPreferences.encode(prefs).finish(),
         );
     }
 
@@ -58,9 +58,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setGraphPreferences,
             Stats.GraphPreferences.toObject.bind(Stats.GraphPreferences) as (
                 preferences: Stats.GraphPreferences,
-                options: { defaults: boolean }
-            ) => PreferenceRaw<Stats.GraphPreferences>
-        )
+                options: { defaults: boolean },
+            ) => PreferenceRaw<Stats.GraphPreferences>,
+        ),
     );
 
     $: revlogRange = daysToRevlogRange($days);

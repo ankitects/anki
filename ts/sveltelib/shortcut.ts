@@ -13,7 +13,7 @@ export function shortcut(
         action: (event: KeyboardEvent) => void;
         keyCombination: string;
         target?: EventTarget;
-    }
+    },
 ): { destroy: () => void } {
     const deregister = registerShortcut(action, keyCombination, target ?? document);
 

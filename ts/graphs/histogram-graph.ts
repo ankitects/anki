@@ -31,7 +31,7 @@ export interface HistogramData {
     hoverText: (
         bin: Bin<number, number>,
         cumulative: number,
-        percent: number
+        percent: number,
     ) => string;
     onClick: ((data: Bin<number, number>) => void) | null;
     showArea: boolean;
@@ -43,7 +43,7 @@ export interface HistogramData {
 export function histogramGraph(
     svgElem: SVGElement,
     bounds: GraphBounds,
-    data: HistogramData | null
+    data: HistogramData | null,
 ): void {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
@@ -64,8 +64,8 @@ export function histogramGraph(
                 axisBottom(x)
                     .ticks(7)
                     .tickSizeOuter(0)
-                    .tickFormat((data.xTickFormat ?? null) as any)
-            )
+                    .tickFormat((data.xTickFormat ?? null) as any),
+            ),
         )
         .attr("direction", "ltr");
 
@@ -81,8 +81,8 @@ export function histogramGraph(
             selection.transition(trans).call(
                 axisLeft(y)
                     .ticks(bounds.height / 50)
-                    .tickSizeOuter(0)
-            )
+                    .tickSizeOuter(0),
+            ),
         )
         .attr("direction", "ltr");
 
@@ -118,8 +118,8 @@ export function histogramGraph(
             (update) => update.call(updateBar),
             (remove) =>
                 remove.call((remove) =>
-                    remove.transition(trans).attr("height", 0).attr("y", y(0)!)
-                )
+                    remove.transition(trans).attr("height", 0).attr("y", y(0)!),
+                ),
         );
 
     // cumulative area
@@ -135,8 +135,8 @@ export function histogramGraph(
                 selection.transition(trans).call(
                     axisRight(yAreaScale)
                         .ticks(bounds.height / 50)
-                        .tickSizeOuter(0)
-                )
+                        .tickSizeOuter(0),
+                ),
             )
             .attr("direction", "ltr");
 
@@ -154,12 +154,12 @@ export function histogramGraph(
                         }
                     })
                     .y0(bounds.height - bounds.marginBottom)
-                    .y1((d: any) => yAreaScale(d)!) as any
+                    .y1((d: any) => yAreaScale(d)!) as any,
             );
     }
 
     const hoverData: [Bin<number, number>, number][] = data.bins.map(
-        (bin: Bin<number, number>, index: number) => [bin, areaData[index + 1]]
+        (bin: Bin<number, number>, index: number) => [bin, areaData[index + 1]],
     );
 
     // hover/tooltip

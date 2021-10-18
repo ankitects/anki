@@ -15,7 +15,7 @@ import { nightModeKey, touchDeviceKey, modalsKey } from "../components/context-k
 
 export async function deckOptions(
     target: HTMLDivElement,
-    deckId: number
+    deckId: number,
 ): Promise<DeckOptionsPage> {
     const [info] = await Promise.all([
         getDeckOptionsInfo(deckId),

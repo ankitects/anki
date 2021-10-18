@@ -106,7 +106,7 @@ const isListItem = (element: Element): element is HTMLLIElement =>
 const isParagraph = (element: Element): element is HTMLParamElement =>
     element.tagName === "P";
 const isBlockElement = (
-    element: Element
+    element: Element,
 ): element is HTMLLIElement & HTMLParamElement =>
     isListItem(element) || isParagraph(element);
 

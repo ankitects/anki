@@ -8,7 +8,7 @@ type ContextProperty<T> = [
     // this typing is a lie insofar that calling get
     // outside of the component's context will return undefined
     () => T,
-    () => boolean
+    () => boolean,
 ];
 
 function contextProperty<T>(key: symbol): ContextProperty<T> {

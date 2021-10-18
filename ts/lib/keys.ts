@@ -23,13 +23,13 @@ export const checkModifiers =
             (
                 matches: boolean,
                 currentModifier: Modifier,
-                currentIndex: number
+                currentIndex: number,
             ): boolean =>
                 matches &&
                 (optional.includes(currentModifier as Modifier) ||
                     event.getModifierState(platformModifiers[currentIndex]) ===
                         required.includes(currentModifier)),
-            true
+            true,
         );
     };
 

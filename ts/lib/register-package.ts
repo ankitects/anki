@@ -8,7 +8,7 @@ const prohibit = () => false;
 export function registerPackage(
     name: string,
     entries: Record<string, unknown>,
-    deprecation?: Record<string, string>
+    deprecation?: Record<string, string>,
 ): void {
     const pack = deprecation
         ? new Proxy(entries, {
@@ -36,7 +36,7 @@ function hasPackages(...names: string[]): boolean {
     const libraries = listPackages();
     return names.reduce(
         (accu: boolean, name: string) => accu && libraries.includes(name),
-        true
+        true,
     );
 }
 
@@ -53,5 +53,5 @@ registerPackage(
     },
     {
         [immediatelyDeprecated.name]: "Do not use this function",
-    }
+    },
 );

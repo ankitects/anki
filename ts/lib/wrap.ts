@@ -22,7 +22,7 @@ export function wrapInternal(
     root: DocumentOrShadowRoot,
     front: string,
     back: string,
-    plainText: boolean
+    plainText: boolean,
 ): void {
     const selection = root.getSelection()!;
     const range = selection.getRangeAt(0);
@@ -41,7 +41,7 @@ export function wrapInternal(
     if (
         !span.innerHTML &&
         /* ugly solution: treat <anki-mathjax> differently than other wraps */ !front.includes(
-            "<anki-mathjax"
+            "<anki-mathjax",
         )
     ) {
         moveCursorPastPostfix(selection, back);

@@ -9,7 +9,7 @@ export function appendInParentheses(text: string, appendix: string): string {
 export function execCommand(
     command: string,
     showUI?: boolean | undefined,
-    value?: string | undefined
+    value?: string | undefined,
 ): void {
     document.execCommand(command, showUI, value);
 }

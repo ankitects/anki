@@ -30,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         [histogramData, tableData] = prepareData(
             gatherData(sourceData),
             dispatch,
-            $browserLinksSupported
+            $browserLinksSupported,
         );
     }
 

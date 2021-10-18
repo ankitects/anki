@@ -24,7 +24,7 @@ function formatText(text: string): string {
     for (const keyword of ["type", "fields"]) {
         newText = newText.replace(
             new RegExp(`\\b${keyword.toUpperCase()}\\b`, "g"),
-            keyword
+            keyword,
         );
     }
     return newText;
