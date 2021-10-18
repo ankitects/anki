@@ -17,10 +17,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: if (cardId === null) {
         stats = undefined;
     } else {
-        const sentCardId = cardId;
-        getCardStats(sentCardId).then((s) => {
+        const requestedCardId = cardId;
+        getCardStats(requestedCardId).then((s) => {
             /* Skip if another update has been triggered in the meantime. */
-            if (sentCardId === cardId) {
+            if (requestedCardId === cardId) {
                 stats = s;
             }
         });
