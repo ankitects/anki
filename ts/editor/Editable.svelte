@@ -42,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getDecoratedElements } from "./DecoratedElements.svelte";
     import { getEditingArea } from "./EditingArea.svelte";
     import type { EditingAreaAPI } from "./EditingArea.svelte";
-    import { promiseResolve } from "../lib/promise";
+    import { promiseWithResolver } from "../lib/promise";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { wrapInternal } from "../lib/wrap";
     import { nodeStore } from "../sveltelib/node-store";
@@ -122,7 +122,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         element.attachShadow({ mode: "open" });
     }
 
-    const [editablePromise, editableResolve] = promiseResolve<HTMLElement>();
+    const [editablePromise, editableResolve] = promiseWithResolver<HTMLElement>();
 
     function resolve(editable: HTMLElement): { destroy: () => void } {
         function onPaste(event: Event): void {

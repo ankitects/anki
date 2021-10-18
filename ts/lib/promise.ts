@@ -5,7 +5,7 @@
 @typescript-eslint/no-non-null-assertion: "off",
  */
 
-export function promiseResolve<T>(): [Promise<T>, (value: T) => void] {
+export function promiseWithResolver<T>(): [Promise<T>, (value: T) => void] {
     let resolve: (object: T) => void;
     const promise = new Promise<T>((res) => (resolve = res));
 
