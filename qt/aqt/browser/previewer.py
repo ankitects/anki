@@ -17,9 +17,7 @@ from aqt.qt import (
     QCheckBox,
     QDialog,
     QDialogButtonBox,
-    QIcon,
     QKeySequence,
-    QPixmap,
     QShortcut,
     Qt,
     QTimer,
@@ -30,7 +28,7 @@ from aqt.qt import (
 from aqt.reviewer import replay_audio
 from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
-from aqt.utils import disable_help_button, restoreGeom, saveGeom, tr
+from aqt.utils import disable_help_button, restoreGeom, saveGeom, setWindowIcon, tr
 from aqt.webview import AnkiWebView
 
 LastStateAndMod = tuple[str, int, int]
@@ -52,10 +50,8 @@ class Previewer(QDialog):
         self._parent = parent
         self._close_callback = on_close
         self.mw = mw
-        icon = QIcon()
-        icon.addPixmap(QPixmap("icons:anki.png"), QIcon.Mode.Normal, QIcon.State.Off)
         disable_help_button(self)
-        self.setWindowIcon(icon)
+        setWindowIcon(self)
 
     def card(self) -> Card | None:
         raise NotImplementedError
