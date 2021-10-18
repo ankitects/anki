@@ -28,8 +28,6 @@ esbuild(
     visibility = ["//visibility:public"],
     deps = [
         ":reviewer_ts",
-        "//ts/lib",
-        "@npm//protobufjs",
     ],
 )
 
@@ -39,8 +37,6 @@ esbuild(
     visibility = ["//visibility:public"],
     deps = [
         ":reviewer_ts",
-        "//ts/lib",
-        "@npm//protobufjs",
     ],
 )
 

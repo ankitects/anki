@@ -18,25 +18,29 @@ compile_sass(
     ],
 )
 
+_ts_deps = [
+    "//ts/components",
+    "//ts/lib",
+    "//ts/sveltelib",
+    "@npm//@fluent",
+    "@npm//@popperjs",
+    "@npm//@types/jest",
+    "@npm//bootstrap-icons",
+    "@npm//lodash-es",
+    "@npm//svelte",
+    "@npm//marked",
+]
+
 compile_svelte(
-    deps = [
+    deps = _ts_deps + [
         "//sass/bootstrap",
     ],
 )
 
 typescript(
     name = "index",
-    deps = [
+    deps = _ts_deps + [
         ":svelte",
-        "//ts/components",
-        "//ts/lib",
-        "//ts/sveltelib",
-        "@npm//@fluent",
-        "@npm//@popperjs",
-        "@npm//@types/jest",
-        "@npm//bootstrap-icons",
-        "@npm//lodash-es",
-        "@npm//svelte",
     ],
 )
 
@@ -50,15 +54,9 @@ esbuild(
     output_css = "deck-options.css",
     visibility = ["//visibility:public"],
     deps = [
-        "index",
         ":base_css",
+        ":index",
         ":svelte",
-        "//ts/components",
-        "//ts/lib",
-        "//ts/sveltelib",
-        "@npm//bootstrap",
-        "@npm//marked",
-        "@npm//protobufjs",
     ],
 )
 
