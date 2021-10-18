@@ -46,8 +46,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    const { focusInEditable } = getNoteEditor() as NoteEditorAPI;
-    $: disabled = !$focusInEditable;
+    const { focusInRichText } = getNoteEditor() as NoteEditorAPI;
+    $: disabled = !$focusInRichText;
 </script>
 
 <ButtonGroup {api}>

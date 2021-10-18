@@ -16,11 +16,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Editor from "./Editor.svelte";
 
     import { onMount, tick } from "svelte";
-    import { getEditable } from "../Editable.svelte";
-    import type { EditableContextAPI } from "../Editable.svelte";
+    import { getRichTextInput } from "../RichTextInput.svelte";
+    import type { RichTextInputContextAPI } from "../RichTextInput.svelte";
     import { noop } from "../../lib/functional";
 
-    const { container, api } = getEditable() as EditableContextAPI;
+    const { container, api } = getRichTextInput() as RichTextInputContextAPI;
 
     let activeImage: HTMLImageElement | null = null;
     let allow: () => void;

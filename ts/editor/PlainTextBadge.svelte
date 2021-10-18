@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import * as tr from "../lib/ftl";
     import { onMount } from "svelte";
-    import { codableOn, codableOff } from "./icons";
+    import { htmlOn, htmlOff } from "./icons";
     import { getEditorField } from "./EditorField.svelte";
     import { registerShortcut, getPlatformString } from "../lib/shortcuts";
 
@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let off = false;
 
-    $: icon = off ? codableOff : codableOn;
+    $: icon = off ? htmlOff : htmlOn;
 
     function toggle() {
         off = !off;

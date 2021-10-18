@@ -7,28 +7,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import contextProperty from "../sveltelib/context-property";
 
-    export interface EditableAPI extends EditingInputAPI {
-        name: "editable";
+    export interface RichTextInputAPI extends EditingInputAPI {
+        name: "rich-text";
         moveCaretToEnd(): void;
         toggle(): boolean;
         surround(before: string, after: string): void;
         preventResubscription(): () => void;
     }
 
-    export interface EditableContextAPI {
+    export interface RichTextInputContextAPI {
         styles: CustomStyles;
         container: HTMLElement;
-        api: EditableAPI;
+        api: RichTextInputAPI;
     }
 
-    const key = Symbol("editable");
-    const [set, getEditable, hasEditable] = contextProperty<EditableContextAPI>(key);
+    const key = Symbol("richText");
+    const [set, getRichTextInput, hasRichTextInput] =
+        contextProperty<RichTextInputContextAPI>(key);
 
-    export { getEditable, hasEditable };
+    export { getRichTextInput, hasRichTextInput };
 </script>
 
 <script lang="ts">
-    import EditableStyles from "./EditableStyles.svelte";
+    import RichTextStyles from "./RichTextStyles.svelte";
     import SetContext from "./SetContext.svelte";
     import ContentEditable from "../editable/ContentEditable.svelte";
 
@@ -122,9 +123,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         element.attachShadow({ mode: "open" });
     }
 
-    const [editablePromise, editableResolve] = promiseWithResolver<HTMLElement>();
+    const [richTextPromise, richTextResolve] = promiseWithResolver<HTMLElement>();
 
-    function resolve(editable: HTMLElement): { destroy: () => void } {
+    function resolve(richTextInput: HTMLElement): { destroy: () => void } {
         function onPaste(event: Event): void {
             event.preventDefault();
             bridgeCommand("paste");
@@ -134,16 +135,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bridgeCommand("cutOrCopy");
         }
 
-        editable.addEventListener("paste", onPaste);
-        editable.addEventListener("copy", onCutOrCopy);
-        editable.addEventListener("cut", onCutOrCopy);
-        editableResolve(editable);
+        richTextInput.addEventListener("paste", onPaste);
+        richTextInput.addEventListener("copy", onCutOrCopy);
+        richTextInput.addEventListener("cut", onCutOrCopy);
+        richTextResolve(richTextInput);
 
         return {
             destroy() {
-                editable.removeEventListener("paste", onPaste);
-                editable.removeEventListener("copy", onCutOrCopy);
-                editable.removeEventListener("cut", onCutOrCopy);
+                richTextInput.removeEventListener("paste", onPaste);
+                richTextInput.removeEventListener("copy", onCutOrCopy);
+                richTextInput.removeEventListener("cut", onCutOrCopy);
             },
         };
     }
@@ -153,7 +154,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const { mirror, preventResubscription } = getDOMMirror();
 
     function moveCaretToEnd() {
-        editablePromise.then(caretToEnd);
+        richTextPromise.then(caretToEnd);
     }
 
     const allContexts = getAllContexts();
@@ -174,10 +175,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    export const api: EditableAPI = {
-        name: "editable",
+    export const api: RichTextInputAPI = {
+        name: "rich-text",
         focus() {
-            editablePromise.then((editable) => editable.focus());
+            richTextPromise.then((richText) => richText.focus());
         },
         moveCaretToEnd,
         focusable: !hidden,
@@ -186,8 +187,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return hidden;
         },
         surround(before: string, after: string) {
-            editablePromise.then((editable) =>
-                wrapInternal(editable.getRootNode() as any, before, after, false)
+            richTextPromise.then((richText) =>
+                wrapInternal(richText.getRootNode() as any, before, after, false)
             );
         },
         preventResubscription,
@@ -217,7 +218,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<EditableStyles
+<RichTextStyles
     color="white"
     let:attachToShadow={attachStyles}
     let:promise={stylesPromise}
@@ -233,13 +234,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     />
 
     <div class="editable-widgets">
-        {#await Promise.all([editablePromise, stylesPromise]) then [container, styles]}
+        {#await Promise.all([richTextPromise, stylesPromise]) then [container, styles]}
             <SetContext setter={set} value={{ container, styles, api }}>
                 <slot />
             </SetContext>
         {/await}
     </div>
-</EditableStyles>
+</RichTextStyles>
 
 <style lang="scss">
     .hidden {

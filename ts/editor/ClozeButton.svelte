@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { NoteEditorAPI } from "./OldEditorAdapter.svelte";
 
     const noteEditor = getNoteEditor() as NoteEditorAPI;
-    const { focusInEditable, activeInput } = noteEditor;
+    const { focusInRichText, activeInput } = noteEditor;
 
     const clozePattern = /\{\{c(\d+)::/gu;
     function getCurrentHighestCloze(increment: boolean): number {
@@ -46,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $activeInput?.surround(`{{c${highestCloze}::`, "}}");
     }
 
-    $: disabled = !$focusInEditable;
+    $: disabled = !$focusInRichText;
 </script>
 
 <WithShortcut shortcut="Control+Alt?+Shift+C" let:createShortcut let:shortcutLabel>

@@ -42,11 +42,11 @@ export const arrowIcon =
 
 export { default as alertIcon } from "@mdi/svg/svg/alert.svg";
 
-export { default as editableOn } from "@mdi/svg/svg/eye-outline.svg";
-export { default as editableOff } from "@mdi/svg/svg/eye-off-outline.svg";
+export { default as richTextOn } from "@mdi/svg/svg/eye-outline.svg";
+export { default as richTextOff } from "@mdi/svg/svg/eye-off-outline.svg";
 
-export { default as codableOn } from "@mdi/svg/svg/code-tags.svg";
-export { default as codableOff } from "@mdi/svg/svg/xml.svg";
+export { default as htmlOn } from "@mdi/svg/svg/code-tags.svg";
+export { default as htmlOff } from "@mdi/svg/svg/xml.svg";
 
 export { default as stickyOn } from "@mdi/svg/svg/pin-outline.svg";
 export { default as stickyOff } from "@mdi/svg/svg/pin-off-outline.svg";

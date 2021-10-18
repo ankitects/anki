@@ -4,15 +4,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { EditorFieldAPI } from "./EditorField.svelte";
-    import type { EditableAPI } from "./Editable.svelte";
-    import type { CodableAPI } from "./Codable.svelte";
+    import type { RichTextInputAPI } from "./RichTextInput.svelte";
+    import type { PlainTextInputAPI } from "./PlainTextInput.svelte";
     import contextProperty from "../sveltelib/context-property";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
         currentField: Writable<EditorFieldAPI>;
-        activeInput: Writable<EditableAPI | CodableAPI | null>;
-        focusInEditable: Writable<boolean>;
+        activeInput: Writable<RichTextInputAPI | PlainTextInputAPI | null>;
+        focusInRichText: Writable<boolean>;
     }
 
     const key = Symbol("noteEditor");
@@ -35,13 +35,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Badge from "../components/Badge.svelte";
 
     import DecoratedElements from "./DecoratedElements.svelte";
-    import Editable from "./Editable.svelte";
+    import RichTextInput from "./RichTextInput.svelte";
     import { MathjaxHandle } from "./mathjax-overlay";
     import { ImageHandle } from "./image-overlay";
-    import Codable from "./Codable.svelte";
+    import PlainTextInput from "./PlainTextInput.svelte";
 
-    import EditableBadge from "./EditableBadge.svelte";
-    import CodableBadge from "./CodableBadge.svelte";
+    import RichTextBadge from "./RichTextBadge.svelte";
+    import PlainTextBadge from "./PlainTextBadge.svelte";
     import StickyBadge from "./StickyBadge.svelte";
 
     import { onMount, onDestroy } from "svelte";
@@ -95,14 +95,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let fonts: [string, number, boolean][] = [];
-    let editablesHidden: boolean[] = [];
-    let codablesHidden: boolean[] = [];
+    let richTextsHidden: boolean[] = [];
+    let plainTextsHidden: boolean[] = [];
 
     export function setFonts(fs: [string, number, boolean][]): void {
         fonts = fs;
 
-        editablesHidden = fonts.map(() => false);
-        codablesHidden = fonts.map(() => true);
+        richTextsHidden = fonts.map(() => false);
+        plainTextsHidden = fonts.map(() => true);
     }
 
     let focusTo: number = 0;
@@ -194,33 +194,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const first = elements[0];
 
         if (first.shadowRoot) {
-            const editable = first.shadowRoot.lastElementChild! as HTMLElement;
-            editable.focus();
+            const richTextInput = first.shadowRoot.lastElementChild! as HTMLElement;
+            richTextInput.focus();
             return true;
         }
 
         return false;
     }
 
-    let editables: Editable[] = [];
-    $: editables = editables.filter(Boolean);
+    let richTextInputs: RichTextInput[] = [];
+    $: richTextInputs = richTextInputs.filter(Boolean);
 
-    let codables: Codable[] = [];
-    $: codables = codables.filter(Boolean);
+    let plainTextInputs: PlainTextInput[] = [];
+    $: plainTextInputs = plainTextInputs.filter(Boolean);
 
     let editorFields: EditorField[] = [];
     $: fieldApis = editorFields.filter(Boolean).map((field) => field.api);
 
     const currentField = writable<EditorFieldAPI | null>(null);
-    const activeInput = writable<EditableAPI | CodableAPI | null>(null);
-    const focusInEditable = writable<boolean>(false);
+    const activeInput = writable<RichTextInputAPI | PlainTextInputAPI | null>(null);
+    const focusInRichText = writable<boolean>(false);
 
     export const api = set(
         Object.create(
             {
                 currentField,
                 activeInput,
-                focusInEditable,
+                focusInRichText,
             },
             {
                 fields: { get: () => fieldApis },
@@ -273,8 +273,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         : "transparent"}
                 >
                     <svelte:fragment slot="field-state">
-                        <EditableBadge bind:off={editablesHidden[index]} />
-                        <CodableBadge bind:off={codablesHidden[index]} />
+                        <RichTextBadge bind:off={richTextsHidden[index]} />
+                        <PlainTextBadge bind:off={plainTextsHidden[index]} />
                         {#if stickies}
                             <StickyBadge active={stickies[index]} {index} />
                         {/if}
@@ -282,33 +282,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
                     <svelte:fragment slot="editing-inputs">
                         <DecoratedElements>
-                            <Editable
-                                hidden={editablesHidden[index]}
+                            <RichTextInput
+                                hidden={richTextsHidden[index]}
                                 on:focusin={() => {
-                                    $focusInEditable = true;
-                                    $activeInput = editables[index].api;
+                                    $focusInRichText = true;
+                                    $activeInput = richTextInputs[index].api;
                                 }}
                                 on:focusout={() => {
-                                    $focusInEditable = false;
+                                    $focusInRichText = false;
                                     $activeInput = null;
                                     saveFieldNow();
                                 }}
-                                bind:this={editables[index]}
+                                bind:this={richTextInputs[index]}
                             >
                                 <ImageHandle />
                                 <MathjaxHandle />
-                            </Editable>
+                            </RichTextInput>
 
-                            <Codable
-                                hidden={codablesHidden[index]}
+                            <PlainTextInput
+                                hidden={plainTextsHidden[index]}
                                 on:focusin={() => {
-                                    $activeInput = codables[index].api;
+                                    $activeInput = plainTextInputs[index].api;
                                 }}
                                 on:focusout={() => {
                                     $activeInput = null;
                                     saveFieldNow();
                                 }}
-                                bind:this={codables[index]}
+                                bind:this={plainTextInputs[index]}
                             />
                         </DecoratedElements>
                     </svelte:fragment>

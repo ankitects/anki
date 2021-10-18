@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import Badge from "../components/Badge.svelte";
-    import { editableOn, editableOff } from "./icons";
+    import { richTextOn, richTextOff } from "./icons";
 
     export let off: boolean;
 
@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         off = !off;
     }
 
-    $: icon = off ? editableOff : editableOn;
+    $: icon = off ? richTextOff : richTextOn;
 </script>
 
 <span on:click|stopPropagation={toggle}>

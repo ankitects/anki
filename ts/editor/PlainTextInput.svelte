@@ -5,8 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import type { EditingInputAPI } from "./EditingArea.svelte";
 
-    export interface CodableAPI extends EditingInputAPI {
-        name: "codable";
+    export interface PlainTextInputAPI extends EditingInputAPI {
+        name: "plain-text";
         moveCaretToEnd(): void;
         toggle(): boolean;
         surround(before: string, after: string): void;
@@ -91,7 +91,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export const api = {
-        name: "codable",
+        name: "plain-text",
         focus,
         focusable: !hidden,
         moveCaretToEnd,
@@ -100,7 +100,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return hidden;
         },
         surround,
-    } as CodableAPI;
+    } as PlainTextInputAPI;
 
     function pushUpdate(): void {
         api.focusable = !hidden;

@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { paperclipIcon, micIcon, functionIcon } from "./icons";
 
     export let api = {};
-    const { focusInEditable, activeInput } = getNoteEditor() as NoteEditorAPI;
+    const { focusInRichText, activeInput } = getNoteEditor() as NoteEditorAPI;
 
     function onAttachment(): void {
         bridgeCommand("attach");
@@ -31,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bridgeCommand("record");
     }
 
-    $: disabled = !$focusInEditable;
+    $: disabled = !$focusInRichText;
 </script>
 
 <ButtonGroup {api}>
