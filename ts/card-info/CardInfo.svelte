@@ -12,10 +12,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let cardId: number | null = null;
     export let includeRevlog: boolean = true;
 
-    let stats: Stats.CardStatsResponse | undefined;
+    let stats: Stats.CardStatsResponse | null = null;
 
     $: if (cardId === null) {
-        stats = undefined;
+        stats = null;
     } else {
         const requestedCardId = cardId;
         getCardStats(requestedCardId).then((s) => {
@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-{#if stats}
+{#if stats !== null}
     <div class="container">
         <div>
             <CardStats {stats} />
