@@ -2,6 +2,15 @@ load("@rules_python//python:defs.bzl", "py_binary")
 load("@py_deps//:requirements.bzl", "requirement")
 load(":binary.bzl", "pip_binary")
 
+# e.g. bazel run python
+alias(
+    name = "python",
+    actual = "@python//:python",
+)
+
+# e.g. bazel run python:pip
+pip_binary(name = "pip")
+
 pip_binary(name = "black")
 
 pip_binary(name = "isort")
