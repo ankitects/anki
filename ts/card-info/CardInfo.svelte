@@ -9,12 +9,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import CardStats from "./CardStats.svelte";
     import Revlog from "./Revlog.svelte";
 
-    export let cardId: number | undefined = undefined;
+    export let cardId: number | null = null;
     export let includeRevlog: boolean = true;
 
     let stats: Stats.CardStatsResponse | undefined;
 
-    $: if (cardId === undefined) {
+    $: if (cardId === null) {
         stats = undefined;
     } else {
         const sentCardId = cardId;

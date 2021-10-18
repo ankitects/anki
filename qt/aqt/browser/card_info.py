@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import Callable
 
 import aqt
@@ -69,8 +70,9 @@ class CardInfoDialog(QDialog):
         self.update_card(card_id)
 
     def update_card(self, card_id: CardId | None) -> None:
-        val = "undefined" if card_id is None else card_id
-        self.web.eval(f"cardInfo.then((c) => c.$set({{ cardId: {val} }}));")
+        self.web.eval(
+            f"cardInfo.then((c) => c.$set({{ cardId: {json.dumps(card_id)} }}));"
+        )
 
     def reject(self) -> None:
         if self._on_close:
