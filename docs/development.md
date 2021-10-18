@@ -203,11 +203,13 @@ Recording also requires `lame` to be in your system path.
 If you get errors with @npm and node_modules in the message, try deleting the
 node_modules folder.
 
-Unlike the old Make system, a "clean build" should almost never be required
-unless you are debugging issues with the build system. But if you need to get
-things to a fresh state, you can run `bazel clean --expunge`. After doing so,
-make sure you remove the node_modules folder, or subsequent build commands
-will fail with a "no such file or directory node_modules/anki" message.
+On Windows, you may run into 'could not write file' messages when TypeScript
+files are renamed, as the old build products are not being cleaned up correctly.
+You can either remove the problem folder (eg
+bazel-out/x64_windows-fastbuild/bin/ts/projectname), or do a full clean.
+
+To do a full clean, use a `bazel clean --expunge`, and then remove the node_modules
+folder.
 
 ## Tracing build problems
 

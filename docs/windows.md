@@ -25,9 +25,9 @@ After installation completes, run msys2, and run the following command:
 $ pacman -S git
 ```
 
-**Bazelisk**:
+**Bazel**:
 
-Use Start>Run to open PowerShell. Create a folder to store Bazelisk
+Use Start>Run to open PowerShell. Create a folder to store Bazel
 and its working data. Anki's build scripts expect to find it in \bazel on the same drive as the source folder.
 
 ```
@@ -60,10 +60,6 @@ This will build Anki and run it in place.
 
 The first build will take a while, as it downloads and builds a bunch of
 dependencies. When the build is complete, Anki will automatically start.
-
-The Javascript build code is currently a bit flaky, so the initial
-build may fail with an error. If you get an error when running/building,
-try repeating the command once or twice - it should pick up where it left off.
 
 To play and record audio, mpv.exe and lame.exe must be on the path.
 
