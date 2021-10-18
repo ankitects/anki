@@ -2,12 +2,12 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<div class="multi-root-editor">
+<div class="fields-editor">
     <slot />
 </div>
 
 <style lang="scss">
-    .multi-root-editor {
+    .fields-editor {
         position: relative;
         display: flex;
         flex-direction: column;

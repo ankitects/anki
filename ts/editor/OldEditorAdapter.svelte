@@ -83,7 +83,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             newStore.subscribe((value) => updateField(i, value));
         }
 
-        for (let i = fieldStores.length; i > newFieldNames.length; i++) {
+        for (
+            let i = fieldStores.length;
+            i > newFieldNames.length;
+            i = fieldStores.length
+        ) {
             fieldStores.pop();
         }
 
