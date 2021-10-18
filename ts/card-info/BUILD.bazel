@@ -16,15 +16,18 @@ compile_sass(
     ],
 )
 
-compile_svelte()
+_ts_deps = [
+    "//ts/components",
+    "//ts/lib",
+    "@npm//@fluent",
+]
+
+compile_svelte(deps = _ts_deps)
 
 typescript(
     name = "index",
-    deps = [
+    deps = _ts_deps + [
         ":svelte",
-        "//ts/components",
-        "//ts/lib",
-        "@npm//@fluent",
     ],
 )
 

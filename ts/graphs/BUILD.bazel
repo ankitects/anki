@@ -15,20 +15,25 @@ compile_sass(
     ],
 )
 
-compile_svelte()
+_ts_deps = [
+    "//ts/lib",
+    "//ts/sveltelib",
+    "@npm//@fluent",
+    "@npm//@types/d3",
+    "@npm//@types/lodash",
+    "@npm//d3",
+    "@npm//lodash-es",
+    "@npm//svelte",
+]
+
+compile_svelte(
+    deps = _ts_deps,
+)
 
 typescript(
     name = "index",
-    deps = [
+    deps = _ts_deps + [
         ":svelte",
-        "//ts/lib",
-        "//ts/sveltelib",
-        "@npm//@fluent",
-        "@npm//@types/d3",
-        "@npm//@types/lodash",
-        "@npm//d3",
-        "@npm//lodash-es",
-        "@npm//svelte",
     ],
 )
 
