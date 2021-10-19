@@ -11,17 +11,28 @@ Patches and aliases that provide a PyQt5 → PyQt6 compatibility shim for add-on
 import sys
 
 import PyQt6.QtCore
+import PyQt6.QtGui
+import PyQt6.QtWidgets
 
 # Globally alias PyQt5 to PyQt6 ####
 
 sys.modules["PyQt5"] = PyQt6
-# Need to register QtCore early as sip otherwise raises an error about PyQt6.QtCore
-# already being registered
+# Need to alias QtCore explicitly as sip otherwise complains about repeat registration
 sys.modules["PyQt5.QtCore"] = PyQt6.QtCore
+# Need to alias QtWidgets and QtGui explicitly to facilitate patches
+sys.modules["PyQt5.QtGui"] = PyQt6.QtGui
+sys.modules["PyQt5.QtWidgets"] = PyQt6.QtWidgets
 
 # Globally alias removed PyQt6.Qt to PyQt6.QtCore.Qt ####
 
 sys.modules["PyQt6.Qt"] = PyQt6.QtCore.Qt
+
+# Alias classes shifted between QtWidgets and QtGui ####
+
+PyQt6.QtWidgets.QAction = PyQt6.QtGui.QAction
+PyQt6.QtWidgets.QActionGroup = PyQt6.QtGui.QActionGroup
+
+from PyQt5.QtWidgets import QAction
 
 # Patch unscoped enums back in, aliasing them to scoped enums ####
 
