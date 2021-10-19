@@ -20,6 +20,8 @@ try:
     from PyQt6.QtWebEngineCore import *
     from PyQt6.QtWebEngineWidgets import *
     from PyQt6.QtWidgets import *
+    # provide compatibility shims for PyQt5 add-ons:
+    from . import qt6compat
 except:
     from PyQt5.QtCore import *  # type: ignore
     from PyQt5.QtGui import *  # type: ignore
