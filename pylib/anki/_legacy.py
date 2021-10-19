@@ -44,15 +44,21 @@ class DeprecatedNamesMixin:
     # attributes on the consuming class
 
     _deprecated_aliases: dict[str, str] = {}
+    _deprecated_attributes: dict[str, str] = {}
 
     @no_type_check
     def __getattr__(self, name: str) -> Any:
-        remapped = self._deprecated_aliases.get(name) or stringcase.snakecase(name)
-        if remapped == name:
-            raise AttributeError
+        if replacement := self._deprecated_attributes.get(name):
+            remapped = "_legacy_" + stringcase.snakecase(name)
+        else:
+            replacement = remapped = self._deprecated_aliases.get(
+                name
+            ) or stringcase.snakecase(name)
+            if remapped == name:
+                raise AttributeError
 
         out = getattr(self, remapped)
-        _print_warning(f"'{name}'", f"please use '{remapped}'")
+        _print_warning(f"'{name}'", f"please use '{replacement}'")
 
         return out
 
@@ -66,6 +72,19 @@ class DeprecatedNamesMixin:
         are valid symbols, and we can't get a variable's name easily.
         """
         cls._deprecated_aliases = {k: _target_to_string(v) for k, v in kwargs.items()}
+
+    @no_type_check
+    @classmethod
+    def register_deprecated_attributes(cls, **kwargs: DeprecatedAliasTarget) -> None:
+        """Manually add deprecated attributes without exact substitutes.
+
+        Given `def oldFunc(args): return new_func(additionalLogic(args))`,
+        rename `oldFunc` to `_legacy_old_func` and call
+        `register_deprecated_attributes(oldFunc=new_func)`.
+        """
+        cls._deprecated_attributes = {
+            k: _target_to_string(v) for k, v in kwargs.items()
+        }
 
 
 def deprecated(replaced_by: Callable | None = None, info: str = "") -> Callable:
