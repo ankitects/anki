@@ -19,12 +19,16 @@ sys.modules["PyQt5"] = PyQt6
 # already being registered
 sys.modules["PyQt5.QtCore"] = PyQt6.QtCore
 
+# Globally alias removed PyQt6.Qt to PyQt6.QtCore.Qt ####
+
+sys.modules["PyQt6.Qt"] = PyQt6.QtCore.Qt
+
+# Patch unscoped enums back in, aliasing them to scoped enums ####
+
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from PyQt6.QtWebEngineCore import *
-
-# Patch unscoped enums back in, aliasing them to scoped enums ####
 
 # This is the subset of enums used in all public Anki add-ons as of 2021-10-19.
 # Please note that this list is likely to be incomplete as the process used
@@ -36,7 +40,7 @@ from PyQt6.QtWebEngineCore import *
 # Important: These patches are not meant to provide compatibility for all
 # add-ons going forward, but simply to maintain support with already
 # existing add-ons. Add-on authors should take heed to use scoped enums
-# for any future code changes.
+# in any future code changes.
 
 # QtCore
 
