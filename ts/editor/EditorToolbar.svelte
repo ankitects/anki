@@ -14,6 +14,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         resetAllState(false);
     }
 
+    export interface EditorToolbarAPI {
+        toolbar: any;
+        notetypeButtons: any;
+        formatInlineButtons: any;
+        formatBlockButtons: any;
+        colorButtons: any;
+        templateButtons: any;
+    }
+
     /* Our dynamic components */
     import AddonButtons from "./AddonButtons.svelte";
     import PreviewButton from "./PreviewButton.svelte";
@@ -41,12 +50,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let textColor: string;
     export let highlightColor: string;
 
-    export const toolbar = {};
-    export const notetypeButtons = {};
-    export const formatInlineButtons = {};
-    export const formatBlockButtons = {};
-    export const colorButtons = {};
-    export const templateButtons = {};
+    const toolbar = {};
+    const notetypeButtons = {};
+    const formatInlineButtons = {};
+    const formatBlockButtons = {};
+    const colorButtons = {};
+    const templateButtons = {};
+
+    export const api = {
+        toolbar,
+        notetypeButtons,
+        formatInlineButtons,
+        formatBlockButtons,
+        colorButtons,
+        templateButtons,
+    };
 </script>
 
 <StickyHeader>
