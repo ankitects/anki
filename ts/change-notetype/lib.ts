@@ -12,24 +12,24 @@ import { isEqual } from "lodash-es";
 
 export async function getNotetypeNames(): Promise<Notetypes.NotetypeNames> {
     return Notetypes.NotetypeNames.decode(
-        await postRequest("/_anki/notetypeNames", "")
+        await postRequest("/_anki/notetypeNames", ""),
     );
 }
 
 export async function getChangeNotetypeInfo(
     oldNotetypeId: number,
-    newNotetypeId: number
+    newNotetypeId: number,
 ): Promise<Notetypes.ChangeNotetypeInfo> {
     return Notetypes.ChangeNotetypeInfo.decode(
         await postRequest(
             "/_anki/changeNotetypeInfo",
-            JSON.stringify({ oldNotetypeId, newNotetypeId })
-        )
+            JSON.stringify({ oldNotetypeId, newNotetypeId }),
+        ),
     );
 }
 
 export async function changeNotetype(
-    input: Notetypes.ChangeNotetypeRequest
+    input: Notetypes.ChangeNotetypeRequest,
 ): Promise<void> {
     const data: Uint8Array = Notetypes.ChangeNotetypeRequest.encode(input).finish();
     await postRequest("/_anki/changeNotetype", data);
@@ -98,7 +98,7 @@ export class ChangeNotetypeInfoWrapper {
         const usedEntries = new Set(this.mapForContext(ctx).filter((v) => v !== null));
         const oldNames = this.getOldNames(ctx);
         const unusedIdxs = [...Array(oldNames.length).keys()].filter(
-            (idx) => !usedEntries.has(idx)
+            (idx) => !usedEntries.has(idx),
         );
         const unusedNames = unusedIdxs.map((idx) => oldNames[idx]);
         unusedNames.sort();
@@ -150,7 +150,7 @@ export class ChangeNotetypeState {
 
     constructor(
         notetypes: Notetypes.NotetypeNames,
-        info: Notetypes.ChangeNotetypeInfo
+        info: Notetypes.ChangeNotetypeInfo,
     ) {
         this.info_ = new ChangeNotetypeInfoWrapper(info);
         this.info = readable(this.info_, (set) => {
@@ -168,7 +168,7 @@ export class ChangeNotetypeState {
         this.notetypesSetter(this.buildNotetypeList());
         const newInfo = await getChangeNotetypeInfo(
             this.info_.input().oldNotetypeId,
-            this.info_.input().newNotetypeId
+            this.info_.input().newNotetypeId,
         );
 
         this.info_ = new ChangeNotetypeInfoWrapper(newInfo);
@@ -215,7 +215,7 @@ export class ChangeNotetypeState {
                     idx,
                     name: entry.name,
                     current: entry.id === currentId,
-                } as NotetypeListEntry)
+                } as NotetypeListEntry),
         );
     }
 }

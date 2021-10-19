@@ -43,7 +43,7 @@ let langs: string[] = [];
 
 export function toLocaleString(
     date: Date,
-    options?: Intl.DateTimeFormatOptions
+    options?: Intl.DateTimeFormatOptions,
 ): string {
     return date.toLocaleDateString(langs, options);
 }
@@ -51,7 +51,7 @@ export function toLocaleString(
 export function localeCompare(
     first: string,
     second: string,
-    options?: Intl.CollatorOptions
+    options?: Intl.CollatorOptions,
 ): number {
     return first.localeCompare(second, langs, options);
 }

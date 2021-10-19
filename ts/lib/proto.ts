@@ -21,7 +21,7 @@ export function unwrapOptionalNumber(
         | Generic.OptionalInt32
         | Generic.OptionalUInt32
         | null
-        | undefined
+        | undefined,
 ): number | undefined {
     if (msg && msg !== null) {
         if (msg.val !== null) {

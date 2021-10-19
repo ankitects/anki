@@ -65,7 +65,7 @@ export function gatherData(data: Stats.GraphsResponse): GraphData {
             continue;
         }
         const day = Math.ceil(
-            ((review.id as number) / 1000 - data.nextDayAtSecs) / 86400
+            ((review.id as number) / 1000 - data.nextDayAtSecs) / 86400,
         );
         const countEntry =
             reviewCount.get(day) ?? reviewCount.set(day, { ...empty }).get(day)!;
@@ -131,7 +131,7 @@ export function renderReviews(
     bounds: GraphBounds,
     sourceData: GraphData,
     range: GraphRange,
-    showTime: boolean
+    showTime: boolean,
 ): TableDatum[] {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
@@ -178,7 +178,7 @@ export function renderReviews(
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
     svg.select<SVGGElement>(".x-ticks")
         .call((selection) =>
-            selection.transition(trans).call(axisBottom(x).ticks(7).tickSizeOuter(0))
+            selection.transition(trans).call(axisBottom(x).ticks(7).tickSizeOuter(0)),
         )
         .attr("direction", "ltr");
 
@@ -207,8 +207,8 @@ export function renderReviews(
                 axisLeft(y)
                     .ticks(bounds.height / 50)
                     .tickSizeOuter(0)
-                    .tickFormat(yTickFormat as any)
-            )
+                    .tickFormat(yTickFormat as any),
+            ),
         )
         .attr("direction", "ltr");
 
@@ -222,19 +222,19 @@ export function renderReviews(
     const cappedRange = scaleLinear().range([0.3, 0.5]);
     const shiftedRange = scaleLinear().range([0.4, 0.7]);
     const darkerGreens = scaleSequential((n) =>
-        interpolateGreens(shiftedRange(n)!)
+        interpolateGreens(shiftedRange(n)!),
     ).domain(x.domain() as any);
     const lighterGreens = scaleSequential((n) =>
-        interpolateGreens(cappedRange(n)!)
+        interpolateGreens(cappedRange(n)!),
     ).domain(x.domain() as any);
     const reds = scaleSequential((n) => interpolateReds(cappedRange(n)!)).domain(
-        x.domain() as any
+        x.domain() as any,
     );
     const oranges = scaleSequential((n) => interpolateOranges(cappedRange(n)!)).domain(
-        x.domain() as any
+        x.domain() as any,
     );
     const purples = scaleSequential((n) => interpolatePurples(cappedRange(n)!)).domain(
-        x.domain() as any
+        x.domain() as any,
     );
 
     function binColor(idx: BinIndex): ScaleSequential<string> {
@@ -317,8 +317,8 @@ export function renderReviews(
                 (update) => update.call((d) => updateBar(d, barNum)),
                 (remove) =>
                     remove.call((remove) =>
-                        remove.transition(trans).attr("height", 0).attr("y", y(0)!)
-                    )
+                        remove.transition(trans).attr("height", 0).attr("y", y(0)!),
+                    ),
             );
     }
 
@@ -337,8 +337,8 @@ export function renderReviews(
                     axisRight(yAreaScale)
                         .ticks(bounds.height / 50)
                         .tickFormat(yTickFormat as any)
-                        .tickSizeOuter(0)
-                )
+                        .tickSizeOuter(0),
+                ),
             )
             .attr("direction", "ltr");
 
@@ -356,12 +356,12 @@ export function renderReviews(
                         }
                     })
                     .y0(bounds.height - bounds.marginBottom)
-                    .y1((d: any) => yAreaScale(d)!) as any
+                    .y1((d: any) => yAreaScale(d)!) as any,
             );
     }
 
     const hoverData: [Bin<number, number>, number][] = bins.map(
-        (bin: Bin<number, number>, index: number) => [bin, areaData[index + 1]]
+        (bin: Bin<number, number>, index: number) => [bin, areaData[index + 1]],
     );
 
     // hover/tooltip

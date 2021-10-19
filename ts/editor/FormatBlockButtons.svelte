@@ -9,12 +9,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonDropdown from "../components/ButtonDropdown.svelte";
     import Item from "../components/Item.svelte";
     import WithDropdown from "../components/WithDropdown.svelte";
-    import OnlyEditable from "./OnlyEditable.svelte";
     import CommandIconButton from "./CommandIconButton.svelte";
 
     import * as tr from "../lib/ftl";
     import { getListItem } from "../lib/dom";
-    import { getCurrentField, execCommand } from "./helpers";
+    import { execCommand } from "./helpers";
     import {
         ulIcon,
         olIcon,
@@ -26,12 +25,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         indentIcon,
         outdentIcon,
     } from "./icons";
+    import { getNoteEditor } from "./OldEditorAdapter.svelte";
 
     export let api = {};
 
     function outdentListItem() {
-        const currentField = getCurrentField();
-        if (getListItem(currentField!.editableContainer.shadowRoot!)) {
+        if (getListItem(document.activeElement!.shadowRoot!)) {
             execCommand("outdent");
         } else {
             alert("Indent/unindent currently only works with lists.");
@@ -39,13 +38,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function indentListItem() {
-        const currentField = getCurrentField();
-        if (getListItem(currentField!.editableContainer.shadowRoot!)) {
+        if (getListItem(document.activeElement!.shadowRoot!)) {
             execCommand("indent");
         } else {
             alert("Indent/unindent currently only works with lists.");
         }
     }
+
+    const { focusInRichText } = getNoteEditor();
+    $: disabled = !$focusInRichText;
 </script>
 
 <ButtonGroup {api}>
@@ -67,14 +68,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <ButtonGroupItem>
         <WithDropdown let:createDropdown>
-            <OnlyEditable let:disabled>
-                <IconButton
-                    {disabled}
-                    on:mount={(event) => createDropdown(event.detail.button)}
-                >
-                    {@html listOptionsIcon}
-                </IconButton>
-            </OnlyEditable>
+            <IconButton
+                {disabled}
+                on:mount={(event) => createDropdown(event.detail.button)}
+            >
+                {@html listOptionsIcon}
+            </IconButton>
 
             <ButtonDropdown>
                 <Item id="justify">
@@ -120,27 +119,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <Item id="indentation">
                     <ButtonGroup>
                         <ButtonGroupItem>
-                            <OnlyEditable let:disabled>
-                                <IconButton
-                                    on:click={outdentListItem}
-                                    tooltip={tr.editingOutdent()}
-                                    {disabled}
-                                >
-                                    {@html outdentIcon}
-                                </IconButton>
-                            </OnlyEditable>
+                            <IconButton
+                                on:click={outdentListItem}
+                                tooltip={tr.editingOutdent()}
+                                {disabled}
+                            >
+                                {@html outdentIcon}
+                            </IconButton>
                         </ButtonGroupItem>
 
                         <ButtonGroupItem>
-                            <OnlyEditable let:disabled>
-                                <IconButton
-                                    on:click={indentListItem}
-                                    tooltip={tr.editingIndent()}
-                                    {disabled}
-                                >
-                                    {@html indentIcon}
-                                </IconButton>
-                            </OnlyEditable>
+                            <IconButton
+                                on:click={indentListItem}
+                                tooltip={tr.editingIndent()}
+                                {disabled}
+                            >
+                                {@html indentIcon}
+                            </IconButton>
                         </ButtonGroupItem>
                     </ButtonGroup>
                 </Item>

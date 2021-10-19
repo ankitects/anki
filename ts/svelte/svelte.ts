@@ -8,22 +8,21 @@ import { svelte2tsx } from "svelte2tsx";
 import preprocess from "svelte-preprocess";
 import { basename } from "path";
 import * as ts from "typescript";
-import * as svelte from "svelte/compiler.js";
+import * as svelte from "svelte/compiler";
 
-let parsedCommandLine: ts.ParsedCommandLine = {
+const parsedCommandLine: ts.ParsedCommandLine = {
     fileNames: [],
     errors: [],
     options: {
         jsx: ts.JsxEmit.Preserve,
         declaration: true,
         emitDeclarationOnly: true,
-        skipLibCheck: true,
+        // noEmitOnError: true,
+        paths: {
+            "*": ["*", "external/npm/node_modules/*"],
+        },
     },
 };
-
-// We avoid hitting the filesystem for ts/d.ts files after initial startup - the
-// .ts file we generate can be injected directly into our cache, and Bazel
-// should restart us if the Svelte or TS typings change.
 
 interface FileContent {
     text: string;
@@ -43,17 +42,17 @@ function getFileContent(path: string): FileContent {
     return content;
 }
 
-function updateFileContent(path: string, text: string): void {
-    let content = fileContent.get(path);
+function updateFileContent(input: InputFile): void {
+    let content = fileContent.get(input.path);
     if (content) {
-        content.text = text;
+        content.text = input.data;
         content.version += 1;
     } else {
         content = {
-            text,
+            text: input.data,
             version: 0,
         };
-        fileContent.set(path, content);
+        fileContent.set(input.path, content);
     }
 }
 
@@ -65,7 +64,6 @@ const languageServiceHost: ts.LanguageServiceHost = {
         return getFileContent(path).version.toString();
     },
     getScriptSnapshot: (path: string): ts.IScriptSnapshot | undefined => {
-        // if (!ts.sys.fileExists(fileName)) {
         const text = getFileContent(path).text;
         return {
             getText: (start: number, end: number) => {
@@ -78,7 +76,7 @@ const languageServiceHost: ts.LanguageServiceHost = {
             },
             getLength: () => text.length,
             getChangeRange: (
-                oldSnapshot: ts.IScriptSnapshot
+                _oldSnapshot: ts.IScriptSnapshot,
             ): ts.TextChangeRange | undefined => {
                 return undefined;
             },
@@ -90,14 +88,29 @@ const languageServiceHost: ts.LanguageServiceHost = {
 
 const languageService = ts.createLanguageService(languageServiceHost);
 
-function compile(tsPath: string, tsLibs: string[]) {
-    parsedCommandLine.fileNames = [tsPath, ...tsLibs];
+async function emitTypings(svelte: SvelteTsxFile[], deps: InputFile[]): Promise<void> {
+    const allFiles = [...svelte, ...deps];
+    allFiles.forEach(updateFileContent);
+    parsedCommandLine.fileNames = allFiles.map((i) => i.path);
     const program = languageService.getProgram()!;
     const tsHost = ts.createCompilerHost(parsedCommandLine.options);
     const createdFiles = {};
-    tsHost.writeFile = (fileName, contents) => (createdFiles[fileName] = contents);
-    program.emit(undefined /* all files */, tsHost.writeFile);
-    return createdFiles[parsedCommandLine.fileNames[0].replace(".tsx", ".d.ts")];
+    const cwd = ts.sys.getCurrentDirectory().replace(/\\/g, "/");
+    tsHost.writeFile = (fileName, contents) => {
+        // tsc makes some paths absolute for some reason
+        if (fileName.startsWith(cwd)) {
+            fileName = fileName.substring(cwd.length + 1);
+        }
+        createdFiles[fileName] = contents;
+    };
+    const result = program.emit(undefined /* all files */, tsHost.writeFile);
+    // for (const diag of result.diagnostics) {
+    //     console.log(diag.messageText);
+    // }
+
+    for (const file of svelte) {
+        await writeFile(file.realDtsPath, createdFiles[file.virtualDtsPath]);
+    }
 }
 
 function writeFile(file, data): Promise<void> {
@@ -124,28 +137,10 @@ function readFile(file) {
     });
 }
 
-async function writeDts(tsPath, dtsPath, tsLibs) {
-    const dtsSource = compile(tsPath, tsLibs);
-    await writeFile(dtsPath, dtsSource);
-}
-
-function writeTs(svelteSource, sveltePath, tsPath): void {
-    let tsSource = svelte2tsx(svelteSource, {
-        filename: sveltePath,
-        isTsFile: true,
-        mode: "dts",
-    });
-    let codeLines = tsSource.code.split("\n");
-    updateFileContent(tsPath, codeLines.join("\n"));
-}
-
-async function writeJs(
-    source: string,
-    inputFilename: string,
-    outputJsPath: string,
-    outputCssPath: string,
+async function compileSingleSvelte(
+    input: SvelteInput,
     binDir: string,
-    genDir: string
+    genDir: string,
 ): Promise<void> {
     const preprocessOptions = preprocess({
         scss: {
@@ -162,14 +157,14 @@ async function writeJs(
     });
 
     try {
-        const processed = await svelte.preprocess(source, preprocessOptions, {
-            filename: inputFilename,
+        const processed = await svelte.preprocess(input.data, preprocessOptions, {
+            filename: input.path,
         });
         const result = svelte.compile(processed.toString!(), {
             format: "esm",
             css: false,
             generate: "dom",
-            filename: outputJsPath,
+            filename: input.mjsPath,
         });
         // warnings are an error
         if (result.warnings.length > 0) {
@@ -177,27 +172,123 @@ async function writeJs(
         }
         // write out the css file
         const outputCss = result.css.code ?? "";
-        await writeFile(outputCssPath, outputCss);
+        await writeFile(input.cssPath, outputCss);
         // if it was non-empty, prepend a reference to it in the js file, so that
         // it's included in the bundled .css when bundling
         const outputSource =
-            (outputCss ? `import "./${basename(outputCssPath)}";` : "") +
+            (outputCss ? `import "./${basename(input.cssPath)}";` : "") +
             result.js.code;
-        await writeFile(outputJsPath, outputSource);
+        await writeFile(input.mjsPath, outputSource);
     } catch (err) {
         console.log(`compile failed: ${err}`);
         return;
     }
 }
 
-async function compileSvelte(args) {
-    const [sveltePath, mjsPath, dtsPath, cssPath, binDir, genDir, ...tsLibs] = args;
-    const svelteSource = (await readFile(sveltePath)) as string;
+interface Args {
+    binDir: string;
+    genDir: string;
+    svelteFiles: SvelteInput[];
+    dependencies: InputFile[];
+}
 
-    const mockTsPath = sveltePath + ".tsx";
-    writeTs(svelteSource, sveltePath, mockTsPath);
-    await writeDts(mockTsPath, dtsPath, tsLibs);
-    await writeJs(svelteSource, sveltePath, mjsPath, cssPath, binDir, genDir);
+interface InputFile {
+    path: string;
+    data: string;
+}
+
+interface SvelteInput extends InputFile {
+    dtsPath: string;
+    cssPath: string;
+    mjsPath: string;
+}
+
+async function extractArgsAndData(args: string[]): Promise<Args> {
+    const [binDir, genDir, ...rest] = args;
+    const [svelteFiles, dependencies] = await extractSvelteAndDeps(rest);
+    return {
+        binDir,
+        genDir,
+        svelteFiles,
+        dependencies,
+    };
+}
+
+async function extractSvelteAndDeps(
+    files: string[],
+): Promise<[SvelteInput[], InputFile[]]> {
+    const svelte: SvelteInput[] = [];
+    const deps: InputFile[] = [];
+    files.reverse();
+    while (files.length) {
+        const file = files.pop()!;
+        const data = (await readFile(file)) as string;
+        if (file.endsWith(".svelte")) {
+            svelte.push({
+                path: file,
+                data,
+                dtsPath: files.pop()!,
+                cssPath: files.pop()!,
+                mjsPath: files.pop()!,
+            });
+        } else {
+            deps.push({ path: remapBinToSrcDir(file), data });
+        }
+    }
+    return [svelte, deps];
+}
+
+/// Our generated .tsx files sit in the bin dir,  but .ts files
+/// may be coming from the source folder, which breaks ./foo imports.
+/// Adjust the path to make it appear they're all in the same folder.
+function remapBinToSrcDir(file: string): string {
+    return file.replace(new RegExp("bazel-out/[-_a-z]+/bin/"), "");
+}
+
+/// Generate Svelte .mjs/.css files.
+async function compileSvelte(
+    svelte: SvelteInput[],
+    binDir: string,
+    genDir: string,
+): Promise<void> {
+    for (const file of svelte) {
+        await compileSingleSvelte(file, binDir, genDir);
+    }
+}
+
+interface SvelteTsxFile extends InputFile {
+    // relative to src folder
+    virtualDtsPath: string;
+    // must go to bazel-out
+    realDtsPath: string;
+}
+
+function generateTsxFiles(svelteFiles: SvelteInput[]): SvelteTsxFile[] {
+    return svelteFiles.map((file) => {
+        const data = svelte2tsx(file.data, {
+            filename: file.path,
+            isTsFile: true,
+            mode: "dts",
+        }).code;
+        const path = file.path.replace(".svelte", ".svelte.tsx");
+        return {
+            path,
+            data,
+            virtualDtsPath: path.replace(".tsx", ".d.ts"),
+            realDtsPath: file.dtsPath,
+        };
+    });
+}
+
+async function compileSvelteAndGenerateTypings(argsList: string[]): Promise<boolean> {
+    const args = await extractArgsAndData(argsList);
+
+    // mjs/css
+    await compileSvelte(args.svelteFiles, args.binDir, args.genDir);
+
+    // d.ts
+    const tsxFiles = generateTsxFiles(args.svelteFiles);
+    await emitTypings(tsxFiles, args.dependencies);
 
     return true;
 }
@@ -206,12 +297,12 @@ function main() {
     if (worker.runAsWorker(process.argv)) {
         console.log = worker.log;
         worker.log("Svelte running as a Bazel worker");
-        worker.runWorkerLoop(compileSvelte);
+        worker.runWorkerLoop(compileSvelteAndGenerateTypings);
     } else {
         const paramFile = process.argv[2].replace(/^@/, "");
         const commandLineArgs = fs.readFileSync(paramFile, "utf-8").trim().split("\n");
         console.log("Svelte running as a standalone process");
-        compileSvelte(commandLineArgs);
+        compileSvelteAndGenerateTypings(commandLineArgs);
     }
 }
 

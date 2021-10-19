@@ -3,18 +3,22 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type { Readable } from "svelte/store";
+    import { getContext } from "svelte";
+    import { directionKey } from "../lib/context-keys";
     import { afterUpdate, createEventDispatcher, onMount } from "svelte";
-
-    export let isRtl: boolean;
 
     let dimensions: HTMLDivElement;
     let overflowFix = 0;
 
+    const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
+
     function updateOverflow(dimensions: HTMLDivElement): void {
         const boundingClientRect = dimensions.getBoundingClientRect();
-        const overflow = isRtl
-            ? window.innerWidth - boundingClientRect.x - boundingClientRect.width
-            : boundingClientRect.x;
+        const overflow =
+            $direction === "ltr"
+                ? boundingClientRect.x
+                : window.innerWidth - boundingClientRect.x - boundingClientRect.width;
 
         overflowFix = Math.min(0, overflowFix + overflow, overflow);
     }
@@ -33,7 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     bind:this={dimensions}
     class="image-handle-dimensions"
-    class:is-rtl={isRtl}
+    class:is-rtl={$direction === "rtl"}
     style="--overflow-fix: {overflowFix}px"
     use:updateOverflowAsync
 >

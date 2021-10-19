@@ -20,9 +20,14 @@ export interface DecoratedElement extends HTMLElement {
     undecorate(): void;
 }
 
-export interface DecoratedElementConstructor extends CustomElementConstructor {
-    prototype: DecoratedElement;
+interface WithTagName {
     tagName: string;
+}
+
+export interface DecoratedElementConstructor
+    extends CustomElementConstructor,
+        WithTagName {
+    prototype: DecoratedElement;
     /**
      * Transforms elements in input HTML from undecorated to stored state.
      */
@@ -33,13 +38,13 @@ export interface DecoratedElementConstructor extends CustomElementConstructor {
     toUndecorated(stored: string): string;
 }
 
-class DefineArray extends Array {
-    push(...elements: DecoratedElementConstructor[]) {
+export class CustomElementArray<
+    T extends CustomElementConstructor & WithTagName,
+> extends Array<T> {
+    push(...elements: T[]): number {
         for (const element of elements) {
             customElements.define(element.tagName, element);
         }
         return super.push(...elements);
     }
 }
-
-export const decoratedComponents: DecoratedElementConstructor[] = new DefineArray();

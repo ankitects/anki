@@ -60,7 +60,7 @@ function gatherData(data: Stats.GraphsResponse, range: GraphRange): Hour[] {
         }
 
         const hour = Math.floor(
-            (((review.id as number) / 1000 + data.localOffsetSecs) / 3600) % 24
+            (((review.id as number) / 1000 + data.localOffsetSecs) / 3600) % 24,
         );
         hours[hour].totalCount += 1;
         if (review.buttonChosen != 1) {
@@ -75,7 +75,7 @@ export function renderHours(
     svgElem: SVGElement,
     bounds: GraphBounds,
     origData: Stats.GraphsResponse,
-    range: GraphRange
+    range: GraphRange,
 ): void {
     const data = gatherData(origData, range);
 
@@ -97,7 +97,7 @@ export function renderHours(
         .paddingInner(0.1);
     svg.select<SVGGElement>(".x-ticks")
         .call((selection) =>
-            selection.transition(trans).call(axisBottom(x).tickSizeOuter(0))
+            selection.transition(trans).call(axisBottom(x).tickSizeOuter(0)),
         )
         .selectAll(".tick")
         .selectAll("text")
@@ -121,8 +121,8 @@ export function renderHours(
             selection.transition(trans).call(
                 axisLeft(y)
                     .ticks(bounds.height / 50)
-                    .tickSizeOuter(0)
-            )
+                    .tickSizeOuter(0),
+            ),
         )
         .attr("direction", "ltr");
 
@@ -156,8 +156,8 @@ export function renderHours(
             (update) => update.call(updateBar),
             (remove) =>
                 remove.call((remove) =>
-                    remove.transition(trans).attr("height", 0).attr("y", y(0)!)
-                )
+                    remove.transition(trans).attr("height", 0).attr("y", y(0)!),
+                ),
         );
 
     svg.select<SVGGElement>(".y2-ticks")
@@ -166,8 +166,8 @@ export function renderHours(
                 axisRight(yArea)
                     .ticks(bounds.height / 50)
                     .tickFormat((n: any) => `${Math.round(n * 100)}%`)
-                    .tickSizeOuter(0)
-            )
+                    .tickSizeOuter(0),
+            ),
         )
         .attr("direction", "ltr");
 
@@ -185,7 +185,7 @@ export function renderHours(
                 .y1((d: Hour) => {
                     const correctRatio = d.correctCount! / d.totalCount!;
                     return yArea(isNaN(correctRatio) ? 0 : correctRatio)!;
-                })
+                }),
         );
 
     function tooltipText(d: Hour): string {

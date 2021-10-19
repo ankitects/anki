@@ -124,7 +124,7 @@ function countCards(cards: Cards.ICard[], separateInactive: boolean): Count[] {
 
 export function gatherData(
     data: Stats.GraphsResponse,
-    separateInactive: boolean
+    separateInactive: boolean,
 ): GraphData {
     const totalCards = data.cards.length;
     const counts = countCards(data.cards, separateInactive);
@@ -158,7 +158,7 @@ export interface TableDatum {
 export function renderCards(
     svgElem: SVGElement,
     bounds: GraphBounds,
-    sourceData: GraphData
+    sourceData: GraphData,
 ): TableDatum[] {
     const summed = cumsum(sourceData.counts, (d: Count) => d[1]);
     const data = Array.from(summed).map((n, idx) => {
@@ -200,12 +200,12 @@ export function renderCards(
                     d.transition(trans).attrTween("d", (d) => {
                         const interpolator = interpolate(
                             { startAngle: 0, endAngle: 0 },
-                            d
+                            d,
                         );
                         return (t): string => arcGen(interpolator(t) as any) as string;
-                    })
+                    }),
                 );
-            }
+            },
         );
 
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);

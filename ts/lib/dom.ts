@@ -50,8 +50,30 @@ export function elementIsBlock(element: Element): boolean {
     return BLOCK_TAGS.includes(element.tagName);
 }
 
+export function nodeContainsInlineContent(node: Node): boolean {
+    for (const child of node.childNodes) {
+        if (
+            (nodeIsElement(child) && elementIsBlock(child)) ||
+            !nodeContainsInlineContent(child)
+        ) {
+            return false;
+        }
+    }
+
+    // empty node is trivially inline
+    return true;
+}
+
+export function fragmentToString(fragment: DocumentFragment): string {
+    const fragmentDiv = document.createElement("div");
+    fragmentDiv.appendChild(fragment);
+    const html = fragmentDiv.innerHTML;
+
+    return html;
+}
+
 export function caretToEnd(node: Node): void {
-    const range = document.createRange();
+    const range = new Range();
     range.selectNodeContents(node);
     range.collapse(false);
     const selection = (node.getRootNode() as Document | ShadowRoot).getSelection()!;
@@ -61,8 +83,8 @@ export function caretToEnd(node: Node): void {
 
 const getAnchorParent =
     <T extends Element>(predicate: (element: Element) => element is T) =>
-    (currentField: DocumentOrShadowRoot): T | null => {
-        const anchor = currentField.getSelection()?.anchorNode;
+    (root: DocumentOrShadowRoot): T | null => {
+        const anchor = root.getSelection()?.anchorNode;
 
         if (!anchor) {
             return null;
@@ -84,7 +106,7 @@ const isListItem = (element: Element): element is HTMLLIElement =>
 const isParagraph = (element: Element): element is HTMLParamElement =>
     element.tagName === "P";
 const isBlockElement = (
-    element: Element
+    element: Element,
 ): element is HTMLLIElement & HTMLParamElement =>
     isListItem(element) || isParagraph(element);
 

@@ -65,14 +65,14 @@ const exampleInfoSame = {
 function differentState(): ChangeNotetypeState {
     return new ChangeNotetypeState(
         Notetypes.NotetypeNames.fromObject(exampleNames),
-        Notetypes.ChangeNotetypeInfo.fromObject(exampleInfoDifferent)
+        Notetypes.ChangeNotetypeInfo.fromObject(exampleInfoDifferent),
     );
 }
 
 function sameState(): ChangeNotetypeState {
     return new ChangeNotetypeState(
         Notetypes.NotetypeNames.fromObject(exampleNames),
-        Notetypes.ChangeNotetypeInfo.fromObject(exampleInfoSame)
+        Notetypes.ChangeNotetypeInfo.fromObject(exampleInfoSame),
     );
 }
 
@@ -92,7 +92,7 @@ test("mapping", () => {
     expect(get(state.info).getNewName(MapContext.Field, 1)).toBe("Back");
     expect(get(state.info).getNewName(MapContext.Field, 2)).toBe("Add Reverse");
     expect(get(state.info).getOldNamesIncludingNothing(MapContext.Field)).toStrictEqual(
-        ["Front", "Back", "(Nothing)"]
+        ["Front", "Back", "(Nothing)"],
     );
     expect(get(state.info).getOldIndex(MapContext.Field, 0)).toBe(0);
     expect(get(state.info).getOldIndex(MapContext.Field, 1)).toBe(1);
@@ -102,7 +102,7 @@ test("mapping", () => {
 
     // the same template shouldn't be mappable twice
     expect(
-        get(state.info).getOldNamesIncludingNothing(MapContext.Template)
+        get(state.info).getOldNamesIncludingNothing(MapContext.Template),
     ).toStrictEqual(["Card 1", "(Nothing)"]);
     expect(get(state.info).getOldIndex(MapContext.Template, 0)).toBe(0);
     expect(get(state.info).getOldIndex(MapContext.Template, 1)).toBe(1);

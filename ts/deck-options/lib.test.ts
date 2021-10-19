@@ -94,7 +94,7 @@ const exampleData = {
 function startingState(): DeckOptionsState {
     return new DeckOptionsState(
         123,
-        DeckConfig.DeckConfigsForUpdate.fromObject(exampleData)
+        DeckConfig.DeckConfigsForUpdate.fromObject(exampleData),
     );
 }
 
@@ -308,7 +308,7 @@ test("aux data", () => {
             JSON.parse(new TextDecoder().decode((c.config as any).other)) as Record<
                 string,
                 unknown
-            >
+            >,
     );
     expect(json).toStrictEqual([
         // other deck comes first

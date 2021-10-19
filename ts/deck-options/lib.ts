@@ -13,15 +13,15 @@ import { localeCompare } from "../lib/i18n";
 import type { DynamicSvelteComponent } from "../sveltelib/dynamicComponent";
 
 export async function getDeckOptionsInfo(
-    deckId: number
+    deckId: number,
 ): Promise<DeckConfig.DeckConfigsForUpdate> {
     return DeckConfig.DeckConfigsForUpdate.decode(
-        await postRequest("/_anki/deckConfigsForUpdate", JSON.stringify({ deckId }))
+        await postRequest("/_anki/deckConfigsForUpdate", JSON.stringify({ deckId })),
     );
 }
 
 export async function saveDeckOptions(
-    input: DeckConfig.UpdateDeckConfigsRequest
+    input: DeckConfig.UpdateDeckConfigsRequest,
 ): Promise<void> {
     const data: Uint8Array = DeckConfig.UpdateDeckConfigsRequest.encode(input).finish();
     await postRequest("/_anki/updateDeckConfigs", data);
@@ -84,7 +84,7 @@ export class DeckOptionsState {
         });
         this.selectedIdx = Math.max(
             0,
-            this.configs.findIndex((c) => c.config.id === this.currentDeck.configId)
+            this.configs.findIndex((c) => c.config.id === this.currentDeck.configId),
         );
         this.v3Scheduler = data.v3Scheduler;
         this.haveAddons = data.haveAddons;
@@ -284,17 +284,17 @@ export class DeckOptionsState {
 
     private getParentLimits(): ParentLimits {
         const parentConfigs = this.configs.filter((c) =>
-            this.currentDeck.parentConfigIds.includes(c.config.id)
+            this.currentDeck.parentConfigIds.includes(c.config.id),
         );
         const newCards = parentConfigs.reduce(
             (previous, current) =>
                 Math.min(previous, current.config.config?.newPerDay ?? 0),
-            2 ** 31
+            2 ** 31,
         );
         const reviews = parentConfigs.reduce(
             (previous, current) =>
                 Math.min(previous, current.config.config?.reviewsPerDay ?? 0),
-            2 ** 31
+            2 ** 31,
         );
         return {
             newCards,

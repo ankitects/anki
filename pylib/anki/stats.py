@@ -28,6 +28,7 @@ def _legacy_card_stats(
 ) -> str:
     "A quick hack to preserve compatibility with the old HTML string API."
     random_id = f"cardinfo-{base62(random.randint(0, 2 ** 64 - 1))}"
+    varName = random_id.replace("-", "")
     return f"""
 <div id="{random_id}"></div>
 <script src="js/vendor/bootstrap.bundle.min.js"></script>
@@ -38,7 +39,8 @@ def _legacy_card_stats(
     if ({1 if _legacy_nightmode else 0}) {{
         document.documentElement.className = "night-mode";
     }}
-    anki.cardInfo(document.getElementById('{random_id}'), {card_id}, {include_revlog});
+    const {varName} = anki.cardInfo(document.getElementById('{random_id}'));
+    {varName}.then((c) => c.$set({{ cardId: {card_id}, includeRevlog: {str(include_revlog).lower()} }}));
 </script>
     """
 

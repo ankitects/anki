@@ -1,7 +1,11 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-var time: number; // set in python code
+/* eslint
+@typescript-eslint/no-unused-vars: "off",
+*/
+
+let time: number; // set in python code
 
 let maxTime = 0;
 document.addEventListener("DOMContentLoaded", () => {
@@ -41,8 +45,8 @@ function showAnswer(txt: string): void {
     document.getElementById("middle").innerHTML = txt;
 }
 
-function selectedAnswerButton() {
-    let node = document.activeElement as HTMLElement;
+function selectedAnswerButton(): string {
+    const node = document.activeElement as HTMLElement;
     if (!node) {
         return;
     }

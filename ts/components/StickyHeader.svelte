@@ -15,12 +15,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     header {
         position: sticky;
-        top: 0;
         left: 0;
         right: 0;
         z-index: 10;
 
         background: var(--window-bg);
-        border-bottom: 1px solid var(--medium-border);
+        border-style: solid;
+        border-color: var(--medium-border);
+        border-width: 0;
+        padding: 0 3px;
+
+        top: 0;
+        border-bottom-width: 1px;
     }
 </style>

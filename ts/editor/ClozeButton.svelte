@@ -5,20 +5,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="typescript">
     import IconButton from "../components/IconButton.svelte";
     import WithShortcut from "../components/WithShortcut.svelte";
-    import OnlyEditable from "./OnlyEditable.svelte";
 
     import * as tr from "../lib/ftl";
     import { withButton } from "../components/helpers";
     import { ellipseIcon } from "./icons";
-    import { forEditorField } from ".";
-    import { wrapCurrent } from "./wrap";
+    import { get } from "svelte/store";
+    import { getNoteEditor } from "./OldEditorAdapter.svelte";
+
+    const noteEditor = getNoteEditor();
+    const { focusInRichText, activeInput } = noteEditor;
 
     const clozePattern = /\{\{c(\d+)::/gu;
     function getCurrentHighestCloze(increment: boolean): number {
         let highest = 0;
 
-        forEditorField([], (field) => {
-            const fieldHTML = field.editingArea.fieldHTML;
+        for (const field of noteEditor.fields) {
+            const content = field.editingArea?.content;
+            const fieldHTML = content ? get(content) : "";
+
             const matches: number[] = [];
             let match: RegExpMatchArray | null = null;
 
@@ -27,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
 
             highest = Math.max(highest, ...matches);
-        });
+        }
 
         if (increment) {
             highest++;
@@ -38,19 +42,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onCloze(event: KeyboardEvent | MouseEvent): void {
         const highestCloze = getCurrentHighestCloze(!event.getModifierState("Alt"));
-        wrapCurrent(`{{c${highestCloze}::`, "}}");
+        $activeInput?.surround(`{{c${highestCloze}::`, "}}");
     }
+
+    $: disabled = !$focusInRichText;
 </script>
 
-<WithShortcut shortcut={"Control+Alt?+Shift+C"} let:createShortcut let:shortcutLabel>
-    <OnlyEditable let:disabled>
-        <IconButton
-            tooltip={`${tr.editingClozeDeletion()} (${shortcutLabel})`}
-            {disabled}
-            on:click={onCloze}
-            on:mount={withButton(createShortcut)}
-        >
-            {@html ellipseIcon}
-        </IconButton>
-    </OnlyEditable>
+<WithShortcut shortcut="Control+Alt?+Shift+C" let:createShortcut let:shortcutLabel>
+    <IconButton
+        tooltip="{tr.editingClozeDeletion()} {shortcutLabel}"
+        {disabled}
+        on:click={onCloze}
+        on:mount={withButton(createShortcut)}
+    >
+        {@html ellipseIcon}
+    </IconButton>
 </WithShortcut>

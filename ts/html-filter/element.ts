@@ -17,7 +17,7 @@ type FilterMethod = (element: Element) => void;
 
 function filterAttributes(
     attributePredicate: (attributeName: string) => boolean,
-    element: Element
+    element: Element,
 ): void {
     for (const attr of [...element.attributes]) {
         const attrName = attr.name.toUpperCase();
@@ -37,7 +37,7 @@ const allow =
     (element: Element): void =>
         filterAttributes(
             (attributeName: string) => attrs.includes(attributeName),
-            element
+            element,
         );
 
 function unwrapElement(element: Element): void {

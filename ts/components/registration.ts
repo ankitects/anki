@@ -28,11 +28,11 @@ export interface RegistrationAPI<T extends Registration> {
 export interface DynamicRegistrationAPI<T> {
     addComponent: (
         component: SvelteComponent,
-        add: (added: Element, parent: Element) => number
+        add: (added: Element, parent: Element) => number,
     ) => void;
     updateRegistration: (
         update: (registration: T) => void,
-        position: Identifier
+        position: Identifier,
     ) => void;
 }
 
@@ -41,14 +41,14 @@ export function nodeIsElement(node: Node): node is Element {
 }
 
 export function makeInterface<T extends Registration>(
-    makeRegistration: () => T
+    makeRegistration: () => T,
 ): RegistrationAPI<T> {
     const registrations: T[] = [];
     const items = writable(registrations);
 
     function registerComponent(
         index: number = registrations.length,
-        registration = makeRegistration()
+        registration = makeRegistration(),
     ): T {
         items.update((registrations) => {
             registrations.splice(index, 0, registration);
@@ -64,13 +64,13 @@ export function makeInterface<T extends Registration>(
     function getDynamicInterface(elementRef: HTMLElement): DynamicRegistrationAPI<T> {
         function addComponent(
             component: SvelteComponent,
-            add: (added: Element, parent: Element) => number
+            add: (added: Element, parent: Element) => number,
         ): void {
             const registration = makeRegistration();
 
             const callback = (
                 mutations: MutationRecord[],
-                observer: MutationObserver
+                observer: MutationObserver,
             ): void => {
                 for (const mutation of mutations) {
                     for (const addedNode of mutation.addedNodes) {
@@ -99,7 +99,7 @@ export function makeInterface<T extends Registration>(
 
         function updateRegistration(
             update: (registration: T) => void,
-            position: Identifier
+            position: Identifier,
         ): void {
             const match = findElement(elementRef.children, position);
 

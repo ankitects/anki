@@ -29,7 +29,7 @@ export function graphs(
         search = "deck:current",
         days = 365,
         controller = null as SvelteComponent | null,
-    } = {}
+    } = {},
 ): void {
     const nightMode = checkNightMode();
 

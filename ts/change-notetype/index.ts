@@ -14,7 +14,7 @@ import { nightModeKey } from "../components/context-keys";
 export async function changeNotetypePage(
     target: HTMLDivElement,
     oldNotetypeId: number,
-    newNotetypeId: number
+    newNotetypeId: number,
 ): Promise<ChangeNotetypePage> {
     const [info, names] = await Promise.all([
         getChangeNotetypeInfo(oldNotetypeId, newNotetypeId),

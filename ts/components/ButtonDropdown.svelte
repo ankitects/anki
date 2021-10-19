@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     wrap={false}
     {api}
 >
-    <div on:mousedown|preventDefault|stopPropagation>
+    <div on:mousedown|preventDefault|stopPropagation on:click>
         <slot />
     </div>
 </ButtonToolbar>

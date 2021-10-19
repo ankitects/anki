@@ -34,8 +34,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     onMount(() => {
         observer.observe(image);
+
         if (autofocus) {
-            image.click();
+            // This should trigger a focusing of the Mathjax Handle
+            const focusEvent = new CustomEvent("focusmathjax", {
+                detail: image,
+                bubbles: true,
+                composed: true,
+            });
+
+            image.dispatchEvent(focusEvent);
         }
     });
 
@@ -58,6 +66,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 />
 
 <style lang="scss">
+    :global(anki-mathjax) {
+        white-space: pre;
+    }
+
     img {
         vertical-align: var(--vertical-center);
     }

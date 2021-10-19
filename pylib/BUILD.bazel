@@ -20,14 +20,14 @@ py_test(
     args = [
         "anki",
         "$(location mypy.ini)",
-        "$(location //pip/stubs:extendsitepkgs)",
+        "$(location //python/stubs:extendsitepkgs)",
     ],
     data = [
         "mypy.ini",
-        "//pip/stubs",
-        "//pip/stubs:extendsitepkgs",
+        "//python/stubs",
+        "//python/stubs:extendsitepkgs",
     ],
-    env = {"EXTRA_SITE_PACKAGES": "$(location //pip/stubs)"},
+    env = {"EXTRA_SITE_PACKAGES": "$(location //python/stubs)"},
     main = "tests/run_mypy.py",
     deps = [
         "//pylib/anki",

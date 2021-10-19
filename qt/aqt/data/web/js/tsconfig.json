@@ -1,11 +1,16 @@
 {
+    "extends": "../../../../../ts/tsconfig.json",
+    "include": ["*.ts"],
+    "references": [],
     "compilerOptions": {
         "target": "es6",
         "module": "commonjs",
         "lib": ["es2019", "dom", "dom.iterable"],
+        "types": ["jquery", "jqueryui"],
         "strict": true,
         "noImplicitAny": false,
         "strictNullChecks": false,
+        "strictPropertyInitialization": false,
         "noImplicitThis": false,
         "esModuleInterop": true
     }

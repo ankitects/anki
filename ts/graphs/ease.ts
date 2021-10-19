@@ -46,7 +46,7 @@ function makeQuery(start: number, end: number): string {
 function getAdjustedScaleAndTicks(
     min: number,
     max: number,
-    desiredBars: number
+    desiredBars: number,
 ): [ScaleLinear<number, number, never>, number[]] {
     const prescale = scaleLinear().domain([min, max]).nice();
     const ticks = prescale.ticks(desiredBars);
@@ -70,7 +70,7 @@ function getAdjustedScaleAndTicks(
 export function prepareData(
     data: GraphData,
     dispatch: SearchDispatch,
-    browserLinksSupported: boolean
+    browserLinksSupported: boolean,
 ): [HistogramData | null, TableDatum[]] {
     // get min/max
     const allEases = data.eases;

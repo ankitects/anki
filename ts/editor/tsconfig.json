@@ -1,6 +1,6 @@
 {
     "extends": "../tsconfig.json",
-    "include": ["*"],
+    "include": ["*", "image-overlay/*", "mathjax-overlay/*"],
     "references": [
         { "path": "../components" },
         { "path": "../lib" },

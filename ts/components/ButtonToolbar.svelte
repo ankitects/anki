@@ -48,11 +48,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const insertGroup = (group: SvelteComponent, position: Identifier = 0) =>
             addComponent(group, (added, parent) =>
-                insertElement(added, parent, position)
+                insertElement(added, parent, position),
             );
         const appendGroup = (group: SvelteComponent, position: Identifier = -1) =>
             addComponent(group, (added, parent) =>
-                appendElement(added, parent, position)
+                appendElement(added, parent, position),
             );
 
         const showGroup = (id: Identifier) =>
@@ -62,7 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const toggleGroup = (id: Identifier) =>
             updateRegistration(
                 ({ detach }) => detach.update((old: boolean): boolean => !old),
-                id
+                id,
             );
 
         Object.assign(api, {
@@ -80,7 +80,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     bind:this={buttonToolbarRef}
     {id}
-    class="btn-toolbar container wrap-variable {className}"
+    class="button-toolbar btn-toolbar {className}"
     class:nightMode
     {style}
     role="toolbar"
@@ -101,7 +101,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         @include scrollbar.night-mode;
     }
 
-    .wrap-variable {
+    .button-toolbar {
         flex-wrap: var(--buttons-wrap);
+
+        > :global(*) {
+            /* TODO replace with gap once available */
+            margin-right: 0.15rem;
+            margin-bottom: 0.15rem;
+        }
     }
 </style>
