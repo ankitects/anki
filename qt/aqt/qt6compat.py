@@ -12,8 +12,11 @@ import sys
 
 import PyQt6.QtCore
 import PyQt6.QtGui
-import PyQt6.QtWidgets
+import PyQt6.QtNetwork
+import PyQt6.QtWebChannel
+import PyQt6.QtWebEngineCore
 import PyQt6.QtWebEngineWidgets
+import PyQt6.QtWidgets
 
 # Globally alias PyQt5 to PyQt6
 # #########################################################################
@@ -26,6 +29,10 @@ sys.modules["PyQt5.QtGui"] = PyQt6.QtGui
 sys.modules["PyQt5.QtWidgets"] = PyQt6.QtWidgets
 # Needed to maintain import order between QtWebEngineWidgets and QCoreApplication:
 sys.modules["PyQt5.QtWebEngineWidgets"] = PyQt6.QtWebEngineWidgets
+# Register other aliased top-level Qt modules just to be safe:
+sys.modules["PyQt5.QtWebEngineCore"] = PyQt6.QtWebEngineCore
+sys.modules["PyQt5.QtWebChannel"] = PyQt6.QtWebChannel
+sys.modules["PyQt5.QtNetwork"] = PyQt6.QtNetwork
 
 # Globally alias removed PyQt6.Qt to PyQt6.QtCore.Qt
 ##########################################################################
@@ -46,6 +53,7 @@ from PyQt6.QtGui import QDrag, QGuiApplication
 from PyQt6.QtWidgets import QApplication, QDialog, QMenu
 
 from anki._legacy import print_deprecation_warning
+
 
 # This helper function is needed as aliasing exec_ to exec directly will cause
 # an unbound method error, even when wrapped with types.MethodType
