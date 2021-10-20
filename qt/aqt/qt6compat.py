@@ -18,6 +18,8 @@ import PyQt6.QtWebEngineCore
 import PyQt6.QtWebEngineWidgets
 import PyQt6.QtWidgets
 
+from anki._legacy import print_deprecation_warning
+
 # Globally alias PyQt5 to PyQt6
 # #########################################################################
 
@@ -70,14 +72,29 @@ PyQt6.QtWebEngineWidgets.QWebEngineDownloadItem = (
     PyQt6.QtWebEngineCore.QWebEngineDownloadRequest
 )
 
+# Restore QWebEnginePage.view()
+# ########################################################################
+
+from PyQt6.QtWebEngineCore import QWebEnginePage
+from PyQt6.QtWebEngineWidgets import QWebEngineView
+
+
+def qwebenginepage_view(page: QWebEnginePage) -> QWebEnginePage:
+    print_deprecation_warning(
+        "'QWebEnginePage.view()' is deprecated. "
+        "Please use 'QWebEngineView.forPage(page)'"
+    )
+    return QWebEngineView.forPage(page)
+
+
+PyQt6.QtWebEngineCore.QWebEnginePage.view = qwebenginepage_view
+
 # Alias removed exec_ methods to exec
 # ########################################################################
 
 from PyQt6.QtCore import QCoreApplication, QEventLoop, QThread
 from PyQt6.QtGui import QDrag, QGuiApplication
 from PyQt6.QtWidgets import QApplication, QDialog, QMenu
-
-from anki._legacy import print_deprecation_warning
 
 
 # This helper function is needed as aliasing exec_ to exec directly will cause
