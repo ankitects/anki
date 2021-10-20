@@ -32,7 +32,33 @@ sys.modules["PyQt6.Qt"] = PyQt6.QtCore.Qt
 PyQt6.QtWidgets.QAction = PyQt6.QtGui.QAction
 PyQt6.QtWidgets.QActionGroup = PyQt6.QtGui.QActionGroup
 
-from PyQt5.QtWidgets import QAction
+# Alias removed exec_ methods to exec ####
+
+from PyQt6.QtCore import QCoreApplication, QEventLoop, QThread
+from PyQt6.QtGui import QDrag, QGuiApplication
+from PyQt6.QtWidgets import QApplication, QDialog, QMenu
+
+from anki._legacy import print_deprecation_warning
+
+# This helper function is needed as aliasing exec_ to exec directly will cause
+# an unbound method error, even when wrapped with types.MethodType
+def qt_exec_(object, *args, **kwargs):
+    class_name = object.__class__.__name__
+    print_deprecation_warning(
+        f"'{class_name}.exec_()' is deprecated. Please use '{class_name}.exec()'"
+    )
+    return object.exec(*args, **kwargs)
+
+
+QCoreApplication.exec_ = qt_exec_
+QEventLoop.exec_ = qt_exec_
+QThread.exec_ = qt_exec_
+QDrag.exec_ = qt_exec_
+QGuiApplication.exec_ = qt_exec_
+QApplication.exec_ = qt_exec_
+QDialog.exec_ = qt_exec_
+QMenu.exec_ = qt_exec_
+
 
 # Patch unscoped enums back in, aliasing them to scoped enums ####
 
