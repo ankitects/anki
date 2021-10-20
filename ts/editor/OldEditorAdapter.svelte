@@ -6,6 +6,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { EditorFieldAPI } from "./EditorField.svelte";
     import type { RichTextInputAPI } from "./RichTextInput.svelte";
     import type { PlainTextInputAPI } from "./PlainTextInput.svelte";
+    import type { EditorToolbarAPI } from "./EditorToolbar.svelte";
+
     import contextProperty from "../sveltelib/context-property";
 
     export interface NoteEditorAPI {
@@ -13,6 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         currentField: Writable<EditorFieldAPI>;
         activeInput: Writable<RichTextInputAPI | PlainTextInputAPI | null>;
         focusInRichText: Writable<boolean>;
+        toolbar: EditorToolbarAPI;
     }
 
     const key = Symbol("noteEditor");
@@ -49,6 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable, get } from "svelte/store";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { isApplePlatform } from "../lib/platform";
+    import { promiseWithResolver } from "../lib/promise";
     import { ChangeTimer } from "./change-timer";
     import { alertIcon } from "./icons";
 
@@ -221,12 +225,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const activeInput = writable<RichTextInputAPI | PlainTextInputAPI | null>(null);
     const focusInRichText = writable<boolean>(false);
 
+    const [toolbarPromise, toolbarResolve] = promiseWithResolver<EditorToolbarAPI>();
+    let toolbar: EditorToolbarAPI;
+    $: if (toolbar) {
+        toolbarResolve(toolbar);
+    }
+
     export const api = set(
         Object.create(
             {
                 currentField,
                 activeInput,
                 focusInRichText,
+                toolbar: toolbarPromise,
             },
             {
                 fields: { get: () => fieldApis },
@@ -244,7 +255,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <NoteEditor>
     <FieldsEditor>
-        <EditorToolbar {size} {wrap} {textColor} {highlightColor} />
+        <EditorToolbar {size} {wrap} {textColor} {highlightColor} bind:api={toolbar} />
 
         {#if hint}
             <Absolute bottom right --margin="10px">

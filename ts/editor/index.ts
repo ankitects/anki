@@ -7,10 +7,8 @@
  */
 
 import { filterHTML } from "../html-filter";
+import { execCommand } from "./helpers";
 import { updateAllState } from "../components/WithState.svelte";
-import { noop } from "../lib/functional";
-
-export const $editorToolbar = new Promise(noop);
 
 export function pasteHTML(
     html: string,
@@ -25,9 +23,11 @@ export function pasteHTML(
 }
 
 export function setFormat(cmd: string, arg?: string, _nosave = false): void {
-    document.execCommand(cmd, false, arg);
+    execCommand(cmd, false, arg);
     updateAllState(new Event(cmd));
 }
+
+export { editorToolbar } from "./EditorToolbar.svelte";
 
 import "../sveltelib/export-runtime";
 import "../lib/register-package";
@@ -60,18 +60,14 @@ export const i18n = setupI18n({
 });
 
 import OldEditorAdapter from "./OldEditorAdapter.svelte";
+import type { NoteEditorAPI } from "./OldEditorAdapter.svelte";
 import { nightModeKey } from "../components/context-keys";
 
 import "./editor-base.css";
 import "./bootstrap.css";
 import "./legacy.css";
 
-function setupNoteEditor(i18n: Promise<void>): Promise<OldEditorAdapter> {
-    let editorResolve: (value: OldEditorAdapter) => void;
-    const editorPromise = new Promise<OldEditorAdapter>((resolve) => {
-        editorResolve = resolve;
-    });
-
+async function setupNoteEditor(): Promise<NoteEditorAPI> {
     const context = new Map<symbol, unknown>();
 
     context.set(
@@ -79,34 +75,29 @@ function setupNoteEditor(i18n: Promise<void>): Promise<OldEditorAdapter> {
         document.documentElement.classList.contains("night-mode"),
     );
 
-    i18n.then(() => {
-        const noteEditor = new OldEditorAdapter({
-            target: document.body,
-            props: {
-                class: "h-100",
-            },
-            context,
-        } as any);
+    await i18n;
 
-        Object.assign(globalThis, {
-            setFields: noteEditor.setFields,
-            setFonts: noteEditor.setFonts,
-            focusField: noteEditor.focusField,
-            setColorButtons: noteEditor.setColorButtons,
-            setTags: noteEditor.setTags,
-            setSticky: noteEditor.setSticky,
-            setBackgrounds: noteEditor.setBackgrounds,
-            setClozeHint: noteEditor.setClozeHint,
-            saveNow: noteEditor.saveFieldNow,
-            activateStickyShortcuts: noteEditor.activateStickyShortcuts,
-            focusIfField: noteEditor.focusIfField,
-            setNoteId: noteEditor.setNoteId,
-        });
-
-        editorResolve(noteEditor);
+    const noteEditor = new OldEditorAdapter({
+        target: document.body,
+        context,
     });
 
-    return editorPromise;
+    Object.assign(globalThis, {
+        setFields: noteEditor.setFields,
+        setFonts: noteEditor.setFonts,
+        focusField: noteEditor.focusField,
+        setColorButtons: noteEditor.setColorButtons,
+        setTags: noteEditor.setTags,
+        setSticky: noteEditor.setSticky,
+        setBackgrounds: noteEditor.setBackgrounds,
+        setClozeHint: noteEditor.setClozeHint,
+        saveNow: noteEditor.saveFieldNow,
+        activateStickyShortcuts: noteEditor.activateStickyShortcuts,
+        focusIfField: noteEditor.focusIfField,
+        setNoteId: noteEditor.setNoteId,
+    });
+
+    return noteEditor.api;
 }
 
-export const noteEditorPromise = setupNoteEditor(i18n);
+export const noteEditorPromise = setupNoteEditor();

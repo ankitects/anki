@@ -408,7 +408,7 @@ class Browser(QMainWindow):
         def add_preview_button(editor: Editor) -> None:
             editor._links["preview"] = lambda _editor: self.onTogglePreview()
             editor.web.eval(
-                "$editorToolbar.then(({ notetypeButtons }) => notetypeButtons.appendButton({ component: editorToolbar.PreviewButton, id: 'preview' }));"
+                "noteEditorPromise.then(noteEditor => noteEditor.toolbar.then(toolbar => toolbar.notetypeButtons.appendButton({ component: editorToolbar.PreviewButton, id: 'preview' })));",
             )
 
         gui_hooks.editor_did_init.append(add_preview_button)

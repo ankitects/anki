@@ -40,19 +40,27 @@ def _print_warning(old: str, doc: str) -> None:
 class DeprecatedNamesMixin:
     "Expose instance methods/vars as camelCase for legacy callers."
 
+    # deprecated name -> new name
+    _deprecated_aliases: dict[str, str] = {}
+    # deprecated name -> [new internal name, new name shown to user]
+    _deprecated_attributes: dict[str, tuple[str, str]] = {}
+
     # the @no_type_check lines are required to prevent mypy allowing arbitrary
     # attributes on the consuming class
 
-    _deprecated_aliases: dict[str, str] = {}
-
     @no_type_check
     def __getattr__(self, name: str) -> Any:
-        remapped = self._deprecated_aliases.get(name) or stringcase.snakecase(name)
-        if remapped == name:
-            raise AttributeError
+        if some_tuple := self._deprecated_attributes.get(name):
+            remapped, replacement = some_tuple
+        else:
+            replacement = remapped = self._deprecated_aliases.get(
+                name
+            ) or stringcase.snakecase(name)
+            if remapped == name:
+                raise AttributeError
 
         out = getattr(self, remapped)
-        _print_warning(f"'{name}'", f"please use '{remapped}'")
+        _print_warning(f"'{name}'", f"please use '{replacement}'")
 
         return out
 
@@ -66,6 +74,28 @@ class DeprecatedNamesMixin:
         are valid symbols, and we can't get a variable's name easily.
         """
         cls._deprecated_aliases = {k: _target_to_string(v) for k, v in kwargs.items()}
+
+    @no_type_check
+    @classmethod
+    def register_deprecated_attributes(
+        cls,
+        **kwargs: tuple[DeprecatedAliasTarget, DeprecatedAliasTarget],
+    ) -> None:
+        """Manually add deprecated attributes without exact substitutes.
+
+        Pass a tuple of (alias, replacement), where alias is the attribute's new
+        name (by convention: snakecase, prepended with '_legacy_'), and
+        replacement is any callable to be used instead in new code.
+        Also note the docstring of `register_deprecated_aliases`.
+
+        E.g. given `def oldFunc(args): return new_func(additionalLogic(args))`,
+        rename `oldFunc` to `_legacy_old_func` and call
+        `register_deprecated_attributes(oldFunc=(_legacy_old_func, new_func))`.
+        """
+        cls._deprecated_attributes = {
+            k: (_target_to_string(v[0]), _target_to_string(v[1]))
+            for k, v in kwargs.items()
+        }
 
 
 def deprecated(replaced_by: Callable | None = None, info: str = "") -> Callable:
