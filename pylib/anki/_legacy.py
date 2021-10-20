@@ -44,12 +44,12 @@ class DeprecatedNamesMixin:
     # attributes on the consuming class
 
     _deprecated_aliases: dict[str, str] = {}
-    _deprecated_attributes: dict[str, str] = {}
+    _deprecated_attributes: dict[str, tuple[str, str]] = {}
 
     @no_type_check
     def __getattr__(self, name: str) -> Any:
-        if replacement := self._deprecated_attributes.get(name):
-            remapped = "_legacy_" + stringcase.snakecase(name)
+        if some_tuple := self._deprecated_attributes.get(name):
+            remapped, replacement = some_tuple
         else:
             replacement = remapped = self._deprecated_aliases.get(
                 name
@@ -75,15 +75,25 @@ class DeprecatedNamesMixin:
 
     @no_type_check
     @classmethod
-    def register_deprecated_attributes(cls, **kwargs: DeprecatedAliasTarget) -> None:
+    def register_deprecated_attributes(
+        cls, *args: tuple[DeprecatedAliasTarget, DeprecatedAliasTarget]
+    ) -> None:
         """Manually add deprecated attributes without exact substitutes.
 
-        Given `def oldFunc(args): return new_func(additionalLogic(args))`,
+        For an attribute in camelcase, pass a tuple of (alias, replacement),
+        where alias is the attribute's new name (snakecase, prepended with
+        '_legacy_'), and replacement is any callable to be used in new code.
+
+        E.g. given `def oldFunc(args): return new_func(additionalLogic(args))`,
         rename `oldFunc` to `_legacy_old_func` and call
-        `register_deprecated_attributes(oldFunc=new_func)`.
+        `register_deprecated_attributes((_legacy_old_func, new_func))`.
         """
         cls._deprecated_attributes = {
-            k: _target_to_string(v) for k, v in kwargs.items()
+            stringcase.camelCase(tup[0].removeprefix("_legacy_")): (
+                _target_to_string(tup[0]),
+                _target_to_string(tup[1]),
+            )
+            for tup in args
         }
 
 
