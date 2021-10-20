@@ -1,12 +1,15 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: enable=invalid-name
+
 from __future__ import annotations
 
 import anki
 from anki import decks_pb2, scheduler_pb2
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.config import Config
+from anki._legacy import DeprecatedNamesMixin
 
 SchedTimingToday = scheduler_pb2.SchedTimingTodayResponse
 CongratsInfo = scheduler_pb2.CongratsInfoResponse
@@ -25,7 +28,7 @@ from anki.notes import NoteId
 from anki.utils import ids2str, intTime
 
 
-class SchedulerBase:
+class SchedulerBase(DeprecatedNamesMixin):
     "Actions shared between schedulers."
     version = 0
 
@@ -40,7 +43,7 @@ class SchedulerBase:
         return self._timing_today().days_elapsed
 
     @property
-    def dayCutoff(self) -> int:
+    def day_cutoff(self) -> int:
         return self._timing_today().next_day_at
 
     # Deck list
@@ -57,34 +60,34 @@ class SchedulerBase:
     def congratulations_info(self) -> CongratsInfo:
         return self.col._backend.congrats_info()
 
-    def haveBuriedSiblings(self) -> bool:
+    def have_buried_siblings(self) -> bool:
         return self.congratulations_info().have_sched_buried
 
-    def haveManuallyBuried(self) -> bool:
+    def have_manually_buried(self) -> bool:
         return self.congratulations_info().have_user_buried
 
-    def haveBuried(self) -> bool:
+    def have_buried(self) -> bool:
         info = self.congratulations_info()
         return info.have_sched_buried or info.have_user_buried
 
-    def extendLimits(self, new: int, rev: int) -> None:
+    def extend_limits(self, new: int, rev: int) -> None:
         did = self.col.decks.current()["id"]
         self.col._backend.extend_limits(deck_id=did, new_delta=new, review_delta=rev)
 
     # fixme: used by custom study
-    def totalRevForCurrentDeck(self) -> int:
+    def total_rev_for_current_deck(self) -> int:
         assert self.col.db
         return self.col.db.scalar(
             f"""
 select count() from cards where id in (
 select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? limit 9999)"""
-            % self._deckLimit(),
+            % self._deck_limit(),
             self.today,
         )
 
-    # fixme: only used by totalRevForCurrentDeck and old deck stats;
+    # fixme: only used by total_rev_for_current_deck and old deck stats;
     # schedv2 defines separate version
-    def _deckLimit(self) -> str:
+    def _deck_limit(self) -> str:
         return ids2str(
             self.col.decks.deck_and_child_ids(self.col.decks.get_current_id())
         )
@@ -179,12 +182,12 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             config_key=key,  # type: ignore
         )
 
-    def resetCards(self, ids: list[CardId]) -> None:
+    def reset_cards(self, ids: list[CardId]) -> None:
         "Completely reset cards for export."
         sids = ids2str(ids)
         assert self.col.db
         # we want to avoid resetting due number of existing new cards on export
-        nonNew = self.col.db.list(
+        non_new = self.col.db.list(
             f"select id from cards where id in %s and (queue != {QUEUE_TYPE_NEW} or type != {CARD_TYPE_NEW})"
             % sids
         )
@@ -194,7 +197,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             " where id in %s" % sids
         )
         # and forget any non-new cards, changing their due numbers
-        self.col._backend.schedule_cards_as_new(card_ids=nonNew, log=False)
+        self.col._backend.schedule_cards_as_new(card_ids=non_new, log=False)
 
     # Repositioning new cards
     ##########################################################################
@@ -215,30 +218,29 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             shift_existing=shift_existing,
         )
 
-    def randomizeCards(self, did: DeckId) -> None:
+    def randomize_cards(self, did: DeckId) -> None:
         self.col._backend.sort_deck(deck_id=did, randomize=True)
 
-    def orderCards(self, did: DeckId) -> None:
+    def order_cards(self, did: DeckId) -> None:
         self.col._backend.sort_deck(deck_id=did, randomize=False)
 
-    def resortConf(self, conf: DeckConfigDict) -> None:
+    def resort_conf(self, conf: DeckConfigDict) -> None:
         for did in self.col.decks.decks_using_config(conf):
             if conf["new"]["order"] == 0:
-                self.randomizeCards(did)
+                self.randomize_cards(did)
             else:
-                self.orderCards(did)
+                self.order_cards(did)
 
     # for post-import
-    def maybeRandomizeDeck(self, did: DeckId | None = None) -> None:
+    def maybe_randomize_deck(self, did: DeckId | None = None) -> None:
         if not did:
             did = self.col.decks.selected()
         conf = self.col.decks.config_dict_for_deck_id(did)
         # in order due?
         if conf["new"]["order"] == NEW_CARDS_RANDOM:
-            self.randomizeCards(did)
+            self.randomize_cards(did)
 
-    # legacy
-    def sortCards(
+    def _legacy_sort_cards(
         self,
         cids: list[CardId],
         start: int = 1,
@@ -247,3 +249,8 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         shift: bool = False,
     ) -> None:
         self.reposition_new_cards(cids, start, step, shuffle, shift)
+
+
+SchedulerBase.register_deprecated_attributes(
+    sortCards=(SchedulerBase._legacy_sort_cards, SchedulerBase.reposition_new_cards)
+)

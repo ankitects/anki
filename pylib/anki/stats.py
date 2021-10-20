@@ -155,7 +155,7 @@ sum(case when type = {REVLOG_RELRN} then 1 else 0 end), /* relearn */
 sum(case when type = {REVLOG_CRAM} then 1 else 0 end) /* filter */
 from revlog where id > ? """
             + lim,
-            (self.col.sched.dayCutoff - 86400) * 1000,
+            (self.col.sched.day_cutoff - 86400) * 1000,
         )
         cards = cards or 0
         thetime = thetime or 0
@@ -189,7 +189,7 @@ from revlog where id > ? """
     select count(), sum(case when ease = 1 then 0 else 1 end) from revlog
     where lastIvl >= 21 and id > ?"""
                 + lim,
-                (self.col.sched.dayCutoff - 86400) * 1000,
+                (self.col.sched.day_cutoff - 86400) * 1000,
             )
             b += "<br>"
             if mcnt:
@@ -497,7 +497,7 @@ group by day order by day"""
         lims = []
         if num is not None:
             lims.append(
-                "id > %d" % ((self.col.sched.dayCutoff - (num * chunk * 86400)) * 1000)
+                "id > %d" % ((self.col.sched.day_cutoff - (num * chunk * 86400)) * 1000)
             )
         lims.append("did in %s" % self._limit())
         if lims:
@@ -516,7 +516,7 @@ count(id)
 from cards %s
 group by day order by day"""
             % lim,
-            self.col.sched.dayCutoff,
+            self.col.sched.day_cutoff,
             chunk,
         )
 
@@ -524,7 +524,7 @@ group by day order by day"""
         lims = []
         if num is not None:
             lims.append(
-                "id > %d" % ((self.col.sched.dayCutoff - (num * chunk * 86400)) * 1000)
+                "id > %d" % ((self.col.sched.day_cutoff - (num * chunk * 86400)) * 1000)
             )
         lim = self._revlogLimit()
         if lim:
@@ -555,7 +555,7 @@ sum(case when type = {REVLOG_CRAM} then time/1000.0 else 0 end)/? -- cram time
 from revlog %s
 group by day order by day"""
             % lim,
-            self.col.sched.dayCutoff,
+            self.col.sched.day_cutoff,
             chunk,
             tf,
             tf,
@@ -568,7 +568,9 @@ group by day order by day"""
         lims = []
         num = self._periodDays()
         if num:
-            lims.append("id > %d" % ((self.col.sched.dayCutoff - (num * 86400)) * 1000))
+            lims.append(
+                "id > %d" % ((self.col.sched.day_cutoff - (num * 86400)) * 1000)
+            )
         rlim = self._revlogLimit()
         if rlim:
             lims.append(rlim)
@@ -583,7 +585,7 @@ select count(), abs(min(day)) from (select
 from revlog %s
 group by day order by day)"""
             % lim,
-            self.col.sched.dayCutoff,
+            self.col.sched.day_cutoff,
         )
         assert ret
         return ret
@@ -742,7 +744,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
         days = self._periodDays()
         if days is not None:
             lims.append(
-                "id > %d" % ((self.col.sched.dayCutoff - (days * 86400)) * 1000)
+                "id > %d" % ((self.col.sched.day_cutoff - (days * 86400)) * 1000)
             )
         if lims:
             lim = "where " + " and ".join(lims)
@@ -845,7 +847,7 @@ order by thetype, ease"""
             rolloverHour = self.col.conf.get("rollover", 4)
         pd = self._periodDays()
         if pd:
-            lim += " and id > %d" % ((self.col.sched.dayCutoff - (86400 * pd)) * 1000)
+            lim += " and id > %d" % ((self.col.sched.day_cutoff - (86400 * pd)) * 1000)
         return self.col.db.all(
             f"""
 select
@@ -856,7 +858,7 @@ count()
 from revlog where type in ({REVLOG_LRN},{REVLOG_REV},{REVLOG_RELRN}) %s
 group by hour having count() > 30 order by hour"""
             % lim,
-            self.col.sched.dayCutoff - (rolloverHour * 3600),
+            self.col.sched.day_cutoff - (rolloverHour * 3600),
         )
 
     # Cards
@@ -1079,7 +1081,7 @@ $(function () {
     def _limit(self) -> Any:
         if self.wholeCollection:
             return ids2str([d["id"] for d in self.col.decks.all()])
-        return self.col.sched._deckLimit()
+        return self.col.sched._deck_limit()
 
     def _revlogLimit(self) -> str:
         if self.wholeCollection:
@@ -1106,7 +1108,7 @@ $(function () {
         if not t:
             period = 1
         else:
-            period = max(1, int(1 + ((self.col.sched.dayCutoff - (t / 1000)) / 86400)))
+            period = max(1, int(1 + ((self.col.sched.day_cutoff - (t / 1000)) / 86400)))
         return period
 
     def _periodDays(self) -> int | None:

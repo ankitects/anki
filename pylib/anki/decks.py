@@ -366,7 +366,7 @@ class DeckManager(DeprecatedNamesMixin):
         self.update_config(new)
         # if it was previously randomized, re-sort
         if not old_order:
-            self.col.sched.resortConf(new)
+            self.col.sched.resort_conf(new)
 
     # Deck utils
     #############################################################

@@ -68,7 +68,7 @@ class Scheduler(SchedulerBaseWithLegacy):
 
     def _checkDay(self) -> None:
         # check if the day has rolled over
-        if time.time() > self.dayCutoff:
+        if time.time() > self.day_cutoff:
             self.reset()
 
     # Fetching the next card
@@ -260,7 +260,7 @@ select count() from
             f"""
 select count() from cards where id in (
 select id from cards where did in %s and queue = {QUEUE_TYPE_NEW} limit ?)"""
-            % self._deckLimit(),
+            % self._deck_limit(),
             self.reportLimit,
         )
 
@@ -286,7 +286,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_NEW} limit ?)"""
                 f"""
 select count() from cards where did in %s and queue = {QUEUE_TYPE_LRN}
 and due < ?"""
-                % (self._deckLimit()),
+                % (self._deck_limit()),
                 self._lrnCutoff,
             )
             or 0
@@ -296,7 +296,7 @@ and due < ?"""
             f"""
 select count() from cards where did in %s and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN}
 and due <= ?"""
-            % (self._deckLimit()),
+            % (self._deck_limit()),
             self.today,
         )
         # previews
@@ -304,7 +304,7 @@ and due <= ?"""
             f"""
 select count() from cards where did in %s and queue = {QUEUE_TYPE_PREVIEW}
 """
-            % (self._deckLimit())
+            % (self._deck_limit())
         )
 
     def _resetLrn(self) -> None:
@@ -326,7 +326,7 @@ select count() from cards where did in %s and queue = {QUEUE_TYPE_PREVIEW}
 select due, id from cards where
 did in %s and queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_PREVIEW}) and due < ?
 limit %d"""
-            % (self._deckLimit(), self.reportLimit),
+            % (self._deck_limit(), self.reportLimit),
             cutoff,
         )
         self._lrnQueue = [cast(tuple[int, CardId], tuple(e)) for e in self._lrnQueue]
@@ -422,7 +422,7 @@ select id from cards where
 did in %s and queue = {QUEUE_TYPE_REV} and due <= ?
 order by due, random()
 limit ?"""
-                % self._deckLimit(),
+                % self._deck_limit(),
                 self.today,
                 lim,
             )
@@ -503,7 +503,7 @@ limit ?"""
     def _cardConf(self, card: Card) -> DeckConfigDict:
         return self.col.decks.config_dict_for_deck_id(card.did)
 
-    def _deckLimit(self) -> str:
+    def _deck_limit(self) -> str:
         return ids2str(self.col.decks.active())
 
     # Answering (re)learning cards
@@ -609,11 +609,11 @@ limit ?"""
 
         card.due = int(time.time() + delay)
         # due today?
-        if card.due < self.dayCutoff:
+        if card.due < self.day_cutoff:
             # add some randomness, up to 5 minutes or 25%
             maxExtra = min(300, int(delay * 0.25))
             fuzz = random.randrange(0, max(1, maxExtra))
-            card.due = min(self.dayCutoff - 1, card.due + fuzz)
+            card.due = min(self.day_cutoff - 1, card.due + fuzz)
             card.queue = QUEUE_TYPE_LRN
             if card.due < (intTime() + self.col.conf["collapseTime"]):
                 self.lrnCount += 1
@@ -627,7 +627,7 @@ limit ?"""
         else:
             # the card is due in one or more days, so we need to use the
             # day learn queue
-            ahead = ((card.due - self.dayCutoff) // 86400) + 1
+            ahead = ((card.due - self.day_cutoff) // 86400) + 1
             card.due = self.today + ahead
             card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         return delay
@@ -701,7 +701,7 @@ limit ?"""
         ok = 0
         for idx, delay in enumerate(delays):
             now += int(delay * 60)
-            if now > self.dayCutoff:
+            if now > self.day_cutoff:
                 break
             ok = idx
         return ok + 1
