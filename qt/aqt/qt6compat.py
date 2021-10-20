@@ -44,6 +44,7 @@ sys.modules["PyQt6.Qt"] = PyQt6.QtCore.Qt
 
 PyQt6.QtWidgets.QAction = PyQt6.QtGui.QAction
 PyQt6.QtWidgets.QActionGroup = PyQt6.QtGui.QActionGroup
+PyQt6.QtWidgets.QShortcut = PyQt6.QtGui.QShortcut
 
 # Alias classes shifted between QtWebEngineWidgets and QtWebEngineCore
 ##########################################################################
