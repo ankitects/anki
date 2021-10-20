@@ -74,6 +74,11 @@ PyQt6.QtWebEngineWidgets.QWebEngineDownloadItem = (
     PyQt6.QtWebEngineCore.QWebEngineDownloadRequest
 )
 
+# Aliases for other miscellaneous class changes
+##########################################################################
+
+PyQt6.QtCore.QRegExp = PyQt6.QtCore.QRegularExpression
+
 # Restore QWebEnginePage.view()
 # ########################################################################
 
