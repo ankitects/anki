@@ -13,6 +13,7 @@ import sys
 import PyQt6.QtCore
 import PyQt6.QtGui
 import PyQt6.QtWidgets
+import PyQt6.QtWebEngineWidgets
 
 # Globally alias PyQt5 to PyQt6
 # #########################################################################
@@ -23,6 +24,8 @@ sys.modules["PyQt5.QtCore"] = PyQt6.QtCore
 # Need to alias QtWidgets and QtGui explicitly to facilitate patches
 sys.modules["PyQt5.QtGui"] = PyQt6.QtGui
 sys.modules["PyQt5.QtWidgets"] = PyQt6.QtWidgets
+# Needed to maintain import order between QtWebEngineWidgets and QCoreApplication:
+sys.modules["PyQt5.QtWebEngineWidgets"] = PyQt6.QtWebEngineWidgets
 
 # Globally alias removed PyQt6.Qt to PyQt6.QtCore.Qt
 ##########################################################################
