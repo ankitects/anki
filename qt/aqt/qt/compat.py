@@ -125,11 +125,13 @@ QMenu.exec_ = qt_exec_
 # icons – which oftentimes are not essential to the core UX –, printing a warning
 # instead of preventing the add-on from loading seems appropriate.
 
+
 def qt_resource_system_call(*args, **kwargs):
     print_deprecation_warning(
         "The Qt resource system no longer works on PyQt6. "
         "Please switch to a different solution."
     )
+
 
 PyQt6.QtCore.qRegisterResourceData = qt_resource_system_call
 PyQt6.QtCore.qUnregisterResourceData = qt_resource_system_call
@@ -142,6 +144,8 @@ from PyQt6.QtDBus import QDBus
 from PyQt6.QtGui import *
 from PyQt6.QtWebEngineCore import *
 from PyQt6.QtWidgets import *
+from PyQt6.QtNetwork import QHostAddress
+from PyQt6.QtPrintSupport import QPrinter
 
 # This is the subset of enums used in all public Anki add-ons as of 2021-10-19.
 # Please note that this list is likely to be incomplete as the process used to
@@ -159,11 +163,13 @@ from PyQt6.QtWidgets import *
 
 QEvent.ChildAdded = QEvent.Type.ChildAdded
 QEvent.ContextMenu = QEvent.Type.ContextMenu
+QEvent.FileOpen = QEvent.Type.FileOpen
 QEvent.FocusIn = QEvent.Type.FocusIn
 QEvent.HoverEnter = QEvent.Type.HoverEnter
 QEvent.HoverMove = QEvent.Type.HoverMove
 QEvent.KeyPress = QEvent.Type.KeyPress
 QEvent.KeyRelease = QEvent.Type.KeyRelease
+QEvent.Leave = QEvent.Type.Leave
 QEvent.MouseButtonDblClick = QEvent.Type.MouseButtonDblClick
 QEvent.MouseButtonPress = QEvent.Type.MouseButtonPress
 QEvent.MouseButtonRelease = QEvent.Type.MouseButtonRelease
@@ -181,7 +187,10 @@ QEventLoop.AllEvents = QEventLoop.ProcessEventsFlag.AllEvents
 QEventLoop.ExcludeUserInputEvents = QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents
 QIODevice.ReadOnly = QIODevice.OpenModeFlag.ReadOnly
 QIODevice.ReadWrite = QIODevice.OpenModeFlag.ReadWrite
+QIODevice.WriteOnly = QIODevice.OpenModeFlag.WriteOnly
+QItemSelectionModel.Clear = QItemSelectionModel.SelectionFlag.Clear
 QItemSelectionModel.Current = QItemSelectionModel.SelectionFlag.Current
+QItemSelectionModel.Deselect = QItemSelectionModel.SelectionFlag.Deselect
 QItemSelectionModel.Rows = QItemSelectionModel.SelectionFlag.Rows
 QItemSelectionModel.Select = QItemSelectionModel.SelectionFlag.Select
 QItemSelectionModel.SelectCurrent = QItemSelectionModel.SelectionFlag.SelectCurrent
@@ -197,16 +206,21 @@ QStandardPaths.DesktopLocation = QStandardPaths.StandardLocation.DesktopLocation
 QStandardPaths.DocumentsLocation = QStandardPaths.StandardLocation.DocumentsLocation
 QStandardPaths.DownloadLocation = QStandardPaths.StandardLocation.DownloadLocation
 QStandardPaths.GenericDataLocation = QStandardPaths.StandardLocation.GenericDataLocation
+QThread.IdlePriority = QThread.Priority.IdlePriority
+QUrl.TolerantMode = QUrl.ParsingMode.TolerantMode
 Qt.AlignBottom = Qt.AlignmentFlag.AlignBottom
 Qt.AlignCenter = Qt.AlignmentFlag.AlignCenter
 Qt.AlignHCenter = Qt.AlignmentFlag.AlignHCenter
+Qt.AlignJustify = Qt.AlignmentFlag.AlignJustify
 Qt.AlignLeading = Qt.AlignmentFlag.AlignLeading
 Qt.AlignLeft = Qt.AlignmentFlag.AlignLeft
 Qt.AlignRight = Qt.AlignmentFlag.AlignRight
 Qt.AlignTop = Qt.AlignmentFlag.AlignTop
 Qt.AlignTrailing = Qt.AlignmentFlag.AlignTrailing
 Qt.AlignVCenter = Qt.AlignmentFlag.AlignVCenter
+Qt.AA_DontShowIconsInMenus = Qt.ApplicationAttribute.AA_DontShowIconsInMenus
 Qt.DownArrow = Qt.ArrowType.DownArrow
+Qt.NoArrow = Qt.ArrowType.NoArrow
 Qt.IgnoreAspectRatio = Qt.AspectRatioMode.IgnoreAspectRatio
 Qt.KeepAspectRatio = Qt.AspectRatioMode.KeepAspectRatio
 Qt.KeepAspectRatioByExpanding = Qt.AspectRatioMode.KeepAspectRatioByExpanding
@@ -250,13 +264,17 @@ Qt.MouseFocusReason = Qt.FocusReason.MouseFocusReason
 Qt.Popup = Qt.FocusReason.PopupFocusReason
 Qt.black = Qt.GlobalColor.black
 Qt.blue = Qt.GlobalColor.blue
+Qt.cyan = Qt.GlobalColor.cyan
 Qt.darkBlue = Qt.GlobalColor.darkBlue
 Qt.darkGray = Qt.GlobalColor.darkGray
 Qt.darkGreen = Qt.GlobalColor.darkGreen
+Qt.darkMagenta = Qt.GlobalColor.darkMagenta
 Qt.darkRed = Qt.GlobalColor.darkRed
+Qt.darkYellow = Qt.GlobalColor.darkYellow
 Qt.gray = Qt.GlobalColor.gray
 Qt.green = Qt.GlobalColor.green
 Qt.lightGray = Qt.GlobalColor.lightGray
+Qt.magenta = Qt.GlobalColor.magenta
 Qt.red = Qt.GlobalColor.red
 Qt.transparent = Qt.GlobalColor.transparent
 Qt.white = Qt.GlobalColor.white
@@ -273,15 +291,18 @@ Qt.DisplayRole = Qt.ItemDataRole.DisplayRole
 Qt.EditRole = Qt.ItemDataRole.EditRole
 Qt.FontRole = Qt.ItemDataRole.FontRole
 Qt.ForegroundRole = Qt.ItemDataRole.ForegroundRole
+Qt.SizeHintRole = Qt.ItemDataRole.SizeHintRole
 Qt.TextAlignmentRole = Qt.ItemDataRole.TextAlignmentRole
 Qt.ToolTipRole = Qt.ItemDataRole.ToolTipRole
 Qt.UserRole = Qt.ItemDataRole.UserRole
+Qt.ItemIsAutoTristate = Qt.ItemFlag.ItemIsAutoTristate
 Qt.ItemIsDragEnabled = Qt.ItemFlag.ItemIsDragEnabled
 Qt.ItemIsDropEnabled = Qt.ItemFlag.ItemIsDropEnabled
 Qt.ItemIsEditable = Qt.ItemFlag.ItemIsEditable
 Qt.ItemIsEnabled = Qt.ItemFlag.ItemIsEnabled
 Qt.ItemIsSelectable = Qt.ItemFlag.ItemIsSelectable
 Qt.ItemIsUserCheckable = Qt.ItemFlag.ItemIsUserCheckable
+Qt.ItemNeverHasChildren = Qt.ItemFlag.ItemNeverHasChildren
 Qt.NoItemFlags = Qt.ItemFlag.NoItemFlags
 Qt.AltModifier = Qt.KeyboardModifier.AltModifier
 Qt.ControlModifier = Qt.KeyboardModifier.ControlModifier
@@ -292,9 +313,12 @@ Qt.LeftToRight = Qt.LayoutDirection.LeftToRight
 Qt.RightToLeft = Qt.LayoutDirection.RightToLeft
 Qt.MatchContains = Qt.MatchFlag.MatchContains
 Qt.MatchEndsWith = Qt.MatchFlag.MatchEndsWith
+Qt.MatchExactly = Qt.MatchFlag.MatchExactly
 Qt.MatchFixedString = Qt.MatchFlag.MatchFixedString
 Qt.MatchRecursive = Qt.MatchFlag.MatchRecursive
 Qt.MatchRegExp = Qt.MatchFlag.MatchRegularExpression
+Qt.MatchStartsWith = Qt.MatchFlag.MatchStartsWith
+Qt.MatchWrap = Qt.MatchFlag.MatchWrap
 Qt.ALT = Qt.Modifier.ALT
 Qt.CTRL = Qt.Modifier.CTRL
 Qt.META = Qt.Modifier.META
@@ -311,18 +335,25 @@ Qt.Horizontal = Qt.Orientation.Horizontal
 Qt.Vertical = Qt.Orientation.Vertical
 Qt.RoundCap = Qt.PenCapStyle.RoundCap
 Qt.RoundJoin = Qt.PenJoinStyle.RoundJoin
+Qt.DashLine = Qt.PenStyle.DashLine
 Qt.NoPen = Qt.PenStyle.NoPen
 Qt.SolidLine = Qt.PenStyle.SolidLine
 Qt.ScrollBarAlwaysOff = Qt.ScrollBarPolicy.ScrollBarAlwaysOff
 Qt.ScrollBarAlwaysOn = Qt.ScrollBarPolicy.ScrollBarAlwaysOn
 Qt.ScrollBarAsNeeded = Qt.ScrollBarPolicy.ScrollBarAsNeeded
 Qt.ApplicationShortcut = Qt.ShortcutContext.ApplicationShortcut
+Qt.WidgetShortcut = Qt.ShortcutContext.WidgetShortcut
+Qt.WidgetWithChildrenShortcut = Qt.ShortcutContext.WidgetWithChildrenShortcut
+QUrl.RemoveFragment = Qt.ShortcutContext.WidgetWithChildrenShortcut
+Qt.AscendingOrder = Qt.SortOrder.AscendingOrder
 Qt.DescendingOrder = Qt.SortOrder.DescendingOrder
 Qt.ElideLeft = Qt.TextElideMode.ElideLeft
 Qt.ElideNone = Qt.TextElideMode.ElideNone
 Qt.ElideRight = Qt.TextElideMode.ElideRight
 Qt.TextDontPrint = Qt.TextFlag.TextDontPrint
+Qt.TextWordWrap = Qt.TextFlag.TextWordWrap
 Qt.AutoText = Qt.TextFormat.AutoText
+Qt.MarkdownText = Qt.TextFormat.MarkdownText
 Qt.PlainText = Qt.TextFormat.PlainText
 Qt.RichText = Qt.TextFormat.RichText
 Qt.LinksAccessibleByKeyboard = Qt.TextInteractionFlag.LinksAccessibleByKeyboard
@@ -334,6 +365,7 @@ Qt.LeftToolBarArea = Qt.ToolBarArea.LeftToolBarArea
 Qt.RightToolBarArea = Qt.ToolBarArea.RightToolBarArea
 Qt.TopToolBarArea = Qt.ToolBarArea.TopToolBarArea
 Qt.ToolButtonIconOnly = Qt.ToolButtonStyle.ToolButtonIconOnly
+Qt.ToolButtonTextBesideIcon = Qt.ToolButtonStyle.ToolButtonTextBesideIcon
 Qt.FastTransformation = Qt.TransformationMode.FastTransformation
 Qt.SmoothTransformation = Qt.TransformationMode.SmoothTransformation
 Qt.WA_DeleteOnClose = Qt.WidgetAttribute.WA_DeleteOnClose
@@ -349,6 +381,7 @@ Qt.WindowFullScreen = Qt.WindowState.WindowFullScreen
 Qt.WindowMaximized = Qt.WindowState.WindowMaximized
 Qt.WindowMinimized = Qt.WindowState.WindowMinimized
 Qt.WindowNoState = Qt.WindowState.WindowNoState
+Qt.CoverWindow = Qt.WindowType.CoverWindow
 Qt.CustomizeWindowHint = Qt.WindowType.CustomizeWindowHint
 Qt.Dialog = Qt.WindowType.Dialog
 Qt.FramelessWindowHint = Qt.WindowType.FramelessWindowHint
@@ -356,6 +389,7 @@ Qt.MSWindowsFixedSizeDialogHint = Qt.WindowType.MSWindowsFixedSizeDialogHint
 Qt.NoDropShadowWindowHint = Qt.WindowType.NoDropShadowWindowHint
 Qt.Tool = Qt.WindowType.Tool
 Qt.ToolTip = Qt.WindowType.ToolTip
+Qt.Widget = Qt.WindowType.Widget
 Qt.Window = Qt.WindowType.Window
 Qt.WindowCloseButtonHint = Qt.WindowType.WindowCloseButtonHint
 Qt.WindowMaximizeButtonHint = Qt.WindowType.WindowMaximizeButtonHint
@@ -843,6 +877,8 @@ Qt.Key_Dead_Longsolidusoverlay = Qt.Key.Key_Dead_Longsolidusoverlay
 
 # QtGui
 
+QAction.AboutRole = QAction.MenuRole.AboutRole
+QAction.PreferencesRole = QAction.MenuRole.PreferencesRole
 QClipboard.Clipboard = QClipboard.Mode.Clipboard
 QClipboard.Selection = QClipboard.Mode.Selection
 QColor.HexRgb = QColor.NameFormat.HexRgb
@@ -850,10 +886,16 @@ QFont.StyleNormal = QFont.Style.StyleNormal
 QFont.Monospace = QFont.StyleHint.Monospace
 QFont.TypeWriter = QFont.StyleHint.TypeWriter
 QFont.Bold = QFont.Weight.Bold
+QFont.Medium = QFont.Weight.Medium
 QFont.Normal = QFont.Weight.Normal
 QFont.Thin = QFont.Weight.Thin
 QFontDatabase.FixedFont = QFontDatabase.SystemFont.FixedFont
 QFontDatabase.GeneralFont = QFontDatabase.SystemFont.GeneralFont
+QFontDatabase.Japanese = QFontDatabase.WritingSystem.Japanese
+QFontDatabase.Korean = QFontDatabase.WritingSystem.Korean
+QFontDatabase.SimplifiedChinese = QFontDatabase.WritingSystem.SimplifiedChinese
+QFontDatabase.TraditionalChinese = QFontDatabase.WritingSystem.TraditionalChinese
+QFormLayout.ExpandingFieldsGrow = QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow
 QIcon.Active = QIcon.Mode.Active
 QIcon.Disabled = QIcon.Mode.Disabled
 QIcon.Normal = QIcon.Mode.Normal
@@ -864,17 +906,27 @@ QImage.Format_ARGB32 = QImage.Format.Format_ARGB32
 QImage.Format_Indexed8 = QImage.Format.Format_Indexed8
 QImage.Format_Mono = QImage.Format.Format_Mono
 QImage.Format_RGB32 = QImage.Format.Format_RGB32
+QImage.Format_RGB888 = QImage.Format.Format_RGB888
+QImage.Format_RGBA8888 = QImage.Format.Format_RGBA8888
 QKeySequence.NativeText = QKeySequence.SequenceFormat.NativeText
 QKeySequence.PortableText = QKeySequence.SequenceFormat.PortableText
+QKeySequence.Copy = QKeySequence.StandardKey.Copy
+QKeySequence.Cut = QKeySequence.StandardKey.Cut
 QKeySequence.Find = QKeySequence.StandardKey.Find
 QKeySequence.FindNext = QKeySequence.StandardKey.FindNext
 QKeySequence.FindPrevious = QKeySequence.StandardKey.FindPrevious
 QKeySequence.InsertParagraphSeparator = (
     QKeySequence.StandardKey.InsertParagraphSeparator
 )
+QKeySequence.Paste = QKeySequence.StandardKey.Paste
 QKeySequence.Refresh = QKeySequence.StandardKey.Refresh
+QKeySequence.SelectAll = QKeySequence.StandardKey.SelectAll
 QMovie.CacheAll = QMovie.CacheMode.CacheAll
+QPageLayout.Portrait = QPageLayout.Orientation.Portrait
+QPageSize.A4 = QPageSize.PageSizeId.A4
 QPainter.Antialiasing = QPainter.RenderHint.Antialiasing
+QPainter.HighQualityAntialiasing = QPainter.RenderHint.Antialiasing
+QPainter.SmoothPixmapTransform = QPainter.RenderHint.SmoothPixmapTransform
 QPalette.Active = QPalette.ColorGroup.Active
 QPalette.Disabled = QPalette.ColorGroup.Disabled
 QPalette.Inactive = QPalette.ColorGroup.Inactive
@@ -892,8 +944,10 @@ QPalette.ToolTipText = QPalette.ColorRole.ToolTipText
 QPalette.Background = QPalette.ColorRole.Window
 QPalette.Window = QPalette.ColorRole.Window
 QPalette.WindowText = QPalette.ColorRole.WindowText
+QPalette.Foreground = QPalette.ColorRole.WindowText
 QTextCharFormat.NoUnderline = QTextCharFormat.UnderlineStyle.NoUnderline
 QTextCharFormat.SingleUnderline = QTextCharFormat.UnderlineStyle.SingleUnderline
+QTextCursor.KeepAnchor = QTextCursor.MoveMode.KeepAnchor
 QTextCursor.MoveAnchor = QTextCursor.MoveMode.MoveAnchor
 QTextCursor.End = QTextCursor.MoveOperation.End
 QTextCursor.Start = QTextCursor.MoveOperation.Start
@@ -901,6 +955,7 @@ QTextCursor.StartOfLine = QTextCursor.MoveOperation.StartOfLine
 QTextCursor.LineUnderCursor = QTextCursor.SelectionType.LineUnderCursor
 QTextFormat.FullWidthSelection = QTextFormat.Property.FullWidthSelection
 QTextOption.NoWrap = QTextOption.WrapMode.NoWrap
+QValidator.Acceptable = QValidator.State.Acceptable
 
 
 # QtWebEngineCore
@@ -909,11 +964,18 @@ QWebEnginePage.FindBackward = QWebEnginePage.FindFlag.FindBackward
 QWebEnginePage.FindCaseSensitively = QWebEnginePage.FindFlag.FindCaseSensitively
 QWebEnginePage.Back = QWebEnginePage.WebAction.Back
 QWebEnginePage.Forward = QWebEnginePage.WebAction.Forward
+QWebEnginePage.Copy = QWebEnginePage.WebAction.Copy
+QWebEnginePage.Cut = QWebEnginePage.WebAction.Cut
+QWebEnginePage.Paste = QWebEnginePage.WebAction.Paste
+QWebEnginePage.SelectAll = QWebEnginePage.WebAction.SelectAll
 QWebEnginePage.WebBrowserTab = QWebEnginePage.WebWindowType.WebBrowserTab
 QWebEngineProfile.NoPersistentCookies = (
     QWebEngineProfile.PersistentCookiesPolicy.NoPersistentCookies
 )
+QWebEngineProfile.NoCache = QWebEngineProfile.HttpCacheType.NoCache
+QWebEngineScript.DocumentCreation = QWebEngineScript.InjectionPoint.DocumentCreation
 QWebEngineScript.DocumentReady = QWebEngineScript.InjectionPoint.DocumentReady
+QWebEngineScript.ApplicationWorld = QWebEngineScript.ScriptWorldId.ApplicationWorld
 QWebEngineScript.MainWorld = QWebEngineScript.ScriptWorldId.MainWorld
 QWebEngineSettings.DefaultFontSize = QWebEngineSettings.FontSize.DefaultFontSize
 QWebEngineSettings.MinimumFontSize = QWebEngineSettings.FontSize.MinimumFontSize
@@ -966,6 +1028,7 @@ QAbstractItemView.ContiguousSelection = (
 )
 QAbstractItemView.ExtendedSelection = QAbstractItemView.SelectionMode.ExtendedSelection
 QAbstractItemView.MultiSelection = QAbstractItemView.SelectionMode.MultiSelection
+QAbstractItemView.NoSelection = QAbstractItemView.SelectionMode.NoSelection
 QAbstractItemView.SingleSelection = QAbstractItemView.SelectionMode.SingleSelection
 QAbstractScrollArea.AdjustToContents = (
     QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents
@@ -981,9 +1044,14 @@ QBoxLayout.LeftToRight = QBoxLayout.Direction.LeftToRight
 QBoxLayout.RightToLeft = QBoxLayout.Direction.RightToLeft
 QBoxLayout.TopToBottom = QBoxLayout.Direction.TopToBottom
 QColorDialog.DontUseNativeDialog = QColorDialog.ColorDialogOption.DontUseNativeDialog
+QColorDialog.NoButtons = QColorDialog.ColorDialogOption.NoButtons
 QComboBox.InsertAtBottom = QComboBox.InsertPolicy.InsertAtBottom
 QComboBox.NoInsert = QComboBox.InsertPolicy.NoInsert
 QComboBox.AdjustToContents = QComboBox.SizeAdjustPolicy.AdjustToContents
+QComboBox.AdjustToMinimumContentsLength = (
+    QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
+)
+QCompleter.PopupCompletion = QCompleter.CompletionMode.PopupCompletion
 QCompleter.UnfilteredPopupCompletion = (
     QCompleter.CompletionMode.UnfilteredPopupCompletion
 )
@@ -1015,6 +1083,8 @@ QDialogButtonBox.Help = QDialogButtonBox.StandardButton.Help
 QDialogButtonBox.Help = QDialogButtonBox.StandardButton.Help
 QDialogButtonBox.Ignore = QDialogButtonBox.StandardButton.Ignore
 QDialogButtonBox.No = QDialogButtonBox.StandardButton.No
+QDialogButtonBox.No = QDialogButtonBox.StandardButton.NoButton
+QDialogButtonBox.NoButton = QDialogButtonBox.StandardButton.NoButton
 QDialogButtonBox.NoButton = QDialogButtonBox.StandardButton.NoButton
 QDialogButtonBox.NoToAll = QDialogButtonBox.StandardButton.NoToAll
 QDialogButtonBox.Ok = QDialogButtonBox.StandardButton.Ok
@@ -1070,9 +1140,12 @@ QGraphicsItem.ItemIsSelectable = QGraphicsItem.GraphicsItemFlag.ItemIsSelectable
 QGraphicsItem.ItemSendsGeometryChanges = (
     QGraphicsItem.GraphicsItemFlag.ItemSendsGeometryChanges
 )
+QGraphicsPixmapItem.BoundingRectShape = QGraphicsPixmapItem.ShapeMode.BoundingRectShape
 QGraphicsView.NoDrag = QGraphicsView.DragMode.NoDrag
 QGraphicsView.RubberBandDrag = QGraphicsView.DragMode.RubberBandDrag
 QGraphicsView.ScrollHandDrag = QGraphicsView.DragMode.ScrollHandDrag
+QGraphicsView.AnchorUnderMouse = QGraphicsView.ViewportAnchor.AnchorUnderMouse
+QGraphicsView.NoAnchor = QGraphicsView.ViewportAnchor.NoAnchor
 QHeaderView.Fixed = QHeaderView.ResizeMode.Fixed
 QHeaderView.Interactive = QHeaderView.ResizeMode.Interactive
 QHeaderView.ResizeToContents = QHeaderView.ResizeMode.ResizeToContents
@@ -1086,11 +1159,16 @@ QLineEdit.Normal = QLineEdit.EchoMode.Normal
 QLineEdit.Password = QLineEdit.EchoMode.Password
 QLineEdit.PasswordEchoOnEdit = QLineEdit.EchoMode.PasswordEchoOnEdit
 QListView.LeftToRight = QListView.Flow.LeftToRight
+QListView.SinglePass = QListView.LayoutMode.SinglePass
+QListView.Snap = QListView.Movement.Snap
 QListView.Adjust = QListView.ResizeMode.Adjust
 QListView.Fixed = QListView.ResizeMode.Fixed
 QListView.IconMode = QListView.ViewMode.IconMode
+QListView.ListMode = QListView.ViewMode.ListMode
 QListWidgetItem.Type = QListWidgetItem.ItemType.Type
 QMessageBox.AcceptRole = QMessageBox.ButtonRole.AcceptRole
+QMessageBox.NoRole = QMessageBox.ButtonRole.NoRole
+QMessageBox.RejectRole = QMessageBox.ButtonRole.RejectRole
 QMessageBox.Critical = QMessageBox.Icon.Critical
 QMessageBox.Information = QMessageBox.Icon.Information
 QMessageBox.Question = QMessageBox.Icon.Question
@@ -1101,10 +1179,12 @@ QMessageBox.Close = QMessageBox.StandardButton.Close
 QMessageBox.Help = QMessageBox.StandardButton.Help
 QMessageBox.Ignore = QMessageBox.StandardButton.Ignore
 QMessageBox.No = QMessageBox.StandardButton.No
+QMessageBox.NoButton = QMessageBox.StandardButton.NoButton
 QMessageBox.Ok = QMessageBox.StandardButton.Ok
 QMessageBox.Retry = QMessageBox.StandardButton.Retry
 QMessageBox.Yes = QMessageBox.StandardButton.Yes
 QPlainTextEdit.NoWrap = QPlainTextEdit.LineWrapMode.NoWrap
+QPlainTextEdit.WidgetWidth = QPlainTextEdit.LineWrapMode.WidgetWidth
 QProgressBar.BottomToTop = QProgressBar.Direction.BottomToTop
 QProgressBar.TopToBottom = QProgressBar.Direction.TopToBottom
 QRubberBand.Rectangle = QRubberBand.Shape.Rectangle
@@ -1124,6 +1204,7 @@ QSlider.TicksLeft = QSlider.TickPosition.TicksLeft
 QSlider.TicksRight = QSlider.TickPosition.TicksRight
 QStyle.CC_Slider = QStyle.ComplexControl.CC_Slider
 QStyle.CE_ItemViewItem = QStyle.ControlElement.CE_ItemViewItem
+QStyle.CE_TabBarTab = QStyle.ControlElement.CE_TabBarTab
 QStyle.PM_LayoutBottomMargin = QStyle.PixelMetric.PM_LayoutBottomMargin
 QStyle.PM_LayoutHorizontalSpacing = QStyle.PixelMetric.PM_LayoutHorizontalSpacing
 QStyle.PM_LayoutLeftMargin = QStyle.PixelMetric.PM_LayoutLeftMargin
@@ -1133,10 +1214,16 @@ QStyle.PM_LayoutVerticalSpacing = QStyle.PixelMetric.PM_LayoutVerticalSpacing
 QStyle.PM_SliderLength = QStyle.PixelMetric.PM_SliderLength
 QStyle.PM_SliderSpaceAvailable = QStyle.PixelMetric.PM_SliderSpaceAvailable
 QStyle.SP_ArrowDown = QStyle.StandardPixmap.SP_ArrowDown
+QStyle.SP_ArrowUp = QStyle.StandardPixmap.SP_ArrowUp
 QStyle.SP_BrowserReload = QStyle.StandardPixmap.SP_BrowserReload
 QStyle.SP_DialogApplyButton = QStyle.StandardPixmap.SP_DialogApplyButton
 QStyle.SP_DialogCancelButton = QStyle.StandardPixmap.SP_DialogCancelButton
+QStyle.SP_DialogOpenButton = QStyle.StandardPixmap.SP_DialogOpenButton
+QStyle.SP_DirClosedIcon = QStyle.StandardPixmap.SP_DirClosedIcon
 QStyle.SP_DirLinkIcon = QStyle.StandardPixmap.SP_DirLinkIcon
+QStyle.SP_DirOpenIcon = QStyle.StandardPixmap.SP_DirOpenIcon
+QStyle.SP_FileDialogContentsView = QStyle.StandardPixmap.SP_FileDialogContentsView
+QStyle.SP_FileIcon = QStyle.StandardPixmap.SP_FileIcon
 QStyle.SP_TrashIcon = QStyle.StandardPixmap.SP_TrashIcon
 QStyle.State_Children = QStyle.StateFlag.State_Children
 QStyle.State_Selected = QStyle.StateFlag.State_Selected
@@ -1151,15 +1238,23 @@ QSystemTrayIcon.NoIcon = QSystemTrayIcon.MessageIcon.NoIcon
 QSystemTrayIcon.Warning = QSystemTrayIcon.MessageIcon.Warning
 QTabBar.RightSide = QTabBar.ButtonPosition.RightSide
 QTabWidget.North = QTabWidget.TabPosition.North
+QTabWidget.South = QTabWidget.TabPosition.South
+QTabWidget.West = QTabWidget.TabPosition.West
 QTabWidget.Rounded = QTabWidget.TabShape.Rounded
 QTextEdit.NoWrap = QTextEdit.LineWrapMode.NoWrap
+QToolButton.DelayedPopup = QToolButton.ToolButtonPopupMode.DelayedPopup
 QToolButton.InstantPopup = QToolButton.ToolButtonPopupMode.InstantPopup
 QWizard.NoBackButtonOnLastPage = QWizard.WizardOption.NoBackButtonOnLastPage
+QWizard.NoCancelButton = QWizard.WizardOption.NoCancelButton
 QWizard.ClassicStyle = QWizard.WizardStyle.ClassicStyle
+QWizard.ModernStyle = QWizard.WizardStyle.ModernStyle
 
-# QtDBus
+
+# Miscellaneous
 
 QDBus.AutoDetect = QDBus.CallMode.AutoDetect
+QHostAddress.LocalHost = QHostAddress.SpecialAddress.LocalHost
+QPrinter.Millimeter = QPrinter.Unit.Millimeter
 
 # Globally alias removed PyQt5.Qt to PyQt6.QtCore.Qt
 ##########################################################################
