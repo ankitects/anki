@@ -3,19 +3,15 @@
 
 # pylint: skip-file
 
-"""
-PyQt5-only code
-"""
-
 import wave
 from concurrent.futures import Future
 from typing import cast
 
 import aqt
 
-from .qt import *
-from .sound import Recorder
-from .utils import showWarning
+from . import *  # isort:skip
+from ..sound import Recorder  # isort:skip
+from ..utils import showWarning  # isort:skip
 
 
 class QtAudioInputRecorder(Recorder):

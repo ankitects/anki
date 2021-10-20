@@ -10,35 +10,11 @@ import traceback
 from typing import Callable, Union
 
 try:
-    from PyQt6 import sip
-    from PyQt6.QtCore import *
+    from .qt6 import *
 
-    # conflicting Qt and qFuzzyCompare definitions require an ignore
-    from PyQt6.QtGui import *  # type: ignore[misc]
-    from PyQt6.QtNetwork import QLocalServer, QLocalSocket, QNetworkProxy
-    from PyQt6.QtWebChannel import QWebChannel
-    from PyQt6.QtWebEngineCore import *
-    from PyQt6.QtWebEngineWidgets import *
-    from PyQt6.QtWidgets import *
-    # provide compatibility shims for PyQt5 add-ons:
-    from . import qt6compat
+    from . import compat  # isort:skip
 except:
-    from PyQt5.QtCore import *  # type: ignore
-    from PyQt5.QtGui import *  # type: ignore
-    from PyQt5.QtNetwork import (  # type: ignore
-        QLocalServer,
-        QLocalSocket,
-        QNetworkProxy,
-    )
-    from PyQt5.QtWebChannel import QWebChannel  # type: ignore
-    from PyQt5.QtWebEngineCore import *  # type: ignore
-    from PyQt5.QtWebEngineWidgets import *  # type: ignore
-    from PyQt5.QtWidgets import *  # type: ignore
-
-    try:
-        from PyQt5 import sip  # type: ignore
-    except ImportError:
-        import sip  # type: ignore
+    from .qt5 import *  # type: ignore
 
 from anki.utils import isMac, isWin
 
