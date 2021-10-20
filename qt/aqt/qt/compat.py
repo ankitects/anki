@@ -121,26 +121,18 @@ QMenu.exec_ = qt_exec_
 # Graciously handle removed Qt resource system
 # ########################################################################
 
-_qt_resources_deprecated_msg = (
-    "The Qt resource system no longer works on PyQt6. "
-    "Please switch to a different solution."
-)
-
 # Given that add-ons mostly use the Qt resource system to equip UI elements with
 # icons – which oftentimes are not essential to the core UX –, printing a warning
 # instead of preventing the add-on from loading seems appropriate.
 
+def qt_resource_system_call(*args, **kwargs):
+    print_deprecation_warning(
+        "The Qt resource system no longer works on PyQt6. "
+        "Please switch to a different solution."
+    )
 
-def qRegisterResourceData(*args, **kwargs):
-    print_deprecation_warning(_qt_resources_deprecated_msg)
-
-
-def qUnregisterResourceData(*args, **kwargs):
-    print_deprecation_warning(_qt_resources_deprecated_msg)
-
-
-PyQt6.QtCore.qRegisterResourceData = qRegisterResourceData
-PyQt6.QtCore.qUnregisterResourceData = qUnregisterResourceData
+PyQt6.QtCore.qRegisterResourceData = qt_resource_system_call
+PyQt6.QtCore.qUnregisterResourceData = qt_resource_system_call
 
 # Patch unscoped enums back in, aliasing them to scoped enums
 # ########################################################################
