@@ -1167,3 +1167,4 @@ QDBus.AutoDetect = QDBus.CallMode.AutoDetect
 from . import qt5qt
 
 sys.modules["PyQt5.Qt"] = qt5qt
+sys.modules["PyQt6.Qt"] = qt5qt
