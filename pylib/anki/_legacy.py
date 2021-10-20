@@ -76,24 +76,23 @@ class DeprecatedNamesMixin:
     @no_type_check
     @classmethod
     def register_deprecated_attributes(
-        cls, *args: tuple[DeprecatedAliasTarget, DeprecatedAliasTarget]
+        cls,
+        **kwargs: tuple[DeprecatedAliasTarget, DeprecatedAliasTarget],
     ) -> None:
         """Manually add deprecated attributes without exact substitutes.
 
-        For an attribute in camelcase, pass a tuple of (alias, replacement),
-        where alias is the attribute's new name (snakecase, prepended with
-        '_legacy_'), and replacement is any callable to be used in new code.
+        Pass a tuple of (alias, replacement), where alias is the attribute's new
+        name (by convention: snakecase, prepended with '_legacy_'), and
+        replacement is any callable to be used instead in new code.
+        Also note the docstring of `register_deprecated_aliases`.
 
         E.g. given `def oldFunc(args): return new_func(additionalLogic(args))`,
         rename `oldFunc` to `_legacy_old_func` and call
-        `register_deprecated_attributes((_legacy_old_func, new_func))`.
+        `register_deprecated_attributes(oldFunc=(_legacy_old_func, new_func))`.
         """
         cls._deprecated_attributes = {
-            stringcase.camelCase(tup[0].removeprefix("_legacy_")): (
-                _target_to_string(tup[0]),
-                _target_to_string(tup[1]),
-            )
-            for tup in args
+            k: (_target_to_string(v[0]), _target_to_string(v[1]))
+            for k, v in kwargs.items()
         }
 
 
