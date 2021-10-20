@@ -5,7 +5,7 @@
 # pylint: disable=unused-import
 
 """
-PyQt5-only code
+PyQt5 imports
 """
 
 from PyQt5.QtCore import *  # type: ignore

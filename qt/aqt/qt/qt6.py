@@ -4,6 +4,10 @@
 # make sure not to optimize imports on this file
 # pylint: disable=unused-import
 
+"""
+PyQt6 imports
+"""
+
 from PyQt6 import sip
 from PyQt6.QtCore import *
 

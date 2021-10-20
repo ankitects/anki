@@ -38,11 +38,6 @@ sys.modules["PyQt5.QtNetwork"] = PyQt6.QtNetwork
 # Alias sip
 sys.modules["sip"] = PyQt6.sip
 
-# Globally alias removed PyQt6.Qt to PyQt6.QtCore.Qt
-##########################################################################
-
-sys.modules["PyQt6.Qt"] = PyQt6.QtCore.Qt
-
 # Alias classes shifted between QtWidgets and QtGui
 ##########################################################################
 
@@ -1173,3 +1168,10 @@ QWizard.ClassicStyle = QWizard.WizardStyle.ClassicStyle
 # QtDBus
 
 QDBus.AutoDetect = QDBus.CallMode.AutoDetect
+
+# Globally alias removed PyQt5.Qt to PyQt6.QtCore.Qt
+##########################################################################
+
+from . import qt5qt
+
+sys.modules["PyQt5.Qt"] = qt5qt

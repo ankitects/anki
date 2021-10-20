@@ -3,6 +3,10 @@
 
 # pylint: skip-file
 
+"""
+PyQt5-only code
+"""
+
 import wave
 from concurrent.futures import Future
 from typing import cast

@@ -10,9 +10,8 @@ import traceback
 from typing import Callable, Union
 
 try:
+    from . import compat  # needs to be imported first
     from .qt6 import *
-
-    from . import compat  # isort:skip
 except:
     from .qt5 import *  # type: ignore
 
