@@ -40,11 +40,13 @@ def _print_warning(old: str, doc: str) -> None:
 class DeprecatedNamesMixin:
     "Expose instance methods/vars as camelCase for legacy callers."
 
+    # deprecated name -> new name
+    _deprecated_aliases: dict[str, str] = {}
+    # deprecated name -> [new internal name, new name shown to user]
+    _deprecated_attributes: dict[str, tuple[str, str]] = {}
+
     # the @no_type_check lines are required to prevent mypy allowing arbitrary
     # attributes on the consuming class
-
-    _deprecated_aliases: dict[str, str] = {}
-    _deprecated_attributes: dict[str, tuple[str, str]] = {}
 
     @no_type_check
     def __getattr__(self, name: str) -> Any:
