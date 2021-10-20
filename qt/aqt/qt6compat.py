@@ -35,6 +35,8 @@ sys.modules["PyQt5.QtWebEngineWidgets"] = PyQt6.QtWebEngineWidgets
 sys.modules["PyQt5.QtWebEngineCore"] = PyQt6.QtWebEngineCore
 sys.modules["PyQt5.QtWebChannel"] = PyQt6.QtWebChannel
 sys.modules["PyQt5.QtNetwork"] = PyQt6.QtNetwork
+# Alias sip
+sys.modules["sip"] = PyQt6.sip
 
 # Globally alias removed PyQt6.Qt to PyQt6.QtCore.Qt
 ##########################################################################
@@ -120,7 +122,7 @@ QMenu.exec_ = qt_exec_
 # ########################################################################
 
 _qt_resources_deprecated_msg = (
-    "The Qt resource system no longer works in PyQt6. "
+    "The Qt resource system no longer works on PyQt6. "
     "Please switch to a different solution."
 )
 
