@@ -14,7 +14,8 @@ import PyQt6.QtCore
 import PyQt6.QtGui
 import PyQt6.QtWidgets
 
-# Globally alias PyQt5 to PyQt6 ####
+# Globally alias PyQt5 to PyQt6
+# #########################################################################
 
 sys.modules["PyQt5"] = PyQt6
 # Need to alias QtCore explicitly as sip otherwise complains about repeat registration
@@ -23,16 +24,19 @@ sys.modules["PyQt5.QtCore"] = PyQt6.QtCore
 sys.modules["PyQt5.QtGui"] = PyQt6.QtGui
 sys.modules["PyQt5.QtWidgets"] = PyQt6.QtWidgets
 
-# Globally alias removed PyQt6.Qt to PyQt6.QtCore.Qt ####
+# Globally alias removed PyQt6.Qt to PyQt6.QtCore.Qt
+##########################################################################
 
 sys.modules["PyQt6.Qt"] = PyQt6.QtCore.Qt
 
-# Alias classes shifted between QtWidgets and QtGui ####
+# Alias classes shifted between QtWidgets and QtGui
+##########################################################################
 
 PyQt6.QtWidgets.QAction = PyQt6.QtGui.QAction
 PyQt6.QtWidgets.QActionGroup = PyQt6.QtGui.QActionGroup
 
-# Alias removed exec_ methods to exec ####
+# Alias removed exec_ methods to exec
+# ########################################################################
 
 from PyQt6.QtCore import QCoreApplication, QEventLoop, QThread
 from PyQt6.QtGui import QDrag, QGuiApplication
@@ -60,7 +64,8 @@ QDialog.exec_ = qt_exec_
 QMenu.exec_ = qt_exec_
 
 
-# Patch unscoped enums back in, aliasing them to scoped enums ####
+# Patch unscoped enums back in, aliasing them to scoped enums
+# ########################################################################
 
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
