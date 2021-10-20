@@ -45,6 +45,30 @@ sys.modules["PyQt6.Qt"] = PyQt6.QtCore.Qt
 PyQt6.QtWidgets.QAction = PyQt6.QtGui.QAction
 PyQt6.QtWidgets.QActionGroup = PyQt6.QtGui.QActionGroup
 
+# Alias classes shifted between QtWebEngineWidgets and QtWebEngineCore
+##########################################################################
+
+PyQt6.QtWebEngineWidgets.QWebEnginePage = PyQt6.QtWebEngineCore.QWebEnginePage
+PyQt6.QtWebEngineWidgets.QWebEngineHistory = PyQt6.QtWebEngineCore.QWebEngineHistory
+PyQt6.QtWebEngineWidgets.QWebEngineProfile = PyQt6.QtWebEngineCore.QWebEngineProfile
+PyQt6.QtWebEngineWidgets.QWebEngineScript = PyQt6.QtWebEngineCore.QWebEngineScript
+PyQt6.QtWebEngineWidgets.QWebEngineScriptCollection = (
+    PyQt6.QtWebEngineCore.QWebEngineScriptCollection
+)
+PyQt6.QtWebEngineWidgets.QWebEngineClientCertificateSelection = (
+    PyQt6.QtWebEngineCore.QWebEngineClientCertificateSelection
+)
+PyQt6.QtWebEngineWidgets.QWebEngineSettings = PyQt6.QtWebEngineCore.QWebEngineSettings
+PyQt6.QtWebEngineWidgets.QWebEngineFullScreenRequest = (
+    PyQt6.QtWebEngineCore.QWebEngineFullScreenRequest
+)
+PyQt6.QtWebEngineWidgets.QWebEngineContextMenuData = (
+    PyQt6.QtWebEngineCore.QWebEngineContextMenuRequest
+)
+PyQt6.QtWebEngineWidgets.QWebEngineDownloadItem = (
+    PyQt6.QtWebEngineCore.QWebEngineDownloadRequest
+)
+
 # Alias removed exec_ methods to exec
 # ########################################################################
 
@@ -86,6 +110,7 @@ _qt_resources_deprecated_msg = (
 # icons – which oftentimes are not essential to the core UX –, printing a warning
 # instead of preventing the add-on from loading seems appropriate.
 
+
 def qRegisterResourceData(*args, **kwargs):
     print_deprecation_warning(_qt_resources_deprecated_msg)
 
@@ -107,11 +132,11 @@ from PyQt6.QtWebEngineCore import *
 from PyQt6.QtDBus import QDBus
 
 # This is the subset of enums used in all public Anki add-ons as of 2021-10-19.
-# Please note that this list is likely to be incomplete as the process used
-# might have missed dynamically constructed enums. Also, as mostly only public
-# Anki add-ons were taken into consideration, some enums in other add-ons
-# might not be included. In those cases please consider filing a PR to
-# extend the assignments below.
+# Please note that this list is likely to be incomplete as the process used to
+# find them probably missed dynamically constructed enums.
+# Also, as mostly only public Anki add-ons were taken into consideration,
+# some enums in other add-ons might not be included. In those cases please
+# consider filing a PR to extend the assignments below.
 
 # Important: These patches are not meant to provide compatibility for all
 # add-ons going forward, but simply to maintain support with already
