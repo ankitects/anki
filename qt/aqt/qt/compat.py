@@ -142,10 +142,10 @@ PyQt6.QtCore.qUnregisterResourceData = qt_resource_system_call
 from PyQt6.QtCore import *
 from PyQt6.QtDBus import QDBus
 from PyQt6.QtGui import *
-from PyQt6.QtWebEngineCore import *
-from PyQt6.QtWidgets import *
 from PyQt6.QtNetwork import QHostAddress
 from PyQt6.QtPrintSupport import QPrinter
+from PyQt6.QtWebEngineCore import *
+from PyQt6.QtWidgets import *
 
 # This is the subset of enums used in all public Anki add-ons as of 2021-10-19.
 # Please note that this list is likely to be incomplete as the process used to

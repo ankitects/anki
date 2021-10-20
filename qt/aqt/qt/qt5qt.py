@@ -12,6 +12,6 @@ from typing import Any
 
 from .qt5 import *
 
+
 def __getattr__(name: str) -> Any:
     return getattr(Qt, name)  # type: ignore
-
