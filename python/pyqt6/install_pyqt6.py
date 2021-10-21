@@ -50,7 +50,6 @@ def copy_and_fix_pyi(source, dest):
                 # causes missing attributes not to be detected, as it's treating
                 # the class as inheriting from Any
                 line = line.replace("PyQt6.sip.wrapper", "object")
-                line = line.replace("PyQt6.sip.wrapper", "object")
                 # # remove blanket getattr in QObject which also causes missing
                 # # attributes not to be detected
                 if "def __getattr__(self, name: str) -> typing.Any" in line:
@@ -129,10 +128,6 @@ def main():
 
         if arm_darwin:
             fix_webengine_codesigning(base)
-
-    # add missing py.typed file
-    with open(os.path.join(base, "py.typed"), "w") as file:
-        pass
 
     result = """
 load("@rules_python//python:defs.bzl", "py_library")
