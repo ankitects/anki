@@ -52,11 +52,15 @@ class DeprecatedNamesMixin:
 
     @no_type_check
     def __getattr__(self, name: str) -> Any:
-        remapped, replacement = self._get_remapped_and_replacement(name)
+        try:
+            remapped, replacement = self._get_remapped_and_replacement(name)
+            out = getattr(self, remapped)
+        except AttributeError:
+            raise AttributeError(
+                f"'{self.__class__.__name__}' object has no attribute '{name}'"
+            ) from None
 
-        out = getattr(self, remapped)
         _print_warning(f"'{name}'", f"please use '{replacement}'")
-
         return out
 
     @no_type_check
@@ -122,12 +126,16 @@ class DeprecatedNamesMixinStandalone(DeprecatedNamesMixin):
         self.module_globals = module_globals
 
     def __getattr__(self, name: str) -> Any:
-        remapped, replacement = self._get_remapped_and_replacement(name)
-        if out := self.module_globals.get(remapped):
-            _print_warning(f"'{name}'", f"please use '{replacement}'")
-            return out
+        try:
+            remapped, replacement = self._get_remapped_and_replacement(name)
+            out = self.module_globals[remapped]
+        except (AttributeError, KeyError):
+            raise AttributeError(
+                f"Module '{self.module_globals['__name__']}' has no attribute '{name}'"
+            ) from None
 
-        raise AttributeError
+        _print_warning(f"'{name}'", f"please use '{replacement}'")
+        return out
 
 
 def deprecated(replaced_by: Callable | None = None, info: str = "") -> Callable:
