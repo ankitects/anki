@@ -52,19 +52,22 @@ class DeprecatedNamesMixin:
 
     @no_type_check
     def __getattr__(self, name: str) -> Any:
-        if some_tuple := self._deprecated_attributes.get(name):
-            remapped, replacement = some_tuple
-        else:
-            replacement = remapped = self._deprecated_aliases.get(
-                name
-            ) or stringcase.snakecase(name)
-            if remapped == name:
-                raise AttributeError
+        remapped, replacement = self._get_remapped_and_replacement(name)
 
         out = getattr(self, remapped)
         _print_warning(f"'{name}'", f"please use '{replacement}'")
 
         return out
+
+    @no_type_check
+    def _get_remapped_and_replacement(self, name: str) -> tuple[str, str]:
+        if some_tuple := self._deprecated_attributes.get(name):
+            return some_tuple
+
+        remapped = self._deprecated_aliases.get(name) or stringcase.snakecase(name)
+        if remapped == name:
+            raise AttributeError
+        return (remapped, remapped)
 
     @no_type_check
     @classmethod
@@ -98,6 +101,33 @@ class DeprecatedNamesMixin:
             k: (_target_to_string(v[0]), _target_to_string(v[1]))
             for k, v in kwargs.items()
         }
+
+
+class DeprecatedNamesMixinStandalone(DeprecatedNamesMixin):
+    """Provides the functionality of DeprecatedNamesMixin for modules.
+
+    It can be invoked like this:
+    ```
+        _deprecated_names = DeprecatedNamesMixinStandalone(globals())
+        _deprecated_names.register_deprecated_aliases(...
+        _deprecated_names.register_deprecated_attributes(...
+
+        @no_type_check
+        def __getattr__(name: str) -> Any:
+            return _deprecated_names.__getattr__(name)
+    ```
+    """
+
+    def __init__(self, module_globals: dict[str, Any]) -> None:
+        self.module_globals = module_globals
+
+    def __getattr__(self, name: str) -> Any:
+        remapped, replacement = self._get_remapped_and_replacement(name)
+        if out := self.module_globals.get(remapped):
+            _print_warning(f"'{name}'", f"please use '{replacement}'")
+            return out
+
+        raise AttributeError
 
 
 def deprecated(replaced_by: Callable | None = None, info: str = "") -> Callable:
