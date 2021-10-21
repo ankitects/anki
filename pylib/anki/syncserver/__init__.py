@@ -4,6 +4,8 @@
 # Please see /docs/syncserver.md
 #
 
+# pylint: enable=invalid-name
+
 from __future__ import annotations
 
 import gzip
@@ -19,8 +21,8 @@ from typing import Iterable, Optional
 try:
     import flask
     from waitress.server import create_server
-except ImportError as e:
-    print(e, "- to use the server, 'pip install anki[syncserver]'")
+except ImportError as error:
+    print(error, "- to use the server, 'pip install anki[syncserver]'")
     sys.exit(1)
 
 
@@ -72,10 +74,10 @@ def handle_sync_request(method_str: str) -> Response:
         col.close_for_full_sync()
     try:
         outdata = col._backend.sync_server_method(method=method, data=data)
-    except Exception as e:
+    except Exception as error:
         if method == Method.META:
             # if parallel syncing requests come in, block them
-            print("exception in meta", e)
+            print("exception in meta", error)
             return flask.make_response("Conflict", 409)
         else:
             raise
@@ -91,8 +93,8 @@ def handle_sync_request(method_str: str) -> Response:
         path = outdata.decode("utf8")
 
         def stream_reply() -> Iterable[bytes]:
-            with open(path, "rb") as f:
-                while chunk := f.read(16 * 1024):
+            with open(path, "rb") as file:
+                while chunk := file.read(16 * 1024):
                     yield chunk
                 os.unlink(path)
 
@@ -117,30 +119,29 @@ def after_full_sync() -> None:
 def get_method(
     method_str: str,
 ) -> SyncServerMethodRequest.Method.V | None:  # pylint: disable=no-member
-    s = method_str
-    if s == "hostKey":
+    if method_str == "hostKey":
         return Method.HOST_KEY
-    elif s == "meta":
+    elif method_str == "meta":
         return Method.META
-    elif s == "start":
+    elif method_str == "start":
         return Method.START
-    elif s == "applyGraves":
+    elif method_str == "applyGraves":
         return Method.APPLY_GRAVES
-    elif s == "applyChanges":
+    elif method_str == "applyChanges":
         return Method.APPLY_CHANGES
-    elif s == "chunk":
+    elif method_str == "chunk":
         return Method.CHUNK
-    elif s == "applyChunk":
+    elif method_str == "applyChunk":
         return Method.APPLY_CHUNK
-    elif s == "sanityCheck2":
+    elif method_str == "sanityCheck2":
         return Method.SANITY_CHECK
-    elif s == "finish":
+    elif method_str == "finish":
         return Method.FINISH
-    elif s == "abort":
+    elif method_str == "abort":
         return Method.ABORT
-    elif s == "upload":
+    elif method_str == "upload":
         return Method.FULL_UPLOAD
-    elif s == "download":
+    elif method_str == "download":
         return Method.FULL_DOWNLOAD
     else:
         return None
@@ -170,7 +171,7 @@ def col_path() -> str:
 
 
 def serve() -> None:
-    global col
+    global col  # pylint: disable=C0103
 
     col = Collection(col_path(), server=True)
     # don't hold an outer transaction open
