@@ -42,7 +42,7 @@ py_binary(
     visibility = ["//pylib:__subpackages__"],
     deps = [
         requirement("black"),
-        requirement("stringcase"),
+        "//pylib/anki/_vendor:stringcase",
     ],
 )
 
@@ -53,7 +53,7 @@ py_binary(
     ],
     tags = ["manual"],
     deps = [
-        requirement("stringcase"),
+        "//pylib/anki/_vendor:stringcase",
     ],
 )
 

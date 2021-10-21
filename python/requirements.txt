@@ -129,8 +129,6 @@ snakeviz==2.1.0
     # via -r requirements.in
 soupsieve==2.2.1
     # via beautifulsoup4
-stringcase==1.2.0
-    # via -r requirements.in
 toml==0.10.2
     # via
     #   mypy

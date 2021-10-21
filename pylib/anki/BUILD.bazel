@@ -24,7 +24,7 @@ _py_srcs = glob(
     exclude = [
         "hooks_gen.py",
     ],
-)
+) + ["//pylib/anki/_vendor"]
 
 py_library(
     name = "anki",
@@ -49,7 +49,7 @@ py_library(
         requirement("flask"),
         requirement("waitress"),
         requirement("markdown"),
-        requirement("stringcase"),
+        "//pylib/anki/_vendor:stringcase",
     ] + orjson_if_available(),
 )
 
