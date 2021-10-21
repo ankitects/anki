@@ -35,8 +35,8 @@ def print_deprecation_warning(msg: str, frame: int = 2) -> None:
     print(f"{path}:{linenum}:{msg}")
 
 
-def _print_warning(old: str, doc: str) -> None:
-    return print_deprecation_warning(f"{old} is deprecated: {doc}", frame=1)
+def _print_warning(old: str, doc: str, frame: int = 1) -> None:
+    return print_deprecation_warning(f"{old} is deprecated: {doc}", frame=frame)
 
 
 class DeprecatedNamesMixin:
@@ -134,7 +134,7 @@ class DeprecatedNamesMixinStandalone(DeprecatedNamesMixin):
                 f"Module '{self.module_globals['__name__']}' has no attribute '{name}'"
             ) from None
 
-        _print_warning(f"'{name}'", f"please use '{replacement}'")
+        _print_warning(f"'{name}'", f"please use '{replacement}'", frame=0)
         return out
 
 
