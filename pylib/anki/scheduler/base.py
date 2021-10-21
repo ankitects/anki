@@ -7,9 +7,9 @@ from __future__ import annotations
 
 import anki
 from anki import decks_pb2, scheduler_pb2
+from anki._legacy import DeprecatedNamesMixin
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.config import Config
-from anki._legacy import DeprecatedNamesMixin
 
 SchedTimingToday = scheduler_pb2.SchedTimingTodayResponse
 CongratsInfo = scheduler_pb2.CongratsInfoResponse
