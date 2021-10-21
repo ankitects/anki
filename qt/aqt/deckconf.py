@@ -66,7 +66,7 @@ class DeckConf(QDialog):
         import anki.consts as cs
 
         f = self.form
-        f.newOrder.addItems(list(cs.newCardOrderLabels(self.mw.col).values()))
+        f.newOrder.addItems(list(cs.new_card_order_labels(self.mw.col).values()))
         qconnect(f.newOrder.currentIndexChanged, self.onNewOrderChanged)
 
     # Conf list
