@@ -13,9 +13,10 @@ py_binary(
     ],
     deps = [
         requirement("black"),
-        requirement("stringcase"),
+        "//pylib/anki/_vendor:stringcase",
     ],
 )
+
 _i18n_generated = [
     "ftl.ts",
     "i18n/modules.ts",

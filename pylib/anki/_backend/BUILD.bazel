@@ -10,7 +10,7 @@ py_binary(
     ],
     deps = [
         requirement("black"),
-        requirement("stringcase"),
+        "//pylib/anki/_vendor:stringcase",
         requirement("protobuf"),
         "//pylib/anki:proto",
     ],
@@ -30,7 +30,7 @@ py_binary(
     ],
     deps = [
         requirement("black"),
-        requirement("stringcase"),
+        "//pylib/anki/_vendor:stringcase",
     ],
 )
 

@@ -11,7 +11,7 @@ py_binary(
     deps = [
         "//pylib/tools:hookslib",
         requirement("black"),
-        requirement("stringcase"),
+        "//pylib/anki/_vendor:stringcase",
     ],
 )
 

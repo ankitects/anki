@@ -9,7 +9,7 @@ import pathlib
 import traceback
 from typing import Any, Callable, Union, no_type_check
 
-import stringcase
+from anki._vendor import stringcase
 
 VariableTarget = tuple[Any, str]
 DeprecatedAliasTarget = Union[Callable, VariableTarget]
