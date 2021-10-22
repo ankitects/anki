@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: enable=invalid-name
+
 from __future__ import annotations
 
 import functools
@@ -33,8 +35,8 @@ def print_deprecation_warning(msg: str, frame: int = 2) -> None:
     print(f"{path}:{linenum}:{msg}")
 
 
-def _print_warning(old: str, doc: str) -> None:
-    return print_deprecation_warning(f"{old} is deprecated: {doc}", frame=1)
+def _print_warning(old: str, doc: str, frame: int = 1) -> None:
+    return print_deprecation_warning(f"{old} is deprecated: {doc}", frame=frame)
 
 
 class DeprecatedNamesMixin:
@@ -50,19 +52,26 @@ class DeprecatedNamesMixin:
 
     @no_type_check
     def __getattr__(self, name: str) -> Any:
-        if some_tuple := self._deprecated_attributes.get(name):
-            remapped, replacement = some_tuple
-        else:
-            replacement = remapped = self._deprecated_aliases.get(
-                name
-            ) or stringcase.snakecase(name)
-            if remapped == name:
-                raise AttributeError
+        try:
+            remapped, replacement = self._get_remapped_and_replacement(name)
+            out = getattr(self, remapped)
+        except AttributeError:
+            raise AttributeError(
+                f"'{self.__class__.__name__}' object has no attribute '{name}'"
+            ) from None
 
-        out = getattr(self, remapped)
         _print_warning(f"'{name}'", f"please use '{replacement}'")
-
         return out
+
+    @no_type_check
+    def _get_remapped_and_replacement(self, name: str) -> tuple[str, str]:
+        if some_tuple := self._deprecated_attributes.get(name):
+            return some_tuple
+
+        remapped = self._deprecated_aliases.get(name) or stringcase.snakecase(name)
+        if remapped == name:
+            raise AttributeError
+        return (remapped, remapped)
 
     @no_type_check
     @classmethod
@@ -96,6 +105,37 @@ class DeprecatedNamesMixin:
             k: (_target_to_string(v[0]), _target_to_string(v[1]))
             for k, v in kwargs.items()
         }
+
+
+class DeprecatedNamesMixinForModule(DeprecatedNamesMixin):
+    """Provides the functionality of DeprecatedNamesMixin for modules.
+
+    It can be invoked like this:
+    ```
+        _deprecated_names = DeprecatedNamesMixinForModule(globals())
+        _deprecated_names.register_deprecated_aliases(...
+        _deprecated_names.register_deprecated_attributes(...
+
+        @no_type_check
+        def __getattr__(name: str) -> Any:
+            return _deprecated_names.__getattr__(name)
+    ```
+    """
+
+    def __init__(self, module_globals: dict[str, Any]) -> None:
+        self.module_globals = module_globals
+
+    def __getattr__(self, name: str) -> Any:
+        try:
+            remapped, replacement = self._get_remapped_and_replacement(name)
+            out = self.module_globals[remapped]
+        except (AttributeError, KeyError):
+            raise AttributeError(
+                f"Module '{self.module_globals['__name__']}' has no attribute '{name}'"
+            ) from None
+
+        _print_warning(f"'{name}'", f"please use '{replacement}'", frame=0)
+        return out
 
 
 def deprecated(replaced_by: Callable | None = None, info: str = "") -> Callable:

@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: enable=invalid-name
+
 from importlib.resources import open_text
 
 
@@ -10,8 +12,8 @@ def _get_build_info() -> dict[str, str]:
         for line in file.readlines():
             elems = line.split()
             if len(elems) == 2:
-                k, v = elems
-                info[k] = v
+                key, val = elems
+                info[key] = val
 
     return info
 

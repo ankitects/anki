@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: enable=invalid-name
+
 from __future__ import annotations
 
 import sys
@@ -95,8 +97,8 @@ class RustBackend(RustBackendGenerated):
         bytes_input = to_json_bytes(input)
         try:
             return from_json_bytes(self._backend.db_command(bytes_input))
-        except Exception as e:
-            err_bytes = e.args[0]
+        except Exception as error:
+            err_bytes = error.args[0]
         err = backend_pb2.BackendError()
         err.ParseFromString(err_bytes)
         raise backend_exception_to_pylib(err)
@@ -125,8 +127,8 @@ class RustBackend(RustBackendGenerated):
         input_bytes = input.SerializeToString()
         try:
             return self._backend.command(service, method, input_bytes)
-        except Exception as e:
-            err_bytes = bytes(e.args[0])
+        except Exception as error:
+            err_bytes = bytes(error.args[0])
         err = backend_pb2.BackendError()
         err.ParseFromString(err_bytes)
         raise backend_exception_to_pylib(err)
@@ -135,12 +137,12 @@ class RustBackend(RustBackendGenerated):
 def translate_string_in(
     module_index: int, message_index: int, **kwargs: str | int | float
 ) -> i18n_pb2.TranslateStringRequest:
-    args = {}
-    for (k, v) in kwargs.items():
-        if isinstance(v, str):
-            args[k] = i18n_pb2.TranslateArgValue(str=v)
-        else:
-            args[k] = i18n_pb2.TranslateArgValue(number=v)
+    args = {
+        k: i18n_pb2.TranslateArgValue(str=v)
+        if isinstance(v, str)
+        else i18n_pb2.TranslateArgValue(number=v)
+        for k, v in kwargs.items()
+    }
     return i18n_pb2.TranslateStringRequest(
         module_index=module_index, message_index=message_index, args=args
     )
