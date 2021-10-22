@@ -66,7 +66,7 @@ class RustBackend(RustBackendGenerated):
     ) -> None:
         # pick up global defaults if not provided
         if langs is None:
-            langs = [anki.lang.currentLang]
+            langs = [anki.lang.current_lang]
 
         init_msg = backend_pb2.BackendInit(
             preferred_langs=langs,
