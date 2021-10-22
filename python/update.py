@@ -16,13 +16,14 @@ def cli():
 cli.add_command(compile.cli, "compile")
 
 print("Updating deps...")
-os.chdir("python")
+os.chdir(os.getenv("BUILD_WORKING_DIRECTORY"))
 sys.argv[1:] = [
     "compile",
     "--allow-unsafe",
     "--upgrade",
     "--no-header",
     "--strip-extras",
+    "--generate-hashes"
 ]
 
 cli()
