@@ -16,7 +16,7 @@ def cli():
 cli.add_command(compile.cli, "compile")
 
 print("Updating deps...")
-os.chdir("pip")
+os.chdir("python")
 sys.argv[1:] = [
     "compile",
     "--allow-unsafe",
