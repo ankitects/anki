@@ -266,7 +266,7 @@ class Overview:
         else:
             links.append(["C", "studymore", tr.actions_custom_study()])
             # links.append(["F", "cram", _("Filter/Cram")])
-        if self.mw.col.sched.haveBuried():
+        if self.mw.col.sched.have_buried():
             links.append(["U", "unbury", tr.studying_unbury()])
         links.append(["", "description", tr.scheduling_description()])
         buf = ""

@@ -33,7 +33,7 @@ def getEmptyCol():
 
 def test_clock():
     col = getEmptyCol()
-    if (col.sched.dayCutoff - intTime()) < 10 * 60:
+    if (col.sched.day_cutoff - intTime()) < 10 * 60:
         raise Exception("Unit tests will fail around the day rollover.")
 
 
@@ -1170,12 +1170,12 @@ def test_reorder():
     found = False
     # 50/50 chance of being reordered
     for i in range(20):
-        col.sched.randomizeCards(1)
+        col.sched.randomize_cards(1)
         if note.cards()[0].due != note.id:
             found = True
             break
     assert found
-    col.sched.orderCards(1)
+    col.sched.order_cards(1)
     assert note.cards()[0].due == 1
     # shifting
     note3 = col.newNote()

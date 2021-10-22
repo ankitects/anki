@@ -74,7 +74,7 @@ class CustomStudy(QDialog):
             smin = -DYN_MAX_SIZE
             smax = newExceeding
         elif idx == RADIO_REV:
-            rev = self.mw.col.sched.totalRevForCurrentDeck()
+            rev = self.mw.col.sched.total_rev_for_current_deck()
             # get the number of review due in deck that exceed the review due limit
             revUnderLearning = min(
                 rev, self.conf["rev"]["perDay"] - self.deck["revToday"][1]
@@ -126,14 +126,14 @@ class CustomStudy(QDialog):
         if i == RADIO_NEW:
             self.deck["extendNew"] = spin
             self.mw.col.decks.save(self.deck)
-            self.mw.col.sched.extendLimits(spin, 0)
+            self.mw.col.sched.extend_limits(spin, 0)
             self.mw.reset()
             QDialog.accept(self)
             return
         elif i == RADIO_REV:
             self.deck["extendRev"] = spin
             self.mw.col.decks.save(self.deck)
-            self.mw.col.sched.extendLimits(0, spin)
+            self.mw.col.sched.extend_limits(0, spin)
             self.mw.reset()
             QDialog.accept(self)
             return

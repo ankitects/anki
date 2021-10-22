@@ -1,10 +1,14 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: enable=invalid-name
+
 from __future__ import annotations
 
 import sys
-from typing import Any, NewType
+from typing import Any, NewType, no_type_check
+
+from anki._legacy import DeprecatedNamesMixinForModule
 
 # whether new cards should be mixed with reviews, or shown first or last
 NEW_CARDS_DISTRIBUTE = 0
@@ -107,7 +111,7 @@ def _tr(col: anki.collection.Collection | None) -> Any:
         return tr_legacyglobal
 
 
-def newCardOrderLabels(col: anki.collection.Collection | None) -> dict[int, Any]:
+def new_card_order_labels(col: anki.collection.Collection | None) -> dict[int, Any]:
     tr = _tr(col)
     return {
         0: tr.scheduling_show_new_cards_in_random_order(),
@@ -115,7 +119,7 @@ def newCardOrderLabels(col: anki.collection.Collection | None) -> dict[int, Any]
     }
 
 
-def newCardSchedulingLabels(
+def new_card_scheduling_labels(
     col: anki.collection.Collection | None,
 ) -> dict[int, Any]:
     tr = _tr(col)
@@ -124,3 +128,11 @@ def newCardSchedulingLabels(
         1: tr.scheduling_show_new_cards_after_reviews(),
         2: tr.scheduling_show_new_cards_before_reviews(),
     }
+
+
+_deprecated_names = DeprecatedNamesMixinForModule(globals())
+
+
+@no_type_check
+def __getattr__(name: str) -> Any:
+    return _deprecated_names.__getattr__(name)
