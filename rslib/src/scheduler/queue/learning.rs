@@ -40,13 +40,14 @@ impl CardQueues {
             learning_count: self.counts.learning,
             learning_cutoff: self.current_learning_cutoff,
         };
+        let last_ahead_cutoff = self.current_learn_ahead_cutoff();
         self.current_learning_cutoff = TimestampSecs::now();
-        let ahead_cutoff = self.current_learn_ahead_cutoff();
+        let new_ahead_cutoff = self.current_learn_ahead_cutoff();
         let new_learning_cards = self
             .intraday_learning
             .iter()
-            .skip(self.counts.learning)
-            .take_while(|e| e.due <= ahead_cutoff)
+            .skip_while(|e| e.due <= last_ahead_cutoff)
+            .take_while(|e| e.due <= new_ahead_cutoff)
             .count();
         self.counts.learning += new_learning_cards;
 
