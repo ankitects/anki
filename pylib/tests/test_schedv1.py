@@ -21,7 +21,7 @@ def getEmptyCol() -> Collection:
 
 def test_clock():
     col = getEmptyCol()
-    if (col.sched.dayCutoff - intTime()) < 10 * 60:
+    if (col.sched.day_cutoff - intTime()) < 10 * 60:
         raise Exception("Unit tests will fail around the day rollover.")
 
 
