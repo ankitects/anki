@@ -1027,16 +1027,14 @@ time = %(time)d;
         ).success(lambda _: tooltip(tr.studying_card_suspended())).run_in_background()
 
     def bury_current_note(self) -> None:
-        bury_notes(
-            parent=self.mw,
-            note_ids=[self.card.nid],
-        ).success(lambda _: tooltip(tr.studying_note_buried())).run_in_background()
+        bury_notes(parent=self.mw, note_ids=[self.card.nid],).success(
+            lambda res: tooltip(tr.studying_cards_buried(count=res.count))
+        ).run_in_background()
 
     def bury_current_card(self) -> None:
-        bury_cards(
-            parent=self.mw,
-            card_ids=[self.card.id],
-        ).success(lambda _: tooltip(tr.studying_card_buried())).run_in_background()
+        bury_cards(parent=self.mw, card_ids=[self.card.id],).success(
+            lambda res: tooltip(tr.studying_cards_buried(count=res.count))
+        ).run_in_background()
 
     def delete_current_note(self) -> None:
         # need to check state because the shortcut is global to the main
