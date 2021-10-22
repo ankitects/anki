@@ -8,7 +8,7 @@ from __future__ import annotations
 import sys
 from typing import Any, NewType, no_type_check
 
-from anki._legacy import DeprecatedNamesMixinStandalone
+from anki._legacy import DeprecatedNamesMixinForModule
 
 # whether new cards should be mixed with reviews, or shown first or last
 NEW_CARDS_DISTRIBUTE = 0
@@ -130,7 +130,7 @@ def new_card_scheduling_labels(
     }
 
 
-_deprecated_names = DeprecatedNamesMixinStandalone(globals())
+_deprecated_names = DeprecatedNamesMixinForModule(globals())
 
 
 @no_type_check

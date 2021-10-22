@@ -107,12 +107,12 @@ class DeprecatedNamesMixin:
         }
 
 
-class DeprecatedNamesMixinStandalone(DeprecatedNamesMixin):
+class DeprecatedNamesMixinForModule(DeprecatedNamesMixin):
     """Provides the functionality of DeprecatedNamesMixin for modules.
 
     It can be invoked like this:
     ```
-        _deprecated_names = DeprecatedNamesMixinStandalone(globals())
+        _deprecated_names = DeprecatedNamesMixinForModule(globals())
         _deprecated_names.register_deprecated_aliases(...
         _deprecated_names.register_deprecated_attributes(...
 
