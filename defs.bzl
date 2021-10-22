@@ -37,6 +37,7 @@ def setup_deps():
         name = "py_deps",
         requirements_lock = "@ankidesktop//python:requirements.txt",
         python_interpreter_target = "@python//:python",
+        extra_pip_args = ["--require-hashes"],
     )
 
     install_pyqt5(
