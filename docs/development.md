@@ -179,9 +179,9 @@ expand proc macros and build scripts, and run cargo check on startup. Adding
 of `use` statements.
 
 The Bazel build products will make RA start up slowly out of the box. For a much
-nicer experience, add each of the bazel-* folders to Rust Analyzer's excludeDirs
-settings, and node_modules. Wildcards don't work unfortunately. Then adjust
-VS Code's "watcher exclude", and add `**/bazel-*`.
+nicer experience, add each of the `bazel-*` folders to Rust Analyzer's excludeDirs
+settings, and node*modules. Wildcards don't work unfortunately. Then adjust
+VS Code's "watcher exclude", and add `\*\*/bazel-*`.
 
 After running 'code' from the project root, it may take a minute or two to be
 ready.
