@@ -21,7 +21,7 @@ pylib contains a private Python module called rsbridge (`pylib/rsbridge/`) that 
 
 ### GUI
 
-Anki's *GUI* is a mix of Qt (via the PyQt Python bindings for Qt), and
+Anki's _GUI_ is a mix of Qt (via the PyQt Python bindings for Qt), and
 TypeScript/HTML/CSS. The Qt code lives in `qt/aqt/`, and is importable in Python
 with "import aqt". The web code is split between `qt/aqt/data/web/` and `ts/`,
 with the majority of new code being placed in the latter, and copied into the
@@ -39,4 +39,4 @@ type-safe manner between the different languages.
 At the moment, the protobuf is not considered public API. Some pylib methods
 expose a protobuf object directly to callers, but when they do so, they use a
 type alias, so callers outside pylib should never need to import a generated
-_pb2.py file.
+\_pb2.py file.
