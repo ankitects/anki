@@ -18,6 +18,7 @@ alias(
         "@ankidesktop//platforms:macos_arm64": "@clang_format_macos_x86_64//:clang-format",
         "@ankidesktop//platforms:macos_x86_64": "@clang_format_macos_x86_64//:clang-format",
         "@ankidesktop//platforms:linux_x86_64": "@clang_format_linux_x86_64//:clang-format",
+        "@ankidesktop//platforms:linux_arm64": "@clang_format_local//:clang-format",
     }),
     visibility = ["//visibility:public"]
 )
@@ -59,6 +60,13 @@ def setup_clang_format(name):
             "https://github.com/ankitects/clang-format-binaries/releases/download/anki-2021-01-09/clang-format_windows_x86_64.zip",
         ],
     )
+
+    if not native.existing_rule("clang_format_local"):
+        native.new_local_repository(
+            name = "clang_format_local",
+            path = "/usr/bin",
+            build_file_content = "exports_files(['clang-format'])",
+        )
 
     if not native.existing_rule(name):
         _setup_clang_format(

@@ -24,7 +24,7 @@ been fully updated yet. You can install Python from python.org or from your dist
 ```
 $ python3.9 -m venv ~/pyenv
 $ ~/pyenv/bin/pip install --upgrade pip
-$ ~/pyenv/bin/pip install aqt
+$ ~/pyenv/bin/pip install aqt[qt6]
 ```
 
 Then to run Anki:
@@ -38,7 +38,7 @@ $ ~/pyenv/bin/anki
 ```
 c:\> python -m venv \pyenv
 c:\> \pyenv\scripts\pip install --upgrade pip
-c:\> \pyenv\scripts\pip install aqt
+c:\> \pyenv\scripts\pip install aqt[qt6]
 ```
 
 Then to run Anki:
@@ -88,6 +88,8 @@ pip install --upgrade bazel-dist/*.whl
 ```
 
 On Windows you'll need to list out the filenames manually.
+
+If building on ARM Linux, please see the notes at the bottom of [Linux](./linux.md).
 
 ## Running tests
 
