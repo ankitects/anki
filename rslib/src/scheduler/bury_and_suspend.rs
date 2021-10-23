@@ -92,29 +92,32 @@ impl Collection {
         let mut count = 0;
         let usn = self.usn()?;
         let sched = self.scheduler_version();
+        let desired_queue = match mode {
+            BuryOrSuspendMode::Suspend => CardQueue::Suspended,
+            BuryOrSuspendMode::BurySched => CardQueue::SchedBuried,
+            BuryOrSuspendMode::BuryUser => {
+                if sched == SchedulerVersion::V1 {
+                    // v1 scheduler only had one bury type
+                    CardQueue::SchedBuried
+                } else {
+                    CardQueue::UserBuried
+                }
+            }
+        };
 
         for original in self.storage.all_searched_cards()? {
             let mut card = original.clone();
-            let desired_queue = match mode {
-                BuryOrSuspendMode::Suspend => CardQueue::Suspended,
-                BuryOrSuspendMode::BurySched => CardQueue::SchedBuried,
-                BuryOrSuspendMode::BuryUser => {
-                    if sched == SchedulerVersion::V1 {
-                        // v1 scheduler only had one bury type
-                        CardQueue::SchedBuried
-                    } else {
-                        CardQueue::UserBuried
-                    }
-                }
-            };
             if card.queue != desired_queue {
-                if sched == SchedulerVersion::V1 {
-                    card.remove_from_filtered_deck_restoring_queue(sched);
-                    card.remove_from_learning();
+                // do not bury suspended cards as that would unsuspend them
+                if card.queue != CardQueue::Suspended {
+                    if sched == SchedulerVersion::V1 {
+                        card.remove_from_filtered_deck_restoring_queue(sched);
+                        card.remove_from_learning();
+                    }
+                    card.queue = desired_queue;
+                    count += 1;
+                    self.update_card_inner(&mut card, original, usn)?;
                 }
-                card.queue = desired_queue;
-                count += 1;
-                self.update_card_inner(&mut card, original, usn)?;
             }
         }
 
