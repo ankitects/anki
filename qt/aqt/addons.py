@@ -95,7 +95,7 @@ class UpdateInfo:
 
 ANKIWEB_ID_RE = re.compile(r"^\d+$")
 
-current_point_version = anki.utils.pointVersion()
+current_point_version = anki.utils.point_version()
 
 
 @dataclass

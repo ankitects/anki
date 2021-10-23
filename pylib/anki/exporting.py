@@ -19,7 +19,7 @@ from anki import hooks
 from anki.cards import CardId
 from anki.collection import Collection
 from anki.decks import DeckId
-from anki.utils import ids2str, namedtmp, splitFields, stripHTML
+from anki.utils import ids2str, namedtmp, split_fields, strip_html
 
 
 class Exporter:
@@ -78,7 +78,7 @@ class Exporter:
         s = text
         s = re.sub(r"(?i)<(br ?/?|div|p)>", " ", s)
         s = re.sub(r"\[sound:[^]]+\]", "", s)
-        s = stripHTML(s)
+        s = strip_html(s)
         s = re.sub(r"[ \n\t]+", " ", s)
         s = s.strip()
         return s
@@ -161,7 +161,7 @@ where cards.id in %s)"""
             if self.includeID:
                 row.append(str(id))
             # fields
-            row.extend([self.processText(f) for f in splitFields(flds)])
+            row.extend([self.processText(f) for f in split_fields(flds)])
             # tags
             if self.includeTags:
                 row.append(tags.strip())

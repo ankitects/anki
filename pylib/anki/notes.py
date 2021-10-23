@@ -13,7 +13,7 @@ from anki import hooks, notes_pb2
 from anki._legacy import DeprecatedNamesMixin
 from anki.consts import MODEL_STD
 from anki.models import NotetypeDict, NotetypeId, TemplateDict
-from anki.utils import joinFields
+from anki.utils import join_fields
 
 DuplicateOrEmptyResult = notes_pb2.NoteFieldsCheckResponse.State
 NoteFieldsCheckResult = notes_pb2.NoteFieldsCheckResponse.State
@@ -84,7 +84,7 @@ class Note(DeprecatedNamesMixin):
         )
 
     def joined_fields(self) -> str:
-        return joinFields(self.fields)
+        return join_fields(self.fields)
 
     def ephemeral_card(
         self,

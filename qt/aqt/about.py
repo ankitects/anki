@@ -6,7 +6,7 @@ import time
 
 import aqt.forms
 from anki.lang import without_unicode_isolation
-from anki.utils import versionWithBuild
+from anki.utils import version_with_build
 from aqt.addons import AddonManager, AddonMeta
 from aqt.qt import *
 from aqt.utils import disable_help_button, supportText, tooltip, tr
@@ -96,7 +96,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     abouttext = "<center><img src='/_anki/imgs/anki-logo-thin.png'></center>"
     abouttext += f"<p>{tr.about_anki_is_a_friendly_intelligent_spaced()}"
     abouttext += f"<p>{tr.about_anki_is_licensed_under_the_agpl3()}"
-    abouttext += f"<p>{tr.about_version(val=versionWithBuild())}<br>"
+    abouttext += f"<p>{tr.about_version(val=version_with_build())}<br>"
     abouttext += ("Python %s Qt %s PyQt %s<br>") % (
         platform.python_version(),
         QT_VERSION_STR,

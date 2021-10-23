@@ -12,7 +12,7 @@ from anki import hooks
 from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.scheduler import UnburyDeck
-from anki.utils import intTime
+from anki.utils import int_time
 from tests.shared import getEmptyCol as getEmptyColOrig
 
 
@@ -33,7 +33,7 @@ def getEmptyCol():
 
 def test_clock():
     col = getEmptyCol()
-    if (col.sched.day_cutoff - intTime()) < 10 * 60:
+    if (col.sched.day_cutoff - int_time()) < 10 * 60:
         raise Exception("Unit tests will fail around the day rollover.")
 
 
@@ -65,7 +65,7 @@ def test_new():
     assert c.queue == QUEUE_TYPE_NEW
     assert c.type == CARD_TYPE_NEW
     # if we answer it, it should become a learn card
-    t = intTime()
+    t = int_time()
     col.sched.answerCard(c, 1)
     assert c.queue == QUEUE_TYPE_LRN
     assert c.type == CARD_TYPE_LRN
@@ -804,14 +804,14 @@ def test_filt_keep_lrn_state():
     # should be able to advance learning steps
     col.sched.answerCard(c, 3)
     # should be due at least an hour in the future
-    assert c.due - intTime() > 60 * 60
+    assert c.due - int_time() > 60 * 60
 
     # emptying the deck preserves learning state
     col.sched.empty_filtered_deck(did)
     c.load()
     assert c.type == CARD_TYPE_LRN and c.queue == QUEUE_TYPE_LRN
     assert c.left % 1000 == 1
-    assert c.due - intTime() > 60 * 60
+    assert c.due - int_time() > 60 * 60
 
 
 def test_preview():
@@ -1034,7 +1034,7 @@ def test_timing():
     c2 = col.sched.getCard()
     assert c2.queue == QUEUE_TYPE_REV
     # if the failed card becomes due, it should show first
-    c.due = intTime() - 1
+    c.due = int_time() - 1
     c.flush()
     col.reset()
     c = col.sched.getCard()
@@ -1061,7 +1061,7 @@ def test_collapse():
     col.sched.answerCard(c2, 1)
     # first should become available again, despite it being due in the future
     c3 = col.sched.getCard()
-    assert c3.due > intTime()
+    assert c3.due > int_time()
     col.sched.answerCard(c3, 4)
     # answer other
     c4 = col.sched.getCard()

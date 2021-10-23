@@ -19,7 +19,7 @@ from anki.latex import render_latex, render_latex_returning_errors
 from anki.models import NotetypeId
 from anki.sound import SoundOrVideoTag
 from anki.template import av_tags_to_native
-from anki.utils import intTime
+from anki.utils import int_time
 
 
 def media_paths_from_col_path(col_path: str) -> tuple[str, str]:
@@ -233,7 +233,7 @@ class MediaManager(DeprecatedNamesMixin):
             checked += 1
             elap = time.time() - last_progress
             if elap >= 0.3 and progress_cb is not None:
-                last_progress = intTime()
+                last_progress = int_time()
                 if not progress_cb(checked):
                     return None
 

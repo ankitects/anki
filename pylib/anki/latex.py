@@ -173,7 +173,7 @@ def _err_msg(col: anki.collection.Collection, type: str, texpath: str) -> Any:
     msg = f"{col.tr.media_error_executing(val=type)}<br>"
     msg += f"{col.tr.media_generated_file(val=texpath)}<br>"
     try:
-        with open(namedtmp("latex_log.txt", rm=False), encoding="utf8") as file:
+        with open(namedtmp("latex_log.txt", remove=False), encoding="utf8") as file:
             log = file.read()
         if not log:
             raise Exception()
