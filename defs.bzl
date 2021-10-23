@@ -7,8 +7,7 @@ load("//proto:protobuf.bzl", "setup_protobuf_binary")
 load("//proto:clang_format.bzl", "setup_clang_format")
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_repositories")
-load("//python/pyqt5:defs.bzl", "install_pyqt5")
-load("//python/pyqt6:defs.bzl", "install_pyqt6")
+load("//python/pyqt:defs.bzl", "install_pyqt")
 load("@rules_python//python:pip.bzl", "pip_parse")
 
 anki_version = "2.1.49"
@@ -37,16 +36,25 @@ def setup_deps():
         name = "py_deps",
         requirements_lock = "@ankidesktop//python:requirements.txt",
         python_interpreter_target = "@python//:python",
+        extra_pip_args = ["--require-hashes"],
     )
 
-    install_pyqt5(
-        name = "pyqt5",
-        python_runtime = "@python//:python",
-    )
-
-    install_pyqt6(
+    install_pyqt(
         name = "pyqt6",
         python_runtime = "@python//:python",
+        requirements = "//python/pyqt:6_2/requirements.txt",
+    )
+
+    install_pyqt(
+        name = "pyqt515",
+        python_runtime = "@python//:python",
+        requirements = "//python/pyqt:5_15/requirements.txt",
+    )
+
+    install_pyqt(
+        name = "pyqt514",
+        python_runtime = "@python//:python",
+        requirements = "//python/pyqt:5_14/requirements.txt",
     )
 
     node_repositories(
