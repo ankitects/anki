@@ -11,14 +11,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="typescript">
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, getContext } from "svelte";
     import type { Writable } from "svelte/store";
     import storeSubscribe from "../sveltelib/store-subscribe";
+    import { directionKey } from "../lib/context-keys";
 
     export let configuration: CodeMirror.EditorConfiguration;
     export let code: Writable<string>;
 
+    const direction = getContext<Writable<"ltr" | "rtl">>(directionKey);
+    const defaultConfiguration = {
+        direction: $direction,
+        rtlMoveVisually: true,
+    };
+
     let codeMirror: CodeMirror.EditorFromTextArea;
+    $: codeMirror?.setOption("direction", $direction);
 
     function setValue(content: string): void {
         codeMirror.setValue(content);
@@ -28,7 +36,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const dispatch = createEventDispatcher();
 
     function openCodeMirror(textarea: HTMLTextAreaElement): void {
-        codeMirror = CodeMirrorLib.fromTextArea(textarea, configuration);
+        codeMirror = CodeMirrorLib.fromTextArea(textarea, {
+            ...defaultConfiguration,
+            ...configuration,
+        });
 
         // TODO passing in the tabindex option does not do anything: bug?
         codeMirror.getInputField().tabIndex = 0;
