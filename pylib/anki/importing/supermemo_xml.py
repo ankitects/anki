@@ -15,7 +15,7 @@ from xml.dom.minidom import Element, Text
 
 from anki.collection import Collection
 from anki.importing.noteimp import ForeignCard, ForeignNote, NoteImporter
-from anki.stdmodels import addBasicModel
+from anki.stdmodels import _legacy_add_basic_model
 
 
 class SmartDict(dict):
@@ -87,7 +87,7 @@ class SupermemoXmlImporter(NoteImporter):
         """Initialize internal varables.
         Pameters to be exposed to GUI are stored in self.META"""
         NoteImporter.__init__(self, col, file)
-        m = addBasicModel(self.col)
+        m = _legacy_add_basic_model(self.col)
         m["name"] = "Supermemo"
         self.col.models.save(m)
         self.initMapping()

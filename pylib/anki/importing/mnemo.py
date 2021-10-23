@@ -9,7 +9,7 @@ from typing import cast
 
 from anki.db import DB
 from anki.importing.noteimp import ForeignCard, ForeignNote, NoteImporter
-from anki.stdmodels import addBasicModel, addClozeModel
+from anki.stdmodels import _legacy_add_basic_model, _legacy_add_cloze_model
 
 
 class MnemosyneImporter(NoteImporter):
@@ -132,7 +132,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
             data.append(n)
         # add a basic model
         if not model:
-            model = addBasicModel(self.col)
+            model = _legacy_add_basic_model(self.col)
             model["name"] = "Mnemosyne-FrontOnly"
         mm = self.col.models
         mm.save(model)
@@ -144,7 +144,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
         self.importNotes(data)
 
     def _addFrontBacks(self, notes):
-        m = addBasicModel(self.col)
+        m = _legacy_add_basic_model(self.col)
         m["name"] = "Mnemosyne-FrontBack"
         mm = self.col.models
         t = mm.new_template("Back")
@@ -200,7 +200,7 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
             n.cards = orig.get("cards", {})
             data.append(n)
         # add cloze model
-        model = addClozeModel(self.col)
+        model = _legacy_add_cloze_model(self.col)
         model["name"] = "Mnemosyne-Cloze"
         mm = self.col.models
         mm.save(model)
