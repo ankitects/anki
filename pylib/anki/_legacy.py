@@ -45,6 +45,18 @@ def _print_replacement_warning(old: str, new: str, frame: int = 1) -> None:
     _print_warning(old, doc, frame=frame)
 
 
+def _get_remapped_and_replacement(
+    mixin: DeprecatedNamesMixin | DeprecatedNamesMixinForModule, name: str
+) -> tuple[str, str | None]:
+    if some_tuple := mixin._deprecated_attributes.get(name):
+        return some_tuple
+
+    remapped = mixin._deprecated_aliases.get(name) or stringcase.snakecase(name)
+    if remapped == name:
+        raise AttributeError
+    return (remapped, remapped)
+
+
 class DeprecatedNamesMixin:
     "Expose instance methods/vars as camelCase for legacy callers."
 
@@ -59,7 +71,7 @@ class DeprecatedNamesMixin:
     @no_type_check
     def __getattr__(self, name: str) -> Any:
         try:
-            remapped, replacement = self._get_remapped_and_replacement(name)
+            remapped, replacement = _get_remapped_and_replacement(self, name)
             out = getattr(self, remapped)
         except AttributeError:
             raise AttributeError(
@@ -68,15 +80,6 @@ class DeprecatedNamesMixin:
 
         _print_replacement_warning(name, replacement)
         return out
-
-    def _get_remapped_and_replacement(self, name: str) -> tuple[str, str | None]:
-        if some_tuple := self._deprecated_attributes.get(name):
-            return some_tuple
-
-        remapped = self._deprecated_aliases.get(name) or stringcase.snakecase(name)
-        if remapped == name:
-            raise AttributeError
-        return (remapped, remapped)
 
     @classmethod
     def register_deprecated_aliases(cls, **kwargs: DeprecatedAliasTarget) -> None:
@@ -110,7 +113,7 @@ class DeprecatedNamesMixin:
         }
 
 
-class DeprecatedNamesMixinForModule(DeprecatedNamesMixin):
+class DeprecatedNamesMixinForModule:
     """Provides the functionality of DeprecatedNamesMixin for modules.
 
     It can be invoked like this:
@@ -123,6 +126,7 @@ class DeprecatedNamesMixinForModule(DeprecatedNamesMixin):
         def __getattr__(name: str) -> Any:
             return _deprecated_names.__getattr__(name)
     ```
+    See DeprecatedNamesMixin for more documentation.
     """
 
     def __init__(self, module_globals: dict[str, Any]) -> None:
@@ -133,7 +137,7 @@ class DeprecatedNamesMixinForModule(DeprecatedNamesMixin):
     @no_type_check
     def __getattr__(self, name: str) -> Any:
         try:
-            remapped, replacement = self._get_remapped_and_replacement(name)
+            remapped, replacement = _get_remapped_and_replacement(self, name)
             out = self.module_globals[remapped]
         except (AttributeError, KeyError):
             raise AttributeError(
