@@ -6,9 +6,13 @@ studying-buried-siblings = Buried Siblings
 studying-bury = Bury
 studying-bury-card = Bury Card
 studying-bury-note = Bury Note
-studying-card-buried = Card buried.
 studying-card-suspended = Card suspended.
 studying-card-was-a-leech = Card was a leech.
+studying-cards-buried =
+    { $count ->
+        [one] { $count } card buried.
+       *[other] { $count } cards buried.
+    }
 studying-cards-will-be-automatically-returned-to = Cards will be automatically returned to their original decks after you review them.
 studying-continue = Continue
 studying-delete-note = Delete Note
@@ -25,7 +29,6 @@ studying-manually-buried-cards = Manually Buried Cards
 studying-mark-note = Mark Note
 studying-more = More
 studying-no-cards-are-due-yet = No cards are due yet.
-studying-note-buried = Note buried.
 studying-note-suspended = Note suspended.
 studying-pause-audio = Pause Audio
 studying-please-run-toolsempty-cards = Please run Tools>Empty Cards

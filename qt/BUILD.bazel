@@ -59,7 +59,7 @@ py_test(
     deps = [
         "//pylib/anki",
         "//qt/aqt:aqt_without_data",
-        "@pyqt6//:pkg",
+        "@pyqt6",
         requirement("mypy"),
     ],
 )
@@ -81,7 +81,7 @@ py_test(
         "//pylib/anki",
         "//qt/aqt:aqt_without_data",
         requirement("pylint"),
-        "@pyqt6//:pkg",
+        "@pyqt6",
     ],
 )
 
@@ -130,11 +130,12 @@ py_binary(
     deps = [
         "//pylib/anki",
         "//qt/aqt:aqt_with_data",
+        "@pyqt6",
     ],
 )
 
 py_binary(
-    name = "runanki_qt5",
+    name = "runanki_qt515",
     srcs = [
         "bazelfixes.py",
         "runanki.py",
@@ -144,7 +145,24 @@ py_binary(
     tags = ["manual"],
     deps = [
         "//pylib/anki",
-        "//qt/aqt:aqt_with_data_qt5",
+        "//qt/aqt:aqt_with_data",
+        "@pyqt515",
+    ],
+)
+
+py_binary(
+    name = "runanki_qt514",
+    srcs = [
+        "bazelfixes.py",
+        "runanki.py",
+    ],
+    imports = ["."],
+    main = "runanki.py",
+    tags = ["manual"],
+    deps = [
+        "//pylib/anki",
+        "//qt/aqt:aqt_with_data",
+        "@pyqt514",
     ],
 )
 
