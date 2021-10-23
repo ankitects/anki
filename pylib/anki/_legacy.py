@@ -150,12 +150,10 @@ def deprecated(replaced_by: Callable | None = None, info: str = "") -> Callable:
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def decorated_func(*args: Any, **kwargs: Any) -> Any:
-            if replaced_by:
-                doc = f"please use {replaced_by.__name__} instead."
+            if info:
+                _print_warning(f"{func.__name__}()", info)
             else:
-                doc = info
-
-            _print_warning(f"{func.__name__}()", doc)
+                _print_replacement_warning(func.__name__, replaced_by.__name__)
 
             return func(*args, **kwargs)
 
@@ -175,7 +173,7 @@ def deprecated_keywords(**replaced_keys: str) -> Callable:
             updated_kwargs = {}
             for key, val in kwargs.items():
                 if replacement := replaced_keys.get(key):
-                    _print_warning(f"'{key}'", f"please use '{replacement}'")
+                    _print_replacement_warning(key, replacement)
                 updated_kwargs[replacement or key] = val
 
             return func(*args, **updated_kwargs)
