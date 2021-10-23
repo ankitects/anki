@@ -1,11 +1,14 @@
 # Anki in Docker
 
-This README contains the instructions for building and running the Anki Docker image.
+This is an example of how you can build and run Anki from inside Docker. This
+approach keeps everything inside Docker images, and sends the GUI to an X11
+display over TCP/IP. This approach keeps things tidy, so may be a good choice
+for if you wish to build Anki irregularly and don't want to build it outside of
+Docker.
 
-Docker provides a standard for installing software on many systems
-(Windows, macOS, Linux), and it allows one to build software without cluttering a system
-with dependencies. The Dockerfile contains the instructions for building the Docker image,
-and it also serves as instructions for how to build Anki from source on Linux.
+It takes longer to build after small changes however, so for development, if you
+wish to use Docker, the approach [in the build
+scripts](../../scripts/docker/README.md) may be more appropriate.
 
 # Build the Docker image
 
