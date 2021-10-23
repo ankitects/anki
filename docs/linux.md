@@ -6,6 +6,9 @@ These instructions are written for Debian/Ubuntu; adjust for your distribution.
 Some extra notes have been provided by a forum member:
 https://forums.ankiweb.net/t/guide-how-to-build-and-run-anki-from-source-with-xubuntu-20-04/12865
 
+You can see a full list of requirements by looking at the [Dockerfiles](../scripts/docker/README.md)
+in the scripts folder.
+
 Glibc is required - if you are on a distro like Alpine that uses musl, you'll need
 to contribute fixes to the upstream [Rust rules](https://github.com/bazelbuild/rules_rust/issues/390),
 then follow the steps in [Other Platforms](./new-platform.md).

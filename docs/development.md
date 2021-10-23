@@ -47,6 +47,21 @@ Then to run Anki:
 c:\> \pyenv\scripts\anki
 ```
 
+**ARM Linux**
+
+Since PyQt wheels are not available on PyPI, you'll need to use your system
+version instead:
+
+-   Ensure you're on a distro that has Python 3.9/3.10, glibc, and PyQt5.14+
+-   Install the PyQt packages, eg `apt install python3-pyqt5.qtwebengine`.
+-   Use the following commands:
+
+```
+$ python3.9 -m venv ~/pyenv --system-site-packages
+$ ~/pyenv/bin/pip install --upgrade pip
+$ ~/pyenv/bin/pip install aqt
+```
+
 ## Building from source
 
 Platform-specific instructions:
@@ -77,6 +92,8 @@ On Windows:
 .\scripts\build.bat
 ```
 
+Linux users can also optionally [build via Docker](../scripts/docker/README.md).
+
 The generated wheel paths will be printed as the build completes.
 
 You can then install them by copying the paths into a pip install command.
@@ -89,7 +106,20 @@ pip install --upgrade bazel-dist/*.whl
 
 On Windows you'll need to list out the filenames manually.
 
-If building on ARM Linux, please see the notes at the bottom of [Linux](./linux.md).
+You'll also need to install PyQt:
+
+```
+$ pip3 install pyqt6 pyqt6-webengine
+```
+
+or
+
+```
+$ pip3 install pyqt5 pyqtwebengine
+```
+
+On ARM Linux, see the instructions in the pre-built wheels section about a system PyQt,
+and please see the notes at the bottom of [Linux](./linux.md).
 
 ## Running tests
 
