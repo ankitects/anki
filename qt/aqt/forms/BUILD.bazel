@@ -5,7 +5,7 @@ py_binary(
     name = "build_ui",
     srcs = ["build_ui.py"],
     legacy_create_init = False,
-    deps = ["@pyqt6//:pkg"],
+    deps = ["@pyqt6"],
 )
 
 compile_all(

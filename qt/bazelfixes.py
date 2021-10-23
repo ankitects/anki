@@ -49,7 +49,12 @@ def fix_run_on_macos():
     if not sys.platform.startswith("darwin"):
         return
     exec_folder = os.path.dirname(sys.argv[0])
-    qt_version = 5 if "runanki_qt5" in exec_folder else 6
+    if "runanki_qt515" in exec_folder:
+        qt_version = 515
+    elif "runanki_qt514" in exec_folder:
+        qt_version = 514
+    else:
+        qt_version = 6
     pyqt_repo = os.path.join(exec_folder, f"../../../../../../../external/pyqt{qt_version}")
     if os.path.exists(pyqt_repo):
         # pyqt must point to real folder, not a symlink

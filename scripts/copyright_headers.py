@@ -11,8 +11,7 @@ nonstandard_header = {
     "pylib/anki/importing/supermemo_xml.py",
     "pylib/anki/statsbg.py",
     "pylib/tools/protoc-gen-mypy.py",
-    "python/pyqt5/install_pyqt5.py",
-    "python/pyqt6/install_pyqt6.py",
+    "python/pyqt/install.py",
     "qt/aqt/mpv.py",
     "qt/aqt/winpaths.py",
 }
