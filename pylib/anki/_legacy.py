@@ -69,7 +69,6 @@ class DeprecatedNamesMixin:
         _print_replacement_warning(name, replacement)
         return out
 
-    @no_type_check
     def _get_remapped_and_replacement(self, name: str) -> tuple[str, str | None]:
         if some_tuple := self._deprecated_attributes.get(name):
             return some_tuple
@@ -79,7 +78,6 @@ class DeprecatedNamesMixin:
             raise AttributeError
         return (remapped, remapped)
 
-    @no_type_check
     @classmethod
     def register_deprecated_aliases(cls, **kwargs: DeprecatedAliasTarget) -> None:
         """Manually add aliases that are not a simple transform.
@@ -90,7 +88,6 @@ class DeprecatedNamesMixin:
         """
         cls._deprecated_aliases = {k: _target_to_string(v) for k, v in kwargs.items()}
 
-    @no_type_check
     @classmethod
     def register_deprecated_attributes(
         cls,
@@ -133,6 +130,7 @@ class DeprecatedNamesMixinForModule(DeprecatedNamesMixin):
         self._deprecated_aliases: dict[str, str] = {}
         self._deprecated_attributes: dict[str, tuple[str, str | None]] = {}
 
+    @no_type_check
     def __getattr__(self, name: str) -> Any:
         try:
             remapped, replacement = self._get_remapped_and_replacement(name)
@@ -145,11 +143,9 @@ class DeprecatedNamesMixinForModule(DeprecatedNamesMixin):
         _print_replacement_warning(name, replacement, frame=0)
         return out
 
-    @no_type_check
     def register_deprecated_aliases(self, **kwargs: DeprecatedAliasTarget) -> None:
         self._deprecated_aliases = {k: _target_to_string(v) for k, v in kwargs.items()}
 
-    @no_type_check
     def register_deprecated_attributes(
         self,
         **kwargs: tuple[DeprecatedAliasTarget, DeprecatedAliasTarget | None],
