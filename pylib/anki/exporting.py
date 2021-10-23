@@ -280,7 +280,7 @@ class AnkiExporter(Exporter):
             for row in notedata:
                 flds = row[6]
                 mid = row[2]
-                for file in self.src.media.filesInStr(mid, flds):
+                for file in self.src.media.files_in_str(mid, flds):
                     # skip files in subdirs
                     if file != os.path.basename(file):
                         continue

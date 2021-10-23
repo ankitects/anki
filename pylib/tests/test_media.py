@@ -17,18 +17,18 @@ def test_add():
     with open(path, "w") as note:
         note.write("hello")
     # new file, should preserve name
-    assert col.media.addFile(path) == "foo.jpg"
+    assert col.media.add_file(path) == "foo.jpg"
     # adding the same file again should not create a duplicate
-    assert col.media.addFile(path) == "foo.jpg"
+    assert col.media.add_file(path) == "foo.jpg"
     # but if it has a different sha1, it should
     with open(path, "w") as note:
         note.write("world")
-    assert col.media.addFile(path) == "foo-7c211433f02071597741e6ff5a8ea34789abbf43.jpg"
+    assert col.media.add_file(path) == "foo-7c211433f02071597741e6ff5a8ea34789abbf43.jpg"
 
 
 def test_strings():
     col = getEmptyCol()
-    mf = col.media.filesInStr
+    mf = col.media.files_in_str
     mid = col.models.current()["id"]
     assert mf(mid, "aoeu") == []
     assert mf(mid, "aoeu<img src='foo.jpg'>ao") == ["foo.jpg"]
@@ -61,7 +61,7 @@ def test_deckIntegration():
     col.media.dir()
     # put a file into it
     file = str(os.path.join(testDir, "support", "fake.png"))
-    col.media.addFile(file)
+    col.media.add_file(file)
     # add a note which references it
     note = col.newNote()
     note["Front"] = "one"

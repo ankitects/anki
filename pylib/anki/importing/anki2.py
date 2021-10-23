@@ -459,7 +459,7 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""",
             return match.group(0).replace(fname, lname)
 
         for idx, field in enumerate(fields):
-            fields[idx] = self.dst.media.transformNames(field, repl)
+            fields[idx] = self.dst.media.transform_names(field, repl)
         return joinFields(fields)
 
     # Post-import cleanup
