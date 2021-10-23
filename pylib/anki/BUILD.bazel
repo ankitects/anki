@@ -74,7 +74,8 @@ py_wheel(
         "//platforms:windows_x86_64": "win_amd64",
         "//platforms:macos_x86_64": "macosx_10_13_x86_64",
         "//platforms:linux_x86_64": "manylinux_2_28_x86_64",
-        "//platforms:linux_arm64": "manylinux_2_28_aarch64",
+        # Built on a Debian 11 image that has Qt 5.15
+        "//platforms:linux_arm64": "manylinux_2_31_aarch64",
     }),
     python_tag = "cp39",
     requires = [
@@ -84,7 +85,7 @@ py_wheel(
         "protobuf>=3.17",
         "markdown",
         "stringcase",
-        'orjson; platform_machine == "x86_64"',
+        "orjson",
         'psutil; sys_platform == "win32"',
         'distro; sys_platform != "darwin" and sys_platform != "win32"',
     ],
