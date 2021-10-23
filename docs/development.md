@@ -125,8 +125,21 @@ each file save automatically with:
 
 ## Fixing formatting
 
-If the format tests fail, most can be fixed by running `format`
-in the relevant package:
+For formatting issues with .ts, .svelte and .md files, change to the folder
+that's causing the problem, and then run
+
+```
+bazel run //ts:format
+```
+
+For other packages, change to the folder and run
+
+```
+bazel run format
+```
+
+For the latter cases, you can also invoke the formatter from another folder by using
+the full path:
 
 ```
 bazel run //rslib:format
@@ -134,14 +147,7 @@ bazel run //rslib:sql_format
 bazel run //proto:format
 bazel run //pylib:format
 bazel run //qt:format
-bazel run //ts:format
 bazel run //pylib/rsbridge:format
-```
-
-If you're in one of those folders, you can use the short form:
-
-```
-bazel run format
 ```
 
 ## Development speedups
