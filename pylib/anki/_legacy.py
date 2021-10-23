@@ -130,6 +130,8 @@ class DeprecatedNamesMixinForModule(DeprecatedNamesMixin):
 
     def __init__(self, module_globals: dict[str, Any]) -> None:
         self.module_globals = module_globals
+        self._deprecated_aliases: dict[str, str] = {}
+        self._deprecated_attributes: dict[str, tuple[str, str | None]] = {}
 
     def __getattr__(self, name: str) -> Any:
         try:
@@ -142,6 +144,20 @@ class DeprecatedNamesMixinForModule(DeprecatedNamesMixin):
 
         _print_replacement_warning(name, replacement, frame=0)
         return out
+
+    @no_type_check
+    def register_deprecated_aliases(self, **kwargs: DeprecatedAliasTarget) -> None:
+        self._deprecated_aliases = {k: _target_to_string(v) for k, v in kwargs.items()}
+
+    @no_type_check
+    def register_deprecated_attributes(
+        self,
+        **kwargs: tuple[DeprecatedAliasTarget, DeprecatedAliasTarget | None],
+    ) -> None:
+        self._deprecated_attributes = {
+            k: (_target_to_string(v[0]), _target_to_string(v[1]))
+            for k, v in kwargs.items()
+        }
 
 
 def deprecated(replaced_by: Callable | None = None, info: str = "") -> Callable:
