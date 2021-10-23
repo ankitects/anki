@@ -8,9 +8,10 @@ from __future__ import annotations
 import functools
 import os
 import pathlib
-import stringcase
 import traceback
 from typing import Any, Callable, Union, no_type_check
+
+import stringcase
 
 VariableTarget = tuple[Any, str]
 DeprecatedAliasTarget = Union[Callable, VariableTarget]

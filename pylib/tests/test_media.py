@@ -23,7 +23,9 @@ def test_add():
     # but if it has a different sha1, it should
     with open(path, "w") as note:
         note.write("world")
-    assert col.media.add_file(path) == "foo-7c211433f02071597741e6ff5a8ea34789abbf43.jpg"
+    assert (
+        col.media.add_file(path) == "foo-7c211433f02071597741e6ff5a8ea34789abbf43.jpg"
+    )
 
 
 def test_strings():
