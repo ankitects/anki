@@ -150,13 +150,13 @@ def lang_to_disk_lang(lang: str) -> str:
 
 
 # the currently set interface language
-current_lang = "en"  # pylint: disable=C0103
+current_lang = "en"  # pylint: disable=invalid-name
 
 # the current Fluent translation instance. Code in pylib/ should
 # not reference this, and should use col.tr instead. The global
 # instance exists for legacy reasons, and as a convenience for the
 # Qt code.
-current_i18n: anki._backend.RustBackend | None = None  # pylint: disable=C0103
+current_i18n: anki._backend.RustBackend | None = None  # pylint: disable=invalid-name
 tr_legacyglobal = anki._backend.Translations(None)
 
 
@@ -171,7 +171,7 @@ def ngettext(single: str, plural: str, num: int) -> str:
 
 
 def set_lang(lang: str) -> None:
-    global current_lang, current_i18n  # pylint: disable=C0103
+    global current_lang, current_i18n  # pylint: disable=invalid-name
     current_lang = lang
     current_i18n = anki._backend.RustBackend(langs=[lang])
     tr_legacyglobal.backend = weakref.ref(current_i18n)

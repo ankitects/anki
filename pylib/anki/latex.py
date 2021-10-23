@@ -28,7 +28,7 @@ svgCommands = [
 ]
 
 # if off, use existing media but don't create new
-build = True  # pylint: disable=C0103
+build = True  # pylint: disable=invalid-name
 
 # add standard tex install location to osx
 if isMac:
