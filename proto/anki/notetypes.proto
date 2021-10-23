@@ -71,7 +71,7 @@ message Notetype {
 
       bytes other = 255;
     }
-    generic.OptionalUInt32 ord = 1;
+    generic.UInt32 ord = 1;
     string name = 2;
     Config config = 5;
   }
@@ -88,7 +88,7 @@ message Notetype {
       bytes other = 255;
     }
 
-    generic.OptionalUInt32 ord = 1;
+    generic.UInt32 ord = 1;
     string name = 2;
     int64 mtime_secs = 3;
     sint32 usn = 4;

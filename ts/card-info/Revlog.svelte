@@ -9,9 +9,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let stats: Stats.CardStatsResponse;
 
-    type IStatsRevlogEntry = Stats.CardStatsResponse.IStatsRevlogEntry;
+    type StatsRevlogEntry = Stats.CardStatsResponse.StatsRevlogEntry;
 
-    function reviewKindClass(entry: IStatsRevlogEntry): string {
+    function reviewKindClass(entry: StatsRevlogEntry): string {
         switch (entry.reviewKind) {
             case Stats.RevlogEntry.ReviewKind.LEARNING:
                 return "revlog-learn";
@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return "";
     }
 
-    function reviewKindLabel(entry: IStatsRevlogEntry): string {
+    function reviewKindLabel(entry: StatsRevlogEntry): string {
         switch (entry.reviewKind) {
             case Stats.RevlogEntry.ReviewKind.LEARNING:
                 return tr2.cardStatsReviewLogTypeLearn();
@@ -38,7 +38,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function ratingClass(entry: IStatsRevlogEntry): string {
+    function ratingClass(entry: StatsRevlogEntry): string {
         if (entry.buttonChosen === 1) {
             return "revlog-ease1";
         }
@@ -57,23 +57,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         takenSecs: string;
     }
 
-    function revlogRowFromEntry(entry: IStatsRevlogEntry): RevlogRow {
-        const timestamp = new Timestamp(entry.time!);
+    function revlogRowFromEntry(entry: StatsRevlogEntry): RevlogRow {
+        const timestamp = new Timestamp(entry.time);
         return {
             date: timestamp.dateString(),
             time: timestamp.timeString(),
             reviewKind: reviewKindLabel(entry),
             reviewKindClass: reviewKindClass(entry),
-            rating: entry.buttonChosen!,
+            rating: entry.buttonChosen,
             ratingClass: ratingClass(entry),
-            interval: timeSpan(entry.interval!),
+            interval: timeSpan(entry.interval),
             ease: entry.ease ? `${entry.ease / 10}%` : "",
-            takenSecs: timeSpan(entry.takenSecs!, true),
+            takenSecs: timeSpan(entry.takenSecs, true),
         };
     }
 
     let revlogRows: RevlogRow[];
-    $: revlogRows = stats.revlog.map((entry) => revlogRowFromEntry(entry));
+    $: revlogRows = stats.revlog.map((entry) =>
+        revlogRowFromEntry(entry as StatsRevlogEntry),
+    );
 </script>
 
 {#if stats.revlog.length}
