@@ -789,7 +789,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     ),
     Hook(
         name="add_cards_did_change_deck",
-        args=["new_deck_id: int"],
+        args=["old_deck_id: int", "new_deck_id: int"],
         doc="""Executed after the user selects a new different deck when 
         adding cards.""",
     ),

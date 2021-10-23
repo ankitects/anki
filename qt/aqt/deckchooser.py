@@ -16,7 +16,7 @@ class DeckChooser(QHBoxLayout):
         widget: QWidget,
         label: bool = True,
         starting_deck_id: Optional[DeckId] = None,
-        on_deck_changed: Optional[Callable[[int], None]] = None,
+        on_deck_changed: Optional[Callable[[int, int], None]] = None,
     ) -> None:
         QHBoxLayout.__init__(self)
         self._widget = widget  # type: ignore
@@ -101,10 +101,11 @@ class DeckChooser(QHBoxLayout):
         )
         if ret.name:
             new_selected_deck_id = self.mw.col.decks.by_name(ret.name)["id"]
-            if self.selected_deck_id != new_selected_deck_id:
+            old_selected_deck_id = self.selected_deck_id
+            if old_selected_deck_id != new_selected_deck_id:
                 self.selected_deck_id = new_selected_deck_id
                 if func := self.on_deck_changed:
-                    func(new_selected_deck_id)
+                    func(old_selected_deck_id, new_selected_deck_id)
 
     # legacy
 
