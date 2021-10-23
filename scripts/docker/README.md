@@ -19,7 +19,7 @@ Ensure Docker is installed on your machine, and your user has permission to conn
 to Docker. Then run the following command from the root folder of this source repo:
 
 ```
-$ scripts/docker/build amd64
+$ scripts/docker/build.sh amd64
 ```
 
 The resulting wheels will be written into bazel-dist. See
