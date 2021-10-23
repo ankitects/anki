@@ -17,11 +17,12 @@ VariableTarget = tuple[Any, str]
 DeprecatedAliasTarget = Union[Callable, VariableTarget]
 
 
-def _target_to_string(target: DeprecatedAliasTarget) -> str:
+def _target_to_string(target: DeprecatedAliasTarget | None) -> str:
+    if target is None:
+        return ""
     if name := getattr(target, "__name__", None):
         return name
-    else:
-        return target[1]  # type: ignore
+    return target[1]  # type: ignore
 
 
 def partial_path(full_path: str, components: int) -> str:
@@ -39,13 +40,18 @@ def _print_warning(old: str, doc: str, frame: int = 1) -> None:
     return print_deprecation_warning(f"{old} is deprecated: {doc}", frame=frame)
 
 
+def _print_replacement_warning(old: str, new: str, frame: int = 1) -> None:
+    doc = f"please use '{new}'" if new else "please implement your own"
+    _print_warning(old, doc, frame=frame)
+
+
 class DeprecatedNamesMixin:
     "Expose instance methods/vars as camelCase for legacy callers."
 
     # deprecated name -> new name
     _deprecated_aliases: dict[str, str] = {}
     # deprecated name -> [new internal name, new name shown to user]
-    _deprecated_attributes: dict[str, tuple[str, str]] = {}
+    _deprecated_attributes: dict[str, tuple[str, str | None]] = {}
 
     # the @no_type_check lines are required to prevent mypy allowing arbitrary
     # attributes on the consuming class
@@ -60,11 +66,11 @@ class DeprecatedNamesMixin:
                 f"'{self.__class__.__name__}' object has no attribute '{name}'"
             ) from None
 
-        _print_warning(f"'{name}'", f"please use '{replacement}'")
+        _print_replacement_warning(name, replacement)
         return out
 
     @no_type_check
-    def _get_remapped_and_replacement(self, name: str) -> tuple[str, str]:
+    def _get_remapped_and_replacement(self, name: str) -> tuple[str, str | None]:
         if some_tuple := self._deprecated_attributes.get(name):
             return some_tuple
 
@@ -88,13 +94,13 @@ class DeprecatedNamesMixin:
     @classmethod
     def register_deprecated_attributes(
         cls,
-        **kwargs: tuple[DeprecatedAliasTarget, DeprecatedAliasTarget],
+        **kwargs: tuple[DeprecatedAliasTarget, DeprecatedAliasTarget | None],
     ) -> None:
         """Manually add deprecated attributes without exact substitutes.
 
         Pass a tuple of (alias, replacement), where alias is the attribute's new
         name (by convention: snakecase, prepended with '_legacy_'), and
-        replacement is any callable to be used instead in new code.
+        replacement is any callable to be used instead in new code or None.
         Also note the docstring of `register_deprecated_aliases`.
 
         E.g. given `def oldFunc(args): return new_func(additionalLogic(args))`,
@@ -134,7 +140,7 @@ class DeprecatedNamesMixinForModule(DeprecatedNamesMixin):
                 f"Module '{self.module_globals['__name__']}' has no attribute '{name}'"
             ) from None
 
-        _print_warning(f"'{name}'", f"please use '{replacement}'", frame=0)
+        _print_replacement_warning(name, replacement, frame=0)
         return out
 
 
