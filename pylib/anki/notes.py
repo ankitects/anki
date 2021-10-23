@@ -164,7 +164,7 @@ class Note(DeprecatedNamesMixin):
     ##################################################
 
     def has_tag(self, tag: str) -> bool:
-        return self.col.tags.inList(tag, self.tags)
+        return self.col.tags.in_list(tag, self.tags)
 
     def remove_tag(self, tag: str) -> None:
         rem = []
@@ -179,7 +179,7 @@ class Note(DeprecatedNamesMixin):
         self.tags.append(tag)
 
     def string_tags(self) -> Any:
-        return self.col.tags.join(self.col.tags.canonify(self.tags))
+        return self.col.tags.join(self.tags)
 
     def set_tags_from_str(self, tags: str) -> None:
         self.tags = self.col.tags.split(tags)

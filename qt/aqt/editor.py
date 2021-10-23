@@ -484,7 +484,7 @@ noteEditorPromise.then(noteEditor => noteEditor.toolbar.then((toolbar) => toolba
             json.dumps(focusTo),
             json.dumps(self.note.id),
             json.dumps([text_color, highlight_color]),
-            json.dumps(self.mw.col.tags.canonify(self.note.tags)),
+            json.dumps(self.note.tags),
         )
 
         if self.addMode:

@@ -310,7 +310,7 @@ class AnkiExporter(Exporter):
         pass
 
     def removeSystemTags(self, tags: str) -> Any:
-        return self.src.tags.remFromStr("marked leech", tags)
+        return self.src.tags.rem_from_str("marked leech", tags)
 
     def _modelHasMedia(self, model, fname) -> bool:
         # First check the styling
