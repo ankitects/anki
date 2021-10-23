@@ -30,19 +30,22 @@ def partial_path(full_path: str, components: int) -> str:
     return os.path.join(*path.parts[-components:])
 
 
-def print_deprecation_warning(msg: str, frame: int = 2) -> None:
-    path, linenum, _, _ = traceback.extract_stack(limit=5)[frame]
+def print_deprecation_warning(msg: str, frame: int = 1) -> None:
+    # skip one frame to get to caller
+    # then by default, skip one more frame as caller themself usually wants to
+    # print their own caller
+    path, linenum, _, _ = traceback.extract_stack(limit=frame + 2)[0]
     path = partial_path(path, components=3)
     print(f"{path}:{linenum}:{msg}")
 
 
 def _print_warning(old: str, doc: str, frame: int = 1) -> None:
-    return print_deprecation_warning(f"{old} is deprecated: {doc}", frame=frame)
+    return print_deprecation_warning(f"{old} is deprecated: {doc}", frame=frame + 1)
 
 
 def _print_replacement_warning(old: str, new: str, frame: int = 1) -> None:
     doc = f"please use '{new}'" if new else "please implement your own"
-    _print_warning(old, doc, frame=frame)
+    _print_warning(old, doc, frame=frame + 1)
 
 
 def _get_remapped_and_replacement(
@@ -144,7 +147,8 @@ class DeprecatedNamesMixinForModule:
                 f"Module '{self.module_globals['__name__']}' has no attribute '{name}'"
             ) from None
 
-        _print_replacement_warning(name, replacement, frame=0)
+        # skip an additional frame as we are called from the module `__getattr__`
+        _print_replacement_warning(name, replacement, frame=2)
         return out
 
     def register_deprecated_aliases(self, **kwargs: DeprecatedAliasTarget) -> None:
