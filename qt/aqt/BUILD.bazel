@@ -66,7 +66,7 @@ py_library(
     data = aqt_core_data,
     visibility = ["//visibility:public"],
     deps = aqt_deps + [
-        "@pyqt6//:pkg",
+        "@pyqt6",
     ],
 )
 
@@ -75,20 +75,7 @@ py_library(
     srcs = _py_srcs_and_forms,
     data = aqt_core_data + ["//qt/aqt/data"],
     visibility = ["//visibility:public"],
-    deps = aqt_deps + [
-        "@pyqt6//:pkg",
-    ],
-)
-
-py_library(
-    name = "aqt_with_data_qt5",
-    srcs = _py_srcs_and_forms,
-    data = aqt_core_data + ["//qt/aqt/data"],
-    tags = ["manual"],
-    visibility = ["//visibility:public"],
-    deps = aqt_deps + [
-        "@pyqt5//:pkg",
-    ],
+    deps = aqt_deps,
 )
 
 py_package(
