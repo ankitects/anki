@@ -22,7 +22,7 @@ def install_packages(requirements_path, directory, pip_args):
         requirements_path
     ] + pip_args
     cmd = create_command("install")
-    cmd.main(pip_args)
+    assert not cmd.main(pip_args)
 
 
 def fix_pyi_types():
