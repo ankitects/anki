@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from anki.collection import OpChanges
 from anki.models import NotetypeId
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
@@ -45,6 +46,7 @@ class NotetypeChooser(QHBoxLayout):
             self.on_button_activated = self.choose_notetype
         self._setup_ui(show_label=show_prefix_label)
         gui_hooks.state_did_reset.append(self.reset_state)
+        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         self._selected_notetype_id = NotetypeId(0)
         # triggers UI update; avoid firing changed hook on startup
         self.on_notetype_changed = None
@@ -75,6 +77,7 @@ class NotetypeChooser(QHBoxLayout):
 
     def cleanup(self) -> None:
         gui_hooks.state_did_reset.remove(self.reset_state)
+        gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
 
     def reset_state(self) -> None:
         self._ensure_selected_notetype_valid()
@@ -149,3 +152,9 @@ class NotetypeChooser(QHBoxLayout):
 
     def _update_button_label(self) -> None:
         self.button.setText(self.selected_notetype_name().replace("&", "&&"))
+
+    def on_operation_did_execute(
+        self, changes: OpChanges, handler: object | None
+    ) -> None:
+        if changes.notetype:
+            self._update_button_label()

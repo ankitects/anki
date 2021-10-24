@@ -3,8 +3,9 @@
 
 from __future__ import annotations
 
+from anki.collection import OpChanges
 from anki.decks import DEFAULT_DECK_ID, DeckId
-from aqt import AnkiQt
+from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import HelpPage, shortcut, tr
 
@@ -29,6 +30,7 @@ class DeckChooser(QHBoxLayout):
             starting_deck_id = DeckId(self.mw.col.get_config("curDeck", default=1) or 1)
         self.selected_deck_id = starting_deck_id
         self.on_deck_changed = on_deck_changed
+        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
 
     def _setup_ui(self, show_label: bool) -> None:
         self.setContentsMargins(0, 0, 0, 0)
@@ -106,6 +108,15 @@ class DeckChooser(QHBoxLayout):
                 if func := self.on_deck_changed:
                     func(new_selected_deck_id)
 
+    def on_operation_did_execute(
+        self, changes: OpChanges, handler: object | None
+    ) -> None:
+        if changes.deck:
+            self._update_button_label()
+
+    def cleanup(self) -> None:
+        gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
+
     # legacy
 
     onDeckChange = choose_deck
@@ -113,6 +124,3 @@ class DeckChooser(QHBoxLayout):
 
     def selectedId(self) -> DeckId:
         return self.selected_deck_id
-
-    def cleanup(self) -> None:
-        pass
