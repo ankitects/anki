@@ -1,7 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Optional
+from __future__ import annotations
 
 from anki.decks import DEFAULT_DECK_ID, DeckId
 from aqt import AnkiQt
@@ -15,8 +15,8 @@ class DeckChooser(QHBoxLayout):
         mw: AnkiQt,
         widget: QWidget,
         label: bool = True,
-        starting_deck_id: Optional[DeckId] = None,
-        on_deck_changed: Optional[Callable[[int], None]] = None,
+        starting_deck_id: DeckId | None = None,
+        on_deck_changed: Callable[[int], None] | None = None,
     ) -> None:
         QHBoxLayout.__init__(self)
         self._widget = widget  # type: ignore

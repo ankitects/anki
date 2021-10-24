@@ -1,7 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Optional
+from __future__ import annotations
 
 from anki.models import NotetypeId
 from aqt import AnkiQt, gui_hooks
@@ -32,8 +32,8 @@ class NotetypeChooser(QHBoxLayout):
         mw: AnkiQt,
         widget: QWidget,
         starting_notetype_id: NotetypeId,
-        on_button_activated: Optional[Callable[[], None]] = None,
-        on_notetype_changed: Optional[Callable[[NotetypeId], None]] = None,
+        on_button_activated: Callable[[], None] | None = None,
+        on_notetype_changed: Callable[[NotetypeId], None] | None = None,
         show_prefix_label: bool = True,
     ) -> None:
         QHBoxLayout.__init__(self)
