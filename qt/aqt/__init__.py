@@ -544,9 +544,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
 
     # disable help button in title bar on qt versions that support it
     if isWin and qtmajor == 5 and qtminor >= 10:
-        QApplication.setAttribute(
-            QApplication.Attribute.AA_DisableWindowContextHelpButton  # type: ignore
-        )
+        QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton)  # type: ignore
 
     # proxy configured?
     from urllib.request import getproxies, proxy_bypass
