@@ -1,6 +1,8 @@
 # Copyright: Andreas Klauer <Andreas.Klauer@metamorpher.de>
 # License: BSD-3
 
+# pylint: disable=invalid-name
+
 import gzip
 import html
 import math

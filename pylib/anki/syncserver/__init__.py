@@ -4,8 +4,6 @@
 # Please see /docs/syncserver.md
 #
 
-# pylint: enable=invalid-name
-
 from __future__ import annotations
 
 import gzip
