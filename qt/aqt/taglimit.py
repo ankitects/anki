@@ -39,7 +39,7 @@ class TagLimit(QDialog):
         self.exec()
 
     def rebuildTagList(self) -> None:
-        usertags = self.mw.col.tags.byDeck(self.deck["id"], True)
+        usertags = self.mw.col.tags.by_deck(self.deck["id"], True)
         yes = self.deck.get("activeTags", [])
         no = self.deck.get("inactiveTags", [])
         yesHash = {}

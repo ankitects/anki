@@ -66,9 +66,9 @@ from anki.types import assert_exhaustive
 from anki.utils import (
     from_json_bytes,
     ids2str,
-    intTime,
-    splitFields,
-    stripHTMLMedia,
+    int_time,
+    split_fields,
+    strip_html_media,
     to_json_bytes,
 )
 
@@ -292,7 +292,7 @@ class Collection(DeprecatedNamesMixin):
         self.db.begin()
 
     def set_schema_modified(self) -> None:
-        self.db.execute("update col set scm=?", intTime(1000))
+        self.db.execute("update col set scm=?", int_time(1000))
         self.save()
 
     def mod_schema(self, check: bool) -> None:
@@ -578,12 +578,12 @@ class Collection(DeprecatedNamesMixin):
         for nid, mid, flds in self.db.all(
             f"select id, mid, flds from notes where id in {ids2str(nids)}"
         ):
-            flds = splitFields(flds)
+            flds = split_fields(flds)
             ord = ord_for_mid(mid)
             if ord is None:
                 continue
             val = flds[ord]
-            val = stripHTMLMedia(val)
+            val = strip_html_media(val)
             # empty does not count as duplicate
             if not val:
                 continue
@@ -982,7 +982,7 @@ class Collection(DeprecatedNamesMixin):
         # restore any siblings
         self.db.execute(
             "update cards set queue=type,mod=?,usn=? where queue=-2 and nid=?",
-            intTime(),
+            int_time(),
             self.usn(),
             card.nid,
         )

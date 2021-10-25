@@ -6,6 +6,7 @@
 # future.
 #
 # pylint: disable=unused-import
+# pylint: enable=invalid-name
 
 from anki.decks import DeckTreeNode
 from anki.errors import InvalidInput, NotFoundError

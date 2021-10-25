@@ -17,7 +17,7 @@ from anki.consts import *
 from anki.decks import DeckConfigDict, DeckDict, DeckId
 from anki.lang import FormatTimeSpan
 from anki.scheduler.legacy import SchedulerBaseWithLegacy
-from anki.utils import ids2str, intTime
+from anki.utils import ids2str, int_time
 
 CountsForDeckToday = scheduler_pb2.CountsForDeckTodayResponse
 SchedTimingToday = scheduler_pb2.SchedTimingTodayResponse
@@ -269,7 +269,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_NEW} limit ?)"""
 
     # scan for any newly due learning cards every minute
     def _updateLrnCutoff(self, force: bool) -> bool:
-        nextCutoff = intTime() + self.col.conf["collapseTime"]
+        nextCutoff = int_time() + self.col.conf["collapseTime"]
         if nextCutoff - self._lrnCutoff > 60 or force:
             self._lrnCutoff = nextCutoff
             return True
@@ -320,7 +320,7 @@ select count() from cards where did in %s and queue = {QUEUE_TYPE_PREVIEW}
             return False
         if self._lrnQueue:
             return True
-        cutoff = intTime() + self.col.conf["collapseTime"]
+        cutoff = int_time() + self.col.conf["collapseTime"]
         self._lrnQueue = self.col.db.all(  # type: ignore
             f"""
 select due, id from cards where
@@ -457,7 +457,7 @@ limit ?"""
 
         self._answerCard(card, ease)
 
-        card.mod = intTime()
+        card.mod = int_time()
         card.usn = self.col.usn()
         card.flush()
 
@@ -615,7 +615,7 @@ limit ?"""
             fuzz = random.randrange(0, max(1, maxExtra))
             card.due = min(self.day_cutoff - 1, card.due + fuzz)
             card.queue = QUEUE_TYPE_LRN
-            if card.due < (intTime() + self.col.conf["collapseTime"]):
+            if card.due < (int_time() + self.col.conf["collapseTime"]):
                 self.lrnCount += 1
                 # if the queue is not empty and there's nothing else to do, make
                 # sure we don't put it at the head of the queue and end up showing
@@ -696,7 +696,7 @@ limit ?"""
     ) -> int:
         "The number of steps that can be completed by the day cutoff."
         if not now:
-            now = intTime()
+            now = int_time()
         delays = delays[-left:]
         ok = 0
         for idx, delay in enumerate(delays):
@@ -777,7 +777,7 @@ limit ?"""
         if ease == BUTTON_ONE:
             # repeat after delay
             card.queue = QUEUE_TYPE_PREVIEW
-            card.due = intTime() + self._previewDelay(card)
+            card.due = int_time() + self._previewDelay(card)
             self.lrnCount += 1
         else:
             # BUTTON_TWO

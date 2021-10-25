@@ -95,7 +95,7 @@ class UpdateInfo:
 
 ANKIWEB_ID_RE = re.compile(r"^\d+$")
 
-current_point_version = anki.utils.pointVersion()
+current_point_version = anki.utils.point_version()
 
 
 @dataclass
@@ -983,7 +983,7 @@ def download_addon(client: HttpClient, id: int) -> DownloadOk | DownloadError:
         if resp.status_code != 200:
             return DownloadError(status_code=resp.status_code)
 
-        data = client.streamContent(resp)
+        data = client.stream_content(resp)
 
         fname = re.match(
             "attachment; filename=(.+)", resp.headers["content-disposition"]

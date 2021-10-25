@@ -12,7 +12,13 @@ from typing import TYPE_CHECKING, Any, Literal, Sequence
 import aqt
 from anki.collection import Collection, HelpPage
 from anki.lang import TR, tr_legacyglobal  # pylint: disable=unused-import
-from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
+from anki.utils import (
+    invalid_filename,
+    isMac,
+    isWin,
+    no_bundled_libs,
+    version_with_build,
+)
 from aqt.qt import *
 from aqt.theme import theme_manager
 
@@ -57,7 +63,7 @@ def openHelp(section: HelpPageArgument) -> None:
 
 def openLink(link: str | QUrl) -> None:
     tooltip(tr.qt_misc_loading(), period=1000)
-    with noBundledLibs():
+    with no_bundled_libs():
         QDesktopServices.openUrl(QUrl(link))
 
 
@@ -658,7 +664,7 @@ def openFolder(path: str) -> None:
     if isWin:
         subprocess.run(["explorer", f"file://{path}"], check=False)
     else:
-        with noBundledLibs():
+        with no_bundled_libs():
             QDesktopServices.openUrl(QUrl(f"file://{path}"))
 
 
@@ -762,7 +768,7 @@ def closeTooltip() -> None:
 
 # true if invalid; print warning
 def checkInvalidFilename(str: str, dirsep: bool = True) -> bool:
-    bad = invalidFilename(str, dirsep)
+    bad = invalid_filename(str, dirsep)
     if bad:
         showWarning(tr.qt_misc_the_following_character_can_not_be(val=bad))
         return True
@@ -874,7 +880,7 @@ Platform: {}
 Flags: frz={} ao={} sv={}
 Add-ons, last update check: {}
 """.format(
-        versionWithBuild(),
+        version_with_build(),
         platform.python_version(),
         QT_VERSION_STR,
         PYQT_VERSION_STR,

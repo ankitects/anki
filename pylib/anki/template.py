@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: enable=invalid-name
+
 """
 This file contains the Python portion of the template rendering code.
 
@@ -215,10 +217,10 @@ class TemplateRenderContext:
     def render(self) -> TemplateRenderOutput:
         try:
             partial = self._partially_render()
-        except TemplateError as e:
+        except TemplateError as error:
             return TemplateRenderOutput(
-                question_text=str(e),
-                answer_text=str(e),
+                question_text=str(error),
+                answer_text=str(error),
                 question_av_tags=[],
                 answer_av_tags=[],
             )
@@ -284,12 +286,12 @@ class TemplateRenderOutput:
 def templates_for_card(card: Card, browser: bool) -> tuple[str, str]:
     template = card.template()
     if browser:
-        q, a = template.get("bqfmt"), template.get("bafmt")
+        question, answer = template.get("bqfmt"), template.get("bafmt")
     else:
-        q, a = None, None
-    q = q or template.get("qfmt")
-    a = a or template.get("afmt")
-    return q, a  # type: ignore
+        question, answer = None, None
+    question = question or template.get("qfmt")
+    answer = answer or template.get("afmt")
+    return question, answer  # type: ignore
 
 
 def apply_custom_filters(
