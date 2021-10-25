@@ -24,7 +24,7 @@ _python_distros = {
 }
 
 def _unix_arch(rctx):
-    result = rctx.execute(["arch"])
+    result = rctx.execute(["uname", "-m"])
     if result.return_code:
         fail("invoking arch failed", result.stderr)
     return result.stdout.strip()
@@ -32,7 +32,7 @@ def _unix_arch(rctx):
 def _get_platform(rctx):
     if rctx.os.name == "mac os x":
         arch = _unix_arch(rctx)
-        if arch == "i386":
+        if arch == "x86_64":
             return "macos_amd64"
         elif arch == "arm64":
             return "macos_arm64"
