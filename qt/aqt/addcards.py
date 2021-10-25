@@ -271,6 +271,7 @@ class AddCards(QDialog):
         av_player.stop_and_clear_queue()
         self.editor.cleanup()
         self.notetype_chooser.cleanup()
+        self.deck_chooser.cleanup()
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         self.mw.maybeReset()
         saveGeom(self, "add")

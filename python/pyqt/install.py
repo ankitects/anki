@@ -22,7 +22,7 @@ def install_packages(requirements_path, directory, pip_args):
         requirements_path
     ] + pip_args
     cmd = create_command("install")
-    cmd.main(pip_args)
+    assert not cmd.main(pip_args)
 
 
 def fix_pyi_types():
@@ -37,10 +37,6 @@ def fix_pyi_types():
                 lines = file.readlines()
                 file.seek(0)
                 for line in lines:
-                    # inheriting from the missing sip.sipwrapper definition
-                    # causes missing attributes not to be detected, as it's treating
-                    # the class as inheriting from Any
-                    line = line.replace("PyQt6.sip.wrapper", "object")
                     # # remove blanket getattr in QObject which also causes missing
                     # # attributes not to be detected
                     if "def __getattr__(self, name: str) -> typing.Any" in line:
@@ -74,17 +70,7 @@ def main():
             pass
 
     else:
-        arm_darwin = sys.platform.startswith("darwin") and platform.machine() == "arm64"
-        pip_args = []
-        if arm_darwin:
-            # pyqt messed up the architecture tags in the 6.2.0 release
-            pip_args.extend(
-                [
-                    "--platform=macosx_10_14_arm64",
-                    "--only-binary=pyqt6-qt6,pyqt6-webengine-qt6",
-                ])
-
-        install_packages(requirements_file, base, pip_args)
+        install_packages(requirements_file, base, [])
         fix_pyi_types()
         fix_webengine_codesigning()
 
