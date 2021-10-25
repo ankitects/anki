@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -76,12 +77,12 @@ cargo_build_script(
     ] + selects.with_or({
         # cfg(unix)
         (
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
             "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-ios",
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:x86_64-apple-darwin",
             "@rules_rust//rust/platform:x86_64-apple-ios",
-            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
         ],
         "//conditions:default": [],
@@ -119,11 +120,10 @@ rust_library(
         "winapi",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2018",
     proc_macro_deps = [
-        "@raze__tokio_macros__1_4_1//:tokio_macros",
+        "@raze__tokio_macros__1_5_0//:tokio_macros",
     ],
     rustc_flags = [
         "--cap-lints=allow",
@@ -138,20 +138,20 @@ rust_library(
         ":tokio_build_script",
         "@raze__bytes__1_1_0//:bytes",
         "@raze__memchr__2_4_1//:memchr",
-        "@raze__mio__0_7_13//:mio",
+        "@raze__mio__0_7_14//:mio",
         "@raze__num_cpus__1_13_0//:num_cpus",
         "@raze__pin_project_lite__0_2_7//:pin_project_lite",
     ] + selects.with_or({
         # cfg(unix)
         (
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
             "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-ios",
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:x86_64-apple-darwin",
             "@rules_rust//rust/platform:x86_64-apple-ios",
-            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@raze__libc__0_2_103//:libc",
+            "@raze__libc__0_2_105//:libc",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

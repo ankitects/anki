@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -31,14 +32,13 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "unicode_bidi",
+    name = "minimal_lexical",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "default",
         "std",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -48,8 +48,32 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.6",
+    version = "0.1.4",
     # buildifier: leave-alone
     deps = [
     ],
 )
+
+# Unsupported target "bellerophon" with type "test" omitted
+
+# Unsupported target "bellerophon_tests" with type "test" omitted
+
+# Unsupported target "integration_tests" with type "test" omitted
+
+# Unsupported target "lemire_tests" with type "test" omitted
+
+# Unsupported target "libm_tests" with type "test" omitted
+
+# Unsupported target "mask_tests" with type "test" omitted
+
+# Unsupported target "number_tests" with type "test" omitted
+
+# Unsupported target "parse_tests" with type "test" omitted
+
+# Unsupported target "rounding_tests" with type "test" omitted
+
+# Unsupported target "slow_tests" with type "test" omitted
+
+# Unsupported target "stackvec" with type "test" omitted
+
+# Unsupported target "vec_tests" with type "test" omitted

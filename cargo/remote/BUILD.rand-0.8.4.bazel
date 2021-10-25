@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -47,7 +48,6 @@ rust_library(
         "std_rng",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -60,19 +60,32 @@ rust_library(
     version = "0.8.4",
     # buildifier: leave-alone
     deps = [
-        "@raze__rand_chacha__0_3_1//:rand_chacha",
         "@raze__rand_core__0_6_3//:rand_core",
     ] + selects.with_or({
-        # cfg(unix)
+        # cfg(not(target_os = "emscripten"))
         (
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
             "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-ios",
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:x86_64-apple-darwin",
             "@rules_rust//rust/platform:x86_64-apple-ios",
-            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@raze__libc__0_2_103//:libc",
+            "@raze__rand_chacha__0_3_1//:rand_chacha",
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
+        # cfg(unix)
+        (
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:aarch64-apple-darwin",
+            "@rules_rust//rust/platform:aarch64-apple-ios",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:x86_64-apple-ios",
+        ): [
+            "@raze__libc__0_2_105//:libc",
         ],
         "//conditions:default": [],
     }),

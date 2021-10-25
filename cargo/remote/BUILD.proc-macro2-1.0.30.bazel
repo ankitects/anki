@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -25,7 +26,7 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
@@ -37,11 +38,13 @@ load(
 )
 
 cargo_build_script(
-    name = "encoding_rs_build_script",
+    name = "proc_macro2_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
+        "default",
+        "proc-macro",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -53,19 +56,20 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.8.28",
+    version = "1.0.30",
     visibility = ["//visibility:private"],
     deps = [
     ],
 )
 
 rust_library(
-    name = "encoding_rs",
+    name = "proc_macro2",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
+        "proc-macro",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -75,10 +79,20 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.8.28",
+    version = "1.0.30",
     # buildifier: leave-alone
     deps = [
-        ":encoding_rs_build_script",
-        "@raze__cfg_if__1_0_0//:cfg_if",
+        ":proc_macro2_build_script",
+        "@raze__unicode_xid__0_2_2//:unicode_xid",
     ],
 )
+
+# Unsupported target "comments" with type "test" omitted
+
+# Unsupported target "features" with type "test" omitted
+
+# Unsupported target "marker" with type "test" omitted
+
+# Unsupported target "test" with type "test" omitted
+
+# Unsupported target "test_fmt" with type "test" omitted
