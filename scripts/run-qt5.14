@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# note: 5.14 is not available on Windows for Python 3.9
+
 set -e
 
 export PYTHONWARNINGS=default
