@@ -7,7 +7,7 @@ import time
 from anki.collection import Collection
 from anki.consts import *
 from anki.lang import without_unicode_isolation
-from anki.utils import intTime
+from anki.utils import int_time
 from tests.shared import getEmptyCol as getEmptyColOrig
 
 
@@ -21,7 +21,7 @@ def getEmptyCol() -> Collection:
 
 def test_clock():
     col = getEmptyCol()
-    if (col.sched.day_cutoff - intTime()) < 10 * 60:
+    if (col.sched.day_cutoff - int_time()) < 10 * 60:
         raise Exception("Unit tests will fail around the day rollover.")
 
 
@@ -53,7 +53,7 @@ def test_new():
     assert c.queue == QUEUE_TYPE_NEW
     assert c.type == CARD_TYPE_NEW
     # if we answer it, it should become a learn card
-    t = intTime()
+    t = int_time()
     col.sched.answerCard(c, 1)
     assert c.queue == QUEUE_TYPE_LRN
     assert c.type == CARD_TYPE_LRN

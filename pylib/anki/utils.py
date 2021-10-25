@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: enable=invalid-name
+
 from __future__ import annotations
 
 import json as _json
@@ -14,11 +16,11 @@ import subprocess
 import sys
 import tempfile
 import time
-import traceback
 from contextlib import contextmanager
 from hashlib import sha1
-from typing import Any, Iterable, Iterator
+from typing import Any, Iterable, Iterator, no_type_check
 
+from anki._legacy import DeprecatedNamesMixinForModule
 from anki.dbproxy import DBProxy
 
 _tmpdir: str | None
@@ -35,19 +37,11 @@ except:
     from_json_bytes = _json.loads
 
 
-def __getattr__(name: str) -> Any:
-    if name == "json":
-        traceback.print_stack(file=sys.stdout)
-        print("add-on should import json directly, not from anki.utils")
-        return _json
-    raise AttributeError(f"module {__name__} has no attribute {name}")
-
-
 # Time handling
 ##############################################################################
 
 
-def intTime(scale: int = 1) -> int:
+def int_time(scale: int = 1) -> int:
     "The time in integer seconds. Pass scale=1000 to get milliseconds."
     return int(time.time() * scale)
 
@@ -56,33 +50,33 @@ def intTime(scale: int = 1) -> int:
 ##############################################################################
 
 
-def stripHTML(s: str) -> str:
+def strip_html(txt: str) -> str:
     import anki.lang
     from anki.collection import StripHtmlMode
 
-    return anki.lang.current_i18n.strip_html(text=s, mode=StripHtmlMode.NORMAL)
+    return anki.lang.current_i18n.strip_html(text=txt, mode=StripHtmlMode.NORMAL)
 
 
-def stripHTMLMedia(s: str) -> str:
+def strip_html_media(txt: str) -> str:
     "Strip HTML but keep media filenames"
     import anki.lang
     from anki.collection import StripHtmlMode
 
     return anki.lang.current_i18n.strip_html(
-        text=s, mode=StripHtmlMode.PRESERVE_MEDIA_FILENAMES
+        text=txt, mode=StripHtmlMode.PRESERVE_MEDIA_FILENAMES
     )
 
 
-def htmlToTextLine(s: str) -> str:
-    s = s.replace("<br>", " ")
-    s = s.replace("<br />", " ")
-    s = s.replace("<div>", " ")
-    s = s.replace("\n", " ")
-    s = re.sub(r"\[sound:[^]]+\]", "", s)
-    s = re.sub(r"\[\[type:[^]]+\]\]", "", s)
-    s = stripHTMLMedia(s)
-    s = s.strip()
-    return s
+def html_to_text_line(txt: str) -> str:
+    txt = txt.replace("<br>", " ")
+    txt = txt.replace("<br />", " ")
+    txt = txt.replace("<div>", " ")
+    txt = txt.replace("\n", " ")
+    txt = re.sub(r"\[sound:[^]]+\]", "", txt)
+    txt = re.sub(r"\[\[type:[^]]+\]\]", "", txt)
+    txt = strip_html_media(txt)
+    txt = txt.strip()
+    return txt
 
 
 # IDs
@@ -94,19 +88,19 @@ def ids2str(ids: Iterable[int | str]) -> str:
     return f"({','.join(str(i) for i in ids)})"
 
 
-def timestampID(db: DBProxy, table: str) -> int:
+def timestamp_id(db: DBProxy, table: str) -> int:
     "Return a non-conflicting timestamp for table."
     # be careful not to create multiple objects without flushing them, or they
     # may share an ID.
-    t = intTime(1000)
-    while db.scalar(f"select id from {table} where id = ?", t):
-        t += 1
-    return t
+    timestamp = int_time(1000)
+    while db.scalar(f"select id from {table} where id = ?", timestamp):
+        timestamp += 1
+    return timestamp
 
 
-def maxID(db: DBProxy) -> int:
+def max_id(db: DBProxy) -> int:
     "Return the first safe ID to use."
-    now = intTime(1000)
+    now = int_time(1000)
     for tbl in "cards", "notes":
         now = max(now, db.scalar(f"select max(id) from {tbl}") or 0)
     return now + 1
@@ -114,21 +108,20 @@ def maxID(db: DBProxy) -> int:
 
 # used in ankiweb
 def base62(num: int, extra: str = "") -> str:
-    s = string
-    table = s.ascii_letters + s.digits + extra
+    table = string.ascii_letters + string.digits + extra
     buf = ""
     while num:
-        num, i = divmod(num, len(table))
-        buf = table[i] + buf
+        num, mod = divmod(num, len(table))
+        buf = table[mod] + buf
     return buf
 
 
-_base91_extra_chars = "!#$%&()*+,-./:;<=>?@[]^_`{|}~"
+_BASE91_EXTRA_CHARS = "!#$%&()*+,-./:;<=>?@[]^_`{|}~"
 
 
 def base91(num: int) -> str:
     # all printable characters minus quotes, backslash and separators
-    return base62(num, _base91_extra_chars)
+    return base62(num, _BASE91_EXTRA_CHARS)
 
 
 def guid64() -> str:
@@ -140,11 +133,11 @@ def guid64() -> str:
 ##############################################################################
 
 
-def joinFields(list: list[str]) -> str:
+def join_fields(list: list[str]) -> str:
     return "\x1f".join(list)
 
 
-def splitFields(string: str) -> list[str]:
+def split_fields(string: str) -> list[str]:
     return string.split("\x1f")
 
 
@@ -158,20 +151,20 @@ def checksum(data: bytes | str) -> str:
     return sha1(data).hexdigest()
 
 
-def fieldChecksum(data: str) -> int:
+def field_checksum(data: str) -> int:
     # 32 bit unsigned number from first 8 digits of sha1 hash
-    return int(checksum(stripHTMLMedia(data).encode("utf-8"))[:8], 16)
+    return int(checksum(strip_html_media(data).encode("utf-8"))[:8], 16)
 
 
 # Temp files
 ##############################################################################
 
-_tmpdir = None
+_tmpdir = None  # pylint: disable=invalid-name
 
 
 def tmpdir() -> str:
     "A reusable temp folder which we clean out on each program invocation."
-    global _tmpdir
+    global _tmpdir  # pylint: disable=invalid-name
     if not _tmpdir:
 
         def cleanup() -> None:
@@ -190,15 +183,15 @@ def tmpdir() -> str:
 
 
 def tmpfile(prefix: str = "", suffix: str = "") -> str:
-    (fd, name) = tempfile.mkstemp(dir=tmpdir(), prefix=prefix, suffix=suffix)
-    os.close(fd)
+    (descriptor, name) = tempfile.mkstemp(dir=tmpdir(), prefix=prefix, suffix=suffix)
+    os.close(descriptor)
     return name
 
 
-def namedtmp(name: str, rm: bool = True) -> str:
+def namedtmp(name: str, remove: bool = True) -> str:
     "Return tmpdir+name. Deletes any existing file."
     path = os.path.join(tmpdir(), name)
-    if rm:
+    if remove:
         try:
             os.unlink(path)
         except OSError:
@@ -211,7 +204,7 @@ def namedtmp(name: str, rm: bool = True) -> str:
 
 
 @contextmanager
-def noBundledLibs() -> Iterator[None]:
+def no_bundled_libs() -> Iterator[None]:
     oldlpath = os.environ.pop("LD_LIBRARY_PATH", None)
     yield
     if oldlpath is not None:
@@ -222,18 +215,18 @@ def call(argv: list[str], wait: bool = True, **kwargs: Any) -> int:
     "Execute a command. If WAIT, return exit code."
     # ensure we don't open a separate window for forking process on windows
     if isWin:
-        si = subprocess.STARTUPINFO()  # type: ignore
+        info = subprocess.STARTUPINFO()  # type: ignore
         try:
-            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # type: ignore
+            info.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # type: ignore
         except:
             # pylint: disable=no-member
-            si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW  # type: ignore
+            info.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW  # type: ignore
     else:
-        si = None
+        info = None
     # run
     try:
-        with noBundledLibs():
-            o = subprocess.Popen(argv, startupinfo=si, **kwargs)
+        with no_bundled_libs():
+            process = subprocess.Popen(argv, startupinfo=info, **kwargs)
     except OSError:
         # command not found
         return -1
@@ -241,7 +234,7 @@ def call(argv: list[str], wait: bool = True, **kwargs: Any) -> int:
     if wait:
         while 1:
             try:
-                ret = o.wait()
+                ret = process.wait()
             except OSError:
                 # interrupted system call
                 continue
@@ -259,13 +252,13 @@ isWin = sys.platform.startswith("win32")
 isLin = not isMac and not isWin
 devMode = os.getenv("ANKIDEV", "")
 
-invalidFilenameChars = ':*?"<>|'
+INVALID_FILENAME_CHARS = ':*?"<>|'
 
 
-def invalidFilename(str: str, dirsep: bool = True) -> str | None:
-    for c in invalidFilenameChars:
-        if c in str:
-            return c
+def invalid_filename(str: str, dirsep: bool = True) -> str | None:
+    for char in INVALID_FILENAME_CHARS:
+        if char in str:
+            return char
     if (dirsep or isWin) and "/" in str:
         return "/"
     elif (dirsep or not isWin) and "\\" in str:
@@ -275,12 +268,10 @@ def invalidFilename(str: str, dirsep: bool = True) -> str | None:
     return None
 
 
-def platDesc() -> str:
+def plat_desc() -> str:
     # we may get an interrupted system call, so try this in a loop
-    n = 0
     theos = "unknown"
-    while n < 100:
-        n += 1
+    for _ in range(100):
         try:
             system = platform.system()
             if isMac:
@@ -301,33 +292,33 @@ def platDesc() -> str:
     return theos
 
 
-# Debugging
-##############################################################################
-
-
-class TimedLog:
-    def __init__(self) -> None:
-        self._last = time.time()
-
-    def log(self, s: str) -> None:
-        path, num, fn, y = traceback.extract_stack(limit=2)[0]
-        sys.stderr.write(
-            "%5dms: %s(): %s\n" % ((time.time() - self._last) * 1000, fn, s)
-        )
-        self._last = time.time()
-
-
 # Version
 ##############################################################################
 
 
-def versionWithBuild() -> str:
+def version_with_build() -> str:
     from anki.buildinfo import buildhash, version
 
     return f"{version} ({buildhash})"
 
 
-def pointVersion() -> int:
+def point_version() -> int:
     from anki.buildinfo import version
 
     return int(version.split(".")[-1])
+
+
+_deprecated_names = DeprecatedNamesMixinForModule(globals())
+_deprecated_names.register_deprecated_aliases(
+    stripHTML=strip_html,
+    stripHTMLMedia=strip_html_media,
+    timestampID=timestamp_id,
+    maxID=max_id,
+    invalidFilenameChars=(INVALID_FILENAME_CHARS, "INVALID_FILENAME_CHARS"),
+)
+_deprecated_names.register_deprecated_attributes(json=((_json, "_json"), None))
+
+
+@no_type_check
+def __getattr__(name: str) -> Any:
+    return _deprecated_names.__getattr__(name)

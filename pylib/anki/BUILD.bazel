@@ -49,7 +49,6 @@ py_library(
         requirement("flask"),
         requirement("waitress"),
         requirement("markdown"),
-        "//pylib/anki/_vendor:stringcase",
     ] + orjson_if_available(),
 )
 
@@ -84,7 +83,6 @@ py_wheel(
         "decorator",
         "protobuf>=3.17",
         "markdown",
-        "stringcase",
         "orjson",
         'psutil; sys_platform == "win32"',
         'distro; sys_platform != "darwin" and sys_platform != "win32"',

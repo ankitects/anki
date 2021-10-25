@@ -4,7 +4,7 @@
 from typing import Any, Optional
 
 from anki.collection import Collection
-from anki.utils import maxID
+from anki.utils import max_id
 
 # Base importer
 ##########################################################################
@@ -41,7 +41,7 @@ class Importer:
     # need to make sure our starting point is safe.
 
     def _prepareTS(self) -> None:
-        self._ts = maxID(self.dst.db)
+        self._ts = max_id(self.dst.db)
 
     def ts(self) -> Any:
         self._ts += 1

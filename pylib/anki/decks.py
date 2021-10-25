@@ -17,7 +17,7 @@ from anki.cards import CardId
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.consts import *
 from anki.errors import NotFoundError
-from anki.utils import from_json_bytes, ids2str, intTime, to_json_bytes
+from anki.utils import from_json_bytes, ids2str, int_time, to_json_bytes
 
 # public exports
 DeckTreeNode = decks_pb2.DeckTreeNode
@@ -544,7 +544,7 @@ class DeckManager(DeprecatedNamesMixin):
             f"update cards set did=?,usn=?,mod=? where id in {ids2str(cids)}",
             did,
             self.col.usn(),
-            intTime(),
+            int_time(),
         )
 
     @deprecated(replaced_by=all_names_and_ids)

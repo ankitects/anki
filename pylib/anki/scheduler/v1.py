@@ -14,7 +14,7 @@ from anki import hooks
 from anki.cards import Card
 from anki.consts import *
 from anki.decks import DeckId
-from anki.utils import ids2str, intTime
+from anki.utils import ids2str, int_time
 
 from .v2 import QueueConfig
 from .v2 import Scheduler as V2
@@ -88,7 +88,7 @@ class Scheduler(V2):
             milliseconds_delta=+card.time_taken(),
         )
 
-        card.mod = intTime()
+        card.mod = int_time()
         card.usn = self.col.usn()
         card.flush()
 
@@ -389,7 +389,7 @@ due = odue, queue = {QUEUE_TYPE_REV}, mod = %d, usn = %d, odue = 0
 where queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) and type = {CARD_TYPE_REV}
 %s
 """
-            % (intTime(), self.col.usn(), extra)
+            % (int_time(), self.col.usn(), extra)
         )
         # new cards in learning
         self.forgetCards(
@@ -406,7 +406,7 @@ where queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) and type = {CAR
 select sum(left/1000) from
 (select left from cards where did = ? and queue = {QUEUE_TYPE_LRN} and due < ? limit ?)""",
                 did,
-                intTime() + self.col.conf["collapseTime"],
+                int_time() + self.col.conf["collapseTime"],
                 self.reportLimit,
             )
             or 0

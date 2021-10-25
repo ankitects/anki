@@ -12,7 +12,7 @@ import aqt
 from anki.errors import Interrupted, SyncError, SyncErrorKind
 from anki.lang import without_unicode_isolation
 from anki.sync import SyncOutput, SyncStatus
-from anki.utils import platDesc
+from anki.utils import plat_desc
 from aqt.qt import (
     QDialog,
     QDialogButtonBox,
@@ -331,4 +331,4 @@ def get_id_and_pass_from_user(
 
 
 # export platform version to syncing code
-os.environ["PLATFORM"] = platDesc()
+os.environ["PLATFORM"] = plat_desc()

@@ -25,7 +25,7 @@ from anki.cards import CardId
 from anki.consts import CARD_TYPE_NEW, NEW_CARDS_RANDOM, QUEUE_TYPE_NEW, QUEUE_TYPE_REV
 from anki.decks import DeckConfigDict, DeckId, DeckTreeNode
 from anki.notes import NoteId
-from anki.utils import ids2str, intTime
+from anki.utils import ids2str, int_time
 
 
 class SchedulerBase(DeprecatedNamesMixin):
@@ -52,7 +52,7 @@ class SchedulerBase(DeprecatedNamesMixin):
     def deck_due_tree(self, top_deck_id: int = 0) -> DeckTreeNode:
         """Returns a tree of decks with counts.
         If top_deck_id provided, counts are limited to that node."""
-        return self.col._backend.deck_tree(top_deck_id=top_deck_id, now=intTime())
+        return self.col._backend.deck_tree(top_deck_id=top_deck_id, now=int_time())
 
     # Deck finished state & custom study
     ##########################################################################
