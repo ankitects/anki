@@ -62,6 +62,10 @@ export function withCollapsedWhitespace(s: string): string {
     return s.replace(/\s+/g, " ");
 }
 
+export function withoutUnicodeIsolation(s: string): string {
+    return s.replace(/[\u2068-\u2069]+/g, "");
+}
+
 export async function setupI18n(args: { modules: ModuleName[] }): Promise<void> {
     const resp = await fetch("/_anki/i18nResources", {
         method: "POST",
