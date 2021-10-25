@@ -16,7 +16,6 @@ import subprocess
 import sys
 import tempfile
 import time
-import traceback
 from contextlib import contextmanager
 from hashlib import sha1
 from typing import Any, Iterable, Iterator, no_type_check
@@ -291,22 +290,6 @@ def plat_desc() -> str:
         except:
             continue
     return theos
-
-
-# Debugging
-##############################################################################
-
-
-class TimedLog:
-    def __init__(self) -> None:
-        self._last = time.time()
-
-    def log(self, txt: str) -> None:
-        _, _, fn, _ = traceback.extract_stack(limit=2)[0]
-        sys.stderr.write(
-            "%5dms: %s(): %s\n" % ((time.time() - self._last) * 1000, fn, txt)
-        )
-        self._last = time.time()
 
 
 # Version
