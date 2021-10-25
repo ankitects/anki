@@ -26,7 +26,6 @@ output-format=colorized
 [MESSAGES CONTROL]
 disable=
   R,
-  invalid-name,
   line-too-long,
   too-many-lines,
   missing-function-docstring,

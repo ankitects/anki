@@ -1,3 +1,5 @@
+# pylint: disable=invalid-name
+
 # from subtlepatterns.com; CC BY-SA 3.0.
 # by Daniel Beaton
 # https://www.toptal.com/designers/subtlepatterns/fancy-deboss/
