@@ -3,4 +3,4 @@
 set -e
 
 export PYTHONWARNINGS=default
-bazel run $BUILDARGS //qt:runanki_qt5 -- $*
+bazel run $BUILDARGS //qt:runanki_qt515 -- $*

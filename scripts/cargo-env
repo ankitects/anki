@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Put our vendored version of cargo on the path. Not used by our
+# build scripts, but can be helpful if you need quick access to cargo
+# on a machine that does not have Rust installed separately, or
+# want to run a quick check. Eg:
+
+# $ . scripts/cargo-env
+# $ (cd rslib && cargo check)
+
+BAZEL_EXTERNAL=$(bazel info output_base)/external
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+   if [ "$(arch)" == "i386" ]; then
+      export PATH="$BAZEL_EXTERNAL/rust_darwin_x86_64/bin:$PATH"
+   else
+      export PATH="$BAZEL_EXTERNAL/rust_darwin_arm64/bin:$PATH"
+   fi
+else
+      export PATH="$BAZEL_EXTERNAL/rust_linux_x86_64/bin:$PATH"
+fi

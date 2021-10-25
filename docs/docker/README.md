@@ -1,11 +1,14 @@
 # Anki in Docker
 
-This README contains the instructions for building and running the Anki Docker image.
+This is an example of how you can build and run Anki from inside Docker. This
+approach keeps everything inside Docker images, and sends the GUI to an X11
+display over TCP/IP. This approach keeps things tidy, so may be a good choice
+for if you wish to build Anki irregularly and don't want to build it outside of
+Docker.
 
-Docker provides a standard for installing software on many systems
-(Windows, macOS, Linux), and it allows one to build software without cluttering a system
-with dependencies. The Dockerfile contains the instructions for building the Docker image,
-and it also serves as instructions for how to build Anki from source on Linux.
+It takes longer to build after small changes however, so for development, if you
+wish to use Docker, the approach [in the build
+scripts](../../scripts/docker/README.md) may be more appropriate.
 
 # Build the Docker image
 
@@ -59,7 +62,7 @@ docker run --rm -it \
 
 Here is a breakdown of some of the arguments:
 
-- Mount the current user's `~/.local/share` directory onto the container. Anki saves things
+-   Mount the current user's `~/.local/share` directory onto the container. Anki saves things
     into this directory, and if we don't mount it, we will lose any changes once the
     container exits. We mount this as read-write (`rw`) because we want to make changes here.
 
@@ -67,26 +70,26 @@ Here is a breakdown of some of the arguments:
     --volume $HOME/.local/share:$HOME/.local/share:rw
     ```
 
-- Mount `/etc/passwd` so we can enter the container as ourselves. We mount this as
+-   Mount `/etc/passwd` so we can enter the container as ourselves. We mount this as
     read-only because we definitely do not want to modify this.
 
     ```bash
     --volume /etc/passwd:/etc/passwd:ro
     ```
 
-- Enter the container with our user ID and group ID, so we stay as ourselves.
+-   Enter the container with our user ID and group ID, so we stay as ourselves.
 
     ```bash
     --user $(id -u):$(id -g)
     ```
 
-- Mount the X11 directory that allows us to open displays.
+-   Mount the X11 directory that allows us to open displays.
 
     ```bash
     --volume /tmp/.X11-unix:/tmp/.X11-unix:rw
     ```
 
-- Pass the `DISPLAY` variable to the container, so it knows where to display graphics.
+-   Pass the `DISPLAY` variable to the container, so it knows where to display graphics.
 
     ```bash
     --env DISPLAY=$DISPLAY

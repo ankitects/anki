@@ -3,7 +3,7 @@
 
 use super::{CardTemplateConfig, CardTemplateProto};
 use crate::{
-    backend_proto::OptionalUInt32,
+    backend_proto::UInt32,
     decks::DeckId,
     error::{AnkiError, Result},
     template::ParsedTemplate,
@@ -57,7 +57,7 @@ impl CardTemplate {
 impl From<CardTemplate> for CardTemplateProto {
     fn from(t: CardTemplate) -> Self {
         CardTemplateProto {
-            ord: t.ord.map(|n| OptionalUInt32 { val: n }),
+            ord: t.ord.map(|n| UInt32 { val: n }),
             mtime_secs: t.mtime_secs.0,
             usn: t.usn.0,
             name: t.name,

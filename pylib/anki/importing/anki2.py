@@ -14,7 +14,7 @@ from anki.decks import DeckId, DeckManager
 from anki.importing.base import Importer
 from anki.models import NotetypeId
 from anki.notes import NoteId
-from anki.utils import intTime, joinFields, splitFields, stripHTMLMedia
+from anki.utils import int_time, join_fields, split_fields, strip_html_media
 
 GUID = 1
 MID = 2
@@ -82,7 +82,7 @@ class Anki2Importer(Importer):
 
     def _logNoteRow(self, action: str, noteRow: list[str]) -> None:
         self.log.append(
-            "[{}] {}".format(action, stripHTMLMedia(noteRow[6].replace("\x1f", ", ")))
+            "[{}] {}".format(action, strip_html_media(noteRow[6].replace("\x1f", ", ")))
         )
 
     def _importNotes(self) -> None:
@@ -282,7 +282,7 @@ class Anki2Importer(Importer):
         # if target is a filtered deck, we'll need a new deck name
         deck = self.dst.decks.by_name(name)
         if deck and deck["dyn"]:
-            name = "%s %d" % (name, intTime())
+            name = "%s %d" % (name, int_time())
         # create in local
         newid = self.dst.decks.id(name)
         # pull conf over
@@ -345,7 +345,7 @@ class Anki2Importer(Importer):
             # update cid, nid, etc
             card[1] = self._notes[guid][0]
             card[2] = self._did(card[2])
-            card[4] = intTime()
+            card[4] = int_time()
             card[5] = usn
             # review cards have a due date relative to collection
             if (
@@ -434,7 +434,7 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""",
             pass
 
     def _mungeMedia(self, mid: NotetypeId, fieldsStr: str) -> str:
-        fields = splitFields(fieldsStr)
+        fields = split_fields(fieldsStr)
 
         def repl(match):
             fname = match.group("fname")
@@ -459,15 +459,15 @@ insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)""",
             return match.group(0).replace(fname, lname)
 
         for idx, field in enumerate(fields):
-            fields[idx] = self.dst.media.transformNames(field, repl)
-        return joinFields(fields)
+            fields[idx] = self.dst.media.transform_names(field, repl)
+        return join_fields(fields)
 
     # Post-import cleanup
     ######################################################################
 
     def _postImport(self) -> None:
         for did in list(self._decks.values()):
-            self.col.sched.maybeRandomizeDeck(did)
+            self.col.sched.maybe_randomize_deck(did)
         # make sure new position is correct
         self.dst.conf["nextPos"] = (
             self.dst.db.scalar("select max(due)+1 from cards where type = 0") or 0

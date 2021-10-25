@@ -24,7 +24,7 @@ been fully updated yet. You can install Python from python.org or from your dist
 ```
 $ python3.9 -m venv ~/pyenv
 $ ~/pyenv/bin/pip install --upgrade pip
-$ ~/pyenv/bin/pip install aqt
+$ ~/pyenv/bin/pip install aqt[qt6]
 ```
 
 Then to run Anki:
@@ -38,13 +38,28 @@ $ ~/pyenv/bin/anki
 ```
 c:\> python -m venv \pyenv
 c:\> \pyenv\scripts\pip install --upgrade pip
-c:\> \pyenv\scripts\pip install aqt
+c:\> \pyenv\scripts\pip install aqt[qt6]
 ```
 
 Then to run Anki:
 
 ```
 c:\> \pyenv\scripts\anki
+```
+
+**ARM Linux**
+
+Since PyQt wheels are not available on PyPI, you'll need to use your system
+version instead:
+
+-   Ensure you're on a distro that has Python 3.9/3.10, glibc, and PyQt5.14+
+-   Install the PyQt packages, eg `apt install python3-pyqt5.qtwebengine`.
+-   Use the following commands:
+
+```
+$ python3.9 -m venv ~/pyenv --system-site-packages
+$ ~/pyenv/bin/pip install --upgrade pip
+$ ~/pyenv/bin/pip install aqt
 ```
 
 ## Building from source
@@ -77,6 +92,8 @@ On Windows:
 .\scripts\build.bat
 ```
 
+Linux users can also optionally [build via Docker](../scripts/docker/README.md).
+
 The generated wheel paths will be printed as the build completes.
 
 You can then install them by copying the paths into a pip install command.
@@ -88,6 +105,21 @@ pip install --upgrade bazel-dist/*.whl
 ```
 
 On Windows you'll need to list out the filenames manually.
+
+You'll also need to install PyQt:
+
+```
+$ pip3 install pyqt6 pyqt6-webengine
+```
+
+or
+
+```
+$ pip3 install pyqt5 pyqtwebengine
+```
+
+On ARM Linux, see the instructions in the pre-built wheels section about a system PyQt,
+and please see the notes at the bottom of [Linux](./linux.md).
 
 ## Running tests
 
@@ -123,8 +155,21 @@ each file save automatically with:
 
 ## Fixing formatting
 
-If the format tests fail, most can be fixed by running `format`
-in the relevant package:
+For formatting issues with .ts, .svelte and .md files, change to the folder
+that's causing the problem, and then run
+
+```
+bazel run //ts:format
+```
+
+For other packages, change to the folder and run
+
+```
+bazel run format
+```
+
+For the latter cases, you can also invoke the formatter from another folder by using
+the full path:
 
 ```
 bazel run //rslib:format
@@ -132,14 +177,7 @@ bazel run //rslib:sql_format
 bazel run //proto:format
 bazel run //pylib:format
 bazel run //qt:format
-bazel run //ts:format
 bazel run //pylib/rsbridge:format
-```
-
-If you're in one of those folders, you can use the short form:
-
-```
-bazel run format
 ```
 
 ## Development speedups
@@ -177,9 +215,9 @@ expand proc macros and build scripts, and run cargo check on startup. Adding
 of `use` statements.
 
 The Bazel build products will make RA start up slowly out of the box. For a much
-nicer experience, add each of the bazel-* folders to Rust Analyzer's excludeDirs
-settings, and node_modules. Wildcards don't work unfortunately. Then adjust
-VS Code's "watcher exclude", and add `**/bazel-*`.
+nicer experience, add each of the `bazel-*` folders to Rust Analyzer's excludeDirs
+settings, and node*modules. Wildcards don't work unfortunately. Then adjust
+VS Code's "watcher exclude", and add `\*\*/bazel-*`.
 
 After running 'code' from the project root, it may take a minute or two to be
 ready.

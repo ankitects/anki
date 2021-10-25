@@ -66,7 +66,7 @@ class DeckConf(QDialog):
         import anki.consts as cs
 
         f = self.form
-        f.newOrder.addItems(list(cs.newCardOrderLabels(self.mw.col).values()))
+        f.newOrder.addItems(list(cs.new_card_order_labels(self.mw.col).values()))
         qconnect(f.newOrder.currentIndexChanged, self.onNewOrderChanged)
 
     # Conf list
@@ -253,7 +253,7 @@ class DeckConf(QDialog):
             return
         self.conf["new"]["order"] = new
         self.mw.progress.start()
-        self.mw.col.sched.resortConf(self.conf)
+        self.mw.col.sched.resort_conf(self.conf)
         self.mw.progress.finish()
 
     # Saving
@@ -294,9 +294,9 @@ class DeckConf(QDialog):
         if self._origNewOrder != c["order"]:
             # order of current deck has changed, so have to resort
             if c["order"] == NEW_CARDS_RANDOM:
-                self.mw.col.sched.randomizeCards(self.deck["id"])
+                self.mw.col.sched.randomize_cards(self.deck["id"])
             else:
-                self.mw.col.sched.orderCards(self.deck["id"])
+                self.mw.col.sched.order_cards(self.deck["id"])
         # rev
         c = self.conf["rev"]
         c["perDay"] = f.revPerDay.value()

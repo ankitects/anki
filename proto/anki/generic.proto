@@ -7,14 +7,6 @@ package anki.generic;
 
 message Empty {}
 
-message OptionalInt32 {
-  sint32 val = 1;
-}
-
-message OptionalUInt32 {
-  uint32 val = 1;
-}
-
 message Int32 {
   sint32 val = 1;
 }

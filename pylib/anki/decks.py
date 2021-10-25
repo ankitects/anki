@@ -1,8 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-# pylint: enable=invalid-name
-
 from __future__ import annotations
 
 import copy
@@ -17,7 +15,7 @@ from anki.cards import CardId
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.consts import *
 from anki.errors import NotFoundError
-from anki.utils import from_json_bytes, ids2str, intTime, to_json_bytes
+from anki.utils import from_json_bytes, ids2str, int_time, to_json_bytes
 
 # public exports
 DeckTreeNode = decks_pb2.DeckTreeNode
@@ -366,7 +364,7 @@ class DeckManager(DeprecatedNamesMixin):
         self.update_config(new)
         # if it was previously randomized, re-sort
         if not old_order:
-            self.col.sched.resortConf(new)
+            self.col.sched.resort_conf(new)
 
     # Deck utils
     #############################################################
@@ -544,7 +542,7 @@ class DeckManager(DeprecatedNamesMixin):
             f"update cards set did=?,usn=?,mod=? where id in {ids2str(cids)}",
             did,
             self.col.usn(),
-            intTime(),
+            int_time(),
         )
 
     @deprecated(replaced_by=all_names_and_ids)

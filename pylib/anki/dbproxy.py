@@ -51,9 +51,9 @@ class DBProxy:
         **kwargs: ValueForDB,
     ) -> list[Row]:
         # mark modified?
-        s = sql.strip().lower()
+        cananoized = sql.strip().lower()
         for stmt in "insert", "update", "delete":
-            if s.startswith(stmt):
+            if cananoized.startswith(stmt):
                 self.modified_in_python = True
         sql, args2 = emulate_named_args(sql, args, kwargs)
         # fetch rows
@@ -113,11 +113,11 @@ def emulate_named_args(
     args2 = list(args)
     for key, val in kwargs.items():
         args2.append(val)
-        n = len(args2)
-        arg_num[key] = n
+        number = len(args2)
+        arg_num[key] = number
     # update refs
-    def repl(m: Match) -> str:
-        arg = m.group(1)
+    def repl(match: Match) -> str:
+        arg = match.group(1)
         return f"?{arg_num[arg]}"
 
     sql = re.sub(":([a-zA-Z_0-9]+)", repl, sql)

@@ -19,7 +19,6 @@ pytest
 requests[socks]
 send2trash
 snakeviz
-stringcase
 waitress>=2.0.0
 fluent.syntax
 types-decorator
