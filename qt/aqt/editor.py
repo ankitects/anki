@@ -484,7 +484,7 @@ noteEditorPromise.then(noteEditor => noteEditor.toolbar.then((toolbar) => toolba
             json.dumps(focusTo),
             json.dumps(self.note.id),
             json.dumps([text_color, highlight_color]),
-            json.dumps(self.mw.col.tags.canonify(self.note.tags)),
+            json.dumps(self.note.tags),
         )
 
         if self.addMode:
@@ -674,12 +674,12 @@ noteEditorPromise.then(noteEditor => noteEditor.toolbar.then((toolbar) => toolba
     def _addMedia(self, path: str, canDelete: bool = False) -> str:
         """Add to media folder and return local img or sound tag."""
         # copy to media folder
-        fname = self.mw.col.media.addFile(path)
+        fname = self.mw.col.media.add_file(path)
         # return a local html link
         return self.fnameToLink(fname)
 
     def _addMediaFromData(self, fname: str, data: bytes) -> str:
-        return self.mw.col.media.writeData(fname, data)
+        return self.mw.col.media._legacy_write_data(fname, data)
 
     def onRecSound(self) -> None:
         aqt.sound.record_audio(

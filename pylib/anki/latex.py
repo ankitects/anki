@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: enable=invalid-name
+
 from __future__ import annotations
 
 import html
@@ -25,7 +27,8 @@ svgCommands = [
     ["dvisvgm", "--no-fonts", "--exact", "-Z", "2", "tmp.dvi", "-o", "tmp.svg"],
 ]
 
-build = True  # if off, use existing media but don't create new
+# if off, use existing media but don't create new
+build = True  # pylint: disable=invalid-name
 
 # add standard tex install location to osx
 if isMac:
@@ -135,10 +138,10 @@ def _save_latex_image(
 
     # commands to use
     if svg:
-        latexCmds = svgCommands
+        latex_cmds = svgCommands
         ext = "svg"
     else:
-        latexCmds = pngCommands
+        latex_cmds = pngCommands
         ext = "png"
 
     # write into a temp file
@@ -152,9 +155,9 @@ def _save_latex_image(
     try:
         # generate png/svg
         os.chdir(tmpdir())
-        for latexCmd in latexCmds:
-            if call(latexCmd, stdout=log, stderr=log):
-                return _errMsg(col, latexCmd[0], texpath)
+        for latex_cmd in latex_cmds:
+            if call(latex_cmd, stdout=log, stderr=log):
+                return _err_msg(col, latex_cmd[0], texpath)
         # add to media
         with open(png_or_svg, "rb") as file:
             data = file.read()
@@ -166,12 +169,12 @@ def _save_latex_image(
         log.close()
 
 
-def _errMsg(col: anki.collection.Collection, type: str, texpath: str) -> Any:
+def _err_msg(col: anki.collection.Collection, type: str, texpath: str) -> Any:
     msg = f"{col.tr.media_error_executing(val=type)}<br>"
     msg += f"{col.tr.media_generated_file(val=texpath)}<br>"
     try:
-        with open(namedtmp("latex_log.txt", rm=False), encoding="utf8") as f:
-            log = f.read()
+        with open(namedtmp("latex_log.txt", remove=False), encoding="utf8") as file:
+            log = file.read()
         if not log:
             raise Exception()
         msg += f"<small><pre>{html.escape(log)}</pre></small>"

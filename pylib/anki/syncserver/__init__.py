@@ -171,7 +171,7 @@ def col_path() -> str:
 
 
 def serve() -> None:
-    global col  # pylint: disable=C0103
+    global col  # pylint: disable=invalid-name
 
     col = Collection(col_path(), server=True)
     # don't hold an outer transaction open

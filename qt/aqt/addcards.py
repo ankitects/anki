@@ -10,7 +10,7 @@ from anki.collection import OpChanges, SearchNode
 from anki.decks import DeckId
 from anki.models import NotetypeId
 from anki.notes import Note, NoteFieldsCheckResult, NoteId
-from anki.utils import htmlToTextLine, isMac
+from anki.utils import html_to_text_line, isMac
 from aqt import AnkiQt, gui_hooks
 from aqt.deckchooser import DeckChooser
 from aqt.notetypechooser import NotetypeChooser
@@ -197,7 +197,7 @@ class AddCards(QDialog):
             if self.col.find_notes(self.col.build_search_string(SearchNode(nid=nid))):
                 note = self.col.get_note(nid)
                 fields = note.fields
-                txt = htmlToTextLine(", ".join(fields))
+                txt = html_to_text_line(", ".join(fields))
                 if len(txt) > 30:
                     txt = f"{txt[:30]}..."
                 line = tr.adding_edit(val=txt)

@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: enable=invalid-name
+
 """
 Anki maintains a cache of used tags so it can quickly present a list of tags
 for autocomplete and in the browser. For efficiency, deletions are not
@@ -18,6 +20,7 @@ from typing import Collection, Match, Sequence
 import anki  # pylint: disable=unused-import
 import anki.collection
 from anki import tags_pb2
+from anki._legacy import DeprecatedNamesMixin, deprecated
 from anki.collection import OpChanges, OpChangesWithCount
 from anki.decks import DeckId
 from anki.notes import NoteId
@@ -28,7 +31,7 @@ TagTreeNode = tags_pb2.TagTreeNode
 MARKED_TAG = "marked"
 
 
-class TagManager:
+class TagManager(DeprecatedNamesMixin):
     def __init__(self, col: anki.collection.Collection) -> None:
         self.col = col.weakref()
 
@@ -37,9 +40,9 @@ class TagManager:
         return list(self.col._backend.all_tags())
 
     def __repr__(self) -> str:
-        d = dict(self.__dict__)
-        del d["col"]
-        return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
+        dict_ = dict(self.__dict__)
+        del dict_["col"]
+        return f"{super().__repr__()} {pprint.pformat(dict_, width=300)}"
 
     def tree(self) -> TagTreeNode:
         return self.col._backend.tag_tree()
@@ -50,7 +53,7 @@ class TagManager:
     def clear_unused_tags(self) -> OpChangesWithCount:
         return self.col._backend.clear_unused_tags()
 
-    def byDeck(self, did: DeckId, children: bool = False) -> list[str]:
+    def by_deck(self, did: DeckId, children: bool = False) -> list[str]:
         basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
         if not children:
             query = f"{basequery} AND c.did=?"
@@ -133,48 +136,40 @@ class TagManager:
             return ""
         return f" {' '.join(tags)} "
 
-    def addToStr(self, addtags: str, tags: str) -> str:
-        "Add tags if they don't exist, and canonify."
-        currentTags = self.split(tags)
-        for tag in self.split(addtags):
-            if not self.inList(tag, currentTags):
-                currentTags.append(tag)
-        return self.join(self.canonify(currentTags))
-
-    def remFromStr(self, deltags: str, tags: str) -> str:
+    def rem_from_str(self, deltags: str, tags: str) -> str:
         "Delete tags if they exist."
 
         def wildcard(pat: str, repl: str) -> Match:
             pat = re.escape(pat).replace("\\*", ".*")
             return re.match(f"^{pat}$", repl, re.IGNORECASE)
 
-        currentTags = self.split(tags)
-        for tag in self.split(deltags):
+        current_tags = self.split(tags)
+        for del_tag in self.split(deltags):
             # find tags, ignoring case
             remove = []
-            for tx in currentTags:
-                if (tag.lower() == tx.lower()) or wildcard(tag, tx):
-                    remove.append(tx)
+            for cur_tag in current_tags:
+                if (del_tag.lower() == cur_tag.lower()) or wildcard(del_tag, cur_tag):
+                    remove.append(cur_tag)
             # remove them
-            for r in remove:
-                currentTags.remove(r)
-        return self.join(currentTags)
+            for rem in remove:
+                current_tags.remove(rem)
+        return self.join(current_tags)
 
     # List-based utilities
     ##########################################################################
 
-    # this is now a no-op - the tags are canonified when the note is saved
-    def canonify(self, tagList: list[str]) -> list[str]:
-        return tagList
+    @deprecated(info="no-op - tags are now canonified when note is saved")
+    def canonify(self, tag_list: list[str]) -> list[str]:
+        return tag_list
 
-    def inList(self, tag: str, tags: list[str]) -> bool:
+    def in_list(self, tag: str, tags: list[str]) -> bool:
         "True if TAG is in TAGS. Ignore case."
         return tag.lower() in [t.lower() for t in tags]
 
     # legacy
     ##########################################################################
 
-    def registerNotes(self, nids: list[int] | None = None) -> None:
+    def _legacy_register_notes(self, nids: list[int] | None = None) -> None:
         self.clear_unused_tags()
 
     def register(
@@ -182,12 +177,19 @@ class TagManager:
     ) -> None:
         print("tags.register() is deprecated and no longer works")
 
-    def bulkAdd(self, ids: list[NoteId], tags: str, add: bool = True) -> None:
+    def _legacy_bulk_add(self, ids: list[NoteId], tags: str, add: bool = True) -> None:
         "Add tags in bulk. TAGS is space-separated."
         if add:
             self.bulk_add(ids, tags)
         else:
             self.bulk_remove(ids, tags)
 
-    def bulkRem(self, ids: list[NoteId], tags: str) -> None:
-        self.bulkAdd(ids, tags, False)
+    def _legacy_bulk_rem(self, ids: list[NoteId], tags: str) -> None:
+        self._legacy_bulk_add(ids, tags, False)
+
+
+TagManager.register_deprecated_attributes(
+    registerNotes=(TagManager._legacy_register_notes, TagManager.clear_unused_tags),
+    bulkAdd=(TagManager._legacy_bulk_add, TagManager.bulk_add),
+    bulkRem=(TagManager._legacy_bulk_rem, TagManager.bulk_remove),
+)

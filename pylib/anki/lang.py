@@ -1,15 +1,19 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+# pylint: enable=invalid-name
+
 from __future__ import annotations
 
 import locale
 import re
 import weakref
+from typing import Any, no_type_check
 
 import anki
 import anki._backend
 import anki.i18n_pb2 as _pb
+from anki._legacy import DeprecatedNamesMixinForModule
 
 # public exports
 TR = anki._backend.LegacyTranslationEnum
@@ -138,21 +142,21 @@ def lang_to_disk_lang(lang: str) -> str:
     ):
         return lang.replace("_", "-")
     # other languages have the region portion stripped
-    m = re.match("(.*)_", lang)
-    if m:
-        return m.group(1)
+    match = re.match("(.*)_", lang)
+    if match:
+        return match.group(1)
     else:
         return lang
 
 
 # the currently set interface language
-currentLang = "en"
+current_lang = "en"  # pylint: disable=invalid-name
 
 # the current Fluent translation instance. Code in pylib/ should
 # not reference this, and should use col.tr instead. The global
 # instance exists for legacy reasons, and as a convenience for the
 # Qt code.
-current_i18n: anki._backend.RustBackend | None = None
+current_i18n: anki._backend.RustBackend | None = None  # pylint: disable=invalid-name
 tr_legacyglobal = anki._backend.Translations(None)
 
 
@@ -161,14 +165,14 @@ def _(str: str) -> str:
     return str
 
 
-def ngettext(single: str, plural: str, n: int) -> str:
+def ngettext(single: str, plural: str, num: int) -> str:
     print(f"ngettext() is deprecated: {plural}")
     return plural
 
 
 def set_lang(lang: str) -> None:
-    global currentLang, current_i18n
-    currentLang = lang
+    global current_lang, current_i18n  # pylint: disable=invalid-name
+    current_lang = lang
     current_i18n = anki._backend.RustBackend(langs=[lang])
     tr_legacyglobal.backend = weakref.ref(current_i18n)
 
@@ -186,19 +190,19 @@ def get_def_lang(lang: str | None = None) -> tuple[int, str]:
         user_lang = compatMap[user_lang]
     idx = None
     lang = None
-    en = None
-    for l in (user_lang, sys_lang):
-        for c, (name, code) in enumerate(langs):
+    en_idx = None
+    for preferred_lang in (user_lang, sys_lang):
+        for lang_idx, (name, code) in enumerate(langs):
             if code == "en_US":
-                en = c
-            if code == l:
-                idx = c
-                lang = l
+                en_idx = lang_idx
+            if code == preferred_lang:
+                idx = lang_idx
+                lang = preferred_lang
         if idx is not None:
             break
     # if the specified language and the system language aren't available, revert to english
     if idx is None:
-        idx = en
+        idx = en_idx
         lang = "en_US"
     return (idx, lang)
 
@@ -209,9 +213,17 @@ def is_rtl(lang: str) -> bool:
 
 # strip off unicode isolation markers from a translated string
 # for testing purposes
-def without_unicode_isolation(s: str) -> str:
-    return s.replace("\u2068", "").replace("\u2069", "")
+def without_unicode_isolation(string: str) -> str:
+    return string.replace("\u2068", "").replace("\u2069", "")
 
 
-def with_collapsed_whitespace(s: str) -> str:
-    return re.sub(r"\s+", " ", s)
+def with_collapsed_whitespace(string: str) -> str:
+    return re.sub(r"\s+", " ", string)
+
+
+_deprecated_names = DeprecatedNamesMixinForModule(globals())
+
+
+@no_type_check
+def __getattr__(name: str) -> Any:
+    return _deprecated_names.__getattr__(name)

@@ -244,7 +244,7 @@ class Preferences(QDialog):
 
     def current_lang_index(self) -> int:
         codes = [x[1] for x in anki.lang.langs]
-        lang = anki.lang.currentLang
+        lang = anki.lang.current_lang
         if lang in anki.lang.compatMap:
             lang = anki.lang.compatMap[lang]
         else:

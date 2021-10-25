@@ -19,7 +19,7 @@ from anki.collection import Config, OpChanges, OpChangesWithCount
 from anki.scheduler.v3 import CardAnswer, NextStates, QueuedCards
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.tags import MARKED_TAG
-from anki.utils import stripHTML
+from anki.utils import strip_html
 from aqt import AnkiQt, gui_hooks
 from aqt.browser.card_info import PreviousReviewerCardInfo, ReviewerCardInfo
 from aqt.deckoptions import confirm_deck_then_display_options
@@ -573,7 +573,7 @@ class Reviewer:
         # munge correct value
         cor = self.mw.col.media.strip(self.typeCorrect)
         cor = re.sub("(\n|<br ?/?>|</?div>)+", " ", cor)
-        cor = stripHTML(cor)
+        cor = strip_html(cor)
         # ensure we don't chomp multiple whitespace
         cor = cor.replace(" ", "&nbsp;")
         cor = html.unescape(cor)

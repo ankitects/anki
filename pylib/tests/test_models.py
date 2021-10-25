@@ -6,7 +6,7 @@ import time
 
 from anki.consts import MODEL_CLOZE
 from anki.errors import NotFoundError
-from anki.utils import isWin, stripHTML
+from anki.utils import isWin, strip_html
 from tests.shared import getEmptyCol
 
 
@@ -114,7 +114,7 @@ def test_templates():
     # and should have updated the other cards' ordinals
     c = note.cards()[0]
     assert c.ord == 0
-    assert stripHTML(c.question()) == "1"
+    assert strip_html(c.question()) == "1"
     # it shouldn't be possible to orphan notes by removing templates
     t = mm.new_template("template name")
     t["qfmt"] = "{{Front}}2"

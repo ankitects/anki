@@ -22,7 +22,7 @@ from anki.decks import DeckId
 from anki.errors import DBError
 from anki.scheduler.legacy import SchedulerBaseWithLegacy
 from anki.types import assert_exhaustive
-from anki.utils import intTime
+from anki.utils import int_time
 
 QueuedCards = scheduler_pb2.QueuedCards
 SchedulingState = scheduler_pb2.SchedulingState
@@ -77,7 +77,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             current_state=states.current,
             new_state=new_state,
             rating=rating,
-            answered_at_millis=intTime(1000),
+            answered_at_millis=int_time(1000),
             milliseconds_taken=card.time_taken(),
         )
 
