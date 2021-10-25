@@ -7,14 +7,14 @@
         "path": "node_modules/@fluent/bundle",
         "licenseFile": "node_modules/@fluent/bundle/README.md"
     },
-    "@mdi/svg@6.2.95": {
+    "@mdi/svg@6.4.95": {
         "licenses": "Apache-2.0",
         "repository": "https://github.com/Templarian/MaterialDesign-SVG",
         "publisher": "Austin Andrews",
         "path": "node_modules/@mdi/svg",
         "licenseFile": "node_modules/@mdi/svg/LICENSE"
     },
-    "@popperjs/core@2.10.1": {
+    "@popperjs/core@2.10.2": {
         "licenses": "MIT",
         "repository": "https://github.com/popperjs/popper-core",
         "publisher": "Federico Zivolo",
@@ -108,7 +108,7 @@
         "path": "node_modules/@types/lodash-es",
         "licenseFile": "node_modules/@types/lodash-es/LICENSE"
     },
-    "@types/lodash@4.14.175": {
+    "@types/lodash@4.14.176": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/@types/lodash",
@@ -120,19 +120,19 @@
         "path": "node_modules/@types/long",
         "licenseFile": "node_modules/@types/long/LICENSE"
     },
-    "@types/marked@3.0.1": {
+    "@types/marked@3.0.2": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/@types/marked",
         "licenseFile": "node_modules/@types/marked/LICENSE"
     },
-    "@types/node@16.10.2": {
+    "@types/node@16.11.5": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/@types/node",
         "licenseFile": "node_modules/@types/node/LICENSE"
     },
-    "bootstrap-icons@1.5.0": {
+    "bootstrap-icons@1.6.1": {
         "licenses": "MIT",
         "repository": "https://github.com/twbs/icons",
         "publisher": "mdo",
@@ -147,7 +147,7 @@
         "path": "node_modules/bootstrap",
         "licenseFile": "node_modules/bootstrap/LICENSE"
     },
-    "codemirror@5.63.1": {
+    "codemirror@5.63.3": {
         "licenses": "MIT",
         "repository": "https://github.com/codemirror/CodeMirror",
         "publisher": "Marijn Haverbeke",
@@ -164,7 +164,7 @@
         "path": "node_modules/commander",
         "licenseFile": "node_modules/commander/LICENSE"
     },
-    "commander@8.2.0": {
+    "commander@8.3.0": {
         "licenses": "MIT",
         "repository": "https://github.com/tj/commander.js",
         "publisher": "TJ Holowaychuk",
@@ -179,7 +179,7 @@
         "path": "node_modules/css-browser-selector",
         "licenseFile": "node_modules/css-browser-selector/README.mkdn"
     },
-    "d3-array@3.0.4": {
+    "d3-array@3.1.1": {
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-array",
         "publisher": "Mike Bostock",
@@ -419,7 +419,7 @@
         "path": "node_modules/d3-zoom",
         "licenseFile": "node_modules/d3-zoom/LICENSE"
     },
-    "d3@7.0.4": {
+    "d3@7.1.1": {
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3",
         "publisher": "Mike Bostock",
