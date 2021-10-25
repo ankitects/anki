@@ -1,8 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-# pylint: enable=invalid-name
-
 """
 Anki maintains a cache of used tags so it can quickly present a list of tags
 for autocomplete and in the browser. For efficiency, deletions are not
