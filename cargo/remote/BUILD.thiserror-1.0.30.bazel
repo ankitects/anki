@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -36,11 +37,10 @@ rust_library(
     crate_features = [
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2018",
     proc_macro_deps = [
-        "@raze__thiserror_impl__1_0_29//:thiserror_impl",
+        "@raze__thiserror_impl__1_0_30//:thiserror_impl",
     ],
     rustc_flags = [
         "--cap-lints=allow",
@@ -49,7 +49,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.29",
+    version = "1.0.30",
     # buildifier: leave-alone
     deps = [
     ],

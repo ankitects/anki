@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -58,8 +59,8 @@ cargo_build_script(
     visibility = ["//visibility:private"],
     deps = [
         "@raze__autocfg__1_0_1//:autocfg",
-        "@raze__cc__1_0_70//:cc",
-        "@raze__pkg_config__0_3_20//:pkg_config",
+        "@raze__cc__1_0_71//:cc",
+        "@raze__pkg_config__0_3_22//:pkg_config",
     ] + selects.with_or({
         # cfg(target_env = "msvc")
         (
@@ -79,7 +80,6 @@ rust_library(
     crate_features = [
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2015",
     rustc_flags = [
@@ -93,7 +93,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":openssl_sys_build_script",
-        "@raze__libc__0_2_103//:libc",
+        "@raze__libc__0_2_105//:libc",
     ] + selects.with_or({
         # cfg(target_env = "msvc")
         (
