@@ -70,17 +70,7 @@ def main():
             pass
 
     else:
-        arm_darwin = sys.platform.startswith("darwin") and platform.machine() == "arm64"
-        pip_args = []
-        if arm_darwin:
-            # pyqt messed up the architecture tags in the 6.2.0 release
-            pip_args.extend(
-                [
-                    "--platform=macosx_10_14_arm64",
-                    "--only-binary=pyqt6-qt6,pyqt6-webengine-qt6",
-                ])
-
-        install_packages(requirements_file, base, pip_args)
+        install_packages(requirements_file, base, [])
         fix_pyi_types()
         fix_webengine_codesigning()
 
