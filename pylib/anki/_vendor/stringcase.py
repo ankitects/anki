@@ -1,7 +1,6 @@
 # stringcase 1.2.0 with python warning fix applied
 # MIT: https://github.com/okunishinishi/python-stringcase
 
-# type: ignore
 
 """
 String convert functions
