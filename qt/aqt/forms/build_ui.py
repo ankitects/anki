@@ -42,10 +42,6 @@ def with_fixes_for_qt6(code: str) -> str:
             "QAction.PreferencesRole", "QAction.MenuRole.PreferencesRole"
         )
         line = line.replace("QAction.AboutRole", "QAction.MenuRole.AboutRole")
-        line = line.replace(
-            "QComboBox.AdjustToMinimumContentsLength",
-            "QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLength",
-        )
         outlines.append(line)
     return "\n".join(outlines)
 

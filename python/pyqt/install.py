@@ -22,7 +22,7 @@ def install_packages(requirements_path, directory, pip_args):
         requirements_path
     ] + pip_args
     cmd = create_command("install")
-    cmd.main(pip_args)
+    assert not cmd.main(pip_args)
 
 
 def fix_pyi_types():
@@ -37,10 +37,6 @@ def fix_pyi_types():
                 lines = file.readlines()
                 file.seek(0)
                 for line in lines:
-                    # inheriting from the missing sip.sipwrapper definition
-                    # causes missing attributes not to be detected, as it's treating
-                    # the class as inheriting from Any
-                    line = line.replace("PyQt6.sip.wrapper", "object")
                     # # remove blanket getattr in QObject which also causes missing
                     # # attributes not to be detected
                     if "def __getattr__(self, name: str) -> typing.Any" in line:
