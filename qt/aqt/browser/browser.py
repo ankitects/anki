@@ -114,7 +114,6 @@ class Browser(QMainWindow):
         self._closeEventHasCleanedUp = False
         self.form = aqt.forms.browser.Ui_Dialog()
         self.form.setupUi(self)
-        self.setupSidebar()
         restoreGeom(self, "editor", 0)
         restoreState(self, "editor")
         restoreSplitter(self.form.splitter, "editor3")
@@ -122,6 +121,7 @@ class Browser(QMainWindow):
         # set if exactly 1 row is selected; used by the previewer
         self.card: Card | None = None
         self.current_card: Card | None = None
+        self.setupSidebar()
         self.setup_table()
         self.setupMenus()
         self.setupHooks()
@@ -496,7 +496,12 @@ class Browser(QMainWindow):
         dw = self.sidebarDockWidget = QDockWidget(tr.browsing_sidebar(), self)
         dw.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
         dw.setObjectName("Sidebar")
-        dw.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea)
+        dock_area = (
+            Qt.DockWidgetArea.RightDockWidgetArea
+            if self.layoutDirection() == Qt.LayoutDirection.RightToLeft
+            else Qt.DockWidgetArea.LeftDockWidgetArea
+        )
+        dw.setAllowedAreas(dock_area)
 
         self.sidebar = SidebarTreeView(self)
         self.sidebarTree = self.sidebar  # legacy alias
@@ -517,7 +522,7 @@ class Browser(QMainWindow):
         self.sidebarDockWidget.setFloating(False)
 
         self.sidebarDockWidget.setTitleBarWidget(QWidget())
-        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, dw)
+        self.addDockWidget(dock_area, dw)
 
         # schedule sidebar to refresh after browser window has loaded, so the
         # UI is more responsive
