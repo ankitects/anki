@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -31,14 +32,13 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "ouroboros_macro",
+    name = "core_foundation",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
     crate_root = "src/lib.rs",
-    crate_type = "proc-macro",
     data = [],
-    edition = "2018",
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -46,13 +46,12 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.9.5",
+    version = "0.9.2",
     # buildifier: leave-alone
     deps = [
-        "@raze__Inflector__0_11_4//:Inflector",
-        "@raze__proc_macro2__1_0_29//:proc_macro2",
-        "@raze__proc_macro_error__1_0_4//:proc_macro_error",
-        "@raze__quote__1_0_9//:quote",
-        "@raze__syn__1_0_77//:syn",
+        "@raze__core_foundation_sys__0_8_3//:core_foundation_sys",
+        "@raze__libc__0_2_105//:libc",
     ],
 )
+
+# Unsupported target "use_macro_outside_crate" with type "test" omitted

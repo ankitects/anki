@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -102,7 +103,6 @@ rust_library(
         "unindent",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     compile_data = glob(["**/*.md"]),
     edition = "2018",
@@ -122,7 +122,7 @@ rust_library(
         ":pyo3_build_script",
         "@raze__cfg_if__1_0_0//:cfg_if",
         "@raze__indoc__0_3_6//:indoc",
-        "@raze__libc__0_2_103//:libc",
+        "@raze__libc__0_2_105//:libc",
         "@raze__parking_lot__0_11_2//:parking_lot",
         "@raze__paste__0_1_18//:paste",
         "@raze__unindent__0_1_7//:unindent",

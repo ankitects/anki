@@ -2,7 +2,7 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script lang="typescript">
+<script lang="ts">
     import { setContext } from "svelte";
     import { writable } from "svelte/store";
     import Item from "./Item.svelte";

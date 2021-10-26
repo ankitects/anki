@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -25,7 +26,7 @@ package(default_visibility = [
 ])
 
 licenses([
-    "unencumbered",  # CC0-1.0 from expression "CC0-1.0 OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
 # Generated Targets
@@ -37,14 +38,13 @@ load(
 )
 
 cargo_build_script(
-    name = "blake3_build_script",
+    name = "encoding_rs_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
+        "alloc",
         "default",
-        "digest",
-        "std",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -56,25 +56,20 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.0",
+    version = "0.8.29",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__cc__1_0_70//:cc",
     ],
 )
 
-# Unsupported target "bench" with type "bench" omitted
-
 rust_library(
-    name = "blake3",
+    name = "encoding_rs",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "alloc",
         "default",
-        "digest",
-        "std",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -84,14 +79,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.0",
+    version = "0.8.29",
     # buildifier: leave-alone
     deps = [
-        ":blake3_build_script",
-        "@raze__arrayref__0_3_6//:arrayref",
-        "@raze__arrayvec__0_7_1//:arrayvec",
+        ":encoding_rs_build_script",
         "@raze__cfg_if__1_0_0//:cfg_if",
-        "@raze__constant_time_eq__0_1_5//:constant_time_eq",
-        "@raze__digest__0_9_0//:digest",
     ],
 )
