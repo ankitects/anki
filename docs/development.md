@@ -33,6 +33,8 @@ Then to run Anki:
 $ ~/pyenv/bin/anki
 ```
 
+On Linux, the pre-built wheel for x86_64 requires glibc 2.28 or later.
+
 **Windows**:
 
 ```
@@ -50,9 +52,10 @@ c:\> \pyenv\scripts\anki
 **ARM Linux**
 
 Since PyQt wheels are not available on PyPI, you'll need to use your system
-version instead:
+version instead. To use the pre-built wheels:
 
--   Ensure you're on a distro that has Python 3.9/3.10, glibc, and PyQt5.14+
+-   Ensure you're on a distro that has Python 3.9/3.10, glibc 2.31, and
+    PyQt5.14+.
 -   Install the PyQt packages, eg `apt install python3-pyqt5.qtwebengine`.
 -   Use the following commands:
 
@@ -92,8 +95,6 @@ On Windows:
 .\scripts\build.bat
 ```
 
-Linux users can also optionally [build via Docker](../scripts/docker/README.md).
-
 The generated wheel paths will be printed as the build completes.
 
 You can then install them by copying the paths into a pip install command.
@@ -118,8 +119,28 @@ or
 $ pip3 install pyqt5 pyqtwebengine
 ```
 
-On ARM Linux, see the instructions in the pre-built wheels section about a system PyQt,
-and please see the notes at the bottom of [Linux](./linux.md).
+### Wheels on Linux
+
+Linux users can build using instructions above, or they can optionally [build
+via Docker](../scripts/docker/README.md).
+
+On Linux, the generated Anki wheel will have a filename like:
+
+    anki-2.1.49-cp39-abi3-manylinux_2_31_aarch64.whl
+
+The 2_31 part means that the wheel requires glibc 2.31 or later. If you have
+built the wheel on a machine with an older glibc version, you will get an error
+if you try to install the wheel:
+
+    ERROR: No matching distribution found for anki
+
+To avoid the error, you can rename the .whl file to match your glibc version.
+
+If you still get the error, another possibility is that you are trying to
+install with an old version of Python - 3.9 or later is required.
+
+On ARM Linux, please see the instructions in the pre-built wheels section about
+a system PyQt, and the notes at the bottom of [Linux](./linux.md).
 
 ## Running tests
 
