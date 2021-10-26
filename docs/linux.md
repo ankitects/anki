@@ -120,7 +120,7 @@ export PYTHON_SITE_PACKAGES=/usr/lib/python3/dist-packages/
 
 Note: the trailing slash at the end is required.
 
-There are a few things to be aware of when doing this:
+There are a few things to be aware of:
 
 -   You should use ./run and not scripts/run-qt5\*, even if your system libraries are Qt5.
 -   If your system libraries are Qt5, when creating an aqt wheel, the wheel will not work
