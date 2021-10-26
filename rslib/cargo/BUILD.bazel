@@ -32,7 +32,7 @@ alias(
 
 alias(
     name = "blake3",
-    actual = "@raze__blake3__1_0_0//:blake3",
+    actual = "@raze__blake3__1_1_0//:blake3",
     tags = [
         "cargo-raze",
         "manual",
@@ -95,7 +95,16 @@ alias(
 
 alias(
     name = "fluent_bundle",
-    actual = "@raze__fluent_bundle__0_15_1//:fluent_bundle",
+    actual = "@raze__fluent_bundle__0_15_2//:fluent_bundle",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "fluent_syntax",
+    actual = "@raze__fluent_syntax__0_11_0//:fluent_syntax",
     tags = [
         "cargo-raze",
         "manual",
@@ -132,6 +141,15 @@ alias(
 alias(
     name = "htmlescape",
     actual = "@raze__htmlescape__0_3_1//:htmlescape",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "inflections",
+    actual = "@raze__inflections__1_1_1//:inflections",
     tags = [
         "cargo-raze",
         "manual",
@@ -184,8 +202,8 @@ alias(
 )
 
 alias(
-    name = "num_integer",
-    actual = "@raze__num_integer__0_1_44//:num_integer",
+    name = "num_enum",
+    actual = "@raze__num_enum__0_5_4//:num_enum",
     tags = [
         "cargo-raze",
         "manual",
@@ -193,8 +211,17 @@ alias(
 )
 
 alias(
-    name = "num_enum",
-    actual = "@raze__num_enum__0_5_4//:num_enum",
+    name = "num_format",
+    actual = "@raze__num_format__0_4_0//:num_format",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "num_integer",
+    actual = "@raze__num_integer__0_1_44//:num_integer",
     tags = [
         "cargo-raze",
         "manual",
@@ -213,6 +240,15 @@ alias(
 alias(
     name = "pct_str",
     actual = "@raze__pct_str__1_1_0//:pct_str",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "phf",
+    actual = "@raze__phf__0_10_0//:phf",
     tags = [
         "cargo-raze",
         "manual",
@@ -258,6 +294,15 @@ alias(
 alias(
     name = "pulldown_cmark",
     actual = "@raze__pulldown_cmark__0_8_0//:pulldown_cmark",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "pyo3",
+    actual = "@raze__pyo3__0_14_5//:pyo3",
     tags = [
         "cargo-raze",
         "manual",

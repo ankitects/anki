@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -30,20 +31,14 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "simple" with type "example" omitted
-
 rust_library(
-    name = "string_cache",
+    name = "pkg_config",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "serde",
-        "serde_support",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
-    edition = "2018",
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -51,15 +46,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.8.1",
+    version = "0.3.22",
     # buildifier: leave-alone
     deps = [
-        "@raze__lazy_static__1_4_0//:lazy_static",
-        "@raze__new_debug_unreachable__1_0_4//:new_debug_unreachable",
-        "@raze__phf_shared__0_8_0//:phf_shared",
-        "@raze__precomputed_hash__0_1_1//:precomputed_hash",
-        "@raze__serde__1_0_130//:serde",
     ],
 )
 
-# Unsupported target "small-stack" with type "test" omitted
+# Unsupported target "test" with type "test" omitted

@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -25,20 +26,17 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT"
+    "notice",  # BSD-3-Clause from expression "BSD-3-Clause"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "slab",
+    name = "instant",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "std",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -48,12 +46,11 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.4.4",
+    version = "0.1.12",
     # buildifier: leave-alone
     deps = [
+        "@raze__cfg_if__1_0_0//:cfg_if",
     ],
 )
 
-# Unsupported target "serde" with type "test" omitted
-
-# Unsupported target "slab" with type "test" omitted
+# Unsupported target "wasm" with type "test" omitted

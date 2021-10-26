@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -25,7 +26,7 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "unencumbered",  # CC0-1.0 from expression "CC0-1.0 OR Apache-2.0"
 ])
 
 # Generated Targets
@@ -37,14 +38,14 @@ load(
 )
 
 cargo_build_script(
-    name = "proc_macro_error_build_script",
+    name = "blake3_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
         "default",
-        "syn",
-        "syn-error",
+        "digest",
+        "std",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -56,28 +57,26 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.4",
+    version = "1.1.0",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__version_check__0_9_3//:version_check",
+        "@raze__cc__1_0_71//:cc",
     ],
 )
 
+# Unsupported target "bench" with type "bench" omitted
+
 rust_library(
-    name = "proc_macro_error",
+    name = "blake3",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "default",
-        "syn",
-        "syn-error",
+        "digest",
+        "std",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2018",
-    proc_macro_deps = [
-        "@raze__proc_macro_error_attr__1_0_4//:proc_macro_error_attr",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -85,18 +84,14 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.4",
+    version = "1.1.0",
     # buildifier: leave-alone
     deps = [
-        ":proc_macro_error_build_script",
-        "@raze__proc_macro2__1_0_29//:proc_macro2",
-        "@raze__quote__1_0_9//:quote",
-        "@raze__syn__1_0_77//:syn",
+        ":blake3_build_script",
+        "@raze__arrayref__0_3_6//:arrayref",
+        "@raze__arrayvec__0_7_1//:arrayvec",
+        "@raze__cfg_if__1_0_0//:cfg_if",
+        "@raze__constant_time_eq__0_1_5//:constant_time_eq",
+        "@raze__digest__0_9_0//:digest",
     ],
 )
-
-# Unsupported target "macro-errors" with type "test" omitted
-
-# Unsupported target "ok" with type "test" omitted
-
-# Unsupported target "runtime-errors" with type "test" omitted

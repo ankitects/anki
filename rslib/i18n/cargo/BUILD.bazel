@@ -13,6 +13,78 @@ licenses([
 
 # Aliased targets
 alias(
+    name = "ammonia",
+    actual = "@raze__ammonia__3_1_2//:ammonia",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "async_trait",
+    actual = "@raze__async_trait__0_1_51//:async_trait",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "blake3",
+    actual = "@raze__blake3__1_1_0//:blake3",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "bytes",
+    actual = "@raze__bytes__1_1_0//:bytes",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "chrono",
+    actual = "@raze__chrono__0_4_19//:chrono",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "coarsetime",
+    actual = "@raze__coarsetime__0_1_19//:coarsetime",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "env_logger",
+    actual = "@raze__env_logger__0_9_0//:env_logger",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "flate2",
+    actual = "@raze__flate2__1_0_22//:flate2",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "fluent",
     actual = "@raze__fluent__0_16_0//:fluent",
     tags = [
@@ -23,7 +95,7 @@ alias(
 
 alias(
     name = "fluent_bundle",
-    actual = "@raze__fluent_bundle__0_15_1//:fluent_bundle",
+    actual = "@raze__fluent_bundle__0_15_2//:fluent_bundle",
     tags = [
         "cargo-raze",
         "manual",
@@ -33,6 +105,42 @@ alias(
 alias(
     name = "fluent_syntax",
     actual = "@raze__fluent_syntax__0_11_0//:fluent_syntax",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "fnv",
+    actual = "@raze__fnv__1_0_7//:fnv",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "futures",
+    actual = "@raze__futures__0_3_17//:futures",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "hex",
+    actual = "@raze__hex__0_4_3//:hex",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "htmlescape",
+    actual = "@raze__htmlescape__0_3_1//:htmlescape",
     tags = [
         "cargo-raze",
         "manual",
@@ -58,8 +166,80 @@ alias(
 )
 
 alias(
+    name = "itertools",
+    actual = "@raze__itertools__0_10_1//:itertools",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "lazy_static",
+    actual = "@raze__lazy_static__1_4_0//:lazy_static",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "linkcheck",
+    actual = "@raze__linkcheck__0_4_1_alpha_0//:linkcheck",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "nom",
+    actual = "@raze__nom__7_0_0//:nom",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "num_enum",
+    actual = "@raze__num_enum__0_5_4//:num_enum",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "num_format",
     actual = "@raze__num_format__0_4_0//:num_format",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "num_integer",
+    actual = "@raze__num_integer__0_1_44//:num_integer",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "once_cell",
+    actual = "@raze__once_cell__1_8_0//:once_cell",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "pct_str",
+    actual = "@raze__pct_str__1_1_0//:pct_str",
     tags = [
         "cargo-raze",
         "manual",
@@ -76,8 +256,125 @@ alias(
 )
 
 alias(
+    name = "pin_project",
+    actual = "@raze__pin_project__1_0_8//:pin_project",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "proc_macro_nested",
+    actual = "@raze__proc_macro_nested__0_1_7//:proc_macro_nested",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "prost",
+    actual = "@raze__prost__0_8_0//:prost",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "prost_build",
+    actual = "@raze__prost_build__0_8_0//:prost_build",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "pulldown_cmark",
+    actual = "@raze__pulldown_cmark__0_8_0//:pulldown_cmark",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "pyo3",
+    actual = "@raze__pyo3__0_14_5//:pyo3",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "rand",
+    actual = "@raze__rand__0_8_4//:rand",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "regex",
+    actual = "@raze__regex__1_5_4//:regex",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "reqwest",
+    actual = "@raze__reqwest__0_11_3//:reqwest",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "rusqlite",
+    actual = "@raze__rusqlite__0_25_3//:rusqlite",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "scopeguard",
+    actual = "@raze__scopeguard__1_1_0//:scopeguard",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "serde",
     actual = "@raze__serde__1_0_130//:serde",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "serde_aux",
+    actual = "@raze__serde_aux__2_3_0//:serde_aux",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "serde_derive",
+    actual = "@raze__serde_derive__1_0_130//:serde_derive",
     tags = [
         "cargo-raze",
         "manual",
@@ -94,8 +391,152 @@ alias(
 )
 
 alias(
+    name = "serde_repr",
+    actual = "@raze__serde_repr__0_1_7//:serde_repr",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "serde_tuple",
+    actual = "@raze__serde_tuple__0_5_0//:serde_tuple",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "sha1",
+    actual = "@raze__sha1__0_6_0//:sha1",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "slog",
+    actual = "@raze__slog__2_7_0//:slog",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "slog_async",
+    actual = "@raze__slog_async__2_7_0//:slog_async",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "slog_envlogger",
+    actual = "@raze__slog_envlogger__2_2_0//:slog_envlogger",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "slog_term",
+    actual = "@raze__slog_term__2_8_0//:slog_term",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "strum",
+    actual = "@raze__strum__0_21_0//:strum",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "tempfile",
+    actual = "@raze__tempfile__3_2_0//:tempfile",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "tokio",
+    actual = "@raze__tokio__1_12_0//:tokio",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "tokio_util",
+    actual = "@raze__tokio_util__0_6_8//:tokio_util",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "unic_langid",
     actual = "@raze__unic_langid__0_9_0//:unic_langid",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "unic_ucd_category",
+    actual = "@raze__unic_ucd_category__0_9_0//:unic_ucd_category",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "unicase",
+    actual = "@raze__unicase__2_6_0//:unicase",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "unicode_normalization",
+    actual = "@raze__unicode_normalization__0_1_19//:unicode_normalization",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "utime",
+    actual = "@raze__utime__0_3_1//:utime",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "zip",
+    actual = "@raze__zip__0_5_13//:zip",
     tags = [
         "cargo-raze",
         "manual",

@@ -2,7 +2,7 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script context="module" lang="typescript">
+<script context="module" lang="ts">
     import "./legacy.css";
     import { updateAllState, resetAllState } from "../components/WithState.svelte";
 
@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
 </script>
 
-<script lang="typescript">
+<script lang="ts">
     import StickyHeader from "../components/StickyHeader.svelte";
     import ButtonToolbar from "../components/ButtonToolbar.svelte";
     import Item from "../components/Item.svelte";
