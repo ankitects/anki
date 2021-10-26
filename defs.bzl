@@ -10,7 +10,7 @@ load("@io_bazel_rules_sass//:defs.bzl", "sass_repositories")
 load("//python/pyqt:defs.bzl", "install_pyqt")
 load("@rules_python//python:pip.bzl", "pip_parse")
 
-anki_version = "2.1.49"
+anki_version = "2.1.50"
 
 def setup_deps():
     bazel_skylib_workspace()
