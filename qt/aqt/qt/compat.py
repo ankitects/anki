@@ -1256,10 +1256,9 @@ QDBus.AutoDetect = QDBus.CallMode.AutoDetect
 QHostAddress.LocalHost = QHostAddress.SpecialAddress.LocalHost
 QPrinter.Millimeter = QPrinter.Unit.Millimeter
 
-# Globally alias removed PyQt5.Qt to PyQt6.QtCore.Qt
+# Mock the removed PyQt5.Qt module
 ##########################################################################
 
 from . import qt5qt
 
 sys.modules["PyQt5.Qt"] = qt5qt
-sys.modules["PyQt6.Qt"] = qt5qt
