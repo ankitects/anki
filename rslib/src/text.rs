@@ -464,8 +464,7 @@ where
             .or_else(|| caps.get(2))
             .or_else(|| caps.get(3))
             .unwrap()
-            .as_str()
-            .trim();
+            .as_str();
         let full = caps.get(0).unwrap().as_str();
         if REMOTE_FILENAME.is_match(fname) {
             full.into()
