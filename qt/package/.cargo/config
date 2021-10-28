@@ -1,0 +1,42 @@
+# By default Rust will not export dynamic symbols from built executables.
+# Python symbols need to be exported from executables in order for that
+# executable to load Python extension modules, which are shared libraries.
+# Otherwise, the extension module / shared library is unable to resolve
+# Python symbols. This file contains target-specific configuration
+# overrides to export dynamic symbols from executables.
+#
+# Ideally we would achieve this functionality via the build.rs build
+# script. But custom compiler flags via build scripts apparently only
+# support limited options.
+
+[target.i686-unknown-linux-gnu]
+rustflags = ["-C", "link-args=-Wl,-export-dynamic"]
+
+[target.x86_64-unknown-linux-gnu]
+rustflags = ["-C", "link-args=-Wl,-export-dynamic"]
+
+[target.aarch64-apple-darwin]
+rustflags = ["-C", "link-args=-rdynamic"]
+
+[target.x86_64-apple-darwin]
+rustflags = ["-C", "link-args=-rdynamic"]
+
+# The Windows standalone_static distributions use the static CRT (/MT compiler
+# flag). By default, Rust will build with the dynamically linked / DLL CRT
+# (/MD compiler flag). `pyoxidizer build` should adjust RUSTFLAGS automatically
+# when a standalone_static distribution is being used. But if invoking `cargo`
+# directly, you'll need to override the default CRT linkage by either passing
+# RUSTFLAGS="-C target-feature=+crt-static" or by commenting out the lines
+# below. Note that use of `target-feature=+crt-static` will prevent
+# standalone_dynamic distributions from working.
+#
+# The standalone_static distributions also have duplicate symbols and some
+# build configurations will result in hard linker errors because of this. We
+# also add the /FORCE:MULTIPLE linker argument to prevent this from being a
+# fatal error.
+
+#[target.i686-pc-windows-msvc]
+#rustflags = ["-C", "target-feature=+crt-static", "-C", "link-args=/FORCE:MULTIPLE"]
+#
+#[target.x86_64-pc-windows-msvc]
+#rustflags = ["-C", "target-feature=+crt-static", "-C", "link-args=/FORCE:MULTIPLE"]
