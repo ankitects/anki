@@ -103,8 +103,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .button-toolbar {
         flex-wrap: var(--buttons-wrap);
+        padding: 0.15rem 0;
 
-        > :global(*) {
+        > :global(*) > :global(*) {
             /* TODO replace with gap once available */
             margin-right: 0.15rem;
             margin-bottom: 0.15rem;
