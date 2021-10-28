@@ -30,21 +30,19 @@ def aqt_data_folder() -> str:
     # running in Bazel on macOS?
     if path := os.getenv("AQT_DATA_FOLDER"):
         return path
-    # running in place?
-    dir = os.path.join(os.path.dirname(__file__), "data")
-    if os.path.exists(dir):
-        return dir
-    # packaged install?
-    if isMac:
-        dir2 = os.path.join(sys.prefix, "..", "Resources", "aqt_data")
+    # packaged?
+    elif getattr(sys, "frozen", False):
+        path = os.path.join(sys.prefix, "lib/aqt/data")
+        if os.path.exists(path):
+            return path
+        else:
+            return os.path.join(sys.prefix, "../Resources/aqt/data")
+    elif os.path.exists(dir := os.path.join(os.path.dirname(__file__), "data")):
+        return os.path.abspath(dir)
     else:
-        dir2 = os.path.join(sys.prefix, "aqt_data")
-    if os.path.exists(dir2):
-        return dir2
-
-    # should only happen when running unit tests
-    print("warning, data folder not found")
-    return "."
+        # should only happen when running unit tests
+        print("warning, data folder not found")
+        return "."
 
 
 # shortcut to access Fluent translations; set as
