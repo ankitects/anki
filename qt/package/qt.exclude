@@ -1,0 +1,9 @@
+qml
+bindings
+uic
+lupdate
+qsci
+*.pyc
+*.pyi
+*.sip
+py.typed

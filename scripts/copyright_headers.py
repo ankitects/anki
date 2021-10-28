@@ -14,6 +14,8 @@ nonstandard_header = {
     "python/pyqt/install.py",
     "qt/aqt/mpv.py",
     "qt/aqt/winpaths.py",
+    "qt/package/build.rs",
+    "qt/package/src/main.rs",
 }
 
 ignored_folders = [
