@@ -2,7 +2,7 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script lang="typescript" context="module">
+<script lang="ts" context="module">
     import { writable } from "svelte/store";
 
     type KeyType = Symbol | string;
@@ -43,7 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<script lang="typescript">
+<script lang="ts">
     export let key: KeyType;
     export let update: (event: Event) => boolean;
 

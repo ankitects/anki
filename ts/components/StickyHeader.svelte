@@ -2,18 +2,18 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script lang="typescript">
+<script lang="ts">
     export let id: string | undefined = undefined;
     let className: string = "";
     export { className as class };
 </script>
 
-<header {id} class="container-fluid pb-1 {className}">
+<header {id} class="sticky-header container-fluid {className}">
     <slot />
 </header>
 
 <style lang="scss">
-    header {
+    .sticky-header {
         position: sticky;
         left: 0;
         right: 0;

@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -30,13 +31,12 @@ licenses([
 
 # Generated Targets
 
-rust_library(
+rust_proc_macro(
     name = "pyo3_macros",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
     crate_root = "src/lib.rs",
-    crate_type = "proc-macro",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -50,7 +50,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__pyo3_macros_backend__0_14_5//:pyo3_macros_backend",
-        "@raze__quote__1_0_9//:quote",
-        "@raze__syn__1_0_77//:syn",
+        "@raze__quote__1_0_10//:quote",
+        "@raze__syn__1_0_80//:syn",
     ],
 )

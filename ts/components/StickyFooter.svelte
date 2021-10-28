@@ -2,7 +2,7 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script lang="typescript">
+<script lang="ts">
     export let id: string | undefined = undefined;
     let className: string = "";
     export { className as class };
@@ -10,12 +10,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let height: number = 0;
 </script>
 
-<footer {id} bind:offsetHeight={height} class="container-fluid pt-1 {className}">
+<footer {id} bind:offsetHeight={height} class="sticky-footer {className}">
     <slot />
 </footer>
 
 <style lang="scss">
-    footer {
+    .sticky-footer {
         position: sticky;
         left: 0;
         right: 0;

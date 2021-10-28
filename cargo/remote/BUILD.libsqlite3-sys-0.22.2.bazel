@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -66,8 +67,8 @@ cargo_build_script(
     version = "0.22.2",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__cc__1_0_70//:cc",
-        "@raze__pkg_config__0_3_20//:pkg_config",
+        "@raze__cc__1_0_71//:cc",
+        "@raze__pkg_config__0_3_22//:pkg_config",
     ] + selects.with_or({
         # cfg(target_env = "msvc")
         (
@@ -96,7 +97,6 @@ rust_library(
         "vcpkg",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2018",
     rustc_flags = [

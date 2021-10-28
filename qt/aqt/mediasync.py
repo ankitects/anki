@@ -12,7 +12,7 @@ import aqt
 from anki.collection import Progress
 from anki.errors import Interrupted, NetworkError
 from anki.types import assert_exhaustive
-from anki.utils import intTime
+from anki.utils import int_time
 from aqt import gui_hooks
 from aqt.qt import QDialog, QDialogButtonBox, QPushButton, QTextCursor, QTimer, qconnect
 from aqt.utils import disable_help_button, showWarning, tr
@@ -67,7 +67,7 @@ class MediaSyncer:
         self.mw.taskman.run_in_background(run, self._on_finished)
 
     def _log_and_notify(self, entry: LogEntry) -> None:
-        entry_with_time = LogEntryWithTime(time=intTime(), entry=entry)
+        entry_with_time = LogEntryWithTime(time=int_time(), entry=entry)
         self._log.append(entry_with_time)
         self.mw.taskman.run_on_main(
             lambda: gui_hooks.media_sync_did_progress(entry_with_time)
@@ -142,7 +142,7 @@ class MediaSyncer:
             last = self._log[-1].time
         else:
             last = 0
-        return intTime() - last
+        return int_time() - last
 
 
 class MediaSyncDialog(QDialog):

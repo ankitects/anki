@@ -66,7 +66,7 @@ def test_find_cards():
     assert len(col.find_cards("-tag:sheep")) == 4
     col.tags.bulk_add(col.db.list("select id from notes"), "foo bar")
     assert len(col.find_cards("tag:foo")) == len(col.find_cards("tag:bar")) == 5
-    col.tags.bulkRem(col.db.list("select id from notes"), "foo")
+    col.tags.bulk_remove(col.db.list("select id from notes"), "foo")
     assert len(col.find_cards("tag:foo")) == 0
     assert len(col.find_cards("tag:bar")) == 5
     # text searches

@@ -124,7 +124,8 @@ impl Collection {
                             .ok_or(AnkiError::NotFound)?;
                         let ease = col
                             .get_deck_config(config_id, true)?
-                            .unwrap_or_else(Default::default) // cannot happen
+                            // just for compiler; get_deck_config() is guaranteed to return a value
+                            .unwrap_or_default()
                             .inner
                             .initial_ease;
                         decks_initial_ease.insert(deck_id, ease);

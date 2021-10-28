@@ -14,12 +14,14 @@ from typing import Any, Callable
 import requests
 from requests import Response
 
+from anki._legacy import DeprecatedNamesMixin
+
 HTTP_BUF_SIZE = 64 * 1024
 
 ProgressCallback = Callable[[int, int], None]
 
 
-class HttpClient:
+class HttpClient(DeprecatedNamesMixin):
 
     verify = True
     timeout = 60
@@ -45,7 +47,7 @@ class HttpClient:
         self.close()
 
     def post(self, url: str, data: bytes, headers: dict[str, str] | None) -> Response:
-        headers["User-Agent"] = self._agentName()
+        headers["User-Agent"] = self._agent_name()
         return self.session.post(
             url,
             data=data,
@@ -58,12 +60,12 @@ class HttpClient:
     def get(self, url: str, headers: dict[str, str] = None) -> Response:
         if headers is None:
             headers = {}
-        headers["User-Agent"] = self._agentName()
+        headers["User-Agent"] = self._agent_name()
         return self.session.get(
             url, stream=True, headers=headers, timeout=self.timeout, verify=self.verify
         )
 
-    def streamContent(self, resp: Response) -> bytes:
+    def stream_content(self, resp: Response) -> bytes:
         resp.raise_for_status()
 
         buf = io.BytesIO()
@@ -73,7 +75,7 @@ class HttpClient:
             buf.write(chunk)
         return buf.getvalue()
 
-    def _agentName(self) -> str:
+    def _agent_name(self) -> str:
         from anki.buildinfo import version
 
         return f"Anki {version}"

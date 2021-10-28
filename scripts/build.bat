@@ -7,9 +7,6 @@ if not exist WORKSPACE (
 
 rd /s /q bazel-dist
 
-set BUILDARGS=-k -c opt dist --color=yes --@rules_rust//worker:use_worker=False
-call .\bazel build %BUILDARGS%
-:: repeat on failure
-IF %ERRORLEVEL% NEQ 0 call .\bazel build %BUILDARGS%
-
-tar xvf bazel-bin\dist.tar
+set BUILDARGS=-k -c opt dist --color=yes
+call .\bazel build %BUILDARGS% || exit /b 1
+tar xvf bazel-bin\dist.tar || exit /b 1

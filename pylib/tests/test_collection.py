@@ -9,7 +9,7 @@ import tempfile
 from anki.collection import Collection as aopen
 from anki.dbproxy import emulate_named_args
 from anki.lang import TR, without_unicode_isolation
-from anki.stdmodels import addBasicModel, get_stock_notetypes
+from anki.stdmodels import _legacy_add_basic_model, get_stock_notetypes
 from anki.utils import isWin
 from tests.shared import assertException, getEmptyCol
 
@@ -123,7 +123,7 @@ def test_timestamps():
     col = getEmptyCol()
     assert len(col.models.all_names_and_ids()) == len(get_stock_notetypes(col))
     for i in range(100):
-        addBasicModel(col)
+        _legacy_add_basic_model(col)
     assert len(col.models.all_names_and_ids()) == 100 + len(get_stock_notetypes(col))
 
 

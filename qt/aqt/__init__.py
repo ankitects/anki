@@ -3,13 +3,27 @@
 
 from __future__ import annotations
 
+import sys
+
+if sys.version_info[0] < 3 or sys.version_info[1] < 9:
+    raise Exception("Anki requires Python 3.9+")
+
+# ensure unicode filenames are supported
+try:
+    "テスト".encode(sys.getfilesystemencoding())
+except UnicodeEncodeError as exc:
+    raise Exception("Anki requires a UTF-8 locale.") from exc
+
+from .package import packaged_build_setup
+
+packaged_build_setup()
+
 import argparse
 import builtins
 import cProfile
 import getpass
 import locale
 import os
-import sys
 import tempfile
 import traceback
 from typing import Any, Callable, Optional, cast
@@ -23,15 +37,6 @@ from anki.utils import checksum, isLin, isMac
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import TR, tr
-
-if sys.version_info[0] < 3 or sys.version_info[1] < 9:
-    raise Exception("Anki requires Python 3.9+")
-
-# ensure unicode filenames are supported
-try:
-    "テスト".encode(sys.getfilesystemencoding())
-except UnicodeEncodeError as exc:
-    raise Exception("Anki requires a UTF-8 locale.") from exc
 
 # compat aliases
 anki.version = _version  # type: ignore
@@ -233,12 +238,8 @@ def setupLangAndBackend(
     # load qt translations
     _qtrans = QTranslator()
 
-    from aqt.utils import aqt_data_folder
-
     if isMac and getattr(sys, "frozen", False):
-        qt_dir = os.path.abspath(
-            os.path.join(aqt_data_folder(), "..", "qt_translations")
-        )
+        qt_dir = os.path.join(sys.prefix, "../Resources/qt_translations")
     else:
         if qtmajor == 5:
             qt_dir = QLibraryInfo.location(QLibraryInfo.TranslationsPath)  # type: ignore
@@ -429,6 +430,7 @@ def write_profile_results() -> None:
 
 
 def run() -> None:
+    print("Preparing to run...")
     try:
         _run()
     except Exception as e:
@@ -544,9 +546,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
 
     # disable help button in title bar on qt versions that support it
     if isWin and qtmajor == 5 and qtminor >= 10:
-        QApplication.setAttribute(
-            QApplication.Attribute.AA_DisableWindowContextHelpButton  # type: ignore
-        )
+        QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton)  # type: ignore
 
     # proxy configured?
     from urllib.request import getproxies, proxy_bypass
@@ -619,6 +619,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
 
     mw = aqt.main.AnkiQt(app, pm, backend, opts, args)
     if exec:
+        print("Starting main loop...")
         app.exec()
     else:
         return app

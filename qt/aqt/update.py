@@ -7,7 +7,7 @@ from typing import Any
 import requests
 
 import aqt
-from anki.utils import platDesc, versionWithBuild
+from anki.utils import plat_desc, version_with_build
 from aqt.main import AnkiQt
 from aqt.qt import *
 from aqt.utils import openLink, showText, tr
@@ -26,8 +26,8 @@ class LatestVersionFinder(QThread):
 
     def _data(self) -> dict[str, Any]:
         return {
-            "ver": versionWithBuild(),
-            "os": platDesc(),
+            "ver": version_with_build(),
+            "os": plat_desc(),
             "id": self.config["id"],
             "lm": self.config["lastMsg"],
             "crt": self.config["created"],

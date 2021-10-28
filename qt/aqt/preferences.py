@@ -6,7 +6,7 @@ from typing import Any, cast
 import anki.lang
 import aqt
 from anki.collection import OpChanges
-from anki.consts import newCardSchedulingLabels
+from anki.consts import new_card_scheduling_labels
 from aqt import AnkiQt
 from aqt.operations.collection import set_preferences
 from aqt.profiles import VideoDriver
@@ -71,7 +71,7 @@ class Preferences(QDialog):
         form.sched2021.setVisible(version >= 2)
 
         form.lrnCutoff.setValue(int(scheduling.learn_ahead_secs / 60.0))
-        form.newSpread.addItems(list(newCardSchedulingLabels(self.mw.col).values()))
+        form.newSpread.addItems(list(new_card_scheduling_labels(self.mw.col).values()))
         form.newSpread.setCurrentIndex(scheduling.new_review_mix)
         form.dayLearnFirst.setChecked(scheduling.day_learn_first)
         form.dayOffset.setValue(scheduling.rollover)
@@ -244,7 +244,7 @@ class Preferences(QDialog):
 
     def current_lang_index(self) -> int:
         codes = [x[1] for x in anki.lang.langs]
-        lang = anki.lang.currentLang
+        lang = anki.lang.current_lang
         if lang in anki.lang.compatMap:
             lang = anki.lang.compatMap[lang]
         else:

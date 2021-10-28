@@ -16,12 +16,12 @@ from anki.importing.base import Importer
 from anki.models import NotetypeId
 from anki.notes import NoteId
 from anki.utils import (
-    fieldChecksum,
+    field_checksum,
     guid64,
-    intTime,
-    joinFields,
-    splitFields,
-    timestampID,
+    int_time,
+    join_fields,
+    split_fields,
+    timestamp_id,
 )
 
 TagMappedUpdate = tuple[int, int, str, str, NoteId, str, str]
@@ -135,7 +135,7 @@ class NoteImporter(Importer):
         firsts: dict[str, bool] = {}
         fld0idx = self.mapping.index(self.model["flds"][0]["name"])
         self._fmap = self.col.models.field_map(self.model)
-        self._nextID = NoteId(timestampID(self.col.db, "notes"))
+        self._nextID = NoteId(timestamp_id(self.col.db, "notes"))
         # loop through the notes
         updates: list[Updates] = []
         updateLog = []
@@ -158,7 +158,7 @@ class NoteImporter(Importer):
                     self.col.tr.importing_empty_first_field(val=" ".join(n.fields))
                 )
                 continue
-            csum = fieldChecksum(fld0)
+            csum = field_checksum(fld0)
             # earlier in import?
             if fld0 in firsts and self.importMode != ADD_MODE:
                 # duplicates in source file; log and ignore
@@ -171,7 +171,7 @@ class NoteImporter(Importer):
                 # csum is not a guarantee; have to check
                 for id in csums[csum]:
                     flds = self.col.db.scalar("select flds from notes where id = ?", id)
-                    sflds = splitFields(flds)
+                    sflds = split_fields(flds)
                     if fld0 == sflds[0]:
                         # duplicate
                         found = True
@@ -217,7 +217,7 @@ class NoteImporter(Importer):
         conf = self.col.decks.config_dict_for_deck_id(did)
         # in order due?
         if not conf["dyn"] and conf["new"]["order"] == NEW_CARDS_RANDOM:
-            self.col.sched.randomizeCards(did)
+            self.col.sched.randomize_cards(did)
 
         part1 = self.col.tr.importing_note_added(count=len(new))
         part2 = self.col.tr.importing_note_updated(count=self.updateCount)
@@ -246,7 +246,7 @@ class NoteImporter(Importer):
             id,
             guid64(),
             self.model["id"],
-            intTime(),
+            int_time(),
             self.col.usn(),
             self.col.tags.join(n.tags),
             n.fieldsStr,
@@ -273,14 +273,22 @@ class NoteImporter(Importer):
         self.processFields(n, sflds)
         if self._tagsMapped:
             tags = self.col.tags.join(n.tags)
-            return (intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr, tags)
+            return (
+                int_time(),
+                self.col.usn(),
+                n.fieldsStr,
+                tags,
+                id,
+                n.fieldsStr,
+                tags,
+            )
         elif self.tagModified:
             tags = self.col.db.scalar("select tags from notes where id = ?", id)
             tagList = self.col.tags.split(tags) + self.tagModified.split()
             tags = self.col.tags.join(tagList)
-            return (intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr)
+            return (int_time(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr)
         else:
-            return (intTime(), self.col.usn(), n.fieldsStr, id, n.fieldsStr)
+            return (int_time(), self.col.usn(), n.fieldsStr, id, n.fieldsStr)
 
     def addUpdates(self, rows: list[Updates]) -> None:
         changes = self.col.db.scalar("select total_changes()")
@@ -321,7 +329,7 @@ where id = ? and flds != ?""",
             else:
                 sidx = self._fmap[f][0]
                 fields[sidx] = note.fields[c]
-        note.fieldsStr = joinFields(fields)
+        note.fieldsStr = join_fields(fields)
         # temporary fix for the following issue until we can update the code:
         # https://forums.ankiweb.net/t/python-checksum-rust-checksum/8195/16
         if self.col.get_config_bool(Config.Bool.NORMALIZE_NOTE_TEXT):

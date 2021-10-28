@@ -11,6 +11,7 @@ filegroup(
     name = "lib",
     srcs = [] + select({
         "//platforms:macos_x86_64": ["libankihelper.dylib"],
+        "//platforms:macos_arm64": ["libankihelper.dylib"],
         "//conditions:default": [],
     }),
     visibility = ["//qt:__subpackages__"],

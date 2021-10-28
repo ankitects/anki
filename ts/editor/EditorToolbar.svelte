@@ -2,7 +2,7 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script context="module" lang="typescript">
+<script context="module" lang="ts">
     import "./legacy.css";
     import { updateAllState, resetAllState } from "../components/WithState.svelte";
 
@@ -12,6 +12,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export function clearActiveButtons() {
         resetAllState(false);
+    }
+
+    export interface EditorToolbarAPI {
+        toolbar: any;
+        notetypeButtons: any;
+        formatInlineButtons: any;
+        formatBlockButtons: any;
+        colorButtons: any;
+        templateButtons: any;
     }
 
     /* Our dynamic components */
@@ -24,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
 </script>
 
-<script lang="typescript">
+<script lang="ts">
     import StickyHeader from "../components/StickyHeader.svelte";
     import ButtonToolbar from "../components/ButtonToolbar.svelte";
     import Item from "../components/Item.svelte";
@@ -41,12 +50,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let textColor: string;
     export let highlightColor: string;
 
-    export const toolbar = {};
-    export const notetypeButtons = {};
-    export const formatInlineButtons = {};
-    export const formatBlockButtons = {};
-    export const colorButtons = {};
-    export const templateButtons = {};
+    const toolbar = {};
+    const notetypeButtons = {};
+    const formatInlineButtons = {};
+    const formatBlockButtons = {};
+    const colorButtons = {};
+    const templateButtons = {};
+
+    export const api = {
+        toolbar,
+        notetypeButtons,
+        formatInlineButtons,
+        formatBlockButtons,
+        colorButtons,
+        templateButtons,
+    };
 </script>
 
 <StickyHeader>

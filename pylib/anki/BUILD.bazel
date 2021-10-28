@@ -24,7 +24,7 @@ _py_srcs = glob(
     exclude = [
         "hooks_gen.py",
     ],
-)
+) + ["//pylib/anki/_vendor"]
 
 py_library(
     name = "anki",
@@ -49,7 +49,6 @@ py_library(
         requirement("flask"),
         requirement("waitress"),
         requirement("markdown"),
-        requirement("stringcase"),
     ] + orjson_if_available(),
 )
 
@@ -73,8 +72,11 @@ py_wheel(
     platform = select({
         "//platforms:windows_x86_64": "win_amd64",
         "//platforms:macos_x86_64": "macosx_10_13_x86_64",
+        "//platforms:macos_arm64": "macosx_11_0_arm64",
+        # the glibc versions below are set for the official builds;
+        # you can adjust them to suit your enviroment
         "//platforms:linux_x86_64": "manylinux_2_28_x86_64",
-        "//platforms:linux_arm64": "manylinux_2_28_aarch64",
+        "//platforms:linux_arm64": "manylinux_2_31_aarch64",
     }),
     python_tag = "cp39",
     requires = [
@@ -83,8 +85,7 @@ py_wheel(
         "decorator",
         "protobuf>=3.17",
         "markdown",
-        "stringcase",
-        'orjson; platform_machine == "x86_64"',
+        "orjson",
         'psutil; sys_platform == "win32"',
         'distro; sys_platform != "darwin" and sys_platform != "win32"',
     ],

@@ -2,7 +2,7 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script lang="typescript">
+<script lang="ts">
     import Detachable from "./Detachable.svelte";
 
     import type { Register, Registration } from "./registration";
@@ -35,8 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    /* TODO reactivate this once we can use CSS gap */
-    /* .item { */
-    /*     display: contents; */
-    /* } */
+    .item {
+        display: contents;
+    }
 </style>

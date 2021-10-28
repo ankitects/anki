@@ -18,29 +18,31 @@ from sqlite3 import Cursor
 from sqlite3 import dbapi2 as sqlite
 from typing import Any
 
+from anki._legacy import DeprecatedNamesMixin
+
 DBError = sqlite.Error
 
 
-class DB:
+class DB(DeprecatedNamesMixin):
     def __init__(self, path: str, timeout: int = 0) -> None:
         self._db = sqlite.connect(path, timeout=timeout)
-        self._db.text_factory = self._textFactory
+        self._db.text_factory = self._text_factory
         self._path = path
         self.echo = os.environ.get("DBECHO")
         self.mod = False
 
     def __repr__(self) -> str:
-        d = dict(self.__dict__)
-        del d["_db"]
-        return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
+        dict_ = dict(self.__dict__)
+        del dict_["_db"]
+        return f"{super().__repr__()} {pprint.pformat(dict_, width=300)}"
 
     def execute(self, sql: str, *a: Any, **ka: Any) -> Cursor:
-        s = sql.strip().lower()
+        canonized = sql.strip().lower()
         # mark modified?
         for stmt in "insert", "update", "delete":
-            if s.startswith(stmt):
+            if canonized.startswith(stmt):
                 self.mod = True
-        t = time.time()
+        start_time = time.time()
         if ka:
             # execute("...where id = :id", id=5)
             res = self._db.execute(sql, ka)
@@ -49,25 +51,25 @@ class DB:
             res = self._db.execute(sql, a)
         if self.echo:
             # print a, ka
-            print(sql, f"{(time.time() - t) * 1000:0.3f}ms")
+            print(sql, f"{(time.time() - start_time) * 1000:0.3f}ms")
             if self.echo == "2":
                 print(a, ka)
         return res
 
-    def executemany(self, sql: str, l: Any) -> None:
+    def executemany(self, sql: str, iterable: Any) -> None:
         self.mod = True
-        t = time.time()
-        self._db.executemany(sql, l)
+        start_time = time.time()
+        self._db.executemany(sql, iterable)
         if self.echo:
-            print(sql, f"{(time.time() - t) * 1000:0.3f}ms")
+            print(sql, f"{(time.time() - start_time) * 1000:0.3f}ms")
             if self.echo == "2":
-                print(l)
+                print(iterable)
 
     def commit(self) -> None:
-        t = time.time()
+        start_time = time.time()
         self._db.commit()
         if self.echo:
-            print(f"commit {(time.time() - t) * 1000:0.3f}ms")
+            print(f"commit {(time.time() - start_time) * 1000:0.3f}ms")
 
     def executescript(self, sql: str) -> None:
         self.mod = True
@@ -88,9 +90,9 @@ class DB:
         return self.execute(*a, **kw).fetchall()
 
     def first(self, *a: Any, **kw: Any) -> Any:
-        c = self.execute(*a, **kw)
-        res = c.fetchone()
-        c.close()
+        cursor = self.execute(*a, **kw)
+        res = cursor.fetchone()
+        cursor.close()
         return res
 
     def list(self, *a: Any, **kw: Any) -> list:
@@ -110,20 +112,20 @@ class DB:
     def __exit__(self, *args: Any) -> None:
         self._db.close()
 
-    def totalChanges(self) -> Any:
+    def total_changes(self) -> Any:
         return self._db.total_changes
 
     def interrupt(self) -> None:
         self._db.interrupt()
 
-    def setAutocommit(self, autocommit: bool) -> None:
+    def set_autocommit(self, autocommit: bool) -> None:
         if autocommit:
             self._db.isolation_level = None
         else:
             self._db.isolation_level = ""
 
     # strip out invalid utf-8 when reading from db
-    def _textFactory(self, data: bytes) -> str:
+    def _text_factory(self, data: bytes) -> str:
         return str(data, errors="ignore")
 
     def cursor(self, factory: type[Cursor] = Cursor) -> Cursor:

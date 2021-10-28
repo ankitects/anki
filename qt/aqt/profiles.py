@@ -20,7 +20,7 @@ from anki.collection import Collection
 from anki.db import DB
 from anki.lang import without_unicode_isolation
 from anki.sync import SyncAuth
-from anki.utils import intTime, isMac, isWin
+from anki.utils import int_time, isMac, isWin
 from aqt import appHelpSite
 from aqt.qt import *
 from aqt.utils import disable_help_button, showWarning, tr
@@ -68,7 +68,7 @@ class VideoDriver(Enum):
 metaConf = dict(
     ver=0,
     updates=True,
-    created=intTime(),
+    created=int_time(),
     id=random.randrange(0, 2 ** 63),
     lastMsg=-1,
     suppressUpdate=False,
@@ -81,7 +81,7 @@ profileConf: dict[str, Any] = dict(
     mainWindowGeom=None,
     mainWindowState=None,
     numBackups=50,
-    lastOptimize=intTime(),
+    lastOptimize=int_time(),
     # editing
     searchHistory=[],
     lastTextColor="#00f",

@@ -14,7 +14,7 @@ from anki import hooks
 from anki.cards import Card
 from anki.consts import *
 from anki.decks import DeckId
-from anki.utils import ids2str, intTime
+from anki.utils import ids2str, int_time
 
 from .v2 import QueueConfig
 from .v2 import Scheduler as V2
@@ -88,7 +88,7 @@ class Scheduler(V2):
             milliseconds_delta=+card.time_taken(),
         )
 
-        card.mod = intTime()
+        card.mod = int_time()
         card.usn = self.col.usn()
         card.flush()
 
@@ -162,8 +162,8 @@ class Scheduler(V2):
                 f"""
 select sum(left/1000) from (select left from cards where
 did in %s and queue = {QUEUE_TYPE_LRN} and due < ? limit %d)"""
-                % (self._deckLimit(), self.reportLimit),
-                self.dayCutoff,
+                % (self._deck_limit(), self.reportLimit),
+                self.day_cutoff,
             )
             or 0
         )
@@ -172,7 +172,7 @@ did in %s and queue = {QUEUE_TYPE_LRN} and due < ? limit %d)"""
             f"""
 select count() from cards where did in %s and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN}
 and due <= ? limit %d"""
-            % (self._deckLimit(), self.reportLimit),
+            % (self._deck_limit(), self.reportLimit),
             self.today,
         )
 
@@ -193,8 +193,8 @@ and due <= ? limit %d"""
 select due, id from cards where
 did in %s and queue = {QUEUE_TYPE_LRN} and due < ?
 limit %d"""
-            % (self._deckLimit(), self.reportLimit),
-            self.dayCutoff,
+            % (self._deck_limit(), self.reportLimit),
+            self.day_cutoff,
         )
         self._lrnQueue = [tuple(e) for e in self._lrnQueue]
         # as it arrives sorted by did first, we need to sort it
@@ -257,7 +257,7 @@ limit %d"""
                 delay *= int(random.uniform(1, 1.25))
             card.due = int(time.time() + delay)
             # due today?
-            if card.due < self.dayCutoff:
+            if card.due < self.day_cutoff:
                 self.lrnCount += card.left // 1000
                 # if the queue is not empty and there's nothing else to do, make
                 # sure we don't put it at the head of the queue and end up showing
@@ -270,7 +270,7 @@ limit %d"""
             else:
                 # the card is due in one or more days, so we need to use the
                 # day learn queue
-                ahead = ((card.due - self.dayCutoff) // 86400) + 1
+                ahead = ((card.due - self.day_cutoff) // 86400) + 1
                 card.due = self.today + ahead
                 card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         self._logLrn(card, ease, conf, leaving, type, lastLeft)
@@ -389,7 +389,7 @@ due = odue, queue = {QUEUE_TYPE_REV}, mod = %d, usn = %d, odue = 0
 where queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) and type = {CARD_TYPE_REV}
 %s
 """
-            % (intTime(), self.col.usn(), extra)
+            % (int_time(), self.col.usn(), extra)
         )
         # new cards in learning
         self.forgetCards(
@@ -406,7 +406,7 @@ where queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) and type = {CAR
 select sum(left/1000) from
 (select left from cards where did = ? and queue = {QUEUE_TYPE_LRN} and due < ? limit ?)""",
                 did,
-                intTime() + self.col.conf["collapseTime"],
+                int_time() + self.col.conf["collapseTime"],
                 self.reportLimit,
             )
             or 0
@@ -513,13 +513,13 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
         card.due = int(delay + time.time())
         card.left = self._startingLeft(card)
         # queue 1
-        if card.due < self.dayCutoff:
+        if card.due < self.day_cutoff:
             self.lrnCount += card.left // 1000
             card.queue = QUEUE_TYPE_LRN
             heappush(self._lrnQueue, (card.due, card.id))
         else:
             # day learn queue
-            ahead = ((card.due - self.dayCutoff) // 86400) + 1
+            ahead = ((card.due - self.day_cutoff) // 86400) + 1
             card.due = self.today + ahead
             card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         return delay
@@ -674,8 +674,8 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
     # Deck finished state
     ##########################################################################
 
-    def haveBuried(self) -> bool:
-        sdids = self._deckLimit()
+    def have_buried(self) -> bool:
+        sdids = self._deck_limit()
         cnt = self.col.db.scalar(
             f"select 1 from cards where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s limit 1"
             % sdids

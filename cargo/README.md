@@ -1,10 +1,10 @@
 This folder integrates Rust crates.io fetching into Bazel.
 
 To update dependencies, ensure a local Rust environment is available
-(eg install rustup), then install this version of cargo raze:
+(eg `source scripts/cargo-env`), then install cargo-raze:
 
 ```
-cargo install --git https://github.com/ankitects/cargo-raze.git --branch build-deps cargo-raze
+cargo install cargo-raze --version 0.13.0
 cargo install cargo-license
 ```
 
@@ -33,9 +33,9 @@ you're working on, please raise it in an issue first.
 
 Things are complicated with reqwest at the moment, because:
 
-- we're using a fork to implement better timeouts for syncing
-- we want to build it with different features on Linux (where we can't build a
-  wheel that links to OpenSSL), and on other platforms.
+-   we're using a fork to implement better timeouts for syncing
+-   we want to build it with different features on Linux (where we can't build a
+    wheel that links to OpenSSL), and on other platforms.
 
 For minor version bumps, update.py should take care of updating the versions of
 reqwest dependencies.

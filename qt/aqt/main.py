@@ -31,7 +31,7 @@ from anki.decks import DeckDict, DeckId
 from anki.hooks import runHook
 from anki.notes import NoteId
 from anki.sound import AVTag, SoundOrVideoTag
-from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
+from anki.utils import devMode, ids2str, int_time, isMac, isWin, split_fields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
 from aqt.dbcheck import check_db
@@ -633,11 +633,11 @@ class AnkiQt(QMainWindow):
 
     def maybeOptimize(self) -> None:
         # have two weeks passed?
-        if (intTime() - self.pm.profile["lastOptimize"]) < 86400 * 14:
+        if (int_time() - self.pm.profile["lastOptimize"]) < 86400 * 14:
             return
         self.progress.start(label=tr.qt_misc_optimizing())
         self.col.optimize()
-        self.pm.profile["lastOptimize"] = intTime()
+        self.pm.profile["lastOptimize"] = int_time()
         self.pm.save()
         self.progress.finish()
 
@@ -877,7 +877,7 @@ title="{}" {}>{}</button>""".format(
 
     def maybe_check_for_addon_updates(self) -> None:
         last_check = self.pm.last_addon_update_check()
-        elap = intTime() - last_check
+        elap = int_time() - last_check
 
         if elap > 86_400:
             check_and_prompt_for_updates(
@@ -886,7 +886,7 @@ title="{}" {}>{}</button>""".format(
                 self.on_updates_installed,
                 requested_by_user=False,
             )
-            self.pm.set_last_addon_update_check(intTime())
+            self.pm.set_last_addon_update_check(int_time())
 
     def on_updates_installed(self, log: list[DownloadLogEntry]) -> None:
         if log:
@@ -1321,7 +1321,7 @@ title="{}" {}>{}</button>""".format(
             for id, mid, flds in col.db.execute(
                 f"select id, mid, flds from notes where id in {ids2str(nids)}"
             ):
-                fields = splitFields(flds)
+                fields = split_fields(flds)
                 f.write(("\t".join([str(id), str(mid)] + fields)).encode("utf8"))
                 f.write(b"\n")
 

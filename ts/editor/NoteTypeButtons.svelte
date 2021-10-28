@@ -2,7 +2,7 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script lang="typescript">
+<script lang="ts">
     import { bridgeCommand } from "../lib/bridgecommand";
     import * as tr from "../lib/ftl";
     import { withButton } from "../components/helpers";

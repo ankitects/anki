@@ -2,7 +2,13 @@ import re
 import sys
 import io
 import os
-from PyQt6.uic import compileUi
+try:
+    from PyQt6.uic import compileUi
+except ImportError:
+    # ARM64 Linux builds may not have access to PyQt6, and may have aliased
+    # it to PyQt5. We allow fallback, but the _qt6.py files will not be valid.
+    from PyQt5.uic import compileUi
+
 from dataclasses import dataclass
 
 
@@ -36,17 +42,18 @@ def with_fixes_for_qt6(code: str) -> str:
             "QAction.PreferencesRole", "QAction.MenuRole.PreferencesRole"
         )
         line = line.replace("QAction.AboutRole", "QAction.MenuRole.AboutRole")
-        line = line.replace(
-            "QComboBox.AdjustToMinimumContentsLength",
-            "QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLength",
-        )
         outlines.append(line)
     return "\n".join(outlines)
 
 
 def with_fixes_for_qt5(code: str) -> str:
+    code = code.replace(
+        "from PyQt5 import QtCore, QtGui, QtWidgets",
+        "from PyQt5 import QtCore, QtGui, QtWidgets\nfrom aqt.utils import tr\n",
+    )
     code = code.replace("Qt6", "Qt5")
     code = code.replace("QtGui.QAction", "QtWidgets.QAction")
+    code = code.replace("import icons_rc", "")
     return code
 
 

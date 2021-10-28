@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -100,7 +101,6 @@ rust_library(
         "std",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2018",
     proc_macro_deps = [
@@ -127,6 +127,6 @@ rust_library(
         "@raze__pin_project_lite__0_2_7//:pin_project_lite",
         "@raze__pin_utils__0_1_0//:pin_utils",
         "@raze__proc_macro_nested__0_1_7//:proc_macro_nested",
-        "@raze__slab__0_4_4//:slab",
+        "@raze__slab__0_4_5//:slab",
     ],
 )

@@ -3,6 +3,9 @@
 
 use std::mem;
 
+use lazy_static::lazy_static;
+use regex::Regex;
+
 use crate::{
     decks::DeckId as DeckIdType,
     notetype::NotetypeId as NotetypeIdType,
@@ -116,8 +119,13 @@ fn maybe_quote(txt: &str) -> String {
     }
 }
 
+/// Checks for the reserved keywords "and" and "or", a prepended hyphen,
+/// whitespace and brackets.
 fn needs_quotation(txt: &str) -> bool {
-    txt.len() > 1 && txt.starts_with('-') || txt.chars().any(|c| " \u{3000}()".contains(c))
+    lazy_static! {
+        static ref RE: Regex = Regex::new("(?i)^and$|^or$|^-.| |\u{3000}|\\(|\\)").unwrap();
+    }
+    RE.is_match(txt)
 }
 
 fn write_single_field(field: &str, text: &str, is_re: bool) -> String {
@@ -220,6 +228,8 @@ mod test {
         // ANDs are implicit, ORs in upper case
         assert_eq!("1 2 OR 3", normalize_search(r"1 and 2 or 3").unwrap());
         assert_eq!(r#""f o o" bar"#, normalize_search(r#""f o o"bar"#).unwrap());
+        // AND and OR must be escaped regardless of case
+        assert_eq!(r#""aNd" "oR""#, normalize_search(r#""aNd" "oR""#).unwrap());
         // normalize numbers
         assert_eq!("prop:ease>1", normalize_search("prop:ease>1.0").unwrap());
     }

@@ -2,7 +2,7 @@
 Dependencies required to build Anki.
 """
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
@@ -101,12 +101,12 @@ def register_repos():
     ################
 
     core_i18n_repo = "anki-core-i18n"
-    core_i18n_commit = "a82798624c009ac2e82ad1ba3823aae52126fda2"
-    core_i18n_zip_csum = "093dbb1646afb59b30773a1f303b21b967a0cff3db7f03fdbe4bb8907790f6a7"
+    core_i18n_commit = "86be55166fb2e66d8fe2df535a3865090ae30312"
+    core_i18n_zip_csum = "e9804a30358d7fd409ee223eae89424904d363fbe8f132fba281a8efc31995d5"
 
     qtftl_i18n_repo = "anki-desktop-ftl"
-    qtftl_i18n_commit = "f9b08fc62208516c184736912309df75919b2459"
-    qtftl_i18n_zip_csum = "fe1d224ea597df0126f9f5a0c2d2276af33baef4a2bff72d5f5f1eeb56395f42"
+    qtftl_i18n_commit = "b81271013f2128fb15198b6a36bc86917cf999a6"
+    qtftl_i18n_zip_csum = "f688591e3246a9069c859f629f5e9989e9c8f3b471fc9b02fe280a1fc6970a35"
 
     i18n_build_content = """
 filegroup(

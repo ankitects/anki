@@ -137,7 +137,7 @@ class Editor:
         gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
 
         lefttopbtns_defs = [
-            f"$editorToolbar.then(({{ notetypeButtons }}) => notetypeButtons.appendButton({{ component: editorToolbar.Raw, props: {{ html: {json.dumps(button)} }} }}, -1));"
+            f"noteEditorPromise.then((noteEditor) => noteEditor.toolbar.then((toolbar) => toolbar.notetypeButtons.appendButton({{ component: editorToolbar.Raw, props: {{ html: {json.dumps(button)} }} }}, -1)));"
             for button in lefttopbtns
         ]
         lefttopbtns_js = "\n".join(lefttopbtns_defs)
@@ -150,7 +150,7 @@ class Editor:
         righttopbtns_defs = ", ".join([json.dumps(button) for button in righttopbtns])
         righttopbtns_js = (
             f"""
-$editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
+noteEditorPromise.then(noteEditor => noteEditor.toolbar.then((toolbar) => toolbar.toolbar.appendGroup({{
     component: editorToolbar.AddonButtons,
     id: "addons",
     props: {{ buttons: [ {righttopbtns_defs} ] }},
@@ -484,7 +484,7 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
             json.dumps(focusTo),
             json.dumps(self.note.id),
             json.dumps([text_color, highlight_color]),
-            json.dumps(self.mw.col.tags.canonify(self.note.tags)),
+            json.dumps(self.note.tags),
         )
 
         if self.addMode:
@@ -674,12 +674,12 @@ $editorToolbar.then(({{ toolbar }}) => toolbar.appendGroup({{
     def _addMedia(self, path: str, canDelete: bool = False) -> str:
         """Add to media folder and return local img or sound tag."""
         # copy to media folder
-        fname = self.mw.col.media.addFile(path)
+        fname = self.mw.col.media.add_file(path)
         # return a local html link
         return self.fnameToLink(fname)
 
     def _addMediaFromData(self, fname: str, data: bytes) -> str:
-        return self.mw.col.media.writeData(fname, data)
+        return self.mw.col.media._legacy_write_data(fname, data)
 
     def onRecSound(self) -> None:
         aqt.sound.record_audio(
@@ -1323,11 +1323,11 @@ gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
 def set_cloze_button(editor: Editor) -> None:
     if editor.note.note_type()["type"] == MODEL_CLOZE:
         editor.web.eval(
-            '$editorToolbar.then(({ templateButtons }) => templateButtons.showButton("cloze")); '
+            'noteEditorPromise.then((noteEditor) => noteEditor.toolbar.then((toolbar) => toolbar.templateButtons.showButton("cloze"))); '
         )
     else:
         editor.web.eval(
-            '$editorToolbar.then(({ templateButtons }) => templateButtons.hideButton("cloze")); '
+            'noteEditorPromise.then((noteEditor) => noteEditor.toolbar.then(({ templateButtons }) => templateButtons.hideButton("cloze"))); '
         )
 
 

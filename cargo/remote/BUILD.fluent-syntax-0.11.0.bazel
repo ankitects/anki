@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -56,7 +57,7 @@ rust_binary(
     # buildifier: leave-alone
     deps = [
         ":fluent_syntax",
-        "@raze__thiserror__1_0_29//:thiserror",
+        "@raze__thiserror__1_0_30//:thiserror",
     ],
 )
 
@@ -82,7 +83,7 @@ rust_binary(
     # buildifier: leave-alone
     deps = [
         ":fluent_syntax",
-        "@raze__thiserror__1_0_29//:thiserror",
+        "@raze__thiserror__1_0_30//:thiserror",
     ],
 )
 
@@ -93,7 +94,6 @@ rust_library(
         "default",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -106,7 +106,7 @@ rust_library(
     version = "0.11.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__thiserror__1_0_29//:thiserror",
+        "@raze__thiserror__1_0_30//:thiserror",
     ],
 )
 

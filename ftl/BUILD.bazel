@@ -38,6 +38,7 @@ py_binary(
     name = "sync",
     srcs = ["sync.py"],
     tags = ["manual"],
+    deps = fluent_syntax + [requirement("requests")],
 )
 
 py_binary(

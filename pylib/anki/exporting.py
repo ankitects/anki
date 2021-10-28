@@ -19,7 +19,7 @@ from anki import hooks
 from anki.cards import CardId
 from anki.collection import Collection
 from anki.decks import DeckId
-from anki.utils import ids2str, namedtmp, splitFields, stripHTML
+from anki.utils import ids2str, namedtmp, split_fields, strip_html
 
 
 class Exporter:
@@ -78,7 +78,7 @@ class Exporter:
         s = text
         s = re.sub(r"(?i)<(br ?/?|div|p)>", " ", s)
         s = re.sub(r"\[sound:[^]]+\]", "", s)
-        s = stripHTML(s)
+        s = strip_html(s)
         s = re.sub(r"[ \n\t]+", " ", s)
         s = s.strip()
         return s
@@ -161,7 +161,7 @@ where cards.id in %s)"""
             if self.includeID:
                 row.append(str(id))
             # fields
-            row.extend([self.processText(f) for f in splitFields(flds)])
+            row.extend([self.processText(f) for f in split_fields(flds)])
             # tags
             if self.includeTags:
                 row.append(tags.strip())
@@ -246,7 +246,7 @@ class AnkiExporter(Exporter):
             )
         else:
             # need to reset card state
-            self.dst.sched.resetCards(cids)
+            self.dst.sched.reset_cards(cids)
         # models - start with zero
         self.dst.mod_schema(check=False)
         self.dst.models.remove_all_notetypes()
@@ -280,7 +280,7 @@ class AnkiExporter(Exporter):
             for row in notedata:
                 flds = row[6]
                 mid = row[2]
-                for file in self.src.media.filesInStr(mid, flds):
+                for file in self.src.media.files_in_str(mid, flds):
                     # skip files in subdirs
                     if file != os.path.basename(file):
                         continue
@@ -310,7 +310,7 @@ class AnkiExporter(Exporter):
         pass
 
     def removeSystemTags(self, tags: str) -> Any:
-        return self.src.tags.remFromStr("marked leech", tags)
+        return self.src.tags.rem_from_str("marked leech", tags)
 
     def _modelHasMedia(self, model, fname) -> bool:
         # First check the styling

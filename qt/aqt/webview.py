@@ -439,7 +439,7 @@ div[contenteditable="true"]:focus {{
         window_bg_night = self.get_window_bg_color(True).name()
         body_bg = window_bg_night if theme_manager.night_mode else window_bg_day
 
-        if is_rtl(anki.lang.currentLang):
+        if is_rtl(anki.lang.current_lang):
             lang_dir = "rtl"
         else:
             lang_dir = "ltr"

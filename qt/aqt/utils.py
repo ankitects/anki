@@ -12,7 +12,13 @@ from typing import TYPE_CHECKING, Any, Literal, Sequence
 import aqt
 from anki.collection import Collection, HelpPage
 from anki.lang import TR, tr_legacyglobal  # pylint: disable=unused-import
-from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
+from anki.utils import (
+    invalid_filename,
+    isMac,
+    isWin,
+    no_bundled_libs,
+    version_with_build,
+)
 from aqt.qt import *
 from aqt.theme import theme_manager
 
@@ -24,21 +30,19 @@ def aqt_data_folder() -> str:
     # running in Bazel on macOS?
     if path := os.getenv("AQT_DATA_FOLDER"):
         return path
-    # running in place?
-    dir = os.path.join(os.path.dirname(__file__), "data")
-    if os.path.exists(dir):
-        return dir
-    # packaged install?
-    if isMac:
-        dir2 = os.path.join(sys.prefix, "..", "Resources", "aqt_data")
+    # packaged?
+    elif getattr(sys, "frozen", False):
+        path = os.path.join(sys.prefix, "lib/aqt/data")
+        if os.path.exists(path):
+            return path
+        else:
+            return os.path.join(sys.prefix, "../Resources/aqt/data")
+    elif os.path.exists(dir := os.path.join(os.path.dirname(__file__), "data")):
+        return os.path.abspath(dir)
     else:
-        dir2 = os.path.join(sys.prefix, "aqt_data")
-    if os.path.exists(dir2):
-        return dir2
-
-    # should only happen when running unit tests
-    print("warning, data folder not found")
-    return "."
+        # should only happen when running unit tests
+        print("warning, data folder not found")
+        return "."
 
 
 # shortcut to access Fluent translations; set as
@@ -57,7 +61,7 @@ def openHelp(section: HelpPageArgument) -> None:
 
 def openLink(link: str | QUrl) -> None:
     tooltip(tr.qt_misc_loading(), period=1000)
-    with noBundledLibs():
+    with no_bundled_libs():
         QDesktopServices.openUrl(QUrl(link))
 
 
@@ -658,7 +662,7 @@ def openFolder(path: str) -> None:
     if isWin:
         subprocess.run(["explorer", f"file://{path}"], check=False)
     else:
-        with noBundledLibs():
+        with no_bundled_libs():
             QDesktopServices.openUrl(QUrl(f"file://{path}"))
 
 
@@ -762,7 +766,7 @@ def closeTooltip() -> None:
 
 # true if invalid; print warning
 def checkInvalidFilename(str: str, dirsep: bool = True) -> bool:
-    bad = invalidFilename(str, dirsep)
+    bad = invalid_filename(str, dirsep)
     if bad:
         showWarning(tr.qt_misc_the_following_character_can_not_be(val=bad))
         return True
@@ -874,7 +878,7 @@ Platform: {}
 Flags: frz={} ao={} sv={}
 Add-ons, last update check: {}
 """.format(
-        versionWithBuild(),
+        version_with_build(),
         platform.python_version(),
         QT_VERSION_STR,
         PYQT_VERSION_STR,

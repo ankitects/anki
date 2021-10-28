@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -30,14 +31,13 @@ licenses([
 
 # Generated Targets
 
-rust_library(
+rust_proc_macro(
     name = "wasm_bindgen_macro",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "spans",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "proc-macro",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -50,7 +50,7 @@ rust_library(
     version = "0.2.78",
     # buildifier: leave-alone
     deps = [
-        "@raze__quote__1_0_9//:quote",
+        "@raze__quote__1_0_10//:quote",
         "@raze__wasm_bindgen_macro_support__0_2_78//:wasm_bindgen_macro_support",
     ],
 )
