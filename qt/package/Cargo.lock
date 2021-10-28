@@ -17,9 +17,12 @@ version = "0.1.0"
 dependencies = [
  "embed-resource",
  "jemallocator",
+ "libc",
+ "libc-stdhandle",
  "mimalloc",
  "pyembed",
  "snmalloc-rs",
+ "winapi",
 ]
 
 [[package]]
@@ -203,6 +206,16 @@ name = "libc"
 version = "0.2.105"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "869d572136620d55835903746bcb5cdc54cb2851fd0aeec53220b4bb65ef3013"
+
+[[package]]
+name = "libc-stdhandle"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6dac2473dc28934c5e0b82250dab231c9d3b94160d91fe9ff483323b05797551"
+dependencies = [
+ "cc",
+ "libc",
+]
 
 [[package]]
 name = "libmimalloc-sys"
