@@ -61,8 +61,11 @@ def packaged_build_setup() -> None:
     _patch_pkgutil()
 
     # escape hatch for debugging issues with packaged build startup
-    if os.getenv("ANKI_STARTUP_REPL") and os.isatty(sys.stdin.fileno()):
-        import code
+    if os.getenv("ANKI_STARTUP_REPL"):
+        # mypy incorrectly thinks this does not exist on Windows
+        is_tty = os.isatty(sys.stdin.fileno())  # type: ignore
+        if is_tty:
+            import code
 
-        code.InteractiveConsole().interact()
-        sys.exit(0)
+            code.InteractiveConsole().interact()
+            sys.exit(0)
