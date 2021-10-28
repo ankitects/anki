@@ -58,8 +58,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <!-- div is necessary to preserve item position -->
-<div {id} {style}>
+<div {id} class="button-group-item" {style}>
     <Detachable {detached}>
         <slot />
     </Detachable>
 </div>
+
+<style lang="scss">
+    .button-group-item {
+        display: contents;
+    }
+</style>

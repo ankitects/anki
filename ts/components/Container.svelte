@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let api: Record<string, never> | undefined = undefined;
 </script>
 
-<div {id} class={`container mb-1 ${className}`}>
+<div {id} class="container {className}">
     <Section {api}>
         <slot />
     </Section>
