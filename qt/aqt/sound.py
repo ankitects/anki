@@ -14,6 +14,7 @@ import wave
 from abc import ABC, abstractmethod
 from concurrent.futures import Future
 from operator import itemgetter
+from pathlib import Path
 from typing import Any, Callable, cast
 
 from markdown import markdown
@@ -234,16 +235,15 @@ def _packagedCmd(cmd: list[str]) -> tuple[Any, dict[str, str]]:
     if "LD_LIBRARY_PATH" in env:
         del env["LD_LIBRARY_PATH"]
     if isMac:
-        dir = os.path.dirname(os.path.abspath(__file__))
-        exeDir = os.path.abspath(f"{dir}/../../Resources/audio")
-    else:
-        exeDir = os.path.dirname(os.path.abspath(sys.argv[0]))
-        if isWin and not cmd[0].endswith(".exe"):
-            cmd[0] += ".exe"
-    path = os.path.join(exeDir, cmd[0])
-    if not os.path.exists(path):
-        return cmd, env
-    cmd[0] = path
+        path = Path(sys.prefix).joinpath("audio").joinpath(cmd[0])
+        if path.exists():
+            cmd[0] = str(path)
+            return cmd, env
+    adjusted_path = os.path.join(sys.prefix, cmd[0])
+    if isWin and not adjusted_path.endswith(".exe"):
+        adjusted_path += ".exe"
+    if os.path.exists(adjusted_path):
+        cmd[0] = adjusted_path
     return cmd, env
 
 
