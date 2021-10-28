@@ -199,7 +199,7 @@ def _builtin_data(path: str) -> bytes:
         with open(full_path, "rb") as f:
             return f.read()
     else:
-        if isWin and not getattr(sys, "frozen", False) :
+        if isWin and not getattr(sys, "frozen", False):
             # default Python resource loader expects backslashes on Windows
             path = path.replace("/", "\\")
         reader = aqt.__loader__.get_resource_reader("aqt")  # type: ignore

@@ -4,6 +4,7 @@
 """Platform-specific functionality."""
 
 import os
+import sys
 from ctypes import CDLL
 
 import aqt.utils
@@ -24,5 +25,8 @@ def set_dark_mode(enabled: bool) -> bool:
 
 
 def _set_dark_mode(enabled: bool) -> None:
-    path = os.path.join(aqt.utils.aqt_data_folder(), "lib", "libankihelper.dylib")
+    if getattr(sys, "frozen", False):
+        path = os.path.join(sys.prefix, "libankihelper.dylib")
+    else:
+        path = os.path.join(aqt.utils.aqt_data_folder(), "lib", "libankihelper.dylib")
     CDLL(path).set_darkmode_enabled(enabled)
