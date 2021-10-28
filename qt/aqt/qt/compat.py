@@ -149,6 +149,14 @@ PyQt6.QtWidgets.QDockWidget.AllDockWidgetFeatures = (
     | PyQt6.QtWidgets.QDockWidget.DockWidgetFeature.DockWidgetFloatable
 )
 
+# when we subclass QIcon, icons fail to show when returned by getData()
+# in a tableview/treeview, so we need to manually alias these
+PyQt6.QtGui.QIcon.Active = PyQt6.QtGui.QIcon.Mode.Active
+PyQt6.QtGui.QIcon.Disabled = PyQt6.QtGui.QIcon.Mode.Disabled
+PyQt6.QtGui.QIcon.Normal = PyQt6.QtGui.QIcon.Mode.Normal
+PyQt6.QtGui.QIcon.Selected = PyQt6.QtGui.QIcon.Mode.Selected
+PyQt6.QtGui.QIcon.Off = PyQt6.QtGui.QIcon.State.Off
+PyQt6.QtGui.QIcon.On = PyQt6.QtGui.QIcon.State.On
 
 # This is the subset of enums used in all public Anki add-ons as of 2021-10-19.
 # Please note that this list is likely to be incomplete as the process used to
@@ -239,7 +247,6 @@ _enum_map = (
             ("QColor", ("NameFormat",)),
             ("QFont", ("Style", "Weight", "StyleHint")),
             ("QFontDatabase", ("WritingSystem", "SystemFont")),
-            ("QIcon", ("State", "Mode")),
             ("QImage", ("Format",)),
             ("QKeySequence", ("SequenceFormat", "StandardKey")),
             ("QMovie", ("CacheMode",)),
