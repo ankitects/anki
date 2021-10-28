@@ -6,6 +6,7 @@ ARG gid=1000
 
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends \
+    autoconf \
     bash \
     ca-certificates \
     curl \
@@ -33,6 +34,7 @@ RUN apt-get update \
     libxrandr2 \
     libxrender1 \
     libxtst6 \
+    make \
     pkg-config \
     portaudio19-dev \
     rsync \

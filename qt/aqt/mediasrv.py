@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import logging
+import mimetypes
 import os
 import re
 import sys
@@ -30,27 +31,7 @@ from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
 from aqt.operations.deck import update_deck_configs
 from aqt.qt import *
-from aqt.utils import aqt_data_folder
 
-
-def _getExportFolder() -> str:
-    if not (data_folder := os.getenv("ANKI_DATA_FOLDER")):
-        data_folder = aqt_data_folder()
-    webInSrcFolder = os.path.abspath(os.path.join(data_folder, "web"))
-    if os.path.exists(webInSrcFolder):
-        return webInSrcFolder
-    elif isMac:
-        dir = os.path.dirname(os.path.abspath(__file__))
-        return os.path.abspath(f"{dir}/../../Resources/web")
-    else:
-        if os.environ.get("TEST_TARGET"):
-            # running tests in bazel; we have no data
-            return "."
-        else:
-            raise Exception("couldn't find web folder")
-
-
-_exportFolder = _getExportFolder()
 app = flask.Flask(__name__, root_path="/fake")
 flask_cors.CORS(app)
 
@@ -60,6 +41,12 @@ class LocalFileRequest:
     # base folder, eg media folder
     root: str
     # path to file relative to root folder
+    path: str
+
+
+@dataclass
+class BundledFileRequest:
+    # path relative to aqt data folder
     path: str
 
 
@@ -135,6 +122,19 @@ class MediaServer(threading.Thread):
             pass
 
 
+def _mime_for_path(path: str) -> str:
+    "Mime type for provided path/filename."
+    if path.endswith(".css"):
+        # some users may have invalid mime type in the Windows registry
+        return "text/css"
+    elif path.endswith(".js"):
+        return "application/javascript"
+    else:
+        # autodetect
+        mime, _encoding = mimetypes.guess_type(path)
+        return mime or "application/octet-stream"
+
+
 def _handle_local_file_request(request: LocalFileRequest) -> Response:
     directory = request.root
     path = request.path
@@ -164,14 +164,7 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
         )
 
     try:
-        if fullpath.endswith(".css"):
-            # some users may have invalid mime type in the Windows registry
-            mimetype = "text/css"
-        elif fullpath.endswith(".js"):
-            mimetype = "application/javascript"
-        else:
-            # autodetect
-            mimetype = None
+        mimetype = _mime_for_path(fullpath)
         if os.path.exists(fullpath):
             return flask.send_file(fullpath, mimetype=mimetype, conditional=True)
         else:
@@ -181,6 +174,51 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
                 HTTPStatus.NOT_FOUND,
             )
 
+    except Exception as error:
+        if devMode:
+            print(
+                "Caught HTTP server exception,\n%s"
+                % "".join(traceback.format_exception(*sys.exc_info())),
+            )
+
+        # swallow it - user likely surfed away from
+        # review screen before an image had finished
+        # downloading
+        return flask.make_response(
+            str(error),
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
+
+
+def _builtin_data(path: str) -> bytes:
+    """Return data from file in aqt/data folder.
+    Path must use forward slash separators."""
+    # overriden location?
+    if data_folder := os.getenv("ANKI_DATA_FOLDER"):
+        full_path = os.path.join(data_folder, path)
+        with open(full_path, "rb") as f:
+            return f.read()
+    else:
+        if isWin and not getattr(sys, "frozen", False):
+            # default Python resource loader expects backslashes on Windows
+            path = path.replace("/", "\\")
+        reader = aqt.__loader__.get_resource_reader("aqt")  # type: ignore
+        with reader.open_resource(path) as f:
+            return f.read()
+
+
+def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
+    path = request.path
+    mimetype = _mime_for_path(path)
+    data_path = f"data/web/{path}"
+    try:
+        data = _builtin_data(data_path)
+        return Response(data, mimetype=mimetype)
+    except FileNotFoundError:
+        return flask.make_response(
+            f"Invalid path: {path}",
+            HTTPStatus.NOT_FOUND,
+        )
     except Exception as error:
         if devMode:
             print(
@@ -211,6 +249,8 @@ def handle_request(pathin: str) -> Response:
         )
     elif callable(request):
         return _handle_dynamic_request(request)
+    elif isinstance(request, BundledFileRequest):
+        return _handle_builtin_file_request(request)
     elif isinstance(request, LocalFileRequest):
         return _handle_local_file_request(request)
     else:
@@ -222,7 +262,7 @@ def handle_request(pathin: str) -> Response:
 
 def _extract_internal_request(
     path: str,
-) -> LocalFileRequest | DynamicRequest | NotFound | None:
+) -> BundledFileRequest | DynamicRequest | NotFound | None:
     "Catch /_anki references and rewrite them to web export folder."
     prefix = "_anki/"
     if not path.startswith(prefix):
@@ -237,6 +277,7 @@ def _extract_internal_request(
             return _extract_collection_post_request(filename)
         elif get_handler := _extract_dynamic_get_request(filename):
             return get_handler
+
         # remap legacy top-level references
         base, ext = os.path.splitext(filename)
         if ext == ".css":
@@ -267,7 +308,7 @@ def _extract_internal_request(
         path = f"{prefix}{additional_prefix}{base}{ext}"
         print(f"legacy {oldpath} remapped to {path}")
 
-    return LocalFileRequest(root=_exportFolder, path=path[len(prefix) :])
+    return BundledFileRequest(path=path[len(prefix) :])
 
 
 def _extract_addon_request(path: str) -> LocalFileRequest | NotFound | None:
@@ -302,7 +343,9 @@ def _extract_addon_request(path: str) -> LocalFileRequest | NotFound | None:
     return NotFound(message=f"couldn't locate item in add-on folder {path}")
 
 
-def _extract_request(path: str) -> LocalFileRequest | DynamicRequest | NotFound:
+def _extract_request(
+    path: str,
+) -> LocalFileRequest | BundledFileRequest | DynamicRequest | NotFound:
     if internal := _extract_internal_request(path):
         return internal
     elif addon := _extract_addon_request(path):

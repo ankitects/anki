@@ -31,7 +31,7 @@ from anki.sync_pb2 import SyncServerMethodRequest
 
 Method = SyncServerMethodRequest.Method  # pylint: disable=no-member
 
-app = flask.Flask(__name__)
+app = flask.Flask(__name__, root_path="/fake")
 col: Collection
 trace = os.getenv("TRACE")
 

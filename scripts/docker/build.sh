@@ -21,6 +21,6 @@ export DOCKER_BUILDKIT=1
 docker build --tag ankibuild --file scripts/docker/Dockerfile.$arch \
     --build-arg uid=$(id -u) --build-arg gid=$(id -g) \
     scripts/docker
-docker run --rm -it \
+docker run --rm -it -e PACKAGE=$PACKAGE \
     --mount type=bind,source="$(pwd)",target=/code \
     ankibuild
