@@ -401,6 +401,6 @@ for module, type_to_enum_list in _enum_map:
 # Mock the removed PyQt5.Qt module
 ##########################################################################
 
-from . import qt5qt
+from . import qt5_qt_module
 
-sys.modules["PyQt5.Qt"] = qt5qt
+sys.modules["PyQt5.Qt"] = qt5_qt_module

@@ -671,7 +671,7 @@ class RecordDialog(QDialog):
                 namedtmp("rec.wav"), self.mw, self._parent
             )
         else:
-            from aqt.qt.qt5extra import QtAudioInputRecorder as Qt5Recorder
+            from aqt.qt.qt5_audio import QtAudioInputRecorder as Qt5Recorder
 
             self._recorder = Qt5Recorder(namedtmp("rec.wav"), self.mw, self._parent)
         self._recorder.start(self._start_timer)
