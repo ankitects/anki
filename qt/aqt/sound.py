@@ -711,6 +711,10 @@ class RecordDialog(QDialog):
 def record_audio(
     parent: QWidget, mw: aqt.AnkiQt, encode: bool, on_done: Callable[[str], None]
 ) -> None:
+    if sys.platform.startswith("darwin") and platform.machine() == "arm64":
+        showWarning("Recording currently only works in Anki's Intel build")
+        return
+
     def after_record(path: str) -> None:
         if not encode:
             on_done(path)
