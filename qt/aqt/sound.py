@@ -235,12 +235,9 @@ def _packagedCmd(cmd: list[str]) -> tuple[Any, dict[str, str]]:
     if "LD_LIBRARY_PATH" in env:
         del env["LD_LIBRARY_PATH"]
 
-    packaged_path = (
-        Path(sys.prefix).joinpath("audio").joinpath(cmd[0] + ".exe" if isWin else "")
-    )
+    packaged_path = Path(sys.prefix) / "audio" / (cmd[0] + (".exe" if isWin else ""))
     if packaged_path.exists():
         cmd[0] = str(packaged_path)
-        return cmd, env
 
     return cmd, env
 
