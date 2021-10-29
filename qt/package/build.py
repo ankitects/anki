@@ -38,6 +38,7 @@ os.environ["CARGO_TARGET_DIR"] = str(cargo_target)
 
 # OS-specific things
 pyqt5_folder_name = "pyqt515"
+is_lin = False
 if is_win:
     os.environ["TARGET"] = "x86_64-pc-windows-msvc"
 elif sys.platform.startswith("darwin"):
@@ -50,6 +51,7 @@ elif sys.platform.startswith("darwin"):
         os.environ["TARGET"] = "x86_64-apple-darwin"
         os.environ["MACOSX_DEPLOYMENT_TARGET"] = "10.13"
 else:
+    is_lin = True
     if platform.machine() == "x86_64":
         os.environ["TARGET"] = "x86_64-unknown-linux-gnu"
     else:
@@ -200,6 +202,8 @@ def merge_into_dist(output_folder: Path, pyqt_src_path: Path):
     ]
     if is_win:
         resources.append(adj_path_for_windows_rsync(Path("win")) + "/")
+    elif is_lin:
+        resources.append("lin/")
 
     subprocess.run(
         [

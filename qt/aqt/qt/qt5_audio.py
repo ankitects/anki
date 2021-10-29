@@ -4,7 +4,7 @@
 # pylint: skip-file
 
 """
-PyQt5-only code
+PyQt5-only audio code
 """
 
 import wave

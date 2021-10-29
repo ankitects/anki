@@ -405,6 +405,10 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
 
     qInstallMessageHandler(msgHandler)
 
+    # ignore set graphics driver on Qt6 for now
+    if qtmajor > 5:
+        return
+
     if driver == VideoDriver.OpenGL:
         pass
     else:

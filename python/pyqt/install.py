@@ -25,30 +25,6 @@ def install_packages(requirements_path, directory, pip_args):
     assert not cmd.main(pip_args)
 
 
-def fix_pyi_types():
-    "Fix broken PyQt types."
-    for dirpath, dirnames, fnames in os.walk("."):
-        for fname in fnames:
-            if not fname.endswith(".pyi"):
-                continue
-            path = os.path.join(dirpath, fname)
-
-            with open(path, "r+") as file:
-                lines = file.readlines()
-                file.seek(0)
-                for line in lines:
-                    # # remove blanket getattr in QObject which also causes missing
-                    # # attributes not to be detected
-                    if "def __getattr__(self, name: str) -> typing.Any" in line:
-                        continue
-                    file.write(line + "\n")
-
-def fix_webengine_codesigning():
-    "Fix a codesigning issue in the 6.2.0 release."
-    path = "PyQt6/Qt6/lib/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess"
-    if os.path.exists(path):
-        subprocess.run(["codesign", "-s", "-", path], check=True)
-
 def main():
     base = sys.argv[1]
     requirements_file = sys.argv[2]
@@ -71,8 +47,6 @@ def main():
 
     else:
         install_packages(requirements_file, base, [])
-        fix_pyi_types()
-        fix_webengine_codesigning()
 
         with open(os.path.join(base, "__init__.py"), "w") as file:
             file.write("__path__ = __import__('pkgutil').extend_path(__path__, __name__)")
