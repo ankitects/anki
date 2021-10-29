@@ -128,12 +128,14 @@ impl DecksService for Backend {
             } else {
                 col.get_all_normal_deck_names()?
             };
-            Ok(pb::DeckNames {
-                entries: names
-                    .into_iter()
-                    .map(|(id, name)| pb::DeckNameId { id: id.0, name })
-                    .collect(),
-            })
+            Ok(names.into())
+        })
+    }
+
+    fn get_deck_and_child_names(&self, input: pb::DeckId) -> Result<pb::DeckNames> {
+        self.with_col(|col| {
+            col.get_deck_and_child_names(input.did.into())
+                .map(Into::into)
         })
     }
 
@@ -289,6 +291,23 @@ impl From<pb::deck::Kind> for DeckKind {
         match kind {
             pb::deck::Kind::Normal(normal) => DeckKind::Normal(normal),
             pb::deck::Kind::Filtered(filtered) => DeckKind::Filtered(filtered),
+        }
+    }
+}
+
+impl From<(DeckId, String)> for pb::DeckNameId {
+    fn from(id_name: (DeckId, String)) -> Self {
+        pb::DeckNameId {
+            id: id_name.0 .0,
+            name: id_name.1,
+        }
+    }
+}
+
+impl From<Vec<(DeckId, String)>> for pb::DeckNames {
+    fn from(id_names: Vec<(DeckId, String)>) -> Self {
+        pb::DeckNames {
+            entries: id_names.into_iter().map(Into::into).collect(),
         }
     }
 }

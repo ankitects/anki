@@ -443,26 +443,31 @@ class DeckManager(DeprecatedNamesMixin):
     def key(cls, deck: DeckDict) -> list[str]:
         return cls.path(deck["name"])
 
-    def children(self, did: DeckId) -> list[tuple[str, DeckId]]:
-        "All children of did, as (name, id)."
-        name = self.get(did)["name"]
-        actv = []
-        for entry in self.all_names_and_ids():
-            if entry.name.startswith(f"{name}::"):
-                actv.append((entry.name, DeckId(entry.id)))
-        return actv
-
-    def child_ids(self, parent_name: str) -> Iterable[DeckId]:
-        prefix = f"{parent_name}::"
+    def deck_and_child_name_ids(self, deck_id: DeckId) -> Iterable[tuple[str, DeckId]]:
+        """The deck of did and all its children, as (name, id)."""
         return (
-            DeckId(d.id) for d in self.all_names_and_ids() if d.name.startswith(prefix)
+            (entry.name, DeckId(entry.id))
+            for entry in self.col._backend.get_deck_and_child_names(deck_id)
         )
 
+    def children(self, did: DeckId) -> list[tuple[str, DeckId]]:
+        "All children of did, as (name, id)."
+        return [
+            name_id
+            for name_id in self.deck_and_child_name_ids(did)
+            if name_id[1] != did
+        ]
+
+    def child_ids(self, parent_name: str) -> Iterable[DeckId]:
+        if not (parent_id := self.id_for_name(parent_name)):
+            return []
+        return (name_id[1] for name_id in self.children(parent_id))
+
     def deck_and_child_ids(self, deck_id: DeckId) -> list[DeckId]:
-        parent_name = self.name(deck_id)
-        out = [deck_id]
-        out.extend(self.child_ids(parent_name))
-        return out
+        return [
+            DeckId(entry.id)
+            for entry in self.col._backend.get_deck_and_child_names(deck_id)
+        ]
 
     def parents(
         self, did: DeckId, name_map: dict[str, DeckDict] | None = None

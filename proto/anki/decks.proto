@@ -21,6 +21,7 @@ service DecksService {
   rpc SetDeckCollapsed(SetDeckCollapsedRequest) returns (collection.OpChanges);
   rpc GetDeckLegacy(DeckId) returns (generic.Json);
   rpc GetDeckNames(GetDeckNamesRequest) returns (DeckNames);
+  rpc GetDeckAndChildNames(DeckId) returns (DeckNames);
   rpc NewDeckLegacy(generic.Bool) returns (generic.Json);
   rpc RemoveDecks(DeckIds) returns (collection.OpChangesWithCount);
   rpc ReparentDecks(ReparentDecksRequest)
