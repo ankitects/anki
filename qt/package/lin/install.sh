@@ -15,7 +15,7 @@ rm -rf "$PREFIX"/share/anki "$PREFIX"/bin/anki
 mkdir -p "$PREFIX"/share/anki
 cp -av * "$PREFIX"/share/anki/
 mkdir -p "$PREFIX"/bin
-ln -sf "$PREFIX"/share/anki/bin/Anki "$PREFIX"/bin/anki
+ln -sf "$PREFIX"/share/anki/anki "$PREFIX"/bin/anki
 # fix a previous packaging issue where we created this as a file
 (test -f "$PREFIX"/share/applications && rm "$PREFIX"/share/applications)||true
 mkdir -p "$PREFIX"/share/pixmaps
@@ -30,5 +30,7 @@ xdg-mime install anki.xml --novendor
 xdg-mime default anki.desktop application/x-colpkg
 xdg-mime default anki.desktop application/x-apkg
 xdg-mime default anki.desktop application/x-ankiaddon
+
+rm install.sh
 
 echo "Install complete. Type 'anki' to run."

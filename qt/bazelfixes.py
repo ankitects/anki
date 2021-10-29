@@ -33,7 +33,7 @@ def fix_pywin32_in_bazel(force=False):
     import importlib.machinery
 
     name = "pythoncom"
-    filename = os.path.join(path, "pythoncom38.dll")
+    filename = os.path.join(path, "pythoncom39.dll")
     loader = importlib.machinery.ExtensionFileLoader(name, filename)
     spec = importlib.machinery.ModuleSpec(name=name, loader=loader, origin=filename)
     _mod = importlib._bootstrap._load(spec)

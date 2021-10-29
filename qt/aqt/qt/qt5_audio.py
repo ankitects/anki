@@ -4,7 +4,7 @@
 # pylint: skip-file
 
 """
-PyQt5-only code
+PyQt5-only audio code
 """
 
 import wave
@@ -13,9 +13,9 @@ from typing import cast
 
 import aqt
 
-from .qt import *
-from .sound import Recorder
-from .utils import showWarning
+from . import *  # isort:skip
+from ..sound import Recorder  # isort:skip
+from ..utils import showWarning  # isort:skip
 
 
 class QtAudioInputRecorder(Recorder):

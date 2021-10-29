@@ -14,6 +14,7 @@ import wave
 from abc import ABC, abstractmethod
 from concurrent.futures import Future
 from operator import itemgetter
+from pathlib import Path
 from typing import Any, Callable, cast
 
 from markdown import markdown
@@ -233,17 +234,14 @@ def _packagedCmd(cmd: list[str]) -> tuple[Any, dict[str, str]]:
     env = os.environ.copy()
     if "LD_LIBRARY_PATH" in env:
         del env["LD_LIBRARY_PATH"]
-    if isMac:
-        dir = os.path.dirname(os.path.abspath(__file__))
-        exeDir = os.path.abspath(f"{dir}/../../Resources/audio")
-    else:
-        exeDir = os.path.dirname(os.path.abspath(sys.argv[0]))
-        if isWin and not cmd[0].endswith(".exe"):
-            cmd[0] += ".exe"
-    path = os.path.join(exeDir, cmd[0])
-    if not os.path.exists(path):
+
+    packaged_path = (
+        Path(sys.prefix).joinpath("audio").joinpath(cmd[0] + ".exe" if isWin else "")
+    )
+    if packaged_path.exists():
+        cmd[0] = str(packaged_path)
         return cmd, env
-    cmd[0] = path
+
     return cmd, env
 
 
@@ -671,7 +669,7 @@ class RecordDialog(QDialog):
                 namedtmp("rec.wav"), self.mw, self._parent
             )
         else:
-            from .qt5 import QtAudioInputRecorder as Qt5Recorder
+            from aqt.qt.qt5_audio import QtAudioInputRecorder as Qt5Recorder
 
             self._recorder = Qt5Recorder(namedtmp("rec.wav"), self.mw, self._parent)
         self._recorder.start(self._start_timer)
@@ -711,6 +709,10 @@ class RecordDialog(QDialog):
 def record_audio(
     parent: QWidget, mw: aqt.AnkiQt, encode: bool, on_done: Callable[[str], None]
 ) -> None:
+    if sys.platform.startswith("darwin") and platform.machine() == "arm64":
+        showWarning("Recording currently only works in Anki's Intel build")
+        return
+
     def after_record(path: str) -> None:
         if not encode:
             on_done(path)

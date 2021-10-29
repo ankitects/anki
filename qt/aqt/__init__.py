@@ -3,13 +3,27 @@
 
 from __future__ import annotations
 
+import sys
+
+if sys.version_info[0] < 3 or sys.version_info[1] < 9:
+    raise Exception("Anki requires Python 3.9+")
+
+# ensure unicode filenames are supported
+try:
+    "テスト".encode(sys.getfilesystemencoding())
+except UnicodeEncodeError as exc:
+    raise Exception("Anki requires a UTF-8 locale.") from exc
+
+from .package import packaged_build_setup
+
+packaged_build_setup()
+
 import argparse
 import builtins
 import cProfile
 import getpass
 import locale
 import os
-import sys
 import tempfile
 import traceback
 from typing import Any, Callable, Optional, cast
@@ -23,15 +37,6 @@ from anki.utils import checksum, isLin, isMac
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import TR, tr
-
-if sys.version_info[0] < 3 or sys.version_info[1] < 9:
-    raise Exception("Anki requires Python 3.9+")
-
-# ensure unicode filenames are supported
-try:
-    "テスト".encode(sys.getfilesystemencoding())
-except UnicodeEncodeError as exc:
-    raise Exception("Anki requires a UTF-8 locale.") from exc
 
 # compat aliases
 anki.version = _version  # type: ignore
@@ -233,12 +238,8 @@ def setupLangAndBackend(
     # load qt translations
     _qtrans = QTranslator()
 
-    from aqt.utils import aqt_data_folder
-
     if isMac and getattr(sys, "frozen", False):
-        qt_dir = os.path.abspath(
-            os.path.join(aqt_data_folder(), "..", "qt_translations")
-        )
+        qt_dir = os.path.join(sys.prefix, "../Resources/qt_translations")
     else:
         if qtmajor == 5:
             qt_dir = QLibraryInfo.location(QLibraryInfo.TranslationsPath)  # type: ignore
@@ -404,6 +405,10 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
 
     qInstallMessageHandler(msgHandler)
 
+    # ignore set graphics driver on Qt6 for now
+    if qtmajor > 5:
+        return
+
     if driver == VideoDriver.OpenGL:
         pass
     else:
@@ -429,6 +434,7 @@ def write_profile_results() -> None:
 
 
 def run() -> None:
+    print("Preparing to run...")
     try:
         _run()
     except Exception as e:
@@ -617,6 +623,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
 
     mw = aqt.main.AnkiQt(app, pm, backend, opts, args)
     if exec:
+        print("Starting main loop...")
         app.exec()
     else:
         return app

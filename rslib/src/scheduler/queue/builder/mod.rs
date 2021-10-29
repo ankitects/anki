@@ -235,7 +235,7 @@ impl Collection {
 
         // fetch remaining limits, and cap to selected deck limits so that we don't
         // do more work than necessary
-        let mut remaining = remaining_limits_map(decks.iter(), &config, timing.days_elapsed);
+        let mut remaining = remaining_limits_map(decks.iter(), &config, timing.days_elapsed, true);
         let selected_deck_limits_at_start = *remaining.get(&deck_id).unwrap();
         let mut selected_deck_limits = selected_deck_limits_at_start;
         for limit in remaining.values_mut() {
