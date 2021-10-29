@@ -14,7 +14,7 @@ from pathlib import Path
 
 workspace = Path(os.environ["BUILD_WORKSPACE_DIRECTORY"])
 binroot = workspace / "bazel-bin"
-pyroot = binroot / "pip"
+dmypy_bin = binroot / "external/py_deps_pypi__mypy/rules_python_wheel_entry_point_dmypy"
 
 if sys.platform.startswith("win32"):
     binext = ".exe"
@@ -23,7 +23,7 @@ else:
 
 if subprocess.run(
     [
-        str(pyroot / ("dmypy" + binext)),
+        str(dmypy_bin) + binext,
     ]
     + [
         "run",
@@ -33,7 +33,7 @@ if subprocess.run(
         "bazel-bin/qt/dmypy.runfiles/ankidesktop/pylib/anki",
         "bazel-bin/qt/dmypy.runfiles/ankidesktop/qt/aqt",
         "--python-executable",
-        os.path.abspath("pip/stubs/extendsitepkgs"),
+        os.path.abspath("python/stubs/extendsitepkgs"),
     ],
     env={
         "MYPYPATH": "bazel-bin/qt/dmypy.runfiles/pyqt6",
