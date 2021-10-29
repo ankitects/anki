@@ -377,7 +377,10 @@ class Table:
         hh.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._restore_header()
         qconnect(hh.customContextMenuRequested, self._on_header_context)
-        qconnect(hh.sortIndicatorChanged, self._on_sort_column_changed)
+        if qtmajor == 5:
+            qconnect(hh.sortIndicatorChanged, self._on_sort_column_changed_qt5)
+        else:
+            qconnect(hh.sortIndicatorChanged, self._on_sort_column_changed)
         qconnect(hh.sectionMoved, self._on_column_moved)
 
     # Slots
@@ -484,23 +487,29 @@ class Table:
         if checked:
             self._scroll_to_column(self._model.len_columns() - 1)
 
-    def _on_sort_column_changed(self, section: int, order: int) -> None:
+    def _on_sort_column_changed_qt5(self, section: int, order: int) -> None:
+        self._on_sort_column_changed(
+            section,
+            Qt.SortOrder.AscendingOrder if not order else Qt.SortOrder.DescendingOrder,
+        )
+
+    def _on_sort_column_changed(self, section: int, order: Qt.SortOrder) -> None:
         column = self._model.column_at_section(section)
         if column.sorting == Columns.SORTING_NONE:
             showInfo(tr.browsing_sorting_on_this_column_is_not())
             self._set_sort_indicator()
             return
-        order = bool(order)
         if self._state.sort_column != column.key:
             self._state.sort_column = column.key
-            # default to descending for non-text fields
-            if column.sorting == Columns.SORTING_REVERSED:
-                order = not order
-            self._state.sort_backwards = order
+            # numeric fields default to descending
+            if column.sorting == Columns.SORTING_DESCENDING:
+                order = Qt.SortOrder.DescendingOrder
+            self._state.sort_backwards = order == Qt.SortOrder.DescendingOrder
             self.browser.search()
         else:
-            if self._state.sort_backwards != order:
-                self._state.sort_backwards = order
+            descending = order == Qt.SortOrder.DescendingOrder
+            if self._state.sort_backwards != descending:
+                self._state.sort_backwards = descending
                 self._reverse()
         self._set_sort_indicator()
 

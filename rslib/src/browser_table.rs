@@ -177,12 +177,22 @@ impl Column {
         .into()
     }
 
-    pub fn sorting(self) -> pb::browser_columns::Sorting {
+    pub fn default_order(self) -> pb::browser_columns::Sorting {
         use pb::browser_columns::Sorting;
         match self {
-            Self::Question | Self::Answer | Self::Custom => Sorting::None,
-            Self::SortField => Sorting::Reversed,
-            _ => Sorting::Normal,
+            Column::Question | Column::Answer | Column::Custom => Sorting::None,
+            Column::SortField | Column::Tags | Column::Notetype | Column::Deck => {
+                Sorting::Ascending
+            }
+            Column::CardMod
+            | Column::Cards
+            | Column::Due
+            | Column::Ease
+            | Column::Lapses
+            | Column::Interval
+            | Column::NoteCreation
+            | Column::NoteMod
+            | Column::Reps => Sorting::Descending,
         }
     }
 

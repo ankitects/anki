@@ -74,6 +74,7 @@ class ItemState(ABC):
 
     @property
     def sort_backwards(self) -> bool:
+        "If true, descending order."
         return self._sort_backwards
 
     @sort_backwards.setter
