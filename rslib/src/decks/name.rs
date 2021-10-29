@@ -161,6 +161,15 @@ impl Collection {
             self.storage.get_all_deck_names()
         }
     }
+
+    pub fn get_deck_and_child_names(&self, did: DeckId) -> Result<Vec<(DeckId, String)>> {
+        Ok(self
+            .storage
+            .deck_with_children(did)?
+            .iter()
+            .map(|deck| (deck.id, deck.name.human_name()))
+            .collect())
+    }
 }
 
 fn invalid_char_for_deck_component(c: char) -> bool {
