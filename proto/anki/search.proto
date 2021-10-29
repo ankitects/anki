@@ -135,8 +135,8 @@ message FindAndReplaceRequest {
 message BrowserColumns {
   enum Sorting {
     SORTING_NONE = 0;
-    SORTING_NORMAL = 1;
-    SORTING_REVERSED = 2;
+    SORTING_ASCENDING = 1;
+    SORTING_DESCENDING = 2;
   }
   enum Alignment {
     ALIGNMENT_START = 0;
@@ -146,6 +146,7 @@ message BrowserColumns {
     string key = 1;
     string cards_mode_label = 2;
     string notes_mode_label = 3;
+    // The default sort order
     Sorting sorting = 4;
     bool uses_cell_font = 5;
     Alignment alignment = 6;
