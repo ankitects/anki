@@ -234,16 +234,14 @@ def _packagedCmd(cmd: list[str]) -> tuple[Any, dict[str, str]]:
     env = os.environ.copy()
     if "LD_LIBRARY_PATH" in env:
         del env["LD_LIBRARY_PATH"]
-    if isMac:
-        path = Path(sys.prefix).joinpath("audio").joinpath(cmd[0])
-        if path.exists():
-            cmd[0] = str(path)
-            return cmd, env
-    adjusted_path = os.path.join(sys.prefix, cmd[0])
-    if isWin and not adjusted_path.endswith(".exe"):
-        adjusted_path += ".exe"
-    if os.path.exists(adjusted_path):
-        cmd[0] = adjusted_path
+
+    packaged_path = (
+        Path(sys.prefix).joinpath("audio").joinpath(cmd[0] + ".exe" if isWin else "")
+    )
+    if packaged_path.exists():
+        cmd[0] = str(packaged_path)
+        return cmd, env
+
     return cmd, env
 
 
