@@ -210,7 +210,7 @@ def _builtin_data(path: str) -> bytes:
 def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
     path = request.path
     mimetype = _mime_for_path(path)
-    data_path = f"data/web/{path}"
+    data_path = f"web/{path}"
     try:
         data = _builtin_data(data_path)
         return Response(data, mimetype=mimetype)
