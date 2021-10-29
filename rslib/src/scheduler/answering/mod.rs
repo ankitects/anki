@@ -431,7 +431,9 @@ fn get_fuzz_seed(card: &Card) -> Option<u64> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{card::CardType, collection::open_test_collection};
+    use crate::{
+        card::CardType, collection::open_test_collection, deckconfig::ReviewMix, search::SortMode,
+    };
 
     fn current_state(col: &mut Collection, card_id: CardId) -> CardState {
         col.get_next_card_states(card_id).unwrap().current
@@ -551,6 +553,57 @@ mod test {
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
         assert_eq!(card.queue, CardQueue::Review);
         assert_eq!(card.interval, 1);
+
+        Ok(())
+    }
+
+    fn v3_test_collection(cards: usize) -> Result<(Collection, Vec<CardId>)> {
+        let mut col = open_test_collection();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        for _ in 0..cards {
+            let mut note = Note::new(&nt);
+            col.add_note(&mut note, DeckId(1))?;
+        }
+        col.set_config_bool(BoolKey::Sched2021, true, false)?;
+        let cids = col.search_cards("", SortMode::NoOrder)?;
+        Ok((col, cids))
+    }
+
+    macro_rules! assert_counts {
+        ($col:ident, $new:expr, $learn:expr, $review:expr) => {{
+            let tree = $col.deck_tree(Some(TimestampSecs::now()), None).unwrap();
+            assert_eq!(tree.new_count, $new);
+            assert_eq!(tree.learn_count, $learn);
+            assert_eq!(tree.review_count, $review);
+            let queued = $col.get_queued_cards(1, false).unwrap();
+            assert_eq!(queued.new_count, $new);
+            assert_eq!(queued.learning_count, $learn);
+            assert_eq!(queued.review_count, $review);
+        }};
+    }
+
+    #[test]
+    fn new_limited_by_reviews() -> Result<()> {
+        let (mut col, cids) = v3_test_collection(4)?;
+        col.set_due_date(&cids[0..2], "0", None)?;
+        // set a limit of 3 reviews, which should give us 2 reviews and 1 new card
+        let mut conf = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        conf.inner.reviews_per_day = 3;
+        conf.inner.set_new_mix(ReviewMix::BeforeReviews);
+        col.storage.update_deck_conf(&conf)?;
+
+        assert_counts!(col, 1, 0, 2);
+        // first card is the new card
+        col.answer_good();
+        assert_counts!(col, 0, 1, 2);
+        // then the two reviews
+        col.answer_good();
+        assert_counts!(col, 0, 1, 1);
+        col.answer_good();
+        assert_counts!(col, 0, 1, 0);
+        // after the final 10 minute step, the queues should be empty
+        col.answer_good();
+        assert_counts!(col, 0, 0, 0);
 
         Ok(())
     }
