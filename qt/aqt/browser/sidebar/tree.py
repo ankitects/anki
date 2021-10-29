@@ -706,7 +706,7 @@ class SidebarTreeView(QTreeView):
         root.add_simple(
             tr.browsing_no_flag(),
             icon=icon_outline,
-            type=SidebarItemType.FLAG,
+            type=SidebarItemType.FLAG_NONE,
             search_node=SearchNode(flag=SearchNode.FLAG_NONE),
         )
 

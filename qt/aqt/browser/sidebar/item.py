@@ -17,6 +17,7 @@ class SidebarItemType(Enum):
     TODAY = auto()
     FLAG_ROOT = auto()
     FLAG = auto()
+    FLAG_NONE = auto()
     CARD_STATE_ROOT = auto()
     CARD_STATE = auto()
     DECK_ROOT = auto()
