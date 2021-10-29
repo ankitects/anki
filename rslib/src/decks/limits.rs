@@ -16,10 +16,14 @@ pub(crate) struct RemainingLimits {
 }
 
 impl RemainingLimits {
-    pub(crate) fn new(deck: &Deck, config: Option<&DeckConfig>, today: u32) -> Self {
+    pub(crate) fn new(deck: &Deck, config: Option<&DeckConfig>, today: u32, v3: bool) -> Self {
         config
             .map(|config| {
-                let (new_today, rev_today) = deck.new_rev_counts(today);
+                let (new_today, mut rev_today) = deck.new_rev_counts(today);
+                if v3 {
+                    // any reviewed new cards contribute to the review limit
+                    rev_today += new_today;
+                }
                 RemainingLimits {
                     review: ((config.inner.reviews_per_day as i32) - rev_today).max(0) as u32,
                     new: ((config.inner.new_per_day as i32) - new_today).max(0) as u32,
@@ -47,12 +51,18 @@ pub(crate) fn remaining_limits_map<'a>(
     decks: impl Iterator<Item = &'a Deck>,
     config: &'a HashMap<DeckConfigId, DeckConfig>,
     today: u32,
+    v3: bool,
 ) -> HashMap<DeckId, RemainingLimits> {
     decks
         .map(|deck| {
             (
                 deck.id,
-                RemainingLimits::new(deck, deck.config_id().and_then(|id| config.get(&id)), today),
+                RemainingLimits::new(
+                    deck,
+                    deck.config_id().and_then(|id| config.get(&id)),
+                    today,
+                    v3,
+                ),
             )
         })
         .collect()

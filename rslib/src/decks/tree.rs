@@ -316,7 +316,7 @@ impl Collection {
             let counts = self.due_counts(days_elapsed, learn_cutoff, limit)?;
             let dconf = self.storage.get_deck_config_map()?;
             add_counts(&mut tree, &counts);
-            let limits = remaining_limits_map(decks_map.values(), &dconf, days_elapsed);
+            let limits = remaining_limits_map(decks_map.values(), &dconf, days_elapsed, v3);
             if sched_ver == SchedulerVersion::V2 {
                 if v3 {
                     sum_counts_and_apply_limits_v3(&mut tree, &limits);
