@@ -41,6 +41,7 @@ sass_library(
     name = "button_mixins_lib",
     srcs = [
         "_button-mixins.scss",
+        "_fusion-vars.scss",
     ],
     visibility = ["//visibility:public"],
 )
