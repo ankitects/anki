@@ -15,16 +15,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: icon = off ? richTextOff : richTextOn;
 </script>
 
-<span on:click|stopPropagation={toggle}>
+<span class:highlighted={off} on:click|stopPropagation={toggle}>
     <Badge iconSize={80}>{@html icon}</Badge>
 </span>
 
 <style lang="scss">
     span {
-        opacity: 0.6;
+        opacity: 0.4;
 
-        &:hover {
+        &.highlighted {
             opacity: 1;
+        }
+        &:hover {
+            opacity: 0.8;
         }
     }
 </style>
