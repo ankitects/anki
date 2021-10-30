@@ -74,9 +74,6 @@ $btn-base-color-night: fusion-vars.$button-border;
         fusion-vars.$button-gradient-start 0%,
         fusion-vars.$button-gradient-end 100%
     );
-    box-shadow: 0 0 3px fusion-vars.$button-outline;
-    border: 1px solid fusion-vars.$button-border;
-    -webkit-appearance: none;
 }
 
 @mixin btn-night(
@@ -88,6 +85,10 @@ $btn-base-color-night: fusion-vars.$button-border;
     .btn-night {
         @include btn-night-base;
         @content ($btn-base-color-night);
+
+        box-shadow: 0 0 3px fusion-vars.$button-outline;
+        border: 1px solid fusion-vars.$button-border;
+        -webkit-appearance: none;
 
         @if ($with-hover) {
             &:hover,

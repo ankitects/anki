@@ -25,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {id}
     tabindex={tabbable ? 0 : -1}
     bind:this={buttonRef}
-    class={`btn dropdown-item ${className}`}
+    class="dropdown-item btn {className}"
     class:btn-day={!nightMode}
     class:btn-night={nightMode}
     title={tooltip}
@@ -45,7 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         justify-content: space-between;
 
-        font-size: calc(var(--buttons-size) / 2.3);
+        font-size: var(--base-font-size);
 
         background: none;
         box-shadow: none !important;
