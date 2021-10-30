@@ -9,33 +9,20 @@ load("//ts:typescript.bzl", "typescript")
 compile_sass(
     srcs = [
         "editor-base.scss",
+        "legacy.scss",
     ],
-    group = "base_css",
+    group = "editor_css",
     visibility = ["//visibility:public"],
     deps = [
         "//sass:base_lib",
         "//sass:button_mixins_lib",
-        "//sass:buttons_lib",
         "//sass:scrollbar_lib",
-    ],
-)
-
-compile_sass(
-    srcs = [
-        "bootstrap.scss",
-        "legacy.scss",
-    ],
-    group = "local_css",
-    visibility = ["//visibility:public"],
-    deps = [
-        "//sass:button_mixins_lib",
-        "//sass/bootstrap",
     ],
 )
 
 _ts_deps = [
     "//ts/components",
-    "//ts/editable",
+    "//ts/editable:editable_ts",
     "//ts/html-filter",
     "//ts/lib",
     "//ts/sveltelib",
@@ -63,12 +50,12 @@ esbuild(
     output_css = "editor.css",
     visibility = ["//visibility:public"],
     deps = [
-        ":base_css",
         ":editor_ts",
-        ":local_css",
+        ":editor_css",
         "@npm//@mdi",
         "@npm//bootstrap-icons",
         "@npm//protobufjs",
+        "//sass:button_mixins_lib",
     ],
 )
 
@@ -88,7 +75,7 @@ svelte_check(
         "//sass:button_mixins_lib",
         "//sass/bootstrap",
         "//ts/components",
-        "//ts/editable",
+        "//ts/editable:editable_ts",
         "@npm//@types/bootstrap",
         "@npm//@types/codemirror",
         "@npm//codemirror",

@@ -10,6 +10,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 </script>
 
-<Badge class="rounded-circle d-flex align-items-center ms-1 {className}" on:click
+<Badge class="d-flex align-items-center ms-1 {className}" on:click iconSize={80}
     >{@html deleteIcon}</Badge
 >

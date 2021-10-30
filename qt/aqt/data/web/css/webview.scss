@@ -1,15 +1,27 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use 'sass/core';
-@use 'sass/scrollbar';
-@use 'sass/buttons';
+@use "sass/scrollbar";
+@use "sass/buttons";
 
-// core.scss sets border-box, but we need to
-// keep the old behaviour for now to avoid breaking
-// add-ons/card templates
 * {
+    // border-box would be better, but we need to
+    // keep the old behaviour for now to avoid breaking
+    // add-ons/card templates
     box-sizing: content-box;
+}
+
+body {
+    color: var(--text-fg);
+    background: var(--window-bg);
+    margin: 1em;
+    transition: opacity 0.5s ease-out;
+    overscroll-behavior: none;
+}
+
+a {
+    color: var(--link);
+    text-decoration: none;
 }
 
 body {

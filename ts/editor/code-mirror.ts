@@ -1,6 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import "codemirror/lib/codemirror.css";
+import "codemirror/theme/monokai.css";
+import "codemirror/addon/fold/foldgutter.css";
+
 import CodeMirror from "codemirror";
 import "codemirror/mode/htmlmixed/htmlmixed";
 import "codemirror/mode/stex/stex";

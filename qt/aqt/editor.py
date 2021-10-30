@@ -130,7 +130,7 @@ class Editor:
             css=["css/editor.css"],
             js=["js/editor.js"],
             context=self,
-            default_css=True,
+            default_css=False,
         )
 
         lefttopbtns: list[str] = []

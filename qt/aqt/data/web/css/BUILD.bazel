@@ -9,7 +9,6 @@ compile_sass(
     ),
     group = "css_local",
     deps = [
-        "//sass:core_lib",
         "//sass:buttons_lib",
         "//sass:scrollbar_lib",
         "//sass:card_counts_lib",
@@ -29,7 +28,7 @@ copy_files_into_group(
 copy_files_into_group(
     name = "editable",
     srcs = [
-        "editable-build.css",
+        "editable.css",
     ],
     package = "//ts/editable",
 )

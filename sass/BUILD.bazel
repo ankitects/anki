@@ -3,13 +3,16 @@ load("@io_bazel_rules_sass//:defs.bzl", "sass_library")
 sass_library(
     name = "base_lib",
     srcs = [
-        "_vars.scss",
         "_fusion-vars.scss",
+        "_vars.scss",
         "base.scss",
         "bootstrap-dark.scss",
     ],
     visibility = ["//visibility:public"],
-    deps = ["//sass/bootstrap", "//sass/codemirror"],
+    deps = [
+        "//sass/bootstrap",
+        "//sass/codemirror",
+    ],
 )
 
 sass_library(
@@ -29,6 +32,8 @@ sass_library(
     visibility = ["//visibility:public"],
 )
 
+# minimal definitions used by AnkiMobile's editor - should be safe to remove
+# once AnkiMobile switches to the new editor code in the future
 sass_library(
     name = "core_lib",
     srcs = [
@@ -49,7 +54,8 @@ sass_library(
 sass_library(
     name = "button_mixins_lib",
     srcs = [
-        "button-mixins.scss",
+        "_button-mixins.scss",
+        "_fusion-vars.scss",
     ],
     visibility = ["//visibility:public"],
 )
