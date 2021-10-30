@@ -1,6 +1,5 @@
-@use "sass/vars";
-
 @import "sass/base";
+
 @import "sass/bootstrap/scss/containers";
 @import "sass/bootstrap/scss/grid";
 @import "sass/bootstrap/scss/dropdown";
@@ -13,8 +12,3 @@
 @import "sass/bootstrap/scss/badge";
 @import "sass/bootstrap-forms";
 @import "sass/bootstrap-tooltip";
-
-textarea.form-control {
-    color: var(--text-fg);
-    background-color: var(--frame-bg) !important;
-}
