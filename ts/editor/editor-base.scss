@@ -1,14 +1,10 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use "base";
-
-@import "sass/bootstrap/scss/functions";
-@import "sass/bootstrap/scss/variables";
-@import "sass/bootstrap/scss/mixins";
-@import "sass/bootstrap/scss/button-group";
-@import "sass/bootstrap/scss/dropdown";
-@import "sass/bootstrap-tooltip";
+@import "sass/base";
 
 $btn-disabled-opacity: 0.4;
 @import "sass/bootstrap/scss/buttons";
+@import "sass/bootstrap/scss/button-group";
+@import "sass/bootstrap/scss/dropdown";
+@import "sass/bootstrap-tooltip";
