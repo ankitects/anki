@@ -1,5 +1,12 @@
+@use "fusion-vars";
+
 @import "bootstrap/scss/functions";
 @import "bootstrap/scss/variables";
+
+@mixin impressed-shadow($intensity) {
+    box-shadow: inset 0 calc(var(--buttons-size) / 15) calc(var(--buttons-size) / 5)
+        rgba(black, $intensity);
+}
 
 @mixin btn-border-radius {
     border-top-left-radius: var(--border-left-radius);
@@ -58,12 +65,15 @@ $btn-base-color-day: white;
     }
 }
 
-$btn-base-color-night: #666;
+$btn-base-color-night: fusion-vars.$button-border;
 
 @mixin btn-night-base {
     color: var(--text-fg);
-    background-color: $btn-base-color-night;
-    border-color: $btn-base-color-night;
+    background: linear-gradient(
+        0deg,
+        fusion-vars.$button-gradient-start 0%,
+        fusion-vars.$button-gradient-end 100%
+    );
 }
 
 @mixin btn-night(
@@ -76,15 +86,23 @@ $btn-base-color-night: #666;
         @include btn-night-base;
         @content ($btn-base-color-night);
 
+        box-shadow: 0 0 3px fusion-vars.$button-outline;
+        border: 1px solid fusion-vars.$button-border;
+        -webkit-appearance: none;
+
         @if ($with-hover) {
             &:hover,
             &.hover {
-                background-color: lighten($btn-base-color-night, 8%);
-                border-color: lighten($btn-base-color-night, 8%);
+                background: linear-gradient(
+                    0deg,
+                    lighten(fusion-vars.$button-gradient-start, 8%) 0%,
+                    lighten(fusion-vars.$button-gradient-end, 8%) 100%
+                );
+                border-color: lighten(fusion-vars.$button-border, 8%);
             }
         }
 
-        @if ($with-disabled) {
+        @if ($with-active) {
             &:active,
             &.active {
                 @include impressed-shadow(0.35);
@@ -113,11 +131,6 @@ $btn-base-color-night: #666;
 
 // should be similar to -webkit-focus-ring-color
 $focus-color: rgba(21 97 174);
-
-@mixin impressed-shadow($intensity) {
-    box-shadow: inset 0 calc(var(--buttons-size) / 15) calc(var(--buttons-size) / 5)
-        rgba(black, $intensity);
-}
 
 @function down-arrow($color) {
     @return url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='transparent' stroke='#{$color}' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");

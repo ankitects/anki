@@ -1,24 +1,17 @@
 @use "sass/vars";
-@use "sass/scrollbar";
 @use "sass/bootstrap-dark";
 
 @import "sass/base";
 
 @import "sass/bootstrap/scss/alert";
-@import "sass/bootstrap/scss/forms";
 @import "sass/bootstrap/scss/buttons";
 @import "sass/bootstrap/scss/button-group";
 @import "sass/bootstrap/scss/close";
 @import "sass/bootstrap/scss/grid";
+@import "sass/bootstrap-forms";
 
 .night-mode {
-    @include scrollbar.night-mode;
     @include bootstrap-dark.night-mode;
-}
-
-// the unprefixed version wasn't added until Chrome 81
-.form-select {
-    -webkit-appearance: none;
 }
 
 body {

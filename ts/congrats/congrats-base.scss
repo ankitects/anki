@@ -1,6 +1,3 @@
-@use "sass/core";
-@use "sass/scrollbar";
+@import "sass/base";
 
-.night-mode {
-    @include scrollbar.night-mode;
-}
+@import "sass/bootstrap/scss/containers";

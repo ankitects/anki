@@ -1,4 +1,5 @@
 @use "vars";
+@use "scrollbar";
 
 $body-color: var(--text-fg);
 $body-bg: var(--window-bg);
@@ -31,8 +32,17 @@ $utilities: (
     flex-basis: 75%;
 }
 
+html,
+body {
+    height: 100%;
+}
+
 * {
     overscroll-behavior: none;
+}
+
+.nightMode {
+    @include scrollbar.night-mode;
 }
 
 button {
@@ -42,4 +52,16 @@ button {
 
 pre, code, kbd, samp {
     unicode-bidi: normal !important;
+}
+
+.isWin {
+    --base-font-size: 12px;
+}
+
+.isMac {
+    --base-font-size: 13px;
+}
+
+.isLin {
+    --base-font-size: 14px;
 }

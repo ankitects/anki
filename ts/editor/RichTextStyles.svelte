@@ -46,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {
             id: "rootStyle",
             type: "link" as "link",
-            href: "./_anki/css/editable-build.css",
+            href: "./_anki/css/editable.css",
         } as StyleLinkType,
     ];
 

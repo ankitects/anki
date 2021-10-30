@@ -1,6 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import "./legacy.css";
+import "./editor-base.css";
+
 /* eslint
 @typescript-eslint/no-non-null-assertion: "off",
 @typescript-eslint/no-explicit-any: "off",
@@ -62,10 +65,6 @@ export const i18n = setupI18n({
 import OldEditorAdapter from "./OldEditorAdapter.svelte";
 import type { NoteEditorAPI } from "./OldEditorAdapter.svelte";
 import { nightModeKey } from "../components/context-keys";
-
-import "./editor-base.css";
-import "./bootstrap.css";
-import "./legacy.css";
 
 async function setupNoteEditor(): Promise<NoteEditorAPI> {
     const context = new Map<symbol, unknown>();
