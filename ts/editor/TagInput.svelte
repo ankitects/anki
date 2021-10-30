@@ -234,7 +234,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <input
     {id}
-    class={className}
+    class="tag-input {className}"
     class:disabled
     bind:this={input}
     bind:value={name}
@@ -252,7 +252,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 />
 
 <style lang="scss">
-    input {
+    .tag-input {
         width: 100%;
         height: 100%;
 
@@ -261,8 +261,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         resize: none;
         appearance: none;
         font: inherit;
-        /* TODO we need something like --base-font-size for buttons' 13px */
-        font-size: 13px;
+        font-size: var(--base-font-size);
         outline: none;
         border: none;
         margin: 0;

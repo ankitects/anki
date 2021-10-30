@@ -109,13 +109,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    :global(.tag-icon-hover):hover {
-        $white-translucent: rgba(255 255 255 / 0.5);
-        $dark-translucent: rgba(0 0 0 / 0.2);
+    :global(.tag-icon-hover svg:hover) {
+        border-radius: 5px;
 
-        div & {
-            background-color: $dark-translucent;
-        }
+        $white-translucent: rgb(255 255 255 / 0.35);
+        $dark-translucent: rgb(0 0 0 / 0.1);
+
+        background-color: $dark-translucent;
 
         .night-mode & {
             background-color: $white-translucent;
