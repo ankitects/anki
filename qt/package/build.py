@@ -111,6 +111,12 @@ def install_wheels_into_venv():
     subprocess.run(
         [pip, "install", "--force-reinstall", "--no-deps", *wheels], check=True
     )
+    # pypi protobuf lacks C extension on darwin-arm; use a locally built version
+    protobuf = Path.home() / "protobuf-3.19.1-cp39-cp39-macosx_11_0_arm64.whl"
+    if protobuf.exists():
+        subprocess.run(
+            [pip, "install", "--force-reinstall", "--no-deps", protobuf], check=True
+        )
 
 
 def build_artifacts():
