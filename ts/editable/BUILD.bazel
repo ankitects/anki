@@ -9,7 +9,7 @@ compile_sass(
     srcs = [
         "editable-base.scss",
     ],
-    group = "editable_scss",
+    group = "editable_css",
     visibility = ["//visibility:public"],
     deps = [
         "//sass:scrollbar_lib",
@@ -30,23 +30,23 @@ _ts_deps = [
 compile_svelte(deps = _ts_deps)
 
 typescript(
-    name = "editable",
+    name = "editable_ts",
     deps = _ts_deps + [
         ":svelte",
     ],
 )
 
 esbuild(
-    name = "editable-build",
+    name = "editable",
     args = {
         "loader": {".svg": "text"},
     },
     entry_point = "index.ts",
-    output_css = "editable-build.css",
+    output_css = "editable.css",
     visibility = ["//visibility:public"],
     deps = [
-        "editable",
-        "editable_scss",
+        ":editable_ts",
+        ":editable_css",
         "//ts/components",
         "@npm//@mdi",
         "@npm//protobufjs",

@@ -38,9 +38,7 @@
         border: 1px solid fusion-vars.$button-border;
 
         border-radius: 5px;
-        padding: 10px;
-        padding-top: 3px;
-        padding-bottom: 3px;
+        padding: 3px 10px 3px;
     }
 
     button:hover {
@@ -53,13 +51,7 @@
     background: #656565;
     box-shadow: 0 1px 2px #222222;
     border-top-color: #848484;
-    border-top-width: 0.5px;
-    border-bottom: 0;
-    border-left: 0;
-    border-right: 0;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    padding-left: 15px;
-    padding-right: 15px;
+    border-width: 0.5px 0 0;
+    padding: 2px 15px;
     color: #e5e5e5;
 }

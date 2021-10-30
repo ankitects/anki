@@ -69,10 +69,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    /* TODO there is global CSS in fields.scss */
     div :global(.mathjax-editor) {
         border-radius: 0;
         border-width: 0 1px;
         border-color: var(--medium-border);
+
+        height: auto;
+        border-radius: 0 0 5px 5px;
+        padding: 6px 0;
     }
 </style>

@@ -29,7 +29,7 @@ copy_files_into_group(
 copy_files_into_group(
     name = "editable",
     srcs = [
-        "editable-build.css",
+        "editable.css",
     ],
     package = "//ts/editable",
 )

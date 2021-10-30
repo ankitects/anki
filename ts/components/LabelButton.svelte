@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <button
     bind:this={buttonRef}
     {id}
-    class={extendClassName(className, theme)}
+    class="label-button {extendClassName(className, theme)}"
     class:active
     class:dropdown-toggle={dropdownProps.dropdown}
     class:btn-day={theme === "anki" && !nightMode}
@@ -53,6 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     button {
         padding: 0 calc(var(--buttons-size) / 3);
+        font-size: var(--base-font-size);
         width: auto;
         height: var(--buttons-size);
 
