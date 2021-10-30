@@ -30,15 +30,6 @@ sass_library(
 )
 
 sass_library(
-    name = "core_lib",
-    srcs = [
-        "_vars.scss",
-        "core.scss",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-sass_library(
     name = "scrollbar_lib",
     srcs = [
         "scrollbar.scss",
