@@ -70,6 +70,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             color: var(--link);
             text-decoration: none;
         }
+
+        h3 {
+            font-weight: bold;
+        }
     }
 
     .description {
