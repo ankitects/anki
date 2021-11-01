@@ -99,6 +99,6 @@ exports_files(["python"])
 
 setup_local_python = repository_rule(
     implementation = _impl,
-    local = True,
+    local = False,
     attrs = {},
 )
