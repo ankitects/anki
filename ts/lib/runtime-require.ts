@@ -10,7 +10,7 @@
 export const runtimeLibraries = {};
 
 // Export require() as a global.
-(globalThis as any).require = function (name: string): unknown {
+(window as any).require = function (name: string): unknown {
     const lib = runtimeLibraries[name];
     if (lib === undefined) {
         throw new Error(`Cannot require(${name}) at runtime.`);

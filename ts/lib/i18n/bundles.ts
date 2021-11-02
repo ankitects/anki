@@ -23,12 +23,17 @@ function toFluentNumber(num: number): FluentNumber {
 function formatArgs(
     args: Record<string, FluentVariable>,
 ): Record<string, FluentVariable> {
-    return Object.fromEntries(
-        Object.entries(args).map(([key, value]) => [
+    const entries: [string, FluentVariable][] = Object.entries(args).map(
+        ([key, value]) => [
             key,
             typeof value === "number" ? toFluentNumber(value) : value,
-        ]),
+        ],
     );
+    const out: Record<string, FluentVariable> = {};
+    for (const [key, value] of entries) {
+        out[key] = value;
+    }
+    return out;
 }
 
 export function getMessage(
