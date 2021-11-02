@@ -16,7 +16,9 @@ def eslint_test(name = "eslint", srcs = None, exclude = []):
         ] + [native.package_name() + "/" + f for f in srcs],
         data = [
             "//ts:.eslintrc.js",
+            "//:package.json",
             "@npm//@typescript-eslint/parser",
             "@npm//@typescript-eslint/eslint-plugin",
+            "@npm//eslint-plugin-compat",
         ] + srcs,
     )

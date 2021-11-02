@@ -6,6 +6,12 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+// This file currently fails compat check due to Promise.allSettled(). Once
+// the minimum iOS version is bumped to iOS 13, we should remove this.
+/* eslint
+compat/compat: "off",
+ */
+
 import "css-browser-selector/css_browser_selector.min";
 
 export { default as $, default as jQuery } from "jquery/dist/jquery";
