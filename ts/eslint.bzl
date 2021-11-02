@@ -3,7 +3,7 @@ load("@npm//eslint:index.bzl", _eslint_test = "eslint_test")
 def eslint_test(name = "eslint", srcs = None, exclude = []):
     if not srcs:
         srcs = native.glob([
-            "*.ts",
+            "**/*.ts",
         ], exclude = exclude)
     _eslint_test(
         name = name,
