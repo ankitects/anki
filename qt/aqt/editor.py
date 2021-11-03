@@ -460,6 +460,10 @@ noteEditorPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
             (fld, self.mw.col.media.escape_media_filenames(val))
             for fld, val in self.note.items()
         ]
+
+        flds = self.note.note_type()["flds"]
+        descriptions = [fld["description"] if "description" in fld else "" for fld in flds]
+
         self.widget.show()
 
         note_fields_status = self.note.fields_check()
@@ -478,8 +482,9 @@ noteEditorPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
         text_color = self.mw.pm.profile.get("lastTextColor", "#00f")
         highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#00f")
 
-        js = "setFields({}); setFonts({}); focusField({}); setNoteId({}); setColorButtons({}); setTags({}); ".format(
+        js = "setFields({}); setDescriptions({}); setFonts({}); focusField({}); setNoteId({}); setColorButtons({}); setTags({}); ".format(
             json.dumps(data),
+            json.dumps(descriptions),
             json.dumps(self.fonts()),
             json.dumps(focusTo),
             json.dumps(self.note.id),

@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export interface FieldData {
         name: string;
+        description: string;
         fontFamily: string;
         fontSize: number;
         direction: "ltr" | "rtl";
