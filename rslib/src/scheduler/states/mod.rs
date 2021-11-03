@@ -126,9 +126,16 @@ impl<'a> StateContext<'a> {
     }
 }
 
+/// Return the bounds of the fuzz range, respecting `minimum` and `maximum`.
+/// Ensure the upper bound is larger than the lower bound, if `maximum` allows
+/// it and it is larger than 1.
 fn constrained_fuzz_bounds(interval: f32, minimum: u32, maximum: u32) -> (u32, u32) {
-    let (lower, upper) = fuzz_bounds(interval);
-    (lower.max(minimum), upper.min(maximum))
+    let (lower, mut upper) = fuzz_bounds(interval);
+    let lower = lower.max(minimum);
+    if upper == lower && upper != 1 {
+        upper = lower + 1;
+    };
+    (lower, upper.min(maximum))
 }
 
 fn fuzz_bounds(interval: f32) -> (u32, u32) {
