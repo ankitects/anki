@@ -96,8 +96,7 @@ pub(crate) struct StateContext<'a> {
 
 impl<'a> StateContext<'a> {
     pub(crate) fn with_review_fuzz(&self, interval: f32) -> u32 {
-        // fixme: floor() is to match python
-        let interval = interval.floor();
+        let interval = interval;
         if let Some(seed) = self.fuzz_seed {
             let mut rng = StdRng::seed_from_u64(seed);
             let (lower, upper) = if interval < 2.0 {
