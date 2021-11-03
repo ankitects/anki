@@ -18,7 +18,6 @@ pub use learning::LearnState;
 pub use new::NewState;
 pub use normal::NormalState;
 pub use preview_filter::PreviewState;
-use rand::{prelude::*, rngs::StdRng};
 pub use relearning::RelearnState;
 pub use rescheduling_filter::ReschedulingFilterState;
 pub use review::ReviewState;
@@ -69,7 +68,8 @@ impl CardState {
 
 /// Info required during state transitions.
 pub(crate) struct StateContext<'a> {
-    pub fuzz_seed: Option<u64>,
+    /// In `[0, 1)`. Used to pick the final interval from the fuzz range.
+    pub fuzz_factor: Option<f32>,
 
     // learning
     pub steps: LearningSteps<'a>,
@@ -95,44 +95,62 @@ pub(crate) struct StateContext<'a> {
 }
 
 impl<'a> StateContext<'a> {
-    pub(crate) fn with_review_fuzz(&self, interval: f32) -> u32 {
-        let interval = interval;
-        if let Some(seed) = self.fuzz_seed {
-            let mut rng = StdRng::seed_from_u64(seed);
-            let (lower, upper) = if interval < 2.0 {
-                (1.0, 1.0)
-            } else if interval < 3.0 {
-                (2.0, 3.0)
-            } else if interval < 7.0 {
-                fuzz_range(interval, 0.25, 0.0)
-            } else if interval < 30.0 {
-                fuzz_range(interval, 0.15, 2.0)
-            } else {
-                fuzz_range(interval, 0.05, 4.0)
-            };
-            if lower >= upper {
-                lower
-            } else {
-                rng.gen_range(lower..upper)
-            }
+    /// Return the minimum and maximum review intervals.
+    /// - `maximum` is `self.maximum_review_interval`, but at least 1.
+    /// - `minimum` is as passed, but at least 1, and at most `maximum`.
+    pub(crate) fn min_and_max_review_intervals(&self, minimum: u32) -> (u32, u32) {
+        let maximum = self.maximum_review_interval.max(1);
+        let minimum = minimum.max(1).min(maximum);
+        (minimum, maximum)
+    }
+
+    /// Apply fuzz, respecting the passed bounds.
+    /// Caller must ensure reasonable bounds.
+    pub(crate) fn with_review_fuzz(&self, interval: f32, minimum: u32, maximum: u32) -> u32 {
+        if let Some(fuzz_factor) = self.fuzz_factor {
+            let (lower, upper) = constrained_fuzz_bounds(interval, minimum, maximum);
+            (lower as f32 + fuzz_factor * ((1 + upper - lower) as f32)).floor() as u32
         } else {
-            interval
+            (interval.round() as u32).max(minimum).min(maximum)
         }
-        .round() as u32
     }
 
     pub(crate) fn fuzzed_graduating_interval_good(&self) -> u32 {
-        self.with_review_fuzz(self.graduating_interval_good as f32)
+        let (minimum, maximum) = self.min_and_max_review_intervals(1);
+        self.with_review_fuzz(self.graduating_interval_good as f32, minimum, maximum)
     }
 
     pub(crate) fn fuzzed_graduating_interval_easy(&self) -> u32 {
-        self.with_review_fuzz(self.graduating_interval_easy as f32)
+        let (minimum, maximum) = self.min_and_max_review_intervals(1);
+        self.with_review_fuzz(self.graduating_interval_easy as f32, minimum, maximum)
     }
 }
 
-fn fuzz_range(interval: f32, factor: f32, minimum: f32) -> (f32, f32) {
+fn constrained_fuzz_bounds(interval: f32, minimum: u32, maximum: u32) -> (u32, u32) {
+    let (lower, upper) = fuzz_bounds(interval);
+    (lower.max(minimum), upper.min(maximum))
+}
+
+fn fuzz_bounds(interval: f32) -> (u32, u32) {
+    if interval < 2.0 {
+        (1, 1)
+    } else if interval < 3.0 {
+        (2, 3)
+    } else if interval < 7.0 {
+        fuzz_range(interval, 0.25, 0.0)
+    } else if interval < 30.0 {
+        fuzz_range(interval, 0.15, 2.0)
+    } else {
+        fuzz_range(interval, 0.05, 4.0)
+    }
+}
+
+fn fuzz_range(interval: f32, factor: f32, minimum: f32) -> (u32, u32) {
     let delta = (interval * factor).max(minimum).max(1.0);
-    (interval - delta, interval + delta + 1.0)
+    (
+        (interval - delta).round() as u32,
+        (interval + delta).round() as u32,
+    )
 }
 
 #[derive(Debug, Clone)]

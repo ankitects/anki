@@ -213,15 +213,12 @@ fn leech_threshold_met(lapses: u32, threshold: u32) -> bool {
 /// - Ensure it is at or below the configured maximum interval.
 fn constrain_passing_interval(ctx: &StateContext, interval: f32, minimum: u32, fuzz: bool) -> u32 {
     let interval = interval * ctx.interval_multiplier;
-    let interval = if fuzz {
-        ctx.with_review_fuzz(interval)
+    let (minimum, maximum) = ctx.min_and_max_review_intervals(minimum);
+    if fuzz {
+        ctx.with_review_fuzz(interval, minimum, maximum)
     } else {
-        interval as u32
-    };
-    interval
-        .max(minimum)
-        .min(ctx.maximum_review_interval)
-        .max(1)
+        (interval.round() as u32).max(minimum).min(maximum)
+    }
 }
 
 #[cfg(test)]
