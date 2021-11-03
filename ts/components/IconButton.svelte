@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <button
     bind:this={buttonRef}
     {id}
-    class="btn {className}"
+    class="icon-button btn {className}"
     class:active
     class:dropdown-toggle={dropdownProps.dropdown}
     class:btn-day={!nightMode}
@@ -53,8 +53,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     @use "sass/button-mixins" as button;
 
-    button {
+    .icon-button {
         padding: 0;
+        font-size: var(--base-font-size);
+        height: var(--buttons-size);
+
         @include button.btn-border-radius;
     }
 

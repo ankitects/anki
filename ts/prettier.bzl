@@ -6,10 +6,10 @@ load(
 def prettier_test(name = "format_check", srcs = None, exclude = [], **kwargs):
     if not srcs:
         srcs = native.glob([
-            "*.ts",
-            "*.js",
-            "*.svelte",
-            "*.md",
+            "**/*.ts",
+            "**/*.js",
+            "**/*.svelte",
+            "**/*.md",
         ], exclude = exclude)
 
     _prettier_test(

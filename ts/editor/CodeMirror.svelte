@@ -68,3 +68,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div class="code-mirror">
     <textarea tabindex="-1" hidden use:openCodeMirror />
 </div>
+
+<style lang="scss">
+    .code-mirror :global(.CodeMirror) {
+        height: auto;
+        border-radius: 0 0 5px 5px;
+        padding: 6px 0;
+    }
+</style>

@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import Container from "../components/Container.svelte";
     import type { Scheduler } from "../lib/proto";
     import { buildNextLearnMsg } from "./lib";
     import { bridgeLink } from "../lib/bridgecommand";
@@ -24,8 +25,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<div class="congrats-outer">
-    <div class="congrats-inner">
+<Container class="d-flex justify-content-center pt-3">
+    <div class="congrats">
         <h3>{congrats}</h3>
 
         <p>{nextLearnMsg}</p>
@@ -58,16 +59,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </div>
         {/if}
     </div>
-</div>
+</Container>
 
-<style>
-    .congrats-outer {
-        display: flex;
-        justify-content: center;
-    }
-
-    .congrats-inner {
+<style lang="scss">
+    .congrats {
         max-width: 30em;
+        font-size: var(--base-font-size);
+
+        :global(a) {
+            color: var(--link);
+            text-decoration: none;
+        }
+
+        h3 {
+            font-weight: bold;
+        }
     }
 
     .description {

@@ -29,7 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => registerShortcut(toggleSticky, keyCombination, editorField.element));
 </script>
 
-<span on:click|stopPropagation={toggleSticky}>
+<span class:highlighted={active} on:click|stopPropagation={toggleSticky}>
     <Badge
         tooltip="{tr.editingToggleSticky()} ({getPlatformString(keyCombination)})"
         widthMultiplier={0.7}>{@html icon}</Badge
@@ -38,10 +38,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     span {
-        opacity: 0.6;
+        opacity: 0.4;
 
-        &:hover {
+        &.highlighted {
             opacity: 1;
+        }
+        &:hover {
+            opacity: 0.8;
         }
     }
 </style>

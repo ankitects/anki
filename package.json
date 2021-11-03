@@ -28,6 +28,7 @@
         "diff": "^5.0.0",
         "escodegen": "^2.0.0",
         "eslint": "^7.24.0",
+        "eslint-plugin-compat": "^3.13.0",
         "espree": "^9.0.0",
         "estraverse": "^5.2.0",
         "glob": "^7.1.6",
@@ -78,5 +79,12 @@
     },
     "files": [
         "dist/*"
+    ],
+    "browserslist": [
+        "defaults",
+        "not IE 11",
+        "not op_mini all",
+        "Chrome 77",
+        "iOS 12"
     ]
 }

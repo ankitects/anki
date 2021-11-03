@@ -7,7 +7,7 @@ load("//ts:typescript.bzl", "typescript")
 
 compile_sass(
     srcs = ["congrats-base.scss"],
-    group = "base_css",
+    group = "congrats_css",
     visibility = ["//visibility:public"],
     deps = [
         "//sass:base_lib",
@@ -20,10 +20,11 @@ compile_svelte(
 )
 
 typescript(
-    name = "index",
+    name = "congrats_ts",
     deps = [
         ":svelte",
         "//ts/lib",
+        "//ts/components",
         "@npm//@fluent",
         "@npm//svelte",
         "@npm//svelte2tsx",
@@ -39,8 +40,8 @@ esbuild(
     output_css = "congrats.css",
     visibility = ["//visibility:public"],
     deps = [
-        ":base_css",
-        ":index",
+        ":congrats_css",
+        ":congrats_ts",
         ":svelte",
     ],
 )

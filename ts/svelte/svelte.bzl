@@ -80,7 +80,7 @@ svelte = rule(
     },
 )
 
-def compile_svelte(name = "svelte", srcs = None, deps = [], visibility = ["//visibility:private"]):
+def compile_svelte(name = "svelte", srcs = None, deps = [], visibility = ["//visibility:private"], repo="npm"):
     if not srcs:
         srcs = native.glob([
             "**/*.svelte",
@@ -91,7 +91,7 @@ def compile_svelte(name = "svelte", srcs = None, deps = [], visibility = ["//vis
         name = name,
         srcs = srcs,
         deps = deps + [
-            "@npm//svelte2tsx",
+            "@{}//svelte2tsx".format(repo),
         ],
         visibility = visibility,
     )

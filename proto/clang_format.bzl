@@ -26,7 +26,7 @@ alias(
 
 _setup_clang_format = repository_rule(
     attrs = {},
-    local = True,
+    local = False,
     implementation = _impl,
 )
 

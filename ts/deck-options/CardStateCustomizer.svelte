@@ -23,13 +23,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </Col>
 </Row>
 
-<textarea class="form-control" bind:value spellcheck="false" autocapitalize="none" />
+<textarea
+    class="card-state-customizer form-control"
+    bind:value
+    spellcheck="false"
+    autocapitalize="none"
+/>
 
 <style lang="scss">
     .text {
         min-height: 2em;
     }
-    textarea {
+
+    .card-state-customizer {
+        color: var(--text-fg);
+        background-color: var(--frame-bg);
+
         width: 100%;
         height: 10em;
         font-family: monospace;
@@ -37,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     @supports (-webkit-touch-callout: none) {
         // mobile compat
-        textarea {
+        .card-state-customizer {
             font-size: 16px;
             overflow-x: hidden;
         }

@@ -24,7 +24,7 @@ alias(
 
 _setup_protoc = repository_rule(
     implementation = _impl,
-    local = True,
+    local = False,
     attrs = {},
 )
 
