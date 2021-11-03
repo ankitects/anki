@@ -75,7 +75,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:click={() => editingArea.focus?.()}
 >
     <LabelContainer>
-        <LabelName>{field.name}</LabelName>
+        <LabelName description={field.description}>
+            {field.name}
+        </LabelName>
         <FieldState><slot name="field-state" /></FieldState>
     </LabelContainer>
     <EditingArea
