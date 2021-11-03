@@ -214,6 +214,7 @@ class FieldDialog(QDialog):
         f.fontSize.setValue(fld["size"])
         f.sortField.setChecked(self.model["sortf"] == fld["ord"])
         f.rtl.setChecked(fld["rtl"])
+        f.fieldDesc.setText(fld["description"] if "description" in fld else "")
 
     def saveField(self) -> None:
         # not initialized yet?
@@ -233,6 +234,10 @@ class FieldDialog(QDialog):
         rtl = f.rtl.isChecked()
         if fld["rtl"] != rtl:
             fld["rtl"] = rtl
+            self.change_tracker.mark_basic()
+        desc = f.fieldDesc.text()
+        if not "description" in fld or fld["description"] != desc:
+            fld["description"] = desc
             self.change_tracker.mark_basic()
 
     def reject(self) -> None:

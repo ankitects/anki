@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>483</width>
-    <height>352</height>
+    <width>586</width>
+    <height>376</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -84,17 +84,21 @@
    </item>
    <item>
     <layout class="QGridLayout" name="_2">
-     <item row="0" column="1">
-      <widget class="QFontComboBox" name="fontFamily">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>25</height>
-        </size>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_font">
+       <property name="text">
+        <string>fields_editing_font</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
+     <item row="3" column="1">
+      <widget class="QCheckBox" name="rtl">
+       <property name="text">
+        <string>fields_reverse_text_direction_rtl</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
       <widget class="QSpinBox" name="fontSize">
        <property name="minimum">
         <number>5</number>
@@ -104,31 +108,47 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_18">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_sort">
        <property name="text">
         <string>actions_options</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item row="2" column="1">
       <widget class="QRadioButton" name="sortField">
        <property name="text">
         <string>fields_sort_by_this_field_in_the</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QCheckBox" name="rtl">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_desc">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
-        <string>fields_reverse_text_direction_rtl</string>
+        <string>fields_description</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string>fields_editing_font</string>
+     <item row="1" column="1">
+      <widget class="QFontComboBox" name="fontFamily">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="2">
+      <widget class="QLineEdit" name="fieldDesc">
+       <property name="placeholderText">
+        <string>fields_description_placeholder</string>
        </property>
       </widget>
      </item>
