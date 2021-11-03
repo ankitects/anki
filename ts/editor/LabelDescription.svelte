@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tooltip={description}
         showDelay={250}
         offset={[0, 20]}
-        placement="bottom"
+        placement="right"
         let:createTooltip
     >
         <Badge iconSize={70} on:mount={(event) => createTooltip(event.detail.span)}>

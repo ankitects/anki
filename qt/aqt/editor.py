@@ -462,7 +462,7 @@ noteEditorPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
         ]
 
         flds = self.note.note_type()["flds"]
-        descriptions = [fld["description"] if "description" in fld else "" for fld in flds]
+        descriptions = [fld.get("description", "") for fld in flds]
 
         self.widget.show()
 

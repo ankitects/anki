@@ -123,7 +123,7 @@
       </widget>
      </item>
      <item row="0" column="0">
-      <widget class="QLabel" name="label_desc">
+      <widget class="QLabel" name="label_description">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -146,7 +146,7 @@
       </widget>
      </item>
      <item row="0" column="1" colspan="2">
-      <widget class="QLineEdit" name="fieldDesc">
+      <widget class="QLineEdit" name="fieldDescription">
        <property name="placeholderText">
         <string>fields_description_placeholder</string>
        </property>
@@ -172,11 +172,11 @@
   <tabstop>fieldDelete</tabstop>
   <tabstop>fieldRename</tabstop>
   <tabstop>fieldPosition</tabstop>
+  <tabstop>fieldDescription</tabstop>
   <tabstop>fontFamily</tabstop>
   <tabstop>fontSize</tabstop>
   <tabstop>sortField</tabstop>
   <tabstop>rtl</tabstop>
-  <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources>
   <include location="icons.qrc"/>
