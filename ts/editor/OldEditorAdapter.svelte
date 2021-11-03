@@ -225,11 +225,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const activeInput = writable<RichTextInputAPI | PlainTextInputAPI | null>(null);
     const focusInRichText = writable<boolean>(false);
 
-    const [toolbarPromise, toolbarResolve] = promiseWithResolver<EditorToolbarAPI>();
-    let toolbar: EditorToolbarAPI;
-    $: if (toolbar) {
-        toolbarResolve(toolbar);
-    }
+    let toolbar: Partial<EditorToolbarAPI> = {};
 
     export const api = set(
         Object.create(
@@ -237,7 +233,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 currentField,
                 activeInput,
                 focusInRichText,
-                toolbar: toolbarPromise,
+                toolbar: toolbar as EditorToolbarAPI,
             },
             {
                 fields: { get: () => fieldApis },

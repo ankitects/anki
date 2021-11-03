@@ -6,6 +6,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import "./legacy.css";
     import { updateAllState, resetAllState } from "../components/WithState.svelte";
 
+    import type { ButtonGroupAPI } from "../components/ButtonGroup.svelte";
+    import type { ButtonToolbarAPI } from "../components/ButtonToolbar.svelte";
+
     export function updateActiveButtons(event: Event) {
         updateAllState(event);
     }
@@ -15,12 +18,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export interface EditorToolbarAPI {
-        toolbar: any;
-        notetypeButtons: any;
-        formatInlineButtons: any;
-        formatBlockButtons: any;
-        colorButtons: any;
-        templateButtons: any;
+        toolbar: ButtonToolbarAPI;
+        notetypeButtons: ButtonGroupAPI;
+        formatInlineButtons: ButtonGroupAPI;
+        formatBlockButtons: ButtonGroupAPI;
+        colorButtons: ButtonGroupAPI;
+        templateButtons: ButtonGroupAPI;
     }
 
     /* Our dynamic components */
@@ -57,14 +60,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const colorButtons = {};
     const templateButtons = {};
 
-    export const api = {
-        toolbar,
-        notetypeButtons,
-        formatInlineButtons,
-        formatBlockButtons,
-        colorButtons,
-        templateButtons,
-    };
+    export let api: Partial<EditorToolbarAPI> = {};
+
+    $: if (api) {
+        Object.assign(api, {
+            toolbar,
+            notetypeButtons,
+            formatInlineButtons,
+            formatBlockButtons,
+            colorButtons,
+            templateButtons,
+        } as EditorToolbarAPI);
+    }
 </script>
 
 <StickyHeader>

@@ -2,14 +2,26 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
+<script context="module" lang="ts">
+    import type { Identifier } from "./identifier";
+    import type { SvelteComponent } from "./registration";
+
+    export interface ButtonToolbarAPI {
+        insertGroup(button: SvelteComponent, position: Identifier): void;
+        appendGroup(button: SvelteComponent, position: Identifier): void;
+        showGroup(position: Identifier): void;
+        hideGroup(position: Identifier): void;
+        toggleGroup(position: Identifier): void;
+    }
+</script>
+
 <script lang="ts">
     import { getContext, setContext } from "svelte";
     import { writable } from "svelte/store";
     import Item from "./Item.svelte";
+    import type { Registration } from "./registration";
     import { sectionKey, nightModeKey } from "./context-keys";
-    import type { Identifier } from "./identifier";
     import { insertElement, appendElement } from "./identifier";
-    import type { SvelteComponent, Registration } from "./registration";
     import { makeInterface } from "./registration";
 
     export let id: string | undefined = undefined;
@@ -39,10 +51,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     setContext(sectionKey, registerComponent);
 
-    export let api: Record<string, unknown> | undefined = undefined;
+    export let api: Partial<ButtonToolbarAPI> | undefined;
     let buttonToolbarRef: HTMLDivElement;
 
-    $: if (buttonToolbarRef && api) {
+    function createApi(): void {
         const { addComponent, updateRegistration } =
             getDynamicInterface(buttonToolbarRef);
 
@@ -72,6 +84,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             hideGroup,
             toggleGroup,
         });
+    }
+
+    $: if (buttonToolbarRef && api) {
+        createApi();
     }
 
     const nightMode = getContext<boolean>(nightModeKey);
