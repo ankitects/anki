@@ -253,4 +253,20 @@ mod test {
         assert!(leech_threshold_met(2, 1));
         assert!(leech_threshold_met(3, 1));
     }
+
+    #[test]
+    fn fuzz() {
+        let mut ctx = StateContext::defaults_for_testing();
+        let state = ReviewState {
+            scheduled_days: 2,
+            elapsed_days: 2,
+            ease_factor: 2.5,
+            lapses: 0,
+            leeched: false,
+        };
+        for fuzz in &[0.0f32, 0.25, 0.5, 0.75, 1.0] {
+            ctx.fuzz_factor = Some(*fuzz);
+            dbg!(fuzz, state.passing_review_intervals(&ctx));
+        }
+    }
 }

@@ -124,6 +124,27 @@ impl<'a> StateContext<'a> {
         let (minimum, maximum) = self.min_and_max_review_intervals(1);
         self.with_review_fuzz(self.graduating_interval_easy as f32, minimum, maximum)
     }
+
+    #[cfg(test)]
+    pub(crate) fn defaults_for_testing() -> Self {
+        Self {
+            fuzz_factor: None,
+            steps: LearningSteps::new(&[60.0, 600.0]),
+            graduating_interval_good: 1,
+            graduating_interval_easy: 4,
+            initial_ease_factor: 2.5,
+            hard_multiplier: 1.2,
+            easy_multiplier: 1.3,
+            interval_multiplier: 1.0,
+            maximum_review_interval: 36500,
+            leech_threshold: 8,
+            relearn_steps: LearningSteps::new(&[600.0]),
+            lapse_multiplier: 0.0,
+            minimum_lapse_interval: 1,
+            in_filtered_deck: false,
+            preview_step: 10,
+        }
+    }
 }
 
 /// Return the bounds of the fuzz range, respecting `minimum` and `maximum`.
