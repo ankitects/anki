@@ -62,16 +62,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let api: Partial<EditorToolbarAPI> = {};
 
-    $: if (api) {
-        Object.assign(api, {
-            toolbar,
-            notetypeButtons,
-            formatInlineButtons,
-            formatBlockButtons,
-            colorButtons,
-            templateButtons,
-        } as EditorToolbarAPI);
-    }
+    Object.assign(api, {
+        toolbar,
+        notetypeButtons,
+        formatInlineButtons,
+        formatBlockButtons,
+        colorButtons,
+        templateButtons,
+    } as EditorToolbarAPI);
 </script>
 
 <StickyHeader>

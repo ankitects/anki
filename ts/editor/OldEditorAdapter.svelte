@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
-        currentField: Writable<EditorFieldAPI>;
+        currentField: Writable<EditorFieldAPI | null>;
         activeInput: Writable<RichTextInputAPI | PlainTextInputAPI | null>;
         focusInRichText: Writable<boolean>;
         toolbar: EditorToolbarAPI;
@@ -52,7 +52,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable, get } from "svelte/store";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { isApplePlatform } from "../lib/platform";
-    import { promiseWithResolver } from "../lib/promise";
     import { ChangeTimer } from "./change-timer";
     import { alertIcon } from "./icons";
 
@@ -105,6 +104,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let fonts: [string, number, boolean][] = [];
     let richTextsHidden: boolean[] = [];
     let plainTextsHidden: boolean[] = [];
+    let fields = clearableArray() as any as EditorFieldAPI[];
 
     export function setFonts(fs: [string, number, boolean][]): void {
         fonts = fs;
@@ -115,9 +115,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let focusTo: number = 0;
     export function focusField(n: number): void {
-        focusTo = n;
-
-        fieldApis[focusTo]?.editingArea?.refocus();
+        if (typeof n === "number") {
+            focusTo = n;
+            fields[focusTo].editingArea?.refocus();
+        }
     }
 
     let textColor: string = "black";
@@ -218,8 +219,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let plainTextInputs: PlainTextInput[] = [];
     $: plainTextInputs = plainTextInputs.filter(Boolean);
 
-    let editorFields: EditorField[] = [];
-    $: fieldApis = editorFields.filter(Boolean).map((field) => field.api);
+    import { clearableArray } from "./clearable-array";
 
     const currentField = writable<EditorFieldAPI | null>(null);
     const activeInput = writable<RichTextInputAPI | PlainTextInputAPI | null>(null);
@@ -227,18 +227,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let toolbar: Partial<EditorToolbarAPI> = {};
 
-    export const api = set(
-        Object.create(
-            {
-                currentField,
-                activeInput,
-                focusInRichText,
-                toolbar: toolbar as EditorToolbarAPI,
-            },
-            {
-                fields: { get: () => fieldApis },
-            },
-        ),
+    export let api = {};
+
+    Object.assign(
+        api,
+        set({
+            currentField,
+            activeInput,
+            focusInRichText,
+            toolbar: toolbar as EditorToolbarAPI,
+            fields,
+        }),
     );
 
     onMount(() => {
@@ -251,7 +250,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <NoteEditor>
     <FieldsEditor>
-        <EditorToolbar {size} {wrap} {textColor} {highlightColor} bind:api={toolbar} />
+        <EditorToolbar {size} {wrap} {textColor} {highlightColor} api={toolbar} />
 
         {#if hint}
             <Absolute bottom right --margin="10px">
@@ -270,9 +269,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {field}
                     content={fieldStores[index]}
                     autofocus={index === focusTo}
-                    bind:this={editorFields[index]}
+                    api={fields[index]}
                     on:focusin={() => {
-                        $currentField = api.fields[index];
+                        $currentField = fields[index];
                         bridgeCommand(`focus:${index}`);
                     }}
                     on:focusout={() => {

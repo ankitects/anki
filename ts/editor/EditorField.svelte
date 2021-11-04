@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import type { EditingAreaAPI } from "./EditingArea.svelte";
     import contextProperty from "../sveltelib/context-property";
+    import type { Readable } from "svelte/store";
 
     export interface FieldData {
         name: string;
@@ -14,10 +15,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export interface EditorFieldAPI {
-        element: HTMLElement;
-        index: number;
-        direction: "ltr" | "rtl";
-        editingArea?: EditingAreaAPI;
+        element: Promise<HTMLElement>;
+        direction: Readable<"ltr" | "rtl">;
+        editingArea: EditingAreaAPI;
     }
 
     const key = Symbol("editorField");
@@ -32,43 +32,44 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LabelName from "./LabelName.svelte";
     import FieldState from "./FieldState.svelte";
 
-    import { setContext } from "svelte";
+    import { onDestroy, setContext } from "svelte";
     import { writable } from "svelte/store";
     import type { Writable } from "svelte/store";
     import { directionKey } from "../lib/context-keys";
+    import { promiseWithResolver } from "../lib/promise";
 
     export let content: Writable<string>;
     export let field: FieldData;
     export let autofocus = false;
 
-    const directionStore = writable();
+    export let api: Partial<EditorFieldAPI> = {};
+
+    const directionStore = writable<"ltr" | "rtl">();
     setContext(directionKey, directionStore);
 
     $: $directionStore = field.direction;
 
-    let editorField: HTMLElement;
+    const editingArea: Partial<EditingAreaAPI> = {};
+    const [element, elementResolve] = promiseWithResolver<HTMLElement>();
 
-    export const api = set(
-        Object.create(
-            {},
-            {
-                element: {
-                    get: () => editorField,
-                },
-                direction: {
-                    get: () => $directionStore,
-                },
-            },
-        ) as EditorFieldAPI,
-    );
+    Object.assign(
+        api,
+        set({
+            element,
+            direction: directionStore,
+            editingArea: editingArea as EditingAreaAPI,
+        }),
+    ) as EditorFieldAPI;
+
+    onDestroy(() => (api as any).destroy());
 </script>
 
 <div
-    bind:this={editorField}
+    use:elementResolve
     class="editor-field"
     on:focusin
     on:focusout
-    on:click={() => api.editingArea?.focus()}
+    on:click={() => editingArea.focus?.()}
 >
     <LabelContainer>
         <LabelName>{field.name}</LabelName>
@@ -79,7 +80,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {autofocus}
         fontFamily={field.fontFamily}
         fontSize={field.fontSize}
-        bind:api={api.editingArea}
+        api={editingArea}
     >
         <slot name="editing-inputs" />
     </EditingArea>

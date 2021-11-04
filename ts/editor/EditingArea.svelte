@@ -111,12 +111,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    export const api = set({
-        content,
-        editingInputs: inputsStore,
-        focus,
-        refocus,
-    });
+    export let api: Partial<EditingAreaAPI> = {};
+
+    Object.assign(
+        api,
+        set({
+            content,
+            editingInputs: inputsStore,
+            focus,
+            refocus,
+        }),
+    );
 
     onMount(() => {
         if (autofocus) {
