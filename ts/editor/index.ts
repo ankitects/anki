@@ -5,7 +5,6 @@ import "./legacy.css";
 import "./editor-base.css";
 
 /* eslint
-@typescript-eslint/no-non-null-assertion: "off",
 @typescript-eslint/no-explicit-any: "off",
  */
 
