@@ -150,7 +150,7 @@ class Editor:
         righttopbtns_defs = ", ".join([json.dumps(button) for button in righttopbtns])
         righttopbtns_js = (
             f"""
-noteEditorPromise.then(noteEditor => noteEditor.toolbar.appendGroup({{
+noteEditorPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
     component: editorToolbar.AddonButtons,
     id: "addons",
     props: {{ buttons: [ {righttopbtns_defs} ] }},

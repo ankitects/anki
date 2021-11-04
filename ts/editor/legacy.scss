@@ -6,14 +6,13 @@
     background-color: white;
     border: 1px solid var(--medium-border);
     padding: 0 !important;
+    margin-left: -1px;
 
     /* !important cannot be used with @include */
     border-top-left-radius: var(--border-left-radius) !important;
     border-bottom-left-radius: var(--border-left-radius) !important;
     border-top-right-radius: var(--border-right-radius) !important;
     border-bottom-right-radius: var(--border-right-radius) !important;
-
-    margin-left: -1px;
 
     &:hover {
         background-color: #ebebeb;
@@ -27,10 +26,12 @@
     }
 
     .nightMode & {
+        background: linear-gradient(0deg, #555555 0%, #656565 100%);
+        border-width: 0px;
         margin-left: 1px;
 
         &:hover {
-            background-color: #7a7a7a;
+            background: #7a7a7a;
             border-color: #7a7a7a;
         }
 
@@ -45,7 +46,7 @@
 
 .topbut {
     display: inline-block;
-    vertical-align: middle;
+    vertical-align: baseline;
     width: calc(var(--buttons-size) - 12px);
     height: calc(var(--buttons-size) - 12px);
 }
