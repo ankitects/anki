@@ -232,3 +232,66 @@ impl From<ReschedulingFilterState> for CardState {
         CardState::Filtered(FilteredState::Rescheduling(state))
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn min_and_max_review_intervals() {
+        let mut ctx = StateContext::defaults_for_testing();
+        ctx.maximum_review_interval = 0;
+        assert_eq!(ctx.min_and_max_review_intervals(0), (1, 1));
+        assert_eq!(ctx.min_and_max_review_intervals(2), (1, 1));
+        ctx.maximum_review_interval = 3;
+        assert_eq!(ctx.min_and_max_review_intervals(0), (1, 3));
+        assert_eq!(ctx.min_and_max_review_intervals(2), (2, 3));
+        assert_eq!(ctx.min_and_max_review_intervals(4), (3, 3));
+    }
+
+    fn assert_lower_middle_upper(
+        ctx: &mut StateContext,
+        interval: f32,
+        minimum: u32,
+        maximum: u32,
+        lower: u32,
+        middle: u32,
+        upper: u32,
+    ) {
+        ctx.fuzz_factor = Some(0.0);
+        assert_eq!(ctx.with_review_fuzz(interval, minimum, maximum), lower);
+        ctx.fuzz_factor = Some(0.5);
+        assert_eq!(ctx.with_review_fuzz(interval, minimum, maximum), middle);
+        ctx.fuzz_factor = Some(0.99);
+        assert_eq!(ctx.with_review_fuzz(interval, minimum, maximum), upper);
+    }
+
+    #[test]
+    fn with_review_fuzz() {
+        let mut ctx = StateContext::defaults_for_testing();
+
+        // no fuzz
+        assert_eq!(ctx.with_review_fuzz(1.5, 1, 100), 2);
+        assert_eq!(ctx.with_review_fuzz(0.1, 1, 100), 1);
+        assert_eq!(ctx.with_review_fuzz(101.0, 1, 100), 100);
+
+        // no fuzzing for an interval of 1
+        assert_lower_middle_upper(&mut ctx, 1.0, 1, 1000, 1, 1, 1);
+        // fuzz range is (2, 3) for an interval of 2
+        assert_lower_middle_upper(&mut ctx, 2.0, 1, 1000, 2, 3, 3);
+        // 25%, 15%, 5% percent fuzz, but at least 1, 2, 4
+        assert_lower_middle_upper(&mut ctx, 5.0, 1, 1000, 4, 5, 6);
+        assert_lower_middle_upper(&mut ctx, 20.0, 1, 1000, 17, 20, 23);
+        assert_lower_middle_upper(&mut ctx, 100.0, 1, 1000, 95, 100, 105);
+
+        // ensure fuzz range of at least 2, if allowed
+        assert_lower_middle_upper(&mut ctx, 2.0, 2, 1000, 2, 3, 3);
+        assert_lower_middle_upper(&mut ctx, 2.0, 3, 1000, 3, 4, 4);
+        assert_lower_middle_upper(&mut ctx, 2.0, 3, 3, 3, 3, 3);
+
+        // respect limits and preserve uniform distribution of valid intervals
+        assert_lower_middle_upper(&mut ctx, 100.0, 101, 1000, 101, 103, 105);
+        assert_lower_middle_upper(&mut ctx, 100.0, 1, 99, 95, 97, 99);
+        assert_lower_middle_upper(&mut ctx, 100.0, 97, 103, 97, 100, 103);
+    }
+}
