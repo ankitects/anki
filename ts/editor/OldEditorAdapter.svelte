@@ -8,7 +8,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { PlainTextInputAPI } from "./PlainTextInput.svelte";
     import type { EditorToolbarAPI } from "./EditorToolbar.svelte";
 
+    import { registerShortcut } from "../lib/shortcuts";
     import contextProperty from "../sveltelib/context-property";
+    import { writable, get } from "svelte/store";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
@@ -22,6 +24,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const [set, getNoteEditor, hasNoteEditor] = contextProperty<NoteEditorAPI>(key);
 
     export { getNoteEditor, hasNoteEditor };
+
+    const activeInput = writable<RichTextInputAPI | PlainTextInputAPI | null>(null);
+    const currentField = writable<EditorFieldAPI | null>(null);
+
+    function updateFocus() {
+        get(activeInput)?.moveCaretToEnd();
+    }
+
+    registerShortcut(
+        () => document.addEventListener("focusin", updateFocus, { once: true }),
+        "Shift?+Tab",
+    );
 </script>
 
 <script lang="ts">
@@ -49,7 +63,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { onMount, onDestroy } from "svelte";
     import type { Writable } from "svelte/store";
-    import { writable, get } from "svelte/store";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { isApplePlatform } from "../lib/platform";
     import { ChangeTimer } from "./change-timer";
@@ -193,8 +206,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bridgeCommand("toggleStickyAll", (values: boolean[]) => (stickies = values));
     }
 
-    import { registerShortcut } from "../lib/shortcuts";
-
     let deregisterSticky: () => void;
     export function activateStickyShortcuts() {
         deregisterSticky = registerShortcut(toggleStickyAll, "Shift+F9");
@@ -221,8 +232,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { clearableArray } from "./clearable-array";
 
-    const currentField = writable<EditorFieldAPI | null>(null);
-    const activeInput = writable<RichTextInputAPI | PlainTextInputAPI | null>(null);
     const focusInRichText = writable<boolean>(false);
 
     let toolbar: Partial<EditorToolbarAPI> = {};
