@@ -264,7 +264,7 @@ mod test {
             lapses: 0,
             leeched: false,
         };
-        for fuzz in &[0.0f32, 0.25, 0.5, 0.75, 1.0] {
+        for fuzz in &[0.0f32, 0.25, 0.5, 0.75, 0.99] {
             ctx.fuzz_factor = Some(*fuzz);
             dbg!(fuzz, state.passing_review_intervals(&ctx));
         }
