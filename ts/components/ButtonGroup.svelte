@@ -68,7 +68,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     setContext(buttonGroupKey, registerComponent);
 
-    export let api: Partial<ButtonGroupAPI> = {};
+    export let api: Partial<ButtonGroupAPI> | undefined = undefined;
     let buttonGroupRef: HTMLDivElement;
 
     function createApi(): void {

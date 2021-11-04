@@ -67,6 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { isApplePlatform } from "../lib/platform";
     import { ChangeTimer } from "./change-timer";
     import { alertIcon } from "./icons";
+    import { clearableArray } from "./destroyable";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -117,7 +118,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let fonts: [string, number, boolean][] = [];
     let richTextsHidden: boolean[] = [];
     let plainTextsHidden: boolean[] = [];
-    let fields = clearableArray() as any as EditorFieldAPI[];
+    let fields = clearableArray<EditorFieldAPI>();
 
     export function setFonts(fs: [string, number, boolean][]): void {
         fonts = fs;
@@ -229,8 +230,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let plainTextInputs: PlainTextInput[] = [];
     $: plainTextInputs = plainTextInputs.filter(Boolean);
-
-    import { clearableArray } from "./clearable-array";
 
     const focusInRichText = writable<boolean>(false);
 

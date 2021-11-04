@@ -37,12 +37,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import { directionKey } from "../lib/context-keys";
     import { promiseWithResolver } from "../lib/promise";
+    import type { Destroyable } from "./destroyable";
 
     export let content: Writable<string>;
     export let field: FieldData;
     export let autofocus = false;
 
-    export let api: Partial<EditorFieldAPI> = {};
+    export let api: (Partial<EditorFieldAPI> & Destroyable) | undefined = undefined;
 
     const directionStore = writable<"ltr" | "rtl">();
     setContext(directionKey, directionStore);
@@ -52,16 +53,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const editingArea: Partial<EditingAreaAPI> = {};
     const [element, elementResolve] = promiseWithResolver<HTMLElement>();
 
-    Object.assign(
-        api,
-        set({
-            element,
-            direction: directionStore,
-            editingArea: editingArea as EditingAreaAPI,
-        }),
-    ) as EditorFieldAPI;
+    const editorFieldApi = set({
+        element,
+        direction: directionStore,
+        editingArea: editingArea as EditingAreaAPI,
+    });
 
-    onDestroy(() => (api as any).destroy());
+    if (api) {
+        Object.assign(api, editorFieldApi);
+    }
+
+    onDestroy(() => api?.destroy());
 </script>
 
 <div

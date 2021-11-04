@@ -51,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     setContext(sectionKey, registerComponent);
 
-    export let api: Partial<ButtonToolbarAPI> | undefined;
+    export let api: Partial<ButtonToolbarAPI> | undefined = undefined;
     let buttonToolbarRef: HTMLDivElement;
 
     function createApi(): void {
