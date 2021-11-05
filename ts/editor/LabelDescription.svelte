@@ -18,7 +18,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         placement="right"
         let:createTooltip
     >
-        <Badge iconSize={70} on:mount={(event) => createTooltip(event.detail.span)}>
+        <Badge
+            --icon-align="sub"
+            iconSize={65}
+            on:mount={(event) => createTooltip(event.detail.span)}
+        >
             {@html descriptionIcon}
         </Badge>
     </WithTooltip>
