@@ -165,6 +165,13 @@ impl From<Notetype> for NotetypeSchema11 {
     }
 }
 
+fn clear_other_field_duplicates(other: &mut HashMap<String, Value>) {
+    // see `clear_other_duplicates()` in `deckconfig/schema11.rs`
+    for key in &["description"] {
+        other.remove(*key);
+    }
+}
+
 impl From<CardRequirementSchema11> for CardRequirement {
     fn from(r: CardRequirementSchema11) -> Self {
         CardRequirement {
@@ -203,6 +210,13 @@ pub struct NoteFieldSchema11 {
     pub(crate) rtl: bool,
     pub(crate) font: String,
     pub(crate) size: u16,
+
+    // This was not in schema 11, but needs to be listed here so that the setting is not lost
+    // on downgrade/upgrade.
+    // NOTE: if adding new ones, make sure to update clear_other_field_duplicates()
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    pub(crate) description: String,
+
     #[serde(flatten)]
     pub(crate) other: HashMap<String, Value>,
 }
@@ -216,6 +230,7 @@ impl Default for NoteFieldSchema11 {
             rtl: false,
             font: "Arial".to_string(),
             size: 20,
+            description: String::new(),
             other: Default::default(),
         }
     }
@@ -231,6 +246,7 @@ impl From<NoteFieldSchema11> for NoteField {
                 rtl: f.rtl,
                 font_name: f.font,
                 font_size: f.size as u32,
+                description: f.description,
                 other: other_to_bytes(&f.other),
             },
         }
@@ -242,6 +258,8 @@ impl From<NoteFieldSchema11> for NoteField {
 impl From<NoteField> for NoteFieldSchema11 {
     fn from(p: NoteField) -> Self {
         let conf = p.config;
+        let mut other = bytes_to_other(&conf.other);
+        clear_other_field_duplicates(&mut other);
         NoteFieldSchema11 {
             name: p.name,
             ord: p.ord.map(|o| o as u16),
@@ -249,7 +267,8 @@ impl From<NoteField> for NoteFieldSchema11 {
             rtl: conf.rtl,
             font: conf.font_name,
             size: conf.font_size as u16,
-            other: bytes_to_other(&conf.other),
+            description: conf.description,
+            other,
         }
     }
 }
