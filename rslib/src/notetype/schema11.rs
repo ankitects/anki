@@ -137,8 +137,6 @@ fn bytes_to_other(bytes: &[u8]) -> HashMap<String, Value> {
 impl From<Notetype> for NotetypeSchema11 {
     fn from(p: Notetype) -> Self {
         let c = p.config;
-        let mut other = bytes_to_other(&c.other);
-        clear_other_duplicates(&mut other);
         NotetypeSchema11 {
             id: p.id,
             name: p.name,
@@ -162,12 +160,12 @@ impl From<Notetype> for NotetypeSchema11 {
             latex_post: c.latex_post,
             latexsvg: c.latex_svg,
             req: CardRequirementsSchema11(c.reqs.into_iter().map(Into::into).collect()),
-            other,
+            other: bytes_to_other(&c.other),
         }
     }
 }
 
-fn clear_other_duplicates(other: &mut HashMap<String, Value>) {
+fn clear_other_field_duplicates(other: &mut HashMap<String, Value>) {
     // see `clear_other_duplicates()` in `deckconfig/schema11.rs`
     for key in &["description"] {
         other.remove(*key);
@@ -213,7 +211,9 @@ pub struct NoteFieldSchema11 {
     pub(crate) font: String,
     pub(crate) size: u16,
 
-    /// Nov. 2021 addition: editor field description
+    // This was not in schema 11, but needs to be listed here so that the setting is not lost
+    // on downgrade/upgrade.
+    // NOTE: if adding new ones, make sure to update clear_other_field_duplicates()
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) description: String,
 
@@ -258,6 +258,8 @@ impl From<NoteFieldSchema11> for NoteField {
 impl From<NoteField> for NoteFieldSchema11 {
     fn from(p: NoteField) -> Self {
         let conf = p.config;
+        let mut other = bytes_to_other(&conf.other);
+        clear_other_field_duplicates(&mut other);
         NoteFieldSchema11 {
             name: p.name,
             ord: p.ord.map(|o| o as u16),
@@ -266,7 +268,7 @@ impl From<NoteField> for NoteFieldSchema11 {
             font: conf.font_name,
             size: conf.font_size as u16,
             description: conf.description,
-            other: bytes_to_other(&conf.other),
+            other,
         }
     }
 }
