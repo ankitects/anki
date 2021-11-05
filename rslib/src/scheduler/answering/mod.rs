@@ -430,7 +430,7 @@ fn get_fuzz_seed(card: &Card) -> Option<u64> {
     }
 }
 
-/// Return a fuzz factor from the interval `[0, 1)`, using the provided seed.
+/// Return a fuzz factor from the range `0.0..1.0`, using the provided seed.
 /// None if seed is None.
 fn get_fuzz_factor(seed: Option<u64>) -> Option<f32> {
     seed.map(|s| StdRng::seed_from_u64(s).gen_range(0.0..1.0))
