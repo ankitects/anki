@@ -6,7 +6,7 @@ distro
 flask
 flask-cors
 isort
-jsonschema
+jsonschema<4.2
 markdown
 mock
 mypy
