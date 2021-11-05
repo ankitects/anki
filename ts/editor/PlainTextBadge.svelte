@@ -22,9 +22,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         off = !off;
     }
 
-    onMount(() =>
-        registerShortcut(toggle, keyCombination, editorField.element as HTMLElement),
-    );
+    function shortcut(element: HTMLElement): void {
+        registerShortcut(toggle, keyCombination, element);
+    }
+
+    onMount(() => editorField.element.then(shortcut));
 </script>
 
 <span class:highlighted={!off} on:click|stopPropagation={toggle}>

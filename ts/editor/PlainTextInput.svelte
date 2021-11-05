@@ -148,7 +148,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {configuration}
         {code}
         bind:api={codeMirror}
-        on:focus={moveCaretToEnd}
         on:change={({ detail: html }) => code.set(parseAsHTML(html))}
     />
 </div>

@@ -75,8 +75,11 @@ async function setupNoteEditor(): Promise<NoteEditorAPI> {
 
     await i18n;
 
+    const api: Partial<NoteEditorAPI> = {};
+
     const noteEditor = new OldEditorAdapter({
         target: document.body,
+        props: { api: api as NoteEditorAPI },
         context,
     });
 
@@ -95,7 +98,7 @@ async function setupNoteEditor(): Promise<NoteEditorAPI> {
         setNoteId: noteEditor.setNoteId,
     });
 
-    return noteEditor.api;
+    return api as NoteEditorAPI;
 }
 
 export const noteEditorPromise = setupNoteEditor();
