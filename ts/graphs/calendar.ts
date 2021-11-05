@@ -1,10 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-/* eslint
-@typescript-eslint/no-non-null-assertion: "off",
- */
-
 import { Stats } from "../lib/proto";
 import {
     interpolateBlues,

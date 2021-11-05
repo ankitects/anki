@@ -8,11 +8,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { PlainTextInputAPI } from "./PlainTextInput.svelte";
     import type { EditorToolbarAPI } from "./EditorToolbar.svelte";
 
+    import { registerShortcut } from "../lib/shortcuts";
     import contextProperty from "../sveltelib/context-property";
+    import { writable, get } from "svelte/store";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
-        currentField: Writable<EditorFieldAPI>;
+        currentField: Writable<EditorFieldAPI | null>;
         activeInput: Writable<RichTextInputAPI | PlainTextInputAPI | null>;
         focusInRichText: Writable<boolean>;
         toolbar: EditorToolbarAPI;
@@ -22,6 +24,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const [set, getNoteEditor, hasNoteEditor] = contextProperty<NoteEditorAPI>(key);
 
     export { getNoteEditor, hasNoteEditor };
+
+    const activeInput = writable<RichTextInputAPI | PlainTextInputAPI | null>(null);
+    const currentField = writable<EditorFieldAPI | null>(null);
+
+    function updateFocus() {
+        get(activeInput)?.moveCaretToEnd();
+    }
+
+    registerShortcut(
+        () => document.addEventListener("focusin", updateFocus, { once: true }),
+        "Shift?+Tab",
+    );
 </script>
 
 <script lang="ts">
@@ -49,12 +63,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { onMount, onDestroy } from "svelte";
     import type { Writable } from "svelte/store";
-    import { writable, get } from "svelte/store";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { isApplePlatform } from "../lib/platform";
-    import { promiseWithResolver } from "../lib/promise";
     import { ChangeTimer } from "./change-timer";
     import { alertIcon } from "./icons";
+    import { clearableArray } from "./destroyable";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -102,9 +115,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fieldNames = newFieldNames;
     }
 
+    let fieldDescriptions: string[] = [];
+    export function setDescriptions(fs: string[]): void {
+        fieldDescriptions = fs;
+    }
+
     let fonts: [string, number, boolean][] = [];
     let richTextsHidden: boolean[] = [];
     let plainTextsHidden: boolean[] = [];
+    let fields = clearableArray<EditorFieldAPI>();
 
     export function setFonts(fs: [string, number, boolean][]): void {
         fonts = fs;
@@ -115,9 +134,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let focusTo: number = 0;
     export function focusField(n: number): void {
-        focusTo = n;
-
-        fieldApis[focusTo]?.editingArea?.refocus();
+        if (typeof n === "number") {
+            focusTo = n;
+            fields[focusTo].editingArea?.refocus();
+        }
     }
 
     let textColor: string = "black";
@@ -158,6 +178,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: fieldsData = fieldNames.map((name, index) => ({
         name,
+        description: fieldDescriptions[index],
         fontFamily: quoteFontFamily(fonts[index][0]),
         fontSize: fonts[index][1],
         direction: fonts[index][2] ? "rtl" : "ltr",
@@ -192,8 +213,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bridgeCommand("toggleStickyAll", (values: boolean[]) => (stickies = values));
     }
 
-    import { registerShortcut } from "../lib/shortcuts";
-
     let deregisterSticky: () => void;
     export function activateStickyShortcuts() {
         deregisterSticky = registerShortcut(toggleStickyAll, "Shift+F9");
@@ -218,31 +237,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let plainTextInputs: PlainTextInput[] = [];
     $: plainTextInputs = plainTextInputs.filter(Boolean);
 
-    let editorFields: EditorField[] = [];
-    $: fieldApis = editorFields.filter(Boolean).map((field) => field.api);
-
-    const currentField = writable<EditorFieldAPI | null>(null);
-    const activeInput = writable<RichTextInputAPI | PlainTextInputAPI | null>(null);
     const focusInRichText = writable<boolean>(false);
 
-    const [toolbarPromise, toolbarResolve] = promiseWithResolver<EditorToolbarAPI>();
-    let toolbar: EditorToolbarAPI;
-    $: if (toolbar) {
-        toolbarResolve(toolbar);
-    }
+    let toolbar: Partial<EditorToolbarAPI> = {};
 
-    export const api = set(
-        Object.create(
-            {
-                currentField,
-                activeInput,
-                focusInRichText,
-                toolbar: toolbarPromise,
-            },
-            {
-                fields: { get: () => fieldApis },
-            },
-        ),
+    export let api = {};
+
+    Object.assign(
+        api,
+        set({
+            currentField,
+            activeInput,
+            focusInRichText,
+            toolbar: toolbar as EditorToolbarAPI,
+            fields,
+        }),
     );
 
     onMount(() => {
@@ -255,7 +264,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <NoteEditor>
     <FieldsEditor>
-        <EditorToolbar {size} {wrap} {textColor} {highlightColor} bind:api={toolbar} />
+        <EditorToolbar {size} {wrap} {textColor} {highlightColor} api={toolbar} />
 
         {#if hint}
             <Absolute bottom right --margin="10px">
@@ -274,9 +283,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {field}
                     content={fieldStores[index]}
                     autofocus={index === focusTo}
-                    bind:this={editorFields[index]}
+                    api={fields[index]}
                     on:focusin={() => {
-                        $currentField = api.fields[index];
+                        $currentField = fields[index];
                         bridgeCommand(`focus:${index}`);
                     }}
                     on:focusout={() => {

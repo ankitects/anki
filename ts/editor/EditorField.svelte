@@ -5,19 +5,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import type { EditingAreaAPI } from "./EditingArea.svelte";
     import contextProperty from "../sveltelib/context-property";
+    import type { Readable } from "svelte/store";
 
     export interface FieldData {
         name: string;
+        description: string;
         fontFamily: string;
         fontSize: number;
         direction: "ltr" | "rtl";
     }
 
     export interface EditorFieldAPI {
-        element: HTMLElement;
-        index: number;
-        direction: "ltr" | "rtl";
-        editingArea?: EditingAreaAPI;
+        element: Promise<HTMLElement>;
+        direction: Readable<"ltr" | "rtl">;
+        editingArea: EditingAreaAPI;
     }
 
     const key = Symbol("editorField");
@@ -29,49 +30,60 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import EditingArea from "./EditingArea.svelte";
     import LabelContainer from "./LabelContainer.svelte";
+    import LabelDescription from "./LabelDescription.svelte";
     import LabelName from "./LabelName.svelte";
     import FieldState from "./FieldState.svelte";
 
-    import { setContext } from "svelte";
+    import { onDestroy, setContext } from "svelte";
     import { writable } from "svelte/store";
     import type { Writable } from "svelte/store";
     import { directionKey } from "../lib/context-keys";
+    import { promiseWithResolver } from "../lib/promise";
+    import type { Destroyable } from "./destroyable";
 
     export let content: Writable<string>;
     export let field: FieldData;
     export let autofocus = false;
 
-    const directionStore = writable();
+    export let api: (Partial<EditorFieldAPI> & Destroyable) | undefined = undefined;
+
+    const directionStore = writable<"ltr" | "rtl">();
     setContext(directionKey, directionStore);
 
     $: $directionStore = field.direction;
 
-    let editorField: HTMLElement;
+    const editingArea: Partial<EditingAreaAPI> = {};
+    const [element, elementResolve] = promiseWithResolver<HTMLElement>();
 
-    export const api = set(
-        Object.create(
-            {},
-            {
-                element: {
-                    get: () => editorField,
-                },
-                direction: {
-                    get: () => $directionStore,
-                },
-            },
-        ) as EditorFieldAPI,
-    );
+    const editorFieldApi = set({
+        element,
+        direction: directionStore,
+        editingArea: editingArea as EditingAreaAPI,
+    });
+
+    if (api) {
+        Object.assign(api, editorFieldApi);
+    }
+
+    onDestroy(() => api?.destroy());
 </script>
 
 <div
-    bind:this={editorField}
+    use:elementResolve
     class="editor-field"
     on:focusin
     on:focusout
-    on:click={() => api.editingArea?.focus()}
+    on:click={() => editingArea.focus?.()}
 >
     <LabelContainer>
-        <LabelName>{field.name}</LabelName>
+        <span>
+            <LabelName>
+                {field.name}
+            </LabelName>
+            {#if field.description}
+                <LabelDescription description={field.description} />
+            {/if}
+        </span>
         <FieldState><slot name="field-state" /></FieldState>
     </LabelContainer>
     <EditingArea
@@ -79,7 +91,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {autofocus}
         fontFamily={field.fontFamily}
         fontSize={field.fontSize}
-        bind:api={api.editingArea}
+        api={editingArea}
     >
         <slot name="editing-inputs" />
     </EditingArea>

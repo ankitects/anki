@@ -2,16 +2,27 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
+<script context="module" lang="ts">
+    import type { SvelteComponent } from "./registration";
+    import type { Identifier } from "./identifier";
+
+    export interface ButtonGroupAPI {
+        insertButton(button: SvelteComponent, position: Identifier): void;
+        appendButton(button: SvelteComponent, position: Identifier): void;
+        showButton(position: Identifier): void;
+        hideButton(position: Identifier): void;
+        toggleButton(position: Identifier): void;
+    }
+</script>
+
 <script lang="ts">
     import ButtonGroupItem from "./ButtonGroupItem.svelte";
     import { setContext } from "svelte";
     import { writable } from "svelte/store";
     import { buttonGroupKey } from "./context-keys";
-    import type { Identifier } from "./identifier";
     import { insertElement, appendElement } from "./identifier";
     import type { ButtonRegistration } from "./buttons";
     import { ButtonPosition } from "./buttons";
-    import type { SvelteComponent } from "./registration";
     import { makeInterface } from "./registration";
 
     export let id: string | undefined = undefined;
@@ -57,10 +68,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     setContext(buttonGroupKey, registerComponent);
 
-    export let api: Record<string, unknown> | undefined = undefined;
+    export let api: Partial<ButtonGroupAPI> | undefined = undefined;
     let buttonGroupRef: HTMLDivElement;
 
-    $: if (api && buttonGroupRef) {
+    function createApi(): void {
         const { addComponent, updateRegistration } =
             getDynamicInterface(buttonGroupRef);
 
@@ -89,7 +100,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             showButton,
             hideButton,
             toggleButton,
-        });
+        } as ButtonGroupAPI);
+    }
+
+    $: if (api && buttonGroupRef) {
+        createApi();
     }
 </script>
 

@@ -44,7 +44,7 @@ function getFileContent(path: string): FileContent {
 
 function updateFileContent(input: InputFile): void {
     let content = fileContent.get(input.path);
-    if (content) {
+    if (content && content.text !== input.data) {
         content.text = input.data;
         content.version += 1;
     } else {

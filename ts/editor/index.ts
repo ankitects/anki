@@ -5,7 +5,6 @@ import "./legacy.css";
 import "./editor-base.css";
 
 /* eslint
-@typescript-eslint/no-non-null-assertion: "off",
 @typescript-eslint/no-explicit-any: "off",
  */
 
@@ -76,13 +75,17 @@ async function setupNoteEditor(): Promise<NoteEditorAPI> {
 
     await i18n;
 
+    const api: Partial<NoteEditorAPI> = {};
+
     const noteEditor = new OldEditorAdapter({
         target: document.body,
+        props: { api: api as NoteEditorAPI },
         context,
     });
 
     Object.assign(globalThis, {
         setFields: noteEditor.setFields,
+        setDescriptions: noteEditor.setDescriptions,
         setFonts: noteEditor.setFonts,
         focusField: noteEditor.focusField,
         setColorButtons: noteEditor.setColorButtons,
@@ -96,7 +99,7 @@ async function setupNoteEditor(): Promise<NoteEditorAPI> {
         setNoteId: noteEditor.setNoteId,
     });
 
-    return noteEditor.api;
+    return api as NoteEditorAPI;
 }
 
 export const noteEditorPromise = setupNoteEditor();

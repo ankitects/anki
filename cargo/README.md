@@ -12,6 +12,10 @@ After updating dependencies in ../rslib/Cargo.toml, change to this
 folder and run python update.py to update the external Bazel repositories
 to point to the updated deps.
 
+Note: cargo-raze does not currently work when run from Windows, and nobody
+has investigated why yet. For now, you'll need a Mac or Linux machine, or
+will need to run update.py from within WSL.
+
 A couple of crates need extra work to build with Bazel, and are listed
 in ../Cargo.toml. For example:
 

@@ -20,16 +20,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let index: number;
 
-    function toggleSticky() {
+    function toggle() {
         bridgeCommand(`toggleSticky:${index}`, (value: boolean) => {
             active = value;
         });
     }
 
-    onMount(() => registerShortcut(toggleSticky, keyCombination, editorField.element));
+    function shortcut(element: HTMLElement): void {
+        registerShortcut(toggle, keyCombination, element);
+    }
+
+    onMount(() => editorField.element.then(shortcut));
 </script>
 
-<span class:highlighted={active} on:click|stopPropagation={toggleSticky}>
+<span class:highlighted={active} on:click|stopPropagation={toggle}>
     <Badge
         tooltip="{tr.editingToggleSticky()} ({getPlatformString(keyCombination)})"
         widthMultiplier={0.7}>{@html icon}</Badge
