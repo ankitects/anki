@@ -85,6 +85,7 @@ async function setupNoteEditor(): Promise<NoteEditorAPI> {
 
     Object.assign(globalThis, {
         setFields: noteEditor.setFields,
+        setDescriptions: noteEditor.setDescriptions,
         setFonts: noteEditor.setFonts,
         focusField: noteEditor.focusField,
         setColorButtons: noteEditor.setColorButtons,

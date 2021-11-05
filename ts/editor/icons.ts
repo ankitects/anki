@@ -32,6 +32,8 @@ export { default as micIcon } from "bootstrap-icons/icons/mic.svg";
 export { default as ellipseIcon } from "@mdi/svg/svg/contain.svg";
 export { default as functionIcon } from "@mdi/svg/svg/function-variant.svg";
 
+export { default as descriptionIcon } from "bootstrap-icons/icons/info-circle.svg";
+
 export { default as tagIcon } from "@mdi/svg/svg/tag.svg";
 export { default as addTagIcon } from "@mdi/svg/svg/tag-plus.svg";
 export { default as dotsIcon } from "@mdi/svg/svg/dots-vertical.svg";

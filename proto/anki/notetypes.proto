@@ -68,6 +68,7 @@ message Notetype {
       bool rtl = 2;
       string font_name = 3;
       uint32 font_size = 4;
+      string description = 5;
 
       bytes other = 255;
     }
