@@ -23,7 +23,8 @@ sys.argv[1:] = [
     "--upgrade",
     "--no-header",
     "--strip-extras",
-    "--generate-hashes"
+    "--generate-hashes",
+    "python/requirements.in",
 ]
 
 cli()

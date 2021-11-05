@@ -6,7 +6,7 @@ atomicwrites==1.4.0 ; sys_platform == "win32" \
     --hash=sha256:6d1784dea7c0c8d4a5172b6c620f40b6e4cbfdf96d783691f2e1302a7b88e197 \
     --hash=sha256:ae70396ad1a434f9c7046fd2dd196fc04b12f9e91ffb859164193be8b6168a7a
     # via
-    #   -r requirements.in
+    #   -r python/requirements.in
     #   pytest
 attrs==21.2.0 \
     --hash=sha256:149e90d6d8ac20db7a955ad60cf0e6881a3f20d37096140088356da6c716b0b1 \
@@ -17,11 +17,11 @@ attrs==21.2.0 \
 beautifulsoup4==4.10.0 \
     --hash=sha256:9a315ce70049920ea4572a4055bc4bd700c940521d36fc858205ad4fcde149bf \
     --hash=sha256:c23ad23c521d818955a4151a67d81580319d4bf548d3d49f4223ae041ff98891
-    # via -r requirements.in
+    # via -r python/requirements.in
 black==21.9b0 \
     --hash=sha256:380f1b5da05e5a1429225676655dddb96f5ae8c75bdf91e53d798871b902a115 \
     --hash=sha256:7de4cfc7eb6b710de325712d40125689101d21d25283eed7e9998722cf10eb91
-    # via -r requirements.in
+    # via -r python/requirements.in
 certifi==2021.10.8 \
     --hash=sha256:78884e7c1d4b00ce3cea67b44566851c4343c120abd683433ce934a68ea58872 \
     --hash=sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569
@@ -41,37 +41,37 @@ colorama==0.4.4 ; sys_platform == "win32" \
     --hash=sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b \
     --hash=sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2
     # via
-    #   -r requirements.in
+    #   -r python/requirements.in
     #   click
     #   pylint
     #   pytest
 compare-locales==8.1.0 \
     --hash=sha256:286270797ce64f7a2f25e734bb437870661409884a4f0971c0bb94fdad6c1f35 \
     --hash=sha256:3d374ff959d5de2cfd5b94caf6b0fa61445f1d8ede5af384002cb3542aacad3a
-    # via -r requirements.in
+    # via -r python/requirements.in
 decorator==5.1.0 \
     --hash=sha256:7b12e7c3c6ab203a29e157335e9122cb03de9ab7264b137594103fd4a683b374 \
     --hash=sha256:e59913af105b9860aa2c8d3272d9de5a56a4e608db9a2f167a8480b323d529a7
-    # via -r requirements.in
+    # via -r python/requirements.in
 distro==1.6.0 \
     --hash=sha256:83f5e5a09f9c5f68f60173de572930effbcc0287bb84fdc4426cb4168c088424 \
     --hash=sha256:c8713330ab31a034623a9515663ed87696700b55f04556b97c39cd261aa70dc7
-    # via -r requirements.in
+    # via -r python/requirements.in
 flask==2.0.2 \
     --hash=sha256:7b2fb8e934ddd50731893bdcdb00fc8c0315916f9fcd50d22c7cc1a95ab634e2 \
     --hash=sha256:cb90f62f1d8e4dc4621f52106613488b5ba826b2e1e10a33eac92f723093ab6a
     # via
-    #   -r requirements.in
+    #   -r python/requirements.in
     #   flask-cors
 flask-cors==3.0.10 \
     --hash=sha256:74efc975af1194fc7891ff5cd85b0f7478be4f7f59fe158102e91abb72bb4438 \
     --hash=sha256:b60839393f3b84a0f3746f6cdca56c1ad7426aa738b70d6c61375857823181de
-    # via -r requirements.in
+    # via -r python/requirements.in
 fluent.syntax==0.18.1 \
     --hash=sha256:0e63679fa4f1b3042565220a5127b4bab842424f07d6a13c12299e3b3835486a \
     --hash=sha256:3a55f5e605d1b029a65cc8b6492c86ec4608e15447e73db1495de11fd46c104f
     # via
-    #   -r requirements.in
+    #   -r python/requirements.in
     #   compare-locales
 idna==3.3 \
     --hash=sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff \
@@ -85,7 +85,7 @@ isort==5.9.3 \
     --hash=sha256:9c2ea1e62d871267b78307fe511c0838ba0da28698c5732d54e2790bf3ba9899 \
     --hash=sha256:e17d6e2b81095c9db0a03a8025a957f334d6ea30b26f9ec70805411e5c7c81f2
     # via
-    #   -r requirements.in
+    #   -r python/requirements.in
     #   pylint
 itsdangerous==2.0.1 \
     --hash=sha256:5174094b9637652bdb841a3029700391451bd092ba3db90600dea710ba28e97c \
@@ -98,7 +98,7 @@ jinja2==3.0.2 \
 jsonschema==4.1.2 \
     --hash=sha256:166870c8ab27bd712a8627e0598de4685bd8d199c4d7bd7cacc3d941ba0c6ca0 \
     --hash=sha256:5c1a282ee6b74235057421fd0f766ac5f2972f77440927f6471c9e8493632fac
-    # via -r requirements.in
+    # via -r python/requirements.in
 lazy-object-proxy==1.6.0 \
     --hash=sha256:17e0967ba374fc24141738c69736da90e94419338fd4c7c7bef01ee26b339653 \
     --hash=sha256:1fee665d2638491f4d6e55bd483e15ef21f6c8c2095f235fef72601021e64f61 \
@@ -126,7 +126,7 @@ lazy-object-proxy==1.6.0 \
 markdown==3.3.4 \
     --hash=sha256:31b5b491868dcc87d6c24b7e3d19a0d730d59d3e46f4eea6430a321bed387a49 \
     --hash=sha256:96c3ba1261de2f7547b46a00ea8463832c921d3f9d6aba3f255a6f71386db20c
-    # via -r requirements.in
+    # via -r python/requirements.in
 markupsafe==2.0.1 \
     --hash=sha256:01a9b8ea66f1658938f65b93a85ebe8bc016e6769611be228d797c9d998dd298 \
     --hash=sha256:023cb26ec21ece8dc3907c0e8320058b2e0cb3c55cf9564da612bc325bed5e64 \
@@ -205,7 +205,7 @@ mccabe==0.6.1 \
 mock==4.0.3 \
     --hash=sha256:122fcb64ee37cfad5b3f48d7a7d51875d7031aaf3d8be7c42e2bee25044eee62 \
     --hash=sha256:7d3fbbde18228f4ff2f1f119a45cdffa458b4c0dee32eb4d2bb2f82554bac7bc
-    # via -r requirements.in
+    # via -r python/requirements.in
 mypy==0.910 \
     --hash=sha256:088cd9c7904b4ad80bec811053272986611b84221835e079be5bcad029e79dd9 \
     --hash=sha256:0aadfb2d3935988ec3815952e44058a3100499f5be5b28c34ac9d79f002a4a9a \
@@ -230,7 +230,7 @@ mypy==0.910 \
     --hash=sha256:ec4e0cd079db280b6bdabdc807047ff3e199f334050db5cbb91ba3e959a67504 \
     --hash=sha256:ecd2c3fe726758037234c93df7e98deb257fd15c24c9180dacf1ef829da5f921 \
     --hash=sha256:ef565033fa5a958e62796867b1df10c40263ea9ded87164d67572834e57a174d
-    # via -r requirements.in
+    # via -r python/requirements.in
 mypy-extensions==0.4.3 \
     --hash=sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d \
     --hash=sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8
@@ -240,7 +240,7 @@ mypy-extensions==0.4.3 \
 mypy-protobuf==3.0.0 \
     --hash=sha256:87a5fdc809388ee5190763063415c0f11b858c590f751f6a7492204646364773 \
     --hash=sha256:f92c71d987c457f69c0c87cc28d00f1762f1fa87f164faf452279d42033d80c9
-    # via -r requirements.in
+    # via -r python/requirements.in
 orjson==3.6.4 \
     --hash=sha256:014ea74d4a5dd6a7e98540768072d5bd8c2fedbcbbedcbbaecbb614e66080e81 \
     --hash=sha256:1121187e2a721864b52e5dbb3cf8dd4a4546519a5fef1e13fa777347fb8884a2 \
@@ -263,7 +263,7 @@ orjson==3.6.4 \
     --hash=sha256:e55ef66ee1d35b1c43db275aff3a1ba7e0408b31e624912a612bd799df14e73e \
     --hash=sha256:eef8d332af8e6f7d6d2c1f3b5384c8d239800c1405b136da5f1710e802918d57 \
     --hash=sha256:f8dbc428fc6d7420f231a7133d8dff4c882e64acb585dcf2fda74bdcfe1a6d9d
-    # via -r requirements.in
+    # via -r python/requirements.in
 packaging==21.0 \
     --hash=sha256:7dc96269f53a4ccec5c0670940a4281106dd0bb343f47b7471f779df49c2fbe7 \
     --hash=sha256:c86254f9220d55e31cc94d69bade760f0847da8000def4dfe1c6b872fd14ff14
@@ -279,7 +279,7 @@ pep517==0.12.0 \
 pip-tools==6.4.0 \
     --hash=sha256:65553a15b1ba34be5e43889345062e38fb9b219ffa23b084ca0d4c4039b6f53b \
     --hash=sha256:bb2c3272bc229b4a6d25230ebe255823aba1aa466a0d698c48ab7eb5ab7efdc9
-    # via -r requirements.in
+    # via -r python/requirements.in
 platformdirs==2.4.0 \
     --hash=sha256:367a5e80b3d04d2428ffa76d33f124cf11e8fff2acdaa9b43d545f5c7d661ef2 \
     --hash=sha256:8868bbe3c3c80d42f20156f22e7131d2fb321f5bc86a2a345375c6481a67021d
@@ -316,7 +316,7 @@ protobuf==3.19.0 \
     --hash=sha256:f7a031cf8e2fc14acc0ba694f6dff0a01e06b70d817eba6edc72ee6cc20517ac \
     --hash=sha256:f9097327d277b0aa4a3224e61cd6850aef3269172397715299bcffc9f90293c9
     # via
-    #   -r requirements.in
+    #   -r python/requirements.in
     #   mypy-protobuf
 psutil==5.8.0 ; sys_platform == "win32" \
     --hash=sha256:0066a82f7b1b37d334e68697faba68e5ad5e858279fd6351c8ca6024e8d6ba64 \
@@ -347,7 +347,7 @@ psutil==5.8.0 ; sys_platform == "win32" \
     --hash=sha256:ea372bcc129394485824ae3e3ddabe67dc0b118d262c568b4d2602a7070afdb0 \
     --hash=sha256:f4634b033faf0d968bb9220dd1c793b897ab7f1189956e1aa9eae752527127d3 \
     --hash=sha256:fcc01e900c1d7bee2a37e5d6e4f9194760a93597c97fee89c4ae51701de03563
-    # via -r requirements.in
+    # via -r python/requirements.in
 py==1.10.0 \
     --hash=sha256:21b81bda15b66ef5e1a777a21c4dcd9c20ad3efd0b3f817e7a809035269e1bd3 \
     --hash=sha256:3b80836aa6d1feeaa108e046da6423ab8f6ceda6468545ae8d02d9d58d18818a
@@ -355,7 +355,7 @@ py==1.10.0 \
 pylint==2.11.1 \
     --hash=sha256:0f358e221c45cbd4dad2a1e4b883e75d28acdcccd29d40c76eb72b307269b126 \
     --hash=sha256:2c9843fff1a88ca0ad98a256806c82c5a8f86086e7ccbdb93297d86c3f90c436
-    # via -r requirements.in
+    # via -r python/requirements.in
 pyparsing==2.4.7 \
     --hash=sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1 \
     --hash=sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b
@@ -391,7 +391,7 @@ pysocks==1.7.1 \
 pytest==6.2.5 \
     --hash=sha256:131b36680866a76e6781d13f101efb86cf674ebb9762eb70d3082b6f29889e89 \
     --hash=sha256:7310f8d27bc79ced999e760ca304d69f6ba6c6649c0b60fb0e04a4a77cacc134
-    # via -r requirements.in
+    # via -r python/requirements.in
 pytoml==0.1.21 \
     --hash=sha256:57a21e6347049f73bfb62011ff34cd72774c031b9828cb628a752225136dfc33 \
     --hash=sha256:8eecf7c8d0adcff3b375b09fe403407aa9b645c499e5ab8cac670ac4a35f61e7
@@ -407,7 +407,7 @@ pywin32==302 ; sys_platform == "win32" \
     --hash=sha256:d3761ab4e8c5c2dbc156e2c9ccf38dd51f936dc77e58deb940ffbc4b82a30528 \
     --hash=sha256:e372e477d938a49266136bff78279ed14445e00718b6c75543334351bf535259 \
     --hash=sha256:fe21c2fb332d03dac29de070f191bdbf14095167f8f2165fdc57db59b1ecc006
-    # via -r requirements.in
+    # via -r python/requirements.in
 regex==2021.9.30 \
     --hash=sha256:0de8ad66b08c3e673b61981b9e3626f8784d5564f8c3928e2ad408c0eb5ac38c \
     --hash=sha256:1f1125bc5172ab3a049bc6f4b9c0aae95a2a2001a77e6d6e4239fa3653e202b5 \
@@ -451,16 +451,16 @@ regex==2021.9.30 \
     --hash=sha256:e6f2d2f93001801296fe3ca86515eb04915472b5380d4d8752f09f25f0b9b0ed \
     --hash=sha256:f588209d3e4797882cd238195c175290dbc501973b10a581086b5c6bcd095ffb
     # via
-    #   -r requirements.in
+    #   -r python/requirements.in
     #   black
 requests==2.26.0 \
     --hash=sha256:6c1246513ecd5ecd4528a0906f910e8f0f9c6b8ec72030dc9fd154dc1a6efd24 \
     --hash=sha256:b8aa58f8cf793ffd8782d3d8cb19e66ef36f7aba4353eec859e74678b01b07a7
-    # via -r requirements.in
+    # via -r python/requirements.in
 send2trash==1.8.0 \
     --hash=sha256:d2c24762fd3759860a0aff155e45871447ea58d2be6bdd39b5c8f966a0c99c2d \
     --hash=sha256:f20eaadfdb517eaca5ce077640cb261c7d2698385a6a0f072a4a5447fd49fa08
-    # via -r requirements.in
+    # via -r python/requirements.in
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
@@ -470,7 +470,7 @@ six==1.16.0 \
 snakeviz==2.1.0 \
     --hash=sha256:8ce375b18ae4a749516d7e6c6fbbf8be6177c53974f53534d8eadb646cd279b1 \
     --hash=sha256:92ad876fb6a201a7e23a6b85ea96d9643a51e285667c253a8653643804f7cb68
-    # via -r requirements.in
+    # via -r python/requirements.in
 soupsieve==2.2.1 \
     --hash=sha256:052774848f448cf19c7e959adf5566904d525f33a3f8b6ba6f6f8f26ec7de0cc \
     --hash=sha256:c2c1c2d44f158cdbddab7824a9af8c4f83c76b1e23e049479aa432feb6c4c23b
@@ -538,11 +538,11 @@ types-click==7.1.7 \
 types-decorator==5.1.0 \
     --hash=sha256:242dcba983c9dce067b7c2d635fa11479254536d3de6056c808539040168a380 \
     --hash=sha256:99abd00c614e54e75ee08d88799886acc2918cc88905eca6474ba917b327729b
-    # via -r requirements.in
+    # via -r python/requirements.in
 types-flask==1.1.4 \
     --hash=sha256:09306465574a1b42c48fa4a83458fbb0cd9a46df20f6901e4bf148550126cc85 \
     --hash=sha256:ed06c39b5838eed4e099c5fc0117714097975d86177b1663c4fb547a5f7ff298
-    # via -r requirements.in
+    # via -r python/requirements.in
 types-futures==3.3.1 \
     --hash=sha256:b4bb97d1a028679929a8da2e9e63a5caccc6f68d0d6a456c41fd00e32764f144 \
     --hash=sha256:bbdad92cec642693bac10fbbecf834776009db7782d91dc293bdd123be73186d
@@ -554,7 +554,7 @@ types-jinja2==2.11.8 \
 types-markdown==3.3.6 \
     --hash=sha256:85694139371e4a4edbc440e2f8f7cc17a1ac4850a46d6a2eef64bc84a590f04e \
     --hash=sha256:fcddffa11e0899ad13dce4a5a259b389cf70abc7fc0c377c3ce04451e667d0c0
-    # via -r requirements.in
+    # via -r python/requirements.in
 types-markupsafe==1.1.8 \
     --hash=sha256:08ca3cf19abab0476a1efe4a82af6d21471573e08c1e5e065e26aa78a1b552ad \
     --hash=sha256:b2940f4faab46be0f9509b2f98ea9ff36d058f89fa113d98ae07cdc7958ec15f
@@ -562,21 +562,21 @@ types-markupsafe==1.1.8 \
 types-orjson==3.6.1 \
     --hash=sha256:6bc2245b242c9ab4c8845495a4c16a51fa22510c8ac1d83da027ab3ce1f77d8a \
     --hash=sha256:b3e991dd05fc6571a423996cbde37183123983783db64c5bc53e985ae32c7176
-    # via -r requirements.in
+    # via -r python/requirements.in
 types-protobuf==3.18.0 \
     --hash=sha256:6228bcbd43544eb4b8a8d7c64f0d5f3e9bccf1ebbc6df39e4102f0dcad602156 \
     --hash=sha256:a391d1a9138fe53fe08aeb6aa15ca7f1a188659b9a6c12af5313c55730eccd6c
     # via
-    #   -r requirements.in
+    #   -r python/requirements.in
     #   mypy-protobuf
 types-requests==2.25.11 \
     --hash=sha256:b279284e51f668e38ee12d9665e4d789089f532dc2a0be4a1508ca0efd98ba9e \
     --hash=sha256:ba1d108d512e294b6080c37f6ae7cb2a2abf527560e2b671d1786c1fc46b541a
-    # via -r requirements.in
+    # via -r python/requirements.in
 types-waitress==2.0.1 \
     --hash=sha256:4b88d95d0ad8753c9dfe9ec75a85f17f295cb74f546ef1a76d095734ded43f3b \
     --hash=sha256:e28045ef2d57c93fe4f747c2ec10ff4eafa5cb87aa851c623df333c619ff12fd
-    # via -r requirements.in
+    # via -r python/requirements.in
 types-werkzeug==1.0.7 \
     --hash=sha256:2e8779fd17856ce4e2cc7eeb1446bfb9afc43fd1a5b067265a4f13d6f7f68499 \
     --hash=sha256:dc0972040f0f043b813ab574079b0b101a44d434d67bf1695afffc6b0aad0362
@@ -597,7 +597,7 @@ urllib3==1.26.7 \
 waitress==2.0.0 \
     --hash=sha256:29af5a53e9fb4e158f525367678b50053808ca6c21ba585754c77d790008c746 \
     --hash=sha256:69e1f242c7f80273490d3403c3976f3ac3b26e289856936d1f620ed48f321897
-    # via -r requirements.in
+    # via -r python/requirements.in
 werkzeug==2.0.2 \
     --hash=sha256:63d3dc1cf60e7b7e35e97fa9861f7397283b75d765afcaefd993d6046899de8f \
     --hash=sha256:aa2bb6fc8dee8d6c504c0ac1e7f5f7dc5810a9903e793b6f715a9f015bdadb9a
@@ -613,7 +613,7 @@ winrt==1.0.21033.1 ; sys_platform == "win32" and platform_release == "10" \
     --hash=sha256:d035570ce2cf7e8caa785abb43f25a6ede600c2cde0378c931495bdbeaf1a075 \
     --hash=sha256:da3ca3626fb992f2efa4528993d4760b298f399a7f459f7e070a2f8681d82106 \
     --hash=sha256:f5ab502117da4777ab49b846ad1919fbf448bd5e49b4aca00cc59667bae2c362
-    # via -r requirements.in
+    # via -r python/requirements.in
 wrapt==1.13.2 \
     --hash=sha256:0473d1558b93e314e84313cc611f6c86be779369f9d3734302bf185a4d2625b1 \
     --hash=sha256:0582180566e7a13030f896c2f1ac6a56134ab5f3c3f4c5538086f758b1caf3f2 \
