@@ -1,6 +1,7 @@
-:: ensure wheels are built
+:: ensure wheels are built and set up Rust env
 pushd ..\..
 call scripts\build || exit /b
+call scripts\cargo-env
 set ROOT=%CD%
 popd
 
@@ -16,6 +17,5 @@ if not exist %VENV% (
 
 :: run the rest of the build in Python
 FOR /F "tokens=*" %%g IN ('call ..\..\bazel.bat info output_base --ui_event_filters=-INFO') do (SET BAZEL_EXTERNAL=%%g/external)
-call %ROOT%\scripts\cargo-env
 call ..\..\bazel.bat query @pyqt515//:*
 %VENV%\scripts\python build.py %ROOT% %BAZEL_EXTERNAL% || exit /b
