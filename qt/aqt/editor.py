@@ -137,7 +137,7 @@ class Editor:
         gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
 
         lefttopbtns_defs = [
-            f"noteEditorPromise.then((noteEditor) => noteEditor.toolbar.then((toolbar) => toolbar.notetypeButtons.appendButton({{ component: editorToolbar.Raw, props: {{ html: {json.dumps(button)} }} }}, -1)));"
+            f"noteEditorPromise.then((noteEditor) => noteEditor.toolbar.notetypeButtons.appendButton({{ component: editorToolbar.Raw, props: {{ html: {json.dumps(button)} }} }}, -1));"
             for button in lefttopbtns
         ]
         lefttopbtns_js = "\n".join(lefttopbtns_defs)
@@ -150,7 +150,7 @@ class Editor:
         righttopbtns_defs = ", ".join([json.dumps(button) for button in righttopbtns])
         righttopbtns_js = (
             f"""
-noteEditorPromise.then(noteEditor => noteEditor.toolbar.then((toolbar) => toolbar.toolbar.appendGroup({{
+noteEditorPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
     component: editorToolbar.AddonButtons,
     id: "addons",
     props: {{ buttons: [ {righttopbtns_defs} ] }},
@@ -1323,11 +1323,11 @@ gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
 def set_cloze_button(editor: Editor) -> None:
     if editor.note.note_type()["type"] == MODEL_CLOZE:
         editor.web.eval(
-            'noteEditorPromise.then((noteEditor) => noteEditor.toolbar.then((toolbar) => toolbar.templateButtons.showButton("cloze"))); '
+            'noteEditorPromise.then((noteEditor) => noteEditor.toolbar.templateButtons.showButton("cloze")); '
         )
     else:
         editor.web.eval(
-            'noteEditorPromise.then((noteEditor) => noteEditor.toolbar.then(({ templateButtons }) => templateButtons.hideButton("cloze"))); '
+            'noteEditorPromise.then((noteEditor) => noteEditor.toolbar.templateButtons.hideButton("cloze")); '
         )
 
 

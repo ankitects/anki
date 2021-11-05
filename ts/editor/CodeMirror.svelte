@@ -44,14 +44,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         // TODO passing in the tabindex option does not do anything: bug?
         codeMirror.getInputField().tabIndex = 0;
 
+        let ranges: CodeMirrorLib.Range[] | null = null;
+
         codeMirror.on("change", () => dispatch("change", codeMirror.getValue()));
+        codeMirror.on("mousedown", () => {
+            ranges = null;
+        });
         codeMirror.on("focus", () => {
+            if (ranges) {
+                codeMirror.setSelections(ranges);
+            }
             unsubscribe();
-            dispatch("focus");
         });
         codeMirror.on("blur", () => {
+            ranges = codeMirror.listSelections();
             subscribe();
-            dispatch("blur");
         });
 
         subscribe();
