@@ -12,7 +12,6 @@ use super::{progress::AbortHandleSlot, Backend};
 pub(super) use crate::backend_proto::sync_service::Service as SyncService;
 use crate::{
     backend_proto as pb,
-    collection::open_collection,
     media::MediaManager,
     prelude::*,
     sync::{
@@ -329,10 +328,7 @@ impl Backend {
 
         let (_guard, abort_reg) = self.sync_abort_handle()?;
 
-        let col_path = col_inner.col_path.clone();
-        let media_folder_path = col_inner.media_folder.clone();
-        let media_db_path = col_inner.media_db.clone();
-        let logger = col_inner.log.clone();
+        let builder = col_inner.as_builder();
 
         let mut handler = self.new_progress_handler();
         let progress_fn = move |progress: FullSyncProgress, throttle: bool| {
@@ -350,14 +346,7 @@ impl Backend {
         };
 
         // ensure re-opened regardless of outcome
-        col.replace(open_collection(
-            col_path,
-            media_folder_path,
-            media_db_path,
-            self.server,
-            self.tr.clone(),
-            logger,
-        )?);
+        col.replace(builder.build()?);
 
         match result {
             Ok(sync_result) => {

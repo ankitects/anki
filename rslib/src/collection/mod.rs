@@ -5,18 +5,14 @@ pub(crate) mod timestamps;
 mod transact;
 pub(crate) mod undo;
 
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-    sync::Arc,
-};
+use std::{collections::HashMap, path::PathBuf, sync::Arc};
 
 use crate::{
     browser_table,
     decks::{Deck, DeckId},
     error::Result,
     i18n::I18n,
-    log::Logger,
+    log::{default_logger, Logger},
     notetype::{Notetype, NotetypeId},
     scheduler::{queue::CardQueues, SchedulerInfo},
     storage::SqliteStorage,
@@ -24,58 +20,88 @@ use crate::{
     undo::UndoManager,
 };
 
-pub fn open_collection<P: Into<PathBuf>>(
-    path: P,
-    media_folder: P,
-    media_db: P,
-    server: bool,
-    tr: I18n,
-    log: Logger,
-) -> Result<Collection> {
-    let col_path = path.into();
-    let storage = SqliteStorage::open_or_create(&col_path, &tr, server)?;
-
-    let col = Collection {
-        storage,
-        col_path,
-        media_folder: media_folder.into(),
-        media_db: media_db.into(),
-        tr,
-        log,
-        server,
-        state: CollectionState::default(),
-    };
-
-    Ok(col)
+#[derive(Default)]
+pub struct CollectionBuilder {
+    collection_path: Option<PathBuf>,
+    media_folder: Option<PathBuf>,
+    media_db: Option<PathBuf>,
+    server: Option<bool>,
+    tr: Option<I18n>,
+    log: Option<Logger>,
 }
 
-// We need to make a Builder for Collection in the future.
+impl CollectionBuilder {
+    /// Create a new builder with the provided collection path.
+    /// If an in-memory database is desired, used ::default() instead.
+    pub fn new(col_path: impl Into<PathBuf>) -> Self {
+        let mut builder = Self::default();
+        builder.set_collection_path(col_path);
+        builder
+    }
+
+    pub fn build(&self) -> Result<Collection> {
+        let col_path = self
+            .collection_path
+            .clone()
+            .unwrap_or_else(|| PathBuf::from(":memory:"));
+        let tr = self.tr.clone().unwrap_or_else(I18n::template_only);
+        let server = self.server.unwrap_or_default();
+        let media_folder = self.media_folder.clone().unwrap_or_default();
+        let media_db = self.media_db.clone().unwrap_or_default();
+        let log = self.log.clone().unwrap_or_else(crate::log::terminal);
+
+        let storage = SqliteStorage::open_or_create(&col_path, &tr, server)?;
+        let col = Collection {
+            storage,
+            col_path,
+            media_folder,
+            media_db,
+            tr,
+            log,
+            server,
+            state: CollectionState::default(),
+        };
+
+        Ok(col)
+    }
+
+    pub fn set_collection_path<P: Into<PathBuf>>(&mut self, collection: P) -> &mut Self {
+        self.collection_path = Some(collection.into());
+        self
+    }
+
+    pub fn set_media_paths<P: Into<PathBuf>>(&mut self, media_folder: P, media_db: P) -> &mut Self {
+        self.media_folder = Some(media_folder.into());
+        self.media_db = Some(media_db.into());
+        self
+    }
+
+    pub fn set_server(&mut self, server: bool) -> &mut Self {
+        self.server = Some(server);
+        self
+    }
+
+    pub fn set_tr(&mut self, tr: I18n) -> &mut Self {
+        self.tr = Some(tr);
+        self
+    }
+
+    /// Directly set the logger.
+    pub fn set_logger(&mut self, log: Logger) -> &mut Self {
+        self.log = Some(log);
+        self
+    }
+
+    /// Log to the provided file.
+    pub fn set_log_file(&mut self, log_file: &str) -> Result<&mut Self, std::io::Error> {
+        self.set_logger(default_logger(Some(log_file))?);
+        Ok(self)
+    }
+}
 
 #[cfg(test)]
 pub fn open_test_collection() -> Collection {
-    use crate::config::SchedulerVersion;
-    let mut col = open_test_collection_with_server(false);
-    // our unit tests assume v2 is the default, but at the time of writing v1
-    // is still the default
-    col.set_scheduler_version_config_key(SchedulerVersion::V2)
-        .unwrap();
-    col
-}
-
-#[cfg(test)]
-pub fn open_test_collection_with_server(server: bool) -> Collection {
-    use crate::log;
-    let tr = I18n::template_only();
-    open_collection(":memory:", "", "", server, tr, log::terminal()).unwrap()
-}
-
-/// Helper used by syncing to make sure the file can be opened. This should be replaced
-/// with a builder in the future.
-pub(crate) fn open_and_check_collection(col_path: &Path) -> Result<Collection> {
-    use crate::log;
-    let tr = I18n::template_only();
-    let empty = Path::new("");
-    open_collection(col_path, empty, empty, true, tr, log::terminal())
+    CollectionBuilder::default().build().unwrap()
 }
 
 #[derive(Debug, Default)]
@@ -104,6 +130,16 @@ pub struct Collection {
 }
 
 impl Collection {
+    pub fn as_builder(&self) -> CollectionBuilder {
+        let mut builder = CollectionBuilder::new(&self.col_path);
+        builder
+            .set_media_paths(self.media_folder.clone(), self.media_db.clone())
+            .set_server(self.server)
+            .set_tr(self.tr.clone())
+            .set_logger(self.log.clone());
+        builder
+    }
+
     pub(crate) fn close(self, downgrade: bool) -> Result<()> {
         self.storage.close(downgrade)
     }
