@@ -115,6 +115,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fieldNames = newFieldNames;
     }
 
+    let fieldDescriptions: string[] = [];
+    export function setDescriptions(fs: string[]): void {
+        fieldDescriptions = fs;
+    }
+
     let fonts: [string, number, boolean][] = [];
     let richTextsHidden: boolean[] = [];
     let plainTextsHidden: boolean[] = [];
@@ -173,6 +178,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: fieldsData = fieldNames.map((name, index) => ({
         name,
+        description: fieldDescriptions[index],
         fontFamily: quoteFontFamily(fonts[index][0]),
         fontSize: fonts[index][1],
         direction: fonts[index][2] ? "rtl" : "ltr",

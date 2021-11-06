@@ -26,7 +26,6 @@
     export let hideDelay = 0;
 
     let tooltipObject: Tooltip;
-
     function createTooltip(element: HTMLElement): void {
         element.title = tooltip;
         tooltipObject = new Tooltip(element, {
@@ -39,6 +38,15 @@
     }
 
     onDestroy(() => tooltipObject?.dispose());
+
+    // hack to update field description tooltips
+    let previousTooltip: string = tooltip;
+    $: if (tooltip !== previousTooltip) {
+        previousTooltip = tooltip;
+        let element: HTMLElement = tooltipObject["_element"];
+        tooltipObject.dispose();
+        createTooltip(element);
+    }
 </script>
 
 <slot {createTooltip} {tooltipObject} />

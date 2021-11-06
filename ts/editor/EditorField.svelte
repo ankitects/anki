@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export interface FieldData {
         name: string;
+        description: string;
         fontFamily: string;
         fontSize: number;
         direction: "ltr" | "rtl";
@@ -29,6 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import EditingArea from "./EditingArea.svelte";
     import LabelContainer from "./LabelContainer.svelte";
+    import LabelDescription from "./LabelDescription.svelte";
     import LabelName from "./LabelName.svelte";
     import FieldState from "./FieldState.svelte";
 
@@ -74,7 +76,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:click={() => editingArea.focus?.()}
 >
     <LabelContainer>
-        <LabelName>{field.name}</LabelName>
+        <span>
+            <LabelName>
+                {field.name}
+            </LabelName>
+            {#if field.description}
+                <LabelDescription description={field.description} />
+            {/if}
+        </span>
         <FieldState><slot name="field-state" /></FieldState>
     </LabelContainer>
     <EditingArea

@@ -44,6 +44,7 @@ impl NoteField {
                 rtl: false,
                 font_name: "Arial".into(),
                 font_size: 20,
+                description: "".into(),
                 other: vec![],
             },
         }

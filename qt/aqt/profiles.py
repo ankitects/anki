@@ -184,6 +184,8 @@ class ProfileManager:
                             return sip._unpickle_type(module, klass, args)  # type: ignore
 
                     return unpickle_type
+                else:
+                    return super().find_class(class_module, name)
 
         up = Unpickler(io.BytesIO(data), errors="ignore")
         return up.load()
@@ -204,12 +206,12 @@ class ProfileManager:
         try:
             self.profile = self._unpickle(data)
         except:
+            print(traceback.format_exc())
             QMessageBox.warning(
                 None,
                 tr.profiles_profile_corrupt(),
                 tr.profiles_anki_could_not_read_your_profile(),
             )
-            traceback.print_stack()
             print("resetting corrupt profile")
             self.profile = profileConf.copy()
             self.save()
