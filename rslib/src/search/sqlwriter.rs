@@ -610,16 +610,12 @@ impl SearchNode {
 
 #[cfg(test)]
 mod test {
-    use std::{fs, path::PathBuf};
+    use std::fs;
 
     use tempfile::tempdir;
 
     use super::{super::parser::parse, *};
-    use crate::{
-        collection::{open_collection, Collection},
-        i18n::I18n,
-        log,
-    };
+    use crate::collection::{Collection, CollectionBuilder};
 
     // shortcut
     fn s(req: &mut Collection, search: &str) -> (String, Vec<String>) {
@@ -638,17 +634,7 @@ mod test {
         let col_path = dir.path().join("col.anki2");
         fs::write(&col_path, MEDIACHECK_ANKI2).unwrap();
 
-        let tr = I18n::template_only();
-        let mut col = open_collection(
-            &col_path,
-            &PathBuf::new(),
-            &PathBuf::new(),
-            false,
-            tr,
-            log::terminal(),
-        )
-        .unwrap();
-
+        let mut col = CollectionBuilder::new(col_path).build().unwrap();
         let ctx = &mut col;
 
         // unqualified search

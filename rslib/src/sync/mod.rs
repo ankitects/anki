@@ -1199,7 +1199,7 @@ mod test {
 
     use super::{server::LocalServer, *};
     use crate::{
-        collection::open_collection, deckconfig::DeckConfig, decks::DeckKind, i18n::I18n, log,
+        collection::CollectionBuilder, deckconfig::DeckConfig, decks::DeckKind,
         notetype::all_stock_notetypes, search::SortMode,
     };
 
@@ -1225,22 +1225,20 @@ mod test {
         rt.block_on(regular_sync(&ctx))
     }
 
-    fn open_col(dir: &Path, server: bool, fname: &str) -> Result<Collection> {
-        let path = dir.join(fname);
-        let tr = I18n::template_only();
-        open_collection(path, "".into(), "".into(), server, tr, log::terminal())
-    }
-
     #[async_trait(?Send)]
     trait TestContext {
         fn server(&self) -> Box<dyn SyncServer>;
 
         fn col1(&self) -> Collection {
-            open_col(self.dir(), false, "col1.anki2").unwrap()
+            CollectionBuilder::new(self.dir().join("col1.anki2"))
+                .build()
+                .unwrap()
         }
 
         fn col2(&self) -> Collection {
-            open_col(self.dir(), false, "col2.anki2").unwrap()
+            CollectionBuilder::new(self.dir().join("col2.anki2"))
+                .build()
+                .unwrap()
         }
 
         fn dir(&self) -> &Path {
@@ -1274,7 +1272,11 @@ mod test {
     #[async_trait(?Send)]
     impl TestContext for LocalTestContext {
         fn server(&self) -> Box<dyn SyncServer> {
-            let col = open_col(self.dir(), true, "server.anki2").unwrap();
+            let col_path = self.dir().join("server.anki2");
+            let col = CollectionBuilder::new(col_path)
+                .set_server(true)
+                .build()
+                .unwrap();
             Box::new(LocalServer::new(col))
         }
     }
