@@ -8,6 +8,8 @@ mod relearning;
 mod review;
 mod revlog;
 
+use rand::{prelude::*, rngs::StdRng};
+
 use revlog::RevlogEntryPartial;
 
 use super::{
@@ -59,7 +61,7 @@ impl CardStateUpdater {
     /// state handling code from the rest of the Anki codebase.
     pub(crate) fn state_context(&self) -> StateContext<'_> {
         StateContext {
-            fuzz_seed: self.fuzz_seed,
+            fuzz_factor: get_fuzz_factor(self.fuzz_seed),
             steps: self.learn_steps(),
             graduating_interval_good: self.config.inner.graduating_interval_good,
             graduating_interval_easy: self.config.inner.graduating_interval_easy,
@@ -426,6 +428,12 @@ fn get_fuzz_seed(card: &Card) -> Option<u64> {
     } else {
         Some((card.id.0 as u64).wrapping_add(card.reps as u64))
     }
+}
+
+/// Return a fuzz factor from the range `0.0..1.0`, using the provided seed.
+/// None if seed is None.
+fn get_fuzz_factor(seed: Option<u64>) -> Option<f32> {
+    seed.map(|s| StdRng::seed_from_u64(s).gen_range(0.0..1.0))
 }
 
 #[cfg(test)]

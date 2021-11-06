@@ -38,6 +38,8 @@ def test_clock():
 
 
 def checkRevIvl(col, c, targetIvl):
+    if is_2021():
+        return
     min, max = col.sched._fuzzIvlRange(targetIvl)
     assert min <= c.ivl <= max
 
@@ -715,6 +717,7 @@ def test_suspend():
 
 
 def test_filt_reviewing_early_normal():
+    to_int = round if is_2021() else int
     col = getEmptyCol()
     note = col.newNote()
     note["Front"] = "one"
@@ -743,9 +746,9 @@ def test_filt_reviewing_early_normal():
     c = col.sched.getCard()
     assert col.sched.answerButtons(c) == 4
     assert col.sched.nextIvl(c, 1) == 600
-    assert col.sched.nextIvl(c, 2) == int(75 * 1.2) * 86400
-    assert col.sched.nextIvl(c, 3) == int(75 * 2.5) * 86400
-    assert col.sched.nextIvl(c, 4) == int(75 * 2.5 * 1.15) * 86400
+    assert col.sched.nextIvl(c, 2) == to_int(75 * 1.2) * 86400
+    assert col.sched.nextIvl(c, 3) == to_int(75 * 2.5) * 86400
+    assert col.sched.nextIvl(c, 4) == to_int(75 * 2.5 * 1.15) * 86400
 
     # answer 'good'
     col.sched.answerCard(c, 3)
@@ -765,9 +768,9 @@ def test_filt_reviewing_early_normal():
     col.reset()
     c = col.sched.getCard()
 
-    assert col.sched.nextIvl(c, 2) == 60 * 86400
+    assert col.sched.nextIvl(c, 2) == 100 * 1.2 / 2 * 86400
     assert col.sched.nextIvl(c, 3) == 100 * 86400
-    assert col.sched.nextIvl(c, 4) == 114 * 86400
+    assert col.sched.nextIvl(c, 4) == to_int(100 * (1.3 - (1.3 - 1) / 2)) * 86400
 
 
 def test_filt_keep_lrn_state():
