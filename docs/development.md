@@ -17,7 +17,8 @@ Pre-built Python packages are available on PyPI. They are useful if you wish to:
 
 You will need the 64 bit version of Python 3.9 or 3.10 installed. 3.9 is recommended,
 as Anki has only received minimal testing on 3.10 so far, and some dependencies have not
-been fully updated yet. You can install Python from python.org or from your distro.
+been fully updated yet. On Windows, only 3.9 will work. You can install Python from
+python.org or from your distro.
 
 **Mac/Linux**:
 
