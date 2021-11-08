@@ -21,7 +21,7 @@ export function getNodeCoordinates(node: Node): number[] {
 
 export function findNodeFromCoordinates(
     node: Node,
-    coordinates: number[]
+    coordinates: number[],
 ): Node | null {
     if (coordinates.length === 0) {
         return node;
@@ -31,7 +31,7 @@ export function findNodeFromCoordinates(
         const [firstCoordinate, ...restCoordinates] = coordinates;
         return findNodeFromCoordinates(
             node.childNodes[firstCoordinate],
-            restCoordinates
+            restCoordinates,
         );
     }
 }

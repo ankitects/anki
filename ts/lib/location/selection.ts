@@ -5,12 +5,12 @@ import { getNodeCoordinates } from "./node";
 import type { CaretLocation } from "./location";
 import { compareLocations, Order } from "./location";
 
-interface SelectionLocationCollapsed {
+export interface SelectionLocationCollapsed {
     readonly anchor: CaretLocation;
     readonly collapsed: true;
 }
 
-interface SelectionLocationContent {
+export interface SelectionLocationContent {
     readonly anchor: CaretLocation;
     readonly focus: CaretLocation;
     readonly collapsed: false;
