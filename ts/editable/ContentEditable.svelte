@@ -6,7 +6,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import { updateAllState } from "../components/WithState.svelte";
     import { saveSelection, restoreSelection } from "../domlib/location";
-    import type { SelectionLocation } from "../domlib/location";
     import { on } from "../lib/events";
 
     export let nodes: Writable<DocumentFragment>;
@@ -16,25 +15,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         params: { store: Writable<DocumentFragment> },
     ) => void;
 
-    let location: SelectionLocation | null = null;
-
     /* must execute before DOMMirror */
     function saveLocation(editable: Element) {
-        return {
-            destroy: on(editable, "blur", () => {
-                location = saveSelection(editable);
-            }),
-        };
-    }
+        let removeOnFocus: () => void;
+        let removeOnPointerdown: () => void;
 
-    /* must execute after DOMMirror */
-    function restoreLocation(editable: Element) {
+        const removeOnBlur = on(editable, "blur", () => {
+            const location = saveSelection(editable);
+
+            removeOnFocus = on(
+                editable,
+                "focus",
+                () => {
+                    if (location) {
+                        restoreSelection(editable, location);
+                    }
+                },
+                { once: true },
+            );
+
+            removeOnPointerdown = on(editable, "pointerdown", () => removeOnFocus?.(), {
+                once: true,
+            });
+        });
+
         return {
-            destroy: on(editable, "focus", () => {
-                if (location) {
-                    restoreSelection(editable, location);
-                }
-            }),
+            destroy() {
+                removeOnBlur();
+                removeOnFocus?.();
+                removeOnPointerdown?.();
+            },
         };
     }
 </script>
@@ -44,7 +54,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     use:resolve
     use:saveLocation
     use:mirror={{ store: nodes }}
-    use:restoreLocation
     on:click={updateAllState}
     on:keyup={updateAllState}
 />
