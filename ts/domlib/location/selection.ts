@@ -4,6 +4,7 @@
 import { getNodeCoordinates } from "./node";
 import type { CaretLocation } from "./location";
 import { compareLocations, Order } from "./location";
+import { getSelection } from "../../lib/cross-browser";
 
 export interface SelectionLocationCollapsed {
     readonly anchor: CaretLocation;
@@ -21,12 +22,14 @@ export type SelectionLocation = SelectionLocationCollapsed | SelectionLocationCo
 
 /* Gecko can have multiple ranges in the selection
 /* this function will get the coordinates of the latest one created */
-export function getSelectionLocation(selection: Selection): SelectionLocation | null {
+export function getSelectionLocation(base: Node): SelectionLocation | null {
+    const selection = getSelection(base)!;
+
     if (selection.rangeCount === 0) {
         return null;
     }
 
-    const anchorCoordinates = getNodeCoordinates(selection.anchorNode!);
+    const anchorCoordinates = getNodeCoordinates(selection.anchorNode!, base);
     const anchor = { coordinates: anchorCoordinates, offset: selection.anchorOffset };
     /* selection.isCollapsed will always return true in shadow root in Gecko */
     const collapsed = selection.getRangeAt(selection.rangeCount - 1).collapsed;
@@ -35,7 +38,7 @@ export function getSelectionLocation(selection: Selection): SelectionLocation | 
         return { anchor, collapsed };
     }
 
-    const focusCoordinates = getNodeCoordinates(selection.focusNode!);
+    const focusCoordinates = getNodeCoordinates(selection.focusNode!, base);
     const focus = { coordinates: focusCoordinates, offset: selection.focusOffset };
     const order = compareLocations(anchor, focus);
 

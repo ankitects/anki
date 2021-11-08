@@ -50,7 +50,10 @@ button {
     transition: color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
 }
 
-pre, code, kbd, samp {
+pre,
+code,
+kbd,
+samp {
     unicode-bidi: normal !important;
 }
 

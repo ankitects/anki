@@ -17,8 +17,8 @@ interface RangeCoordinatesContent {
 
 export type RangeCoordinates = RangeCoordinatesCollapsed | RangeCoordinatesContent;
 
-export function getRangeCoordinates(range: Range): RangeCoordinates {
-    const startCoordinates = getNodeCoordinates(range.startContainer);
+export function getRangeCoordinates(base: Node, range: Range): RangeCoordinates {
+    const startCoordinates = getNodeCoordinates(base, range.startContainer);
     const start = { coordinates: startCoordinates, offset: range.startOffset };
     const collapsed = range.collapsed;
 
@@ -26,7 +26,7 @@ export function getRangeCoordinates(range: Range): RangeCoordinates {
         return { start, collapsed };
     }
 
-    const endCoordinates = getNodeCoordinates(range.endContainer);
+    const endCoordinates = getNodeCoordinates(base, range.endContainer);
     const end = { coordinates: endCoordinates, offset: range.endOffset };
 
     return { start, end, collapsed };

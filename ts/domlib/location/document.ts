@@ -4,10 +4,10 @@
 import type { SelectionLocation, SelectionLocationContent } from "./selection";
 import { getSelectionLocation } from "./selection";
 import { findNodeFromCoordinates } from "./node";
-import { getSelection } from "../cross-browser";
+import { getSelection } from "../../lib/cross-browser";
 
-export function saveSelection(root: Node): SelectionLocation | null {
-    return getSelectionLocation(getSelection(root)!);
+export function saveSelection(base: Node): SelectionLocation | null {
+    return getSelectionLocation(base);
 }
 
 function unselect(selection: Selection): void {
@@ -33,29 +33,20 @@ function setSelectionToLocationContent(
     }
 }
 
-export function restoreSelection(node: Node, location: SelectionLocation): void {
-    const selection = getSelection(node)!;
-
+export function restoreSelection(base: Node, location: SelectionLocation): void {
+    const selection = getSelection(base)!;
     unselect(selection);
 
-    if (location.anchor.coordinates.length === 0) {
-        /* nothing was selected */
-        return;
-    }
-
     const range = new Range();
-
-    const anchorLocation = location.anchor;
-    const anchorOffset = anchorLocation.offset;
-    const anchorNode = findNodeFromCoordinates(node, anchorLocation.coordinates);
-    range.setStart(anchorNode!, anchorOffset!);
+    const anchorNode = findNodeFromCoordinates(base, location.anchor.coordinates);
+    range.setStart(anchorNode!, location.anchor.offset!);
 
     if (location.collapsed) {
         range.collapse(true);
         selection.addRange(range);
     } else {
         setSelectionToLocationContent(
-            node,
+            base,
             selection,
             range,
             location as SelectionLocationContent,

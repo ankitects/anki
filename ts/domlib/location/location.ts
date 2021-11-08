@@ -13,7 +13,9 @@ export enum Order {
 }
 
 export function compareLocations(first: CaretLocation, second: CaretLocation): Order {
-    for (let i = 0; true; i++) {
+    const smallerLength = Math.min(first.coordinates.length, second.coordinates.length);
+
+    for (let i = 0; i <= smallerLength; i++) {
         if (first.coordinates.length === i) {
             if (second.coordinates.length === i) {
                 if (first.offset < second.offset) {
@@ -33,4 +35,6 @@ export function compareLocations(first: CaretLocation, second: CaretLocation): O
             return Order.GreaterThan;
         }
     }
+
+    throw new Error("compareLocations: Should never happen");
 }

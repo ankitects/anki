@@ -10,7 +10,6 @@ import "./editor-base.css";
 
 import "../sveltelib/export-runtime";
 import "../lib/register-package";
-import "../lib/surround";
 
 import { filterHTML } from "../html-filter";
 import { execCommand } from "./helpers";
@@ -32,11 +31,6 @@ export function setFormat(cmd: string, arg?: string, _nosave = false): void {
     execCommand(cmd, false, arg);
     updateAllState(new Event(cmd));
 }
-
-export { editorToolbar } from "./EditorToolbar.svelte";
-
-import "../sveltelib/export-runtime";
-import "../lib/register-package";
 
 import { setupI18n, ModuleName } from "../lib/i18n";
 import { isApplePlatform } from "../lib/platform";
