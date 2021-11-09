@@ -1,0 +1,8 @@
+{
+    "extends": "../tsconfig.json",
+    "include": ["*", "location/*"],
+    "references": [{ "path": "../lib" }],
+    "compilerOptions": {
+        "types": ["jest"]
+    }
+}

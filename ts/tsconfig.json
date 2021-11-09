@@ -9,9 +9,10 @@
         { "path": "editor" },
         { "path": "graphs" },
         { "path": "html-filter" },
-        { "path": "lib" },
         { "path": "reviewer" },
-        { "path": "sveltelib" }
+        { "path": "lib" },
+        { "path": "domlib" },
+        { "path": "sveltelib" },
     ],
     "compilerOptions": {
         "declaration": true,
