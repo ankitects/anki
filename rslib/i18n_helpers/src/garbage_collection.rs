@@ -17,11 +17,8 @@ use crate::serialize;
 pub fn extract_ftl_references(roots: &[&str], target: &str) {
     let mut refs = HashSet::new();
     for root in roots {
-        for entry in WalkDir::new(root) {
-            let entry = entry.expect("failed to visit dir");
-            if entry.file_type().is_file() {
-                extract_references_from_file(&mut refs, &entry);
-            }
+        for entry in WalkDir::new(root).into_iter().filter_map(unwrap_file_entry) {
+            extract_references_from_file(&mut refs, &entry);
         }
     }
     serde_json::to_writer(
@@ -35,45 +32,60 @@ pub fn extract_ftl_references(roots: &[&str], target: &str) {
 /// `json_root`.
 pub fn remove_unused_ftl_messages(ftl_root: &str, json_root: &str) {
     let mut used_ftls = HashSet::new();
-    for entry in WalkDir::new(json_root) {
-        let entry = entry.expect("failed to visit dir");
-        if entry.file_type().is_file()
-            && entry
-                .file_name()
-                .to_str()
-                .expect("non-unicode filename")
-                .ends_with(".json")
-        {
-            let buffer = BufReader::new(fs::File::open(entry.path()).expect("failed to open file"));
-            let refs: Vec<String> = serde_json::from_reader(buffer).expect("failed to parse json");
-            used_ftls.extend(refs);
+    for entry in WalkDir::new(json_root)
+        .into_iter()
+        .filter_map(unwrap_file_entry_with_ending("json"))
+    {
+        let buffer = BufReader::new(fs::File::open(entry.path()).expect("failed to open file"));
+        let refs: Vec<String> = serde_json::from_reader(buffer).expect("failed to parse json");
+        used_ftls.extend(refs);
+    }
+    for entry in WalkDir::new(ftl_root)
+        .into_iter()
+        .filter_map(unwrap_file_entry_with_ending("ftl"))
+    {
+        let ftl = fs::read_to_string(entry.path()).expect("failed to open file");
+        let mut ast = parser::parse(ftl.as_str()).expect("failed to parse ftl");
+        extract_nested_ftl_messages(&mut &ast, &mut used_ftls);
+        let num_entries = ast.body.len();
+        ast.body = ast
+            .body
+            .into_iter()
+            .filter(|entry| match entry {
+                ast::Entry::Message(msg) => used_ftls.contains(msg.id.name),
+                _ => true,
+            })
+            .collect();
+        if ast.body.len() < num_entries {
+            fs::write(entry.path(), serialize::serialize(&ast)).expect("failed to write file");
         }
     }
-    for entry in WalkDir::new(ftl_root) {
-        let entry = entry.expect("failed to visit dir");
-        if entry.file_type().is_file()
-            && entry
+}
+
+fn unwrap_file_entry_with_ending(
+    file_ending: &'static str,
+) -> impl Fn(walkdir::Result<DirEntry>) -> Option<DirEntry> {
+    move |res: walkdir::Result<DirEntry>| {
+        if let Some(entry) = unwrap_file_entry(res) {
+            if entry
                 .file_name()
                 .to_str()
                 .expect("non-unicode filename")
-                .ends_with(".ftl")
-        {
-            let ftl = fs::read_to_string(entry.path()).expect("failed to open file");
-            let mut ast = parser::parse(ftl.as_str()).expect("failed to parse ftl");
-            extract_nested_ftl_messages(&mut &ast, &mut used_ftls);
-            let num_entries = ast.body.len();
-            ast.body = ast
-                .body
-                .into_iter()
-                .filter(|entry| match entry {
-                    ast::Entry::Message(msg) => used_ftls.contains(msg.id.name),
-                    _ => true,
-                })
-                .collect();
-            if ast.body.len() < num_entries {
-                fs::write(entry.path(), serialize::serialize(&ast)).expect("failed to write file");
+                .ends_with(file_ending)
+            {
+                return Some(entry);
             }
         }
+        None
+    }
+}
+
+fn unwrap_file_entry(res: walkdir::Result<DirEntry>) -> Option<DirEntry> {
+    let entry = res.expect("failed to visit dir");
+    if entry.file_type().is_file() {
+        Some(entry)
+    } else {
+        None
     }
 }
 
@@ -189,19 +201,13 @@ mod test {
     #[ignore]
     #[test]
     fn formatting() {
-        for entry in WalkDir::new("../../ftl/core") {
-            let entry = entry.expect("failed to visit dir");
-            if entry.file_type().is_file()
-                && entry
-                    .file_name()
-                    .to_str()
-                    .expect("non-unicode filename")
-                    .ends_with(".ftl")
-            {
-                let ftl = fs::read_to_string(entry.path()).expect("failed to open file");
-                let ast = parser::parse(ftl.as_str()).expect("failed to parse ftl");
-                fs::write(entry.path(), serialize::serialize(&ast)).expect("failed to write file");
-            }
+        for entry in WalkDir::new("../../ftl/core")
+            .into_iter()
+            .filter_map(unwrap_file_entry_with_ending("ftl"))
+        {
+            let ftl = fs::read_to_string(entry.path()).expect("failed to open file");
+            let ast = parser::parse(ftl.as_str()).expect("failed to parse ftl");
+            fs::write(entry.path(), serialize::serialize(&ast)).expect("failed to write file");
         }
     }
 
