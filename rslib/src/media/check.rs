@@ -8,6 +8,8 @@ use std::{
     path::Path,
 };
 
+use anki_i18n::without_unicode_isolation;
+
 use crate::{
     collection::Collection,
     error::{AnkiError, DbErrorKind, Result},
@@ -24,8 +26,6 @@ use crate::{
     notes::Note,
     text::{extract_media_refs, normalize_to_nfc, MediaRef, REMOTE_FILENAME},
 };
-
-use anki_i18n::without_unicode_isolation;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct MediaCheckOutput {
@@ -518,10 +518,8 @@ pub(crate) mod test {
 
     use super::normalize_and_maybe_rename_files;
     use crate::{
-        collection::{open_collection, Collection},
+        collection::{Collection, CollectionBuilder},
         error::Result,
-        i18n::I18n,
-        log,
         media::{
             check::{MediaCheckOutput, MediaChecker},
             files::trash_folder,
@@ -531,18 +529,16 @@ pub(crate) mod test {
 
     fn common_setup() -> Result<(TempDir, MediaManager, Collection)> {
         let dir = tempdir()?;
-        let media_dir = dir.path().join("media");
-        fs::create_dir(&media_dir)?;
+        let media_folder = dir.path().join("media");
+        fs::create_dir(&media_folder)?;
         let media_db = dir.path().join("media.db");
         let col_path = dir.path().join("col.anki2");
         fs::write(&col_path, MEDIACHECK_ANKI2)?;
 
-        let mgr = MediaManager::new(&media_dir, media_db.clone())?;
-
-        let log = log::terminal();
-        let tr = I18n::template_only();
-
-        let col = open_collection(col_path, media_dir, media_db, false, tr, log)?;
+        let mgr = MediaManager::new(&media_folder, media_db.clone())?;
+        let col = CollectionBuilder::new(col_path)
+            .set_media_paths(media_folder, media_db)
+            .build()?;
 
         Ok((dir, mgr, col))
     }

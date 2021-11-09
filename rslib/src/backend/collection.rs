@@ -8,8 +8,8 @@ pub(super) use crate::backend_proto::collection_service::Service as CollectionSe
 use crate::{
     backend::progress::progress_to_proto,
     backend_proto as pb,
-    collection::open_collection,
-    log::{self, default_logger},
+    collection::CollectionBuilder,
+    log::{self},
     prelude::*,
 };
 
@@ -30,25 +30,16 @@ impl CollectionService for Backend {
             return Err(AnkiError::CollectionAlreadyOpen);
         }
 
-        let mut path = input.collection_path.clone();
-        path.push_str(".log");
+        let mut builder = CollectionBuilder::new(input.collection_path);
+        builder
+            .set_media_paths(input.media_folder_path, input.media_db_path)
+            .set_server(self.server)
+            .set_tr(self.tr.clone());
+        if !input.log_path.is_empty() {
+            builder.set_log_file(&input.log_path)?;
+        }
 
-        let log_path = match input.log_path.as_str() {
-            "" => None,
-            path => Some(path),
-        };
-        let logger = default_logger(log_path)?;
-
-        let new_col = open_collection(
-            input.collection_path,
-            input.media_folder_path,
-            input.media_db_path,
-            self.server,
-            self.tr.clone(),
-            logger,
-        )?;
-
-        *col = Some(new_col);
+        *col = Some(builder.build()?);
 
         Ok(().into())
     }

@@ -65,8 +65,7 @@ impl ReviewState {
     }
 
     pub(crate) fn failing_review_interval(self, ctx: &StateContext) -> u32 {
-        // fixme: floor() is for python
-        (((self.scheduled_days as f32) * ctx.lapse_multiplier).floor() as u32)
+        (((self.scheduled_days as f32) * ctx.lapse_multiplier) as u32)
             .max(ctx.minimum_lapse_interval)
             .max(1)
     }
@@ -141,13 +140,11 @@ impl ReviewState {
             self.scheduled_days + 1
         };
 
-        // fixme: floor() is to match python
-
         let hard_interval =
             constrain_passing_interval(ctx, current_interval * hard_factor, hard_minimum, true);
         let good_interval = constrain_passing_interval(
             ctx,
-            (current_interval + (days_late / 2.0).floor()) * self.ease_factor,
+            (current_interval + days_late / 2.0) * self.ease_factor,
             hard_interval + 1,
             true,
         );
@@ -184,13 +181,10 @@ impl ReviewState {
             constrain_passing_interval(ctx, (elapsed * self.ease_factor).max(scheduled), 0, false);
 
         let easy_interval = {
-            // currently flooring() f64s to match python output
-            let easy_mult = ctx.easy_multiplier as f64;
-            let reduced_bonus = easy_mult - (easy_mult - 1.0) / 2.0;
+            let reduced_bonus = ctx.easy_multiplier - (ctx.easy_multiplier - 1.0) / 2.0;
             constrain_passing_interval(
                 ctx,
-                ((elapsed as f64 * self.ease_factor as f64).max(scheduled as f64) * reduced_bonus)
-                    .floor() as f32,
+                (elapsed * self.ease_factor).max(scheduled) * reduced_bonus,
                 0,
                 false,
             )
@@ -218,17 +212,13 @@ fn leech_threshold_met(lapses: u32, threshold: u32) -> bool {
 /// - Ensure it is at least `minimum`, and at least 1.
 /// - Ensure it is at or below the configured maximum interval.
 fn constrain_passing_interval(ctx: &StateContext, interval: f32, minimum: u32, fuzz: bool) -> u32 {
-    // fixme: floor is to match python
-    let interval = interval.floor() * ctx.interval_multiplier;
-    let interval = if fuzz {
-        ctx.with_review_fuzz(interval)
+    let interval = interval * ctx.interval_multiplier;
+    let (minimum, maximum) = ctx.min_and_max_review_intervals(minimum);
+    if fuzz {
+        ctx.with_review_fuzz(interval, minimum, maximum)
     } else {
-        interval.floor() as u32
-    };
-    interval
-        .max(minimum)
-        .min(ctx.maximum_review_interval)
-        .max(1)
+        (interval.round() as u32).max(minimum).min(maximum)
+    }
 }
 
 #[cfg(test)]
