@@ -122,57 +122,57 @@ impl Note {
 }
 
 impl Column {
-    pub fn cards_mode_label(self, i18n: &I18n) -> String {
+    pub fn cards_mode_label(self, tr: &I18n) -> String {
         match self {
-            Self::Answer => i18n.browsing_answer(),
-            Self::CardMod => i18n.search_card_modified(),
-            Self::Cards => i18n.browsing_card(),
-            Self::Deck => i18n.decks_deck(),
-            Self::Due => i18n.statistics_due_date(),
-            Self::Custom => i18n.browsing_addon(),
-            Self::Ease => i18n.browsing_ease(),
-            Self::Interval => i18n.browsing_interval(),
-            Self::Lapses => i18n.scheduling_lapses(),
-            Self::NoteCreation => i18n.browsing_created(),
-            Self::NoteMod => i18n.search_note_modified(),
-            Self::Notetype => i18n.browsing_note(),
-            Self::Question => i18n.browsing_question(),
-            Self::Reps => i18n.scheduling_reviews(),
-            Self::SortField => i18n.browsing_sort_field(),
-            Self::Tags => i18n.editing_tags(),
+            Self::Answer => tr.browsing_answer(),
+            Self::CardMod => tr.search_card_modified(),
+            Self::Cards => tr.browsing_card(),
+            Self::Deck => tr.decks_deck(),
+            Self::Due => tr.statistics_due_date(),
+            Self::Custom => tr.browsing_addon(),
+            Self::Ease => tr.browsing_ease(),
+            Self::Interval => tr.browsing_interval(),
+            Self::Lapses => tr.scheduling_lapses(),
+            Self::NoteCreation => tr.browsing_created(),
+            Self::NoteMod => tr.search_note_modified(),
+            Self::Notetype => tr.browsing_note(),
+            Self::Question => tr.browsing_question(),
+            Self::Reps => tr.scheduling_reviews(),
+            Self::SortField => tr.browsing_sort_field(),
+            Self::Tags => tr.editing_tags(),
         }
         .into()
     }
 
-    pub fn notes_mode_label(self, i18n: &I18n) -> String {
+    pub fn notes_mode_label(self, tr: &I18n) -> String {
         match self {
-            Self::CardMod => i18n.search_card_modified(),
-            Self::Cards => i18n.editing_cards(),
-            Self::Ease => i18n.browsing_average_ease(),
-            Self::Interval => i18n.browsing_average_interval(),
-            Self::Reps => i18n.scheduling_reviews(),
-            _ => return self.cards_mode_label(i18n),
+            Self::CardMod => tr.search_card_modified(),
+            Self::Cards => tr.editing_cards(),
+            Self::Ease => tr.browsing_average_ease(),
+            Self::Interval => tr.browsing_average_interval(),
+            Self::Reps => tr.scheduling_reviews(),
+            _ => return self.cards_mode_label(tr),
         }
         .into()
     }
 
-    pub fn cards_mode_tooltip(self, i18n: &I18n) -> String {
+    pub fn cards_mode_tooltip(self, tr: &I18n) -> String {
         match self {
-            Self::Answer => i18n.browsing_tooltip_answer(),
-            Self::CardMod => i18n.browsing_tooltip_card_modified(),
-            Self::Cards => i18n.browsing_tooltip_card(),
-            Self::NoteMod => i18n.browsing_tooltip_note_modified(),
-            Self::Notetype => i18n.browsing_tooltip_notetype(),
-            Self::Question => i18n.browsing_tooltip_question(),
+            Self::Answer => tr.browsing_tooltip_answer(),
+            Self::CardMod => tr.browsing_tooltip_card_modified(),
+            Self::Cards => tr.browsing_tooltip_card(),
+            Self::NoteMod => tr.browsing_tooltip_note_modified(),
+            Self::Notetype => tr.browsing_tooltip_notetype(),
+            Self::Question => tr.browsing_tooltip_question(),
             _ => "".into(),
         }
         .into()
     }
 
-    pub fn notes_mode_tooltip(self, i18n: &I18n) -> String {
+    pub fn notes_mode_tooltip(self, tr: &I18n) -> String {
         match self {
-            Self::Cards => i18n.browsing_tooltip_cards(),
-            _ => return self.cards_mode_label(i18n),
+            Self::Cards => tr.browsing_tooltip_cards(),
+            _ => return self.cards_mode_label(tr),
         }
         .into()
     }
