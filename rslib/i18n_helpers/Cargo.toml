@@ -1,0 +1,20 @@
+[package]
+name = "anki_i18n_helpers"
+version = "0.0.0"
+edition = "2018"
+authors = ["Ankitects Pty Ltd and contributors"]
+license = "AGPL-3.0-or-later"
+description = "Helpers for Anki's i18n system"
+
+[lib]
+name = "anki_i18n_helpers"
+path = "src/lib.rs"
+
+# After updating anything below, run ../cargo/update.py
+
+[dependencies]
+lazy_static = "1.4.0"
+regex = "1.5.4"
+serde_json = "1.0.68"
+walkdir = "2"
+fluent-syntax = "0.11.0"
