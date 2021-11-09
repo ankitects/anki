@@ -15,11 +15,11 @@ rust_library(
     ]),
     visibility = ["//rslib:__subpackages__"],
     deps = [
-        "//rslib/i18n/cargo:fluent-syntax",
-        "//rslib/i18n/cargo:serde_json",
-        "//rslib/i18n/cargo:lazy_static",
-        "//rslib/i18n/cargo:regex",
-        "//rslib/i18n/cargo:walkdir",
+        "//rslib/i18n_helpers/cargo:fluent_syntax",
+        "//rslib/i18n_helpers/cargo:serde_json",
+        "//rslib/i18n_helpers/cargo:lazy_static",
+        "//rslib/i18n_helpers/cargo:regex",
+        "//rslib/i18n_helpers/cargo:walkdir",
     ],
 )
 
