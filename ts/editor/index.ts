@@ -8,6 +8,9 @@ import "./editor-base.css";
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import "../sveltelib/export-runtime";
+import "../lib/register-package";
+
 import { filterHTML } from "../html-filter";
 import { execCommand } from "./helpers";
 import { updateAllState } from "../components/WithState.svelte";
@@ -28,11 +31,6 @@ export function setFormat(cmd: string, arg?: string, _nosave = false): void {
     execCommand(cmd, false, arg);
     updateAllState(new Event(cmd));
 }
-
-export { editorToolbar } from "./EditorToolbar.svelte";
-
-import "../sveltelib/export-runtime";
-import "../lib/register-package";
 
 import { setupI18n, ModuleName } from "../lib/i18n";
 import { isApplePlatform } from "../lib/platform";

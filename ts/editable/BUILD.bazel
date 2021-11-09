@@ -21,6 +21,7 @@ compile_sass(
 _ts_deps = [
     "//ts/components",
     "//ts/lib",
+    "//ts/domlib",
     "//ts/sveltelib",
     "@npm//mathjax",
     "@npm//mathjax-full",
@@ -67,5 +68,6 @@ svelte_check(
         "*.svelte",
     ]) + [
         "//ts/components",
+        "//ts/domlib",
     ],
 )

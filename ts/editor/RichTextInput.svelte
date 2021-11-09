@@ -161,19 +161,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const allContexts = getAllContexts();
 
     function attachContentEditable(element: Element, { stylesDidLoad }): void {
-        stylesDidLoad.then(() => {
-            const contentEditable = new ContentEditable({
-                target: element.shadowRoot!,
-                props: {
-                    nodes,
-                    resolve,
-                    mirror,
-                },
-                context: allContexts,
-            });
-
-            contentEditable.$on("focus", moveCaretToEnd);
-        });
+        stylesDidLoad.then(
+            () =>
+                new ContentEditable({
+                    target: element.shadowRoot!,
+                    props: {
+                        nodes,
+                        resolve,
+                        mirror,
+                    },
+                    context: allContexts,
+                }),
+        );
     }
 
     export const api: RichTextInputAPI = {
