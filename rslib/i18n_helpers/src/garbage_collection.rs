@@ -17,9 +17,9 @@ use crate::serialize;
 pub fn extract_ftl_references(roots: &[&str], target: &str) {
     let mut refs = HashSet::new();
     for root in roots {
-        for entry in WalkDir::new(root).into_iter().filter_map(unwrap_file_entry) {
-            extract_references_from_file(&mut refs, &entry);
-        }
+        for_files_with_ending(root, "", |entry| {
+            extract_references_from_file(&mut refs, &entry)
+        })
     }
     serde_json::to_writer(
         fs::File::create(target).expect("failed to create file"),
@@ -32,113 +32,67 @@ pub fn extract_ftl_references(roots: &[&str], target: &str) {
 /// `json_root`.
 pub fn remove_unused_ftl_messages(ftl_root: &str, json_root: &str) {
     let mut used_ftls = HashSet::new();
-    for entry in WalkDir::new(json_root)
-        .into_iter()
-        .filter_map(unwrap_file_entry_with_ending("json"))
-    {
+    import_used_messages(json_root, &mut used_ftls);
+    extract_nested_messages_and_terms(ftl_root, &mut used_ftls);
+    strip_unused_ftl_messages_and_terms(ftl_root, &used_ftls);
+}
+
+fn for_files_with_ending(root: &str, file_ending: &str, mut op: impl FnMut(DirEntry)) {
+    for res in WalkDir::new(root) {
+        let entry = res.expect("failed to visit dir");
+        if entry.file_type().is_file()
+            && entry
+                .file_name()
+                .to_str()
+                .expect("non-unicode filename")
+                .ends_with(file_ending)
+        {
+            op(entry);
+        }
+    }
+}
+
+fn import_used_messages(json_root: &str, used_ftls: &mut HashSet<String>) {
+    for_files_with_ending(json_root, ".json", |entry| {
         let buffer = BufReader::new(fs::File::open(entry.path()).expect("failed to open file"));
         let refs: Vec<String> = serde_json::from_reader(buffer).expect("failed to parse json");
         used_ftls.extend(refs);
+    })
+}
+
+fn extract_nested_messages_and_terms(ftl_root: &str, used_ftls: &mut HashSet<String>) {
+    lazy_static! {
+        static ref REFERENCE: Regex = Regex::new(r"\{\s*-?([-0-9a-z]+)\s*\}").unwrap();
     }
-    for entry in WalkDir::new(ftl_root)
-        .into_iter()
-        .filter_map(unwrap_file_entry_with_ending("ftl"))
-    {
+
+    for_files_with_ending(ftl_root, ".ftl", |entry| {
+        let source = fs::read_to_string(entry.path()).expect("file not readable");
+        for caps in REFERENCE.captures_iter(&source) {
+            used_ftls.insert(caps[1].to_string());
+        }
+    })
+}
+
+fn strip_unused_ftl_messages_and_terms(ftl_root: &str, used_ftls: &HashSet<String>) {
+    for_files_with_ending(ftl_root, ".ftl", |entry| {
         let ftl = fs::read_to_string(entry.path()).expect("failed to open file");
         let mut ast = parser::parse(ftl.as_str()).expect("failed to parse ftl");
-        extract_nested_ftl_messages(&mut &ast, &mut used_ftls);
         let num_entries = ast.body.len();
+
         ast.body = ast
             .body
             .into_iter()
             .filter(|entry| match entry {
                 ast::Entry::Message(msg) => used_ftls.contains(msg.id.name),
+                ast::Entry::Term(term) => used_ftls.contains(dbg!(term.id.name)),
                 _ => true,
             })
             .collect();
+
         if ast.body.len() < num_entries {
             fs::write(entry.path(), serialize::serialize(&ast)).expect("failed to write file");
         }
-    }
-}
-
-fn unwrap_file_entry_with_ending(
-    file_ending: &'static str,
-) -> impl Fn(walkdir::Result<DirEntry>) -> Option<DirEntry> {
-    move |res: walkdir::Result<DirEntry>| {
-        if let Some(entry) = unwrap_file_entry(res) {
-            if entry
-                .file_name()
-                .to_str()
-                .expect("non-unicode filename")
-                .ends_with(file_ending)
-            {
-                return Some(entry);
-            }
-        }
-        None
-    }
-}
-
-fn unwrap_file_entry(res: walkdir::Result<DirEntry>) -> Option<DirEntry> {
-    let entry = res.expect("failed to visit dir");
-    if entry.file_type().is_file() {
-        Some(entry)
-    } else {
-        None
-    }
-}
-
-fn extract_nested_ftl_messages(ast: &ast::Resource<&str>, messages: &mut HashSet<String>) {
-    for entry in &ast.body {
-        if let ast::Entry::Message(ast::Message {
-            value: Some(pattern),
-            ..
-        }) = entry
-        {
-            extract_messages_from_pattern(pattern, messages);
-        }
-    }
-}
-
-fn extract_messages_from_pattern(pattern: &ast::Pattern<&str>, messages: &mut HashSet<String>) {
-    for elem in &pattern.elements {
-        if let ast::PatternElement::Placeable { expression } = elem {
-            extract_messages_from_expression(expression, messages);
-        }
-    }
-}
-
-fn extract_messages_from_expression(
-    expression: &ast::Expression<&str>,
-    messages: &mut HashSet<String>,
-) {
-    match expression {
-        ast::Expression::Select { selector, variants } => {
-            extract_messages_from_inline_expression(selector, messages);
-            for variant in variants {
-                extract_messages_from_pattern(&variant.value, messages);
-            }
-        }
-        ast::Expression::Inline(expression) => {
-            extract_messages_from_inline_expression(expression, messages)
-        }
-    }
-}
-
-fn extract_messages_from_inline_expression(
-    expression: &ast::InlineExpression<&str>,
-    messages: &mut HashSet<String>,
-) {
-    match expression {
-        ast::InlineExpression::MessageReference { id, .. } => {
-            messages.insert(id.name.to_string());
-        }
-        ast::InlineExpression::Placeable { expression } => {
-            extract_messages_from_expression(expression, messages)
-        }
-        _ => (),
-    }
+    });
 }
 
 fn extract_references_from_file(refs: &mut HashSet<String>, entry: &DirEntry) {
@@ -201,14 +155,11 @@ mod test {
     #[ignore]
     #[test]
     fn formatting() {
-        for entry in WalkDir::new("../../ftl/core")
-            .into_iter()
-            .filter_map(unwrap_file_entry_with_ending("ftl"))
-        {
+        for_files_with_ending("../../ftl/core", ".ftl", |entry| {
             let ftl = fs::read_to_string(entry.path()).expect("failed to open file");
             let ast = parser::parse(ftl.as_str()).expect("failed to parse ftl");
             fs::write(entry.path(), serialize::serialize(&ast)).expect("failed to write file");
-        }
+        })
     }
 
     #[test]
