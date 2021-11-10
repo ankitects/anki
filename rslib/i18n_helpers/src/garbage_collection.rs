@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{collections::HashSet, fs, io::BufReader};
+use std::{collections::HashSet, fs, io::BufReader, iter::FromIterator};
 
 use fluent_syntax::{ast, parser};
 use lazy_static::lazy_static;
@@ -21,7 +21,9 @@ pub fn extract_ftl_references(roots: &[&str], target: &str) {
             extract_references_from_file(&mut refs, &entry)
         })
     }
-    serde_json::to_writer(
+    let mut refs = Vec::from_iter(refs);
+    refs.sort();
+    serde_json::to_writer_pretty(
         fs::File::create(target).expect("failed to create file"),
         &refs,
     )
