@@ -30,8 +30,8 @@ pub fn extract_ftl_references(roots: &[&str], target: &str) {
     .expect("failed to write file");
 }
 
-/// Delete every entry in `ftl_root` that is not mentioned in any json in
-/// `json_root`.
+/// Delete every entry in `ftl_root` that is not mentioned in another message
+/// or any json in `json_root`.
 pub fn remove_unused_ftl_messages(ftl_root: &str, json_root: &str) {
     let mut used_ftls = HashSet::new();
     import_used_messages(json_root, &mut used_ftls);
@@ -86,7 +86,7 @@ fn strip_unused_ftl_messages_and_terms(ftl_root: &str, used_ftls: &HashSet<Strin
             .into_iter()
             .filter(|entry| match entry {
                 ast::Entry::Message(msg) => used_ftls.contains(msg.id.name),
-                ast::Entry::Term(term) => used_ftls.contains(dbg!(term.id.name)),
+                ast::Entry::Term(term) => used_ftls.contains(term.id.name),
                 _ => true,
             })
             .collect();
