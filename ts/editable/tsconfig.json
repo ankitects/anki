@@ -4,6 +4,7 @@
     "references": [
         { "path": "../components" },
         { "path": "../lib" },
+        { "path": "../domlib" },
         { "path": "../sveltelib" }
     ]
 }
