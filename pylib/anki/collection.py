@@ -992,6 +992,7 @@ class Collection(DeprecatedNamesMixin):
         type = ("new", "lrn", "rev")[idx]
         self.sched._updateStats(card, type, -1)
         self.sched.reps -= 1
+        self._startReps -= 1
 
         # and refresh the queues
         self.sched.reset()
