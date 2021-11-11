@@ -14,17 +14,17 @@ use crate::serialize;
 /// Extract references from all Rust, Python, TS, Svelte and Designer files in
 /// the `roots`, convert them to kebab case and write them as a json to the
 /// target file.
-pub fn extract_ftl_references(roots: &[&str], target: &str) {
+pub fn extract_ftl_references<S1: AsRef<str>, S2: AsRef<str>>(roots: &[S1], target: S2) {
     let mut refs = HashSet::new();
     for root in roots {
-        for_files_with_ending(root, "", |entry| {
+        for_files_with_ending(root.as_ref(), "", |entry| {
             extract_references_from_file(&mut refs, &entry)
         })
     }
     let mut refs = Vec::from_iter(refs);
     refs.sort();
     serde_json::to_writer_pretty(
-        fs::File::create(target).expect("failed to create file"),
+        fs::File::create(target.as_ref()).expect("failed to create file"),
         &refs,
     )
     .expect("failed to write file");
@@ -32,11 +32,11 @@ pub fn extract_ftl_references(roots: &[&str], target: &str) {
 
 /// Delete every entry in `ftl_root` that is not mentioned in another message
 /// or any json in `json_root`.
-pub fn remove_unused_ftl_messages(ftl_root: &str, json_root: &str) {
+pub fn remove_unused_ftl_messages<S: AsRef<str>>(ftl_root: S, json_root: S) {
     let mut used_ftls = HashSet::new();
-    import_used_messages(json_root, &mut used_ftls);
-    extract_nested_messages_and_terms(ftl_root, &mut used_ftls);
-    strip_unused_ftl_messages_and_terms(ftl_root, &used_ftls);
+    import_used_messages(json_root.as_ref(), &mut used_ftls);
+    extract_nested_messages_and_terms(ftl_root.as_ref(), &mut used_ftls);
+    strip_unused_ftl_messages_and_terms(ftl_root.as_ref(), &used_ftls);
 }
 
 fn for_files_with_ending(root: &str, file_ending: &str, mut op: impl FnMut(DirEntry)) {
@@ -143,26 +143,6 @@ fn camel_to_kebab_case(name: &str) -> String {
 #[cfg(test)]
 mod test {
     use super::*;
-
-    #[ignore]
-    #[test]
-    fn garbage_collection() {
-        extract_ftl_references(
-            &["../../pylib", "../../qt", "../../rslib", "../../ts"],
-            "refs.json",
-        );
-        remove_unused_ftl_messages("../../ftl/core", "refs.json");
-    }
-
-    #[ignore]
-    #[test]
-    fn formatting() {
-        for_files_with_ending("../../ftl/core", ".ftl", |entry| {
-            let ftl = fs::read_to_string(entry.path()).expect("failed to open file");
-            let ast = parser::parse(ftl.as_str()).expect("failed to parse ftl");
-            fs::write(entry.path(), serialize::serialize(&ast)).expect("failed to write file");
-        })
-    }
 
     #[test]
     fn case_conversion() {
