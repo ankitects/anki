@@ -535,6 +535,15 @@ alias(
 )
 
 alias(
+    name = "walkdir",
+    actual = "@raze__walkdir__2_3_2//:walkdir",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "zip",
     actual = "@raze__zip__0_5_13//:zip",
     tags = [

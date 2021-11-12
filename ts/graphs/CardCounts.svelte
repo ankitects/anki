@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher } from "svelte";
     import type { Stats } from "../lib/proto";
     import type { PreferenceStore } from "../sveltelib/preferences";
-    import * as translate from "../lib/ftl";
+    import * as tr2 from "../lib/ftl";
     import { defaultGraphBounds } from "./graph-helpers";
     import type { SearchEventMap } from "./graph-helpers";
     import { gatherData, renderCards } from "./card-counts";
@@ -35,8 +35,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tableData = renderCards(svg as any, bounds, graphData);
     }
 
-    const label = translate.statisticsCountsSeparateSuspendedBuriedCards();
-    const total = translate.statisticsCountsTotalCards();
+    const label = tr2.statisticsCountsSeparateSuspendedBuriedCards();
+    const total = tr2.statisticsCountsTotalCards();
 </script>
 
 <Graph title={graphData.title}>

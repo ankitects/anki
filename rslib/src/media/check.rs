@@ -93,42 +93,42 @@ where
 
     pub fn summarize_output(&self, output: &mut MediaCheckOutput) -> String {
         let mut buf = String::new();
-        let i = &self.ctx.tr;
+        let tr = &self.ctx.tr;
 
         // top summary area
         if output.trash_count > 0 {
             let megs = (output.trash_bytes as f32) / 1024.0 / 1024.0;
-            buf += &i.media_check_trash_count(output.trash_count, megs);
+            buf += &tr.media_check_trash_count(output.trash_count, megs);
             buf.push('\n');
         }
 
-        buf += &i.media_check_missing_count(output.missing.len());
+        buf += &tr.media_check_missing_count(output.missing.len());
         buf.push('\n');
 
-        buf += &i.media_check_unused_count(output.unused.len());
+        buf += &tr.media_check_unused_count(output.unused.len());
         buf.push('\n');
 
         if !output.renamed.is_empty() {
-            buf += &i.media_check_renamed_count(output.renamed.len());
+            buf += &tr.media_check_renamed_count(output.renamed.len());
             buf.push('\n');
         }
         if !output.oversize.is_empty() {
-            buf += &i.media_check_oversize_count(output.oversize.len());
+            buf += &tr.media_check_oversize_count(output.oversize.len());
             buf.push('\n');
         }
         if !output.dirs.is_empty() {
-            buf += &i.media_check_subfolder_count(output.dirs.len());
+            buf += &tr.media_check_subfolder_count(output.dirs.len());
             buf.push('\n');
         }
 
         buf.push('\n');
 
         if !output.renamed.is_empty() {
-            buf += &i.media_check_renamed_header();
+            buf += &tr.media_check_renamed_header();
             buf.push('\n');
             for (old, new) in &output.renamed {
                 buf += &without_unicode_isolation(
-                    &i.media_check_renamed_file(old.as_str(), new.as_str()),
+                    &tr.media_check_renamed_file(old.as_str(), new.as_str()),
                 );
                 buf.push('\n');
             }
@@ -137,10 +137,10 @@ where
 
         if !output.oversize.is_empty() {
             output.oversize.sort();
-            buf += &i.media_check_oversize_header();
+            buf += &tr.media_check_oversize_header();
             buf.push('\n');
             for fname in &output.oversize {
-                buf += &without_unicode_isolation(&i.media_check_oversize_file(fname.as_str()));
+                buf += &without_unicode_isolation(&tr.media_check_oversize_file(fname.as_str()));
                 buf.push('\n');
             }
             buf.push('\n')
@@ -148,10 +148,10 @@ where
 
         if !output.dirs.is_empty() {
             output.dirs.sort();
-            buf += &i.media_check_subfolder_header();
+            buf += &tr.media_check_subfolder_header();
             buf.push('\n');
             for fname in &output.dirs {
-                buf += &without_unicode_isolation(&i.media_check_subfolder_file(fname.as_str()));
+                buf += &without_unicode_isolation(&tr.media_check_subfolder_file(fname.as_str()));
                 buf.push('\n');
             }
             buf.push('\n')
@@ -159,10 +159,10 @@ where
 
         if !output.missing.is_empty() {
             output.missing.sort();
-            buf += &i.media_check_missing_header();
+            buf += &tr.media_check_missing_header();
             buf.push('\n');
             for fname in &output.missing {
-                buf += &without_unicode_isolation(&i.media_check_missing_file(fname.as_str()));
+                buf += &without_unicode_isolation(&tr.media_check_missing_file(fname.as_str()));
                 buf.push('\n');
             }
             buf.push('\n')
@@ -170,10 +170,10 @@ where
 
         if !output.unused.is_empty() {
             output.unused.sort();
-            buf += &i.media_check_unused_header();
+            buf += &tr.media_check_unused_header();
             buf.push('\n');
             for fname in &output.unused {
-                buf += &without_unicode_isolation(&i.media_check_unused_file(fname.as_str()));
+                buf += &without_unicode_isolation(&tr.media_check_unused_file(fname.as_str()));
                 buf.push('\n');
             }
         }
