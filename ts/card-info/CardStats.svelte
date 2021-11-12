@@ -3,7 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Container from "../components/Container.svelte";
     import * as tr2 from "../lib/ftl";
     import { Stats, unwrapOptionalNumber } from "../lib/proto";
     import { Timestamp, timeSpan, DAY } from "../lib/time";
@@ -95,16 +94,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: statsRows = rowsFromStats(stats);
 </script>
 
-<Container>
-    <table class="stats-table">
-        {#each statsRows as row, _index}
-            <tr>
-                <th style="text-align:start">{row.label}</th>
-                <td>{row.value}</td>
-            </tr>
-        {/each}
-    </table>
-</Container>
+<table class="stats-table">
+    {#each statsRows as row, _index}
+        <tr>
+            <th style="text-align:start">{row.label}</th>
+            <td>{row.value}</td>
+        </tr>
+    {/each}
+</table>
 
 <style>
     .stats-table {
