@@ -11,7 +11,7 @@ use walkdir::{DirEntry, WalkDir};
 
 use crate::serialize;
 
-/// Extract references from all Rust, Python, TS, Svelte and Designer files in
+/// Extract references from all Rust, Python, TS, Svelte, Swift and Designer files in
 /// the `roots`, convert them to kebab case and write them as a json to the
 /// target file.
 pub fn extract_ftl_references<S1: AsRef<str>, S2: AsRef<str>>(roots: &[S1], target: S2) {
@@ -99,8 +99,8 @@ fn strip_unused_ftl_messages_and_terms(ftl_root: &str, used_ftls: &HashSet<Strin
 
 fn extract_references_from_file(refs: &mut HashSet<String>, entry: &DirEntry) {
     lazy_static! {
-        static ref RUST_STYLE_TR: Regex = Regex::new(r"\Wtr\s*\.([0-9a-z_]+)\W").unwrap();
-        static ref TS_STYLE_TR: Regex = Regex::new(r"\Wtr2?\.([0-9A-Za-z_]+)\W").unwrap();
+        static ref SNAKECASE_TR: Regex = Regex::new(r"\Wtr\s*\.([0-9a-z_]+)\W").unwrap();
+        static ref CAMELCASE_TR: Regex = Regex::new(r"\Wtr2?\.([0-9A-Za-z_]+)\W").unwrap();
         static ref DESIGNER_STYLE_TR: Regex = Regex::new(r"<string>([0-9a-z_]+)</string>").unwrap();
     }
 
@@ -108,9 +108,12 @@ fn extract_references_from_file(refs: &mut HashSet<String>, entry: &DirEntry) {
 
     let (regex, case_conversion): (&Regex, fn(&str) -> String) =
         if file_name.ends_with(".rs") || file_name.ends_with(".py") {
-            (&RUST_STYLE_TR, snake_to_kebab_case)
-        } else if file_name.ends_with(".ts") || file_name.ends_with(".svelte") {
-            (&TS_STYLE_TR, camel_to_kebab_case)
+            (&SNAKECASE_TR, snake_to_kebab_case)
+        } else if file_name.ends_with(".ts")
+            || file_name.ends_with(".svelte")
+            || file_name.ends_with(".swift")
+        {
+            (&CAMELCASE_TR, camel_to_kebab_case)
         } else if file_name.ends_with(".ui") {
             (&DESIGNER_STYLE_TR, snake_to_kebab_case)
         } else {
