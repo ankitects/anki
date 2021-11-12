@@ -151,6 +151,7 @@ async function compileSingleSvelte(
                 // when invoked from an external workspace
                 `${binDir}/external/ankidesktop`,
                 `${genDir}/external/ankidesktop`,
+                `${binDir}/external/ankidesktop/sass`,
                 `${binDir}/../../../external/ankidesktop`,
             ],
         },
