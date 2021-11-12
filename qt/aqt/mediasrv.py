@@ -485,11 +485,15 @@ def _extract_collection_post_request(path: str) -> DynamicRequest | NotFound:
     if handler := post_handlers.get(path):
         # convert bytes/None into response
         def wrapped() -> Response:
-            if data := handler():
-                response = flask.make_response(data)
-                response.headers["Content-Type"] = "application/binary"
-            else:
-                response = flask.make_response("", HTTPStatus.NO_CONTENT)
+            try:
+                if data := handler():
+                    response = flask.make_response(data)
+                    response.headers["Content-Type"] = "application/binary"
+                else:
+                    response = flask.make_response("", HTTPStatus.NO_CONTENT)
+            except:
+                print(traceback.format_exc())
+                response = flask.make_response("", HTTPStatus.INTERNAL_SERVER_ERROR)
             return response
 
         return wrapped
