@@ -156,7 +156,7 @@ fn constrained_fuzz_bounds(interval: f32, minimum: u32, maximum: u32) -> (u32, u
     if upper == lower && upper != 1 {
         upper = lower + 1;
     };
-    (lower, upper.min(maximum))
+    (lower, upper.min(maximum).max(lower))
 }
 
 fn fuzz_bounds(interval: f32) -> (u32, u32) {
