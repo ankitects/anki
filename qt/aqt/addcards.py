@@ -19,9 +19,7 @@ from aqt.qt import *
 from aqt.sound import av_player
 from aqt.utils import (
     HelpPage,
-    addCloseShortcut,
     askUser,
-    disable_help_button,
     downArrow,
     openHelp,
     restoreGeom,
@@ -33,17 +31,16 @@ from aqt.utils import (
 )
 
 
-class AddCards(QDialog):
+class AddCards(QMainWindow):
     def __init__(self, mw: AnkiQt) -> None:
-        QDialog.__init__(self, None, Qt.WindowType.Window)
-        mw.garbage_collect_on_dialog_finish(self)
+        super().__init__(None, Qt.WindowType.Window)
+        self._close_event_has_cleaned_up = False
         self.mw = mw
         self.col = mw.col
         form = aqt.forms.addcards.Ui_Dialog()
         form.setupUi(self)
         self.form = form
         self.setWindowTitle(tr.actions_add())
-        disable_help_button(self)
         self.setMinimumHeight(300)
         self.setMinimumWidth(400)
         self.setup_choosers()
@@ -54,7 +51,6 @@ class AddCards(QDialog):
         self._last_added_note: Optional[Note] = None
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         restoreGeom(self, "add")
-        addCloseShortcut(self)
         gui_hooks.add_cards_did_init(self)
         self.show()
 
@@ -264,10 +260,20 @@ class AddCards(QDialog):
 
         return True
 
-    def reject(self) -> None:
-        self.ifCanClose(self._reject)
+    def keyPressEvent(self, evt: QKeyEvent) -> None:
+        if evt.key() == Qt.Key.Key_Escape:
+            self.close()
+        else:
+            super().keyPressEvent(evt)
 
-    def _reject(self) -> None:
+    def closeEvent(self, evt: QCloseEvent) -> None:
+        if self._close_event_has_cleaned_up:
+            evt.accept()
+            return
+        self.ifCanClose(self._close)
+        evt.ignore()
+
+    def _close(self) -> None:
         av_player.stop_and_clear_queue()
         self.editor.cleanup()
         self.notetype_chooser.cleanup()
@@ -276,7 +282,9 @@ class AddCards(QDialog):
         self.mw.maybeReset()
         saveGeom(self, "add")
         aqt.dialogs.markClosed("AddCards")
-        QDialog.reject(self)
+        self._close_event_has_cleaned_up = True
+        self.mw.deferred_delete_and_garbage_collect(self)
+        self.close()
 
     def ifCanClose(self, onOk: Callable) -> None:
         def afterSave() -> None:
@@ -290,7 +298,7 @@ class AddCards(QDialog):
 
     def closeWithCallback(self, cb: Callable[[], None]) -> None:
         def doClose() -> None:
-            self._reject()
+            self._close()
             cb()
 
         self.ifCanClose(doClose)
