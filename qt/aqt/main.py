@@ -157,6 +157,7 @@ class AnkiQt(QMainWindow):
         self.setup_timers()
         self.updateTitleBar()
         self.setup_focus()
+        self.setup_shortcuts()
         # screens
         self.setupDeckBrowser()
         self.setupOverview()
@@ -190,6 +191,17 @@ class AnkiQt(QMainWindow):
 
     def on_focus_changed(self, old: QWidget, new: QWidget) -> None:
         gui_hooks.focus_did_change(new, old)
+
+    def setup_shortcuts(self) -> None:
+        QShortcut(
+            QKeySequence("Ctrl+Meta+F" if isMac else "F11"),
+            self,
+            self.on_toggle_fullscreen,
+        ).setContext(Qt.ShortcutContext.ApplicationShortcut)
+
+    def on_toggle_fullscreen(self) -> None:
+        window = self.app.activeWindow()
+        window.setWindowState(window.windowState() ^ Qt.WindowState.WindowFullScreen)
 
     # Profiles
     ##########################################################################
