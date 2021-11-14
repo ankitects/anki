@@ -44,6 +44,7 @@ class ThemeManager:
     _icon_size = 128
     _dark_mode_available: bool | None = None
     default_palette: QPalette | None = None
+    _light_palette: QPalette | None = None
 
     # Qt applies a gradient to the buttons in dark mode
     # from about #505050 to #606060.
@@ -210,7 +211,12 @@ QTabWidget {{ background-color: {}; }}
 
     def _apply_palette(self, app: QApplication) -> None:
         if not self.night_mode:
+            if self._light_palette:
+                app.setPalette(self._light_palette)
             return
+
+        # remember light palette for switching back
+        self._light_palette = QGuiApplication.palette()
 
         if not self.macos_dark_mode():
             app.setStyle(QStyleFactory.create("fusion"))  # type: ignore
