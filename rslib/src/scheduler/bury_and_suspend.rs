@@ -33,8 +33,7 @@ impl Collection {
         let last_unburied = self.get_last_unburied_day();
         let today = timing.days_elapsed;
         if last_unburied < today || (today + 7) < last_unburied {
-            self.unbury_on_day_rollover()?;
-            self.set_last_unburied_day(today)?;
+            self.unbury_on_day_rollover(today)?;
         }
 
         Ok(())
@@ -42,13 +41,14 @@ impl Collection {
 
     /// Unbury cards from the previous day.
     /// Done automatically, and does not mark the cards as modified.
-    fn unbury_on_day_rollover(&mut self) -> Result<()> {
+    pub(crate) fn unbury_on_day_rollover(&mut self, today: u32) -> Result<()> {
         self.search_cards_into_table("is:buried", SortMode::NoOrder)?;
         self.storage.for_each_card_in_search(|mut card| {
             card.restore_queue_after_bury_or_suspend();
             self.storage.update_card(&card)
         })?;
-        self.storage.clear_searched_cards_table()
+        self.storage.clear_searched_cards_table()?;
+        self.set_last_unburied_day(today)
     }
 
     /// Unsuspend/unbury cards in search table, and clear it.

@@ -248,6 +248,7 @@ impl Collection {
             .unwrap_or(false);
         if day_rolled_over {
             self.discard_undo_and_study_queues();
+            self.unbury_on_day_rollover(timing.days_elapsed)?;
         }
         Ok(())
     }
