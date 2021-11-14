@@ -53,7 +53,7 @@ class AbortAddonImport(Exception):
 @dataclass
 class InstallOk:
     name: str
-    conflicts: list[str]
+    conflicts: set[str]
     compatible: bool
 
 
@@ -354,14 +354,12 @@ class AddonManager:
                 all_conflicts[other_dir].append(addon.dir_name)
         return all_conflicts
 
-    def _disableConflicting(self, dir: str, conflicts: list[str] = None) -> list[str]:
+    def _disableConflicting(self, dir: str, conflicts: list[str] = None) -> set[str]:
         conflicts = conflicts or self.addonConflicts(dir)
 
         installed = self.allAddons()
-        found = [d for d in conflicts if d in installed and self.isEnabled(d)]
-        found.extend(self.allAddonConflicts().get(dir, []))
-        if not found:
-            return []
+        found = {d for d in conflicts if d in installed and self.isEnabled(d)}
+        found.update(self.allAddonConflicts().get(dir, []))
 
         for package in found:
             self.toggleEnabled(package, enable=False)
