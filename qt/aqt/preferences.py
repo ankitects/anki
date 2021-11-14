@@ -218,7 +218,7 @@ class Preferences(QDialog):
 
         if self.mw.pm.night_mode() != self.form.nightMode.isChecked():
             self.mw.pm.set_night_mode(not self.mw.pm.night_mode())
-            restart_required = True
+            self.mw.update_theme()
 
         if restart_required:
             showInfo(tr.preferences_changes_will_take_effect_when_you())

@@ -1007,6 +1007,10 @@ title="{}" {}>{}</button>""".format(
         theme_manager.night_mode = self.pm.night_mode()
         theme_manager.apply_style(self.app)
 
+    def update_theme(self) -> None:
+        self.setupStyle()
+        gui_hooks.theme_did_change()
+
     # Key handling
     ##########################################################################
 
