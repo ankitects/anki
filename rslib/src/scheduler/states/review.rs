@@ -272,7 +272,7 @@ mod test {
         ctx.interval_multiplier = 0.1;
         assert_eq!(state.passing_review_intervals(&ctx), (2, 3, 4));
         ctx.fuzz_factor = Some(0.99);
-        assert_eq!(state.passing_review_intervals(&ctx), (3, 5, 7));
+        assert_eq!(state.passing_review_intervals(&ctx), (2, 4, 6));
 
         // maximum must be respected no matter what
         ctx.interval_multiplier = 10.0;
