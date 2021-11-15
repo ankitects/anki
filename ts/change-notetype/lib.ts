@@ -45,6 +45,7 @@ export function negativeOneToNull(list: number[]): (number | null)[] {
 export class ChangeNotetypeInfoWrapper {
     fields: (number | null)[];
     templates?: (number | null)[];
+    oldNotetypeName: String;
     readonly info: Notetypes.ChangeNotetypeInfo;
 
     constructor(info: Notetypes.ChangeNotetypeInfo) {
@@ -54,6 +55,7 @@ export class ChangeNotetypeInfoWrapper {
             this.templates = negativeOneToNull(templates);
         }
         this.fields = negativeOneToNull(info.input!.newFields!);
+        this.oldNotetypeName = info.oldNotetypeName;
     }
 
     /// A list with an entry for each field/template in the new notetype, with
@@ -82,6 +84,10 @@ export class ChangeNotetypeInfoWrapper {
             : this.info.oldFieldNames;
     }
 
+    getOldNotetypeName(): string {
+        return this.info.oldNotetypeName;
+    }
+
     getNewName(ctx: MapContext, idx: number): string {
         return (
             ctx == MapContext.Template
@@ -97,7 +103,6 @@ export class ChangeNotetypeInfoWrapper {
             (idx) => !usedEntries.has(idx),
         );
         const unusedNames = unusedIdxs.map((idx) => oldNames[idx]);
-        unusedNames.sort();
         return unusedNames;
     }
 

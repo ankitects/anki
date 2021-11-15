@@ -45,6 +45,7 @@ const exampleInfoDifferent = {
         oldNotetypeId: "1623289129847",
         newNotetypeId: "1623289129849",
         currentSchema: "1623302002316",
+        oldNotetypeName: "Basic",
     },
 };
 
@@ -59,6 +60,7 @@ const exampleInfoSame = {
         oldNotetypeId: "1623289129847",
         newNotetypeId: "1623289129847",
         currentSchema: "1623302002316",
+        oldNotetypeName: "Basic",
     },
 };
 
