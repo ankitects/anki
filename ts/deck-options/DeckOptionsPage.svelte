@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import ConfigSelector from "./ConfigSelector.svelte";
     import Container from "../components/Container.svelte";
-    import Item from "../components/Item.svelte";
+    import Row from "./Row.svelte";
     import DailyLimits from "./DailyLimits.svelte";
     import DisplayOrder from "./DisplayOrder.svelte";
     import NewOptions from "./NewOptions.svelte";
@@ -58,44 +58,44 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <ConfigSelector {state} />
 
 <div class="deck-options-page">
-    <Container api={options} class="g-1 container-columns">
-        <Item>
+    <Container class="g-1 container-columns" api={options}>
+        <Row>
             <DailyLimits {state} api={dailyLimits} />
-        </Item>
+        </Row>
 
-        <Item>
+        <Row>
             <NewOptions {state} api={newOptions} />
-        </Item>
+        </Row>
 
-        <Item>
+        <Row>
             <LapseOptions {state} api={lapseOptions} />
-        </Item>
+        </Row>
 
         {#if state.v3Scheduler}
-            <Item>
+            <Row>
                 <DisplayOrder {state} api={displayOrder} />
-            </Item>
+            </Row>
         {/if}
 
-        <Item>
+        <Row>
             <TimerOptions {state} api={timerOptions} />
-        </Item>
+        </Row>
 
-        <Item>
+        <Row>
             <BuryOptions {state} api={buryOptions} />
-        </Item>
+        </Row>
 
-        <Item>
+        <Row>
             <AudioOptions {state} api={audioOptions} />
-        </Item>
+        </Row>
 
-        <Item>
+        <Row>
             <Addons {state} api={addonOptions} />
-        </Item>
+        </Row>
 
-        <Item>
+        <Row>
             <AdvancedOptions {state} api={advancedOptions} />
-        </Item>
+        </Row>
     </Container>
 </div>
 
