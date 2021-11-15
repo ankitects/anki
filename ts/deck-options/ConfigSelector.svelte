@@ -88,8 +88,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bind:modalKey
 />
 
-<StickyHeader class="g-1">
-    <Container>
+<StickyHeader>
+    <Container class="g-1">
         <ButtonToolbar class="justify-content-between" size={2.3} wrap={false}>
             <Item>
                 <ButtonGroup class="flex-grow-1">

@@ -28,7 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<Container>
+<Container breakpoint="md" class="mt-3 mb-3">
     {#if stats}
         <CardStats {stats} />
 
