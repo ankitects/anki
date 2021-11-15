@@ -255,7 +255,7 @@ mod test {
     }
 
     #[test]
-    fn low_multiplier_fuzz() {
+    fn extreme_multiplier_fuzz() {
         let mut ctx = StateContext::defaults_for_testing();
         // our calculations should work correctly with a low ease or non-default multiplier
         let state = ReviewState {
@@ -272,6 +272,11 @@ mod test {
         ctx.interval_multiplier = 0.1;
         assert_eq!(state.passing_review_intervals(&ctx), (2, 3, 4));
         ctx.fuzz_factor = Some(0.99);
-        assert_eq!(state.passing_review_intervals(&ctx), (2, 3, 4));
+        assert_eq!(state.passing_review_intervals(&ctx), (3, 5, 7));
+
+        // maximum must be respected no matter what
+        ctx.interval_multiplier = 10.0;
+        ctx.maximum_review_interval = 5;
+        assert_eq!(state.passing_review_intervals(&ctx), (5, 5, 5));
     }
 }
