@@ -18,7 +18,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         flex-flow: row wrap;
         align-content: stretch;
-        /* margin: 0 var(--gutter-inline, 0); */
         padding: var(--gutter-block, 0) 0;
     }
 </style>

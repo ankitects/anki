@@ -60,7 +60,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div class="deck-options-page">
     <Container
         breakpoint="sm"
-        --gutter-inline="0.5rem"
+        --gutter-inline="0.25rem"
+        --gutter-block="0.5rem"
         class="container-columns"
         api={options}
     >
@@ -106,7 +107,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .deck-options-page {
-        padding-bottom: 1rem;
+        overflow-x: hidden;
 
         :global(.container-columns) {
             column-width: 480px;

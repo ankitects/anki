@@ -39,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         flex-direction: var(--container-direction, column);
 
         padding: var(--gutter-block, 0) var(--gutter-inline, 0);
-        margin: var(--container-margin, 0) var(--container-gutter, auto);
+        margin: 0 var(--container-gutter, auto);
     }
 
     .container-fluid {
