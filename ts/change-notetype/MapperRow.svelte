@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {/each}
         </select>
     </Col>
-    <Col --col-size={1} --col-justify="flex-end">
+    <Col --col-size={1}>
         {$info.getNewName(ctx, newIndex)}
     </Col>
 </Row>

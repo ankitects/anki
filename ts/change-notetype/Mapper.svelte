@@ -23,10 +23,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             : tr.changeNotetypeWillDiscardCards();
 </script>
 
-<Container>
+<Container --gutter-inline="0.5rem" --gutter-block="0.1rem">
     <Row --cols={2}>
         <Col --col-size={1}><b>{tr.changeNotetypeCurrent()}</b></Col>
-        <Col --col-size={1} --col-justify="flex-end"><b>{tr.changeNotetypeNew()}</b></Col>
+        <Col --col-size={1}><b>{tr.changeNotetypeNew()}</b></Col>
     </Row>
 
     {#each $info.mapForContext(ctx) as _, newIndex}

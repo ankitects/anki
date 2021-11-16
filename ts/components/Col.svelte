@@ -28,6 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         flex-flow: row nowrap;
         align-items: var(--col-align, flex-start);
         justify-content: var(--col-justify, flex-start);
+        padding: 0 var(--gutter-inline, 0);
         flex: 1 0 100%;
     }
 
