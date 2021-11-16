@@ -37,7 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import StickyHeader from "../components/StickyHeader.svelte";
+    import StickyContainer from "../components/StickyContainer.svelte";
     import ButtonToolbar from "../components/ButtonToolbar.svelte";
     import Item from "../components/Item.svelte";
 
@@ -72,7 +72,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } as EditorToolbarAPI);
 </script>
 
-<StickyHeader>
+<StickyContainer --gutter-block="0.1rem" --sticky-borders="0 0 1px">
     <ButtonToolbar {size} {wrap} api={toolbar}>
         <Item id="notetype">
             <NoteTypeButtons api={notetypeButtons} />
@@ -94,4 +94,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <TemplateButtons api={templateButtons} />
         </Item>
     </ButtonToolbar>
-</StickyHeader>
+</StickyContainer>
