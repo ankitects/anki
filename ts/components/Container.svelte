@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className: string = "";
     export { className as class };
 
-    /* width: 100% if <= breakpoint otherwise with gutters */
+    /* width: 100% if viewport < breakpoint otherwise with gutters */
     export let breakpoint: Breakpoint | "fluid" = "fluid";
     export let api: Record<string, never> | undefined = undefined;
 </script>
