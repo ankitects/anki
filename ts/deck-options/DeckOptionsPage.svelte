@@ -65,41 +65,41 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         class="container-columns"
         api={options}
     >
-        <Row>
+        <Row class="row-columns">
             <DailyLimits {state} api={dailyLimits} />
         </Row>
 
-        <Row>
+        <Row class="row-columns">
             <NewOptions {state} api={newOptions} />
         </Row>
 
-        <Row>
+        <Row class="row-columns">
             <LapseOptions {state} api={lapseOptions} />
         </Row>
 
         {#if state.v3Scheduler}
-            <Row>
+            <Row class="row-columns">
                 <DisplayOrder {state} api={displayOrder} />
             </Row>
         {/if}
 
-        <Row>
+        <Row class="row-columns">
             <TimerOptions {state} api={timerOptions} />
         </Row>
 
-        <Row>
+        <Row class="row-columns">
             <BuryOptions {state} api={buryOptions} />
         </Row>
 
-        <Row>
+        <Row class="row-columns">
             <AudioOptions {state} api={audioOptions} />
         </Row>
 
-        <Row>
+        <Row class="row-columns">
             <Addons {state} api={addonOptions} />
         </Row>
 
-        <Row>
+        <Row class="row-columns">
             <AdvancedOptions {state} api={advancedOptions} />
         </Row>
     </Container>
@@ -119,6 +119,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             :global(.container-columns) {
                 column-count: 2;
                 column-gap: 5em;
+
+                :global(.container) {
+                    break-inside: avoid;
+                }
+            }
+
+            :global(.row-columns) {
+                display: block;
             }
         }
     }
