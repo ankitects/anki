@@ -9,19 +9,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let api: Record<string, never> | undefined = undefined;
 </script>
 
-<div class="titled-container">
-    <Container breakpoint="fluid" class="my-3" {api}>
-        <h1>{title}</h1>
+<Container {api}>
+    <h1>{title}</h1>
 
-        <slot />
-    </Container>
-</div>
+    <slot />
+</Container>
 
 <style lang="scss">
-    .titled-container {
-        break-inside: avoid;
-    }
-
     h1 {
         border-bottom: 1px solid var(--medium-border);
     }

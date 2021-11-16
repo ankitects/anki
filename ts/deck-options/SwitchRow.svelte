@@ -3,8 +3,8 @@
     License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Row from "./Row.svelte";
-    import Col from "./Col.svelte";
+    import Row from "../components/Row.svelte";
+    import Col from "../components/Col.svelte";
     import Label from "./Label.svelte";
     import TooltipLabel from "./TooltipLabel.svelte";
     import Switch from "./Switch.svelte";
@@ -17,13 +17,13 @@
     const id = Math.random().toString(36).substring(2);
 </script>
 
-<Row>
-    <Col>
-        {#if markdownTooltip}<TooltipLabel for={id} {markdownTooltip}
+<Row --cols={2}>
+    <Col
+        >{#if markdownTooltip}<TooltipLabel for={id} {markdownTooltip}
                 ><slot /></TooltipLabel
-            >{:else}<Label for={id}><slot /></Label>{/if}
-    </Col>
-    <Col grow={false}>
+            >{:else}<Label for={id}><slot /></Label>{/if}</Col
+    >
+    <Col --col-justify="flex-end">
         <Switch {id} bind:value />
         <RevertButton bind:value {defaultValue} />
     </Col>

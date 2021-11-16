@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import ConfigSelector from "./ConfigSelector.svelte";
     import Container from "../components/Container.svelte";
-    import Row from "./Row.svelte";
+    import Row from "../components/Row.svelte";
     import DailyLimits from "./DailyLimits.svelte";
     import DisplayOrder from "./DisplayOrder.svelte";
     import NewOptions from "./NewOptions.svelte";
@@ -58,7 +58,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <ConfigSelector {state} />
 
 <div class="deck-options-page">
-    <Container class="g-1 container-columns" api={options}>
+    <Container
+        breakpoint="sm"
+        --gutter-inline="0.5rem"
+        class="container-columns"
+        api={options}
+    >
         <Row>
             <DailyLimits {state} api={dailyLimits} />
         </Row>
@@ -104,12 +109,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding-bottom: 1rem;
 
         :global(.container-columns) {
-            column-count: 2;
-
-            @media (max-width: 992px) {
-                column-count: 1;
-            }
-
+            column-width: 480px;
             column-gap: 5em;
         }
     }

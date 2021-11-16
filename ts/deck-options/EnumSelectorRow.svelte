@@ -5,8 +5,8 @@
 <script lang="ts">
     import type { Breakpoint } from "../components/types";
 
-    import Row from "./Row.svelte";
-    import Col from "./Col.svelte";
+    import Row from "../components/Row.svelte";
+    import Col from "../components/Col.svelte";
     import TooltipLabel from "./TooltipLabel.svelte";
     import EnumSelector from "./EnumSelector.svelte";
     import RevertButton from "./RevertButton.svelte";
@@ -18,11 +18,11 @@
     export let markdownTooltip: string;
 </script>
 
-<Row>
-    <Col size={7}>
+<Row --cols={12}>
+    <Col --col-size={7}>
         <TooltipLabel {markdownTooltip}><slot /></TooltipLabel>
     </Col>
-    <Col {breakpoint} size={5}>
+    <Col {breakpoint} --col-size={5}>
         <EnumSelector bind:value {choices} />
         <RevertButton bind:value {defaultValue} />
     </Col>
