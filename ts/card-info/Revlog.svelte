@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Stats } from "../lib/proto";
     import { Timestamp, timeSpan } from "../lib/time";
 
-    export let stats: Stats.CardStatsResponse;
+    export let revlog: Stats.CardStatsResponse.StatsRevlogEntry[];
 
     type StatsRevlogEntry = Stats.CardStatsResponse.StatsRevlogEntry;
 
@@ -72,37 +72,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         };
     }
 
-    let revlogRows: RevlogRow[];
-    $: revlogRows = stats.revlog.map((entry) =>
-        revlogRowFromEntry(entry as StatsRevlogEntry),
-    );
+    $: revlogRows = revlog.map(revlogRowFromEntry);
 </script>
 
-{#if stats.revlog.length}
-    <div class="revlog-container">
-        <table class="revlog-table">
+{#if revlog.length > 0}
+    <table class="revlog-table">
+        <tr>
+            <th class="left">{tr2.cardStatsReviewLogDate()}</th>
+            <th class="center hidden-xs">{tr2.cardStatsReviewLogType()}</th>
+            <th class="center">{tr2.cardStatsReviewLogRating()}</th>
+            <th class="right">{tr2.cardStatsInterval()}</th>
+            <th class="center hidden-xs">{tr2.cardStatsEase()}</th>
+            <th class="right">{tr2.cardStatsReviewLogTimeTaken()}</th>
+        </tr>
+        {#each revlogRows as row, _index}
             <tr>
-                <th class="left">{tr2.cardStatsReviewLogDate()}</th>
-                <th class="center hidden-xs">{tr2.cardStatsReviewLogType()}</th>
-                <th class="center">{tr2.cardStatsReviewLogRating()}</th>
-                <th class="right">{tr2.cardStatsInterval()}</th>
-                <th class="center hidden-xs">{tr2.cardStatsEase()}</th>
-                <th class="right">{tr2.cardStatsReviewLogTimeTaken()}</th>
+                <td class="left"><b>{row.date}</b> @ {row.time}</td>
+                <td class="center hidden-xs {row.reviewKindClass}">
+                    {row.reviewKind}
+                </td>
+                <td class="center {row.ratingClass}">{row.rating}</td>
+                <td class="right">{row.interval}</td>
+                <td class="center hidden-xs">{row.ease}</td>
+                <td class="right">{row.takenSecs}</td>
             </tr>
-            {#each revlogRows as row, _index}
-                <tr>
-                    <td class="left"><b>{row.date}</b> @ {row.time}</td>
-                    <td class="center hidden-xs {row.reviewKindClass}">
-                        {row.reviewKind}
-                    </td>
-                    <td class="center {row.ratingClass}">{row.rating}</td>
-                    <td class="right">{row.interval}</td>
-                    <td class="center hidden-xs">{row.ease}</td>
-                    <td class="right">{row.takenSecs}</td>
-                </tr>
-            {/each}
-        </table>
-    </div>
+        {/each}
+    </table>
 {/if}
 
 <style>
@@ -116,10 +111,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .center {
         text-align: center;
-    }
-
-    .revlog-container {
-        margin-top: 2em;
     }
 
     .revlog-table {

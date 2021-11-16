@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Stats } from "../lib/proto";
     import { getCardStats } from "./lib";
     import Container from "../components/Container.svelte";
+    import Row from "../components/Row.svelte";
     import CardStats from "./CardStats.svelte";
     import CardInfoPlaceholder from "./CardInfoPlaceholder.svelte";
     import Revlog from "./Revlog.svelte";
@@ -28,12 +29,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<Container breakpoint="md" class="mt-3 mb-3">
+<Container breakpoint="md" --gutter-inline="0.25rem" --gutter-block="0.5rem">
     {#if stats}
-        <CardStats {stats} />
+        <Row>
+            <CardStats {stats} />
+        </Row>
 
-        {#if includeRevlog}
-            <Revlog {stats} />
+        {#if includeRevlog && stats.revlog}
+            <Row>
+                <Revlog revlog={stats.revlog} />
+            </Row>
         {/if}
     {:else}
         <CardInfoPlaceholder />
