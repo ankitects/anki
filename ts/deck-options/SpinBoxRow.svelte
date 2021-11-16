@@ -17,10 +17,10 @@
 </script>
 
 <Row --cols={12}>
-    <Col --col-size={5}>
+    <Col --col-size={7}>
         <TooltipLabel {markdownTooltip}><slot /></TooltipLabel>
     </Col>
-    <Col --col-size={7}>
+    <Col --col-size={5}>
         <SpinBox bind:value {min} {max} />
         <RevertButton bind:value {defaultValue} />
     </Col>

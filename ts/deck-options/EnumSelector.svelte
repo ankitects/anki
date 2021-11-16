@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bind:value
     class:nightMode
     class:visible-down-arrow={nightMode}
-    class="form-select"
+    class="enum-selector form-select"
 >
     {#each choices as choice, idx}
         <option value={idx}>{choice}</option>
@@ -29,6 +29,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .nightMode {
         @include nightmode.input;
+    }
+
+    .enum-selector {
+        /* overwrite Bootstrap */
+        padding: 0.2rem 0.75rem;
     }
 
     .visible-down-arrow {
