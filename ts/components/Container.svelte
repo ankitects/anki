@@ -39,14 +39,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         flex-direction: var(--container-direction, column);
 
         padding: var(--gutter-block, 0) var(--gutter-inline, 0);
-        margin: 0 var(--container-gutter, auto);
-    }
+        margin: 0 auto;
 
-    .container-fluid {
-        width: 100%;
-        height: 100%;
+        &.container-fluid {
+            width: 100%;
+            height: 100%;
 
-        --container-gutter: 0;
+            margin: 0;
+        }
     }
 
     @include breakpoints.with-breakpoints-upto(
@@ -58,8 +58,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 "md": 720px,
                 "lg": 960px,
                 "xl": 1140px,
-                "xxl": 1320px
-            )
+                "xxl": 1320px,
+            ),
         )
     );
 </style>

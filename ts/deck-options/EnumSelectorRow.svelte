@@ -19,10 +19,10 @@
 </script>
 
 <Row --cols={12}>
-    <Col --col-size={7}>
+    <Col --col-size={7} {breakpoint}>
         <TooltipLabel {markdownTooltip}><slot /></TooltipLabel>
     </Col>
-    <Col {breakpoint} --col-size={5}>
+    <Col --col-size={5} {breakpoint}>
         <EnumSelector bind:value {choices} />
         <RevertButton bind:value {defaultValue} />
     </Col>

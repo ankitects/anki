@@ -106,12 +106,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    @use "sass/breakpoints" as bp;
+
     .deck-options-page {
         overflow-x: hidden;
 
-        :global(.container-columns) {
-            column-width: 480px;
-            column-gap: 5em;
+        @include bp.with-breakpoint("lg") {
+            :global(.container) {
+                display: block;
+            }
+
+            :global(.container-columns) {
+                column-count: 2;
+                column-gap: 5em;
+            }
         }
     }
 </style>

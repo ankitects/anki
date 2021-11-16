@@ -20,6 +20,34 @@ $breakpoints: (
     list.nth($bps, 6): 1400px,
 );
 
+@mixin with-breakpoint($bp) {
+    @if map.get($breakpoints, $bp) {
+        @media (min-width: map.get($breakpoints, $bp)) {
+            @content;
+        }
+    } @else {
+        @content;
+    }
+};
+
+@mixin with-breakpoints($prefix, $dict) {
+    @each $property, $values in $dict  {
+        @each $bp, $value in $values {
+            @if map.get($breakpoints, $bp) {
+                @media (min-width: map.get($breakpoints, $bp)) {
+                    .#{$prefix}-#{$bp} {
+                        #{$property}: $value;
+                    }
+                }
+            } @else {
+                .#{$prefix}-#{$bp} {
+                    #{$property}: $value;
+                }
+            }
+        }
+    }
+};
+
 @function breakpoints-upto($upto) {
     $result: ();
 
