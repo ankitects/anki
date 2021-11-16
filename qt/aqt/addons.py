@@ -1484,6 +1484,8 @@ class ConfigEditor(QDialog):
             QDialogButtonBox.StandardButton.RestoreDefaults
         )
         qconnect(restore.clicked, self.onRestoreDefaults)
+        ok = self.form.buttonBox.button(QDialogButtonBox.StandardButton.Ok)
+        ok.setShortcut(QKeySequence("Ctrl+Return"))
         self.setupFonts()
         self.updateHelp()
         self.updateText(self.conf)
