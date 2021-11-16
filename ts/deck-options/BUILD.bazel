@@ -14,6 +14,7 @@ compile_sass(
     deps = [
         "//sass:base_lib",
         "//sass:scrollbar_lib",
+        "//sass:breakpoints_lib",
         "//sass/bootstrap",
     ],
 )
@@ -77,6 +78,7 @@ svelte_check(
     ]) + [
         "//sass:button_mixins_lib",
         "//sass:night_mode_lib",
+        "//sass:breakpoints_lib",
         "//sass/bootstrap",
         "@npm//@types/bootstrap",
         "@npm//@types/lodash-es",

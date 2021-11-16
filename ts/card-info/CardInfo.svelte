@@ -15,17 +15,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let includeRevlog: boolean = true;
 
     let stats: Stats.CardStatsResponse | null = null;
+    let revlog: Stats.CardStatsResponse.StatsRevlogEntry[] | null = null;
 
-    $: if (cardId === null) {
-        stats = null;
-    } else {
+    async function updateStats(cardId: number): Promise<void> {
         const requestedCardId = cardId;
-        getCardStats(requestedCardId).then((s) => {
-            /* Skip if another update has been triggered in the meantime. */
-            if (requestedCardId === cardId) {
-                stats = s;
+        const cardStats = await getCardStats(requestedCardId);
+
+        /* Skip if another update has been triggered in the meantime. */
+        if (requestedCardId === cardId) {
+            stats = cardStats;
+
+            if (includeRevlog) {
+                revlog = stats.revlog as Stats.CardStatsResponse.StatsRevlogEntry[];
             }
-        });
+        }
+    }
+
+    $: if (cardId) {
+        updateStats(cardId);
+    } else {
+        stats = null;
+        revlog = null;
     }
 </script>
 
@@ -35,9 +45,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <CardStats {stats} />
         </Row>
 
-        {#if includeRevlog && stats.revlog}
+        {#if revlog}
             <Row>
-                <Revlog revlog={stats.revlog} />
+                <Revlog {revlog} />
             </Row>
         {/if}
     {:else}

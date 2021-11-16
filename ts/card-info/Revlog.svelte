@@ -7,9 +7,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Stats } from "../lib/proto";
     import { Timestamp, timeSpan } from "../lib/time";
 
-    export let revlog: Stats.CardStatsResponse.StatsRevlogEntry[];
-
     type StatsRevlogEntry = Stats.CardStatsResponse.StatsRevlogEntry;
+
+    export let revlog: StatsRevlogEntry[];
 
     function reviewKindClass(entry: StatsRevlogEntry): string {
         switch (entry.reviewKind) {
@@ -59,6 +59,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function revlogRowFromEntry(entry: StatsRevlogEntry): RevlogRow {
         const timestamp = new Timestamp(entry.time);
+
         return {
             date: timestamp.dateString(),
             time: timestamp.timeString(),
