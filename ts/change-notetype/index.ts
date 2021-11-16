@@ -20,7 +20,11 @@ export async function changeNotetypePage(
         getChangeNotetypeInfo(oldNotetypeId, newNotetypeId),
         getNotetypeNames(),
         setupI18n({
-            modules: [ModuleName.ACTIONS, ModuleName.CHANGE_NOTETYPE],
+            modules: [
+                ModuleName.ACTIONS,
+                ModuleName.CHANGE_NOTETYPE,
+                ModuleName.KEYBOARD,
+            ],
         }),
     ]);
 
