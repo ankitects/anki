@@ -21,22 +21,23 @@ function findContained(
     return contained;
 }
 
-function unsurroundAdjacent(
+function findAndClearWithin(
     match: FoundMatch,
-    nodesToRemove: Element[],
     matcher: ElementMatcher,
     clearer: ElementClearer,
     condition: (node: Node) => boolean = () => true,
-): void {
+): Element[] {
+    const toRemove: Element[] = [];
+
     for (const { matchType, element } of findWithinNode(match.element, matcher)) {
         if (matchType === MatchResult.MATCH) {
             if (condition(element)) {
-                nodesToRemove.push(element);
+                toRemove.push(element);
             }
         } /* matchType === MatchResult.KEEP */ else {
             // order is very important here as `clearer` is idempotent!
             if (condition(element) && clearer(element)) {
-                nodesToRemove.push(element);
+                toRemove.push(element);
             }
         }
     }
@@ -44,15 +45,17 @@ function unsurroundAdjacent(
     if (condition(match.element)) {
         switch (match.matchType) {
             case MatchResult.MATCH:
-                nodesToRemove.push(match.element);
+                toRemove.push(match.element);
                 break;
             case MatchResult.KEEP:
                 if (clearer(match.element)) {
-                    nodesToRemove.push(match.element);
+                    toRemove.push(match.element);
                 }
                 break;
         }
     }
+
+    return toRemove;
 }
 
 /**
@@ -89,11 +92,21 @@ export function unsurround(
     if (aboveStart) {
         beforeRange.setStartBefore(aboveStart.element);
 
-        function condition(node: Node): boolean {
-            return !node.contains(range.endContainer);
+        function prohibitOverlapse(node: Node): boolean {
+            /* otherwise, they will be added to nodesToRemove twice
+             * and will also be cleared twice */
+            return (
+                !node.contains(range.endContainer) && !range.endContainer.contains(node)
+            );
         }
 
-        unsurroundAdjacent(aboveStart, nodesToRemove, matcher, clearer, condition);
+        const matches = findAndClearWithin(
+            aboveStart,
+            matcher,
+            clearer,
+            prohibitOverlapse,
+        );
+        nodesToRemove.push(...matches);
     }
 
     for (const { element: found } of contained) {
@@ -108,7 +121,8 @@ export function unsurround(
     if (aboveEnd) {
         afterRange.setEndAfter(aboveEnd.element);
 
-        unsurroundAdjacent(aboveEnd, nodesToRemove, matcher, clearer);
+        const matches = findAndClearWithin(aboveEnd, matcher, clearer);
+        nodesToRemove.push(...matches);
     }
 
     if (beforeRange.toString().length > 0) {
