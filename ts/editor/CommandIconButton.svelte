@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let withoutShortcut = false;
     export let withoutState = false;
 
-    const { focusInRichText, activeInput: inputStore } = getNoteEditor();
+    const { focusInRichText } = getNoteEditor();
 
     $: disabled = !$focusInRichText;
 </script>
@@ -30,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {:else if withoutShortcut}
     <WithState
         {key}
-        update={() => queryCommandState(key)}
+        update={async () => queryCommandState(key)}
         let:state={active}
         let:updateState
     >
@@ -61,7 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <WithShortcut {shortcut} let:createShortcut let:shortcutLabel>
         <WithState
             {key}
-            update={() => queryCommandState(key)}
+            update={async () => queryCommandState(key)}
             let:state={active}
             let:updateState
         >
