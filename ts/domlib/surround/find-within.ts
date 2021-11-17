@@ -3,75 +3,62 @@
 
 import { nodeIsElement } from "../../lib/dom";
 import type { ChildNodeRange } from "./child-node-range";
-import { MatchResult } from "./matcher";
-import type { ElementMatcher } from "./matcher";
+import type { MatchResult, ElementMatcher } from "./matcher";
+
+export interface FoundWithin {
+    matchType: Exclude<MatchResult, MatchResult.NO_MATCH>;
+    element: Element;
+}
 
 /**
  * Elements returned should be in post-order
  */
-
 function findWithinNodeInner(
     node: Node,
     matcher: ElementMatcher,
-    matches: Element[],
-    keepMatches: Element[],
+    matches: FoundWithin[],
 ): void {
     if (nodeIsElement(node)) {
         for (const child of node.children) {
-            findWithinNodeInner(child, matcher, matches, keepMatches);
+            findWithinNodeInner(child, matcher, matches);
         }
 
-        const matchResult = matcher(node);
-
-        if (matchResult) {
-            switch (matchResult) {
-                case MatchResult.MATCH:
-                    matches.push(node);
-                    break;
-                case MatchResult.KEEP:
-                    keepMatches.push(node);
-                    break;
-            }
+        const matchType = matcher(node);
+        if (matchType) {
+            matches.push({ matchType, element: node });
         }
     }
-}
-
-interface FindWithinResult {
-    matches: Element[];
-    keepMatches: Element[];
 }
 
 /**
  * Will not include parent node
  */
-export function findWithinNode(node: Node, matcher: ElementMatcher): FindWithinResult {
-    const matches: Element[] = [];
-    const keepMatches: Element[] = [];
+export function findWithinNode(node: Node, matcher: ElementMatcher): FoundWithin[] {
+    const matches: FoundWithin[] = [];
 
     if (nodeIsElement(node)) {
         for (const child of node.children) {
-            findWithinNodeInner(child, matcher, matches, keepMatches);
+            findWithinNodeInner(child, matcher, matches);
         }
     }
 
-    return { matches, keepMatches };
+    return matches;
 }
 
 export function findWithin(
     childNodeRange: ChildNodeRange,
     matcher: ElementMatcher,
-): FindWithinResult {
+): FoundWithin[] {
     const { parent, startIndex, endIndex } = childNodeRange;
-    const matches: Element[] = [];
-    const keepMatches: Element[] = [];
+    const matches: FoundWithin[] = [];
 
     for (let node of Array.prototype.slice.call(
         parent.childNodes,
         startIndex,
         endIndex,
     )) {
-        findWithinNodeInner(node, matcher, matches, keepMatches);
+        findWithinNodeInner(node, matcher, matches);
     }
 
-    return { matches, keepMatches };
+    return matches;
 }

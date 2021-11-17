@@ -3,6 +3,8 @@
 
 import { findBefore, findAfter } from "./find-adjacent";
 import { findWithin, findWithinNode } from "./find-within";
+import { MatchResult } from "./matcher";
+import type { FoundWithin } from "./find-within";
 import type { ElementMatcher, ElementClearer } from "./matcher";
 import type { ChildNodeRange } from "./child-node-range";
 
@@ -22,12 +24,11 @@ function normalizeWithinInner(
     matcher: ElementMatcher,
     clearer: ElementClearer,
 ) {
-    const { matches, keepMatches } = findWithinNode(node, matcher);
+    const matches = findWithinNode(node, matcher);
+    const processFoundMatches = (match: FoundWithin) =>
+        match.matchType === MatchResult.MATCH ?? clearer(match.element);
 
-    for (const found of [
-        ...matches,
-        ...keepMatches.filter((element) => clearer(element)),
-    ]) {
+    for (const { element: found } of matches.filter(processFoundMatches)) {
         removedNodes.push(found);
         found.replaceWith(...found.childNodes);
     }
@@ -90,31 +91,30 @@ function normalizeAdjacent(
 }
 
 function normalizeWithin(
-    matches: Element[],
-    keepMatches: Element[],
+    matches: FoundWithin[],
     parent: Node,
     removedNodes: Element[],
     clearer: ElementClearer,
 ): number {
     let childCount = 0;
 
-    for (const match of matches) {
-        removedNodes.push(match);
-        childCount += countChildNodesRespectiveToParent(parent, match);
-        match.replaceWith(...match.childNodes);
-    }
-
-    for (const match of keepMatches) {
-        if (clearer(match)) {
-            removedNodes.push(match);
-            childCount += countChildNodesRespectiveToParent(parent, match);
-            match.replaceWith(...match.childNodes);
-        } else {
-            childCount += 1;
+    for (const { matchType, element } of matches) {
+        if (matchType === MatchResult.MATCH) {
+            removedNodes.push(element);
+            childCount += countChildNodesRespectiveToParent(parent, element);
+            element.replaceWith(...element.childNodes);
+        } /* matchType === MatchResult.KEEP */ else {
+            if (clearer(element)) {
+                removedNodes.push(element);
+                childCount += countChildNodesRespectiveToParent(parent, element);
+                element.replaceWith(...element.childNodes);
+            } else {
+                childCount += 1;
+            }
         }
     }
 
-    const shift = childCount - matches.length - keepMatches.length;
+    const shift = childCount - matches.length;
     return shift;
 }
 
@@ -154,14 +154,8 @@ export function normalizeInsertionRanges(
             normalizedRange.endIndex += shift;
         }
 
-        const { matches, keepMatches } = findWithin(normalizedRange, matcher);
-        const withinShift = normalizeWithin(
-            matches,
-            keepMatches,
-            parent,
-            removedNodes,
-            clearer,
-        );
+        const matches = findWithin(normalizedRange, matcher);
+        const withinShift = normalizeWithin(matches, parent, removedNodes, clearer);
         normalizedRange.endIndex += withinShift;
 
         if (index === insertionRanges.length - 1) {

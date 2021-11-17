@@ -4,19 +4,22 @@
 import { getRangeAnchors } from "./range-anchors";
 import { nodeWithinRange } from "./text-node";
 import type { SurroundNoSplittingResult } from "./no-splitting";
-import { matchTagName } from "./matcher";
+import { MatchResult, matchTagName } from "./matcher";
 import type { ElementMatcher, ElementClearer } from "./matcher";
 import { findFarthest } from "./find-above";
 import { findWithinNode } from "./find-within";
+import type { FoundWithin } from "./find-within";
 import { surround } from "./no-splitting";
 
-function findContained(commonAncestor: Node, range: Range, matcher: ElementMatcher) {
-    const { matches, keepMatches } = findWithinNode(commonAncestor, matcher);
+function findContained(
+    commonAncestor: Node,
+    range: Range,
+    matcher: ElementMatcher,
+): FoundWithin[] {
+    const matches = findWithinNode(commonAncestor, matcher);
+    const contained = matches.filter(({ element }) => nodeWithinRange(range)(element));
 
-    return {
-        matches: matches.filter(nodeWithinRange(range)),
-        keepMatches: keepMatches.filter(nodeWithinRange(range)),
-    };
+    return contained;
 }
 
 function unsurroundAdjacent(
@@ -26,19 +29,19 @@ function unsurroundAdjacent(
     matcher: ElementMatcher,
     clearer: ElementClearer,
     condition: (node: Node) => boolean = () => true,
-) {
-    const { matches, keepMatches } = findWithinNode(node, matcher);
+): void {
+    const matches = findWithinNode(node, matcher);
 
-    for (const match of matches) {
-        if (condition(match)) {
-            nodesToRemove.push(match);
-        }
-    }
-
-    for (const match of keepMatches) {
-        // order is very important here as `clearer` is idempotent!
-        if (condition(match) && clearer(match)) {
-            nodesToRemove.push(match);
+    for (const { matchType, element } of matches) {
+        if (matchType === MatchResult.MATCH) {
+            if (condition(element)) {
+                nodesToRemove.push(element);
+            }
+        } /* matchType === MatchResult.KEEP */ else {
+            // order is very important here as `clearer` is idempotent!
+            if (condition(element) && clearer(element)) {
+                nodesToRemove.push(element);
+            }
         }
     }
 
@@ -68,6 +71,7 @@ export function unsurround(
 
     const addedNodes: Node[] = [];
     const removedNodes: Node[] = [];
+    const nodesToRemove: Element[] = [];
 
     const aboveStart = findFarthest(range.startContainer, base, matcher);
     const contained = findContained(range.commonAncestorContainer, range, matcher);
@@ -77,7 +81,6 @@ export function unsurround(
     beforeRange.setEnd(range.startContainer, range.startOffset);
     beforeRange.collapse(false);
 
-    const nodesToRemove: Element[] = [];
     if (aboveStart) {
         const [node, isKeep] = aboveStart;
         beforeRange.setStartBefore(node);
@@ -89,7 +92,7 @@ export function unsurround(
         unsurroundAdjacent(node, isKeep, nodesToRemove, matcher, clearer, condition);
     }
 
-    for (const found of contained.matches) {
+    for (const { element: found } of contained) {
         removedNodes.push(found);
         found.replaceWith(...found.childNodes);
     }
