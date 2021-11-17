@@ -204,7 +204,6 @@ export function unsurround(
     /**
      * We cannot remove the nodes immediately, because they would make the ranges collapse
      */
-
     const { addedNodes, removedNodes } = resurroundAdjacent(
         beforeRange,
         afterRange,
