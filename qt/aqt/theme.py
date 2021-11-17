@@ -8,7 +8,7 @@ from dataclasses import dataclass
 
 from anki.utils import isMac
 from aqt import QApplication, colors, gui_hooks, isWin
-from aqt.platform import set_dark_mode
+from aqt.platform import set_macos_dark_mode
 from aqt.qt import (
     QColor,
     QGuiApplication,
@@ -44,7 +44,7 @@ class ThemeManager:
     _icon_size = 128
     _dark_mode_available: bool | None = None
     default_palette: QPalette | None = None
-    _light_palette: QPalette | None = None
+    _default_style: str | None = None
 
     # Qt applies a gradient to the buttons in dark mode
     # from about #505050 to #606060.
@@ -59,7 +59,7 @@ class ThemeManager:
             return False
 
         if self._dark_mode_available is None:
-            self._dark_mode_available = set_dark_mode(True)
+            self._dark_mode_available = set_macos_dark_mode(True)
 
         from aqt import mw
 
@@ -145,27 +145,30 @@ class ThemeManager:
         return QColor(self.color(colors))
 
     def apply_style(self, app: QApplication) -> None:
-        self.default_palette = QGuiApplication.palette()
+        if not self.default_palette:
+            self.default_palette = QGuiApplication.palette()
+            self._default_style = app.style().name()
         self._apply_palette(app)
         self._apply_style(app)
 
     def _apply_style(self, app: QApplication) -> None:
         buf = ""
 
-        if isWin and platform.release() == "10" and not self.night_mode:
-            # add missing bottom border to menubar
-            buf += """
-QMenuBar {
-  border-bottom: 1px solid #aaa;
-  background: white;
-}
+        if isWin and platform.release() == "10":
+            # day mode is missing a bottom border; background must be
+            # also set for border to apply
+            buf += f"""
+QMenuBar {{
+  border-bottom: 1px solid {self.color(colors.BORDER)};
+  background: {self.color(colors.WINDOW_BG)};
+}}
 """
             # qt bug? setting the above changes the browser sidebar
             # to white as well, so set it back
-            buf += """
-QTreeWidget {
-  background: #eee;
-}
+            buf += f"""
+QTreeWidget {{
+  background: {self.color(colors.WINDOW_BG)};
+}}
             """
 
         if self.night_mode:
@@ -210,13 +213,12 @@ QTabWidget {{ background-color: {}; }}
         app.setStyleSheet(buf)
 
     def _apply_palette(self, app: QApplication) -> None:
-        if not self.night_mode:
-            if self._light_palette:
-                app.setPalette(self._light_palette)
-            return
+        set_macos_dark_mode(self.night_mode)
 
-        # remember light palette for switching back
-        self._light_palette = QGuiApplication.palette()
+        if not self.night_mode:
+            app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
+            app.setPalette(self.default_palette)
+            return
 
         if not self.macos_dark_mode():
             app.setStyle(QStyleFactory.create("fusion"))  # type: ignore

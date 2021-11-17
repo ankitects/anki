@@ -11,7 +11,7 @@ import aqt.utils
 from anki.utils import isMac
 
 
-def set_dark_mode(enabled: bool) -> bool:
+def set_macos_dark_mode(enabled: bool) -> bool:
     "True if setting successful."
     if not isMac:
         return False
