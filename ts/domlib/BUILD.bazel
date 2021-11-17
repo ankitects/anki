@@ -25,5 +25,5 @@ eslint_test()
 
 jest_test(
     env = "jsdom",
-    deps = [],
+    deps = [":domlib"],
 )
