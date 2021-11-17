@@ -5,17 +5,16 @@ import { getRangeAnchors } from "./range-anchors";
 import { nodeWithinRange } from "./text-node";
 import type { SurroundNoSplittingResult } from "./no-splitting";
 import { MatchResult, matchTagName } from "./matcher";
-import type { ElementMatcher, ElementClearer } from "./matcher";
+import type { FoundMatch, ElementMatcher, ElementClearer } from "./matcher";
 import { findFarthest } from "./find-above";
 import { findWithinNode } from "./find-within";
-import type { FoundWithin } from "./find-within";
 import { surround } from "./no-splitting";
 
 function findContained(
     commonAncestor: Node,
     range: Range,
     matcher: ElementMatcher,
-): FoundWithin[] {
+): FoundMatch[] {
     const matches = findWithinNode(commonAncestor, matcher);
     const contained = matches.filter(({ element }) => nodeWithinRange(range)(element));
 
@@ -23,16 +22,13 @@ function findContained(
 }
 
 function unsurroundAdjacent(
-    node: Element,
-    isKeep: boolean,
+    match: FoundMatch,
     nodesToRemove: Element[],
     matcher: ElementMatcher,
     clearer: ElementClearer,
     condition: (node: Node) => boolean = () => true,
 ): void {
-    const matches = findWithinNode(node, matcher);
-
-    for (const { matchType, element } of matches) {
+    for (const { matchType, element } of findWithinNode(match.element, matcher)) {
         if (matchType === MatchResult.MATCH) {
             if (condition(element)) {
                 nodesToRemove.push(element);
@@ -45,8 +41,17 @@ function unsurroundAdjacent(
         }
     }
 
-    if (condition(node) && (!isKeep || clearer(node))) {
-        nodesToRemove.push(node);
+    if (condition(match.element)) {
+        switch (match.matchType) {
+            case MatchResult.MATCH:
+                nodesToRemove.push(match.element);
+                break;
+            case MatchResult.KEEP:
+                if (clearer(match.element)) {
+                    nodesToRemove.push(match.element);
+                }
+                break;
+        }
     }
 }
 
@@ -82,14 +87,13 @@ export function unsurround(
     beforeRange.collapse(false);
 
     if (aboveStart) {
-        const [node, isKeep] = aboveStart;
-        beforeRange.setStartBefore(node);
+        beforeRange.setStartBefore(aboveStart.element);
 
         function condition(node: Node): boolean {
             return !node.contains(range.endContainer);
         }
 
-        unsurroundAdjacent(node, isKeep, nodesToRemove, matcher, clearer, condition);
+        unsurroundAdjacent(aboveStart, nodesToRemove, matcher, clearer, condition);
     }
 
     for (const { element: found } of contained) {
@@ -102,10 +106,9 @@ export function unsurround(
     afterRange.collapse(true);
 
     if (aboveEnd) {
-        const [node, isKeep] = aboveEnd;
-        afterRange.setEndAfter(node);
+        afterRange.setEndAfter(aboveEnd.element);
 
-        unsurroundAdjacent(node, isKeep, nodesToRemove, matcher, clearer);
+        unsurroundAdjacent(aboveEnd, nodesToRemove, matcher, clearer);
     }
 
     if (beforeRange.toString().length > 0) {

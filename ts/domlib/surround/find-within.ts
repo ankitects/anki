@@ -3,12 +3,7 @@
 
 import { nodeIsElement } from "../../lib/dom";
 import type { ChildNodeRange } from "./child-node-range";
-import type { MatchResult, ElementMatcher } from "./matcher";
-
-export interface FoundWithin {
-    matchType: Exclude<MatchResult, MatchResult.NO_MATCH>;
-    element: Element;
-}
+import type { FoundMatch, ElementMatcher } from "./matcher";
 
 /**
  * Elements returned should be in post-order
@@ -16,7 +11,7 @@ export interface FoundWithin {
 function findWithinNodeInner(
     node: Node,
     matcher: ElementMatcher,
-    matches: FoundWithin[],
+    matches: FoundMatch[],
 ): void {
     if (nodeIsElement(node)) {
         for (const child of node.children) {
@@ -33,8 +28,8 @@ function findWithinNodeInner(
 /**
  * Will not include parent node
  */
-export function findWithinNode(node: Node, matcher: ElementMatcher): FoundWithin[] {
-    const matches: FoundWithin[] = [];
+export function findWithinNode(node: Node, matcher: ElementMatcher): FoundMatch[] {
+    const matches: FoundMatch[] = [];
 
     if (nodeIsElement(node)) {
         for (const child of node.children) {
@@ -48,9 +43,9 @@ export function findWithinNode(node: Node, matcher: ElementMatcher): FoundWithin
 export function findWithin(
     childNodeRange: ChildNodeRange,
     matcher: ElementMatcher,
-): FoundWithin[] {
+): FoundMatch[] {
     const { parent, startIndex, endIndex } = childNodeRange;
-    const matches: FoundWithin[] = [];
+    const matches: FoundMatch[] = [];
 
     for (let node of Array.prototype.slice.call(
         parent.childNodes,

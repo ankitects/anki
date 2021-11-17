@@ -4,8 +4,7 @@
 import { findBefore, findAfter } from "./find-adjacent";
 import { findWithin, findWithinNode } from "./find-within";
 import { MatchResult } from "./matcher";
-import type { FoundWithin } from "./find-within";
-import type { ElementMatcher, ElementClearer } from "./matcher";
+import type { FoundMatch, ElementMatcher, ElementClearer } from "./matcher";
 import type { ChildNodeRange } from "./child-node-range";
 
 function countChildNodesRespectiveToParent(parent: Node, element: Element): number {
@@ -25,7 +24,7 @@ function normalizeWithinInner(
     clearer: ElementClearer,
 ) {
     const matches = findWithinNode(node, matcher);
-    const processFoundMatches = (match: FoundWithin) =>
+    const processFoundMatches = (match: FoundMatch) =>
         match.matchType === MatchResult.MATCH ?? clearer(match.element);
 
     for (const { element: found } of matches.filter(processFoundMatches)) {
@@ -91,7 +90,7 @@ function normalizeAdjacent(
 }
 
 function normalizeWithin(
-    matches: FoundWithin[],
+    matches: FoundMatch[],
     parent: Node,
     removedNodes: Element[],
     clearer: ElementClearer,

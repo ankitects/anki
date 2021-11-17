@@ -27,3 +27,8 @@ export const matchTagName =
     (element: Element): MatchResult => {
         return element.matches(tagName) ? MatchResult.MATCH : MatchResult.NO_MATCH;
     };
+
+export interface FoundMatch {
+    element: Element;
+    matchType: Exclude<MatchResult, MatchResult.NO_MATCH>;
+}

@@ -2,24 +2,24 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { nodeIsElement } from "../../lib/dom";
-import type { ElementMatcher } from "./matcher";
-import { MatchResult } from "./matcher";
-
-type FindAboveResult = [found: Element, isKeep: boolean] | null;
+import type { FoundMatch, ElementMatcher } from "./matcher";
 
 export function findClosest(
     node: Node,
     base: Element,
     matcher: ElementMatcher,
-): FindAboveResult {
+): FoundMatch | null {
     let current: Node | Element = node;
 
     while (true) {
         if (nodeIsElement(current)) {
-            const matchResult = matcher(current);
+            const matchType = matcher(current);
 
-            if (matchResult) {
-                return [current, matchResult === MatchResult.KEEP];
+            if (matchType) {
+                return {
+                    element: current,
+                    matchType,
+                };
             }
         }
 
@@ -35,16 +35,19 @@ export function findFarthest(
     node: Node,
     base: Element,
     matcher: ElementMatcher,
-): FindAboveResult {
-    let found: FindAboveResult = null;
+): FoundMatch | null {
+    let found: FoundMatch | null = null;
     let current: Node | Element = node;
 
     while (true) {
         if (nodeIsElement(current) && matcher(current)) {
-            const matchResult = matcher(current);
+            const matchType = matcher(current);
 
-            if (matchResult) {
-                found = [current, matchResult === MatchResult.KEEP];
+            if (matchType) {
+                return {
+                    element: current,
+                    matchType,
+                };
             }
         }
 
