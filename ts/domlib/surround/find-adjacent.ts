@@ -21,7 +21,7 @@ function adjacentNodeInner(getter: (node: Node) => ChildNode | null) {
         const adjacent = getter(node);
 
         if (adjacent && nodeIsElement(adjacent)) {
-            let current = adjacent;
+            let current: Element | null = adjacent;
 
             const maybeAlong: Element[] = [];
             while (nodeIsElement(current) && elementIsEmpty(current)) {
@@ -35,7 +35,7 @@ function adjacentNodeInner(getter: (node: Node) => ChildNode | null) {
                 }
             }
 
-            while (true) {
+            while (current) {
                 const matchResult = matcher(current);
 
                 if (matchResult) {
@@ -60,11 +60,10 @@ function adjacentNodeInner(getter: (node: Node) => ChildNode | null) {
                 }
 
                 // descend down into element
-                if (hasOnlyChild(current) && nodeIsElement(current.firstChild!)) {
-                    current = current.firstChild;
-                } else {
-                    return;
-                }
+                current =
+                    hasOnlyChild(current) && nodeIsElement(current.firstChild!)
+                        ? current.firstChild
+                        : null;
             }
         }
     }

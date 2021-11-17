@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { getRangeAnchors } from "./range-anchors";
-import type { SurroundNoSplittingResult } from "./no-splitting";
+import type { NodesResult, SurroundNoSplittingResult } from "./no-splitting";
 import { MatchResult, matchTagName } from "./matcher";
 import type { FoundMatch, ElementMatcher, ElementClearer } from "./matcher";
 import { findFarthest } from "./find-above";
@@ -65,6 +65,13 @@ function findAndClearWithin(
     return toRemove;
 }
 
+function prohibitOverlapse(range: AbstractRange): (node: Node) => boolean {
+    /* otherwise, they will be added to nodesToRemove twice
+     * and will also be cleared twice */
+    return (node: Node) =>
+        !node.contains(range.endContainer) && !range.endContainer.contains(node);
+}
+
 interface FindNodesToRemoveResult {
     nodesToRemove: Element[];
     beforeRange: Range;
@@ -96,19 +103,11 @@ function findNodesToRemove(
     if (aboveStart) {
         beforeRange.setStartBefore(aboveStart.element);
 
-        function prohibitOverlapse(node: Node): boolean {
-            /* otherwise, they will be added to nodesToRemove twice
-             * and will also be cleared twice */
-            return (
-                !node.contains(range.endContainer) && !range.endContainer.contains(node)
-            );
-        }
-
         const matches = findAndClearWithin(
             aboveStart,
             matcher,
             clearer,
-            prohibitOverlapse,
+            prohibitOverlapse(range),
         );
         nodesToRemove.push(...matches);
     }
@@ -133,11 +132,6 @@ function findNodesToRemove(
     };
 }
 
-interface UnsurroundAdjacentResult {
-    addedNodes: Node[];
-    removedNodes: Node[];
-}
-
 function resurroundAdjacent(
     beforeRange: Range,
     afterRange: Range,
@@ -145,7 +139,7 @@ function resurroundAdjacent(
     base: Element,
     matcher: ElementMatcher,
     clearer: ElementClearer,
-): UnsurroundAdjacentResult {
+): NodesResult {
     const addedNodes: Node[] = [];
     const removedNodes: Node[] = [];
 

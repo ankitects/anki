@@ -14,11 +14,14 @@ import { normalizeInsertionRanges } from "./normalize-insertion-ranges";
 import { matchTagName } from "./matcher";
 import type { ElementMatcher, ElementClearer } from "./matcher";
 
-export interface SurroundNoSplittingResult {
+export interface NodesResult {
     addedNodes: Node[];
     removedNodes: Node[];
-    surroundedRange: Range;
 }
+
+export type SurroundNoSplittingResult = NodesResult & {
+    surroundedRange: Range;
+};
 
 export function surround(
     range: Range,
@@ -26,7 +29,7 @@ export function surround(
     base: Element,
     matcher: ElementMatcher,
     clearer: ElementClearer,
-) {
+): NodesResult {
     const containedTextNodes = findTextNodesWithin(
         range.commonAncestorContainer,
     ).filter((text: Text): boolean => text.length > 0 && nodeWithinRange(text, range));

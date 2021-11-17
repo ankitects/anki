@@ -58,7 +58,7 @@ export function findWithin(
     const { parent, startIndex, endIndex } = childNodeRange;
     const matches: FoundMatch[] = [];
 
-    for (let node of Array.prototype.slice.call(
+    for (const node of Array.prototype.slice.call(
         parent.childNodes,
         startIndex,
         endIndex,
