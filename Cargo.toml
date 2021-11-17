@@ -5,7 +5,7 @@ authors = ["Ankitects Pty Ltd and contributors"]
 license = "AGPL-3.0-or-later"
 
 [workspace]
-members = ["rslib", "rslib/i18n", "pylib/rsbridge"]
+members = ["rslib", "rslib/i18n", "rslib/i18n_helpers", "pylib/rsbridge"]
 exclude = ["qt/package"]
 
 [lib]

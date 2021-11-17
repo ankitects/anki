@@ -4,7 +4,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import TitledContainer from "./TitledContainer.svelte";
-    import Item from "../components/Item.svelte";
     import SwitchRow from "./SwitchRow.svelte";
     import * as tr from "../lib/ftl";
     import type { DeckOptionsState } from "./lib";
@@ -17,23 +16,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.deckConfigBuryTitle()} {api}>
-    <Item>
-        <SwitchRow
-            bind:value={$config.buryNew}
-            defaultValue={defaults.buryNew}
-            markdownTooltip={tr.deckConfigBuryTooltip()}
-        >
-            {tr.deckConfigBuryNewSiblings()}
-        </SwitchRow>
-    </Item>
+    <SwitchRow
+        bind:value={$config.buryNew}
+        defaultValue={defaults.buryNew}
+        markdownTooltip={tr.deckConfigBuryTooltip()}
+    >
+        {tr.deckConfigBuryNewSiblings()}
+    </SwitchRow>
 
-    <Item>
-        <SwitchRow
-            bind:value={$config.buryReviews}
-            defaultValue={defaults.buryReviews}
-            markdownTooltip={tr.deckConfigBuryTooltip()}
-        >
-            {tr.deckConfigBuryReviewSiblings()}
-        </SwitchRow>
-    </Item>
+    <SwitchRow
+        bind:value={$config.buryReviews}
+        defaultValue={defaults.buryReviews}
+        markdownTooltip={tr.deckConfigBuryTooltip()}
+    >
+        {tr.deckConfigBuryReviewSiblings()}
+    </SwitchRow>
 </TitledContainer>

@@ -253,4 +253,30 @@ mod test {
         assert!(leech_threshold_met(2, 1));
         assert!(leech_threshold_met(3, 1));
     }
+
+    #[test]
+    fn extreme_multiplier_fuzz() {
+        let mut ctx = StateContext::defaults_for_testing();
+        // our calculations should work correctly with a low ease or non-default multiplier
+        let state = ReviewState {
+            scheduled_days: 1,
+            elapsed_days: 1,
+            ease_factor: 1.3,
+            lapses: 0,
+            leeched: false,
+        };
+        ctx.fuzz_factor = Some(0.0);
+        assert_eq!(state.passing_review_intervals(&ctx), (2, 3, 4));
+
+        // this is a silly multiplier, but it shouldn't underflow
+        ctx.interval_multiplier = 0.1;
+        assert_eq!(state.passing_review_intervals(&ctx), (2, 3, 4));
+        ctx.fuzz_factor = Some(0.99);
+        assert_eq!(state.passing_review_intervals(&ctx), (2, 4, 6));
+
+        // maximum must be respected no matter what
+        ctx.interval_multiplier = 10.0;
+        ctx.maximum_review_interval = 5;
+        assert_eq!(state.passing_review_intervals(&ctx), (5, 5, 5));
+    }
 }

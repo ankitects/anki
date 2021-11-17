@@ -29,6 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     >
         <Badge
             class="opacity-50"
+            iconSize={85}
             on:mount={(event) => createTooltip(event.detail.span)}
         >
             {@html infoCircle}

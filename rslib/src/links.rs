@@ -28,7 +28,7 @@ impl HelpPage {
             HelpPage::Importing => "importing.html",
             HelpPage::CustomizingFields => "editing.html#customizing-fields",
             HelpPage::DeckOptions => "deck-options.html",
-            HelpPage::EditingFeatures => "editing.html#features",
+            HelpPage::EditingFeatures => "editing.html#editing-features",
         }
     }
 }

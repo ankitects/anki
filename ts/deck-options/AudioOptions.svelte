@@ -5,7 +5,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "../lib/ftl";
     import TitledContainer from "./TitledContainer.svelte";
-    import Item from "../components/Item.svelte";
     import SwitchRow from "./SwitchRow.svelte";
     import type { DeckOptionsState } from "./lib";
 
@@ -17,22 +16,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <TitledContainer title={tr.deckConfigAudioTitle()} {api}>
-    <Item>
-        <SwitchRow
-            bind:value={$config.disableAutoplay}
-            defaultValue={defaults.disableAutoplay}
-        >
-            {tr.deckConfigDisableAutoplay()}
-        </SwitchRow>
-    </Item>
+    <SwitchRow
+        bind:value={$config.disableAutoplay}
+        defaultValue={defaults.disableAutoplay}
+    >
+        {tr.deckConfigDisableAutoplay()}
+    </SwitchRow>
 
-    <Item>
-        <SwitchRow
-            bind:value={$config.skipQuestionWhenReplayingAnswer}
-            defaultValue={defaults.skipQuestionWhenReplayingAnswer}
-            markdownTooltip={tr.deckConfigAlwaysIncludeQuestionAudioTooltip()}
-        >
-            {tr.deckConfigSkipQuestionWhenReplaying()}
-        </SwitchRow>
-    </Item>
+    <SwitchRow
+        bind:value={$config.skipQuestionWhenReplayingAnswer}
+        defaultValue={defaults.skipQuestionWhenReplayingAnswer}
+        markdownTooltip={tr.deckConfigAlwaysIncludeQuestionAudioTooltip()}
+    >
+        {tr.deckConfigSkipQuestionWhenReplaying()}
+    </SwitchRow>
 </TitledContainer>

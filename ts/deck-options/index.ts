@@ -24,6 +24,7 @@ export async function deckOptions(
                 ModuleName.SCHEDULING,
                 ModuleName.ACTIONS,
                 ModuleName.DECK_CONFIG,
+                ModuleName.KEYBOARD,
             ],
         }),
     ]);

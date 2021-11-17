@@ -111,7 +111,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     bind:this={buttonGroupRef}
     {id}
-    class="btn-group {className}"
+    class="button-group btn-group {className}"
     {style}
     dir="ltr"
     role="group"
@@ -125,9 +125,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    div {
+    .button-group {
         display: flex;
-        flex-direction: row;
-        flex-wrap: var(--buttons-wrap);
+        flex-flow: row var(--buttons-wrap);
     }
 </style>

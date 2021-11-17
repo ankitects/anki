@@ -114,6 +114,7 @@ class Collection(DeprecatedNamesMixin):
         self.tags = TagManager(self)
         self.conf = ConfigManager(self)
         self._load_scheduler()
+        self._startReps = 0  # pylint: disable=invalid-name
 
     def name(self) -> Any:
         return os.path.splitext(os.path.basename(self.path))[0]
@@ -992,6 +993,7 @@ class Collection(DeprecatedNamesMixin):
         type = ("new", "lrn", "rev")[idx]
         self.sched._updateStats(card, type, -1)
         self.sched.reps -= 1
+        self._startReps -= 1
 
         # and refresh the queues
         self.sched.reset()

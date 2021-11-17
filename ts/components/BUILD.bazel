@@ -39,6 +39,7 @@ svelte_check(
         "//sass:base_lib",
         "//sass:button_mixins_lib",
         "//sass:scrollbar_lib",
+        "//sass:breakpoints_lib",
         "//sass/bootstrap",
         "@npm//@types/bootstrap",
         "//ts/sveltelib:sveltelib_pkg",

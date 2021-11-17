@@ -41,27 +41,27 @@
 </script>
 
 <TitledContainer title={tr.deckConfigDailyLimits()} {api}>
-    <Item>
-        <SpinBoxRow
-            bind:value={$config.newPerDay}
-            defaultValue={defaults.newPerDay}
-            markdownTooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
-        >
-            {tr.schedulingNewCardsday()}
-        </SpinBoxRow>
+    <SpinBoxRow
+        bind:value={$config.newPerDay}
+        defaultValue={defaults.newPerDay}
+        markdownTooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
+    >
+        {tr.schedulingNewCardsday()}
+    </SpinBoxRow>
 
+    <Item>
         <Warning warning={newCardsGreaterThanParent} />
     </Item>
 
-    <Item>
-        <SpinBoxRow
-            bind:value={$config.reviewsPerDay}
-            defaultValue={defaults.reviewsPerDay}
-            markdownTooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
-        >
-            {tr.schedulingMaximumReviewsday()}
-        </SpinBoxRow>
+    <SpinBoxRow
+        bind:value={$config.reviewsPerDay}
+        defaultValue={defaults.reviewsPerDay}
+        markdownTooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
+    >
+        {tr.schedulingMaximumReviewsday()}
+    </SpinBoxRow>
 
+    <Item>
         <Warning warning={reviewsTooLow} />
     </Item>
 </TitledContainer>
