@@ -9,12 +9,11 @@ export function findClosest(
     base: Element,
     matcher: ElementMatcher,
 ): FoundMatch | null {
-    let current: Node | Element = node;
+    let current: Node | Element | null = node;
 
-    while (true) {
+    while (current) {
         if (nodeIsElement(current)) {
             const matchType = matcher(current);
-
             if (matchType) {
                 return {
                     element: current,
@@ -23,12 +22,13 @@ export function findClosest(
             }
         }
 
-        if (current.isSameNode(base) || !current.parentElement) {
-            return null;
-        }
-
-        current = current.parentElement;
+        current =
+            current.isSameNode(base) || !current.parentElement
+                ? null
+                : current.parentElement;
     }
+
+    return current;
 }
 
 export function findFarthest(
@@ -37,24 +37,24 @@ export function findFarthest(
     matcher: ElementMatcher,
 ): FoundMatch | null {
     let found: FoundMatch | null = null;
-    let current: Node | Element = node;
+    let current: Node | Element | null = node;
 
-    while (true) {
-        if (nodeIsElement(current) && matcher(current)) {
+    while (current) {
+        if (nodeIsElement(current)) {
             const matchType = matcher(current);
-
             if (matchType) {
-                return {
+                found = {
                     element: current,
                     matchType,
                 };
             }
         }
 
-        if (current.isSameNode(base) || !current.parentElement) {
-            return found;
-        }
-
-        current = current.parentElement;
+        current =
+            current.isSameNode(base) || !current.parentElement
+                ? null
+                : current.parentElement;
     }
+
+    return found;
 }

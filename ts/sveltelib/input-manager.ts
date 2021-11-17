@@ -8,7 +8,7 @@ import { getSelection } from "../lib/cross-browser";
 export type OnInsertCallback = ({ node: Node }) => Promise<void>;
 
 interface InputManager {
-    manager(element: Element): { destroy(): void };
+    manager(element: HTMLElement): { destroy(): void };
     triggerOnInsert(callback: OnInsertCallback): () => void;
 }
 
@@ -62,8 +62,8 @@ export function getInputManager(): InputManager {
         cancelInsertText();
     }
 
-    function manager(element: Element): { destroy(): void } {
-        const removeBeforeInput = on(element, "beforeinput", onBeforeInput as any);
+    function manager(element: HTMLElement): { destroy(): void } {
+        const removeBeforeInput = on(element, "beforeinput", onBeforeInput);
         const removePointerDown = on(element, "pointerdown", cancelInsertText);
         const removeBlur = on(element, "blur", cancelInsertText);
         const removeKeyDown = on(

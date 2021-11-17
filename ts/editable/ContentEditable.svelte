@@ -19,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let inputManager: (editable: HTMLElement) => void;
 
     /* must execute before DOMMirror */
-    function saveLocation(editable: Element) {
+    function saveLocation(editable: HTMLElement) {
         let removeOnFocus: () => void;
         let removeOnPointerdown: () => void;
 
