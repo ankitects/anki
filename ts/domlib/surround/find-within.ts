@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { nodeIsElement } from "../dom";
+import { nodeIsElement } from "../../lib/dom";
 import type { ChildNodeRange } from "./child-node-range";
 import { MatchResult } from "./matcher";
 import type { ElementMatcher } from "./matcher";

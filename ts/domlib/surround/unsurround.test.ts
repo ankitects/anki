@@ -2,7 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { unsurround } from "./unsurround";
-import { matchTagName } from "./matcher";
 
 const parser = new DOMParser();
 

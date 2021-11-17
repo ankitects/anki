@@ -1,4 +1,4 @@
-import { registerPackage } from "../register-package";
+import { registerPackage } from "../../lib/register-package";
 
 import { surroundNoSplitting } from "./no-splitting";
 import { unsurround } from "./unsurround";

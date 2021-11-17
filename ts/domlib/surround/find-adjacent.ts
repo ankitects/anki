@@ -1,8 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { nodeIsElement, elementIsEmpty } from "../dom";
-import { hasOnlyChild } from "../node";
+import { nodeIsElement, elementIsEmpty } from "../../lib/dom";
+import { hasOnlyChild } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
 import { MatchResult } from "./matcher";
 import type { ElementMatcher } from "./matcher";

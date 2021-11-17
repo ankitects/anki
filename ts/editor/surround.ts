@@ -3,8 +3,8 @@
 
 import type { RichTextInputAPI } from "./RichTextInput.svelte";
 import { getSelection } from "../lib/cross-browser";
-import { surroundNoSplitting, unsurround, findClosest } from "../lib/surround";
-import type { ElementMatcher, ElementClearer } from "../lib/surround";
+import { surroundNoSplitting, unsurround, findClosest } from "../domlib/surround";
+import type { ElementMatcher, ElementClearer } from "../domlib/surround";
 
 export function isSurroundedInner(
     range: AbstractRange,

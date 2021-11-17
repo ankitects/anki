@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../components/IconButton.svelte";
     import Shortcut from "../components/Shortcut.svelte";
     import WithState from "../components/WithState.svelte";
-    import { MatchResult } from "../lib/surround";
+    import { MatchResult } from "../domlib/surround";
     import { getPlatformString } from "../lib/shortcuts";
     import { isSurrounded, surroundCommand } from "./surround";
     import { boldIcon } from "./icons";

@@ -1,8 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { ascend, isOnlyChild } from "../node";
-import { elementIsBlock } from "../dom";
+import { ascend, isOnlyChild } from "../../lib/node";
+import { elementIsBlock } from "../../lib/dom";
 
 export function ascendWhileSingleInline(node: Node, base: Node): Node {
     if (node.isSameNode(base)) {

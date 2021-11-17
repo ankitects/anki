@@ -1,9 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { nodeIsElement } from "../../lib/dom";
 import type { ElementMatcher } from "./matcher";
 import { MatchResult } from "./matcher";
-import { nodeIsElement } from "../dom";
 import { splitPartiallySelectedTextNodes } from "./text-node";
 
 function textOrMatches(node: Node, matcher: ElementMatcher): boolean {
