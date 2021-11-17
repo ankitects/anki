@@ -94,6 +94,7 @@ class AddCards(QMainWindow):
         self.closeButton = QPushButton(tr.actions_close())
         self.closeButton.setAutoDefault(False)
         bb.addButton(self.closeButton, QDialogButtonBox.ButtonRole.RejectRole)
+        qconnect(self.closeButton.clicked, self.close)
         # help
         self.helpButton = QPushButton(tr.actions_help(), clicked=self.helpRequested)  # type: ignore
         self.helpButton.setAutoDefault(False)
