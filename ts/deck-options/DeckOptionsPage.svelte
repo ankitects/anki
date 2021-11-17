@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import ConfigSelector from "./ConfigSelector.svelte";
     import Container from "../components/Container.svelte";
-    import Item from "../components/Item.svelte";
+    import Row from "../components/Row.svelte";
     import DailyLimits from "./DailyLimits.svelte";
     import DisplayOrder from "./DisplayOrder.svelte";
     import NewOptions from "./NewOptions.svelte";
@@ -57,57 +57,77 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ConfigSelector {state} />
 
-<div class="multi-column">
-    <Container api={options} class="g-1 mb-3 mt-3">
-        <Item>
+<div class="deck-options-page">
+    <Container
+        breakpoint="sm"
+        --gutter-inline="0.25rem"
+        --gutter-block="0.5rem"
+        class="container-columns"
+        api={options}
+    >
+        <Row class="row-columns">
             <DailyLimits {state} api={dailyLimits} />
-        </Item>
+        </Row>
 
-        <Item>
+        <Row class="row-columns">
             <NewOptions {state} api={newOptions} />
-        </Item>
+        </Row>
 
-        <Item>
+        <Row class="row-columns">
             <LapseOptions {state} api={lapseOptions} />
-        </Item>
+        </Row>
 
         {#if state.v3Scheduler}
-            <Item>
+            <Row class="row-columns">
                 <DisplayOrder {state} api={displayOrder} />
-            </Item>
+            </Row>
         {/if}
 
-        <Item>
+        <Row class="row-columns">
             <TimerOptions {state} api={timerOptions} />
-        </Item>
+        </Row>
 
-        <Item>
+        <Row class="row-columns">
             <BuryOptions {state} api={buryOptions} />
-        </Item>
+        </Row>
 
-        <Item>
+        <Row class="row-columns">
             <AudioOptions {state} api={audioOptions} />
-        </Item>
+        </Row>
 
-        <Item>
+        <Row class="row-columns">
             <Addons {state} api={addonOptions} />
-        </Item>
+        </Row>
 
-        <Item>
+        <Row class="row-columns">
             <AdvancedOptions {state} api={advancedOptions} />
-        </Item>
+        </Row>
     </Container>
 </div>
 
 <style lang="scss">
-    .multi-column :global(.container) {
-        column-count: 2;
-        column-gap: 5em;
-    }
+    @use "sass/breakpoints" as bp;
 
-    @media (max-width: 1000px) {
-        .multi-column :global(.container) {
-            column-count: 1;
+    .deck-options-page {
+        overflow-x: hidden;
+
+        @include bp.with-breakpoint("lg") {
+            :global(.container) {
+                display: block;
+            }
+
+            :global(.container-columns) {
+                column-count: 2;
+                column-gap: 5em;
+
+                :global(.container) {
+                    break-inside: avoid;
+                }
+            }
+
+            :global(.row-columns) {
+                display: block;
+            }
         }
     }
 </style>

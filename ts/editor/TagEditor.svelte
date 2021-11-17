@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher, tick } from "svelte";
     import type { Writable } from "svelte/store";
-    import StickyFooter from "../components/StickyFooter.svelte";
+    import StickyContainer from "../components/StickyContainer.svelte";
     import TagOptionsBadge from "./TagOptionsBadge.svelte";
     import TagEditMode from "./TagEditMode.svelte";
     import TagInput from "./TagInput.svelte";
@@ -395,7 +395,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: shortenTags = shortenTags || assumedRows > 2;
 </script>
 
-<StickyFooter bind:height class="d-flex">
+<StickyContainer
+    --gutter-block="0.1rem"
+    --sticky-borders="1px 0 0"
+    bind:height
+    class="d-flex"
+>
     {#if !wrap}
         <TagOptionsBadge
             showSelectionsOptions={tagTypes.some((tag) => tag.selected)}
@@ -504,7 +509,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Tag>SPACER</Tag>
         </div>
     </ButtonToolbar>
-</StickyFooter>
+</StickyContainer>
 
 <style lang="scss">
     .tag-spacer {

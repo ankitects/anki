@@ -3,6 +3,9 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import Container from "../components/Container.svelte";
+    import Row from "../components/Row.svelte";
+    import Col from "../components/Col.svelte";
     import MapperRow from "./MapperRow.svelte";
     import * as tr from "../lib/ftl";
     import { ChangeNotetypeState, MapContext } from "./lib";
@@ -13,26 +16,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let info = state.info;
 
-    let unused: string[];
-    let unusedMsg: string;
-    $: {
-        unused = $info.unusedItems(ctx);
-        unusedMsg =
-            ctx === MapContext.Field
-                ? tr.changeNotetypeWillDiscardContent()
-                : tr.changeNotetypeWillDiscardCards();
-    }
+    $: unused = $info.unusedItems(ctx);
+    $: unusedMsg =
+        ctx === MapContext.Field
+            ? tr.changeNotetypeWillDiscardContent()
+            : tr.changeNotetypeWillDiscardCards();
 </script>
 
-<div class="container m-1">
-    <div class="row">
-        <div class="col"><b>{tr.changeNotetypeCurrent()}</b></div>
-        <div class="col"><b>{tr.changeNotetypeNew()}</b></div>
-    </div>
+<Container --gutter-inline="0.5rem" --gutter-block="0.1rem">
+    <Row --cols={2}>
+        <Col --col-size={1}><b>{tr.changeNotetypeCurrent()}</b></Col>
+        <Col --col-size={1}><b>{tr.changeNotetypeNew()}</b></Col>
+    </Row>
+
     {#each $info.mapForContext(ctx) as _, newIndex}
         <MapperRow {state} {ctx} {newIndex} />
     {/each}
-</div>
+</Container>
 
 {#if unused.length > 0}
     <div class="alert alert-warning" in:slide out:slide>

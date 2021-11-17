@@ -4,10 +4,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "../lib/ftl";
+    import Row from "../components/Row.svelte";
+    import Col from "../components/Col.svelte";
     import TooltipLabel from "./TooltipLabel.svelte";
     import RevertButton from "./RevertButton.svelte";
-    import Row from "./Row.svelte";
-    import Col from "./Col.svelte";
 
     export let value: string;
 </script>

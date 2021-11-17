@@ -18,3 +18,9 @@
 </script>
 
 <label bind:this={spanRef} for={forId}><slot /></label>
+
+<style lang="scss">
+    label {
+        display: inline;
+    }
+</style>

@@ -12,7 +12,7 @@
         { "path": "reviewer" },
         { "path": "lib" },
         { "path": "domlib" },
-        { "path": "sveltelib" },
+        { "path": "sveltelib" }
     ],
     "compilerOptions": {
         "declaration": true,
