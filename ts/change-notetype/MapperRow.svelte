@@ -3,6 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import Row from "../components/Row.svelte";
+    import Col from "../components/Col.svelte";
     import type { ChangeNotetypeState, MapContext } from "./lib";
 
     export let state: ChangeNotetypeState;
@@ -17,8 +19,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<div class="row">
-    <div class="col">
+<Row --cols={2}>
+    <Col --col-size={1}>
         <!-- svelte-ignore a11y-no-onchange -->
         <select
             value={$info.getOldIndex(ctx, newIndex)}
@@ -29,8 +31,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <option value={idx}>{name}</option>
             {/each}
         </select>
-    </div>
-    <div class="col align-self-center">
+    </Col>
+    <Col --col-size={1}>
         {$info.getNewName(ctx, newIndex)}
-    </div>
-</div>
+    </Col>
+</Row>

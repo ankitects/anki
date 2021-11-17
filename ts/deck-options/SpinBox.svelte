@@ -28,13 +28,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {min}
     {max}
     bind:value
-    class="form-control"
+    class="spin-box form-control"
     class:nightMode
     on:blur={checkMinMax}
 />
 
 <style lang="scss">
     @use "sass/night-mode" as nightmode;
+
+    .spin-box {
+        /* overwrite Bootstrap */
+        padding: 0.2rem 0.75rem;
+    }
 
     .nightMode {
         @include nightmode.input;

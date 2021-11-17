@@ -94,10 +94,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: statsRows = rowsFromStats(stats);
 </script>
 
-<table class="stats-table">
-    {#each statsRows as row, _index}
+<table class="stats-table align-start">
+    {#each statsRows as row}
         <tr>
-            <th style="text-align:start">{row.label}</th>
+            <th class="align-start">{row.label}</th>
             <td>{row.value}</td>
         </tr>
     {/each}
@@ -108,6 +108,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         width: 100%;
         border-spacing: 1em 0;
         border-collapse: collapse;
+    }
+
+    .align-start {
         text-align: start;
     }
 </style>
