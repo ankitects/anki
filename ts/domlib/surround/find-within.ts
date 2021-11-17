@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { nodeIsElement } from "../../lib/dom";
+import { nodeWithinRange } from "./within-range";
 import type { ChildNodeRange } from "./child-node-range";
 import type { FoundMatch, ElementMatcher } from "./matcher";
 
@@ -38,6 +39,16 @@ export function findWithinNode(node: Node, matcher: ElementMatcher): FoundMatch[
     }
 
     return matches;
+}
+
+export function findWithinRange(range: Range, matcher: ElementMatcher): FoundMatch[] {
+    const matches: FoundMatch[] = [];
+
+    findWithinNodeInner(range.commonAncestorContainer, matcher, matches);
+
+    return matches.filter((match: FoundMatch): boolean =>
+        nodeWithinRange(match.element, range),
+    );
 }
 
 export function findWithin(

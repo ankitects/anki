@@ -2,7 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { nodeIsElement, nodeIsText } from "../../lib/dom";
-import { Position } from "../location";
 
 /**
  * @returns Split text node to end direction
@@ -63,17 +62,3 @@ export function findTextNodesWithin(node: Node): Text[] {
         return [];
     }
 }
-
-export const nodeWithinRange =
-    (range: Range) =>
-    (node: Node): boolean => {
-        const nodeRange = new Range();
-        /* range.startContainer and range.endContainer will be Text */
-        nodeRange.selectNodeContents(node);
-
-        return (
-            range.compareBoundaryPoints(Range.START_TO_START, nodeRange) !==
-                Position.After &&
-            range.compareBoundaryPoints(Range.END_TO_END, nodeRange) !== Position.Before
-        );
-    };

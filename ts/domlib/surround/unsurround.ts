@@ -2,23 +2,30 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { getRangeAnchors } from "./range-anchors";
-import { nodeWithinRange } from "./text-node";
 import type { SurroundNoSplittingResult } from "./no-splitting";
 import { MatchResult, matchTagName } from "./matcher";
 import type { FoundMatch, ElementMatcher, ElementClearer } from "./matcher";
 import { findFarthest } from "./find-above";
-import { findWithinNode } from "./find-within";
+import { findWithinRange, findWithinNode } from "./find-within";
 import { surround } from "./no-splitting";
 
-function findContained(
-    commonAncestor: Node,
+function findBetween(
     range: Range,
     matcher: ElementMatcher,
+    aboveStart?: Element | undefined,
+    aboveEnd?: Element | undefined,
 ): FoundMatch[] {
-    const matches = findWithinNode(commonAncestor, matcher);
-    const contained = matches.filter(({ element }) => nodeWithinRange(range)(element));
+    const betweenRange = range.cloneRange();
 
-    return contained;
+    if (aboveStart) {
+        betweenRange.setStartAfter(aboveStart);
+    }
+
+    if (aboveEnd) {
+        betweenRange.setEndBefore(aboveEnd);
+    }
+
+    return findWithinRange(betweenRange, matcher);
 }
 
 function findAndClearWithin(
@@ -82,8 +89,8 @@ export function unsurround(
     const nodesToRemove: Element[] = [];
 
     const aboveStart = findFarthest(range.startContainer, base, matcher);
-    const contained = findContained(range.commonAncestorContainer, range, matcher);
     const aboveEnd = findFarthest(range.endContainer, base, matcher);
+    const between = findBetween(range, matcher, aboveStart?.element, aboveEnd?.element);
 
     const beforeRange = new Range();
     beforeRange.setEnd(range.startContainer, range.startOffset);
@@ -109,7 +116,7 @@ export function unsurround(
         nodesToRemove.push(...matches);
     }
 
-    for (const { element: found } of contained) {
+    for (const { element: found } of between) {
         removedNodes.push(found);
         found.replaceWith(...found.childNodes);
     }

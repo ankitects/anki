@@ -2,7 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { getRangeAnchors } from "./range-anchors";
-import { findTextNodesWithin, nodeWithinRange } from "./text-node";
+import { nodeWithinRange } from "./within-range";
+import { findTextNodesWithin } from "./text-node";
 import {
     surroundChildNodeRangeWithNode,
     nodeToChildNodeRange,
@@ -28,7 +29,7 @@ export function surround(
 ) {
     const containedTextNodes = findTextNodesWithin(
         range.commonAncestorContainer,
-    ).filter(nodeWithinRange(range));
+    ).filter((text: Text): boolean => nodeWithinRange(text, range));
 
     if (containedTextNodes.length === 0) {
         return {
