@@ -17,8 +17,8 @@
     const id = Math.random().toString(36).substring(2);
 </script>
 
-<Row --cols={2}>
-    <Col
+<Row --cols={6}>
+    <Col --col-size={4}
         >{#if markdownTooltip}<TooltipLabel for={id} {markdownTooltip}
                 ><slot /></TooltipLabel
             >{:else}<Label for={id}><slot /></Label>{/if}</Col
