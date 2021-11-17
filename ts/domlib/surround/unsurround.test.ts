@@ -95,16 +95,41 @@ describe("unsurround from one element to another", () => {
 //         range.setStart(body.firstChild!, 2);
 //         range.setEnd(body.firstChild!, 4);
 
-//         const { addedNodes, removedNodes, surroundedRange } = unsurround(
+//         const { addedNodes, removedNodes } = unsurround(
 //             range,
 //             document.createElement("b"),
 //             body,
-//             matchBold,
 //         );
 
 //         expect(addedNodes).toHaveLength(2);
 //         expect(removedNodes).toHaveLength(1);
 //         expect(body).toHaveProperty("innerHTML", "<b>11</b>22<b>33</b>");
-//         expect(surroundedRange.toString()).toEqual("22");
+//         // expect(surroundedRange.toString()).toEqual("22");
 //     });
 // });
+
+describe("with bold around block item", () => {
+    let body: HTMLBodyElement;
+
+    beforeEach(() => {
+        body = p("<b>111<br><ul><li>222</li></ul></b>");
+    });
+
+    test("unsurround list item", () => {
+        const range = new Range();
+        range.selectNodeContents(
+            body.firstChild!.childNodes[2].firstChild!.firstChild!,
+        );
+
+        const { addedNodes, removedNodes } = unsurround(
+            range,
+            document.createElement("b"),
+            body,
+        );
+
+        expect(addedNodes).toHaveLength(1);
+        expect(removedNodes).toHaveLength(1);
+        expect(body).toHaveProperty("innerHTML", "<b>111</b><br><ul><li>222</li></ul>");
+        // expect(surroundedRange.toString()).toEqual("222");
+    });
+});

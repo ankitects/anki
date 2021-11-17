@@ -65,27 +65,24 @@ function findAndClearWithin(
     return toRemove;
 }
 
-/**
- * Avoids splitting existing elements in the surrounded area
- * might create multiple of the surrounding element and remove elements specified by matcher
- * can be used for inline elements e.g. <b>, or <strong>
- * @param range: The range to surround
- * @param surroundNode: This node will be shallowly cloned for surrounding
- * @param base: Surrounding will not ascent beyond this point; base.contains(range.commonAncestorContainer) should be true
- * @param matcher: Used to detect elements will are similar to the surroundNode, and are included in normalization
- * @param clearer: Used to detect elements will are similar to the surroundNode, and are included in normalization
- **/
-export function unsurround(
-    range: Range,
-    surroundNode: Element,
-    base: Element,
-    matcher: ElementMatcher = matchTagName(surroundNode.tagName),
-    clearer: ElementClearer = () => false,
-): SurroundNoSplittingResult {
-    const { start, end } = getRangeAnchors(range, matcher);
+interface FindNodesToRemoveResult {
+    nodesToRemove: Element[];
+    beforeRange: Range;
+    afterRange: Range;
+}
 
-    const addedNodes: Node[] = [];
-    const removedNodes: Node[] = [];
+/**
+ * @returns beforeRange: will start at the farthest any of the nodes to remove will
+ *  extend in start direction till the start of the original range
+ * @return afterRange: will start at the end of the original range and will extend as
+ *  far as any of the nodes to remove will extend in end direction
+ */
+function findNodesToRemove(
+    range: Range,
+    base: Element,
+    matcher: ElementMatcher,
+    clearer: ElementClearer,
+): FindNodesToRemoveResult {
     const nodesToRemove: Element[] = [];
 
     const aboveStart = findFarthest(range.startContainer, base, matcher);
@@ -116,10 +113,7 @@ export function unsurround(
         nodesToRemove.push(...matches);
     }
 
-    for (const { element: found } of between) {
-        removedNodes.push(found);
-        found.replaceWith(...found.childNodes);
-    }
+    nodesToRemove.push(...between.map((match) => match.element));
 
     const afterRange = new Range();
     afterRange.setStart(range.endContainer, range.endOffset);
@@ -131,6 +125,29 @@ export function unsurround(
         const matches = findAndClearWithin(aboveEnd, matcher, clearer);
         nodesToRemove.push(...matches);
     }
+
+    return {
+        nodesToRemove,
+        beforeRange,
+        afterRange,
+    };
+}
+
+interface UnsurroundAdjacentResult {
+    addedNodes: Node[];
+    removedNodes: Node[];
+}
+
+function resurroundAdjacent(
+    beforeRange: Range,
+    afterRange: Range,
+    surroundNode: Element,
+    base: Element,
+    matcher: ElementMatcher,
+    clearer: ElementClearer,
+): UnsurroundAdjacentResult {
+    const addedNodes: Node[] = [];
+    const removedNodes: Node[] = [];
 
     if (beforeRange.toString().length > 0) {
         const { addedNodes: added, removedNodes: removed } = surround(
@@ -155,6 +172,47 @@ export function unsurround(
         addedNodes.push(...added);
         removedNodes.push(...removed);
     }
+
+    return { addedNodes, removedNodes };
+}
+
+/**
+ * Avoids splitting existing elements in the surrounded area
+ * might create multiple of the surrounding element and remove elements specified by matcher
+ * can be used for inline elements e.g. <b>, or <strong>
+ * @param range: The range to surround
+ * @param surroundNode: This node will be shallowly cloned for surrounding
+ * @param base: Surrounding will not ascent beyond this point; base.contains(range.commonAncestorContainer) should be true
+ * @param matcher: Used to detect elements will are similar to the surroundNode, and are included in normalization
+ * @param clearer: Used to clear elements which have unwanted properties
+ **/
+export function unsurround(
+    range: Range,
+    surroundNode: Element,
+    base: Element,
+    matcher: ElementMatcher = matchTagName(surroundNode.tagName),
+    clearer: ElementClearer = () => false,
+): SurroundNoSplittingResult {
+    const { start, end } = getRangeAnchors(range, matcher);
+    const { nodesToRemove, beforeRange, afterRange } = findNodesToRemove(
+        range,
+        base,
+        matcher,
+        clearer,
+    );
+
+    /**
+     * We cannot remove the nodes immediately, because they would make the ranges collapse
+     */
+
+    const { addedNodes, removedNodes } = resurroundAdjacent(
+        beforeRange,
+        afterRange,
+        surroundNode,
+        base,
+        matcher,
+        clearer,
+    );
 
     for (const node of nodesToRemove) {
         if (node.isConnected) {
