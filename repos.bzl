@@ -34,11 +34,11 @@ def register_repos():
     maybe(
         http_archive,
         name = "rules_rust",
-        strip_prefix = "rules_rust-anki-2021-10-02",
+        strip_prefix = "rules_rust-anki-2021-11-18",
         urls = [
-            "https://github.com/ankitects/rules_rust/archive/anki-2021-10-02.tar.gz",
+            "https://github.com/ankitects/rules_rust/archive/anki-2021-11-18.tar.gz",
         ],
-        sha256 = "5da1130d6e472a0c96774738d959b6d4ab11412677762dfbea83ddc2b938962d",
+        sha256 = "4d93bbf52c0b7f979da42f5481166221fcadca46c10d9f478a1b299229a9b6f3",
     )
 
     # python
