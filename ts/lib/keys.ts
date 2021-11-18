@@ -16,6 +16,13 @@ function translateModifierToPlatform(modifier: Modifier): string {
     return platformModifiers[allModifiers.indexOf(modifier)];
 }
 
+const GENERAL_KEY = 0;
+const NUMPAD_KEY = 3;
+
+export function checkIfInputKey(event: KeyboardEvent): boolean {
+    return event.location === GENERAL_KEY || event.location === NUMPAD_KEY;
+}
+
 export const checkModifiers =
     (required: Modifier[], optional: Modifier[] = []) =>
     (event: KeyboardEvent): boolean => {

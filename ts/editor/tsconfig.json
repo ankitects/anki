@@ -3,6 +3,7 @@
     "include": ["*", "image-overlay/*", "mathjax-overlay/*"],
     "references": [
         { "path": "../components" },
+        { "path": "../domlib" },
         { "path": "../lib" },
         { "path": "../sveltelib" },
         { "path": "../editable" },

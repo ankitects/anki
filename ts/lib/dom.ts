@@ -5,8 +5,12 @@ export function nodeIsElement(node: Node): node is Element {
     return node.nodeType === Node.ELEMENT_NODE;
 }
 
+export function nodeIsText(node: Node): node is Text {
+    return node.nodeType === Node.TEXT_NODE;
+}
+
 // https://developer.mozilla.org/en-US/docs/Web/HTML/Block-level_elements
-const BLOCK_TAGS = [
+const BLOCK_ELEMENTS = [
     "ADDRESS",
     "ARTICLE",
     "ASIDE",
@@ -43,7 +47,29 @@ const BLOCK_TAGS = [
 ];
 
 export function elementIsBlock(element: Element): boolean {
-    return BLOCK_TAGS.includes(element.tagName);
+    return BLOCK_ELEMENTS.includes(element.tagName);
+}
+
+// https://developer.mozilla.org/en-US/docs/Glossary/Empty_element
+const EMPTY_ELEMENTS = [
+    "AREA",
+    "BASE",
+    "BR",
+    "COL",
+    "EMBED",
+    "HR",
+    "IMG",
+    "INPUT",
+    "LINK",
+    "META",
+    "PARAM",
+    "SOURCE",
+    "TRACK",
+    "WBR",
+];
+
+export function elementIsEmpty(element: Element): boolean {
+    return EMPTY_ELEMENTS.includes(element.tagName);
 }
 
 export function nodeContainsInlineContent(node: Node): boolean {
@@ -66,6 +92,12 @@ export function fragmentToString(fragment: DocumentFragment): string {
     const html = fragmentDiv.innerHTML;
 
     return html;
+}
+
+export const NO_SPLIT_TAGS = ["RUBY"];
+
+export function elementShouldNotBeSplit(element: Element): boolean {
+    return elementIsBlock(element) || NO_SPLIT_TAGS.includes(element.tagName);
 }
 
 export function caretToEnd(node: Node): void {

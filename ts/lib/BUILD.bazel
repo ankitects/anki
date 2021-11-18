@@ -64,6 +64,7 @@ prettier_test()
 eslint_test()
 
 jest_test(
+    env = "jsdom",
     deps = [
         ":lib",
     ],

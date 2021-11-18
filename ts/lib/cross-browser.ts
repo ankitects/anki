@@ -11,5 +11,5 @@ export function getSelection(element: Node): Selection | null {
         return root.getSelection();
     }
 
-    return null;
+    return document.getSelection();
 }
