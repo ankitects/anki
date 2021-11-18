@@ -64,18 +64,27 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.23.1",
+    version = "0.22.2",
     visibility = ["//visibility:private"],
     deps = [
         "@raze__cc__1_0_72//:cc",
         "@raze__pkg_config__0_3_22//:pkg_config",
-        "@raze__vcpkg__0_2_15//:vcpkg",
-    ],
+    ] + selects.with_or({
+        # cfg(target_env = "msvc")
+        (
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+        ): [
+            "@raze__vcpkg__0_2_15//:vcpkg",
+        ],
+        "//conditions:default": [],
+    }),
 )
 
 rust_library(
     name = "libsqlite3_sys",
     srcs = glob(["**/*.rs"]),
+    aliases = {
+    },
     crate_features = [
         "bundled",
         "bundled_bindings",
@@ -97,9 +106,16 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.23.1",
+    version = "0.22.2",
     # buildifier: leave-alone
     deps = [
         ":libsqlite3_sys_build_script",
-    ],
+    ] + selects.with_or({
+        # cfg(target_env = "msvc")
+        (
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+        ): [
+        ],
+        "//conditions:default": [],
+    }),
 )

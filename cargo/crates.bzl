@@ -1043,12 +1043,12 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__libsqlite3_sys__0_23_1",
-        url = "https://crates.io/api/v1/crates/libsqlite3-sys/0.23.1/download",
+        name = "raze__libsqlite3_sys__0_22_2",
+        url = "https://crates.io/api/v1/crates/libsqlite3-sys/0.22.2/download",
         type = "tar.gz",
-        sha256 = "abd5850c449b40bacb498b2bbdfaff648b1b055630073ba8db499caf2d0ea9f2",
-        strip_prefix = "libsqlite3-sys-0.23.1",
-        build_file = Label("//cargo/remote:BUILD.libsqlite3-sys-0.23.1.bazel"),
+        sha256 = "290b64917f8b0cb885d9de0f9959fe1f775d7fa12f1da2db9001c1c8ab60f89d",
+        strip_prefix = "libsqlite3-sys-0.22.2",
+        build_file = Label("//cargo/remote:BUILD.libsqlite3-sys-0.22.2.bazel"),
     )
 
     maybe(
@@ -1913,12 +1913,12 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__rusqlite__0_26_1",
-        url = "https://crates.io/api/v1/crates/rusqlite/0.26.1/download",
+        name = "raze__rusqlite__0_25_3",
+        url = "https://crates.io/api/v1/crates/rusqlite/0.25.3/download",
         type = "tar.gz",
-        sha256 = "8a82b0b91fad72160c56bf8da7a549b25d7c31109f52cc1437eac4c0ad2550a7",
-        strip_prefix = "rusqlite-0.26.1",
-        build_file = Label("//cargo/remote:BUILD.rusqlite-0.26.1.bazel"),
+        sha256 = "57adcf67c8faaf96f3248c2a7b419a0dbc52ebe36ba83dd57fe83827c1ea4eb3",
+        strip_prefix = "rusqlite-0.25.3",
+        build_file = Label("//cargo/remote:BUILD.rusqlite-0.25.3.bazel"),
     )
 
     maybe(

@@ -338,7 +338,7 @@ alias(
 
 alias(
     name = "rusqlite",
-    actual = "@raze__rusqlite__0_26_1//:rusqlite",
+    actual = "@raze__rusqlite__0_25_3//:rusqlite",
     tags = [
         "cargo-raze",
         "manual",
