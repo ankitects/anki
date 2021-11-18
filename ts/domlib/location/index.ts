@@ -4,11 +4,13 @@
 import { registerPackage } from "../../lib/register-package";
 
 import { saveSelection, restoreSelection } from "./document";
+import { Position } from "./location";
 
 registerPackage("anki/location", {
     saveSelection,
     restoreSelection,
+    Position,
 });
 
-export { saveSelection, restoreSelection };
+export { saveSelection, restoreSelection, Position };
 export type { SelectionLocation } from "./selection";

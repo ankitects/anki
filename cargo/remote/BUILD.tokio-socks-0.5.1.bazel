@@ -58,7 +58,7 @@ rust_library(
         "@raze__either__1_6_1//:either",
         "@raze__futures_util__0_3_17//:futures_util",
         "@raze__thiserror__1_0_30//:thiserror",
-        "@raze__tokio__1_12_0//:tokio",
+        "@raze__tokio__1_14_0//:tokio",
     ],
 )
 

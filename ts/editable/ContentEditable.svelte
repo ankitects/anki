@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { updateAllState } from "../components/WithState.svelte";
     import { saveSelection, restoreSelection } from "../domlib/location";
     import { on } from "../lib/events";
+    import { registerShortcut } from "../lib/shortcuts";
 
     export let nodes: Writable<DocumentFragment>;
     export let resolve: (editable: HTMLElement) => void;
@@ -15,8 +16,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         params: { store: Writable<DocumentFragment> },
     ) => void;
 
+    export let inputManager: (editable: HTMLElement) => void;
+
     /* must execute before DOMMirror */
-    function saveLocation(editable: Element) {
+    function saveLocation(editable: HTMLElement) {
         let removeOnFocus: () => void;
         let removeOnPointerdown: () => void;
 
@@ -47,13 +50,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             },
         };
     }
+
+    let editable: HTMLElement;
+
+    $: if (editable) {
+        registerShortcut((event) => event.preventDefault(), "Control+B", editable);
+        registerShortcut((event) => event.preventDefault(), "Control+U", editable);
+        registerShortcut((event) => event.preventDefault(), "Control+I", editable);
+        registerShortcut((event) => event.preventDefault(), "Control+R", editable);
+    }
 </script>
 
 <anki-editable
     contenteditable="true"
+    bind:this={editable}
     use:resolve
     use:saveLocation
     use:mirror={{ store: nodes }}
+    use:inputManager
+    on:focus
+    on:blur
     on:click={updateAllState}
     on:keyup={updateAllState}
 />

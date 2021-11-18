@@ -32,7 +32,7 @@ alias(
 
 alias(
     name = "blake3",
-    actual = "@raze__blake3__1_1_0//:blake3",
+    actual = "@raze__blake3__1_2_0//:blake3",
     tags = [
         "cargo-raze",
         "manual",
@@ -59,7 +59,7 @@ alias(
 
 alias(
     name = "coarsetime",
-    actual = "@raze__coarsetime__0_1_19//:coarsetime",
+    actual = "@raze__coarsetime__0_1_20//:coarsetime",
     tags = [
         "cargo-raze",
         "manual",
@@ -194,7 +194,7 @@ alias(
 
 alias(
     name = "nom",
-    actual = "@raze__nom__7_0_0//:nom",
+    actual = "@raze__nom__7_1_0//:nom",
     tags = [
         "cargo-raze",
         "manual",
@@ -275,7 +275,7 @@ alias(
 
 alias(
     name = "prost",
-    actual = "@raze__prost__0_8_0//:prost",
+    actual = "@raze__prost__0_9_0//:prost",
     tags = [
         "cargo-raze",
         "manual",
@@ -284,7 +284,7 @@ alias(
 
 alias(
     name = "prost_build",
-    actual = "@raze__prost_build__0_8_0//:prost_build",
+    actual = "@raze__prost_build__0_9_0//:prost_build",
     tags = [
         "cargo-raze",
         "manual",
@@ -302,7 +302,7 @@ alias(
 
 alias(
     name = "pyo3",
-    actual = "@raze__pyo3__0_14_5//:pyo3",
+    actual = "@raze__pyo3__0_15_0//:pyo3",
     tags = [
         "cargo-raze",
         "manual",
@@ -365,7 +365,7 @@ alias(
 
 alias(
     name = "serde_aux",
-    actual = "@raze__serde_aux__2_3_0//:serde_aux",
+    actual = "@raze__serde_aux__3_0_1//:serde_aux",
     tags = [
         "cargo-raze",
         "manual",
@@ -383,7 +383,7 @@ alias(
 
 alias(
     name = "serde_json",
-    actual = "@raze__serde_json__1_0_68//:serde_json",
+    actual = "@raze__serde_json__1_0_71//:serde_json",
     tags = [
         "cargo-raze",
         "manual",
@@ -455,7 +455,7 @@ alias(
 
 alias(
     name = "strum",
-    actual = "@raze__strum__0_21_0//:strum",
+    actual = "@raze__strum__0_23_0//:strum",
     tags = [
         "cargo-raze",
         "manual",
@@ -473,7 +473,7 @@ alias(
 
 alias(
     name = "tokio",
-    actual = "@raze__tokio__1_12_0//:tokio",
+    actual = "@raze__tokio__1_14_0//:tokio",
     tags = [
         "cargo-raze",
         "manual",
@@ -482,7 +482,7 @@ alias(
 
 alias(
     name = "tokio_util",
-    actual = "@raze__tokio_util__0_6_8//:tokio_util",
+    actual = "@raze__tokio_util__0_6_9//:tokio_util",
     tags = [
         "cargo-raze",
         "manual",

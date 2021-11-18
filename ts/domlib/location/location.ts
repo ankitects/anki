@@ -6,33 +6,37 @@ export interface CaretLocation {
     offset: number;
 }
 
-export enum Order {
-    LessThan,
+export enum Position {
+    Before = -1,
     Equal,
-    GreaterThan,
+    After,
 }
 
-export function compareLocations(first: CaretLocation, second: CaretLocation): Order {
+/* first is positioned {} second */
+export function compareLocations(
+    first: CaretLocation,
+    second: CaretLocation,
+): Position {
     const smallerLength = Math.min(first.coordinates.length, second.coordinates.length);
 
     for (let i = 0; i <= smallerLength; i++) {
         if (first.coordinates.length === i) {
             if (second.coordinates.length === i) {
                 if (first.offset < second.offset) {
-                    return Order.LessThan;
+                    return Position.Before;
                 } else if (first.offset > second.offset) {
-                    return Order.GreaterThan;
+                    return Position.After;
                 } else {
-                    return Order.Equal;
+                    return Position.Equal;
                 }
             }
-            return Order.LessThan;
+            return Position.Before;
         } else if (second.coordinates.length === i) {
-            return Order.GreaterThan;
+            return Position.After;
         } else if (first.coordinates[i] < second.coordinates[i]) {
-            return Order.LessThan;
+            return Position.Before;
         } else if (first.coordinates[i] > second.coordinates[i]) {
-            return Order.GreaterThan;
+            return Position.After;
         }
     }
 

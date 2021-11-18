@@ -51,7 +51,7 @@ rust_library(
     version = "0.1.44",
     # buildifier: leave-alone
     deps = [
-        "@raze__libc__0_2_105//:libc",
+        "@raze__libc__0_2_107//:libc",
     ] + selects.with_or({
         # cfg(windows)
         (

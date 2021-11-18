@@ -67,7 +67,7 @@ cargo_build_script(
     version = "0.22.2",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__cc__1_0_71//:cc",
+        "@raze__cc__1_0_72//:cc",
         "@raze__pkg_config__0_3_22//:pkg_config",
     ] + selects.with_or({
         # cfg(target_env = "msvc")
