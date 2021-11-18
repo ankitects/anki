@@ -4,7 +4,7 @@
 mod browser_table;
 mod search_node;
 
-use std::{convert::TryInto, str::FromStr, sync::Arc};
+use std::{str::FromStr, sync::Arc};
 
 use super::{notes::to_note_ids, Backend};
 pub(super) use crate::backend_proto::search_service::Service as SearchService;

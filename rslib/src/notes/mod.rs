@@ -6,7 +6,6 @@ pub(crate) mod undo;
 use std::{
     borrow::Cow,
     collections::{HashMap, HashSet},
-    convert::TryInto,
 };
 
 use itertools::Itertools;

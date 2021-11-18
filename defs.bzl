@@ -18,7 +18,7 @@ def setup_deps():
     versions.check(minimum_bazel_version = "3.7.0")
 
     rust_repositories(
-        edition = "2018",
+        edition = "2021",
         include_rustc_srcs = False,
     )
 
