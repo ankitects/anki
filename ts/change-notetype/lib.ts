@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import * as tr from "../lib/ftl";
 import { Notetypes } from "../lib/proto";
 import { postRequest } from "../lib/postrequest";
 import { readable, Readable } from "svelte/store";
@@ -74,7 +75,7 @@ export class ChangeNotetypeInfoWrapper {
 
     /// Return all the old names, with "Nothing" at the end.
     getOldNamesIncludingNothing(ctx: MapContext): string[] {
-        return [...this.getOldNames(ctx), "(Nothing)"];
+        return [...this.getOldNames(ctx), tr.changeNotetypeNothing()];
     }
 
     /// Old names without "Nothing" at the end.
