@@ -3,6 +3,8 @@
 
 """Platform-specific functionality."""
 
+from __future__ import annotations
+
 import os
 import sys
 from ctypes import CDLL
@@ -16,7 +18,7 @@ def set_macos_dark_mode(enabled: bool) -> bool:
     if not isMac:
         return False
     try:
-        _set_dark_mode(enabled)
+        _ankihelper().set_darkmode_enabled(enabled)
         return True
     except Exception as e:
         # swallow exceptions, as library will fail on macOS 10.13
@@ -24,9 +26,27 @@ def set_macos_dark_mode(enabled: bool) -> bool:
     return False
 
 
-def _set_dark_mode(enabled: bool) -> None:
+def get_macos_dark_mode() -> bool:
+    if not isMac:
+        return False
+    try:
+        return _ankihelper().system_is_dark()
+    except Exception as e:
+        # swallow exceptions, as library will fail on macOS 10.13
+        print(e)
+        return False
+
+
+_ankihelper_dll: CDLL | None = None
+
+
+def _ankihelper() -> CDLL:
+    global _ankihelper_dll
+    if _ankihelper_dll:
+        return _ankihelper_dll
     if getattr(sys, "frozen", False):
         path = os.path.join(sys.prefix, "libankihelper.dylib")
     else:
         path = os.path.join(aqt.utils.aqt_data_folder(), "lib", "libankihelper.dylib")
-    CDLL(path).set_darkmode_enabled(enabled)
+    _ankihelper_dll = CDLL(path)
+    return _ankihelper_dll
