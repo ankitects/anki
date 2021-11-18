@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import WithDropdown from "../../components/WithDropdown.svelte";
+    import Container from "../../components/Container.svelte";
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import DropdownMenu from "../../components/DropdownMenu.svelte";
     import Item from "../../components/Item.svelte";
@@ -15,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import InlineBlock from "./InlineBlock.svelte";
     import CodeMirror from "../CodeMirror.svelte";
 
-    import { onMount, tick } from "svelte";
+    import { onMount, onDestroy, tick } from "svelte";
     import { writable } from "svelte/store";
     import { getRichTextInput } from "../RichTextInput.svelte";
     import { baseOptions, latex } from "../code-mirror";
@@ -46,10 +47,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
     }
 
-    async function maybeShowHandle(event: Event): Promise<void> {
+    async function maybeShowHandle({ target }: Event): Promise<void> {
         await resetHandle();
-        const target = event.target;
-
         if (target instanceof HTMLImageElement && target.dataset.anki === "mathjax") {
             showHandle(target);
         }
@@ -81,37 +80,35 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         };
     });
 
+    let updateSelection: () => Promise<void>;
+    let errorMessage: string;
     let dropdownApi: any;
+
     async function onImageResize(): Promise<void> {
-        if (activeImage) {
-            errorMessage = activeImage.title;
-            await updateSelection();
-            dropdownApi.update();
-        }
+        errorMessage = activeImage!.title;
+        await updateSelection();
+        dropdownApi.update();
     }
+
+    const resizeObserver = new ResizeObserver(onImageResize);
 
     let clearResize = noop;
     function handleImageResizing(activeImage: HTMLImageElement | null) {
         if (activeImage) {
+            resizeObserver.observe(container);
             clearResize = on(activeImage, "resize", onImageResize);
         } else {
+            resizeObserver.unobserve(container);
             clearResize();
         }
     }
 
     $: handleImageResizing(activeImage);
 
-    const resizeObserver = new ResizeObserver(async () => {
-        if (activeImage) {
-            await updateSelection();
-            dropdownApi.update();
-        }
+    onDestroy(() => {
+        resizeObserver.disconnect();
+        clearResize();
     });
-
-    resizeObserver.observe(container);
-
-    let updateSelection: () => Promise<void>;
-    let errorMessage: string;
 </script>
 
 <WithDropdown
@@ -140,11 +137,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 on:blur={resetHandle}
                 autofocus
             />
-            <ButtonToolbar>
-                <Item>
-                    <InlineBlock {activeImage} on:click={updateSelection} />
-                </Item>
-            </ButtonToolbar>
+            <Container --gutter-block="2px">
+                <ButtonToolbar>
+                    <Item>
+                        <InlineBlock {activeImage} on:click={updateSelection} />
+                    </Item>
+                </ButtonToolbar>
+            </Container>
         </DropdownMenu>
     {/if}
 </WithDropdown>
