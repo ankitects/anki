@@ -61,7 +61,7 @@ reqwest = { git="https://github.com/ankitects/reqwest.git", rev="7591444614de02b
     "rustls-tls-webpki-roots",
     "rustls-tls-native-roots",
 ] }
-rusqlite = { version = "0.25.3", features = ["trace", "functions", "collation", "bundled"] }
+rusqlite = { version = "0.26.1", features = ["trace", "functions", "collation", "bundled"] }
 scopeguard = "1.1.0"
 serde = "1.0.130"
 serde_derive = "1.0.130"
