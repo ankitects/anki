@@ -11,7 +11,7 @@ anki = { path = "../../rslib" }
 
 # /cargo/update.py needs to be run if updating the version below
 [dependencies.pyo3]
-version = "0.14.5"
+version = "0.15.0"
 features = ["extension-module", "abi3", "abi3-py39"]
 
 [lib]

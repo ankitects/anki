@@ -55,7 +55,7 @@
   },
   {
     "name": "anyhow",
-    "version": "1.0.44",
+    "version": "1.0.45",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/anyhow",
     "license": "Apache-2.0 OR MIT",
@@ -64,7 +64,7 @@
   },
   {
     "name": "arc-swap",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "authors": "Michal 'vorner' Vaner <vorner@vorner.cz>",
     "repository": "https://github.com/vorner/arc-swap",
     "license": "Apache-2.0 OR MIT",
@@ -91,7 +91,7 @@
   },
   {
     "name": "arrayvec",
-    "version": "0.7.1",
+    "version": "0.7.2",
     "authors": "bluss",
     "repository": "https://github.com/bluss/arrayvec",
     "license": "Apache-2.0 OR MIT",
@@ -145,7 +145,7 @@
   },
   {
     "name": "blake3",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "authors": "Jack O'Connor <oconnor663@gmail.com>",
     "repository": "https://github.com/BLAKE3-team/BLAKE3",
     "license": "Apache-2.0 OR CC0-1.0",
@@ -181,7 +181,7 @@
   },
   {
     "name": "cc",
-    "version": "1.0.71",
+    "version": "1.0.72",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
     "repository": "https://github.com/alexcrichton/cc-rs",
     "license": "Apache-2.0 OR MIT",
@@ -208,7 +208,7 @@
   },
   {
     "name": "coarsetime",
-    "version": "0.1.19",
+    "version": "0.1.20",
     "authors": "Frank Denis <github@pureftpd.org>",
     "repository": "https://github.com/jedisct1/rust-coarsetime",
     "license": "ISC",
@@ -433,7 +433,7 @@
   },
   {
     "name": "fixedbitset",
-    "version": "0.2.0",
+    "version": "0.4.0",
     "authors": "bluss",
     "repository": "https://github.com/bluss/fixedbitset",
     "license": "Apache-2.0 OR MIT",
@@ -757,7 +757,7 @@
   },
   {
     "name": "httpdate",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "authors": "Pyfisch <pyfisch@posteo.org>",
     "repository": "https://github.com/pyfisch/httpdate",
     "license": "Apache-2.0 OR MIT",
@@ -775,7 +775,7 @@
   },
   {
     "name": "hyper",
-    "version": "0.14.14",
+    "version": "0.14.15",
     "authors": "Sean McArthur <sean@seanmonstar.com>",
     "repository": "https://github.com/hyperium/hyper",
     "license": "MIT",
@@ -919,7 +919,7 @@
   },
   {
     "name": "libc",
-    "version": "0.2.105",
+    "version": "0.2.107",
     "authors": "The Rust Project Developers",
     "repository": "https://github.com/rust-lang/libc",
     "license": "Apache-2.0 OR MIT",
@@ -928,7 +928,7 @@
   },
   {
     "name": "libsqlite3-sys",
-    "version": "0.22.2",
+    "version": "0.23.1",
     "authors": "The rusqlite developers",
     "repository": "https://github.com/rusqlite/rusqlite",
     "license": "MIT",
@@ -1045,7 +1045,7 @@
   },
   {
     "name": "minimal-lexical",
-    "version": "0.1.4",
+    "version": "0.2.1",
     "authors": "Alex Huszagh <ahuszagh@gmail.com>",
     "repository": "https://github.com/Alexhuszagh/minimal-lexical",
     "license": "Apache-2.0 OR MIT",
@@ -1117,7 +1117,7 @@
   },
   {
     "name": "nom",
-    "version": "7.0.0",
+    "version": "7.1.0",
     "authors": "contact@geoffroycouprie.com",
     "repository": "https://github.com/Geal/nom",
     "license": "MIT",
@@ -1198,7 +1198,7 @@
   },
   {
     "name": "openssl",
-    "version": "0.10.36",
+    "version": "0.10.38",
     "authors": "Steven Fackler <sfackler@gmail.com>",
     "repository": "https://github.com/sfackler/rust-openssl",
     "license": "Apache-2.0",
@@ -1216,7 +1216,7 @@
   },
   {
     "name": "openssl-sys",
-    "version": "0.9.67",
+    "version": "0.9.71",
     "authors": "Alex Crichton <alex@alexcrichton.com>|Steven Fackler <sfackler@gmail.com>",
     "repository": "https://github.com/sfackler/rust-openssl",
     "license": "MIT",
@@ -1270,7 +1270,7 @@
   },
   {
     "name": "petgraph",
-    "version": "0.5.1",
+    "version": "0.6.0",
     "authors": "bluss|mitchmindtree",
     "repository": "https://github.com/petgraph/petgraph",
     "license": "Apache-2.0 OR MIT",
@@ -1450,16 +1450,16 @@
   },
   {
     "name": "proc-macro2",
-    "version": "1.0.30",
-    "authors": "Alex Crichton <alex@alexcrichton.com>|David Tolnay <dtolnay@gmail.com>",
-    "repository": "https://github.com/alexcrichton/proc-macro2",
+    "version": "1.0.32",
+    "authors": "David Tolnay <dtolnay@gmail.com>|Alex Crichton <alex@alexcrichton.com>",
+    "repository": "https://github.com/dtolnay/proc-macro2",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "A substitute implementation of the compiler's `proc_macro` API to decouple token-based libraries from the procedural macro use case."
   },
   {
     "name": "prost",
-    "version": "0.8.0",
+    "version": "0.9.0",
     "authors": "Dan Burkert <dan@danburkert.com>|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/prost",
     "license": "Apache-2.0",
@@ -1468,7 +1468,7 @@
   },
   {
     "name": "prost-build",
-    "version": "0.8.0",
+    "version": "0.9.0",
     "authors": "Dan Burkert <dan@danburkert.com>|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/prost",
     "license": "Apache-2.0",
@@ -1477,7 +1477,7 @@
   },
   {
     "name": "prost-derive",
-    "version": "0.8.0",
+    "version": "0.9.0",
     "authors": "Dan Burkert <dan@danburkert.com>|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/prost",
     "license": "Apache-2.0",
@@ -1486,7 +1486,7 @@
   },
   {
     "name": "prost-types",
-    "version": "0.8.0",
+    "version": "0.9.0",
     "authors": "Dan Burkert <dan@danburkert.com>|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/prost",
     "license": "Apache-2.0",
@@ -1657,7 +1657,7 @@
   },
   {
     "name": "rusqlite",
-    "version": "0.25.3",
+    "version": "0.26.1",
     "authors": "The rusqlite developers",
     "repository": "https://github.com/rusqlite/rusqlite",
     "license": "MIT",
@@ -1774,7 +1774,7 @@
   },
   {
     "name": "self_cell",
-    "version": "0.10.0",
+    "version": "0.10.1",
     "authors": "Lukas Bergdoll <lukas.bergdoll@gmail.com>",
     "repository": "https://github.com/Voultapher/self_cell",
     "license": "Apache-2.0",
@@ -1810,7 +1810,7 @@
   },
   {
     "name": "serde-aux",
-    "version": "2.3.0",
+    "version": "3.0.1",
     "authors": "Victor Polevoy <maintainer@vpolevoy.com>",
     "repository": "https://github.com/vityafx/serde-aux",
     "license": "MIT",
@@ -1828,7 +1828,7 @@
   },
   {
     "name": "serde_json",
-    "version": "1.0.68",
+    "version": "1.0.71",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/json",
     "license": "Apache-2.0 OR MIT",
@@ -2017,7 +2017,7 @@
   },
   {
     "name": "strum",
-    "version": "0.21.0",
+    "version": "0.23.0",
     "authors": "Peter Glotfelty <peter.glotfelty@microsoft.com>",
     "repository": "https://github.com/Peternator7/strum",
     "license": "MIT",
@@ -2026,7 +2026,7 @@
   },
   {
     "name": "strum_macros",
-    "version": "0.21.1",
+    "version": "0.23.0",
     "authors": "Peter Glotfelty <peter.glotfelty@microsoft.com>",
     "repository": "https://github.com/Peternator7/strum",
     "license": "MIT",
@@ -2035,7 +2035,7 @@
   },
   {
     "name": "syn",
-    "version": "1.0.80",
+    "version": "1.0.81",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/syn",
     "license": "Apache-2.0 OR MIT",
@@ -2143,7 +2143,7 @@
   },
   {
     "name": "tinyvec",
-    "version": "1.5.0",
+    "version": "1.5.1",
     "authors": "Lokathor <zefria@gmail.com>",
     "repository": "https://github.com/Lokathor/tinyvec",
     "license": "Apache-2.0 OR MIT OR Zlib",
@@ -2161,7 +2161,7 @@
   },
   {
     "name": "tokio",
-    "version": "1.12.0",
+    "version": "1.14.0",
     "authors": "Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/tokio",
     "license": "MIT",
@@ -2179,7 +2179,7 @@
   },
   {
     "name": "tokio-macros",
-    "version": "1.5.0",
+    "version": "1.6.0",
     "authors": "Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/tokio",
     "license": "MIT",
@@ -2215,7 +2215,7 @@
   },
   {
     "name": "tokio-util",
-    "version": "0.6.8",
+    "version": "0.6.9",
     "authors": "Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/tokio",
     "license": "MIT",
