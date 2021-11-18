@@ -4,8 +4,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { onMount, createEventDispatcher, getContext } from "svelte";
-    import { nightModeKey, dropdownKey } from "./context-keys";
+    import { dropdownKey } from "./context-keys";
     import type { DropdownProps } from "./dropdown";
+    import { currentTheme } from "../sveltelib/theme";
 
     export let id: string | undefined = undefined;
     let className: string = "";
@@ -21,7 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let disabled = false;
     export let tabbable = false;
 
-    const nightMode = getContext<boolean>(nightModeKey);
     const dropdownProps = getContext<DropdownProps>(dropdownKey) ?? { dropdown: false };
 
     let buttonRef: HTMLButtonElement;
@@ -36,8 +36,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="label-button {extendClassName(className, theme)}"
     class:active
     class:dropdown-toggle={dropdownProps.dropdown}
-    class:btn-day={theme === "anki" && !nightMode}
-    class:btn-night={theme === "anki" && nightMode}
+    class:btn-day={theme === "anki" && !$currentTheme.isDark}
+    class:btn-night={theme === "anki" && $currentTheme.isDark}
     title={tooltip}
     {...dropdownProps}
     {disabled}
