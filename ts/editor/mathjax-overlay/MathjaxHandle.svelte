@@ -13,20 +13,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HandleControl from "../HandleControl.svelte";
 
     import InlineBlock from "./InlineBlock.svelte";
-    import Editor from "./Editor.svelte";
+    import CodeMirror from "../CodeMirror.svelte";
 
     import { onMount, tick } from "svelte";
+    import { writable } from "svelte/store";
     import { getRichTextInput } from "../RichTextInput.svelte";
+    import { baseOptions, latex } from "../code-mirror";
     import { noop } from "../../lib/functional";
+    import { on } from "../../lib/events";
 
     const { container, api } = getRichTextInput();
+
+    const configuration = {
+        ...baseOptions,
+        mode: latex,
+    };
 
     let activeImage: HTMLImageElement | null = null;
     let allow: () => void;
 
+    const code = writable("");
+    let unsubscribe: () => void;
+
     function showHandle(image: HTMLImageElement): void {
         allow = api.preventResubscription();
         activeImage = image;
+
+        const ankiMathjax: HTMLElement = activeImage.closest("anki-mathjax")!;
+        code.set(ankiMathjax.dataset.mathjax ?? "");
+        unsubscribe = code.subscribe(
+            (value: string) => (ankiMathjax.dataset.mathjax = value),
+        );
     }
 
     async function maybeShowHandle(event: Event): Promise<void> {
@@ -49,21 +66,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (activeImage) {
             allow();
             activeImage = null;
+            unsubscribe();
             await tick();
         }
     }
 
     onMount(() => {
-        container.addEventListener("click", maybeShowHandle);
-        container.addEventListener("focusmathjax" as any, showAutofocusHandle);
-        container.addEventListener("key", resetHandle);
-        container.addEventListener("paste", resetHandle);
+        const removeClick = on(container, "click", maybeShowHandle);
+        const removeFocus = on(container, "focusmathjax" as any, showAutofocusHandle);
 
         return () => {
-            container.removeEventListener("click", maybeShowHandle);
-            container.removeEventListener("focusmathjax" as any, showAutofocusHandle);
-            container.removeEventListener("key", resetHandle);
-            container.removeEventListener("paste", resetHandle);
+            removeClick();
+            removeFocus();
         };
     });
 
@@ -79,10 +93,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let clearResize = noop;
     function handleImageResizing(activeImage: HTMLImageElement | null) {
         if (activeImage) {
-            activeImage.addEventListener("resize", onImageResize);
-
-            const lastImage = activeImage;
-            clearResize = () => lastImage.removeEventListener("resize", onImageResize);
+            clearResize = on(activeImage, "resize", onImageResize);
         } else {
             clearResize();
         }
@@ -101,15 +112,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let updateSelection: () => Promise<void>;
     let errorMessage: string;
-
-    function getComponent(image: HTMLImageElement): HTMLElement {
-        return image.closest("anki-mathjax")! as HTMLElement;
-    }
-
-    function onEditorUpdate(event: CustomEvent): void {
-        /* this updates the image in Mathjax.svelte */
-        getComponent(activeImage!).dataset.mathjax = event.detail.mathjax;
-    }
 </script>
 
 <WithDropdown
@@ -127,29 +129,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:mount={(event) => (dropdownApi = createDropdown(event.detail.selection))}
         >
             <HandleBackground tooltip={errorMessage} />
-
             <HandleControl offsetX={1} offsetY={1} />
         </HandleSelection>
 
         <DropdownMenu>
-            <Editor
-                initialValue={getComponent(activeImage).dataset.mathjax ?? ""}
-                on:update={onEditorUpdate}
-                on:codemirrorblur={resetHandle}
+            <CodeMirror
+                {code}
+                {configuration}
+                on:change={({ detail }) => code.set(detail)}
+                on:blur={resetHandle}
+                autofocus
             />
-            <div class="margin-x">
-                <ButtonToolbar>
-                    <Item>
-                        <InlineBlock {activeImage} on:click={updateSelection} />
-                    </Item>
-                </ButtonToolbar>
-            </div>
+            <ButtonToolbar>
+                <Item>
+                    <InlineBlock {activeImage} on:click={updateSelection} />
+                </Item>
+            </ButtonToolbar>
         </DropdownMenu>
     {/if}
 </WithDropdown>
-
-<style lang="scss">
-    .margin-x {
-        margin: 0 0.125rem;
-    }
-</style>

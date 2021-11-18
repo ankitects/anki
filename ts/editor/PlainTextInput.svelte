@@ -16,7 +16,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import CodeMirror from "./CodeMirror.svelte";
     import type { CodeMirrorAPI } from "./CodeMirror.svelte";
-
     import { tick, onMount } from "svelte";
     import { writable } from "svelte/store";
     import { getDecoratedElements } from "./DecoratedElements.svelte";
