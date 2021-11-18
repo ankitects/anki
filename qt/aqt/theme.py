@@ -147,7 +147,7 @@ class ThemeManager:
     def apply_style(self, app: QApplication) -> None:
         if not self.default_palette:
             self.default_palette = QGuiApplication.palette()
-            self._default_style = app.style().name()
+            self._default_style = app.style().objectName()
         self._apply_palette(app)
         self._apply_style(app)
 
