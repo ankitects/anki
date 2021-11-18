@@ -53,7 +53,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
         codeMirror.on("focus", () => {
             if (ranges) {
-                codeMirror.setSelections(ranges);
+                try {
+                    codeMirror.setSelections(ranges);
+                } catch {
+                    ranges = null;
+                }
             }
             unsubscribe();
             dispatch("focus");
