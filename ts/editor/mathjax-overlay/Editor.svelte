@@ -4,7 +4,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { onMount, createEventDispatcher } from "svelte";
-    import { ChangeTimer } from "../change-timer";
     import { CodeMirror, latex, baseOptions } from "../code-mirror";
 
     export let initialValue: string;
@@ -15,20 +14,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
 
     let codeMirror: CodeMirror.EditorFromTextArea;
-    const changeTimer = new ChangeTimer();
     const dispatch = createEventDispatcher();
 
     function onInput() {
         dispatch("update", { mathjax: codeMirror.getValue() });
-
-        /* changeTimer.schedule( */
-        /*     () => dispatch("update", { mathjax: codeMirror.getValue() }), */
-        /*     400 */
-        /* ); */
     }
 
     function onBlur() {
-        changeTimer.fireImmediately();
         dispatch("codemirrorblur");
     }
 
@@ -49,16 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<div
-    on:click|stopPropagation
-    on:focus|stopPropagation
-    on:focusin|stopPropagation
-    on:keydown|stopPropagation
-    on:keyup|stopPropagation
-    on:mousedown|preventDefault|stopPropagation
-    on:mouseup|stopPropagation
-    on:paste|stopPropagation
->
+<div class="mathjax-editor-container">
     <!-- TODO no focusin for now, as EditingArea will defer to Editable/Codable -->
     <textarea
         bind:this={textarea}
@@ -69,7 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    div :global(.mathjax-editor) {
+    .mathjax-editor-container :global(.mathjax-editor) {
         border-radius: 0;
         border-width: 0 1px;
         border-color: var(--medium-border);
