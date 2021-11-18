@@ -200,6 +200,7 @@ class Preferences(QDialog):
         "Setup options global to all profiles."
         self.form.uiScale.setValue(int(self.mw.pm.uiScale() * 100))
         self.form.nightMode.setChecked(self.mw.pm.night_mode())
+        qconnect(self.form.nightMode.toggled, self.on_night_mode_toggled)
 
         self.setup_language()
         self.setup_video_driver()
@@ -216,14 +217,15 @@ class Preferences(QDialog):
             self.mw.pm.setUiScale(newScale)
             restart_required = True
 
-        if self.mw.pm.night_mode() != self.form.nightMode.isChecked():
-            self.mw.pm.set_night_mode(not self.mw.pm.night_mode())
-            self.mw.update_theme()
-
         if restart_required:
             showInfo(tr.preferences_changes_will_take_effect_when_you())
 
         self.updateOptions()
+
+    def on_night_mode_toggled(self, checked: bool) -> None:
+        if self.mw.pm.night_mode() != checked:
+            self.mw.pm.set_night_mode(checked)
+            self.mw.update_theme()
 
     # legacy - one of Henrik's add-ons is currently wrapping them
 
