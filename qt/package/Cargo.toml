@@ -2,7 +2,7 @@
 name = "anki"
 version = "0.1.0"
 build = "build.rs"
-edition = "2018"
+edition = "2021"
 
 [target.'cfg(windows)'.dependencies]
 winapi = {version = "0.3", features = ["wincon"]}

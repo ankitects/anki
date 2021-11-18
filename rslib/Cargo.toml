@@ -1,7 +1,7 @@
 [package]
 name = "anki"
 version = "0.0.0"
-edition = "2018"
+edition = "2021"
 authors = ["Ankitects Pty Ltd and contributors"]
 license = "AGPL-3.0-or-later"
 description = "Anki's Rust library code"
