@@ -5,12 +5,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { SvelteComponent } from "svelte/internal";
     import { writable } from "svelte/store";
+    import { currentTheme } from "../sveltelib/theme";
 
     import { bridgeCommand } from "../lib/bridgecommand";
 
     import WithGraphData from "./WithGraphData.svelte";
 
-    export let nightMode: boolean;
     export let graphs: SvelteComponent[];
 
     export let initialSearch: string;
@@ -45,7 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {sourceData}
                     {preferences}
                     {revlogRange}
-                    {nightMode}
+                    nightMode={$currentTheme.isDark}
                     on:search={browserSearch}
                 />
             {/each}
