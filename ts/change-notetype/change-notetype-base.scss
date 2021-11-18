@@ -15,7 +15,7 @@
 }
 
 body {
-    width: min(100vw, 35em);
+    width: min(100vw, 70em);
     margin: 0 auto;
 }
 
@@ -25,7 +25,7 @@ html {
 
 #main {
     padding: 0 1em 1em 1em;
-    height: calc(100vh - 1em);
+    height: 100vh;
 }
 
 // override the default down arrow colour in <select> elements
