@@ -6,14 +6,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
 
     type KeyType = Symbol | string;
-    type UpdaterMap = Map<KeyType, (event: Event) => boolean>;
-    type StateMap = Map<KeyType, boolean>;
+    type UpdaterMap = Map<KeyType, (event: Event) => Promise<boolean>>;
+    type StateMap = Map<KeyType, Promise<boolean>>;
 
-    const updaterMap = new Map() as UpdaterMap;
-    const stateMap = new Map() as StateMap;
+    const updaterMap: UpdaterMap = new Map();
+    const stateMap: StateMap = new Map();
     const stateStore = writable(stateMap);
 
-    function updateAllStateWithCallback(callback: (key: KeyType) => boolean): void {
+    function updateAllStateWithCallback(
+        callback: (key: KeyType) => Promise<boolean>,
+    ): void {
         stateStore.update((map: StateMap): StateMap => {
             const newMap = new Map() as StateMap;
 
@@ -26,13 +28,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export function updateAllState(event: Event): void {
-        updateAllStateWithCallback((key: KeyType): boolean =>
-            updaterMap.get(key)!(event),
+        updateAllStateWithCallback(
+            (key: KeyType): Promise<boolean> => updaterMap.get(key)!(event),
         );
     }
 
     export function resetAllState(state: boolean): void {
-        updateAllStateWithCallback((): boolean => state);
+        updateAllStateWithCallback((): Promise<boolean> => Promise.resolve(state));
     }
 
     function updateStateByKey(key: KeyType, event: Event): void {
@@ -45,18 +47,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="ts">
     export let key: KeyType;
-    export let update: (event: Event) => boolean;
+    export let update: (event: Event) => Promise<boolean>;
 
     let state: boolean = false;
 
     updaterMap.set(key, update);
 
     stateStore.subscribe((map: StateMap): (() => void) => {
-        state = Boolean(map.get(key));
+        if (map.has(key)) {
+            const stateValue = map.get(key)!;
+
+            if (stateValue instanceof Promise) {
+                stateValue.then((value: boolean): void => {
+                    state = value;
+                });
+            } else {
+                state = stateValue;
+            }
+        } else {
+            state = false;
+        }
         return () => map.delete(key);
     });
 
-    stateMap.set(key, state);
+    stateMap.set(key, Promise.resolve(state));
 
     function updateState(event: Event): void {
         updateStateByKey(key, event);
