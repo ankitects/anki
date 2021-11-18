@@ -23,6 +23,7 @@ from anki.sync import SyncAuth
 from anki.utils import int_time, isMac, isWin
 from aqt import appHelpSite
 from aqt.qt import *
+from aqt.theme import Theme
 from aqt.utils import disable_help_button, showWarning, tr
 
 # Profile handling
@@ -514,6 +515,12 @@ create table if not exists profiles
 
     def set_night_mode(self, on: bool) -> None:
         self.meta["night_mode"] = on
+
+    def theme(self) -> Theme:
+        return Theme(self.meta.get("theme", 0))
+
+    def set_theme(self, theme: Theme) -> None:
+        self.meta["theme"] = theme.value
 
     def dark_mode_widgets(self) -> bool:
         return self.meta.get("dark_mode_widgets", False)

@@ -56,6 +56,9 @@
         </widget>
        </item>
        <item>
+        <widget class="QComboBox" name="theme"/>
+       </item>
+       <item>
         <widget class="QComboBox" name="video_driver"/>
        </item>
        <item>
@@ -83,13 +86,6 @@
         <widget class="QCheckBox" name="paste_strips_formatting">
          <property name="text">
           <string>preferences_paste_without_shift_key_strips_formatting</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="nightMode">
-         <property name="text">
-          <string>preferences_night_mode</string>
          </property>
         </widget>
        </item>
@@ -602,12 +598,12 @@
  </widget>
  <tabstops>
   <tabstop>lang</tabstop>
+  <tabstop>theme</tabstop>
   <tabstop>video_driver</tabstop>
   <tabstop>showPlayButtons</tabstop>
   <tabstop>interrupt_audio</tabstop>
   <tabstop>pastePNG</tabstop>
   <tabstop>paste_strips_formatting</tabstop>
-  <tabstop>nightMode</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
   <tabstop>uiScale</tabstop>

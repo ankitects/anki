@@ -3,12 +3,14 @@
 
 from __future__ import annotations
 
+import enum
 import platform
 from dataclasses import dataclass
 
+import aqt
 from anki.utils import isMac
 from aqt import QApplication, colors, gui_hooks, isWin
-from aqt.platform import set_macos_dark_mode
+from aqt.platform import get_macos_dark_mode, get_windows_dark_mode, set_macos_dark_mode
 from aqt.qt import (
     QColor,
     QGuiApplication,
@@ -35,6 +37,12 @@ class ColoredIcon:
 
     def with_color(self, color: tuple[str, str]) -> ColoredIcon:
         return ColoredIcon(path=self.path, color=color)
+
+
+class Theme(enum.IntEnum):
+    FOLLOW_SYSTEM = 0
+    LIGHT = 1
+    DARK = 2
 
 
 class ThemeManager:
@@ -144,12 +152,38 @@ class ThemeManager:
     def qcolor(self, colors: tuple[str, str]) -> QColor:
         return QColor(self.color(colors))
 
-    def apply_style(self, app: QApplication) -> None:
+    def _determine_night_mode(self) -> bool:
+        theme = aqt.mw.pm.theme()
+        if theme == Theme.LIGHT:
+            return False
+        elif theme == Theme.DARK:
+            return True
+        else:
+            if isWin:
+                return get_windows_dark_mode()
+            elif isMac:
+                return get_macos_dark_mode()
+            else:
+                # not supported on Linux
+                return False
+
+    def apply_style_if_system_style_changed(self) -> None:
+        theme = aqt.mw.pm.theme()
+        if theme != Theme.FOLLOW_SYSTEM:
+            return
+        if self._determine_night_mode() != self.night_mode:
+            self.apply_style()
+
+    def apply_style(self) -> None:
+        "Apply currently configured style."
+        app = aqt.mw.app
+        self.night_mode = self._determine_night_mode()
         if not self.default_palette:
             self.default_palette = QGuiApplication.palette()
             self._default_style = app.style().objectName()
         self._apply_palette(app)
         self._apply_style(app)
+        gui_hooks.theme_did_change()
 
     def _apply_style(self, app: QApplication) -> None:
         buf = ""

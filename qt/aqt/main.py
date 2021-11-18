@@ -47,7 +47,7 @@ from aqt.qt import *
 from aqt.qt import sip
 from aqt.sync import sync_collection, sync_login
 from aqt.taskman import TaskManager
-from aqt.theme import theme_manager
+from aqt.theme import Theme, theme_manager
 from aqt.undo import UndoActionsInfo
 from aqt.utils import (
     HelpPage,
@@ -145,11 +145,11 @@ class AnkiQt(QMainWindow):
         self.setupMediaServer()
         self.setupSound()
         self.setupSpellCheck()
+        self.setupProgress()
         self.setupStyle()
         self.setupMainWindow()
         self.setupSystemSpecific()
         self.setupMenus()
-        self.setupProgress()
         self.setupErrorHandler()
         self.setupSignals()
         self.setupAutoUpdate()
@@ -1004,12 +1004,14 @@ title="{}" {}>{}</button>""".format(
         return True
 
     def setupStyle(self) -> None:
-        theme_manager.night_mode = self.pm.night_mode()
-        theme_manager.apply_style(self.app)
+        theme_manager.apply_style()
+        self.progress.timer(
+            5 * 1000, theme_manager.apply_style_if_system_style_changed, True, False
+        )
 
-    def update_theme(self) -> None:
+    def set_theme(self, theme: Theme) -> None:
+        self.pm.set_theme(theme)
         self.setupStyle()
-        gui_hooks.theme_did_change()
 
     # Key handling
     ##########################################################################

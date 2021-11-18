@@ -10,7 +10,25 @@ import sys
 from ctypes import CDLL
 
 import aqt.utils
-from anki.utils import isMac
+from anki.utils import isMac, isWin
+
+
+def get_windows_dark_mode() -> bool:
+    "True if Windows system is currently in dark mode."
+    if not isWin:
+        return False
+
+    from winreg import (  # pylint: disable=import-error
+        HKEY_CURRENT_USER,
+        OpenKey,
+        QueryValueEx,
+    )
+
+    key = OpenKey(
+        HKEY_CURRENT_USER,
+        r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
+    )
+    return not QueryValueEx(key, "AppsUseLightTheme")[0]
 
 
 def set_macos_dark_mode(enabled: bool) -> bool:
@@ -27,6 +45,7 @@ def set_macos_dark_mode(enabled: bool) -> bool:
 
 
 def get_macos_dark_mode() -> bool:
+    "True if macOS system is currently in dark mode."
     if not isMac:
         return False
     try:
