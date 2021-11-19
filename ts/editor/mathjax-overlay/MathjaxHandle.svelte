@@ -130,20 +130,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </HandleSelection>
 
         <DropdownMenu>
-            <CodeMirror
-                {code}
-                {configuration}
-                on:change={({ detail }) => code.set(detail)}
-                on:blur={resetHandle}
-                autofocus
-            />
-            <Container --gutter-block="2px">
-                <ButtonToolbar>
-                    <Item>
-                        <InlineBlock {activeImage} on:click={updateSelection} />
-                    </Item>
-                </ButtonToolbar>
-            </Container>
+            <div class="mathjax-editor">
+                <CodeMirror
+                    {code}
+                    {configuration}
+                    on:change={({ detail }) => code.set(detail)}
+                    on:blur={resetHandle}
+                    autofocus
+                />
+            </div>
+            <ButtonToolbar>
+                <Item>
+                    <InlineBlock {activeImage} on:click={updateSelection} />
+                </Item>
+            </ButtonToolbar>
         </DropdownMenu>
     {/if}
 </WithDropdown>
+
+<style lang="scss">
+    .mathjax-editor :global(.CodeMirror) {
+        margin-bottom: 0.25rem;
+    }
+</style>

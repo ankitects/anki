@@ -142,7 +142,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<div class:hidden on:focusin on:focusout>
+<div class="plain-text-input" class:hidden on:focusin on:focusout>
     <CodeMirror
         {configuration}
         {code}
@@ -152,6 +152,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    .plain-text-input :global(.CodeMirror) {
+        border-radius: 0 0 5px 5px;
+    }
+
     .hidden {
         display: none;
     }
