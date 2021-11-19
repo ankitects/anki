@@ -29,17 +29,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const newlineShortcut = "Shift+Enter";
 
     const configuration = {
-        ...Object.assign(
-            {},
-            baseOptions,
-            {
-                extraKeys: {
-                    ...baseOptions.extraKeys as CodeMirror.KeyMap,
-                        [acceptShortcut]: noop,
-                        [newlineShortcut]: noop,
-                },
+        ...Object.assign({}, baseOptions, {
+            extraKeys: {
+                ...(baseOptions.extraKeys as CodeMirror.KeyMap),
+                [acceptShortcut]: noop,
+                [newlineShortcut]: noop,
             },
-        ),
+        }),
         placeholder: tr.editingMathjaxPlaceholder({
             accept: getPlatformString(acceptShortcut),
             newline: getPlatformString(newlineShortcut),
@@ -53,8 +49,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const code = writable("");
 
     function appendNewline(): void {
-       code.update((value) => `${value}foo\n`)
-   }
+        code.update((value) => `${value}foo\n`);
+    }
 
     let unsubscribe: () => void;
 
@@ -151,15 +147,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <HandleControl offsetX={1} offsetY={1} />
         </HandleSelection>
 
-        <Shortcut
-            keyCombination={acceptShortcut}
-            on:action={resetHandle}
-        />
+        <Shortcut keyCombination={acceptShortcut} on:action={resetHandle} />
 
-        <Shortcut
-            keyCombination={newlineShortcut}
-            on:action={appendNewline}
-        />
+        <Shortcut keyCombination={newlineShortcut} on:action={appendNewline} />
 
         <DropdownMenu>
             <div class="mathjax-editor">
