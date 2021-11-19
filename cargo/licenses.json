@@ -928,7 +928,7 @@
   },
   {
     "name": "libsqlite3-sys",
-    "version": "0.22.2",
+    "version": "0.23.1",
     "authors": "The rusqlite developers",
     "repository": "https://github.com/rusqlite/rusqlite",
     "license": "MIT",
@@ -1657,7 +1657,7 @@
   },
   {
     "name": "rusqlite",
-    "version": "0.25.3",
+    "version": "0.26.1",
     "authors": "The rusqlite developers",
     "repository": "https://github.com/rusqlite/rusqlite",
     "license": "MIT",
