@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { onMount, createEventDispatcher } from "svelte";
-    import { currentTheme } from "../sveltelib/theme";
+    import { pageTheme } from "../sveltelib/theme";
 
     let className: string = "";
     export { className as class };
@@ -31,8 +31,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="tag btn d-inline-flex align-items-center text-nowrap ps-2 pe-1 {className}"
     class:selected
     class:flashing
-    class:btn-day={!$currentTheme.isDark}
-    class:btn-night={$currentTheme.isDark}
+    class:btn-day={!$pageTheme.isDark}
+    class:btn-night={$pageTheme.isDark}
     tabindex="-1"
     title={tooltip}
     on:mousemove

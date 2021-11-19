@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import contextProperty from "../sveltelib/context-property";
     import type { OnInsertCallback } from "../sveltelib/input-manager";
-    import { currentTheme } from "../sveltelib/theme";
+    import { pageTheme } from "../sveltelib/theme";
 
     export interface RichTextInputAPI extends EditingInputAPI {
         name: "rich-text";
@@ -237,7 +237,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <RichTextStyles
-    color={$currentTheme.isDark ? "white" : "black"}
+    color={$pageTheme.isDark ? "white" : "black"}
     let:attachToShadow={attachStyles}
     let:promise={stylesPromise}
     let:stylesDidLoad

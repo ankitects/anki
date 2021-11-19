@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconConstrain from "./IconConstrain.svelte";
     import { getContext, onMount, createEventDispatcher } from "svelte";
     import { dropdownKey } from "./context-keys";
-    import { currentTheme } from "../sveltelib/theme";
+    import { pageTheme } from "../sveltelib/theme";
     import type { DropdownProps } from "./dropdown";
 
     export let id: string | undefined = undefined;
@@ -36,8 +36,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="icon-button btn {className}"
     class:active
     class:dropdown-toggle={dropdownProps.dropdown}
-    class:btn-day={!$currentTheme.isDark}
-    class:btn-night={$currentTheme.isDark}
+    class:btn-day={!$pageTheme.isDark}
+    class:btn-night={$pageTheme.isDark}
     title={tooltip}
     {...dropdownProps}
     {disabled}

@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { SvelteComponent } from "svelte/internal";
     import { writable } from "svelte/store";
-    import { currentTheme } from "../sveltelib/theme";
+    import { pageTheme } from "../sveltelib/theme";
 
     import { bridgeCommand } from "../lib/bridgecommand";
 
@@ -45,7 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {sourceData}
                     {preferences}
                     {revlogRange}
-                    nightMode={$currentTheme.isDark}
+                    nightMode={$pageTheme.isDark}
                     on:search={browserSearch}
                 />
             {/each}

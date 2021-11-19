@@ -8,25 +8,28 @@ interface ThemeInfo {
     isDark: boolean;
 }
 
-function getCurrentThemeFromRoot(): ThemeInfo {
+function getThemeFromRoot(): ThemeInfo {
     return {
         isDark: document.documentElement.classList.contains("night-mode"),
     };
 }
 
-let setCurrentTheme: ((theme: ThemeInfo) => void) | null = null;
-export const currentTheme = readable(getCurrentThemeFromRoot(), (set) => {
-    setCurrentTheme = set;
+let setPageTheme: ((theme: ThemeInfo) => void) | null = null;
+/// The current theme that applies to this document/shadow root. When
+/// previewing cards in the card layout screen, this may not match the
+/// theme Anki is using in its UI.
+export const pageTheme = readable(getThemeFromRoot(), (set) => {
+    setPageTheme = set;
 });
-// ensure setCurrentTheme is set immediately
-get(currentTheme);
+// ensure setPageTheme is set immediately
+get(pageTheme);
 
 // Update theme when root element's class changes.
 const observer = new MutationObserver((_mutationsList, _observer) => {
-    setCurrentTheme!(getCurrentThemeFromRoot());
+    setPageTheme!(getThemeFromRoot());
 });
 observer.observe(document.documentElement, { attributeFilter: ["class"] });
 
 registerPackage("anki/theme", {
-    currentTheme,
+    pageTheme,
 });
