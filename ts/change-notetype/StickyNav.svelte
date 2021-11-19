@@ -39,9 +39,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <StickyContainer
-    --sticky-bg={"var(--frame-bg)"}
-    --sticky-border="var(--window-bg)"
-    --sticky-borders="0 0 1px"
+    --sticky-bg={"var(--pane-bg)"}
+    --sticky-border="var(--border)"
+    --sticky-borders="1px 0 1px"
 >
     <h1>
         {heading}
