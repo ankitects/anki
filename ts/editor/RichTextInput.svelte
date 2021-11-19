@@ -6,15 +6,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type CustomStyles from "./CustomStyles.svelte";
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import contextProperty from "../sveltelib/context-property";
+    import type { OnInsertCallback } from "../sveltelib/input-manager";
     import { currentTheme } from "../sveltelib/theme";
 
     export interface RichTextInputAPI extends EditingInputAPI {
         name: "rich-text";
+        shadowRoot: Promise<ShadowRoot>;
+        element: Promise<HTMLElement>;
         moveCaretToEnd(): void;
         refocus(): void;
         toggle(): boolean;
         surround(before: string, after: string): void;
         preventResubscription(): () => void;
+        triggerOnInsert(callback: OnInsertCallback): () => void;
     }
 
     export interface RichTextInputContextAPI {
@@ -120,8 +124,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         content.set(output);
     }
 
+    const [shadowPromise, shadowResolve] = promiseWithResolver<ShadowRoot>();
+
     function attachShadow(element: Element): void {
-        element.attachShadow({ mode: "open" });
+        shadowResolve(element.attachShadow({ mode: "open" }));
     }
 
     const [richTextPromise, richTextResolve] = promiseWithResolver<HTMLElement>();
@@ -151,8 +157,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     import getDOMMirror from "../sveltelib/mirror-dom";
+    import getInputManager from "../sveltelib/input-manager";
 
     const { mirror, preventResubscription } = getDOMMirror();
+    const { manager, triggerOnInsert } = getInputManager();
 
     function moveCaretToEnd() {
         richTextPromise.then(caretToEnd);
@@ -169,6 +177,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         nodes,
                         resolve,
                         mirror,
+                        inputManager: manager,
                     },
                     context: allContexts,
                 }),
@@ -177,6 +186,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export const api: RichTextInputAPI = {
         name: "rich-text",
+        shadowRoot: shadowPromise,
+        element: richTextPromise,
         focus() {
             richTextPromise.then((richText) => richText.focus());
         },
@@ -198,6 +209,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             );
         },
         preventResubscription,
+        triggerOnInsert,
     };
 
     function pushUpdate(): void {

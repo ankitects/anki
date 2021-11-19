@@ -3,8 +3,6 @@
 
 mod card;
 
-use std::convert::{TryFrom, TryInto};
-
 use crate::{
     config::{ConfigKey, SchedulerVersion},
     decks::{FilteredDeck, FilteredSearchTerm},

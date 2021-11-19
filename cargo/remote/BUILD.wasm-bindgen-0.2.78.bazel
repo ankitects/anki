@@ -96,7 +96,7 @@ rust_library(
         ":wasm_bindgen_build_script",
         "@raze__cfg_if__1_0_0//:cfg_if",
         "@raze__serde__1_0_130//:serde",
-        "@raze__serde_json__1_0_68//:serde_json",
+        "@raze__serde_json__1_0_71//:serde_json",
     ],
 )
 

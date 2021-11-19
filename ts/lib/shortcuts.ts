@@ -4,7 +4,12 @@
 import type { Modifier } from "./keys";
 
 import { registerPackage } from "./register-package";
-import { modifiersToPlatformString, keyToPlatformString, checkModifiers } from "./keys";
+import {
+    modifiersToPlatformString,
+    keyToPlatformString,
+    checkModifiers,
+    checkIfInputKey,
+} from "./keys";
 
 const keyCodeLookup = {
     Backspace: 8,
@@ -112,9 +117,6 @@ function keyCombinationToCheck(
     return check(keyCode, modifiers);
 }
 
-const GENERAL_KEY = 0;
-const NUMPAD_KEY = 3;
-
 function innerShortcut(
     target: EventTarget | Document,
     lastEvent: KeyboardEvent,
@@ -131,10 +133,7 @@ function innerShortcut(
             if (nextCheck(event)) {
                 innerShortcut(target, event, callback, ...restChecks);
                 clearTimeout(interval);
-            } else if (
-                event.location === GENERAL_KEY ||
-                event.location === NUMPAD_KEY
-            ) {
+            } else if (checkIfInputKey(event)) {
                 // Any non-modifier key will cancel the shortcut sequence
                 document.removeEventListener("keydown", handler);
             }

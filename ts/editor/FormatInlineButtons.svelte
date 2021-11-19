@@ -6,43 +6,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
     import CommandIconButton from "./CommandIconButton.svelte";
+    import BoldButton from "./BoldButton.svelte";
+    import ItalicButton from "./ItalicButton.svelte";
+    import UnderlineButton from "./UnderlineButton.svelte";
 
     import * as tr from "../lib/ftl";
-    import {
-        boldIcon,
-        italicIcon,
-        underlineIcon,
-        superscriptIcon,
-        subscriptIcon,
-        eraserIcon,
-    } from "./icons";
+    import { superscriptIcon, subscriptIcon, eraserIcon } from "./icons";
 
     export let api = {};
 </script>
 
 <ButtonGroup {api}>
     <ButtonGroupItem>
-        <CommandIconButton
-            key="bold"
-            shortcut={"Control+B"}
-            tooltip={tr.editingBoldText()}>{@html boldIcon}</CommandIconButton
-        >
+        <BoldButton />
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <CommandIconButton
-            key="italic"
-            shortcut={"Control+I"}
-            tooltip={tr.editingItalicText()}>{@html italicIcon}</CommandIconButton
-        >
+        <ItalicButton />
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <CommandIconButton
-            key="underline"
-            shortcut={"Control+U"}
-            tooltip={tr.editingUnderlineText()}>{@html underlineIcon}</CommandIconButton
-        >
+        <UnderlineButton />
     </ButtonGroupItem>
 
     <ButtonGroupItem>

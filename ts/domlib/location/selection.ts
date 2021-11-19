@@ -3,7 +3,7 @@
 
 import { getNodeCoordinates } from "./node";
 import type { CaretLocation } from "./location";
-import { compareLocations, Order } from "./location";
+import { compareLocations, Position } from "./location";
 import { getSelection } from "../../lib/cross-browser";
 
 export interface SelectionLocationCollapsed {
@@ -42,7 +42,7 @@ export function getSelectionLocation(base: Node): SelectionLocation | null {
     const focus = { coordinates: focusCoordinates, offset: selection.focusOffset };
     const order = compareLocations(anchor, focus);
 
-    const direction = order === Order.GreaterThan ? "backward" : "forward";
+    const direction = order === Position.After ? "backward" : "forward";
 
     return {
         anchor,

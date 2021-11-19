@@ -63,8 +63,8 @@ rust_library(
         "@raze__http__0_2_5//:http",
         "@raze__indexmap__1_7_0//:indexmap",
         "@raze__slab__0_4_5//:slab",
-        "@raze__tokio__1_12_0//:tokio",
-        "@raze__tokio_util__0_6_8//:tokio_util",
+        "@raze__tokio__1_14_0//:tokio",
+        "@raze__tokio_util__0_6_9//:tokio_util",
         "@raze__tracing__0_1_29//:tracing",
     ],
 )

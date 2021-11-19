@@ -2,7 +2,7 @@ load("@npm//@bazel/esbuild:index.bzl", "esbuild")
 load("@npm//jest-cli:index.bzl", _jest_test = "jest_test")
 
 def jest_test(deps, name = "jest", protobuf = False, env = "node"):
-    ts_sources = native.glob(["*.test.ts"])
+    ts_sources = native.glob(["**/*.test.ts"])
 
     # bundle each test file up with its dependencies for jest
     bundled_srcs = []

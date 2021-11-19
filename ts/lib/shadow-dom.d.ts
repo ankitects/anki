@@ -6,6 +6,6 @@ declare global {
     }
 
     interface Node {
-        getRootNode(options?: GetRootNodeOptions): DocumentOrShadowRoot;
+        getRootNode(options?: GetRootNodeOptions): Document | ShadowRoot;
     }
 }

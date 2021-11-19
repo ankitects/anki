@@ -25,6 +25,7 @@ _ts_deps = [
     "//ts/editable:editable_ts",
     "//ts/html-filter",
     "//ts/lib",
+    "//ts/domlib",
     "//ts/sveltelib",
     "@npm//@fluent",
     "@npm//@types/codemirror",
