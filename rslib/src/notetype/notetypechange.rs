@@ -79,20 +79,20 @@ impl Collection {
             .ok_or(AnkiError::NotFound)?;
 
         let current_schema = self.storage.get_collection_timestamps()?.schema_change;
-        let old_notetype_name = &old_notetype.name.to_string();
+        let old_notetype_name = &old_notetype.name;
         let new_fields = default_field_map(&old_notetype, &new_notetype);
         let new_templates = default_template_map(&old_notetype, &new_notetype);
         Ok(NotetypeChangeInfo {
             input: ChangeNotetypeInput {
                 current_schema,
                 note_ids: vec![],
-                old_notetype_name: old_notetype_name.to_string(),
+                old_notetype_name: old_notetype_name.clone(),
                 old_notetype_id,
                 new_notetype_id,
                 new_fields,
                 new_templates,
             },
-            old_notetype_name: old_notetype_name.to_string(),
+            old_notetype_name: old_notetype_name.clone(),
             old_field_names: old_notetype.fields.iter().map(|f| f.name.clone()).collect(),
             old_template_names: old_notetype
                 .templates

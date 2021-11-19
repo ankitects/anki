@@ -205,7 +205,7 @@ impl From<pb::ChangeNotetypeRequest> for ChangeNotetypeInput {
         ChangeNotetypeInput {
             current_schema: i.current_schema.into(),
             note_ids: i.note_ids.into_newtype(NoteId),
-            old_notetype_name: i.old_notetype_name.into(),
+            old_notetype_name: i.old_notetype_name,
             old_notetype_id: i.old_notetype_id.into(),
             new_notetype_id: i.new_notetype_id.into(),
             new_fields: i
@@ -234,7 +234,7 @@ impl From<ChangeNotetypeInput> for pb::ChangeNotetypeRequest {
         pb::ChangeNotetypeRequest {
             current_schema: i.current_schema.into(),
             note_ids: i.note_ids.into_iter().map(Into::into).collect(),
-            old_notetype_name: i.old_notetype_name.into(),
+            old_notetype_name: i.old_notetype_name,
             old_notetype_id: i.old_notetype_id.into(),
             new_notetype_id: i.new_notetype_id.into(),
             new_fields: i
