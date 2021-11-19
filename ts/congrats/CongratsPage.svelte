@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import Container from "../components/Container.svelte";
+    import Col from "../components/Col.svelte";
     import type { Scheduler } from "../lib/proto";
     import { buildNextLearnMsg } from "./lib";
     import { bridgeLink } from "../lib/bridgecommand";
@@ -25,40 +26,42 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<Container class="d-flex justify-content-center pt-3">
-    <div class="congrats">
-        <h3>{congrats}</h3>
+<Container --gutter-block="1rem" --gutter-inline="2px" breakpoint="sm">
+    <Col --col-justify="center">
+        <div class="congrats">
+            <h3>{congrats}</h3>
 
-        <p>{nextLearnMsg}</p>
+            <p>{nextLearnMsg}</p>
 
-        {#if info.reviewRemaining}
-            <p>{today_reviews}</p>
-        {/if}
-
-        {#if info.newRemaining}
-            <p>{today_new}</p>
-        {/if}
-
-        {#if info.bridgeCommandsSupported}
-            {#if info.haveSchedBuried || info.haveUserBuried}
-                <p>
-                    {@html buriedMsg}
-                </p>
+            {#if info.reviewRemaining}
+                <p>{today_reviews}</p>
             {/if}
 
-            {#if !info.isFilteredDeck}
-                <p>
-                    {@html customStudyMsg}
-                </p>
+            {#if info.newRemaining}
+                <p>{today_new}</p>
             {/if}
-        {/if}
 
-        {#if info.deckDescription}
-            <div class="description">
-                {@html info.deckDescription}
-            </div>
-        {/if}
-    </div>
+            {#if info.bridgeCommandsSupported}
+                {#if info.haveSchedBuried || info.haveUserBuried}
+                    <p>
+                        {@html buriedMsg}
+                    </p>
+                {/if}
+
+                {#if !info.isFilteredDeck}
+                    <p>
+                        {@html customStudyMsg}
+                    </p>
+                {/if}
+            {/if}
+
+            {#if info.deckDescription}
+                <div class="description">
+                    {@html info.deckDescription}
+                </div>
+            {/if}
+        </div>
+    </Col>
 </Container>
 
 <style lang="scss">
