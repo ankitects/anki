@@ -4,16 +4,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { ChangeNotetypeState } from "./lib";
-
     import StickyContainer from "../components/StickyContainer.svelte";
     import ButtonToolbar from "../components/ButtonToolbar.svelte";
     import Item from "../components/Item.svelte";
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
-
     import LabelButton from "../components/LabelButton.svelte";
     import Badge from "../components/Badge.svelte";
-    import { arrowRightIcon } from "./icons";
+    import { arrowRightIcon, arrowLeftIcon } from "./icons";
     import SelectButton from "../components/SelectButton.svelte";
     import SelectOption from "../components/SelectOption.svelte";
     import SaveButton from "./SaveButton.svelte";
@@ -40,7 +38,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Item>
         <Item>
             <Badge iconSize={70}>
-                {@html arrowRightIcon}
+                {#if window.getComputedStyle(document.body).direction == "rtl"}
+                    {@html arrowLeftIcon}
+                {:else}
+                    {@html arrowRightIcon}
+                {/if}
             </Badge>
         </Item>
         <Item>
