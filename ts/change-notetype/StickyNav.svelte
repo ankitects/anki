@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "../lib/ftl";
     import Badge from "../components/Badge.svelte";
+    import Alert from "./Alert.svelte";
     import Container from "../components/Container.svelte";
     import Row from "../components/Row.svelte";
     import Col from "../components/Col.svelte";
@@ -12,7 +13,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { ChangeNotetypeState, MapContext } from "./lib";
     import StickyContainer from "../components/StickyContainer.svelte";
     import { plusIcon, minusIcon } from "./icons";
-    import { slide } from "svelte/transition";
 
     export let state: ChangeNotetypeState;
     export let ctx: MapContext;
@@ -52,33 +52,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {/if}
     </h1>
 
-    {#if unused.length > 0}
-        <div class="alert alert-warning" in:slide out:slide>
-            {#if unused.length > maxItems}
-                <div class="clickable" on:click={() => (collapsed = !collapsed)}>
-                    <Badge iconSize={80}>
-                        {@html icon}
-                    </Badge>
-                    {collapseMsg}
-                </div>
-            {/if}
-            {unusedMsg}
-            {#if collapsed}
-                <div>
-                    {unused.slice(0, maxItems).join(", ")}
-                    {#if unused.length > maxItems}
-                        ... (+{unused.length - maxItems})
-                    {/if}
-                </div>
-            {:else}
-                <ul>
-                    {#each unused as entry}
-                        <li>{entry}</li>
-                    {/each}
-                </ul>
-            {/if}
-        </div>
-    {/if}
+    <Alert {unused} {ctx} />
+
     {#if $info.templates}
         <Container --gutter-inline="0.5rem" --gutter-block="0.2rem">
             <Row --cols={2}>
