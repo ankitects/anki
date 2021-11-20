@@ -24,6 +24,7 @@ python.org or from your distro.
 
 ```
 $ python3.9 -m venv ~/pyenv
+$ curl https://bootstrap.pypa.io/get-pip.py -o - | ~/pyenv/bin/python -
 $ ~/pyenv/bin/pip install --upgrade pip
 $ ~/pyenv/bin/pip install aqt[qt6]
 ```
