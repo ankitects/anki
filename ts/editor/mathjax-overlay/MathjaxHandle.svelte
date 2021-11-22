@@ -5,7 +5,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import WithDropdown from "../../components/WithDropdown.svelte";
     import MathjaxMenu from "./MathjaxMenu.svelte";
-
     import { onMount, onDestroy, tick } from "svelte";
     import { writable } from "svelte/store";
     import { getRichTextInput } from "../RichTextInput.svelte";
@@ -22,11 +21,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let allow = noop;
     let unsubscribe = noop;
 
+    const caretKeyword = "caretAfter";
+
     function showHandle(image: HTMLImageElement): void {
         allow = api.preventResubscription();
 
         activeImage = image;
-        image.setAttribute("caretafter", "true");
+        image.setAttribute(caretKeyword, "true");
         mathjaxElement = activeImage.closest("anki-mathjax")!;
 
         code.set(mathjaxElement.dataset.mathjax ?? "");
@@ -48,13 +49,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function placeCaret(image: HTMLImageElement): void {
         placeCaretAfter(image);
-        image.removeAttribute("caretafter");
+        image.removeAttribute(caretKeyword);
     }
 
     async function resetHandle(deletes: boolean = false): Promise<void> {
         await clearImage();
 
-        const image = container.querySelector("[caretafter]");
+        const image = container.querySelector(`[${caretKeyword}]`);
         if (image) {
             placeCaret(image as HTMLImageElement);
 
