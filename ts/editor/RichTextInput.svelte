@@ -50,6 +50,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { promiseWithResolver } from "../lib/promise";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { wrapInternal } from "../lib/wrap";
+    import { on } from "../lib/events";
     import { nodeStore } from "../sveltelib/node-store";
     import type { DecoratedElement } from "../editable/decorated";
     import { nightModeKey } from "../components/context-keys";
@@ -142,16 +143,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             bridgeCommand("cutOrCopy");
         }
 
-        richTextInput.addEventListener("paste", onPaste);
-        richTextInput.addEventListener("copy", onCutOrCopy);
-        richTextInput.addEventListener("cut", onCutOrCopy);
+        const removePaste = on(richTextInput, "paste", onPaste);
+        const removeCopy = on(richTextInput, "copy", onCutOrCopy);
+        const removeCut = on(richTextInput, "cut", onCutOrCopy);
         richTextResolve(richTextInput);
 
         return {
             destroy() {
-                richTextInput.removeEventListener("paste", onPaste);
-                richTextInput.removeEventListener("copy", onCutOrCopy);
-                richTextInput.removeEventListener("cut", onCutOrCopy);
+                removePaste();
+                removeCopy();
+                removeCut();
             },
         };
     }

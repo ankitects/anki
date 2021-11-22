@@ -9,6 +9,7 @@ import "mathjax/es5/tex-svg-full";
 
 import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
 import { nodeIsElement } from "../lib/dom";
+import { noop } from "../lib/functional";
 import { placeCaretAfter } from "../domlib/place-caret";
 import { nightModeKey } from "../components/context-keys";
 
@@ -114,9 +115,7 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
     }
 
     block = false;
-    disconnect: () => void = () => {
-        /* noop */
-    };
+    disconnect = noop;
     component?: Mathjax_svelte;
 
     static get observedAttributes(): string[] {

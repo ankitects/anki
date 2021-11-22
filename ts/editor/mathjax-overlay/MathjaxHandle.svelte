@@ -18,8 +18,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
     import { getRichTextInput } from "../RichTextInput.svelte";
     import { baseOptions, latex } from "../code-mirror";
-    import { noop } from "../../lib/functional";
     import { getPlatformString } from "../../lib/shortcuts";
+    import { placeCaretAfter } from "../../domlib/place-caret";
+    import { noop } from "../../lib/functional";
     import { on } from "../../lib/events";
     import * as tr from "../../lib/ftl";
 
@@ -44,7 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
 
     let activeImage: HTMLImageElement | null = null;
-    let allow: () => void;
+    let allow = noop;
 
     const code = writable("");
 
@@ -52,17 +53,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         code.update((value) => `${value}foo\n`);
     }
 
-    let unsubscribe: () => void;
+    let unsubscribe = noop;
+    let ankiMathjax: HTMLElement | null = null;
 
     function showHandle(image: HTMLImageElement): void {
         allow = api.preventResubscription();
-        activeImage = image;
 
-        const ankiMathjax: HTMLElement = activeImage.closest("anki-mathjax")!;
+        activeImage = image;
+        image.setAttribute("caretafter", "true");
+        ankiMathjax = activeImage.closest("anki-mathjax")!;
+
         code.set(ankiMathjax.dataset.mathjax ?? "");
-        unsubscribe = code.subscribe(
-            (value: string) => (ankiMathjax.dataset.mathjax = value),
-        );
+        unsubscribe = code.subscribe((value: string) => {
+            ankiMathjax!.dataset.mathjax = value;
+        });
     }
 
     async function maybeShowHandle({ target }: Event): Promise<void> {
@@ -80,12 +84,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function resetHandle(): Promise<void> {
-        if (activeImage) {
-            allow();
-            activeImage = null;
+        if (activeImage && ankiMathjax) {
             unsubscribe();
-            await tick();
+            activeImage = null;
         }
+
+        await tick();
+        const image = container.querySelector("[caretafter]");
+
+        if (image) {
+            placeCaretAfter(image);
+            image.removeAttribute("caretafter");
+        }
+
+        allow();
+        allow = noop;
     }
 
     onMount(() => {
