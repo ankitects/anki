@@ -13,7 +13,7 @@ fi
 
 rm -rf "$PREFIX"/share/anki "$PREFIX"/bin/anki
 mkdir -p "$PREFIX"/share/anki
-cp -av * "$PREFIX"/share/anki/
+cp -av --no-preserve=owner,context * "$PREFIX"/share/anki/
 mkdir -p "$PREFIX"/bin
 ln -sf "$PREFIX"/share/anki/anki "$PREFIX"/bin/anki
 # fix a previous packaging issue where we created this as a file
@@ -22,9 +22,9 @@ mkdir -p "$PREFIX"/share/pixmaps
 mkdir -p "$PREFIX"/share/applications
 mkdir -p "$PREFIX"/share/man/man1
 cd "$PREFIX"/share/anki && (\
-mv anki.xpm anki.png "$PREFIX"/share/pixmaps/;\
-mv anki.desktop "$PREFIX"/share/applications/;\
-mv anki.1 "$PREFIX"/share/man/man1/)
+mv -Z anki.xpm anki.png "$PREFIX"/share/pixmaps/;\
+mv -Z anki.desktop "$PREFIX"/share/applications/;\
+mv -Z anki.1 "$PREFIX"/share/man/man1/)
 
 xdg-mime install anki.xml --novendor
 xdg-mime default anki.desktop application/x-colpkg
