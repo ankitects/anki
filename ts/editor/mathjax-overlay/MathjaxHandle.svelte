@@ -31,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let activeImage: HTMLImageElement | null = null;
-    let ankiMathjax: HTMLElement | null = null;
+    let mathjaxElement: HTMLElement | null = null;
     let allow = noop;
     let unsubscribe = noop;
 
@@ -40,19 +40,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         activeImage = image;
         image.setAttribute("caretafter", "true");
-        ankiMathjax = activeImage.closest("anki-mathjax")!;
+        mathjaxElement = activeImage.closest("anki-mathjax")!;
 
-        code.set(ankiMathjax.dataset.mathjax ?? "");
+        code.set(mathjaxElement.dataset.mathjax ?? "");
         unsubscribe = code.subscribe((value: string) => {
-            ankiMathjax!.dataset.mathjax = value;
+            mathjaxElement!.dataset.mathjax = value;
         });
     }
 
     async function clearImage(): Promise<void> {
-        if (activeImage && ankiMathjax) {
+        if (activeImage && mathjaxElement) {
             unsubscribe();
             activeImage = null;
-            ankiMathjax = null;
+            mathjaxElement = null;
         }
 
         await tick();
@@ -141,32 +141,45 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     distance={4}
     let:createDropdown
 >
-    {#if activeImage && ankiMathjax}
-        <HandleSelection
-            image={activeImage}
-            {container}
-            bind:updateSelection
-            on:mount={(event) => (dropdownApi = createDropdown(event.detail.selection))}
-        >
-            <HandleBackground tooltip={errorMessage} />
-            <HandleControl offsetX={1} offsetY={1} />
-        </HandleSelection>
+    {#if activeImage && mathjaxElement}
+        <div class="mathjax-menu">
+            <HandleSelection
+                image={activeImage}
+                {container}
+                bind:updateSelection
+                on:mount={(event) =>
+                    (dropdownApi = createDropdown(event.detail.selection))}
+            >
+                <HandleBackground tooltip={errorMessage} />
+                <HandleControl offsetX={1} offsetY={1} />
+            </HandleSelection>
 
-        <Shortcut keyCombination={acceptShortcut} on:action={() => resetHandle()} />
-        <Shortcut keyCombination={newlineShortcut} on:action={appendNewline} />
+            <DropdownMenu>
+                <MathjaxEditor
+                    {acceptShortcut}
+                    {newlineShortcut}
+                    {code}
+                    on:blur={() => resetHandle()}
+                />
 
-        <DropdownMenu>
-            <MathjaxEditor
-                {acceptShortcut}
-                {newlineShortcut}
-                {code}
-                on:blur={() => resetHandle()}
-            />
-            <MathjaxButtons
-                {activeImage}
-                {ankiMathjax}
-                on:delete={() => resetHandle(true)}
-            />
-        </DropdownMenu>
+                <Shortcut
+                    keyCombination={acceptShortcut}
+                    on:action={() => resetHandle()}
+                />
+                <Shortcut keyCombination={newlineShortcut} on:action={appendNewline} />
+
+                <MathjaxButtons
+                    {activeImage}
+                    {mathjaxElement}
+                    on:delete={() => resetHandle(true)}
+                />
+            </DropdownMenu>
+        </div>
     {/if}
 </WithDropdown>
+
+<style lang="scss">
+    .mathjax-menu :global(.dropdown-menu) {
+        border-color: var(--border);
+    }
+</style>

@@ -13,7 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher } from "svelte";
 
     export let activeImage: HTMLImageElement;
-    export let ankiMathjax: HTMLElement;
+    export let mathjaxElement: HTMLElement;
 
     const dispatch = createEventDispatcher();
 </script>
@@ -25,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <IconButton
                     tooltip={tr.editingMathjaxInline()}
                     active={activeImage.getAttribute("block") === "true"}
-                    on:click={() => ankiMathjax.setAttribute("block", "false")}
+                    on:click={() => mathjaxElement.setAttribute("block", "false")}
                     on:click>{@html inlineIcon}</IconButton
                 >
             </ButtonGroupItem>
@@ -34,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <IconButton
                     tooltip={tr.editingMathjaxBlock()}
                     active={activeImage.getAttribute("block") === "false"}
-                    on:click={() => ankiMathjax.setAttribute("block", "true")}
+                    on:click={() => mathjaxElement.setAttribute("block", "true")}
                     on:click>{@html blockIcon}</IconButton
                 >
             </ButtonGroupItem>
