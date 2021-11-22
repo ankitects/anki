@@ -45,6 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .mathjax-editor {
         :global(.CodeMirror) {
             max-width: 28rem;
+            min-width: 14rem;
             margin-bottom: 0.25rem;
         }
 
