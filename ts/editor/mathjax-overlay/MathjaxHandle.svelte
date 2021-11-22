@@ -3,14 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import HandleSelection from "../HandleSelection.svelte";
-    import HandleBackground from "../HandleBackground.svelte";
-    import HandleControl from "../HandleControl.svelte";
-    import Shortcut from "../../components/Shortcut.svelte";
     import WithDropdown from "../../components/WithDropdown.svelte";
-    import DropdownMenu from "../../components/DropdownMenu.svelte";
-    import MathjaxButtons from "./MathjaxButtons.svelte";
-    import MathjaxEditor from "./MathjaxEditor.svelte";
+    import MathjaxMenu from "./MathjaxMenu.svelte";
 
     import { onMount, onDestroy, tick } from "svelte";
     import { writable } from "svelte/store";
@@ -21,14 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const { container, api } = getRichTextInput();
 
-    const acceptShortcut = "Enter";
-    const newlineShortcut = "Shift+Enter";
-
     const code = writable("");
-
-    function appendNewline(): void {
-        code.update((value) => `${value}\n`);
-    }
 
     let activeImage: HTMLImageElement | null = null;
     let mathjaxElement: HTMLElement | null = null;
@@ -142,44 +129,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let:createDropdown
 >
     {#if activeImage && mathjaxElement}
-        <div class="mathjax-menu">
-            <HandleSelection
-                image={activeImage}
-                {container}
-                bind:updateSelection
-                on:mount={(event) =>
-                    (dropdownApi = createDropdown(event.detail.selection))}
-            >
-                <HandleBackground tooltip={errorMessage} />
-                <HandleControl offsetX={1} offsetY={1} />
-            </HandleSelection>
-
-            <DropdownMenu>
-                <MathjaxEditor
-                    {acceptShortcut}
-                    {newlineShortcut}
-                    {code}
-                    on:blur={() => resetHandle()}
-                />
-
-                <Shortcut
-                    keyCombination={acceptShortcut}
-                    on:action={() => resetHandle()}
-                />
-                <Shortcut keyCombination={newlineShortcut} on:action={appendNewline} />
-
-                <MathjaxButtons
-                    {activeImage}
-                    {mathjaxElement}
-                    on:delete={() => resetHandle(true)}
-                />
-            </DropdownMenu>
-        </div>
+        <MathjaxMenu
+            {activeImage}
+            {mathjaxElement}
+            {container}
+            {errorMessage}
+            {code}
+            bind:updateSelection
+            on:mount={(event) => (dropdownApi = createDropdown(event.detail.selection))}
+            on:reset={() => resetHandle(false)}
+            on:delete={() => resetHandle(true)}
+        />
     {/if}
 </WithDropdown>
-
-<style lang="scss">
-    .mathjax-menu :global(.dropdown-menu) {
-        border-color: var(--border);
-    }
-</style>
