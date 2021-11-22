@@ -44,17 +44,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         mode: latex,
     };
 
-    let activeImage: HTMLImageElement | null = null;
-    let allow = noop;
-
     const code = writable("");
 
     function appendNewline(): void {
-        code.update((value) => `${value}foo\n`);
+        code.update((value) => `${value}\n`);
     }
 
-    let unsubscribe = noop;
+    let activeImage: HTMLImageElement | null = null;
     let ankiMathjax: HTMLElement | null = null;
+    let allow = noop;
+    let unsubscribe = noop;
 
     function showHandle(image: HTMLImageElement): void {
         allow = api.preventResubscription();
@@ -90,15 +89,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         await tick();
-        const image = container.querySelector("[caretafter]");
+        container.focus();
 
+        const image = container.querySelector("[caretafter]");
         if (image) {
             placeCaretAfter(image);
             image.removeAttribute("caretafter");
         }
 
         allow();
-        allow = noop;
     }
 
     onMount(() => {
