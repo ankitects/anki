@@ -3,46 +3,26 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import WithDropdown from "../../components/WithDropdown.svelte";
-    import ButtonToolbar from "../../components/ButtonToolbar.svelte";
-    import DropdownMenu from "../../components/DropdownMenu.svelte";
-    import Item from "../../components/Item.svelte";
-    import Shortcut from "../../components/Shortcut.svelte";
     import HandleSelection from "../HandleSelection.svelte";
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";
-    import InlineBlock from "./InlineBlock.svelte";
-    import CodeMirror from "../CodeMirror.svelte";
+    import Shortcut from "../../components/Shortcut.svelte";
+    import WithDropdown from "../../components/WithDropdown.svelte";
+    import DropdownMenu from "../../components/DropdownMenu.svelte";
+    import MathjaxButtons from "./MathjaxButtons.svelte";
+    import MathjaxEditor from "./MathjaxEditor.svelte";
 
     import { onMount, onDestroy, tick } from "svelte";
     import { writable } from "svelte/store";
     import { getRichTextInput } from "../RichTextInput.svelte";
-    import { baseOptions, latex } from "../code-mirror";
-    import { getPlatformString } from "../../lib/shortcuts";
     import { placeCaretAfter } from "../../domlib/place-caret";
     import { noop } from "../../lib/functional";
     import { on } from "../../lib/events";
-    import * as tr from "../../lib/ftl";
 
     const { container, api } = getRichTextInput();
 
     const acceptShortcut = "Enter";
     const newlineShortcut = "Shift+Enter";
-
-    const configuration = {
-        ...Object.assign({}, baseOptions, {
-            extraKeys: {
-                ...(baseOptions.extraKeys as CodeMirror.KeyMap),
-                [acceptShortcut]: noop,
-                [newlineShortcut]: noop,
-            },
-        }),
-        placeholder: tr.editingMathjaxPlaceholder({
-            accept: getPlatformString(acceptShortcut),
-            newline: getPlatformString(newlineShortcut),
-        }),
-        mode: latex,
-    };
 
     const code = writable("");
 
@@ -68,6 +48,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
+    async function clearImage(): Promise<void> {
+        if (activeImage && ankiMathjax) {
+            unsubscribe();
+            activeImage = null;
+            ankiMathjax = null;
+        }
+
+        await tick();
+        container.focus();
+    }
+
+    function placeCaret(image: HTMLImageElement): void {
+        placeCaretAfter(image);
+        image.removeAttribute("caretafter");
+    }
+
+    async function resetHandle(deletes: boolean = false): Promise<void> {
+        await clearImage();
+
+        const image = container.querySelector("[caretafter]");
+        if (image) {
+            placeCaret(image as HTMLImageElement);
+
+            if (deletes) {
+                image.remove();
+            }
+        }
+
+        allow();
+    }
+
     async function maybeShowHandle({ target }: Event): Promise<void> {
         await resetHandle();
         if (target instanceof HTMLImageElement && target.dataset.anki === "mathjax") {
@@ -80,24 +91,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }: CustomEvent<HTMLImageElement>): Promise<void> {
         await resetHandle();
         showHandle(detail);
-    }
-
-    async function resetHandle(): Promise<void> {
-        if (activeImage && ankiMathjax) {
-            unsubscribe();
-            activeImage = null;
-        }
-
-        await tick();
-        container.focus();
-
-        const image = container.querySelector("[caretafter]");
-        if (image) {
-            placeCaretAfter(image);
-            image.removeAttribute("caretafter");
-        }
-
-        allow();
     }
 
     onMount(() => {
@@ -148,7 +141,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     distance={4}
     let:createDropdown
 >
-    {#if activeImage}
+    {#if activeImage && ankiMathjax}
         <HandleSelection
             image={activeImage}
             {container}
@@ -159,41 +152,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <HandleControl offsetX={1} offsetY={1} />
         </HandleSelection>
 
-        <Shortcut keyCombination={acceptShortcut} on:action={resetHandle} />
-
+        <Shortcut keyCombination={acceptShortcut} on:action={() => resetHandle()} />
         <Shortcut keyCombination={newlineShortcut} on:action={appendNewline} />
 
         <DropdownMenu>
-            <div class="mathjax-editor">
-                <CodeMirror
-                    {code}
-                    {configuration}
-                    on:change={({ detail }) => code.set(detail)}
-                    on:blur={resetHandle}
-                    autofocus
-                />
-            </div>
-            <ButtonToolbar>
-                <Item>
-                    <InlineBlock {activeImage} on:click={updateSelection} />
-                </Item>
-            </ButtonToolbar>
+            <MathjaxEditor
+                {acceptShortcut}
+                {newlineShortcut}
+                {code}
+                on:blur={() => resetHandle()}
+            />
+            <MathjaxButtons
+                {activeImage}
+                {ankiMathjax}
+                on:delete={() => resetHandle(true)}
+            />
         </DropdownMenu>
     {/if}
 </WithDropdown>
-
-<style lang="scss">
-    .mathjax-editor {
-        :global(.CodeMirror) {
-            max-width: 28rem;
-            margin-bottom: 0.25rem;
-        }
-
-        :global(.CodeMirror-placeholder) {
-            font-family: sans-serif;
-            font-size: 55%;
-            text-align: center;
-            color: var(--slightly-grey-text);
-        }
-    }
-</style>
