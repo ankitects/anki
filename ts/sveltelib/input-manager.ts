@@ -1,19 +1,27 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { writable } from "svelte/store";
+import type { Writable } from "svelte/store";
 import { on } from "../lib/events";
 import { nodeIsText } from "../lib/dom";
 import { getSelection } from "../lib/cross-browser";
 
-export type OnInsertCallback = ({ node: Node }) => Promise<void>;
+export type OnInsertCallback = ({ node }: { node: Node }) => Promise<void>;
+
+export interface OnNextInsertTrigger {
+    add: (callback: OnInsertCallback) => void;
+    remove: () => void;
+    active: Writable<boolean>;
+}
 
 interface InputManager {
     manager(element: HTMLElement): { destroy(): void };
-    triggerOnInsert(callback: OnInsertCallback): () => void;
+    getTriggerOnNextInsert(): OnNextInsertTrigger;
 }
 
-export function getInputManager(): InputManager {
-    const onInsertText: OnInsertCallback[] = [];
+function getInputManager(): InputManager {
+    const onInsertText: { callback: OnInsertCallback; remove: () => void }[] = [];
 
     function cancelInsertText(): void {
         onInsertText.length = 0;
@@ -52,8 +60,9 @@ export function getInputManager(): InputManager {
             range.selectNode(node);
             range.collapse(false);
 
-            for (const callback of onInsertText) {
+            for (const { callback, remove } of onInsertText) {
                 await callback({ node });
+                remove();
             }
 
             event.preventDefault();
@@ -82,19 +91,35 @@ export function getInputManager(): InputManager {
         };
     }
 
-    function triggerOnInsert(callback: OnInsertCallback): () => void {
-        onInsertText.push(callback);
-        return () => {
-            const index = onInsertText.indexOf(callback);
-            if (index > 0) {
-                onInsertText.splice(index, 1);
+    function getTriggerOnNextInsert(): OnNextInsertTrigger {
+        const active = writable(false);
+        let index: number = NaN;
+
+        function remove() {
+            if (!Number.isNaN(index)) {
+                delete onInsertText[index];
+                active.set(false);
+                index = NaN;
             }
+        }
+
+        function add(callback: OnInsertCallback): void {
+            if (Number.isNaN(index)) {
+                index = onInsertText.push({ callback, remove });
+                active.set(true);
+            }
+        }
+
+        return {
+            add,
+            remove,
+            active,
         };
     }
 
     return {
         manager,
-        triggerOnInsert,
+        getTriggerOnNextInsert,
     };
 }
 

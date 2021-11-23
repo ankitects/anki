@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithState from "../components/WithState.svelte";
     import { MatchResult } from "../domlib/surround";
     import { getPlatformString } from "../lib/shortcuts";
-    import { isSurrounded, surroundCommand } from "./surround";
+    import { getSurrounder } from "./surround";
     import { boldIcon } from "./icons";
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
     import type { RichTextInputAPI } from "./RichTextInput.svelte";
@@ -46,20 +46,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: input = $activeInput;
     $: disabled = !$focusInRichText;
+    $: surrounder = disabled ? null : getSurrounder(input as RichTextInputAPI);
 
     function updateStateFromActiveInput(): Promise<boolean> {
-        return !input || input.name === "plain-text"
-            ? Promise.resolve(false)
-            : isSurrounded(input, matchBold);
+        return disabled ? Promise.resolve(false) : surrounder!.isSurrounded(matchBold);
     }
 
+    const element = document.createElement("strong");
     function makeBold(): void {
-        surroundCommand(
-            input as RichTextInputAPI,
-            document.createElement("strong"),
-            matchBold,
-            clearBold,
-        );
+        surrounder?.surroundCommand(element, matchBold, clearBold);
     }
 
     const keyCombination = "Control+B";
@@ -68,12 +63,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <WithState
     key="bold"
     update={updateStateFromActiveInput}
-    let:state={active}
+    let:state={isBold}
     let:updateState
 >
     <IconButton
         tooltip="{tr.editingBoldText()} ({getPlatformString(keyCombination)})"
-        {active}
+        active={isBold}
         {disabled}
         on:click={(event) => {
             makeBold();

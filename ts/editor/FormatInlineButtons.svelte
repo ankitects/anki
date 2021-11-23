@@ -7,8 +7,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
     import CommandIconButton from "./CommandIconButton.svelte";
     import BoldButton from "./BoldButton.svelte";
-    import ItalicButton from "./ItalicButton.svelte";
-    import UnderlineButton from "./UnderlineButton.svelte";
+    /* import ItalicButton from "./ItalicButton.svelte"; */
+    /* import UnderlineButton from "./UnderlineButton.svelte"; */
 
     import * as tr from "../lib/ftl";
     import { superscriptIcon, subscriptIcon, eraserIcon } from "./icons";
@@ -19,14 +19,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <ButtonGroup {api}>
     <ButtonGroupItem>
         <BoldButton />
-    </ButtonGroupItem>
-
-    <ButtonGroupItem>
-        <ItalicButton />
-    </ButtonGroupItem>
-
-    <ButtonGroupItem>
-        <UnderlineButton />
     </ButtonGroupItem>
 
     <ButtonGroupItem>
