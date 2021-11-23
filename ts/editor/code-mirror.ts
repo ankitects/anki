@@ -11,8 +11,9 @@ import "codemirror/mode/stex/stex";
 import "codemirror/addon/fold/foldcode";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/xml-fold";
-import "codemirror/addon/edit/matchtags.js";
-import "codemirror/addon/edit/closetag.js";
+import "codemirror/addon/edit/matchtags";
+import "codemirror/addon/edit/closetag";
+import "codemirror/addon/display/placeholder";
 
 export { CodeMirror };
 
