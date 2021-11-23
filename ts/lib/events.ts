@@ -31,3 +31,7 @@ export function on<T extends EventTarget, K extends keyof EventTargetToMap<T>>(
     return () =>
         target.removeEventListener(eventType, handler as EventListener, options);
 }
+
+export function preventDefault(event: Event): void {
+    event.preventDefault();
+}
