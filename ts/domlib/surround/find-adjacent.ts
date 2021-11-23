@@ -5,7 +5,7 @@ import { nodeIsElement, nodeIsText, elementIsEmpty } from "../../lib/dom";
 import { hasOnlyChild } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
 import { MatchResult } from "./matcher";
-import type { ElementMatcher } from "./matcher";
+import type { ElementMatcher, FoundAlong, FoundAdjacent } from "./matcher";
 
 /**
  * These functions will not ascend on the starting node, but will descend on the neighbor node
@@ -13,9 +13,7 @@ import type { ElementMatcher } from "./matcher";
 function adjacentNodeInner(getter: (node: Node) => ChildNode | null) {
     function findAdjacentNodeInner(
         node: Node,
-        matches: Element[],
-        keepMatches: Element[],
-        along: (Element | Text)[],
+        matches: FoundAdjacent[],
         matcher: ElementMatcher,
     ): void {
         let current = getter(node);
@@ -35,24 +33,21 @@ function adjacentNodeInner(getter: (node: Node) => ChildNode | null) {
             const matchResult = matcher(element);
 
             if (matchResult) {
-                along.push(...maybeAlong);
-
-                switch (matchResult) {
-                    case MatchResult.MATCH:
-                        matches.push(element);
-                        break;
-                    case MatchResult.KEEP:
-                        keepMatches.push(element);
-                        break;
-                }
-
-                return findAdjacentNodeInner(
-                    element,
-                    matches,
-                    keepMatches,
-                    along,
-                    matcher,
+                matches.push(
+                    ...maybeAlong.map(
+                        (along: Element | Text): FoundAlong => ({
+                            element: along,
+                            matchType: MatchResult.ALONG,
+                        }),
+                    ),
                 );
+
+                matches.push({
+                    element,
+                    matchType: matchResult,
+                });
+
+                return findAdjacentNodeInner(element, matches, matcher);
             }
 
             // descend down into element
@@ -66,33 +61,20 @@ function adjacentNodeInner(getter: (node: Node) => ChildNode | null) {
     return findAdjacentNodeInner;
 }
 
-interface FindAdjacentResult {
-    /* elements adjacent which match matcher */
-    matches: Element[];
-    keepMatches: Element[];
-    /* element adjacent between found elements, which can
-     * be safely skipped (e.g. empty elements) */
-    along: Element[];
-}
-
 const findBeforeNodeInner = adjacentNodeInner(
     (node: Node): ChildNode | null => node.previousSibling,
 );
 
-function findBeforeNode(node: Node, matcher: ElementMatcher): FindAdjacentResult {
-    const matches: Element[] = [];
-    const keepMatches: Element[] = [];
-    const along: Element[] = [];
-
-    findBeforeNodeInner(node, matches, keepMatches, along, matcher);
-
-    return { matches, keepMatches, along };
+function findBeforeNode(node: Node, matcher: ElementMatcher): FoundAdjacent[] {
+    const matches: FoundAdjacent[] = [];
+    findBeforeNodeInner(node, matches, matcher);
+    return matches;
 }
 
 export function findBefore(
     childNodeRange: ChildNodeRange,
     matcher: ElementMatcher,
-): FindAdjacentResult {
+): FoundAdjacent[] {
     const { parent, startIndex } = childNodeRange;
     return findBeforeNode(parent.childNodes[startIndex], matcher);
 }
@@ -101,20 +83,16 @@ const findAfterNodeInner = adjacentNodeInner(
     (node: Node): ChildNode | null => node.nextSibling,
 );
 
-function findAfterNode(node: Node, matcher: ElementMatcher): FindAdjacentResult {
-    const matches: Element[] = [];
-    const keepMatches: Element[] = [];
-    const along: Element[] = [];
-
-    findAfterNodeInner(node, matches, keepMatches, along, matcher);
-
-    return { matches, keepMatches, along };
+function findAfterNode(node: Node, matcher: ElementMatcher): FoundAdjacent[] {
+    const matches: FoundAdjacent[] = [];
+    findAfterNodeInner(node, matches, matcher);
+    return matches;
 }
 
 export function findAfter(
     childNodeRange: ChildNodeRange,
     matcher: ElementMatcher,
-): FindAdjacentResult {
+): FoundAdjacent[] {
     const { parent, endIndex } = childNodeRange;
     return findAfterNode(parent.childNodes[endIndex - 1], matcher);
 }
