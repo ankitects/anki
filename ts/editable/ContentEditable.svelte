@@ -2,47 +2,71 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
+<script context="module" lang="ts">
+    export interface ContentEditableAPI {
+        flushLocation(): void;
+    }
+</script>
+
 <script lang="ts">
     import type { Writable } from "svelte/store";
     import { updateAllState } from "../components/WithState.svelte";
+    import type { SelectionLocation } from "../domlib/location";
     import { saveSelection, restoreSelection } from "../domlib/location";
     import { on, preventDefault } from "../lib/events";
     import { caretToEnd } from "../lib/dom";
     import { registerShortcut } from "../lib/shortcuts";
+    import iterateActions from "../sveltelib/iterate-actions";
 
     export let nodes: Writable<DocumentFragment>;
     export let resolve: (editable: HTMLElement) => void;
-    export let mirror: (
-        editable: HTMLElement,
-        params: { store: Writable<DocumentFragment> },
-    ) => void;
 
-    export let inputManager: (editable: HTMLElement) => void;
+    export let mirrors: Array<
+        (editable: HTMLElement, params: { store: Writable<DocumentFragment> }) => void
+    >;
+    export let managers: Array<(editable: HTMLElement) => void>;
+    export let api: Partial<ContentEditableAPI>;
 
-    let removeOnFocus: () => void;
-    let removeOnPointerdown: () => void;
+    const mirrorAction = iterateActions(mirrors);
+    const managerAction = iterateActions(managers);
+
+    let latestLocation: SelectionLocation | null = null;
+
+    function onFocus(): void {
+        if (!latestLocation) {
+            return;
+        }
+
+        try {
+            restoreSelection(editable, latestLocation);
+        } catch {
+            caretToEnd(editable);
+        }
+    }
+
+    const locationEvents: (() => void)[] = [];
+
+    export function flushLocation() {
+        let removeEvent: (() => void) | undefined;
+
+        while ((removeEvent = locationEvents.pop())) {
+            removeEvent();
+        }
+    }
+
+    Object.assign(api, {
+        flushLocation,
+    });
 
     function onBlur(): void {
-        const location = saveSelection(editable);
+        latestLocation = saveSelection(editable);
 
-        removeOnFocus = on(
-            editable,
-            "focus",
-            () => {
-                if (location) {
-                    try {
-                        restoreSelection(editable, location);
-                    } catch {
-                        caretToEnd(editable);
-                    }
-                }
-            },
-            { once: true },
+        const removeOnFocus = on(editable, "focus", onFocus, { once: true });
+
+        locationEvents.push(
+            removeOnFocus,
+            on(editable, "pointerdown", removeOnFocus, { once: true }),
         );
-
-        removeOnPointerdown = on(editable, "pointerdown", () => removeOnFocus?.(), {
-            once: true,
-        });
     }
 
     /* must execute before DOMMirror */
@@ -52,8 +76,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return {
             destroy() {
                 removeOnBlur();
-                removeOnFocus?.();
-                removeOnPointerdown?.();
+                flushLocation();
             },
         };
     }
@@ -77,8 +100,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bind:this={editable}
     use:resolve
     use:saveLocation
-    use:mirror={{ store: nodes }}
-    use:inputManager
+    use:mirrorAction={{ store: nodes }}
+    use:managerAction={{}}
     on:focus
     on:blur
     on:click={updateAllState}

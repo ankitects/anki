@@ -48,7 +48,7 @@ const tryMergingTillMismatch =
                 areSiblingChildNodeRanges(
                     childNodeRange,
                     nextChildNodeRange,
-                ) /* && !childNodeRange.parent.isSameNode(base)*/
+                ) /* && !childNodeRange.parent === base */
             ) {
                 const mergedChildNodeRange = mergeChildNodeRanges(
                     childNodeRange,
@@ -57,7 +57,7 @@ const tryMergingTillMismatch =
 
                 const newChildNodeRange =
                     coversWholeParent(mergedChildNodeRange) &&
-                    !mergedChildNodeRange.parent.isSameNode(base)
+                    mergedChildNodeRange.parent !== base
                         ? nodeToChildNodeRange(
                               ascendWhileSingleInline(
                                   mergedChildNodeRange.parent,

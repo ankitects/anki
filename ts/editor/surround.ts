@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { get } from "svelte/store";
-import { getSelection } from "../lib/cross-browser";
+import { getSelection, getRange } from "../lib/cross-browser";
 import { surroundNoSplitting, unsurround, findClosest } from "../domlib/surround";
 import type { ElementMatcher, ElementClearer } from "../domlib/surround";
 import type { RichTextInputAPI } from "./RichTextInput.svelte";
@@ -50,7 +50,11 @@ export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderRes
     async function isSurrounded(matcher: ElementMatcher): Promise<boolean> {
         const base = await richTextInput.element;
         const selection = getSelection(base)!;
-        const range = selection.getRangeAt(0);
+        const range = getRange(selection);
+
+        if (!range) {
+            return false;
+        }
 
         const isSurrounded = isSurroundedInner(range, base, matcher);
         return get(active) ? !isSurrounded : isSurrounded;
@@ -63,9 +67,11 @@ export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderRes
     ): Promise<void> {
         const base = await richTextInput.element;
         const selection = getSelection(base)!;
-        const range = selection.getRangeAt(0);
+        const range = getRange(selection);
 
-        if (range.collapsed) {
+        if (!range) {
+            return;
+        } else if (range.collapsed) {
             if (get(active)) {
                 remove();
             } else {

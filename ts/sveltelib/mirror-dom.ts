@@ -4,6 +4,7 @@
 import { writable } from "svelte/store";
 import type { Writable } from "svelte/store";
 import storeSubscribe from "./store-subscribe";
+import { getSelection } from "../lib/cross-browser";
 
 const config = {
     childList: true,
@@ -64,6 +65,18 @@ function getDOMMirror(): DOMMirror {
         }
 
         const { subscribe, unsubscribe } = storeSubscribe(store, mirrorToNode);
+        const selection = getSelection(element)!;
+
+        function doSubscribe(): void {
+            /**
+             * Focused element and caret are two independent things in the browser.
+             * When the ContentEditable calls blur, it will still have the selection inside of it.
+             * Some elements (e.g. FrameElement) need to figure whether the intended focus is still
+             * in the contenteditable or elsewhere because they might change the selection.
+             */
+            selection.removeAllRanges();
+            subscribe();
+        }
 
         /* do not update when focused as it will reset caret */
         element.addEventListener("focus", unsubscribe);
@@ -71,14 +84,15 @@ function getDOMMirror(): DOMMirror {
         const unsubResubscription = allowResubscription.subscribe(
             (allow: boolean): void => {
                 if (allow) {
-                    element.addEventListener("blur", subscribe);
+                    element.addEventListener("blur", doSubscribe);
 
                     const root = element.getRootNode() as Document | ShadowRoot;
+
                     if (root.activeElement !== element) {
-                        subscribe();
+                        doSubscribe();
                     }
                 } else {
-                    element.removeEventListener("blur", subscribe);
+                    element.removeEventListener("blur", doSubscribe);
                 }
             },
         );

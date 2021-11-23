@@ -10,7 +10,7 @@ export function nodeIsText(node: Node): node is Text {
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/Block-level_elements
-const BLOCK_ELEMENTS = [
+export const BLOCK_ELEMENTS = [
     "ADDRESS",
     "ARTICLE",
     "ASIDE",
@@ -46,12 +46,22 @@ const BLOCK_ELEMENTS = [
     "UL",
 ];
 
+export function hasBlockAttribute(element: Element): boolean {
+    return element.hasAttribute("block") && element.getAttribute("block") !== "false";
+}
+
 export function elementIsBlock(element: Element): boolean {
-    return BLOCK_ELEMENTS.includes(element.tagName);
+    return BLOCK_ELEMENTS.includes(element.tagName) || hasBlockAttribute(element);
+}
+
+export const NO_SPLIT_TAGS = ["RUBY"];
+
+export function elementShouldNotBeSplit(element: Element): boolean {
+    return elementIsBlock(element) || NO_SPLIT_TAGS.includes(element.tagName);
 }
 
 // https://developer.mozilla.org/en-US/docs/Glossary/Empty_element
-const EMPTY_ELEMENTS = [
+export const EMPTY_ELEMENTS = [
     "AREA",
     "BASE",
     "BR",
@@ -92,12 +102,6 @@ export function fragmentToString(fragment: DocumentFragment): string {
     const html = fragmentDiv.innerHTML;
 
     return html;
-}
-
-export const NO_SPLIT_TAGS = ["RUBY"];
-
-export function elementShouldNotBeSplit(element: Element): boolean {
-    return elementIsBlock(element) || NO_SPLIT_TAGS.includes(element.tagName);
 }
 
 export function caretToEnd(node: Node): void {

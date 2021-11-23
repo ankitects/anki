@@ -12,6 +12,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         toggle(): boolean;
         getEditor(): CodeMirror.Editor;
     }
+
+    export const parsingInstructions: string[] = [];
 </script>
 
 <script lang="ts">
@@ -43,11 +45,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const parser = new DOMParser();
-    // TODO Expose this somehow
-    const parseStyle = "<style>anki-mathjax { white-space: pre; }</style>";
 
     function parseAsHTML(html: string): string {
-        const doc = parser.parseFromString(parseStyle + html, "text/html");
+        const doc = parser.parseFromString(
+            parsingInstructions.join("") + html,
+            "text/html",
+        );
         const body = doc.body;
 
         for (const script of body.getElementsByTagName("script")) {
@@ -153,11 +156,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    .plain-text-input :global(.CodeMirror) {
-        border-radius: 0 0 5px 5px;
-    }
+    .plain-text-input {
+        overflow-x: hidden;
 
-    .hidden {
-        display: none;
+        :global(.CodeMirror) {
+            border-radius: 0 0 5px 5px;
+        }
+
+        &.hidden {
+            display: none;
+        }
     }
 </style>

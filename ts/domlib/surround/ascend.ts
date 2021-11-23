@@ -5,7 +5,7 @@ import { ascend, isOnlyChild } from "../../lib/node";
 import { elementIsBlock } from "../../lib/dom";
 
 export function ascendWhileSingleInline(node: Node, base: Node): Node {
-    if (node.isSameNode(base)) {
+    if (node === base) {
         return node;
     }
 
