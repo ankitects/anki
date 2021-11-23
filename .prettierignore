@@ -2,3 +2,5 @@ licenses.json
 vendor
 node_modules
 bazel-*
+ftl/usage
+.mypy_cache
