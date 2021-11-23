@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { nodeIsElement, elementIsEmpty } from "../../lib/dom";
+import { nodeIsElement, nodeIsText, elementIsEmpty } from "../../lib/dom";
 import { hasOnlyChild } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
 import { MatchResult } from "./matcher";
@@ -15,56 +15,51 @@ function adjacentNodeInner(getter: (node: Node) => ChildNode | null) {
         node: Node,
         matches: Element[],
         keepMatches: Element[],
-        along: Element[],
+        along: (Element | Text)[],
         matcher: ElementMatcher,
     ): void {
-        const adjacent = getter(node);
+        let current = getter(node);
 
-        if (adjacent && nodeIsElement(adjacent)) {
-            let current: Element | null = adjacent;
+        const maybeAlong: (Element | Text)[] = [];
+        while (
+            current &&
+            ((nodeIsElement(current) && elementIsEmpty(current)) ||
+                (nodeIsText(current) && current.length === 0))
+        ) {
+            maybeAlong.push(current);
+            current = getter(current);
+        }
 
-            const maybeAlong: Element[] = [];
-            while (nodeIsElement(current) && elementIsEmpty(current)) {
-                const adjacentNext = getter(current);
-                maybeAlong.push(current);
+        while (current && nodeIsElement(current)) {
+            const element: Element = current;
+            const matchResult = matcher(element);
 
-                if (!adjacentNext || !nodeIsElement(adjacentNext)) {
-                    return;
-                } else {
-                    current = adjacentNext;
-                }
-            }
+            if (matchResult) {
+                along.push(...maybeAlong);
 
-            while (current) {
-                const matchResult = matcher(current);
-
-                if (matchResult) {
-                    along.push(...maybeAlong);
-
-                    switch (matchResult) {
-                        case MatchResult.MATCH:
-                            matches.push(current);
-                            break;
-                        case MatchResult.KEEP:
-                            keepMatches.push(current);
-                            break;
-                    }
-
-                    return findAdjacentNodeInner(
-                        current,
-                        matches,
-                        keepMatches,
-                        along,
-                        matcher,
-                    );
+                switch (matchResult) {
+                    case MatchResult.MATCH:
+                        matches.push(element);
+                        break;
+                    case MatchResult.KEEP:
+                        keepMatches.push(element);
+                        break;
                 }
 
-                // descend down into element
-                current =
-                    hasOnlyChild(current) && nodeIsElement(current.firstChild!)
-                        ? current.firstChild
-                        : null;
+                return findAdjacentNodeInner(
+                    element,
+                    matches,
+                    keepMatches,
+                    along,
+                    matcher,
+                );
             }
+
+            // descend down into element
+            current =
+                hasOnlyChild(current) && nodeIsElement(element.firstChild!)
+                    ? element.firstChild
+                    : null;
         }
     }
 

@@ -332,8 +332,23 @@ describe("skips over empty elements", () => {
 
         test("normalize nodes", () => {
             const range = new Range();
-            range.setStartBefore(body.firstChild!);
-            range.setEndAfter(body.firstChild!);
+            range.selectNode(body.firstChild!);
+
+            const { addedNodes, removedNodes, surroundedRange } = surround(
+                range,
+                document.createElement("b"),
+                body,
+            );
+
+            expect(addedNodes).toHaveLength(1);
+            expect(removedNodes).toHaveLength(1);
+            expect(body).toHaveProperty("innerHTML", "<b>before<br>after</b>");
+            expect(surroundedRange.toString()).toEqual("before");
+        });
+
+        test("normalize node contents", () => {
+            const range = new Range();
+            range.selectNodeContents(body.firstChild!);
 
             const { addedNodes, removedNodes, surroundedRange } = surround(
                 range,
