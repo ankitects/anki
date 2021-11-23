@@ -24,6 +24,7 @@ from aqt.utils import (
     askUser,
     disable_help_button,
     downArrow,
+    enable_javascript_playback,
     getOnlyText,
     openHelp,
     restoreGeom,
@@ -360,10 +361,7 @@ class CardLayout(QDialog):
         self.preview_web.eval("_blockDefaultDragDropBehavior();")
         self.preview_web.set_bridge_command(self._on_bridge_cmd, self)
 
-        if qtmajor == 5 and qtminor >= 11 or qtmajor > 5:
-            self.preview_web._page.settings().setAttribute(
-                QWebEngineSettings.PlaybackRequiresUserGesture, False
-            )
+        enable_javascript_playback(self.preview_web._page.settings())
 
         if self._isCloze():
             nums = list(self.note.cloze_numbers_in_fields())

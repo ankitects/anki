@@ -22,16 +22,20 @@ from aqt.qt import (
     Qt,
     QTimer,
     QVBoxLayout,
-    QWebEngineSettings,
     QWidget,
     qconnect,
-    qtmajor,
-    qtminor,
 )
 from aqt.reviewer import replay_audio
 from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
-from aqt.utils import disable_help_button, restoreGeom, saveGeom, setWindowIcon, tr
+from aqt.utils import (
+    disable_help_button,
+    enable_javascript_playback,
+    restoreGeom,
+    saveGeom,
+    setWindowIcon,
+    tr,
+)
 from aqt.webview import AnkiWebView
 
 LastStateAndMod = tuple[str, int, int]
@@ -86,10 +90,7 @@ class Previewer(QDialog):
         self.bbox = QDialogButtonBox()
         self.bbox.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
-        if qtmajor == 5 and qtminor >= 11 or qtmajor > 5:
-            self._web._page.settings().setAttribute(
-                QWebEngineSettings.PlaybackRequiresUserGesture, False
-            )
+        enable_javascript_playback(self._web._page.settings())
 
         self._replay = self.bbox.addButton(
             tr.actions_replay_audio(), QDialogButtonBox.ButtonRole.ActionRole
