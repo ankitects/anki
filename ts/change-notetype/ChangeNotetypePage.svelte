@@ -10,7 +10,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Row from "../components/Row.svelte";
     import Col from "../components/Col.svelte";
     import NotetypeSelector from "./NotetypeSelector.svelte";
-    import ScrollArea from "./ScrollArea.svelte";
     import StickyNav from "./StickyNav.svelte";
     import Mapper from "./Mapper.svelte";
     import Spacer from "../components/Spacer.svelte";
@@ -20,13 +19,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let offset: number;
 </script>
 
-<div bind:clientHeight={offset}>
+<div bind:offsetHeight={offset}>
     <NotetypeSelector {state} />
     <Spacer --height="1em" />
 </div>
 
-<ScrollArea --gutter-inline="0.5rem" {offset}>
-    <Row --cols={2}>
+<div id="scrollArea" style="--offset: {offset}px">
+    <Row class="gx-0" --cols={2}>
         <Col --col-size={1} breakpoint="md">
             <Container>
                 <StickyNav {state} ctx={MapContext.Field} />
@@ -44,4 +43,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </Container>
         </Col>
     </Row>
-</ScrollArea>
+</div>
+
+<style>
+    #scrollArea {
+        padding: 0;
+        overflow: hidden auto;
+        background: var(--pane-bg);
+        height: calc(100% - var(--offset));
+        border: 1px solid var(--medium-border);
+        border-radius: 0.25rem;
+    }
+</style>

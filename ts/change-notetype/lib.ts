@@ -46,7 +46,7 @@ export function negativeOneToNull(list: number[]): (number | null)[] {
 export class ChangeNotetypeInfoWrapper {
     fields: (number | null)[];
     templates?: (number | null)[];
-    oldNotetypeName: String;
+    oldNotetypeName: string;
     readonly info: Notetypes.ChangeNotetypeInfo;
 
     constructor(info: Notetypes.ChangeNotetypeInfo) {

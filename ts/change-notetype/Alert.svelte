@@ -28,7 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="alert alert-warning" in:slide out:slide>
     {#if unused.length > maxItems}
-        <div class="pe-auto" on:click={() => (collapsed = !collapsed)}>
+        <div class="clickable" on:click={() => (collapsed = !collapsed)}>
             <Badge iconSize={80}>
                 {@html icon}
             </Badge>
@@ -51,3 +51,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </ul>
     {/if}
 </div>
+
+<style lang="scss">
+    .clickable {
+        cursor: pointer;
+        font-weight: bold;
+    }
+</style>

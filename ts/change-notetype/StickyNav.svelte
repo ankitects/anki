@@ -12,7 +12,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { exclamationIcon } from "./icons";
     import { ChangeNotetypeState, MapContext } from "./lib";
     import StickyContainer from "../components/StickyContainer.svelte";
-    import { plusIcon, minusIcon } from "./icons";
 
     export let state: ChangeNotetypeState;
     export let ctx: MapContext;
@@ -25,23 +24,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             : tr.changeNotetypeTemplates();
 
     $: unused = $info.unusedItems(ctx);
-    $: unusedMsg =
-        ctx === MapContext.Field
-            ? tr.changeNotetypeWillDiscardContent()
-            : tr.changeNotetypeWillDiscardCards();
-
-    let maxItems: number = 3;
-    let collapsed: boolean = true;
-    $: collapseMsg = collapsed
-        ? tr.changeNotetypeExpand()
-        : tr.changeNotetypeCollapse();
-    $: icon = collapsed ? plusIcon : minusIcon;
 </script>
 
 <StickyContainer
+    class="px-2"
     --sticky-bg={"var(--pane-bg)"}
     --sticky-border="var(--border)"
-    --sticky-borders="1px 0 1px"
+    --sticky-borders="0px 0 1px"
 >
     <h1>
         {heading}
@@ -52,7 +41,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {/if}
     </h1>
 
-    <Alert {unused} {ctx} />
+    {#if unused.length > 0}
+        <Alert {unused} {ctx} />
+    {/if}
 
     {#if $info.templates}
         <Container --gutter-inline="0.5rem" --gutter-block="0.2rem">
@@ -67,9 +58,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     h1 {
         padding-top: 0.5em;
-    }
-    .clickable {
-        cursor: pointer;
-        font-weight: bold;
     }
 </style>

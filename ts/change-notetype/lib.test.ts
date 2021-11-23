@@ -8,6 +8,7 @@
 import { ChangeNotetypeState, negativeOneToNull, MapContext } from "./lib";
 import { Notetypes } from "../lib/proto";
 import { get } from "svelte/store";
+import * as tr from "../lib/ftl";
 
 const exampleNames = {
     entries: [
@@ -94,7 +95,7 @@ test("mapping", () => {
     expect(get(state.info).getNewName(MapContext.Field, 1)).toBe("Back");
     expect(get(state.info).getNewName(MapContext.Field, 2)).toBe("Add Reverse");
     expect(get(state.info).getOldNamesIncludingNothing(MapContext.Field)).toStrictEqual(
-        ["Front", "Back", "(Nothing)"],
+        ["Front", "Back", tr.changeNotetypeNothing()],
     );
     expect(get(state.info).getOldIndex(MapContext.Field, 0)).toBe(0);
     expect(get(state.info).getOldIndex(MapContext.Field, 1)).toBe(1);
@@ -105,7 +106,7 @@ test("mapping", () => {
     // the same template shouldn't be mappable twice
     expect(
         get(state.info).getOldNamesIncludingNothing(MapContext.Template),
-    ).toStrictEqual(["Card 1", "(Nothing)"]);
+    ).toStrictEqual(["Card 1", tr.changeNotetypeNothing()]);
     expect(get(state.info).getOldIndex(MapContext.Template, 0)).toBe(0);
     expect(get(state.info).getOldIndex(MapContext.Template, 1)).toBe(1);
     state.setOldIndex(MapContext.Template, 1, 0);
