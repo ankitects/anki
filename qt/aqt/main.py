@@ -894,7 +894,12 @@ title="{}" {}>{}</button>""".format(
             for webview in self.web, self.bottomWeb:
                 webview.force_load_hack()
 
-        if qtmajor == 5 and qtminor >= 11 or qtmajor > 5:
+        if qtmajor > 5 and qtminor > 1:
+            self.web._page.settings().setAttribute(
+                PyQt6.QtWebEngineCore.QWebEngineSettings.WebAttribute.PlaybackRequiresUserGesture,
+                False,
+            )
+        elif qtmajor == 5 and qtminor >= 11:
             self.web._page.settings().setAttribute(
                 QWebEngineSettings.PlaybackRequiresUserGesture, False
             )
