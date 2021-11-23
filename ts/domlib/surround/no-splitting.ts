@@ -30,7 +30,6 @@ export function surround(
     matcher: ElementMatcher,
     clearer: ElementClearer,
 ): NodesResult {
-    debugger;
     const containedTextNodes = findTextNodesWithin(
         range.commonAncestorContainer,
     ).filter((text: Text): boolean => text.length > 0 && nodeWithinRange(text, range));

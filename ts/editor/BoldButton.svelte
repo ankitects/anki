@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
     import type { RichTextInputAPI } from "./RichTextInput.svelte";
 
-    function matchBold(element: Element): MatchResult {
+    function matchBold(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
         if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
             return MatchResult.NO_MATCH;
         }

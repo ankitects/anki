@@ -51,8 +51,9 @@ function normalizeAdjacent(
     removedNodes: Element[],
     matcher: ElementMatcher,
     clearer: ElementClearer,
-): [length: number, shift: number] {
+): number {
     let childCount = 0;
+    let keepChildCount = 0;
 
     for (const { element, matchType } of matches) {
         switch (matchType) {
@@ -70,7 +71,7 @@ function normalizeAdjacent(
                 break;
 
             case MatchResult.KEEP:
-                const keepChildCount = normalizeWithinInner(
+                keepChildCount = normalizeWithinInner(
                     element as Element,
                     parent,
                     removedNodes,
@@ -93,10 +94,7 @@ function normalizeAdjacent(
         }
     }
 
-    const length = matches.length;
-    const shift = childCount - length;
-
-    return [length, shift];
+    return childCount;
 }
 
 function normalizeWithin(
@@ -147,15 +145,15 @@ export function normalizeInsertionRanges(
 
         if (index === 0) {
             const matches = findBefore(normalizedRange, matcher);
-            const [length, shift] = normalizeAdjacent(
+            const count = normalizeAdjacent(
                 matches,
                 parent,
                 removedNodes,
                 matcher,
                 clearer,
             );
-            normalizedRange.startIndex -= length;
-            normalizedRange.endIndex += shift;
+            normalizedRange.startIndex -= matches.length;
+            normalizedRange.endIndex += count - matches.length;
         }
 
         const matches = findWithin(normalizedRange, matcher);
@@ -164,14 +162,14 @@ export function normalizeInsertionRanges(
 
         if (index === insertionRanges.length - 1) {
             const matches = findAfter(normalizedRange, matcher);
-            const [length, shift] = normalizeAdjacent(
+            const count = normalizeAdjacent(
                 matches,
                 parent,
                 removedNodes,
                 matcher,
                 clearer,
             );
-            normalizedRange.endIndex += length + shift;
+            normalizedRange.endIndex += count;
         }
 
         normalizedRanges.push(normalizedRange);

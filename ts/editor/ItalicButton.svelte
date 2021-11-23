@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
     import type { RichTextInputAPI } from "./RichTextInput.svelte";
 
-    function matchItalic(element: Element): MatchResult {
+    function matchItalic(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
         if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
             return MatchResult.NO_MATCH;
         }
@@ -55,11 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const element = document.createElement("em");
     function makeItalic(): void {
-        surrounder!.surroundCommand(
-            element,
-            matchItalic,
-            clearItalic,
-        );
+        surrounder!.surroundCommand(element, matchItalic, clearItalic);
     }
 
     const keyCombination = "Control+I";

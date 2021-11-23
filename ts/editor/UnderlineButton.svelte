@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
     import type { RichTextInputAPI } from "./RichTextInput.svelte";
 
-    function matchUnderline(element: Element): MatchResult {
+    function matchUnderline(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
         if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
             return MatchResult.NO_MATCH;
         }
@@ -40,10 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const element = document.createElement("u");
     function makeUnderline(): void {
-        surrounder!.surroundCommand(
-            element,
-            matchUnderline,
-        );
+        surrounder!.surroundCommand(element, matchUnderline);
     }
 
     const keyCombination = "Control+U";
