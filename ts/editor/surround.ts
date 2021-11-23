@@ -39,7 +39,7 @@ export interface GetSurrounderResult {
     surroundCommand(
         surroundElement: Element,
         matcher: ElementMatcher,
-        clearer: ElementClearer,
+        clearer?: ElementClearer,
     ): Promise<void>;
     isSurrounded(matcher: ElementMatcher): Promise<boolean>;
 }

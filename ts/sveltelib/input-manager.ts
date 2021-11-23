@@ -93,7 +93,7 @@ function getInputManager(): InputManager {
 
     function getTriggerOnNextInsert(): OnNextInsertTrigger {
         const active = writable(false);
-        let index: number = NaN;
+        let index = NaN;
 
         function remove() {
             if (!Number.isNaN(index)) {
