@@ -3,16 +3,20 @@
 
 from __future__ import annotations
 
+import datetime
 import logging
 import mimetypes
 import os
 import re
+import socket
 import sys
 import threading
 import time
 import traceback
+from contextlib import contextmanager
 from dataclasses import dataclass
-from http import HTTPStatus
+from http import HTTPStatus, client
+from typing import Any, Generator
 
 import flask
 import flask_cors  # type: ignore
@@ -31,6 +35,18 @@ from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
 from aqt.operations.deck import update_deck_configs
 from aqt.qt import *
+
+
+@contextmanager
+def http_connection(
+    *args: Any, **kwds: Any
+) -> Generator[client.HTTPConnection, None, None]:
+    resource = client.HTTPConnection(*args, **kwds)
+    try:
+        yield resource
+    finally:
+        resource.close()
+
 
 app = flask.Flask(__name__, root_path="/fake")
 flask_cors.CORS(app)
@@ -120,6 +136,46 @@ class MediaServer(threading.Thread):
             del self._page_html[id]
         except KeyError:
             pass
+
+    def getHost(self) -> str:
+        self._ready.wait()
+        return str(self.server.effective_host)  # type: ignore
+
+    def wait_start_up(self) -> None:
+        self.check_server(self.getHost(), self.getPort(), "/favicon.ico")
+
+    @classmethod
+    def check_server(
+        cls,
+        host: str,
+        port: int,
+        path_info: str = "/",
+        timeout: int = 1,
+        retries: int = 30,
+    ) -> int:
+        """Perform a request until the server reply"""
+        if retries < 0:
+            return 0
+        # https://github.com/Pylons/webtest/blob/4b8a3ebf984185ff4fefb31b4d0cf82682e1fcf7/webtest/http.py#L123-L132
+        for index in range(retries):
+            if devMode or index > 0:
+                print(
+                    f"{datetime.datetime.now()} waiting media server on {host}:{port}..."
+                )
+            try:
+                with http_connection(host, port, timeout=timeout) as conn:
+                    conn.request("GET", path_info)
+                    res = conn.getresponse()
+                    return res.status
+            except (socket.error, client.HTTPException):
+                time.sleep(0.3)
+        return 0
+
+
+@app.route("/favicon.ico")
+def favicon() -> Response:
+    request = BundledFileRequest(os.path.join("imgs", "favicon.ico"))
+    return _handle_builtin_file_request(request)
 
 
 def _mime_for_path(path: str) -> str:
