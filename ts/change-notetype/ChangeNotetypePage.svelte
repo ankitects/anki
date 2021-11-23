@@ -24,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <Spacer --height="1em" />
 </div>
 
-<div id="scrollArea" style="--offset: {offset}px">
+<div id="scrollArea" style="--offset: {offset}px; --gutter-inline: 0.25rem;">
     <Row class="gx-0" --cols={2}>
         <Col --col-size={1} breakpoint="md">
             <Container>
