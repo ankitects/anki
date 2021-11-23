@@ -141,11 +141,16 @@ class MediaServer(threading.Thread):
         self._ready.wait()
         return str(self.server.effective_host)  # type: ignore
 
-    def wait_start_up(self) -> None:
-        self.check_server(self.getHost(), self.getPort(), "/favicon.ico")
+    def await_ready(self) -> None:
+        """Block until webserver can respond to requests.
+        Potentially solves a race condition at startup where some resources
+        fail to load.
+        https://github.com/ankitects/anki/pull/1369
+        """
+        self._check_server(self.getHost(), self.getPort(), "/favicon.ico")
 
     @classmethod
-    def check_server(
+    def _check_server(
         cls,
         host: str,
         port: int,
@@ -160,7 +165,7 @@ class MediaServer(threading.Thread):
         for index in range(retries):
             if devMode or index > 0:
                 print(
-                    f"{datetime.datetime.now()} waiting media server on {host}:{port}..."
+                    f"{datetime.datetime.now()} awaiting media server on {host}:{port}..."
                 )
             try:
                 with http_connection(host, port, timeout=timeout) as conn:
