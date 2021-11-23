@@ -3,14 +3,7 @@
 @use "sass:list";
 @use "sass:map";
 
-$bps: (
-    "xs",
-    "sm",
-    "md",
-    "lg",
-    "xl",
-    "xxl",
-);
+$bps: ("xs", "sm", "md", "lg", "xl", "xxl");
 
 $breakpoints: (
     list.nth($bps, 2): 576px,
@@ -28,10 +21,10 @@ $breakpoints: (
     } @else {
         @content;
     }
-};
+}
 
 @mixin with-breakpoints($prefix, $dict) {
-    @each $property, $values in $dict  {
+    @each $property, $values in $dict {
         @each $bp, $value in $values {
             @if map.get($breakpoints, $bp) {
                 @media (min-width: map.get($breakpoints, $bp)) {
@@ -46,7 +39,7 @@ $breakpoints: (
             }
         }
     }
-};
+}
 
 @function breakpoints-upto($upto) {
     $result: ();
@@ -66,14 +59,14 @@ $breakpoints: (
     $result: ();
 
     @each $bp in breakpoints-upto($upto) {
-        $result: list.append($result, ".#{$prefix}-#{$bp}", $separator: comma)
+        $result: list.append($result, ".#{$prefix}-#{$bp}", $separator: comma);
     }
 
     @return $result;
 }
 
 @mixin with-breakpoints-upto($prefix, $dict) {
-    @each $property, $values in $dict  {
+    @each $property, $values in $dict {
         @each $bp, $value in $values {
             $selector: breakpoint-selector-upto($prefix, $bp);
 
@@ -90,4 +83,4 @@ $breakpoints: (
             }
         }
     }
-};
+} ;
