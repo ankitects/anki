@@ -21,15 +21,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         current = oldNames[newIndex] || tr.changeNotetypeNothing();
     }
 
+    function onChange(evt: Event) {
+        const oldIdx = parseInt((evt.target as HTMLSelectElement).value, 10);
+        state.setOldIndex(ctx, newIndex, oldIdx);
+    }
+
     // optimization for big notetypes
     let active: boolean = false;
     function activate(evt: Event) {
         active = true;
-    }
-
-    function onChange(evt: Event) {
-        const oldIdx = parseInt((evt.target as HTMLSelectElement).value, 10);
-        state.setOldIndex(ctx, newIndex, oldIdx);
     }
 </script>
 
@@ -37,18 +37,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <Col --col-size={1}>
         <!-- svelte-ignore a11y-no-onchange -->
         <select
-            value={active ? $info.getOldIndex(ctx, newIndex) : 0}
+            value={$info.getOldIndex(ctx, newIndex)}
             class="form-select"
-            on:focusin={activate}
             on:change={onChange}
         >
-            {#if active}
-                {#each oldNames as name, idx}
-                    <option value={idx}>{name}</option>
-                {/each}
-            {:else}
-                <option value={0}>{current}</option>
-            {/if}
+            {#each $info.getOldNamesIncludingNothing(ctx) as name, idx}
+                <option value={idx}>{name}</option>
+            {/each}
         </select>
     </Col>
     <Col --col-size={1}>
