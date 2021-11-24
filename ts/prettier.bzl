@@ -30,4 +30,6 @@ def prettier(name = "format", **kwargs):
     native.sh_binary(
         name = name,
         srcs = ["format.sh"],
+        args = ["$(location @nodejs//:node_bin)"],
+        data = ["@nodejs//:node_bin"],
     )
