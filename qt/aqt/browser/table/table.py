@@ -59,6 +59,7 @@ class Table:
 
     def cleanup(self) -> None:
         self._save_header()
+        gui_hooks.theme_did_change.remove(self._setup_style)
 
     # Public Methods
     ######################################################################
@@ -342,17 +343,10 @@ class Table:
         self._view.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self._view.horizontalScrollBar().setSingleStep(10)
         self._update_font()
-        if not theme_manager.night_mode:
-            self._view.setStyleSheet(
-                "QTableView{ selection-background-color: rgba(150, 150, 150, 50); "
-                "selection-color: black; }"
-            )
-        elif theme_manager.macos_dark_mode():
-            self._view.setStyleSheet(
-                f"QTableView {{ gridline-color: {colors.FRAME_BG} }}"
-            )
+        self._setup_style()
         self._view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         qconnect(self._view.customContextMenuRequested, self._on_context_menu)
+        gui_hooks.theme_did_change.append(self._setup_style)
 
     def _update_font(self) -> None:
         # we can't choose different line heights efficiently, so we need
@@ -364,6 +358,19 @@ class Table:
                 if bsize > curmax:
                     curmax = bsize
         self._view.verticalHeader().setDefaultSectionSize(curmax + 6)
+
+    def _setup_style(self) -> None:
+        if not theme_manager.night_mode:
+            self._view.setStyleSheet(
+                "QTableView{ selection-background-color: rgba(150, 150, 150, 50); "
+                "selection-color: black; }"
+            )
+        elif theme_manager.macos_dark_mode():
+            self._view.setStyleSheet(
+                f"QTableView {{ gridline-color: {colors.FRAME_BG} }}"
+            )
+        else:
+            self._view.setStyleSheet("")
 
     def _setup_headers(self) -> None:
         vh = self._view.verticalHeader()

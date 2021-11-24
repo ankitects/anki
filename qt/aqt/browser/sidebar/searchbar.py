@@ -19,6 +19,14 @@ class SidebarSearchBar(QLineEdit):
         self.timer.setInterval(600)
         self.timer.setSingleShot(True)
         self.setFrame(False)
+        self.setup_style()
+
+        qconnect(self.timer.timeout, self.onSearch)
+        qconnect(self.textChanged, self.onTextChanged)
+
+        aqt.gui_hooks.theme_did_change.append(self.setup_style)
+
+    def setup_style(self) -> None:
         border = theme_manager.color(colors.MEDIUM_BORDER)
         styles = [
             "padding: 1px",
@@ -31,9 +39,6 @@ class SidebarSearchBar(QLineEdit):
             )
 
         self.setStyleSheet("QLineEdit { %s }" % ";".join(styles))
-
-        qconnect(self.timer.timeout, self.onSearch)
-        qconnect(self.textChanged, self.onTextChanged)
 
     def onTextChanged(self, text: str) -> None:
         if not self.timer.isActive():
@@ -49,3 +54,6 @@ class SidebarSearchBar(QLineEdit):
             self.onSearch()
         else:
             QLineEdit.keyPressEvent(self, evt)
+
+    def cleanup(self) -> None:
+        aqt.gui_hooks.theme_did_change.remove(self.setup_style)

@@ -31,6 +31,7 @@ class SidebarToolbar(QToolBar):
         self.setIconSize(QSize(16, 16))
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.setStyle(QStyleFactory.create("fusion"))
+        aqt.gui_hooks.theme_did_change.append(self._update_icons)
 
     def _setup_tools(self) -> None:
         for row, tool in enumerate(self._tools):
@@ -48,3 +49,10 @@ class SidebarToolbar(QToolBar):
     def _on_action_group_triggered(self, action: QAction) -> None:
         index = self._action_group.actions().index(action)
         self.sidebar.tool = self._tools[index][0]
+
+    def cleanup(self) -> None:
+        aqt.gui_hooks.theme_did_change.remove(self._update_icons)
+
+    def _update_icons(self) -> None:
+        for idx, action in enumerate(self._action_group.actions()):
+            action.setIcon(theme_manager.icon_from_resources(self._tools[idx][1]))

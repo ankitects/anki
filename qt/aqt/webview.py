@@ -252,6 +252,7 @@ class AnkiWebView(QWebEngineView):
             context=Qt.ShortcutContext.WidgetWithChildrenShortcut,
             activated=self.onEsc,
         )
+        gui_hooks.theme_did_change.append(self.on_theme_did_change)
 
     def set_title(self, title: str) -> None:
         self.title = title  # type: ignore[assignment]
@@ -445,7 +446,7 @@ div[contenteditable="true"]:focus {{
             lang_dir = "ltr"
 
         return f"""
-body {{ zoom: {zoom}; background-color: {body_bg}; direction: {lang_dir}; }}
+body {{ zoom: {zoom}; background-color: --window-bg; direction: {lang_dir}; }}
 html {{ {font} }}
 {button_style}
 :root {{ --window-bg: {window_bg_day} }}
@@ -551,6 +552,8 @@ html {{ {font} }}
         self._maybeRunActions()
 
     def _maybeRunActions(self) -> None:
+        if sip.isdeleted(self):
+            return
         while self._pendingActions and self._domDone:
             name, args = self._pendingActions.pop(0)
 
@@ -675,4 +678,29 @@ document.head.appendChild(style);
             # this will fail when __del__ is called during app shutdown
             return
 
+        gui_hooks.theme_did_change.remove(self.on_theme_did_change)
         mw.mediaServer.clear_page_html(id(self))
+
+    def on_theme_did_change(self) -> None:
+        # avoid flashes if page reloaded
+        self._page.setBackgroundColor(
+            self.get_window_bg_color(theme_manager.night_mode)
+        )
+        # update night-mode class, and legacy nightMode/night-mode body classes
+        self.eval(
+            f"""
+(function() {{
+    const doc = document.documentElement.classList;
+    const body = document.body.classList;
+    if ({1 if theme_manager.night_mode else 0}) {{
+        doc.add("night-mode");
+        body.add("night-mode");
+        body.add("nightMode");
+    }} else {{
+        doc.remove("night-mode");
+        body.remove("night-mode");
+        body.remove("nightMode");
+    }}
+}})();
+"""
+        )

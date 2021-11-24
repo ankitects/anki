@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import contextProperty from "../sveltelib/context-property";
     import type { OnNextInsertTrigger } from "../sveltelib/input-manager";
+    import { pageTheme } from "../sveltelib/theme";
 
     export interface RichTextInputAPI extends EditingInputAPI {
         name: "rich-text";
@@ -38,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SetContext from "./SetContext.svelte";
     import ContentEditable from "../editable/ContentEditable.svelte";
 
-    import { onMount, getContext, getAllContexts } from "svelte";
+    import { onMount, getAllContexts } from "svelte";
     import {
         nodeIsElement,
         nodeContainsInlineContent,
@@ -53,7 +54,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { on } from "../lib/events";
     import { nodeStore } from "../sveltelib/node-store";
     import type { DecoratedElement } from "../editable/decorated";
-    import { nightModeKey } from "../components/context-keys";
 
     export let hidden: boolean;
 
@@ -235,12 +235,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             unsubscribeToEditingArea();
         };
     });
-
-    const nightMode = getContext<boolean>(nightModeKey);
 </script>
 
 <RichTextStyles
-    color={nightMode ? "white" : "black"}
+    color={$pageTheme.isDark ? "white" : "black"}
     let:attachToShadow={attachStyles}
     let:promise={stylesPromise}
     let:stylesDidLoad

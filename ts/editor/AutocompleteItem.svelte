@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onMount, createEventDispatcher, getContext } from "svelte";
-    import { nightModeKey } from "../components/context-keys";
+    import { onMount, createEventDispatcher } from "svelte";
+    import { pageTheme } from "../sveltelib/theme";
 
     export let id: string | undefined = undefined;
     let className = "";
@@ -12,8 +12,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let selected = false;
     export let active = false;
-
-    const nightMode = getContext<boolean>(nightModeKey);
     const dispatch = createEventDispatcher();
 
     let buttonRef: HTMLButtonElement;
@@ -33,8 +31,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {id}
     tabindex="-1"
     class="autocomplete-item btn {className}"
-    class:btn-day={!nightMode}
-    class:btn-night={nightMode}
+    class:btn-day={!$pageTheme.isDark}
+    class:btn-night={$pageTheme.isDark}
     class:selected
     class:active
     on:mousedown|preventDefault

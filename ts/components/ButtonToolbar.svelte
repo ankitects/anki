@@ -16,13 +16,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { getContext, setContext } from "svelte";
+    import { setContext } from "svelte";
     import { writable } from "svelte/store";
     import Item from "./Item.svelte";
     import type { Registration } from "./registration";
-    import { sectionKey, nightModeKey } from "./context-keys";
+    import { sectionKey } from "./context-keys";
     import { insertElement, appendElement } from "./identifier";
     import { makeInterface } from "./registration";
+    import { pageTheme } from "../sveltelib/theme";
 
     export let id: string | undefined = undefined;
     let className: string = "";
@@ -89,15 +90,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: if (buttonToolbarRef && api) {
         createApi();
     }
-
-    const nightMode = getContext<boolean>(nightModeKey);
 </script>
 
 <div
     bind:this={buttonToolbarRef}
     {id}
     class="button-toolbar btn-toolbar {className}"
-    class:nightMode
+    class:nightMode={$pageTheme.isDark}
     {style}
     role="toolbar"
     on:focusout

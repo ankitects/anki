@@ -6,10 +6,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Tag from "./Tag.svelte";
     import WithTooltip from "../components/WithTooltip.svelte";
 
-    import { createEventDispatcher, getContext } from "svelte";
-    import { nightModeKey } from "../components/context-keys";
+    import { createEventDispatcher } from "svelte";
     import { controlPressed, shiftPressed } from "../lib/keys";
     import { delimChar } from "./tags";
+    import { pageTheme } from "../sveltelib/theme";
 
     export let name: string;
     let className: string = "";
@@ -58,14 +58,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function hasMultipleParts(name: string): boolean {
         return name.split(delimChar).length > 1;
     }
-
-    const nightMode = getContext<boolean>(nightModeKey);
     const hoverClass = "tag-icon-hover";
 </script>
 
 <svelte:body on:keydown={setControlShift} on:keyup={setControlShift} />
 
-<div class:select-mode={selectMode} class:night-mode={nightMode}>
+<div class:select-mode={selectMode} class:night-mode={$pageTheme.isDark}>
     {#if active}
         <Tag class={className} on:mousemove={setControlShift} on:click={onClick}>
             {name}

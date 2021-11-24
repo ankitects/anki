@@ -4,7 +4,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { onMount, onDestroy, getContext } from "svelte";
-    import { nightModeKey, modalsKey } from "../components/context-keys";
+    import { modalsKey } from "../components/context-keys";
+    import { pageTheme } from "../sveltelib/theme";
     import Modal from "bootstrap/js/dist/modal";
 
     export let title: string;
@@ -40,8 +41,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => {
         modalRef.removeEventListener("shown.bs.modal", onShown);
     });
-
-    const nightMode = getContext<boolean>(nightModeKey);
 </script>
 
 <div
@@ -52,13 +51,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     aria-hidden="true"
 >
     <div class="modal-dialog">
-        <div class="modal-content" class:default-colors={nightMode}>
+        <div class="modal-content" class:default-colors={$pageTheme.isDark}>
             <div class="modal-header">
                 <h5 class="modal-title" id="modalLabel">{title}</h5>
                 <button
                     type="button"
                     class="btn-close"
-                    class:invert={nightMode}
+                    class:invert={$pageTheme.isDark}
                     data-bs-dismiss="modal"
                     aria-label="Close"
                 />
@@ -73,7 +72,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             id="prompt-input"
                             bind:this={inputRef}
                             type="text"
-                            class:nightMode
+                            class:nightMode={$pageTheme.isDark}
                             class="form-control"
                             bind:value
                         />
