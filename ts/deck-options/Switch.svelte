@@ -3,14 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { getContext } from "svelte";
-    import { nightModeKey } from "../components/context-keys";
+    import { pageTheme } from "../sveltelib/theme";
 
     export let id: string | undefined;
     export let value: boolean;
     export let disabled = false;
-
-    const nightMode = getContext<boolean>(nightModeKey);
 </script>
 
 <div class="form-check form-switch">
@@ -18,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {id}
         type="checkbox"
         class="form-check-input"
-        class:nightMode
+        class:nightMode={$pageTheme.isDark}
         bind:checked={value}
         {disabled}
     />

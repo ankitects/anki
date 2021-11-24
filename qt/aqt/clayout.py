@@ -55,7 +55,7 @@ class CardLayout(QDialog):
         self.model = note.note_type()
         self.templates = self.model["tmpls"]
         self.fill_empty_action_toggled = fill_empty
-        self.night_mode_is_enabled = self.mw.pm.night_mode()
+        self.night_mode_is_enabled = theme_manager.night_mode
         self.mobile_emulation_enabled = False
         self.have_autoplayed = False
         self.mm._remove_from_cache(self.model["id"])

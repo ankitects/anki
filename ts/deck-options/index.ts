@@ -11,7 +11,7 @@ import { getDeckOptionsInfo, DeckOptionsState } from "./lib";
 import { setupI18n, ModuleName } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
 import DeckOptionsPage from "./DeckOptionsPage.svelte";
-import { nightModeKey, touchDeviceKey, modalsKey } from "../components/context-keys";
+import { touchDeviceKey, modalsKey } from "../components/context-keys";
 
 export async function deckOptions(
     target: HTMLDivElement,
@@ -29,9 +29,9 @@ export async function deckOptions(
         }),
     ]);
 
+    checkNightMode();
+
     const context = new Map();
-    const nightMode = checkNightMode();
-    context.set(nightModeKey, nightMode);
 
     const modals = new Map();
     context.set(modalsKey, modals);

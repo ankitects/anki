@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onMount, createEventDispatcher, getContext } from "svelte";
-    import { nightModeKey } from "./context-keys";
+    import { onMount, createEventDispatcher } from "svelte";
+    import { pageTheme } from "../sveltelib/theme";
 
     export let id: string | undefined = undefined;
     let className = "";
@@ -12,8 +12,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let tooltip: string | undefined = undefined;
     export let disabled = false;
-
-    const nightMode = getContext<boolean>(nightModeKey);
 
     let buttonRef: HTMLSelectElement;
 
@@ -29,9 +27,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {id}
     {disabled}
     class="{className} form-select"
-    class:btn-day={!nightMode}
-    class:btn-night={nightMode}
-    class:visible-down-arrow={nightMode}
+    class:btn-day={!$pageTheme.isDark}
+    class:btn-night={$pageTheme.isDark}
+    class:visible-down-arrow={$pageTheme.isDark}
     title={tooltip}
     on:change
 >

@@ -91,6 +91,16 @@ class SidebarTreeView(QTreeView):
         qconnect(self.expanded, self._on_expansion)
         qconnect(self.collapsed, self._on_collapse)
 
+        self._setup_style()
+
+        # these do not really belong here, they should be in a higher-level class
+        self.toolbar = SidebarToolbar(self)
+        self.searchBar = SidebarSearchBar(self)
+
+        gui_hooks.flag_label_did_change.append(self.refresh)
+        gui_hooks.theme_did_change.append(self._setup_style)
+
+    def _setup_style(self) -> None:
         # match window background color and tweak style
         bgcolor = QPalette().window().color().name()
         border = theme_manager.color(colors.MEDIUM_BORDER)
@@ -105,14 +115,11 @@ class SidebarTreeView(QTreeView):
 
         self.setStyleSheet("QTreeView { %s }" % ";".join(styles))
 
-        # these do not really belong here, they should be in a higher-level class
-        self.toolbar = SidebarToolbar(self)
-        self.searchBar = SidebarSearchBar(self)
-
-        gui_hooks.flag_label_did_change.append(self.refresh)
-
     def cleanup(self) -> None:
+        self.toolbar.cleanup()
+        self.searchBar.cleanup()
         gui_hooks.flag_label_did_change.remove(self.refresh)
+        gui_hooks.theme_did_change.remove(self._setup_style)
 
     @property
     def tool(self) -> SidebarTool:
