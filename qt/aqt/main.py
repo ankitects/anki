@@ -31,7 +31,7 @@ from anki.decks import DeckDict, DeckId
 from anki.hooks import runHook
 from anki.notes import NoteId
 from anki.sound import AVTag, SoundOrVideoTag
-from anki.utils import devMode, ids2str, int_time, isMac, isWin, split_fields
+from anki.utils import devMode, ids2str, int_time, isLin, isMac, isWin, split_fields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
 from aqt.dbcheck import check_db
@@ -1005,8 +1005,17 @@ title="{}" {}>{}</button>""".format(
 
     def setupStyle(self) -> None:
         theme_manager.apply_style()
+        if isLin:
+            # On Linux, the check requires invoking an external binary,
+            # which we don't want to be doing frequently
+            interval_secs = 300
+        else:
+            interval_secs = 5
         self.progress.timer(
-            5 * 1000, theme_manager.apply_style_if_system_style_changed, True, False
+            interval_secs * 1000,
+            theme_manager.apply_style_if_system_style_changed,
+            True,
+            False,
         )
 
     def set_theme(self, theme: Theme) -> None:
