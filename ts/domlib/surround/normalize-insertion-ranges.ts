@@ -4,7 +4,12 @@
 import { findBefore, findAfter } from "./find-adjacent";
 import { findWithin, findWithinNode } from "./find-within";
 import { MatchResult } from "./matcher";
-import type { FoundMatch, ElementMatcher, ElementClearer } from "./matcher";
+import type {
+    FoundMatch,
+    ElementMatcher,
+    ElementClearer,
+    FoundAdjacent,
+} from "./matcher";
 import type { ChildNodeRange } from "./child-node-range";
 
 function countChildNodesRespectiveToParent(parent: Node, element: Element): number {
@@ -24,8 +29,8 @@ function normalizeWithinInner(
     clearer: ElementClearer,
 ) {
     const matches = findWithinNode(node, matcher);
-    const processFoundMatches = (match: FoundMatch) =>
-        match.matchType === MatchResult.MATCH ?? clearer(match.element);
+    const processFoundMatches = ({ element, matchType }: FoundMatch) =>
+        matchType === MatchResult.MATCH ?? clearer(element);
 
     for (const { element: found } of matches.filter(processFoundMatches)) {
         removedNodes.push(found);
@@ -41,52 +46,55 @@ function normalizeWithinInner(
 }
 
 function normalizeAdjacent(
-    matches: Element[],
-    keepMatches: Element[],
-    along: Element[],
+    matches: FoundAdjacent[],
     parent: Node,
     removedNodes: Element[],
     matcher: ElementMatcher,
     clearer: ElementClearer,
-): [length: number, shift: number] {
-    // const { matches, keepMatches, along } = findBefore(normalizedRange, matcher);
-    let childCount = along.length;
+): number {
+    let childCount = 0;
+    let keepChildCount = 0;
 
-    for (const match of matches) {
-        childCount += normalizeWithinInner(
-            match,
-            parent,
-            removedNodes,
-            matcher,
-            clearer,
-        );
+    for (const { element, matchType } of matches) {
+        switch (matchType) {
+            case MatchResult.MATCH:
+                childCount += normalizeWithinInner(
+                    element as Element,
+                    parent,
+                    removedNodes,
+                    matcher,
+                    clearer,
+                );
 
-        removedNodes.push(match);
-        match.replaceWith(...match.childNodes);
-    }
+                removedNodes.push(element as Element);
+                element.replaceWith(...element.childNodes);
+                break;
 
-    for (const match of keepMatches) {
-        const keepChildCount = normalizeWithinInner(
-            match,
-            parent,
-            removedNodes,
-            matcher,
-            clearer,
-        );
+            case MatchResult.KEEP:
+                keepChildCount = normalizeWithinInner(
+                    element as Element,
+                    parent,
+                    removedNodes,
+                    matcher,
+                    clearer,
+                );
 
-        if (clearer(match)) {
-            removedNodes.push(match);
-            match.replaceWith(...match.childNodes);
-            childCount += keepChildCount;
-        } else {
-            childCount += 1;
+                if (clearer(element as Element)) {
+                    removedNodes.push(element as Element);
+                    element.replaceWith(...element.childNodes);
+                    childCount += keepChildCount;
+                } else {
+                    childCount++;
+                }
+                break;
+
+            case MatchResult.ALONG:
+                childCount++;
+                break;
         }
     }
 
-    const length = matches.length + keepMatches.length + along.length;
-    const shift = childCount - length;
-
-    return [length, shift];
+    return childCount;
 }
 
 function normalizeWithin(
@@ -136,21 +144,16 @@ export function normalizeInsertionRanges(
          */
 
         if (index === 0) {
-            const { matches, keepMatches, along } = findBefore(
-                normalizedRange,
-                matcher,
-            );
-            const [length, shift] = normalizeAdjacent(
+            const matches = findBefore(normalizedRange, matcher);
+            const count = normalizeAdjacent(
                 matches,
-                keepMatches,
-                along,
                 parent,
                 removedNodes,
                 matcher,
                 clearer,
             );
-            normalizedRange.startIndex -= length;
-            normalizedRange.endIndex += shift;
+            normalizedRange.startIndex -= matches.length;
+            normalizedRange.endIndex += count - matches.length;
         }
 
         const matches = findWithin(normalizedRange, matcher);
@@ -158,17 +161,15 @@ export function normalizeInsertionRanges(
         normalizedRange.endIndex += withinShift;
 
         if (index === insertionRanges.length - 1) {
-            const { matches, keepMatches, along } = findAfter(normalizedRange, matcher);
-            const [length, shift] = normalizeAdjacent(
+            const matches = findAfter(normalizedRange, matcher);
+            const count = normalizeAdjacent(
                 matches,
-                keepMatches,
-                along,
                 parent,
                 removedNodes,
                 matcher,
                 clearer,
             );
-            normalizedRange.endIndex += length + shift;
+            normalizedRange.endIndex += count;
         }
 
         normalizedRanges.push(normalizedRange);

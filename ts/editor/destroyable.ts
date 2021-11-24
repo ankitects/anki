@@ -10,7 +10,7 @@ export function clearableArray<T>(): (T & Destroyable)[] {
 
     return new Proxy(list, {
         get: function (target: (T & Destroyable)[], prop: string | symbol) {
-            if (!isNaN(Number(prop)) && !target[prop]) {
+            if (!(typeof prop === "symbol") && !isNaN(Number(prop)) && !target[prop]) {
                 const item = {} as T & Destroyable;
 
                 const destroy = (): void => {

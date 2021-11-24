@@ -34,11 +34,11 @@ def register_repos():
     maybe(
         http_archive,
         name = "rules_rust",
-        strip_prefix = "rules_rust-anki-2021-11-18",
+        strip_prefix = "rules_rust-anki-2021-11-19",
         urls = [
-            "https://github.com/ankitects/rules_rust/archive/anki-2021-11-18.tar.gz",
+            "https://github.com/ankitects/rules_rust/archive/anki-2021-11-19.tar.gz",
         ],
-        sha256 = "4d93bbf52c0b7f979da42f5481166221fcadca46c10d9f478a1b299229a9b6f3",
+        sha256 = "c0fb4ce7c616a19b73967ea763cdc0481287d56482115ca67c7a52b883f1b408",
     )
 
     # python
@@ -101,12 +101,12 @@ def register_repos():
     ################
 
     core_i18n_repo = "anki-core-i18n"
-    core_i18n_commit = "a21a72bba162ed31b6f9ce6ca1195c46683da601"
-    core_i18n_zip_csum = "293398bc176e703af861faf05c3dec0c627e63c8f8f2def3789cc39fa17c0ef0"
+    core_i18n_commit = "3ee9d4fc86704d5b0f7b504fb5546aa360bea7f0"
+    core_i18n_zip_csum = "35e14f4e844154bcf59c44b7e50994f74d87b00b5802d44134536ce4a34a3db5"
 
     qtftl_i18n_repo = "anki-desktop-ftl"
-    qtftl_i18n_commit = "93cd61daa1e3f7625df494d164fe565069162a6f"
-    qtftl_i18n_zip_csum = "b7dbc56a10eafdf4076b22c7f22010d37b33daf4e4b9ca9ff86bdada261204ee"
+    qtftl_i18n_commit = "b85da985746ee417c268b95e9377083fb6716f5f"
+    qtftl_i18n_zip_csum = "e19590a7e09a6f3648cff6d64b6a45bb6354a3d2801eb42eef7a53ae1611d5f7"
 
     i18n_build_content = """
 filegroup(

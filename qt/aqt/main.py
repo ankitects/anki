@@ -1680,6 +1680,7 @@ title="{}" {}>{}</button>""".format(
     def setupMediaServer(self) -> None:
         self.mediaServer = aqt.mediasrv.MediaServer(self)
         self.mediaServer.start()
+        self.mediaServer.await_ready()
 
     def baseHTML(self) -> str:
         return f'<base href="{self.serverURL()}">'

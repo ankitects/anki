@@ -131,6 +131,9 @@ class Reviewer:
         hooks.card_did_leech.append(self.onLeech)
 
     def show(self) -> None:
+        if self.mw.col.sched_ver() == 1:
+            self.mw.moveToState("deckBrowser")
+            return
         self.mw.setStateShortcuts(self._shortcutKeys())  # type: ignore
         self.web.set_bridge_command(self._linkHandler, self)
         self.bottom.web.set_bridge_command(self._linkHandler, ReviewerBottomBar(self))
@@ -458,7 +461,7 @@ class Reviewer:
             ("Shift+v", self.onRecordVoice),
             ("o", self.onOptions),
             ("i", self.on_card_info),
-            ("Alt+i", self.on_previous_card_info),
+            ("Ctrl+Alt+i", self.on_previous_card_info),
             ("1", lambda: self._answerCard(1)),
             ("2", lambda: self._answerCard(2)),
             ("3", lambda: self._answerCard(3)),

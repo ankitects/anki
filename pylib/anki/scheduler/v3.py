@@ -4,9 +4,9 @@
 # pylint: disable=invalid-name
 
 """
-This file contains experimental scheduler changes:
+The V3/2021 scheduler.
 
-https://betas.ankiweb.net/2021-scheduler.html
+https://faqs.ankiweb.net/the-2021-scheduler.html
 
 It uses the same DB schema as the V2 scheduler, and 'schedVer' remains
 as '2' internally.

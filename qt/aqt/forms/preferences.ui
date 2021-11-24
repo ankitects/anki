@@ -218,7 +218,7 @@
           <string notr="true"/>
          </property>
          <property name="text">
-          <string notr="true">V3 scheduler (beta)</string>
+          <string>preferences_v3_scheduler</string>
          </property>
         </widget>
        </item>

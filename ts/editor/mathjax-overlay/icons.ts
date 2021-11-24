@@ -3,3 +3,4 @@
 
 export { default as inlineIcon } from "@mdi/svg/svg/format-wrap-square.svg";
 export { default as blockIcon } from "@mdi/svg/svg/format-wrap-top-bottom.svg";
+export { default as deleteIcon } from "@mdi/svg/svg/delete.svg";

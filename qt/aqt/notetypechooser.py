@@ -103,7 +103,7 @@ class NotetypeChooser(QHBoxLayout):
         qconnect(edit.clicked, self.onEdit)
 
         def nameFunc() -> list[str]:
-            return sorted(self.mw.col.models.all_names())
+            return sorted(n.name for n in self.mw.col.models.all_names_and_ids())
 
         ret = StudyDeck(
             self.mw,
