@@ -10,7 +10,7 @@ from anki.collection import OpChanges, SearchNode
 from anki.decks import DeckId
 from anki.models import NotetypeId
 from anki.notes import Note, NoteFieldsCheckResult, NoteId
-from anki.utils import html_to_text_line, isMac
+from anki.utils import html_to_text_line, is_mac
 from aqt import AnkiQt, gui_hooks
 from aqt.deckchooser import DeckChooser
 from aqt.notetypechooser import NotetypeChooser
@@ -101,7 +101,7 @@ class AddCards(QMainWindow):
         bb.addButton(self.helpButton, QDialogButtonBox.ButtonRole.HelpRole)
         # history
         b = bb.addButton(f"{tr.adding_history()} {downArrow()}", ar)
-        if isMac:
+        if is_mac:
             sc = "Ctrl+Shift+H"
         else:
             sc = "Ctrl+H"

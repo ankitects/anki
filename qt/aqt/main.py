@@ -31,7 +31,7 @@ from anki.decks import DeckDict, DeckId
 from anki.hooks import runHook
 from anki.notes import NoteId
 from anki.sound import AVTag, SoundOrVideoTag
-from anki.utils import devMode, ids2str, int_time, isLin, isMac, isWin, split_fields
+from anki.utils import dev_mode, ids2str, int_time, is_lin, is_mac, is_win, split_fields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
 from aqt.dbcheck import check_db
@@ -125,7 +125,7 @@ class AnkiQt(QMainWindow):
             self.onAppMsg(args[0])
         # Load profile in a timer so we can let the window finish init and not
         # close on profile load error.
-        if isWin:
+        if is_win:
             fn = self.setupProfileAfterWebviewsLoaded
         else:
             fn = self.setupProfile
@@ -194,7 +194,7 @@ class AnkiQt(QMainWindow):
 
     def setup_shortcuts(self) -> None:
         QShortcut(
-            QKeySequence("Ctrl+Meta+F" if isMac else "F11"),
+            QKeySequence("Ctrl+Meta+F" if is_mac else "F11"),
             self,
             self.on_toggle_fullscreen,
         ).setContext(Qt.ShortcutContext.ApplicationShortcut)
@@ -557,7 +557,7 @@ class AnkiQt(QMainWindow):
         corrupt = False
         try:
             self.maybeOptimize()
-            if not devMode:
+            if not dev_mode:
                 corrupt = self.col.db.scalar("pragma quick_check") != "ok"
         except:
             corrupt = True
@@ -611,7 +611,7 @@ class AnkiQt(QMainWindow):
         assert not self.col or not self.col.db
 
         nbacks = self.pm.profile["numBackups"]
-        if not nbacks or devMode:
+        if not nbacks or dev_mode:
             return
         dir = self.pm.backupFolder()
         path = self.pm.collectionPath()
@@ -845,7 +845,7 @@ title="{}" {}>{}</button>""".format(
         self.form.centralwidget.setLayout(self.mainLayout)
 
         # force webengine processes to load before cwd is changed
-        if isWin:
+        if is_win:
             for webview in self.web, self.bottomWeb:
                 webview.force_load_hack()
 
@@ -1005,7 +1005,7 @@ title="{}" {}>{}</button>""".format(
 
     def setupStyle(self) -> None:
         theme_manager.apply_style()
-        if isLin:
+        if is_lin:
             # On Linux, the check requires invoking an external binary,
             # which we don't want to be doing frequently
             interval_secs = 300
@@ -1260,7 +1260,7 @@ title="{}" {}>{}</button>""".format(
         aqt.update.showMessages(self, data)
 
     def clockIsOff(self, diff: int) -> None:
-        if devMode:
+        if dev_mode:
             print("clock is off; ignoring")
             return
         diffText = tr.qt_misc_second(count=diff)
@@ -1560,14 +1560,14 @@ title="{}" {}>{}</button>""".format(
 
     def setupSystemSpecific(self) -> None:
         self.hideMenuAccels = False
-        if isMac:
+        if is_mac:
             # mac users expect a minimize option
             self.minimizeShortcut = QShortcut("Ctrl+M", self)
             qconnect(self.minimizeShortcut.activated, self.onMacMinimize)
             self.hideMenuAccels = True
             self.maybeHideAccelerators()
             self.hideStatusTips()
-        elif isWin:
+        elif is_win:
             # make sure ctypes is bundled
             from ctypes import windll, wintypes  # type: ignore
 
@@ -1627,7 +1627,7 @@ title="{}" {}>{}</button>""".format(
                 )
             return None
         # raise window
-        if isWin:
+        if is_win:
             # on windows we can raise the window by minimizing and restoring
             self.showMinimized()
             self.setWindowState(Qt.WindowState.WindowActive)

@@ -11,12 +11,12 @@ import sys
 from ctypes import CDLL
 
 import aqt.utils
-from anki.utils import isLin, isMac, isWin
+from anki.utils import is_lin, is_mac, is_win
 
 
 def get_windows_dark_mode() -> bool:
     "True if Windows system is currently in dark mode."
-    if not isWin:
+    if not is_win:
         return False
 
     from winreg import (  # pylint: disable=import-error
@@ -34,7 +34,7 @@ def get_windows_dark_mode() -> bool:
 
 def set_macos_dark_mode(enabled: bool) -> bool:
     "True if setting successful."
-    if not isMac:
+    if not is_mac:
         return False
     try:
         _ankihelper().set_darkmode_enabled(enabled)
@@ -47,7 +47,7 @@ def set_macos_dark_mode(enabled: bool) -> bool:
 
 def get_macos_dark_mode() -> bool:
     "True if macOS system is currently in dark mode."
-    if not isMac:
+    if not is_mac:
         return False
     try:
         return _ankihelper().system_is_dark()
@@ -60,7 +60,7 @@ def get_macos_dark_mode() -> bool:
 def get_linux_dark_mode() -> bool:
     """True if Linux system is in dark mode.
     This only works if the GTK theme name contains '-dark'"""
-    if not isLin:
+    if not is_lin:
         return False
     try:
         process = subprocess.run(

@@ -13,7 +13,7 @@ import anki
 from anki import card_rendering_pb2, hooks
 from anki.models import NotetypeDict
 from anki.template import TemplateRenderContext, TemplateRenderOutput
-from anki.utils import call, isMac, namedtmp, tmpdir
+from anki.utils import call, is_mac, namedtmp, tmpdir
 
 pngCommands = [
     ["latex", "-interaction=nonstopmode", "tmp.tex"],
@@ -29,7 +29,7 @@ svgCommands = [
 build = True  # pylint: disable=invalid-name
 
 # add standard tex install location to osx
-if isMac:
+if is_mac:
     os.environ["PATH"] += ":/usr/texbin:/Library/TeX/texbin"
 
 

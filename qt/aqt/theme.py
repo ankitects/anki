@@ -8,8 +8,8 @@ import platform
 from dataclasses import dataclass
 
 import aqt
-from anki.utils import isMac
-from aqt import QApplication, colors, gui_hooks, isWin
+from anki.utils import is_mac
+from aqt import QApplication, colors, gui_hooks, is_win
 from aqt.platform import (
     get_linux_dark_mode,
     get_macos_dark_mode,
@@ -65,7 +65,7 @@ class ThemeManager:
 
     def macos_dark_mode(self) -> bool:
         "True if the user has night mode on, and has forced native widgets."
-        if not isMac:
+        if not is_mac:
             return False
 
         if not self._night_mode_preference:
@@ -128,9 +128,9 @@ class ThemeManager:
     def body_class(self, night_mode: bool | None = None) -> str:
         "Returns space-separated class list for platform/theme."
         classes = []
-        if isWin:
+        if is_win:
             classes.append("isWin")
-        elif isMac:
+        elif is_mac:
             classes.append("isMac")
         else:
             classes.append("isLin")
@@ -164,9 +164,9 @@ class ThemeManager:
         elif theme == Theme.DARK:
             return True
         else:
-            if isWin:
+            if is_win:
                 return get_windows_dark_mode()
-            elif isMac:
+            elif is_mac:
                 return get_macos_dark_mode()
             else:
                 return get_linux_dark_mode()
@@ -192,7 +192,7 @@ class ThemeManager:
     def _apply_style(self, app: QApplication) -> None:
         buf = ""
 
-        if isWin and platform.release() == "10":
+        if is_win and platform.release() == "10":
             # day mode is missing a bottom border; background must be
             # also set for border to apply
             buf += f"""

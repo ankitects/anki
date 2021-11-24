@@ -14,8 +14,8 @@ from anki.collection import Collection, HelpPage
 from anki.lang import TR, tr_legacyglobal  # pylint: disable=unused-import
 from anki.utils import (
     invalid_filename,
-    isMac,
-    isWin,
+    is_mac,
+    is_win,
     no_bundled_libs,
     version_with_build,
 )
@@ -509,7 +509,7 @@ def getSaveFile(
 
 def saveGeom(widget: QWidget, key: str) -> None:
     key += "Geom"
-    if isMac and (widget.windowState() & Qt.WindowState.WindowFullScreen):
+    if is_mac and (widget.windowState() & Qt.WindowState.WindowFullScreen):
         geom = None
     else:
         geom = widget.saveGeometry()
@@ -522,7 +522,7 @@ def restoreGeom(
     key += "Geom"
     if aqt.mw.pm.profile.get(key):
         widget.restoreGeometry(aqt.mw.pm.profile[key])
-        if isMac and offset:
+        if is_mac and offset:
             if qtmajor > 5 or qtminor > 6:
                 # bug in osx toolkit
                 s = widget.size()
@@ -659,7 +659,7 @@ def mungeQA(col: Collection, txt: str) -> str:
 
 
 def openFolder(path: str) -> None:
-    if isWin:
+    if is_win:
         subprocess.run(["explorer", f"file://{path}"], check=False)
     else:
         with no_bundled_libs():
@@ -667,20 +667,20 @@ def openFolder(path: str) -> None:
 
 
 def shortcut(key: str) -> str:
-    if isMac:
+    if is_mac:
         return re.sub("(?i)ctrl", "Command", key)
     return key
 
 
 def maybeHideClose(bbox: QDialogButtonBox) -> None:
-    if isMac:
+    if is_mac:
         b = bbox.button(QDialogButtonBox.StandardButton.Close)
         if b:
             bbox.removeButton(b)
 
 
 def addCloseShortcut(widg: QDialog) -> None:
-    if not isMac:
+    if not is_mac:
         return
     shortcut = QShortcut(QKeySequence("Ctrl+W"), widg)
     qconnect(shortcut.activated, widg.reject)
@@ -688,7 +688,7 @@ def addCloseShortcut(widg: QDialog) -> None:
 
 
 def downArrow() -> str:
-    if isWin:
+    if is_win:
         return "▼"
     # windows 10 is lacking the smaller arrow on English installs
     return "▾"
@@ -853,9 +853,9 @@ def supportText() -> str:
 
     from aqt import mw
 
-    if isWin:
+    if is_win:
         platname = f"Windows {platform.win32_ver()[0]}"
-    elif isMac:
+    elif is_mac:
         platname = f"Mac {platform.mac_ver()[0]}"
     else:
         platname = "Linux"
