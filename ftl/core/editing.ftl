@@ -51,16 +51,3 @@ editing-warning-cloze-deletions-will-not-work = Warning, cloze deletions will no
 
 ## You don't need to translate these strings, as they will be replaced with different ones soon.
 
-editing-bold-text-ctrlandb = Bold text (Ctrl+B)
-editing-italic-text-ctrlandi = Italic text (Ctrl+I)
-editing-underline-text-ctrlandu = Underline text (Ctrl+U)
-editing-subscript-ctrland = Subscript (Ctrl+=)
-editing-superscript-ctrlandand = Superscript (Ctrl++)
-editing-remove-formatting-ctrlandr = Remove formatting (Ctrl+R)
-editing-record-audio-f5 = Record audio (F5)
-editing-attach-picturesaudiovideo-f3 = Attach pictures/audio/video (F3)
-editing-cloze-deletion-ctrlandshiftandc = Cloze deletion (Ctrl+Shift+C)
-editing-change-colour-f8 = Change colour (F8)
-editing-set-foreground-colour-f7 = Set foreground colour (F7)
-editing-customize-card-templates-ctrlandl = Customize Card Templates (Ctrl+L)
-editing-set-foreground-color = Set foreground color
