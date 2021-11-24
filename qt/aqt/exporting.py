@@ -139,6 +139,7 @@ class ExportDialog(QDialog):
                 return
             if checkInvalidFilename(os.path.basename(file), dirsep=False):
                 continue
+            file = os.path.normpath(file)
             if os.path.commonprefix([self.mw.pm.base, file]) == self.mw.pm.base:
                 showWarning("Please choose a different export location.")
                 continue
