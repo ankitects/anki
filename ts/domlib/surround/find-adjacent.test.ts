@@ -18,13 +18,13 @@ describe("in a simple search", () => {
 
     describe("findBefore", () => {
         test("finds an element", () => {
-            const { matches } = findBefore(range, matchTagName("b"));
+            const matches = findBefore(range, matchTagName("b"));
 
             expect(matches).toHaveLength(1);
         });
 
         test("does not find non-existing element", () => {
-            const { matches } = findBefore(range, matchTagName("i"));
+            const matches = findBefore(range, matchTagName("i"));
 
             expect(matches).toHaveLength(0);
         });
@@ -32,13 +32,13 @@ describe("in a simple search", () => {
 
     describe("findAfter", () => {
         test("finds an element", () => {
-            const { matches } = findAfter(range, matchTagName("i"));
+            const matches = findAfter(range, matchTagName("i"));
 
             expect(matches).toHaveLength(1);
         });
 
         test("does not find non-existing element", () => {
-            const { matches } = findAfter(range, matchTagName("b"));
+            const matches = findAfter(range, matchTagName("b"));
 
             expect(matches).toHaveLength(0);
         });
@@ -51,7 +51,7 @@ describe("in a nested search", () => {
 
     describe("findBefore", () => {
         test("finds a nested element", () => {
-            const { matches } = findBefore(rangeNested, matchTagName("b"));
+            const matches = findBefore(rangeNested, matchTagName("b"));
 
             expect(matches).toHaveLength(1);
         });
@@ -59,7 +59,7 @@ describe("in a nested search", () => {
 
     describe("findAfter", () => {
         test("finds a nested element", () => {
-            const { matches } = findAfter(rangeNested, matchTagName("b"));
+            const matches = findAfter(rangeNested, matchTagName("b"));
 
             expect(matches).toHaveLength(1);
         });
