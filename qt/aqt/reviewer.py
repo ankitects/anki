@@ -131,6 +131,9 @@ class Reviewer:
         hooks.card_did_leech.append(self.onLeech)
 
     def show(self) -> None:
+        if self.mw.col.sched_ver() == 1:
+            self.mw.moveToState("deckBrowser")
+            return
         self.mw.setStateShortcuts(self._shortcutKeys())  # type: ignore
         self.web.set_bridge_command(self._linkHandler, self)
         self.bottom.web.set_bridge_command(self._linkHandler, ReviewerBottomBar(self))
