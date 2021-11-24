@@ -2,6 +2,7 @@ load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:esbuild.bzl", "esbuild")
+load("//ts:vendor.bzl", "copy_bootstrap_icons")
 load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:typescript.bzl", "typescript")
 load("//ts:jest.bzl", "jest_test")
@@ -48,6 +49,7 @@ esbuild(
     visibility = ["//visibility:public"],
     deps = [
         ":base_css",
+        "@npm//bootstrap-icons",
         ":index",
         ":svelte",
     ],
