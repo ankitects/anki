@@ -98,6 +98,9 @@ scheduling-update-done = Scheduler updated successfully.
 scheduling-update-button = Update
 scheduling-update-later-button = Later
 scheduling-update-more-info-button = Learn More
+scheduling-update-required =
+    Your collection needs to be upgraded to the V2 scheduler.
+    Please select { scheduling-update-more-info-button } before proceeding.
 
 ## Other scheduling strings
 

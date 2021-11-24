@@ -356,7 +356,7 @@ class DeckBrowser:
 <center>
 <div class=callout>
     <div>
-      {tr.scheduling_update_soon()}
+      {tr.scheduling_update_required()}
     </div>
     <div>
       <button onclick='pycmd("v2upgrade")'>
