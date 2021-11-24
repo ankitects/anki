@@ -1,13 +1,10 @@
 browsing-add-notes = Add Notes...
-browsing-add-tags = Add Tags
 browsing-add-tags2 = Add Tags...
 browsing-add-to-selected-notes = Add to Selected Notes
 browsing-remove-from-selected-notes = Remove from Selected Notes
 browsing-addon = Add-on
-browsing-all-card-types = All Card Types
 browsing-all-fields = All Fields
 browsing-answer = Answer
-browsing-any-cards-mapped-to-nothing-will = Any cards mapped to nothing will be deleted. If a note has no remaining cards, it will be lost. Are you sure you want to continue?
 browsing-any-flag = Any Flag
 browsing-average-ease = Avg. Ease
 browsing-average-interval = Avg. Interval
@@ -18,7 +15,6 @@ browsing-card = Card
 # Exactly one character representing 'Cards'; should differ from browsing-note-initial.
 browsing-card-initial = C
 browsing-card-list = Card List
-browsing-card-state = Card State
 browsing-cards-cant-be-manually-moved-into = Cards can't be manually moved into a filtered deck.
 browsing-cards-deleted =
     { $count ->
@@ -30,19 +26,14 @@ browsing-change-deck2 = Change Deck...
 browsing-change-note-type = Change Note Type
 browsing-change-note-type2 = Change Note Type...
 browsing-change-notetype = Change Notetype
-browsing-change-to = Change { $val } to:
-browsing-clear-unused = Clear Unused
 browsing-clear-unused-tags = Clear Unused Tags
 browsing-confirm-saved-search-overwrite = A saved search with the name { $name } already exists. Do you want to overwrite it?
 browsing-created = Created
-browsing-ctrlandshiftande = Ctrl+Shift+E
 browsing-current-deck = Current Deck
 browsing-current-note-type = Current note type:
 browsing-delete-notes = Delete Notes
-browsing-delete-tags = Delete Tags
 browsing-duplicate = duplicate
 browsing-ease = Ease
-browsing-end = End
 browsing-enter-tags-to-add = Enter tags to add:
 browsing-enter-tags-to-delete = Enter tags to delete:
 browsing-filtered = (filtered)
@@ -54,7 +45,6 @@ browsing-flag = Flag
 browsing-font = <b>Font</b>:
 browsing-font-size = <b>Font Size</b>:
 browsing-found-as-across-bs = Found { $part } across { $whole }.
-browsing-home = Home
 browsing-ignore-case = Ignore case
 browsing-in = <b>In</b>:
 browsing-interval = Interval
@@ -64,7 +54,6 @@ browsing-line-size = <b>Line Size</b>:
 browsing-manage-note-types = Manage Note Types...
 browsing-move-cards = Move Cards
 browsing-move-cards-to-deck = Move cards to deck:
-browsing-nd-names = { $num }: { $name }
 browsing-new = (new)
 browsing-new-note-type = New note type:
 browsing-no-flag = No Flag
@@ -72,14 +61,11 @@ browsing-no-selection = No cards or notes selected.
 browsing-note = Note
 # Exactly one character representing 'Notes'; should differ from browsing-card-initial.
 browsing-note-initial = N
-browsing-notes-tagged = Notes tagged.
-browsing-nothing = Nothing
 browsing-optional-filter = Optional filter:
 browsing-override-back-template = Override back template:
 browsing-override-font = Override font:
 browsing-override-front-template = Override front template:
 browsing-please-give-your-filter-a-name = Please give your filter a name:
-browsing-please-select-cards-from-only-one = Please select cards from only one note type.
 browsing-preview-selected-card = Preview Selected Card ({ $val })
 browsing-question = Question
 browsing-queue-bottom = Queue bottom: { $val }
@@ -122,11 +108,6 @@ browsing-note-count =
     { $count ->
         [one] { $count } note
        *[other] { $count } notes
-    }
-browsing-note-deleted =
-    { $count ->
-        [one] { $count } note deleted.
-       *[other] { $count } notes deleted.
     }
 browsing-notes-updated =
     { $count ->
@@ -186,4 +167,3 @@ browsing-reparented-decks =
 
 ## obsolete; no need to translate
 
-browsing-only-new-cards-can-be-repositioned = Only new cards can be repositioned.

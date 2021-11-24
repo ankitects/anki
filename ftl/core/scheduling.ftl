@@ -111,7 +111,6 @@ scheduling-bury-related-new-cards-until-the = Bury related new cards until the n
 scheduling-bury-related-reviews-until-the-next = Bury related reviews until the next day
 scheduling-days = days
 scheduling-description = Description
-scheduling-description-to-show-on-overview-screen = Description to show on overview screen, for current deck:
 scheduling-easy-bonus = Easy bonus
 scheduling-easy-interval = Easy interval
 scheduling-end = (end)

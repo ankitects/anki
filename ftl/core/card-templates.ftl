@@ -33,7 +33,6 @@ card-templates-anki-couldnt-find-the-line-between = Anki couldn't find the line 
 card-templates-at-least-one-card-type-is = At least one card type is required.
 card-templates-browser-appearance = Browser Appearance...
 card-templates-card = Card { $val }
-card-templates-card-types = Card Types
 card-templates-card-types-for = Card Types for { $val }
 card-templates-cloze = Cloze { $val }
 card-templates-deck-override = Deck Override...

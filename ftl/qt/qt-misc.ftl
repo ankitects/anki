@@ -16,10 +16,8 @@ qt-misc-copy-to-clipboard = Copy to Clipboard
 qt-misc-create-filtered-deck = Create Filtered Deck...
 qt-misc-debug-console = Debug Console
 qt-misc-deck-will-be-imported-when-a = Deck will be imported when a profile is opened.
-qt-misc-default = Default
 qt-misc-empty-cards = Empty Cards...
 qt-misc-error-during-startup = Error during startup: { $val }
-qt-misc-filtered-deck = Filtered Deck { $val }
 qt-misc-ignore-this-update = Ignore this update
 qt-misc-in-order-to-ensure-your-collection = In order to ensure your collection works correctly when moved between devices, Anki requires your computer's internal clock to be set correctly. The internal clock can be wrong even if your system is showing the correct local time.<br><br>Please go to the time settings on your computer and check the following:<br><br>- AM/PM<br>- Clock drift<br>- Day, month and year<br>- Timezone<br>- Daylight savings<br><br>Difference to correct time: { $val }.
 qt-misc-invalid-property-found-on-card-please = Invalid property found on card. Please use Tools>Check Database, and if the problem comes up again, please ask on the support site.
@@ -41,7 +39,6 @@ qt-misc-please-use-fileimport-to-import-this = Please use File>Import to import 
 qt-misc-processing = Processing...
 qt-misc-replace-your-collection-with-an-earlier = Replace your collection with an earlier backup?
 qt-misc-revert-to-backup = Revert to backup
-qt-misc-reverted-to-state-prior-to = Reverted to state prior to '{ $val }'.
 # please do not change the quote character, and please only change the font name if you have confirmed the new name is a valid Windows font
 qt-misc-segoe-ui = "Segoe UI"
 qt-misc-shift-key-was-held-down-skipping = Shift key was held down. Skipping automatic syncing and add-on loading.
@@ -57,8 +54,6 @@ qt-misc-there-must-be-at-least-one = There must be at least one profile.
 qt-misc-this-file-exists-are-you-sure = This file exists. Are you sure you want to overwrite it?
 qt-misc-unable-to-access-anki-media-folder = Unable to access Anki media folder. The permissions on your system's temporary folder may be incorrect.
 qt-misc-unable-to-move-existing-file-to = Unable to move existing file to trash - please try restarting your computer.
-qt-misc-undo = Undo
-qt-misc-undo2 = Undo { $val }
 qt-misc-unexpected-response-code = Unexpected response code: { $val }
 qt-misc-would-you-like-to-download-it = Would you like to download it now?
 qt-misc-your-collection-file-appears-to-be = Your collection file appears to be corrupt. This can happen when the file is copied or moved while Anki is open, or when the collection is stored on a network or cloud drive. If problems persist after restarting your computer, please open an automatic backup from the profile screen.
@@ -79,5 +74,3 @@ qt-misc-second =
 ## deprecated- these strings will be removed in the future, and do not need
 ## to be translated
 
-qt-misc-resume-now = Resume Now
-qt-misc-waiting-for-editing-to-finish = Waiting for editing to finish.

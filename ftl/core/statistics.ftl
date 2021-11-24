@@ -69,8 +69,6 @@ statistics-studied-today =
        *[years] { statistics-in-time-span-years }
     } today
     ({ $secs-per-card }s/card)
-# eg, "Time taken to review card: 5s"
-statistics-seconds-taken = { $seconds }s
 statistics-today-title = Today
 statistics-today-again-count = Again count:
 statistics-today-type-counts = Learn: { $learnCount }, Review: { $reviewCount }, Relearn: { $relearnCount }, Filtered: { $filteredCount }
@@ -178,7 +176,6 @@ statistics-days-studied = Days studied
 statistics-average-answer-time-label = Average answer time
 statistics-average = Average
 statistics-average-interval = Average interval
-statistics-longest-interval = Longest interval
 statistics-due-tomorrow = Due tomorrow
 # eg 5 of 15 (33.3%)
 statistics-amount-of-total-with-percentage = { $amount } of { $total } ({ $percent }%)

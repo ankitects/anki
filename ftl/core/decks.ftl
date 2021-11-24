@@ -16,7 +16,6 @@ decks-latest-added-first = Latest added first
 decks-limit-to = Limit to
 decks-minutes = minutes
 decks-most-lapses = Most lapses
-decks-name-for-deck = Name for deck:
 decks-new-deck-name = New deck name:
 decks-no-deck = [no deck]
 decks-oldest-seen-first = Oldest seen first
