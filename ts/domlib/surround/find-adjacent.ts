@@ -1,11 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { nodeIsElement, elementIsEmpty } from "../../lib/dom";
+import { nodeIsElement, nodeIsText, elementIsEmpty } from "../../lib/dom";
 import { hasOnlyChild } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
 import { MatchResult } from "./matcher";
-import type { ElementMatcher } from "./matcher";
+import type { ElementMatcher, FoundAlong, FoundAdjacent } from "./matcher";
 
 /**
  * These functions will not ascend on the starting node, but will descend on the neighbor node
@@ -13,91 +13,68 @@ import type { ElementMatcher } from "./matcher";
 function adjacentNodeInner(getter: (node: Node) => ChildNode | null) {
     function findAdjacentNodeInner(
         node: Node,
-        matches: Element[],
-        keepMatches: Element[],
-        along: Element[],
+        matches: FoundAdjacent[],
         matcher: ElementMatcher,
     ): void {
-        const adjacent = getter(node);
+        let current = getter(node);
 
-        if (adjacent && nodeIsElement(adjacent)) {
-            let current: Element | null = adjacent;
+        const maybeAlong: (Element | Text)[] = [];
+        while (
+            current &&
+            ((nodeIsElement(current) && elementIsEmpty(current)) ||
+                (nodeIsText(current) && current.length === 0))
+        ) {
+            maybeAlong.push(current);
+            current = getter(current);
+        }
 
-            const maybeAlong: Element[] = [];
-            while (nodeIsElement(current) && elementIsEmpty(current)) {
-                const adjacentNext = getter(current);
-                maybeAlong.push(current);
+        while (current && nodeIsElement(current)) {
+            const element: Element = current;
+            const matchResult = matcher(element);
 
-                if (!adjacentNext || !nodeIsElement(adjacentNext)) {
-                    return;
-                } else {
-                    current = adjacentNext;
-                }
+            if (matchResult) {
+                matches.push(
+                    ...maybeAlong.map(
+                        (along: Element | Text): FoundAlong => ({
+                            element: along,
+                            matchType: MatchResult.ALONG,
+                        }),
+                    ),
+                );
+
+                matches.push({
+                    element,
+                    matchType: matchResult,
+                });
+
+                return findAdjacentNodeInner(element, matches, matcher);
             }
 
-            while (current) {
-                const matchResult = matcher(current);
-
-                if (matchResult) {
-                    along.push(...maybeAlong);
-
-                    switch (matchResult) {
-                        case MatchResult.MATCH:
-                            matches.push(current);
-                            break;
-                        case MatchResult.KEEP:
-                            keepMatches.push(current);
-                            break;
-                    }
-
-                    return findAdjacentNodeInner(
-                        current,
-                        matches,
-                        keepMatches,
-                        along,
-                        matcher,
-                    );
-                }
-
-                // descend down into element
-                current =
-                    hasOnlyChild(current) && nodeIsElement(current.firstChild!)
-                        ? current.firstChild
-                        : null;
-            }
+            // descend down into element
+            current =
+                hasOnlyChild(current) && nodeIsElement(element.firstChild!)
+                    ? element.firstChild
+                    : null;
         }
     }
 
     return findAdjacentNodeInner;
 }
 
-interface FindAdjacentResult {
-    /* elements adjacent which match matcher */
-    matches: Element[];
-    keepMatches: Element[];
-    /* element adjacent between found elements, which can
-     * be safely skipped (e.g. empty elements) */
-    along: Element[];
-}
-
 const findBeforeNodeInner = adjacentNodeInner(
     (node: Node): ChildNode | null => node.previousSibling,
 );
 
-function findBeforeNode(node: Node, matcher: ElementMatcher): FindAdjacentResult {
-    const matches: Element[] = [];
-    const keepMatches: Element[] = [];
-    const along: Element[] = [];
-
-    findBeforeNodeInner(node, matches, keepMatches, along, matcher);
-
-    return { matches, keepMatches, along };
+function findBeforeNode(node: Node, matcher: ElementMatcher): FoundAdjacent[] {
+    const matches: FoundAdjacent[] = [];
+    findBeforeNodeInner(node, matches, matcher);
+    return matches;
 }
 
 export function findBefore(
     childNodeRange: ChildNodeRange,
     matcher: ElementMatcher,
-): FindAdjacentResult {
+): FoundAdjacent[] {
     const { parent, startIndex } = childNodeRange;
     return findBeforeNode(parent.childNodes[startIndex], matcher);
 }
@@ -106,20 +83,16 @@ const findAfterNodeInner = adjacentNodeInner(
     (node: Node): ChildNode | null => node.nextSibling,
 );
 
-function findAfterNode(node: Node, matcher: ElementMatcher): FindAdjacentResult {
-    const matches: Element[] = [];
-    const keepMatches: Element[] = [];
-    const along: Element[] = [];
-
-    findAfterNodeInner(node, matches, keepMatches, along, matcher);
-
-    return { matches, keepMatches, along };
+function findAfterNode(node: Node, matcher: ElementMatcher): FoundAdjacent[] {
+    const matches: FoundAdjacent[] = [];
+    findAfterNodeInner(node, matches, matcher);
+    return matches;
 }
 
 export function findAfter(
     childNodeRange: ChildNodeRange,
     matcher: ElementMatcher,
-): FindAdjacentResult {
+): FoundAdjacent[] {
     const { parent, endIndex } = childNodeRange;
     return findAfterNode(parent.childNodes[endIndex - 1], matcher);
 }

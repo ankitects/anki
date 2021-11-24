@@ -65,11 +65,10 @@ function findAndClearWithin(
     return toRemove;
 }
 
-function prohibitOverlapse(range: AbstractRange): (node: Node) => boolean {
+function prohibitOverlapse(withNode: Node): (node: Node) => boolean {
     /* otherwise, they will be added to nodesToRemove twice
      * and will also be cleared twice */
-    return (node: Node) =>
-        !node.contains(range.endContainer) && !range.endContainer.contains(node);
+    return (node: Node) => !node.contains(withNode) && !withNode.contains(node);
 }
 
 interface FindNodesToRemoveResult {
@@ -107,7 +106,7 @@ function findNodesToRemove(
             aboveStart,
             matcher,
             clearer,
-            prohibitOverlapse(range),
+            aboveEnd ? prohibitOverlapse(aboveEnd.element) : () => true,
         );
         nodesToRemove.push(...matches);
     }

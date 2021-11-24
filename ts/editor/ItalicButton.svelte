@@ -9,12 +9,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithState from "../components/WithState.svelte";
     import { MatchResult } from "../domlib/surround";
     import { getPlatformString } from "../lib/shortcuts";
-    import { isSurrounded, surroundCommand } from "./surround";
+    import { getSurrounder } from "./surround";
     import { italicIcon } from "./icons";
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
     import type { RichTextInputAPI } from "./RichTextInput.svelte";
 
-    function matchItalic(element: Element): MatchResult {
+    function matchItalic(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
         if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
             return MatchResult.NO_MATCH;
         }
@@ -45,20 +45,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: input = $activeInput;
     $: disabled = !$focusInRichText;
+    $: surrounder = disabled ? null : getSurrounder(input as RichTextInputAPI);
 
     function updateStateFromActiveInput(): Promise<boolean> {
         return !input || input.name === "plain-text"
             ? Promise.resolve(false)
-            : isSurrounded(input, matchItalic);
+            : surrounder!.isSurrounded(matchItalic);
     }
 
+    const element = document.createElement("em");
     function makeItalic(): void {
-        surroundCommand(
-            input as RichTextInputAPI,
-            document.createElement("em"),
-            matchItalic,
-            clearItalic,
-        );
+        surrounder!.surroundCommand(element, matchItalic, clearItalic);
     }
 
     const keyCombination = "Control+I";

@@ -9,12 +9,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithState from "../components/WithState.svelte";
     import { MatchResult } from "../domlib/surround";
     import { getPlatformString } from "../lib/shortcuts";
-    import { isSurrounded, surroundCommand } from "./surround";
+    import { getSurrounder } from "./surround";
     import { underlineIcon } from "./icons";
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
     import type { RichTextInputAPI } from "./RichTextInput.svelte";
 
-    function matchUnderline(element: Element): MatchResult {
+    function matchUnderline(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
         if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
             return MatchResult.NO_MATCH;
         }
@@ -30,19 +30,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: input = $activeInput;
     $: disabled = !$focusInRichText;
+    $: surrounder = disabled ? null : getSurrounder(input as RichTextInputAPI);
 
     function updateStateFromActiveInput(): Promise<boolean> {
         return !input || input.name === "plain-text"
             ? Promise.resolve(false)
-            : isSurrounded(input, matchUnderline);
+            : surrounder!.isSurrounded(matchUnderline);
     }
 
+    const element = document.createElement("u");
     function makeUnderline(): void {
-        surroundCommand(
-            input as RichTextInputAPI,
-            document.createElement("u"),
-            matchUnderline,
-        );
+        surrounder!.surroundCommand(element, matchUnderline);
     }
 
     const keyCombination = "Control+U";
