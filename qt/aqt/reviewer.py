@@ -461,7 +461,7 @@ class Reviewer:
             ("Shift+v", self.onRecordVoice),
             ("o", self.onOptions),
             ("i", self.on_card_info),
-            ("Alt+i", self.on_previous_card_info),
+            ("Ctrl+Alt+i", self.on_previous_card_info),
             ("1", lambda: self._answerCard(1)),
             ("2", lambda: self._answerCard(2)),
             ("3", lambda: self._answerCard(3)),
