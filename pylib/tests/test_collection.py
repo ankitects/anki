@@ -10,7 +10,7 @@ from anki.collection import Collection as aopen
 from anki.dbproxy import emulate_named_args
 from anki.lang import TR, without_unicode_isolation
 from anki.stdmodels import _legacy_add_basic_model, get_stock_notetypes
-from anki.utils import isWin
+from anki.utils import is_win
 from tests.shared import assertException, getEmptyCol
 
 
@@ -34,7 +34,7 @@ def test_create_open():
     col.close()
 
     # non-writeable dir
-    if isWin:
+    if is_win:
         dir = "c:\root.anki2"
     else:
         dir = "/attachroot.anki2"

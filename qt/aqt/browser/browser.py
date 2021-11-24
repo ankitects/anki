@@ -15,7 +15,7 @@ from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
 from anki.notes import NoteId
 from anki.tags import MARKED_TAG
-from anki.utils import isMac
+from anki.utils import is_mac
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
@@ -177,7 +177,7 @@ class Browser(QMainWindow):
         qconnect(f.actionRedo.triggered, self.redo)
         qconnect(f.actionInvertSelection.triggered, self.table.invert_selection)
         qconnect(f.actionSelectNotes.triggered, self.selectNotes)
-        if not isMac:
+        if not is_mac:
             f.actionClose.setVisible(False)
         qconnect(f.actionCreateFilteredDeck.triggered, self.createFilteredDeck)
         f.actionCreateFilteredDeck.setShortcuts(["Ctrl+G", "Ctrl+Alt+G"])

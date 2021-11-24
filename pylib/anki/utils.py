@@ -212,7 +212,7 @@ def no_bundled_libs() -> Iterator[None]:
 def call(argv: list[str], wait: bool = True, **kwargs: Any) -> int:
     "Execute a command. If WAIT, return exit code."
     # ensure we don't open a separate window for forking process on windows
-    if isWin:
+    if is_win:
         info = subprocess.STARTUPINFO()  # type: ignore
         try:
             info.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # type: ignore
@@ -245,10 +245,11 @@ def call(argv: list[str], wait: bool = True, **kwargs: Any) -> int:
 # OS helpers
 ##############################################################################
 
-isMac = sys.platform.startswith("darwin")
-isWin = sys.platform.startswith("win32")
-isLin = not isMac and not isWin
-devMode = os.getenv("ANKIDEV", "")
+is_mac = sys.platform.startswith("darwin")
+is_win = sys.platform.startswith("win32")
+# also covers *BSD
+is_lin = not is_mac and not is_win
+dev_mode = os.getenv("ANKIDEV", "")
 
 INVALID_FILENAME_CHARS = ':*?"<>|'
 
@@ -257,9 +258,9 @@ def invalid_filename(str: str, dirsep: bool = True) -> str | None:
     for char in INVALID_FILENAME_CHARS:
         if char in str:
             return char
-    if (dirsep or isWin) and "/" in str:
+    if (dirsep or is_win) and "/" in str:
         return "/"
-    elif (dirsep or not isWin) and "\\" in str:
+    elif (dirsep or not is_win) and "\\" in str:
         return "\\"
     elif str.strip().startswith("."):
         return "."
@@ -272,9 +273,9 @@ def plat_desc() -> str:
     for _ in range(100):
         try:
             system = platform.system()
-            if isMac:
+            if is_mac:
                 theos = f"mac:{platform.mac_ver()[0]}"
-            elif isWin:
+            elif is_win:
                 theos = f"win:{platform.win32_ver()[0]}"
             elif system == "Linux":
                 import distro  # pytype: disable=import-error # pylint: disable=import-error

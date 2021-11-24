@@ -33,7 +33,7 @@ from anki._backend import RustBackend
 from anki.buildinfo import version as _version
 from anki.collection import Collection
 from anki.consts import HELP_SITE
-from anki.utils import checksum, isLin, isMac
+from anki.utils import checksum, is_lin, is_mac
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import TR, tr
@@ -238,7 +238,7 @@ def setupLangAndBackend(
     # load qt translations
     _qtrans = QTranslator()
 
-    if isMac and getattr(sys, "frozen", False):
+    if is_mac and getattr(sys, "frozen", False):
         qt_dir = os.path.join(sys.prefix, "../Resources/qt_translations")
     else:
         if qtmajor == 5:
@@ -331,7 +331,7 @@ def parseArgs(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
     "Returns (opts, args)."
     # py2app fails to strip this in some instances, then anki dies
     # as there's no such profile
-    if isMac and len(argv) > 1 and argv[1].startswith("-psn"):
+    if is_mac and len(argv) > 1 and argv[1].startswith("-psn"):
         argv = [argv[0]]
     parser = argparse.ArgumentParser(description=f"Anki {appVersion}")
     parser.usage = "%(prog)s [OPTIONS] [file to import/add-on to install]"
@@ -353,13 +353,13 @@ def parseArgs(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
 
 
 def setupGL(pm: aqt.profiles.ProfileManager) -> None:
-    if isMac:
+    if is_mac:
         return
 
     driver = pm.video_driver()
 
     # work around pyqt loading wrong GL library
-    if isLin:
+    if is_lin:
         import ctypes
 
         ctypes.CDLL("libGL.so.1", ctypes.RTLD_GLOBAL)
@@ -412,11 +412,11 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
     if driver == VideoDriver.OpenGL:
         pass
     else:
-        if isWin:
+        if is_win:
             os.environ["QT_OPENGL"] = driver.value
-        elif isMac:
+        elif is_mac:
             QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL)
-        elif isLin:
+        elif is_lin:
             os.environ["QT_XCB_FORCE_SOFTWARE_OPENGL"] = "1"
 
 
@@ -521,7 +521,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL)
 
     if (
-        isWin
+        is_win
         and qtmajor == 5
         and (qtminor == 14 or (qtminor == 15 and qtpoint == 0))
         and "QT_QPA_PLATFORM" not in os.environ
@@ -545,11 +545,11 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         return None
 
     # disable icons on mac; this must be done before window created
-    if isMac:
+    if is_mac:
         app.setAttribute(Qt.ApplicationAttribute.AA_DontShowIconsInMenus)
 
     # disable help button in title bar on qt versions that support it
-    if isWin and qtmajor == 5 and qtminor >= 10:
+    if is_win and qtmajor == 5 and qtminor >= 10:
         QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton)  # type: ignore
 
     # proxy configured?
@@ -606,7 +606,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
     backend = setupLangAndBackend(pm, app, opts.lang, pmLoadResult.firstTime)
 
     driver = pm.video_driver()
-    if isLin and driver == VideoDriver.OpenGL:
+    if is_lin and driver == VideoDriver.OpenGL:
         from aqt.utils import gfxDriverIsBroken
 
         if gfxDriverIsBroken():

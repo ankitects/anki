@@ -9,7 +9,7 @@ from typing import Any, Callable, Optional, Sequence, cast
 
 import anki
 from anki.lang import is_rtl
-from anki.utils import isLin, isMac, isWin
+from anki.utils import is_lin, is_mac, is_win
 from aqt import colors, gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
@@ -265,7 +265,7 @@ class AnkiWebView(QWebEngineView):
             isinstance(evt, QMouseEvent)
             and evt.type() == QEvent.Type.MouseButtonRelease
         ):
-            if evt.button() == Qt.MouseButton.MiddleButton and isLin:
+            if evt.button() == Qt.MouseButton.MiddleButton and is_lin:
                 self.onMiddleClickPaste()
                 return True
             return False
@@ -356,7 +356,7 @@ class AnkiWebView(QWebEngineView):
         if webscale:
             return float(webscale)
 
-        if qtmajor > 5 or isMac:
+        if qtmajor > 5 or is_mac:
             return 1
         screen = QApplication.desktop().screen()  # type: ignore
         if screen is None:
@@ -364,7 +364,7 @@ class AnkiWebView(QWebEngineView):
 
         dpi = screen.logicalDpiX()
         factor = dpi / 96.0
-        if isLin:
+        if is_lin:
             factor = max(1, factor)
             return factor
         return 1
@@ -388,7 +388,7 @@ class AnkiWebView(QWebEngineView):
     def get_window_bg_color(self, night_mode: bool) -> QColor:
         if night_mode:
             return QColor(colors.WINDOW_BG[1])
-        elif isMac:
+        elif is_mac:
             # standard palette does not return correct window color on macOS
             return QColor("#ececec")
         else:
@@ -398,13 +398,13 @@ class AnkiWebView(QWebEngineView):
         palette = theme_manager.default_palette
         color_hl = palette.color(QPalette.ColorRole.Highlight).name()
 
-        if isWin:
+        if is_win:
             # T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
             family = tr.qt_misc_segoe_ui()
             button_style = "button { font-family:%s; }" % family
             button_style += "\n:focus { outline: 1px solid %s; }" % color_hl
             font = f"font-size:12px;font-family:{family};"
-        elif isMac:
+        elif is_mac:
             family = "Helvetica"
             font = f'font-size:15px;font-family:"{family}";'
             button_style = """

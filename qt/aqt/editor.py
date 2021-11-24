@@ -29,7 +29,7 @@ from anki.consts import MODEL_CLOZE
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
 from anki.notes import Note, NoteFieldsCheckResult
-from anki.utils import checksum, isLin, isWin, namedtmp
+from anki.utils import checksum, is_lin, is_win, namedtmp
 from aqt import AnkiQt, colors, gui_hooks
 from aqt.operations import QueryOp
 from aqt.operations.note import update_note
@@ -331,7 +331,7 @@ noteEditorPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
             parent=self.parentWindow,
             fill_empty=False,
         )
-        if isWin:
+        if is_win:
             self.parentWindow.activateWindow()
 
     # JS->Python bridge
@@ -988,7 +988,7 @@ noteEditorPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
     # choose new colour
     @deprecated(info=_js_legacy)
     def onChangeCol(self) -> None:
-        if isLin:
+        if is_lin:
             new = QColorDialog.getColor(
                 QColor(self.fcolour),
                 None,
@@ -1277,7 +1277,7 @@ class EditorWebView(AnkiWebView):
         # add a comment in the clipboard html so we can tell text is copied
         # from us and doesn't need to be stripped
         clip = self.editor.mw.app.clipboard()
-        if not isMac and not clip.ownsClipboard():
+        if not is_mac and not clip.ownsClipboard():
             return
         mime = clip.mimeData()
         if not mime.hasHtml():

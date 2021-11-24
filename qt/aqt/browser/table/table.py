@@ -10,7 +10,7 @@ from anki.cards import Card, CardId
 from anki.collection import Collection, Config, OpChanges
 from anki.consts import *
 from anki.notes import Note, NoteId
-from anki.utils import isWin
+from anki.utils import is_win
 from aqt import colors, gui_hooks
 from aqt.browser.table import Columns, ItemId, SearchContext
 from aqt.browser.table.model import DataModel
@@ -375,7 +375,7 @@ class Table:
     def _setup_headers(self) -> None:
         vh = self._view.verticalHeader()
         hh = self._view.horizontalHeader()
-        if not isWin:
+        if not is_win:
             vh.hide()
             hh.show()
         hh.setHighlightSections(False)

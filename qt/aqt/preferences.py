@@ -295,12 +295,12 @@ def video_driver_name_for_platform(driver: VideoDriver) -> str:
     if driver == VideoDriver.ANGLE:
         return tr.preferences_video_driver_angle()
     elif driver == VideoDriver.Software:
-        if isMac:
+        if is_mac:
             return tr.preferences_video_driver_software_mac()
         else:
             return tr.preferences_video_driver_software_other()
     else:
-        if isMac:
+        if is_mac:
             return tr.preferences_video_driver_opengl_mac()
         else:
             return tr.preferences_video_driver_opengl_other()
