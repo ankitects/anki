@@ -6,11 +6,12 @@
 from __future__ import annotations
 
 import os
+import subprocess
 import sys
 from ctypes import CDLL
 
 import aqt.utils
-from anki.utils import isMac, isWin
+from anki.utils import isLin, isMac, isWin
 
 
 def get_windows_dark_mode() -> bool:
@@ -54,6 +55,26 @@ def get_macos_dark_mode() -> bool:
         # swallow exceptions, as library will fail on macOS 10.13
         print(e)
         return False
+
+
+def get_linux_dark_mode() -> bool:
+    """True if Linux system is in dark mode.
+    This only works if the GTK theme name contains '-dark'"""
+    if not isLin:
+        return False
+    try:
+        process = subprocess.run(
+            ["gsettings", "get", "org.gnome.desktop.interface", "gtk-theme"],
+            check=True,
+            capture_output=True,
+            encoding="utf8",
+        )
+    except FileNotFoundError as e:
+        # swallow exceptions, as gsettings may not be installed
+        print(e)
+        return False
+
+    return "-dark" in process.stdout.lower()
 
 
 _ankihelper_dll: CDLL | None = None

@@ -10,7 +10,12 @@ from dataclasses import dataclass
 import aqt
 from anki.utils import isMac
 from aqt import QApplication, colors, gui_hooks, isWin
-from aqt.platform import get_macos_dark_mode, get_windows_dark_mode, set_macos_dark_mode
+from aqt.platform import (
+    get_linux_dark_mode,
+    get_macos_dark_mode,
+    get_windows_dark_mode,
+    set_macos_dark_mode,
+)
 from aqt.qt import (
     QColor,
     QGuiApplication,
@@ -164,8 +169,7 @@ class ThemeManager:
             elif isMac:
                 return get_macos_dark_mode()
             else:
-                # not supported on Linux
-                return False
+                return get_linux_dark_mode()
 
     def apply_style_if_system_style_changed(self) -> None:
         theme = aqt.mw.pm.theme()
