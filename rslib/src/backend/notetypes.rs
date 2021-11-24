@@ -190,6 +190,7 @@ impl From<pb::Notetype> for Notetype {
 impl From<NotetypeChangeInfo> for pb::ChangeNotetypeInfo {
     fn from(i: NotetypeChangeInfo) -> Self {
         pb::ChangeNotetypeInfo {
+            old_notetype_name: i.old_notetype_name,
             old_field_names: i.old_field_names,
             old_template_names: i.old_template_names,
             new_field_names: i.new_field_names,
@@ -204,6 +205,7 @@ impl From<pb::ChangeNotetypeRequest> for ChangeNotetypeInput {
         ChangeNotetypeInput {
             current_schema: i.current_schema.into(),
             note_ids: i.note_ids.into_newtype(NoteId),
+            old_notetype_name: i.old_notetype_name,
             old_notetype_id: i.old_notetype_id.into(),
             new_notetype_id: i.new_notetype_id.into(),
             new_fields: i
@@ -232,6 +234,7 @@ impl From<ChangeNotetypeInput> for pb::ChangeNotetypeRequest {
         pb::ChangeNotetypeRequest {
             current_schema: i.current_schema.into(),
             note_ids: i.note_ids.into_iter().map(Into::into).collect(),
+            old_notetype_name: i.old_notetype_name,
             old_notetype_id: i.old_notetype_id.into(),
             new_notetype_id: i.new_notetype_id.into(),
             new_fields: i

@@ -167,6 +167,7 @@ message ChangeNotetypeRequest {
   int64 old_notetype_id = 4;
   int64 new_notetype_id = 5;
   int64 current_schema = 6;
+  string old_notetype_name = 7;
 }
 
 message ChangeNotetypeInfo {
@@ -175,4 +176,5 @@ message ChangeNotetypeInfo {
   repeated string new_field_names = 3;
   repeated string new_template_names = 4;
   ChangeNotetypeRequest input = 5;
+  string old_notetype_name = 6;
 }
