@@ -9,7 +9,6 @@ import { ChangeNotetypeState, getChangeNotetypeInfo, getNotetypeNames } from "./
 import { setupI18n, ModuleName } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
 import ChangeNotetypePage from "./ChangeNotetypePage.svelte";
-import { nightModeKey } from "../components/context-keys";
 
 export async function changeNotetypePage(
     target: HTMLDivElement,
@@ -28,14 +27,11 @@ export async function changeNotetypePage(
         }),
     ]);
 
-    const nightMode = checkNightMode();
-    const context = new Map();
-    context.set(nightModeKey, nightMode);
+    checkNightMode();
 
     const state = new ChangeNotetypeState(names, info);
     return new ChangeNotetypePage({
         target,
         props: { state },
-        context,
     } as any);
 }

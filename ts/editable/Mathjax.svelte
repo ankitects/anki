@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onMount, onDestroy, getContext, tick } from "svelte";
-    import { nightModeKey } from "../components/context-keys";
+    import { onMount, onDestroy, tick } from "svelte";
+    import { pageTheme } from "../sveltelib/theme";
     import { convertMathjax } from "./mathjax";
 
     export let mathjax: string;
@@ -14,9 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /* have fixed fontSize for normal */
     export const fontSize: number = 20;
 
-    const nightMode = getContext<boolean>(nightModeKey);
-
-    $: [converted, title] = convertMathjax(mathjax, nightMode, fontSize);
+    $: [converted, title] = convertMathjax(mathjax, $pageTheme.isDark, fontSize);
     $: empty = title === "MathJax";
 
     let encoded: string;

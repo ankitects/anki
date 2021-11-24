@@ -3,14 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { getContext } from "svelte";
-    import { nightModeKey } from "../components/context-keys";
+    import { pageTheme } from "../sveltelib/theme";
 
     export let value: number;
     export let min = 1;
     export let max = 9999;
-
-    const nightMode = getContext<boolean>(nightModeKey);
 
     function checkMinMax() {
         if (value > max) {
@@ -29,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {max}
     bind:value
     class="spin-box form-control"
-    class:nightMode
+    class:nightMode={$pageTheme.isDark}
     on:blur={checkMinMax}
 />
 

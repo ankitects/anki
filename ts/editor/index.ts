@@ -62,16 +62,8 @@ export const i18n = setupI18n({
 
 import OldEditorAdapter from "./OldEditorAdapter.svelte";
 import type { NoteEditorAPI } from "./OldEditorAdapter.svelte";
-import { nightModeKey } from "../components/context-keys";
 
 async function setupNoteEditor(): Promise<NoteEditorAPI> {
-    const context = new Map<symbol, unknown>();
-
-    context.set(
-        nightModeKey,
-        document.documentElement.classList.contains("night-mode"),
-    );
-
     await i18n;
 
     const api: Partial<NoteEditorAPI> = {};
@@ -79,7 +71,6 @@ async function setupNoteEditor(): Promise<NoteEditorAPI> {
     const noteEditor = new OldEditorAdapter({
         target: document.body,
         props: { api: api as NoteEditorAPI },
-        context,
     });
 
     Object.assign(globalThis, {
