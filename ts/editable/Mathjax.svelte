@@ -2,65 +2,84 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script lang="ts">
-    import { onMount, onDestroy, tick } from "svelte";
-    import { pageTheme } from "../sveltelib/theme";
-    import { convertMathjax } from "./mathjax";
+<script context="module" lang="ts">
+    import type { Writable } from "svelte/store";
 
-    export let mathjax: string;
-    export let block: boolean;
-    export let autofocus = false;
+    const imageToHeightMap = new Map<string, Writable<number>>();
+    const observer = new ResizeObserver((entries: ResizeObserverEntry[]) => {
+        for (const entry of entries) {
+            const image = entry.target as HTMLImageElement;
+            const store = imageToHeightMap.get(image.dataset.uuid!)!;
+            store.set(entry.contentRect.height);
 
-    /* have fixed fontSize for normal */
-    export const fontSize: number = 20;
-
-    $: [converted, title] = convertMathjax(mathjax, $pageTheme.isDark, fontSize);
-    $: empty = title === "MathJax";
-
-    let encoded: string;
-    let imageHeight: number;
-
-    $: encoded = encodeURIComponent(converted);
-
-    let image: HTMLImageElement;
-
-    const observer = new ResizeObserver(async () => {
-        imageHeight = image.getBoundingClientRect().height;
-        await tick();
-        setTimeout(() => image.dispatchEvent(new Event("resize")));
-    });
-
-    onMount(() => {
-        observer.observe(image);
-
-        if (autofocus) {
-            // This should trigger a focusing of the Mathjax Handle
-            const focusEvent = new CustomEvent("focusmathjax", {
-                detail: image,
-                bubbles: true,
-                composed: true,
-            });
-
-            image.dispatchEvent(focusEvent);
+            setTimeout(() => entry.target.dispatchEvent(new Event("resize")));
         }
-    });
-
-    onDestroy(() => {
-        observer.unobserve(image);
-        observer.disconnect();
     });
 </script>
 
+<script lang="ts">
+    import { onDestroy } from "svelte";
+    import { pageTheme } from "../sveltelib/theme";
+    import { convertMathjax } from "./mathjax";
+    import { randomUUID } from "../lib/uuid";
+    import { writable } from "svelte/store";
+
+    export let mathjax: string;
+    export let block: boolean;
+
+    export let autofocus = false;
+    export let fontSize = 20;
+
+    $: [converted, title] = convertMathjax(mathjax, $pageTheme.isDark, fontSize);
+    $: empty = title === "MathJax";
+    $: encoded = encodeURIComponent(converted);
+
+    const uuid = randomUUID();
+    const imageHeight = writable(0);
+    imageToHeightMap.set(uuid, imageHeight);
+
+    $: verticalCenter = -$imageHeight / 2 + fontSize / 4;
+
+    function maybeAutofocus(image: Element): void {
+        if (!autofocus) {
+            return;
+        }
+
+        // This should trigger a focusing of the Mathjax Handle
+        const focusEvent = new CustomEvent("focusmathjax", {
+            detail: image,
+            bubbles: true,
+            composed: true,
+        });
+
+        image.dispatchEvent(focusEvent);
+    }
+
+    function observe(image: Element) {
+        observer.observe(image);
+
+        return {
+            destroy() {
+                observer.unobserve(image);
+            },
+        };
+    }
+
+    onDestroy(() => imageToHeightMap.delete(uuid));
+</script>
+
 <img
-    bind:this={image}
     src="data:image/svg+xml,{encoded}"
     class:block
     class:empty
-    style="--vertical-center: {-imageHeight / 2 + fontSize / 4}px;"
+    style="--vertical-center: {verticalCenter}px;"
     alt="Mathjax"
     {title}
     data-anki="mathjax"
+    data-uuid={uuid}
     on:dragstart|preventDefault
+    use:maybeAutofocus
+    use:observe
 />
 
 <style lang="scss">
@@ -74,7 +93,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .block {
         display: block;
-        margin: auto;
+        margin: 1rem auto;
     }
 
     .empty {

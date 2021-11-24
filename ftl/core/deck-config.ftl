@@ -202,7 +202,6 @@ deck-config-clone-group = Clone Preset
 ## Removing
 
 deck-config-remove-group = Remove Preset
-deck-config-confirm-normal = Remove { $name }?
 deck-config-will-require-full-sync =
     The requested change will require a one-way sync. If you have made changes
     on another device, and not synced them to this device yet, please do so before

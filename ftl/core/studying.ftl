@@ -55,8 +55,3 @@ studying-minute =
         [one] { $count } minute.
        *[other] { $count } minutes.
     }
-studying-note-and-its-card-deleted =
-    { $count ->
-        [one] Note and its { $count } card deleted.
-       *[other] Note and its { $count } cards deleted.
-    }

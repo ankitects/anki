@@ -52,6 +52,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @use "sass/button-mixins" as button;
 
     button {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         padding: 0 calc(var(--buttons-size) / 3);
         font-size: var(--base-font-size);
         width: auto;

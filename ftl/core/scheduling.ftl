@@ -98,6 +98,9 @@ scheduling-update-done = Scheduler updated successfully.
 scheduling-update-button = Update
 scheduling-update-later-button = Later
 scheduling-update-more-info-button = Learn More
+scheduling-update-required =
+    Your collection needs to be upgraded to the V2 scheduler.
+    Please select { scheduling-update-more-info-button } before proceeding.
 
 ## Other scheduling strings
 
@@ -108,7 +111,6 @@ scheduling-bury-related-new-cards-until-the = Bury related new cards until the n
 scheduling-bury-related-reviews-until-the-next = Bury related reviews until the next day
 scheduling-days = days
 scheduling-description = Description
-scheduling-description-to-show-on-overview-screen = Description to show on overview screen, for current deck:
 scheduling-easy-bonus = Easy bonus
 scheduling-easy-interval = Easy interval
 scheduling-end = (end)

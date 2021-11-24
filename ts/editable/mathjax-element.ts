@@ -9,6 +9,8 @@ import "mathjax/es5/tex-svg-full";
 
 import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
 import { nodeIsElement } from "../lib/dom";
+import { noop } from "../lib/functional";
+import { placeCaretAfter } from "../domlib/place-caret";
 
 import Mathjax_svelte from "./Mathjax.svelte";
 
@@ -32,16 +34,6 @@ function moveNodeOutOfElement(
     }
 
     return referenceNode;
-}
-
-function placeCaretAfter(node: Node): void {
-    const range = new Range();
-    range.setStartAfter(node);
-    range.collapse(false);
-
-    const selection = document.getSelection()!;
-    selection.removeAllRanges();
-    selection.addRange(range);
 }
 
 function moveNodesInsertedOutside(element: Element, allowedChild: Node): () => void {
@@ -122,9 +114,7 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
     }
 
     block = false;
-    disconnect: () => void = () => {
-        /* noop */
-    };
+    disconnect = noop;
     component?: Mathjax_svelte;
 
     static get observedAttributes(): string[] {
