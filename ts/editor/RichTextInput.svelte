@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type CustomStyles from "./CustomStyles.svelte";
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import contextProperty from "../sveltelib/context-property";
-    import type { OnInsertCallback } from "../sveltelib/input-manager";
+    import type { OnNextInsertTrigger } from "../sveltelib/input-manager";
 
     export interface RichTextInputAPI extends EditingInputAPI {
         name: "rich-text";
@@ -17,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         toggle(): boolean;
         surround(before: string, after: string): void;
         preventResubscription(): () => void;
-        triggerOnInsert(callback: OnInsertCallback): () => void;
+        getTriggerOnNextInsert(): OnNextInsertTrigger;
     }
 
     export interface RichTextInputContextAPI {
@@ -161,7 +161,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import getInputManager from "../sveltelib/input-manager";
 
     const { mirror, preventResubscription } = getDOMMirror();
-    const { manager, triggerOnInsert } = getInputManager();
+    const { manager, getTriggerOnNextInsert } = getInputManager();
 
     function moveCaretToEnd() {
         richTextPromise.then(caretToEnd);
@@ -210,7 +210,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             );
         },
         preventResubscription,
-        triggerOnInsert,
+        getTriggerOnNextInsert,
     };
 
     function pushUpdate(): void {

@@ -34,6 +34,31 @@ describe("unsurround text", () => {
     });
 });
 
+describe("unsurround element and text", () => {
+    let body: HTMLBodyElement;
+
+    beforeEach(() => {
+        body = p("<b>before</b>after");
+    });
+
+    test("normalizes nodes", () => {
+        const range = new Range();
+        range.setStartBefore(body.childNodes[0].firstChild!);
+        range.setEndAfter(body.childNodes[1]);
+
+        const { addedNodes, removedNodes, surroundedRange } = unsurround(
+            range,
+            document.createElement("b"),
+            body,
+        );
+
+        expect(addedNodes).toHaveLength(0);
+        expect(removedNodes).toHaveLength(1);
+        expect(body).toHaveProperty("innerHTML", "beforeafter");
+        expect(surroundedRange.toString()).toEqual("beforeafter");
+    });
+});
+
 describe("unsurround element with surrounding text", () => {
     let body: HTMLBodyElement;
 

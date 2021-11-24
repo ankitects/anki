@@ -9,12 +9,16 @@ export enum MatchResult {
     /* Element matches the predicate, but may not be removed
      * This typically means that the element has other properties which prevent it from being removed */
     KEEP,
+    /* Element (or Text) is situated adjacent to a match */
+    ALONG,
 }
 
 /**
  * Should be pure
  */
-export type ElementMatcher = (element: Element) => MatchResult;
+export type ElementMatcher = (
+    element: Element,
+) => Exclude<MatchResult, MatchResult.ALONG>;
 
 /**
  * Is applied to values that match with KEEP
@@ -23,12 +27,19 @@ export type ElementMatcher = (element: Element) => MatchResult;
 export type ElementClearer = (element: Element) => boolean;
 
 export const matchTagName =
-    (tagName: string) =>
-    (element: Element): MatchResult => {
+    (tagName: string): ElementMatcher =>
+    (element: Element) => {
         return element.matches(tagName) ? MatchResult.MATCH : MatchResult.NO_MATCH;
     };
 
 export interface FoundMatch {
     element: Element;
-    matchType: Exclude<MatchResult, MatchResult.NO_MATCH>;
+    matchType: Exclude<MatchResult, MatchResult.NO_MATCH | MatchResult.ALONG>;
 }
+
+export interface FoundAlong {
+    element: Element | Text;
+    matchType: MatchResult.ALONG;
+}
+
+export type FoundAdjacent = FoundMatch | FoundAlong;
