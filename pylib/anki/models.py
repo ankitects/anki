@@ -304,12 +304,14 @@ class ModelManager(DeprecatedNamesMixin):
     def rename_field(
         self, notetype: NotetypeDict, field: FieldDict, new_name: str
     ) -> None:
-        assert field in notetype["flds"]
+        if not field in notetype["flds"]:
+            raise Exception("invalid field")
         field["name"] = new_name
 
     def set_sort_index(self, notetype: NotetypeDict, idx: int) -> None:
         "Modifies schema."
-        assert 0 <= idx < len(notetype["flds"])
+        if not 0 <= idx < len(notetype["flds"]):
+            raise Exception("invalid sort index")
         notetype["sortf"] = idx
 
     # Adding & changing templates
@@ -332,7 +334,8 @@ class ModelManager(DeprecatedNamesMixin):
 
     def remove_template(self, notetype: NotetypeDict, template: TemplateDict) -> None:
         "Modifies schema."
-        assert len(notetype["tmpls"]) > 1
+        if not len(notetype["tmpls"]) > 1:
+            raise Exception("must have 1 template")
         notetype["tmpls"].remove(template)
 
     def reposition_template(

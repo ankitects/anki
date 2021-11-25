@@ -72,7 +72,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         elif rating == CardAnswer.EASY:
             new_state = states.easy
         else:
-            assert False, "invalid rating"
+            raise Exception("invalid rating")
 
         return CardAnswer(
             card_id=card.id,
@@ -157,7 +157,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         elif ease == BUTTON_FOUR:
             rating = CardAnswer.EASY
         else:
-            assert False, "invalid ease"
+            raise Exception("invalid ease")
 
         states = self.col._backend.get_next_card_states(card.id)
         changes = self.answer_card(
@@ -223,7 +223,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         elif ease == BUTTON_FOUR:
             new_state = states.easy
         else:
-            assert False, "invalid ease"
+            raise Exception("invalid ease")
 
         return self._interval_for_state(new_state)
 

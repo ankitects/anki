@@ -109,7 +109,8 @@ class DeckManager(DeprecatedNamesMixin):
 
     def add_deck_legacy(self, deck: DeckDict) -> OpChangesWithId:
         "Add a deck created with new_deck_legacy(). Must have id of 0."
-        assert deck["id"] == 0
+        if not deck["id"] == 0:
+            raise Exception("id should be 0")
         return self.col._backend.add_deck_legacy(to_json_bytes(deck))
 
     def id(

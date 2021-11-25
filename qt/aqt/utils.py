@@ -431,7 +431,8 @@ def getFile(
     multi: bool = False,  # controls whether a single or multiple files is returned
 ) -> Sequence[str] | str | None:
     "Ask the user for a file."
-    assert not dir or not key
+    if dir and key:
+        raise Exception("expected dir or key")
     if not dir:
         dirkey = f"{key}Directory"
         dir = aqt.mw.pm.profile.get(dirkey, "")
