@@ -4,18 +4,16 @@
 from __future__ import annotations
 
 import enum
+import os
 import platform
+import subprocess
+import sys
+from ctypes import CDLL
 from dataclasses import dataclass
 
 import aqt
-from anki.utils import is_mac
-from aqt import QApplication, colors, gui_hooks, is_win
-from aqt.platform import (
-    get_linux_dark_mode,
-    get_macos_dark_mode,
-    get_windows_dark_mode,
-    set_macos_dark_mode,
-)
+from anki.utils import is_lin, is_mac, is_win
+from aqt import QApplication, colors, gui_hooks
 from aqt.qt import (
     QColor,
     QGuiApplication,
@@ -315,6 +313,84 @@ QTabWidget {{ background-color: {}; }}
         s.colSusp = self.color(colors.SUSPENDED_BG)
         s.colMature = self.color(colors.REVIEW_COUNT)
         s._legacy_nightmode = self._night_mode_preference
+
+
+def get_windows_dark_mode() -> bool:
+    "True if Windows system is currently in dark mode."
+    if not is_win:
+        return False
+
+    from winreg import (  # pylint: disable=import-error
+        HKEY_CURRENT_USER,
+        OpenKey,
+        QueryValueEx,
+    )
+
+    key = OpenKey(
+        HKEY_CURRENT_USER,
+        r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
+    )
+    return not QueryValueEx(key, "AppsUseLightTheme")[0]
+
+
+def set_macos_dark_mode(enabled: bool) -> bool:
+    "True if setting successful."
+    if not is_mac:
+        return False
+    try:
+        _ankihelper().set_darkmode_enabled(enabled)
+        return True
+    except Exception as e:
+        # swallow exceptions, as library will fail on macOS 10.13
+        print(e)
+    return False
+
+
+def get_macos_dark_mode() -> bool:
+    "True if macOS system is currently in dark mode."
+    if not is_mac:
+        return False
+    try:
+        return _ankihelper().system_is_dark()
+    except Exception as e:
+        # swallow exceptions, as library will fail on macOS 10.13
+        print(e)
+        return False
+
+
+def get_linux_dark_mode() -> bool:
+    """True if Linux system is in dark mode.
+    This only works if the GTK theme name contains '-dark'"""
+    if not is_lin:
+        return False
+    try:
+        process = subprocess.run(
+            ["gsettings", "get", "org.gnome.desktop.interface", "gtk-theme"],
+            check=True,
+            capture_output=True,
+            encoding="utf8",
+        )
+    except FileNotFoundError as e:
+        # swallow exceptions, as gsettings may not be installed
+        print(e)
+        return False
+
+    return "-dark" in process.stdout.lower()
+
+
+_ankihelper_dll: CDLL | None = None
+
+
+def _ankihelper() -> CDLL:
+    global _ankihelper_dll
+    if _ankihelper_dll:
+        return _ankihelper_dll
+    if getattr(sys, "frozen", False):
+        path = os.path.join(sys.prefix, "libankihelper.dylib")
+    else:
+        path = os.path.join(aqt.utils.aqt_data_folder(), "lib", "libankihelper.dylib")
+    _ankihelper_dll = CDLL(path)
+    return _ankihelper_dll
 
 
 theme_manager = ThemeManager()
