@@ -117,7 +117,8 @@ class NoteImporter(Importer):
 
     def importNotes(self, notes: list[ForeignNote]) -> None:
         "Convert each card into a note, apply attributes and add to col."
-        assert self.mappingOk()
+        if not self.mappingOk():
+            raise Exception("mapping not ok")
         # note whether tags are mapped
         self._tagsMapped = False
         for f in self.mapping:

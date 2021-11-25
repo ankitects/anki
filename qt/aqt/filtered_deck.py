@@ -333,7 +333,8 @@ class FilteredDeckConfigDialog(QDialog):
                 continue
             try:
                 i = float(item)
-                assert i > 0
+                if not i > 0:
+                    raise Exception("0 invalid")
                 ret.append(i)
             except:
                 # invalid, don't update

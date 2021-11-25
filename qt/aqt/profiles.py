@@ -199,7 +199,8 @@ class ProfileManager:
         return pickle.dumps(obj, protocol=4)
 
     def load(self, name: str) -> bool:
-        assert name != "_global"
+        if name == "_global":
+            raise Exception("_global is not a valid name")
         data = self.db.scalar(
             "select cast(data as blob) from profiles where name = ?", name
         )
@@ -381,7 +382,8 @@ class ProfileManager:
         # open DB file and read data
         try:
             self.db = DB(path)
-            assert self.db.scalar("pragma integrity_check") == "ok"
+            if not self.db.scalar("pragma integrity_check") == "ok":
+                raise Exception("corrupt db")
             self.db.execute(
                 """
 create table if not exists profiles

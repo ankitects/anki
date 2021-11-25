@@ -88,7 +88,8 @@ def on_normal_sync_timer(mw: aqt.main.AnkiQt) -> None:
 
 def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     auth = mw.pm.sync_auth()
-    assert auth
+    if not auth:
+        raise Exception("expected auth")
 
     def on_timer() -> None:
         on_normal_sync_timer(mw)

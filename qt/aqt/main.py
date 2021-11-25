@@ -608,7 +608,8 @@ class AnkiQt(QMainWindow):
 
     def backup(self) -> None:
         "Read data into memory, and complete backup on a background thread."
-        assert not self.col or not self.col.db
+        if self.col and self.col.db:
+            raise Exception("collection must be closed")
 
         nbacks = self.pm.profile["numBackups"]
         if not nbacks or dev_mode:
@@ -706,7 +707,8 @@ class AnkiQt(QMainWindow):
         self._background_op_count -= 1
         if not self._background_op_count:
             gui_hooks.backend_did_block()
-        assert self._background_op_count >= 0
+        if not self._background_op_count >= 0:
+            raise Exception("no background ops active")
 
     def _synthesize_op_did_execute_from_reset(self) -> None:
         """Fire the `operation_did_execute` hook with everything marked as changed,
@@ -1357,7 +1359,8 @@ title="{}" {}>{}</button>""".format(
 
     # this will gradually be phased out
     def onSchemaMod(self, arg: bool) -> bool:
-        assert self.inMainThread()
+        if not self.inMainThread():
+            raise Exception("not in main thread")
         progress_shown = self.progress.busy()
         if progress_shown:
             self.progress.finish()

@@ -201,7 +201,8 @@ class Card(DeprecatedNamesMixin):
 
     def set_user_flag(self, flag: int) -> None:
         print("use col.set_user_flag_for_cards() instead")
-        assert 0 <= flag <= 7
+        if not 0 <= flag <= 7:
+            raise Exception("invalid flag")
         self.flags = (self.flags & ~0b111) | flag
 
     @deprecated(info="use card.render_output() directly")

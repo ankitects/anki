@@ -264,8 +264,8 @@ class Collection(DeprecatedNamesMixin):
         self.models._clear_cache()
 
     def reopen(self, after_full_sync: bool = False) -> None:
-        assert not self.db
-        assert self.path.endswith(".anki2")
+        if self.db:
+            raise Exception("reopen() called with open db")
 
         self._last_checkpoint_at = time.time()
         self._undo: _UndoInfo = None
