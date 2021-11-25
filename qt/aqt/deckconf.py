@@ -267,7 +267,8 @@ class DeckConf(QDialog):
                 continue
             try:
                 i = float(item)
-                assert i > 0
+                if not i > 0:
+                    raise Exception("0 invalid")
                 if i == int(i):
                     i = int(i)
                 ret.append(i)

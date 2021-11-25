@@ -31,7 +31,7 @@ from aqt.utils import (
     askUser,
     disable_help_button,
     getFile,
-    isWin,
+    is_win,
     openFolder,
     openLink,
     restoreGeom,
@@ -1528,7 +1528,7 @@ class ConfigEditor(QDialog):
         )
         text = gui_hooks.addon_config_editor_will_display_json(text)
         self.form.editor.setPlainText(text)
-        if isMac:
+        if is_mac:
             self.form.editor.repaint()
 
     def onClose(self) -> None:

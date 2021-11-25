@@ -30,7 +30,7 @@ from anki.collection import GraphPreferences, OpChanges
 from anki.decks import UpdateDeckConfigs
 from anki.models import NotetypeNames
 from anki.scheduler.v3 import NextStates
-from anki.utils import devMode, from_json_bytes
+from anki.utils import dev_mode, from_json_bytes
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
 from aqt.operations.deck import update_deck_configs
@@ -87,7 +87,7 @@ class MediaServer(threading.Thread):
 
     def run(self) -> None:
         try:
-            if devMode:
+            if dev_mode:
                 # idempotent if logging has already been set up
                 logging.basicConfig()
             logging.getLogger("waitress").setLevel(logging.ERROR)
@@ -100,7 +100,7 @@ class MediaServer(threading.Thread):
                 port=desired_port,
                 clear_untrusted_proxy_headers=True,
             )
-            if devMode:
+            if dev_mode:
                 print(
                     "Serving on http://%s:%s"
                     % (self.server.effective_host, self.server.effective_port)  # type: ignore
@@ -163,7 +163,7 @@ class MediaServer(threading.Thread):
             return 0
         # https://github.com/Pylons/webtest/blob/4b8a3ebf984185ff4fefb31b4d0cf82682e1fcf7/webtest/http.py#L123-L132
         for index in range(retries):
-            if devMode or index > 0:
+            if dev_mode or index > 0:
                 print(
                     f"{datetime.datetime.now()} awaiting media server on {host}:{port}..."
                 )
@@ -236,7 +236,7 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
             )
 
     except Exception as error:
-        if devMode:
+        if dev_mode:
             print(
                 "Caught HTTP server exception,\n%s"
                 % "".join(traceback.format_exception(*sys.exc_info())),
@@ -260,7 +260,7 @@ def _builtin_data(path: str) -> bytes:
         with open(full_path, "rb") as f:
             return f.read()
     else:
-        if isWin and not getattr(sys, "frozen", False):
+        if is_win and not getattr(sys, "frozen", False):
             # default Python resource loader expects backslashes on Windows
             path = path.replace("/", "\\")
         reader = aqt.__loader__.get_resource_reader("aqt")  # type: ignore
@@ -281,7 +281,7 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
             HTTPStatus.NOT_FOUND,
         )
     except Exception as error:
-        if devMode:
+        if dev_mode:
             print(
                 "Caught HTTP server exception,\n%s"
                 % "".join(traceback.format_exception(*sys.exc_info())),
@@ -299,7 +299,7 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
 @app.route("/<path:pathin>", methods=["GET", "POST"])
 def handle_request(pathin: str) -> Response:
     request = _extract_request(pathin)
-    if devMode:
+    if dev_mode:
         print(f"{time.time():.3f} {flask.request.method} /{pathin}")
 
     if isinstance(request, NotFound):
@@ -383,7 +383,7 @@ def _extract_addon_request(path: str) -> LocalFileRequest | NotFound | None:
     try:
         manager = aqt.mw.addonManager
     except AttributeError as error:
-        if devMode:
+        if dev_mode:
             print(f"_redirectWebExports: {error}")
         return None
 

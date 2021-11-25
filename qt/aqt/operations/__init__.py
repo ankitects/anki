@@ -150,7 +150,7 @@ class QueryOp(Generic[T]):
     to a frozen UI
 
     Be careful not to call any UI routines in `op`, as that may crash Qt.
-    This includes things select .selectedCards() in the browse screen.
+    This includes things like .selectedCards() in the browse screen.
 
     `success` will be called with the return value of op().
 

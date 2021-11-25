@@ -42,7 +42,7 @@ from distutils.spawn import (  # pylint: disable=import-error,no-name-in-module
 from queue import Empty, Full, Queue
 from typing import Optional
 
-from anki.utils import isWin
+from anki.utils import is_win
 
 
 class MPVError(Exception):
@@ -65,7 +65,7 @@ class MPVTimeoutError(MPVError):
     pass
 
 
-if isWin:
+if is_win:
     # pylint: disable=import-error
     import pywintypes
     import win32file  # pytype: disable=import-error
@@ -142,7 +142,7 @@ class MPVBase:
         """Create a random socket filename which we pass to mpv with the
         --input-unix-socket option.
         """
-        if isWin:
+        if is_win:
             self._sock_filename = "ankimpv"
             return
         fd, self._sock_filename = tempfile.mkstemp(prefix="mpv.")
@@ -157,7 +157,7 @@ class MPVBase:
         while self.is_running() and time.time() < start + 10:
             time.sleep(0.1)
 
-            if isWin:
+            if is_win:
                 # named pipe
                 try:
                     self._sock = win32file.CreateFile(
@@ -228,7 +228,7 @@ class MPVBase:
         """
         buf = b""
         while not self._stop_event.is_set():
-            if isWin:
+            if is_win:
                 try:
                     (n, b) = win32file.ReadFile(self._sock, 4096)
                     buf += b
@@ -327,7 +327,7 @@ class MPVBase:
             raise MPVTimeoutError("unable to put request")
 
         # Write the message data to the socket.
-        if isWin:
+        if is_win:
             win32file.WriteFile(self._sock, data)
         else:
             while data:

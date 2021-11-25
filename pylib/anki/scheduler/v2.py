@@ -449,8 +449,8 @@ limit ?"""
     ##########################################################################
 
     def answerCard(self, card: Card, ease: int) -> None:
-        assert 1 <= ease <= 4
-        assert 0 <= card.queue <= 4
+        if (not 1 <= ease <= 4) or (not 0 <= card.queue <= 4):
+            raise Exception("invalid ease or queue")
         self.col.save_card_review_undo_info(card)
         if self._burySiblingsOnAnswer:
             self._burySiblings(card)
@@ -772,7 +772,8 @@ limit ?"""
     # note: when adding revlog entries in the future, make sure undo
     # code deletes the entries
     def _answerCardPreview(self, card: Card, ease: int) -> None:
-        assert 1 <= ease <= 2
+        if not 1 <= ease <= 2:
+            raise Exception("invalid ease")
 
         if ease == BUTTON_ONE:
             # repeat after delay
@@ -799,7 +800,8 @@ limit ?"""
             card.odid = DeckId(0)
 
     def _restorePreviewCard(self, card: Card) -> None:
-        assert card.odid
+        if not card.odid:
+            raise Exception("card should have odid set")
 
         card.due = card.odue
 
@@ -965,9 +967,12 @@ limit ?"""
 
     # next interval for card when answered early+correctly
     def _earlyReviewIvl(self, card: Card, ease: int) -> int:
-        assert card.odid and card.type == CARD_TYPE_REV
-        assert card.factor
-        assert ease > 1
+        if (
+            not (card.odid and card.type == CARD_TYPE_REV)
+            or not card.factor
+            or not ease > 1
+        ):
+            raise Exception("invalid input to earlyReviewIvl")
 
         elapsed = card.ivl - (card.odue - self.today)
 

@@ -41,7 +41,7 @@ from typing import Any, cast
 import anki
 from anki import hooks
 from anki.sound import AVTag, TTSTag
-from anki.utils import checksum, isWin, tmpdir
+from anki.utils import checksum, is_win, tmpdir
 from aqt import gui_hooks
 from aqt.sound import OnDoneCallback, SimpleProcessPlayer
 from aqt.utils import tooltip, tr
@@ -264,7 +264,7 @@ class WindowsVoice(TTSVoice):
     handle: Any
 
 
-if isWin:
+if is_win:
     import win32com.client  # pylint: disable=import-error
 
     # language ID map from https://github.com/sindresorhus/lcid/blob/master/lcid.json

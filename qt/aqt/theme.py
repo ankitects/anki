@@ -3,12 +3,17 @@
 
 from __future__ import annotations
 
+import enum
+import os
 import platform
+import subprocess
+import sys
+from ctypes import CDLL
 from dataclasses import dataclass
 
-from anki.utils import isMac
-from aqt import QApplication, colors, gui_hooks, isWin
-from aqt.platform import set_dark_mode
+import aqt
+from anki.utils import is_lin, is_mac, is_win
+from aqt import QApplication, colors, gui_hooks
 from aqt.qt import (
     QColor,
     QGuiApplication,
@@ -37,6 +42,12 @@ class ColoredIcon:
         return ColoredIcon(path=self.path, color=color)
 
 
+class Theme(enum.IntEnum):
+    FOLLOW_SYSTEM = 0
+    LIGHT = 1
+    DARK = 2
+
+
 class ThemeManager:
     _night_mode_preference = False
     _icon_cache_light: dict[str, QIcon] = {}
@@ -44,6 +55,7 @@ class ThemeManager:
     _icon_size = 128
     _dark_mode_available: bool | None = None
     default_palette: QPalette | None = None
+    _default_style: str | None = None
 
     # Qt applies a gradient to the buttons in dark mode
     # from about #505050 to #606060.
@@ -51,14 +63,14 @@ class ThemeManager:
 
     def macos_dark_mode(self) -> bool:
         "True if the user has night mode on, and has forced native widgets."
-        if not isMac:
+        if not is_mac:
             return False
 
         if not self._night_mode_preference:
             return False
 
         if self._dark_mode_available is None:
-            self._dark_mode_available = set_dark_mode(True)
+            self._dark_mode_available = set_macos_dark_mode(True)
 
         from aqt import mw
 
@@ -114,9 +126,9 @@ class ThemeManager:
     def body_class(self, night_mode: bool | None = None) -> str:
         "Returns space-separated class list for platform/theme."
         classes = []
-        if isWin:
+        if is_win:
             classes.append("isWin")
-        elif isMac:
+        elif is_mac:
             classes.append("isMac")
         else:
             classes.append("isLin")
@@ -143,28 +155,56 @@ class ThemeManager:
     def qcolor(self, colors: tuple[str, str]) -> QColor:
         return QColor(self.color(colors))
 
-    def apply_style(self, app: QApplication) -> None:
-        self.default_palette = QGuiApplication.palette()
+    def _determine_night_mode(self) -> bool:
+        theme = aqt.mw.pm.theme()
+        if theme == Theme.LIGHT:
+            return False
+        elif theme == Theme.DARK:
+            return True
+        else:
+            if is_win:
+                return get_windows_dark_mode()
+            elif is_mac:
+                return get_macos_dark_mode()
+            else:
+                return get_linux_dark_mode()
+
+    def apply_style_if_system_style_changed(self) -> None:
+        theme = aqt.mw.pm.theme()
+        if theme != Theme.FOLLOW_SYSTEM:
+            return
+        if self._determine_night_mode() != self.night_mode:
+            self.apply_style()
+
+    def apply_style(self) -> None:
+        "Apply currently configured style."
+        app = aqt.mw.app
+        self.night_mode = self._determine_night_mode()
+        if not self.default_palette:
+            self.default_palette = QGuiApplication.palette()
+            self._default_style = app.style().objectName()
         self._apply_palette(app)
         self._apply_style(app)
+        gui_hooks.theme_did_change()
 
     def _apply_style(self, app: QApplication) -> None:
         buf = ""
 
-        if isWin and platform.release() == "10" and not self.night_mode:
-            # add missing bottom border to menubar
-            buf += """
-QMenuBar {
-  border-bottom: 1px solid #aaa;
-  background: white;
-}
+        if is_win and platform.release() == "10":
+            # day mode is missing a bottom border; background must be
+            # also set for border to apply
+            buf += f"""
+QMenuBar {{
+  border-bottom: 1px solid {self.color(colors.BORDER)};
+  background: {self.color(colors.WINDOW_BG)};
+}}
 """
             # qt bug? setting the above changes the browser sidebar
             # to white as well, so set it back
-            buf += """
-QTreeWidget {
-  background: #eee;
-}
+            buf += f"""
+QTreeWidget {{
+  background: {self.color(colors.WINDOW_BG)};
+}}
             """
 
         if self.night_mode:
@@ -209,7 +249,11 @@ QTabWidget {{ background-color: {}; }}
         app.setStyleSheet(buf)
 
     def _apply_palette(self, app: QApplication) -> None:
+        set_macos_dark_mode(self.night_mode)
+
         if not self.night_mode:
+            app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
+            app.setPalette(self.default_palette)
             return
 
         if not self.macos_dark_mode():
@@ -269,6 +313,84 @@ QTabWidget {{ background-color: {}; }}
         s.colSusp = self.color(colors.SUSPENDED_BG)
         s.colMature = self.color(colors.REVIEW_COUNT)
         s._legacy_nightmode = self._night_mode_preference
+
+
+def get_windows_dark_mode() -> bool:
+    "True if Windows system is currently in dark mode."
+    if not is_win:
+        return False
+
+    from winreg import (  # pylint: disable=import-error
+        HKEY_CURRENT_USER,
+        OpenKey,
+        QueryValueEx,
+    )
+
+    key = OpenKey(
+        HKEY_CURRENT_USER,
+        r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
+    )
+    return not QueryValueEx(key, "AppsUseLightTheme")[0]
+
+
+def set_macos_dark_mode(enabled: bool) -> bool:
+    "True if setting successful."
+    if not is_mac:
+        return False
+    try:
+        _ankihelper().set_darkmode_enabled(enabled)
+        return True
+    except Exception as e:
+        # swallow exceptions, as library will fail on macOS 10.13
+        print(e)
+    return False
+
+
+def get_macos_dark_mode() -> bool:
+    "True if macOS system is currently in dark mode."
+    if not is_mac:
+        return False
+    try:
+        return _ankihelper().system_is_dark()
+    except Exception as e:
+        # swallow exceptions, as library will fail on macOS 10.13
+        print(e)
+        return False
+
+
+def get_linux_dark_mode() -> bool:
+    """True if Linux system is in dark mode.
+    This only works if the GTK theme name contains '-dark'"""
+    if not is_lin:
+        return False
+    try:
+        process = subprocess.run(
+            ["gsettings", "get", "org.gnome.desktop.interface", "gtk-theme"],
+            check=True,
+            capture_output=True,
+            encoding="utf8",
+        )
+    except FileNotFoundError as e:
+        # swallow exceptions, as gsettings may not be installed
+        print(e)
+        return False
+
+    return "-dark" in process.stdout.lower()
+
+
+_ankihelper_dll: CDLL | None = None
+
+
+def _ankihelper() -> CDLL:
+    global _ankihelper_dll
+    if _ankihelper_dll:
+        return _ankihelper_dll
+    if getattr(sys, "frozen", False):
+        path = os.path.join(sys.prefix, "libankihelper.dylib")
+    else:
+        path = os.path.join(aqt.utils.aqt_data_folder(), "lib", "libankihelper.dylib")
+    _ankihelper_dll = CDLL(path)
+    return _ankihelper_dll
 
 
 theme_manager = ThemeManager()

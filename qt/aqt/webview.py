@@ -9,7 +9,7 @@ from typing import Any, Callable, Optional, Sequence, cast
 
 import anki
 from anki.lang import is_rtl
-from anki.utils import isLin, isMac, isWin
+from anki.utils import is_lin, is_mac, is_win
 from aqt import colors, gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
@@ -252,6 +252,7 @@ class AnkiWebView(QWebEngineView):
             context=Qt.ShortcutContext.WidgetWithChildrenShortcut,
             activated=self.onEsc,
         )
+        gui_hooks.theme_did_change.append(self.on_theme_did_change)
 
     def set_title(self, title: str) -> None:
         self.title = title  # type: ignore[assignment]
@@ -264,7 +265,7 @@ class AnkiWebView(QWebEngineView):
             isinstance(evt, QMouseEvent)
             and evt.type() == QEvent.Type.MouseButtonRelease
         ):
-            if evt.button() == Qt.MouseButton.MiddleButton and isLin:
+            if evt.button() == Qt.MouseButton.MiddleButton and is_lin:
                 self.onMiddleClickPaste()
                 return True
             return False
@@ -355,7 +356,7 @@ class AnkiWebView(QWebEngineView):
         if webscale:
             return float(webscale)
 
-        if qtmajor > 5 or isMac:
+        if qtmajor > 5 or is_mac:
             return 1
         screen = QApplication.desktop().screen()  # type: ignore
         if screen is None:
@@ -363,7 +364,7 @@ class AnkiWebView(QWebEngineView):
 
         dpi = screen.logicalDpiX()
         factor = dpi / 96.0
-        if isLin:
+        if is_lin:
             factor = max(1, factor)
             return factor
         return 1
@@ -387,7 +388,7 @@ class AnkiWebView(QWebEngineView):
     def get_window_bg_color(self, night_mode: bool) -> QColor:
         if night_mode:
             return QColor(colors.WINDOW_BG[1])
-        elif isMac:
+        elif is_mac:
             # standard palette does not return correct window color on macOS
             return QColor("#ececec")
         else:
@@ -397,13 +398,13 @@ class AnkiWebView(QWebEngineView):
         palette = theme_manager.default_palette
         color_hl = palette.color(QPalette.ColorRole.Highlight).name()
 
-        if isWin:
+        if is_win:
             # T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
             family = tr.qt_misc_segoe_ui()
             button_style = "button { font-family:%s; }" % family
             button_style += "\n:focus { outline: 1px solid %s; }" % color_hl
             font = f"font-size:12px;font-family:{family};"
-        elif isMac:
+        elif is_mac:
             family = "Helvetica"
             font = f'font-size:15px;font-family:"{family}";'
             button_style = """
@@ -445,7 +446,7 @@ div[contenteditable="true"]:focus {{
             lang_dir = "ltr"
 
         return f"""
-body {{ zoom: {zoom}; background-color: {body_bg}; direction: {lang_dir}; }}
+body {{ zoom: {zoom}; background-color: --window-bg; direction: {lang_dir}; }}
 html {{ {font} }}
 {button_style}
 :root {{ --window-bg: {window_bg_day} }}
@@ -551,6 +552,8 @@ html {{ {font} }}
         self._maybeRunActions()
 
     def _maybeRunActions(self) -> None:
+        if sip.isdeleted(self):
+            return
         while self._pendingActions and self._domDone:
             name, args = self._pendingActions.pop(0)
 
@@ -675,4 +678,29 @@ document.head.appendChild(style);
             # this will fail when __del__ is called during app shutdown
             return
 
+        gui_hooks.theme_did_change.remove(self.on_theme_did_change)
         mw.mediaServer.clear_page_html(id(self))
+
+    def on_theme_did_change(self) -> None:
+        # avoid flashes if page reloaded
+        self._page.setBackgroundColor(
+            self.get_window_bg_color(theme_manager.night_mode)
+        )
+        # update night-mode class, and legacy nightMode/night-mode body classes
+        self.eval(
+            f"""
+(function() {{
+    const doc = document.documentElement.classList;
+    const body = document.body.classList;
+    if ({1 if theme_manager.night_mode else 0}) {{
+        doc.add("night-mode");
+        body.add("night-mode");
+        body.add("nightMode");
+    }} else {{
+        doc.remove("night-mode");
+        body.remove("night-mode");
+        body.remove("nightMode");
+    }}
+}})();
+"""
+        )

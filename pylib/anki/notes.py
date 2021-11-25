@@ -34,7 +34,8 @@ class Note(DeprecatedNamesMixin):
         model: NotetypeDict | NotetypeId | None = None,
         id: NoteId | None = None,
     ) -> None:
-        assert not (model and id)
+        if model and id:
+            raise Exception("only model or id should be provided")
         notetype_id = model["id"] if isinstance(model, dict) else model
         self.col = col.weakref()
 
@@ -76,7 +77,8 @@ class Note(DeprecatedNamesMixin):
     def flush(self) -> None:
         """This preserves any current checkpoint.
         For an undo entry, use col.update_note() instead."""
-        assert self.id != 0
+        if self.id == 0:
+            raise Exception("can't flush a new note")
         self.col._backend.update_notes(
             notes=[self._to_backend_note()], skip_undo_entry=True
         )

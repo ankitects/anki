@@ -11,6 +11,7 @@ from aqt import AnkiQt
 from aqt.operations.collection import set_preferences
 from aqt.profiles import VideoDriver
 from aqt.qt import *
+from aqt.theme import Theme
 from aqt.utils import HelpPage, disable_help_button, openHelp, showInfo, showWarning, tr
 
 
@@ -199,7 +200,17 @@ class Preferences(QDialog):
     def setup_global(self) -> None:
         "Setup options global to all profiles."
         self.form.uiScale.setValue(int(self.mw.pm.uiScale() * 100))
-        self.form.nightMode.setChecked(self.mw.pm.night_mode())
+        themes = [
+            tr.preferences_theme_label(theme=theme)
+            for theme in (
+                tr.preferences_theme_follow_system(),
+                tr.preferences_theme_light(),
+                tr.preferences_theme_dark(),
+            )
+        ]
+        self.form.theme.addItems(themes)
+        self.form.theme.setCurrentIndex(self.mw.pm.theme().value)
+        qconnect(self.form.theme.currentIndexChanged, self.on_theme_changed)
 
         self.setup_language()
         self.setup_video_driver()
@@ -216,14 +227,13 @@ class Preferences(QDialog):
             self.mw.pm.setUiScale(newScale)
             restart_required = True
 
-        if self.mw.pm.night_mode() != self.form.nightMode.isChecked():
-            self.mw.pm.set_night_mode(not self.mw.pm.night_mode())
-            restart_required = True
-
         if restart_required:
             showInfo(tr.preferences_changes_will_take_effect_when_you())
 
         self.updateOptions()
+
+    def on_theme_changed(self, index: int) -> None:
+        self.mw.set_theme(Theme(index))
 
     # legacy - one of Henrik's add-ons is currently wrapping them
 
@@ -285,12 +295,12 @@ def video_driver_name_for_platform(driver: VideoDriver) -> str:
     if driver == VideoDriver.ANGLE:
         return tr.preferences_video_driver_angle()
     elif driver == VideoDriver.Software:
-        if isMac:
+        if is_mac:
             return tr.preferences_video_driver_software_mac()
         else:
             return tr.preferences_video_driver_software_other()
     else:
-        if isMac:
+        if is_mac:
             return tr.preferences_video_driver_opengl_mac()
         else:
             return tr.preferences_video_driver_opengl_other()

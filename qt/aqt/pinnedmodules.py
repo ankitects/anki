@@ -40,14 +40,14 @@ import anki.sync
 import anki.rsbackend
 
 # platform-specifics
-from anki.utils import isLin, isMac, isWin
+from anki.utils import is_lin, is_mac, is_win
 
-if isWin:
+if is_win:
     # external module access
     import pythoncom
     import pywintypes
     import win32com
 
-if isLin:
+if is_lin:
     # file locking
     import fcntl

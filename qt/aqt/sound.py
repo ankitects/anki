@@ -23,7 +23,7 @@ import aqt
 from anki import hooks
 from anki.cards import Card
 from anki.sound import AV_REF_RE, AVTag, SoundOrVideoTag
-from anki.utils import isLin, isMac, isWin, namedtmp
+from anki.utils import is_lin, is_mac, is_win, namedtmp
 from aqt import gui_hooks
 from aqt.mpv import MPV, MPVBase, MPVCommandError
 from aqt.qt import *
@@ -235,7 +235,7 @@ def _packagedCmd(cmd: list[str]) -> tuple[Any, dict[str, str]]:
     if "LD_LIBRARY_PATH" in env:
         del env["LD_LIBRARY_PATH"]
 
-    packaged_path = Path(sys.prefix) / "audio" / (cmd[0] + (".exe" if isWin else ""))
+    packaged_path = Path(sys.prefix) / "audio" / (cmd[0] + (".exe" if is_win else ""))
     if packaged_path.exists():
         cmd[0] = str(packaged_path)
 
@@ -359,7 +359,7 @@ class SimpleMpvPlayer(SimpleProcessPlayer, VideoPlayer):
 
 class SimpleMplayerPlayer(SimpleProcessPlayer, SoundOrVideoPlayer):
     args, env = _packagedCmd(["mplayer", "-really-quiet", "-noautosub"])
-    if isWin:
+    if is_win:
         args += ["-ao", "win32"]
 
 
@@ -369,7 +369,7 @@ class SimpleMplayerPlayer(SimpleProcessPlayer, SoundOrVideoPlayer):
 
 class MpvManager(MPV, SoundOrVideoPlayer):
 
-    if not isLin:
+    if not is_lin:
         default_argv = MPVBase.default_argv + [
             "--input-media-keys=no",
         ]
@@ -801,7 +801,7 @@ def setup_audio(taskman: TaskManager, base_folder: str) -> None:
     if mpvManager is not None:
         av_player.players.append(mpvManager)
 
-        if isWin:
+        if is_win:
             mpvPlayer = SimpleMpvPlayer(taskman, base_folder)
             av_player.players.append(mpvPlayer)
     else:
@@ -809,11 +809,11 @@ def setup_audio(taskman: TaskManager, base_folder: str) -> None:
         av_player.players.append(mplayer)
 
     # tts support
-    if isMac:
+    if is_mac:
         from aqt.tts import MacTTSPlayer
 
         av_player.players.append(MacTTSPlayer(taskman))
-    elif isWin:
+    elif is_win:
         from aqt.tts import WindowsTTSPlayer
 
         av_player.players.append(WindowsTTSPlayer(taskman))

@@ -20,7 +20,7 @@ else:
         from . import qt5_compat  # needs to be imported first
     from .qt6 import *
 
-from anki.utils import isMac, isWin
+from anki.utils import is_mac, is_win
 
 # fix buggy ubuntu12.04 display of language selector
 os.environ["LIBOVERLAY_SCROLLBAR"] = "0"

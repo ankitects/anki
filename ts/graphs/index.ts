@@ -31,14 +31,12 @@ export function graphs(
         controller = null as SvelteComponent | null,
     } = {},
 ): void {
-    const nightMode = checkNightMode();
-
+    checkNightMode();
     setupI18n({ modules: [ModuleName.STATISTICS, ModuleName.SCHEDULING] }).then(() => {
         new GraphsPage({
             target,
             props: {
                 graphs,
-                nightMode,
                 initialSearch: search,
                 initialDays: days,
                 controller,

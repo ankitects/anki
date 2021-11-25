@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { createEventDispatcher, getContext } from "svelte";
-    import { nightModeKey } from "../components/context-keys";
+    import { createEventDispatcher } from "svelte";
+    import { pageTheme } from "../sveltelib/theme";
 
     export let offsetX = 0;
     export let offsetY = 0;
@@ -13,7 +13,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let activeSize = 5;
 
     const dispatch = createEventDispatcher();
-    const nightMode = getContext(nightModeKey);
 
     const onPointerdown =
         (north: boolean, west: boolean) =>
@@ -26,9 +25,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="d-contents"
     style="--offsetX: {offsetX}px; --offsetY: {offsetY}px; --activeSize: {activeSize}px;"
 >
-    <div class:nightMode class="bordered" on:mousedown|preventDefault />
     <div
-        class:nightMode
+        class:nightMode={$pageTheme.isDark}
+        class="bordered"
+        on:mousedown|preventDefault
+    />
+    <div
+        class:nightMode={$pageTheme.isDark}
         class:active
         class="control nw"
         on:mousedown|preventDefault
@@ -36,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:pointermove
     />
     <div
-        class:nightMode
+        class:nightMode={$pageTheme.isDark}
         class:active
         class="control ne"
         on:mousedown|preventDefault
@@ -44,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:pointermove
     />
     <div
-        class:nightMode
+        class:nightMode={$pageTheme.isDark}
         class:active
         class="control sw"
         on:mousedown|preventDefault
@@ -52,7 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:pointermove
     />
     <div
-        class:nightMode
+        class:nightMode={$pageTheme.isDark}
         class:active
         class="control se"
         on:mousedown|preventDefault

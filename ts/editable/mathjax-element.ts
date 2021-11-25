@@ -11,7 +11,6 @@ import type { DecoratedElement, DecoratedElementConstructor } from "./decorated"
 import { nodeIsElement } from "../lib/dom";
 import { noop } from "../lib/functional";
 import { placeCaretAfter } from "../domlib/place-caret";
-import { nightModeKey } from "../components/context-keys";
 
 import Mathjax_svelte from "./Mathjax.svelte";
 
@@ -148,12 +147,6 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
         this.innerHTML = "";
         this.style.whiteSpace = "normal";
 
-        const context = new Map();
-        context.set(
-            nightModeKey,
-            document.documentElement.classList.contains("night-mode"),
-        );
-
         this.component = new Mathjax_svelte({
             target: this,
             props: {
@@ -161,7 +154,6 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
                 block: this.block,
                 autofocus: this.hasAttribute("focusonmount"),
             },
-            context,
         } as any);
     }
 

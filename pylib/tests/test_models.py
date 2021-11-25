@@ -6,7 +6,7 @@ import time
 
 from anki.consts import MODEL_CLOZE
 from anki.errors import NotFoundError
-from anki.utils import isWin, strip_html
+from anki.utils import is_win, strip_html
 from tests.shared import getEmptyCol
 
 
@@ -329,7 +329,7 @@ def test_modelChange():
     assert note.cards()[0].id == c1.id
     # delete first card
     map = {0: None, 1: 1}
-    if isWin:
+    if is_win:
         # The low precision timer on Windows reveals a race condition
         time.sleep(0.05)
     col.models.change(basic, [note.id], basic, noop, map)

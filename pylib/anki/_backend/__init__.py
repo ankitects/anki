@@ -40,7 +40,8 @@ from .fluent import GeneratedTranslations, LegacyTranslationEnum
 # the following comment is required to suppress a warning that only shows up
 # when there are other pylint failures
 # pylint: disable=c-extension-no-member
-assert rsbridge.buildhash() == anki.buildinfo.buildhash
+if rsbridge.buildhash() != anki.buildinfo.buildhash:
+    raise Exception("rsbridge and anki build hashes do not match")
 
 
 class RustBackend(RustBackendGenerated):

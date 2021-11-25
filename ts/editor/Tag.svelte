@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onMount, getContext, createEventDispatcher } from "svelte";
-    import { nightModeKey } from "../components/context-keys";
+    import { onMount, createEventDispatcher } from "svelte";
+    import { pageTheme } from "../sveltelib/theme";
 
     let className: string = "";
     export { className as class };
@@ -21,8 +21,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         setTimeout(() => (flashing = false), 300);
     }
 
-    const nightMode = getContext<boolean>(nightModeKey);
-
     let button: HTMLButtonElement;
 
     onMount(() => dispatch("mount", { button }));
@@ -33,8 +31,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="tag btn d-inline-flex align-items-center text-nowrap ps-2 pe-1 {className}"
     class:selected
     class:flashing
-    class:btn-day={!nightMode}
-    class:btn-night={nightMode}
+    class:btn-day={!$pageTheme.isDark}
+    class:btn-night={$pageTheme.isDark}
     tabindex="-1"
     title={tooltip}
     on:mousemove

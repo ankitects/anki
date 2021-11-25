@@ -184,7 +184,6 @@ class Overview:
         if self.mw.col.sched._is_finished():
             self._show_finished_screen()
             return
-        table_text = self._table()
         content = OverviewContent(
             deck=deck["name"],
             shareLink=shareLink,

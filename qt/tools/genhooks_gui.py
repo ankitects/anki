@@ -540,6 +540,10 @@ hooks = [
         there are no outstanding ops.
         """,
     ),
+    Hook(
+        name="theme_did_change",
+        doc="Called after night mode is toggled.",
+    ),
     # Webview
     ###################
     Hook(

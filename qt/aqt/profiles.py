@@ -20,9 +20,10 @@ from anki.collection import Collection
 from anki.db import DB
 from anki.lang import without_unicode_isolation
 from anki.sync import SyncAuth
-from anki.utils import int_time, isMac, isWin
+from anki.utils import int_time, is_mac, is_win
 from aqt import appHelpSite
 from aqt.qt import *
+from aqt.theme import Theme
 from aqt.utils import disable_help_button, showWarning, tr
 
 # Profile handling
@@ -38,20 +39,20 @@ class VideoDriver(Enum):
 
     @staticmethod
     def default_for_platform() -> VideoDriver:
-        if isMac:
+        if is_mac:
             return VideoDriver.OpenGL
         else:
             return VideoDriver.Software
 
     def constrained_to_platform(self) -> VideoDriver:
-        if self == VideoDriver.ANGLE and not isWin:
+        if self == VideoDriver.ANGLE and not is_win:
             return VideoDriver.Software
         return self
 
     def next(self) -> VideoDriver:
         if self == VideoDriver.Software:
             return VideoDriver.OpenGL
-        elif self == VideoDriver.OpenGL and isWin:
+        elif self == VideoDriver.OpenGL and is_win:
             return VideoDriver.ANGLE
         else:
             return VideoDriver.Software
@@ -59,7 +60,7 @@ class VideoDriver(Enum):
     @staticmethod
     def all_for_platform() -> list[VideoDriver]:
         all = [VideoDriver.OpenGL]
-        if isWin:
+        if is_win:
             all.append(VideoDriver.ANGLE)
         all.append(VideoDriver.Software)
         return all
@@ -198,7 +199,8 @@ class ProfileManager:
         return pickle.dumps(obj, protocol=4)
 
     def load(self, name: str) -> bool:
-        assert name != "_global"
+        if name == "_global":
+            raise Exception("_global is not a valid name")
         data = self.db.scalar(
             "select cast(data as blob) from profiles where name = ?", name
         )
@@ -339,11 +341,11 @@ class ProfileManager:
         self.ensureBaseExists()
 
     def _defaultBase(self) -> str:
-        if isWin:
+        if is_win:
             from aqt.winpaths import get_appdata
 
             return os.path.join(get_appdata(), "Anki2")
-        elif isMac:
+        elif is_mac:
             return os.path.expanduser("~/Library/Application Support/Anki2")
         else:
             dataDir = os.environ.get(
@@ -380,7 +382,8 @@ class ProfileManager:
         # open DB file and read data
         try:
             self.db = DB(path)
-            assert self.db.scalar("pragma integrity_check") == "ok"
+            if not self.db.scalar("pragma integrity_check") == "ok":
+                raise Exception("corrupt db")
             self.db.execute(
                 """
 create table if not exists profiles
@@ -514,6 +517,12 @@ create table if not exists profiles
 
     def set_night_mode(self, on: bool) -> None:
         self.meta["night_mode"] = on
+
+    def theme(self) -> Theme:
+        return Theme(self.meta.get("theme", 0))
+
+    def set_theme(self, theme: Theme) -> None:
+        self.meta["theme"] = theme.value
 
     def dark_mode_widgets(self) -> bool:
         return self.meta.get("dark_mode_widgets", False)

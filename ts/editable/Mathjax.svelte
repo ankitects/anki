@@ -18,8 +18,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { onDestroy, getContext } from "svelte";
-    import { nightModeKey } from "../components/context-keys";
+    import { onDestroy } from "svelte";
+    import { pageTheme } from "../sveltelib/theme";
     import { convertMathjax } from "./mathjax";
     import { randomUUID } from "../lib/uuid";
     import { writable } from "svelte/store";
@@ -30,8 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let autofocus = false;
     export let fontSize = 20;
 
-    const nightMode = getContext<boolean>(nightModeKey);
-    $: [converted, title] = convertMathjax(mathjax, nightMode, fontSize);
+    $: [converted, title] = convertMathjax(mathjax, $pageTheme.isDark, fontSize);
     $: empty = title === "MathJax";
     $: encoded = encodeURIComponent(converted);
 
