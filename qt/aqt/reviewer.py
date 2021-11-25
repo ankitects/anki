@@ -147,7 +147,7 @@ class Reviewer:
         if self._answeredIds:
             if not self.card or self._answeredIds[-1] != self.card.id:
                 try:
-                    return self.mw.col.getCard(self._answeredIds[-1])
+                    return self.mw.col.get_card(self._answeredIds[-1])
                 except TypeError:
                     # id was deleted
                     return None

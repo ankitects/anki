@@ -120,7 +120,7 @@ class Note(DeprecatedNamesMixin):
         return card
 
     def cards(self) -> list[anki.cards.Card]:
-        return [self.col.getCard(id) for id in self.card_ids()]
+        return [self.col.get_card(id) for id in self.card_ids()]
 
     def card_ids(self) -> Sequence[anki.cards.CardId]:
         return self.col.card_ids_of_note(self.id)
