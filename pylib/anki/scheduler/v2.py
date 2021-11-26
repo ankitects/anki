@@ -191,7 +191,7 @@ class Scheduler(SchedulerBaseWithLegacy):
     def _getNewCard(self) -> Card | None:
         if self._fillNew():
             self.newCount -= 1
-            return self.col.getCard(self._newQueue.pop())
+            return self.col.get_card(self._newQueue.pop())
         return None
 
     def _updateNewCardRatio(self) -> None:
@@ -342,7 +342,7 @@ limit %d"""
                 cutoff += self.col.conf["collapseTime"]
             if self._lrnQueue[0][0] < cutoff:
                 id = heappop(self._lrnQueue)[1]
-                card = self.col.getCard(id)
+                card = self.col.get_card(id)
                 self.lrnCount -= 1
                 return card
         return None
@@ -381,7 +381,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
     def _getLrnDayCard(self) -> Card | None:
         if self._fillLrnDay():
             self.lrnCount -= 1
-            return self.col.getCard(self._lrnDayQueue.pop())
+            return self.col.get_card(self._lrnDayQueue.pop())
         return None
 
     # Fetching reviews
@@ -442,7 +442,7 @@ limit ?"""
     def _getRevCard(self) -> Card | None:
         if self._fillRev():
             self.revCount -= 1
-            return self.col.getCard(self._revQueue.pop())
+            return self.col.get_card(self._revQueue.pop())
         return None
 
     # Answering a card
