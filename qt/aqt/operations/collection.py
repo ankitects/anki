@@ -70,7 +70,7 @@ def _legacy_undo(*, parent: QWidget) -> None:
         if reviewing:
             # push the undone card to the top of the queue
             cid = result.card.id
-            card = mw.col.getCard(cid)
+            card = mw.col.get_card(cid)
             mw.reviewer.cardQueue.append(card)
 
             gui_hooks.review_did_undo(cid)
