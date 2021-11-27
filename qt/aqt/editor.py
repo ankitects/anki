@@ -586,6 +586,7 @@ noteEditorPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
     def cleanup(self) -> None:
         self.set_note(None)
         # prevent any remaining evalWithCallback() events from firing after C++ object deleted
+        self.web.cleanup()
         self.web = None
 
     # legacy

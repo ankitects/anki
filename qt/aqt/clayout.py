@@ -825,6 +825,7 @@ class CardLayout(QDialog):
         av_player.stop_and_clear_queue()
         saveGeom(self, "CardLayout")
         saveSplitter(self.mainArea, "CardLayoutMainArea")
+        self.preview_web.cleanup()
         self.preview_web = None
         self.model = None
         self.rendered_card = None

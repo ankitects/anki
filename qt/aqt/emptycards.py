@@ -36,6 +36,7 @@ class EmptyCardsDialog(QDialog):
     def __init__(self, mw: aqt.main.AnkiQt, report: EmptyCardsReport) -> None:
         super().__init__(mw)
         self.mw = mw.weakref()
+        self.mw.garbage_collect_on_dialog_finish(self)
         self.report = report
         self.form = aqt.forms.emptycards.Ui_Dialog()
         self.form.setupUi(self)
@@ -58,6 +59,8 @@ class EmptyCardsDialog(QDialog):
         self.form.webview.stdHtml(style + html, context=self)
 
         def on_finished(code: Any) -> None:
+            self.form.webview.cleanup()
+            self.form.webview = None
             saveGeom(self, "emptycards")
 
         qconnect(self.finished, on_finished)
