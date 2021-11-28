@@ -344,9 +344,6 @@ class Collection(DeprecatedNamesMixin):
         Unlike note.flush(), this will invalidate any current checkpoint."""
         return self.update_notes([note])
 
-    getCard = get_card
-    getNote = get_note
-
     # Utils
     ##########################################################################
 
