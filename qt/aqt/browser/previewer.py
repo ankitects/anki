@@ -80,6 +80,7 @@ class Previewer(QDialog):
         self._web = AnkiWebView(title="previewer")
         self.vbox.addWidget(self._web)
         self.bbox = QDialogButtonBox()
+        self.bbox.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
         self._replay = self.bbox.addButton(
             tr.actions_replay_audio(), QDialogButtonBox.ButtonRole.ActionRole
@@ -262,12 +263,18 @@ class MultiCardPreviewer(Previewer):
 
     def _create_gui(self) -> None:
         super()._create_gui()
-        self._prev = self.bbox.addButton("<", QDialogButtonBox.ButtonRole.ActionRole)
+        self._prev = self.bbox.addButton(
+            ">" if self.layoutDirection() == Qt.LayoutDirection.RightToLeft else "<",
+            QDialogButtonBox.ButtonRole.ActionRole,
+        )
         self._prev.setAutoDefault(False)
         self._prev.setShortcut(QKeySequence("Left"))
         self._prev.setToolTip(tr.qt_misc_shortcut_key_left_arrow())
 
-        self._next = self.bbox.addButton(">", QDialogButtonBox.ButtonRole.ActionRole)
+        self._next = self.bbox.addButton(
+            "<" if self.layoutDirection() == Qt.LayoutDirection.RightToLeft else ">",
+            QDialogButtonBox.ButtonRole.ActionRole,
+        )
         self._next.setAutoDefault(True)
         self._next.setShortcut(QKeySequence("Right"))
         self._next.setToolTip(tr.qt_misc_shortcut_key_right_arrow_or_enter())
