@@ -60,6 +60,7 @@ class DeckOptionsDialog(QDialog):
         gui_hooks.deck_options_did_load(self)
 
     def reject(self) -> None:
+        self.web.cleanup()
         self.web = None
         saveGeom(self, self.TITLE)
         QDialog.reject(self)

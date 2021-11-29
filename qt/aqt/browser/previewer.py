@@ -120,6 +120,7 @@ class Previewer(QDialog):
     def _on_close(self) -> None:
         self._open = False
         self._close_callback()
+        self._web.cleanup()
         self._web = None
 
     def _setup_web_view(self) -> None:
