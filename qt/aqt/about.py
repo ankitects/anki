@@ -91,6 +91,15 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     abt.buttonBox.addButton(btn, QDialogButtonBox.ButtonRole.ActionRole)
     abt.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setFocus()
 
+    # WebView cleanup
+    ######################################################################
+
+    def on_dialog_destroyed() -> None:
+        abt.label.cleanup()
+        abt.label = None
+
+    qconnect(dialog.destroyed, on_dialog_destroyed)
+
     # WebView contents
     ######################################################################
     abouttext = "<center><img src='/_anki/imgs/anki-logo-thin.png'></center>"

@@ -77,6 +77,7 @@ class CardInfoDialog(QDialog):
     def reject(self) -> None:
         if self._on_close:
             self._on_close()
+        self.web.cleanup()
         self.web = None
         saveGeom(self, self.GEOMETRY_KEY)
         return QDialog.reject(self)
