@@ -93,3 +93,4 @@ async function setupNoteEditor(): Promise<NoteEditorAPI> {
 }
 
 export const noteEditorPromise = setupNoteEditor();
+export { editorToolbar } from "./EditorToolbar.svelte";
