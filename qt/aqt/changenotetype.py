@@ -65,6 +65,7 @@ class ChangeNotetypeDialog(QDialog):
         self.setWindowTitle(tr.browsing_change_notetype())
 
     def reject(self) -> None:
+        self.web.cleanup()
         self.web = None
         saveGeom(self, self.TITLE)
         QDialog.reject(self)

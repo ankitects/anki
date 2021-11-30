@@ -10,10 +10,13 @@ The build system requires [Developer Mode](https://docs.microsoft.com/en-us/wind
 
 **Visual Studio**:
 
-Install the [Visual Studio build tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019).
+Visual Studio 2022 was released in Nov 2021. **Anki does not support it yet**. You will
+need to download 2019 instead. Microsoft will push you towards 2022 on the Visual Studio
+website; you'll need to locate "older downloads", then log in with a free Microsoft
+account and search for "Build Tools for Visual Studio 2019 (version 16.11)".
 
-Make sure the "C++ build tools" box is selected, and leave the default optional
-components enabled on the right.
+Once you've downloaded the installer, open it, and select "Desktop Development with C++"
+on the left, leaving the options shown on the right as is.
 
 **MSYS**:
 

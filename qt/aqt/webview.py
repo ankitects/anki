@@ -671,7 +671,7 @@ document.head.appendChild(style);
         self._domReady = False
         self._page.setContent(cast(QByteArray, bytes("", "ascii")))
 
-    def __del__(self) -> None:
+    def cleanup(self) -> None:
         try:
             from aqt import mw
         except ImportError:
