@@ -8,7 +8,7 @@ import pprint
 import re
 import sys
 import time
-from typing import Any, Callable
+from typing import Any, Callable, Sequence
 
 from anki import media_pb2
 from anki._legacy import DeprecatedNamesMixin, deprecated_keywords
@@ -149,7 +149,7 @@ class MediaManager(DeprecatedNamesMixin):
     def have(self, fname: str) -> bool:
         return os.path.exists(os.path.join(self.dir(), fname))
 
-    def trash_files(self, fnames: list[str]) -> None:
+    def trash_files(self, fnames: Sequence[str]) -> None:
         "Move provided files to the trash."
         self.col._backend.trash_media_files(fnames)
 

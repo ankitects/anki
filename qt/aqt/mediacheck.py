@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import itertools
-import time
 from concurrent.futures import Future
 from typing import Iterable, Sequence, TypeVar
 
@@ -171,22 +170,18 @@ class MediaChecker:
 
         self.progress_dialog = self.mw.progress.start()
 
-        last_progress = time.time()
-        remaining = len(fnames)
-        total = len(fnames)
-        try:
-            for chunk in chunked_list(fnames, 25):
-                self.mw.col.media.trash_files(chunk)
-                remaining -= len(chunk)
-                if time.time() - last_progress >= 0.3:
-                    self.mw.progress.update(
-                        tr.media_check_files_remaining(count=remaining)
-                    )
-        finally:
+        def on_done(fut: Future) -> None:
             self.mw.progress.finish()
             self.progress_dialog = None
 
-        tooltip(tr.media_check_delete_unused_complete(count=total))
+            # check for errors
+            fut.result()
+
+            tooltip(tr.media_check_delete_unused_complete(count=len(fnames)))
+
+        self.mw.taskman.run_in_background(
+            lambda: self.mw.col.media.trash_files(fnames), on_done
+        )
 
     def _on_empty_trash(self) -> None:
         self.progress_dialog = self.mw.progress.start()
