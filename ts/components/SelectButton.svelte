@@ -41,8 +41,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     @include button.btn-night($with-hover: false);
 
     select {
+        height: var(--buttons-size);
         /* Long option name can create overflow */
         text-overflow: ellipsis;
+        /* Prevents text getting cropped on Windows */
+        padding: {
+            top: 0;
+            bottom: 0;
+        }
         &.btn-day {
             /* Hide default arrow for consistency */
             background: var(--frame-bg);
