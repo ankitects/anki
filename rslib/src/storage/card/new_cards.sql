@@ -7,3 +7,6 @@ SELECT id,
 FROM cards
 WHERE did = ?
   AND queue = 0
+ORDER BY did,
+  queue,
+  due
