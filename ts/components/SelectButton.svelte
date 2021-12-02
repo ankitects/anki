@@ -43,6 +43,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     select {
         /* Long option name can create overflow */
         text-overflow: ellipsis;
+        &.btn-day {
+            /* Hide default arrow for consistency */
+            background: var(--frame-bg);
+        }
     }
 
     .arrow {
