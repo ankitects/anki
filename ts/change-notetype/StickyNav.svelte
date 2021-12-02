@@ -27,7 +27,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <StickyContainer
-    --sticky-bg={"var(--pane-bg)"}
     --sticky-border="var(--border)"
     --sticky-borders="0px 0 1px"
 >

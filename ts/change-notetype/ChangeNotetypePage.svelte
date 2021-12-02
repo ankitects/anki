@@ -49,9 +49,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     #scrollArea {
         padding: 0;
         overflow: hidden auto;
-        background: var(--pane-bg);
         height: calc(100% - var(--offset));
-        border: 1px solid var(--medium-border);
-        border-radius: 0.25rem;
     }
 </style>
