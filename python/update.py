@@ -24,7 +24,7 @@ sys.argv[1:] = [
     "--no-header",
     "--strip-extras",
     "--generate-hashes",
-    "python/requirements.in",
+    "requirements.in",
 ]
 
 cli()

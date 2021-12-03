@@ -195,7 +195,7 @@ return false;">
 }
 
 fn tts_filter(filter_name: &str, text: &str, tr: &I18n) -> Cow<'static, str> {
-    let args = filter_name.splitn(2, ' ').nth(1).unwrap_or("");
+    let args = filter_name.split_once(' ').map_or("", |t| t.1);
     let text = text.replace("[...]", &tr.card_templates_blank());
 
     format!("[anki:tts][{}]{}[/anki:tts]", args, text).into()

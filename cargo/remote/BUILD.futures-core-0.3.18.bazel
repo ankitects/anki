@@ -30,11 +30,45 @@ licenses([
 ])
 
 # Generated Targets
+# buildifier: disable=out-of-order-load
+# buildifier: disable=load-on-top
+load(
+    "@rules_rust//cargo:cargo_build_script.bzl",
+    "cargo_build_script",
+)
+
+cargo_build_script(
+    name = "futures_core_build_script",
+    srcs = glob(["**/*.rs"]),
+    build_script_env = {
+    },
+    crate_features = [
+        "alloc",
+        "default",
+        "std",
+    ],
+    crate_root = "build.rs",
+    data = glob(["**"]),
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.3.18",
+    visibility = ["//visibility:private"],
+    deps = [
+    ],
+)
 
 rust_library(
-    name = "futures_io",
+    name = "futures_core",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "alloc",
+        "default",
         "std",
     ],
     crate_root = "src/lib.rs",
@@ -47,8 +81,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.17",
+    version = "0.3.18",
     # buildifier: leave-alone
     deps = [
+        ":futures_core_build_script",
     ],
 )

@@ -7,14 +7,14 @@
         "path": "node_modules/@fluent/bundle",
         "licenseFile": "node_modules/@fluent/bundle/README.md"
     },
-    "@mdi/svg@6.4.95": {
+    "@mdi/svg@6.5.95": {
         "licenses": "Apache-2.0",
         "repository": "https://github.com/Templarian/MaterialDesign-SVG",
         "publisher": "Austin Andrews",
         "path": "node_modules/@mdi/svg",
         "licenseFile": "node_modules/@mdi/svg/LICENSE"
     },
-    "@popperjs/core@2.10.2": {
+    "@popperjs/core@2.11.0": {
         "licenses": "MIT",
         "repository": "https://github.com/popperjs/popper-core",
         "publisher": "Federico Zivolo",
@@ -108,7 +108,7 @@
         "path": "node_modules/@types/lodash-es",
         "licenseFile": "node_modules/@types/lodash-es/LICENSE"
     },
-    "@types/lodash@4.14.176": {
+    "@types/lodash@4.14.177": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/@types/lodash",
@@ -120,19 +120,19 @@
         "path": "node_modules/@types/long",
         "licenseFile": "node_modules/@types/long/LICENSE"
     },
-    "@types/marked@3.0.2": {
+    "@types/marked@3.0.3": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/@types/marked",
         "licenseFile": "node_modules/@types/marked/LICENSE"
     },
-    "@types/node@16.11.5": {
+    "@types/node@16.11.11": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/@types/node",
         "licenseFile": "node_modules/@types/node/LICENSE"
     },
-    "bootstrap-icons@1.6.1": {
+    "bootstrap-icons@1.7.1": {
         "licenses": "MIT",
         "repository": "https://github.com/twbs/icons",
         "publisher": "mdo",
@@ -147,7 +147,7 @@
         "path": "node_modules/bootstrap",
         "licenseFile": "node_modules/bootstrap/LICENSE"
     },
-    "codemirror@5.63.3": {
+    "codemirror@5.64.0": {
         "licenses": "MIT",
         "repository": "https://github.com/codemirror/CodeMirror",
         "publisher": "Marijn Haverbeke",

@@ -3,6 +3,6 @@
 
 set -e
 
-cd .. && ./node_modules/.bin/license-checker-rseidelsohn --production --json \
+cd .. && bazel run ts:node -- ./node_modules/.bin/license-checker-rseidelsohn --production --json \
     --excludePackages anki --relativeLicensePath \
     --relativeModulePath > ts/licenses.json

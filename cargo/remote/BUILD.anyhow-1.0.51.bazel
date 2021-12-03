@@ -38,15 +38,12 @@ load(
 )
 
 cargo_build_script(
-    name = "futures_channel_build_script",
+    name = "anyhow_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
-        "alloc",
         "default",
-        "futures-sink",
-        "sink",
         "std",
     ],
     crate_root = "build.rs",
@@ -59,22 +56,17 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.17",
+    version = "1.0.51",
     visibility = ["//visibility:private"],
     deps = [
     ],
 )
 
-# Unsupported target "sync_mpsc" with type "bench" omitted
-
 rust_library(
-    name = "futures_channel",
+    name = "anyhow",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "alloc",
         "default",
-        "futures-sink",
-        "sink",
         "std",
     ],
     crate_root = "src/lib.rs",
@@ -87,19 +79,37 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.17",
+    version = "1.0.51",
     # buildifier: leave-alone
     deps = [
-        ":futures_channel_build_script",
-        "@raze__futures_core__0_3_17//:futures_core",
-        "@raze__futures_sink__0_3_17//:futures_sink",
+        ":anyhow_build_script",
     ],
 )
 
-# Unsupported target "channel" with type "test" omitted
+# Unsupported target "compiletest" with type "test" omitted
 
-# Unsupported target "mpsc" with type "test" omitted
+# Unsupported target "test_autotrait" with type "test" omitted
 
-# Unsupported target "mpsc-close" with type "test" omitted
+# Unsupported target "test_backtrace" with type "test" omitted
 
-# Unsupported target "oneshot" with type "test" omitted
+# Unsupported target "test_boxed" with type "test" omitted
+
+# Unsupported target "test_chain" with type "test" omitted
+
+# Unsupported target "test_context" with type "test" omitted
+
+# Unsupported target "test_convert" with type "test" omitted
+
+# Unsupported target "test_downcast" with type "test" omitted
+
+# Unsupported target "test_ensure" with type "test" omitted
+
+# Unsupported target "test_ffi" with type "test" omitted
+
+# Unsupported target "test_fmt" with type "test" omitted
+
+# Unsupported target "test_macros" with type "test" omitted
+
+# Unsupported target "test_repr" with type "test" omitted
+
+# Unsupported target "test_source" with type "test" omitted

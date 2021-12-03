@@ -377,7 +377,7 @@ impl Collection {
         let mut missing = 0;
         for (_id, name) in names {
             parents.insert(UniCase::new(name.as_str()));
-            if let Some(immediate_parent) = name.rsplitn(2, "::").nth(1) {
+            if let Some((immediate_parent, _)) = name.rsplit_once("::") {
                 let immediate_parent_uni = UniCase::new(immediate_parent);
                 if !parents.contains(&immediate_parent_uni) {
                     self.get_or_create_normal_deck(immediate_parent)?;
