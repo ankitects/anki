@@ -30,15 +30,14 @@ def register_repos():
     #     path = "../rules_rust",
     # )
 
-    # pending merge of https://github.com/bazelbuild/rules_rust/pull/955
     maybe(
         http_archive,
         name = "rules_rust",
-        strip_prefix = "rules_rust-anki-2021-11-19",
+        strip_prefix = "rules_rust-anki-2021-12-03",
         urls = [
-            "https://github.com/ankitects/rules_rust/archive/anki-2021-11-19.tar.gz",
+            "https://github.com/ankitects/rules_rust/archive/refs/tags/anki-2021-12-03.zip",
         ],
-        sha256 = "c0fb4ce7c616a19b73967ea763cdc0481287d56482115ca67c7a52b883f1b408",
+        sha256 = "203d8dd78a541456dadefb2a5b51def96473a69af21b3a80f97d0946eca4fd0f",
     )
 
     # python
