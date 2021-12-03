@@ -26,7 +26,7 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
@@ -38,17 +38,25 @@ load(
 )
 
 cargo_build_script(
-    name = "pyo3_build_config_build_script",
+    name = "futures_util_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
-        "PYO3_NO_PYTHON": "1",
     },
     crate_features = [
-        "abi3",
-        "abi3-py310",
-        "abi3-py39",
+        "alloc",
+        "async-await",
+        "async-await-macro",
+        "channel",
         "default",
-        "resolve-config",
+        "futures-channel",
+        "futures-io",
+        "futures-macro",
+        "futures-sink",
+        "io",
+        "memchr",
+        "sink",
+        "slab",
+        "std",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -60,25 +68,39 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.15.0",
+    version = "0.3.18",
     visibility = ["//visibility:private"],
     deps = [
     ],
 )
 
+# Unsupported target "futures_unordered" with type "bench" omitted
+
 rust_library(
-    name = "pyo3_build_config",
+    name = "futures_util",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "abi3",
-        "abi3-py310",
-        "abi3-py39",
+        "alloc",
+        "async-await",
+        "async-await-macro",
+        "channel",
         "default",
-        "resolve-config",
+        "futures-channel",
+        "futures-io",
+        "futures-macro",
+        "futures-sink",
+        "io",
+        "memchr",
+        "sink",
+        "slab",
+        "std",
     ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2018",
+    proc_macro_deps = [
+        "@raze__futures_macro__0_3_18//:futures_macro",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -86,10 +108,18 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.15.0",
+    version = "0.3.18",
     # buildifier: leave-alone
     deps = [
-        ":pyo3_build_config_build_script",
-        "@raze__once_cell__1_8_0//:once_cell",
+        ":futures_util_build_script",
+        "@raze__futures_channel__0_3_18//:futures_channel",
+        "@raze__futures_core__0_3_18//:futures_core",
+        "@raze__futures_io__0_3_18//:futures_io",
+        "@raze__futures_sink__0_3_18//:futures_sink",
+        "@raze__futures_task__0_3_18//:futures_task",
+        "@raze__memchr__2_4_1//:memchr",
+        "@raze__pin_project_lite__0_2_7//:pin_project_lite",
+        "@raze__pin_utils__0_1_0//:pin_utils",
+        "@raze__slab__0_4_5//:slab",
     ],
 )

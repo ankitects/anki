@@ -55,7 +55,7 @@
   },
   {
     "name": "anyhow",
-    "version": "1.0.45",
+    "version": "1.0.51",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/anyhow",
     "license": "Apache-2.0 OR MIT",
@@ -271,7 +271,7 @@
   },
   {
     "name": "crc32fast",
-    "version": "1.2.1",
+    "version": "1.3.0",
     "authors": "Sam Rijs <srijs@airpost.net>|Alex Crichton <alex@alexcrichton.com>",
     "repository": "https://github.com/srijs/rust-crc32fast",
     "license": "Apache-2.0 OR MIT",
@@ -325,7 +325,7 @@
   },
   {
     "name": "derive_more",
-    "version": "0.99.16",
+    "version": "0.99.17",
     "authors": "Jelte Fennema <github-tech@jeltef.nl>",
     "repository": "https://github.com/JelteF/derive_more",
     "license": "MIT",
@@ -532,8 +532,8 @@
   },
   {
     "name": "futures",
-    "version": "0.3.17",
-    "authors": "Alex Crichton <alex@alexcrichton.com>",
+    "version": "0.3.18",
+    "authors": null,
     "repository": "https://github.com/rust-lang/futures-rs",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -541,8 +541,8 @@
   },
   {
     "name": "futures-channel",
-    "version": "0.3.17",
-    "authors": "Alex Crichton <alex@alexcrichton.com>",
+    "version": "0.3.18",
+    "authors": null,
     "repository": "https://github.com/rust-lang/futures-rs",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -550,8 +550,8 @@
   },
   {
     "name": "futures-core",
-    "version": "0.3.17",
-    "authors": "Alex Crichton <alex@alexcrichton.com>",
+    "version": "0.3.18",
+    "authors": null,
     "repository": "https://github.com/rust-lang/futures-rs",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -559,8 +559,8 @@
   },
   {
     "name": "futures-executor",
-    "version": "0.3.17",
-    "authors": "Alex Crichton <alex@alexcrichton.com>",
+    "version": "0.3.18",
+    "authors": null,
     "repository": "https://github.com/rust-lang/futures-rs",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -568,8 +568,8 @@
   },
   {
     "name": "futures-io",
-    "version": "0.3.17",
-    "authors": "Alex Crichton <alex@alexcrichton.com>",
+    "version": "0.3.18",
+    "authors": null,
     "repository": "https://github.com/rust-lang/futures-rs",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -577,8 +577,8 @@
   },
   {
     "name": "futures-macro",
-    "version": "0.3.17",
-    "authors": "Taylor Cramer <cramertj@google.com>|Taiki Endo <te316e89@gmail.com>",
+    "version": "0.3.18",
+    "authors": null,
     "repository": "https://github.com/rust-lang/futures-rs",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -586,8 +586,8 @@
   },
   {
     "name": "futures-sink",
-    "version": "0.3.17",
-    "authors": "Alex Crichton <alex@alexcrichton.com>",
+    "version": "0.3.18",
+    "authors": null,
     "repository": "https://github.com/rust-lang/futures-rs",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -595,8 +595,8 @@
   },
   {
     "name": "futures-task",
-    "version": "0.3.17",
-    "authors": "Alex Crichton <alex@alexcrichton.com>",
+    "version": "0.3.18",
+    "authors": null,
     "repository": "https://github.com/rust-lang/futures-rs",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -604,8 +604,8 @@
   },
   {
     "name": "futures-util",
-    "version": "0.3.17",
-    "authors": "Alex Crichton <alex@alexcrichton.com>",
+    "version": "0.3.18",
+    "authors": null,
     "repository": "https://github.com/rust-lang/futures-rs",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -919,7 +919,7 @@
   },
   {
     "name": "libc",
-    "version": "0.2.107",
+    "version": "0.2.108",
     "authors": "The Rust Project Developers",
     "repository": "https://github.com/rust-lang/libc",
     "license": "Apache-2.0 OR MIT",
@@ -1258,15 +1258,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Percent encoding and decoding"
-  },
-  {
-    "name": "pest",
-    "version": "2.1.3",
-    "authors": "Dragoș Tiselice <dragostiselice@gmail.com>",
-    "repository": "https://github.com/pest-parser/pest",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "The Elegant Parser"
   },
   {
     "name": "petgraph",
@@ -1675,8 +1666,8 @@
   },
   {
     "name": "rustc_version",
-    "version": "0.3.3",
-    "authors": "Marvin Löbel <loebel.marvin@gmail.com>",
+    "version": "0.4.0",
+    "authors": "Dirkjan Ochtman <dirkjan@ochtman.nl>|Marvin Löbel <loebel.marvin@gmail.com>",
     "repository": "https://github.com/Kimundi/rustc-version-rs",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -1711,7 +1702,7 @@
   },
   {
     "name": "ryu",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/ryu",
     "license": "Apache-2.0 OR BSL-1.0",
@@ -1774,7 +1765,7 @@
   },
   {
     "name": "self_cell",
-    "version": "0.10.1",
+    "version": "0.10.2",
     "authors": "Lukas Bergdoll <lukas.bergdoll@gmail.com>",
     "repository": "https://github.com/Voultapher/self_cell",
     "license": "Apache-2.0",
@@ -1783,21 +1774,12 @@
   },
   {
     "name": "semver",
-    "version": "0.11.0",
-    "authors": "Steve Klabnik <steve@steveklabnik.com>|The Rust Project Developers",
-    "repository": "https://github.com/steveklabnik/semver",
+    "version": "1.0.4",
+    "authors": "David Tolnay <dtolnay@gmail.com>",
+    "repository": "https://github.com/dtolnay/semver",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
-    "description": "Semantic version parsing and comparison."
-  },
-  {
-    "name": "semver-parser",
-    "version": "0.10.2",
-    "authors": "Steve Klabnik <steve@steveklabnik.com>",
-    "repository": "https://github.com/steveklabnik/semver-parser",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Parsing of the semver spec."
+    "description": "Parser and evaluator for Cargo's flavor of Semantic Versioning"
   },
   {
     "name": "serde",
@@ -1828,7 +1810,7 @@
   },
   {
     "name": "serde_json",
-    "version": "1.0.71",
+    "version": "1.0.72",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/json",
     "license": "Apache-2.0 OR MIT",
@@ -2026,7 +2008,7 @@
   },
   {
     "name": "strum_macros",
-    "version": "0.23.0",
+    "version": "0.23.1",
     "authors": "Peter Glotfelty <peter.glotfelty@microsoft.com>",
     "repository": "https://github.com/Peternator7/strum",
     "license": "MIT",
@@ -2035,7 +2017,7 @@
   },
   {
     "name": "syn",
-    "version": "1.0.81",
+    "version": "1.0.82",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/syn",
     "license": "Apache-2.0 OR MIT",
@@ -2284,15 +2266,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Typenum is a Rust library for type-level numbers evaluated at     compile time. It currently supports bits, unsigned integers, and signed     integers. It also provides a type-level array of type-level numbers, but its     implementation is incomplete."
-  },
-  {
-    "name": "ucd-trie",
-    "version": "0.1.3",
-    "authors": "Andrew Gallant <jamslam@gmail.com>",
-    "repository": "https://github.com/BurntSushi/ucd-generate",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A trie for storing Unicode codepoint sets and maps."
   },
   {
     "name": "unic-char-property",

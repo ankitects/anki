@@ -38,11 +38,13 @@ load(
 )
 
 cargo_build_script(
-    name = "futures_macro_build_script",
+    name = "semver_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
+        "default",
+        "std",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -54,24 +56,24 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.17",
+    version = "1.0.4",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__autocfg__1_0_1//:autocfg",
     ],
 )
 
-rust_proc_macro(
-    name = "futures_macro",
+# Unsupported target "parse" with type "bench" omitted
+
+rust_library(
+    name = "semver",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
+        "std",
     ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2018",
-    proc_macro_deps = [
-        "@raze__proc_macro_hack__0_5_19//:proc_macro_hack",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -79,12 +81,15 @@ rust_proc_macro(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.17",
+    version = "1.0.4",
     # buildifier: leave-alone
     deps = [
-        ":futures_macro_build_script",
-        "@raze__proc_macro2__1_0_32//:proc_macro2",
-        "@raze__quote__1_0_10//:quote",
-        "@raze__syn__1_0_81//:syn",
+        ":semver_build_script",
     ],
 )
+
+# Unsupported target "test_identifier" with type "test" omitted
+
+# Unsupported target "test_version" with type "test" omitted
+
+# Unsupported target "test_version_req" with type "test" omitted
