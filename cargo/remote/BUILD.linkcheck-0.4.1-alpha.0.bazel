@@ -55,7 +55,7 @@ rust_library(
         "@raze__bytes__1_1_0//:bytes",
         "@raze__codespan__0_11_1//:codespan",
         "@raze__dunce__1_0_2//:dunce",
-        "@raze__futures__0_3_17//:futures",
+        "@raze__futures__0_3_18//:futures",
         "@raze__http__0_2_5//:http",
         "@raze__kuchiki__0_8_1//:kuchiki",
         "@raze__lazy_static__1_4_0//:lazy_static",
