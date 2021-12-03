@@ -176,7 +176,11 @@ class QueryOp(Generic[T]):
         self._failure = failure
         return self
 
-    def with_progress(self, label: str | None = None) -> QueryOp[T]:
+    def with_progress(
+        self,
+        label: str | None = None,
+    ) -> QueryOp[T]:
+        "If label not provided, will default to 'Processing...'"
         self._progress = label or True
         return self
 
@@ -195,7 +199,12 @@ class QueryOp(Generic[T]):
                     label = self._progress
                 else:
                     label = None
-                mw.progress.start(label=label)
+
+                def start_progress() -> None:
+                    assert mw
+                    mw.progress.start(label=label)
+
+                mw.taskman.run_on_main(start_progress)
             return self._op(mw.col)
 
         def wrapped_done(future: Future) -> None:
