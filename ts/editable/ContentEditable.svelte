@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { updateAllState } from "../components/WithState.svelte";
     import { saveSelection, restoreSelection } from "../domlib/location";
     import { on, preventDefault } from "../lib/events";
+    import { caretToEnd } from "../lib/dom";
     import { registerShortcut } from "../lib/shortcuts";
 
     export let nodes: Writable<DocumentFragment>;
@@ -29,7 +30,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             "focus",
             () => {
                 if (location) {
-                    restoreSelection(editable, location);
+                    try {
+                        restoreSelection(editable, location);
+                    } catch {
+                        caretToEnd(editable);
+                    }
                 }
             },
             { once: true },
