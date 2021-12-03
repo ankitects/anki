@@ -305,7 +305,7 @@ impl SqliteStorage {
 
         self.db
             .prepare_cached(sql)?
-            .query_and_then(&*params, |row| row_to_due_counts(row))?
+            .query_and_then(&*params, row_to_due_counts)?
             .collect()
     }
 

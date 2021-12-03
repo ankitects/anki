@@ -23,7 +23,6 @@ pub(crate) struct CardQueues {
     counts: Counts,
     main: VecDeque<MainQueueEntry>,
     intraday_learning: VecDeque<LearningQueueEntry>,
-    selected_deck: DeckId,
     current_day: u32,
     learn_ahead_secs: i64,
     build_time: TimestampMillis,
