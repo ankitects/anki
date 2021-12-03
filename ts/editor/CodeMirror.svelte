@@ -57,6 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     codeMirror.setSelections(ranges);
                 } catch {
                     ranges = null;
+                    codeMirror.setCursor(codeMirror.lineCount(), 0);
                 }
             }
             unsubscribe();
