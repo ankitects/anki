@@ -196,12 +196,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "lazy_static"
-version = "1.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
-
-[[package]]
 name = "libc"
 version = "0.2.105"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -350,8 +344,8 @@ dependencies = [
 
 [[package]]
 name = "pyembed"
-version = "0.18.0-pre"
-source = "git+https://github.com/ankitects/PyOxidizer.git?rev=ffbfe66912335bc816074c7a08aed06e26bfca7f#ffbfe66912335bc816074c7a08aed06e26bfca7f"
+version = "0.20.0-pre"
+source = "git+https://github.com/ankitects/PyOxidizer.git?rev=200fbd25894e9000451b0c562085bf70b8b9f6c1#200fbd25894e9000451b0c562085bf70b8b9f6c1"
 dependencies = [
  "anyhow",
  "dunce",
@@ -367,9 +361,9 @@ dependencies = [
 
 [[package]]
 name = "pyo3"
-version = "0.14.5"
+version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "35100f9347670a566a67aa623369293703322bb9db77d99d7df7313b575ae0c8"
+checksum = "7cf01dbf1c05af0a14c7779ed6f3aa9deac9c3419606ac9de537a2d649005720"
 dependencies = [
  "cfg-if",
  "indoc",
@@ -383,18 +377,18 @@ dependencies = [
 
 [[package]]
 name = "pyo3-build-config"
-version = "0.14.5"
+version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d12961738cacbd7f91b7c43bc25cfeeaa2698ad07a04b3be0aa88b950865738f"
+checksum = "dbf9e4d128bfbddc898ad3409900080d8d5095c379632fbbfbb9c8cfb1fb852b"
 dependencies = [
  "once_cell",
 ]
 
 [[package]]
 name = "pyo3-macros"
-version = "0.14.5"
+version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fc0bc5215d704824dfddddc03f93cb572e1155c68b6761c37005e1c288808ea8"
+checksum = "67701eb32b1f9a9722b4bc54b548ff9d7ebfded011c12daece7b9063be1fd755"
 dependencies = [
  "pyo3-macros-backend",
  "quote",
@@ -403,9 +397,9 @@ dependencies = [
 
 [[package]]
 name = "pyo3-macros-backend"
-version = "0.14.5"
+version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "71623fc593224afaab918aa3afcaf86ed2f43d34f6afde7f3922608f253240df"
+checksum = "f44f09e825ee49a105f2c7b23ebee50886a9aee0746f4dd5a704138a64b0218a"
 dependencies = [
  "proc-macro2",
  "pyo3-build-config",
@@ -415,11 +409,10 @@ dependencies = [
 
 [[package]]
 name = "python-oxidized-importer"
-version = "0.3.0-pre"
-source = "git+https://github.com/ankitects/PyOxidizer.git?rev=ffbfe66912335bc816074c7a08aed06e26bfca7f#ffbfe66912335bc816074c7a08aed06e26bfca7f"
+version = "0.5.0-pre"
+source = "git+https://github.com/ankitects/PyOxidizer.git?rev=200fbd25894e9000451b0c562085bf70b8b9f6c1#200fbd25894e9000451b0c562085bf70b8b9f6c1"
 dependencies = [
  "anyhow",
- "lazy_static",
  "memmap",
  "memory-module-sys",
  "once_cell",
@@ -432,8 +425,8 @@ dependencies = [
 
 [[package]]
 name = "python-packaging"
-version = "0.11.0-pre"
-source = "git+https://github.com/ankitects/PyOxidizer.git?rev=ffbfe66912335bc816074c7a08aed06e26bfca7f#ffbfe66912335bc816074c7a08aed06e26bfca7f"
+version = "0.12.0-pre"
+source = "git+https://github.com/ankitects/PyOxidizer.git?rev=200fbd25894e9000451b0c562085bf70b8b9f6c1#200fbd25894e9000451b0c562085bf70b8b9f6c1"
 dependencies = [
  "anyhow",
  "byteorder",
@@ -451,8 +444,8 @@ dependencies = [
 
 [[package]]
 name = "python-packed-resources"
-version = "0.8.0-pre"
-source = "git+https://github.com/ankitects/PyOxidizer.git?rev=ffbfe66912335bc816074c7a08aed06e26bfca7f#ffbfe66912335bc816074c7a08aed06e26bfca7f"
+version = "0.9.0-pre"
+source = "git+https://github.com/ankitects/PyOxidizer.git?rev=200fbd25894e9000451b0c562085bf70b8b9f6c1#200fbd25894e9000451b0c562085bf70b8b9f6c1"
 dependencies = [
  "anyhow",
  "byteorder",
@@ -561,13 +554,13 @@ dependencies = [
 
 [[package]]
 name = "tugger-file-manifest"
-version = "0.6.0-pre"
-source = "git+https://github.com/ankitects/PyOxidizer.git?rev=ffbfe66912335bc816074c7a08aed06e26bfca7f#ffbfe66912335bc816074c7a08aed06e26bfca7f"
+version = "0.7.0-pre"
+source = "git+https://github.com/ankitects/PyOxidizer.git?rev=200fbd25894e9000451b0c562085bf70b8b9f6c1#200fbd25894e9000451b0c562085bf70b8b9f6c1"
 
 [[package]]
 name = "tugger-licensing"
-version = "0.5.0-pre"
-source = "git+https://github.com/ankitects/PyOxidizer.git?rev=ffbfe66912335bc816074c7a08aed06e26bfca7f#ffbfe66912335bc816074c7a08aed06e26bfca7f"
+version = "0.6.0-pre"
+source = "git+https://github.com/ankitects/PyOxidizer.git?rev=200fbd25894e9000451b0c562085bf70b8b9f6c1#200fbd25894e9000451b0c562085bf70b8b9f6c1"
 dependencies = [
  "anyhow",
  "spdx",
