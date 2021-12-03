@@ -1,4 +1,4 @@
-load("@rules_rust//rust:rust.bzl", "rust_library", "rust_test")
+load("@rules_rust//rust:defs.bzl", "rust_shared_library")
 load("@rules_rust//cargo:cargo_build_script.bzl", "cargo_build_script")
 load("@bazel_skylib//lib:selects.bzl", "selects")
 load("//rslib:rustfmt.bzl", "rustfmt_fix", "rustfmt_test")
@@ -14,10 +14,9 @@ cargo_build_script(
     ],
 )
 
-rust_library(
+rust_shared_library(
     name = "rsbridge",
     srcs = ["lib.rs"],
-    crate_type = "cdylib",
     rustc_flags = selects.with_or({
         (
             "@rules_rust//rust/platform:x86_64-apple-darwin",
