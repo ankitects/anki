@@ -122,7 +122,7 @@ alias(
 
 alias(
     name = "futures",
-    actual = "@raze__futures__0_3_17//:futures",
+    actual = "@raze__futures__0_3_18//:futures",
     tags = [
         "cargo-raze",
         "manual",
@@ -302,7 +302,7 @@ alias(
 
 alias(
     name = "pyo3",
-    actual = "@raze__pyo3__0_15_0//:pyo3",
+    actual = "@raze__pyo3__0_15_1//:pyo3",
     tags = [
         "cargo-raze",
         "manual",
@@ -383,7 +383,7 @@ alias(
 
 alias(
     name = "serde_json",
-    actual = "@raze__serde_json__1_0_71//:serde_json",
+    actual = "@raze__serde_json__1_0_72//:serde_json",
     tags = [
         "cargo-raze",
         "manual",
