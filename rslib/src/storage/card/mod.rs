@@ -182,8 +182,6 @@ impl super::SqliteStorage {
                 mtime: row.get(3)?,
                 current_deck_id: row.get(4)?,
                 original_deck_id: row.get(5)?,
-                interval: 0,
-                hash: 0,
                 kind: DueCardKind::Learning,
             })
         }
@@ -219,11 +217,9 @@ impl super::SqliteStorage {
                 id: row.get(0)?,
                 note_id: row.get(1)?,
                 due: row.get(2).ok().unwrap_or_default(),
-                interval: row.get(3)?,
                 mtime: row.get(4)?,
                 current_deck_id: row.get(5)?,
                 original_deck_id: row.get(6)?,
-                hash: 0,
                 kind,
             }) {
                 break;

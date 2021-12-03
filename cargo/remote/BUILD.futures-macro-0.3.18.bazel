@@ -26,22 +26,19 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_proc_macro(
-    name = "strum_macros",
+    name = "futures_macro",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2018",
-    proc_macro_deps = [
-        "@raze__rustversion__1_0_5//:rustversion",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -49,12 +46,11 @@ rust_proc_macro(
         "cargo-raze",
         "manual",
     ],
-    version = "0.23.0",
+    version = "0.3.18",
     # buildifier: leave-alone
     deps = [
-        "@raze__heck__0_3_3//:heck",
         "@raze__proc_macro2__1_0_32//:proc_macro2",
         "@raze__quote__1_0_10//:quote",
-        "@raze__syn__1_0_81//:syn",
+        "@raze__syn__1_0_82//:syn",
     ],
 )

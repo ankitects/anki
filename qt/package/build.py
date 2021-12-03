@@ -76,11 +76,11 @@ def build_pyoxidizer():
         [
             "cargo",
             "install",
-            "--locked",
             "--git",
             "https://github.com/ankitects/PyOxidizer.git",
             "--rev",
-            "ffbfe66912335bc816074c7a08aed06e26bfca7f",
+            # when updating, make sure Cargo.toml updated too
+            "200fbd25894e9000451b0c562085bf70b8b9f6c1",
             "pyoxidizer",
         ],
         check=True,

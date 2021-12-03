@@ -25,8 +25,6 @@ pub(crate) struct DueCard {
     pub note_id: NoteId,
     pub mtime: TimestampSecs,
     pub due: i32,
-    pub interval: u32,
-    pub hash: u64,
     pub current_deck_id: DeckId,
     pub original_deck_id: DeckId,
     pub kind: DueCardKind,
@@ -122,7 +120,6 @@ impl QueueBuilder {
         mut self,
         top_deck_limits: RemainingLimits,
         learn_ahead_secs: i64,
-        selected_deck: DeckId,
         current_day: u32,
     ) -> CardQueues {
         self.sort_new();
@@ -164,7 +161,6 @@ impl QueueBuilder {
             main: main_iter.collect(),
             intraday_learning,
             learn_ahead_secs,
-            selected_deck,
             current_day,
             build_time: TimestampMillis::now(),
             current_learning_cutoff: now,
@@ -333,7 +329,6 @@ impl Collection {
         let queues = queues.build(
             final_limits,
             self.learn_ahead_secs() as i64,
-            deck_id,
             timing.days_elapsed,
         );
 

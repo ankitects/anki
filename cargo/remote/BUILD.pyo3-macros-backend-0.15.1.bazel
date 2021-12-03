@@ -26,13 +26,13 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "rustc_version",
+    name = "pyo3_macros_backend",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
@@ -46,11 +46,12 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.3",
+    version = "0.15.1",
     # buildifier: leave-alone
     deps = [
-        "@raze__semver__0_11_0//:semver",
+        "@raze__proc_macro2__1_0_32//:proc_macro2",
+        "@raze__pyo3_build_config__0_15_1//:pyo3_build_config",
+        "@raze__quote__1_0_10//:quote",
+        "@raze__syn__1_0_82//:syn",
     ],
 )
-
-# Unsupported target "all" with type "test" omitted

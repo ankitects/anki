@@ -10,7 +10,7 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
     "rust_test",
@@ -64,7 +64,6 @@ rust_library(
         "tokio-socks",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -82,7 +81,7 @@ rust_library(
         "@raze__hyper_timeout__0_4_1//:hyper_timeout",
         "@raze__mime_guess__2_0_3//:mime_guess",
         "@raze__serde__1_0_130//:serde",
-        "@raze__serde_json__1_0_71//:serde_json",
+        "@raze__serde_json__1_0_72//:serde_json",
         "@raze__serde_urlencoded__0_7_0//:serde_urlencoded",
         "@raze__url__2_2_2//:url",
     ] + selects.with_or({
@@ -98,8 +97,8 @@ rust_library(
         ): [
             "@raze__base64__0_13_0//:base64",
             "@raze__encoding_rs__0_8_29//:encoding_rs",
-            "@raze__futures_core__0_3_17//:futures_core",
-            "@raze__futures_util__0_3_17//:futures_util",
+            "@raze__futures_core__0_3_18//:futures_core",
+            "@raze__futures_util__0_3_18//:futures_util",
             "@raze__http_body__0_4_4//:http_body",
             "@raze__hyper__0_14_15//:hyper",
             "@raze__hyper_tls__0_5_0//:hyper_tls",

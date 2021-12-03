@@ -65,10 +65,10 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.15.0",
+    version = "0.15.1",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__pyo3_build_config__0_15_0//:pyo3_build_config",
+        "@raze__pyo3_build_config__0_15_1//:pyo3_build_config",
     ],
 )
 
@@ -110,7 +110,7 @@ rust_library(
     compile_data = glob(["**/*.md"]),
     edition = "2018",
     proc_macro_deps = [
-        "@raze__pyo3_macros__0_15_0//:pyo3_macros",
+        "@raze__pyo3_macros__0_15_1//:pyo3_macros",
     ],
     rustc_flags = [
         "--cap-lints=allow",
@@ -119,13 +119,13 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.15.0",
+    version = "0.15.1",
     # buildifier: leave-alone
     deps = [
         ":pyo3_build_script",
         "@raze__cfg_if__1_0_0//:cfg_if",
         "@raze__indoc__0_3_6//:indoc",
-        "@raze__libc__0_2_107//:libc",
+        "@raze__libc__0_2_108//:libc",
         "@raze__parking_lot__0_11_2//:parking_lot",
         "@raze__paste__0_1_18//:paste",
         "@raze__unindent__0_1_7//:unindent",

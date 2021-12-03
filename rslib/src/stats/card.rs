@@ -43,11 +43,7 @@ impl Collection {
             total_secs,
             card_type: nt.get_template(card.template_idx)?.name.clone(),
             notetype: nt.name.clone(),
-            revlog: revlog
-                .iter()
-                .rev()
-                .map(|entry| stats_revlog_entry(entry))
-                .collect(),
+            revlog: revlog.iter().rev().map(stats_revlog_entry).collect(),
         })
     }
 
