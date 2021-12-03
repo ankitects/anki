@@ -143,7 +143,13 @@ T = TypeVar("T")
 
 
 class QueryOp(Generic[T]):
-    """Helper to perform a non-mutating DB query on a background thread.
+    """Helper to perform an operation on a background thread.
+
+    QueryOp is primarily used for read-only requests (reading information
+    from the database, fetching data from the network, etc), but can also
+    be used for mutable requests outside of the collection undo system
+    (eg adding/deleting files, calling a collection method that doesn't support
+    undo, etc). For operations that support undo, use CollectionOp instead.
 
     - Optionally shows progress popup for the duration of the op.
     - Ensures the browser doesn't try to redraw during the operation, which can lead
