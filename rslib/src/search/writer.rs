@@ -66,7 +66,7 @@ pub fn replace_search_node(mut existing: Vec<Node>, replacement: Node) -> String
 }
 
 pub fn write_nodes(nodes: &[Node]) -> String {
-    nodes.iter().map(|node| write_node(node)).collect()
+    nodes.iter().map(write_node).collect()
 }
 
 fn write_node(node: &Node) -> String {
