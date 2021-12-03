@@ -173,13 +173,13 @@ class MediaChecker:
         total = len(fnames)
 
         def trash(col: Collection) -> None:
-            last_progress = time.time()
-            remaining = len(fnames)
+            last_progress = 0.0
+            remaining = total
 
             for chunk in chunked_list(fnames, 25):
                 col.media.trash_files(chunk)
                 remaining -= len(chunk)
-                if time.time() - last_progress >= 0.3:
+                if time.time() - last_progress >= 0.1:
                     self.mw.taskman.run_on_main(
                         lambda: self.mw.progress.update(
                             label=tr.media_check_files_remaining(count=remaining),
@@ -187,6 +187,7 @@ class MediaChecker:
                             max=total,
                         )
                     )
+                    last_progress = time.time()
 
         QueryOp(
             parent=aqt.mw,
