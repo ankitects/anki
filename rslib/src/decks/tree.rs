@@ -285,13 +285,17 @@ impl From<DeckTreeNode> for LegacyDueCounts {
 
 impl Collection {
     /// Get the deck tree.
-    /// If now is provided, due counts for the provided timestamp will be populated.
-    /// If top_deck_id is provided, only the node starting at the provided deck ID will
-    /// have the counts populated. Currently the entire tree is returned in this case, but
-    /// this may change in the future.
+    /// - If `timestamp` is provided, due counts for the provided timestamp will
+    ///   be populated.
+    /// - Buried cards from previous days will be unburied if necessary. Because
+    ///   this does not happen for future stamps, future due numbers may not be
+    ///   accurate.
+    /// - If top_deck_id is provided, only the node starting at the provided
+    ///   deck ID will have the counts populated. Currently the entire tree is
+    ///   returned in this case, but this may change in the future.
     pub fn deck_tree(
         &mut self,
-        now: Option<TimestampSecs>,
+        timestamp: Option<TimestampSecs>,
         top_deck_id: Option<DeckId>,
     ) -> Result<DeckTreeNode> {
         let names = self.storage.get_all_deck_names()?;
@@ -299,18 +303,22 @@ impl Collection {
 
         let decks_map = self.storage.get_decks_map()?;
 
-        add_collapsed_and_filtered(&mut tree, &decks_map, now.is_none());
+        add_collapsed_and_filtered(&mut tree, &decks_map, timestamp.is_none());
         if self.default_deck_is_empty()? {
             hide_default_deck(&mut tree);
         }
 
-        if let Some(now) = now {
+        if let Some(timestamp) = timestamp {
+            // cards buried on previous days need to be unburied for the current
+            // day's counts to be accurate
+            let timing_today = self.timing_today()?;
+            self.unbury_if_day_rolled_over(timing_today)?;
+
             let limit = top_deck_id
                 .and_then(|did| decks_map.get(&did).map(|deck| deck.name.as_native_str()));
-            let timing = self.timing_for_timestamp(now)?;
-            self.unbury_if_day_rolled_over(timing)?;
-            let days_elapsed = timing.days_elapsed;
-            let learn_cutoff = (now.0 as u32) + self.learn_ahead_secs();
+            let timing_at_stamp = self.timing_for_timestamp(timestamp)?;
+            let days_elapsed = timing_at_stamp.days_elapsed;
+            let learn_cutoff = (timestamp.0 as u32) + self.learn_ahead_secs();
             let sched_ver = self.scheduler_version();
             let v3 = self.get_config_bool(BoolKey::Sched2021);
             let counts = self.due_counts(days_elapsed, learn_cutoff, limit)?;
@@ -369,7 +377,7 @@ impl Collection {
         let mut missing = 0;
         for (_id, name) in names {
             parents.insert(UniCase::new(name.as_str()));
-            if let Some(immediate_parent) = name.rsplitn(2, "::").nth(1) {
+            if let Some((immediate_parent, _)) = name.rsplit_once("::") {
                 let immediate_parent_uni = UniCase::new(immediate_parent);
                 if !parents.contains(&immediate_parent_uni) {
                     self.get_or_create_normal_deck(immediate_parent)?;

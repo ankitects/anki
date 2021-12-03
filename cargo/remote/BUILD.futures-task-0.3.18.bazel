@@ -38,13 +38,12 @@ load(
 )
 
 cargo_build_script(
-    name = "futures_core_build_script",
+    name = "futures_task_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
         "alloc",
-        "default",
         "std",
     ],
     crate_root = "build.rs",
@@ -57,18 +56,17 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.17",
+    version = "0.3.18",
     visibility = ["//visibility:private"],
     deps = [
     ],
 )
 
 rust_library(
-    name = "futures_core",
+    name = "futures_task",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "alloc",
-        "default",
         "std",
     ],
     crate_root = "src/lib.rs",
@@ -81,9 +79,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.17",
+    version = "0.3.18",
     # buildifier: leave-alone
     deps = [
-        ":futures_core_build_script",
+        ":futures_task_build_script",
     ],
 )

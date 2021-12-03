@@ -55,7 +55,7 @@ rust_library(
         "@raze__log__0_4_14//:log",
         "@raze__proc_macro2__1_0_32//:proc_macro2",
         "@raze__quote__1_0_10//:quote",
-        "@raze__syn__1_0_81//:syn",
+        "@raze__syn__1_0_82//:syn",
         "@raze__wasm_bindgen_shared__0_2_78//:wasm_bindgen_shared",
     ],
 )

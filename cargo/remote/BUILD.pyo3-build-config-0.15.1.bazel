@@ -26,7 +26,7 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
@@ -38,13 +38,17 @@ load(
 )
 
 cargo_build_script(
-    name = "futures_task_build_script",
+    name = "pyo3_build_config_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
+        "PYO3_NO_PYTHON": "1",
     },
     crate_features = [
-        "alloc",
-        "std",
+        "abi3",
+        "abi3-py310",
+        "abi3-py39",
+        "default",
+        "resolve-config",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -56,18 +60,21 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.17",
+    version = "0.15.1",
     visibility = ["//visibility:private"],
     deps = [
     ],
 )
 
 rust_library(
-    name = "futures_task",
+    name = "pyo3_build_config",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "alloc",
-        "std",
+        "abi3",
+        "abi3-py310",
+        "abi3-py39",
+        "default",
+        "resolve-config",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -79,9 +86,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.17",
+    version = "0.15.1",
     # buildifier: leave-alone
     deps = [
-        ":futures_task_build_script",
+        ":pyo3_build_config_build_script",
+        "@raze__once_cell__1_8_0//:once_cell",
     ],
 )

@@ -108,7 +108,7 @@ rust_library(
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-apple-ios",
         ): [
-            "@raze__libc__0_2_107//:libc",
+            "@raze__libc__0_2_108//:libc",
         ],
         "//conditions:default": [],
     }),
