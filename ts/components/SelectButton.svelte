@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { onMount, createEventDispatcher } from "svelte";
     import { pageTheme } from "../sveltelib/theme";
+    let rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
 
     export let id: string | undefined = undefined;
     let className = "";
@@ -28,12 +29,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="{className} form-select"
     class:btn-day={!$pageTheme.isDark}
     class:btn-night={$pageTheme.isDark}
+    class:rtl
     title={tooltip}
     on:change
 >
     <slot />
 </select>
-<div class="arrow" class:dark={$pageTheme.isDark} />
+<div class="arrow" class:dark={$pageTheme.isDark} class:rtl />
 
 <style lang="scss">
     @use "sass/button-mixins" as button;
@@ -49,6 +51,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             top: 0;
             bottom: 0;
         }
+        &.rtl {
+            direction: rtl;
+            /* Reversed Bootstrap values */
+            padding-left: 2.25rem;
+            padding-right: 0.75rem;
+        }
         &.btn-day {
             /* Hide default arrow for consistency */
             background: var(--frame-bg);
@@ -58,6 +66,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .arrow {
         top: 0;
         right: 10px;
+        &.rtl {
+            left: 10px;
+        }
         width: 15px;
         height: 100%;
         position: absolute;
