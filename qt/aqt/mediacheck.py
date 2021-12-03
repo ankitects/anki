@@ -9,9 +9,10 @@ from concurrent.futures import Future
 from typing import Iterable, Sequence, TypeVar
 
 import aqt
-from anki.collection import SearchNode
+from anki.collection import Collection, SearchNode
 from anki.errors import Interrupted
 from anki.media import CheckMediaResponse
+from aqt.operations import QueryOp
 from aqt.qt import *
 from aqt.utils import (
     askUser,
@@ -169,24 +170,31 @@ class MediaChecker:
         if not askUser(tr.media_check_delete_unused_confirm()):
             return
 
-        self.progress_dialog = self.mw.progress.start()
-
-        last_progress = time.time()
-        remaining = len(fnames)
         total = len(fnames)
-        try:
+
+        def trash(col: Collection) -> None:
+            last_progress = time.time()
+            remaining = len(fnames)
+
             for chunk in chunked_list(fnames, 25):
-                self.mw.col.media.trash_files(chunk)
+                col.media.trash_files(chunk)
                 remaining -= len(chunk)
                 if time.time() - last_progress >= 0.3:
-                    self.mw.progress.update(
-                        tr.media_check_files_remaining(count=remaining)
+                    self.mw.taskman.run_on_main(
+                        lambda: self.mw.progress.update(
+                            label=tr.media_check_files_remaining(count=remaining),
+                            value=total - remaining,
+                            max=total,
+                        )
                     )
-        finally:
-            self.mw.progress.finish()
-            self.progress_dialog = None
 
-        tooltip(tr.media_check_delete_unused_complete(count=total))
+        QueryOp(
+            parent=aqt.mw,
+            op=trash,
+            success=lambda _: tooltip(
+                tr.media_check_delete_unused_complete(count=total)
+            ),
+        ).with_progress().run_in_background()
 
     def _on_empty_trash(self) -> None:
         self.progress_dialog = self.mw.progress.start()
