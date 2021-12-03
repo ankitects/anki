@@ -139,10 +139,9 @@ class AddCards(QMainWindow):
                 # copy identical fields
                 if field_name in old_fields:
                     new[field_name] = old[field_name]
-                elif n < len(old.note_type()["flds"]):
+                elif n < len(old_fields):
                     # set non-identical fields by field index
-                    old_field_name = old.note_type()["flds"][n]["name"]
-                    if old_field_name not in new_fields:
+                    if old_fields[n] not in new_fields:
                         new.fields[n] = old.fields[n]
             new.tags = old.tags
 

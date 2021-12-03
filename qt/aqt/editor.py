@@ -354,7 +354,11 @@ noteEditorPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
                 print("ignored late blur")
                 return
 
-            self.note.fields[ord] = self.mungeHTML(txt)
+            try:
+                self.note.fields[ord] = self.mungeHTML(txt)
+            except IndexError:
+                print("ignored late blur after notetype change")
+                return
 
             if not self.addMode:
                 self._save_current_note()
