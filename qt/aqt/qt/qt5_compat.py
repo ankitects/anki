@@ -401,6 +401,6 @@ PyQt6.QtCore.QRegExp = PyQt6.QtCore.QRegularExpression
 # Mock the removed PyQt5.Qt module
 ##########################################################################
 
-from . import qt5_qt_module
-
-sys.modules["PyQt5.Qt"] = qt5_qt_module
+sys.modules["PyQt5.Qt"] = sys.modules["aqt.qt"]
+# support 'from PyQt5 import Qt', as it's an alias to PyQt6
+PyQt6.Qt = sys.modules["aqt.qt"]
