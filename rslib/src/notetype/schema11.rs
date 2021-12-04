@@ -57,14 +57,8 @@ pub struct NotetypeSchema11 {
     pub(crate) other: HashMap<String, Value>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub(crate) struct CardRequirementsSchema11(pub(crate) Vec<CardRequirementSchema11>);
-
-impl Default for CardRequirementsSchema11 {
-    fn default() -> Self {
-        CardRequirementsSchema11(vec![])
-    }
-}
 
 #[derive(Serialize_tuple, Deserialize, Debug, Clone)]
 pub(crate) struct CardRequirementSchema11 {

@@ -143,7 +143,13 @@ T = TypeVar("T")
 
 
 class QueryOp(Generic[T]):
-    """Helper to perform a non-mutating DB query on a background thread.
+    """Helper to perform an operation on a background thread.
+
+    QueryOp is primarily used for read-only requests (reading information
+    from the database, fetching data from the network, etc), but can also
+    be used for mutable requests outside of the collection undo system
+    (eg adding/deleting files, calling a collection method that doesn't support
+    undo, etc). For operations that support undo, use CollectionOp instead.
 
     - Optionally shows progress popup for the duration of the op.
     - Ensures the browser doesn't try to redraw during the operation, which can lead
@@ -176,7 +182,11 @@ class QueryOp(Generic[T]):
         self._failure = failure
         return self
 
-    def with_progress(self, label: str | None = None) -> QueryOp[T]:
+    def with_progress(
+        self,
+        label: str | None = None,
+    ) -> QueryOp[T]:
+        "If label not provided, will default to 'Processing...'"
         self._progress = label or True
         return self
 
@@ -195,7 +205,12 @@ class QueryOp(Generic[T]):
                     label = self._progress
                 else:
                     label = None
-                mw.progress.start(label=label)
+
+                def start_progress() -> None:
+                    assert mw
+                    mw.progress.start(label=label)
+
+                mw.taskman.run_on_main(start_progress)
             return self._op(mw.col)
 
         def wrapped_done(future: Future) -> None:

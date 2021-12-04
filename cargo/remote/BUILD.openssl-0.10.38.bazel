@@ -88,7 +88,7 @@ rust_library(
         "@raze__bitflags__1_3_2//:bitflags",
         "@raze__cfg_if__1_0_0//:cfg_if",
         "@raze__foreign_types__0_3_2//:foreign_types",
-        "@raze__libc__0_2_107//:libc",
+        "@raze__libc__0_2_108//:libc",
         "@raze__once_cell__1_8_0//:once_cell",
         "@raze__openssl_sys__0_9_71//:openssl_sys",
     ],

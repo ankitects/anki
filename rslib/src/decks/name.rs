@@ -192,7 +192,7 @@ fn normalized_deck_name_component(comp: &str) -> Cow<str> {
 }
 
 pub(crate) fn immediate_parent_name(machine_name: &str) -> Option<&str> {
-    machine_name.rsplitn(2, '\x1f').nth(1)
+    machine_name.rsplit_once('\x1f').map(|t| t.0)
 }
 
 #[cfg(test)]

@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{cmp::Ordering, collections::VecDeque};
-
 use super::{undo::CutoffSnapshot, CardQueues};
 use crate::{prelude::*, scheduler::timing::SchedTimingToday};
 
@@ -139,7 +137,9 @@ impl CardQueues {
             self.counts.learning += 1;
         }
 
-        let target_idx = binary_search_by(&self.intraday_learning, |e| e.due.cmp(&entry.due))
+        let target_idx = self
+            .intraday_learning
+            .binary_search_by(|e| e.due.cmp(&entry.due))
             .unwrap_or_else(|e| e);
         self.intraday_learning.insert(target_idx, entry);
     }
@@ -169,22 +169,5 @@ impl CardQueues {
     fn current_learn_ahead_cutoff(&self) -> TimestampSecs {
         self.current_learning_cutoff
             .adding_secs(self.learn_ahead_secs)
-    }
-}
-
-/// Adapted from the Rust stdlib VecDeque implementation; we can drop this after updating
-/// to Rust 1.54.0
-fn binary_search_by<'a, F, T>(deque: &'a VecDeque<T>, mut f: F) -> Result<usize, usize>
-where
-    F: FnMut(&'a T) -> Ordering,
-{
-    let (front, back) = deque.as_slices();
-
-    match back.first().map(|elem| f(elem)) {
-        Some(Ordering::Less) | Some(Ordering::Equal) => back
-            .binary_search_by(f)
-            .map(|idx| idx + front.len())
-            .map_err(|idx| idx + front.len()),
-        _ => front.binary_search_by(f),
     }
 }

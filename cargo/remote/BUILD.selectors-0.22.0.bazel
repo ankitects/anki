@@ -70,7 +70,7 @@ rust_library(
     data = [],
     edition = "2015",
     proc_macro_deps = [
-        "@raze__derive_more__0_99_16//:derive_more",
+        "@raze__derive_more__0_99_17//:derive_more",
     ],
     rustc_flags = [
         "--cap-lints=allow",
