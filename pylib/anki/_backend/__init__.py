@@ -97,7 +97,7 @@ class RustBackend(RustBackendGenerated):
         try:
             return from_json_bytes(self._backend.db_command(bytes_input))
         except Exception as error:
-            err_bytes = error.args[0]
+            err_bytes = bytes(error.args[0])
         err = backend_pb2.BackendError()
         err.ParseFromString(err_bytes)
         raise backend_exception_to_pylib(err)
