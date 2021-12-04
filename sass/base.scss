@@ -41,7 +41,7 @@ body {
     overscroll-behavior: none;
 }
 
-.nightMode {
+.night-mode {
     @include scrollbar.night-mode;
 }
 
