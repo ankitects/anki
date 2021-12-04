@@ -12,7 +12,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import NotetypeSelector from "./NotetypeSelector.svelte";
     import StickyNav from "./StickyNav.svelte";
     import Mapper from "./Mapper.svelte";
-    import Spacer from "../components/Spacer.svelte";
 
     export let state: ChangeNotetypeState;
     $: info = state.info;
@@ -21,7 +20,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div bind:offsetHeight={offset}>
     <NotetypeSelector {state} />
-    <Spacer --height="1em" />
 </div>
 
 <div id="scrollArea" style="--offset: {offset}px; --gutter-inline: 0.25rem;">
@@ -49,9 +47,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     #scrollArea {
         padding: 0;
         overflow: hidden auto;
-        background: var(--pane-bg);
         height: calc(100% - var(--offset));
-        border: 1px solid var(--medium-border);
-        border-radius: 0.25rem;
     }
 </style>
