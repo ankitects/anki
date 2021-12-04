@@ -7,9 +7,10 @@ import re
 import subprocess
 import sys
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Literal, Sequence, no_type_check
 
 import aqt
+from anki._legacy import DeprecatedNamesMixinForModule
 from anki.collection import Collection, HelpPage
 from anki.lang import TR, tr_legacyglobal  # pylint: disable=unused-import
 from anki.utils import (
@@ -1011,3 +1012,12 @@ class KeyboardModifiersPressed:
     @property
     def alt(self) -> bool:
         return bool(self._modifiers & Qt.KeyboardModifier.AltModifier)
+
+
+# add-ons attempting to import isMac from this module :-(
+_deprecated_names = DeprecatedNamesMixinForModule(globals())
+
+
+@no_type_check
+def __getattr__(name: str) -> Any:
+    return _deprecated_names.__getattr__(name)
