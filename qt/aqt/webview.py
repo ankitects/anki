@@ -638,6 +638,7 @@ html {{ {font} }}
     def inject_dynamic_style_and_show(self) -> None:
         "Add dynamic styling, and reveal."
         css = self.standard_css()
+        body_class = theme_manager.body_class()
 
         def after_style(arg: Any) -> None:
             gui_hooks.webview_did_inject_style_into_page(self)
@@ -648,6 +649,7 @@ html {{ {font} }}
 const style = document.createElement('style');
 style.innerHTML = `{css}`;
 document.head.appendChild(style);
+document.body.classList.add(...`{body_class}`.split(" "));
 """,
             after_style,
         )
