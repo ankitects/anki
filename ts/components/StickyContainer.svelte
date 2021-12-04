@@ -24,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .sticky-container {
         position: sticky;
-        top: 0;
+        top: var(--sticky-top, 0);
         bottom: 0;
         left: 0;
         right: 0;
