@@ -225,6 +225,9 @@ def merge_into_dist(output_folder: Path, pyqt_src_path: Path):
         ],
         check=True,
     )
+    # Ensure all files are world-readable
+    if not is_win:
+        subprocess.run(["chmod", "-R", "a+r", output_folder])
 
 
 build_pyoxidizer()
