@@ -23,11 +23,11 @@ pyo3_config = output_root / "pyo3-build-config-file.txt"
 
 if is_win:
     python_bin_folder = venv / "scripts"
-    os.environ["PATH"] = os.getenv("USERPROFILE") + r"\.cargo\bin;" + os.getenv("PATH")
+    os.environ["PATH"] += fr";{os.getenv('USERPROFILE')}\.cargo\bin"
     cargo_features = "build-mode-prebuilt-artifacts"
 else:
     python_bin_folder = venv / "bin"
-    os.environ["PATH"] = os.getenv("HOME") + "/.cargo/bin:" + os.getenv("PATH")
+    os.environ["PATH"] += f":{os.getenv('HOME')}/.cargo/bin"
     cargo_features = (
         "build-mode-prebuilt-artifacts global-allocator-jemalloc allocator-jemalloc"
     )
