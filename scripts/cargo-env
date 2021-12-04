@@ -13,7 +13,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
    if [ "$(arch)" == "i386" ]; then
       export PATH="$BAZEL_EXTERNAL/rust_darwin_x86_64/bin:$PATH"
    else
-      export PATH="$BAZEL_EXTERNAL/rust_darwin_arm64/bin:$PATH"
+      export PATH="$BAZEL_EXTERNAL/rust_darwin_aarch64/bin:$PATH"
    fi
 else
    if [ "$(arch)" == "aarch64" ]; then
