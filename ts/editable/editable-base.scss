@@ -2,10 +2,6 @@
 
 * {
     max-width: 100%;
-
-    :host(.nightMode) & {
-        @include scrollbar.night-mode;
-    }
 }
 
 p {
@@ -20,4 +16,8 @@ p {
 
 [hidden] {
     display: none;
+}
+
+:host(.night-mode) {
+    @include scrollbar.night-mode;
 }

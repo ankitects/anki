@@ -245,6 +245,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 >
     <div
         class:hidden
+        class:night-mode={$pageTheme.isDark}
         use:attachShadow
         use:attachStyles
         use:attachContentEditable={{ stylesDidLoad }}

@@ -5,7 +5,7 @@
 @use "fusion-vars";
 
 @mixin night-mode {
-    &::-webkit-scrollbar {
+    ::-webkit-scrollbar {
         background-color: var(--window-bg);
 
         &:horizontal {
@@ -17,7 +17,7 @@
         }
     }
 
-    &::-webkit-scrollbar-thumb {
+    ::-webkit-scrollbar-thumb {
         background: fusion-vars.$button-hover-bg;
         border-radius: 8px;
 
@@ -30,7 +30,7 @@
         }
     }
 
-    &::-webkit-scrollbar-corner {
+    ::-webkit-scrollbar-corner {
         background-color: var(--window-bg);
     }
 }
