@@ -42,42 +42,6 @@ sys.modules["PyQt5.QtNetwork"] = PyQt6.QtNetwork
 # Alias sip
 sys.modules["sip"] = PyQt6.sip
 
-# Alias classes shifted between QtWidgets and QtGui
-##########################################################################
-
-PyQt6.QtWidgets.QAction = PyQt6.QtGui.QAction
-PyQt6.QtWidgets.QActionGroup = PyQt6.QtGui.QActionGroup
-PyQt6.QtWidgets.QShortcut = PyQt6.QtGui.QShortcut
-
-# Alias classes shifted between QtWebEngineWidgets and QtWebEngineCore
-##########################################################################
-
-PyQt6.QtWebEngineWidgets.QWebEnginePage = PyQt6.QtWebEngineCore.QWebEnginePage
-PyQt6.QtWebEngineWidgets.QWebEngineHistory = PyQt6.QtWebEngineCore.QWebEngineHistory
-PyQt6.QtWebEngineWidgets.QWebEngineProfile = PyQt6.QtWebEngineCore.QWebEngineProfile
-PyQt6.QtWebEngineWidgets.QWebEngineScript = PyQt6.QtWebEngineCore.QWebEngineScript
-PyQt6.QtWebEngineWidgets.QWebEngineScriptCollection = (
-    PyQt6.QtWebEngineCore.QWebEngineScriptCollection
-)
-PyQt6.QtWebEngineWidgets.QWebEngineClientCertificateSelection = (
-    PyQt6.QtWebEngineCore.QWebEngineClientCertificateSelection
-)
-PyQt6.QtWebEngineWidgets.QWebEngineSettings = PyQt6.QtWebEngineCore.QWebEngineSettings
-PyQt6.QtWebEngineWidgets.QWebEngineFullScreenRequest = (
-    PyQt6.QtWebEngineCore.QWebEngineFullScreenRequest
-)
-PyQt6.QtWebEngineWidgets.QWebEngineContextMenuData = (
-    PyQt6.QtWebEngineCore.QWebEngineContextMenuRequest
-)
-PyQt6.QtWebEngineWidgets.QWebEngineDownloadItem = (
-    PyQt6.QtWebEngineCore.QWebEngineDownloadRequest
-)
-
-# Aliases for other miscellaneous class changes
-##########################################################################
-
-PyQt6.QtCore.QRegExp = PyQt6.QtCore.QRegularExpression
-
 # Restore QWebEnginePage.view()
 # ########################################################################
 
@@ -397,6 +361,43 @@ def _instrument_type(
 for module, type_to_enum_list in _enum_map:
     for type_name, enums in type_to_enum_list:
         _instrument_type(module, type_name, enums)
+
+# Alias classes shifted between QtWidgets and QtGui
+##########################################################################
+
+PyQt6.QtWidgets.QAction = PyQt6.QtGui.QAction
+PyQt6.QtWidgets.QActionGroup = PyQt6.QtGui.QActionGroup
+PyQt6.QtWidgets.QShortcut = PyQt6.QtGui.QShortcut
+
+# Alias classes shifted between QtWebEngineWidgets and QtWebEngineCore
+##########################################################################
+
+PyQt6.QtWebEngineWidgets.QWebEnginePage = PyQt6.QtWebEngineCore.QWebEnginePage
+PyQt6.QtWebEngineWidgets.QWebEngineHistory = PyQt6.QtWebEngineCore.QWebEngineHistory
+PyQt6.QtWebEngineWidgets.QWebEngineProfile = PyQt6.QtWebEngineCore.QWebEngineProfile
+PyQt6.QtWebEngineWidgets.QWebEngineScript = PyQt6.QtWebEngineCore.QWebEngineScript
+PyQt6.QtWebEngineWidgets.QWebEngineScriptCollection = (
+    PyQt6.QtWebEngineCore.QWebEngineScriptCollection
+)
+PyQt6.QtWebEngineWidgets.QWebEngineClientCertificateSelection = (
+    PyQt6.QtWebEngineCore.QWebEngineClientCertificateSelection
+)
+PyQt6.QtWebEngineWidgets.QWebEngineSettings = PyQt6.QtWebEngineCore.QWebEngineSettings
+PyQt6.QtWebEngineWidgets.QWebEngineFullScreenRequest = (
+    PyQt6.QtWebEngineCore.QWebEngineFullScreenRequest
+)
+PyQt6.QtWebEngineWidgets.QWebEngineContextMenuData = (
+    PyQt6.QtWebEngineCore.QWebEngineContextMenuRequest
+)
+PyQt6.QtWebEngineWidgets.QWebEngineDownloadItem = (
+    PyQt6.QtWebEngineCore.QWebEngineDownloadRequest
+)
+
+# Aliases for other miscellaneous class changes
+##########################################################################
+
+PyQt6.QtCore.QRegExp = PyQt6.QtCore.QRegularExpression
+
 
 # Mock the removed PyQt5.Qt module
 ##########################################################################
