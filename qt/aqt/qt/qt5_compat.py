@@ -199,7 +199,6 @@ _enum_map = (
                 ),
             ),
             ("QThread", ("Priority",)),
-            ("QUrl", ("ParsingMode",)),
         ],
     ),
     (PyQt6.QtDBus, [("QDBus", ("CallMode",))]),
