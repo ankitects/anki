@@ -97,7 +97,7 @@ QMenu.exec_ = qt_exec_
 def qt_resource_system_call(*args, **kwargs):
     print_deprecation_warning(
         "The Qt resource system no longer works on PyQt6. "
-        "Please switch to a different solution."
+        "Use QDir.addSearchPath() or mw.addonManager.setWebExports() instead."
     )
 
 
