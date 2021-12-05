@@ -438,10 +438,9 @@ div[contenteditable="true"]:focus {{
 
         window_bg_day = self.get_window_bg_color(False).name()
         window_bg_night = self.get_window_bg_color(True).name()
-        body_bg = window_bg_night if theme_manager.night_mode else window_bg_day
 
         return f"""
-body {{ zoom: {zoom}; background-color: --window-bg; }}
+body {{ zoom: {zoom}; background-color: var(--window-bg); }}
 html {{ {font} }}
 {button_style}
 :root {{ --window-bg: {window_bg_day} }}
