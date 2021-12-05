@@ -1,56 +1,63 @@
-.linkb {
-    display: inline-block;
-    min-width: calc(var(--buttons-size) - 2px);
-    min-height: calc(var(--buttons-size) - 2px);
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+@use "fusion-vars";
+@use "sass/button-mixins" as button;
 
-    background-color: white;
+$btn-base-color-day: white;
+$btn-base-color-night: fusion-vars.$button-border;
+$size: var(--buttons-size);
+
+.linkb {
+    width: $size;
+    height: $size;
+    padding: 2px !important;
+    color: var(--text-fg);
+    font-size: calc($size * 0.6);
+    background-color: $btn-base-color-day;
     border: 1px solid var(--medium-border);
-    padding: 0 !important;
+    @include button.btn-border-radius;
     margin-left: -1px;
 
-    /* !important cannot be used with @include */
-    border-top-left-radius: var(--border-left-radius) !important;
-    border-bottom-left-radius: var(--border-left-radius) !important;
-    border-top-right-radius: var(--border-right-radius) !important;
-    border-bottom-right-radius: var(--border-right-radius) !important;
-
     &:hover {
-        background-color: #ebebeb;
+        background-color: darken($btn-base-color-day, 8%);
     }
 
     &:active,
     &:active:hover {
-        background-color: white;
-        box-shadow: inset 0 calc(var(--buttons-size) / 15) calc(var(--buttons-size) / 5)
-            rgba(0, 0, 0, 0.25);
+        @include button.impressed-shadow(0.25);
     }
 
     .nightMode & {
-        background: linear-gradient(0deg, #555555 0%, #656565 100%);
-        border-width: 0px;
+        box-shadow: 0 0 3px fusion-vars.$button-outline;
+        border: 1px solid fusion-vars.$button-border;
+        -webkit-appearance: none;
+        background: linear-gradient(
+            0deg,
+            fusion-vars.$button-gradient-start 0%,
+            fusion-vars.$button-gradient-end 100%
+        );
+        border: 1px solid fusion-vars.$button-border;
         margin-left: 1px;
 
         &:hover {
-            background: #7a7a7a;
-            border-color: #7a7a7a;
+            background: linear-gradient(
+                0deg,
+                lighten(fusion-vars.$button-gradient-start, 8%) 0%,
+                lighten(fusion-vars.$button-gradient-end, 8%) 100%
+            );
+            border-color: lighten(fusion-vars.$button-border, 8%);
         }
 
-        &:active,
-        &:active:hover {
-            box-shadow: inset 0 calc(var(--buttons-size) / 15)
-                calc(var(--buttons-size) / 5) rgba(0, 0, 0, 0.35);
-            border-color: #525252;
+        &:active {
+            @include button.impressed-shadow(0.35);
+            border-color: darken($btn-base-color-night, 8%);
         }
     }
 }
 
-.topbut {
-    display: inline-block;
+img.topbut {
     vertical-align: baseline;
-    width: calc(var(--buttons-size) - 12px);
-    height: calc(var(--buttons-size) - 12px);
-}
-
-.nightMode img.topbut {
-    filter: invert(1);
+    .nightMode & {
+        filter: invert(1);
+    }
 }
