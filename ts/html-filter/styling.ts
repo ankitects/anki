@@ -25,6 +25,10 @@ const stylingInternal: BlockProperties = [
     "background-color",
     "font-size",
     "font-family",
+    "width",
+    "height",
+    "max-width",
+    "max-height",
 ];
 
 const allowPropertiesBlockValues =
