@@ -222,6 +222,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Yoonchae Lee",
             "Hikaru Yoshiga",
             "Matthias Metelka",
+            "Sergio Quintero",
         )
     )
 
