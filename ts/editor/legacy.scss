@@ -6,11 +6,12 @@
 $btn-base-color-day: white;
 $btn-base-color-night: fusion-vars.$button-border;
 $size: var(--buttons-size);
+$padding: 2px;
 
 .linkb {
     width: $size;
     height: $size;
-    padding: 2px !important;
+    padding: $padding;
     color: var(--text-fg);
     font-size: calc($size * 0.6);
     background-color: $btn-base-color-day;
@@ -56,6 +57,8 @@ $size: var(--buttons-size);
 }
 
 img.topbut {
+    max-width: calc($size - 2 * $padding);
+    max-height: calc($size - 2 * $padding);
     vertical-align: baseline;
     .nightMode & {
         filter: invert(1);
