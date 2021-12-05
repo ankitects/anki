@@ -11,9 +11,7 @@ import sys
 from ctypes import CDLL
 from dataclasses import dataclass
 
-import anki
 import aqt
-from anki.lang import is_rtl
 from anki.utils import is_lin, is_mac, is_win
 from aqt import QApplication, colors, gui_hooks
 from aqt.qt import (
@@ -141,8 +139,6 @@ class ThemeManager:
             classes.extend(["nightMode", "night_mode"])
             if self.macos_dark_mode():
                 classes.append("macos-dark-mode")
-        if is_rtl(anki.lang.current_lang):
-            classes.append("rtl")
         return " ".join(classes)
 
     def body_classes_for_card_ord(

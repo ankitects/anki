@@ -69,7 +69,7 @@ samp {
     --base-font-size: 14px;
 }
 
-.rtl {
+[dir=rtl] {
     .form-select {
         /* flip <select>'s arrow */
         background-position: left .75rem center;
