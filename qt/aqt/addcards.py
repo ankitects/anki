@@ -54,6 +54,15 @@ class AddCards(QMainWindow):
         gui_hooks.add_cards_did_init(self)
         self.show()
 
+    def set_note(self, note: Note) -> None:
+        """Set tags, field contents and notetype (and its deck)
+        according to `note`.
+        """
+        self.notetype_chooser.selected_notetype_id = note.mid
+        if deck_id := self.col.default_deck_for_notetype(note.mid):
+            self.deck_chooser.selected_deck_id = deck_id
+        self.setAndFocusNote(note)
+
     def setupEditor(self) -> None:
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self, True)
         self.editor.web.eval("noteEditorPromise.then(() => activateStickyShortcuts());")

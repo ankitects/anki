@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowIcon">
-   <iconset resource="icons.qrc">
+   <iconset>
     <normaloff>:/icons/anki.png</normaloff>:/icons/anki.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -144,11 +144,11 @@
           <attribute name="horizontalHeaderCascadingSectionResizes">
            <bool>false</bool>
           </attribute>
-          <attribute name="horizontalHeaderHighlightSections">
-           <bool>false</bool>
-          </attribute>
           <attribute name="horizontalHeaderMinimumSectionSize">
            <number>20</number>
+          </attribute>
+          <attribute name="horizontalHeaderHighlightSections">
+           <bool>false</bool>
           </attribute>
           <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
            <bool>true</bool>
@@ -209,7 +209,7 @@
      <x>0</x>
      <y>0</y>
      <width>750</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuEdit">
@@ -283,6 +283,7 @@
      <string>qt_accel_notes</string>
     </property>
     <addaction name="actionAdd"/>
+    <addaction name="actionCopy"/>
     <addaction name="actionExport"/>
     <addaction name="separator"/>
     <addaction name="actionAdd_Tags"/>
@@ -659,6 +660,14 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+7</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="text">
+    <string>browsing_create_copy</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+E</string>
    </property>
   </action>
  </widget>
