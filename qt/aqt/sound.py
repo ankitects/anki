@@ -25,6 +25,7 @@ from anki.cards import Card
 from anki.sound import AV_REF_RE, AVTag, SoundOrVideoTag
 from anki.utils import is_lin, is_mac, is_win, namedtmp
 from aqt import gui_hooks
+from aqt._macos_helper import macos_helper
 from aqt.mpv import MPV, MPVBase, MPVCommandError
 from aqt.qt import *
 from aqt.taskman import TaskManager
@@ -607,6 +608,30 @@ class QtAudioInputRecorder(Recorder):
         t.start(500)
 
 
+# Native macOS recording
+##########################################################################
+
+
+class NativeMacRecorder(Recorder):
+    def __init__(self, output_path: str) -> None:
+        super().__init__(output_path)
+        self._error: str | None = None
+
+    def _on_error(self, msg: str) -> None:
+        self._error = msg
+
+    def start(self, on_done: Callable[[], None]) -> None:
+        self._error = None
+        assert macos_helper
+        macos_helper.start_wav_record(self.output_path, self._on_error)
+        super().start(on_done)
+
+    def stop(self, on_done: Callable[[str], None]) -> None:
+        assert macos_helper
+        macos_helper.end_wav_record()
+        Recorder.stop(self, on_done)
+
+
 # Recording dialog
 ##########################################################################
 
@@ -662,9 +687,14 @@ class RecordDialog(QDialog):
 
     def _start_recording(self) -> None:
         if qtmajor > 5:
-            self._recorder = QtAudioInputRecorder(
-                namedtmp("rec.wav"), self.mw, self._parent
-            )
+            if macos_helper and platform.machine() == "arm64":
+                self._recorder = NativeMacRecorder(
+                    namedtmp("rec.wav"),
+                )
+            else:
+                self._recorder = QtAudioInputRecorder(
+                    namedtmp("rec.wav"), self.mw, self._parent
+                )
         else:
             from aqt.qt.qt5_audio import QtAudioInputRecorder as Qt5Recorder
 
@@ -706,10 +736,6 @@ class RecordDialog(QDialog):
 def record_audio(
     parent: QWidget, mw: aqt.AnkiQt, encode: bool, on_done: Callable[[str], None]
 ) -> None:
-    if sys.platform.startswith("darwin") and platform.machine() == "arm64":
-        showWarning("Recording currently only works in Anki's Intel build")
-        return
-
     def after_record(path: str) -> None:
         if not encode:
             on_done(path)

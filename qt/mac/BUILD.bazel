@@ -9,6 +9,7 @@ genrule(
     srcs = glob(["*.swift"]),
     outs = ["libankihelper.dylib"],
     cmd = "$(location :helper_build) $@ $(COMPILATION_MODE) $(SRCS)",
+    message = "Compiling Swift dylib",
     tags = ["manual"],
     tools = [":helper_build"],
     visibility = ["//qt:__subpackages__"],
