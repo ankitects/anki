@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1327600A274613D9001D63D7 /* AnkiHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 13276009274613D8001D63D7 /* AnkiHelper.m */; };
+		137892AC275D90FC009D0B6E /* theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 137892AB275D90FC009D0B6E /* theme.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		13276009274613D8001D63D7 /* AnkiHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnkiHelper.m; sourceTree = "<group>"; };
+		137892AB275D90FC009D0B6E /* theme.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = theme.swift; sourceTree = "<group>"; };
 		138B770F2746137F003A3E4F /* libankihelper.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libankihelper.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -29,7 +29,7 @@
 		138B77062746137F003A3E4F = {
 			isa = PBXGroup;
 			children = (
-				13276009274613D8001D63D7 /* AnkiHelper.m */,
+				137892AB275D90FC009D0B6E /* theme.swift */,
 				138B77102746137F003A3E4F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -83,6 +83,7 @@
 				TargetAttributes = {
 					138B770E2746137F003A3E4F = {
 						CreatedOnToolsVersion = 13.1;
+						LastSwiftMigration = 1310;
 					};
 				};
 			};
@@ -109,7 +110,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1327600A274613D9001D63D7 /* AnkiHelper.m in Sources */,
+				137892AC275D90FC009D0B6E /* theme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -230,26 +231,41 @@
 		138B77192746137F003A3E4F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 7ZM8SLJM4P;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
 		138B771A2746137F003A3E4F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 7ZM8SLJM4P;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};

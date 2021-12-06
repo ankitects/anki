@@ -1,0 +1,29 @@
+# Copyright: Ankitects Pty Ltd and contributors
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+import subprocess
+import sys
+import platform
+from pathlib import Path
+
+out_dylib, compile_mode, *src_files = sys.argv[1:]
+out_dir = Path(out_dylib).parent.resolve()
+src_dir = Path(src_files[0]).parent.resolve()
+
+if platform.machine() == "arm64":
+    target = "arm64-apple-macos11"
+else:
+    target = "x86_64-apple-macos10.14"
+
+args = [
+    "swiftc",
+    "-target",
+    target,
+    "-emit-library",
+    "-module-name",
+    "ankihelper",
+]
+if compile_mode == "opt":
+    args.append("-O")
+args.extend(src_dir / Path(file).name for file in src_files)
+subprocess.run(args, check=True, cwd=out_dir)
