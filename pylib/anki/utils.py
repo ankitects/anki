@@ -307,6 +307,9 @@ def point_version() -> int:
     return int(version.split(".")[-1])
 
 
+# keep the legacy alias around without a deprecation warning for now
+pointVersion = point_version
+
 _deprecated_names = DeprecatedNamesMixinForModule(globals())
 _deprecated_names.register_deprecated_aliases(
     stripHTML=strip_html,

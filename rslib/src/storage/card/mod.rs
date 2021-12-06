@@ -241,9 +241,9 @@ impl super::SqliteStorage {
         F: FnMut(NewCard) -> bool,
     {
         let mut stmt = self.db.prepare_cached(&format!(
-            "{}{}",
+            "{} ORDER BY {}",
             include_str!("new_cards.sql"),
-            if reverse { " order by due desc" } else { "" }
+            if reverse { "due desc" } else { "due asc" }
         ))?;
         let mut rows = stmt.query(params![deck])?;
         while let Some(row) = rows.next()? {
