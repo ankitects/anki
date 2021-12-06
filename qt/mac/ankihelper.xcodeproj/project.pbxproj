@@ -8,10 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		137892AC275D90FC009D0B6E /* theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 137892AB275D90FC009D0B6E /* theme.swift */; };
+		137892B0275DAE22009D0B6E /* record.swift in Sources */ = {isa = PBXBuildFile; fileRef = 137892AF275DAE22009D0B6E /* record.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		137892AB275D90FC009D0B6E /* theme.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = theme.swift; sourceTree = "<group>"; };
+		137892AF275DAE22009D0B6E /* record.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = record.swift; sourceTree = "<group>"; };
 		138B770F2746137F003A3E4F /* libankihelper.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libankihelper.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -30,6 +32,7 @@
 			isa = PBXGroup;
 			children = (
 				137892AB275D90FC009D0B6E /* theme.swift */,
+				137892AF275DAE22009D0B6E /* record.swift */,
 				138B77102746137F003A3E4F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -110,6 +113,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				137892B0275DAE22009D0B6E /* record.swift in Sources */,
 				137892AC275D90FC009D0B6E /* theme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
