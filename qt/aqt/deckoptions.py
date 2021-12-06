@@ -89,8 +89,8 @@ def _deck_prompt_dialog(decks: list[DeckDict]) -> None:
     box.addWidget(QLabel(tr.deck_config_which_deck()))
     for deck in decks:
         button = QPushButton(deck["name"])
-        qconnect(button.clicked, lambda _, deck=deck: display_options_for_deck(deck))
         qconnect(button.clicked, diag.close)
+        qconnect(button.clicked, lambda _, deck=deck: display_options_for_deck(deck))
         box.addWidget(button)
     button = QPushButton(tr.actions_cancel())
     qconnect(button.clicked, diag.close)

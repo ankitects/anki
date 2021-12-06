@@ -914,7 +914,7 @@ time = %(time)d;
             [tr.actions_suspend_card(), "@", self.suspend_current_card],
             [tr.actions_options(), "O", self.onOptions],
             [tr.actions_card_info(), "I", self.on_card_info],
-            [tr.actions_previous_card_info(), "Alt+I", self.on_previous_card_info],
+            [tr.actions_previous_card_info(), "Ctrl+Alt+I", self.on_previous_card_info],
             None,
             [tr.studying_mark_note(), "*", self.toggle_mark_on_current_note],
             [tr.studying_bury_note(), "=", self.bury_current_note],

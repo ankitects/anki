@@ -77,7 +77,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return fontFamily;
     }
 
-    let size = isApplePlatform() ? 1.6 : 2.0;
+    let size = isApplePlatform() ? 1.6 : 1.8;
     let wrap = true;
 
     let fieldStores: Writable<string>[] = [];

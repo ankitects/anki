@@ -114,10 +114,6 @@ class Previewer(QDialog):
         elif self._state == "answer":
             replay_audio(self.card(), False)
 
-    def close(self) -> None:
-        self._on_close()
-        super().close()
-
     def _on_close(self) -> None:
         self._open = False
         self._close_callback()

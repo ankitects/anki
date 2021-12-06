@@ -88,4 +88,6 @@ export async function setupI18n(args: { modules: ModuleName[] }): Promise<void> 
 
     setBundles(newBundles);
     langs = json.langs;
+
+    document.dir = direction();
 }
