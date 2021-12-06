@@ -68,3 +68,10 @@ samp {
 .isLin {
     --base-font-size: 14px;
 }
+
+[dir=rtl] {
+    .form-select {
+        /* flip <select>'s arrow */
+        background-position: left .75rem center;
+    }
+}

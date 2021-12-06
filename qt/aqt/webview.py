@@ -438,15 +438,9 @@ div[contenteditable="true"]:focus {{
 
         window_bg_day = self.get_window_bg_color(False).name()
         window_bg_night = self.get_window_bg_color(True).name()
-        body_bg = window_bg_night if theme_manager.night_mode else window_bg_day
-
-        if is_rtl(anki.lang.current_lang):
-            lang_dir = "rtl"
-        else:
-            lang_dir = "ltr"
 
         return f"""
-body {{ zoom: {zoom}; background-color: --window-bg; direction: {lang_dir}; }}
+body {{ zoom: {zoom}; background-color: var(--window-bg); }}
 html {{ {font} }}
 {button_style}
 :root {{ --window-bg: {window_bg_day} }}
@@ -496,9 +490,14 @@ html {{ {font} }}
         else:
             doc_class = ""
 
+        if is_rtl(anki.lang.current_lang):
+            lang_dir = "rtl"
+        else:
+            lang_dir = "ltr"
+
         html = f"""
 <!doctype html>
-<html class="{doc_class}">
+<html class="{doc_class}" dir="{lang_dir}">
 <head>
     <title>{self.title}</title>
 {head}
