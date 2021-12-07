@@ -183,6 +183,12 @@ def bury_notes(
     return CollectionOp(parent, lambda col: col.sched.bury_notes(note_ids))
 
 
+def unbury_cards(
+    *, parent: QWidget, card_ids: Sequence[CardId]
+) -> CollectionOp[OpChanges]:
+    return CollectionOp(parent, lambda col: col.sched.unbury_cards(card_ids))
+
+
 def rebuild_filtered_deck(
     *, parent: QWidget, deck_id: DeckId
 ) -> CollectionOp[OpChangesWithCount]:
