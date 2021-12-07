@@ -40,6 +40,7 @@ from aqt.undo import UndoActionsInfo
 from aqt.utils import (
     HelpPage,
     KeyboardModifiersPressed,
+    add_ellipsis_to_action_label,
     current_window,
     ensure_editor_saved,
     getTag,
@@ -183,6 +184,7 @@ class Browser(QMainWindow):
         f.actionCreateFilteredDeck.setShortcuts(["Ctrl+G", "Ctrl+Alt+G"])
         # notes
         qconnect(f.actionAdd.triggered, self.mw.onAddCard)
+        qconnect(f.actionCopy.triggered, self.on_create_copy)
         qconnect(f.actionAdd_Tags.triggered, self.add_tags_to_selected_notes)
         qconnect(f.actionRemove_Tags.triggered, self.remove_tags_from_selected_notes)
         qconnect(f.actionClear_Unused_Tags.triggered, self.clear_unused_tags)
@@ -228,6 +230,8 @@ class Browser(QMainWindow):
         # add-on hook
         gui_hooks.browser_menus_did_init(self)
         self.mw.maybeHideAccelerators(self)
+
+        add_ellipsis_to_action_label(f.actionCopy)
 
     def closeEvent(self, evt: QCloseEvent) -> None:
         if self._closeEventHasCleanedUp:
@@ -479,6 +483,7 @@ class Browser(QMainWindow):
         self._update_flags_menu()
         self._update_toggle_mark_action()
         self._update_toggle_suspend_action()
+        self.form.actionCopy.setEnabled(self.table.has_current())
         self.form.action_Info.setEnabled(self.table.has_current())
         self.form.actionPreviousCard.setEnabled(self.table.has_previous())
         self.form.actionNextCard.setEnabled(self.table.has_next())
@@ -581,6 +586,10 @@ class Browser(QMainWindow):
 
     # Misc menu options
     ######################################################################
+
+    def on_create_copy(self) -> None:
+        if note := self.table.get_current_note():
+            aqt.dialogs.open("AddCards", self.mw).set_note(note)
 
     @no_arg_trigger
     @skip_if_selection_is_empty
