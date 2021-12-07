@@ -667,7 +667,7 @@
     <string>browsing_create_copy</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+Alt+E</string>
+    <string notr="true">Ctrl+Shift+C</string>
    </property>
   </action>
  </widget>
