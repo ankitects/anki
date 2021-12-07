@@ -116,7 +116,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     def unsuspend_cards(self, ids: Sequence[CardId]) -> OpChanges:
         return self.col._backend.restore_buried_and_suspended_cards(ids)
 
-    def unbury_cards(self, ids: list[CardId]) -> OpChanges:
+    def unbury_cards(self, ids: Sequence[CardId]) -> OpChanges:
         return self.col._backend.restore_buried_and_suspended_cards(ids)
 
     def unbury_deck(
