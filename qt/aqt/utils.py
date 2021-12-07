@@ -510,12 +510,10 @@ def getSaveFile(
 
 
 def saveGeom(widget: QWidget, key: str) -> None:
-    key += "Geom"
-    if is_mac and (widget.windowState() & Qt.WindowState.WindowFullScreen):
-        geom = None
-    else:
-        geom = widget.saveGeometry()
-    aqt.mw.pm.profile[key] = geom
+    # restoring a fullscreen window is buggy
+    # (at the time of writing; Qt 6.2.2 and 5.15)
+    if not widget.isFullScreen():
+        aqt.mw.pm.profile[f"{key}Geom"] = widget.saveGeometry()
 
 
 def restoreGeom(
