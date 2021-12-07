@@ -28,7 +28,6 @@ browsing-change-note-type2 = Change Note Type...
 browsing-change-notetype = Change Notetype
 browsing-clear-unused-tags = Clear Unused Tags
 browsing-confirm-saved-search-overwrite = A saved search with the name { $name } already exists. Do you want to overwrite it?
-browsing-create-copy = Create Copy...
 browsing-created = Created
 browsing-current-deck = Current Deck
 browsing-current-note-type = Current note type:

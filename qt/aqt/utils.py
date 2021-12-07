@@ -849,6 +849,17 @@ def qtMenuShortcutWorkaround(qmenu: QMenu) -> None:
 ######################################################################
 
 
+def add_ellipsis_to_action_label(*actions: QAction) -> None:
+    """Pass actions to add '...' to their labels, indicating that more input is
+    required before they can be performed.
+
+    This approach is used so that the same fluent translations can be used on
+    mobile, where the '...' convention does not exist.
+    """
+    for action in actions:
+        action.setText(tr.actions_with_ellipsis(action=action.text()))
+
+
 def supportText() -> str:
     import platform
     import time

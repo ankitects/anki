@@ -40,6 +40,7 @@ from aqt.undo import UndoActionsInfo
 from aqt.utils import (
     HelpPage,
     KeyboardModifiersPressed,
+    add_ellipsis_to_action_label,
     current_window,
     ensure_editor_saved,
     getTag,
@@ -229,6 +230,8 @@ class Browser(QMainWindow):
         # add-on hook
         gui_hooks.browser_menus_did_init(self)
         self.mw.maybeHideAccelerators(self)
+
+        add_ellipsis_to_action_label(f.actionCopy)
 
     def closeEvent(self, evt: QCloseEvent) -> None:
         if self._closeEventHasCleanedUp:
