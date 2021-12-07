@@ -218,6 +218,12 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "RumovZ",
             "学习骇客",
             "ready-research",
+            "Henrik Giesel",
+            "Yoonchae Lee",
+            "Hikaru Yoshiga",
+            "Matthias Metelka",
+            "Sergio Quintero",
+            "Nicholas Flint",
         )
     )
 

@@ -1,20 +1,16 @@
-load("@rules_cc//cc:defs.bzl", "objc_library")
-
-objc_library(
-    name = "helper_static",
-    srcs = ["AnkiHelper.m"],
-    enable_modules = True,
-    sdk_frameworks = ["AppKit"],
+py_binary(
+    name = "helper_build",
+    srcs = ["helper_build.py"],
     tags = ["manual"],
-    alwayslink = True,
 )
 
-apple_binary(
+genrule(
     name = "helper_dylib",
-    binary_type = "dylib",
-    minimum_os_version = "10.14",
-    platform_type = "macos",
+    srcs = glob(["*.swift"]),
+    outs = ["libankihelper.dylib"],
+    cmd = "$(location :helper_build) $@ $(COMPILATION_MODE) $(SRCS)",
+    message = "Compiling Swift dylib",
     tags = ["manual"],
+    tools = [":helper_build"],
     visibility = ["//qt:__subpackages__"],
-    deps = ["helper_static"],
 )
