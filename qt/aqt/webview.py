@@ -242,7 +242,6 @@ class AnkiWebView(QWebEngineView):
         self.requiresCol = True
         self.setPage(self._page)
 
-        self._page.profile().setHttpCacheType(QWebEngineProfile.HttpCacheType.NoCache)
         self.resetHandlers()
         self.allowDrops = False
         self._filterSet = False
