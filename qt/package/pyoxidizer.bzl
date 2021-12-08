@@ -90,7 +90,11 @@ def handle_resource(policy, resource):
 
 def make_exe():
     if BUILD_TARGET_TRIPLE == "aarch64-unknown-linux-gnu":
-        fail("arm64 is not currently supported")
+        dist = PythonDistribution(
+            url = "https://github.com/ankitects/python-build-standalone/releases/download/anki-2021-10-15/cpython-3.9.7-aarch64-unknown-linux-gnu-pgo-20211013T1538.tar.zst",
+            sha256 = "d25de2da9dc1b988350570c0ade9a79587cafeaad9ba1965fcec12c4ecaa9d98",
+        )
+
     elif BUILD_TARGET_TRIPLE == "x86_64-unknown-linux-gnu":
         dist = PythonDistribution(
             url = "https://github.com/ankitects/python-build-standalone/releases/download/anki-2021-10-15/cpython-3.9.7-x86_64-unknown-linux-gnu-pgo-20211013T1538.tar.zst",

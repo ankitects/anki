@@ -7,3 +7,4 @@ qsci
 *.pyi
 *.sip
 py.typed
+__pycache__
