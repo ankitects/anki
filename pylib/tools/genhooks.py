@@ -93,6 +93,13 @@ hooks = [
         doc="""Allows changing the number of rev card for this deck (without
         considering descendants).""",
     ),
+    Hook(
+        name="importing_importers",
+        args=["importers: list[tuple[str, Any]]"],
+        doc="""Allows updating the list of importers.
+        The resulting list is not saved and should be changed each time the
+        filter is called.""",
+    ),
     # obsolete
     Hook(
         name="deck_added",
