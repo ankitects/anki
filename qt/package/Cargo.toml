@@ -11,7 +11,7 @@ libc-stdhandle = "=0.1.0"
 
 [dependencies.pyembed]
 git = "https://github.com/ankitects/PyOxidizer.git"
-rev = "200fbd25894e9000451b0c562085bf70b8b9f6c1"
+rev = "eb26dd7cd1290de6503869f3d719eabcec45e139"
 default-features = false
 
 [dependencies.jemallocator]
