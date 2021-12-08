@@ -19,8 +19,7 @@ prefix = """\
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Sequence, Tuple, Optional, \
-    Union, Literal
+from typing import Any, Callable, Sequence, Literal
 
 import anki
 import aqt
@@ -81,11 +80,11 @@ hooks = [
     Hook(
         name="reviewer_will_init_answer_buttons",
         args=[
-            "buttons_tuple: Tuple[Tuple[int, str], ...]",
+            "buttons_tuple: tuple[tuple[int, str], ...]",
             "reviewer: aqt.reviewer.Reviewer",
             "card: Card",
         ],
-        return_type="Tuple[Tuple[int, str], ...]",
+        return_type="tuple[tuple[int, str], ...]",
         doc="""Used to modify list of answer buttons
 
         buttons_tuple is a tuple of buttons, with each button represented by a 
@@ -102,11 +101,11 @@ hooks = [
     Hook(
         name="reviewer_will_answer_card",
         args=[
-            "ease_tuple: Tuple[bool, Literal[1, 2, 3, 4]]",
+            "ease_tuple: tuple[bool, Literal[1, 2, 3, 4]]",
             "reviewer: aqt.reviewer.Reviewer",
             "card: Card",
         ],
-        return_type="Tuple[bool, Literal[1, 2, 3, 4]]",
+        return_type="tuple[bool, Literal[1, 2, 3, 4]]",
         doc="""Used to modify the ease at which a card is rated or to bypass
         rating the card completely.
         
@@ -137,7 +136,7 @@ hooks = [
     ),
     Hook(
         name="reviewer_will_play_question_sounds",
-        args=["card: Card", "tags: List[anki.sound.AVTag]"],
+        args=["card: Card", "tags: list[anki.sound.AVTag]"],
         doc="""Called before showing the question/front side.
 
         `tags` can be used to inspect and manipulate the sounds
@@ -152,7 +151,7 @@ hooks = [
     ),
     Hook(
         name="reviewer_will_play_answer_sounds",
-        args=["card: Card", "tags: List[anki.sound.AVTag]"],
+        args=["card: Card", "tags: list[anki.sound.AVTag]"],
         doc="""Called before showing the answer/back side.
 
         `tags` can be used to inspect and manipulate the sounds
@@ -457,7 +456,7 @@ hooks = [
     ),
     Hook(
         name="browser_did_fetch_columns",
-        args=["columns: Dict[str, aqt.browser.Column]"],
+        args=["columns: dict[str, aqt.browser.Column]"],
         doc="""Allows you to add custom columns to the browser.
         
         columns is a dictionary of data obejcts. You can add an entry with a custom
@@ -483,7 +482,7 @@ hooks = [
     # different sig to original
     Hook(
         name="state_shortcuts_will_change",
-        args=["state: str", "shortcuts: List[Tuple[str, Callable]]"],
+        args=["state: str", "shortcuts: list[tuple[str, Callable]]"],
     ),
     # UI state/refreshing
     ###################
@@ -508,7 +507,7 @@ hooks = [
     ),
     Hook(
         name="operation_did_execute",
-        args=["changes: anki.collection.OpChanges", "handler: Optional[object]"],
+        args=["changes: anki.collection.OpChanges", "handler: object | None"],
         doc="""Called after an operation completes.
         Changes can be inspected to determine whether the UI needs updating.
         
@@ -518,8 +517,8 @@ hooks = [
     Hook(
         name="focus_did_change",
         args=[
-            "new: Optional[QWidget]",
-            "old: Optional[QWidget]",
+            "new: QWidget | None",
+            "old: QWidget | None",
         ],
         doc="""Called each time the focus changes. Can be used to defer updates from
         `operation_did_execute` until a window is brought to the front.""",
@@ -548,8 +547,8 @@ hooks = [
     ###################
     Hook(
         name="webview_did_receive_js_message",
-        args=["handled: Tuple[bool, Any]", "message: str", "context: Any"],
-        return_type="Tuple[bool, Any]",
+        args=["handled: tuple[bool, Any]", "message: str", "context: Any"],
+        return_type="tuple[bool, Any]",
         doc="""Used to handle pycmd() messages sent from Javascript.
         
         Message is the string passed to pycmd().
@@ -585,7 +584,7 @@ hooks = [
         name="webview_will_set_content",
         args=[
             "web_content: aqt.webview.WebContent",
-            "context: Optional[Any]",
+            "context: Any | None",
         ],
         doc="""Used to modify web content before it is rendered.
 
@@ -663,8 +662,8 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         name="main_window_should_require_reset",
         args=[
             "will_reset: bool",
-            "reason: Union[aqt.main.ResetReason, str]",
-            "context: Optional[Any]",
+            "reason: aqt.main.ResetReason | str",
+            "context: Any | None",
         ],
         return_type="bool",
         doc="""Executed before the main window will require a reset
@@ -704,7 +703,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     ),
     Hook(
         name="top_toolbar_did_init_links",
-        args=["links: List[str]", "top_toolbar: aqt.toolbar.Toolbar"],
+        args=["links: list[str]", "top_toolbar: aqt.toolbar.Toolbar"],
         doc="""Used to modify or add links in the top toolbar of Anki's main window
         
         'links' is a list of HTML link elements. Add-ons can generate their own links
@@ -769,8 +768,8 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     ),
     Hook(
         name="add_cards_will_add_note",
-        args=["problem: Optional[str]", "note: anki.notes.Note"],
-        return_type="Optional[str]",
+        args=["problem: str | None", "note: anki.notes.Note"],
+        return_type="str | None",
         doc="""Decides whether the note should be added to the collection or
         not. It is assumed to come from the addCards window.
 
@@ -801,15 +800,15 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     ###################
     Hook(
         name="editor_did_init_left_buttons",
-        args=["buttons: List[str]", "editor: aqt.editor.Editor"],
+        args=["buttons: list[str]", "editor: aqt.editor.Editor"],
     ),
     Hook(
         name="editor_did_init_buttons",
-        args=["buttons: List[str]", "editor: aqt.editor.Editor"],
+        args=["buttons: list[str]", "editor: aqt.editor.Editor"],
     ),
     Hook(
         name="editor_did_init_shortcuts",
-        args=["shortcuts: List[Tuple]", "editor: aqt.editor.Editor"],
+        args=["shortcuts: list[tuple]", "editor: aqt.editor.Editor"],
         legacy_hook="setupEditorShortcuts",
     ),
     Hook(
@@ -949,7 +948,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     ),
     Hook(
         name="addons_dialog_will_delete_addons",
-        args=["dialog: aqt.addons.AddonsDialog", "ids: List[str]"],
+        args=["dialog: aqt.addons.AddonsDialog", "ids: list[str]"],
         doc="""Allows doing an action before an add-on is deleted.""",
     ),
     # Model
@@ -961,10 +960,10 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     Hook(
         name="models_did_init_buttons",
         args=[
-            "buttons: List[Tuple[str, Callable[[], None]]]",
+            "buttons: list[tuple[str, Callable[[], None]]]",
             "models: aqt.models.Models",
         ],
-        return_type="List[Tuple[str, Callable[[], None]]]",
+        return_type="list[tuple[str, Callable[[], None]]]",
         doc="""Allows adding buttons to the Model dialog""",
     ),
     # Fields
