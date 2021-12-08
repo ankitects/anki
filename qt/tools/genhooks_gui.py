@@ -584,7 +584,7 @@ hooks = [
         name="webview_will_set_content",
         args=[
             "web_content: aqt.webview.WebContent",
-            "context: Any | None",
+            "context: object | None",
         ],
         doc="""Used to modify web content before it is rendered.
 
@@ -663,7 +663,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         args=[
             "will_reset: bool",
             "reason: aqt.main.ResetReason | str",
-            "context: Any | None",
+            "context: object | None",
         ],
         return_type="bool",
         doc="""Executed before the main window will require a reset
