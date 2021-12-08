@@ -34,7 +34,7 @@ hooks = [
     Hook(name="media_files_did_export", args=["count: int"]),
     Hook(
         name="exporters_list_created",
-        args=["exporters: List[Tuple[str, Any]]"],
+        args=["exporters: list[tuple[str, Any]]"],
         legacy_hook="exportersList",
     ),
     Hook(
@@ -127,7 +127,7 @@ prefix = """\
 
 from __future__ import annotations
 
-from typing import Any, Callable, List, Sequence, Tuple
+from typing import Any, Callable, Sequence
 import anki
 import anki.hooks
 from anki.cards import Card
