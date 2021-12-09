@@ -62,11 +62,8 @@ else:
     else:
         os.environ["TARGET"] = "aarch64-unknown-linux-gnu"
         pyqt5_folder_name = None
+        pyqt6_folder_path = None
         arm64_linux = True
-        # path to a custom-built/prepared PyQt5 folder
-        # must be provided
-        pyqt6_folder_path = os.getenv("PREPARED_QT_PATH")
-        assert pyqt6_folder_path
 
 
 python = python_bin_folder / "python"
@@ -197,22 +194,23 @@ def adj_path_for_windows_rsync(path: Path) -> str:
     return f"/{path.drive[0]}{rest}"
 
 
-def merge_into_dist(output_folder: Path, pyqt_src_path: Path):
+def merge_into_dist(output_folder: Path, pyqt_src_path: Path | None):
     if not output_folder.exists():
         output_folder.mkdir(parents=True)
     # PyQt
-    subprocess.run(
-        [
-            "rsync",
-            "-a",
-            "--delete",
-            "--exclude-from",
-            "qt.exclude",
-            adj_path_for_windows_rsync(pyqt_src_path),
-            adj_path_for_windows_rsync(output_folder / "lib") + "/",
-        ],
-        check=True,
-    )
+    if pyqt_src_path:
+        subprocess.run(
+            [
+                "rsync",
+                "-a",
+                "--delete",
+                "--exclude-from",
+                "qt.exclude",
+                adj_path_for_windows_rsync(pyqt_src_path),
+                adj_path_for_windows_rsync(output_folder / "lib") + "/",
+            ],
+            check=True,
+        )
     # Executable and other resources
     resources = [
         adj_path_for_windows_rsync(
@@ -241,12 +239,6 @@ def merge_into_dist(output_folder: Path, pyqt_src_path: Path):
     )
     # Linux ARM workarounds
     if arm64_linux:
-        with open(output_folder / "qt.conf", "w") as file:
-            file.write(
-                """[Paths]
-Prefix = lib/PyQt5/Qt5
-"""
-            )
         # copy orjson ends up broken; copy from venv
         subprocess.run(
             [
