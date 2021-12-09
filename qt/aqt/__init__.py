@@ -18,6 +18,14 @@ from .package import packaged_build_setup
 
 packaged_build_setup()
 
+# syncserver needs to be run before Qt loaded
+if "--syncserver" in sys.argv:
+    from anki.syncserver import serve
+
+    serve()
+    sys.exit(0)
+
+
 import argparse
 import builtins
 import cProfile
@@ -467,11 +475,6 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
 
     if opts.version:
         print(f"Anki {appVersion}")
-        return None
-    elif opts.syncserver:
-        from anki.syncserver import serve
-
-        serve()
         return None
 
     if PROFILE_CODE:
