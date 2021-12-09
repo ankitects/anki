@@ -6,16 +6,14 @@ set -e
 echo "--- Checking CONTRIBUTORS"
 .buildkite/linux/check_contributors
 
-echo "--- Building"
 BAZEL="bazel --output_user_root=/state/bazel --output_base=/state/bazel/anki"
 BUILDARGS="--config=ci --experimental_convenience_symlinks=ignore --disk_cache=/state/bazel/disk --repository_cache=/state/bazel/repo"
+
+echo "+++ Building and testing"
 
 # move existing node_modules into tree
 test -e /state/node_modules && mv /state/node_modules .
 
-$BAZEL build $BUILDARGS ...
-
-echo "+++ Running tests"
 $BAZEL test $BUILDARGS ... //rslib:links
 
 echo "--- Building wheels"
