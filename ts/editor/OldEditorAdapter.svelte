@@ -231,6 +231,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return false;
     }
 
+    export function wrapContent(before: string, after: string): void {
+        $activeInput?.surround(before, after);
+    }
+
     let richTextInputs: RichTextInput[] = [];
     $: richTextInputs = richTextInputs.filter(Boolean);
 
