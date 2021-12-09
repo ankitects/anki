@@ -666,9 +666,6 @@
    <property name="text">
     <string>actions_create_copy</string>
    </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+Shift+C</string>
-   </property>
   </action>
  </widget>
  <resources>
