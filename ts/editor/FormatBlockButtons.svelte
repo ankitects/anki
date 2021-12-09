@@ -13,7 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import * as tr from "../lib/ftl";
     import { getListItem } from "../lib/dom";
-    import { execCommand } from "./helpers";
+    import { appendInParentheses, execCommand } from "./helpers";
     import {
         ulIcon,
         olIcon,
@@ -26,6 +26,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         outdentIcon,
     } from "./icons";
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
+    import WithShortcut from "../components/WithShortcut.svelte";
+    import { withButton } from "../components/helpers";
 
     export let api = {};
 
@@ -54,7 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <CommandIconButton
             key="insertUnorderedList"
             tooltip={tr.editingUnorderedList()}
-            withoutShortcut>{@html ulIcon}</CommandIconButton
+            shortcut={"Control+,"}>{@html ulIcon}</CommandIconButton
         >
     </ButtonGroupItem>
 
@@ -62,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <CommandIconButton
             key="insertOrderedList"
             tooltip={tr.editingOrderedList()}
-            withoutShortcut>{@html olIcon}</CommandIconButton
+            shortcut={"Control+."}>{@html olIcon}</CommandIconButton
         >
     </ButtonGroupItem>
 
@@ -119,23 +121,43 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <Item id="indentation">
                     <ButtonGroup>
                         <ButtonGroupItem>
-                            <IconButton
-                                on:click={outdentListItem}
-                                tooltip={tr.editingOutdent()}
-                                {disabled}
+                            <WithShortcut
+                                shortcut={"Control+Shift+,"}
+                                let:createShortcut
+                                let:shortcutLabel
                             >
-                                {@html outdentIcon}
-                            </IconButton>
+                                <IconButton
+                                    on:click={outdentListItem}
+                                    on:mount={withButton(createShortcut)}
+                                    tooltip={appendInParentheses(
+                                        tr.editingOutdent(),
+                                        shortcutLabel,
+                                    )}
+                                    {disabled}
+                                >
+                                    {@html outdentIcon}
+                                </IconButton>
+                            </WithShortcut>
                         </ButtonGroupItem>
 
                         <ButtonGroupItem>
-                            <IconButton
-                                on:click={indentListItem}
-                                tooltip={tr.editingIndent()}
-                                {disabled}
+                            <WithShortcut
+                                shortcut={"Control+Shift+."}
+                                let:createShortcut
+                                let:shortcutLabel
                             >
-                                {@html indentIcon}
-                            </IconButton>
+                                <IconButton
+                                    on:click={indentListItem}
+                                    on:mount={withButton(createShortcut)}
+                                    tooltip={appendInParentheses(
+                                        tr.editingIndent(),
+                                        shortcutLabel,
+                                    )}
+                                    {disabled}
+                                >
+                                    {@html indentIcon}
+                                </IconButton>
+                            </WithShortcut>
                         </ButtonGroupItem>
                     </ButtonGroup>
                 </Item>
