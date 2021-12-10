@@ -65,6 +65,7 @@ from aqt.utils import (
     restoreState,
     saveGeom,
     saveSplitter,
+    saveState,
     showInfo,
     showWarning,
     tooltip,
@@ -437,8 +438,8 @@ class AnkiQt(QMainWindow):
         self.unloadCollection(callback)
 
     def _unloadProfile(self) -> None:
-        self.pm.profile["mainWindowGeom"] = self.saveGeometry()
-        self.pm.profile["mainWindowState"] = self.saveState()
+        saveGeom(self, "mainWindow")
+        saveState(self, "mainWindow")
         self.pm.save()
         self.hide()
 
