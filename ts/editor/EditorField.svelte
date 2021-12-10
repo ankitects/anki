@@ -28,7 +28,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import * as tr from "../lib/ftl";
     import EditingArea from "./EditingArea.svelte";
     import LabelContainer from "./LabelContainer.svelte";
     import LabelDescription from "./LabelDescription.svelte";
@@ -45,7 +44,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let content: Writable<string>;
     export let field: FieldData;
     export let autofocus = false;
-    export let dupes = false;
 
     export let api: (Partial<EditorFieldAPI> & Destroyable) | undefined = undefined;
 
@@ -77,7 +75,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:focusout
     on:click={() => editingArea.focus?.()}
 >
-    <LabelContainer --label-color={dupes ? "var(--flag1-bg)" : "transparent"}>
+    <LabelContainer>
         <span>
             <LabelName>
                 {field.name}
@@ -86,11 +84,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <LabelDescription description={field.description} />
             {/if}
         </span>
-        {#if dupes}
-            <span class="dupes" on:click={() => globalThis.pycmd("dupes")}
-                >{tr.editingShowDuplicates()}
-            </span>
-        {/if}
         <FieldState><slot name="field-state" /></FieldState>
     </LabelContainer>
     <EditingArea
@@ -118,14 +111,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             outline: none;
             box-shadow: 0 0 0 3px var(--focus-shadow);
-        }
-    }
-
-    .dupes {
-        cursor: pointer;
-        color: var(--highlight-fg);
-        &:hover {
-            text-decoration: underline;
         }
     }
 </style>

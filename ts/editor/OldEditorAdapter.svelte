@@ -50,6 +50,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Notification from "./Notification.svelte";
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
+    import DuplicateLink from "./DuplicateLink.svelte";
 
     import DecoratedElements from "./DecoratedElements.svelte";
     import RichTextInput from "./RichTextInput.svelte";
@@ -283,7 +284,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {field}
                     content={fieldStores[index]}
                     autofocus={index === focusTo}
-                    dupes={cols[index] === "dupe"}
                     api={fields[index]}
                     on:focusin={() => {
                         $currentField = fields[index];
@@ -295,8 +295,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             `blur:${index}:${getNoteId()}:${get(fieldStores[index])}`,
                         );
                     }}
+                    --label-color={cols[index] === "dupe"
+                        ? "var(--flag1-bg)"
+                        : "transparent"}
                 >
                     <svelte:fragment slot="field-state">
+                        {#if cols[index] === "dupe"}
+                            <DuplicateLink />
+                        {/if}
                         <RichTextBadge bind:off={richTextsHidden[index]} />
                         <PlainTextBadge bind:off={plainTextsHidden[index]} />
                         {#if stickies}
