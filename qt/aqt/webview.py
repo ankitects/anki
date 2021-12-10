@@ -242,7 +242,6 @@ class AnkiWebView(QWebEngineView):
         self.requiresCol = True
         self.setPage(self._page)
 
-        self._page.profile().setHttpCacheType(QWebEngineProfile.HttpCacheType.NoCache)
         self.resetHandlers()
         self.allowDrops = False
         self._filterSet = False
@@ -368,6 +367,11 @@ class AnkiWebView(QWebEngineView):
             factor = max(1, factor)
             return factor
         return 1
+
+    def setPlaybackRequiresGesture(self, value: bool) -> None:
+        self.settings().setAttribute(
+            QWebEngineSettings.WebAttribute.PlaybackRequiresUserGesture, value
+        )
 
     def _getQtIntScale(self, screen: QWidget) -> int:
         # try to detect if Qt has scaled the screen

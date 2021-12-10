@@ -1,6 +1,9 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+
+from __future__ import annotations
+
 import glob
 import os
 import platform
@@ -38,7 +41,9 @@ os.environ["CARGO_TARGET_DIR"] = str(cargo_target)
 
 # OS-specific things
 pyqt5_folder_name = "pyqt515"
+pyqt6_folder_path = bazel_external / "pyqt6" / "PyQt6"
 is_lin = False
+arm64_linux = False
 if is_win:
     os.environ["TARGET"] = "x86_64-pc-windows-msvc"
 elif sys.platform.startswith("darwin"):
@@ -56,7 +61,9 @@ else:
         os.environ["TARGET"] = "x86_64-unknown-linux-gnu"
     else:
         os.environ["TARGET"] = "aarch64-unknown-linux-gnu"
-        raise Exception("building on this architecture is not currently supported")
+        pyqt5_folder_name = None
+        pyqt6_folder_path = None
+        arm64_linux = True
 
 
 python = python_bin_folder / "python"
@@ -80,7 +87,7 @@ def build_pyoxidizer():
             "https://github.com/ankitects/PyOxidizer.git",
             "--rev",
             # when updating, make sure Cargo.toml updated too
-            "200fbd25894e9000451b0c562085bf70b8b9f6c1",
+            "eb26dd7cd1290de6503869f3d719eabcec45e139",
             "pyoxidizer",
         ],
         check=True,
@@ -117,6 +124,10 @@ def install_wheels_into_venv():
         subprocess.run(
             [pip, "install", "--force-reinstall", "--no-deps", protobuf], check=True
         )
+    if arm64_linux:
+        # orjson doesn't get packaged correctly; remove it and we'll
+        # copy a copy in later
+        subprocess.run([pip, "uninstall", "-y", "orjson"], check=True)
 
 
 def build_artifacts():
@@ -183,22 +194,23 @@ def adj_path_for_windows_rsync(path: Path) -> str:
     return f"/{path.drive[0]}{rest}"
 
 
-def merge_into_dist(output_folder: Path, pyqt_src_path: Path):
+def merge_into_dist(output_folder: Path, pyqt_src_path: Path | None):
     if not output_folder.exists():
         output_folder.mkdir(parents=True)
     # PyQt
-    subprocess.run(
-        [
-            "rsync",
-            "-a",
-            "--delete",
-            "--exclude-from",
-            "qt.exclude",
-            adj_path_for_windows_rsync(pyqt_src_path),
-            adj_path_for_windows_rsync(output_folder / "lib") + "/",
-        ],
-        check=True,
-    )
+    if pyqt_src_path:
+        subprocess.run(
+            [
+                "rsync",
+                "-a",
+                "--delete",
+                "--exclude-from",
+                "qt.exclude",
+                adj_path_for_windows_rsync(pyqt_src_path),
+                adj_path_for_windows_rsync(output_folder / "lib") + "/",
+            ],
+            check=True,
+        )
     # Executable and other resources
     resources = [
         adj_path_for_windows_rsync(
@@ -225,6 +237,19 @@ def merge_into_dist(output_folder: Path, pyqt_src_path: Path):
         ],
         check=True,
     )
+    # Linux ARM workarounds
+    if arm64_linux:
+        # copy orjson ends up broken; copy from venv
+        subprocess.run(
+            [
+                "rsync",
+                "-a",
+                "--delete",
+                os.path.expanduser("~/orjson"),
+                output_folder / "lib/",
+            ],
+            check=True,
+        )
     # Ensure all files are world-readable
     if not is_win:
         subprocess.run(["chmod", "-R", "a+r", output_folder])
@@ -234,6 +259,6 @@ build_pyoxidizer()
 install_wheels_into_venv()
 build_artifacts()
 build_pkg()
-merge_into_dist(dist_folder / "std", bazel_external / "pyqt6" / "PyQt6")
+merge_into_dist(dist_folder / "std", pyqt6_folder_path)
 if pyqt5_folder_name:
     merge_into_dist(dist_folder / "alt", bazel_external / pyqt5_folder_name / "PyQt5")

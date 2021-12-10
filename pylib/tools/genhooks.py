@@ -34,7 +34,7 @@ hooks = [
     Hook(name="media_files_did_export", args=["count: int"]),
     Hook(
         name="exporters_list_created",
-        args=["exporters: List[Tuple[str, Any]]"],
+        args=["exporters: list[tuple[str, Any]]"],
         legacy_hook="exportersList",
     ),
     Hook(
@@ -93,6 +93,17 @@ hooks = [
         doc="""Allows changing the number of rev card for this deck (without
         considering descendants).""",
     ),
+    Hook(
+        name="importing_importers",
+        args=["importers: list[tuple[str, Any]]"],
+        doc="""Allows updating the list of importers.
+        The resulting list is not saved and should be changed each time the
+        filter is called.
+        
+        NOTE: Updates to the import/export code are expected in the coming 
+        months, and this hook may be replaced with another solution at that 
+        time. Tracked on https://github.com/ankitects/anki/issues/1018""",
+    ),
     # obsolete
     Hook(
         name="deck_added",
@@ -127,7 +138,7 @@ prefix = """\
 
 from __future__ import annotations
 
-from typing import Any, Callable, List, Sequence, Tuple
+from typing import Any, Callable, Sequence
 import anki
 import anki.hooks
 from anki.cards import Card

@@ -510,12 +510,10 @@ def getSaveFile(
 
 
 def saveGeom(widget: QWidget, key: str) -> None:
-    key += "Geom"
-    if is_mac and (widget.windowState() & Qt.WindowState.WindowFullScreen):
-        geom = None
-    else:
-        geom = widget.saveGeometry()
-    aqt.mw.pm.profile[key] = geom
+    # restoring a fullscreen window is buggy
+    # (at the time of writing; Qt 6.2.2 and 5.15)
+    if not widget.isFullScreen():
+        aqt.mw.pm.profile[f"{key}Geom"] = widget.saveGeometry()
 
 
 def restoreGeom(
@@ -847,6 +845,17 @@ def qtMenuShortcutWorkaround(qmenu: QMenu) -> None:
 
 
 ######################################################################
+
+
+def add_ellipsis_to_action_label(*actions: QAction) -> None:
+    """Pass actions to add '...' to their labels, indicating that more input is
+    required before they can be performed.
+
+    This approach is used so that the same fluent translations can be used on
+    mobile, where the '...' convention does not exist.
+    """
+    for action in actions:
+        action.setText(tr.actions_with_ellipsis(action=action.text()))
 
 
 def supportText() -> str:

@@ -2,16 +2,14 @@
 
 set -e
 
-echo "--- Building"
 BAZEL="bazel --output_user_root=~/bazel --output_base=~/bazel/anki"
 BUILDARGS="--config=ci --experimental_convenience_symlinks=ignore"
+
+echo "+++ Building and testing"
 
 # move existing node_modules into tree
 test -e ~/node_modules && mv ~/node_modules .
 
-$BAZEL build $BUILDARGS ...
-
-echo "+++ Running tests"
 $BAZEL test $BUILDARGS ...
 
 echo "--- Cleanup"

@@ -236,7 +236,10 @@ def _packagedCmd(cmd: list[str]) -> tuple[Any, dict[str, str]]:
     if "LD_LIBRARY_PATH" in env:
         del env["LD_LIBRARY_PATH"]
 
-    packaged_path = Path(sys.prefix) / "audio" / (cmd[0] + (".exe" if is_win else ""))
+    if is_win:
+        packaged_path = Path(sys.prefix) / "audio" / (cmd[0] + ".exe")
+    else:
+        packaged_path = Path(sys.prefix) / cmd[0]
     if packaged_path.exists():
         cmd[0] = str(packaged_path)
 
@@ -485,9 +488,9 @@ def _encode_mp3(src_wav: str, dst_mp3: str) -> None:
     try:
         retcode = retryWait(subprocess.Popen(cmd, startupinfo=startup_info(), env=env))
     except Exception as e:
-        raise Exception(tr.media_error_running(val=" ").join(cmd)) from e
+        raise Exception(tr.media_error_running(val=" ".join(cmd))) from e
     if retcode != 0:
-        raise Exception(tr.media_error_running(val=" ").join(cmd))
+        raise Exception(tr.media_error_running(val=" ".join(cmd)))
 
     os.unlink(src_wav)
 

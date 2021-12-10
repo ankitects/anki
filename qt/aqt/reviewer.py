@@ -320,10 +320,12 @@ class Reviewer:
         q = c.question()
         # play audio?
         if c.autoplay():
+            self.web.setPlaybackRequiresGesture(False)
             sounds = c.question_av_tags()
             gui_hooks.reviewer_will_play_question_sounds(c, sounds)
             av_player.play_tags(sounds)
         else:
+            self.web.setPlaybackRequiresGesture(True)
             av_player.clear_queue_and_maybe_interrupt()
             sounds = []
             gui_hooks.reviewer_will_play_question_sounds(c, sounds)
