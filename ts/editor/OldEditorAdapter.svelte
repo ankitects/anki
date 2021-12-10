@@ -283,6 +283,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {field}
                     content={fieldStores[index]}
                     autofocus={index === focusTo}
+                    dupes={cols[index] === "dupe"}
                     api={fields[index]}
                     on:focusin={() => {
                         $currentField = fields[index];
@@ -294,9 +295,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             `blur:${index}:${getNoteId()}:${get(fieldStores[index])}`,
                         );
                     }}
-                    --label-color={cols[index] === "dupe"
-                        ? "var(--flag1-bg)"
-                        : "transparent"}
                 >
                     <svelte:fragment slot="field-state">
                         <RichTextBadge bind:off={richTextsHidden[index]} />

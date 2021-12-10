@@ -127,7 +127,7 @@ class Editor:
 
         # then load page
         self.web.stdHtml(
-            "",  # % tr.editing_show_duplicates(),
+            "",
             css=["css/editor.css"],
             js=["js/editor.js"],
             context=self,
