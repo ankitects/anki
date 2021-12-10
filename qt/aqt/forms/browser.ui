@@ -666,6 +666,9 @@
    <property name="text">
     <string>actions_create_copy</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+E</string>
+   </property>
   </action>
  </widget>
  <resources>
