@@ -19,5 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .duplicate-link {
         color: var(--highlight-color);
+        text-align: center;
+        flex-grow: 1;
     }
 </style>
