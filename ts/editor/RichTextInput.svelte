@@ -16,7 +16,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         moveCaretToEnd(): void;
         refocus(): void;
         toggle(): boolean;
-        surround(before: string, after: string): void;
         preventResubscription(): () => void;
         getTriggerOnNextInsert(): OnNextInsertTrigger;
     }
@@ -50,7 +49,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getEditingArea } from "./EditingArea.svelte";
     import { promiseWithResolver } from "../lib/promise";
     import { bridgeCommand } from "../lib/bridgecommand";
-    import { wrapInternal } from "../lib/wrap";
     import { on } from "../lib/events";
     import { nodeStore } from "../sveltelib/node-store";
     import type { DecoratedElement } from "../editable/decorated";
@@ -198,17 +196,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 richText.focus();
             });
         },
-        moveCaretToEnd,
         focusable: !hidden,
         toggle(): boolean {
             hidden = !hidden;
             return hidden;
         },
-        surround(before: string, after: string) {
-            richTextPromise.then((richText) =>
-                wrapInternal(richText.getRootNode() as any, before, after, false),
-            );
-        },
+        moveCaretToEnd,
         preventResubscription,
         getTriggerOnNextInsert,
     };
