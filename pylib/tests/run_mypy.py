@@ -24,7 +24,7 @@ if __name__ == "__main__":
         "--config-file",
         ini,
         "--cache-dir",
-        Path(tempfile.gettempdir()) / ".mypy-anki-qt",
+        Path(tempfile.gettempdir()) / ".mypy-anki-pylib",
         "--sqlite-cache",
         "--python-executable",
         extendsitepkgs,
