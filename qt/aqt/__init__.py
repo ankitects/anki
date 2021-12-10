@@ -523,12 +523,10 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
     if os.environ.get("ANKI_SOFTWAREOPENGL"):
         QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL)
 
-    if (
-        is_win
-        and qtmajor == 5
-        and (qtminor == 14 or (qtminor == 15 and qtpoint == 0))
-        and "QT_QPA_PLATFORM" not in os.environ
-    ):
+    # fix an issue on Windows, where Ctrl+Alt shortcuts are triggered by AltGr,
+    # preventing users from typing things like "@" through AltGr+Q on a German
+    # keyboard.
+    if is_win and "QT_QPA_PLATFORM" not in os.environ:
         os.environ["QT_QPA_PLATFORM"] = "windows:altgr"
 
     # create the app
