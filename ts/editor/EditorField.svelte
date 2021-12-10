@@ -84,6 +84,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <LabelDescription description={field.description} />
             {/if}
         </span>
+        <slot name="duplicate-link" />
         <FieldState><slot name="field-state" /></FieldState>
     </LabelContainer>
     <EditingArea
