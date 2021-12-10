@@ -4,6 +4,8 @@
 import os
 import subprocess
 import sys
+import tempfile
+from pathlib import Path
 
 if __name__ == "__main__":
     (module, ini, extendsitepkgs) = sys.argv[1:]
@@ -21,6 +23,9 @@ if __name__ == "__main__":
         module,
         "--config-file",
         ini,
+        "--cache-dir",
+        Path(tempfile.gettempdir()) / ".mypy-anki-qt",
+        "--sqlite-cache",
         "--python-executable",
         extendsitepkgs,
     ]
