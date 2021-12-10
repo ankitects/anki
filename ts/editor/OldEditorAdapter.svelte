@@ -299,13 +299,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         ? "var(--flag1-bg)"
                         : "transparent"}
                 >
-                    <svelte:fragment slot="duplicate-link">
+                    <svelte:fragment slot="field-state">
                         {#if cols[index] === "dupe"}
                             <DuplicateLink />
                         {/if}
-                    </svelte:fragment>
-
-                    <svelte:fragment slot="field-state">
                         <RichTextBadge bind:off={richTextsHidden[index]} />
                         <PlainTextBadge bind:off={plainTextsHidden[index]} />
                         {#if stickies}
