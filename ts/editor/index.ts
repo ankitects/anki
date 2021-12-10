@@ -92,5 +92,21 @@ async function setupNoteEditor(): Promise<NoteEditorAPI> {
     return api as NoteEditorAPI;
 }
 
+import { get } from "svelte/store";
+import { wrapInternal } from "../lib/wrap";
+import type { RichTextInputAPI } from "./RichTextInput.svelte";
+
+export async function wrap(before: string, after: string): Promise<void> {
+    const noteEditor = await noteEditorPromise;
+
+    if (!get(noteEditor.focusInRichText)) {
+        return;
+    }
+
+    const activeInput = get(noteEditor.activeInput) as RichTextInputAPI;
+    const element = await activeInput.element;
+    wrapInternal(element, before, after, false);
+}
+
 export const noteEditorPromise = setupNoteEditor();
 export { editorToolbar } from "./EditorToolbar.svelte";
