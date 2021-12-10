@@ -14,7 +14,7 @@ pub(crate) fn order_and_limit_for_search(term: &FilteredSearchTerm, today: u32) 
         FilteredSearchOrder::IntervalsAscending => "ivl",
         FilteredSearchOrder::IntervalsDescending => "ivl desc",
         FilteredSearchOrder::Lapses => "lapses desc",
-        FilteredSearchOrder::Added => "n.id",
+        FilteredSearchOrder::Added => "n.id, c.ord",
         FilteredSearchOrder::ReverseAdded => "n.id desc",
         FilteredSearchOrder::Due => "c.due, c.ord",
         FilteredSearchOrder::DuePriority => {
