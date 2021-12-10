@@ -87,6 +87,7 @@ async function setupNoteEditor(): Promise<NoteEditorAPI> {
         activateStickyShortcuts: noteEditor.activateStickyShortcuts,
         focusIfField: noteEditor.focusIfField,
         setNoteId: noteEditor.setNoteId,
+        surround: noteEditor.surround,
     });
 
     return api as NoteEditorAPI;
