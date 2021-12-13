@@ -60,6 +60,9 @@ rust_library(
 rust_test(
     name = "i18n_tests",
     crate = ":anki_i18n",
+    rustc_flags = [
+        "-Dclippy::dbg_macro",
+    ],
 )
 
 rustfmt_test(
