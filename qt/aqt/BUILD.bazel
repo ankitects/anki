@@ -1,4 +1,3 @@
-load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("@rules_python//python:defs.bzl", "py_library")
 load("@py_deps//:requirements.bzl", "requirement")
 load("@rules_python//python:packaging.bzl", "py_package", "py_wheel")
