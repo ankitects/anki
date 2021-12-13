@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { getSelection } from "./cross-browser";
+
 function wrappedExceptForWhitespace(text: string, front: string, back: string): string {
     const match = text.match(/^(\s*)([^]*?)(\s*)$/)!;
     return match[1] + front + match[2] + back + match[3];
@@ -15,12 +17,12 @@ function moveCursorPastPostfix(selection: Selection, postfix: string): void {
 }
 
 export function wrapInternal(
-    root: DocumentOrShadowRoot,
+    base: Element,
     front: string,
     back: string,
     plainText: boolean,
 ): void {
-    const selection = root.getSelection()!;
+    const selection = getSelection(base)!;
     const range = selection.getRangeAt(0);
     const content = range.cloneContents();
     const span = document.createElement("span");
