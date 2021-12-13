@@ -138,6 +138,9 @@ rust_test(
         "tests/support/**",
     ]),
     rustc_env = _anki_rustc_env,
+    rustc_flags = [
+        "-Dclippy::dbg_macro",
+    ],
     deps = [
         "//rslib/cargo:env_logger",
         "//rslib/cargo:linkcheck",
