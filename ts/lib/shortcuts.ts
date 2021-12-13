@@ -10,6 +10,7 @@ import {
     checkModifiers,
     checkIfInputKey,
 } from "./keys";
+import { on } from "./events";
 
 const keyCodeLookup = {
     Backspace: 8,
@@ -83,7 +84,6 @@ function removeTrailing(modifier: string): string {
     return modifier.substring(0, modifier.length - 1);
 }
 
-// function checkModifiers(event: KeyboardEvent, modifiers: string[]): boolean {
 function separateRequiredOptionalModifiers(
     modifiers: string[],
 ): [Modifier[], Modifier[]] {
@@ -97,11 +97,12 @@ function separateRequiredOptionalModifiers(
 }
 
 const check =
-    (keyCode: number, modifiers: string[]) =>
+    (keyCode: number, requiredModifiers: Modifier[], optionalModifiers: Modifier[]) =>
     (event: KeyboardEvent): boolean => {
-        const [required, optional] = separateRequiredOptionalModifiers(modifiers);
-
-        return checkKey(event, keyCode) && checkModifiers(required, optional)(event);
+        return (
+            checkKey(event, keyCode) &&
+            checkModifiers(requiredModifiers, optionalModifiers)(event)
+        );
     };
 
 function keyToCode(key: string): number {
@@ -112,9 +113,11 @@ function keyCombinationToCheck(
     keyCombination: string[],
 ): (event: KeyboardEvent) => boolean {
     const keyCode = keyToCode(keyCombination[keyCombination.length - 1]);
-    const modifiers = keyCombination.slice(0, -1);
+    const [required, optional] = separateRequiredOptionalModifiers(
+        keyCombination.slice(0, -1),
+    );
 
-    return check(keyCode, modifiers);
+    return check(keyCode, required, optional);
 }
 
 function innerShortcut(
@@ -123,23 +126,20 @@ function innerShortcut(
     callback: (event: KeyboardEvent) => void,
     ...checks: ((event: KeyboardEvent) => boolean)[]
 ): void {
-    let interval: number;
-
     if (checks.length === 0) {
-        callback(lastEvent);
-    } else {
-        const [nextCheck, ...restChecks] = checks;
-        const handler = (event: KeyboardEvent): void => {
-            if (nextCheck(event)) {
-                innerShortcut(target, event, callback, ...restChecks);
-                clearTimeout(interval);
-            } else if (checkIfInputKey(event)) {
-                // Any non-modifier key will cancel the shortcut sequence
-                document.removeEventListener("keydown", handler);
-            }
-        };
+        return callback(lastEvent);
+    }
 
-        document.addEventListener("keydown", handler, { once: true });
+    const [nextCheck, ...restChecks] = checks;
+    const remove = on(document, "keydown", handler, { once: true });
+
+    function handler(event: KeyboardEvent): void {
+        if (nextCheck(event)) {
+            innerShortcut(target, event, callback, ...restChecks);
+        } else if (checkIfInputKey(event)) {
+            // Any non-modifier key will cancel the shortcut sequence
+            remove();
+        }
     }
 }
 
@@ -151,14 +151,13 @@ export function registerShortcut(
     const [check, ...restChecks] =
         splitKeyCombinationString(keyCombinationString).map(keyCombinationToCheck);
 
-    const handler = (event: KeyboardEvent): void => {
+    function handler(event: KeyboardEvent): void {
         if (check(event)) {
             innerShortcut(target, event, callback, ...restChecks);
         }
-    };
+    }
 
-    target.addEventListener("keydown", handler as EventListener);
-    return (): void => target.removeEventListener("keydown", handler as EventListener);
+    return on(target, "keydown", handler);
 }
 
 registerPackage("anki/shortcuts", {
