@@ -5,6 +5,7 @@ const DEFAULT_SECS_IF_MISSING: u32 = 60;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(crate) struct LearningSteps<'a> {
+    /// The steps in minutes.
     steps: &'a [f32],
 }
 
@@ -13,6 +14,7 @@ fn to_secs(v: f32) -> u32 {
 }
 
 impl<'a> LearningSteps<'a> {
+    /// Takes `steps` as minutes.
     pub(crate) fn new(steps: &[f32]) -> LearningSteps<'_> {
         LearningSteps { steps }
     }
