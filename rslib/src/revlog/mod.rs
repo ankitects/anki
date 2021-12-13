@@ -78,11 +78,11 @@ impl Default for RevlogReviewKind {
 
 impl RevlogEntry {
     pub(crate) fn interval_secs(&self) -> u32 {
-        (if self.interval > 0 {
-            self.interval * 86_400
+        u32::try_from(if self.interval > 0 {
+            self.interval.saturating_mul(86_400)
         } else {
-            -self.interval
-        }) as u32
+            self.interval.saturating_mul(-1)
+        }).unwrap()
     }
 }
 
@@ -98,9 +98,9 @@ impl Collection {
             cid: card.id,
             usn,
             button_chosen: 0,
-            interval: card.interval as i32,
-            last_interval: original.interval as i32,
-            ease_factor: card.ease_factor as u32,
+            interval: i32::try_from(card.interval).unwrap_or(i32::MAX),
+            last_interval: i32::try_from(original.interval).unwrap_or(i32::MAX),
+            ease_factor: u32::from(card.ease_factor),
             taken_millis: 0,
             review_kind: RevlogReviewKind::Manual,
         };
