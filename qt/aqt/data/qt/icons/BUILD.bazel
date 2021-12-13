@@ -1,5 +1,4 @@
 load("//ts:vendor.bzl", "copy_mdi_icons")
-load("@rules_python//python:defs.bzl", "py_binary")
 
 copy_mdi_icons(
     name = "mdi-icons",

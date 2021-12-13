@@ -1,4 +1,3 @@
-load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("//ts:copy.bzl", "copy_files_into_group")
 load("//ts:compile_sass.bzl", "compile_sass")
 
@@ -8,12 +7,12 @@ compile_sass(
         exclude = ["_*.scss"],
     ),
     group = "css_local",
+    visibility = ["//visibility:private"],
     deps = [
         "//sass:buttons_lib",
-        "//sass:scrollbar_lib",
         "//sass:card_counts_lib",
+        "//sass:scrollbar_lib",
     ],
-    visibility = ["//visibility:private"],
 )
 
 copy_files_into_group(
@@ -23,7 +22,6 @@ copy_files_into_group(
     ],
     package = "//ts/editor",
 )
-
 
 copy_files_into_group(
     name = "editable",
@@ -45,8 +43,8 @@ filegroup(
     name = "css",
     srcs = [
         "css_local",
-        "editor",
         "editable",
+        "editor",
         "reviewer",
     ],
     visibility = ["//qt:__subpackages__"],

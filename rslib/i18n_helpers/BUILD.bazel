@@ -2,7 +2,6 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_test")
-load("@rules_rust//cargo:cargo_build_script.bzl", "cargo_build_script")
 load("//rslib:rustfmt.bzl", "rustfmt_fix", "rustfmt_test")
 
 # Library

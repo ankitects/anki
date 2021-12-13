@@ -23,8 +23,8 @@ typescript(
     name = "congrats_ts",
     deps = [
         ":svelte",
-        "//ts/lib",
         "//ts/components",
+        "//ts/lib",
         "@npm//@fluent",
         "@npm//svelte",
         "@npm//svelte2tsx",

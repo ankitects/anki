@@ -1,5 +1,3 @@
-load("@py_deps//:requirements.bzl", "requirement")
-
 py_binary(
     name = "buildinfo",
     srcs = ["buildinfo.py"],
