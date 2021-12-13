@@ -53,11 +53,11 @@ impl<'a> LearningSteps<'a> {
             let next = if self.steps.len() > 1 {
                 self.secs_at_index(idx + 1).unwrap_or(60)
             } else {
-                current * 2
+                current.saturating_mul(2)
             }
             .max(current);
 
-            Some((current + next) / 2)
+            Some(current.saturating_add(next) / 2)
         } else {
             None
         }
