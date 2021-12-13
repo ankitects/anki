@@ -2,16 +2,18 @@
 
 set -e
 
-BAZEL="bazel --output_user_root=~/bazel --output_base=~/bazel/anki"
+STATE=$(pwd)/../state/anki-ci
+mkdir -p $STATE
+BAZEL="bazel --output_user_root=$STATE/bazel --output_base=$STATE/bazel/anki"
 BUILDARGS="--config=ci --experimental_convenience_symlinks=ignore"
 
 echo "+++ Building and testing"
 
 # move existing node_modules into tree
-test -e ~/node_modules && mv ~/node_modules .
+test -e $STATE/node_modules && mv $STATE/node_modules .
 
 $BAZEL test $BUILDARGS ...
 
 echo "--- Cleanup"
 # if tests succeed, back up node_modules folder
-mv node_modules ~/
+mv node_modules $STATE/
