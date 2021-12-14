@@ -49,8 +49,8 @@ function stringToMinutes(text: string): number {
         const [_, num, suffix] = match;
         const unit = suffixToUnit(suffix);
         const seconds = unitSeconds(unit) * parseInt(num, 10);
-        // should be representable as u32 seconds on the backend
-        const capped_seconds = Math.min(seconds, 2 ** 32 - 1);
+        // should be representable as negative i32 seconds in a revlog
+        const capped_seconds = Math.min(seconds, 2 ** 31);
         return capped_seconds / 60;
     } else {
         return 0;
