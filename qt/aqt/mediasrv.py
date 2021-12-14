@@ -172,8 +172,13 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
     try:
         mimetype = _mime_for_path(fullpath)
         if os.path.exists(fullpath):
+            if fullpath.endswith(".css"):
+                # make changes to css files immediately reflected in the webview
+                max_age = 2
+            else:
+                max_age = 60 * 60
             return flask.send_file(
-                fullpath, mimetype=mimetype, conditional=True, max_age=60 * 60  # type: ignore[call-arg]
+                fullpath, mimetype=mimetype, conditional=True, max_age=max_age  # type: ignore[call-arg]
             )
         else:
             print(f"Not found: {path}")
