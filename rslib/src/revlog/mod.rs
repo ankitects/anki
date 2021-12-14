@@ -82,7 +82,8 @@ impl RevlogEntry {
             self.interval.saturating_mul(86_400)
         } else {
             self.interval.saturating_mul(-1)
-        }).unwrap()
+        })
+        .unwrap()
     }
 }
 

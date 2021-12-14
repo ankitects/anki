@@ -1156,6 +1156,6 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
 
 def saturated_i32(number: int) -> int:
     """Avoid problems on the backend by ensuring reasonably sized values."""
-    I32_MIN = - 2 ** 31
+    I32_MIN = -(2 ** 31)
     I32_MAX = 2 ** 31 - 1
     return min(max(number, I32_MIN), I32_MAX)
