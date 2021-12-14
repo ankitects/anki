@@ -172,7 +172,9 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
     try:
         mimetype = _mime_for_path(fullpath)
         if os.path.exists(fullpath):
-            return flask.send_file(fullpath, mimetype=mimetype, conditional=True)
+            return flask.send_file(
+                fullpath, mimetype=mimetype, conditional=True, max_age=60 * 60  # type: ignore[call-arg]
+            )
         else:
             print(f"Not found: {path}")
             return flask.make_response(
