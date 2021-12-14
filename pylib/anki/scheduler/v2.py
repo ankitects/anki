@@ -755,8 +755,8 @@ limit ?"""
                 card.id,
                 self.col.usn(),
                 ease,
-                ivl,
-                lastIvl,
+                saturated_i32(ivl),
+                saturated_i32(lastIvl),
                 card.factor,
                 card.time_taken(),
                 type,
@@ -888,8 +888,8 @@ limit ?"""
                 card.id,
                 self.col.usn(),
                 ease,
-                -delay or card.ivl,
-                card.lastIvl,
+                saturated_i32(-delay or card.ivl),
+                saturated_i32(card.lastIvl),
                 card.factor,
                 card.time_taken(),
                 type,
@@ -1152,3 +1152,10 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
     def _is_finished(self) -> bool:
         "Don't use this, it is a stop-gap until this code is refactored."
         return not any((self.newCount, self.revCount, self._immediate_learn_count))
+
+
+def saturated_i32(number: int) -> int:
+    """Avoid problems on the backend by ensuring reasonably sized values."""
+    I32_MIN = - 2 ** 31
+    I32_MAX = 2 ** 31 - 1
+    return min(max(number, I32_MIN), I32_MAX)
