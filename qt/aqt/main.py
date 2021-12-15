@@ -97,7 +97,7 @@ class MainWebView(AnkiWebView):
 
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         if self.mw.state != "deckBrowser":
-            return
+            return super().dragEnterEvent(event)
         mime = event.mimeData()
         if not mime.hasUrls():
             return
@@ -110,6 +110,8 @@ class MainWebView(AnkiWebView):
     def dropEvent(self, event: QDropEvent) -> None:
         import aqt.importing
 
+        if self.mw.state != "deckBrowser":
+            return super().dropEvent(event)
         mime = event.mimeData()
         paths = [url.toLocalFile() for url in mime.urls()]
         deck_paths = filter(lambda p: not p.endswith(".colpkg"), paths)
