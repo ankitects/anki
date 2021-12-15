@@ -1,7 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_test")
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
 load("@rules_rust//cargo:cargo_build_script.bzl", "cargo_build_script")
 load(":rustfmt.bzl", "rustfmt_fix", "rustfmt_test")
 load("//ts/sql_format:defs.bzl", "sql_format")
@@ -138,6 +138,9 @@ rust_test(
         "tests/support/**",
     ]),
     rustc_env = _anki_rustc_env,
+    rustc_flags = [
+        "-Dclippy::dbg_macro",
+    ],
     deps = [
         "//rslib/cargo:env_logger",
         "//rslib/cargo:linkcheck",

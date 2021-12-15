@@ -613,7 +613,7 @@ class AddonManager:
         path = os.path.join(self.addonsFolder(dir), "config.md")
         if os.path.exists(path):
             with open(path, encoding="utf-8") as f:
-                return markdown.markdown(f.read())
+                return markdown.markdown(f.read(), extensions=["md_in_html"])
         else:
             return ""
 

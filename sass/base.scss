@@ -69,9 +69,9 @@ samp {
     --base-font-size: 14px;
 }
 
-[dir=rtl] {
+[dir="rtl"] {
     .form-select {
         /* flip <select>'s arrow */
-        background-position: left .75rem center;
+        background-position: left 0.75rem center;
     }
 }

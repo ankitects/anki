@@ -8,10 +8,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export interface EditingInputAPI {
         readonly name: string;
-        focusable: boolean;
         focus(): void;
-        moveCaretToEnd(): void;
         refocus(): void;
+        focusable: boolean;
+        moveCaretToEnd(): void;
     }
 
     export interface EditingAreaAPI {

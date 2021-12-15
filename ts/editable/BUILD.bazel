@@ -17,7 +17,6 @@ compile_sass(
     ],
 )
 
-
 _ts_deps = [
     "//ts/components",
     "//ts/lib",
@@ -46,8 +45,8 @@ esbuild(
     output_css = "editable.css",
     visibility = ["//visibility:public"],
     deps = [
-        ":editable_ts",
         ":editable_css",
+        ":editable_ts",
         "//ts/components",
         "@npm//@mdi",
         "@npm//protobufjs",

@@ -2,7 +2,6 @@ load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
-load("//ts:vendor.bzl", "copy_bootstrap_icons")
 load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:typescript.bzl", "typescript")
 
@@ -51,12 +50,12 @@ esbuild(
     output_css = "editor.css",
     visibility = ["//visibility:public"],
     deps = [
-        ":editor_ts",
         ":editor_css",
+        ":editor_ts",
+        "//sass:button_mixins_lib",
         "@npm//@mdi",
         "@npm//bootstrap-icons",
         "@npm//protobufjs",
-        "//sass:button_mixins_lib",
     ],
 )
 

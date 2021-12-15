@@ -4,17 +4,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { EditingInputAPI } from "./EditingArea.svelte";
+    import CodeMirror from "./CodeMirror.svelte";
 
     export interface PlainTextInputAPI extends EditingInputAPI {
         name: "plain-text";
         moveCaretToEnd(): void;
         toggle(): boolean;
-        surround(before: string, after: string): void;
+        getEditor(): CodeMirror.Editor;
     }
 </script>
 
 <script lang="ts">
-    import CodeMirror from "./CodeMirror.svelte";
     import type { CodeMirrorAPI } from "./CodeMirror.svelte";
     import { tick, onMount } from "svelte";
     import { writable } from "svelte/store";
@@ -88,9 +88,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         codeMirror?.editor.setCursor(codeMirror.editor.lineCount(), 0);
     }
 
-    function surround(before: string, after: string): void {
-        const selection = codeMirror?.editor.getSelection();
-        codeMirror?.editor.replaceSelection(before + selection + after);
+    function toggle(): boolean {
+        hidden = !hidden;
+        return hidden;
+    }
+
+    function getEditor(): CodeMirror.Editor {
+        return codeMirror?.editor;
     }
 
     export const api = {
@@ -99,11 +103,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         focusable: !hidden,
         moveCaretToEnd,
         refocus,
-        toggle(): boolean {
-            hidden = !hidden;
-            return hidden;
-        },
-        surround,
+        toggle,
+        getEditor,
     } as PlainTextInputAPI;
 
     function pushUpdate(): void {

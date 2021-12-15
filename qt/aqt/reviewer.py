@@ -121,7 +121,7 @@ class Reviewer:
         self._answeredIds: list[CardId] = []
         self._recordedAudio: str | None = None
         self.typeCorrect: str = None  # web init happens before this is set
-        self.state: str | None = None
+        self.state: Literal["question", "answer", "transition", None] = None
         self._refresh_needed: RefreshNeeded | None = None
         self._v3: V3CardInfo | None = None
         self._state_mutation_key = str(random.randint(0, 2 ** 64 - 1))
@@ -420,6 +420,7 @@ class Reviewer:
                 if sched.state_is_leech(answer.new_state):
                     self.onLeech()
 
+            self.state = "transition"
             answer_card(parent=self.mw, answer=answer).success(
                 after_answer
             ).run_in_background(initiator=self)

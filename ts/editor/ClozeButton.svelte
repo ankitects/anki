@@ -7,10 +7,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithShortcut from "../components/WithShortcut.svelte";
 
     import * as tr from "../lib/ftl";
+    import { wrapInternal } from "../lib/wrap";
     import { withButton } from "../components/helpers";
     import { ellipseIcon } from "./icons";
     import { get } from "svelte/store";
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
+    import type { RichTextInputAPI } from "./RichTextInput.svelte";
 
     const noteEditor = getNoteEditor();
     const { focusInRichText, activeInput } = noteEditor;
@@ -40,9 +42,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return Math.max(1, highest);
     }
 
-    function onCloze(event: KeyboardEvent | MouseEvent): void {
+    $: richTextAPI = $activeInput as RichTextInputAPI;
+
+    async function onCloze(event: KeyboardEvent | MouseEvent): Promise<void> {
         const highestCloze = getCurrentHighestCloze(!event.getModifierState("Alt"));
-        $activeInput?.surround(`{{c${highestCloze}::`, "}}");
+        const richText = await richTextAPI.element;
+        wrapInternal(richText, `{{c${highestCloze}::`, "}}", false);
     }
 
     $: disabled = !$focusInRichText;

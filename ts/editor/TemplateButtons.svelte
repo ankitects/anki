@@ -14,10 +14,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import * as tr from "../lib/ftl";
     import { bridgeCommand } from "../lib/bridgecommand";
+    import { wrapInternal } from "../lib/wrap";
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
     import { appendInParentheses } from "./helpers";
     import { withButton } from "../components/helpers";
     import { paperclipIcon, micIcon, functionIcon } from "./icons";
+    import type { RichTextInputAPI } from "./RichTextInput.svelte";
 
     export let api = {};
     const { focusInRichText, activeInput } = getNoteEditor();
@@ -30,7 +32,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bridgeCommand("record");
     }
 
+    $: richTextAPI = $activeInput as RichTextInputAPI;
     $: disabled = !$focusInRichText;
+
+    async function surround(front: string, back: string): Promise<void> {
+        const element = await richTextAPI.element;
+        wrapInternal(element, front, back, false);
+    }
 </script>
 
 <ButtonGroup {api}>
@@ -83,10 +91,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     <DropdownItem
                         on:click={() =>
-                            $activeInput?.surround(
-                                "<anki-mathjax focusonmount>",
-                                "</anki-mathjax>",
-                            )}
+                            surround("<anki-mathjax focusonmount>", "</anki-mathjax>")}
                         on:mount={withButton(createShortcut)}
                     >
                         {tr.editingMathjaxInline()}
@@ -101,7 +106,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     <DropdownItem
                         on:click={() =>
-                            $activeInput?.surround(
+                            surround(
                                 '<anki-mathjax block="true" focusonmount>',
                                 "</anki-matjax>",
                             )}
@@ -119,7 +124,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     <DropdownItem
                         on:click={() =>
-                            $activeInput?.surround(
+                            surround(
                                 "<anki-mathjax focusonmount>\\ce{",
                                 "}</anki-mathjax>",
                             )}
@@ -136,7 +141,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => $activeInput?.surround("[latex]", "[/latex]")}
+                        on:click={() => surround("[latex]", "[/latex]")}
                         on:mount={withButton(createShortcut)}
                     >
                         {tr.editingLatex()}
@@ -150,7 +155,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => $activeInput?.surround("[$]", "[/$]")}
+                        on:click={() => surround("[$]", "[/$]")}
                         on:mount={withButton(createShortcut)}
                     >
                         {tr.editingLatexEquation()}
@@ -164,7 +169,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     let:shortcutLabel
                 >
                     <DropdownItem
-                        on:click={() => $activeInput?.surround("[$$]", "[/$$]")}
+                        on:click={() => surround("[$$]", "[/$$]")}
                         on:mount={withButton(createShortcut)}
                     >
                         {tr.editingLatexMathEnv()}
