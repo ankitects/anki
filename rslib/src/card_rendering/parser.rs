@@ -88,7 +88,7 @@ fn node(s: &str) -> IResult<Node> {
     alt((text_node, sound_node, tag_node))(s)
 }
 
-/// A sound tag `[sound:ressource]`, where `ressource` is pointing to a sound or video file.
+/// A sound tag `[sound:resource]`, where `resource` is pointing to a sound or video file.
 fn sound_node(s: &str) -> IResult<Node> {
     map(
         delimited(tag("[sound:"), is_not("]"), tag("]")),

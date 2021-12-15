@@ -45,8 +45,8 @@ trait Write {
         buf.push_str(txt);
     }
 
-    fn write_sound(&mut self, buf: &mut String, ressource: &str) {
-        write!(buf, "[sound:{}]", ressource).unwrap();
+    fn write_sound(&mut self, buf: &mut String, resource: &str) {
+        write!(buf, "[sound:{}]", resource).unwrap();
     }
 
     fn write_tag(&mut self, buf: &mut String, tag: &Tag) {
@@ -108,7 +108,7 @@ impl AvStripper {
 }
 
 impl Write for AvStripper {
-    fn write_sound(&mut self, _buf: &mut String, _ressource: &str) {}
+    fn write_sound(&mut self, _buf: &mut String, _resource: &str) {}
 
     fn write_tts_tag(&mut self, _buf: &mut String, _tag: &TtsTag) {}
 }
@@ -141,11 +141,11 @@ impl<'a> AvExtractor<'a> {
 }
 
 impl Write for AvExtractor<'_> {
-    fn write_sound(&mut self, buf: &mut String, ressource: &str) {
+    fn write_sound(&mut self, buf: &mut String, resource: &str) {
         self.write_play_tag(buf);
         self.tags.push(pb::AvTag {
             value: Some(pb::av_tag::Value::SoundOrVideo(
-                decode_entities(ressource).into(),
+                decode_entities(resource).into(),
             )),
         });
     }
