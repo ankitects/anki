@@ -40,27 +40,23 @@ impl<'a> LearningSteps<'a> {
         self.secs_at_index(0)
     }
 
-    // fixme: the logic here is not ideal, but tries to match
-    // the current python code
-
     pub(crate) fn hard_delay_secs(self, remaining: u32) -> Option<u32> {
         let idx = self.get_index(remaining);
-        if let Some(current) = self
-            .secs_at_index(idx)
+        self.secs_at_index(idx)
             // if current is invalid, try first step
             .or_else(|| self.steps.first().copied().map(to_secs))
-        {
-            let next = if self.steps.len() > 1 {
-                self.secs_at_index(idx + 1).unwrap_or(60)
-            } else {
-                current.saturating_mul(2)
-            }
-            .max(current);
-
-            Some(current.saturating_add(next) / 2)
-        } else {
-            None
-        }
+            .map(|current| {
+                // special case to avoid Hard and Again showing same interval
+                if idx == 0 {
+                    // if there is no next step, simulate one with twice the interval of `current`
+                    let next = self
+                        .secs_at_index(idx + 1)
+                        .unwrap_or_else(|| current.saturating_mul(2));
+                    current.saturating_add(next) / 2
+                } else {
+                    current
+                }
+            })
     }
 
     pub(crate) fn good_delay_secs(self, remaining: u32) -> Option<u32> {
@@ -80,5 +76,31 @@ impl<'a> LearningSteps<'a> {
 
     pub(crate) fn remaining_for_failed(self) -> u32 {
         self.steps.len() as u32
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    macro_rules! assert_delay_secs {
+        ($steps:expr, $remaining:expr, $again_delay:expr, $hard_delay:expr, $good_delay:expr) => {
+            let steps = LearningSteps::new(&$steps);
+            assert_eq!(steps.again_delay_secs_learn(), $again_delay);
+            assert_eq!(steps.hard_delay_secs($remaining), $hard_delay);
+            assert_eq!(steps.good_delay_secs($remaining), $good_delay);
+        };
+    }
+
+    #[test]
+    fn delay_secs() {
+        assert_delay_secs!([10.0], 1, 600, Some(900), None);
+
+        assert_delay_secs!([1.0, 10.0], 2, 60, Some(330), Some(600));
+        assert_delay_secs!([1.0, 10.0], 1, 60, Some(600), None);
+
+        assert_delay_secs!([1.0, 10.0, 100.0], 3, 60, Some(330), Some(600));
+        assert_delay_secs!([1.0, 10.0, 100.0], 2, 60, Some(600), Some(6000));
+        assert_delay_secs!([1.0, 10.0, 100.0], 1, 60, Some(6000), None);
     }
 }
