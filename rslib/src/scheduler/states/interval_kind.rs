@@ -25,14 +25,14 @@ impl IntervalKind {
     pub(crate) fn as_seconds(self) -> u32 {
         match self {
             IntervalKind::InSecs(secs) => secs,
-            IntervalKind::InDays(days) => days * 86_400,
+            IntervalKind::InDays(days) => days.saturating_mul(86_400),
         }
     }
 
     pub(crate) fn as_revlog_interval(self) -> i32 {
         match self {
             IntervalKind::InDays(days) => days as i32,
-            IntervalKind::InSecs(secs) => -(secs as i32),
+            IntervalKind::InSecs(secs) => -i32::try_from(secs).unwrap_or(i32::MAX),
         }
     }
 }

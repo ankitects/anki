@@ -109,7 +109,7 @@ impl<'a> StateContext<'a> {
     pub(crate) fn defaults_for_testing() -> Self {
         Self {
             fuzz_factor: None,
-            steps: LearningSteps::new(&[60.0, 600.0]),
+            steps: LearningSteps::new(&[1.0, 10.0]),
             graduating_interval_good: 1,
             graduating_interval_easy: 4,
             initial_ease_factor: 2.5,
@@ -118,7 +118,7 @@ impl<'a> StateContext<'a> {
             interval_multiplier: 1.0,
             maximum_review_interval: 36500,
             leech_threshold: 8,
-            relearn_steps: LearningSteps::new(&[600.0]),
+            relearn_steps: LearningSteps::new(&[10.0]),
             lapse_multiplier: 0.0,
             minimum_lapse_interval: 1,
             in_filtered_deck: false,

@@ -5,6 +5,7 @@ const DEFAULT_SECS_IF_MISSING: u32 = 60;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(crate) struct LearningSteps<'a> {
+    /// The steps in minutes.
     steps: &'a [f32],
 }
 
@@ -13,6 +14,7 @@ fn to_secs(v: f32) -> u32 {
 }
 
 impl<'a> LearningSteps<'a> {
+    /// Takes `steps` as minutes.
     pub(crate) fn new(steps: &[f32]) -> LearningSteps<'_> {
         LearningSteps { steps }
     }
@@ -51,11 +53,11 @@ impl<'a> LearningSteps<'a> {
             let next = if self.steps.len() > 1 {
                 self.secs_at_index(idx + 1).unwrap_or(60)
             } else {
-                current * 2
+                current.saturating_mul(2)
             }
             .max(current);
 
-            Some((current + next) / 2)
+            Some(current.saturating_add(next) / 2)
         } else {
             None
         }
