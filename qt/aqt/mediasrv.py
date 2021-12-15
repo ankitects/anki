@@ -174,7 +174,7 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
         if os.path.exists(fullpath):
             if fullpath.endswith(".css"):
                 # make changes to css files immediately reflected in the webview
-                max_age = 2
+                max_age = 10
             else:
                 max_age = 60 * 60
             return flask.send_file(
