@@ -5,14 +5,15 @@ use super::Backend;
 pub(super) use crate::backend_proto::cardrendering_service::Service as CardRenderingService;
 use crate::{
     backend_proto as pb,
+    card_rendering::{extract_av_tags, strip_av_tags},
     latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
     markdown::render_markdown,
     notetype::{CardTemplateSchema11, RenderCardOutput},
     prelude::*,
     template::RenderedNode,
     text::{
-        decode_iri_paths, encode_iri_paths, extract_av_tags, sanitize_html_no_images,
-        strip_av_tags, strip_html, strip_html_preserving_media_filenames, AvTag,
+        decode_iri_paths, encode_iri_paths, sanitize_html_no_images, strip_html,
+        strip_html_preserving_media_filenames,
     },
 };
 
@@ -21,34 +22,10 @@ impl CardRenderingService for Backend {
         &self,
         input: pb::ExtractAvTagsRequest,
     ) -> Result<pb::ExtractAvTagsResponse> {
-        let (text, tags) = extract_av_tags(&input.text, input.question_side);
-        let pt_tags = tags
-            .into_iter()
-            .map(|avtag| match avtag {
-                AvTag::SoundOrVideo(file) => pb::AvTag {
-                    value: Some(pb::av_tag::Value::SoundOrVideo(file)),
-                },
-                AvTag::TextToSpeech {
-                    field_text,
-                    lang,
-                    voices,
-                    other_args,
-                    speed,
-                } => pb::AvTag {
-                    value: Some(pb::av_tag::Value::Tts(pb::TtsTag {
-                        field_text,
-                        lang,
-                        voices,
-                        speed,
-                        other_args,
-                    })),
-                },
-            })
-            .collect();
-
+        let out = extract_av_tags(&input.text, input.question_side, self.i18n());
         Ok(pb::ExtractAvTagsResponse {
-            text: text.into(),
-            av_tags: pt_tags,
+            text: out.0,
+            av_tags: out.1,
         })
     }
 
@@ -140,9 +117,7 @@ impl CardRenderingService for Backend {
     }
 
     fn strip_av_tags(&self, input: pb::String) -> Result<pb::String> {
-        Ok(pb::String {
-            val: strip_av_tags(&input.val).into(),
-        })
+        Ok(strip_av_tags(&input.val).into())
     }
 
     fn render_markdown(&self, input: pb::RenderMarkdownRequest) -> Result<pb::String> {

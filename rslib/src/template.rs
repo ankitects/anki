@@ -443,7 +443,6 @@ fn render_into(
                             .as_slice(),
                         key,
                         context,
-                        tr,
                     ),
                     None => {
                         // unknown field encountered

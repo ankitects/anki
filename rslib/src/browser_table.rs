@@ -9,11 +9,12 @@ use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
 use crate::{
     backend_proto as pb,
     card::{CardQueue, CardType},
+    card_rendering::extract_av_tags,
     notetype::{CardTemplate, NotetypeKind},
     prelude::*,
     scheduler::{timespan::time_span, timing::SchedTimingToday},
     template::RenderedNode,
-    text::{extract_av_tags, html_to_text_line},
+    text::html_to_text_line,
 };
 
 #[derive(Debug, PartialEq, Clone, Copy, Display, EnumIter, EnumString)]
@@ -270,7 +271,7 @@ impl RenderContext {
                 } => current_text,
             })
             .join("");
-        let question = extract_av_tags(&qnodes_text, true).0.to_string();
+        let question = extract_av_tags(&qnodes_text, true, &col.tr).0;
 
         Ok(RenderContext {
             question,
@@ -410,7 +411,7 @@ impl RowContext {
                 } => current_text,
             })
             .join("");
-        let answer = extract_av_tags(&answer, false).0;
+        let answer = extract_av_tags(&answer, false, &self.tr).0;
         html_to_text_line(
             if let Some(stripped) = answer.strip_prefix(&render_context.question) {
                 stripped
