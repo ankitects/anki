@@ -17,6 +17,10 @@ pub fn extract_av_tags(txt: &str, question_side: bool, tr: &I18n) -> (String, Ve
     CardNodes::parse(txt).write_and_extract_av_tags(question_side, tr)
 }
 
+pub fn prettify_av_tags(txt: &str) -> String {
+    CardNodes::parse(txt).write_with_pretty_av_tags()
+}
+
 #[derive(Debug, PartialEq)]
 struct CardNodes<'a>(Vec<Node<'a>>);
 

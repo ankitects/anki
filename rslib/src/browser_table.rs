@@ -9,7 +9,7 @@ use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
 use crate::{
     backend_proto as pb,
     card::{CardQueue, CardType},
-    card_rendering::extract_av_tags,
+    card_rendering::prettify_av_tags,
     notetype::{CardTemplate, NotetypeKind},
     prelude::*,
     scheduler::{timespan::time_span, timing::SchedTimingToday},
@@ -271,7 +271,7 @@ impl RenderContext {
                 } => current_text,
             })
             .join("");
-        let question = extract_av_tags(&qnodes_text, true, &col.tr).0;
+        let question = prettify_av_tags(&qnodes_text);
 
         Ok(RenderContext {
             question,
@@ -411,7 +411,7 @@ impl RowContext {
                 } => current_text,
             })
             .join("");
-        let answer = extract_av_tags(&answer, false, &self.tr).0;
+        let answer = prettify_av_tags(&answer);
         html_to_text_line(
             if let Some(stripped) = answer.strip_prefix(&render_context.question) {
                 stripped
