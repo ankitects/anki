@@ -645,14 +645,18 @@ limit ?"""
         return int(delay * 60)
 
     def _delayForRepeatingGrade(self, conf: QueueConfig, left: int) -> Any:
-        # halfway between last and next
         delay1 = self._delayForGrade(conf, left)
-        if len(conf["delays"]) > 1:
-            delay2 = self._delayForGrade(conf, left - 1)
-        else:
-            delay2 = delay1 * 2
-        avg = (delay1 + max(delay1, delay2)) // 2
-        return avg
+        # first step?
+        if len(conf["delays"]) == left % 1000:
+            # halfway between last and next to avoid same interval with Again
+            if len(conf["delays"]) > 1:
+                delay2 = self._delayForGrade(conf, left - 1)
+            else:
+                # no next step, use dummy
+                delay2 = delay1 * 2
+            avg = (delay1 + max(delay1, delay2)) // 2
+            return avg
+        return delay1
 
     def _lrnConf(self, card: Card) -> Any:
         if card.type in (CARD_TYPE_REV, CARD_TYPE_RELEARNING):

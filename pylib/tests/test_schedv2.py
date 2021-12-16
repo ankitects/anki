@@ -585,7 +585,7 @@ def test_nextIvl():
     assert ni(c, 4) == 4 * 86400
     col.sched.answerCard(c, 3)
     assert ni(c, 1) == 30
-    assert ni(c, 2) == (180 + 600) // 2
+    assert ni(c, 2) == 180
     assert ni(c, 3) == 600
     assert ni(c, 4) == 4 * 86400
     col.sched.answerCard(c, 3)
