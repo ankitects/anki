@@ -271,7 +271,7 @@ impl RenderContext {
                 } => current_text,
             })
             .join("");
-        let question = prettify_av_tags(&qnodes_text);
+        let question = prettify_av_tags(qnodes_text);
 
         Ok(RenderContext {
             question,
@@ -411,7 +411,7 @@ impl RowContext {
                 } => current_text,
             })
             .join("");
-        let answer = prettify_av_tags(&answer);
+        let answer = prettify_av_tags(answer);
         html_to_text_line(
             if let Some(stripped) = answer.strip_prefix(&render_context.question) {
                 stripped

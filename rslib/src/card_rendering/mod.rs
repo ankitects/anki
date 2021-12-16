@@ -9,16 +9,36 @@ use crate::prelude::*;
 mod parser;
 mod writer;
 
-pub fn strip_av_tags(txt: &str) -> String {
-    CardNodes::parse(txt).write_without_av_tags()
+pub fn strip_av_tags<S: Into<String> + AsRef<str>>(txt: S) -> String {
+    nodes_or_text_only(txt.as_ref())
+        .map(|nodes| nodes.write_without_av_tags())
+        .unwrap_or_else(|| txt.into())
 }
 
-pub fn extract_av_tags(txt: &str, question_side: bool, tr: &I18n) -> (String, Vec<pb::AvTag>) {
-    CardNodes::parse(txt).write_and_extract_av_tags(question_side, tr)
+pub fn extract_av_tags<S: Into<String> + AsRef<str>>(
+    txt: S,
+    question_side: bool,
+    tr: &I18n,
+) -> (String, Vec<pb::AvTag>) {
+    nodes_or_text_only(txt.as_ref())
+        .map(|nodes| nodes.write_and_extract_av_tags(question_side, tr))
+        .unwrap_or_else(|| (txt.into(), vec![]))
 }
 
-pub fn prettify_av_tags(txt: &str) -> String {
-    CardNodes::parse(txt).write_with_pretty_av_tags()
+pub fn prettify_av_tags<S: Into<String> + AsRef<str>>(txt: S) -> String {
+    nodes_or_text_only(txt.as_ref())
+        .map(|nodes| nodes.write_with_pretty_av_tags())
+        .unwrap_or_else(|| txt.into())
+}
+
+/// Parse `txt` into [CardNodes] and return the result,
+/// or [None] if it is only a text node.
+fn nodes_or_text_only(txt: &str) -> Option<CardNodes> {
+    let nodes = CardNodes::parse(txt);
+    match nodes.0[..] {
+        [Node::Text(_)] => None,
+        _ => Some(nodes),
+    }
 }
 
 #[derive(Debug, PartialEq)]

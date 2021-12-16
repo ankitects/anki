@@ -22,7 +22,7 @@ impl CardRenderingService for Backend {
         &self,
         input: pb::ExtractAvTagsRequest,
     ) -> Result<pb::ExtractAvTagsResponse> {
-        let out = extract_av_tags(&input.text, input.question_side, self.i18n());
+        let out = extract_av_tags(input.text, input.question_side, self.i18n());
         Ok(pb::ExtractAvTagsResponse {
             text: out.0,
             av_tags: out.1,
@@ -117,7 +117,7 @@ impl CardRenderingService for Backend {
     }
 
     fn strip_av_tags(&self, input: pb::String) -> Result<pb::String> {
-        Ok(strip_av_tags(&input.val).into())
+        Ok(strip_av_tags(input.val).into())
     }
 
     fn render_markdown(&self, input: pb::RenderMarkdownRequest) -> Result<pb::String> {
