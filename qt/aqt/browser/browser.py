@@ -612,7 +612,6 @@ class Browser(QMainWindow):
     def onTogglePreview(self) -> None:
         if self._previewer:
             self._previewer.close()
-            self._on_preview_closed()
         elif self.editor.note:
             self._previewer = PreviewDialog(self, self.mw, self._on_preview_closed)
             self._previewer.open()
