@@ -35,6 +35,7 @@ from aqt.operations.tag import (
     remove_tags_from_notes,
 )
 from aqt.qt import *
+from aqt.sound import av_player
 from aqt.switch import Switch
 from aqt.undo import UndoActionsInfo
 from aqt.utils import (
@@ -629,6 +630,7 @@ class Browser(QMainWindow):
             self._previewer.close()
 
     def _on_preview_closed(self) -> None:
+        av_player.stop_and_clear_queue()
         if self.editor.web:
             self.editor.web.eval(
                 "document.getElementById('previewButton').classList.remove('highlighted')"
