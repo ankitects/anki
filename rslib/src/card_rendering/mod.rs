@@ -3,8 +3,7 @@
 
 use std::collections::HashMap;
 
-use crate::backend_proto as pb;
-use crate::prelude::*;
+use crate::{backend_proto as pb, prelude::*};
 
 mod parser;
 mod writer;
@@ -81,6 +80,12 @@ struct OtherTag<'a> {
     name: &'a str,
     content: &'a str,
     options: HashMap<&'a str, &'a str>,
+}
+
+#[cfg(feature = "bench")]
+#[inline]
+pub fn anki_tag_benchmark() {
+    CardNodes::parse("[anki:foo bar=baz][/anki:foo][anki:tts lang=jp_JP voices=Alice,Bob speed=0.5 cloze_blank= bar=baz][/anki:tts]");
 }
 
 #[cfg(test)]

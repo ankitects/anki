@@ -11,6 +11,19 @@ build = "build/main.rs"
 name = "anki"
 path = "src/lib.rs"
 
+[features]
+bench = ["criterion"]
+links = ["linkcheck"]
+
+[[test]]
+name = "links"
+required-features = ["links"]
+
+[[bench]]
+name = "benchmark"
+harness = false
+required-features = ["bench"]
+
 # After updating anything below, run ../cargo/update.py
 
 [build-dependencies]
@@ -18,7 +31,6 @@ prost-build = "0.9.0"
 
 [dev-dependencies]
 env_logger = "0.9.0"
-linkcheck = { git = "https://github.com/ankitects/linkcheck.git", rev = "2f20798ce521cc594d510d4e417e76d5eac04d4b" }
 tokio = { version = "1.12.0", features = ["macros"] }
 
 [dependencies]
@@ -26,6 +38,9 @@ tokio = { version = "1.12.0", features = ["macros"] }
 unicase = "=2.6.0"
 
 anki_i18n = { path="i18n" }
+
+criterion = { version = "0.3.5", optional = true }
+linkcheck = { git = "https://github.com/ankitects/linkcheck.git", rev = "2f20798ce521cc594d510d4e417e76d5eac04d4b", optional = true }
 
 nom = "7.0.0"
 proc-macro-nested = "0.1.7"

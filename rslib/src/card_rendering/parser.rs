@@ -5,8 +5,7 @@ use std::collections::HashMap;
 
 use nom::{
     branch::alt,
-    bytes::complete::is_not,
-    bytes::complete::tag,
+    bytes::complete::{is_not, tag},
     character::complete::{anychar, multispace0},
     combinator::{map, not, recognize, success, value},
     multi::{many0, many1},
