@@ -36,7 +36,7 @@ trait Write {
     {
         let mut buf = String::new();
         for node in nodes {
-            match &node {
+            match node {
                 Node::Text(s) => self.write_text(&mut buf, s),
                 Node::SoundOrVideo(r) => self.write_sound(&mut buf, r),
                 Node::Tag(tag) => self.write_tag(&mut buf, tag),
@@ -155,6 +155,11 @@ impl Write for AvExtractor<'_> {
     }
 
     fn write_tts_tag(&mut self, buf: &mut String, tag: &TtsTag) {
+        if let Some(error) = tag.error(self.tr) {
+            write!(buf, "[{}]", error).unwrap();
+            return;
+        }
+
         self.write_play_tag(buf);
         self.tags.push(pb::AvTag {
             value: Some(pb::av_tag::Value::Tts(pb::TtsTag {
@@ -169,6 +174,19 @@ impl Write for AvExtractor<'_> {
                     .collect(),
             })),
         });
+    }
+}
+
+impl TtsTag<'_> {
+    fn error(&self, tr: &I18n) -> Option<String> {
+        if self.lang.is_empty() {
+            Some(
+                tr.errors_bad_directive("anki:tts", tr.errors_option_not_set("lang"))
+                    .into(),
+            )
+        } else {
+            None
+        }
     }
 }
 
@@ -223,10 +241,6 @@ mod test {
         roundtrip!(
             "[anki:foo\nbar=baz ][/anki:foo]",
             "[anki:foo bar=baz][/anki:foo]"
-        );
-        roundtrip!(
-            "[anki:tts][/anki:tts]",
-            "[anki:tts lang= voices= speed=1][/anki:tts]"
         );
     }
 }

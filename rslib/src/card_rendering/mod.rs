@@ -113,7 +113,7 @@ mod test {
     fn av_extracting() {
         let tr = I18n::template_only();
         let (txt, tags) = extract_av_tags(
-            "foo [sound:bar.mp3] baz [anki:tts][...][/anki:tts]",
+            "foo [sound:bar.mp3] baz [anki:tts lang=en_US][...][/anki:tts]",
             true,
             &tr,
         );
@@ -128,13 +128,25 @@ mod test {
                     pb::AvTag {
                         value: Some(pb::av_tag::Value::Tts(pb::TtsTag {
                             field_text: tr.card_templates_blank().to_string(),
-                            lang: "".to_string(),
+                            lang: "en_US".to_string(),
                             voices: vec![],
                             speed: 1.0,
                             other_args: vec![],
                         }))
                     }
                 ],
+            ),
+        );
+
+        assert_eq!(
+            extract_av_tags("[anki:tts]foo[/anki:tts]", true, &tr),
+            (
+                format!(
+                    "[{}]",
+                    tr.errors_bad_directive("anki:tts", tr.errors_option_not_set("lang"))
+                        .to_owned()
+                ),
+                vec![],
             ),
         );
     }
