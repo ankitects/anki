@@ -121,7 +121,6 @@ class Editor:
 
     def setupWeb(self) -> None:
         self.web = EditorWebView(self.widget, self)
-        self.web.allowDrops = True
         self.web.set_bridge_command(self.onBridgeCmd, self)
         self.outerLayout.addWidget(self.web, 1)
 

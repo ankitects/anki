@@ -90,7 +90,6 @@ class MainWebView(AnkiWebView):
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.setMinimumWidth(400)
         self.setAcceptDrops(True)
-        self.allowDrops = True
 
     # Importing files via drag & drop
     ##########################################################################
