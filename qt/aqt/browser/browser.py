@@ -630,10 +630,6 @@ class Browser(QMainWindow):
 
     def _on_preview_closed(self) -> None:
         av_player.stop_and_clear_queue()
-        if self.editor.web:
-            self.editor.web.eval(
-                "document.getElementById('previewButton').classList.remove('highlighted')"
-            )
         self._previewer = None
 
     # Card deletion
