@@ -8,6 +8,7 @@ pub mod backend;
 mod backend_proto;
 pub mod browser_table;
 pub mod card;
+pub mod card_rendering;
 pub mod cloze;
 pub mod collection;
 pub mod config;
