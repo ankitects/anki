@@ -1,3 +1,6 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 use anki::card_rendering::anki_tag_benchmark;
 use criterion::{criterion_group, criterion_main, Criterion};
 
