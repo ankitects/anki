@@ -56,17 +56,17 @@ impl<'iter, 'nodes> IntoIterator for &'iter CardNodes<'nodes> {
 enum Node<'a> {
     Text(&'a str),
     SoundOrVideo(&'a str),
-    Tag(Tag<'a>),
+    Directive(Directive<'a>),
 }
 
 #[derive(Debug, PartialEq)]
-enum Tag<'a> {
-    Tts(TtsTag<'a>),
-    Other(OtherTag<'a>),
+enum Directive<'a> {
+    Tts(TtsDirective<'a>),
+    Other(OtherDirective<'a>),
 }
 
 #[derive(Debug, PartialEq)]
-struct TtsTag<'a> {
+struct TtsDirective<'a> {
     content: &'a str,
     lang: &'a str,
     voices: Vec<&'a str>,
@@ -76,7 +76,7 @@ struct TtsTag<'a> {
 }
 
 #[derive(Debug, PartialEq)]
-struct OtherTag<'a> {
+struct OtherDirective<'a> {
     name: &'a str,
     content: &'a str,
     options: HashMap<&'a str, &'a str>,
@@ -84,7 +84,7 @@ struct OtherTag<'a> {
 
 #[cfg(feature = "bench")]
 #[inline]
-pub fn anki_tag_benchmark() {
+pub fn anki_directive_benchmark() {
     CardNodes::parse("[anki:foo bar=baz][/anki:foo][anki:tts lang=jp_JP voices=Alice,Bob speed=0.5 cloze_blank= bar=baz][/anki:tts]");
 }
 

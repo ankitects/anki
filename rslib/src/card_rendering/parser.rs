@@ -12,7 +12,7 @@ use nom::{
     sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
 };
 
-use super::{CardNodes, Node, OtherTag, Tag, TtsTag};
+use super::{CardNodes, Directive, Node, OtherDirective, TtsDirective};
 
 type IResult<'a, O> = nom::IResult<&'a str, O>;
 
@@ -28,7 +28,7 @@ impl<'a> CardNodes<'a> {
     }
 }
 
-impl<'a> Tag<'a> {
+impl<'a> Directive<'a> {
     fn new(name: &'a str, options: Vec<(&'a str, &'a str)>, content: &'a str) -> Self {
         match name {
             "tts" => {
@@ -50,7 +50,7 @@ impl<'a> Tag<'a> {
                     }
                 }
 
-                Self::Tts(TtsTag {
+                Self::Tts(TtsDirective {
                     content,
                     lang,
                     voices,
@@ -59,7 +59,7 @@ impl<'a> Tag<'a> {
                     options: other_options,
                 })
             }
-            _ => Self::Other(OtherTag {
+            _ => Self::Other(OtherDirective {
                 name,
                 content,
                 options: options.into_iter().collect(),
@@ -149,7 +149,7 @@ fn tag_node(s: &str) -> IResult<Node> {
             pair(opening_parser(tag_name), content_parser(tag_name)),
             closing_parser(tag_name),
         ),
-        |(options, content)| Node::Tag(Tag::new(tag_name, options, content)),
+        |(options, content)| Node::Directive(Directive::new(tag_name, options, content)),
     )(s)
 }
 
@@ -201,7 +201,7 @@ mod test {
         // tags
         assert_parsed_nodes!(
             "[anki:foo]bar[/anki:foo]",
-            Tag(super::Tag::Other(OtherTag {
+            Directive(super::Directive::Other(OtherDirective {
                 name: "foo",
                 content: "bar",
                 options: HashMap::new()
@@ -209,7 +209,7 @@ mod test {
         );
         assert_parsed_nodes!(
             "[anki:foo bar=baz][/anki:foo]",
-            Tag(super::Tag::Other(OtherTag {
+            Directive(super::Directive::Other(OtherDirective {
                 name: "foo",
                 content: "",
                 options: [("bar", "baz")].into_iter().collect(),
@@ -218,7 +218,7 @@ mod test {
         // unquoted white space separates options, "]" terminates
         assert_parsed_nodes!(
             "[anki:foo\na=b\tc=d e=f][/anki:foo]",
-            Tag(super::Tag::Other(OtherTag {
+            Directive(super::Directive::Other(OtherDirective {
                 name: "foo",
                 content: "",
                 options: [("a", "b"), ("c", "d"), ("e", "f")].into_iter().collect(),
@@ -226,7 +226,7 @@ mod test {
         );
         assert_parsed_nodes!(
             "[anki:foo a=\"b \t\n c ]\"][/anki:foo]",
-            Tag(super::Tag::Other(OtherTag {
+            Directive(super::Directive::Other(OtherDirective {
                 name: "foo",
                 content: "",
                 options: [("a", "b \t\n c ]")].into_iter().collect(),
@@ -236,7 +236,7 @@ mod test {
         // tts tags
         assert_parsed_nodes!(
             "[anki:tts lang=jp_JP voices=Alice,Bob speed=0.5 cloze_blank= bar=baz][/anki:tts]",
-            Tag(super::Tag::Tts(TtsTag {
+            Directive(super::Directive::Tts(TtsDirective {
                 content: "",
                 lang: "jp_JP",
                 voices: vec!["Alice", "Bob"],
@@ -247,7 +247,7 @@ mod test {
         );
         assert_parsed_nodes!(
             "[anki:tts speed=foo][/anki:tts]",
-            Tag(super::Tag::Tts(TtsTag {
+            Directive(super::Directive::Tts(TtsDirective {
                 content: "",
                 lang: "",
                 voices: vec![],

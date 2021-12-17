@@ -3,7 +3,7 @@
 
 use std::fmt::Write as _;
 
-use super::{CardNodes, Node, OtherTag, Tag, TtsTag};
+use super::{CardNodes, Directive, Node, OtherDirective, TtsDirective};
 use crate::prelude::*;
 use crate::{
     backend_proto as pb,
@@ -39,7 +39,7 @@ trait Write {
             match node {
                 Node::Text(s) => self.write_text(&mut buf, s),
                 Node::SoundOrVideo(r) => self.write_sound(&mut buf, r),
-                Node::Tag(tag) => self.write_tag(&mut buf, tag),
+                Node::Directive(directive) => self.write_directive(&mut buf, directive),
             };
         }
         buf
@@ -53,44 +53,44 @@ trait Write {
         write!(buf, "[sound:{}]", resource).unwrap();
     }
 
-    fn write_tag(&mut self, buf: &mut String, tag: &Tag) {
-        match tag {
-            Tag::Tts(tag) => self.write_tts_tag(buf, tag),
-            Tag::Other(tag) => self.write_other_tag(buf, tag),
+    fn write_directive(&mut self, buf: &mut String, directive: &Directive) {
+        match directive {
+            Directive::Tts(directive) => self.write_tts_directive(buf, directive),
+            Directive::Other(directive) => self.write_other_directive(buf, directive),
         };
     }
 
-    fn write_tts_tag(&mut self, buf: &mut String, tag: &TtsTag) {
+    fn write_tts_directive(&mut self, buf: &mut String, directive: &TtsDirective) {
         write!(buf, "[anki:tts").unwrap();
 
         for (key, val) in [
-            ("lang", tag.lang),
-            ("voices", &tag.voices.join(",")),
-            ("speed", &tag.speed.to_string()),
+            ("lang", directive.lang),
+            ("voices", &directive.voices.join(",")),
+            ("speed", &directive.speed.to_string()),
         ] {
-            self.write_tag_option(buf, key, val);
+            self.write_directive_option(buf, key, val);
         }
-        if let Some(blank) = tag.blank {
-            self.write_tag_option(buf, "cloze_blank", blank);
+        if let Some(blank) = directive.blank {
+            self.write_directive_option(buf, "cloze_blank", blank);
         }
-        for (key, val) in &tag.options {
-            self.write_tag_option(buf, key, val);
+        for (key, val) in &directive.options {
+            self.write_directive_option(buf, key, val);
         }
 
-        write!(buf, "]{}[/anki:tts]", tag.content).unwrap();
+        write!(buf, "]{}[/anki:tts]", directive.content).unwrap();
     }
 
-    fn write_other_tag(&mut self, buf: &mut String, tag: &OtherTag) {
-        write!(buf, "[anki:{}", tag.name).unwrap();
-        for (key, val) in &tag.options {
-            self.write_tag_option(buf, key, val);
+    fn write_other_directive(&mut self, buf: &mut String, directive: &OtherDirective) {
+        write!(buf, "[anki:{}", directive.name).unwrap();
+        for (key, val) in &directive.options {
+            self.write_directive_option(buf, key, val);
         }
         buf.push(']');
-        self.write_tag_content(buf, tag.content);
-        write!(buf, "[/anki:{}]", tag.name).unwrap();
+        self.write_directive_content(buf, directive.content);
+        write!(buf, "[/anki:{}]", directive.name).unwrap();
     }
 
-    fn write_tag_option(&mut self, buf: &mut String, key: &str, val: &str) {
+    fn write_directive_option(&mut self, buf: &mut String, key: &str, val: &str) {
         if val.contains::<&[char]>(&[']', ' ', '\t', '\r', '\n']) {
             write!(buf, " {}=\"{}\"", key, val).unwrap();
         } else {
@@ -98,7 +98,7 @@ trait Write {
         }
     }
 
-    fn write_tag_content(&mut self, buf: &mut String, content: &str) {
+    fn write_directive_content(&mut self, buf: &mut String, content: &str) {
         buf.push_str(content);
     }
 }
@@ -114,7 +114,7 @@ impl AvStripper {
 impl Write for AvStripper {
     fn write_sound(&mut self, _buf: &mut String, _resource: &str) {}
 
-    fn write_tts_tag(&mut self, _buf: &mut String, _tag: &TtsTag) {}
+    fn write_tts_directive(&mut self, _buf: &mut String, _directive: &TtsDirective) {}
 }
 
 struct AvExtractor<'a> {
@@ -136,10 +136,10 @@ impl<'a> AvExtractor<'a> {
         write!(buf, "[anki:play:{}:{}]", self.side, self.tags.len()).unwrap();
     }
 
-    fn transform_tts_content(&self, tag: &TtsTag) -> String {
-        strip_html_for_tts(tag.content).replace(
+    fn transform_tts_content(&self, directive: &TtsDirective) -> String {
+        strip_html_for_tts(directive.content).replace(
             "[...]",
-            tag.blank.unwrap_or(&self.tr.card_templates_blank()),
+            directive.blank.unwrap_or(&self.tr.card_templates_blank()),
         )
     }
 }
@@ -154,8 +154,8 @@ impl Write for AvExtractor<'_> {
         });
     }
 
-    fn write_tts_tag(&mut self, buf: &mut String, tag: &TtsTag) {
-        if let Some(error) = tag.error(self.tr) {
+    fn write_tts_directive(&mut self, buf: &mut String, directive: &TtsDirective) {
+        if let Some(error) = directive.error(self.tr) {
             write!(buf, "[{}]", error).unwrap();
             return;
         }
@@ -163,11 +163,11 @@ impl Write for AvExtractor<'_> {
         self.write_play_tag(buf);
         self.tags.push(pb::AvTag {
             value: Some(pb::av_tag::Value::Tts(pb::TtsTag {
-                field_text: self.transform_tts_content(tag),
-                lang: tag.lang.into(),
-                voices: tag.voices.iter().map(ToString::to_string).collect(),
-                speed: tag.speed,
-                other_args: tag
+                field_text: self.transform_tts_content(directive),
+                lang: directive.lang.into(),
+                voices: directive.voices.iter().map(ToString::to_string).collect(),
+                speed: directive.speed,
+                other_args: directive
                     .options
                     .iter()
                     .map(|(key, val)| format!("{}={}", key, val))
@@ -177,7 +177,7 @@ impl Write for AvExtractor<'_> {
     }
 }
 
-impl TtsTag<'_> {
+impl TtsDirective<'_> {
     fn error(&self, tr: &I18n) -> Option<String> {
         if self.lang.is_empty() {
             Some(
@@ -203,8 +203,8 @@ impl Write for AvPrettifier {
         write!(buf, "🔉{}🔉", resource).unwrap();
     }
 
-    fn write_tts_tag(&mut self, buf: &mut String, tag: &TtsTag) {
-        write!(buf, "💬{}💬", tag.content).unwrap();
+    fn write_tts_directive(&mut self, buf: &mut String, directive: &TtsDirective) {
+        write!(buf, "💬{}💬", directive.content).unwrap();
     }
 }
 
