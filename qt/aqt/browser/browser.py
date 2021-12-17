@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import Callable, Sequence
 
 import aqt
@@ -615,6 +616,7 @@ class Browser(QMainWindow):
         elif self.editor.note:
             self._previewer = PreviewDialog(self, self.mw, self._on_preview_closed)
             self._previewer.open()
+            self.toggle_preview_button_state(True)
 
     def _renderPreview(self) -> None:
         if self._previewer:
@@ -623,6 +625,12 @@ class Browser(QMainWindow):
             else:
                 self.onTogglePreview()
 
+    def toggle_preview_button_state(self, active: bool) -> None:
+        if self.editor.web:
+            self.editor.web.eval(
+                f"editorToolbar.togglePreviewButtonState({json.dumps(active)});"
+            )
+
     def _cleanup_preview(self) -> None:
         if self._previewer:
             self._previewer.cancel_timer()
@@ -630,6 +638,7 @@ class Browser(QMainWindow):
 
     def _on_preview_closed(self) -> None:
         av_player.stop_and_clear_queue()
+        self.toggle_preview_button_state(False)
         self._previewer = None
 
     # Card deletion
