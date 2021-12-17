@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashMap;
+
 use nom::{
     branch::alt,
     bytes::complete::{is_not, tag},
@@ -29,7 +31,34 @@ impl<'a> CardNodes<'a> {
 impl<'a> Tag<'a> {
     fn new(name: &'a str, options: Vec<(&'a str, &'a str)>, content: &'a str) -> Self {
         match name {
-            "tts" => Self::Tts(TtsTag::new(content, options)),
+            "tts" => {
+                let mut lang = "";
+                let mut voices = vec![];
+                let mut speed = 1.0;
+                let mut blank = None;
+                let mut other_options = HashMap::new();
+
+                for option in options {
+                    match option.0 {
+                        "lang" => lang = option.1,
+                        "voices" => voices = option.1.split(',').collect(),
+                        "speed" => speed = option.1.parse().unwrap_or(1.0),
+                        "cloze_blank" => blank = Some(option.1),
+                        _ => {
+                            other_options.insert(option.0, option.1);
+                        }
+                    }
+                }
+
+                Self::Tts(TtsTag {
+                    content,
+                    lang,
+                    voices,
+                    speed,
+                    blank,
+                    options: other_options,
+                })
+            }
             _ => Self::Other(OtherTag {
                 name,
                 content,
@@ -133,8 +162,6 @@ fn text_node(s: &str) -> IResult<Node> {
 
 #[cfg(test)]
 mod test {
-    use std::collections::HashMap;
-
     use super::*;
 
     macro_rules! assert_parsed_nodes {
