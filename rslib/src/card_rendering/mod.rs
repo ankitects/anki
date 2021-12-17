@@ -82,6 +82,33 @@ struct OtherTag<'a> {
     options: HashMap<&'a str, &'a str>,
 }
 
+impl TtsTag<'_> {
+    pub(crate) fn new<'a>(content: &'a str, options: Vec<(&'a str, &'a str)>) -> TtsTag<'a> {
+        let mut options: HashMap<&str, &str> = options.into_iter().collect();
+        let lang = options.remove("lang").unwrap_or_default();
+        let voices = options
+            .remove("voices")
+            .unwrap_or_default()
+            .split(',')
+            .collect();
+        let speed = options
+            .remove("speed")
+            .unwrap_or_default()
+            .parse()
+            .unwrap_or(1.0);
+        let blank = options.remove("cloze_blank");
+
+        TtsTag {
+            content,
+            lang,
+            voices,
+            speed,
+            blank,
+            options,
+        }
+    }
+}
+
 #[cfg(feature = "bench")]
 #[inline]
 pub fn anki_tag_benchmark() {
