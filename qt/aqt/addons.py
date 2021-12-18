@@ -222,11 +222,11 @@ class AddonManager:
     def all_addon_meta(self) -> Iterable[AddonMeta]:
         return map(self.addon_meta, self.allAddons())
 
-    def addonsFolder(self, dir: str | None = None) -> str:
+    def addonsFolder(self, module: str | None = None) -> str:
         root = self.mw.pm.addonFolder()
-        if dir is None:
+        if module is None:
             return root
-        return os.path.join(root, dir)
+        return os.path.join(root, module)
 
     def loadAddons(self) -> None:
         for addon in self.all_addon_meta():
@@ -276,33 +276,33 @@ class AddonManager:
 
         self.writeAddonMeta(addon.dir_name, json_obj)
 
-    def _addonMetaPath(self, dir: str) -> str:
-        return os.path.join(self.addonsFolder(dir), "meta.json")
+    def _addonMetaPath(self, module: str) -> str:
+        return os.path.join(self.addonsFolder(module), "meta.json")
 
     # in new code, use self.addon_meta() instead
-    def addonMeta(self, dir: str) -> dict[str, Any]:
-        path = self._addonMetaPath(dir)
+    def addonMeta(self, module: str) -> dict[str, Any]:
+        path = self._addonMetaPath(module)
         try:
             with open(path, encoding="utf8") as f:
                 return json.load(f)
         except json.JSONDecodeError as e:
-            print(f"json error in add-on {dir}:\n{e}")
+            print(f"json error in add-on {module}:\n{e}")
             return dict()
         except:
             # missing meta file, etc
             return dict()
 
     # in new code, use write_addon_meta() instead
-    def writeAddonMeta(self, dir: str, meta: dict[str, Any]) -> None:
-        path = self._addonMetaPath(dir)
+    def writeAddonMeta(self, module: str, meta: dict[str, Any]) -> None:
+        path = self._addonMetaPath(module)
         with open(path, "w", encoding="utf8") as f:
             json.dump(meta, f)
 
-    def toggleEnabled(self, dir: str, enable: bool | None = None) -> None:
-        addon = self.addon_meta(dir)
+    def toggleEnabled(self, module: str, enable: bool | None = None) -> None:
+        addon = self.addon_meta(module)
         should_enable = enable if enable is not None else not addon.enabled
         if should_enable is True:
-            conflicting = self._disableConflicting(dir)
+            conflicting = self._disableConflicting(module)
             if conflicting:
                 addons = ", ".join(self.addonName(f) for f in conflicting)
                 showInfo(
@@ -326,17 +326,17 @@ class AddonManager:
     # Legacy helpers
     ######################################################################
 
-    def isEnabled(self, dir: str) -> bool:
-        return self.addon_meta(dir).enabled
+    def isEnabled(self, module: str) -> bool:
+        return self.addon_meta(module).enabled
 
-    def addonName(self, dir: str) -> str:
-        return self.addon_meta(dir).human_name()
+    def addonName(self, module: str) -> str:
+        return self.addon_meta(module).human_name()
 
-    def addonConflicts(self, dir: str) -> list[str]:
-        return self.addon_meta(dir).conflicts
+    def addonConflicts(self, module: str) -> list[str]:
+        return self.addon_meta(module).conflicts
 
-    def annotatedName(self, dir: str) -> str:
-        meta = self.addon_meta(dir)
+    def annotatedName(self, module: str) -> str:
+        meta = self.addon_meta(module)
         name = meta.human_name()
         if not meta.enabled:
             name += f" {tr.addons_disabled()}"
@@ -354,12 +354,12 @@ class AddonManager:
                 all_conflicts[other_dir].append(addon.dir_name)
         return all_conflicts
 
-    def _disableConflicting(self, dir: str, conflicts: list[str] = None) -> set[str]:
-        conflicts = conflicts or self.addonConflicts(dir)
+    def _disableConflicting(self, module: str, conflicts: list[str] = None) -> set[str]:
+        conflicts = conflicts or self.addonConflicts(module)
 
         installed = self.allAddons()
         found = {d for d in conflicts if d in installed and self.isEnabled(d)}
-        found.update(self.allAddonConflicts().get(dir, []))
+        found.update(self.allAddonConflicts().get(module, []))
 
         for package in found:
             self.toggleEnabled(package, enable=False)
@@ -421,17 +421,17 @@ class AddonManager:
             name=meta["name"], conflicts=found_conflicts, compatible=meta2.compatible()
         )
 
-    def _install(self, dir: str, zfile: ZipFile) -> None:
+    def _install(self, module: str, zfile: ZipFile) -> None:
         # previously installed?
-        base = self.addonsFolder(dir)
+        base = self.addonsFolder(module)
         if os.path.exists(base):
-            self.backupUserFiles(dir)
-            if not self.deleteAddon(dir):
-                self.restoreUserFiles(dir)
+            self.backupUserFiles(module)
+            if not self.deleteAddon(module):
+                self.restoreUserFiles(module)
                 return
 
         os.mkdir(base)
-        self.restoreUserFiles(dir)
+        self.restoreUserFiles(module)
 
         # extract
         for n in zfile.namelist():
@@ -446,9 +446,9 @@ class AddonManager:
             zfile.extract(n, base)
 
     # true on success
-    def deleteAddon(self, dir: str) -> bool:
+    def deleteAddon(self, module: str) -> bool:
         try:
-            send2trash(self.addonsFolder(dir))
+            send2trash(self.addonsFolder(module))
             return True
         except OSError as e:
             showWarning(
@@ -602,20 +602,22 @@ class AddonManager:
     _configUpdatedActions: dict[str, Callable[[Any], None]] = {}
     _config_help_paths: dict[str, str] = {}
 
-    def addonConfigDefaults(self, dir: str) -> dict[str, Any] | None:
-        path = os.path.join(self.addonsFolder(dir), "config.json")
+    def addonConfigDefaults(self, module: str) -> dict[str, Any] | None:
+        path = os.path.join(self.addonsFolder(module), "config.json")
         try:
             with open(path, encoding="utf8") as f:
                 return json.load(f)
         except:
             return None
 
-    def set_config_help_path(self, addon: str, path: str) -> None:
+    def set_config_help_path(self, module: str, path: str) -> None:
         "Set path of config help file relative to the add-on folder."
-        self._config_help_paths[addon] = path
+        self._config_help_paths[module] = path
 
-    def addonConfigHelp(self, dir: str) -> str:
-        path = os.path.join(self.addonsFolder(dir), self._config_help_paths.get(dir, "config.md"))
+    def addonConfigHelp(self, module: str) -> str:
+        path = os.path.join(
+            self.addonsFolder(module), self._config_help_paths.get(module, "config.md")
+        )
         if os.path.exists(path):
             with open(path, encoding="utf-8") as f:
                 return markdown.markdown(f.read(), extensions=["md_in_html"])
@@ -625,20 +627,20 @@ class AddonManager:
     def addonFromModule(self, module: str) -> str:
         return module.split(".")[0]
 
-    def configAction(self, addon: str) -> Callable[[], bool | None]:
-        return self._configButtonActions.get(addon)
+    def configAction(self, module: str) -> Callable[[], bool | None]:
+        return self._configButtonActions.get(module)
 
-    def configUpdatedAction(self, addon: str) -> Callable[[Any], None]:
-        return self._configUpdatedActions.get(addon)
+    def configUpdatedAction(self, module: str) -> Callable[[Any], None]:
+        return self._configUpdatedActions.get(module)
 
     # Schema
     ######################################################################
 
-    def _addon_schema_path(self, dir: str) -> str:
-        return os.path.join(self.addonsFolder(dir), "config.schema.json")
+    def _addon_schema_path(self, module: str) -> str:
+        return os.path.join(self.addonsFolder(module), "config.schema.json")
 
-    def _addon_schema(self, dir: str) -> Any:
-        path = self._addon_schema_path(dir)
+    def _addon_schema(self, module: str) -> Any:
+        path = self._addon_schema_path(module)
         try:
             if not os.path.exists(path):
                 # True is a schema accepting everything
@@ -709,8 +711,8 @@ class AddonManager:
         addon = self.addonFromModule(module)
         self._webExports[addon] = pattern
 
-    def getWebExports(self, addon: str) -> str:
-        return self._webExports.get(addon)
+    def getWebExports(self, module: str) -> str:
+        return self._webExports.get(module)
 
 
 # Add-ons Dialog
@@ -847,8 +849,8 @@ class AddonsDialog(QDialog):
         return self.addons[idxs[0]]
 
     def onToggleEnabled(self) -> None:
-        for dir in self.selectedAddons():
-            self.mgr.toggleEnabled(dir)
+        for module in self.selectedAddons():
+            self.mgr.toggleEnabled(module)
         self.redrawAddons()
 
     def onViewPage(self) -> None:
@@ -879,8 +881,8 @@ class AddonsDialog(QDialog):
         if not askUser(tr.addons_delete_the_numd_selected_addon(count=len(selected))):
             return
         gui_hooks.addons_dialog_will_delete_addons(self, selected)
-        for dir in selected:
-            if not self.mgr.deleteAddon(dir):
+        for module in selected:
+            if not self.mgr.deleteAddon(module):
                 break
         self.form.addonList.clearSelection()
         self.redrawAddons()
