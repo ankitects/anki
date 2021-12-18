@@ -600,6 +600,7 @@ class AddonManager:
 
     _configButtonActions: dict[str, Callable[[], bool | None]] = {}
     _configUpdatedActions: dict[str, Callable[[Any], None]] = {}
+    _config_help_paths: dict[str, str] = {}
 
     def addonConfigDefaults(self, dir: str) -> dict[str, Any] | None:
         path = os.path.join(self.addonsFolder(dir), "config.json")
@@ -609,8 +610,12 @@ class AddonManager:
         except:
             return None
 
+    def set_config_help_path(self, addon: str, path: str) -> None:
+        "Set path of config help file relative to the add-on folder."
+        self._config_help_paths[addon] = path
+
     def addonConfigHelp(self, dir: str) -> str:
-        path = os.path.join(self.addonsFolder(dir), "config.md")
+        path = os.path.join(self.addonsFolder(dir), self._config_help_paths.get(dir, "config.md"))
         if os.path.exists(path):
             with open(path, encoding="utf-8") as f:
                 return markdown.markdown(f.read(), extensions=["md_in_html"])
