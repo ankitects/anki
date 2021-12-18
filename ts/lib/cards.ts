@@ -21,6 +21,6 @@ export enum CardQueue {
     PreviewRepeat = 4,
     /// cards are not due in these states
     Suspended = -1,
-    UserBuried = -2,
-    SchedBuried = -3,
+    SchedBuried = -2,
+    UserBuried = -3,
 }
