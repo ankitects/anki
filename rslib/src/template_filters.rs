@@ -9,7 +9,6 @@ use regex::{Captures, Regex};
 
 use crate::{
     cloze::{cloze_filter, cloze_only_filter},
-    i18n::I18n,
     template::RenderContext,
     text::strip_html,
 };
@@ -26,7 +25,6 @@ pub(crate) fn apply_filters<'a>(
     filters: &[&str],
     field_name: &str,
     context: &RenderContext,
-    tr: &I18n,
 ) -> (Cow<'a, str>, Vec<String>) {
     let mut text: Cow<str> = text.into();
 
@@ -38,7 +36,7 @@ pub(crate) fn apply_filters<'a>(
     };
 
     for (idx, &filter_name) in filters.iter().enumerate() {
-        match apply_filter(filter_name, text.as_ref(), field_name, context, tr) {
+        match apply_filter(filter_name, text.as_ref(), field_name, context) {
             (true, None) => {
                 // filter did not change text
             }
@@ -69,7 +67,6 @@ fn apply_filter<'a>(
     text: &'a str,
     field_name: &str,
     context: &RenderContext,
-    tr: &I18n,
 ) -> (bool, Option<String>) {
     let output_text = match filter_name {
         "text" => strip_html(text),
@@ -84,8 +81,8 @@ fn apply_filter<'a>(
         // an empty filter name (caused by using two colons) is ignored
         "" => text.into(),
         _ => {
-            if filter_name.starts_with("tts ") {
-                tts_filter(filter_name, text, tr)
+            if let Some(options) = filter_name.strip_prefix("tts ") {
+                tts_filter(options, text).into()
             } else {
                 // unrecognized filter
                 return (false, None);
@@ -194,12 +191,10 @@ return false;">
     .into()
 }
 
-fn tts_filter(filter_name: &str, text: &str, tr: &I18n) -> Cow<'static, str> {
-    let args = filter_name.split_once(' ').map_or("", |t| t.1);
-    let text = text.replace("[...]", &tr.card_templates_blank());
-
-    format!("[anki:tts][{}]{}[/anki:tts]", args, text).into()
+fn tts_filter(options: &str, text: &str) -> String {
+    format!("[anki:tts lang={}]{}[/anki:tts]", options, text)
 }
+
 // Tests
 //----------------------------------------
 
@@ -235,7 +230,6 @@ field</a>
 
     #[test]
     fn typing() {
-        let tr = I18n::template_only();
         assert_eq!(type_filter("Front"), "[[type:Front]]");
         assert_eq!(type_cloze_filter("Front"), "[[type:cloze:Front]]");
         let ctx = RenderContext {
@@ -245,7 +239,7 @@ field</a>
             card_ord: 0,
         };
         assert_eq!(
-            apply_filters("ignored", &["cloze", "type"], "Text", &ctx, &tr),
+            apply_filters("ignored", &["cloze", "type"], "Text", &ctx),
             ("[[type:cloze:Text]]".into(), vec![])
         );
     }
@@ -280,17 +274,9 @@ field</a>
 
     #[test]
     fn tts() {
-        let tr = I18n::template_only();
         assert_eq!(
-            tts_filter("tts en_US voices=Bob,Jane", "foo", &tr),
-            "[anki:tts][en_US voices=Bob,Jane]foo[/anki:tts]"
-        );
-        assert_eq!(
-            tts_filter("tts en_US", "foo [...]", &tr),
-            format!(
-                "[anki:tts][en_US]foo {}[/anki:tts]",
-                tr.card_templates_blank()
-            )
+            tts_filter("en_US voices=Bob,Jane", "foo"),
+            "[anki:tts lang=en_US voices=Bob,Jane]foo[/anki:tts]"
         );
     }
 }
