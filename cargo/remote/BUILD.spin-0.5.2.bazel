@@ -47,6 +47,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=spin"
     ],
     version = "0.5.2",
     # buildifier: leave-alone

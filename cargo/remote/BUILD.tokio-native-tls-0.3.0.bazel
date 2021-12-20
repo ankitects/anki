@@ -49,6 +49,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=tokio-native-tls"
     ],
     version = "0.3.0",
     # buildifier: leave-alone

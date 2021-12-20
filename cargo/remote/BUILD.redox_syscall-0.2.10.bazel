@@ -54,6 +54,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=syscall"
     ],
     version = "0.2.10",
     # buildifier: leave-alone

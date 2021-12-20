@@ -50,6 +50,7 @@ rust_proc_macro(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=phf_macros"
     ],
     version = "0.8.0",
     # buildifier: leave-alone

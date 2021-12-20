@@ -47,6 +47,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=tempfile"
     ],
     version = "3.2.0",
     # buildifier: leave-alone

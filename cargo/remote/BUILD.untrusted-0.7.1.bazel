@@ -45,6 +45,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=untrusted"
     ],
     version = "0.7.1",
     # buildifier: leave-alone

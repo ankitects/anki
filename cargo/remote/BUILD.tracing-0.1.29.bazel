@@ -50,6 +50,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=tracing"
     ],
     version = "0.1.29",
     # buildifier: leave-alone
