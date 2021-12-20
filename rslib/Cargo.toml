@@ -13,11 +13,6 @@ path = "src/lib.rs"
 
 [features]
 bench = ["criterion"]
-links = ["linkcheck"]
-
-[[test]]
-name = "links"
-required-features = ["links"]
 
 [[bench]]
 name = "benchmark"
@@ -40,7 +35,6 @@ unicase = "=2.6.0"
 anki_i18n = { path="i18n" }
 
 criterion = { version = "0.3.5", optional = true }
-linkcheck = { git = "https://github.com/ankitects/linkcheck.git", rev = "2f20798ce521cc594d510d4e417e76d5eac04d4b", optional = true }
 
 nom = "7.0.0"
 proc-macro-nested = "0.1.7"

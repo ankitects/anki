@@ -75,6 +75,7 @@ cargo_build_script(
         "std",
         "synchapi",
         "sysinfoapi",
+        "threadpoollegacyapiset",
         "timezoneapi",
         "winbase",
         "wincon",
@@ -142,6 +143,7 @@ rust_library(
         "std",
         "synchapi",
         "sysinfoapi",
+        "threadpoollegacyapiset",
         "timezoneapi",
         "winbase",
         "wincon",
@@ -166,6 +168,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=winapi"
     ],
     version = "0.3.9",
     # buildifier: leave-alone

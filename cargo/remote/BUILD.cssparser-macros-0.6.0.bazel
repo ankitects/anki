@@ -45,6 +45,7 @@ rust_proc_macro(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=cssparser-macros"
     ],
     version = "0.6.0",
     # buildifier: leave-alone

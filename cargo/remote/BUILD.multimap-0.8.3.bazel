@@ -45,6 +45,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=multimap"
     ],
     version = "0.8.3",
     # buildifier: leave-alone

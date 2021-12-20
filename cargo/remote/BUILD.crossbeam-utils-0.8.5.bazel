@@ -80,6 +80,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=crossbeam-utils"
     ],
     version = "0.8.5",
     # buildifier: leave-alone
