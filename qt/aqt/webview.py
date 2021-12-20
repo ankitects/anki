@@ -243,7 +243,6 @@ class AnkiWebView(QWebEngineView):
         self.setPage(self._page)
 
         self.resetHandlers()
-        self.allowDrops = False
         self._filterSet = False
         QShortcut(  # type: ignore
             QKeySequence("Esc"),
