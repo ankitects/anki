@@ -52,6 +52,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=toml"
     ],
     version = "0.5.8",
     # buildifier: leave-alone

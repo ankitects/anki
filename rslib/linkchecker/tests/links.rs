@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anki::links::HelpPage;
+
 #[cfg(test)]
 mod test {
     use std::iter;

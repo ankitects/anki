@@ -175,32 +175,6 @@ pub fn strip_html_for_tts(html: &str) -> Cow<str> {
     out
 }
 
-pub fn strip_av_tags(text: &str) -> Cow<str> {
-    AV_TAGS.replace_all(text, "")
-}
-
-/// Extract audio tags from string, replacing them with [anki:play] refs
-pub fn extract_av_tags(text: &str, question_side: bool) -> (Cow<str>, Vec<AvTag>) {
-    let mut tags = vec![];
-    let context = if question_side { 'q' } else { 'a' };
-    let replaced_text = AV_TAGS.replace_all(text, |caps: &Captures| {
-        // extract
-        let tag = if let Some(av_file) = caps.get(1) {
-            AvTag::SoundOrVideo(decode_entities(av_file.as_str()).into())
-        } else {
-            let args = caps.get(2).unwrap();
-            let field_text = caps.get(3).unwrap();
-            tts_tag_from_string(field_text.as_str(), args.as_str())
-        };
-        tags.push(tag);
-
-        // and replace with reference
-        format!("[anki:play:{}:{}]", context, tags.len() - 1)
-    });
-
-    (replaced_text, tags)
-}
-
 #[derive(Debug)]
 pub(crate) struct MediaRef<'a> {
     pub full_ref: &'a str,
@@ -240,40 +214,6 @@ pub(crate) fn extract_media_refs(text: &str) -> Vec<MediaRef> {
     }
 
     out
-}
-
-fn tts_tag_from_string<'a>(field_text: &'a str, args: &'a str) -> AvTag {
-    let mut other_args = vec![];
-    let mut split_args = args.split_ascii_whitespace();
-    let lang = split_args.next().unwrap_or("");
-    let mut voices = None;
-    let mut speed = 1.0;
-
-    for remaining_arg in split_args {
-        if remaining_arg.starts_with("voices=") {
-            voices = remaining_arg
-                .split('=')
-                .nth(1)
-                .map(|voices| voices.split(',').map(ToOwned::to_owned).collect());
-        } else if remaining_arg.starts_with("speed=") {
-            speed = remaining_arg
-                .split('=')
-                .nth(1)
-                .unwrap()
-                .parse()
-                .unwrap_or(1.0);
-        } else {
-            other_args.push(remaining_arg.to_owned());
-        }
-    }
-
-    AvTag::TextToSpeech {
-        field_text: strip_html_for_tts(field_text).into(),
-        lang: lang.into(),
-        voices: voices.unwrap_or_else(Vec::new),
-        speed,
-        other_args,
-    }
 }
 
 pub fn strip_html_preserving_media_filenames(html: &str) -> Cow<str> {
@@ -495,32 +435,6 @@ mod test {
             " foo.jpg "
         );
         assert_eq!(strip_html_preserving_media_filenames("<html>"), "");
-    }
-
-    #[test]
-    fn audio() {
-        let s = concat!(
-            "abc[sound:fo&amp;obar.mp3]def[anki:tts][en_US voices=Bob,Jane speed=1.2]",
-            "foo b<i><b>a</b>r</i><br>1&gt;2[/anki:tts]gh",
-        );
-        assert_eq!(strip_av_tags(s), "abcdefgh");
-
-        let (text, tags) = extract_av_tags(s, true);
-        assert_eq!(text, "abc[anki:play:q:0]def[anki:play:q:1]gh");
-
-        assert_eq!(
-            tags,
-            vec![
-                AvTag::SoundOrVideo("fo&obar.mp3".into()),
-                AvTag::TextToSpeech {
-                    field_text: "foo bar 1>2".into(),
-                    lang: "en_US".into(),
-                    voices: vec!["Bob".into(), "Jane".into()],
-                    other_args: vec![],
-                    speed: 1.2
-                },
-            ]
-        );
     }
 
     #[test]

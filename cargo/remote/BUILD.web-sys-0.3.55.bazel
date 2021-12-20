@@ -62,6 +62,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=web-sys"
     ],
     version = "0.3.55",
     # buildifier: leave-alone

@@ -47,6 +47,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=fnv"
     ],
     version = "1.0.7",
     # buildifier: leave-alone

@@ -85,6 +85,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=pyo3-build-config"
     ],
     version = "0.15.1",
     # buildifier: leave-alone

@@ -47,6 +47,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=winapi-util"
     ],
     version = "0.1.5",
     # buildifier: leave-alone
