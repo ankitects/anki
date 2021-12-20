@@ -2,6 +2,7 @@ load("@rules_python//python:defs.bzl", "py_binary")
 load("@py_deps//:requirements.bzl", "requirement")
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("@bazel_skylib//lib:selects.bzl", "selects")
+load(":python_lib.bzl", "copy_python_lib")
 
 py_binary(
     name = "genbackend",
@@ -44,26 +45,9 @@ genrule(
     ],
 )
 
-copy_file(
-    name = "rsbridge_unix",
-    src = "//pylib/rsbridge",
-    out = "rsbridge.so",
-)
-
-copy_file(
-    name = "rsbridge_win",
-    src = "//pylib/rsbridge",
-    out = "rsbridge.pyd",
-)
-
-alias(
+copy_python_lib(
     name = "rsbridge",
-    actual = selects.with_or({
-        (
-            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
-        ): ":rsbridge_win",
-        "//conditions:default": ":rsbridge_unix",
-    }),
+    src = "//pylib/rsbridge",
 )
 
 _py_srcs = [
