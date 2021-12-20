@@ -4,7 +4,7 @@ To update dependencies, ensure a local Rust environment is available
 (eg `source scripts/cargo-env`), then install cargo-raze:
 
 ```
-cargo install cargo-raze --version 0.13.0
+cargo install cargo-raze --version 0.14.0
 cargo install cargo-license
 ```
 

@@ -46,6 +46,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=hermit-abi"
     ],
     version = "0.1.19",
     # buildifier: leave-alone

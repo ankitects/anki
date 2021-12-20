@@ -80,6 +80,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=httparse"
     ],
     version = "1.5.1",
     # buildifier: leave-alone

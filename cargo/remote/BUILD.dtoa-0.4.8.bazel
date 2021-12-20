@@ -47,6 +47,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=dtoa"
     ],
     version = "0.4.8",
     # buildifier: leave-alone

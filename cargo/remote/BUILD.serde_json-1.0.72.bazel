@@ -78,6 +78,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=serde_json"
     ],
     version = "1.0.72",
     # buildifier: leave-alone
