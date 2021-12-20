@@ -600,7 +600,7 @@ class AddonManager:
 
     _configButtonActions: dict[str, Callable[[], bool | None]] = {}
     _configUpdatedActions: dict[str, Callable[[Any], None]] = {}
-    _config_help_paths: dict[str, str] = {}
+    _config_help_actions: dict[str, Callable[[], str]] = {}
 
     def addonConfigDefaults(self, module: str) -> dict[str, Any] | None:
         path = os.path.join(self.addonsFolder(module), "config.json")
@@ -610,19 +610,22 @@ class AddonManager:
         except:
             return None
 
-    def set_config_help_path(self, module: str, path: str) -> None:
-        "Set path of config help file relative to the add-on folder."
-        self._config_help_paths[module] = path
+    def set_config_help_action(self, module: str, action: Callable[[], str]) -> None:
+        "Set a callback used to produce config help."
+        self._config_help_actions[module] = action
 
     def addonConfigHelp(self, module: str) -> str:
-        path = os.path.join(
-            self.addonsFolder(module), self._config_help_paths.get(module, "config.md")
-        )
-        if os.path.exists(path):
-            with open(path, encoding="utf-8") as f:
-                return markdown.markdown(f.read(), extensions=["md_in_html"])
+        if action := self._config_help_actions.get(module, None):
+            contents = action()
         else:
-            return ""
+            path = os.path.join(self.addonsFolder(module), "config.md")
+            if os.path.exists(path):
+                with open(path, encoding="utf-8") as f:
+                    contents = f.read()
+            else:
+                return ""
+
+        return markdown.markdown(contents, extensions=["md_in_html"])
 
     def addonFromModule(self, module: str) -> str:
         return module.split(".")[0]
