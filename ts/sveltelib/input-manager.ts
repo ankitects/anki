@@ -71,6 +71,17 @@ function getInputManager(): InputManager {
         cancelInsertText();
     }
 
+    function onInput(this: HTMLElement): void {
+        // prevent unwanted <div> from being left behind when clearing the contents
+        // of a field with 'Backspace' or 'Delete'
+        if (/^\n?$/.test(this.innerText)) {
+            const children = this.children;
+            if (children.length === 1 && children.item(0) instanceof HTMLDivElement) {
+                this.innerHTML = "";
+            }
+        }
+    }
+
     function manager(element: HTMLElement): { destroy(): void } {
         const removeBeforeInput = on(element, "beforeinput", onBeforeInput);
         const removePointerDown = on(element, "pointerdown", cancelInsertText);
@@ -80,6 +91,7 @@ function getInputManager(): InputManager {
             "keydown",
             cancelIfInsertText as EventListener,
         );
+        const removeInput = on(element, "input", onInput);
 
         return {
             destroy() {
@@ -87,6 +99,7 @@ function getInputManager(): InputManager {
                 removePointerDown();
                 removeBlur();
                 removeKeyDown();
+                removeInput();
             },
         };
     }
