@@ -26,7 +26,7 @@ type Count = [string, number, boolean, string];
 export interface GraphData {
     title: string;
     counts: Count[];
-    totalCards: number;
+    totalCards: string;
 }
 
 const barColours = [
@@ -38,6 +38,10 @@ const barColours = [
     "#FFDC41" /* suspended */,
     "grey" /* buried */,
 ];
+
+function commaSeparateNumber(n: number): string {
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 
 function countCards(cards: Cards.ICard[], separateInactive: boolean): Count[] {
     let newCards = 0;
@@ -125,7 +129,7 @@ export function gatherData(
     data: Stats.GraphsResponse,
     separateInactive: boolean,
 ): GraphData {
-    const totalCards = data.cards.length;
+    const totalCards = commaSeparateNumber(data.cards.length);
     const counts = countCards(data.cards, separateInactive);
 
     return {
@@ -148,7 +152,7 @@ export interface SummedDatum {
 
 export interface TableDatum {
     label: string;
-    count: number;
+    count: string;
     query: string;
     percent: string;
     colour: string;
@@ -214,7 +218,7 @@ export function renderCards(
         return d.show
             ? ({
                   label: d.label,
-                  count: d.count,
+                  count: commaSeparateNumber(d.count),
                   percent: `${percent}%`,
                   colour: barColours[idx],
                   query: d.query,
