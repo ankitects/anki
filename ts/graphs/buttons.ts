@@ -134,6 +134,20 @@ export function renderButtons(
         return { total, correct, percent };
     };
 
+    const totalPressedStr = (data: Datum): string => {
+        const groupTotal = totalCorrect(data.group).total;
+        const buttonTotal = data.count;
+
+        const buttonTotalCommaSeparated = buttonTotal
+            .toString()
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        const percent = buttonTotal
+            ? ((buttonTotal / groupTotal) * 100).toFixed(2)
+            : "0";
+
+        return `${buttonTotalCommaSeparated} (${percent}%)`;
+    };
+
     const yMax = Math.max(...data.map((d) => d.count));
 
     const svg = select(svgElem);
@@ -242,7 +256,8 @@ export function renderButtons(
         const button = tr.statisticsAnswerButtonsButtonNumber();
         const timesPressed = tr.statisticsAnswerButtonsButtonPressed();
         const correctStr = tr.statisticsHoursCorrect(totalCorrect(d.group));
-        return `${button}: ${d.buttonNum}<br>${timesPressed}: ${d.count}<br>${correctStr}`;
+        const pressedStr = `${timesPressed}: ${totalPressedStr(d)}`;
+        return `${button}: ${d.buttonNum}<br>${pressedStr}<br>${correctStr}`;
     }
 
     svg.select("g.hover-columns")
