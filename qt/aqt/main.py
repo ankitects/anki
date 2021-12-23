@@ -71,6 +71,7 @@ from aqt.utils import (
     tooltip,
     tr,
 )
+from aqt.webview import AnkiWebView
 
 install_pylib_legacy()
 
@@ -82,11 +83,46 @@ MainWindowState = Literal[
 T = TypeVar("T")
 
 
+class MainWebView(AnkiWebView):
+    def __init__(self, mw: AnkiQt) -> None:
+        AnkiWebView.__init__(self, title="main webview")
+        self.mw = mw
+        self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
+        self.setMinimumWidth(400)
+        self.setAcceptDrops(True)
+
+    # Importing files via drag & drop
+    ##########################################################################
+
+    def dragEnterEvent(self, event: QDragEnterEvent) -> None:
+        if self.mw.state != "deckBrowser":
+            return super().dragEnterEvent(event)
+        mime = event.mimeData()
+        if not mime.hasUrls():
+            return
+        for url in mime.urls():
+            path = url.toLocalFile()
+            if not os.path.exists(path) or os.path.isdir(path):
+                return
+        event.accept()
+
+    def dropEvent(self, event: QDropEvent) -> None:
+        import aqt.importing
+
+        if self.mw.state != "deckBrowser":
+            return super().dropEvent(event)
+        mime = event.mimeData()
+        paths = [url.toLocalFile() for url in mime.urls()]
+        deck_paths = filter(lambda p: not p.endswith(".colpkg"), paths)
+        for path in deck_paths:
+            aqt.importing.importFile(self.mw, path)
+
+
 class AnkiQt(QMainWindow):
     col: Collection
     pm: ProfileManagerType
-    web: aqt.webview.AnkiWebView
-    bottomWeb: aqt.webview.AnkiWebView
+    web: MainWebView
+    bottomWeb: AnkiWebView
 
     def __init__(
         self,
@@ -828,15 +864,13 @@ title="{}" {}>{}</button>""".format(
         self.form = aqt.forms.main.Ui_MainWindow()
         self.form.setupUi(self)
         # toolbar
-        tweb = self.toolbarWeb = aqt.webview.AnkiWebView(title="top toolbar")
+        tweb = self.toolbarWeb = AnkiWebView(title="top toolbar")
         tweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.toolbar = aqt.toolbar.Toolbar(self, tweb)
         # main area
-        self.web = aqt.webview.AnkiWebView(title="main webview")
-        self.web.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
-        self.web.setMinimumWidth(400)
+        self.web = MainWebView(self)
         # bottom area
-        sweb = self.bottomWeb = aqt.webview.AnkiWebView(title="bottom toolbar")
+        sweb = self.bottomWeb = AnkiWebView(title="bottom toolbar")
         sweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         # add in a layout
         self.mainLayout = QVBoxLayout()

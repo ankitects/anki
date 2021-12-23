@@ -46,6 +46,7 @@ rust_proc_macro(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=wasm-bindgen-macro"
     ],
     version = "0.2.78",
     # buildifier: leave-alone

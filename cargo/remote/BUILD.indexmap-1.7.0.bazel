@@ -81,6 +81,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=indexmap"
     ],
     version = "1.7.0",
     # buildifier: leave-alone

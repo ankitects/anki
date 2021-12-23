@@ -51,6 +51,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=unicode-segmentation"
     ],
     version = "1.8.0",
     # buildifier: leave-alone

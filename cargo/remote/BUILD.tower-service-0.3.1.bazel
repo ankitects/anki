@@ -45,6 +45,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=tower-service"
     ],
     version = "0.3.1",
     # buildifier: leave-alone

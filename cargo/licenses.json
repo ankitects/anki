@@ -216,24 +216,6 @@
     "description": "Time and duration crate optimized for speed"
   },
   {
-    "name": "codespan",
-    "version": "0.11.1",
-    "authors": "Brendan Zabarauskas <bjzaba@yahoo.com.au>",
-    "repository": "https://github.com/brendanzab/codespan",
-    "license": "Apache-2.0",
-    "license_file": null,
-    "description": "Data structures for tracking locations in source code"
-  },
-  {
-    "name": "codespan-reporting",
-    "version": "0.11.1",
-    "authors": "Brendan Zabarauskas <bjzaba@yahoo.com.au>",
-    "repository": "https://github.com/brendanzab/codespan",
-    "license": "Apache-2.0",
-    "license_file": null,
-    "description": "Beautiful diagnostic reporting for text-based programming languages"
-  },
-  {
     "name": "constant_time_eq",
     "version": "0.1.5",
     "authors": "Cesar Eduardo Barros <cesarb@cesarb.eti.br>",
@@ -241,15 +223,6 @@
     "license": "CC0-1.0",
     "license_file": null,
     "description": "Compares two equal-sized byte strings in constant time."
-  },
-  {
-    "name": "convert_case",
-    "version": "0.4.0",
-    "authors": "David Purdum <purdum41@gmail.com>",
-    "repository": "https://github.com/rutrum/convert-case",
-    "license": "MIT",
-    "license_file": null,
-    "description": "Convert strings into any case"
   },
   {
     "name": "core-foundation",
@@ -297,24 +270,6 @@
     "description": "Utilities for concurrent programming"
   },
   {
-    "name": "cssparser",
-    "version": "0.27.2",
-    "authors": "Simon Sapin <simon.sapin@exyr.org>",
-    "repository": "https://github.com/servo/rust-cssparser",
-    "license": "MPL-2.0",
-    "license_file": null,
-    "description": "Rust implementation of CSS Syntax Level 3"
-  },
-  {
-    "name": "cssparser-macros",
-    "version": "0.6.0",
-    "authors": "Simon Sapin <simon.sapin@exyr.org>",
-    "repository": "https://github.com/servo/rust-cssparser",
-    "license": "MPL-2.0",
-    "license_file": null,
-    "description": "Procedural macros for cssparser"
-  },
-  {
     "name": "derivative",
     "version": "2.2.0",
     "authors": "mcarton <cartonmartin+git@gmail.com>",
@@ -322,15 +277,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "A set of alternative `derive` attributes for Rust"
-  },
-  {
-    "name": "derive_more",
-    "version": "0.99.17",
-    "authors": "Jelte Fennema <github-tech@jeltef.nl>",
-    "repository": "https://github.com/JelteF/derive_more",
-    "license": "MIT",
-    "license_file": null,
-    "description": "Adds #[derive(x)] macros for more traits"
   },
   {
     "name": "digest",
@@ -358,33 +304,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "system-level helper functions for the dirs and directories crates"
-  },
-  {
-    "name": "dtoa",
-    "version": "0.4.8",
-    "authors": "David Tolnay <dtolnay@gmail.com>",
-    "repository": "https://github.com/dtolnay/dtoa",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Fast functions for printing floating-point primitives to an io::Write"
-  },
-  {
-    "name": "dtoa-short",
-    "version": "0.3.3",
-    "authors": "Xidorn Quan <me@upsuper.org>",
-    "repository": "https://github.com/upsuper/dtoa-short",
-    "license": "MPL-2.0",
-    "license_file": null,
-    "description": "Serialize float number and truncate to certain precision"
-  },
-  {
-    "name": "dunce",
-    "version": "1.0.2",
-    "authors": "Kornel <kornel@geekhood.net>",
-    "repository": "https://gitlab.com/kornelski/dunce",
-    "license": "CC0-1.0",
-    "license_file": null,
-    "description": "Normalize Windows paths to the most compatible format, avoiding UNC where possible"
   },
   {
     "name": "either",
@@ -610,15 +529,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Common utilities and extension traits for the futures-rs library."
-  },
-  {
-    "name": "fxhash",
-    "version": "0.2.1",
-    "authors": "cbreeden <github@u.breeden.cc>",
-    "repository": "https://github.com/cbreeden/fxhash",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A fast, non-secure, hashing algorithm derived from an internal hasher used in FireFox and Rustc."
   },
   {
     "name": "generic-array",
@@ -900,15 +810,6 @@
     "description": "Bindings for all JS global objects and functions in all JS environments like Node.js and browsers, built on `#[wasm_bindgen]` using the `wasm-bindgen` crate."
   },
   {
-    "name": "kuchiki",
-    "version": "0.8.1",
-    "authors": "Simon Sapin <simon.sapin@exyr.org>",
-    "repository": "https://github.com/SimonSapin/kuchiki",
-    "license": "MIT",
-    "license_file": null,
-    "description": "(朽木) HTML/XML tree manipulation library"
-  },
-  {
     "name": "lazy_static",
     "version": "1.4.0",
     "authors": "Marvin Löbel <loebel.marvin@gmail.com>",
@@ -934,24 +835,6 @@
     "license": "MIT",
     "license_file": null,
     "description": "Native bindings to the libsqlite3 library"
-  },
-  {
-    "name": "linkcheck",
-    "version": "0.4.1-alpha.0",
-    "authors": "Michael-F-Bryan <michaelfbryan@gmail.com>",
-    "repository": "https://github.com/Michael-F-Bryan/linkcheck",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A library for extracting and validating links."
-  },
-  {
-    "name": "linkify",
-    "version": "0.5.0",
-    "authors": "Robin Stocker <robin@nibor.org>",
-    "repository": "https://github.com/robinst/linkify",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Finds URLs and email addresses in plain text. Takes care to get the boundaries right with surrounding punctuation like parentheses."
   },
   {
     "name": "lock_api",
@@ -1665,15 +1548,6 @@
     "description": "speed, non-cryptographic hash used in rustc"
   },
   {
-    "name": "rustc_version",
-    "version": "0.4.0",
-    "authors": "Dirkjan Ochtman <dirkjan@ochtman.nl>|Marvin Löbel <loebel.marvin@gmail.com>",
-    "repository": "https://github.com/Kimundi/rustc-version-rs",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A library for querying the version of a installed rustc compiler"
-  },
-  {
     "name": "rustls",
     "version": "0.19.1",
     "authors": "Joseph Birr-Pixton <jpixton@gmail.com>",
@@ -1755,15 +1629,6 @@
     "description": "Apple `Security.framework` low-level FFI bindings"
   },
   {
-    "name": "selectors",
-    "version": "0.22.0",
-    "authors": "The Servo Project Developers",
-    "repository": "https://github.com/servo/servo",
-    "license": "MPL-2.0",
-    "license_file": null,
-    "description": "CSS Selectors matching for Rust"
-  },
-  {
     "name": "self_cell",
     "version": "0.10.2",
     "authors": "Lukas Bergdoll <lukas.bergdoll@gmail.com>",
@@ -1771,15 +1636,6 @@
     "license": "Apache-2.0",
     "license_file": null,
     "description": "Safe-to-use proc-macro-free self-referential structs in stable Rust."
-  },
-  {
-    "name": "semver",
-    "version": "1.0.4",
-    "authors": "David Tolnay <dtolnay@gmail.com>",
-    "repository": "https://github.com/dtolnay/semver",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "Parser and evaluator for Cargo's flavor of Semantic Versioning"
   },
   {
     "name": "serde",
@@ -1854,15 +1710,6 @@
     "description": "`x-www-form-urlencoded` meets Serde"
   },
   {
-    "name": "servo_arc",
-    "version": "0.1.1",
-    "authors": "The Servo Project Developers",
-    "repository": "https://github.com/servo/servo",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "A fork of std::sync::Arc with some extra functionality and without weak references"
-  },
-  {
     "name": "sha1",
     "version": "0.6.0",
     "authors": "Armin Ronacher <armin.ronacher@active-4.com>",
@@ -1870,6 +1717,15 @@
     "license": "BSD-3-Clause",
     "license_file": null,
     "description": "Minimal implementation of SHA1 for Rust."
+  },
+  {
+    "name": "signal-hook-registry",
+    "version": "1.4.0",
+    "authors": "Michal 'vorner' Vaner <vorner@vorner.cz>|Masaki Hara <ackie.h.gmai@gmail.com>",
+    "repository": "https://github.com/vorner/signal-hook",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Backend crate for signal-hook"
   },
   {
     "name": "siphasher",
@@ -1971,15 +1827,6 @@
     "description": "Synchronization primitives based on spinning. They may contain data, are usable without `std`, and static initializers are available."
   },
   {
-    "name": "stable_deref_trait",
-    "version": "1.2.0",
-    "authors": "Robert Grosse <n210241048576@gmail.com>",
-    "repository": "https://github.com/storyyeller/stable_deref_trait",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "description": "An unsafe marker trait for types like Box and Rc that dereference to a stable address even when moved, and hence can be used with libraries such as owning_ref and rental."
-  },
-  {
     "name": "string_cache",
     "version": "0.8.2",
     "authors": "The Servo Project Developers",
@@ -2068,15 +1915,6 @@
     "license": "MIT OR Unlicense",
     "license_file": null,
     "description": "A simple cross platform library for writing colored text to a terminal."
-  },
-  {
-    "name": "thin-slice",
-    "version": "0.1.1",
-    "authors": "Cameron McCormack <cam@mcc.id.au>",
-    "repository": "https://github.com/heycam/thin-slice",
-    "license": "MPL-2.0",
-    "license_file": null,
-    "description": "An owned slice that packs the slice storage into a single word when possible"
   },
   {
     "name": "thiserror",

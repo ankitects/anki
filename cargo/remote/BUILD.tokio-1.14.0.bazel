@@ -46,6 +46,8 @@ cargo_build_script(
         "bytes",
         "default",
         "fs",
+        "full",
+        "io-std",
         "io-util",
         "libc",
         "macros",
@@ -53,8 +55,13 @@ cargo_build_script(
         "mio",
         "net",
         "num_cpus",
+        "once_cell",
+        "parking_lot",
+        "process",
         "rt",
         "rt-multi-thread",
+        "signal",
+        "signal-hook-registry",
         "sync",
         "time",
         "tokio-macros",
@@ -105,6 +112,8 @@ rust_library(
         "bytes",
         "default",
         "fs",
+        "full",
+        "io-std",
         "io-util",
         "libc",
         "macros",
@@ -112,8 +121,13 @@ rust_library(
         "mio",
         "net",
         "num_cpus",
+        "once_cell",
+        "parking_lot",
+        "process",
         "rt",
         "rt-multi-thread",
+        "signal",
+        "signal-hook-registry",
         "sync",
         "time",
         "tokio-macros",
@@ -131,6 +145,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=tokio"
     ],
     version = "1.14.0",
     # buildifier: leave-alone
@@ -140,6 +155,8 @@ rust_library(
         "@raze__memchr__2_4_1//:memchr",
         "@raze__mio__0_7_14//:mio",
         "@raze__num_cpus__1_13_0//:num_cpus",
+        "@raze__once_cell__1_8_0//:once_cell",
+        "@raze__parking_lot__0_11_2//:parking_lot",
         "@raze__pin_project_lite__0_2_7//:pin_project_lite",
     ] + selects.with_or({
         # cfg(unix)
@@ -152,6 +169,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-apple-ios",
         ): [
             "@raze__libc__0_2_108//:libc",
+            "@raze__signal_hook_registry__1_4_0//:signal_hook_registry",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

@@ -80,6 +80,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=openssl"
     ],
     version = "0.10.38",
     # buildifier: leave-alone

@@ -45,6 +45,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=ipnet"
     ],
     version = "2.3.1",
     # buildifier: leave-alone

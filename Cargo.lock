@@ -66,7 +66,6 @@ dependencies = [
  "intl-memoizer",
  "itertools",
  "lazy_static",
- "linkcheck",
  "nom",
  "num-integer",
  "num_enum",
@@ -1208,6 +1207,19 @@ dependencies = [
  "serde",
  "thiserror",
  "url",
+]
+
+[[package]]
+name = "linkchecker"
+version = "0.0.0"
+dependencies = [
+ "anki",
+ "futures",
+ "itertools",
+ "linkcheck",
+ "reqwest",
+ "strum",
+ "tokio",
 ]
 
 [[package]]
@@ -2411,6 +2423,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2579985fda508104f7587689507983eadd6a6e84dd35d6d115361f530916fa0d"
 
 [[package]]
+name = "signal-hook-registry"
+version = "1.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e51e73328dc4ac0c7ccbda3a494dfa03df1de2f46018127f60c693f2648455b0"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "siphasher"
 version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2726,7 +2747,10 @@ dependencies = [
  "memchr",
  "mio",
  "num_cpus",
+ "once_cell",
+ "parking_lot",
  "pin-project-lite",
+ "signal-hook-registry",
  "tokio-macros",
  "winapi",
 ]
