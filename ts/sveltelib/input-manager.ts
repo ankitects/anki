@@ -71,14 +71,21 @@ function getInputManager(): InputManager {
         cancelInsertText();
     }
 
-    function onInput(this: HTMLElement): void {
-        // prevent unwanted <div> from being left behind when clearing the contents
-        // of a field with 'Backspace' or 'Delete'
-        if (/^\n?$/.test(this.innerText)) {
-            const children = this.children;
-            if (children.length === 1 && children.item(0) instanceof HTMLDivElement) {
-                this.innerHTML = "";
-            }
+    function onInput(event: Event): void {
+        if (
+            !(event instanceof InputEvent) ||
+            !(event.currentTarget instanceof HTMLElement)
+        ) {
+            return;
+        }
+
+        // prevent unwanted <div> from being left behind when clearing field contents
+        if (
+            /^\n?$/.test(event.currentTarget.innerText) &&
+            event.currentTarget.children.length === 1 &&
+            event.currentTarget.children.item(0) instanceof HTMLDivElement
+        ) {
+            event.currentTarget.innerHTML = "";
         }
     }
 
