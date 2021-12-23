@@ -82,9 +82,9 @@ function getInputManager(): InputManager {
         // prevent unwanted <div> from being left behind when clearing field contents
         if (
             (event.data === null || event.data === "") &&
-            /^\n?$/.test(event.currentTarget.innerText) &&
             event.currentTarget.children.length === 1 &&
-            event.currentTarget.children.item(0) instanceof HTMLDivElement
+            event.currentTarget.children.item(0) instanceof HTMLDivElement &&
+            /^\n?$/.test(event.currentTarget.innerText)
         ) {
             event.currentTarget.innerHTML = "";
         }
