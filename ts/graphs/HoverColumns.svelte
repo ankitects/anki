@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         :global(rect:hover) {
             fill: grey;
-            opacity: .2;
+            opacity: 0.2;
         }
     }
 </style>

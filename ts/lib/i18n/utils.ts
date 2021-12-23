@@ -48,6 +48,10 @@ export function toLocaleString(
     return date.toLocaleDateString(langs, options);
 }
 
+export function toLocaleNumber(n: number): string {
+    return n.toLocaleString(langs);
+}
+
 export function localeCompare(
     first: string,
     second: string,

@@ -20,6 +20,7 @@ import {
     interpolate,
     cumsum,
 } from "d3";
+import { toLocaleNumber } from "../lib/i18n";
 import type { GraphBounds } from "./graph-helpers";
 
 type Count = [string, number, boolean, string];
@@ -38,10 +39,6 @@ const barColours = [
     "#FFDC41" /* suspended */,
     "grey" /* buried */,
 ];
-
-function commaSeparateNumber(n: number): string {
-    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
 
 function countCards(cards: Cards.ICard[], separateInactive: boolean): Count[] {
     let newCards = 0;
@@ -129,7 +126,7 @@ export function gatherData(
     data: Stats.GraphsResponse,
     separateInactive: boolean,
 ): GraphData {
-    const totalCards = commaSeparateNumber(data.cards.length);
+    const totalCards = toLocaleNumber(data.cards.length);
     const counts = countCards(data.cards, separateInactive);
 
     return {
@@ -218,7 +215,7 @@ export function renderCards(
         return d.show
             ? ({
                   label: d.label,
-                  count: commaSeparateNumber(d.count),
+                  count: toLocaleNumber(d.count),
                   percent: `${percent}%`,
                   colour: barColours[idx],
                   query: d.query,
