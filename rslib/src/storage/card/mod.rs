@@ -396,16 +396,19 @@ impl super::SqliteStorage {
         include_reviews: bool,
     ) -> Result<()> {
         self.setup_searched_cards_table()?;
+        let params = named_params! {
+            ":card_id": cid,
+            ":note_id": nid,
+            ":include_new": include_new,
+            ":include_reviews": include_reviews,
+            ":new_queue": CardQueue::New as i8,
+            ":review_queue": CardQueue::Review as i8,
+            ":daylearn_queue": CardQueue::DayLearn as i8,
+        }
+        .to_vec();
         self.db
             .prepare_cached(include_str!("siblings_for_bury.sql"))?
-            .execute(params![
-                cid,
-                nid,
-                include_new,
-                CardQueue::New as i8,
-                include_reviews,
-                CardQueue::Review as i8
-            ])?;
+            .execute(&*params)?;
         Ok(())
     }
 

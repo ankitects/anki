@@ -1,15 +1,15 @@
 INSERT INTO search_cids
 SELECT id
 FROM cards
-WHERE id != ?
-  AND nid = ?
+WHERE id != :card_id
+  AND nid = :note_id
   AND (
     (
-      ?
-      AND queue = ?
+      :include_new
+      AND queue = :new_queue
     )
     OR (
-      ?
-      AND queue = ?
+      :include_reviews
+      AND queue in (:review_queue, :daylearn_queue)
     )
   );
