@@ -48,15 +48,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </InputBox>
 
     <div class="counts-outer">
-        <svg
-            bind:this={svg}
-            viewBox={`0 0 ${bounds.width} ${bounds.height}`}
-            width={bounds.width}
-            height={bounds.height}
-            style="opacity: {graphData.totalCards ? 1 : 0}"
-        >
-            <g class="counts" />
-        </svg>
+        <div class="svg-container" width={bounds.width} height={bounds.height}>
+            <svg
+                bind:this={svg}
+                viewBox={`0 0 ${bounds.width} ${bounds.height}`}
+                style="opacity: {graphData.totalCards ? 1 : 0}"
+            >
+                <g class="counts" />
+            </svg>
+        </div>
         <div class="counts-table">
             <table>
                 {#each tableData as d, _idx}
@@ -93,25 +93,52 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .counts-outer {
         display: flex;
         justify-content: center;
-    }
+        margin: 0 4vw;
 
-    .counts-table {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+        .svg-container {
+            width: 225px;
+        }
 
-        td {
-            white-space: nowrap;
+        .counts-table {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            table {
+                border-spacing: 1em 0;
+                padding-left: 4vw;
+
+                td {
+                    white-space: nowrap;
+                    padding: 0 min(4vw, 40px);
+
+                    &.right {
+                        text-align: right;
+                    }
+                }
+            }
         }
     }
 
-    table {
-        border-spacing: 1em 0;
-    }
+    /* On narrow devices, stack graph and table in a column */
+    @media only screen and (max-width: 600px) {
+        .counts-outer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
 
-    .right {
-        text-align: right;
-        padding-left: 40px;
+            .svg-container {
+                width: 180px;
+
+                svg {
+                    margin-left: 4vw;
+                }
+            }
+
+            .counts-table table td {
+                padding: 0 min(6vw, 30px);
+            }
+        }
     }
 
     .search-link:hover {
