@@ -13,7 +13,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {#each tableData as { label, value }}
             <tr>
                 <td class="align-end">{label}:</td>
-                <td class="space" />
                 <td class="align-start">{value}</td>
             </tr>
         {/each}
@@ -26,12 +25,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         justify-content: center;
     }
 
-    .align-end {
-        text-align: end;
+    td {
+        padding: 3px;
     }
 
-    .space {
-        padding-left: 5px;
+    .align-end {
+        text-align: end;
     }
 
     .align-start {

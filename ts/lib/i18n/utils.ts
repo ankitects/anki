@@ -41,14 +41,14 @@ export function weekdayLabel(n: number): string {
 
 let langs: string[] = [];
 
-export function toLocaleString(
+export function localizedDate(
     date: Date,
     options?: Intl.DateTimeFormatOptions,
 ): string {
     return date.toLocaleDateString(langs, options);
 }
 
-export function toLocaleNumber(n: number): string {
+export function localizedNumber(n: number): string {
     return n.toLocaleString(langs);
 }
 

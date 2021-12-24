@@ -20,7 +20,7 @@ import {
     interpolate,
     cumsum,
 } from "d3";
-import { toLocaleNumber } from "../lib/i18n";
+import { localizedNumber } from "../lib/i18n";
 import type { GraphBounds } from "./graph-helpers";
 
 type Count = [string, number, boolean, string];
@@ -126,7 +126,7 @@ export function gatherData(
     data: Stats.GraphsResponse,
     separateInactive: boolean,
 ): GraphData {
-    const totalCards = toLocaleNumber(data.cards.length);
+    const totalCards = localizedNumber(data.cards.length);
     const counts = countCards(data.cards, separateInactive);
 
     return {
@@ -215,7 +215,7 @@ export function renderCards(
         return d.show
             ? ({
                   label: d.label,
-                  count: toLocaleNumber(d.count),
+                  count: localizedNumber(d.count),
                   percent: `${percent}%`,
                   colour: barColours[idx],
                   query: d.query,

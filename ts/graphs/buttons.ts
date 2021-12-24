@@ -16,6 +16,7 @@ import {
     axisLeft,
     sum,
 } from "d3";
+import { localizedNumber } from "../lib/i18n";
 import { Stats } from "../lib/proto";
 import * as tr from "../lib/ftl";
 import { showTooltip, hideTooltip } from "./tooltip";
@@ -138,9 +139,7 @@ export function renderButtons(
         const groupTotal = totalCorrect(data.group).total;
         const buttonTotal = data.count;
 
-        const buttonTotalCommaSeparated = buttonTotal
-            .toString()
-            .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        const buttonTotalCommaSeparated = localizedNumber(buttonTotal);
         const percent = buttonTotal
             ? ((buttonTotal / groupTotal) * 100).toFixed(2)
             : "0";
