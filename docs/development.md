@@ -20,51 +20,9 @@ as Anki has only received minimal testing on 3.10 so far, and some dependencies 
 been fully updated yet. On Windows, only 3.9 will work. You can install Python from
 python.org or from your distro.
 
-**Mac/Linux**:
-
-```
-$ python3.9 -m venv ~/pyenv
-$ ~/pyenv/bin/pip install --upgrade pip
-$ ~/pyenv/bin/pip install aqt[qt6]
-```
-
-Then to run Anki:
-
-```
-$ ~/pyenv/bin/anki
-```
-
-On Linux, the pre-built wheel for x86_64 requires glibc 2.28 or later.
-
-**Windows**:
-
-```
-c:\> python -m venv \pyenv
-c:\> \pyenv\scripts\pip install --upgrade pip
-c:\> \pyenv\scripts\pip install aqt[qt6]
-```
-
-Then to run Anki:
-
-```
-c:\> \pyenv\scripts\anki
-```
-
-**ARM Linux**
-
-Since PyQt wheels are not available on PyPI, you'll need to use your system
-version instead. To use the pre-built wheels:
-
--   Ensure you're on a distro that has Python 3.9/3.10, glibc 2.31, and
-    PyQt5.14+.
--   Install the PyQt packages, eg `apt install python3-pyqt5.qtwebengine`.
--   Use the following commands:
-
-```
-$ python3.9 -m venv ~/pyenv --system-site-packages
-$ ~/pyenv/bin/pip install --upgrade pip
-$ ~/pyenv/bin/pip install aqt
-```
+For further instructions, please see https://betas.ankiweb.net/#via-pypipip. Note that
+in the provided commands, `--pre` tells pip to fetch alpha/beta versions. If you remove
+`--pre`, it will download the latest stable version instead.
 
 ## Building from source
 
@@ -154,8 +112,6 @@ bazel test ...
 If you're in a subfolder, `...` will run the tests in that folder.
 To run all tests, use `//...` instead.
 
-Pylint will currently fail if you're using Python 3.9.
-
 To run a single Rust unit test with output, eg 'unbury':
 
 ```
@@ -221,7 +177,7 @@ a bunch of files.
 After telling PyCharm to create a new virtual environment for your project, locate
 pip in the virtual environment, and run `pip install -r pip/requirements.txt` to install
 all of Anki's dependencies into the environment, so that code completion works for them.
-Then run `pip install pyqt5 pyqtwebengine` to install PyQt.
+Then run `pip install pyqt6 pyqt6-webengine` to install PyQt.
 
 Visual Studio Code + the Python extension does support code completion, but
 currently seems to frequently freeze for multiple seconds while pinning the CPU
@@ -238,19 +194,19 @@ of `use` statements.
 
 The Bazel build products will make RA start up slowly out of the box. For a much
 nicer experience, add each of the `bazel-*` folders to Rust Analyzer's excludeDirs
-settings, and node*modules. Wildcards don't work unfortunately. Then adjust
+settings, and node_modules. Wildcards don't work unfortunately. Then adjust
 VS Code's "watcher exclude", and add `\*\*/bazel-*`.
 
-After running 'code' from the project root, it may take a minute or two to be
+After running `code .` from the project root, it may take a minute or two to be
 ready.
 
 ## TypeScript editing
 
-Visual Studio Code seems to give the best experience. Use 'code ts' from the project
-root to start it up.
+Visual Studio Code seems to give the best experience. Use `code ts` or `code .`
+from the project root to start it up.
 
 IntelliJ IDEA works reasonably well, but doesn't seem to do as good a job at offering
-useful completions for things like i18n.TR.
+useful completions for things like translation strings.
 
 ## Audio
 
@@ -280,7 +236,7 @@ You can run bazel with '-s' to print the commands that are being executed.
 If ANKIDEV is set before starting Anki, some extra log messages will be printed on stdout,
 and automatic backups will be disabled - so please don't use this except on a test profile.
 
-If TRACESQL is set, all sql statements will be printed as they are executed.
+If TRACESQL is set, all SQL statements will be printed as they are executed.
 
 If LOGTERM is set before starting Anki, warnings and error messages that are normally placed
 in the collection2.log file will also be printed on stdout.

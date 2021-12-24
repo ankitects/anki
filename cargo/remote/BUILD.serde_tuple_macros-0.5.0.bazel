@@ -45,6 +45,7 @@ rust_proc_macro(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=serde_tuple_macros"
     ],
     version = "0.5.0",
     # buildifier: leave-alone

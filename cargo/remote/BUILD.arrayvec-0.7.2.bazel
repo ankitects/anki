@@ -49,6 +49,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=arrayvec"
     ],
     version = "0.7.2",
     # buildifier: leave-alone

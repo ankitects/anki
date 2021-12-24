@@ -28,11 +28,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     /* Our dynamic components */
     import AddonButtons from "./AddonButtons.svelte";
-    import PreviewButton from "./PreviewButton.svelte";
+    import PreviewButton, { togglePreviewButtonState } from "./PreviewButton.svelte";
 
     export const editorToolbar = {
         AddonButtons,
         PreviewButton,
+        togglePreviewButtonState,
     };
 </script>
 

@@ -2163,6 +2163,16 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "raze__signal_hook_registry__1_4_0",
+        url = "https://crates.io/api/v1/crates/signal-hook-registry/1.4.0/download",
+        type = "tar.gz",
+        sha256 = "e51e73328dc4ac0c7ccbda3a494dfa03df1de2f46018127f60c693f2648455b0",
+        strip_prefix = "signal-hook-registry-1.4.0",
+        build_file = Label("//cargo/remote:BUILD.signal-hook-registry-1.4.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "raze__siphasher__0_3_7",
         url = "https://crates.io/api/v1/crates/siphasher/0.3.7/download",
         type = "tar.gz",

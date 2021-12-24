@@ -89,6 +89,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=html5ever"
     ],
     version = "0.25.1",
     # buildifier: leave-alone

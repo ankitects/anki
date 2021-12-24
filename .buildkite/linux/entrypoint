@@ -14,7 +14,7 @@ echo "+++ Building and testing"
 # move existing node_modules into tree
 test -e /state/node_modules && mv /state/node_modules .
 
-$BAZEL test $BUILDARGS ... //rslib:links
+$BAZEL test $BUILDARGS ... //rslib/linkchecker
 
 echo "--- Building wheels"
 $BAZEL build dist

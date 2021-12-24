@@ -75,6 +75,7 @@ rust_library(
     tags = [
         "cargo-raze",
         "manual",
+        "crate-name=unicase"
     ],
     version = "2.6.0",
     # buildifier: leave-alone
