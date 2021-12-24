@@ -404,11 +404,10 @@ impl super::SqliteStorage {
             ":new_queue": CardQueue::New as i8,
             ":review_queue": CardQueue::Review as i8,
             ":daylearn_queue": CardQueue::DayLearn as i8,
-        }
-        .to_vec();
+        };
         self.db
             .prepare_cached(include_str!("siblings_for_bury.sql"))?
-            .execute(&*params)?;
+            .execute(params)?;
         Ok(())
     }
 
