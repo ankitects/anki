@@ -48,8 +48,11 @@ export function localizedDate(
     return date.toLocaleDateString(langs, options);
 }
 
-export function localizedNumber(n: number): string {
-    return n.toLocaleString(langs);
+export function localizedNumber(n: number, precision = 2): string {
+    if (n == 0) return "0";
+    const round = Math.pow(10, precision);
+    const rounded = Math.round(n * round) / round;
+    return rounded.toLocaleString(langs);
 }
 
 export function localeCompare(

@@ -211,7 +211,7 @@ export function renderCards(
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
 
     const tableData = data.flatMap((d: SummedDatum, idx: number) => {
-        const percent = ((d.count / xMax) * 100).toFixed(1);
+        const percent = localizedNumber((d.count / xMax) * 100, 2);
         return d.show
             ? ({
                   label: d.label,

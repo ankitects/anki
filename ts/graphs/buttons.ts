@@ -131,7 +131,7 @@ export function renderButtons(
             groupData.filter((d) => d.buttonNum > 1),
             (d) => d.count,
         );
-        const percent = total ? ((correct / total) * 100).toFixed(2) : "0";
+        const percent = localizedNumber((correct / total) * 100);
         return { total, correct, percent };
     };
 
@@ -140,9 +140,7 @@ export function renderButtons(
         const buttonTotal = data.count;
 
         const buttonTotalCommaSeparated = localizedNumber(buttonTotal);
-        const percent = buttonTotal
-            ? ((buttonTotal / groupTotal) * 100).toFixed(2)
-            : "0";
+        const percent = localizedNumber((buttonTotal / groupTotal) * 100);
 
         return `${buttonTotalCommaSeparated} (${percent}%)`;
     };

@@ -4,13 +4,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { pageTheme } from "../sveltelib/theme";
+    import { localizedNumber } from "../lib/i18n";
 
     export let value: number;
     export let min = 1;
     export let max = 9999;
 
     let stringValue: string;
-    $: stringValue = value.toFixed(2);
+    $: stringValue = localizedNumber(value, 2);
 
     function update(this: HTMLInputElement): void {
         value = Math.min(max, Math.max(min, parseFloat(this.value)));
