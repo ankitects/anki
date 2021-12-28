@@ -160,7 +160,7 @@ export function buildHistogram(
         });
         const totalLabel = tr.statisticsRunningTotal();
 
-        return `${days}:<br>${cards}<br>${totalLabel}: ${cumulative}`;
+        return `${days}:<br>${cards}<br>${totalLabel}: ${localizedNumber(cumulative)}`;
     }
 
     function onClick(bin: Bin<number, number>): void {
