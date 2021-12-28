@@ -173,8 +173,12 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
         mimetype = _mime_for_path(fullpath)
         if os.path.exists(fullpath):
             if fullpath.endswith(".css"):
-                # make changes to css files immediately reflected in the webview
+                # caching css files prevents flicker in the webview, but we want
+                # a short cache
                 max_age = 10
+            elif fullpath.endswith(".js"):
+                # don't cache js files
+                max_age = 0
             else:
                 max_age = 60 * 60
             return flask.send_file(
