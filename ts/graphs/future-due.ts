@@ -16,6 +16,7 @@ import {
     interpolateGreens,
 } from "d3";
 import type { Bin } from "d3";
+import { localizedNumber } from "../lib/i18n";
 import * as tr from "../lib/ftl";
 import { CardQueue } from "../lib/cards";
 import type { HistogramData } from "./histogram-graph";
@@ -140,6 +141,7 @@ export function buildHistogram(
         return output;
     }
 
+    const xTickFormat = (n: number): string => localizedNumber(n);
     const adjustedRange = scaleLinear().range([0.7, 0.3]);
     const colourScale = scaleSequential((n) =>
         interpolateGreens(adjustedRange(n)!),
@@ -198,6 +200,7 @@ export function buildHistogram(
             showArea: true,
             colourScale,
             binValue,
+            xTickFormat,
         },
         tableData,
     };

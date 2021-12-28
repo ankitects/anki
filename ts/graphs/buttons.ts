@@ -194,6 +194,7 @@ export function renderButtons(
     const colour = scaleSequential(interpolateRdYlGn).domain([1, 4]);
 
     // y scale
+    const yTickFormat = (n: number): string => localizedNumber(n);
 
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
@@ -203,7 +204,8 @@ export function renderButtons(
             selection.transition(trans).call(
                 axisLeft(y)
                     .ticks(bounds.height / 50)
-                    .tickSizeOuter(0),
+                    .tickSizeOuter(0)
+                    .tickFormat(yTickFormat as any),
             ),
         )
         .attr("direction", "ltr");
