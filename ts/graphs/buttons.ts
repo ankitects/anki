@@ -131,18 +131,18 @@ export function renderButtons(
             groupData.filter((d) => d.buttonNum > 1),
             (d) => d.count,
         );
-        const percent = localizedNumber((correct / total) * 100);
+        const percent = total ? localizedNumber((correct / total) * 100) : "0";
         return { total, correct, percent };
     };
 
     const totalPressedStr = (data: Datum): string => {
         const groupTotal = totalCorrect(data.group).total;
         const buttonTotal = data.count;
+        const percent = groupTotal
+            ? localizedNumber((buttonTotal / groupTotal) * 100)
+            : "0";
 
-        const buttonTotalCommaSeparated = localizedNumber(buttonTotal);
-        const percent = localizedNumber((buttonTotal / groupTotal) * 100);
-
-        return `${buttonTotalCommaSeparated} (${percent}%)`;
+        return `${localizedNumber(buttonTotal)} (${percent}%)`;
     };
 
     const yMax = Math.max(...data.map((d) => d.count));
