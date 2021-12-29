@@ -16,6 +16,7 @@ import {
     axisLeft,
     sum,
 } from "d3";
+import { localizedNumber } from "../lib/i18n";
 import { Stats } from "../lib/proto";
 import * as tr from "../lib/ftl";
 import { showTooltip, hideTooltip } from "./tooltip";
@@ -130,8 +131,18 @@ export function renderButtons(
             groupData.filter((d) => d.buttonNum > 1),
             (d) => d.count,
         );
-        const percent = total ? ((correct / total) * 100).toFixed(2) : "0";
+        const percent = total ? localizedNumber((correct / total) * 100) : "0";
         return { total, correct, percent };
+    };
+
+    const totalPressedStr = (data: Datum): string => {
+        const groupTotal = totalCorrect(data.group).total;
+        const buttonTotal = data.count;
+        const percent = groupTotal
+            ? localizedNumber((buttonTotal / groupTotal) * 100)
+            : "0";
+
+        return `${localizedNumber(buttonTotal)} (${percent}%)`;
     };
 
     const yMax = Math.max(...data.map((d) => d.count));
@@ -183,6 +194,7 @@ export function renderButtons(
     const colour = scaleSequential(interpolateRdYlGn).domain([1, 4]);
 
     // y scale
+    const yTickFormat = (n: number): string => localizedNumber(n);
 
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
@@ -192,7 +204,8 @@ export function renderButtons(
             selection.transition(trans).call(
                 axisLeft(y)
                     .ticks(bounds.height / 50)
-                    .tickSizeOuter(0),
+                    .tickSizeOuter(0)
+                    .tickFormat(yTickFormat as any),
             ),
         )
         .attr("direction", "ltr");
@@ -242,7 +255,8 @@ export function renderButtons(
         const button = tr.statisticsAnswerButtonsButtonNumber();
         const timesPressed = tr.statisticsAnswerButtonsButtonPressed();
         const correctStr = tr.statisticsHoursCorrect(totalCorrect(d.group));
-        return `${button}: ${d.buttonNum}<br>${timesPressed}: ${d.count}<br>${correctStr}`;
+        const pressedStr = `${timesPressed}: ${totalPressedStr(d)}`;
+        return `${button}: ${d.buttonNum}<br>${pressedStr}<br>${correctStr}`;
     }
 
     svg.select("g.hover-columns")

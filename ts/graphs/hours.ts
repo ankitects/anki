@@ -19,7 +19,7 @@ import {
     area,
     curveBasis,
 } from "d3";
-
+import { localizedNumber } from "../lib/i18n";
 import * as tr from "../lib/ftl";
 import { showTooltip, hideTooltip } from "./tooltip";
 import {
@@ -110,6 +110,7 @@ export function renderHours(
     ]);
 
     // y scale
+    const yTickFormat = (n: number): string => localizedNumber(n);
 
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
@@ -120,7 +121,8 @@ export function renderHours(
             selection.transition(trans).call(
                 axisLeft(y)
                     .ticks(bounds.height / 50)
-                    .tickSizeOuter(0),
+                    .tickSizeOuter(0)
+                    .tickFormat(yTickFormat as any),
             ),
         )
         .attr("direction", "ltr");
