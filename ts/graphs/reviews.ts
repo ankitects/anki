@@ -30,7 +30,7 @@ import {
     ScaleSequential,
 } from "d3";
 import type { Bin } from "d3";
-
+import { localizedNumber } from "../lib/i18n";
 import * as tr from "../lib/ftl";
 import type { TableDatum } from "./graph-helpers";
 import { GraphBounds, setDataAvailable, GraphRange } from "./graph-helpers";
@@ -190,7 +190,7 @@ export function renderReviews(
             if (Math.round(n) != n) {
                 return "";
             } else {
-                return n.toLocaleString();
+                return localizedNumber(n);
             }
         }
     };

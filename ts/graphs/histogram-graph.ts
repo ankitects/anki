@@ -17,7 +17,7 @@ import {
     area,
     curveBasis,
 } from "d3";
-
+import { localizedNumber } from "../lib/i18n";
 import type { ScaleLinear, ScaleSequential, Bin } from "d3";
 import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds, setDataAvailable } from "./graph-helpers";
@@ -46,6 +46,7 @@ export function histogramGraph(
 ): void {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
+    const axisTickFormat = (n: number): string => localizedNumber(n);
 
     if (!data) {
         setDataAvailable(svg, false);
@@ -63,7 +64,7 @@ export function histogramGraph(
                 axisBottom(x)
                     .ticks(7)
                     .tickSizeOuter(0)
-                    .tickFormat((data.xTickFormat ?? null) as any),
+                    .tickFormat((data.xTickFormat ?? axisTickFormat) as any),
             ),
         )
         .attr("direction", "ltr");
@@ -80,7 +81,8 @@ export function histogramGraph(
             selection.transition(trans).call(
                 axisLeft(y)
                     .ticks(bounds.height / 50)
-                    .tickSizeOuter(0),
+                    .tickSizeOuter(0)
+                    .tickFormat(axisTickFormat as any),
             ),
         )
         .attr("direction", "ltr");
@@ -134,7 +136,8 @@ export function histogramGraph(
                 selection.transition(trans).call(
                     axisRight(yAreaScale)
                         .ticks(bounds.height / 50)
-                        .tickSizeOuter(0),
+                        .tickSizeOuter(0)
+                        .tickFormat(axisTickFormat as any),
                 ),
             )
             .attr("direction", "ltr");

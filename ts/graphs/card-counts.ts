@@ -20,13 +20,14 @@ import {
     interpolate,
     cumsum,
 } from "d3";
+import { localizedNumber } from "../lib/i18n";
 import type { GraphBounds } from "./graph-helpers";
 
 type Count = [string, number, boolean, string];
 export interface GraphData {
     title: string;
     counts: Count[];
-    totalCards: number;
+    totalCards: string;
 }
 
 const barColours = [
@@ -125,7 +126,7 @@ export function gatherData(
     data: Stats.GraphsResponse,
     separateInactive: boolean,
 ): GraphData {
-    const totalCards = data.cards.length;
+    const totalCards = localizedNumber(data.cards.length);
     const counts = countCards(data.cards, separateInactive);
 
     return {
@@ -148,7 +149,7 @@ export interface SummedDatum {
 
 export interface TableDatum {
     label: string;
-    count: number;
+    count: string;
     query: string;
     percent: string;
     colour: string;
@@ -210,11 +211,11 @@ export function renderCards(
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
 
     const tableData = data.flatMap((d: SummedDatum, idx: number) => {
-        const percent = ((d.count / xMax) * 100).toFixed(1);
+        const percent = localizedNumber((d.count / xMax) * 100, 2);
         return d.show
             ? ({
                   label: d.label,
-                  count: d.count,
+                  count: localizedNumber(d.count),
                   percent: `${percent}%`,
                   colour: barColours[idx],
                   query: d.query,

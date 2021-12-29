@@ -25,6 +25,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         justify-content: center;
     }
 
+    td {
+        padding: 3px;
+    }
+
     .align-end {
         text-align: end;
     }

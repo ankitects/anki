@@ -41,11 +41,17 @@ export function weekdayLabel(n: number): string {
 
 let langs: string[] = [];
 
-export function toLocaleString(
+export function localizedDate(
     date: Date,
     options?: Intl.DateTimeFormatOptions,
 ): string {
     return date.toLocaleDateString(langs, options);
+}
+
+export function localizedNumber(n: number, precision = 2): string {
+    const round = Math.pow(10, precision);
+    const rounded = Math.round(n * round) / round;
+    return rounded.toLocaleString(langs);
 }
 
 export function localeCompare(

@@ -16,6 +16,7 @@ import {
     scaleSequential,
     interpolateBlues,
 } from "d3";
+import { localizedNumber } from "../lib/i18n";
 import type { Bin } from "d3";
 import * as tr from "../lib/ftl";
 import { timeSpan } from "../lib/time";
@@ -147,7 +148,7 @@ export function prepareIntervalData(
         // const day = dayLabel(bin.x0!, bin.x1!);
         const interval = intervalLabel(bin.x0!, bin.x1!, bin.length);
         const total = tr.statisticsRunningTotal();
-        return `${interval}<br>${total}: \u200e${percent.toFixed(1)}%`;
+        return `${interval}<br>${total}: \u200e${localizedNumber(percent, 1)}%`;
     }
 
     function onClick(bin: Bin<number, number>): void {
