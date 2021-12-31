@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 from typing import Callable, Optional
 
 import aqt.editor
@@ -54,12 +56,12 @@ class AddCards(QMainWindow):
         gui_hooks.add_cards_did_init(self)
         self.show()
 
-    def set_note(self, note: Note) -> None:
-        """Set tags, field contents and notetype (and its deck)
-        according to `note`.
+    def set_note(self, note: Note, deck_id: DeckId | None = None) -> None:
+        """Set tags, field contents and notetype according to `note`. Deck is set
+        to `deck_id` or the deck last used with the notetype.
         """
         self.notetype_chooser.selected_notetype_id = note.mid
-        if deck_id := self.col.default_deck_for_notetype(note.mid):
+        if deck_id or (deck_id := self.col.default_deck_for_notetype(note.mid)):
             self.deck_chooser.selected_deck_id = deck_id
 
         new_note = self._new_note()
