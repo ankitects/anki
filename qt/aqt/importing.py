@@ -412,6 +412,7 @@ To import this deck, please click the Update button at the top of the deck list,
                     showWarning(tr.importing_unable_to_import_from_a_readonly())
                 else:
                     msg = f"{tr.importing_failed_debug_info()}\n"
+                    traceback.print_exc(file=sys.stdout)
                     msg += str(e)
                     showText(msg)
             else:
