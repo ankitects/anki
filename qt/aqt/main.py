@@ -116,6 +116,9 @@ class MainWebView(AnkiWebView):
         deck_paths = filter(lambda p: not p.endswith(".colpkg"), paths)
         for path in deck_paths:
             aqt.importing.importFile(self.mw, path)
+            # importing continues after the above call returns, so it is not
+            # currently safe for us to import more than one file at once
+            return
 
 
 class AnkiQt(QMainWindow):
