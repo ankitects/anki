@@ -59,7 +59,16 @@ export function _queueAction(action: Callback): void {
     _updatingQueue = _updatingQueue.then(action);
 }
 
-function setInnerHTML(element: Element, html: string): void {
+function replaceScriptPromise(script: HTMLScriptElement): Promise<void> {
+    return new Promise((resolve) => {
+        const newScript = script.cloneNode(true);
+        newScript.addEventListener("load", () => resolve());
+        newScript.addEventListener("error", () => resolve());
+        script.replaceWith(newScript);
+    });
+}
+
+async function setInnerHTML(element: Element, html: string): Promise<void> {
     for (const oldVideo of element.getElementsByTagName("video")) {
         oldVideo.pause();
 
@@ -73,14 +82,11 @@ function setInnerHTML(element: Element, html: string): void {
     element.innerHTML = html;
 
     for (const oldScript of element.getElementsByTagName("script")) {
-        const newScript = document.createElement("script");
-
-        for (const attribute of oldScript.attributes) {
-            newScript.setAttribute(attribute.name, attribute.value);
+        if (oldScript.src) {
+            await replaceScriptPromise(oldScript);
+        } else {
+            oldScript.replaceWith(oldScript.cloneNode(true));
         }
-
-        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-        oldScript.parentNode!.replaceChild(newScript, oldScript);
     }
 }
 
