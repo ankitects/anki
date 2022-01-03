@@ -462,11 +462,12 @@ limit ?"""
         card.flush()
 
     def _answerCard(self, card: Card, ease: int) -> None:
+        self.reps += 1
+
         if self._previewingCard(card):
             self._answerCardPreview(card, ease)
             return
 
-        self.reps += 1
         card.reps += 1
 
         new_delta = 0
