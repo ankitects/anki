@@ -82,26 +82,67 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <th class="left">{tr2.cardStatsReviewLogDate()}</th>
             <th class="center hidden-xs">{tr2.cardStatsReviewLogType()}</th>
             <th class="center">{tr2.cardStatsReviewLogRating()}</th>
-            <th class="right">{tr2.cardStatsInterval()}</th>
+            <th class="center">{tr2.cardStatsInterval()}</th>
             <th class="center hidden-xs">{tr2.cardStatsEase()}</th>
-            <th class="right">{tr2.cardStatsReviewLogTimeTaken()}</th>
+            <th class="center">{tr2.cardStatsReviewLogTimeTaken()}</th>
         </tr>
-        {#each revlogRows as row, _index}
-            <tr>
-                <td class="left"><b>{row.date}</b> @ {row.time}</td>
-                <td class="center hidden-xs {row.reviewKindClass}">
-                    {row.reviewKind}
-                </td>
-                <td class="center {row.ratingClass}">{row.rating}</td>
-                <td class="right">{row.interval}</td>
-                <td class="center hidden-xs">{row.ease}</td>
-                <td class="right">{row.takenSecs}</td>
-            </tr>
-        {/each}
+        <tr>
+            <td
+                ><table class="left">
+                    {#each revlogRows as row, _index}
+                        <tr><td><b>{row.date}</b> @ {row.time}</td></tr>
+                    {/each}
+                </table></td
+            >
+            <td
+                ><table class="center-table center">
+                    {#each revlogRows as row, _index}
+                        <tr
+                            ><td class="hidden-xs {row.reviewKindClass}">
+                                {row.reviewKind}
+                            </td></tr
+                        >
+                    {/each}
+                </table></td
+            >
+            <td
+                ><table class="center-table center">
+                    {#each revlogRows as row, _index}
+                        <tr><td class={row.ratingClass}>{row.rating}</td></tr>
+                    {/each}
+                </table></td
+            >
+            <td
+                ><table class="center-table right">
+                    {#each revlogRows as row, _index}
+                        <tr><td>{row.interval}</td></tr>
+                    {/each}
+                </table></td
+            >
+            <td
+                ><table class="center-table center">
+                    {#each revlogRows as row, _index}
+                        <tr><td class="hidden-xs">{row.ease}</td></tr>
+                    {/each}
+                </table></td
+            >
+            <td
+                ><table class="center-table right">
+                    {#each revlogRows as row, _index}
+                        <tr><td>{row.takenSecs}</td></tr>
+                    {/each}
+                </table></td
+            >
+        </tr>
     </table>
 {/if}
 
 <style>
+    td:empty::after {
+        /* prevent collapsing of empty cells */
+        content: "\00a0";
+    }
+
     .left {
         text-align: start;
     }
@@ -118,6 +159,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         width: 100%;
         border-spacing: 1em 0;
         border-collapse: collapse;
+        white-space: nowrap;
+    }
+
+    .center-table {
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .revlog-learn {
