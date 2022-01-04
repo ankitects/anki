@@ -184,6 +184,9 @@ class JsInputConverter(TypeConverter):
         """
         child: ConverterFn = self.render(node.first_child(), context)
         src = render_template('''
+            if (!value) {
+            \treturn null;
+            }
             const nodes = []
             for (let n of value) {
             \tlet node = new BinaryTreeNode()

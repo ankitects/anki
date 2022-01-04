@@ -138,6 +138,9 @@ class JavaInputConverterTests(unittest.TestCase):
                 }
                 nodes.add(node);
             }
+            if (nodes.isEmpty()) {
+                return null;
+            }
             Deque<BinaryTreeNode<String>> children = new LinkedList<>(nodes);
             BinaryTreeNode<String> root = children.removeFirst();
             for (BinaryTreeNode<String> node : nodes) {
@@ -152,3 +155,49 @@ class JavaInputConverterTests(unittest.TestCase):
             }
             return root;
         ''', 'JsonNode', 'BinaryTreeNode<String>'), converters[1])
+
+
+    def test_array_nested_linked_list(self):
+        tree = SyntaxTree.of(['array(linked_list(string))'])
+        arg_converters, converters = self.converter.get_converters(tree)
+        self.assertEqual(1, len(arg_converters))
+        self.assertEqual(3, len(converters))
+        self.assertEqual(ConverterFn('', '''return value.asText();''', 'JsonNode', 'String'), converters[0])
+        self.assertEqual(ConverterFn('', '''
+            ListNode<String> result[] = new ListNode[value.size()];
+            int i = 0;
+            for (JsonNode node : value) {
+                result[i++] = converter2(node);
+            }
+            return result; 
+        ''', 'JsonNode', 'ListNode<String>[]'), converters[2])
+
+    def test_array_double_nested_linked_list(self):
+        tree = SyntaxTree.of(['array(linked_list(linked_list(string))'])
+        arg_converters, converters = self.converter.get_converters(tree)
+        self.assertEqual(1, len(arg_converters))
+        self.assertEqual(4, len(converters))
+        self.assertEqual(ConverterFn('', '''return value.asText();''', 'JsonNode', 'String'), converters[0])
+        self.assertEqual(ConverterFn('', '''
+            ListNode<ListNode<String>> result[] = new ListNode[value.size()];
+            int i = 0;
+            for (JsonNode node : value) {
+                result[i++] = converter3(node);
+            }
+            return result; 
+        ''', 'JsonNode', 'ListNode<ListNode<String>>[]'), converters[3])
+
+    def test_array_nested_array_nested_linked_list(self):
+        tree = SyntaxTree.of(['array(array(linked_list(string))'])
+        arg_converters, converters = self.converter.get_converters(tree)
+        self.assertEqual(1, len(arg_converters))
+        self.assertEqual(4, len(converters))
+        self.assertEqual(ConverterFn('', '''return value.asText();''', 'JsonNode', 'String'), converters[0])
+        self.assertEqual(ConverterFn('', '''
+            ListNode<String>[] result[] = new ListNode[value.size()][];
+            int i = 0;
+            for (JsonNode node : value) {
+                result[i++] = converter3(node);
+            }
+            return result; 
+        ''', 'JsonNode', 'ListNode<String>[][]'), converters[3])

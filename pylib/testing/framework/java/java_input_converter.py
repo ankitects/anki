@@ -3,12 +3,26 @@
 """
 Java Input Converter Implementation
 """
+import re
 from typing import List
 
 from testing.framework.string_utils import render_template
 from testing.framework.type_converter import TypeConverter
 from testing.framework.types import ConverterFn
 from testing.framework.syntax.syntax_tree import SyntaxTree, is_primitive_type
+
+
+def remove_generic(type_name):
+    """
+    removes generics information from type, for example:
+    ListNode<Integer>[] -> ListNode[]
+    :param type_name: src type name
+    :return: type name without generic info
+    """
+    n = 1
+    while n:
+        type_name, n = re.subn(r'<[^<>]*>', '', type_name)  # remove non-nested/flat balanced parts
+    return type_name
 
 
 def generate_array_declaration(inner_type: str, size_method: str) -> str:
@@ -20,9 +34,9 @@ def generate_array_declaration(inner_type: str, size_method: str) -> str:
     """
     if '[' in inner_type:
         idx = inner_type.index('[')
-        initializer = inner_type[:idx] + '[value.' + size_method + ']' + inner_type[idx:]
+        initializer = remove_generic(inner_type[:idx]) + '[value.' + size_method + ']' + inner_type[idx:]
     else:
-        initializer = inner_type + '[value.' + size_method + ']'
+        initializer = remove_generic(inner_type) + '[value.' + size_method + ']'
     return f'{inner_type} result[] = new {initializer};'
 
 
@@ -210,6 +224,9 @@ class JavaInputConverter(TypeConverter):
             \t\tnode.data = {{child.fn_name}}(n);
             \t}
             \tnodes.add(node);
+            }
+            if (nodes.isEmpty()) {
+            \treturn null;
             }
             Deque<BinaryTreeNode<{{child.ret_type}}>> children = new LinkedList<>(nodes);
             BinaryTreeNode<{{child.ret_type}}> root = children.removeFirst();

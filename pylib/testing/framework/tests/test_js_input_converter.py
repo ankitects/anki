@@ -89,6 +89,9 @@ class JsInputConverterTests(unittest.TestCase):
         self.assertEqual(2, len(converters))
         self.assertEqual(ConverterFn('', '''return value''', ''), converters[0])
         self.assertEqual(ConverterFn('', '''
+            if (!value) {
+                return null;
+            }
             const nodes = []
             for (let n of value) {
                 let node = new BinaryTreeNode()

@@ -32,6 +32,7 @@ class CppTestSuiteGeneratorTests(GeneratorTestCase):
             #include <queue>
             #include <set>
             #include <math.h>
+            #include <memory>
             #include <iostream>
             #include <string>
             #include <termios.h>

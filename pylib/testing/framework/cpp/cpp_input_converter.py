@@ -187,6 +187,9 @@ class CppInputConverter(TypeConverter):
         child: ConverterFn = self.render(node.first_child(), context)
         src = render_template('''
             vector<shared_ptr<BinaryTreeNode<{{child.ret_type}}>>> nodes;
+            if (value.is_null()) {
+                return nullptr;
+            }
             for (int i = 0; i < value.size(); i++) {
             \tshared_ptr<BinaryTreeNode<{{child.ret_type}}>> node = make_shared<BinaryTreeNode<{{child.ret_type}}>>();
             \tnode->left = nullptr;

@@ -95,6 +95,8 @@ class PythonInputConverterTests(unittest.TestCase):
         self.assertEqual(2, len(converters))
         self.assertEqual(ConverterFn('', '\treturn str(value)', '', 'str'), converters[0])
         self.assertEqual(ConverterFn('', '''
+            if value is None:
+                return None
             nodes = []
             for item in value:
                 node = BinaryTreeNode()

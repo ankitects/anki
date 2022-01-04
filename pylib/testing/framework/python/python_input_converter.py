@@ -168,6 +168,8 @@ class PythonInputConverter(TypeConverter):
         """
         child: ConverterFn = self.render(node.first_child(), context)
         src = render_template('''
+            \tif value is None:
+            \t\treturn None
             \tnodes = []
             \tfor item in value:
             \t\tnode = BinaryTreeNode()

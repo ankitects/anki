@@ -142,6 +142,9 @@ class CppInputConverterTests(unittest.TestCase):
         self.assertEqual(ConverterFn('', '''return value.as_string();''', 'jute::jValue', 'string'), converters[0])
         self.assertEqual(ConverterFn('', '''
             vector<shared_ptr<BinaryTreeNode<string>>> nodes;
+            if (value.is_null()) {
+            return nullptr;
+            }
             for (int i = 0; i < value.size(); i++) {
                 shared_ptr<BinaryTreeNode<string>> node = make_shared<BinaryTreeNode<string>>();
                 node->left = nullptr;
