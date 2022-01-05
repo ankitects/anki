@@ -94,11 +94,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {/each}
                 </table></td
             >
-            <td
+            <td class="hidden-xs"
                 ><table class="center-table center">
                     {#each revlogRows as row, _index}
                         <tr
-                            ><td class="hidden-xs {row.reviewKindClass}">
+                            ><td class={row.reviewKindClass}>
                                 {row.reviewKind}
                             </td></tr
                         >
@@ -119,10 +119,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {/each}
                 </table></td
             >
-            <td
+            <td class="hidden-xs"
                 ><table class="center-table center">
                     {#each revlogRows as row, _index}
-                        <tr><td class="hidden-xs">{row.ease}</td></tr>
+                        <tr><td>{row.ease}</td></tr>
                     {/each}
                 </table></td
             >
