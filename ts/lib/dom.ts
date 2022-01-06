@@ -106,16 +106,6 @@ export function fragmentToString(fragment: DocumentFragment): string {
     return html;
 }
 
-export function caretToEnd(node: Node): void {
-    const range = new Range();
-    range.selectNodeContents(node);
-    range.collapse(false);
-
-    const selection = getSelection(node)!;
-    selection.removeAllRanges();
-    selection.addRange(range);
-}
-
 const getAnchorParent =
     <T extends Element>(predicate: (element: Element) => element is T) =>
     (root: Node): T | null => {

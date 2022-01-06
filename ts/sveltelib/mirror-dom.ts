@@ -13,10 +13,13 @@ const config = {
     characterData: true,
 };
 
-export type MirrorAction = (element: Element, params: { store: Writable<DocumentFragment> }) => { destroy(): void };
+export type MirrorAction = (
+    element: Element,
+    params: { store: Writable<DocumentFragment> },
+) => { destroy(): void };
 
 interface DOMMirrorAPI {
-    mirror: MirrorAction,
+    mirror: MirrorAction;
     preventResubscription(): () => void;
 }
 
@@ -25,7 +28,7 @@ interface DOMMirrorAPI {
  * in sync with a store containing a DocumentFragment.
  * While the element has focus, this connection is tethered.
  */
-function getDOMMirror(): DOMMirrorAPI  {
+function getDOMMirror(): DOMMirrorAPI {
     const allowResubscription = writable(true);
 
     function preventResubscription() {

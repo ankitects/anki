@@ -4,12 +4,14 @@
 import {
     nodeIsText,
     nodeIsElement,
+    elementIsEmpty,
     elementIsBlock,
     hasBlockAttribute,
 } from "../lib/dom";
 import { on } from "../lib/events";
 import { getSelection } from "../lib/cross-browser";
 import { moveChildOutOfElement } from "../domlib/move-nodes";
+import { placeCaretBefore, placeCaretAfter } from "../domlib/place-caret";
 
 /**
  * I originally used a zero width space, however, in contentEditable, if
@@ -36,28 +38,6 @@ function skippableNode(handleElement: FrameHandle, node: Node): boolean {
     );
 }
 
-function moveCaret(referenceNode: Node, range: Range): void {
-    const selection = getSelection(referenceNode)!;
-    if (selection.rangeCount > 0) {
-        selection.removeAllRanges();
-        selection.addRange(range);
-    }
-}
-
-function moveCaretBefore(referenceNode: Node): void {
-    const range = new Range();
-    range.setStartBefore(referenceNode);
-    range.collapse(true);
-    moveCaret(referenceNode, range);
-}
-
-function moveCaretAfter(referenceNode: Node): void {
-    const range = new Range();
-    range.setStartAfter(referenceNode);
-    range.collapse(true);
-    moveCaret(referenceNode, range);
-}
-
 function restoreHandleContent(mutations: MutationRecord[]): void {
     let referenceNode: Node | null = null;
 
@@ -82,6 +62,7 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
 
                 if (
                     nodeIsElement(node) &&
+                    !elementIsEmpty(node) &&
                     (node.textContent === spaceCharacter ||
                         node.textContent?.length === 0)
                 ) {
@@ -126,7 +107,7 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
     }
 
     if (referenceNode) {
-        moveCaretAfter(referenceNode);
+        placeCaretAfter(referenceNode);
     }
 }
 
@@ -323,7 +304,7 @@ function restoreFrameHandles(mutations: MutationRecord[]): void {
     }
 
     if (referenceNode) {
-        moveCaretAfter(referenceNode);
+        placeCaretAfter(referenceNode);
     }
 }
 
@@ -463,7 +444,7 @@ export class FrameElement extends HTMLElement {
                           document.createElement("br"),
                       );
 
-            moveCaretAfter(focus ?? this);
+            placeCaretAfter(focus ?? this);
         } else if (offset === 1) {
             const next = this.nextSibling;
 
@@ -473,7 +454,7 @@ export class FrameElement extends HTMLElement {
                     ? next
                     : this.insertAdjacentElement("afterend", lineBreak);
 
-            moveCaretBefore(focus ?? this);
+            placeCaretBefore(focus ?? this);
         }
     }
 }

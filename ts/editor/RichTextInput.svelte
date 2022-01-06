@@ -61,8 +61,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         nodeIsElement,
         nodeContainsInlineContent,
         fragmentToString,
-        caretToEnd,
     } from "../lib/dom";
+    import { placeCaretAfterContent } from "../domlib/place-caret";
     import { getDecoratedElements } from "./DecoratedElements.svelte";
     import { getEditingArea } from "./EditingArea.svelte";
     import { promiseWithResolver } from "../lib/promise";
@@ -177,7 +177,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const localInputManager = getInputManager();
 
     function moveCaretToEnd() {
-        richTextPromise.then(caretToEnd);
+        richTextPromise.then(placeCaretAfterContent);
     }
 
     export const api = {
@@ -186,7 +186,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         element: richTextPromise,
         focus() {
             richTextPromise.then((richText) => {
-                richText.focus()
+                richText.focus();
             });
         },
         refocus() {

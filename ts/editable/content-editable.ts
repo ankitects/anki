@@ -1,6 +1,6 @@
 import { on, preventDefault } from "../lib/events";
 import { registerShortcut } from "../lib/shortcuts";
-import { caretToEnd } from "../lib/dom";
+import { placeCaretAfterContent } from "../domlib/place-caret";
 import { saveSelection, restoreSelection } from "../domlib/location";
 import type { SelectionLocation } from "../domlib/location";
 
@@ -18,14 +18,14 @@ let latestLocation: SelectionLocation | null = null;
 
 function onFocus(this: HTMLElement): void {
     if (!latestLocation) {
-        caretToEnd(this);
+        placeCaretAfterContent(this);
         return;
     }
 
     try {
         restoreSelection(this, latestLocation);
     } catch {
-        caretToEnd(this);
+        placeCaretAfterContent(this);
     }
 }
 
