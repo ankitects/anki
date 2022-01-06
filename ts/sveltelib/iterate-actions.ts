@@ -13,6 +13,10 @@ type Action<E extends HTMLElement, P> = (
     params: P,
 ) => ActionReturn<P> | void;
 
+/**
+ * A helper function for treating a list of Svelte actions as a single Svelte action
+ * and use it with a single `use:` directive
+ */
 function iterateActions<E extends HTMLElement, P>(
     actions: Action<E, P>[],
 ): Action<E, P> {

@@ -58,6 +58,12 @@ function trigger<C>(list: Managed<C>[]) {
 
 const nbsp = "\xa0";
 
+/**
+ * An interface that allows Svelte components to attach event listeners via triggers.
+ * They will be attached to the component(s) that install the manager.
+ * Prevents that too many event listeners are attached and allows for some
+ * coordination between them.
+ */
 function getInputManager(): InputManager {
     const beforeInput: Managed<OnInputCallback>[] = [];
     const beforeInsertText: Managed<OnInsertCallback>[] = [];
