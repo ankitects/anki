@@ -3,6 +3,7 @@
 
 import { writable } from "svelte/store";
 import type { Writable } from "svelte/store";
+import { keyboardEventIsPrintableKey } from "../lib/keys";
 import { on } from "../lib/events";
 import { id } from "../lib/functional";
 import { getSelection } from "../lib/cross-browser";
@@ -87,28 +88,28 @@ function getInputManager(): InputManager {
             }
 
             /* we call explicitly because we prevented default */
-            onInput(event);
+            callAfterInputHooks(event);
         }
     }
 
     const afterInput: Managed<OnInputCallback>[] = [];
 
-    async function onInput(event: InputEvent): Promise<void> {
+    async function callAfterInputHooks(event: InputEvent): Promise<void> {
         for (const { callback } of afterInput.filter(id)) {
             await callback({ event });
         }
     }
 
-    function cancelInsertText(): void {
+    function clearInsertText(): void {
         for (const { remove } of beforeInsertText.filter(id)) {
             remove();
         }
     }
 
-    function cancelIfInsertText(event: KeyboardEvent): void {
+    function clearInsertTextIfUnprintableKey(event: KeyboardEvent): void {
         /* using arrow keys should cancel */
-        if (event.key.length !== 1) {
-            cancelInsertText();
+        if (!keyboardEventIsPrintableKey(event)) {
+            clearInsertText();
         }
     }
 
@@ -139,9 +140,9 @@ function getInputManager(): InputManager {
             onInput as unknown as (event: Event) => void,
         );
 
-        const removeBlur = on(element, "blur", cancelInsertText);
-        const removePointerDown = on(element, "pointerdown", cancelInsertText);
-        const removeKeyDown = on(element, "keydown", cancelIfInsertText);
+        const removeBlur = on(element, "blur", clearInsertText);
+        const removePointerDown = on(element, "pointerdown", clearInsertText);
+        const removeKeyDown = on(element, "keydown", clearInsertTextIfUnprintableKey);
 
         return {
             destroy() {
