@@ -71,7 +71,7 @@ impl Collection {
             ),
             CardQueue::Review | CardQueue::DayLearn => (
                 {
-                    if card.ctype == CardType::New && card.original_due != 0 {
+                    if card.ctype == CardType::New {
                         // new preview card not answered yet
                         None
                     } else {
