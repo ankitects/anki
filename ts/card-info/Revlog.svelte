@@ -77,111 +77,97 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 {#if revlog.length > 0}
-    <table class="revlog-table">
-        <tr>
-            <th class="left">{tr2.cardStatsReviewLogDate()}</th>
-            <th class="center hidden-xs">{tr2.cardStatsReviewLogType()}</th>
-            <th class="center">{tr2.cardStatsReviewLogRating()}</th>
-            <th class="center">{tr2.cardStatsInterval()}</th>
-            <th class="center hidden-xs">{tr2.cardStatsEase()}</th>
-            <th class="center">{tr2.cardStatsReviewLogTimeTaken()}</th>
-        </tr>
-        <tr>
-            <td
-                ><div class="column">
-                    {#each revlogRows as row, _index}
-                        <div><b>{row.date}</b> @ {row.time}</div>
-                    {/each}
-                </div></td
-            >
-            <td class="hidden-xs"
-                ><div class="centered-cell">
-                    <div class="column">
-                        {#each revlogRows as row, _index}
-                            <div class={row.reviewKindClass}>
-                                {row.reviewKind}
-                            </div>
-                        {/each}
+    <div class="revlog-table">
+        <div class="column">
+            <div class="column-head">{tr2.cardStatsReviewLogDate()}</div>
+            <div class="column-content">
+                {#each revlogRows as row, _index}
+                    <div><b>{row.date}</b> @ {row.time}</div>
+                {/each}
+            </div>
+        </div>
+        <div class="column hidden-xs">
+            <div class="column-head">{tr2.cardStatsReviewLogType()}</div>
+            <div class="column-content">
+                {#each revlogRows as row, _index}
+                    <div class={row.reviewKindClass}>
+                        {row.reviewKind}
                     </div>
-                </div></td
-            >
-            <td
-                ><div class="centered-cell">
-                    <div class="column">
-                        {#each revlogRows as row, _index}
-                            <div class={row.ratingClass}>{row.rating}</div>
-                        {/each}
-                    </div>
-                </div></td
-            >
-            <td
-                ><div class="centered-cell">
-                    <div class="column column-right">
-                        {#each revlogRows as row, _index}
-                            <div>{row.interval}</div>
-                        {/each}
-                    </div>
-                </div></td
-            >
-            <td class="hidden-xs"
-                ><div class="centered-cell">
-                    <div class="column">
-                        {#each revlogRows as row, _index}
-                            <div>{row.ease}</div>
-                        {/each}
-                    </div>
-                </div></td
-            >
-            <td
-                ><div class="centered-cell">
-                    <div class="column column-right">
-                        {#each revlogRows as row, _index}
-                            <div>{row.takenSecs}</div>
-                        {/each}
-                    </div>
-                </div></td
-            >
-        </tr>
-    </table>
+                {/each}
+            </div>
+        </div>
+        <div class="column">
+            <div class="column-head">{tr2.cardStatsReviewLogRating()}</div>
+            <div class="column-content">
+                {#each revlogRows as row, _index}
+                    <div class={row.ratingClass}>{row.rating}</div>
+                {/each}
+            </div>
+        </div>
+        <div class="column">
+            <div class="column-head">{tr2.cardStatsInterval()}</div>
+            <div class="column-content right">
+                {#each revlogRows as row, _index}
+                    <div>{row.interval}</div>
+                {/each}
+            </div>
+        </div>
+        <div class="column hidden-xs">
+            <div class="column-head">{tr2.cardStatsEase()}</div>
+            <div class="column-content">
+                {#each revlogRows as row, _index}
+                    <div>{row.ease}</div>
+                {/each}
+            </div>
+        </div>
+        <div class="column">
+            <div class="column-head">{tr2.cardStatsReviewLogTimeTaken()}</div>
+            <div class="column-content right">
+                {#each revlogRows as row, _index}
+                    <div>{row.takenSecs}</div>
+                {/each}
+            </div>
+        </div>
+    </div>
 {/if}
 
-<style>
-    .column > div:empty::after {
-        /* prevent collapsing of empty rows */
-        content: "\00a0";
-    }
-
-    .left {
-        text-align: start;
-    }
-
-    .center {
-        text-align: center;
-    }
-
+<style lang="scss">
     .revlog-table {
         width: 100%;
-        border-spacing: 1em 0;
-        border-collapse: collapse;
+        max-width: 50em;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5em;
         white-space: nowrap;
     }
 
-    .centered-cell {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-    }
-
     .column {
-        display: inline-flex;
+        display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
     }
 
-    .column-right {
-        align-items: flex-end;
+    .column-head {
+        font-weight: bold;
+    }
+
+    .column-content {
+        display: inline-flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        &.right {
+            align-items: flex-end;
+        }
+
+        > div:empty::after {
+            /* prevent collapsing of empty rows */
+            content: "\00a0";
+        }
     }
 
     .revlog-learn {
