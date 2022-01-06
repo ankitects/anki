@@ -88,67 +88,71 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </tr>
         <tr>
             <td
-                ><table class="left">
+                ><div class="column">
                     {#each revlogRows as row, _index}
-                        <tr><td><b>{row.date}</b> @ {row.time}</td></tr>
+                        <div><b>{row.date}</b> @ {row.time}</div>
                     {/each}
-                </table></td
+                </div></td
             >
             <td class="hidden-xs"
-                ><table class="center-table center">
-                    {#each revlogRows as row, _index}
-                        <tr
-                            ><td class={row.reviewKindClass}>
+                ><div class="centered-cell">
+                    <div class="column">
+                        {#each revlogRows as row, _index}
+                            <div class={row.reviewKindClass}>
                                 {row.reviewKind}
-                            </td></tr
-                        >
-                    {/each}
-                </table></td
+                            </div>
+                        {/each}
+                    </div>
+                </div></td
             >
             <td
-                ><table class="center-table center">
-                    {#each revlogRows as row, _index}
-                        <tr><td class={row.ratingClass}>{row.rating}</td></tr>
-                    {/each}
-                </table></td
+                ><div class="centered-cell">
+                    <div class="column">
+                        {#each revlogRows as row, _index}
+                            <div class={row.ratingClass}>{row.rating}</div>
+                        {/each}
+                    </div>
+                </div></td
             >
             <td
-                ><table class="center-table right">
-                    {#each revlogRows as row, _index}
-                        <tr><td>{row.interval}</td></tr>
-                    {/each}
-                </table></td
+                ><div class="centered-cell">
+                    <div class="column column-right">
+                        {#each revlogRows as row, _index}
+                            <div>{row.interval}</div>
+                        {/each}
+                    </div>
+                </div></td
             >
             <td class="hidden-xs"
-                ><table class="center-table center">
-                    {#each revlogRows as row, _index}
-                        <tr><td>{row.ease}</td></tr>
-                    {/each}
-                </table></td
+                ><div class="centered-cell">
+                    <div class="column">
+                        {#each revlogRows as row, _index}
+                            <div>{row.ease}</div>
+                        {/each}
+                    </div>
+                </div></td
             >
             <td
-                ><table class="center-table right">
-                    {#each revlogRows as row, _index}
-                        <tr><td>{row.takenSecs}</td></tr>
-                    {/each}
-                </table></td
+                ><div class="centered-cell">
+                    <div class="column column-right">
+                        {#each revlogRows as row, _index}
+                            <div>{row.takenSecs}</div>
+                        {/each}
+                    </div>
+                </div></td
             >
         </tr>
     </table>
 {/if}
 
 <style>
-    td:empty::after {
-        /* prevent collapsing of empty cells */
+    .column > div:empty::after {
+        /* prevent collapsing of empty rows */
         content: "\00a0";
     }
 
     .left {
         text-align: start;
-    }
-
-    .right {
-        text-align: end;
     }
 
     .center {
@@ -162,9 +166,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         white-space: nowrap;
     }
 
-    .center-table {
-        margin-left: auto;
-        margin-right: auto;
+    .centered-cell {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .column {
+        display: inline-flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .column-right {
+        align-items: flex-end;
     }
 
     .revlog-learn {
