@@ -185,7 +185,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         shadowRoot: shadowPromise,
         element: richTextPromise,
         focus() {
-            richTextPromise.then((richText) => richText.focus());
+            richTextPromise.then((richText) => {
+                richText.focus()
+            });
         },
         refocus() {
             richTextPromise.then((richText) => {

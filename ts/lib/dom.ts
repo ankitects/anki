@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { getSelection } from "./cross-browser";
+
 export function nodeIsElement(node: Node): node is Element {
     return node.nodeType === Node.ELEMENT_NODE;
 }
@@ -108,15 +110,16 @@ export function caretToEnd(node: Node): void {
     const range = new Range();
     range.selectNodeContents(node);
     range.collapse(false);
-    const selection = (node.getRootNode() as Document | ShadowRoot).getSelection()!;
+
+    const selection = getSelection(node)!;
     selection.removeAllRanges();
     selection.addRange(range);
 }
 
 const getAnchorParent =
     <T extends Element>(predicate: (element: Element) => element is T) =>
-    (root: DocumentOrShadowRoot): T | null => {
-        const anchor = root.getSelection()?.anchorNode;
+    (root: Node): T | null => {
+        const anchor = getSelection(root)?.anchorNode;
 
         if (!anchor) {
             return null;

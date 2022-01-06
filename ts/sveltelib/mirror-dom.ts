@@ -65,16 +65,18 @@ function getDOMMirror(): DOMMirror {
         }
 
         const { subscribe, unsubscribe } = storeSubscribe(store, mirrorToNode);
-        const selection = getSelection(element)!;
+        // const selection = getSelection(element)!;
 
         function doSubscribe(): void {
-            /**
-             * Focused element and caret are two independent things in the browser.
-             * When the ContentEditable calls blur, it will still have the selection inside of it.
-             * Some elements (e.g. FrameElement) need to figure whether the intended focus is still
-             * in the contenteditable or elsewhere because they might change the selection.
-             */
-            selection.removeAllRanges();
+            // Might not be needed after all:
+            // /**
+            //  * Focused element and caret are two independent things in the browser.
+            //  * When the ContentEditable calls blur, it will still have the selection inside of it.
+            //  * Some elements (e.g. FrameElement) need to figure whether the intended focus is still
+            //  * in the contenteditable or elsewhere because they might change the selection.
+            //  */
+            // selection.removeAllRanges();
+
             subscribe();
         }
 

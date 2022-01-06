@@ -34,6 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onFocus(): void {
         if (!latestLocation) {
+            caretToEnd(editable);
             return;
         }
 
@@ -46,6 +47,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const locationEvents: (() => void)[] = [];
 
+    /**
+     * Prevent automatically restoring last location on refocus
+     * Interesting for add-ons which steal the caret, but want to control where it is restored (e.g. Mathjax Editor)
+     */
     export function flushLocation() {
         let removeEvent: (() => void) | undefined;
 
@@ -58,10 +63,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         flushLocation,
     });
 
-    function onBlur(): void {
-        latestLocation = saveSelection(editable);
+    let removeOnFocus: () => void;
 
-        const removeOnFocus = on(editable, "focus", onFocus, { once: true });
+    function prepareFocusHandling(editable: HTMLElement): void {
+        removeOnFocus = on(editable, "focus", onFocus, { once: true });
 
         locationEvents.push(
             removeOnFocus,
@@ -69,7 +74,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
     }
 
-    /* must execute before DOMMirror */
+    function onBlur(): void {
+        prepareFocusHandling(editable);
+        latestLocation = saveSelection(editable);
+    }
+
+    /* Must execute before DOMMirror */
     function saveLocation(editable: HTMLElement) {
         const removeOnBlur = on(editable, "blur", onBlur);
 
@@ -100,6 +110,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bind:this={editable}
     use:resolve
     use:saveLocation
+    use:prepareFocusHandling
     use:mirrorAction={{ store: nodes }}
     use:managerAction={{}}
     on:focus
