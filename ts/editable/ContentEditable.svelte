@@ -3,115 +3,46 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    export interface ContentEditableAPI {
-        flushLocation(): void;
-    }
+    export type { ContentEditableAPI } from "./content-editable";
 </script>
 
 <script lang="ts">
     import type { Writable } from "svelte/store";
     import { updateAllState } from "../components/WithState.svelte";
-    import type { SelectionLocation } from "../domlib/location";
-    import { saveSelection, restoreSelection } from "../domlib/location";
-    import { on, preventDefault } from "../lib/events";
-    import { caretToEnd } from "../lib/dom";
-    import { registerShortcut } from "../lib/shortcuts";
     import iterateActions from "../sveltelib/iterate-actions";
+    import contentEditableAPI, {
+        saveLocation,
+        prepareFocusHandling,
+        preventBuiltinContentEditableShortcuts,
+    } from "./content-editable";
+    import type { ContentEditableAPI } from "./content-editable";
+    import type { MirrorAction } from "../sveltelib/mirror-dom";
+    import type { InputManagerAction } from "../sveltelib/input-manager";
 
-    export let nodes: Writable<DocumentFragment>;
     export let resolve: (editable: HTMLElement) => void;
 
-    export let mirrors: Array<
-        (editable: HTMLElement, params: { store: Writable<DocumentFragment> }) => void
-    >;
-    export let managers: Array<(editable: HTMLElement) => void>;
-    export let api: Partial<ContentEditableAPI>;
+    export let mirrors: MirrorAction[];
+    export let nodes: Writable<DocumentFragment>;
 
     const mirrorAction = iterateActions(mirrors);
+    const mirrorOptions = { store: nodes };
+
+    export let managers: InputManagerAction[];
+
     const managerAction = iterateActions(managers);
 
-    let latestLocation: SelectionLocation | null = null;
+    export let api: Partial<ContentEditableAPI>;
 
-    function onFocus(): void {
-        if (!latestLocation) {
-            caretToEnd(editable);
-            return;
-        }
-
-        try {
-            restoreSelection(editable, latestLocation);
-        } catch {
-            caretToEnd(editable);
-        }
-    }
-
-    const locationEvents: (() => void)[] = [];
-
-    /**
-     * Prevent automatically restoring last location on refocus
-     * Interesting for add-ons which steal the caret, but want to control where it is restored (e.g. Mathjax Editor)
-     */
-    export function flushLocation() {
-        let removeEvent: (() => void) | undefined;
-
-        while ((removeEvent = locationEvents.pop())) {
-            removeEvent();
-        }
-    }
-
-    Object.assign(api, {
-        flushLocation,
-    });
-
-    let removeOnFocus: () => void;
-
-    function prepareFocusHandling(editable: HTMLElement): void {
-        removeOnFocus = on(editable, "focus", onFocus, { once: true });
-
-        locationEvents.push(
-            removeOnFocus,
-            on(editable, "pointerdown", removeOnFocus, { once: true }),
-        );
-    }
-
-    function onBlur(): void {
-        prepareFocusHandling(editable);
-        latestLocation = saveSelection(editable);
-    }
-
-    /* Must execute before DOMMirror */
-    function saveLocation(editable: HTMLElement) {
-        const removeOnBlur = on(editable, "blur", onBlur);
-
-        return {
-            destroy() {
-                removeOnBlur();
-                flushLocation();
-            },
-        };
-    }
-
-    let editable: HTMLElement;
-
-    $: if (editable) {
-        for (const keyCombination of [
-            "Control+B",
-            "Control+U",
-            "Control+I",
-            "Control+R",
-        ]) {
-            registerShortcut(preventDefault, keyCombination, editable);
-        }
-    }
+    Object.assign(api, contentEditableAPI);
 </script>
 
 <anki-editable
     contenteditable="true"
-    bind:this={editable}
     use:resolve
     use:saveLocation
     use:prepareFocusHandling
-    use:mirrorAction={{ store: nodes }}
+    use:preventBuiltinContentEditableShortcuts
+    use:mirrorAction={mirrorOptions}
     use:managerAction={{}}
     on:focus
     on:blur
@@ -122,9 +53,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     anki-editable {
         display: block;
-        overflow-wrap: break-word;
-        overflow: auto;
         padding: 6px;
+        overflow: auto;
+        overflow-wrap: break-word;
 
         &:focus {
             outline: none;

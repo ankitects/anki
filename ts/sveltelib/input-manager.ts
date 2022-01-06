@@ -26,8 +26,10 @@ export interface Trigger<C> {
 
 export type Managed<C> = Pick<Trigger<C>, "remove"> & { callback: C };
 
+export type InputManagerAction = (element: HTMLElement) => { destroy(): void };
+
 interface InputManager {
-    manager(element: HTMLElement): { destroy(): void };
+    manager: InputManagerAction;
     getTriggerOnNextInsert(): Trigger<OnInsertCallback>;
     getTriggerOnInput(): Trigger<OnInputCallback>;
     getTriggerAfterInput(): Trigger<OnInputCallback>;

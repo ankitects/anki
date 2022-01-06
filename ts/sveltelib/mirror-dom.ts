@@ -4,7 +4,7 @@
 import { writable } from "svelte/store";
 import type { Writable } from "svelte/store";
 import storeSubscribe from "./store-subscribe";
-import { getSelection } from "../lib/cross-browser";
+// import { getSelection } from "../lib/cross-browser";
 
 const config = {
     childList: true,
@@ -13,15 +13,19 @@ const config = {
     characterData: true,
 };
 
-interface DOMMirror {
-    mirror(
-        element: Element,
-        params: { store: Writable<DocumentFragment> },
-    ): { destroy(): void };
+export type MirrorAction = (element: Element, params: { store: Writable<DocumentFragment> }) => { destroy(): void };
+
+interface DOMMirrorAPI {
+    mirror: MirrorAction,
     preventResubscription(): () => void;
 }
 
-function getDOMMirror(): DOMMirror {
+/**
+ * Allows you to keep an element's inner HTML bidirectionally
+ * in sync with a store containing a DocumentFragment.
+ * While the element has focus, this connection is tethered.
+ */
+function getDOMMirror(): DOMMirrorAPI  {
     const allowResubscription = writable(true);
 
     function preventResubscription() {
