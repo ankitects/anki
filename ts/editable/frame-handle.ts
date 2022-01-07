@@ -131,7 +131,7 @@ export abstract class FrameHandle extends HTMLElement {
         });
     }
 
-    attributeChangedCallback(name: string, old: string, newValue: string) {
+    attributeChangedCallback(name: string, old: string, newValue: string): void {
         if (newValue === old) {
             return;
         }
@@ -273,7 +273,7 @@ export class FrameEnd extends FrameHandle {
     }
 }
 
-export function checkWhetherMovingIntoHandle() {
+export function checkWhetherMovingIntoHandle(): void {
     for (const handle of handles) {
         const selection = getSelection(handle)!;
 
