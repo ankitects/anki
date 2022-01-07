@@ -142,10 +142,7 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
         this.removeMoveInStart = on(
             this,
             "moveinstart" as keyof HTMLElementEventMap,
-            () => {
-                console.log("moveinstart was connected");
-                this.component!.selectAll();
-            },
+            () => this.component!.selectAll(),
         );
 
         this.removeMoveInEnd = on(this, "moveinend" as keyof HTMLElementEventMap, () =>
