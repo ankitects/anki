@@ -3,6 +3,7 @@
 
 import { Stats } from "../lib/proto";
 import { studiedToday } from "../lib/time";
+import { localizedNumber } from "../lib/i18n";
 import * as tr from "../lib/ftl";
 
 export interface TodayData {
@@ -73,8 +74,8 @@ export function gatherData(data: Stats.GraphsResponse): TodayData {
         const studiedTodayText = studiedToday(answerCount, answerMillis / 1000);
         const againCount = answerCount - correctCount;
         let againCountText = tr.statisticsTodayAgainCount();
-        againCountText += ` ${againCount} (${((againCount / answerCount) * 100).toFixed(
-            2,
+        againCountText += ` ${againCount} (${localizedNumber(
+            (againCount / answerCount) * 100,
         )}%)`;
         const typeCounts = tr.statisticsTodayTypeCounts({
             learnCount,

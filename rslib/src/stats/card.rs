@@ -1,7 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{backend_proto as pb, card::CardQueue, prelude::*, revlog::RevlogEntry};
+use crate::{
+    backend_proto as pb,
+    card::{CardQueue, CardType},
+    prelude::*,
+    revlog::RevlogEntry,
+};
 
 impl Collection {
     pub fn card_stats(&mut self, cid: CardId) -> Result<pb::CardStatsResponse> {
@@ -66,10 +71,15 @@ impl Collection {
             ),
             CardQueue::Review | CardQueue::DayLearn => (
                 {
-                    let days_remaining = due - (self.timing_today()?.days_elapsed as i32);
-                    let mut due = TimestampSecs::now();
-                    due.0 += (days_remaining as i64) * 86_400;
-                    Some(pb::generic::Int64 { val: due.0 })
+                    if card.ctype == CardType::New {
+                        // new preview card not answered yet
+                        None
+                    } else {
+                        let days_remaining = due - (self.timing_today()?.days_elapsed as i32);
+                        let mut due = TimestampSecs::now();
+                        due.0 += (days_remaining as i64) * 86_400;
+                        Some(pb::generic::Int64 { val: due.0 })
+                    }
                 },
                 None,
             ),

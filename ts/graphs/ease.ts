@@ -14,6 +14,7 @@ import {
     scaleSequential,
     interpolateRdYlGn,
 } from "d3";
+import { localizedNumber } from "../lib/i18n";
 import type { Bin, ScaleLinear } from "d3";
 import * as tr from "../lib/ftl";
 import { CardType } from "../lib/cards";
@@ -107,7 +108,7 @@ export function prepareData(
         dispatch("search", { query });
     }
 
-    const xTickFormat = (num: number): string => `${num.toFixed(0)}%`;
+    const xTickFormat = (num: number): string => localizedNumber(num, 0) + "%";
     const tableData = [
         {
             label: tr.statisticsAverageEase(),

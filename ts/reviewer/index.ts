@@ -59,7 +59,34 @@ export function _queueAction(action: Callback): void {
     _updatingQueue = _updatingQueue.then(action);
 }
 
-function setInnerHTML(element: Element, html: string): void {
+// Setting innerHTML does not evaluate the contents of script tags, so we need
+// to add them again in order to trigger the download/evaluation. Promise resolves
+// when download/evaluation has completed.
+function replaceScript(oldScript: HTMLScriptElement): Promise<void> {
+    return new Promise((resolve) => {
+        const newScript = document.createElement("script");
+        let mustWaitForNetwork = true;
+        if (oldScript.src) {
+            newScript.addEventListener("load", () => resolve());
+            newScript.addEventListener("error", () => resolve());
+        } else {
+            mustWaitForNetwork = false;
+        }
+
+        for (const attribute of oldScript.attributes) {
+            newScript.setAttribute(attribute.name, attribute.value);
+        }
+
+        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+        oldScript.replaceWith(newScript);
+
+        if (!mustWaitForNetwork) {
+            resolve();
+        }
+    });
+}
+
+async function setInnerHTML(element: Element, html: string): Promise<void> {
     for (const oldVideo of element.getElementsByTagName("video")) {
         oldVideo.pause();
 
@@ -73,14 +100,7 @@ function setInnerHTML(element: Element, html: string): void {
     element.innerHTML = html;
 
     for (const oldScript of element.getElementsByTagName("script")) {
-        const newScript = document.createElement("script");
-
-        for (const attribute of oldScript.attributes) {
-            newScript.setAttribute(attribute.name, attribute.value);
-        }
-
-        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-        oldScript.parentNode!.replaceChild(newScript, oldScript);
+        await replaceScript(oldScript);
     }
 }
 
@@ -120,9 +140,9 @@ export async function _updateQA(
     qa.style.opacity = "0";
 
     try {
-        setInnerHTML(qa, html);
+        await setInnerHTML(qa, html);
     } catch (error) {
-        setInnerHTML(qa, renderError("html")(error));
+        await setInnerHTML(qa, renderError("html")(error));
     }
 
     await _runHook(onUpdateHook);

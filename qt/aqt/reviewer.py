@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Any, Callable, Literal, Match, Sequence, cast
 
+import aqt
 from anki import hooks
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount
@@ -458,6 +459,7 @@ class Reviewer:
             ("-", self.bury_current_card),
             ("!", self.suspend_current_note),
             ("@", self.suspend_current_card),
+            ("Ctrl+Alt+E", self.on_create_copy),
             ("Ctrl+Delete", self.delete_current_note),
             ("Ctrl+Shift+D", self.on_set_due),
             ("v", self.onReplayRecorded),
@@ -913,7 +915,11 @@ time = %(time)d;
                 ],
             ],
             [tr.studying_bury_card(), "-", self.bury_current_card],
-            [tr.actions_set_due_date(), "Ctrl+Shift+D", self.on_set_due],
+            [
+                tr.actions_with_ellipsis(action=tr.actions_set_due_date()),
+                "Ctrl+Shift+D",
+                self.on_set_due,
+            ],
             [tr.actions_suspend_card(), "@", self.suspend_current_card],
             [tr.actions_options(), "O", self.onOptions],
             [tr.actions_card_info(), "I", self.on_card_info],
@@ -922,6 +928,11 @@ time = %(time)d;
             [tr.studying_mark_note(), "*", self.toggle_mark_on_current_note],
             [tr.studying_bury_note(), "=", self.bury_current_note],
             [tr.studying_suspend_note(), "!", self.suspend_current_note],
+            [
+                tr.actions_with_ellipsis(action=tr.actions_create_copy()),
+                "Ctrl+Alt+E",
+                self.on_create_copy,
+            ],
             [tr.studying_delete_note(), "Ctrl+Delete", self.delete_current_note],
             None,
             [tr.actions_replay_audio(), "R", self.replayAudio],
@@ -1041,6 +1052,12 @@ time = %(time)d;
         bury_cards(parent=self.mw, card_ids=[self.card.id],).success(
             lambda res: tooltip(tr.studying_cards_buried(count=res.count))
         ).run_in_background()
+
+    def on_create_copy(self) -> None:
+        if self.card:
+            aqt.dialogs.open("AddCards", self.mw).set_note(
+                self.card.note(), self.card.did
+            )
 
     def delete_current_note(self) -> None:
         # need to check state because the shortcut is global to the main

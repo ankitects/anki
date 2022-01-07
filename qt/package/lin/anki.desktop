@@ -10,3 +10,4 @@ Terminal=false
 Type=Application
 Version=1.0
 MimeType=application/x-apkg;application/x-anki;application/x-ankiaddon;
+X-GNOME-SingleWindow=true

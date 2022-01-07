@@ -25,7 +25,7 @@ import {
     SearchDispatch,
 } from "./graph-helpers";
 import { clickableClass } from "./graph-styles";
-import { weekdayLabel, toLocaleString } from "../lib/i18n";
+import { weekdayLabel, localizedDate } from "../lib/i18n";
 import * as tr from "../lib/ftl";
 
 export interface GraphData {
@@ -151,7 +151,7 @@ export function renderCalendar(
         .interpolator((n) => interpolateBlues(cappedRange(n)!));
 
     function tooltipText(d: DayDatum): string {
-        const date = toLocaleString(d.date, {
+        const date = localizedDate(d.date, {
             weekday: "long",
             year: "numeric",
             month: "long",
