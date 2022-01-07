@@ -57,6 +57,11 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
 
     connectedCallback(): void {
         this.decorate();
+        this.addEventListeners();
+    }
+
+    disconnectedCallback(): void {
+        this.removeEventListeners();
     }
 
     attributeChangedCallback(name: string, old: string, newValue: string): void {
@@ -77,30 +82,26 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
         }
     }
 
-    removeMoveInStart?: () => void;
-    removeMoveInEnd?: () => void;
-
     decorate(): void {
-        this.frame =
-            this.frame ??
-            this.parentElement!.tagName === FrameElement.tagName.toUpperCase()
-                ? (this.parentElement as FrameElement)
-                : frameElement(this, this.block);
-
         if (this.hasAttribute("decorated")) {
+            this.undecorate();
+        }
+
+        if (this.parentElement?.tagName === FrameElement.tagName.toUpperCase()) {
+            this.frame = this.parentElement as FrameElement;
+        } else {
+            frameElement(this, this.block);
             return;
         }
 
-        this.frame.setAttribute("block", String(this.block));
-
-        const mathjax = (this.dataset.mathjax = this.innerText);
+        this.dataset.mathjax = this.innerText;
         this.innerHTML = "";
         this.style.whiteSpace = "normal";
 
         this.component = new Mathjax_svelte({
             target: this,
             props: {
-                mathjax,
+                mathjax: this.dataset.mathjax,
                 block: this.block,
                 fontSize: 20,
             },
@@ -112,36 +113,12 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
 
         this.setAttribute("contentEditable", "false");
         this.setAttribute("decorated", "true");
-
-        this.removeMoveInStart = on(
-            this.frame,
-            "moveinstart" as keyof HTMLElementEventMap,
-            () => this.component!.selectAll(),
-        );
-        this.removeMoveInEnd = on(
-            this.frame,
-            "moveinend" as keyof HTMLElementEventMap,
-            () => this.component!.selectAll(),
-        );
     }
 
     undecorate(): void {
-        if (!this.hasAttribute("decorated")) {
-            return;
+        if (this.parentElement?.tagName === FrameElement.tagName.toUpperCase()) {
+            this.parentElement.replaceWith(this);
         }
-
-        this.frame =
-            this.frame ??
-            this.parentElement?.tagName === FrameElement.tagName.toUpperCase()
-                ? (this.parentElement! as FrameElement)
-                : undefined;
-        this.frame?.replaceWith(this);
-        this.frame = undefined;
-
-        this.removeMoveInStart?.();
-        this.removeMoveInStart = undefined;
-        this.removeMoveInEnd?.();
-        this.removeMoveInEnd = undefined;
 
         this.innerHTML = this.dataset.mathjax ?? "";
         delete this.dataset.mathjax;
@@ -156,6 +133,32 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
 
         this.removeAttribute("contentEditable");
         this.removeAttribute("decorated");
+    }
+
+    removeMoveInStart?: () => void;
+    removeMoveInEnd?: () => void;
+
+    addEventListeners(): void {
+        this.removeMoveInStart = on(
+            this,
+            "moveinstart" as keyof HTMLElementEventMap,
+            () => {
+                console.log("moveinstart was connected");
+                this.component!.selectAll();
+            },
+        );
+
+        this.removeMoveInEnd = on(this, "moveinend" as keyof HTMLElementEventMap, () =>
+            this.component!.selectAll(),
+        );
+    }
+
+    removeEventListeners(): void {
+        this.removeMoveInStart?.();
+        this.removeMoveInStart = undefined;
+
+        this.removeMoveInEnd?.();
+        this.removeMoveInEnd = undefined;
     }
 
     placeCaretBefore(): void {

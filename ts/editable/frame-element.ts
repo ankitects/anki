@@ -101,7 +101,7 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
                 frameElement.after(text);
             }
 
-            target.data = spaceCharacter;
+            handleElement.refreshSpace();
             referenceNode = text;
         }
     }
@@ -182,8 +182,13 @@ abstract class FrameHandle extends HTMLElement {
         handles.add(this);
     }
 
+    removeMoveIn?: () => void;
+
     disconnectedCallback(): void {
         handles.delete(this);
+
+        this.removeMoveIn?.();
+        this.removeMoveIn = undefined;
     }
 
     abstract notifyMoveIn(offset: number): void;
@@ -218,6 +223,14 @@ export class FrameStart extends FrameHandle {
             this.dispatchEvent(new Event("movein"));
         }
     }
+
+    connectedCallback(): void {
+        super.connectedCallback();
+
+        this.removeMoveIn = on(this, "movein" as keyof HTMLElementEventMap, () =>
+            this.parentElement?.dispatchEvent(new Event("moveinstart")),
+        );
+    }
 }
 
 export class FrameEnd extends FrameHandle {
@@ -248,6 +261,14 @@ export class FrameEnd extends FrameHandle {
         if (offset === 0) {
             this.dispatchEvent(new Event("movein"));
         }
+    }
+
+    connectedCallback(): void {
+        super.connectedCallback();
+
+        this.removeMoveIn = on(this, "movein" as keyof HTMLElementEventMap, () =>
+            this.parentElement?.dispatchEvent(new Event("moveinend")),
+        );
     }
 }
 
@@ -328,9 +349,6 @@ export class FrameElement extends HTMLElement {
     handleStart?: FrameStart;
     handleEnd?: FrameEnd;
 
-    removeStart?: () => void;
-    removeEnd?: () => void;
-
     constructor() {
         super();
         this.block = hasBlockAttribute(this);
@@ -385,34 +403,14 @@ export class FrameElement extends HTMLElement {
 
         if (!this.handleStart.isConnected) {
             this.prepend(this.handleStart);
-            this.removeStart = on(
-                this.handleStart!,
-                "movein" as keyof HTMLElementEventMap,
-                () => this.dispatchEvent(new Event("moveinstart")),
-            );
         }
 
         if (!this.handleEnd.isConnected) {
             this.append(this.handleEnd);
-            this.removeEnd = on(
-                this.handleEnd!,
-                "movein" as keyof HTMLElementEventMap,
-                () => this.dispatchEvent(new Event("moveinend")),
-            );
         }
     }
 
-    clearEventListeners(): void {
-        this.removeStart?.();
-        this.removeStart = undefined;
-
-        this.removeEnd?.();
-        this.removeEnd = undefined;
-    }
-
     removeHandles(): void {
-        this.clearEventListeners();
-
         this.handleStart?.remove();
         this.handleStart = undefined;
 
@@ -420,13 +418,35 @@ export class FrameElement extends HTMLElement {
         this.handleEnd = undefined;
     }
 
+    removeStart?: () => void;
+    removeEnd?: () => void;
+
+    addEventListeners(): void {
+        this.removeStart = on(this, "moveinstart" as keyof HTMLElementEventMap, () =>
+            this.framedElement?.dispatchEvent(new Event("moveinstart")),
+        );
+
+        this.removeEnd = on(this, "moveinend" as keyof HTMLElementEventMap, () =>
+            this.framedElement?.dispatchEvent(new Event("moveinend")),
+        );
+    }
+
+    removeEventListeners(): void {
+        this.removeStart?.();
+        this.removeStart = undefined;
+
+        this.removeEnd?.();
+        this.removeEnd = undefined;
+    }
+
     connectedCallback(): void {
         frameElements.add(this);
+        this.addEventListeners();
     }
 
     disconnectedCallback(): void {
-        this.clearEventListeners();
         frameElements.delete(this);
+        this.removeEventListeners();
     }
 
     insertLineBreak(offset: number): void {
@@ -459,7 +479,7 @@ export class FrameElement extends HTMLElement {
     }
 }
 
-document.addEventListener("selectionchange", () => {
+function checkWhetherMovingIntoHandle() {
     for (const handle of handles) {
         const selection = getSelection(handle)!;
 
@@ -467,7 +487,9 @@ document.addEventListener("selectionchange", () => {
             handle.notifyMoveIn(selection.anchorOffset);
         }
     }
+}
 
+function checkIfInsertingLineBreakAdjacentToBlockFrame() {
     for (const frame of frameElements) {
         if (!frame.block) {
             continue;
@@ -479,7 +501,14 @@ document.addEventListener("selectionchange", () => {
             frame.insertLineBreak(selection.anchorOffset);
         }
     }
-});
+}
+
+function onSelectionChange() {
+    checkWhetherMovingIntoHandle();
+    checkIfInsertingLineBreakAdjacentToBlockFrame();
+}
+
+document.addEventListener("selectionchange", onSelectionChange);
 
 export function frameElement(element: HTMLElement, block: boolean): FrameElement {
     const frame = document.createElement(FrameElement.tagName) as FrameElement;
