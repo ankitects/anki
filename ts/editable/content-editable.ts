@@ -6,7 +6,7 @@ import type { SelectionLocation } from "../domlib/location";
 
 const locationEvents: (() => void)[] = [];
 
-function flushLocation() {
+function flushLocation(): void {
     let removeEvent: (() => void) | undefined;
 
     while ((removeEvent = locationEvents.pop())) {
@@ -46,7 +46,7 @@ export function prepareFocusHandling(editable: HTMLElement): void {
 }
 
 /* Must execute before DOMMirror */
-export function saveLocation(editable: HTMLElement) {
+export function saveLocation(editable: HTMLElement): { destroy(): void } {
     const removeOnBlur = on(editable, "blur", onBlur);
 
     return {

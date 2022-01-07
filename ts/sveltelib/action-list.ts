@@ -17,9 +17,7 @@ type Action<E extends HTMLElement, P> = (
  * A helper function for treating a list of Svelte actions as a single Svelte action
  * and use it with a single `use:` directive
  */
-function iterateActions<E extends HTMLElement, P>(
-    actions: Action<E, P>[],
-): Action<E, P> {
+function actionList<E extends HTMLElement, P>(actions: Action<E, P>[]): Action<E, P> {
     return function action(element: E, params: P): ActionReturn<P> | void {
         const results = actions.map((action) => action(element, params)).filter(truthy);
 
@@ -38,4 +36,4 @@ function iterateActions<E extends HTMLElement, P>(
     };
 }
 
-export default iterateActions;
+export default actionList;

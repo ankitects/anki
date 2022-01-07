@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { Writable } from "svelte/store";
     import { updateAllState } from "../components/WithState.svelte";
-    import iterateActions from "../sveltelib/iterate-actions";
+    import actionList from "../sveltelib/action-list";
     import contentEditableAPI, {
         saveLocation,
         prepareFocusHandling,
@@ -24,12 +24,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let mirrors: MirrorAction[];
     export let nodes: Writable<DocumentFragment>;
 
-    const mirrorAction = iterateActions(mirrors);
+    const mirrorAction = actionList(mirrors);
     const mirrorOptions = { store: nodes };
 
     export let managers: InputManagerAction[];
 
-    const managerAction = iterateActions(managers);
+    const managerAction = actionList(managers);
 
     export let api: Partial<ContentEditableAPI>;
 
