@@ -465,7 +465,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         >
                             <TagInput
                                 id={tag.id}
-                                class="position-absolute start-0 top-0 ps-2 py-0"
+                                class="position-absolute start-0 top-0 bottom-0 ps-2 py-0"
                                 disabled={autocompleteDisabled}
                                 bind:name={activeName}
                                 bind:input={activeInput}
@@ -531,7 +531,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         :global(.tag-input) {
             /* recreates positioning of Tag component */
             border-left: 1px solid transparent;
-            border-bottom: 2px solid transparent;
         }
 
         :global(.cap-items) {
