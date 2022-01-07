@@ -529,13 +529,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .adjust-position {
         :global(.tag-input) {
-            /* recreates positioning of Tag component */
+            /* recreates positioning of Tag component
+             * so that the text does not move when accepting */
             border-left: 1px solid transparent;
         }
 
         :global(.cap-items) {
             max-height: 7rem;
-            overflow-y: scroll;
+            overflow-y: auto;
         }
     }
 </style>
