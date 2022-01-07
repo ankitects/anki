@@ -155,6 +155,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             width = Math.trunc(naturalWidth! * (height / naturalHeight!));
         }
 
+        /**
+         * Image resizing add-ons previously used image.style.width to set the
+         * preferred width of an image. In these cases, if we'd only set
+         * image.width, there would be no visible effect on the image.
+         * To avoid confusion with users we'll clear image.style.width (for now).
+         */
+        activeImage!.style.removeProperty("width");
+        if (activeImage!.getAttribute("style")?.length === 0) {
+            activeImage!.removeAttribute("style");
+        }
+
         activeImage!.width = width;
     }
 
