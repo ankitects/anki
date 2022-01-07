@@ -91,6 +91,9 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
             this.frame = this.parentElement as FrameElement;
         } else {
             frameElement(this, this.block);
+            /* Framing will place this element inside of an anki-frame element,
+             * causing the connectedCallback to be called again.
+             * If we'd continue decorating at this point, we'd loose all the information */
             return;
         }
 

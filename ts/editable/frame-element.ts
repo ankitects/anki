@@ -251,6 +251,14 @@ function onSelectionChange() {
 
 document.addEventListener("selectionchange", onSelectionChange);
 
+/**
+ * This function wraps an element into a "frame", which looks like this:
+ * <anki-frame>
+ *     <frame-handle-start> </frame-handle-start>
+ *     <your-element ... />
+ *     <frame-handle-end> </frame-handle-start>
+ * </anki-frame>
+ */
 export function frameElement(element: HTMLElement, block: boolean): FrameElement {
     const frame = document.createElement(FrameElement.tagName) as FrameElement;
     frame.setAttribute("block", String(block));
