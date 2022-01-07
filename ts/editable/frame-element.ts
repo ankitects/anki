@@ -274,6 +274,7 @@ export class FrameEnd extends FrameHandle {
 
 function restoreFrameHandles(mutations: MutationRecord[]): void {
     let referenceNode: Node | null = null;
+
     for (const mutation of mutations) {
         const frameElement = mutation.target as FrameElement;
         const framed = frameElement.querySelector(frameElement.frames!) as HTMLElement;
@@ -304,10 +305,12 @@ function restoreFrameHandles(mutations: MutationRecord[]): void {
 
         for (const node of mutation.removedNodes) {
             if (
-                !framed &&
+                /* avoid triggering when (un)mounting whole frame */
+                mutations.length === 1 &&
                 nodeIsElement(node) &&
-                node.matches(frameElement.frames ?? ":not(*)")
+                isFrameHandle(node)
             ) {
+                /* When deleting from _outer_ position in FrameHandle to _inner_ position */
                 frameElement.remove();
                 continue;
             }
