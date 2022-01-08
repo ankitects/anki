@@ -5,14 +5,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import WithDropdown from "../../components/WithDropdown.svelte";
     import MathjaxMenu from "./MathjaxMenu.svelte";
+    import HandleSelection from "../HandleSelection.svelte";
+    import HandleBackground from "../HandleBackground.svelte";
+    import HandleControl from "../HandleControl.svelte";
     import { onMount, onDestroy, tick } from "svelte";
     import { writable } from "svelte/store";
     import { getRichTextInput } from "../RichTextInput.svelte";
-    import { placeCaretAfter } from "../../domlib/place-caret";
     import { noop } from "../../lib/functional";
     import { on } from "../../lib/events";
+    import { Mathjax } from "../../editable/mathjax-element";
 
     const { container, api } = getRichTextInput();
+    const { flushLocation, preventResubscription } = api;
 
     const code = writable("");
 
@@ -21,14 +25,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let allow = noop;
     let unsubscribe = noop;
 
-    const caretKeyword = "caretAfter";
-
     function showHandle(image: HTMLImageElement): void {
-        allow = api.preventResubscription();
+        allow = preventResubscription();
 
         activeImage = image;
-        image.setAttribute(caretKeyword, "true");
-        mathjaxElement = activeImage.closest("anki-mathjax")!;
+        mathjaxElement = activeImage.closest(Mathjax.tagName)!;
 
         code.set(mathjaxElement.dataset.mathjax ?? "");
         unsubscribe = code.subscribe((value: string) => {
@@ -36,7 +37,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    async function clearImage(): Promise<void> {
+    let selectAll = false;
+
+    function placeHandle(after: boolean): void {
+        if (after) {
+            (mathjaxElement as any).placeCaretAfter();
+        } else {
+            (mathjaxElement as any).placeCaretBefore();
+        }
+    }
+
+    async function resetHandle(): Promise<void> {
+        flushLocation();
+        selectAll = false;
+
         if (activeImage && mathjaxElement) {
             unsubscribe();
             activeImage = null;
@@ -44,26 +58,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         await tick();
-        container.focus();
-    }
-
-    function placeCaret(image: HTMLImageElement): void {
-        placeCaretAfter(image);
-        image.removeAttribute(caretKeyword);
-    }
-
-    async function resetHandle(deletes: boolean = false): Promise<void> {
-        await clearImage();
-
-        const image = container.querySelector(`[${caretKeyword}]`);
-        if (image) {
-            placeCaret(image as HTMLImageElement);
-
-            if (deletes) {
-                image.remove();
-            }
-        }
-
         allow();
     }
 
@@ -81,13 +75,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         showHandle(detail);
     }
 
+    async function showSelectAll({
+        detail,
+    }: CustomEvent<HTMLImageElement>): Promise<void> {
+        await resetHandle();
+        selectAll = true;
+        showHandle(detail);
+    }
+
     onMount(() => {
         const removeClick = on(container, "click", maybeShowHandle);
-        const removeFocus = on(container, "focusmathjax" as any, showAutofocusHandle);
+        const removeCaretAfter = on(
+            container,
+            "movecaretafter" as any,
+            showAutofocusHandle,
+        );
+        const removeSelectAll = on(container, "selectall" as any, showSelectAll);
 
         return () => {
             removeClick();
-            removeFocus();
+            removeCaretAfter();
+            removeSelectAll();
         };
     });
 
@@ -131,15 +139,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 >
     {#if activeImage && mathjaxElement}
         <MathjaxMenu
-            {activeImage}
-            {mathjaxElement}
-            {container}
-            {errorMessage}
+            element={mathjaxElement}
             {code}
+            {selectAll}
             bind:updateSelection
-            on:mount={(event) => (dropdownApi = createDropdown(event.detail.selection))}
-            on:reset={() => resetHandle(false)}
-            on:delete={() => resetHandle(true)}
-        />
+            on:reset={resetHandle}
+            on:moveoutstart={() => {
+                placeHandle(false);
+                resetHandle();
+            }}
+            on:moveoutend={() => {
+                placeHandle(true);
+                resetHandle();
+            }}
+        >
+            <HandleSelection
+                image={activeImage}
+                {container}
+                bind:updateSelection
+                on:mount={(event) =>
+                    (dropdownApi = createDropdown(event.detail.selection))}
+            >
+                <HandleBackground tooltip={errorMessage} />
+                <HandleControl offsetX={1} offsetY={1} />
+            </HandleSelection>
+        </MathjaxMenu>
     {/if}
 </WithDropdown>

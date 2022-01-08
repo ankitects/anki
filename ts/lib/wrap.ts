@@ -1,17 +1,21 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { getSelection } from "./cross-browser";
+import { getSelection, getRange } from "./cross-browser";
 
 function wrappedExceptForWhitespace(text: string, front: string, back: string): string {
     const match = text.match(/^(\s*)([^]*?)(\s*)$/)!;
     return match[1] + front + match[2] + back + match[3];
 }
 
-function moveCursorPastPostfix(selection: Selection, postfix: string): void {
-    const range = selection.getRangeAt(0);
+function moveCursorPastPostfix(
+    selection: Selection,
+    range: Range,
+    postfix: string,
+): void {
     range.setStart(range.startContainer, range.startOffset - postfix.length);
     range.collapse(true);
+
     selection.removeAllRanges();
     selection.addRange(range);
 }
@@ -23,7 +27,12 @@ export function wrapInternal(
     plainText: boolean,
 ): void {
     const selection = getSelection(base)!;
-    const range = selection.getRangeAt(0);
+    const range = getRange(selection);
+
+    if (!range) {
+        return;
+    }
+
     const content = range.cloneContents();
     const span = document.createElement("span");
     span.appendChild(content);
@@ -42,6 +51,6 @@ export function wrapInternal(
             "<anki-mathjax",
         )
     ) {
-        moveCursorPastPostfix(selection, back);
+        moveCursorPastPostfix(selection, range, back);
     }
 }

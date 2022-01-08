@@ -28,6 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import FocusTrap from "./FocusTrap.svelte";
     import { writable } from "svelte/store";
     import { onMount, setContext as svelteSetContext } from "svelte";
     import { fontFamilyKey, fontSizeKey } from "../lib/context-keys";
@@ -46,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let autofocus = false;
 
     let editingArea: HTMLElement;
-    let focusTrap: HTMLInputElement;
+    let focusTrap: FocusTrap;
 
     const inputsStore = writable<EditingInputAPI[]>([]);
     $: editingInputs = $inputsStore;
@@ -67,13 +68,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function focusEditingInputIfFocusTrapFocused(): void {
-        if (document.activeElement === focusTrap) {
+        if (focusTrap && focusTrap.isFocusTrap(document.activeElement!)) {
             focusEditingInputIfAvailable();
         }
     }
 
     $: {
         $inputsStore;
+        /**
+         * Triggers when all editing inputs are hidden,
+         * the editor field has focus, and then some
+         * editing input is shown
+         */
         focusEditingInputIfFocusTrapFocused();
     }
 
@@ -111,7 +117,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    export let api: Partial<EditingAreaAPI> = {};
+    export let api: Partial<EditingAreaAPI>;
 
     Object.assign(
         api,
@@ -130,13 +136,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<input
-    bind:this={focusTrap}
-    readonly
-    tabindex="-1"
-    class="focus-trap"
-    on:focus={focusEditingInputInsteadIfAvailable}
-/>
+<FocusTrap bind:this={focusTrap} on:focus={focusEditingInputInsteadIfAvailable} />
 
 <div bind:this={editingArea} class="editing-area" on:focusout={trapFocusOnBlurOut}>
     <slot />
@@ -144,6 +144,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .editing-area {
+        display: grid;
+        /* TODO allow configuration of grid #1503 */
+        /* grid-template-columns: repeat(2, 1fr); */
+
         position: relative;
         background: var(--frame-bg);
         border-radius: 0 0 5px 5px;
@@ -151,19 +155,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &:focus {
             outline: none;
         }
-    }
-
-    .focus-trap {
-        display: block;
-        width: 0px;
-        height: 0;
-        padding: 0;
-        margin: 0;
-        border: none;
-        outline: none;
-        -webkit-appearance: none;
-        background: none;
-        resize: none;
-        appearance: none;
     }
 </style>

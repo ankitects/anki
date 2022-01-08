@@ -23,6 +23,10 @@ export function checkIfInputKey(event: KeyboardEvent): boolean {
     return event.location === GENERAL_KEY || event.location === NUMPAD_KEY;
 }
 
+export function keyboardEventIsPrintableKey(event: KeyboardEvent): boolean {
+    return event.key.length === 1;
+}
+
 export const checkModifiers =
     (required: Modifier[], optional: Modifier[] = []) =>
     (event: KeyboardEvent): boolean => {

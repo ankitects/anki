@@ -3,72 +3,122 @@
 
 import { writable } from "svelte/store";
 import type { Writable } from "svelte/store";
+import { keyboardEventIsPrintableKey } from "../lib/keys";
 import { on } from "../lib/events";
-import { nodeIsText } from "../lib/dom";
+import { id } from "../lib/functional";
 import { getSelection } from "../lib/cross-browser";
 
-export type OnInsertCallback = ({ node }: { node: Node }) => Promise<void>;
+export type OnInsertCallback = ({
+    node,
+    event,
+}: {
+    node: Node;
+    event: InputEvent;
+}) => Promise<void>;
 
-export interface OnNextInsertTrigger {
-    add: (callback: OnInsertCallback) => void;
-    remove: () => void;
+export type OnInputCallback = ({ event }: { event: InputEvent }) => Promise<void>;
+
+export interface Trigger<C> {
+    add(callback: C): void;
+    remove(): void;
     active: Writable<boolean>;
 }
 
+export type Managed<C> = Pick<Trigger<C>, "remove"> & { callback: C };
+
+export type InputManagerAction = (element: HTMLElement) => { destroy(): void };
+
 interface InputManager {
-    manager(element: HTMLElement): { destroy(): void };
-    getTriggerOnNextInsert(): OnNextInsertTrigger;
+    manager: InputManagerAction;
+    getTriggerOnNextInsert(): Trigger<OnInsertCallback>;
+    getTriggerOnInput(): Trigger<OnInputCallback>;
+    getTriggerAfterInput(): Trigger<OnInputCallback>;
 }
 
-function getInputManager(): InputManager {
-    const onInsertText: { callback: OnInsertCallback; remove: () => void }[] = [];
+function trigger<C>(list: Managed<C>[]) {
+    return function getTrigger(): Trigger<C> {
+        const index = list.length++;
+        const active = writable(false);
 
-    function cancelInsertText(): void {
-        onInsertText.length = 0;
-    }
-
-    function cancelIfInsertText(event: KeyboardEvent): void {
-        if (event.key.length !== 1) {
-            cancelInsertText();
+        function remove() {
+            delete list[index];
+            active.set(false);
         }
-    }
+
+        function add(callback: C): void {
+            list[index] = { callback, remove };
+            active.set(true);
+        }
+
+        return {
+            add,
+            remove,
+            active,
+        };
+    };
+}
+
+const nbsp = "\xa0";
+
+/**
+ * An interface that allows Svelte components to attach event listeners via triggers.
+ * They will be attached to the component(s) that install the manager.
+ * Prevents that too many event listeners are attached and allows for some
+ * coordination between them.
+ */
+function getInputManager(): InputManager {
+    const beforeInput: Managed<OnInputCallback>[] = [];
+    const beforeInsertText: Managed<OnInsertCallback>[] = [];
 
     async function onBeforeInput(event: InputEvent): Promise<void> {
-        if (event.inputType === "insertText" && onInsertText.length > 0) {
-            const nbsp = " ";
+        const selection = getSelection(event.target! as Node)!;
+        const range = selection.getRangeAt(0);
+
+        for (const { callback } of beforeInput.filter(id)) {
+            await callback({ event });
+        }
+
+        const filteredBeforeInsertText = beforeInsertText.filter(id);
+
+        if (event.inputType === "insertText" && filteredBeforeInsertText.length > 0) {
+            event.preventDefault();
             const textContent = event.data === " " ? nbsp : event.data ?? nbsp;
             const node = new Text(textContent);
 
-            const selection = getSelection(event.target! as Node)!;
-            const range = selection.getRangeAt(0);
-
             range.deleteContents();
-
-            if (nodeIsText(range.startContainer) && range.startOffset === 0) {
-                const parent = range.startContainer.parentNode!;
-                parent.insertBefore(node, range.startContainer);
-            } else if (
-                nodeIsText(range.endContainer) &&
-                range.endOffset === range.endContainer.length
-            ) {
-                const parent = range.endContainer.parentNode!;
-                parent.insertBefore(node, range.endContainer.nextSibling!);
-            } else {
-                range.insertNode(node);
-            }
-
+            range.insertNode(node);
             range.selectNode(node);
             range.collapse(false);
 
-            for (const { callback, remove } of onInsertText) {
-                await callback({ node });
+            for (const { callback, remove } of filteredBeforeInsertText) {
+                await callback({ node, event });
                 remove();
             }
 
-            event.preventDefault();
+            /* we call explicitly because we prevented default */
+            callAfterInputHooks(event);
         }
+    }
 
-        cancelInsertText();
+    const afterInput: Managed<OnInputCallback>[] = [];
+
+    async function callAfterInputHooks(event: InputEvent): Promise<void> {
+        for (const { callback } of afterInput.filter(id)) {
+            await callback({ event });
+        }
+    }
+
+    function clearInsertText(): void {
+        for (const { remove } of beforeInsertText.filter(id)) {
+            remove();
+        }
+    }
+
+    function clearInsertTextIfUnprintableKey(event: KeyboardEvent): void {
+        /* using arrow keys should cancel */
+        if (!keyboardEventIsPrintableKey(event)) {
+            clearInsertText();
+        }
     }
 
     function onInput(event: Event): void {
@@ -92,55 +142,33 @@ function getInputManager(): InputManager {
 
     function manager(element: HTMLElement): { destroy(): void } {
         const removeBeforeInput = on(element, "beforeinput", onBeforeInput);
-        const removePointerDown = on(element, "pointerdown", cancelInsertText);
-        const removeBlur = on(element, "blur", cancelInsertText);
-        const removeKeyDown = on(
+        const removeInput = on(
             element,
-            "keydown",
-            cancelIfInsertText as EventListener,
+            "input",
+            onInput as unknown as (event: Event) => void,
         );
-        const removeInput = on(element, "input", onInput);
+
+        const removeBlur = on(element, "blur", clearInsertText);
+        const removePointerDown = on(element, "pointerdown", clearInsertText);
+        const removeKeyDown = on(element, "keydown", clearInsertTextIfUnprintableKey);
 
         return {
             destroy() {
+                removeInput();
                 removeBeforeInput();
-                removePointerDown();
                 removeBlur();
+                removePointerDown();
                 removeKeyDown();
                 removeInput();
             },
         };
     }
 
-    function getTriggerOnNextInsert(): OnNextInsertTrigger {
-        const active = writable(false);
-        let index = NaN;
-
-        function remove() {
-            if (!Number.isNaN(index)) {
-                delete onInsertText[index];
-                active.set(false);
-                index = NaN;
-            }
-        }
-
-        function add(callback: OnInsertCallback): void {
-            if (Number.isNaN(index)) {
-                index = onInsertText.push({ callback, remove });
-                active.set(true);
-            }
-        }
-
-        return {
-            add,
-            remove,
-            active,
-        };
-    }
-
     return {
         manager,
-        getTriggerOnNextInsert,
+        getTriggerOnNextInsert: trigger(beforeInsertText),
+        getTriggerOnInput: trigger(beforeInput),
+        getTriggerAfterInput: trigger(afterInput),
     };
 }
 

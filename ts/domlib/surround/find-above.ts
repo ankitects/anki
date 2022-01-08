@@ -23,9 +23,7 @@ export function findClosest(
         }
 
         current =
-            current.isSameNode(base) || !current.parentElement
-                ? null
-                : current.parentElement;
+            current === base || !current.parentElement ? null : current.parentElement;
     }
 
     return current;
@@ -51,9 +49,7 @@ export function findFarthest(
         }
 
         current =
-            current.isSameNode(base) || !current.parentElement
-                ? null
-                : current.parentElement;
+            current === base || !current.parentElement ? null : current.parentElement;
     }
 
     return found;
