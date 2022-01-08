@@ -139,7 +139,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        gap: 0.5em;
         white-space: nowrap;
     }
 
@@ -148,6 +147,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         flex-direction: column;
         justify-content: center;
         align-items: center;
+
+        &:not(:last-child) {
+            margin-right: 0.5em;
+        }
     }
 
     .column-head {
