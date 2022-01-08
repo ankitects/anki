@@ -5,19 +5,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import Shortcut from "../../components/Shortcut.svelte";
     import DropdownMenu from "../../components/DropdownMenu.svelte";
-    import HandleSelection from "../HandleSelection.svelte";
-    import HandleBackground from "../HandleBackground.svelte";
-    import HandleControl from "../HandleControl.svelte";
     import MathjaxEditor from "./MathjaxEditor.svelte";
     import MathjaxButtons from "./MathjaxButtons.svelte";
     import type { Writable } from "svelte/store";
     import { createEventDispatcher } from "svelte";
+    import { placeCaretAfter } from "../../domlib/place-caret";
 
-    export let activeImage: HTMLImageElement;
-    export let mathjaxElement: HTMLElement;
-    export let container: HTMLElement;
-    export let errorMessage: string;
+    export let element: Element;
     export let code: Writable<string>;
+    export let selectAll: boolean;
 
     const acceptShortcut = "Enter";
     const newlineShortcut = "Shift+Enter";
@@ -38,26 +34,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="mathjax-menu">
-    <HandleSelection image={activeImage} {container} bind:updateSelection on:mount>
-        <HandleBackground tooltip={errorMessage} />
-        <HandleControl offsetX={1} offsetY={1} />
-    </HandleSelection>
+    <slot />
 
     <DropdownMenu>
         <MathjaxEditor
             {acceptShortcut}
             {newlineShortcut}
             {code}
+            {selectAll}
             on:blur={() => dispatch("reset")}
+            on:moveoutstart
+            on:moveoutend
         />
 
-        <Shortcut keyCombination={acceptShortcut} on:action={() => dispatch("reset")} />
+        <Shortcut
+            keyCombination={acceptShortcut}
+            on:action={() => dispatch("moveoutend")}
+        />
         <Shortcut keyCombination={newlineShortcut} on:action={appendNewline} />
 
         <MathjaxButtons
-            {activeImage}
-            {mathjaxElement}
-            on:delete={() => dispatch("delete")}
+            {element}
+            on:delete={() => {
+                placeCaretAfter(element);
+                element.remove();
+                dispatch("reset");
+            }}
         />
     </DropdownMenu>
 </div>

@@ -5,11 +5,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import type CustomStyles from "./CustomStyles.svelte";
     import type { EditingInputAPI } from "./EditingArea.svelte";
+    import type { ContentEditableAPI } from "../editable/ContentEditable.svelte";
     import contextProperty from "../sveltelib/context-property";
-    import type { OnNextInsertTrigger } from "../sveltelib/input-manager";
+    import type {
+        Trigger,
+        OnInsertCallback,
+        OnInputCallback,
+    } from "../sveltelib/input-manager";
     import { pageTheme } from "../sveltelib/theme";
 
-    export interface RichTextInputAPI extends EditingInputAPI {
+    export interface RichTextInputAPI extends EditingInputAPI, ContentEditableAPI {
         name: "rich-text";
         shadowRoot: Promise<ShadowRoot>;
         element: Promise<HTMLElement>;
@@ -17,7 +22,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         refocus(): void;
         toggle(): boolean;
         preventResubscription(): () => void;
-        getTriggerOnNextInsert(): OnNextInsertTrigger;
+        getTriggerOnNextInsert(): Trigger<OnInsertCallback>;
+        getTriggerOnInput(): Trigger<OnInputCallback>;
+        getTriggerAfterInput(): Trigger<OnInputCallback>;
     }
 
     export interface RichTextInputContextAPI {
@@ -31,20 +38,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         contextProperty<RichTextInputContextAPI>(key);
 
     export { getRichTextInput, hasRichTextInput };
+
+    import getDOMMirror from "../sveltelib/mirror-dom";
+    import getInputManager from "../sveltelib/input-manager";
+
+    const {
+        manager: globalInputManager,
+        getTriggerAfterInput,
+        getTriggerOnInput,
+        getTriggerOnNextInsert,
+    } = getInputManager();
+
+    export { getTriggerAfterInput, getTriggerOnInput, getTriggerOnNextInsert };
 </script>
 
 <script lang="ts">
     import RichTextStyles from "./RichTextStyles.svelte";
     import SetContext from "./SetContext.svelte";
     import ContentEditable from "../editable/ContentEditable.svelte";
-
     import { onMount, getAllContexts } from "svelte";
     import {
         nodeIsElement,
         nodeContainsInlineContent,
         fragmentToString,
-        caretToEnd,
     } from "../lib/dom";
+    import { placeCaretAfterContent } from "../domlib/place-caret";
     import { getDecoratedElements } from "./DecoratedElements.svelte";
     import { getEditingArea } from "./EditingArea.svelte";
     import { promiseWithResolver } from "../lib/promise";
@@ -155,40 +173,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         };
     }
 
-    import getDOMMirror from "../sveltelib/mirror-dom";
-    import getInputManager from "../sveltelib/input-manager";
-
     const { mirror, preventResubscription } = getDOMMirror();
-    const { manager, getTriggerOnNextInsert } = getInputManager();
+    const localInputManager = getInputManager();
 
     function moveCaretToEnd() {
-        richTextPromise.then(caretToEnd);
+        richTextPromise.then(placeCaretAfterContent);
     }
 
-    const allContexts = getAllContexts();
-
-    function attachContentEditable(element: Element, { stylesDidLoad }): void {
-        stylesDidLoad.then(
-            () =>
-                new ContentEditable({
-                    target: element.shadowRoot!,
-                    props: {
-                        nodes,
-                        resolve,
-                        mirror,
-                        inputManager: manager,
-                    },
-                    context: allContexts,
-                }),
-        );
-    }
-
-    export const api: RichTextInputAPI = {
+    export const api = {
         name: "rich-text",
         shadowRoot: shadowPromise,
         element: richTextPromise,
         focus() {
-            richTextPromise.then((richText) => richText.focus());
+            richTextPromise.then((richText) => {
+                richText.focus();
+            });
         },
         refocus() {
             richTextPromise.then((richText) => {
@@ -203,8 +202,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         },
         moveCaretToEnd,
         preventResubscription,
-        getTriggerOnNextInsert,
-    };
+        getTriggerOnNextInsert: localInputManager.getTriggerOnNextInsert,
+        getTriggerOnInput: localInputManager.getTriggerOnInput,
+        getTriggerAfterInput: localInputManager.getTriggerAfterInput,
+    } as RichTextInputAPI;
+
+    const allContexts = getAllContexts();
+
+    function attachContentEditable(element: Element, { stylesDidLoad }): void {
+        stylesDidLoad.then(
+            () =>
+                new ContentEditable({
+                    target: element.shadowRoot!,
+                    props: {
+                        nodes,
+                        resolve,
+                        mirrors: [mirror],
+                        managers: [globalInputManager, localInputManager.manager],
+                        api,
+                    },
+                    context: allContexts,
+                }),
+        );
+    }
 
     function pushUpdate(): void {
         api.focusable = !hidden;
@@ -230,30 +250,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<RichTextStyles
-    color={$pageTheme.isDark ? "white" : "black"}
-    let:attachToShadow={attachStyles}
-    let:promise={stylesPromise}
-    let:stylesDidLoad
->
-    <div
-        class:hidden
-        class:night-mode={$pageTheme.isDark}
-        use:attachShadow
-        use:attachStyles
-        use:attachContentEditable={{ stylesDidLoad }}
-        on:focusin
-        on:focusout
-    />
+<div class="rich-text-input">
+    <RichTextStyles
+        color={$pageTheme.isDark ? "white" : "black"}
+        let:attachToShadow={attachStyles}
+        let:promise={stylesPromise}
+        let:stylesDidLoad
+    >
+        <div
+            class="rich-text-editable"
+            class:hidden
+            class:night-mode={$pageTheme.isDark}
+            use:attachShadow
+            use:attachStyles
+            use:attachContentEditable={{ stylesDidLoad }}
+            on:focusin
+            on:focusout
+        />
 
-    <div class="editable-widgets">
-        {#await Promise.all([richTextPromise, stylesPromise]) then [container, styles]}
-            <SetContext setter={set} value={{ container, styles, api }}>
-                <slot />
-            </SetContext>
-        {/await}
-    </div>
-</RichTextStyles>
+        <div class="rich-text-widgets">
+            {#await Promise.all( [richTextPromise, stylesPromise], ) then [container, styles]}
+                <SetContext setter={set} value={{ container, styles, api }}>
+                    <slot />
+                </SetContext>
+            {/await}
+        </div>
+    </RichTextStyles>
+</div>
 
 <style lang="scss">
     .hidden {

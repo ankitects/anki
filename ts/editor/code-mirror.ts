@@ -45,3 +45,8 @@ export const gutterOptions: CodeMirror.EditorConfiguration = {
     lineNumbers: true,
     foldGutter: true,
 };
+
+export function focusAndCaretAfter(editor: CodeMirror.Editor): void {
+    editor.focus();
+    editor.setCursor(editor.lineCount(), 0);
+}

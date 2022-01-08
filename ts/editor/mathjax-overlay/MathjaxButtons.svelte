@@ -11,9 +11,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../../lib/ftl";
     import { inlineIcon, blockIcon, deleteIcon } from "./icons";
     import { createEventDispatcher } from "svelte";
+    import { hasBlockAttribute } from "../../lib/dom";
 
-    export let activeImage: HTMLImageElement;
-    export let mathjaxElement: HTMLElement;
+    export let element: Element;
+
+    $: isBlock = hasBlockAttribute(element);
+
+    function updateBlock() {
+        element.setAttribute("block", String(isBlock));
+    }
 
     const dispatch = createEventDispatcher();
 </script>
@@ -24,8 +30,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <ButtonGroupItem>
                 <IconButton
                     tooltip={tr.editingMathjaxInline()}
-                    active={activeImage.getAttribute("block") === "true"}
-                    on:click={() => mathjaxElement.setAttribute("block", "false")}
+                    active={!isBlock}
+                    on:click={() => {
+                        isBlock = false;
+                        updateBlock();
+                    }}
                     on:click>{@html inlineIcon}</IconButton
                 >
             </ButtonGroupItem>
@@ -33,8 +42,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <ButtonGroupItem>
                 <IconButton
                     tooltip={tr.editingMathjaxBlock()}
-                    active={activeImage.getAttribute("block") === "false"}
-                    on:click={() => mathjaxElement.setAttribute("block", "true")}
+                    active={isBlock}
+                    on:click={() => {
+                        isBlock = true;
+                        updateBlock();
+                    }}
                     on:click>{@html blockIcon}</IconButton
                 >
             </ButtonGroupItem>

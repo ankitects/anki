@@ -26,9 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let mathjax: string;
     export let block: boolean;
-
-    export let autofocus = false;
-    export let fontSize = 20;
+    export let fontSize: number;
 
     $: [converted, title] = convertMathjax(mathjax, $pageTheme.isDark, fontSize);
     $: empty = title === "MathJax";
@@ -40,19 +38,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: verticalCenter = -$imageHeight / 2 + fontSize / 4;
 
-    function maybeAutofocus(image: Element): void {
-        if (!autofocus) {
-            return;
-        }
+    let image: HTMLImageElement;
 
+    export function moveCaretAfter(): void {
         // This should trigger a focusing of the Mathjax Handle
-        const focusEvent = new CustomEvent("focusmathjax", {
-            detail: image,
-            bubbles: true,
-            composed: true,
-        });
+        image.dispatchEvent(
+            new CustomEvent("movecaretafter", {
+                detail: image,
+                bubbles: true,
+                composed: true,
+            }),
+        );
+    }
 
-        image.dispatchEvent(focusEvent);
+    export function selectAll(): void {
+        image.dispatchEvent(
+            new CustomEvent("selectall", {
+                detail: image,
+                bubbles: true,
+                composed: true,
+            }),
+        );
     }
 
     function observe(image: Element) {
@@ -69,6 +75,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <img
+    bind:this={image}
     src="data:image/svg+xml,{encoded}"
     class:block
     class:empty
@@ -78,7 +85,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     data-anki="mathjax"
     data-uuid={uuid}
     on:dragstart|preventDefault
-    use:maybeAutofocus
     use:observe
 />
 

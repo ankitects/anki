@@ -7,11 +7,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         CustomElementArray,
         DecoratedElementConstructor,
     } from "../editable/decorated";
-    import { Mathjax } from "../editable/mathjax-element";
     import contextProperty from "../sveltelib/context-property";
 
     const decoratedElements = new CustomElementArray<DecoratedElementConstructor>();
-    decoratedElements.push(Mathjax);
 
     const key = Symbol("decoratedElements");
     const [set, getDecoratedElements, hasDecoratedElements] =
