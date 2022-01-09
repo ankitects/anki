@@ -39,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<Container breakpoint="md" --gutter-inline="0.25rem" --gutter-block="0.5rem">
+<Container breakpoint="md" --gutter-inline="1rem" --gutter-block="0.5rem">
     {#if stats}
         <Row>
             <CardStats {stats} />
