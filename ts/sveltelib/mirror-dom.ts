@@ -23,7 +23,6 @@ interface DOMMirrorAPI {
     preventResubscription(): () => void;
 }
 
-
 function cloneNode(node: Node): DocumentFragment {
     /**
      * Creates a deep clone
@@ -80,7 +79,11 @@ function getDOMMirror(): DOMMirrorAPI {
             mirrorToElement(cloneNode(fragment));
         }
 
-        const { subscribe, unsubscribe } = storeSubscribe(store, mirrorFromFragment, false);
+        const { subscribe, unsubscribe } = storeSubscribe(
+            store,
+            mirrorFromFragment,
+            false,
+        );
 
         /* do not update when focused as it will reset caret */
         const removeFocus = on(element, "focus", unsubscribe);

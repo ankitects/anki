@@ -17,35 +17,41 @@ function flushLocation(): void {
     }
 }
 
-let latestLocation: SelectionLocation | null = null;
+function onFocus(location: SelectionLocation | null): () => void {
+    return function (this: HTMLElement): void {
+        if (!location) {
+            placeCaretAfterContent(this);
+            return;
+        }
 
-function onFocus(this: HTMLElement): void {
-    if (!latestLocation) {
-        placeCaretAfterContent(this);
-        return;
-    }
-
-    try {
-        restoreSelection(this, latestLocation);
-    } catch {
-        placeCaretAfterContent(this);
-    }
+        try {
+            restoreSelection(this, location);
+        } catch {
+            placeCaretAfterContent(this);
+        }
+    };
 }
 
 function onBlur(this: HTMLElement): void {
-    prepareFocusHandling(this);
-    latestLocation = saveSelection(this);
+    prepareFocusHandling(this, saveSelection(this));
 }
 
-let removeOnFocus: () => void;
-
-export function prepareFocusHandling(editable: HTMLElement): void {
-    removeOnFocus = on(editable, "focus", onFocus, { once: true });
+function prepareFocusHandling(
+    editable: HTMLElement,
+    latestLocation: SelectionLocation | null = null,
+): void {
+    const removeOnFocus = on(editable, "focus", onFocus(latestLocation), {
+        once: true,
+    });
 
     locationEvents.push(
         removeOnFocus,
         on(editable, "pointerdown", removeOnFocus, { once: true }),
     );
+}
+
+export function initialFocusHandling(editable: HTMLElement): void {
+    prepareFocusHandling(editable);
 }
 
 /* Must execute before DOMMirror */
