@@ -110,7 +110,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /* we need createContextualFragment so that customElements are initialized */
         const fragment = range.createContextualFragment(adjustInputHTML(html));
         adjustInputFragment(fragment);
-
         nodes.setUnprocessed(fragment);
     }
 

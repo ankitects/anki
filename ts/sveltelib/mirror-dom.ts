@@ -4,7 +4,7 @@
 import { writable } from "svelte/store";
 import type { Writable } from "svelte/store";
 import storeSubscribe from "./store-subscribe";
-// import { getSelection } from "../lib/cross-browser";
+import { on } from "../lib/events";
 
 const config = {
     childList: true,
@@ -14,13 +14,25 @@ const config = {
 };
 
 export type MirrorAction = (
-    element: Element,
+    element: HTMLElement,
     params: { store: Writable<DocumentFragment> },
 ) => { destroy(): void };
 
 interface DOMMirrorAPI {
     mirror: MirrorAction;
     preventResubscription(): () => void;
+}
+
+
+function cloneNode(node: Node): DocumentFragment {
+    /**
+     * Creates a deep clone
+     * This seems to be less buggy than node.cloneNode(true)
+     */
+    const range = document.createRange();
+
+    range.selectNodeContents(node);
+    return range.cloneContents();
 }
 
 /**
@@ -40,79 +52,64 @@ function getDOMMirror(): DOMMirrorAPI {
     }
 
     function mirror(
-        element: Element,
+        element: HTMLElement,
         { store }: { store: Writable<DocumentFragment> },
     ): { destroy(): void } {
         function saveHTMLToStore(): void {
-            const range = document.createRange();
-
-            range.selectNodeContents(element);
-            const contents = range.cloneContents();
-
-            store.set(contents);
+            store.set(cloneNode(element));
         }
 
         const observer = new MutationObserver(saveHTMLToStore);
         observer.observe(element, config);
 
-        function mirrorToNode(node: Node): void {
+        function mirrorToElement(node: Node): void {
             observer.disconnect();
-            const clone = node.cloneNode(true);
-
-            /* TODO use Element.replaceChildren */
+            // element.replaceChildren(...node.childNodes); // TODO use once available
             while (element.firstChild) {
                 element.firstChild.remove();
             }
 
-            while (clone.firstChild) {
-                element.appendChild(clone.firstChild);
+            while (node.firstChild) {
+                element.appendChild(node.firstChild);
             }
-
             observer.observe(element, config);
         }
 
-        const { subscribe, unsubscribe } = storeSubscribe(store, mirrorToNode);
-        // const selection = getSelection(element)!;
-
-        function doSubscribe(): void {
-            // Might not be needed after all:
-            // /**
-            //  * Focused element and caret are two independent things in the browser.
-            //  * When the ContentEditable calls blur, it will still have the selection inside of it.
-            //  * Some elements (e.g. FrameElement) need to figure whether the intended focus is still
-            //  * in the contenteditable or elsewhere because they might change the selection.
-            //  */
-            // selection.removeAllRanges();
-
-            subscribe();
+        function mirrorFromFragment(fragment: DocumentFragment): void {
+            mirrorToElement(cloneNode(fragment));
         }
 
+        const { subscribe, unsubscribe } = storeSubscribe(store, mirrorFromFragment, false);
+
         /* do not update when focused as it will reset caret */
-        element.addEventListener("focus", unsubscribe);
+        const removeFocus = on(element, "focus", unsubscribe);
+        let removeBlur: (() => void) | undefined;
 
         const unsubResubscription = allowResubscription.subscribe(
             (allow: boolean): void => {
                 if (allow) {
-                    element.addEventListener("blur", doSubscribe);
+                    if (!removeBlur) {
+                        removeBlur = on(element, "blur", subscribe);
+                    }
 
                     const root = element.getRootNode() as Document | ShadowRoot;
 
                     if (root.activeElement !== element) {
-                        doSubscribe();
+                        subscribe();
                     }
-                } else {
-                    element.removeEventListener("blur", doSubscribe);
+                } else if (removeBlur) {
+                    removeBlur();
+                    removeBlur = undefined;
                 }
             },
         );
 
         return {
             destroy() {
-                observer.disconnect();
+                // observer.disconnect();
 
-                // removes blur event listener
-                allowResubscription.set(false);
-                element.removeEventListener("focus", unsubscribe);
+                removeFocus();
+                removeBlur?.();
 
                 unsubscribe();
                 unsubResubscription();
