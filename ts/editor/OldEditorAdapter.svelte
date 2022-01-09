@@ -29,7 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const currentField = writable<EditorFieldAPI | null>(null);
 
     function updateFocus() {
-        get(activeInput)?.moveCaretToEnd();
+        /* get(activeInput)?.moveCaretToEnd(); */
     }
 
     registerShortcut(

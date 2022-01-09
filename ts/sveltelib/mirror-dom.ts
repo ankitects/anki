@@ -39,6 +39,7 @@ function cloneNode(node: Node): DocumentFragment {
  * Allows you to keep an element's inner HTML bidirectionally
  * in sync with a store containing a DocumentFragment.
  * While the element has focus, this connection is tethered.
+ * In practice, this will sync changes from PlainTextInput to RichTextInput.
  */
 function getDOMMirror(): DOMMirrorAPI {
     const allowResubscription = writable(true);
