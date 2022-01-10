@@ -61,9 +61,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
         const body = doc.body;
 
-        for (const tagName of ["script", "link", "style", "iframe", "object"]) {
-            removeTag(body, tagName);
-        }
+        removeTag(body, "script");
+        removeTag(body, "link");
+        removeTag(body, "style");
 
         return doc.body.innerHTML;
     }
