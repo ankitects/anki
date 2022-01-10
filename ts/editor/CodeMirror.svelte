@@ -15,6 +15,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import storeSubscribe from "../sveltelib/store-subscribe";
     import { directionKey } from "../lib/context-keys";
+    import { lightCodeMirrorTheme, darkCodeMirrorTheme } from "./code-mirror";
+    import { pageTheme } from "../sveltelib/theme";
 
     export let configuration: CodeMirror.EditorConfiguration;
     export let code: Writable<string>;
@@ -71,6 +73,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         subscribe();
     }
 
+    $: codeMirror?.setOption(
+        "theme",
+        $pageTheme.isDark ? darkCodeMirrorTheme : lightCodeMirrorTheme,
+    );
+
     export const api = Object.create(
         {},
         {
@@ -86,6 +93,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .code-mirror :global(.CodeMirror) {
         height: auto;
-        padding: 6px 0;
     }
 </style>

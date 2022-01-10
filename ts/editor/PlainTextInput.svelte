@@ -20,6 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { CodeMirrorAPI } from "./CodeMirror.svelte";
     import { tick, onMount } from "svelte";
     import { writable } from "svelte/store";
+    import { pageTheme } from "../sveltelib/theme";
     import { getDecoratedElements } from "./DecoratedElements.svelte";
     import { getEditingArea } from "./EditingArea.svelte";
     import { htmlanki, baseOptions, gutterOptions } from "./code-mirror";
@@ -46,6 +47,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const parser = new DOMParser();
 
+    function removeTag(element: HTMLElement, tagName: string): void {
+        for (const elem of element.getElementsByTagName(tagName)) {
+            elem.remove();
+        }
+    }
+
     function parseAsHTML(html: string): string {
         const doc = parser.parseFromString(
             parsingInstructions.join("") + html,
@@ -53,17 +60,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
         const body = doc.body;
 
-        for (const script of body.getElementsByTagName("script")) {
-            script.remove();
-        }
-
-        for (const script of body.getElementsByTagName("link")) {
-            script.remove();
-        }
-
-        for (const style of body.getElementsByTagName("style")) {
-            style.remove();
-        }
+        removeTag(body, "script");
+        removeTag(body, "link");
+        removeTag(body, "style");
 
         return doc.body.innerHTML;
     }
@@ -146,7 +145,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<div class="plain-text-input" class:hidden on:focusin on:focusout>
+<div
+    class="plain-text-input"
+    class:light-theme={!$pageTheme.isDark}
+    class:hidden
+    on:focusin
+    on:focusout
+>
     <CodeMirror
         {configuration}
         {code}
@@ -163,8 +168,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             border-radius: 0 0 5px 5px;
         }
 
+        :global(.CodeMirror-lines) {
+            padding: 6px 0;
+        }
+
         &.hidden {
             display: none;
         }
+    }
+
+    .light-theme :global(.CodeMirror) {
+        border-top: 1px solid #ddd;
     }
 </style>
