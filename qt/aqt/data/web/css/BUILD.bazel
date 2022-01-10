@@ -16,19 +16,35 @@ compile_sass(
 )
 
 copy_files_into_group(
-    name = "editor",
-    srcs = [
-        "editor.css",
-    ],
-    package = "//ts/editor",
-)
-
-copy_files_into_group(
     name = "editable",
     srcs = [
         "editable.css",
     ],
     package = "//ts/editable",
+)
+
+copy_files_into_group(
+    name = "browser_editor",
+    srcs = [
+        "browser_editor.css",
+    ],
+    package = "//ts/browser-editor",
+)
+
+copy_files_into_group(
+    name = "reviewer_editor",
+    srcs = [
+        "reviewer_editor.css",
+    ],
+    package = "//ts/reviewer-editor",
+)
+
+copy_files_into_group(
+    name = "note_creator",
+    srcs = [
+        "note_creator.css",
+    ],
+    package = "//ts/note-creator",
 )
 
 copy_files_into_group(
@@ -44,8 +60,10 @@ filegroup(
     srcs = [
         "css_local",
         "editable",
-        "editor",
         "reviewer",
+        "browser_editor",
+        "reviewer_editor",
+        "note_creator",
     ],
     visibility = ["//qt:__subpackages__"],
 )

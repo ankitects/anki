@@ -24,11 +24,27 @@ typescript(
 )
 
 copy_files_into_group(
-    name = "editor",
+    name = "browser_editor",
     srcs = [
-        "editor.js",
+        "browser_editor.js",
     ],
-    package = "//ts/editor",
+    package = "//ts/browser-editor",
+)
+
+copy_files_into_group(
+    name = "reviewer_editor",
+    srcs = [
+        "reviewer_editor.js",
+    ],
+    package = "//ts/reviewer-editor",
+)
+
+copy_files_into_group(
+    name = "note_creator",
+    srcs = [
+        "note_creator.js",
+    ],
+    package = "//ts/note-creator",
 )
 
 copy_files_into_group(
@@ -43,9 +59,11 @@ filegroup(
     name = "js",
     srcs = [
         "aqt",
-        "editor",
         "mathjax.js",
         "reviewer",
+        "browser_editor",
+        "reviewer_editor",
+        "note_creator",
         "//qt/aqt/data/web/js/vendor",
     ],
     visibility = ["//qt:__subpackages__"],

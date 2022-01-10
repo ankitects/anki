@@ -418,7 +418,9 @@ class Browser(QMainWindow):
             )
 
         gui_hooks.editor_did_init.append(add_preview_button)
-        self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self, browserMode = True)
+        self.editor = aqt.editor.Editor(
+            self.mw, self.form.fieldsArea, self, browserMode=True
+        )
         gui_hooks.editor_did_init.remove(add_preview_button)
 
     @ensure_editor_saved

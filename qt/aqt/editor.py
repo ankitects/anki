@@ -91,7 +91,13 @@ class Editor:
     """
 
     def __init__(
-        self, mw: AnkiQt, widget: QWidget, parentWindow: QWidget, addMode: bool = False, *, browserMode: bool = False
+        self,
+        mw: AnkiQt,
+        widget: QWidget,
+        parentWindow: QWidget,
+        addMode: bool = False,
+        *,
+        browserMode: bool = False,
     ) -> None:
         self.mw = mw
         self.widget = widget
@@ -125,11 +131,18 @@ class Editor:
         self.web.set_bridge_command(self.onBridgeCmd, self)
         self.outerLayout.addWidget(self.web, 1)
 
+        if self.addMode:
+            file = "note_creator"
+        elif self.browserMode:
+            file = "browser_editor"
+        else:
+            file = "reviewer_editor"
+
         # then load page
         self.web.stdHtml(
             "",
-            css=["css/editor.css"],
-            js=["js/editor.js"],
+            css=[f"css/{file}.css"],
+            js=[f"js/{file}.js"],
             context=self,
             default_css=False,
         )
@@ -138,7 +151,7 @@ class Editor:
         gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
 
         lefttopbtns_defs = [
-            f"noteEditorPromise.then((noteEditor) => noteEditor.toolbar.notetypeButtons.appendButton({{ component: editorToolbar.Raw, props: {{ html: {json.dumps(button)} }} }}, -1));"
+            f"uiPromise.then((noteEditor) => noteEditor.toolbar.notetypeButtons.appendButton({{ component: editorToolbar.Raw, props: {{ html: {json.dumps(button)} }} }}, -1));"
             for button in lefttopbtns
         ]
         lefttopbtns_js = "\n".join(lefttopbtns_defs)
@@ -151,7 +164,7 @@ class Editor:
         righttopbtns_defs = ", ".join([json.dumps(button) for button in righttopbtns])
         righttopbtns_js = (
             f"""
-noteEditorPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
+uiPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
     component: editorToolbar.AddonButtons,
     id: "addons",
     props: {{ buttons: [ {righttopbtns_defs} ] }},
@@ -502,9 +515,7 @@ noteEditorPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
             js += " setSticky(%s);" % json.dumps(sticky)
 
         js = gui_hooks.editor_will_load_note(js, self.note, self)
-        self.web.evalWithCallback(
-            f"noteEditorPromise.then(() => {{ {js} }})", oncallback
-        )
+        self.web.evalWithCallback(f"uiPromise.then(() => {{ {js} }})", oncallback)
 
     def _save_current_note(self) -> None:
         "Call after note is updated with data from webview."
@@ -558,8 +569,8 @@ noteEditorPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
         elif result == NoteFieldsCheckResult.FIELD_NOT_CLOZE:
             cloze_hint = tr.adding_cloze_outside_cloze_field()
 
-        self.web.eval(f"setBackgrounds({json.dumps(cols)});")
-        self.web.eval(f"setClozeHint({json.dumps(cloze_hint)});")
+        self.web.eval(f"uiPromise.then(() => setBackgrounds({json.dumps(cols)}));")
+        self.web.eval(f"uiPromise.then(() => setClozeHint({json.dumps(cloze_hint)}));")
 
     def showDupes(self) -> None:
         aqt.dialogs.open(
@@ -1334,11 +1345,11 @@ gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
 def set_cloze_button(editor: Editor) -> None:
     if editor.note.note_type()["type"] == MODEL_CLOZE:
         editor.web.eval(
-            'noteEditorPromise.then((noteEditor) => noteEditor.toolbar.templateButtons.showButton("cloze")); '
+            'uiPromise.then((noteEditor) => noteEditor.toolbar.templateButtons.showButton("cloze")); '
         )
     else:
         editor.web.eval(
-            'noteEditorPromise.then((noteEditor) => noteEditor.toolbar.templateButtons.hideButton("cloze")); '
+            'uiPromise.then((noteEditor) => noteEditor.toolbar.templateButtons.hideButton("cloze")); '
         )
 
 
