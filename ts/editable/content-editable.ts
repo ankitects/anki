@@ -17,17 +17,27 @@ function flushLocation(): void {
     }
 }
 
+function safePlaceCaretAfterContent(editable: HTMLElement): void {
+    /**
+     * Workaround: If you try to invoke an IME after calling
+     * `placeCaretAfterContent` on a cE element, the IME will immediately
+     * end and the input character will be duplicated
+     */
+    placeCaretAfterContent(editable);
+    restoreSelection(editable, saveSelection(editable)!);
+}
+
 function onFocus(location: SelectionLocation | null): () => void {
     return function (this: HTMLElement): void {
         if (!location) {
-            placeCaretAfterContent(this);
+            safePlaceCaretAfterContent(this);
             return;
         }
 
         try {
             restoreSelection(this, location);
         } catch {
-            placeCaretAfterContent(this);
+            safePlaceCaretAfterContent(this);
         }
     };
 }
