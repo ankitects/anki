@@ -91,13 +91,14 @@ class Editor:
     """
 
     def __init__(
-        self, mw: AnkiQt, widget: QWidget, parentWindow: QWidget, addMode: bool = False
+        self, mw: AnkiQt, widget: QWidget, parentWindow: QWidget, addMode: bool = False, *, browserMode: bool = False
     ) -> None:
         self.mw = mw
         self.widget = widget
         self.parentWindow = parentWindow
         self.note: Note | None = None
         self.addMode = addMode
+        self.browserMode = browserMode
         self.currentField: int | None = None
         # Similar to currentField, but not set to None on a blur. May be
         # outside the bounds of the current notetype.
