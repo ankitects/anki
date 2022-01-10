@@ -687,9 +687,9 @@ class SidebarTreeView(QTreeView):
     ###########################
 
     def _flags_tree(self, root: SidebarItem) -> None:
+        icon_off = "icons:flag-off-outline.svg"
         icon = "icons:flag.svg"
         icon_outline = "icons:flag-outline.svg"
-        icon_off = "icons:flag-off-outline.svg"
 
         root = self._section_root(
             root=root,
@@ -699,6 +699,13 @@ class SidebarTreeView(QTreeView):
             type=SidebarItemType.FLAG_ROOT,
         )
         root.search_node = SearchNode(flag=SearchNode.FLAG_ANY)
+
+        root.add_simple(
+            tr.browsing_no_flag(),
+            icon=icon_off,
+            type=SidebarItemType.FLAG_NONE,
+            search_node=SearchNode(flag=SearchNode.FLAG_NONE),
+        )
 
         for flag in self.mw.flags.all():
             root.add_child(
@@ -710,13 +717,6 @@ class SidebarTreeView(QTreeView):
                     id=flag.index,
                 )
             )
-
-        root.add_simple(
-            tr.browsing_no_flag(),
-            icon=icon_off,
-            type=SidebarItemType.FLAG_NONE,
-            search_node=SearchNode(flag=SearchNode.FLAG_NONE),
-        )
 
     # Tree: Tags
     ###########################
