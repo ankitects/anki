@@ -98,6 +98,9 @@ export function renderCalendar(
     let maxCount = 0;
     for (const [day, count] of sourceData.reviewCount.entries()) {
         const date = new Date(now.getTime() + day * 86400 * 1000);
+        if (count > maxCount) {
+            maxCount = count;
+        }
         if (date.getFullYear() != targetYear) {
             continue;
         }
@@ -105,9 +108,6 @@ export function renderCalendar(
         const weekDay = timeDay.count(sourceData.timeFunction(date), date);
         const yearDay = timeDay.count(timeYear(date), date);
         dayMap.set(yearDay, { day, count, weekNumber, weekDay, date } as DayDatum);
-        if (count > maxCount) {
-            maxCount = count;
-        }
     }
 
     if (!maxCount) {
