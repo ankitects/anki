@@ -13,6 +13,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import warnings
+from enum import Enum
 from random import randrange
 from typing import Any, Callable, Match, cast
 
@@ -80,6 +81,12 @@ audio = (
 )
 
 
+class EditorMode(Enum):
+    ADD_CARDS = 0
+    EDIT_CURRENT = 1
+    BROWSER = 2
+
+
 class Editor:
     """The screen that embeds an editing widget should listen for changes via
     the `operation_did_execute` hook, and call set_note() when the editor needs
@@ -95,16 +102,19 @@ class Editor:
         mw: AnkiQt,
         widget: QWidget,
         parentWindow: QWidget,
-        addMode: bool = False,
+        addMode: bool | None = None,
         *,
-        browserMode: bool = False,
+        editorMode: bool = EditorMode.EDIT_CURRENT,
     ) -> None:
         self.mw = mw
         self.widget = widget
         self.parentWindow = parentWindow
         self.note: Note | None = None
-        self.addMode = addMode
-        self.browserMode = browserMode
+        # legacy argument provided?
+        if addMode is not None:
+            editorMode = EditorMode.ADD_CARDS if addMode else EditorMode.EDIT_CURRENT
+        self.addMode = editorMode is EditorMode.ADD_CARDS
+        self.editorMode = editorMode
         self.currentField: int | None = None
         # Similar to currentField, but not set to None on a blur. May be
         # outside the bounds of the current notetype.
@@ -131,9 +141,9 @@ class Editor:
         self.web.set_bridge_command(self.onBridgeCmd, self)
         self.outerLayout.addWidget(self.web, 1)
 
-        if self.addMode:
+        if self.editorMode == EditorMode.ADD_CARDS:
             file = "note_creator"
-        elif self.browserMode:
+        elif self.editorMode == EditorMode.BROWSER:
             file = "browser_editor"
         else:
             file = "reviewer_editor"
