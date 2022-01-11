@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import actionList from "../sveltelib/action-list";
     import contentEditableAPI, {
         saveLocation,
-        prepareFocusHandling,
+        initialFocusHandling,
         preventBuiltinContentEditableShortcuts,
     } from "./content-editable";
     import type { ContentEditableAPI } from "./content-editable";
@@ -40,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     contenteditable="true"
     use:resolve
     use:saveLocation
-    use:prepareFocusHandling
+    use:initialFocusHandling
     use:preventBuiltinContentEditableShortcuts
     use:mirrorAction={mirrorOptions}
     use:managerAction={{}}
