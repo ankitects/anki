@@ -3,12 +3,32 @@
 
 import { getSelection } from "../lib/cross-browser";
 
-export function placeCaretAfter(node: Node): void {
-    const range = new Range();
-    range.setStartAfter(node);
-    range.collapse(false);
-
+function placeCaret(node: Node, range: Range): void {
     const selection = getSelection(node)!;
     selection.removeAllRanges();
     selection.addRange(range);
+}
+
+export function placeCaretBefore(node: Node): void {
+    const range = new Range();
+    range.setStartBefore(node);
+    range.collapse(true);
+
+    placeCaret(node, range);
+}
+
+export function placeCaretAfter(node: Node): void {
+    const range = new Range();
+    range.setStartAfter(node);
+    range.collapse(true);
+
+    placeCaret(node, range);
+}
+
+export function placeCaretAfterContent(node: Node): void {
+    const range = new Range();
+    range.selectNodeContents(node);
+    range.collapse(false);
+
+    placeCaret(node, range);
 }

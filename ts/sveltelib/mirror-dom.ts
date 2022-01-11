@@ -4,6 +4,7 @@
 import { writable } from "svelte/store";
 import type { Writable } from "svelte/store";
 import storeSubscribe from "./store-subscribe";
+// import { getSelection } from "../lib/cross-browser";
 
 const config = {
     childList: true,
@@ -12,15 +13,22 @@ const config = {
     characterData: true,
 };
 
-interface DOMMirror {
-    mirror(
-        element: Element,
-        params: { store: Writable<DocumentFragment> },
-    ): { destroy(): void };
+export type MirrorAction = (
+    element: Element,
+    params: { store: Writable<DocumentFragment> },
+) => { destroy(): void };
+
+interface DOMMirrorAPI {
+    mirror: MirrorAction;
     preventResubscription(): () => void;
 }
 
-function getDOMMirror(): DOMMirror {
+/**
+ * Allows you to keep an element's inner HTML bidirectionally
+ * in sync with a store containing a DocumentFragment.
+ * While the element has focus, this connection is tethered.
+ */
+function getDOMMirror(): DOMMirrorAPI {
     const allowResubscription = writable(true);
 
     function preventResubscription() {
@@ -64,6 +72,20 @@ function getDOMMirror(): DOMMirror {
         }
 
         const { subscribe, unsubscribe } = storeSubscribe(store, mirrorToNode);
+        // const selection = getSelection(element)!;
+
+        function doSubscribe(): void {
+            // Might not be needed after all:
+            // /**
+            //  * Focused element and caret are two independent things in the browser.
+            //  * When the ContentEditable calls blur, it will still have the selection inside of it.
+            //  * Some elements (e.g. FrameElement) need to figure whether the intended focus is still
+            //  * in the contenteditable or elsewhere because they might change the selection.
+            //  */
+            // selection.removeAllRanges();
+
+            subscribe();
+        }
 
         /* do not update when focused as it will reset caret */
         element.addEventListener("focus", unsubscribe);
@@ -71,14 +93,15 @@ function getDOMMirror(): DOMMirror {
         const unsubResubscription = allowResubscription.subscribe(
             (allow: boolean): void => {
                 if (allow) {
-                    element.addEventListener("blur", subscribe);
+                    element.addEventListener("blur", doSubscribe);
 
                     const root = element.getRootNode() as Document | ShadowRoot;
+
                     if (root.activeElement !== element) {
-                        subscribe();
+                        doSubscribe();
                     }
                 } else {
-                    element.removeEventListener("blur", subscribe);
+                    element.removeEventListener("blur", doSubscribe);
                 }
             },
         );

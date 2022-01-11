@@ -1,80 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-/* eslint
-@typescript-eslint/no-explicit-any: "off",
- */
-
 import "mathjax/es5/tex-svg-full";
 
+import { on } from "../lib/events";
+import { placeCaretBefore, placeCaretAfter } from "../domlib/place-caret";
 import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
-import { nodeIsElement } from "../lib/dom";
-import { noop } from "../lib/functional";
-import { placeCaretAfter } from "../domlib/place-caret";
+import { FrameElement, frameElement } from "./frame-element";
 
 import Mathjax_svelte from "./Mathjax.svelte";
-
-function moveNodeOutOfElement(
-    element: Element,
-    node: Node,
-    placement: "beforebegin" | "afterend",
-): Node {
-    element.removeChild(node);
-
-    let referenceNode: Node;
-
-    if (nodeIsElement(node)) {
-        referenceNode = element.insertAdjacentElement(placement, node)!;
-    } else {
-        element.insertAdjacentText(placement, (node as Text).wholeText);
-        referenceNode =
-            placement === "beforebegin"
-                ? element.previousSibling!
-                : element.nextSibling!;
-    }
-
-    return referenceNode;
-}
-
-function moveNodesInsertedOutside(element: Element, allowedChild: Node): () => void {
-    const observer = new MutationObserver(() => {
-        if (element.childNodes.length === 1) {
-            return;
-        }
-
-        const childNodes = [...element.childNodes];
-        const allowedIndex = childNodes.findIndex((child) => child === allowedChild);
-
-        const beforeChildren = childNodes.slice(0, allowedIndex);
-        const afterChildren = childNodes.slice(allowedIndex + 1);
-
-        // Special treatment for pressing return after mathjax block
-        if (
-            afterChildren.length === 2 &&
-            afterChildren.every((child) => (child as Element).tagName === "BR")
-        ) {
-            const first = afterChildren.pop();
-            element.removeChild(first!);
-        }
-
-        let lastNode: Node | null = null;
-
-        for (const node of beforeChildren) {
-            lastNode = moveNodeOutOfElement(element, node, "beforebegin");
-        }
-
-        for (const node of afterChildren) {
-            lastNode = moveNodeOutOfElement(element, node, "afterend");
-        }
-
-        if (lastNode) {
-            placeCaretAfter(lastNode);
-        }
-    });
-
-    observer.observe(element, { childList: true, characterData: true });
-    return () => observer.disconnect();
-}
 
 const mathjaxTagPattern =
     /<anki-mathjax(?:[^>]*?block="(.*?)")?[^>]*?>(.*?)<\/anki-mathjax>/gsu;
@@ -104,17 +38,17 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
             .replace(
                 mathjaxBlockDelimiterPattern,
                 (_match: string, text: string) =>
-                    `<anki-mathjax block="true">${text}</anki-mathjax>`,
+                    `<${Mathjax.tagName} block="true">${text}</${Mathjax.tagName}>`,
             )
             .replace(
                 mathjaxInlineDelimiterPattern,
                 (_match: string, text: string) =>
-                    `<anki-mathjax>${text}</anki-mathjax>`,
+                    `<${Mathjax.tagName}>${text}</${Mathjax.tagName}>`,
             );
     }
 
     block = false;
-    disconnect = noop;
+    frame?: FrameElement;
     component?: Mathjax_svelte;
 
     static get observedAttributes(): string[] {
@@ -123,19 +57,25 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
 
     connectedCallback(): void {
         this.decorate();
-        this.disconnect = moveNodesInsertedOutside(this, this.children[0]);
+        this.addEventListeners();
     }
 
     disconnectedCallback(): void {
-        this.disconnect();
+        this.removeEventListeners();
     }
 
-    attributeChangedCallback(name: string, _old: string, newValue: string): void {
+    attributeChangedCallback(name: string, old: string, newValue: string): void {
+        if (newValue === old) {
+            return;
+        }
+
         switch (name) {
             case "block":
                 this.block = newValue !== "false";
                 this.component?.$set({ block: this.block });
+                this.frame?.setAttribute("block", String(this.block));
                 break;
+
             case "data-mathjax":
                 this.component?.$set({ mathjax: newValue });
                 break;
@@ -143,33 +83,93 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
     }
 
     decorate(): void {
-        const mathjax = (this.dataset.mathjax = this.innerText);
+        if (this.hasAttribute("decorated")) {
+            this.undecorate();
+        }
+
+        if (this.parentElement?.tagName === FrameElement.tagName.toUpperCase()) {
+            this.frame = this.parentElement as FrameElement;
+        } else {
+            frameElement(this, this.block);
+            /* Framing will place this element inside of an anki-frame element,
+             * causing the connectedCallback to be called again.
+             * If we'd continue decorating at this point, we'd loose all the information */
+            return;
+        }
+
+        this.dataset.mathjax = this.innerText;
         this.innerHTML = "";
         this.style.whiteSpace = "normal";
 
         this.component = new Mathjax_svelte({
             target: this,
             props: {
-                mathjax,
+                mathjax: this.dataset.mathjax,
                 block: this.block,
-                autofocus: this.hasAttribute("focusonmount"),
+                fontSize: 20,
             },
-        } as any);
+        });
+
+        if (this.hasAttribute("focusonmount")) {
+            this.component.moveCaretAfter();
+        }
+
+        this.setAttribute("contentEditable", "false");
+        this.setAttribute("decorated", "true");
     }
 
     undecorate(): void {
+        if (this.parentElement?.tagName === FrameElement.tagName.toUpperCase()) {
+            this.parentElement.replaceWith(this);
+        }
+
         this.innerHTML = this.dataset.mathjax ?? "";
         delete this.dataset.mathjax;
         this.removeAttribute("style");
         this.removeAttribute("focusonmount");
 
-        this.component?.$destroy();
-        this.component = undefined;
-
         if (this.block) {
             this.setAttribute("block", "true");
         } else {
             this.removeAttribute("block");
+        }
+
+        this.removeAttribute("contentEditable");
+        this.removeAttribute("decorated");
+    }
+
+    removeMoveInStart?: () => void;
+    removeMoveInEnd?: () => void;
+
+    addEventListeners(): void {
+        this.removeMoveInStart = on(
+            this,
+            "moveinstart" as keyof HTMLElementEventMap,
+            () => this.component!.selectAll(),
+        );
+
+        this.removeMoveInEnd = on(this, "moveinend" as keyof HTMLElementEventMap, () =>
+            this.component!.selectAll(),
+        );
+    }
+
+    removeEventListeners(): void {
+        this.removeMoveInStart?.();
+        this.removeMoveInStart = undefined;
+
+        this.removeMoveInEnd?.();
+        this.removeMoveInEnd = undefined;
+    }
+
+    placeCaretBefore(): void {
+        if (this.frame) {
+            placeCaretBefore(this.frame);
+        }
+    }
+
+    placeCaretAfter(): void {
+        if (this.frame) {
+            placeCaretAfter(this.frame);
         }
     }
 };

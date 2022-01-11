@@ -57,6 +57,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { MathjaxHandle } from "./mathjax-overlay";
     import { ImageHandle } from "./image-overlay";
     import PlainTextInput from "./PlainTextInput.svelte";
+    import MathjaxElement from "./MathjaxElement.svelte";
+    import FrameElement from "./FrameElement.svelte";
 
     import RichTextBadge from "./RichTextBadge.svelte";
     import PlainTextBadge from "./PlainTextBadge.svelte";
@@ -279,39 +281,41 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {/if}
 
         <Fields>
-            {#each fieldsData as field, index}
-                <EditorField
-                    {field}
-                    content={fieldStores[index]}
-                    autofocus={index === focusTo}
-                    api={fields[index]}
-                    on:focusin={() => {
-                        $currentField = fields[index];
-                        bridgeCommand(`focus:${index}`);
-                    }}
-                    on:focusout={() => {
-                        $currentField = null;
-                        bridgeCommand(
-                            `blur:${index}:${getNoteId()}:${get(fieldStores[index])}`,
-                        );
-                    }}
-                    --label-color={cols[index] === "dupe"
-                        ? "var(--flag1-bg)"
-                        : "transparent"}
-                >
-                    <svelte:fragment slot="field-state">
-                        {#if cols[index] === "dupe"}
-                            <DuplicateLink />
-                        {/if}
-                        <RichTextBadge bind:off={richTextsHidden[index]} />
-                        <PlainTextBadge bind:off={plainTextsHidden[index]} />
-                        {#if stickies}
-                            <StickyBadge active={stickies[index]} {index} />
-                        {/if}
-                    </svelte:fragment>
+            <DecoratedElements>
+                {#each fieldsData as field, index}
+                    <EditorField
+                        {field}
+                        content={fieldStores[index]}
+                        autofocus={index === focusTo}
+                        api={fields[index]}
+                        on:focusin={() => {
+                            $currentField = fields[index];
+                            bridgeCommand(`focus:${index}`);
+                        }}
+                        on:focusout={() => {
+                            $currentField = null;
+                            bridgeCommand(
+                                `blur:${index}:${getNoteId()}:${get(
+                                    fieldStores[index],
+                                )}`,
+                            );
+                        }}
+                        --label-color={cols[index] === "dupe"
+                            ? "var(--flag1-bg)"
+                            : "transparent"}
+                    >
+                        <svelte:fragment slot="field-state">
+                            {#if cols[index] === "dupe"}
+                                <DuplicateLink />
+                            {/if}
+                            <RichTextBadge bind:off={richTextsHidden[index]} />
+                            <PlainTextBadge bind:off={plainTextsHidden[index]} />
+                            {#if stickies}
+                                <StickyBadge active={stickies[index]} {index} />
+                            {/if}
+                        </svelte:fragment>
 
-                    <svelte:fragment slot="editing-inputs">
-                        <DecoratedElements>
+                        <svelte:fragment slot="editing-inputs">
                             <RichTextInput
                                 hidden={richTextsHidden[index]}
                                 on:focusin={() => {
@@ -340,10 +344,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 }}
                                 bind:this={plainTextInputs[index]}
                             />
-                        </DecoratedElements>
-                    </svelte:fragment>
-                </EditorField>
-            {/each}
+                        </svelte:fragment>
+                    </EditorField>
+                {/each}
+
+                <MathjaxElement />
+                <FrameElement />
+            </DecoratedElements>
         </Fields>
     </FieldsEditor>
 

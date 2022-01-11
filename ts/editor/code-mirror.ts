@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import "codemirror/lib/codemirror.css";
-import "codemirror/theme/monokai.css";
 import "codemirror/addon/fold/foldgutter.css";
+import "codemirror/theme/monokai.css";
 
 import CodeMirror from "codemirror";
 import "codemirror/mode/htmlmixed/htmlmixed";
@@ -29,8 +29,11 @@ export const htmlanki = {
     },
 };
 
+export const lightCodeMirrorTheme = "default";
+export const darkCodeMirrorTheme = "monokai";
+
 export const baseOptions: CodeMirror.EditorConfiguration = {
-    theme: "monokai",
+    theme: lightCodeMirrorTheme,
     lineWrapping: true,
     matchTags: { bothTags: true },
     autoCloseTags: true,
@@ -45,3 +48,8 @@ export const gutterOptions: CodeMirror.EditorConfiguration = {
     lineNumbers: true,
     foldGutter: true,
 };
+
+export function focusAndCaretAfter(editor: CodeMirror.Editor): void {
+    editor.focus();
+    editor.setCursor(editor.lineCount(), 0);
+}
