@@ -17,35 +17,51 @@ function flushLocation(): void {
     }
 }
 
-let latestLocation: SelectionLocation | null = null;
+function safePlaceCaretAfterContent(editable: HTMLElement): void {
+    /**
+     * Workaround: If you try to invoke an IME after calling
+     * `placeCaretAfterContent` on a cE element, the IME will immediately
+     * end and the input character will be duplicated
+     */
+    placeCaretAfterContent(editable);
+    restoreSelection(editable, saveSelection(editable)!);
+}
 
-function onFocus(this: HTMLElement): void {
-    if (!latestLocation) {
-        placeCaretAfterContent(this);
-        return;
-    }
+function onFocus(location: SelectionLocation | null): () => void {
+    return function (this: HTMLElement): void {
+        if (!location) {
+            safePlaceCaretAfterContent(this);
+            return;
+        }
 
-    try {
-        restoreSelection(this, latestLocation);
-    } catch {
-        placeCaretAfterContent(this);
-    }
+        try {
+            restoreSelection(this, location);
+        } catch {
+            safePlaceCaretAfterContent(this);
+        }
+    };
 }
 
 function onBlur(this: HTMLElement): void {
-    prepareFocusHandling(this);
-    latestLocation = saveSelection(this);
+    prepareFocusHandling(this, saveSelection(this));
 }
 
-let removeOnFocus: () => void;
-
-export function prepareFocusHandling(editable: HTMLElement): void {
-    removeOnFocus = on(editable, "focus", onFocus, { once: true });
+function prepareFocusHandling(
+    editable: HTMLElement,
+    latestLocation: SelectionLocation | null = null,
+): void {
+    const removeOnFocus = on(editable, "focus", onFocus(latestLocation), {
+        once: true,
+    });
 
     locationEvents.push(
         removeOnFocus,
         on(editable, "pointerdown", removeOnFocus, { once: true }),
     );
+}
+
+export function initialFocusHandling(editable: HTMLElement): void {
+    prepareFocusHandling(editable);
 }
 
 /* Must execute before DOMMirror */

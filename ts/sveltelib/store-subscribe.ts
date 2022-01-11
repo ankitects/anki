@@ -8,7 +8,9 @@ interface StoreAccessors {
     unsubscribe: () => void;
 }
 
-// Prevent double subscriptions / unsubscriptions
+/**
+ * Helper function to prevent double (un)subscriptions
+ */
 function storeSubscribe<T>(
     store: Readable<T>,
     callback: (value: T) => void,
