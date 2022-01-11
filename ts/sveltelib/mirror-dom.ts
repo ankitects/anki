@@ -110,7 +110,7 @@ function getDOMMirror(): DOMMirrorAPI {
 
         return {
             destroy() {
-                // observer.disconnect();
+                observer.disconnect();
 
                 removeFocus();
                 removeBlur?.();
