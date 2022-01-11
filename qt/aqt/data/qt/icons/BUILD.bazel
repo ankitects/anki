@@ -16,6 +16,7 @@ copy_mdi_icons(
         # flags
         "flag.svg",
         "flag-outline.svg",
+        "flag-off-outline.svg",
 
         # decks
         "book-outline.svg",
@@ -25,7 +26,7 @@ copy_mdi_icons(
         # notetypes
         "newspaper.svg",
         # cardtype
-        "iframe-braces-outline.svg",
+        "application-braces-outline.svg",
         # fields
         "form-textbox.svg",
 
