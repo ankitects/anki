@@ -104,7 +104,7 @@ class Editor:
         parentWindow: QWidget,
         addMode: bool | None = None,
         *,
-        editorMode: EditorMode = EditorMode.EDIT_CURRENT,
+        editor_mode: EditorMode = EditorMode.EDIT_CURRENT,
     ) -> None:
         self.mw = mw
         self.widget = widget
@@ -112,9 +112,9 @@ class Editor:
         self.note: Note | None = None
         # legacy argument provided?
         if addMode is not None:
-            editorMode = EditorMode.ADD_CARDS if addMode else EditorMode.EDIT_CURRENT
-        self.addMode = editorMode is EditorMode.ADD_CARDS
-        self.editorMode = editorMode
+            editor_mode = EditorMode.ADD_CARDS if addMode else EditorMode.EDIT_CURRENT
+        self.addMode = editor_mode is EditorMode.ADD_CARDS
+        self.editorMode = editor_mode
         self.currentField: int | None = None
         # Similar to currentField, but not set to None on a blur. May be
         # outside the bounds of the current notetype.

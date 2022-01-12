@@ -422,7 +422,7 @@ class Browser(QMainWindow):
             self.mw,
             self.form.fieldsArea,
             self,
-            editorMode=aqt.editor.EditorMode.BROWSER,
+            editor_mode=aqt.editor.EditorMode.BROWSER,
         )
         gui_hooks.editor_did_init.remove(add_preview_button)
 
