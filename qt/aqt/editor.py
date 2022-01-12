@@ -104,7 +104,7 @@ class Editor:
         parentWindow: QWidget,
         addMode: bool | None = None,
         *,
-        editorMode: bool = EditorMode.EDIT_CURRENT,
+        editorMode: EditorMode = EditorMode.EDIT_CURRENT,
     ) -> None:
         self.mw = mw
         self.widget = widget
