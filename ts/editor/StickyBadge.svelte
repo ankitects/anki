@@ -36,7 +36,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <span class:highlighted={active} on:click|stopPropagation={toggle}>
     <Badge
         tooltip="{tr.editingToggleSticky()} ({getPlatformString(keyCombination)})"
-        widthMultiplier={0.7}>{@html icon}</Badge
+        widthMultiplier={0.7}
+        --icon-align="text-top">{@html icon}</Badge
     >
 </span>
 

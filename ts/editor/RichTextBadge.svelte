@@ -17,7 +17,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <span class="rich-text-badge" class:highlighted={off} on:click|stopPropagation={toggle}>
-    <Badge tooltip={tr.editingToggleVisualEditor()} iconSize={80}>{@html icon}</Badge>
+    <Badge
+        tooltip={tr.editingToggleVisualEditor()}
+        iconSize={80}
+        --icon-align="text-top">{@html icon}</Badge
+    >
 </span>
 
 <style lang="scss">
