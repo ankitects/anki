@@ -19,7 +19,6 @@ editing-fields = Fields
 editing-float-left = Float left
 editing-float-right = Float right
 editing-float-none = No float
-editing-html-editor = HTML Editor
 editing-indent = Increase indent
 editing-italic-text = Italic text
 editing-jump-to-tags-with-ctrlandshiftandt = Jump to tags with Ctrl+Shift+T
@@ -44,10 +43,13 @@ editing-subscript = Subscript
 editing-superscript = Superscript
 editing-tags = Tags
 editing-to-make-a-cloze-deletion-on = To make a cloze deletion on an existing note, you need to change it to a cloze type first, via 'Notes>Change Note Type'
+editing-toggle-html-editor = Toggle HTML Editor
 editing-toggle-sticky = Toggle sticky
+editing-toggle-visual-editor = Toggle Visual Editor
 editing-underline-text = Underline text
 editing-unordered-list = Unordered list
 editing-warning-cloze-deletions-will-not-work = Warning, cloze deletions will not work until you switch the type at the top to Cloze.
 
 ## You don't need to translate these strings, as they will be replaced with different ones soon.
 
+editing-html-editor = HTML Editor
