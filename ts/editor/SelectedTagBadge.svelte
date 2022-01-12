@@ -12,7 +12,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DropdownItem from "../components/DropdownItem.svelte";
 
     import { withSpan, withButton } from "../components/helpers";
-    import { appendInParentheses } from "./helpers";
     import { dotsIcon } from "./icons";
 
     const dispatch = createEventDispatcher();
@@ -34,21 +33,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         event.stopImmediatePropagation();
                     }}
                     on:mount={withButton(createShortcut)}
-                    >{appendInParentheses(allLabel, shortcutLabel)}</DropdownItem
+                    >{allLabel} ({shortcutLabel})</DropdownItem
                 >
             </WithShortcut>
             <WithShortcut shortcut="Control+C" let:createShortcut let:shortcutLabel>
                 <DropdownItem
                     on:click={() => dispatch("tagcopy")}
                     on:mount={withButton(createShortcut)}
-                    >{appendInParentheses(copyLabel, shortcutLabel)}</DropdownItem
+                    >{copyLabel} ({shortcutLabel})</DropdownItem
                 >
             </WithShortcut>
             <WithShortcut shortcut="Backspace" let:createShortcut let:shortcutLabel>
                 <DropdownItem
                     on:click={() => dispatch("tagdelete")}
                     on:mount={withButton(createShortcut)}
-                    >{appendInParentheses(removeLabel, shortcutLabel)}</DropdownItem
+                    >{removeLabel} ({shortcutLabel})</DropdownItem
                 >
             </WithShortcut>
         </DropdownMenu>

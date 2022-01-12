@@ -7,7 +7,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Badge from "../components/Badge.svelte";
 
     import { withSpan } from "../components/helpers";
-    import { appendInParentheses } from "./helpers";
     import { tagIcon, addTagIcon } from "./icons";
 
     const tooltip = "Add tag";
@@ -17,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div class="add-icon">
         <Badge
             class="d-flex me-1"
-            tooltip={appendInParentheses(tooltip, shortcutLabel)}
+            tooltip="{tooltip} ({shortcutLabel})"
             on:click
             on:mount={withSpan(createShortcut)}
         >
