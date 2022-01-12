@@ -102,6 +102,7 @@ message SearchNode {
     uint32 introduced_in_days = 19;
     Field field = 20;
     string literal_text = 21;
+    string fld = 22;
   }
 }
 

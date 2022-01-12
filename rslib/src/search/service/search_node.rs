@@ -28,6 +28,9 @@ impl TryFrom<anki_proto::search::SearchNode> for Node {
                 Filter::Tag(s) => SearchNode::from_tag_name(&s).into(),
                 Filter::Deck(s) => SearchNode::from_deck_name(&s).into(),
                 Filter::Note(s) => SearchNode::from_notetype_name(&s).into(),
+                Filter::Fld(s) => {
+                    Node::Search(SearchNode::Fld(escape_anki_wildcards_for_search_node(&s)))
+                }
                 Filter::Template(u) => {
                     Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
                 }

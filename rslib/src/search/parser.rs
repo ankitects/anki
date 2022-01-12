@@ -76,6 +76,7 @@ pub enum SearchNode {
         tag: String,
         is_re: bool,
     },
+    Fld(String),
     Duplicates {
         notetype_id: NotetypeId,
         text: String,
@@ -337,6 +338,7 @@ fn search_node_for_text_with_argument<'a>(
         "deck" => SearchNode::Deck(unescape(val)?),
         "note" => SearchNode::Notetype(unescape(val)?),
         "tag" => parse_tag(val)?,
+        "fld" => SearchNode::Fld(unescape(val)?),
         "card" => parse_template(val)?,
         "flag" => parse_flag(val)?,
         "resched" => parse_resched(val)?,
