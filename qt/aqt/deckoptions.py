@@ -51,8 +51,7 @@ class DeckOptionsDialog(QDialog):
         self.setLayout(layout)
 
         self.web.eval(
-            f"""const $deckOptions = anki.deckOptions(
-            document.getElementById('main'), {self._deck["id"]});"""
+            f"""const $deckOptions = anki.setupDeckOptions({self._deck["id"]});"""
         )
         self.setWindowTitle(
             without_unicode_isolation(tr.actions_options_for(val=self._deck["name"]))

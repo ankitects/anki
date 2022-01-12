@@ -1,47 +1,79 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { SvelteComponent } from "svelte/internal";
-
+import type { SvelteComponentDev } from "svelte/internal";
 import { setupI18n, ModuleName } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
 
 import GraphsPage from "./GraphsPage.svelte";
 import "./graphs-base.css";
 
-export { default as RangeBox } from "./RangeBox.svelte";
+const i18n = setupI18n({ modules: [ModuleName.STATISTICS, ModuleName.SCHEDULING] });
 
-export { default as IntervalsGraph } from "./IntervalsGraph.svelte";
-export { default as EaseGraph } from "./EaseGraph.svelte";
-export { default as AddedGraph } from "./AddedGraph.svelte";
-export { default as TodayStats } from "./TodayStats.svelte";
-export { default as ButtonsGraph } from "./ButtonsGraph.svelte";
-export { default as CardCounts } from "./CardCounts.svelte";
-export { default as HourGraph } from "./HourGraph.svelte";
-export { default as FutureDue } from "./FutureDue.svelte";
-export { default as ReviewsGraph } from "./ReviewsGraph.svelte";
-export { default as CalendarGraph } from "./CalendarGraph.svelte";
-export { RevlogRange } from "./graph-helpers";
-
-export function graphs(
-    target: HTMLDivElement,
-    graphs: SvelteComponent[],
+export async function setupGraphs(
+    graphs: typeof SvelteComponentDev[],
     {
         search = "deck:current",
         days = 365,
-        controller = null as SvelteComponent | null,
+        controller = null as typeof SvelteComponentDev | null,
     } = {},
-): void {
+): Promise<GraphsPage> {
     checkNightMode();
-    setupI18n({ modules: [ModuleName.STATISTICS, ModuleName.SCHEDULING] }).then(() => {
-        new GraphsPage({
-            target,
-            props: {
-                graphs,
-                initialSearch: search,
-                initialDays: days,
-                controller,
-            },
-        });
+    await i18n;
+
+    return new GraphsPage({
+        target: document.body,
+        props: {
+            initialSearch: search,
+            initialDays: days,
+            graphs,
+            controller,
+        },
     });
 }
+
+import TodayStats from "./TodayStats.svelte";
+import FutureDue from "./FutureDue.svelte";
+import CalendarGraph from "./CalendarGraph.svelte";
+import ReviewsGraph from "./ReviewsGraph.svelte";
+import CardCounts from "./CardCounts.svelte";
+import IntervalsGraph from "./IntervalsGraph.svelte";
+import EaseGraph from "./EaseGraph.svelte";
+import HourGraph from "./HourGraph.svelte";
+import ButtonsGraph from "./ButtonsGraph.svelte";
+import AddedGraph from "./AddedGraph.svelte";
+import { RevlogRange } from "./graph-helpers";
+import RangeBox from "./RangeBox.svelte";
+
+setupGraphs(
+    [
+        TodayStats,
+        FutureDue,
+        CalendarGraph,
+        ReviewsGraph,
+        CardCounts,
+        IntervalsGraph,
+        EaseGraph,
+        HourGraph,
+        ButtonsGraph,
+        AddedGraph,
+    ],
+    {
+        controller: RangeBox,
+    },
+);
+
+export const graphComponents = {
+    TodayStats,
+    FutureDue,
+    CalendarGraph,
+    ReviewsGraph,
+    CardCounts,
+    IntervalsGraph,
+    EaseGraph,
+    HourGraph,
+    ButtonsGraph,
+    AddedGraph,
+    RangeBox,
+    RevlogRange,
+};

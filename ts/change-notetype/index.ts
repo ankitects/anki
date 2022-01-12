@@ -8,10 +8,11 @@
 import { ChangeNotetypeState, getChangeNotetypeInfo, getNotetypeNames } from "./lib";
 import { setupI18n, ModuleName } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
-import ChangeNotetypePage from "./ChangeNotetypePage.svelte";
 
-export async function changeNotetypePage(
-    target: HTMLDivElement,
+import ChangeNotetypePage from "./ChangeNotetypePage.svelte";
+import "./change-notetype-base.css";
+
+export async function setupChangeNotetypePage(
     oldNotetypeId: number,
     newNotetypeId: number,
 ): Promise<ChangeNotetypePage> {
@@ -31,7 +32,13 @@ export async function changeNotetypePage(
 
     const state = new ChangeNotetypeState(names, info);
     return new ChangeNotetypePage({
-        target,
-        props: { state },
-    } as any);
+        target: document.body,
+        props: { state } as any,
+    });
+}
+
+// use #testXXXX where XXXX is notetype ID to test
+if (window.location.hash.startsWith("#test")) {
+    const ntid = parseInt(window.location.hash.substr("#test".length), 10);
+    setupChangeNotetypePage(ntid, ntid)
 }
