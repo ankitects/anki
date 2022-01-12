@@ -7,6 +7,7 @@ import { setupI18n, ModuleName } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
 
 import GraphsPage from "./GraphsPage.svelte";
+import "./graphs-base.css";
 
 export { default as RangeBox } from "./RangeBox.svelte";
 

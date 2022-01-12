@@ -6,6 +6,7 @@ import { setupI18n, ModuleName } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
 
 import CongratsPage from "./CongratsPage.svelte";
+import "./congrats-base.css";
 
 export async function congrats(target: HTMLDivElement): Promise<void> {
     checkNightMode();

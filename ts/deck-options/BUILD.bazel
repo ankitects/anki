@@ -26,6 +26,7 @@ _ts_deps = [
     "@npm//@popperjs",
     "@npm//@types/jest",
     "@npm//bootstrap-icons",
+    "@npm//bootstrap",
     "@npm//lodash-es",
     "@npm//svelte",
     "@npm//marked",
@@ -79,11 +80,11 @@ svelte_check(
         "//sass:night_mode_lib",
         "//sass:breakpoints_lib",
         "//sass/bootstrap",
+        "//ts/components",
+        "//ts/sveltelib:sveltelib_pkg",
         "@npm//@types/bootstrap",
         "@npm//@types/lodash-es",
         "@npm//@types/marked",
-        "//ts/components",
-        "//ts/sveltelib:sveltelib_pkg",
     ],
 )
 

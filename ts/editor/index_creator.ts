@@ -1,14 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import { i18n } from ".";
 import NoteCreator from "./NoteCreator.svelte";
+import { editorModules } from "./base";
 import { promiseWithResolver } from "../lib/promise";
 import { globalExport } from "../lib/globals";
+import { setupI18n } from "../lib/i18n";
 
 const [uiPromise, uiResolve] = promiseWithResolver();
 
 async function setupNoteCreator(): Promise<void> {
-    await i18n;
+    await setupI18n({ modules: editorModules });
 
     new NoteCreator({
         target: document.body,
@@ -18,10 +19,10 @@ async function setupNoteCreator(): Promise<void> {
 
 setupNoteCreator();
 
-import * as editor from ".";
+import * as base from "./base";
 
 globalExport({
-    ...editor,
+    ...base,
     uiPromise,
     noteEditorPromise: uiPromise,
 });

@@ -10,8 +10,10 @@ import "../sveltelib/export-runtime";
 import { getDeckOptionsInfo, DeckOptionsState } from "./lib";
 import { setupI18n, ModuleName } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
-import DeckOptionsPage from "./DeckOptionsPage.svelte";
 import { touchDeviceKey, modalsKey } from "../components/context-keys";
+
+import DeckOptionsPage from "./DeckOptionsPage.svelte";
+import "./deck-options-base.css";
 
 export async function deckOptions(
     target: HTMLDivElement,

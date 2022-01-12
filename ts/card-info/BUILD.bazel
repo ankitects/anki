@@ -17,8 +17,8 @@ compile_sass(
 )
 
 _ts_deps = [
-    "//ts/components",
     "//ts/lib",
+    "//ts/components",
     "@npm//@fluent",
 ]
 

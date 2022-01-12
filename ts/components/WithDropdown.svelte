@@ -85,12 +85,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         api = {
             show: dropdown.show.bind(dropdown),
-            toggle: dropdown.toggle.bind(dropdown),
+            // TODO this is quite confusing, but commenting this fixes
+            // Bootstrap in the deck-options when not including Bootstrap
+            // via <script />
+            // toggle: dropdown.toggle.bind(dropdown),
             hide: dropdown.hide.bind(dropdown),
             update: dropdown.update.bind(dropdown),
             dispose: dropdown.dispose.bind(dropdown),
             isVisible,
-        };
+        } as any;
 
         return api;
     }

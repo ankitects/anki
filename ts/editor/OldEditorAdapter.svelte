@@ -233,6 +233,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     );
 
     import { wrapInternal } from "../lib/wrap";
+    import * as oldEditorAdapter from "./old-editor-adapter";
 
     onMount(() => {
         function wrap(before: string, after: string): void {
@@ -260,6 +261,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             focusIfField,
             setNoteId,
             wrap,
+            ...oldEditorAdapter,
         });
 
         document.addEventListener("visibilitychange", saveOnPageHide);

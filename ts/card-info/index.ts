@@ -5,6 +5,7 @@ import { setupI18n, ModuleName } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
 
 import CardInfo from "./CardInfo.svelte";
+import "./card-info-base.css";
 
 export async function cardInfo(target: HTMLDivElement): Promise<CardInfo> {
     checkNightMode();
