@@ -5,6 +5,17 @@ load("//ts:esbuild.bzl", "esbuild")
 load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:typescript.bzl", "typescript")
 
+genrule(
+    name = "page",
+    srcs = ["//ts:page.html"],
+    outs = ["graphs.html"],
+    cmd = "$(location //ts:build_page) $(SRCS) $(OUTS)",
+    tools = [
+        "//ts:build_page",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 compile_sass(
     srcs = ["graphs-base.scss"],
     group = "base_css",
@@ -51,8 +62,6 @@ esbuild(
         ":svelte",
     ],
 )
-
-exports_files(["graphs.html"])
 
 # Tests
 ################

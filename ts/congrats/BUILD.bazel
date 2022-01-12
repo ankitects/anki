@@ -5,9 +5,20 @@ load("//ts:esbuild.bzl", "esbuild")
 load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:typescript.bzl", "typescript")
 
+genrule(
+    name = "page",
+    srcs = ["//ts:page.html"],
+    outs = ["congrats.html"],
+    cmd = "$(location //ts:build_page) $(SRCS) $(OUTS)",
+    tools = [
+        "//ts:build_page",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 compile_sass(
     srcs = ["congrats-base.scss"],
-    group = "congrats_css",
+    group = "base_css",
     visibility = ["//visibility:public"],
     deps = [
         "//sass:base_lib",
@@ -20,7 +31,7 @@ compile_svelte(
 )
 
 typescript(
-    name = "congrats_ts",
+    name = "index",
     deps = [
         ":svelte",
         "//ts/components",
@@ -35,18 +46,17 @@ esbuild(
     name = "congrats",
     args = {
         "globalName": "anki",
+        "loader": {".svg": "text"},
     },
     entry_point = "index.ts",
     output_css = "congrats.css",
     visibility = ["//visibility:public"],
     deps = [
-        ":congrats_css",
-        ":congrats_ts",
+        ":base_css",
+        ":index",
         ":svelte",
     ],
 )
-
-exports_files(["congrats.html"])
 
 # Tests
 ################

@@ -18,7 +18,7 @@ export async function setupCardInfo(): Promise<CardInfo> {
     return new CardInfo({ target: document.body, props: { includeRevlog: true } });
 }
 
-const cardInfoPromise = setupCardInfo();
+export const cardInfoPromise = setupCardInfo();
 
 if (window.location.hash.startsWith("#test")) {
     // use #testXXXX where XXXX is card ID to test

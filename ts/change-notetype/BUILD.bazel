@@ -6,6 +6,17 @@ load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:typescript.bzl", "typescript")
 load("//ts:jest.bzl", "jest_test")
 
+genrule(
+    name = "page",
+    srcs = ["//ts:page.html"],
+    outs = ["change-notetype.html"],
+    cmd = "$(location //ts:build_page) $(SRCS) $(OUTS)",
+    tools = [
+        "//ts:build_page",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 compile_sass(
     srcs = ["change-notetype-base.scss"],
     group = "base_css",
@@ -53,8 +64,6 @@ esbuild(
         "@npm//bootstrap-icons",
     ],
 )
-
-exports_files(["change-notetype.html"])
 
 # Tests
 ################

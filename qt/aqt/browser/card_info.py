@@ -67,7 +67,7 @@ class CardInfoDialog(QDialog):
 
     def update_card(self, card_id: CardId | None) -> None:
         self.web.eval(
-            f"cardInfoPromise.then((c) => c.$set({{ cardId: {json.dumps(card_id)} }}));"
+            f"anki.cardInfoPromise.then((c) => c.$set({{ cardId: {json.dumps(card_id)} }}));"
         )
 
     def reject(self) -> None:

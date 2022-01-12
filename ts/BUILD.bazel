@@ -15,6 +15,7 @@ exports_files([
     "jest.config.js",
     "package.json",
     "protobuf-no-long.js",
+    "page.html",
 ])
 
 # a copy needs to be placed in bazel-bin for libs with
@@ -22,6 +23,13 @@ exports_files([
 copy_to_bin(
     name = "tsconfig_bin",
     srcs = ["tsconfig.json"],
+    visibility = ["//visibility:public"],
+)
+
+py_binary(
+    name = "build_page",
+    srcs = [":build_page.py"],
+    legacy_create_init = False,
     visibility = ["//visibility:public"],
 )
 

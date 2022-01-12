@@ -5,9 +5,20 @@ load("//ts:esbuild.bzl", "esbuild")
 load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:typescript.bzl", "typescript")
 
+genrule(
+    name = "page",
+    srcs = ["//ts:page.html"],
+    outs = ["card-info.html"],
+    cmd = "$(location //ts:build_page) $(SRCS) $(OUTS)",
+    tools = [
+        "//ts:build_page",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 compile_sass(
-    srcs = ["card-info-base.scss"],
     group = "base_css",
+    srcs = ["card-info-base.scss"],
     visibility = ["//visibility:public"],
     deps = [
         "//sass:base_lib",
@@ -49,8 +60,6 @@ esbuild(
         "@npm//protobufjs",
     ],
 )
-
-exports_files(["card-info.html"])
 
 # Tests
 ################
