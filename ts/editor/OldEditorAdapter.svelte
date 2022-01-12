@@ -248,7 +248,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }),
     );
 
+    import { wrapInternal } from "../lib/wrap";
+
     onMount(() => {
+        function wrap(before: string, after: string): void {
+            if (!get(focusInRichText)) {
+                return;
+            }
+
+            const input = get(activeInput!) as RichTextInputAPI;
+
+            input.element.then((element) => {
+                wrapInternal(element, before, after, false);
+            });
+        }
+
+        Object.assign(globalThis, {
+            setFields,
+            setDescriptions,
+            setFonts,
+            focusField,
+            setColorButtons,
+            setTags,
+            setSticky,
+            setBackgrounds,
+            setClozeHint,
+            saveNow: saveFieldNow,
+            activateStickyShortcuts,
+            focusIfField,
+            setNoteId,
+            wrap,
+        });
+
         document.addEventListener("visibilitychange", saveOnPageHide);
         return () => document.removeEventListener("visibilitychange", saveOnPageHide);
     });

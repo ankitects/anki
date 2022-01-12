@@ -16,19 +16,21 @@ compile_sass(
 )
 
 copy_files_into_group(
-    name = "editor",
-    srcs = [
-        "editor.css",
-    ],
-    package = "//ts/editor",
-)
-
-copy_files_into_group(
     name = "editable",
     srcs = [
         "editable.css",
     ],
     package = "//ts/editable",
+)
+
+copy_files_into_group(
+    name = "editor",
+    srcs = [
+        "browser_editor.css",
+        "reviewer_editor.css",
+        "note_creator.css",
+    ],
+    package = "//ts/editor",
 )
 
 copy_files_into_group(
