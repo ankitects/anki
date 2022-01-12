@@ -28,7 +28,7 @@ class EditCurrent(QDialog):
             self.mw,
             self.form.fieldsArea,
             self,
-            editorMode=aqt.editor.EditorMode.EDIT_CURRENT,
+            editor_mode=aqt.editor.EditorMode.EDIT_CURRENT,
         )
         self.editor.card = self.mw.reviewer.card
         self.editor.set_note(self.mw.reviewer.card.note(), focusTo=0)

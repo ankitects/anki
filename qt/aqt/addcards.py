@@ -75,7 +75,7 @@ class AddCards(QMainWindow):
             self.mw,
             self.form.fieldsArea,
             self,
-            editorMode=aqt.editor.EditorMode.ADD_CARDS,
+            editor_mode=aqt.editor.EditorMode.ADD_CARDS,
         )
         self.editor.web.eval("noteEditorPromise.then(() => activateStickyShortcuts());")
 
