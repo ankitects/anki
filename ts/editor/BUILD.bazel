@@ -35,28 +35,52 @@ _ts_deps = [
 compile_svelte(deps = _ts_deps)
 
 typescript(
-    name = "editor_ts",
+    name = "editor",
     deps = _ts_deps + [
         ":svelte",
     ],
 )
 
+_esbuild_deps = [
+    ":editor",
+    ":editor_css",
+    "//sass:button_mixins_lib",
+    "@npm//@mdi",
+    "@npm//bootstrap-icons",
+    "@npm//protobufjs",
+]
+
 esbuild(
-    name = "editor",
+    name = "browser_editor",
     args = {
         "loader": {".svg": "text"},
     },
-    entry_point = "index_wrapper.ts",
-    output_css = "editor.css",
+    entry_point = "index_browser.ts",
+    output_css = "browser_editor.css",
     visibility = ["//visibility:public"],
-    deps = [
-        ":editor_css",
-        ":editor_ts",
-        "//sass:button_mixins_lib",
-        "@npm//@mdi",
-        "@npm//bootstrap-icons",
-        "@npm//protobufjs",
-    ],
+    deps = _esbuild_deps,
+)
+
+esbuild(
+    name = "reviewer_editor",
+    args = {
+        "loader": {".svg": "text"},
+    },
+    entry_point = "index_reviewer.ts",
+    output_css = "reviewer_editor.css",
+    visibility = ["//visibility:public"],
+    deps = _esbuild_deps,
+)
+
+esbuild(
+    name = "note_creator",
+    args = {
+        "loader": {".svg": "text"},
+    },
+    entry_point = "index_creator.ts",
+    output_css = "note_creator.css",
+    visibility = ["//visibility:public"],
+    deps = _esbuild_deps,
 )
 
 # Tests
