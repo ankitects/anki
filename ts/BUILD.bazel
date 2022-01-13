@@ -26,13 +26,6 @@ copy_to_bin(
     visibility = ["//visibility:public"],
 )
 
-py_binary(
-    name = "build_page",
-    srcs = [":build_page.py"],
-    legacy_create_init = False,
-    visibility = ["//visibility:public"],
-)
-
 alias(
     name = "yarn",
     actual = "@nodejs//:yarn",
