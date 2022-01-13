@@ -40,5 +40,5 @@ export async function setupChangeNotetypePage(
 // use #testXXXX where XXXX is notetype ID to test
 if (window.location.hash.startsWith("#test")) {
     const ntid = parseInt(window.location.hash.substr("#test".length), 10);
-    setupChangeNotetypePage(ntid, ntid)
+    setupChangeNotetypePage(ntid, ntid);
 }

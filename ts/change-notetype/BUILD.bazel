@@ -2,20 +2,12 @@ load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:esbuild.bzl", "esbuild")
+load("//ts:generate_page.bzl", "generate_page")
 load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:typescript.bzl", "typescript")
 load("//ts:jest.bzl", "jest_test")
 
-genrule(
-    name = "page",
-    srcs = ["//ts:page.html"],
-    outs = ["change-notetype.html"],
-    cmd = "$(location //ts:build_page) $(SRCS) $(OUTS)",
-    tools = [
-        "//ts:build_page",
-    ],
-    visibility = ["//visibility:public"],
-)
+generate_page(page = "change-notetype")
 
 compile_sass(
     srcs = ["change-notetype-base.scss"],

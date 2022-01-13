@@ -24,9 +24,7 @@ const i18n = setupI18n({
     ],
 });
 
-export async function setupDeckOptions(
-    deckId: number,
-): Promise<DeckOptionsPage> {
+export async function setupDeckOptions(deckId: number): Promise<DeckOptionsPage> {
     const [info] = await Promise.all([getDeckOptionsInfo(deckId), i18n]);
 
     checkNightMode();
