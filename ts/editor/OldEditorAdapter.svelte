@@ -8,7 +8,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { PlainTextInputAPI } from "./PlainTextInput.svelte";
     import type { EditorToolbarAPI } from "./EditorToolbar.svelte";
 
-    import { registerShortcut } from "../lib/shortcuts";
     import contextProperty from "../sveltelib/context-property";
     import { writable, get } from "svelte/store";
 
@@ -27,15 +26,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const activeInput = writable<RichTextInputAPI | PlainTextInputAPI | null>(null);
     const currentField = writable<EditorFieldAPI | null>(null);
-
-    function updateFocus() {
-        get(activeInput)?.moveCaretToEnd();
-    }
-
-    registerShortcut(
-        () => document.addEventListener("focusin", updateFocus, { once: true }),
-        "Shift?+Tab",
-    );
 </script>
 
 <script lang="ts">
@@ -67,6 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount, onDestroy } from "svelte";
     import type { Writable } from "svelte/store";
     import { bridgeCommand } from "../lib/bridgecommand";
+    import { registerShortcut } from "../lib/shortcuts";
     import { isApplePlatform } from "../lib/platform";
     import { ChangeTimer } from "./change-timer";
     import { alertIcon } from "./icons";
@@ -257,7 +248,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }),
     );
 
+    import { wrapInternal } from "../lib/wrap";
+
     onMount(() => {
+        function wrap(before: string, after: string): void {
+            if (!get(focusInRichText)) {
+                return;
+            }
+
+            const input = get(activeInput!) as RichTextInputAPI;
+
+            input.element.then((element) => {
+                wrapInternal(element, before, after, false);
+            });
+        }
+
+        Object.assign(globalThis, {
+            setFields,
+            setDescriptions,
+            setFonts,
+            focusField,
+            setColorButtons,
+            setTags,
+            setSticky,
+            setBackgrounds,
+            setClozeHint,
+            saveNow: saveFieldNow,
+            activateStickyShortcuts,
+            focusIfField,
+            setNoteId,
+            wrap,
+        });
+
         document.addEventListener("visibilitychange", saveOnPageHide);
         return () => document.removeEventListener("visibilitychange", saveOnPageHide);
     });

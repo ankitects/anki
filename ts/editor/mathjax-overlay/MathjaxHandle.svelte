@@ -40,6 +40,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let selectAll = false;
 
     function placeHandle(after: boolean): void {
+        flushLocation();
+
         if (after) {
             (mathjaxElement as any).placeCaretAfter();
         } else {
@@ -48,7 +50,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function resetHandle(): Promise<void> {
-        flushLocation();
         selectAll = false;
 
         if (activeImage && mathjaxElement) {
