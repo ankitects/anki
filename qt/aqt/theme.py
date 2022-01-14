@@ -322,22 +322,16 @@ def get_windows_dark_mode() -> bool:
         OpenKey,
         QueryValueEx,
     )
-    import logging
 
-    is_windows_dark_mode = globals().get('IS_WIN_DARK_MODE')
     key = OpenKey(
         HKEY_CURRENT_USER,
         r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
     )
-    if is_windows_dark_mode is None:
-        try:
-            is_windows_dark_mode = not QueryValueEx(key, "AppsUseLightTheme")[0]
-        except Exception as err:
-            print("QueryValueEx error:{}".format(err));
-            logging.exception(err)
-            is_windows_dark_mode = False
-        globals()["IS_WIN_DARK_MODE"] = is_windows_dark_mode
-    return is_windows_dark_mode
+    try:
+        return not QueryValueEx(key, "AppsUseLightTheme")[0]
+    except Exception as err:
+        print("QueryValueEx error:{}".format(err));
+    return False
 
 
 def set_macos_dark_mode(enabled: bool) -> bool:
