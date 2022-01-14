@@ -275,6 +275,7 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
         self._taskman = taskman
         self._terminate_flag = False
         self._process: subprocess.Popen | None = None
+        self._warned_about_missing_player = False
 
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         self._terminate_flag = False
@@ -334,7 +335,9 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
         try:
             ret.result()
         except FileNotFoundError:
-            showWarning(tr.media_sound_and_video_on_cards_will())
+            if not self._warned_about_missing_player:
+                showWarning(tr.media_sound_and_video_on_cards_will())
+                self._warned_about_missing_player = True
             # must call cb() here, as we don't currently have another way
             # to flag to av_player that we've stopped
         cb()
