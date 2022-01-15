@@ -502,11 +502,15 @@ post_handler_list = [
     get_note,
 ]
 
+
 def snakecase_to_camelcase(name: str) -> str:
     [first, *rest] = name.split("_")
     return first + "".join([r.capitalize() for r in rest])
 
-post_handlers = {snakecase_to_camelcase(handler.__name__): handler for handler in post_handler_list}
+
+post_handlers = {
+    snakecase_to_camelcase(handler.__name__): handler for handler in post_handler_list
+}
 
 
 def _extract_collection_post_request(path: str) -> DynamicRequest | NotFound:

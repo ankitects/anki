@@ -154,7 +154,6 @@ def render_method(service_idx, method_idx, method):
         single_field = ""
         return_type = fullname(method.output_type.full_name)
 
-
     return f"""\
     def {name}_bytes({input_args}) -> bytes:
         {input_assign_outer}
