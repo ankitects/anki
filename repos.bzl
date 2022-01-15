@@ -61,11 +61,9 @@ def register_repos():
     maybe(
         http_archive,
         name = "rules_python",
-        sha256 = "954aa89b491be4a083304a2cb838019c8b8c3720a7abb9c4cb81ac7a24230cea",
-        urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/rules_python/releases/download/0.4.0/rules_python-0.4.0.tar.gz",
-            "https://github.com/bazelbuild/rules_python/releases/download/0.4.0/rules_python-0.4.0.tar.gz",
-        ],
+        sha256 = "a30abdfc7126d497a7698c29c46ea9901c6392d6ed315171a6df5ce433aa4502",
+        strip_prefix = "rules_python-0.6.0",
+        url = "https://github.com/bazelbuild/rules_python/archive/0.6.0.tar.gz",
     )
 
     # javascript
