@@ -62,14 +62,6 @@ SKIP_UNROLL_INPUT = {
 }
 SKIP_UNROLL_OUTPUT = {"GetPreferences"}
 
-SKIP_DECODE = {
-    "Graphs",
-    "GetGraphPreferences",
-    "GetChangeNotetypeInfo",
-    "CompleteTag",
-    "CardStats",
-}
-
 
 def python_type(field):
     type = python_type_inner(field)
@@ -131,6 +123,7 @@ def get_input_assign(msg):
 
 def render_method(service_idx, method_idx, method):
     input_name = method.input_type.name
+
     if (
         (input_name.endswith("Request") or len(method.input_type.fields) < 2)
         and not method.input_type.oneofs
@@ -143,8 +136,11 @@ def render_method(service_idx, method_idx, method):
         )
     else:
         input_args = f"self, input: {fullname(method.input_type.full_name)}"
+        input_assign = "input"
         input_assign_outer = ""
+
     name = fix_snakecase(stringcase.snakecase(method.name))
+
     if (
         len(method.output_type.fields) == 1
         and method.output_type.fields[0].type != TYPE_ENUM
@@ -158,23 +154,18 @@ def render_method(service_idx, method_idx, method):
         single_field = ""
         return_type = fullname(method.output_type.full_name)
 
-    if method.name in SKIP_DECODE:
-        return_type = "bytes"
 
-    buf = f"""\
+    return f"""\
+    def {name}_bytes({input_args}) -> bytes:
+        {input_assign_outer}
+        return self._run_command({service_idx}, {method_idx}, input)
+
     def {name}({input_args}) -> {return_type}:
-        {input_assign_outer}"""
-
-    if method.name in SKIP_DECODE:
-        buf += f"""return self._run_command({service_idx}, {method_idx}, input)
-"""
-    else:
-        buf += f"""output = {fullname(method.output_type.full_name)}()
-        output.ParseFromString(self._run_command({service_idx}, {method_idx}, input))
+        raw_bytes = self.{name}_bytes({input_assign})
+        output = {fullname(method.output_type.full_name)}()
+        output.ParseFromString(raw_bytes)
         return output{single_field}
 """
-
-    return buf
 
 
 out = []

@@ -25,11 +25,12 @@ from anki.cards import CardId
 from anki.collection import GraphPreferences, OpChanges
 from anki.decks import UpdateDeckConfigs
 from anki.models import NotetypeNames
+from anki.notes import NoteId
 from anki.scheduler.v3 import NextStates
 from anki.utils import dev_mode, from_json_bytes
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
-from aqt.operations.deck import update_deck_configs
+from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.qt import *
 
 app = flask.Flask(__name__, root_path="/fake")
@@ -408,7 +409,7 @@ def deck_configs_for_update() -> bytes:
     return msg.SerializeToString()
 
 
-def update_deck_configs_request() -> bytes:
+def update_deck_configs() -> bytes:
     # the regular change tracking machinery expects to be started on the main
     # thread and uses a callback on success, so we need to run this op on
     # main, and return immediately from the web request
@@ -421,7 +422,7 @@ def update_deck_configs_request() -> bytes:
             window.reject()
 
     def handle_on_main() -> None:
-        update_deck_configs(parent=aqt.mw, input=input).success(
+        update_deck_configs_op(parent=aqt.mw, input=input).success(
             on_success
         ).run_in_background()
 
@@ -477,23 +478,35 @@ def card_stats() -> bytes:
     return aqt.mw.col.card_stats_data(CardId(args["cardId"]))
 
 
+def get_note() -> bytes:
+    args = from_json_bytes(request.data)
+    return aqt.mw.col._backend.get_note_bytes(NoteId(args["noteId"]))
+
+
 # these require a collection
-post_handlers = {
-    "graphData": graph_data,
-    "graphPreferences": graph_preferences,
-    "setGraphPreferences": set_graph_preferences,
-    "deckConfigsForUpdate": deck_configs_for_update,
-    "updateDeckConfigs": update_deck_configs_request,
-    "nextCardStates": next_card_states,
-    "setNextCardStates": set_next_card_states,
-    "changeNotetypeInfo": change_notetype_info,
-    "notetypeNames": notetype_names,
-    "changeNotetype": change_notetype,
-    "i18nResources": i18n_resources,
-    "congratsInfo": congrats_info,
-    "completeTag": complete_tag,
-    "cardStats": card_stats,
-}
+post_handler_list = [
+    graph_data,
+    graph_preferences,
+    set_graph_preferences,
+    deck_configs_for_update,
+    update_deck_configs,
+    next_card_states,
+    set_next_card_states,
+    change_notetype_info,
+    notetype_names,
+    change_notetype,
+    i18n_resources,
+    congrats_info,
+    complete_tag,
+    card_stats,
+    get_note,
+]
+
+def snakecase_to_camelcase(name: str) -> str:
+    [first, *rest] = name.split("_")
+    return first + "".join([r.capitalize() for r in rest])
+
+post_handlers = {snakecase_to_camelcase(handler.__name__): handler for handler in post_handler_list}
 
 
 def _extract_collection_post_request(path: str) -> DynamicRequest | NotFound:

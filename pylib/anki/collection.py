@@ -805,16 +805,16 @@ class Collection(DeprecatedNamesMixin):
         return CollectionStats(self)
 
     def card_stats_data(self, card_id: CardId) -> bytes:
-        return self._backend.card_stats(card_id)
+        return self._backend.card_stats_bytes(card_id)
 
     def studied_today(self) -> str:
         return self._backend.studied_today()
 
     def graph_data(self, search: str, days: int) -> bytes:
-        return self._backend.graphs(search=search, days=days)
+        return self._backend.graphs_bytes(search=search, days=days)
 
     def get_graph_preferences(self) -> bytes:
-        return self._backend.get_graph_preferences()
+        return self._backend.get_graph_preferences_bytes()
 
     def set_graph_preferences(self, prefs: GraphPreferences) -> None:
         self._backend.set_graph_preferences(input=prefs)

@@ -6,12 +6,13 @@ import { anki } from "./backend_proto";
 import Cards = anki.cards;
 import DeckConfig = anki.deckconfig;
 import Generic = anki.generic;
+import Notes = anki.notes;
 import Notetypes = anki.notetypes;
 import Scheduler = anki.scheduler;
 import Stats = anki.stats;
 import Tags = anki.tags;
 
-export { Stats, Cards, DeckConfig, Notetypes, Scheduler, Tags };
+export { Stats, Cards, DeckConfig, Notes, Notetypes, Scheduler, Tags };
 
 export function unwrapOptionalNumber(
     msg: Generic.IInt64 | Generic.IUInt32 | Generic.IInt32 | null | undefined,

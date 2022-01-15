@@ -371,7 +371,7 @@ and notes.mid = ? and cards.ord = ?""",
     def change_notetype_info(
         self, *, old_notetype_id: NotetypeId, new_notetype_id: NotetypeId
     ) -> bytes:
-        return self.col._backend.get_change_notetype_info(
+        return self.col._backend.get_change_notetype_info_bytes(
             old_notetype_id=old_notetype_id, new_notetype_id=new_notetype_id
         )
 
