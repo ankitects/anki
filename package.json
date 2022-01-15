@@ -69,7 +69,7 @@
         "jquery": "^3.5.1",
         "jquery-ui-dist": "^1.12.1",
         "lodash-es": "^4.17.21",
-        "marked": "3.0.4",
+        "marked": "4.0.10",
         "mathjax": "^3.1.2",
         "mathjax-full": "^3.2.0",
         "protobufjs": "^6.10.2"
