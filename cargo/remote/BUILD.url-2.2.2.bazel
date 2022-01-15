@@ -57,7 +57,7 @@ rust_library(
         "@raze__idna__0_2_3//:idna",
         "@raze__matches__0_1_9//:matches",
         "@raze__percent_encoding__2_1_0//:percent_encoding",
-        "@raze__serde__1_0_130//:serde",
+        "@raze__serde__1_0_133//:serde",
     ],
 )
 

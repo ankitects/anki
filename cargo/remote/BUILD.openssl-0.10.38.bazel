@@ -57,7 +57,7 @@ cargo_build_script(
     version = "0.10.38",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__openssl_sys__0_9_71//:openssl_sys",
+        "@raze__openssl_sys__0_9_72//:openssl_sys",
     ],
 )
 
@@ -67,7 +67,7 @@ rust_library(
     name = "openssl",
     srcs = glob(["**/*.rs"]),
     aliases = {
-        "@raze__openssl_sys__0_9_71//:openssl_sys": "ffi",
+        "@raze__openssl_sys__0_9_72//:openssl_sys": "ffi",
     },
     crate_features = [
     ],
@@ -89,8 +89,8 @@ rust_library(
         "@raze__bitflags__1_3_2//:bitflags",
         "@raze__cfg_if__1_0_0//:cfg_if",
         "@raze__foreign_types__0_3_2//:foreign_types",
-        "@raze__libc__0_2_108//:libc",
-        "@raze__once_cell__1_8_0//:once_cell",
-        "@raze__openssl_sys__0_9_71//:openssl_sys",
+        "@raze__libc__0_2_112//:libc",
+        "@raze__once_cell__1_9_0//:once_cell",
+        "@raze__openssl_sys__0_9_72//:openssl_sys",
     ],
 )

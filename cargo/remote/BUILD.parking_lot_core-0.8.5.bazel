@@ -103,7 +103,7 @@ rust_library(
         ":parking_lot_core_build_script",
         "@raze__cfg_if__1_0_0//:cfg_if",
         "@raze__instant__0_1_12//:instant",
-        "@raze__smallvec__1_7_0//:smallvec",
+        "@raze__smallvec__1_8_0//:smallvec",
     ] + selects.with_or({
         # cfg(unix)
         (
@@ -114,7 +114,7 @@ rust_library(
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-apple-ios",
         ): [
-            "@raze__libc__0_2_108//:libc",
+            "@raze__libc__0_2_112//:libc",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

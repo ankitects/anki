@@ -56,7 +56,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__cfg_if__1_0_0//:cfg_if",
-        "@raze__pin_project_lite__0_2_7//:pin_project_lite",
+        "@raze__pin_project_lite__0_2_8//:pin_project_lite",
         "@raze__tracing_core__0_1_21//:tracing_core",
     ],
 )
