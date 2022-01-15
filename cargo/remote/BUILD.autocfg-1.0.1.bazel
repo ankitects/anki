@@ -52,8 +52,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=autocfg",
         "manual",
-        "crate-name=autocfg"
     ],
     version = "1.0.1",
     # buildifier: leave-alone

@@ -44,8 +44,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=percent-encoding",
         "manual",
-        "crate-name=percent-encoding"
     ],
     version = "2.1.0",
     # buildifier: leave-alone

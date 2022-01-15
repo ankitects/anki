@@ -49,8 +49,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=itoa",
         "manual",
-        "crate-name=itoa"
     ],
     version = "0.4.8",
     # buildifier: leave-alone

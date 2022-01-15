@@ -106,8 +106,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=ahash",
         "manual",
-        "crate-name=ahash"
     ],
     version = "0.7.6",
     # buildifier: leave-alone

@@ -44,8 +44,8 @@ rust_proc_macro(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=futures-macro",
         "manual",
-        "crate-name=futures-macro"
     ],
     version = "0.3.18",
     # buildifier: leave-alone

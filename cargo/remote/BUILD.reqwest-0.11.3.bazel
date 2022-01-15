@@ -82,8 +82,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=reqwest",
         "manual",
-        "crate-name=reqwest"
     ],
     version = "0.11.3",
     # buildifier: leave-alone

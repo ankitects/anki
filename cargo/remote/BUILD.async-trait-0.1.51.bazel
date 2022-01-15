@@ -73,8 +73,8 @@ rust_proc_macro(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=async-trait",
         "manual",
-        "crate-name=async-trait"
     ],
     version = "0.1.51",
     # buildifier: leave-alone

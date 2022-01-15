@@ -79,8 +79,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=crc32fast",
         "manual",
-        "crate-name=crc32fast"
     ],
     version = "1.3.0",
     # buildifier: leave-alone

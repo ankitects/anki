@@ -95,8 +95,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=libsqlite3-sys",
         "manual",
-        "crate-name=libsqlite3-sys"
     ],
     version = "0.23.1",
     # buildifier: leave-alone

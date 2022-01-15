@@ -44,8 +44,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=vcpkg",
         "manual",
-        "crate-name=vcpkg"
     ],
     version = "0.2.15",
     # buildifier: leave-alone

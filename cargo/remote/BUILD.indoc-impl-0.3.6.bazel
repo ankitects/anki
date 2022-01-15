@@ -47,8 +47,8 @@ rust_proc_macro(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=indoc-impl",
         "manual",
-        "crate-name=indoc-impl"
     ],
     version = "0.3.6",
     # buildifier: leave-alone

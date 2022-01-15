@@ -44,8 +44,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=inflections",
         "manual",
-        "crate-name=inflections"
     ],
     version = "1.1.1",
     # buildifier: leave-alone

@@ -56,8 +56,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=codespan-reporting",
         "manual",
-        "crate-name=codespan-reporting"
     ],
     version = "0.11.1",
     # buildifier: leave-alone

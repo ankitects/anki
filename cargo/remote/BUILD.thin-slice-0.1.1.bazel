@@ -44,8 +44,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=thin-slice",
         "manual",
-        "crate-name=thin-slice"
     ],
     version = "0.1.1",
     # buildifier: leave-alone

@@ -50,8 +50,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=arc-swap",
         "manual",
-        "crate-name=arc-swap"
     ],
     version = "1.5.0",
     # buildifier: leave-alone

@@ -88,8 +88,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=wasm-bindgen",
         "manual",
-        "crate-name=wasm-bindgen"
     ],
     version = "0.2.78",
     # buildifier: leave-alone

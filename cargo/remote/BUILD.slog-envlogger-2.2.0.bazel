@@ -52,8 +52,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=slog-envlogger",
         "manual",
-        "crate-name=slog-envlogger"
     ],
     version = "2.2.0",
     # buildifier: leave-alone
