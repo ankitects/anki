@@ -311,10 +311,7 @@ class SidebarTreeView(QTreeView):
 
     def dropEvent(self, event: QDropEvent) -> None:
         model = self.model()
-        if qtmajor == 5:
-            pos = event.pos()  # type: ignore
-        else:
-            pos = event.position().toPoint()
+        pos = self.getPos(event)
         target_item = model.item_for_index(self.indexAt(pos))
         if self.handle_drag_drop(self._selected_items(), target_item):
             event.acceptProposedAction()
@@ -325,8 +322,16 @@ class SidebarTreeView(QTreeView):
             self.tool == SidebarTool.SEARCH
             and event.button() == Qt.MouseButton.LeftButton
         ):
-            if (index := self.currentIndex()) == self.indexAt(event.pos()):
+            pos = self.getPos(event)
+            if (index := self.currentIndex()) == self.indexAt(pos):
                 self._on_search(index)
+
+    def getPos(self, event: QSinglePointEvent) -> QPoint:
+        if qtmajor == 5:
+            pos = event.pos()  # type: ignore
+        else:
+            pos = event.position().toPoint()
+        return pos
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         index = self.currentIndex()
