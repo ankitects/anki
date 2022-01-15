@@ -33,12 +33,22 @@ def register_repos():
     maybe(
         http_archive,
         name = "rules_rust",
-        strip_prefix = "rules_rust-anki-2021-12-20",
+        strip_prefix = "rules_rust-f9ff78318f83281993c9d66a4b0cf4d72c883633",
         urls = [
-            "https://github.com/ankitects/rules_rust/archive/refs/tags/anki-2021-12-20.zip",
+            "https://github.com/bazelbuild/rules_rust/archive/f9ff78318f83281993c9d66a4b0cf4d72c883633.zip",
         ],
-        sha256 = "c9300cb1d1eddc5b85d5ced35f4c332b08afc7a439d2b75e696d3282b80677af",
+        sha256 = "43eef0733934c3a1ddfe159874fc3b259121e69df091af2a8a372f62e2f73e1f",
     )
+
+    # maybe(
+    #     http_archive,
+    #     name = "rules_rust",
+    #     strip_prefix = "rules_rust-anki-2021-12-20",
+    #     urls = [
+    #         "https://github.com/ankitects/rules_rust/archive/refs/tags/anki-2021-12-20.zip",
+    #     ],
+    #     sha256 = "c9300cb1d1eddc5b85d5ced35f4c332b08afc7a439d2b75e696d3282b80677af",
+    # )
 
     # python
     ##########
