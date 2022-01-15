@@ -54,11 +54,11 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__bytes__1_1_0//:bytes",
-        "@raze__futures_core__0_3_18//:futures_core",
-        "@raze__futures_sink__0_3_18//:futures_sink",
+        "@raze__futures_core__0_3_19//:futures_core",
+        "@raze__futures_sink__0_3_19//:futures_sink",
         "@raze__log__0_4_14//:log",
-        "@raze__pin_project_lite__0_2_7//:pin_project_lite",
-        "@raze__tokio__1_14_0//:tokio",
+        "@raze__pin_project_lite__0_2_8//:pin_project_lite",
+        "@raze__tokio__1_15_0//:tokio",
     ],
 )
 

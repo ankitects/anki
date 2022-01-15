@@ -83,7 +83,7 @@ rust_library(
         ":prost_build_build_script",
         "@raze__bytes__1_1_0//:bytes",
         "@raze__heck__0_3_3//:heck",
-        "@raze__itertools__0_10_1//:itertools",
+        "@raze__itertools__0_10_3//:itertools",
         "@raze__lazy_static__1_4_0//:lazy_static",
         "@raze__log__0_4_14//:log",
         "@raze__multimap__0_8_3//:multimap",
@@ -91,6 +91,6 @@ rust_library(
         "@raze__prost__0_9_0//:prost",
         "@raze__prost_types__0_9_0//:prost_types",
         "@raze__regex__1_5_4//:regex",
-        "@raze__tempfile__3_2_0//:tempfile",
+        "@raze__tempfile__3_3_0//:tempfile",
     ],
 )

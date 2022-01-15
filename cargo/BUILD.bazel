@@ -23,7 +23,7 @@ alias(
 
 alias(
     name = "async_trait",
-    actual = "@raze__async_trait__0_1_51//:async_trait",
+    actual = "@raze__async_trait__0_1_52//:async_trait",
     tags = [
         "cargo-raze",
         "manual",
@@ -32,7 +32,7 @@ alias(
 
 alias(
     name = "blake3",
-    actual = "@raze__blake3__1_2_0//:blake3",
+    actual = "@raze__blake3__1_3_0//:blake3",
     tags = [
         "cargo-raze",
         "manual",
@@ -122,7 +122,7 @@ alias(
 
 alias(
     name = "futures",
-    actual = "@raze__futures__0_3_18//:futures",
+    actual = "@raze__futures__0_3_19//:futures",
     tags = [
         "cargo-raze",
         "manual",
@@ -167,7 +167,7 @@ alias(
 
 alias(
     name = "itertools",
-    actual = "@raze__itertools__0_10_1//:itertools",
+    actual = "@raze__itertools__0_10_3//:itertools",
     tags = [
         "cargo-raze",
         "manual",
@@ -203,7 +203,7 @@ alias(
 
 alias(
     name = "num_enum",
-    actual = "@raze__num_enum__0_5_4//:num_enum",
+    actual = "@raze__num_enum__0_5_6//:num_enum",
     tags = [
         "cargo-raze",
         "manual",
@@ -230,7 +230,7 @@ alias(
 
 alias(
     name = "once_cell",
-    actual = "@raze__once_cell__1_8_0//:once_cell",
+    actual = "@raze__once_cell__1_9_0//:once_cell",
     tags = [
         "cargo-raze",
         "manual",
@@ -248,7 +248,7 @@ alias(
 
 alias(
     name = "phf",
-    actual = "@raze__phf__0_10_0//:phf",
+    actual = "@raze__phf__0_10_1//:phf",
     tags = [
         "cargo-raze",
         "manual",
@@ -257,7 +257,7 @@ alias(
 
 alias(
     name = "pin_project",
-    actual = "@raze__pin_project__1_0_8//:pin_project",
+    actual = "@raze__pin_project__1_0_10//:pin_project",
     tags = [
         "cargo-raze",
         "manual",
@@ -338,7 +338,7 @@ alias(
 
 alias(
     name = "rusqlite",
-    actual = "@raze__rusqlite__0_26_1//:rusqlite",
+    actual = "@raze__rusqlite__0_26_3//:rusqlite",
     tags = [
         "cargo-raze",
         "manual",
@@ -356,7 +356,7 @@ alias(
 
 alias(
     name = "serde",
-    actual = "@raze__serde__1_0_130//:serde",
+    actual = "@raze__serde__1_0_133//:serde",
     tags = [
         "cargo-raze",
         "manual",
@@ -374,7 +374,7 @@ alias(
 
 alias(
     name = "serde_derive",
-    actual = "@raze__serde_derive__1_0_130//:serde_derive",
+    actual = "@raze__serde_derive__1_0_133//:serde_derive",
     tags = [
         "cargo-raze",
         "manual",
@@ -383,7 +383,7 @@ alias(
 
 alias(
     name = "serde_json",
-    actual = "@raze__serde_json__1_0_72//:serde_json",
+    actual = "@raze__serde_json__1_0_74//:serde_json",
     tags = [
         "cargo-raze",
         "manual",
@@ -464,7 +464,7 @@ alias(
 
 alias(
     name = "tempfile",
-    actual = "@raze__tempfile__3_2_0//:tempfile",
+    actual = "@raze__tempfile__3_3_0//:tempfile",
     tags = [
         "cargo-raze",
         "manual",
@@ -473,7 +473,7 @@ alias(
 
 alias(
     name = "tokio",
-    actual = "@raze__tokio__1_14_0//:tokio",
+    actual = "@raze__tokio__1_15_0//:tokio",
     tags = [
         "cargo-raze",
         "manual",

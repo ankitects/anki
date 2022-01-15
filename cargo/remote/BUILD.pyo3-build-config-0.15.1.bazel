@@ -91,6 +91,6 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":pyo3_build_config_build_script",
-        "@raze__once_cell__1_8_0//:once_cell",
+        "@raze__once_cell__1_9_0//:once_cell",
     ],
 )

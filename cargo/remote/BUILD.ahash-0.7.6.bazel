@@ -57,7 +57,7 @@ cargo_build_script(
     version = "0.7.6",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__version_check__0_9_3//:version_check",
+        "@raze__version_check__0_9_4//:version_check",
     ] + selects.with_or({
         # cfg(any(target_os = "linux", target_os = "android", target_os = "windows", target_os = "macos", target_os = "ios", target_os = "freebsd", target_os = "openbsd", target_os = "netbsd", target_os = "dragonfly", target_os = "solaris", target_os = "illumos", target_os = "fuchsia", target_os = "redox", target_os = "cloudabi", target_os = "haiku", target_os = "vxworks", target_os = "emscripten", target_os = "wasi"))
         (
@@ -124,7 +124,7 @@ rust_library(
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-apple-ios",
         ): [
-            "@raze__getrandom__0_2_3//:getrandom",
+            "@raze__getrandom__0_2_4//:getrandom",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
@@ -138,7 +138,7 @@ rust_library(
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-apple-ios",
         ): [
-            "@raze__once_cell__1_8_0//:once_cell",
+            "@raze__once_cell__1_9_0//:once_cell",
         ],
         "//conditions:default": [],
     }),
