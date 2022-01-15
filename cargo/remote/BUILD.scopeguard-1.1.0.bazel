@@ -48,8 +48,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=scopeguard",
         "manual",
-        "crate-name=scopeguard"
     ],
     version = "1.1.0",
     # buildifier: leave-alone

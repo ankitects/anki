@@ -47,8 +47,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=futures-sink",
         "manual",
-        "crate-name=futures-sink"
     ],
     version = "0.3.18",
     # buildifier: leave-alone

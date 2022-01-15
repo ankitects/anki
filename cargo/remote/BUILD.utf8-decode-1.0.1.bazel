@@ -48,8 +48,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=utf8-decode",
         "manual",
-        "crate-name=utf8-decode"
     ],
     version = "1.0.1",
     # buildifier: leave-alone

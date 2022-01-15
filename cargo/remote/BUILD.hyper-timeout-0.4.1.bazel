@@ -46,8 +46,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=hyper-timeout",
         "manual",
-        "crate-name=hyper-timeout"
     ],
     version = "0.4.1",
     # buildifier: leave-alone

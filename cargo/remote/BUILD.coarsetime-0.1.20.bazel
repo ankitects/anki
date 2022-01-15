@@ -46,8 +46,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=coarsetime",
         "manual",
-        "crate-name=coarsetime"
     ],
     version = "0.1.20",
     # buildifier: leave-alone

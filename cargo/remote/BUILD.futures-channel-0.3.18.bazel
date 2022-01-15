@@ -85,8 +85,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=futures-channel",
         "manual",
-        "crate-name=futures-channel"
     ],
     version = "0.3.18",
     # buildifier: leave-alone

@@ -44,8 +44,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=http-body",
         "manual",
-        "crate-name=http-body"
     ],
     version = "0.4.4",
     # buildifier: leave-alone

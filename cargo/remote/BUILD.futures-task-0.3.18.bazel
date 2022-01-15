@@ -77,8 +77,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=futures-task",
         "manual",
-        "crate-name=futures-task"
     ],
     version = "0.3.18",
     # buildifier: leave-alone

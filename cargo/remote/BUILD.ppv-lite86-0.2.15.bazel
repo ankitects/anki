@@ -46,8 +46,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=ppv-lite86",
         "manual",
-        "crate-name=ppv-lite86"
     ],
     version = "0.2.15",
     # buildifier: leave-alone

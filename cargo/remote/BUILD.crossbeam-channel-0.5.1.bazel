@@ -55,8 +55,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=crossbeam-channel",
         "manual",
-        "crate-name=crossbeam-channel"
     ],
     version = "0.5.1",
     # buildifier: leave-alone

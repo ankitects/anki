@@ -80,8 +80,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=indexmap",
         "manual",
-        "crate-name=indexmap"
     ],
     version = "1.7.0",
     # buildifier: leave-alone

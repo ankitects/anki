@@ -82,8 +82,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=blake3",
         "manual",
-        "crate-name=blake3"
     ],
     version = "1.2.0",
     # buildifier: leave-alone

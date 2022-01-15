@@ -54,8 +54,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=winreg",
         "manual",
-        "crate-name=winreg"
     ],
     version = "0.7.0",
     # buildifier: leave-alone

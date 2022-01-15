@@ -53,8 +53,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=rusqlite",
         "manual",
-        "crate-name=rusqlite"
     ],
     version = "0.26.1",
     # buildifier: leave-alone

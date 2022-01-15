@@ -79,8 +79,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=semver",
         "manual",
-        "crate-name=semver"
     ],
     version = "1.0.4",
     # buildifier: leave-alone

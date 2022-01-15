@@ -65,8 +65,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=itertools",
         "manual",
-        "crate-name=itertools"
     ],
     version = "0.10.1",
     # buildifier: leave-alone

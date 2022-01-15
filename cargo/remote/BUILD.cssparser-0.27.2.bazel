@@ -79,8 +79,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=cssparser",
         "manual",
-        "crate-name=cssparser"
     ],
     version = "0.27.2",
     # buildifier: leave-alone

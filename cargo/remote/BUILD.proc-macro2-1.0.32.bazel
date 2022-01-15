@@ -77,8 +77,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=proc-macro2",
         "manual",
-        "crate-name=proc-macro2"
     ],
     version = "1.0.32",
     # buildifier: leave-alone

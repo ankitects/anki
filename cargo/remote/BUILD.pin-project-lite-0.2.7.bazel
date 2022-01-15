@@ -44,8 +44,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=pin-project-lite",
         "manual",
-        "crate-name=pin-project-lite"
     ],
     version = "0.2.7",
     # buildifier: leave-alone

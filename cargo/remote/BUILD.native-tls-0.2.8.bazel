@@ -106,8 +106,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=native-tls",
         "manual",
-        "crate-name=native-tls"
     ],
     version = "0.2.8",
     # buildifier: leave-alone

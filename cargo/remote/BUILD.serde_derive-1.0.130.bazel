@@ -75,8 +75,8 @@ rust_proc_macro(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=serde_derive",
         "manual",
-        "crate-name=serde_derive"
     ],
     version = "1.0.130",
     # buildifier: leave-alone

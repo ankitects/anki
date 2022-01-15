@@ -54,8 +54,8 @@ rust_binary(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=generate_layout",
         "manual",
-        "crate-name=generate_layout"
     ],
     version = "0.9.0",
     # buildifier: leave-alone
@@ -80,8 +80,8 @@ rust_binary(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=generate_likelysubtags",
         "manual",
-        "crate-name=generate_likelysubtags"
     ],
     version = "0.9.0",
     # buildifier: leave-alone
@@ -104,8 +104,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=unic-langid-impl",
         "manual",
-        "crate-name=unic-langid-impl"
     ],
     version = "0.9.0",
     # buildifier: leave-alone

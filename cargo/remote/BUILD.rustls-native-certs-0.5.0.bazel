@@ -50,8 +50,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=rustls-native-certs",
         "manual",
-        "crate-name=rustls-native-certs"
     ],
     version = "0.5.0",
     # buildifier: leave-alone

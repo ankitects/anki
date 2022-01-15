@@ -91,8 +91,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=getrandom",
         "manual",
-        "crate-name=getrandom"
     ],
     version = "0.1.16",
     # buildifier: leave-alone

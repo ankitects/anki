@@ -46,8 +46,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=intl_pluralrules",
         "manual",
-        "crate-name=intl_pluralrules"
     ],
     version = "7.0.1",
     # buildifier: leave-alone

@@ -44,8 +44,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=pyo3-macros-backend",
         "manual",
-        "crate-name=pyo3-macros-backend"
     ],
     version = "0.15.1",
     # buildifier: leave-alone

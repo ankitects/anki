@@ -73,8 +73,8 @@ rust_proc_macro(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=proc-macro-hack",
         "manual",
-        "crate-name=proc-macro-hack"
     ],
     version = "0.5.19",
     # buildifier: leave-alone

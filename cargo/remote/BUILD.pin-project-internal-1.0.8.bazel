@@ -44,8 +44,8 @@ rust_proc_macro(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=pin-project-internal",
         "manual",
-        "crate-name=pin-project-internal"
     ],
     version = "1.0.8",
     # buildifier: leave-alone

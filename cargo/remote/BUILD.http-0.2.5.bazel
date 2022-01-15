@@ -54,8 +54,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=http",
         "manual",
-        "crate-name=http"
     ],
     version = "0.2.5",
     # buildifier: leave-alone

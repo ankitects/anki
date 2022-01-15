@@ -46,8 +46,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=dirs-sys-next",
         "manual",
-        "crate-name=dirs-sys-next"
     ],
     version = "0.1.2",
     # buildifier: leave-alone

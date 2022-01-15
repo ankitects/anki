@@ -73,8 +73,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=winapi-x86_64-pc-windows-gnu",
         "manual",
-        "crate-name=winapi-x86_64-pc-windows-gnu"
     ],
     version = "0.4.0",
     # buildifier: leave-alone

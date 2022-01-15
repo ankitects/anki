@@ -52,8 +52,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=security-framework",
         "manual",
-        "crate-name=security-framework"
     ],
     version = "2.4.2",
     # buildifier: leave-alone

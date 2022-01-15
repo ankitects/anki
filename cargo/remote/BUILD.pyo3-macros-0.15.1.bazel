@@ -44,8 +44,8 @@ rust_proc_macro(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=pyo3-macros",
         "manual",
-        "crate-name=pyo3-macros"
     ],
     version = "0.15.1",
     # buildifier: leave-alone

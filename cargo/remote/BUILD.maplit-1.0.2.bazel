@@ -44,8 +44,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=maplit",
         "manual",
-        "crate-name=maplit"
     ],
     version = "1.0.2",
     # buildifier: leave-alone
