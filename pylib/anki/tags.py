@@ -71,7 +71,7 @@ class TagManager(DeprecatedNamesMixin):
     def complete_tag(self, input_bytes: bytes) -> bytes:
         input = tags_pb2.CompleteTagRequest()
         input.ParseFromString(input_bytes)
-        return self.col._backend.complete_tag_bytes(input)
+        return self.col._backend.complete_tag_raw(input)
 
     # Bulk addition/removal from specific notes
     #############################################################

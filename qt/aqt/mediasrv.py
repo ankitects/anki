@@ -479,8 +479,7 @@ def card_stats() -> bytes:
 
 
 def get_note() -> bytes:
-    args = from_json_bytes(request.data)
-    return aqt.mw.col._backend.get_note_bytes(NoteId(args["noteId"]))
+    return aqt.mw.col._backend.get_note_raw(request.data)
 
 
 # these require a collection

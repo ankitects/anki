@@ -51,18 +51,6 @@ LABEL_OPTIONAL = 1
 LABEL_REQUIRED = 2
 LABEL_REPEATED = 3
 
-# messages we don't want to unroll in codegen
-SKIP_UNROLL_INPUT = {
-    "TranslateString",
-    "SetPreferences",
-    "UpdateDeckConfigs",
-    "AnswerCard",
-    "ChangeNotetype",
-    "CompleteTag",
-}
-SKIP_UNROLL_OUTPUT = {"GetPreferences"}
-
-
 def python_type(field):
     type = python_type_inner(field)
     if field.label == LABEL_REPEATED:
@@ -110,15 +98,25 @@ def fix_snakecase(name):
 
 def get_input_args(msg):
     fields = sorted(msg.fields, key=lambda x: x.number)
-    self_star = ["self"]
-    if len(fields) >= 2:
-        self_star.append("*")
+    self_star = ["*"] if len(fields) >= 2 else []
     return ", ".join(self_star + [f"{f.name}: {python_type(f)}" for f in fields])
 
 
 def get_input_assign(msg):
     fields = sorted(msg.fields, key=lambda x: x.number)
     return ", ".join(f"{f.name}={f.name}" for f in fields)
+
+
+# messages we don't want to unroll in codegen
+SKIP_UNROLL_INPUT = {
+    "TranslateString",
+    "SetPreferences",
+    "UpdateDeckConfigs",
+    "AnswerCard",
+    "ChangeNotetype",
+    "CompleteTag",
+}
+SKIP_UNROLL_OUTPUT = {"GetPreferences"}
 
 
 def render_method(service_idx, method_idx, method):
@@ -129,15 +127,15 @@ def render_method(service_idx, method_idx, method):
         and not method.input_type.oneofs
         and not method.name in SKIP_UNROLL_INPUT
     ):
-        input_args = get_input_args(method.input_type)
-        input_assign = get_input_assign(method.input_type)
-        input_assign_outer = (
-            f"input = {fullname(method.input_type.full_name)}({input_assign})\n        "
+        input_params_raw = "input: bytes"
+        input_params = get_input_args(method.input_type)
+        input_assign_full = (
+            f"input = {fullname(method.input_type.full_name)}({get_input_assign(method.input_type)})\n        "
         )
     else:
-        input_args = f"self, input: {fullname(method.input_type.full_name)}"
-        input_assign = "input"
-        input_assign_outer = ""
+        input_params_raw = f"input: {fullname(method.input_type.full_name)}"
+        input_params = input_params_raw
+        input_assign_full = ""
 
     name = fix_snakecase(stringcase.snakecase(method.name))
 
@@ -148,22 +146,22 @@ def render_method(service_idx, method_idx, method):
     ):
         # unwrap single return arg
         f = method.output_type.fields[0]
-        single_field = f".{f.name}"
         return_type = python_type(f)
+        single_attribute = f".{f.name}"
     else:
-        single_field = ""
         return_type = fullname(method.output_type.full_name)
+        single_attribute = ""
 
     return f"""\
-    def {name}_bytes({input_args}) -> bytes:
-        {input_assign_outer}
+    def {name}_raw(self, {input_params_raw}) -> bytes:
         return self._run_command({service_idx}, {method_idx}, input)
 
-    def {name}({input_args}) -> {return_type}:
-        raw_bytes = self.{name}_bytes({input_assign})
+    def {name}(self, {input_params}) -> {return_type}:
+        {input_assign_full}
+        raw_bytes = self.{name}_raw(input)
         output = {fullname(method.output_type.full_name)}()
         output.ParseFromString(raw_bytes)
-        return output{single_field}
+        return output{single_attribute}
 """
 
 
@@ -225,7 +223,7 @@ or removed at any time. Instead, please use the methods on the collection
 instead. Eg, don't use col.backend.all_deck_config(), instead use
 col.decks.all_config()
 """
-    
+
 from typing import *
 
 import anki
