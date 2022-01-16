@@ -330,8 +330,8 @@ def get_windows_dark_mode() -> bool:
     try:
         return not QueryValueEx(key, "AppsUseLightTheme")[0]
     except Exception as err:
-        print("QueryValueEx error:{}".format(err));
-    return False
+        # key reportedly missing or set to wrong type on some systems
+        return False
 
 
 def set_macos_dark_mode(enabled: bool) -> bool:
