@@ -55,6 +55,7 @@ message BackendError {
     EXISTS = 12;
     FILTERED_DECK_ERROR = 13;
     SEARCH_ERROR = 14;
+    CUSTOM_STUDY_ERROR = 15;
   }
 
   // localized error description suitable for displaying to the user

@@ -33,6 +33,7 @@ impl AnkiError {
             AnkiError::UndoEmpty => Kind::UndoEmpty,
             AnkiError::MultipleNotetypesSelected => Kind::InvalidInput,
             AnkiError::DatabaseCheckRequired => Kind::InvalidInput,
+            AnkiError::CustomStudyError(_) => Kind::CustomStudyError,
         };
 
         pb::BackendError {
