@@ -7,7 +7,7 @@ use regex::Regex;
 
 use crate::{
     collection::Collection,
-    error::{AnkiError, Result},
+    error::Result,
     notes::{NoteId, TransformNoteOutput},
     prelude::*,
     text::normalize_to_nfc,
@@ -35,7 +35,7 @@ impl FindReplaceContext {
     ) -> Result<Self> {
         Ok(FindReplaceContext {
             nids,
-            search: Regex::new(search_re).map_err(|_| AnkiError::invalid_input("invalid regex"))?,
+            search: Regex::new(search_re)?,
             replacement: repl.into(),
             field_name,
         })
