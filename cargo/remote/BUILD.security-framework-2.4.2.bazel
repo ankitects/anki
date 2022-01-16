@@ -52,8 +52,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=security-framework",
         "manual",
-        "crate-name=security-framework"
     ],
     version = "2.4.2",
     # buildifier: leave-alone
@@ -61,7 +61,7 @@ rust_library(
         "@raze__bitflags__1_3_2//:bitflags",
         "@raze__core_foundation__0_9_2//:core_foundation",
         "@raze__core_foundation_sys__0_8_3//:core_foundation_sys",
-        "@raze__libc__0_2_108//:libc",
+        "@raze__libc__0_2_112//:libc",
         "@raze__security_framework_sys__2_4_2//:security_framework_sys",
     ],
 )

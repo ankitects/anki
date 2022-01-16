@@ -51,8 +51,8 @@ rust_binary(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=parser",
         "manual",
-        "crate-name=parser"
     ],
     version = "0.11.0",
     # buildifier: leave-alone
@@ -78,8 +78,8 @@ rust_binary(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=update_fixtures",
         "manual",
-        "crate-name=update_fixtures"
     ],
     version = "0.11.0",
     # buildifier: leave-alone
@@ -103,8 +103,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=fluent-syntax",
         "manual",
-        "crate-name=fluent-syntax"
     ],
     version = "0.11.0",
     # buildifier: leave-alone

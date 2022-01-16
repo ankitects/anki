@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import marked from "marked";
+    import { marked } from "marked";
     import { infoCircle } from "./icons";
     import WithTooltip from "../components/WithTooltip.svelte";
     import Label from "./Label.svelte";

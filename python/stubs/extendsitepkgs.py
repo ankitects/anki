@@ -2,9 +2,12 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import os
-from mypy import sitepkgs
+import sys
+from mypy import pyinfo
 
-pkgs = sitepkgs.getsitepackages()
-pkgs.append(os.getenv("EXTRA_SITE_PACKAGES"))
-
-print(pkgs)
+if sys.argv[-1] == "getsitepackages":
+    pkgs = pyinfo.getsitepackages()
+    pkgs.append(os.getenv("EXTRA_SITE_PACKAGES"))
+    print(repr(pkgs))
+elif sys.argv[-1] == "getprefixes":
+    print(repr(pyinfo.getprefixes()))

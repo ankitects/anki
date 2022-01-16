@@ -1,5 +1,5 @@
 {
-    "@fluent/bundle@0.17.0": {
+    "@fluent/bundle@0.17.1": {
         "licenses": "Apache-2.0",
         "repository": "https://github.com/projectfluent/fluent.js",
         "publisher": "Mozilla",
@@ -14,7 +14,7 @@
         "path": "node_modules/@mdi/svg",
         "licenseFile": "node_modules/@mdi/svg/LICENSE"
     },
-    "@popperjs/core@2.11.0": {
+    "@popperjs/core@2.11.2": {
         "licenses": "MIT",
         "repository": "https://github.com/popperjs/popper-core",
         "publisher": "Federico Zivolo",
@@ -108,7 +108,7 @@
         "path": "node_modules/@types/lodash-es",
         "licenseFile": "node_modules/@types/lodash-es/LICENSE"
     },
-    "@types/lodash@4.14.177": {
+    "@types/lodash@4.14.178": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/@types/lodash",
@@ -126,13 +126,13 @@
         "path": "node_modules/@types/marked",
         "licenseFile": "node_modules/@types/marked/LICENSE"
     },
-    "@types/node@16.11.11": {
+    "@types/node@17.0.8": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
-        "path": "node_modules/@types/node",
-        "licenseFile": "node_modules/@types/node/LICENSE"
+        "path": "node_modules/protobufjs/node_modules/@types/node",
+        "licenseFile": "node_modules/protobufjs/node_modules/@types/node/LICENSE"
     },
-    "bootstrap-icons@1.7.1": {
+    "bootstrap-icons@1.7.2": {
         "licenses": "MIT",
         "repository": "https://github.com/twbs/icons",
         "publisher": "mdo",
@@ -147,7 +147,7 @@
         "path": "node_modules/bootstrap",
         "licenseFile": "node_modules/bootstrap/LICENSE"
     },
-    "codemirror@5.64.0": {
+    "codemirror@5.65.0": {
         "licenses": "MIT",
         "repository": "https://github.com/codemirror/CodeMirror",
         "publisher": "Marijn Haverbeke",
@@ -283,7 +283,7 @@
         "path": "node_modules/d3-force",
         "licenseFile": "node_modules/d3-force/LICENSE"
     },
-    "d3-format@3.0.1": {
+    "d3-format@3.1.0": {
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-format",
         "publisher": "Mike Bostock",
@@ -299,7 +299,7 @@
         "path": "node_modules/d3-geo",
         "licenseFile": "node_modules/d3-geo/LICENSE"
     },
-    "d3-hierarchy@3.0.1": {
+    "d3-hierarchy@3.1.1": {
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-hierarchy",
         "publisher": "Mike Bostock",
@@ -371,7 +371,7 @@
         "path": "node_modules/d3-selection",
         "licenseFile": "node_modules/d3-selection/LICENSE"
     },
-    "d3-shape@3.0.1": {
+    "d3-shape@3.1.0": {
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-shape",
         "publisher": "Mike Bostock",
@@ -379,7 +379,7 @@
         "path": "node_modules/d3-shape",
         "licenseFile": "node_modules/d3-shape/LICENSE"
     },
-    "d3-time-format@4.0.0": {
+    "d3-time-format@4.1.0": {
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3-time-format",
         "publisher": "Mike Bostock",
@@ -419,7 +419,7 @@
         "path": "node_modules/d3-zoom",
         "licenseFile": "node_modules/d3-zoom/LICENSE"
     },
-    "d3@7.1.1": {
+    "d3@7.3.0": {
         "licenses": "ISC",
         "repository": "https://github.com/d3/d3",
         "publisher": "Mike Bostock",
@@ -466,11 +466,11 @@
         "path": "node_modules/intl-pluralrules",
         "licenseFile": "node_modules/intl-pluralrules/LICENSE"
     },
-    "jquery-ui-dist@1.12.1": {
+    "jquery-ui-dist@1.13.0": {
         "licenses": "MIT",
         "repository": "https://github.com/jquery/jquery-ui",
         "publisher": "jQuery Foundation and other contributors",
-        "url": "https://github.com/jquery/jquery-ui/blob/1.12.1/AUTHORS.txt",
+        "url": "https://github.com/jquery/jquery-ui/blob/1.13.0/AUTHORS.txt",
         "path": "node_modules/jquery-ui-dist",
         "licenseFile": "node_modules/jquery-ui-dist/LICENSE.txt"
     },
@@ -498,7 +498,7 @@
         "path": "node_modules/long",
         "licenseFile": "node_modules/long/LICENSE"
     },
-    "marked@3.0.4": {
+    "marked@4.0.10": {
         "licenses": "MIT",
         "repository": "https://github.com/markedjs/marked",
         "publisher": "Christopher Jeffrey",

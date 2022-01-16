@@ -48,8 +48,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=webpki",
         "manual",
-        "crate-name=webpki"
     ],
     version = "0.21.4",
     # buildifier: leave-alone

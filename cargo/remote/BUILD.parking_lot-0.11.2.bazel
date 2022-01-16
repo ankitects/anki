@@ -45,8 +45,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=parking_lot",
         "manual",
-        "crate-name=parking_lot"
     ],
     version = "0.11.2",
     # buildifier: leave-alone

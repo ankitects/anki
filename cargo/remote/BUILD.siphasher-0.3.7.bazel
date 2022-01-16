@@ -46,8 +46,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=siphasher",
         "manual",
-        "crate-name=siphasher"
     ],
     version = "0.3.7",
     # buildifier: leave-alone

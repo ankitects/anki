@@ -44,8 +44,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=js-sys",
         "manual",
-        "crate-name=js-sys"
     ],
     version = "0.3.55",
     # buildifier: leave-alone

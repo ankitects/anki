@@ -46,8 +46,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=tendril",
         "manual",
-        "crate-name=tendril"
     ],
     version = "0.4.2",
     # buildifier: leave-alone

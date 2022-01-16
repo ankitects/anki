@@ -51,8 +51,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=tinyvec",
         "manual",
-        "crate-name=tinyvec"
     ],
     version = "1.5.1",
     # buildifier: leave-alone

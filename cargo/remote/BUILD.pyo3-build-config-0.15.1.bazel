@@ -84,13 +84,13 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=pyo3-build-config",
         "manual",
-        "crate-name=pyo3-build-config"
     ],
     version = "0.15.1",
     # buildifier: leave-alone
     deps = [
         ":pyo3_build_config_build_script",
-        "@raze__once_cell__1_8_0//:once_cell",
+        "@raze__once_cell__1_9_0//:once_cell",
     ],
 )

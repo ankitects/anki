@@ -45,8 +45,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=minimal-lexical",
         "manual",
-        "crate-name=minimal-lexical"
     ],
     version = "0.2.1",
     # buildifier: leave-alone

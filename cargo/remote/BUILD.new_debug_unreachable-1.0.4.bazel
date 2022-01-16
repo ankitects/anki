@@ -55,8 +55,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=debug_unreachable",
         "manual",
-        "crate-name=debug_unreachable"
     ],
     version = "1.0.4",
     # buildifier: leave-alone

@@ -44,8 +44,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=futf",
         "manual",
-        "crate-name=futf"
     ],
     version = "0.1.4",
     # buildifier: leave-alone

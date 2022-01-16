@@ -46,8 +46,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=htmlescape",
         "manual",
-        "crate-name=htmlescape"
     ],
     version = "0.3.1",
     # buildifier: leave-alone

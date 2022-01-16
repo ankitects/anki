@@ -59,7 +59,7 @@
         "@mdi/svg": "^6.1.95",
         "@popperjs/core": "^2.9.2",
         "@types/lodash-es": "^4.17.4",
-        "@types/marked": "^3.0.1",
+        "@types/marked": "^4.0.1",
         "bootstrap": "=5.0.2",
         "bootstrap-icons": "^1.4.0",
         "codemirror": "^5.63.1",
@@ -69,13 +69,14 @@
         "jquery": "^3.5.1",
         "jquery-ui-dist": "^1.12.1",
         "lodash-es": "^4.17.21",
-        "marked": "3.0.4",
+        "marked": "4.0.10",
         "mathjax": "^3.1.2",
         "mathjax-full": "^3.2.0",
         "protobufjs": "^6.10.2"
     },
     "resolutions": {
-        "jsdoc/marked": "=2.0.5"
+        "jsdoc/marked": "^4.0.0",
+        "jsdoc/markdown-it": "^12.3.2"
     },
     "files": [
         "dist/*"

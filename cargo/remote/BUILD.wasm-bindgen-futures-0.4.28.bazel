@@ -44,8 +44,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=wasm-bindgen-futures",
         "manual",
-        "crate-name=wasm-bindgen-futures"
     ],
     version = "0.4.28",
     # buildifier: leave-alone

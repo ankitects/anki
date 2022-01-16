@@ -17,7 +17,7 @@ def copy_folder(pkgname, path, outbase):
     shutil.copytree(path, os.path.join(outbase, f"{stubname}-stubs"))
 
 
-name_re = re.compile("__types_(.+?)$")
+name_re = re.compile("deps_types_(.+?)$")
 
 if __name__ == "__main__":
     outbase = os.path.abspath(sys.argv[1])
