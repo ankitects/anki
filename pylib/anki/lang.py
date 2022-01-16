@@ -68,6 +68,7 @@ langs = sorted(
         ("ภาษาไทย", "th_TH"),
         ("Latin", "la_LA"),
         ("Gaeilge", "ga_IE"),
+        ("Беларуская мова", "be_BY"),
     ]
 )
 
