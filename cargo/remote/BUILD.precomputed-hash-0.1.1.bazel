@@ -44,8 +44,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=precomputed-hash",
         "manual",
-        "crate-name=precomputed-hash"
     ],
     version = "0.1.1",
     # buildifier: leave-alone

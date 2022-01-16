@@ -45,8 +45,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=bitflags",
         "manual",
-        "crate-name=bitflags"
     ],
     version = "1.3.2",
     # buildifier: leave-alone

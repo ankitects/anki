@@ -44,8 +44,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=intl-memoizer",
         "manual",
-        "crate-name=intl-memoizer"
     ],
     version = "0.5.1",
     # buildifier: leave-alone

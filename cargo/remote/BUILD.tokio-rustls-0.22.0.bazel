@@ -44,14 +44,14 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=tokio-rustls",
         "manual",
-        "crate-name=tokio-rustls"
     ],
     version = "0.22.0",
     # buildifier: leave-alone
     deps = [
         "@raze__rustls__0_19_1//:rustls",
-        "@raze__tokio__1_14_0//:tokio",
+        "@raze__tokio__1_15_0//:tokio",
         "@raze__webpki__0_21_4//:webpki",
     ],
 )

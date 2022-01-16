@@ -13,7 +13,6 @@ compile_sass(
     visibility = ["//visibility:public"],
     deps = [
         "//sass:scrollbar_lib",
-        "//sass/codemirror",
     ],
 )
 

@@ -45,12 +45,12 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=hermit-abi",
         "manual",
-        "crate-name=hermit-abi"
     ],
     version = "0.1.19",
     # buildifier: leave-alone
     deps = [
-        "@raze__libc__0_2_108//:libc",
+        "@raze__libc__0_2_112//:libc",
     ],
 )

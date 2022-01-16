@@ -46,8 +46,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=walkdir",
         "manual",
-        "crate-name=walkdir"
     ],
     version = "2.3.2",
     # buildifier: leave-alone

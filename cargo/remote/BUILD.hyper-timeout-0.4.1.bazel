@@ -46,15 +46,15 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=hyper-timeout",
         "manual",
-        "crate-name=hyper-timeout"
     ],
     version = "0.4.1",
     # buildifier: leave-alone
     deps = [
-        "@raze__hyper__0_14_15//:hyper",
-        "@raze__pin_project_lite__0_2_7//:pin_project_lite",
-        "@raze__tokio__1_14_0//:tokio",
+        "@raze__hyper__0_14_16//:hyper",
+        "@raze__pin_project_lite__0_2_8//:pin_project_lite",
+        "@raze__tokio__1_15_0//:tokio",
         "@raze__tokio_io_timeout__1_1_1//:tokio_io_timeout",
     ],
 )

@@ -49,12 +49,12 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=serde_tuple",
         "manual",
-        "crate-name=serde_tuple"
     ],
     version = "0.5.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__serde__1_0_130//:serde",
+        "@raze__serde__1_0_133//:serde",
     ],
 )

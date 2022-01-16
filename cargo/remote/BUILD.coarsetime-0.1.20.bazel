@@ -46,13 +46,13 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=coarsetime",
         "manual",
-        "crate-name=coarsetime"
     ],
     version = "0.1.20",
     # buildifier: leave-alone
     deps = [
-        "@raze__once_cell__1_8_0//:once_cell",
+        "@raze__once_cell__1_9_0//:once_cell",
     ] + selects.with_or({
         # cfg(not(target_os = "wasi"))
         (
@@ -64,7 +64,7 @@ rust_library(
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-apple-ios",
         ): [
-            "@raze__libc__0_2_108//:libc",
+            "@raze__libc__0_2_112//:libc",
         ],
         "//conditions:default": [],
     }),

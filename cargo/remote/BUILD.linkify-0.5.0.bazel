@@ -46,8 +46,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=linkify",
         "manual",
-        "crate-name=linkify"
     ],
     version = "0.5.0",
     # buildifier: leave-alone

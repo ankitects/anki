@@ -46,8 +46,8 @@ rust_binary(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=gcc-shim",
         "manual",
-        "crate-name=gcc-shim"
     ],
     version = "1.0.72",
     # buildifier: leave-alone
@@ -69,8 +69,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=cc",
         "manual",
-        "crate-name=cc"
     ],
     version = "1.0.72",
     # buildifier: leave-alone
