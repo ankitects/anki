@@ -193,7 +193,7 @@ class ThemeManager:
             buf += f"""
 QMenuBar {{
   border-bottom: 1px solid {self.color(colors.BORDER)};
-  background: {self.color(colors.WINDOW_BG)};
+  background: {self.color(colors.WINDOW_BG) if self.night_mode else "white"};
 }}
 """
             # qt bug? setting the above changes the browser sidebar
