@@ -52,12 +52,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import RichTextBadge from "./RichTextBadge.svelte";
     import PlainTextBadge from "./PlainTextBadge.svelte";
-    import StickyBadge from "./StickyBadge.svelte";
 
-    import { onMount, onDestroy } from "svelte";
+    import { onMount } from "svelte";
     import type { Writable } from "svelte/store";
     import { bridgeCommand } from "../lib/bridgecommand";
-    import { registerShortcut } from "../lib/shortcuts";
     import { isApplePlatform } from "../lib/platform";
     import { ChangeTimer } from "./change-timer";
     import { alertIcon } from "./icons";
@@ -146,11 +144,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $tags = ts;
     }
 
-    let stickies: boolean[] | null = null;
-    export function setSticky(sts: boolean[]): void {
-        stickies = sts;
-    }
-
     let noteId: number | null = null;
     export function setNoteId(ntid: number): void {
         noteId = ntid;
@@ -203,15 +196,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function toggleStickyAll(): void {
-        bridgeCommand("toggleStickyAll", (values: boolean[]) => (stickies = values));
-    }
-
-    let deregisterSticky: () => void;
-    export function activateStickyShortcuts() {
-        deregisterSticky = registerShortcut(toggleStickyAll, "Shift+F9");
-    }
-
     export function focusIfField(x: number, y: number): boolean {
         const elements = document.elementsFromPoint(x, y);
         const first = elements[0];
@@ -249,6 +233,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     );
 
     import { wrapInternal } from "../lib/wrap";
+    import * as oldEditorAdapter from "./old-editor-adapter";
 
     onMount(() => {
         function wrap(before: string, after: string): void {
@@ -270,21 +255,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             focusField,
             setColorButtons,
             setTags,
-            setSticky,
             setBackgrounds,
             setClozeHint,
             saveNow: saveFieldNow,
-            activateStickyShortcuts,
             focusIfField,
             setNoteId,
             wrap,
+            ...oldEditorAdapter,
         });
 
         document.addEventListener("visibilitychange", saveOnPageHide);
         return () => document.removeEventListener("visibilitychange", saveOnPageHide);
     });
-
-    onDestroy(() => deregisterSticky);
 </script>
 
 <NoteEditor>
@@ -332,9 +314,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             {/if}
                             <RichTextBadge bind:off={richTextsHidden[index]} />
                             <PlainTextBadge bind:off={plainTextsHidden[index]} />
-                            {#if stickies}
-                                <StickyBadge active={stickies[index]} {index} />
-                            {/if}
+
+                            <slot name="field-state" {field} {index} />
                         </svelte:fragment>
 
                         <svelte:fragment slot="editing-inputs">

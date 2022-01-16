@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithState from "../components/WithState.svelte";
 
     import { withButton } from "../components/helpers";
-    import { appendInParentheses, execCommand, queryCommandState } from "./helpers";
+    import { execCommand, queryCommandState } from "./helpers";
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
 
     export let key: string;
@@ -49,7 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {:else if withoutState}
     <WithShortcut {shortcut} let:createShortcut let:shortcutLabel>
         <IconButton
-            tooltip={appendInParentheses(tooltip, shortcutLabel)}
+            tooltip="{tooltip} ({shortcutLabel})"
             {disabled}
             on:click={() => execCommand(key)}
             on:mount={withButton(createShortcut)}
@@ -66,7 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             let:updateState
         >
             <IconButton
-                tooltip={appendInParentheses(tooltip, shortcutLabel)}
+                tooltip="{tooltip} ({shortcutLabel})"
                 {active}
                 {disabled}
                 on:click={(event) => {

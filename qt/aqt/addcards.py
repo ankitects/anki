@@ -77,7 +77,6 @@ class AddCards(QMainWindow):
             self,
             editor_mode=aqt.editor.EditorMode.ADD_CARDS,
         )
-        self.editor.web.eval("noteEditorPromise.then(() => activateStickyShortcuts());")
 
     def setup_choosers(self) -> None:
         defaults = self.col.defaults_for_adding(

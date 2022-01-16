@@ -59,8 +59,7 @@ class ChangeNotetypeDialog(QDialog):
         self.setLayout(layout)
 
         self.web.eval(
-            f"""anki.changeNotetypePage(
-            document.getElementById('main'), {notetype_id}, {notetype_id});"""
+            f"""anki.setupChangeNotetypePage({notetype_id}, {notetype_id});"""
         )
         self.setWindowTitle(tr.browsing_change_notetype())
 

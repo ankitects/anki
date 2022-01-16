@@ -6,18 +6,27 @@ import { setupI18n, ModuleName } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
 
 import CongratsPage from "./CongratsPage.svelte";
+import "./congrats-base.css";
 
-export async function congrats(target: HTMLDivElement): Promise<void> {
+const i18n = setupI18n({ modules: [ModuleName.SCHEDULING] });
+
+export async function setupCongrats(): Promise<CongratsPage> {
     checkNightMode();
-    await setupI18n({ modules: [ModuleName.SCHEDULING] });
+    await i18n;
+
     const info = await getCongratsInfo();
     const page = new CongratsPage({
-        target,
+        target: document.body,
         props: { info },
     });
+
     setInterval(() => {
         getCongratsInfo().then((info) => {
             page.$set({ info });
         });
     }, 60000);
+
+    return page;
 }
+
+setupCongrats();

@@ -5,6 +5,8 @@ import { on, preventDefault } from "../lib/events";
 import { registerShortcut } from "../lib/shortcuts";
 import { placeCaretAfterContent } from "../domlib/place-caret";
 import { saveSelection, restoreSelection } from "../domlib/location";
+import { isApplePlatform } from "../lib/platform";
+import { bridgeCommand } from "../lib/bridgecommand";
 import type { SelectionLocation } from "../domlib/location";
 
 const locationEvents: (() => void)[] = [];
@@ -74,6 +76,10 @@ export function saveLocation(editable: HTMLElement): { destroy(): void } {
             flushLocation();
         },
     };
+}
+
+if (isApplePlatform()) {
+    registerShortcut(() => bridgeCommand("paste"), "Control+Shift+V");
 }
 
 export function preventBuiltinContentEditableShortcuts(editable: HTMLElement): void {

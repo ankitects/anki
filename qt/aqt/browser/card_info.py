@@ -63,15 +63,11 @@ class CardInfoDialog(QDialog):
         layout.addWidget(buttons)
         qconnect(buttons.rejected, self.reject)
         self.setLayout(layout)
-
-        self.web.eval(
-            "const cardInfo = anki.cardInfo(document.getElementById('main'));"
-        )
         self.update_card(card_id)
 
     def update_card(self, card_id: CardId | None) -> None:
         self.web.eval(
-            f"cardInfo.then((c) => c.$set({{ cardId: {json.dumps(card_id)} }}));"
+            f"anki.cardInfoPromise.then((c) => c.$set({{ cardId: {json.dumps(card_id)} }}));"
         )
 
     def reject(self) -> None:

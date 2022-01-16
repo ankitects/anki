@@ -10,41 +10,35 @@ import "../sveltelib/export-runtime";
 import { getDeckOptionsInfo, DeckOptionsState } from "./lib";
 import { setupI18n, ModuleName } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
-import DeckOptionsPage from "./DeckOptionsPage.svelte";
 import { touchDeviceKey, modalsKey } from "../components/context-keys";
 
-export async function deckOptions(
-    target: HTMLDivElement,
-    deckId: number,
-): Promise<DeckOptionsPage> {
-    const [info] = await Promise.all([
-        getDeckOptionsInfo(deckId),
-        setupI18n({
-            modules: [
-                ModuleName.SCHEDULING,
-                ModuleName.ACTIONS,
-                ModuleName.DECK_CONFIG,
-                ModuleName.KEYBOARD,
-            ],
-        }),
-    ]);
+import DeckOptionsPage from "./DeckOptionsPage.svelte";
+import "./deck-options-base.css";
+
+const i18n = setupI18n({
+    modules: [
+        ModuleName.SCHEDULING,
+        ModuleName.ACTIONS,
+        ModuleName.DECK_CONFIG,
+        ModuleName.KEYBOARD,
+    ],
+});
+
+export async function setupDeckOptions(deckId: number): Promise<DeckOptionsPage> {
+    const [info] = await Promise.all([getDeckOptionsInfo(deckId), i18n]);
 
     checkNightMode();
 
     const context = new Map();
-
-    const modals = new Map();
-    context.set(modalsKey, modals);
-
-    const touchDevice = "ontouchstart" in document.documentElement;
-    context.set(touchDeviceKey, touchDevice);
+    context.set(modalsKey, new Map());
+    context.set(touchDeviceKey, "ontouchstart" in document.documentElement);
 
     const state = new DeckOptionsState(deckId, info);
     return new DeckOptionsPage({
-        target,
+        target: document.body,
         props: { state },
         context,
-    } as any);
+    });
 }
 
 import TitledContainer from "./TitledContainer.svelte";
@@ -60,3 +54,7 @@ export const components = {
     EnumSelectorRow,
     SwitchRow,
 };
+
+if (window.location.hash.startsWith("#test")) {
+    setupDeckOptions(1);
+}

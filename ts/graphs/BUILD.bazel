@@ -2,8 +2,11 @@ load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
+load("//ts:generate_page.bzl", "generate_page")
 load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:typescript.bzl", "typescript")
+
+generate_page(page = "graphs")
 
 compile_sass(
     srcs = ["graphs-base.scss"],
@@ -51,8 +54,6 @@ esbuild(
         ":svelte",
     ],
 )
-
-exports_files(["graphs.html"])
 
 # Tests
 ################

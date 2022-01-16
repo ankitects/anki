@@ -2,9 +2,12 @@ load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:esbuild.bzl", "esbuild")
+load("//ts:generate_page.bzl", "generate_page")
 load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:typescript.bzl", "typescript")
 load("//ts:jest.bzl", "jest_test")
+
+generate_page(page = "change-notetype")
 
 compile_sass(
     srcs = ["change-notetype-base.scss"],
@@ -53,8 +56,6 @@ esbuild(
         "@npm//bootstrap-icons",
     ],
 )
-
-exports_files(["change-notetype.html"])
 
 # Tests
 ################

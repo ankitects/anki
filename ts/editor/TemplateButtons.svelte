@@ -16,7 +16,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "../lib/bridgecommand";
     import { wrapInternal } from "../lib/wrap";
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
-    import { appendInParentheses } from "./helpers";
     import { withButton } from "../components/helpers";
     import { paperclipIcon, micIcon, functionIcon } from "./icons";
     import type { RichTextInputAPI } from "./RichTextInput.svelte";
@@ -45,10 +44,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonGroupItem>
         <WithShortcut shortcut="F3" let:createShortcut let:shortcutLabel>
             <IconButton
-                tooltip={appendInParentheses(
-                    tr.editingAttachPicturesaudiovideo(),
-                    shortcutLabel,
-                )}
+                tooltip="{tr.editingAttachPicturesaudiovideo} ({shortcutLabel})"
                 iconSize={70}
                 {disabled}
                 on:click={onAttachment}
@@ -62,7 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonGroupItem>
         <WithShortcut shortcut="F5" let:createShortcut let:shortcutLabel>
             <IconButton
-                tooltip={appendInParentheses(tr.editingRecordAudio(), shortcutLabel)}
+                tooltip="{tr.editingRecordAudio()} ({shortcutLabel})"
                 iconSize={70}
                 {disabled}
                 on:click={onRecord}
