@@ -46,13 +46,13 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=security-framework-sys",
         "manual",
-        "crate-name=security-framework-sys"
     ],
     version = "2.4.2",
     # buildifier: leave-alone
     deps = [
         "@raze__core_foundation_sys__0_8_3//:core_foundation_sys",
-        "@raze__libc__0_2_108//:libc",
+        "@raze__libc__0_2_112//:libc",
     ],
 )

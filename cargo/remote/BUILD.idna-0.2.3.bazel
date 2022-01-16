@@ -46,8 +46,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=idna",
         "manual",
-        "crate-name=idna"
     ],
     version = "0.2.3",
     # buildifier: leave-alone

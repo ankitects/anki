@@ -46,8 +46,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=wasi",
         "manual",
-        "crate-name=wasi"
     ],
     version = "0.10.0+wasi-snapshot-preview1",
     # buildifier: leave-alone

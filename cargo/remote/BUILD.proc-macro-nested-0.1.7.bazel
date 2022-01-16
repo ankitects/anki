@@ -73,8 +73,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=proc-macro-nested",
         "manual",
-        "crate-name=proc-macro-nested"
     ],
     version = "0.1.7",
     # buildifier: leave-alone

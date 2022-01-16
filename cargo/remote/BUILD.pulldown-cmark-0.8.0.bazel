@@ -83,8 +83,8 @@ rust_binary(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=pulldown-cmark",
         "manual",
-        "crate-name=pulldown-cmark"
     ],
     version = "0.8.0",
     # buildifier: leave-alone
@@ -119,8 +119,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=pulldown-cmark",
         "manual",
-        "crate-name=pulldown-cmark"
     ],
     version = "0.8.0",
     # buildifier: leave-alone

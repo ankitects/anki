@@ -51,13 +51,13 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=toml",
         "manual",
-        "crate-name=toml"
     ],
     version = "0.5.8",
     # buildifier: leave-alone
     deps = [
-        "@raze__serde__1_0_130//:serde",
+        "@raze__serde__1_0_133//:serde",
     ],
 )
 

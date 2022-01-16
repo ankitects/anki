@@ -117,8 +117,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=pyo3",
         "manual",
-        "crate-name=pyo3"
     ],
     version = "0.15.1",
     # buildifier: leave-alone
@@ -126,7 +126,7 @@ rust_library(
         ":pyo3_build_script",
         "@raze__cfg_if__1_0_0//:cfg_if",
         "@raze__indoc__0_3_6//:indoc",
-        "@raze__libc__0_2_108//:libc",
+        "@raze__libc__0_2_112//:libc",
         "@raze__parking_lot__0_11_2//:parking_lot",
         "@raze__paste__0_1_18//:paste",
         "@raze__unindent__0_1_7//:unindent",

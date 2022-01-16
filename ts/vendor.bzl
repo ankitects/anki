@@ -100,26 +100,6 @@ def copy_bootstrap_js(name = "bootstrap-js", visibility = ["//visibility:public"
         base = "external/npm/node_modules/bootstrap/",
     )
 
-def copy_bootstrap_css(name = "bootstrap-css", visibility = ["//visibility:public"]):
-    vendor_js_lib(
-        name = name,
-        pkg = pkg_from_name("bootstrap"),
-        include = [
-            "dist/css/bootstrap.min.css",
-        ],
-        strip_prefix = "dist/css/",
-        visibility = visibility,
-    )
-
-def copy_bootstrap_icons(name = "bootstrap-icons", icons = [], visibility = ["//visibility:public"]):
-    vendor_js_lib(
-        name = name,
-        pkg = pkg_from_name(name),
-        include = ["icons/{}".format(icon) for icon in icons],
-        strip_prefix = "icons/",
-        visibility = visibility,
-    )
-
 def copy_mdi_icons(name = "mdi-icons", icons = [], visibility = ["//visibility:public"]):
     vendor_js_lib(
         name = name,

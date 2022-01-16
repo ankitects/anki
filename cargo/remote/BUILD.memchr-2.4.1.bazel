@@ -77,8 +77,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=memchr",
         "manual",
-        "crate-name=memchr"
     ],
     version = "2.4.1",
     # buildifier: leave-alone

@@ -13,6 +13,7 @@ load(
     "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -46,11 +47,12 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=term",
         "manual",
     ],
     version = "0.7.0",
     proc_macro_deps = [
-        "@raze__rustversion__1_0_5//:rustversion",
+        "@raze__rustversion__1_0_6//:rustversion",
     ],
     # buildifier: leave-alone
     deps = [

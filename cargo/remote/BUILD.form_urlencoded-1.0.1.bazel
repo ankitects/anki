@@ -44,8 +44,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=form_urlencoded",
         "manual",
-        "crate-name=form_urlencoded"
     ],
     version = "1.0.1",
     # buildifier: leave-alone

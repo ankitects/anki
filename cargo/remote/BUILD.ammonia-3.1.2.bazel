@@ -46,8 +46,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=ammonia",
         "manual",
-        "crate-name=ammonia"
     ],
     version = "3.1.2",
     # buildifier: leave-alone

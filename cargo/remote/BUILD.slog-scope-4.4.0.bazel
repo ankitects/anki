@@ -46,8 +46,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=slog-scope",
         "manual",
-        "crate-name=slog-scope"
     ],
     version = "4.4.0",
     # buildifier: leave-alone

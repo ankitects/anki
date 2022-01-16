@@ -45,13 +45,13 @@ rust_proc_macro(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=wasm-bindgen-macro",
         "manual",
-        "crate-name=wasm-bindgen-macro"
     ],
     version = "0.2.78",
     # buildifier: leave-alone
     deps = [
-        "@raze__quote__1_0_10//:quote",
+        "@raze__quote__1_0_14//:quote",
         "@raze__wasm_bindgen_macro_support__0_2_78//:wasm_bindgen_macro_support",
     ],
 )

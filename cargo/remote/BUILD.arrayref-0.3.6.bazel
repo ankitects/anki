@@ -50,8 +50,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=arrayref",
         "manual",
-        "crate-name=arrayref"
     ],
     version = "0.3.6",
     # buildifier: leave-alone

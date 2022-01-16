@@ -46,8 +46,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=termcolor",
         "manual",
-        "crate-name=termcolor"
     ],
     version = "1.1.2",
     # buildifier: leave-alone

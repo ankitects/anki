@@ -49,8 +49,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=fluent-bundle",
         "manual",
-        "crate-name=fluent-bundle"
     ],
     version = "0.15.2",
     # buildifier: leave-alone
@@ -61,7 +61,7 @@ rust_library(
         "@raze__intl_pluralrules__7_0_1//:intl_pluralrules",
         "@raze__rustc_hash__1_1_0//:rustc_hash",
         "@raze__self_cell__0_10_2//:self_cell",
-        "@raze__smallvec__1_7_0//:smallvec",
+        "@raze__smallvec__1_8_0//:smallvec",
         "@raze__unic_langid__0_9_0//:unic_langid",
     ],
 )

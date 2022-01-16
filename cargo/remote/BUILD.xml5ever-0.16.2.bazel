@@ -50,8 +50,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=xml5ever",
         "manual",
-        "crate-name=xml5ever"
     ],
     version = "0.16.2",
     # buildifier: leave-alone

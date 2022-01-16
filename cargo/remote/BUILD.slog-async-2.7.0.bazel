@@ -75,14 +75,14 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=slog-async",
         "manual",
-        "crate-name=slog-async"
     ],
     version = "2.7.0",
     # buildifier: leave-alone
     deps = [
         ":slog_async_build_script",
-        "@raze__crossbeam_channel__0_5_1//:crossbeam_channel",
+        "@raze__crossbeam_channel__0_5_2//:crossbeam_channel",
         "@raze__slog__2_7_0//:slog",
         "@raze__take_mut__0_2_2//:take_mut",
         "@raze__thread_local__1_1_3//:thread_local",

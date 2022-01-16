@@ -48,8 +48,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=atty",
         "manual",
-        "crate-name=atty"
     ],
     version = "0.2.14",
     # buildifier: leave-alone
@@ -64,7 +64,7 @@ rust_library(
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-apple-ios",
         ): [
-            "@raze__libc__0_2_108//:libc",
+            "@raze__libc__0_2_112//:libc",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
