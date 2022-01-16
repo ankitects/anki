@@ -62,7 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ButtonGroup>
     <ButtonGroupItem>
-        <WithShortcut shortcut={"Control+Enter"} let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut="Control+Enter" let:createShortcut let:shortcutLabel>
             <LabelButton
                 theme="primary"
                 on:click={() => save(false)}

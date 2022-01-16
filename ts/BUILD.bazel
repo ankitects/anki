@@ -15,6 +15,7 @@ exports_files([
     "jest.config.js",
     "package.json",
     "protobuf-no-long.js",
+    "page.html",
 ])
 
 # a copy needs to be placed in bazel-bin for libs with

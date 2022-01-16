@@ -13,7 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import * as tr from "../lib/ftl";
     import { getListItem } from "../lib/dom";
-    import { appendInParentheses, execCommand } from "./helpers";
+    import { execCommand } from "./helpers";
     import {
         ulIcon,
         olIcon,
@@ -129,10 +129,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 <IconButton
                                     on:click={outdentListItem}
                                     on:mount={withButton(createShortcut)}
-                                    tooltip={appendInParentheses(
-                                        tr.editingOutdent(),
-                                        shortcutLabel,
-                                    )}
+                                    tooltip="{tr.editingOutdent()} ({shortcutLabel})"
                                     {disabled}
                                 >
                                     {@html outdentIcon}
@@ -149,10 +146,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 <IconButton
                                     on:click={indentListItem}
                                     on:mount={withButton(createShortcut)}
-                                    tooltip={appendInParentheses(
-                                        tr.editingIndent(),
-                                        shortcutLabel,
-                                    )}
+                                    tooltip="{tr.editingIndent()} ({shortcutLabel})"
                                     {disabled}
                                 >
                                     {@html indentIcon}

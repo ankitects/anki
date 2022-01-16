@@ -2,12 +2,15 @@ load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:esbuild.bzl", "esbuild")
+load("//ts:generate_page.bzl", "generate_page")
 load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:typescript.bzl", "typescript")
 
+generate_page(page = "card-info")
+
 compile_sass(
-    srcs = ["card-info-base.scss"],
     group = "base_css",
+    srcs = ["card-info-base.scss"],
     visibility = ["//visibility:public"],
     deps = [
         "//sass:base_lib",
@@ -17,8 +20,8 @@ compile_sass(
 )
 
 _ts_deps = [
-    "//ts/components",
     "//ts/lib",
+    "//ts/components",
     "@npm//@fluent",
 ]
 
@@ -49,8 +52,6 @@ esbuild(
         "@npm//protobufjs",
     ],
 )
-
-exports_files(["card-info.html"])
 
 # Tests
 ################
