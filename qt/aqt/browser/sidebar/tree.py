@@ -325,7 +325,11 @@ class SidebarTreeView(QTreeView):
             self.tool == SidebarTool.SEARCH
             and event.button() == Qt.MouseButton.LeftButton
         ):
-            if (index := self.currentIndex()) == self.indexAt(event.pos()):
+            if qtmajor == 5:
+                pos = event.pos()  # type: ignore
+            else:
+                pos = event.position().toPoint()
+            if (index := self.currentIndex()) == self.indexAt(pos):
                 self._on_search(index)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
