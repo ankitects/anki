@@ -381,12 +381,7 @@ def _extract_request(
 def congrats_info() -> bytes:
     if not aqt.mw.col.sched._is_finished():
         aqt.mw.taskman.run_on_main(lambda: aqt.mw.moveToState("review"))
-    return aqt.mw.col.congrats_info(request.data)
-
-
-def i18n_resources() -> bytes:
-    args = from_json_bytes(request.data)
-    return aqt.mw.col.i18n_resources(modules=args["modules"])
+    return access_backend("congrats_info")()
 
 
 def get_deck_configs_for_update() -> bytes:
@@ -469,7 +464,6 @@ post_handler_list = [
     change_notetype_info,
     notetype_names,
     change_notetype,
-    i18n_resources,
     congrats_info,
 ]
 
@@ -486,6 +480,9 @@ exposed_backend_list = [
     "card_stats",
     "get_graph_preferences",
     "set_graph_preferences",
+
+    # i18n
+    "i18n_resources",
 ]
 
 

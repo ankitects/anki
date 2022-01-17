@@ -4,8 +4,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { Writable } from "svelte/store";
-    import { Stats, Generic } from "../lib/proto";
-    import { stats } from "../lib/proto";
+    import { Stats } from "../lib/proto";
+    import { stats, empty } from "../lib/proto";
     import type { PreferenceRaw } from "../sveltelib/preferences";
     import useAsync from "../sveltelib/async";
     import useAsyncReactive from "../sveltelib/asyncReactive";
@@ -14,8 +14,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let search: Writable<string>;
     export let days: Writable<number>;
-
-    const empty = Generic.Empty.encode(Generic.Empty.create()).finish()
 
     const {
         loading: graphLoading,

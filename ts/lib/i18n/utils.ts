@@ -6,6 +6,7 @@ import { FluentBundle, FluentResource } from "@fluent/bundle";
 
 import { firstLanguage, setBundles } from "./bundles";
 import type { ModuleName } from "./modules";
+import { Generic, I18n, i18n } from "../proto";
 
 export function supportsVerticalText(): boolean {
     const firstLang = firstLanguage();
@@ -73,19 +74,13 @@ export function withoutUnicodeIsolation(s: string): string {
 }
 
 export async function setupI18n(args: { modules: ModuleName[] }): Promise<void> {
-    const resp = await fetch("/_anki/i18nResources", {
-        method: "POST",
-        body: JSON.stringify(args),
-    });
-    if (!resp.ok) {
-        throw Error(`unexpected reply: ${resp.statusText}`);
-    }
-    const json = await resp.json();
+    const resources = await i18n.i18nResources(args);
+    const json = JSON.parse(String.fromCharCode(...resources.json));
 
     const newBundles: FluentBundle[] = [];
-    for (const i in json.resources) {
-        const text = json.resources[i];
-        const lang = json.langs[i];
+    for (const res in json.resources) {
+        const text = json.resources[res];
+        const lang = json.langs[res];
         const bundle = new FluentBundle([lang, "en-US"]);
         const resource = new FluentResource(text);
         bundle.addResource(resource);

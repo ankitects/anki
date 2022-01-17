@@ -9,14 +9,16 @@ import Collection = anki.collection;
 import DeckConfig = anki.deckconfig;
 import Decks = anki.decks;
 import Generic = anki.generic;
+import I18n = anki.i18n;
 import Notes = anki.notes;
 import Notetypes = anki.notetypes;
 import Scheduler = anki.scheduler;
 import Stats = anki.stats;
 import Tags = anki.tags;
 
-export { Cards, Collection, Decks, Generic, Notes, Notetypes, Scheduler };
+export { Cards, Collection, Decks, Generic, Notes, Notetypes };
 
+export const empty = Generic.Empty.encode(Generic.Empty.create()).finish()
 
 const headers = new Headers();
 headers.set("Content-type", "application/octet-stream");
@@ -49,6 +51,12 @@ async function serviceCallback(
 
 export { DeckConfig };
 export const deckConfig = DeckConfig.DeckConfigService.create(serviceCallback as RPCImpl);
+
+export { I18n };
+export const i18n = I18n.I18nService.create(serviceCallback as RPCImpl);
+
+export { Scheduler };
+export const scheduler = Scheduler.SchedulerService.create(serviceCallback as RPCImpl);
 
 export { Stats };
 export const stats = Stats.StatsService.create(serviceCallback as RPCImpl);
