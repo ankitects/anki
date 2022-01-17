@@ -15,7 +15,7 @@ import Scheduler = anki.scheduler;
 import Stats = anki.stats;
 import Tags = anki.tags;
 
-export { Cards, Collection, Decks, Generic, Notes, Notetypes, Scheduler, Stats, Tags };
+export { Cards, Collection, Decks, Generic, Notes, Notetypes, Scheduler };
 
 
 const headers = new Headers();
@@ -49,6 +49,12 @@ async function serviceCallback(
 
 export { DeckConfig };
 export const deckConfig = DeckConfig.DeckConfigService.create(serviceCallback as RPCImpl);
+
+export { Stats };
+export const stats = Stats.StatsService.create(serviceCallback as RPCImpl);
+
+export { Tags };
+export const tags = Tags.TagsService.create(serviceCallback as RPCImpl);
 
 export function unwrapOptionalNumber(
     msg: Generic.IInt64 | Generic.IUInt32 | Generic.IInt32 | null | undefined,

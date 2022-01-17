@@ -377,17 +377,6 @@ def _extract_request(
     return LocalFileRequest(root=aqt.mw.col.media.dir(), path=path)
 
 
-def graph_data() -> bytes:
-    return aqt.mw.col.graph_data(request.data)
-
-
-def graph_preferences() -> bytes:
-    return aqt.mw.col.get_graph_preferences(request.data)
-
-
-def set_graph_preferences() -> bytes:
-    return aqt.mw.col.set_graph_preferences(request.data)
-
 
 def congrats_info() -> bytes:
     if not aqt.mw.col.sched._is_finished():
@@ -469,15 +458,10 @@ def complete_tag() -> bytes:
     return aqt.mw.col.tags.complete_tag(request.data)
 
 
-def card_stats() -> bytes:
-    return aqt.mw.col.card_stats_data(request.data)
 
 
 # these require a collection
 post_handler_list = [
-    graph_data,
-    graph_preferences,
-    set_graph_preferences,
     next_card_states,
     get_deck_configs_for_update,
     update_deck_configs,
@@ -487,13 +471,21 @@ post_handler_list = [
     change_notetype,
     i18n_resources,
     congrats_info,
-    complete_tag,
-    card_stats,
 ]
 
 
 exposed_backend_list = [
+    # NotesService
     "get_note",
+
+    # TagsService
+    "complete_tag",
+
+    # StatsService
+    "graphs",
+    "card_stats",
+    "get_graph_preferences",
+    "set_graph_preferences",
 ]
 
 
