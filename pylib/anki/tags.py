@@ -26,8 +26,8 @@ from anki.utils import ids2str
 
 # public exports
 TagTreeNode = tags_pb2.TagTreeNode
+CompleteTagRequest = tags_pb2.CompleteTagRequest
 MARKED_TAG = "marked"
-
 
 class TagManager(DeprecatedNamesMixin):
     def __init__(self, col: anki.collection.Collection) -> None:
@@ -68,10 +68,8 @@ class TagManager(DeprecatedNamesMixin):
         "Set browser expansion state for tag, registering the tag if missing."
         return self.col._backend.set_tag_collapsed(name=tag, collapsed=collapsed)
 
-    def complete_tag(self, input_bytes: bytes) -> bytes:
-        input = tags_pb2.CompleteTagRequest()
-        input.ParseFromString(input_bytes)
-        return self.col._backend.complete_tag_raw(input)
+    def complete_tag(self, input: CompleteTagRequest) -> Sequence[str]:
+        return self.col._backend.complete_tag(input)
 
     # Bulk addition/removal from specific notes
     #############################################################

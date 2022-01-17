@@ -13,6 +13,7 @@ import time
 import traceback
 from dataclasses import dataclass
 from http import HTTPStatus
+from typing import Callable
 
 import flask
 import flask_cors  # type: ignore
@@ -377,24 +378,21 @@ def _extract_request(
 
 
 def graph_data() -> bytes:
-    args = from_json_bytes(request.data)
-    return aqt.mw.col.graph_data(search=args["search"], days=args["days"])
+    return aqt.mw.col.graph_data(request.data)
 
 
 def graph_preferences() -> bytes:
-    return aqt.mw.col.get_graph_preferences()
+    return aqt.mw.col.get_graph_preferences(request.data)
 
 
-def set_graph_preferences() -> None:
-    prefs = GraphPreferences()
-    prefs.ParseFromString(request.data)
-    aqt.mw.col.set_graph_preferences(prefs)
+def set_graph_preferences() -> bytes:
+    return aqt.mw.col.set_graph_preferences(request.data)
 
 
 def congrats_info() -> bytes:
     if not aqt.mw.col.sched._is_finished():
         aqt.mw.taskman.run_on_main(lambda: aqt.mw.moveToState("review"))
-    return aqt.mw.col.congrats_info()
+    return aqt.mw.col.congrats_info(request.data)
 
 
 def i18n_resources() -> bytes:
@@ -402,11 +400,6 @@ def i18n_resources() -> bytes:
     return aqt.mw.col.i18n_resources(modules=args["modules"])
 
 
-def deck_configs_for_update() -> bytes:
-    args = from_json_bytes(request.data)
-    msg = aqt.mw.col.decks.get_deck_configs_for_update(deck_id=args["deckId"])
-    msg.have_addons = aqt.mw.addonManager.dirty
-    return msg.SerializeToString()
 def get_deck_configs_for_update() -> bytes:
     # TODO msg.have_addons = aqt.mw.addonManager.dirty
     return aqt.mw.col._backend.get_deck_configs_for_update_raw(request.data)
@@ -477,12 +470,7 @@ def complete_tag() -> bytes:
 
 
 def card_stats() -> bytes:
-    args = from_json_bytes(request.data)
-    return aqt.mw.col.card_stats_data(CardId(args["cardId"]))
-
-
-def get_note() -> bytes:
-    return aqt.mw.col._backend.get_note_raw(request.data)
+    return aqt.mw.col.card_stats_data(request.data)
 
 
 # these require a collection
@@ -490,9 +478,9 @@ post_handler_list = [
     graph_data,
     graph_preferences,
     set_graph_preferences,
-    deck_configs_for_update,
-    update_deck_configs,
     next_card_states,
+    get_deck_configs_for_update,
+    update_deck_configs,
     set_next_card_states,
     change_notetype_info,
     notetype_names,
@@ -501,7 +489,11 @@ post_handler_list = [
     congrats_info,
     complete_tag,
     card_stats,
-    get_note,
+]
+
+
+exposed_backend_list = [
+    "get_note",
 ]
 
 
@@ -510,8 +502,14 @@ def snakecase_to_camelcase(name: str) -> str:
     return first + "".join([r.capitalize() for r in rest])
 
 
+def access_backend(endpoint: str) -> Callable[[], bytes]:
+    return lambda: getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
+
+
 post_handlers = {
     snakecase_to_camelcase(handler.__name__): handler for handler in post_handler_list
+} | {
+    snakecase_to_camelcase(handler): access_backend(handler) for handler in exposed_backend_list
 }
 
 

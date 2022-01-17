@@ -134,7 +134,7 @@ def render_method(service_idx, method_idx, method):
             f"input = {fullname(method.input_type.full_name)}({get_input_assign(method.input_type)})"
         )
     else:
-        input_params = "self, input: {fullname(method.input_type.full_name)}"
+        input_params = f"self, input: {fullname(method.input_type.full_name)}"
         input_assign_full = ""
 
     name = fix_snakecase(stringcase.snakecase(method.name))

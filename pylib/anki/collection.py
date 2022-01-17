@@ -804,17 +804,17 @@ class Collection(DeprecatedNamesMixin):
 
         return CollectionStats(self)
 
-    def card_stats_data(self, card_id: CardId) -> bytes:
-        return self._backend.card_stats_raw(card_id)
+    def card_stats_data(self, card_id: CardId) -> stats_pb2.CardStatsResponse:
+        return self._backend.card_stats(card_id)
 
     def studied_today(self) -> str:
         return self._backend.studied_today()
 
-    def graph_data(self, search: str, days: int) -> bytes:
-        return self._backend.graphs_raw(search=search, days=days)
+    def graph_data(self, search: str, days: int) -> stats_pb2.GraphsResponse:
+        return self._backend.graphs(search=search, days=days)
 
-    def get_graph_preferences(self) -> bytes:
-        return self._backend.get_graph_preferences_raw()
+    def get_graph_preferences(self) -> stats_pb2.GraphPreferences:
+        return self._backend.get_graph_preferences()
 
     def set_graph_preferences(self, prefs: GraphPreferences) -> None:
         self._backend.set_graph_preferences(input=prefs)
