@@ -87,7 +87,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bind:modalKey
 />
 
-<StickyContainer --gutter-block="0.1rem" --sticky-borders="0 0 1px" breakpoint="sm">
+<StickyContainer --gutter-block="0.5rem" --sticky-borders="0 0 1px" breakpoint="sm">
     <ButtonToolbar class="justify-content-between" size={2.3} wrap={false}>
         <Item>
             <ButtonGroup class="flex-grow-1">

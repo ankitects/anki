@@ -82,7 +82,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <div class="column-head">{tr2.cardStatsReviewLogDate()}</div>
             <div class="column-content">
                 {#each revlogRows as row, _index}
-                    <div><b>{row.date}</b> @ {row.time}</div>
+                    <div>
+                        <b>{row.date}</b>
+                        <span class="hidden-xs">@ {row.time}</span>
+                    </div>
                 {/each}
             </div>
         </div>
