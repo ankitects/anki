@@ -168,7 +168,9 @@ export class DeckOptionsState {
         this.updateConfigList();
     }
 
-    dataForSaving(applyToChildren: boolean): NonNullable<DeckConfig.IUpdateDeckConfigsRequest> {
+    dataForSaving(
+        applyToChildren: boolean,
+    ): NonNullable<DeckConfig.IUpdateDeckConfigsRequest> {
         const modifiedConfigsExcludingCurrent = this.configs
             .map((c) => c.config)
             .filter((c, idx) => {

@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { anki } from "./backend_proto";
-import type { RPCImpl, RPCImplCallback, Message, rpc } from "protobufjs"
+import type { RPCImpl, RPCImplCallback, Message, rpc } from "protobufjs";
 
 import Cards = anki.cards;
 import Collection = anki.collection;
@@ -16,9 +16,9 @@ import Scheduler = anki.scheduler;
 import Stats = anki.stats;
 import Tags = anki.tags;
 
-export { Cards, Collection, Decks, Generic, Notes, Notetypes };
+export { Cards, Collection, Decks, Generic, Notes };
 
-export const empty = Generic.Empty.encode(Generic.Empty.create()).finish()
+export const empty = Generic.Empty.encode(Generic.Empty.create()).finish();
 
 const headers = new Headers();
 headers.set("Content-type", "application/octet-stream");
@@ -44,16 +44,21 @@ async function serviceCallback(
 
         callback(null, uint8Array);
     } catch (error) {
-        console.log('error caught');
+        console.log("error caught");
         callback(error as Error, null);
     }
 }
 
 export { DeckConfig };
-export const deckConfig = DeckConfig.DeckConfigService.create(serviceCallback as RPCImpl);
+export const deckConfig = DeckConfig.DeckConfigService.create(
+    serviceCallback as RPCImpl,
+);
 
 export { I18n };
 export const i18n = I18n.I18nService.create(serviceCallback as RPCImpl);
+
+export { Notetypes };
+export const notetypes = Notetypes.NotetypesService.create(serviceCallback as RPCImpl);
 
 export { Scheduler };
 export const scheduler = Scheduler.SchedulerService.create(serviceCallback as RPCImpl);

@@ -377,7 +377,6 @@ def _extract_request(
     return LocalFileRequest(root=aqt.mw.col.media.dir(), path=path)
 
 
-
 def congrats_info() -> bytes:
     if not aqt.mw.col.sched._is_finished():
         aqt.mw.taskman.run_on_main(lambda: aqt.mw.moveToState("review"))
@@ -425,18 +424,6 @@ def set_next_card_states() -> bytes:
     return b""
 
 
-def notetype_names() -> bytes:
-    msg = NotetypeNames(entries=aqt.mw.col.models.all_names_and_ids())
-    return msg.SerializeToString()
-
-
-def change_notetype_info() -> bytes:
-    args = from_json_bytes(request.data)
-    return aqt.mw.col.models.change_notetype_info(
-        old_notetype_id=args["oldNotetypeId"], new_notetype_id=args["newNotetypeId"]
-    )
-
-
 def change_notetype() -> bytes:
     data = request.data
 
@@ -449,26 +436,22 @@ def change_notetype() -> bytes:
     return b""
 
 
-def complete_tag() -> bytes:
-    return aqt.mw.col.tags.complete_tag(request.data)
-
-
-
-
 # these require a collection
 post_handler_list = [
-    next_card_states,
+    congrats_info,
     get_deck_configs_for_update,
     update_deck_configs,
+    next_card_states,
     set_next_card_states,
-    change_notetype_info,
-    notetype_names,
     change_notetype,
-    congrats_info,
 ]
 
 
 exposed_backend_list = [
+    # NotetypesService
+    "get_notetype_names",
+    "get_change_notetype_info",
+
     # NotesService
     "get_note",
 

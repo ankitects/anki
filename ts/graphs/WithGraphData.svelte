@@ -19,7 +19,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         loading: graphLoading,
         error: graphError,
         value: graphValue,
-    } = useAsyncReactive(() => stats.graphs({ search: $search, days: $days }), [search, days]);
+    } = useAsyncReactive(
+        () => stats.graphs({ search: $search, days: $days }),
+        [search, days],
+    );
 
     const {
         loading: prefsLoading,
@@ -28,7 +31,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } = useAsync(() =>
         getPreferences(
             () => stats.getGraphPreferences(empty),
-            async (input: Stats.IGraphPreferences): Promise<void> => { stats.setGraphPreferences(input); },
+            async (input: Stats.IGraphPreferences): Promise<void> => {
+                stats.setGraphPreferences(input);
+            },
             Stats.GraphPreferences.toObject.bind(Stats.GraphPreferences) as (
                 preferences: Stats.GraphPreferences,
                 options: { defaults: boolean },
