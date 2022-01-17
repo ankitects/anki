@@ -448,24 +448,24 @@ post_handler_list = [
 
 
 exposed_backend_list = [
-    # NotetypesService
-    "get_notetype_names",
-    "get_change_notetype_info",
+    # I18nService
+    "i18n_resources",
 
     # NotesService
     "get_note",
 
-    # TagsService
-    "complete_tag",
+    # NotetypesService
+    "get_notetype_names",
+    "get_change_notetype_info",
 
     # StatsService
-    "graphs",
     "card_stats",
+    "graphs",
     "get_graph_preferences",
     "set_graph_preferences",
 
-    # i18n
-    "i18n_resources",
+    # TagsService
+    "complete_tag",
 ]
 
 
