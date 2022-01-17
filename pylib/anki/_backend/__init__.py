@@ -20,6 +20,7 @@ from anki.utils import from_json_bytes, to_json_bytes
 
 from ..errors import (
     BackendIOError,
+    CustomStudyError,
     DBError,
     ExistsError,
     FilteredDeckError,
@@ -217,6 +218,9 @@ def backend_exception_to_pylib(err: backend_pb2.BackendError) -> Exception:
 
     elif val == kind.UNDO_EMPTY:
         return UndoEmpty()
+
+    elif val == kind.CUSTOM_STUDY_ERROR:
+        return CustomStudyError(err.localized)
 
     else:
         # sadly we can't do exhaustiveness checking on protobuf enums
