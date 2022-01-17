@@ -136,7 +136,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .revlog-table {
-        font-family: monospace;
         width: 100%;
         max-width: 50em;
         display: flex;
