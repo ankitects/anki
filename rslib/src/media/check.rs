@@ -353,13 +353,14 @@ where
     fn check_media_references(
         &mut self,
         renamed: &HashMap<String, String>,
-    ) -> Result<HashSet<String>> {
-        let mut referenced_files = HashSet::new();
+    ) -> Result<HashMap<String, HashSet<String>>> {
+        let mut ret: HashMap<String, HashSet<String>> = HashMap::new();
         let notetypes = self.ctx.get_all_notetypes()?;
         let mut collection_modified = false;
 
         let nids = self.ctx.search_notes_unordered("")?;
         let usn = self.ctx.usn()?;
+        //let mut nidStr :&String;
         for nid in nids {
             self.checked += 1;
             if self.checked % 10 == 0 {
@@ -369,6 +370,7 @@ where
             let nt = notetypes.get(&note.notetype_id).ok_or_else(|| {
                 AnkiError::db_error("missing note type", DbErrorKind::MissingEntity)
             })?;
+            let mut referenced_files = HashSet::new();
             if fix_and_extract_media_refs(
                 &mut note,
                 &mut referenced_files,
@@ -384,6 +386,18 @@ where
 
             // extract latex
             extract_latex_refs(&note, &mut referenced_files, nt.config.latex_svg);
+            //nidStr = "nid:".to_owned()+ &nid.to_string();
+            let mut set;
+            for file in referenced_files {
+                let s = ret.get(&file);
+                if s == None {
+                    set = HashSet::new();
+                } else {
+                    set = s.unwrap().to_owned();
+                }
+                set.insert("nid:".to_owned() + &nid.to_string());
+                ret.insert(file, set);
+            }
         }
 
         if collection_modified {
@@ -391,7 +405,7 @@ where
             // self.ctx.storage.commit_trx()?;
         }
 
-        Ok(referenced_files)
+        Ok(ret)
     }
 }
 
@@ -483,19 +497,25 @@ fn rename_media_ref_in_field(field: &str, media_ref: &MediaRef, new_name: &str) 
 /// Returns (unused, missing)
 fn find_unused_and_missing(
     files: Vec<String>,
-    mut references: HashSet<String>,
+    mut references: HashMap<String, HashSet<String>>,
 ) -> (Vec<String>, Vec<String>) {
     let mut unused = vec![];
 
     for file in files {
-        if !file.starts_with('_') && !references.contains(&file) {
+        if !file.starts_with('_') && !references.contains_key(&file) {
             unused.push(file);
         } else {
             references.remove(&file);
         }
     }
 
-    (unused, references.into_iter().collect())
+    (
+        unused,
+        references
+            .into_iter()
+            .map(|(x, y)| x + " --> " + &itertools::join(&y, ","))
+            .collect(),
+    )
 }
 
 fn extract_latex_refs(note: &Note, seen_files: &mut HashSet<String>, svg: bool) {
@@ -689,7 +709,10 @@ Unused: unused.jpg
                 output,
                 MediaCheckOutput {
                     unused: vec![],
-                    missing: vec!["foo[.jpg".into(), "normal.jpg".into()],
+                    missing: vec![
+                        "foo[.jpg --> nid:1581236386334".into(),
+                        "normal.jpg --> nid:1581236386334".into()
+                    ],
                     renamed: Default::default(),
                     dirs: vec![],
                     oversize: vec![],
@@ -704,7 +727,10 @@ Unused: unused.jpg
                 output,
                 MediaCheckOutput {
                     unused: vec![],
-                    missing: vec!["foo[.jpg".into(), "normal.jpg".into()],
+                    missing: vec![
+                        "foo[.jpg --> nid:1581236386334".into(),
+                        "normal.jpg --> nid:1581236386334".into()
+                    ],
                     renamed: vec![("ぱぱ.jpg".into(), "ぱぱ.jpg".into())]
                         .into_iter()
                         .collect(),
