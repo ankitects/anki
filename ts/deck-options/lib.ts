@@ -1,28 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { DeckConfig } from "../lib/proto";
-import { postRequest } from "../lib/postrequest";
+import { DeckConfig, deckConfig } from "../lib/proto";
 import { Writable, writable, get, Readable, readable } from "svelte/store";
 import { isEqual, cloneDeep } from "lodash-es";
 import { localeCompare } from "../lib/i18n";
 import type { DynamicSvelteComponent } from "../sveltelib/dynamicComponent";
-
-export async function getDeckOptionsInfo(
-    deckId: number,
-): Promise<DeckConfig.DeckConfigsForUpdate> {
-    return DeckConfig.DeckConfigsForUpdate.decode(
-        await postRequest("/_anki/deckConfigsForUpdate", JSON.stringify({ deckId })),
-    );
-}
-
-export async function saveDeckOptions(
-    input: DeckConfig.UpdateDeckConfigsRequest,
-): Promise<void> {
-    const data: Uint8Array = DeckConfig.UpdateDeckConfigsRequest.encode(input).finish();
-    await postRequest("/_anki/updateDeckConfigs", data);
-    return;
-}
 
 export type DeckOptionsId = number;
 
@@ -185,7 +168,7 @@ export class DeckOptionsState {
         this.updateConfigList();
     }
 
-    dataForSaving(applyToChildren: boolean): DeckConfig.UpdateDeckConfigsRequest {
+    dataForSaving(applyToChildren: boolean): NonNullable<DeckConfig.IUpdateDeckConfigsRequest> {
         const modifiedConfigsExcludingCurrent = this.configs
             .map((c) => c.config)
             .filter((c, idx) => {
@@ -199,17 +182,17 @@ export class DeckOptionsState {
             // current must come last, even if unmodified
             this.configs[this.selectedIdx].config,
         ];
-        return DeckConfig.UpdateDeckConfigsRequest.create({
+        return {
             targetDeckId: this.targetDeckId,
             removedConfigIds: this.removedConfigs,
             configs,
             applyToChildren,
             cardStateCustomizer: get(this.cardStateCustomizer),
-        });
+        };
     }
 
     async save(applyToChildren: boolean): Promise<void> {
-        await saveDeckOptions(this.dataForSaving(applyToChildren));
+        await deckConfig.updateDeckConfigs(this.dataForSaving(applyToChildren));
     }
 
     private onCurrentConfigChanged(config: ConfigInner): void {

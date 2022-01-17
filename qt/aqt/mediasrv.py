@@ -407,6 +407,9 @@ def deck_configs_for_update() -> bytes:
     msg = aqt.mw.col.decks.get_deck_configs_for_update(deck_id=args["deckId"])
     msg.have_addons = aqt.mw.addonManager.dirty
     return msg.SerializeToString()
+def get_deck_configs_for_update() -> bytes:
+    # TODO msg.have_addons = aqt.mw.addonManager.dirty
+    return aqt.mw.col._backend.get_deck_configs_for_update_raw(request.data)
 
 
 def update_deck_configs() -> bytes:

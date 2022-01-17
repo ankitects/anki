@@ -2,9 +2,12 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { anki } from "./backend_proto";
+import type { RPCImpl, RPCImplCallback, Message, rpc } from "protobufjs"
 
 import Cards = anki.cards;
+import Collection = anki.collection;
 import DeckConfig = anki.deckconfig;
+import Decks = anki.decks;
 import Generic = anki.generic;
 import Notes = anki.notes;
 import Notetypes = anki.notetypes;
@@ -12,7 +15,40 @@ import Scheduler = anki.scheduler;
 import Stats = anki.stats;
 import Tags = anki.tags;
 
-export { Stats, Cards, DeckConfig, Notes, Notetypes, Scheduler, Tags };
+export { Cards, Collection, Decks, Generic, Notes, Notetypes, Scheduler, Stats, Tags };
+
+
+const headers = new Headers();
+headers.set("Content-type", "application/octet-stream");
+
+async function serviceCallback(
+    method: rpc.ServiceMethod<Message<any>, Message<any>>,
+    requestData: Uint8Array,
+    callback: RPCImplCallback,
+): Promise<void> {
+    const methodName = method.name[0].toLowerCase() + method.name.substring(1);
+    const path = `/_anki/${methodName}`;
+
+    try {
+        const result = await fetch(path, {
+            method: "POST",
+            headers,
+            body: requestData,
+        });
+
+        const blob = await result.blob();
+        const arrayBuffer = await blob.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+
+        callback(null, uint8Array);
+    } catch (error) {
+        console.log('error caught');
+        callback(error as Error, null);
+    }
+}
+
+export { DeckConfig };
+export const deckConfig = DeckConfig.DeckConfigService.create(serviceCallback as RPCImpl);
 
 export function unwrapOptionalNumber(
     msg: Generic.IInt64 | Generic.IUInt32 | Generic.IInt32 | null | undefined,
