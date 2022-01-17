@@ -98,7 +98,9 @@ def fix_snakecase(name):
 
 def get_input_args(msg):
     fields = sorted(msg.fields, key=lambda x: x.number)
-    self_star = ["*"] if len(fields) >= 2 else []
+    self_star = ["self"]
+    if len(fields) >= 2:
+        self_star.append("*")
     return ", ".join(self_star + [f"{f.name}: {python_type(f)}" for f in fields])
 
 
@@ -127,14 +129,12 @@ def render_method(service_idx, method_idx, method):
         and not method.input_type.oneofs
         and not method.name in SKIP_UNROLL_INPUT
     ):
-        input_params_raw = "input: bytes"
         input_params = get_input_args(method.input_type)
         input_assign_full = (
-            f"input = {fullname(method.input_type.full_name)}({get_input_assign(method.input_type)})\n        "
+            f"input = {fullname(method.input_type.full_name)}({get_input_assign(method.input_type)})"
         )
     else:
-        input_params_raw = f"input: {fullname(method.input_type.full_name)}"
-        input_params = input_params_raw
+        input_params = "self, input: {fullname(method.input_type.full_name)}"
         input_assign_full = ""
 
     name = fix_snakecase(stringcase.snakecase(method.name))
@@ -153,12 +153,12 @@ def render_method(service_idx, method_idx, method):
         single_attribute = ""
 
     return f"""\
-    def {name}_raw(self, {input_params_raw}) -> bytes:
+    def {name}_raw(self, input: bytes) -> bytes:
         return self._run_command({service_idx}, {method_idx}, input)
 
-    def {name}(self, {input_params}) -> {return_type}:
+    def {name}({input_params}) -> {return_type}:
         {input_assign_full}
-        raw_bytes = self.{name}_raw(input)
+        raw_bytes = self.{name}_raw(input.SerializeToString())
         output = {fullname(method.output_type.full_name)}()
         output.ParseFromString(raw_bytes)
         return output{single_attribute}

@@ -122,10 +122,9 @@ class RustBackend(RustBackendGenerated):
         )
         return self.format_timespan(seconds=seconds, context=context)
 
-    def _run_command(self, service: int, method: int, input: Any) -> bytes:
-        input_bytes = input.SerializeToString()
+    def _run_command(self, service: int, method: int, input: bytes) -> bytes:
         try:
-            return self._backend.command(service, method, input_bytes)
+            return self._backend.command(service, method, input)
         except Exception as error:
             err_bytes = bytes(error.args[0])
         err = backend_pb2.BackendError()
