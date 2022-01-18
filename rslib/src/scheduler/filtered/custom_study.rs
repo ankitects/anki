@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::cmp::Ordering;
+
 use super::FilteredDeckForUpdate;
 use crate::{
     backend_proto::{
@@ -11,10 +13,11 @@ use crate::{
     error::{CustomStudyError, FilteredDeckError},
     prelude::*,
     search::{
-        concatenate_searches, parse_search, BoolSeparator, Node, PropertyKind, RatingKind,
-        SearchNode, StateKind,
+        concatenate_searches, BoolSeparator, Node, PropertyKind, RatingKind, SearchNode, StateKind,
     },
+    text::escape_anki_wildcards_for_search_node,
 };
+use itertools::Itertools;
 
 impl Collection {
     pub fn custom_study(&mut self, input: pb::CustomStudyRequest) -> Result<OpOutput<()>> {
@@ -171,7 +174,7 @@ fn cram_config(deck_name: String, cram: Cram) -> Result<FilteredDeck> {
     };
 
     let mut nodes = vec![];
-    let mut tags = parse_search(&cram.tags)?;
+    let mut tags = tags_to_nodes(cram.tags_to_include, cram.tags_to_exclude);
     if let Some(node) = node {
         nodes.push(node);
         if !tags.is_empty() {
@@ -187,4 +190,37 @@ fn cram_config(deck_name: String, cram: Cram) -> Result<FilteredDeck> {
         order,
         Some(cram.cards),
     ))
+}
+
+fn tags_to_nodes(tags_to_include: Vec<String>, tags_to_exclude: Vec<String>) -> Vec<Node> {
+    let mut nodes = vec![];
+    let mut include_nodes: Vec<Node> = Itertools::intersperse(
+        tags_to_include
+            .iter()
+            .map(|tag| Node::Search(SearchNode::Tag(escape_anki_wildcards_for_search_node(tag)))),
+        Node::Or,
+    )
+    .collect();
+    let mut exclude_nodes: Vec<Node> = Itertools::intersperse(
+        tags_to_exclude.iter().map(|tag| {
+            Node::Not(Box::new(Node::Search(SearchNode::Tag(
+                escape_anki_wildcards_for_search_node(tag),
+            ))))
+        }),
+        Node::And,
+    )
+    .collect();
+
+    match include_nodes.len().cmp(&1) {
+        Ordering::Less => (),
+        Ordering::Equal => nodes.append(&mut include_nodes),
+        Ordering::Greater => nodes.push(Node::Group(include_nodes)),
+    }
+
+    if !(nodes.is_empty() || exclude_nodes.is_empty()) {
+        nodes.push(Node::And);
+    }
+    nodes.append(&mut exclude_nodes);
+
+    nodes
 }

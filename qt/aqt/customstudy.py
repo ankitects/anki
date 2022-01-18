@@ -6,6 +6,7 @@ from anki.consts import *
 from anki.scheduler import CustomStudyRequest
 from aqt.operations.scheduling import custom_study
 from aqt.qt import *
+from aqt.taglimit import TagLimit
 from aqt.utils import disable_help_button, tr
 
 RADIO_NEW = 1
@@ -134,7 +135,11 @@ class CustomStudy(QDialog):
             request.preview_days = self.form.spin.value()
         else:
             request.cram.cards = self.form.spin.value()
-            request.cram.tags = self._getTags()
+
+            tags = TagLimit.get_tags(self.mw, self)
+            request.cram.tags_to_include.extend(tags[0])
+            request.cram.tags_to_exclude.extend(tags[1])
+
             cram_type = self.form.cardType.currentRow()
             if cram_type == TYPE_NEW:
                 request.cram.kind = CustomStudyRequest.Cram.CRAM_KIND_NEW
@@ -157,8 +162,3 @@ class CustomStudy(QDialog):
             self.mw.col.decks.select(self.deck["id"])
             # fixme: clean up the empty custom study deck
         QDialog.reject(self)
-
-    def _getTags(self) -> str:
-        from aqt.taglimit import TagLimit
-
-        return TagLimit(self.mw, self).tags
