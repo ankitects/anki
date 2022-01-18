@@ -377,7 +377,7 @@ def _extract_request(
 def congrats_info() -> bytes:
     if not aqt.mw.col.sched._is_finished():
         aqt.mw.taskman.run_on_main(lambda: aqt.mw.moveToState("review"))
-    return access_backend("congrats_info")()
+    return raw_backend_request("congrats_info")()
 
 
 def get_deck_configs_for_update() -> bytes:
@@ -467,14 +467,19 @@ def snakecase_to_camelcase(name: str) -> str:
     return first + "".join([r.capitalize() for r in rest])
 
 
-def access_backend(endpoint: str) -> Callable[[], bytes]:
+def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
+    # check for key at startup
+    from anki._backend import RustBackend
+
+    assert hasattr(RustBackend, f"{endpoint}_raw")
+
     return lambda: getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
 
 
 post_handlers = {
     snakecase_to_camelcase(handler.__name__): handler for handler in post_handler_list
 } | {
-    snakecase_to_camelcase(handler): access_backend(handler)
+    snakecase_to_camelcase(handler): raw_backend_request(handler)
     for handler in exposed_backend_list
 }
 
