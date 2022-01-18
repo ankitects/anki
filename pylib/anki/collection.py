@@ -810,19 +810,6 @@ class Collection(DeprecatedNamesMixin):
     def studied_today(self) -> str:
         return self._backend.studied_today()
 
-    def graph_data(self, search: str, days: int) -> stats_pb2.GraphsResponse:
-        return self._backend.graphs(search=search, days=days)
-
-    def get_graph_preferences(self) -> stats_pb2.GraphPreferences:
-        return self._backend.get_graph_preferences()
-
-    def set_graph_preferences(self, prefs: GraphPreferences) -> None:
-        self._backend.set_graph_preferences(input=prefs)
-
-    def congrats_info(self) -> bytes:
-        "Don't use this, it will likely go away in the future."
-        return self._backend.congrats_info().SerializeToString()
-
     # Undo
     ##########################################################################
 
