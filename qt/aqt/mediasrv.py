@@ -22,6 +22,7 @@ from waitress.server import create_server
 
 import aqt
 from anki import hooks
+from anki._vendor import stringcase
 from anki.collection import OpChanges
 from anki.decks import UpdateDeckConfigs
 from anki.scheduler.v3 import NextStates
@@ -462,11 +463,6 @@ exposed_backend_list = [
 ]
 
 
-def snakecase_to_camelcase(name: str) -> str:
-    [first, *rest] = name.split("_")
-    return first + "".join([r.capitalize() for r in rest])
-
-
 def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
     # check for key at startup
     from anki._backend import RustBackend
@@ -477,9 +473,9 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
 
 
 post_handlers = {
-    snakecase_to_camelcase(handler.__name__): handler for handler in post_handler_list
+    stringcase.camelcase(handler.__name__): handler for handler in post_handler_list
 } | {
-    snakecase_to_camelcase(handler): raw_backend_request(handler)
+    stringcase.camelcase(handler): raw_backend_request(handler)
     for handler in exposed_backend_list
 }
 
