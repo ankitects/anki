@@ -22,13 +22,10 @@ from waitress.server import create_server
 
 import aqt
 from anki import hooks
-from anki.cards import CardId
-from anki.collection import GraphPreferences, OpChanges
+from anki.collection import OpChanges
 from anki.decks import UpdateDeckConfigs
-from anki.models import NotetypeNames
-from anki.notes import NoteId
 from anki.scheduler.v3 import NextStates
-from anki.utils import dev_mode, from_json_bytes
+from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
@@ -450,20 +447,16 @@ post_handler_list = [
 exposed_backend_list = [
     # I18nService
     "i18n_resources",
-
     # NotesService
     "get_note",
-
     # NotetypesService
     "get_notetype_names",
     "get_change_notetype_info",
-
     # StatsService
     "card_stats",
     "graphs",
     "get_graph_preferences",
     "set_graph_preferences",
-
     # TagsService
     "complete_tag",
 ]
@@ -481,7 +474,8 @@ def access_backend(endpoint: str) -> Callable[[], bytes]:
 post_handlers = {
     snakecase_to_camelcase(handler.__name__): handler for handler in post_handler_list
 } | {
-    snakecase_to_camelcase(handler): access_backend(handler) for handler in exposed_backend_list
+    snakecase_to_camelcase(handler): access_backend(handler)
+    for handler in exposed_backend_list
 }
 
 

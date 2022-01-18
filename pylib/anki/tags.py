@@ -29,6 +29,7 @@ TagTreeNode = tags_pb2.TagTreeNode
 CompleteTagRequest = tags_pb2.CompleteTagRequest
 MARKED_TAG = "marked"
 
+
 class TagManager(DeprecatedNamesMixin):
     def __init__(self, col: anki.collection.Collection) -> None:
         self.col = col.weakref()

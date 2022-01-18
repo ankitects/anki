@@ -1,6 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+/* eslint
+@typescript-eslint/no-explicit-any: "off",
+ */
+
 import { anki } from "./backend_proto";
 import type { RPCImpl, RPCImplCallback, Message, rpc } from "protobufjs";
 
@@ -20,14 +24,14 @@ export { Cards, Collection, Decks, Generic, Notes };
 
 export const empty = Generic.Empty.encode(Generic.Empty.create()).finish();
 
-const headers = new Headers();
-headers.set("Content-type", "application/octet-stream");
-
 async function serviceCallback(
     method: rpc.ServiceMethod<Message<any>, Message<any>>,
     requestData: Uint8Array,
     callback: RPCImplCallback,
 ): Promise<void> {
+    const headers = new Headers();
+    headers.set("Content-type", "application/octet-stream");
+
     const methodName = method.name[0].toLowerCase() + method.name.substring(1);
     const path = `/_anki/${methodName}`;
 

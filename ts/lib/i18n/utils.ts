@@ -6,7 +6,7 @@ import { FluentBundle, FluentResource } from "@fluent/bundle";
 
 import { firstLanguage, setBundles } from "./bundles";
 import type { ModuleName } from "./modules";
-import { Generic, I18n, i18n } from "../proto";
+import { i18n } from "../proto";
 
 export function supportsVerticalText(): boolean {
     const firstLang = firstLanguage();

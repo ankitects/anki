@@ -51,6 +51,7 @@ LABEL_OPTIONAL = 1
 LABEL_REQUIRED = 2
 LABEL_REPEATED = 3
 
+
 def python_type(field):
     type = python_type_inner(field)
     if field.label == LABEL_REPEATED:
@@ -130,9 +131,7 @@ def render_method(service_idx, method_idx, method):
         and not method.name in SKIP_UNROLL_INPUT
     ):
         input_params = get_input_args(method.input_type)
-        input_assign_full = (
-            f"input = {fullname(method.input_type.full_name)}({get_input_assign(method.input_type)})"
-        )
+        input_assign_full = f"input = {fullname(method.input_type.full_name)}({get_input_assign(method.input_type)})"
     else:
         input_params = f"self, input: {fullname(method.input_type.full_name)}"
         input_assign_full = ""
