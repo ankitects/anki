@@ -34,7 +34,12 @@ function onFocus(location: SelectionLocation | null): () => void {
     };
 }
 
-export function customFocusHandling() {
+interface CustomFocusHandlingAPI {
+    setupFocusHandling(element: HTMLElement): { destroy(): void };
+    flushCaret(): void;
+}
+
+export function customFocusHandling(): CustomFocusHandlingAPI {
     const focusHandlingEvents: (() => void)[] = [];
 
     function flushEvents(): void {
@@ -92,5 +97,10 @@ export function preventBuiltinContentEditableShortcuts(editable: HTMLElement): v
 /** API */
 
 export interface ContentEditableAPI {
+    /**
+     * Can be used to turn off the caret restoring functionality of
+     * the ContentEditable. Can be used when you want to set the caret
+     * yourself.
+     */
     flushCaret(): void;
 }
