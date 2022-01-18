@@ -869,12 +869,14 @@ title="{}" {}>{}</button>""".format(
         # toolbar
         tweb = self.toolbarWeb = AnkiWebView(title="top toolbar")
         tweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
+        tweb.disable_zoom()
         self.toolbar = aqt.toolbar.Toolbar(self, tweb)
         # main area
         self.web = MainWebView(self)
         # bottom area
         sweb = self.bottomWeb = AnkiWebView(title="bottom toolbar")
         sweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
+        sweb.disable_zoom()
         # add in a layout
         self.mainLayout = QVBoxLayout()
         self.mainLayout.setContentsMargins(0, 0, 0, 0)
