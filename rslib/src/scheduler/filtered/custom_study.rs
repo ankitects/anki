@@ -73,19 +73,21 @@ impl Collection {
             id = did;
         }
 
-        self.add_or_update_filtered_deck_inner(FilteredDeckForUpdate {
+        let deck = FilteredDeckForUpdate {
             id,
             human_name,
             config,
-        })
-        .map(|_| ())
-        .map_err(|err| {
-            if err == AnkiError::FilteredDeckError(FilteredDeckError::SearchReturnedNoCards) {
-                CustomStudyError::NoMatchingCards.into()
-            } else {
-                err
-            }
-        })
+        };
+
+        self.add_or_update_filtered_deck_inner(deck)
+            .map(|_| ())
+            .map_err(|err| {
+                if err == AnkiError::FilteredDeckError(FilteredDeckError::SearchReturnedNoCards) {
+                    CustomStudyError::NoMatchingCards.into()
+                } else {
+                    err
+                }
+            })
     }
 }
 
