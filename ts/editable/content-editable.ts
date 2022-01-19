@@ -9,16 +9,6 @@ import { isApplePlatform } from "../lib/platform";
 import { bridgeCommand } from "../lib/bridgecommand";
 import type { SelectionLocation } from "../domlib/location";
 
-const locationEvents: (() => void)[] = [];
-
-function flushLocation(): void {
-    let removeEvent: (() => void) | undefined;
-
-    while ((removeEvent = locationEvents.pop())) {
-        removeEvent();
-    }
-}
-
 function safePlaceCaretAfterContent(editable: HTMLElement): void {
     /**
      * Workaround: If you try to invoke an IME after calling
@@ -44,37 +34,53 @@ function onFocus(location: SelectionLocation | null): () => void {
     };
 }
 
-function onBlur(this: HTMLElement): void {
-    prepareFocusHandling(this, saveSelection(this));
+interface CustomFocusHandlingAPI {
+    setupFocusHandling(element: HTMLElement): { destroy(): void };
+    flushCaret(): void;
 }
 
-function prepareFocusHandling(
-    editable: HTMLElement,
-    latestLocation: SelectionLocation | null = null,
-): void {
-    const removeOnFocus = on(editable, "focus", onFocus(latestLocation), {
-        once: true,
-    });
+export function customFocusHandling(): CustomFocusHandlingAPI {
+    const focusHandlingEvents: (() => void)[] = [];
 
-    locationEvents.push(
-        removeOnFocus,
-        on(editable, "pointerdown", removeOnFocus, { once: true }),
-    );
-}
+    function flushEvents(): void {
+        let removeEvent: (() => void) | undefined;
 
-export function initialFocusHandling(editable: HTMLElement): void {
-    prepareFocusHandling(editable);
-}
+        while ((removeEvent = focusHandlingEvents.pop())) {
+            removeEvent();
+        }
+    }
 
-/* Must execute before DOMMirror */
-export function saveLocation(editable: HTMLElement): { destroy(): void } {
-    const removeOnBlur = on(editable, "blur", onBlur);
+    function prepareFocusHandling(
+        editable: HTMLElement,
+        latestLocation: SelectionLocation | null = null,
+    ): void {
+        const off = on(editable, "focus", onFocus(latestLocation), { once: true });
+
+        focusHandlingEvents.push(off, on(editable, "pointerdown", off, { once: true }));
+    }
+
+    /**
+     * Must execute before DOMMirror.
+     */
+    function onBlur(this: HTMLElement): void {
+        prepareFocusHandling(this, saveSelection(this));
+    }
+
+    function setupFocusHandling(editable: HTMLElement): { destroy(): void } {
+        prepareFocusHandling(editable);
+        const off = on(editable, "blur", onBlur);
+
+        return {
+            destroy() {
+                flushEvents();
+                off();
+            },
+        };
+    }
 
     return {
-        destroy() {
-            removeOnBlur();
-            flushLocation();
-        },
+        setupFocusHandling,
+        flushCaret: flushEvents,
     };
 }
 
@@ -91,11 +97,10 @@ export function preventBuiltinContentEditableShortcuts(editable: HTMLElement): v
 /** API */
 
 export interface ContentEditableAPI {
-    flushLocation(): void;
+    /**
+     * Can be used to turn off the caret restoring functionality of
+     * the ContentEditable. Can be used when you want to set the caret
+     * yourself.
+     */
+    flushCaret(): void;
 }
-
-const contentEditableApi: ContentEditableAPI = {
-    flushLocation,
-};
-
-export default contentEditableApi;

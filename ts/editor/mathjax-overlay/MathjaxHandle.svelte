@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Mathjax } from "../../editable/mathjax-element";
 
     const { container, api } = getRichTextInput();
-    const { flushLocation, preventResubscription } = api;
+    const { flushCaret, preventResubscription } = api;
 
     const code = writable("");
 
@@ -40,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let selectAll = false;
 
     function placeHandle(after: boolean): void {
-        flushLocation();
+        flushCaret();
 
         if (after) {
             (mathjaxElement as any).placeCaretAfter();
