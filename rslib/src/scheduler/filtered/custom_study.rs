@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::cmp::Ordering;
-
 use super::FilteredDeckForUpdate;
 use crate::{
     backend_proto::{
@@ -12,12 +10,8 @@ use crate::{
     decks::{FilteredDeck, FilteredSearchOrder, FilteredSearchTerm},
     error::{CustomStudyError, FilteredDeckError},
     prelude::*,
-    search::{
-        concatenate_searches, BoolSeparator, Node, PropertyKind, RatingKind, SearchNode, StateKind,
-    },
-    text::escape_anki_wildcards_for_search_node,
+    search::{Negated, PropertyKind, RatingKind, SearchNode, StateKind},
 };
-use itertools::Itertools;
 
 impl Collection {
     pub fn custom_study(&mut self, input: pb::CustomStudyRequest) -> Result<OpOutput<()>> {
@@ -92,17 +86,11 @@ impl Collection {
 }
 
 fn custom_study_config(
-    deck_name: String,
     reschedule: bool,
-    nodes: Vec<Node>,
+    search: String,
     order: FilteredSearchOrder,
     limit: Option<u32>,
 ) -> FilteredDeck {
-    let search = concatenate_searches(
-        BoolSeparator::And,
-        nodes,
-        Node::Search(SearchNode::Deck(deck_name)),
-    );
     FilteredDeck {
         reschedule,
         search_terms: vec![FilteredSearchTerm {
@@ -116,113 +104,85 @@ fn custom_study_config(
 }
 
 fn forgot_config(deck_name: String, days: u32) -> FilteredDeck {
-    let nodes = vec![Node::Search(SearchNode::Rated {
+    let search = SearchBuilder::from(SearchNode::Rated {
         days,
         ease: RatingKind::AnswerButton(1),
-    })];
-    custom_study_config(deck_name, false, nodes, FilteredSearchOrder::Random, None)
+    })
+    .and(SearchNode::from_deck_name(&deck_name))
+    .write();
+    custom_study_config(false, search, FilteredSearchOrder::Random, None)
 }
 
 fn ahead_config(deck_name: String, days: u32) -> FilteredDeck {
-    let nodes = vec![Node::Search(SearchNode::Property {
+    let search = SearchBuilder::from(SearchNode::Property {
         operator: "<=".to_string(),
         kind: PropertyKind::Due(days as i32),
-    })];
-    custom_study_config(deck_name, true, nodes, FilteredSearchOrder::Due, None)
+    })
+    .and(SearchNode::from_deck_name(&deck_name))
+    .write();
+    custom_study_config(true, search, FilteredSearchOrder::Due, None)
 }
 
 fn preview_config(deck_name: String, days: u32) -> FilteredDeck {
-    let nodes = vec![
-        Node::Search(SearchNode::State(StateKind::New)),
-        Node::And,
-        Node::Search(SearchNode::AddedInDays(days)),
-    ];
+    let search = SearchBuilder::from(StateKind::New)
+        .and(SearchNode::AddedInDays(days))
+        .and(SearchNode::from_deck_name(&deck_name))
+        .write();
     custom_study_config(
-        deck_name,
         false,
-        nodes,
+        search,
         FilteredSearchOrder::OldestReviewedFirst,
         None,
     )
 }
 
-macro_rules! state_node {
-    (not $state_kind:expr) => {
-        Node::Not(Box::new(Node::Search(SearchNode::State($state_kind))))
-    };
-    ($state_kind:expr) => {
-        Node::Search(SearchNode::State($state_kind))
-    };
-}
-
 fn cram_config(deck_name: String, cram: Cram) -> Result<FilteredDeck> {
-    let (reschedule, node, order) = match CramKind::from_i32(cram.kind).unwrap_or_default() {
+    let (reschedule, nodes, order) = match CramKind::from_i32(cram.kind).unwrap_or_default() {
         CramKind::New => (
             true,
-            Some(state_node!(StateKind::New)),
+            SearchBuilder::from(StateKind::New),
             FilteredSearchOrder::Added,
         ),
         CramKind::Due => (
             true,
-            Some(state_node!(StateKind::Due)),
+            SearchBuilder::from(StateKind::Due),
             FilteredSearchOrder::Due,
         ),
         CramKind::Review => (
             true,
-            Some(state_node!(not StateKind::New)),
+            SearchBuilder::from(StateKind::New.negated()),
             FilteredSearchOrder::Random,
         ),
-        CramKind::All => (false, None, FilteredSearchOrder::Random),
+        CramKind::All => (false, SearchBuilder::new(), FilteredSearchOrder::Random),
     };
 
-    let mut nodes = vec![];
-    let mut tags = tags_to_nodes(cram.tags_to_include, cram.tags_to_exclude);
-    if let Some(node) = node {
-        nodes.push(node);
-        if !tags.is_empty() {
-            nodes.push(Node::And);
-        }
-    }
-    nodes.append(&mut tags);
+    let search = nodes
+        .and_join(&mut tags_to_nodes(
+            cram.tags_to_include,
+            cram.tags_to_exclude,
+        ))
+        .and(SearchNode::from_deck_name(&deck_name))
+        .write();
 
     Ok(custom_study_config(
-        deck_name,
         reschedule,
-        nodes,
+        search,
         order,
         Some(cram.card_limit),
     ))
 }
 
-fn tags_to_nodes(tags_to_include: Vec<String>, tags_to_exclude: Vec<String>) -> Vec<Node> {
-    let mut nodes = vec![];
-    let mut include_nodes: Vec<Node> = Itertools::intersperse(
+fn tags_to_nodes(tags_to_include: Vec<String>, tags_to_exclude: Vec<String>) -> SearchBuilder {
+    let include_nodes = SearchBuilder::any(
         tags_to_include
             .iter()
-            .map(|tag| Node::Search(SearchNode::Tag(escape_anki_wildcards_for_search_node(tag)))),
-        Node::Or,
-    )
-    .collect();
-    let mut exclude_nodes: Vec<Node> = Itertools::intersperse(
-        tags_to_exclude.iter().map(|tag| {
-            Node::Not(Box::new(Node::Search(SearchNode::Tag(
-                escape_anki_wildcards_for_search_node(tag),
-            ))))
-        }),
-        Node::And,
-    )
-    .collect();
+            .map(|tag| SearchNode::from_tag_name(tag)),
+    );
+    let mut exclude_nodes = SearchBuilder::all(
+        tags_to_exclude
+            .iter()
+            .map(|tag| SearchNode::from_tag_name(tag).negated()),
+    );
 
-    match include_nodes.len().cmp(&1) {
-        Ordering::Less => (),
-        Ordering::Equal => nodes.append(&mut include_nodes),
-        Ordering::Greater => nodes.push(Node::Group(include_nodes)),
-    }
-
-    if !(nodes.is_empty() || exclude_nodes.is_empty()) {
-        nodes.push(Node::And);
-    }
-    nodes.append(&mut exclude_nodes);
-
-    nodes
+    include_nodes.group().and_join(&mut exclude_nodes)
 }
