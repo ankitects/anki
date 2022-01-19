@@ -233,7 +233,7 @@ message CustomStudyRequest {
     }
     CramKind kind = 1;
     // the maximimum number of cards
-    uint32 cards = 2;
+    uint32 card_limit = 2;
     // cards must match one of these, if unempty
     repeated string tags_to_include = 3;
     // cards must not match any of these

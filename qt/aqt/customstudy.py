@@ -134,7 +134,7 @@ class CustomStudy(QDialog):
         elif self.radioIdx == RADIO_PREVIEW:
             request.preview_days = self.form.spin.value()
         else:
-            request.cram.cards = self.form.spin.value()
+            request.cram.card_limit = self.form.spin.value()
 
             tags = TagLimit.get_tags(self.mw, self)
             request.cram.tags_to_include.extend(tags[0])

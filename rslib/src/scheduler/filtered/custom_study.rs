@@ -188,7 +188,7 @@ fn cram_config(deck_name: String, cram: Cram) -> Result<FilteredDeck> {
         reschedule,
         nodes,
         order,
-        Some(cram.cards),
+        Some(cram.card_limit),
     ))
 }
 
