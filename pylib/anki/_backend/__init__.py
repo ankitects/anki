@@ -105,10 +105,17 @@ class RustBackend(RustBackendGenerated):
     def translate(
         self, module_index: int, message_index: int, **kwargs: str | int | float
     ) -> str:
+        args = {
+            k: i18n_pb2.TranslateArgValue(str=v)
+            if isinstance(v, str)
+            else i18n_pb2.TranslateArgValue(number=v)
+            for k, v in kwargs.items()
+        }
+
         return self.translate_string(
-            translate_string_in(
-                module_index=module_index, message_index=message_index, **kwargs
-            )
+            module_index=module_index,
+            message_index=message_index,
+            args=args,
         )
 
     def format_time_span(
@@ -126,24 +133,10 @@ class RustBackend(RustBackendGenerated):
         try:
             return self._backend.command(service, method, input)
         except Exception as error:
-            err_bytes = bytes(error.args[0])
+            err_bytes = bytes(error.args[0], encoding="utf8")
         err = backend_pb2.BackendError()
         err.ParseFromString(err_bytes)
         raise backend_exception_to_pylib(err)
-
-
-def translate_string_in(
-    module_index: int, message_index: int, **kwargs: str | int | float
-) -> i18n_pb2.TranslateStringRequest:
-    args = {
-        k: i18n_pb2.TranslateArgValue(str=v)
-        if isinstance(v, str)
-        else i18n_pb2.TranslateArgValue(number=v)
-        for k, v in kwargs.items()
-    }
-    return i18n_pb2.TranslateStringRequest(
-        module_index=module_index, message_index=message_index, args=args
-    )
 
 
 class Translations(GeneratedTranslations):
