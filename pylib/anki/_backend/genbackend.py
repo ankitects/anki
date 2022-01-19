@@ -54,8 +54,9 @@ LABEL_REPEATED = 3
 
 def python_type(field):
     type = python_type_inner(field)
-    if field.label == LABEL_REPEATED:
+    if field.label == LABEL_REPEATED and not type.startswith("Mapping"):
         type = f"Sequence[{type}]"
+
     return type
 
 
@@ -83,7 +84,19 @@ def fullname(fullname: str) -> str:
     # eg anki.generic.Empty -> anki.generic_pb2.Empty
     components = fullname.split(".")
     components[1] += "_pb2"
-    return ".".join(components)
+
+    result = ".".join(components)
+
+    # deal with protobuf maps
+    if len(components) == 4 and components[3].endswith("Entry"):
+        entry = getattr(
+            getattr(getattr(anki, components[1]), components[2]), components[3]
+        )
+        key = python_type_inner(entry.key.DESCRIPTOR)
+        value = python_type_inner(entry.value.DESCRIPTOR)
+        return f"Mapping[{key}, {value}]"
+
+    return result
 
 
 # get_deck_i_d -> get_deck_id etc
@@ -97,20 +110,24 @@ def fix_snakecase(name):
     return name
 
 
-def get_input_args(msg):
-    fields = sorted(msg.fields, key=lambda x: x.number)
+def get_input_args(input_type):
+    fields = sorted(input_type.fields, key=lambda x: x.number)
     self_star = ["self"]
     if len(fields) >= 2:
         self_star.append("*")
     return ", ".join(self_star + [f"{f.name}: {python_type(f)}" for f in fields])
 
 
-def get_input_assign(msg):
-    fields = sorted(msg.fields, key=lambda x: x.number)
+def get_input_assign(input_type):
+    fields = sorted(input_type.fields, key=lambda x: x.number)
     return ", ".join(f"{f.name}={f.name}" for f in fields)
 
 
 def render_method(service_idx, method_idx, method):
+    # if service_idx == 12 and method_idx == 0:
+    #     print(method.name, method.input_type.fields[2].containing_type.name, dir(method.input_type.fields[2]))
+
+    name = fix_snakecase(stringcase.snakecase(method.name))
     input_name = method.input_type.name
 
     if (
@@ -121,8 +138,6 @@ def render_method(service_idx, method_idx, method):
     else:
         input_params = f"self, message: {fullname(method.input_type.full_name)}"
         input_assign_full = ""
-
-    name = fix_snakecase(stringcase.snakecase(method.name))
 
     if (
         len(method.output_type.fields) == 1
