@@ -31,7 +31,7 @@ impl Collection {
 
         match input
             .value
-            .ok_or_else(|| AnkiError::InvalidInput("missing oneof value".to_string()))?
+            .ok_or_else(|| AnkiError::invalid_input("missing oneof value"))?
         {
             CustomStudyValue::NewLimitDelta(delta) => {
                 let today = self.current_due_day(0)?;
