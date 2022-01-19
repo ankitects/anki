@@ -391,7 +391,7 @@ impl SqlWriter<'_> {
             }
             TemplateKind::Name(name) => {
                 if is_glob(name) {
-                    let re = format!("(?i){}", to_re(name));
+                    let re = format!("(?i)^{}$", to_re(name));
                     self.sql.push_str(
                         "(n.mid,c.ord) in (select ntid,ord from templates where name regexp ?)",
                     );
@@ -408,7 +408,7 @@ impl SqlWriter<'_> {
 
     fn write_notetype(&mut self, nt_name: &str) {
         if is_glob(nt_name) {
-            let re = format!("(?i){}", to_re(nt_name));
+            let re = format!("(?i)^{}$", to_re(nt_name));
             self.sql
                 .push_str("n.mid in (select id from notetypes where name regexp ?)");
             self.args.push(re);
@@ -811,7 +811,7 @@ mod test {
             s(ctx, "note:basic*"),
             (
                 "(n.mid in (select id from notetypes where name regexp ?))".into(),
-                vec!["(?i)basic.*".into()]
+                vec!["(?i)^basic.*$".into()]
             )
         );
 
