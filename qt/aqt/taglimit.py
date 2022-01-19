@@ -86,6 +86,7 @@ class TagLimit(QDialog):
         QDialog.reject(self)
 
     def accept(self) -> None:
+        include_tags = exclude_tags = []
         # gather yes/no tags
         for c in range(self.dialog.activeList.count()):
             # active
@@ -93,19 +94,24 @@ class TagLimit(QDialog):
                 item = self.dialog.activeList.item(c)
                 idx = self.dialog.activeList.indexFromItem(item)
                 if self.dialog.activeList.selectionModel().isSelected(idx):
-                    self.tags[0].append(self.tags_list[c])
+                    include_tags.append(self.tags_list[c])
             # inactive
             item = self.dialog.inactiveList.item(c)
             idx = self.dialog.inactiveList.indexFromItem(item)
             if self.dialog.inactiveList.selectionModel().isSelected(idx):
-                self.tags[1].append(self.tags_list[c])
-        if (len(self.tags[0]) + len(self.tags[1])) > 100:
+                exclude_tags.append(self.tags_list[c])
+
+        if (len(include_tags) + len(exclude_tags)) > 100:
             showWarning(with_collapsed_whitespace(tr.errors_100_tags_max()))
             return
+
         self.hide()
+        self.tags = (include_tags, exclude_tags)
+
         # save in the deck for future invocations
-        self.deck["activeTags"] = self.tags[0]
-        self.deck["inactiveTags"] = self.tags[1]
+        self.deck["activeTags"] = include_tags
+        self.deck["inactiveTags"] = exclude_tags
         self.mw.col.decks.save(self.deck)
+
         saveGeom(self, "tagLimit")
         QDialog.accept(self)
