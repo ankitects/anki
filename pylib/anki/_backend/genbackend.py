@@ -119,7 +119,6 @@ SKIP_UNROLL_INPUT = {
     "ChangeNotetype",
     "CompleteTag",
 }
-SKIP_UNROLL_OUTPUT = {"GetPreferences"}
 
 
 def render_method(service_idx, method_idx, method):
@@ -141,7 +140,6 @@ def render_method(service_idx, method_idx, method):
     if (
         len(method.output_type.fields) == 1
         and method.output_type.fields[0].type != TYPE_ENUM
-        and method.name not in SKIP_UNROLL_OUTPUT
     ):
         # unwrap single return arg
         f = method.output_type.fields[0]

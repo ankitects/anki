@@ -24,7 +24,7 @@ import aqt
 from anki import hooks
 from anki._vendor import stringcase
 from anki.collection import OpChanges
-from anki.decks import UpdateDeckConfigs
+from anki.decks import DeckConfigsForUpdate, UpdateDeckConfigs
 from anki.scheduler.v3 import NextStates
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
@@ -382,8 +382,10 @@ def congrats_info() -> bytes:
 
 
 def get_deck_configs_for_update() -> bytes:
-    # TODO msg.have_addons = aqt.mw.addonManager.dirty
-    return aqt.mw.col._backend.get_deck_configs_for_update_raw(request.data)
+    config_bytes = aqt.mw.col._backend.get_deck_configs_for_update_raw(request.data)
+    configs = DeckConfigsForUpdate.FromString(config_bytes)
+    configs.have_addons = aqt.mw.addonManager.dirty
+    return configs.SerializeToString()
 
 
 def update_deck_configs() -> bytes:
@@ -434,7 +436,6 @@ def change_notetype() -> bytes:
     return b""
 
 
-# these require a collection
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -471,7 +472,7 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
 
     return lambda: getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
 
-
+# all methods in here require a collection
 post_handlers = {
     stringcase.camelcase(handler.__name__): handler for handler in post_handler_list
 } | {
