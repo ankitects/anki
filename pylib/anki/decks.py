@@ -285,7 +285,9 @@ class DeckManager(DeprecatedNamesMixin):
         return self.col._backend.get_deck_configs_for_update(deck_id)
 
     def update_deck_configs(self, input: UpdateDeckConfigs) -> OpChanges:
-        return self.col._backend.update_deck_configs(input=input)
+        op_bytes = self.col._backend.update_deck_configs_raw(input.SerializeToString())
+        ops = OpChanges.FromString(op_bytes)
+        return ops
 
     def all_config(self) -> list[DeckConfigDict]:
         "A list of all deck config."

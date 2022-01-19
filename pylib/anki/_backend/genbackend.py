@@ -112,7 +112,6 @@ def get_input_assign(msg):
 
 # messages we don't want to unroll in codegen
 SKIP_UNROLL_INPUT = {
-    "UpdateDeckConfigs",
     "AnswerCard",
     "ChangeNotetype",
 }

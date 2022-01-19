@@ -133,9 +133,10 @@ class RustBackend(RustBackendGenerated):
         try:
             return self._backend.command(service, method, input)
         except Exception as error:
-            err_bytes = bytes(error.args[0], encoding="utf8")
+            error_bytes = bytes(error.args[0])
+
         err = backend_pb2.BackendError()
-        err.ParseFromString(err_bytes)
+        err.ParseFromString(error_bytes)
         raise backend_exception_to_pylib(err)
 
 
