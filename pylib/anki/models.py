@@ -388,7 +388,7 @@ and notes.mid = ? and cards.ord = ?""",
         field/template count. Each value represents the index in the previous
         notetype. -1 indicates the original value will be discarded.
         """
-        op_bytes = self.col._backend.change_notetype_raw(input.SerializeToString)
+        op_bytes = self.col._backend.change_notetype_raw(input.SerializeToString())
         return OpChanges.FromString(op_bytes)
 
     # legacy API - used by unit tests and add-ons
@@ -415,15 +415,13 @@ and notes.mid = ? and cards.ord = ?""",
             template_map = self._convert_legacy_map(cmap, len(newModel["tmpls"]))
 
         self.col._backend.change_notetype(
-            ChangeNotetypeRequest(
-                note_ids=nids,
-                new_fields=field_map,
-                new_templates=template_map,
-                old_notetype_name=notetype["name"],
-                old_notetype_id=notetype["id"],
-                new_notetype_id=newModel["id"],
-                current_schema=self.col.db.scalar("select scm from col"),
-            )
+            note_ids=nids,
+            new_fields=field_map,
+            new_templates=template_map,
+            old_notetype_name=notetype["name"],
+            old_notetype_id=notetype["id"],
+            new_notetype_id=newModel["id"],
+            current_schema=self.col.db.scalar("select scm from col"),
         )
 
     def _convert_legacy_map(

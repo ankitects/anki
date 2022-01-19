@@ -110,24 +110,16 @@ def get_input_assign(msg):
     return ", ".join(f"{f.name}={f.name}" for f in fields)
 
 
-# messages we don't want to unroll in codegen
-SKIP_UNROLL_INPUT = {
-    "AnswerCard",
-}
-
-
 def render_method(service_idx, method_idx, method):
     input_name = method.input_type.name
 
     if (
-        (input_name.endswith("Request") or len(method.input_type.fields) < 2)
-        and not method.input_type.oneofs
-        and not method.name in SKIP_UNROLL_INPUT
-    ):
+        input_name.endswith("Request") or len(method.input_type.fields) < 2
+    ) and not method.input_type.oneofs:
         input_params = get_input_args(method.input_type)
-        input_assign_full = f"input = {fullname(method.input_type.full_name)}({get_input_assign(method.input_type)})"
+        input_assign_full = f"message = {fullname(method.input_type.full_name)}({get_input_assign(method.input_type)})"
     else:
-        input_params = f"self, input: {fullname(method.input_type.full_name)}"
+        input_params = f"self, message: {fullname(method.input_type.full_name)}"
         input_assign_full = ""
 
     name = fix_snakecase(stringcase.snakecase(method.name))
@@ -145,12 +137,12 @@ def render_method(service_idx, method_idx, method):
         single_attribute = ""
 
     return f"""\
-    def {name}_raw(self, input: bytes) -> bytes:
-        return self._run_command({service_idx}, {method_idx}, input)
+    def {name}_raw(self, message: bytes) -> bytes:
+        return self._run_command({service_idx}, {method_idx}, message)
 
     def {name}({input_params}) -> {return_type}:
         {input_assign_full}
-        raw_bytes = self._run_command({service_idx}, {method_idx}, input.SerializeToString())
+        raw_bytes = self._run_command({service_idx}, {method_idx}, message.SerializeToString())
         output = {fullname(method.output_type.full_name)}()
         output.ParseFromString(raw_bytes)
         return output{single_attribute}
