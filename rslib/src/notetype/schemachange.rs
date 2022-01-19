@@ -8,7 +8,7 @@ use std::collections::HashMap;
 use super::{CardGenContext, Notetype};
 use crate::{
     prelude::*,
-    search::{Node, SortMode, TemplateKind},
+    search::{SortMode, TemplateKind},
 };
 
 /// True if any ordinals added, removed or reordered.
@@ -143,14 +143,12 @@ impl Collection {
 
         // remove any cards where the template was deleted
         if !changes.removed.is_empty() {
-            let ords = Node::any(
-                changes
-                    .removed
-                    .into_iter()
-                    .map(TemplateKind::Ordinal)
-                    .map(Into::into),
-            );
-            self.search_cards_into_table(match_all![nt.id, ords], SortMode::NoOrder)?;
+            let mut ords =
+                SearchBuilder::any(changes.removed.into_iter().map(TemplateKind::Ordinal));
+            self.search_cards_into_table(
+                SearchBuilder::from(nt.id).and_join(&mut ords),
+                SortMode::NoOrder,
+            )?;
             for card in self.storage.all_searched_cards()? {
                 self.remove_card_and_add_grave_undoable(card, usn)?;
             }
@@ -159,15 +157,12 @@ impl Collection {
 
         // update ordinals for cards with a repositioned template
         if !changes.moved.is_empty() {
-            let ords = Node::any(
-                changes
-                    .moved
-                    .keys()
-                    .cloned()
-                    .map(TemplateKind::Ordinal)
-                    .map(Into::into),
-            );
-            self.search_cards_into_table(match_all![nt.id, ords], SortMode::NoOrder)?;
+            let mut ords =
+                SearchBuilder::any(changes.moved.keys().cloned().map(TemplateKind::Ordinal));
+            self.search_cards_into_table(
+                SearchBuilder::from(nt.id).and_join(&mut ords),
+                SortMode::NoOrder,
+            )?;
             for mut card in self.storage.all_searched_cards()? {
                 let original = card.clone();
                 card.template_idx = *changes.moved.get(&card.template_idx).unwrap();
