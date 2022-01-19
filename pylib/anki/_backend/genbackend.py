@@ -155,7 +155,7 @@ def render_method(service_idx, method_idx, method):
 
     def {name}({input_params}) -> {return_type}:
         {input_assign_full}
-        raw_bytes = self.{name}_raw(input.SerializeToString())
+        raw_bytes = self._run_command({service_idx}, {method_idx}, input.SerializeToString())
         output = {fullname(method.output_type.full_name)}()
         output.ParseFromString(raw_bytes)
         return output{single_attribute}
