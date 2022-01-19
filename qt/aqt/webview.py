@@ -13,7 +13,7 @@ from anki.utils import is_lin, is_mac, is_win
 from aqt import colors, gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
-from aqt.utils import askUser, is_zoom_event, openLink, showInfo, tr
+from aqt.utils import askUser, is_gesture_or_zoom_event, openLink, showInfo, tr
 
 serverbaseurl = re.compile(r"^.+:\/\/[^\/]+")
 
@@ -260,7 +260,7 @@ class AnkiWebView(QWebEngineView):
         self._disable_zoom = True
 
     def eventFilter(self, obj: QObject, evt: QEvent) -> bool:
-        if self._disable_zoom and is_zoom_event(evt):
+        if self._disable_zoom and is_gesture_or_zoom_event(evt):
             return True
 
         if (
