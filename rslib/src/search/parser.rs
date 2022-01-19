@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use itertools::Itertools;
 use lazy_static::lazy_static;
 use nom::{
     branch::alt,
@@ -37,48 +36,6 @@ pub enum Node {
     Not(Box<Node>),
     Group(Vec<Node>),
     Search(SearchNode),
-}
-
-impl Node {
-    pub fn negated(self) -> Node {
-        if let Node::Not(inner) = self {
-            *inner
-        } else {
-            Node::Not(Box::new(self))
-        }
-    }
-
-    /// If we're a group, return the contained elements.
-    /// If we're a single node, return ourselves in an one-element vec.
-    pub fn into_node_list(self) -> Vec<Node> {
-        if let Node::Group(nodes) = self {
-            nodes
-        } else {
-            vec![self]
-        }
-    }
-
-    pub fn all(iter: impl IntoIterator<Item = Node>) -> Node {
-        Node::Group(Itertools::intersperse(iter.into_iter(), Node::And).collect())
-    }
-
-    pub fn any(iter: impl IntoIterator<Item = Node>) -> Node {
-        Node::Group(Itertools::intersperse(iter.into_iter(), Node::Or).collect())
-    }
-}
-
-#[macro_export]
-macro_rules! match_all {
-    ($($param:expr),+ $(,)?) => {
-        $crate::search::Node::all(vec![$($param.into()),+])
-    };
-}
-
-#[macro_export]
-macro_rules! match_any {
-    ($($param:expr),+ $(,)?) => {
-        $crate::search::Node::any(vec![$($param.into()),+])
-    };
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -174,36 +131,6 @@ pub fn parse(input: &str) -> Result<Vec<Node>> {
         // unmatched ) is only char not consumed by any node parser
         Ok((remaining, _)) => Err(parse_failure(remaining, FailKind::UnopenedGroup).into()),
         Err(err) => Err(err.into()),
-    }
-}
-
-impl From<SearchNode> for Node {
-    fn from(n: SearchNode) -> Self {
-        Node::Search(n)
-    }
-}
-
-impl From<NotetypeId> for Node {
-    fn from(id: NotetypeId) -> Self {
-        Node::Search(SearchNode::NotetypeId(id))
-    }
-}
-
-impl From<TemplateKind> for Node {
-    fn from(k: TemplateKind) -> Self {
-        Node::Search(SearchNode::CardTemplate(k))
-    }
-}
-
-impl From<NoteId> for Node {
-    fn from(n: NoteId) -> Self {
-        Node::Search(SearchNode::NoteIds(format!("{}", n)))
-    }
-}
-
-impl From<StateKind> for Node {
-    fn from(k: StateKind) -> Self {
-        Node::Search(SearchNode::State(k))
     }
 }
 
@@ -1105,15 +1032,5 @@ mod test {
             failkind("prop:ease<1,3"),
             SearchErrorKind::InvalidNumber { .. }
         ));
-    }
-
-    #[test]
-    fn negating() {
-        let node = Node::Search(SearchNode::UnqualifiedText("foo".to_string()));
-        let neg_node = Node::Not(Box::new(Node::Search(SearchNode::UnqualifiedText(
-            "foo".to_string(),
-        ))));
-        assert_eq!(node.clone().negated(), neg_node);
-        assert_eq!(node.clone().negated().negated(), node);
     }
 }
