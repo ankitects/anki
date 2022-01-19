@@ -472,6 +472,7 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
 
     return lambda: getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
 
+
 # all methods in here require a collection
 post_handlers = {
     stringcase.camelcase(handler.__name__): handler for handler in post_handler_list

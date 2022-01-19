@@ -388,7 +388,8 @@ and notes.mid = ? and cards.ord = ?""",
         field/template count. Each value represents the index in the previous
         notetype. -1 indicates the original value will be discarded.
         """
-        return self.col._backend.change_notetype(input)
+        op_bytes = self.col._backend.change_notetype_raw(input.SerializeToString)
+        return OpChanges.FromString(op_bytes)
 
     # legacy API - used by unit tests and add-ons
 
