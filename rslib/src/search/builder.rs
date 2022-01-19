@@ -5,7 +5,7 @@ use std::mem;
 
 use itertools::Itertools;
 
-use super::{write_nodes, Node, SearchNode, StateKind, TemplateKind};
+use super::{writer::write_nodes, Node, SearchNode, StateKind, TemplateKind};
 use crate::{prelude::*, text::escape_anki_wildcards_for_search_node};
 
 pub trait Negated {
@@ -32,12 +32,21 @@ impl SearchBuilder {
         Self(vec![])
     }
 
-    /// Construct [Nodes] where given [Node]s are joined by [Node::And].
+    /// Construct [SearchBuilder] with this [Node], or its inner [Node]s,
+    /// if it is a [Node::Group]
+    pub fn from_root(node: Node) -> Self {
+        match node {
+            Node::Group(nodes) => Self(nodes),
+            _ => Self(vec![node]),
+        }
+    }
+
+    /// Construct [SearchBuilder] where given [Node]s are joined by [Node::And].
     pub fn all(iter: impl IntoIterator<Item = impl Into<Node>>) -> Self {
         Self(Itertools::intersperse(iter.into_iter().map(Into::into), Node::And).collect())
     }
 
-    /// Construct [Nodes] where given [Node]s are joined by [Node::Or].
+    /// Construct [SearchBuilder] where given [Node]s are joined by [Node::Or].
     pub fn any(iter: impl IntoIterator<Item = impl Into<Node>>) -> Self {
         Self(Itertools::intersperse(iter.into_iter().map(Into::into), Node::Or).collect())
     }

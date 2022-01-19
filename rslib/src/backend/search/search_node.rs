@@ -7,8 +7,7 @@ use crate::{
     backend_proto as pb,
     prelude::*,
     search::{
-        parse_search, BoolSeparator, Negated, Node, PropertyKind, RatingKind, SearchNode,
-        StateKind, TemplateKind,
+        parse_search, Negated, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind,
     },
     text::escape_anki_wildcards_for_search_node,
 };
@@ -103,15 +102,6 @@ impl TryFrom<pb::SearchNode> for Node {
         } else {
             Node::Search(SearchNode::WholeCollection)
         })
-    }
-}
-
-impl From<pb::search_node::group::Joiner> for BoolSeparator {
-    fn from(sep: pb::search_node::group::Joiner) -> Self {
-        match sep {
-            pb::search_node::group::Joiner::And => BoolSeparator::And,
-            pb::search_node::group::Joiner::Or => BoolSeparator::Or,
-        }
     }
 }
 

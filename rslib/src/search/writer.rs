@@ -14,32 +14,6 @@ use crate::{
     text::escape_anki_wildcards,
 };
 
-#[derive(Debug, PartialEq)]
-pub enum BoolSeparator {
-    And,
-    Or,
-}
-
-/// Take an existing search, and AND/OR it with the provided additional search.
-/// This is required because when the user has "a AND b" in an existing search and
-/// wants to add "c", we want "a AND b AND c", not "(a AND b) AND C", which is what we'd
-/// get if we tried to join the existing search string with a new SearchTerm on the
-/// client side.
-pub fn concatenate_searches(
-    sep: BoolSeparator,
-    mut existing: Vec<Node>,
-    additional: Node,
-) -> String {
-    if !existing.is_empty() {
-        existing.push(match sep {
-            BoolSeparator::And => Node::And,
-            BoolSeparator::Or => Node::Or,
-        });
-    }
-    existing.push(additional);
-    write_nodes(&existing)
-}
-
 /// Given an existing parsed search, if the provided `replacement` is a single search node such
 /// as a deck:xxx search, replace any instances of that search in `existing` with the new value.
 /// Then return the possibly modified first search as a string.
@@ -65,7 +39,7 @@ pub fn replace_search_node(mut existing: Vec<Node>, replacement: Node) -> String
     write_nodes(&existing)
 }
 
-pub fn write_nodes(nodes: &[Node]) -> String {
+pub(super) fn write_nodes(nodes: &[Node]) -> String {
     nodes.iter().map(write_node).collect()
 }
 
@@ -232,42 +206,6 @@ mod test {
         assert_eq!(r#""aNd" "oR""#, normalize_search(r#""aNd" "oR""#).unwrap());
         // normalize numbers
         assert_eq!("prop:ease>1", normalize_search("prop:ease>1.0").unwrap());
-    }
-
-    #[test]
-    fn concatenating() {
-        assert_eq!(
-            concatenate_searches(
-                BoolSeparator::And,
-                vec![Node::Search(SearchNode::UnqualifiedText("foo".to_string()))],
-                Node::Search(SearchNode::UnqualifiedText("bar".to_string()))
-            ),
-            "foo bar",
-        );
-        assert_eq!(
-            concatenate_searches(
-                BoolSeparator::Or,
-                vec![Node::Search(SearchNode::UnqualifiedText("foo".to_string()))],
-                Node::Search(SearchNode::UnqualifiedText("bar".to_string()))
-            ),
-            "foo OR bar",
-        );
-        assert_eq!(
-            concatenate_searches(
-                BoolSeparator::Or,
-                vec![Node::Search(SearchNode::WholeCollection)],
-                Node::Search(SearchNode::UnqualifiedText("bar".to_string()))
-            ),
-            "deck:* OR bar",
-        );
-        assert_eq!(
-            concatenate_searches(
-                BoolSeparator::Or,
-                vec![],
-                Node::Search(SearchNode::UnqualifiedText("bar".to_string()))
-            ),
-            "bar",
-        );
     }
 
     #[test]

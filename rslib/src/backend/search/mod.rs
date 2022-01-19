@@ -13,13 +13,13 @@ use crate::{
     backend_proto::sort_order::Value as SortOrderProto,
     browser_table::Column,
     prelude::*,
-    search::{concatenate_searches, replace_search_node, write_nodes, Node, SortMode},
+    search::{replace_search_node, Node, SortMode},
 };
 
 impl SearchService for Backend {
     fn build_search_string(&self, input: pb::SearchNode) -> Result<pb::String> {
         let node: Node = input.try_into()?;
-        Ok(write_nodes(&node.into_node_list()).into())
+        Ok(SearchBuilder::from_root(node).write().into())
     }
 
     fn search_cards(&self, input: pb::SearchRequest) -> Result<pb::SearchResponse> {
@@ -43,13 +43,18 @@ impl SearchService for Backend {
     }
 
     fn join_search_nodes(&self, input: pb::JoinSearchNodesRequest) -> Result<pb::String> {
-        let sep = input.joiner().into();
-        let existing_nodes = {
-            let node: Node = input.existing_node.unwrap_or_default().try_into()?;
-            node.into_node_list()
-        };
-        let additional_node = input.additional_node.unwrap_or_default().try_into()?;
-        Ok(concatenate_searches(sep, existing_nodes, additional_node).into())
+        let existing_node: Node = input.existing_node.unwrap_or_default().try_into()?;
+        let additional_node: Node = input.additional_node.unwrap_or_default().try_into()?;
+        let search = SearchBuilder::from_root(existing_node);
+
+        Ok(
+            match pb::search_node::group::Joiner::from_i32(input.joiner).unwrap_or_default() {
+                pb::search_node::group::Joiner::And => search.and(additional_node),
+                pb::search_node::group::Joiner::Or => search.or(additional_node),
+            }
+            .write()
+            .into(),
+        )
     }
 
     fn replace_search_node(&self, input: pb::ReplaceSearchNodeRequest) -> Result<pb::String> {
