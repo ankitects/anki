@@ -4,10 +4,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import IconButton from "../../components/IconButton.svelte";
-    import WithShortcut from "../../components/WithShortcut.svelte";
+    import Shortcut from "../../components/Shortcut.svelte";
     import WithState from "../../components/WithState.svelte";
 
-    import { withButton } from "../../components/helpers";
     import { execCommand, queryCommandState } from "../helpers";
     import { getNoteEditor } from "../OldEditorAdapter.svelte";
 
@@ -20,14 +19,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const { focusInRichText } = getNoteEditor();
 
+    function action() {
+        execCommand(key);
+    }
+
     $: disabled = !$focusInRichText;
 </script>
 
-{#if withoutShortcut && withoutState}
-    <IconButton {tooltip} {disabled} on:click={() => execCommand(key)}>
+{#if withoutState}
+    <IconButton {tooltip} {disabled} on:click={action}>
         <slot />
     </IconButton>
-{:else if withoutShortcut}
+
+    {#if !withoutShortcut}
+        <Shortcut keyCombination={shortcut} on:click={action} />
+    {/if}
+{:else}
     <WithState
         {key}
         update={async () => queryCommandState(key)}
@@ -39,44 +46,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {active}
             {disabled}
             on:click={(event) => {
-                execCommand(key);
+                action();
                 updateState(event);
             }}
         >
             <slot />
         </IconButton>
-    </WithState>
-{:else if withoutState}
-    <WithShortcut {shortcut} let:createShortcut let:shortcutLabel>
-        <IconButton
-            tooltip="{tooltip} ({shortcutLabel})"
-            {disabled}
-            on:click={() => execCommand(key)}
-            on:mount={withButton(createShortcut)}
-        >
-            <slot />
-        </IconButton>
-    </WithShortcut>
-{:else}
-    <WithShortcut {shortcut} let:createShortcut let:shortcutLabel>
-        <WithState
-            {key}
-            update={async () => queryCommandState(key)}
-            let:state={active}
-            let:updateState
-        >
-            <IconButton
-                tooltip="{tooltip} ({shortcutLabel})"
-                {active}
-                {disabled}
-                on:click={(event) => {
-                    execCommand(key);
+
+        {#if !withoutShortcut}
+            <Shortcut
+                keyCombination={shortcut}
+                on:action={(event) => {
+                    action();
                     updateState(event);
                 }}
-                on:mount={withButton(createShortcut)}
-            >
-                <slot />
-            </IconButton>
-        </WithState>
-    </WithShortcut>
+            />
+        {/if}
+    </WithState>
 {/if}

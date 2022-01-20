@@ -8,18 +8,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { preventDefault } from "../lib/events";
 
     export let keyCombination: string;
-    export let target: EventTarget | Document = document;
 
     const dispatch = createEventDispatcher();
 
     onMount(() =>
-        registerShortcut(
-            (event: KeyboardEvent) => {
-                preventDefault(event);
-                dispatch("action", { originalEvent: event });
-            },
-            keyCombination,
-            target,
-        ),
+        registerShortcut((event: KeyboardEvent) => {
+            preventDefault(event);
+            dispatch("action", { originalEvent: event });
+        }, keyCombination),
     );
 </script>
