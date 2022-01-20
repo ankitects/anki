@@ -726,6 +726,7 @@ class AddonsDialog(QDialog):
     def __init__(self, addonsManager: AddonManager) -> None:
         self.mgr = addonsManager
         self.mw = addonsManager.mw
+        self._require_restart = False
 
         super().__init__(self.mw)
 
@@ -768,6 +769,8 @@ class AddonsDialog(QDialog):
         self.onInstallFiles(paths)
 
     def reject(self) -> None:
+        if self._require_restart:
+            tooltip(tr.addons_changes_will_take_effect_when_anki(), parent=self.mw)
         saveGeom(self, "addons")
         aqt.dialogs.markClosed("AddonsDialog")
 
@@ -854,6 +857,7 @@ class AddonsDialog(QDialog):
     def onToggleEnabled(self) -> None:
         for module in self.selectedAddons():
             self.mgr.toggleEnabled(module)
+        self._require_restart = True
         self.redrawAddons()
 
     def onViewPage(self) -> None:
@@ -885,6 +889,9 @@ class AddonsDialog(QDialog):
             return
         gui_hooks.addons_dialog_will_delete_addons(self, selected)
         for module in selected:
+            # doing this before deleting, as `enabled` is always True afterwards
+            if self.mgr.addon_meta(module).enabled:
+                self._require_restart = True
             if not self.mgr.deleteAddon(module):
                 break
         self.form.addonList.clearSelection()
