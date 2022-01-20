@@ -126,18 +126,6 @@ impl Default for SearchBuilder {
     }
 }
 
-impl Node {
-    /// If we're a group, return the contained elements.
-    /// If we're a single node, return ourselves in an one-element vec.
-    pub fn into_node_list(self) -> Vec<Node> {
-        if let Node::Group(nodes) = self {
-            nodes
-        } else {
-            vec![self]
-        }
-    }
-}
-
 impl SearchNode {
     /// Construct [SearchNode] from an unescaped deck name.
     pub fn from_deck_name(name: &str) -> Self {
