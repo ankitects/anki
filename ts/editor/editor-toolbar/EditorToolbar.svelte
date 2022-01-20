@@ -4,7 +4,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import { updateAllState, resetAllState } from "../../components/WithState.svelte";
-
     import type { ButtonGroupAPI } from "../../components/ButtonGroup.svelte";
     import type { ButtonToolbarAPI } from "../../components/ButtonToolbar.svelte";
 
@@ -24,6 +23,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         colorButtons: ButtonGroupAPI;
         templateButtons: ButtonGroupAPI;
     }
+
+    /* Our dynamic components */
+    import AddonButtons from "./AddonButtons.svelte";
+    import PreviewButton, { togglePreviewButtonState } from "./PreviewButton.svelte";
+
+    export const editorToolbar = {
+        AddonButtons,
+        PreviewButton,
+        togglePreviewButtonState,
+    };
 </script>
 
 <script lang="ts">

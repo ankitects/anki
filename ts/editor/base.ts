@@ -45,3 +45,5 @@ export const components = {
     WithState,
     contextKeys: { ...contextKeys, ...editorContextKeys },
 };
+
+export { editorToolbar } from "./editor-toolbar";
