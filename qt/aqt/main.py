@@ -722,7 +722,6 @@ class AnkiQt(QMainWindow):
         gui_hooks.state_did_change(state, oldState)
 
     def _deckBrowserState(self, oldState: str) -> None:
-        self.maybe_check_for_addon_updates()
         self.deckBrowser.show()
 
     def _selectedDeck(self) -> DeckDict | None:
