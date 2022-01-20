@@ -1002,19 +1002,16 @@ def no_arg_trigger(func: Callable) -> Callable:
     return pyqtSlot()(func)  # type: ignore
 
 
-def is_zoom_event(evt: QEvent) -> bool:
-    """If the event will trigger zoom.
+def is_gesture_or_zoom_event(evt: QEvent) -> bool:
+    """If the event is a gesture and/or will trigger zoom.
 
-    Includes zoom by pinching, Ctrl-scrolling, and Meta-scrolling,
-    where scrolling may be triggered by mouse wheel or gesture.
+    Includes zoom by pinching, and Ctrl-scrolling on Win and Linux.
     """
 
     return isinstance(evt, QNativeGestureEvent) or (
         isinstance(evt, QWheelEvent)
-        and (
-            (is_mac and KeyboardModifiersPressed().meta)
-            or KeyboardModifiersPressed().control
-        )
+        and not is_mac
+        and KeyboardModifiersPressed().control
     )
 
 
