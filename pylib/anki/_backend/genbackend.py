@@ -51,12 +51,13 @@ LABEL_OPTIONAL = 1
 LABEL_REQUIRED = 2
 LABEL_REPEATED = 3
 
+RAW_ONLY = {"TranslateString"}
+
 
 def python_type(field):
     type = python_type_inner(field)
-    if field.label == LABEL_REPEATED and not type.startswith("Mapping"):
+    if field.label == LABEL_REPEATED:
         type = f"Sequence[{type}]"
-
     return type
 
 
@@ -84,19 +85,7 @@ def fullname(fullname: str) -> str:
     # eg anki.generic.Empty -> anki.generic_pb2.Empty
     components = fullname.split(".")
     components[1] += "_pb2"
-
-    result = ".".join(components)
-
-    # deal with protobuf maps
-    if len(components) == 4 and components[3].endswith("Entry"):
-        entry = getattr(
-            getattr(getattr(anki, components[1]), components[2]), components[3]
-        )
-        key = python_type_inner(entry.key.DESCRIPTOR)
-        value = python_type_inner(entry.value.DESCRIPTOR)
-        return f"Mapping[{key}, {value}]"
-
-    return result
+    return ".".join(components)
 
 
 # get_deck_i_d -> get_deck_id etc
@@ -124,9 +113,6 @@ def get_input_assign(input_type):
 
 
 def render_method(service_idx, method_idx, method):
-    # if service_idx == 12 and method_idx == 0:
-    #     print(method.name, method.input_type.fields[2].containing_type.name, dir(method.input_type.fields[2]))
-
     name = fix_snakecase(stringcase.snakecase(method.name))
     input_name = method.input_type.name
 
@@ -151,17 +137,24 @@ def render_method(service_idx, method_idx, method):
         return_type = fullname(method.output_type.full_name)
         single_attribute = ""
 
-    return f"""\
+    buf = f"""\
     def {name}_raw(self, message: bytes) -> bytes:
         return self._run_command({service_idx}, {method_idx}, message)
 
+"""
+
+    if not method.name in RAW_ONLY:
+        buf += f"""\
     def {name}({input_params}) -> {return_type}:
         {input_assign_full}
         raw_bytes = self._run_command({service_idx}, {method_idx}, message.SerializeToString())
         output = {fullname(method.output_type.full_name)}()
         output.ParseFromString(raw_bytes)
         return output{single_attribute}
+
 """
+
+    return buf
 
 
 out = []
