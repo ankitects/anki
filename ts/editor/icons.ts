@@ -5,11 +5,6 @@
 
 export { default as descriptionIcon } from "bootstrap-icons/icons/info-circle.svg";
 
-export { default as tagIcon } from "@mdi/svg/svg/tag.svg";
-export { default as addTagIcon } from "@mdi/svg/svg/tag-plus.svg";
-export { default as dotsIcon } from "@mdi/svg/svg/dots-vertical.svg";
-export { default as deleteIcon } from "bootstrap-icons/icons/x.svg";
-
 export { default as alertIcon } from "@mdi/svg/svg/alert.svg";
 
 export { default as richTextOn } from "@mdi/svg/svg/eye-outline.svg";

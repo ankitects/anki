@@ -34,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Fields from "./Fields.svelte";
     import EditorField from "./EditorField.svelte";
     import type { FieldData } from "./EditorField.svelte";
-    import TagEditor from "./TagEditor.svelte";
+    import { TagEditor } from "./tag-editor";
 
     import { EditorToolbar } from "./editor-toolbar";
     import Notification from "./Notification.svelte";

@@ -4,12 +4,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import Tag from "./Tag.svelte";
-    import WithTooltip from "../components/WithTooltip.svelte";
+    import WithTooltip from "../../components/WithTooltip.svelte";
 
     import { createEventDispatcher } from "svelte";
-    import { controlPressed, shiftPressed } from "../lib/keys";
+    import { controlPressed, shiftPressed } from "../../lib/keys";
     import { delimChar } from "./tags";
-    import { pageTheme } from "../sveltelib/theme";
+    import { pageTheme } from "../../sveltelib/theme";
 
     export let name: string;
     let className: string = "";
