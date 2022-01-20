@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { ellipseIcon } from "./icons";
     import { get } from "svelte/store";
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
-    import type { RichTextInputAPI } from "./RichTextInput.svelte";
+    import type { RichTextInputAPI } from "./rich-text-input";
 
     const noteEditor = getNoteEditor();
     const { focusInRichText, activeInput } = noteEditor;

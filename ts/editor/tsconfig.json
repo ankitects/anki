@@ -1,6 +1,12 @@
 {
     "extends": "../tsconfig.json",
-    "include": ["*", "image-overlay/*", "mathjax-overlay/*", "plain-text-input/*"],
+    "include": [
+        "*",
+        "image-overlay/*",
+        "mathjax-overlay/*",
+        "plain-text-input/*",
+        "rich-text-input/*"
+    ],
     "references": [
         { "path": "../components" },
         { "path": "../domlib" },

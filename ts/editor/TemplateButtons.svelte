@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
     import { withButton } from "../components/helpers";
     import { paperclipIcon, micIcon, functionIcon } from "./icons";
-    import type { RichTextInputAPI } from "./RichTextInput.svelte";
+    import type { RichTextInputAPI } from "./rich-text-input";
 
     export let api = {};
     const { focusInRichText, activeInput } = getNoteEditor();
