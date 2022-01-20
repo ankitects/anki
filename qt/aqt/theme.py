@@ -369,6 +369,11 @@ def get_linux_dark_mode() -> bool:
         print(e)
         return False
 
+    except subprocess.CalledProcessError as e:
+        # gsettings is installed, but cannot return a value
+        print(e)
+        return False
+    
     return "-dark" in process.stdout.lower()
 
 
