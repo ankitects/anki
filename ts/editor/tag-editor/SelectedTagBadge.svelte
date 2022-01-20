@@ -4,21 +4,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-
     import Badge from "../../components/Badge.svelte";
+    import Shortcut from "../../components/Shortcut.svelte";
     import WithDropdown from "../../components/WithDropdown.svelte";
-    import WithShortcut from "../../components/WithShortcut.svelte";
     import DropdownMenu from "../../components/DropdownMenu.svelte";
     import DropdownItem from "../../components/DropdownItem.svelte";
-
-    import { withSpan, withButton } from "../../components/helpers";
+    import { withSpan } from "../../components/helpers";
+    import { getPlatformString } from "../../lib/shortcuts";
     import { dotsIcon } from "./icons";
 
     const dispatch = createEventDispatcher();
 
     const allLabel = "Select all tags";
+    const allShortcut = "Control+A";
     const copyLabel = "Copy tags";
+    const copyShortcut = "Control+C";
     const removeLabel = "Remove tags";
+    const removeShortcut = "Backspace";
 </script>
 
 <WithDropdown let:createDropdown>
@@ -26,30 +28,35 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <Badge class="me-1" on:mount={withSpan(createDropdown)}>{@html dotsIcon}</Badge>
 
         <DropdownMenu>
-            <WithShortcut shortcut="Control+A" let:createShortcut let:shortcutLabel>
-                <DropdownItem
-                    on:click={(event) => {
-                        dispatch("tagselectall");
-                        event.stopImmediatePropagation();
-                    }}
-                    on:mount={withButton(createShortcut)}
-                    >{allLabel} ({shortcutLabel})</DropdownItem
-                >
-            </WithShortcut>
-            <WithShortcut shortcut="Control+C" let:createShortcut let:shortcutLabel>
-                <DropdownItem
-                    on:click={() => dispatch("tagcopy")}
-                    on:mount={withButton(createShortcut)}
-                    >{copyLabel} ({shortcutLabel})</DropdownItem
-                >
-            </WithShortcut>
-            <WithShortcut shortcut="Backspace" let:createShortcut let:shortcutLabel>
-                <DropdownItem
-                    on:click={() => dispatch("tagdelete")}
-                    on:mount={withButton(createShortcut)}
-                    >{removeLabel} ({shortcutLabel})</DropdownItem
-                >
-            </WithShortcut>
+            <DropdownItem
+                on:click={(event) => {
+                    dispatch("tagselectall");
+                    event.stopImmediatePropagation();
+                }}>{allLabel} ({getPlatformString(allShortcut)})</DropdownItem
+            >
+            <Shortcut
+                keyCombination={allShortcut}
+                on:action={(event) => {
+                    dispatch("tagselectall");
+                    event.stopImmediatePropagation();
+                }}
+            />
+
+            <DropdownItem on:click={() => dispatch("tagcopy")}
+                >{copyLabel} ({getPlatformString(copyShortcut)})</DropdownItem
+            >
+            <Shortcut
+                keyCombination={copyShortcut}
+                on:action={() => dispatch("tagcopy")}
+            />
+
+            <DropdownItem on:click={() => dispatch("tagdelete")}
+                >{removeLabel} ({getPlatformString(removeShortcut)})</DropdownItem
+            >
+            <Shortcut
+                keyCombination={removeShortcut}
+                on:action={() => dispatch("tagdelete")}
+            />
         </DropdownMenu>
     </div>
 </WithDropdown>

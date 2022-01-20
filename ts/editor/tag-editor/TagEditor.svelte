@@ -401,7 +401,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:tagselectall={selectAllTags}
             on:tagcopy={copySelectedTags}
             on:tagdelete={deleteSelectedTags}
-            on:click={appendEmptyTag}
+            on:tagappend={appendEmptyTag}
         />
     {/if}
 

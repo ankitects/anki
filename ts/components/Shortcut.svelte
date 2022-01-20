@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher, onMount } from "svelte";
     import { registerShortcut } from "../lib/shortcuts";
+    import { preventDefault } from "../lib/events";
 
     export let keyCombination: string;
     export let target: EventTarget | Document = document;
@@ -13,9 +14,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     onMount(() =>
         registerShortcut(
-            (event: KeyboardEvent) => dispatch("action", { originalEvent: event }),
+            (event: KeyboardEvent) => {
+                preventDefault(event);
+                dispatch("action", { originalEvent: event });
+            },
             keyCombination,
-            target as any,
+            target,
         ),
     );
 </script>
