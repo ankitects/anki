@@ -3,11 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import "./legacy.css";
-    import { updateAllState, resetAllState } from "../components/WithState.svelte";
+    import { updateAllState, resetAllState } from "../../components/WithState.svelte";
 
-    import type { ButtonGroupAPI } from "../components/ButtonGroup.svelte";
-    import type { ButtonToolbarAPI } from "../components/ButtonToolbar.svelte";
+    import type { ButtonGroupAPI } from "../../components/ButtonGroup.svelte";
+    import type { ButtonToolbarAPI } from "../../components/ButtonToolbar.svelte";
 
     export function updateActiveButtons(event: Event) {
         updateAllState(event);
@@ -25,22 +24,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         colorButtons: ButtonGroupAPI;
         templateButtons: ButtonGroupAPI;
     }
-
-    /* Our dynamic components */
-    import AddonButtons from "./AddonButtons.svelte";
-    import PreviewButton, { togglePreviewButtonState } from "./PreviewButton.svelte";
-
-    export const editorToolbar = {
-        AddonButtons,
-        PreviewButton,
-        togglePreviewButtonState,
-    };
 </script>
 
 <script lang="ts">
-    import StickyContainer from "../components/StickyContainer.svelte";
-    import ButtonToolbar from "../components/ButtonToolbar.svelte";
-    import Item from "../components/Item.svelte";
+    import StickyContainer from "../../components/StickyContainer.svelte";
+    import ButtonToolbar from "../../components/ButtonToolbar.svelte";
+    import Item from "../../components/Item.svelte";
 
     import NoteTypeButtons from "./NoteTypeButtons.svelte";
     import FormatInlineButtons from "./FormatInlineButtons.svelte";

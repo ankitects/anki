@@ -3,14 +3,14 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { bridgeCommand } from "../lib/bridgecommand";
-    import * as tr from "../lib/ftl";
-    import { withButton } from "../components/helpers";
+    import { bridgeCommand } from "../../lib/bridgecommand";
+    import * as tr from "../../lib/ftl";
+    import { withButton } from "../../components/helpers";
 
-    import ButtonGroup from "../components/ButtonGroup.svelte";
-    import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
-    import LabelButton from "../components/LabelButton.svelte";
-    import WithShortcut from "../components/WithShortcut.svelte";
+    import ButtonGroup from "../../components/ButtonGroup.svelte";
+    import ButtonGroupItem from "../../components/ButtonGroupItem.svelte";
+    import LabelButton from "../../components/LabelButton.svelte";
+    import WithShortcut from "../../components/WithShortcut.svelte";
 
     export let api = {};
 </script>
@@ -26,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </ButtonGroupItem>
 
     <ButtonGroupItem>
-        <WithShortcut shortcut={"Control+L"} let:createShortcut let:shortcutLabel>
+        <WithShortcut shortcut="Control+L" let:createShortcut let:shortcutLabel>
             <LabelButton
                 tooltip={`${tr.editingCustomizeCardTemplates()} (${shortcutLabel})`}
                 on:click={() => bridgeCommand("cards")}

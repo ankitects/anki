@@ -3,19 +3,19 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import ButtonGroup from "../components/ButtonGroup.svelte";
-    import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
-    import IconButton from "../components/IconButton.svelte";
-    import ColorPicker from "../components/ColorPicker.svelte";
-    import WithShortcut from "../components/WithShortcut.svelte";
+    import ButtonGroup from "../../components/ButtonGroup.svelte";
+    import ButtonGroupItem from "../../components/ButtonGroupItem.svelte";
+    import IconButton from "../../components/IconButton.svelte";
+    import ColorPicker from "../../components/ColorPicker.svelte";
+    import WithShortcut from "../../components/WithShortcut.svelte";
     import WithColorHelper from "./WithColorHelper.svelte";
 
-    import * as tr from "../lib/ftl";
-    import { bridgeCommand } from "../lib/bridgecommand";
-    import { withButton } from "../components/helpers";
+    import * as tr from "../../lib/ftl";
+    import { bridgeCommand } from "../../lib/bridgecommand";
+    import { withButton } from "../../components/helpers";
+    import { execCommand } from "../helpers";
+    import { getNoteEditor } from "../OldEditorAdapter.svelte";
     import { textColorIcon, highlightColorIcon, arrowIcon } from "./icons";
-    import { execCommand } from "./helpers";
-    import { getNoteEditor } from "./OldEditorAdapter.svelte";
 
     export let api = {};
     export let textColor: string;
@@ -39,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <ButtonGroup {api}>
     <WithColorHelper color={textColor} let:colorHelperIcon let:setColor>
         <ButtonGroupItem>
-            <WithShortcut shortcut={"F7"} let:createShortcut let:shortcutLabel>
+            <WithShortcut shortcut="F7" let:createShortcut let:shortcutLabel>
                 <IconButton
                     tooltip="{tr.editingSetTextColor()} ({shortcutLabel})"
                     {disabled}
@@ -53,7 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </ButtonGroupItem>
 
         <ButtonGroupItem>
-            <WithShortcut shortcut={"F8"} let:createShortcut let:shortcutLabel>
+            <WithShortcut shortcut="F8" let:createShortcut let:shortcutLabel>
                 <IconButton
                     tooltip="{tr.editingChangeColor()} ({shortcutLabel})"
                     {disabled}

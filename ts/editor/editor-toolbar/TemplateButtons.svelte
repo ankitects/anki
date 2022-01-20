@@ -3,22 +3,22 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import ButtonGroup from "../components/ButtonGroup.svelte";
-    import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
-    import IconButton from "../components/IconButton.svelte";
-    import DropdownMenu from "../components/DropdownMenu.svelte";
-    import DropdownItem from "../components/DropdownItem.svelte";
-    import WithDropdown from "../components/WithDropdown.svelte";
-    import WithShortcut from "../components/WithShortcut.svelte";
+    import ButtonGroup from "../../components/ButtonGroup.svelte";
+    import ButtonGroupItem from "../../components/ButtonGroupItem.svelte";
+    import IconButton from "../../components/IconButton.svelte";
+    import DropdownMenu from "../../components/DropdownMenu.svelte";
+    import DropdownItem from "../../components/DropdownItem.svelte";
+    import WithDropdown from "../../components/WithDropdown.svelte";
+    import WithShortcut from "../../components/WithShortcut.svelte";
     import ClozeButton from "./ClozeButton.svelte";
 
-    import * as tr from "../lib/ftl";
-    import { bridgeCommand } from "../lib/bridgecommand";
-    import { wrapInternal } from "../lib/wrap";
-    import { getNoteEditor } from "./OldEditorAdapter.svelte";
-    import { withButton } from "../components/helpers";
+    import * as tr from "../../lib/ftl";
+    import { bridgeCommand } from "../../lib/bridgecommand";
+    import { wrapInternal } from "../../lib/wrap";
+    import { withButton } from "../../components/helpers";
+    import { getNoteEditor } from "../OldEditorAdapter.svelte";
+    import type { RichTextInputAPI } from "../rich-text-input";
     import { paperclipIcon, micIcon, functionIcon } from "./icons";
-    import type { RichTextInputAPI } from "./rich-text-input";
 
     export let api = {};
     const { focusInRichText, activeInput } = getNoteEditor();

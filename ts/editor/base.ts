@@ -28,8 +28,6 @@ export const editorModules = [
     ModuleName.BROWSING,
 ];
 
-export { editorToolbar } from "./EditorToolbar.svelte";
-
 import IconButton from "../components/IconButton.svelte";
 import LabelButton from "../components/LabelButton.svelte";
 import WithShortcut from "../components/WithShortcut.svelte";

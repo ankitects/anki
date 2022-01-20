@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { EditorFieldAPI } from "./EditorField.svelte";
     import type { RichTextInputAPI } from "./rich-text-input";
     import type { PlainTextInputAPI } from "./plain-text-input";
-    import type { EditorToolbarAPI } from "./EditorToolbar.svelte";
+    import type { EditorToolbarAPI } from "./editor-toolbar";
 
     import contextProperty from "../sveltelib/context-property";
     import { writable, get } from "svelte/store";
@@ -36,7 +36,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { FieldData } from "./EditorField.svelte";
     import TagEditor from "./TagEditor.svelte";
 
-    import EditorToolbar from "./EditorToolbar.svelte";
+    import { EditorToolbar } from "./editor-toolbar";
     import Notification from "./Notification.svelte";
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";

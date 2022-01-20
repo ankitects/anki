@@ -3,13 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import IconButton from "../components/IconButton.svelte";
-    import WithShortcut from "../components/WithShortcut.svelte";
-    import WithState from "../components/WithState.svelte";
+    import IconButton from "../../components/IconButton.svelte";
+    import WithShortcut from "../../components/WithShortcut.svelte";
+    import WithState from "../../components/WithState.svelte";
 
-    import { withButton } from "../components/helpers";
-    import { execCommand, queryCommandState } from "./helpers";
-    import { getNoteEditor } from "./OldEditorAdapter.svelte";
+    import { withButton } from "../../components/helpers";
+    import { execCommand, queryCommandState } from "../helpers";
+    import { getNoteEditor } from "../OldEditorAdapter.svelte";
 
     export let key: string;
     export let tooltip: string;

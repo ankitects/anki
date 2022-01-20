@@ -5,7 +5,8 @@
         "image-overlay/*",
         "mathjax-overlay/*",
         "plain-text-input/*",
-        "rich-text-input/*"
+        "rich-text-input/*",
+        "editor-toolbar/*",
     ],
     "references": [
         { "path": "../components" },

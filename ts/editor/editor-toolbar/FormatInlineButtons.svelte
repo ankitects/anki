@@ -3,14 +3,14 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import ButtonGroup from "../components/ButtonGroup.svelte";
-    import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
+    import ButtonGroup from "../../components/ButtonGroup.svelte";
+    import ButtonGroupItem from "../../components/ButtonGroupItem.svelte";
     import CommandIconButton from "./CommandIconButton.svelte";
     import BoldButton from "./BoldButton.svelte";
     import ItalicButton from "./ItalicButton.svelte";
     import UnderlineButton from "./UnderlineButton.svelte";
 
-    import * as tr from "../lib/ftl";
+    import * as tr from "../../lib/ftl";
     import { superscriptIcon, subscriptIcon, eraserIcon } from "./icons";
 
     export let api = {};
@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonGroupItem>
         <CommandIconButton
             key="superscript"
-            shortcut={"Control+="}
+            shortcut="Control+="
             tooltip={tr.editingSuperscript()}>{@html superscriptIcon}</CommandIconButton
         >
     </ButtonGroupItem>
@@ -40,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonGroupItem>
         <CommandIconButton
             key="subscript"
-            shortcut={"Control+Shift+="}
+            shortcut="Control+Shift+="
             tooltip={tr.editingSubscript()}>{@html subscriptIcon}</CommandIconButton
         >
     </ButtonGroupItem>
@@ -48,7 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonGroupItem>
         <CommandIconButton
             key="removeFormat"
-            shortcut={"Control+R"}
+            shortcut="Control+R"
             tooltip={tr.editingRemoveFormatting()}
             withoutState>{@html eraserIcon}</CommandIconButton
         >

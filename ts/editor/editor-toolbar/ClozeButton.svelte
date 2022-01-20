@@ -3,16 +3,16 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import IconButton from "../components/IconButton.svelte";
-    import WithShortcut from "../components/WithShortcut.svelte";
+    import IconButton from "../../components/IconButton.svelte";
+    import WithShortcut from "../../components/WithShortcut.svelte";
 
-    import * as tr from "../lib/ftl";
-    import { wrapInternal } from "../lib/wrap";
-    import { withButton } from "../components/helpers";
-    import { ellipseIcon } from "./icons";
+    import * as tr from "../../lib/ftl";
+    import { wrapInternal } from "../../lib/wrap";
+    import { withButton } from "../../components/helpers";
     import { get } from "svelte/store";
-    import { getNoteEditor } from "./OldEditorAdapter.svelte";
-    import type { RichTextInputAPI } from "./rich-text-input";
+    import { getNoteEditor } from "../OldEditorAdapter.svelte";
+    import type { RichTextInputAPI } from "../rich-text-input";
+    import { ellipseIcon } from "./icons";
 
     const noteEditor = getNoteEditor();
     const { focusInRichText, activeInput } = noteEditor;
