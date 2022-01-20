@@ -32,3 +32,25 @@ impl From<FilteredDeckError> for AnkiError {
         AnkiError::FilteredDeckError(e)
     }
 }
+
+#[derive(Debug, PartialEq)]
+pub enum CustomStudyError {
+    NoMatchingCards,
+    ExistingDeck,
+}
+
+impl CustomStudyError {
+    pub fn localized_description(&self, tr: &I18n) -> String {
+        match self {
+            Self::NoMatchingCards => tr.custom_study_no_cards_matched_the_criteria_you(),
+            Self::ExistingDeck => tr.custom_study_must_rename_deck(),
+        }
+        .into()
+    }
+}
+
+impl From<CustomStudyError> for AnkiError {
+    fn from(e: CustomStudyError) -> Self {
+        AnkiError::CustomStudyError(e)
+    }
+}

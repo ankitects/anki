@@ -7,8 +7,7 @@ use crate::{
     backend_proto as pb,
     prelude::*,
     search::{
-        parse_search, BoolSeparator, Node, PropertyKind, RatingKind, SearchNode, StateKind,
-        TemplateKind,
+        parse_search, Negated, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind,
     },
     text::escape_anki_wildcards_for_search_node,
 };
@@ -20,15 +19,9 @@ impl TryFrom<pb::SearchNode> for Node {
         use pb::search_node::{group::Joiner, Filter, Flag};
         Ok(if let Some(filter) = msg.filter {
             match filter {
-                Filter::Tag(s) => {
-                    Node::Search(SearchNode::Tag(escape_anki_wildcards_for_search_node(&s)))
-                }
-                Filter::Deck(s) => {
-                    Node::Search(SearchNode::Deck(escape_anki_wildcards_for_search_node(&s)))
-                }
-                Filter::Note(s) => Node::Search(SearchNode::Notetype(
-                    escape_anki_wildcards_for_search_node(&s),
-                )),
+                Filter::Tag(s) => SearchNode::from_tag_name(&s).into(),
+                Filter::Deck(s) => SearchNode::from_deck_name(&s).into(),
+                Filter::Note(s) => SearchNode::from_notetype_name(&s).into(),
                 Filter::Template(u) => {
                     Node::Search(SearchNode::CardTemplate(TemplateKind::Ordinal(u as u16)))
                 }
@@ -109,15 +102,6 @@ impl TryFrom<pb::SearchNode> for Node {
         } else {
             Node::Search(SearchNode::WholeCollection)
         })
-    }
-}
-
-impl From<pb::search_node::group::Joiner> for BoolSeparator {
-    fn from(sep: pb::search_node::group::Joiner) -> Self {
-        match sep {
-            pb::search_node::group::Joiner::And => BoolSeparator::And,
-            pb::search_node::group::Joiner::Or => BoolSeparator::Or,
-        }
     }
 }
 
