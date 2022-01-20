@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import type { EditorFieldAPI } from "./EditorField.svelte";
     import type { RichTextInputAPI } from "./RichTextInput.svelte";
-    import type { PlainTextInputAPI } from "./PlainTextInput.svelte";
+    import type { PlainTextInputAPI } from "./plain-text-input";
     import type { EditorToolbarAPI } from "./EditorToolbar.svelte";
 
     import contextProperty from "../sveltelib/context-property";
@@ -46,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import RichTextInput from "./RichTextInput.svelte";
     import { MathjaxHandle } from "./mathjax-overlay";
     import { ImageHandle } from "./image-overlay";
-    import PlainTextInput from "./PlainTextInput.svelte";
+    import { PlainTextInput } from "./plain-text-input";
     import MathjaxElement from "./MathjaxElement.svelte";
     import FrameElement from "./FrameElement.svelte";
 

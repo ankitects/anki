@@ -3,9 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import type { EditingInputAPI } from "./EditingArea.svelte";
-    import type { CodeMirror as CodeMirrorType } from "./code-mirror";
-    import CodeMirror from "./CodeMirror.svelte";
+    import type { EditingInputAPI } from "../EditingArea.svelte";
+    import type { CodeMirror as CodeMirrorType } from "../code-mirror";
 
     export interface PlainTextInputAPI extends EditingInputAPI {
         name: "plain-text";
@@ -18,13 +17,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import type { CodeMirrorAPI } from "./CodeMirror.svelte";
     import { tick, onMount } from "svelte";
     import { writable } from "svelte/store";
-    import { pageTheme } from "../sveltelib/theme";
-    import { getDecoratedElements } from "./DecoratedElements.svelte";
-    import { getEditingArea } from "./EditingArea.svelte";
-    import { htmlanki, baseOptions, gutterOptions } from "./code-mirror";
+    import { pageTheme } from "../../sveltelib/theme";
+    import { getDecoratedElements } from "../DecoratedElements.svelte";
+    import { getEditingArea } from "../EditingArea.svelte";
+    import CodeMirror from "../CodeMirror.svelte";
+    import type { CodeMirrorAPI } from "../CodeMirror.svelte";
+    import { htmlanki, baseOptions, gutterOptions } from "../code-mirror";
 
     export let hidden = false;
 
