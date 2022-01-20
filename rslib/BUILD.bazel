@@ -151,14 +151,14 @@ rust_test(
 rustfmt_test(
     name = "format_check",
     srcs = glob([
-        "src/**/*.rs",
+        "**/*.rs",
     ]),
 )
 
 rustfmt_fix(
     name = "format",
     srcs = glob([
-        "src/**/*.rs",
+        "**/*.rs",
     ]),
 )
 

@@ -292,13 +292,12 @@ impl Collection {
         usn: Usn,
     ) -> Result<(), AnkiError> {
         if !map.removed.is_empty() {
-            let ords = Node::any(
-                map.removed
-                    .iter()
-                    .map(|o| TemplateKind::Ordinal(*o as u16))
-                    .map(Into::into),
-            );
-            self.search_cards_into_table(match_all![nids, ords], SortMode::NoOrder)?;
+            let ords =
+                SearchBuilder::any(map.removed.iter().map(|o| TemplateKind::Ordinal(*o as u16)));
+            self.search_cards_into_table(
+                SearchBuilder::from(nids).and_join(&mut ords.group()),
+                SortMode::NoOrder,
+            )?;
             for card in self.storage.all_searched_cards()? {
                 self.remove_card_and_add_grave_undoable(card, usn)?;
             }
@@ -315,13 +314,15 @@ impl Collection {
         usn: Usn,
     ) -> Result<(), AnkiError> {
         if !map.remapped.is_empty() {
-            let ords = Node::any(
+            let mut ords = SearchBuilder::any(
                 map.remapped
                     .keys()
-                    .map(|o| TemplateKind::Ordinal(*o as u16))
-                    .map(Into::into),
+                    .map(|o| TemplateKind::Ordinal(*o as u16)),
             );
-            self.search_cards_into_table(match_all![nids, ords], SortMode::NoOrder)?;
+            self.search_cards_into_table(
+                SearchBuilder::from(nids).and_join(&mut ords),
+                SortMode::NoOrder,
+            )?;
             for mut card in self.storage.all_searched_cards()? {
                 let original = card.clone();
                 card.template_idx =
