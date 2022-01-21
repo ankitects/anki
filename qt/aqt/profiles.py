@@ -20,7 +20,7 @@ from anki.collection import Collection
 from anki.db import DB
 from anki.lang import without_unicode_isolation
 from anki.sync import SyncAuth
-from anki.utils import int_time, is_mac, is_win
+from anki.utils import int_time, is_mac, is_win, point_version
 from aqt import appHelpSite
 from aqt.qt import *
 from aqt.theme import Theme
@@ -498,6 +498,12 @@ create table if not exists profiles
 
     # Shared options
     ######################################################################
+
+    def last_run_version(self) -> int:
+        return self.meta.get("last_run_version", 0)
+
+    def set_last_run_version(self) -> None:
+        self.meta["last_run_version"] = point_version()
 
     def uiScale(self) -> float:
         scale = self.meta.get("uiScale", 1.0)
