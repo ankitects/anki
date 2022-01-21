@@ -162,7 +162,7 @@ class AddCards(QMainWindow):
                     new_note[field_name] = old_note[field_name]
                     copied_field_names.add(field_name)
             new_idx = 0
-            for old_idx, old_field in enumerate(old_field_names):
+            for old_idx, old_field_value in enumerate(old_field_names):
                 # skip previously copied identical fields in new note
                 while (
                     new_idx < len(new_field_names)
@@ -172,7 +172,10 @@ class AddCards(QMainWindow):
                 if new_idx >= len(new_field_names):
                     break
                 # copy non-empty old fields
-                if not old_field in copied_field_names and old_note.fields[old_idx]:
+                if (
+                    not old_field_value in copied_field_names
+                    and old_note.fields[old_idx]
+                ):
                     new_note.fields[new_idx] = old_note.fields[old_idx]
                     new_idx += 1
 
