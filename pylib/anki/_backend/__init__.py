@@ -106,11 +106,21 @@ class RustBackend(RustBackendGenerated):
     def translate(
         self, module_index: int, message_index: int, **kwargs: str | int | float
     ) -> str:
-        return self.translate_string(
-            translate_string_in(
-                module_index=module_index, message_index=message_index, **kwargs
-            )
+        args = {
+            k: i18n_pb2.TranslateArgValue(str=v)
+            if isinstance(v, str)
+            else i18n_pb2.TranslateArgValue(number=v)
+            for k, v in kwargs.items()
+        }
+
+        input = i18n_pb2.TranslateStringRequest(
+            module_index=module_index,
+            message_index=message_index,
+            args=args,
         )
+
+        output_bytes = self.translate_string_raw(input.SerializeToString())
+        return anki.generic_pb2.String.FromString(output_bytes).val
 
     def format_time_span(
         self,
@@ -123,29 +133,15 @@ class RustBackend(RustBackendGenerated):
         )
         return self.format_timespan(seconds=seconds, context=context)
 
-    def _run_command(self, service: int, method: int, input: Any) -> bytes:
-        input_bytes = input.SerializeToString()
+    def _run_command(self, service: int, method: int, input: bytes) -> bytes:
         try:
-            return self._backend.command(service, method, input_bytes)
+            return self._backend.command(service, method, input)
         except Exception as error:
-            err_bytes = bytes(error.args[0])
+            error_bytes = bytes(error.args[0])
+
         err = backend_pb2.BackendError()
-        err.ParseFromString(err_bytes)
+        err.ParseFromString(error_bytes)
         raise backend_exception_to_pylib(err)
-
-
-def translate_string_in(
-    module_index: int, message_index: int, **kwargs: str | int | float
-) -> i18n_pb2.TranslateStringRequest:
-    args = {
-        k: i18n_pb2.TranslateArgValue(str=v)
-        if isinstance(v, str)
-        else i18n_pb2.TranslateArgValue(number=v)
-        for k, v in kwargs.items()
-    }
-    return i18n_pb2.TranslateStringRequest(
-        module_index=module_index, message_index=message_index, args=args
-    )
 
 
 class Translations(GeneratedTranslations):

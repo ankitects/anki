@@ -51,24 +51,7 @@ LABEL_OPTIONAL = 1
 LABEL_REQUIRED = 2
 LABEL_REPEATED = 3
 
-# messages we don't want to unroll in codegen
-SKIP_UNROLL_INPUT = {
-    "TranslateString",
-    "SetPreferences",
-    "UpdateDeckConfigs",
-    "AnswerCard",
-    "ChangeNotetype",
-    "CompleteTag",
-}
-SKIP_UNROLL_OUTPUT = {"GetPreferences"}
-
-SKIP_DECODE = {
-    "Graphs",
-    "GetGraphPreferences",
-    "GetChangeNotetypeInfo",
-    "CompleteTag",
-    "CardStats",
-}
+RAW_ONLY = {"TranslateString"}
 
 
 def python_type(field):
@@ -116,62 +99,59 @@ def fix_snakecase(name):
     return name
 
 
-def get_input_args(msg):
-    fields = sorted(msg.fields, key=lambda x: x.number)
+def get_input_args(input_type):
+    fields = sorted(input_type.fields, key=lambda x: x.number)
     self_star = ["self"]
     if len(fields) >= 2:
         self_star.append("*")
     return ", ".join(self_star + [f"{f.name}: {python_type(f)}" for f in fields])
 
 
-def get_input_assign(msg):
-    fields = sorted(msg.fields, key=lambda x: x.number)
+def get_input_assign(input_type):
+    fields = sorted(input_type.fields, key=lambda x: x.number)
     return ", ".join(f"{f.name}={f.name}" for f in fields)
 
 
 def render_method(service_idx, method_idx, method):
-    input_name = method.input_type.name
-    if (
-        (input_name.endswith("Request") or len(method.input_type.fields) < 2)
-        and not method.input_type.oneofs
-        and not method.name in SKIP_UNROLL_INPUT
-    ):
-        input_args = get_input_args(method.input_type)
-        input_assign = get_input_assign(method.input_type)
-        input_assign_outer = (
-            f"input = {fullname(method.input_type.full_name)}({input_assign})\n        "
-        )
-    else:
-        input_args = f"self, input: {fullname(method.input_type.full_name)}"
-        input_assign_outer = ""
     name = fix_snakecase(stringcase.snakecase(method.name))
+    input_name = method.input_type.name
+
+    if (
+        input_name.endswith("Request") or len(method.input_type.fields) < 2
+    ) and not method.input_type.oneofs:
+        input_params = get_input_args(method.input_type)
+        input_assign_full = f"message = {fullname(method.input_type.full_name)}({get_input_assign(method.input_type)})"
+    else:
+        input_params = f"self, message: {fullname(method.input_type.full_name)}"
+        input_assign_full = ""
+
     if (
         len(method.output_type.fields) == 1
         and method.output_type.fields[0].type != TYPE_ENUM
-        and method.name not in SKIP_UNROLL_OUTPUT
     ):
         # unwrap single return arg
         f = method.output_type.fields[0]
-        single_field = f".{f.name}"
         return_type = python_type(f)
+        single_attribute = f".{f.name}"
     else:
-        single_field = ""
         return_type = fullname(method.output_type.full_name)
-
-    if method.name in SKIP_DECODE:
-        return_type = "bytes"
+        single_attribute = ""
 
     buf = f"""\
-    def {name}({input_args}) -> {return_type}:
-        {input_assign_outer}"""
+    def {name}_raw(self, message: bytes) -> bytes:
+        return self._run_command({service_idx}, {method_idx}, message)
 
-    if method.name in SKIP_DECODE:
-        buf += f"""return self._run_command({service_idx}, {method_idx}, input)
 """
-    else:
-        buf += f"""output = {fullname(method.output_type.full_name)}()
-        output.ParseFromString(self._run_command({service_idx}, {method_idx}, input))
-        return output{single_field}
+
+    if not method.name in RAW_ONLY:
+        buf += f"""\
+    def {name}({input_params}) -> {return_type}:
+        {input_assign_full}
+        raw_bytes = self._run_command({service_idx}, {method_idx}, message.SerializeToString())
+        output = {fullname(method.output_type.full_name)}()
+        output.ParseFromString(raw_bytes)
+        return output{single_attribute}
+
 """
 
     return buf
@@ -235,7 +215,7 @@ or removed at any time. Instead, please use the methods on the collection
 instead. Eg, don't use col.backend.all_deck_config(), instead use
 col.decks.all_config()
 """
-    
+
 from typing import *
 
 import anki

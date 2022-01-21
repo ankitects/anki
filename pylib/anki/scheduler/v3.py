@@ -86,7 +86,8 @@ class Scheduler(SchedulerBaseWithLegacy):
     def answer_card(self, input: CardAnswer) -> OpChanges:
         "Update card to provided state, and remove it from queue."
         self.reps += 1
-        return self.col._backend.answer_card(input=input)
+        op_bytes = self.col._backend.answer_card_raw(input.SerializeToString())
+        return OpChanges.FromString(op_bytes)
 
     def state_is_leech(self, new_state: SchedulingState) -> bool:
         "True if new state marks the card as a leech."
