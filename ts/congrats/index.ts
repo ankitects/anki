@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { getCongratsInfo } from "./lib";
+import { scheduler, empty } from "../lib/proto";
 import { setupI18n, ModuleName } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
 
@@ -14,16 +14,15 @@ export async function setupCongrats(): Promise<CongratsPage> {
     checkNightMode();
     await i18n;
 
-    const info = await getCongratsInfo();
+    const info = await scheduler.congratsInfo(empty);
     const page = new CongratsPage({
         target: document.body,
         props: { info },
     });
 
-    setInterval(() => {
-        getCongratsInfo().then((info) => {
-            page.$set({ info });
-        });
+    setInterval(async () => {
+        const info = await scheduler.congratsInfo(empty);
+        page.$set({ info });
     }, 60000);
 
     return page;

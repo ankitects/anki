@@ -804,24 +804,11 @@ class Collection(DeprecatedNamesMixin):
 
         return CollectionStats(self)
 
-    def card_stats_data(self, card_id: CardId) -> bytes:
+    def card_stats_data(self, card_id: CardId) -> stats_pb2.CardStatsResponse:
         return self._backend.card_stats(card_id)
 
     def studied_today(self) -> str:
         return self._backend.studied_today()
-
-    def graph_data(self, search: str, days: int) -> bytes:
-        return self._backend.graphs(search=search, days=days)
-
-    def get_graph_preferences(self) -> bytes:
-        return self._backend.get_graph_preferences()
-
-    def set_graph_preferences(self, prefs: GraphPreferences) -> None:
-        self._backend.set_graph_preferences(input=prefs)
-
-    def congrats_info(self) -> bytes:
-        "Don't use this, it will likely go away in the future."
-        return self._backend.congrats_info().SerializeToString()
 
     # Undo
     ##########################################################################

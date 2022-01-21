@@ -7,8 +7,9 @@
 
 import "../sveltelib/export-runtime";
 
-import { getDeckOptionsInfo, DeckOptionsState } from "./lib";
+import { DeckOptionsState } from "./lib";
 import { setupI18n, ModuleName } from "../lib/i18n";
+import { deckConfig } from "../lib/proto";
 import { checkNightMode } from "../lib/nightmode";
 import { touchDeviceKey, modalsKey } from "../components/context-keys";
 
@@ -24,8 +25,11 @@ const i18n = setupI18n({
     ],
 });
 
-export async function setupDeckOptions(deckId: number): Promise<DeckOptionsPage> {
-    const [info] = await Promise.all([getDeckOptionsInfo(deckId), i18n]);
+export async function setupDeckOptions(did: number): Promise<DeckOptionsPage> {
+    const [info] = await Promise.all([
+        deckConfig.getDeckConfigsForUpdate({ did }),
+        i18n,
+    ]);
 
     checkNightMode();
 
@@ -33,7 +37,7 @@ export async function setupDeckOptions(deckId: number): Promise<DeckOptionsPage>
     context.set(modalsKey, new Map());
     context.set(touchDeviceKey, "ontouchstart" in document.documentElement);
 
-    const state = new DeckOptionsState(deckId, info);
+    const state = new DeckOptionsState(did, info);
     return new DeckOptionsPage({
         target: document.body,
         props: { state },

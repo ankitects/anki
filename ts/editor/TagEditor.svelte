@@ -19,8 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         replaceWithUnicodeSeparator,
         replaceWithColons,
     } from "./tags";
-    import { Tags } from "../lib/proto";
-    import { postRequest } from "../lib/postrequest";
+    import { tags as tagsService } from "../lib/proto";
     import { execCommand } from "./helpers";
 
     export let size: number;
@@ -56,14 +55,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let autocompleteDisabled: boolean = false;
 
     async function fetchSuggestions(input: string): Promise<string[]> {
-        const data = await postRequest(
-            "/_anki/completeTag",
-            Tags.CompleteTagRequest.encode(
-                Tags.CompleteTagRequest.create({ input, matchLimit: 500 }),
-            ).finish(),
-        );
-        const response = Tags.CompleteTagResponse.decode(data);
-        return response.tags;
+        const { tags } = await tagsService.completeTag({ input, matchLimit: 500 });
+        return tags;
     }
 
     const withoutSingleColonAtStartOrEnd = /^:?([^:].*?[^:]):?$/;

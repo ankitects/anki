@@ -13,6 +13,7 @@ import time
 import traceback
 from dataclasses import dataclass
 from http import HTTPStatus
+from typing import Callable
 
 import flask
 import flask_cors  # type: ignore
@@ -21,15 +22,14 @@ from waitress.server import create_server
 
 import aqt
 from anki import hooks
-from anki.cards import CardId
-from anki.collection import GraphPreferences, OpChanges
-from anki.decks import UpdateDeckConfigs
-from anki.models import NotetypeNames
+from anki._vendor import stringcase
+from anki.collection import OpChanges
+from anki.decks import DeckConfigsForUpdate, UpdateDeckConfigs
 from anki.scheduler.v3 import NextStates
-from anki.utils import dev_mode, from_json_bytes
+from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
-from aqt.operations.deck import update_deck_configs
+from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.qt import *
 
 app = flask.Flask(__name__, root_path="/fake")
@@ -375,40 +375,20 @@ def _extract_request(
     return LocalFileRequest(root=aqt.mw.col.media.dir(), path=path)
 
 
-def graph_data() -> bytes:
-    args = from_json_bytes(request.data)
-    return aqt.mw.col.graph_data(search=args["search"], days=args["days"])
-
-
-def graph_preferences() -> bytes:
-    return aqt.mw.col.get_graph_preferences()
-
-
-def set_graph_preferences() -> None:
-    prefs = GraphPreferences()
-    prefs.ParseFromString(request.data)
-    aqt.mw.col.set_graph_preferences(prefs)
-
-
 def congrats_info() -> bytes:
     if not aqt.mw.col.sched._is_finished():
         aqt.mw.taskman.run_on_main(lambda: aqt.mw.moveToState("review"))
-    return aqt.mw.col.congrats_info()
+    return raw_backend_request("congrats_info")()
 
 
-def i18n_resources() -> bytes:
-    args = from_json_bytes(request.data)
-    return aqt.mw.col.i18n_resources(modules=args["modules"])
+def get_deck_configs_for_update() -> bytes:
+    config_bytes = aqt.mw.col._backend.get_deck_configs_for_update_raw(request.data)
+    configs = DeckConfigsForUpdate.FromString(config_bytes)
+    configs.have_addons = aqt.mw.addonManager.dirty
+    return configs.SerializeToString()
 
 
-def deck_configs_for_update() -> bytes:
-    args = from_json_bytes(request.data)
-    msg = aqt.mw.col.decks.get_deck_configs_for_update(deck_id=args["deckId"])
-    msg.have_addons = aqt.mw.addonManager.dirty
-    return msg.SerializeToString()
-
-
-def update_deck_configs_request() -> bytes:
+def update_deck_configs() -> bytes:
     # the regular change tracking machinery expects to be started on the main
     # thread and uses a callback on success, so we need to run this op on
     # main, and return immediately from the web request
@@ -421,7 +401,7 @@ def update_deck_configs_request() -> bytes:
             window.reject()
 
     def handle_on_main() -> None:
-        update_deck_configs(parent=aqt.mw, input=input).success(
+        update_deck_configs_op(parent=aqt.mw, input=input).success(
             on_success
         ).run_in_background()
 
@@ -444,18 +424,6 @@ def set_next_card_states() -> bytes:
     return b""
 
 
-def notetype_names() -> bytes:
-    msg = NotetypeNames(entries=aqt.mw.col.models.all_names_and_ids())
-    return msg.SerializeToString()
-
-
-def change_notetype_info() -> bytes:
-    args = from_json_bytes(request.data)
-    return aqt.mw.col.models.change_notetype_info(
-        old_notetype_id=args["oldNotetypeId"], new_notetype_id=args["newNotetypeId"]
-    )
-
-
 def change_notetype() -> bytes:
     data = request.data
 
@@ -468,31 +436,49 @@ def change_notetype() -> bytes:
     return b""
 
 
-def complete_tag() -> bytes:
-    return aqt.mw.col.tags.complete_tag(request.data)
+post_handler_list = [
+    congrats_info,
+    get_deck_configs_for_update,
+    update_deck_configs,
+    next_card_states,
+    set_next_card_states,
+    change_notetype,
+]
 
 
-def card_stats() -> bytes:
-    args = from_json_bytes(request.data)
-    return aqt.mw.col.card_stats_data(CardId(args["cardId"]))
+exposed_backend_list = [
+    # I18nService
+    "i18n_resources",
+    # NotesService
+    "get_note",
+    # NotetypesService
+    "get_notetype_names",
+    "get_change_notetype_info",
+    # StatsService
+    "card_stats",
+    "graphs",
+    "get_graph_preferences",
+    "set_graph_preferences",
+    # TagsService
+    "complete_tag",
+]
 
 
-# these require a collection
+def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
+    # check for key at startup
+    from anki._backend import RustBackend
+
+    assert hasattr(RustBackend, f"{endpoint}_raw")
+
+    return lambda: getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
+
+
+# all methods in here require a collection
 post_handlers = {
-    "graphData": graph_data,
-    "graphPreferences": graph_preferences,
-    "setGraphPreferences": set_graph_preferences,
-    "deckConfigsForUpdate": deck_configs_for_update,
-    "updateDeckConfigs": update_deck_configs_request,
-    "nextCardStates": next_card_states,
-    "setNextCardStates": set_next_card_states,
-    "changeNotetypeInfo": change_notetype_info,
-    "notetypeNames": notetype_names,
-    "changeNotetype": change_notetype,
-    "i18nResources": i18n_resources,
-    "congratsInfo": congrats_info,
-    "completeTag": complete_tag,
-    "cardStats": card_stats,
+    stringcase.camelcase(handler.__name__): handler for handler in post_handler_list
+} | {
+    stringcase.camelcase(handler): raw_backend_request(handler)
+    for handler in exposed_backend_list
 }
 
 

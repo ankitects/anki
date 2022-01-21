@@ -2,36 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import * as tr from "../lib/ftl";
-import { Notetypes } from "../lib/proto";
-import { postRequest } from "../lib/postrequest";
+import { notetypes, Notetypes } from "../lib/proto";
 import { readable, Readable } from "svelte/store";
 import { isEqual } from "lodash-es";
-
-export async function getNotetypeNames(): Promise<Notetypes.NotetypeNames> {
-    return Notetypes.NotetypeNames.decode(
-        await postRequest("/_anki/notetypeNames", ""),
-    );
-}
-
-export async function getChangeNotetypeInfo(
-    oldNotetypeId: number,
-    newNotetypeId: number,
-): Promise<Notetypes.ChangeNotetypeInfo> {
-    return Notetypes.ChangeNotetypeInfo.decode(
-        await postRequest(
-            "/_anki/changeNotetypeInfo",
-            JSON.stringify({ oldNotetypeId, newNotetypeId }),
-        ),
-    );
-}
-
-export async function changeNotetype(
-    input: Notetypes.ChangeNotetypeRequest,
-): Promise<void> {
-    const data: Uint8Array = Notetypes.ChangeNotetypeRequest.encode(input).finish();
-    await postRequest("/_anki/changeNotetype", data);
-    return;
-}
 
 function nullToNegativeOne(list: (number | null)[]): number[] {
     return list.map((val) => val ?? -1);
@@ -51,11 +24,11 @@ export class ChangeNotetypeInfoWrapper {
 
     constructor(info: Notetypes.ChangeNotetypeInfo) {
         this.info = info;
-        const templates = info.input!.newTemplates!;
+        const templates = info.input?.newTemplates ?? [];
         if (templates.length > 0) {
             this.templates = negativeOneToNull(templates);
         }
-        this.fields = negativeOneToNull(info.input!.newFields!);
+        this.fields = negativeOneToNull(info.input?.newFields ?? []);
         this.oldNotetypeName = info.oldNotetypeName;
     }
 
@@ -141,6 +114,7 @@ export enum MapContext {
     Field,
     Template,
 }
+
 export class ChangeNotetypeState {
     readonly info: Readable<ChangeNotetypeInfoWrapper>;
     readonly notetypes: Readable<NotetypeListEntry[]>;
@@ -168,10 +142,11 @@ export class ChangeNotetypeState {
     async setTargetNotetypeIndex(idx: number): Promise<void> {
         this.info_.input().newNotetypeId = this.notetypeNames.entries[idx].id!;
         this.notetypesSetter(this.buildNotetypeList());
-        const newInfo = await getChangeNotetypeInfo(
-            this.info_.input().oldNotetypeId,
-            this.info_.input().newNotetypeId,
-        );
+        const { oldNotetypeId, newNotetypeId } = this.info_.input();
+        const newInfo = await notetypes.getChangeNotetypeInfo({
+            oldNotetypeId,
+            newNotetypeId,
+        });
 
         this.info_ = new ChangeNotetypeInfoWrapper(newInfo);
         this.info_.unusedItems(MapContext.Field);
@@ -197,16 +172,16 @@ export class ChangeNotetypeState {
         this.infoSetter(this.info_);
     }
 
+    dataForSaving(): Notetypes.ChangeNotetypeRequest {
+        return this.info_.intoInput();
+    }
+
     async save(): Promise<void> {
         if (this.info_.unchanged()) {
             alert("No changes to save");
             return;
         }
-        await changeNotetype(this.dataForSaving());
-    }
-
-    dataForSaving(): Notetypes.ChangeNotetypeRequest {
-        return this.info_.intoInput();
+        await notetypes.changeNotetype(this.dataForSaving());
     }
 
     private buildNotetypeList(): NotetypeListEntry[] {
