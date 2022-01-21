@@ -149,17 +149,17 @@ class AddCards(QMainWindow):
         self._last_added_note = None
 
         # copy fields into new note with the new notetype
-        old = self.editor.note
-        new = self._new_note()
-        if old:
-            old_field_names = list(old.keys())
-            new_field_names = list(new.keys())
+        old_note = self.editor.note
+        new_note = self._new_note()
+        if old_note:
+            old_field_names = list(old_note.keys())
+            new_field_names = list(new_note.keys())
             copied_field_names = set()
-            for f in new.note_type()["flds"]:
+            for f in new_note.note_type()["flds"]:
                 field_name = f["name"]
                 # copy identical non-empty fields
-                if field_name in old_field_names and old[field_name]:
-                    new[field_name] = old[field_name]
+                if field_name in old_field_names and old_note[field_name]:
+                    new_note[field_name] = old_note[field_name]
                     copied_field_names.add(field_name)
             new_idx = 0
             for old_idx, old_field in enumerate(old_field_names):
@@ -172,18 +172,20 @@ class AddCards(QMainWindow):
                 if new_idx >= len(new_field_names):
                     break
                 # copy non-empty old fields
-                if not old_field in copied_field_names and old.fields[old_idx]:
-                    new.fields[new_idx] = old.fields[old_idx]
+                if not old_field in copied_field_names and old_note.fields[old_idx]:
+                    new_note.fields[new_idx] = old_note.fields[old_idx]
                     new_idx += 1
 
-            new.tags = old.tags
+            new_note.tags = old_note.tags
 
         # and update editor state
-        self.editor.note = new
+        self.editor.note = new_note
         self.editor.loadNote(
-            focusTo=min(self.editor.last_field_index or 0, len(new.fields) - 1)
+            focusTo=min(self.editor.last_field_index or 0, len(new_note.fields) - 1)
         )
-        gui_hooks.add_cards_did_change_note_type(old.note_type(), new.note_type())
+        gui_hooks.add_cards_did_change_note_type(
+            old_note.note_type(), new_note.note_type()
+        )
 
     def _load_new_note(self, sticky_fields_from: Optional[Note] = None) -> None:
         note = self._new_note()
