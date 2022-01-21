@@ -179,7 +179,7 @@ pip in the virtual environment, and run `pip install -r pip/requirements.txt` to
 all of Anki's dependencies into the environment, so that code completion works for them.
 Then run `pip install pyqt6 pyqt6-webengine` to install PyQt.
 
-Visual Studio Code + the Python extension does support code completion, but Pylance 
+Visual Studio Code + the Python extension does support code completion, but Pylance
 doesn't do a great job understanding the type annotations.
 
 ## Rust editing
