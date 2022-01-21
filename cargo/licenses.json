@@ -55,7 +55,7 @@
   },
   {
     "name": "anyhow",
-    "version": "1.0.51",
+    "version": "1.0.52",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/anyhow",
     "license": "Apache-2.0 OR MIT",
@@ -100,7 +100,7 @@
   },
   {
     "name": "async-trait",
-    "version": "0.1.51",
+    "version": "0.1.52",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/async-trait",
     "license": "Apache-2.0 OR MIT",
@@ -145,16 +145,25 @@
   },
   {
     "name": "blake3",
-    "version": "1.2.0",
-    "authors": "Jack O'Connor <oconnor663@gmail.com>",
+    "version": "1.3.0",
+    "authors": "Jack O'Connor <oconnor663@gmail.com>|Samuel Neves",
     "repository": "https://github.com/BLAKE3-team/BLAKE3",
     "license": "Apache-2.0 OR CC0-1.0",
     "license_file": null,
     "description": "the BLAKE3 hash function"
   },
   {
+    "name": "block-buffer",
+    "version": "0.10.0",
+    "authors": "RustCrypto Developers",
+    "repository": "https://github.com/RustCrypto/utils",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Buffer type for block processing of data"
+  },
+  {
     "name": "bumpalo",
-    "version": "3.8.0",
+    "version": "3.9.1",
     "authors": "Nick Fitzgerald <fitzgen@gmail.com>",
     "repository": "https://github.com/fitzgen/bumpalo",
     "license": "Apache-2.0 OR MIT",
@@ -253,8 +262,8 @@
   },
   {
     "name": "crossbeam-channel",
-    "version": "0.5.1",
-    "authors": "The Crossbeam Project Developers",
+    "version": "0.5.2",
+    "authors": null,
     "repository": "https://github.com/crossbeam-rs/crossbeam",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -262,25 +271,25 @@
   },
   {
     "name": "crossbeam-utils",
-    "version": "0.8.5",
-    "authors": "The Crossbeam Project Developers",
+    "version": "0.8.6",
+    "authors": null,
     "repository": "https://github.com/crossbeam-rs/crossbeam",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Utilities for concurrent programming"
   },
   {
-    "name": "derivative",
-    "version": "2.2.0",
-    "authors": "mcarton <cartonmartin+git@gmail.com>",
-    "repository": "https://github.com/mcarton/rust-derivative",
+    "name": "crypto-common",
+    "version": "0.1.1",
+    "authors": "RustCrypto Developers",
+    "repository": "https://github.com/RustCrypto/traits",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
-    "description": "A set of alternative `derive` attributes for Rust"
+    "description": "Common cryptographic traits"
   },
   {
     "name": "digest",
-    "version": "0.9.0",
+    "version": "0.10.1",
     "authors": "RustCrypto Developers",
     "repository": "https://github.com/RustCrypto/traits",
     "license": "Apache-2.0 OR MIT",
@@ -316,11 +325,11 @@
   },
   {
     "name": "encoding_rs",
-    "version": "0.8.29",
+    "version": "0.8.30",
     "authors": "Henri Sivonen <hsivonen@hsivonen.fi>",
     "repository": "https://github.com/hsivonen/encoding_rs",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
+    "license": null,
+    "license_file": "COPYRIGHT",
     "description": "A Gecko-oriented implementation of the Encoding Standard"
   },
   {
@@ -351,10 +360,19 @@
     "description": "Fallible streaming iteration"
   },
   {
+    "name": "fastrand",
+    "version": "1.6.0",
+    "authors": "Stjepan Glavina <stjepang@gmail.com>",
+    "repository": "https://github.com/smol-rs/fastrand",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A simple and fast random number generator"
+  },
+  {
     "name": "fixedbitset",
-    "version": "0.4.0",
+    "version": "0.4.1",
     "authors": "bluss",
-    "repository": "https://github.com/bluss/fixedbitset",
+    "repository": "https://github.com/petgraph/fixedbitset",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "FixedBitSet is a simple bitset collection"
@@ -451,7 +469,7 @@
   },
   {
     "name": "futures",
-    "version": "0.3.18",
+    "version": "0.3.19",
     "authors": null,
     "repository": "https://github.com/rust-lang/futures-rs",
     "license": "Apache-2.0 OR MIT",
@@ -460,7 +478,7 @@
   },
   {
     "name": "futures-channel",
-    "version": "0.3.18",
+    "version": "0.3.19",
     "authors": null,
     "repository": "https://github.com/rust-lang/futures-rs",
     "license": "Apache-2.0 OR MIT",
@@ -469,7 +487,7 @@
   },
   {
     "name": "futures-core",
-    "version": "0.3.18",
+    "version": "0.3.19",
     "authors": null,
     "repository": "https://github.com/rust-lang/futures-rs",
     "license": "Apache-2.0 OR MIT",
@@ -478,7 +496,7 @@
   },
   {
     "name": "futures-executor",
-    "version": "0.3.18",
+    "version": "0.3.19",
     "authors": null,
     "repository": "https://github.com/rust-lang/futures-rs",
     "license": "Apache-2.0 OR MIT",
@@ -487,7 +505,7 @@
   },
   {
     "name": "futures-io",
-    "version": "0.3.18",
+    "version": "0.3.19",
     "authors": null,
     "repository": "https://github.com/rust-lang/futures-rs",
     "license": "Apache-2.0 OR MIT",
@@ -496,7 +514,7 @@
   },
   {
     "name": "futures-macro",
-    "version": "0.3.18",
+    "version": "0.3.19",
     "authors": null,
     "repository": "https://github.com/rust-lang/futures-rs",
     "license": "Apache-2.0 OR MIT",
@@ -505,7 +523,7 @@
   },
   {
     "name": "futures-sink",
-    "version": "0.3.18",
+    "version": "0.3.19",
     "authors": null,
     "repository": "https://github.com/rust-lang/futures-rs",
     "license": "Apache-2.0 OR MIT",
@@ -514,7 +532,7 @@
   },
   {
     "name": "futures-task",
-    "version": "0.3.18",
+    "version": "0.3.19",
     "authors": null,
     "repository": "https://github.com/rust-lang/futures-rs",
     "license": "Apache-2.0 OR MIT",
@@ -523,7 +541,7 @@
   },
   {
     "name": "futures-util",
-    "version": "0.3.18",
+    "version": "0.3.19",
     "authors": null,
     "repository": "https://github.com/rust-lang/futures-rs",
     "license": "Apache-2.0 OR MIT",
@@ -532,7 +550,7 @@
   },
   {
     "name": "generic-array",
-    "version": "0.14.4",
+    "version": "0.14.5",
     "authors": "Bartłomiej Kamiński <fizyk20@gmail.com>|Aaron Trent <novacrazy@gmail.com>",
     "repository": "https://github.com/fizyk20/generic-array.git",
     "license": "MIT",
@@ -559,7 +577,7 @@
   },
   {
     "name": "getrandom",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "authors": "The Rand Project Developers",
     "repository": "https://github.com/rust-random/getrandom",
     "license": "Apache-2.0 OR MIT",
@@ -568,7 +586,7 @@
   },
   {
     "name": "h2",
-    "version": "0.3.7",
+    "version": "0.3.10",
     "authors": "Carl Lerche <me@carllerche.com>|Sean McArthur <sean@seanmonstar.com>",
     "repository": "https://github.com/hyperium/h2",
     "license": "MIT",
@@ -640,7 +658,7 @@
   },
   {
     "name": "http",
-    "version": "0.2.5",
+    "version": "0.2.6",
     "authors": "Alex Crichton <alex@alexcrichton.com>|Carl Lerche <me@carllerche.com>|Sean McArthur <sean@seanmonstar.com>",
     "repository": "https://github.com/hyperium/http",
     "license": "Apache-2.0 OR MIT",
@@ -685,7 +703,7 @@
   },
   {
     "name": "hyper",
-    "version": "0.14.15",
+    "version": "0.14.16",
     "authors": "Sean McArthur <sean@seanmonstar.com>",
     "repository": "https://github.com/hyperium/hyper",
     "license": "MIT",
@@ -730,7 +748,7 @@
   },
   {
     "name": "indexmap",
-    "version": "1.7.0",
+    "version": "1.8.0",
     "authors": "bluss|Josh Stone <cuviper@gmail.com>",
     "repository": "https://github.com/bluss/indexmap",
     "license": "Apache-2.0 OR MIT",
@@ -784,7 +802,7 @@
   },
   {
     "name": "itertools",
-    "version": "0.10.1",
+    "version": "0.10.3",
     "authors": "bluss",
     "repository": "https://github.com/rust-itertools/itertools",
     "license": "Apache-2.0 OR MIT",
@@ -799,6 +817,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Fast functions for printing integer primitives to an io::Write"
+  },
+  {
+    "name": "itoa",
+    "version": "1.0.1",
+    "authors": "David Tolnay <dtolnay@gmail.com>",
+    "repository": "https://github.com/dtolnay/itoa",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Fast integer primitive to string conversion"
   },
   {
     "name": "js-sys",
@@ -820,7 +847,7 @@
   },
   {
     "name": "libc",
-    "version": "0.2.108",
+    "version": "0.2.112",
     "authors": "The Rust Project Developers",
     "repository": "https://github.com/rust-lang/libc",
     "license": "Apache-2.0 OR MIT",
@@ -829,7 +856,7 @@
   },
   {
     "name": "libsqlite3-sys",
-    "version": "0.23.1",
+    "version": "0.23.2",
     "authors": "The rusqlite developers",
     "repository": "https://github.com/rusqlite/rusqlite",
     "license": "MIT",
@@ -1045,7 +1072,7 @@
   },
   {
     "name": "num_cpus",
-    "version": "1.13.0",
+    "version": "1.13.1",
     "authors": "Sean McArthur <sean@seanmonstar.com>",
     "repository": "https://github.com/seanmonstar/num_cpus",
     "license": "Apache-2.0 OR MIT",
@@ -1054,25 +1081,25 @@
   },
   {
     "name": "num_enum",
-    "version": "0.5.4",
+    "version": "0.5.6",
     "authors": "Daniel Wagner-Hall <dawagner@gmail.com>|Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>|Vincent Esche <regexident@gmail.com>",
     "repository": "https://github.com/illicitonion/num_enum",
-    "license": "BSD-3-Clause",
+    "license": "Apache-2.0 OR BSD-3-Clause OR MIT",
     "license_file": null,
     "description": "Procedural macros to make inter-operation between primitives and enums easier."
   },
   {
     "name": "num_enum_derive",
-    "version": "0.5.4",
+    "version": "0.5.6",
     "authors": "Daniel Wagner-Hall <dawagner@gmail.com>|Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>|Vincent Esche <regexident@gmail.com>",
     "repository": "https://github.com/illicitonion/num_enum",
-    "license": "BSD-3-Clause",
+    "license": "Apache-2.0 OR BSD-3-Clause OR MIT",
     "license_file": null,
     "description": "Internal implementation details for ::num_enum (Procedural macros to make inter-operation between primitives and enums easier)"
   },
   {
     "name": "once_cell",
-    "version": "1.8.0",
+    "version": "1.9.0",
     "authors": "Aleksey Kladov <aleksey.kladov@gmail.com>",
     "repository": "https://github.com/matklad/once_cell",
     "license": "Apache-2.0 OR MIT",
@@ -1090,7 +1117,7 @@
   },
   {
     "name": "openssl-probe",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
     "repository": "https://github.com/alexcrichton/openssl-probe",
     "license": "Apache-2.0 OR MIT",
@@ -1099,7 +1126,7 @@
   },
   {
     "name": "openssl-sys",
-    "version": "0.9.71",
+    "version": "0.9.72",
     "authors": "Alex Crichton <alex@alexcrichton.com>|Steven Fackler <sfackler@gmail.com>",
     "repository": "https://github.com/sfackler/rust-openssl",
     "license": "MIT",
@@ -1162,7 +1189,7 @@
   },
   {
     "name": "phf",
-    "version": "0.10.0",
+    "version": "0.10.1",
     "authors": "Steven Fackler <sfackler@gmail.com>",
     "repository": "https://github.com/sfackler/rust-phf",
     "license": "MIT",
@@ -1234,8 +1261,8 @@
   },
   {
     "name": "pin-project",
-    "version": "1.0.8",
-    "authors": "Taiki Endo <te316e89@gmail.com>",
+    "version": "1.0.10",
+    "authors": null,
     "repository": "https://github.com/taiki-e/pin-project",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -1243,8 +1270,8 @@
   },
   {
     "name": "pin-project-internal",
-    "version": "1.0.8",
-    "authors": "Taiki Endo <te316e89@gmail.com>",
+    "version": "1.0.10",
+    "authors": null,
     "repository": "https://github.com/taiki-e/pin-project",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -1252,8 +1279,8 @@
   },
   {
     "name": "pin-project-lite",
-    "version": "0.2.7",
-    "authors": "Taiki Endo <te316e89@gmail.com>",
+    "version": "0.2.8",
+    "authors": null,
     "repository": "https://github.com/taiki-e/pin-project-lite",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -1270,7 +1297,7 @@
   },
   {
     "name": "pkg-config",
-    "version": "0.3.22",
+    "version": "0.3.24",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
     "repository": "https://github.com/rust-lang/pkg-config-rs",
     "license": "Apache-2.0 OR MIT",
@@ -1279,7 +1306,7 @@
   },
   {
     "name": "ppv-lite86",
-    "version": "0.2.15",
+    "version": "0.2.16",
     "authors": "The CryptoCorrosion Contributors",
     "repository": "https://github.com/cryptocorrosion/cryptocorrosion",
     "license": "Apache-2.0 OR MIT",
@@ -1324,7 +1351,7 @@
   },
   {
     "name": "proc-macro2",
-    "version": "1.0.32",
+    "version": "1.0.36",
     "authors": "David Tolnay <dtolnay@gmail.com>|Alex Crichton <alex@alexcrichton.com>",
     "repository": "https://github.com/dtolnay/proc-macro2",
     "license": "Apache-2.0 OR MIT",
@@ -1378,7 +1405,7 @@
   },
   {
     "name": "quote",
-    "version": "1.0.10",
+    "version": "1.0.14",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/quote",
     "license": "Apache-2.0 OR MIT",
@@ -1531,7 +1558,7 @@
   },
   {
     "name": "rusqlite",
-    "version": "0.26.1",
+    "version": "0.26.3",
     "authors": "The rusqlite developers",
     "repository": "https://github.com/rusqlite/rusqlite",
     "license": "MIT",
@@ -1567,7 +1594,7 @@
   },
   {
     "name": "rustversion",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/rustversion",
     "license": "Apache-2.0 OR MIT",
@@ -1576,7 +1603,7 @@
   },
   {
     "name": "ryu",
-    "version": "1.0.6",
+    "version": "1.0.9",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/ryu",
     "license": "Apache-2.0 OR BSL-1.0",
@@ -1639,7 +1666,7 @@
   },
   {
     "name": "serde",
-    "version": "1.0.130",
+    "version": "1.0.133",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/serde",
     "license": "Apache-2.0 OR MIT",
@@ -1657,7 +1684,7 @@
   },
   {
     "name": "serde_derive",
-    "version": "1.0.130",
+    "version": "1.0.133",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/serde",
     "license": "Apache-2.0 OR MIT",
@@ -1666,7 +1693,7 @@
   },
   {
     "name": "serde_json",
-    "version": "1.0.72",
+    "version": "1.0.74",
     "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/serde-rs/json",
     "license": "Apache-2.0 OR MIT",
@@ -1801,7 +1828,7 @@
   },
   {
     "name": "smallvec",
-    "version": "1.7.0",
+    "version": "1.8.0",
     "authors": "The Servo Project Developers",
     "repository": "https://github.com/servo/rust-smallvec",
     "license": "Apache-2.0 OR MIT",
@@ -1863,8 +1890,17 @@
     "description": "Helpful macros for working with enums and strings"
   },
   {
+    "name": "subtle",
+    "version": "2.4.1",
+    "authors": "Isis Lovecruft <isis@patternsinthevoid.net>|Henry de Valence <hdevalence@hdevalence.ca>",
+    "repository": "https://github.com/dalek-cryptography/subtle",
+    "license": "BSD-3-Clause",
+    "license_file": null,
+    "description": "Pure-Rust traits and utilities for constant-time cryptographic implementations."
+  },
+  {
     "name": "syn",
-    "version": "1.0.82",
+    "version": "1.0.85",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/syn",
     "license": "Apache-2.0 OR MIT",
@@ -1882,7 +1918,7 @@
   },
   {
     "name": "tempfile",
-    "version": "3.2.0",
+    "version": "3.3.0",
     "authors": "Steven Allen <steven@stebalien.com>|The Rust Project Developers|Ashley Mannix <ashleymannix@live.com.au>|Jason White <jasonaw0@gmail.com>",
     "repository": "https://github.com/Stebalien/tempfile",
     "license": "Apache-2.0 OR MIT",
@@ -1981,7 +2017,7 @@
   },
   {
     "name": "tokio",
-    "version": "1.14.0",
+    "version": "1.15.0",
     "authors": "Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/tokio",
     "license": "MIT",
@@ -1999,7 +2035,7 @@
   },
   {
     "name": "tokio-macros",
-    "version": "1.6.0",
+    "version": "1.7.0",
     "authors": "Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/tokio",
     "license": "MIT",
@@ -2098,7 +2134,7 @@
   },
   {
     "name": "typenum",
-    "version": "1.14.0",
+    "version": "1.15.0",
     "authors": "Paho Lurie-Gregg <paho@paholg.com>|Andre Bogus <bogusandre@gmail.com>",
     "repository": "https://github.com/paholg/typenum",
     "license": "Apache-2.0 OR MIT",
@@ -2296,7 +2332,7 @@
   },
   {
     "name": "version_check",
-    "version": "0.9.3",
+    "version": "0.9.4",
     "authors": "Sergio Benitez <sb@sergio.bz>",
     "repository": "https://github.com/SergioBenitez/version_check",
     "license": "Apache-2.0 OR MIT",

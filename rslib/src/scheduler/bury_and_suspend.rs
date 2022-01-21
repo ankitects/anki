@@ -79,7 +79,7 @@ impl Collection {
         };
         self.transact(Op::UnburyUnsuspend, |col| {
             col.search_cards_into_table(
-                match_all![SearchNode::DeckIdWithChildren(deck_id), state],
+                SearchBuilder::from(SearchNode::DeckIdWithChildren(deck_id)).and(state),
                 SortMode::NoOrder,
             )?;
             col.unsuspend_or_unbury_searched_cards()

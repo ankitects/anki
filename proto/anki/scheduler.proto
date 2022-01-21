@@ -37,6 +37,7 @@ service SchedulerService {
   rpc DescribeNextStates(NextCardStates) returns (generic.StringList);
   rpc StateIsLeech(SchedulingState) returns (generic.Bool);
   rpc UpgradeScheduler(generic.Empty) returns (generic.Empty);
+  rpc CustomStudy(CustomStudyRequest) returns (collection.OpChanges);
 }
 
 message SchedulingState {
@@ -216,4 +217,39 @@ message CardAnswer {
   Rating rating = 4;
   int64 answered_at_millis = 5;
   uint32 milliseconds_taken = 6;
+}
+
+message CustomStudyRequest {
+  message Cram {
+    enum CramKind {
+      // due cards in due order
+      CRAM_KIND_DUE = 0;
+      // new cards in added order
+      CRAM_KIND_NEW = 1;
+      // review cards in random order
+      CRAM_KIND_REVIEW = 2;
+      // all cards in random order; no rescheduling
+      CRAM_KIND_ALL = 3;
+    }
+    CramKind kind = 1;
+    // the maximimum number of cards
+    uint32 card_limit = 2;
+    // cards must match one of these, if unempty
+    repeated string tags_to_include = 3;
+    // cards must not match any of these
+    repeated string tags_to_exclude = 4;
+  }
+  oneof value {
+    // increase new limit by x
+    int32 new_limit_delta = 1;
+    // increase review limit by x
+    int32 review_limit_delta = 2;
+    // repeat cards forgotten in the last x days
+    uint32 forgot_days = 3;
+    // review cards due in the next x days
+    uint32 review_ahead_days = 4;
+    // preview new cards added in the last x days
+    uint32 preview_days = 5;
+    Cram cram = 6;
+  }
 }

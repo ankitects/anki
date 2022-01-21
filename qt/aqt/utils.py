@@ -1002,6 +1002,19 @@ def no_arg_trigger(func: Callable) -> Callable:
     return pyqtSlot()(func)  # type: ignore
 
 
+def is_gesture_or_zoom_event(evt: QEvent) -> bool:
+    """If the event is a gesture and/or will trigger zoom.
+
+    Includes zoom by pinching, and Ctrl-scrolling on Win and Linux.
+    """
+
+    return isinstance(evt, QNativeGestureEvent) or (
+        isinstance(evt, QWheelEvent)
+        and not is_mac
+        and KeyboardModifiersPressed().control
+    )
+
+
 class KeyboardModifiersPressed:
     "Util for type-safe checks of currently-pressed modifier keys."
 
@@ -1021,6 +1034,10 @@ class KeyboardModifiersPressed:
     @property
     def alt(self) -> bool:
         return bool(self._modifiers & Qt.KeyboardModifier.AltModifier)
+
+    @property
+    def meta(self) -> bool:
+        return bool(self._modifiers & Qt.KeyboardModifier.MetaModifier)
 
 
 # add-ons attempting to import isMac from this module :-(

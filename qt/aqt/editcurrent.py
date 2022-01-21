@@ -24,7 +24,12 @@ class EditCurrent(QDialog):
         self.form.buttonBox.button(QDialogButtonBox.StandardButton.Close).setShortcut(
             QKeySequence("Ctrl+Return")
         )
-        self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self)
+        self.editor = aqt.editor.Editor(
+            self.mw,
+            self.form.fieldsArea,
+            self,
+            editor_mode=aqt.editor.EditorMode.EDIT_CURRENT,
+        )
         self.editor.card = self.mw.reviewer.card
         self.editor.set_note(self.mw.reviewer.card.note(), focusTo=0)
         restoreGeom(self, "editcurrent")

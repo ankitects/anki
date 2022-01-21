@@ -244,8 +244,8 @@ test("saving", () => {
     expect(out.targetDeckId).toBe(123);
     // in no-changes case, currently selected config should
     // be returned
-    expect(out.configs.length).toBe(1);
-    expect(out.configs[0].name).toBe("another one");
+    expect(out.configs!.length).toBe(1);
+    expect(out.configs![0].name).toBe("another one");
     expect(out.applyToChildren).toBe(false);
 
     // rename, then change current deck
@@ -255,7 +255,7 @@ test("saving", () => {
 
     // renamed deck should be in changes, with current deck as last element
     out = state.dataForSaving(true);
-    expect(out.configs.map((c) => c.name)).toStrictEqual(["zzz", "Default"]);
+    expect(out.configs!.map((c) => c.name)).toStrictEqual(["zzz", "Default"]);
     expect(out.applyToChildren).toBe(true);
 
     // start again, adding new deck
@@ -275,7 +275,7 @@ test("saving", () => {
     // only contain Default, which is the new current deck
     out = state.dataForSaving(true);
     expect(out.removedConfigIds).toStrictEqual([1618570764780]);
-    expect(out.configs.map((c) => c.name)).toStrictEqual(["Default"]);
+    expect(out.configs!.map((c) => c.name)).toStrictEqual(["Default"]);
 });
 
 test("aux data", () => {
@@ -302,8 +302,8 @@ test("aux data", () => {
 
     // ensure changes serialize
     const out = state.dataForSaving(true);
-    expect(out.configs.length).toBe(2);
-    const json = out.configs.map(
+    expect(out.configs!.length).toBe(2);
+    const json = out.configs!.map(
         (c) =>
             JSON.parse(new TextDecoder().decode((c.config as any).other)) as Record<
                 string,

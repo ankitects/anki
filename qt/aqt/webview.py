@@ -13,7 +13,7 @@ from anki.utils import is_lin, is_mac, is_win
 from aqt import colors, gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
-from aqt.utils import askUser, openLink, showInfo, tr
+from aqt.utils import askUser, is_gesture_or_zoom_event, openLink, showInfo, tr
 
 serverbaseurl = re.compile(r"^.+:\/\/[^\/]+")
 
@@ -241,6 +241,7 @@ class AnkiWebView(QWebEngineView):
         self._pendingActions: list[tuple[str, Sequence[Any]]] = []
         self.requiresCol = True
         self.setPage(self._page)
+        self._disable_zoom = False
 
         self.resetHandlers()
         self._filterSet = False
@@ -255,18 +256,21 @@ class AnkiWebView(QWebEngineView):
     def set_title(self, title: str) -> None:
         self.title = title  # type: ignore[assignment]
 
+    def disable_zoom(self) -> None:
+        self._disable_zoom = True
+
     def eventFilter(self, obj: QObject, evt: QEvent) -> bool:
-        # disable pinch to zoom gesture
-        if isinstance(evt, QNativeGestureEvent):
+        if self._disable_zoom and is_gesture_or_zoom_event(evt):
             return True
-        elif (
+
+        if (
             isinstance(evt, QMouseEvent)
             and evt.type() == QEvent.Type.MouseButtonRelease
         ):
             if evt.button() == Qt.MouseButton.MiddleButton and is_lin:
                 self.onMiddleClickPaste()
                 return True
-            return False
+
         return False
 
     def set_open_links_externally(self, enable: bool) -> None:

@@ -52,8 +52,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=markup5ever_rcdom",
         "manual",
-        "crate-name=markup5ever_rcdom"
     ],
     version = "0.1.0",
     # buildifier: leave-alone

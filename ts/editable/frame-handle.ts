@@ -3,7 +3,7 @@
 
 import { nodeIsText, nodeIsElement, elementIsEmpty } from "../lib/dom";
 import { on } from "../lib/events";
-import { getSelection } from "../lib/cross-browser";
+import { getSelection, isSelectionCollapsed } from "../lib/cross-browser";
 import { moveChildOutOfElement } from "../domlib/move-nodes";
 import { placeCaretAfter } from "../domlib/place-caret";
 import type { FrameElement } from "./frame-element";
@@ -277,7 +277,10 @@ export function checkWhetherMovingIntoHandle(): void {
     for (const handle of handles) {
         const selection = getSelection(handle)!;
 
-        if (selection.anchorNode === handle.firstChild && selection.isCollapsed) {
+        if (
+            selection.anchorNode === handle.firstChild &&
+            isSelectionCollapsed(selection)
+        ) {
             handle.notifyMoveIn(selection.anchorOffset);
         }
     }

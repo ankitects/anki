@@ -11,6 +11,7 @@ UnburyDeck = _base.UnburyDeck
 CongratsInfo = _base.CongratsInfo
 BuryOrSuspend = _base.BuryOrSuspend
 FilteredDeckForUpdate = _base.FilteredDeckForUpdate
+CustomStudyRequest = _base.CustomStudyRequest
 
 # add aliases to the legacy pathnames
 import anki.scheduler.v1

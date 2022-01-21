@@ -33,12 +33,22 @@ def register_repos():
     maybe(
         http_archive,
         name = "rules_rust",
-        strip_prefix = "rules_rust-anki-2021-12-20",
+        strip_prefix = "rules_rust-f9ff78318f83281993c9d66a4b0cf4d72c883633",
         urls = [
-            "https://github.com/ankitects/rules_rust/archive/refs/tags/anki-2021-12-20.zip",
+            "https://github.com/bazelbuild/rules_rust/archive/f9ff78318f83281993c9d66a4b0cf4d72c883633.zip",
         ],
-        sha256 = "c9300cb1d1eddc5b85d5ced35f4c332b08afc7a439d2b75e696d3282b80677af",
+        sha256 = "43eef0733934c3a1ddfe159874fc3b259121e69df091af2a8a372f62e2f73e1f",
     )
+
+    # maybe(
+    #     http_archive,
+    #     name = "rules_rust",
+    #     strip_prefix = "rules_rust-anki-2021-12-20",
+    #     urls = [
+    #         "https://github.com/ankitects/rules_rust/archive/refs/tags/anki-2021-12-20.zip",
+    #     ],
+    #     sha256 = "c9300cb1d1eddc5b85d5ced35f4c332b08afc7a439d2b75e696d3282b80677af",
+    # )
 
     # python
     ##########
@@ -51,11 +61,9 @@ def register_repos():
     maybe(
         http_archive,
         name = "rules_python",
-        sha256 = "954aa89b491be4a083304a2cb838019c8b8c3720a7abb9c4cb81ac7a24230cea",
-        urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/rules_python/releases/download/0.4.0/rules_python-0.4.0.tar.gz",
-            "https://github.com/bazelbuild/rules_python/releases/download/0.4.0/rules_python-0.4.0.tar.gz",
-        ],
+        sha256 = "a30abdfc7126d497a7698c29c46ea9901c6392d6ed315171a6df5ce433aa4502",
+        strip_prefix = "rules_python-0.6.0",
+        url = "https://github.com/bazelbuild/rules_python/archive/0.6.0.tar.gz",
     )
 
     # javascript
@@ -100,12 +108,12 @@ def register_repos():
     ################
 
     core_i18n_repo = "anki-core-i18n"
-    core_i18n_commit = "620997d3b9cd7ca52e344259bd2a97c2776e7e6e"
-    core_i18n_zip_csum = "bda170148fc2344f54b5c1047f4ab93b109cf56318b8ce35945f7558217adc30"
+    core_i18n_commit = "3bf72a1bd0b980e0f83eac7a15ac8a3499842c41"
+    core_i18n_zip_csum = "31787701af29f75c69c92cd2b94d6f1ca4feea3519af36428edf8453b25237b4"
 
     qtftl_i18n_repo = "anki-desktop-ftl"
-    qtftl_i18n_commit = "ced2d4e9079efef6728e8600112492f3f74abb2b"
-    qtftl_i18n_zip_csum = "90ded4ccb101ecceff0de6b4244d639624db1be7290a1a7e9d7e57fd1e1257f2"
+    qtftl_i18n_commit = "cf38837addb4949218b837e97cc00894d0edf2dd"
+    qtftl_i18n_zip_csum = "e56f2ee6d6785af44f9e8c78e95ad3df8d766c9265fa60bf2beb80cc14bc6473"
 
     i18n_build_content = """
 filegroup(

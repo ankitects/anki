@@ -4,13 +4,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { EditingInputAPI } from "./EditingArea.svelte";
+    import type { CodeMirror as CodeMirrorType } from "./code-mirror";
     import CodeMirror from "./CodeMirror.svelte";
 
     export interface PlainTextInputAPI extends EditingInputAPI {
         name: "plain-text";
         moveCaretToEnd(): void;
         toggle(): boolean;
-        getEditor(): CodeMirror.Editor;
+        getEditor(): CodeMirrorType.Editor;
     }
 
     export const parsingInstructions: string[] = [];
@@ -95,7 +96,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return hidden;
     }
 
-    function getEditor(): CodeMirror.Editor {
+    function getEditor(): CodeMirrorType.Editor {
         return codeMirror?.editor;
     }
 

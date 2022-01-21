@@ -48,8 +48,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=kuchiki",
         "manual",
-        "crate-name=kuchiki"
     ],
     version = "0.8.1",
     # buildifier: leave-alone

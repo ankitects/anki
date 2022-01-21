@@ -15,12 +15,13 @@ export function nodeStore<T extends Node>(
     const subscribers: Set<Subscriber<T>> = new Set();
 
     function setUnprocessed(newNode: T): void {
-        if (!node || !node.isEqualNode(newNode)) {
-            node = newNode;
+        if (node && node.isEqualNode(newNode)) {
+            return;
+        }
 
-            for (const subscriber of subscribers) {
-                subscriber(node);
-            }
+        node = newNode;
+        for (const subscriber of subscribers) {
+            subscriber(node);
         }
     }
 

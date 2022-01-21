@@ -5,59 +5,87 @@ import { on, preventDefault } from "../lib/events";
 import { registerShortcut } from "../lib/shortcuts";
 import { placeCaretAfterContent } from "../domlib/place-caret";
 import { saveSelection, restoreSelection } from "../domlib/location";
+import { isApplePlatform } from "../lib/platform";
+import { bridgeCommand } from "../lib/bridgecommand";
 import type { SelectionLocation } from "../domlib/location";
 
-const locationEvents: (() => void)[] = [];
+function safePlaceCaretAfterContent(editable: HTMLElement): void {
+    /**
+     * Workaround: If you try to invoke an IME after calling
+     * `placeCaretAfterContent` on a cE element, the IME will immediately
+     * end and the input character will be duplicated
+     */
+    placeCaretAfterContent(editable);
+    restoreSelection(editable, saveSelection(editable)!);
+}
 
-function flushLocation(): void {
-    let removeEvent: (() => void) | undefined;
+function onFocus(location: SelectionLocation | null): () => void {
+    return function (this: HTMLElement): void {
+        if (!location) {
+            safePlaceCaretAfterContent(this);
+            return;
+        }
 
-    while ((removeEvent = locationEvents.pop())) {
-        removeEvent();
+        try {
+            restoreSelection(this, location);
+        } catch {
+            safePlaceCaretAfterContent(this);
+        }
+    };
+}
+
+interface CustomFocusHandlingAPI {
+    setupFocusHandling(element: HTMLElement): { destroy(): void };
+    flushCaret(): void;
+}
+
+export function customFocusHandling(): CustomFocusHandlingAPI {
+    const focusHandlingEvents: (() => void)[] = [];
+
+    function flushEvents(): void {
+        let removeEvent: (() => void) | undefined;
+
+        while ((removeEvent = focusHandlingEvents.pop())) {
+            removeEvent();
+        }
     }
-}
 
-let latestLocation: SelectionLocation | null = null;
+    function prepareFocusHandling(
+        editable: HTMLElement,
+        latestLocation: SelectionLocation | null = null,
+    ): void {
+        const off = on(editable, "focus", onFocus(latestLocation), { once: true });
 
-function onFocus(this: HTMLElement): void {
-    if (!latestLocation) {
-        placeCaretAfterContent(this);
-        return;
+        focusHandlingEvents.push(off, on(editable, "pointerdown", off, { once: true }));
     }
 
-    try {
-        restoreSelection(this, latestLocation);
-    } catch {
-        placeCaretAfterContent(this);
+    /**
+     * Must execute before DOMMirror.
+     */
+    function onBlur(this: HTMLElement): void {
+        prepareFocusHandling(this, saveSelection(this));
     }
-}
 
-function onBlur(this: HTMLElement): void {
-    prepareFocusHandling(this);
-    latestLocation = saveSelection(this);
-}
+    function setupFocusHandling(editable: HTMLElement): { destroy(): void } {
+        prepareFocusHandling(editable);
+        const off = on(editable, "blur", onBlur);
 
-let removeOnFocus: () => void;
-
-export function prepareFocusHandling(editable: HTMLElement): void {
-    removeOnFocus = on(editable, "focus", onFocus, { once: true });
-
-    locationEvents.push(
-        removeOnFocus,
-        on(editable, "pointerdown", removeOnFocus, { once: true }),
-    );
-}
-
-/* Must execute before DOMMirror */
-export function saveLocation(editable: HTMLElement): { destroy(): void } {
-    const removeOnBlur = on(editable, "blur", onBlur);
+        return {
+            destroy() {
+                flushEvents();
+                off();
+            },
+        };
+    }
 
     return {
-        destroy() {
-            removeOnBlur();
-            flushLocation();
-        },
+        setupFocusHandling,
+        flushCaret: flushEvents,
     };
+}
+
+if (isApplePlatform()) {
+    registerShortcut(() => bridgeCommand("paste"), "Control+Shift+V");
 }
 
 export function preventBuiltinContentEditableShortcuts(editable: HTMLElement): void {
@@ -69,11 +97,10 @@ export function preventBuiltinContentEditableShortcuts(editable: HTMLElement): v
 /** API */
 
 export interface ContentEditableAPI {
-    flushLocation(): void;
+    /**
+     * Can be used to turn off the caret restoring functionality of
+     * the ContentEditable. Can be used when you want to set the caret
+     * yourself.
+     */
+    flushCaret(): void;
 }
-
-const contentEditableApi: ContentEditableAPI = {
-    flushLocation,
-};
-
-export default contentEditableApi;

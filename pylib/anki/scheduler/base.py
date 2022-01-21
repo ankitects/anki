@@ -13,6 +13,7 @@ SchedTimingToday = scheduler_pb2.SchedTimingTodayResponse
 CongratsInfo = scheduler_pb2.CongratsInfoResponse
 UnburyDeck = scheduler_pb2.UnburyDeckRequest
 BuryOrSuspend = scheduler_pb2.BuryOrSuspendCardsRequest
+CustomStudyRequest = scheduler_pb2.CustomStudyRequest
 FilteredDeckForUpdate = decks_pb2.FilteredDeckForUpdate
 
 
@@ -67,6 +68,9 @@ class SchedulerBase(DeprecatedNamesMixin):
     def have_buried(self) -> bool:
         info = self.congratulations_info()
         return info.have_sched_buried or info.have_user_buried
+
+    def custom_study(self, request: CustomStudyRequest) -> OpChanges:
+        return self.col._backend.custom_study(request)
 
     def extend_limits(self, new: int, rev: int) -> None:
         did = self.col.decks.current()["id"]

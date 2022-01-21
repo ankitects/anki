@@ -2,11 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 /**
- * NOTES:
- * - Avoid using selection.isCollapsed: will always return true in shadow root in Gecko
- */
-
-/**
  * Gecko has no .getSelection on ShadowRoot, only .activeElement
  */
 export function getSelection(element: Node): Selection | null {
@@ -28,4 +23,13 @@ export function getRange(selection: Selection): Range | null {
     const rangeCount = selection.rangeCount;
 
     return rangeCount === 0 ? null : selection.getRangeAt(rangeCount - 1);
+}
+
+/**
+ * Avoid using selection.isCollapsed: it will always return
+ * true in shadow root in Gecko
+ * (this bug seems to also happens in Blink)
+ */
+export function isSelectionCollapsed(selection: Selection): boolean {
+    return getRange(selection)!.collapsed;
 }

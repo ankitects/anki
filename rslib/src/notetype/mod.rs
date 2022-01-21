@@ -222,7 +222,7 @@ impl Collection {
             .ok_or(AnkiError::NotFound)?;
 
         if self
-            .search_notes_unordered(match_all![note1.notetype_id, nids_node])?
+            .search_notes_unordered(SearchBuilder::from(note1.notetype_id).and(nids_node))?
             .len()
             != note_ids.len()
         {

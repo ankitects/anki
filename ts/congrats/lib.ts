@@ -1,16 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { Scheduler } from "../lib/proto";
-import { postRequest } from "../lib/postrequest";
+import type { Scheduler } from "../lib/proto";
 import { naturalUnit, unitAmount, unitName } from "../lib/time";
 import * as tr from "../lib/ftl";
-
-export async function getCongratsInfo(): Promise<Scheduler.CongratsInfoResponse> {
-    return Scheduler.CongratsInfoResponse.decode(
-        await postRequest("/_anki/congratsInfo", ""),
-    );
-}
 
 export function buildNextLearnMsg(info: Scheduler.CongratsInfoResponse): string {
     const secsUntil = info.secsUntilNextLearn;

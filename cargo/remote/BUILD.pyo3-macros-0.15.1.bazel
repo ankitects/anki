@@ -44,14 +44,14 @@ rust_proc_macro(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=pyo3-macros",
         "manual",
-        "crate-name=pyo3-macros"
     ],
     version = "0.15.1",
     # buildifier: leave-alone
     deps = [
         "@raze__pyo3_macros_backend__0_15_1//:pyo3_macros_backend",
-        "@raze__quote__1_0_10//:quote",
-        "@raze__syn__1_0_82//:syn",
+        "@raze__quote__1_0_14//:quote",
+        "@raze__syn__1_0_85//:syn",
     ],
 )

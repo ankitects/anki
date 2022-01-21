@@ -112,8 +112,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=ring",
         "manual",
-        "crate-name=ring"
     ],
     version = "0.16.20",
     # buildifier: leave-alone
@@ -138,8 +138,8 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
         ): [
-            "@raze__libc__0_2_108//:libc",
-            "@raze__once_cell__1_8_0//:once_cell",
+            "@raze__libc__0_2_112//:libc",
+            "@raze__once_cell__1_9_0//:once_cell",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

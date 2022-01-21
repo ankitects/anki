@@ -9,7 +9,7 @@ mod search;
 use std::{fmt::Display, io};
 
 pub use db::{DbError, DbErrorKind};
-pub use filtered::FilteredDeckError;
+pub use filtered::{CustomStudyError, FilteredDeckError};
 pub use network::{NetworkError, NetworkErrorKind, SyncError, SyncErrorKind};
 pub use search::{ParseError, SearchErrorKind};
 use tempfile::PathPersistError;
@@ -41,6 +41,7 @@ pub enum AnkiError {
     UndoEmpty,
     MultipleNotetypesSelected,
     DatabaseCheckRequired,
+    CustomStudyError(CustomStudyError),
 }
 
 impl Display for AnkiError {
@@ -94,6 +95,7 @@ impl AnkiError {
             AnkiError::InvalidRegex(err) => format!("<pre>{}</pre>", err),
             AnkiError::MultipleNotetypesSelected => tr.errors_multiple_notetypes_selected().into(),
             AnkiError::DatabaseCheckRequired => tr.errors_please_check_database().into(),
+            AnkiError::CustomStudyError(err) => err.localized_description(tr),
             AnkiError::IoError(_)
             | AnkiError::JsonError(_)
             | AnkiError::ProtoError(_)

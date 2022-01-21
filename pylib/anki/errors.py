@@ -40,6 +40,10 @@ class BackendIOError(LocalizedError):
     pass
 
 
+class CustomStudyError(LocalizedError):
+    pass
+
+
 class DBError(LocalizedError):
     pass
 

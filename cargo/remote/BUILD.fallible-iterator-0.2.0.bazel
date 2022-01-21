@@ -46,8 +46,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=fallible-iterator",
         "manual",
-        "crate-name=fallible-iterator"
     ],
     version = "0.2.0",
     # buildifier: leave-alone

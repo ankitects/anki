@@ -17,7 +17,7 @@ from anki.collection import (
 )
 from anki.decks import DeckId
 from anki.notes import NoteId
-from anki.scheduler import FilteredDeckForUpdate, UnburyDeck
+from anki.scheduler import CustomStudyRequest, FilteredDeckForUpdate, UnburyDeck
 from anki.scheduler.v3 import CardAnswer
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from aqt.operations import CollectionOp
@@ -228,3 +228,11 @@ def answer_card(
         return col.sched.answer_card(answer)
 
     return CollectionOp(parent, answer_v3)
+
+
+def custom_study(
+    *,
+    parent: QWidget,
+    request: CustomStudyRequest,
+) -> CollectionOp[OpChanges]:
+    return CollectionOp(parent, lambda col: col.sched.custom_study(request))

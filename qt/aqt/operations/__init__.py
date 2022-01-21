@@ -130,7 +130,7 @@ class CollectionOp(Generic[ResultWithChanges]):
         if isinstance(result, OpChanges):
             changes = result
         else:
-            changes = result.changes
+            changes = result.changes  # type: ignore[union-attr]
 
         # fire new hook
         aqt.gui_hooks.operation_did_execute(changes, handler)

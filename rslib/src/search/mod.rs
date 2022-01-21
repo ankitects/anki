@@ -1,18 +1,21 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod builder;
 mod parser;
 mod sqlwriter;
 pub(crate) mod writer;
 
 use std::borrow::Cow;
 
+use rusqlite::{params_from_iter, types::FromSql};
+use sqlwriter::{RequiredTable, SqlWriter};
+
+pub use builder::{Negated, SearchBuilder};
 pub use parser::{
     parse as parse_search, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind,
 };
-use rusqlite::{params_from_iter, types::FromSql};
-use sqlwriter::{RequiredTable, SqlWriter};
-pub use writer::{concatenate_searches, replace_search_node, write_nodes, BoolSeparator};
+pub use writer::replace_search_node;
 
 use crate::{
     browser_table::Column,

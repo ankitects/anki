@@ -10,9 +10,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import { updateAllState } from "../components/WithState.svelte";
     import actionList from "../sveltelib/action-list";
-    import contentEditableAPI, {
-        saveLocation,
-        prepareFocusHandling,
+    import {
+        customFocusHandling,
         preventBuiltinContentEditableShortcuts,
     } from "./content-editable";
     import type { ContentEditableAPI } from "./content-editable";
@@ -33,14 +32,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let api: Partial<ContentEditableAPI>;
 
-    Object.assign(api, contentEditableAPI);
+    const { setupFocusHandling, flushCaret } = customFocusHandling();
+
+    Object.assign(api, { flushCaret });
 </script>
 
 <anki-editable
     contenteditable="true"
     use:resolve
-    use:saveLocation
-    use:prepareFocusHandling
+    use:setupFocusHandling
     use:preventBuiltinContentEditableShortcuts
     use:mirrorAction={mirrorOptions}
     use:managerAction={{}}

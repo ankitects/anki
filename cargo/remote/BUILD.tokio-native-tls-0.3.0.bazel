@@ -48,14 +48,14 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=tokio-native-tls",
         "manual",
-        "crate-name=tokio-native-tls"
     ],
     version = "0.3.0",
     # buildifier: leave-alone
     deps = [
         "@raze__native_tls__0_2_8//:native_tls",
-        "@raze__tokio__1_14_0//:tokio",
+        "@raze__tokio__1_15_0//:tokio",
     ],
 )
 

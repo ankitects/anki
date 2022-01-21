@@ -44,8 +44,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=fallible-streaming-iterator",
         "manual",
-        "crate-name=fallible-streaming-iterator"
     ],
     version = "0.1.9",
     # buildifier: leave-alone

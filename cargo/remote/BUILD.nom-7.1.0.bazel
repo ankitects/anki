@@ -60,7 +60,7 @@ cargo_build_script(
     version = "7.1.0",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__version_check__0_9_3//:version_check",
+        "@raze__version_check__0_9_4//:version_check",
     ],
 )
 
@@ -88,8 +88,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=nom",
         "manual",
-        "crate-name=nom"
     ],
     version = "7.1.0",
     # buildifier: leave-alone

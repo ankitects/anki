@@ -46,13 +46,13 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=codespan",
         "manual",
-        "crate-name=codespan"
     ],
     version = "0.11.1",
     # buildifier: leave-alone
     deps = [
         "@raze__codespan_reporting__0_11_1//:codespan_reporting",
-        "@raze__serde__1_0_130//:serde",
+        "@raze__serde__1_0_133//:serde",
     ],
 )

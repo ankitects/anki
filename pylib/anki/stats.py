@@ -233,7 +233,7 @@ from revlog where id > ? """
             mtr.append((day[0], day[2]))
             tot += day[1] + day[2]
             totd.append((day[0], tot))
-        data = [
+        data: Any = [
             dict(data=mtr, color=colMature, label="Mature"),
             dict(data=yng, color=colYoung, label="Young"),
         ]

@@ -73,8 +73,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=core-foundation-sys",
         "manual",
-        "crate-name=core-foundation-sys"
     ],
     version = "0.8.3",
     # buildifier: leave-alone

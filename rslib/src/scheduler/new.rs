@@ -196,7 +196,7 @@ impl Collection {
         usn: Usn,
     ) -> Result<usize> {
         let cids = self.search_cards(
-            match_all![SearchNode::DeckIdWithoutChildren(deck), StateKind::New],
+            SearchBuilder::from(SearchNode::DeckIdWithoutChildren(deck)).and(StateKind::New),
             SortMode::NoOrder,
         )?;
         self.sort_cards_inner(&cids, 1, 1, order.into(), false, usn)

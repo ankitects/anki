@@ -5,8 +5,6 @@ def compile_sass(group, srcs, deps = [], visibility = ["//visibility:private"]):
     for scss_file in srcs:
         base = scss_file.replace(".scss", "")
         name = base + "_sass"
-        css_file = base + ".css"
-        css_files.append(css_file)
 
         sass_binary(
             name = name,
@@ -21,6 +19,9 @@ def compile_sass(group, srcs, deps = [], visibility = ["//visibility:private"]):
                 "external/ankidesktop/sass",
             ],
         )
+
+        css_file = base + ".css"
+        css_files.append(css_file)
 
     native.filegroup(
         name = group,

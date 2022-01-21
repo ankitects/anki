@@ -71,8 +71,12 @@ class AddCards(QMainWindow):
         self.setAndFocusNote(new_note)
 
     def setupEditor(self) -> None:
-        self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self, True)
-        self.editor.web.eval("noteEditorPromise.then(() => activateStickyShortcuts());")
+        self.editor = aqt.editor.Editor(
+            self.mw,
+            self.form.fieldsArea,
+            self,
+            editor_mode=aqt.editor.EditorMode.ADD_CARDS,
+        )
 
     def setup_choosers(self) -> None:
         defaults = self.col.defaults_for_adding(

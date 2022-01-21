@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "../lib/bridgecommand";
     import { withButton } from "../components/helpers";
     import { textColorIcon, highlightColorIcon, arrowIcon } from "./icons";
-    import { appendInParentheses, execCommand } from "./helpers";
+    import { execCommand } from "./helpers";
     import { getNoteEditor } from "./OldEditorAdapter.svelte";
 
     export let api = {};
@@ -41,10 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <ButtonGroupItem>
             <WithShortcut shortcut={"F7"} let:createShortcut let:shortcutLabel>
                 <IconButton
-                    tooltip={appendInParentheses(
-                        tr.editingSetTextColor(),
-                        shortcutLabel,
-                    )}
+                    tooltip="{tr.editingSetTextColor()} ({shortcutLabel})"
                     {disabled}
                     on:click={forecolorWrap}
                     on:mount={withButton(createShortcut)}
@@ -58,10 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <ButtonGroupItem>
             <WithShortcut shortcut={"F8"} let:createShortcut let:shortcutLabel>
                 <IconButton
-                    tooltip={appendInParentheses(
-                        tr.editingChangeColor(),
-                        shortcutLabel,
-                    )}
+                    tooltip="{tr.editingChangeColor()} ({shortcutLabel})"
                     {disabled}
                     widthMultiplier={0.5}
                 >

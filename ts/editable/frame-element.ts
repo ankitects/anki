@@ -8,7 +8,7 @@ import {
     hasBlockAttribute,
 } from "../lib/dom";
 import { on } from "../lib/events";
-import { getSelection } from "../lib/cross-browser";
+import { getSelection, isSelectionCollapsed } from "../lib/cross-browser";
 import { moveChildOutOfElement } from "../domlib/move-nodes";
 import { placeCaretBefore, placeCaretAfter } from "../domlib/place-caret";
 import {
@@ -238,7 +238,10 @@ function checkIfInsertingLineBreakAdjacentToBlockFrame() {
 
         const selection = getSelection(frame)!;
 
-        if (selection.anchorNode === frame.framedElement && selection.isCollapsed) {
+        if (
+            selection.anchorNode === frame.framedElement &&
+            isSelectionCollapsed(selection)
+        ) {
             frame.insertLineBreak(selection.anchorOffset);
         }
     }

@@ -44,13 +44,13 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=redox_users",
         "manual",
-        "crate-name=redox_users"
     ],
     version = "0.4.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__getrandom__0_2_3//:getrandom",
+        "@raze__getrandom__0_2_4//:getrandom",
         "@raze__redox_syscall__0_2_10//:redox_syscall",
     ],
 )

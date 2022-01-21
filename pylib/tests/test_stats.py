@@ -15,14 +15,13 @@ def test_stats():
     col.addNote(note)
     c = note.cards()[0]
     # card stats
-    card_stats = CardStats()
-    card_stats.ParseFromString(col.card_stats_data(c.id))
+    card_stats = col.card_stats_data(c.id)
     assert card_stats.note_id == note.id
     col.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 3)
     col.sched.answerCard(c, 2)
-    card_stats.ParseFromString(col.card_stats_data(c.id))
+    card_stats = col.card_stats_data(c.id)
     assert len(card_stats.revlog) == 2
 
 

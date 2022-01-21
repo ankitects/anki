@@ -50,8 +50,8 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=rustls-native-certs",
         "manual",
-        "crate-name=rustls-native-certs"
     ],
     version = "0.5.0",
     # buildifier: leave-alone
@@ -65,7 +65,7 @@ rust_library(
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-apple-ios",
         ): [
-            "@raze__openssl_probe__0_1_4//:openssl_probe",
+            "@raze__openssl_probe__0_1_5//:openssl_probe",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

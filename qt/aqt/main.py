@@ -31,7 +31,16 @@ from anki.decks import DeckDict, DeckId
 from anki.hooks import runHook
 from anki.notes import NoteId
 from anki.sound import AVTag, SoundOrVideoTag
-from anki.utils import dev_mode, ids2str, int_time, is_lin, is_mac, is_win, split_fields
+from anki.utils import (
+    dev_mode,
+    ids2str,
+    int_time,
+    is_lin,
+    is_mac,
+    is_win,
+    point_version,
+    split_fields,
+)
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
 from aqt.dbcheck import check_db
@@ -713,7 +722,6 @@ class AnkiQt(QMainWindow):
         gui_hooks.state_did_change(state, oldState)
 
     def _deckBrowserState(self, oldState: str) -> None:
-        self.maybe_check_for_addon_updates()
         self.deckBrowser.show()
 
     def _selectedDeck(self) -> DeckDict | None:
@@ -869,12 +877,14 @@ title="{}" {}>{}</button>""".format(
         # toolbar
         tweb = self.toolbarWeb = AnkiWebView(title="top toolbar")
         tweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
+        tweb.disable_zoom()
         self.toolbar = aqt.toolbar.Toolbar(self, tweb)
         # main area
         self.web = MainWebView(self)
         # bottom area
         sweb = self.bottomWeb = AnkiWebView(title="bottom toolbar")
         sweb.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
+        sweb.disable_zoom()
         # add in a layout
         self.mainLayout = QVBoxLayout()
         self.mainLayout.setContentsMargins(0, 0, 0, 0)
@@ -931,7 +941,7 @@ title="{}" {}>{}</button>""".format(
         last_check = self.pm.last_addon_update_check()
         elap = int_time() - last_check
 
-        if elap > 86_400:
+        if elap > 86_400 or self.pm.last_run_version() != point_version():
             check_and_prompt_for_updates(
                 self,
                 self.addonManager,
@@ -1110,6 +1120,7 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def closeEvent(self, event: QCloseEvent) -> None:
+        self.pm.set_last_run_version()
         if self.state == "profileManager":
             # if profile manager active, this event may fire via OS X menu bar's
             # quit option
