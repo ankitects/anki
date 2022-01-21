@@ -41,7 +41,7 @@ class ModelsDictProxy:
 
     def _warn(self) -> None:
         print_deprecation_warning(
-            "add-on should use methods on col.decks, not col.decks.decks dict"
+            "add-on should use methods on col.models, not col.models.models dict"
         )
 
     def __getitem__(self, item: Any) -> Any:
