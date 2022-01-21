@@ -34,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <ButtonGroup {api}>
     <ButtonGroupItem>
         <IconButton
-            tooltip="{tr.editingAttachPicturesaudiovideo} ({getPlatformString(
+            tooltip="{tr.editingAttachPicturesaudiovideo()} ({getPlatformString(
                 attachmentKeyCombination,
             )})"
             iconSize={70}
