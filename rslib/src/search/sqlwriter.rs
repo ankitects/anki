@@ -420,6 +420,17 @@ impl SqlWriter<'_> {
     }
 
     fn write_single_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {
+        if !is_re && matches!(field_name, "*" | "_*" | "*_") {
+            // this shortcut is not possible for regexes as they may contain '^' or '$'
+            self.args.push(format!(
+                "(?i)(^|\x1f){}($|\x1f)",
+                to_custom_re(val, "[^\x1f]")
+            ));
+            let arg_idx = self.args.len();
+            write!(self.sql, "n.flds regexp ?{}", arg_idx).unwrap();
+            return Ok(());
+        }
+
         let notetypes = self.col.get_all_notetypes()?;
         let matches_glob = glob_matcher(field_name);
 
