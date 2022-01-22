@@ -355,13 +355,23 @@ pub(crate) fn escape_anki_wildcards_for_search_node(txt: &str) -> String {
     }
 }
 
-/// Compare text with a possible glob, folding case.
-pub(crate) fn matches_glob(text: &str, search: &str) -> bool {
+/// Return a function to match input against `search`,
+/// which may contain wildcards.
+pub(crate) fn glob_matcher(search: &str) -> impl Fn(&str) -> bool + '_ {
+    let mut regex = None;
+    let mut cow = None;
     if is_glob(search) {
-        let search = format!("^(?i){}$", to_re(search));
-        Regex::new(&search).unwrap().is_match(text)
+        regex = Some(Regex::new(&format!("^(?i){}$", to_re(search))).unwrap());
     } else {
-        uni_eq(text, &to_text(search))
+        cow = Some(to_text(search));
+    }
+
+    move |text| {
+        if let Some(r) = &regex {
+            r.is_match(text)
+        } else {
+            uni_eq(text, cow.as_ref().unwrap())
+        }
     }
 }
 
@@ -451,6 +461,6 @@ mod test {
         assert_eq!(&to_text(r"\*\_*_"), "*_*_");
         assert!(is_glob(r"\\\\_"));
         assert!(!is_glob(r"\\\_"));
-        assert!(matches_glob("foo*bar123", r"foo\*bar*"));
+        assert!(glob_matcher(r"foo\*bar*")("foo*bar123"));
     }
 }

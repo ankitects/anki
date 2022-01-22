@@ -16,7 +16,7 @@ use crate::{
     prelude::*,
     storage::ids_to_string,
     text::{
-        is_glob, matches_glob, normalize_to_nfc, strip_html_preserving_media_filenames,
+        glob_matcher, is_glob, normalize_to_nfc, strip_html_preserving_media_filenames,
         to_custom_re, to_re, to_sql, to_text, without_combining,
     },
     timestamp::TimestampSecs,
@@ -421,11 +421,12 @@ impl SqlWriter<'_> {
 
     fn write_single_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {
         let notetypes = self.col.get_all_notetypes()?;
+        let matches_glob = glob_matcher(field_name);
 
         let mut field_map = vec![];
         for nt in notetypes.values() {
             for field in &nt.fields {
-                if matches_glob(&field.name, field_name) {
+                if matches_glob(&field.name) {
                     field_map.push((nt.id, field.ord));
                 }
             }
