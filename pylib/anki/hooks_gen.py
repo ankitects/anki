@@ -1,1 +1,1 @@
-../../bazel-bin/pylib/anki/hooks_gen.py
+../../../bazel/anki/bin/pylib/anki/hooks_gen.py

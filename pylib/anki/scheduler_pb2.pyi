@@ -1,1 +1,1 @@
-../../bazel-bin/pylib/anki/scheduler_pb2.pyi
+../../../bazel/anki/bin/pylib/anki/scheduler_pb2.pyi

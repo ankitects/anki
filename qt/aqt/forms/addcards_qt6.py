@@ -1,1 +1,1 @@
-../../../bazel-bin/qt/aqt/forms/addcards_qt6.py
+../../../../bazel/anki/bin/qt/aqt/forms/addcards_qt6.py
