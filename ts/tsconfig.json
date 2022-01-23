@@ -36,7 +36,7 @@
         "rootDirs": [
             ".",
             // for VS code
-            "../bazel-bin/ts"
+            "../../bazel/anki/bin/ts"
         ],
         "baseUrl": ".",
         "paths": {},
