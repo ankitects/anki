@@ -22,7 +22,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const key = Symbol("editorField");
-    const [set, getEditorField, hasEditorField] = contextProperty<EditorFieldAPI>(key);
+    const {
+        setContextProperty,
+        get: getEditorField,
+        has: hasEditorField,
+    } = contextProperty<EditorFieldAPI>(key);
 
     export { getEditorField, hasEditorField };
 </script>
@@ -45,8 +49,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let field: FieldData;
     export let autofocus = false;
 
-    export let api: (Partial<EditorFieldAPI> & Destroyable) | undefined = undefined;
-
     const directionStore = writable<"ltr" | "rtl">();
     setContext(directionKey, directionStore);
 
@@ -55,15 +57,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const editingArea: Partial<EditingAreaAPI> = {};
     const [element, elementResolve] = promiseWithResolver<HTMLElement>();
 
-    const editorFieldApi = set({
+    let apiPartial: Partial<EditorFieldAPI> & Destroyable;
+    export { apiPartial as api };
+
+    const api: EditorFieldAPI & Destroyable = Object.assign(apiPartial, {
         element,
         direction: directionStore,
         editingArea: editingArea as EditingAreaAPI,
     });
 
-    if (api) {
-        Object.assign(api, editorFieldApi);
-    }
+    setContextProperty(api);
 
     onDestroy(() => api?.destroy());
 </script>

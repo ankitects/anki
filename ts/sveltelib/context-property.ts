@@ -3,18 +3,17 @@
 
 import { setContext, getContext, hasContext } from "svelte";
 
-type ContextProperty<T> = [
-    (value: T) => T,
-    // this typing is a lie insofar that calling get
-    // outside of the component's context will return undefined
-    () => T,
-    () => boolean,
-];
+interface ContextProperty<T> {
+    setContextProperty(value: T): void;
+    // this typing is a lie insofar as calling `get` outside
+    // of the component's context will return undefined
+    get(): T;
+    has(): boolean;
+}
 
 function contextProperty<T>(key: symbol): ContextProperty<T> {
-    function set(context: T): T {
+    function set(context: T): void {
         setContext(key, context);
-        return context;
     }
 
     function get(): T {
@@ -25,7 +24,11 @@ function contextProperty<T>(key: symbol): ContextProperty<T> {
         return hasContext(key);
     }
 
-    return [set, get, has];
+    return {
+        setContextProperty: set,
+        get,
+        has,
+    };
 }
 
 export default contextProperty;

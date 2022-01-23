@@ -12,14 +12,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const decoratedElements = new CustomElementArray<DecoratedElementConstructor>();
 
     const key = Symbol("decoratedElements");
-    const [set, getDecoratedElements, hasDecoratedElements] =
-        contextProperty<CustomElementArray<DecoratedElementConstructor>>(key);
+    const {
+        setContextProperty,
+        get: getDecoratedElements,
+        has: hasDecoratedElements,
+    } = contextProperty<CustomElementArray<DecoratedElementConstructor>>(key);
 
     export { getDecoratedElements, hasDecoratedElements };
 </script>
 
 <script lang="ts">
-    set(decoratedElements);
+    setContextProperty(decoratedElements);
 </script>
 
 <slot />

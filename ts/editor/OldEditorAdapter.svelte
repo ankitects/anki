@@ -8,9 +8,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { PlainTextInputAPI } from "./plain-text-input";
     import type { EditorToolbarAPI } from "./editor-toolbar";
 
-    import contextProperty from "../sveltelib/context-property";
-    import { writable, get } from "svelte/store";
-
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
         currentField: Writable<EditorFieldAPI | null>;
@@ -19,10 +16,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         toolbar: EditorToolbarAPI;
     }
 
-    const key = Symbol("noteEditor");
-    const [set, getNoteEditor, hasNoteEditor] = contextProperty<NoteEditorAPI>(key);
+    import contextProperty from "../sveltelib/context-property";
+    import componentHook from "../sveltelib/component-hook";
+    import { writable } from "svelte/store";
 
-    export { getNoteEditor, hasNoteEditor };
+    const key = Symbol("noteEditor");
+
+    const {
+        setContextProperty,
+        get: getNoteEditor,
+        has: hasNoteEditor,
+    } = contextProperty<NoteEditorAPI>(key);
+
+    const {
+        setupComponentHook,
+        onMount: onNoteEditorMount,
+        onDestroy: onNoteEditorDestroy,
+    } = componentHook<NoteEditorAPI>();
+
+    export { getNoteEditor, hasNoteEditor, onNoteEditorMount, onNoteEditorDestroy };
 
     const activeInput = writable<RichTextInputAPI | PlainTextInputAPI | null>(null);
     const currentField = writable<EditorFieldAPI | null>(null);
@@ -55,6 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { onMount } from "svelte";
     import type { Writable } from "svelte/store";
+    import { get } from "svelte/store";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { isApplePlatform } from "../lib/platform";
     import { ChangeTimer } from "./change-timer";
@@ -219,18 +232,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let toolbar: Partial<EditorToolbarAPI> = {};
 
-    export let api = {};
+    export let api: Partial<NoteEditorAPI> = {};
 
-    Object.assign(
-        api,
-        set({
-            currentField,
-            activeInput,
-            focusInRichText,
-            toolbar: toolbar as EditorToolbarAPI,
-            fields,
-        }),
-    );
+    const api_: NoteEditorAPI = {
+        ...api,
+        currentField,
+        activeInput,
+        focusInRichText,
+        toolbar: toolbar as EditorToolbarAPI,
+        fields,
+    };
+
+    setContextProperty(api_);
+    setupComponentHook(api_);
 
     import { wrapInternal } from "../lib/wrap";
     import * as oldEditorAdapter from "./old-editor-adapter";

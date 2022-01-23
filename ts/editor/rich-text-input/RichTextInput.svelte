@@ -34,8 +34,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const key = Symbol("richText");
-    const [set, getRichTextInput, hasRichTextInput] =
-        contextProperty<RichTextInputContextAPI>(key);
+    const {
+        setContextProperty,
+        get: getRichTextInput,
+        has: hasRichTextInput,
+    } = contextProperty<RichTextInputContextAPI>(key);
 
     export { getRichTextInput, hasRichTextInput };
 
@@ -269,7 +272,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <div class="rich-text-widgets">
             {#await Promise.all( [richTextPromise, stylesPromise], ) then [container, styles]}
-                <SetContext setter={set} value={{ container, styles, api }}>
+                <SetContext
+                    setter={setContextProperty}
+                    value={{ container, styles, api }}
+                >
                     <slot />
                 </SetContext>
             {/await}
