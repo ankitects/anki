@@ -1,1 +1,1 @@
-../../../bazel-bin/qt/aqt/forms/models_qt6.py
+../../../../bazel/anki/bin/qt/aqt/forms/models_qt6.py
