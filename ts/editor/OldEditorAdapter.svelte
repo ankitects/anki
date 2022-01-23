@@ -19,6 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import contextProperty from "../sveltelib/context-property";
     import componentHook from "../sveltelib/component-hook";
     import { writable } from "svelte/store";
+    import { registerPackage } from "../lib/register-package";
 
     const key = Symbol("noteEditor");
 
@@ -35,6 +36,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } = componentHook<NoteEditorAPI>();
 
     export { getNoteEditor, hasNoteEditor, onNoteEditorMount, onNoteEditorDestroy };
+
+    registerPackage("anki/NoteEditor", {
+        getNoteEditor,
+        hasNoteEditor,
+        onNoteEditorMount,
+        onNoteEditorDestroy,
+    });
 
     const activeInput = writable<RichTextInputAPI | PlainTextInputAPI | null>(null);
     const currentField = writable<EditorFieldAPI | null>(null);
