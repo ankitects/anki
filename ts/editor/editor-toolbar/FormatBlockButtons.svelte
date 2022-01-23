@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         indentIcon,
         outdentIcon,
     } from "./icons";
-    import { getNoteEditor } from "../OldEditorAdapter.svelte";
+    import { getNoteEditor } from "./NoteEditor.svelte";
 
     export let api = {};
 

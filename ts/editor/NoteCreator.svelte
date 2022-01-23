@@ -7,11 +7,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "../lib/bridgecommand";
     import { registerShortcut } from "../lib/shortcuts";
     import StickyBadge from "./StickyBadge.svelte";
-    import OldEditorAdapter from "./OldEditorAdapter.svelte";
-    import type { NoteEditorAPI } from "./OldEditorAdapter.svelte";
+    import NoteEditor from "./NoteEditor.svelte";
+    import type { NoteEditorAPI } from "./NoteEditor.svelte";
 
     const api: Partial<NoteEditorAPI> = {};
-    let noteEditor: OldEditorAdapter;
+    let noteEditor: NoteEditor;
 
     export let uiResolve: (api: NoteEditorAPI) => void;
 
@@ -43,8 +43,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => deregisterSticky);
 </script>
 
-<OldEditorAdapter bind:this={noteEditor} {api}>
+<NoteEditor bind:this={noteEditor} {api}>
     <svelte:fragment slot="field-state" let:index>
         <StickyBadge active={stickies[index]} {index} />
     </svelte:fragment>
-</OldEditorAdapter>
+</NoteEditor>

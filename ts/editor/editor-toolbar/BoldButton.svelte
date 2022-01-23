@@ -10,9 +10,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { MatchResult } from "../../domlib/surround";
     import { getPlatformString } from "../../lib/shortcuts";
     import { getSurrounder } from "../surround";
-    import { getNoteEditor } from "../OldEditorAdapter.svelte";
-    import type { RichTextInputAPI } from "../rich-text-input";
     import { boldIcon } from "./icons";
+    import { getNoteEditor } from "./NoteEditor.svelte";
+    import type { RichTextInputAPI } from "../rich-text-input";
 
     function matchBold(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
         if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {

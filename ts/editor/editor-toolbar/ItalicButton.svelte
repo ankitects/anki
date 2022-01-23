@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getPlatformString } from "../../lib/shortcuts";
     import { getSurrounder } from "../surround";
     import { italicIcon } from "./icons";
-    import { getNoteEditor } from "../OldEditorAdapter.svelte";
+    import { getNoteEditor } from "./NoteEditor.svelte";
     import type { RichTextInputAPI } from "../rich-text-input";
 
     function matchItalic(element: Element): Exclude<MatchResult, MatchResult.ALONG> {

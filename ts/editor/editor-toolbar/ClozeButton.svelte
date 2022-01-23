@@ -10,9 +10,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { wrapInternal } from "../../lib/wrap";
     import { getPlatformString } from "../../lib/shortcuts";
     import { get } from "svelte/store";
-    import { getNoteEditor } from "../OldEditorAdapter.svelte";
-    import type { RichTextInputAPI } from "../rich-text-input";
     import { ellipseIcon } from "./icons";
+    import { getNoteEditor } from "./NoteEditor.svelte";
+    import type { RichTextInputAPI } from "../rich-text-input";
 
     const noteEditor = getNoteEditor();
     const { focusInRichText, activeInput } = noteEditor;
