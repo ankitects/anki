@@ -40,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import Item from "../../components/Item.svelte";
 
-    import NoteTypeButtons from "./NoteTypeButtons.svelte";
+    import NotetypeButtons from "./NotetypeButtons.svelte";
     import FormatInlineButtons from "./FormatInlineButtons.svelte";
     import FormatBlockButtons from "./FormatBlockButtons.svelte";
     import ColorButtons from "./ColorButtons.svelte";
@@ -74,7 +74,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <StickyContainer --gutter-block="0.1rem" --sticky-borders="0 0 1px">
     <ButtonToolbar {size} {wrap} api={toolbar}>
         <Item id="notetype">
-            <NoteTypeButtons api={notetypeButtons} />
+            <NotetypeButtons api={notetypeButtons} />
         </Item>
 
         <Item id="inlineFormatting">
