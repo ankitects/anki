@@ -295,7 +295,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="note-editor">
     <FieldsEditor>
-        <EditorToolbar {size} {wrap} {textColor} {highlightColor} api={toolbar} />
+        <EditorToolbar {size} {wrap} {textColor} {highlightColor} api={toolbar}>
+            <slot slot="notetypeButtons" name="notetypeButtons" />
+        </EditorToolbar>
 
         {#if hint}
             <Absolute bottom right --margin="10px">

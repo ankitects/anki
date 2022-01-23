@@ -6,8 +6,9 @@ import { registerPackage } from "./register-package";
 
 const [uiDidLoad, uiResolve] = promiseWithResolver();
 
-export { uiResolve };
-
 registerPackage("anki/ui", {
     uiDidLoad,
 });
+
+export { uiResolve };
+

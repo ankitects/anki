@@ -38,4 +38,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </LabelButton>
         <Shortcut {keyCombination} on:action={() => bridgeCommand("cards")} />
     </ButtonGroupItem>
+
+    <slot />
 </ButtonGroup>

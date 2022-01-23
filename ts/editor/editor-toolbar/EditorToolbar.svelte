@@ -26,12 +26,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     /* Our dynamic components */
     import AddonButtons from "./AddonButtons.svelte";
-    import PreviewButton, { togglePreviewButtonState } from "./PreviewButton.svelte";
 
     export const editorToolbar = {
         AddonButtons,
-        PreviewButton,
-        togglePreviewButtonState,
     };
 </script>
 
@@ -74,7 +71,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <StickyContainer --gutter-block="0.1rem" --sticky-borders="0 0 1px">
     <ButtonToolbar {size} {wrap} api={toolbar}>
         <Item id="notetype">
-            <NotetypeButtons api={notetypeButtons} />
+            <NotetypeButtons api={notetypeButtons}>
+                <slot name="notetypeButtons" />
+            </NotetypeButtons>
         </Item>
 
         <Item id="inlineFormatting">

@@ -6,13 +6,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
 
     const active = writable(false);
-    export const togglePreviewButtonState = (state: boolean) => active.set(state);
+
+    export function togglePreviewButtonState(state: boolean): void {
+        active.set(state);
+    }
+
+    Object.assign(globalThis, { togglePreviewButtonState });
 </script>
 
 <script lang="ts">
-    import { bridgeCommand } from "../../lib/bridgecommand";
-    import { getPlatformString } from "../../lib/shortcuts";
-    import * as tr from "../../lib/ftl";
+    import { bridgeCommand } from "../lib/bridgecommand";
+    import { getPlatformString } from "../lib/shortcuts";
+    import * as tr from "../lib/ftl";
 
     import LabelButton from "../../components/LabelButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";

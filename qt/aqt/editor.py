@@ -525,7 +525,9 @@ uiPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
             js += " setSticky(%s);" % json.dumps(sticky)
 
         js = gui_hooks.editor_will_load_note(js, self.note, self)
-        self.web.evalWithCallback(f"uiPromise.then(() => {{ {js} }})", oncallback)
+        self.web.evalWithCallback(
+            f'require("anki/ui").uiDidLoad.then(() => {{ {js} }})', oncallback
+        )
 
     def _save_current_note(self) -> None:
         "Call after note is updated with data from webview."
@@ -579,8 +581,12 @@ uiPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
         elif result == NoteFieldsCheckResult.FIELD_NOT_CLOZE:
             cloze_hint = tr.adding_cloze_outside_cloze_field()
 
-        self.web.eval(f"uiPromise.then(() => setBackgrounds({json.dumps(cols)}));")
-        self.web.eval(f"uiPromise.then(() => setClozeHint({json.dumps(cloze_hint)}));")
+        self.web.eval(
+            'require("anki/ui").uiDidLoad.then(() => {'
+            f"setBackgrounds({json.dumps(cols)});\n"
+            f"setClozeHint({json.dumps(cloze_hint)});\n"
+            "}); "
+        )
 
     def showDupes(self) -> None:
         aqt.dialogs.open(
@@ -1353,14 +1359,12 @@ gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
 
 
 def set_cloze_button(editor: Editor) -> None:
-    if editor.note.note_type()["type"] == MODEL_CLOZE:
-        editor.web.eval(
-            'uiPromise.then((noteEditor) => noteEditor.toolbar.templateButtons.showButton("cloze")); '
-        )
-    else:
-        editor.web.eval(
-            'uiPromise.then((noteEditor) => noteEditor.toolbar.templateButtons.hideButton("cloze")); '
-        )
+    action = "show" if editor.note.note_type()["type"] == MODEL_CLOZE else "hide"
+    editor.web.eval(
+        'require("anki/ui").uiDidLoad.then(() =>'
+        f'require("anki/NoteEditor").noteEditorInstances[0].toolbar.templateButtons.{action}Button("cloze")'
+        "); "
+    )
 
 
 gui_hooks.editor_did_load_note.append(set_cloze_button)

@@ -13,7 +13,7 @@ export const runtimeLibraries = {};
 (window as any).require = function (name: string): unknown {
     const lib = runtimeLibraries[name];
     if (lib === undefined) {
-        throw new Error(`Cannot require(${name}) at runtime.`);
+        throw new Error(`Cannot require "${name}" at runtime.`);
     }
     return lib;
 };
