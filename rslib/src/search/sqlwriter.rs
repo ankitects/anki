@@ -119,7 +119,7 @@ impl SqlWriter<'_> {
             // note fields related
             SearchNode::UnqualifiedText(text) => self.write_unqualified(&self.norm_note(text)),
             SearchNode::SingleField { field, text, is_re } => {
-                self.write_single_field(&norm(field), &self.norm_note(text), *is_re)?
+                self.write_field(&norm(field), &self.norm_note(text), *is_re)?
             }
             SearchNode::Duplicates { notetype_id, text } => {
                 self.write_dupe(*notetype_id, &self.norm_note(text))?
@@ -421,18 +421,98 @@ impl SqlWriter<'_> {
         }
     }
 
-    fn write_single_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {
-        if !is_re && matches!(field_name, "*" | "_*" | "*_") {
-            // this shortcut is not possible for regexes as they may contain '^' or '$'
-            self.args.push(format!(
-                "(?i)(^|\x1f){}($|\x1f)",
-                to_custom_re(val, "[^\x1f]")
-            ));
-            let arg_idx = self.args.len();
-            write!(self.sql, "n.flds regexp ?{}", arg_idx).unwrap();
+    fn write_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {
+        if matches!(field_name, "*" | "_*" | "*_") {
+            Ok(if is_re {
+                self.write_all_fields_regexp(val)
+            } else {
+                self.write_all_fields(val)
+            })
+        } else {
+            if is_re {
+                self.write_single_field_regexp(field_name, val)
+            } else {
+                self.write_single_field(field_name, val)
+            }
+        }
+    }
+
+    fn write_all_fields_regexp(&mut self, val: &str) {
+        self.args.push(format!("(?i){}", val));
+        write!(self.sql, "regexp_fields(?{}, n.flds)", self.args.len()).unwrap();
+    }
+
+    fn write_all_fields(&mut self, val: &str) {
+        self.args.push(format!("(?i)^{}$", to_re(val)));
+        write!(self.sql, "regexp_fields(?{}, n.flds)", self.args.len()).unwrap();
+    }
+
+    fn write_single_field_regexp(&mut self, field_name: &str, val: &str) -> Result<()> {
+        let field_map = self.field_map(field_name)?;
+        if field_map.is_empty() {
+            write!(self.sql, "false").unwrap();
             return Ok(());
         }
 
+        self.args.push(format!("(?i){}", val));
+        let arg_idx = self.args.len();
+        write!(
+            self.sql,
+            "({})",
+            field_map
+                .iter()
+                .map(|(mid, fields)| {
+                    format!(
+                        "(n.mid = {} and regexp_fields(?{}, n.flds, {}))",
+                        mid,
+                        arg_idx,
+                        fields.iter().join(", "),
+                    )
+                })
+                .join(" or ")
+        )
+        .unwrap();
+
+        Ok(())
+    }
+
+    fn write_single_field(&mut self, field_name: &str, val: &str) -> Result<()> {
+        let field_map = self.field_map(field_name)?;
+        if field_map.is_empty() {
+            write!(self.sql, "false").unwrap();
+            return Ok(());
+        }
+
+        self.args.push(to_sql(val).into());
+        let arg_idx = self.args.len();
+        write!(
+            self.sql,
+            "({})",
+            field_map
+                .iter()
+                .map(|(mid, fields)| {
+                    format!(
+                        "(n.mid = {} and ({}))",
+                        mid,
+                        fields
+                            .iter()
+                            .map(|ord| {
+                                format!(
+                                    "field_at_index(n.flds, {}) like ?{} escape '\\'",
+                                    ord, arg_idx
+                                )
+                            })
+                            .join(" or "),
+                    )
+                })
+                .join(" or ")
+        )
+        .unwrap();
+
+        Ok(())
+    }
+
+    fn field_map(&mut self, field_name: &str) -> Result<Vec<(NotetypeId, Vec<u32>)>> {
         let notetypes = self.col.get_all_notetypes()?;
         let matches_glob = glob_matcher(field_name);
 
@@ -452,45 +532,7 @@ impl SqlWriter<'_> {
         // for now, sort the map for the benefit of unit tests
         field_map.sort();
 
-        if field_map.is_empty() {
-            write!(self.sql, "false").unwrap();
-            return Ok(());
-        }
-
-        let cmp;
-        let cmp_trailer;
-        if is_re {
-            cmp = "regexp";
-            cmp_trailer = "";
-            self.args.push(format!("(?i){}", val));
-        } else {
-            cmp = "like";
-            cmp_trailer = "escape '\\'";
-            self.args.push(to_sql(val).into())
-        }
-
-        let arg_idx = self.args.len();
-        let mut searches = field_map.iter().map(|(mid, fields)| {
-            format!(
-                "(n.mid = {} and ({}))",
-                mid,
-                fields
-                    .iter()
-                    .map(|ord| {
-                        format!(
-                            "field_at_index(n.flds, {ord}) {cmp} ?{n} {cmp_trailer}",
-                            ord = ord,
-                            cmp = cmp,
-                            cmp_trailer = cmp_trailer,
-                            n = arg_idx
-                        )
-                    })
-                    .join(" or "),
-            )
-        });
-        write!(self.sql, "({})", searches.join(" or ")).unwrap();
-
-        Ok(())
+        Ok(field_map)
     }
 
     fn write_dupe(&mut self, ntid: NotetypeId, text: &str) -> Result<()> {
