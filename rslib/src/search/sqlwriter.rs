@@ -423,17 +423,16 @@ impl SqlWriter<'_> {
 
     fn write_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {
         if matches!(field_name, "*" | "_*" | "*_") {
-            Ok(if is_re {
-                self.write_all_fields_regexp(val)
-            } else {
-                self.write_all_fields(val)
-            })
-        } else {
             if is_re {
-                self.write_single_field_regexp(field_name, val)
+                self.write_all_fields_regexp(val);
             } else {
-                self.write_single_field(field_name, val)
+                self.write_all_fields(val);
             }
+            Ok(())
+        } else if is_re {
+            self.write_single_field_regexp(field_name, val)
+        } else {
+            self.write_single_field(field_name, val)
         }
     }
 
