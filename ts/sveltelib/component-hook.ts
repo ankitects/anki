@@ -9,11 +9,26 @@ type ComponentAPIDestroy<T> = (api: T) => void;
 
 interface ComponentHook<T> {
     setupComponentHook(api: T): void;
+    instances: T[];
     onMount(callback: ComponentAPIMount<T>): Callback | void;
     onDestroy(callback: ComponentAPIDestroy<T>): Callback;
 }
 
+function removeItem<T>(items: T[], item: T) {
+    const index = items.findIndex((i: T): boolean => i === item);
+
+    if (index >= 0) {
+        items.splice(index, 1);
+    }
+}
+
+/**
+ * Makes the Svelte lifecycle hooks accessible to add-ons.
+ * Currently we expose onMount and onDestroy in here, but it is fully
+ * thinkable to expose the others as well, given a good use case.
+ */
 function componentHook<T>(): ComponentHook<T> {
+    const instances: T[] = [];
     const mountCallbacks: ComponentAPIMount<T>[] = [];
     const destroyCallbacks: ComponentAPIDestroy<T>[] = [];
 
@@ -29,6 +44,8 @@ function componentHook<T>(): ComponentHook<T> {
                 }
             }
 
+            instances.push(api);
+
             return () => {
                 for (const cleanup of cleanups) {
                     cleanup();
@@ -37,6 +54,8 @@ function componentHook<T>(): ComponentHook<T> {
         });
 
         svelteOnDestroy(() => {
+            removeItem(instances, api);
+
             for (const callback of destroyCallbacks) {
                 callback(api);
             }
@@ -45,36 +64,19 @@ function componentHook<T>(): ComponentHook<T> {
 
     function onMount(callback: ComponentAPIMount<T>): Callback | void {
         mountCallbacks.push(callback);
-
-        return () => {
-            const index = mountCallbacks.findIndex(
-                (c: ComponentAPIMount<T>): boolean => c === callback,
-            );
-
-            if (index >= 0) {
-                mountCallbacks.splice(index, 1);
-            }
-        };
+        return () => removeItem(mountCallbacks, callback);
     }
 
     function onDestroy(callback: ComponentAPIDestroy<T>): Callback {
         destroyCallbacks.push(callback);
-
-        return () => {
-            const index = destroyCallbacks.findIndex(
-                (c: ComponentAPIDestroy<T>): boolean => c === callback,
-            );
-
-            if (index >= 0) {
-                mountCallbacks.splice(index, 1);
-            }
-        };
+        return () => removeItem(mountCallbacks, callback);
     }
 
     return {
         setupComponentHook: setup,
         onMount,
         onDestroy,
+        instances,
     };
 }
 

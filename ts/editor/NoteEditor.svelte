@@ -33,15 +33,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         setupComponentHook,
         onMount: onNoteEditorMount,
         onDestroy: onNoteEditorDestroy,
+        instances: noteEditorInstances,
     } = componentHook<NoteEditorAPI>();
 
-    export { getNoteEditor, hasNoteEditor, onNoteEditorMount, onNoteEditorDestroy };
+    export { getNoteEditor, hasNoteEditor };
 
     registerPackage("anki/NoteEditor", {
         getNoteEditor,
         hasNoteEditor,
         onNoteEditorMount,
         onNoteEditorDestroy,
+        noteEditorInstances,
     });
 
     const activeInput = writable<RichTextInputAPI | PlainTextInputAPI | null>(null);
@@ -49,7 +51,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import NoteEditor from "./NoteEditor.svelte";
     import FieldsEditor from "./FieldsEditor.svelte";
     import Fields from "./Fields.svelte";
     import EditorField from "./EditorField.svelte";
@@ -240,20 +241,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let toolbar: Partial<EditorToolbarAPI> = {};
 
-    export let api: Partial<NoteEditorAPI> = {};
-
-    const api_: NoteEditorAPI = {
-        ...api,
-        currentField,
-        activeInput,
-        focusInRichText,
-        toolbar: toolbar as EditorToolbarAPI,
-        fields,
-    };
-
-    setContextProperty(api_);
-    setupComponentHook(api_);
-
     import { wrapInternal } from "../lib/wrap";
     import * as oldEditorAdapter from "./old-editor-adapter";
 
@@ -289,6 +276,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         document.addEventListener("visibilitychange", saveOnPageHide);
         return () => document.removeEventListener("visibilitychange", saveOnPageHide);
     });
+
+    let apiPartial: Partial<NoteEditorAPI> = {};
+    export { apiPartial as api };
+
+    const api: NoteEditorAPI = {
+        ...apiPartial,
+        currentField,
+        activeInput,
+        focusInRichText,
+        toolbar: toolbar as EditorToolbarAPI,
+        fields,
+    };
+
+    setContextProperty(api);
+    setupComponentHook(api);
 </script>
 
 <div class="note-editor">
