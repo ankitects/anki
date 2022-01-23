@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "esbenp.prettier-vscode",
+        "bazelbuild.vscode-bazel",
+        "ms-python.python",
+        "matklad.rust-analyzer",
+        "svelte.svelte-vscode"
+    ]
+}
