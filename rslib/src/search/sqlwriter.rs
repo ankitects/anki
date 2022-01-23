@@ -3,6 +3,8 @@
 
 use std::{borrow::Cow, fmt::Write};
 
+use itertools::Itertools;
+
 use super::{
     parser::{Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind},
     ReturnItemType,
@@ -436,10 +438,14 @@ impl SqlWriter<'_> {
 
         let mut field_map = vec![];
         for nt in notetypes.values() {
+            let mut nt_fields = vec![];
             for field in &nt.fields {
                 if matches_glob(&field.name) {
-                    field_map.push((nt.id, field.ord));
+                    nt_fields.push(field.ord.unwrap_or_default());
                 }
+            }
+            if !nt_fields.is_empty() {
+                field_map.push((nt.id, nt_fields));
             }
         }
 
@@ -464,19 +470,24 @@ impl SqlWriter<'_> {
         }
 
         let arg_idx = self.args.len();
-        let searches: Vec<_> = field_map
-            .iter()
-            .map(|(ntid, ord)| {
-                format!(
-                    "(n.mid = {mid} and field_at_index(n.flds, {ord}) {cmp} ?{n} {cmp_trailer})",
-                    mid = ntid,
-                    ord = ord.unwrap_or_default(),
-                    cmp = cmp,
-                    cmp_trailer = cmp_trailer,
-                    n = arg_idx
-                )
-            })
-            .collect();
+        let mut searches = field_map.iter().map(|(mid, fields)| {
+            format!(
+                "(n.mid = {} and ({}))",
+                mid,
+                fields
+                    .iter()
+                    .map(|ord| {
+                        format!(
+                            "field_at_index(n.flds, {ord}) {cmp} ?{n} {cmp_trailer}",
+                            ord = ord,
+                            cmp = cmp,
+                            cmp_trailer = cmp_trailer,
+                            n = arg_idx
+                        )
+                    })
+                    .join(" or "),
+            )
+        });
         write!(self.sql, "({})", searches.join(" or ")).unwrap();
 
         Ok(())
@@ -666,10 +677,10 @@ mod test {
             s(ctx, "front:te*st"),
             (
                 concat!(
-                    "(((n.mid = 1581236385344 and field_at_index(n.flds, 0) like ?1 escape '\\') or ",
-                    "(n.mid = 1581236385345 and field_at_index(n.flds, 0) like ?1 escape '\\') or ",
-                    "(n.mid = 1581236385346 and field_at_index(n.flds, 0) like ?1 escape '\\') or ",
-                    "(n.mid = 1581236385347 and field_at_index(n.flds, 0) like ?1 escape '\\')))"
+                    "(((n.mid = 1581236385344 and (field_at_index(n.flds, 0) like ?1 escape '\\')) or ",
+                    "(n.mid = 1581236385345 and (field_at_index(n.flds, 0) like ?1 escape '\\')) or ",
+                    "(n.mid = 1581236385346 and (field_at_index(n.flds, 0) like ?1 escape '\\')) or ",
+                    "(n.mid = 1581236385347 and (field_at_index(n.flds, 0) like ?1 escape '\\'))))"
                 )
                 .into(),
                 vec!["te%st".into()]
