@@ -240,6 +240,7 @@ class CardLayout(QDialog):
 
     def setup_edit_area(self) -> None:
         tform = self.tform
+        editor = tform.edit_area
 
         tform.front_button.setText(tr.card_templates_front_template())
         tform.back_button.setText(tr.card_templates_back_template())
@@ -247,28 +248,28 @@ class CardLayout(QDialog):
         tform.groupBox.setTitle(tr.card_templates_template_box())
 
         cnt = self.mw.col.models.use_count(self.model)
-        self.tform.changes_affect_label.setText(
+        tform.changes_affect_label.setText(
             self.col.tr.card_templates_changes_will_affect_notes(count=cnt)
         )
 
-        qconnect(tform.edit_area.textChanged, self.write_edits_to_template_and_redraw)
+        qconnect(editor.textChanged, self.write_edits_to_template_and_redraw)
         qconnect(tform.front_button.clicked, self.on_editor_toggled)
         qconnect(tform.back_button.clicked, self.on_editor_toggled)
         qconnect(tform.style_button.clicked, self.on_editor_toggled)
 
         self.current_editor_index = 0
-        self.tform.edit_area.setAcceptRichText(False)
-        self.tform.edit_area.setFont(QFont("Courier"))
+        editor.setAcceptRichText(False)
+        editor.setFont(QFont("Courier"))
         tab_width = self.fontMetrics().horizontalAdvance(" " * 4)
-        self.tform.edit_area.setTabStopDistance(tab_width)
+        editor.setTabStopDistance(tab_width)
 
-        palette = tform.edit_area.palette()
+        palette = editor.palette()
         palette.setColor(
             QPalette.ColorGroup.Inactive,
             QPalette.ColorRole.Highlight,
             QColor("#4169e1" if theme_manager.night_mode else "#FFFF80"),
         )
-        tform.edit_area.setPalette(palette)
+        editor.setPalette(palette)
 
         widg = tform.search_edit
         widg.setPlaceholderText("Search")
