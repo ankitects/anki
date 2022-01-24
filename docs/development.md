@@ -39,8 +39,19 @@ If you'd like to contribute translations, please see <https://translating.ankiwe
 
 ## Building redistributable wheels
 
-Run the following command to create Python packages that can be redistributed
-and installed:
+The `./run` method described in the platform-specific instructions is a shortcut
+for starting Anki directly from Bazel. This is useful for quickly running Anki
+after making source code changes, but requires Bazel to be available, and will
+not play nicely with the debugging facilities in IDEs. For daily Anki, or using
+third-party Python tools, you'll want to build Python wheels instead.
+
+The Python wheels are standard Python packages that can be installed with pip.
+You'll typically want to install them into a a dedicated Python virtual environment (venv),
+so that the dependencies are kept isolated from those of other packages on your system.
+While you can 'pip install' them directly using the system Python, other packages on your
+system may depend on different versions of those dependencies, which can cause breakages.
+
+Run the following command to create Python packages:
 
 On Mac/Linux:
 
@@ -55,32 +66,44 @@ On Windows:
 ```
 
 The generated wheel paths will be printed as the build completes.
-
 You can then install them by copying the paths into a pip install command.
-Follow the steps in the "Pre-built Python wheels" section above, but replace the
-"pip install aqt" line with something like:
+Follow the steps [on the beta site](https://betas.ankiweb.net/#via-pypipip), but replace the
+`pip install --upgrade --pre aqt[qt6]` line with something like:
 
 ```
-pip install --upgrade bazel-dist/*.whl
+pyenv/bin/pip install --upgrade bazel-dist/*.whl
 ```
 
-On Windows you'll need to list out the filenames manually.
+(On Windows you'll need to list out the filenames manually instead of using a wildcard).
 
 You'll also need to install PyQt:
 
 ```
-$ pip3 install pyqt6 pyqt6-webengine
+$ pyenv/bin/pip install pyqt6 pyqt6-webengine
 ```
 
 or
 
 ```
-$ pip3 install pyqt5 pyqtwebengine
+$ pyenv/bin/pip install pyqt5 pyqtwebengine
 ```
 
-### Wheels on Linux
+## Freeing Space
 
-Linux users can build using instructions above, or they can optionally [build
+The build process will download about a gigabyte of dependencies, and produce
+about 6 gigabytes of temporary files. Once you've created the wheels, you can
+remove the other files to free up space if you wish.
+
+-   `bazel clean --expunge` will remove the generated files, freeing up most
+    of the space. The files are usualy stored in a subdir of ~/.cache/bazel/
+-   `rm -rf ~/.cache/bazel*` will remove the cached downloads as well, requiring
+    them to be redownloaded if you want to build again.
+-   `rm -rf ~/.cache/{yarn,pip}` will remove the shared pip and yarn caches that
+    other apps may be using as well.
+
+## Building with Docker
+
+Linux users can build using the instructions above, or they can optionally [build
 via Docker](../scripts/docker/README.md).
 
 On Linux, the generated Anki wheel will have a filename like:
@@ -162,11 +185,14 @@ bazel run //pylib/rsbridge:format
 
 If you're frequently switching between Anki versions, you can create
 a user.bazelrc file in the top level folder with the following, which will
-cache build products and downloads:
+cache build products:
 
 ```
-build --disk_cache=~/bazel/ankidisk --repository_cache=~/bazel/ankirepo
+build --disk_cache=~/.cache/bazel/disk
 ```
+
+It will grow with each changed build, and needs to be manually removed
+when you wish to free up space.
 
 ## Python editing
 
@@ -220,7 +246,7 @@ node_modules folder.
 On Windows, you may run into 'could not write file' messages when TypeScript
 files are renamed, as the old build products are not being cleaned up correctly.
 You can either remove the problem folder (eg
-bazel-out/x64_windows-fastbuild/bin/ts/projectname), or do a full clean.
+.bazel/out/x64_windows-fastbuild/bin/ts/projectname), or do a full clean.
 
 To do a full clean, use a `bazel clean --expunge`, and then remove the node_modules
 folder.
