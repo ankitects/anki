@@ -3,16 +3,16 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import IconButton from "../components/IconButton.svelte";
-    import WithShortcut from "../components/WithShortcut.svelte";
+    import IconButton from "../../components/IconButton.svelte";
+    import Shortcut from "../../components/Shortcut.svelte";
 
-    import * as tr from "../lib/ftl";
-    import { wrapInternal } from "../lib/wrap";
-    import { withButton } from "../components/helpers";
-    import { ellipseIcon } from "./icons";
+    import * as tr from "../../lib/ftl";
+    import { wrapInternal } from "../../lib/wrap";
+    import { getPlatformString } from "../../lib/shortcuts";
     import { get } from "svelte/store";
-    import { getNoteEditor } from "./OldEditorAdapter.svelte";
-    import type { RichTextInputAPI } from "./RichTextInput.svelte";
+    import { getNoteEditor } from "../OldEditorAdapter.svelte";
+    import type { RichTextInputAPI } from "../rich-text-input";
+    import { ellipseIcon } from "./icons";
 
     const noteEditor = getNoteEditor();
     const { focusInRichText, activeInput } = noteEditor;
@@ -51,15 +51,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     $: disabled = !$focusInRichText;
+
+    const keyCombination = "Control+Alt?+Shift+C";
 </script>
 
-<WithShortcut shortcut="Control+Alt?+Shift+C" let:createShortcut let:shortcutLabel>
-    <IconButton
-        tooltip="{tr.editingClozeDeletion()} {shortcutLabel}"
-        {disabled}
-        on:click={onCloze}
-        on:mount={withButton(createShortcut)}
-    >
-        {@html ellipseIcon}
-    </IconButton>
-</WithShortcut>
+<IconButton
+    tooltip="{tr.editingClozeDeletion()} {getPlatformString(keyCombination)}"
+    {disabled}
+    on:click={onCloze}
+>
+    {@html ellipseIcon}
+</IconButton>
+
+<Shortcut {keyCombination} on:action={(event) => onCloze(event.detail.originalEvent)} />

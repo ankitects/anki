@@ -5,13 +5,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher, tick } from "svelte";
     import type { Writable } from "svelte/store";
-    import StickyContainer from "../components/StickyContainer.svelte";
+    import ButtonToolbar from "../../components/ButtonToolbar.svelte";
+    import StickyContainer from "../../components/StickyContainer.svelte";
     import TagOptionsBadge from "./TagOptionsBadge.svelte";
     import TagEditMode from "./TagEditMode.svelte";
     import TagInput from "./TagInput.svelte";
     import Tag from "./Tag.svelte";
     import WithAutocomplete from "./WithAutocomplete.svelte";
-    import ButtonToolbar from "../components/ButtonToolbar.svelte";
     import type { Tag as TagType } from "./tags";
     import {
         attachId,
@@ -19,8 +19,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         replaceWithUnicodeSeparator,
         replaceWithColons,
     } from "./tags";
-    import { tags as tagsService } from "../lib/proto";
-    import { execCommand } from "./helpers";
+    import { tags as tagsService } from "../../lib/proto";
+    import { execCommand } from "../helpers";
 
     export let size: number;
     export let wrap: boolean;
@@ -401,7 +401,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:tagselectall={selectAllTags}
             on:tagcopy={copySelectedTags}
             on:tagdelete={deleteSelectedTags}
-            on:click={appendEmptyTag}
+            on:tagappend={appendEmptyTag}
         />
     {/if}
 

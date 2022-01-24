@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const decoratedElements = getDecoratedElements();
     decoratedElements.push(Mathjax);
 
-    import { parsingInstructions } from "./PlainTextInput.svelte";
+    import { parsingInstructions } from "./plain-text-input";
 
     parsingInstructions.push("<style>anki-mathjax { white-space: pre; }</style>");
 </script>

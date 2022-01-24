@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher } from "svelte";
     import type { DeckOptionsState } from "./lib";
     import type Dropdown from "bootstrap/js/dist/dropdown";
-    import { withButton } from "../components/helpers";
+    import { getPlatformString } from "../lib/shortcuts";
     import { withCollapsedWhitespace } from "../lib/i18n";
 
     import ButtonGroup from "../components/ButtonGroup.svelte";
@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DropdownItem from "../components/DropdownItem.svelte";
     import DropdownDivider from "../components/DropdownDivider.svelte";
     import WithDropdown from "../components/WithDropdown.svelte";
-    import WithShortcut from "../components/WithShortcut.svelte";
+    import Shortcut from "../components/Shortcut.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -58,19 +58,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let dropdown: Dropdown;
+    const saveKeyCombination = "Control+Enter";
 </script>
 
 <ButtonGroup>
     <ButtonGroupItem>
-        <WithShortcut shortcut="Control+Enter" let:createShortcut let:shortcutLabel>
-            <LabelButton
-                theme="primary"
-                on:click={() => save(false)}
-                tooltip={shortcutLabel}
-                on:mount={withButton(createShortcut)}
-                >{tr.deckConfigSaveButton()}</LabelButton
-            >
-        </WithShortcut>
+        <LabelButton
+            theme="primary"
+            on:click={() => save(false)}
+            tooltip={getPlatformString(saveKeyCombination)}
+            >{tr.deckConfigSaveButton()}</LabelButton
+        >
+        <Shortcut keyCombination={saveKeyCombination} on:click={() => save(false)} />
     </ButtonGroupItem>
 
     <ButtonGroupItem>

@@ -3,17 +3,19 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import ButtonGroup from "../components/ButtonGroup.svelte";
-    import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
-    import IconButton from "../components/IconButton.svelte";
-    import ButtonDropdown from "../components/ButtonDropdown.svelte";
-    import Item from "../components/Item.svelte";
-    import WithDropdown from "../components/WithDropdown.svelte";
+    import ButtonGroup from "../../components/ButtonGroup.svelte";
+    import ButtonGroupItem from "../../components/ButtonGroupItem.svelte";
+    import IconButton from "../../components/IconButton.svelte";
+    import ButtonDropdown from "../../components/ButtonDropdown.svelte";
+    import Item from "../../components/Item.svelte";
+    import Shortcut from "../../components/Shortcut.svelte";
+    import WithDropdown from "../../components/WithDropdown.svelte";
     import CommandIconButton from "./CommandIconButton.svelte";
 
-    import * as tr from "../lib/ftl";
-    import { getListItem } from "../lib/dom";
-    import { execCommand } from "./helpers";
+    import * as tr from "../../lib/ftl";
+    import { getListItem } from "../../lib/dom";
+    import { getPlatformString } from "../../lib/shortcuts";
+    import { execCommand } from "../helpers";
     import {
         ulIcon,
         olIcon,
@@ -25,12 +27,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         indentIcon,
         outdentIcon,
     } from "./icons";
-    import { getNoteEditor } from "./OldEditorAdapter.svelte";
-    import WithShortcut from "../components/WithShortcut.svelte";
-    import { withButton } from "../components/helpers";
+    import { getNoteEditor } from "../OldEditorAdapter.svelte";
 
     export let api = {};
 
+    const outdentKeyCombination = "Control+Shift+,";
     function outdentListItem() {
         if (getListItem(document.activeElement!.shadowRoot!)) {
             execCommand("outdent");
@@ -39,6 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    const indentKeyCombination = "Control+Shift+.";
     function indentListItem() {
         if (getListItem(document.activeElement!.shadowRoot!)) {
             execCommand("indent");
@@ -56,7 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <CommandIconButton
             key="insertUnorderedList"
             tooltip={tr.editingUnorderedList()}
-            shortcut={"Control+,"}>{@html ulIcon}</CommandIconButton
+            shortcut="Control+,">{@html ulIcon}</CommandIconButton
         >
     </ButtonGroupItem>
 
@@ -64,7 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <CommandIconButton
             key="insertOrderedList"
             tooltip={tr.editingOrderedList()}
-            shortcut={"Control+."}>{@html olIcon}</CommandIconButton
+            shortcut="Control+.">{@html olIcon}</CommandIconButton
         >
     </ButtonGroupItem>
 
@@ -121,37 +123,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <Item id="indentation">
                     <ButtonGroup>
                         <ButtonGroupItem>
-                            <WithShortcut
-                                shortcut={"Control+Shift+,"}
-                                let:createShortcut
-                                let:shortcutLabel
+                            <IconButton
+                                tooltip="{tr.editingOutdent()} ({getPlatformString(
+                                    outdentKeyCombination,
+                                )})"
+                                {disabled}
+                                on:click={outdentListItem}
                             >
-                                <IconButton
-                                    on:click={outdentListItem}
-                                    on:mount={withButton(createShortcut)}
-                                    tooltip="{tr.editingOutdent()} ({shortcutLabel})"
-                                    {disabled}
-                                >
-                                    {@html outdentIcon}
-                                </IconButton>
-                            </WithShortcut>
+                                {@html outdentIcon}
+                            </IconButton>
+
+                            <Shortcut
+                                keyCombination={outdentKeyCombination}
+                                on:action={outdentListItem}
+                            />
                         </ButtonGroupItem>
 
                         <ButtonGroupItem>
-                            <WithShortcut
-                                shortcut={"Control+Shift+."}
-                                let:createShortcut
-                                let:shortcutLabel
+                            <IconButton
+                                tooltip="{tr.editingIndent()} ({getPlatformString(
+                                    indentKeyCombination,
+                                )})"
+                                {disabled}
+                                on:click={indentListItem}
                             >
-                                <IconButton
-                                    on:click={indentListItem}
-                                    on:mount={withButton(createShortcut)}
-                                    tooltip="{tr.editingIndent()} ({shortcutLabel})"
-                                    {disabled}
-                                >
-                                    {@html indentIcon}
-                                </IconButton>
-                            </WithShortcut>
+                                {@html indentIcon}
+                            </IconButton>
+
+                            <Shortcut
+                                keyCombination={indentKeyCombination}
+                                on:action={indentListItem}
+                            />
                         </ButtonGroupItem>
                     </ButtonGroup>
                 </Item>

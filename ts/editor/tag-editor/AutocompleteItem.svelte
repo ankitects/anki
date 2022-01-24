@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { onMount, createEventDispatcher } from "svelte";
-    import { pageTheme } from "../sveltelib/theme";
+    import { pageTheme } from "../../sveltelib/theme";
 
     export let id: string | undefined = undefined;
     let className = "";
