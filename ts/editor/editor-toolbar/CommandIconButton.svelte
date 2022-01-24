@@ -18,13 +18,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let withoutShortcut = false;
     export let withoutState = false;
 
-    const { activeInput } = getNoteEditor();
+    const { focusedInput } = getNoteEditor();
 
     function action() {
         execCommand(key);
     }
 
-    $: disabled = !editingInputIsRichText($activeInput);
+    $: disabled = !editingInputIsRichText($focusedInput);
 </script>
 
 {#if withoutState}

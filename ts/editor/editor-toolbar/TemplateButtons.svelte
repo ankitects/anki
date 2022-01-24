@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { paperclipIcon, micIcon } from "./icons";
 
     export let api = {};
-    const { activeInput } = getNoteEditor();
+    const { focusedInput } = getNoteEditor();
 
     const attachmentKeyCombination = "F7";
     function onAttachment(): void {
@@ -30,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bridgeCommand("record");
     }
 
-    $: disabled = !editingInputIsRichText($activeInput);
+    $: disabled = !editingInputIsRichText($focusedInput);
 </script>
 
 <ButtonGroup {api}>

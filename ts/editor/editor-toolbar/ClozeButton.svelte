@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { ellipseIcon } from "./icons";
 
     const noteEditor = getNoteEditor();
-    const { activeInput } = noteEditor;
+    const { focusedInput } = noteEditor;
 
     const clozePattern = /\{\{c(\d+)::/gu;
     function getCurrentHighestCloze(increment: boolean): number {
@@ -43,7 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return Math.max(1, highest);
     }
 
-    $: richTextAPI = $activeInput as RichTextInputAPI;
+    $: richTextAPI = $focusedInput as RichTextInputAPI;
 
     async function onCloze(event: KeyboardEvent | MouseEvent): Promise<void> {
         const highestCloze = getCurrentHighestCloze(!event.getModifierState("Alt"));
@@ -51,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         wrapInternal(richText, `{{c${highestCloze}::`, "}}", false);
     }
 
-    $: disabled = !editingInputIsRichText($activeInput);
+    $: disabled = !editingInputIsRichText($focusedInput);
 
     const keyCombination = "Control+Alt?+Shift+C";
 </script>

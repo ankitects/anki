@@ -17,8 +17,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
 
-    const { activeInput } = getNoteEditor();
-    $: richTextAPI = $activeInput as RichTextInputAPI;
+    const { focusedInput } = getNoteEditor();
+    $: richTextAPI = $focusedInput as RichTextInputAPI;
 
     async function surround(front: string, back: string): Promise<void> {
         const element = await richTextAPI.element;
@@ -60,7 +60,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         [onLatexMathEnv, "Control+T, M", tr.editingLatexMathEnv()],
     ];
 
-    $: disabled = !editingInputIsRichText($activeInput);
+    $: disabled = !editingInputIsRichText($focusedInput);
 </script>
 
 <WithDropdown let:createDropdown>

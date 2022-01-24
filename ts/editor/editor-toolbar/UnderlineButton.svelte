@@ -27,10 +27,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return MatchResult.NO_MATCH;
     }
 
-    const { activeInput } = getNoteEditor();
+    const { focusedInput } = getNoteEditor();
 
-    $: input = $activeInput as RichTextInputAPI;
-    $: disabled = !editingInputIsRichText($activeInput);
+    $: input = $focusedInput as RichTextInputAPI;
+    $: disabled = !editingInputIsRichText($focusedInput);
     $: surrounder = disabled ? null : getSurrounder(input);
 
     function updateStateFromActiveInput(): Promise<boolean> {

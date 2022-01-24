@@ -50,8 +50,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    const { activeInput } = getNoteEditor();
-    $: disabled = !editingInputIsRichText($activeInput);
+    const { focusedInput } = getNoteEditor();
+    $: disabled = !editingInputIsRichText($focusedInput);
 </script>
 
 <ButtonGroup {api}>

@@ -9,8 +9,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
-        currentField: Writable<EditorFieldAPI | null>;
-        activeInput: Writable<EditingInputAPI | null>;
+        focusedField: Writable<EditorFieldAPI | null>;
+        focusedInput: Writable<EditingInputAPI | null>;
         toolbar: EditorToolbarAPI;
     }
 
@@ -239,11 +239,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     onMount(() => {
         function wrap(before: string, after: string): void {
-            if (!$activeInput || !editingInputIsRichText($activeInput)) {
+            if (!$focusedInput || !editingInputIsRichText($focusedInput)) {
                 return;
             }
 
-            $activeInput.element.then((element) => {
+            $focusedInput.element.then((element) => {
                 wrapInternal(element, before, after, false);
             });
         }
@@ -271,13 +271,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let apiPartial: Partial<NoteEditorAPI> = {};
     export { apiPartial as api };
 
-    const currentField: NoteEditorAPI["currentField"] = writable(null);
-    const activeInput: NoteEditorAPI["activeInput"] = writable(null);
+    const focusedField: NoteEditorAPI["focusedField"] = writable(null);
+    const focusedInput: NoteEditorAPI["focusedInput"] = writable(null);
 
     const api: NoteEditorAPI = {
         ...apiPartial,
-        currentField,
-        activeInput,
+        focusedField,
+        focusedInput,
         toolbar: toolbar as EditorToolbarAPI,
         fields,
     };
@@ -312,11 +312,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         autofocus={index === focusTo}
                         api={fields[index]}
                         on:focusin={() => {
-                            $currentField = fields[index];
+                            $focusedField = fields[index];
                             bridgeCommand(`focus:${index}`);
                         }}
                         on:focusout={() => {
-                            $currentField = null;
+                            $focusedField = null;
                             bridgeCommand(
                                 `blur:${index}:${getNoteId()}:${get(
                                     fieldStores[index],
@@ -341,10 +341,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             <RichTextInput
                                 hidden={richTextsHidden[index]}
                                 on:focusin={() => {
-                                    $activeInput = richTextInputs[index].api;
+                                    $focusedInput = richTextInputs[index].api;
                                 }}
                                 on:focusout={() => {
-                                    $activeInput = null;
+                                    $focusedInput = null;
                                     saveFieldNow();
                                 }}
                                 bind:this={richTextInputs[index]}
@@ -356,10 +356,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             <PlainTextInput
                                 hidden={plainTextsHidden[index]}
                                 on:focusin={() => {
-                                    $activeInput = plainTextInputs[index].api;
+                                    $focusedInput = plainTextInputs[index].api;
                                 }}
                                 on:focusout={() => {
-                                    $activeInput = null;
+                                    $focusedInput = null;
                                     saveFieldNow();
                                 }}
                                 bind:this={plainTextInputs[index]}
