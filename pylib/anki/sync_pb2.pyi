@@ -1,1 +1,1 @@
-../../../bazel/anki/bin/pylib/anki/sync_pb2.pyi
+../../.bazel/bin/pylib/anki/sync_pb2.pyi

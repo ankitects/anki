@@ -1,1 +1,1 @@
-../../../../bazel/anki/bin/pylib/anki/_backend/fluent.py
+../../../.bazel/bin/pylib/anki/_backend/fluent.py
