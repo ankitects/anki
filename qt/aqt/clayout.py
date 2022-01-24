@@ -222,6 +222,7 @@ class CardLayout(QDialog):
         left = QWidget()
         tform = self.tform = aqt.forms.template.Ui_Form()
         tform.setupUi(left)
+        self.setup_edit_area()
         split.addWidget(left)
         split.setCollapsible(0, False)
 
@@ -233,7 +234,6 @@ class CardLayout(QDialog):
         pform.preview_back.setText(tr.card_templates_back_preview())
         pform.preview_box.setTitle(tr.card_templates_preview_box())
 
-        self.setup_edit_area()
         self.setup_preview()
         split.addWidget(right)
         split.setCollapsible(1, False)
@@ -261,6 +261,14 @@ class CardLayout(QDialog):
         self.tform.edit_area.setFont(QFont("Courier"))
         tab_width = self.fontMetrics().horizontalAdvance(" " * 4)
         self.tform.edit_area.setTabStopDistance(tab_width)
+
+        palette = tform.edit_area.palette()
+        palette.setColor(
+            QPalette.ColorGroup.Inactive,
+            QPalette.ColorRole.Highlight,
+            QColor("#4169e1" if theme_manager.night_mode else "#FFFF80"),
+        )
+        tform.edit_area.setPalette(palette)
 
         widg = tform.search_edit
         widg.setPlaceholderText("Search")
