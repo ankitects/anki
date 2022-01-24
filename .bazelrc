@@ -29,9 +29,8 @@ build:opt -c opt
 # still running, so shut them down at the end of the build.
 build:windows --worker_quit_after_build
 
-# place convenience symlinks outside of the source folder, so IDEs don't try to
-# monitor Bazel's large symlink tree for changes
-build --symlink_prefix=../bazel/anki/
+# place convenience symlinks inside a single folder for easier exclusion in IDEs
+build --symlink_prefix=.bazel/
 build --experimental_no_product_name_out_symlink
 
 # allow extra user customizations in a separate file

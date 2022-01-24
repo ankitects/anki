@@ -8,3 +8,4 @@ user.bazelrc
 rust-project.json
 node_modules
 .idea/
+.bazel

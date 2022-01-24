@@ -35,8 +35,8 @@
         "rootDir": "..",
         "rootDirs": [
             ".",
-            // for VS code
-            "../../bazel/anki/bin/ts"
+            // for VS code and svelte-check
+            "../.bazel/bin/ts"
         ],
         "baseUrl": ".",
         "paths": {},
