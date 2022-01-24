@@ -11,4 +11,3 @@ registerPackage("anki/ui", {
 });
 
 export { uiResolve };
-

@@ -10,9 +10,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { MatchResult } from "../../domlib/surround";
     import { getPlatformString } from "../../lib/shortcuts";
     import { getSurrounder } from "../surround";
-    import { boldIcon } from "./icons";
-    import { getNoteEditor } from "./NoteEditor.svelte";
+    import { getNoteEditor } from "../NoteEditor.svelte";
     import type { RichTextInputAPI } from "../rich-text-input";
+    import { editingInputIsRichText } from "../rich-text-input";
+    import { boldIcon } from "./icons";
 
     function matchBold(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
         if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
@@ -42,11 +43,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return !htmlElement.hasAttribute("style") && element.className.length === 0;
     }
 
-    const { focusInRichText, activeInput } = getNoteEditor();
+    const { activeInput } = getNoteEditor();
 
-    $: input = $activeInput;
-    $: disabled = !$focusInRichText;
-    $: surrounder = disabled ? null : getSurrounder(input as RichTextInputAPI);
+    $: input = $activeInput as RichTextInputAPI;
+    $: disabled = !editingInputIsRichText($activeInput);
+    $: surrounder = disabled ? null : getSurrounder(input);
 
     function updateStateFromActiveInput(): Promise<boolean> {
         return disabled ? Promise.resolve(false) : surrounder!.isSurrounded(matchBold);

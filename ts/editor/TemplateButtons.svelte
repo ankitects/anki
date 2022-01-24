@@ -19,9 +19,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { withButton } from "../components/helpers";
     import { paperclipIcon, micIcon, functionIcon } from "./icons";
     import type { RichTextInputAPI } from "./RichTextInput.svelte";
+    import { editingInputIsRichText } from "./RichTextInput.svelte";
 
     export let api = {};
-    const { focusInRichText, activeInput } = getNoteEditor();
+    const { activeInput } = getNoteEditor();
 
     function onAttachment(): void {
         bridgeCommand("attach");
@@ -32,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     $: richTextAPI = $activeInput as RichTextInputAPI;
-    $: disabled = !$focusInRichText;
+    $: disabled = !editingInputIsRichText($activeInput);
 
     async function surround(front: string, back: string): Promise<void> {
         const element = await richTextAPI.element;

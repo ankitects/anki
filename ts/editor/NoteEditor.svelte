@@ -4,15 +4,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { EditorFieldAPI } from "./EditorField.svelte";
-    import type { RichTextInputAPI } from "./RichTextInput.svelte";
-    import type { PlainTextInputAPI } from "./PlainTextInput.svelte";
+    import type { EditingInputAPI } from "./EditingArea.svelte";
     import type { EditorToolbarAPI } from "./EditorToolbar.svelte";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
         currentField: Writable<EditorFieldAPI | null>;
-        activeInput: Writable<RichTextInputAPI | PlainTextInputAPI | null>;
-        focusInRichText: Writable<boolean>;
+        activeInput: Writable<EditingInputAPI | null>;
         toolbar: EditorToolbarAPI;
     }
 
@@ -22,7 +20,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { registerPackage } from "../lib/register-package";
 
     const key = Symbol("noteEditor");
-
     const {
         setContextProperty,
         get: getNoteEditor,
@@ -45,9 +42,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         onNoteEditorDestroy,
         noteEditorInstances,
     });
-
-    const activeInput = writable<RichTextInputAPI | PlainTextInputAPI | null>(null);
-    const currentField = writable<EditorFieldAPI | null>(null);
 </script>
 
 <script lang="ts">
@@ -64,7 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DuplicateLink from "./DuplicateLink.svelte";
 
     import DecoratedElements from "./DecoratedElements.svelte";
-    import RichTextInput from "./RichTextInput.svelte";
+    import RichTextInput, { editingInputIsRichText } from "./RichTextInput.svelte";
     import { MathjaxHandle } from "./mathjax-overlay";
     import { ImageHandle } from "./image-overlay";
     import PlainTextInput from "./PlainTextInput.svelte";
@@ -237,8 +231,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let plainTextInputs: PlainTextInput[] = [];
     $: plainTextInputs = plainTextInputs.filter(Boolean);
 
-    const focusInRichText = writable<boolean>(false);
-
     let toolbar: Partial<EditorToolbarAPI> = {};
 
     import { wrapInternal } from "../lib/wrap";
@@ -246,13 +238,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     onMount(() => {
         function wrap(before: string, after: string): void {
-            if (!get(focusInRichText)) {
+            if (!$activeInput || !editingInputIsRichText($activeInput)) {
                 return;
             }
 
-            const input = get(activeInput!) as RichTextInputAPI;
-
-            input.element.then((element) => {
+            $activeInput.element.then((element) => {
                 wrapInternal(element, before, after, false);
             });
         }
@@ -280,11 +270,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let apiPartial: Partial<NoteEditorAPI> = {};
     export { apiPartial as api };
 
+    const currentField: NoteEditorAPI["currentField"] = writable(null);
+    const activeInput: NoteEditorAPI["activeInput"] = writable(null);
+
     const api: NoteEditorAPI = {
         ...apiPartial,
         currentField,
         activeInput,
-        focusInRichText,
         toolbar: toolbar as EditorToolbarAPI,
         fields,
     };
@@ -348,11 +340,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             <RichTextInput
                                 hidden={richTextsHidden[index]}
                                 on:focusin={() => {
-                                    $focusInRichText = true;
                                     $activeInput = richTextInputs[index].api;
                                 }}
                                 on:focusout={() => {
-                                    $focusInRichText = false;
                                     $activeInput = null;
                                     saveFieldNow();
                                 }}

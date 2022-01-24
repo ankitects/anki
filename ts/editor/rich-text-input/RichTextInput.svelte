@@ -27,6 +27,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         getTriggerAfterInput(): Trigger<OnInputCallback>;
     }
 
+    export function editingInputIsRichText(
+        editingInput: EditingInputAPI | null,
+    ): editingInput is RichTextInputAPI {
+        return editingInput ? editingInput.name === "rich-text" : false;
+    }
+
     export interface RichTextInputContextAPI {
         styles: CustomStyles;
         container: HTMLElement;
@@ -40,8 +46,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         has: hasRichTextInput,
     } = contextProperty<RichTextInputContextAPI>(key);
 
-    export { getRichTextInput, hasRichTextInput };
-
     import getDOMMirror from "../../sveltelib/mirror-dom";
     import getInputManager from "../../sveltelib/input-manager";
 
@@ -52,7 +56,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         getTriggerOnNextInsert,
     } = getInputManager();
 
-    export { getTriggerAfterInput, getTriggerOnInput, getTriggerOnNextInsert };
+    export {
+        getRichTextInput,
+        hasRichTextInput,
+        getTriggerAfterInput,
+        getTriggerOnInput,
+        getTriggerOnNextInsert,
+    };
 </script>
 
 <script lang="ts">
