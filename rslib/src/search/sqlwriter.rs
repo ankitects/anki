@@ -455,20 +455,20 @@ impl SqlWriter<'_> {
 
         self.args.push(format!("(?i){}", val));
         let arg_idx = self.args.len();
+
+        let map_notetype = |(mid, fields): &(NotetypeId, Vec<u32>)| {
+            format!(
+                "(n.mid = {} and regexp_fields(?{}, n.flds, {}))",
+                mid,
+                arg_idx,
+                fields.iter().join(", "),
+            )
+        };
+
         write!(
             self.sql,
             "({})",
-            field_map
-                .iter()
-                .map(|(mid, fields)| {
-                    format!(
-                        "(n.mid = {} and regexp_fields(?{}, n.flds, {}))",
-                        mid,
-                        arg_idx,
-                        fields.iter().join(", "),
-                    )
-                })
-                .join(" or ")
+            field_map.iter().map(map_notetype).join(" or ")
         )
         .unwrap();
 
@@ -484,27 +484,20 @@ impl SqlWriter<'_> {
 
         self.args.push(to_sql(val).into());
         let arg_idx = self.args.len();
+
+        let map_notetype = |(mid, fields): &(NotetypeId, Vec<u32>)| {
+            let map_field =
+                |ord| format!("field_at_index(n.flds, {ord}) like ?{arg_idx} escape '\\'",);
+            format!(
+                "(n.mid = {mid} and ({}))",
+                fields.iter().map(map_field).join(" or ")
+            )
+        };
+
         write!(
             self.sql,
             "({})",
-            field_map
-                .iter()
-                .map(|(mid, fields)| {
-                    format!(
-                        "(n.mid = {} and ({}))",
-                        mid,
-                        fields
-                            .iter()
-                            .map(|ord| {
-                                format!(
-                                    "field_at_index(n.flds, {}) like ?{} escape '\\'",
-                                    ord, arg_idx
-                                )
-                            })
-                            .join(" or "),
-                    )
-                })
-                .join(" or ")
+            field_map.iter().map(map_notetype).join(" or ")
         )
         .unwrap();
 
