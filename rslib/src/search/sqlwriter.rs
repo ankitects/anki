@@ -447,8 +447,8 @@ impl SqlWriter<'_> {
     }
 
     fn write_single_field_regexp(&mut self, field_name: &str, val: &str) -> Result<()> {
-        let field_map = self.field_map(field_name)?;
-        if field_map.is_empty() {
+        let field_indicies_by_notetype = self.fields_indices_by_notetype(field_name)?;
+        if field_indicies_by_notetype.is_empty() {
             write!(self.sql, "false").unwrap();
             return Ok(());
         }
@@ -456,28 +456,22 @@ impl SqlWriter<'_> {
         self.args.push(format!("(?i){}", val));
         let arg_idx = self.args.len();
 
-        let map_notetype = |(mid, fields): &(NotetypeId, Vec<u32>)| {
-            format!(
-                "(n.mid = {} and regexp_fields(?{}, n.flds, {}))",
-                mid,
-                arg_idx,
-                fields.iter().join(", "),
-            )
-        };
+        let all_notetype_clauses = field_indicies_by_notetype
+            .iter()
+            .map(|(mid, field_indices)| {
+                let field_index_list = field_indices.iter().join(", ");
+                format!("(n.mid = {mid} and regexp_fields(?{arg_idx}, n.flds, {field_index_list}))")
+            })
+            .join(" or ");
 
-        write!(
-            self.sql,
-            "({})",
-            field_map.iter().map(map_notetype).join(" or ")
-        )
-        .unwrap();
+        write!(self.sql, "({all_notetype_clauses})").unwrap();
 
         Ok(())
     }
 
     fn write_single_field(&mut self, field_name: &str, val: &str) -> Result<()> {
-        let field_map = self.field_map(field_name)?;
-        if field_map.is_empty() {
+        let field_indicies_by_notetype = self.fields_indices_by_notetype(field_name)?;
+        if field_indicies_by_notetype.is_empty() {
             write!(self.sql, "false").unwrap();
             return Ok(());
         }
@@ -485,26 +479,25 @@ impl SqlWriter<'_> {
         self.args.push(to_sql(val).into());
         let arg_idx = self.args.len();
 
-        let map_notetype = |(mid, fields): &(NotetypeId, Vec<u32>)| {
-            let map_field =
+        let notetype_clause = |(mid, fields): &(NotetypeId, Vec<u32>)| -> String {
+            let field_index_clause =
                 |ord| format!("field_at_index(n.flds, {ord}) like ?{arg_idx} escape '\\'",);
-            format!(
-                "(n.mid = {mid} and ({}))",
-                fields.iter().map(map_field).join(" or ")
-            )
+            let all_field_clauses = fields.iter().map(field_index_clause).join(" or ");
+            format!("(n.mid = {mid} and ({all_field_clauses}))",)
         };
-
-        write!(
-            self.sql,
-            "({})",
-            field_map.iter().map(map_notetype).join(" or ")
-        )
-        .unwrap();
+        let all_notetype_clauses = field_indicies_by_notetype
+            .iter()
+            .map(notetype_clause)
+            .join(" or ");
+        write!(self.sql, "({all_notetype_clauses})").unwrap();
 
         Ok(())
     }
 
-    fn field_map(&mut self, field_name: &str) -> Result<Vec<(NotetypeId, Vec<u32>)>> {
+    fn fields_indices_by_notetype(
+        &mut self,
+        field_name: &str,
+    ) -> Result<Vec<(NotetypeId, Vec<u32>)>> {
         let notetypes = self.col.get_all_notetypes()?;
         let matches_glob = glob_matcher(field_name);
 
