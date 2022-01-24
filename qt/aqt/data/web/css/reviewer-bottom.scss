@@ -52,11 +52,25 @@ button {
 .focus {
     outline: 5px auto var(--focus-color);
 
+    .nightMode & {
+        outline: unset;
+        box-shadow: 0 0 0 2px var(--focus-color);
+    }
+
     #innertable:focus-within & {
         outline: unset;
 
+        .nightMode & {
+            box-shadow: unset;
+        }
+
         &:focus {
             outline: 5px auto var(--focus-color);
+
+            .nightMode & {
+                outline: unset;
+                box-shadow: 0 0 0 2px var(--focus-color);
+            }
         }
     }
 }
