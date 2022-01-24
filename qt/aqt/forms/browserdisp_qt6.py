@@ -1,1 +1,1 @@
-../../../../bazel/anki/bin/qt/aqt/forms/browserdisp_qt6.py
+../../../.bazel/bin/qt/aqt/forms/browserdisp_qt6.py

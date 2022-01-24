@@ -1,1 +1,1 @@
-../../../bazel/anki/bin/pylib/anki/notetypes_pb2.pyi
+../../.bazel/bin/pylib/anki/notetypes_pb2.pyi

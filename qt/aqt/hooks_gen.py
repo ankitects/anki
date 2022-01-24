@@ -1,1 +1,1 @@
-../../../bazel/anki/bin/qt/aqt/hooks_gen.py
+../../.bazel/bin/qt/aqt/hooks_gen.py
