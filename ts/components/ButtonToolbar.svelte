@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import type { Identifier } from "./identifier";
-    import type { SvelteComponent } from "./registration";
+    import type { Identifier } from "../lib/identifier";
+    import type { SvelteComponent } from "../sveltelib/registration";
 
     export interface ButtonToolbarAPI {
         insertGroup(button: SvelteComponent, position: Identifier): void;
@@ -19,10 +19,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { setContext } from "svelte";
     import { writable } from "svelte/store";
     import Item from "./Item.svelte";
-    import type { Registration } from "./registration";
+    import type { Registration } from "../sveltelib/registration";
+    import { makeInterface } from "../sveltelib/registration";
     import { sectionKey } from "./context-keys";
-    import { insertElement, appendElement } from "./identifier";
-    import { makeInterface } from "./registration";
+    import { insertElement, appendElement } from "../lib/identifier";
     import { pageTheme } from "../sveltelib/theme";
 
     export let id: string | undefined = undefined;

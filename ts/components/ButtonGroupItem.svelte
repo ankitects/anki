@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import type { ButtonRegistration } from "./buttons";
     import { ButtonPosition } from "./buttons";
-    import type { Register } from "./registration";
+    import type { Register } from "../sveltelib/registration";
 
     import { getContext, hasContext } from "svelte";
     import { buttonGroupKey } from "./context-keys";

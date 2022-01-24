@@ -3,8 +3,9 @@
 import type { SvelteComponentTyped } from "svelte/internal";
 import type { Writable, Readable } from "svelte/store";
 import { writable } from "svelte/store";
-import type { Identifier } from "./identifier";
-import { findElement } from "./identifier";
+import type { Identifier } from "../lib/identifier";
+import { findElement } from "../lib/identifier";
+import { nodeIsElement } from "../lib/dom";
 
 export interface SvelteComponent {
     component: SvelteComponentTyped;
@@ -34,10 +35,6 @@ export interface DynamicRegistrationAPI<T> {
         update: (registration: T) => void,
         position: Identifier,
     ) => void;
-}
-
-export function nodeIsElement(node: Node): node is Element {
-    return node.nodeType === Node.ELEMENT_NODE;
 }
 
 export function makeInterface<T extends Registration>(

@@ -5,12 +5,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { setContext } from "svelte";
     import { writable } from "svelte/store";
+    import type { Identifier } from "../lib/identifier";
+    import { insertElement, appendElement } from "../lib/identifier";
+    import type { SvelteComponent, Registration } from "../sveltelib/registration";
+    import { makeInterface } from "../sveltelib/registration";
     import Item from "./Item.svelte";
     import { sectionKey } from "./context-keys";
-    import type { Identifier } from "./identifier";
-    import { insertElement, appendElement } from "./identifier";
-    import type { SvelteComponent, Registration } from "./registration";
-    import { makeInterface } from "./registration";
 
     export let id: string | undefined = undefined;
 
