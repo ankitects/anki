@@ -14,7 +14,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "../../lib/bridgecommand";
     import { getPlatformString } from "../../lib/shortcuts";
     import { execCommand } from "../helpers";
-    import { getNoteEditor } from "../OldEditorAdapter.svelte";
+    import { getNoteEditor } from "../NoteEditor.svelte";
+    import { editingInputIsRichText } from "../rich-text-input";
     import { textColorIcon, highlightColorIcon, arrowIcon } from "./icons";
 
     export let api = {};
@@ -35,8 +36,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         execCommand("backcolor", false, color);
     };
 
-    const { focusInRichText } = getNoteEditor();
-    $: disabled = !$focusInRichText;
+    const { activeInput } = getNoteEditor();
+    $: disabled = !editingInputIsRichText($activeInput);
 </script>
 
 <ButtonGroup {api}>

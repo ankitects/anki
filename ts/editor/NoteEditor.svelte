@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import type { EditorFieldAPI } from "./EditorField.svelte";
     import type { EditingInputAPI } from "./EditingArea.svelte";
-    import type { EditorToolbarAPI } from "./EditorToolbar.svelte";
+    import type { EditorToolbarAPI } from "./editor-toolbar";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
@@ -45,37 +45,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import { onMount } from "svelte";
+    import type { Writable } from "svelte/store";
+    import { get } from "svelte/store";
+    import Absolute from "../components/Absolute.svelte";
+    import Badge from "../components/Badge.svelte";
+    import { bridgeCommand } from "../lib/bridgecommand";
+    import { isApplePlatform } from "../lib/platform";
+
     import FieldsEditor from "./FieldsEditor.svelte";
     import Fields from "./Fields.svelte";
     import EditorField from "./EditorField.svelte";
     import type { FieldData } from "./EditorField.svelte";
-    import TagEditor from "./TagEditor.svelte";
+    import { TagEditor } from "./tag-editor";
 
-    import EditorToolbar from "./EditorToolbar.svelte";
+    import { EditorToolbar } from "./editor-toolbar";
     import Notification from "./Notification.svelte";
-    import Absolute from "../components/Absolute.svelte";
-    import Badge from "../components/Badge.svelte";
     import DuplicateLink from "./DuplicateLink.svelte";
 
     import DecoratedElements from "./DecoratedElements.svelte";
-    import RichTextInput, { editingInputIsRichText } from "./RichTextInput.svelte";
+    import { RichTextInput, editingInputIsRichText } from "./rich-text-input";
+    import { PlainTextInput } from "./plain-text-input";
     import { MathjaxHandle } from "./mathjax-overlay";
     import { ImageHandle } from "./image-overlay";
-    import PlainTextInput from "./PlainTextInput.svelte";
     import MathjaxElement from "./MathjaxElement.svelte";
     import FrameElement from "./FrameElement.svelte";
 
     import RichTextBadge from "./RichTextBadge.svelte";
     import PlainTextBadge from "./PlainTextBadge.svelte";
 
-    import { onMount } from "svelte";
-    import type { Writable } from "svelte/store";
-    import { get } from "svelte/store";
-    import { bridgeCommand } from "../lib/bridgecommand";
-    import { isApplePlatform } from "../lib/platform";
     import { ChangeTimer } from "./change-timer";
-    import { alertIcon } from "./icons";
     import { clearableArray } from "./destroyable";
+    import { alertIcon } from "./icons";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted

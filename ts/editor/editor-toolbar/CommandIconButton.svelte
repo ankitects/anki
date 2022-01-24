@@ -8,7 +8,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithState from "../../components/WithState.svelte";
 
     import { execCommand, queryCommandState } from "../helpers";
-    import { getNoteEditor } from "../OldEditorAdapter.svelte";
+    import { getNoteEditor } from "../NoteEditor.svelte";
+    import { editingInputIsRichText } from "../rich-text-input";
 
     export let key: string;
     export let tooltip: string;
@@ -17,13 +18,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let withoutShortcut = false;
     export let withoutState = false;
 
-    const { focusInRichText } = getNoteEditor();
+    const { activeInput } = getNoteEditor();
 
     function action() {
         execCommand(key);
     }
 
-    $: disabled = !$focusInRichText;
+    $: disabled = !editingInputIsRichText($activeInput);
 </script>
 
 {#if withoutState}

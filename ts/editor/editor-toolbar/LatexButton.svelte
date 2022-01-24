@@ -13,10 +13,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getPlatformString } from "../../lib/shortcuts";
     import { wrapInternal } from "../../lib/wrap";
     import { functionIcon } from "./icons";
-    import { getNoteEditor } from "../OldEditorAdapter.svelte";
+    import { getNoteEditor } from "../NoteEditor.svelte";
     import type { RichTextInputAPI } from "../rich-text-input";
+    import { editingInputIsRichText } from "../rich-text-input";
 
-    const { activeInput, focusInRichText } = getNoteEditor();
+    const { activeInput } = getNoteEditor();
     $: richTextAPI = $activeInput as RichTextInputAPI;
 
     async function surround(front: string, back: string): Promise<void> {
@@ -59,7 +60,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         [onLatexMathEnv, "Control+T, M", tr.editingLatexMathEnv()],
     ];
 
-    $: disabled = !$focusInRichText;
+    $: disabled = !editingInputIsRichText($activeInput);
 </script>
 
 <WithDropdown let:createDropdown>

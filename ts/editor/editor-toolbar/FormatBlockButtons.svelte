@@ -28,7 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         outdentIcon,
     } from "./icons";
     import { getNoteEditor } from "../NoteEditor.svelte";
-    import { editingInputIsRichText } from "../RichTextInput.svelte";
+    import { editingInputIsRichText } from "../rich-text-input";
 
     export let api = {};
 
