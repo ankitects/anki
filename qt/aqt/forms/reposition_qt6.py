@@ -1,1 +1,1 @@
-../../../../bazel/anki/bin/qt/aqt/forms/reposition_qt6.py
+../../../.bazel/bin/qt/aqt/forms/reposition_qt6.py
