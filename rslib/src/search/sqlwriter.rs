@@ -510,14 +510,14 @@ impl SqlWriter<'_> {
 
         let mut field_map = vec![];
         for nt in notetypes.values() {
-            let mut nt_fields = vec![];
+            let mut matched_fields = vec![];
             for field in &nt.fields {
                 if matches_glob(&field.name) {
-                    nt_fields.push(field.ord.unwrap_or_default());
+                    matched_fields.push(field.ord.unwrap_or_default());
                 }
             }
-            if !nt_fields.is_empty() {
-                field_map.push((nt.id, nt_fields));
+            if !matched_fields.is_empty() {
+                field_map.push((nt.id, matched_fields));
             }
         }
 
