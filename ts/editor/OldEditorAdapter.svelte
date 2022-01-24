@@ -4,9 +4,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { EditorFieldAPI } from "./EditorField.svelte";
-    import type { RichTextInputAPI } from "./RichTextInput.svelte";
-    import type { PlainTextInputAPI } from "./PlainTextInput.svelte";
-    import type { EditorToolbarAPI } from "./EditorToolbar.svelte";
+    import type { RichTextInputAPI } from "./rich-text-input";
+    import type { PlainTextInputAPI } from "./plain-text-input";
+    import type { EditorToolbarAPI } from "./editor-toolbar";
 
     import contextProperty from "../sveltelib/context-property";
     import { writable, get } from "svelte/store";
@@ -34,19 +34,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Fields from "./Fields.svelte";
     import EditorField from "./EditorField.svelte";
     import type { FieldData } from "./EditorField.svelte";
-    import TagEditor from "./TagEditor.svelte";
+    import { TagEditor } from "./tag-editor";
 
-    import EditorToolbar from "./EditorToolbar.svelte";
+    import { EditorToolbar } from "./editor-toolbar";
     import Notification from "./Notification.svelte";
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
     import DuplicateLink from "./DuplicateLink.svelte";
 
     import DecoratedElements from "./DecoratedElements.svelte";
-    import RichTextInput from "./RichTextInput.svelte";
+    import { RichTextInput } from "./rich-text-input";
     import { MathjaxHandle } from "./mathjax-overlay";
     import { ImageHandle } from "./image-overlay";
-    import PlainTextInput from "./PlainTextInput.svelte";
+    import { PlainTextInput } from "./plain-text-input";
     import MathjaxElement from "./MathjaxElement.svelte";
     import FrameElement from "./FrameElement.svelte";
 

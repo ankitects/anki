@@ -5,7 +5,7 @@ import { get } from "svelte/store";
 import { getSelection, getRange } from "../lib/cross-browser";
 import { surroundNoSplitting, unsurround, findClosest } from "../domlib/surround";
 import type { ElementMatcher, ElementClearer } from "../domlib/surround";
-import type { RichTextInputAPI } from "./RichTextInput.svelte";
+import type { RichTextInputAPI } from "./rich-text-input";
 
 function isSurroundedInner(
     range: AbstractRange,

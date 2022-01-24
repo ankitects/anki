@@ -28,11 +28,8 @@ export const editorModules = [
     ModuleName.BROWSING,
 ];
 
-export { editorToolbar } from "./EditorToolbar.svelte";
-
 import IconButton from "../components/IconButton.svelte";
 import LabelButton from "../components/LabelButton.svelte";
-import WithShortcut from "../components/WithShortcut.svelte";
 import WithContext from "../components/WithContext.svelte";
 import WithState from "../components/WithState.svelte";
 
@@ -42,8 +39,9 @@ import * as editorContextKeys from "./NoteEditor.svelte";
 export const components = {
     IconButton,
     LabelButton,
-    WithShortcut,
     WithContext,
     WithState,
     contextKeys: { ...contextKeys, ...editorContextKeys },
 };
+
+export { editorToolbar } from "./editor-toolbar";

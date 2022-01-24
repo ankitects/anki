@@ -259,6 +259,11 @@ class AnkiWebView(QWebEngineView):
     def disable_zoom(self) -> None:
         self._disable_zoom = True
 
+    def createWindow(self, windowType: QWebEnginePage.WebWindowType) -> QWebEngineView:
+        # intercept opening a new window (hrefs
+        # with target="_blank") and return view
+        return AnkiWebView()
+
     def eventFilter(self, obj: QObject, evt: QEvent) -> bool:
         if self._disable_zoom and is_gesture_or_zoom_event(evt):
             return True

@@ -19,6 +19,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:tagdelete
         />
     {:else}
-        <AddTagBadge --badge-align="-webkit-baseline-middle" on:click />
+        <AddTagBadge --badge-align="-webkit-baseline-middle" on:tagappend />
     {/if}
 </div>
