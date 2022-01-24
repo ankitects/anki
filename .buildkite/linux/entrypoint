@@ -7,7 +7,7 @@ echo "--- Checking CONTRIBUTORS"
 .buildkite/linux/check_contributors
 
 BAZEL="bazel --output_user_root=/state/bazel --output_base=/state/bazel/anki"
-BUILDARGS="--config=ci --experimental_convenience_symlinks=ignore --disk_cache=/state/bazel/disk --repository_cache=/state/bazel/repo"
+BUILDARGS="--config=ci --disk_cache=/state/bazel/disk --repository_cache=/state/bazel/repo"
 
 echo "+++ Building and testing"
 
@@ -15,9 +15,6 @@ echo "+++ Building and testing"
 test -e /state/node_modules && mv /state/node_modules .
 
 $BAZEL test $BUILDARGS ... //rslib/linkchecker
-
-echo "--- Building wheels"
-$BAZEL build dist
 
 echo "--- Running lints"
 python scripts/copyright_headers.py

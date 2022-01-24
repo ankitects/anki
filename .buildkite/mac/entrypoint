@@ -14,6 +14,8 @@ test -e $STATE/node_modules && mv $STATE/node_modules .
 
 $BAZEL test $BUILDARGS ...
 
-echo "--- Cleanup"
+echo "--- Building wheels"
+$BAZEL build dist
+
 # if tests succeed, back up node_modules folder
 mv node_modules $STATE/
