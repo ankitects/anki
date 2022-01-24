@@ -706,7 +706,7 @@ mod test {
         // user should be able to escape wildcards
         assert_eq!(s(ctx, r#"te\*s\_t"#).1, vec!["%te*s\\_t%".to_string()]);
 
-        // qualified search
+        // field search
         assert_eq!(
             s(ctx, "front:te*st"),
             (
@@ -718,6 +718,36 @@ mod test {
                 )
                 .into(),
                 vec!["te%st".into()]
+            )
+        );
+        // field search with regex
+        assert_eq!(
+            s(ctx, "front:re:te.*st"),
+            (
+                concat!(
+                    "(((n.mid = 1581236385344 and regexp_fields(?1, n.flds, 0)) or ",
+                    "(n.mid = 1581236385345 and regexp_fields(?1, n.flds, 0)) or ",
+                    "(n.mid = 1581236385346 and regexp_fields(?1, n.flds, 0)) or ",
+                    "(n.mid = 1581236385347 and regexp_fields(?1, n.flds, 0))))"
+                )
+                .into(),
+                vec!["(?i)te.*st".into()]
+            )
+        );
+        // all field search
+        assert_eq!(
+            s(ctx, "*:te*st"),
+            (
+                "(regexp_fields(?1, n.flds))".into(),
+                vec!["(?i)^te.*st$".into()]
+            )
+        );
+        // all field search with regex
+        assert_eq!(
+            s(ctx, "*:re:te.*st"),
+            (
+                "(regexp_fields(?1, n.flds))".into(),
+                vec!["(?i)te.*st".into()]
             )
         );
 
