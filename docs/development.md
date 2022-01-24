@@ -194,43 +194,9 @@ build --disk_cache=~/.cache/bazel/disk
 It will grow with each changed build, and needs to be manually removed
 when you wish to free up space.
 
-## Python editing
+## IDEs
 
-PyCharm or IntelliJ IDEA seems to give the best Python editing experience. Make sure
-you build/run Anki first, as code completion depends on the build process to generate
-a bunch of files.
-
-After telling PyCharm to create a new virtual environment for your project, locate
-pip in the virtual environment, and run `pip install -r pip/requirements.txt` to install
-all of Anki's dependencies into the environment, so that code completion works for them.
-Then run `pip install pyqt6 pyqt6-webengine` to install PyQt.
-
-Visual Studio Code + the Python extension does support code completion, but Pylance
-doesn't do a great job understanding the type annotations.
-
-## Rust editing
-
-Currently Visual Studio Code + Rust Analyzer seems to be the best option out
-there. Once Rust Analyzer is installed, you'll want to enable the options to
-expand proc macros and build scripts, and run cargo check on startup. Adding
-`+nightly` as an extra arg to rustfmt will get you nicer automatic formatting
-of `use` statements.
-
-The Bazel build products will make RA start up slowly out of the box. For a much
-nicer experience, add each of the `bazel-*` folders to Rust Analyzer's excludeDirs
-settings, and node_modules. Wildcards don't work unfortunately. Then adjust
-VS Code's "watcher exclude", and add `\*\*/bazel-*`.
-
-After running `code .` from the project root, it may take a minute or two to be
-ready.
-
-## TypeScript editing
-
-Visual Studio Code seems to give the best experience. Use `code ts` or `code .`
-from the project root to start it up.
-
-IntelliJ IDEA works reasonably well, but doesn't seem to do as good a job at offering
-useful completions for things like translation strings.
+Please see [this separate page](./editing.md) for setting up an editor/IDE.
 
 ## Audio
 
