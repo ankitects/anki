@@ -3,16 +3,16 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "../lib/ftl";
-    import IconButton from "../components/IconButton.svelte";
-    import Shortcut from "../components/Shortcut.svelte";
-    import WithState from "../components/WithState.svelte";
-    import { MatchResult } from "../domlib/surround";
-    import { getPlatformString } from "../lib/shortcuts";
-    import { getSurrounder } from "./surround";
+    import * as tr from "../../lib/ftl";
+    import IconButton from "../../components/IconButton.svelte";
+    import Shortcut from "../../components/Shortcut.svelte";
+    import WithState from "../../components/WithState.svelte";
+    import { MatchResult } from "../../domlib/surround";
+    import { getPlatformString } from "../../lib/shortcuts";
+    import { getSurrounder } from "../surround";
     import { italicIcon } from "./icons";
-    import { getNoteEditor } from "./OldEditorAdapter.svelte";
-    import type { RichTextInputAPI } from "./RichTextInput.svelte";
+    import { getNoteEditor } from "../OldEditorAdapter.svelte";
+    import type { RichTextInputAPI } from "../rich-text-input";
 
     function matchItalic(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
         if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
