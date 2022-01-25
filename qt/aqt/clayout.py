@@ -269,6 +269,11 @@ class CardLayout(QDialog):
             QPalette.ColorRole.Highlight,
             QColor("#4169e1" if theme_manager.night_mode else "#FFFF80"),
         )
+        palette.setColor(
+            QPalette.ColorGroup.Inactive,
+            QPalette.ColorRole.HighlightedText,
+            QColor("#ffffff" if theme_manager.night_mode else "#000000"),
+        )
         editor.setPalette(palette)
 
         widg = tform.search_edit
