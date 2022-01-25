@@ -3,12 +3,12 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import type { Identifier } from "../lib/identifier";
-    import type { SvelteComponent } from "../sveltelib/registration";
+    import type { Identifier } from "../lib/children-access";
+    import type { DynamicSvelteComponent } from "../sveltelib/registration";
 
     export interface ButtonToolbarAPI {
-        insertGroup(button: SvelteComponent, position: Identifier): void;
-        appendGroup(button: SvelteComponent, position: Identifier): void;
+        insertGroup(button: DynamicSvelteComponent, position: Identifier): void;
+        appendGroup(button: DynamicSvelteComponent, position: Identifier): void;
         showGroup(position: Identifier): void;
         hideGroup(position: Identifier): void;
         toggleGroup(position: Identifier): void;
@@ -20,9 +20,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
     import Item from "./Item.svelte";
     import type { Registration } from "../sveltelib/registration";
-    import { makeInterface } from "../sveltelib/registration";
+    import dynamicMounting from "../sveltelib/registration";
     import { sectionKey } from "./context-keys";
-    import { insertElement, appendElement } from "../lib/identifier";
     import { pageTheme } from "../sveltelib/theme";
 
     export let id: string | undefined = undefined;
@@ -42,64 +41,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: style = buttonSize + buttonWrap;
 
+    export let api: Partial<ButtonToolbarAPI> | undefined = undefined;
+
     function makeRegistration(): Registration {
         const detach = writable(false);
         return { detach };
     }
 
-    const { registerComponent, dynamicItems, getDynamicInterface } =
-        makeInterface(makeRegistration);
+    const { dynamicItems, registerComponent, createInterface, resolve } =
+        dynamicMounting(makeRegistration);
 
-    setContext(sectionKey, registerComponent);
-
-    export let api: Partial<ButtonToolbarAPI> | undefined = undefined;
-    let buttonToolbarRef: HTMLDivElement;
-
-    function createApi(): void {
-        const { addComponent, updateRegistration } =
-            getDynamicInterface(buttonToolbarRef);
-
-        const insertGroup = (group: SvelteComponent, position: Identifier = 0) =>
-            addComponent(group, (added, parent) =>
-                insertElement(added, parent, position),
-            );
-        const appendGroup = (group: SvelteComponent, position: Identifier = -1) =>
-            addComponent(group, (added, parent) =>
-                appendElement(added, parent, position),
-            );
-
-        const showGroup = (id: Identifier) =>
-            updateRegistration(({ detach }) => detach.set(false), id);
-        const hideGroup = (id: Identifier) =>
-            updateRegistration(({ detach }) => detach.set(true), id);
-        const toggleGroup = (id: Identifier) =>
-            updateRegistration(
-                ({ detach }) => detach.update((old: boolean): boolean => !old),
-                id,
-            );
-
-        Object.assign(api, {
-            insertGroup,
-            appendGroup,
-            showGroup,
-            hideGroup,
-            toggleGroup,
-        });
-    }
-
-    $: if (buttonToolbarRef && api) {
-        createApi();
+    if (api) {
+        setContext(sectionKey, registerComponent);
+        Object.assign(api, createInterface());
     }
 </script>
 
 <div
-    bind:this={buttonToolbarRef}
     {id}
     class="button-toolbar btn-toolbar {className}"
     class:nightMode={$pageTheme.isDark}
     {style}
     role="toolbar"
     on:focusout
+    use:resolve
 >
     <slot />
     {#each $dynamicItems as item}

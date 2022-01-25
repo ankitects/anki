@@ -3,34 +3,32 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import type { SvelteComponent } from "../sveltelib/registration";
-    import type { Identifier } from "../lib/identifier";
+    /* import type { SvelteComponent } from "../sveltelib/registration"; */
+    /* import type { Identifier } from "../lib/identifier"; */
 
     export interface ButtonGroupAPI {
-        insertButton(button: SvelteComponent, position: Identifier): void;
-        appendButton(button: SvelteComponent, position: Identifier): void;
-        showButton(position: Identifier): void;
-        hideButton(position: Identifier): void;
-        toggleButton(position: Identifier): void;
+        /* insertButton(button: SvelteComponent, position: Identifier): void; */
+        /* appendButton(button: SvelteComponent, position: Identifier): void; */
+        /* showButton(position: Identifier): void; */
+        /* hideButton(position: Identifier): void; */
+        /* toggleButton(position: Identifier): void; */
     }
 </script>
 
 <script lang="ts">
-    import { makeInterface } from "../sveltelib/registration";
-    import { insertElement, appendElement } from "../lib/identifier";
     import ButtonGroupItem from "./ButtonGroupItem.svelte";
     import { setContext } from "svelte";
     import { writable } from "svelte/store";
     import { buttonGroupKey } from "./context-keys";
     import type { ButtonRegistration } from "./buttons";
     import { ButtonPosition } from "./buttons";
+    import dynamicMounting from "../sveltelib/registration";
 
     export let id: string | undefined = undefined;
     let className: string = "";
     export { className as class };
 
     export let size: number | undefined = undefined;
-
     export let wrap: boolean | undefined = undefined;
 
     $: buttonSize = size ? `--buttons-size: ${size}rem; ` : "";
@@ -43,14 +41,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: style = buttonSize + buttonWrap;
 
+    export let api: Partial<ButtonGroupAPI> | undefined = undefined;
+
     function makeRegistration(): ButtonRegistration {
         const detach = writable(false);
         const position = writable(ButtonPosition.Standalone);
         return { detach, position };
     }
 
-    const { registerComponent, items, dynamicItems, getDynamicInterface } =
-        makeInterface(makeRegistration);
+    const { items, dynamicItems, registerComponent, createInterface, resolve } =
+        dynamicMounting(makeRegistration);
 
     $: for (const [index, item] of $items.entries()) {
         item.position.update(() => {
@@ -66,55 +66,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    setContext(buttonGroupKey, registerComponent);
-
-    export let api: Partial<ButtonGroupAPI> | undefined = undefined;
-    let buttonGroupRef: HTMLDivElement;
-
-    function createApi(): void {
-        const { addComponent, updateRegistration } =
-            getDynamicInterface(buttonGroupRef);
-
-        const insertButton = (button: SvelteComponent, position: Identifier = 0) =>
-            addComponent(button, (added, parent) =>
-                insertElement(added, parent, position),
-            );
-        const appendButton = (button: SvelteComponent, position: Identifier = -1) =>
-            addComponent(button, (added, parent) =>
-                appendElement(added, parent, position),
-            );
-
-        const showButton = (id: Identifier) =>
-            updateRegistration(({ detach }) => detach.set(false), id);
-        const hideButton = (id: Identifier) =>
-            updateRegistration(({ detach }) => detach.set(true), id);
-        const toggleButton = (id: Identifier) =>
-            updateRegistration(
-                ({ detach }) => detach.update((old: boolean): boolean => !old),
-                id,
-            );
-
-        Object.assign(api, {
-            insertButton,
-            appendButton,
-            showButton,
-            hideButton,
-            toggleButton,
-        } as ButtonGroupAPI);
-    }
-
-    $: if (api && buttonGroupRef) {
-        createApi();
+    if (api) {
+        setContext(buttonGroupKey, registerComponent);
+        Object.assign(api, createInterface());
     }
 </script>
 
 <div
-    bind:this={buttonGroupRef}
     {id}
     class="button-group btn-group {className}"
     {style}
     dir="ltr"
     role="group"
+    use:resolve
 >
     <slot />
     {#each $dynamicItems as item (item[0].id)}

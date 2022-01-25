@@ -5,10 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { setContext } from "svelte";
     import { writable } from "svelte/store";
-    import type { Identifier } from "../lib/identifier";
-    import { insertElement, appendElement } from "../lib/identifier";
-    import type { SvelteComponent, Registration } from "../sveltelib/registration";
-    import { makeInterface } from "../sveltelib/registration";
+    import type { Registration } from "../sveltelib/registration";
+    import dynamicMounting from "../sveltelib/registration";
     import Item from "./Item.svelte";
     import { sectionKey } from "./context-keys";
 
@@ -19,41 +17,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return { detach };
     }
 
-    const { registerComponent, dynamicItems, getDynamicInterface } =
-        makeInterface(makeRegistration);
+    const { dynamicItems, registerComponent, createInterface } =
+        dynamicMounting(makeRegistration);
 
     setContext(sectionKey, registerComponent);
 
     export let api: Record<string, never> | undefined = undefined;
-    let sectionRef: HTMLDivElement;
 
-    $: if (sectionRef && api) {
-        const { addComponent, updateRegistration } = getDynamicInterface(sectionRef);
-
-        const insert = (group: SvelteComponent, position: Identifier = 0) =>
-            addComponent(group, (added, parent) =>
-                insertElement(added, parent, position),
-            );
-        const append = (group: SvelteComponent, position: Identifier = -1) =>
-            addComponent(group, (added, parent) =>
-                appendElement(added, parent, position),
-            );
-
-        const show = (id: Identifier) =>
-            updateRegistration(({ detach }) => detach.set(false), id);
-        const hide = (id: Identifier) =>
-            updateRegistration(({ detach }) => detach.set(true), id);
-        const toggle = (id: Identifier) =>
-            updateRegistration(
-                ({ detach }) => detach.update((old: boolean): boolean => !old),
-                id,
-            );
-
-        Object.assign(api, { insert, append, show, hide, toggle });
+    if (api) {
+        Object.assign(api, createInterface());
     }
 </script>
 
-<div bind:this={sectionRef} {id}>
+<div class="section" {id}>
     <slot />
     {#each $dynamicItems as item}
         <Item id={item[0].id} registration={item[1]}>
@@ -63,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
-    div {
+    .section {
         display: contents;
     }
 </style>

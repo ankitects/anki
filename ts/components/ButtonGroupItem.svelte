@@ -13,7 +13,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { buttonGroupKey } from "./context-keys";
 
     export let id: string | undefined = undefined;
-    export let registration: ButtonRegistration | undefined = undefined;
 
     let detached: boolean;
     let position_: ButtonPosition;
@@ -40,6 +39,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 break;
         }
     }
+
+    export let registration: ButtonRegistration | undefined = undefined;
 
     if (registration) {
         const { detach, position } = registration;

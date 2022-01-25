@@ -1362,7 +1362,7 @@ def set_cloze_button(editor: Editor) -> None:
     action = "show" if editor.note.note_type()["type"] == MODEL_CLOZE else "hide"
     editor.web.eval(
         'require("anki/ui").uiDidLoad.then(() =>'
-        f'require("anki/NoteEditor").noteEditorInstances[0].toolbar.templateButtons.{action}Button("cloze")'
+        f'require("anki/NoteEditor").noteEditorInstances[0].toolbar.templateButtons.{action}("cloze")'
         "); "
     )
 
