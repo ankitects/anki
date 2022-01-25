@@ -55,7 +55,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: block;
         padding: 6px;
         overflow: auto;
-        overflow-wrap: break-word;
+        overflow-wrap: anywhere;
+        /* fallback for iOS */
+        word-break: break-word;
 
         &:focus {
             outline: none;
