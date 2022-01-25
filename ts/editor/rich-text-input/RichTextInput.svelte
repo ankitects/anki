@@ -30,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export function editingInputIsRichText(
         editingInput: EditingInputAPI | null,
     ): editingInput is RichTextInputAPI {
-        return editingInput ? editingInput.name === "rich-text" : false;
+        return editingInput?.name === "rich-text";
     }
 
     export interface RichTextInputContextAPI {
