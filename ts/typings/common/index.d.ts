@@ -2,4 +2,4 @@
 /// <reference types="../../lib/shadow-dom" />
 
 // Add-on only types
-/// <reference types="./NoteEditor.svelte" />
+/// <reference types="./NoteEditor" />

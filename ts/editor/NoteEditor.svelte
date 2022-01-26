@@ -25,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export { context };
 
-    registerPackage("anki/NoteEditor.svelte", {
+    registerPackage("anki/NoteEditor", {
         context,
         lifecycle,
         instances,
