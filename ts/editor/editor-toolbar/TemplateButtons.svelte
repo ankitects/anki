@@ -13,12 +13,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../../lib/ftl";
     import { bridgeCommand } from "../../lib/bridgecommand";
     import { getPlatformString } from "../../lib/shortcuts";
-    import { getNoteEditor } from "../NoteEditor.svelte";
+    import { context } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
     import { paperclipIcon, micIcon } from "./icons";
 
-    export let api = {};
-    const { focusedInput } = getNoteEditor();
+    const { focusedInput } = context.get();
 
     const attachmentKeyCombination = "F7";
     function onAttachment(): void {
@@ -31,6 +30,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     $: disabled = !editingInputIsRichText($focusedInput);
+
+    export let api = {};
 </script>
 
 <ButtonGroup {api}>

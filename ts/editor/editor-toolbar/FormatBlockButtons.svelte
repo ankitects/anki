@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         indentIcon,
         outdentIcon,
     } from "./icons";
-    import { getNoteEditor } from "../NoteEditor.svelte";
+    import { context } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
 
     export let api = {};
@@ -50,7 +50,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    const { focusedInput } = getNoteEditor();
+    const { focusedInput } = context.get();
     $: disabled = !editingInputIsRichText($focusedInput);
 </script>
 

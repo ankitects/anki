@@ -22,13 +22,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const key = Symbol("editorField");
-    const {
-        setContextProperty,
-        get: getEditorField,
-        has: hasEditorField,
-    } = contextProperty<EditorFieldAPI>(key);
+    const [context, setContextProperty] = contextProperty<EditorFieldAPI>(key);
 
-    export { getEditorField, hasEditorField };
+    export { context };
 </script>
 
 <script lang="ts">

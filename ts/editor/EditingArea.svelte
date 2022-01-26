@@ -22,13 +22,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const key = Symbol("editingArea");
-    const {
-        setContextProperty,
-        get: getEditingArea,
-        has: hasEditingArea,
-    } = contextProperty<EditingAreaAPI>(key);
+    const [context, setContextProperty] = contextProperty<EditingAreaAPI>(key);
 
-    export { getEditingArea, hasEditingArea };
+    export { context };
 </script>
 
 <script lang="ts">

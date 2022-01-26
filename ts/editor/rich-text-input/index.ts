@@ -3,7 +3,7 @@
 
 export {
     default as RichTextInput,
-    getRichTextInput,
+    context,
     editingInputIsRichText,
 } from "./RichTextInput.svelte";
 export type { RichTextInputAPI } from "./RichTextInput.svelte";

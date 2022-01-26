@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getPlatformString } from "../../lib/shortcuts";
     import { getSurrounder } from "../surround";
     import { underlineIcon } from "./icons";
-    import { getNoteEditor } from "../NoteEditor.svelte";
+    import { context } from "../NoteEditor.svelte";
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
 
@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return MatchResult.NO_MATCH;
     }
 
-    const { focusedInput } = getNoteEditor();
+    const { focusedInput } = context.get();
 
     $: input = $focusedInput as RichTextInputAPI;
     $: disabled = !editingInputIsRichText($focusedInput);

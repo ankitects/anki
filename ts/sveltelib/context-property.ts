@@ -3,32 +3,44 @@
 
 import { setContext, getContext, hasContext } from "svelte";
 
-interface ContextProperty<T> {
-    setContextProperty(value: T): void;
-    // this typing is a lie insofar as calling `get` outside
-    // of the component's context will return undefined
+type SetContextPropertyAction<T> = (value: T) => void;
+
+export interface ContextProperty<T> {
+    /**
+     * Retrieves the component's context
+     *
+     * @remarks
+     * The typing of the return value is a lie insofar as calling `get` outside
+     * of the component's context will return `undefined`.
+     * If you are uncertain if your component is actually within the context
+     * of this component, you should check with `available` first.
+     *
+     * @returns The component's context
+     */
     get(): T;
-    has(): boolean;
+    /**
+     * Checks whether the component's context is available
+     */
+    available(): boolean;
 }
 
-function contextProperty<T>(key: symbol): ContextProperty<T> {
+function contextProperty<T>(
+    key: symbol,
+): [ContextProperty<T>, SetContextPropertyAction<T>] {
     function set(context: T): void {
         setContext(key, context);
     }
 
-    function get(): T {
-        return getContext(key);
-    }
-
-    function has(): boolean {
-        return hasContext(key);
-    }
-
-    return {
-        setContextProperty: set,
-        get,
-        has,
+    const context = {
+        get(): T {
+            return getContext(key);
+        },
+        available(): boolean {
+            return hasContext(key);
+        },
     };
+
+    return [context, set];
 }
 
 export default contextProperty;

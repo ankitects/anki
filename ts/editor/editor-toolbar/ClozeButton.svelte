@@ -10,19 +10,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { wrapInternal } from "../../lib/wrap";
     import { getPlatformString } from "../../lib/shortcuts";
     import { get } from "svelte/store";
-    import { getNoteEditor } from "../NoteEditor.svelte";
+    import { context } from "../NoteEditor.svelte";
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
     import { ellipseIcon } from "./icons";
 
-    const noteEditor = getNoteEditor();
-    const { focusedInput } = noteEditor;
+    const { focusedInput, fields } = context.get();
 
     const clozePattern = /\{\{c(\d+)::/gu;
     function getCurrentHighestCloze(increment: boolean): number {
         let highest = 0;
 
-        for (const field of noteEditor.fields) {
+        for (const field of fields) {
             const content = field.editingArea?.content;
             const fieldHTML = content ? get(content) : "";
 

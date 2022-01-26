@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { MatchResult } from "../../domlib/surround";
     import { getPlatformString } from "../../lib/shortcuts";
     import { getSurrounder } from "../surround";
-    import { getNoteEditor } from "../NoteEditor.svelte";
+    import { context } from "../NoteEditor.svelte";
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
     import { boldIcon } from "./icons";
@@ -43,7 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return !htmlElement.hasAttribute("style") && element.className.length === 0;
     }
 
-    const { focusedInput } = getNoteEditor();
+    const { focusedInput } = context.get();
 
     $: input = $focusedInput as RichTextInputAPI;
     $: disabled = !editingInputIsRichText($focusedInput);

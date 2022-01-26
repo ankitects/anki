@@ -12,13 +12,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HandleSelection from "../HandleSelection.svelte";
     import HandleControl from "../HandleControl.svelte";
     import HandleLabel from "../HandleLabel.svelte";
-    import { getRichTextInput } from "../rich-text-input";
+    import { context } from "../rich-text-input";
 
     import WithImageConstrained from "./WithImageConstrained.svelte";
     import FloatButtons from "./FloatButtons.svelte";
     import SizeSelect from "./SizeSelect.svelte";
 
-    const { container, styles } = getRichTextInput();
+    const { container, styles } = context.get();
 
     const sheetPromise = styles
         .addStyleTag("imageOverlay")

@@ -20,11 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { registerPackage } from "../lib/register-package";
 
     const key = Symbol("noteEditor");
-    const {
-        setContextProperty,
-        get: getNoteEditor,
-        has: hasNoteEditor,
-    } = contextProperty<NoteEditorAPI>(key);
+    const [context, setContextProperty] = contextProperty<NoteEditorAPI>(key);
 
     const {
         setupComponentHook,
@@ -33,11 +29,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         instances: noteEditorInstances,
     } = componentHook<NoteEditorAPI>();
 
-    export { getNoteEditor, hasNoteEditor };
+    export { context };
 
     registerPackage("anki/NoteEditor", {
-        getNoteEditor,
-        hasNoteEditor,
+        context,
         onNoteEditorMount,
         onNoteEditorDestroy,
         noteEditorInstances,
