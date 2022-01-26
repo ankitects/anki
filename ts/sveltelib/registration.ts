@@ -1,6 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import type { SvelteComponentTyped } from "svelte";
+import type { SvelteComponent } from "svelte";
 import type { Writable, Readable } from "svelte/store";
 import { writable } from "svelte/store";
 import type { Identifier } from "../lib/children-access";
@@ -14,7 +14,7 @@ import { nodeIsElement } from "../lib/dom";
  * to the component that hosts the dynamic component.
  */
 export interface DynamicSvelteComponent {
-    component: SvelteComponentTyped;
+    component: typeof SvelteComponent;
     props?: Record<string, unknown>;
     id?: string;
 }

@@ -7,10 +7,9 @@ type Callback = () => void;
 type ComponentAPIMount<T> = (api: T) => Callback | void;
 type ComponentAPIDestroy<T> = (api: T) => void;
 
-type SetComponentHookAction<T> = (api: T) => void;
+type SetLifecycleHooksAction<T> = (api: T) => void;
 
-export interface ComponentHook<T> {
-    instances: T[];
+export interface LifecycleHooks<T> {
     onMount(callback: ComponentAPIMount<T>): Callback | void;
     onDestroy(callback: ComponentAPIDestroy<T>): Callback;
 }
@@ -28,7 +27,7 @@ function removeItem<T>(items: T[], item: T) {
  * Currently we expose onMount and onDestroy in here, but it is fully
  * thinkable to expose the others as well, given a good use case.
  */
-function componentHook<T>(): [ComponentHook<T>, SetComponentHookAction<T>] {
+function lifecycleHooks<T>(): [LifecycleHooks<T>, T[], SetLifecycleHooksAction<T>] {
     const instances: T[] = [];
     const mountCallbacks: ComponentAPIMount<T>[] = [];
     const destroyCallbacks: ComponentAPIDestroy<T>[] = [];
@@ -73,13 +72,12 @@ function componentHook<T>(): [ComponentHook<T>, SetComponentHookAction<T>] {
         return () => removeItem(mountCallbacks, callback);
     }
 
-    const componentHook = {
+    const lifecycle = {
         onMount,
         onDestroy,
-        instances,
     };
 
-    return [componentHook, setup];
+    return [lifecycle, instances, setup];
 }
 
-export default componentHook;
+export default lifecycleHooks;

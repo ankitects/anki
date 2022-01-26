@@ -14,28 +14,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         toolbar: EditorToolbarAPI;
     }
 
-    import contextProperty from "../sveltelib/context-property";
-    import componentHook from "../sveltelib/component-hook";
     import { writable } from "svelte/store";
+    import contextProperty from "../sveltelib/context-property";
+    import lifecycleHooks from "../sveltelib/lifecycle-hooks";
     import { registerPackage } from "../lib/register-package";
 
     const key = Symbol("noteEditor");
     const [context, setContextProperty] = contextProperty<NoteEditorAPI>(key);
-
-    const {
-        setupComponentHook,
-        onMount: onNoteEditorMount,
-        onDestroy: onNoteEditorDestroy,
-        instances: noteEditorInstances,
-    } = componentHook<NoteEditorAPI>();
+    const [lifecycle, instances, setupLifecycleHooks] = lifecycleHooks<NoteEditorAPI>();
 
     export { context };
 
-    registerPackage("anki/NoteEditor", {
+    registerPackage("anki/NoteEditor.svelte", {
         context,
-        onNoteEditorMount,
-        onNoteEditorDestroy,
-        noteEditorInstances,
+        lifecycle,
+        instances,
     });
 </script>
 
@@ -278,7 +271,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
 
     setContextProperty(api);
-    setupComponentHook(api);
+    setupLifecycleHooks(api);
 </script>
 
 <div class="note-editor">

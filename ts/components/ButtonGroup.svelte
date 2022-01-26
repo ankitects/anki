@@ -3,15 +3,15 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    /* import type { SvelteComponent } from "../sveltelib/registration"; */
-    /* import type { Identifier } from "../lib/identifier"; */
+    import type { DynamicSvelteComponent } from "../sveltelib/registration";
+    import type { Identifier } from "../lib/children-access";
 
     export interface ButtonGroupAPI {
-        /* insertButton(button: SvelteComponent, position: Identifier): void; */
-        /* appendButton(button: SvelteComponent, position: Identifier): void; */
-        /* showButton(position: Identifier): void; */
-        /* hideButton(position: Identifier): void; */
-        /* toggleButton(position: Identifier): void; */
+        insert(button: DynamicSvelteComponent, position?: Identifier): void;
+        append(button: DynamicSvelteComponent, position?: Identifier): void;
+        show(position: Identifier): void;
+        hide(position: Identifier): void;
+        toggle(position: Identifier): void;
     }
 </script>
 
