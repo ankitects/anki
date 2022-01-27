@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithState from "../../components/WithState.svelte";
 
     import { execCommand, queryCommandState } from "../helpers";
-    import { context } from "../NoteEditor.svelte";
+    import { context as noteEditorContext } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
 
     export let key: string;
@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let withoutShortcut = false;
     export let withoutState = false;
 
-    const { focusedInput } = context.get();
+    const { focusedInput } = noteEditorContext.get();
 
     function action() {
         execCommand(key);

@@ -17,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
 
-    const { focusedInput } = context.get();
+    const { focusedInput } = noteEditorContext.get();
     $: richTextAPI = $focusedInput as RichTextInputAPI;
 
     async function surround(front: string, back: string): Promise<void> {
