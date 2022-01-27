@@ -630,9 +630,7 @@ class Browser(QMainWindow):
 
     def toggle_preview_button_state(self, active: bool) -> None:
         if self.editor.web:
-            self.editor.web.eval(
-                f"togglePreviewButtonState({json.dumps(active)});"
-            )
+            self.editor.web.eval(f"togglePreviewButtonState({json.dumps(active)});")
 
     def _cleanup_preview(self) -> None:
         if self._previewer:

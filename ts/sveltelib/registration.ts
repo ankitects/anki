@@ -41,8 +41,8 @@ export interface CreateInterfaceAPI<T extends Registration, U extends Element> {
 }
 
 export type CreateInterface<T extends Registration, U extends Element> = (
-    callback?: (api: CreateInterfaceAPI<T, U>) => void,
-) => void;
+    callback?: (api: CreateInterfaceAPI<T, U>) => unknown,
+) => unknown;
 
 export interface RegistrationAPI<T extends Registration, U extends Element> {
     registerComponent: Register<T>;
@@ -57,7 +57,7 @@ export interface RegistrationAPI<T extends Registration, U extends Element> {
 function defaultInterface<T extends Registration, U extends Element>({
     addComponent,
     updateRegistration,
-}: CreateInterfaceAPI<T, U>): unknown {
+}: CreateInterfaceAPI<T, U>) {
     function insert(component: DynamicSvelteComponent, id: Identifier = 0): void {
         addComponent(component, (element: Element, access: ChildrenAccess<U>) =>
             access.insertElement(element, id),
@@ -180,8 +180,8 @@ function dynamicMounting<T extends Registration, U extends Element>(
     }
 
     function createInterface(
-        callback: (api: CreateInterfaceAPI<T, U>) => any = defaultInterface,
-    ): void {
+        callback: (api: CreateInterfaceAPI<T, U>) => unknown = defaultInterface,
+    ): unknown {
         return callback({ addComponent, updateRegistration });
     }
 

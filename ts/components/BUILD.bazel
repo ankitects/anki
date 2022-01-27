@@ -42,6 +42,7 @@ svelte_check(
         "//sass:breakpoints_lib",
         "//sass/bootstrap",
         "@npm//@types/bootstrap",
+        "//ts/lib:lib_pkg",
         "//ts/sveltelib:sveltelib_pkg",
     ],
 )

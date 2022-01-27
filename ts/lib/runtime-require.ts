@@ -23,23 +23,27 @@ type AnkiPackages =
     | "anki/location"
     | "anki/surround"
     | "anki/ui";
-type PackageDeprecation<T extends object> = { [key in keyof T]?: string };
+type PackageDeprecation<T extends Record<string, unknown>> = {
+    [key in keyof T]?: string;
+};
 
 /// This can be extended to allow require() calls at runtime, for libraries
 /// that are not included at bundling time.
-const runtimeLibraries: Partial<Record<AnkiPackages, object>> = {};
+const runtimeLibraries: Partial<Record<AnkiPackages, Record<string, unknown>>> = {};
 
 const prohibit = () => false;
 
-export function registerPackageRaw(name: string, entries: object): void {
+export function registerPackageRaw(
+    name: string,
+    entries: Record<string, unknown>,
+): void {
     runtimeLibraries[name] = entries;
 }
 
-export function registerPackage<T extends AnkiPackages, U extends object>(
-    name: T,
-    entries: U,
-    deprecation?: PackageDeprecation<U>,
-): void {
+export function registerPackage<
+    T extends AnkiPackages,
+    U extends Record<string, unknown>,
+>(name: T, entries: U, deprecation?: PackageDeprecation<U>): void {
     const pack = deprecation
         ? new Proxy(entries, {
               set: prohibit,
@@ -58,7 +62,7 @@ export function registerPackage<T extends AnkiPackages, U extends object>(
     registerPackageRaw(name, pack);
 }
 
-function require<T extends AnkiPackages>(name: T): object | undefined {
+function require<T extends AnkiPackages>(name: T): Record<string, unknown> | undefined {
     if (!(name in runtimeLibraries)) {
         throw new Error(`Cannot require "${name}" at runtime.`);
     } else {
