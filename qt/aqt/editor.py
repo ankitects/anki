@@ -526,7 +526,7 @@ uiPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
 
         js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(
-            f'require("anki/ui").uiDidLoad.then(() => {{ {js} }})', oncallback
+            f'require("anki/ui").loaded.then(() => {{ {js} }})', oncallback
         )
 
     def _save_current_note(self) -> None:

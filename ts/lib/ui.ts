@@ -4,10 +4,10 @@
 import { promiseWithResolver } from "./promise";
 import { registerPackage } from "./runtime-require";
 
-const [uiDidLoad, uiResolve] = promiseWithResolver();
+const [loaded, uiResolve] = promiseWithResolver();
 
 registerPackage("anki/ui", {
-    uiDidLoad,
+    loaded,
 });
 
 export { uiResolve };
