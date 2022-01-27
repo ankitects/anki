@@ -432,6 +432,7 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
         v2 = self.col.sched_ver() != 1
         mdir = self.col.media.dir()
         self.col.close(downgrade=True)
+        os.chdir(mdir)
         if not v2:
             z.write(self.col.path, "collection.anki2")
         else:
