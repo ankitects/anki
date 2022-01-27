@@ -1,19 +1,91 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-/* eslint
-@typescript-eslint/no-explicit-any: "off",
+/**
+ * Names of anki packages
+ *
+ * @privateRemarks
+ * Originally this was more strictly typed as a record:
+ * ```ts
+ * type AnkiPackages = {
+ *     "anki/NoteEditor": NoteEditorPackage,
+ * }
+ * ```
+ * This would be very useful for `require`: the result could be strictly typed.
+ * However cross-module type imports currently don't work.
  */
+type AnkiPackages =
+    | "anki/NoteEditor"
+    | "anki/packages"
+    | "anki/bridgecommand"
+    | "anki/shortcuts"
+    | "anki/theme"
+    | "anki/location"
+    | "anki/surround"
+    | "anki/ui";
+type PackageDeprecation<T extends object> = { [key in keyof T]?: string };
 
 /// This can be extended to allow require() calls at runtime, for libraries
 /// that are not included at bundling time.
-export const runtimeLibraries = {};
+const runtimeLibraries: Partial<Record<AnkiPackages, object>> = {};
+
+const prohibit = () => false;
+
+export function registerPackageRaw(name: string, entries: object): void {
+    runtimeLibraries[name] = entries;
+}
+
+export function registerPackage<T extends AnkiPackages, U extends object>(
+    name: T,
+    entries: U,
+    deprecation?: PackageDeprecation<U>,
+): void {
+    const pack = deprecation
+        ? new Proxy(entries, {
+              set: prohibit,
+              defineProperty: prohibit,
+              deleteProperty: prohibit,
+              get: (target, name: string) => {
+                  if (name in deprecation) {
+                      console.log(`anki: ${name} is deprecated: ${deprecation[name]}`);
+                  }
+
+                  return target[name];
+              },
+          })
+        : entries;
+
+    registerPackageRaw(name, pack);
+}
+
+function require<T extends AnkiPackages>(name: T): object | undefined {
+    if (!(name in runtimeLibraries)) {
+        throw new Error(`Cannot require "${name}" at runtime.`);
+    } else {
+        return runtimeLibraries[name];
+    }
+}
+
+function listPackages(): string[] {
+    return Object.keys(runtimeLibraries);
+}
+
+function hasPackages(...names: string[]): boolean {
+    for (const name of names) {
+        if (!(name in runtimeLibraries)) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 // Export require() as a global.
-(window as any).require = function (name: string): unknown {
-    const lib = runtimeLibraries[name];
-    if (lib === undefined) {
-        throw new Error(`Cannot require "${name}" at runtime.`);
-    }
-    return lib;
-};
+Object.assign(window, { require });
+
+registerPackage("anki/packages", {
+    // We also register require here, so add-ons can have a type-save variant of require (TODO, see AnkiPackages above)
+    require,
+    listPackages,
+    hasPackages,
+});

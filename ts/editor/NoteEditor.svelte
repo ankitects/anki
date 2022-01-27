@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
+    import type { Writable } from "svelte/store";
     import type { EditorFieldAPI } from "./EditorField.svelte";
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import type { EditorToolbarAPI } from "./editor-toolbar";
@@ -14,10 +15,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         toolbar: EditorToolbarAPI;
     }
 
-    import { writable } from "svelte/store";
     import contextProperty from "../sveltelib/context-property";
     import lifecycleHooks from "../sveltelib/lifecycle-hooks";
-    import { registerPackage } from "../lib/register-package";
+    import { registerPackage } from "../lib/runtime-require";
 
     const key = Symbol("noteEditor");
     const [context, setContextProperty] = contextProperty<NoteEditorAPI>(key);
@@ -34,8 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="ts">
     import { onMount } from "svelte";
-    import type { Writable } from "svelte/store";
-    import { get } from "svelte/store";
+    import { writable, get } from "svelte/store";
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
     import { bridgeCommand } from "../lib/bridgecommand";
