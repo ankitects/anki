@@ -10,7 +10,7 @@ type ComponentAPIDestroy<T> = (api: T) => void;
 type SetLifecycleHooksAction<T> = (api: T) => void;
 
 export interface LifecycleHooks<T> {
-    onMount(callback: ComponentAPIMount<T>): Callback | void;
+    onMount(callback: ComponentAPIMount<T>): Callback;
     onDestroy(callback: ComponentAPIDestroy<T>): Callback;
 }
 
@@ -62,7 +62,7 @@ function lifecycleHooks<T>(): [LifecycleHooks<T>, T[], SetLifecycleHooksAction<T
         });
     }
 
-    function onMount(callback: ComponentAPIMount<T>): Callback | void {
+    function onMount(callback: ComponentAPIMount<T>): Callback {
         mountCallbacks.push(callback);
         return () => removeItem(mountCallbacks, callback);
     }
