@@ -66,8 +66,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
+    setContext(buttonGroupKey, registerComponent);
+
     if (api) {
-        setContext(buttonGroupKey, registerComponent);
         Object.assign(api, createInterface() as ButtonGroupAPI);
     }
 </script>
