@@ -13,7 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getPlatformString } from "../../lib/shortcuts";
     import { wrapInternal } from "../../lib/wrap";
     import { functionIcon } from "./icons";
-    import { context } from "../NoteEditor.svelte";
+    import { context as noteEditorContext } from "../NoteEditor.svelte";
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
 
