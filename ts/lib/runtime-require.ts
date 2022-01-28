@@ -27,17 +27,19 @@ type PackageDeprecation<T extends Record<string, unknown>> = {
     [key in keyof T]?: string;
 };
 
-/// This can be extended to allow require() calls at runtime, for libraries
+/// This can be extended to allow require() calls at runtime, for packages
 /// that are not included at bundling time.
-const runtimeLibraries: Partial<Record<AnkiPackages, Record<string, unknown>>> = {};
-
+const runtimePackages: Partial<Record<AnkiPackages, Record<string, unknown>>> = {};
 const prohibit = () => false;
 
+/**
+ * Packages registered with this function escape the typing provided by `AnkiPackages`
+ */
 export function registerPackageRaw(
     name: string,
     entries: Record<string, unknown>,
 ): void {
-    runtimeLibraries[name] = entries;
+    runtimePackages[name] = entries;
 }
 
 export function registerPackage<
@@ -63,20 +65,20 @@ export function registerPackage<
 }
 
 function require<T extends AnkiPackages>(name: T): Record<string, unknown> | undefined {
-    if (!(name in runtimeLibraries)) {
+    if (!(name in runtimePackages)) {
         throw new Error(`Cannot require "${name}" at runtime.`);
     } else {
-        return runtimeLibraries[name];
+        return runtimePackages[name];
     }
 }
 
 function listPackages(): string[] {
-    return Object.keys(runtimeLibraries);
+    return Object.keys(runtimePackages);
 }
 
 function hasPackages(...names: string[]): boolean {
     for (const name of names) {
-        if (!(name in runtimeLibraries)) {
+        if (!(name in runtimePackages)) {
             return false;
         }
     }
