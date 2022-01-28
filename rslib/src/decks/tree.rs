@@ -472,4 +472,48 @@ mod test {
 
         Ok(())
     }
+
+    #[test]
+    fn nested_counts_v3() -> Result<()> {
+        fn create_deck_with_new_limit(col: &mut Collection, name: &str, new_limit: u32) -> Deck {
+            let mut deck = col.get_or_create_normal_deck(name).unwrap();
+            let mut conf = DeckConfig::default();
+            conf.inner.new_per_day = new_limit;
+            col.add_or_update_deck_config(&mut conf).unwrap();
+            deck.normal_mut().unwrap().config_id = conf.id.0;
+            col.add_or_update_deck(&mut deck).unwrap();
+            deck
+        }
+
+        let mut col = open_test_collection();
+        col.set_config_bool(BoolKey::Sched2021, true, false)?;
+
+        let parent_deck = create_deck_with_new_limit(&mut col, "Default", 8);
+        let child_deck = create_deck_with_new_limit(&mut col, "Default::child", 4);
+        let grandchild_1 = create_deck_with_new_limit(&mut col, "Default::child::grandchild_1", 2);
+        let grandchild_2 = create_deck_with_new_limit(&mut col, "Default::child::grandchild_2", 1);
+
+        // add 2 new cards to each deck
+        let nt = col.get_notetype_by_name("Cloze")?.unwrap();
+        let mut note = nt.new_note();
+        note.set_field(0, "{{c1::}} {{c2::}}")?;
+        col.add_note(&mut note, parent_deck.id)?;
+        note.id.0 = 0;
+        col.add_note(&mut note, child_deck.id)?;
+        note.id.0 = 0;
+        col.add_note(&mut note, grandchild_1.id)?;
+        note.id.0 = 0;
+        col.add_note(&mut note, grandchild_2.id)?;
+
+        let parent = &col.deck_tree(Some(TimestampSecs::now()), None)?.children[0];
+        // grandchildren: own cards, limited by own new limits
+        assert_eq!(parent.children[0].children[0].new_count, 2);
+        assert_eq!(parent.children[0].children[1].new_count, 1);
+        // child: cards from self and children, limited by own new limit
+        assert_eq!(parent.children[0].new_count, 4);
+        // parent: cards from self and all subdecks, all limits in the hierarchy are respected
+        assert_eq!(parent.new_count, 6);
+
+        Ok(())
+    }
 }
