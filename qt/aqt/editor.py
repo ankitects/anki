@@ -582,7 +582,7 @@ uiPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
             cloze_hint = tr.adding_cloze_outside_cloze_field()
 
         self.web.eval(
-            'require("anki/ui").uiDidLoad.then(() => {'
+            'require("anki/ui").loaded.then(() => {'
             f"setBackgrounds({json.dumps(cols)});\n"
             f"setClozeHint({json.dumps(cloze_hint)});\n"
             "}); "
@@ -1361,7 +1361,7 @@ gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
 def set_cloze_button(editor: Editor) -> None:
     action = "show" if editor.note.note_type()["type"] == MODEL_CLOZE else "hide"
     editor.web.eval(
-        'require("anki/ui").uiDidLoad.then(() =>'
+        'require("anki/ui").loaded.then(() =>'
         f'require("anki/NoteEditor").instances[0].toolbar.templateButtons.{action}("cloze")'
         "); "
     )
