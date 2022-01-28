@@ -216,20 +216,17 @@ fn sum_counts_and_apply_limits_v3(
     for child in &mut node.children {
         individually_capped_total += sum_counts_and_apply_limits_v3(child, limits);
     }
+    // so we can calculate this total
     node.total_including_children = individually_capped_total.total;
 
-    // We already have a sum of the current deck's capped cards+its child decks'
-    // capped cards, which we'll return to the parent. But because clicking on a
-    // given deck imposes that deck's limits on the total number of cards shown,
-    // the sum we'll display needs to be capped again by the limits of the current
-    // deck.
+    // now cap again to obtain the final counts
     let total_constrained_by_current_deck = individually_capped_total.capped(&remaining);
     node.new_count = total_constrained_by_current_deck.new;
     node.review_count = total_constrained_by_current_deck.review;
     node.learn_count = total_constrained_by_current_deck.intraday_learning
         + total_constrained_by_current_deck.interday_learning;
 
-    individually_capped_total
+    total_constrained_by_current_deck
 }
 
 fn hide_default_deck(node: &mut DeckTreeNode) {
