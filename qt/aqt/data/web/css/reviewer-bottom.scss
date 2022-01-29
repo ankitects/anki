@@ -49,29 +49,25 @@ button {
     margin-bottom: 1em;
 }
 
-.focus {
-    outline: 5px auto var(--focus-color);
+
+/**
+ * We use .focus to recreate the highlight on the good button
+ * while the actual focus is actually in the main webview
+ */
+:focus, .focus {
+    outline: 1px auto var(--focus-color);
 
     .nightMode & {
         outline: none;
         box-shadow: 0 0 0 2px var(--focus-color);
     }
+}
 
-    #innertable:focus-within & {
-        outline: none;
+#innertable:focus-within .focus:not(:focus) {
+    outline: none;
 
-        .nightMode & {
-            box-shadow: none;
-        }
-
-        &:focus {
-            outline: 5px auto var(--focus-color);
-
-            .nightMode & {
-                outline: none;
-                box-shadow: 0 0 0 2px var(--focus-color);
-            }
-        }
+    .nightMode & {
+        box-shadow: none;
     }
 }
 
