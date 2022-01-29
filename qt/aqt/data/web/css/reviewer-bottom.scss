@@ -53,22 +53,22 @@ button {
     outline: 5px auto var(--focus-color);
 
     .nightMode & {
-        outline: unset;
+        outline: none;
         box-shadow: 0 0 0 2px var(--focus-color);
     }
 
     #innertable:focus-within & {
-        outline: unset;
+        outline: none;
 
         .nightMode & {
-            box-shadow: unset;
+            box-shadow: none;
         }
 
         &:focus {
             outline: 5px auto var(--focus-color);
 
             .nightMode & {
-                outline: unset;
+                outline: none;
                 box-shadow: 0 0 0 2px var(--focus-color);
             }
         }
