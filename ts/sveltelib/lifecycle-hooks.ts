@@ -2,8 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { onMount as svelteOnMount, onDestroy as svelteOnDestroy } from "svelte";
+import type { Callback } from "../lib/helpers";
+import { removeItem } from "../lib/helpers";
 
-type Callback = () => void;
 type ComponentAPIMount<T> = (api: T) => Callback | void;
 type ComponentAPIDestroy<T> = (api: T) => void;
 
@@ -12,14 +13,6 @@ type SetLifecycleHooksAction<T> = (api: T) => void;
 export interface LifecycleHooks<T> {
     onMount(callback: ComponentAPIMount<T>): Callback;
     onDestroy(callback: ComponentAPIDestroy<T>): Callback;
-}
-
-function removeItem<T>(items: T[], item: T) {
-    const index = items.findIndex((i: T): boolean => i === item);
-
-    if (index >= 0) {
-        items.splice(index, 1);
-    }
 }
 
 /**

@@ -1,21 +1,18 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
-License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+    Copyright: Ankitects Pty Ltd and contributors
+    License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import {
+        slotHostContext,
+        ButtonSlotHostProps,
+        ButtonPosition,
+    } from "./ButtonGroup.svelte";
     import Detachable from "./Detachable.svelte";
 
-    import type { ButtonRegistration } from "./buttons";
-    import { ButtonPosition } from "./buttons";
-    import type { Register } from "../sveltelib/registration";
-
-    import { getContext, hasContext } from "svelte";
-    import { buttonGroupKey } from "./context-keys";
-
     export let id: string | undefined = undefined;
+    export let hostProps: ButtonSlotHostProps | undefined = undefined;
 
-    let detached: boolean;
-    let position_: ButtonPosition;
     let style: string;
 
     const radius = "5px";
@@ -23,8 +20,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const leftStyle = `--border-left-radius: ${radius}; --border-right-radius: 0; `;
     const rightStyle = `--border-left-radius: 0; --border-right-radius: ${radius}; `;
 
-    $: {
-        switch (position_) {
+    if (!slotHostContext.available()) {
+        console.log("ButtonGroupItem: should always have a slotHostContext");
+    }
+
+    const { detach, position } = hostProps ?? slotHostContext.get().getProps();
+
+    function updateButtonStyle(position: ButtonPosition) {
+        switch (position) {
             case ButtonPosition.Standalone:
                 style = `--border-left-radius: ${radius}; --border-right-radius: ${radius}; `;
                 break;
@@ -40,27 +43,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    export let registration: ButtonRegistration | undefined = undefined;
-
-    if (registration) {
-        const { detach, position } = registration;
-        detach.subscribe((value: boolean) => (detached = value));
-        position.subscribe((value: ButtonPosition) => (position_ = value));
-    } else if (hasContext(buttonGroupKey)) {
-        const registerComponent =
-            getContext<Register<ButtonRegistration>>(buttonGroupKey);
-        const { detach, position } = registerComponent();
-        detach.subscribe((value: boolean) => (detached = value));
-        position.subscribe((value: ButtonPosition) => (position_ = value));
-    } else {
-        detached = false;
-        position_ = ButtonPosition.Standalone;
-    }
+    $: updateButtonStyle($position);
 </script>
 
 <!-- div is necessary to preserve item position -->
 <div {id} class="button-group-item" {style}>
-    <Detachable {detached}>
+    <Detachable detached={$detach}>
         <slot />
     </Detachable>
 </div>

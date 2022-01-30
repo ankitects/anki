@@ -3,33 +3,19 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type { SlotHostProps } from "../sveltelib/dynamic-slotting";
+    import { defaultSlotHostContext } from "../sveltelib/dynamic-slotting";
     import Detachable from "./Detachable.svelte";
 
-    import type { Register, Registration } from "../sveltelib/registration";
-
-    import { getContext, hasContext } from "svelte";
-    import { sectionKey } from "./context-keys";
-
     export let id: string | undefined = undefined;
-    export let registration: Registration | undefined = undefined;
+    export let hostProps: SlotHostProps | undefined = undefined;
 
-    let detached: boolean;
-
-    if (registration) {
-        const { detach } = registration;
-        detach.subscribe((value: boolean) => (detached = value));
-    } else if (hasContext(sectionKey)) {
-        const registerComponent = getContext<Register<Registration>>(sectionKey);
-        const { detach } = registerComponent();
-        detach.subscribe((value: boolean) => (detached = value));
-    } else {
-        detached = false;
-    }
+    const { detach } = hostProps ?? defaultSlotHostContext.get().getProps();
 </script>
 
 <!-- div is necessary to preserve item position -->
 <div class="item" {id}>
-    <Detachable {detached}>
+    <Detachable detached={$detach}>
         <slot />
     </Detachable>
 </div>

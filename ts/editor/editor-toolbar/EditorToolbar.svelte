@@ -4,8 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import { updateAllState, resetAllState } from "../../components/WithState.svelte";
-    import type { ButtonGroupAPI } from "../../components/ButtonGroup.svelte";
-    import type { ButtonToolbarAPI } from "../../components/ButtonToolbar.svelte";
+    import type { DefaultSlotInterface } from "../../sveltelib/dynamic-slotting";
 
     export function updateActiveButtons(event: Event) {
         updateAllState(event);
@@ -16,12 +15,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export interface EditorToolbarAPI {
-        toolbar: ButtonToolbarAPI;
-        notetypeButtons: ButtonGroupAPI;
-        formatInlineButtons: ButtonGroupAPI;
-        formatBlockButtons: ButtonGroupAPI;
-        colorButtons: ButtonGroupAPI;
-        templateButtons: ButtonGroupAPI;
+        toolbar: DefaultSlotInterface;
+        notetypeButtons: DefaultSlotInterface;
+        formatInlineButtons: DefaultSlotInterface;
+        formatBlockButtons: DefaultSlotInterface;
+        colorButtons: DefaultSlotInterface;
+        templateButtons: DefaultSlotInterface;
     }
 
     /* Our dynamic components */

@@ -3,39 +3,31 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { setContext } from "svelte";
-    import { writable } from "svelte/store";
-    import type { Registration } from "../sveltelib/registration";
-    import dynamicMounting from "../sveltelib/registration";
+    import DynamicSlot from "./DynamicSlot.svelte";
+    import dynamicSlotting, {
+        defaultProps,
+        defaultInterface,
+        setSlotHostContext,
+    } from "../sveltelib/dynamic-slotting";
     import Item from "./Item.svelte";
-    import { sectionKey } from "./context-keys";
 
-    export let id: string | undefined = undefined;
-
-    function makeRegistration(): Registration {
-        const detach = writable(false);
-        return { detach };
-    }
-
-    const { dynamicItems, registerComponent, createInterface } =
-        dynamicMounting(makeRegistration);
-
-    setContext(sectionKey, registerComponent);
+    const { dynamicSlotted, slotsInterface } = dynamicSlotting(
+        defaultProps,
+        (v) => v,
+        setSlotHostContext,
+        defaultInterface,
+    );
 
     export let api: Record<string, never> | undefined = undefined;
 
     if (api) {
-        Object.assign(api, createInterface());
+        Object.assign(api, slotsInterface);
     }
 </script>
 
-<div class="section" {id}>
+<div class="section">
     <slot />
-    {#each $dynamicItems as item}
-        <Item id={item[0].id} registration={item[1]}>
-            <svelte:component this={item[0].component} {...item[0].props} />
-        </Item>
-    {/each}
+    <DynamicSlot slotHost={Item} slotted={$dynamicSlotted} />
 </div>
 
 <style lang="scss">
