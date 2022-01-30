@@ -22,6 +22,7 @@ for line in open(input_scss):
             and not ":root" in line
             and "Copyright" not in line
             and "License" not in line
+            and "color-scheme" not in line
         ):
             print("failed to match", line)
         continue

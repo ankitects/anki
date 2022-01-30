@@ -1,2 +1,7 @@
+@echo off
+pushd "%~dp0"
+call tools\setup-env.bat
+
 set PYTHONWARNINGS=default
-call .\bazel.bat run %BUILDARGS% //qt:runanki -k -- %*
+bazel run %BUILDARGS% //qt:runanki -k -- %* || exit /b 1
+popd
