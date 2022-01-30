@@ -17,12 +17,12 @@ RUN curl -fsSL https://github.com/bazelbuild/bazelisk/releases/download/v1.7.4/b
 WORKDIR /opt/anki
 COPY . .
 # Build python wheels.
-RUN ./scripts/build
+RUN ./tools/build
 
 # Install pre-compiled Anki.
 FROM python:${PYTHON_VERSION}-slim as installer
 WORKDIR /opt/anki/
-COPY --from=build /opt/anki/bazel-dist/ wheels/
+COPY --from=build /opt/anki/wheels/ wheels/
 # Use virtual environment.
 RUN python -m venv venv \
     && ./venv/bin/python -m pip install --no-cache-dir setuptools wheel \
@@ -35,29 +35,29 @@ ENV PATH=/opt/anki/venv/bin:$PATH
 # Install run-time dependencies.
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends \
-        libasound2 \
-        libdbus-1-3 \
-        libfontconfig1 \
-        libfreetype6 \
-        libgl1 \
-        libglib2.0-0 \
-        libnss3 \
-        libxcb-icccm4 \
-        libxcb-image0 \
-        libxcb-keysyms1 \
-        libxcb-randr0 \
-        libxcb-render-util0 \
-        libxcb-shape0 \
-        libxcb-xinerama0 \
-        libxcb-xkb1 \
-        libxcomposite1 \
-        libxcursor1 \
-        libxi6 \
-        libxkbcommon0 \
-        libxkbcommon-x11-0 \
-        libxrandr2 \
-        libxrender1 \
-        libxtst6 \
+    libasound2 \
+    libdbus-1-3 \
+    libfontconfig1 \
+    libfreetype6 \
+    libgl1 \
+    libglib2.0-0 \
+    libnss3 \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-randr0 \
+    libxcb-render-util0 \
+    libxcb-shape0 \
+    libxcb-xinerama0 \
+    libxcb-xkb1 \
+    libxcomposite1 \
+    libxcursor1 \
+    libxi6 \
+    libxkbcommon0 \
+    libxkbcommon-x11-0 \
+    libxrandr2 \
+    libxrender1 \
+    libxtst6 \
     && rm -rf /var/lib/apt/lists/*
 # Add non-root user.
 RUN useradd --create-home anki

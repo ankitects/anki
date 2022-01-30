@@ -33,7 +33,7 @@ if __name__ == "__main__":
             "aqt",
             "tests",
             "tools",
-            "package",
+            "bundle",
         ]
         + args,
         check=False,
@@ -51,7 +51,7 @@ if __name__ == "__main__":
             "aqt",
             "tests",
             "tools",
-            "package",
+            "bundle",
         ]
         + args,
         check=False,

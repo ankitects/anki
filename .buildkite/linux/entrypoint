@@ -17,7 +17,7 @@ test -e /state/node_modules && mv /state/node_modules .
 $BAZEL test $BUILDARGS ... //rslib/linkchecker
 
 echo "--- Running lints"
-python scripts/copyright_headers.py
+python tools/copyright_headers.py
 
 echo "--- Cleanup"
 # if tests succeed, back up node_modules folder

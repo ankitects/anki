@@ -34,7 +34,7 @@ run 'rustup install nightly'.
 
 Code completion partly depends on files that are generated as part of the
 regular build process, so for things to work correctly, use './run' or
-'scripts/build' prior to using code completion.
+'tools/build' prior to using code completion.
 
 ## PyCharm/IntelliJ
 

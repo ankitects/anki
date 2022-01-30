@@ -26,7 +26,7 @@ Things to be aware of:
 If you run Anki from git, you can run a sync server with:
 
 ```
-./scripts/runopt --syncserver
+./tools/runopt --syncserver
 ```
 
 ## From a packaged build
