@@ -3,16 +3,34 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { SvelteComponent } from "svelte";
-    import dynamicSlotting, { defaultProps, defaultInterface, setSlotHostContext as defaultContext } from "../sveltelib/dynamic-slotting";
+    import type Item from "./Item.svelte";
+    import type ButtonGroupItem from "./ButtonGroupItem.svelte";
+    /* import type { SlotHostProps } from "../sveltelib/dynamic-slotting"; */
+
+    import dynamicSlotting, {
+        defaultProps,
+        defaultInterface,
+        setSlotHostContext as defaultContext,
+    } from "../sveltelib/dynamic-slotting";
 
     function id<T>(value: T): T {
         return value;
     }
 
-    export let slotHost: typeof SvelteComponent;
-    export let createProps = defaultProps;
-    export let updatePropsList = id;
+    /**
+     * This should a Svelte component that accept id and hostProps as their props,
+     * only mounts a div with display:contents, and retrieves its props via .getProps().
+     * For a minimal example, have a look at `Item.svelte`.
+     */
+    export let slotHost: typeof Item | typeof ButtonGroupItem;
+
+    /**
+     * We cannot properly type these right now.
+     */
+    export let createProps: any /* <T extends SlotHostProps>() => T */ =
+        defaultProps as any;
+    export let updatePropsList: any /* <T extends SlotHostProps>(list: T[]) => T[] */ =
+        id;
     export let setSlotHostContext = defaultContext;
     export let createInterface = defaultInterface;
 

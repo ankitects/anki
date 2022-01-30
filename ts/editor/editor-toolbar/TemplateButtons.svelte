@@ -4,7 +4,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import ButtonGroup from "../../components/ButtonGroup.svelte";
-    import ButtonGroupItem from "../../components/ButtonGroupItem.svelte";
+    import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
+    import ButtonGroupItem, {
+        createProps,
+        updatePropsList,
+        setSlotHostContext,
+    } from "../../components/ButtonGroupItem.svelte";
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import ClozeButton from "./ClozeButton.svelte";
@@ -34,40 +39,51 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let api = {};
 </script>
 
-<ButtonGroup {api}>
-    <ButtonGroupItem>
-        <IconButton
-            tooltip="{tr.editingAttachPicturesaudiovideo()} ({getPlatformString(
-                attachmentKeyCombination,
-            )})"
-            iconSize={70}
-            {disabled}
-            on:click={onAttachment}
-        >
-            {@html paperclipIcon}
-        </IconButton>
-        <Shortcut keyCombination={attachmentKeyCombination} on:action={onAttachment} />
-    </ButtonGroupItem>
+<ButtonGroup>
+    <DynamicallySlottable
+        slotHost={ButtonGroupItem}
+        {createProps}
+        {updatePropsList}
+        {setSlotHostContext}
+        {api}
+    >
+        <ButtonGroupItem>
+            <IconButton
+                tooltip="{tr.editingAttachPicturesaudiovideo()} ({getPlatformString(
+                    attachmentKeyCombination,
+                )})"
+                iconSize={70}
+                {disabled}
+                on:click={onAttachment}
+            >
+                {@html paperclipIcon}
+            </IconButton>
+            <Shortcut
+                keyCombination={attachmentKeyCombination}
+                on:action={onAttachment}
+            />
+        </ButtonGroupItem>
 
-    <ButtonGroupItem>
-        <IconButton
-            tooltip="{tr.editingRecordAudio()} ({getPlatformString(
-                recordKeyCombination,
-            )})"
-            iconSize={70}
-            {disabled}
-            on:click={onRecord}
-        >
-            {@html micIcon}
-        </IconButton>
-        <Shortcut keyCombination={recordKeyCombination} on:action={onRecord} />
-    </ButtonGroupItem>
+        <ButtonGroupItem>
+            <IconButton
+                tooltip="{tr.editingRecordAudio()} ({getPlatformString(
+                    recordKeyCombination,
+                )})"
+                iconSize={70}
+                {disabled}
+                on:click={onRecord}
+            >
+                {@html micIcon}
+            </IconButton>
+            <Shortcut keyCombination={recordKeyCombination} on:action={onRecord} />
+        </ButtonGroupItem>
 
-    <ButtonGroupItem id="cloze">
-        <ClozeButton />
-    </ButtonGroupItem>
+        <ButtonGroupItem id="cloze">
+            <ClozeButton />
+        </ButtonGroupItem>
 
-    <ButtonGroupItem>
-        <LatexButton />
-    </ButtonGroupItem>
+        <ButtonGroupItem>
+            <LatexButton />
+        </ButtonGroupItem>
+    </DynamicallySlottable>
 </ButtonGroup>
