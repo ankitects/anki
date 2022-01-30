@@ -3,14 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Item from "./Item.svelte";
-    import DynamicSlot from "./DynamicSlot.svelte";
-    import type { DefaultSlotInterface } from "../sveltelib/dynamic-slotting";
-    import dynamicSlotting, {
-        defaultProps,
-        setSlotHostContext,
-        defaultInterface,
-    } from "../sveltelib/dynamic-slotting";
     import { pageTheme } from "../sveltelib/theme";
 
     export let id: string | undefined = undefined;
@@ -29,19 +21,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     $: style = buttonSize + buttonWrap;
-
-    export let api: Partial<DefaultSlotInterface> | undefined = undefined;
-
-    const { slotsInterface, resolveSlotContainer, dynamicSlotted } = dynamicSlotting(
-        defaultProps,
-        (v) => v,
-        setSlotHostContext,
-        defaultInterface,
-    );
-
-    if (api) {
-        Object.assign(api, slotsInterface);
-    }
 </script>
 
 <div
@@ -51,10 +30,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {style}
     role="toolbar"
     on:focusout
-    use:resolveSlotContainer
 >
     <slot />
-    <DynamicSlot slotHost={Item} slotted={$dynamicSlotted} />
 </div>
 
 <style lang="scss">
@@ -62,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         flex-wrap: var(--buttons-wrap);
         padding-left: 0.15rem;
 
-        > :global(*) > :global(*) {
+        :global(.button-group) {
             /* TODO replace with gap once available */
             margin-right: 0.15rem;
             margin-bottom: 0.15rem;

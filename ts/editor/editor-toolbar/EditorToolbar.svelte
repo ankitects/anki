@@ -34,6 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import StickyContainer from "../../components/StickyContainer.svelte";
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
+    import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import Item from "../../components/Item.svelte";
 
     import NotetypeButtons from "./NotetypeButtons.svelte";
@@ -68,27 +69,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <StickyContainer --gutter-block="0.1rem" --sticky-borders="0 0 1px">
-    <ButtonToolbar {size} {wrap} api={toolbar}>
-        <Item id="notetype">
-            <NotetypeButtons api={notetypeButtons}>
-                <slot name="notetypeButtons" />
-            </NotetypeButtons>
-        </Item>
+    <ButtonToolbar {size} {wrap}>
+        <DynamicallySlottable slotHost={Item} api={toolbar}>
+            <Item id="notetype">
+                <NotetypeButtons api={notetypeButtons}>
+                    <slot name="notetypeButtons" />
+                </NotetypeButtons>
+            </Item>
 
-        <Item id="inlineFormatting">
-            <FormatInlineButtons api={formatInlineButtons} />
-        </Item>
+            <Item id="inlineFormatting">
+                <FormatInlineButtons api={formatInlineButtons} />
+            </Item>
 
-        <Item id="blockFormatting">
-            <FormatBlockButtons api={formatBlockButtons} />
-        </Item>
+            <Item id="blockFormatting">
+                <FormatBlockButtons api={formatBlockButtons} />
+            </Item>
 
-        <Item id="color">
-            <ColorButtons {textColor} {highlightColor} api={colorButtons} />
-        </Item>
+            <Item id="color">
+                <ColorButtons {textColor} {highlightColor} api={colorButtons} />
+            </Item>
 
-        <Item id="template">
-            <TemplateButtons api={templateButtons} />
-        </Item>
+            <Item id="template">
+                <TemplateButtons api={templateButtons} />
+            </Item>
+        </DynamicallySlottable>
     </ButtonToolbar>
 </StickyContainer>
