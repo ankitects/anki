@@ -99,6 +99,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 key="justifyLeft"
                                 tooltip={tr.editingAlignLeft()}
                                 withoutShortcut
+                                --border-left-radius="5px"
                                 >{@html justifyLeftIcon}</CommandIconButton
                             >
 
@@ -120,6 +121,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 key="justifyFull"
                                 tooltip={tr.editingJustify()}
                                 withoutShortcut
+                                --border-right-radius="5px"
                                 >{@html justifyFullIcon}</CommandIconButton
                             >
                         </ButtonGroup>
@@ -133,6 +135,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 )})"
                                 {disabled}
                                 on:click={outdentListItem}
+                                --border-left-radius="5px"
                             >
                                 {@html outdentIcon}
                             </IconButton>
@@ -148,6 +151,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 )})"
                                 {disabled}
                                 on:click={indentListItem}
+                                --border-right-radius="5px"
                             >
                                 {@html indentIcon}
                             </IconButton>

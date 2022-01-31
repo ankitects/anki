@@ -63,23 +63,17 @@
 </script>
 
 <script lang="ts">
-    import Detachable from "./Detachable.svelte";
-
     export let id: string | undefined = undefined;
     export let hostProps: ButtonSlotHostProps | undefined = undefined;
 
     let style: string;
-
-    const radius = "5px";
-
-    const leftStyle = `--border-left-radius: ${radius}; --border-right-radius: 0; `;
-    const rightStyle = `--border-left-radius: 0; --border-right-radius: ${radius}; `;
 
     if (!context.available()) {
         console.log("ButtonGroupItem: should always have a slotHostContext");
     }
 
     const { detach, position } = hostProps ?? context.get().getProps();
+    const radius = "5px";
 
     function updateButtonStyle(position: ButtonPosition) {
         switch (position) {
@@ -87,13 +81,13 @@
                 style = `--border-left-radius: ${radius}; --border-right-radius: ${radius}; `;
                 break;
             case ButtonPosition.InlineStart:
-                style = leftStyle;
+                style = `--border-left-radius: ${radius}; --border-right-radius: 0; `;
                 break;
             case ButtonPosition.Center:
                 style = "--border-left-radius: 0; --border-right-radius: 0; ";
                 break;
             case ButtonPosition.InlineEnd:
-                style = rightStyle;
+                style = `--border-left-radius: 0; --border-right-radius: ${radius}; `;
                 break;
         }
     }
@@ -103,9 +97,9 @@
 
 <!-- div is necessary to preserve item position -->
 <div class="button-group-item" {id} {style}>
-    <Detachable detached={$detach}>
+    {#if !$detach}
         <slot />
-    </Detachable>
+    {/if}
 </div>
 
 <style lang="scss">

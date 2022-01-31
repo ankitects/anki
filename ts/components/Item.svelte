@@ -5,7 +5,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { SlotHostProps } from "../sveltelib/dynamic-slotting";
     import { defaultSlotHostContext } from "../sveltelib/dynamic-slotting";
-    import Detachable from "./Detachable.svelte";
 
     export let id: string | undefined = undefined;
     export let hostProps: SlotHostProps | undefined = undefined;
@@ -15,9 +14,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <!-- div is necessary to preserve item position -->
 <div class="item" {id}>
-    <Detachable detached={$detach}>
+    {#if !$detach}
         <slot />
-    </Detachable>
+    {/if}
 </div>
 
 <style lang="scss">
