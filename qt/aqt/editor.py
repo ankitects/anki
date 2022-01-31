@@ -174,7 +174,7 @@ class Editor:
         righttopbtns_defs = ", ".join([json.dumps(button) for button in righttopbtns])
         righttopbtns_js = (
             f"""
-uiPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
+require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].toolbar.toolbar.append({{
     component: editorToolbar.AddonButtons,
     id: "addons",
     props: {{ buttons: [ {righttopbtns_defs} ] }},
