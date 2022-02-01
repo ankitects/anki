@@ -18,8 +18,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     /**
-     * This should a Svelte component that accept id and hostProps as their props,
-     * only mounts a div with display:contents, and retrieves its props via .getProps().
+     * This should be a Svelte component that accepts `id` and `hostProps`
+     * as their props, only mounts a div with display:contents, and retrieves
+     * its props via .getProps().
      * For a minimal example, have a look at `Item.svelte`.
      */
     export let slotHost: typeof Item | typeof ButtonGroupItem;

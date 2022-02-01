@@ -14,7 +14,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonToolbar from "../components/ButtonToolbar.svelte";
     import Item from "../components/Item.svelte";
     import ButtonGroup from "../components/ButtonGroup.svelte";
-    import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
 
     import SelectButton from "../components/SelectButton.svelte";
     import SelectOption from "../components/SelectOption.svelte";
@@ -89,30 +88,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <StickyContainer --gutter-block="0.5rem" --sticky-borders="0 0 1px" breakpoint="sm">
     <ButtonToolbar class="justify-content-between" size={2.3} wrap={false}>
-        <Item>
-            <ButtonGroup class="flex-grow-1">
-                <ButtonGroupItem>
-                    <SelectButton class="flex-grow-1" on:change={blur}>
-                        {#each $configList as entry}
-                            <SelectOption
-                                value={String(entry.idx)}
-                                selected={entry.current}
-                            >
-                                {configLabel(entry)}
-                            </SelectOption>
-                        {/each}
-                    </SelectButton>
-                </ButtonGroupItem>
-            </ButtonGroup>
-        </Item>
+        <ButtonGroup class="flex-grow-1">
+            <SelectButton
+                class="flex-grow-1"
+                on:change={blur}
+                --border-left-radius="5px"
+                --border-right-radius="5px"
+            >
+                {#each $configList as entry}
+                    <SelectOption value={String(entry.idx)} selected={entry.current}>
+                        {configLabel(entry)}
+                    </SelectOption>
+                {/each}
+            </SelectButton>
+        </ButtonGroup>
 
-        <Item>
-            <SaveButton
-                {state}
-                on:add={promptToAdd}
-                on:clone={promptToClone}
-                on:rename={promptToRename}
-            />
-        </Item>
+        <SaveButton
+            {state}
+            on:add={promptToAdd}
+            on:clone={promptToClone}
+            on:rename={promptToRename}
+        />
     </ButtonToolbar>
 </StickyContainer>
