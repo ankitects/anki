@@ -12,7 +12,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TextInputModal from "./TextInputModal.svelte";
     import StickyContainer from "../components/StickyContainer.svelte";
     import ButtonToolbar from "../components/ButtonToolbar.svelte";
-    import Item from "../components/Item.svelte";
     import ButtonGroup from "../components/ButtonGroup.svelte";
 
     import SelectButton from "../components/SelectButton.svelte";

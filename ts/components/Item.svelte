@@ -9,6 +9,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let id: string | undefined = undefined;
     export let hostProps: SlotHostProps | undefined = undefined;
 
+    if (!defaultSlotHostContext.available()) {
+        console.log("Item: should always have a slotHostContext");
+    }
+
     const { detach } = hostProps ?? defaultSlotHostContext.get().getProps();
 </script>
 

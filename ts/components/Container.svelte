@@ -3,7 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Section from "./Section.svelte";
     import type { Breakpoint } from "./types";
 
     export let id: string | undefined = undefined;
@@ -26,9 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:container-xxl={breakpoint === "xxl"}
     class:container-fluid={breakpoint === "fluid"}
 >
-    <Section {api}>
-        <slot />
-    </Section>
+    <slot />
 </div>
 
 <style lang="scss">

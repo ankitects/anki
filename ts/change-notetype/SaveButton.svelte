@@ -8,7 +8,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getPlatformString } from "../lib/shortcuts";
 
     import ButtonGroup from "../components/ButtonGroup.svelte";
-    import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
     import LabelButton from "../components/LabelButton.svelte";
     import Shortcut from "../components/Shortcut.svelte";
 
@@ -25,12 +24,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <ButtonGroup>
-    <ButtonGroupItem>
-        <LabelButton
-            theme="primary"
-            tooltip={getPlatformString(keyCombination)}
-            on:click={save}>{tr.actionsSave()}</LabelButton
-        >
-        <Shortcut {keyCombination} on:action={save} />
-    </ButtonGroupItem>
+    <LabelButton
+        theme="primary"
+        tooltip={getPlatformString(keyCombination)}
+        on:click={save}
+        --border-left-radius="5px"
+        --border-right-radius="5px">{tr.actionsSave()}</LabelButton
+    >
+    <Shortcut {keyCombination} on:action={save} />
 </ButtonGroup>

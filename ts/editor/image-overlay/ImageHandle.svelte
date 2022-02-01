@@ -6,7 +6,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { tick, onDestroy } from "svelte";
     import WithDropdown from "../../components/WithDropdown.svelte";
     import ButtonDropdown from "../../components/ButtonDropdown.svelte";
-    import Item from "../../components/Item.svelte";
 
     import HandleBackground from "../HandleBackground.svelte";
     import HandleSelection from "../HandleSelection.svelte";
@@ -233,15 +232,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     />
                 </HandleSelection>
                 <ButtonDropdown on:click={updateSizesWithDimensions}>
-                    <Item>
-                        <FloatButtons
-                            image={activeImage}
-                            on:update={dropdownObject.update}
-                        />
-                    </Item>
-                    <Item>
-                        <SizeSelect {active} on:click={toggleActualSize} />
-                    </Item>
+                    <FloatButtons
+                        image={activeImage}
+                        on:update={dropdownObject.update}
+                    />
+                    <SizeSelect {active} on:click={toggleActualSize} />
                 </ButtonDropdown>
             {/if}
         </WithImageConstrained>
