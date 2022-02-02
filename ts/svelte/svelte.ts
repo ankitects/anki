@@ -239,7 +239,7 @@ async function extractSvelteAndDeps(
 /// may be coming from the source folder, which breaks ./foo imports.
 /// Adjust the path to make it appear they're all in the same folder.
 function remapBinToSrcDir(file: string): string {
-    return file.replace(new RegExp(".bazel/out/[-_a-z]+/bin/"), "");
+    return file.replace(new RegExp("bazel-out/[-_a-z]+/bin/"), "");
 }
 
 /// Generate Svelte .mjs/.css files.
