@@ -1,1 +1,1 @@
-../../../../bazel/anki/bin/qt/aqt/forms/taglimit_qt6.py
+../../../.bazel/bin/qt/aqt/forms/taglimit_qt6.py

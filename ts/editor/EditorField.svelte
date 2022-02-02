@@ -103,8 +103,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-radius: 5px;
         border: 1px solid var(--border-color);
 
-        min-width: 0;
-
         &:focus-within {
             --border-color: var(--focus-border);
 

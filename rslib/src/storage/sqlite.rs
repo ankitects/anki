@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, cmp::Ordering, hash::Hasher, path::Path, sync::Arc};
+use std::{borrow::Cow, cmp::Ordering, collections::HashSet, hash::Hasher, path::Path, sync::Arc};
 
 use fnv::FnvHasher;
 use regex::Regex;
@@ -51,6 +51,7 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
 
     add_field_index_function(&db)?;
     add_regexp_function(&db)?;
+    add_regexp_fields_function(&db)?;
     add_without_combining_function(&db)?;
     add_fnvhash_function(&db)?;
 
@@ -126,6 +127,32 @@ fn add_regexp_function(db: &Connection) -> rusqlite::Result<()> {
             };
 
             Ok(is_match)
+        },
+    )
+}
+
+/// Adds sql function `regexp_fields(regex, note_flds, indices...) -> is_match`.
+/// If no indices are provided, all fields are matched against.
+fn add_regexp_fields_function(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function(
+        "regexp_fields",
+        -1,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert!(ctx.len() > 1, "not enough arguments");
+
+            let re: Arc<Regex> = ctx
+                .get_or_create_aux(0, |vr| -> std::result::Result<_, BoxError> {
+                    Ok(Regex::new(vr.as_str()?)?)
+                })?;
+            let fields = ctx.get_raw(1).as_str()?.split('\x1f');
+            let indices: HashSet<usize> = (2..ctx.len())
+                .map(|i| ctx.get(i))
+                .collect::<rusqlite::Result<_>>()?;
+
+            Ok(fields.enumerate().any(|(idx, field)| {
+                (indices.is_empty() || indices.contains(&idx)) && re.is_match(field)
+            }))
         },
     )
 }

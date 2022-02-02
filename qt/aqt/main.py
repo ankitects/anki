@@ -650,7 +650,7 @@ class AnkiQt(QMainWindow):
                 pass
 
         def run(self) -> None:
-            z = zipfile.ZipFile(self.path, "w", zipfile.ZIP_DEFLATED)
+            z = zipfile.ZipFile(self.path, "w", zipfile.ZIP_STORED)
             z.writestr("collection.anki2", self.data)
             z.writestr("media", "{}")
             z.close()

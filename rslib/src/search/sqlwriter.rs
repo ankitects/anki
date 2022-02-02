@@ -3,6 +3,8 @@
 
 use std::{borrow::Cow, fmt::Write};
 
+use itertools::Itertools;
+
 use super::{
     parser::{Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind},
     ReturnItemType,
@@ -16,7 +18,7 @@ use crate::{
     prelude::*,
     storage::ids_to_string,
     text::{
-        is_glob, matches_glob, normalize_to_nfc, strip_html_preserving_media_filenames,
+        glob_matcher, is_glob, normalize_to_nfc, strip_html_preserving_media_filenames,
         to_custom_re, to_re, to_sql, to_text, without_combining,
     },
     timestamp::TimestampSecs,
@@ -117,7 +119,7 @@ impl SqlWriter<'_> {
             // note fields related
             SearchNode::UnqualifiedText(text) => self.write_unqualified(&self.norm_note(text)),
             SearchNode::SingleField { field, text, is_re } => {
-                self.write_single_field(&norm(field), &self.norm_note(text), *is_re)?
+                self.write_field(&norm(field), &self.norm_note(text), *is_re)?
             }
             SearchNode::Duplicates { notetype_id, text } => {
                 self.write_dupe(*notetype_id, &self.norm_note(text))?
@@ -419,55 +421,103 @@ impl SqlWriter<'_> {
         }
     }
 
-    fn write_single_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {
+    fn write_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {
+        if matches!(field_name, "*" | "_*" | "*_") {
+            if is_re {
+                self.write_all_fields_regexp(val);
+            } else {
+                self.write_all_fields(val);
+            }
+            Ok(())
+        } else if is_re {
+            self.write_single_field_regexp(field_name, val)
+        } else {
+            self.write_single_field(field_name, val)
+        }
+    }
+
+    fn write_all_fields_regexp(&mut self, val: &str) {
+        self.args.push(format!("(?i){}", val));
+        write!(self.sql, "regexp_fields(?{}, n.flds)", self.args.len()).unwrap();
+    }
+
+    fn write_all_fields(&mut self, val: &str) {
+        self.args.push(format!("(?i)^{}$", to_re(val)));
+        write!(self.sql, "regexp_fields(?{}, n.flds)", self.args.len()).unwrap();
+    }
+
+    fn write_single_field_regexp(&mut self, field_name: &str, val: &str) -> Result<()> {
+        let field_indicies_by_notetype = self.fields_indices_by_notetype(field_name)?;
+        if field_indicies_by_notetype.is_empty() {
+            write!(self.sql, "false").unwrap();
+            return Ok(());
+        }
+
+        self.args.push(format!("(?i){}", val));
+        let arg_idx = self.args.len();
+
+        let all_notetype_clauses = field_indicies_by_notetype
+            .iter()
+            .map(|(mid, field_indices)| {
+                let field_index_list = field_indices.iter().join(", ");
+                format!("(n.mid = {mid} and regexp_fields(?{arg_idx}, n.flds, {field_index_list}))")
+            })
+            .join(" or ");
+
+        write!(self.sql, "({all_notetype_clauses})").unwrap();
+
+        Ok(())
+    }
+
+    fn write_single_field(&mut self, field_name: &str, val: &str) -> Result<()> {
+        let field_indicies_by_notetype = self.fields_indices_by_notetype(field_name)?;
+        if field_indicies_by_notetype.is_empty() {
+            write!(self.sql, "false").unwrap();
+            return Ok(());
+        }
+
+        self.args.push(to_sql(val).into());
+        let arg_idx = self.args.len();
+
+        let notetype_clause = |(mid, fields): &(NotetypeId, Vec<u32>)| -> String {
+            let field_index_clause =
+                |ord| format!("field_at_index(n.flds, {ord}) like ?{arg_idx} escape '\\'",);
+            let all_field_clauses = fields.iter().map(field_index_clause).join(" or ");
+            format!("(n.mid = {mid} and ({all_field_clauses}))",)
+        };
+        let all_notetype_clauses = field_indicies_by_notetype
+            .iter()
+            .map(notetype_clause)
+            .join(" or ");
+        write!(self.sql, "({all_notetype_clauses})").unwrap();
+
+        Ok(())
+    }
+
+    fn fields_indices_by_notetype(
+        &mut self,
+        field_name: &str,
+    ) -> Result<Vec<(NotetypeId, Vec<u32>)>> {
         let notetypes = self.col.get_all_notetypes()?;
+        let matches_glob = glob_matcher(field_name);
 
         let mut field_map = vec![];
         for nt in notetypes.values() {
+            let mut matched_fields = vec![];
             for field in &nt.fields {
-                if matches_glob(&field.name, field_name) {
-                    field_map.push((nt.id, field.ord));
+                if matches_glob(&field.name) {
+                    matched_fields.push(field.ord.unwrap_or_default());
                 }
+            }
+            if !matched_fields.is_empty() {
+                field_map.push((nt.id, matched_fields));
             }
         }
 
         // for now, sort the map for the benefit of unit tests
         field_map.sort();
 
-        if field_map.is_empty() {
-            write!(self.sql, "false").unwrap();
-            return Ok(());
-        }
-
-        let cmp;
-        let cmp_trailer;
-        if is_re {
-            cmp = "regexp";
-            cmp_trailer = "";
-            self.args.push(format!("(?i){}", val));
-        } else {
-            cmp = "like";
-            cmp_trailer = "escape '\\'";
-            self.args.push(to_sql(val).into())
-        }
-
-        let arg_idx = self.args.len();
-        let searches: Vec<_> = field_map
-            .iter()
-            .map(|(ntid, ord)| {
-                format!(
-                    "(n.mid = {mid} and field_at_index(n.flds, {ord}) {cmp} ?{n} {cmp_trailer})",
-                    mid = ntid,
-                    ord = ord.unwrap_or_default(),
-                    cmp = cmp,
-                    cmp_trailer = cmp_trailer,
-                    n = arg_idx
-                )
-            })
-            .collect();
-        write!(self.sql, "({})", searches.join(" or ")).unwrap();
-
-        Ok(())
+        Ok(field_map)
     }
 
     fn write_dupe(&mut self, ntid: NotetypeId, text: &str) -> Result<()> {
@@ -649,18 +699,48 @@ mod test {
         // user should be able to escape wildcards
         assert_eq!(s(ctx, r#"te\*s\_t"#).1, vec!["%te*s\\_t%".to_string()]);
 
-        // qualified search
+        // field search
         assert_eq!(
             s(ctx, "front:te*st"),
             (
                 concat!(
-                    "(((n.mid = 1581236385344 and field_at_index(n.flds, 0) like ?1 escape '\\') or ",
-                    "(n.mid = 1581236385345 and field_at_index(n.flds, 0) like ?1 escape '\\') or ",
-                    "(n.mid = 1581236385346 and field_at_index(n.flds, 0) like ?1 escape '\\') or ",
-                    "(n.mid = 1581236385347 and field_at_index(n.flds, 0) like ?1 escape '\\')))"
+                    "(((n.mid = 1581236385344 and (field_at_index(n.flds, 0) like ?1 escape '\\')) or ",
+                    "(n.mid = 1581236385345 and (field_at_index(n.flds, 0) like ?1 escape '\\')) or ",
+                    "(n.mid = 1581236385346 and (field_at_index(n.flds, 0) like ?1 escape '\\')) or ",
+                    "(n.mid = 1581236385347 and (field_at_index(n.flds, 0) like ?1 escape '\\'))))"
                 )
                 .into(),
                 vec!["te%st".into()]
+            )
+        );
+        // field search with regex
+        assert_eq!(
+            s(ctx, "front:re:te.*st"),
+            (
+                concat!(
+                    "(((n.mid = 1581236385344 and regexp_fields(?1, n.flds, 0)) or ",
+                    "(n.mid = 1581236385345 and regexp_fields(?1, n.flds, 0)) or ",
+                    "(n.mid = 1581236385346 and regexp_fields(?1, n.flds, 0)) or ",
+                    "(n.mid = 1581236385347 and regexp_fields(?1, n.flds, 0))))"
+                )
+                .into(),
+                vec!["(?i)te.*st".into()]
+            )
+        );
+        // all field search
+        assert_eq!(
+            s(ctx, "*:te*st"),
+            (
+                "(regexp_fields(?1, n.flds))".into(),
+                vec!["(?i)^te.*st$".into()]
+            )
+        );
+        // all field search with regex
+        assert_eq!(
+            s(ctx, "*:re:te.*st"),
+            (
+                "(regexp_fields(?1, n.flds))".into(),
+                vec!["(?i)te.*st".into()]
             )
         );
 

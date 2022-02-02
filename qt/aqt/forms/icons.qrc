@@ -1,1 +1,1 @@
-../../../../bazel/anki/bin/qt/aqt/data/qt/icons.qrc
+../../../.bazel/bin/qt/aqt/data/qt/icons.qrc

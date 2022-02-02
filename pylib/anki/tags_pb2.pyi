@@ -1,1 +1,1 @@
-../../../bazel/anki/bin/pylib/anki/tags_pb2.pyi
+../../.bazel/bin/pylib/anki/tags_pb2.pyi
