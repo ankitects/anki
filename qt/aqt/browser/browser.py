@@ -154,7 +154,7 @@ class Browser(QMainWindow):
                     except NotFoundError:
                         self.editor.set_note(None)
                         return
-                    self.editor.set_note(note)
+                    self.editor.set_note(note, refocus=True)
 
         if changes.browser_table and changes.card:
             self.card = self.table.get_single_selected_card()

@@ -467,20 +467,24 @@ uiPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
     ######################################################################
 
     def set_note(
-        self, note: Note | None, hide: bool = True, focusTo: int | None = None
+        self,
+        note: Note | None,
+        hide: bool = True,
+        focusTo: int | None = None,
+        refocus: bool = False,
     ) -> None:
         "Make NOTE the current note."
         self.note = note
         self.currentField = None
         if self.note:
-            self.loadNote(focusTo=focusTo)
+            self.loadNote(focusTo=focusTo, refocus=refocus)
         elif hide:
             self.widget.hide()
 
     def loadNoteKeepingFocus(self) -> None:
         self.loadNote(self.currentField)
 
-    def loadNote(self, focusTo: int | None = None) -> None:
+    def loadNote(self, focusTo: int | None = None, refocus: bool = False) -> None:
         if not self.note:
             return
 
@@ -523,6 +527,11 @@ uiPromise.then(noteEditor => noteEditor.toolbar.toolbar.appendGroup({{
         if self.addMode:
             sticky = [field["sticky"] for field in self.note.note_type()["flds"]]
             js += " setSticky(%s);" % json.dumps(sticky)
+
+        # update active field after changes are made to the note text
+        # from outside the webview
+        if refocus:
+            js += "refocusField();"
 
         js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(f"uiPromise.then(() => {{ {js} }})", oncallback)

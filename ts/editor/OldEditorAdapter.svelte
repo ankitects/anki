@@ -209,6 +209,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return false;
     }
 
+    export function refocusField(): void {
+        $activeInput?.refocus();
+    }
+
     let richTextInputs: RichTextInput[] = [];
     $: richTextInputs = richTextInputs.filter(Boolean);
 
@@ -259,6 +263,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setClozeHint,
             saveNow: saveFieldNow,
             focusIfField,
+            refocusField,
             setNoteId,
             wrap,
             ...oldEditorAdapter,

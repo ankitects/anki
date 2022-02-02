@@ -49,7 +49,7 @@ class EditCurrent(QDialog):
                 self.cleanup_and_close()
                 return
 
-            self.editor.set_note(note)
+            self.editor.set_note(note, refocus=True)
 
     def cleanup_and_close(self) -> None:
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
