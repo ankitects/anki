@@ -65,10 +65,14 @@ export interface DynamicSlottingAPI<
 }
 
 /**
- * This API allows add-on developers to dynamically access components inserted
- * by Svelte, change their order, or add elements inbetween the components.
+ * Allow add-on developers to dynamically extend/modify components our components
+ *
+ * @remarks
+ * It allows to insert elements inbetween the components, or modify their props.
  * Practically speaking, we let Svelte do the initial insertion of an element,
- * but then immediately move it somewhere else, and save a reference to it.
+ * but then immediately move it to its destination, and save a reference to it.
+ *
+ * @experimental
  */
 function dynamicSlotting<
     T extends SlotHostProps,
