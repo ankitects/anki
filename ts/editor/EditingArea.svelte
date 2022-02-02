@@ -9,10 +9,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export interface EditingInputAPI {
         readonly name: string;
-        focus(): void;
-        refocus(): void;
         focusable: boolean;
-        moveCaretToEnd(): void;
+        /**
+         * The reaction to a user-initiated focus, e.g. by clicking on the
+         * handle, or clicking Tab.
+         */
+        focus(): void;
+        /**
+         * Behaves similar to a refresh, e.g. sync with content, put the caret
+         * into a neutral position, a/o undo selections.
+         */
+        refocus(): void;
     }
 
     export interface EditingAreaAPI {
