@@ -7,8 +7,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TitledContainer from "./TitledContainer.svelte";
     import SwitchRow from "./SwitchRow.svelte";
     import type { DeckOptionsState } from "./lib";
-    import DynamicallySlottable from "./DynamicallySlottable.svelte";
-    import Item from "./Item.svelte";
+    import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
+    import Item from "../components/Item.svelte";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;

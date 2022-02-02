@@ -15,8 +15,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TimerOptions from "./TimerOptions.svelte";
     import AudioOptions from "./AudioOptions.svelte";
     import Addons from "./Addons.svelte";
-    import DynamicallySlottable from "./DynamicallySlottable.svelte";
-    import Item from "./Item.svelte";
+    import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
+    import Item from "../components/Item.svelte";
 
     import type { DeckOptionsState } from "./lib";
     import type { Writable } from "svelte/store";
