@@ -3,7 +3,7 @@
 
 export type Callback = () => void;
 
-export function removeItem<T>(items: T[], item: T) {
+export function removeItem<T>(items: T[], item: T): void {
     const index = items.findIndex((i: T): boolean => i === item);
 
     if (index >= 0) {

@@ -12,11 +12,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let height: number = 0;
     export let breakpoint: Breakpoint | "fluid" = "fluid";
-    export let api: Record<string, never> | undefined = undefined;
 </script>
 
 <div {id} bind:offsetHeight={height} class="sticky-container {className}">
-    <Container {breakpoint} {api}>
+    <Container {breakpoint}>
         <slot />
     </Container>
 </div>

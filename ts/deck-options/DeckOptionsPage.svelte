@@ -15,6 +15,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TimerOptions from "./TimerOptions.svelte";
     import AudioOptions from "./AudioOptions.svelte";
     import Addons from "./Addons.svelte";
+    import DynamicallySlottable from "./DynamicallySlottable.svelte";
+    import Item from "./Item.svelte";
 
     import type { DeckOptionsState } from "./lib";
     import type { Writable } from "svelte/store";
@@ -51,7 +53,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export const displayOrder = {};
     export const timerOptions = {};
     export const audioOptions = {};
-    export const addonOptions = {};
     export const advancedOptions = {};
 </script>
 
@@ -63,45 +64,64 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         --gutter-inline="0.25rem"
         --gutter-block="0.5rem"
         class="container-columns"
-        api={options}
     >
-        <Row class="row-columns">
-            <DailyLimits {state} api={dailyLimits} />
-        </Row>
+        <DynamicallySlottable slotHost={Item} api={options}>
+            <Item>
+                <Row class="row-columns">
+                    <DailyLimits {state} api={dailyLimits} />
+                </Row>
+            </Item>
 
-        <Row class="row-columns">
-            <NewOptions {state} api={newOptions} />
-        </Row>
+            <Item>
+                <Row class="row-columns">
+                    <NewOptions {state} api={newOptions} />
+                </Row>
+            </Item>
 
-        <Row class="row-columns">
-            <LapseOptions {state} api={lapseOptions} />
-        </Row>
+            <Item>
+                <Row class="row-columns">
+                    <LapseOptions {state} api={lapseOptions} />
+                </Row>
+            </Item>
 
-        {#if state.v3Scheduler}
-            <Row class="row-columns">
-                <DisplayOrder {state} api={displayOrder} />
-            </Row>
-        {/if}
+            {#if state.v3Scheduler}
+                <Item>
+                    <Row class="row-columns">
+                        <DisplayOrder {state} api={displayOrder} />
+                    </Row>
+                </Item>
+            {/if}
 
-        <Row class="row-columns">
-            <TimerOptions {state} api={timerOptions} />
-        </Row>
+            <Item>
+                <Row class="row-columns">
+                    <TimerOptions {state} api={timerOptions} />
+                </Row>
+            </Item>
 
-        <Row class="row-columns">
-            <BuryOptions {state} api={buryOptions} />
-        </Row>
+            <Item>
+                <Row class="row-columns">
+                    <BuryOptions {state} api={buryOptions} />
+                </Row>
+            </Item>
 
-        <Row class="row-columns">
-            <AudioOptions {state} api={audioOptions} />
-        </Row>
+            <Item>
+                <Row class="row-columns">
+                    <AudioOptions {state} api={audioOptions} />
+                </Row>
+            </Item>
 
-        <Row class="row-columns">
-            <Addons {state} api={addonOptions} />
-        </Row>
+            <Item>
+                <Row class="row-columns">
+                    <Addons {state} />
+                </Row>
+            </Item>
 
-        <Row class="row-columns">
-            <AdvancedOptions {state} api={advancedOptions} />
-        </Row>
+            <Item>
+                <Row class="row-columns">
+                    <AdvancedOptions {state} api={advancedOptions} />
+                </Row>
+            </Item>
+        </DynamicallySlottable>
     </Container>
 </div>
 
