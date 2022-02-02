@@ -126,10 +126,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let focusTo: number = 0;
-    export function focusField(n: number): void {
+    export function focusField(n: number | null): void {
         if (typeof n === "number") {
+            if (!(n in fields)) {
+                return;
+            }
+
             focusTo = n;
             fields[focusTo].editingArea?.refocus();
+        } else {
+            $focusedInput?.refocus();
         }
     }
 
