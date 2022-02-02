@@ -11,6 +11,7 @@ use crate::{
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(crate) struct RemainingLimits {
+    pub deck_id: DeckId,
     pub review: u32,
     pub new: u32,
 }
@@ -25,6 +26,7 @@ impl RemainingLimits {
                     rev_today += new_today;
                 }
                 RemainingLimits {
+                    deck_id: deck.id,
                     review: ((config.inner.reviews_per_day as i32) - rev_today).max(0) as u32,
                     new: ((config.inner.new_per_day as i32) - new_today).max(0) as u32,
                 }
@@ -41,6 +43,7 @@ impl RemainingLimits {
 impl Default for RemainingLimits {
     fn default() -> Self {
         RemainingLimits {
+            deck_id: DeckId(1),
             review: 9999,
             new: 9999,
         }

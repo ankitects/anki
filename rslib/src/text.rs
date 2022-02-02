@@ -355,6 +355,14 @@ pub(crate) fn escape_anki_wildcards_for_search_node(txt: &str) -> String {
     }
 }
 
+/// Unescape everything.
+pub(crate) fn escape_sql_wildcards(txt: &str) -> Cow<str> {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"_|%").unwrap();
+    }
+    RE.replace_all(txt, "\\$1")
+}
+
 /// Return a function to match input against `search`,
 /// which may contain wildcards.
 pub(crate) fn glob_matcher(search: &str) -> impl Fn(&str) -> bool + '_ {

@@ -69,6 +69,19 @@ fn row_to_card(row: &Row) -> result::Result<Card, rusqlite::Error> {
     })
 }
 
+fn row_to_new_card(row: &Row) -> result::Result<NewCard, rusqlite::Error> {
+    Ok(NewCard {
+        id: row.get(0)?,
+        note_id: row.get(1)?,
+        due: row.get(2)?,
+        template_index: row.get(3)?,
+        mtime: row.get(4)?,
+        current_deck_id: row.get(5)?,
+        original_deck_id: row.get(6)?,
+        hash: 0,
+    })
+}
+
 impl super::SqliteStorage {
     pub fn get_card(&self, cid: CardId) -> Result<Option<Card>> {
         self.db
@@ -229,11 +242,30 @@ impl super::SqliteStorage {
         Ok(())
     }
 
-    /// Call func() for each new card, stopping when it returns false
-    /// or no more cards found.
-    pub(crate) fn for_each_new_card_in_deck<F>(
+    /// Call func() for each new card in the provided deck, stopping when it
+    /// returns or no more cards found.
+    pub(crate) fn for_each_new_card_in_deck<F>(&self, deck: DeckId, mut func: F) -> Result<()>
+    where
+        F: FnMut(NewCard) -> bool,
+    {
+        let mut stmt = self.db.prepare_cached(&format!(
+            "{} ORDER BY due ASC",
+            include_str!("new_cards.sql")
+        ))?;
+        let mut rows = stmt.query(params![deck])?;
+        while let Some(row) = rows.next()? {
+            if !func(row_to_new_card(row)?) {
+                break;
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Call func() for each new card in the active decks, stopping when it
+    /// returns false or no more cards found.
+    pub(crate) fn for_each_new_card_in_active_decks<F>(
         &self,
-        deck: DeckId,
         reverse: bool,
         mut func: F,
     ) -> Result<()>
@@ -242,20 +274,12 @@ impl super::SqliteStorage {
     {
         let mut stmt = self.db.prepare_cached(&format!(
             "{} ORDER BY {}",
-            include_str!("new_cards.sql"),
+            include_str!("active_new_cards.sql"),
             if reverse { "due desc" } else { "due asc" }
         ))?;
-        let mut rows = stmt.query(params![deck])?;
+        let mut rows = stmt.query(params![])?;
         while let Some(row) = rows.next()? {
-            if !func(NewCard {
-                id: row.get(0)?,
-                note_id: row.get(1)?,
-                due: row.get(2)?,
-                template_index: row.get(3)?,
-                mtime: row.get(4)?,
-                original_deck_id: row.get(5)?,
-                hash: 0,
-            }) {
+            if !func(row_to_new_card(row)?) {
                 break;
             }
         }
