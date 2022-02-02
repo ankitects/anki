@@ -193,7 +193,7 @@ class Card(DeprecatedNamesMixin):
         del dict_copy["_note"]
         del dict_copy["_render_output"]
         del dict_copy["col"]
-        del dict_copy["timerStarted"]
+        del dict_copy["timer_started"]
         return f"{super().__repr__()} {pprint.pformat(dict_copy, width=300)}"
 
     def user_flag(self) -> int:

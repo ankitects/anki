@@ -1,1 +1,1 @@
-../../../bazel/anki/bin/pylib/anki/i18n_pb2.pyi
+../../.bazel/bin/pylib/anki/i18n_pb2.pyi

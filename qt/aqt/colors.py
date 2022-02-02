@@ -1,1 +1,1 @@
-../../../bazel/anki/bin/qt/aqt/colors.py
+../../.bazel/bin/qt/aqt/colors.py
