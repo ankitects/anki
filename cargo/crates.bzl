@@ -913,6 +913,16 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "raze__id_tree__1_8_0",
+        url = "https://crates.io/api/v1/crates/id_tree/1.8.0/download",
+        type = "tar.gz",
+        sha256 = "bcd9db8dd5be8bde5a2624ed4b2dfb74368fe7999eb9c4940fd3ca344b61071a",
+        strip_prefix = "id_tree-1.8.0",
+        build_file = Label("//cargo/remote:BUILD.id_tree-1.8.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "raze__idna__0_2_3",
         url = "https://crates.io/api/v1/crates/idna/0.2.3/download",
         type = "tar.gz",
@@ -2289,6 +2299,16 @@ def raze_fetch_remote_crates():
         sha256 = "f2dd574626839106c320a323308629dcb1acfc96e32a8cba364ddc61ac23ee83",
         strip_prefix = "smallvec-1.8.0",
         build_file = Label("//cargo/remote:BUILD.smallvec-1.8.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__snowflake__1_3_0",
+        url = "https://crates.io/api/v1/crates/snowflake/1.3.0/download",
+        type = "tar.gz",
+        sha256 = "27207bb65232eda1f588cf46db2fee75c0808d557f6b3cf19a75f5d6d7c94df1",
+        strip_prefix = "snowflake-1.3.0",
+        build_file = Label("//cargo/remote:BUILD.snowflake-1.3.0.bazel"),
     )
 
     maybe(
