@@ -89,6 +89,6 @@
         "not op_mini all",
         "not < 1%",
         "Chrome 77",
-        "iOS 12"
+        "iOS 13.4"
     ]
 }
