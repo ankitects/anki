@@ -36,7 +36,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { onMount, setContext as svelteSetContext } from "svelte";
+    import { setContext as svelteSetContext } from "svelte";
     import { writable } from "svelte/store";
 
     import { fontFamilyKey, fontSizeKey } from "../lib/context-keys";
@@ -53,7 +53,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     svelteSetContext(fontSizeKey, fontSizeStore);
 
     export let content: Writable<string>;
-    export let autofocus = false;
 
     let editingArea: HTMLElement;
     let focusTrap: FocusTrap;
@@ -137,12 +136,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     setContextProperty(api);
-
-    onMount(() => {
-        if (autofocus) {
-            focus();
-        }
-    });
 </script>
 
 <FocusTrap bind:this={focusTrap} on:focus={focusEditingInputInsteadIfAvailable} />
