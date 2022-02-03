@@ -35,10 +35,18 @@ module.exports = {
         {
             files: "**/*.svelte",
             processor: "svelte3/svelte3",
+            rules: {
+                "no-redeclare": "off",
+                "no-global-assign": "off",
+            },
         },
     ],
     env: { browser: true },
     ignorePatterns: ["backend_proto.d.ts", "*.svelte.d.ts"],
+    globals: {
+        "globalThis": false,
+        "NodeListOf": false,
+    },
     settings: {
         "svelte3/typescript": () => require("typescript"),
     },
