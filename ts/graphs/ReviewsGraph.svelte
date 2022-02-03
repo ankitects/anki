@@ -3,28 +3,27 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import * as tr from "../lib/ftl";
+    import type { Stats } from "../lib/proto";
+    import AxisTicks from "./AxisTicks.svelte";
+    import CumulativeOverlay from "./CumulativeOverlay.svelte";
     import Graph from "./Graph.svelte";
+    import type { TableDatum } from "./graph-helpers";
+    import { defaultGraphBounds, GraphRange, RevlogRange } from "./graph-helpers";
+    import GraphRangeRadios from "./GraphRangeRadios.svelte";
+    import HoverColumns from "./HoverColumns.svelte";
     import InputBox from "./InputBox.svelte";
     import NoDataOverlay from "./NoDataOverlay.svelte";
-    import CumulativeOverlay from "./CumulativeOverlay.svelte";
-    import GraphRangeRadios from "./GraphRangeRadios.svelte";
-    import TableData from "./TableData.svelte";
-    import AxisTicks from "./AxisTicks.svelte";
-    import HoverColumns from "./HoverColumns.svelte";
-
-    import type { Stats } from "../lib/proto";
-    import * as tr from "../lib/ftl";
-    import { defaultGraphBounds, RevlogRange, GraphRange } from "./graph-helpers";
-    import type { TableDatum } from "./graph-helpers";
-    import { gatherData, renderReviews } from "./reviews";
     import type { GraphData } from "./reviews";
+    import { gatherData, renderReviews } from "./reviews";
+    import TableData from "./TableData.svelte";
 
     export let sourceData: Stats.GraphsResponse | null = null;
     export let revlogRange: RevlogRange;
 
     let graphData: GraphData | null = null;
 
-    let bounds = defaultGraphBounds();
+    const bounds = defaultGraphBounds();
     let svg = null as HTMLElement | SVGElement | null;
     let graphRange: GraphRange = GraphRange.Month;
     let showTime = false;

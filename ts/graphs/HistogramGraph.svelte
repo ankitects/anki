@@ -4,17 +4,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import AxisTicks from "./AxisTicks.svelte";
-    import NoDataOverlay from "./NoDataOverlay.svelte";
     import CumulativeOverlay from "./CumulativeOverlay.svelte";
-    import HoverColumns from "./HoverColumns.svelte";
-
+    import { defaultGraphBounds } from "./graph-helpers";
     import type { HistogramData } from "./histogram-graph";
     import { histogramGraph } from "./histogram-graph";
-    import { defaultGraphBounds } from "./graph-helpers";
+    import HoverColumns from "./HoverColumns.svelte";
+    import NoDataOverlay from "./NoDataOverlay.svelte";
 
     export let data: HistogramData | null = null;
 
-    let bounds = defaultGraphBounds();
+    const bounds = defaultGraphBounds();
     let svg = null as HTMLElement | SVGElement | null;
 
     $: histogramGraph(svg as SVGElement, bounds, data);

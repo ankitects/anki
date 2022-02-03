@@ -2,11 +2,12 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import "intl-pluralrules";
+
 import { FluentBundle, FluentResource } from "@fluent/bundle";
 
+import { i18n } from "../proto";
 import { firstLanguage, setBundles } from "./bundles";
 import type { ModuleName } from "./modules";
-import { i18n } from "../proto";
 
 export function supportsVerticalText(): boolean {
     const firstLang = firstLanguage();

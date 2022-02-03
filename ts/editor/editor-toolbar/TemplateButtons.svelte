@@ -4,23 +4,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import ButtonGroup from "../../components/ButtonGroup.svelte";
-    import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import ButtonGroupItem, {
         createProps,
-        updatePropsList,
         setSlotHostContext,
+        updatePropsList,
     } from "../../components/ButtonGroupItem.svelte";
+    import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
-    import ClozeButton from "./ClozeButton.svelte";
-    import LatexButton from "./LatexButton.svelte";
-
-    import * as tr from "../../lib/ftl";
     import { bridgeCommand } from "../../lib/bridgecommand";
+    import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
     import { context } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
-    import { paperclipIcon, micIcon } from "./icons";
+    import ClozeButton from "./ClozeButton.svelte";
+    import { micIcon, paperclipIcon } from "./icons";
+    import LatexButton from "./LatexButton.svelte";
 
     const { focusedInput } = context.get();
 

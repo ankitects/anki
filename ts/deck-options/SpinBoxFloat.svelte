@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { pageTheme } from "../sveltelib/theme";
     import { localizedNumber } from "../lib/i18n";
+    import { pageTheme } from "../sveltelib/theme";
 
     export let value: number;
     export let min = 1;

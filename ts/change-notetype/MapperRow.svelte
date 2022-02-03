@@ -3,15 +3,15 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Row from "../components/Row.svelte";
     import Col from "../components/Col.svelte";
+    import Row from "../components/Row.svelte";
     import type { ChangeNotetypeState, MapContext } from "./lib";
 
     export let state: ChangeNotetypeState;
     export let ctx: MapContext;
     export let newIndex: number;
 
-    let info = state.info;
+    const info = state.info;
 
     function onChange(evt: Event) {
         const oldIdx = parseInt((evt.target as HTMLSelectElement).value, 10);

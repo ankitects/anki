@@ -1,18 +1,18 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { getRangeAnchors } from "./range-anchors";
-import { nodeWithinRange } from "./within-range";
-import { findTextNodesWithin } from "./text-node";
-import {
-    surroundChildNodeRangeWithNode,
-    nodeToChildNodeRange,
-} from "./child-node-range";
-import { mergeMatchChildNodeRanges } from "./merge-match";
 import { ascendWhileSingleInline } from "./ascend";
-import { normalizeInsertionRanges } from "./normalize-insertion-ranges";
+import {
+    nodeToChildNodeRange,
+    surroundChildNodeRangeWithNode,
+} from "./child-node-range";
+import type { ElementClearer, ElementMatcher } from "./matcher";
 import { matchTagName } from "./matcher";
-import type { ElementMatcher, ElementClearer } from "./matcher";
+import { mergeMatchChildNodeRanges } from "./merge-match";
+import { normalizeInsertionRanges } from "./normalize-insertion-ranges";
+import { getRangeAnchors } from "./range-anchors";
+import { findTextNodesWithin } from "./text-node";
+import { nodeWithinRange } from "./within-range";
 
 export interface NodesResult {
     addedNodes: Node[];

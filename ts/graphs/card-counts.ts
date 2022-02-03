@@ -5,22 +5,23 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import * as tr from "../lib/ftl";
-import { CardQueue, CardType } from "../lib/cards";
-import type { Stats, Cards } from "../lib/proto";
 import {
-    schemeGreens,
+    arc,
+    cumsum,
+    interpolate,
+    pie,
+    scaleLinear,
     schemeBlues,
+    schemeGreens,
     schemeOranges,
     schemeReds,
     select,
-    scaleLinear,
-    pie,
-    arc,
-    interpolate,
-    cumsum,
 } from "d3";
+
+import { CardQueue, CardType } from "../lib/cards";
+import * as tr from "../lib/ftl";
 import { localizedNumber } from "../lib/i18n";
+import type { Cards, Stats } from "../lib/proto";
 import type { GraphBounds } from "./graph-helpers";
 
 type Count = [string, number, boolean, string];

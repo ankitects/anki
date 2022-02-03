@@ -8,15 +8,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="ts">
     import type { Writable } from "svelte/store";
+
     import { updateAllState } from "../components/WithState.svelte";
     import actionList from "../sveltelib/action-list";
+    import type { InputManagerAction } from "../sveltelib/input-manager";
+    import type { MirrorAction } from "../sveltelib/mirror-dom";
+    import type { ContentEditableAPI } from "./content-editable";
     import {
         customFocusHandling,
         preventBuiltinContentEditableShortcuts,
     } from "./content-editable";
-    import type { ContentEditableAPI } from "./content-editable";
-    import type { MirrorAction } from "../sveltelib/mirror-dom";
-    import type { InputManagerAction } from "../sveltelib/input-manager";
 
     export let resolve: (editable: HTMLElement) => void;
 

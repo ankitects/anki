@@ -3,21 +3,21 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "../lib/ftl";
-    import TitledContainer from "./TitledContainer.svelte";
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
-    import StepsInputRow from "./StepsInputRow.svelte";
-    import SpinBoxRow from "./SpinBoxRow.svelte";
+    import * as tr from "../lib/ftl";
     import EnumSelectorRow from "./EnumSelectorRow.svelte";
-    import Warning from "./Warning.svelte";
     import type { DeckOptionsState } from "./lib";
+    import SpinBoxRow from "./SpinBoxRow.svelte";
+    import StepsInputRow from "./StepsInputRow.svelte";
+    import TitledContainer from "./TitledContainer.svelte";
+    import Warning from "./Warning.svelte";
 
     export let state: DeckOptionsState;
     export let api = {};
 
-    let config = state.currentConfig;
-    let defaults = state.defaults;
+    const config = state.currentConfig;
+    const defaults = state.defaults;
 
     let stepsExceedMinimumInterval: string;
     $: {

@@ -1,8 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { filterHTML } from "../html-filter";
 import { updateAllState } from "../components/WithState.svelte";
+import { filterHTML } from "../html-filter";
 import { execCommand } from "./helpers";
 
 export function pasteHTML(

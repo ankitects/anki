@@ -4,10 +4,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
+
     import Badge from "../../components/Badge.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import { getPlatformString } from "../../lib/shortcuts";
-    import { tagIcon, addTagIcon } from "./icons";
+    import { addTagIcon, tagIcon } from "./icons";
 
     const dispatch = createEventDispatcher();
     const tooltip = "Add tag";

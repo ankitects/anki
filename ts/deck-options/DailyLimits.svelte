@@ -3,20 +3,20 @@
     License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "../lib/ftl";
-    import TitledContainer from "./TitledContainer.svelte";
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
-    import SpinBoxRow from "./SpinBoxRow.svelte";
-    import Warning from "./Warning.svelte";
+    import * as tr from "../lib/ftl";
     import type { DeckOptionsState } from "./lib";
+    import SpinBoxRow from "./SpinBoxRow.svelte";
+    import TitledContainer from "./TitledContainer.svelte";
+    import Warning from "./Warning.svelte";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
 
-    let config = state.currentConfig;
-    let defaults = state.defaults;
-    let parentLimits = state.parentLimits;
+    const config = state.currentConfig;
+    const defaults = state.defaults;
+    const parentLimits = state.parentLimits;
 
     const v3Extra = state.v3Scheduler
         ? "\n\n" +

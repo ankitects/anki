@@ -3,24 +3,24 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Graph from "./Graph.svelte";
-    import InputBox from "./InputBox.svelte";
-    import HistogramGraph from "./HistogramGraph.svelte";
-    import TableData from "./TableData.svelte";
+    import { createEventDispatcher } from "svelte";
 
-    import { timeSpan, MONTH } from "../lib/time";
     import * as tr from "../lib/ftl";
     import type { Stats } from "../lib/proto";
+    import { MONTH, timeSpan } from "../lib/time";
     import type { PreferenceStore } from "../sveltelib/preferences";
-    import { createEventDispatcher } from "svelte";
+    import Graph from "./Graph.svelte";
+    import type { SearchEventMap, TableDatum } from "./graph-helpers";
     import type { HistogramData } from "./histogram-graph";
+    import HistogramGraph from "./HistogramGraph.svelte";
+    import InputBox from "./InputBox.svelte";
+    import type { IntervalGraphData } from "./intervals";
     import {
         gatherIntervalData,
         IntervalRange,
         prepareIntervalData,
     } from "./intervals";
-    import type { IntervalGraphData } from "./intervals";
-    import type { TableDatum, SearchEventMap } from "./graph-helpers";
+    import TableData from "./TableData.svelte";
 
     export let sourceData: Stats.GraphsResponse | null = null;
     export let preferences: PreferenceStore<Stats.GraphPreferences>;
@@ -31,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let histogramData = null as HistogramData | null;
     let tableData: TableDatum[] = [];
     let range = IntervalRange.Percentile95;
-    let { browserLinksSupported } = preferences;
+    const { browserLinksSupported } = preferences;
 
     $: if (sourceData) {
         intervalData = gatherIntervalData(sourceData);

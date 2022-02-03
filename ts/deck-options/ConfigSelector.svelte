@@ -3,23 +3,23 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "../lib/ftl";
-    import { getContext } from "svelte";
-    import { modalsKey } from "../components/context-keys";
-    import type { DeckOptionsState, ConfigListEntry } from "./lib";
     import type Modal from "bootstrap/js/dist/modal";
+    import { getContext } from "svelte";
 
-    import TextInputModal from "./TextInputModal.svelte";
-    import StickyContainer from "../components/StickyContainer.svelte";
-    import ButtonToolbar from "../components/ButtonToolbar.svelte";
     import ButtonGroup from "../components/ButtonGroup.svelte";
-
+    import ButtonToolbar from "../components/ButtonToolbar.svelte";
+    import { modalsKey } from "../components/context-keys";
     import SelectButton from "../components/SelectButton.svelte";
     import SelectOption from "../components/SelectOption.svelte";
+    import StickyContainer from "../components/StickyContainer.svelte";
+    import * as tr from "../lib/ftl";
+    import { noop } from "../lib/functional";
+    import type { ConfigListEntry, DeckOptionsState } from "./lib";
     import SaveButton from "./SaveButton.svelte";
+    import TextInputModal from "./TextInputModal.svelte";
 
     export let state: DeckOptionsState;
-    let configList = state.configList;
+    const configList = state.configList;
 
     function configLabel(entry: ConfigListEntry): string {
         const count = tr.deckConfigUsedByDecks({ decks: entry.useCount });
@@ -53,7 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let modalKey: string;
     let modalStartingValue = "";
     let modalTitle = "";
-    let modalSuccess = (_text: string) => {};
+    let modalSuccess: (text: string) => void = noop;
 
     function promptToAdd() {
         modalTitle = tr.deckConfigAddGroup();

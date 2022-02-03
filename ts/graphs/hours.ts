@@ -5,30 +5,31 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { Stats } from "../lib/proto";
 import {
-    interpolateBlues,
-    select,
-    pointer,
-    scaleLinear,
-    scaleBand,
-    scaleSequential,
+    area,
     axisBottom,
     axisLeft,
     axisRight,
-    area,
     curveBasis,
+    interpolateBlues,
+    pointer,
+    scaleBand,
+    scaleLinear,
+    scaleSequential,
+    select,
 } from "d3";
-import { localizedNumber } from "../lib/i18n";
+
 import * as tr from "../lib/ftl";
-import { showTooltip, hideTooltip } from "./tooltip";
+import { localizedNumber } from "../lib/i18n";
+import { Stats } from "../lib/proto";
 import {
     GraphBounds,
-    setDataAvailable,
     GraphRange,
     millisecondCutoffForRange,
+    setDataAvailable,
 } from "./graph-helpers";
 import { oddTickClass } from "./graph-styles";
+import { hideTooltip, showTooltip } from "./tooltip";
 
 interface Hour {
     hour: number;

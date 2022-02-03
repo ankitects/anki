@@ -3,22 +3,21 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { Stats } from "../lib/proto";
-    import type { PreferenceStore } from "../sveltelib/preferences";
     import { createEventDispatcher } from "svelte";
 
-    import Graph from "./Graph.svelte";
-    import InputBox from "./InputBox.svelte";
-    import HistogramGraph from "./HistogramGraph.svelte";
-    import GraphRangeRadios from "./GraphRangeRadios.svelte";
-    import TableData from "./TableData.svelte";
-
     import * as tr from "../lib/ftl";
-    import { RevlogRange, GraphRange } from "./graph-helpers";
-    import type { TableDatum, SearchEventMap } from "./graph-helpers";
-    import type { HistogramData } from "./histogram-graph";
-    import { gatherData, buildHistogram } from "./added";
+    import type { Stats } from "../lib/proto";
+    import type { PreferenceStore } from "../sveltelib/preferences";
     import type { GraphData } from "./added";
+    import { buildHistogram, gatherData } from "./added";
+    import Graph from "./Graph.svelte";
+    import type { SearchEventMap, TableDatum } from "./graph-helpers";
+    import { GraphRange, RevlogRange } from "./graph-helpers";
+    import GraphRangeRadios from "./GraphRangeRadios.svelte";
+    import type { HistogramData } from "./histogram-graph";
+    import HistogramGraph from "./HistogramGraph.svelte";
+    import InputBox from "./InputBox.svelte";
+    import TableData from "./TableData.svelte";
 
     export let sourceData: Stats.GraphsResponse | null = null;
     export let preferences: PreferenceStore<Stats.GraphPreferences>;
@@ -26,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let histogramData = null as HistogramData | null;
     let tableData: TableDatum[] = [];
     let graphRange: GraphRange = GraphRange.Month;
-    let { browserLinksSupported } = preferences;
+    const { browserLinksSupported } = preferences;
 
     const dispatch = createEventDispatcher<SearchEventMap>();
 
