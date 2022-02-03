@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import TitledContainer from "./TitledContainer.svelte";
+    import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import SwitchRow from "./SwitchRow.svelte";
@@ -17,26 +18,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let defaults = state.defaults;
 </script>
 
-<TitledContainer title={tr.deckConfigTimerTitle()} {api}>
-    <Item>
-        <SpinBoxRow
-            bind:value={$config.capAnswerTimeToSecs}
-            defaultValue={defaults.capAnswerTimeToSecs}
-            min={30}
-            max={600}
-            markdownTooltip={tr.deckConfigMaximumAnswerSecsTooltip()}
-        >
-            {tr.deckConfigMaximumAnswerSecs()}
-        </SpinBoxRow>
-    </Item>
+<TitledContainer title={tr.deckConfigTimerTitle()}>
+    <DynamicallySlottable slotHost={Item} {api}>
+        <Item>
+            <SpinBoxRow
+                bind:value={$config.capAnswerTimeToSecs}
+                defaultValue={defaults.capAnswerTimeToSecs}
+                min={30}
+                max={600}
+                markdownTooltip={tr.deckConfigMaximumAnswerSecsTooltip()}
+            >
+                {tr.deckConfigMaximumAnswerSecs()}
+            </SpinBoxRow>
+        </Item>
 
-    <Item>
-        <SwitchRow
-            bind:value={$config.showTimer}
-            defaultValue={defaults.showTimer}
-            markdownTooltip={tr.deckConfigShowAnswerTimerTooltip()}
-        >
-            {tr.schedulingShowAnswerTimer()}
-        </SwitchRow>
-    </Item>
+        <Item>
+            <SwitchRow
+                bind:value={$config.showTimer}
+                defaultValue={defaults.showTimer}
+                markdownTooltip={tr.deckConfigShowAnswerTimerTooltip()}
+            >
+                {tr.schedulingShowAnswerTimer()}
+            </SwitchRow>
+        </Item>
+    </DynamicallySlottable>
 </TitledContainer>

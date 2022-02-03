@@ -22,9 +22,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const key = Symbol("editingArea");
-    const [set, getEditingArea, hasEditingArea] = contextProperty<EditingAreaAPI>(key);
+    const [context, setContextProperty] = contextProperty<EditingAreaAPI>(key);
 
-    export { getEditingArea, hasEditingArea };
+    export { context };
 </script>
 
 <script lang="ts">
@@ -117,17 +117,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    export let api: Partial<EditingAreaAPI>;
+    let apiPartial: Partial<EditingAreaAPI>;
+    export { apiPartial as api };
 
-    Object.assign(
-        api,
-        set({
-            content,
-            editingInputs: inputsStore,
-            focus,
-            refocus,
-        }),
-    );
+    const api = Object.assign(apiPartial, {
+        content,
+        editingInputs: inputsStore,
+        focus,
+        refocus,
+    });
+
+    setContextProperty(api);
 
     onMount(() => {
         if (autofocus) {

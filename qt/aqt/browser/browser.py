@@ -413,9 +413,6 @@ class Browser(QMainWindow):
 
         def add_preview_button(editor: Editor) -> None:
             editor._links["preview"] = lambda _editor: self.onTogglePreview()
-            editor.web.eval(
-                "noteEditorPromise.then(noteEditor => noteEditor.toolbar.notetypeButtons.appendButton({ component: editorToolbar.PreviewButton, id: 'preview' }));",
-            )
 
         gui_hooks.editor_did_init.append(add_preview_button)
         self.editor = aqt.editor.Editor(
@@ -633,9 +630,7 @@ class Browser(QMainWindow):
 
     def toggle_preview_button_state(self, active: bool) -> None:
         if self.editor.web:
-            self.editor.web.eval(
-                f"editorToolbar.togglePreviewButtonState({json.dumps(active)});"
-            )
+            self.editor.web.eval(f"togglePreviewButtonState({json.dumps(active)});")
 
     def _cleanup_preview(self) -> None:
         if self._previewer:

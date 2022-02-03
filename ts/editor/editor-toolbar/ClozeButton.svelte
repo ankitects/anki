@@ -10,18 +10,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { wrapInternal } from "../../lib/wrap";
     import { getPlatformString } from "../../lib/shortcuts";
     import { get } from "svelte/store";
-    import { getNoteEditor } from "../OldEditorAdapter.svelte";
+    import { context as noteEditorContext } from "../NoteEditor.svelte";
     import type { RichTextInputAPI } from "../rich-text-input";
+    import { editingInputIsRichText } from "../rich-text-input";
     import { ellipseIcon } from "./icons";
 
-    const noteEditor = getNoteEditor();
-    const { focusInRichText, activeInput } = noteEditor;
+    const { focusedInput, fields } = noteEditorContext.get();
 
     const clozePattern = /\{\{c(\d+)::/gu;
     function getCurrentHighestCloze(increment: boolean): number {
         let highest = 0;
 
-        for (const field of noteEditor.fields) {
+        for (const field of fields) {
             const content = field.editingArea?.content;
             const fieldHTML = content ? get(content) : "";
 
@@ -42,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return Math.max(1, highest);
     }
 
-    $: richTextAPI = $activeInput as RichTextInputAPI;
+    $: richTextAPI = $focusedInput as RichTextInputAPI;
 
     async function onCloze(event: KeyboardEvent | MouseEvent): Promise<void> {
         const highestCloze = getCurrentHighestCloze(!event.getModifierState("Alt"));
@@ -50,7 +50,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         wrapInternal(richText, `{{c${highestCloze}::`, "}}", false);
     }
 
-    $: disabled = !$focusInRichText;
+    $: disabled = !editingInputIsRichText($focusedInput);
 
     const keyCombination = "Control+Alt?+Shift+C";
 </script>

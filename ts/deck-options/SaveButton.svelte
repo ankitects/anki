@@ -11,8 +11,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { withCollapsedWhitespace } from "../lib/i18n";
 
     import ButtonGroup from "../components/ButtonGroup.svelte";
-    import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
-
     import LabelButton from "../components/LabelButton.svelte";
     import DropdownMenu from "../components/DropdownMenu.svelte";
     import DropdownItem from "../components/DropdownItem.svelte";
@@ -62,40 +60,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <ButtonGroup>
-    <ButtonGroupItem>
-        <LabelButton
-            theme="primary"
-            on:click={() => save(false)}
-            tooltip={getPlatformString(saveKeyCombination)}
-            >{tr.deckConfigSaveButton()}</LabelButton
-        >
-        <Shortcut keyCombination={saveKeyCombination} on:click={() => save(false)} />
-    </ButtonGroupItem>
+    <LabelButton
+        theme="primary"
+        on:click={() => save(false)}
+        tooltip={getPlatformString(saveKeyCombination)}
+        --border-left-radius="5px">{tr.deckConfigSaveButton()}</LabelButton
+    >
+    <Shortcut keyCombination={saveKeyCombination} on:click={() => save(false)} />
 
-    <ButtonGroupItem>
-        <WithDropdown let:createDropdown>
-            <LabelButton
-                on:mount={(event) => (dropdown = createDropdown(event.detail.button))}
-                on:click={() => dropdown.toggle()}
-            />
-            <DropdownMenu>
-                <DropdownItem on:click={() => dispatch("add")}
-                    >{tr.deckConfigAddGroup()}</DropdownItem
-                >
-                <DropdownItem on:click={() => dispatch("clone")}
-                    >{tr.deckConfigCloneGroup()}</DropdownItem
-                >
-                <DropdownItem on:click={() => dispatch("rename")}>
-                    {tr.deckConfigRenameGroup()}
-                </DropdownItem>
-                <DropdownItem on:click={removeConfig}
-                    >{tr.deckConfigRemoveGroup()}</DropdownItem
-                >
-                <DropdownDivider />
-                <DropdownItem on:click={() => save(true)}>
-                    {tr.deckConfigSaveToAllSubdecks()}
-                </DropdownItem>
-            </DropdownMenu>
-        </WithDropdown>
-    </ButtonGroupItem>
+    <WithDropdown let:createDropdown --border-right-radius="5px">
+        <LabelButton
+            on:click={() => dropdown.toggle()}
+            on:mount={(event) => (dropdown = createDropdown(event.detail.button))}
+        />
+        <DropdownMenu>
+            <DropdownItem on:click={() => dispatch("add")}
+                >{tr.deckConfigAddGroup()}</DropdownItem
+            >
+            <DropdownItem on:click={() => dispatch("clone")}
+                >{tr.deckConfigCloneGroup()}</DropdownItem
+            >
+            <DropdownItem on:click={() => dispatch("rename")}>
+                {tr.deckConfigRenameGroup()}
+            </DropdownItem>
+            <DropdownItem on:click={removeConfig}
+                >{tr.deckConfigRemoveGroup()}</DropdownItem
+            >
+            <DropdownDivider />
+            <DropdownItem on:click={() => save(true)}>
+                {tr.deckConfigSaveToAllSubdecks()}
+            </DropdownItem>
+        </DropdownMenu>
+    </WithDropdown>
 </ButtonGroup>

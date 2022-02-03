@@ -3,7 +3,7 @@
 
 import type { Modifier } from "./keys";
 
-import { registerPackage } from "./register-package";
+import { registerPackage } from "./runtime-require";
 import {
     modifiersToPlatformString,
     keyToPlatformString,

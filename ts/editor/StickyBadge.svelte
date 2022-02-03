@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Badge from "../components/Badge.svelte";
     import { onMount } from "svelte";
     import { stickyOn, stickyOff } from "./icons";
-    import { getEditorField } from "./EditorField.svelte";
+    import { context as editorFieldContext } from "./EditorField.svelte";
     import * as tr from "../lib/ftl";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { registerShortcut, getPlatformString } from "../lib/shortcuts";
@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: icon = active ? stickyOn : stickyOff;
 
-    const editorField = getEditorField();
+    const editorField = editorFieldContext.get();
     const keyCombination = "F9";
 
     export let index: number;

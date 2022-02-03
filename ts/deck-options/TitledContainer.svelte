@@ -6,10 +6,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Container from "../components/Container.svelte";
 
     export let title: string;
-    export let api: Record<string, never> | undefined = undefined;
 </script>
 
-<Container --gutter-block="2px" --container-margin="0" {api}>
+<Container --gutter-block="2px" --container-margin="0">
     <h1>{title}</h1>
 
     <slot />

@@ -5,6 +5,7 @@
 <script lang="ts">
     import * as tr from "../lib/ftl";
     import TitledContainer from "./TitledContainer.svelte";
+    import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import Warning from "./Warning.svelte";
@@ -40,28 +41,34 @@
             : "";
 </script>
 
-<TitledContainer title={tr.deckConfigDailyLimits()} {api}>
-    <SpinBoxRow
-        bind:value={$config.newPerDay}
-        defaultValue={defaults.newPerDay}
-        markdownTooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
-    >
-        {tr.schedulingNewCardsday()}
-    </SpinBoxRow>
+<TitledContainer title={tr.deckConfigDailyLimits()}>
+    <DynamicallySlottable slotHost={Item} {api}>
+        <Item>
+            <SpinBoxRow
+                bind:value={$config.newPerDay}
+                defaultValue={defaults.newPerDay}
+                markdownTooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
+            >
+                {tr.schedulingNewCardsday()}
+            </SpinBoxRow>
+        </Item>
 
-    <Item>
-        <Warning warning={newCardsGreaterThanParent} />
-    </Item>
+        <Item>
+            <Warning warning={newCardsGreaterThanParent} />
+        </Item>
 
-    <SpinBoxRow
-        bind:value={$config.reviewsPerDay}
-        defaultValue={defaults.reviewsPerDay}
-        markdownTooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
-    >
-        {tr.schedulingMaximumReviewsday()}
-    </SpinBoxRow>
+        <Item>
+            <SpinBoxRow
+                bind:value={$config.reviewsPerDay}
+                defaultValue={defaults.reviewsPerDay}
+                markdownTooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
+            >
+                {tr.schedulingMaximumReviewsday()}
+            </SpinBoxRow>
+        </Item>
 
-    <Item>
-        <Warning warning={reviewsTooLow} />
-    </Item>
+        <Item>
+            <Warning warning={reviewsTooLow} />
+        </Item>
+    </DynamicallySlottable>
 </TitledContainer>

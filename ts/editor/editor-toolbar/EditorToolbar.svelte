@@ -4,8 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import { updateAllState, resetAllState } from "../../components/WithState.svelte";
-    import type { ButtonGroupAPI } from "../../components/ButtonGroup.svelte";
-    import type { ButtonToolbarAPI } from "../../components/ButtonToolbar.svelte";
+    import type { DefaultSlotInterface } from "../../sveltelib/dynamic-slotting";
 
     export function updateActiveButtons(event: Event) {
         updateAllState(event);
@@ -16,31 +15,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export interface EditorToolbarAPI {
-        toolbar: ButtonToolbarAPI;
-        notetypeButtons: ButtonGroupAPI;
-        formatInlineButtons: ButtonGroupAPI;
-        formatBlockButtons: ButtonGroupAPI;
-        colorButtons: ButtonGroupAPI;
-        templateButtons: ButtonGroupAPI;
+        toolbar: DefaultSlotInterface;
+        notetypeButtons: DefaultSlotInterface;
+        formatInlineButtons: DefaultSlotInterface;
+        formatBlockButtons: DefaultSlotInterface;
+        colorButtons: DefaultSlotInterface;
+        templateButtons: DefaultSlotInterface;
     }
 
     /* Our dynamic components */
     import AddonButtons from "./AddonButtons.svelte";
-    import PreviewButton, { togglePreviewButtonState } from "./PreviewButton.svelte";
 
     export const editorToolbar = {
         AddonButtons,
-        PreviewButton,
-        togglePreviewButtonState,
     };
 </script>
 
 <script lang="ts">
     import StickyContainer from "../../components/StickyContainer.svelte";
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
+    import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import Item from "../../components/Item.svelte";
 
-    import NoteTypeButtons from "./NoteTypeButtons.svelte";
+    import NotetypeButtons from "./NotetypeButtons.svelte";
     import FormatInlineButtons from "./FormatInlineButtons.svelte";
     import FormatBlockButtons from "./FormatBlockButtons.svelte";
     import ColorButtons from "./ColorButtons.svelte";
@@ -72,25 +69,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <StickyContainer --gutter-block="0.1rem" --sticky-borders="0 0 1px">
-    <ButtonToolbar {size} {wrap} api={toolbar}>
-        <Item id="notetype">
-            <NoteTypeButtons api={notetypeButtons} />
-        </Item>
+    <ButtonToolbar {size} {wrap}>
+        <DynamicallySlottable slotHost={Item} api={toolbar}>
+            <Item id="notetype">
+                <NotetypeButtons api={notetypeButtons}>
+                    <slot name="notetypeButtons" />
+                </NotetypeButtons>
+            </Item>
 
-        <Item id="inlineFormatting">
-            <FormatInlineButtons api={formatInlineButtons} />
-        </Item>
+            <Item id="inlineFormatting">
+                <FormatInlineButtons api={formatInlineButtons} />
+            </Item>
 
-        <Item id="blockFormatting">
-            <FormatBlockButtons api={formatBlockButtons} />
-        </Item>
+            <Item id="blockFormatting">
+                <FormatBlockButtons api={formatBlockButtons} />
+            </Item>
 
-        <Item id="color">
-            <ColorButtons {textColor} {highlightColor} api={colorButtons} />
-        </Item>
+            <Item id="color">
+                <ColorButtons {textColor} {highlightColor} api={colorButtons} />
+            </Item>
 
-        <Item id="template">
-            <TemplateButtons api={templateButtons} />
-        </Item>
+            <Item id="template">
+                <TemplateButtons api={templateButtons} />
+            </Item>
+        </DynamicallySlottable>
     </ButtonToolbar>
 </StickyContainer>

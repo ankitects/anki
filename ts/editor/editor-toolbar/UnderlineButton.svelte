@@ -10,9 +10,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { MatchResult } from "../../domlib/surround";
     import { getPlatformString } from "../../lib/shortcuts";
     import { getSurrounder } from "../surround";
-    import { getNoteEditor } from "../OldEditorAdapter.svelte";
-    import type { RichTextInputAPI } from "../rich-text-input";
     import { underlineIcon } from "./icons";
+    import { context } from "../NoteEditor.svelte";
+    import type { RichTextInputAPI } from "../rich-text-input";
+    import { editingInputIsRichText } from "../rich-text-input";
 
     function matchUnderline(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
         if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
@@ -26,14 +27,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return MatchResult.NO_MATCH;
     }
 
-    const { focusInRichText, activeInput } = getNoteEditor();
+    const { focusedInput } = context.get();
 
-    $: input = $activeInput;
-    $: disabled = !$focusInRichText;
-    $: surrounder = disabled ? null : getSurrounder(input as RichTextInputAPI);
+    $: input = $focusedInput as RichTextInputAPI;
+    $: disabled = !editingInputIsRichText($focusedInput);
+    $: surrounder = disabled ? null : getSurrounder(input);
 
     function updateStateFromActiveInput(): Promise<boolean> {
-        return !input || input.name === "plain-text"
+        return disabled
             ? Promise.resolve(false)
             : surrounder!.isSurrounded(matchUnderline);
     }
