@@ -164,7 +164,8 @@ impl LimitTreeMap {
     }
 
     pub(super) fn is_exhausted(&self, deck_id: DeckId) -> bool {
-        self.map.get(&deck_id).is_some()
+        self.map.get(&deck_id).is_none()
+    }
     }
 
     pub(super) fn remaining_node_id(&self, deck_id: DeckId) -> Option<NodeId> {
