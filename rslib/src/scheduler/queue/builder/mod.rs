@@ -7,7 +7,10 @@ pub(crate) mod intersperser;
 pub(crate) mod sized_chain;
 mod sorting;
 
-use std::collections::{HashMap, VecDeque};
+use std::{
+    collections::{HashMap, VecDeque},
+    time::Instant,
+};
 
 use intersperser::Intersperser;
 use sized_chain::SizedChain;
@@ -207,6 +210,8 @@ fn sort_learning(mut learning: Vec<DueCard>) -> VecDeque<LearningQueueEntry> {
 
 impl Collection {
     pub(crate) fn build_queues(&mut self, deck_id: DeckId) -> Result<CardQueues> {
+        let start_time = Instant::now();
+
         let mut ctx = Context::new(self, deck_id)?;
         self.storage.update_active_decks(&ctx.root_deck)?;
         let mut queues = QueueBuilder::new(ctx.sort_options.clone());
@@ -233,6 +238,10 @@ impl Collection {
             ctx.timing.days_elapsed,
         );
 
+        println!(
+            "build_queues() took {} ms",
+            start_time.elapsed().as_millis()
+        );
         Ok(queues)
     }
 
