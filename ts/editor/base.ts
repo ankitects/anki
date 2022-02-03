@@ -7,7 +7,7 @@
 import "./legacy.css";
 import "./editor-base.css";
 
-import "../lib/register-package";
+import "../lib/runtime-require";
 import "../sveltelib/export-runtime";
 
 declare global {

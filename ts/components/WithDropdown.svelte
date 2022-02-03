@@ -85,9 +85,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         api = {
             show: dropdown.show.bind(dropdown),
-            // TODO this is quite confusing, but commenting this fixes Bootstrap
+            // TODO this is quite confusing, but having a noop function fixes Bootstrap
             // in the deck-options when not including Bootstrap via <script />
-            toggle: () => {}, // toggle: dropdown.toggle.bind(dropdown),
+            toggle: () => {},
+            /* toggle: dropdown.toggle.bind(dropdown), */
             hide: dropdown.hide.bind(dropdown),
             update: dropdown.update.bind(dropdown),
             dispose: dropdown.dispose.bind(dropdown),
@@ -100,7 +101,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onDestroy(() => dropdown?.dispose());
 </script>
 
-<div class={dropClass}>
+<div class="with-dropdown {dropClass}">
     <slot {createDropdown} dropdownObject={api} />
 </div>
 

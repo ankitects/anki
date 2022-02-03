@@ -11,8 +11,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getPlatformString } from "../../lib/shortcuts";
     import { getSurrounder } from "../surround";
     import { italicIcon } from "./icons";
-    import { getNoteEditor } from "../OldEditorAdapter.svelte";
+    import { context as noteEditorContext } from "../NoteEditor.svelte";
     import type { RichTextInputAPI } from "../rich-text-input";
+    import { editingInputIsRichText } from "../rich-text-input";
 
     function matchItalic(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
         if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
@@ -41,14 +42,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return !htmlElement.hasAttribute("style") && element.className.length === 0;
     }
 
-    const { focusInRichText, activeInput } = getNoteEditor();
+    const { focusedInput } = noteEditorContext.get();
 
-    $: input = $activeInput;
-    $: disabled = !$focusInRichText;
-    $: surrounder = disabled ? null : getSurrounder(input as RichTextInputAPI);
+    $: input = $focusedInput as RichTextInputAPI;
+    $: disabled = !editingInputIsRichText($focusedInput);
+    $: surrounder = disabled ? null : getSurrounder(input);
 
     function updateStateFromActiveInput(): Promise<boolean> {
-        return !input || input.name === "plain-text"
+        return disabled
             ? Promise.resolve(false)
             : surrounder!.isSurrounded(matchItalic);
     }

@@ -96,7 +96,7 @@ async function emitTypings(svelte: SvelteTsxFile[], deps: InputFile[]): Promise<
     const tsHost = ts.createCompilerHost(parsedCommandLine.options);
     const createdFiles = {};
     const cwd = ts.sys.getCurrentDirectory().replace(/\\/g, "/");
-    tsHost.writeFile = (fileName, contents) => {
+    tsHost.writeFile = (fileName: string, contents: string): void => {
         // tsc makes some paths absolute for some reason
         if (fileName.startsWith(cwd)) {
             fileName = fileName.substring(cwd.length + 1);
@@ -109,32 +109,28 @@ async function emitTypings(svelte: SvelteTsxFile[], deps: InputFile[]): Promise<
     // }
 
     for (const file of svelte) {
-        await writeFile(file.realDtsPath, createdFiles[file.virtualDtsPath]);
+        if (!(file.virtualDtsPath in createdFiles)) {
+            /**
+             * This can happen if you do a case-only rename
+             * e.g. NoteTypeButtons.svelte -> NotetypeButtons.svelte
+             */
+            console.log(
+                "file not among created files: ",
+                file.virtualDtsPath,
+                Object.keys(createdFiles),
+            );
+        } else {
+            await writeFile(file.realDtsPath, createdFiles[file.virtualDtsPath]);
+        }
     }
 }
 
-function writeFile(file, data): Promise<void> {
-    return new Promise((resolve, reject) => {
-        fs.writeFile(file, data, (err) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            resolve();
-        });
-    });
+async function writeFile(file: string, data: string): Promise<void> {
+    await fs.promises.writeFile(file, data);
 }
 
-function readFile(file) {
-    return new Promise((resolve, reject) => {
-        fs.readFile(file, "utf8", (err, data) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            resolve(data);
-        });
-    });
+function readFile(file: string): Promise<string> {
+    return fs.promises.readFile(file, "utf-8");
 }
 
 async function compileSingleSvelte(

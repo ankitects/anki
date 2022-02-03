@@ -27,6 +27,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         getTriggerAfterInput(): Trigger<OnInputCallback>;
     }
 
+    export function editingInputIsRichText(
+        editingInput: EditingInputAPI | null,
+    ): editingInput is RichTextInputAPI {
+        return editingInput?.name === "rich-text";
+    }
+
     export interface RichTextInputContextAPI {
         styles: CustomStyles;
         container: HTMLElement;
@@ -34,10 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const key = Symbol("richText");
-    const [set, getRichTextInput, hasRichTextInput] =
-        contextProperty<RichTextInputContextAPI>(key);
-
-    export { getRichTextInput, hasRichTextInput };
+    const [context, setContextProperty] = contextProperty<RichTextInputContextAPI>(key);
 
     import getDOMMirror from "../../sveltelib/mirror-dom";
     import getInputManager from "../../sveltelib/input-manager";
@@ -49,7 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         getTriggerOnNextInsert,
     } = getInputManager();
 
-    export { getTriggerAfterInput, getTriggerOnInput, getTriggerOnNextInsert };
+    export { context, getTriggerAfterInput, getTriggerOnInput, getTriggerOnNextInsert };
 </script>
 
 <script lang="ts">
@@ -61,8 +64,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "../../lib/dom";
     import ContentEditable from "../../editable/ContentEditable.svelte";
     import { placeCaretAfterContent } from "../../domlib/place-caret";
-    import { getDecoratedElements } from "../DecoratedElements.svelte";
-    import { getEditingArea } from "../EditingArea.svelte";
+    import { context as decoratedElementsContext } from "../DecoratedElements.svelte";
+    import { context as editingAreaContext } from "../EditingArea.svelte";
     import { promiseWithResolver } from "../../lib/promise";
     import { bridgeCommand } from "../../lib/bridgecommand";
     import { on } from "../../lib/events";
@@ -73,8 +76,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let hidden: boolean;
 
-    const { content, editingInputs } = getEditingArea();
-    const decoratedElements = getDecoratedElements();
+    const { content, editingInputs } = editingAreaContext.get();
+    const decoratedElements = decoratedElementsContext.get();
 
     const range = document.createRange();
 
@@ -269,7 +272,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <div class="rich-text-widgets">
             {#await Promise.all( [richTextPromise, stylesPromise], ) then [container, styles]}
-                <SetContext setter={set} value={{ container, styles, api }}>
+                <SetContext
+                    setter={setContextProperty}
+                    value={{ container, styles, api }}
+                >
                     <slot />
                 </SetContext>
             {/await}

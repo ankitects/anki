@@ -20,8 +20,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { tick, onMount } from "svelte";
     import { writable } from "svelte/store";
     import { pageTheme } from "../../sveltelib/theme";
-    import { getDecoratedElements } from "../DecoratedElements.svelte";
-    import { getEditingArea } from "../EditingArea.svelte";
+    import { context as editingAreaContext } from "../EditingArea.svelte";
+    import { context as decoratedElementsContext } from "../DecoratedElements.svelte";
     import CodeMirror from "../CodeMirror.svelte";
     import type { CodeMirrorAPI } from "../CodeMirror.svelte";
     import { htmlanki, baseOptions, gutterOptions } from "../code-mirror";
@@ -34,8 +34,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ...gutterOptions,
     };
 
-    const { editingInputs, content } = getEditingArea();
-    const decoratedElements = getDecoratedElements();
+    const { editingInputs, content } = editingAreaContext.get();
+    const decoratedElements = decoratedElementsContext.get();
     const code = writable($content);
 
     function adjustInputHTML(html: string): string {

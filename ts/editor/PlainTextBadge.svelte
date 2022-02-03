@@ -7,10 +7,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../lib/ftl";
     import { onMount } from "svelte";
     import { htmlOn, htmlOff } from "./icons";
-    import { getEditorField } from "./EditorField.svelte";
+    import { context as editorFieldContext } from "./EditorField.svelte";
     import { registerShortcut, getPlatformString } from "../lib/shortcuts";
 
-    const editorField = getEditorField();
+    const editorField = editorFieldContext.get();
     const keyCombination = "Control+Shift+X";
 
     export let off = false;

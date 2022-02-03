@@ -12,17 +12,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className = "";
     export { className as class };
 
-    export let api: Record<string, unknown> | undefined = undefined;
-
     setContext(dropdownKey, null);
 </script>
 
-<ButtonToolbar
-    {id}
-    class="dropdown-menu btn-dropdown-menu {className}"
-    wrap={false}
-    {api}
->
+<ButtonToolbar {id} class="dropdown-menu btn-dropdown-menu {className}" wrap={false}>
     <div on:mousedown|preventDefault|stopPropagation on:click>
         <slot />
     </div>

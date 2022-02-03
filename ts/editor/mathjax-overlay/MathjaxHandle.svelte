@@ -12,10 +12,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HandleSelection from "../HandleSelection.svelte";
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";
-    import { getRichTextInput } from "../rich-text-input";
+    import { context } from "../rich-text-input";
     import MathjaxMenu from "./MathjaxMenu.svelte";
 
-    const { container, api } = getRichTextInput();
+    const { container, api } = context.get();
     const { flushCaret, preventResubscription } = api;
 
     const code = writable("");
