@@ -208,7 +208,7 @@ fn sort_learning(mut learning: Vec<DueCard>) -> VecDeque<LearningQueueEntry> {
 impl Collection {
     pub(crate) fn build_queues(&mut self, deck_id: DeckId) -> Result<CardQueues> {
         let mut ctx = Context::new(self, deck_id)?;
-        self.storage.update_active_decks(ctx.root_deck())?;
+        self.storage.update_active_decks(&ctx.root_deck)?;
         let mut queues = QueueBuilder::new(ctx.sort_options.clone());
 
         self.add_intraday_learning_cards(&mut queues, &mut ctx)?;
@@ -268,7 +268,7 @@ impl Collection {
                     let bury = ctx.bury_mode(card.original_deck_id.or(card.current_deck_id));
                     if let Some(node_id) = ctx.limits.remaining_node_id(card.current_deck_id) {
                         if queues.add_due_card(card, bury) {
-                            ctx.limits.decrement_node_and_parent_review(&node_id);
+                            ctx.limits.decrement_node_and_parent_limits(&node_id, false);
                         }
                     }
 
@@ -282,7 +282,7 @@ impl Collection {
     fn add_new_cards_by_deck(&self, queues: &mut QueueBuilder, ctx: &mut Context) -> Result<()> {
         // TODO: must own Vec as closure below requires unique access to ctx
         // maybe decks should not be field of Context?
-        for deck_id in ctx.active_deck_ids() {
+        for deck_id in ctx.limits.remaining_decks() {
             if ctx.limits.is_exhausted_root() {
                 break;
             }
@@ -293,7 +293,7 @@ impl Collection {
                     // and only adjusted the parent nodes after this node's limit is reached
                     if let Some(node_id) = ctx.limits.remaining_node_id(deck_id) {
                         if queues.add_new_card(card, bury) {
-                            ctx.limits.decrement_node_and_parent_new(&node_id);
+                            ctx.limits.decrement_node_and_parent_limits(&node_id, true);
                         }
 
                         true
@@ -318,7 +318,7 @@ impl Collection {
                 let bury = ctx.bury_mode(card.original_deck_id.or(card.current_deck_id));
                 if let Some(node_id) = ctx.limits.remaining_node_id(card.current_deck_id) {
                     if queues.add_new_card(card, bury) {
-                        ctx.limits.decrement_node_and_parent_new(&node_id);
+                        ctx.limits.decrement_node_and_parent_limits(&node_id, true);
                     }
 
                     true

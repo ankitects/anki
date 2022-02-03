@@ -17,7 +17,6 @@ use crate::{
     decks::{immediate_parent_name, DeckCommon, DeckKindContainer, DeckSchema11, DueCounts},
     error::DbErrorKind,
     prelude::*,
-    text::escape_sql_wildcards,
 };
 
 fn row_to_deck(row: &Row) -> Result<Deck> {
@@ -208,19 +207,6 @@ impl SqliteStorage {
                 " where name >= ? and name < ?"
             ))?
             .query_and_then([prefix_start, prefix_end], row_to_deck)?
-            .collect()
-    }
-
-    pub(crate) fn immediate_child_decks(&self, parent: &Deck) -> Result<Vec<Deck>> {
-        let prefix_start = format!("{}\x1f", parent.name);
-        let prefix_end = format!("{}\x20", parent.name);
-        let child_descendant = format!("{}%\x1f%", escape_sql_wildcards(&prefix_start));
-        self.db
-            .prepare_cached(concat!(
-                include_str!("get_deck.sql"),
-                " where name >= ? and name < ? and not name like ? escape '\\'"
-            ))?
-            .query_and_then([prefix_start, prefix_end, child_descendant], row_to_deck)?
             .collect()
     }
 
