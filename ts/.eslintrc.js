@@ -30,7 +30,6 @@ module.exports = {
             ],
             rules: {
                 "@typescript-eslint/no-non-null-assertion": "off",
-                "import/exports-last": "warn",
             },
         },
         {
