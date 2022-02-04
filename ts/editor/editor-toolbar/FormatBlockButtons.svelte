@@ -97,7 +97,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             <CommandIconButton
                                 key="justifyLeft"
                                 tooltip={tr.editingAlignLeft()}
-                                withoutShortcut
                                 --border-left-radius="5px"
                                 >{@html justifyLeftIcon}</CommandIconButton
                             >
@@ -105,21 +104,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             <CommandIconButton
                                 key="justifyCenter"
                                 tooltip={tr.editingCenter()}
-                                withoutShortcut
                                 >{@html justifyCenterIcon}</CommandIconButton
                             >
 
                             <CommandIconButton
                                 key="justifyRight"
                                 tooltip={tr.editingAlignRight()}
-                                withoutShortcut
                                 >{@html justifyRightIcon}</CommandIconButton
                             >
 
                             <CommandIconButton
                                 key="justifyFull"
                                 tooltip={tr.editingJustify()}
-                                withoutShortcut
                                 --border-right-radius="5px"
                                 >{@html justifyFullIcon}</CommandIconButton
                             >

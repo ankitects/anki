@@ -89,7 +89,7 @@ if (isApplePlatform()) {
 }
 
 export function preventBuiltinContentEditableShortcuts(editable: HTMLElement): void {
-    for (const keyCombination of ["Control+B", "Control+U", "Control+I", "Control+R"]) {
+    for (const keyCombination of ["Control+B", "Control+U", "Control+I"]) {
         registerShortcut(preventDefault, keyCombination, editable);
     }
 }
