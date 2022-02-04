@@ -9,7 +9,7 @@ use super::{NewCard, NewCardSortOrder, QueueBuilder};
 
 impl QueueBuilder {
     pub(super) fn sort_new(&mut self) {
-        match self.sort_options.new_order {
+        match self.context.sort_options.new_order {
             NewCardSortOrder::TemplateThenLowestPosition => {
                 self.new.sort_unstable_by(template_then_lowest_position);
             }
