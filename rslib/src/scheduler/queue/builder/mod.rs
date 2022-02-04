@@ -265,13 +265,13 @@ impl Collection {
         ctx: &mut Context,
         kind: DueCardKind,
     ) -> Result<()> {
-        if !ctx.limits.is_exhausted_root() {
+        if !ctx.limits.root_limit_reached() {
             self.storage.for_each_due_card_in_active_decks(
                 ctx.timing.days_elapsed,
                 ctx.sort_options.review_order,
                 kind,
                 |card| {
-                    if ctx.limits.is_exhausted_root() {
+                    if ctx.limits.root_limit_reached() {
                         return false;
                     }
                     let bury = ctx.bury_mode(card.original_deck_id.or(card.current_deck_id));
@@ -292,10 +292,10 @@ impl Collection {
         // TODO: must own Vec as closure below requires unique access to ctx
         // maybe decks should not be field of Context?
         for deck_id in ctx.limits.remaining_decks() {
-            if ctx.limits.is_exhausted_root() {
+            if ctx.limits.root_limit_reached() {
                 break;
             }
-            if !ctx.limits.is_exhausted(deck_id) {
+            if !ctx.limits.limit_reached(deck_id) {
                 self.storage.for_each_new_card_in_deck(deck_id, |card| {
                     let bury = ctx.bury_mode(card.original_deck_id.or(deck_id));
                     // TODO: This could be done more efficiently if we held on to the node_id

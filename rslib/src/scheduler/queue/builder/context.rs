@@ -193,11 +193,11 @@ impl Context {
 }
 
 impl LimitTreeMap {
-    pub(super) fn is_exhausted_root(&self) -> bool {
+    pub(super) fn root_limit_reached(&self) -> bool {
         self.map.is_empty()
     }
 
-    pub(super) fn is_exhausted(&self, deck_id: DeckId) -> bool {
+    pub(super) fn limit_reached(&self, deck_id: DeckId) -> bool {
         self.map.get(&deck_id).is_none()
     }
 
