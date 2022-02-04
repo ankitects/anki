@@ -3,12 +3,12 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Container from "../components/Container.svelte";
     import Col from "../components/Col.svelte";
-    import type { Scheduler } from "../lib/proto";
-    import { buildNextLearnMsg } from "./lib";
+    import Container from "../components/Container.svelte";
     import { bridgeLink } from "../lib/bridgecommand";
     import * as tr from "../lib/ftl";
+    import type { Scheduler } from "../lib/proto";
+    import { buildNextLearnMsg } from "./lib";
 
     export let info: Scheduler.CongratsInfoResponse;
 

@@ -3,16 +3,16 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import type CustomStyles from "./CustomStyles.svelte";
-    import type { EditingInputAPI } from "../EditingArea.svelte";
     import type { ContentEditableAPI } from "../../editable/ContentEditable.svelte";
     import contextProperty from "../../sveltelib/context-property";
     import type {
-        Trigger,
-        OnInsertCallback,
         OnInputCallback,
+        OnInsertCallback,
+        Trigger,
     } from "../../sveltelib/input-manager";
     import { pageTheme } from "../../sveltelib/theme";
+    import type { EditingInputAPI } from "../EditingArea.svelte";
+    import type CustomStyles from "./CustomStyles.svelte";
 
     export interface RichTextInputAPI extends EditingInputAPI, ContentEditableAPI {
         name: "rich-text";
@@ -42,8 +42,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const key = Symbol("richText");
     const [context, setContextProperty] = contextProperty<RichTextInputContextAPI>(key);
 
-    import getDOMMirror from "../../sveltelib/mirror-dom";
     import getInputManager from "../../sveltelib/input-manager";
+    import getDOMMirror from "../../sveltelib/mirror-dom";
 
     const {
         manager: globalInputManager,
@@ -56,21 +56,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { onMount, getAllContexts } from "svelte";
-    import {
-        nodeIsElement,
-        nodeContainsInlineContent,
-        fragmentToString,
-    } from "../../lib/dom";
-    import ContentEditable from "../../editable/ContentEditable.svelte";
+    import { getAllContexts, onMount } from "svelte";
+
     import { placeCaretAfterContent } from "../../domlib/place-caret";
+    import ContentEditable from "../../editable/ContentEditable.svelte";
+    import type { DecoratedElement } from "../../editable/decorated";
+    import { bridgeCommand } from "../../lib/bridgecommand";
+    import {
+        fragmentToString,
+        nodeContainsInlineContent,
+        nodeIsElement,
+    } from "../../lib/dom";
+    import { on } from "../../lib/events";
+    import { promiseWithResolver } from "../../lib/promise";
+    import { nodeStore } from "../../sveltelib/node-store";
     import { context as decoratedElementsContext } from "../DecoratedElements.svelte";
     import { context as editingAreaContext } from "../EditingArea.svelte";
-    import { promiseWithResolver } from "../../lib/promise";
-    import { bridgeCommand } from "../../lib/bridgecommand";
-    import { on } from "../../lib/events";
-    import { nodeStore } from "../../sveltelib/node-store";
-    import type { DecoratedElement } from "../../editable/decorated";
     import RichTextStyles from "./RichTextStyles.svelte";
     import SetContext from "./SetContext.svelte";
 

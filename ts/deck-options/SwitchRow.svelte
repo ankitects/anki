@@ -3,12 +3,12 @@
     License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Row from "../components/Row.svelte";
     import Col from "../components/Col.svelte";
+    import Row from "../components/Row.svelte";
     import Label from "./Label.svelte";
-    import TooltipLabel from "./TooltipLabel.svelte";
-    import Switch from "./Switch.svelte";
     import RevertButton from "./RevertButton.svelte";
+    import Switch from "./Switch.svelte";
+    import TooltipLabel from "./TooltipLabel.svelte";
 
     export let value: boolean;
     export let defaultValue: boolean;

@@ -4,9 +4,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { Writable } from "svelte/store";
-    import type { EditorFieldAPI } from "./EditorField.svelte";
+
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import type { EditorToolbarAPI } from "./editor-toolbar";
+    import type { EditorFieldAPI } from "./EditorField.svelte";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
@@ -15,9 +16,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         toolbar: EditorToolbarAPI;
     }
 
+    import { registerPackage } from "../lib/runtime-require";
     import contextProperty from "../sveltelib/context-property";
     import lifecycleHooks from "../sveltelib/lifecycle-hooks";
-    import { registerPackage } from "../lib/runtime-require";
 
     const key = Symbol("noteEditor");
     const [context, setContextProperty] = contextProperty<NoteEditorAPI>(key);
@@ -34,36 +35,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="ts">
     import { onMount } from "svelte";
-    import { writable, get } from "svelte/store";
+    import { get, writable } from "svelte/store";
+
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { isApplePlatform } from "../lib/platform";
-
-    import FieldsEditor from "./FieldsEditor.svelte";
-    import Fields from "./Fields.svelte";
-    import EditorField from "./EditorField.svelte";
-    import type { FieldData } from "./EditorField.svelte";
-    import { TagEditor } from "./tag-editor";
-
-    import { EditorToolbar } from "./editor-toolbar";
-    import Notification from "./Notification.svelte";
-    import DuplicateLink from "./DuplicateLink.svelte";
-
-    import DecoratedElements from "./DecoratedElements.svelte";
-    import { RichTextInput, editingInputIsRichText } from "./rich-text-input";
-    import { PlainTextInput } from "./plain-text-input";
-    import { MathjaxHandle } from "./mathjax-overlay";
-    import { ImageHandle } from "./image-overlay";
-    import MathjaxElement from "./MathjaxElement.svelte";
-    import FrameElement from "./FrameElement.svelte";
-
-    import RichTextBadge from "./RichTextBadge.svelte";
-    import PlainTextBadge from "./PlainTextBadge.svelte";
-
     import { ChangeTimer } from "./change-timer";
+    import DecoratedElements from "./DecoratedElements.svelte";
     import { clearableArray } from "./destroyable";
+    import DuplicateLink from "./DuplicateLink.svelte";
+    import { EditorToolbar } from "./editor-toolbar";
+    import type { FieldData } from "./EditorField.svelte";
+    import EditorField from "./EditorField.svelte";
+    import Fields from "./Fields.svelte";
+    import FieldsEditor from "./FieldsEditor.svelte";
+    import FrameElement from "./FrameElement.svelte";
     import { alertIcon } from "./icons";
+    import { ImageHandle } from "./image-overlay";
+    import { MathjaxHandle } from "./mathjax-overlay";
+    import MathjaxElement from "./MathjaxElement.svelte";
+    import Notification from "./Notification.svelte";
+    import { PlainTextInput } from "./plain-text-input";
+    import PlainTextBadge from "./PlainTextBadge.svelte";
+    import { editingInputIsRichText, RichTextInput } from "./rich-text-input";
+    import RichTextBadge from "./RichTextBadge.svelte";
+    import { TagEditor } from "./tag-editor";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -73,10 +70,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return fontFamily;
     }
 
-    let size = isApplePlatform() ? 1.6 : 1.8;
-    let wrap = true;
+    const size = isApplePlatform() ? 1.6 : 1.8;
+    const wrap = true;
 
-    let fieldStores: Writable<string>[] = [];
+    const fieldStores: Writable<string>[] = [];
     let fieldNames: string[] = [];
     export function setFields(fs: [string, string][]): void {
         // this is a bit of a mess -- when moving to Rust calls, we should make
@@ -104,7 +101,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             fieldStores.pop();
         }
 
-        for (const [index, [_, fieldContent]] of fs.entries()) {
+        for (const [index, [, fieldContent]] of fs.entries()) {
             fieldStores[index].set(fieldContent);
         }
 
@@ -119,7 +116,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let fonts: [string, number, boolean][] = [];
     let richTextsHidden: boolean[] = [];
     let plainTextsHidden: boolean[] = [];
-    let fields = clearableArray<EditorFieldAPI>();
+    const fields = clearableArray<EditorFieldAPI>();
 
     export function setFonts(fs: [string, number, boolean][]): void {
         fonts = fs;
@@ -143,7 +140,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         highlightColor = highlightClr;
     }
 
-    let tags = writable<string[]>([]);
+    const tags = writable<string[]>([]);
     export function setTags(ts: string[]): void {
         $tags = ts;
     }
@@ -219,7 +216,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let plainTextInputs: PlainTextInput[] = [];
     $: plainTextInputs = plainTextInputs.filter(Boolean);
 
-    let toolbar: Partial<EditorToolbarAPI> = {};
+    const toolbar: Partial<EditorToolbarAPI> = {};
 
     import { wrapInternal } from "../lib/wrap";
     import * as oldEditorAdapter from "./old-editor-adapter";

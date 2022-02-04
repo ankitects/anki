@@ -4,19 +4,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import ButtonGroup from "../../components/ButtonGroup.svelte";
-    import CommandIconButton from "./CommandIconButton.svelte";
-    import BoldButton from "./BoldButton.svelte";
-    import ItalicButton from "./ItalicButton.svelte";
-    import UnderlineButton from "./UnderlineButton.svelte";
-    import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import ButtonGroupItem, {
         createProps,
-        updatePropsList,
         setSlotHostContext,
+        updatePropsList,
     } from "../../components/ButtonGroupItem.svelte";
-
+    import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import * as tr from "../../lib/ftl";
-    import { superscriptIcon, subscriptIcon, eraserIcon } from "./icons";
+    import BoldButton from "./BoldButton.svelte";
+    import CommandIconButton from "./CommandIconButton.svelte";
+    import { eraserIcon, subscriptIcon, superscriptIcon } from "./icons";
+    import ItalicButton from "./ItalicButton.svelte";
+    import UnderlineButton from "./UnderlineButton.svelte";
 
     export let api = {};
 </script>

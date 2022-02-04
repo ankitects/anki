@@ -1,12 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { writable } from "svelte/store";
 import type { Writable } from "svelte/store";
-import { keyboardEventIsPrintableKey } from "../lib/keys";
+import { writable } from "svelte/store";
+
+import { getSelection } from "../lib/cross-browser";
 import { on } from "../lib/events";
 import { id } from "../lib/functional";
-import { getSelection } from "../lib/cross-browser";
+import { keyboardEventIsPrintableKey } from "../lib/keys";
 
 export type OnInsertCallback = ({
     node,

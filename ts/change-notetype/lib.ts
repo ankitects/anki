@@ -1,10 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import * as tr from "../lib/ftl";
-import { notetypes, Notetypes } from "../lib/proto";
-import { readable, Readable } from "svelte/store";
 import { isEqual } from "lodash-es";
+import { Readable, readable } from "svelte/store";
+
+import * as tr from "../lib/ftl";
+import { Notetypes, notetypes } from "../lib/proto";
 
 function nullToNegativeOne(list: (number | null)[]): number[] {
     return list.map((val) => val ?? -1);

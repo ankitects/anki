@@ -3,11 +3,12 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import IconConstrain from "./IconConstrain.svelte";
-    import { getContext, onMount, createEventDispatcher } from "svelte";
-    import { dropdownKey } from "./context-keys";
+    import { createEventDispatcher, getContext, onMount } from "svelte";
+
     import { pageTheme } from "../sveltelib/theme";
+    import { dropdownKey } from "./context-keys";
     import type { DropdownProps } from "./dropdown";
+    import IconConstrain from "./IconConstrain.svelte";
 
     export let id: string | undefined = undefined;
     let className = "";

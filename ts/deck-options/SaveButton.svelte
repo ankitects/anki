@@ -3,20 +3,20 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "../lib/ftl";
-    import { createEventDispatcher } from "svelte";
-    import type { DeckOptionsState } from "./lib";
     import type Dropdown from "bootstrap/js/dist/dropdown";
-    import { getPlatformString } from "../lib/shortcuts";
-    import { withCollapsedWhitespace } from "../lib/i18n";
+    import { createEventDispatcher } from "svelte";
 
     import ButtonGroup from "../components/ButtonGroup.svelte";
-    import LabelButton from "../components/LabelButton.svelte";
-    import DropdownMenu from "../components/DropdownMenu.svelte";
-    import DropdownItem from "../components/DropdownItem.svelte";
     import DropdownDivider from "../components/DropdownDivider.svelte";
-    import WithDropdown from "../components/WithDropdown.svelte";
+    import DropdownItem from "../components/DropdownItem.svelte";
+    import DropdownMenu from "../components/DropdownMenu.svelte";
+    import LabelButton from "../components/LabelButton.svelte";
     import Shortcut from "../components/Shortcut.svelte";
+    import WithDropdown from "../components/WithDropdown.svelte";
+    import * as tr from "../lib/ftl";
+    import { withCollapsedWhitespace } from "../lib/i18n";
+    import { getPlatformString } from "../lib/shortcuts";
+    import type { DeckOptionsState } from "./lib";
 
     const dispatch = createEventDispatcher();
 

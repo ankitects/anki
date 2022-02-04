@@ -3,12 +3,13 @@
     License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import { writable, get } from "svelte/store";
-    import contextProperty from "../sveltelib/context-property";
     import type { Writable } from "svelte/store";
+    import { get, writable } from "svelte/store";
+
+    import contextProperty from "../sveltelib/context-property";
     import type {
-        SlotHostProps,
         GetSlotHostProps,
+        SlotHostProps,
     } from "../sveltelib/dynamic-slotting";
 
     enum ButtonPosition {

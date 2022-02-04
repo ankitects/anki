@@ -4,9 +4,9 @@
 import { isHTMLElement, isNightMode } from "./helpers";
 import { removeNode as removeElement } from "./node";
 import {
-    filterStylingNightMode,
-    filterStylingLightMode,
     filterStylingInternal,
+    filterStylingLightMode,
+    filterStylingNightMode,
 } from "./styling";
 
 interface TagsAllowed {

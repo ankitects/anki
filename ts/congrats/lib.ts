@@ -1,9 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import * as tr from "../lib/ftl";
 import type { Scheduler } from "../lib/proto";
 import { naturalUnit, unitAmount, unitName } from "../lib/time";
-import * as tr from "../lib/ftl";
 
 export function buildNextLearnMsg(info: Scheduler.CongratsInfoResponse): string {
     const secsUntil = info.secsUntilNextLearn;

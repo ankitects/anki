@@ -3,13 +3,14 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Badge from "../components/Badge.svelte";
     import { onMount } from "svelte";
-    import { stickyOn, stickyOff } from "./icons";
-    import { context as editorFieldContext } from "./EditorField.svelte";
-    import * as tr from "../lib/ftl";
+
+    import Badge from "../components/Badge.svelte";
     import { bridgeCommand } from "../lib/bridgecommand";
-    import { registerShortcut, getPlatformString } from "../lib/shortcuts";
+    import * as tr from "../lib/ftl";
+    import { getPlatformString, registerShortcut } from "../lib/shortcuts";
+    import { context as editorFieldContext } from "./EditorField.svelte";
+    import { stickyOff, stickyOn } from "./icons";
 
     export let active: boolean;
 

@@ -5,8 +5,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { SvelteComponentDev } from "svelte/internal";
     import { writable } from "svelte/store";
-    import { pageTheme } from "../sveltelib/theme";
+
     import { bridgeCommand } from "../lib/bridgecommand";
+    import { pageTheme } from "../sveltelib/theme";
     import WithGraphData from "./WithGraphData.svelte";
 
     export let initialSearch: string;

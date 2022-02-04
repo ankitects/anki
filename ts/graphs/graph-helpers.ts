@@ -5,8 +5,9 @@
 @typescript-eslint/no-explicit-any: "off",
 @typescript-eslint/ban-ts-comment: "off" */
 
-import type { Stats, Cards } from "../lib/proto";
 import type { Selection } from "d3";
+
+import type { Cards, Stats } from "../lib/proto";
 
 // amount of data to fetch from backend
 export enum RevlogRange {

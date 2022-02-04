@@ -1,7 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { onMount as svelteOnMount, onDestroy as svelteOnDestroy } from "svelte";
+import { onDestroy as svelteOnDestroy, onMount as svelteOnMount } from "svelte";
+
 import type { Callback } from "../lib/helpers";
 import { removeItem } from "../lib/helpers";
 

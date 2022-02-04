@@ -3,13 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Tag from "./Tag.svelte";
-    import WithTooltip from "../../components/WithTooltip.svelte";
-
     import { createEventDispatcher } from "svelte";
+
+    import WithTooltip from "../../components/WithTooltip.svelte";
     import { controlPressed, shiftPressed } from "../../lib/keys";
-    import { delimChar } from "./tags";
     import { pageTheme } from "../../sveltelib/theme";
+    import Tag from "./Tag.svelte";
+    import { delimChar } from "./tags";
 
     export let name: string;
     let className: string = "";

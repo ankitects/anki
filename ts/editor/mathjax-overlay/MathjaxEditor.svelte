@@ -3,14 +3,15 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onMount, createEventDispatcher } from "svelte";
-    import CodeMirror from "../CodeMirror.svelte";
-    import type { CodeMirrorAPI } from "../CodeMirror.svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     import type { Writable } from "svelte/store";
-    import { baseOptions, latex, focusAndCaretAfter } from "../code-mirror";
-    import { getPlatformString } from "../../lib/shortcuts";
-    import { noop } from "../../lib/functional";
+
     import * as tr from "../../lib/ftl";
+    import { noop } from "../../lib/functional";
+    import { getPlatformString } from "../../lib/shortcuts";
+    import { baseOptions, focusAndCaretAfter, latex } from "../code-mirror";
+    import type { CodeMirrorAPI } from "../CodeMirror.svelte";
+    import CodeMirror from "../CodeMirror.svelte";
 
     export let code: Writable<string>;
 

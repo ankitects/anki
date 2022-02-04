@@ -3,15 +3,14 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type Item from "./Item.svelte";
-    import type ButtonGroupItem from "./ButtonGroupItem.svelte";
     /* import type { SlotHostProps } from "../sveltelib/dynamic-slotting"; */
-
     import dynamicSlotting, {
-        defaultProps,
         defaultInterface,
+        defaultProps,
         setSlotHostContext as defaultContext,
     } from "../sveltelib/dynamic-slotting";
+    import type ButtonGroupItem from "./ButtonGroupItem.svelte";
+    import type Item from "./Item.svelte";
 
     function id<T>(value: T): T {
         return value;
