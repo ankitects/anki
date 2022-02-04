@@ -124,7 +124,7 @@ impl Collection {
         new_name: &NativeDeckName,
         usn: Usn,
     ) -> Result<()> {
-        let children = self.storage.child_decks(old)?;
+        let children = self.storage.child_decks(old, false)?;
         for mut child in children {
             let original = child.clone();
             child.name.reparent(&old.name, new_name);

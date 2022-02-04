@@ -60,7 +60,7 @@ impl Collection {
             for mut deck in self.storage.parent_decks(&deck)? {
                 self.update_deck_stats_single(today, usn, &mut deck, mutator)?;
             }
-            for mut deck in self.storage.child_decks(&deck)? {
+            for mut deck in self.storage.child_decks(&deck, false)? {
                 self.update_deck_stats_single(today, usn, &mut deck, mutator)?;
             }
         }

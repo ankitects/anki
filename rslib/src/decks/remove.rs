@@ -9,7 +9,7 @@ impl Collection {
             let usn = col.usn()?;
             for did in dids {
                 if let Some(deck) = col.storage.get_deck(*did)? {
-                    let child_decks = col.storage.child_decks(&deck)?;
+                    let child_decks = col.storage.child_decks(&deck, false)?;
 
                     // top level
                     card_count += col.remove_single_deck(&deck, usn)?;

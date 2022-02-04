@@ -133,7 +133,11 @@ impl LimitTreeMap {
             map,
             initial_root_limits,
         };
-        let mut remaining_decks = col.storage.child_decks(&root_deck)?.into_iter().peekable();
+        let mut remaining_decks = col
+            .storage
+            .child_decks(&root_deck, true)?
+            .into_iter()
+            .peekable();
         limits.add_child_nodes(root_id, &mut remaining_decks, config, today);
 
         Ok((limits, root_deck))

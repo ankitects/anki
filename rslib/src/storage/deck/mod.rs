@@ -198,13 +198,15 @@ impl SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn child_decks(&self, parent: &Deck) -> Result<Vec<Deck>> {
+    pub(crate) fn child_decks(&self, parent: &Deck, sorted: bool) -> Result<Vec<Deck>> {
         let prefix_start = format!("{}\x1f", parent.name);
         let prefix_end = format!("{}\x20", parent.name);
         self.db
-            .prepare_cached(concat!(
+            .prepare_cached(&format!(
+                "{}{}{}",
                 include_str!("get_deck.sql"),
-                " where name >= ? and name < ?"
+                " where name >= ? and name < ?",
+                if sorted { " order by name" } else { "" }
             ))?
             .query_and_then([prefix_start, prefix_end], row_to_deck)?
             .collect()
