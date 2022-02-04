@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { nodeIsElement } from "../../lib/dom";
-import type { FoundMatch, ElementMatcher } from "./matcher";
+import type { ElementMatcher, FoundMatch } from "./matcher";
 
 export function findClosest(
     node: Node,

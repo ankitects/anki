@@ -4,8 +4,6 @@
 import "codemirror/lib/codemirror.css";
 import "codemirror/addon/fold/foldgutter.css";
 import "codemirror/theme/monokai.css";
-
-import CodeMirror from "codemirror";
 import "codemirror/mode/htmlmixed/htmlmixed";
 import "codemirror/mode/stex/stex";
 import "codemirror/addon/fold/foldcode";
@@ -14,6 +12,8 @@ import "codemirror/addon/fold/xml-fold";
 import "codemirror/addon/edit/matchtags";
 import "codemirror/addon/edit/closetag";
 import "codemirror/addon/display/placeholder";
+
+import CodeMirror from "codemirror";
 
 export { CodeMirror };
 

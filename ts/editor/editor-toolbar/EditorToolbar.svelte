@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import { updateAllState, resetAllState } from "../../components/WithState.svelte";
+    import { resetAllState, updateAllState } from "../../components/WithState.svelte";
     import type { DefaultSlotInterface } from "../../sveltelib/dynamic-slotting";
 
     export function updateActiveButtons(event: Event) {
@@ -32,15 +32,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import StickyContainer from "../../components/StickyContainer.svelte";
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import Item from "../../components/Item.svelte";
-
-    import NotetypeButtons from "./NotetypeButtons.svelte";
-    import FormatInlineButtons from "./FormatInlineButtons.svelte";
-    import FormatBlockButtons from "./FormatBlockButtons.svelte";
+    import StickyContainer from "../../components/StickyContainer.svelte";
     import ColorButtons from "./ColorButtons.svelte";
+    import FormatBlockButtons from "./FormatBlockButtons.svelte";
+    import FormatInlineButtons from "./FormatInlineButtons.svelte";
+    import NotetypeButtons from "./NotetypeButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
 
     export let size: number;

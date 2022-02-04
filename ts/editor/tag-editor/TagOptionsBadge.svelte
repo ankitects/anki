@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import SelectedTagBadge from "./SelectedTagBadge.svelte";
     import AddTagBadge from "./AddTagBadge.svelte";
+    import SelectedTagBadge from "./SelectedTagBadge.svelte";
 
     export let badgeHeight: number;
     export let showSelectionsOptions: boolean;

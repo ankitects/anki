@@ -1,13 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { getRangeAnchors } from "./range-anchors";
-import type { NodesResult, SurroundNoSplittingResult } from "./no-splitting";
-import { MatchResult, matchTagName } from "./matcher";
-import type { FoundMatch, ElementMatcher, ElementClearer } from "./matcher";
 import { findFarthest } from "./find-above";
-import { findWithinRange, findWithinNode } from "./find-within";
+import { findWithinNode, findWithinRange } from "./find-within";
+import type { ElementClearer, ElementMatcher, FoundMatch } from "./matcher";
+import { MatchResult, matchTagName } from "./matcher";
+import type { NodesResult, SurroundNoSplittingResult } from "./no-splitting";
 import { surround } from "./no-splitting";
+import { getRangeAnchors } from "./range-anchors";
 
 function findBetween(
     range: Range,

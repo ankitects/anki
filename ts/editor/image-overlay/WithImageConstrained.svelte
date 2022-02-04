@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { createEventDispatcher, onDestroy } from "svelte";
+
     import { nodeIsElement } from "../../lib/dom";
 
     export let activeImage: HTMLImageElement | null;

@@ -19,10 +19,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="ts">
     import { onDestroy } from "svelte";
+    import { writable } from "svelte/store";
+
+    import { randomUUID } from "../lib/uuid";
     import { pageTheme } from "../sveltelib/theme";
     import { convertMathjax } from "./mathjax";
-    import { randomUUID } from "../lib/uuid";
-    import { writable } from "svelte/store";
 
     export let mathjax: string;
     export let block: boolean;

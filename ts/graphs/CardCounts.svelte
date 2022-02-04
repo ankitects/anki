@@ -3,27 +3,27 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Graph from "./Graph.svelte";
-    import InputBox from "./InputBox.svelte";
-
     import { createEventDispatcher } from "svelte";
+
+    import * as tr2 from "../lib/ftl";
     import type { Stats } from "../lib/proto";
     import type { PreferenceStore } from "../sveltelib/preferences";
-    import * as tr2 from "../lib/ftl";
-    import { defaultGraphBounds } from "./graph-helpers";
-    import type { SearchEventMap } from "./graph-helpers";
-    import { gatherData, renderCards } from "./card-counts";
     import type { GraphData, TableDatum } from "./card-counts";
+    import { gatherData, renderCards } from "./card-counts";
+    import Graph from "./Graph.svelte";
+    import type { SearchEventMap } from "./graph-helpers";
+    import { defaultGraphBounds } from "./graph-helpers";
+    import InputBox from "./InputBox.svelte";
 
     export let sourceData: Stats.GraphsResponse;
     export let preferences: PreferenceStore<Stats.GraphPreferences>;
 
-    let { cardCountsSeparateInactive, browserLinksSupported } = preferences;
+    const { cardCountsSeparateInactive, browserLinksSupported } = preferences;
     const dispatch = createEventDispatcher<SearchEventMap>();
 
     let svg = null as HTMLElement | SVGElement | null;
 
-    let bounds = defaultGraphBounds();
+    const bounds = defaultGraphBounds();
     bounds.width = 225;
     bounds.marginBottom = 0;
 

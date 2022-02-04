@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { getContext, onDestroy } from "svelte";
+
     import { customStylesKey } from "./CustomStyles.svelte";
 
     export let id: string;

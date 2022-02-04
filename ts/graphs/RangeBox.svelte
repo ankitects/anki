@@ -3,11 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import InputBox from "./InputBox.svelte";
-
     import type { Writable } from "svelte/store";
+
     import * as tr from "../lib/ftl";
-    import { RevlogRange, daysToRevlogRange } from "./graph-helpers";
+    import { daysToRevlogRange, RevlogRange } from "./graph-helpers";
+    import InputBox from "./InputBox.svelte";
 
     enum SearchRange {
         Deck = 1,
@@ -21,12 +21,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let search: Writable<string>;
 
     let revlogRange = daysToRevlogRange($days);
-    let searchRange =
-        $search === "deck:current"
-            ? SearchRange.Deck
-            : $search === ""
-            ? SearchRange.Collection
-            : SearchRange.Custom;
+    let searchRange: SearchRange;
+
+    if ($search === "deck:current") {
+        searchRange = SearchRange.Deck;
+    } else if ($search === "") {
+        searchRange = SearchRange.Collection;
+    } else {
+        searchRange = SearchRange.Custom;
+    }
 
     let displayedSearch = $search;
 

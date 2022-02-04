@@ -5,10 +5,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { getContext } from "svelte";
     import type { Readable } from "svelte/store";
-    import CustomStyles from "./CustomStyles.svelte";
-    import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
+
+    import { directionKey, fontFamilyKey, fontSizeKey } from "../../lib/context-keys";
     import { promiseWithResolver } from "../../lib/promise";
-    import { fontFamilyKey, fontSizeKey, directionKey } from "../../lib/context-keys";
+    import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
+    import CustomStyles from "./CustomStyles.svelte";
 
     const [promise, customStylesResolve] = promiseWithResolver<CustomStyles>();
     const [userBaseStyle, userBaseResolve] = promiseWithResolver<StyleObject>();

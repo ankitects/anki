@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { Writable } from "svelte/store";
+
     import contextProperty from "../sveltelib/context-property";
 
     export interface EditingInputAPI {
@@ -28,10 +29,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import FocusTrap from "./FocusTrap.svelte";
-    import { writable } from "svelte/store";
     import { onMount, setContext as svelteSetContext } from "svelte";
+    import { writable } from "svelte/store";
+
     import { fontFamilyKey, fontSizeKey } from "../lib/context-keys";
+    import FocusTrap from "./FocusTrap.svelte";
 
     export let fontFamily: string;
     const fontFamilyStore = writable(fontFamily);

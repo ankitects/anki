@@ -3,9 +3,9 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { descriptionIcon } from "./icons";
-    import WithTooltip from "../components/WithTooltip.svelte";
     import Badge from "../components/Badge.svelte";
+    import WithTooltip from "../components/WithTooltip.svelte";
+    import { descriptionIcon } from "./icons";
 
     export let description: string;
 </script>

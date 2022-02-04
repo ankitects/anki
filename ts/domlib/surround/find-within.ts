@@ -2,9 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { nodeIsElement } from "../../lib/dom";
-import { nodeWithinRange } from "./within-range";
 import type { ChildNodeRange } from "./child-node-range";
-import type { FoundMatch, ElementMatcher } from "./matcher";
+import type { ElementMatcher, FoundMatch } from "./matcher";
+import { nodeWithinRange } from "./within-range";
 
 /**
  * Elements returned should be in post-order

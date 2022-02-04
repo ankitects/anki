@@ -3,20 +3,20 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { ChangeNotetypeState } from "./lib";
-    import StickyContainer from "../components/StickyContainer.svelte";
-    import ButtonToolbar from "../components/ButtonToolbar.svelte";
-    import ButtonGroup from "../components/ButtonGroup.svelte";
-    import LabelButton from "../components/LabelButton.svelte";
     import Badge from "../components/Badge.svelte";
-    import { arrowRightIcon, arrowLeftIcon } from "./icons";
+    import ButtonGroup from "../components/ButtonGroup.svelte";
+    import ButtonToolbar from "../components/ButtonToolbar.svelte";
+    import LabelButton from "../components/LabelButton.svelte";
     import SelectButton from "../components/SelectButton.svelte";
     import SelectOption from "../components/SelectOption.svelte";
+    import StickyContainer from "../components/StickyContainer.svelte";
+    import { arrowLeftIcon, arrowRightIcon } from "./icons";
+    import type { ChangeNotetypeState } from "./lib";
     import SaveButton from "./SaveButton.svelte";
 
     export let state: ChangeNotetypeState;
-    let notetypes = state.notetypes;
-    let info = state.info;
+    const notetypes = state.notetypes;
+    const info = state.info;
 
     async function blur(event: Event): Promise<void> {
         await state.setTargetNotetypeIndex(
