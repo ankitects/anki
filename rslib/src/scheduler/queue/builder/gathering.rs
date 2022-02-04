@@ -136,14 +136,15 @@ impl QueueBuilder {
     fn gather_new_cards_by_position(&mut self, col: &mut Collection, reverse: bool) -> Result<()> {
         col.storage
             .for_each_new_card_in_active_decks(reverse, |card| {
-                if let Some(node_id) = self.limits.remaining_node_id(card.current_deck_id) {
-                    if self.add_new_card(card) {
-                        self.limits.decrement_node_and_parent_limits(&node_id, true);
-                    }
-
-                    true
-                } else {
+                if self.limits.root_limit_reached() {
                     false
+                } else {
+                    if let Some(node_id) = self.limits.remaining_node_id(card.current_deck_id) {
+                        if self.add_new_card(card) {
+                            self.limits.decrement_node_and_parent_limits(&node_id, true);
+                        }
+                    }
+                    true
                 }
             })?;
 
