@@ -75,7 +75,7 @@ export function withoutUnicodeIsolation(s: string): string {
 
 export async function setupI18n(args: { modules: ModuleName[] }): Promise<void> {
     const resources = await i18n.i18nResources(args);
-    const json = JSON.parse(String.fromCharCode(...resources.json));
+    const json = JSON.parse(new TextDecoder().decode(resources.json));
 
     const newBundles: FluentBundle[] = [];
     for (const res in json.resources) {
