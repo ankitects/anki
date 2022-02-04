@@ -146,7 +146,7 @@ impl LimitTreeMap {
     /// Recursively appends descendants to the provided parent [Node], and adds
     /// them to the [HashMap].
     /// Given [Deck]s are assumed to arrive in depth-first order.
-    /// The tree-from-deck-list logic to is taken from [crate::decks::tree::add_child_nodes].
+    /// The tree-from-deck-list logic is taken from [crate::decks::tree::add_child_nodes].
     fn add_child_nodes(
         &mut self,
         parent_node_id: NodeId,
