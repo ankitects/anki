@@ -49,7 +49,7 @@ export interface GetSurrounderResult {
  * A convenience function supposed to create some common formatting functions, e.g. bold, italic, etc.
  */
 export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderResult {
-    const { add, remove, active } = richTextInput.getTriggerOnNextInsert();
+    const trigger = richTextInput.getTriggerOnNextInsert();
 
     async function isSurrounded(matcher: ElementMatcher): Promise<boolean> {
         const base = await richTextInput.element;
@@ -61,7 +61,7 @@ export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderRes
         }
 
         const isSurrounded = isSurroundedInner(range, base, matcher);
-        return get(active) ? !isSurrounded : isSurrounded;
+        return get(trigger.active) ? !isSurrounded : isSurrounded;
     }
 
     async function surroundCommand(
@@ -76,10 +76,10 @@ export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderRes
         if (!range) {
             return;
         } else if (range.collapsed) {
-            if (get(active)) {
-                remove();
+            if (get(trigger.active)) {
+                trigger.remove();
             } else {
-                add(async ({ node }: { node: Node }) => {
+                trigger.add(async ({ node }: { node: Node }) => {
                     range.selectNode(node);
 
                     const matches = Boolean(findClosest(node, base, matcher));
