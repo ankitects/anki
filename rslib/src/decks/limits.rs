@@ -213,8 +213,12 @@ impl LimitTreeMap {
         self.map.get(&deck_id).is_none()
     }
 
-    pub(crate) fn remaining_decks(&self) -> Vec<DeckId> {
-        self.map.keys().copied().collect()
+    pub(crate) fn active_decks(&self) -> Vec<DeckId> {
+        self.tree
+            .traverse_pre_order(self.tree.root_node_id().unwrap())
+            .unwrap()
+            .map(|node| node.data().deck_id)
+            .collect()
     }
 
     pub(crate) fn remaining_node_id(&self, deck_id: DeckId) -> Option<NodeId> {

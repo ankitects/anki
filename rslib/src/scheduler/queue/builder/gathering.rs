@@ -109,7 +109,7 @@ impl QueueBuilder {
     fn gather_new_cards_by_deck(&mut self, col: &mut Collection) -> Result<()> {
         // TODO: must own Vec as closure below requires unique access to ctx
         // maybe decks should not be field of Context?
-        for deck_id in self.limits.remaining_decks() {
+        for deck_id in self.limits.active_decks() {
             if self.limits.root_limit_reached() {
                 break;
             }
