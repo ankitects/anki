@@ -271,3 +271,111 @@ impl Collection {
         Ok(queues)
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::{
+        backend_proto::deck_config::config::{NewCardGatherPriority, NewCardSortOrder},
+        collection::open_test_collection,
+    };
+
+    impl Collection {
+        fn set_deck_gather_order(&mut self, deck: &mut Deck, order: NewCardGatherPriority) {
+            let mut conf = DeckConfig::default();
+            conf.inner.new_card_gather_priority = order as i32;
+            conf.inner.new_card_sort_order = NewCardSortOrder::NoSort as i32;
+            self.add_or_update_deck_config(&mut conf).unwrap();
+            deck.normal_mut().unwrap().config_id = conf.id.0;
+            self.add_or_update_deck(deck).unwrap();
+        }
+
+        fn set_deck_new_limit(&mut self, deck: &mut Deck, new_limit: u32) {
+            let mut conf = DeckConfig::default();
+            conf.inner.new_per_day = new_limit;
+            self.add_or_update_deck_config(&mut conf).unwrap();
+            deck.normal_mut().unwrap().config_id = conf.id.0;
+            self.add_or_update_deck(deck).unwrap();
+        }
+
+        fn queue_as_deck_and_template(&mut self, deck_id: DeckId) -> Vec<(DeckId, u16)> {
+            self.build_queues(deck_id)
+                .unwrap()
+                .iter()
+                .map(|entry| {
+                    let card = self.storage.get_card(entry.card_id()).unwrap().unwrap();
+                    (card.deck_id, card.template_idx)
+                })
+                .collect()
+        }
+    }
+
+    #[test]
+    fn queue_building() -> Result<()> {
+        let mut col = open_test_collection();
+        col.set_config_bool(BoolKey::Sched2021, true, false)?;
+
+        // parent
+        // ┣━━child━━grandchild
+        // ┗━━child_2
+        let mut parent = col.get_or_create_normal_deck("Default").unwrap();
+        let mut child = col.get_or_create_normal_deck("Default::child").unwrap();
+        let child_2 = col.get_or_create_normal_deck("Default::child_2").unwrap();
+        let grandchild = col
+            .get_or_create_normal_deck("Default::child::grandchild")
+            .unwrap();
+
+        // add 2 new cards to each deck
+        let nt = col.get_notetype_by_name("Cloze")?.unwrap();
+        let mut note = nt.new_note();
+        note.set_field(0, "{{c1::}} {{c2::}}")?;
+        for deck in [&parent, &child, &child_2, &grandchild] {
+            note.id.0 = 0;
+            col.add_note(&mut note, deck.id)?;
+        }
+
+        // set child's new limit to 3, which should affect grandchild
+        col.set_deck_new_limit(&mut child, 3);
+
+        // depth-first tree order
+        col.set_deck_gather_order(&mut parent, NewCardGatherPriority::Deck);
+        let cards = vec![
+            (parent.id, 0),
+            (parent.id, 1),
+            (child.id, 0),
+            (child.id, 1),
+            (grandchild.id, 0),
+            (child_2.id, 0),
+            (child_2.id, 1),
+        ];
+        assert_eq!(col.queue_as_deck_and_template(parent.id), cards);
+
+        // insertion order
+        col.set_deck_gather_order(&mut parent, NewCardGatherPriority::LowestPosition);
+        let cards = vec![
+            (parent.id, 0),
+            (parent.id, 1),
+            (child.id, 0),
+            (child.id, 1),
+            (child_2.id, 0),
+            (child_2.id, 1),
+            (grandchild.id, 0),
+        ];
+        assert_eq!(col.queue_as_deck_and_template(parent.id), cards);
+
+        // inverted insertion order, but sibling order is preserved
+        col.set_deck_gather_order(&mut parent, NewCardGatherPriority::HighestPosition);
+        let cards = vec![
+            (grandchild.id, 0),
+            (grandchild.id, 1),
+            (child_2.id, 0),
+            (child_2.id, 1),
+            (child.id, 0),
+            (parent.id, 0),
+            (parent.id, 1),
+        ];
+        assert_eq!(col.queue_as_deck_and_template(parent.id), cards);
+
+        Ok(())
+    }
+}
