@@ -265,7 +265,7 @@ impl LimitTreeMap {
 
     fn cap_new_to_review_rec(&mut self, node_id: &NodeId, parent_limit: u32) {
         let node = self.tree.get_mut(node_id).unwrap();
-        let mut limits = node.data_mut().limits;
+        let mut limits = &mut node.data_mut().limits;
         limits.new = limits.new.min(limits.review).min(parent_limit);
         let node_limit = limits.new;
 
