@@ -1,11 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { nodeIsText, nodeIsElement, elementIsEmpty } from "../lib/dom";
-import { on } from "../lib/events";
-import { getSelection, isSelectionCollapsed } from "../lib/cross-browser";
 import { moveChildOutOfElement } from "../domlib/move-nodes";
 import { placeCaretAfter } from "../domlib/place-caret";
+import { getSelection, isSelectionCollapsed } from "../lib/cross-browser";
+import { elementIsEmpty, nodeIsElement, nodeIsText } from "../lib/dom";
+import { on } from "../lib/events";
 import type { FrameElement } from "./frame-element";
 
 /**

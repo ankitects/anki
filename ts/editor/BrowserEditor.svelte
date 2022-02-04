@@ -3,10 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import NoteEditor from "./NoteEditor.svelte";
     import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
-    import PreviewButton from "./PreviewButton.svelte";
     import type { NoteEditorAPI } from "./NoteEditor.svelte";
+    import NoteEditor from "./NoteEditor.svelte";
+    import PreviewButton from "./PreviewButton.svelte";
 
     const api: Partial<NoteEditorAPI> = {};
     let noteEditor: NoteEditor;

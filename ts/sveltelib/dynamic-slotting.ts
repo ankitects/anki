@@ -3,13 +3,14 @@
 import type { SvelteComponent } from "svelte";
 import type { Readable, Writable } from "svelte/store";
 import { writable } from "svelte/store";
+
 import type { Identifier } from "../lib/children-access";
-import { promiseWithResolver } from "../lib/promise";
 import type { ChildrenAccess } from "../lib/children-access";
-import type { Callback } from "../lib/helpers";
-import { removeItem } from "../lib/helpers";
 import childrenAccess from "../lib/children-access";
 import { nodeIsElement } from "../lib/dom";
+import type { Callback } from "../lib/helpers";
+import { removeItem } from "../lib/helpers";
+import { promiseWithResolver } from "../lib/promise";
 
 export interface DynamicSvelteComponent {
     component: typeof SvelteComponent;

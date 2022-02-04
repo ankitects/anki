@@ -3,15 +3,16 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onMount, onDestroy, tick } from "svelte";
+    import { onDestroy, onMount, tick } from "svelte";
     import { writable } from "svelte/store";
+
     import WithDropdown from "../../components/WithDropdown.svelte";
-    import { noop } from "../../lib/functional";
-    import { on } from "../../lib/events";
     import { Mathjax } from "../../editable/mathjax-element";
-    import HandleSelection from "../HandleSelection.svelte";
+    import { on } from "../../lib/events";
+    import { noop } from "../../lib/functional";
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";
+    import HandleSelection from "../HandleSelection.svelte";
     import { context } from "../rich-text-input";
     import MathjaxMenu from "./MathjaxMenu.svelte";
 

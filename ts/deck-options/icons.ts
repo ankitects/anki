@@ -5,5 +5,5 @@
 
 // Import icons from bootstrap
 export { default as revertIcon } from "bootstrap-icons/icons/arrow-counterclockwise.svg";
-export { default as infoCircle } from "bootstrap-icons/icons/info-circle.svg";
 export { default as gearIcon } from "bootstrap-icons/icons/gear.svg";
+export { default as infoCircle } from "bootstrap-icons/icons/info-circle.svg";

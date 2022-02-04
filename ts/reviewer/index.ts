@@ -16,12 +16,14 @@ import "css-browser-selector/css_browser_selector.min";
 export { default as $, default as jQuery } from "jquery/dist/jquery";
 
 import { mutateNextCardStates } from "./answering";
+
 globalThis.anki = globalThis.anki || {};
 globalThis.anki.mutateNextCardStates = mutateNextCardStates;
 
 import { bridgeCommand } from "../lib/bridgecommand";
-import { allImagesLoaded, preloadAnswerImages } from "./images";
 import { maybePreloadExternalCss } from "./css";
+import { allImagesLoaded, preloadAnswerImages } from "./images";
+
 declare const MathJax: any;
 
 type Callback = () => void | Promise<void>;

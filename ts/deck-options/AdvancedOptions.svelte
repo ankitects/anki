@@ -3,21 +3,21 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "../lib/ftl";
-    import TitledContainer from "./TitledContainer.svelte";
-    import SpinBoxRow from "./SpinBoxRow.svelte";
-    import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
-    import type { DeckOptionsState } from "./lib";
-    import CardStateCustomizer from "./CardStateCustomizer.svelte";
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
+    import * as tr from "../lib/ftl";
+    import CardStateCustomizer from "./CardStateCustomizer.svelte";
+    import type { DeckOptionsState } from "./lib";
+    import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
+    import SpinBoxRow from "./SpinBoxRow.svelte";
+    import TitledContainer from "./TitledContainer.svelte";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
 
-    let config = state.currentConfig;
-    let defaults = state.defaults;
-    let cardStateCustomizer = state.cardStateCustomizer;
+    const config = state.currentConfig;
+    const defaults = state.defaults;
+    const cardStateCustomizer = state.cardStateCustomizer;
 </script>
 
 <TitledContainer title={tr.deckConfigAdvancedTitle()}>

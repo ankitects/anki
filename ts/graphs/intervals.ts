@@ -5,25 +5,25 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type { Stats, Cards } from "../lib/proto";
+import type { Bin } from "d3";
 import {
     extent,
     histogram,
-    quantile,
-    sum,
+    interpolateBlues,
     mean,
+    quantile,
     scaleLinear,
     scaleSequential,
-    interpolateBlues,
+    sum,
 } from "d3";
-import { localizedNumber } from "../lib/i18n";
-import type { Bin } from "d3";
-import * as tr from "../lib/ftl";
-import { timeSpan } from "../lib/time";
-import { CardType } from "../lib/cards";
-import type { HistogramData } from "./histogram-graph";
 
-import type { TableDatum, SearchDispatch } from "./graph-helpers";
+import { CardType } from "../lib/cards";
+import * as tr from "../lib/ftl";
+import { localizedNumber } from "../lib/i18n";
+import type { Cards, Stats } from "../lib/proto";
+import { timeSpan } from "../lib/time";
+import type { SearchDispatch, TableDatum } from "./graph-helpers";
+import type { HistogramData } from "./histogram-graph";
 
 export interface IntervalGraphData {
     intervals: number[];

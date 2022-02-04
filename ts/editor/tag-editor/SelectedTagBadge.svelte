@@ -4,12 +4,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
+
     import Badge from "../../components/Badge.svelte";
+    import DropdownItem from "../../components/DropdownItem.svelte";
+    import DropdownMenu from "../../components/DropdownMenu.svelte";
+    import { withSpan } from "../../components/helpers";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithDropdown from "../../components/WithDropdown.svelte";
-    import DropdownMenu from "../../components/DropdownMenu.svelte";
-    import DropdownItem from "../../components/DropdownItem.svelte";
-    import { withSpan } from "../../components/helpers";
     import { getPlatformString } from "../../lib/shortcuts";
     import { dotsIcon } from "./icons";
 

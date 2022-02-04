@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import Badge from "../components/Badge.svelte";
     import * as tr from "../lib/ftl";
-    import { richTextOn, richTextOff } from "./icons";
+    import { richTextOff, richTextOn } from "./icons";
 
     export let off: boolean;
 

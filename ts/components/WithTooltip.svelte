@@ -3,8 +3,8 @@
     License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onDestroy } from "svelte";
     import Tooltip from "bootstrap/js/dist/tooltip";
+    import { onDestroy } from "svelte";
 
     type TriggerType =
         | "hover focus"
@@ -43,7 +43,7 @@
     let previousTooltip: string = tooltip;
     $: if (tooltip !== previousTooltip) {
         previousTooltip = tooltip;
-        let element: HTMLElement = tooltipObject["_element"];
+        const element: HTMLElement = tooltipObject["_element"];
         tooltipObject.dispose();
         createTooltip(element);
     }

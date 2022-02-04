@@ -4,14 +4,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import Container from "../components/Container.svelte";
-    import MapperRow from "./MapperRow.svelte";
     import Spacer from "../components/Spacer.svelte";
     import type { ChangeNotetypeState, MapContext } from "./lib";
+    import MapperRow from "./MapperRow.svelte";
 
     export let state: ChangeNotetypeState;
     export let ctx: MapContext;
 
-    let info = state.info;
+    const info = state.info;
 </script>
 
 <Spacer --height="0.5rem" />

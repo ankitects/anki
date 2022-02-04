@@ -3,11 +3,12 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "../lib/ftl";
-    import Badge from "../components/Badge.svelte";
-    import { MapContext } from "./lib";
-    import { plusIcon, minusIcon } from "./icons";
     import { slide } from "svelte/transition";
+
+    import Badge from "../components/Badge.svelte";
+    import * as tr from "../lib/ftl";
+    import { minusIcon, plusIcon } from "./icons";
+    import { MapContext } from "./lib";
 
     export let unused: string[];
     export let ctx: MapContext;
@@ -18,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ? tr.changeNotetypeWillDiscardContent()
             : tr.changeNotetypeWillDiscardCards();
 
-    let maxItems: number = 3;
+    const maxItems: number = 3;
     let collapsed: boolean = true;
     $: collapseMsg = collapsed
         ? tr.changeNotetypeExpand()
