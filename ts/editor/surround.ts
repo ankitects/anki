@@ -45,6 +45,9 @@ export interface GetSurrounderResult {
     isSurrounded(matcher: ElementMatcher): Promise<boolean>;
 }
 
+/**
+ * A convenience function supposed to create some common formatting functions, e.g. bold, italic, etc.
+ */
 export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderResult {
     const { add, remove, active } = richTextInput.getTriggerOnNextInsert();
 

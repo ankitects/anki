@@ -2,27 +2,42 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 export enum MatchResult {
-    /* Having this be 0 allows for falsy tests */
+    /** Having this be 0 allows for falsy tests */
     NO_MATCH = 0,
-    /* Element matches the predicate and may be removed */
+    /** Element matches the predicate and may be removed */
     MATCH,
-    /* Element matches the predicate, but may not be removed
-     * This typically means that the element has other properties which prevent it from being removed */
+    /**
+     * Element matches the predicate, but may not be removed.
+     *
+     * @remarks
+     * This typically means that the element has other properties which prevent
+     * it from being removed. E.g. an element matches a bold predicate, because
+     * it has inline styling of `font-weight: bold`, but it also has other
+     * inline styling aplied additionally.
+     */
     KEEP,
-    /* Element (or Text) is situated adjacent to a match */
+    /** Element (or Text) is situated adjacent to a match */
     ALONG,
 }
 
 /**
- * Should be pure
+ * A function to determine how an element relates to a element predicate.
+ *
+ * @remarks
+ * Should be pure.
+ *
+ * @example
+ * A predicate could be "is bold", which could match `b` and `strong` tags.
  */
 export type ElementMatcher = (
     element: Element,
 ) => Exclude<MatchResult, MatchResult.ALONG>;
 
 /**
- * Is applied to values that match with KEEP
- * Should be idempotent
+ * A function applied to element that matched with MatchResult.KEEP.
+ *
+ * @remarks
+ * Should be idempotent.
  */
 export type ElementClearer = (element: Element) => boolean;
 

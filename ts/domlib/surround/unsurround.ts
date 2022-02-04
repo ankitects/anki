@@ -170,20 +170,23 @@ function resurroundAdjacent(
 }
 
 /**
- * Avoids splitting existing elements in the surrounded area
- * might create multiple of the surrounding element and remove elements specified by matcher
+ *
+ * @remarks
+ * Avoids splitting existing elements in the surrounded area.
+ * Might create multiple of the surrounding element and remove elements specified by matcher
  * can be used for inline elements e.g. <b>, or <strong>
+ *
  * @param range: The range to surround
- * @param surroundNode: This node will be shallowly cloned for surrounding
- * @param base: Surrounding will not ascent beyond this point; base.contains(range.commonAncestorContainer) should be true
- * @param matcher: Used to detect elements will are similar to the surroundNode, and are included in normalization
- * @param clearer: Used to clear elements which have unwanted properties
+ * @param surroundElement: Will be shallowly cloned for surrounding
+ * @param base: Surrounding will not ascend beyond this point. `base.contains(range.commonAncestorContainer)` should be true.
+ * @param matcher: Used to detect elements which are similar to the surroundElement, and are included in normalization.
+ * @param clearer: Used to clear elements which matched with `MatchResult.KEEP`.
  **/
 export function unsurround(
     range: Range,
-    surroundNode: Element,
+    surroundElement: Element,
     base: Element,
-    matcher: ElementMatcher = matchTagName(surroundNode.tagName),
+    matcher: ElementMatcher = matchTagName(surroundElement.tagName),
     clearer: ElementClearer = () => false,
 ): SurroundNoSplittingResult {
     const { start, end } = getRangeAnchors(range, matcher);
@@ -200,7 +203,7 @@ export function unsurround(
     const { addedNodes, removedNodes } = resurroundAdjacent(
         beforeRange,
         afterRange,
-        surroundNode,
+        surroundElement,
         base,
         matcher,
         clearer,
