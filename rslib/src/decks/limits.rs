@@ -236,7 +236,7 @@ impl LimitTreeMap {
         } else {
             limit.review = limit.review.saturating_sub(1);
             limit.review
-        } < 1
+        } == 0
         {
             self.remove_node_and_descendants_from_map(node_id);
         };
@@ -263,9 +263,16 @@ impl LimitTreeMap {
         let node = self.tree.get_mut(node_id).unwrap();
         let mut limits = &mut node.data_mut().limits;
         limits.new = limits.new.min(limits.review).min(parent_limit);
-        let node_limit = limits.new;
 
-        for child_id in node.children().clone() {
+        // clone because of borrowing rules
+        let node_limit = limits.new;
+        let children = node.children().clone();
+
+        if node_limit == 0 {
+            self.remove_node_and_descendants_from_map(node_id);
+        }
+
+        for child_id in children {
             self.cap_new_to_review_rec(&child_id, node_limit);
         }
     }
