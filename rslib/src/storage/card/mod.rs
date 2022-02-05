@@ -249,7 +249,7 @@ impl super::SqliteStorage {
         F: FnMut(NewCard) -> bool,
     {
         let mut stmt = self.db.prepare_cached(&format!(
-            "{} ORDER BY due ASC",
+            "{} ORDER BY due, ord ASC",
             include_str!("new_cards.sql")
         ))?;
         let mut rows = stmt.query(params![deck])?;
@@ -273,9 +273,9 @@ impl super::SqliteStorage {
         F: FnMut(NewCard) -> bool,
     {
         let mut stmt = self.db.prepare_cached(&format!(
-            "{} ORDER BY {}",
+            "{} ORDER BY due {}, ord asc",
             include_str!("active_new_cards.sql"),
-            if reverse { "due desc" } else { "due asc" }
+            if reverse { "desc" } else { "asc" }
         ))?;
         let mut rows = stmt.query(params![])?;
         while let Some(row) = rows.next()? {
