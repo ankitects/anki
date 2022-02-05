@@ -2,13 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { unsurround } from "./unsurround";
-
-const parser = new DOMParser();
-
-function p(html: string): HTMLBodyElement {
-    const parsed = parser.parseFromString(html, "text/html");
-    return parsed.body as HTMLBodyElement;
-}
+import { p, easyBold } from "./test-utils";
 
 describe("unsurround text", () => {
     let body: HTMLBodyElement;
@@ -23,8 +17,8 @@ describe("unsurround text", () => {
 
         const { addedNodes, removedNodes, surroundedRange } = unsurround(
             range,
-            document.createElement("b"),
             body,
+            easyBold,
         );
 
         expect(addedNodes).toHaveLength(0);
@@ -48,8 +42,8 @@ describe("unsurround element and text", () => {
 
         const { addedNodes, removedNodes, surroundedRange } = unsurround(
             range,
-            document.createElement("b"),
             body,
+            easyBold,
         );
 
         expect(addedNodes).toHaveLength(0);
@@ -70,11 +64,7 @@ describe("unsurround element with surrounding text", () => {
         const range = new Range();
         range.selectNode(body.firstElementChild!);
 
-        const { addedNodes, removedNodes } = unsurround(
-            range,
-            document.createElement("b"),
-            body,
-        );
+        const { addedNodes, removedNodes } = unsurround(range, body, easyBold);
 
         expect(addedNodes).toHaveLength(0);
         expect(removedNodes).toHaveLength(1);
@@ -95,11 +85,7 @@ describe("unsurround from one element to another", () => {
         range.setStartBefore(body.children[0].firstChild!);
         range.setEndAfter(body.children[1].firstChild!);
 
-        const { addedNodes, removedNodes } = unsurround(
-            range,
-            document.createElement("b"),
-            body,
-        );
+        const { addedNodes, removedNodes } = unsurround(range, body, easyBold);
 
         expect(addedNodes).toHaveLength(0);
         expect(removedNodes).toHaveLength(2);
@@ -146,11 +132,7 @@ describe("with bold around block item", () => {
             body.firstChild!.childNodes[2].firstChild!.firstChild!,
         );
 
-        const { addedNodes, removedNodes } = unsurround(
-            range,
-            document.createElement("b"),
-            body,
-        );
+        const { addedNodes, removedNodes } = unsurround(range, body, easyBold);
 
         expect(addedNodes).toHaveLength(1);
         expect(removedNodes).toHaveLength(1);

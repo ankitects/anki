@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import { resetAllState, updateAllState } from "../../components/WithState.svelte";
     import type { DefaultSlotInterface } from "../../sveltelib/dynamic-slotting";
+    import type { SurroundFormat } from "../../domlib/surround";
 
     export function updateActiveButtons(event: Event) {
         updateAllState(event);
@@ -21,6 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         formatBlockButtons: DefaultSlotInterface;
         colorButtons: DefaultSlotInterface;
         templateButtons: DefaultSlotInterface;
+        removeFormats: SurroundFormat[];
     }
 
     /* Our dynamic components */
@@ -29,6 +31,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export const editorToolbar = {
         AddonButtons,
     };
+
+    import contextProperty from "../../sveltelib/context-property";
+
+    const key = Symbol("editorToolbar");
+    const [context, setContextProperty] = contextProperty<EditorToolbarAPI>(key);
+
+    export { context };
 </script>
 
 <script lang="ts">
@@ -41,6 +50,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import FormatInlineButtons from "./FormatInlineButtons.svelte";
     import NotetypeButtons from "./NotetypeButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
+    import ButtonGroup from "../../components/ButtonGroup.svelte";
+    import RemoveFormatButton from "./RemoveFormatButton.svelte";
 
     export let size: number;
     export let wrap: boolean;
@@ -54,17 +65,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const formatBlockButtons = {};
     const colorButtons = {};
     const templateButtons = {};
+    const removeFormats: SurroundFormat[] = [];
 
-    export let api: Partial<EditorToolbarAPI> = {};
+    let apiPartial: Partial<EditorToolbarAPI> = {};
+    export { apiPartial as api };
 
-    Object.assign(api, {
+    const api: EditorToolbarAPI = Object.assign(apiPartial, {
         toolbar,
         notetypeButtons,
         formatInlineButtons,
         formatBlockButtons,
         colorButtons,
         templateButtons,
+        removeFormats,
     } as EditorToolbarAPI);
+
+    setContextProperty(api);
 </script>
 
 <StickyContainer --gutter-block="0.1rem" --sticky-borders="0 0 1px">
@@ -80,12 +96,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <FormatInlineButtons api={formatInlineButtons} />
             </Item>
 
+            <ColorButtons {textColor} {highlightColor} />
+
+            <ButtonGroup>
+                <RemoveFormatButton
+                    --border-left-radius="5px"
+                    --border-right-radius="5px"
+                />
+            </ButtonGroup>
+
             <Item id="blockFormatting">
                 <FormatBlockButtons api={formatBlockButtons} />
-            </Item>
-
-            <Item id="color">
-                <ColorButtons {textColor} {highlightColor} api={colorButtons} />
             </Item>
 
             <Item id="template">

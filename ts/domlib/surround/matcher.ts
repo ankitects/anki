@@ -41,12 +41,6 @@ export type ElementMatcher = (
  */
 export type ElementClearer = (element: Element) => boolean;
 
-export const matchTagName =
-    (tagName: string): ElementMatcher =>
-    (element: Element) => {
-        return element.matches(tagName) ? MatchResult.MATCH : MatchResult.NO_MATCH;
-    };
-
 export interface FoundMatch {
     element: Element;
     matchType: Exclude<MatchResult, MatchResult.NO_MATCH | MatchResult.ALONG>;
@@ -58,3 +52,9 @@ export interface FoundAlong {
 }
 
 export type FoundAdjacent = FoundMatch | FoundAlong;
+
+export interface SurroundFormat {
+    surroundElement: Element;
+    matcher: ElementMatcher;
+    clearer: ElementClearer;
+}

@@ -9,13 +9,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { MatchResult } from "../../domlib/surround";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
-    import { context } from "../NoteEditor.svelte";
+    import { context as noteEditorContext } from "../NoteEditor.svelte";
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
     import { getSurrounder } from "../surround";
+    import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { underlineIcon } from "./icons";
 
-    function matchUnderline(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
+    const surroundElement = document.createElement("u");
+
+    function matcher(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
         if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
             return MatchResult.NO_MATCH;
         }
@@ -27,21 +30,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return MatchResult.NO_MATCH;
     }
 
-    const { focusedInput } = context.get();
+    const clearer = () => false;
+
+    const format = {
+        surroundElement,
+        matcher,
+        clearer,
+    };
+
+    const { removeFormats } = editorToolbarContext.get();
+    removeFormats.push();
+
+    const { focusedInput } = noteEditorContext.get();
 
     $: input = $focusedInput as RichTextInputAPI;
     $: disabled = !editingInputIsRichText($focusedInput);
     $: surrounder = disabled ? null : getSurrounder(input);
 
     function updateStateFromActiveInput(): Promise<boolean> {
-        return disabled
-            ? Promise.resolve(false)
-            : surrounder!.isSurrounded(matchUnderline);
+        return disabled ? Promise.resolve(false) : surrounder!.isSurrounded(matcher);
     }
 
-    const element = document.createElement("u");
     function makeUnderline(): void {
-        surrounder!.surroundCommand(element, matchUnderline);
+        surrounder!.surroundCommand(format);
     }
 
     const keyCombination = "Control+U";

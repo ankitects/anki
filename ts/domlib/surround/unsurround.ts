@@ -3,8 +3,13 @@
 
 import { findFarthest } from "./find-above";
 import { findWithinNode, findWithinRange } from "./find-within";
-import type { ElementClearer, ElementMatcher, FoundMatch } from "./matcher";
-import { MatchResult, matchTagName } from "./matcher";
+import type {
+    SurroundFormat,
+    ElementClearer,
+    ElementMatcher,
+    FoundMatch,
+} from "./matcher";
+import { MatchResult } from "./matcher";
 import type { NodesResult, SurroundNoSplittingResult } from "./no-splitting";
 import { surround } from "./no-splitting";
 import { getRangeAnchors } from "./range-anchors";
@@ -134,10 +139,8 @@ function findNodesToRemove(
 function resurroundAdjacent(
     beforeRange: Range,
     afterRange: Range,
-    surroundNode: Element,
     base: Element,
-    matcher: ElementMatcher,
-    clearer: ElementClearer,
+    format: SurroundFormat,
 ): NodesResult {
     const addedNodes: Node[] = [];
     const removedNodes: Node[] = [];
@@ -145,10 +148,8 @@ function resurroundAdjacent(
     if (beforeRange.toString().length > 0) {
         const { addedNodes: added, removedNodes: removed } = surround(
             beforeRange,
-            surroundNode,
             base,
-            matcher,
-            clearer,
+            format,
         );
         addedNodes.push(...added);
         removedNodes.push(...removed);
@@ -157,10 +158,8 @@ function resurroundAdjacent(
     if (afterRange.toString().length > 0) {
         const { addedNodes: added, removedNodes: removed } = surround(
             afterRange,
-            surroundNode,
             base,
-            matcher,
-            clearer,
+            format,
         );
         addedNodes.push(...added);
         removedNodes.push(...removed);
@@ -170,43 +169,31 @@ function resurroundAdjacent(
 }
 
 /**
+ * The counterpart to `surroundNoSplitting`.
  *
- * @remarks
- * Avoids splitting existing elements in the surrounded area.
- * Might create multiple of the surrounding element and remove elements specified by matcher
- * can be used for inline elements e.g. <b>, or <strong>
- *
- * @param range: The range to surround
- * @param surroundElement: Will be shallowly cloned for surrounding
+ * @param range: The range to unsurround
  * @param base: Surrounding will not ascend beyond this point. `base.contains(range.commonAncestorContainer)` should be true.
- * @param matcher: Used to detect elements which are similar to the surroundElement, and are included in normalization.
- * @param clearer: Used to clear elements which matched with `MatchResult.KEEP`.
  **/
 export function unsurround(
     range: Range,
-    surroundElement: Element,
     base: Element,
-    matcher: ElementMatcher = matchTagName(surroundElement.tagName),
-    clearer: ElementClearer = () => false,
+    format: SurroundFormat,
 ): SurroundNoSplittingResult {
-    const { start, end } = getRangeAnchors(range, matcher);
+    const { start, end } = getRangeAnchors(range, format.matcher);
     const { nodesToRemove, beforeRange, afterRange } = findNodesToRemove(
         range,
         base,
-        matcher,
-        clearer,
+        format.matcher,
+        format.clearer,
     );
 
-    /**
-     * We cannot remove the nodes immediately, because they would make the ranges collapse
-     */
+    /* We cannot remove the nodes immediately, because they would make the ranges collapse */
+
     const { addedNodes, removedNodes } = resurroundAdjacent(
         beforeRange,
         afterRange,
-        surroundElement,
         base,
-        matcher,
-        clearer,
+        format,
     );
 
     for (const node of nodesToRemove) {

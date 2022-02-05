@@ -3,7 +3,7 @@
 
 import { get } from "svelte/store";
 
-import type { ElementClearer, ElementMatcher } from "../domlib/surround";
+import type { SurroundFormat, ElementMatcher } from "../domlib/surround";
 import { findClosest, surroundNoSplitting, unsurround } from "../domlib/surround";
 import { getRange, getSelection } from "../lib/cross-browser";
 import type { RichTextInputAPI } from "./rich-text-input";
@@ -22,15 +22,13 @@ function isSurroundedInner(
 function surroundAndSelect(
     matches: boolean,
     range: Range,
-    selection: Selection,
-    surroundElement: Element,
     base: HTMLElement,
-    matcher: ElementMatcher,
-    clearer: ElementClearer,
+    format: SurroundFormat,
+    selection: Selection,
 ): void {
     const { surroundedRange } = matches
-        ? unsurround(range, surroundElement, base, matcher, clearer)
-        : surroundNoSplitting(range, surroundElement, base, matcher, clearer);
+        ? unsurround(range, base, format)
+        : surroundNoSplitting(range, base, format);
 
     selection.removeAllRanges();
     selection.addRange(surroundedRange);
@@ -38,9 +36,8 @@ function surroundAndSelect(
 
 export interface GetSurrounderResult {
     surroundCommand(
-        surroundElement: Element,
-        matcher: ElementMatcher,
-        clearer?: ElementClearer,
+        format: SurroundFormat,
+        mutualExclusiveFormats?: SurroundFormat[],
     ): Promise<void>;
     isSurrounded(matcher: ElementMatcher): Promise<boolean>;
 }
@@ -65,53 +62,72 @@ export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderRes
     }
 
     async function surroundCommand(
-        surroundElement: Element,
-        matcher: ElementMatcher,
-        clearer: ElementClearer = () => false,
+        format: SurroundFormat,
+        mutualExclusiveFormats: SurroundFormat[] = [],
     ): Promise<void> {
         const base = await richTextInput.element;
         const selection = getSelection(base)!;
-        const range = getRange(selection);
+        const initialRange = getRange(selection);
 
-        if (!range) {
+        if (!initialRange) {
             return;
-        } else if (range.collapsed) {
+        } else if (initialRange.collapsed) {
             if (get(trigger.active)) {
                 trigger.remove();
             } else {
                 trigger.add(async ({ node }: { node: Node }) => {
-                    range.selectNode(node);
+                    initialRange.selectNode(node);
 
-                    const matches = Boolean(findClosest(node, base, matcher));
-                    surroundAndSelect(
-                        matches,
-                        range,
-                        selection,
-                        surroundElement,
+                    const matches = Boolean(findClosest(node, base, format.matcher));
+                    const range = removeFormats(
+                        initialRange,
+                        mutualExclusiveFormats,
                         base,
-                        matcher,
-                        clearer,
                     );
+
+                    surroundAndSelect(matches, range, base, format, selection);
 
                     selection.collapseToEnd();
                 });
             }
         } else {
-            const matches = isSurroundedInner(range, base, matcher);
-            surroundAndSelect(
-                matches,
-                range,
-                selection,
-                surroundElement,
-                base,
-                matcher,
-                clearer,
-            );
+            const matches = isSurroundedInner(initialRange, base, format.matcher);
+            const range = removeFormats(initialRange, mutualExclusiveFormats, base);
+
+            surroundAndSelect(matches, range, base, format, selection);
         }
     }
 
     return {
         surroundCommand,
         isSurrounded,
+    };
+}
+
+function removeFormats(range: Range, formats: SurroundFormat[], base: Element): Range {
+    for (const format of formats) {
+        ({ surroundedRange: range } = unsurround(range, base, format));
+    }
+
+    return range;
+}
+
+export function getRemoveFormat(richTextInput: RichTextInputAPI) {
+    async function removeFormat(formats: SurroundFormat[]): Promise<void> {
+        const base = await richTextInput.element;
+        const selection = getSelection(base)!;
+        const range = getRange(selection);
+
+        if (!range || range.collapsed) {
+            return;
+        } else {
+            const surroundedRange = removeFormats(range, formats, base);
+            selection.removeAllRanges();
+            selection.addRange(surroundedRange);
+        }
+    }
+
+    return {
+        removeFormat,
     };
 }

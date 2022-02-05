@@ -6,8 +6,7 @@ import {
     nodeToChildNodeRange,
     surroundChildNodeRangeWithNode,
 } from "./child-node-range";
-import type { ElementClearer, ElementMatcher } from "./matcher";
-import { matchTagName } from "./matcher";
+import type { SurroundFormat } from "./matcher";
 import { mergeMatchChildNodeRanges } from "./merge-match";
 import { normalizeInsertionRanges } from "./normalize-insertion-ranges";
 import { getRangeAnchors } from "./range-anchors";
@@ -25,10 +24,8 @@ export type SurroundNoSplittingResult = NodesResult & {
 
 export function surround(
     range: Range,
-    surroundElement: Element,
     base: Element,
-    matcher: ElementMatcher,
-    clearer: ElementClearer,
+    { matcher, clearer, surroundElement }: SurroundFormat,
 ): NodesResult {
     const containedTextNodes = findTextNodesWithin(
         range.commonAncestorContainer,
@@ -67,29 +64,21 @@ export function surround(
 }
 
 /**
- * Avoids splitting existing elements in the surrounded area
- * might create multiple of the surrounding element and remove elements specified by matcher
- * can be used for inline elements e.g. <b>, or <strong>
+ * Avoids splitting existing elements in the surrounded area. Might create
+ * multiple of the surrounding element and remove elements specified by matcher.
+ * Can be used for inline elements e.g. <b>, or <strong>.
+ *
  * @param range: The range to surround
- * @param surroundNode: This node will be shallowly cloned for surrounding
  * @param base: Surrounding will not ascent beyond this point; base.contains(range.commonAncestorContainer) should be true
- * @param matcher: Used to detect elements will are similar to the surroundNode, and are included in normalization
+ * @param format: Specifies the type of surrounding.
  **/
 export function surroundNoSplitting(
     range: Range,
-    surroundElement: Element,
     base: Element,
-    matcher: ElementMatcher = matchTagName(surroundElement.tagName),
-    clearer: ElementClearer = () => false,
+    format: SurroundFormat,
 ): SurroundNoSplittingResult {
-    const { start, end } = getRangeAnchors(range, matcher);
-    const { addedNodes, removedNodes } = surround(
-        range,
-        surroundElement,
-        base,
-        matcher,
-        clearer,
-    );
+    const { start, end } = getRangeAnchors(range, format.matcher);
+    const { addedNodes, removedNodes } = surround(range, base, format);
 
     const surroundedRange = new Range();
     surroundedRange.setStartBefore(start);

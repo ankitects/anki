@@ -3,7 +3,7 @@
 
 import { nodeToChildNodeRange } from "./child-node-range";
 import { findAfter, findBefore } from "./find-adjacent";
-import { matchTagName } from "./matcher";
+import { matchTagName } from "./test-utils";
 
 const parser = new DOMParser();
 

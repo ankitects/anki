@@ -2,32 +2,21 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script lang="ts">
-    import IconButton from "../../components/IconButton.svelte";
-    import Shortcut from "../../components/Shortcut.svelte";
-    import WithState from "../../components/WithState.svelte";
+<script context="module" lang="ts">
     import { MatchResult } from "../../domlib/surround";
-    import * as tr from "../../lib/ftl";
-    import { getPlatformString } from "../../lib/shortcuts";
-    import { context as noteEditorContext } from "../NoteEditor.svelte";
-    import type { RichTextInputAPI } from "../rich-text-input";
-    import { editingInputIsRichText } from "../rich-text-input";
-    import { getSurrounder } from "../surround";
-    import { context as editorToolbarContext } from "./EditorToolbar.svelte";
-    import { italicIcon } from "./icons";
 
-    const surroundElement = document.createElement("em");
+    const surroundElement = document.createElement("sup");
 
     function matcher(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
         if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
             return MatchResult.NO_MATCH;
         }
 
-        if (element.tagName === "I" || element.tagName === "EM") {
+        if (element.tagName === "SUP") {
             return MatchResult.MATCH;
         }
 
-        if (["italic", "oblique"].includes(element.style.fontStyle)) {
+        if (element.style.verticalAlign === "super") {
             return MatchResult.KEEP;
         }
 
@@ -36,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function clearer(element: Element): boolean {
         const htmlElement = element as HTMLElement | SVGElement;
-        htmlElement.style.removeProperty("font-style");
+        htmlElement.style.removeProperty("vertical-align");
 
         if (htmlElement.style.cssText.length === 0) {
             htmlElement.removeAttribute("style");
@@ -45,11 +34,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return !htmlElement.hasAttribute("style") && element.className.length === 0;
     }
 
-    const format = {
+    export const format = {
         surroundElement,
         matcher,
         clearer,
     };
+</script>
+
+<script lang="ts">
+    import IconButton from "../../components/IconButton.svelte";
+    import Shortcut from "../../components/Shortcut.svelte";
+    import WithState from "../../components/WithState.svelte";
+    import * as tr from "../../lib/ftl";
+    import { getPlatformString } from "../../lib/shortcuts";
+    import { context as noteEditorContext } from "../NoteEditor.svelte";
+    import type { RichTextInputAPI } from "../rich-text-input";
+    import { editingInputIsRichText } from "../rich-text-input";
+    import { getSurrounder } from "../surround";
+    import { context as editorToolbarContext } from "./EditorToolbar.svelte";
+    import { superscriptIcon } from "./icons";
+    import { format as subscript } from "./SubscriptButton.svelte";
 
     const { removeFormats } = editorToolbarContext.get();
     removeFormats.push(format);
@@ -63,35 +67,35 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return disabled ? Promise.resolve(false) : surrounder!.isSurrounded(matcher);
     }
 
-    function makeItalic(): void {
-        surrounder!.surroundCommand(format);
+    function makeSuper(): void {
+        surrounder?.surroundCommand(format, [subscript]);
     }
 
-    const keyCombination = "Control+I";
+    const keyCombination = "Control+=";
 </script>
 
 <WithState
-    key="italic"
+    key="super"
     update={updateStateFromActiveInput}
     let:state={active}
     let:updateState
 >
     <IconButton
-        tooltip="{tr.editingItalicText()} ({getPlatformString(keyCombination)})"
+        tooltip="{tr.editingSuperscript()} ({getPlatformString(keyCombination)})"
         {active}
         {disabled}
         on:click={(event) => {
-            makeItalic();
+            makeSuper();
             updateState(event);
         }}
     >
-        {@html italicIcon}
+        {@html superscriptIcon}
     </IconButton>
 
     <Shortcut
         {keyCombination}
         on:action={(event) => {
-            makeItalic();
+            makeSuper();
             updateState(event);
         }}
     />

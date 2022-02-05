@@ -2,13 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { surroundNoSplitting as surround } from "./no-splitting";
-
-const parser = new DOMParser();
-
-function p(html: string): HTMLBodyElement {
-    const parsed = parser.parseFromString(html, "text/html");
-    return parsed.body as HTMLBodyElement;
-}
+import { p, easyBold, easyUnderline } from "./test-utils";
 
 describe("surround text", () => {
     let body: HTMLBodyElement;
@@ -23,8 +17,8 @@ describe("surround text", () => {
 
         const { addedNodes, removedNodes, surroundedRange } = surround(
             range,
-            document.createElement("b"),
             body,
+            easyBold,
         );
 
         expect(addedNodes).toHaveLength(1);
@@ -40,8 +34,8 @@ describe("surround text", () => {
 
         const { addedNodes, removedNodes, surroundedRange } = surround(
             range,
-            document.createElement("b"),
             body,
+            easyBold,
         );
 
         expect(addedNodes).toHaveLength(1);
@@ -57,8 +51,8 @@ describe("surround text", () => {
 
         const { addedNodes, removedNodes, surroundedRange } = surround(
             range,
-            document.createElement("b"),
             body,
+            easyBold,
         );
 
         expect(addedNodes).toHaveLength(1);
@@ -81,8 +75,8 @@ describe("surround text next to nested", () => {
             range.selectNode(body.firstChild!);
             const { addedNodes, removedNodes, surroundedRange } = surround(
                 range,
-                document.createElement("u"),
                 body,
+                easyUnderline,
             );
 
             expect(addedNodes).toHaveLength(1);
@@ -96,8 +90,8 @@ describe("surround text next to nested", () => {
             range.selectNode(body.firstChild!);
             const { addedNodes, removedNodes, surroundedRange } = surround(
                 range,
-                document.createElement("b"),
                 body,
+                easyBold,
             );
 
             expect(addedNodes).toHaveLength(1);
@@ -119,8 +113,8 @@ describe("surround text next to nested", () => {
             range.selectNode(body.childNodes[1]);
             const { addedNodes, removedNodes, surroundedRange } = surround(
                 range,
-                document.createElement("u"),
                 body,
+                easyUnderline,
             );
 
             expect(addedNodes).toHaveLength(1);
@@ -134,8 +128,8 @@ describe("surround text next to nested", () => {
             range.selectNode(body.childNodes[1]);
             const { addedNodes, removedNodes, surroundedRange } = surround(
                 range,
-                document.createElement("b"),
                 body,
+                easyBold,
             );
 
             expect(addedNodes).toHaveLength(1);
@@ -159,8 +153,8 @@ describe("surround across block element", () => {
         range.setEndAfter(body.lastChild!);
         const { addedNodes, removedNodes, surroundedRange } = surround(
             range,
-            document.createElement("b"),
             body,
+            easyBold,
         );
 
         expect(addedNodes).toHaveLength(3);
@@ -183,11 +177,7 @@ describe("next to nested", () => {
     test("surround after", () => {
         const range = new Range();
         range.selectNode(body.lastChild!);
-        const { addedNodes, removedNodes } = surround(
-            range,
-            document.createElement("b"),
-            body,
-        );
+        const { addedNodes, removedNodes } = surround(range, body, easyBold);
 
         expect(addedNodes).toHaveLength(1);
         expect(removedNodes).toHaveLength(3);
@@ -206,11 +196,7 @@ describe("next to element with nested non-matching", () => {
     test("surround after", () => {
         const range = new Range();
         range.selectNode(body.lastChild!);
-        const { addedNodes, removedNodes } = surround(
-            range,
-            document.createElement("b"),
-            body,
-        );
+        const { addedNodes, removedNodes } = surround(range, body, easyBold);
 
         expect(addedNodes).toHaveLength(1);
         expect(removedNodes).toHaveLength(1);
@@ -232,11 +218,7 @@ describe("next to element with text element text", () => {
     test("surround after", () => {
         const range = new Range();
         range.selectNode(body.lastChild!);
-        const { addedNodes, removedNodes } = surround(
-            range,
-            document.createElement("b"),
-            body,
-        );
+        const { addedNodes, removedNodes } = surround(range, body, easyBold);
 
         expect(addedNodes).toHaveLength(1);
         expect(removedNodes).toHaveLength(2);
@@ -256,11 +238,7 @@ describe("surround elements that already have nested block", () => {
         const range = new Range();
         range.selectNode(body.children[0]);
 
-        const { addedNodes, removedNodes } = surround(
-            range,
-            document.createElement("b"),
-            body,
-        );
+        const { addedNodes, removedNodes } = surround(range, body, easyBold);
 
         expect(addedNodes).toHaveLength(1);
         expect(removedNodes).toHaveLength(2);
@@ -283,8 +261,8 @@ describe("surround complicated nested structure", () => {
 
         const { addedNodes, removedNodes, surroundedRange } = surround(
             range,
-            document.createElement("b"),
             body,
+            easyBold,
         );
 
         expect(addedNodes).toHaveLength(1);
@@ -312,8 +290,8 @@ describe("skips over empty elements", () => {
 
             const { addedNodes, removedNodes, surroundedRange } = surround(
                 range,
-                document.createElement("b"),
                 body,
+                easyBold,
             );
 
             expect(addedNodes).toHaveLength(1);
@@ -336,8 +314,8 @@ describe("skips over empty elements", () => {
 
             const { addedNodes, removedNodes, surroundedRange } = surround(
                 range,
-                document.createElement("b"),
                 body,
+                easyBold,
             );
 
             expect(addedNodes).toHaveLength(1);
@@ -352,8 +330,8 @@ describe("skips over empty elements", () => {
 
             const { addedNodes, removedNodes, surroundedRange } = surround(
                 range,
-                document.createElement("b"),
                 body,
+                easyBold,
             );
 
             expect(addedNodes).toHaveLength(1);
