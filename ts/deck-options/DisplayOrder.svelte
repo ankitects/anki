@@ -24,6 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tr.deckConfigNewGatherPriorityDeck(),
         tr.deckConfigNewGatherPriorityPositionLowestFirst(),
         tr.deckConfigNewGatherPriorityPositionHighestFirst(),
+        tr.deckConfigSortOrderRandom(),
     ];
     const newSortOrderChoices = [
         tr.deckConfigSortOrderCardTemplateThenLowestPosition(),

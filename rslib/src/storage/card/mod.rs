@@ -266,6 +266,7 @@ impl super::SqliteStorage {
     /// returns false or no more cards found.
     pub(crate) fn for_each_new_card_in_active_decks<F>(
         &self,
+        random: bool,
         reverse: bool,
         mut func: F,
     ) -> Result<()>
@@ -273,9 +274,15 @@ impl super::SqliteStorage {
         F: FnMut(NewCard) -> bool,
     {
         let mut stmt = self.db.prepare_cached(&format!(
-            "{} ORDER BY due {}, ord asc",
+            "{} ORDER BY {}",
             include_str!("active_new_cards.sql"),
-            if reverse { "desc" } else { "asc" }
+            if random {
+                "random()"
+            } else if reverse {
+                "due DESC, ord ASC"
+            } else {
+                "due ASC, ord ASC"
+            }
         ))?;
         let mut rows = stmt.query(params![])?;
         while let Some(row) = rows.next()? {

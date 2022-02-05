@@ -54,8 +54,13 @@ impl QueueBuilder {
     fn gather_new_cards(&mut self, col: &mut Collection) -> Result<()> {
         match self.context.sort_options.new_gather_priority {
             NewCardGatherPriority::Deck => self.gather_new_cards_by_deck(col),
-            NewCardGatherPriority::LowestPosition => self.gather_new_cards_by_position(col, false),
-            NewCardGatherPriority::HighestPosition => self.gather_new_cards_by_position(col, true),
+            NewCardGatherPriority::LowestPosition => {
+                self.gather_new_cards_sorted(col, false, false)
+            }
+            NewCardGatherPriority::HighestPosition => {
+                self.gather_new_cards_sorted(col, false, true)
+            }
+            NewCardGatherPriority::Random => self.gather_new_cards_sorted(col, true, false),
         }
     }
 
@@ -86,9 +91,14 @@ impl QueueBuilder {
         Ok(())
     }
 
-    fn gather_new_cards_by_position(&mut self, col: &mut Collection, reverse: bool) -> Result<()> {
+    fn gather_new_cards_sorted(
+        &mut self,
+        col: &mut Collection,
+        random: bool,
+        reverse: bool,
+    ) -> Result<()> {
         col.storage
-            .for_each_new_card_in_active_decks(reverse, |card| {
+            .for_each_new_card_in_active_decks(random, reverse, |card| {
                 if self.limits.root_limit_reached() {
                     false
                 } else {
