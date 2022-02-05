@@ -147,6 +147,7 @@ message DeckTreeNode {
   uint32 review_uncapped = 12;
   uint32 total_in_deck = 13;
 
+  // with children, without any limits
   uint32 total_including_children = 14;
 
   bool filtered = 16;

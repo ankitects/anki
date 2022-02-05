@@ -203,30 +203,30 @@ fn sum_counts_and_apply_limits_v3(
         .copied()
         .unwrap_or_default();
 
-    // cap current node's own cards
-    let this_node_uncapped = NodeCountsV3 {
+    // initialize with this node's values
+    let mut this_node_uncapped = NodeCountsV3 {
         new: node.new_count,
         review: node.review_count,
         intraday_learning: node.intraday_learning,
         interday_learning: node.interday_learning_uncapped,
         total: node.total_in_deck,
     };
-    let mut individually_capped_total = this_node_uncapped.capped(&remaining);
-    // and add the capped values from child decks
+    let mut total_including_children = node.total_in_deck;
+
+    // add capped child counts / uncapped total
     for child in &mut node.children {
-        individually_capped_total += sum_counts_and_apply_limits_v3(child, limits);
+        this_node_uncapped += sum_counts_and_apply_limits_v3(child, limits);
+        total_including_children += child.total_including_children;
     }
-    // so we can calculate this total
-    node.total_including_children = individually_capped_total.total;
 
-    // now cap again to obtain the final counts
-    let total_constrained_by_current_deck = individually_capped_total.capped(&remaining);
-    node.new_count = total_constrained_by_current_deck.new;
-    node.review_count = total_constrained_by_current_deck.review;
-    node.learn_count = total_constrained_by_current_deck.intraday_learning
-        + total_constrained_by_current_deck.interday_learning;
+    let this_node_capped = this_node_uncapped.capped(&remaining);
 
-    total_constrained_by_current_deck
+    node.new_count = this_node_capped.new;
+    node.review_count = this_node_capped.review;
+    node.learn_count = this_node_capped.intraday_learning + this_node_capped.interday_learning;
+    node.total_including_children = total_including_children;
+
+    this_node_capped
 }
 
 fn hide_default_deck(node: &mut DeckTreeNode) {
@@ -513,6 +513,8 @@ mod test {
         assert_eq!(parent.children[0].new_count, 4);
         // parent: cards from self and all subdecks, all limits in the hierarchy are respected
         assert_eq!(parent.new_count, 6);
+        assert_eq!(parent.total_including_children, 8);
+        assert_eq!(parent.total_in_deck, 2);
 
         Ok(())
     }
