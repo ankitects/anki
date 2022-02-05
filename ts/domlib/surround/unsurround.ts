@@ -85,7 +85,7 @@ interface FindNodesToRemoveResult {
 /**
  * @returns beforeRange: will start at the farthest any of the nodes to remove will
  *  extend in start direction till the start of the original range
- * @return afterRange: will start at the end of the original range and will extend as
+ * @returns afterRange: will start at the end of the original range and will extend as
  *  far as any of the nodes to remove will extend in end direction
  */
 function findNodesToRemove(
