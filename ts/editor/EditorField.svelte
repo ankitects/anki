@@ -3,9 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import type { EditingAreaAPI } from "./EditingArea.svelte";
-    import contextProperty from "../sveltelib/context-property";
     import type { Readable } from "svelte/store";
+
+    import contextProperty from "../sveltelib/context-property";
+    import type { EditingAreaAPI } from "./EditingArea.svelte";
 
     export interface FieldData {
         name: string;
@@ -22,30 +23,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const key = Symbol("editorField");
-    const [set, getEditorField, hasEditorField] = contextProperty<EditorFieldAPI>(key);
+    const [context, setContextProperty] = contextProperty<EditorFieldAPI>(key);
 
-    export { getEditorField, hasEditorField };
+    export { context };
 </script>
 
 <script lang="ts">
-    import EditingArea from "./EditingArea.svelte";
-    import LabelContainer from "./LabelContainer.svelte";
-    import LabelDescription from "./LabelDescription.svelte";
-    import LabelName from "./LabelName.svelte";
-    import FieldState from "./FieldState.svelte";
-
     import { onDestroy, setContext } from "svelte";
-    import { writable } from "svelte/store";
     import type { Writable } from "svelte/store";
+    import { writable } from "svelte/store";
+
     import { directionKey } from "../lib/context-keys";
     import { promiseWithResolver } from "../lib/promise";
     import type { Destroyable } from "./destroyable";
+    import EditingArea from "./EditingArea.svelte";
+    import FieldState from "./FieldState.svelte";
+    import LabelContainer from "./LabelContainer.svelte";
+    import LabelDescription from "./LabelDescription.svelte";
+    import LabelName from "./LabelName.svelte";
 
     export let content: Writable<string>;
     export let field: FieldData;
-    export let autofocus = false;
-
-    export let api: (Partial<EditorFieldAPI> & Destroyable) | undefined = undefined;
 
     const directionStore = writable<"ltr" | "rtl">();
     setContext(directionKey, directionStore);
@@ -55,15 +53,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const editingArea: Partial<EditingAreaAPI> = {};
     const [element, elementResolve] = promiseWithResolver<HTMLElement>();
 
-    const editorFieldApi = set({
+    let apiPartial: Partial<EditorFieldAPI> & Destroyable;
+    export { apiPartial as api };
+
+    const api: EditorFieldAPI & Destroyable = Object.assign(apiPartial, {
         element,
         direction: directionStore,
         editingArea: editingArea as EditingAreaAPI,
     });
 
-    if (api) {
-        Object.assign(api, editorFieldApi);
-    }
+    setContextProperty(api);
 
     onDestroy(() => api?.destroy());
 </script>
@@ -88,7 +87,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </LabelContainer>
     <EditingArea
         {content}
-        {autofocus}
         fontFamily={field.fontFamily}
         fontSize={field.fontSize}
         api={editingArea}
@@ -103,8 +101,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         border-radius: 5px;
         border: 1px solid var(--border-color);
-
-        min-width: 0;
 
         &:focus-within {
             --border-color: var(--focus-border);

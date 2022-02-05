@@ -259,6 +259,11 @@ class AnkiWebView(QWebEngineView):
     def disable_zoom(self) -> None:
         self._disable_zoom = True
 
+    def createWindow(self, windowType: QWebEnginePage.WebWindowType) -> QWebEngineView:
+        # intercept opening a new window (hrefs
+        # with target="_blank") and return view
+        return AnkiWebView()
+
     def eventFilter(self, obj: QObject, evt: QEvent) -> bool:
         if self._disable_zoom and is_gesture_or_zoom_event(evt):
             return True
@@ -421,12 +426,12 @@ border-radius:5px; font-family: Helvetica }"""
             family = self.font().family()
             color_hl_txt = palette.color(QPalette.ColorRole.HighlightedText).name()
             color_btn = palette.color(QPalette.ColorRole.Button).name()
-            font = f'font-size:14px;font-family:"{family}";'
+            font = f'font-size:14px;font-family:"{family}", sans-serif;'
             button_style = """
 /* Buttons */
 button{{ 
         background-color: {color_btn};
-        font-family:"{family}"; }}
+        font-family:"{family}", sans-serif; }}
 button:focus{{ border-color: {color_hl} }}
 button:active, button:active:hover {{ background-color: {color_hl}; color: {color_hl_txt};}}
 /* Input field focus outline */

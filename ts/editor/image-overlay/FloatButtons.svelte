@@ -3,17 +3,15 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "../../lib/ftl";
-    import type { Readable } from "svelte/store";
     import { getContext } from "svelte";
-    import { directionKey } from "../../lib/context-keys";
+    import { createEventDispatcher } from "svelte";
+    import type { Readable } from "svelte/store";
 
     import ButtonGroup from "../../components/ButtonGroup.svelte";
-    import ButtonGroupItem from "../../components/ButtonGroupItem.svelte";
     import IconButton from "../../components/IconButton.svelte";
-
-    import { createEventDispatcher } from "svelte";
-    import { floatNoneIcon, floatLeftIcon, floatRightIcon } from "./icons";
+    import { directionKey } from "../../lib/context-keys";
+    import * as tr from "../../lib/ftl";
+    import { floatLeftIcon, floatNoneIcon, floatRightIcon } from "./icons";
 
     export let image: HTMLImageElement;
 
@@ -27,44 +25,40 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <ButtonGroup size={1.6} wrap={false}>
-    <ButtonGroupItem>
-        <IconButton
-            tooltip={tr.editingFloatLeft()}
-            active={image.style.float === "left"}
-            flipX={$direction === "rtl"}
-            on:click={() => {
-                image.style.float = "left";
-                setTimeout(() => dispatch("update"));
-            }}>{@html inlineStartIcon}</IconButton
-        >
-    </ButtonGroupItem>
+    <IconButton
+        tooltip={tr.editingFloatLeft()}
+        active={image.style.float === "left"}
+        flipX={$direction === "rtl"}
+        on:click={() => {
+            image.style.float = "left";
+            setTimeout(() => dispatch("update"));
+        }}
+        --border-left-radius="5px">{@html inlineStartIcon}</IconButton
+    >
 
-    <ButtonGroupItem>
-        <IconButton
-            tooltip={tr.editingFloatNone()}
-            active={image.style.float === "" || image.style.float === "none"}
-            flipX={$direction === "rtl"}
-            on:click={() => {
-                image.style.removeProperty("float");
+    <IconButton
+        tooltip={tr.editingFloatNone()}
+        active={image.style.float === "" || image.style.float === "none"}
+        flipX={$direction === "rtl"}
+        on:click={() => {
+            image.style.removeProperty("float");
 
-                if (image.getAttribute("style")?.length === 0) {
-                    image.removeAttribute("style");
-                }
+            if (image.getAttribute("style")?.length === 0) {
+                image.removeAttribute("style");
+            }
 
-                setTimeout(() => dispatch("update"));
-            }}>{@html floatNoneIcon}</IconButton
-        >
-    </ButtonGroupItem>
+            setTimeout(() => dispatch("update"));
+        }}>{@html floatNoneIcon}</IconButton
+    >
 
-    <ButtonGroupItem>
-        <IconButton
-            tooltip={tr.editingFloatRight()}
-            active={image.style.float === "right"}
-            flipX={$direction === "rtl"}
-            on:click={() => {
-                image.style.float = "right";
-                setTimeout(() => dispatch("update"));
-            }}>{@html inlineEndIcon}</IconButton
-        >
-    </ButtonGroupItem>
+    <IconButton
+        tooltip={tr.editingFloatRight()}
+        active={image.style.float === "right"}
+        flipX={$direction === "rtl"}
+        on:click={() => {
+            image.style.float = "right";
+            setTimeout(() => dispatch("update"));
+        }}
+        --border-right-radius="5px">{@html inlineEndIcon}</IconButton
+    >
 </ButtonGroup>

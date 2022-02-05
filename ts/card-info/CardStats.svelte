@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr2 from "../lib/ftl";
     import { Stats, unwrapOptionalNumber } from "../lib/proto";
-    import { Timestamp, timeSpan, DAY } from "../lib/time";
+    import { DAY, timeSpan, Timestamp } from "../lib/time";
 
     export let stats: Stats.CardStatsResponse;
 

@@ -5,25 +5,25 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type { Stats, Cards } from "../lib/proto";
+import type { Bin } from "d3";
 import {
     extent,
     histogram,
+    interpolateGreens,
     rollup,
-    sum,
     scaleLinear,
     scaleSequential,
-    interpolateGreens,
+    sum,
 } from "d3";
-import type { Bin } from "d3";
-import { localizedNumber } from "../lib/i18n";
-import * as tr from "../lib/ftl";
-import { CardQueue } from "../lib/cards";
-import type { HistogramData } from "./histogram-graph";
-import { dayLabel } from "../lib/time";
 
+import { CardQueue } from "../lib/cards";
+import * as tr from "../lib/ftl";
+import { localizedNumber } from "../lib/i18n";
+import type { Cards, Stats } from "../lib/proto";
+import { dayLabel } from "../lib/time";
+import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { GraphRange } from "./graph-helpers";
-import type { TableDatum, SearchDispatch } from "./graph-helpers";
+import type { HistogramData } from "./histogram-graph";
 
 export interface GraphData {
     dueCounts: Map<number, number>;

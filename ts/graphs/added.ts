@@ -5,23 +5,22 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type { Stats, Cards } from "../lib/proto";
-
+import type { Bin } from "d3";
 import {
     extent,
     histogram,
-    sum,
+    interpolateBlues,
     scaleLinear,
     scaleSequential,
-    interpolateBlues,
+    sum,
 } from "d3";
-import type { Bin } from "d3";
-import type { HistogramData } from "./histogram-graph";
 
 import * as tr from "../lib/ftl";
+import type { Cards, Stats } from "../lib/proto";
 import { dayLabel } from "../lib/time";
+import type { SearchDispatch, TableDatum } from "./graph-helpers";
 import { GraphRange } from "./graph-helpers";
-import type { TableDatum, SearchDispatch } from "./graph-helpers";
+import type { HistogramData } from "./histogram-graph";
 
 export interface GraphData {
     daysAdded: number[];

@@ -6,26 +6,27 @@
  */
 
 import {
-    interpolateRdYlGn,
-    select,
-    pointer,
-    scaleLinear,
-    scaleBand,
-    scaleSequential,
     axisBottom,
     axisLeft,
+    interpolateRdYlGn,
+    pointer,
+    scaleBand,
+    scaleLinear,
+    scaleSequential,
+    select,
     sum,
 } from "d3";
+
+import * as tr from "../lib/ftl";
 import { localizedNumber } from "../lib/i18n";
 import { Stats } from "../lib/proto";
-import * as tr from "../lib/ftl";
-import { showTooltip, hideTooltip } from "./tooltip";
 import {
     GraphBounds,
-    setDataAvailable,
     GraphRange,
     millisecondCutoffForRange,
+    setDataAvailable,
 } from "./graph-helpers";
+import { hideTooltip, showTooltip } from "./tooltip";
 
 type ButtonCounts = [number, number, number, number];
 

@@ -1,8 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { readable, get } from "svelte/store";
-import { registerPackage } from "../lib/register-package";
+import { get, readable } from "svelte/store";
+
+import { registerPackage } from "../lib/runtime-require";
 
 interface ThemeInfo {
     isDark: boolean;

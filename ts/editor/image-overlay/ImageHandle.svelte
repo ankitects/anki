@@ -3,28 +3,24 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import WithDropdown from "../../components/WithDropdown.svelte";
-    import ButtonDropdown from "../../components/ButtonDropdown.svelte";
-    import Item from "../../components/Item.svelte";
+    import { onDestroy, tick } from "svelte";
 
+    import ButtonDropdown from "../../components/ButtonDropdown.svelte";
+    import WithDropdown from "../../components/WithDropdown.svelte";
     import HandleBackground from "../HandleBackground.svelte";
-    import HandleSelection from "../HandleSelection.svelte";
     import HandleControl from "../HandleControl.svelte";
     import HandleLabel from "../HandleLabel.svelte";
-
-    import WithImageConstrained from "./WithImageConstrained.svelte";
+    import HandleSelection from "../HandleSelection.svelte";
+    import { context } from "../rich-text-input";
     import FloatButtons from "./FloatButtons.svelte";
     import SizeSelect from "./SizeSelect.svelte";
+    import WithImageConstrained from "./WithImageConstrained.svelte";
 
-    import { tick, onDestroy } from "svelte";
-    import type { StyleObject } from "../CustomStyles.svelte";
-    import { getRichTextInput } from "../RichTextInput.svelte";
-
-    const { container, styles } = getRichTextInput();
+    const { container, styles } = context.get();
 
     const sheetPromise = styles
         .addStyleTag("imageOverlay")
-        .then((styleObject: StyleObject) => styleObject.element.sheet!);
+        .then((styleObject) => styleObject.element.sheet!);
 
     let activeImage: HTMLImageElement | null = null;
 
@@ -151,7 +147,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (widthIncrease > heightIncrease) {
             width = Math.max(Math.trunc(dragWidth), minResizeWidth);
         } else {
-            let height = Math.max(Math.trunc(dragHeight), minResizeHeight);
+            const height = Math.max(Math.trunc(dragHeight), minResizeHeight);
             width = Math.trunc(naturalWidth! * (height / naturalHeight!));
         }
 
@@ -235,15 +231,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     />
                 </HandleSelection>
                 <ButtonDropdown on:click={updateSizesWithDimensions}>
-                    <Item>
-                        <FloatButtons
-                            image={activeImage}
-                            on:update={dropdownObject.update}
-                        />
-                    </Item>
-                    <Item>
-                        <SizeSelect {active} on:click={toggleActualSize} />
-                    </Item>
+                    <FloatButtons
+                        image={activeImage}
+                        on:update={dropdownObject.update}
+                    />
+                    <SizeSelect {active} on:click={toggleActualSize} />
                 </ButtonDropdown>
             {/if}
         </WithImageConstrained>

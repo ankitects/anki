@@ -1,32 +1,32 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { Stats } from "../lib/proto";
+import type { CountableTimeInterval } from "d3";
 import {
     interpolateBlues,
-    select,
     pointer,
     scaleLinear,
     scaleSequentialSqrt,
+    select,
     timeDay,
-    timeYear,
-    timeSunday,
-    timeMonday,
     timeFriday,
+    timeMonday,
     timeSaturday,
+    timeSunday,
+    timeYear,
 } from "d3";
-import type { CountableTimeInterval } from "d3";
 
-import { showTooltip, hideTooltip } from "./tooltip";
+import * as tr from "../lib/ftl";
+import { localizedDate, weekdayLabel } from "../lib/i18n";
+import { Stats } from "../lib/proto";
 import {
     GraphBounds,
-    setDataAvailable,
     RevlogRange,
     SearchDispatch,
+    setDataAvailable,
 } from "./graph-helpers";
 import { clickableClass } from "./graph-styles";
-import { weekdayLabel, localizedDate } from "../lib/i18n";
-import * as tr from "../lib/ftl";
+import { hideTooltip, showTooltip } from "./tooltip";
 
 export interface GraphData {
     // indexed by day, where day is relative to today

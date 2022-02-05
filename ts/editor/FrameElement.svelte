@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     customElements.define(FrameElement.tagName, FrameElement);
 
-    import { FrameStart, FrameEnd } from "../editable/frame-handle";
+    import { FrameEnd, FrameStart } from "../editable/frame-handle";
 
     customElements.define(FrameStart.tagName, FrameStart);
     customElements.define(FrameEnd.tagName, FrameEnd);

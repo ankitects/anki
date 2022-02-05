@@ -1,1 +1,1 @@
-../../../bazel-bin/qt/aqt/forms/setgroup_qt6.py
+../../../.bazel/bin/qt/aqt/forms/setgroup_qt6.py

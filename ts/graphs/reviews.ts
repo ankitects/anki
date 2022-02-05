@@ -5,36 +5,36 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { Stats } from "../lib/proto";
-
-import { timeSpan, dayLabel } from "../lib/time";
+import type { Bin } from "d3";
 import {
-    interpolateGreens,
-    interpolateReds,
-    interpolateOranges,
-    interpolatePurples,
-    select,
-    pointer,
-    scaleLinear,
-    scaleSequential,
+    area,
     axisBottom,
     axisLeft,
     axisRight,
-    area,
-    curveBasis,
-    min,
-    histogram,
-    sum,
-    max,
     cumsum,
+    curveBasis,
+    histogram,
+    interpolateGreens,
+    interpolateOranges,
+    interpolatePurples,
+    interpolateReds,
+    max,
+    min,
+    pointer,
+    scaleLinear,
     ScaleSequential,
+    scaleSequential,
+    select,
+    sum,
 } from "d3";
-import type { Bin } from "d3";
-import { localizedNumber } from "../lib/i18n";
+
 import * as tr from "../lib/ftl";
+import { localizedNumber } from "../lib/i18n";
+import { Stats } from "../lib/proto";
+import { dayLabel, timeSpan } from "../lib/time";
 import type { TableDatum } from "./graph-helpers";
-import { GraphBounds, setDataAvailable, GraphRange } from "./graph-helpers";
-import { showTooltip, hideTooltip } from "./tooltip";
+import { GraphBounds, GraphRange, setDataAvailable } from "./graph-helpers";
+import { hideTooltip, showTooltip } from "./tooltip";
 
 interface Reviews {
     learn: number;

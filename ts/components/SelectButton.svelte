@@ -3,9 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onMount, createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
+
     import { pageTheme } from "../sveltelib/theme";
-    let rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
+
+    const rtl: boolean = window.getComputedStyle(document.body).direction == "rtl";
 
     export let id: string | undefined = undefined;
     let className = "";

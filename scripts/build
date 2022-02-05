@@ -9,4 +9,4 @@ test -e WORKSPACE || (
 
 rm -rf bazel-dist
 bazel build --config opt dist
-tar xvf bazel-bin/dist.tar
+tar xvf .bazel/bin/dist.tar

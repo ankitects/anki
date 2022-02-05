@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr2 from "../lib/ftl";
     import { Stats } from "../lib/proto";
-    import { Timestamp, timeSpan } from "../lib/time";
+    import { timeSpan, Timestamp } from "../lib/time";
 
     type StatsRevlogEntry = Stats.CardStatsResponse.StatsRevlogEntry;
 

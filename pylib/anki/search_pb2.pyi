@@ -1,1 +1,1 @@
-../../bazel-bin/pylib/anki/search_pb2.pyi
+../../.bazel/bin/pylib/anki/search_pb2.pyi

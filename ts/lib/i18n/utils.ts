@@ -2,11 +2,12 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import "intl-pluralrules";
+
 import { FluentBundle, FluentResource } from "@fluent/bundle";
 
+import { i18n } from "../proto";
 import { firstLanguage, setBundles } from "./bundles";
 import type { ModuleName } from "./modules";
-import { i18n } from "../proto";
 
 export function supportsVerticalText(): boolean {
     const firstLang = firstLanguage();
@@ -75,7 +76,7 @@ export function withoutUnicodeIsolation(s: string): string {
 
 export async function setupI18n(args: { modules: ModuleName[] }): Promise<void> {
     const resources = await i18n.i18nResources(args);
-    const json = JSON.parse(String.fromCharCode(...resources.json));
+    const json = JSON.parse(new TextDecoder().decode(resources.json));
 
     const newBundles: FluentBundle[] = [];
     for (const res in json.resources) {

@@ -3,20 +3,21 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "../lib/ftl";
-    import TitledContainer from "./TitledContainer.svelte";
+    import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
-    import StepsInputRow from "./StepsInputRow.svelte";
-    import SpinBoxRow from "./SpinBoxRow.svelte";
+    import * as tr from "../lib/ftl";
     import EnumSelectorRow from "./EnumSelectorRow.svelte";
-    import Warning from "./Warning.svelte";
     import type { DeckOptionsState } from "./lib";
+    import SpinBoxRow from "./SpinBoxRow.svelte";
+    import StepsInputRow from "./StepsInputRow.svelte";
+    import TitledContainer from "./TitledContainer.svelte";
+    import Warning from "./Warning.svelte";
 
     export let state: DeckOptionsState;
     export let api = {};
 
-    let config = state.currentConfig;
-    let defaults = state.defaults;
+    const config = state.currentConfig;
+    const defaults = state.defaults;
 
     let stepsExceedMinimumInterval: string;
     $: {
@@ -32,44 +33,54 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const leechChoices = [tr.actionsSuspendCard(), tr.schedulingTagOnly()];
 </script>
 
-<TitledContainer title={tr.schedulingLapses()} {api}>
-    <StepsInputRow
-        bind:value={$config.relearnSteps}
-        defaultValue={defaults.relearnSteps}
-        markdownTooltip={tr.deckConfigRelearningStepsTooltip()}
-    >
-        {tr.deckConfigRelearningSteps()}
-    </StepsInputRow>
+<TitledContainer title={tr.schedulingLapses()}>
+    <DynamicallySlottable slotHost={Item} {api}>
+        <Item>
+            <StepsInputRow
+                bind:value={$config.relearnSteps}
+                defaultValue={defaults.relearnSteps}
+                markdownTooltip={tr.deckConfigRelearningStepsTooltip()}
+            >
+                {tr.deckConfigRelearningSteps()}
+            </StepsInputRow>
+        </Item>
 
-    <SpinBoxRow
-        bind:value={$config.minimumLapseInterval}
-        defaultValue={defaults.minimumLapseInterval}
-        min={1}
-        markdownTooltip={tr.deckConfigMinimumIntervalTooltip()}
-    >
-        {tr.schedulingMinimumInterval()}
-    </SpinBoxRow>
+        <Item>
+            <SpinBoxRow
+                bind:value={$config.minimumLapseInterval}
+                defaultValue={defaults.minimumLapseInterval}
+                min={1}
+                markdownTooltip={tr.deckConfigMinimumIntervalTooltip()}
+            >
+                {tr.schedulingMinimumInterval()}
+            </SpinBoxRow>
+        </Item>
 
-    <Item>
-        <Warning warning={stepsExceedMinimumInterval} />
-    </Item>
+        <Item>
+            <Warning warning={stepsExceedMinimumInterval} />
+        </Item>
 
-    <SpinBoxRow
-        bind:value={$config.leechThreshold}
-        defaultValue={defaults.leechThreshold}
-        min={1}
-        markdownTooltip={tr.deckConfigLeechThresholdTooltip()}
-    >
-        {tr.schedulingLeechThreshold()}
-    </SpinBoxRow>
+        <Item>
+            <SpinBoxRow
+                bind:value={$config.leechThreshold}
+                defaultValue={defaults.leechThreshold}
+                min={1}
+                markdownTooltip={tr.deckConfigLeechThresholdTooltip()}
+            >
+                {tr.schedulingLeechThreshold()}
+            </SpinBoxRow>
+        </Item>
 
-    <EnumSelectorRow
-        bind:value={$config.leechAction}
-        defaultValue={defaults.leechAction}
-        choices={leechChoices}
-        breakpoint="sm"
-        markdownTooltip={tr.deckConfigLeechActionTooltip()}
-    >
-        {tr.schedulingLeechAction()}
-    </EnumSelectorRow>
+        <Item>
+            <EnumSelectorRow
+                bind:value={$config.leechAction}
+                defaultValue={defaults.leechAction}
+                choices={leechChoices}
+                breakpoint="sm"
+                markdownTooltip={tr.deckConfigLeechActionTooltip()}
+            >
+                {tr.schedulingLeechAction()}
+            </EnumSelectorRow>
+        </Item>
+    </DynamicallySlottable>
 </TitledContainer>

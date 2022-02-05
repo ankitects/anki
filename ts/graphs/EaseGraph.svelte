@@ -3,19 +3,17 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { createEventDispatcher } from "svelte";
+
+    import * as tr from "../lib/ftl";
     import type { Stats } from "../lib/proto";
     import type { PreferenceStore } from "../sveltelib/preferences";
-
-    import { createEventDispatcher } from "svelte";
-    import * as tr from "../lib/ftl";
-
-    import HistogramGraph from "./HistogramGraph.svelte";
-    import Graph from "./Graph.svelte";
-    import TableData from "./TableData.svelte";
-
-    import type { HistogramData } from "./histogram-graph";
     import { gatherData, prepareData } from "./ease";
-    import type { TableDatum, SearchEventMap } from "./graph-helpers";
+    import Graph from "./Graph.svelte";
+    import type { SearchEventMap, TableDatum } from "./graph-helpers";
+    import type { HistogramData } from "./histogram-graph";
+    import HistogramGraph from "./HistogramGraph.svelte";
+    import TableData from "./TableData.svelte";
 
     export let sourceData: Stats.GraphsResponse | null = null;
     export let preferences: PreferenceStore<Stats.GraphPreferences>;
@@ -24,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let histogramData = null as HistogramData | null;
     let tableData: TableDatum[] = [];
-    let { browserLinksSupported } = preferences;
+    const { browserLinksSupported } = preferences;
 
     $: if (sourceData) {
         [histogramData, tableData] = prepareData(

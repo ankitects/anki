@@ -4,14 +4,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { Writable } from "svelte/store";
+
     import contextProperty from "../sveltelib/context-property";
 
     export interface EditingInputAPI {
         readonly name: string;
-        focus(): void;
-        refocus(): void;
         focusable: boolean;
-        moveCaretToEnd(): void;
+        /**
+         * The reaction to a user-initiated focus, e.g. by clicking on the
+         * editor label, or pressing Tab.
+         */
+        focus(): void;
+        /**
+         * Behaves similar to a refresh, e.g. sync with content, put the caret
+         * into a neutral position, and/or clear selections.
+         */
+        refocus(): void;
     }
 
     export interface EditingAreaAPI {
@@ -22,16 +30,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const key = Symbol("editingArea");
-    const [set, getEditingArea, hasEditingArea] = contextProperty<EditingAreaAPI>(key);
+    const [context, setContextProperty] = contextProperty<EditingAreaAPI>(key);
 
-    export { getEditingArea, hasEditingArea };
+    export { context };
 </script>
 
 <script lang="ts">
-    import FocusTrap from "./FocusTrap.svelte";
+    import { setContext as svelteSetContext } from "svelte";
     import { writable } from "svelte/store";
-    import { onMount, setContext as svelteSetContext } from "svelte";
+
     import { fontFamilyKey, fontSizeKey } from "../lib/context-keys";
+    import FocusTrap from "./FocusTrap.svelte";
 
     export let fontFamily: string;
     const fontFamilyStore = writable(fontFamily);
@@ -44,7 +53,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     svelteSetContext(fontSizeKey, fontSizeStore);
 
     export let content: Writable<string>;
-    export let autofocus = false;
 
     let editingArea: HTMLElement;
     let focusTrap: FocusTrap;
@@ -117,23 +125,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    export let api: Partial<EditingAreaAPI>;
+    let apiPartial: Partial<EditingAreaAPI>;
+    export { apiPartial as api };
 
-    Object.assign(
-        api,
-        set({
-            content,
-            editingInputs: inputsStore,
-            focus,
-            refocus,
-        }),
-    );
-
-    onMount(() => {
-        if (autofocus) {
-            focus();
-        }
+    const api = Object.assign(apiPartial, {
+        content,
+        editingInputs: inputsStore,
+        focus,
+        refocus,
     });
+
+    setContextProperty(api);
 </script>
 
 <FocusTrap bind:this={focusTrap} on:focus={focusEditingInputInsteadIfAvailable} />

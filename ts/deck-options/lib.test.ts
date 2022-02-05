@@ -5,9 +5,10 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import { get } from "svelte/store";
+
 import { DeckConfig } from "../lib/proto";
 import { DeckOptionsState } from "./lib";
-import { get } from "svelte/store";
 
 const exampleData = {
     allConfig: [

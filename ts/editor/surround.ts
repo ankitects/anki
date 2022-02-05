@@ -2,10 +2,11 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { get } from "svelte/store";
-import { getSelection, getRange } from "../lib/cross-browser";
-import { surroundNoSplitting, unsurround, findClosest } from "../domlib/surround";
-import type { ElementMatcher, ElementClearer } from "../domlib/surround";
-import type { RichTextInputAPI } from "./RichTextInput.svelte";
+
+import type { ElementClearer, ElementMatcher } from "../domlib/surround";
+import { findClosest, surroundNoSplitting, unsurround } from "../domlib/surround";
+import { getRange, getSelection } from "../lib/cross-browser";
+import type { RichTextInputAPI } from "./rich-text-input";
 
 function isSurroundedInner(
     range: AbstractRange,

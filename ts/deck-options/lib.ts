@@ -1,10 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { DeckConfig, deckConfig } from "../lib/proto";
-import { Writable, writable, get, Readable, readable } from "svelte/store";
-import { isEqual, cloneDeep } from "lodash-es";
+import { cloneDeep, isEqual } from "lodash-es";
+import { get, Readable, readable, Writable, writable } from "svelte/store";
+
 import { localeCompare } from "../lib/i18n";
+import { DeckConfig, deckConfig } from "../lib/proto";
 import type { DynamicSvelteComponent } from "../sveltelib/dynamicComponent";
 
 export type DeckOptionsId = number;

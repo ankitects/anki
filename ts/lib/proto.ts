@@ -5,8 +5,9 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import type { Message, rpc, RPCImpl, RPCImplCallback } from "protobufjs";
+
 import { anki } from "./backend_proto";
-import type { RPCImpl, RPCImplCallback, Message, rpc } from "protobufjs";
 
 import Cards = anki.cards;
 import Collection = anki.collection;

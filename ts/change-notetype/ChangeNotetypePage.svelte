@@ -3,15 +3,16 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "../lib/ftl";
     import { marked } from "marked";
-    import { ChangeNotetypeState, MapContext } from "./lib";
+
+    import Col from "../components/Col.svelte";
     import Container from "../components/Container.svelte";
     import Row from "../components/Row.svelte";
-    import Col from "../components/Col.svelte";
+    import * as tr from "../lib/ftl";
+    import { ChangeNotetypeState, MapContext } from "./lib";
+    import Mapper from "./Mapper.svelte";
     import NotetypeSelector from "./NotetypeSelector.svelte";
     import StickyHeader from "./StickyHeader.svelte";
-    import Mapper from "./Mapper.svelte";
 
     export let state: ChangeNotetypeState;
     $: info = state.info;

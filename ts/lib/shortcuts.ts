@@ -1,16 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { Modifier } from "./keys";
-
-import { registerPackage } from "./register-package";
-import {
-    modifiersToPlatformString,
-    keyToPlatformString,
-    checkModifiers,
-    checkIfInputKey,
-} from "./keys";
 import { on } from "./events";
+import type { Modifier } from "./keys";
+import {
+    checkIfInputKey,
+    checkModifiers,
+    keyToPlatformString,
+    modifiersToPlatformString,
+} from "./keys";
+import { registerPackage } from "./runtime-require";
 
 const keyCodeLookup = {
     Backspace: 8,

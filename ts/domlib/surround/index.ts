@@ -1,12 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { registerPackage } from "../../lib/register-package";
-
-import { surroundNoSplitting } from "./no-splitting";
-import { unsurround } from "./unsurround";
+import { registerPackage } from "../../lib/runtime-require";
 import { findClosest } from "./find-above";
 import { MatchResult, matchTagName } from "./matcher";
+import { surroundNoSplitting } from "./no-splitting";
+import { unsurround } from "./unsurround";
 
 registerPackage("anki/surround", {
     surroundNoSplitting,
@@ -16,5 +15,5 @@ registerPackage("anki/surround", {
     matchTagName,
 });
 
-export { surroundNoSplitting, unsurround, findClosest, MatchResult, matchTagName };
-export type { ElementMatcher, ElementClearer } from "./matcher";
+export { findClosest, MatchResult, matchTagName, surroundNoSplitting, unsurround };
+export type { ElementClearer, ElementMatcher } from "./matcher";

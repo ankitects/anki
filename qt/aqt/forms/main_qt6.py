@@ -1,1 +1,1 @@
-../../../bazel-bin/qt/aqt/forms/main_qt6.py
+../../../.bazel/bin/qt/aqt/forms/main_qt6.py
