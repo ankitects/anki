@@ -86,7 +86,6 @@ export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderRes
                     );
 
                     surroundAndSelect(matches, range, base, format, selection);
-
                     selection.collapseToEnd();
                 });
             }
