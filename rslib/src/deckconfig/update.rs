@@ -135,7 +135,7 @@ impl Collection {
                 .get_deck(input.target_deck_id)?
                 .ok_or(AnkiError::NotFound)?;
             self.storage
-                .child_decks(&deck, false)?
+                .child_decks(&deck)?
                 .iter()
                 .chain(iter::once(&deck))
                 .map(|d| d.id)
