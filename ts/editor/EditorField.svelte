@@ -44,7 +44,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let content: Writable<string>;
     export let field: FieldData;
-    export let autofocus = false;
 
     const directionStore = writable<"ltr" | "rtl">();
     setContext(directionKey, directionStore);
@@ -88,7 +87,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </LabelContainer>
     <EditingArea
         {content}
-        {autofocus}
         fontFamily={field.fontFamily}
         fontSize={field.fontSize}
         api={editingArea}

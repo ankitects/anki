@@ -34,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
 
     import Absolute from "../components/Absolute.svelte";
@@ -125,12 +125,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         plainTextsHidden = fonts.map((_, index) => plainTextsHidden[index] ?? true);
     }
 
-    let focusTo: number = 0;
-    export function focusField(n: number): void {
-        if (typeof n === "number") {
-            focusTo = n;
-            fields[focusTo].editingArea?.refocus();
-        }
+    export function focusField(index: number | null): void {
+        tick().then(() => {
+            if (typeof index === "number") {
+                if (!(index in fields)) {
+                    return;
+                }
+
+                fields[index].editingArea?.refocus();
+            } else {
+                $focusedInput?.refocus();
+            }
+        });
     }
 
     let textColor: string = "black";
@@ -298,7 +304,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <EditorField
                         {field}
                         content={fieldStores[index]}
-                        autofocus={index === focusTo}
                         api={fields[index]}
                         on:focusin={() => {
                             $focusedField = fields[index];
