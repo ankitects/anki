@@ -45,6 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithState from "../../components/WithState.svelte";
+    import { updateStateByKey } from "../../components/WithState.svelte";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
@@ -88,6 +89,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:click={(event) => {
             makeSub();
             updateState(event);
+            updateStateByKey("super", event);
         }}
     >
         {@html subscriptIcon}
@@ -98,6 +100,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:action={(event) => {
             makeSub();
             updateState(event);
+            updateStateByKey("super", event);
         }}
     />
 </WithState>

@@ -139,13 +139,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    let textColor: string = "black";
-    let highlightColor: string = "black";
-    export function setColorButtons([textClr, highlightClr]: [string, string]): void {
-        textColor = textClr;
-        highlightColor = highlightClr;
-    }
-
     const tags = writable<string[]>([]);
     export function setTags(ts: string[]): void {
         $tags = ts;
@@ -248,7 +241,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setDescriptions,
             setFonts,
             focusField,
-            setColorButtons,
             setTags,
             setBackgrounds,
             setClozeHint,
@@ -283,7 +275,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="note-editor">
     <FieldsEditor>
-        <EditorToolbar {size} {wrap} {textColor} {highlightColor} api={toolbar}>
+        <EditorToolbar {size} {wrap} api={toolbar}>
             <slot slot="notetypeButtons" name="notetypeButtons" />
         </EditorToolbar>
 

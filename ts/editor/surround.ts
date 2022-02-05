@@ -3,7 +3,7 @@
 
 import { get } from "svelte/store";
 
-import type { SurroundFormat, ElementMatcher } from "../domlib/surround";
+import type { ElementMatcher,SurroundFormat } from "../domlib/surround";
 import { findClosest, surroundNoSplitting, unsurround } from "../domlib/surround";
 import { getRange, getSelection } from "../lib/cross-browser";
 import type { RichTextInputAPI } from "./rich-text-input";

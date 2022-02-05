@@ -4,8 +4,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import { resetAllState, updateAllState } from "../../components/WithState.svelte";
-    import type { DefaultSlotInterface } from "../../sveltelib/dynamic-slotting";
     import type { SurroundFormat } from "../../domlib/surround";
+    import type { DefaultSlotInterface } from "../../sveltelib/dynamic-slotting";
 
     export function updateActiveButtons(event: Event) {
         updateAllState(event);
@@ -41,23 +41,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import ButtonGroup from "../../components/ButtonGroup.svelte";
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import Item from "../../components/Item.svelte";
     import StickyContainer from "../../components/StickyContainer.svelte";
-    import ColorButtons from "./ColorButtons.svelte";
     import FormatBlockButtons from "./FormatBlockButtons.svelte";
     import FormatInlineButtons from "./FormatInlineButtons.svelte";
     import NotetypeButtons from "./NotetypeButtons.svelte";
-    import TemplateButtons from "./TemplateButtons.svelte";
-    import ButtonGroup from "../../components/ButtonGroup.svelte";
     import RemoveFormatButton from "./RemoveFormatButton.svelte";
+    import TemplateButtons from "./TemplateButtons.svelte";
 
     export let size: number;
     export let wrap: boolean;
-
-    export let textColor: string;
-    export let highlightColor: string;
 
     const toolbar = {};
     const notetypeButtons = {};
@@ -95,8 +91,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Item id="inlineFormatting">
                 <FormatInlineButtons api={formatInlineButtons} />
             </Item>
-
-            <ColorButtons {textColor} {highlightColor} />
 
             <ButtonGroup>
                 <RemoveFormatButton

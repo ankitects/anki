@@ -37,7 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         updateAllStateWithCallback((): Promise<boolean> => Promise.resolve(state));
     }
 
-    function updateStateByKey(key: KeyType, event: Event): void {
+    export function updateStateByKey(key: KeyType, event: Event): void {
         stateStore.update((map: StateMap): StateMap => {
             map.set(key, updaterMap.get(key)!(event));
             return map;
