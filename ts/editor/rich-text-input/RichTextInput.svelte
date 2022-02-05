@@ -19,7 +19,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         shadowRoot: Promise<ShadowRoot>;
         element: Promise<HTMLElement>;
         moveCaretToEnd(): void;
-        refocus(): void;
         toggle(): boolean;
         preventResubscription(): () => void;
         getTriggerOnNextInsert(): Trigger<OnInsertCallback>;
@@ -196,6 +195,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             richTextPromise.then((richText) => {
                 richText.blur();
                 richText.focus();
+                moveCaretToEnd();
             });
         },
         focusable: !hidden,

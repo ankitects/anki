@@ -83,13 +83,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         codeMirror?.editor.focus();
     }
 
+    function moveCaretToEnd(): void {
+        codeMirror?.editor.setCursor(codeMirror.editor.lineCount(), 0);
+    }
+
     function refocus(): void {
         (codeMirror?.editor as any).display.input.blur();
         focus();
-    }
-
-    function moveCaretToEnd(): void {
-        codeMirror?.editor.setCursor(codeMirror.editor.lineCount(), 0);
+        moveCaretToEnd();
     }
 
     function toggle(): boolean {
