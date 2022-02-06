@@ -108,29 +108,27 @@ pub(crate) struct LimitTreeMap {
 }
 
 impl LimitTreeMap {
-    /// Returns the newly built [LimitTreeMap] and the deck for `deck_id`.
+    /// Child [Deck]s must be sorted by name.
     pub(crate) fn build(
-        col: &mut Collection,
-        deck_id: DeckId,
+        root_deck: &Deck,
+        child_decks: Vec<Deck>,
         config: &HashMap<DeckConfigId, DeckConfig>,
         today: u32,
-    ) -> Result<(Self, Deck)> {
-        let root_deck = col.storage.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
-        let root_limits = NodeLimits::new(&root_deck, config, today);
-
+    ) -> Self {
+        let root_limits = NodeLimits::new(root_deck, config, today);
         let mut tree = Tree::new();
         let root_id = tree
             .insert(Node::new(root_limits), InsertBehavior::AsRoot)
             .unwrap();
 
         let mut map = HashMap::new();
-        map.insert(deck_id, root_id.clone());
+        map.insert(root_deck.id, root_id.clone());
 
         let mut limits = Self { tree, map };
-        let mut remaining_decks = col.storage.child_decks(&root_deck)?.into_iter().peekable();
+        let mut remaining_decks = child_decks.into_iter().peekable();
         limits.add_child_nodes(root_id, &mut remaining_decks, config, today);
 
-        Ok((limits, root_deck))
+        limits
     }
 
     /// Recursively appends descendants to the provided parent [Node], and adds

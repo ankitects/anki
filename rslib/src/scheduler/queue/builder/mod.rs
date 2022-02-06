@@ -129,8 +129,9 @@ impl QueueBuilder {
     pub(super) fn new(col: &mut Collection, deck_id: DeckId) -> Result<Self> {
         let timing = col.timing_for_timestamp(TimestampSecs::now())?;
         let config_map = col.storage.get_deck_config_map()?;
-        let (limits, root_deck) =
-            LimitTreeMap::build(col, deck_id, &config_map, timing.days_elapsed)?;
+        let root_deck = col.storage.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
+        let child_decks = col.storage.child_decks(&root_deck)?;
+        let limits = LimitTreeMap::build(&root_deck, child_decks, &config_map, timing.days_elapsed);
         let sort_options = sort_options(&root_deck, &config_map);
         let deck_map = col.storage.get_decks_map()?;
 
