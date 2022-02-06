@@ -36,7 +36,7 @@ class StudyDeck(QDialog):
         dyn: bool = False,
         buttons: Optional[list[Union[str, QPushButton]]] = None,
         geomKey: str = "default",
-        callback: Union[Callable, bool] = False,
+        callback: Callable = None,
     ) -> None:
         QDialog.__init__(self, parent or mw)
         self.mw = mw
