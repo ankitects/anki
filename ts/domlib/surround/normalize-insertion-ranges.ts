@@ -66,7 +66,7 @@ function normalizeAdjacent(
                     clearer,
                 );
 
-                removedNodes.push(element as Element);
+                removedNodes.push(element as HTMLElement | SVGElement);
                 element.replaceWith(...element.childNodes);
                 break;
 
@@ -79,8 +79,8 @@ function normalizeAdjacent(
                     clearer,
                 );
 
-                if (clearer(element as Element)) {
-                    removedNodes.push(element as Element);
+                if (clearer(element as HTMLElement | SVGElement)) {
+                    removedNodes.push(element as HTMLElement | SVGElement);
                     element.replaceWith(...element.childNodes);
                     childCount += keepChildCount;
                 } else {

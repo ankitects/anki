@@ -18,11 +18,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const surroundElement = document.createElement("u");
 
-    function matcher(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
-        if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
-            return MatchResult.NO_MATCH;
-        }
-
+    function matcher(
+        element: HTMLElement | SVGElement,
+    ): Exclude<MatchResult, MatchResult.ALONG> {
         if (element.tagName === "U") {
             return MatchResult.MATCH;
         }

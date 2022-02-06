@@ -1,8 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { MatchResult } from "./matcher";
 import type { ElementMatcher } from "./matcher";
+import { MatchResult } from "./matcher";
 
 export const matchTagName =
     (tagName: string): ElementMatcher =>
@@ -13,13 +13,13 @@ export const matchTagName =
 export const easyBold = {
     surroundElement: document.createElement("b"),
     matcher: matchTagName("b"),
-    clearer: () => false,
+    clearer: (): boolean => false,
 };
 
 export const easyUnderline = {
     surroundElement: document.createElement("u"),
     matcher: matchTagName("u"),
-    clearer: () => false,
+    clearer: (): boolean => false,
 };
 
 const parser = new DOMParser();

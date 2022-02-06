@@ -5,7 +5,7 @@ import { elementIsEmpty, nodeIsElement, nodeIsText } from "../../lib/dom";
 import { hasOnlyChild } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
 import type { ElementMatcher, FoundAdjacent, FoundAlong } from "./matcher";
-import { MatchResult } from "./matcher";
+import { applyMatcher, MatchResult } from "./matcher";
 
 /**
  * These functions will not ascend on the starting node, but will descend on the neighbor node
@@ -30,7 +30,7 @@ function adjacentNodeInner(getter: (node: Node) => ChildNode | null) {
 
         while (current && nodeIsElement(current)) {
             const element: Element = current;
-            const matchResult = matcher(element);
+            const matchResult = applyMatcher(matcher, element);
 
             if (matchResult) {
                 matches.push(
@@ -43,7 +43,7 @@ function adjacentNodeInner(getter: (node: Node) => ChildNode | null) {
                 );
 
                 matches.push({
-                    element,
+                    element: element as HTMLElement | SVGElement,
                     matchType: matchResult,
                 });
 

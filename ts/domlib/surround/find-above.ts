@@ -1,8 +1,29 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { nodeIsElement } from "../../lib/dom";
 import type { ElementMatcher, FoundMatch } from "./matcher";
+import { applyMatcher } from "./matcher";
+
+function tryMatch(current: Node, matcher: ElementMatcher): FoundMatch | null {
+    const matchType = applyMatcher(matcher, current);
+
+    if (matchType) {
+        return {
+            element: current as HTMLElement | SVGElement,
+            matchType,
+        };
+    }
+
+    return null;
+}
+
+function findParent(current: Node, base: Element): Element | null {
+    if (current === base || !current.parentElement) {
+        return null;
+    } else {
+        return current.parentElement;
+    }
+}
 
 export function findClosest(
     node: Node,
@@ -12,21 +33,16 @@ export function findClosest(
     let current: Node | Element | null = node;
 
     while (current) {
-        if (nodeIsElement(current)) {
-            const matchType = matcher(current);
-            if (matchType) {
-                return {
-                    element: current,
-                    matchType,
-                };
-            }
+        const match = tryMatch(current, matcher);
+
+        if (match) {
+            return match;
         }
 
-        current =
-            current === base || !current.parentElement ? null : current.parentElement;
+        current = findParent(current, base);
     }
 
-    return current;
+    return null;
 }
 
 export function findFarthest(
@@ -34,23 +50,19 @@ export function findFarthest(
     base: Element,
     matcher: ElementMatcher,
 ): FoundMatch | null {
-    let found: FoundMatch | null = null;
+    let farthest: FoundMatch | null = null;
     let current: Node | Element | null = node;
 
     while (current) {
-        if (nodeIsElement(current)) {
-            const matchType = matcher(current);
-            if (matchType) {
-                found = {
-                    element: current,
-                    matchType,
-                };
-            }
-        }
+        const next = findClosest(current, base, matcher);
 
-        current =
-            current === base || !current.parentElement ? null : current.parentElement;
+        if (next) {
+            farthest = next;
+            current = findParent(next.element, base);
+        } else {
+            break;
+        }
     }
 
-    return found;
+    return farthest;
 }

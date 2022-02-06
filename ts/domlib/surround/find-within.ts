@@ -4,6 +4,7 @@
 import { nodeIsElement } from "../../lib/dom";
 import type { ChildNodeRange } from "./child-node-range";
 import type { ElementMatcher, FoundMatch } from "./matcher";
+import { applyMatcher } from "./matcher";
 import { nodeWithinRange } from "./within-range";
 
 /**
@@ -19,9 +20,9 @@ function findWithinNodeInner(
             findWithinNodeInner(child, matcher, matches);
         }
 
-        const matchType = matcher(node);
+        const matchType = applyMatcher(matcher, node);
         if (matchType) {
-            matches.push({ matchType, element: node });
+            matches.push({ matchType, element: node as HTMLElement | SVGElement });
         }
     }
 }

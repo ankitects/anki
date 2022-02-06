@@ -13,7 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
-    import { getSurrounder } from "../surround";
+    import { getSurrounder, removeEmptyStyle } from "../surround";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { arrowIcon, textColorIcon } from "./icons";
     import WithColorHelper from "./WithColorHelper.svelte";
@@ -24,11 +24,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const surroundElement = document.createElement("span");
 
-    function matcher(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
-        if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
-            return MatchResult.NO_MATCH;
-        }
-
+    function matcher(
+        element: HTMLElement | SVGElement,
+    ): Exclude<MatchResult, MatchResult.ALONG> {
         if (isFontElement(element) && element.hasAttribute("color")) {
             return MatchResult.MATCH;
         }
@@ -40,15 +38,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return MatchResult.NO_MATCH;
     }
 
-    function clearer(element: Element): boolean {
-        const htmlElement = element as HTMLElement | SVGElement;
-        htmlElement.style.removeProperty("color");
-
-        if (htmlElement.style.cssText.length === 0) {
-            htmlElement.removeAttribute("style");
-        }
-
-        return !htmlElement.hasAttribute("style") && element.className.length === 0;
+    function clearer(element: HTMLElement | SVGElement): boolean {
+        element.style.removeProperty("color");
+        return removeEmptyStyle(element) && element.className.length === 0;
     }
 
     const generalFormat: SurroundFormat = {

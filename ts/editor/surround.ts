@@ -3,7 +3,7 @@
 
 import { get } from "svelte/store";
 
-import type { ElementMatcher,SurroundFormat } from "../domlib/surround";
+import type { ElementMatcher, SurroundFormat } from "../domlib/surround";
 import { findClosest, surroundNoSplitting, unsurround } from "../domlib/surround";
 import { getRange, getSelection } from "../lib/cross-browser";
 import type { RichTextInputAPI } from "./rich-text-input";
@@ -111,7 +111,11 @@ function removeFormats(range: Range, formats: SurroundFormat[], base: Element): 
     return range;
 }
 
-export function getRemoveFormat(richTextInput: RichTextInputAPI) {
+interface RemoveFormatResult {
+    removeFormat(formats: SurroundFormat[]): Promise<void>;
+}
+
+export function getRemoveFormat(richTextInput: RichTextInputAPI): RemoveFormatResult {
     async function removeFormat(formats: SurroundFormat[]): Promise<void> {
         const base = await richTextInput.element;
         const selection = getSelection(base)!;
@@ -129,4 +133,15 @@ export function getRemoveFormat(richTextInput: RichTextInputAPI) {
     return {
         removeFormat,
     };
+}
+
+/**
+ * @returns True, if an empty style attribute was removed
+ */
+export function removeEmptyStyle(element: HTMLElement | SVGElement): boolean {
+    if (element.style.cssText.length === 0) {
+        element.removeAttribute("style");
+    }
+
+    return element.hasAttribute("style");
 }

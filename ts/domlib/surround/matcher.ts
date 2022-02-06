@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { nodeIsCommonElement } from "../../lib/dom";
+
 export enum MatchResult {
     /** Having this be 0 allows for falsy tests */
     NO_MATCH = 0,
@@ -30,7 +32,7 @@ export enum MatchResult {
  * A predicate could be "is bold", which could match `b` and `strong` tags.
  */
 export type ElementMatcher = (
-    element: Element,
+    element: HTMLElement | SVGElement,
 ) => Exclude<MatchResult, MatchResult.ALONG>;
 
 /**
@@ -39,11 +41,30 @@ export type ElementMatcher = (
  * @remarks
  * Should be idempotent.
  */
-export type ElementClearer = (element: Element) => boolean;
+export type ElementClearer = (element: HTMLElement | SVGElement) => boolean;
+
+/**
+ * We want to avoid users to have to deal with the difference between Element
+ * and {HTML,SVG}Element, which is probably not vital in practice
+ */
+function apply<T>(
+    constant: T,
+): (applied: (element: HTMLElement | SVGElement) => T, node: Node) => T {
+    return function (applied: (element: HTMLElement | SVGElement) => T, node: Node): T {
+        if (!nodeIsCommonElement(node)) {
+            return constant;
+        }
+
+        return applied(node);
+    };
+}
+
+export const applyMatcher = apply<ReturnType<ElementMatcher>>(MatchResult.NO_MATCH);
+export const applyClearer = apply<ReturnType<ElementClearer>>(false);
 
 export interface FoundMatch {
-    element: Element;
-    matchType: Exclude<MatchResult, MatchResult.NO_MATCH | MatchResult.ALONG>;
+    element: HTMLElement | SVGElement;
+    matchType: MatchResult.MATCH | MatchResult.KEEP;
 }
 
 export interface FoundAlong {

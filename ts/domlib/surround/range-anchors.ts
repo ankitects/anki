@@ -3,11 +3,11 @@
 
 import { nodeIsElement } from "../../lib/dom";
 import type { ElementMatcher } from "./matcher";
-import { MatchResult } from "./matcher";
+import { applyMatcher, MatchResult } from "./matcher";
 import { splitPartiallySelectedTextNodes } from "./text-node";
 
 function textOrMatches(node: Node, matcher: ElementMatcher): boolean {
-    return !nodeIsElement(node) || matcher(node as Element) === MatchResult.MATCH;
+    return !nodeIsElement(node) || applyMatcher(matcher, node) === MatchResult.MATCH;
 }
 
 function findBelow(element: Element, matcher: ElementMatcher): Node | null {
@@ -53,7 +53,7 @@ function findFittingNode(node: Node, matcher: ElementMatcher): Node {
 }
 
 function negate(matcher: ElementMatcher): ElementMatcher {
-    return (element: Element) => {
+    return function (element: HTMLElement | SVGElement) {
         const matchResult = matcher(element);
 
         switch (matchResult) {

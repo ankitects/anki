@@ -4,14 +4,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import { MatchResult } from "../../domlib/surround";
+    import { removeEmptyStyle } from "../surround";
 
     const surroundElement = document.createElement("sup");
 
-    function matcher(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
-        if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
-            return MatchResult.NO_MATCH;
-        }
-
+    export function matcher(
+        element: HTMLElement | SVGElement,
+    ): Exclude<MatchResult, MatchResult.ALONG> {
         if (element.tagName === "SUP") {
             return MatchResult.MATCH;
         }
@@ -23,15 +22,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return MatchResult.NO_MATCH;
     }
 
-    function clearer(element: Element): boolean {
-        const htmlElement = element as HTMLElement | SVGElement;
-        htmlElement.style.removeProperty("vertical-align");
-
-        if (htmlElement.style.cssText.length === 0) {
-            htmlElement.removeAttribute("style");
-        }
-
-        return !htmlElement.hasAttribute("style") && element.className.length === 0;
+    export function clearer(element: HTMLElement | SVGElement): boolean {
+        element.style.removeProperty("vertical-align");
+        return removeEmptyStyle(element) && element.className.length === 0;
     }
 
     export const format = {

@@ -4,10 +4,10 @@
 import { findFarthest } from "./find-above";
 import { findWithinNode, findWithinRange } from "./find-within";
 import type {
-    SurroundFormat,
     ElementClearer,
     ElementMatcher,
     FoundMatch,
+    SurroundFormat,
 } from "./matcher";
 import { MatchResult } from "./matcher";
 import type { NodesResult, SurroundNoSplittingResult } from "./no-splitting";

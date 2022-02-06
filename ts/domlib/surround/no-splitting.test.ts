@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { surroundNoSplitting as surround } from "./no-splitting";
-import { p, easyBold, easyUnderline } from "./test-utils";
+import { easyBold, easyUnderline, p } from "./test-utils";
 
 describe("surround text", () => {
     let body: HTMLBodyElement;

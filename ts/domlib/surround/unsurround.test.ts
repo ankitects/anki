@@ -1,8 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { easyBold, p } from "./test-utils";
 import { unsurround } from "./unsurround";
-import { p, easyBold } from "./test-utils";
 
 describe("unsurround text", () => {
     let body: HTMLBodyElement;
