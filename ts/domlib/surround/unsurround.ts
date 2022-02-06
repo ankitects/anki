@@ -145,24 +145,16 @@ function resurroundAdjacent(
     const addedNodes: Node[] = [];
     const removedNodes: Node[] = [];
 
-    if (beforeRange.toString().length > 0) {
-        const { addedNodes: added, removedNodes: removed } = surround(
-            beforeRange,
-            base,
-            format,
-        );
-        addedNodes.push(...added);
-        removedNodes.push(...removed);
-    }
-
-    if (afterRange.toString().length > 0) {
-        const { addedNodes: added, removedNodes: removed } = surround(
-            afterRange,
-            base,
-            format,
-        );
-        addedNodes.push(...added);
-        removedNodes.push(...removed);
+    for (const range of [beforeRange, afterRange]) {
+        if (range.toString().length > 0) {
+            const { addedNodes: added, removedNodes: removed } = surround(
+                range,
+                base,
+                format,
+            );
+            addedNodes.push(...added);
+            removedNodes.push(...removed);
+        }
     }
 
     return { addedNodes, removedNodes };
@@ -187,7 +179,7 @@ export function unsurround(
         format.clearer,
     );
 
-    /* We cannot remove the nodes immediately, because they would make the ranges collapse */
+    /* We cannot remove the nodes immediately, because that would make the ranges collapse */
 
     const { addedNodes, removedNodes } = resurroundAdjacent(
         beforeRange,
@@ -198,8 +190,8 @@ export function unsurround(
 
     for (const node of nodesToRemove) {
         if (node.isConnected) {
-            removedNodes.push(node);
             node.replaceWith(...node.childNodes);
+            removedNodes.push(node);
         }
     }
 

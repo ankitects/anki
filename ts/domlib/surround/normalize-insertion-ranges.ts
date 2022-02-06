@@ -16,11 +16,6 @@ function countChildNodesRespectiveToParent(parent: Node, element: Element): numb
     return element.parentNode === parent ? element.childNodes.length : 1;
 }
 
-interface NormalizationResult {
-    normalizedRanges: ChildNodeRange[];
-    removedNodes: Element[];
-}
-
 function normalizeWithinInner(
     node: Element,
     parent: Node,
@@ -37,10 +32,8 @@ function normalizeWithinInner(
         found.replaceWith(...found.childNodes);
     }
 
-    /**
-     * Normalization here is vital so that the
-     * original range can selected afterwards
-     */
+    // Normalization here is vital so that the
+    // original range can be selected afterwards
     node.normalize();
     return countChildNodesRespectiveToParent(parent, node);
 }
@@ -125,23 +118,42 @@ function normalizeWithin(
     return shift;
 }
 
+interface NormalizationResult {
+    normalizedRanges: ChildNodeRange[];
+    removedNodes: Element[];
+}
+
+/**
+ * Normalizes ranges by removing superfluous matching elements while adjusting
+ * child node ranges accordingly
+ *
+ * @remarks
+ * Amount of ranges is guaranteed not to change during this normalization step.
+ * Child node ranges might exceed original range provided to surround after this
+ * function, if the to be surrounded range is preceded or suceeded by a matching
+ * element.
+ *
+ * @example
+ * Surrounding with bold, a child node range of a span from 0 to 3 on:
+ * `<span>single<b>double</b>single</b></span>` becomes a range of the same span
+ * from 0 to 1 on this: `<span>singledoublesingle</span>`.
+ *
+ * @example
+ * Surrounding with bold, a child node range of a span from 0 to 2 on:
+ * `<span><i><b>before</b></i><b>after</b></span>` becomes a range of the same
+ * span from 0 to 2 on `<span><i>before</i>after</span>`.
+ */
 export function normalizeInsertionRanges(
-    insertionRanges: ChildNodeRange[],
+    ranges: ChildNodeRange[],
     matcher: ElementMatcher,
     clearer: ElementClearer,
 ): NormalizationResult {
     const removedNodes: Element[] = [];
     const normalizedRanges: ChildNodeRange[] = [];
 
-    for (const [index, range] of insertionRanges.entries()) {
+    for (const [index, range] of ranges.entries()) {
         const normalizedRange = { ...range };
         const parent = normalizedRange.parent;
-
-        /**
-         * This deals with the unnormalized state that would exist
-         * after surrounding and finds conflicting elements, for example cases like:
-         * `<b>single<b>double</b>single</b>` or `<i><b>before</b></i><b>after</b>`
-         */
 
         if (index === 0) {
             const matches = findBefore(normalizedRange, matcher);
@@ -160,7 +172,7 @@ export function normalizeInsertionRanges(
         const withinShift = normalizeWithin(matches, parent, removedNodes, clearer);
         normalizedRange.endIndex += withinShift;
 
-        if (index === insertionRanges.length - 1) {
+        if (index === ranges.length - 1) {
             const matches = findAfter(normalizedRange, matcher);
             const count = normalizeAdjacent(
                 matches,

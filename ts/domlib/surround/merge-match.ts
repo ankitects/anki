@@ -26,9 +26,10 @@ function createInitialMergeMatch(childNodeRange: ChildNodeRange): MergeMatch {
  * After an _inner match_, we right-reduce the existing matches
  * to see if any existing inner matches can be matched to one bigger match
  *
- * @example When surround with <b>
- * <b><u>Hello </u></b><b><i>World</i></b> will be merged to
- * <b><u>Hello </u><i>World</i></b>
+ * @example
+ * When surround with <b>:
+ * <b><u>Hello</u></b><b><i>World</i></b> will be merged to
+ * <b><u>Hello</u><i>World</i></b>
  */
 const tryMergingTillMismatch =
     (base: Element) =>
