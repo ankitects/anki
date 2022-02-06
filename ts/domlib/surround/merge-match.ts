@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { ascendWhileSingleInline } from "./ascend";
 import type { ChildNodeRange } from "./child-node-range";
 import {
     areSiblingChildNodeRanges,
@@ -9,6 +8,7 @@ import {
     mergeChildNodeRanges,
     nodeToChildNodeRange,
 } from "./child-node-range";
+import { ascendWhileSingleInline } from "./helpers";
 
 interface MergeMatch {
     mismatch: boolean;

@@ -1,15 +1,16 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { ascendWhileSingleInline } from "./ascend";
 import {
     nodeToChildNodeRange,
     surroundChildNodeRangeWithNode,
 } from "./child-node-range";
+import { ascendWhileSingleInline } from "./helpers";
 import type { SurroundFormat } from "./matcher";
 import { mergeMatchChildNodeRanges } from "./merge-match";
-import { normalizeInsertionRanges } from "./normalize-insertion-ranges";
 import { getRangeAnchors } from "./range-anchors";
+import { removeAfter, removeBefore } from "./remove-adjacent";
+import { removeWithin } from "./remove-within";
 import { findTextNodesWithin } from "./text-node";
 import { nodeWithinRange } from "./within-range";
 
@@ -46,14 +47,14 @@ export function surround(
     const insertionRanges = mergeMatchChildNodeRanges(containedRanges, base);
 
     /* Second normalization step */
-    const { normalizedRanges, removedNodes } = normalizeInsertionRanges(
-        insertionRanges,
-        matcher,
-        clearer,
-    );
+    const removedNodes = [
+        ...removeBefore(insertionRanges[0], matcher, clearer),
+        ...removeWithin(insertionRanges, matcher, clearer),
+        ...removeAfter(insertionRanges[insertionRanges.length - 1], matcher, clearer),
+    ];
 
     const addedNodes: Element[] = [];
-    for (const normalized of normalizedRanges) {
+    for (const normalized of insertionRanges) {
         const surroundClone = surroundElement.cloneNode(false) as Element;
 
         surroundChildNodeRangeWithNode(normalized, surroundClone);

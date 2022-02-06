@@ -20,3 +20,10 @@ export function ascendWhileSingleInline(node: Node, base: Node): Node {
 
     return node;
 }
+
+export function countChildNodesRespectiveToParent(
+    parent: Node,
+    element: Element,
+): number {
+    return element.parentNode === parent ? element.childNodes.length : 1;
+}
