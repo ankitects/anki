@@ -35,16 +35,16 @@ impl QueueBuilder {
                 kind,
                 |card| {
                     if self.limits.root_limit_reached() {
-                        return false;
-                    }
-                    if let Some(node_id) = self.limits.remaining_node_id(card.current_deck_id) {
-                        if self.add_due_card(card) {
-                            self.limits
-                                .decrement_node_and_parent_limits(&node_id, false);
+                        false
+                    } else {
+                        if let Some(node_id) = self.limits.remaining_node_id(card.current_deck_id) {
+                            if self.add_due_card(card) {
+                                self.limits
+                                    .decrement_node_and_parent_limits(&node_id, false);
+                            }
                         }
+                        true
                     }
-
-                    true
                 },
             )?;
         }
@@ -65,21 +65,16 @@ impl QueueBuilder {
     }
 
     fn gather_new_cards_by_deck(&mut self, col: &mut Collection) -> Result<()> {
-        // TODO: must own Vec as closure below requires unique access to ctx
-        // maybe decks should not be field of Context?
         for deck_id in self.limits.active_decks() {
             if self.limits.root_limit_reached() {
                 break;
             }
             if !self.limits.limit_reached(deck_id) {
                 col.storage.for_each_new_card_in_deck(deck_id, |card| {
-                    // TODO: This could be done more efficiently if we held on to the node_id
-                    // and only adjusted the parent nodes after this node's limit is reached
                     if let Some(node_id) = self.limits.remaining_node_id(deck_id) {
                         if self.add_new_card(card) {
                             self.limits.decrement_node_and_parent_limits(&node_id, true);
                         }
-
                         true
                     } else {
                         false
@@ -133,73 +128,17 @@ impl QueueBuilder {
     }
 
     // True if limit should be decremented.
-    pub(in super::super) fn add_new_card(&mut self, card: NewCard) -> bool {
-        let previous_bury_mode = self
+    fn add_new_card(&mut self, card: NewCard) -> bool {
+        let bury_this_card = self
             .get_and_update_bury_mode_for_note(card.into())
-            .map(|mode| mode.bury_new);
+            .map(|mode| mode.bury_new)
+            .unwrap_or_default();
         // no previous siblings seen?
-        if previous_bury_mode.is_none() {
-            self.new.push(card);
-            return true;
-        }
-        let bury_this_card = previous_bury_mode.unwrap();
-
-        // Cards will be arriving in (due, card_id) order, with all
-        // siblings sharing the same due number by default. In the
-        // common case, card ids will match template order, and nothing
-        // special is required. But if some cards have been generated
-        // after the initial note creation, they will have higher card
-        // ids, and the siblings will thus arrive in the wrong order.
-        // Sorting by ordinal in the DB layer is fairly costly, as it
-        // doesn't allow us to exit early when the daily limits have
-        // been met, so we want to enforce ordering as we add instead.
-        let previous_card_was_sibling_with_higher_ordinal = self
-            .new
-            .last()
-            .map(|previous| {
-                previous.note_id == card.note_id && previous.template_index > card.template_index
-            })
-            .unwrap_or(false);
-
-        if previous_card_was_sibling_with_higher_ordinal {
-            if bury_this_card {
-                // When burying is enabled, we replace the existing sibling
-                // with the lower ordinal one, and skip decrementing the limit.
-                *self.new.last_mut().unwrap() = card;
-
-                false
-            } else {
-                // When burying disabled, we'll want to add this card as well, but we
-                // need to insert it in front of the later-ordinal card(s).
-                let target_idx = self
-                    .new
-                    .iter()
-                    .enumerate()
-                    .rev()
-                    .filter_map(|(idx, queued_card)| {
-                        if queued_card.note_id != card.note_id
-                            || queued_card.template_index < card.template_index
-                        {
-                            Some(idx + 1)
-                        } else {
-                            None
-                        }
-                    })
-                    .next()
-                    .unwrap_or(0);
-                self.new.insert(target_idx, card);
-
-                true
-            }
+        if bury_this_card {
+            false
         } else {
-            // card has arrived in expected order - add if burying disabled
-            if bury_this_card {
-                false
-            } else {
-                self.new.push(card);
-
-                true
-            }
+            self.new.push(card);
+            true
         }
     }
 }
