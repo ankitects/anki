@@ -79,7 +79,7 @@ class ModelChooser(QHBoxLayout):
         def nameFunc() -> list[str]:
             return [nt.name for nt in self.deck.models.all_names_and_ids()]
 
-        def callback(ret):
+        def callback(ret: StudyDeck) -> None:
             if not ret.name:
                 return
             m = self.deck.models.by_name(ret.name)
