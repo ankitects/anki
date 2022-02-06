@@ -164,11 +164,7 @@ impl QueueBuilder {
             .count()
             + self.day_learning.len();
 
-        // cap and note down review + new counts
-        let final_limits = self.limits.final_limits();
-        self.review.truncate(final_limits.review as usize);
         let review_count = self.review.len();
-        self.new.truncate(final_limits.new as usize);
         let new_count = self.new.len();
 
         // merge interday and new cards into main

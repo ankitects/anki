@@ -105,7 +105,6 @@ pub(crate) struct LimitTreeMap {
     /// A map to access the tree node of a deck. Only decks with a remaining
     /// limit above zero are included.
     map: HashMap<DeckId, NodeId>,
-    initial_root_limits: RemainingLimits,
 }
 
 impl LimitTreeMap {
@@ -118,7 +117,6 @@ impl LimitTreeMap {
     ) -> Result<(Self, Deck)> {
         let root_deck = col.storage.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
         let root_limits = NodeLimits::new(&root_deck, config, today);
-        let initial_root_limits = root_limits.limits;
 
         let mut tree = Tree::new();
         let root_id = tree
@@ -128,11 +126,7 @@ impl LimitTreeMap {
         let mut map = HashMap::new();
         map.insert(deck_id, root_id.clone());
 
-        let mut limits = Self {
-            tree,
-            map,
-            initial_root_limits,
-        };
+        let mut limits = Self { tree, map };
         let mut remaining_decks = col.storage.child_decks(&root_deck)?.into_iter().peekable();
         limits.add_child_nodes(root_id, &mut remaining_decks, config, today);
 
@@ -274,22 +268,6 @@ impl LimitTreeMap {
 
         for child_id in children {
             self.cap_new_to_review_rec(&child_id, node_limit);
-        }
-    }
-
-    /// The configured review and new limits of the root deck, but with the new
-    /// limit capped to the remaining reviews.
-    pub(crate) fn final_limits(&self) -> RemainingLimits {
-        RemainingLimits {
-            new: self.initial_root_limits.new.min(
-                self.tree
-                    .get(self.tree.root_node_id().unwrap())
-                    .unwrap()
-                    .data()
-                    .limits
-                    .review,
-            ),
-            ..self.initial_root_limits
         }
     }
 }
