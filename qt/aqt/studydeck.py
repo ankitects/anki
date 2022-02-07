@@ -157,7 +157,7 @@ class StudyDeck(QDialog):
             showInfo(tr.decks_please_select_something())
             return
         self.name = self.names[self.form.list.currentRow()]
-        if callable(self.callback):
+        if self.callback:
             self.callback(self)
         QDialog.accept(self)
 
