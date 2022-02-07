@@ -1,5 +1,13 @@
 @use "fusion-vars";
 
+:root {
+    --focus-color: #0078d7;
+
+    .isMac {
+        --focus-color: rgba(0 103 244 / 0.247);
+    }
+}
+
 .isWin {
     button {
         font-size: 12px;
@@ -39,6 +47,11 @@
 
         border-radius: 5px;
         padding: 3px 10px 3px;
+
+        &:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--focus-color);
+        }
     }
 
     button:hover {
