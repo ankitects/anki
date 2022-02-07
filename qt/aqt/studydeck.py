@@ -36,6 +36,7 @@ class StudyDeck(QDialog):
         dyn: bool = False,
         buttons: Optional[list[Union[str, QPushButton]]] = None,
         geomKey: str = "default",
+        callback: Union[Callable, None] = None,
     ) -> None:
         QDialog.__init__(self, parent or mw)
         self.mw = mw
@@ -87,7 +88,11 @@ class StudyDeck(QDialog):
         self.show()
         # redraw after show so position at center correct
         self.redraw("", current)
-        self.exec()
+        self.callback = callback
+        if callback:
+            self.open()
+        else:
+            self.exec()
 
     def eventFilter(self, obj: QObject, evt: QEvent) -> bool:
         if isinstance(evt, QKeyEvent) and evt.type() == QEvent.Type.KeyPress:
@@ -152,6 +157,8 @@ class StudyDeck(QDialog):
             showInfo(tr.decks_please_select_something())
             return
         self.name = self.names[self.form.list.currentRow()]
+        if self.callback:
+            self.callback(self)
         QDialog.accept(self)
 
     def reject(self) -> None:
