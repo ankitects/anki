@@ -51,15 +51,8 @@ export function mergeChildNodeRanges(
 }
 
 interface MergeMatch {
-    mismatch: boolean;
+    stop: boolean;
     minimized: ChildNodeRange[];
-}
-
-function createInitialMergeMatch(childNodeRange: ChildNodeRange): MergeMatch {
-    return {
-        mismatch: false,
-        minimized: [childNodeRange],
-    };
 }
 
 /**
@@ -72,17 +65,10 @@ function createInitialMergeMatch(childNodeRange: ChildNodeRange): MergeMatch {
  * <b><u>Hello</u><i>World</i></b>
  */
 function tryMergingTillMismatch(
-    { mismatch, minimized /* must be nonempty */ }: MergeMatch,
+    minimized: ChildNodeRange[],
     range: ChildNodeRange,
     base: Element,
 ): MergeMatch {
-    if (mismatch) {
-        return {
-            mismatch: true,
-            minimized: [range, ...minimized],
-        };
-    }
-
     const [nextRange, ...rest] = minimized;
 
     if (areSiblingChildNodeRanges(range, nextRange)) {
@@ -97,15 +83,15 @@ function tryMergingTillMismatch(
                 : mergedChildNodeRange;
 
         return {
-            mismatch: false,
+            stop: false,
             minimized: [newRange, ...rest],
         };
-    } else {
-        return {
-            mismatch: true,
-            minimized: [range, ...minimized],
-        };
     }
+
+    return {
+        stop: true,
+        minimized: [range, ...minimized],
+    };
 }
 
 function getMergeMatcher(
@@ -113,13 +99,18 @@ function getMergeMatcher(
     range: ChildNodeRange,
     base: Element,
 ): ChildNodeRange[] {
-    let mergeMatch = createInitialMergeMatch(range);
+    let minimized = [range];
+    let stop = false;
 
     for (let i = ranges.length - 1; i >= 0; i--) {
-        mergeMatch = tryMergingTillMismatch(mergeMatch, ranges[i], base);
+        if (stop) {
+            minimized.unshift(ranges[i]);
+        } else {
+            ({ minimized, stop } = tryMergingTillMismatch(minimized, ranges[i], base));
+        }
     }
 
-    return mergeMatch.minimized;
+    return minimized;
 }
 
 export function mergeRanges(ranges: ChildNodeRange[], base: Element): ChildNodeRange[] {
