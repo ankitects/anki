@@ -11,14 +11,25 @@ function splitText(node: Text, offset: number): Text {
     return node.splitText(offset);
 }
 
+// TODO maybe both start and end should be of type Node
+// Could also probably be the new "Range anchors"
 interface SplitRange {
+    /**
+     * Used to recreate a range: `range.setStartBefore(start)`
+     */
     start: Text | null;
+    /**
+     * Used to recreate a range: `range.setEndAfter(end)`
+     */
     end: Text | null;
 }
 
 export function splitPartiallySelectedTextNodes(range: Range): SplitRange {
     const startContainer = range.startContainer;
     const startOffset = range.startOffset;
+
+    // TODO Maybe we should avoid splitting, if they
+    // create zero-length text nodes
 
     const start = nodeIsText(startContainer)
         ? splitText(startContainer, startOffset)
@@ -32,11 +43,8 @@ export function splitPartiallySelectedTextNodes(range: Range): SplitRange {
         const splitOff = splitText(endContainer, endOffset);
 
         if (splitOff.data.length === 0) {
-            /**
-             * Range should include split text if zero-length
-             * For the start container, this is done automatically
-             */
-
+            // Range should include the split-off text if it is zero-length.
+            // For the start container, this is done automatically.
             end = splitOff;
             range.setEndAfter(end);
         } else {
