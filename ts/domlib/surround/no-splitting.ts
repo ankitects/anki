@@ -5,7 +5,7 @@ import { surroundChildNodeRangeWithNode } from "./child-node-range";
 import type { SurroundFormat } from "./matcher";
 import { minimalRanges } from "./minimal-ranges";
 import { getRangeAnchors } from "./range-anchors";
-import { removeAfter, removeBefore } from "./remove-adjacent";
+import { extendAfter, extendBefore } from "./remove-adjacent";
 import { removeWithin } from "./remove-within";
 import { findTextsWithinRange, validText } from "./text-node";
 
@@ -14,10 +14,6 @@ export interface NodesResult {
     removedNodes: Node[];
 }
 
-export type SurroundNoSplittingResult = NodesResult & {
-    surroundedRange: Range;
-};
-
 export function surround(
     range: Range,
     base: Element,
@@ -25,16 +21,17 @@ export function surround(
 ): NodesResult {
     const texts = findTextsWithinRange(range).filter(validText);
     const ranges = minimalRanges(texts, base);
+
+    if (ranges.length > 0) {
+        extendBefore(ranges[0], matcher);
+        extendAfter(ranges[ranges.length - 1], matcher);
+    }
     const removedNodes =
         ranges.length > 0
-            ? [
-                  /* modifies insertion ranges */
-                  ...removeBefore(ranges[0], matcher, clearer),
-                  ...ranges.flatMap((range): Element[] =>
-                      removeWithin(range, matcher, clearer),
-                  ),
-                  ...removeAfter(ranges[ranges.length - 1], matcher, clearer),
-              ]
+            ? /* modifies insertion ranges */
+              ranges.flatMap((range): Element[] =>
+                  removeWithin(range, matcher, clearer),
+              )
             : [];
 
     const addedNodes: Element[] = [];
@@ -47,6 +44,10 @@ export function surround(
 
     return { addedNodes, removedNodes };
 }
+
+export type SurroundNoSplittingResult = NodesResult & {
+    surroundedRange: Range;
+};
 
 /**
  * Avoids splitting existing elements in the surrounded area. Might create
