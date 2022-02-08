@@ -73,25 +73,22 @@ function createInitialMergeMatch(childNodeRange: ChildNodeRange): MergeMatch {
  */
 function tryMergingTillMismatch(
     { mismatch, minimized /* must be nonempty */ }: MergeMatch,
-    childNodeRange: ChildNodeRange,
+    range: ChildNodeRange,
     base: Element,
 ): MergeMatch {
     if (mismatch) {
         return {
             mismatch: true,
-            minimized: [childNodeRange, ...minimized],
+            minimized: [range, ...minimized],
         };
     }
 
-    const [nextChildNodeRange, ...restChildNodeRanges] = minimized;
+    const [nextRange, ...rest] = minimized;
 
-    if (areSiblingChildNodeRanges(childNodeRange, nextChildNodeRange)) {
-        const mergedChildNodeRange = mergeChildNodeRanges(
-            childNodeRange,
-            nextChildNodeRange,
-        );
+    if (areSiblingChildNodeRanges(range, nextRange)) {
+        const mergedChildNodeRange = mergeChildNodeRanges(range, nextRange);
 
-        const newChildNodeRange =
+        const newRange =
             coversWholeParent(mergedChildNodeRange) &&
             mergedChildNodeRange.parent !== base
                 ? nodeToChildNodeRange(
@@ -101,22 +98,22 @@ function tryMergingTillMismatch(
 
         return {
             mismatch: false,
-            minimized: [newChildNodeRange, ...restChildNodeRanges],
+            minimized: [newRange, ...rest],
         };
     } else {
         return {
             mismatch: true,
-            minimized: [childNodeRange, ...minimized],
+            minimized: [range, ...minimized],
         };
     }
 }
 
 function getMergeMatcher(
     ranges: ChildNodeRange[],
-    childNodeRange: ChildNodeRange,
+    range: ChildNodeRange,
     base: Element,
 ): ChildNodeRange[] {
-    let mergeMatch = createInitialMergeMatch(childNodeRange);
+    let mergeMatch = createInitialMergeMatch(range);
 
     for (let i = ranges.length - 1; i >= 0; i--) {
         mergeMatch = tryMergingTillMismatch(mergeMatch, ranges[i], base);
