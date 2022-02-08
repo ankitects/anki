@@ -341,3 +341,47 @@ describe("skips over empty elements", () => {
         });
     });
 });
+
+describe("edge cases", () => {
+    // these are not vital but rather define how the algorithm works in edge cases
+
+    test("does not merge beyond the level of contained text nodes", () => {
+        const body = p("<b>before<u>nested</u>after</b>");
+        const range = new Range();
+        range.selectNode(body.firstChild!.childNodes[1].firstChild!);
+
+        const { addedNodes, removedNodes, surroundedRange } = surround(
+            range,
+            body,
+            easyBold,
+        );
+
+        expect(addedNodes).toHaveLength(1);
+        expect(removedNodes).toHaveLength(0);
+        expect(body).toHaveProperty(
+            "innerHTML",
+            "<b>before<b><u>nested</u></b>after</b>",
+        );
+        expect(surroundedRange.toString()).toEqual("nested");
+    });
+
+    test("does remove even if there is already equivalent surrounding in place", () => {
+        const body = p("<b>before<b><u>nested</u></b>after</b>");
+        const range = new Range();
+        range.selectNode(body.firstChild!.childNodes[1].firstChild!.firstChild!);
+
+        const { addedNodes, removedNodes, surroundedRange } = surround(
+            range,
+            body,
+            easyBold,
+        );
+
+        expect(addedNodes).toHaveLength(1);
+        expect(removedNodes).toHaveLength(1);
+        expect(body).toHaveProperty(
+            "innerHTML",
+            "<b>before<b><u>nested</u></b>after</b>",
+        );
+        expect(surroundedRange.toString()).toEqual("nested");
+    });
+});
