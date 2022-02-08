@@ -680,7 +680,7 @@ class Browser(QMainWindow):
             did = self.col.decks.id(ret.name)
             set_card_deck(parent=self, card_ids=cids, deck_id=did).run_in_background()
 
-        ret = StudyDeck(
+        StudyDeck(
             self.mw,
             current=current,
             accept=tr.browsing_move_cards(),

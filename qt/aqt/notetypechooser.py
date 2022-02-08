@@ -112,7 +112,7 @@ class NotetypeChooser(QHBoxLayout):
             if (id := notetype["id"]) != self._selected_notetype_id:
                 self.selected_notetype_id = id
 
-        ret = StudyDeck(
+        StudyDeck(
             self.mw,
             names=nameFunc,
             accept=tr.actions_choose(),
