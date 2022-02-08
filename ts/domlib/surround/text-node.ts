@@ -46,18 +46,20 @@ export function splitPartiallySelectedTextNodes(range: Range): SplitRange {
     return { start, end };
 }
 
-/* returned in source order */
+/**
+ * @returns Text nodes contained in node in source order
+ */
 export function findTextNodesWithin(node: Node): Text[] {
     if (nodeIsText(node)) {
         return [node];
     } else if (nodeIsElement(node)) {
-        return Array.from(node.childNodes).reduce(
-            (accumulator: Text[], value) => [
-                ...accumulator,
-                ...findTextNodesWithin(value),
-            ],
-            [],
-        );
+        const nodes: Text[] = [];
+
+        for (const child of node.childNodes) {
+            nodes.push(...findTextNodesWithin(child));
+        }
+
+        return nodes;
     } else {
         return [];
     }

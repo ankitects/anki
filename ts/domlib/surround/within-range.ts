@@ -5,7 +5,6 @@ import { Position } from "../location";
 
 export function nodeWithinRange(node: Node, range: Range): boolean {
     const nodeRange = new Range();
-    /* range.startContainer and range.endContainer will be Text */
     nodeRange.selectNodeContents(node);
 
     return (

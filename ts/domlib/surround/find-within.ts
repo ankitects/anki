@@ -8,7 +8,7 @@ import { applyMatcher } from "./matcher";
 import { nodeWithinRange } from "./within-range";
 
 /**
- * Elements returned should be in post-order
+ * Elements pushed to matches are be in postorder
  */
 function findWithinNodeInner(
     node: Node,

@@ -12,7 +12,9 @@ export enum Position {
     After,
 }
 
-/* first is positioned {} second */
+/**
+ * @returns: Whether first is positioned {before,equal to,after} second
+ */
 export function compareLocations(
     first: CaretLocation,
     second: CaretLocation,
