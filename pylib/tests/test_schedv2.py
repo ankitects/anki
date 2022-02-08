@@ -1146,18 +1146,11 @@ def test_deckFlow():
     col.addNote(note)
     col.reset()
     assert col.sched.counts() == (3, 0, 0)
-    if is_2021():
-        # cards arrive in position order by default
-        for i in "one", "two", "three":
-            c = col.sched.getCard()
-            assert c.note()["Front"] == i
-            col.sched.answerCard(c, 3)
-    else:
-        # should get top level one first, then ::1, then ::2
-        for i in "one", "three", "two":
-            c = col.sched.getCard()
-            assert c.note()["Front"] == i
-            col.sched.answerCard(c, 3)
+    # should get top level one first, then ::1, then ::2
+    for i in "one", "three", "two":
+        c = col.sched.getCard()
+        assert c.note()["Front"] == i
+        col.sched.answerCard(c, 3)
 
 
 def test_reorder():

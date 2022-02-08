@@ -73,11 +73,10 @@ fn row_to_new_card(row: &Row) -> result::Result<NewCard, rusqlite::Error> {
     Ok(NewCard {
         id: row.get(0)?,
         note_id: row.get(1)?,
-        due: row.get(2)?,
-        template_index: row.get(3)?,
-        mtime: row.get(4)?,
-        current_deck_id: row.get(5)?,
-        original_deck_id: row.get(6)?,
+        template_index: row.get(2)?,
+        mtime: row.get(3)?,
+        current_deck_id: row.get(4)?,
+        original_deck_id: row.get(5)?,
         hash: 0,
     })
 }
@@ -266,8 +265,7 @@ impl super::SqliteStorage {
     /// returns false or no more cards found.
     pub(crate) fn for_each_new_card_in_active_decks<F>(
         &self,
-        random: bool,
-        reverse: bool,
+        order: NewCardSorting,
         mut func: F,
     ) -> Result<()>
     where
@@ -276,13 +274,7 @@ impl super::SqliteStorage {
         let mut stmt = self.db.prepare_cached(&format!(
             "{} ORDER BY {}",
             include_str!("active_new_cards.sql"),
-            if random {
-                "random()"
-            } else if reverse {
-                "due DESC, ord ASC"
-            } else {
-                "due ASC, ord ASC"
-            }
+            order.write(),
         ))?;
         let mut rows = stmt.query(params![])?;
         while let Some(row) = rows.next()? {
@@ -648,6 +640,33 @@ fn review_order_sql(order: ReviewCardOrder) -> String {
         .map(ReviewOrderSubclause::to_str)
         .collect();
     v.join(", ")
+}
+
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum NewCardSorting {
+    /// Ascending position, consecutive siblings,
+    /// provided they have the same position.
+    LowestPosition,
+    /// Descending position, consecutive siblings,
+    /// provided they have the same position.
+    HighestPosition,
+    /// Random, but with consecutive siblings.
+    /// For some given salt the order is stable.
+    RandomNotes(u32),
+    /// Fully random.
+    /// For some given salt the order is stable.
+    RandomCards(u32),
+}
+
+impl NewCardSorting {
+    fn write(self) -> String {
+        match self {
+            NewCardSorting::LowestPosition => "due ASC, ord ASC".to_string(),
+            NewCardSorting::HighestPosition => "due DESC, ord ASC".to_string(),
+            NewCardSorting::RandomNotes(salt) => format!("fnvhash(nid, {salt}), ord ASC"),
+            NewCardSorting::RandomCards(salt) => format!("fnvhash(cid, {salt})"),
+        }
+    }
 }
 
 #[cfg(test)]

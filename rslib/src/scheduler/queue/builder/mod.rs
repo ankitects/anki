@@ -47,7 +47,6 @@ pub(crate) struct NewCard {
     pub id: CardId,
     pub note_id: NoteId,
     pub mtime: TimestampSecs,
-    pub due: i32,
     pub current_deck_id: DeckId,
     pub original_deck_id: DeckId,
     pub template_index: u32,
@@ -209,7 +208,7 @@ fn sort_options(deck: &Deck, config_map: &HashMap<DeckConfigId, DeckConfig>) -> 
         .unwrap_or_else(|| {
             // filtered decks do not space siblings
             QueueSortOptions {
-                new_order: NewCardSortOrder::LowestPosition,
+                new_order: NewCardSortOrder::NoSort,
                 ..Default::default()
             }
         })

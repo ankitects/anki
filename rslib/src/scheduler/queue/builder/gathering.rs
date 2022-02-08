@@ -2,7 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{DueCard, NewCard, QueueBuilder};
-use crate::{deckconfig::NewCardGatherPriority, prelude::*, scheduler::queue::DueCardKind};
+use crate::{
+    deckconfig::NewCardGatherPriority, prelude::*, scheduler::queue::DueCardKind,
+    storage::card::NewCardSorting,
+};
 
 impl QueueBuilder {
     pub(super) fn gather_cards(&mut self, col: &mut Collection) -> Result<()> {
@@ -55,12 +58,19 @@ impl QueueBuilder {
         match self.context.sort_options.new_gather_priority {
             NewCardGatherPriority::Deck => self.gather_new_cards_by_deck(col),
             NewCardGatherPriority::LowestPosition => {
-                self.gather_new_cards_sorted(col, false, false)
+                self.gather_new_cards_sorted(col, NewCardSorting::LowestPosition)
             }
             NewCardGatherPriority::HighestPosition => {
-                self.gather_new_cards_sorted(col, false, true)
+                self.gather_new_cards_sorted(col, NewCardSorting::HighestPosition)
             }
-            NewCardGatherPriority::Random => self.gather_new_cards_sorted(col, true, false),
+            NewCardGatherPriority::RandomNotes => self.gather_new_cards_sorted(
+                col,
+                NewCardSorting::RandomNotes(self.context.timing.days_elapsed),
+            ),
+            NewCardGatherPriority::RandomCards => self.gather_new_cards_sorted(
+                col,
+                NewCardSorting::RandomCards(self.context.timing.days_elapsed),
+            ),
         }
     }
 
@@ -89,11 +99,10 @@ impl QueueBuilder {
     fn gather_new_cards_sorted(
         &mut self,
         col: &mut Collection,
-        random: bool,
-        reverse: bool,
+        order: NewCardSorting,
     ) -> Result<()> {
         col.storage
-            .for_each_new_card_in_active_decks(random, reverse, |card| {
+            .for_each_new_card_in_active_decks(order, |card| {
                 if self.limits.root_limit_reached() {
                     false
                 } else {

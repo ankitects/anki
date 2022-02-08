@@ -24,17 +24,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tr.deckConfigNewGatherPriorityDeck(),
         tr.deckConfigNewGatherPriorityPositionLowestFirst(),
         tr.deckConfigNewGatherPriorityPositionHighestFirst(),
-        tr.deckConfigSortOrderRandom(),
+        tr.deckConfigNewGatherPriorityRandomNotes(),
+        tr.deckConfigNewGatherPriorityRandomCards(),
     ];
     const newSortOrderChoices = [
-        tr.deckConfigSortOrderCardTemplateThenLowestPosition(),
-        tr.deckConfigSortOrderCardTemplateThenHighestPosition(),
-        tr.deckConfigSortOrderCardTemplateThenRandom(),
-        tr.deckConfigSortOrderLowestPosition(),
-        tr.deckConfigSortOrderHighestPosition(),
-        tr.deckConfigSortOrderRandom(),
         tr.deckConfigSortOrderTemplateThenGather(),
         tr.deckConfigSortOrderGather(),
+        tr.deckConfigSortOrderCardTemplateThenRandom(),
+        tr.deckConfigSortOrderRandomNoteThenTemplate(),
+        tr.deckConfigSortOrderRandom(),
     ];
     const reviewOrderChoices = [
         tr.deckConfigSortOrderDueDateThenRandom(),
