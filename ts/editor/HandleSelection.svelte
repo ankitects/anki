@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
 
     export let container: HTMLElement;
     export let image: HTMLImageElement;
@@ -43,10 +43,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
+    let selectionRef: HTMLDivElement;
     function initSelection(selection: HTMLDivElement): void {
         setSelection();
-        dispatch("mount", { selection });
+        selectionRef = selection;
     }
+
+    onMount(() => dispatch("mount", { selection: selectionRef }));
 </script>
 
 <div
