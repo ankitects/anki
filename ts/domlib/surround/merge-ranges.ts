@@ -81,17 +81,18 @@ function tryMergingTillMismatch(base: Element) {
 }
 
 function getMergeMatcher(base: Element) {
-    function mergeMatchInner(
+    return function mergeMatchInner(
         accu: ChildNodeRange[],
         childNodeRange: ChildNodeRange,
     ): ChildNodeRange[] {
-        return [...accu].reduceRight(
-            tryMergingTillMismatch(base),
-            createInitialMergeMatch(childNodeRange),
-        ).minimized;
-    }
+        let accuInner = createInitialMergeMatch(childNodeRange);
 
-    return mergeMatchInner;
+        for (let i = accu.length - 1; i >= 0; i--) {
+            accuInner = tryMergingTillMismatch(base)(accuInner, accu[i]);
+        }
+
+        return accuInner.minimized;
+    }
 }
 
 export function mergeRanges(ranges: ChildNodeRange[], base: Element): ChildNodeRange[] {
