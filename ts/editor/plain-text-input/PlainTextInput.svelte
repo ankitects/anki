@@ -55,11 +55,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function parseAsHTML(html: string): string {
-        const doc = parser.parseFromString(
-            parsingInstructions.join("") + html,
-            "text/html",
+    function createDummyDoc(html: string): string {
+        return (
+            "<html><head></head><body>" +
+            parsingInstructions.join("") +
+            html +
+            "</body>"
         );
+    }
+
+    function parseAsHTML(html: string): string {
+        const doc = parser.parseFromString(createDummyDoc(html), "text/html");
         const body = doc.body;
 
         removeTag(body, "script");
