@@ -17,9 +17,9 @@ describe("direct siblings", () => {
         const result = minimalRanges([before, after], body);
 
         expect(result).toHaveLength(1);
-        expect(result[0]).toHaveProperty("parent", body)
-        expect(result[0]).toHaveProperty("startIndex", 0)
-        expect(result[0]).toHaveProperty("endIndex", 2)
+        expect(result[0]).toHaveProperty("parent", body);
+        expect(result[0]).toHaveProperty("startIndex", 0);
+        expect(result[0]).toHaveProperty("endIndex", 2);
     });
 });
 
@@ -36,8 +36,8 @@ describe("direct siblings with extra child", () => {
         const result = minimalRanges([before, after], body);
 
         expect(result).toHaveLength(1);
-        expect(result[0]).toHaveProperty("parent", body)
-        expect(result[0]).toHaveProperty("startIndex", 0)
-        expect(result[0]).toHaveProperty("endIndex", 2)
+        expect(result[0]).toHaveProperty("parent", body);
+        expect(result[0]).toHaveProperty("startIndex", 0);
+        expect(result[0]).toHaveProperty("endIndex", 2);
     });
 });

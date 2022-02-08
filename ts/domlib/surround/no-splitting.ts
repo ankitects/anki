@@ -7,8 +7,7 @@ import { minimalRanges } from "./minimal-ranges";
 import { getRangeAnchors } from "./range-anchors";
 import { removeAfter, removeBefore } from "./remove-adjacent";
 import { removeWithin } from "./remove-within";
-import { findTextNodesWithin } from "./text-node";
-import { nodeWithinRange } from "./within-range";
+import { findTextsWithinRange, validText } from "./text-node";
 
 export interface NodesResult {
     addedNodes: Node[];
@@ -24,10 +23,7 @@ export function surround(
     base: Element,
     { matcher, clearer, surroundElement }: SurroundFormat,
 ): NodesResult {
-    const texts = findTextNodesWithin(range.commonAncestorContainer).filter(
-        (text: Text): boolean => text.length > 0 && nodeWithinRange(text, range),
-    );
-
+    const texts = findTextsWithinRange(range).filter(validText);
     const ranges = minimalRanges(texts, base);
     const removedNodes =
         ranges.length > 0
