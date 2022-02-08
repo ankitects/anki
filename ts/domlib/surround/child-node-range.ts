@@ -12,6 +12,7 @@ export interface ChildNodeRange {
 }
 
 /**
+ * @remarks
  * Indices should be >= 0 and startIndex < endIndex
  */
 function makeChildNodeRange(
@@ -27,8 +28,9 @@ function makeChildNodeRange(
 }
 
 /**
- * Result does not indicate the node itself but a supposed new node that
- * entirely surrounds the passed in node
+ * @remarks
+ * The new child node range might not necessarily indicate the node itself but
+ * could also be a supposed new node that entirely surrounds the passed in node
  */
 export function nodeToChildNodeRange(node: Node): ChildNodeRange {
     const parent = ascend(node);

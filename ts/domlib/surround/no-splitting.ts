@@ -7,7 +7,7 @@ import {
 } from "./child-node-range";
 import { ascendWhileSingleInline } from "./helpers";
 import type { SurroundFormat } from "./matcher";
-import { mergeMatchChildNodeRanges } from "./merge-match";
+import { mergeRanges } from "./merge-ranges";
 import { getRangeAnchors } from "./range-anchors";
 import { removeAfter, removeBefore } from "./remove-adjacent";
 import { removeWithin } from "./remove-within";
@@ -32,26 +32,27 @@ export function surround(
         range.commonAncestorContainer,
     ).filter((text: Text): boolean => text.length > 0 && nodeWithinRange(text, range));
 
-    if (containedTextNodes.length === 0) {
-        return {
-            addedNodes: [],
-            removedNodes: [],
-        };
-    }
-
     const containedRanges = containedTextNodes
         .map((node: Node): Node => ascendWhileSingleInline(node, base))
         .map(nodeToChildNodeRange);
 
-    /* First normalization step */
-    const insertionRanges = mergeMatchChildNodeRanges(containedRanges, base);
+    const insertionRanges = mergeRanges(containedRanges, base);
 
-    /* Second normalization step */
-    const removedNodes = [
-        ...removeBefore(insertionRanges[0], matcher, clearer),
-        ...removeWithin(insertionRanges, matcher, clearer),
-        ...removeAfter(insertionRanges[insertionRanges.length - 1], matcher, clearer),
-    ];
+    const removedNodes =
+        insertionRanges.length > 0
+            ? [
+                  /* modifies insertion ranges */
+                  ...removeBefore(insertionRanges[0], matcher, clearer),
+                  ...insertionRanges.flatMap((range): Element[] =>
+                      removeWithin(range, matcher, clearer),
+                  ),
+                  ...removeAfter(
+                      insertionRanges[insertionRanges.length - 1],
+                      matcher,
+                      clearer,
+                  ),
+              ]
+            : [];
 
     const addedNodes: Element[] = [];
     for (const normalized of insertionRanges) {

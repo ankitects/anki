@@ -31,12 +31,11 @@ function createInitialMergeMatch(childNodeRange: ChildNodeRange): MergeMatch {
  * <b><u>Hello</u></b><b><i>World</i></b> will be merged to
  * <b><u>Hello</u><i>World</i></b>
  */
-const tryMergingTillMismatch =
-    (base: Element) =>
-    (
+function tryMergingTillMismatch(base: Element) {
+    return function (
         { mismatch, minimized /* must be nonempty */ }: MergeMatch,
         childNodeRange: ChildNodeRange,
-    ): MergeMatch => {
+    ): MergeMatch {
         if (mismatch) {
             return {
                 mismatch,
@@ -79,6 +78,7 @@ const tryMergingTillMismatch =
             }
         }
     };
+}
 
 function getMergeMatcher(base: Element) {
     function mergeMatchInner(
@@ -94,9 +94,6 @@ function getMergeMatcher(base: Element) {
     return mergeMatchInner;
 }
 
-export function mergeMatchChildNodeRanges(
-    ranges: ChildNodeRange[],
-    base: Element,
-): ChildNodeRange[] {
+export function mergeRanges(ranges: ChildNodeRange[], base: Element): ChildNodeRange[] {
     return ranges.reduce(getMergeMatcher(base), []);
 }
