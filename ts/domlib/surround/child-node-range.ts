@@ -47,50 +47,6 @@ function toDOMRange(childNodeRange: ChildNodeRange): Range {
     return range;
 }
 
-export function areSiblingChildNodeRanges(
-    before: ChildNodeRange,
-    after: ChildNodeRange,
-): boolean {
-    if (before.parent !== after.parent || before.endIndex > after.startIndex) {
-        return false;
-    }
-
-    if (before.endIndex === after.startIndex) {
-        return true;
-    }
-
-    for (let index = before.endIndex; index < after.startIndex; index++) {
-        const node = before.parent.childNodes[index];
-
-        if (!nodeIsElement(node) || !elementIsEmpty(node)) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-export function coversWholeParent(childNodeRange: ChildNodeRange): boolean {
-    return (
-        childNodeRange.startIndex === 0 &&
-        childNodeRange.endIndex === childNodeRange.parent.childNodes.length
-    );
-}
-
-/**
- * Precondition: must be sibling child node ranges
- */
-export function mergeChildNodeRanges(
-    before: ChildNodeRange,
-    after: ChildNodeRange,
-): ChildNodeRange {
-    return {
-        parent: before.parent,
-        startIndex: before.startIndex,
-        endIndex: after.endIndex,
-    };
-}
-
 export function surroundChildNodeRangeWithNode(
     childNodeRange: ChildNodeRange,
     node: Node,
