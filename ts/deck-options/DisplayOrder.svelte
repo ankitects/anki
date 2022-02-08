@@ -43,6 +43,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tr.deckConfigSortOrderAscendingEase(),
         tr.deckConfigSortOrderDescendingEase(),
     ];
+
+    let disabledNewSortOrders: number[] = [];
+    $: {
+        switch ($config.newCardGatherPriority) {
+            case 3:
+                // random notes
+                // - 'template, gather' is the same as 'template, random' (2)
+                // - 'gather' is the same as 'random note, template' (3)
+                disabledNewSortOrders = [2, 3];
+                break;
+            case 4:
+                // random cards
+                // - 'template, gather' is the same as 'template, random' (2)
+                // - 'random note, template' is not useful if siblings are not
+                //    gathered together (3)
+                // - 'gather' is the same as 'random' (4)
+                disabledNewSortOrders = [2, 3, 4];
+                break;
+            default:
+                disabledNewSortOrders = [];
+                break;
+        }
+        if (disabledNewSortOrders.includes($config.newCardSortOrder)) {
+            $config.newCardSortOrder = 0;
+        }
+    }
 </script>
 
 <TitledContainer title={tr.deckConfigOrderingTitle()}>
@@ -63,6 +89,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 bind:value={$config.newCardSortOrder}
                 defaultValue={defaults.newCardSortOrder}
                 choices={newSortOrderChoices}
+                disabled={disabledNewSortOrders}
                 markdownTooltip={tr.deckConfigNewCardSortOrderTooltip() + currentDeck}
             >
                 {tr.deckConfigNewCardSortOrder()}
