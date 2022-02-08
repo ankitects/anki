@@ -1447,7 +1447,9 @@ title="{}" {}>{}</button>""".format(
                 lambda out: self.moveToState("overview")
             ).run_in_background()
 
-        StudyDeck(self, dyn=True, current=self.col.decks.current()["name"], callback=callback)
+        StudyDeck(
+            self, dyn=True, current=self.col.decks.current()["name"], callback=callback
+        )
 
     def onEmptyCards(self) -> None:
         show_empty_cards(self)

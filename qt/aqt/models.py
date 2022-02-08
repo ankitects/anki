@@ -61,7 +61,7 @@ class Models(QDialog):
         self.models: Sequence[NotetypeNameIdUseCount] = []
         self.setupModels()
         restoreGeom(self, "models")
-        self.exec()
+        self.show()
 
     # Models
     ##########################################################################

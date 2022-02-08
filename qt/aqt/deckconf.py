@@ -40,7 +40,6 @@ class DeckConf(QDialog):
         self.mw.checkpoint(tr.actions_options())
         self.setupCombos()
         self.setupConfs()
-        self.setWindowModality(Qt.WindowModality.WindowModal)
         qconnect(
             self.form.buttonBox.helpRequested, lambda: openHelp(HelpPage.DECK_OPTIONS)
         )
@@ -58,8 +57,7 @@ class DeckConf(QDialog):
         # qt doesn't size properly with altered fonts otherwise
         restoreGeom(self, "deckconf", adjustSize=True)
         gui_hooks.deck_conf_will_show(self)
-        self.show()
-        self.exec()
+        self.open()
         saveGeom(self, "deckconf")
 
     def setupCombos(self) -> None:
