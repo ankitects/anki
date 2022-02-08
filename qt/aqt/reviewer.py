@@ -30,6 +30,7 @@ from aqt.operations.scheduling import (
     answer_card,
     bury_cards,
     bury_notes,
+    forget_cards,
     set_due_date_dialog,
     suspend_cards,
     suspend_note,
@@ -459,6 +460,7 @@ class Reviewer:
             ("-", self.bury_current_card),
             ("!", self.suspend_current_note),
             ("@", self.suspend_current_card),
+            ("Ctrl+Alt+N", self.forget_current_card),
             ("Ctrl+Alt+E", self.on_create_copy),
             ("Ctrl+Delete", self.delete_current_note),
             ("Ctrl+Shift+D", self.on_set_due),
@@ -915,6 +917,7 @@ time = %(time)d;
                 ],
             ],
             [tr.studying_bury_card(), "-", self.bury_current_card],
+            [tr.actions_forget_card(), "Ctrl+Alt+N", self.forget_current_card],
             [
                 tr.actions_with_ellipsis(action=tr.actions_set_due_date()),
                 "Ctrl+Shift+D",
@@ -1051,6 +1054,12 @@ time = %(time)d;
     def bury_current_card(self) -> None:
         bury_cards(parent=self.mw, card_ids=[self.card.id],).success(
             lambda res: tooltip(tr.studying_cards_buried(count=res.count))
+        ).run_in_background()
+
+    def forget_current_card(self) -> None:
+        forget_cards(
+            parent=self.mw,
+            card_ids=[self.card.id],
         ).run_in_background()
 
     def on_create_copy(self) -> None:

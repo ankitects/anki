@@ -413,8 +413,9 @@ class AnkiWebView(QWebEngineView):
         if is_win:
             # T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
             family = tr.qt_misc_segoe_ui()
-            button_style = "button { font-family:%s; }" % family
-            button_style += "\n:focus { outline: 1px solid %s; }" % color_hl
+            button_style = f"""
+button {{ font-family: {family}; }}
+button:focus {{ outline: 5px auto {color_hl}; }}"""
             font = f"font-size:12px;font-family:{family};"
         elif is_mac:
             family = "Helvetica"
