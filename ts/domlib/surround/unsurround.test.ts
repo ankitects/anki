@@ -140,3 +140,42 @@ describe("with bold around block item", () => {
         // expect(surroundedRange.toString()).toEqual("222");
     });
 });
+
+// TODO does not work with current unsurround implementation
+// describe("with two double nested and one single nested", () => {
+//     test("unsurround one double and single nested", () => {
+//         const body = p("<b><b>aaa</b><b>bbb</b>ccc</b>");
+//         const range = new Range();
+//         range.setStartBefore(body.firstChild!.childNodes[1].firstChild!);
+//         range.setEndAfter(body.firstChild!.childNodes[2]);
+
+//         const { addedNodes, removedNodes, surroundedRange } = unsurround(
+//             range,
+//             body,
+//             easyBold,
+//         );
+
+//         expect(addedNodes).toHaveLength(1);
+//         expect(removedNodes).toHaveLength(3);
+//         expect(body).toHaveProperty("innerHTML", "<b>aaa</b>bbbccc");
+//         expect(surroundedRange.toString()).toEqual("bbbccc");
+//     });
+
+//     test("unsurround single and one double nested", () => {
+//         const body = p("<b>aaa<b>bbb</b><b>ccc</b></b>");
+//         const range = new Range();
+//         range.setStartBefore(body.firstChild!.firstChild!);
+//         range.setEndAfter(body.firstChild!.childNodes[1].firstChild!);
+
+//         const { addedNodes, removedNodes, surroundedRange } = unsurround(
+//             range,
+//             body,
+//             easyBold,
+//         );
+
+//         expect(addedNodes).toHaveLength(1);
+//         expect(removedNodes).toHaveLength(3);
+//         expect(body).toHaveProperty("innerHTML", "aaabbb<b>ccc</b>");
+//         expect(surroundedRange.toString()).toEqual("aaabbb");
+//     });
+// });

@@ -4,7 +4,9 @@
 import { elementIsEmpty, nodeIsElement } from "../../lib/dom";
 import type { ChildNodeRange } from "./child-node-range";
 import { nodeToChildNodeRange } from "./child-node-range";
+import { findAfter, findBefore } from "./find-adjacent";
 import { ascendWhileSingleInline } from "./helpers";
+import type { ElementMatcher } from "./matcher";
 
 export function coversWholeParent(childNodeRange: ChildNodeRange): boolean {
     return (
@@ -69,12 +71,16 @@ function mergeIfSiblings(
     return newRange;
 }
 
+/**
+ * @param ranges: Ranges that will be tried to merge into start. Should be in source order.
+ * @param start: Range into which ranges are merged
+ */
 function mergeTillFirstMismatch(
     ranges: ChildNodeRange[],
-    range: ChildNodeRange,
+    start: ChildNodeRange,
     base: Element,
 ): ChildNodeRange[] {
-    const minimized = [range];
+    const minimized = [start];
 
     for (let i = ranges.length - 1; i >= 0; i--) {
         const newRange = mergeIfSiblings(ranges[i], minimized[0], base);
@@ -90,21 +96,52 @@ function mergeTillFirstMismatch(
     return minimized;
 }
 
-function mergeRanges(ranges: ChildNodeRange[], base: Element): ChildNodeRange[] {
-    let minimized: ChildNodeRange[] = [];
-
-    for (const range of ranges) {
-        minimized = mergeTillFirstMismatch(minimized, range, base);
-    }
-
-    return minimized;
+function extendBefore(range: ChildNodeRange, matcher: ElementMatcher): void {
+    const matches = findBefore(range, matcher);
+    range.startIndex -= matches.length;
 }
 
-export function minimalRanges(texts: Text[], base: Element): ChildNodeRange[] {
-    return mergeRanges(
-        texts
-            .map((node: Node): Node => ascendWhileSingleInline(node, base))
-            .map(nodeToChildNodeRange),
-        base,
-    );
+function extendAfter(range: ChildNodeRange, matcher: ElementMatcher): void {
+    const matches = findAfter(range, matcher);
+    range.endIndex += matches.length;
+}
+
+/**
+ * @param ranges: Ranges to be normalized. Must have non-zero length.
+ */
+function mergeRanges(
+    ranges: ChildNodeRange[],
+    base: Element,
+    matcher: ElementMatcher,
+): ChildNodeRange[] {
+    const [first, ...rest] = ranges;
+    extendBefore(first, matcher);
+
+    let minimized: ChildNodeRange[] = [first];
+
+    for (const range of rest) {
+        minimized = mergeTillFirstMismatch(minimized, range, base);
+        extendBefore(minimized[0], matcher);
+    }
+
+    const [last] = minimized.splice(-1, 1);
+    extendAfter(last, matcher);
+
+    return mergeTillFirstMismatch(minimized, last, base);
+}
+
+export function minimalRanges(
+    texts: Text[],
+    base: Element,
+    matcher: ElementMatcher,
+): ChildNodeRange[] {
+    if (texts.length === 0) {
+        return [];
+    }
+
+    const ranges = texts
+        .map((node: Node): Node => ascendWhileSingleInline(node, base))
+        .map(nodeToChildNodeRange);
+
+    return mergeRanges(ranges, base, matcher);
 }

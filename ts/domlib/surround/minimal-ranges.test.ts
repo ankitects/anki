@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { minimalRanges } from "./minimal-ranges";
-import { p } from "./test-utils";
+import { easyBold, p } from "./test-utils";
 
 describe("direct siblings", () => {
     let body: HTMLBodyElement;
@@ -14,7 +14,7 @@ describe("direct siblings", () => {
     test("merge", () => {
         const before = body.firstChild! as Text;
         const after = body.lastChild! as Text;
-        const result = minimalRanges([before, after], body);
+        const result = minimalRanges([before, after], body, easyBold.matcher);
 
         expect(result).toHaveLength(1);
         expect(result[0]).toHaveProperty("parent", body);
@@ -33,7 +33,7 @@ describe("direct siblings with extra child", () => {
     test("merge", () => {
         const before = body.firstChild! as Text;
         const after = body.lastChild! as Text;
-        const result = minimalRanges([before, after], body);
+        const result = minimalRanges([before, after], body, easyBold.matcher);
 
         expect(result).toHaveLength(1);
         expect(result[0]).toHaveProperty("parent", body);
