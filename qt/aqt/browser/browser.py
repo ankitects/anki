@@ -673,6 +673,13 @@ class Browser(QMainWindow):
         cids = self.table.get_selected_card_ids()
         did = self.mw.col.db.scalar("select did from cards where id = ?", cids[0])
         current = self.mw.col.decks.get(did)["name"]
+
+        def callback(ret: StudyDeck) -> None:
+            if not ret.name:
+                return
+            did = self.col.decks.id(ret.name)
+            set_card_deck(parent=self, card_ids=cids, deck_id=did).run_in_background()
+
         ret = StudyDeck(
             self.mw,
             current=current,
@@ -680,12 +687,8 @@ class Browser(QMainWindow):
             title=tr.browsing_change_deck(),
             help=HelpPage.BROWSING,
             parent=self,
+            callback=callback,
         )
-        if not ret.name:
-            return
-        did = self.col.decks.id(ret.name)
-
-        set_card_deck(parent=self, card_ids=cids, deck_id=did).run_in_background()
 
     # legacy
 
