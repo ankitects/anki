@@ -51,12 +51,6 @@ export function mergeChildNodeRanges(
     };
 }
 
-/**
- * @example
- * When surround with <b>:
- * <b><u>Hello</u></b><b><i>World</i></b> will be merged to
- * <b><u>Hello</u><i>World</i></b>
- */
 function mergeIfSiblings(
     before: ChildNodeRange,
     after: ChildNodeRange,
@@ -66,13 +60,11 @@ function mergeIfSiblings(
         return null;
     }
 
-    const mergedChildNodeRange = mergeChildNodeRanges(before, after);
+    const merged = mergeChildNodeRanges(before, after);
     const newRange =
-        coversWholeParent(mergedChildNodeRange) && mergedChildNodeRange.parent !== base
-            ? nodeToChildNodeRange(
-                  ascendWhileSingleInline(mergedChildNodeRange.parent, base),
-              )
-            : mergedChildNodeRange;
+        coversWholeParent(merged) && merged.parent !== base
+            ? nodeToChildNodeRange(ascendWhileSingleInline(merged.parent, base))
+            : merged;
 
     return newRange;
 }
@@ -98,12 +90,21 @@ function mergeTillFirstMismatch(
     return minimized;
 }
 
-export function mergeRanges(ranges: ChildNodeRange[], base: Element): ChildNodeRange[] {
-    let result: ChildNodeRange[] = [];
+function mergeRanges(ranges: ChildNodeRange[], base: Element): ChildNodeRange[] {
+    let minimized: ChildNodeRange[] = [];
 
     for (const range of ranges) {
-        result = mergeTillFirstMismatch(result, range, base);
+        minimized = mergeTillFirstMismatch(minimized, range, base);
     }
 
-    return result;
+    return minimized;
+}
+
+export function minimalRanges(texts: Text[], base: Element): ChildNodeRange[] {
+    return mergeRanges(
+        texts
+            .map((node: Node): Node => ascendWhileSingleInline(node, base))
+            .map(nodeToChildNodeRange),
+        base,
+    );
 }

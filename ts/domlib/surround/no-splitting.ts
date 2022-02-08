@@ -1,13 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import {
-    nodeToChildNodeRange,
-    surroundChildNodeRangeWithNode,
-} from "./child-node-range";
-import { ascendWhileSingleInline } from "./helpers";
+import { surroundChildNodeRangeWithNode } from "./child-node-range";
 import type { SurroundFormat } from "./matcher";
-import { mergeRanges } from "./merge-ranges";
+import { minimalRanges } from "./minimal-ranges";
 import { getRangeAnchors } from "./range-anchors";
 import { removeAfter, removeBefore } from "./remove-adjacent";
 import { removeWithin } from "./remove-within";
@@ -28,34 +24,25 @@ export function surround(
     base: Element,
     { matcher, clearer, surroundElement }: SurroundFormat,
 ): NodesResult {
-    const containedTextNodes = findTextNodesWithin(
-        range.commonAncestorContainer,
-    ).filter((text: Text): boolean => text.length > 0 && nodeWithinRange(text, range));
+    const texts = findTextNodesWithin(range.commonAncestorContainer).filter(
+        (text: Text): boolean => text.length > 0 && nodeWithinRange(text, range),
+    );
 
-    const containedRanges = containedTextNodes
-        .map((node: Node): Node => ascendWhileSingleInline(node, base))
-        .map(nodeToChildNodeRange);
-
-    const insertionRanges = mergeRanges(containedRanges, base);
-
+    const ranges = minimalRanges(texts, base);
     const removedNodes =
-        insertionRanges.length > 0
+        ranges.length > 0
             ? [
                   /* modifies insertion ranges */
-                  ...removeBefore(insertionRanges[0], matcher, clearer),
-                  ...insertionRanges.flatMap((range): Element[] =>
+                  ...removeBefore(ranges[0], matcher, clearer),
+                  ...ranges.flatMap((range): Element[] =>
                       removeWithin(range, matcher, clearer),
                   ),
-                  ...removeAfter(
-                      insertionRanges[insertionRanges.length - 1],
-                      matcher,
-                      clearer,
-                  ),
+                  ...removeAfter(ranges[ranges.length - 1], matcher, clearer),
               ]
             : [];
 
     const addedNodes: Element[] = [];
-    for (const normalized of insertionRanges) {
+    for (const normalized of ranges) {
         const surroundClone = surroundElement.cloneNode(false) as Element;
 
         surroundChildNodeRangeWithNode(normalized, surroundClone);
