@@ -1,10 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { elementIsEmpty, nodeIsElement } from "../../lib/dom";
 import type { ChildNodeRange } from "./child-node-range";
 import { nodeToChildNodeRange } from "./child-node-range";
 import { ascendWhileSingleInline } from "./helpers";
-import { nodeIsElement, elementIsEmpty } from "../../lib/dom";
 
 export function coversWholeParent(childNodeRange: ChildNodeRange): boolean {
     return (
@@ -37,7 +37,8 @@ export function areSiblingChildNodeRanges(
 }
 
 /**
- * Precondition: must be sibling child node ranges
+ * @remarks
+ * Must be sibling child node ranges
  */
 export function mergeChildNodeRanges(
     before: ChildNodeRange,
@@ -50,63 +51,47 @@ export function mergeChildNodeRanges(
     };
 }
 
-interface MergeMatch {
-    stop: boolean;
-    minimized: ChildNodeRange[];
-}
-
 /**
- * After an _inner match_, we right-reduce the existing matches
- * to see if any existing inner matches can be matched to one bigger match
- *
  * @example
  * When surround with <b>:
  * <b><u>Hello</u></b><b><i>World</i></b> will be merged to
  * <b><u>Hello</u><i>World</i></b>
  */
-function tryMergingTillMismatch(
-    minimized: ChildNodeRange[],
-    range: ChildNodeRange,
+function mergeIfSiblings(
+    before: ChildNodeRange,
+    after: ChildNodeRange,
     base: Element,
-): MergeMatch {
-    const [nextRange, ...rest] = minimized;
-
-    if (areSiblingChildNodeRanges(range, nextRange)) {
-        const mergedChildNodeRange = mergeChildNodeRanges(range, nextRange);
-
-        const newRange =
-            coversWholeParent(mergedChildNodeRange) &&
-            mergedChildNodeRange.parent !== base
-                ? nodeToChildNodeRange(
-                      ascendWhileSingleInline(mergedChildNodeRange.parent, base),
-                  )
-                : mergedChildNodeRange;
-
-        return {
-            stop: false,
-            minimized: [newRange, ...rest],
-        };
+): ChildNodeRange | null {
+    if (!areSiblingChildNodeRanges(before, after)) {
+        return null;
     }
 
-    return {
-        stop: true,
-        minimized: [range, ...minimized],
-    };
+    const mergedChildNodeRange = mergeChildNodeRanges(before, after);
+    const newRange =
+        coversWholeParent(mergedChildNodeRange) && mergedChildNodeRange.parent !== base
+            ? nodeToChildNodeRange(
+                  ascendWhileSingleInline(mergedChildNodeRange.parent, base),
+              )
+            : mergedChildNodeRange;
+
+    return newRange;
 }
 
-function getMergeMatcher(
+function mergeTillFirstMismatch(
     ranges: ChildNodeRange[],
     range: ChildNodeRange,
     base: Element,
 ): ChildNodeRange[] {
-    let minimized = [range];
-    let stop = false;
+    const minimized = [range];
 
     for (let i = ranges.length - 1; i >= 0; i--) {
-        if (stop) {
-            minimized.unshift(ranges[i]);
+        const newRange = mergeIfSiblings(ranges[i], minimized[0], base);
+
+        if (newRange) {
+            minimized[0] = newRange;
         } else {
-            ({ minimized, stop } = tryMergingTillMismatch(minimized, ranges[i], base));
+            minimized.unshift(...ranges.slice(0, i + 1).reverse());
+            break;
         }
     }
 
@@ -117,7 +102,7 @@ export function mergeRanges(ranges: ChildNodeRange[], base: Element): ChildNodeR
     let result: ChildNodeRange[] = [];
 
     for (const range of ranges) {
-        result = getMergeMatcher(result, range, base);
+        result = mergeTillFirstMismatch(result, range, base);
     }
 
     return result;
