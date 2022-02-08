@@ -95,5 +95,12 @@ function getMergeMatcher(base: Element) {
 }
 
 export function mergeRanges(ranges: ChildNodeRange[], base: Element): ChildNodeRange[] {
-    return ranges.reduce(getMergeMatcher(base), []);
+    const func = getMergeMatcher(base)
+
+    let result: ChildNodeRange[] = [];
+    for (const range of ranges) {
+        result = func(result, range);
+    }
+
+    return result;
 }
