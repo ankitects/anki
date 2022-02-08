@@ -21,19 +21,16 @@ export function surround(
     const texts = findTextsWithinRange(range).filter(validText);
     const ranges = minimalRanges(texts, base, matcher);
 
-    const removedNodes =
-        ranges.length > 0
-            ? /* modifies insertion ranges */
-              ranges.flatMap((range): Element[] =>
-                  removeWithin(range, matcher, clearer),
-              )
-            : [];
+    /* modifies ranges */
+    const removedNodes = ranges.flatMap((range): Element[] =>
+        removeWithin(range, matcher, clearer),
+    );
 
     const addedNodes: Element[] = [];
-    for (const normalized of ranges) {
+    for (const range of ranges) {
         const surroundClone = surroundElement.cloneNode(false) as Element;
 
-        surroundChildNodeRangeWithNode(normalized, surroundClone);
+        surroundChildNodeRangeWithNode(range, surroundClone);
         addedNodes.push(surroundClone);
     }
 
