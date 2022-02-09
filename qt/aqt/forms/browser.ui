@@ -618,7 +618,7 @@
     <string>browsing_toggle_showing_cards_notes</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Alt+T</string>
+    <string notr="true">Ctrl+Alt+T</string>
    </property>
   </action>
   <action name="actionRedo">
