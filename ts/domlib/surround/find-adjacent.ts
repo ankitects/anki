@@ -11,12 +11,10 @@ import {
 import { hasOnlyChild } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
 import type {
-    AlongType,
     ElementMatcher,
-    FoundAdjacent,
-    FoundAlong,
+    FoundMatch,
 } from "./match-type";
-import { applyMatcher, MatchType } from "./match-type";
+import { applyMatcher } from "./match-type";
 
 function descendToSingleChild(node: Node): ChildNode | null {
     // TODO We refuse descending into block-level elements, which seems like
@@ -27,7 +25,7 @@ function descendToSingleChild(node: Node): ChildNode | null {
         : null;
 }
 
-function isAlong(node: Node): node is AlongType {
+function isAlong(node: Node): boolean {
     return (
         (nodeIsElement(node) && elementIsEmpty(node)) ||
         (nodeIsText(node) && node.length === 0) ||
@@ -40,18 +38,15 @@ function isAlong(node: Node): node is AlongType {
  */
 function findAdjacentNode(
     node: Node,
-    matches: FoundAdjacent[],
+    matches: FoundMatch[],
     matcher: ElementMatcher,
     getter: (node: Node) => ChildNode | null,
 ): number {
     let current = getter(node);
+    let alongShift = 0;
 
-    const alongs: FoundAlong[] = [];
     while (current && isAlong(current)) {
-        alongs.push({
-            match: { type: MatchType.ALONG },
-            element: current,
-        });
+        alongShift++;
         current = getter(current);
     }
 
@@ -62,9 +57,9 @@ function findAdjacentNode(
         const match = applyMatcher(matcher, current);
 
         if (match.type) {
-            const shift = alongs.length + 1;
+            const shift = alongShift + 1;
 
-            matches.push(...alongs, {
+            matches.push({
                 element: current as HTMLElement | SVGElement,
                 match,
             });
@@ -89,8 +84,8 @@ function previousSibling(node: Node): ChildNode | null {
 export function findBefore(
     range: ChildNodeRange,
     matcher: ElementMatcher,
-): FoundAdjacent[] {
-    const matches: FoundAdjacent[] = [];
+): FoundMatch[] {
+    const matches: FoundMatch[] = [];
     const shift = findAdjacentNode(
         range.parent.childNodes[range.startIndex],
         matches,
@@ -113,8 +108,8 @@ function nextSibling(node: Node): ChildNode | null {
 export function findAfter(
     range: ChildNodeRange,
     matcher: ElementMatcher,
-): FoundAdjacent[] {
-    const matches: FoundAdjacent[] = [];
+): FoundMatch[] {
+    const matches: FoundMatch[] = [];
     const shift = findAdjacentNode(
         range.parent.childNodes[range.endIndex - 1],
         matches,

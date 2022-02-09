@@ -2,10 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 export class TreeVertex {
-    private constructor(private nested: TreeVertex[]) {}
+    private constructor(private nested: TreeVertex[], private value: any) {}
 
-    static make(nested: TreeVertex[]) {
-        return new TreeVertex(nested);
+    static make<U>(nested: TreeVertex[], value: U): TreeVertex {
+        return new TreeVertex(nested, value);
     }
 
     into(...path: number[]): TreeVertex | null {

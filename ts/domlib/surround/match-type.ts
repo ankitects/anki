@@ -21,8 +21,6 @@ export enum MatchType {
      * inline styling aplied additionally.
      */
     CLEAR,
-    /** Element (or Text) is situated adjacent to a match */
-    ALONG,
 }
 
 interface MatchNone {
@@ -44,10 +42,6 @@ type ElementClearer = (element: HTMLElement | SVGElement) => boolean;
 interface MatchClear {
     type: MatchType.CLEAR;
     clear: ElementClearer;
-}
-
-interface MatchAlong {
-    type: MatchType.ALONG;
 }
 
 export type Match = MatchNone | MatchMatch | MatchClear;
@@ -86,15 +80,6 @@ export interface FoundMatch {
     match: MatchMatch | MatchClear;
     element: HTMLElement | SVGElement;
 }
-
-export type AlongType = Element | Text | Comment;
-
-export interface FoundAlong {
-    match: MatchAlong;
-    element: AlongType;
-}
-
-export type FoundAdjacent = FoundMatch | FoundAlong;
 
 export interface SurroundFormat {
     surroundElement: Element;
