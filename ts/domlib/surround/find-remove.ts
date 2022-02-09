@@ -3,8 +3,8 @@
 
 import { findFarthest } from "./find-above";
 import { findWithinNode, findWithinRange } from "./find-within";
-import type { ElementClearer, ElementMatcher, FoundMatch } from "./matcher";
-import { MatchResult } from "./matcher";
+import type { ElementMatcher, FoundMatch } from "./matcher";
+import { MatchType } from "./matcher";
 
 function findBetween(
     range: Range,
@@ -26,34 +26,36 @@ function findBetween(
 }
 
 function findAndClearWithin(
-    match: FoundMatch,
+    found: FoundMatch,
     matcher: ElementMatcher,
-    clearer: ElementClearer,
     condition: (node: Node) => boolean = () => true,
 ): Element[] {
     const toRemove: Element[] = [];
 
-    for (const { matchType, element } of findWithinNode(match.element, matcher)) {
-        if (matchType === MatchResult.MATCH) {
-            if (condition(element)) {
-                toRemove.push(element);
-            }
-        } /* matchType === MatchResult.KEEP */ else {
-            // order is very important here as `clearer` is idempotent!
-            if (condition(element) && clearer(element)) {
-                toRemove.push(element);
-            }
+    for (const { match, element } of findWithinNode(found.element, matcher)) {
+        switch (match.type) {
+            case MatchType.MATCH:
+                if (condition(element)) {
+                    toRemove.push(element);
+                }
+                break;
+            case MatchType.CLEAR:
+                // order is very important here as `clear` is idempotent!
+                if (condition(element) && match.clear(element)) {
+                    toRemove.push(element);
+                }
+                break;
         }
     }
 
-    if (condition(match.element)) {
-        switch (match.matchType) {
-            case MatchResult.MATCH:
-                toRemove.push(match.element);
+    if (condition(found.element)) {
+        switch (found.match.type) {
+            case MatchType.MATCH:
+                toRemove.push(found.element);
                 break;
-            case MatchResult.KEEP:
-                if (clearer(match.element)) {
-                    toRemove.push(match.element);
+            case MatchType.CLEAR:
+                if (found.match.clear(found.element)) {
+                    toRemove.push(found.element);
                 }
                 break;
         }
@@ -86,7 +88,6 @@ export function findNodesToRemove(
     range: Range,
     base: Element,
     matcher: ElementMatcher,
-    clearer: ElementClearer,
 ): FindNodesToRemoveResult {
     const nodesToRemove: Element[] = [];
 
@@ -104,7 +105,6 @@ export function findNodesToRemove(
         const matches = findAndClearWithin(
             aboveStart,
             matcher,
-            clearer,
             aboveEnd ? prohibitOverlapse(aboveEnd.element) : () => true,
         );
         nodesToRemove.push(...matches);
@@ -119,7 +119,7 @@ export function findNodesToRemove(
     if (aboveEnd) {
         afterRange.setEndAfter(aboveEnd.element);
 
-        const matches = findAndClearWithin(aboveEnd, matcher, clearer);
+        const matches = findAndClearWithin(aboveEnd, matcher);
         nodesToRemove.push(...matches);
     }
 

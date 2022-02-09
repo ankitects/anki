@@ -3,9 +3,12 @@
 
 import { nodeIsCommonElement } from "../../lib/dom";
 
-export enum MatchResult {
-    /** Having this be 0 allows for falsy tests */
-    NO_MATCH = 0,
+export enum MatchType {
+    /**
+     * An element unrelated to the surround format.
+     * The value of NONE is 0, which allows for falsy tests.
+     */
+    NONE = 0,
     /** Element matches the predicate and may be removed */
     MATCH,
     /**
@@ -17,10 +20,37 @@ export enum MatchResult {
      * it has inline styling of `font-weight: bold`, but it also has other
      * inline styling aplied additionally.
      */
-    KEEP,
+    CLEAR,
     /** Element (or Text) is situated adjacent to a match */
     ALONG,
 }
+
+interface MatchNone {
+    type: MatchType.NONE;
+}
+
+interface MatchMatch {
+    type: MatchType.MATCH;
+}
+
+/**
+ * Applied an element that matched with MatchType.CLEAR.
+ *
+ * @remarks
+ * Should be idempotent.
+ */
+type ElementClearer = (element: HTMLElement | SVGElement) => boolean;
+
+interface MatchClear {
+    type: MatchType.CLEAR;
+    clear: ElementClearer;
+}
+
+interface MatchAlong {
+    type: MatchType.ALONG;
+}
+
+export type Match = MatchNone | MatchMatch | MatchClear;
 
 /**
  * A function to determine how an element relates to a element predicate.
@@ -31,20 +61,10 @@ export enum MatchResult {
  * @example
  * A predicate could be "is bold", which could match `b` and `strong` tags.
  */
-export type ElementMatcher = (
-    element: HTMLElement | SVGElement,
-) => Exclude<MatchResult, MatchResult.ALONG>;
+export type ElementMatcher = (element: HTMLElement | SVGElement) => Match;
 
 /**
- * A function applied to element that matched with MatchResult.KEEP.
- *
- * @remarks
- * Should be idempotent.
- */
-export type ElementClearer = (element: HTMLElement | SVGElement) => boolean;
-
-/**
- * We want to avoid users to have to deal with the difference between Element
+ * We want to avoid that users have to deal with the difference between Element
  * and {HTML,SVG}Element, which is probably not vital in practice
  */
 function apply<T>(
@@ -59,17 +79,17 @@ function apply<T>(
     };
 }
 
-export const applyMatcher = apply<ReturnType<ElementMatcher>>(MatchResult.NO_MATCH);
+export const applyMatcher = apply<ReturnType<ElementMatcher>>({ type: MatchType.NONE });
 export const applyClearer = apply<ReturnType<ElementClearer>>(false);
 
 export interface FoundMatch {
+    match: MatchMatch | MatchClear;
     element: HTMLElement | SVGElement;
-    matchType: MatchResult.MATCH | MatchResult.KEEP;
 }
 
 export interface FoundAlong {
+    match: MatchAlong;
     element: Element | Text;
-    matchType: MatchResult.ALONG;
 }
 
 export type FoundAdjacent = FoundMatch | FoundAlong;
@@ -77,5 +97,4 @@ export type FoundAdjacent = FoundMatch | FoundAlong;
 export interface SurroundFormat {
     surroundElement: Element;
     matcher: ElementMatcher;
-    clearer: ElementClearer;
 }

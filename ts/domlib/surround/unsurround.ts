@@ -47,7 +47,6 @@ export function unsurround(
         range,
         base,
         format.matcher,
-        format.clearer,
     );
 
     /* We cannot remove the nodes immediately, because that would make the ranges collapse */

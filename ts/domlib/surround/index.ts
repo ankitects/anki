@@ -3,16 +3,16 @@
 
 import { registerPackage } from "../../lib/runtime-require";
 import { findClosest } from "./find-above";
-import { MatchResult } from "./matcher";
+import { MatchType } from "./matcher";
 import { surroundNoSplitting } from "./no-splitting";
 import { unsurround } from "./unsurround";
 
 registerPackage("anki/surround", {
     findClosest,
-    MatchResult,
+    MatchType,
     surroundNoSplitting,
     unsurround,
 });
 
-export { findClosest, MatchResult, surroundNoSplitting, unsurround };
-export type { ElementClearer, ElementMatcher, SurroundFormat } from "./matcher";
+export { findClosest, MatchType, surroundNoSplitting, unsurround };
+export type { ElementMatcher, Match, SurroundFormat } from "./matcher";

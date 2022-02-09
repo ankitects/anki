@@ -6,7 +6,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithState from "../../components/WithState.svelte";
-    import { MatchResult } from "../../domlib/surround";
+    import type { Match } from "../../domlib/surround";
+    import { MatchType } from "../../domlib/surround";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
@@ -18,30 +19,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const surroundElement = document.createElement("strong");
 
-    function matcher(
-        element: HTMLElement | SVGElement,
-    ): Exclude<MatchResult, MatchResult.ALONG> {
+    function matcher(element: HTMLElement | SVGElement): Match {
         if (element.tagName === "B" || element.tagName === "STRONG") {
-            return MatchResult.MATCH;
+            return { type: MatchType.MATCH };
         }
 
         const fontWeight = element.style.fontWeight;
         if (fontWeight === "bold" || Number(fontWeight) >= 400) {
-            return MatchResult.KEEP;
+            return {
+                type: MatchType.CLEAR,
+                clear(element: HTMLElement | SVGElement): boolean {
+                    element.style.removeProperty("font-weight");
+                    return removeEmptyStyle(element) && element.className.length === 0;
+                },
+            };
         }
 
-        return MatchResult.NO_MATCH;
-    }
-
-    function clearer(element: HTMLElement | SVGElement): boolean {
-        element.style.removeProperty("font-weight");
-        return removeEmptyStyle(element) && element.className.length === 0;
+        return { type: MatchType.NONE };
     }
 
     const format = {
         surroundElement,
         matcher,
-        clearer,
     };
 
     const { removeFormats } = editorToolbarContext.get();

@@ -1,13 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { getNodeCoordinates } from "../location";
 import { surroundChildNodeRangeWithNode } from "./child-node-range";
 import type { SurroundFormat } from "./matcher";
 import { minimalRanges } from "./minimal-ranges";
 import { getRangeAnchors } from "./range-anchors";
 import { removeWithin } from "./remove-within";
 import { findTextsWithinRange, validText } from "./text-node";
-import { getNodeCoordinates } from "../location";
 
 export interface NodesResult {
     addedNodes: Node[];
@@ -17,7 +17,7 @@ export interface NodesResult {
 export function surround(
     range: Range,
     base: Element,
-    { matcher, clearer, surroundElement }: SurroundFormat,
+    { matcher, surroundElement }: SurroundFormat,
 ): NodesResult {
     const texts = findTextsWithinRange(range).filter(validText);
     const ranges = minimalRanges(texts, base, matcher);
@@ -28,7 +28,7 @@ export function surround(
     for (const range of ranges) {
         removed.push(
             /* modifies ranges */
-            ...removeWithin(range, matcher, clearer)
+            ...removeWithin(range, matcher),
         );
 
         const surroundClone = surroundElement.cloneNode(false) as Element;
@@ -59,10 +59,10 @@ export function surroundNoSplitting(
     format: SurroundFormat,
 ): SurroundNoSplittingResult {
     // TODO
-    const coords = [
-        getNodeCoordinates(range.startContainer, base),
-        getNodeCoordinates(range.endContainer, base),
-    ];
+    // const coords = [
+    //     getNodeCoordinates(range.startContainer, base),
+    //     getNodeCoordinates(range.endContainer, base),
+    // ];
 
     const { start, end } = getRangeAnchors(range, format.matcher);
     const { addedNodes, removedNodes } = surround(range, base, format);

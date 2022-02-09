@@ -20,9 +20,9 @@ function findWithinNodeInner(
             findWithinNodeInner(child, matcher, matches);
         }
 
-        const matchType = applyMatcher(matcher, node);
-        if (matchType) {
-            matches.push({ matchType, element: node as HTMLElement | SVGElement });
+        const match = applyMatcher(matcher, node);
+        if (match.type) {
+            matches.push({ match, element: node as HTMLElement | SVGElement });
         }
     }
 }

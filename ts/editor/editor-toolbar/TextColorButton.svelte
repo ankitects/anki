@@ -6,7 +6,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ColorPicker from "../../components/ColorPicker.svelte";
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
-    import { MatchResult, SurroundFormat } from "../../domlib/surround";
+    import type { Match } from "../../domlib/surround";
+    import { MatchType, SurroundFormat } from "../../domlib/surround";
     import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
@@ -24,55 +25,54 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const surroundElement = document.createElement("span");
 
-    function matcher(
-        element: HTMLElement | SVGElement,
-    ): Exclude<MatchResult, MatchResult.ALONG> {
+    function clear(element: HTMLElement | SVGElement): boolean {
+        element.style.removeProperty("color");
+        return removeEmptyStyle(element) && element.className.length === 0;
+    }
+
+    function matcher(element: HTMLElement | SVGElement): Match {
         if (isFontElement(element) && element.hasAttribute("color")) {
-            return MatchResult.MATCH;
+            return { type: MatchType.MATCH };
         }
 
         if (element.style.getPropertyValue("color").length > 0) {
-            return MatchResult.KEEP;
+            return {
+                type: MatchType.CLEAR,
+                clear,
+            };
         }
 
-        return MatchResult.NO_MATCH;
-    }
-
-    function clearer(element: HTMLElement | SVGElement): boolean {
-        element.style.removeProperty("color");
-        return removeEmptyStyle(element) && element.className.length === 0;
+        return { type: MatchType.NONE };
     }
 
     const generalFormat: SurroundFormat = {
         surroundElement,
         matcher,
-        clearer,
     };
 
     function createFormat(color: string): SurroundFormat {
         const surroundElement = document.createElement("span");
         surroundElement.style.color = color;
 
-        function matcher(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
+        function matcher(element: Element): Match {
             if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
-                return MatchResult.NO_MATCH;
+                return { type: MatchType.NONE };
             }
 
             if (isFontElement(element) && element.color === color) {
-                return MatchResult.MATCH;
+                return { type: MatchType.MATCH };
             }
 
             if (element.style.color === color) {
-                return MatchResult.KEEP;
+                return { type: MatchType.CLEAR, clear };
             }
 
-            return MatchResult.NO_MATCH;
+            return { type: MatchType.NONE };
         }
 
         return {
             surroundElement,
             matcher,
-            clearer,
         };
     }
 

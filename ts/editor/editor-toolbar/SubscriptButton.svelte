@@ -3,34 +3,33 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import { MatchResult } from "../../domlib/surround";
+    import type { Match } from "../../domlib/surround";
+    import { MatchType } from "../../domlib/surround";
     import { removeEmptyStyle } from "../surround";
 
     const surroundElement = document.createElement("sub");
 
-    export function matcher(
-        element: HTMLElement | SVGElement,
-    ): Exclude<MatchResult, MatchResult.ALONG> {
+    export function matcher(element: HTMLElement | SVGElement): Match {
         if (element.tagName === "SUB") {
-            return MatchResult.MATCH;
+            return { type: MatchType.MATCH };
         }
 
         if (element.style.verticalAlign === "sub") {
-            return MatchResult.KEEP;
+            return {
+                type: MatchType.CLEAR,
+                clear(element: HTMLElement | SVGElement): boolean {
+                    element.style.removeProperty("vertical-align");
+                    return removeEmptyStyle(element) && element.className.length === 0;
+                },
+            };
         }
 
-        return MatchResult.NO_MATCH;
-    }
-
-    export function clearer(element: HTMLElement | SVGElement): boolean {
-        element.style.removeProperty("vertical-align");
-        return removeEmptyStyle(element) && element.className.length === 0;
+        return { type: MatchType.NONE };
     }
 
     export const format = {
         surroundElement,
         matcher,
-        clearer,
     };
 </script>
 

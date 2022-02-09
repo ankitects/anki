@@ -5,12 +5,12 @@ import type { ElementMatcher, FoundMatch } from "./matcher";
 import { applyMatcher } from "./matcher";
 
 function tryMatch(current: Node, matcher: ElementMatcher): FoundMatch | null {
-    const matchType = applyMatcher(matcher, current);
+    const match = applyMatcher(matcher, current);
 
-    if (matchType) {
+    if (match.type) {
         return {
             element: current as HTMLElement | SVGElement,
-            matchType,
+            match,
         };
     }
 

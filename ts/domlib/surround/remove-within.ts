@@ -4,8 +4,8 @@
 import type { ChildNodeRange } from "./child-node-range";
 import { findWithin } from "./find-within";
 import { countChildNodesRespectiveToParent } from "./helpers";
-import type { ElementClearer, ElementMatcher, FoundMatch } from "./matcher";
-import { MatchResult } from "./matcher";
+import type { ElementMatcher, FoundMatch } from "./matcher";
+import { MatchType } from "./matcher";
 
 /**
  * @param removed: Removed elements will be pushed onto this array
@@ -13,18 +13,17 @@ import { MatchResult } from "./matcher";
 function normalizeWithin(
     matches: FoundMatch[],
     parent: Node,
-    clearer: ElementClearer,
     removed: Element[],
 ): number {
     let childCount = 0;
 
-    for (const { matchType, element } of matches) {
-        if (matchType === MatchResult.MATCH) {
+    for (const { match, element } of matches) {
+        if (match.type === MatchType.MATCH) {
             removed.push(element);
             childCount += countChildNodesRespectiveToParent(parent, element);
             element.replaceWith(...element.childNodes);
-        } /* matchType === MatchResult.KEEP */ else {
-            if (clearer(element)) {
+        } /* match.type === MatchResult.CLEAR */ else {
+            if (match.clear(element)) {
                 removed.push(element);
                 childCount += countChildNodesRespectiveToParent(parent, element);
                 element.replaceWith(...element.childNodes);
@@ -54,11 +53,10 @@ function normalizeWithin(
 export function removeWithin(
     range: ChildNodeRange,
     matcher: ElementMatcher,
-    clearer: ElementClearer,
 ): Element[] {
     const removed: Element[] = [];
     const matches = findWithin(range, matcher);
-    const shift = normalizeWithin(matches, range.parent, clearer, removed);
+    const shift = normalizeWithin(matches, range.parent, removed);
     range.endIndex += shift;
 
     return removed;
