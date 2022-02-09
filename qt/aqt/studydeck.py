@@ -81,7 +81,7 @@ class StudyDeck(QDialog):
         self.ok = self.form.buttonBox.addButton(
             accept or tr.decks_study(), QDialogButtonBox.ButtonRole.AcceptRole
         )
-        self.setWindowModality(Qt.WindowModality.WindowModal)
+        self.setModal(True)
         qconnect(self.form.buttonBox.helpRequested, lambda: openHelp(help))
         qconnect(self.form.filter.textEdited, self.redraw)
         qconnect(self.form.list.itemDoubleClicked, self.accept)
@@ -90,7 +90,7 @@ class StudyDeck(QDialog):
         self.redraw("", current)
         self.callback = callback
         if callback:
-            self.open()
+            self.show()
         else:
             self.exec()
 
