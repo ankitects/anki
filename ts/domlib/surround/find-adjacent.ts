@@ -14,6 +14,9 @@ import type { AlongType, ElementMatcher, FoundAdjacent, FoundAlong } from "./mat
 import { applyMatcher, MatchType } from "./matcher";
 
 function descendToSingleChild(node: Node): ChildNode | null {
+    // TODO We refuse descending into block-level elements, which seems like
+    // upstream logic. Maybe we should report them as found, but give them an extra
+    // flag, like found.descendedIntoBlock
     return nodeIsElement(node) && !elementIsBlock(node) && hasOnlyChild(node)
         ? node.firstChild
         : null;
