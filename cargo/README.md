@@ -1,6 +1,6 @@
 This folder integrates Rust crates.io fetching into Bazel.
 
-To update dependencies, ensure a local Rust environment is available
+To add or update dependencies, ensure a local Rust environment is available
 (eg `source scripts/cargo-env`), then install cargo-raze:
 
 ```
@@ -8,9 +8,18 @@ cargo install cargo-raze --version 0.14.1
 cargo install cargo-license
 ```
 
-After updating dependencies in ../rslib/Cargo.toml, change to this
-folder and run python update.py to update the external Bazel repositories
-to point to the updated deps.
+After adding/updating dependencies in ../rslib/Cargo.toml, change to this
+folder and run:
+
+$ python update.py
+
+or
+
+$ REPIN=1 python update.py
+
+The former will apply added crates and adjusted version numbers, while leaving
+most crate versions alone. The latter will also update pinned dependencies to their
+latest compatible versions.
 
 Note: cargo-raze does not currently work when run from Windows, and nobody
 has investigated why yet. For now, you'll need a Mac or Linux machine, or

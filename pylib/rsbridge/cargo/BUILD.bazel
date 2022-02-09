@@ -148,6 +148,15 @@ alias(
 )
 
 alias(
+    name = "id_tree",
+    actual = "@raze__id_tree__1_8_0//:id_tree",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "inflections",
     actual = "@raze__inflections__1_1_1//:inflections",
     tags = [

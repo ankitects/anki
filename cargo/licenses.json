@@ -738,6 +738,15 @@
     "description": "Default TLS implementation for use with hyper"
   },
   {
+    "name": "id_tree",
+    "version": "1.8.0",
+    "authors": "Ian Burns <iwburns8@gmail.com>",
+    "repository": "https://github.com/iwburns/id-tree",
+    "license": "MIT",
+    "license_file": null,
+    "description": "A library for creating and modifying Tree structures."
+  },
+  {
     "name": "idna",
     "version": "0.2.3",
     "authors": "The rust-url developers",
@@ -1834,6 +1843,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "'Small vector' optimization: store up to a small number of items on the stack"
+  },
+  {
+    "name": "snowflake",
+    "version": "1.3.0",
+    "authors": "Steven Allen <steven@stebalien.com>",
+    "repository": "https://github.com/Stebalien/snowflake",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A module for generating guaranteed process unique IDs."
   },
   {
     "name": "socket2",

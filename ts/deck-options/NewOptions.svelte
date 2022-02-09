@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
     import * as tr from "../lib/ftl";
+    import { DeckConfig } from "../lib/proto";
     import EnumSelectorRow from "./EnumSelectorRow.svelte";
     import type { DeckOptionsState } from "./lib";
     import SpinBoxRow from "./SpinBoxRow.svelte";
@@ -38,6 +39,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: goodExceedsEasy =
         $config.graduatingIntervalGood > $config.graduatingIntervalEasy
             ? tr.deckConfigGoodAboveEasy()
+            : "";
+
+    $: insertionOrderRandom =
+        state.v3Scheduler &&
+        $config.newCardInsertOrder ==
+            DeckConfig.DeckConfig.Config.NewCardInsertOrder.NEW_CARD_INSERT_ORDER_RANDOM
+            ? tr.deckConfigNewInsertionOrderRandomWithV3()
             : "";
 </script>
 
@@ -91,6 +99,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             >
                 {tr.deckConfigNewInsertionOrder()}
             </EnumSelectorRow>
+        </Item>
+
+        <Item>
+            <Warning warning={insertionOrderRandom} />
         </Item>
     </DynamicallySlottable>
 </TitledContainer>
