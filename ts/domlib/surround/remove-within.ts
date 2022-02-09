@@ -6,10 +6,7 @@ import { findWithin } from "./find-within";
 import type { ElementMatcher, FoundMatch } from "./matcher";
 import { MatchType } from "./matcher";
 
-function countChildNodesRespectiveToParent(
-    parent: Node,
-    element: Element,
-): number {
+function countChildNodesRespectiveToParent(parent: Node, element: Element): number {
     return element.parentNode === parent ? element.childNodes.length : 1;
 }
 

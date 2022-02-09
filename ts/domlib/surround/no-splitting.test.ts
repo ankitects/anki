@@ -138,6 +138,29 @@ describe("surround text next to nested", () => {
             expect(surroundedRange.toString()).toEqual("after");
         });
     });
+
+    describe("two nested", () => {
+        let body: HTMLBodyElement;
+
+        beforeEach(() => {
+            body = p("aaa<i><b>bbb</b></i><i><b>ccc</b></i>");
+        });
+
+        test("extends to both", () => {
+            const range = new Range();
+            range.selectNode(body.firstChild!);
+            const { addedNodes, removedNodes, surroundedRange } = surround(
+                range,
+                body,
+                easyBold,
+            );
+
+            expect(addedNodes).toHaveLength(1);
+            expect(removedNodes).toHaveLength(2);
+            expect(body).toHaveProperty("innerHTML", "<b>aaa<i>bbb</i><i>ccc</i></b>");
+            expect(surroundedRange.toString()).toEqual("aaa");
+        });
+    });
 });
 
 describe("surround across block element", () => {
@@ -371,16 +394,9 @@ describe("edge cases", () => {
         range.setStartBefore(body.firstChild!.firstChild!);
         range.setEndAfter(body.firstChild!.childNodes[1].firstChild!);
 
-        const { addedNodes, removedNodes } = surround(
-            range,
-            body,
-            easyBold,
-        );
+        const { addedNodes, removedNodes } = surround(range, body, easyBold);
 
-        expect(body).toHaveProperty(
-            "innerHTML",
-            "<b><b>aaabbbccc</b></b>",
-        );
+        expect(body).toHaveProperty("innerHTML", "<b><b>aaabbbccc</b></b>");
         expect(addedNodes).toHaveLength(1);
         expect(removedNodes).toHaveLength(2);
         // expect(surroundedRange.toString()).toEqual("aaabbb"); // is aaabbbccc instead
@@ -392,16 +408,9 @@ describe("edge cases", () => {
         range.setStartBefore(body.firstChild!.childNodes[1].firstChild!.firstChild!);
         range.setEndAfter(body.firstChild!.childNodes[1].childNodes[1].firstChild!);
 
-        const { addedNodes, removedNodes } = surround(
-            range,
-            body,
-            easyBold,
-        );
+        const { addedNodes, removedNodes } = surround(range, body, easyBold);
 
-        expect(body).toHaveProperty(
-            "innerHTML",
-            "<b><b>aaabbbccc</b></b>"
-        );
+        expect(body).toHaveProperty("innerHTML", "<b><b>aaabbbccc</b></b>");
         expect(addedNodes).toHaveLength(1);
         expect(removedNodes).toHaveLength(4);
         // expect(surroundedRange.toString()).toEqual("aaabbb"); // is aaabbbccc instead

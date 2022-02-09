@@ -16,7 +16,6 @@ function coversWholeParent(childNodeRange: ChildNodeRange): boolean {
     );
 }
 
-
 function ascendWhileSingleInline(node: Node, base: Node): Node {
     if (node === base) {
         return node;
