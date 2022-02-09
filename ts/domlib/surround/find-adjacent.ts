@@ -10,8 +10,8 @@ import {
 } from "../../lib/dom";
 import { hasOnlyChild } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
-import type { AlongType, ElementMatcher, FoundAdjacent, FoundAlong } from "./matcher";
-import { applyMatcher, MatchType } from "./matcher";
+import type { AlongType, ElementMatcher, FoundAdjacent, FoundAlong } from "./match-type";
+import { applyMatcher, MatchType } from "./match-type";
 
 function descendToSingleChild(node: Node): ChildNode | null {
     // TODO We refuse descending into block-level elements, which seems like

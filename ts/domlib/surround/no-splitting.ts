@@ -1,9 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { getNodeCoordinates } from "../location";
 import { surroundChildNodeRangeWithNode } from "./child-node-range";
-import type { SurroundFormat } from "./matcher";
+import type { SurroundFormat } from "./match-type";
 import { minimalRanges } from "./minimal-ranges";
 import { getRangeAnchors } from "./range-anchors";
 import { removeWithin } from "./remove-within";

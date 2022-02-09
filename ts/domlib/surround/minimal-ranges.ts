@@ -7,7 +7,7 @@ import { ascend, isOnlyChild } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
 import { nodeToChildNodeRange } from "./child-node-range";
 import { findAfter, findBefore } from "./find-adjacent";
-import type { ElementMatcher } from "./matcher";
+import type { ElementMatcher } from "./match-type";
 
 function coversWholeParent(childNodeRange: ChildNodeRange): boolean {
     return (

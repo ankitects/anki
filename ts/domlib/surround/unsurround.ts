@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { findNodesToRemove } from "./find-remove";
-import type { SurroundFormat } from "./matcher";
+import type { SurroundFormat } from "./match-type";
 import type { NodesResult, SurroundNoSplittingResult } from "./no-splitting";
 import { surround } from "./no-splitting";
 import { getRangeAnchors } from "./range-anchors";

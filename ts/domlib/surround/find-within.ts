@@ -3,8 +3,8 @@
 
 import { nodeIsElement } from "../../lib/dom";
 import type { ChildNodeRange } from "./child-node-range";
-import type { ElementMatcher, FoundMatch } from "./matcher";
-import { applyMatcher } from "./matcher";
+import type { ElementMatcher, FoundMatch } from "./match-type";
+import { applyMatcher } from "./match-type";
 import { nodeWithinRange } from "./within-range";
 
 /**

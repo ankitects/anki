@@ -3,8 +3,8 @@
 
 import type { ChildNodeRange } from "./child-node-range";
 import { findWithin } from "./find-within";
-import type { ElementMatcher, FoundMatch } from "./matcher";
-import { MatchType } from "./matcher";
+import type { ElementMatcher, FoundMatch } from "./match-type";
+import { MatchType } from "./match-type";
 
 function countChildNodesRespectiveToParent(parent: Node, element: Element): number {
     return element.parentNode === parent ? element.childNodes.length : 1;

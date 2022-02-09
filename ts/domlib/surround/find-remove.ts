@@ -3,8 +3,8 @@
 
 import { findFarthest } from "./find-above";
 import { findWithinNode, findWithinRange } from "./find-within";
-import type { ElementMatcher, FoundMatch } from "./matcher";
-import { MatchType } from "./matcher";
+import type { ElementMatcher, FoundMatch } from "./match-type";
+import { MatchType } from "./match-type";
 
 function findBetween(
     range: Range,

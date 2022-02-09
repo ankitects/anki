@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { nodeIsElement } from "../../lib/dom";
-import type { ElementMatcher } from "./matcher";
-import { applyMatcher, MatchType } from "./matcher";
+import type { ElementMatcher } from "./match-type";
+import { applyMatcher, MatchType } from "./match-type";
 import { splitPartiallySelectedTextNodes } from "./text-node";
 
 function textOrMatches(node: Node, matcher: ElementMatcher): boolean {
