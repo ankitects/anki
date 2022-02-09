@@ -107,7 +107,7 @@ class DeckChooser(QHBoxLayout):
             accept=tr.actions_choose(),
             title=tr.qt_misc_choose_deck(),
             help=HelpPage.EDITING,
-            cancel=False,
+            cancel=True,
             parent=self._widget,
             geomKey="selectDeck",
             callback=callback,
