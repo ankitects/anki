@@ -7,6 +7,7 @@ import { minimalRanges } from "./minimal-ranges";
 import { getRangeAnchors } from "./range-anchors";
 import { removeWithin } from "./remove-within";
 import { findTextsWithinRange, validText } from "./text-node";
+import { getNodeCoordinates } from "../location";
 
 export interface NodesResult {
     addedNodes: Node[];
@@ -21,20 +22,22 @@ export function surround(
     const texts = findTextsWithinRange(range).filter(validText);
     const ranges = minimalRanges(texts, base, matcher);
 
-    /* modifies ranges */
-    const removedNodes = ranges.flatMap((range): Element[] =>
-        removeWithin(range, matcher, clearer),
-    );
+    const removed: Element[] = [];
+    const added: Element[] = [];
 
-    const addedNodes: Element[] = [];
     for (const range of ranges) {
+        removed.push(
+            /* modifies ranges */
+            ...removeWithin(range, matcher, clearer)
+        );
+
         const surroundClone = surroundElement.cloneNode(false) as Element;
 
         surroundChildNodeRangeWithNode(range, surroundClone);
-        addedNodes.push(surroundClone);
+        added.push(surroundClone);
     }
 
-    return { addedNodes, removedNodes };
+    return { addedNodes: added, removedNodes: removed };
 }
 
 export type SurroundNoSplittingResult = NodesResult & {
@@ -55,6 +58,12 @@ export function surroundNoSplitting(
     base: Element,
     format: SurroundFormat,
 ): SurroundNoSplittingResult {
+    // TODO
+    const coords = [
+        getNodeCoordinates(range.startContainer, base),
+        getNodeCoordinates(range.endContainer, base),
+    ];
+
     const { start, end } = getRangeAnchors(range, format.matcher);
     const { addedNodes, removedNodes } = surround(range, base, format);
 
