@@ -5,22 +5,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher, tick } from "svelte";
     import type { Writable } from "svelte/store";
+
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import StickyContainer from "../../components/StickyContainer.svelte";
-    import TagOptionsBadge from "./TagOptionsBadge.svelte";
+    import { tags as tagsService } from "../../lib/proto";
+    import { execCommand } from "../helpers";
+    import Tag from "./Tag.svelte";
     import TagEditMode from "./TagEditMode.svelte";
     import TagInput from "./TagInput.svelte";
-    import Tag from "./Tag.svelte";
-    import WithAutocomplete from "./WithAutocomplete.svelte";
+    import TagOptionsBadge from "./TagOptionsBadge.svelte";
     import type { Tag as TagType } from "./tags";
     import {
         attachId,
         getName,
-        replaceWithUnicodeSeparator,
         replaceWithColons,
+        replaceWithUnicodeSeparator,
     } from "./tags";
-    import { tags as tagsService } from "../../lib/proto";
-    import { execCommand } from "../helpers";
+    import WithAutocomplete from "./WithAutocomplete.svelte";
 
     export let size: number;
     export let wrap: boolean;

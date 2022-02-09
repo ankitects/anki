@@ -79,7 +79,18 @@ class ModelChooser(QHBoxLayout):
         def nameFunc() -> list[str]:
             return [nt.name for nt in self.deck.models.all_names_and_ids()]
 
-        ret = StudyDeck(
+        def callback(ret: StudyDeck) -> None:
+            if not ret.name:
+                return
+            m = self.deck.models.by_name(ret.name)
+            self.deck.conf["curModel"] = m["id"]
+            cdeck = self.deck.decks.current()
+            cdeck["mid"] = m["id"]
+            self.deck.decks.save(cdeck)
+            gui_hooks.current_note_type_did_change(current)
+            self.mw.reset()
+
+        StudyDeck(
             self.mw,
             names=nameFunc,
             accept=tr.actions_choose(),
@@ -90,16 +101,8 @@ class ModelChooser(QHBoxLayout):
             buttons=[edit],
             cancel=True,
             geomKey="selectModel",
+            callback=callback,
         )
-        if not ret.name:
-            return
-        m = self.deck.models.by_name(ret.name)
-        self.deck.conf["curModel"] = m["id"]
-        cdeck = self.deck.decks.current()
-        cdeck["mid"] = m["id"]
-        self.deck.decks.save(cdeck)
-        gui_hooks.current_note_type_did_change(current)
-        self.mw.reset()
 
     def updateModels(self) -> None:
         self.models.setText(self.deck.models.current()["name"].replace("&", "&&"))

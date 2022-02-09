@@ -3,12 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onMount, createEventDispatcher, tick } from "svelte";
+    import { createEventDispatcher, onMount, tick } from "svelte";
+
     import {
-        normalizeTagname,
         delimChar,
-        replaceWithUnicodeSeparator,
+        normalizeTagname,
         replaceWithColons,
+        replaceWithUnicodeSeparator,
     } from "./tags";
 
     export let id: string | undefined = undefined;

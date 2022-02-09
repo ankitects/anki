@@ -3,28 +3,28 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import ConfigSelector from "./ConfigSelector.svelte";
+    import type { Writable } from "svelte/store";
+
     import Container from "../components/Container.svelte";
-    import Row from "../components/Row.svelte";
-    import DailyLimits from "./DailyLimits.svelte";
-    import DisplayOrder from "./DisplayOrder.svelte";
-    import NewOptions from "./NewOptions.svelte";
-    import AdvancedOptions from "./AdvancedOptions.svelte";
-    import BuryOptions from "./BuryOptions.svelte";
-    import LapseOptions from "./LapseOptions.svelte";
-    import TimerOptions from "./TimerOptions.svelte";
-    import AudioOptions from "./AudioOptions.svelte";
-    import Addons from "./Addons.svelte";
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
-
-    import type { DeckOptionsState } from "./lib";
-    import type { Writable } from "svelte/store";
-    import HtmlAddon from "./HtmlAddon.svelte";
+    import Row from "../components/Row.svelte";
     import type { DynamicSvelteComponent } from "../sveltelib/dynamicComponent";
+    import Addons from "./Addons.svelte";
+    import AdvancedOptions from "./AdvancedOptions.svelte";
+    import AudioOptions from "./AudioOptions.svelte";
+    import BuryOptions from "./BuryOptions.svelte";
+    import ConfigSelector from "./ConfigSelector.svelte";
+    import DailyLimits from "./DailyLimits.svelte";
+    import DisplayOrder from "./DisplayOrder.svelte";
+    import HtmlAddon from "./HtmlAddon.svelte";
+    import LapseOptions from "./LapseOptions.svelte";
+    import type { DeckOptionsState } from "./lib";
+    import NewOptions from "./NewOptions.svelte";
+    import TimerOptions from "./TimerOptions.svelte";
 
     export let state: DeckOptionsState;
-    let addons = state.addonComponents;
+    const addons = state.addonComponents;
 
     export function auxData(): Writable<Record<string, unknown>> {
         return state.currentAuxData;

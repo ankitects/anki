@@ -4,8 +4,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import Dropdown from "bootstrap/js/dist/dropdown";
+    import { onDestroy, setContext } from "svelte";
 
-    import { setContext, onDestroy } from "svelte";
     import { dropdownKey } from "./context-keys";
 
     export let autoOpen = false;

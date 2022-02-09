@@ -5,23 +5,24 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import type { Bin, ScaleLinear, ScaleSequential } from "d3";
 import {
-    select,
-    pointer,
-    cumsum,
-    max,
-    scaleLinear,
+    area,
     axisBottom,
     axisLeft,
     axisRight,
-    area,
+    cumsum,
     curveBasis,
+    max,
+    pointer,
+    scaleLinear,
+    select,
 } from "d3";
+
 import { localizedNumber } from "../lib/i18n";
-import type { ScaleLinear, ScaleSequential, Bin } from "d3";
-import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds, setDataAvailable } from "./graph-helpers";
 import { clickableClass } from "./graph-styles";
+import { hideTooltip, showTooltip } from "./tooltip";
 
 export interface HistogramData {
     scale: ScaleLinear<number, number>;

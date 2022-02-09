@@ -6,15 +6,14 @@
  */
 
 import "../sveltelib/export-runtime";
-
-import { DeckOptionsState } from "./lib";
-import { setupI18n, ModuleName } from "../lib/i18n";
-import { deckConfig } from "../lib/proto";
-import { checkNightMode } from "../lib/nightmode";
-import { touchDeviceKey, modalsKey } from "../components/context-keys";
-
-import DeckOptionsPage from "./DeckOptionsPage.svelte";
 import "./deck-options-base.css";
+
+import { modalsKey, touchDeviceKey } from "../components/context-keys";
+import { ModuleName, setupI18n } from "../lib/i18n";
+import { checkNightMode } from "../lib/nightmode";
+import { deckConfig } from "../lib/proto";
+import DeckOptionsPage from "./DeckOptionsPage.svelte";
+import { DeckOptionsState } from "./lib";
 
 const i18n = setupI18n({
     modules: [
@@ -45,11 +44,11 @@ export async function setupDeckOptions(did: number): Promise<DeckOptionsPage> {
     });
 }
 
-import TitledContainer from "./TitledContainer.svelte";
-import SpinBoxRow from "./SpinBoxRow.svelte";
-import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
 import EnumSelectorRow from "./EnumSelectorRow.svelte";
+import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
+import SpinBoxRow from "./SpinBoxRow.svelte";
 import SwitchRow from "./SwitchRow.svelte";
+import TitledContainer from "./TitledContainer.svelte";
 
 export const components = {
     TitledContainer,

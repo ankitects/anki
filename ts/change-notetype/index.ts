@@ -1,13 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { setupI18n, ModuleName } from "../lib/i18n";
-import { notetypes, empty } from "../lib/proto";
-import { checkNightMode } from "../lib/nightmode";
-import { ChangeNotetypeState } from "./lib";
-
-import ChangeNotetypePage from "./ChangeNotetypePage.svelte";
 import "./change-notetype-base.css";
+
+import { ModuleName, setupI18n } from "../lib/i18n";
+import { checkNightMode } from "../lib/nightmode";
+import { empty, notetypes } from "../lib/proto";
+import ChangeNotetypePage from "./ChangeNotetypePage.svelte";
+import { ChangeNotetypeState } from "./lib";
 
 const notetypeNames = notetypes.getNotetypeNames(empty);
 const i18n = setupI18n({

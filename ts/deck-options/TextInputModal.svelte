@@ -3,10 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onMount, onDestroy, getContext } from "svelte";
+    import Modal from "bootstrap/js/dist/modal";
+    import { getContext, onDestroy, onMount } from "svelte";
+
     import { modalsKey } from "../components/context-keys";
     import { pageTheme } from "../sveltelib/theme";
-    import Modal from "bootstrap/js/dist/modal";
 
     export let title: string;
     export let prompt: string;

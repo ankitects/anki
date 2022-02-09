@@ -13,12 +13,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher, getContext } from "svelte";
     import type { Writable } from "svelte/store";
-    import storeSubscribe from "../sveltelib/store-subscribe";
-    import { directionKey } from "../lib/context-keys";
-    import { lightCodeMirrorTheme, darkCodeMirrorTheme } from "./code-mirror";
-    import { pageTheme } from "../sveltelib/theme";
 
-    export let configuration: CodeMirror.EditorConfiguration;
+    import { directionKey } from "../lib/context-keys";
+    import storeSubscribe from "../sveltelib/store-subscribe";
+    import { pageTheme } from "../sveltelib/theme";
+    import { darkCodeMirrorTheme, lightCodeMirrorTheme } from "./code-mirror";
+
+    export let configuration: CodeMirrorLib.EditorConfiguration;
     export let code: Writable<string>;
 
     const direction = getContext<Writable<"ltr" | "rtl">>(directionKey);
@@ -27,7 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         rtlMoveVisually: true,
     };
 
-    let codeMirror: CodeMirror.EditorFromTextArea;
+    let codeMirror: CodeMirrorLib.EditorFromTextArea;
     $: codeMirror?.setOption("direction", $direction);
 
     function setValue(content: string): void {

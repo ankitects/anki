@@ -3,10 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onMount, createEventDispatcher, getContext } from "svelte";
+    import { createEventDispatcher, getContext, onMount } from "svelte";
+
+    import { pageTheme } from "../sveltelib/theme";
     import { dropdownKey } from "./context-keys";
     import type { DropdownProps } from "./dropdown";
-    import { pageTheme } from "../sveltelib/theme";
 
     export let id: string | undefined = undefined;
     let className: string = "";

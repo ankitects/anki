@@ -1,11 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { nodeIsElement, nodeIsText, elementIsEmpty } from "../../lib/dom";
+import { elementIsEmpty, nodeIsElement, nodeIsText } from "../../lib/dom";
 import { hasOnlyChild } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
+import type { ElementMatcher, FoundAdjacent, FoundAlong } from "./matcher";
 import { MatchResult } from "./matcher";
-import type { ElementMatcher, FoundAlong, FoundAdjacent } from "./matcher";
 
 /**
  * These functions will not ascend on the starting node, but will descend on the neighbor node

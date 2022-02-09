@@ -3,23 +3,22 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as tr from "../lib/ftl";
-    import TitledContainer from "./TitledContainer.svelte";
-    import EnumSelectorRow from "./EnumSelectorRow.svelte";
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
+    import * as tr from "../lib/ftl";
     import { DeckConfig } from "../lib/proto";
-
+    import EnumSelectorRow from "./EnumSelectorRow.svelte";
     import type { DeckOptionsState } from "./lib";
     import { reviewMixChoices } from "./strings";
+    import TitledContainer from "./TitledContainer.svelte";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
 
-    let config = state.currentConfig;
-    let defaults = state.defaults;
+    const config = state.currentConfig;
+    const defaults = state.defaults;
 
-    let currentDeck = "\n\n" + tr.deckConfigDisplayOrderWillUseCurrentDeck();
+    const currentDeck = "\n\n" + tr.deckConfigDisplayOrderWillUseCurrentDeck();
 
     const newGatherPriorityChoices = [
         tr.deckConfigNewGatherPriorityDeck(),

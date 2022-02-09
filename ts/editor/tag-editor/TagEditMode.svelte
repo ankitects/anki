@@ -3,10 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import TagWithTooltip from "./TagWithTooltip.svelte";
-    import TagDeleteBadge from "./TagDeleteBadge.svelte";
-
     import { createEventDispatcher } from "svelte";
+
+    import TagDeleteBadge from "./TagDeleteBadge.svelte";
+    import TagWithTooltip from "./TagWithTooltip.svelte";
 
     export let name: string;
     let className: string = "";

@@ -3,37 +3,36 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import ButtonGroup from "../../components/ButtonGroup.svelte";
-    import IconButton from "../../components/IconButton.svelte";
     import ButtonDropdown from "../../components/ButtonDropdown.svelte";
+    import ButtonGroup from "../../components/ButtonGroup.svelte";
+    import ButtonGroupItem, {
+        createProps,
+        setSlotHostContext,
+        updatePropsList,
+    } from "../../components/ButtonGroupItem.svelte";
+    import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
+    import IconButton from "../../components/IconButton.svelte";
     import Item from "../../components/Item.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithDropdown from "../../components/WithDropdown.svelte";
-    import CommandIconButton from "./CommandIconButton.svelte";
-    import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
-    import ButtonGroupItem, {
-        createProps,
-        updatePropsList,
-        setSlotHostContext,
-    } from "../../components/ButtonGroupItem.svelte";
-
-    import * as tr from "../../lib/ftl";
     import { getListItem } from "../../lib/dom";
+    import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
     import { execCommand } from "../helpers";
+    import { context } from "../NoteEditor.svelte";
+    import { editingInputIsRichText } from "../rich-text-input";
+    import CommandIconButton from "./CommandIconButton.svelte";
     import {
-        ulIcon,
-        olIcon,
-        listOptionsIcon,
+        indentIcon,
+        justifyCenterIcon,
         justifyFullIcon,
         justifyLeftIcon,
         justifyRightIcon,
-        justifyCenterIcon,
-        indentIcon,
+        listOptionsIcon,
+        olIcon,
         outdentIcon,
+        ulIcon,
     } from "./icons";
-    import { context } from "../NoteEditor.svelte";
-    import { editingInputIsRichText } from "../rich-text-input";
 
     export let api = {};
 
@@ -98,7 +97,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             <CommandIconButton
                                 key="justifyLeft"
                                 tooltip={tr.editingAlignLeft()}
-                                withoutShortcut
                                 --border-left-radius="5px"
                                 >{@html justifyLeftIcon}</CommandIconButton
                             >
@@ -106,21 +104,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             <CommandIconButton
                                 key="justifyCenter"
                                 tooltip={tr.editingCenter()}
-                                withoutShortcut
                                 >{@html justifyCenterIcon}</CommandIconButton
                             >
 
                             <CommandIconButton
                                 key="justifyRight"
                                 tooltip={tr.editingAlignRight()}
-                                withoutShortcut
                                 >{@html justifyRightIcon}</CommandIconButton
                             >
 
                             <CommandIconButton
                                 key="justifyFull"
                                 tooltip={tr.editingJustify()}
-                                withoutShortcut
                                 --border-right-radius="5px"
                                 >{@html justifyFullIcon}</CommandIconButton
                             >

@@ -3,19 +3,18 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { tick, onDestroy } from "svelte";
-    import WithDropdown from "../../components/WithDropdown.svelte";
-    import ButtonDropdown from "../../components/ButtonDropdown.svelte";
+    import { onDestroy, tick } from "svelte";
 
+    import ButtonDropdown from "../../components/ButtonDropdown.svelte";
+    import WithDropdown from "../../components/WithDropdown.svelte";
     import HandleBackground from "../HandleBackground.svelte";
-    import HandleSelection from "../HandleSelection.svelte";
     import HandleControl from "../HandleControl.svelte";
     import HandleLabel from "../HandleLabel.svelte";
+    import HandleSelection from "../HandleSelection.svelte";
     import { context } from "../rich-text-input";
-
-    import WithImageConstrained from "./WithImageConstrained.svelte";
     import FloatButtons from "./FloatButtons.svelte";
     import SizeSelect from "./SizeSelect.svelte";
+    import WithImageConstrained from "./WithImageConstrained.svelte";
 
     const { container, styles } = context.get();
 
@@ -148,7 +147,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (widthIncrease > heightIncrease) {
             width = Math.max(Math.trunc(dragWidth), minResizeWidth);
         } else {
-            let height = Math.max(Math.trunc(dragHeight), minResizeHeight);
+            const height = Math.max(Math.trunc(dragHeight), minResizeHeight);
             width = Math.trunc(naturalWidth! * (height / naturalHeight!));
         }
 

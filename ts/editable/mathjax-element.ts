@@ -3,11 +3,10 @@
 
 import "mathjax/es5/tex-svg-full";
 
+import { placeCaretAfter, placeCaretBefore } from "../domlib/place-caret";
 import { on } from "../lib/events";
-import { placeCaretBefore, placeCaretAfter } from "../domlib/place-caret";
 import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
 import { FrameElement, frameElement } from "./frame-element";
-
 import Mathjax_svelte from "./Mathjax.svelte";
 
 const mathjaxTagPattern =

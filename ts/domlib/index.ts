@@ -2,6 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 export * from "./location";
-export * from "./surround";
 export * from "./move-nodes";
 export * from "./place-caret";
+export * from "./surround";

@@ -6,16 +6,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithState from "../../components/WithState.svelte";
-
+    import { getPlatformString } from "../../lib/shortcuts";
     import { execCommand, queryCommandState } from "../helpers";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
 
     export let key: string;
     export let tooltip: string;
-    export let shortcut: string = "";
+    export let shortcut: string | null = null;
 
-    export let withoutShortcut = false;
+    $: theTooltip = shortcut ? `${tooltip} (${getPlatformString(shortcut)})` : tooltip;
+
     export let withoutState = false;
 
     const { focusedInput } = noteEditorContext.get();
@@ -28,12 +29,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 {#if withoutState}
-    <IconButton {tooltip} {disabled} on:click={action}>
+    <IconButton tooltip={theTooltip} {disabled} on:click={action}>
         <slot />
     </IconButton>
 
-    {#if !withoutShortcut}
-        <Shortcut keyCombination={shortcut} on:click={action} />
+    {#if shortcut}
+        <Shortcut keyCombination={shortcut} on:action={action} />
     {/if}
 {:else}
     <WithState
@@ -43,7 +44,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         let:updateState
     >
         <IconButton
-            {tooltip}
+            tooltip={theTooltip}
             {active}
             {disabled}
             on:click={(event) => {
@@ -54,7 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <slot />
         </IconButton>
 
-        {#if !withoutShortcut}
+        {#if shortcut}
             <Shortcut
                 keyCombination={shortcut}
                 on:action={(event) => {

@@ -1,24 +1,24 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { moveChildOutOfElement } from "../domlib/move-nodes";
+import { placeCaretAfter, placeCaretBefore } from "../domlib/place-caret";
+import { getSelection, isSelectionCollapsed } from "../lib/cross-browser";
 import {
-    nodeIsText,
-    nodeIsElement,
     elementIsBlock,
     hasBlockAttribute,
+    nodeIsElement,
+    nodeIsText,
 } from "../lib/dom";
 import { on } from "../lib/events";
-import { getSelection, isSelectionCollapsed } from "../lib/cross-browser";
-import { moveChildOutOfElement } from "../domlib/move-nodes";
-import { placeCaretBefore, placeCaretAfter } from "../domlib/place-caret";
-import {
-    frameElementTagName,
-    isFrameHandle,
-    checkWhetherMovingIntoHandle,
-    FrameStart,
-    FrameEnd,
-} from "./frame-handle";
 import type { FrameHandle } from "./frame-handle";
+import {
+    checkWhetherMovingIntoHandle,
+    frameElementTagName,
+    FrameEnd,
+    FrameStart,
+    isFrameHandle,
+} from "./frame-handle";
 
 function restoreFrameHandles(mutations: MutationRecord[]): void {
     let referenceNode: Node | null = null;

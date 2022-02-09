@@ -3,12 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { onMount } from "svelte";
+
     import Badge from "../components/Badge.svelte";
     import * as tr from "../lib/ftl";
-    import { onMount } from "svelte";
-    import { htmlOn, htmlOff } from "./icons";
+    import { getPlatformString, registerShortcut } from "../lib/shortcuts";
     import { context as editorFieldContext } from "./EditorField.svelte";
-    import { registerShortcut, getPlatformString } from "../lib/shortcuts";
+    import { htmlOff, htmlOn } from "./icons";
 
     const editorField = editorFieldContext.get();
     const keyCombination = "Control+Shift+X";

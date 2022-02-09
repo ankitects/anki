@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { Writable, writable, get } from "svelte/store";
+import { get, Writable, writable } from "svelte/store";
 
 export interface CustomStore<T> extends Writable<T> {
     subscribe: (getter: (value: T) => void) => () => void;

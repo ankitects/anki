@@ -4,13 +4,12 @@ def eslint_test(name = "eslint", srcs = None, exclude = []):
     if not srcs:
         srcs = native.glob([
             "**/*.ts",
+            "**/*.svelte",
         ], exclude = exclude)
     _eslint_test(
         name = name,
         args = [
             "--max-warnings=0",
-            "--ext",
-            ".ts",
             "-c",
             "$(location @ankidesktop//ts:.eslintrc.js)",
         ] + [native.package_name() + "/" + f for f in srcs],
@@ -19,6 +18,9 @@ def eslint_test(name = "eslint", srcs = None, exclude = []):
             "@ankidesktop//:package.json",
             "@npm//@typescript-eslint/parser",
             "@npm//@typescript-eslint/eslint-plugin",
+            "@npm//eslint-plugin-svelte3",
+            "@npm//eslint-plugin-import",
+            "@npm//eslint-plugin-simple-import-sort",
             "@npm//eslint-plugin-compat",
         ] + srcs,
     )
