@@ -56,6 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { MathjaxHandle } from "./mathjax-overlay";
     import MathjaxElement from "./MathjaxElement.svelte";
     import Notification from "./Notification.svelte";
+    import type { PlainTextInputAPI } from "./plain-text-input";
     import { PlainTextInput } from "./plain-text-input";
     import PlainTextBadge from "./PlainTextBadge.svelte";
     import { editingInputIsRichText, RichTextInput } from "./rich-text-input";
@@ -218,7 +219,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return true;
         }
 
-        return false;
+        let found = false;
+        for (const element of elements) {
+            if (element.classList.contains("CodeMirror")) {
+                (element.firstChild!.firstChild! as HTMLElement).focus();
+                found = true;
+            }
+        }
+
+        return found;
     }
 
     let richTextInputs: RichTextInput[] = [];
@@ -229,8 +238,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const toolbar: Partial<EditorToolbarAPI> = {};
 
+    import { updateAllState } from "../components/WithState.svelte";
+    import { filterHTML } from "../html-filter";
     import { wrapInternal } from "../lib/wrap";
-    import * as oldEditorAdapter from "./old-editor-adapter";
+    import { execCommand } from "./helpers";
+
+    export function pasteHTML(
+        html: string,
+        internal: boolean,
+        extendedMode: boolean,
+    ): void {
+        html = filterHTML(html, internal, extendedMode);
+
+        if (!$focusedInput) {
+            return;
+        }
+
+        if (editingInputIsRichText($focusedInput)) {
+            if (html !== "") {
+                setFormat("inserthtml", html);
+            }
+        } else {
+            ($focusedInput as PlainTextInputAPI)
+                .getEditor()
+                .replaceRange(html, { line: Infinity, ch: Infinity });
+        }
+    }
+
+    export function setFormat(cmd: string, arg?: string): void {
+        execCommand(cmd, false, arg);
+        updateAllState(new Event(cmd));
+    }
 
     onMount(() => {
         function wrap(before: string, after: string): void {
@@ -256,7 +294,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             focusIfField,
             setNoteId,
             wrap,
-            ...oldEditorAdapter,
+            pasteHTML,
+            setFormat,
         });
 
         document.addEventListener("visibilitychange", saveOnPageHide);

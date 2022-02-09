@@ -99,6 +99,7 @@ svelte_check(
         "//sass:button_mixins_lib",
         "//sass/bootstrap",
         "//ts/components",
+        "//ts/html-filter",
         "//ts/editable:editable_ts",
         "@npm//@types/bootstrap",
         "@npm//@types/codemirror",
