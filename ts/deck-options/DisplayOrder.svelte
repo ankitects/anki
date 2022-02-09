@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import EnumSelectorRow from "./EnumSelectorRow.svelte";
     import DynamicallySlottable from "../components/DynamicallySlottable.svelte";
     import Item from "../components/Item.svelte";
+    import { DeckConfig } from "../lib/proto";
 
     import type { DeckOptionsState } from "./lib";
     import { reviewMixChoices } from "./strings";
@@ -44,22 +45,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tr.deckConfigSortOrderDescendingEase(),
     ];
 
+    const GatherOrder = DeckConfig.DeckConfig.Config.NewCardGatherPriority;
+    const SortOrder = DeckConfig.DeckConfig.Config.NewCardSortOrder;
     let disabledNewSortOrders: number[] = [];
     $: {
         switch ($config.newCardGatherPriority) {
-            case 3:
-                // random notes
-                // - 'template, gather' is the same as 'template, random' (2)
-                // - 'gather' is the same as 'random note, template' (3)
-                disabledNewSortOrders = [2, 3];
+            case GatherOrder.NEW_CARD_GATHER_PRIORITY_RANDOM_NOTES:
+                disabledNewSortOrders = [
+                    // same as NEW_CARD_SORT_ORDER_TEMPLATE
+                    SortOrder.NEW_CARD_SORT_ORDER_TEMPLATE_THEN_RANDOM,
+                    // same as NEW_CARD_SORT_ORDER_NO_SORT
+                    SortOrder.NEW_CARD_SORT_ORDER_RANDOM_NOTE_THEN_TEMPLATE,
+                ];
                 break;
-            case 4:
-                // random cards
-                // - 'template, gather' is the same as 'template, random' (2)
-                // - 'random note, template' is not useful if siblings are not
-                //    gathered together (3)
-                // - 'gather' is the same as 'random' (4)
-                disabledNewSortOrders = [2, 3, 4];
+            case GatherOrder.NEW_CARD_GATHER_PRIORITY_RANDOM_CARDS:
+                disabledNewSortOrders = [
+                    // same as NEW_CARD_SORT_ORDER_TEMPLATE
+                    SortOrder.NEW_CARD_SORT_ORDER_TEMPLATE_THEN_RANDOM,
+                    // not useful if siblings are not gathered together
+                    SortOrder.NEW_CARD_SORT_ORDER_RANDOM_NOTE_THEN_TEMPLATE,
+                    // same as NEW_CARD_SORT_ORDER_NO_SORT
+                    SortOrder.NEW_CARD_SORT_ORDER_RANDOM_CARD,
+                ];
                 break;
             default:
                 disabledNewSortOrders = [];
