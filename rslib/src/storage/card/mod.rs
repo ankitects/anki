@@ -664,7 +664,7 @@ impl NewCardSorting {
             NewCardSorting::LowestPosition => "due ASC, ord ASC".to_string(),
             NewCardSorting::HighestPosition => "due DESC, ord ASC".to_string(),
             NewCardSorting::RandomNotes(salt) => format!("fnvhash(nid, {salt}), ord ASC"),
-            NewCardSorting::RandomCards(salt) => format!("fnvhash(cid, {salt})"),
+            NewCardSorting::RandomCards(salt) => format!("fnvhash(id, {salt})"),
         }
     }
 }
