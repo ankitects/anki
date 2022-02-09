@@ -87,9 +87,11 @@ export interface FoundMatch {
     element: HTMLElement | SVGElement;
 }
 
+export type AlongType = Element | Text | Comment;
+
 export interface FoundAlong {
     match: MatchAlong;
-    element: Element | Text;
+    element: AlongType;
 }
 
 export type FoundAdjacent = FoundMatch | FoundAlong;

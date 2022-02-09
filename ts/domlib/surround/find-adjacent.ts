@@ -1,16 +1,29 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { elementIsEmpty, nodeIsElement, nodeIsText } from "../../lib/dom";
+import {
+    elementIsEmpty,
+    nodeIsElement,
+    nodeIsText,
+    nodeIsComment,
+} from "../../lib/dom";
 import { hasOnlyChild } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
-import type { ElementMatcher, FoundAdjacent, FoundAlong } from "./matcher";
+import type { ElementMatcher, FoundAdjacent, FoundAlong, AlongType } from "./matcher";
 import { applyMatcher, MatchType } from "./matcher";
 
 function descendToSingleChild(node: ChildNode): ChildNode | null {
     return hasOnlyChild(node) && nodeIsElement(node.firstChild!)
         ? node.firstChild
         : null;
+}
+
+function isAlong(node: ChildNode): node is AlongType {
+    return (
+        (nodeIsElement(node) && elementIsEmpty(node)) ||
+        (nodeIsText(node) && node.length === 0) ||
+        nodeIsComment(node)
+    );
 }
 
 /**
@@ -24,12 +37,8 @@ function adjacentNodeInner(getter: (node: Node) => ChildNode | null) {
     ): void {
         let current = getter(node);
 
-        const alongs: (Element | Text)[] = [];
-        while (
-            current &&
-            ((nodeIsElement(current) && elementIsEmpty(current)) ||
-                (nodeIsText(current) && current.length === 0))
-        ) {
+        const alongs: AlongType[] = [];
+        while (current && isAlong(current)) {
             alongs.push(current);
             current = getter(current);
         }
@@ -43,7 +52,7 @@ function adjacentNodeInner(getter: (node: Node) => ChildNode | null) {
             if (match.type) {
                 matches.push(
                     ...alongs.map(
-                        (along: Element | Text): FoundAlong => ({
+                        (along: AlongType): FoundAlong => ({
                             element: along,
                             match: { type: MatchType.ALONG },
                         }),
@@ -67,15 +76,15 @@ const findBeforeNodeInner = adjacentNodeInner(
     (node: Node): ChildNode | null => node.previousSibling,
 );
 
+const findAfterNodeInner = adjacentNodeInner(
+    (node: Node): ChildNode | null => node.nextSibling,
+);
+
 function findBeforeNode(node: Node, matcher: ElementMatcher): FoundAdjacent[] {
     const matches: FoundAdjacent[] = [];
     findBeforeNodeInner(node, matches, matcher);
     return matches;
 }
-
-const findAfterNodeInner = adjacentNodeInner(
-    (node: Node): ChildNode | null => node.nextSibling,
-);
 
 function findAfterNode(node: Node, matcher: ElementMatcher): FoundAdjacent[] {
     const matches: FoundAdjacent[] = [];

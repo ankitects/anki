@@ -19,6 +19,10 @@ export function nodeIsText(node: Node): node is Text {
     return node.nodeType === Node.TEXT_NODE;
 }
 
+export function nodeIsComment(node: Node): node is Comment {
+    return node.nodeType === Node.COMMENT_NODE;
+}
+
 // https://developer.mozilla.org/en-US/docs/Web/HTML/Block-level_elements
 export const BLOCK_ELEMENTS = [
     "ADDRESS",
