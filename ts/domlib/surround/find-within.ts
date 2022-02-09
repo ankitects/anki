@@ -53,10 +53,10 @@ export function findWithinRange(range: Range, matcher: ElementMatcher): FoundMat
 }
 
 export function findWithin(
-    childNodeRange: ChildNodeRange,
+    range: ChildNodeRange,
     matcher: ElementMatcher,
 ): FoundMatch[] {
-    const { parent, startIndex, endIndex } = childNodeRange;
+    const { parent, startIndex, endIndex } = range;
     const matches: FoundMatch[] = [];
 
     for (const node of Array.prototype.slice.call(
