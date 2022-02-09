@@ -72,7 +72,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 disabledNewSortOrders = [];
                 break;
         }
+
+        // disabled options aren't deselected automatically
         if (disabledNewSortOrders.includes($config.newCardSortOrder)) {
+            // default option should never be disabled
+            $config.newCardSortOrder = 0;
+        }
+
+        // check for invalid index from previous version
+        if (!($config.newCardSortOrder in SortOrder)) {
             $config.newCardSortOrder = 0;
         }
     }
