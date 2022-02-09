@@ -9,7 +9,7 @@ import {
 } from "../../lib/dom";
 import { hasOnlyChild } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
-import type { AlongType,ElementMatcher, FoundAdjacent, FoundAlong } from "./matcher";
+import type { AlongType, ElementMatcher, FoundAdjacent, FoundAlong } from "./matcher";
 import { applyMatcher, MatchType } from "./matcher";
 
 function descendToSingleChild(node: ChildNode): ChildNode | null {

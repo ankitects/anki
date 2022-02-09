@@ -3,29 +3,20 @@
 
 import { nodeToChildNodeRange } from "./child-node-range";
 import { findAfter, findBefore } from "./find-adjacent";
-import { easyBold, easyItalic } from "./test-utils";
-
-const parser = new DOMParser();
-
-function p(html: string): Element {
-    const parsed = parser.parseFromString(html, "text/html");
-    return parsed.body;
-}
+import { p, easyBold, easyItalic } from "./test-utils";
 
 describe("in a simple search", () => {
-    const html = p("<b>Before</b><u>This is a test</u><i>After</i>");
-    const range = nodeToChildNodeRange(html.children[1]);
+    const body = p("<b>Before</b><u>This is a test</u><i>After</i>");
+    const range = nodeToChildNodeRange(body.children[1]);
 
     describe("findBefore", () => {
         test("finds an element", () => {
             const matches = findBefore(range, easyBold.matcher);
-
             expect(matches).toHaveLength(1);
         });
 
         test("does not find non-existing element", () => {
-            const matches = findBefore(range, easyBold.matcher);
-
+            const matches = findBefore(range, easyItalic.matcher);
             expect(matches).toHaveLength(0);
         });
     });
@@ -33,35 +24,46 @@ describe("in a simple search", () => {
     describe("findAfter", () => {
         test("finds an element", () => {
             const matches = findAfter(range, easyItalic.matcher);
-
             expect(matches).toHaveLength(1);
         });
 
         test("does not find non-existing element", () => {
             const matches = findAfter(range, easyBold.matcher);
-
             expect(matches).toHaveLength(0);
         });
     });
 });
 
-describe("in a nested search", () => {
-    const html = p("<u><b>before</b></u>within<u><b>after</b></u>");
-    const range = nodeToChildNodeRange(html.childNodes[1]);
+describe("find by descension", () => {
+    describe("single one", () => {
+        const body = p("<u><b>before</b></u>within<u><b>after</b></u>");
+        const range = nodeToChildNodeRange(body.childNodes[1]);
 
-    describe("findBefore", () => {
-        test("finds a nested element", () => {
+        test("findBefore", () => {
             const matches = findBefore(range, easyBold.matcher);
+            expect(matches).toHaveLength(1);
+        });
 
+        test("findAfter", () => {
+            const matches = findAfter(range, easyBold.matcher);
             expect(matches).toHaveLength(1);
         });
     });
 
-    describe("findAfter", () => {
-        test("finds a nested element", () => {
-            const matches = findAfter(range, easyBold.matcher);
+    describe("multiple", () => {
+        const body = p(
+            "<u><b>before</b></u><u><b>before</b></u>within<u><b>after</b></u><u><b>after</b></u>",
+        );
+        const range = nodeToChildNodeRange(body.childNodes[2]);
 
-            expect(matches).toHaveLength(1);
+        test("findBefore", () => {
+            const matches = findBefore(range, easyBold.matcher);
+            expect(matches).toHaveLength(2);
+        });
+
+        test("findAfter", () => {
+            const matches = findAfter(range, easyBold.matcher);
+            expect(matches).toHaveLength(2);
         });
     });
 });
