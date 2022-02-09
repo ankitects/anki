@@ -7,7 +7,7 @@ import { MatchType } from "./match-type";
 export const matchTagName =
     (tagName: string): ElementMatcher =>
     (element: Element) => {
-        return { type: element.matches(tagName) ? MatchType.MATCH : MatchType.NONE };
+        return { type: element.matches(tagName) ? MatchType.REMOVE : MatchType.NONE };
     };
 
 export const easyBold = {

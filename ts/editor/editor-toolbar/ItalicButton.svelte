@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function matcher(element: HTMLElement | SVGElement): Match {
         if (element.tagName === "I" || element.tagName === "EM") {
-            return { type: MatchType.MATCH };
+            return { type: MatchType.REMOVE };
         }
 
         if (["italic", "oblique"].includes(element.style.fontStyle)) {

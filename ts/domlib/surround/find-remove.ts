@@ -34,7 +34,7 @@ function findAndClearWithin(
 
     for (const { match, element } of findWithinNode(found.element, matcher)) {
         switch (match.type) {
-            case MatchType.MATCH:
+            case MatchType.REMOVE:
                 if (condition(element)) {
                     toRemove.push(element);
                 }
@@ -50,7 +50,7 @@ function findAndClearWithin(
 
     if (condition(found.element)) {
         switch (found.match.type) {
-            case MatchType.MATCH:
+            case MatchType.REMOVE:
                 toRemove.push(found.element);
                 break;
             case MatchType.CLEAR:

@@ -10,7 +10,7 @@ export enum MatchType {
      */
     NONE = 0,
     /** Element matches the predicate and may be removed */
-    MATCH,
+    REMOVE,
     /**
      * Element matches the predicate, but may not be removed.
      *
@@ -27,8 +27,8 @@ interface MatchNone {
     type: MatchType.NONE;
 }
 
-interface MatchMatch {
-    type: MatchType.MATCH;
+interface MatchRemove {
+    type: MatchType.REMOVE;
 }
 
 /**
@@ -44,7 +44,7 @@ interface MatchClear {
     clear: ElementClearer;
 }
 
-export type Match = MatchNone | MatchMatch | MatchClear;
+export type Match = MatchNone | MatchRemove | MatchClear;
 
 /**
  * A function to determine how an element relates to a element predicate.
@@ -77,7 +77,7 @@ export const applyMatcher = apply<ReturnType<ElementMatcher>>({ type: MatchType.
 export const applyClearer = apply<ReturnType<ElementClearer>>(false);
 
 export interface FoundMatch {
-    match: MatchMatch | MatchClear;
+    match: MatchRemove | MatchClear;
     element: HTMLElement | SVGElement;
 }
 

@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function matcher(element: HTMLElement | SVGElement): Match {
         if (isFontElement(element) && element.hasAttribute("color")) {
-            return { type: MatchType.MATCH };
+            return { type: MatchType.REMOVE };
         }
 
         if (element.style.getPropertyValue("color").length > 0) {
@@ -60,7 +60,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
 
             if (isFontElement(element) && element.color === color) {
-                return { type: MatchType.MATCH };
+                return { type: MatchType.REMOVE };
             }
 
             if (element.style.color === color) {

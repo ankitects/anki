@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function matcher(element: HTMLElement | SVGElement): Match {
         if (element.tagName === "B" || element.tagName === "STRONG") {
-            return { type: MatchType.MATCH };
+            return { type: MatchType.REMOVE };
         }
 
         const fontWeight = element.style.fontWeight;

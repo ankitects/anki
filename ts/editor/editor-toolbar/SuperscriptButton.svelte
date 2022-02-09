@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export function matcher(element: HTMLElement | SVGElement): Match {
         if (element.tagName === "SUP") {
-            return { type: MatchType.MATCH };
+            return { type: MatchType.REMOVE };
         }
 
         if (element.style.verticalAlign === "super") {

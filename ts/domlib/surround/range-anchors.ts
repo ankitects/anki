@@ -7,7 +7,7 @@ import { applyMatcher, MatchType } from "./match-type";
 import { splitPartiallySelectedTextNodes } from "./text-node";
 
 function textOrMatches(node: Node, matcher: ElementMatcher): boolean {
-    return !nodeIsElement(node) || applyMatcher(matcher, node).type === MatchType.MATCH;
+    return !nodeIsElement(node) || applyMatcher(matcher, node).type === MatchType.REMOVE;
 }
 
 function findBelow(element: Element, matcher: ElementMatcher): Node | null {
@@ -58,8 +58,8 @@ function negate(matcher: ElementMatcher): ElementMatcher {
 
         switch (match.type) {
             case MatchType.NONE:
-                return { type: MatchType.MATCH };
-            case MatchType.MATCH:
+                return { type: MatchType.REMOVE };
+            case MatchType.REMOVE:
                 return { type: MatchType.NONE };
             default:
                 return match;
