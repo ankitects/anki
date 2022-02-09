@@ -345,7 +345,7 @@ describe("skips over empty elements", () => {
 describe("edge cases", () => {
     // these are not vital but rather define how the algorithm works in edge cases
 
-    test("does not merge beyond the level of contained text nodes", () => {
+    test("does not normalize beyond level of contained text nodes", () => {
         const body = p("<b>before<u>nested</u>after</b>");
         const range = new Range();
         range.selectNode(body.firstChild!.childNodes[1].firstChild!);
@@ -365,7 +365,7 @@ describe("edge cases", () => {
         expect(surroundedRange.toString()).toEqual("nested");
     });
 
-    test("does not merge beyond the level of contained text nodes 2", () => {
+    test("does not normalize beyond level of contained text nodes 2", () => {
         const body = p("<b>aaa<b>bbb</b><b>ccc</b></b>");
         const range = new Range();
         range.setStartBefore(body.firstChild!.firstChild!);
@@ -383,6 +383,27 @@ describe("edge cases", () => {
         );
         expect(addedNodes).toHaveLength(1);
         expect(removedNodes).toHaveLength(2);
+        // expect(surroundedRange.toString()).toEqual("aaabbb"); // is aaabbbccc instead
+    });
+
+    test("does normalize beyond level of contained text nodes", () => {
+        const body = p("<b><b>aaa</b><b><b>bbb</b><b>ccc</b></b></b>");
+        const range = new Range();
+        range.setStartBefore(body.firstChild!.childNodes[1].firstChild!.firstChild!);
+        range.setEndAfter(body.firstChild!.childNodes[1].childNodes[1].firstChild!);
+
+        const { addedNodes, removedNodes } = surround(
+            range,
+            body,
+            easyBold,
+        );
+
+        expect(body).toHaveProperty(
+            "innerHTML",
+            "<b><b>aaabbbccc</b></b>"
+        );
+        expect(addedNodes).toHaveLength(1);
+        expect(removedNodes).toHaveLength(4);
         // expect(surroundedRange.toString()).toEqual("aaabbb"); // is aaabbbccc instead
     });
 
