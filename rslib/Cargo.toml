@@ -96,3 +96,4 @@ strum = { version = "0.23.0", features = ["derive"] }
 tokio-util = { version = "0.6.8", features = ["io"] }
 pct-str = { git="https://github.com/timothee-haudebourg/pct-str.git", rev="4adccd8d4a222ab2672350a102f06ae832a0572d" }
 unic-ucd-category = "0.9.0"
+id_tree = "1.8.0"

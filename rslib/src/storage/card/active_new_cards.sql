@@ -5,5 +5,8 @@ SELECT id,
   did,
   odid
 FROM cards
-WHERE did = ?
+WHERE did IN (
+    SELECT id
+    FROM active_decks
+  )
   AND queue = 0
