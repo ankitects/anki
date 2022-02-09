@@ -48,7 +48,7 @@ class Models(QDialog):
         parent = parent or mw
         self.fromMain = fromMain
         self.selected_notetype_id = selected_notetype_id
-        QDialog.__init__(self, parent, Qt.WindowType.Window)
+        QDialog.__init__(self, parent or mw)
         self.col = mw.col.weakref()
         assert self.col
         self.mm = self.col.models
@@ -61,7 +61,7 @@ class Models(QDialog):
         self.models: Sequence[NotetypeNameIdUseCount] = []
         self.setupModels()
         restoreGeom(self, "models")
-        self.exec()
+        self.show()
 
     # Models
     ##########################################################################

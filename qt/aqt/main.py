@@ -1439,13 +1439,17 @@ title="{}" {}>{}</button>""".format(
     def onStudyDeck(self) -> None:
         from aqt.studydeck import StudyDeck
 
-        ret = StudyDeck(self, dyn=True, current=self.col.decks.current()["name"])
-        if ret.name:
-            # fixme: this is silly, it should be returning an ID
+        def callback(ret: StudyDeck) -> None:
+            if not ret.name:
+                return
             deck_id = self.col.decks.id(ret.name)
             set_current_deck(parent=self, deck_id=deck_id).success(
                 lambda out: self.moveToState("overview")
             ).run_in_background()
+
+        StudyDeck(
+            self, dyn=True, current=self.col.decks.current()["name"], callback=callback
+        )
 
     def onEmptyCards(self) -> None:
         show_empty_cards(self)
