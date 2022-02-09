@@ -102,6 +102,23 @@ deck-config-new-gather-priority-tooltip =
     `Position`: gathers cards from all decks before they are sorted. This
     ensures cards appear in strict position (due #) order, even if the parent limit is
     not high enough to see cards from all decks.
+deck-config-new-gather-priority-tooltip-2 =
+    `Deck`: gathers cards from each deck in order, starting from the top. Cards from each deck are
+    gathered in ascending position. If the daily limit of the selected deck is reached, gathering
+    may stop before all decks have been checked. This order is fastest in large collections, and
+    allows you to prioritize subdecks that are closer to the top.
+    
+    `Ascending Position`: gathers cards by ascending position (due #), which is typically
+    the oldest-added first.
+    
+    `Descending Position`: gathers cards by descending position (due #), which is typically
+    the latest-added first.
+    
+    `Random Notes`: gathers cards of randomly selected notes. When sibling burying is
+    disabled, this allows all cards of a note to be seen in a session (eg. both a front->back
+    and back->front card)
+    
+    `Random Cards`: gathers cards completely randomly.
 deck-config-new-gather-priority-deck = Deck
 deck-config-new-gather-priority-position-lowest-first = Ascending position
 deck-config-new-gather-priority-position-highest-first = Descending position
@@ -112,6 +129,20 @@ deck-config-new-card-sort-order-tooltip =
     How cards are sorted after they have been gathered. By default, Anki sorts
     by card template first, to avoid multiple cards of the same note from being
     shown in succession.
+deck-config-new-card-sort-order-tooltip-2 =
+    `Card Template`: Displays cards in card template order. If you have sibling burying
+    disabled, this will ensure all front->back cards are seen before any back->front cards.
+    
+    `Order Gathered`: Shows cards as they were gathered. If sibling burying is disabled,
+    this will typically result in all cards of a note being seen one after the other.
+    
+    `Card Template, then Random`: Like `Card Template`, but shuffles the cards of each
+    template. This can be useful for showing the oldest 20 cards in a random order for example.
+    
+    `Random Note, then Card Template`: Picks notes at random, then shows all of their siblings
+    in order.
+    
+    `Random`: Fully shuffles the gathered cards.
 deck-config-sort-order-card-template-then-lowest-position = Card template, then ascending position
 deck-config-sort-order-card-template-then-highest-position = Card template, then descending position
 deck-config-sort-order-card-template-then-random = Card template, then random

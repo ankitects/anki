@@ -93,7 +93,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 bind:value={$config.newCardGatherPriority}
                 defaultValue={defaults.newCardGatherPriority}
                 choices={newGatherPriorityChoices}
-                markdownTooltip={tr.deckConfigNewGatherPriorityTooltip() + currentDeck}
+                markdownTooltip={tr.deckConfigNewGatherPriorityTooltip_2() +
+                    currentDeck}
             >
                 {tr.deckConfigNewGatherPriority()}
             </EnumSelectorRow>
@@ -105,7 +106,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 defaultValue={defaults.newCardSortOrder}
                 choices={newSortOrderChoices}
                 disabled={disabledNewSortOrders}
-                markdownTooltip={tr.deckConfigNewCardSortOrderTooltip() + currentDeck}
+                markdownTooltip={tr.deckConfigNewCardSortOrderTooltip_2() + currentDeck}
             >
                 {tr.deckConfigNewCardSortOrder()}
             </EnumSelectorRow>
