@@ -3,7 +3,7 @@
 
 import { nodeToChildNodeRange } from "./child-node-range";
 import { findAfter, findBefore } from "./find-adjacent";
-import { matchTagName } from "./test-utils";
+import { easyBold, easyItalic } from "./test-utils";
 
 const parser = new DOMParser();
 
@@ -18,13 +18,13 @@ describe("in a simple search", () => {
 
     describe("findBefore", () => {
         test("finds an element", () => {
-            const matches = findBefore(range, matchTagName("b"));
+            const matches = findBefore(range, easyBold.matcher);
 
             expect(matches).toHaveLength(1);
         });
 
         test("does not find non-existing element", () => {
-            const matches = findBefore(range, matchTagName("i"));
+            const matches = findBefore(range, easyBold.matcher);
 
             expect(matches).toHaveLength(0);
         });
@@ -32,13 +32,13 @@ describe("in a simple search", () => {
 
     describe("findAfter", () => {
         test("finds an element", () => {
-            const matches = findAfter(range, matchTagName("i"));
+            const matches = findAfter(range, easyItalic.matcher);
 
             expect(matches).toHaveLength(1);
         });
 
         test("does not find non-existing element", () => {
-            const matches = findAfter(range, matchTagName("b"));
+            const matches = findAfter(range, easyBold.matcher);
 
             expect(matches).toHaveLength(0);
         });
@@ -46,12 +46,12 @@ describe("in a simple search", () => {
 });
 
 describe("in a nested search", () => {
-    const htmlNested = p("<u><b>before</b></u>within<u><b>after</b></u>");
-    const rangeNested = nodeToChildNodeRange(htmlNested.childNodes[1]);
+    const html = p("<u><b>before</b></u>within<u><b>after</b></u>");
+    const range = nodeToChildNodeRange(html.childNodes[1]);
 
     describe("findBefore", () => {
         test("finds a nested element", () => {
-            const matches = findBefore(rangeNested, matchTagName("b"));
+            const matches = findBefore(range, easyBold.matcher);
 
             expect(matches).toHaveLength(1);
         });
@@ -59,7 +59,7 @@ describe("in a nested search", () => {
 
     describe("findAfter", () => {
         test("finds a nested element", () => {
-            const matches = findAfter(rangeNested, matchTagName("b"));
+            const matches = findAfter(range, easyBold.matcher);
 
             expect(matches).toHaveLength(1);
         });

@@ -15,6 +15,11 @@ export const easyBold = {
     matcher: matchTagName("b"),
 };
 
+export const easyItalic = {
+    surroundElement: document.createElement("i"),
+    matcher: matchTagName("i"),
+};
+
 export const easyUnderline = {
     surroundElement: document.createElement("u"),
     matcher: matchTagName("u"),
