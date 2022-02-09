@@ -114,16 +114,6 @@ function mergeTillFirstMismatch(
     return minimized;
 }
 
-function extendBefore(range: ChildNodeRange, matcher: ElementMatcher): void {
-    const matches = findBefore(range, matcher);
-    range.startIndex -= matches.length;
-}
-
-function extendAfter(range: ChildNodeRange, matcher: ElementMatcher): void {
-    const matches = findAfter(range, matcher);
-    range.endIndex += matches.length;
-}
-
 /**
  * @param ranges: Ranges to be normalized. Must have non-zero length.
  */
@@ -133,17 +123,17 @@ function mergeRanges(
     matcher: ElementMatcher,
 ): ChildNodeRange[] {
     const [first, ...rest] = ranges;
-    extendBefore(first, matcher);
+    findBefore(first, matcher);
 
     let minimized: ChildNodeRange[] = [first];
 
     for (const range of rest) {
         minimized = mergeTillFirstMismatch(minimized, range, base);
-        extendBefore(minimized[0], matcher);
+        findBefore(minimized[0], matcher);
     }
 
     const [last] = minimized.splice(-1, 1);
-    extendAfter(last, matcher);
+    findAfter(last, matcher);
 
     return mergeTillFirstMismatch(minimized, last, base);
 }

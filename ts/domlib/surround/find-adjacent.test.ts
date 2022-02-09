@@ -3,7 +3,7 @@
 
 import { nodeToChildNodeRange } from "./child-node-range";
 import { findAfter, findBefore } from "./find-adjacent";
-import { easyBold, easyItalic,p } from "./test-utils";
+import { easyBold, easyItalic, p, u, b, t, div } from "./test-utils";
 
 describe("in a simple search", () => {
     const body = p("<b>Before</b><u>This is a test</u><i>After</i>");
@@ -35,9 +35,11 @@ describe("in a simple search", () => {
 });
 
 describe("find by descension", () => {
-    describe("single one", () => {
-        const body = p("<u><b>before</b></u>within<u><b>after</b></u>");
-        const range = nodeToChildNodeRange(body.childNodes[1]);
+    describe("single top-level match", () => {
+        const within = t("within");
+        div(u(b(t("before"))), within, u(b(t("after"))));
+
+        const range = nodeToChildNodeRange(within);
 
         test("findBefore", () => {
             const matches = findBefore(range, easyBold.matcher);
@@ -50,11 +52,11 @@ describe("find by descension", () => {
         });
     });
 
-    describe("multiple", () => {
-        const body = p(
-            "<u><b>before</b></u><u><b>before</b></u>within<u><b>after</b></u><u><b>after</b></u>",
-        );
-        const range = nodeToChildNodeRange(body.childNodes[2]);
+    describe("consecutive top-level", () => {
+        const within = t("within");
+        div(u(b(t("before"))), u(b(t("before"))), within, u(b(t("after"))), u(b(t("after"))));
+
+        const range = nodeToChildNodeRange(within);
 
         test("findBefore", () => {
             const matches = findBefore(range, easyBold.matcher);

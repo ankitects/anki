@@ -38,12 +38,15 @@ function findAdjacentNode(
     matches: FoundAdjacent[],
     matcher: ElementMatcher,
     getter: (node: Node) => ChildNode | null,
-): void {
+): number {
     let current = getter(node);
 
-    const alongs: AlongType[] = [];
+    const alongs: FoundAlong[] = [];
     while (current && isAlong(current)) {
-        alongs.push(current);
+        alongs.push({
+            match: { type: MatchType.ALONG },
+            element: current,
+        });
         current = getter(current);
     }
 
@@ -54,61 +57,68 @@ function findAdjacentNode(
         const match = applyMatcher(matcher, current);
 
         if (match.type) {
-            matches.push(
-                ...alongs.map(
-                    (along: AlongType): FoundAlong => ({
-                        element: along,
-                        match: { type: MatchType.ALONG },
-                    }),
-                ),
-            );
+            const shift = alongs.length + 1;
 
-            matches.push({
+            matches.push(
+                ...alongs, {
                 element: current as HTMLElement | SVGElement,
                 match,
             });
 
-            return findAdjacentNode(element!, matches, matcher, getter);
+            return findAdjacentNode(element!, matches, matcher, getter) + shift;
         }
 
         current = descendToSingleChild(current);
     }
+
+    return 0;
 }
 
-function findBeforeNode(node: Node, matcher: ElementMatcher): FoundAdjacent[] {
-    const matches: FoundAdjacent[] = [];
-    findAdjacentNode(
-        node,
-        matches,
-        matcher,
-        (node: Node): ChildNode | null => node.previousSibling,
-    );
-    return matches;
+function previousSibling(node: Node): ChildNode | null {
+    return node.previousSibling;
 }
 
-function findAfterNode(node: Node, matcher: ElementMatcher): FoundAdjacent[] {
-    const matches: FoundAdjacent[] = [];
-    findAdjacentNode(
-        node,
-        matches,
-        matcher,
-        (node: Node): ChildNode | null => node.nextSibling,
-    );
-    return matches;
-}
-
+/**
+ * @param range: Elements will be searched before the start of this range.
+ * @returns Nodes before `range` which satisfy `matcher` or of type ALONG.
+ */
 export function findBefore(
     range: ChildNodeRange,
     matcher: ElementMatcher,
 ): FoundAdjacent[] {
-    const { parent, startIndex } = range;
-    return findBeforeNode(parent.childNodes[startIndex], matcher);
+    const matches: FoundAdjacent[] = [];
+    const shift = findAdjacentNode(
+        range.parent.childNodes[range.startIndex],
+        matches,
+        matcher,
+        previousSibling
+    );
+    range.startIndex -= shift;
+
+    return matches;
 }
 
+function nextSibling(node: Node): ChildNode | null {
+    return node.nextSibling;
+}
+
+/**
+ * @param range: Elements will be searched after the end of this range.
+ * @returns Nodes after `range` which satisfy `matcher` or of type ALONG.
+ */
 export function findAfter(
     range: ChildNodeRange,
     matcher: ElementMatcher,
 ): FoundAdjacent[] {
-    const { parent, endIndex } = range;
-    return findAfterNode(parent.childNodes[endIndex - 1], matcher);
+    const matches: FoundAdjacent[] = [];
+    const shift = findAdjacentNode(
+    range.parent.childNodes[range.endIndex - 1],
+        matches,
+        matcher,
+        nextSibling,
+    );
+
+    range.endIndex += shift;
+
+    return matches;
 }
