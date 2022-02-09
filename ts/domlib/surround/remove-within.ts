@@ -3,9 +3,15 @@
 
 import type { ChildNodeRange } from "./child-node-range";
 import { findWithin } from "./find-within";
-import { countChildNodesRespectiveToParent } from "./helpers";
 import type { ElementMatcher, FoundMatch } from "./matcher";
 import { MatchType } from "./matcher";
+
+function countChildNodesRespectiveToParent(
+    parent: Node,
+    element: Element,
+): number {
+    return element.parentNode === parent ? element.childNodes.length : 1;
+}
 
 /**
  * @param removed: Removed elements will be pushed onto this array
@@ -18,19 +24,17 @@ function normalizeWithin(
     let childCount = 0;
 
     for (const { match, element } of matches) {
-        if (match.type === MatchType.MATCH) {
-            removed.push(element);
-            childCount += countChildNodesRespectiveToParent(parent, element);
-            element.replaceWith(...element.childNodes);
-        } /* match.type === MatchResult.CLEAR */ else {
-            if (match.clear(element)) {
-                removed.push(element);
-                childCount += countChildNodesRespectiveToParent(parent, element);
-                element.replaceWith(...element.childNodes);
-            } else {
-                childCount += 1;
-            }
+        if (!match.type) {
+            continue;
         }
+
+        if (match.type === MatchType.CLEAR && !match.clear(element)) {
+            childCount += 1;
+        }
+
+        removed.push(element);
+        childCount += countChildNodesRespectiveToParent(parent, element);
+        element.replaceWith(...element.childNodes);
     }
 
     const shift = childCount - matches.length;

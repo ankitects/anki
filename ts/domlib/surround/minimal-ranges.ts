@@ -2,20 +2,39 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { elementIsEmpty, nodeIsElement } from "../../lib/dom";
+import { elementIsBlock } from "../../lib/dom";
+import { ascend, isOnlyChild } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
 import { nodeToChildNodeRange } from "./child-node-range";
 import { findAfter, findBefore } from "./find-adjacent";
-import { ascendWhileSingleInline } from "./helpers";
 import type { ElementMatcher } from "./matcher";
 
-export function coversWholeParent(childNodeRange: ChildNodeRange): boolean {
+function coversWholeParent(childNodeRange: ChildNodeRange): boolean {
     return (
         childNodeRange.startIndex === 0 &&
         childNodeRange.endIndex === childNodeRange.parent.childNodes.length
     );
 }
 
-export function areSiblingChildNodeRanges(
+
+function ascendWhileSingleInline(node: Node, base: Node): Node {
+    if (node === base) {
+        return node;
+    }
+
+    while (
+        isOnlyChild(node) &&
+        node.parentElement &&
+        !elementIsBlock(node.parentElement) &&
+        node.parentElement !== base
+    ) {
+        node = ascend(node);
+    }
+
+    return node;
+}
+
+function areSiblingChildNodeRanges(
     before: ChildNodeRange,
     after: ChildNodeRange,
 ): boolean {
@@ -42,7 +61,7 @@ export function areSiblingChildNodeRanges(
  * @remarks
  * Must be sibling child node ranges
  */
-export function mergeChildNodeRanges(
+function mergeChildNodeRanges(
     before: ChildNodeRange,
     after: ChildNodeRange,
 ): ChildNodeRange {
