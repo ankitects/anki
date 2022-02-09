@@ -97,52 +97,41 @@ deck-config-bury-tooltip =
 
 deck-config-ordering-title = Display Order
 deck-config-new-gather-priority = New card gather order
-deck-config-new-gather-priority-tooltip =
-    `Deck`: gathers cards from each subdeck in order, and stops when the
-    limit of the selected deck has been exceeded. This is faster, and allows you
-    to prioritize subdecks that are closer to the top.
-    
-    `Position`: gathers cards from all decks before they are sorted. This
-    ensures cards appear in strict position (due #) order, even if the parent limit is
-    not high enough to see cards from all decks.
 deck-config-new-gather-priority-tooltip-2 =
     `Deck`: gathers cards from each deck in order, starting from the top. Cards from each deck are
     gathered in ascending position. If the daily limit of the selected deck is reached, gathering
     may stop before all decks have been checked. This order is fastest in large collections, and
     allows you to prioritize subdecks that are closer to the top.
     
-    `Ascending Position`: gathers cards by ascending position (due #), which is typically
+    `Ascending position`: gathers cards by ascending position (due #), which is typically
     the oldest-added first.
     
-    `Descending Position`: gathers cards by descending position (due #), which is typically
+    `Descending position`: gathers cards by descending position (due #), which is typically
     the latest-added first.
     
-    `Random Notes`: gathers cards of randomly selected notes. When sibling burying is
+    `Random notes`: gathers cards of randomly selected notes. When sibling burying is
     disabled, this allows all cards of a note to be seen in a session (eg. both a front->back
     and back->front card)
     
-    `Random Cards`: gathers cards completely randomly.
+    `Random cards`: gathers cards completely randomly.
 deck-config-new-gather-priority-deck = Deck
 deck-config-new-gather-priority-position-lowest-first = Ascending position
 deck-config-new-gather-priority-position-highest-first = Descending position
 deck-config-new-gather-priority-random-notes = Random notes
 deck-config-new-gather-priority-random-cards = Random cards
 deck-config-new-card-sort-order = New card sort order
-deck-config-new-card-sort-order-tooltip =
-    How cards are sorted after they have been gathered. By default, Anki sorts
-    by card template first, to avoid multiple cards of the same note from being
-    shown in succession.
 deck-config-new-card-sort-order-tooltip-2 =
-    `Card Template`: Displays cards in card template order. If you have sibling burying
+    `Card template`: Displays cards in card template order. If you have sibling burying
     disabled, this will ensure all front->back cards are seen before any back->front cards.
     
-    `Order Gathered`: Shows cards as they were gathered. If sibling burying is disabled,
+    `Order gathered`: Shows cards exactly as they were gathered. If sibling burying is disabled,
     this will typically result in all cards of a note being seen one after the other.
     
-    `Card Template, then Random`: Like `Card Template`, but shuffles the cards of each
-    template. This can be useful for showing the oldest 20 cards in a random order for example.
+    `Card template, then random`: Like `Card template`, but shuffles the cards of each
+    template. When combined with an ascending position gather order, this can be used to show
+    the oldest cards in a random order for example.
     
-    `Random Note, then Card Template`: Picks notes at random, then shows all of their siblings
+    `Random note, then card template`: Picks notes at random, then shows all of their siblings
     in order.
     
     `Random`: Fully shuffles the gathered cards.
@@ -153,7 +142,7 @@ deck-config-sort-order-random-note-then-template = Random note, then card templa
 deck-config-sort-order-lowest-position = Ascending position
 deck-config-sort-order-highest-position = Descending position
 deck-config-sort-order-random = Random
-deck-config-sort-order-template-then-gather = Card template, then order gathered
+deck-config-sort-order-template-then-gather = Card template
 deck-config-sort-order-gather = Order gathered
 deck-config-new-review-priority = New/review order
 deck-config-new-review-priority-tooltip = When to show new cards in relation to review cards.
@@ -279,3 +268,18 @@ deck-config-relearning-steps-above-minimum-interval = The minimum lapse interval
 ## Selecting a deck
 
 deck-config-which-deck = Which deck would you like?
+
+## NO NEED TO TRANSLATE. These strings have been replaced with new versions, and will be removed in the future.
+
+deck-config-new-card-sort-order-tooltip =
+    How cards are sorted after they have been gathered. By default, Anki sorts
+    by card template first, to avoid multiple cards of the same note from being
+    shown in succession.
+deck-config-new-gather-priority-tooltip =
+    `Deck`: gathers cards from each subdeck in order, and stops when the
+    limit of the selected deck has been exceeded. This is faster, and allows you
+    to prioritize subdecks that are closer to the top.
+    
+    `Position`: gathers cards from all decks before they are sorted. This
+    ensures cards appear in strict position (due #) order, even if the parent limit is
+    not high enough to see cards from all decks.
