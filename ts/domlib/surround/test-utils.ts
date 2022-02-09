@@ -37,11 +37,11 @@ export function t(data: string): Text {
 }
 
 function element(tagName: string): (...childNodes: Node[]) => HTMLElement {
-    return function(...childNodes: Node[]): HTMLElement {
+    return function (...childNodes: Node[]): HTMLElement {
         const element = document.createElement(tagName);
         element.append(...childNodes);
         return element;
-    }
+    };
 }
 
 export const b = element("b");

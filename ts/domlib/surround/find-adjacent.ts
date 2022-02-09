@@ -10,7 +10,12 @@ import {
 } from "../../lib/dom";
 import { hasOnlyChild } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
-import type { AlongType, ElementMatcher, FoundAdjacent, FoundAlong } from "./match-type";
+import type {
+    AlongType,
+    ElementMatcher,
+    FoundAdjacent,
+    FoundAlong,
+} from "./match-type";
 import { applyMatcher, MatchType } from "./match-type";
 
 function descendToSingleChild(node: Node): ChildNode | null {
@@ -59,8 +64,7 @@ function findAdjacentNode(
         if (match.type) {
             const shift = alongs.length + 1;
 
-            matches.push(
-                ...alongs, {
+            matches.push(...alongs, {
                 element: current as HTMLElement | SVGElement,
                 match,
             });
@@ -91,7 +95,7 @@ export function findBefore(
         range.parent.childNodes[range.startIndex],
         matches,
         matcher,
-        previousSibling
+        previousSibling,
     );
     range.startIndex -= shift;
 
@@ -112,7 +116,7 @@ export function findAfter(
 ): FoundAdjacent[] {
     const matches: FoundAdjacent[] = [];
     const shift = findAdjacentNode(
-    range.parent.childNodes[range.endIndex - 1],
+        range.parent.childNodes[range.endIndex - 1],
         matches,
         matcher,
         nextSibling,

@@ -3,7 +3,7 @@
 
 import { nodeToChildNodeRange } from "./child-node-range";
 import { findAfter, findBefore } from "./find-adjacent";
-import { easyBold, easyItalic, p, u, b, t, div } from "./test-utils";
+import { b, div,easyBold, easyItalic, p, t, u } from "./test-utils";
 
 describe("in a simple search", () => {
     const body = p("<b>Before</b><u>This is a test</u><i>After</i>");
@@ -54,7 +54,13 @@ describe("find by descension", () => {
 
     describe("consecutive top-level", () => {
         const within = t("within");
-        div(u(b(t("before"))), u(b(t("before"))), within, u(b(t("after"))), u(b(t("after"))));
+        div(
+            u(b(t("before"))),
+            u(b(t("before"))),
+            within,
+            u(b(t("after"))),
+            u(b(t("after"))),
+        );
 
         const range = nodeToChildNodeRange(within);
 
@@ -69,22 +75,22 @@ describe("find by descension", () => {
         });
     });
 
-//     describe("top-level consecutive within", () => {
-//         const within = t("within");
-//         div(u(b(t("before")), b(t("before"))), within, u(b(t("after")), b(t("after"))));
+    //     describe("top-level consecutive within", () => {
+    //         const within = t("within");
+    //         div(u(b(t("before")), b(t("before"))), within, u(b(t("after")), b(t("after"))));
 
-//         const range = nodeToChildNodeRange(within);
+    //         const range = nodeToChildNodeRange(within);
 
-//         test("findBefore", () => {
-//             const matches = findBefore(range, easyBold.matcher);
-//             expect(matches).toHaveLength(2);
-//         });
+    //         test("findBefore", () => {
+    //             const matches = findBefore(range, easyBold.matcher);
+    //             expect(matches).toHaveLength(2);
+    //         });
 
-//         test("findAfter", () => {
-//             const matches = findAfter(range, easyBold.matcher);
-//             expect(matches).toHaveLength(2);
-//         });
-//     });
+    //         test("findAfter", () => {
+    //             const matches = findAfter(range, easyBold.matcher);
+    //             expect(matches).toHaveLength(2);
+    //         });
+    //     });
 
     describe("no block-level", () => {
         const body = p("<div><b>before</b></div>within<div><b>after</b></div>");
