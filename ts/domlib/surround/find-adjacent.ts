@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import {
+    elementIsBlock,
     elementIsEmpty,
     nodeIsComment,
     nodeIsElement,
@@ -12,13 +13,13 @@ import type { ChildNodeRange } from "./child-node-range";
 import type { AlongType, ElementMatcher, FoundAdjacent, FoundAlong } from "./matcher";
 import { applyMatcher, MatchType } from "./matcher";
 
-function descendToSingleChild(node: ChildNode): ChildNode | null {
-    return hasOnlyChild(node) && nodeIsElement(node.firstChild!)
+function descendToSingleChild(node: Node): ChildNode | null {
+    return nodeIsElement(node) && !elementIsBlock(node) && hasOnlyChild(node)
         ? node.firstChild
         : null;
 }
 
-function isAlong(node: ChildNode): node is AlongType {
+function isAlong(node: Node): node is AlongType {
     return (
         (nodeIsElement(node) && elementIsEmpty(node)) ||
         (nodeIsText(node) && node.length === 0) ||

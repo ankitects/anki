@@ -3,7 +3,7 @@
 
 import { nodeToChildNodeRange } from "./child-node-range";
 import { findAfter, findBefore } from "./find-adjacent";
-import { p, easyBold, easyItalic } from "./test-utils";
+import { easyBold, easyItalic,p } from "./test-utils";
 
 describe("in a simple search", () => {
     const body = p("<b>Before</b><u>This is a test</u><i>After</i>");
@@ -64,6 +64,21 @@ describe("find by descension", () => {
         test("findAfter", () => {
             const matches = findAfter(range, easyBold.matcher);
             expect(matches).toHaveLength(2);
+        });
+    });
+
+    describe("no block-level", () => {
+        const body = p("<div><b>before</b></div>within<div><b>after</b></div>");
+        const range = nodeToChildNodeRange(body.childNodes[1]);
+
+        test("findBefore", () => {
+            const matches = findBefore(range, easyBold.matcher);
+            expect(matches).toHaveLength(0);
+        });
+
+        test("findAfter", () => {
+            const matches = findAfter(range, easyBold.matcher);
+            expect(matches).toHaveLength(0);
         });
     });
 });
