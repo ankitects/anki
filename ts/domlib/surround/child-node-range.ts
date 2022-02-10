@@ -7,8 +7,8 @@ import { ascend } from "../../lib/node";
 export class ChildNodeRange {
     private constructor(
         public parent: Node,
-        public startIndex: number = 0,
-        public endIndex: number = 0,
+        public startIndex: number,
+        public endIndex: number,
     ) {}
 
     /**
@@ -58,5 +58,24 @@ export class ChildNodeRange {
         }
 
         range.surroundContents(node);
+    }
+
+    [Symbol.iterator]() {
+        const parent = this.parent;
+        const end = this.endIndex;
+        let step = this.startIndex;
+
+        return {
+            next() {
+                if (step >= end) {
+                    return { value: null, done: true };
+                }
+
+                const result = { value: parent.childNodes[step], done: false };
+                step++;
+
+                return result;
+            },
+        };
     }
 }

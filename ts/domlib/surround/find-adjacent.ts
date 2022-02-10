@@ -27,7 +27,7 @@ function findAdjacentNode(
     if (!sibling) {
         return 0;
     }
-
+    debugger;
     const [within, covers] = findWithinNodeVertex(sibling, matcher);
 
     if (!covers) {
@@ -59,8 +59,8 @@ export function findBefore(
         previousSibling,
         vertices,
     );
-    range.startIndex -= shift;
 
+    range.startIndex -= shift;
     return vertices.reverse();
 }
 
@@ -82,6 +82,5 @@ export function findAfter(range: ChildNodeRange, matcher: ElementMatcher): Match
     );
 
     range.endIndex += shift;
-
     return vertices;
 }

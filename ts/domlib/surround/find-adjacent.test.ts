@@ -3,20 +3,30 @@
 
 import { ChildNodeRange } from "./child-node-range";
 import { findAfter, findBefore } from "./find-adjacent";
-import { b, div, easyBold, easyItalic, p, t, u } from "./test-utils";
+import { b, div, easyBold, easyItalic, i, p, t, u } from "./test-utils";
 
 describe("in a simple search", () => {
-    const body = p("<b>Before</b><u>This is a test</u><i>After</i>");
-    const range = ChildNodeRange.fromNode(body.children[1]);
+    const before = b(t("before"));
+    const within = t("within");
+    const after = i(t("after"));
+    div(before, within, after);
+
+    let range: ChildNodeRange;
+
+    beforeEach(() => {
+        range = ChildNodeRange.fromNode(within);
+    });
 
     describe("findBefore", () => {
         test("finds an element", () => {
             const matches = findBefore(range, easyBold.matcher);
+            expect([...range]).toEqual([before, within]);
             expect(matches).toHaveLength(1);
         });
 
         test("does not find non-existing element", () => {
             const matches = findBefore(range, easyItalic.matcher);
+            expect([...range]).toEqual([within]);
             expect(matches).toHaveLength(0);
         });
     });
@@ -24,11 +34,13 @@ describe("in a simple search", () => {
     describe("findAfter", () => {
         test("finds an element", () => {
             const matches = findAfter(range, easyItalic.matcher);
+            expect([...range]).toEqual([within, after]);
             expect(matches).toHaveLength(1);
         });
 
         test("does not find non-existing element", () => {
             const matches = findAfter(range, easyBold.matcher);
+            expect([...range]).toEqual([within]);
             expect(matches).toHaveLength(0);
         });
     });

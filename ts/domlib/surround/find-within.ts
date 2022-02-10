@@ -21,31 +21,25 @@ export function findWithinNodeVertex(
         return [[], false];
     }
 
+    const element = node as HTMLElement | SVGElement;
     const nested: MatchTree[] = [];
-    let covers = !elementIsBlock(node);
+    let covers = !elementIsBlock(element);
 
-    for (const child of node.children) {
-        const [vertices, coverInner] = findWithinNodeVertex(child, matcher);
+    for (const child of element.childNodes) {
+        const [matches, coverInner] = findWithinNodeVertex(child, matcher);
 
-        nested.push(...vertices);
+        nested.push(...matches);
         covers = covers && coverInner;
     }
 
-    const match = applyMatcher(matcher, node);
+    const match = applyMatcher(matcher, element);
 
-    if (match.type) {
-        return [
-            [
-                MatchTree.make(nested, {
-                    match,
-                    element: node as HTMLElement | SVGElement,
-                }),
-            ],
-            true,
-        ];
+    if (!match.type) {
+        return [nested, covers];
     }
 
-    return [nested, covers];
+    const tree = MatchTree.make(nested, { match, element });
+    return [[tree], true];
 }
 
 /**

@@ -22,6 +22,7 @@ export function surround(
 
     const removed: Element[] = [];
     const added: Element[] = [];
+
     for (const range of ranges) {
         removed.push(
             /* modifies ranges */
