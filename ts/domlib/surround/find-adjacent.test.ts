@@ -3,7 +3,7 @@
 
 import { ChildNodeRange } from "./child-node-range";
 import { findAfter, findBefore } from "./find-adjacent";
-import { b, div, easyBold, easyItalic, i, p, t, u } from "./test-utils";
+import { b, div, easyBold, easyItalic, i, t, u } from "./test-utils";
 
 describe("in a simple search", () => {
     const before = b(t("before"));
@@ -48,73 +48,101 @@ describe("in a simple search", () => {
 
 describe("find by descension", () => {
     describe("single top-level match", () => {
+        const before = u(b(t("before")));
         const within = t("within");
-        div(u(b(t("before"))), within, u(b(t("after"))));
+        const after = u(b(t("after")));
+        div(before, within, after);
 
-        const range = ChildNodeRange.fromNode(within);
+        let range: ChildNodeRange;
+
+        beforeEach(() => {
+            range = ChildNodeRange.fromNode(within);
+        });
 
         test("findBefore", () => {
             const matches = findBefore(range, easyBold.matcher);
+            expect([...range]).toEqual([before, within]);
             expect(matches).toHaveLength(1);
         });
 
         test("findAfter", () => {
             const matches = findAfter(range, easyBold.matcher);
+            expect([...range]).toEqual([within, after]);
             expect(matches).toHaveLength(1);
         });
     });
 
     describe("consecutive top-level", () => {
+        const before1 = u(b(t("before")));
+        const before2 = u(b(t("before")));
         const within = t("within");
-        div(
-            u(b(t("before"))),
-            u(b(t("before"))),
-            within,
-            u(b(t("after"))),
-            u(b(t("after"))),
-        );
+        const after1 = u(b(t("after")));
+        const after2 = u(b(t("after")));
+        div(before1, before2, within, after1, after2);
 
-        const range = ChildNodeRange.fromNode(within);
+        let range: ChildNodeRange;
+
+        beforeEach(() => {
+            range = ChildNodeRange.fromNode(within);
+        });
 
         test("findBefore", () => {
             const matches = findBefore(range, easyBold.matcher);
+            expect([...range]).toEqual([before1, before2, within]);
             expect(matches).toHaveLength(2);
         });
 
         test("findAfter", () => {
             const matches = findAfter(range, easyBold.matcher);
+            expect([...range]).toEqual([within, after1, after2]);
             expect(matches).toHaveLength(2);
         });
     });
 
-    //     describe("top-level consecutive within", () => {
-    //         const within = t("within");
-    //         div(u(b(t("before")), b(t("before"))), within, u(b(t("after")), b(t("after"))));
+    describe("top-level consecutive within", () => {
+        const before = u(b(t("before")), b(t("before")));
+        const within = t("within");
+        const after = u(b(t("after")), b(t("after")));
+        div(before, within, after);
 
-    //         const range = ChildNodeRange.fromNode(within);
+        let range: ChildNodeRange;
 
-    //         test("findBefore", () => {
-    //             const matches = findBefore(range, easyBold.matcher);
-    //             expect(matches).toHaveLength(2);
-    //         });
-
-    //         test("findAfter", () => {
-    //             const matches = findAfter(range, easyBold.matcher);
-    //             expect(matches).toHaveLength(2);
-    //         });
-    //     });
-
-    describe("no block-level", () => {
-        const body = p("<div><b>before</b></div>within<div><b>after</b></div>");
-        const range = ChildNodeRange.fromNode(body.childNodes[1]);
+        beforeEach(() => {
+            range = ChildNodeRange.fromNode(within);
+        });
 
         test("findBefore", () => {
             const matches = findBefore(range, easyBold.matcher);
+            expect([...range]).toEqual([before, within]);
+            expect(matches).toHaveLength(2);
+        });
+
+        test("findAfter", () => {
+            const matches = findAfter(range, easyBold.matcher);
+            expect([...range]).toEqual([within, after]);
+            expect(matches).toHaveLength(2);
+        });
+    });
+
+    describe("no block-level", () => {
+        const within = t("within");
+        div(div(b(t("before"))), within, div(b(t("after"))));
+
+        let range: ChildNodeRange;
+
+        beforeEach(() => {
+            range = ChildNodeRange.fromNode(within);
+        });
+
+        test("findBefore", () => {
+            const matches = findBefore(range, easyBold.matcher);
+            expect([...range]).toEqual([within]);
             expect(matches).toHaveLength(0);
         });
 
         test("findAfter", () => {
             const matches = findAfter(range, easyBold.matcher);
+            expect([...range]).toEqual([within]);
             expect(matches).toHaveLength(0);
         });
     });
