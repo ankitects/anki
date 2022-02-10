@@ -1,11 +1,47 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { nodeIsElement } from "../../lib/dom";
+import { elementIsBlock,nodeIsElement } from "../../lib/dom";
 import type { ChildNodeRange } from "./child-node-range";
+import { nodeIsAlong } from "./match-along";
+import { MatchTree } from "./match-tree";
 import type { ElementMatcher, FoundMatch } from "./match-type";
 import { applyMatcher } from "./match-type";
 import { nodeWithinRange } from "./within-range";
+
+export function findWithinNodeVertex(
+    node: Node,
+    matcher: ElementMatcher,
+): [MatchTree[], boolean] {
+    if (nodeIsAlong(node)) {
+        return [[], true];
+    }
+
+    if (!nodeIsElement(node)) {
+        return [[], false];
+    }
+
+    const nested: MatchTree[] = [];
+    let covers = !elementIsBlock(node);
+
+    for (const child of node.children) {
+        const [vertices, coverInner] = findWithinNodeVertex(child, matcher);
+
+        nested.push(...vertices);
+        covers = covers && coverInner;
+    }
+
+    const match = applyMatcher(matcher, node);
+
+    if (match.type) {
+        return [
+            [MatchTree.make(nested, { match, element: node as HTMLElement | SVGElement })],
+            true,
+        ];
+    }
+
+    return [nested, covers];
+}
 
 /**
  * Elements pushed to matches are be in postorder

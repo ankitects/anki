@@ -1,76 +1,43 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import {
-    elementIsBlock,
-    elementIsEmpty,
-    nodeIsComment,
-    nodeIsElement,
-    nodeIsText,
-} from "../../lib/dom";
-import { hasOnlyChild } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
-import type {
-    ElementMatcher,
-    FoundMatch,
-} from "./match-type";
-import { applyMatcher } from "./match-type";
-
-function descendToSingleChild(node: Node): ChildNode | null {
-    // TODO We refuse descending into block-level elements, which seems like
-    // upstream logic. Maybe we should report them as found, but give them an extra
-    // flag, like found.descendedIntoBlock
-    return nodeIsElement(node) && !elementIsBlock(node) && hasOnlyChild(node)
-        ? node.firstChild
-        : null;
-}
-
-function isAlong(node: Node): boolean {
-    return (
-        (nodeIsElement(node) && elementIsEmpty(node)) ||
-        (nodeIsText(node) && node.length === 0) ||
-        nodeIsComment(node)
-    );
-}
+import { findWithinNodeVertex } from "./find-within";
+import { nodeIsAlong } from "./match-along";
+import type { MatchTree } from "./match-tree";
+import type { ElementMatcher } from "./match-type";
 
 /**
  * These functions will not ascend on the starting node, but will descend on the neighbor node
  */
 function findAdjacentNode(
     node: Node,
-    matches: FoundMatch[],
     matcher: ElementMatcher,
     getter: (node: Node) => ChildNode | null,
+    vertices: MatchTree[],
 ): number {
-    let current = getter(node);
+    let sibling = getter(node);
     let alongShift = 0;
 
-    while (current && isAlong(current)) {
+    while (sibling && nodeIsAlong(sibling)) {
         alongShift++;
-        current = getter(current);
+        sibling = getter(sibling);
     }
 
-    // The element before descending
-    const element = current;
-
-    while (current && nodeIsElement(current)) {
-        const match = applyMatcher(matcher, current);
-
-        if (match.type) {
-            const shift = alongShift + 1;
-
-            matches.push({
-                element: current as HTMLElement | SVGElement,
-                match,
-            });
-
-            return findAdjacentNode(element!, matches, matcher, getter) + shift;
-        }
-
-        current = descendToSingleChild(current);
+    if (!sibling) {
+        return 0;
     }
 
-    return 0;
+    const [within, covers] = findWithinNodeVertex(sibling, matcher);
+
+    if (!covers) {
+        return 0;
+    }
+
+    const shift = alongShift + 1;
+    vertices.push(...within);
+
+    return findAdjacentNode(sibling, matcher, getter, vertices) + shift;
 }
 
 function previousSibling(node: Node): ChildNode | null {
@@ -84,17 +51,17 @@ function previousSibling(node: Node): ChildNode | null {
 export function findBefore(
     range: ChildNodeRange,
     matcher: ElementMatcher,
-): FoundMatch[] {
-    const matches: FoundMatch[] = [];
+): MatchTree[] {
+    const vertices: MatchTree[] = [];
     const shift = findAdjacentNode(
         range.parent.childNodes[range.startIndex],
-        matches,
         matcher,
         previousSibling,
+        vertices,
     );
     range.startIndex -= shift;
 
-    return matches;
+    return vertices.reverse();
 }
 
 function nextSibling(node: Node): ChildNode | null {
@@ -108,16 +75,16 @@ function nextSibling(node: Node): ChildNode | null {
 export function findAfter(
     range: ChildNodeRange,
     matcher: ElementMatcher,
-): FoundMatch[] {
-    const matches: FoundMatch[] = [];
+): MatchTree[] {
+    const vertices: MatchTree[] = [];
     const shift = findAdjacentNode(
         range.parent.childNodes[range.endIndex - 1],
-        matches,
         matcher,
         nextSibling,
+        vertices,
     );
 
     range.endIndex += shift;
 
-    return matches;
+    return vertices;
 }
