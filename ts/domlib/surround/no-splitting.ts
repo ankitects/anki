@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { surroundChildNodeRangeWithNode } from "./child-node-range";
 import type { SurroundFormat } from "./match-type";
 import { minimalRanges } from "./minimal-ranges";
 import { getRangeAnchors } from "./range-anchors";
@@ -23,7 +22,6 @@ export function surround(
 
     const removed: Element[] = [];
     const added: Element[] = [];
-
     for (const range of ranges) {
         removed.push(
             /* modifies ranges */
@@ -32,7 +30,7 @@ export function surround(
 
         const surroundClone = surroundElement.cloneNode(false) as Element;
 
-        surroundChildNodeRangeWithNode(range, surroundClone);
+        range.surroundWithNode(surroundClone);
         added.push(surroundClone);
     }
 

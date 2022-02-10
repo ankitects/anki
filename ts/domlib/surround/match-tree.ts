@@ -13,7 +13,7 @@ class ShallowTreeIterator {
             return { done: true };
         }
 
-        this.index
+        this.index;
         return { done: true };
     }
 }

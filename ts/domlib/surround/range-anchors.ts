@@ -7,7 +7,9 @@ import { applyMatcher, MatchType } from "./match-type";
 import { splitPartiallySelectedTextNodes } from "./text-node";
 
 function textOrMatches(node: Node, matcher: ElementMatcher): boolean {
-    return !nodeIsElement(node) || applyMatcher(matcher, node).type === MatchType.REMOVE;
+    return (
+        !nodeIsElement(node) || applyMatcher(matcher, node).type === MatchType.REMOVE
+    );
 }
 
 function findBelow(element: Element, matcher: ElementMatcher): Node | null {

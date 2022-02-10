@@ -4,66 +4,59 @@
 import { nodeIsElement } from "../../lib/dom";
 import { ascend } from "../../lib/node";
 
-export interface ChildNodeRange {
-    parent: Node;
-    startIndex: number;
-    /* exclusive end */
-    endIndex: number;
-}
+export class ChildNodeRange {
+    private constructor(
+        public parent: Node,
+        public startIndex: number = 0,
+        public endIndex: number = 0,
+    ) {}
 
-/**
- * @remarks
- * Indices should be >= 0 and startIndex < endIndex
- */
-function makeChildNodeRange(
-    node: Node,
-    startIndex: number,
-    endIndex = startIndex + 1,
-): ChildNodeRange {
-    return {
-        parent: node,
-        startIndex,
-        endIndex,
-    };
-}
-
-/**
- * @remarks
- * The new child node range might not necessarily indicate the node itself but
- * could also be a supposed new node that entirely surrounds the passed in node
- */
-export function nodeToChildNodeRange(node: Node): ChildNodeRange {
-    const parent = ascend(node);
-    const index = Array.prototype.indexOf.call(parent.childNodes, node);
-
-    return makeChildNodeRange(parent, index);
-}
-
-function toDOMRange(childNodeRange: ChildNodeRange): Range {
-    const range = new Range();
-    range.setStart(childNodeRange.parent, childNodeRange.startIndex);
-    range.setEnd(childNodeRange.parent, childNodeRange.endIndex);
-
-    return range;
-}
-
-export function surroundChildNodeRangeWithNode(
-    childNodeRange: ChildNodeRange,
-    node: Node,
-): void {
-    const range = toDOMRange(childNodeRange);
-
-    if (range.collapsed) {
-        /**
-         * If the range is collapsed to a single element, move the range inside the element.
-         * This prevents putting the surround above the base element.
-         */
-        const selected = range.commonAncestorContainer.childNodes[range.startOffset];
-
-        if (nodeIsElement(selected)) {
-            range.selectNode(selected);
-        }
+    /**
+     * @remarks
+     * Indices should be >= 0 and startIndex < endIndex
+     */
+    static make(
+        node: Node,
+        startIndex: number,
+        endIndex = startIndex + 1,
+    ): ChildNodeRange {
+        return new ChildNodeRange(node, startIndex, endIndex);
     }
 
-    range.surroundContents(node);
+    /**
+     * @remarks
+     * The new child node range might not necessarily indicate the node itself but
+     * could also be a supposed new node that entirely surrounds the passed in node
+     */
+    static fromNode(node: Node): ChildNodeRange {
+        const parent = ascend(node);
+        const index = Array.prototype.indexOf.call(parent.childNodes, node);
+
+        return ChildNodeRange.make(parent, index);
+    }
+
+    toDOMRange(): Range {
+        const range = new Range();
+        range.setStart(this.parent, this.startIndex);
+        range.setEnd(this.parent, this.endIndex);
+
+        return range;
+    }
+
+    surroundWithNode(node: Node): void {
+        const range = this.toDOMRange();
+
+        if (range.collapsed) {
+            // If the range is collapsed to a single element, move the range inside the element.
+            // This prevents putting the surround above the base element.
+            const selected =
+                range.commonAncestorContainer.childNodes[range.startOffset];
+
+            if (nodeIsElement(selected)) {
+                range.selectNode(selected);
+            }
+        }
+
+        range.surroundContents(node);
+    }
 }

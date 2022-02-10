@@ -4,8 +4,7 @@
 import { elementIsEmpty, nodeIsElement } from "../../lib/dom";
 import { elementIsBlock } from "../../lib/dom";
 import { ascend, isOnlyChild } from "../../lib/node";
-import type { ChildNodeRange } from "./child-node-range";
-import { nodeToChildNodeRange } from "./child-node-range";
+import { ChildNodeRange } from "./child-node-range";
 import { findAfter, findBefore } from "./find-adjacent";
 import type { ElementMatcher } from "./match-type";
 
@@ -64,11 +63,7 @@ function mergeChildNodeRanges(
     before: ChildNodeRange,
     after: ChildNodeRange,
 ): ChildNodeRange {
-    return {
-        parent: before.parent,
-        startIndex: before.startIndex,
-        endIndex: after.endIndex,
-    };
+    return ChildNodeRange.make(before.parent, before.startIndex, after.endIndex);
 }
 
 function mergeIfSiblings(
@@ -83,7 +78,7 @@ function mergeIfSiblings(
     const merged = mergeChildNodeRanges(before, after);
     const newRange =
         coversWholeParent(merged) && merged.parent !== base
-            ? nodeToChildNodeRange(ascendWhileSingleInline(merged.parent, base))
+            ? ChildNodeRange.fromNode(ascendWhileSingleInline(merged.parent, base))
             : merged;
 
     return newRange;
@@ -147,9 +142,10 @@ export function minimalRanges(
         return [];
     }
 
-    const ranges = texts
-        .map((node: Node): Node => ascendWhileSingleInline(node, base))
-        .map(nodeToChildNodeRange);
+    const ranges = texts.map(
+        (node: Node): ChildNodeRange =>
+            ChildNodeRange.fromNode(ascendWhileSingleInline(node, base)),
+    );
 
     return mergeRanges(ranges, base, matcher);
 }

@@ -72,10 +72,7 @@ function nextSibling(node: Node): ChildNode | null {
  * @param range: Elements will be searched after the end of this range.
  * @returns Nodes after `range` which satisfy `matcher` or of type ALONG.
  */
-export function findAfter(
-    range: ChildNodeRange,
-    matcher: ElementMatcher,
-): MatchTree[] {
+export function findAfter(range: ChildNodeRange, matcher: ElementMatcher): MatchTree[] {
     const vertices: MatchTree[] = [];
     const shift = findAdjacentNode(
         range.parent.childNodes[range.endIndex - 1],

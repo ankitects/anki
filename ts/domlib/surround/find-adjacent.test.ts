@@ -1,13 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { nodeToChildNodeRange } from "./child-node-range";
+import { ChildNodeRange } from "./child-node-range";
 import { findAfter, findBefore } from "./find-adjacent";
-import { b, div,easyBold, easyItalic, p, t, u } from "./test-utils";
+import { b, div, easyBold, easyItalic, p, t, u } from "./test-utils";
 
 describe("in a simple search", () => {
     const body = p("<b>Before</b><u>This is a test</u><i>After</i>");
-    const range = nodeToChildNodeRange(body.children[1]);
+    const range = ChildNodeRange.fromNode(body.children[1]);
 
     describe("findBefore", () => {
         test("finds an element", () => {
@@ -39,7 +39,7 @@ describe("find by descension", () => {
         const within = t("within");
         div(u(b(t("before"))), within, u(b(t("after"))));
 
-        const range = nodeToChildNodeRange(within);
+        const range = ChildNodeRange.fromNode(within);
 
         test("findBefore", () => {
             const matches = findBefore(range, easyBold.matcher);
@@ -62,7 +62,7 @@ describe("find by descension", () => {
             u(b(t("after"))),
         );
 
-        const range = nodeToChildNodeRange(within);
+        const range = ChildNodeRange.fromNode(within);
 
         test("findBefore", () => {
             const matches = findBefore(range, easyBold.matcher);
@@ -79,7 +79,7 @@ describe("find by descension", () => {
     //         const within = t("within");
     //         div(u(b(t("before")), b(t("before"))), within, u(b(t("after")), b(t("after"))));
 
-    //         const range = nodeToChildNodeRange(within);
+    //         const range = ChildNodeRange.fromNode(within);
 
     //         test("findBefore", () => {
     //             const matches = findBefore(range, easyBold.matcher);
@@ -94,7 +94,7 @@ describe("find by descension", () => {
 
     describe("no block-level", () => {
         const body = p("<div><b>before</b></div>within<div><b>after</b></div>");
-        const range = nodeToChildNodeRange(body.childNodes[1]);
+        const range = ChildNodeRange.fromNode(body.childNodes[1]);
 
         test("findBefore", () => {
             const matches = findBefore(range, easyBold.matcher);

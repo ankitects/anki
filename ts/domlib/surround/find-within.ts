@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { elementIsBlock,nodeIsElement } from "../../lib/dom";
+import { elementIsBlock, nodeIsElement } from "../../lib/dom";
 import type { ChildNodeRange } from "./child-node-range";
 import { nodeIsAlong } from "./match-along";
 import { MatchTree } from "./match-tree";
@@ -35,7 +35,12 @@ export function findWithinNodeVertex(
 
     if (match.type) {
         return [
-            [MatchTree.make(nested, { match, element: node as HTMLElement | SVGElement })],
+            [
+                MatchTree.make(nested, {
+                    match,
+                    element: node as HTMLElement | SVGElement,
+                }),
+            ],
             true,
         ];
     }
@@ -92,13 +97,12 @@ export function findWithin(
     range: ChildNodeRange,
     matcher: ElementMatcher,
 ): FoundMatch[] {
-    const { parent, startIndex, endIndex } = range;
     const matches: FoundMatch[] = [];
 
     for (const node of Array.prototype.slice.call(
-        parent.childNodes,
-        startIndex,
-        endIndex,
+        range.parent.childNodes,
+        range.startIndex,
+        range.endIndex,
     )) {
         findWithinNodeInner(node, matcher, matches);
     }
