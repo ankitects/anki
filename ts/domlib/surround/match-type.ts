@@ -81,7 +81,11 @@ export interface FoundMatch {
     element: HTMLElement | SVGElement;
 }
 
+// export type RangeMerger = (before: ChildNodeRange, after: ChildNodeRange) => boolean;
+
 export interface SurroundFormat {
     surroundElement: Element;
     matcher: ElementMatcher;
+    merger?: (before: any, after: any) => boolean; // TODO merge CN ranges or not? do not merge, if they are in differing match contexts
+    formatter?: (xxx: any) => void; // TODO surround, or do nothing -> can decide difference between surrounding an unsurrounding
 }
