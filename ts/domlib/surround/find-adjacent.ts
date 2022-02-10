@@ -27,7 +27,7 @@ function findAdjacentNode(
     if (!sibling) {
         return 0;
     }
-    debugger;
+
     const [within, covers] = findWithinNodeVertex(sibling, matcher);
 
     if (!covers) {

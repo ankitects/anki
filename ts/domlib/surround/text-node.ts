@@ -58,7 +58,7 @@ export function splitPartiallySelectedTextNodes(range: Range): SplitRange {
 /**
  * @returns Text nodes contained in node in source order
  */
-function findTextsWithinNode(node: Node): Text[] {
+export function findTextsWithinNode(node: Node): Text[] {
     if (nodeIsText(node)) {
         return [node];
     } else if (nodeIsElement(node)) {

@@ -5,7 +5,8 @@ import type { SurroundFormat } from "./match-type";
 import { minimalRanges } from "./minimal-ranges";
 import { getRangeAnchors } from "./range-anchors";
 import { removeWithin } from "./remove-within";
-import { findTextsWithinRange, validText } from "./text-node";
+import { findTextsWithinRange, findTextsWithinNode, validText } from "./text-node";
+import { findFarthest } from "./find-above";
 
 export interface NodesResult {
     addedNodes: Node[];
@@ -17,7 +18,16 @@ export function surround(
     base: Element,
     { matcher, surroundElement }: SurroundFormat,
 ): NodesResult {
-    const texts = findTextsWithinRange(range).filter(validText);
+    // TODO maybe offer those as two functions, one finds within range, one
+    // within farthestMatchingAncestor.
+    // If you're surrounding in a matching ancestor, the operation is more
+    // akin to a reformatting/normalization, than actually surrounding.
+    const farthestMatchingAncestor = findFarthest(range.commonAncestorContainer, base, matcher);
+    const allTexts = farthestMatchingAncestor
+        ? findTextsWithinNode(farthestMatchingAncestor.element)
+        : findTextsWithinRange(range)
+
+    const texts = allTexts.filter(validText).filter(validText);
     const ranges = minimalRanges(texts, base, matcher);
 
     const removed: Element[] = [];
