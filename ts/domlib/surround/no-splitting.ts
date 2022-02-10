@@ -1,12 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { findFarthest } from "./find-above";
 import type { SurroundFormat } from "./match-type";
 import { minimalRanges } from "./minimal-ranges";
 import { getRangeAnchors } from "./range-anchors";
 import { removeWithin } from "./remove-within";
-import { findTextsWithinRange, findTextsWithinNode, validText } from "./text-node";
-import { findFarthest } from "./find-above";
+import { findTextsWithinNode, findTextsWithinRange, validText } from "./text-node";
 
 export interface NodesResult {
     addedNodes: Node[];
@@ -22,13 +22,18 @@ export function surround(
     // within farthestMatchingAncestor.
     // If you're surrounding in a matching ancestor, the operation is more
     // akin to a reformatting/normalization, than actually surrounding.
-    const farthestMatchingAncestor = findFarthest(range.commonAncestorContainer, base, matcher);
+    const farthestMatchingAncestor = findFarthest(
+        range.commonAncestorContainer,
+        base,
+        matcher,
+    );
     const allTexts = farthestMatchingAncestor
         ? findTextsWithinNode(farthestMatchingAncestor.element)
-        : findTextsWithinRange(range)
+        : findTextsWithinRange(range);
 
     const texts = allTexts.filter(validText).filter(validText);
     const ranges = minimalRanges(texts, base, matcher);
+    console.log("result", ranges);
 
     const removed: Element[] = [];
     const added: Element[] = [];

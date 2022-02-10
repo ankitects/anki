@@ -3,7 +3,7 @@
 
 import type { ChildNodeRange } from "./child-node-range";
 import { findWithinNodeVertex } from "./find-within";
-import { nodeIsAlong } from "./match-along";
+import { nodeIsNegligible } from "./match-node";
 import type { MatchTree } from "./match-tree";
 import type { ElementMatcher } from "./match-type";
 
@@ -17,11 +17,11 @@ function findAdjacentNode(
     vertices: MatchTree[],
 ): number {
     let sibling = getter(node);
-    let alongShift = 0;
+    let shift = 0;
 
-    while (sibling && nodeIsAlong(sibling)) {
-        alongShift++;
+    while (sibling && nodeIsNegligible(sibling)) {
         sibling = getter(sibling);
+        shift++;
     }
 
     if (!sibling) {
@@ -29,14 +29,13 @@ function findAdjacentNode(
     }
 
     const [within, covers] = findWithinNodeVertex(sibling, matcher);
+    shift++;
 
     if (!covers) {
         return 0;
     }
 
-    const shift = alongShift + 1;
     vertices.push(...within);
-
     return findAdjacentNode(sibling, matcher, getter, vertices) + shift;
 }
 

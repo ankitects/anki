@@ -3,7 +3,7 @@
 
 import { elementIsBlock, nodeIsElement } from "../../lib/dom";
 import type { ChildNodeRange } from "./child-node-range";
-import { nodeIsAlong } from "./match-along";
+import { nodeIsNegligible } from "./match-node";
 import { MatchTree } from "./match-tree";
 import type { ElementMatcher, FoundMatch } from "./match-type";
 import { applyMatcher } from "./match-type";
@@ -13,7 +13,7 @@ export function findWithinNodeVertex(
     node: Node,
     matcher: ElementMatcher,
 ): [MatchTree[], boolean] {
-    if (nodeIsAlong(node)) {
+    if (nodeIsNegligible(node)) {
         return [[], true];
     }
 
