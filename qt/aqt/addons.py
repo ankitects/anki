@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import io
 import json
+import logging
 import os
 import re
 import zipfile
@@ -231,6 +232,13 @@ class AddonManager:
         return os.path.join(root, module)
 
     def loadAddons(self) -> None:
+        # Set a reasonable default logging configuration for addons
+        logging.basicConfig(
+            format="%(asctime)s,%(msecs)d %(levelname)-8s [%(pathname)s:%(lineno)d] %(message)s",
+            datefmt="%Y%m%d-%H:%M:%S",
+            level=(logging.DEBUG if os.environ.get("DEBUG") else logging.CRITICAL),
+            force=True,
+        )
         for addon in self.all_addon_meta():
             if not addon.enabled:
                 continue
