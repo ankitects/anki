@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import fcntl
 import os
 import subprocess
 import sys
@@ -9,6 +10,10 @@ if __name__ == "__main__":
     isort_ini = sys.argv[1]
     isort_ini = os.path.abspath(isort_ini)
     fix = len(sys.argv) > 2
+
+    if sys.platform == "linux":
+        file = open("/tmp/anki-black", "w")
+        fcntl.lockf(file, fcntl.LOCK_EX)
 
     if fix:
         os.chdir(os.path.join(os.environ["BUILD_WORKSPACE_DIRECTORY"], "qt"))
