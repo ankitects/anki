@@ -1,7 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import fcntl
 import os
 import subprocess
 import sys
@@ -12,6 +11,8 @@ if __name__ == "__main__":
     fix = len(sys.argv) > 2
 
     if sys.platform == "linux":
+        import fcntl
+
         file = open("/tmp/anki-black", "w")
         fcntl.lockf(file, fcntl.LOCK_EX)
 
