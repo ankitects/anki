@@ -151,3 +151,98 @@ exports_files(["l10n.toml"])
         ],
         sha256 = qtftl_i18n_zip_csum,
     )
+
+    # binary bundle
+    ################
+
+    maybe(
+        http_archive,
+        name = "pyoxidizer",
+        sha256 = "9f7951473d88c7989dc80199146f82020226a3b2425474fd33b6bcbd8fdd1b1c",
+        urls = [
+            # when changing this, the commit hash needs to be updated in qt/bundle/Cargo.toml
+            "https://github.com/ankitects/PyOxidizer/archive/refs/tags/anki-2021-12-08.tar.gz",
+        ],
+        strip_prefix = "PyOxidizer-anki-2021-12-08",
+        build_file_content = " ",
+    )
+
+    maybe(
+        http_archive,
+        name = "bundle_extras_linux_amd64",
+        build_file_content = " ",
+        urls = [
+            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/linux-amd64.tar.gz",
+        ],
+        sha256 = "cbfb41fb750ae19b381f8137bd307e1167fdc68420052977f6e1887537a131b0",
+    )
+
+    maybe(
+        http_archive,
+        name = "audio_win_amd64",
+        build_file_content = " ",
+        urls = [
+            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/audio-win-amd64.tar.gz",
+        ],
+        sha256 = "0815a601baba05e03bc36b568cdc2332b1cf4aa17125fc33c69de125f8dd687f",
+    )
+
+    maybe(
+        http_archive,
+        name = "protobuf_wheel_mac_arm64",
+        build_file_content = " ",
+        urls = [
+            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/protobuf-wheel-mac-arm64.tar",
+        ],
+        sha256 = "401d1cd6d949af463b3945f0d5dc887185b27fa5478cb6847bf94f680ea797b4",
+    )
+
+    maybe(
+        http_archive,
+        name = "audio_mac_amd64",
+        build_file_content = " ",
+        urls = [
+            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/audio-mac-amd64.tar.gz",
+        ],
+        sha256 = "d9310cbd6bed09d6d36deb8b7611bffbd161628512b1bf8d7becfdf78b5cd1dd",
+    )
+
+    maybe(
+        http_archive,
+        name = "audio_mac_arm64",
+        build_file_content = " ",
+        urls = [
+            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/audio-mac-arm64.tar.gz",
+        ],
+        sha256 = "c30a772132a16fa79d9a1e60f5dce2f91fe8077e2709a8f39ef499d49f6a4b0e",
+    )
+
+    maybe(
+        http_archive,
+        name = "pyqt6.2_mac_bundle_amd64",
+        build_file_content = " ",
+        urls = [
+            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/pyqt6.2-mac-amd64.tar.gz",
+        ],
+        sha256 = "c7bf899eee33fcb3b5848f5d3e5fc390012efc05c2308e4349b7bbd5939c85f0",
+    )
+
+    maybe(
+        http_archive,
+        name = "pyqt6.2_mac_bundle_arm64",
+        build_file_content = " ",
+        urls = [
+            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/pyqt6.2-mac-arm64.tar.gz",
+        ],
+        sha256 = "7a4b7d5bd65c83fd16cf7e56929183ef0d1d7bb67f9deea8f2482d7378e0ea02",
+    )
+
+    maybe(
+        http_archive,
+        name = "pyqt5.14_mac_bundle_amd64",
+        build_file_content = " ",
+        urls = [
+            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/pyqt5.14-mac-amd64.tar.gz",
+        ],
+        sha256 = "474951bed79ddb9570ee4c5a6079041772551ea77e77171d9e33d6f5e7877ec1",
+    )

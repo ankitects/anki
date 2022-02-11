@@ -14,6 +14,7 @@
     export let defaultValue: number;
     export let breakpoint: Breakpoint = "md";
     export let choices: string[];
+    export let disabled: number[] = [];
     export let markdownTooltip: string;
 </script>
 
@@ -22,7 +23,7 @@
         <TooltipLabel {markdownTooltip}><slot /></TooltipLabel>
     </Col>
     <Col --col-size={5} {breakpoint}>
-        <EnumSelector bind:value {choices} />
+        <EnumSelector bind:value {choices} {disabled} />
         <RevertButton bind:value {defaultValue} />
     </Col>
 </Row>

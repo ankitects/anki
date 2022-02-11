@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+# move existing node_modules into tree
+test -e /state/node_modules && mv /state/node_modules .
+
+if [ $(uname -m) = "aarch64" ]; then
+    ./tools/build
+else
+    ./tools/bundle
+fi
+
+rm -rf /state/dist
+mv .bazel/out/dist /state
+
+# if tests succeed, back up node_modules folder
+mv node_modules /state/

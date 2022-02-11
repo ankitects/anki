@@ -6,8 +6,9 @@ These instructions are written for Debian/Ubuntu; adjust for your distribution.
 Some extra notes have been provided by a forum member:
 https://forums.ankiweb.net/t/guide-how-to-build-and-run-anki-from-source-with-xubuntu-20-04/12865
 
-You can see a full list of requirements by looking at the [Dockerfiles](../scripts/docker/README.md)
-in the scripts folder.
+You can see a full list of buildtime and runtime requirements by looking at the
+[Dockerfiles](../.buildkite/linux/docker/Dockerfile.amd64) used to build the
+official releases.
 
 Glibc is required - if you are on a distro like Alpine that uses musl, you'll need
 to contribute fixes to the upstream [Rust rules](https://github.com/bazelbuild/rules_rust/issues/390),
@@ -101,7 +102,7 @@ to compile, but will mean Anki will run considerably slower.
 To run Anki in optimized mode, use:
 
 ```
-./scripts/runopt
+./tools/runopt
 ```
 
 ## ARM64 support
@@ -122,7 +123,7 @@ Note: the trailing slash at the end is required.
 
 There are a few things to be aware of:
 
--   You should use ./run and not scripts/run-qt5\*, even if your system libraries are Qt5.
+-   You should use ./run and not tools/run-qt5\*, even if your system libraries are Qt5.
 -   If your system libraries are Qt5, when creating an aqt wheel, the wheel will not work
     on Qt6 environments.
 -   Some of the tests only work with PyQt6, and will show failures when run under PyQt5.

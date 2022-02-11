@@ -26,7 +26,7 @@
    <string notr="true">Anki</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="icons.qrc">
+   <iconset>
     <normaloff>:/icons/anki.png</normaloff>:/icons/anki.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -46,7 +46,7 @@
      <x>0</x>
      <y>0</y>
      <width>667</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
@@ -146,22 +146,9 @@
     <string>qt_misc_check_the_files_in_the_media</string>
    </property>
   </action>
-  <action name="actionOpenPluginFolder">
-   <property name="text">
-    <string>qt_accel_open_addons_folder</string>
-   </property>
-  </action>
   <action name="actionDonate">
    <property name="text">
     <string>qt_accel_support_anki</string>
-   </property>
-  </action>
-  <action name="actionDownloadSharedPlugin">
-   <property name="text">
-    <string>qt_accel_browse_and_install</string>
-   </property>
-   <property name="statusTip">
-    <string/>
    </property>
   </action>
   <action name="actionFullDatabaseCheck">

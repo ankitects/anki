@@ -82,6 +82,7 @@ rust_library(
         "//rslib/cargo:futures",
         "//rslib/cargo:hex",
         "//rslib/cargo:htmlescape",
+        "//rslib/cargo:id_tree",
         "//rslib/cargo:intl_memoizer",
         "//rslib/cargo:itertools",
         "//rslib/cargo:lazy_static",

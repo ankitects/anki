@@ -91,22 +91,27 @@ class DeckChooser(QHBoxLayout):
         from aqt.studydeck import StudyDeck
 
         current = self.selected_deck_name()
-        ret = StudyDeck(
-            self.mw,
-            current=current,
-            accept=tr.actions_choose(),
-            title=tr.qt_misc_choose_deck(),
-            help=HelpPage.EDITING,
-            cancel=False,
-            parent=self._widget,
-            geomKey="selectDeck",
-        )
-        if ret.name:
+
+        def callback(ret: StudyDeck) -> None:
+            if not ret.name:
+                return
             new_selected_deck_id = self.mw.col.decks.by_name(ret.name)["id"]
             if self.selected_deck_id != new_selected_deck_id:
                 self.selected_deck_id = new_selected_deck_id
                 if func := self.on_deck_changed:
                     func(new_selected_deck_id)
+
+        StudyDeck(
+            self.mw,
+            current=current,
+            accept=tr.actions_choose(),
+            title=tr.qt_misc_choose_deck(),
+            help=HelpPage.EDITING,
+            cancel=True,
+            parent=self._widget,
+            geomKey="selectDeck",
+            callback=callback,
+        )
 
     def on_operation_did_execute(
         self, changes: OpChanges, handler: object | None
