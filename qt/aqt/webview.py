@@ -657,9 +657,11 @@ html {{ {font} }}
 
         self.evalWithCallback(
             f"""
-const style = document.createElement('style');
-style.innerHTML = `{css}`;
-document.head.appendChild(style);
+(function(){{
+    const style = document.createElement('style');
+    style.innerHTML = `{css}`;
+    document.head.appendChild(style);
+}})();
 """,
             after_style,
         )
