@@ -192,7 +192,6 @@ class AnkiQt(QMainWindow):
         self.setupKeys()
         self.setupThreads()
         self.setupMediaServer()
-        self.setupSound()
         self.setupSpellCheck()
         self.setupProgress()
         self.setupStyle()
@@ -449,6 +448,7 @@ class AnkiQt(QMainWindow):
         if not self.loadCollection():
             return
 
+        self.setup_sound()
         self.flags = FlagManager(self)
         # show main window
         if self.pm.profile["mainWindowState"]:
@@ -486,6 +486,7 @@ class AnkiQt(QMainWindow):
         self.unloadCollection(callback)
 
     def _unloadProfile(self) -> None:
+        self.cleanup_sound()
         saveGeom(self, "mainWindow")
         saveState(self, "mainWindow")
         self.pm.save()
@@ -519,8 +520,11 @@ class AnkiQt(QMainWindow):
     # Sound/video
     ##########################################################################
 
-    def setupSound(self) -> None:
-        aqt.sound.setup_audio(self.taskman, self.pm.base)
+    def setup_sound(self) -> None:
+        aqt.sound.setup_audio(self.taskman, self.pm.base, self.col.media.dir())
+
+    def cleanup_sound(self) -> None:
+        aqt.sound.cleanup_audio()
 
     def _add_play_buttons(self, text: str) -> str:
         "Return card text with play buttons added, or stripped."
