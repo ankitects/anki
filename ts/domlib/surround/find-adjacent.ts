@@ -3,9 +3,9 @@
 
 import type { ChildNodeRange } from "./child-node-range";
 import { findWithinNodeVertex } from "./find-within";
-import { nodeIsNegligible } from "./match-node";
-import type { MatchTree } from "./match-tree";
+import { nodeIsNegligible } from "./node-negligible";
 import type { ElementMatcher } from "./match-type";
+import type { MatchTree } from "./match-tree";
 
 /**
  * These functions will not ascend on the starting node, but will descend on the neighbor node

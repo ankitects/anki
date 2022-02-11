@@ -78,4 +78,12 @@ export class ChildNodeRange {
             },
         };
     }
+
+    /**
+     * @remarks
+     * Must be sibling child node ranges.
+     */
+    mergeWith(after: ChildNodeRange): ChildNodeRange {
+        return ChildNodeRange.make(this.parent, this.startIndex, after.endIndex);
+    }
 }

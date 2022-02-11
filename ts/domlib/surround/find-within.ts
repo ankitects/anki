@@ -3,7 +3,7 @@
 
 import { elementIsBlock, nodeIsElement } from "../../lib/dom";
 import type { ChildNodeRange } from "./child-node-range";
-import { nodeIsNegligible } from "./match-node";
+import { nodeIsNegligible } from "./node-negligible";
 import { MatchTree } from "./match-tree";
 import type { ElementMatcher, FoundMatch } from "./match-type";
 import { applyMatcher } from "./match-type";
@@ -38,7 +38,7 @@ export function findWithinNodeVertex(
         return [nested, covers];
     }
 
-    const tree = MatchTree.make(nested, { match, element });
+    const tree = MatchTree.make(nested, { element, match });
     return [[tree], true];
 }
 

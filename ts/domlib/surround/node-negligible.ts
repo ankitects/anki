@@ -8,13 +8,21 @@ import {
     nodeIsText,
 } from "../../lib/dom";
 
+export function elementIsNegligible(element: Element): boolean {
+    return elementIsEmpty(element);
+}
+
+export function textIsNegligible(text: Text): boolean {
+    return text.length === 0;
+}
+
 /**
  * A "negligible" node is a node that can be surrounded without a semantic change
  */
 export function nodeIsNegligible(node: Node): boolean {
     return (
-        (nodeIsElement(node) && elementIsEmpty(node)) ||
-        (nodeIsText(node) && node.length === 0) ||
+        (nodeIsElement(node) && elementIsNegligible(node)) ||
+        (nodeIsText(node) && textIsNegligible(node)) ||
         nodeIsComment(node)
     );
 }
