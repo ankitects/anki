@@ -3,7 +3,7 @@ pushd "%~dp0"\..
 
 REM add msys/bazel to path if they're not already on it
 where /q bazel || (
-    set PATH=c:\msys64\usr\bin;/bazel;%PATH%
+    set PATH=c:\msys64\usr\bin;/bazel;"%PATH%"
 )
 
 if not exist windows.bazelrc (
