@@ -2,13 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { nodeIsElement, nodeIsText } from "../../lib/dom";
-import { nodeWithinRange } from "./within-range";
-import type { ElementMatcher, FoundMatch } from "./match-type";
-import type { TreeNode } from "./tree-node";
-import { MatchNode, FormattingNode } from "./tree-node";
-import { applyMatcher } from "./match-type";
 import { ChildNodeRange } from "./child-node-range";
-import { textIsNegligible, elementIsNegligible } from "./node-negligible";
+import type { ElementMatcher, FoundMatch } from "./match-type";
+import { applyMatcher } from "./match-type";
+import { elementIsNegligible,textIsNegligible } from "./node-negligible";
+import type { TreeNode } from "./tree-node";
+import { FormattingNode,MatchNode } from "./tree-node";
+import { nodeWithinRange } from "./within-range";
 
 /**
  * @returns Split text node to end direction
@@ -119,9 +119,9 @@ function mergeInNode(
         return merged;
     }
 
-    let rightmost: FormattingNode = last;
+    const rightmost: FormattingNode = last;
     for (let i = initial.length - 1; i >= 0; i--) {
-        let next = initial[i];
+        const next = initial[i];
 
         // TODO see merger
         if (merger(next, rightmost)) {
@@ -167,18 +167,24 @@ function ascender(_node: FormattingNode, element: Element): boolean {
 }
 
 
-function buildTreeNode(element: Element, matcher: ElementMatcher): TreeNode {
-    let children: TreeNode[] = [];
+function buildTreeNode(
+    element: Element,
+    range: Range,
+    matcher: ElementMatcher,
+    covered: boolean,
+): TreeNode {
+    const match = applyMatcher(matcher, element);
+    const matchNode = MatchNode.make(element, match);
 
+    let children: TreeNode[] = [];
     for (const child of element.childNodes) {
-        const node = buildFormattingTree(child, matcher)
+        const node = buildFormattingTree(child, range, matcher, covered || Boolean(match.type))
 
         if (node) {
             children = mergeInNode(children, node)
         }
     }
 
-    const matchNode = MatchNode.make(element, applyMatcher(matcher, element));
     const formattingNode = singleFormattingNode(children);
 
     if (formattingNode && ascender(formattingNode, element)) {
@@ -190,25 +196,38 @@ function buildTreeNode(element: Element, matcher: ElementMatcher): TreeNode {
     return matchNode;
 }
 
+function buildFormattingNode(node: Node, range: Range, covered: boolean): FormattingNode {
+    return FormattingNode.make(ChildNodeRange.fromNode(node), nodeWithinRange(node, range), covered);
+}
+
 /**
  * Builds a formatting tree starting at node.
  *
- * @remarks
- * Tree will be in its initial shape, which means all text nodes will have a
- * formatting node as their parent, and each formatting node will have a single
- * text node as their child.
- *
  * @returns root of the formatting tree
  */
-export function buildFormattingTree(node: Node, matcher: ElementMatcher): TreeNode | null {
+export function buildFormattingTree(node: Node, range: Range, matcher: ElementMatcher, covered: boolean): TreeNode | null {
     if (nodeIsText(node) && !textIsNegligible(node)) {
-        return FormattingNode.make(ChildNodeRange.fromNode(node));
+        return buildFormattingNode(node, range, covered);
     } else if (nodeIsElement(node) && !elementIsNegligible(node)) {
-        return buildTreeNode(node, matcher);
+        return buildTreeNode(node, range, matcher, covered);
     } else {
         return null;
     }
 }
+
+// export function buildTreeFromRange(node: Node, matcher: ElementMatcher): TreeNode | null {
+
+// }
+
+// export function buildTreeFromMatching(node: Node, matcher: ElementMatcher): TreeNode | null {
+//     if (nodeIsText(node) && !textIsNegligible(node)) {
+//         return FormattingNode.make(ChildNodeRange.fromNode(node));
+//     } else if (nodeIsElement(node) && !elementIsNegligible(node)) {
+//         return buildTreeNode(node, matcher);
+//     } else {
+//         return null;
+//     }
+// }
 
 
 

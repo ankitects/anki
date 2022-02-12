@@ -5,8 +5,8 @@ import { elementIsBlock } from "../../lib/dom";
 import { ascend } from "../../lib/node";
 import { ChildNodeRange } from "./child-node-range";
 import { findAfter, findBefore } from "./find-adjacent";
-import { nodeIsAmongNegligibles,nodeIsNegligible } from "./node-negligible";
 import type { ElementMatcher } from "./match-type";
+import { nodeIsAmongNegligibles,nodeIsNegligible } from "./node-negligible";
 
 function coversWholeParent(childNodeRange: ChildNodeRange): boolean {
     return (

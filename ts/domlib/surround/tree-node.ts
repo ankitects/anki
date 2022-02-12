@@ -1,8 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { Match } from "./match-type";
 import type { ChildNodeRange } from "./child-node-range";
+import type { Match } from "./match-type";
 
 // class ShallowTreeIterator {
 //     constructor(
@@ -82,12 +82,24 @@ export class MatchNode extends TreeNode {
 export class FormattingNode extends TreeNode {
     private constructor(
         public range: ChildNodeRange,
+        /**
+         * Whether the node is inside the original user selection
+         */
+        public userSelected: boolean,
+        /**
+         * Whether the node is covered by a matching MatchNode.
+         */
+        public covered: boolean,
     ) {
         super();
     }
 
-    static make(range: ChildNodeRange): FormattingNode {
-        return new FormattingNode(range);
+    static make(
+        range: ChildNodeRange,
+        userSelected: boolean,
+        covered: boolean,
+    ): FormattingNode {
+        return new FormattingNode(range, userSelected, covered);
     }
 
     /**
@@ -104,6 +116,8 @@ export class FormattingNode extends TreeNode {
     mergeWith(node: FormattingNode): void {
         this.range = this.range.mergeWith(node.range);
         this.children.unshift(...node.children);
+        this.userSelected &&= node.userSelected;
+        this.covered &&= node.covered;
     }
 
     /**

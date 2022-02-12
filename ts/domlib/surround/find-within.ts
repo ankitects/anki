@@ -3,10 +3,10 @@
 
 import { elementIsBlock, nodeIsElement } from "../../lib/dom";
 import type { ChildNodeRange } from "./child-node-range";
-import { nodeIsNegligible } from "./node-negligible";
 import { MatchTree } from "./match-tree";
 import type { ElementMatcher, FoundMatch } from "./match-type";
 import { applyMatcher } from "./match-type";
+import { nodeIsNegligible } from "./node-negligible";
 import { nodeWithinRange } from "./within-range";
 
 export function findWithinNodeVertex(
