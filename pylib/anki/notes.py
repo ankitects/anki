@@ -7,6 +7,8 @@ import copy
 from typing import Any, NewType, Sequence
 
 import anki  # pylint: disable=unused-import
+import anki.cards
+import anki.collection
 from anki import hooks, notes_pb2
 from anki._legacy import DeprecatedNamesMixin
 from anki.consts import MODEL_STD

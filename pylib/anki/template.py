@@ -32,6 +32,7 @@ from dataclasses import dataclass
 from typing import Any, Sequence, Union
 
 import anki
+import anki.collection
 from anki import card_rendering_pb2, hooks
 from anki.cards import Card
 from anki.decks import DeckManager

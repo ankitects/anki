@@ -10,6 +10,7 @@ import time
 from typing import Any, NewType, Sequence, Union
 
 import anki  # pylint: disable=unused-import
+import anki.collection
 from anki import notetypes_pb2
 from anki._legacy import DeprecatedNamesMixin, deprecated, print_deprecation_warning
 from anki.collection import OpChanges, OpChangesWithId

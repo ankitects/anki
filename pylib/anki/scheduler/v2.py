@@ -11,6 +11,7 @@ from heapq import *
 from typing import Any, Callable, cast
 
 import anki  # pylint: disable=unused-import
+import anki.collection
 from anki import hooks, scheduler_pb2
 from anki.cards import Card, CardId
 from anki.consts import *

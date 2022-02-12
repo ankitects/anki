@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import anki
+import anki.collection
 from anki import decks_pb2, scheduler_pb2
 from anki._legacy import DeprecatedNamesMixin
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId

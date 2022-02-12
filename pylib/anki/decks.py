@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Iterable, NewType, Sequence, no_type_chec
 if TYPE_CHECKING:
     import anki
 
+import anki.collection
 from anki import deckconfig_pb2, decks_pb2
 from anki._legacy import DeprecatedNamesMixin, deprecated, print_deprecation_warning
 from anki.cards import CardId
