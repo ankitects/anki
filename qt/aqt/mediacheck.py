@@ -9,6 +9,7 @@ from concurrent.futures import Future
 from typing import Iterable, Sequence, TypeVar
 
 import aqt
+import aqt.progress
 from anki.collection import Collection, SearchNode
 from anki.errors import Interrupted
 from anki.media import CheckMediaResponse

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import aqt
 import aqt.deckconf
+import aqt.main
 from anki.cards import Card
 from anki.decks import DeckDict, DeckId
 from anki.lang import without_unicode_isolation

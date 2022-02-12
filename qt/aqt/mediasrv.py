@@ -21,6 +21,8 @@ from flask import Response, request
 from waitress.server import create_server
 
 import aqt
+import aqt.main
+import aqt.operations
 from anki import hooks
 from anki._vendor import stringcase
 from anki.collection import OpChanges

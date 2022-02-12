@@ -16,9 +16,13 @@ from threading import Thread
 from typing import Any, Literal, Sequence, TextIO, TypeVar, cast
 
 import anki
+import anki.cards
+import anki.sound
 import aqt
+import aqt.forms
 import aqt.mediasrv
 import aqt.mpv
+import aqt.operations
 import aqt.progress
 import aqt.sound
 import aqt.stats

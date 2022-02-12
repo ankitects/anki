@@ -7,7 +7,10 @@ import json
 from typing import Callable, Sequence
 
 import aqt
+import aqt.browser
+import aqt.editor
 import aqt.forms
+import aqt.operations
 from anki._legacy import deprecated
 from anki.cards import Card, CardId
 from anki.collection import Collection, Config, OpChanges, SearchNode

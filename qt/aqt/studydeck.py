@@ -4,6 +4,8 @@
 from typing import Optional
 
 import aqt
+import aqt.forms
+import aqt.operations
 from anki.collection import OpChangesWithId
 from anki.decks import DeckId
 from aqt import gui_hooks

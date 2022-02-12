@@ -8,6 +8,7 @@ import sys
 from typing import Any, Callable, Optional, Sequence, cast
 
 import anki
+import anki.lang
 from anki.lang import is_rtl
 from anki.utils import is_lin, is_mac, is_win
 from aqt import colors, gui_hooks

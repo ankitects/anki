@@ -7,6 +7,7 @@ from operator import itemgetter
 from typing import Any
 
 import aqt
+import aqt.forms
 from anki.consts import NEW_CARDS_RANDOM
 from anki.decks import DeckConfigDict
 from anki.lang import without_unicode_isolation

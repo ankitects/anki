@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any, Callable
 
 import aqt
+import aqt.operations
 from anki.collection import OpChanges
 from anki.scheduler import UnburyDeck
 from aqt import gui_hooks

@@ -6,6 +6,7 @@ from __future__ import annotations
 from concurrent.futures import Future
 
 import aqt
+import aqt.main
 from aqt.qt import *
 from aqt.utils import showText, tooltip
 

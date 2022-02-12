@@ -7,6 +7,8 @@ from typing import Sequence
 
 import aqt
 import aqt.deckconf
+import aqt.main
+import aqt.operations
 from anki.collection import OpChanges
 from anki.models import ChangeNotetypeRequest, NotetypeId
 from anki.notes import NoteId
