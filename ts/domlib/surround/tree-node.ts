@@ -46,6 +46,10 @@ export abstract class TreeNode {
         return this.children.splice(0, this.length, ...newChildren);
     }
 
+    hasChildren(): boolean {
+        return this.children.length > 0;
+    }
+
     get length(): number {
         return this.children.length;
     }
@@ -80,7 +84,7 @@ export class MatchNode extends TreeNode {
         public covered: boolean,
         public insideRange: boolean,
     ) {
-        super(insideRange, covered);
+        super(covered, insideRange);
     }
 
     static make(element: Element, match: Match, covered: boolean, insideRange: boolean): MatchNode {
@@ -116,25 +120,36 @@ export class FormattingNode extends TreeNode {
      * `<b>before</b><b>after</b>` into `<b>beforeafter</b>`, or
      * `<b>before</b><img src="image.jpg"><b>after</b>` into
      * `<b>before<img src="image.jpg">after</b>` (negligible nodes inbetween).
-     *
-     * @returns Modifies this.
      */
-    mergeWith(node: FormattingNode): void {
-        this.range = this.range.mergeWith(node.range);
-        this.children.unshift(...node.children);
-        this.insideRange &&= node.insideRange;
-        this.covered &&= node.covered;
+    static merge(before: FormattingNode, after: FormattingNode): FormattingNode {
+        const node = FormattingNode.make(
+            before.range.mergeWith(after.range),
+            before.insideRange && after.insideRange,
+            before.covered && after.covered,
+        );
+
+        node.replaceChildren([...before.children, ...after.children]);
+        return node;
     }
 
     /**
      * An ascent is placing a FormattingNode above a MatchNode
+     *
+     * @param matchNode: Its children will be discarded in favor of `this`s children.
      *
      * @example
      * Practically speaking, it is what happens, when you turn:
      * `<u><b>inside</b></u>` into `<b><u>inside</u></b>`, or
      * `<u><b>inside</b><img src="image.jpg"></u>` into `<b><u>inside<img src="image.jpg"></b>
      */
-    ascendAbove(node: MatchNode): void {
-        node.replaceChildren(this.replaceChildren([node]));
+    ascendAbove(matchNode: MatchNode): void {
+        this.range.select(matchNode.element);
+
+        if (!this.hasChildren() && !matchNode.match.type) {
+            // Drop matchNode, as it has no effect
+            return;
+        }
+
+        matchNode.replaceChildren(this.replaceChildren([matchNode]))
     }
 }

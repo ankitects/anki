@@ -35,6 +35,15 @@ export class ChildNodeRange {
         return ChildNodeRange.make(parent, index);
     }
 
+    /**
+     * @see `fromNode`
+     */
+    select(node: Node): void {
+        this.parent = ascend(node);
+        this.startIndex = Array.prototype.indexOf.call(this.parent.childNodes, node);
+        this.endIndex = this.startIndex + 1;
+    }
+
     toDOMRange(): Range {
         const range = new Range();
         range.setStart(this.parent, this.startIndex);

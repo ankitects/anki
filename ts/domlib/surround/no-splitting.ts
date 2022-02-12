@@ -6,7 +6,7 @@ import type { SurroundFormat } from "./match-type";
 import { minimalRanges } from "./minimal-ranges";
 import { getRangeAnchors } from "./range-anchors";
 import { removeWithin } from "./remove-within";
-import { buildFormattingTree,findTextsWithinNode, findTextsWithinRange, validText } from "./text-node";
+import { buildFormattingTree, buildTreeFromRange, findTextsWithinNode, findTextsWithinRange, validText } from "./text-node";
 
 export interface NodesResult {
     addedNodes: Node[];
@@ -28,13 +28,9 @@ export function surround(
         matcher,
     );
 
-    const tree = buildFormattingTree(
-        farthestMatchingAncestor?.element ?? range.commonAncestorContainer,
-        range,
-        matcher,
-        false,
-        base,
-    );
+    const tree = farthestMatchingAncestor
+        ? buildFormattingTree(farthestMatchingAncestor.element, range, matcher, true, base) 
+        : buildTreeFromRange(range, matcher, base);
     console.log('formatting tree', tree);
 
     const allTexts = farthestMatchingAncestor

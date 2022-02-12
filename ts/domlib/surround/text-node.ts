@@ -98,11 +98,17 @@ export function findWithinNode(node: Node, matcher: ElementMatcher): FoundMatch[
 
 
 
-function merger(before: TreeNode, after: FormattingNode): before is FormattingNode {
+function merger(before: FormattingNode, after: FormattingNode): before is FormattingNode {
     // TODO introduce a way to provide a custom merger
-
     // This  will allow any sibling child node ranges to merge
-    return before instanceof FormattingNode;
+    return true;
+}
+
+/**
+ * @returns Whether merge suceeded.
+ */
+function tryMerge(before: FormattingNode, after: FormattingNode): FormattingNode | null {
+    return merger(before, after) ? FormattingNode.merge(before, after) : null;
 }
 
 /**
@@ -117,9 +123,9 @@ function mergeInNode(
     for (let i = initial.length - 1; i >= 0; i--) {
         const next = initial[i];
 
-        // TODO see merger
-        if (merger(next, last)) {
-            next.mergeWith(last);
+        let merged: FormattingNode | null;
+        if (next instanceof FormattingNode && (merged = tryMerge(next, last))) {
+            minimized[0] = merged;
         } else {
             minimized.unshift(...initial.slice(0, i + 1));
             break;
@@ -129,6 +135,13 @@ function mergeInNode(
     return minimized;
 }
 
+function appendNode(nodes: TreeNode[], node: TreeNode): TreeNode[] {
+    if (node instanceof FormattingNode) {
+        return mergeInNode(nodes, node)
+    } else {
+        return [...nodes, node];
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -164,12 +177,19 @@ function ascender(_node: FormattingNode, matchNode: MatchNode, base: Element): b
     return true;
 }
 
+function tryAscend(node: FormattingNode, matchNode: MatchNode, base: Element) {
+    if (ascender(node, matchNode, base)) {
+        node.ascendAbove(matchNode);
+        return true;
+    }
+
+    return false;
+}
 
 function buildTreeNode(
     element: Element,
     range: Range,
     matcher: ElementMatcher,
-    covered: boolean,
     base: Element,
 ): TreeNode | null {
     const match = applyMatcher(matcher, element);
@@ -177,12 +197,10 @@ function buildTreeNode(
 
     let children: TreeNode[] = [];
     for (const child of element.childNodes) {
-        const node = buildFormattingTree(child, range, matcher, covered || matches, base)
+        const node = buildFormattingTree(child, range, matcher, matches, base)
 
-        if (node instanceof FormattingNode) {
-            children = mergeInNode(children, node)
-        } else if (node) {
-            children.push(node);
+        if (node) {
+            children = appendNode(children, node);
         }
     }
 
@@ -199,8 +217,7 @@ function buildTreeNode(
 
     const formattingNode = singleFormattingNode(children);
 
-    if (formattingNode && ascender(formattingNode, matchNode, base)) {
-        formattingNode.ascendAbove(matchNode);
+    if (formattingNode && tryAscend(formattingNode, matchNode, base)) {
         return formattingNode;
     }
 
@@ -227,14 +244,148 @@ export function buildFormattingTree(node: Node, range: Range, matcher: ElementMa
     if (nodeIsText(node) && !textIsNegligible(node)) {
         return buildFormattingNode(node, range, covered);
     } else if (nodeIsElement(node) && !elementIsNegligible(node)) {
-        return buildTreeNode(node, range, matcher, covered, base);
+        return buildTreeNode(node, range, matcher, base);
     } else {
         return null;
     }
 }
 
-// export function buildTreeFromRange(node: Node, matcher: ElementMatcher): TreeNode | null {
-// }
+function previousSibling(node: Node): ChildNode | null {
+    return node.previousSibling;
+}
+
+function nextSibling(node: Node): ChildNode | null {
+    return node.nextSibling;
+}
+
+function isCoveredFormattingNode(node: TreeNode): node is FormattingNode {
+    return node instanceof FormattingNode && node.covered;
+}
+
+interface MergeResult {
+    node: FormattingNode,
+    hitBorder: boolean,
+}
+
+/**
+ * @param main: Node into which is merged. Is modified.
+ *
+ * @returns Whether siblings were exhausted during merging
+ */
+function mergePreviousTrees(
+    start: FormattingNode,
+    container: Node,
+    range: Range,
+    matcher: ElementMatcher,
+    base: Element,
+): MergeResult {
+    let result = start;
+
+    let sibling = previousSibling(container);
+    while (sibling) {
+        const siblingNode = buildFormattingTree(sibling, range, matcher, false, base)
+
+        if (siblingNode) {
+            let merged: FormattingNode | null;
+            if (
+                siblingNode.covered &&
+                siblingNode instanceof FormattingNode &&
+                (merged = tryMerge(siblingNode, result))
+            ) {
+                result = merged;
+            } else {
+                return {
+                    node: result,
+                    hitBorder: false,
+                }
+            }
+        }
+
+        sibling = previousSibling(sibling);
+    }
+
+    return {
+        node: result,
+        hitBorder: true,
+    }
+}
+
+/**
+ * @param main: Node into which is merged. Is modified.
+ *
+ * @returns Whether siblings were exhausted during merging
+ */
+function mergeNextTrees(
+    start: FormattingNode,
+    container: Node,
+    range: Range,
+    matcher: ElementMatcher,
+    base: Element,
+): MergeResult {
+    let result = start;
+
+    let sibling = nextSibling(container);
+    while (sibling) {
+        const siblingNode = buildFormattingTree(sibling, range, matcher, false, base)
+
+        if (siblingNode) {
+            let merged: FormattingNode | null;
+            if (
+                siblingNode.covered &&
+                siblingNode instanceof FormattingNode &&
+                (merged = tryMerge(result, siblingNode))
+            ) {
+                result = merged;
+            } else {
+                return {
+                    node: result,
+                    hitBorder: false,
+                }
+            }
+        }
+
+        sibling = nextSibling(sibling);
+    }
+
+    return {
+        node: result,
+        hitBorder: true,
+    }
+}
+
+/**
+ * Assumes that the range is not placed inside an upper matching element
+ */
+export function buildTreeFromRange(range: Range, matcher: ElementMatcher, base: Element): TreeNode | null {
+    const container = range.commonAncestorContainer;
+    const output = buildFormattingTree(container, range, matcher, false, base)
+
+    if (!output) {
+        return null;
+    }
+
+    if (isCoveredFormattingNode(output)) {
+        const previous = mergePreviousTrees(output, container, range, matcher, base);
+        const next = mergeNextTrees(previous.node, container, range, matcher, base);
+        const parent = container.parentElement;
+
+        if (!previous.hitBorder || !next.hitBorder || !parent) {
+            return next.node;
+        }
+
+        const matchNode = MatchNode.make(
+            parent,
+            applyMatcher(matcher, parent),
+            next.node.covered,
+            next.node.insideRange,
+        );
+
+        tryAscend(next.node, matchNode, base);
+        return next.node;
+    }
+
+    return output;
+}
 
 // export function buildTreeFromMatching(node: Node, matcher: ElementMatcher): TreeNode | null {
 //     if (nodeIsText(node) && !textIsNegligible(node)) {
