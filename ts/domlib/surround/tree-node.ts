@@ -1,8 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { elementIsBlock } from "../../lib/dom";
+import { ascend } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
 import type { Match } from "./match-type";
+import type { ElementMatcher } from "./match-type";
+import { applyMatcher } from "./match-type";
+import { nodeIsAmongNegligibles } from "./node-negligible";
+
 
 // class ShallowTreeIterator {
 //     constructor(
@@ -90,6 +96,37 @@ export class MatchNode extends TreeNode {
     static make(element: Element, match: Match, covered: boolean, insideRange: boolean): MatchNode {
         return new MatchNode(element, match, covered, insideRange);
     }
+
+    /**
+     * An extension is finding elements directly above a MatchNode.
+     *
+     * @example
+     * This helps finding additional normalizations, like in the following:
+     * `<b>before</b><u>inside</u><b>after</b>`.
+     * If you were to surround `inside`, it would miss the b tags, because they
+     * are not directly adjacent.
+     */
+    tryExtend(base: Node, matcher: ElementMatcher): MatchNode | null {
+        if (this.element === base || !nodeIsAmongNegligibles(this.element)) {
+            return null;
+        }
+
+        const parent = ascend(this.element) as Element;
+
+        if (!parent && elementIsBlock(parent)) {
+            return null;
+        }
+
+        const parentNode = MatchNode.make(
+            parent,
+            applyMatcher(matcher, parent),
+            this.covered,
+            this.insideRange,
+        );
+
+        parentNode.replaceChildren([this]);
+        return parentNode;
+    }
 }
 
 /**
@@ -142,7 +179,7 @@ export class FormattingNode extends TreeNode {
      * `<u><b>inside</b></u>` into `<b><u>inside</u></b>`, or
      * `<u><b>inside</b><img src="image.jpg"></u>` into `<b><u>inside<img src="image.jpg"></b>
      */
-    ascendAbove(matchNode: MatchNode): void {
+    private ascendAbove(matchNode: MatchNode): void {
         this.range.select(matchNode.element);
 
         if (!this.hasChildren() && !matchNode.match.type) {
@@ -151,5 +188,45 @@ export class FormattingNode extends TreeNode {
         }
 
         matchNode.replaceChildren(this.replaceChildren([matchNode]))
+    }
+
+    tryAscend(matchNode: MatchNode, base: Element): boolean {
+        if (
+            elementIsBlock(matchNode.element) ||
+            matchNode.element === base ||
+            !(matchNode.covered || matchNode.insideRange)
+        ) {
+            return false;
+        }
+
+        this.ascendAbove(matchNode);
+        return true;
+    }
+
+    /**
+     * Extending `MatchNode` only makes sense, if they are following by a
+     * FormattingNode ascending above it.
+     * Which is why if the formatting node refuses to ascend, we might as well
+     * stop extending.
+     */
+    extendAndAscend(matcher: ElementMatcher, base: Element): void {
+        if (this.length !== 1) {
+            return;
+        }
+
+        const [matchNode] = this.children;
+        if (!(matchNode instanceof MatchNode)) {
+            return;
+        }
+
+        let top = matchNode.tryExtend(base, matcher);
+
+        while (top) {
+            if (!this.tryAscend(top, base)) {
+                break;
+            }
+
+            top = top.tryExtend(base, matcher);
+        }
     }
 }
