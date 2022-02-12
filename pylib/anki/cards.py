@@ -8,7 +8,9 @@ import time
 
 import anki  # pylint: disable=unused-import
 import anki.collection
+import anki.decks
 import anki.notes
+import anki.template
 from anki import cards_pb2, hooks
 from anki._legacy import DeprecatedNamesMixin, deprecated
 from anki.consts import *
