@@ -473,9 +473,10 @@ if is_win:
         "31748": "zh_CHT",
     }
 
-    def lcid_hex_str_to_lang_code(hex: str) -> str:
-        dec_str = str(int(hex, 16))
-        return LCIDS.get(dec_str, "unknown")
+    def lcid_hex_str_to_lang_codes(hex_codes: str) -> list[str]:
+        return [
+            LCIDS.get(str(int(code, 16)), "unknown") for code in hex_codes.split(";")
+        ]
 
     class WindowsTTSPlayer(TTSProcessPlayer):
         default_rank = -1
@@ -487,13 +488,17 @@ if is_win:
         def get_available_voices(self) -> list[TTSVoice]:
             if self.speaker is None:
                 return []
-            return list(map(self._voice_to_object, self.speaker.GetVoices()))
+            return [
+                obj
+                for voice in self.speaker.GetVoices()
+                for obj in self._voice_to_objects(voice)
+            ]
 
-        def _voice_to_object(self, voice: Any) -> WindowsVoice:
-            lang = voice.GetAttribute("language")
-            lang = lcid_hex_str_to_lang_code(lang)
+        def _voice_to_objects(self, voice: Any) -> list[WindowsVoice]:
+            langs = voice.GetAttribute("language")
+            langs = lcid_hex_str_to_lang_codes(langs)
             name = self._tidy_name(voice.GetAttribute("name"))
-            return WindowsVoice(name=name, lang=lang, handle=voice)
+            return [WindowsVoice(name=name, lang=lang, handle=voice) for lang in langs]
 
         def _play(self, tag: AVTag) -> None:
             assert isinstance(tag, TTSTag)
