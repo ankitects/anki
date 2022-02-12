@@ -61,8 +61,8 @@ deck-config-new-insertion-order-tooltip =
 deck-config-new-insertion-order-sequential = Sequential (oldest cards first)
 deck-config-new-insertion-order-random = Random
 deck-config-new-insertion-order-random-with-v3 =
-    With the V3 scheduler, leaving this set to sequential, and adjusting the
-    order in the Display Order section is recommended.
+    With the V3 scheduler, it is better to leave this set to sequential, and
+    adjust the new card gather order instead.
 
 ## Lapses section
 
