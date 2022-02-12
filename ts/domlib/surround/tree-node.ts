@@ -28,8 +28,19 @@ function accumulate(accu: number, tree: TreeNode): number {
 export abstract class TreeNode {
     readonly children: TreeNode[] =[];
 
+    protected constructor(
+        /**
+         * Whether all text nodes within this node are covered by matching MatchNode.
+         */
+        public covered: boolean,
+        /**
+         * Whether all text nodes within this node are inside the initial range.
+         */
+        public insideRange: boolean,
+    ) {}
+
     /**
-     * @returns Children which were replaced
+     * @returns Children which were replaced.
      */
     replaceChildren(newChildren: TreeNode[]): TreeNode[] {
         return this.children.splice(0, this.length, ...newChildren);
@@ -42,38 +53,39 @@ export abstract class TreeNode {
     get deepLength(): number {
         return this.children.reduce(accumulate, 0);
     }
-}
 
+    into(...path: number[]): TreeNode | null {
+        if (path.length === 0) {
+            return this;
+        }
 
-export class MatchNode extends TreeNode {
-    private constructor(
-        public element: Element,
-        public match: Match
-    ) {
-        super();
+        const [next, ...rest] = path;
+
+        if (next in this.children) {
+            return this.children[next].into(...rest);
+        }
+
+        return null;
     }
-
-    static make(element: Element, match: Match): MatchNode {
-        return new MatchNode(element, match);
-    }
-
-    // into(...path: number[]): FormattingTree | null {
-    //     if (path.length === 0) {
-    //         return this;
-    //     }
-
-    //     const [next, ...rest] = path;
-
-    //     if (next in this.children) {
-    //         return this.children[next].into(...rest);
-    //     }
-
-    //     return null;
-    // }
 
     // [Symbol.iterator]() {
     //     return new ShallowTreeIterator(this);
     // }
+}
+
+export class MatchNode extends TreeNode {
+    private constructor(
+        public element: Element,
+        public match: Match,
+        public covered: boolean,
+        public insideRange: boolean,
+    ) {
+        super(insideRange, covered);
+    }
+
+    static make(element: Element, match: Match, covered: boolean, insideRange: boolean): MatchNode {
+        return new MatchNode(element, match, covered, insideRange);
+    }
 }
 
 /**
@@ -82,24 +94,18 @@ export class MatchNode extends TreeNode {
 export class FormattingNode extends TreeNode {
     private constructor(
         public range: ChildNodeRange,
-        /**
-         * Whether the node is inside the original user selection
-         */
-        public userSelected: boolean,
-        /**
-         * Whether the node is covered by a matching MatchNode.
-         */
         public covered: boolean,
+        public insideRange: boolean,
     ) {
-        super();
+        super(covered, insideRange);
     }
 
     static make(
         range: ChildNodeRange,
-        userSelected: boolean,
+        insideRange: boolean,
         covered: boolean,
     ): FormattingNode {
-        return new FormattingNode(range, userSelected, covered);
+        return new FormattingNode(range, insideRange, covered);
     }
 
     /**
@@ -116,7 +122,7 @@ export class FormattingNode extends TreeNode {
     mergeWith(node: FormattingNode): void {
         this.range = this.range.mergeWith(node.range);
         this.children.unshift(...node.children);
-        this.userSelected &&= node.userSelected;
+        this.insideRange &&= node.insideRange;
         this.covered &&= node.covered;
     }
 

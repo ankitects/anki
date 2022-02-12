@@ -110,29 +110,23 @@ function merger(before: TreeNode, after: FormattingNode): before is FormattingNo
  */
 function mergeInNode(
     initial: TreeNode[],
-    last: TreeNode,
+    last: FormattingNode,
 ): TreeNode[] {
-    const merged: TreeNode[] = [];
+    const minimized: TreeNode[] = [last];
 
-    if (!(last instanceof FormattingNode)) {
-        merged.push(...initial, last);
-        return merged;
-    }
-
-    const rightmost: FormattingNode = last;
     for (let i = initial.length - 1; i >= 0; i--) {
         const next = initial[i];
 
         // TODO see merger
-        if (merger(next, rightmost)) {
-            next.mergeWith(rightmost);
+        if (merger(next, last)) {
+            next.mergeWith(last);
         } else {
-            merged.unshift(...initial.slice(0, i + 1));
+            minimized.unshift(...initial.slice(0, i + 1));
             break;
         }
     }
 
-    return merged;
+    return minimized;
 }
 
 
@@ -144,7 +138,7 @@ import { elementIsBlock } from "../../lib/dom";
  * @returns The single formatting node among nodes
  */
 function singleFormattingNode(nodes: TreeNode[]): FormattingNode | null {
-    if (nodes.length === 0 && nodes[0] instanceof FormattingNode) {
+    if (nodes.length === 1 && nodes[0] instanceof FormattingNode) {
         return nodes[0];
     }
 
@@ -156,9 +150,13 @@ function singleFormattingNode(nodes: TreeNode[]): FormattingNode | null {
  *
  * @returns Whether nodes be placed above MatchNode of element
  */
-function ascender(_node: FormattingNode, element: Element): boolean {
+function ascender(_node: FormattingNode, matchNode: MatchNode, base: Element): boolean {
     // TODO maybe pass in the match instead? even ascendable could be determined in matcher?
-    if (elementIsBlock(element)) {
+    if (
+        elementIsBlock(matchNode.element) ||
+        matchNode.element === base ||
+        !(matchNode.covered || matchNode.insideRange)
+    ) {
         return false;
     }
 
@@ -172,22 +170,36 @@ function buildTreeNode(
     range: Range,
     matcher: ElementMatcher,
     covered: boolean,
-): TreeNode {
+    base: Element,
+): TreeNode | null {
     const match = applyMatcher(matcher, element);
-    const matchNode = MatchNode.make(element, match);
+    const matches = Boolean(match.type);
 
     let children: TreeNode[] = [];
     for (const child of element.childNodes) {
-        const node = buildFormattingTree(child, range, matcher, covered || Boolean(match.type))
+        const node = buildFormattingTree(child, range, matcher, covered || matches, base)
 
-        if (node) {
+        if (node instanceof FormattingNode) {
             children = mergeInNode(children, node)
+        } else if (node) {
+            children.push(node);
         }
+    }
+
+    const matchNode = MatchNode.make(
+        element,
+        match,
+        matches || children.every((node: TreeNode): boolean => node.covered),
+        children.every((node: TreeNode): boolean => node.insideRange),
+    );
+
+    if (children.length === 0 && !match.type) {
+        return null;
     }
 
     const formattingNode = singleFormattingNode(children);
 
-    if (formattingNode && ascender(formattingNode, element)) {
+    if (formattingNode && ascender(formattingNode, matchNode, base)) {
         formattingNode.ascendAbove(matchNode);
         return formattingNode;
     }
@@ -196,8 +208,14 @@ function buildTreeNode(
     return matchNode;
 }
 
-function buildFormattingNode(node: Node, range: Range, covered: boolean): FormattingNode {
-    return FormattingNode.make(ChildNodeRange.fromNode(node), nodeWithinRange(node, range), covered);
+function buildFormattingNode(node: Node, range: Range, covered: boolean): FormattingNode | null {
+    const insideRange = nodeWithinRange(node, range)
+
+    if (!insideRange && !covered) {
+        return null;
+    }
+
+    return FormattingNode.make(ChildNodeRange.fromNode(node), insideRange, covered);
 }
 
 /**
@@ -205,18 +223,17 @@ function buildFormattingNode(node: Node, range: Range, covered: boolean): Format
  *
  * @returns root of the formatting tree
  */
-export function buildFormattingTree(node: Node, range: Range, matcher: ElementMatcher, covered: boolean): TreeNode | null {
+export function buildFormattingTree(node: Node, range: Range, matcher: ElementMatcher, covered: boolean, base: Element): TreeNode | null {
     if (nodeIsText(node) && !textIsNegligible(node)) {
         return buildFormattingNode(node, range, covered);
     } else if (nodeIsElement(node) && !elementIsNegligible(node)) {
-        return buildTreeNode(node, range, matcher, covered);
+        return buildTreeNode(node, range, matcher, covered, base);
     } else {
         return null;
     }
 }
 
 // export function buildTreeFromRange(node: Node, matcher: ElementMatcher): TreeNode | null {
-
 // }
 
 // export function buildTreeFromMatching(node: Node, matcher: ElementMatcher): TreeNode | null {
@@ -228,8 +245,6 @@ export function buildFormattingTree(node: Node, range: Range, matcher: ElementMa
 //         return null;
 //     }
 // }
-
-
 
 /**
  * @returns Text nodes contained in node in source order

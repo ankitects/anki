@@ -27,11 +27,16 @@ export function surround(
         base,
         matcher,
     );
-    debugger;
-    console.log('formatting tree', buildFormattingTree(
-    farthestMatchingAncestor?.element ?? range.commonAncestorContainer, range, matcher, false,
-    )
+
+    const tree = buildFormattingTree(
+        farthestMatchingAncestor?.element ?? range.commonAncestorContainer,
+        range,
+        matcher,
+        false,
+        base,
     );
+    console.log('formatting tree', tree);
+
     const allTexts = farthestMatchingAncestor
         ? findTextsWithinNode(farthestMatchingAncestor.element)
         : findTextsWithinRange(range);
