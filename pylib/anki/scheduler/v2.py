@@ -183,7 +183,6 @@ class Scheduler(SchedulerBaseWithLegacy):
         # we need to check again for any cards that were
         # removed from the queue but not buried
         if recursing:
-            print("bug: fillNew()")
             return False
         self._reset_counts()
         self._resetNew()
@@ -434,7 +433,6 @@ limit ?"""
                 return True
 
         if recursing:
-            print("bug: fillRev2()")
             return False
         self._reset_counts()
         self._resetRev()
