@@ -225,24 +225,28 @@ class Overview:
             self.mw.col.decks.get_current_id()
         )
         but = self.mw.button
+        buried_new = tree_counts.new_count - counts[0]
+        buried_learning = tree_counts.learn_count - counts[1]
+        buried_review = tree_counts.review_count - counts[2]
         return """
 <table width=400 cellpadding=5>
 <tr><td align=center valign=top>
 <table cellspacing=5>
 <tr><td>{}:</td><td><b><span class=new-count>{}</span><span class=bury-count>{}</span></b></td></tr>
-<tr><td>{}:</td><td><b><span class=learn-count>{}</span></b></td></tr>
+<tr><td>{}:</td><td><b><span class=learn-count>{}</span><span class=bury-count>{}</span></b></td></tr>
 <tr><td>{}:</td><td><b><span class=review-count>{}</span><span class=bury-count>{}</span></b></td></tr>
 </table>
 </td><td align=center>
 {}</td></tr></table>""".format(
             tr.actions_new(),
             counts[0],
-            tree_counts.new_count - counts[0] or "",
+            buried_new or "",
             tr.scheduling_learning(),
             counts[1],
+            buried_learning or "",
             tr.studying_to_review(),
             counts[2],
-            tree_counts.review_count - counts[2] or "",
+            buried_review or "",
             but("study", tr.studying_study_now(), id="study", extra=" autofocus"),
         )
 
