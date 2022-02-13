@@ -80,7 +80,8 @@ impl<'a> LearningSteps<'a> {
     }
 }
 
-/// If the given interval in seconds surpasses 1 day, rounds it in days.
+/// If the given interval in seconds surpasses 1 day, rounds it to a whole number of days.
+/// Ensures that the user gets the same results earlier and later in the day.
 /// Returns seconds.
 fn maybe_round_in_days(secs: u32) -> u32 {
     if secs > DAY {
