@@ -278,12 +278,12 @@ impl Collection {
 
         self.storage.set_search_table_to_card_ids(cards, false)?;
         let usn = self.usn()?;
-        self.transact(Op::SetFlag, |col| {
+        self.transact(Op::SkipUndo, |col| {
             let mut count = 0;
             for mut card in col.storage.all_searched_cards()? {
-                let original = card.clone();
                 if card.set_flag(flag) {
-                    col.update_card_inner(&mut card, original, usn)?;
+                    card.usn = usn;
+                    col.storage.update_card(&card)?;
                     count += 1;
                 }
             }
