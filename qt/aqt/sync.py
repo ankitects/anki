@@ -9,6 +9,7 @@ from concurrent.futures import Future
 from typing import Callable
 
 import aqt
+import aqt.main
 from anki.errors import Interrupted, SyncError, SyncErrorKind
 from anki.lang import without_unicode_isolation
 from anki.sync import SyncOutput, SyncStatus

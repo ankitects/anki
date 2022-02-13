@@ -25,6 +25,7 @@ from typing import Any
 from weakref import ref
 
 import anki
+import anki.collection
 from anki import config_pb2
 from anki.collection import OpChanges
 from anki.errors import NotFoundError

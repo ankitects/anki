@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from typing import Any
 
 import aqt
+import aqt.operations
 from anki.collection import OpChanges
 from anki.decks import DeckCollapseScope, DeckId, DeckTreeNode
 from aqt import AnkiQt, gui_hooks

@@ -6,6 +6,7 @@ import time
 from typing import Any, Callable, Sequence
 
 import aqt
+import aqt.browser
 from anki.cards import Card, CardId
 from anki.collection import BrowserColumns as Columns
 from anki.collection import Collection

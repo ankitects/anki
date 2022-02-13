@@ -9,9 +9,10 @@ from typing import TYPE_CHECKING, Any, Iterable, NewType, Sequence, no_type_chec
 if TYPE_CHECKING:
     import anki
 
+import anki.cards
+import anki.collection
 from anki import deckconfig_pb2, decks_pb2
 from anki._legacy import DeprecatedNamesMixin, deprecated, print_deprecation_warning
-from anki.cards import CardId
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.consts import *
 from anki.errors import NotFoundError
@@ -383,7 +384,7 @@ class DeckManager(DeprecatedNamesMixin):
             return deck["name"]
         return None
 
-    def cids(self, did: DeckId, children: bool = False) -> list[CardId]:
+    def cids(self, did: DeckId, children: bool = False) -> list[anki.cards.CardId]:
         if not children:
             return self.col.db.list("select id from cards where did=?", did)
         dids = [did]
@@ -391,7 +392,7 @@ class DeckManager(DeprecatedNamesMixin):
             dids.append(id)
         return self.col.db.list(f"select id from cards where did in {ids2str(dids)}")
 
-    def for_card_ids(self, cids: list[CardId]) -> list[DeckId]:
+    def for_card_ids(self, cids: list[anki.cards.CardId]) -> list[DeckId]:
         return self.col.db.list(f"select did from cards where id in {ids2str(cids)}")
 
     # Deck selection
@@ -543,7 +544,7 @@ class DeckManager(DeprecatedNamesMixin):
         return {d["name"]: d for d in self.all()}
 
     @deprecated(info="use col.set_deck() instead")
-    def set_deck(self, cids: list[CardId], did: DeckId) -> None:
+    def set_deck(self, cids: list[anki.cards.CardId], did: DeckId) -> None:
         self.col.set_deck(card_ids=cids, deck_id=did)
         self.col.db.execute(
             f"update cards set did=?,usn=?,mod=? where id in {ids2str(cids)}",

@@ -39,6 +39,7 @@ from operator import attrgetter
 from typing import Any, cast
 
 import anki
+import anki.template
 from anki import hooks
 from anki.sound import AVTag, TTSTag
 from anki.utils import checksum, is_win, tmpdir

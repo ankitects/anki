@@ -14,6 +14,8 @@ from enum import Enum, auto
 from typing import Any, Callable, Literal, Match, Sequence, cast
 
 import aqt
+import aqt.browser
+import aqt.operations
 from anki import hooks
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount

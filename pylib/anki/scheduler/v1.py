@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import anki
+import anki.collection
 from anki.cards import Card
 from anki.consts import *
 from anki.decks import DeckId

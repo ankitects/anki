@@ -6,6 +6,8 @@ from __future__ import annotations
 from typing import List, Optional, Tuple
 
 import aqt
+import aqt.customstudy
+import aqt.forms
 from anki.lang import with_collapsed_whitespace
 from aqt.main import AnkiQt
 from aqt.qt import *

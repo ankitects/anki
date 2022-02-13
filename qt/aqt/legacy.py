@@ -10,6 +10,8 @@ from __future__ import annotations
 from typing import Any
 
 import anki
+import anki.sound
+import anki.utils
 import aqt
 from aqt.theme import theme_manager
 

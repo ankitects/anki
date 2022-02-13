@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any, Callable, Sequence
 
 import aqt
+import aqt.browser
 import aqt.forms
 from anki.cards import Card, CardId
 from anki.collection import Collection, Config, OpChanges

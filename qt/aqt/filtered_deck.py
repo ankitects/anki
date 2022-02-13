@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import aqt
+import aqt.forms
+import aqt.operations
 from anki.collection import OpChangesWithId, SearchNode
 from anki.decks import DeckDict, DeckId, FilteredDeckConfig
 from anki.errors import SearchError
