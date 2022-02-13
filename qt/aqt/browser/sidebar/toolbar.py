@@ -6,6 +6,8 @@ from __future__ import annotations
 from enum import Enum, auto
 
 import aqt
+import aqt.browser
+import aqt.gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import tr

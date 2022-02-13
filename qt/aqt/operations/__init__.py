@@ -7,6 +7,7 @@ from concurrent.futures._base import Future
 from typing import Any, Callable, Generic, Protocol, TypeVar, Union
 
 import aqt
+import aqt.gui_hooks
 from anki.collection import (
     Collection,
     OpChanges,

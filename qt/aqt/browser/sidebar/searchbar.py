@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import aqt
+import aqt.browser
+import aqt.gui_hooks
 from aqt import colors
 from aqt.browser.sidebar import _want_right_border
 from aqt.qt import *

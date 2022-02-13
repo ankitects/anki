@@ -9,6 +9,7 @@ from ctypes import CDLL, CFUNCTYPE, c_char_p
 from typing import Callable
 
 import aqt
+import aqt.utils
 
 
 class _MacOSHelper:

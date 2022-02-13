@@ -22,6 +22,7 @@ from jsonschema.exceptions import ValidationError
 from send2trash import send2trash
 
 import anki
+import anki.utils
 import aqt
 import aqt.forms
 import aqt.main

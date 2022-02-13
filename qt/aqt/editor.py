@@ -22,6 +22,8 @@ import requests
 from bs4 import BeautifulSoup
 
 import aqt
+import aqt.forms
+import aqt.operations
 import aqt.sound
 from anki._legacy import deprecated
 from anki.cards import Card

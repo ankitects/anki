@@ -6,6 +6,8 @@ from enum import Enum, auto
 from typing import Iterable, cast
 
 import aqt
+import aqt.browser
+import aqt.operations
 from anki.collection import (
     Config,
     OpChanges,

@@ -5,6 +5,8 @@ from typing import Any, cast
 
 import anki.lang
 import aqt
+import aqt.forms
+import aqt.operations
 from anki.collection import OpChanges
 from anki.consts import new_card_scheduling_labels
 from aqt import AnkiQt

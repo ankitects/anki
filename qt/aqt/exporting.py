@@ -9,6 +9,8 @@ import time
 from concurrent.futures import Future
 
 import aqt
+import aqt.forms
+import aqt.main
 from anki import hooks
 from anki.cards import CardId
 from anki.decks import DeckId
