@@ -1297,14 +1297,16 @@ title="{}" {}>{}</button>""".format(
             m.actionZoomIn.triggered,
             lambda: self.web.setZoomFactor(self.web.zoomFactor() + 0.1),
         )
+        m.actionZoomIn.setShortcut(QKeySequence.StandardKey.ZoomIn)
         qconnect(
             m.actionZoomOut.triggered,
             lambda: self.web.setZoomFactor(self.web.zoomFactor() - 0.1),
         )
+        m.actionZoomOut.setShortcut(QKeySequence.StandardKey.ZoomOut)
         qconnect(m.actionResetZoom.triggered, lambda: self.web.setZoomFactor(1))
         # app-wide shortcut
         qconnect(m.actionFullScreen.triggered, self.on_toggle_fullscreen)
-        m.actionFullScreen.setShortcut(QKeySequence("Ctrl+Meta+F" if is_mac else "F11"))
+        m.actionFullScreen.setShortcut(QKeySequence.StandardKey.FullScreen)
         m.actionFullScreen.setShortcutContext(Qt.ShortcutContext.ApplicationShortcut)
 
     def updateTitleBar(self) -> None:

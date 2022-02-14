@@ -195,10 +195,12 @@ class Browser(QMainWindow):
             f.actionZoomIn.triggered,
             lambda: self.editor.web.setZoomFactor(self.editor.web.zoomFactor() + 0.1),
         )
+        f.actionZoomIn.setShortcut(QKeySequence.StandardKey.ZoomIn)
         qconnect(
             f.actionZoomOut.triggered,
             lambda: self.editor.web.setZoomFactor(self.editor.web.zoomFactor() - 0.1),
         )
+        f.actionZoomOut.setShortcut(QKeySequence.StandardKey.ZoomOut)
         qconnect(
             f.actionResetZoom.triggered,
             lambda: self.editor.web.setZoomFactor(1),
