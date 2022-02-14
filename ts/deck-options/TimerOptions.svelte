@@ -33,13 +33,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Item>
 
         <Item>
-            <SwitchRow
-                bind:value={$config.showTimer}
-                defaultValue={defaults.showTimer}
-                markdownTooltip={tr.deckConfigShowAnswerTimerTooltip()}
-            >
-                {tr.schedulingShowAnswerTimer()}
-            </SwitchRow>
+            <!-- AnkiMobile hides this -->
+            <div class="show-timer-switch" style="display: contents;">
+                <SwitchRow
+                    bind:value={$config.showTimer}
+                    defaultValue={defaults.showTimer}
+                    markdownTooltip={tr.deckConfigShowAnswerTimerTooltip()}
+                >
+                    {tr.schedulingShowAnswerTimer()}
+                </SwitchRow>
+            </div>
         </Item>
     </DynamicallySlottable>
 </TitledContainer>
