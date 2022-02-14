@@ -178,6 +178,7 @@ class Browser(QMainWindow):
     def setupMenus(self) -> None:
         # actions
         f = self.form
+
         # edit
         qconnect(f.actionUndo.triggered, self.undo)
         qconnect(f.actionRedo.triggered, self.redo)
@@ -187,6 +188,22 @@ class Browser(QMainWindow):
             f.actionClose.setVisible(False)
         qconnect(f.actionCreateFilteredDeck.triggered, self.createFilteredDeck)
         f.actionCreateFilteredDeck.setShortcuts(["Ctrl+G", "Ctrl+Alt+G"])
+
+        # view
+        qconnect(f.actionFullScreen.triggered, self.mw.on_toggle_fullscreen)
+        qconnect(
+            f.actionZoomIn.triggered,
+            lambda: self.editor.web.setZoomFactor(self.editor.web.zoomFactor() + 0.1),
+        )
+        qconnect(
+            f.actionZoomOut.triggered,
+            lambda: self.editor.web.setZoomFactor(self.editor.web.zoomFactor() - 0.1),
+        )
+        qconnect(
+            f.actionResetZoom.triggered,
+            lambda: self.editor.web.setZoomFactor(1),
+        )
+
         # notes
         qconnect(f.actionAdd.triggered, self.mw.onAddCard)
         qconnect(f.actionCopy.triggered, self.on_create_copy)
@@ -199,6 +216,7 @@ class Browser(QMainWindow):
         qconnect(f.actionFindReplace.triggered, self.onFindReplace)
         qconnect(f.actionManage_Note_Types.triggered, self.mw.onNoteTypes)
         qconnect(f.actionDelete.triggered, self.delete_selected_notes)
+
         # cards
         qconnect(f.actionChange_Deck.triggered, self.set_deck_of_selected_cards)
         qconnect(f.action_Info.triggered, self.showCardInfo)
@@ -216,6 +234,7 @@ class Browser(QMainWindow):
             )
         self._update_flag_labels()
         qconnect(f.actionExport.triggered, self._on_export_notes)
+
         # jumps
         qconnect(f.actionPreviousCard.triggered, self.onPreviousCard)
         qconnect(f.actionNextCard.triggered, self.onNextCard)
@@ -225,13 +244,16 @@ class Browser(QMainWindow):
         qconnect(f.actionNote.triggered, self.onNote)
         qconnect(f.actionSidebar.triggered, self.focusSidebar)
         qconnect(f.actionCardList.triggered, self.onCardList)
+
         # help
         qconnect(f.actionGuide.triggered, self.onHelp)
+
         # keyboard shortcut for shift+home/end
         self.pgUpCut = QShortcut(QKeySequence("Shift+Home"), self)
         qconnect(self.pgUpCut.activated, self.onFirstCard)
         self.pgDownCut = QShortcut(QKeySequence("Shift+End"), self)
         qconnect(self.pgDownCut.activated, self.onLastCard)
+
         # add-on hook
         gui_hooks.browser_menus_did_init(self)
         self.mw.maybeHideAccelerators(self)

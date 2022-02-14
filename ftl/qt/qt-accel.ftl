@@ -38,3 +38,5 @@ qt-accel-full-screen = Toggle &full screen
 qt-accel-zoom-in = Zoom &in
 qt-accel-zoom-out = Zoom &out
 qt-accel-reset-zoom = &Reset zoom
+qt-accel-zoom-editor-in = Zoom editor &in
+qt-accel-zoom-editor-out = Zoom editor &out
