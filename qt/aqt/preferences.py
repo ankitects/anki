@@ -91,6 +91,7 @@ class Preferences(QDialog):
             0 if editing.adding_defaults_to_current_deck else 1
         )
         form.paste_strips_formatting.setChecked(editing.paste_strips_formatting)
+        form.ignore_accents_in_search.setChecked(editing.ignore_accents_in_search)
         form.pastePNG.setChecked(editing.paste_images_as_png)
         form.default_search_text.setText(editing.default_search_text)
 
@@ -116,6 +117,9 @@ class Preferences(QDialog):
         editing.paste_images_as_png = self.form.pastePNG.isChecked()
         editing.paste_strips_formatting = self.form.paste_strips_formatting.isChecked()
         editing.default_search_text = self.form.default_search_text.text()
+        editing.ignore_accents_in_search = (
+            self.form.ignore_accents_in_search.isChecked()
+        )
 
         def after_prefs_update(changes: OpChanges) -> None:
             self.mw.apply_collection_options()

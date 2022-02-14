@@ -117,7 +117,14 @@ impl SqlWriter<'_> {
         use normalize_to_nfc as norm;
         match node {
             // note fields related
-            SearchNode::UnqualifiedText(text) => self.write_unqualified(&self.norm_note(text)),
+            SearchNode::UnqualifiedText(text) => {
+                let text = &self.norm_note(text);
+                if self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch) {
+                    self.write_no_combining(text)
+                } else {
+                    self.write_unqualified(text)
+                }
+            }
             SearchNode::SingleField { field, text, is_re } => {
                 self.write_field(&norm(field), &self.norm_note(text), *is_re)?
             }
