@@ -9,7 +9,7 @@ import type { ElementMatcher, FoundMatch } from "./match-type";
 import { applyMatcher } from "./match-type";
 import { elementIsNegligible, textIsNegligible } from "./node-negligible";
 import type { TreeNode } from "./tree-node";
-import { FormattingNode, MatchNode } from "./tree-node";
+import { BlockNode, FormattingNode, MatchNode } from "./tree-node";
 import { nodeWithinRange } from "./within-range";
 
 /**
@@ -117,7 +117,7 @@ function tryMerge(
 }
 
 /**
- * @param start: The node which is intended to be the new end node
+ * @param last: The node which is intended to be the new end node.
  */
 function mergeInNode(initial: TreeNode[], last: FormattingNode): TreeNode[] {
     const minimized: TreeNode[] = [last];
@@ -126,7 +126,11 @@ function mergeInNode(initial: TreeNode[], last: FormattingNode): TreeNode[] {
         const next = initial[i];
 
         let merged: FormattingNode | null;
-        if (next instanceof FormattingNode && (merged = tryMerge(next, last))) {
+        if (next instanceof BlockNode) {
+            minimized[0] = last;
+        } else if (last instanceof BlockNode) {
+            minimized[0] = next;
+        } else if (next instanceof FormattingNode && (merged = tryMerge(next, last))) {
             minimized[0] = merged;
         } else {
             minimized.unshift(...initial.slice(0, i + 1));
@@ -163,13 +167,14 @@ function buildTreeNode(
     range: Range,
     matcher: ElementMatcher,
     base: Element,
+    covered: boolean,
 ): TreeNode | null {
     const match = applyMatcher(matcher, element);
-    const matches = Boolean(match.type);
+    const covers = covered || Boolean(match.type);
 
     let children: TreeNode[] = [];
     for (const child of element.childNodes) {
-        const node = buildFormattingTree(child, range, matcher, matches, base);
+        const node = buildFormattingTree(child, range, matcher, covers, base);
 
         if (node) {
             children = appendNode(children, node);
@@ -179,7 +184,7 @@ function buildTreeNode(
     const matchNode = MatchNode.make(
         element,
         match,
-        matches || children.every((node: TreeNode): boolean => node.covered),
+        covers || children.every((node: TreeNode): boolean => node.covered),
         children.every((node: TreeNode): boolean => node.insideRange),
     );
 
@@ -187,11 +192,16 @@ function buildTreeNode(
         return null;
     }
 
-    if (children.length === 1 && children[0] instanceof FormattingNode) {
-        const formattingNode = children[0] as FormattingNode;
+    if (children.length === 1) {
+        const [only] = children;
 
-        if (formattingNode.tryAscend(matchNode, base)) {
-            return formattingNode;
+        if (
+            // ascension
+            (only instanceof FormattingNode && only.tryAscend(matchNode, base)) || 
+            // blocking
+            only instanceof BlockNode
+        ) {
+            return only;
         }
     }
 
@@ -203,11 +213,11 @@ function buildFormattingNode(
     node: Node,
     range: Range,
     covered: boolean,
-): FormattingNode | null {
+): FormattingNode | BlockNode {
     const insideRange = nodeWithinRange(node, range);
 
     if (!insideRange && !covered) {
-        return BlockNode.make();
+        return BlockNode.make(false, false);
     }
 
     return FormattingNode.make(ChildNodeRange.fromNode(node), insideRange, covered);
@@ -228,7 +238,7 @@ export function buildFormattingTree(
     if (nodeIsText(node) && !textIsNegligible(node)) {
         return buildFormattingNode(node, range, covered);
     } else if (nodeIsElement(node) && !elementIsNegligible(node)) {
-        return buildTreeNode(node, range, matcher, base);
+        return buildTreeNode(node, range, matcher, base, covered);
     } else {
         return null;
     }

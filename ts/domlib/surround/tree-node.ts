@@ -84,6 +84,26 @@ export abstract class TreeNode {
     // }
 }
 
+export class BlockNode extends TreeNode {
+    private constructor(
+        public covered: boolean,
+        public insideRange: boolean,
+    ) {
+        super(covered, insideRange);
+    }
+
+    static make(
+        covered: boolean,
+        insideRange: boolean,
+    ): BlockNode {
+        return new BlockNode(covered, insideRange);
+    }
+
+    evaluate(): void {
+        // noop
+    }
+}
+
 export class MatchNode extends TreeNode {
     private constructor(
         public element: Element,
