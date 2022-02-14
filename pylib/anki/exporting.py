@@ -340,7 +340,7 @@ class AnkiPackageExporter(AnkiExporter):
 
     def exportInto(self, path: str) -> None:
         # open a zip file
-        z = zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED, allowZip64=True)
+        z = zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED, allowZip64=True, strict_timestamps=False)
         media = self.doExport(z, path)
         # media map
         z.writestr("media", json.dumps(media))
