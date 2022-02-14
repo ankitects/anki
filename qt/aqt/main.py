@@ -209,7 +209,6 @@ class AnkiQt(QMainWindow):
         self.setup_timers()
         self.updateTitleBar()
         self.setup_focus()
-        self.setup_shortcuts()
         # screens
         self.setupDeckBrowser()
         self.setupOverview()
@@ -243,17 +242,6 @@ class AnkiQt(QMainWindow):
 
     def on_focus_changed(self, old: QWidget, new: QWidget) -> None:
         gui_hooks.focus_did_change(new, old)
-
-    def setup_shortcuts(self) -> None:
-        QShortcut(
-            QKeySequence("Ctrl+Meta+F" if is_mac else "F11"),
-            self,
-            self.on_toggle_fullscreen,
-        ).setContext(Qt.ShortcutContext.ApplicationShortcut)
-
-    def on_toggle_fullscreen(self) -> None:
-        window = self.app.activeWindow()
-        window.setWindowState(window.windowState() ^ Qt.WindowState.WindowFullScreen)
 
     # Profiles
     ##########################################################################
@@ -1277,27 +1265,57 @@ title="{}" {}>{}</button>""".format(
 
     def setupMenus(self) -> None:
         m = self.form
+
+        # File
         qconnect(
             m.actionSwitchProfile.triggered, self.unloadProfileAndShowProfileManager
         )
         qconnect(m.actionImport.triggered, self.onImport)
         qconnect(m.actionExport.triggered, self.onExport)
         qconnect(m.actionExit.triggered, self.close)
-        qconnect(m.actionPreferences.triggered, self.onPrefs)
-        qconnect(m.actionAbout.triggered, self.onAbout)
-        qconnect(m.actionUndo.triggered, self.undo)
-        qconnect(m.actionRedo.triggered, self.redo)
-        qconnect(m.actionFullDatabaseCheck.triggered, self.onCheckDB)
-        qconnect(m.actionCheckMediaDatabase.triggered, self.on_check_media_db)
+
+        # Help
         qconnect(m.actionDocumentation.triggered, self.onDocumentation)
         qconnect(m.actionDonate.triggered, self.onDonate)
+        qconnect(m.actionAbout.triggered, self.onAbout)
+
+        # Edit
+        qconnect(m.actionUndo.triggered, self.undo)
+        qconnect(m.actionRedo.triggered, self.redo)
+
+        # Tools
+        qconnect(m.actionFullDatabaseCheck.triggered, self.onCheckDB)
+        qconnect(m.actionCheckMediaDatabase.triggered, self.on_check_media_db)
         qconnect(m.actionStudyDeck.triggered, self.onStudyDeck)
         qconnect(m.actionCreateFiltered.triggered, self.onCram)
         qconnect(m.actionEmptyCards.triggered, self.onEmptyCards)
         qconnect(m.actionNoteTypes.triggered, self.onNoteTypes)
+        qconnect(m.actionPreferences.triggered, self.onPrefs)
+
+        # View
+        qconnect(
+            m.actionZoomIn.triggered,
+            lambda: self.web.setZoomFactor(self.web.zoomFactor() + 0.1),
+        )
+        qconnect(
+            m.actionZoomOut.triggered,
+            lambda: self.web.setZoomFactor(self.web.zoomFactor() - 0.1),
+        )
+        qconnect(m.actionResetZoom.triggered, lambda: self.web.setZoomFactor(1))
+        # app-wide shortcut
+        qconnect(m.actionFullScreen.triggered, self.on_toggle_fullscreen)
+        m.actionFullScreen.setShortcut(QKeySequence("Ctrl+Meta+F" if is_mac else "F11"))
+        m.actionFullScreen.setShortcutContext(Qt.ShortcutContext.ApplicationShortcut)
 
     def updateTitleBar(self) -> None:
         self.setWindowTitle("Anki")
+
+    # View
+    ##########################################################################
+
+    def on_toggle_fullscreen(self) -> None:
+        window = self.app.activeWindow()
+        window.setWindowState(window.windowState() ^ Qt.WindowState.WindowFullScreen)
 
     # Auto update
     ##########################################################################
