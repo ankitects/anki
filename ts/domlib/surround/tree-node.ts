@@ -5,10 +5,9 @@ import { elementIsBlock } from "../../lib/dom";
 import { ascend } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
 import type { Match } from "./match-type";
-import type { ElementMatcher } from "./match-type";
-import { applyMatcher } from "./match-type";
+import type { ElementMatcher, SurroundFormat } from "./match-type";
+import { applyClearer, applyMatcher, MatchType } from "./match-type";
 import { nodeIsAmongNegligibles } from "./node-negligible";
-
 
 // class ShallowTreeIterator {
 //     constructor(
@@ -32,7 +31,7 @@ function accumulate(accu: number, tree: TreeNode): number {
 }
 
 export abstract class TreeNode {
-    readonly children: TreeNode[] =[];
+    readonly children: TreeNode[] = [];
 
     protected constructor(
         /**
@@ -78,6 +77,8 @@ export abstract class TreeNode {
         return null;
     }
 
+    abstract evaluate(format: SurroundFormat): void;
+
     // [Symbol.iterator]() {
     //     return new ShallowTreeIterator(this);
     // }
@@ -93,7 +94,12 @@ export class MatchNode extends TreeNode {
         super(covered, insideRange);
     }
 
-    static make(element: Element, match: Match, covered: boolean, insideRange: boolean): MatchNode {
+    static make(
+        element: Element,
+        match: Match,
+        covered: boolean,
+        insideRange: boolean,
+    ): MatchNode {
         return new MatchNode(element, match, covered, insideRange);
     }
 
@@ -126,6 +132,25 @@ export class MatchNode extends TreeNode {
 
         parentNode.replaceChildren([this]);
         return parentNode;
+    }
+
+    evaluate(format: SurroundFormat): void {
+        for (const child of this.children) {
+            child.evaluate(format);
+        }
+
+        switch (this.match.type) {
+            case MatchType.REMOVE:
+                this.element.replaceWith(...this.element.childNodes);
+                break;
+
+            case MatchType.CLEAR:
+                const shouldRemove = applyClearer(this.match.clear, this.element);
+                if (shouldRemove) {
+                    this.element.replaceWith(...this.element.childNodes);
+                }
+                break;
+        }
     }
 }
 
@@ -187,7 +212,7 @@ export class FormattingNode extends TreeNode {
             return;
         }
 
-        matchNode.replaceChildren(this.replaceChildren([matchNode]))
+        matchNode.replaceChildren(this.replaceChildren([matchNode]));
     }
 
     tryAscend(matchNode: MatchNode, base: Element): boolean {
@@ -228,5 +253,13 @@ export class FormattingNode extends TreeNode {
 
             top = top.tryExtend(base, matcher);
         }
+    }
+
+    evaluate(format: SurroundFormat): void {
+        for (const child of this.children) {
+            child.evaluate(format);
+        }
+
+        this.range.surroundWithNode(format.surroundElement);
     }
 }

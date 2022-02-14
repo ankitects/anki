@@ -2,12 +2,14 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { nodeIsElement, nodeIsText } from "../../lib/dom";
+import { getRangeCoordinates } from "../location";
+import type { RangeCoordinatesContent } from "../location/range";
 import { ChildNodeRange } from "./child-node-range";
 import type { ElementMatcher, FoundMatch } from "./match-type";
 import { applyMatcher } from "./match-type";
-import { elementIsNegligible,textIsNegligible } from "./node-negligible";
+import { elementIsNegligible, textIsNegligible } from "./node-negligible";
 import type { TreeNode } from "./tree-node";
-import { FormattingNode,MatchNode } from "./tree-node";
+import { FormattingNode, MatchNode } from "./tree-node";
 import { nodeWithinRange } from "./within-range";
 
 /**
@@ -93,12 +95,12 @@ export function findWithinNode(node: Node, matcher: ElementMatcher): FoundMatch[
     return matches;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-function merger(before: FormattingNode, after: FormattingNode): before is FormattingNode {
+function merger(
+    before: FormattingNode,
+    after: FormattingNode,
+): before is FormattingNode {
     // TODO introduce a way to provide a custom merger
     // This  will allow any sibling child node ranges to merge
     return true;
@@ -107,17 +109,17 @@ function merger(before: FormattingNode, after: FormattingNode): before is Format
 /**
  * @returns Whether merge suceeded.
  */
-function tryMerge(before: FormattingNode, after: FormattingNode): FormattingNode | null {
+function tryMerge(
+    before: FormattingNode,
+    after: FormattingNode,
+): FormattingNode | null {
     return merger(before, after) ? FormattingNode.merge(before, after) : null;
 }
 
 /**
  * @param start: The node which is intended to be the new end node
  */
-function mergeInNode(
-    initial: TreeNode[],
-    last: FormattingNode,
-): TreeNode[] {
+function mergeInNode(initial: TreeNode[], last: FormattingNode): TreeNode[] {
     const minimized: TreeNode[] = [last];
 
     for (let i = initial.length - 1; i >= 0; i--) {
@@ -137,7 +139,7 @@ function mergeInNode(
 
 function appendNode(nodes: TreeNode[], node: TreeNode): TreeNode[] {
     if (node instanceof FormattingNode) {
-        return mergeInNode(nodes, node)
+        return mergeInNode(nodes, node);
     } else {
         return [...nodes, node];
     }
@@ -167,7 +169,7 @@ function buildTreeNode(
 
     let children: TreeNode[] = [];
     for (const child of element.childNodes) {
-        const node = buildFormattingTree(child, range, matcher, matches, base)
+        const node = buildFormattingTree(child, range, matcher, matches, base);
 
         if (node) {
             children = appendNode(children, node);
@@ -197,11 +199,15 @@ function buildTreeNode(
     return matchNode;
 }
 
-function buildFormattingNode(node: Node, range: Range, covered: boolean): FormattingNode | null {
-    const insideRange = nodeWithinRange(node, range)
+function buildFormattingNode(
+    node: Node,
+    range: Range,
+    covered: boolean,
+): FormattingNode | null {
+    const insideRange = nodeWithinRange(node, range);
 
     if (!insideRange && !covered) {
-        return null;
+        return BlockNode.make();
     }
 
     return FormattingNode.make(ChildNodeRange.fromNode(node), insideRange, covered);
@@ -212,7 +218,13 @@ function buildFormattingNode(node: Node, range: Range, covered: boolean): Format
  *
  * @returns root of the formatting tree
  */
-export function buildFormattingTree(node: Node, range: Range, matcher: ElementMatcher, covered: boolean, base: Element): TreeNode | null {
+export function buildFormattingTree(
+    node: Node,
+    range: Range,
+    matcher: ElementMatcher,
+    covered: boolean,
+    base: Element,
+): TreeNode | null {
     if (nodeIsText(node) && !textIsNegligible(node)) {
         return buildFormattingNode(node, range, covered);
     } else if (nodeIsElement(node) && !elementIsNegligible(node)) {
@@ -231,8 +243,8 @@ function nextSibling(node: Node): ChildNode | null {
 }
 
 interface MergeResult {
-    node: FormattingNode,
-    hitBorder: boolean,
+    node: FormattingNode;
+    hitBorder: boolean;
 }
 
 /**
@@ -250,7 +262,7 @@ function mergePreviousTrees(
 
     let sibling = previousSibling(start.range.parent);
     while (sibling) {
-        const siblingNode = buildFormattingTree(sibling, range, matcher, false, base)
+        const siblingNode = buildFormattingTree(sibling, range, matcher, false, base);
 
         if (siblingNode) {
             let merged: FormattingNode | null;
@@ -264,7 +276,7 @@ function mergePreviousTrees(
                 return {
                     node: result,
                     hitBorder: false,
-                }
+                };
             }
         }
 
@@ -274,7 +286,7 @@ function mergePreviousTrees(
     return {
         node: result,
         hitBorder: true,
-    }
+    };
 }
 
 /**
@@ -292,7 +304,7 @@ function mergeNextTrees(
 
     let sibling = nextSibling(start.range.parent);
     while (sibling) {
-        const siblingNode = buildFormattingTree(sibling, range, matcher, false, base)
+        const siblingNode = buildFormattingTree(sibling, range, matcher, false, base);
 
         if (siblingNode) {
             let merged: FormattingNode | null;
@@ -306,7 +318,7 @@ function mergeNextTrees(
                 return {
                     node: result,
                     hitBorder: false,
-                }
+                };
             }
         }
 
@@ -316,7 +328,7 @@ function mergeNextTrees(
     return {
         node: result,
         hitBorder: true,
-    }
+    };
 }
 
 function isCoveredFormattingNode(node: TreeNode): node is FormattingNode {
@@ -359,14 +371,34 @@ function extendAndMerge(
 }
 
 /**
- * Assumes that the range is not placed inside an upper matching element
+ * Assumes that the range is not placed inside a matching element.
  */
-export function buildTreeFromRange(range: Range, matcher: ElementMatcher, base: Element): TreeNode | null {
-    return buildTreeFromNode(range.commonAncestorContainer, range, matcher, base);
+export function buildTreeFromRange(
+    range: Range,
+    matcher: ElementMatcher,
+    base: Element,
+): TreeNode | null {
+    return buildTreeFromNode(
+        range.commonAncestorContainer,
+        range,
+        matcher,
+        false,
+        base,
+    );
 }
 
-export function buildTreeFromNode(node: Node, range: Range, matcher: ElementMatcher, base: Element): TreeNode | null {
-    const output = buildFormattingTree(node, range, matcher, false, base)
+export function buildTreeFromNode(
+    node: Node,
+    range: Range,
+    matcher: ElementMatcher,
+    covered: boolean,
+    base: Element,
+): TreeNode | null {
+    const coordinates = getRangeCoordinates(range, base) as RangeCoordinatesContent;
+
+    // TODO range is only used to check whether text nodes are placed within the range
+    // also, this must be false during extendAndMerging, maybe replace this with a callback
+    const output = buildFormattingTree(node, range, matcher, covered, base);
 
     if (!output) {
         return null;

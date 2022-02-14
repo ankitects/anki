@@ -6,7 +6,13 @@ import type { SurroundFormat } from "./match-type";
 import { minimalRanges } from "./minimal-ranges";
 import { getRangeAnchors } from "./range-anchors";
 import { removeWithin } from "./remove-within";
-import { buildFormattingTree, buildTreeFromRange, findTextsWithinNode, findTextsWithinRange, validText } from "./text-node";
+import {
+    buildFormattingTree,
+    buildTreeFromRange,
+    findTextsWithinNode,
+    findTextsWithinRange,
+    validText,
+} from "./text-node";
 
 export interface NodesResult {
     addedNodes: Node[];
@@ -16,7 +22,7 @@ export interface NodesResult {
 export function surround(
     range: Range,
     base: Element,
-    { matcher, surroundElement }: SurroundFormat,
+    format: SurroundFormat,
 ): NodesResult {
     // TODO maybe offer those as two functions, one finds within range, one
     // within farthestMatchingAncestor.
@@ -25,38 +31,47 @@ export function surround(
     const farthestMatchingAncestor = findFarthest(
         range.commonAncestorContainer,
         base,
-        matcher,
+        format.matcher,
     );
 
     const tree = farthestMatchingAncestor
-        ? buildFormattingTree(farthestMatchingAncestor.element, range, matcher, true, base) 
-        : buildTreeFromRange(range, matcher, base);
-    console.log('formatting tree', tree);
+        ? buildFormattingTree(
+              farthestMatchingAncestor.element,
+              range,
+              format.matcher,
+              true,
+              base,
+          )
+        : buildTreeFromRange(range, format.matcher, base);
 
-    const allTexts = farthestMatchingAncestor
-        ? findTextsWithinNode(farthestMatchingAncestor.element)
-        : findTextsWithinRange(range);
+    tree?.evaluate(format);
+    console.log("formatting tree", tree);
 
-    const texts = allTexts.filter(validText).filter(validText);
-    const ranges = minimalRanges(texts, base, matcher);
-    console.log("result", ranges);
+    // const allTexts = farthestMatchingAncestor
+    //     ? findTextsWithinNode(farthestMatchingAncestor.element)
+    //     : findTextsWithinRange(range);
 
-    const removed: Element[] = [];
-    const added: Element[] = [];
+    // const texts = allTexts.filter(validText).filter(validText);
+    // const ranges = minimalRanges(texts, base, matcher);
+    // console.log("result", ranges);
 
-    for (const range of ranges) {
-        removed.push(
-            /* modifies ranges */
-            ...removeWithin(range, matcher),
-        );
+    // const removed: Element[] = [];
+    // const added: Element[] = [];
 
-        const surroundClone = surroundElement.cloneNode(false) as Element;
+    // for (const range of ranges) {
+    //     removed.push(
+    //         /* modifies ranges */
+    //         ...removeWithin(range, matcher),
+    //     );
 
-        range.surroundWithNode(surroundClone);
-        added.push(surroundClone);
-    }
+    //     const surroundClone = surroundElement.cloneNode(false) as Element;
 
-    return { addedNodes: added, removedNodes: removed };
+    //     range.surroundWithNode(surroundClone);
+    //     added.push(surroundClone);
+    // }
+
+    // return { addedNodes: added, removedNodes: removed };
+    return { addedNodes: [], removedNodes: [] };
 }
 
 export type SurroundNoSplittingResult = NodesResult & {
@@ -78,10 +93,6 @@ export function surroundNoSplitting(
     format: SurroundFormat,
 ): SurroundNoSplittingResult {
     // TODO
-    // const coords = [
-    //     getNodeCoordinates(range.startContainer, base),
-    //     getNodeCoordinates(range.endContainer, base),
-    // ];
 
     const { start, end } = getRangeAnchors(range, format.matcher);
     const { addedNodes, removedNodes } = surround(range, base, format);
