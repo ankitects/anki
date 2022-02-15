@@ -126,11 +126,7 @@ function mergeInNode(initial: TreeNode[], last: FormattingNode): TreeNode[] {
         const next = initial[i];
 
         let merged: FormattingNode | null;
-        if (next instanceof BlockNode) {
-            minimized[0] = last;
-        } else if (last instanceof BlockNode) {
-            minimized[0] = next;
-        } else if (next instanceof FormattingNode && (merged = tryMerge(next, last))) {
+        if (next instanceof FormattingNode && (merged = tryMerge(next, last))) {
             minimized[0] = merged;
         } else {
             minimized.unshift(...initial.slice(0, i + 1));
@@ -235,6 +231,7 @@ export function buildFormattingTree(
     covered: boolean,
     base: Element,
 ): TreeNode | null {
+    // debugger;
     if (nodeIsText(node) && !textIsNegligible(node)) {
         return buildFormattingNode(node, range, covered);
     } else if (nodeIsElement(node) && !elementIsNegligible(node)) {
@@ -342,42 +339,39 @@ function mergeNextTrees(
 }
 
 function isCoveredFormattingNode(node: TreeNode): node is FormattingNode {
-    return node instanceof FormattingNode && node.covered;
+    // TODO does it have to be covered?, I don't think so
+    return node instanceof FormattingNode; // && node.covered;
 }
 
 function extendAndMerge(
-    output: TreeNode,
+    node: FormattingNode,
     range: Range,
     matcher: ElementMatcher,
     base: Element,
 ): TreeNode {
-    if (isCoveredFormattingNode(output)) {
-        output.extendAndAscend(matcher, base);
+    node.extendAndAscend(matcher, base);
 
-        const previous = mergePreviousTrees(output, range, matcher, base);
-        const next = mergeNextTrees(previous.node, range, matcher, base);
-        const parent = output.range.parent.parentElement;
+    const previous = mergePreviousTrees(node, range, matcher, base);
+    const next = mergeNextTrees(previous.node, range, matcher, base);
+    const parent = node.range.parent.parentElement;
 
-        if (!previous.hitBorder || !next.hitBorder || !parent) {
-            return next.node;
-        }
-
-        const matchNode = MatchNode.make(
-            parent,
-            applyMatcher(matcher, parent),
-            next.node.covered,
-            next.node.insideRange,
-        );
-
-        next.node.tryAscend(matchNode, base);
-
-        // Even if matchNode ends up matching and next.node refuses to ascend,
-        // as this function assumes we're not placed in an ancestor matching
-        // element, it does not matter.
+    if (!previous.hitBorder || !next.hitBorder || !parent) {
         return next.node;
     }
 
-    return output;
+    const matchNode = MatchNode.make(
+        parent,
+        applyMatcher(matcher, parent),
+        next.node.covered,
+        next.node.insideRange,
+    );
+
+    next.node.tryAscend(matchNode, base);
+
+    // Even if matchNode ends up matching and next.node refuses to ascend,
+    // as this function assumes we're not placed in an ancestor matching
+    // element, it does not matter.
+    return next.node;
 }
 
 /**
@@ -410,11 +404,11 @@ export function buildTreeFromNode(
     // also, this must be false during extendAndMerging, maybe replace this with a callback
     const output = buildFormattingTree(node, range, matcher, covered, base);
 
-    if (!output) {
-        return null;
+    if (output instanceof FormattingNode) {
+        return extendAndMerge(output, range, matcher, base)
     }
 
-    return extendAndMerge(output, range, matcher, base);
+    return output;
 }
 // export function buildTreeFromNode(node: Node, matcher: ElementMatcher): TreeNode | null {
 //     if (nodeIsText(node) && !textIsNegligible(node)) {

@@ -77,7 +77,7 @@ export abstract class TreeNode {
         return null;
     }
 
-    abstract evaluate(format: SurroundFormat): void;
+    abstract evaluate(format: SurroundFormat, shift: number): void;
 
     // [Symbol.iterator]() {
     //     return new ShallowTreeIterator(this);
@@ -154,7 +154,7 @@ export class MatchNode extends TreeNode {
         return parentNode;
     }
 
-    evaluate(format: SurroundFormat): void {
+    evaluate(format: SurroundFormat, shift: number = 0): void {
         for (const child of this.children) {
             child.evaluate(format);
         }
@@ -249,7 +249,7 @@ export class FormattingNode extends TreeNode {
     }
 
     /**
-     * Extending `MatchNode` only makes sense, if they are following by a
+     * Extending `MatchNode` only makes sense, if it is following by a
      * FormattingNode ascending above it.
      * Which is why if the formatting node refuses to ascend, we might as well
      * stop extending.
@@ -275,9 +275,9 @@ export class FormattingNode extends TreeNode {
         }
     }
 
-    evaluate(format: SurroundFormat): void {
+    evaluate(format: SurroundFormat, shift: number = 0): void {
         for (const child of this.children) {
-            child.evaluate(format);
+            child.evaluate(format, shift);
         }
 
         this.range.surroundWithNode(format.surroundElement);
