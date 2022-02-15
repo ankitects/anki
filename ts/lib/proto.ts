@@ -44,8 +44,8 @@ async function serviceCallback(
         });
 
         const blob = await result.blob();
-        const arrayBuffer = await blob.arrayBuffer();
-        const uint8Array = new Uint8Array(arrayBuffer);
+        const respBuf = await new Response(blob).arrayBuffer();
+        const uint8Array = new Uint8Array(respBuf);
 
         callback(null, uint8Array);
     } catch (error) {
