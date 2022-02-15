@@ -4,6 +4,10 @@
 import { nodeIsElement } from "../../lib/dom";
 import { ascend } from "../../lib/node";
 
+/**
+ * Represents a subset of DOM ranges which can be called with `.surroundContents()`.
+ * The equivalent DOM range will have `.startContainer = .endContainer = .commonAncestorContainer`.
+ */
 export class ChildNodeRange {
     private constructor(
         public parent: Node,
@@ -13,7 +17,7 @@ export class ChildNodeRange {
 
     /**
      * @remarks
-     * Indices should be >= 0 and startIndex < endIndex
+     * Indices should be >= 0 and startIndex <= endIndex.
      */
     static make(
         node: Node,

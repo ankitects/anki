@@ -44,7 +44,7 @@ export function surround(
           )
         : buildTreeFromRange(range, format.matcher, base);
 
-    tree?.evaluate(format);
+    tree?.evaluate(format, 0);
     console.log("formatting tree", tree);
 
     // const allTexts = farthestMatchingAncestor

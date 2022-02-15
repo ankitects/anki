@@ -1,6 +1,4 @@
 // Copyright: Ankitects Pty Ltd and contributors
-// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 import { elementIsBlock } from "../../lib/dom";
 import { ascend } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
@@ -77,13 +75,28 @@ export abstract class TreeNode {
         return null;
     }
 
-    abstract evaluate(format: SurroundFormat, shift: number): void;
+    /**
+     * The DOM node that this node represents
+     */
+    // abstract get element(): Element;
+
+    /**
+     * @param shift: The shift that occured in child nodes of the previous
+     * siblings of the DOM node that this tree node represents (left shift).
+     *
+     * @returns The shift that occured in the children nodes of this
+     * node (inner shift).
+     */
+    abstract evaluate(format: SurroundFormat, shift: number): number;
 
     // [Symbol.iterator]() {
     //     return new ShallowTreeIterator(this);
     // }
 }
 
+/**
+ * Its purpose is to block adjacent Formatting nodes from merging.
+ */
 export class BlockNode extends TreeNode {
     private constructor(
         public covered: boolean,
@@ -99,8 +112,9 @@ export class BlockNode extends TreeNode {
         return new BlockNode(covered, insideRange);
     }
 
-    evaluate(): void {
+    evaluate(): number {
         // noop
+        return 0;
     }
 }
 
@@ -154,15 +168,17 @@ export class MatchNode extends TreeNode {
         return parentNode;
     }
 
-    evaluate(format: SurroundFormat, shift: number = 0): void {
+    evaluate(format: SurroundFormat): number {
+        let innerShift = 0;
         for (const child of this.children) {
-            child.evaluate(format);
+            innerShift += child.evaluate(format, innerShift);
         }
 
         switch (this.match.type) {
             case MatchType.REMOVE:
+                const length = this.element.childNodes.length;
                 this.element.replaceWith(...this.element.childNodes);
-                break;
+                return length - 1;
 
             case MatchType.CLEAR:
                 const shouldRemove = applyClearer(this.match.clear, this.element);
@@ -171,6 +187,8 @@ export class MatchNode extends TreeNode {
                 }
                 break;
         }
+
+        return innerShift;
     }
 }
 
@@ -275,11 +293,16 @@ export class FormattingNode extends TreeNode {
         }
     }
 
-    evaluate(format: SurroundFormat, shift: number = 0): void {
+    evaluate(format: SurroundFormat, leftShift: number): number {
+        let innerShift = 0;
         for (const child of this.children) {
-            child.evaluate(format, shift);
+            innerShift += child.evaluate(format, innerShift);
         }
 
-        this.range.surroundWithNode(format.surroundElement);
+        this.range.startIndex += leftShift;
+        this.range.endIndex += leftShift + innerShift;
+        this.range.surroundWithNode(format.surroundElement.cloneNode(false));
+
+        return this.range.startIndex - this.range.endIndex + 1;
     }
 }
