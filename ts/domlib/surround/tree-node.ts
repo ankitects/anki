@@ -3,8 +3,10 @@ import { elementIsBlock } from "../../lib/dom";
 import { ascend } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
 import type { Match } from "./match-type";
-import type { ElementMatcher, ParseFormat,SurroundFormat } from "./match-type";
-import { applyClearer, applyMatcher, MatchType } from "./match-type";
+import type { SurroundFormat } from "./match-type";
+import type { ParseFormat } from "./parse-format";
+import type { EvaluateFormat } from "./evaluate-format";
+import { MatchType } from "./match-type";
 
 // class ShallowTreeIterator {
 //     constructor(
@@ -86,7 +88,7 @@ export abstract class TreeNode {
      * @returns The shift that occured in the children nodes of this
      * node (inner shift).
      */
-    abstract evaluate(format: SurroundFormat, shift: number): number;
+    abstract evaluate(format: EvaluateFormat, shift: number): number;
 
     // [Symbol.iterator]() {
     //     return new ShallowTreeIterator(this);
@@ -97,17 +99,11 @@ export abstract class TreeNode {
  * Its purpose is to block adjacent Formatting nodes from merging.
  */
 export class BlockNode extends TreeNode {
-    private constructor(
-        public covered: boolean,
-        public insideRange: boolean,
-    ) {
+    private constructor(public covered: boolean, public insideRange: boolean) {
         super(covered, insideRange);
     }
 
-    static make(
-        covered: boolean,
-        insideRange: boolean,
-    ): BlockNode {
+    static make(covered: boolean, insideRange: boolean): BlockNode {
         return new BlockNode(covered, insideRange);
     }
 
@@ -178,7 +174,7 @@ export class MatchNode extends TreeNode {
         return parentNode;
     }
 
-    evaluate(format: SurroundFormat): number {
+    evaluate(format: EvaluateFormat): number {
         let innerShift = 0;
         for (const child of this.children) {
             innerShift += child.evaluate(format, innerShift);
@@ -191,7 +187,7 @@ export class MatchNode extends TreeNode {
                 return length - 1;
 
             case MatchType.CLEAR:
-                const shouldRemove = applyClearer(this.match.clear, this.element);
+                const shouldRemove = this.match.clear(this.element as any);
                 if (shouldRemove) {
                     this.element.replaceWith(...this.element.childNodes);
                 }
@@ -216,10 +212,10 @@ export class FormattingNode extends TreeNode {
 
     static make(
         range: ChildNodeRange,
-        insideRange: boolean,
         covered: boolean,
+        insideRange: boolean,
     ): FormattingNode {
-        return new FormattingNode(range, insideRange, covered);
+        return new FormattingNode(range, covered, insideRange);
     }
 
     /**
@@ -274,24 +270,25 @@ export class FormattingNode extends TreeNode {
             return;
         }
 
-        const [matchNode] = this.children;
-        if (!(matchNode instanceof MatchNode)) {
+        const [only] = this.children;
+        if (!(only instanceof MatchNode)) {
             return;
         }
 
-        let top = matchNode.tryExtend(format);
-
-        while (top) {
-            if (top.isAscendable()) {
-                this.ascendAbove(top);
+        let top: MatchNode | null = only;
+        while (true) {
+            if (!(top = top.tryExtend(format))) {
                 break;
             }
 
-            top = top.tryExtend(format);
+            if (!format.tryAscend(this, top)) {
+                break;
+            }
         }
     }
 
-    evaluate(format: SurroundFormat, leftShift: number): number {
+    evaluate(format: EvaluateFormat, leftShift: number): number {
+        debugger;
         let innerShift = 0;
         for (const child of this.children) {
             innerShift += child.evaluate(format, innerShift);
@@ -299,8 +296,8 @@ export class FormattingNode extends TreeNode {
 
         this.range.startIndex += leftShift;
         this.range.endIndex += leftShift + innerShift;
-        format.formatter(this.range.toDOMRange());
-
-        return this.range.startIndex - this.range.endIndex + 1;
+        return format.applyFormat(this)
+            ? this.range.startIndex - this.range.endIndex + 1
+            : 0;
     }
 }

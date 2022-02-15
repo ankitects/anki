@@ -1,36 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { findNodesToRemove } from "./find-remove";
-import type { SurroundFormat, SurroundFormatUser } from "./match-type";
-import { userFormatToFormat } from "./match-type";
-import type { NodesResult, SurroundNoSplittingResult } from "./no-splitting";
-import { surround } from "./no-splitting";
-import { getRangeAnchors } from "./range-anchors";
-
-function resurroundAdjacent(
-    beforeRange: Range,
-    afterRange: Range,
-    base: Element,
-    format: SurroundFormat,
-): NodesResult {
-    const addedNodes: Node[] = [];
-    const removedNodes: Node[] = [];
-
-    for (const range of [beforeRange, afterRange]) {
-        if (range.toString().length > 0) {
-            const { addedNodes: added, removedNodes: removed } = surround(
-                range,
-                base,
-                format,
-            );
-            addedNodes.push(...added);
-            removedNodes.push(...removed);
-        }
-    }
-
-    return { addedNodes, removedNodes };
-}
+import type { SurroundFormat } from "./match-type";
+import { UnsurroundParseFormat } from "./parse-format";
+import { UnsurroundEvaluateFormat } from "./evaluate-format";
+import type { SurroundNoSplittingResult } from "./no-splitting";
+import { reformatRange } from "./no-splitting";
 
 /**
  * The counterpart to `surroundNoSplitting`.
@@ -41,39 +16,17 @@ function resurroundAdjacent(
 export function unsurround(
     range: Range,
     base: Element,
-    format: SurroundFormatUser,
+    format: SurroundFormat,
 ): SurroundNoSplittingResult {
-    const { start, end } = getRangeAnchors(range, format.matcher);
-    const { nodesToRemove, beforeRange, afterRange } = findNodesToRemove(
+    reformatRange(
         range,
-        base,
-        format.matcher,
+        UnsurroundParseFormat.make(format, base, range),
+        UnsurroundEvaluateFormat.make(format),
     );
-
-    /* We cannot remove the nodes immediately, because that would make the ranges collapse */
-
-    const { addedNodes, removedNodes } = resurroundAdjacent(
-        beforeRange,
-        afterRange,
-        base,
-        userFormatToFormat(format),
-    );
-
-    for (const node of nodesToRemove) {
-        if (node.isConnected) {
-            node.replaceWith(...node.childNodes);
-            removedNodes.push(node);
-        }
-    }
-
-    const surroundedRange = new Range();
-    surroundedRange.setStartBefore(start);
-    surroundedRange.setEndAfter(end);
-    base.normalize();
 
     return {
-        addedNodes,
-        removedNodes,
-        surroundedRange,
+        addedNodes: [],
+        removedNodes: [],
+        surroundedRange: document.createRange(),
     };
 }

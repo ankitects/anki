@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { nodeIsCommonElement } from "../../lib/dom";
-
 export enum MatchType {
     /**
      * An element unrelated to the surround format.
@@ -57,6 +55,17 @@ export type Match = MatchNone | MatchRemove | MatchClear;
  */
 export type ElementMatcher = (element: HTMLElement | SVGElement) => Match;
 
+export interface FoundMatch {
+    match: MatchRemove | MatchClear;
+    element: HTMLElement | SVGElement;
+}
+
+// export type RangeMerger = (before: ChildNodeRange, after: ChildNodeRange) => boolean;
+
+import type { FormattingNode, MatchNode } from "./tree-node";
+
+import { nodeIsCommonElement } from "../../lib/dom";
+// TODO REMOVE
 /**
  * We want to avoid that users have to deal with the difference between Element
  * and {HTML,SVG}Element, which is probably not vital in practice
@@ -75,103 +84,12 @@ function apply<T>(
 
 export const applyMatcher = apply<ReturnType<ElementMatcher>>({ type: MatchType.NONE });
 export const applyClearer = apply<ReturnType<ElementClearer>>(false);
-
-export interface FoundMatch {
-    match: MatchRemove | MatchClear;
-    element: HTMLElement | SVGElement;
-}
-
-// export type RangeMerger = (before: ChildNodeRange, after: ChildNodeRange) => boolean;
-
-type Formatter = (range: Range) => void;
+///////
 
 export interface SurroundFormat {
     matcher: ElementMatcher;
-    ascender: (node: FormattingNode, matchNode: MatchNode) => boolean; // TODO ascend beyond element or not?
-    merger: (before: FormattingNode, after: FormattingNode) => boolean; // TODO merge CN ranges or not? do not merge, if they are in differing match contexts
-    formatter: Formatter; // TODO surround, or do nothing -> can decide difference between surrounding an unsurrounding; access to availableExclusiveParents
-}
-
-export interface SurroundFormatUser {
-    matcher: SurroundFormat["matcher"];
     ascender?: (node: FormattingNode, matchNode: MatchNode) => boolean; // TODO ascend beyond element or not?
     merger?: (before: FormattingNode, after: FormattingNode) => boolean; // TODO merge CN ranges or not? do not merge, if they are in differing match contexts
-    formatter?: SurroundFormat["formatter"];
+    formatter?: (node: FormattingNode) => boolean;
     surroundElement?: Element;
-}
-
-import { FormattingNode, MatchNode } from "./tree-node";
-
-function always() {
-    return true;
-}
-
-export function userFormatToFormat(format: SurroundFormatUser): SurroundFormat {
-    let formatter: Formatter;
-    if (format.formatter) {
-        formatter = format.formatter;
-    } else if (format.surroundElement) {
-        const element = format.surroundElement;
-        formatter = (range: Range): void => range.surroundContents(element.cloneNode(false));
-    } else {
-        formatter = () => { /* noop */ };
-    }
-
-    const ascender = format.ascender ?? always;
-    const merger = format.merger ?? always;
-
-    return {
-        matcher: format.matcher,
-        ascender,
-        merger,
-        formatter,
-    }
-}
-
-import { nodeIsAmongNegligibles } from "./node-negligible";
-import { nodeWithinRange } from "./within-range";
-
-export class ParseFormat {
-    constructor(
-        private format: SurroundFormatUser,
-        private base: Element,
-        private range: Range,
-    ) {}
-
-    static make(format: SurroundFormatUser, base: Element, range: Range) {
-        return new ParseFormat(format, base, range);
-    }
-
-    matches(element: Element): Match {
-        if (!nodeIsCommonElement(element)) {
-            return { type: MatchType.NONE };
-        }
-
-        return this.format.matcher(element);
-    }
-
-    tryMerge(before: FormattingNode, after: FormattingNode): FormattingNode | null {
-        if (!this.format.merger || this.format.merger(before, after)) {
-            return FormattingNode.merge(before, after);
-        }
-
-        return null;
-    }
-
-    tryAscend(node: FormattingNode, matchNode: MatchNode): boolean {
-        if (matchNode.element !== this.base && (!this.format.ascender || this.format.ascender(node, matchNode))) {
-            node.ascendAbove(matchNode);
-            return true;
-        }
-
-        return false;
-    }
-
-    mayExtend(element: Element): boolean {
-        return element !== this.base && nodeIsAmongNegligibles(element);
-    }
-
-    isInsideRange(node: Node): boolean {
-        return nodeWithinRange(node, this.range);
-    }
 }

@@ -2,12 +2,11 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { findFarthest } from "./find-above";
-import type { SurroundFormat,SurroundFormatUser } from "./match-type";
-import { ParseFormat,userFormatToFormat } from "./match-type";
+import type { SurroundFormat } from "./match-type";
+import { ParseFormat } from "./parse-format";
+import { EvaluateFormat } from "./evaluate-format";
 import { getRangeAnchors } from "./range-anchors";
-import {
-    buildTreeFromNode,
-} from "./text-node";
+import { buildTreeFromNode } from "./text-node";
 
 export interface NodesResult {
     addedNodes: Node[];
@@ -15,62 +14,35 @@ export interface NodesResult {
 }
 
 export function surround(
+    node: Node,
+    parseFormat: ParseFormat,
+    evaluateFormat: EvaluateFormat,
+): Range {
+    const tree = buildTreeFromNode(node, parseFormat, false);
+
+    tree?.evaluate(evaluateFormat, 0);
+    return document.createRange(); // TODO
+}
+
+export function reformatRange(
     range: Range,
-    base: Element,
-    format: SurroundFormat,
-): NodesResult {
-    // TODO maybe offer those as two functions, one finds within range, one
-    // within farthestMatchingAncestor.
-    // If you're surrounding in a matching ancestor, the operation is more
-    // akin to a reformatting/normalization, than actually surrounding.
+    parseFormat: ParseFormat,
+    evaluateFormat: EvaluateFormat,
+): Range {
     const farthestMatchingAncestor = findFarthest(
         range.commonAncestorContainer,
-        base,
-        format.matcher,
+        parseFormat.base,
+        parseFormat.format.matcher,
     );
 
-    const parseFormat = ParseFormat.make(format, base, range);
+    if (!farthestMatchingAncestor) {
+        return surround(range.commonAncestorContainer, parseFormat, evaluateFormat);
+    }
 
-    const tree = farthestMatchingAncestor
-        ? buildTreeFromNode(
-            farthestMatchingAncestor.element,
-            parseFormat,
-            true,
-        )
-        : buildTreeFromNode(
-            range.commonAncestorContainer,
-            parseFormat,
-            false,
-        );
+    const tree = buildTreeFromNode(farthestMatchingAncestor.element, parseFormat, true);
 
-    tree?.evaluate(format, 0);
-    console.log("formatting tree", tree);
-
-    // const allTexts = farthestMatchingAncestor
-    //     ? findTextsWithinNode(farthestMatchingAncestor.element)
-    //     : findTextsWithinRange(range);
-
-    // const texts = allTexts.filter(validText).filter(validText);
-    // const ranges = minimalRanges(texts, base, matcher);
-    // console.log("result", ranges);
-
-    // const removed: Element[] = [];
-    // const added: Element[] = [];
-
-    // for (const range of ranges) {
-    //     removed.push(
-    //         /* modifies ranges */
-    //         ...removeWithin(range, matcher),
-    //     );
-
-    //     const surroundClone = surroundElement.cloneNode(false) as Element;
-
-    //     range.surroundWithNode(surroundClone);
-    //     added.push(surroundClone);
-    // }
-
-    // return { addedNodes: added, removedNodes: removed };
-    return { addedNodes: [], removedNodes: [] };
+    tree?.evaluate(evaluateFormat, 0);
+    return document.createRange(); // TODO
 }
 
 export type SurroundNoSplittingResult = NodesResult & {
@@ -89,17 +61,21 @@ export type SurroundNoSplittingResult = NodesResult & {
 export function surroundNoSplitting(
     range: Range,
     base: Element,
-    format: SurroundFormatUser,
+    format: SurroundFormat,
 ): SurroundNoSplittingResult {
     // TODO
 
     const { start, end } = getRangeAnchors(range, format.matcher);
-    const { addedNodes, removedNodes } = surround(range, base, userFormatToFormat(format));
+    surround(
+        range.commonAncestorContainer,
+        ParseFormat.make(format, base, range),
+        EvaluateFormat.make(format),
+    );
 
     const surroundedRange = new Range();
     surroundedRange.setStartBefore(start);
     surroundedRange.setEndAfter(end);
     base.normalize();
 
-    return { addedNodes, removedNodes, surroundedRange };
+    return { addedNodes: [], removedNodes: [], surroundedRange };
 }

@@ -2,11 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { nodeIsElement, nodeIsText } from "../../lib/dom";
-import { getRangeCoordinates } from "../location";
-import type { RangeCoordinatesContent } from "../location/range";
 import { ChildNodeRange } from "./child-node-range";
 import type { ElementMatcher, FoundMatch } from "./match-type";
-import { applyMatcher } from "./match-type";
 import { elementIsNegligible, textIsNegligible } from "./node-negligible";
 import type { TreeNode } from "./tree-node";
 import { BlockNode, FormattingNode, MatchNode } from "./tree-node";
@@ -73,7 +70,7 @@ function findWithinNodeInner(
             findWithinNodeInner(child, matcher, matches);
         }
 
-        const match = applyMatcher(matcher, node);
+        const match = null as any; //BROKENapplyMatcher(matcher, node);
         if (match.type) {
             matches.push({ match, element: node as HTMLElement | SVGElement });
         }
@@ -100,7 +97,11 @@ export function findWithinNode(node: Node, matcher: ElementMatcher): FoundMatch[
 /**
  * @param last: The node which is intended to be the new end node.
  */
-function mergeInNode(initial: TreeNode[], last: FormattingNode, format: ParseFormat): TreeNode[] {
+function mergeInNode(
+    initial: TreeNode[],
+    last: FormattingNode,
+    format: ParseFormat,
+): TreeNode[] {
     const minimized: TreeNode[] = [last];
 
     for (let i = initial.length - 1; i >= 0; i--) {
@@ -118,7 +119,11 @@ function mergeInNode(initial: TreeNode[], last: FormattingNode, format: ParseFor
     return minimized;
 }
 
-function appendNode(nodes: TreeNode[], node: TreeNode, format: ParseFormat): TreeNode[] {
+function appendNode(
+    nodes: TreeNode[],
+    node: TreeNode,
+    format: ParseFormat,
+): TreeNode[] {
     if (node instanceof FormattingNode) {
         return mergeInNode(nodes, node, format);
     } else {
@@ -163,7 +168,7 @@ function buildTreeNode(
             // blocking
             only instanceof BlockNode ||
             // ascension
-            (only instanceof FormattingNode && matchNode.isAscendable() && format.tryAscend(only, matchNode))
+            (only instanceof FormattingNode && format.tryAscend(only, matchNode))
         ) {
             return only;
         }
@@ -180,14 +185,14 @@ function buildFormattingNode(
 ): FormattingNode | BlockNode {
     const insideRange = format.isInsideRange(node);
 
-    if (!insideRange && !covered) {
+    if (!covered && !insideRange) {
         return BlockNode.make(false, false);
     }
 
-    return FormattingNode.make(ChildNodeRange.fromNode(node), insideRange, covered);
+    return FormattingNode.make(ChildNodeRange.fromNode(node), covered, insideRange);
 }
 
-import type { ParseFormat } from "./match-type";
+import type { ParseFormat } from "./parse-format";
 /**
  * Builds a formatting tree starting at node.
  *
@@ -198,7 +203,6 @@ export function buildFormattingTree(
     format: ParseFormat,
     covered: boolean,
 ): TreeNode | null {
-    // debugger;
     if (nodeIsText(node) && !textIsNegligible(node)) {
         return buildFormattingNode(node, format, covered);
     } else if (nodeIsElement(node) && !elementIsNegligible(node)) {
@@ -226,10 +230,7 @@ interface MergeResult {
  *
  * @returns Whether siblings were exhausted during merging
  */
-function mergePreviousTrees(
-    start: FormattingNode,
-    format: ParseFormat,
-): MergeResult {
+function mergePreviousTrees(start: FormattingNode, format: ParseFormat): MergeResult {
     let result = start;
 
     let sibling = previousSibling(start.range.parent);
@@ -266,10 +267,7 @@ function mergePreviousTrees(
  *
  * @returns Whether siblings were exhausted during merging
  */
-function mergeNextTrees(
-    start: FormattingNode,
-    format: ParseFormat,
-): MergeResult {
+function mergeNextTrees(start: FormattingNode, format: ParseFormat): MergeResult {
     let result = start;
 
     let sibling = nextSibling(start.range.parent);
@@ -301,10 +299,7 @@ function mergeNextTrees(
     };
 }
 
-function extendAndMerge(
-    node: FormattingNode,
-    format: ParseFormat,
-): TreeNode {
+function extendAndMerge(node: FormattingNode, format: ParseFormat): TreeNode {
     node.extendAndAscend(format);
 
     const previous = mergePreviousTrees(node, format);
