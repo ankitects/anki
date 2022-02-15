@@ -15,4 +15,4 @@ registerPackage("anki/surround", {
 });
 
 export { findClosest, MatchType, surroundNoSplitting, unsurround };
-export type { ElementMatcher, Match, SurroundFormat } from "./match-type";
+export type { ElementMatcher, Match, SurroundFormatUser as SurroundFormat } from "./match-type";

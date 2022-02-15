@@ -2,7 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { findFarthest } from "./find-above";
-import type { SurroundFormat } from "./match-type";
+import type { SurroundFormatUser, SurroundFormat } from "./match-type";
+import { userFormatToFormat } from "./match-type";
 import { minimalRanges } from "./minimal-ranges";
 import { getRangeAnchors } from "./range-anchors";
 import { removeWithin } from "./remove-within";
@@ -90,12 +91,12 @@ export type SurroundNoSplittingResult = NodesResult & {
 export function surroundNoSplitting(
     range: Range,
     base: Element,
-    format: SurroundFormat,
+    format: SurroundFormatUser,
 ): SurroundNoSplittingResult {
     // TODO
 
     const { start, end } = getRangeAnchors(range, format.matcher);
-    const { addedNodes, removedNodes } = surround(range, base, format);
+    const { addedNodes, removedNodes } = surround(range, base, userFormatToFormat(format));
 
     const surroundedRange = new Range();
     surroundedRange.setStartBefore(start);

@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { ElementMatcher } from "./match-type";
-import { MatchType } from "./match-type";
+import { MatchType, userFormatToFormat } from "./match-type";
 
 export const matchTagName =
     (tagName: string): ElementMatcher =>
@@ -10,20 +10,20 @@ export const matchTagName =
         return { type: element.matches(tagName) ? MatchType.REMOVE : MatchType.NONE };
     };
 
-export const easyBold = {
+export const easyBold = userFormatToFormat({
     surroundElement: document.createElement("b"),
     matcher: matchTagName("b"),
-};
+});
 
-export const easyItalic = {
+export const easyItalic = userFormatToFormat({
     surroundElement: document.createElement("i"),
     matcher: matchTagName("i"),
-};
+});
 
-export const easyUnderline = {
+export const easyUnderline = userFormatToFormat({
     surroundElement: document.createElement("u"),
     matcher: matchTagName("u"),
-};
+});
 
 const parser = new DOMParser();
 

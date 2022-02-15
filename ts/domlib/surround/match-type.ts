@@ -83,10 +83,46 @@ export interface FoundMatch {
 
 // export type RangeMerger = (before: ChildNodeRange, after: ChildNodeRange) => boolean;
 
+type Formatter = (range: Range) => void;
+
 export interface SurroundFormat {
-    surroundElement: Element;
     matcher: ElementMatcher;
+    ascender: (yyy: any) => boolean; // TODO ascend beyond element or not?
+    merger: (before: any, after: any) => boolean; // TODO merge CN ranges or not? do not merge, if they are in differing match contexts
+    formatter: Formatter; // TODO surround, or do nothing -> can decide difference between surrounding an unsurrounding; access to availableExclusiveParents
+}
+
+export interface SurroundFormatUser {
+    matcher: SurroundFormat["matcher"];
     ascender?: (yyy: any) => boolean; // TODO ascend beyond element or not?
     merger?: (before: any, after: any) => boolean; // TODO merge CN ranges or not? do not merge, if they are in differing match contexts
-    formatter?: (xxx: any) => void; // TODO surround, or do nothing -> can decide difference between surrounding an unsurrounding; access to availableExclusiveParents
+    formatter?: SurroundFormat["formatter"];
+    surroundElement?: Element;
+}
+
+function always() {
+    return true;
+}
+
+export function userFormatToFormat(format: SurroundFormatUser): SurroundFormat {
+    let formatter: Formatter;
+    if (format.formatter) {
+        formatter = format.formatter;
+    } else if (format.surroundElement) {
+        const element = format.surroundElement;
+        formatter = (range: Range): void => range.surroundContents(element.cloneNode(false));
+    } else {
+        formatter = () => { /* noop */ };
+    }
+
+    const ascender = format.ascender ?? always;
+    const merger = format.merger ?? always;
+
+    return {
+        matcher: format.matcher,
+        ascender,
+        merger,
+        formatter,
+    }
+
 }

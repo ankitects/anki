@@ -2,7 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { findNodesToRemove } from "./find-remove";
-import type { SurroundFormat } from "./match-type";
+import type { SurroundFormat, SurroundFormatUser } from "./match-type";
+import { userFormatToFormat } from "./match-type";
 import type { NodesResult, SurroundNoSplittingResult } from "./no-splitting";
 import { surround } from "./no-splitting";
 import { getRangeAnchors } from "./range-anchors";
@@ -40,7 +41,7 @@ function resurroundAdjacent(
 export function unsurround(
     range: Range,
     base: Element,
-    format: SurroundFormat,
+    format: SurroundFormatUser,
 ): SurroundNoSplittingResult {
     const { start, end } = getRangeAnchors(range, format.matcher);
     const { nodesToRemove, beforeRange, afterRange } = findNodesToRemove(
@@ -55,7 +56,7 @@ export function unsurround(
         beforeRange,
         afterRange,
         base,
-        format,
+        userFormatToFormat(format),
     );
 
     for (const node of nodesToRemove) {

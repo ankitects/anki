@@ -301,7 +301,7 @@ export class FormattingNode extends TreeNode {
 
         this.range.startIndex += leftShift;
         this.range.endIndex += leftShift + innerShift;
-        this.range.surroundWithNode(format.surroundElement.cloneNode(false));
+        format.formatter(this.range.toDOMRange());
 
         return this.range.startIndex - this.range.endIndex + 1;
     }

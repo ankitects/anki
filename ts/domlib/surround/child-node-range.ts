@@ -53,12 +53,6 @@ export class ChildNodeRange {
         range.setStart(this.parent, this.startIndex);
         range.setEnd(this.parent, this.endIndex);
 
-        return range;
-    }
-
-    surroundWithNode(node: Node): void {
-        const range = this.toDOMRange();
-
         if (range.collapsed) {
             // If the range is collapsed to a single element, move the range inside the element.
             // This prevents putting the surround above the base element.
@@ -70,7 +64,7 @@ export class ChildNodeRange {
             }
         }
 
-        range.surroundContents(node);
+        return range;
     }
 
     [Symbol.iterator]() {
