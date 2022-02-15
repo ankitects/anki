@@ -5,9 +5,10 @@ from __future__ import annotations
 
 import re
 from re import Match
-from typing import Any, Iterable, Sequence, Union
+from typing import TYPE_CHECKING, Any, Iterable, Sequence, Union
 
-import anki._backend
+if TYPE_CHECKING:
+    import anki._backend
 
 # DBValue is actually Union[str, int, float, None], but if defined
 # that way, every call site needs to do a type check prior to using
