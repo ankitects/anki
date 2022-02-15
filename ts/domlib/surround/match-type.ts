@@ -87,18 +87,20 @@ type Formatter = (range: Range) => void;
 
 export interface SurroundFormat {
     matcher: ElementMatcher;
-    ascender: (yyy: any) => boolean; // TODO ascend beyond element or not?
-    merger: (before: any, after: any) => boolean; // TODO merge CN ranges or not? do not merge, if they are in differing match contexts
+    ascender: (node: FormattingNode, matchNode: MatchNode) => boolean; // TODO ascend beyond element or not?
+    merger: (before: FormattingNode, after: FormattingNode) => boolean; // TODO merge CN ranges or not? do not merge, if they are in differing match contexts
     formatter: Formatter; // TODO surround, or do nothing -> can decide difference between surrounding an unsurrounding; access to availableExclusiveParents
 }
 
 export interface SurroundFormatUser {
     matcher: SurroundFormat["matcher"];
-    ascender?: (yyy: any) => boolean; // TODO ascend beyond element or not?
-    merger?: (before: any, after: any) => boolean; // TODO merge CN ranges or not? do not merge, if they are in differing match contexts
+    ascender?: (node: FormattingNode, matchNode: MatchNode) => boolean; // TODO ascend beyond element or not?
+    merger?: (before: FormattingNode, after: FormattingNode) => boolean; // TODO merge CN ranges or not? do not merge, if they are in differing match contexts
     formatter?: SurroundFormat["formatter"];
     surroundElement?: Element;
 }
+
+import { FormattingNode, MatchNode } from "./tree-node";
 
 function always() {
     return true;
@@ -124,5 +126,52 @@ export function userFormatToFormat(format: SurroundFormatUser): SurroundFormat {
         merger,
         formatter,
     }
+}
 
+import { nodeIsAmongNegligibles } from "./node-negligible";
+import { nodeWithinRange } from "./within-range";
+
+export class ParseFormat {
+    constructor(
+        private format: SurroundFormatUser,
+        private base: Element,
+        private range: Range,
+    ) {}
+
+    static make(format: SurroundFormatUser, base: Element, range: Range) {
+        return new ParseFormat(format, base, range);
+    }
+
+    matches(element: Element): Match {
+        if (!nodeIsCommonElement(element)) {
+            return { type: MatchType.NONE };
+        }
+
+        return this.format.matcher(element);
+    }
+
+    tryMerge(before: FormattingNode, after: FormattingNode): FormattingNode | null {
+        if (!this.format.merger || this.format.merger(before, after)) {
+            return FormattingNode.merge(before, after);
+        }
+
+        return null;
+    }
+
+    tryAscend(node: FormattingNode, matchNode: MatchNode): boolean {
+        if (matchNode.element !== this.base && (!this.format.ascender || this.format.ascender(node, matchNode))) {
+            node.ascendAbove(matchNode);
+            return true;
+        }
+
+        return false;
+    }
+
+    mayExtend(element: Element): boolean {
+        return element !== this.base && nodeIsAmongNegligibles(element);
+    }
+
+    isInsideRange(node: Node): boolean {
+        return nodeWithinRange(node, this.range);
+    }
 }

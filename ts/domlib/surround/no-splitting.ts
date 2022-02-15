@@ -2,17 +2,11 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { findFarthest } from "./find-above";
-import type { SurroundFormatUser, SurroundFormat } from "./match-type";
-import { userFormatToFormat } from "./match-type";
-import { minimalRanges } from "./minimal-ranges";
+import type { SurroundFormat,SurroundFormatUser } from "./match-type";
+import { ParseFormat,userFormatToFormat } from "./match-type";
 import { getRangeAnchors } from "./range-anchors";
-import { removeWithin } from "./remove-within";
 import {
-    buildFormattingTree,
-    buildTreeFromRange,
-    findTextsWithinNode,
-    findTextsWithinRange,
-    validText,
+    buildTreeFromNode,
 } from "./text-node";
 
 export interface NodesResult {
@@ -35,15 +29,19 @@ export function surround(
         format.matcher,
     );
 
+    const parseFormat = ParseFormat.make(format, base, range);
+
     const tree = farthestMatchingAncestor
-        ? buildFormattingTree(
-              farthestMatchingAncestor.element,
-              range,
-              format.matcher,
-              true,
-              base,
-          )
-        : buildTreeFromRange(range, format.matcher, base);
+        ? buildTreeFromNode(
+            farthestMatchingAncestor.element,
+            parseFormat,
+            true,
+        )
+        : buildTreeFromNode(
+            range.commonAncestorContainer,
+            parseFormat,
+            false,
+        );
 
     tree?.evaluate(format, 0);
     console.log("formatting tree", tree);

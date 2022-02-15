@@ -3,9 +3,8 @@ import { elementIsBlock } from "../../lib/dom";
 import { ascend } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
 import type { Match } from "./match-type";
-import type { ElementMatcher, SurroundFormat } from "./match-type";
+import type { ElementMatcher, ParseFormat,SurroundFormat } from "./match-type";
 import { applyClearer, applyMatcher, MatchType } from "./match-type";
-import { nodeIsAmongNegligibles } from "./node-negligible";
 
 // class ShallowTreeIterator {
 //     constructor(
@@ -138,16 +137,27 @@ export class MatchNode extends TreeNode {
     }
 
     /**
+     * @privateRemarks
+     * Also need to check via `ParseFormat.prototype.mayAscend`.
+     *
+     * @return Whether `this` is a viable target for being ascended by a
+     * FormattingNode.
+     */
+    isAscendable(): boolean {
+        return elementIsBlock(this.element) || !(this.covered || this.insideRange);
+    }
+
+    /**
      * An extension is finding elements directly above a MatchNode.
      *
      * @example
-     * This helps finding additional normalizations, like in the following:
+     * This helps with additional normalizations, like in the following case:
      * `<b>before</b><u>inside</u><b>after</b>`.
-     * If you were to surround `inside`, it would miss the b tags, because they
-     * are not directly adjacent.
+     * If you were to surround "inside" with bold, it would miss the b tags,
+     * because they are not directly adjacent.
      */
-    tryExtend(base: Node, matcher: ElementMatcher): MatchNode | null {
-        if (this.element === base || !nodeIsAmongNegligibles(this.element)) {
+    tryExtend(format: ParseFormat): MatchNode | null {
+        if (!format.mayExtend(this.element)) {
             return null;
         }
 
@@ -159,7 +169,7 @@ export class MatchNode extends TreeNode {
 
         const parentNode = MatchNode.make(
             parent,
-            applyMatcher(matcher, parent),
+            format.matches(parent),
             this.covered,
             this.insideRange,
         );
@@ -240,9 +250,9 @@ export class FormattingNode extends TreeNode {
      * @example
      * Practically speaking, it is what happens, when you turn:
      * `<u><b>inside</b></u>` into `<b><u>inside</u></b>`, or
-     * `<u><b>inside</b><img src="image.jpg"></u>` into `<b><u>inside<img src="image.jpg"></b>
+     * `<u><b>inside</b><img src="image.jpg"></u>` into `<b><u>inside<img src="image.jpg"></u></b>
      */
-    private ascendAbove(matchNode: MatchNode): void {
+    ascendAbove(matchNode: MatchNode): void {
         this.range.select(matchNode.element);
 
         if (!this.hasChildren() && !matchNode.match.type) {
@@ -253,26 +263,13 @@ export class FormattingNode extends TreeNode {
         matchNode.replaceChildren(this.replaceChildren([matchNode]));
     }
 
-    tryAscend(matchNode: MatchNode, base: Element): boolean {
-        if (
-            elementIsBlock(matchNode.element) ||
-            matchNode.element === base ||
-            !(matchNode.covered || matchNode.insideRange)
-        ) {
-            return false;
-        }
-
-        this.ascendAbove(matchNode);
-        return true;
-    }
-
     /**
-     * Extending `MatchNode` only makes sense, if it is following by a
-     * FormattingNode ascending above it.
-     * Which is why if the formatting node refuses to ascend, we might as well
+     * Extending only makes sense, if it is following by a FormattingNode
+     * ascending above it.
+     * Which is why if the match node is not ascendable, we might as well
      * stop extending.
      */
-    extendAndAscend(matcher: ElementMatcher, base: Element): void {
+    extendAndAscend(format: ParseFormat): void {
         if (this.length !== 1) {
             return;
         }
@@ -282,14 +279,15 @@ export class FormattingNode extends TreeNode {
             return;
         }
 
-        let top = matchNode.tryExtend(base, matcher);
+        let top = matchNode.tryExtend(format);
 
         while (top) {
-            if (!this.tryAscend(top, base)) {
+            if (top.isAscendable()) {
+                this.ascendAbove(top);
                 break;
             }
 
-            top = top.tryExtend(base, matcher);
+            top = top.tryExtend(format);
         }
     }
 
