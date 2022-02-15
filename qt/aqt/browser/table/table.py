@@ -40,6 +40,7 @@ class Table:
             else CardState(self.col)
         )
         self._model = DataModel(
+            self.browser,
             self.col,
             self._state,
             self._on_row_state_will_change,
