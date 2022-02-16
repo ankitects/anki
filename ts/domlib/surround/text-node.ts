@@ -332,25 +332,16 @@ export function buildTreeFromNode(
 ): TreeNode | null {
     // const coordinates = getRangeCoordinates(range, base) as RangeCoordinatesContent;
 
-    // TODO range is only used to check whether text nodes are placed within the range
-    // also, this must be false during extendAndMerging, maybe replace this with a callback
     const output = buildFormattingTree(node, format, covered);
 
+    // TODO range is only used to check whether text nodes are placed within the range
+    // also, this must be false during extendAndMerging, maybe replace this with a callback
     if (output instanceof FormattingNode) {
         return extendAndMerge(output, format);
     }
 
     return output;
 }
-// export function buildTreeFromNode(node: Node, matcher: ElementMatcher): TreeNode | null {
-//     if (nodeIsText(node) && !textIsNegligible(node)) {
-//         return FormattingNode.make(ChildNodeRange.fromNode(node));
-//     } else if (nodeIsElement(node) && !elementIsNegligible(node)) {
-//         return buildTreeNode(node, matcher);
-//     } else {
-//         return null;
-//     }
-// }
 
 /**
  * @returns Text nodes contained in node in source order

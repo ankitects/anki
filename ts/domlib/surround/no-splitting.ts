@@ -6,7 +6,7 @@ import type { SurroundFormat } from "./match-type";
 import { ParseFormat } from "./parse-format";
 import { EvaluateFormat } from "./evaluate-format";
 import { getRangeAnchors } from "./range-anchors";
-import { buildTreeFromNode } from "./text-node";
+import { buildTreeFromNode, splitPartiallySelectedTextNodes } from "./text-node";
 
 export interface NodesResult {
     addedNodes: Node[];
@@ -19,6 +19,7 @@ export function surround(
     evaluateFormat: EvaluateFormat,
 ): Range {
     const tree = buildTreeFromNode(node, parseFormat, false);
+    console.log('formatting tree', tree);
 
     tree?.evaluate(evaluateFormat, 0);
     return document.createRange(); // TODO
@@ -29,6 +30,8 @@ export function reformatRange(
     parseFormat: ParseFormat,
     evaluateFormat: EvaluateFormat,
 ): Range {
+    splitPartiallySelectedTextNodes(range);
+
     const farthestMatchingAncestor = findFarthest(
         range.commonAncestorContainer,
         parseFormat.base,
@@ -40,6 +43,7 @@ export function reformatRange(
     }
 
     const tree = buildTreeFromNode(farthestMatchingAncestor.element, parseFormat, true);
+    console.log('formatting tree', tree);
 
     tree?.evaluate(evaluateFormat, 0);
     return document.createRange(); // TODO
@@ -63,7 +67,7 @@ export function surroundNoSplitting(
     base: Element,
     format: SurroundFormat,
 ): SurroundNoSplittingResult {
-    // TODO
+    // splitPartiallySelectedTextNodes(range);
 
     const { start, end } = getRangeAnchors(range, format.matcher);
     surround(

@@ -140,7 +140,7 @@ export class MatchNode extends TreeNode {
      * FormattingNode.
      */
     isAscendable(): boolean {
-        return elementIsBlock(this.element) || !(this.covered || this.insideRange);
+        return !elementIsBlock(this.element) && (this.covered || this.insideRange);
     }
 
     /**
