@@ -15,15 +15,40 @@ function splitTextIfNecessary(text: Text, offset: number): Text {
     return text.splitText(offset);
 }
 
-interface SplitRange {
-    /**
-     * Can be used to recreate a range with `range.setStartBefore(start)`
-     */
-    start: Node;
-    /**
-     * Can be used to recreate a range with `range.setEndAfter(end)`
-     */
-    end: Node;
+export class SplitRange {
+    constructor(protected start: Node, protected end: Node) {}
+
+    private adjustStart(): void {
+        if (this.start.firstChild) {
+            this.start = this.start.firstChild;
+        } else if (this.end.nextSibling) {
+            this.start = this.start.nextSibling!;
+        }
+    }
+
+    private adjustEnd(): void {
+        if (this.end.lastChild) {
+            this.end = this.start.lastChild!;
+        } else if (this.end.previousSibling) {
+            this.end = this.end.previousSibling;
+        }
+    }
+
+    adjustRange(element: Element): void {
+        if (this.start === element) {
+            this.adjustStart();
+        } else if (this.end === element) {
+            this.adjustEnd();
+        }
+    }
+
+    recreateRange(): Range {
+        const range = new Range();
+        range.setStartBefore(this.start);
+        range.setEndAfter(this.end);
+
+        return range;
+    }
 }
 
 export function splitPartiallySelected(range: Range): SplitRange {
@@ -34,10 +59,10 @@ export function splitPartiallySelected(range: Range): SplitRange {
         start = range.startContainer;
     }
 
-    let end = range.endContainer;
+    const end = range.endContainer;
     if (nodeIsText(range.endContainer)) {
         splitTextIfNecessary(range.endContainer, range.endOffset);
     }
 
-    return { start, end };
+    return new SplitRange(start, end);
 }

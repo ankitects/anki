@@ -3,12 +3,11 @@
 
 import { registerPackage } from "../../lib/runtime-require";
 import { MatchType } from "./match-type";
-import { surroundNoSplitting } from "./no-splitting";
-import { unsurround } from "./unsurround";
+import { reformat, surround, unsurround } from "./no-splitting";
 
 registerPackage("anki/surround", {
     MatchType,
 });
 
-export { MatchType, surroundNoSplitting, unsurround };
+export { MatchType, reformat, surround, unsurround };
 export type { ElementMatcher, Match, SurroundFormat } from "./match-type";

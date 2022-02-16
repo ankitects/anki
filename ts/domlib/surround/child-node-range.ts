@@ -67,21 +67,18 @@ export class ChildNodeRange {
         return range;
     }
 
-    [Symbol.iterator]() {
+    [Symbol.iterator](): Iterator<ChildNode, null, never> {
         const parent = this.parent;
         const end = this.endIndex;
         let step = this.startIndex;
 
         return {
-            next() {
+            next(): IteratorResult<ChildNode, null> {
                 if (step >= end) {
                     return { value: null, done: true };
                 }
 
-                const result = { value: parent.childNodes[step], done: false };
-                step++;
-
-                return result;
+                return { value: parent.childNodes[step++], done: false };
             },
         };
     }

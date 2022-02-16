@@ -4,7 +4,7 @@
 import { get } from "svelte/store";
 
 import type { ElementMatcher, SurroundFormat } from "../domlib/surround";
-import { surroundNoSplitting, unsurround } from "../domlib/surround";
+import { surround, unsurround } from "../domlib/surround";
 import { findClosest } from "../domlib/find-above";
 import type { Matcher } from "../domlib/find-above";
 import { getRange, getSelection } from "../lib/cross-browser";
@@ -30,7 +30,7 @@ function surroundAndSelect(
 ): void {
     const surroundedRange = matches
         ? unsurround(range, base, format)
-        : surroundNoSplitting(range, base, format);
+        : surround(range, base, format);
 
     selection.removeAllRanges();
     selection.addRange(surroundedRange);

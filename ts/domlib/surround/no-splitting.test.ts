@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { surroundNoSplitting as surround } from "./no-splitting";
+import { surround } from "./no-splitting";
 import { easyBold, easyUnderline, p } from "./test-utils";
 
 describe("surround text", () => {

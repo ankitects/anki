@@ -79,12 +79,14 @@ export class MatchNode extends TreeNode {
         switch (this.match.type) {
             case MatchType.REMOVE:
                 const length = this.element.childNodes.length;
+                format.announceElementRemoval(this.element);
                 this.element.replaceWith(...this.element.childNodes);
                 return length - 1;
 
             case MatchType.CLEAR:
                 const shouldRemove = this.match.clear(this.element as any);
                 if (shouldRemove) {
+                    format.announceElementRemoval(this.element);
                     this.element.replaceWith(...this.element.childNodes);
                 }
                 break;
