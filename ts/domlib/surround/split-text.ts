@@ -15,13 +15,29 @@ function splitTextIfNecessary(text: Text, offset: number): Text {
     return text.splitText(offset);
 }
 
+/**
+ * @link https://dom.spec.whatwg.org/#concept-node-length
+ */
+function length(node: Node): number {
+    if (node instanceof CharacterData) {
+        return node.length;
+    } else if (
+        node.nodeType === Node.DOCUMENT_TYPE_NODE ||
+        node.nodeType === Node.ATTRIBUTE_NODE
+    ) {
+        return 0;
+    }
+
+    return node.childNodes.length;
+}
+
 export class SplitRange {
     constructor(protected start: Node, protected end: Node) {}
 
     private adjustStart(): void {
         if (this.start.firstChild) {
             this.start = this.start.firstChild;
-        } else if (this.end.nextSibling) {
+        } else if (this.start.nextSibling) {
             this.start = this.start.nextSibling!;
         }
     }
@@ -42,11 +58,13 @@ export class SplitRange {
         }
     }
 
+    /**
+     * Returns a range with boundary points `(start, 0)` and `(end, end.length)`
+     */
     recreateRange(): Range {
         const range = new Range();
-        range.setStartBefore(this.start);
-        range.setEndAfter(this.end);
-
+        range.setStart(this.start, 0);
+        range.setEnd(this.end, length(this.end));
         return range;
     }
 }
@@ -63,6 +81,7 @@ export function splitPartiallySelected(range: Range): SplitRange {
     if (nodeIsText(range.endContainer)) {
         splitTextIfNecessary(range.endContainer, range.endOffset);
     }
+    debugger;
 
     return new SplitRange(start, end);
 }

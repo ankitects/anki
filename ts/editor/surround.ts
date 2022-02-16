@@ -44,9 +44,9 @@ export interface GetSurrounderResult {
     isSurrounded(matcher: ElementMatcher): Promise<boolean>;
 }
 
-
 function wrapMatcher(matcher: ElementMatcher): Matcher {
-    return (element: Element): boolean => Boolean(matcher(element as HTMLElement | SVGElement).type)
+    return (element: Element): boolean =>
+        Boolean(matcher(element as HTMLElement | SVGElement).type);
 }
 
 /**
