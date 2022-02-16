@@ -28,7 +28,7 @@ export class SplitRange {
 
     private adjustEnd(): void {
         if (this.end.lastChild) {
-            this.end = this.start.lastChild!;
+            this.end = this.end.lastChild!;
         } else if (this.end.previousSibling) {
             this.end = this.end.previousSibling;
         }
