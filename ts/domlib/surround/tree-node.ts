@@ -230,8 +230,8 @@ export class FormattingNode extends TreeNode {
     static merge(before: FormattingNode, after: FormattingNode): FormattingNode {
         const node = FormattingNode.make(
             before.range.mergeWith(after.range),
-            before.insideRange && after.insideRange,
             before.covered && after.covered,
+            before.insideRange && after.insideRange,
         );
 
         node.replaceChildren([...before.children, ...after.children]);
