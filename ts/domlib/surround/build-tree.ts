@@ -4,10 +4,10 @@
 import { nodeIsElement, nodeIsText } from "../../lib/dom";
 import { appendNode } from "./append-merge";
 import { ChildNodeRange } from "./child-node-range";
+import type { TreeNode } from "./formatting-tree";
+import { BlockNode, FormattingNode, MatchNode } from "./formatting-tree";
 import { elementIsNegligible, textIsNegligible } from "./node-negligible";
 import type { ParseFormat } from "./parse-format";
-import type { TreeNode } from "./tree-node";
-import { BlockNode, FormattingNode, MatchNode } from "./tree-node";
 
 function buildFromElement(
     element: Element,

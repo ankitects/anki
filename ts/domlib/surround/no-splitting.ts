@@ -5,11 +5,11 @@ import { buildFromNode } from "./build-tree";
 import { EvaluateFormat } from "./evaluate-format";
 import { extendAndMerge } from "./extend-merge";
 import { findFarthest } from "./find-above";
+import { FormattingNode } from "./formatting-tree";
 import type { SurroundFormat } from "./match-type";
 import { ParseFormat } from "./parse-format";
 import { getRangeAnchors } from "./range-anchors";
 import { splitPartiallySelected } from "./text-node";
-import { FormattingNode } from "./tree-node";
 
 function build(
     node: Node,

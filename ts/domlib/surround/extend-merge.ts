@@ -2,9 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { buildFromNode } from "./build-tree";
+import type { TreeNode } from "./formatting-tree";
+import { FormattingNode, MatchNode } from "./formatting-tree";
 import type { ParseFormat } from "./parse-format";
-import type { TreeNode } from "./tree-node";
-import { FormattingNode, MatchNode } from "./tree-node";
 
 function previousSibling(node: Node): ChildNode | null {
     return node.previousSibling;

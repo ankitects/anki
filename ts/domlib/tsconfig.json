@@ -1,6 +1,6 @@
 {
     "extends": "../tsconfig.json",
-    "include": ["*", "location/*", "surround/*"],
+    "include": ["*", "location/*", "surround/*", "surround/formatting-tree/*"],
     "references": [{ "path": "../lib" }],
     "compilerOptions": {
         "types": ["jest"]

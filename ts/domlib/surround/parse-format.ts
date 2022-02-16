@@ -2,11 +2,22 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { nodeIsCommonElement } from "../../lib/dom";
+import { Position } from "../location";
+import { FormattingNode, MatchNode } from "./formatting-tree";
 import type { Match, SurroundFormat } from "./match-type";
 import { MatchType } from "./match-type";
 import { nodeIsAmongNegligibles } from "./node-negligible";
-import { FormattingNode, MatchNode } from "./tree-node";
-import { nodeWithinRange } from "./within-range";
+
+export function nodeWithinRange(node: Node, range: Range): boolean {
+    const nodeRange = new Range();
+    nodeRange.selectNodeContents(node);
+
+    return (
+        range.compareBoundaryPoints(Range.START_TO_START, nodeRange) !==
+            Position.After &&
+        range.compareBoundaryPoints(Range.END_TO_END, nodeRange) !== Position.Before
+    );
+}
 
 export class ParseFormat {
     constructor(

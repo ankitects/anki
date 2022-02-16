@@ -1,9 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import type { TreeNode } from "./formatting-tree";
+import { FormattingNode } from "./formatting-tree";
 import type { ParseFormat } from "./parse-format";
-import type { TreeNode } from "./tree-node";
-import { FormattingNode } from "./tree-node";
 
 /**
  * @param last: The node which is intended to be the new end node.
