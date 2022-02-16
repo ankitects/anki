@@ -1,12 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { build} from "./build-tree";
-import { EvaluateFormat } from "./evaluate-format";
 import { findFarthest } from "../find-above";
+import { build } from "./build-tree";
+import { EvaluateFormat } from "./evaluate-format";
 import type { SurroundFormat } from "./match-type";
 import { ParseFormat } from "./parse-format";
-import { getRangeAnchors } from "./range-anchors";
 import { splitPartiallySelected } from "./split-text";
 
 function surround(
@@ -27,7 +26,10 @@ export function reformatRange(
     const farthestMatchingAncestor = findFarthest(
         range.commonAncestorContainer,
         parseFormat.base,
-        (element: Element): boolean => Boolean(parseFormat.format.matcher(element as HTMLElement | SVGElement).type),
+        (element: Element): boolean =>
+            Boolean(
+                parseFormat.format.matcher(element as HTMLElement | SVGElement).type,
+            ),
     );
 
     if (!farthestMatchingAncestor) {
@@ -65,7 +67,7 @@ export function surroundNoSplitting(
     base: Element,
     format: SurroundFormat,
 ): Range {
-    const { start, end } = getRangeAnchors(range, format.matcher);
+    const { start, end } = splitPartiallySelected(range);
 
     surround(
         range.commonAncestorContainer,

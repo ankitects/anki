@@ -1,11 +1,11 @@
 {
     "extends": "../tsconfig.json",
     "include": [
-    "*",
-    "location/*",
-    "surround/*",
-    "surround/build-tree/*",
-    "surround/formatting-tree/*",
+        "*",
+        "location/*",
+        "surround/*",
+        "surround/build-tree/*",
+        "surround/formatting-tree/*"
     ],
     "references": [{ "path": "../lib" }],
     "compilerOptions": {

@@ -4,51 +4,39 @@
 import { nodeIsText } from "../../lib/dom";
 
 /**
- * @returns Split text node to end direction
+ * @returns Split text node to end direction or text itself if a split is
+ * not necessary
  */
-function splitText(node: Text, offset: number): Text {
-    return node.splitText(offset);
+function splitTextIfNecessary(text: Text, offset: number): Text {
+    if (offset === 0 || offset === text.length) {
+        return text;
+    }
+
+    return text.splitText(offset);
 }
 
-// TODO maybe both start and end should be of type Node
-// Could also probably be the new "Range anchors"
 interface SplitRange {
     /**
-     * Used to recreate a range: `range.setStartBefore(start)`
+     * Can be used to recreate a range with `range.setStartBefore(start)`
      */
-    start: Text | null;
+    start: Node;
     /**
-     * Used to recreate a range: `range.setEndAfter(end)`
+     * Can be used to recreate a range with `range.setEndAfter(end)`
      */
-    end: Text | null;
+    end: Node;
 }
 
 export function splitPartiallySelected(range: Range): SplitRange {
-    const startContainer = range.startContainer;
-    const startOffset = range.startOffset;
+    let start: Node;
+    if (nodeIsText(range.startContainer)) {
+        start = splitTextIfNecessary(range.startContainer, range.startOffset);
+    } else {
+        start = range.startContainer;
+    }
 
-    // TODO Maybe we should avoid splitting, if they
-    // create zero-length text nodes
-
-    const start = nodeIsText(startContainer)
-        ? splitText(startContainer, startOffset)
-        : null;
-
-    const endContainer = range.endContainer;
-    const endOffset = range.endOffset;
-
-    let end: Text | null = null;
-    if (nodeIsText(endContainer)) {
-        const splitOff = splitText(endContainer, endOffset);
-
-        if (splitOff.data.length === 0) {
-            // Range should include the split-off text if it is zero-length.
-            // For the start container, this is done automatically.
-            end = splitOff;
-            range.setEndAfter(end);
-        } else {
-            end = endContainer;
-        }
+    let end = range.endContainer;
+    if (nodeIsText(range.endContainer)) {
+        splitTextIfNecessary(range.endContainer, range.endOffset);
     }
 
     return { start, end };

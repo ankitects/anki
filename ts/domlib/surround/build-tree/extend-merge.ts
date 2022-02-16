@@ -1,10 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { buildFromNode } from "./build";
 import type { TreeNode } from "../formatting-tree";
 import { FormattingNode, MatchNode } from "../formatting-tree";
 import type { ParseFormat } from "../parse-format";
+import { buildFromNode } from "./build";
 
 function previousSibling(node: Node): ChildNode | null {
     return node.previousSibling;

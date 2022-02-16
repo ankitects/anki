@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-export type Matcher = (element: Element) => boolean
+export type Matcher = (element: Element) => boolean;
 
 function tryMatch(current: Element, matcher: Matcher): Element | null {
     if (!matcher(current)) {
