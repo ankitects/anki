@@ -15,14 +15,8 @@ describe("surround text", () => {
         const range = new Range();
         range.selectNode(body.firstChild!);
 
-        const { addedNodes, removedNodes, surroundedRange } = surround(
-            range,
-            body,
-            easyBold,
-        );
+        const surroundedRange = surround(range, body, easyBold);
 
-        expect(addedNodes).toHaveLength(1);
-        expect(removedNodes).toHaveLength(0);
         expect(body).toHaveProperty("innerHTML", "<b>111222</b>");
         expect(surroundedRange.toString()).toEqual("111222");
     });
@@ -32,14 +26,8 @@ describe("surround text", () => {
         range.setStart(body.firstChild!, 0);
         range.setEnd(body.firstChild!, 3);
 
-        const { addedNodes, removedNodes, surroundedRange } = surround(
-            range,
-            body,
-            easyBold,
-        );
+        const surroundedRange = surround(range, body, easyBold);
 
-        expect(addedNodes).toHaveLength(1);
-        expect(removedNodes).toHaveLength(0);
         expect(body).toHaveProperty("innerHTML", "<b>111</b>222");
         expect(surroundedRange.toString()).toEqual("111");
     });
@@ -49,14 +37,8 @@ describe("surround text", () => {
         range.setStart(body.firstChild!, 3);
         range.setEnd(body.firstChild!, 6);
 
-        const { addedNodes, removedNodes, surroundedRange } = surround(
-            range,
-            body,
-            easyBold,
-        );
+        const surroundedRange = surround(range, body, easyBold);
 
-        expect(addedNodes).toHaveLength(1);
-        expect(removedNodes).toHaveLength(0);
         expect(body).toHaveProperty("innerHTML", "111<b>222</b>");
         expect(surroundedRange.toString()).toEqual("222");
     });
@@ -73,14 +55,8 @@ describe("surround text next to nested", () => {
         test("enlarges bottom tag of nested", () => {
             const range = new Range();
             range.selectNode(body.firstChild!);
-            const { addedNodes, removedNodes, surroundedRange } = surround(
-                range,
-                body,
-                easyUnderline,
-            );
+            const surroundedRange = surround(range, body, easyUnderline);
 
-            expect(addedNodes).toHaveLength(1);
-            expect(removedNodes).toHaveLength(1);
             expect(body).toHaveProperty("innerHTML", "<u>before<b>after</b></u>");
             expect(surroundedRange.toString()).toEqual("before");
         });
@@ -88,14 +64,8 @@ describe("surround text next to nested", () => {
         test("moves nested down", () => {
             const range = new Range();
             range.selectNode(body.firstChild!);
-            const { addedNodes, removedNodes, surroundedRange } = surround(
-                range,
-                body,
-                easyBold,
-            );
+            const surroundedRange = surround(range, body, easyBold);
 
-            expect(addedNodes).toHaveLength(1);
-            expect(removedNodes).toHaveLength(1);
             expect(body).toHaveProperty("innerHTML", "<b>before<u>after</u></b>");
             expect(surroundedRange.toString()).toEqual("before");
         });
@@ -111,14 +81,8 @@ describe("surround text next to nested", () => {
         test("enlarges bottom tag of nested", () => {
             const range = new Range();
             range.selectNode(body.childNodes[1]);
-            const { addedNodes, removedNodes, surroundedRange } = surround(
-                range,
-                body,
-                easyUnderline,
-            );
+            const surroundedRange = surround(range, body, easyUnderline);
 
-            expect(addedNodes).toHaveLength(1);
-            expect(removedNodes).toHaveLength(1);
             expect(body).toHaveProperty("innerHTML", "<u><b>before</b>after</u>");
             expect(surroundedRange.toString()).toEqual("after");
         });
@@ -126,14 +90,8 @@ describe("surround text next to nested", () => {
         test("moves nested down", () => {
             const range = new Range();
             range.selectNode(body.childNodes[1]);
-            const { addedNodes, removedNodes, surroundedRange } = surround(
-                range,
-                body,
-                easyBold,
-            );
+            const surroundedRange = surround(range, body, easyBold);
 
-            expect(addedNodes).toHaveLength(1);
-            expect(removedNodes).toHaveLength(1);
             expect(body).toHaveProperty("innerHTML", "<b><u>before</u>after</b>");
             expect(surroundedRange.toString()).toEqual("after");
         });
@@ -149,14 +107,8 @@ describe("surround text next to nested", () => {
         test("extends to both", () => {
             const range = new Range();
             range.selectNode(body.firstChild!);
-            const { addedNodes, removedNodes, surroundedRange } = surround(
-                range,
-                body,
-                easyBold,
-            );
+            const surroundedRange = surround(range, body, easyBold);
 
-            expect(addedNodes).toHaveLength(1);
-            expect(removedNodes).toHaveLength(2);
             expect(body).toHaveProperty("innerHTML", "<b>aaa<i>bbb</i><i>ccc</i></b>");
             expect(surroundedRange.toString()).toEqual("aaa");
         });
@@ -174,14 +126,8 @@ describe("surround across block element", () => {
         const range = new Range();
         range.setStartBefore(body.firstChild!);
         range.setEndAfter(body.lastChild!);
-        const { addedNodes, removedNodes, surroundedRange } = surround(
-            range,
-            body,
-            easyBold,
-        );
+        const surroundedRange = surround(range, body, easyBold);
 
-        expect(addedNodes).toHaveLength(3);
-        expect(removedNodes).toHaveLength(0);
         expect(body).toHaveProperty(
             "innerHTML",
             "<b>Before</b><br><ul><li><b>First</b></li><li><b>Second</b></li></ul>",
@@ -200,10 +146,8 @@ describe("next to nested", () => {
     test("surround after", () => {
         const range = new Range();
         range.selectNode(body.lastChild!);
-        const { addedNodes, removedNodes } = surround(range, body, easyBold);
+        surround(range, body, easyBold);
 
-        expect(addedNodes).toHaveLength(1);
-        expect(removedNodes).toHaveLength(3);
         expect(body).toHaveProperty("innerHTML", "111<b>222333444555</b>");
         // expect(surroundedRange.toString()).toEqual("555");
     });
@@ -219,10 +163,8 @@ describe("next to element with nested non-matching", () => {
     test("surround after", () => {
         const range = new Range();
         range.selectNode(body.lastChild!);
-        const { addedNodes, removedNodes } = surround(range, body, easyBold);
+        surround(range, body, easyBold);
 
-        expect(addedNodes).toHaveLength(1);
-        expect(removedNodes).toHaveLength(1);
         expect(body).toHaveProperty(
             "innerHTML",
             "111<b>222<i>333<i>444</i></i>555</b>",
@@ -241,10 +183,8 @@ describe("next to element with text element text", () => {
     test("surround after", () => {
         const range = new Range();
         range.selectNode(body.lastChild!);
-        const { addedNodes, removedNodes } = surround(range, body, easyBold);
+        surround(range, body, easyBold);
 
-        expect(addedNodes).toHaveLength(1);
-        expect(removedNodes).toHaveLength(2);
         expect(body).toHaveProperty("innerHTML", "111<b>222333444555</b>");
         // expect(surroundedRange.toString()).toEqual("555");
     });
@@ -261,10 +201,8 @@ describe("surround elements that already have nested block", () => {
         const range = new Range();
         range.selectNode(body.children[0]);
 
-        const { addedNodes, removedNodes } = surround(range, body, easyBold);
+        surround(range, body, easyBold);
 
-        expect(addedNodes).toHaveLength(1);
-        expect(removedNodes).toHaveLength(2);
         expect(body).toHaveProperty("innerHTML", "<b>12</b><br>");
         // expect(surroundedRange.toString()).toEqual("12");
     });
@@ -282,14 +220,8 @@ describe("surround complicated nested structure", () => {
         range.setStartBefore(body.firstElementChild!.firstChild!);
         range.setEndAfter(body.lastElementChild!.firstChild!);
 
-        const { addedNodes, removedNodes, surroundedRange } = surround(
-            range,
-            body,
-            easyBold,
-        );
+        const surroundedRange = surround(range, body, easyBold);
 
-        expect(addedNodes).toHaveLength(1);
-        expect(removedNodes).toHaveLength(1);
         expect(body).toHaveProperty(
             "innerHTML",
             "<b><i>1</i><i>2</i>3<i>4</i><i>5</i></b>",
@@ -311,14 +243,8 @@ describe("skips over empty elements", () => {
             range.setStartBefore(body.firstChild!);
             range.setEndAfter(body.childNodes[2]!);
 
-            const { addedNodes, removedNodes, surroundedRange } = surround(
-                range,
-                body,
-                easyBold,
-            );
+            const surroundedRange = surround(range, body, easyBold);
 
-            expect(addedNodes).toHaveLength(1);
-            expect(removedNodes).toHaveLength(0);
             expect(body).toHaveProperty("innerHTML", "<b>before<br>after</b>");
             expect(surroundedRange.toString()).toEqual("beforeafter");
         });
@@ -335,14 +261,8 @@ describe("skips over empty elements", () => {
             const range = new Range();
             range.selectNode(body.firstChild!);
 
-            const { addedNodes, removedNodes, surroundedRange } = surround(
-                range,
-                body,
-                easyBold,
-            );
+            const surroundedRange = surround(range, body, easyBold);
 
-            expect(addedNodes).toHaveLength(1);
-            expect(removedNodes).toHaveLength(1);
             expect(body).toHaveProperty("innerHTML", "<b>before<br>after</b>");
             expect(surroundedRange.toString()).toEqual("before");
         });
@@ -351,14 +271,8 @@ describe("skips over empty elements", () => {
             const range = new Range();
             range.selectNodeContents(body.firstChild!);
 
-            const { addedNodes, removedNodes, surroundedRange } = surround(
-                range,
-                body,
-                easyBold,
-            );
+            const surroundedRange = surround(range, body, easyBold);
 
-            expect(addedNodes).toHaveLength(1);
-            expect(removedNodes).toHaveLength(1);
             expect(body).toHaveProperty("innerHTML", "<b>before<br>after</b>");
             expect(surroundedRange.toString()).toEqual("before");
         });

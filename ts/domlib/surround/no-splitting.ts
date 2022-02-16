@@ -16,7 +16,7 @@ function build(
     format: ParseFormat,
     evaluateFormat: EvaluateFormat,
     covered: boolean,
-) {
+): void {
     let output = buildFromNode(node, format, covered);
 
     if (output instanceof FormattingNode) {
@@ -24,20 +24,14 @@ function build(
     }
 
     output?.evaluate(evaluateFormat, 0);
-    return document.createRange(); // TODO
 }
 
-export interface NodesResult {
-    addedNodes: Node[];
-    removedNodes: Node[];
-}
-
-export function surround(
+function surround(
     node: Node,
     parseFormat: ParseFormat,
     evaluateFormat: EvaluateFormat,
-): Range {
-    return build(node, parseFormat, evaluateFormat, false);
+): void {
+    build(node, parseFormat, evaluateFormat, false);
 }
 
 export function reformatRange(
@@ -45,7 +39,7 @@ export function reformatRange(
     parseFormat: ParseFormat,
     evaluateFormat: EvaluateFormat,
 ): Range {
-    splitPartiallySelected(range);
+    const { start, end } = splitPartiallySelected(range);
 
     const farthestMatchingAncestor = findFarthest(
         range.commonAncestorContainer,
@@ -54,15 +48,25 @@ export function reformatRange(
     );
 
     if (!farthestMatchingAncestor) {
-        return surround(range.commonAncestorContainer, parseFormat, evaluateFormat);
+        surround(range.commonAncestorContainer, parseFormat, evaluateFormat);
+
+        const surroundedRange = new Range();
+        surroundedRange.setStartBefore(start!);
+        surroundedRange.setEndAfter(end!);
+        range.commonAncestorContainer.normalize();
+
+        return surroundedRange;
     }
 
-    return build(farthestMatchingAncestor.element, parseFormat, evaluateFormat, true);
-}
+    build(farthestMatchingAncestor.element, parseFormat, evaluateFormat, true);
 
-export type SurroundNoSplittingResult = NodesResult & {
-    surroundedRange: Range;
-};
+    const surroundedRange = new Range();
+    surroundedRange.setStartBefore(start!);
+    surroundedRange.setEndAfter(end!);
+    farthestMatchingAncestor.element.normalize();
+
+    return surroundedRange;
+}
 
 /**
  * Avoids splitting existing elements in the surrounded area. Might create
@@ -77,10 +81,9 @@ export function surroundNoSplitting(
     range: Range,
     base: Element,
     format: SurroundFormat,
-): SurroundNoSplittingResult {
-    // splitPartiallySelectedTextNodes(range);
-
+): Range {
     const { start, end } = getRangeAnchors(range, format.matcher);
+
     surround(
         range.commonAncestorContainer,
         ParseFormat.make(format, base, range),
@@ -92,5 +95,5 @@ export function surroundNoSplitting(
     surroundedRange.setEndAfter(end);
     base.normalize();
 
-    return { addedNodes: [], removedNodes: [], surroundedRange };
+    return surroundedRange;
 }

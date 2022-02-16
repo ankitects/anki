@@ -26,7 +26,7 @@ function surroundAndSelect(
     format: SurroundFormat,
     selection: Selection,
 ): void {
-    const { surroundedRange } = matches
+    const surroundedRange = matches
         ? unsurround(range, base, format)
         : surroundNoSplitting(range, base, format);
 
@@ -104,11 +104,13 @@ export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderRes
 }
 
 function removeFormats(range: Range, formats: SurroundFormat[], base: Element): Range {
+    let surroundRange = range;
+
     for (const format of formats) {
-        ({ surroundedRange: range } = unsurround(range, base, format));
+        surroundRange = unsurround(surroundRange, base, format);
     }
 
-    return range;
+    return surroundRange;
 }
 
 interface RemoveFormatResult {

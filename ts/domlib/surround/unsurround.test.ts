@@ -15,14 +15,8 @@ describe("unsurround text", () => {
         const range = new Range();
         range.selectNode(body.firstChild!);
 
-        const { addedNodes, removedNodes, surroundedRange } = unsurround(
-            range,
-            body,
-            easyBold,
-        );
+        const surroundedRange = unsurround(range, body, easyBold);
 
-        expect(addedNodes).toHaveLength(0);
-        expect(removedNodes).toHaveLength(1);
         expect(body).toHaveProperty("innerHTML", "test");
         expect(surroundedRange.toString()).toEqual("test");
     });
@@ -40,14 +34,8 @@ describe("unsurround element and text", () => {
         range.setStartBefore(body.childNodes[0].firstChild!);
         range.setEndAfter(body.childNodes[1]);
 
-        const { addedNodes, removedNodes, surroundedRange } = unsurround(
-            range,
-            body,
-            easyBold,
-        );
+        const surroundedRange = unsurround(range, body, easyBold);
 
-        expect(addedNodes).toHaveLength(0);
-        expect(removedNodes).toHaveLength(1);
         expect(body).toHaveProperty("innerHTML", "beforeafter");
         expect(surroundedRange.toString()).toEqual("beforeafter");
     });
@@ -64,10 +52,8 @@ describe("unsurround element with surrounding text", () => {
         const range = new Range();
         range.selectNode(body.firstElementChild!);
 
-        const { addedNodes, removedNodes } = unsurround(range, body, easyBold);
+        unsurround(range, body, easyBold);
 
-        expect(addedNodes).toHaveLength(0);
-        expect(removedNodes).toHaveLength(1);
         expect(body).toHaveProperty("innerHTML", "112233");
         // expect(surroundedRange.toString()).toEqual("22");
     });
@@ -85,10 +71,8 @@ describe("unsurround from one element to another", () => {
         range.setStartBefore(body.children[0].firstChild!);
         range.setEndAfter(body.children[1].firstChild!);
 
-        const { addedNodes, removedNodes } = unsurround(range, body, easyBold);
+        unsurround(range, body, easyBold);
 
-        expect(addedNodes).toHaveLength(0);
-        expect(removedNodes).toHaveLength(2);
         expect(body).toHaveProperty("innerHTML", "111222333");
         // expect(surroundedRange.toString()).toEqual("22");
     });
@@ -132,10 +116,8 @@ describe("with bold around block item", () => {
             body.firstChild!.childNodes[2].firstChild!.firstChild!,
         );
 
-        const { addedNodes, removedNodes } = unsurround(range, body, easyBold);
+        unsurround(range, body, easyBold);
 
-        expect(addedNodes).toHaveLength(1);
-        expect(removedNodes).toHaveLength(1);
         expect(body).toHaveProperty("innerHTML", "<b>111</b><br><ul><li>222</li></ul>");
         // expect(surroundedRange.toString()).toEqual("222");
     });

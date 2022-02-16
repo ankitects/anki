@@ -3,7 +3,6 @@
 
 import { UnsurroundEvaluateFormat } from "./evaluate-format";
 import type { SurroundFormat } from "./match-type";
-import type { SurroundNoSplittingResult } from "./no-splitting";
 import { reformatRange } from "./no-splitting";
 import { UnsurroundParseFormat } from "./parse-format";
 
@@ -13,20 +12,10 @@ import { UnsurroundParseFormat } from "./parse-format";
  * @param range: The range to unsurround
  * @param base: Surrounding will not ascend beyond this point. `base.contains(range.commonAncestorContainer)` should be true.
  **/
-export function unsurround(
-    range: Range,
-    base: Element,
-    format: SurroundFormat,
-): SurroundNoSplittingResult {
-    reformatRange(
+export function unsurround(range: Range, base: Element, format: SurroundFormat): Range {
+    return reformatRange(
         range,
         UnsurroundParseFormat.make(format, base, range),
         UnsurroundEvaluateFormat.make(format),
     );
-
-    return {
-        addedNodes: [],
-        removedNodes: [],
-        surroundedRange: document.createRange(),
-    };
 }
