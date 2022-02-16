@@ -34,7 +34,7 @@ class DataModel(QAbstractTableModel):
 
     def __init__(
         self,
-        parent,
+        parent: QObject,
         col: Collection,
         state: ItemState,
         row_state_will_change_callback: Callable,
