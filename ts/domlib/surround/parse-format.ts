@@ -8,7 +8,7 @@ import type { Match, SurroundFormat } from "./match-type";
 import { MatchType } from "./match-type";
 import { nodeIsAmongNegligibles } from "./node-negligible";
 
-export function nodeWithinRange(node: Node, range: Range): boolean {
+function nodeWithinRange(node: Node, range: Range): boolean {
     const nodeRange = new Range();
     nodeRange.selectNodeContents(node);
 

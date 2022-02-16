@@ -4,14 +4,16 @@
 import { get } from "svelte/store";
 
 import type { ElementMatcher, SurroundFormat } from "../domlib/surround";
-import { findClosest, surroundNoSplitting, unsurround } from "../domlib/surround";
+import { surroundNoSplitting, unsurround } from "../domlib/surround";
+import { findClosest } from "../domlib/find-above";
+import type { Matcher } from "../domlib/find-above";
 import { getRange, getSelection } from "../lib/cross-browser";
 import type { RichTextInputAPI } from "./rich-text-input";
 
 function isSurroundedInner(
     range: AbstractRange,
     base: HTMLElement,
-    matcher: ElementMatcher,
+    matcher: Matcher,
 ): boolean {
     return Boolean(
         findClosest(range.startContainer, base, matcher) ||
@@ -42,6 +44,11 @@ export interface GetSurrounderResult {
     isSurrounded(matcher: ElementMatcher): Promise<boolean>;
 }
 
+
+function wrapMatcher(matcher: ElementMatcher): Matcher {
+    return (element: Element): boolean => Boolean(matcher(element as HTMLElement | SVGElement).type)
+}
+
 /**
  * A convenience function supposed to create some common formatting functions, e.g. bold, italic, etc.
  */
@@ -57,7 +64,7 @@ export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderRes
             return false;
         }
 
-        const isSurrounded = isSurroundedInner(range, base, matcher);
+        const isSurrounded = isSurroundedInner(range, base, wrapMatcher(matcher));
         return get(trigger.active) ? !isSurrounded : isSurrounded;
     }
 
@@ -68,6 +75,7 @@ export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderRes
         const base = await richTextInput.element;
         const selection = getSelection(base)!;
         const initialRange = getRange(selection);
+        const matcher = wrapMatcher(format.matcher);
 
         if (!initialRange) {
             return;
@@ -78,7 +86,7 @@ export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderRes
                 trigger.add(async ({ node }: { node: Node }) => {
                     initialRange.selectNode(node);
 
-                    const matches = Boolean(findClosest(node, base, format.matcher));
+                    const matches = Boolean(findClosest(node, base, matcher));
                     const range = removeFormats(
                         initialRange,
                         mutualExclusiveFormats,
@@ -90,7 +98,7 @@ export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderRes
                 });
             }
         } else {
-            const matches = isSurroundedInner(initialRange, base, format.matcher);
+            const matches = isSurroundedInner(initialRange, base, matcher);
             const range = removeFormats(initialRange, mutualExclusiveFormats, base);
 
             surroundAndSelect(matches, range, base, format, selection);

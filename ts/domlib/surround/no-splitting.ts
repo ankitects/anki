@@ -1,30 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { buildFromNode } from "./build-tree";
+import { build} from "./build-tree";
 import { EvaluateFormat } from "./evaluate-format";
-import { extendAndMerge } from "./extend-merge";
-import { findFarthest } from "./find-above";
-import { FormattingNode } from "./formatting-tree";
+import { findFarthest } from "../find-above";
 import type { SurroundFormat } from "./match-type";
 import { ParseFormat } from "./parse-format";
 import { getRangeAnchors } from "./range-anchors";
-import { splitPartiallySelected } from "./text-node";
-
-function build(
-    node: Node,
-    format: ParseFormat,
-    evaluateFormat: EvaluateFormat,
-    covered: boolean,
-): void {
-    let output = buildFromNode(node, format, covered);
-
-    if (output instanceof FormattingNode) {
-        output = extendAndMerge(output, format);
-    }
-
-    output?.evaluate(evaluateFormat, 0);
-}
+import { splitPartiallySelected } from "./split-text";
 
 function surround(
     node: Node,
@@ -44,7 +27,7 @@ export function reformatRange(
     const farthestMatchingAncestor = findFarthest(
         range.commonAncestorContainer,
         parseFormat.base,
-        parseFormat.format.matcher,
+        (element: Element): boolean => Boolean(parseFormat.format.matcher(element as HTMLElement | SVGElement).type),
     );
 
     if (!farthestMatchingAncestor) {
@@ -58,12 +41,12 @@ export function reformatRange(
         return surroundedRange;
     }
 
-    build(farthestMatchingAncestor.element, parseFormat, evaluateFormat, true);
+    build(farthestMatchingAncestor, parseFormat, evaluateFormat, true);
 
     const surroundedRange = new Range();
     surroundedRange.setStartBefore(start!);
     surroundedRange.setEndAfter(end!);
-    farthestMatchingAncestor.element.normalize();
+    farthestMatchingAncestor.normalize();
 
     return surroundedRange;
 }

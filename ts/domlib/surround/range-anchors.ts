@@ -4,7 +4,7 @@
 import { nodeIsElement } from "../../lib/dom";
 import type { ElementMatcher } from "./match-type";
 import { applyMatcher, MatchType } from "./match-type";
-import { splitPartiallySelected } from "./text-node";
+import { splitPartiallySelected } from "./split-text";
 
 function textOrMatches(node: Node, matcher: ElementMatcher): boolean {
     return (
