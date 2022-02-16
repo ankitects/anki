@@ -1,15 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { nodeIsElement } from "../lib/dom";
+
 export type Matcher = (element: Element) => boolean;
-
-function tryMatch(current: Element, matcher: Matcher): Element | null {
-    if (!matcher(current)) {
-        return null;
-    }
-
-    return current;
-}
 
 function findParent(current: Node, base: Element): Element | null {
     if (current === base) {
@@ -32,13 +26,15 @@ export function findClosest(
     base: Element,
     matcher: Matcher,
 ): Element | null {
+    if (nodeIsElement(node) && matcher(node)) {
+        return node;
+    }
+
     let current = findParent(node, base);
 
     while (current) {
-        const match = tryMatch(current, matcher);
-
-        if (match) {
-            return match;
+        if (matcher(current)) {
+            return current;
         }
 
         current = findParent(current, base);
@@ -56,7 +52,7 @@ export function findFarthest(
     matcher: Matcher,
 ): Element | null {
     let farthest: Element | null = null;
-    let current = findParent(node, base);
+    let current: Node | null = node;
 
     while (current) {
         const next = findClosest(current, base, matcher);

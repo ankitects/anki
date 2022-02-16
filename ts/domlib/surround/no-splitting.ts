@@ -69,9 +69,6 @@ export function reformat(range: Range, base: Element, format: SurroundFormat): R
     return reformatInner(range, base, parse, evaluate, matcher);
 }
 
-/**
- * The counterpart to `surround`
- **/
 export function unsurround(range: Range, base: Element, format: SurroundFormat): Range {
     const splitRange = splitPartiallySelected(range);
     const parse = UnsurroundParseFormat.make(format, base, range);

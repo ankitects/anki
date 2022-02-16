@@ -70,6 +70,15 @@ export class MatchNode extends TreeNode {
         return parentNode;
     }
 
+    private remove(format: EvaluateFormat): number {
+        const length = this.element.childNodes.length;
+
+        format.announceElementRemoval(this.element);
+        this.element.replaceWith(...this.element.childNodes);
+
+        return length - 1;
+    }
+
     evaluate(format: EvaluateFormat): number {
         let innerShift = 0;
         for (const child of this.children) {
@@ -78,20 +87,15 @@ export class MatchNode extends TreeNode {
 
         switch (this.match.type) {
             case MatchType.REMOVE:
-                const length = this.element.childNodes.length;
-                format.announceElementRemoval(this.element);
-                this.element.replaceWith(...this.element.childNodes);
-                return length - 1;
+                return this.remove(format);
 
             case MatchType.CLEAR:
-                const shouldRemove = this.match.clear(this.element as any);
-                if (shouldRemove) {
-                    format.announceElementRemoval(this.element);
-                    this.element.replaceWith(...this.element.childNodes);
+                if (this.match.clear(this.element as any)) {
+                    return this.remove(format);
                 }
                 break;
         }
 
-        return innerShift;
+        return 0;
     }
 }
