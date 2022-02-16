@@ -13,19 +13,19 @@ export class MatchNode extends TreeNode {
     private constructor(
         public element: Element,
         public match: Match,
-        public covered: boolean,
         public insideRange: boolean,
+        public insideMatch: boolean,
     ) {
-        super(covered, insideRange);
+        super(insideRange, insideMatch);
     }
 
     static make(
         element: Element,
         match: Match,
-        covered: boolean,
         insideRange: boolean,
+        insideMatch: boolean,
     ): MatchNode {
-        return new MatchNode(element, match, covered, insideRange);
+        return new MatchNode(element, match, insideRange, insideMatch);
     }
 
     /**
@@ -36,7 +36,7 @@ export class MatchNode extends TreeNode {
      * FormattingNode.
      */
     isAscendable(): boolean {
-        return !elementIsBlock(this.element) && (this.covered || this.insideRange);
+        return !elementIsBlock(this.element) && (this.insideRange || this.insideMatch);
     }
 
     /**
@@ -62,8 +62,8 @@ export class MatchNode extends TreeNode {
         const parentNode = MatchNode.make(
             parent,
             format.matches(parent),
-            this.covered,
             this.insideRange,
+            this.insideMatch,
         );
 
         parentNode.replaceChildren([this]);
@@ -90,7 +90,7 @@ export class MatchNode extends TreeNode {
                 return this.remove(format);
 
             case MatchType.CLEAR:
-                if (this.match.clear(this.element as any)) {
+                if (this.match.clear(this.element as HTMLElement | SVGElement)) {
                     return this.remove(format);
                 }
                 break;

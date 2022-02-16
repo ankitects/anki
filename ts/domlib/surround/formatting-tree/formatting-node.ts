@@ -13,18 +13,18 @@ import { TreeNode } from "./tree-node";
 export class FormattingNode extends TreeNode {
     private constructor(
         public range: ChildNodeRange,
-        public covered: boolean,
         public insideRange: boolean,
+        public insideMatch: boolean,
     ) {
-        super(covered, insideRange);
+        super(insideRange, insideMatch);
     }
 
     static make(
         range: ChildNodeRange,
-        covered: boolean,
         insideRange: boolean,
+        insideMatch: boolean,
     ): FormattingNode {
-        return new FormattingNode(range, covered, insideRange);
+        return new FormattingNode(range, insideRange, insideMatch);
     }
 
     /**
@@ -39,8 +39,8 @@ export class FormattingNode extends TreeNode {
     static merge(before: FormattingNode, after: FormattingNode): FormattingNode {
         const node = FormattingNode.make(
             before.range.mergeWith(after.range),
-            before.covered && after.covered,
             before.insideRange && after.insideRange,
+            before.insideMatch && after.insideMatch,
         );
 
         node.replaceChildren([...before.children, ...after.children]);
@@ -48,7 +48,9 @@ export class FormattingNode extends TreeNode {
     }
 
     /**
-     * An ascent is placing a FormattingNode above a MatchNode
+     * An ascent is placing a FormattingNode above a MatchNode.
+     * In other terms, if the MatchNode matches, it means that the node creating
+     * by `this` during formatting is able to replace the MatchNode semantically.
      *
      * @param matchNode: Its children will be discarded in favor of `this`s children.
      *
@@ -59,6 +61,9 @@ export class FormattingNode extends TreeNode {
      */
     ascendAbove(matchNode: MatchNode): void {
         this.range.select(matchNode.element);
+
+        if (matchNode.match.type) {
+        }
 
         if (!this.hasChildren() && !matchNode.match.type) {
             // Drop matchNode, as it has no effect
@@ -85,12 +90,10 @@ export class FormattingNode extends TreeNode {
         }
 
         let top: MatchNode | null = only;
-        while (true) {
-            if (!(top = top.tryExtend(format))) {
-                break;
-            }
+        while (top) {
+            top = top.tryExtend(format);
 
-            if (!format.tryAscend(this, top)) {
+            if (top && !format.tryAscend(this, top)) {
                 break;
             }
         }

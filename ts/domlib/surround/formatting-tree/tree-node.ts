@@ -12,13 +12,15 @@ export abstract class TreeNode {
 
     protected constructor(
         /**
-         * Whether all text nodes within this node are covered by matching MatchNode.
-         */
-        public covered: boolean,
-        /**
-         * Whether all text nodes within this node are inside the initial range.
+         * Whether all text nodes within this node are inside the initial DOM range.
          */
         public insideRange: boolean,
+        /**
+         * Whether all text nodes within this node are preceded by matching MatchNodes.
+         * This is important for deciding whether a text node is turned into a
+         * FormattingNode or into a BlockNode, if it outside the initial DOM range.
+         */
+        public insideMatch: boolean,
     ) {}
 
     /**

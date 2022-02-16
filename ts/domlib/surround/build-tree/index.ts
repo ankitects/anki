@@ -11,9 +11,9 @@ export function build(
     node: Node,
     format: ParseFormat,
     evaluateFormat: EvaluateFormat,
-    covered: boolean,
+    insideMatch: boolean,
 ): void {
-    let output = buildFromNode(node, format, covered);
+    let output = buildFromNode(node, format, insideMatch);
 
     if (output instanceof FormattingNode) {
         output = extendAndMerge(output, format);

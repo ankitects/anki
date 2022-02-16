@@ -4,15 +4,16 @@
 import { TreeNode } from "./tree-node";
 
 /**
- * Its purpose is to block adjacent Formatting nodes from merging.
+ * Its purpose is to block adjacent FormattingNodes from merging, or single
+ * FormattingNodes from trying to ascend.
  */
 export class BlockNode extends TreeNode {
-    private constructor(public covered: boolean, public insideRange: boolean) {
-        super(covered, insideRange);
+    private constructor() {
+        super(false, false);
     }
 
-    static make(covered: boolean, insideRange: boolean): BlockNode {
-        return new BlockNode(covered, insideRange);
+    static make(): BlockNode {
+        return new BlockNode();
     }
 
     evaluate(): number {

@@ -34,7 +34,7 @@ function innerMerge(
         if (siblingNode) {
             let merged: FormattingNode | null;
             if (
-                siblingNode.covered &&
+                siblingNode.insideMatch &&
                 siblingNode instanceof FormattingNode &&
                 (merged = merge(node, siblingNode))
             ) {
@@ -104,8 +104,8 @@ export function extendAndMerge(node: FormattingNode, format: ParseFormat): TreeN
     const matchNode = MatchNode.make(
         parent,
         format.matches(parent),
-        next.node.covered,
         next.node.insideRange,
+        next.node.insideMatch,
     );
 
     format.tryAscend(next.node, matchNode);

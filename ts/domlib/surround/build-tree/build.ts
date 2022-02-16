@@ -12,14 +12,14 @@ import { appendNode } from "./append-merge";
 function buildFromElement(
     element: Element,
     format: ParseFormat,
-    covered: boolean,
+    insideMatch: boolean,
 ): TreeNode | null {
     const match = format.matches(element);
-    const covers = covered || Boolean(match.type);
+    const insideOrIsMatch = insideMatch || Boolean(match.type);
 
     let children: TreeNode[] = [];
     for (const child of element.childNodes) {
-        const node = buildFromNode(child, format, covers);
+        const node = buildFromNode(child, format, insideOrIsMatch);
 
         if (node) {
             children = appendNode(children, node, format);
@@ -29,8 +29,9 @@ function buildFromElement(
     const matchNode = MatchNode.make(
         element,
         match,
-        covers || children.every((node: TreeNode): boolean => node.covered),
         children.every((node: TreeNode): boolean => node.insideRange),
+        insideOrIsMatch ||
+            children.every((node: TreeNode): boolean => node.insideMatch),
     );
 
     if (children.length === 0 && !match.type) {
@@ -57,15 +58,15 @@ function buildFromElement(
 function buildFromText(
     text: Text,
     format: ParseFormat,
-    covered: boolean,
+    insideMatch: boolean,
 ): FormattingNode | BlockNode {
     const insideRange = format.isInsideRange(text);
 
-    if (!covered && !insideRange) {
-        return BlockNode.make(false, false);
+    if (!insideRange && !insideMatch) {
+        return BlockNode.make();
     }
 
-    return FormattingNode.make(ChildNodeRange.fromNode(text), covered, insideRange);
+    return FormattingNode.make(ChildNodeRange.fromNode(text), insideRange, insideMatch);
 }
 
 /**
@@ -76,12 +77,12 @@ function buildFromText(
 export function buildFromNode(
     node: Node,
     format: ParseFormat,
-    covered: boolean,
+    insideMatch: boolean,
 ): TreeNode | null {
     if (nodeIsText(node) && !textIsNegligible(node)) {
-        return buildFromText(node, format, covered);
+        return buildFromText(node, format, insideMatch);
     } else if (nodeIsElement(node) && !elementIsNegligible(node)) {
-        return buildFromElement(node, format, covered);
+        return buildFromElement(node, format, insideMatch);
     } else {
         return null;
     }
