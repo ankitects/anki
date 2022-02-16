@@ -1305,8 +1305,10 @@ title="{}" {}>{}</button>""".format(
         m.actionZoomOut.setShortcut(QKeySequence.StandardKey.ZoomOut)
         qconnect(m.actionResetZoom.triggered, lambda: self.web.setZoomFactor(1))
         # app-wide shortcut
-        qconnect(m.actionFullScreen.triggered, self.on_toggle_fullscreen)
-        m.actionFullScreen.setShortcut(QKeySequence.StandardKey.FullScreen)
+        qconnect(m.actionFullScreen.triggered, self.on_toggle_full_screen)
+        m.actionFullScreen.setShortcut(
+            QKeySequence("F11") if is_lin else QKeySequence.StandardKey.FullScreen
+        )
         m.actionFullScreen.setShortcutContext(Qt.ShortcutContext.ApplicationShortcut)
 
     def updateTitleBar(self) -> None:
@@ -1315,7 +1317,7 @@ title="{}" {}>{}</button>""".format(
     # View
     ##########################################################################
 
-    def on_toggle_fullscreen(self) -> None:
+    def on_toggle_full_screen(self) -> None:
         window = self.app.activeWindow()
         window.setWindowState(window.windowState() ^ Qt.WindowState.WindowFullScreen)
 

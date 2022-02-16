@@ -190,7 +190,7 @@ class Browser(QMainWindow):
         f.actionCreateFilteredDeck.setShortcuts(["Ctrl+G", "Ctrl+Alt+G"])
 
         # view
-        qconnect(f.actionFullScreen.triggered, self.mw.on_toggle_fullscreen)
+        qconnect(f.actionFullScreen.triggered, self.mw.on_toggle_full_screen)
         qconnect(
             f.actionZoomIn.triggered,
             lambda: self.editor.web.setZoomFactor(self.editor.web.zoomFactor() + 0.1),
