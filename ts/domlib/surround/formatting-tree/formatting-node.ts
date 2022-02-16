@@ -44,6 +44,10 @@ export class FormattingNode extends TreeNode {
         );
 
         node.replaceChildren([...before.children, ...after.children]);
+
+        node.matchLeaves.push(...before.matchLeaves, ...after.matchLeaves);
+        node.hasMatchHoles = before.hasMatchHoles || after.hasMatchHoles;
+
         return node;
     }
 
@@ -62,7 +66,9 @@ export class FormattingNode extends TreeNode {
     ascendAbove(matchNode: MatchNode): void {
         this.range.select(matchNode.element);
 
-        if (matchNode.match.type) {
+        if (matchNode.match.type && this.hasMatchHoles) {
+            this.matchLeaves.push(matchNode);
+            this.hasMatchHoles = false;
         }
 
         if (!this.hasChildren() && !matchNode.match.type) {
@@ -98,6 +104,31 @@ export class FormattingNode extends TreeNode {
             }
         }
     }
+
+    /**
+     * Match holes are text nodes that are not inside any matches that are
+     * descendants of `this` (yet).
+     *
+     * @see matchLeaves
+     */
+    hasMatchHoles: boolean = true;
+
+    /**
+     * Match leaves are all MatchNodes that are descendants of `this`, and
+     * actually affect the text nodes located inside `this`
+     *
+     * @see hasMatchHoles
+     *
+     * @example
+     * If we are surrounding with bold, then in this case:
+     * `<b><b>first</b><b>second</b></b>
+     * The inner b tags are match leaves, but the outer b tag is not, because
+     * it does affect any text nodes.
+     *
+     * @remarks
+     * These are important for some ascenders and/or mergers.
+     */
+    matchLeaves: MatchNode[] = [];
 
     evaluate(format: EvaluateFormat, leftShift: number): number {
         let innerShift = 0;

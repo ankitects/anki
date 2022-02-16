@@ -81,7 +81,6 @@ export function splitPartiallySelected(range: Range): SplitRange {
     if (nodeIsText(range.endContainer)) {
         splitTextIfNecessary(range.endContainer, range.endOffset);
     }
-    debugger;
 
     return new SplitRange(start, end);
 }
