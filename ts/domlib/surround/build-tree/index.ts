@@ -19,5 +19,8 @@ export function build(
         output = extendAndMerge(output, format);
     }
 
+    console.log("formatting tree", output);
+    debugger;
+
     output?.evaluate(evaluateFormat, 0);
 }

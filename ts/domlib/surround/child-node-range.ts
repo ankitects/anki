@@ -15,6 +15,14 @@ export class ChildNodeRange {
         public endIndex: number,
     ) {}
 
+    get firstChild(): ChildNode {
+        return this.parent.childNodes[this.startIndex];
+    }
+
+    get lastChild(): ChildNode {
+        return this.parent.childNodes[this.endIndex - 1];
+    }
+
     /**
      * @remarks
      * Indices should be >= 0 and startIndex <= endIndex.

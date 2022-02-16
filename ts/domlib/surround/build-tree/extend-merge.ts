@@ -6,6 +6,11 @@ import { FormattingNode, MatchNode } from "../formatting-tree";
 import type { ParseFormat } from "../parse-format";
 import { buildFromNode } from "./build";
 
+interface MergeResult {
+    node: FormattingNode;
+    hitBorder: boolean;
+}
+
 function previousSibling(node: Node): ChildNode | null {
     return node.previousSibling;
 }
@@ -14,9 +19,41 @@ function nextSibling(node: Node): ChildNode | null {
     return node.nextSibling;
 }
 
-interface MergeResult {
-    node: FormattingNode;
-    hitBorder: boolean;
+function innerMerge(
+    start: FormattingNode,
+    sibling: Node | null,
+    format: ParseFormat,
+    merge: (before: FormattingNode, after: FormattingNode) => FormattingNode | null,
+    getter: (node: Node) => ChildNode | null,
+): MergeResult {
+    let node = start;
+
+    while (sibling) {
+        const siblingNode = buildFromNode(sibling, format, false);
+
+        if (siblingNode) {
+            let merged: FormattingNode | null;
+            if (
+                siblingNode.covered &&
+                siblingNode instanceof FormattingNode &&
+                (merged = merge(node, siblingNode))
+            ) {
+                node = merged;
+            } else {
+                return {
+                    node,
+                    hitBorder: false,
+                };
+            }
+        }
+
+        sibling = getter(sibling);
+    }
+
+    return {
+        node,
+        hitBorder: true,
+    };
 }
 
 /**
@@ -25,35 +62,15 @@ interface MergeResult {
  * @returns Whether siblings were exhausted during merging
  */
 function mergePreviousTrees(start: FormattingNode, format: ParseFormat): MergeResult {
-    let result = start;
-
-    let sibling = previousSibling(start.range.parent);
-    while (sibling) {
-        const siblingNode = buildFromNode(sibling, format, false);
-
-        if (siblingNode) {
-            let merged: FormattingNode | null;
-            if (
-                siblingNode.covered &&
-                siblingNode instanceof FormattingNode &&
-                (merged = format.tryMerge(siblingNode, result))
-            ) {
-                result = merged;
-            } else {
-                return {
-                    node: result,
-                    hitBorder: false,
-                };
-            }
-        }
-
-        sibling = previousSibling(sibling);
-    }
-
-    return {
-        node: result,
-        hitBorder: true,
-    };
+    const sibling = previousSibling(start.range.firstChild);
+    return innerMerge(
+        start,
+        sibling,
+        format,
+        (before: FormattingNode, after: FormattingNode): FormattingNode | null =>
+            format.tryMerge(after, before),
+        previousSibling,
+    );
 }
 
 /**
@@ -62,35 +79,15 @@ function mergePreviousTrees(start: FormattingNode, format: ParseFormat): MergeRe
  * @returns Whether siblings were exhausted during merging
  */
 function mergeNextTrees(start: FormattingNode, format: ParseFormat): MergeResult {
-    let result = start;
-
-    let sibling = nextSibling(start.range.parent);
-    while (sibling) {
-        const siblingNode = buildFromNode(sibling, format, false);
-
-        if (siblingNode) {
-            let merged: FormattingNode | null;
-            if (
-                siblingNode.covered &&
-                siblingNode instanceof FormattingNode &&
-                (merged = format.tryMerge(result, siblingNode))
-            ) {
-                result = merged;
-            } else {
-                return {
-                    node: result,
-                    hitBorder: false,
-                };
-            }
-        }
-
-        sibling = nextSibling(sibling);
-    }
-
-    return {
-        node: result,
-        hitBorder: true,
-    };
+    const sibling = nextSibling(start.range.lastChild);
+    return innerMerge(
+        start,
+        sibling,
+        format,
+        (before: FormattingNode, after: FormattingNode): FormattingNode | null =>
+            format.tryMerge(before, after),
+        nextSibling,
+    );
 }
 
 export function extendAndMerge(node: FormattingNode, format: ParseFormat): TreeNode {
