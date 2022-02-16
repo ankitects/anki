@@ -1,12 +1,31 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { buildFromNode } from "./build-tree";
+import { EvaluateFormat } from "./evaluate-format";
+import { extendAndMerge } from "./extend-merge";
 import { findFarthest } from "./find-above";
 import type { SurroundFormat } from "./match-type";
 import { ParseFormat } from "./parse-format";
-import { EvaluateFormat } from "./evaluate-format";
 import { getRangeAnchors } from "./range-anchors";
-import { buildTreeFromNode, splitPartiallySelectedTextNodes } from "./text-node";
+import { splitPartiallySelected } from "./text-node";
+import { FormattingNode } from "./tree-node";
+
+function build(
+    node: Node,
+    format: ParseFormat,
+    evaluateFormat: EvaluateFormat,
+    covered: boolean,
+) {
+    let output = buildFromNode(node, format, covered);
+
+    if (output instanceof FormattingNode) {
+        output = extendAndMerge(output, format);
+    }
+
+    output?.evaluate(evaluateFormat, 0);
+    return document.createRange(); // TODO
+}
 
 export interface NodesResult {
     addedNodes: Node[];
@@ -18,11 +37,7 @@ export function surround(
     parseFormat: ParseFormat,
     evaluateFormat: EvaluateFormat,
 ): Range {
-    const tree = buildTreeFromNode(node, parseFormat, false);
-    console.log('formatting tree', tree);
-
-    tree?.evaluate(evaluateFormat, 0);
-    return document.createRange(); // TODO
+    return build(node, parseFormat, evaluateFormat, false);
 }
 
 export function reformatRange(
@@ -30,7 +45,7 @@ export function reformatRange(
     parseFormat: ParseFormat,
     evaluateFormat: EvaluateFormat,
 ): Range {
-    splitPartiallySelectedTextNodes(range);
+    splitPartiallySelected(range);
 
     const farthestMatchingAncestor = findFarthest(
         range.commonAncestorContainer,
@@ -42,11 +57,7 @@ export function reformatRange(
         return surround(range.commonAncestorContainer, parseFormat, evaluateFormat);
     }
 
-    const tree = buildTreeFromNode(farthestMatchingAncestor.element, parseFormat, true);
-    console.log('formatting tree', tree);
-
-    tree?.evaluate(evaluateFormat, 0);
-    return document.createRange(); // TODO
+    return build(farthestMatchingAncestor.element, parseFormat, evaluateFormat, true);
 }
 
 export type SurroundNoSplittingResult = NodesResult & {

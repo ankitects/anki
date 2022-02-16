@@ -4,7 +4,7 @@
 import { nodeIsElement } from "../../lib/dom";
 import type { ElementMatcher } from "./match-type";
 import { applyMatcher, MatchType } from "./match-type";
-import { splitPartiallySelectedTextNodes } from "./text-node";
+import { splitPartiallySelected } from "./text-node";
 
 function textOrMatches(node: Node, matcher: ElementMatcher): boolean {
     return (
@@ -75,7 +75,7 @@ interface RangeAnchors {
 }
 
 export function getRangeAnchors(range: Range, matcher: ElementMatcher): RangeAnchors {
-    const { start, end } = splitPartiallySelectedTextNodes(range);
+    const { start, end } = splitPartiallySelected(range);
 
     return {
         start:

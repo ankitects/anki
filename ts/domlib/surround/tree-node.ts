@@ -2,11 +2,11 @@
 import { elementIsBlock } from "../../lib/dom";
 import { ascend } from "../../lib/node";
 import type { ChildNodeRange } from "./child-node-range";
+import type { EvaluateFormat } from "./evaluate-format";
 import type { Match } from "./match-type";
 import type { SurroundFormat } from "./match-type";
-import type { ParseFormat } from "./parse-format";
-import type { EvaluateFormat } from "./evaluate-format";
 import { MatchType } from "./match-type";
+import type { ParseFormat } from "./parse-format";
 
 // class ShallowTreeIterator {
 //     constructor(

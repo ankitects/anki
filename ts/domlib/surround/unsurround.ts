@@ -1,11 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { SurroundFormat } from "./match-type";
-import { UnsurroundParseFormat } from "./parse-format";
 import { UnsurroundEvaluateFormat } from "./evaluate-format";
+import type { SurroundFormat } from "./match-type";
 import type { SurroundNoSplittingResult } from "./no-splitting";
 import { reformatRange } from "./no-splitting";
+import { UnsurroundParseFormat } from "./parse-format";
 
 /**
  * The counterpart to `surroundNoSplitting`.

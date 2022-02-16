@@ -1,12 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { FormattingNode, MatchNode } from "./tree-node";
-import { nodeIsAmongNegligibles } from "./node-negligible";
-import { nodeWithinRange } from "./within-range";
-import { MatchType } from "./match-type";
-import type { Match, SurroundFormat } from "./match-type";
 import { nodeIsCommonElement } from "../../lib/dom";
+import type { Match, SurroundFormat } from "./match-type";
+import { MatchType } from "./match-type";
+import { nodeIsAmongNegligibles } from "./node-negligible";
+import { FormattingNode, MatchNode } from "./tree-node";
+import { nodeWithinRange } from "./within-range";
 
 export class ParseFormat {
     constructor(

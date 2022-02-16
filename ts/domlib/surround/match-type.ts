@@ -62,9 +62,8 @@ export interface FoundMatch {
 
 // export type RangeMerger = (before: ChildNodeRange, after: ChildNodeRange) => boolean;
 
-import type { FormattingNode, MatchNode } from "./tree-node";
-
 import { nodeIsCommonElement } from "../../lib/dom";
+import type { FormattingNode, MatchNode } from "./tree-node";
 // TODO REMOVE
 /**
  * We want to avoid that users have to deal with the difference between Element
