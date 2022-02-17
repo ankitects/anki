@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from typing import Any, Callable, Union
 
 import aqt
+import aqt.forms
+import aqt.main
 from anki.collection import Progress
 from anki.errors import Interrupted, NetworkError
 from anki.types import assert_exhaustive

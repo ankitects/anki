@@ -74,7 +74,7 @@ to compile, but will mean Anki will run considerably slower.
 To run Anki in optimized mode, use:
 
 ```
-.\scripts\runopt
+.\tools\runopt
 ```
 
 ## More
@@ -82,7 +82,7 @@ To run Anki in optimized mode, use:
 For info on running tests, building wheels and so on, please see
 [Development](./development.md).
 
-Note that where the instructions on that page say "bazel", please use ".\bazel"
-instead. This runs bazel.bat inside the Anki source folder, instead of
-calling Bazel directly. This takes care of setting up the path and output folder
-correctly, which avoids issues with long path names.
+When you run a script like .\run, MSYS and bazel will automatically be added to
+the path, and Bazel will be configured to output build products into
+\bazel\anki. If you want to directly invoke bazel before having run any of the
+.bat files in this repo, please run tools\setup-env first.

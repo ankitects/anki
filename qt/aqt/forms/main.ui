@@ -26,7 +26,7 @@
    <string notr="true">Anki</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="icons.qrc">
+   <iconset>
     <normaloff>:/icons/anki.png</normaloff>:/icons/anki.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -46,7 +46,7 @@
      <x>0</x>
      <y>0</y>
      <width>667</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
@@ -92,8 +92,19 @@
     <addaction name="actionNoteTypes"/>
     <addaction name="actionPreferences"/>
    </widget>
+   <widget class="QMenu" name="menuqt_accel_view">
+    <property name="title">
+     <string>qt_accel_view</string>
+    </property>
+    <addaction name="actionFullScreen"/>
+    <addaction name="separator"/>
+    <addaction name="actionZoomIn"/>
+    <addaction name="actionZoomOut"/>
+    <addaction name="actionResetZoom"/>
+   </widget>
    <addaction name="menuCol"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuqt_accel_view"/>
    <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -146,22 +157,9 @@
     <string>qt_misc_check_the_files_in_the_media</string>
    </property>
   </action>
-  <action name="actionOpenPluginFolder">
-   <property name="text">
-    <string>qt_accel_open_addons_folder</string>
-   </property>
-  </action>
   <action name="actionDonate">
    <property name="text">
     <string>qt_accel_support_anki</string>
-   </property>
-  </action>
-  <action name="actionDownloadSharedPlugin">
-   <property name="text">
-    <string>qt_accel_browse_and_install</string>
-   </property>
-   <property name="statusTip">
-    <string/>
    </property>
   </action>
   <action name="actionFullDatabaseCheck">
@@ -247,6 +245,29 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+Z</string>
+   </property>
+  </action>
+  <action name="actionFullScreen">
+   <property name="text">
+    <string>qt_accel_full_screen</string>
+   </property>
+  </action>
+  <action name="actionZoomIn">
+   <property name="text">
+    <string>qt_accel_zoom_in</string>
+   </property>
+  </action>
+  <action name="actionZoomOut">
+   <property name="text">
+    <string>qt_accel_zoom_out</string>
+   </property>
+  </action>
+  <action name="actionResetZoom">
+   <property name="text">
+    <string>qt_accel_reset_zoom</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+0</string>
    </property>
   </action>
  </widget>

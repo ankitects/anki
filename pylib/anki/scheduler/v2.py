@@ -11,6 +11,7 @@ from heapq import *
 from typing import Any, Callable, cast
 
 import anki  # pylint: disable=unused-import
+import anki.collection
 from anki import hooks, scheduler_pb2
 from anki.cards import Card, CardId
 from anki.consts import *
@@ -182,7 +183,6 @@ class Scheduler(SchedulerBaseWithLegacy):
         # we need to check again for any cards that were
         # removed from the queue but not buried
         if recursing:
-            print("bug: fillNew()")
             return False
         self._reset_counts()
         self._resetNew()
@@ -433,7 +433,6 @@ limit ?"""
                 return True
 
         if recursing:
-            print("bug: fillRev2()")
             return False
         self._reset_counts()
         self._resetRev()

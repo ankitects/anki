@@ -6,7 +6,7 @@ license = "AGPL-3.0-or-later"
 
 [workspace]
 members = ["rslib", "rslib/i18n", "rslib/i18n_helpers", "rslib/linkchecker", "pylib/rsbridge"]
-exclude = ["qt/package"]
+exclude = ["qt/bundle"]
 
 [lib]
 # dummy top level for tooling

@@ -12,24 +12,23 @@ genrule(
     srcs = ["//:defs.bzl"],
     outs = ["buildinfo.txt"],
     cmd = select({
-        "release": "$(location //scripts:buildinfo) $(location //:defs.bzl) bazel-out/stable-status.txt release > $@",
-        "//conditions:default": "$(location //scripts:buildinfo) $(location //:defs.bzl) bazel-out/stable-status.txt devel > $@",
+        "release": "$(location //tools:buildinfo) $(location //:defs.bzl) bazel-out/stable-status.txt release > $@",
+        "//conditions:default": "$(location //tools:buildinfo) $(location //:defs.bzl) bazel-out/stable-status.txt devel > $@",
     }),
     stamp = 1,
     tools = [
-        "//scripts:buildinfo",
+        "//tools:buildinfo",
     ],
     visibility = ["//visibility:public"],
 )
 
 pkg_tar(
-    name = "dist",
+    name = "wheels",
     srcs = [
         "//pylib/anki:wheel",
         "//qt/aqt:wheel",
     ],
     mode = "0644",
-    package_dir = "bazel-dist",
     tags = ["manual"],
 )
 

@@ -16,9 +16,13 @@ from threading import Thread
 from typing import Any, Literal, Sequence, TextIO, TypeVar, cast
 
 import anki
+import anki.cards
+import anki.sound
 import aqt
+import aqt.forms
 import aqt.mediasrv
 import aqt.mpv
+import aqt.operations
 import aqt.progress
 import aqt.sound
 import aqt.stats
@@ -192,7 +196,6 @@ class AnkiQt(QMainWindow):
         self.setupKeys()
         self.setupThreads()
         self.setupMediaServer()
-        self.setupSound()
         self.setupSpellCheck()
         self.setupProgress()
         self.setupStyle()
@@ -206,7 +209,6 @@ class AnkiQt(QMainWindow):
         self.setup_timers()
         self.updateTitleBar()
         self.setup_focus()
-        self.setup_shortcuts()
         # screens
         self.setupDeckBrowser()
         self.setupOverview()
@@ -240,17 +242,6 @@ class AnkiQt(QMainWindow):
 
     def on_focus_changed(self, old: QWidget, new: QWidget) -> None:
         gui_hooks.focus_did_change(new, old)
-
-    def setup_shortcuts(self) -> None:
-        QShortcut(
-            QKeySequence("Ctrl+Meta+F" if is_mac else "F11"),
-            self,
-            self.on_toggle_fullscreen,
-        ).setContext(Qt.ShortcutContext.ApplicationShortcut)
-
-    def on_toggle_fullscreen(self) -> None:
-        window = self.app.activeWindow()
-        window.setWindowState(window.windowState() ^ Qt.WindowState.WindowFullScreen)
 
     # Profiles
     ##########################################################################
@@ -449,6 +440,7 @@ class AnkiQt(QMainWindow):
         if not self.loadCollection():
             return
 
+        self.setup_sound()
         self.flags = FlagManager(self)
         # show main window
         if self.pm.profile["mainWindowState"]:
@@ -486,6 +478,7 @@ class AnkiQt(QMainWindow):
         self.unloadCollection(callback)
 
     def _unloadProfile(self) -> None:
+        self.cleanup_sound()
         saveGeom(self, "mainWindow")
         saveState(self, "mainWindow")
         self.pm.save()
@@ -519,8 +512,11 @@ class AnkiQt(QMainWindow):
     # Sound/video
     ##########################################################################
 
-    def setupSound(self) -> None:
-        aqt.sound.setup_audio(self.taskman, self.pm.base)
+    def setup_sound(self) -> None:
+        aqt.sound.setup_audio(self.taskman, self.pm.base, self.col.media.dir())
+
+    def cleanup_sound(self) -> None:
+        aqt.sound.cleanup_audio()
 
     def _add_play_buttons(self, text: str) -> str:
         "Return card text with play buttons added, or stripped."
@@ -1269,27 +1265,61 @@ title="{}" {}>{}</button>""".format(
 
     def setupMenus(self) -> None:
         m = self.form
+
+        # File
         qconnect(
             m.actionSwitchProfile.triggered, self.unloadProfileAndShowProfileManager
         )
         qconnect(m.actionImport.triggered, self.onImport)
         qconnect(m.actionExport.triggered, self.onExport)
         qconnect(m.actionExit.triggered, self.close)
-        qconnect(m.actionPreferences.triggered, self.onPrefs)
-        qconnect(m.actionAbout.triggered, self.onAbout)
-        qconnect(m.actionUndo.triggered, self.undo)
-        qconnect(m.actionRedo.triggered, self.redo)
-        qconnect(m.actionFullDatabaseCheck.triggered, self.onCheckDB)
-        qconnect(m.actionCheckMediaDatabase.triggered, self.on_check_media_db)
+
+        # Help
         qconnect(m.actionDocumentation.triggered, self.onDocumentation)
         qconnect(m.actionDonate.triggered, self.onDonate)
+        qconnect(m.actionAbout.triggered, self.onAbout)
+
+        # Edit
+        qconnect(m.actionUndo.triggered, self.undo)
+        qconnect(m.actionRedo.triggered, self.redo)
+
+        # Tools
+        qconnect(m.actionFullDatabaseCheck.triggered, self.onCheckDB)
+        qconnect(m.actionCheckMediaDatabase.triggered, self.on_check_media_db)
         qconnect(m.actionStudyDeck.triggered, self.onStudyDeck)
         qconnect(m.actionCreateFiltered.triggered, self.onCram)
         qconnect(m.actionEmptyCards.triggered, self.onEmptyCards)
         qconnect(m.actionNoteTypes.triggered, self.onNoteTypes)
+        qconnect(m.actionPreferences.triggered, self.onPrefs)
+
+        # View
+        qconnect(
+            m.actionZoomIn.triggered,
+            lambda: self.web.setZoomFactor(self.web.zoomFactor() + 0.1),
+        )
+        m.actionZoomIn.setShortcut(QKeySequence.StandardKey.ZoomIn)
+        qconnect(
+            m.actionZoomOut.triggered,
+            lambda: self.web.setZoomFactor(self.web.zoomFactor() - 0.1),
+        )
+        m.actionZoomOut.setShortcut(QKeySequence.StandardKey.ZoomOut)
+        qconnect(m.actionResetZoom.triggered, lambda: self.web.setZoomFactor(1))
+        # app-wide shortcut
+        qconnect(m.actionFullScreen.triggered, self.on_toggle_full_screen)
+        m.actionFullScreen.setShortcut(
+            QKeySequence("F11") if is_lin else QKeySequence.StandardKey.FullScreen
+        )
+        m.actionFullScreen.setShortcutContext(Qt.ShortcutContext.ApplicationShortcut)
 
     def updateTitleBar(self) -> None:
         self.setWindowTitle("Anki")
+
+    # View
+    ##########################################################################
+
+    def on_toggle_full_screen(self) -> None:
+        window = self.app.activeWindow()
+        window.setWindowState(window.windowState() ^ Qt.WindowState.WindowFullScreen)
 
     # Auto update
     ##########################################################################

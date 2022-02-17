@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import cast
 
 import aqt
+import aqt.browser
 from aqt.browser.sidebar.item import SidebarItem
 from aqt.qt import *
 from aqt.theme import theme_manager

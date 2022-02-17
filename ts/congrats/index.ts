@@ -14,16 +14,21 @@ export async function setupCongrats(): Promise<CongratsPage> {
     checkNightMode();
     await i18n;
 
+    const customMountPoint = document.getElementById("congrats");
     const info = await scheduler.congratsInfo(empty);
     const page = new CongratsPage({
-        target: document.body,
+        // use #congrats if it exists, otherwise entire body
+        target: customMountPoint ?? document.body,
         props: { info },
     });
 
-    setInterval(async () => {
-        const info = await scheduler.congratsInfo(empty);
-        page.$set({ info });
-    }, 60000);
+    // refresh automatically if a custom area not provided
+    if (!customMountPoint) {
+        setInterval(async () => {
+            const info = await scheduler.congratsInfo(empty);
+            page.$set({ info });
+        }, 60000);
+    }
 
     return page;
 }

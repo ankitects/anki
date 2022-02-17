@@ -6,6 +6,7 @@ from __future__ import annotations
 from typing import Sequence
 
 import aqt
+import aqt.forms
 from anki.cards import CardId
 from anki.collection import (
     CARD_TYPE_NEW,

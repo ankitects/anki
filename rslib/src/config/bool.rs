@@ -26,6 +26,7 @@ pub enum BoolKey {
     PasteStripsFormatting,
     PreviewBothSides,
     Sched2021,
+    IgnoreAccentsInSearch,
 
     #[strum(to_string = "normalize_note_text")]
     NormalizeNoteText,

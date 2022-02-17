@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any, Callable
 
 import aqt
+import aqt.operations
 from anki.collection import OpChanges
 from anki.scheduler import UnburyDeck
 from aqt import gui_hooks
@@ -220,25 +221,38 @@ class Overview:
 
     def _table(self) -> str | None:
         counts = list(self.mw.col.sched.counts())
+        tree_counts = self.mw.col.sched.deck_due_tree(
+            self.mw.col.decks.get_current_id()
+        )
         but = self.mw.button
-        return """
+        buried_new = tree_counts.new_count - counts[0]
+        buried_learning = tree_counts.learn_count - counts[1]
+        buried_review = tree_counts.review_count - counts[2]
+        buried_label = tr.browsing_buried()
+
+        def number_row(title: str, klass: str, count: int, buried_count: int) -> str:
+            return f"""
+<tr>
+    <td>{title}:</td>
+    <td>
+        <b>
+            <span class={klass}>{count}</span>
+            <span class=bury-count title="{buried_label}">{buried_count or ""}</span>
+        </b>
+    </td>
+</tr>
+"""
+
+        return f"""
 <table width=400 cellpadding=5>
 <tr><td align=center valign=top>
 <table cellspacing=5>
-<tr><td>{}:</td><td><b><span class=new-count>{}</span></b></td></tr>
-<tr><td>{}:</td><td><b><span class=learn-count>{}</span></b></td></tr>
-<tr><td>{}:</td><td><b><span class=review-count>{}</span></b></td></tr>
+{number_row(tr.actions_new(), "new-count", counts[0], buried_new)}
+{number_row(tr.scheduling_learning(), "learn-count", counts[1], buried_learning)}
+{number_row(tr.studying_to_review(), "review-count", counts[2], buried_review)}
 </table>
 </td><td align=center>
-{}</td></tr></table>""".format(
-            tr.actions_new(),
-            counts[0],
-            tr.scheduling_learning(),
-            counts[1],
-            tr.studying_to_review(),
-            counts[2],
-            but("study", tr.studying_study_now(), id="study", extra=" autofocus"),
-        )
+{but("study", tr.studying_study_now(), id="study", extra=" autofocus")}</td></tr></table>"""
 
     _body = """
 <center>

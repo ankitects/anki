@@ -7,6 +7,7 @@ from operator import itemgetter
 from typing import Any
 
 import aqt
+import aqt.forms
 from anki.consts import NEW_CARDS_RANDOM
 from anki.decks import DeckConfigDict
 from anki.lang import without_unicode_isolation
@@ -204,7 +205,7 @@ class DeckConf(QDialog):
         f.lrnSteps.setText(self.listToUser(c["delays"]))
         f.lrnGradInt.setValue(c["ints"][0])
         f.lrnEasyInt.setValue(c["ints"][1])
-        f.lrnFactor.setValue(c["initialFactor"] / 10.0)
+        f.lrnFactor.setValue(int(c["initialFactor"] / 10.0))
         f.newOrder.setCurrentIndex(c["order"])
         f.newPerDay.setValue(c["perDay"])
         f.bury.setChecked(c.get("bury", True))
@@ -212,7 +213,7 @@ class DeckConf(QDialog):
         # rev
         c = self.conf["rev"]
         f.revPerDay.setValue(c["perDay"])
-        f.easyBonus.setValue(c["ease4"] * 100)
+        f.easyBonus.setValue(int(c["ease4"] * 100))
         f.fi1.setValue(c["ivlFct"] * 100)
         f.maxIvl.setValue(c["maxIvl"])
         f.revplim.setText(self.parentLimText("rev"))
@@ -224,7 +225,7 @@ class DeckConf(QDialog):
         # lapse
         c = self.conf["lapse"]
         f.lapSteps.setText(self.listToUser(c["delays"]))
-        f.lapMult.setValue(c["mult"] * 100)
+        f.lapMult.setValue(int(c["mult"] * 100))
         f.lapMinInt.setValue(c["minInt"])
         f.leechThreshold.setValue(c["leechFails"])
         f.leechAction.setCurrentIndex(c["leechAction"])

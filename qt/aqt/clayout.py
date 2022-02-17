@@ -6,6 +6,8 @@ from concurrent.futures import Future
 from typing import Any, Match, Optional
 
 import aqt
+import aqt.forms
+import aqt.operations
 from anki.collection import OpChanges
 from anki.consts import *
 from anki.lang import without_unicode_isolation

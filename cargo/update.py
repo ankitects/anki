@@ -162,7 +162,8 @@ def stage_commit():
     )
 
 
-update_cargo_lock()
+if os.getenv("REPIN"):
+    update_cargo_lock()
 run_cargo_raze()
 write_licenses()
 update_crates_bzl()

@@ -8,6 +8,7 @@ import sys
 from typing import Any, Callable, Optional, Sequence, cast
 
 import anki
+import anki.lang
 from anki.lang import is_rtl
 from anki.utils import is_lin, is_mac, is_win
 from aqt import colors, gui_hooks
@@ -357,7 +358,7 @@ class AnkiWebView(QWebEngineView):
         self._domDone = False
         super().load(url)
 
-    def zoomFactor(self) -> float:
+    def app_zoom_factor(self) -> float:
         # overridden scale factor?
         webscale = os.environ.get("ANKI_WEBSCALE")
         if webscale:
@@ -447,7 +448,7 @@ div[contenteditable="true"]:focus {{
                 color_hl_txt=color_hl_txt,
             )
 
-        zoom = self.zoomFactor()
+        zoom = self.app_zoom_factor()
 
         window_bg_day = self.get_window_bg_color(False).name()
         window_bg_night = self.get_window_bg_color(True).name()
@@ -657,9 +658,11 @@ html {{ {font} }}
 
         self.evalWithCallback(
             f"""
-const style = document.createElement('style');
-style.innerHTML = `{css}`;
-document.head.appendChild(style);
+(function(){{
+    const style = document.createElement('style');
+    style.innerHTML = `{css}`;
+    document.head.appendChild(style);
+}})();
 """,
             after_style,
         )

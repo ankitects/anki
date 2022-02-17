@@ -6,6 +6,8 @@ from __future__ import annotations
 from typing import Sequence
 
 import aqt
+import aqt.forms
+import aqt.operations
 from anki.notes import NoteId
 from aqt import AnkiQt
 from aqt.operations import QueryOp

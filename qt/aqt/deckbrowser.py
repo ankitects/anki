@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from typing import Any
 
 import aqt
+import aqt.operations
 from anki.collection import OpChanges
 from anki.decks import DeckCollapseScope, DeckId, DeckTreeNode
 from aqt import AnkiQt, gui_hooks
@@ -177,11 +178,12 @@ class DeckBrowser:
         buf = """
 <tr><th colspan=5 align=start>{}</th>
 <th class=count>{}</th>
-<th class=count></th>
+<th class=count>{}</th>
 <th class=count>{}</th>
 <th class=optscol></th></tr>""".format(
             tr.decks_deck(),
             tr.actions_new(),
+            tr.card_stats_review_log_type_learn(),
             tr.statistics_due_count(),
         )
         buf += self._topLevelDragRow()

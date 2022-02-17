@@ -10,6 +10,12 @@ if __name__ == "__main__":
     isort_ini = os.path.abspath(isort_ini)
     fix = len(sys.argv) > 2
 
+    if sys.platform == "linux":
+        import fcntl
+
+        file = open("/tmp/anki-black", "w")
+        fcntl.lockf(file, fcntl.LOCK_EX)
+
     if fix:
         os.chdir(os.path.join(os.environ["BUILD_WORKSPACE_DIRECTORY"], "pylib"))
         args = []

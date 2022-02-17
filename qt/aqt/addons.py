@@ -1,5 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 from __future__ import annotations
 
 import io
@@ -21,8 +22,10 @@ from jsonschema.exceptions import ValidationError
 from send2trash import send2trash
 
 import anki
+import anki.utils
 import aqt
 import aqt.forms
+import aqt.main
 from anki.httpclient import HttpClient
 from anki.lang import without_unicode_isolation
 from aqt import gui_hooks
