@@ -31,14 +31,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function matcher(element: HTMLElement | SVGElement, match: MatchType): void {
         if (isFontElement(element) && element.hasAttribute("color")) {
-            match.cache(element.getAttribute("color"));
+            match.setCache(element.getAttribute("color"));
             return match.remove();
         }
 
         const value = element.style.getPropertyValue("color");
 
         if (value.length > 0) {
-            match.cache(value);
+            match.setCache(value);
 
             return match.clear((): void => {
                 element.style.removeProperty("color");
@@ -55,13 +55,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return true;
         }
 
-        const firstBefore = before.matchLeaves[0].element as HTMLElement | SVGElement;
-        const firstAfter = after.matchLeaves[0].element as HTMLElement | SVGElement;
+        const firstBefore = before.matchLeaves[0];
+        const firstAfter = after.matchLeaves[0];
 
-        if (
-            firstBefore.style.getPropertyValue("color") ===
-            firstAfter.style.getPropertyValue("color")
-        ) {
+        if (firstBefore.match.cache == firstAfter.match.cache) {
             return true;
         }
 
@@ -73,13 +70,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return true;
         }
 
-        const first = node.matchLeaves[0].element as HTMLElement | SVGElement;
-        const matchElement = elementNode.element as HTMLElement | SVGElement;
+        const first = node.matchLeaves[0];
 
-        if (
-            first.style.getPropertyValue("color") ===
-            matchElement.style.getPropertyValue("color")
-        ) {
+        if (first.match.cache === elementNode.match.cache) {
             return true;
         }
 
@@ -89,8 +82,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function formatter(node: FormattingNode): boolean {
         const span = document.createElement("span");
 
-        if (node.insideRange && node.matchLeaves.length > 0) {
-            span.style.color = (node.matchLeaves[0].element as HTMLElement).style.color;
+        if (node.matchLeaves.length > 0) {
+            const first = node.matchLeaves[0];
+            span.style.color = first.match.cache;
         } else {
             span.style.color = color;
         }
@@ -98,43 +92,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return true;
     }
 
-    const generalFormat: SurroundFormat = {
-        formatter,
+    const format: SurroundFormat = {
         matcher,
         merger,
         ascender,
+        formatter,
     };
 
-    function createFormat(color: string): SurroundFormat {
-        const surroundElement = document.createElement("span");
-        surroundElement.style.color = color;
-
-        function matcher(element: HTMLElement | SVGElement, match: MatchType): void {
-            if (isFontElement(element) && element.color === color) {
-                return match.remove();
-            }
-
-            if (element.style.color === color) {
-                return match.clear((): void => {
-                    element.style.removeProperty("color");
-
-                    if (removeEmptyStyle(element) && element.className.length === 0) {
-                        match.remove();
-                    }
-                });
-            }
-        }
-
-        return {
-            surroundElement,
-            matcher,
-        };
-    }
-
-    $: format = createFormat(color);
-
     const { removeFormats } = editorToolbarContext.get();
-    removeFormats.push(generalFormat);
+    removeFormats.push(format);
 
     const { focusedInput } = noteEditorContext.get();
     $: input = $focusedInput as RichTextInputAPI;
@@ -142,7 +108,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: surrounder = disabled ? null : getSurrounder(input);
 
     function setTextColor(): void {
-        surrounder?.surroundCommand(format, [generalFormat]);
+        surrounder?.surroundCommand(format, [format]);
     }
 
     const forecolorKeyCombination = "F7";
@@ -175,7 +141,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:change={(event) => {
                 const textColor = setColor(event);
                 bridgeCommand(`lastTextColor:${textColor}`);
-                format = createFormat(setColor(event));
+                setColor(event);
                 setTextColor();
             }}
         />
@@ -185,7 +151,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:action={(event) => {
             const textColor = setColor(event);
             bridgeCommand(`lastTextColor:${textColor}`);
-            format = createFormat(setColor(event));
+            setColor(event);
             setTextColor();
         }}
     />

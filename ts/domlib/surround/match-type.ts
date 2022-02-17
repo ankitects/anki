@@ -4,7 +4,7 @@
 export interface MatchType {
     remove(): void;
     clear(callback: () => void): void;
-    cache(value: any): void;
+    setCache(value: any): void;
 }
 
 type Callback = () => void
@@ -80,7 +80,7 @@ export class FakeMatch implements MatchType {
         this.value = true;
     }
 
-    cache(): void {
+    setCache(): void {
         // noop
     }
 }
