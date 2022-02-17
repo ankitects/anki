@@ -358,7 +358,7 @@ class AnkiWebView(QWebEngineView):
         self._domDone = False
         super().load(url)
 
-    def zoomFactor(self) -> float:
+    def app_zoom_factor(self) -> float:
         # overridden scale factor?
         webscale = os.environ.get("ANKI_WEBSCALE")
         if webscale:
@@ -448,7 +448,7 @@ div[contenteditable="true"]:focus {{
                 color_hl_txt=color_hl_txt,
             )
 
-        zoom = self.zoomFactor()
+        zoom = self.app_zoom_factor()
 
         window_bg_day = self.get_window_bg_color(False).name()
         window_bg_night = self.get_window_bg_color(True).name()
