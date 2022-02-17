@@ -90,6 +90,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="ignore_accents_in_search">
+         <property name="text">
+          <string>preferences_ignore_accents_in_search</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QComboBox" name="useCurrent">
          <item>
           <property name="text">
