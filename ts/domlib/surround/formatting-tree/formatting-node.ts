@@ -73,12 +73,12 @@ export class FormattingNode extends TreeNode {
     ascendAbove(elementNode: ElementNode): void {
         this.range.select(elementNode.element);
 
-        if (elementNode.match.marked && this.hasMatchHoles) {
+        if (elementNode.match.matches && this.hasMatchHoles) {
             this.matchLeaves.push(elementNode);
             this.hasMatchHoles = false;
         }
 
-        if (!this.hasChildren() && !elementNode.match.marked) {
+        if (!this.hasChildren() && !elementNode.match.matches) {
             // Drop elementNode, as it has no effect
             return;
         }

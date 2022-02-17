@@ -14,7 +14,7 @@ function buildFromElement(
     insideMatch: boolean,
 ): TreeNode | null {
     const match = format.createMatch(element);
-    const matches = insideMatch || Boolean(match.marked);
+    const matches = insideMatch || match.matches;
 
     let children: TreeNode[] = [];
     for (const child of element.childNodes) {
@@ -32,7 +32,7 @@ function buildFromElement(
         matches || children.every((node: TreeNode): boolean => node.insideMatch),
     );
 
-    if (children.length === 0 && !match.marked) {
+    if (children.length === 0 && !match.matches) {
         return null;
     }
 

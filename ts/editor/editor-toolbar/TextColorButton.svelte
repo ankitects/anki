@@ -31,10 +31,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function matcher(element: HTMLElement | SVGElement, match: MatchType): void {
         if (isFontElement(element) && element.hasAttribute("color")) {
+            match.cache(element.getAttribute("color"));
             return match.remove();
         }
 
-        if (element.style.getPropertyValue("color").length > 0) {
+        const value = element.style.getPropertyValue("color");
+
+        if (value.length > 0) {
+            match.cache(value);
+
             return match.clear((): void => {
                 element.style.removeProperty("color");
 
@@ -64,7 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function ascender(node: FormattingNode, elementNode: ElementNode): boolean {
-        if (node.matchLeaves.length === 0 || !elementNode.match.marked) {
+        if (node.matchLeaves.length === 0 || !elementNode.match.matches) {
             return true;
         }
 

@@ -82,15 +82,12 @@ export class ElementNode extends TreeNode {
 
     evaluate(format: EvaluateFormat): number {
         let innerShift = 0;
+
         for (const child of this.children) {
             innerShift += child.evaluate(format, innerShift);
         }
 
-        if (this.match.markedClear) {
-            this.match.clearCallback!();
-        }
-
-        if (this.match.markedRemove) {
+        if (this.match.evaluate()) {
             format.announceElementRemoval(this.element);
             return this.remove();
         }

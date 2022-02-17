@@ -7,30 +7,65 @@ export interface MatchType {
     cache(value: any): void;
 }
 
+type Callback = () => void
+
 export class Match implements MatchType {
-    markedClear = false;
-    clearCallback: (() => void) | null = null;
-
-    markedRemove = false;
-
-    /** TODO try typing this */
-    cached: any | null = null;
-
-    get marked(): boolean {
-        return this.markedClear || this.markedRemove;
+    private _shouldRemove = false;
+    get shouldRemove(): boolean {
+        return this._shouldRemove;
     }
 
+    /**
+     * The element represented by the match will be removed from the document.
+     */
     remove(): void {
-        this.markedRemove = true;
+        this._shouldRemove = true;
     }
 
-    clear(callback: () => void): void {
-        this.markedClear = true;
+    private _shouldClear = false;
+    private clearCallback: Callback | null = null;
+    get shouldClear(): boolean {
+        return this._shouldClear;
+    }
+
+    /**
+     * The callback will be called during the evaluation. This is useful, if
+     * the element has some styling applied that matches the format, but might
+     * contain some styling above that.
+     *
+     * @example
+     * If you want to match bold elements, `<span class="myclass" style="font-weight:bold"/>
+     * should match via `clear`, but should not be removed, because it still
+     * has a class applied, even if the `style` attribute is removed.
+     *
+     * @remarks
+     * You can still call `match.remove()` in the callback
+     */
+    clear(callback: Callback): void {
+        this._shouldClear = true;
         this.clearCallback = callback;
     }
 
-    cache(value: any): void {
-        this.cached = value;
+    get matches(): boolean {
+        return this.shouldRemove || this.shouldClear;
+    }
+
+    /**
+     * @returns Whether the element represented by the match should be removed
+     */
+    evaluate(): boolean {
+        if (this.shouldClear) {
+            this.clearCallback!();
+        }
+
+        return this.shouldRemove;
+    }
+
+    /** TODO try typing this */
+    cache: any | null = null;
+
+    setCache(value: any): void {
+        this.cache = value;
     }
 }
 
