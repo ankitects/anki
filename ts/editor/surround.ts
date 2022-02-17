@@ -146,12 +146,12 @@ export function getRemoveFormat(richTextInput: RichTextInputAPI): RemoveFormatRe
 }
 
 /**
- * @returns True, if an empty style attribute was removed
+ * @returns True, if element has no style attribute (anymore).
  */
 export function removeEmptyStyle(element: HTMLElement | SVGElement): boolean {
     if (element.style.cssText.length === 0) {
         element.removeAttribute("style");
     }
 
-    return element.hasAttribute("style");
+    return !element.hasAttribute("style");
 }

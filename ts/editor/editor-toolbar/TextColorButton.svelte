@@ -18,12 +18,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { arrowIcon, textColorIcon } from "./icons";
     import WithColorHelper from "./WithColorHelper.svelte";
+    import type {
+        FormattingNode,
+        MatchNode,
+    } from "../../domlib/surround/formatting-tree";
+
+    export let color: string;
 
     function isFontElement(element: Element): element is HTMLFontElement {
         return element.tagName === "FONT";
     }
-
-    const surroundElement = document.createElement("span");
 
     function clear(element: HTMLElement | SVGElement): boolean {
         element.style.removeProperty("color");
@@ -32,10 +36,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function matcher(element: HTMLElement | SVGElement): Match {
         if (isFontElement(element) && element.hasAttribute("color")) {
+            /* match.remove(); */
             return { type: MatchType.REMOVE };
         }
 
         if (element.style.getPropertyValue("color").length > 0) {
+            /* match.clear(clear); */
             return {
                 type: MatchType.CLEAR,
                 clear,
@@ -45,9 +51,59 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return { type: MatchType.NONE };
     }
 
+    function merger(before: FormattingNode, after: FormattingNode): boolean {
+        if (before.matchLeaves.length === 0 || after.matchLeaves.length === 0) {
+            return true;
+        }
+
+        const firstBefore = before.matchLeaves[0].element as HTMLElement | SVGElement;
+        const firstAfter = after.matchLeaves[0].element as HTMLElement | SVGElement;
+
+        if (
+            firstBefore.style.getPropertyValue("color") ===
+            firstAfter.style.getPropertyValue("color")
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    function ascender(node: FormattingNode, matchNode: MatchNode): boolean {
+        if (node.matchLeaves.length === 0 || !matchNode.match.type) {
+            return true;
+        }
+
+        const first = node.matchLeaves[0].element as HTMLElement | SVGElement;
+        const matchElement = matchNode.element as HTMLElement | SVGElement;
+
+        if (
+            first.style.getPropertyValue("color") ===
+            matchElement.style.getPropertyValue("color")
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    function formatter(node: FormattingNode): boolean {
+        const span = document.createElement("span");
+
+        if (node.insideRange && node.matchLeaves.length > 0) {
+            span.style.color = (node.matchLeaves[0].element as HTMLElement).style.color;
+        } else {
+            span.style.color = color;
+        }
+        node.range.toDOMRange().surroundContents(span);
+        return true;
+    }
+
     const generalFormat: SurroundFormat = {
-        surroundElement,
+        formatter,
         matcher,
+        merger,
+        ascender,
     };
 
     function createFormat(color: string): SurroundFormat {
@@ -76,7 +132,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         };
     }
 
-    export let color: string;
     $: format = createFormat(color);
 
     const { removeFormats } = editorToolbarContext.get();

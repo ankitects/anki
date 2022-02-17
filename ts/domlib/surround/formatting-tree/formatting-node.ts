@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { ChildNodeRange } from "../child-node-range";
+import { FlatRange } from "../flat-range";
 import type { EvaluateFormat } from "../evaluate-format";
 import type { ParseFormat } from "../parse-format";
 import { MatchNode } from "./match-node";
@@ -12,19 +12,27 @@ import { TreeNode } from "./tree-node";
  */
 export class FormattingNode extends TreeNode {
     private constructor(
-        public range: ChildNodeRange,
+        public range: FlatRange,
         public insideRange: boolean,
         public insideMatch: boolean,
     ) {
         super(insideRange, insideMatch);
     }
 
-    static make(
-        range: ChildNodeRange,
+    private static make(
+        range: FlatRange,
         insideRange: boolean,
         insideMatch: boolean,
     ): FormattingNode {
         return new FormattingNode(range, insideRange, insideMatch);
+    }
+
+    static fromText(
+        text: Text,
+        insideRange: boolean,
+        insideMatch: boolean,
+    ): FormattingNode {
+        return FormattingNode.make(FlatRange.fromNode(text), insideRange, insideMatch);
     }
 
     /**
@@ -38,13 +46,12 @@ export class FormattingNode extends TreeNode {
      */
     static merge(before: FormattingNode, after: FormattingNode): FormattingNode {
         const node = FormattingNode.make(
-            before.range.mergeWith(after.range),
+            FlatRange.merge(before.range, after.range),
             before.insideRange && after.insideRange,
             before.insideMatch && after.insideMatch,
         );
 
-        node.replaceChildren([...before.children, ...after.children]);
-
+        node.replaceChildren(...before.children, ...after.children);
         node.matchLeaves.push(...before.matchLeaves, ...after.matchLeaves);
         node.hasMatchHoles = before.hasMatchHoles || after.hasMatchHoles;
 
@@ -76,7 +83,7 @@ export class FormattingNode extends TreeNode {
             return;
         }
 
-        matchNode.replaceChildren(this.replaceChildren([matchNode]));
+        matchNode.replaceChildren(...this.replaceChildren(matchNode));
     }
 
     /**

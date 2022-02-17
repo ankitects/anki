@@ -2,7 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { nodeIsElement, nodeIsText } from "../../../lib/dom";
-import { ChildNodeRange } from "../child-node-range";
 import type { TreeNode } from "../formatting-tree";
 import { BlockNode, FormattingNode, MatchNode } from "../formatting-tree";
 import { elementIsNegligible, textIsNegligible } from "../node-negligible";
@@ -51,7 +50,7 @@ function buildFromElement(
         }
     }
 
-    matchNode.replaceChildren(children);
+    matchNode.replaceChildren(...children);
     return matchNode;
 }
 
@@ -66,7 +65,7 @@ function buildFromText(
         return BlockNode.make();
     }
 
-    return FormattingNode.make(ChildNodeRange.fromNode(text), insideRange, insideMatch);
+    return FormattingNode.fromText(text, insideRange, insideMatch);
 }
 
 /**

@@ -4,18 +4,6 @@
 import { nodeIsText } from "../../lib/dom";
 
 /**
- * @returns Split text node to end direction or text itself if a split is
- * not necessary
- */
-function splitTextIfNecessary(text: Text, offset: number): Text {
-    if (offset === 0 || offset === text.length) {
-        return text;
-    }
-
-    return text.splitText(offset);
-}
-
-/**
  * @link https://dom.spec.whatwg.org/#concept-node-length
  */
 function length(node: Node): number {
@@ -31,6 +19,10 @@ function length(node: Node): number {
     return node.childNodes.length;
 }
 
+/**
+ * Wrapper around DOM ranges that are passed into evaluation and are adjusted,
+ * if its start or end nodes are to be removed
+ */
 export class SplitRange {
     constructor(protected start: Node, protected end: Node) {}
 
@@ -59,14 +51,27 @@ export class SplitRange {
     }
 
     /**
-     * Returns a range with boundary points `(start, 0)` and `(end, end.length)`
+     * Returns a range with boundary points `(start, 0)` and `(end, end.length)`.
      */
-    recreateRange(): Range {
+    toDOMRange(): Range {
         const range = new Range();
         range.setStart(this.start, 0);
         range.setEnd(this.end, length(this.end));
+
         return range;
     }
+}
+
+/**
+ * @returns Split text node to end direction or text itself if a split is
+ * not necessary
+ */
+function splitTextIfNecessary(text: Text, offset: number): Text {
+    if (offset === 0 || offset === text.length) {
+        return text;
+    }
+
+    return text.splitText(offset);
 }
 
 export function splitPartiallySelected(range: Range): SplitRange {

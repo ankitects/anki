@@ -26,7 +26,7 @@ export abstract class TreeNode {
     /**
      * @returns Children which were replaced.
      */
-    replaceChildren(newChildren: TreeNode[]): TreeNode[] {
+    replaceChildren(...newChildren: TreeNode[]): TreeNode[] {
         return this.children.splice(0, this.length, ...newChildren);
     }
 

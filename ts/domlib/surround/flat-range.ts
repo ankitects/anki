@@ -6,14 +6,43 @@ import { ascend } from "../../lib/node";
 
 /**
  * Represents a subset of DOM ranges which can be called with `.surroundContents()`.
- * The equivalent DOM range will have `.startContainer = .endContainer = .commonAncestorContainer`.
  */
-export class ChildNodeRange {
+export class FlatRange {
     private constructor(
         public parent: Node,
         public startIndex: number,
         public endIndex: number,
     ) {}
+
+    /**
+     * The new flat range does not represent the range itself but
+     * rather a possible new node that surrounds the boundary points
+     * (node, start) till (node, end).
+     *
+     * @remarks
+     * Indices should be >= 0 and startIndex <= endIndex.
+     */
+    static make(node: Node, startIndex: number, endIndex = startIndex + 1): FlatRange {
+        return new FlatRange(node, startIndex, endIndex);
+    }
+
+    /**
+     * @remarks
+     * Must be sibling flat ranges.
+     */
+    static merge(before: FlatRange, after: FlatRange): FlatRange {
+        return FlatRange.make(before.parent, before.startIndex, after.endIndex);
+    }
+
+    /**
+     * @remarks
+     */
+    static fromNode(node: Node): FlatRange {
+        const parent = ascend(node);
+        const index = Array.prototype.indexOf.call(parent.childNodes, node);
+
+        return FlatRange.make(parent, index);
+    }
 
     get firstChild(): ChildNode {
         return this.parent.childNodes[this.startIndex];
@@ -21,30 +50,6 @@ export class ChildNodeRange {
 
     get lastChild(): ChildNode {
         return this.parent.childNodes[this.endIndex - 1];
-    }
-
-    /**
-     * @remarks
-     * Indices should be >= 0 and startIndex <= endIndex.
-     */
-    static make(
-        node: Node,
-        startIndex: number,
-        endIndex = startIndex + 1,
-    ): ChildNodeRange {
-        return new ChildNodeRange(node, startIndex, endIndex);
-    }
-
-    /**
-     * @remarks
-     * The new child node range might not necessarily indicate the node itself but
-     * could also be a supposed new node that entirely surrounds the passed in node
-     */
-    static fromNode(node: Node): ChildNodeRange {
-        const parent = ascend(node);
-        const index = Array.prototype.indexOf.call(parent.childNodes, node);
-
-        return ChildNodeRange.make(parent, index);
     }
 
     /**
@@ -89,13 +94,5 @@ export class ChildNodeRange {
                 return { value: parent.childNodes[step++], done: false };
             },
         };
-    }
-
-    /**
-     * @remarks
-     * Must be sibling child node ranges.
-     */
-    mergeWith(after: ChildNodeRange): ChildNodeRange {
-        return ChildNodeRange.make(this.parent, this.startIndex, after.endIndex);
     }
 }

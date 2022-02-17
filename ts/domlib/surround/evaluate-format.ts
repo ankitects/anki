@@ -33,7 +33,7 @@ export class EvaluateFormat {
     }
 
     recreateRange(): Range {
-        return this.range.recreateRange();
+        return this.range.toDOMRange();
     }
 }
 

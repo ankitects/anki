@@ -66,7 +66,7 @@ export class MatchNode extends TreeNode {
             this.insideMatch,
         );
 
-        parentNode.replaceChildren([this]);
+        parentNode.replaceChildren(this);
         return parentNode;
     }
 
