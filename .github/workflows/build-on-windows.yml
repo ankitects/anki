@@ -1,0 +1,61 @@
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+
+name: build-on-windows
+
+concurrency: 
+  group: "${{ github.head_ref || github.run_id }}-build-on-windows"
+  cancel-in-progress: true
+
+# Controls when the workflow will run
+on:
+#  # Triggers the workflow on push or pull request events but only for the main branch
+#  push:
+#    branches: [ main ]
+#  pull_request:
+#    branches: [ main ]
+  workflow_call:
+     inputs:
+        buildArgs:
+          description: 'buildArgs ie: --test_verbose_timeout_warnings'
+          required: false
+          type: string
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+     inputs:
+          buildArgs:
+            description: 'buildArgs ie: --test_verbose_timeout_warnings'
+            required: false
+            default: '--verbose_failures'
+jobs:
+  build:
+    #runs-on: ubuntu-latest
+#    runs-on: windows-2019
+#    runs-on: windows-latest
+    runs-on: windows-2022
+    steps:
+    - name: cancel previous runs
+      uses: styfle/cancel-workflow-action@0.8.0
+      with:
+        access_token: ${{ github.token }}
+    - uses: actions/checkout@v2
+    - uses: Vampire/setup-wsl@v1
+#    - name: disable wsl
+#      shell: powershell
+#      run: Disable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+    - name: build
+      shell: cmd
+      env:
+        #VCVARSALLPATH: |
+        #  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat
+        #VCVARSALL: x64
+        RUST_BACKTRACE: 1
+      run: |
+        set PATH=C:\Program Files\Git\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;%PATH%
+        echo %PATH%
+        set PATH=%PATH:\\=\%
+        mkdir C:\tmp
+        set TMP=C:\tmp
+        set TEMP=C:\tmp
+        bazel.exe --output_user_root=\bazel\ankici --output_base=\bazel\ankici\base test --config=ci ${{ github.event.inputs.buildArgs }} ...
+#        .\.buildkite\windows\entrypoint.bat ${{ inputs.buildArgs }}
+

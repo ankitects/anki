@@ -1,0 +1,73 @@
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+name: build-on-macos
+
+concurrency: 
+  group: "${{ github.head_ref || github.run_id }}-build-on-macos"
+  cancel-in-progress: true
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+#  push:
+#    paths:
+#    - .github/workflows/build-on-macos.yml
+#    branches: [ hztest ]
+#  pull_request:
+#    branches: [ main ]
+  workflow_call:
+     inputs:
+        buildArgs:
+          description: 'buildArgs ie: --test_verbose_timeout_warnings'
+          required: false
+          type: string
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+     inputs:
+          buildArgs:
+            description: 'buildArgs ie: --test_verbose_timeout_warnings'
+            required: false
+            default: ''
+
+# https://github.com/actions/virtual-environments
+jobs:
+  build:
+    #runs-on: ubuntu-latest
+#    runs-on: windows-2019
+#    runs-on: windows-latest
+    runs-on: macos-latest
+#    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        # Use a login shell, so that ~/.bash_profile is executed and
+        # the conda environment gets initialised.
+        shell: bash -l {0}
+    strategy:
+      fail-fast: true
+ #     matrix:
+ #       os: [macos-latest] #ubuntu-18.04, macos-10.15, windows-latest
+ #       python: ["3.9"]
+    steps:
+    - name: cancel previous runs
+      uses: styfle/cancel-workflow-action@0.8.0
+      with:
+        access_token: ${{ github.token }}
+    - uses: actions/checkout@v2
+    - uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+ #   - name: Init conda
+ #     shell: bash -l {0}
+ #     run: |
+ #       conda init bash
+    - name: build
+ #     shell: sh
+      env:
+        #VCVARSALL: x64
+        RUST_BACKTRACE: 1
+      run: |
+         # conda init bash
+         #source ~/.bashrc
+         #conda activate base
+         which bazel
+         export PATH="/usr/local/opt/pipx_bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin"
+         ./.buildkite/mac/entrypoint ${{ github.event.inputs.buildArgs }}
