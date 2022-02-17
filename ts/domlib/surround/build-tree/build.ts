@@ -3,9 +3,9 @@
 
 import { nodeIsElement, nodeIsText } from "../../../lib/dom";
 import type { TreeNode } from "../formatting-tree";
-import { BlockNode, FormattingNode, MatchNode } from "../formatting-tree";
+import { BlockNode, FormattingNode, ElementNode } from "../formatting-tree";
 import { elementIsNegligible, textIsNegligible } from "../node-negligible";
-import type { ParseFormat } from "../parse-format";
+import type { ParseFormat } from "../format-parse";
 import { appendNode } from "./append-merge";
 
 function buildFromElement(
@@ -13,27 +13,26 @@ function buildFromElement(
     format: ParseFormat,
     insideMatch: boolean,
 ): TreeNode | null {
-    const match = format.matches(element);
-    const insideOrIsMatch = insideMatch || Boolean(match.type);
+    const match = format.createMatch(element);
+    const matches = insideMatch || Boolean(match.marked);
 
     let children: TreeNode[] = [];
     for (const child of element.childNodes) {
-        const node = buildFromNode(child, format, insideOrIsMatch);
+        const node = buildFromNode(child, format, matches);
 
         if (node) {
             children = appendNode(children, node, format);
         }
     }
 
-    const matchNode = MatchNode.make(
+    const matchNode = ElementNode.make(
         element,
         match,
         children.every((node: TreeNode): boolean => node.insideRange),
-        insideOrIsMatch ||
-            children.every((node: TreeNode): boolean => node.insideMatch),
+        matches || children.every((node: TreeNode): boolean => node.insideMatch),
     );
 
-    if (children.length === 0 && !match.type) {
+    if (children.length === 0 && !match.marked) {
         return null;
     }
 

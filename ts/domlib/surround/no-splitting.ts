@@ -4,10 +4,19 @@
 import type { Matcher } from "../find-above";
 import { findFarthest } from "../find-above";
 import { build } from "./build-tree";
-import { EvaluateFormat, UnsurroundEvaluateFormat } from "./evaluate-format";
-import type { SurroundFormat } from "./match-type";
-import { ParseFormat, UnsurroundParseFormat } from "./parse-format";
+import { EvaluateFormat, UnsurroundEvaluateFormat } from "./format-evaluate";
+import { ParseFormat, UnsurroundParseFormat } from "./format-parse";
 import { splitPartiallySelected } from "./split-text";
+import { FakeMatch } from "./match-type";
+import type { SurroundFormat } from "./format-surround";
+
+export function boolMatcher(format: SurroundFormat): (element: Element) => boolean {
+    return function (element: Element): boolean {
+        const fake = new FakeMatch();
+        format.matcher(element as HTMLElement | SVGElement, fake);
+        return fake.value;
+    };
+}
 
 export function surroundInner(
     range: Range,
@@ -61,22 +70,12 @@ export function reformat(range: Range, base: Element, format: SurroundFormat): R
     const splitRange = splitPartiallySelected(range);
     const parse = ParseFormat.make(format, base, range);
     const evaluate = EvaluateFormat.make(format, splitRange);
-
-    function matcher(element: Element): boolean {
-        return Boolean(format.matcher(element as HTMLElement | SVGElement).type);
-    }
-
-    return reformatInner(range, base, parse, evaluate, matcher);
+    return reformatInner(range, base, parse, evaluate, boolMatcher(format));
 }
 
 export function unsurround(range: Range, base: Element, format: SurroundFormat): Range {
     const splitRange = splitPartiallySelected(range);
     const parse = UnsurroundParseFormat.make(format, base, range);
     const evaluate = UnsurroundEvaluateFormat.make(format, splitRange);
-
-    function matcher(element: Element): boolean {
-        return Boolean(format.matcher(element as HTMLElement | SVGElement).type);
-    }
-
-    return reformatInner(range, base, parse, evaluate, matcher);
+    return reformatInner(range, base, parse, evaluate, boolMatcher(format));
 }

@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { FormattingNode } from "./formatting-tree";
-import type { SurroundFormat } from "./match-type";
+import type { SurroundFormat } from "./format-surround";
 import type { SplitRange } from "./split-text";
 
 export class EvaluateFormat {

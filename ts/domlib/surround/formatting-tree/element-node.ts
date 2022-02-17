@@ -3,13 +3,12 @@
 
 import { elementIsBlock } from "../../../lib/dom";
 import { ascend } from "../../../lib/node";
-import type { EvaluateFormat } from "../evaluate-format";
+import type { EvaluateFormat } from "../format-evaluate";
 import type { Match } from "../match-type";
-import { MatchType } from "../match-type";
-import type { ParseFormat } from "../parse-format";
+import type { ParseFormat } from "../format-parse";
 import { TreeNode } from "./tree-node";
 
-export class MatchNode extends TreeNode {
+export class ElementNode extends TreeNode {
     private constructor(
         public element: Element,
         public match: Match,
@@ -24,8 +23,8 @@ export class MatchNode extends TreeNode {
         match: Match,
         insideRange: boolean,
         insideMatch: boolean,
-    ): MatchNode {
-        return new MatchNode(element, match, insideRange, insideMatch);
+    ): ElementNode {
+        return new ElementNode(element, match, insideRange, insideMatch);
     }
 
     /**
@@ -40,15 +39,17 @@ export class MatchNode extends TreeNode {
     }
 
     /**
-     * An extension is finding elements directly above a MatchNode.
+     * An extension is finding elements directly above a ElementNode.
      *
      * @example
      * This helps with additional normalizations, like in the following case:
      * `<b>before</b><u>inside</u><b>after</b>`.
      * If you were to surround "inside" with bold, it would miss the b tags,
      * because they are not directly adjacent.
+     *
+     * @internal
      */
-    tryExtend(format: ParseFormat): MatchNode | null {
+    tryExtend(format: ParseFormat): ElementNode | null {
         if (!format.mayExtend(this.element)) {
             return null;
         }
@@ -59,9 +60,9 @@ export class MatchNode extends TreeNode {
             return null;
         }
 
-        const parentNode = MatchNode.make(
+        const parentNode = ElementNode.make(
             parent,
-            format.matches(parent),
+            format.createMatch(parent),
             this.insideRange,
             this.insideMatch,
         );
@@ -70,12 +71,12 @@ export class MatchNode extends TreeNode {
         return parentNode;
     }
 
-    private remove(format: EvaluateFormat): number {
+    /**
+     * Returns the change in nodes after removal of `this.element`.
+     */
+    private remove(): number {
         const length = this.element.childNodes.length;
-
-        format.announceElementRemoval(this.element);
         this.element.replaceWith(...this.element.childNodes);
-
         return length - 1;
     }
 
@@ -85,15 +86,13 @@ export class MatchNode extends TreeNode {
             innerShift += child.evaluate(format, innerShift);
         }
 
-        switch (this.match.type) {
-            case MatchType.REMOVE:
-                return this.remove(format);
+        if (this.match.markedClear) {
+            this.match.clearCallback!();
+        }
 
-            case MatchType.CLEAR:
-                if (this.match.clear(this.element as HTMLElement | SVGElement)) {
-                    return this.remove(format);
-                }
-                break;
+        if (this.match.markedRemove) {
+            format.announceElementRemoval(this.element);
+            return this.remove();
         }
 
         return 0;

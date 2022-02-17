@@ -3,28 +3,25 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import type { Match } from "../../domlib/surround";
-    import { MatchType } from "../../domlib/surround";
+    import type { MatchType } from "../../domlib/surround";
     import { removeEmptyStyle } from "../surround";
 
     const surroundElement = document.createElement("sub");
 
-    export function matcher(element: HTMLElement | SVGElement): Match {
+    export function matcher(element: HTMLElement | SVGElement, match: MatchType): void {
         if (element.tagName === "SUB") {
-            return { type: MatchType.REMOVE };
+            return match.remove();
         }
 
         if (element.style.verticalAlign === "sub") {
-            return {
-                type: MatchType.CLEAR,
-                clear(element: HTMLElement | SVGElement): boolean {
-                    element.style.removeProperty("vertical-align");
-                    return removeEmptyStyle(element) && element.className.length === 0;
-                },
-            };
-        }
+            return match.clear((): void => {
+                element.style.removeProperty("vertical-align");
 
-        return { type: MatchType.NONE };
+                if (removeEmptyStyle(element) && element.className.length === 0) {
+                    return match.remove();
+                }
+            });
+        }
     }
 
     export const format = {
@@ -57,7 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: surrounder = disabled ? null : getSurrounder(input);
 
     function updateStateFromActiveInput(): Promise<boolean> {
-        return disabled ? Promise.resolve(false) : surrounder!.isSurrounded(matcher);
+        return disabled ? Promise.resolve(false) : surrounder!.isSurrounded(format);
     }
 
     function makeSub(): void {

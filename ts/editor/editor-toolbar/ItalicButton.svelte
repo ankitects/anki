@@ -6,8 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithState from "../../components/WithState.svelte";
-    import type { Match } from "../../domlib/surround";
-    import { MatchType } from "../../domlib/surround";
+    import type { MatchType } from "../../domlib/surround";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
@@ -19,22 +18,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const surroundElement = document.createElement("em");
 
-    function matcher(element: HTMLElement | SVGElement): Match {
+    function matcher(element: HTMLElement | SVGElement, match: MatchType): void {
         if (element.tagName === "I" || element.tagName === "EM") {
-            return { type: MatchType.REMOVE };
+            return match.remove();
         }
 
         if (["italic", "oblique"].includes(element.style.fontStyle)) {
-            return {
-                type: MatchType.CLEAR,
-                clear(element: HTMLElement | SVGElement): boolean {
-                    element.style.removeProperty("font-style");
-                    return removeEmptyStyle(element) && element.className.length === 0;
-                },
-            };
-        }
+            return match.clear((): void => {
+                element.style.removeProperty("font-style");
 
-        return { type: MatchType.NONE };
+                if (removeEmptyStyle(element) && element.className.length === 0) {
+                    return match.remove();
+                }
+            });
+        }
     }
 
     const format = {
@@ -51,7 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: surrounder = disabled ? null : getSurrounder(input);
 
     function updateStateFromActiveInput(): Promise<boolean> {
-        return disabled ? Promise.resolve(false) : surrounder!.isSurrounded(matcher);
+        return disabled ? Promise.resolve(false) : surrounder!.isSurrounded(format);
     }
 
     function makeItalic(): void {

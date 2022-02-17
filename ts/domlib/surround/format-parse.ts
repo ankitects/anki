@@ -1,12 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { nodeIsCommonElement } from "../../lib/dom";
 import { Position } from "../location";
-import { FormattingNode, MatchNode } from "./formatting-tree";
-import type { Match, SurroundFormat } from "./match-type";
-import { MatchType } from "./match-type";
+import { FormattingNode, ElementNode } from "./formatting-tree";
+import { Match } from "./match-type";
 import { nodeIsAmongNegligibles } from "./node-negligible";
+import type { SurroundFormat } from "./format-surround";
 
 function nodeWithinRange(node: Node, range: Range): boolean {
     const nodeRange = new Range();
@@ -30,12 +29,10 @@ export class ParseFormat {
         return new ParseFormat(format, base, range);
     }
 
-    matches(element: Element): Match {
-        if (!nodeIsCommonElement(element)) {
-            return { type: MatchType.NONE };
-        }
-
-        return this.format.matcher(element);
+    createMatch(element: Element): Match {
+        const match = new Match();
+        this.format.matcher(element as HTMLElement | SVGElement, match);
+        return match;
     }
 
     tryMerge(before: FormattingNode, after: FormattingNode): FormattingNode | null {
@@ -46,13 +43,13 @@ export class ParseFormat {
         return null;
     }
 
-    tryAscend(node: FormattingNode, matchNode: MatchNode): boolean {
+    tryAscend(node: FormattingNode, elementNode: ElementNode): boolean {
         if (
-            matchNode.isAscendable() &&
-            matchNode.element !== this.base &&
-            (!this.format.ascender || this.format.ascender(node, matchNode))
+            elementNode.isAscendable() &&
+            elementNode.element !== this.base &&
+            (!this.format.ascender || this.format.ascender(node, elementNode))
         ) {
-            node.ascendAbove(matchNode);
+            node.ascendAbove(elementNode);
             return true;
         }
 
@@ -85,11 +82,11 @@ export class UnsurroundParseFormat extends ParseFormat {
         return super.tryMerge(before, after);
     }
 
-    tryAscend(node: FormattingNode, matchNode: MatchNode): boolean {
-        if (node.insideRange !== matchNode.insideRange) {
+    tryAscend(node: FormattingNode, elementNode: ElementNode): boolean {
+        if (node.insideRange !== elementNode.insideRange) {
             false;
         }
 
-        return super.tryAscend(node, matchNode);
+        return super.tryAscend(node, elementNode);
     }
 }

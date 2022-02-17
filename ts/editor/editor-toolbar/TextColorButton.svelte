@@ -6,8 +6,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ColorPicker from "../../components/ColorPicker.svelte";
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
-    import type { Match } from "../../domlib/surround";
-    import { MatchType, SurroundFormat } from "../../domlib/surround";
+    import type {
+        MatchType,
+        SurroundFormat,
+        ElementNode,
+        FormattingNode,
+    } from "../../domlib/surround";
     import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
@@ -18,10 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { arrowIcon, textColorIcon } from "./icons";
     import WithColorHelper from "./WithColorHelper.svelte";
-    import type {
-        FormattingNode,
-        MatchNode,
-    } from "../../domlib/surround/formatting-tree";
 
     export let color: string;
 
@@ -29,26 +29,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return element.tagName === "FONT";
     }
 
-    function clear(element: HTMLElement | SVGElement): boolean {
-        element.style.removeProperty("color");
-        return removeEmptyStyle(element) && element.className.length === 0;
-    }
-
-    function matcher(element: HTMLElement | SVGElement): Match {
+    function matcher(element: HTMLElement | SVGElement, match: MatchType): void {
         if (isFontElement(element) && element.hasAttribute("color")) {
-            /* match.remove(); */
-            return { type: MatchType.REMOVE };
+            return match.remove();
         }
 
         if (element.style.getPropertyValue("color").length > 0) {
-            /* match.clear(clear); */
-            return {
-                type: MatchType.CLEAR,
-                clear,
-            };
-        }
+            return match.clear((): void => {
+                element.style.removeProperty("color");
 
-        return { type: MatchType.NONE };
+                if (removeEmptyStyle(element) && element.className.length === 0) {
+                    match.remove();
+                }
+            });
+        }
     }
 
     function merger(before: FormattingNode, after: FormattingNode): boolean {
@@ -69,13 +63,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return false;
     }
 
-    function ascender(node: FormattingNode, matchNode: MatchNode): boolean {
-        if (node.matchLeaves.length === 0 || !matchNode.match.type) {
+    function ascender(node: FormattingNode, elementNode: ElementNode): boolean {
+        if (node.matchLeaves.length === 0 || !elementNode.match.marked) {
             return true;
         }
 
         const first = node.matchLeaves[0].element as HTMLElement | SVGElement;
-        const matchElement = matchNode.element as HTMLElement | SVGElement;
+        const matchElement = elementNode.element as HTMLElement | SVGElement;
 
         if (
             first.style.getPropertyValue("color") ===
@@ -110,20 +104,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const surroundElement = document.createElement("span");
         surroundElement.style.color = color;
 
-        function matcher(element: Element): Match {
-            if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
-                return { type: MatchType.NONE };
-            }
-
+        function matcher(element: HTMLElement | SVGElement, match: MatchType): void {
             if (isFontElement(element) && element.color === color) {
-                return { type: MatchType.REMOVE };
+                return match.remove();
             }
 
             if (element.style.color === color) {
-                return { type: MatchType.CLEAR, clear };
-            }
+                return match.clear((): void => {
+                    element.style.removeProperty("color");
 
-            return { type: MatchType.NONE };
+                    if (removeEmptyStyle(element) && element.className.length === 0) {
+                        match.remove();
+                    }
+                });
+            }
         }
 
         return {

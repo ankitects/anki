@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { EvaluateFormat } from "../evaluate-format";
+import type { EvaluateFormat } from "../format-evaluate";
 
 function accumulate(accu: number, tree: TreeNode): number {
     return accu + tree.deepLength;
@@ -16,7 +16,7 @@ export abstract class TreeNode {
          */
         public insideRange: boolean,
         /**
-         * Whether all text nodes within this node are preceded by matching MatchNodes.
+         * Whether all text nodes within this node are preceded by matching ElementNodes.
          * This is important for deciding whether a text node is turned into a
          * FormattingNode or into a BlockNode, if it outside the initial DOM range.
          */
@@ -57,20 +57,13 @@ export abstract class TreeNode {
     }
 
     /**
-     * The DOM node that this node represents
-     */
-    // abstract get element(): Element;
-
-    /**
      * @param shift: The shift that occured in child nodes of the previous
      * siblings of the DOM node that this tree node represents (left shift).
      *
      * @returns The shift that occured in the children nodes of this
      * node (inner shift).
+     *
+     * @internal
      */
     abstract evaluate(format: EvaluateFormat, shift: number): number;
-
-    // [Symbol.iterator]() {
-    //     return new ShallowTreeIterator(this);
-    // }
 }

@@ -3,7 +3,7 @@
 
 import type { TreeNode } from "../formatting-tree";
 import { FormattingNode } from "../formatting-tree";
-import type { ParseFormat } from "../parse-format";
+import type { ParseFormat } from "../format-parse";
 
 /**
  * @param last: The node which is intended to be the new end node.

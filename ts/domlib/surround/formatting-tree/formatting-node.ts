@@ -2,9 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { FlatRange } from "../flat-range";
-import type { EvaluateFormat } from "../evaluate-format";
-import type { ParseFormat } from "../parse-format";
-import { MatchNode } from "./match-node";
+import type { EvaluateFormat } from "../format-evaluate";
+import type { ParseFormat } from "../format-parse";
+import { ElementNode } from "./element-node";
 import { TreeNode } from "./tree-node";
 
 /**
@@ -59,31 +59,31 @@ export class FormattingNode extends TreeNode {
     }
 
     /**
-     * An ascent is placing a FormattingNode above a MatchNode.
-     * In other terms, if the MatchNode matches, it means that the node creating
-     * by `this` during formatting is able to replace the MatchNode semantically.
+     * An ascent is placing a FormattingNode above a ElementNode.
+     * In other terms, if the ElementNode matches, it means that the node creating
+     * by `this` during formatting is able to replace the ElementNode semantically.
      *
-     * @param matchNode: Its children will be discarded in favor of `this`s children.
+     * @param elementNode: Its children will be discarded in favor of `this`s children.
      *
      * @example
      * Practically speaking, it is what happens, when you turn:
      * `<u><b>inside</b></u>` into `<b><u>inside</u></b>`, or
      * `<u><b>inside</b><img src="image.jpg"></u>` into `<b><u>inside<img src="image.jpg"></u></b>
      */
-    ascendAbove(matchNode: MatchNode): void {
-        this.range.select(matchNode.element);
+    ascendAbove(elementNode: ElementNode): void {
+        this.range.select(elementNode.element);
 
-        if (matchNode.match.type && this.hasMatchHoles) {
-            this.matchLeaves.push(matchNode);
+        if (elementNode.match.marked && this.hasMatchHoles) {
+            this.matchLeaves.push(elementNode);
             this.hasMatchHoles = false;
         }
 
-        if (!this.hasChildren() && !matchNode.match.type) {
-            // Drop matchNode, as it has no effect
+        if (!this.hasChildren() && !elementNode.match.marked) {
+            // Drop elementNode, as it has no effect
             return;
         }
 
-        matchNode.replaceChildren(...this.replaceChildren(matchNode));
+        elementNode.replaceChildren(...this.replaceChildren(elementNode));
     }
 
     /**
@@ -98,11 +98,11 @@ export class FormattingNode extends TreeNode {
         }
 
         const [only] = this.children;
-        if (!(only instanceof MatchNode)) {
+        if (!(only instanceof ElementNode)) {
             return;
         }
 
-        let top: MatchNode | null = only;
+        let top: ElementNode | null = only;
         while (top) {
             top = top.tryExtend(format);
 
@@ -121,7 +121,7 @@ export class FormattingNode extends TreeNode {
     hasMatchHoles: boolean = true;
 
     /**
-     * Match leaves are all MatchNodes that are descendants of `this`, and
+     * Match leaves are all ElementNode that are descendants of `this`, and
      * actually affect the text nodes located inside `this`
      *
      * @see hasMatchHoles
@@ -135,7 +135,7 @@ export class FormattingNode extends TreeNode {
      * @remarks
      * These are important for some ascenders and/or mergers.
      */
-    matchLeaves: MatchNode[] = [];
+    matchLeaves: ElementNode[] = [];
 
     evaluate(format: EvaluateFormat, leftShift: number): number {
         let innerShift = 0;

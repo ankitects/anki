@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { TreeNode } from "../formatting-tree";
-import { FormattingNode, MatchNode } from "../formatting-tree";
-import type { ParseFormat } from "../parse-format";
+import { FormattingNode, ElementNode } from "../formatting-tree";
+import type { ParseFormat } from "../format-parse";
 import { buildFromNode } from "./build";
 
 interface MergeResult {
@@ -45,9 +45,9 @@ function innerMerge(
                     hitBorder: false,
                 };
             }
-        }
 
-        sibling = getter(sibling);
+            sibling = getter(sibling);
+        }
     }
 
     return {
@@ -101,9 +101,9 @@ export function extendAndMerge(node: FormattingNode, format: ParseFormat): TreeN
         return next.node;
     }
 
-    const matchNode = MatchNode.make(
+    const matchNode = ElementNode.make(
         parent,
-        format.matches(parent),
+        format.createMatch(parent),
         next.node.insideRange,
         next.node.insideMatch,
     );

@@ -6,8 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithState from "../../components/WithState.svelte";
-    import type { Match } from "../../domlib/surround";
-    import { MatchType } from "../../domlib/surround";
+    import type { MatchType } from "../../domlib/surround";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
@@ -19,12 +18,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const surroundElement = document.createElement("u");
 
-    function matcher(element: HTMLElement | SVGElement): Match {
+    function matcher(element: HTMLElement | SVGElement, match: MatchType): void {
         if (element.tagName === "U") {
-            return { type: MatchType.REMOVE };
+            return match.remove();
         }
-
-        return { type: MatchType.NONE };
     }
 
     const clearer = () => false;
@@ -45,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: surrounder = disabled ? null : getSurrounder(input);
 
     function updateStateFromActiveInput(): Promise<boolean> {
-        return disabled ? Promise.resolve(false) : surrounder!.isSurrounded(matcher);
+        return disabled ? Promise.resolve(false) : surrounder!.isSurrounded(format);
     }
 
     function makeUnderline(): void {

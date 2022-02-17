@@ -3,8 +3,8 @@
 
 import { get } from "svelte/store";
 
-import type { ElementMatcher, SurroundFormat } from "../domlib/surround";
-import { surround, unsurround } from "../domlib/surround";
+import type { SurroundFormat } from "../domlib/surround";
+import { boolMatcher, surround, unsurround } from "../domlib/surround";
 import { findClosest } from "../domlib/find-above";
 import type { Matcher } from "../domlib/find-above";
 import { getRange, getSelection } from "../lib/cross-browser";
@@ -41,12 +41,7 @@ export interface GetSurrounderResult {
         format: SurroundFormat,
         mutualExclusiveFormats?: SurroundFormat[],
     ): Promise<void>;
-    isSurrounded(matcher: ElementMatcher): Promise<boolean>;
-}
-
-function wrapMatcher(matcher: ElementMatcher): Matcher {
-    return (element: Element): boolean =>
-        Boolean(matcher(element as HTMLElement | SVGElement).type);
+    isSurrounded(format: SurroundFormat): Promise<boolean>;
 }
 
 /**
@@ -55,7 +50,7 @@ function wrapMatcher(matcher: ElementMatcher): Matcher {
 export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderResult {
     const trigger = richTextInput.getTriggerOnNextInsert();
 
-    async function isSurrounded(matcher: ElementMatcher): Promise<boolean> {
+    async function isSurrounded(format: SurroundFormat): Promise<boolean> {
         const base = await richTextInput.element;
         const selection = getSelection(base)!;
         const range = getRange(selection);
@@ -64,7 +59,7 @@ export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderRes
             return false;
         }
 
-        const isSurrounded = isSurroundedInner(range, base, wrapMatcher(matcher));
+        const isSurrounded = isSurroundedInner(range, base, boolMatcher(format));
         return get(trigger.active) ? !isSurrounded : isSurrounded;
     }
 
@@ -75,7 +70,7 @@ export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderRes
         const base = await richTextInput.element;
         const selection = getSelection(base)!;
         const initialRange = getRange(selection);
-        const matcher = wrapMatcher(format.matcher);
+        const matcher = boolMatcher(format);
 
         if (!initialRange) {
             return;
