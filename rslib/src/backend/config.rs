@@ -31,6 +31,7 @@ impl From<BoolKeyProto> for BoolKey {
             BoolKeyProto::PasteImagesAsPng => BoolKey::PasteImagesAsPng,
             BoolKeyProto::PasteStripsFormatting => BoolKey::PasteStripsFormatting,
             BoolKeyProto::NormalizeNoteText => BoolKey::NormalizeNoteText,
+            BoolKeyProto::IgnoreAccentsInSearch => BoolKey::IgnoreAccentsInSearch,
         }
     }
 }
