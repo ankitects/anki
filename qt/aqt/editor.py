@@ -123,6 +123,7 @@ class Editor:
         self.last_field_index: int | None = None
         # current card, for card layout
         self.card: Card | None = None
+        self._init_links()
         self.setupOuter()
         self.setupWeb()
         self.setupShortcuts()
@@ -216,7 +217,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     ) -> str:
         """Assign func to bridge cmd, register shortcut, return button"""
         if func:
-            self._links[cmd] = func
+            self._links[cmd] = lambda: func(self)
 
             if keys:
 
@@ -459,7 +460,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 self._save_current_note()
 
         elif cmd in self._links:
-            self._links[cmd](self)
+            self._links[cmd]()
 
         else:
             print("uncaught cmd", cmd)
@@ -1106,29 +1107,30 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     # Links from HTML
     ######################################################################
 
-    _links: dict[str, Callable] = dict(
-        fields=onFields,
-        cards=onCardLayout,
-        bold=toggleBold,
-        italic=toggleItalic,
-        underline=toggleUnderline,
-        super=toggleSuper,
-        sub=toggleSub,
-        clear=removeFormat,
-        colour=onForeground,
-        changeCol=onChangeCol,
-        cloze=onCloze,
-        attach=onAddMedia,
-        record=onRecSound,
-        more=onAdvanced,
-        dupes=showDupes,
-        paste=onPaste,
-        cutOrCopy=onCutOrCopy,
-        htmlEdit=onHtmlEdit,
-        mathjaxInline=insertMathjaxInline,
-        mathjaxBlock=insertMathjaxBlock,
-        mathjaxChemistry=insertMathjaxChemistry,
-    )
+    def _init_links(self) -> None:
+        self._links: dict[str, Callable] = dict(
+            fields=self.onFields,
+            cards=self.onCardLayout,
+            bold=self.toggleBold,
+            italic=self.toggleItalic,
+            underline=self.toggleUnderline,
+            super=self.toggleSuper,
+            sub=self.toggleSub,
+            clear=self.removeFormat,
+            colour=self.onForeground,
+            changeCol=self.onChangeCol,
+            cloze=self.onCloze,
+            attach=self.onAddMedia,
+            record=self.onRecSound,
+            more=self.onAdvanced,
+            dupes=self.showDupes,
+            paste=self.onPaste,
+            cutOrCopy=self.onCutOrCopy,
+            htmlEdit=self.onHtmlEdit,
+            mathjaxInline=self.insertMathjaxInline,
+            mathjaxBlock=self.insertMathjaxBlock,
+            mathjaxChemistry=self.insertMathjaxChemistry,
+        )
 
 
 # Pasting, drag & drop, and keyboard layouts
