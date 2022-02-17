@@ -45,9 +45,9 @@ function innerMerge(
                     hitBorder: false,
                 };
             }
-
-            sibling = getter(sibling);
         }
+
+        sibling = getter(sibling);
     }
 
     return {
