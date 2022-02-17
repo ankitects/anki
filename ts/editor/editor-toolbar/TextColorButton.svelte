@@ -81,11 +81,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function formatter(node: FormattingNode): boolean {
         const span = document.createElement("span");
 
-        if (node.matchLeaves.length > 0) {
+        if (node.insideRange) {
+            span.style.setProperty("color", color);
+        } else if (node.matchLeaves.length > 0) {
             const first = node.matchLeaves[0];
             span.style.setProperty("color", first.match.cache);
         } else {
-            span.style.setProperty("color", color);
+            // TODO get matchAncestors
         }
 
         node.range.toDOMRange().surroundContents(span);

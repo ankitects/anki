@@ -112,6 +112,22 @@ export class FormattingNode extends TreeNode {
         }
     }
 
+    evaluate(format: EvaluateFormat, leftShift: number): number {
+        let innerShift = 0;
+        for (const child of this.children) {
+            innerShift += child.evaluate(format, innerShift);
+        }
+
+        this.range.startIndex += leftShift;
+        this.range.endIndex += leftShift + innerShift;
+        return format.applyFormat(this)
+            ? this.range.startIndex - this.range.endIndex + 1
+            : 0;
+    }
+
+    // The following methods are meant for users when specifying their surround
+    // formats and is not vital to the algorithm itself
+
     /**
      * Match holes are text nodes that are not inside any matches that are
      * descendants of `this` (yet).
@@ -121,8 +137,8 @@ export class FormattingNode extends TreeNode {
     hasMatchHoles: boolean = true;
 
     /**
-     * Match leaves are all ElementNode that are descendants of `this`, and
-     * actually affect the text nodes located inside `this`
+     * Match leaves are the matching element nodes that are descendants of
+     * `this`, and actually affect the text nodes located inside `this`.
      *
      * @see hasMatchHoles
      *
@@ -137,16 +153,25 @@ export class FormattingNode extends TreeNode {
      */
     matchLeaves: ElementNode[] = [];
 
-    evaluate(format: EvaluateFormat, leftShift: number): number {
-        let innerShift = 0;
-        for (const child of this.children) {
-            innerShift += child.evaluate(format, innerShift);
+    get firstLeaf(): ElementNode | null {
+        if (this.matchLeaves.length === 0) {
+            return null;
         }
 
-        this.range.startIndex += leftShift;
-        this.range.endIndex += leftShift + innerShift;
-        return format.applyFormat(this)
-            ? this.range.startIndex - this.range.endIndex + 1
-            : 0;
+        return this.matchLeaves[0];
+    }
+
+    /**
+     * Match ancestors are all matching element nodes that are direct ancestors
+     * of `this`
+     */
+    matchAncestors: ElementNode[] = [];
+
+    get closestAncestor(): ElementNode | null {
+        if (this.matchAncestors.length === 0) {
+            return null;
+        }
+
+        return this.matchAncestors[this.matchAncestors.length - 1];
     }
 }

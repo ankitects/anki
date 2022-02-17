@@ -13,11 +13,11 @@ export function build(
     evaluateFormat: EvaluateFormat,
     insideMatch: boolean,
 ): void {
-    let output = buildFromNode(node, format, insideMatch);
+    let tree = buildFromNode(node, format, insideMatch);
 
-    if (output instanceof FormattingNode) {
-        output = extendAndMerge(output, format);
+    if (tree instanceof FormattingNode) {
+        tree = extendAndMerge(tree, format);
     }
-
-    output?.evaluate(evaluateFormat, 0);
+    debugger;
+    tree?.evaluate(evaluateFormat, 0);
 }
