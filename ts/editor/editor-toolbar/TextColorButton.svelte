@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
-    import { getSurrounder, removeEmptyStyle } from "../surround";
+    import { getBaseSurrounder, removeEmptyStyle } from "../surround";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { arrowIcon, textColorIcon } from "./icons";
     import WithColorHelper from "./WithColorHelper.svelte";
@@ -71,7 +71,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         const first = node.matchLeaves[0];
-
         if (first.match.cache === elementNode.match.cache) {
             return true;
         }
@@ -84,10 +83,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         if (node.matchLeaves.length > 0) {
             const first = node.matchLeaves[0];
-            span.style.color = first.match.cache;
+            span.style.setProperty("color", first.match.cache);
         } else {
-            span.style.color = color;
+            span.style.setProperty("color", color);
         }
+
         node.range.toDOMRange().surroundContents(span);
         return true;
     }
@@ -105,10 +105,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const { focusedInput } = noteEditorContext.get();
     $: input = $focusedInput as RichTextInputAPI;
     $: disabled = !editingInputIsRichText($focusedInput);
-    $: surrounder = disabled ? null : getSurrounder(input);
+    $: surrounder = disabled ? null : getBaseSurrounder(input, format);
 
     function setTextColor(): void {
-        surrounder?.surroundCommand(format, [format]);
+        surrounder?.surroundCommand(format);
     }
 
     const forecolorKeyCombination = "F7";
@@ -139,9 +139,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {@html arrowIcon}
         <ColorPicker
             on:change={(event) => {
-                const textColor = setColor(event);
-                bridgeCommand(`lastTextColor:${textColor}`);
-                setColor(event);
+                color = setColor(event);
+                bridgeCommand(`lastTextColor:${color}`);
                 setTextColor();
             }}
         />
@@ -149,9 +148,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <Shortcut
         keyCombination={forecolorPickKeyCombination}
         on:action={(event) => {
-            const textColor = setColor(event);
-            bridgeCommand(`lastTextColor:${textColor}`);
-            setColor(event);
+            color = setColor(event);
+            bridgeCommand(`lastTextColor:${color}`);
             setTextColor();
         }}
     />

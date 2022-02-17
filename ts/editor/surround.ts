@@ -4,7 +4,7 @@
 import { get } from "svelte/store";
 
 import type { SurroundFormat } from "../domlib/surround";
-import { boolMatcher, surround, unsurround } from "../domlib/surround";
+import { boolMatcher, surround, reformat, unsurround } from "../domlib/surround";
 import { findClosest } from "../domlib/find-above";
 import type { Matcher } from "../domlib/find-above";
 import { getRange, getSelection } from "../lib/cross-browser";
@@ -45,7 +45,54 @@ export interface GetSurrounderResult {
 }
 
 /**
- * A convenience function supposed to create some common formatting functions, e.g. bold, italic, etc.
+ *
+ */
+export function getBaseSurrounder(
+    richTextInput: RichTextInputAPI,
+    format: SurroundFormat,
+) {
+    const trigger = richTextInput.getTriggerOnNextInsert();
+    const matcher = boolMatcher(format);
+
+    async function surroundCommand(): Promise<void> {
+        const base = await richTextInput.element;
+        const selection = getSelection(base)!;
+        const range = getRange(selection);
+
+        if (!range) {
+            return;
+        } else if (range.collapsed) {
+            if (get(trigger.active)) {
+                trigger.remove();
+            } else {
+                trigger.add(async ({ node }: { node: Node }): Promise<void> => {
+                    range.selectNode(node);
+
+                    const matches = Boolean(findClosest(node, base, matcher));
+                    const surroundedRange = matches
+                        ? unsurround(range, base, format)
+                        : surround(range, base, format);
+
+                    selection.removeAllRanges();
+                    selection.addRange(surroundedRange);
+                    selection.collapseToEnd();
+                });
+            }
+        } else {
+            const surroundedRange = reformat(range, base, format);
+            selection.removeAllRanges();
+            selection.addRange(surroundedRange);
+        }
+    }
+
+    return {
+        surroundCommand,
+    };
+}
+
+/**
+ * A convenience function supposed to create some common formatting
+ * functions, e.g. bold, italic, etc.
  */
 export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderResult {
     const trigger = richTextInput.getTriggerOnNextInsert();

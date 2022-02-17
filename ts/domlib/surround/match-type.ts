@@ -7,7 +7,7 @@ export interface MatchType {
     setCache(value: any): void;
 }
 
-type Callback = () => void
+type Callback = () => void;
 
 export class Match implements MatchType {
     private _shouldRemove = false;
