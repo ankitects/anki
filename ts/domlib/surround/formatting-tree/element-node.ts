@@ -13,18 +13,18 @@ export class ElementNode extends TreeNode {
         public element: Element,
         public match: Match,
         public insideRange: boolean,
-        public insideMatch: boolean,
+        public matchAncestors: Match[],
     ) {
-        super(insideRange, insideMatch);
+        super(insideRange, matchAncestors);
     }
 
     static make(
         element: Element,
         match: Match,
         insideRange: boolean,
-        insideMatch: boolean,
+        matchAncestors: Match[],
     ): ElementNode {
-        return new ElementNode(element, match, insideRange, insideMatch);
+        return new ElementNode(element, match, insideRange, matchAncestors);
     }
 
     /**
@@ -35,7 +35,7 @@ export class ElementNode extends TreeNode {
      * FormattingNode.
      */
     isAscendable(): boolean {
-        return !elementIsBlock(this.element) && (this.insideRange || this.insideMatch);
+        return !elementIsBlock(this.element);
     }
 
     /**
@@ -60,11 +60,16 @@ export class ElementNode extends TreeNode {
             return null;
         }
 
+        const match = format.createMatch(parent);
+        const matchAncestors = match.matches
+            ? [match, ...this.matchAncestors]
+            : this.matchAncestors;
+
         const parentNode = ElementNode.make(
             parent,
-            format.createMatch(parent),
+            match,
             this.insideRange,
-            this.insideMatch,
+            matchAncestors,
         );
 
         parentNode.replaceChildren(this);

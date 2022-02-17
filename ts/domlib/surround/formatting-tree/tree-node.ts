@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { EvaluateFormat } from "../format-evaluate";
+import type { Match } from "../match-type";
 
 function accumulate(accu: number, tree: TreeNode): number {
     return accu + tree.deepLength;
@@ -16,11 +17,12 @@ export abstract class TreeNode {
          */
         public insideRange: boolean,
         /**
-         * Whether all text nodes within this node are preceded by matching ElementNodes.
-         * This is important for deciding whether a text node is turned into a
-         * FormattingNode or into a BlockNode, if it outside the initial DOM range.
+         * Match ancestors are all matching matches that are direct ancestors
+         * of `this`. This is important for deciding whether a text node is
+         * turned into a FormattingNode or into a BlockNode, if it is outside
+         * the initial DOM range.
          */
-        public insideMatch: boolean,
+        public matchAncestors: Match[],
     ) {}
 
     /**

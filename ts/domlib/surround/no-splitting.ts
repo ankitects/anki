@@ -23,8 +23,7 @@ export function surroundInner(
     parse: ParseFormat,
     evaluate: EvaluateFormat,
 ): Range {
-    build(range.commonAncestorContainer, parse, evaluate, false);
-    return evaluate.recreateRange();
+    return build(range.commonAncestorContainer, parse, evaluate);
 }
 
 export function surround(range: Range, base: Element, format: SurroundFormat): Range {
@@ -49,12 +48,10 @@ function reformatInner(
     );
 
     if (farthestMatchingAncestor) {
-        build(farthestMatchingAncestor, parse, evaluate, true);
+        return build(farthestMatchingAncestor, parse, evaluate);
     } else {
         return surroundInner(range, parse, evaluate);
     }
-
-    return evaluate.recreateRange();
 }
 
 /**

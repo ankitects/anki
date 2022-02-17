@@ -4,6 +4,7 @@
 import { FlatRange } from "../flat-range";
 import type { EvaluateFormat } from "../format-evaluate";
 import type { ParseFormat } from "../format-parse";
+import type { Match } from "../match-type";
 import { ElementNode } from "./element-node";
 import { TreeNode } from "./tree-node";
 
@@ -14,25 +15,29 @@ export class FormattingNode extends TreeNode {
     private constructor(
         public range: FlatRange,
         public insideRange: boolean,
-        public insideMatch: boolean,
+        public matchAncestors: Match[],
     ) {
-        super(insideRange, insideMatch);
+        super(insideRange, matchAncestors);
     }
 
     private static make(
         range: FlatRange,
         insideRange: boolean,
-        insideMatch: boolean,
+        matchAncestors: Match[],
     ): FormattingNode {
-        return new FormattingNode(range, insideRange, insideMatch);
+        return new FormattingNode(range, insideRange, matchAncestors);
     }
 
     static fromText(
         text: Text,
         insideRange: boolean,
-        insideMatch: boolean,
+        matchAncestors: Match[],
     ): FormattingNode {
-        return FormattingNode.make(FlatRange.fromNode(text), insideRange, insideMatch);
+        return FormattingNode.make(
+            FlatRange.fromNode(text),
+            insideRange,
+            matchAncestors,
+        );
     }
 
     /**
@@ -48,7 +53,7 @@ export class FormattingNode extends TreeNode {
         const node = FormattingNode.make(
             FlatRange.merge(before.range, after.range),
             before.insideRange && after.insideRange,
-            before.insideMatch && after.insideMatch,
+            before.matchAncestors,
         );
 
         node.replaceChildren(...before.children, ...after.children);
@@ -161,17 +166,25 @@ export class FormattingNode extends TreeNode {
         return this.matchLeaves[0];
     }
 
-    /**
-     * Match ancestors are all matching element nodes that are direct ancestors
-     * of `this`
-     */
-    matchAncestors: ElementNode[] = [];
-
-    get closestAncestor(): ElementNode | null {
+    get closestAncestor(): Match | null {
         if (this.matchAncestors.length === 0) {
             return null;
         }
 
         return this.matchAncestors[this.matchAncestors.length - 1];
+    }
+
+    getCache(defaultValue: any): any | null {
+        if (this.insideRange) {
+            return defaultValue;
+        } else if (this.firstLeaf) {
+            return this.firstLeaf.match.cache;
+        } else if (this.closestAncestor) {
+            return this.closestAncestor.cache;
+        }
+
+        // Should never happen, because a formatting node is always either
+        // inside a range or inside a match
+        return null;
     }
 }

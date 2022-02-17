@@ -3,6 +3,7 @@
 
 import { nodeIsElement, nodeIsText } from "../../../lib/dom";
 import type { TreeNode } from "../formatting-tree";
+import type { Match } from "../match-type";
 import { BlockNode, FormattingNode, ElementNode } from "../formatting-tree";
 import { elementIsNegligible, textIsNegligible } from "../node-negligible";
 import type { ParseFormat } from "../format-parse";
@@ -11,14 +12,17 @@ import { appendNode } from "./append-merge";
 function buildFromElement(
     element: Element,
     format: ParseFormat,
-    insideMatch: boolean,
+    matchAncestors: Match[],
 ): TreeNode | null {
     const match = format.createMatch(element);
-    const matches = insideMatch || match.matches;
+
+    if (match.matches) {
+        matchAncestors = [...matchAncestors, match];
+    }
 
     let children: TreeNode[] = [];
     for (const child of element.childNodes) {
-        const node = buildFromNode(child, format, matches);
+        const node = buildFromNode(child, format, matchAncestors);
 
         if (node) {
             children = appendNode(children, node, format);
@@ -29,7 +33,7 @@ function buildFromElement(
         element,
         match,
         children.every((node: TreeNode): boolean => node.insideRange),
-        matches || children.every((node: TreeNode): boolean => node.insideMatch),
+        matchAncestors,
     );
 
     if (children.length === 0 && !match.matches) {
@@ -56,15 +60,15 @@ function buildFromElement(
 function buildFromText(
     text: Text,
     format: ParseFormat,
-    insideMatch: boolean,
+    matchAncestors: Match[],
 ): FormattingNode | BlockNode {
     const insideRange = format.isInsideRange(text);
 
-    if (!insideRange && !insideMatch) {
+    if (!insideRange && matchAncestors.length === 0) {
         return BlockNode.make();
     }
 
-    return FormattingNode.fromText(text, insideRange, insideMatch);
+    return FormattingNode.fromText(text, insideRange, matchAncestors);
 }
 
 /**
@@ -75,12 +79,12 @@ function buildFromText(
 export function buildFromNode(
     node: Node,
     format: ParseFormat,
-    insideMatch: boolean,
+    matchAncestors: Match[],
 ): TreeNode | null {
     if (nodeIsText(node) && !textIsNegligible(node)) {
-        return buildFromText(node, format, insideMatch);
+        return buildFromText(node, format, matchAncestors);
     } else if (nodeIsElement(node) && !elementIsNegligible(node)) {
-        return buildFromElement(node, format, insideMatch);
+        return buildFromElement(node, format, matchAncestors);
     } else {
         return null;
     }

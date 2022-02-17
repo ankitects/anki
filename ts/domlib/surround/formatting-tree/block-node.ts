@@ -9,7 +9,7 @@ import { TreeNode } from "./tree-node";
  */
 export class BlockNode extends TreeNode {
     private constructor() {
-        super(false, false);
+        super(false, []);
     }
 
     static make(): BlockNode {

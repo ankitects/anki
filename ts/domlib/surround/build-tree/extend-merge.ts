@@ -29,12 +29,11 @@ function innerMerge(
     let node = start;
 
     while (sibling) {
-        const siblingNode = buildFromNode(sibling, format, false);
+        const siblingNode = buildFromNode(sibling, format, []);
 
         if (siblingNode) {
             let merged: FormattingNode | null;
             if (
-                siblingNode.insideMatch &&
                 siblingNode instanceof FormattingNode &&
                 (merged = merge(node, siblingNode))
             ) {
@@ -101,11 +100,16 @@ export function extendAndMerge(node: FormattingNode, format: ParseFormat): TreeN
         return next.node;
     }
 
+    const match = format.createMatch(parent);
+    const matchAncestors = match.matches
+        ? [match, ...next.node.matchAncestors]
+        : next.node.matchAncestors;
+
     const matchNode = ElementNode.make(
         parent,
-        format.createMatch(parent),
+        match,
         next.node.insideRange,
-        next.node.insideMatch,
+        matchAncestors,
     );
 
     format.tryAscend(next.node, matchNode);

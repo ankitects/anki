@@ -8,16 +8,19 @@ import { buildFromNode } from "./build";
 import { extendAndMerge } from "./extend-merge";
 
 export function build(
+    /**
+     * There should be no matching elements above node.
+     */
     node: Node,
-    format: ParseFormat,
-    evaluateFormat: EvaluateFormat,
-    insideMatch: boolean,
-): void {
-    let tree = buildFromNode(node, format, insideMatch);
+    parse: ParseFormat,
+    evaluate: EvaluateFormat,
+): Range {
+    let tree = buildFromNode(node, parse, []);
 
     if (tree instanceof FormattingNode) {
-        tree = extendAndMerge(tree, format);
+        tree = extendAndMerge(tree, parse);
     }
-    debugger;
-    tree?.evaluate(evaluateFormat, 0);
+
+    tree?.evaluate(evaluate, 0);
+    return evaluate.recreateRange();
 }

@@ -25,6 +25,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let color: string;
 
+    $: transformedColor = transformColor(color);
+
+    /**
+     * The DOM will transform colors such as "#ff0000" to "rgb(256, 0, 0)".
+     */
+    function transformColor(color: string): string {
+        const span = document.createElement("span");
+        span.style.setProperty("color", color);
+        return span.style.getPropertyValue("color");
+    }
+
     function isFontElement(element: Element): element is HTMLFontElement {
         return element.tagName === "FONT";
     }
@@ -51,45 +62,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function merger(before: FormattingNode, after: FormattingNode): boolean {
-        if (before.matchLeaves.length === 0 || after.matchLeaves.length === 0) {
-            return true;
-        }
-
-        const firstBefore = before.matchLeaves[0];
-        const firstAfter = after.matchLeaves[0];
-
-        if (firstBefore.match.cache == firstAfter.match.cache) {
-            return true;
-        }
-
-        return false;
+        return before.getCache(transformedColor) === after.getCache(transformedColor);
     }
 
     function ascender(node: FormattingNode, elementNode: ElementNode): boolean {
-        if (node.matchLeaves.length === 0 || !elementNode.match.matches) {
-            return true;
-        }
-
-        const first = node.matchLeaves[0];
-        if (first.match.cache === elementNode.match.cache) {
-            return true;
-        }
-
-        return false;
+        return (
+            !elementNode.match.matches ||
+            node.getCache(transformedColor) === elementNode.match.cache
+        );
     }
 
     function formatter(node: FormattingNode): boolean {
         const span = document.createElement("span");
-
-        if (node.insideRange) {
-            span.style.setProperty("color", color);
-        } else if (node.matchLeaves.length > 0) {
-            const first = node.matchLeaves[0];
-            span.style.setProperty("color", first.match.cache);
-        } else {
-            // TODO get matchAncestors
-        }
-
+        span.style.setProperty("color", node.getCache(transformedColor));
         node.range.toDOMRange().surroundContents(span);
         return true;
     }
