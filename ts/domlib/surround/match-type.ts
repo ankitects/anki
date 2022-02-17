@@ -10,6 +10,11 @@ export interface MatchType {
 type Callback = () => void;
 
 export class Match implements MatchType {
+    private _matches = false;
+    get matches(): boolean {
+        return this._matches;
+    }
+
     private _shouldRemove = false;
     get shouldRemove(): boolean {
         return this._shouldRemove;
@@ -19,46 +24,26 @@ export class Match implements MatchType {
      * The element represented by the match will be removed from the document.
      */
     remove(): void {
+        this._matches = true;
         this._shouldRemove = true;
     }
 
-    private _shouldClear = false;
-    private clearCallback: Callback | null = null;
-    get shouldClear(): boolean {
-        return this._shouldClear;
-    }
-
     /**
-     * The callback will be called during the evaluation. This is useful, if
-     * the element has some styling applied that matches the format, but might
-     * contain some styling above that.
+     * If the element has some styling applied that matches the format, but
+     * might contain some styling above that, you should use clear and do the
+     * modifying in the callback.
+     *
+     * @remarks
+     * You can still call `match.remove()` in the callback
      *
      * @example
      * If you want to match bold elements, `<span class="myclass" style="font-weight:bold"/>
      * should match via `clear`, but should not be removed, because it still
      * has a class applied, even if the `style` attribute is removed.
-     *
-     * @remarks
-     * You can still call `match.remove()` in the callback
      */
     clear(callback: Callback): void {
-        this._shouldClear = true;
-        this.clearCallback = callback;
-    }
-
-    get matches(): boolean {
-        return this.shouldRemove || this.shouldClear;
-    }
-
-    /**
-     * @returns Whether the element represented by the match should be removed
-     */
-    evaluate(): boolean {
-        if (this.shouldClear) {
-            this.clearCallback!();
-        }
-
-        return this.shouldRemove;
+        this._matches = true;
+        callback();
     }
 
     /** TODO try typing this */

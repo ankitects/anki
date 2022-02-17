@@ -92,7 +92,7 @@ export class ElementNode extends TreeNode {
             innerShift += child.evaluate(format, innerShift);
         }
 
-        if (this.match.evaluate()) {
+        if (this.match.shouldRemove) {
             format.announceElementRemoval(this.element);
             return this.remove();
         }
