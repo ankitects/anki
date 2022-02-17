@@ -11,7 +11,11 @@ on:
   push:
 #    paths:
 #    - .github/workflows/build-on-macos.yml
-    branches: [ main ]
+    branches: [ main, tmp4build ]
+    paths-ignore:
+    - 'README.md'
+    - '.gitignore'
+    - '.gitmodules'
   pull_request:
     branches: [ main ]
   # Allows you to run this workflow manually from the Actions tab
