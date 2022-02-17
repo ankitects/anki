@@ -394,7 +394,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 if gui_hooks.editor_did_unfocus_field(False, self.note, ord):
                     # something updated the note; update it after a subsequent focus
                     # event has had time to fire
-                    self.mw.progress.timer(100, self.loadNoteKeepingFocus, False)
+                    self.mw.progress.timer(
+                        100, self.loadNoteKeepingFocus, False, parent=self.widget
+                    )
                 else:
                     self._check_and_update_duplicate_display_async()
             else:
@@ -549,7 +551,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         "Save unsaved edits then call callback()."
         if not self.note:
             # calling code may not expect the callback to fire immediately
-            self.mw.progress.timer(10, callback, False)
+            self.mw.progress.timer(10, callback, False, parent=self.widget)
             return
         self.web.evalWithCallback("saveNow(%d)" % keepFocus, lambda res: callback())
 

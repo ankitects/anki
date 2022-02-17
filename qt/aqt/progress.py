@@ -29,7 +29,13 @@ class ProgressManager:
     # (likely due to some long-running DB operation)
 
     def timer(
-        self, ms: int, func: Callable, repeat: bool, requiresCollection: bool = True
+        self,
+        ms: int,
+        func: Callable,
+        repeat: bool,
+        requiresCollection: bool = True,
+        *,
+        parent: QObject = None,
     ) -> QTimer:
         """Create and start a standard Anki timer.
 
@@ -59,7 +65,7 @@ class ProgressManager:
                     # retry in 100ms
                     self.timer(100, func, False, requiresCollection)
 
-        t = QTimer(self.mw)
+        t = QTimer(parent or self.mw)
         if not repeat:
             t.setSingleShot(True)
         qconnect(t.timeout, handler)

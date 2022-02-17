@@ -537,7 +537,9 @@ def ensureWidgetInScreenBoundaries(widget: QWidget) -> None:
     handle = widget.window().windowHandle()
     if not handle:
         # window has not yet been shown, retry later
-        aqt.mw.progress.timer(50, lambda: ensureWidgetInScreenBoundaries(widget), False)
+        aqt.mw.progress.timer(
+            50, lambda: ensureWidgetInScreenBoundaries(widget), False, parent=widget
+        )
         return
 
     # ensure widget is smaller than screen bounds
