@@ -42,7 +42,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <Shortcut {keyCombination} on:action={remove} />
 
     <IconButton
-        tooltip={tr.editingChangeColor()}
+        tooltip="Choose formats"
+        {disabled}
         widthMultiplier={0.5}
         --border-right-radius="5px"
     >
