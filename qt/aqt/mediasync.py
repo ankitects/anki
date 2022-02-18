@@ -59,7 +59,7 @@ class MediaSyncer:
         self._log_and_notify(tr.sync_media_starting())
         self._syncing = True
         self._progress_timer = self.mw.progress.timer(
-            1000, self._on_progress, True, True
+            1000, self._on_progress, True, True, parent=self.mw
         )
         gui_hooks.media_sync_did_start_or_stop(True)
 
@@ -134,7 +134,7 @@ class MediaSyncer:
                 timer.stop()
                 on_finished()
 
-        timer = self.mw.progress.timer(150, check_finished, True, False)
+        timer = self.mw.progress.timer(150, check_finished, True, False, parent=self.mw)
 
     def seconds_since_last_sync(self) -> int:
         if self.is_syncing():
