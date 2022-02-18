@@ -187,7 +187,9 @@ class AnkiQt(QMainWindow):
             fn()
             gui_hooks.main_window_did_init()
 
-        self.progress.timer(10, on_window_init, False, requiresCollection=False)
+        self.progress.timer(
+            10, on_window_init, False, requiresCollection=False, parent=self
+        )
 
     def setupUI(self) -> None:
         self.col = None
@@ -226,6 +228,7 @@ class AnkiQt(QMainWindow):
                     self.setupProfileAfterWebviewsLoaded,
                     False,
                     requiresCollection=False,
+                    parent=self,
                 )
                 return
             else:
@@ -911,7 +914,7 @@ title="{}" {}>{}</button>""".format(
             self.col.db.rollback()
             self.close()
 
-        self.progress.timer(100, quit, False)
+        self.progress.timer(100, quit, False, parent=self)
 
     def setupProgress(self) -> None:
         self.progress = aqt.progress.ProgressManager(self)
@@ -1062,6 +1065,7 @@ title="{}" {}>{}</button>""".format(
             theme_manager.apply_style_if_system_style_changed,
             True,
             False,
+            parent=self,
         )
 
     def set_theme(self, theme: Theme) -> None:
@@ -1354,14 +1358,16 @@ title="{}" {}>{}</button>""".format(
 
     def setup_timers(self) -> None:
         # refresh decks every 10 minutes
-        self.progress.timer(10 * 60 * 1000, self.onRefreshTimer, True)
+        self.progress.timer(10 * 60 * 1000, self.onRefreshTimer, True, parent=self)
         # check media sync every 5 minutes
-        self.progress.timer(5 * 60 * 1000, self.on_autosync_timer, True)
+        self.progress.timer(5 * 60 * 1000, self.on_autosync_timer, True, parent=self)
         # periodic garbage collection
-        self.progress.timer(15 * 60 * 1000, self.garbage_collect_now, False)
+        self.progress.timer(
+            15 * 60 * 1000, self.garbage_collect_now, False, parent=self
+        )
         # ensure Python interpreter runs at least once per second, so that
         # SIGINT/SIGTERM is processed without a long delay
-        self.progress.timer(1000, lambda: None, True, False)
+        self.progress.timer(1000, lambda: None, True, False, parent=self)
 
     def onRefreshTimer(self) -> None:
         if self.state == "deckBrowser":
@@ -1690,7 +1696,11 @@ title="{}" {}>{}</button>""".format(
         if self.state == "startup":
             # try again in a second
             self.progress.timer(
-                1000, lambda: self.onAppMsg(buf), False, requiresCollection=False
+                1000,
+                lambda: self.onAppMsg(buf),
+                False,
+                requiresCollection=False,
+                parent=self,
             )
             return
         elif self.state == "profileManager":
@@ -1757,7 +1767,7 @@ title="{}" {}>{}</button>""".format(
     def deferred_delete_and_garbage_collect(self, obj: QObject) -> None:
         obj.deleteLater()
         self.progress.timer(
-            1000, self.garbage_collect_now, False, requiresCollection=False
+            1000, self.garbage_collect_now, False, requiresCollection=False, parent=self
         )
 
     def disable_automatic_garbage_collection(self) -> None:

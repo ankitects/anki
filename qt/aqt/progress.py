@@ -48,6 +48,12 @@ class ProgressManager:
         timer to fire even when there is no collection, but will still
         only fire when there is no current progress dialog."""
 
+        if parent is None:
+            print(
+                "to avoid memory leaks, pass an appropriate parent to progress.timer()"
+            )
+            parent = self.mw
+
         def handler() -> None:
             if requiresCollection and not self.mw.col:
                 # no current collection; timer is no longer valid
@@ -65,7 +71,7 @@ class ProgressManager:
                     # retry in 100ms
                     self.timer(100, func, False, requiresCollection)
 
-        t = QTimer(parent or self.mw)
+        t = QTimer(parent)
         if not repeat:
             t.setSingleShot(True)
         qconnect(t.timeout, handler)

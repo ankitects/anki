@@ -747,7 +747,7 @@ def tooltip(
     lab.move(aw.mapToGlobal(QPoint(0 + x_offset, aw.height() - y_offset)))
     lab.show()
     _tooltipTimer = aqt.mw.progress.timer(
-        period, closeTooltip, False, requiresCollection=False
+        period, closeTooltip, False, requiresCollection=False, parent=aw
     )
     _tooltipLabel = lab
 
