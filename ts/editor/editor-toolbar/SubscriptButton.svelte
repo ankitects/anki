@@ -45,8 +45,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { subscriptIcon } from "./icons";
     import { format as superscript } from "./SuperscriptButton.svelte";
 
+    const namedFormat = {
+        name: tr.editingSubscript(),
+        show: true,
+        active: true,
+        format,
+    };
+
     const { removeFormats } = editorToolbarContext.get();
-    removeFormats.push(format);
+    removeFormats.update((formats) => [...formats, namedFormat]);
 
     const { focusedInput } = noteEditorContext.get();
     $: input = $focusedInput as RichTextInputAPI;

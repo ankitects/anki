@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { resetAllState, updateAllState } from "../../components/WithState.svelte";
     import type { SurroundFormat } from "../../domlib/surround";
     import type { DefaultSlotInterface } from "../../sveltelib/dynamic-slotting";
+    import type { Writable } from "svelte/store";
 
     export function updateActiveButtons(event: Event) {
         updateAllState(event);
@@ -15,6 +16,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         resetAllState(false);
     }
 
+    interface RemoveFormat {
+        name: string;
+        show: boolean;
+        active: boolean;
+        format: SurroundFormat;
+    }
+
     export interface EditorToolbarAPI {
         toolbar: DefaultSlotInterface;
         notetypeButtons: DefaultSlotInterface;
@@ -22,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         formatBlockButtons: DefaultSlotInterface;
         colorButtons: DefaultSlotInterface;
         templateButtons: DefaultSlotInterface;
-        removeFormats: SurroundFormat[];
+        removeFormats: Writable<RemoveFormat[]>;
     }
 
     /* Our dynamic components */
@@ -50,6 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import NotetypeButtons from "./NotetypeButtons.svelte";
     import RemoveFormatButton from "./RemoveFormatButton.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
+    import { writable } from "svelte/store";
 
     export let size: number;
     export let wrap: boolean;
@@ -60,7 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const formatBlockButtons = {};
     const colorButtons = {};
     const templateButtons = {};
-    const removeFormats: SurroundFormat[] = [];
+    const removeFormats = writable<SurroundFormat[]>([]);
 
     let apiPartial: Partial<EditorToolbarAPI> = {};
     export { apiPartial as api };
