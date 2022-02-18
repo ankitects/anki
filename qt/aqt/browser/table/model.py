@@ -34,12 +34,13 @@ class DataModel(QAbstractTableModel):
 
     def __init__(
         self,
+        parent: QObject,
         col: Collection,
         state: ItemState,
         row_state_will_change_callback: Callable,
         row_state_changed_callback: Callable,
     ) -> None:
-        QAbstractTableModel.__init__(self)
+        super().__init__(parent)
         self.col: Collection = col
         self.columns: dict[str, Column] = {
             c.key: c for c in self.col.all_browser_columns()

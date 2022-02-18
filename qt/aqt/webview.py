@@ -628,7 +628,7 @@ html {{ {font} }}
 
         if qvar is None:
 
-            mw.progress.timer(1000, mw.reset, False)
+            mw.progress.timer(1000, mw.reset, False, parent=self)
             return
 
         self.setFixedHeight(int(qvar))
