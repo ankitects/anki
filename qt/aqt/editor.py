@@ -217,7 +217,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     ) -> str:
         """Assign func to bridge cmd, register shortcut, return button"""
         if func:
-            self._links[cmd] = lambda: func(self)
+            self._links[cmd] = func
 
             if keys:
 
@@ -460,7 +460,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 self._save_current_note()
 
         elif cmd in self._links:
-            self._links[cmd]()
+            self._links[cmd](self)
 
         else:
             print("uncaught cmd", cmd)
@@ -1109,27 +1109,27 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
 
     def _init_links(self) -> None:
         self._links: dict[str, Callable] = dict(
-            fields=self.onFields,
-            cards=self.onCardLayout,
-            bold=self.toggleBold,
-            italic=self.toggleItalic,
-            underline=self.toggleUnderline,
-            super=self.toggleSuper,
-            sub=self.toggleSub,
-            clear=self.removeFormat,
-            colour=self.onForeground,
-            changeCol=self.onChangeCol,
-            cloze=self.onCloze,
-            attach=self.onAddMedia,
-            record=self.onRecSound,
-            more=self.onAdvanced,
-            dupes=self.showDupes,
-            paste=self.onPaste,
-            cutOrCopy=self.onCutOrCopy,
-            htmlEdit=self.onHtmlEdit,
-            mathjaxInline=self.insertMathjaxInline,
-            mathjaxBlock=self.insertMathjaxBlock,
-            mathjaxChemistry=self.insertMathjaxChemistry,
+            fields=Editor.onFields,
+            cards=Editor.onCardLayout,
+            bold=Editor.toggleBold,
+            italic=Editor.toggleItalic,
+            underline=Editor.toggleUnderline,
+            super=Editor.toggleSuper,
+            sub=Editor.toggleSub,
+            clear=Editor.removeFormat,
+            colour=Editor.onForeground,
+            changeCol=Editor.onChangeCol,
+            cloze=Editor.onCloze,
+            attach=Editor.onAddMedia,
+            record=Editor.onRecSound,
+            more=Editor.onAdvanced,
+            dupes=Editor.showDupes,
+            paste=Editor.onPaste,
+            cutOrCopy=Editor.onCutOrCopy,
+            htmlEdit=Editor.onHtmlEdit,
+            mathjaxInline=Editor.insertMathjaxInline,
+            mathjaxBlock=Editor.insertMathjaxBlock,
+            mathjaxChemistry=Editor.insertMathjaxChemistry,
         )
 
 
