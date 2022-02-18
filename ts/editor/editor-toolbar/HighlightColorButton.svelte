@@ -90,17 +90,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <WithColorHelper {color} let:colorHelperIcon let:setColor>
-    <IconButton
-        tooltip={tr.editingSetTextColor()}
-        {disabled}
-        on:click={setTextColor}
-        --border-left-radius="5px"
-    >
+    <IconButton tooltip={tr.editingSetTextColor()} {disabled} on:click={setTextColor}>
         {@html highlightColorIcon}
         {@html colorHelperIcon}
     </IconButton>
 
-    <IconButton tooltip={tr.editingChangeColor()} {disabled} widthMultiplier={0.5}>
+    <IconButton
+        tooltip={tr.editingChangeColor()}
+        {disabled}
+        widthMultiplier={0.5}
+        --border-right-radius="5px"
+    >
         {@html arrowIcon}
         <ColorPicker
             on:change={(event) => {

@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import ButtonGroup from "../../components/ButtonGroup.svelte";
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import * as tr from "../../lib/ftl";
@@ -13,6 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getRemoveFormat } from "../surround";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { eraserIcon } from "./icons";
+    import { arrowIcon } from "./icons";
 
     const { focusedInput } = noteEditorContext.get();
     const { removeFormats } = editorToolbarContext.get();
@@ -28,12 +30,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const keyCombination = "Control+R";
 </script>
 
-<IconButton
-    tooltip="{tr.editingRemoveFormatting()} ({getPlatformString(keyCombination)})"
-    {disabled}
-    on:click={remove}
->
-    {@html eraserIcon}
-</IconButton>
+<ButtonGroup>
+    <IconButton
+        tooltip="{tr.editingRemoveFormatting()} ({getPlatformString(keyCombination)})"
+        {disabled}
+        on:click={remove}
+        --border-left-radius="5px"
+    >
+        {@html eraserIcon}
+    </IconButton>
+    <Shortcut {keyCombination} on:action={remove} />
 
-<Shortcut {keyCombination} on:action={remove} />
+    <IconButton
+        tooltip={tr.editingChangeColor()}
+        widthMultiplier={0.5}
+        --border-right-radius="5px"
+    >
+        {@html arrowIcon}
+    </IconButton>
+</ButtonGroup>

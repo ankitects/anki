@@ -41,7 +41,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import ButtonGroup from "../../components/ButtonGroup.svelte";
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import Item from "../../components/Item.svelte";
@@ -92,12 +91,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <FormatInlineButtons api={formatInlineButtons} />
             </Item>
 
-            <ButtonGroup>
-                <RemoveFormatButton
-                    --border-left-radius="5px"
-                    --border-right-radius="5px"
-                />
-            </ButtonGroup>
+            <RemoveFormatButton />
 
             <Item id="blockFormatting">
                 <FormatBlockButtons api={formatBlockButtons} />
