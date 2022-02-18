@@ -97,8 +97,8 @@ def make_exe():
 
     elif BUILD_TARGET_TRIPLE == "x86_64-unknown-linux-gnu":
         dist = PythonDistribution(
-            url = "https://github.com/ankitects/python-build-standalone/releases/download/anki-2021-10-15/cpython-3.9.7-x86_64-unknown-linux-gnu-pgo-20211013T1538.tar.zst",
-            sha256 = "e5341c8f0fbedf83a2246cd86d60b6598033599ae20602d2f80617a304ef3085",
+            url = "https://github.com/ankitects/python-build-standalone/releases/download/anki-2022-02-18/cpython-3.9.10-x86_64-unknown-linux-gnu-pgo-20220218T1329.tar.zst",
+            sha256 = "83167967d09ada10554c0a1ed8228bcfac1117669880d2979578017565537400",
         )
 
     else:
