@@ -91,3 +91,19 @@ When you run a script like .\run, MSYS and bazel will automatically be added to
 the path, and Bazel will be configured to output build products into
 \bazel\anki. If you want to directly invoke bazel before having run any of the
 .bat files in this repo, please run tools\setup-env first.
+
+However, this will not work in PowerShell, as .bat files are executed in a subprocess.
+To invoke bazel scripts, you will have to adjust your session path manually.
+One option is to create a script that sets up your Anki develop environment for you.
+Here is an example:
+
+```powershell
+# put bazel and msys on path
+$env:PATH = "c:\bazel;c:\msys64\usr\bin;$env:PATH"
+# change working directory to anki root
+Set-Location C:\code\anki
+# open VSC
+code .
+# open powershell 7
+pwsh
+```
