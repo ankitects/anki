@@ -193,7 +193,9 @@ export function getRemoveFormat(richTextInput: RichTextInputAPI): RemoveFormatRe
 export function removeEmptyStyle(element: HTMLElement | SVGElement): boolean {
     if (element.style.cssText.length === 0) {
         element.removeAttribute("style");
+        // Calling `.hasAttribute` right after `.removeAttribute` might return true.
+        return true;
     }
 
-    return !element.hasAttribute("style");
+    return false;
 }
