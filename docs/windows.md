@@ -94,7 +94,7 @@ the path, and Bazel will be configured to output build products into
 
 However, this will not work in PowerShell, as .bat files are executed in a subprocess.
 To invoke bazel scripts, you will have to adjust your session path manually.
-One option is to create a script that sets up your Anki develop environment for you.
+One option is to create a script that sets up your Anki development environment for you.
 Here is an example:
 
 ```powershell
