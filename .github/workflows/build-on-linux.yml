@@ -11,7 +11,7 @@ on:
 #  push:
 #    branches: [ ]
 #    paths:
-#    - .github/workflows/build-on-ubuntu.yml
+#    - .github/workflows/build-on-linux.yml
 #  pull_request:
 #    branches: [ main ]
   workflow_call:
@@ -31,12 +31,7 @@ on:
 # https://github.com/actions/virtual-environments
 jobs:
   build:
-#    runs-on: ubuntu-20.04
     runs-on: ubuntu-latest
-#    runs-on: ubuntu-18.04
-#    runs-on: windows-latest
-#    runs-on: macos-latest
-#    runs-on: macos-10.15
     steps:
     - name: cancel previous runs
       uses: styfle/cancel-workflow-action@0.8.0

@@ -31,16 +31,13 @@ on:
 # https://github.com/actions/virtual-environments
 jobs:
   build:
-    #runs-on: ubuntu-latest
-#    runs-on: windows-2019
-#    runs-on: windows-latest
     runs-on: macos-latest
 #    runs-on: ${{ matrix.os }}
-    defaults:
-      run:
+#    defaults:
+#      run:
         # Use a login shell, so that ~/.bash_profile is executed and
         # the conda environment gets initialised.
-        shell: bash -l {0}
+#        shell: bash -l {0}
     strategy:
       fail-fast: true
  #     matrix:
@@ -52,22 +49,13 @@ jobs:
       with:
         access_token: ${{ github.token }}
     - uses: actions/checkout@v2
-    - uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: latest-stable
- #   - name: Init conda
- #     shell: bash -l {0}
- #     run: |
- #       conda init bash
+#    - uses: maxim-lobanov/setup-xcode@v1
+#      with:
+#        xcode-version: latest-stable
     - name: build
  #     shell: sh
       env:
-        #VCVARSALL: x64
         RUST_BACKTRACE: 1
       run: |
-         # conda init bash
-         #source ~/.bashrc
-         #conda activate base
-         which bazel
          export PATH="/usr/local/opt/pipx_bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin"
          ./.buildkite/mac/entrypoint ${{ github.event.inputs.buildArgs }}
