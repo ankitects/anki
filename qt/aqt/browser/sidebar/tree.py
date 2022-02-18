@@ -177,6 +177,8 @@ class SidebarTreeView(QTreeView):
             # block repainting during refreshing to avoid flickering
             self.setUpdatesEnabled(False)
 
+            if old_model := self.model():
+                old_model.deleteLater()
             model = SidebarModel(self, root)
             self.setModel(model)
 

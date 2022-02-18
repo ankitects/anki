@@ -499,7 +499,9 @@ class CardLayout(QDialog):
     def renderPreview(self) -> None:
         # schedule a preview when timing stops
         self.cancelPreviewTimer()
-        self._previewTimer = self.mw.progress.timer(200, self._renderPreview, False)
+        self._previewTimer = self.mw.progress.timer(
+            200, self._renderPreview, False, parent=self
+        )
 
     def cancelPreviewTimer(self) -> None:
         if self._previewTimer:

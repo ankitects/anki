@@ -562,7 +562,7 @@ class Browser(QMainWindow):
 
         # schedule sidebar to refresh after browser window has loaded, so the
         # UI is more responsive
-        self.mw.progress.timer(10, self.sidebar.refresh, False)
+        self.mw.progress.timer(10, self.sidebar.refresh, False, parent=self.sidebar)
 
     def showSidebar(self) -> None:
         self.sidebarDockWidget.setVisible(True)
@@ -899,7 +899,7 @@ class Browser(QMainWindow):
     def teardownHooks(self) -> None:
         gui_hooks.undo_state_did_change.remove(self.on_undo_state_change)
         gui_hooks.backend_will_block.remove(self.table.on_backend_will_block)
-        gui_hooks.backend_did_block.remove(self.table.on_backend_will_block)
+        gui_hooks.backend_did_block.remove(self.table.on_backend_did_block)
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         gui_hooks.focus_did_change.remove(self.on_focus_change)
         gui_hooks.flag_label_did_change.remove(self._update_flag_labels)

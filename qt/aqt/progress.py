@@ -5,6 +5,7 @@ from __future__ import annotations
 import time
 
 import aqt.forms
+from anki._legacy import print_deprecation_warning
 from aqt.qt import *
 from aqt.utils import disable_help_button, tr
 
@@ -29,7 +30,13 @@ class ProgressManager:
     # (likely due to some long-running DB operation)
 
     def timer(
-        self, ms: int, func: Callable, repeat: bool, requiresCollection: bool = True
+        self,
+        ms: int,
+        func: Callable,
+        repeat: bool,
+        requiresCollection: bool = True,
+        *,
+        parent: QObject = None,
     ) -> QTimer:
         """Create and start a standard Anki timer.
 
@@ -41,6 +48,12 @@ class ProgressManager:
         collection has been unloaded. Setting it to False will allow the
         timer to fire even when there is no collection, but will still
         only fire when there is no current progress dialog."""
+
+        if parent is None:
+            print_deprecation_warning(
+                "to avoid memory leaks, pass an appropriate parent to progress.timer()"
+            )
+            parent = self.mw
 
         def handler() -> None:
             if requiresCollection and not self.mw.col:
@@ -59,7 +72,7 @@ class ProgressManager:
                     # retry in 100ms
                     self.timer(100, func, False, requiresCollection)
 
-        t = QTimer(self.mw)
+        t = QTimer(parent)
         if not repeat:
             t.setSingleShot(True)
         qconnect(t.timeout, handler)
