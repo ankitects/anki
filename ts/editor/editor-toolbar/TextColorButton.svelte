@@ -7,10 +7,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import type {
-        MatchType,
-        SurroundFormat,
         ElementNode,
         FormattingNode,
+        MatchType,
+        SurroundFormat,
     } from "../../domlib/surround";
     import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
@@ -48,17 +48,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const value = element.style.getPropertyValue("color");
 
-        if (value.length > 0) {
-            match.setCache(value);
-
-            return match.clear((): void => {
-                element.style.removeProperty("color");
-
-                if (removeEmptyStyle(element) && element.className.length === 0) {
-                    match.remove();
-                }
-            });
+        if (value.length === 0) {
+            return;
         }
+
+        match.setCache(value);
+        match.clear((): void => {
+            element.style.removeProperty("color");
+
+            if (removeEmptyStyle(element) && element.className.length === 0) {
+                match.remove();
+            }
+        });
     }
 
     function merger(before: FormattingNode, after: FormattingNode): boolean {
@@ -92,10 +93,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const { focusedInput } = noteEditorContext.get();
     $: input = $focusedInput as RichTextInputAPI;
     $: disabled = !editingInputIsRichText($focusedInput);
-    $: surrounder = disabled ? null : getBaseSurrounder(input, format);
+    $: surrounder = disabled ? null : getBaseSurrounder(input, format, [format]);
 
     function setTextColor(): void {
-        surrounder?.surroundCommand(format);
+        surrounder?.surroundCommand();
     }
 
     const forecolorKeyCombination = "F7";

@@ -3,10 +3,10 @@
 
 import { get } from "svelte/store";
 
-import type { SurroundFormat } from "../domlib/surround";
-import { boolMatcher, surround, reformat, unsurround } from "../domlib/surround";
-import { findClosest } from "../domlib/find-above";
 import type { Matcher } from "../domlib/find-above";
+import { findClosest } from "../domlib/find-above";
+import type { SurroundFormat } from "../domlib/surround";
+import { boolMatcher, reformat, surround, unsurround } from "../domlib/surround";
 import { getRange, getSelection } from "../lib/cross-browser";
 import type { RichTextInputAPI } from "./rich-text-input";
 
@@ -39,7 +39,7 @@ function surroundAndSelect(
 export interface GetSurrounderResult {
     surroundCommand(
         format: SurroundFormat,
-        mutualExclusiveFormats?: SurroundFormat[],
+        exclusive?: SurroundFormat[],
     ): Promise<void>;
     isSurrounded(format: SurroundFormat): Promise<boolean>;
 }
@@ -50,6 +50,7 @@ export interface GetSurrounderResult {
 export function getBaseSurrounder(
     richTextInput: RichTextInputAPI,
     format: SurroundFormat,
+    exclusive: SurroundFormat[] = [],
 ) {
     const trigger = richTextInput.getTriggerOnNextInsert();
     const matcher = boolMatcher(format);
@@ -57,17 +58,18 @@ export function getBaseSurrounder(
     async function surroundCommand(): Promise<void> {
         const base = await richTextInput.element;
         const selection = getSelection(base)!;
-        const range = getRange(selection);
+        const initialRange = getRange(selection);
 
-        if (!range) {
+        if (!initialRange) {
             return;
-        } else if (range.collapsed) {
+        } else if (initialRange.collapsed) {
             if (get(trigger.active)) {
                 trigger.remove();
             } else {
                 trigger.add(async ({ node }: { node: Node }): Promise<void> => {
-                    range.selectNode(node);
+                    initialRange.selectNode(node);
 
+                    const range = removeFormats(initialRange, exclusive, base);
                     const matches = Boolean(findClosest(node, base, matcher));
                     const surroundedRange = matches
                         ? unsurround(range, base, format)
@@ -79,6 +81,8 @@ export function getBaseSurrounder(
                 });
             }
         } else {
+            const range = removeFormats(initialRange, exclusive, base);
+
             const surroundedRange = reformat(range, base, format);
             selection.removeAllRanges();
             selection.addRange(surroundedRange);
@@ -112,7 +116,7 @@ export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderRes
 
     async function surroundCommand(
         format: SurroundFormat,
-        mutualExclusiveFormats: SurroundFormat[] = [],
+        exclusive: SurroundFormat[] = [],
     ): Promise<void> {
         const base = await richTextInput.element;
         const selection = getSelection(base)!;
@@ -129,11 +133,7 @@ export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderRes
                     initialRange.selectNode(node);
 
                     const matches = Boolean(findClosest(node, base, matcher));
-                    const range = removeFormats(
-                        initialRange,
-                        mutualExclusiveFormats,
-                        base,
-                    );
+                    const range = removeFormats(initialRange, exclusive, base);
 
                     surroundAndSelect(matches, range, base, format, selection);
                     selection.collapseToEnd();
@@ -141,7 +141,7 @@ export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderRes
             }
         } else {
             const matches = isSurroundedInner(initialRange, base, matcher);
-            const range = removeFormats(initialRange, mutualExclusiveFormats, base);
+            const range = removeFormats(initialRange, exclusive, base);
 
             surroundAndSelect(matches, range, base, format, selection);
         }
