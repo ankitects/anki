@@ -28,6 +28,11 @@ After installation completes, run msys2, and run the following command:
 $ pacman -S git
 ```
 
+If you have native Windows apps relying on Git, e.g. the PowerShell extension
+[posh-git](https://github.com/dahlbyk/posh-git), you may want to install
+[Git for Windows](https://gitforwindows.org/) and put it on the path instead,
+as msys Git may cause issues with them.
+
 **Bazel**:
 
 Use Start>Run to open PowerShell. Create a folder to store Bazel
