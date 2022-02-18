@@ -2,10 +2,10 @@
 
 set -e
 
-STATE=$(pwd)/../state/anki-ci
+test -z "$STATE" && STATE=$(pwd)/../state/anki-ci
 mkdir -p $STATE
 BAZEL="bazel --output_user_root=$STATE/bazel --output_base=$STATE/bazel/anki"
-BUILDARGS="--config=ci --experimental_convenience_symlinks=ignore"
+BUILDARGS="--config=ci --experimental_convenience_symlinks=ignore $*"
 
 echo "+++ Building and testing"
 

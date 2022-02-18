@@ -1,4 +1,7 @@
 # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+# https://docs.github.com/en/actions/learn-github-actions/expressions#operators
+# https://github.com/actions/virtual-environments
+
 name: build-on-macos
 
 concurrency: 
@@ -8,54 +11,96 @@ concurrency:
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
-#  push:
+  push:
 #    paths:
 #    - .github/workflows/build-on-macos.yml
-#    branches: [ hztest ]
+    branches: [ tmp4macos, dist4macos ] #tmp4macos for trigger this workflow only
 #  pull_request:
 #    branches: [ main ]
   workflow_call:
-     inputs:
-        buildArgs:
-          description: 'buildArgs ie: --test_verbose_timeout_warnings'
-          required: false
-          type: string
+    inputs:
+      buildArgs:
+        description: 'buildArgs ie: --test_verbose_timeout_warnings'
+        required: false
+        type: string
+      cacheOn:
+        description: 'enable cache'
+        required: false
+        default: 'true'
+        type: string
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-     inputs:
-          buildArgs:
-            description: 'buildArgs ie: --test_verbose_timeout_warnings'
-            required: false
-            default: ''
+    inputs:
+      buildArgs:
+        description: 'buildArgs:'
+        required: false
+        default: '--verbose_failures' #--test_verbose_timeout_warnings
+      cacheOn:
+        description: 'cacheOn: change to false for disable.'
+        required: false
+        default: 'true'
+      bazelCmd:
+        type: choice
+        required: false
+        description: 'bazelCmd: build/test'
+        options:
+        - build
+        - test
 
-# https://github.com/actions/virtual-environments
 jobs:
   build:
     runs-on: macos-latest
-#    runs-on: ${{ matrix.os }}
 #    defaults:
 #      run:
         # Use a login shell, so that ~/.bash_profile is executed and
-        # the conda environment gets initialised.
 #        shell: bash -l {0}
     strategy:
       fail-fast: true
- #     matrix:
- #       os: [macos-latest] #ubuntu-18.04, macos-10.15, windows-latest
- #       python: ["3.9"]
     steps:
     - name: cancel previous runs
       uses: styfle/cancel-workflow-action@0.8.0
       with:
         access_token: ${{ github.token }}
     - uses: actions/checkout@v2
-#    - uses: maxim-lobanov/setup-xcode@v1
-#      with:
-#        xcode-version: latest-stable
+    - name: Cache multiple paths
+      uses: actions/cache@v2
+      if: ${{ github.event.inputs.cacheOn != 'false'}}
+      env:
+        cache-name: bazel-cache
+      with:
+       path: |
+         ~/state/bazel/disk
+         ~/state/bazel/repo
+         ~/state/node_modules
+#        !~/cache/exclude
+       key: ${{ runner.os }}-${{ env.cache-name }}-${{ github.ref }}
+       restore-keys: |
+         macOS-${{ env.cache-name }}-refs/heads/main
+         Linux-${{ env.cache-name }}-refs/heads/main
+         macOS
     - name: build
- #     shell: sh
       env:
         RUST_BACKTRACE: 1
+      if: ${{ github.event.inputs.bazelCmd == 'build' || github.ref_name == 'dist4macos' }}
       run: |
          export PATH="/usr/local/opt/pipx_bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin"
-         ./.buildkite/mac/entrypoint ${{ github.event.inputs.buildArgs }}
+         export STATE=~/state
+         # move existing node_modules into tree
+         test -e $STATE/node_modules && mv $STATE/node_modules .
+         mkdir -p .bazel/bin
+         bazel --output_user_root=$STATE/bazel --output_base=$STATE/bazel/anki build --config opt wheels --disk_cache=$STATE/bazel/disk --repository_cache=$STATE/bazel/repo ${{ github.event.inputs.buildArgs }}
+    - name: test
+      env:
+        RUST_BACKTRACE: 1
+      if: ${{ github.event.inputs.bazelCmd != 'build' && github.ref_name != 'dist4macos' }}
+      run: |
+         export PATH="/usr/local/opt/pipx_bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin"
+         export STATE=~/state
+         # move existing node_modules into tree
+         test -e $STATE/node_modules && mv $STATE/node_modules .
+         bazel --output_user_root=$STATE/bazel --output_base=$STATE/bazel/anki test --config=ci --disk_cache=$STATE/bazel/disk --repository_cache=$STATE/bazel/repo ${{ github.event.inputs.buildArgs }} ...
+    - uses: actions/upload-artifact@v2
+      if: ${{ github.event.inputs.bazelCmd == 'build' || github.ref_name == 'dist4macos' }}
+      with:
+        name: anki-dist-${{ runner.os }}
+        path: .bazel/out/darwin-opt/bin/wheels.tar

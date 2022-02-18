@@ -1,4 +1,6 @@
 # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+# https://docs.github.com/en/actions/learn-github-actions/expressions#operators
+# https://github.com/actions/virtual-environments
 
 name: build-on-windows
 
@@ -9,40 +11,91 @@ concurrency:
 # Controls when the workflow will run
 on:
 #  # Triggers the workflow on push or pull request events but only for the main branch
-#  push:
-#    branches: [ main ]
+  push:
+    branches: [ tmp4windows, dist4windows ] #tmp4windows for trigger this workflow only
 #  pull_request:
 #    branches: [ main ]
   workflow_call:
-     inputs:
-        buildArgs:
-          description: 'buildArgs ie: --test_verbose_timeout_warnings'
-          required: false
-          type: string
+    inputs:
+      buildArgs:
+        description: 'buildArgs ie: --test_verbose_timeout_warnings'
+        required: false
+        type: string
+      cacheOn:
+        description: 'enable cache'
+        required: false
+        default: 'true'
+        type: string
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-     inputs:
-          buildArgs:
-            description: 'buildArgs ie: --test_verbose_timeout_warnings'
-            required: false
-            default: '--verbose_failures'
+    inputs:
+      buildArgs:
+        description: 'buildArgs ie: --test_verbose_timeout_warnings'
+        required: false
+        default: '--verbose_failures'
+      cacheOn:
+        description: 'cacheOn: change to false for disable.'
+        required: false
+        default: 'true'
+      bazelCmd:
+        type: choice
+        required: false
+        description: 'bazelCmd: build/test'
+        options:
+        - build
+        - test
+
 jobs:
   build:
     runs-on: windows-2022
     steps:
-
+    - name: cancel previous runs
+      uses: styfle/cancel-workflow-action@0.8.0
+      with:
+        access_token: ${{ github.token }}
     - uses: actions/checkout@v2
-#    - uses: Vampire/setup-wsl@v1
+    - name: Cache multiple paths
+      uses: actions/cache@v2
+      if: ${{ github.event.inputs.cacheOn != 'false'}}
+      env:
+        ache-name: bazel-cache
+      with:
+        path: |
+         C:/Users/runneradmin/.cache
+         D:/a/anki/anki/node_modules
+#        !~/cache/exclude
+        key: ${{ runner.os }}-${{ env.cache-name }}-${{ github.ref }}
+        restore-keys: |
+          Windows-${{ env.cache-name }}-refs/heads/main
+          Windows
+    # fix Windows Subsystem for Linux has no installed distributions.
+    - uses: Vampire/setup-wsl@v1
     - name: build
       shell: cmd
       env:
         RUST_BACKTRACE: 1
+      if: ${{ github.event.inputs.bazelCmd == 'build' || github.ref_name == 'dist4windows'}}
       run: |
-        set PATH=C:\Program Files\Git\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;%PATH%
-        echo %PATH%
-        set PATH=%PATH:\\=\%
-        mkdir C:\tmp
-        set TMP=C:\tmp
-        set TEMP=C:\tmp
-        bazel.exe --output_user_root=\bazel\ankici --output_base=\bazel\ankici\base test --config=ci ${{ github.event.inputs.buildArgs }} ...
-#        .\.buildkite\windows\entrypoint.bat ${{ inputs.buildArgs }}
+         set PATH=C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;%PATH%
+         echo %PATH%
+         set PATH=%PATH:\\=\%
+         mkdir \bazel\
+         bazel.exe --output_user_root=\bazel\ankici --output_base=\bazel\ankici\base build --config opt wheels --disk_cache=C:/Users/runneradmin/.cache/bazel/disk --repository_cache=C:/Users/runneradmin/.cache/bazel/repo ${{ github.event.inputs.buildArgs }} 
+         cp .bazel\bin\wheels.tar .\
+    - name: test
+      shell: cmd
+      env:
+        RUST_BACKTRACE: 1
+      if: ${{ github.event.inputs.bazelCmd != 'build' && github.ref_name != 'dist4windows'}}
+      run: |
+         set PATH=C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;%PATH%
+         echo %PATH%
+         set PATH=%PATH:\\=\%
+         mkdir \bazel\
+         bazel.exe --output_user_root=\bazel\ankici --output_base=\bazel\ankici\base test --config=ci --disk_cache=C:/Users/runneradmin/.cache/bazel/disk --repository_cache=C:/Users/runneradmin/.cache/bazel/repo ${{ github.event.inputs.buildArgs }} ...
+
+    - uses: actions/upload-artifact@v2
+      if: ${{ github.event.inputs.bazelCmd == 'build' || github.ref_name == 'dist4windows'}}
+      with:
+        name: anki-dist-${{ runner.os }}
+        path: ./wheels.tar

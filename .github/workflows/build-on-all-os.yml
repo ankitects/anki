@@ -1,4 +1,8 @@
 # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+# https://docs.github.com/en/actions/learn-github-actions/expressions#operators
+# https://github.com/actions/virtual-environments
+# https://docs.github.com/en/actions/using-workflows/reusing-workflows
+
 name: build-on-all-os
 
 concurrency: 
@@ -11,7 +15,7 @@ on:
   push:
 #    paths:
 #    - .github/workflows/build-on-macos.yml
-    branches: [ tmp4build, tmp4build1 ]
+    branches: [ tmp4build, tmp4build1, tmp4all ]
     paths-ignore:
     - 'README.md'
     - '.gitignore'
@@ -24,19 +28,25 @@ on:
       buildArgs:
         description: 'buildArgs ie: --test_verbose_timeout_warnings'
         required: false
-        default: ''
+        default: '--verbose_failures'
+      cacheOn:
+        description: 'cacheOn: change to false for disable.'
+        required: false
+        default: 'true'
 
-# https://docs.github.com/en/actions/using-workflows/reusing-workflows
 jobs:
   build-on-linux:
     uses: ./.github/workflows/build-on-linux.yml
     with:
       buildArgs: ${{ github.event.inputs.buildArgs }}
+      cacheOn: ${{ github.event.inputs.cacheOn }}
   build-on-windows:
     uses: ./.github/workflows/build-on-windows.yml
     with:
       buildArgs: ${{ github.event.inputs.buildArgs }}
+      cacheOn: ${{ github.event.inputs.cacheOn }}
   build-on-macos:
     uses: ./.github/workflows/build-on-macos.yml
     with:
       buildArgs: ${{ github.event.inputs.buildArgs }}
+      cacheOn: ${{ github.event.inputs.cacheOn }}

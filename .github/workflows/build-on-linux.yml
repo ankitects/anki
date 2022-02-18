@@ -1,4 +1,7 @@
 # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+# https://docs.github.com/en/actions/learn-github-actions/expressions#operators
+# https://github.com/actions/virtual-environments
+
 name: build-on-linux
 
 concurrency: 
@@ -8,27 +11,42 @@ concurrency:
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
-#  push:
-#    branches: [ ]
+  push:
+    branches: [ tmp4linux, dist4linux ] #tmp4linux for trigger this workflow only
 #    paths:
-#    - .github/workflows/build-on-linux.yml
+#    - .github/workflows/build-on-l.yml
 #  pull_request:
 #    branches: [ main ]
   workflow_call:
-     inputs:
-        buildArgs:
-          description: 'buildArgs ie: --test_verbose_timeout_warnings'
-          required: false
-          type: string
+    inputs:
+      buildArgs:
+        description: 'buildArgs ie: --test_verbose_timeout_warnings'
+        required: false
+        type: string
+      cacheOn:
+        description: 'enable cache'
+        required: false
+        default: 'true'
+        type: string
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-     inputs:
-          buildArgs:
-            description: 'buildArgs ie: --test_verbose_timeout_warnings'
-            required: false
-            default: ''
+    inputs:
+      buildArgs:
+        description: 'buildArgs ie: --test_verbose_timeout_warnings'
+        required: false
+        default: '--verbose_failures'
+      cacheOn:
+        description: 'cacheOn: change to false for disable.'
+        required: false
+        default: 'true'
+      bazelCmd:
+        type: choice
+        required: false
+        description: 'bazelCmd: build/test'
+        options:
+        - build
+        - test
 
-# https://github.com/actions/virtual-environments
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -38,33 +56,34 @@ jobs:
       with:
         access_token: ${{ github.token }}
     - uses: actions/checkout@v2
-    - name: build
- #     shell: sh
+    - name: Cache multiple paths
+      uses: actions/cache@v2
+      if: ${{ github.event.inputs.cacheOn != 'false'}}
       env:
-        RUST_BACKTRACE: 1
+        cache-name: bazel-cache
+      with:
+       path: |
+         ~/state/bazel/disk
+         ~/state/bazel/repo
+         ~/state/node_modules
+         ~/state/bin
+#        !~/cache/exclude
+       key: ${{ runner.os }}-${{ env.cache-name }}-${{ github.ref }}
+       restore-keys: |
+         Linux-${{ env.cache-name }}-refs/heads/main
+         macOS-${{ env.cache-name }}-refs/heads/main
+         Linux
+    - name: install apt packages
+      if: true #steps.catche-apt.outputs.cache-hit != 'true'
       run: |
          sudo apt-get update \
             && sudo apt-get install --yes\
-            autoconf \
-            bash \
-            ca-certificates \
-            curl \
-            findutils \
-            g++ \
-            gcc \
-            git \
-            grep \
-            libdbus-1-3 \
             libegl1 \
-            libfontconfig1 \
             libgl1 \
             libgstreamer-gl1.0-0 \
             libgstreamer-plugins-base1.0 \
             libgstreamer1.0-0 \
-            libnss3 \
             libpulse-mainloop-glib0 \
-            libpulse-mainloop-glib0 \
-            libssl-dev \
             libxcomposite1 \
             libxcursor1 \
             libxi6 \
@@ -74,17 +93,52 @@ jobs:
             libxrandr2 \
             libxrender1 \
             libxtst6 \
-            make \
             pkg-config \
+            libfontconfig1 \
+            libssl-dev \
+            libnss3 \
             portaudio19-dev \
-            python3-dev \
-            rsync \
-            zstd
-            python --version
-            python3 --version
-            sudo mkdir -p /state/bazel
-            sudo chown -R $USER /state
-            export BAZEL_VERSION=5.0.0
-            sudo curl -fLo /usr/bin/bazel "https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-linux-x86_64"
-            sudo chmod +x /usr/bin/bazel
-            ./.buildkite/linux/entrypoint ${{ github.event.inputs.buildArgs }}
+            python3-dev
+
+    - name: install bazel
+      run: |
+        export BAZEL_VERSION=5.0.0
+        if [ ! -f ~/state/bin/bazel ] ; then
+           mkdir -p  ~/state/bin
+           curl -fLo ~/state/bin/bazel "https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-linux-x86_64"
+           chmod +x ~/state/bin/bazel
+        fi
+    - name: build
+ #     shell: sh
+      env:
+        RUST_BACKTRACE: 1
+      if: ${{ github.event.inputs.bazelCmd == 'build' || github.ref_name == 'dist4linux' }}
+      run: |
+        #set -x
+        export STATE=~/state
+        export PATH=~/state/bin:$PATH
+        # move existing node_modules into tree
+        test -e $STATE/node_modules && mv $STATE/node_modules .
+        bazel --output_user_root=$STATE/bazel --output_base=$STATE/bazel/anki build --config opt wheels  --disk_cache=$STATE/bazel/disk --repository_cache=$STATE/bazel/repo ${{ github.event.inputs.buildArgs }}
+        file=$(find ~/state/bazel/anki/execroot/ankidesktop/bazel-out -name wheels.tar)
+        echo "$file"
+        test -f "$file" && mkdir -p .bazel/bin && cp $file ./
+        ls -l  .bazel/bin/wheels.tar
+    - name: test
+ #     shell: sh
+      env:
+        RUST_BACKTRACE: 1
+      if: ${{ github.event.inputs.bazelCmd != 'build' && github.ref_name != 'dist4linux' }}
+      run: |
+        #set -x
+        export STATE=~/state
+        export PATH=~/state/bin:$PATH
+        # move existing node_modules into tree
+        test -e $STATE/node_modules && mv $STATE/node_modules .
+        bazel --output_user_root=$STATE/bazel --output_base=$STATE/bazel/anki test --config=ci --disk_cache=$STATE/bazel/disk --repository_cache=$STATE/bazel/repo ${{ github.event.inputs.buildArgs }} ...
+
+    - uses: actions/upload-artifact@v2
+      if: ${{ github.event.inputs.bazelCmd == 'build' || github.ref_name == 'dist4linux' }}
+      with:
+        name: anki-dist-${{ runner.os }}
+        path: "./wheels.tar"
