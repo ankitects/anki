@@ -5,6 +5,7 @@ from __future__ import annotations
 import time
 
 import aqt.forms
+from anki._legacy import print_deprecation_warning
 from aqt.qt import *
 from aqt.utils import disable_help_button, tr
 
@@ -49,7 +50,7 @@ class ProgressManager:
         only fire when there is no current progress dialog."""
 
         if parent is None:
-            print(
+            print_deprecation_warning(
                 "to avoid memory leaks, pass an appropriate parent to progress.timer()"
             )
             parent = self.mw
