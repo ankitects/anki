@@ -15,9 +15,4 @@ export class BlockNode extends TreeNode {
     static make(): BlockNode {
         return new BlockNode();
     }
-
-    evaluate(): number {
-        // noop
-        return 0;
-    }
 }

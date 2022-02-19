@@ -52,7 +52,7 @@ export class ParseFormat {
 
     tryAscend(node: FormattingNode, elementNode: ElementNode): boolean {
         if (
-            elementNode.isAscendable() &&
+            !elementIsBlock(elementNode.element) &&
             elementNode.element !== this.base &&
             (!this.format.ascender || this.format.ascender(node, elementNode))
         ) {
@@ -61,10 +61,6 @@ export class ParseFormat {
         }
 
         return false;
-    }
-
-    mayExtend(element: Element): boolean {
-        return !elementIsBlock(element) && element !== this.base;
     }
 
     isInsideRange(node: Node): boolean {

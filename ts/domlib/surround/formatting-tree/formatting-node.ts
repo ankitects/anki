@@ -7,15 +7,16 @@ import type { ParseFormat } from "../format-parse";
 import type { Match } from "../match-type";
 import { ElementNode } from "./element-node";
 import { TreeNode } from "./tree-node";
+import { nodeIsElement } from "../../../lib/dom";
 
 /**
  * Represents a potential insertion point for a tag or, more generally, a point for starting a format procedure.
  */
 export class FormattingNode extends TreeNode {
     private constructor(
-        public range: FlatRange,
-        public insideRange: boolean,
-        public matchAncestors: Match[],
+        public readonly range: FlatRange,
+        public readonly insideRange: boolean,
+        public readonly matchAncestors: Match[],
     ) {
         super(insideRange, matchAncestors);
     }
@@ -99,11 +100,11 @@ export class FormattingNode extends TreeNode {
      * @returns Whether formatting node ascended at least one level
      */
     extendAndAscend(format: ParseFormat): boolean {
-        const element = this.range.parent;
-        const extension = ElementNode.findExtension(element, this.insideRange, format);
+        const node = this.range.parent;
 
-        if (extension && format.tryAscend(this, extension)) {
-            return true;
+        if (nodeIsElement(node)) {
+            const extension = ElementNode.make(node, this.insideRange);
+            return format.tryAscend(this, extension);
         }
 
         return false;

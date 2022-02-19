@@ -52,7 +52,6 @@ function buildFromElement(
 
     const matchNode = ElementNode.make(
         element,
-        match,
         children.every((node: TreeNode): boolean => node.insideRange),
         matchAncestors,
     );

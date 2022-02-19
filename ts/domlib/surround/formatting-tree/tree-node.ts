@@ -67,5 +67,13 @@ export abstract class TreeNode {
      *
      * @internal
      */
-    abstract evaluate(format: EvaluateFormat, shift: number): number;
+    evaluate(format: EvaluateFormat, _leftShift: number): number {
+        let innerShift = 0;
+
+        for (const child of this.children) {
+            innerShift += child.evaluate(format, innerShift);
+        }
+
+        return 0;
+    }
 }
