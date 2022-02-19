@@ -22,13 +22,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { arrowIcon, textColorIcon } from "./icons";
     import WithColorHelper from "./WithColorHelper.svelte";
+    import { pageTheme } from "../../sveltelib/theme";
 
     export let color: string;
 
     $: transformedColor = transformColor(color);
 
     /**
-     * The DOM will transform colors such as "#ff0000" to "rgb(256, 0, 0)".
+     * The DOM will transform colors such as "#ff0000" to "rgb(255, 0, 0)".
      */
     function transformColor(color: string): string {
         const span = document.createElement("span");
@@ -115,6 +116,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const forecolorKeyCombination = "F7";
     const forecolorPickKeyCombination = "F8";
+
+    $: baseColor = $pageTheme.isDark ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)";
+
+    // NOTE This is a an experiment to counteract the the automatic surrounding of execCommand.
+    // I am not sure how well it would harmonize with custom user CSS.
+    document.addEventListener(
+        "input" as "beforeinput",
+        async (event: InputEvent): Promise<void> => {
+            if (
+                event.inputType.startsWith("delete") &&
+                !(await surrounder.isSurrounded(format)) &&
+                document.queryCommandValue("foreColor") !== baseColor
+            ) {
+                document.execCommand("foreColor", false, "false");
+            }
+        },
+    );
 </script>
 
 <WithColorHelper {color} let:colorHelperIcon let:setColor>
