@@ -137,9 +137,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <WithColorHelper {color} let:colorHelperIcon let:setColor>
     <IconButton
-        tooltip="{tr.editingTextColor()} ({getPlatformString(
-            forecolorKeyCombination,
-        )})"
+        tooltip="{tr.editingTextColor()} ({getPlatformString(forecolorKeyCombination)})"
         {disabled}
         on:click={setTextColor}
         --border-left-radius="5px"

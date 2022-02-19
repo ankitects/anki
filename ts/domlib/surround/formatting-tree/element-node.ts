@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { elementIsBlock,nodeIsElement } from "../../../lib/dom";
+import { elementIsBlock, nodeIsElement } from "../../../lib/dom";
 import type { EvaluateFormat } from "../format-evaluate";
 import type { ParseFormat } from "../format-parse";
 import type { Match } from "../match-type";

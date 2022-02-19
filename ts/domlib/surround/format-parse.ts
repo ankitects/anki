@@ -4,7 +4,7 @@
 import { elementIsBlock } from "../../lib/dom";
 import { Position } from "../location";
 import type { SurroundFormat } from "./format-surround";
-import { ElementNode,FormattingNode } from "./formatting-tree";
+import { ElementNode, FormattingNode } from "./formatting-tree";
 import { Match } from "./match-type";
 import type { SplitRange } from "./split-text";
 

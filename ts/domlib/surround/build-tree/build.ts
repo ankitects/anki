@@ -4,7 +4,7 @@
 import { nodeIsElement, nodeIsText } from "../../../lib/dom";
 import type { ParseFormat } from "../format-parse";
 import type { TreeNode } from "../formatting-tree";
-import { BlockNode, ElementNode,FormattingNode } from "../formatting-tree";
+import { BlockNode, ElementNode, FormattingNode } from "../formatting-tree";
 import type { Match } from "../match-type";
 import { elementIsNegligible, textIsNegligible } from "../node-negligible";
 import { appendNode } from "./add-merge";

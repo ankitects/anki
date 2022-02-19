@@ -14,10 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { InputManagerAction } from "../sveltelib/input-manager";
     import type { MirrorAction } from "../sveltelib/mirror-dom";
     import type { ContentEditableAPI } from "./content-editable";
-    import {
-        customFocusHandling,
-        preventBuiltinShortcuts,
-    } from "./content-editable";
+    import { customFocusHandling, preventBuiltinShortcuts } from "./content-editable";
 
     export let resolve: (editable: HTMLElement) => void;
 
