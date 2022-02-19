@@ -7,7 +7,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import type {
-        ElementNode,
         FormattingNode,
         MatchType,
         SurroundFormat,
@@ -67,16 +66,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return before.getCache(transformedColor) === after.getCache(transformedColor);
     }
 
-    function ascender(node: FormattingNode, elementNode: ElementNode): boolean {
-        return (
-            !elementNode.match.matches ||
-            node.getCache(transformedColor) === elementNode.match.cache
-        );
-    }
-
     function formatter(node: FormattingNode): boolean {
+        const extension = node.extensions.find(
+            (element: HTMLElement | SVGElement): boolean => element.tagName === "SPAN",
+        );
+        const color = node.getCache(transformedColor);
+
+        if (extension) {
+            extension.style.setProperty("color", color);
+            return false;
+        }
+
         const span = document.createElement("span");
-        span.style.setProperty("color", node.getCache(transformedColor));
+        span.style.setProperty("color", color);
         node.range.toDOMRange().surroundContents(span);
         return true;
     }
@@ -84,7 +86,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const format: SurroundFormat = {
         matcher,
         merger,
-        ascender,
         formatter,
     };
 

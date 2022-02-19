@@ -42,6 +42,8 @@ export class FormattingNode extends TreeNode {
 
     /**
      * A merge is combinging two FormattingNodes into a single one.
+     * The merged node will take over their children, their match leaves, and
+     * their match holes, but not their extensions.
      *
      * @example
      * Practically speaking, it is what happens, when you combine:
@@ -78,6 +80,7 @@ export class FormattingNode extends TreeNode {
      */
     ascendAbove(elementNode: ElementNode): void {
         this.range.select(elementNode.element);
+        this.extensions.push(elementNode.element as HTMLElement | SVGElement);
 
         if (!this.hasChildren()) {
             // Drop elementNode, as it has no effect
@@ -162,6 +165,20 @@ export class FormattingNode extends TreeNode {
 
         return this.matchAncestors[this.matchAncestors.length - 1];
     }
+
+    /**
+     * An extension to a formatting node are elements which are directly
+     * contained in the formatting node's parent, without any additional
+     * non-negligible nodes.
+     *
+     * @example:
+     * When the surround format would only add a class, it could add it to an
+     * extension instead:
+     * `<span style="color: rgb(255, 0, 0)"><b>inside</b></span>`
+     * becomes:
+     * `<span class="myclass" style="color: rgb(255, 0, 0)"><b>inside</b></span>`
+     */
+    extensions: (HTMLElement | SVGElement)[] = [];
 
     getCache(defaultValue: any): any | null {
         if (this.insideRange) {
