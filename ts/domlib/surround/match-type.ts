@@ -11,7 +11,7 @@ type Callback = () => void;
 
 export class Match implements MatchType {
     private _callback: Callback | null = null;
-    private _shouldRemove: boolean = false;
+    private _shouldRemove = false;
 
     get matches(): boolean {
         return Boolean(this._callback) || this._shouldRemove;
@@ -58,7 +58,7 @@ export class Match implements MatchType {
 }
 
 export class FakeMatch implements MatchType {
-    public value: boolean = false;
+    public value = false;
 
     remove(): void {
         this.value = true;

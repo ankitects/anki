@@ -1,11 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { elementIsBlock } from "../../lib/dom";
 import { Position } from "../location";
-import { FormattingNode, ElementNode } from "./formatting-tree";
-import { Match } from "./match-type";
-import { nodeIsAmongNegligibles } from "./node-negligible";
 import type { SurroundFormat } from "./format-surround";
+import { ElementNode,FormattingNode } from "./formatting-tree";
+import { Match } from "./match-type";
 import type { SplitRange } from "./split-text";
 
 function nodeWithinRange(node: Node, range: Range): boolean {
@@ -64,7 +64,7 @@ export class ParseFormat {
     }
 
     mayExtend(element: Element): boolean {
-        return element !== this.base && nodeIsAmongNegligibles(element);
+        return !elementIsBlock(element) && element !== this.base;
     }
 
     isInsideRange(node: Node): boolean {

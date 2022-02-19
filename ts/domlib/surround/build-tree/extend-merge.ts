@@ -1,121 +1,69 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { TreeNode } from "../formatting-tree";
-import { FormattingNode, ElementNode } from "../formatting-tree";
 import type { ParseFormat } from "../format-parse";
+import type { TreeNode } from "../formatting-tree";
+import { FormattingNode } from "../formatting-tree";
+import { appendNode, insertNode } from "./add-merge";
 import { buildFromNode } from "./build";
 
-interface MergeResult {
-    node: FormattingNode;
-    hitBorder: boolean;
-}
+function mergePreviousTrees(forest: TreeNode[], format: ParseFormat): TreeNode[] {
+    const [first, ...tail] = forest;
 
-function previousSibling(node: Node): ChildNode | null {
-    return node.previousSibling;
-}
+    if (!(first instanceof FormattingNode)) {
+        return forest;
+    }
 
-function nextSibling(node: Node): ChildNode | null {
-    return node.nextSibling;
-}
+    let merged: TreeNode[] = [first];
+    let sibling = first.range.firstChild.previousSibling;
 
-function innerMerge(
-    start: FormattingNode,
-    sibling: Node | null,
-    format: ParseFormat,
-    merge: (before: FormattingNode, after: FormattingNode) => FormattingNode | null,
-    getter: (node: Node) => ChildNode | null,
-): MergeResult {
-    let node = start;
+    while (sibling && merged.length === 1) {
+        const nodes = buildFromNode(sibling, format, []);
 
-    while (sibling) {
-        const siblingNode = buildFromNode(sibling, format, []);
-
-        if (siblingNode) {
-            let merged: FormattingNode | null;
-            if (
-                siblingNode instanceof FormattingNode &&
-                (merged = merge(node, siblingNode))
-            ) {
-                node = merged;
-            } else {
-                return {
-                    node,
-                    hitBorder: false,
-                };
-            }
+        for (const node of nodes) {
+            merged = insertNode(node, merged, format);
         }
 
-        sibling = getter(sibling);
+        sibling = sibling.previousSibling;
     }
 
-    return {
-        node,
-        hitBorder: true,
-    };
+    return [...merged, ...tail];
 }
 
-/**
- * @param main: Node into which is merged. Is modified.
- *
- * @returns Whether siblings were exhausted during merging
- */
-function mergePreviousTrees(start: FormattingNode, format: ParseFormat): MergeResult {
-    const sibling = previousSibling(start.range.firstChild);
-    return innerMerge(
-        start,
-        sibling,
-        format,
-        (before: FormattingNode, after: FormattingNode): FormattingNode | null =>
-            format.tryMerge(after, before),
-        previousSibling,
-    );
-}
+function mergeNextTrees(forest: TreeNode[], format: ParseFormat): TreeNode[] {
+    const initial = forest.slice(0, -1);
+    const last = forest[forest.length - 1];
 
-/**
- * @param main: Node into which is merged. Is modified.
- *
- * @returns Whether siblings were exhausted during merging
- */
-function mergeNextTrees(start: FormattingNode, format: ParseFormat): MergeResult {
-    const sibling = nextSibling(start.range.lastChild);
-    return innerMerge(
-        start,
-        sibling,
-        format,
-        (before: FormattingNode, after: FormattingNode): FormattingNode | null =>
-            format.tryMerge(before, after),
-        nextSibling,
-    );
-}
-
-export function extendAndMerge(node: FormattingNode, format: ParseFormat): TreeNode {
-    node.extendAndAscend(format);
-
-    const previous = mergePreviousTrees(node, format);
-    const next = mergeNextTrees(previous.node, format);
-    const parent = node.range.parent.parentElement;
-
-    if (!previous.hitBorder || !next.hitBorder || !parent) {
-        return next.node;
+    if (!(last instanceof FormattingNode)) {
+        return forest;
     }
 
-    const match = format.createMatch(parent);
-    const matchAncestors = match.matches
-        ? [match, ...next.node.matchAncestors]
-        : next.node.matchAncestors;
+    let merged: TreeNode[] = [last];
+    let sibling = last.range.lastChild.nextSibling;
 
-    const matchNode = ElementNode.make(
-        parent,
-        match,
-        next.node.insideRange,
-        matchAncestors,
-    );
+    while (sibling && merged.length === 1) {
+        const nodes = buildFromNode(sibling, format, []);
 
-    format.tryAscend(next.node, matchNode);
+        for (const node of nodes) {
+            merged = appendNode(merged, node, format);
+        }
 
-    // Even if matchNode ends up matching and next.node refuses to ascend,
-    // as this function assumes we're not placed in an ancestor matching
-    // element, it does not matter.
-    return next.node;
+        sibling = sibling.nextSibling;
+    }
+
+    return [...initial, ...merged];
+}
+
+export function extendAndMerge(forest: TreeNode[], format: ParseFormat): TreeNode[] {
+    const merged = mergeNextTrees(mergePreviousTrees(forest, format), format);
+
+    if (merged.length === 1) {
+        const [only] = merged;
+
+        if (only instanceof FormattingNode && only.extendAndAscend(format)) {
+            return extendAndMerge(merged, format);
+        }
+    }
+
+    return merged;
 }

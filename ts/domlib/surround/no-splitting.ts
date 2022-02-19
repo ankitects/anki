@@ -6,9 +6,9 @@ import { findFarthest } from "../find-above";
 import { build } from "./build-tree";
 import { EvaluateFormat, UnsurroundEvaluateFormat } from "./format-evaluate";
 import { ParseFormat, UnsurroundParseFormat } from "./format-parse";
-import { splitPartiallySelected } from "./split-text";
-import { FakeMatch } from "./match-type";
 import type { SurroundFormat } from "./format-surround";
+import { FakeMatch } from "./match-type";
+import { splitPartiallySelected } from "./split-text";
 
 export function boolMatcher(format: SurroundFormat): (element: Element) => boolean {
     return function (element: Element): boolean {

@@ -68,7 +68,8 @@ export class FormattingNode extends TreeNode {
      * In other terms, if the ElementNode matches, it means that the node creating
      * by `this` during formatting is able to replace the ElementNode semantically.
      *
-     * @param elementNode: Its children will be discarded in favor of `this`s children.
+     * @param elementNode: Non-matching element node. Its children will be
+     * discarded in favor of `this`s children.
      *
      * @example
      * Practically speaking, it is what happens, when you turn:
@@ -78,12 +79,7 @@ export class FormattingNode extends TreeNode {
     ascendAbove(elementNode: ElementNode): void {
         this.range.select(elementNode.element);
 
-        if (elementNode.match.matches && this.hasMatchHoles) {
-            this.matchLeaves.push(elementNode);
-            this.hasMatchHoles = false;
-        }
-
-        if (!this.hasChildren() && !elementNode.match.matches) {
+        if (!this.hasChildren()) {
             // Drop elementNode, as it has no effect
             return;
         }
@@ -96,25 +92,18 @@ export class FormattingNode extends TreeNode {
      * ascending above it.
      * Which is why if the match node is not ascendable, we might as well
      * stop extending.
+     *
+     * @returns Whether formatting node ascended at least one level
      */
-    extendAndAscend(format: ParseFormat): void {
-        if (this.length !== 1) {
-            return;
+    extendAndAscend(format: ParseFormat): boolean {
+        const element = this.range.parent;
+        const extension = ElementNode.findExtension(element, this.insideRange, format);
+
+        if (extension && format.tryAscend(this, extension)) {
+            return true;
         }
 
-        const [only] = this.children;
-        if (!(only instanceof ElementNode)) {
-            return;
-        }
-
-        let top: ElementNode | null = only;
-        while (top) {
-            top = top.tryExtend(format);
-
-            if (top && !format.tryAscend(this, top)) {
-                break;
-            }
-        }
+        return false;
     }
 
     evaluate(format: EvaluateFormat, leftShift: number): number {
@@ -134,14 +123,6 @@ export class FormattingNode extends TreeNode {
     // formats and is not vital to the algorithm itself
 
     /**
-     * Match holes are text nodes that are not inside any matches that are
-     * descendants of `this` (yet).
-     *
-     * @see matchLeaves
-     */
-    hasMatchHoles: boolean = true;
-
-    /**
      * Match leaves are the matching element nodes that are descendants of
      * `this`, and actually affect the text nodes located inside `this`.
      *
@@ -156,9 +137,17 @@ export class FormattingNode extends TreeNode {
      * @remarks
      * These are important for some ascenders and/or mergers.
      */
-    matchLeaves: ElementNode[] = [];
+    matchLeaves: Match[] = [];
 
-    get firstLeaf(): ElementNode | null {
+    /**
+     * Match holes are text nodes that are not inside any matches that are
+     * descendants of `this` (yet).
+     *
+     * @see matchLeaves
+     */
+    hasMatchHoles = true;
+
+    get firstLeaf(): Match | null {
         if (this.matchLeaves.length === 0) {
             return null;
         }
@@ -178,7 +167,7 @@ export class FormattingNode extends TreeNode {
         if (this.insideRange) {
             return defaultValue;
         } else if (this.firstLeaf) {
-            return this.firstLeaf.match.cache;
+            return this.firstLeaf.cache;
         } else if (this.closestAncestor) {
             return this.closestAncestor.cache;
         }

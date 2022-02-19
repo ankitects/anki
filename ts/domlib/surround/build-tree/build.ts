@@ -2,12 +2,12 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { nodeIsElement, nodeIsText } from "../../../lib/dom";
-import type { TreeNode } from "../formatting-tree";
-import type { Match } from "../match-type";
-import { BlockNode, FormattingNode, ElementNode } from "../formatting-tree";
-import { elementIsNegligible, textIsNegligible } from "../node-negligible";
 import type { ParseFormat } from "../format-parse";
-import { appendNode } from "./append-merge";
+import type { TreeNode } from "../formatting-tree";
+import { BlockNode, ElementNode,FormattingNode } from "../formatting-tree";
+import type { Match } from "../match-type";
+import { elementIsNegligible, textIsNegligible } from "../node-negligible";
+import { appendNode } from "./add-merge";
 
 function buildFromElement(
     element: Element,
@@ -35,6 +35,11 @@ function buildFromElement(
 
         for (const child of children) {
             if (child instanceof FormattingNode) {
+                if (child.hasMatchHoles) {
+                    child.matchLeaves.push(match);
+                    child.hasMatchHoles = false;
+                }
+
                 child.range.parent = parent;
                 child.range.startIndex += childIndex;
                 child.range.endIndex += childIndex;
