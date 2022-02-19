@@ -79,8 +79,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const { content, editingInputs } = editingAreaContext.get();
     const decoratedElements = decoratedElementsContext.get();
 
-    const range = document.createRange();
-
     function normalizeFragment(fragment: DocumentFragment): void {
         fragment.normalize();
 
@@ -110,8 +108,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function writeFromEditingArea(html: string): void {
-        /* we need createContextualFragment so that customElements are initialized */
-        const fragment = range.createContextualFragment(adjustInputHTML(html));
+        /* We need .createContextualFragment so that customElements are initialized */
+        const fragment = document
+            .createRange()
+            .createContextualFragment(adjustInputHTML(html));
         adjustInputFragment(fragment);
         nodes.setUnprocessed(fragment);
     }

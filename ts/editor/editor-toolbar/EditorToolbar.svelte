@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { Writable } from "svelte/store";
-    
+
     import { resetAllState, updateAllState } from "../../components/WithState.svelte";
     import type { SurroundFormat } from "../../domlib/surround";
     import type { DefaultSlotInterface } from "../../sveltelib/dynamic-slotting";
@@ -51,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="ts">
     import { writable } from "svelte/store";
-    
+
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import Item from "../../components/Item.svelte";

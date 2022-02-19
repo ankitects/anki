@@ -61,6 +61,10 @@ export class Surrounder {
         this.trigger = api.getTriggerOnNextInsert();
     }
 
+    /**
+     * After calling disable, using any of the surrounding methods will throw an
+     * exception. Make sure to set the rich text before trying to use them again.
+     */
     disable(): void {
         this.api = null;
         this.trigger = null;
@@ -113,7 +117,8 @@ export class Surrounder {
     /**
      * Use the surround command on the current range of the RichTextInput.
      * If the range is already surrounded, it will overwrite the format.
-     * This is helpful if the surrounding is parameterized (like text color).
+     * This might be better suited if the surrounding is parameterized (like
+     * text color).
      */
     async overwriteSurround(
         format: SurroundFormat,
@@ -148,8 +153,10 @@ export class Surrounder {
     }
 
     /**
-     * Check if the range is surrounded. This will also consider if a
-     * surround trigger is active (surround on next text insert).
+     * Check if the current selection is surrounded. A selection will count as
+     * provided if either the start or the end boundary point are within the
+     * provided format, OR if a surround trigger is active (surround on next
+     * text insert).
      */
     async isSurrounded(format: SurroundFormat): Promise<boolean> {
         const base = await this._assert_base();
@@ -165,8 +172,7 @@ export class Surrounder {
     }
 
     /**
-     * Check if the range is surrounded. This will also take into account if a
-     * surround trigger is active (surround on next text insert).
+     * Clear the provided formats in the current range.
      */
     async remove(formats: SurroundFormat[]): Promise<void> {
         const base = await this._assert_base();

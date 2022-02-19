@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { ContentEditableAPI } from "./content-editable";
     import {
         customFocusHandling,
-        preventBuiltinContentEditableShortcuts,
+        preventBuiltinShortcuts,
     } from "./content-editable";
 
     export let resolve: (editable: HTMLElement) => void;
@@ -42,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     contenteditable="true"
     use:resolve
     use:setupFocusHandling
-    use:preventBuiltinContentEditableShortcuts
+    use:preventBuiltinShortcuts
     use:mirrorAction={mirrorOptions}
     use:managerAction={{}}
     on:focus

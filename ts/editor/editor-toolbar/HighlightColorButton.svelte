@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../../lib/ftl";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
-    import { removeEmptyStyle,Surrounder } from "../surround";
+    import { removeEmptyStyle, Surrounder } from "../surround";
     import type { RemoveFormat } from "./EditorToolbar.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { arrowIcon, highlightColorIcon } from "./icons";
