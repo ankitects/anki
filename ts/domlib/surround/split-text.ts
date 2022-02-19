@@ -87,7 +87,7 @@ export function splitPartiallySelected(range: Range): SplitRange {
         end = range.endContainer;
         splitTextIfNecessary(range.endContainer, range.endOffset);
     } else {
-        end = range.endContainer.childNodes[range.endOffset];
+        end = range.endContainer.childNodes[range.endOffset - 1];
     }
 
     return new SplitRange(start, end);
