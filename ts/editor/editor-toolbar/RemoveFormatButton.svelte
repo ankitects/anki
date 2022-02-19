@@ -4,38 +4,60 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import ButtonGroup from "../../components/ButtonGroup.svelte";
+    import Checkbox from "../../components/CheckBox.svelte";
+    import DropdownItem from "../../components/DropdownItem.svelte";
+    import DropdownMenu from "../../components/DropdownMenu.svelte";
+    import { withButton } from "../../components/helpers";
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
+    import WithDropdown from "../../components/WithDropdown.svelte";
+    import type { SurroundFormat } from "../../domlib/surround";
     import * as tr from "../../lib/ftl";
+    import { altPressed } from "../../lib/keys";
     import { getPlatformString } from "../../lib/shortcuts";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
-    import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
-    import { getRemoveFormat } from "../surround";
+    import { Surrounder } from "../surround";
+    import type { RemoveFormat } from "./EditorToolbar.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { eraserIcon } from "./icons";
     import { arrowIcon } from "./icons";
-    import WithDropdown from "../../components/WithDropdown.svelte";
-    import { withButton } from "../../components/helpers";
-    import DropdownItem from "../../components/DropdownItem.svelte";
-    import DropdownMenu from "../../components/DropdownMenu.svelte";
-    import Checkbox from "../../components/CheckBox.svelte";
 
     const { focusedInput } = noteEditorContext.get();
-    let { removeFormats } = editorToolbarContext.get();
+    const surrounder = Surrounder.make();
+    let disabled: boolean;
 
-    /* $: formats = $removeFormats.map */
+    $: if (editingInputIsRichText($focusedInput)) {
+        surrounder.richText = $focusedInput;
+        disabled = false;
+    } else {
+        surrounder.disable();
+        disabled = true;
+    }
 
-    $: input = $focusedInput as RichTextInputAPI;
-    $: disabled = !editingInputIsRichText($focusedInput);
-    $: removeFormat = disabled ? null : getRemoveFormat(input);
+    const { removeFormats } = editorToolbarContext.get();
+
+    let activeFormats: SurroundFormat[];
     $: activeFormats = $removeFormats
         .filter((format) => format.active)
         .map((format) => format.format);
+
+    let showFormats: RemoveFormat[];
     $: showFormats = $removeFormats.filter((format) => format.show);
 
     function remove(): void {
-        removeFormat?.removeFormat(activeFormats);
+        surrounder.remove(activeFormats);
+    }
+
+    function onItemClick(event: MouseEvent, format: RemoveFormat): void {
+        if (altPressed(event)) {
+            for (const format of showFormats) {
+                format.active = false;
+            }
+        }
+
+        format.active = !format.active;
+        $removeFormats = $removeFormats;
     }
 
     const keyCombination = "Control+R";
@@ -68,13 +90,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </IconButton>
 
             <DropdownMenu on:mousedown={(event) => event.preventDefault()}>
-                {#each showFormats as format}
-                    <DropdownItem
-                        on:click={() => {
-                            format.active = !format.active;
-                            removeFormats = removeFormats;
-                        }}
-                    >
+                {#each showFormats as format (format.name)}
+                    <DropdownItem on:click={(event) => onItemClick(event, format)}>
                         <Checkbox bind:value={format.active} />
                         <span class="d-flex-inline ps-3">{format.name}</span>
                     </DropdownItem>

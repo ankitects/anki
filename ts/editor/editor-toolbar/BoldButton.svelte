@@ -10,9 +10,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
-    import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
-    import { getSurrounder, removeEmptyStyle } from "../surround";
+    import { removeEmptyStyle,Surrounder } from "../surround";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { boldIcon } from "./icons";
 
@@ -51,16 +50,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     removeFormats.update((formats) => [...formats, namedFormat]);
 
     const { focusedInput } = noteEditorContext.get();
-    $: input = $focusedInput as RichTextInputAPI;
-    $: disabled = !editingInputIsRichText($focusedInput);
-    $: surrounder = disabled ? null : getSurrounder(input);
+    const surrounder = Surrounder.make();
+    let disabled: boolean;
+
+    $: if (editingInputIsRichText($focusedInput)) {
+        surrounder.richText = $focusedInput;
+        disabled = false;
+    } else {
+        surrounder.disable();
+        disabled = true;
+    }
 
     function updateStateFromActiveInput(): Promise<boolean> {
         return disabled ? Promise.resolve(false) : surrounder!.isSurrounded(format);
     }
 
     function makeBold(): void {
-        surrounder?.surroundCommand(format);
+        surrounder.surround(format);
     }
 
     const keyCombination = "Control+B";

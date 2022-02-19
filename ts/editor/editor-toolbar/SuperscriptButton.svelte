@@ -38,9 +38,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
-    import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
-    import { getSurrounder } from "../surround";
+    import { Surrounder } from "../surround";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { superscriptIcon } from "./icons";
     import { format as subscript } from "./SubscriptButton.svelte";
@@ -56,16 +55,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     removeFormats.update((formats) => [...formats, namedFormat]);
 
     const { focusedInput } = noteEditorContext.get();
-    $: input = $focusedInput as RichTextInputAPI;
-    $: disabled = !editingInputIsRichText($focusedInput);
-    $: surrounder = disabled ? null : getSurrounder(input);
+    const surrounder = Surrounder.make();
+    let disabled: boolean;
+
+    $: if (editingInputIsRichText($focusedInput)) {
+        surrounder.richText = $focusedInput;
+        disabled = false;
+    } else {
+        surrounder.disable();
+        disabled = true;
+    }
 
     function updateStateFromActiveInput(): Promise<boolean> {
         return disabled ? Promise.resolve(false) : surrounder!.isSurrounded(format);
     }
 
     function makeSuper(): void {
-        surrounder?.surroundCommand(format, [subscript]);
+        surrounder.surround(format, [subscript]);
     }
 
     const keyCombination = "Control+=";

@@ -14,9 +14,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
-    import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
-    import { getBaseSurrounder, removeEmptyStyle } from "../surround";
+    import { removeEmptyStyle,Surrounder } from "../surround";
+    import type { RemoveFormat } from "./EditorToolbar.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { arrowIcon, highlightColorIcon } from "./icons";
     import WithColorHelper from "./WithColorHelper.svelte";
@@ -76,7 +76,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         formatter,
     };
 
-    const namedFormat = {
+    const namedFormat: RemoveFormat = {
         name: tr.editingSetTextColor(),
         show: true,
         active: true,
@@ -87,12 +87,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     removeFormats.update((formats) => [...formats, namedFormat]);
 
     const { focusedInput } = noteEditorContext.get();
-    $: input = $focusedInput as RichTextInputAPI;
-    $: disabled = !editingInputIsRichText($focusedInput);
-    $: surrounder = disabled ? null : getBaseSurrounder(input, format, [format]);
+    const surrounder = Surrounder.make();
+    let disabled: boolean;
+
+    $: if (editingInputIsRichText($focusedInput)) {
+        disabled = false;
+        surrounder.richText = $focusedInput;
+    } else {
+        disabled = true;
+        surrounder.disable();
+    }
 
     function setTextColor(): void {
-        surrounder?.surroundCommand();
+        surrounder.overwriteSurround(format, [format]);
     }
 </script>
 
