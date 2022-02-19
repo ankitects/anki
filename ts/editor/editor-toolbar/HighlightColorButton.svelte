@@ -104,7 +104,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <WithColorHelper {color} let:colorHelperIcon let:setColor>
-    <IconButton tooltip={tr.editingSetTextColor()} {disabled} on:click={setTextColor}>
+    <IconButton tooltip={tr.editingTextHighlightColor()} {disabled} on:click={setTextColor}>
         {@html highlightColorIcon}
         {@html colorHelperIcon}
     </IconButton>

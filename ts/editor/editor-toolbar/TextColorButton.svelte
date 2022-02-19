@@ -89,7 +89,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
 
     const namedFormat: RemoveFormat = {
-        name: tr.editingSetTextColor(),
+        name: tr.editingTextColor(),
         show: true,
         active: true,
         format,
@@ -137,7 +137,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <WithColorHelper {color} let:colorHelperIcon let:setColor>
     <IconButton
-        tooltip="{tr.editingSetTextColor()} ({getPlatformString(
+        tooltip="{tr.editingTextColor()} ({getPlatformString(
             forecolorKeyCombination,
         )})"
         {disabled}
