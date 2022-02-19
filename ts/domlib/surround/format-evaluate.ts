@@ -5,9 +5,7 @@ import type { FormattingNode } from "./formatting-tree";
 import type { SurroundFormat } from "./format-surround";
 
 export class EvaluateFormat {
-    constructor(
-        protected readonly format: SurroundFormat,
-    ) {}
+    constructor(protected readonly format: SurroundFormat) {}
 
     static make(format: SurroundFormat): EvaluateFormat {
         return new EvaluateFormat(format);
@@ -25,7 +23,6 @@ export class EvaluateFormat {
 
         return false;
     }
-
 }
 
 export class UnsurroundEvaluateFormat extends EvaluateFormat {

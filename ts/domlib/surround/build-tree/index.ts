@@ -22,7 +22,7 @@ export function build(
 
         if (only instanceof FormattingNode) {
             const extended = extendAndMerge(only, parse);
-            extended.evaluate(evaluate, 0);;
+            extended.evaluate(evaluate, 0);
             return parse.recreateRange();
         }
     }

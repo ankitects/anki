@@ -10,21 +10,17 @@ export interface MatchType {
 type Callback = () => void;
 
 export class Match implements MatchType {
-    private _matches = false;
-    get matches(): boolean {
-        return this._matches;
-    }
+    private _callback: Callback | null = null;
+    private _shouldRemove: boolean = false;
 
-    private _shouldRemove = false;
-    get shouldRemove(): boolean {
-        return this._shouldRemove;
+    get matches(): boolean {
+        return Boolean(this._callback) || this._shouldRemove;
     }
 
     /**
      * The element represented by the match will be removed from the document.
      */
     remove(): void {
-        this._matches = true;
         this._shouldRemove = true;
     }
 
@@ -42,8 +38,15 @@ export class Match implements MatchType {
      * has a class applied, even if the `style` attribute is removed.
      */
     clear(callback: Callback): void {
-        this._matches = true;
-        callback();
+        this._callback = callback;
+    }
+
+    /**
+     * @internal
+     */
+    shouldRemove(): boolean {
+        this._callback?.();
+        return this._shouldRemove;
     }
 
     /** TODO try typing this */

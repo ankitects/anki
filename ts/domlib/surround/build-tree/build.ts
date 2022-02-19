@@ -29,12 +29,9 @@ function buildFromElement(
         }
     }
 
-    if (match.shouldRemove) {
+    if (match.shouldRemove()) {
         const parent = element.parentElement!;
-        const childIndex = Array.prototype.indexOf.call(
-            parent.childNodes,
-            element,
-        );
+        const childIndex = Array.prototype.indexOf.call(parent.childNodes, element);
 
         for (const child of children) {
             if (child instanceof FormattingNode) {

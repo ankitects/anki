@@ -27,7 +27,12 @@ export class ParseFormat {
         public readonly splitRange: SplitRange,
     ) {}
 
-    static make(format: SurroundFormat, base: Element, range: Range, splitRange: SplitRange): ParseFormat {
+    static make(
+        format: SurroundFormat,
+        base: Element,
+        range: Range,
+        splitRange: SplitRange,
+    ): ParseFormat {
         return new ParseFormat(format, base, range, splitRange);
     }
 
