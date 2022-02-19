@@ -28,8 +28,8 @@ export function surroundInner(
 
 export function surround(range: Range, base: Element, format: SurroundFormat): Range {
     const splitRange = splitPartiallySelected(range);
-    const parse = ParseFormat.make(format, base, range);
-    const evaluate = EvaluateFormat.make(format, splitRange);
+    const parse = ParseFormat.make(format, base, range, splitRange);
+    const evaluate = EvaluateFormat.make(format);
 
     return surroundInner(range, parse, evaluate);
 }
@@ -65,14 +65,14 @@ function reformatInner(
  **/
 export function reformat(range: Range, base: Element, format: SurroundFormat): Range {
     const splitRange = splitPartiallySelected(range);
-    const parse = ParseFormat.make(format, base, range);
-    const evaluate = EvaluateFormat.make(format, splitRange);
+    const parse = ParseFormat.make(format, base, range, splitRange);
+    const evaluate = EvaluateFormat.make(format);
     return reformatInner(range, base, parse, evaluate, boolMatcher(format));
 }
 
 export function unsurround(range: Range, base: Element, format: SurroundFormat): Range {
     const splitRange = splitPartiallySelected(range);
-    const parse = UnsurroundParseFormat.make(format, base, range);
-    const evaluate = UnsurroundEvaluateFormat.make(format, splitRange);
+    const parse = UnsurroundParseFormat.make(format, base, range, splitRange);
+    const evaluate = UnsurroundEvaluateFormat.make(format);
     return reformatInner(range, base, parse, evaluate, boolMatcher(format));
 }

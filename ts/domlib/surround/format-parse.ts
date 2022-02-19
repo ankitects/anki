@@ -6,6 +6,7 @@ import { FormattingNode, ElementNode } from "./formatting-tree";
 import { Match } from "./match-type";
 import { nodeIsAmongNegligibles } from "./node-negligible";
 import type { SurroundFormat } from "./format-surround";
+import type { SplitRange } from "./split-text";
 
 function nodeWithinRange(node: Node, range: Range): boolean {
     const nodeRange = new Range();
@@ -23,10 +24,11 @@ export class ParseFormat {
         public readonly format: SurroundFormat,
         public readonly base: Element,
         public readonly range: Range,
+        public readonly splitRange: SplitRange,
     ) {}
 
-    static make(format: SurroundFormat, base: Element, range: Range): ParseFormat {
-        return new ParseFormat(format, base, range);
+    static make(format: SurroundFormat, base: Element, range: Range, splitRange: SplitRange): ParseFormat {
+        return new ParseFormat(format, base, range, splitRange);
     }
 
     createMatch(element: Element): Match {
@@ -63,6 +65,14 @@ export class ParseFormat {
     isInsideRange(node: Node): boolean {
         return nodeWithinRange(node, this.range);
     }
+
+    announceElementRemoval(element: Element): void {
+        this.splitRange.adjustRange(element);
+    }
+
+    recreateRange(): Range {
+        return this.splitRange.toDOMRange();
+    }
 }
 
 export class UnsurroundParseFormat extends ParseFormat {
@@ -70,8 +80,9 @@ export class UnsurroundParseFormat extends ParseFormat {
         format: SurroundFormat,
         base: Element,
         range: Range,
+        splitRange: SplitRange,
     ): UnsurroundParseFormat {
-        return new UnsurroundParseFormat(format, base, range);
+        return new UnsurroundParseFormat(format, base, range, splitRange);
     }
 
     tryMerge(before: FormattingNode, after: FormattingNode): FormattingNode | null {

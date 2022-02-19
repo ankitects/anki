@@ -76,25 +76,11 @@ export class ElementNode extends TreeNode {
         return parentNode;
     }
 
-    /**
-     * Returns the change in nodes after removal of `this.element`.
-     */
-    private remove(): number {
-        const length = this.element.childNodes.length;
-        this.element.replaceWith(...this.element.childNodes);
-        return length - 1;
-    }
-
     evaluate(format: EvaluateFormat): number {
         let innerShift = 0;
 
         for (const child of this.children) {
             innerShift += child.evaluate(format, innerShift);
-        }
-
-        if (this.match.shouldRemove) {
-            format.announceElementRemoval(this.element);
-            return this.remove();
         }
 
         return 0;

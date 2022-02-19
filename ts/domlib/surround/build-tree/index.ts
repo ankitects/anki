@@ -15,12 +15,21 @@ export function build(
     parse: ParseFormat,
     evaluate: EvaluateFormat,
 ): Range {
-    let tree = buildFromNode(node, parse, []);
+    const trees = buildFromNode(node, parse, []);
 
-    if (tree instanceof FormattingNode) {
-        tree = extendAndMerge(tree, parse);
+    if (trees.length === 1) {
+        const [only] = trees;
+
+        if (only instanceof FormattingNode) {
+            const extended = extendAndMerge(only, parse);
+            extended.evaluate(evaluate, 0);;
+            return parse.recreateRange();
+        }
     }
 
-    tree?.evaluate(evaluate, 0);
-    return evaluate.recreateRange();
+    for (const tree of trees) {
+        tree.evaluate(evaluate, 0);
+    }
+
+    return parse.recreateRange();
 }

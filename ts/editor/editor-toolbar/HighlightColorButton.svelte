@@ -99,7 +99,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function setTextColor(): void {
-        surrounder.overwriteSurround(format, [format]);
+        surrounder.overwriteSurround(format);
     }
 </script>
 

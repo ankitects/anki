@@ -3,16 +3,14 @@
 
 import type { FormattingNode } from "./formatting-tree";
 import type { SurroundFormat } from "./format-surround";
-import type { SplitRange } from "./split-text";
 
 export class EvaluateFormat {
     constructor(
         protected readonly format: SurroundFormat,
-        protected readonly range: SplitRange,
     ) {}
 
-    static make(format: SurroundFormat, range: SplitRange): EvaluateFormat {
-        return new EvaluateFormat(format, range);
+    static make(format: SurroundFormat): EvaluateFormat {
+        return new EvaluateFormat(format);
     }
 
     applyFormat(node: FormattingNode): boolean {
@@ -28,18 +26,11 @@ export class EvaluateFormat {
         return false;
     }
 
-    announceElementRemoval(element: Element): void {
-        this.range.adjustRange(element);
-    }
-
-    recreateRange(): Range {
-        return this.range.toDOMRange();
-    }
 }
 
 export class UnsurroundEvaluateFormat extends EvaluateFormat {
-    static make(format: SurroundFormat, range: SplitRange): UnsurroundEvaluateFormat {
-        return new UnsurroundEvaluateFormat(format, range);
+    static make(format: SurroundFormat): UnsurroundEvaluateFormat {
+        return new UnsurroundEvaluateFormat(format);
     }
 
     applyFormat(node: FormattingNode): boolean {

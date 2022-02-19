@@ -13,7 +13,7 @@ function buildFromElement(
     element: Element,
     format: ParseFormat,
     matchAncestors: Match[],
-): TreeNode | null {
+): TreeNode[] {
     const match = format.createMatch(element);
 
     if (match.matches) {
@@ -21,12 +21,31 @@ function buildFromElement(
     }
 
     let children: TreeNode[] = [];
-    for (const child of element.childNodes) {
-        const node = buildFromNode(child, format, matchAncestors);
+    for (const child of [...element.childNodes]) {
+        const nodes = buildFromNode(child, format, matchAncestors);
 
-        if (node) {
+        for (const node of nodes) {
             children = appendNode(children, node, format);
         }
+    }
+
+    if (match.shouldRemove) {
+        const parent = element.parentElement!;
+        const childIndex = Array.prototype.indexOf.call(
+            parent.childNodes,
+            element,
+        );
+
+        for (const child of children) {
+            if (child instanceof FormattingNode) {
+                child.range.parent = parent;
+                child.range.startIndex += childIndex;
+                child.range.endIndex += childIndex;
+            }
+        }
+
+        element.replaceWith(...element.childNodes);
+        return children;
     }
 
     const matchNode = ElementNode.make(
@@ -36,11 +55,10 @@ function buildFromElement(
         matchAncestors,
     );
 
-    if (children.length === 0 && !match.matches) {
-        return null;
-    }
-
-    if (children.length === 1) {
+    if (children.length === 0) {
+        // This means there are no non-negligible children
+        return [];
+    } else if (children.length === 1) {
         const [only] = children;
 
         if (
@@ -49,12 +67,12 @@ function buildFromElement(
             // ascension
             (only instanceof FormattingNode && format.tryAscend(only, matchNode))
         ) {
-            return only;
+            return [only];
         }
     }
 
     matchNode.replaceChildren(...children);
-    return matchNode;
+    return [matchNode];
 }
 
 function buildFromText(
@@ -80,12 +98,12 @@ export function buildFromNode(
     node: Node,
     format: ParseFormat,
     matchAncestors: Match[],
-): TreeNode | null {
+): TreeNode[] {
     if (nodeIsText(node) && !textIsNegligible(node)) {
-        return buildFromText(node, format, matchAncestors);
+        return [buildFromText(node, format, matchAncestors)];
     } else if (nodeIsElement(node) && !elementIsNegligible(node)) {
         return buildFromElement(node, format, matchAncestors);
     } else {
-        return null;
+        return [];
     }
 }
