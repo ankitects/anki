@@ -21,6 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { eraserIcon } from "./icons";
     import { arrowIcon } from "./icons";
+    import type { MatchType } from "../../domlib/surround";
 
     const { focusedInput } = noteEditorContext.get();
     const surrounder = Surrounder.make();
@@ -36,10 +37,35 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const { removeFormats } = editorToolbarContext.get();
 
-    let activeFormats: SurroundFormat<unknown>[];
+    removeFormats.update((formats) =>
+        formats.concat({
+            name: "simple spans",
+            show: false,
+            active: true,
+            format: {
+                matcher: (
+                    element: HTMLElement | SVGElement,
+                    match: MatchType<never>,
+                ): void => {
+                    if (
+                        element.tagName === "SPAN" &&
+                        element.className.length === 0 &&
+                        element.style.cssText.length === 0
+                    ) {
+                        match.remove();
+                    }
+                },
+                surroundElement: document.createElement("span"),
+            },
+        }),
+    );
+
+    let activeFormats: SurroundFormat<any>[];
     $: activeFormats = $removeFormats
         .filter((format) => format.active)
         .map((format) => format.format);
+
+    let inactiveFormats: SurroundFormat<any>[];
     $: inactiveFormats = $removeFormats
         .filter((format) => !format.active)
         .map((format) => format.format);
