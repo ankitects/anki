@@ -77,7 +77,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return true;
     }
 
-    const format: SurroundFormat = {
+    const format: SurroundFormat<string> = {
         matcher,
         merger,
         formatter,

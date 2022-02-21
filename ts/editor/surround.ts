@@ -8,6 +8,7 @@ import { findClosest } from "../domlib/find-above";
 import type { SurroundFormat } from "../domlib/surround";
 import { boolMatcher, reformat, surround, unsurround } from "../domlib/surround";
 import { getRange, getSelection } from "../lib/cross-browser";
+import type { OnInsertCallback, Trigger } from "../sveltelib/input-manager";
 import type { RichTextInputAPI } from "./rich-text-input";
 
 function isSurroundedInner(
@@ -47,14 +48,12 @@ function removeFormats(range: Range, base: Element, formats: SurroundFormat[]): 
 }
 
 export class Surrounder {
-    private constructor() {}
-
-    static make() {
+    static make(): Surrounder {
         return new Surrounder();
     }
 
     private api: RichTextInputAPI | null = null;
-    private trigger: any;
+    private trigger: Trigger<OnInsertCallback> | null = null;
 
     set richText(api: RichTextInputAPI) {
         this.api = api;
@@ -78,17 +77,22 @@ export class Surrounder {
         return await this.api.element;
     }
 
-    private _toggleTrigger<T>(base: HTMLElement, selection: Selection, matcher: Matcher, format: SurroundFormat<T>, exclusive: SurroundFormat<T>[]): void {
-        if (get(this.trigger.active)) {
-            this.trigger.remove();
+    private _toggleTrigger<T>(
+        base: HTMLElement,
+        selection: Selection,
+        matcher: Matcher,
+        format: SurroundFormat<T>,
+        exclusive: SurroundFormat<T>[] = [],
+    ): void {
+        if (get(this.trigger!.active)) {
+            this.trigger!.remove();
         } else {
-            this.trigger.add(async ({ node }: { node: Node }) => {
-                const initialRange = new Range()
+            this.trigger!.add(async ({ node }: { node: Node }) => {
+                const initialRange = new Range();
                 initialRange.selectNode(node);
 
                 const matches = Boolean(findClosest(node, base, matcher));
                 const range = removeFormats(initialRange, base, exclusive);
-
 
                 surroundAndSelect(matches, range, base, format, selection);
                 selection.collapseToEnd();
@@ -102,13 +106,12 @@ export class Surrounder {
      */
     async surround<T>(
         format: SurroundFormat<T>,
-        exclusive: SurroundFormat<T>[]
+        exclusive: SurroundFormat<T>[] = [],
     ): Promise<void> {
         const base = await this._assert_base();
         const selection = getSelection(base)!;
         const range = getRange(selection);
         const matcher = boolMatcher(format);
-
 
         if (!range) {
             return;
@@ -128,7 +131,10 @@ export class Surrounder {
      * This might be better suited if the surrounding is parameterized (like
      * text color).
      */
-    async overwriteSurround<T>(format: SurroundFormat<T>, exclusive: SurroundFormat<T>[]): Promise<void> {
+    async overwriteSurround<T>(
+        format: SurroundFormat<T>,
+        exclusive: SurroundFormat<T>[] = [],
+    ): Promise<void> {
         const base = await this._assert_base();
         const selection = getSelection(base)!;
         const range = getRange(selection);
@@ -163,7 +169,7 @@ export class Surrounder {
         }
 
         const isSurrounded = isSurroundedInner(range, base, boolMatcher(format));
-        return get(this.trigger.active) ? !isSurrounded : isSurrounded;
+        return get(this.trigger!.active) ? !isSurrounded : isSurrounded;
     }
 
     /**

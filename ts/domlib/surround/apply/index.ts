@@ -5,18 +5,16 @@ import type { TreeNode } from "../tree";
 import { FormattingNode } from "../tree";
 import type { ApplyFormat } from "./format";
 
-function iterate<T>(
-    node: TreeNode,
-    format: ApplyFormat<T>,
-    leftShift: number,
-): number {
+function iterate<T>(node: TreeNode, format: ApplyFormat<T>, leftShift: number): number {
     let innerShift = 0;
 
     for (const child of node.children) {
         innerShift += iterate(child, format, innerShift);
     }
 
-    return node instanceof FormattingNode ? applyFormat(node, format, leftShift, innerShift) : 0;
+    return node instanceof FormattingNode
+        ? applyFormat(node, format, leftShift, innerShift)
+        : 0;
 }
 
 /**
@@ -37,7 +35,6 @@ function applyFormat<T>(
 }
 
 export function apply<T>(nodes: TreeNode[], format: ApplyFormat<T>): void {
-    debugger;
     let innerShift = 0;
 
     for (const node of nodes) {

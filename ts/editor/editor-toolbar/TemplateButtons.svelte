@@ -23,12 +23,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const { focusedInput } = context.get();
 
-    const attachmentKeyCombination = "F7";
+    const attachmentKeyCombination = "F3";
     function onAttachment(): void {
         bridgeCommand("attach");
     }
 
-    const recordKeyCombination = "F8";
+    const recordKeyCombination = "F5";
     function onRecord(): void {
         bridgeCommand("record");
     }

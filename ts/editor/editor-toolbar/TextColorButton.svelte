@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
-    import { pageTheme } from "../../sveltelib/theme";
+    import { withFontColor } from "../helpers";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
     import { removeEmptyStyle, Surrounder } from "../surround";
@@ -36,17 +36,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return span.style.getPropertyValue("color");
     }
 
-    function isFontElement(element: Element): element is HTMLFontElement {
-        return element.tagName === "FONT";
-    }
-
     function matcher(
         element: HTMLElement | SVGElement,
         match: MatchType<string>,
     ): void {
-        if (isFontElement(element) && element.hasAttribute("color")) {
-            match.setCache(element.getAttribute("color")!);
-            return match.remove();
+        if (
+            withFontColor(element, (color: string): void => {
+                if (color) {
+                    match.setCache(color);
+                    match.remove();
+                }
+            })
+        ) {
+            return;
         }
 
         const value = element.style.getPropertyValue("color");
@@ -95,7 +97,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         formatter,
     };
 
-    const namedFormat: RemoveFormat = {
+    const namedFormat: RemoveFormat<string> = {
         name: tr.editingTextColor(),
         show: true,
         active: true,
@@ -123,23 +125,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const forecolorKeyCombination = "F7";
     const forecolorPickKeyCombination = "F8";
-
-    $: baseColor = $pageTheme.isDark ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)";
-
-    // NOTE This is a an experiment to counteract the the automatic surrounding of execCommand.
-    // I am not sure how well it would harmonize with custom user CSS.
-    document.addEventListener(
-        "input" as "beforeinput",
-        async (event: InputEvent): Promise<void> => {
-            if (
-                event.inputType.startsWith("delete") &&
-                !(await surrounder.isSurrounded(format)) &&
-                document.queryCommandValue("foreColor") !== baseColor
-            ) {
-                document.execCommand("foreColor", false, "false");
-            }
-        },
-    );
 </script>
 
 <WithColorHelper {color} let:colorHelperIcon let:setColor>

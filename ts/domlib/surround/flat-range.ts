@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { nodeIsText, nodeIsComment, nodeIsElement } from "../../lib/dom";
+import { nodeIsComment, nodeIsElement, nodeIsText } from "../../lib/dom";
 import { ascend } from "../../lib/node";
 
 /**
@@ -80,7 +80,7 @@ export class FlatRange {
         return range;
     }
 
-    [Symbol.iterator](): Iterator<ChildNode, null, any> {
+    [Symbol.iterator](): Iterator<ChildNode, null, unknown> {
         const parent = this.parent;
         const end = this.endIndex;
         let step = this.startIndex;
