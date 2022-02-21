@@ -21,6 +21,7 @@ impl Card {
         self.queue = CardQueue::New;
         self.interval = 0;
         self.ease_factor = 0;
+        self.original_position = None;
     }
 
     /// If the card is new, change its position, and return true.
@@ -119,12 +120,16 @@ impl Collection {
             let cards = col.storage.all_searched_cards_in_search_order()?;
             for mut card in cards {
                 let original = card.clone();
-                card.schedule_as_new(position);
+                if let Some(original_position) = card.original_position {
+                    card.schedule_as_new(original_position);
+                } else {
+                    card.schedule_as_new(position);
+                    position += 1;
+                }
                 if log {
                     col.log_manually_scheduled_review(&card, &original, usn)?;
                 }
                 col.update_card_inner(&mut card, original, usn)?;
-                position += 1;
             }
             col.set_next_card_position(position)?;
             col.storage.clear_searched_cards_table()

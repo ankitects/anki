@@ -20,6 +20,9 @@ impl CardStateUpdater {
         self.card.ease_factor = (next.ease_factor * 1000.0).round() as u16;
         self.card.lapses = next.lapses;
         self.card.remaining_steps = 0;
+        if let Some(position) = current.new_position() {
+            self.card.original_position = Some(position)
+        }
 
         RevlogEntryPartial::new(
             current,
