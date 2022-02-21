@@ -40,12 +40,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: activeFormats = $removeFormats
         .filter((format) => format.active)
         .map((format) => format.format);
+    $: inactiveFormats = $removeFormats
+        .filter((format) => !format.active)
+        .map((format) => format.format);
 
     let showFormats: RemoveFormat<any>[];
     $: showFormats = $removeFormats.filter((format) => format.show);
 
     function remove(): void {
-        surrounder.remove(activeFormats);
+        surrounder.remove(activeFormats, inactiveFormats);
     }
 
     function onItemClick<T>(event: MouseEvent, format: RemoveFormat<T>): void {

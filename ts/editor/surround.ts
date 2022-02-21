@@ -38,11 +38,15 @@ function surroundAndSelect<T>(
     selection.addRange(surroundedRange);
 }
 
-function removeFormats(range: Range, base: Element, formats: SurroundFormat[]): Range {
+function removeFormats(range: Range, base: Element, formats: SurroundFormat[], reformats: SurroundFormat[] = []): Range {
     let surroundRange = range;
 
     for (const format of formats) {
         surroundRange = unsurround(surroundRange, base, format);
+    }
+
+    for (const format of reformats) {
+        surroundRange = reformat(surroundRange, base, format);
     }
 
     return surroundRange;
@@ -174,9 +178,9 @@ export class Surrounder {
     }
 
     /**
-     * Clear the provided formats in the current range.
+     * Clear/Reformat the provided formats in the current range.
      */
-    async remove<T>(formats: SurroundFormat<T>[]): Promise<void> {
+    async remove<T>(formats: SurroundFormat<T>[], reformats: SurroundFormat<T>[] = []): Promise<void> {
         const base = await this._assert_base();
         const selection = getSelection(base)!;
         const range = getRange(selection);
@@ -185,7 +189,7 @@ export class Surrounder {
             return;
         }
 
-        const surroundedRange = removeFormats(range, base, formats);
+        const surroundedRange = removeFormats(range, base, formats, reformats);
         selection.removeAllRanges();
         selection.addRange(surroundedRange);
     }
