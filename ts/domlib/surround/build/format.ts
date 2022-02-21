@@ -30,15 +30,6 @@ export class BuildFormat<T> {
         public readonly splitRange: SplitRange,
     ) {}
 
-    static make<T>(
-        format: SurroundFormat<T>,
-        base: Element,
-        range: Range,
-        splitRange: SplitRange,
-    ): BuildFormat<T> {
-        return new BuildFormat(format, base, range, splitRange);
-    }
-
     createMatch(element: Element): Match<T> {
         const match = new Match<T>();
         this.format.matcher(element as HTMLElement | SVGElement, match);
@@ -79,15 +70,6 @@ export class BuildFormat<T> {
 }
 
 export class UnsurroundBuildFormat<T> extends BuildFormat<T> {
-    static make<T>(
-        format: SurroundFormat<T>,
-        base: Element,
-        range: Range,
-        splitRange: SplitRange,
-    ): UnsurroundBuildFormat<T> {
-        return new UnsurroundBuildFormat(format, base, range, splitRange);
-    }
-
     tryMerge(
         before: FormattingNode<T>,
         after: FormattingNode<T>,
@@ -98,12 +80,17 @@ export class UnsurroundBuildFormat<T> extends BuildFormat<T> {
 
         return super.tryMerge(before, after);
     }
+}
 
-    tryAscend(node: FormattingNode<T>, elementNode: ElementNode): boolean {
-        if (node.insideRange !== elementNode.insideRange) {
-            false;
+export class ReformatBuildFormat<T> extends BuildFormat<T> {
+    tryMerge(
+        before: FormattingNode<T>,
+        after: FormattingNode<T>,
+    ): FormattingNode<T> | null {
+        if (before.hasMatch !== after.hasMatch) {
+            return null;
         }
 
-        return super.tryAscend(node, elementNode);
+        return super.tryMerge(before, after);
     }
 }

@@ -149,7 +149,7 @@ export class Surrounder {
             return this._toggleTrigger(base, selection, matcher, format, exclusive);
         }
 
-        const surroundedRange = reformat(range, base, format);
+        const surroundedRange = surround(range, base, format);
         selection.removeAllRanges();
         selection.addRange(surroundedRange);
     }

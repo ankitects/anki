@@ -7,10 +7,6 @@ import type { FormattingNode } from "../tree";
 export class ApplyFormat<T> {
     constructor(protected readonly format: SurroundFormat<T>) {}
 
-    static make<T>(format: SurroundFormat<T>): ApplyFormat<T> {
-        return new ApplyFormat(format);
-    }
-
     applyFormat(node: FormattingNode<T>): boolean {
         if (this.format.surroundElement) {
             node.range
@@ -26,12 +22,18 @@ export class ApplyFormat<T> {
 }
 
 export class UnsurroundApplyFormat<T> extends ApplyFormat<T> {
-    static make<T>(format: SurroundFormat<T>): UnsurroundApplyFormat<T> {
-        return new UnsurroundApplyFormat(format);
-    }
-
     applyFormat(node: FormattingNode<T>): boolean {
         if (node.insideRange) {
+            return false;
+        }
+
+        return super.applyFormat(node);
+    }
+}
+
+export class ReformatApplyFormat<T> extends ApplyFormat<T> {
+    applyFormat(node: FormattingNode<T>): boolean {
+        if (!node.hasMatch) {
             return false;
         }
 

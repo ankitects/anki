@@ -3,8 +3,18 @@
 
 import type { Matcher } from "../find-above";
 import { findFarthest } from "../find-above";
-import { apply, ApplyFormat, UnsurroundApplyFormat } from "./apply";
-import { build, BuildFormat, UnsurroundBuildFormat } from "./build";
+import {
+    apply,
+    ApplyFormat,
+    UnsurroundApplyFormat,
+    ReformatApplyFormat,
+} from "./apply";
+import {
+    build,
+    BuildFormat,
+    UnsurroundBuildFormat,
+    ReformatBuildFormat,
+} from "./build";
 import { boolMatcher } from "./match-type";
 import { splitPartiallySelected } from "./split-text";
 import type { SurroundFormat } from "./surround-format";
@@ -50,19 +60,22 @@ export function surround<T>(
     format: SurroundFormat<T>,
 ): Range {
     const splitRange = splitPartiallySelected(range);
-    const build = BuildFormat.make(format, base, range, splitRange);
-    const apply = ApplyFormat.make(format);
+    const build = new BuildFormat(format, base, range, splitRange);
+    const apply = new ApplyFormat(format);
     return surroundInner(range.commonAncestorContainer, build, apply);
 }
 
+/**
+ * Will not surround any unsurrounded text nodes in the range.
+ */
 export function reformat<T>(
     range: Range,
     base: Element,
     format: SurroundFormat<T>,
 ): Range {
     const splitRange = splitPartiallySelected(range);
-    const build = BuildFormat.make(format, base, range, splitRange);
-    const apply = ApplyFormat.make(format);
+    const build = new ReformatBuildFormat(format, base, range, splitRange);
+    const apply = new ReformatApplyFormat(format);
     return reformatInner(range, base, build, apply, boolMatcher(format));
 }
 
@@ -72,7 +85,7 @@ export function unsurround<T>(
     format: SurroundFormat<T>,
 ): Range {
     const splitRange = splitPartiallySelected(range);
-    const build = UnsurroundBuildFormat.make(format, base, range, splitRange);
-    const apply = UnsurroundApplyFormat.make(format);
+    const build = new UnsurroundBuildFormat(format, base, range, splitRange);
+    const apply = new UnsurroundApplyFormat(format);
     return reformatInner(range, base, build, apply, boolMatcher(format));
 }

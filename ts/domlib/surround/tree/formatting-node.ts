@@ -200,4 +200,13 @@ export class FormattingNode<T = never> extends TreeNode {
         // inside a range or inside a match
         return null;
     }
+
+    /**
+     * Whether the text nodes in this formatting node are affected by any match.
+     * This can only be false, if `insideRange` is true (otherwise it would have
+     * become a BlockNode).
+     */
+    get hasMatch(): boolean {
+        return this.matchLeaves.length > 0 || this.matchAncestors.length > 0;
+    }
 }

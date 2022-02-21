@@ -19,4 +19,4 @@ export function build<T>(node: Node, build: BuildFormat<T>): TreeNode[] {
     return extendAndMerge(buildFromNode(node, build, []), build);
 }
 
-export { BuildFormat, UnsurroundBuildFormat } from "./format";
+export { BuildFormat, UnsurroundBuildFormat, ReformatBuildFormat } from "./format";
