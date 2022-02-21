@@ -8,6 +8,7 @@ import { findClosest } from "../domlib/find-above";
 import type { SurroundFormat } from "../domlib/surround";
 import { boolMatcher, reformat, surround, unsurround } from "../domlib/surround";
 import { getRange, getSelection } from "../lib/cross-browser";
+import { registerPackage } from "../lib/runtime-require";
 import type { OnInsertCallback, Trigger } from "../sveltelib/input-manager";
 import type { RichTextInputAPI } from "./rich-text-input";
 
@@ -202,3 +203,7 @@ export function removeEmptyStyle(element: HTMLElement | SVGElement): boolean {
 
     return false;
 }
+
+registerPackage("anki/surround", {
+    Surrounder,
+});

@@ -27,9 +27,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export interface EditorToolbarAPI {
         toolbar: DefaultSlotInterface;
         notetypeButtons: DefaultSlotInterface;
-        formatInlineButtons: DefaultSlotInterface;
-        formatBlockButtons: DefaultSlotInterface;
-        colorButtons: DefaultSlotInterface;
+        inlineButtons: DefaultSlotInterface;
+        blockButtons: DefaultSlotInterface;
         templateButtons: DefaultSlotInterface;
         removeFormats: Writable<RemoveFormat<any>[]>;
     }
@@ -56,22 +55,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import Item from "../../components/Item.svelte";
     import StickyContainer from "../../components/StickyContainer.svelte";
-    import FormatBlockButtons from "./FormatBlockButtons.svelte";
-    import FormatInlineButtons from "./FormatInlineButtons.svelte";
+    import BlockButtons from "./BlockButtons.svelte";
+    import InlineButtons from "./InlineButtons.svelte";
     import NotetypeButtons from "./NotetypeButtons.svelte";
-    import RemoveFormatButton from "./RemoveFormatButton.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
 
     export let size: number;
     export let wrap: boolean;
 
-    const toolbar = {};
-    const notetypeButtons = {};
-    const formatInlineButtons = {};
-    const formatBlockButtons = {};
-    const colorButtons = {};
-    const templateButtons = {};
-    const removeFormats = writable<SurroundFormat[]>([]);
+    const toolbar = {} as DefaultSlotInterface;
+    const notetypeButtons = {} as DefaultSlotInterface;
+    const inlineButtons = {} as DefaultSlotInterface;
+    const blockButtons = {} as DefaultSlotInterface;
+    const templateButtons = {} as DefaultSlotInterface;
+    const removeFormats = writable<RemoveFormat<any>[]>([]);
 
     let apiPartial: Partial<EditorToolbarAPI> = {};
     export { apiPartial as api };
@@ -79,12 +76,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const api: EditorToolbarAPI = Object.assign(apiPartial, {
         toolbar,
         notetypeButtons,
-        formatInlineButtons,
-        formatBlockButtons,
-        colorButtons,
+        inlineButtons,
+        blockButtons,
         templateButtons,
         removeFormats,
-    } as unknown as EditorToolbarAPI);
+    } as EditorToolbarAPI);
 
     setContextProperty(api);
 </script>
@@ -99,13 +95,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </Item>
 
             <Item id="inlineFormatting">
-                <FormatInlineButtons api={formatInlineButtons} />
+                <InlineButtons api={inlineButtons} />
             </Item>
 
-            <RemoveFormatButton />
-
             <Item id="blockFormatting">
-                <FormatBlockButtons api={formatBlockButtons} />
+                <BlockButtons api={blockButtons} />
             </Item>
 
             <Item id="template">

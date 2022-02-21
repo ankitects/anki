@@ -3,7 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import ButtonGroup from "../../components/ButtonGroup.svelte";
     import Checkbox from "../../components/CheckBox.svelte";
     import DropdownItem from "../../components/DropdownItem.svelte";
     import DropdownMenu from "../../components/DropdownMenu.svelte";
@@ -63,43 +62,38 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const keyCombination = "Control+R";
 </script>
 
-<ButtonGroup>
-    <IconButton
-        tooltip="{tr.editingRemoveFormatting()} ({getPlatformString(keyCombination)})"
-        {disabled}
-        on:click={remove}
-        --border-left-radius="5px"
-    >
-        {@html eraserIcon}
-    </IconButton>
-    <Shortcut {keyCombination} on:action={remove} />
+<IconButton
+    tooltip="{tr.editingRemoveFormatting()} ({getPlatformString(keyCombination)})"
+    {disabled}
+    on:click={remove}
+    --border-left-radius="5px"
+>
+    {@html eraserIcon}
+</IconButton>
 
-    <div class="hide-after">
-        <WithDropdown
-            autoClose="outside"
-            let:createDropdown
-            --border-right-radius="5px"
+<Shortcut {keyCombination} on:action={remove} />
+
+<div class="hide-after">
+    <WithDropdown autoClose="outside" let:createDropdown --border-right-radius="5px">
+        <IconButton
+            tooltip="Choose formats"
+            {disabled}
+            widthMultiplier={0.5}
+            on:mount={withButton(createDropdown)}
         >
-            <IconButton
-                tooltip="Choose formats"
-                {disabled}
-                widthMultiplier={0.5}
-                on:mount={withButton(createDropdown)}
-            >
-                {@html arrowIcon}
-            </IconButton>
+            {@html arrowIcon}
+        </IconButton>
 
-            <DropdownMenu on:mousedown={(event) => event.preventDefault()}>
-                {#each showFormats as format (format.name)}
-                    <DropdownItem on:click={(event) => onItemClick(event, format)}>
-                        <Checkbox bind:value={format.active} />
-                        <span class="d-flex-inline ps-3">{format.name}</span>
-                    </DropdownItem>
-                {/each}
-            </DropdownMenu>
-        </WithDropdown>
-    </div>
-</ButtonGroup>
+        <DropdownMenu on:mousedown={(event) => event.preventDefault()}>
+            {#each showFormats as format (format.name)}
+                <DropdownItem on:click={(event) => onItemClick(event, format)}>
+                    <Checkbox bind:value={format.active} />
+                    <span class="d-flex-inline ps-3">{format.name}</span>
+                </DropdownItem>
+            {/each}
+        </DropdownMenu>
+    </WithDropdown>
+</div>
 
 <style lang="scss">
     .hide-after {
