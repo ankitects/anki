@@ -11,7 +11,7 @@ import anki.collection
 import anki.decks
 import anki.notes
 import anki.template
-from anki import cards_pb2, hooks
+from anki import cards_pb2, generic_pb2, hooks
 from anki._legacy import DeprecatedNamesMixin, deprecated
 from anki.consts import *
 from anki.models import NotetypeDict, TemplateDict
@@ -89,11 +89,13 @@ class Card(DeprecatedNamesMixin):
         self.odue = card.original_due
         self.odid = anki.decks.DeckId(card.original_deck_id)
         self.flags = card.flags
-        self.original_position = card.original_position.val
+        self.original_position = (
+            card.original_position.val if card.HasField("original_position") else None
+        )
 
     def _to_backend_card(self) -> cards_pb2.Card:
         # mtime & usn are set by backend
-        pb_card = cards_pb2.Card(
+        return cards_pb2.Card(
             id=self.id,
             note_id=self.nid,
             deck_id=self.did,
@@ -109,10 +111,10 @@ class Card(DeprecatedNamesMixin):
             original_due=self.odue,
             original_deck_id=self.odid,
             flags=self.flags,
+            original_position=generic_pb2.UInt32(val=self.original_position)
+            if self.original_position is not None
+            else None,
         )
-        if self.original_position:
-            pb_card.original_position.val = self.original_position
-        return pb_card
 
     def flush(self) -> None:
         hooks.card_will_flush(self)
