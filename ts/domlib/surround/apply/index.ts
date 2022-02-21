@@ -5,7 +5,7 @@ import type { TreeNode } from "../tree";
 import { FormattingNode } from "../tree";
 import type { ApplyFormat } from "./format";
 
-function applyFormat<T>(
+function iterate<T>(
     node: TreeNode,
     format: ApplyFormat<T>,
     leftShift: number,
@@ -13,13 +13,21 @@ function applyFormat<T>(
     let innerShift = 0;
 
     for (const child of node.children) {
-        innerShift += applyFormat(child, format, innerShift);
+        innerShift += iterate(child, format, innerShift);
     }
 
-    if (!(node instanceof FormattingNode)) {
-        return 0;
-    }
+    return node instanceof FormattingNode ? applyFormat(node, format, leftShift, innerShift) : 0;
+}
 
+/**
+ * @returns Inner shift.
+ */
+function applyFormat<T>(
+    node: FormattingNode<T>,
+    format: ApplyFormat<T>,
+    leftShift: number,
+    innerShift: number,
+): number {
     node.range.startIndex += leftShift;
     node.range.endIndex += leftShift + innerShift;
 
@@ -28,8 +36,13 @@ function applyFormat<T>(
         : 0;
 }
 
-export function apply<T>(node: TreeNode, format: ApplyFormat<T>): number {
-    return applyFormat(node, format, 0);
+export function apply<T>(nodes: TreeNode[], format: ApplyFormat<T>): void {
+    debugger;
+    let innerShift = 0;
+
+    for (const node of nodes) {
+        innerShift += iterate(node, format, innerShift);
+    }
 }
 
 export { ApplyFormat, UnsurroundApplyFormat } from "./format";

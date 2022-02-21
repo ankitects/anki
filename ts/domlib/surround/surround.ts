@@ -15,11 +15,7 @@ function surroundInner<T>(
     applyFormat: ApplyFormat<T>,
 ): Range {
     const forest = build(node, buildFormat);
-
-    for (const tree of forest) {
-        apply(tree, applyFormat);
-    }
-
+    apply(forest, applyFormat);
     return buildFormat.recreateRange();
 }
 
@@ -27,7 +23,7 @@ function reformatInner<T>(
     range: Range,
     base: Element,
     build: BuildFormat<T>,
-    evaluate: ApplyFormat<T>,
+    apply: ApplyFormat<T>,
     matcher: Matcher,
 ): Range {
     const farthestMatchingAncestor = findFarthest(
@@ -37,9 +33,9 @@ function reformatInner<T>(
     );
 
     if (farthestMatchingAncestor) {
-        return surroundInner(farthestMatchingAncestor, build, evaluate);
+        return surroundInner(farthestMatchingAncestor, build, apply);
     } else {
-        return surroundInner(range.commonAncestorContainer, build, evaluate);
+        return surroundInner(range.commonAncestorContainer, build, apply);
     }
 }
 
@@ -55,8 +51,8 @@ export function surround<T>(
 ): Range {
     const splitRange = splitPartiallySelected(range);
     const build = BuildFormat.make(format, base, range, splitRange);
-    const evaluate = ApplyFormat.make(format);
-    return surroundInner(range.commonAncestorContainer, build, evaluate);
+    const apply = ApplyFormat.make(format);
+    return surroundInner(range.commonAncestorContainer, build, apply);
 }
 
 export function reformat<T>(
@@ -66,8 +62,8 @@ export function reformat<T>(
 ): Range {
     const splitRange = splitPartiallySelected(range);
     const build = BuildFormat.make(format, base, range, splitRange);
-    const evaluate = ApplyFormat.make(format);
-    return reformatInner(range, base, build, evaluate, boolMatcher(format));
+    const apply = ApplyFormat.make(format);
+    return reformatInner(range, base, build, apply, boolMatcher(format));
 }
 
 export function unsurround<T>(
@@ -77,6 +73,6 @@ export function unsurround<T>(
 ): Range {
     const splitRange = splitPartiallySelected(range);
     const build = UnsurroundBuildFormat.make(format, base, range, splitRange);
-    const evaluate = UnsurroundApplyFormat.make(format);
-    return reformatInner(range, base, build, evaluate, boolMatcher(format));
+    const apply = UnsurroundApplyFormat.make(format);
+    return reformatInner(range, base, build, apply, boolMatcher(format));
 }

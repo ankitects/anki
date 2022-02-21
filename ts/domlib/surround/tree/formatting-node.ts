@@ -73,6 +73,10 @@ export class FormattingNode<T = never> extends TreeNode {
         return node;
     }
 
+    toString(): string {
+        return this.range.toString();
+    }
+
     /**
      * An ascent is placing a FormattingNode above a ElementNode.
      * In other terms, if the ElementNode matches, it means that the node creating
