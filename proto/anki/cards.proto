@@ -40,8 +40,8 @@ message Card {
   uint32 remaining_steps = 14;
   sint32 original_due = 15;
   int64 original_deck_id = 16;
-  uint32 flags = 18;
-  generic.UInt32 original_position = 17;
+  uint32 flags = 17;
+  generic.UInt32 original_position = 18;
 }
 
 message UpdateCardsRequest {
