@@ -6,14 +6,14 @@ import { findFarthest } from "../find-above";
 import {
     apply,
     ApplyFormat,
-    UnsurroundApplyFormat,
     ReformatApplyFormat,
+    UnsurroundApplyFormat,
 } from "./apply";
 import {
     build,
     BuildFormat,
-    UnsurroundBuildFormat,
     ReformatBuildFormat,
+    UnsurroundBuildFormat,
 } from "./build";
 import { boolMatcher } from "./match-type";
 import { splitPartiallySelected } from "./split-text";

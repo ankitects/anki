@@ -38,7 +38,12 @@ function surroundAndSelect<T>(
     selection.addRange(surroundedRange);
 }
 
-function removeFormats(range: Range, base: Element, formats: SurroundFormat[], reformats: SurroundFormat[] = []): Range {
+function removeFormats(
+    range: Range,
+    base: Element,
+    formats: SurroundFormat[],
+    reformats: SurroundFormat[] = [],
+): Range {
     let surroundRange = range;
 
     for (const format of formats) {
@@ -93,13 +98,12 @@ export class Surrounder {
             this.trigger!.remove();
         } else {
             this.trigger!.add(async ({ node }: { node: Node }) => {
-                const initialRange = new Range();
-                initialRange.selectNode(node);
+                const range = new Range();
+                range.selectNode(node);
 
                 const matches = Boolean(findClosest(node, base, matcher));
-                const range = removeFormats(initialRange, base, exclusive);
-
-                surroundAndSelect(matches, range, base, format, selection);
+                const clearedRange = removeFormats(range, base, exclusive);
+                surroundAndSelect(matches, clearedRange, base, format, selection);
                 selection.collapseToEnd();
             });
         }
@@ -126,8 +130,9 @@ export class Surrounder {
             return this._toggleTrigger(base, selection, matcher, format, exclusive);
         }
 
-        const matches = isSurroundedInner(range, base, matcher);
-        surroundAndSelect(matches, range, base, format, selection);
+        const clearedRange = removeFormats(range, base, exclusive);
+        const matches = isSurroundedInner(clearedRange, base, matcher);
+        surroundAndSelect(matches, clearedRange, base, format, selection);
     }
 
     /**
@@ -153,7 +158,8 @@ export class Surrounder {
             return this._toggleTrigger(base, selection, matcher, format, exclusive);
         }
 
-        const surroundedRange = surround(range, base, format);
+        const clearedRange = removeFormats(range, base, exclusive);
+        const surroundedRange = surround(clearedRange, base, format);
         selection.removeAllRanges();
         selection.addRange(surroundedRange);
     }
@@ -180,7 +186,10 @@ export class Surrounder {
     /**
      * Clear/Reformat the provided formats in the current range.
      */
-    async remove<T>(formats: SurroundFormat<T>[], reformats: SurroundFormat<T>[] = []): Promise<void> {
+    async remove<T>(
+        formats: SurroundFormat<T>[],
+        reformats: SurroundFormat<T>[] = [],
+    ): Promise<void> {
         const base = await this._assert_base();
         const selection = getSelection(base)!;
         const range = getRange(selection);

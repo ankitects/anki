@@ -42,4 +42,4 @@ export function apply<T>(nodes: TreeNode[], format: ApplyFormat<T>): void {
     }
 }
 
-export { ApplyFormat, UnsurroundApplyFormat, ReformatApplyFormat } from "./format";
+export { ApplyFormat, ReformatApplyFormat, UnsurroundApplyFormat } from "./format";

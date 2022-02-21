@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Shortcut from "../../components/Shortcut.svelte";
     import WithDropdown from "../../components/WithDropdown.svelte";
     import type { SurroundFormat } from "../../domlib/surround";
+    import type { MatchType } from "../../domlib/surround";
     import * as tr from "../../lib/ftl";
     import { altPressed } from "../../lib/keys";
     import { getPlatformString } from "../../lib/shortcuts";
@@ -21,7 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { eraserIcon } from "./icons";
     import { arrowIcon } from "./icons";
-    import type { MatchType } from "../../domlib/surround";
 
     const { focusedInput } = noteEditorContext.get();
     const surrounder = Surrounder.make();
