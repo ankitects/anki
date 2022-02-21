@@ -62,7 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function updateStateFromActiveInput(): Promise<boolean> {
-        return disabled ? Promise.resolve(false) : surrounder!.isSurrounded(format);
+        return disabled ? Promise.resolve(false) : surrounder.isSurrounded(format);
     }
 
     function makeBold(): void {

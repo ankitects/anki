@@ -33,7 +33,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return span.style.getPropertyValue("background-color");
     }
 
-    function matcher(element: HTMLElement | SVGElement, match: MatchType): void {
+    function matcher(
+        element: HTMLElement | SVGElement,
+        match: MatchType<string>,
+    ): void {
         const value = element.style.getPropertyValue("background-color");
 
         if (value.length === 0) {
@@ -50,11 +53,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    function merger(before: FormattingNode, after: FormattingNode): boolean {
+    function merger(
+        before: FormattingNode<string>,
+        after: FormattingNode<string>,
+    ): boolean {
         return before.getCache(transformedColor) === after.getCache(transformedColor);
     }
 
-    function formatter(node: FormattingNode): boolean {
+    function formatter(node: FormattingNode<string>): boolean {
         const extension = node.extensions.find(
             (element: HTMLElement | SVGElement): boolean => element.tagName === "SPAN",
         );
@@ -77,7 +83,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         formatter,
     };
 
-    const namedFormat: RemoveFormat = {
+    const namedFormat: RemoveFormat<string> = {
         name: tr.editingTextHighlightColor(),
         show: true,
         active: true,

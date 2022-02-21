@@ -1,12 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { elementIsBlock } from "../../lib/dom";
-import { Position } from "../location";
-import type { SurroundFormat } from "./format-surround";
-import { ElementNode, FormattingNode } from "./formatting-tree";
-import { Match } from "./match-type";
-import type { SplitRange } from "./split-text";
+import { elementIsBlock } from "../../../lib/dom";
+import { Position } from "../../location";
+import { Match } from "../match-type";
+import type { SplitRange } from "../split-text";
+import type { SurroundFormat } from "../surround-format";
+import { ElementNode, FormattingNode } from "../tree";
 
 function nodeWithinRange(node: Node, range: Range): boolean {
     const nodeRange = new Range();
@@ -19,30 +19,36 @@ function nodeWithinRange(node: Node, range: Range): boolean {
     );
 }
 
-export class ParseFormat {
+/**
+ * Takes user-provided functions as input, to modify certain parts of the algorithm.
+ */
+export class BuildFormat<T> {
     constructor(
-        public readonly format: SurroundFormat,
+        public readonly format: SurroundFormat<T>,
         public readonly base: Element,
         public readonly range: Range,
         public readonly splitRange: SplitRange,
     ) {}
 
-    static make(
-        format: SurroundFormat,
+    static make<T>(
+        format: SurroundFormat<T>,
         base: Element,
         range: Range,
         splitRange: SplitRange,
-    ): ParseFormat {
-        return new ParseFormat(format, base, range, splitRange);
+    ): BuildFormat<T> {
+        return new BuildFormat(format, base, range, splitRange);
     }
 
-    createMatch(element: Element): Match {
-        const match = new Match();
+    createMatch(element: Element): Match<T> {
+        const match = new Match<T>();
         this.format.matcher(element as HTMLElement | SVGElement, match);
         return match;
     }
 
-    tryMerge(before: FormattingNode, after: FormattingNode): FormattingNode | null {
+    tryMerge(
+        before: FormattingNode<T>,
+        after: FormattingNode<T>,
+    ): FormattingNode<T> | null {
         if (!this.format.merger || this.format.merger(before, after)) {
             return FormattingNode.merge(before, after);
         }
@@ -50,12 +56,8 @@ export class ParseFormat {
         return null;
     }
 
-    tryAscend(node: FormattingNode, elementNode: ElementNode): boolean {
-        if (
-            !elementIsBlock(elementNode.element) &&
-            elementNode.element !== this.base &&
-            (!this.format.ascender || this.format.ascender(node, elementNode))
-        ) {
+    tryAscend(node: FormattingNode<T>, elementNode: ElementNode): boolean {
+        if (!elementIsBlock(elementNode.element) && elementNode.element !== this.base) {
             node.ascendAbove(elementNode);
             return true;
         }
@@ -76,17 +78,20 @@ export class ParseFormat {
     }
 }
 
-export class UnsurroundParseFormat extends ParseFormat {
-    static make(
-        format: SurroundFormat,
+export class UnsurroundBuildFormat<T> extends BuildFormat<T> {
+    static make<T>(
+        format: SurroundFormat<T>,
         base: Element,
         range: Range,
         splitRange: SplitRange,
-    ): UnsurroundParseFormat {
-        return new UnsurroundParseFormat(format, base, range, splitRange);
+    ): UnsurroundBuildFormat<T> {
+        return new UnsurroundBuildFormat(format, base, range, splitRange);
     }
 
-    tryMerge(before: FormattingNode, after: FormattingNode): FormattingNode | null {
+    tryMerge(
+        before: FormattingNode<T>,
+        after: FormattingNode<T>,
+    ): FormattingNode<T> | null {
         if (before.insideRange !== after.insideRange) {
             return null;
         }
@@ -94,7 +99,7 @@ export class UnsurroundParseFormat extends ParseFormat {
         return super.tryMerge(before, after);
     }
 
-    tryAscend(node: FormattingNode, elementNode: ElementNode): boolean {
+    tryAscend(node: FormattingNode<T>, elementNode: ElementNode): boolean {
         if (node.insideRange !== elementNode.insideRange) {
             false;
         }

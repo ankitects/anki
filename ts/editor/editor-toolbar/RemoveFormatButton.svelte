@@ -37,19 +37,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const { removeFormats } = editorToolbarContext.get();
 
-    let activeFormats: SurroundFormat[];
+    let activeFormats: SurroundFormat<unknown>[];
     $: activeFormats = $removeFormats
         .filter((format) => format.active)
         .map((format) => format.format);
 
-    let showFormats: RemoveFormat[];
+    let showFormats: RemoveFormat<any>[];
     $: showFormats = $removeFormats.filter((format) => format.show);
 
     function remove(): void {
         surrounder.remove(activeFormats);
     }
 
-    function onItemClick(event: MouseEvent, format: RemoveFormat): void {
+    function onItemClick<T>(event: MouseEvent, format: RemoveFormat<T>): void {
         if (altPressed(event)) {
             for (const format of showFormats) {
                 format.active = false;

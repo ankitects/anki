@@ -17,11 +17,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         resetAllState(false);
     }
 
-    export interface RemoveFormat {
+    export interface RemoveFormat<T> {
         name: string;
         show: boolean;
         active: boolean;
-        format: SurroundFormat;
+        format: SurroundFormat<T>;
     }
 
     export interface EditorToolbarAPI {
@@ -31,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         formatBlockButtons: DefaultSlotInterface;
         colorButtons: DefaultSlotInterface;
         templateButtons: DefaultSlotInterface;
-        removeFormats: Writable<RemoveFormat[]>;
+        removeFormats: Writable<RemoveFormat<unknown>[]>;
     }
 
     /* Our dynamic components */
@@ -84,7 +84,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         colorButtons,
         templateButtons,
         removeFormats,
-    } as EditorToolbarAPI);
+    } as unknown as EditorToolbarAPI);
 
     setContextProperty(api);
 </script>

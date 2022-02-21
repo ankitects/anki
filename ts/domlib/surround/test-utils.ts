@@ -5,7 +5,7 @@ import type { MatchType } from "./match-type";
 
 export const matchTagName =
     (tagName: string) =>
-    (element: Element, match: MatchType): void => {
+    <T>(element: Element, match: MatchType<T>): void => {
         if (element.matches(tagName)) {
             match.remove();
         }

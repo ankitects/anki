@@ -1,15 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-export interface MatchType {
+import type { SurroundFormat } from "./surround-format";
+
+export interface MatchType<T = never> {
     remove(): void;
     clear(callback: () => void): void;
-    setCache(value: any): void;
+    setCache(value: T): void;
 }
 
 type Callback = () => void;
 
-export class Match implements MatchType {
+export class Match<T> implements MatchType<T> {
     private _callback: Callback | null = null;
     private _shouldRemove = false;
 
@@ -50,14 +52,14 @@ export class Match implements MatchType {
     }
 
     /** TODO try typing this */
-    cache: any | null = null;
+    cache: T | null = null;
 
-    setCache(value: any): void {
+    setCache(value: T): void {
         this.cache = value;
     }
 }
 
-export class FakeMatch implements MatchType {
+class FakeMatch implements MatchType<never> {
     public value = false;
 
     remove(): void {
@@ -71,4 +73,17 @@ export class FakeMatch implements MatchType {
     setCache(): void {
         // noop
     }
+}
+
+/**
+ * Turns the format.matcher into a function that can be used with `findAbove`.
+ */
+export function boolMatcher<T>(
+    format: SurroundFormat<T>,
+): (element: Element) => boolean {
+    return function (element: Element): boolean {
+        const fake = new FakeMatch();
+        format.matcher(element as HTMLElement | SVGElement, fake);
+        return fake.value;
+    };
 }

@@ -1,18 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { nodeIsElement, nodeIsText } from "../../../lib/dom";
-import type { ParseFormat } from "../format-parse";
-import type { TreeNode } from "../formatting-tree";
-import { BlockNode, ElementNode, FormattingNode } from "../formatting-tree";
+import { elementIsEmpty,nodeIsElement, nodeIsText } from "../../../lib/dom";
 import type { Match } from "../match-type";
-import { elementIsNegligible, textIsNegligible } from "../node-negligible";
+import type { TreeNode } from "../tree";
+import { BlockNode, ElementNode, FormattingNode } from "../tree";
 import { appendNode } from "./add-merge";
+import type { BuildFormat } from "./format";
 
-function buildFromElement(
+function buildFromElement<T>(
     element: Element,
-    format: ParseFormat,
-    matchAncestors: Match[],
+    format: BuildFormat<T>,
+    matchAncestors: Match<T>[],
 ): TreeNode[] {
     const match = format.createMatch(element);
 
@@ -53,7 +52,6 @@ function buildFromElement(
     const matchNode = ElementNode.make(
         element,
         children.every((node: TreeNode): boolean => node.insideRange),
-        matchAncestors,
     );
 
     if (children.length === 0) {
@@ -76,11 +74,11 @@ function buildFromElement(
     return [matchNode];
 }
 
-function buildFromText(
+function buildFromText<T>(
     text: Text,
-    format: ParseFormat,
-    matchAncestors: Match[],
-): FormattingNode | BlockNode {
+    format: BuildFormat<T>,
+    matchAncestors: Match<T>[],
+): FormattingNode<T> | BlockNode {
     const insideRange = format.isInsideRange(text);
 
     if (!insideRange && matchAncestors.length === 0) {
@@ -90,15 +88,23 @@ function buildFromText(
     return FormattingNode.fromText(text, insideRange, matchAncestors);
 }
 
+function elementIsNegligible(element: Element): boolean {
+    return elementIsEmpty(element);
+}
+
+function textIsNegligible(text: Text): boolean {
+    return text.length === 0;
+}
+
 /**
  * Builds a formatting tree starting at node.
  *
  * @returns root of the formatting tree
  */
-export function buildFromNode(
+export function buildFromNode<T>(
     node: Node,
-    format: ParseFormat,
-    matchAncestors: Match[],
+    format: BuildFormat<T>,
+    matchAncestors: Match<T>[],
 ): TreeNode[] {
     if (nodeIsText(node) && !textIsNegligible(node)) {
         return [buildFromText(node, format, matchAncestors)];

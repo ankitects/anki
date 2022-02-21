@@ -1,39 +1,43 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { nodeIsElement } from "../../../lib/dom";
 import { FlatRange } from "../flat-range";
-import type { EvaluateFormat } from "../format-evaluate";
-import type { ParseFormat } from "../format-parse";
 import type { Match } from "../match-type";
 import { ElementNode } from "./element-node";
 import { TreeNode } from "./tree-node";
-import { nodeIsElement } from "../../../lib/dom";
 
 /**
  * Represents a potential insertion point for a tag or, more generally, a point for starting a format procedure.
  */
-export class FormattingNode extends TreeNode {
+export class FormattingNode<T = never> extends TreeNode {
     private constructor(
         public readonly range: FlatRange,
         public readonly insideRange: boolean,
-        public readonly matchAncestors: Match[],
+        /**
+         * Match ancestors are all matching matches that are direct ancestors
+         * of `this`. This is important for deciding whether a text node is
+         * turned into a FormattingNode or into a BlockNode, if it is outside
+         * the initial DOM range.
+         */
+        public readonly matchAncestors: Match<T>[],
     ) {
-        super(insideRange, matchAncestors);
+        super(insideRange);
     }
 
-    private static make(
+    private static make<T>(
         range: FlatRange,
         insideRange: boolean,
-        matchAncestors: Match[],
-    ): FormattingNode {
+        matchAncestors: Match<T>[],
+    ): FormattingNode<T> {
         return new FormattingNode(range, insideRange, matchAncestors);
     }
 
-    static fromText(
+    static fromText<T>(
         text: Text,
         insideRange: boolean,
-        matchAncestors: Match[],
-    ): FormattingNode {
+        matchAncestors: Match<T>[],
+    ): FormattingNode<T> {
         return FormattingNode.make(
             FlatRange.fromNode(text),
             insideRange,
@@ -52,7 +56,10 @@ export class FormattingNode extends TreeNode {
      * `<b>before</b><img src="image.jpg"><b>after</b>` into
      * `<b>before<img src="image.jpg">after</b>` (negligible nodes inbetween).
      */
-    static merge(before: FormattingNode, after: FormattingNode): FormattingNode {
+    static merge<T>(
+        before: FormattingNode<T>,
+        after: FormattingNode<T>,
+    ): FormattingNode<T> {
         const node = FormattingNode.make(
             FlatRange.merge(before.range, after.range),
             before.insideRange && after.insideRange,
@@ -99,28 +106,14 @@ export class FormattingNode extends TreeNode {
      *
      * @returns Whether formatting node ascended at least one level
      */
-    extendAndAscend(format: ParseFormat): boolean {
+    getExtension(): ElementNode | null {
         const node = this.range.parent;
 
         if (nodeIsElement(node)) {
-            const extension = ElementNode.make(node, this.insideRange);
-            return format.tryAscend(this, extension);
+            return ElementNode.make(node, this.insideRange);
         }
 
-        return false;
-    }
-
-    evaluate(format: EvaluateFormat, leftShift: number): number {
-        let innerShift = 0;
-        for (const child of this.children) {
-            innerShift += child.evaluate(format, innerShift);
-        }
-
-        this.range.startIndex += leftShift;
-        this.range.endIndex += leftShift + innerShift;
-        return format.applyFormat(this)
-            ? this.range.startIndex - this.range.endIndex + 1
-            : 0;
+        return null;
     }
 
     // The following methods are meant for users when specifying their surround
@@ -141,7 +134,7 @@ export class FormattingNode extends TreeNode {
      * @remarks
      * These are important for some ascenders and/or mergers.
      */
-    matchLeaves: Match[] = [];
+    matchLeaves: Match<T>[] = [];
 
     /**
      * Match holes are text nodes that are not inside any matches that are
@@ -151,7 +144,7 @@ export class FormattingNode extends TreeNode {
      */
     hasMatchHoles = true;
 
-    get firstLeaf(): Match | null {
+    get firstLeaf(): Match<T> | null {
         if (this.matchLeaves.length === 0) {
             return null;
         }
@@ -159,7 +152,7 @@ export class FormattingNode extends TreeNode {
         return this.matchLeaves[0];
     }
 
-    get closestAncestor(): Match | null {
+    get closestAncestor(): Match<T> | null {
         if (this.matchAncestors.length === 0) {
             return null;
         }
@@ -181,7 +174,7 @@ export class FormattingNode extends TreeNode {
      */
     extensions: (HTMLElement | SVGElement)[] = [];
 
-    getCache(defaultValue: any): any | null {
+    getCache(defaultValue: T): T | null {
         if (this.insideRange) {
             return defaultValue;
         } else if (this.firstLeaf) {
@@ -190,7 +183,7 @@ export class FormattingNode extends TreeNode {
             return this.closestAncestor.cache;
         }
 
-        // Should never happen, because a formatting node is always either
+        // Should never happen, as a formatting node is always either
         // inside a range or inside a match
         return null;
     }

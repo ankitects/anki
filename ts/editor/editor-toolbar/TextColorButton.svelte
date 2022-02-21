@@ -14,6 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
+    import { pageTheme } from "../../sveltelib/theme";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
     import { removeEmptyStyle, Surrounder } from "../surround";
@@ -21,7 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { arrowIcon, textColorIcon } from "./icons";
     import WithColorHelper from "./WithColorHelper.svelte";
-    import { pageTheme } from "../../sveltelib/theme";
 
     export let color: string;
 
@@ -40,9 +40,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return element.tagName === "FONT";
     }
 
-    function matcher(element: HTMLElement | SVGElement, match: MatchType): void {
+    function matcher(
+        element: HTMLElement | SVGElement,
+        match: MatchType<string>,
+    ): void {
         if (isFontElement(element) && element.hasAttribute("color")) {
-            match.setCache(element.getAttribute("color"));
+            match.setCache(element.getAttribute("color")!);
             return match.remove();
         }
 
@@ -62,11 +65,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         });
     }
 
-    function merger(before: FormattingNode, after: FormattingNode): boolean {
+    function merger(
+        before: FormattingNode<string>,
+        after: FormattingNode<string>,
+    ): boolean {
         return before.getCache(transformedColor) === after.getCache(transformedColor);
     }
 
-    function formatter(node: FormattingNode): boolean {
+    function formatter(node: FormattingNode<string>): boolean {
         const extension = node.extensions.find(
             (element: HTMLElement | SVGElement): boolean => element.tagName === "SPAN",
         );
@@ -83,7 +89,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return true;
     }
 
-    const format: SurroundFormat = {
+    const format: SurroundFormat<string> = {
         matcher,
         merger,
         formatter,

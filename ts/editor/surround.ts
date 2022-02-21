@@ -21,11 +21,11 @@ function isSurroundedInner(
     );
 }
 
-function surroundAndSelect(
+function surroundAndSelect<T>(
     matches: boolean,
     range: Range,
     base: HTMLElement,
-    format: SurroundFormat,
+    format: SurroundFormat<T>,
     selection: Selection,
 ): void {
     const surroundedRange = matches
@@ -36,7 +36,7 @@ function surroundAndSelect(
     selection.addRange(surroundedRange);
 }
 
-function removeFormats(range: Range, formats: SurroundFormat[], base: Element): Range {
+function removeFormats(range: Range, base: Element, formats: SurroundFormat[]): Range {
     let surroundRange = range;
 
     for (const format of formats) {
@@ -78,40 +78,48 @@ export class Surrounder {
         return await this.api.element;
     }
 
+    private _toggleTrigger<T>(base: HTMLElement, selection: Selection, matcher: Matcher, format: SurroundFormat<T>, exclusive: SurroundFormat<T>[]): void {
+        if (get(this.trigger.active)) {
+            this.trigger.remove();
+        } else {
+            this.trigger.add(async ({ node }: { node: Node }) => {
+                const initialRange = new Range()
+                initialRange.selectNode(node);
+
+                const matches = Boolean(findClosest(node, base, matcher));
+                const range = removeFormats(initialRange, base, exclusive);
+
+
+                surroundAndSelect(matches, range, base, format, selection);
+                selection.collapseToEnd();
+            });
+        }
+    }
+
     /**
      * Use the surround command on the current range of the RichTextInput.
      * If the range is already surrounded, it will unsurround instead.
      */
-    async surround(
-        format: SurroundFormat,
-        exclusive: SurroundFormat[] = [],
+    async surround<T>(
+        format: SurroundFormat<T>,
+        exclusive: SurroundFormat<T>[]
     ): Promise<void> {
         const base = await this._assert_base();
         const selection = getSelection(base)!;
-        const initialRange = getRange(selection);
+        const range = getRange(selection);
         const matcher = boolMatcher(format);
 
-        if (!initialRange) {
+
+        if (!range) {
             return;
-        } else if (initialRange.collapsed) {
-            if (get(this.trigger.active)) {
-                this.trigger.remove();
-            } else {
-                this.trigger.add(async ({ node }: { node: Node }) => {
-                    initialRange.selectNode(node);
-
-                    const matches = Boolean(findClosest(node, base, matcher));
-                    const range = removeFormats(initialRange, exclusive, base);
-
-                    surroundAndSelect(matches, range, base, format, selection);
-                    selection.collapseToEnd();
-                });
-            }
-        } else {
-            const matches = isSurroundedInner(initialRange, base, matcher);
-            const range = removeFormats(initialRange, exclusive, base);
-            surroundAndSelect(matches, range, base, format, selection);
         }
+
+        if (range.collapsed) {
+            return this._toggleTrigger(base, selection, matcher, format, exclusive);
+        }
+
+        const matches = isSurroundedInner(range, base, matcher);
+        surroundAndSelect(matches, range, base, format, selection);
     }
 
     /**
@@ -120,36 +128,23 @@ export class Surrounder {
      * This might be better suited if the surrounding is parameterized (like
      * text color).
      */
-    async overwriteSurround(
-        format: SurroundFormat,
-        exclusive: SurroundFormat[] = [],
-    ): Promise<void> {
+    async overwriteSurround<T>(format: SurroundFormat<T>, exclusive: SurroundFormat<T>[]): Promise<void> {
         const base = await this._assert_base();
         const selection = getSelection(base)!;
-        const initialRange = getRange(selection);
+        const range = getRange(selection);
         const matcher = boolMatcher(format);
 
-        if (!initialRange) {
+        if (!range) {
             return;
-        } else if (initialRange.collapsed) {
-            if (get(this.trigger.active)) {
-                this.trigger.remove();
-            } else {
-                this.trigger.add(async ({ node }: { node: Node }): Promise<void> => {
-                    initialRange.selectNode(node);
-
-                    const range = removeFormats(initialRange, exclusive, base);
-                    const matches = Boolean(findClosest(node, base, matcher));
-                    surroundAndSelect(matches, range, base, format, selection);
-                    selection.collapseToEnd();
-                });
-            }
-        } else {
-            const range = removeFormats(initialRange, exclusive, base);
-            const surroundedRange = reformat(range, base, format);
-            selection.removeAllRanges();
-            selection.addRange(surroundedRange);
         }
+
+        if (range.collapsed) {
+            return this._toggleTrigger(base, selection, matcher, format, exclusive);
+        }
+
+        const surroundedRange = reformat(range, base, format);
+        selection.removeAllRanges();
+        selection.addRange(surroundedRange);
     }
 
     /**
@@ -158,7 +153,7 @@ export class Surrounder {
      * provided format, OR if a surround trigger is active (surround on next
      * text insert).
      */
-    async isSurrounded(format: SurroundFormat): Promise<boolean> {
+    async isSurrounded<T>(format: SurroundFormat<T>): Promise<boolean> {
         const base = await this._assert_base();
         const selection = getSelection(base)!;
         const range = getRange(selection);
@@ -174,18 +169,18 @@ export class Surrounder {
     /**
      * Clear the provided formats in the current range.
      */
-    async remove(formats: SurroundFormat[]): Promise<void> {
+    async remove<T>(formats: SurroundFormat<T>[]): Promise<void> {
         const base = await this._assert_base();
         const selection = getSelection(base)!;
         const range = getRange(selection);
 
         if (!range || range.collapsed) {
             return;
-        } else {
-            const surroundedRange = removeFormats(range, formats, base);
-            selection.removeAllRanges();
-            selection.addRange(surroundedRange);
         }
+
+        const surroundedRange = removeFormats(range, base, formats);
+        selection.removeAllRanges();
+        selection.addRange(surroundedRange);
     }
 }
 

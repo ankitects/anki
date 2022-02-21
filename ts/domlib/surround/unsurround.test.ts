@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { unsurround } from "./no-splitting";
+import { unsurround } from "./surround";
 import { easyBold, p } from "./test-utils";
 
 describe("unsurround text", () => {
