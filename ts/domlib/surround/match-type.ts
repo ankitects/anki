@@ -4,28 +4,10 @@
 import type { SurroundFormat } from "./surround-format";
 
 export interface MatchType<T = never> {
-    remove(): void;
-    clear(callback: () => void): void;
-    setCache(value: T): void;
-}
-
-type Callback = () => void;
-
-export class Match<T> implements MatchType<T> {
-    private _callback: Callback | null = null;
-    private _shouldRemove = false;
-
-    get matches(): boolean {
-        return Boolean(this._callback) || this._shouldRemove;
-    }
-
     /**
      * The element represented by the match will be removed from the document.
      */
-    remove(): void {
-        this._shouldRemove = true;
-    }
-
+    remove(): void;
     /**
      * If the element has some styling applied that matches the format, but
      * might contain some styling above that, you should use clear and do the
@@ -39,8 +21,29 @@ export class Match<T> implements MatchType<T> {
      * should match via `clear`, but should not be removed, because it still
      * has a class applied, even if the `style` attribute is removed.
      */
+    clear(callback: () => void): void;
+    /**
+     * Used to sustain a value that is needed to recreate the surrounding.
+     * Can be retrieved from the FormattingNode interface via `.getCache`.
+     */
+    setCache(value: T): void;
+}
+
+type Callback = () => void;
+
+export class Match<T> implements MatchType<T> {
+    private _shouldRemove = false;
+    remove(): void {
+        this._shouldRemove = true;
+    }
+
+    private _callback: Callback | null = null;
     clear(callback: Callback): void {
         this._callback = callback;
+    }
+
+    get matches(): boolean {
+        return Boolean(this._callback) || this._shouldRemove;
     }
 
     /**
@@ -48,12 +51,11 @@ export class Match<T> implements MatchType<T> {
      */
     shouldRemove(): boolean {
         this._callback?.();
+        this._callback = null;
         return this._shouldRemove;
     }
 
-    /** TODO try typing this */
     cache: T | null = null;
-
     setCache(value: T): void {
         this.cache = value;
     }

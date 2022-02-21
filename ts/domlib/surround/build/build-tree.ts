@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { elementIsEmpty,nodeIsElement, nodeIsText } from "../../../lib/dom";
+import { elementIsEmpty, nodeIsElement, nodeIsText } from "../../../lib/dom";
 import type { Match } from "../match-type";
 import type { TreeNode } from "../tree";
 import { BlockNode, ElementNode, FormattingNode } from "../tree";
