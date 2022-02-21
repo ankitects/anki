@@ -123,13 +123,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         surrounder.overwriteSurround(format);
     }
 
-    const forecolorKeyCombination = "F7";
-    const forecolorPickKeyCombination = "F8";
+    const setCombination = "F7";
+    const pickCombination = "F8";
 </script>
 
 <WithColorHelper {color} let:colorHelperIcon let:setColor>
     <IconButton
-        tooltip="{tr.editingTextColor()} ({getPlatformString(forecolorKeyCombination)})"
+        tooltip="{tr.editingTextColor()} ({getPlatformString(setCombination)})"
         {disabled}
         on:click={setTextColor}
         --border-left-radius="5px"
@@ -137,12 +137,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {@html textColorIcon}
         {@html colorHelperIcon}
     </IconButton>
-    <Shortcut keyCombination={forecolorKeyCombination} on:action={setTextColor} />
+    <Shortcut keyCombination={setCombination} on:action={setTextColor} />
 
     <IconButton
-        tooltip="{tr.editingChangeColor()} ({getPlatformString(
-            forecolorKeyCombination,
-        )})"
+        tooltip="{tr.editingChangeColor()} ({getPlatformString(pickCombination)})"
         {disabled}
         widthMultiplier={0.5}
     >
@@ -156,7 +154,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         />
     </IconButton>
     <Shortcut
-        keyCombination={forecolorPickKeyCombination}
+        keyCombination={pickCombination}
         on:action={(event) => {
             color = setColor(event);
             bridgeCommand(`lastTextColor:${color}`);

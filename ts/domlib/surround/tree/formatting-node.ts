@@ -46,9 +46,9 @@ export class FormattingNode<T = never> extends TreeNode {
     }
 
     /**
-     * A merge is combinging two FormattingNodes into a single one.
+     * A merge is combinging two formatting nodes into a single one.
      * The merged node will take over their children, their match leaves, and
-     * their match holes, but not their extensions.
+     * their match holes, but will drop their extensions.
      *
      * @example
      * Practically speaking, it is what happens, when you combine:
@@ -78,12 +78,11 @@ export class FormattingNode<T = never> extends TreeNode {
     }
 
     /**
-     * An ascent is placing a FormattingNode above a ElementNode.
-     * In other terms, if the ElementNode matches, it means that the node creating
-     * by `this` during formatting is able to replace the ElementNode semantically.
+     * An ascent is placing a FormattingNode above an ElementNode.
+     * This happens, when the element node is an extension to the formatting node.
      *
-     * @param elementNode: Non-matching element node. Its children will be
-     * discarded in favor of `this`s children.
+     * @param elementNode: Its children will be discarded in favor of `this`s
+     * children.
      *
      * @example
      * Practically speaking, it is what happens, when you turn:
@@ -124,10 +123,9 @@ export class FormattingNode<T = never> extends TreeNode {
     // formats and is not vital to the algorithm itself
 
     /**
-     * Match leaves are the matching element nodes that are descendants of
-     * `this`, and actually affect the text nodes located inside `this`.
-     *
-     * @see hasMatchHoles
+     * Match leaves are the matching elements that are/were descendants of
+     * `this`. This makes them the element nodes, which actually affect text
+     * nodes located inside `this`.
      *
      * @example
      * If we are surrounding with bold, then in this case:
@@ -136,17 +134,9 @@ export class FormattingNode<T = never> extends TreeNode {
      * it does affect any text nodes.
      *
      * @remarks
-     * These are important for some ascenders and/or mergers.
+     * These are important for mergers.
      */
     matchLeaves: Match<T>[] = [];
-
-    /**
-     * Match holes are text nodes that are not inside any matches that are
-     * descendants of `this` (yet).
-     *
-     * @see matchLeaves
-     */
-    hasMatchHoles = true;
 
     get firstLeaf(): Match<T> | null {
         if (this.matchLeaves.length === 0) {
@@ -155,6 +145,12 @@ export class FormattingNode<T = never> extends TreeNode {
 
         return this.matchLeaves[0];
     }
+
+    /**
+     * Match holes are text nodes which are descendants of `this`, but are not
+     * descendants of any match leaves of `this`.
+     */
+    hasMatchHoles = true;
 
     get closestAncestor(): Match<T> | null {
         if (this.matchAncestors.length === 0) {
@@ -165,22 +161,35 @@ export class FormattingNode<T = never> extends TreeNode {
     }
 
     /**
-     * An extension to a formatting node are elements which are directly
-     * contained in the formatting node's parent, without any additional
-     * non-negligible nodes.
+     * Extensions of formatting nodes with a single element contained in their
+     * range are direct exclusive descendant elements of this element.
+     * Extensions are sorted in tree order.
      *
-     * @example:
-     * When the surround format would only add a class, it could add it to an
-     * extension instead:
-     * `<span style="color: rgb(255, 0, 0)"><b>inside</b></span>`
-     * becomes:
-     * `<span class="myclass" style="color: rgb(255, 0, 0)"><b>inside</b></span>`
+     * @example
+     * When surrounding "inside" with a bold format in the following case:
+     * `<span class="myclass"><em>inside</em></span>`
+     * The formatting node would sit above the span (it ascends above both
+     * the span and the em tag), and both tags are extensions to this node.
+     *
+     * @example
+     * When a format only wants to add a class, it would typically look for an
+     * extension first. When applying class="myclass" to "inside" in the
+     * following case:
+     * `<em><span style="color: rgb(255, 0, 0)"><b>inside</b></span></em>`
+     * It would typically become:
+     * `<em><span class="myclass" style="color: rgb(255, 0, 0)"><b>inside</b></span></em>`
      */
     extensions: (HTMLElement | SVGElement)[] = [];
 
-    getCache(defaultValue: T): T | null {
+    /**
+     * @param insideValue: The value that should be returned, if the formatting
+     * node is inside the original range. If the node is not inside the original
+     * range, the cache of the first leaf, or the closest match ancestor will be
+     * returned.
+     */
+    getCache(insideValue: T): T | null {
         if (this.insideRange) {
-            return defaultValue;
+            return insideValue;
         } else if (this.firstLeaf) {
             return this.firstLeaf.cache;
         } else if (this.closestAncestor) {
