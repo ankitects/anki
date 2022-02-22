@@ -417,6 +417,7 @@ impl super::SqliteStorage {
         nid: NoteId,
         include_new: bool,
         include_reviews: bool,
+        include_day_learn: bool,
     ) -> Result<()> {
         self.setup_searched_cards_table()?;
         let params = named_params! {
@@ -424,6 +425,7 @@ impl super::SqliteStorage {
             ":note_id": nid,
             ":include_new": include_new,
             ":include_reviews": include_reviews,
+            ":include_day_learn": include_day_learn,
             ":new_queue": CardQueue::New as i8,
             ":review_queue": CardQueue::Review as i8,
             ":daylearn_queue": CardQueue::DayLearn as i8,
