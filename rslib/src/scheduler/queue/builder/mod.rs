@@ -89,6 +89,7 @@ impl From<DueCard> for LearningQueueEntry {
 pub(super) struct BuryMode {
     bury_new: bool,
     bury_reviews: bool,
+    bury_interday_learning: bool,
 }
 
 #[derive(Default, Clone, Debug)]

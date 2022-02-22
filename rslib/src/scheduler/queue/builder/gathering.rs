@@ -122,7 +122,10 @@ impl QueueBuilder {
     fn add_due_card(&mut self, card: DueCard) -> bool {
         let bury_this_card = self
             .get_and_update_bury_mode_for_note(card.into())
-            .map(|mode| mode.bury_reviews)
+            .map(|mode| match card.kind {
+                DueCardKind::Review => mode.bury_reviews,
+                DueCardKind::Learning => mode.bury_interday_learning,
+            })
             .unwrap_or_default();
         if bury_this_card {
             false
