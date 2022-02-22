@@ -91,6 +91,7 @@ class StudyDeck(QDialog):
         qconnect(self.form.buttonBox.helpRequested, lambda: openHelp(help))
         qconnect(self.form.filter.textEdited, self.redraw)
         qconnect(self.form.list.itemDoubleClicked, self.accept)
+        qconnect(self.finished, self.on_finished)
         self.show()
         # redraw after show so position at center correct
         self.redraw("", current)
@@ -156,8 +157,6 @@ class StudyDeck(QDialog):
         self.redraw(self.filt, self.focus)
 
     def accept(self) -> None:
-        saveGeom(self, self.geomKey)
-        gui_hooks.state_did_reset.remove(self.onReset)
         row = self.form.list.currentRow()
         if row < 0:
             showInfo(tr.decks_please_select_something())
@@ -166,11 +165,6 @@ class StudyDeck(QDialog):
         if self.callback:
             self.callback(self)
         super().accept()
-
-    def reject(self) -> None:
-        saveGeom(self, self.geomKey)
-        gui_hooks.state_did_reset.remove(self.onReset)
-        super().reject()
 
     def onAddDeck(self) -> None:
         row = self.form.list.currentRow()
@@ -182,11 +176,11 @@ class StudyDeck(QDialog):
         def success(out: OpChangesWithId) -> None:
             deck = self.mw.col.decks.get(DeckId(out.id))
             self.name = deck["name"]
-
-            # make sure we clean up reset hook when manually exiting
-            gui_hooks.state_did_reset.remove(self.onReset)
-
             super().accept()
 
         if diag := add_deck_dialog(parent=self, default_text=default):
             diag.success(success).run_in_background()
+
+    def on_finished(self) -> None:
+        saveGeom(self, self.geomKey)
+        gui_hooks.state_did_reset.remove(self.onReset)
