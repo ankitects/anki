@@ -70,7 +70,7 @@ class ProgressManager:
                     pass
                 else:
                     # retry in 100ms
-                    self.timer(100, func, False, requiresCollection)
+                    self.timer(100, func, False, requiresCollection, parent=parent)
 
         t = QTimer(parent)
         if not repeat:
