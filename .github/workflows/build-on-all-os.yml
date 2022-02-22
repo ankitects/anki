@@ -15,7 +15,7 @@ on:
   push:
 #    paths:
 #    - .github/workflows/build-on-macos.yml
-    branches: [ tmp4build, tmp4build1, tmp4all ]
+    branches: [ 'test4all**', 'build4all**' ]
     paths-ignore:
     - 'README.md'
     - '.gitignore'

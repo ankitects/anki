@@ -12,7 +12,7 @@ concurrency:
 on:
 #  # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ tmp4windows, dist4windows ] #tmp4windows for trigger this workflow only
+    branches: [ 'test4win**', 'dist4win**' ] #tmp4windows for trigger this workflow only
 #  pull_request:
 #    branches: [ main ]
   workflow_call:
@@ -78,7 +78,7 @@ jobs:
       shell: cmd
       env:
         RUST_BACKTRACE: 1
-      if: ${{ github.event.inputs.bazelCmd == 'build' || github.ref_name == 'dist4windows'}}
+      if: ${{ github.event.inputs.bazelCmd == 'build' || startsWith(github.ref_name, 'dist4') }}
       run: |
          set PATH=C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;%PATH%
          echo %PATH%
@@ -90,7 +90,7 @@ jobs:
       shell: cmd
       env:
         RUST_BACKTRACE: 1
-      if: ${{ github.event.inputs.bazelCmd != 'build' && github.ref_name != 'dist4windows'}}
+      if: ${{ github.event.inputs.bazelCmd != 'build' && startsWith(github.ref_name, 'dist4') }}
       run: |
          set PATH=C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;%PATH%
          echo %PATH%
@@ -99,7 +99,7 @@ jobs:
          bazel.exe --output_user_root=\bazel\ankici --output_base=\bazel\ankici\base test --config=ci --disk_cache=C:/Users/runneradmin/.cache/bazel/disk --repository_cache=C:/Users/runneradmin/.cache/bazel/repo ${{ github.event.inputs.buildArgs }} ...
 
     - uses: actions/upload-artifact@v2
-      if: ${{ github.event.inputs.bazelCmd == 'build' || github.ref_name == 'dist4windows'}}
+      if: ${{ github.event.inputs.bazelCmd == 'build' || startsWith(github.ref_name, 'dist4') }}
       with:
         name: anki-dist-${{ runner.os }}
         path: ./wheels.tar

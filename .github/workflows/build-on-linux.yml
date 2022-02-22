@@ -12,7 +12,7 @@ concurrency:
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ tmp4linux, dist4linux ] #tmp4linux for trigger this workflow only
+    branches: [ 'test4linux**', 'dist4linux**' ] #tmp4linux for trigger this workflow only
 #    paths:
 #    - .github/workflows/build-on-l.yml
 #  pull_request:
@@ -116,7 +116,7 @@ jobs:
  #     shell: sh
       env:
         RUST_BACKTRACE: 1
-      if: ${{ github.event.inputs.bazelCmd == 'build' || github.ref_name == 'dist4linux' }}
+      if: ${{ github.event.inputs.bazelCmd == 'build' || startsWith(github.ref_name, 'dist4') }}
       run: |
         #set -x
         export STATE=~/state
@@ -132,7 +132,7 @@ jobs:
  #     shell: sh
       env:
         RUST_BACKTRACE: 1
-      if: ${{ github.event.inputs.bazelCmd != 'build' && github.ref_name != 'dist4linux' }}
+      if: ${{ github.event.inputs.bazelCmd != 'build' && startsWith(github.ref_name, 'dist4')}}
       run: |
         #set -x
         export STATE=~/state
@@ -142,7 +142,7 @@ jobs:
         bazel --output_user_root=$STATE/bazel --output_base=$STATE/bazel/anki test --config=ci --disk_cache=$STATE/bazel/disk --repository_cache=$STATE/bazel/repo ${{ github.event.inputs.buildArgs }} ...
 
     - uses: actions/upload-artifact@v2
-      if: ${{ github.event.inputs.bazelCmd == 'build' || github.ref_name == 'dist4linux' }}
+      if: ${{ github.event.inputs.bazelCmd == 'build' || startsWith(github.ref_name, 'dist4') }}
       with:
         name: anki-dist-${{ runner.os }}
         path: "./wheels.tar"

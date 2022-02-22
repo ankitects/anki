@@ -14,7 +14,7 @@ on:
   push:
 #    paths:
 #    - .github/workflows/build-on-macos.yml
-    branches: [ tmp4macos, dist4macos ] #tmp4macos for trigger this workflow only
+    branches: [ 'test4mac**', 'dist4mac**'] #tmp4macos for trigger this workflow only
 #  pull_request:
 #    branches: [ main ]
   workflow_call:
@@ -85,7 +85,7 @@ jobs:
     - name: build
       env:
         RUST_BACKTRACE: 1
-      if: ${{ github.event.inputs.bazelCmd == 'build' || github.ref_name == 'dist4macos' }}
+      if: ${{ github.event.inputs.bazelCmd == 'build' || startsWith(github.ref_name, 'dist4') }}
       run: |
          export PATH="/usr/local/opt/pipx_bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin"
          export STATE=~/state
@@ -96,7 +96,7 @@ jobs:
     - name: test
       env:
         RUST_BACKTRACE: 1
-      if: ${{ github.event.inputs.bazelCmd != 'build' && github.ref_name != 'dist4macos' }}
+      if: ${{ github.event.inputs.bazelCmd != 'build' && !startsWith(github.ref_name, 'dist4')}}
       run: |
          export PATH="/usr/local/opt/pipx_bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin"
          export STATE=~/state
@@ -104,7 +104,7 @@ jobs:
          test -e $STATE/node_modules && mv $STATE/node_modules .
          bazel --output_user_root=$STATE/bazel --output_base=$STATE/bazel/anki test --config=ci --disk_cache=$STATE/bazel/disk --repository_cache=$STATE/bazel/repo ${{ github.event.inputs.buildArgs }} ...
     - uses: actions/upload-artifact@v2
-      if: ${{ github.event.inputs.bazelCmd == 'build' || github.ref_name == 'dist4macos' }}
+      if: ${{ github.event.inputs.bazelCmd == 'build' || startsWith(github.ref_name, 'dist4') }}
       with:
         name: anki-dist-${{ runner.os }}
         path: .bazel/out/darwin-opt/bin/wheels.tar
