@@ -88,7 +88,7 @@ if (isApplePlatform()) {
     registerShortcut(() => bridgeCommand("paste"), "Control+Shift+V");
 }
 
-export function preventBuiltinContentEditableShortcuts(editable: HTMLElement): void {
+export function preventBuiltinShortcuts(editable: HTMLElement): void {
     for (const keyCombination of ["Control+B", "Control+U", "Control+I"]) {
         registerShortcut(preventDefault, keyCombination, editable);
     }

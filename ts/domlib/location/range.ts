@@ -9,7 +9,7 @@ interface RangeCoordinatesCollapsed {
     readonly collapsed: true;
 }
 
-interface RangeCoordinatesContent {
+export interface RangeCoordinatesContent {
     readonly start: CaretLocation;
     readonly end: CaretLocation;
     readonly collapsed: false;
@@ -17,7 +17,7 @@ interface RangeCoordinatesContent {
 
 export type RangeCoordinates = RangeCoordinatesCollapsed | RangeCoordinatesContent;
 
-export function getRangeCoordinates(base: Node, range: Range): RangeCoordinates {
+export function getRangeCoordinates(range: Range, base: Node): RangeCoordinates {
     const startCoordinates = getNodeCoordinates(base, range.startContainer);
     const start = { coordinates: startCoordinates, offset: range.startOffset };
     const collapsed = range.collapsed;

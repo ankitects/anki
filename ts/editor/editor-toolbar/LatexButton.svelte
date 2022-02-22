@@ -72,9 +72,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {#each dropdownItems as [callback, keyCombination, label]}
             <DropdownItem on:click={callback}>
                 {label}
-                <span class="ps-1 float-end">{getPlatformString(keyCombination)}</span>
+                <span class="ms-auto ps-2 shortcut"
+                    >{getPlatformString(keyCombination)}</span
+                >
             </DropdownItem>
             <Shortcut {keyCombination} on:action={callback} />
         {/each}
     </DropdownMenu>
 </WithDropdown>
+
+<style lang="scss">
+    .shortcut {
+        font: Verdana;
+    }
+</style>

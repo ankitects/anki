@@ -4,12 +4,22 @@
 import { registerPackage } from "../../lib/runtime-require";
 import { restoreSelection, saveSelection } from "./document";
 import { Position } from "./location";
+import { findNodeFromCoordinates, getNodeCoordinates } from "./node";
+import { getRangeCoordinates } from "./range";
 
 registerPackage("anki/location", {
-    saveSelection,
-    restoreSelection,
     Position,
+    restoreSelection,
+    saveSelection,
 });
 
-export { Position, restoreSelection, saveSelection };
+export {
+    findNodeFromCoordinates,
+    getNodeCoordinates,
+    getRangeCoordinates,
+    Position,
+    restoreSelection,
+    saveSelection,
+};
+export type { RangeCoordinates } from "./range";
 export type { SelectionLocation } from "./selection";

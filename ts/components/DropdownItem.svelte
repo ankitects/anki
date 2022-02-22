@@ -28,10 +28,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:btn-day={!$pageTheme.isDark}
     class:btn-night={$pageTheme.isDark}
     title={tooltip}
-    on:click
     on:mouseenter
     on:focus
     on:keydown
+    on:click
     on:mousedown|preventDefault
 >
     <slot />
@@ -42,13 +42,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     button {
         display: flex;
-        justify-content: space-between;
+        justify-content: start;
 
         font-size: calc(var(--base-font-size) * 0.8);
 
         background: none;
         box-shadow: none !important;
         border: none;
+        border-radius: 0;
 
         &:active,
         &.active {

@@ -6,56 +6,67 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithState from "../../components/WithState.svelte";
-    import { MatchResult } from "../../domlib/surround";
+    import type { MatchType } from "../../domlib/surround";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
-    import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
-    import { getSurrounder } from "../surround";
+    import { removeEmptyStyle, Surrounder } from "../surround";
+    import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { boldIcon } from "./icons";
 
-    function matchBold(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
-        if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
-            return MatchResult.NO_MATCH;
-        }
+    const surroundElement = document.createElement("strong");
 
+    function matcher(element: HTMLElement | SVGElement, match: MatchType): void {
         if (element.tagName === "B" || element.tagName === "STRONG") {
-            return MatchResult.MATCH;
+            return match.remove();
         }
 
         const fontWeight = element.style.fontWeight;
         if (fontWeight === "bold" || Number(fontWeight) >= 400) {
-            return MatchResult.KEEP;
-        }
+            return match.clear((): void => {
+                element.style.removeProperty("font-weight");
 
-        return MatchResult.NO_MATCH;
+                if (removeEmptyStyle(element) && element.className.length === 0) {
+                    match.remove();
+                }
+            });
+        }
     }
 
-    function clearBold(element: Element): boolean {
-        const htmlElement = element as HTMLElement | SVGElement;
-        htmlElement.style.removeProperty("font-weight");
+    const format = {
+        surroundElement,
+        matcher,
+    };
 
-        if (htmlElement.style.cssText.length === 0) {
-            htmlElement.removeAttribute("style");
-        }
+    const namedFormat = {
+        name: tr.editingBoldText(),
+        show: true,
+        active: true,
+        format,
+    };
 
-        return !htmlElement.hasAttribute("style") && element.className.length === 0;
-    }
+    const { removeFormats } = editorToolbarContext.get();
+    removeFormats.update((formats) => [...formats, namedFormat]);
 
     const { focusedInput } = noteEditorContext.get();
+    const surrounder = Surrounder.make();
+    let disabled: boolean;
 
-    $: input = $focusedInput as RichTextInputAPI;
-    $: disabled = !editingInputIsRichText($focusedInput);
-    $: surrounder = disabled ? null : getSurrounder(input);
-
-    function updateStateFromActiveInput(): Promise<boolean> {
-        return disabled ? Promise.resolve(false) : surrounder!.isSurrounded(matchBold);
+    $: if (editingInputIsRichText($focusedInput)) {
+        surrounder.richText = $focusedInput;
+        disabled = false;
+    } else {
+        surrounder.disable();
+        disabled = true;
     }
 
-    const element = document.createElement("strong");
+    function updateStateFromActiveInput(): Promise<boolean> {
+        return disabled ? Promise.resolve(false) : surrounder.isSurrounded(format);
+    }
+
     function makeBold(): void {
-        surrounder?.surroundCommand(element, matchBold, clearBold);
+        surrounder.surround(format);
     }
 
     const keyCombination = "Control+B";
@@ -64,12 +75,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <WithState
     key="bold"
     update={updateStateFromActiveInput}
-    let:state={isBold}
+    let:state={active}
     let:updateState
 >
     <IconButton
         tooltip="{tr.editingBoldText()} ({getPlatformString(keyCombination)})"
-        active={isBold}
+        {active}
         {disabled}
         on:click={(event) => {
             makeBold();
