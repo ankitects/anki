@@ -6,14 +6,13 @@ set -e
 echo "--- Checking CONTRIBUTORS"
 .buildkite/linux/check_contributors
 
-test -z "$STATE" && STATE=/state
-BAZEL="bazel --output_user_root=$STATE/bazel --output_base=$STATE/bazel/anki"
-BUILDARGS="--config=ci --disk_cache=$STATE/bazel/disk --repository_cache=$STATE/bazel/repo"
+BAZEL="bazel --output_user_root=/state/bazel --output_base=/state/bazel/anki"
+BUILDARGS="--config=ci --disk_cache=/state/bazel/disk --repository_cache=/state/bazel/repo"
 
 echo "+++ Building and testing"
 
 # move existing node_modules into tree
-test -e $STATE/node_modules && mv $STATE/node_modules .
+test -e /state/node_modules && mv /state/node_modules .
 
 $BAZEL test $BUILDARGS ... //rslib/linkchecker
 
@@ -22,4 +21,4 @@ python tools/copyright_headers.py
 
 echo "--- Cleanup"
 # if tests succeed, back up node_modules folder
-mv node_modules $STATE/
+mv node_modules /state/
