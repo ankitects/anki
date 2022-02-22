@@ -39,6 +39,10 @@ on:
         description: 'cacheOn: change to false for disable.'
         required: false
         default: 'true'
+        type: choice
+        options:
+        - true
+        - false
       bazelCmd:
         type: choice
         required: false
