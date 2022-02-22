@@ -38,5 +38,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {tr.deckConfigBuryReviewSiblings()}
             </SwitchRow>
         </Item>
+
+        <Item>
+            <SwitchRow
+                bind:value={$config.buryInterdayLearning}
+                defaultValue={defaults.buryInterdayLearning}
+                markdownTooltip={tr.deckConfigBuryTooltip()}
+            >
+                {tr.deckConfigBuryInterdayLearningSiblings()}
+            </SwitchRow>
+        </Item>
     </DynamicallySlottable>
 </TitledContainer>
