@@ -1,7 +1,9 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Optional
+from __future__ import annotations
+
+from typing import Callable
 
 import aqt
 import aqt.forms
@@ -28,17 +30,17 @@ class StudyDeck(QDialog):
     def __init__(
         self,
         mw: aqt.AnkiQt,
-        names: Callable = None,
-        accept: str = None,
-        title: str = None,
+        names: Callable[[], list[str]] | None = None,
+        accept: str | None = None,
+        title: str | None = None,
         help: HelpPageArgument = HelpPage.KEYBOARD_SHORTCUTS,
-        current: Optional[str] = None,
+        current: str | None = None,
         cancel: bool = True,
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
         dyn: bool = False,
-        buttons: Optional[list[Union[str, QPushButton]]] = None,
+        buttons: list[str | QPushButton] | None = None,
         geomKey: str = "default",
-        callback: Union[Callable, None] = None,
+        callback: Callable[[StudyDeck], None] | None = None,
     ) -> None:
         QDialog.__init__(self, parent or mw)
         self.mw = mw
@@ -79,7 +81,7 @@ class StudyDeck(QDialog):
         else:
             self.nameFunc = names
             self.origNames = names()
-        self.name: Optional[str] = None
+        self.name: str | None = None
         self.ok = self.form.buttonBox.addButton(
             accept or tr.decks_study(), QDialogButtonBox.ButtonRole.AcceptRole
         )
@@ -121,7 +123,7 @@ class StudyDeck(QDialog):
                 return True
         return False
 
-    def redraw(self, filt: str, focus: Optional[str] = None) -> None:
+    def redraw(self, filt: str, focus: str | None = None) -> None:
         self.filt = filt
         self.focus = focus
         self.names = [n for n in self.origNames if self._matches(n, filt)]
