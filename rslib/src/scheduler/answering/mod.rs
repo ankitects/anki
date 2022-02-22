@@ -9,7 +9,6 @@ mod review;
 mod revlog;
 
 use rand::{prelude::*, rngs::StdRng};
-
 use revlog::RevlogEntryPartial;
 
 use super::{
@@ -281,6 +280,7 @@ impl Collection {
                 card.note_id,
                 config.inner.bury_new,
                 config.inner.bury_reviews,
+                config.inner.bury_interday_learning,
             )?;
         }
 

@@ -15,7 +15,7 @@ class SidebarModel(QAbstractItemModel):
     def __init__(
         self, sidebar: aqt.browser.sidebar.SidebarTreeView, root: SidebarItem
     ) -> None:
-        super().__init__()
+        super().__init__(sidebar)
         self.sidebar = sidebar
         self.root = root
         self._cache_rows(root)

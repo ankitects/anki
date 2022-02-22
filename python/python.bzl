@@ -9,13 +9,13 @@ _python_distros = {
     ),
     "linux_amd64": struct(
         # pending https://github.com/indygreg/python-build-standalone/issues/95
-        url = "https://github.com/ankitects/python-build-standalone/releases/download/anki-2021-10-15/cpython-3.9.7-x86_64-unknown-linux-gnu-install_only-20211013T1538.tar.gz",
-        sha256 = "6a42fe15950f4e42000f5c68ebefacf8fce024f4d80a446789c18b174efdec1b",
+        url = "https://github.com/ankitects/python-build-standalone/releases/download/anki-2022-02-18/cpython-3.9.10-x86_64-unknown-linux-gnu-install_only-20220218T1329.tar.gz",
+        sha256 = "1f5d63c9099da6e51d121ca0eee8d32fb4f084bfc51643fad39be0c14dfbf530",
     ),
     "linux_arm64": struct(
         # pending https://github.com/indygreg/python-build-standalone/issues/95
-        url = "https://github.com/ankitects/python-build-standalone/releases/download/anki-2021-10-15/cpython-3.9.7-aarch64-unknown-linux-gnu-install_only-20211013T1538.tar.gz",
-        sha256 = "2c5812d2e29b83b428a3da1f6c1a99b0581382e65290a767f8de25cbd1269d2a",
+        url = "https://github.com/ankitects/python-build-standalone/releases/download/anki-2022-02-18/cpython-3.9.10-aarch64-unknown-linux-gnu-install_only-20220218T1329.tar.gz",
+        sha256 = "39070f9b9492dce3085c8c98916940434bb65663e6665b2c87bef86025532c1a",
     ),
     "windows_amd64": struct(
         url = "https://github.com/indygreg/python-build-standalone/releases/download/20211012/cpython-3.9.7-x86_64-pc-windows-msvc-shared-install_only-20211011T1926.tar.gz",

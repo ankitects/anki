@@ -50,6 +50,7 @@ class FilteredDeckConfigDialog(QDialog):
 
         QDialog.__init__(self, mw)
         self.mw = mw
+        mw.garbage_collect_on_dialog_finish(self)
         self.col = self.mw.col
         self._desired_search_1 = search
         self._desired_search_2 = search_2

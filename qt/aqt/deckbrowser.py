@@ -274,7 +274,7 @@ class DeckBrowser:
         a = m.addAction(tr.actions_delete())
         qconnect(a.triggered, lambda b, did=did: self._delete(DeckId(int(did))))
         gui_hooks.deck_browser_will_show_options_menu(m, int(did))
-        m.exec(QCursor.pos())
+        m.popup(QCursor.pos())
 
     def _export(self, did: DeckId) -> None:
         self.mw.onExport(did=did)
