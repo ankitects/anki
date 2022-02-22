@@ -89,6 +89,7 @@ deck-config-leech-action-tooltip =
 deck-config-bury-title = Burying
 deck-config-bury-new-siblings = Bury new siblings until the next day
 deck-config-bury-review-siblings = Bury review siblings until the next day
+deck-config-bury-interday-learning-siblings = Bury interday learning siblings until the next day
 deck-config-bury-tooltip =
     Whether other cards of the same note (eg reverse cards, adjacent
     cloze deletions) will be delayed until the next day.
