@@ -65,6 +65,17 @@ impl CardState {
     pub(crate) fn leeched(self) -> bool {
         self.review_state().map(|r| r.leeched).unwrap_or_default()
     }
+
+    /// Returns the position if it's a [NewState].
+    pub(super) fn new_position(&self) -> Option<u32> {
+        match self {
+            Self::Normal(NormalState::New(NewState { position }))
+            | Self::Filtered(FilteredState::Rescheduling(ReschedulingFilterState {
+                original_state: NormalState::New(NewState { position }),
+            })) => Some(*position),
+            _ => None,
+        }
+    }
 }
 
 /// Info required during state transitions.

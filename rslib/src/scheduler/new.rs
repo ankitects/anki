@@ -21,6 +21,7 @@ impl Card {
         self.queue = CardQueue::New;
         self.interval = 0;
         self.ease_factor = 0;
+        self.original_position = None;
     }
 
     /// If the card is new, change its position, and return true.
