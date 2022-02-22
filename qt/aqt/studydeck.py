@@ -42,7 +42,7 @@ class StudyDeck(QDialog):
         geomKey: str = "default",
         callback: Callable[[StudyDeck], None] | None = None,
     ) -> None:
-        QDialog.__init__(self, parent or mw)
+        super().__init__(parent or mw)
         self.mw = mw
         self.form = aqt.forms.studydeck.Ui_Dialog()
         self.form.setupUi(self)
@@ -163,12 +163,12 @@ class StudyDeck(QDialog):
         self.name = self.names[self.form.list.currentRow()]
         if self.callback:
             self.callback(self)
-        QDialog.accept(self)
+        super().accept()
 
     def reject(self) -> None:
         saveGeom(self, self.geomKey)
         gui_hooks.state_did_reset.remove(self.onReset)
-        QDialog.reject(self)
+        super().reject()
 
     def onAddDeck(self) -> None:
         row = self.form.list.currentRow()
@@ -184,7 +184,7 @@ class StudyDeck(QDialog):
             # make sure we clean up reset hook when manually exiting
             gui_hooks.state_did_reset.remove(self.onReset)
 
-            QDialog.accept(self)
+            super().accept()
 
         if diag := add_deck_dialog(parent=self, default_text=default):
             diag.success(success).run_in_background()
