@@ -162,6 +162,9 @@ class StudyDeck(QDialog):
             showInfo(tr.decks_please_select_something())
             return
         self.name = self.names[self.form.list.currentRow()]
+        self.accept_with_callback()
+
+    def accept_with_callback(self) -> None:
         if self.callback:
             self.callback(self)
         super().accept()
@@ -176,7 +179,7 @@ class StudyDeck(QDialog):
         def success(out: OpChangesWithId) -> None:
             deck = self.mw.col.decks.get(DeckId(out.id))
             self.name = deck["name"]
-            super().accept()
+            self.accept_with_callback()
 
         if diag := add_deck_dialog(parent=self, default_text=default):
             diag.success(success).run_in_background()
