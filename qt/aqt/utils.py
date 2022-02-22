@@ -757,12 +757,15 @@ def closeTooltip() -> None:
     if _tooltipLabel:
         try:
             _tooltipLabel.deleteLater()
-        except:
+        except RuntimeError:
             # already deleted as parent window closed
             pass
         _tooltipLabel = None
     if _tooltipTimer:
-        _tooltipTimer.stop()
+        try:
+            _tooltipTimer.deleteLater()
+        except RuntimeError:
+            pass
         _tooltipTimer = None
 
 
