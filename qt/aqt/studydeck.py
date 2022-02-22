@@ -42,7 +42,9 @@ class StudyDeck(QDialog):
         geomKey: str = "default",
         callback: Callable[[StudyDeck], None] | None = None,
     ) -> None:
-        super().__init__(parent or mw)
+        super().__init__(parent)
+        if not parent:
+            mw.garbage_collect_on_dialog_finish(self)
         self.mw = mw
         self.form = aqt.forms.studydeck.Ui_Dialog()
         self.form.setupUi(self)
