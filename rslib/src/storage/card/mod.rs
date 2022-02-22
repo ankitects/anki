@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+pub(crate) mod data;
 pub(crate) mod filtered;
 
 use std::{collections::HashSet, convert::TryFrom, result};
@@ -11,6 +12,7 @@ use rusqlite::{
     OptionalExtension, Row,
 };
 
+use self::data::CardData;
 use super::ids_to_string;
 use crate::{
     card::{Card, CardId, CardQueue, CardType},
@@ -47,6 +49,7 @@ impl FromSql for CardQueue {
 }
 
 fn row_to_card(row: &Row) -> result::Result<Card, rusqlite::Error> {
+    let data: CardData = row.get(17)?;
     Ok(Card {
         id: row.get(0)?,
         note_id: row.get(1)?,
@@ -65,7 +68,7 @@ fn row_to_card(row: &Row) -> result::Result<Card, rusqlite::Error> {
         original_due: row.get(14).ok().unwrap_or_default(),
         original_deck_id: row.get(15)?,
         flags: row.get(16)?,
-        data: row.get(17)?,
+        original_position: data.original_position,
     })
 }
 
@@ -109,7 +112,7 @@ impl super::SqliteStorage {
             card.original_due,
             card.original_deck_id,
             card.flags,
-            card.data,
+            CardData::from_card(card),
             card.id,
         ])?;
         Ok(())
@@ -136,7 +139,7 @@ impl super::SqliteStorage {
             card.original_due,
             card.original_deck_id,
             card.flags,
-            card.data,
+            CardData::from_card(card),
         ])?;
         card.id = CardId(self.db.last_insert_rowid());
         Ok(())
@@ -163,7 +166,7 @@ impl super::SqliteStorage {
             card.original_due,
             card.original_deck_id,
             card.flags,
-            card.data,
+            CardData::from_card(card),
         ])?;
 
         Ok(())

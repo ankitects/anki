@@ -21,6 +21,12 @@ impl From<bool> for pb::Bool {
     }
 }
 
+impl From<i32> for pb::Int32 {
+    fn from(val: i32) -> Self {
+        pb::Int32 { val }
+    }
+}
+
 impl From<i64> for pb::Int64 {
     fn from(val: i64) -> Self {
         pb::Int64 { val }

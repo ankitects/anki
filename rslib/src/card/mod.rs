@@ -77,7 +77,8 @@ pub struct Card {
     pub(crate) original_due: i32,
     pub(crate) original_deck_id: DeckId,
     pub(crate) flags: u8,
-    pub(crate) data: String,
+    /// The position in the new queue before leaving it.
+    pub(crate) original_position: Option<u32>,
 }
 
 impl Default for Card {
@@ -100,7 +101,7 @@ impl Default for Card {
             original_due: 0,
             original_deck_id: DeckId(0),
             flags: 0,
-            data: "".to_string(),
+            original_position: None,
         }
     }
 }
