@@ -8,8 +8,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type {
         OnInputCallback,
         OnInsertCallback,
-        Trigger,
     } from "../../sveltelib/input-manager";
+    import type { Trigger } from "../../sveltelib/trigger";
     import { pageTheme } from "../../sveltelib/theme";
     import type { EditingInputAPI } from "../EditingArea.svelte";
     import type CustomStyles from "./CustomStyles.svelte";

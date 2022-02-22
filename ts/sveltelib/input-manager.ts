@@ -1,13 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { Writable } from "svelte/store";
-import { writable } from "svelte/store";
-
 import { getSelection } from "../lib/cross-browser";
 import { on } from "../lib/events";
 import { id } from "../lib/functional";
 import { keyboardEventIsPrintableKey } from "../lib/keys";
+import type { Trigger, Managed } from "./trigger";
+import trigger from "./trigger";
+
+const nbsp = "\xa0";
 
 export type OnInsertCallback = ({
     node,
@@ -19,14 +20,6 @@ export type OnInsertCallback = ({
 
 export type OnInputCallback = ({ event }: { event: InputEvent }) => Promise<void>;
 
-export interface Trigger<C> {
-    add(callback: C): void;
-    remove(): void;
-    active: Writable<boolean>;
-}
-
-export type Managed<C> = Pick<Trigger<C>, "remove"> & { callback: C };
-
 export type InputManagerAction = (element: HTMLElement) => { destroy(): void };
 
 interface InputManager {
@@ -35,31 +28,6 @@ interface InputManager {
     getTriggerOnInput(): Trigger<OnInputCallback>;
     getTriggerAfterInput(): Trigger<OnInputCallback>;
 }
-
-function trigger<C>(list: Managed<C>[]) {
-    return function getTrigger(): Trigger<C> {
-        const index = list.length++;
-        const active = writable(false);
-
-        function remove() {
-            delete list[index];
-            active.set(false);
-        }
-
-        function add(callback: C): void {
-            list[index] = { callback, remove };
-            active.set(true);
-        }
-
-        return {
-            add,
-            remove,
-            active,
-        };
-    };
-}
-
-const nbsp = "\xa0";
 
 /**
  * An interface that allows Svelte components to attach event listeners via triggers.
@@ -75,7 +43,7 @@ function getInputManager(): InputManager {
         const selection = getSelection(event.target! as Node)!;
         const range = selection.getRangeAt(0);
 
-        for (const { callback } of beforeInput.filter(id)) {
+        for (const { value: callback } of beforeInput.filter(id)) {
             await callback({ event });
         }
 
@@ -91,7 +59,7 @@ function getInputManager(): InputManager {
             range.selectNode(node);
             range.collapse(false);
 
-            for (const { callback, remove } of filteredBeforeInsertText) {
+            for (const { value: callback, remove } of filteredBeforeInsertText) {
                 await callback({ node, event });
                 remove();
             }
@@ -104,7 +72,7 @@ function getInputManager(): InputManager {
     const afterInput: Managed<OnInputCallback>[] = [];
 
     async function callAfterInputHooks(event: InputEvent): Promise<void> {
-        for (const { callback } of afterInput.filter(id)) {
+        for (const { value: callback } of afterInput.filter(id)) {
             await callback({ event });
         }
     }
