@@ -98,6 +98,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 key="justifyLeft"
                                 tooltip={tr.editingAlignLeft()}
                                 --border-left-radius="5px"
+                                --border-right-radius="0px"
                                 >{@html justifyLeftIcon}</CommandIconButton
                             >
 
@@ -131,6 +132,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 {disabled}
                                 on:click={outdentListItem}
                                 --border-left-radius="5px"
+                                --border-right-radius="0px"
                             >
                                 {@html outdentIcon}
                             </IconButton>

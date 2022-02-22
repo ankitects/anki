@@ -3,15 +3,19 @@
 
 import { get } from "svelte/store";
 
-import type { ElementClearer, ElementMatcher } from "../domlib/surround";
-import { findClosest, surroundNoSplitting, unsurround } from "../domlib/surround";
+import type { Matcher } from "../domlib/find-above";
+import { findClosest } from "../domlib/find-above";
+import type { SurroundFormat } from "../domlib/surround";
+import { boolMatcher, reformat, surround, unsurround } from "../domlib/surround";
 import { getRange, getSelection } from "../lib/cross-browser";
+import { registerPackage } from "../lib/runtime-require";
+import type { OnInsertCallback, Trigger } from "../sveltelib/input-manager";
 import type { RichTextInputAPI } from "./rich-text-input";
 
 function isSurroundedInner(
     range: AbstractRange,
     base: HTMLElement,
-    matcher: ElementMatcher,
+    matcher: Matcher,
 ): boolean {
     return Boolean(
         findClosest(range.startContainer, base, matcher) ||
@@ -19,37 +23,155 @@ function isSurroundedInner(
     );
 }
 
-function surroundAndSelect(
+function surroundAndSelect<T>(
     matches: boolean,
     range: Range,
-    selection: Selection,
-    surroundElement: Element,
     base: HTMLElement,
-    matcher: ElementMatcher,
-    clearer: ElementClearer,
+    format: SurroundFormat<T>,
+    selection: Selection,
 ): void {
-    const { surroundedRange } = matches
-        ? unsurround(range, surroundElement, base, matcher, clearer)
-        : surroundNoSplitting(range, surroundElement, base, matcher, clearer);
+    const surroundedRange = matches
+        ? unsurround(range, base, format)
+        : surround(range, base, format);
 
     selection.removeAllRanges();
     selection.addRange(surroundedRange);
 }
 
-export interface GetSurrounderResult {
-    surroundCommand(
-        surroundElement: Element,
-        matcher: ElementMatcher,
-        clearer?: ElementClearer,
-    ): Promise<void>;
-    isSurrounded(matcher: ElementMatcher): Promise<boolean>;
+function removeFormats(
+    range: Range,
+    base: Element,
+    formats: SurroundFormat[],
+    reformats: SurroundFormat[] = [],
+): Range {
+    let surroundRange = range;
+
+    for (const format of formats) {
+        surroundRange = unsurround(surroundRange, base, format);
+    }
+
+    for (const format of reformats) {
+        surroundRange = reformat(surroundRange, base, format);
+    }
+
+    return surroundRange;
 }
 
-export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderResult {
-    const { add, remove, active } = richTextInput.getTriggerOnNextInsert();
+export class Surrounder {
+    static make(): Surrounder {
+        return new Surrounder();
+    }
 
-    async function isSurrounded(matcher: ElementMatcher): Promise<boolean> {
-        const base = await richTextInput.element;
+    private api: RichTextInputAPI | null = null;
+    private trigger: Trigger<OnInsertCallback> | null = null;
+
+    set richText(api: RichTextInputAPI) {
+        this.api = api;
+        this.trigger = api.getTriggerOnNextInsert();
+    }
+
+    /**
+     * After calling disable, using any of the surrounding methods will throw an
+     * exception. Make sure to set the rich text before trying to use them again.
+     */
+    disable(): void {
+        this.api = null;
+        this.trigger = null;
+    }
+
+    private async _assert_base(): Promise<HTMLElement> {
+        if (!this.api) {
+            throw new Error("No rich text set");
+        }
+
+        return await this.api.element;
+    }
+
+    private _toggleTrigger<T>(
+        base: HTMLElement,
+        selection: Selection,
+        matcher: Matcher,
+        format: SurroundFormat<T>,
+        exclusive: SurroundFormat<T>[] = [],
+    ): void {
+        if (get(this.trigger!.active)) {
+            this.trigger!.remove();
+        } else {
+            this.trigger!.add(async ({ node }: { node: Node }) => {
+                const range = new Range();
+                range.selectNode(node);
+
+                const matches = Boolean(findClosest(node, base, matcher));
+                const clearedRange = removeFormats(range, base, exclusive);
+                surroundAndSelect(matches, clearedRange, base, format, selection);
+                selection.collapseToEnd();
+            });
+        }
+    }
+
+    /**
+     * Use the surround command on the current range of the RichTextInput.
+     * If the range is already surrounded, it will unsurround instead.
+     */
+    async surround<T>(
+        format: SurroundFormat<T>,
+        exclusive: SurroundFormat<T>[] = [],
+    ): Promise<void> {
+        const base = await this._assert_base();
+        const selection = getSelection(base)!;
+        const range = getRange(selection);
+        const matcher = boolMatcher(format);
+
+        if (!range) {
+            return;
+        }
+
+        if (range.collapsed) {
+            return this._toggleTrigger(base, selection, matcher, format, exclusive);
+        }
+
+        const clearedRange = removeFormats(range, base, exclusive);
+        const matches = isSurroundedInner(clearedRange, base, matcher);
+        surroundAndSelect(matches, clearedRange, base, format, selection);
+    }
+
+    /**
+     * Use the surround command on the current range of the RichTextInput.
+     * If the range is already surrounded, it will overwrite the format.
+     * This might be better suited if the surrounding is parameterized (like
+     * text color).
+     */
+    async overwriteSurround<T>(
+        format: SurroundFormat<T>,
+        exclusive: SurroundFormat<T>[] = [],
+    ): Promise<void> {
+        const base = await this._assert_base();
+        const selection = getSelection(base)!;
+        const range = getRange(selection);
+        const matcher = boolMatcher(format);
+
+        if (!range) {
+            return;
+        }
+
+        if (range.collapsed) {
+            return this._toggleTrigger(base, selection, matcher, format, exclusive);
+        }
+
+        const clearedRange = removeFormats(range, base, exclusive);
+        const surroundedRange = surround(clearedRange, base, format);
+        selection.removeAllRanges();
+        selection.addRange(surroundedRange);
+    }
+
+    /**
+     * Check if the current selection is surrounded. A selection will count as
+     * provided if either the start or the end boundary point are within the
+     * provided format, OR if a surround trigger is active (surround on next
+     * text insert).
+     */
+    async isSurrounded<T>(format: SurroundFormat<T>): Promise<boolean> {
+        const base = await this._assert_base();
         const selection = getSelection(base)!;
         const range = getRange(selection);
 
@@ -57,58 +179,44 @@ export function getSurrounder(richTextInput: RichTextInputAPI): GetSurrounderRes
             return false;
         }
 
-        const isSurrounded = isSurroundedInner(range, base, matcher);
-        return get(active) ? !isSurrounded : isSurrounded;
+        const isSurrounded = isSurroundedInner(range, base, boolMatcher(format));
+        return get(this.trigger!.active) ? !isSurrounded : isSurrounded;
     }
 
-    async function surroundCommand(
-        surroundElement: Element,
-        matcher: ElementMatcher,
-        clearer: ElementClearer = () => false,
+    /**
+     * Clear/Reformat the provided formats in the current range.
+     */
+    async remove<T>(
+        formats: SurroundFormat<T>[],
+        reformats: SurroundFormat<T>[] = [],
     ): Promise<void> {
-        const base = await richTextInput.element;
+        const base = await this._assert_base();
         const selection = getSelection(base)!;
         const range = getRange(selection);
 
-        if (!range) {
+        if (!range || range.collapsed) {
             return;
-        } else if (range.collapsed) {
-            if (get(active)) {
-                remove();
-            } else {
-                add(async ({ node }: { node: Node }) => {
-                    range.selectNode(node);
-
-                    const matches = Boolean(findClosest(node, base, matcher));
-                    surroundAndSelect(
-                        matches,
-                        range,
-                        selection,
-                        surroundElement,
-                        base,
-                        matcher,
-                        clearer,
-                    );
-
-                    selection.collapseToEnd();
-                });
-            }
-        } else {
-            const matches = isSurroundedInner(range, base, matcher);
-            surroundAndSelect(
-                matches,
-                range,
-                selection,
-                surroundElement,
-                base,
-                matcher,
-                clearer,
-            );
         }
+
+        const surroundedRange = removeFormats(range, base, formats, reformats);
+        selection.removeAllRanges();
+        selection.addRange(surroundedRange);
+    }
+}
+
+/**
+ * @returns True, if element has no style attribute (anymore).
+ */
+export function removeEmptyStyle(element: HTMLElement | SVGElement): boolean {
+    if (element.style.cssText.length === 0) {
+        element.removeAttribute("style");
+        // Calling `.hasAttribute` right after `.removeAttribute` might return true.
+        return true;
     }
 
-    return {
-        surroundCommand,
-        isSurrounded,
-    };
+    return false;
 }
+
+registerPackage("anki/surround", {
+    Surrounder,
+});

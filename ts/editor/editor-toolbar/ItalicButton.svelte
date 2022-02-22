@@ -6,57 +6,66 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithState from "../../components/WithState.svelte";
-    import { MatchResult } from "../../domlib/surround";
+    import type { MatchType } from "../../domlib/surround";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
-    import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
-    import { getSurrounder } from "../surround";
+    import { removeEmptyStyle, Surrounder } from "../surround";
+    import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { italicIcon } from "./icons";
 
-    function matchItalic(element: Element): Exclude<MatchResult, MatchResult.ALONG> {
-        if (!(element instanceof HTMLElement) && !(element instanceof SVGElement)) {
-            return MatchResult.NO_MATCH;
-        }
+    const surroundElement = document.createElement("em");
 
+    function matcher(element: HTMLElement | SVGElement, match: MatchType): void {
         if (element.tagName === "I" || element.tagName === "EM") {
-            return MatchResult.MATCH;
+            return match.remove();
         }
 
         if (["italic", "oblique"].includes(element.style.fontStyle)) {
-            return MatchResult.KEEP;
-        }
+            return match.clear((): void => {
+                element.style.removeProperty("font-style");
 
-        return MatchResult.NO_MATCH;
+                if (removeEmptyStyle(element) && element.className.length === 0) {
+                    return match.remove();
+                }
+            });
+        }
     }
 
-    function clearItalic(element: Element): boolean {
-        const htmlElement = element as HTMLElement | SVGElement;
-        htmlElement.style.removeProperty("font-style");
+    const format = {
+        surroundElement,
+        matcher,
+    };
 
-        if (htmlElement.style.cssText.length === 0) {
-            htmlElement.removeAttribute("style");
-        }
+    const namedFormat = {
+        name: tr.editingItalicText(),
+        show: true,
+        active: true,
+        format,
+    };
 
-        return !htmlElement.hasAttribute("style") && element.className.length === 0;
-    }
+    const { removeFormats } = editorToolbarContext.get();
+    removeFormats.update((formats) => [...formats, namedFormat]);
 
     const { focusedInput } = noteEditorContext.get();
+    const surrounder = Surrounder.make();
+    let disabled: boolean;
 
-    $: input = $focusedInput as RichTextInputAPI;
-    $: disabled = !editingInputIsRichText($focusedInput);
-    $: surrounder = disabled ? null : getSurrounder(input);
-
-    function updateStateFromActiveInput(): Promise<boolean> {
-        return disabled
-            ? Promise.resolve(false)
-            : surrounder!.isSurrounded(matchItalic);
+    $: if (editingInputIsRichText($focusedInput)) {
+        surrounder.richText = $focusedInput;
+        disabled = false;
+    } else {
+        surrounder.disable();
+        disabled = true;
     }
 
-    const element = document.createElement("em");
+    function updateStateFromActiveInput(): Promise<boolean> {
+        return disabled ? Promise.resolve(false) : surrounder!.isSurrounded(format);
+    }
+
     function makeItalic(): void {
-        surrounder!.surroundCommand(element, matchItalic, clearItalic);
+        surrounder.surround(format);
     }
 
     const keyCombination = "Control+I";

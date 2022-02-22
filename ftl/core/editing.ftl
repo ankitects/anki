@@ -36,12 +36,13 @@ editing-outdent = Decrease indent
 editing-paste = Paste
 editing-record-audio = Record audio
 editing-remove-formatting = Remove formatting
-editing-set-text-color = Set text color
-editing-set-text-highlight-color = Set text highlight color
+editing-select-remove-formatting = Select formatting to remove
 editing-show-duplicates = Show Duplicates
 editing-subscript = Subscript
 editing-superscript = Superscript
 editing-tags = Tags
+editing-text-color = Text color
+editing-text-highlight-color = Text highlight color
 editing-to-make-a-cloze-deletion-on = To make a cloze deletion on an existing note, you need to change it to a cloze type first, via 'Notes>Change Note Type'
 editing-toggle-html-editor = Toggle HTML Editor
 editing-toggle-sticky = Toggle sticky
@@ -53,3 +54,5 @@ editing-warning-cloze-deletions-will-not-work = Warning, cloze deletions will no
 ## You don't need to translate these strings, as they will be replaced with different ones soon.
 
 editing-html-editor = HTML Editor
+editing-set-text-color = Set text color
+editing-set-text-highlight-color = Set text highlight color

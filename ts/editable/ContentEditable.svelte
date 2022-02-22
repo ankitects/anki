@@ -14,10 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { InputManagerAction } from "../sveltelib/input-manager";
     import type { MirrorAction } from "../sveltelib/mirror-dom";
     import type { ContentEditableAPI } from "./content-editable";
-    import {
-        customFocusHandling,
-        preventBuiltinContentEditableShortcuts,
-    } from "./content-editable";
+    import { customFocusHandling, preventBuiltinShortcuts } from "./content-editable";
 
     export let resolve: (editable: HTMLElement) => void;
 
@@ -42,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     contenteditable="true"
     use:resolve
     use:setupFocusHandling
-    use:preventBuiltinContentEditableShortcuts
+    use:preventBuiltinShortcuts
     use:mirrorAction={mirrorOptions}
     use:managerAction={{}}
     on:focus
