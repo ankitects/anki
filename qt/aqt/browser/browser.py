@@ -136,9 +136,9 @@ class Browser(QMainWindow):
         self.on_undo_state_change(mw.undo_actions_info())
         # legacy alias
         self.model = MockModel(self)
+        self.setupSearch(card, search)
         gui_hooks.browser_will_show(self)
         self.show()
-        self.setupSearch(card, search)
 
     def on_operation_did_execute(
         self, changes: OpChanges, handler: object | None
