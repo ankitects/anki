@@ -49,7 +49,6 @@ class StudyDeck(QDialog):
         self.form = aqt.forms.studydeck.Ui_Dialog()
         self.form.setupUi(self)
         self.form.filter.installEventFilter(self)
-        self.cancel = cancel
         gui_hooks.state_did_reset.append(self.onReset)
         self.geomKey = f"studyDeck-{geomKey}"
         restoreGeom(self, self.geomKey)
@@ -84,7 +83,7 @@ class StudyDeck(QDialog):
             self.nameFunc = names
             self.origNames = names()
         self.name: str | None = None
-        self.ok = self.form.buttonBox.addButton(
+        self.form.buttonBox.addButton(
             accept or tr.decks_study(), QDialogButtonBox.ButtonRole.AcceptRole
         )
         self.setModal(True)
