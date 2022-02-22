@@ -46,6 +46,7 @@ impl Context {
             .map(|config| BuryMode {
                 bury_new: config.inner.bury_new,
                 bury_reviews: config.inner.bury_reviews,
+                bury_interday_learning: config.inner.bury_interday_learning,
             })
             .unwrap_or_default()
     }
@@ -68,6 +69,7 @@ impl QueueBuilder {
                 previous_mode = Some(*entry);
                 entry.bury_new |= new_mode.bury_new;
                 entry.bury_reviews |= new_mode.bury_reviews;
+                entry.bury_interday_learning |= new_mode.bury_interday_learning;
             })
             .or_insert(new_mode);
 

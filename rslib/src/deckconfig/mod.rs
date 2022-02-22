@@ -75,6 +75,7 @@ impl Default for DeckConfig {
                 skip_question_when_replaying_answer: false,
                 bury_new: false,
                 bury_reviews: false,
+                bury_interday_learning: false,
                 other: vec![],
             },
         }

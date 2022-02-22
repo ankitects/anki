@@ -10,6 +10,10 @@ WHERE id != :card_id
     )
     OR (
       :include_reviews
-      AND queue IN (:review_queue, :daylearn_queue)
+      AND queue = :review_queue
+    )
+    OR (
+      :include_day_learn
+      AND queue = :daylearn_queue
     )
   );
