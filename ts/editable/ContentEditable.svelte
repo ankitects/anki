@@ -11,10 +11,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { updateAllState } from "../components/WithState.svelte";
     import actionList from "../sveltelib/action-list";
-    import type { InputManagerAction } from "../sveltelib/input-manager";
-    import type { MirrorAction } from "../sveltelib/mirror-dom";
+    import type { SetupInputHandlerAction } from "../sveltelib/input-handler";
+    import type { MirrorAction } from "../sveltelib/dom-mirror";
     import type { ContentEditableAPI } from "./content-editable";
-    import { focusHandling, preventBuiltinShortcuts } from "./content-editable";
+    import { useFocusHandler, preventBuiltinShortcuts } from "./content-editable";
 
     export let resolve: (editable: HTMLElement) => void;
 
@@ -24,15 +24,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const mirrorAction = actionList(mirrors);
     const mirrorOptions = { store: nodes };
 
-    export let managers: InputManagerAction[];
+    export let managers: SetupInputHandlerAction[];
 
     const managerAction = actionList(managers);
 
     export let api: Partial<ContentEditableAPI>;
 
-    const [setupFocusHandling, focusHandling] = focusHandling();
+    const [focusHandler, setupFocusHandling] = useFocusHandler();
 
-    Object.assign(api, { focusHandling });
+    Object.assign(api, { focusHandler });
 </script>
 
 <anki-editable

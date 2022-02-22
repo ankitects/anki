@@ -34,13 +34,13 @@ function onFocus(location: SelectionLocation | null): () => void {
     };
 }
 
-type SetupFocusHandlingAction = (element: HTMLElement) => { destroy(): void };
+type SetupFocusHandlerAction = (element: HTMLElement) => { destroy(): void };
 
-interface FocusHandlingAPI {
+interface FocusHandlerAPI {
     flushCaret(): void;
 }
 
-export function useFocusHandling(): [FocusHandlingAPI, SetupFocusHandlingAction] {
+export function useFocusHandler(): [FocusHandlerAPI, SetupFocusHandlerAction] {
     const focusHandlingEvents: Callback[] = [];
 
     function flushEvents(): void {
@@ -56,7 +56,7 @@ export function useFocusHandling(): [FocusHandlingAPI, SetupFocusHandlingAction]
         latestLocation: SelectionLocation | null = null,
     ): void {
         const off = on(editable, "focus", onFocus(latestLocation), { once: true });
-        const offPointerdown = on(editable, "pointerdown", off, { once: true })
+        const offPointerdown = on(editable, "pointerdown", off, { once: true });
 
         focusHandlingEvents.push(off, offPointerdown);
     }
@@ -80,9 +80,12 @@ export function useFocusHandling(): [FocusHandlingAPI, SetupFocusHandlingAction]
         };
     }
 
-    return [{
-        flushCaret: flushEvents,
-    }, setupFocusHandling];
+    return [
+        {
+            flushCaret: flushEvents,
+        },
+        setupFocusHandling,
+    ];
 }
 
 if (isApplePlatform()) {
@@ -103,5 +106,5 @@ export interface ContentEditableAPI {
      * the ContentEditable. Can be used when you want to set the caret
      * yourself.
      */
-    focusHandling: FocusHandlingAPI;
+    focusHandler: FocusHandlerAPI;
 }

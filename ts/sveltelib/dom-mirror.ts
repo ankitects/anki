@@ -41,7 +41,7 @@ function cloneNode(node: Node): DocumentFragment {
  * While the element has focus, this connection is tethered.
  * In practice, this will sync changes from PlainTextInput to RichTextInput.
  */
-function getDOMMirror(): DOMMirrorAPI {
+function useDOMMirror(): DOMMirrorAPI {
     const allowResubscription = writable(true);
 
     function preventResubscription() {
@@ -128,4 +128,4 @@ function getDOMMirror(): DOMMirrorAPI {
     };
 }
 
-export default getDOMMirror;
+export default useDOMMirror;

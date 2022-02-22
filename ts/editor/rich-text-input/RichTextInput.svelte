@@ -4,12 +4,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { ContentEditableAPI } from "../../editable/ContentEditable.svelte";
-    import contextProperty from "../../sveltelib/context-property";
-    import type {
-        OnInputCallback,
-        OnInsertCallback,
-    } from "../../sveltelib/input-manager";
-    import type { Trigger } from "../../sveltelib/trigger";
+    import useContextProperty from "../../sveltelib/context-property";
+    import useDOMMirror from "../../sveltelib/dom-mirror";
+    import type { InputHandlerAPI } from "../../sveltelib/input-handler";
+    import useInputHandler from "../../sveltelib/input-handler";
     import { pageTheme } from "../../sveltelib/theme";
     import type { EditingInputAPI } from "../EditingArea.svelte";
     import type CustomStyles from "./CustomStyles.svelte";
@@ -21,9 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         moveCaretToEnd(): void;
         toggle(): boolean;
         preventResubscription(): () => void;
-        getTriggerOnNextInsert(): Trigger<OnInsertCallback>;
-        getTriggerOnInput(): Trigger<OnInputCallback>;
-        getTriggerAfterInput(): Trigger<OnInputCallback>;
+        inputHandler: InputHandlerAPI;
     }
 
     export function editingInputIsRichText(
@@ -39,19 +35,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const key = Symbol("richText");
-    const [context, setContextProperty] = contextProperty<RichTextInputContextAPI>(key);
+    const [context, setContextProperty] =
+        useContextProperty<RichTextInputContextAPI>(key);
+    const [globalInputHandler, setupGlobalInputHandler] = useInputHandler();
 
-    import getInputManager from "../../sveltelib/input-manager";
-    import getDOMMirror from "../../sveltelib/mirror-dom";
-
-    const {
-        manager: globalInputManager,
-        getTriggerAfterInput,
-        getTriggerOnInput,
-        getTriggerOnNextInsert,
-    } = getInputManager();
-
-    export { context, getTriggerAfterInput, getTriggerOnInput, getTriggerOnNextInsert };
+    export { context, globalInputHandler as inputHandler };
 </script>
 
 <script lang="ts">
@@ -175,8 +163,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         };
     }
 
-    const { mirror, preventResubscription } = getDOMMirror();
-    const localInputManager = getInputManager();
+    const { mirror, preventResubscription } = useDOMMirror();
+    const [inputHandler, setupInputHandler] = useInputHandler();
 
     function moveCaretToEnd() {
         richTextPromise.then(placeCaretAfterContent);
@@ -205,9 +193,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         },
         moveCaretToEnd,
         preventResubscription,
-        getTriggerOnNextInsert: localInputManager.getTriggerOnNextInsert,
-        getTriggerOnInput: localInputManager.getTriggerOnInput,
-        getTriggerAfterInput: localInputManager.getTriggerAfterInput,
+        inputHandler,
     } as RichTextInputAPI;
 
     const allContexts = getAllContexts();
@@ -221,7 +207,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         nodes,
                         resolve,
                         mirrors: [mirror],
-                        managers: [globalInputManager, localInputManager.manager],
+                        managers: [setupInputHandler, setupGlobalInputHandler],
                         api,
                     },
                     context: allContexts,

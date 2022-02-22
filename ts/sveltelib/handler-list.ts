@@ -6,18 +6,18 @@ import { writable } from "svelte/store";
 
 import type { Callback } from "../lib/typing";
 
-type Handler<T, U> = (args: T) => U;
+type Handler<T> = (args: T) => Promise<void>;
 
-interface HandlerAccess<T, U> {
-    callback: Handler<T, U>;
+interface HandlerAccess<T> {
+    callback: Handler<T>;
     clear(): void;
 }
 
-class TriggerItem<T, U> {
+class TriggerItem<T> {
     #active: Writable<boolean>;
 
     constructor(
-        private setter: (handler: Handler<T, U>, clear: Callback) => void,
+        private setter: (handler: Handler<T>, clear: Callback) => void,
         private clear: Callback,
     ) {
         this.#active = writable(false);
@@ -33,12 +33,12 @@ class TriggerItem<T, U> {
     /**
      * Deactivate the trigger. Can be safely called multiple times.
      */
-    off() {
+    off(): void {
         this.#active.set(false);
         this.clear();
     }
 
-    on(handler: Handler<T, U>): void {
+    on(handler: Handler<T>): void {
         this.setter(handler, () => this.off());
         this.#active.set(true);
     }
@@ -48,31 +48,32 @@ interface HandlerOptions {
     once: boolean;
 }
 
-export class Handlers<T, U> {
-    #list: HandlerAccess<T, U>[] = [];
+export class HandlerList<T> {
+    #list: HandlerAccess<T>[] = [];
 
-    trigger(options?: Partial<HandlerOptions>): TriggerItem<T, U> {
+    trigger(options?: Partial<HandlerOptions>): TriggerItem<T> {
         const once = options?.once ?? false;
-        let handler: Handler<T, U> | null = null;
+        let handler: Handler<T> | null = null;
 
         return new TriggerItem(
-            (callback: Handler<T, U>, doClear: Callback): void => {
-                handler = callback;
-
-                const clear = (): void => {
-                    if (once) {
-                        doClear();
-                    }
-                };
-
-                this.#list.push({
-                    callback(args: T): U {
+            (callback: Handler<T>, doClear: Callback): void => {
+                const handlerAccess = {
+                    callback(args: T): Promise<void> {
                         const result = callback(args);
-                        clear();
+                        if (once) {
+                            doClear();
+                        }
                         return result;
                     },
-                    clear,
-                });
+                    clear(): void {
+                        if (once) {
+                            doClear();
+                        }
+                    },
+                };
+
+                this.#list.push(handlerAccess);
+                handler = handlerAccess.callback;
             },
             () => {
                 if (handler) {
@@ -83,33 +84,42 @@ export class Handlers<T, U> {
         );
     }
 
-    on(handler: Handler<T, U>, options?: Partial<HandlerOptions>): Callback {
+    on(handler: Handler<T>, options?: Partial<HandlerOptions>): Callback {
         const once = options?.once ?? false;
+        let offHandler: Handler<T> | null = null;
 
-        const clear = (): void => {
-            if (once) {
-                this.off(handler);
+        const off = (): void => {
+            if (offHandler) {
+                this.off(offHandler);
+                offHandler = null;
             }
         };
 
         const handlerAccess = {
-            callback: (args: T): U => {
+            callback: (args: T): Promise<void> => {
                 const result = handler(args);
-                clear();
+                if (once) {
+                    off();
+                }
                 return result;
             },
-            clear,
+            clear(): void {
+                if (once) {
+                    off();
+                }
+            },
         };
+
+        offHandler = handlerAccess.callback;
 
         this.#list.push(handlerAccess);
-
-        return () => {
-            this.off(handler);
-        };
+        return off;
     }
 
-    private off(handler: Handler<T, U>): void {
-        const index = this.#list.indexOf(handler);
+    private off(handler: Handler<T>): void {
+        const index = this.#list.findIndex(
+            (value: HandlerAccess<T>): boolean => value.callback === handler,
+        );
 
         if (index >= 0) {
             this.#list.splice(index, 1);
@@ -120,12 +130,28 @@ export class Handlers<T, U> {
         return this.#list.length;
     }
 
-    [Symbol.iterator](): Iterator<Handler<T, U>, null, unknown> {
+    dispatch(args: T): Promise<void> {
+        const promises: Promise<void>[] = [];
+
+        for (const { callback } of [...this]) {
+            promises.push(callback(args));
+        }
+
+        return Promise.all(promises) as unknown as Promise<void>;
+    }
+
+    clear(): void {
+        for (const { clear } of [...this]) {
+            clear();
+        }
+    }
+
+    [Symbol.iterator](): Iterator<HandlerAccess<T>, null, unknown> {
         const list = this.#list;
         let step = 0;
 
         return {
-            next(): IteratorResult<Handler<T, U>, null> {
+            next(): IteratorResult<HandlerAccess<T>, null> {
                 if (step >= list.length) {
                     return { value: null, done: true };
                 }
@@ -135,3 +161,5 @@ export class Handlers<T, U> {
         };
     }
 }
+
+export type { TriggerItem };

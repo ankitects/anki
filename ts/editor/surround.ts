@@ -9,8 +9,7 @@ import type { SurroundFormat } from "../domlib/surround";
 import { boolMatcher, reformat, surround, unsurround } from "../domlib/surround";
 import { getRange, getSelection } from "../lib/cross-browser";
 import { registerPackage } from "../lib/runtime-require";
-import type { OnInsertCallback } from "../sveltelib/input-manager";
-import type { Trigger } from "../sveltelib/trigger";
+import type { TriggerItem } from "../sveltelib/handler-list";
 import type { RichTextInputAPI } from "./rich-text-input";
 
 function isSurroundedInner(
@@ -64,11 +63,11 @@ export class Surrounder {
     }
 
     private api: RichTextInputAPI | null = null;
-    private trigger: Trigger<OnInsertCallback> | null = null;
+    private trigger: TriggerItem<{ event: InputEvent; text: Text }> | null = null;
 
     set richText(api: RichTextInputAPI) {
         this.api = api;
-        this.trigger = api.getTriggerOnNextInsert();
+        this.trigger = api.inputHandler.insertText.trigger({ once: true });
     }
 
     /**
@@ -77,6 +76,7 @@ export class Surrounder {
      */
     disable(): void {
         this.api = null;
+        this.trigger?.off();
         this.trigger = null;
     }
 
@@ -96,13 +96,13 @@ export class Surrounder {
         exclusive: SurroundFormat<T>[] = [],
     ): void {
         if (get(this.trigger!.active)) {
-            this.trigger!.remove();
+            this.trigger!.off();
         } else {
-            this.trigger!.add(async ({ node }: { node: Node }) => {
+            this.trigger!.on(async ({ text }) => {
                 const range = new Range();
-                range.selectNode(node);
+                range.selectNode(text);
 
-                const matches = Boolean(findClosest(node, base, matcher));
+                const matches = Boolean(findClosest(text, base, matcher));
                 const clearedRange = removeFormats(range, base, exclusive);
                 surroundAndSelect(matches, clearedRange, base, format, selection);
                 selection.collapseToEnd();
