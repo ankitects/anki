@@ -1,32 +1,19 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { getSelection } from "../lib/cross-browser";
+import { getSelection, getRange } from "../lib/cross-browser";
 import { on } from "../lib/events";
-import { id } from "../lib/functional";
 import { keyboardEventIsPrintableKey } from "../lib/keys";
-import type { Trigger, Managed } from "./trigger";
-import trigger from "./trigger";
+import { Handlers } from "./handler-list";
 
 const nbsp = "\xa0";
 
-export type OnInsertCallback = ({
-    node,
-    event,
-}: {
-    node: Node;
-    event: InputEvent;
-}) => Promise<void>;
+export type SetupInputManagerAction = (element: HTMLElement) => { destroy(): void };
 
-export type OnInputCallback = ({ event }: { event: InputEvent }) => Promise<void>;
-
-export type InputManagerAction = (element: HTMLElement) => { destroy(): void };
-
-interface InputManager {
-    manager: InputManagerAction;
-    getTriggerOnNextInsert(): Trigger<OnInsertCallback>;
-    getTriggerOnInput(): Trigger<OnInputCallback>;
-    getTriggerAfterInput(): Trigger<OnInputCallback>;
+interface InputManagerAPI {
+    readonly beforeInput: Handlers<{ event: InputEvent }, Promise<void>>;
+    readonly insertText: Handlers<{ event: InputEvent; node: Node }, Promise<void>>;
+    readonly input: Handlers<{ event: InputEvent }, Promise<void>>;
 }
 
 /**
@@ -35,51 +22,40 @@ interface InputManager {
  * Prevents that too many event listeners are attached and allows for some
  * coordination between them.
  */
-function getInputManager(): InputManager {
-    const beforeInput: Managed<OnInputCallback>[] = [];
-    const beforeInsertText: Managed<OnInsertCallback>[] = [];
+function getInputManager(): [SetupInputManagerAction, InputManagerAPI] {
+    const beforeInput = new Handlers<{ event: InputEvent }, Promise<void>>();
+    const insertText = new Handlers<{ event: InputEvent; node: Node }, Promise<void>>();
 
-    async function onBeforeInput(event: InputEvent): Promise<void> {
-        const selection = getSelection(event.target! as Node)!;
-        const range = selection.getRangeAt(0);
+    async function onBeforeInput(this: Element, event: InputEvent): Promise<void> {
+        const selection = getSelection(this)!;
+        const range = getRange(selection);
 
-        for (const { value: callback } of beforeInput.filter(id)) {
+        for (const callback of beforeInput) {
             await callback({ event });
         }
 
-        const filteredBeforeInsertText = beforeInsertText.filter(id);
-
-        if (event.inputType === "insertText" && filteredBeforeInsertText.length > 0) {
-            event.preventDefault();
-            const textContent = event.data === " " ? nbsp : event.data ?? nbsp;
-            const node = new Text(textContent);
-
-            range.deleteContents();
-            range.insertNode(node);
-            range.selectNode(node);
-            range.collapse(false);
-
-            for (const { value: callback, remove } of filteredBeforeInsertText) {
-                await callback({ node, event });
-                remove();
-            }
-
-            /* we call explicitly because we prevented default */
-            callAfterInputHooks(event);
+        if (!range || event.inputType !== "insertText" || insertText.length === 0) {
+            return;
         }
-    }
 
-    const afterInput: Managed<OnInputCallback>[] = [];
+        event.preventDefault();
 
-    async function callAfterInputHooks(event: InputEvent): Promise<void> {
-        for (const { value: callback } of afterInput.filter(id)) {
-            await callback({ event });
+        const content = !event.data || event.data === " " ? nbsp : event.data;
+        const node = new Text(content);
+
+        range.deleteContents();
+        range.insertNode(node);
+        range.selectNode(node);
+        range.collapse(false);
+
+        for (const callback of insertText) {
+            await callback({ node, event });
         }
     }
 
     function clearInsertText(): void {
-        for (const { remove } of beforeInsertText.filter(id)) {
-            remove();
+        for (const { clear } of insertText) {
+            clear();
         }
     }
 
@@ -109,13 +85,9 @@ function getInputManager(): InputManager {
         }
     }
 
-    function manager(element: HTMLElement): { destroy(): void } {
+    function setupManager(element: HTMLElement): { destroy(): void } {
         const removeBeforeInput = on(element, "beforeinput", onBeforeInput);
-        const removeInput = on(
-            element,
-            "input",
-            onInput as unknown as (event: Event) => void,
-        );
+        const removeInput = on(element, "input", onInput);
 
         const removeBlur = on(element, "blur", clearInsertText);
         const removePointerDown = on(element, "pointerdown", clearInsertText);
@@ -133,12 +105,14 @@ function getInputManager(): InputManager {
         };
     }
 
-    return {
-        manager,
-        getTriggerOnNextInsert: trigger(beforeInsertText),
-        getTriggerOnInput: trigger(beforeInput),
-        getTriggerAfterInput: trigger(afterInput),
-    };
+    return [
+        {
+            beforeInsertText,
+            beforeInput,
+            afterInput,
+        },
+        setupManager,
+    ];
 }
 
 export default getInputManager;
