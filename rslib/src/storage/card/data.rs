@@ -30,7 +30,7 @@ impl CardData {
 }
 
 impl FromSql for CardData {
-    /// Infallible, as there might be junk in the data column.
+    /// Infallible; invalid/missing data results in the default value.
     fn column_result(value: ValueRef<'_>) -> std::result::Result<Self, FromSqlError> {
         if let ValueRef::Text(s) = value {
             Ok(serde_json::from_slice(s).unwrap_or_default())
@@ -48,11 +48,13 @@ impl ToSql for CardData {
     }
 }
 
+/// Serialize the JSON `data` for a card.
 pub(crate) fn card_data_string(card: &Card) -> String {
     serde_json::to_string(&CardData::from_card(card)).unwrap()
 }
 
-pub(crate) fn original_position_from_str(s: &str) -> Option<u32> {
-    let data: CardData = serde_json::from_str(s).unwrap_or_default();
+/// Extract original position from JSON `data`.
+pub(crate) fn original_position_from_card_data(card_data: &str) -> Option<u32> {
+    let data: CardData = serde_json::from_str(card_data).unwrap_or_default();
     data.original_position
 }

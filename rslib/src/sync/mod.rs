@@ -27,7 +27,7 @@ use crate::{
     revlog::RevlogEntry,
     serde::{default_on_invalid, deserialize_int_from_number},
     storage::{
-        card::data::{card_data_string, original_position_from_str},
+        card::data::{card_data_string, original_position_from_card_data},
         open_and_check_sqlite_file,
     },
     tags::{join_tags, split_tags, Tag},
@@ -1100,7 +1100,7 @@ impl From<CardEntry> for Card {
             original_due: e.odue,
             original_deck_id: e.odid,
             flags: e.flags,
-            original_position: original_position_from_str(&e.data),
+            original_position: original_position_from_card_data(&e.data),
         }
     }
 }
