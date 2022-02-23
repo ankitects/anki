@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
+    import type { FocusHandlerAPI } from "../../editable/content-editable";
     import type { ContentEditableAPI } from "../../editable/ContentEditable.svelte";
     import useContextProperty from "../../sveltelib/context-property";
     import useDOMMirror from "../../sveltelib/dom-mirror";
@@ -11,7 +12,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { pageTheme } from "../../sveltelib/theme";
     import type { EditingInputAPI } from "../EditingArea.svelte";
     import type CustomStyles from "./CustomStyles.svelte";
-    import type { FocusHandlerAPI } from "../../editable/content-editable";
 
     export interface RichTextInputAPI extends EditingInputAPI, ContentEditableAPI {
         name: "rich-text";
@@ -59,9 +59,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { on } from "../../lib/events";
     import { promiseWithResolver } from "../../lib/promise";
     import { nodeStore } from "../../sveltelib/node-store";
-    import { context as noteEditorContext } from "../NoteEditor.svelte";
     import { context as decoratedElementsContext } from "../DecoratedElements.svelte";
     import { context as editingAreaContext } from "../EditingArea.svelte";
+    import { context as noteEditorContext } from "../NoteEditor.svelte";
     import RichTextStyles from "./RichTextStyles.svelte";
     import SetContext from "./SetContext.svelte";
 

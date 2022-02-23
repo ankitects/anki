@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { getSelection, getRange } from "../lib/cross-browser";
+import { getRange, getSelection } from "../lib/cross-browser";
 import { on } from "../lib/events";
 import { keyboardEventIsPrintableKey } from "../lib/keys";
 import { HandlerList } from "./handler-list";

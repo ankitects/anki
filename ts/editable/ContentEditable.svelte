@@ -11,10 +11,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { updateAllState } from "../components/WithState.svelte";
     import actionList from "../sveltelib/action-list";
-    import type { SetupInputHandlerAction } from "../sveltelib/input-handler";
     import type { MirrorAction } from "../sveltelib/dom-mirror";
+    import type { SetupInputHandlerAction } from "../sveltelib/input-handler";
     import type { ContentEditableAPI } from "./content-editable";
-    import { useFocusHandler, preventBuiltinShortcuts } from "./content-editable";
+    import { preventBuiltinShortcuts, useFocusHandler } from "./content-editable";
 
     export let resolve: (editable: HTMLElement) => void;
 

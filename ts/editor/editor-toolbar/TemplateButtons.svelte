@@ -14,14 +14,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Shortcut from "../../components/Shortcut.svelte";
     import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
+    import { promiseWithResolver } from "../../lib/promise";
     import { getPlatformString } from "../../lib/shortcuts";
     import { context } from "../NoteEditor.svelte";
+    import { setFormat } from "../old-editor-adapter";
     import { editingInputIsRichText } from "../rich-text-input";
     import ClozeButton from "./ClozeButton.svelte";
     import { micIcon, paperclipIcon } from "./icons";
     import LatexButton from "./LatexButton.svelte";
-    import { setFormat } from "../old-editor-adapter";
-    import { promiseWithResolver } from "../../lib/promise";
 
     const { focusedInput } = context.get();
 

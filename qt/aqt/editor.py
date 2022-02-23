@@ -15,7 +15,7 @@ import urllib.request
 import warnings
 from enum import Enum
 from random import randrange
-from typing import Any, Callable, Match, cast
+from typing import Any, Callable, Match
 
 import bs4
 import requests
@@ -693,9 +693,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         )
         filter = f"{tr.editing_media()} ({extension_filter})"
 
-        def accept(file: str) -> None:
-            self.addMedia(file)
-
         file = getFile(
             parent=self.widget,
             title=tr.editing_add_media(),
@@ -705,7 +702,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         )
 
         self.parentWindow.activateWindow()
-        return self.addMedia(file)
+        return self.add_media_string(str(file))
 
     def addMedia(self, path: str, canDelete: bool = False) -> None:
         """canDelete is a legacy arg and is ignored."""
@@ -714,6 +711,14 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         except Exception as e:
             showWarning(str(e))
             return
+        self.web.eval(f"setFormat('inserthtml', {json.dumps(html)});")
+
+    def add_media_string(self, path: str) -> str:
+        try:
+            html = self._addMedia(path)
+        except Exception as e:
+            showWarning(str(e))
+            return ""
 
         return json.dumps(html)
 

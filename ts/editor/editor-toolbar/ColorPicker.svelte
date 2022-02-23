@@ -5,10 +5,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import Shortcut from "../../components/Shortcut.svelte";
 
-    export let keyCombination: string | undefined;
+    export let keyCombination: string | null = null;
 
     let inputRef: HTMLInputElement;
 </script>
+
 <input bind:this={inputRef} tabindex="-1" type="color" on:input on:change />
 
 {#if keyCombination}
