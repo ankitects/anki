@@ -38,7 +38,8 @@ class ProgressManager:
         *,
         parent: QObject = None,
     ) -> QTimer:
-        """Create and start a standard Anki timer.
+        """Create and start a standard Anki timer. It will be destroyed when
+        the provided parent is destroyed.
 
         If the timer fires while a progress window is shown:
         - if it is a repeating timer, it will wait the same delay again
@@ -52,11 +53,33 @@ class ProgressManager:
         if parent is None:
             print_deprecation_warning(
                 "to avoid memory leaks, pass an appropriate parent to progress.timer()"
+                " or use progress.single_shot()"
             )
             parent = self.mw
 
+        qtimer = QTimer(parent)
+        if not repeat:
+            qtimer.setSingleShot(True)
+        qconnect(qtimer.timeout, self._get_handler(func, repeat, requiresCollection))
+        qtimer.start(ms)
+        return qtimer
+
+    def single_shot(
+        self,
+        ms: int,
+        func: Callable[[], None],
+        requires_collection: bool = True,
+    ) -> None:
+        """Create and start a one-of Anki timer. If you need to control the timer
+        after creation, use timer().
+        """
+        QTimer.singleShot(ms, self._get_handler(func, False, requires_collection))
+
+    def _get_handler(
+        self, func: Callable[[], None], repeat: bool, requires_collection: bool
+    ) -> Callable[[], None]:
         def handler() -> None:
-            if requiresCollection and not self.mw.col:
+            if requires_collection and not self.mw.col:
                 # no current collection; timer is no longer valid
                 print(f"Ignored progress func as collection unloaded: {repr(func)}")
                 return
@@ -70,14 +93,9 @@ class ProgressManager:
                     pass
                 else:
                     # retry in 100ms
-                    self.timer(100, func, False, requiresCollection, parent=parent)
+                    self.single_shot(100, func, requires_collection)
 
-        t = QTimer(parent)
-        if not repeat:
-            t.setSingleShot(True)
-        qconnect(t.timeout, handler)
-        t.start(ms)
-        return t
+        return handler
 
     # Creating progress dialogs
     ##########################################################################

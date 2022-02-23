@@ -628,7 +628,7 @@ html {{ {font} }}
 
         if qvar is None:
 
-            mw.progress.timer(1000, mw.reset, False, parent=self)
+            mw.progress.single_shot(1000, mw.reset)
             return
 
         self.setFixedHeight(int(qvar))

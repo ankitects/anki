@@ -1150,9 +1150,7 @@ class DownloaderInstaller(QObject):
         self.mgr.mw.progress.finish()
         # qt gets confused if on_done() opens new windows while the progress
         # modal is still cleaning up
-        self.mgr.mw.progress.timer(
-            50, lambda: self.on_done(self.log), False, parent=self
-        )
+        self.mgr.mw.progress.single_shot(50, lambda: self.on_done(self.log))
 
 
 def show_log_to_user(parent: QWidget, log: list[DownloadLogEntry]) -> None:
@@ -1401,12 +1399,10 @@ def check_for_updates(
     def update_info_received(future: Future) -> None:
         # if syncing/in profile screen, defer message delivery
         if not mgr.mw.col:
-            mgr.mw.progress.timer(
+            mgr.mw.progress.single_shot(
                 1000,
                 lambda: update_info_received(future),
                 False,
-                requiresCollection=False,
-                parent=mgr.mw,
             )
             return
 
