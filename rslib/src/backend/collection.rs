@@ -8,7 +8,7 @@ pub(super) use crate::backend_proto::collection_service::Service as CollectionSe
 use crate::{
     backend::progress::progress_to_proto,
     backend_proto as pb,
-    collection::CollectionBuilder,
+    collection::{backup, CollectionBuilder},
     log::{self},
     prelude::*,
 };
@@ -96,5 +96,9 @@ impl CollectionService for Backend {
         let starting_from = input.val as usize;
         self.with_col(|col| col.merge_undoable_ops(starting_from))
             .map(Into::into)
+    }
+
+    fn backup(&self, input: pb::BackupRequest) -> Result<pb::Empty> {
+        backup::backup(&input.col_path, &input.out_dir).map(Into::into)
     }
 }
