@@ -20,12 +20,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ClozeButton from "./ClozeButton.svelte";
     import { micIcon, paperclipIcon } from "./icons";
     import LatexButton from "./LatexButton.svelte";
+    import { setFormat } from "../old-editor-adapter";
+    import { promiseWithResolver } from "../../lib/promise";
 
     const { focusedInput } = context.get();
 
     const attachmentKeyCombination = "F3";
     function onAttachment(): void {
-        bridgeCommand("attach");
+        if (!editingInputIsRichText($focusedInput)) {
+            return;
+        }
+
+        const [url, resolve] = promiseWithResolver<string>();
+        bridgeCommand("attach", resolve);
+        $focusedInput.focusHandler.refocus.on(
+            async () => setFormat("inserthtml", JSON.parse(await url)),
+            { once: true },
+        );
     }
 
     const recordKeyCombination = "F5";

@@ -460,7 +460,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 self._save_current_note()
 
         elif cmd in self._links:
-            self._links[cmd](self)
+            return self._links[cmd](self)
 
         else:
             print("uncaught cmd", cmd)
@@ -687,7 +687,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     # Audio/video/images
     ######################################################################
 
-    def onAddMedia(self) -> None:
+    def onAddMedia(self) -> str:
         extension_filter = " ".join(
             f"*.{extension}" for extension in sorted(itertools.chain(pics, audio))
         )
@@ -699,11 +699,13 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         file = getFile(
             parent=self.widget,
             title=tr.editing_add_media(),
-            cb=cast(Callable[[Any], None], accept),
+            cb=None,
             filter=filter,
             key="media",
         )
+
         self.parentWindow.activateWindow()
+        return self.addMedia(file)
 
     def addMedia(self, path: str, canDelete: bool = False) -> None:
         """canDelete is a legacy arg and is ignored."""
@@ -712,7 +714,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         except Exception as e:
             showWarning(str(e))
             return
-        self.web.eval(f"setFormat('inserthtml', {json.dumps(html)});")
+
+        return json.dumps(html)
 
     def _addMedia(self, path: str, canDelete: bool = False) -> str:
         """Add to media folder and return local img or sound tag."""
