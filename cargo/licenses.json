@@ -837,6 +837,15 @@
     "description": "Fast integer primitive to string conversion"
   },
   {
+    "name": "jobserver",
+    "version": "0.1.24",
+    "authors": "Alex Crichton <alex@alexcrichton.com>",
+    "repository": "https://github.com/alexcrichton/jobserver-rs",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "An implementation of the GNU make jobserver for Rust"
+  },
+  {
     "name": "js-sys",
     "version": "0.3.55",
     "authors": "The wasm-bindgen Developers",
@@ -2536,5 +2545,32 @@
     "license": "MIT",
     "license_file": null,
     "description": "Library to support the reading and writing of zip files."
+  },
+  {
+    "name": "zstd",
+    "version": "0.10.0+zstd.1.5.2",
+    "authors": "Alexandre Bury <alexandre.bury@gmail.com>",
+    "repository": "https://github.com/gyscos/zstd-rs",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Binding for the zstd compression library."
+  },
+  {
+    "name": "zstd-safe",
+    "version": "4.1.4+zstd.1.5.2",
+    "authors": "Alexandre Bury <alexandre.bury@gmail.com>",
+    "repository": "https://github.com/gyscos/zstd-rs",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Safe low-level bindings for the zstd compression library."
+  },
+  {
+    "name": "zstd-sys",
+    "version": "1.6.3+zstd.1.5.2",
+    "authors": "Alexandre Bury <alexandre.bury@gmail.com>",
+    "repository": "https://github.com/gyscos/zstd-rs",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Low-level bindings for the zstd compression library."
   }
 ]
