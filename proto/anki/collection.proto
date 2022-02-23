@@ -19,6 +19,7 @@ service CollectionService {
   rpc LatestProgress(generic.Empty) returns (Progress);
   rpc SetWantsAbort(generic.Empty) returns (generic.Empty);
   rpc Backup(BackupRequest) returns (generic.Empty);
+  rpc ThinBackups(generic.String) returns (generic.Empty);
 }
 
 message OpenCollectionRequest {

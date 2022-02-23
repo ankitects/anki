@@ -101,4 +101,8 @@ impl CollectionService for Backend {
     fn backup(&self, input: pb::BackupRequest) -> Result<pb::Empty> {
         backup::backup(&input.col_path, &input.out_dir).map(Into::into)
     }
+
+    fn thin_backups(&self, input: pb::String) -> Result<pb::Empty> {
+        backup::thin_backups(&input.val).map(Into::into)
+    }
 }
