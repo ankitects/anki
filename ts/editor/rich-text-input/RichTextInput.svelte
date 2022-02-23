@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { pageTheme } from "../../sveltelib/theme";
     import type { EditingInputAPI } from "../EditingArea.svelte";
     import type CustomStyles from "./CustomStyles.svelte";
+    import type { FocusHandlerAPI } from "../../editable/content-editable";
 
     export interface RichTextInputAPI extends EditingInputAPI, ContentEditableAPI {
         name: "rich-text";
@@ -20,6 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         toggle(): boolean;
         preventResubscription(): () => void;
         inputHandler: InputHandlerAPI;
+        focusHandler: FocusHandlerAPI;
     }
 
     export function editingInputIsRichText(
@@ -57,12 +59,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { on } from "../../lib/events";
     import { promiseWithResolver } from "../../lib/promise";
     import { nodeStore } from "../../sveltelib/node-store";
+    import { context as noteEditorContext } from "../NoteEditor.svelte";
     import { context as decoratedElementsContext } from "../DecoratedElements.svelte";
     import { context as editingAreaContext } from "../EditingArea.svelte";
     import RichTextStyles from "./RichTextStyles.svelte";
     import SetContext from "./SetContext.svelte";
 
     export let hidden: boolean;
+
+    const { focusedInput } = noteEditorContext.get();
 
     const { content, editingInputs } = editingAreaContext.get();
     const decoratedElements = decoratedElementsContext.get();
@@ -202,12 +207,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         stylesDidLoad.then(
             () =>
                 new ContentEditable({
-                    target: element.shadowRoot!,
+                    target: element.shadowRoot,
                     props: {
                         nodes,
                         resolve,
                         mirrors: [mirror],
-                        managers: [setupInputHandler, setupGlobalInputHandler],
+                        inputHandlers: [setupInputHandler, setupGlobalInputHandler],
                         api,
                     },
                     context: allContexts,
@@ -239,7 +244,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<div class="rich-text-input">
+<div
+    class="rich-text-input"
+    on:focusin={() => ($focusedInput = api)}
+    on:focusout={() => ($focusedInput = null)}
+>
     <RichTextStyles
         color={$pageTheme.isDark ? "white" : "black"}
         let:attachToShadow={attachStyles}

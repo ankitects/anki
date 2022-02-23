@@ -9,6 +9,7 @@ import { on, preventDefault } from "../lib/events";
 import { isApplePlatform } from "../lib/platform";
 import { registerShortcut } from "../lib/shortcuts";
 import type { Callback } from "../lib/typing";
+import { HandlerList } from "../sveltelib/handler-list";
 
 /**
  * Workaround: If you try to invoke an IME after calling
@@ -20,45 +21,63 @@ function safePlaceCaretAfterContent(editable: HTMLElement): void {
     restoreSelection(editable, saveSelection(editable)!);
 }
 
-function onFocus(location: SelectionLocation | null): () => void {
-    return function (this: HTMLElement): void {
-        if (!location) {
-            return safePlaceCaretAfterContent(this);
-        }
+function onFocus(element: HTMLElement, location: SelectionLocation | null): void {
+    if (!location) {
+        return safePlaceCaretAfterContent(element);
+    }
 
-        try {
-            restoreSelection(this, location);
-        } catch {
-            safePlaceCaretAfterContent(this);
-        }
-    };
+    try {
+        restoreSelection(element, location);
+    } catch {
+        safePlaceCaretAfterContent(element);
+    }
 }
 
 type SetupFocusHandlerAction = (element: HTMLElement) => { destroy(): void };
 
-interface FocusHandlerAPI {
+export interface FocusHandlerAPI {
     flushCaret(): void;
+    refocus: HandlerList<{ event: FocusEvent }>;
 }
 
 export function useFocusHandler(): [FocusHandlerAPI, SetupFocusHandlerAction] {
-    const focusHandlingEvents: Callback[] = [];
+    let latestLocation: SelectionLocation | null = null;
+    let offFocus: Callback | null;
+    let offPointerDown: Callback | null;
 
-    function flushEvents(): void {
-        let removeEvent: Callback | undefined;
-
-        while ((removeEvent = focusHandlingEvents.pop())) {
-            removeEvent();
-        }
+    function flushCaret(): void {
+        latestLocation = null;
     }
+
+    const refocus = new HandlerList<{ event: FocusEvent }>();
 
     function prepareFocusHandling(
         editable: HTMLElement,
-        latestLocation: SelectionLocation | null = null,
+        location: SelectionLocation | null = null,
     ): void {
-        const off = on(editable, "focus", onFocus(latestLocation), { once: true });
-        const offPointerdown = on(editable, "pointerdown", off, { once: true });
+        latestLocation = location;
 
-        focusHandlingEvents.push(off, offPointerdown);
+        offFocus?.();
+        offFocus = on(
+            editable,
+            "focus",
+            (event: FocusEvent): void => {
+                debugger;
+                onFocus(event.currentTarget as HTMLElement, latestLocation);
+                setTimeout(() => refocus.dispatch({ event }));
+            },
+            { once: true },
+        );
+        offPointerDown?.();
+        offPointerDown = on(
+            editable,
+            "pointerdown",
+            () => {
+                offFocus?.();
+                offFocus = null;
+            },
+            { once: true },
+        );
     }
 
     /**
@@ -68,23 +87,25 @@ export function useFocusHandler(): [FocusHandlerAPI, SetupFocusHandlerAction] {
         prepareFocusHandling(this, saveSelection(this));
     }
 
-    function setupFocusHandling(editable: HTMLElement): { destroy(): void } {
+    function setupFocusHandler(editable: HTMLElement): { destroy(): void } {
         prepareFocusHandling(editable);
         const off = on(editable, "blur", onBlur);
 
         return {
             destroy() {
-                flushEvents();
                 off();
+                offFocus?.();
+                offPointerDown?.();
             },
         };
     }
 
     return [
         {
-            flushCaret: flushEvents,
+            flushCaret,
+            refocus,
         },
-        setupFocusHandling,
+        setupFocusHandler,
     ];
 }
 

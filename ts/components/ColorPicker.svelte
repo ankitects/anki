@@ -2,16 +2,7 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script lang="ts">
-    import { createEventDispatcher, onMount } from "svelte";
-
-    let inputRef: HTMLInputElement;
-
-    const dispatch = createEventDispatcher();
-    onMount(() => dispatch("mount", { input: inputRef }));
-</script>
-
-<input tabindex="-1" bind:this={inputRef} type="color" on:change />
+<input tabindex="-1" type="color" on:change on:beforeinput on:input />
 
 <style lang="scss">
     input {

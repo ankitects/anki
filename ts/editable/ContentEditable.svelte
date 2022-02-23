@@ -24,9 +24,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const mirrorAction = actionList(mirrors);
     const mirrorOptions = { store: nodes };
 
-    export let managers: SetupInputHandlerAction[];
+    export let inputHandlers: SetupInputHandlerAction[];
 
-    const managerAction = actionList(managers);
+    const inputHandlerAction = actionList(inputHandlers);
 
     export let api: Partial<ContentEditableAPI>;
 
@@ -41,7 +41,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     use:setupFocusHandling
     use:preventBuiltinShortcuts
     use:mirrorAction={mirrorOptions}
-    use:managerAction={{}}
+    use:inputHandlerAction={{}}
     on:focus
     on:blur
     on:click={updateAllState}

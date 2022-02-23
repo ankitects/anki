@@ -17,6 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { withFontColor } from "../helpers";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
+    import type { RichTextInputAPI } from "../rich-text-input";
     import { removeEmptyStyle, Surrounder } from "../surround";
     import type { RemoveFormat } from "./EditorToolbar.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
@@ -110,16 +111,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const { focusedInput } = noteEditorContext.get();
     const surrounder = Surrounder.make();
     let disabled: boolean;
+    let api: RichTextInputAPI | null;
 
     $: if (editingInputIsRichText($focusedInput)) {
-        surrounder.richText = $focusedInput;
+        surrounder.richText = api = $focusedInput;
         disabled = false;
     } else {
         surrounder.disable();
+        api = null;
         disabled = true;
     }
 
     function setTextColor(): void {
+        debugger;
         surrounder.overwriteSurround(format);
     }
 
@@ -146,10 +150,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     >
         {@html arrowIcon}
         <ColorPicker
-            on:change={(event) => {
+            on:input={(event) => {
                 color = setColor(event);
                 bridgeCommand(`lastTextColor:${color}`);
-                setTextColor();
+                api?.focusHandler.refocus.on(async () => setTextColor());
             }}
         />
     </IconButton>
@@ -158,7 +162,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:action={(event) => {
             color = setColor(event);
             bridgeCommand(`lastTextColor:${color}`);
-            setTextColor();
+            api?.focusHandler.refocus.on(async () => setTextColor());
         }}
     />
 </WithColorHelper>
