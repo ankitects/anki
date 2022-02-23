@@ -54,6 +54,8 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
         range.collapse(false);
 
         await insertText.dispatch({ event, text });
+
+        range.commonAncestorContainer.normalize();
     }
 
     function clearInsertText(): void {
