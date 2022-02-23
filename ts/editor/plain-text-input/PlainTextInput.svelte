@@ -162,7 +162,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:light-theme={!$pageTheme.isDark}
     class:hidden
     on:focusin={() => ($focusedInput = api)}
-    on:focusout={() => ($focusedInput = null)}
 >
     <CodeMirror
         {configuration}

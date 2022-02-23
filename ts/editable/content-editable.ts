@@ -62,9 +62,8 @@ export function useFocusHandler(): [FocusHandlerAPI, SetupFocusHandlerAction] {
             editable,
             "focus",
             (event: FocusEvent): void => {
-                debugger;
                 onFocus(event.currentTarget as HTMLElement, latestLocation);
-                setTimeout(() => refocus.dispatch({ event }));
+                refocus.dispatch({ event });
             },
             { once: true },
         );

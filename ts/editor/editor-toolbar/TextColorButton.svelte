@@ -123,7 +123,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function setTextColor(): void {
-        debugger;
         surrounder.overwriteSurround(format);
     }
 
@@ -153,8 +152,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:input={(event) => {
                 color = setColor(event);
                 bridgeCommand(`lastTextColor:${color}`);
-                api?.focusHandler.refocus.on(async () => setTextColor());
             }}
+            on:change={() => setTextColor()}
         />
     </IconButton>
     <Shortcut

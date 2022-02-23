@@ -247,7 +247,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     class="rich-text-input"
     on:focusin={() => ($focusedInput = api)}
-    on:focusout={() => ($focusedInput = null)}
 >
     <RichTextStyles
         color={$pageTheme.isDark ? "white" : "black"}

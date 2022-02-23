@@ -2,7 +2,7 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<input tabindex="-1" type="color" on:change on:beforeinput on:input />
+<input tabindex="-1" type="color" on:input on:change />
 
 <style lang="scss">
     input {
