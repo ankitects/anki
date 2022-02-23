@@ -1356,7 +1356,9 @@ title="{}" {}>{}</button>""".format(
         # check media sync every 5 minutes
         self.progress.timer(5 * 60 * 1000, self.on_autosync_timer, True, parent=self)
         # periodic garbage collection
-        self.progress.single_shot(15 * 60 * 1000, self.garbage_collect_now)
+        self.progress.timer(
+            15 * 60 * 1000, self.garbage_collect_now, True, False, parent=self
+        )
         # ensure Python interpreter runs at least once per second, so that
         # SIGINT/SIGTERM is processed without a long delay
         self.progress.timer(1000, lambda: None, True, False, parent=self)
