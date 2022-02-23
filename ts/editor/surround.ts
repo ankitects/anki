@@ -110,6 +110,24 @@ export class Surrounder {
         }
     }
 
+    private _toggleTriggerOverwrite<T>(
+        base: HTMLElement,
+        selection: Selection,
+        format: SurroundFormat<T>,
+        exclusive: SurroundFormat<T>[] = [],
+    ): void {
+        this.trigger!.on(async ({ text }) => {
+            const range = new Range();
+            range.selectNode(text);
+
+            const clearedRange = removeFormats(range, base, exclusive);
+            const surroundedRange = surround(clearedRange, base, format);
+            selection.removeAllRanges();
+            selection.addRange(surroundedRange);
+            selection.collapseToEnd();
+        });
+    }
+
     /**
      * Use the surround command on the current range of the RichTextInput.
      * If the range is already surrounded, it will unsurround instead.
@@ -149,14 +167,13 @@ export class Surrounder {
         const base = await this._assert_base();
         const selection = getSelection(base)!;
         const range = getRange(selection);
-        const matcher = boolMatcher(format);
 
         if (!range) {
             return;
         }
 
         if (range.collapsed) {
-            return this._toggleTrigger(base, selection, matcher, format, exclusive);
+            return this._toggleTriggerOverwrite(base, selection, format, exclusive);
         }
 
         const clearedRange = removeFormats(range, base, exclusive);

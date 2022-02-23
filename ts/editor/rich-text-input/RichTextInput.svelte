@@ -244,10 +244,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<div
-    class="rich-text-input"
-    on:focusin={() => ($focusedInput = api)}
->
+<div class="rich-text-input" on:focusin={() => ($focusedInput = api)}>
     <RichTextStyles
         color={$pageTheme.isDark ? "white" : "black"}
         let:attachToShadow={attachStyles}
