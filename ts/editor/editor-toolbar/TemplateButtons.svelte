@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const [url, resolve] = promiseWithResolver<string>();
         bridgeCommand("attach", resolve);
-        $focusedInput.focusHandler.refocus.on(
+        $focusedInput.focusHandler.focus.on(
             async () => setFormat("inserthtml", JSON.parse(await url)),
             { once: true },
         );

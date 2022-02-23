@@ -21,7 +21,7 @@ function safePlaceCaretAfterContent(editable: HTMLElement): void {
     restoreSelection(editable, saveSelection(editable)!);
 }
 
-function onFocus(element: HTMLElement, location: SelectionLocation | null): void {
+function restoreCaret(element: HTMLElement, location: SelectionLocation | null): void {
     if (!location) {
         return safePlaceCaretAfterContent(element);
     }
@@ -36,20 +36,27 @@ function onFocus(element: HTMLElement, location: SelectionLocation | null): void
 type SetupFocusHandlerAction = (element: HTMLElement) => { destroy(): void };
 
 export interface FocusHandlerAPI {
+    /**
+     * Prevent the automatic caret restoration, that happens upon field focus
+     */
     flushCaret(): void;
-    refocus: HandlerList<{ event: FocusEvent }>;
+    /**
+     * Executed upon focus event of editable.
+     */
+    focus: HandlerList<{ event: FocusEvent }>;
 }
 
 export function useFocusHandler(): [FocusHandlerAPI, SetupFocusHandlerAction] {
     let latestLocation: SelectionLocation | null = null;
     let offFocus: Callback | null;
     let offPointerDown: Callback | null;
+    let flush = false;
 
     function flushCaret(): void {
-        latestLocation = null;
+        flush = true;
     }
 
-    const refocus = new HandlerList<{ event: FocusEvent }>();
+    const focus = new HandlerList<{ event: FocusEvent }>();
 
     function prepareFocusHandling(
         editable: HTMLElement,
@@ -62,8 +69,13 @@ export function useFocusHandler(): [FocusHandlerAPI, SetupFocusHandlerAction] {
             editable,
             "focus",
             (event: FocusEvent): void => {
-                onFocus(event.currentTarget as HTMLElement, latestLocation);
-                refocus.dispatch({ event });
+                if (flush) {
+                    flush = false;
+                } else {
+                    restoreCaret(event.currentTarget as HTMLElement, latestLocation);
+                }
+
+                focus.dispatch({ event });
             },
             { once: true },
         );
@@ -102,7 +114,7 @@ export function useFocusHandler(): [FocusHandlerAPI, SetupFocusHandlerAction] {
     return [
         {
             flushCaret,
-            refocus,
+            focus,
         },
         setupFocusHandler,
     ];

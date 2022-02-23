@@ -111,14 +111,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const { focusedInput } = noteEditorContext.get();
     const surrounder = Surrounder.make();
     let disabled: boolean;
-    let api: RichTextInputAPI | null;
 
     $: if (editingInputIsRichText($focusedInput)) {
-        surrounder.richText = api = $focusedInput;
+        surrounder.richText = $focusedInput;
         disabled = false;
     } else {
         surrounder.disable();
-        api = null;
         disabled = true;
     }
 
@@ -149,6 +147,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     >
         {@html arrowIcon}
         <ColorPicker
+            keyCombination={pickCombination}
             on:input={(event) => {
                 color = setColor(event);
                 bridgeCommand(`lastTextColor:${color}`);
@@ -156,12 +155,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:change={() => setTextColor()}
         />
     </IconButton>
-    <Shortcut
-        keyCombination={pickCombination}
-        on:action={(event) => {
-            color = setColor(event);
-            bridgeCommand(`lastTextColor:${color}`);
-            api?.focusHandler.refocus.on(async () => setTextColor());
-        }}
-    />
 </WithColorHelper>
