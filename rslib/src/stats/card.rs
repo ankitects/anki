@@ -25,7 +25,7 @@ impl Collection {
         let revlog = self.storage.get_revlog_entries_for_card(card.id)?;
 
         let (average_secs, total_secs) = average_and_total_secs_strings(&revlog);
-        let (due_date, due_position) = self.due_date_and_position_strings(&card)?;
+        let (due_date, due_position) = self.due_date_and_position(&card)?;
 
         Ok(pb::CardStatsResponse {
             card_id: card.id.into(),
@@ -52,7 +52,7 @@ impl Collection {
         })
     }
 
-    fn due_date_and_position_strings(
+    fn due_date_and_position(
         &mut self,
         card: &Card,
     ) -> Result<(Option<pb::generic::Int64>, Option<pb::generic::Int32>)> {
@@ -67,7 +67,7 @@ impl Collection {
                 Some(pb::generic::Int64 {
                     val: TimestampSecs::now().0,
                 }),
-                None,
+                card.original_position.map(|u| (u as i32).into()),
             ),
             CardQueue::Review | CardQueue::DayLearn => (
                 {
@@ -81,7 +81,7 @@ impl Collection {
                         Some(pb::generic::Int64 { val: due.0 })
                     }
                 },
-                None,
+                card.original_position.map(|u| (u as i32).into()),
             ),
             _ => (None, None),
         })

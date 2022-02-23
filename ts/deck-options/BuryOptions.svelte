@@ -39,14 +39,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </SwitchRow>
         </Item>
 
-        <Item>
-            <SwitchRow
-                bind:value={$config.buryInterdayLearning}
-                defaultValue={defaults.buryInterdayLearning}
-                markdownTooltip={tr.deckConfigBuryTooltip()}
-            >
-                {tr.deckConfigBuryInterdayLearningSiblings()}
-            </SwitchRow>
-        </Item>
+        {#if state.v3Scheduler}
+            <Item>
+                <SwitchRow
+                    bind:value={$config.buryInterdayLearning}
+                    defaultValue={defaults.buryInterdayLearning}
+                    markdownTooltip={tr.deckConfigBuryTooltip()}
+                >
+                    {tr.deckConfigBuryInterdayLearningSiblings()}
+                </SwitchRow>
+            </Item>
+        {/if}
     </DynamicallySlottable>
 </TitledContainer>
