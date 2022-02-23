@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let color: string;
 
-    function setColor({ currentTarget }: InputEvent): string {
+    function setColor({ currentTarget }: Event): string {
         color = (currentTarget! as HTMLInputElement).value;
         return color;
     }

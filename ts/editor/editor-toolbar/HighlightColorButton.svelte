@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import ColorPicker from "../../components/ColorPicker.svelte";
+    import ColorPicker from "./ColorPicker.svelte";
     import IconButton from "../../components/IconButton.svelte";
     import type {
         FormattingNode,
@@ -128,11 +128,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     >
         {@html arrowIcon}
         <ColorPicker
-            on:change={(event) => {
+            on:input={(event) => {
                 color = setColor(event);
-                bridgeCommand(`lastHighlightColor:${color}`);
-                setTextColor();
+                bridgeCommand(`lastTextColor:${color}`);
             }}
+            on:change={() => setTextColor()}
         />
     </IconButton>
 </WithColorHelper>
