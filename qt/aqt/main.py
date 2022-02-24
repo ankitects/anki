@@ -7,12 +7,9 @@ import gc
 import os
 import re
 import signal
-import time
 import weakref
-import zipfile
 from argparse import Namespace
 from concurrent.futures import Future
-from threading import Thread
 from typing import Any, Literal, Sequence, TextIO, TypeVar, cast
 
 import anki
@@ -550,7 +547,9 @@ class AnkiQt(QMainWindow):
                 )
             # clean up open collection if possible
             try:
-                self.backend.close_collection(False)
+                self.backend.close_collection(
+                    downgrade_to_schema11=False, backup_paths=None
+                )
             except Exception as e:
                 print("unable to close collection:", e)
             self.col = None
@@ -597,35 +596,42 @@ class AnkiQt(QMainWindow):
     def _unloadCollection(self) -> None:
         if not self.col:
             return
+
         if self.restoringBackup:
             label = tr.qt_misc_closing()
         else:
             label = tr.qt_misc_backing_up()
+
         self.progress.start(label=label)
         corrupt = False
+
         try:
             self.maybeOptimize()
             if not dev_mode:
                 corrupt = self.col.db.scalar("pragma quick_check") != "ok"
         except:
             corrupt = True
+
+        if corrupt or self.restoringBackup or dev_mode:
+            backup_paths = None
+        else:
+            backup_paths = self.pm.backup_paths()
         try:
-            self.col.close(downgrade=False)
+            self.col.close(downgrade=False, backup_paths=backup_paths)
         except Exception as e:
             print(e)
             corrupt = True
         finally:
             self.col = None
             self.progress.finish()
+
         if corrupt:
             showWarning(tr.qt_misc_your_collection_file_appears_to_be())
-        if not corrupt and not self.restoringBackup:
-            self.backup()
 
     def _close_for_full_download(self) -> None:
         "Backup and prepare collection to be overwritten."
-        self.col.close(downgrade=False)
-        self.backup()
+        backup_paths = None if dev_mode else self.pm.backup_paths()
+        self.col.close(downgrade=False, backup_paths=backup_paths)
         self.col.reopen(after_full_sync=False)
         self.col.close_for_full_sync()
 
@@ -635,62 +641,8 @@ class AnkiQt(QMainWindow):
             Config.Bool.INTERRUPT_AUDIO_WHEN_ANSWERING
         )
 
-    # Backup and auto-optimize
+    # Auto-optimize
     ##########################################################################
-
-    class BackupThread(Thread):
-        def __init__(self, path: str, data: bytes) -> None:
-            Thread.__init__(self)
-            self.path = path
-            self.data = data
-            # create the file in calling thread to ensure the same
-            # file is not created twice
-            with open(self.path, "wb") as file:
-                pass
-
-        def run(self) -> None:
-            z = zipfile.ZipFile(self.path, "w", zipfile.ZIP_STORED)
-            z.writestr("collection.anki2", self.data)
-            z.writestr("media", "{}")
-            z.close()
-
-    def backup(self) -> None:
-        "Read data into memory, and complete backup on a background thread."
-        if self.col and self.col.db:
-            raise Exception("collection must be closed")
-
-        nbacks = self.pm.profile["numBackups"]
-        if not nbacks or dev_mode:
-            return
-        dir = self.pm.backupFolder()
-        path = self.pm.collectionPath()
-
-        # do backup
-        fname = time.strftime(
-            "backup-%Y-%m-%d-%H.%M.%S.colpkg", time.localtime(time.time())
-        )
-        newpath = os.path.join(dir, fname)
-        with open(path, "rb") as f:
-            data = f.read()
-        self.BackupThread(newpath, data).start()
-
-        # find existing backups
-        backups = []
-        for file in os.listdir(dir):
-            # only look for new-style format
-            m = re.match(r"backup-\d{4}-\d{2}-.+.colpkg", file)
-            if not m:
-                continue
-            backups.append(file)
-        backups.sort()
-
-        # remove old ones
-        while len(backups) > nbacks:
-            fname = backups.pop(0)
-            path = os.path.join(dir, fname)
-            os.unlink(path)
-
-        self.taskman.run_on_main(gui_hooks.backup_did_complete)
 
     def maybeOptimize(self) -> None:
         # have two weeks passed?

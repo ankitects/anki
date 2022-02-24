@@ -60,6 +60,10 @@ impl CollectionService for Backend {
             }
         }
 
+        if let Some(paths) = input.backup_paths {
+            backup::backup(paths.col_path, paths.out_dir)?;
+        }
+
         Ok(().into())
     }
 
@@ -96,13 +100,5 @@ impl CollectionService for Backend {
         let starting_from = input.val as usize;
         self.with_col(|col| col.merge_undoable_ops(starting_from))
             .map(Into::into)
-    }
-
-    fn backup(&self, input: pb::BackupRequest) -> Result<pb::Empty> {
-        backup::backup(&input.col_path, &input.out_dir).map(Into::into)
-    }
-
-    fn thin_backups(&self, input: pb::String) -> Result<pb::Empty> {
-        backup::thin_backups(&input.val).map(Into::into)
     }
 }

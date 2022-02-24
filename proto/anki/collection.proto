@@ -18,8 +18,6 @@ service CollectionService {
   rpc MergeUndoEntries(generic.UInt32) returns (OpChanges);
   rpc LatestProgress(generic.Empty) returns (Progress);
   rpc SetWantsAbort(generic.Empty) returns (generic.Empty);
-  rpc Backup(BackupRequest) returns (generic.Empty);
-  rpc ThinBackups(generic.String) returns (generic.Empty);
 }
 
 message OpenCollectionRequest {
@@ -30,7 +28,12 @@ message OpenCollectionRequest {
 }
 
 message CloseCollectionRequest {
+  message BackupPaths {
+    string col_path = 1;
+    string out_dir = 2;
+  }
   bool downgrade_to_schema11 = 1;
+  BackupPaths backup_paths = 2;
 }
 
 message CheckDatabaseResponse {
@@ -110,9 +113,4 @@ message Progress {
     NormalSync normal_sync = 5;
     DatabaseCheck database_check = 6;
   }
-}
-
-message BackupRequest {
-  string col_path = 1;
-  string out_dir = 2;
 }
