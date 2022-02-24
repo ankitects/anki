@@ -49,13 +49,15 @@ class ProgressManager:
         timer to fire even when there is no collection, but will still
         only fire when there is no current progress dialog.
 
+
         Issues and alternative
         ---
         The created timer will only be destroyed when `parent` is destroyed.
         This can cause memory leaks, because anything captured by `func` isn't freed either.
         If there is no QObject that will get destroyed reasonably soon, and you have to
         pass `mw`, you should call `deleteLater()` on the returned QTimer as soon as
-        it's served its purpose, or use `single_shot()`.\n
+        it's served its purpose, or use `single_shot()`.
+
         Also note that you may not be able to pass an adequate parent, if you want to
         make a callback after a widget closes. If you passed that widget, the timer
         would get destroyed before it could fire.
@@ -84,13 +86,15 @@ class ProgressManager:
         """Create and start a one-off Anki timer. For an alternative and more
         documentation, see `timer()`.
 
+
         Issues and alternative
         ---
         `single_shot()` cleans itself up, so a passed closure won't leak any memory.
         However, if `func` references a QObject other than `mw`, which gets deleted before the
         timer fires, an Exception is raised. To avoid this, either use `timer()` passing
         that object as the parent, or check in `func` with `sip.isdeleted(object)` if
-        it still exists.\n
+        it still exists.
+
         On the other hand, if a widget is supposed to make an external callback after it closes,
         you likely want to use `single_shot()`, which will fire even if the calling
         widget is already destroyed.
