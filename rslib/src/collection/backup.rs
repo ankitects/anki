@@ -30,6 +30,7 @@ pub fn backup(col_path: &str, out_dir: &str) -> Result<()> {
 
     zip.start_file("meta", options)?;
     zip.write_all(b"{\"ver\":3}")?;
+    zip.start_file("collection.anki21b", options)?;
     zip.write_all(&encoded_col)?;
     zip.start_file("media", options)?;
     zip.write_all(b"{}")?;
