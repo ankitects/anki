@@ -26,7 +26,7 @@ class ProgressManager:
 
     # Safer timers
     ##########################################################################
-    # A custom timer which avoids firing while a progress dialog is active
+    # Custom timers which avoid firing while a progress dialog is active
     # (likely due to some long-running DB operation)
 
     def timer(
@@ -38,8 +38,7 @@ class ProgressManager:
         *,
         parent: QObject = None,
     ) -> QTimer:
-        """Create and start a standard Anki timer. It will be destroyed when
-        the provided parent is destroyed.
+        """Create and start a standard Anki timer. For an alternative see `single_shot()`.
 
         If the timer fires while a progress window is shown:
         - if it is a repeating timer, it will wait the same delay again
@@ -48,7 +47,19 @@ class ProgressManager:
         If requiresCollection is True, the timer will not fire if the
         collection has been unloaded. Setting it to False will allow the
         timer to fire even when there is no collection, but will still
-        only fire when there is no current progress dialog."""
+        only fire when there is no current progress dialog.
+
+        Issues and alternative
+        ---
+        The created timer will only be destroyed when `parent` is destroyed.
+        This can cause memory leaks, because anything captured by `func` isn't freed either.
+        If there is no QObject that will get destroyed reasonably soon and you have to
+        pass `mw`, you should call `deleteLater()` on the returned QTimer as soon as
+        it's served its purpose, or use `single_shot()`.\n
+        Also note that you may not be able to pass an adequate parent, if you want to
+        make a callback after a widget closes. If you passed that widget, the timer
+        would get destroyed before it could fire.
+        """
 
         if parent is None:
             print_deprecation_warning(
@@ -70,8 +81,19 @@ class ProgressManager:
         func: Callable[[], None],
         requires_collection: bool = True,
     ) -> None:
-        """Create and start a one-of Anki timer. If you need to control the timer
-        after creation, use timer().
+        """Create and start a one-of Anki timer. For an alternative and more
+        documentation see `timer()`.
+
+        Issues and alternative
+        ---
+        `single_shot()` cleans itself up, so a passed closure won't leak any memory.
+        However, if `func` references a QObject other than `mw`, which gets deleted before the
+        timer fires, an Exception is raised. To avoid this, either use `timer()` passing
+        that object as the parent, or check in `func` with `sip.isdeleted(object)` if
+        it still exists.\n
+        On the other hand, if a widget is supposed to make an external callback after it closes,
+        you likely want to use `single_shot()`, which will fire even if the calling
+        widget is already destroyed.
         """
         QTimer.singleShot(ms, self._get_handler(func, False, requires_collection))
 
