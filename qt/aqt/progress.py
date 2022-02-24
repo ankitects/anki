@@ -53,7 +53,7 @@ class ProgressManager:
         ---
         The created timer will only be destroyed when `parent` is destroyed.
         This can cause memory leaks, because anything captured by `func` isn't freed either.
-        If there is no QObject that will get destroyed reasonably soon and you have to
+        If there is no QObject that will get destroyed reasonably soon, and you have to
         pass `mw`, you should call `deleteLater()` on the returned QTimer as soon as
         it's served its purpose, or use `single_shot()`.\n
         Also note that you may not be able to pass an adequate parent, if you want to
@@ -81,8 +81,8 @@ class ProgressManager:
         func: Callable[[], None],
         requires_collection: bool = True,
     ) -> None:
-        """Create and start a one-of Anki timer. For an alternative and more
-        documentation see `timer()`.
+        """Create and start a one-off Anki timer. For an alternative and more
+        documentation, see `timer()`.
 
         Issues and alternative
         ---
