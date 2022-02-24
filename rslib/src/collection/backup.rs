@@ -28,7 +28,8 @@ pub fn backup(col_path: &str, out_dir: &str) -> Result<()> {
     let col_file = File::open(col_path)?;
     let encoded_col = zstd::encode_all(col_file, 0)?;
 
-    zip.start_file("collection.anki2", options)?;
+    zip.start_file("meta", options)?;
+    zip.write_all(b"{\"ver\":3}")?;
     zip.write_all(&encoded_col)?;
     zip.start_file("media", options)?;
     zip.write_all(b"{}")?;
