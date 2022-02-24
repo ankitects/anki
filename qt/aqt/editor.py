@@ -552,7 +552,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         "Save unsaved edits then call callback()."
         if not self.note:
             # calling code may not expect the callback to fire immediately
-            self.mw.progress.timer(10, callback, False, parent=self.widget)
+            self.mw.progress.single_shot(10, callback)
             return
         self.web.evalWithCallback("saveNow(%d)" % keepFocus, lambda res: callback())
 
