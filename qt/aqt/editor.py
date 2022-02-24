@@ -395,7 +395,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 if gui_hooks.editor_did_unfocus_field(False, self.note, ord):
                     # something updated the note; update it after a subsequent focus
                     # event has had time to fire
-                    self.mw.progress.single_shot(100, self.loadNoteKeepingFocus)
+                    self.mw.progress.timer(
+                        100, self.loadNoteKeepingFocus, False, parent=self.widget
+                    )
                 else:
                     self._check_and_update_duplicate_display_async()
             else:

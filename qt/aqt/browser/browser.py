@@ -560,7 +560,7 @@ class Browser(QMainWindow):
 
         # schedule sidebar to refresh after browser window has loaded, so the
         # UI is more responsive
-        self.mw.progress.single_shot(10, self.sidebar.refresh)
+        self.mw.progress.timer(10, self.sidebar.refresh, False, parent=self.sidebar)
 
     def showSidebar(self) -> None:
         self.sidebarDockWidget.setVisible(True)
