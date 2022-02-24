@@ -15,7 +15,7 @@ import urllib.request
 import warnings
 from enum import Enum
 from random import randrange
-from typing import Any, Callable, Match
+from typing import Any, Callable, Match, cast
 
 import bs4
 import requests
@@ -687,31 +687,35 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     # Audio/video/images
     ######################################################################
 
-    def onAddMedia(self) -> str:
+    def onAddMedia(self) -> None:
         extension_filter = " ".join(
             f"*.{extension}" for extension in sorted(itertools.chain(pics, audio))
         )
         filter = f"{tr.editing_media()} ({extension_filter})"
 
+        def accept(file: str) -> None:
+            self.addMedia(file)
+
         file = getFile(
             parent=self.widget,
             title=tr.editing_add_media(),
-            cb=None,
+            cb=cast(Callable[[Any], None], accept),
             filter=filter,
             key="media",
         )
 
         self.parentWindow.activateWindow()
-        return self.add_media_string(str(file))
 
     def addMedia(self, path: str, canDelete: bool = False) -> None:
         """canDelete is a legacy arg and is ignored."""
+
         try:
             html = self._addMedia(path)
         except Exception as e:
             showWarning(str(e))
             return
-        self.web.eval(f"setFormat('inserthtml', {json.dumps(html)});")
+
+        print(f'require("anki/TemplateButtons").mediaResolve({json.dumps(html)})')
 
     def add_media_string(self, path: str) -> str:
         try:
