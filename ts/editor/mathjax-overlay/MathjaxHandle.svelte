@@ -27,7 +27,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let unsubscribe = noop;
 
     function minimalEnitityDecode(input: string): string {
-        return input.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+        return input
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;");
     }
 
     function showHandle(image: HTMLImageElement): void {

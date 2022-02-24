@@ -3,14 +3,14 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import type { CodeMirror as CodeMirrorType } from "../code-mirror";
     import type { EditingInputAPI } from "../EditingArea.svelte";
+    import type { CodeMirrorAPI } from "../CodeMirror.svelte";
 
     export interface PlainTextInputAPI extends EditingInputAPI {
         name: "plain-text";
         moveCaretToEnd(): void;
         toggle(): boolean;
-        getEditor(): CodeMirrorType.Editor;
+        codeMirror: CodeMirrorAPI;
     }
 
     export const parsingInstructions: string[] = [];
@@ -22,7 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { pageTheme } from "../../sveltelib/theme";
     import { baseOptions, gutterOptions, htmlanki } from "../code-mirror";
-    import type { CodeMirrorAPI } from "../CodeMirror.svelte";
     import CodeMirror from "../CodeMirror.svelte";
     import { context as decoratedElementsContext } from "../DecoratedElements.svelte";
     import { context as editingAreaContext } from "../EditingArea.svelte";
@@ -40,26 +39,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const decoratedElements = decoratedElementsContext.get();
     const code = writable($content);
 
-    function storedToUndecorated(html: string): string {
-        return decoratedElements.toUndecorated(html);
-    }
-
-    function undecoratedToStored(html: string): string {
-        return decoratedElements.toStored(html);
-    }
-
-    let codeMirror: CodeMirrorAPI;
-
     function focus(): void {
-        codeMirror?.editor.focus();
+        codeMirror.editor.then((editor) => editor.focus());
     }
 
     function moveCaretToEnd(): void {
-        codeMirror?.editor.setCursor(codeMirror.editor.lineCount(), 0);
+        codeMirror.editor.then((editor) => editor.setCursor(editor.lineCount(), 0));
     }
 
     function refocus(): void {
-        (codeMirror?.editor as any).display.input.blur();
+        codeMirror.editor.then((editor) => (editor as any).display.input.blur());
         focus();
         moveCaretToEnd();
     }
@@ -69,9 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return hidden;
     }
 
-    function getEditor(): CodeMirrorType.Editor {
-        return codeMirror?.editor;
-    }
+    let codeMirror = {} as CodeMirrorAPI;
 
     export const api = {
         name: "plain-text",
@@ -80,7 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         moveCaretToEnd,
         refocus,
         toggle,
-        getEditor,
+        codeMirror,
     } as PlainTextInputAPI;
 
     function pushUpdate(): void {
@@ -88,14 +75,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $editingInputs = $editingInputs;
     }
 
-    function refresh() {
-        codeMirror.editor.refresh();
+    function refresh(): void {
+        codeMirror.editor.then((editor) => editor.refresh());
     }
 
     $: {
         hidden;
         tick().then(refresh);
         pushUpdate();
+    }
+
+    function storedToUndecorated(html: string): string {
+        return decoratedElements.toUndecorated(html);
+    }
+
+    function undecoratedToStored(html: string): string {
+        return decoratedElements.toStored(html);
     }
 
     onMount(() => {
