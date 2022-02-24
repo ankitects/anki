@@ -715,7 +715,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             showWarning(str(e))
             return
 
-        print(f'require("anki/TemplateButtons").mediaResolve({json.dumps(html)})')
+        self.web.eval(f'require("anki/TemplateButtons").mediaResolve({json.dumps(html)})')
 
     def add_media_string(self, path: str) -> str:
         try:
