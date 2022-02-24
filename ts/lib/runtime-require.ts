@@ -16,6 +16,7 @@
  */
 type AnkiPackages =
     | "anki/NoteEditor"
+    | "anki/PlainTextInput"
     | "anki/packages"
     | "anki/bridgecommand"
     | "anki/shortcuts"

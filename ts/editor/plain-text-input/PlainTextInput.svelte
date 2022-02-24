@@ -3,6 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
+    import lifecycleHooks from "../../sveltelib/lifecycle-hooks";
+    import { registerPackage } from "../../lib/runtime-require";
     import type { EditingInputAPI } from "../EditingArea.svelte";
     import type { CodeMirrorAPI } from "../CodeMirror.svelte";
 
@@ -14,6 +16,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export const parsingInstructions: string[] = [];
+
+    const [lifecycle, instances, setupLifecycleHooks] =
+        lifecycleHooks<PlainTextInputAPI>();
+
+    registerPackage("anki/PlainTextInput", {
+        lifecycle,
+        instances,
+    });
 </script>
 
 <script lang="ts">
@@ -110,6 +120,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             unsubscribeToEditingArea();
         };
     });
+
+    setupLifecycleHooks(api);
 </script>
 
 <div
