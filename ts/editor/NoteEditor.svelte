@@ -326,12 +326,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <svelte:fragment slot="editing-inputs">
                             <RichTextInput
                                 hidden={richTextsHidden[index]}
-                                on:focusin={() => {
-                                    $focusedInput = richTextInputs[index].api;
-                                }}
                                 on:focusout={() => {
-                                    $focusedInput = null;
                                     saveFieldNow();
+                                    $focusedInput = null;
                                 }}
                                 bind:this={richTextInputs[index]}
                             >
@@ -341,12 +338,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
                             <PlainTextInput
                                 hidden={plainTextsHidden[index]}
-                                on:focusin={() => {
-                                    $focusedInput = plainTextInputs[index].api;
-                                }}
                                 on:focusout={() => {
-                                    $focusedInput = null;
                                     saveFieldNow();
+                                    $focusedInput = null;
                                 }}
                                 bind:this={plainTextInputs[index]}
                             />

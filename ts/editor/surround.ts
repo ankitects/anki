@@ -9,7 +9,7 @@ import type { SurroundFormat } from "../domlib/surround";
 import { boolMatcher, reformat, surround, unsurround } from "../domlib/surround";
 import { getRange, getSelection } from "../lib/cross-browser";
 import { registerPackage } from "../lib/runtime-require";
-import type { OnInsertCallback, Trigger } from "../sveltelib/input-manager";
+import type { TriggerItem } from "../sveltelib/handler-list";
 import type { RichTextInputAPI } from "./rich-text-input";
 
 function isSurroundedInner(
@@ -63,11 +63,11 @@ export class Surrounder {
     }
 
     private api: RichTextInputAPI | null = null;
-    private trigger: Trigger<OnInsertCallback> | null = null;
+    private trigger: TriggerItem<{ event: InputEvent; text: Text }> | null = null;
 
     set richText(api: RichTextInputAPI) {
         this.api = api;
-        this.trigger = api.getTriggerOnNextInsert();
+        this.trigger = api.inputHandler.insertText.trigger({ once: true });
     }
 
     /**
@@ -76,6 +76,7 @@ export class Surrounder {
      */
     disable(): void {
         this.api = null;
+        this.trigger?.off();
         this.trigger = null;
     }
 
@@ -95,18 +96,53 @@ export class Surrounder {
         exclusive: SurroundFormat<T>[] = [],
     ): void {
         if (get(this.trigger!.active)) {
-            this.trigger!.remove();
+            this.trigger!.off();
         } else {
-            this.trigger!.add(async ({ node }: { node: Node }) => {
+            this.trigger!.on(async ({ text }) => {
                 const range = new Range();
-                range.selectNode(node);
+                range.selectNode(text);
 
-                const matches = Boolean(findClosest(node, base, matcher));
+                const matches = Boolean(findClosest(text, base, matcher));
                 const clearedRange = removeFormats(range, base, exclusive);
                 surroundAndSelect(matches, clearedRange, base, format, selection);
                 selection.collapseToEnd();
             });
         }
+    }
+
+    private _toggleTriggerOverwrite<T>(
+        base: HTMLElement,
+        selection: Selection,
+        format: SurroundFormat<T>,
+        exclusive: SurroundFormat<T>[] = [],
+    ): void {
+        this.trigger!.on(async ({ text }) => {
+            const range = new Range();
+            range.selectNode(text);
+
+            const clearedRange = removeFormats(range, base, exclusive);
+            const surroundedRange = surround(clearedRange, base, format);
+            selection.removeAllRanges();
+            selection.addRange(surroundedRange);
+            selection.collapseToEnd();
+        });
+    }
+
+    private _toggleTriggerRemove<T>(
+        base: HTMLElement,
+        selection: Selection,
+        remove: SurroundFormat<T>[],
+        reformat: SurroundFormat<T>[] = [],
+    ): void {
+        this.trigger!.on(async ({ text }) => {
+            const range = new Range();
+            range.selectNode(text);
+
+            const clearedRange = removeFormats(range, base, remove, reformat);
+            selection.removeAllRanges();
+            selection.addRange(clearedRange);
+            selection.collapseToEnd();
+        });
     }
 
     /**
@@ -148,14 +184,13 @@ export class Surrounder {
         const base = await this._assert_base();
         const selection = getSelection(base)!;
         const range = getRange(selection);
-        const matcher = boolMatcher(format);
 
         if (!range) {
             return;
         }
 
         if (range.collapsed) {
-            return this._toggleTrigger(base, selection, matcher, format, exclusive);
+            return this._toggleTriggerOverwrite(base, selection, format, exclusive);
         }
 
         const clearedRange = removeFormats(range, base, exclusive);
@@ -194,8 +229,12 @@ export class Surrounder {
         const selection = getSelection(base)!;
         const range = getRange(selection);
 
-        if (!range || range.collapsed) {
+        if (!range) {
             return;
+        }
+
+        if (range.collapsed) {
+            return this._toggleTriggerRemove(base, selection, formats, reformats);
         }
 
         const surroundedRange = removeFormats(range, base, formats, reformats);

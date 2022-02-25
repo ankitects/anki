@@ -78,7 +78,7 @@ class MediaSyncer:
     def _on_finished(self, future: Future) -> None:
         self._syncing = False
         if self._progress_timer:
-            self._progress_timer.stop()
+            self._progress_timer.deleteLater()
             self._progress_timer = None
         gui_hooks.media_sync_did_start_or_stop(False)
 
@@ -131,7 +131,7 @@ class MediaSyncer:
 
         def check_finished() -> None:
             if not self.is_syncing():
-                timer.stop()
+                timer.deleteLater()
                 on_finished()
 
         timer = self.mw.progress.timer(150, check_finished, True, False, parent=self.mw)

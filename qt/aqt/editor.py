@@ -460,7 +460,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 self._save_current_note()
 
         elif cmd in self._links:
-            self._links[cmd](self)
+            return self._links[cmd](self)
 
         else:
             print("uncaught cmd", cmd)
@@ -552,7 +552,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         "Save unsaved edits then call callback()."
         if not self.note:
             # calling code may not expect the callback to fire immediately
-            self.mw.progress.timer(10, callback, False, parent=self.widget)
+            self.mw.progress.single_shot(10, callback)
             return
         self.web.evalWithCallback("saveNow(%d)" % keepFocus, lambda res: callback())
 
@@ -703,16 +703,21 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             filter=filter,
             key="media",
         )
+
         self.parentWindow.activateWindow()
 
     def addMedia(self, path: str, canDelete: bool = False) -> None:
         """canDelete is a legacy arg and is ignored."""
+
         try:
             html = self._addMedia(path)
         except Exception as e:
             showWarning(str(e))
             return
-        self.web.eval(f"setFormat('inserthtml', {json.dumps(html)});")
+
+        self.web.eval(
+            f'require("anki/TemplateButtons").mediaResolve({json.dumps(html)})'
+        )
 
     def _addMedia(self, path: str, canDelete: bool = False) -> str:
         """Add to media folder and return local img or sound tag."""
