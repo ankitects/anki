@@ -15,7 +15,7 @@
         "path": "node_modules/@babel/helper-validator-identifier",
         "licenseFile": "node_modules/@babel/helper-validator-identifier/LICENSE"
     },
-    "@babel/highlight@7.16.7": {
+    "@babel/highlight@7.16.10": {
         "licenses": "MIT",
         "repository": "https://github.com/babel/babel",
         "publisher": "The Babel Team",
@@ -155,7 +155,7 @@
         "path": "node_modules/@types/json5",
         "licenseFile": "node_modules/@types/json5/README.md"
     },
-    "@types/lodash-es@4.17.5": {
+    "@types/lodash-es@4.17.6": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/@types/lodash-es",
@@ -173,13 +173,13 @@
         "path": "node_modules/@types/long",
         "licenseFile": "node_modules/@types/long/LICENSE"
     },
-    "@types/marked@4.0.1": {
+    "@types/marked@4.0.2": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/@types/marked",
         "licenseFile": "node_modules/@types/marked/LICENSE"
     },
-    "@types/node@17.0.8": {
+    "@types/node@17.0.21": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/protobufjs/node_modules/@types/node",
@@ -210,7 +210,7 @@
         "path": "node_modules/ajv",
         "licenseFile": "node_modules/ajv/LICENSE"
     },
-    "ajv@8.9.0": {
+    "ajv@8.10.0": {
         "licenses": "MIT",
         "repository": "https://github.com/ajv-validator/ajv",
         "publisher": "Evgeny Poberezkin",
@@ -294,7 +294,7 @@
         "path": "node_modules/balanced-match",
         "licenseFile": "node_modules/balanced-match/LICENSE.md"
     },
-    "bootstrap-icons@1.7.2": {
+    "bootstrap-icons@1.8.1": {
         "licenses": "MIT",
         "repository": "https://github.com/twbs/icons",
         "publisher": "mdo",
@@ -347,7 +347,7 @@
         "path": "node_modules/chalk",
         "licenseFile": "node_modules/chalk/license"
     },
-    "codemirror@5.65.0": {
+    "codemirror@5.65.2": {
         "licenses": "MIT",
         "repository": "https://github.com/codemirror/CodeMirror",
         "publisher": "Marijn Haverbeke",
@@ -396,7 +396,7 @@
         "path": "node_modules/commander",
         "licenseFile": "node_modules/commander/LICENSE"
     },
-    "commander@8.3.0": {
+    "commander@9.0.0": {
         "licenses": "MIT",
         "repository": "https://github.com/tj/commander.js",
         "publisher": "TJ Holowaychuk",
@@ -817,7 +817,7 @@
         "path": "node_modules/eslint-plugin-simple-import-sort",
         "licenseFile": "node_modules/eslint-plugin-simple-import-sort/LICENSE"
     },
-    "eslint-plugin-svelte3@3.4.0": {
+    "eslint-plugin-svelte3@3.4.1": {
         "licenses": "MIT",
         "repository": "https://github.com/sveltejs/eslint-plugin-svelte3",
         "publisher": "Conduitry",
@@ -967,7 +967,7 @@
         "path": "node_modules/flat-cache",
         "licenseFile": "node_modules/flat-cache/LICENSE"
     },
-    "flatted@3.2.4": {
+    "flatted@3.2.5": {
         "licenses": "ISC",
         "repository": "https://github.com/WebReflection/flatted",
         "publisher": "Andrea Giammarchi",
@@ -1032,7 +1032,7 @@
         "path": "node_modules/glob",
         "licenseFile": "node_modules/glob/LICENSE"
     },
-    "globals@13.12.0": {
+    "globals@13.12.1": {
         "licenses": "MIT",
         "repository": "https://github.com/sindresorhus/globals",
         "publisher": "Sindre Sorhus",
@@ -1296,11 +1296,11 @@
         "path": "node_modules/isexe",
         "licenseFile": "node_modules/isexe/LICENSE"
     },
-    "jquery-ui-dist@1.13.0": {
+    "jquery-ui-dist@1.13.1": {
         "licenses": "MIT",
         "repository": "https://github.com/jquery/jquery-ui",
         "publisher": "jQuery Foundation and other contributors",
-        "url": "https://github.com/jquery/jquery-ui/blob/1.13.0/AUTHORS.txt",
+        "url": "https://github.com/jquery/jquery-ui/blob/1.13.1/AUTHORS.txt",
         "path": "node_modules/jquery-ui-dist",
         "licenseFile": "node_modules/jquery-ui-dist/LICENSE.txt"
     },
@@ -1416,7 +1416,7 @@
         "path": "node_modules/lru-cache",
         "licenseFile": "node_modules/lru-cache/LICENSE"
     },
-    "marked@4.0.10": {
+    "marked@4.0.12": {
         "licenses": "MIT",
         "repository": "https://github.com/markedjs/marked",
         "publisher": "Christopher Jeffrey",
@@ -1442,7 +1442,7 @@
         "path": "node_modules/mhchemparser",
         "licenseFile": "node_modules/mhchemparser/LICENSE.txt"
     },
-    "minimatch@3.0.4": {
+    "minimatch@3.1.2": {
         "licenses": "ISC",
         "repository": "https://github.com/isaacs/minimatch",
         "publisher": "Isaac Z. Schlueter",
@@ -1671,7 +1671,7 @@
         "path": "node_modules/import-fresh/node_modules/resolve-from",
         "licenseFile": "node_modules/import-fresh/node_modules/resolve-from/license"
     },
-    "resolve@1.21.0": {
+    "resolve@1.22.0": {
         "licenses": "MIT",
         "repository": "https://github.com/browserify/resolve",
         "publisher": "James Halliday",
@@ -1844,7 +1844,7 @@
         "path": "node_modules/supports-preserve-symlinks-flag",
         "licenseFile": "node_modules/supports-preserve-symlinks-flag/LICENSE"
     },
-    "svelte@3.46.2": {
+    "svelte@3.46.4": {
         "licenses": "MIT",
         "repository": "https://github.com/sveltejs/svelte",
         "publisher": "Rich Harris",
