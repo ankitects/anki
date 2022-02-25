@@ -59,7 +59,7 @@ def setup_deps():
 
     node_repositories(
         package_json = ["@ankidesktop//:package.json"],
-        node_version = "16.10.0",
+        node_version = "16.13.2",
     )
 
     yarn_install(

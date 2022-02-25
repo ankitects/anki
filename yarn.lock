@@ -295,26 +295,26 @@
     "@babel/helper-validator-identifier" "^7.16.7"
     to-fast-properties "^2.0.0"
 
-"@bazel/esbuild@=4.3.0":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@bazel/esbuild/-/esbuild-4.3.0.tgz#a511d2090c4fccf865b7f6eafc95673f0486450b"
-  integrity sha512-AUyyCYO17Uk/vaG9VSyDgLbQuW0ZY2ciDDp9frgHWPv55SdZolzAK0lA36QVJuz6/7I4EQBvox6KEpMPBR2f/A==
+"@bazel/esbuild@=4.6.2":
+  version "4.6.2"
+  resolved "https://registry.yarnpkg.com/@bazel/esbuild/-/esbuild-4.6.2.tgz#1be88b6c4c07cabb2dd84a698d5be0f32de934f4"
+  integrity sha512-VqmeIlEDq7tVNpIk88zS3DZSAV1F1VN92IBPekKuQqIU6PTt3+iID/v4lkK80SwFBthF4pi/PG0PPaulIe/qGA==
 
-"@bazel/typescript@=4.3.0":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-4.3.0.tgz#c4131ba7980f8e72885f5ec19c265ad9431e1a71"
-  integrity sha512-ddPw0Xetl+a5UeZVHzpWsyMrUcAyhpGXknmfymx8vrWL+Y3yyquC7ZcYoYbkoCwIMBz7xhadm8NKIUYCrsEgaA==
+"@bazel/typescript@=4.6.2":
+  version "4.6.2"
+  resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-4.6.2.tgz#9f07b6f8cfb6b0a0e228e5971de412911c910a90"
+  integrity sha512-AUF7kq82bP6DX9Brihr/eQqvNccxVfSXosFxt80h94og5cmMyoc/euXha6rxlOBP3yWXmSo+/qjzO7o8PWJduQ==
   dependencies:
-    "@bazel/worker" "4.3.0"
+    "@bazel/worker" "4.6.2"
     protobufjs "6.8.8"
     semver "5.6.0"
     source-map-support "0.5.9"
     tsutils "3.21.0"
 
-"@bazel/worker@4.3.0", "@bazel/worker@=4.3.0":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-4.3.0.tgz#5ba7da1efa772f5dade5dfd4b662dcaa60ed7c1c"
-  integrity sha512-K34/g/4aUAX8TOQ1MgBaZ+YeZkiIlwETwA50gheCAsasz0SWjvgcpIbwNkaL9fmXOVhDj2o55J20khsl5ItBIw==
+"@bazel/worker@4.6.2", "@bazel/worker@=4.6.2":
+  version "4.6.2"
+  resolved "https://registry.yarnpkg.com/@bazel/worker/-/worker-4.6.2.tgz#0bd105344533335327c2edfa3fc65b04c39cdea8"
+  integrity sha512-DLpN6iQAH6uiUraAs4CESyqs60u55fcKmYgOOVObGuLSQQuX49Lw7XRIN90NibRPwpbBDQichWE3zfra0yKTTw==
   dependencies:
     google-protobuf "^3.6.1"
 

@@ -82,8 +82,15 @@ def register_repos():
     maybe(
         http_archive,
         name = "build_bazel_rules_nodejs",
-        sha256 = "3635797a96c7bfcd0d265dacd722a07335e64d6ded9834af8d3f1b7ba5a25bba",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.3.0/rules_nodejs-4.3.0.tar.gz"],
+        sha256 = "2644a66772938db8d8c760334a252f1687455daa7e188073f2d46283f2f6fbb7",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.6.2/rules_nodejs-4.6.2.tar.gz"],
+    )
+
+    maybe(
+        http_archive,
+        name = "rules_nodejs",
+        sha256 = "f596117040134b9497a1049efe7a785924b4ff22557669780a0fa37e22b827bd",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.6.2/rules_nodejs-core-4.6.2.tar.gz"],
     )
 
     # sass
