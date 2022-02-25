@@ -87,7 +87,6 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
                 if (!newValue) {
                     return;
                 }
-                console.log("newValue", newValue);
                 this.component?.$set({ mathjax: newValue });
                 break;
         }
