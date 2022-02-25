@@ -518,7 +518,7 @@ if is_win:
                 while not self.speaker.WaitUntilDone(100):
                     if self._terminate_flag:
                         # stop playing
-                        self.speaker.Skip("Sentence", 2 ** 15)
+                        self.speaker.Skip("Sentence", 2**15)
                         return
             finally:
                 self._terminate_flag = False
