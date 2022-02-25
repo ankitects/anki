@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import * as float from "@floating-ui/dom";
+    import { computePosition, autoUpdate } from "@floating-ui/dom";
 
     export let floating: HTMLElement;
 
@@ -12,31 +12,42 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function position(
-        ref: HTMLElement,
+        reference: HTMLElement,
         args: PositionArgs,
     ): { update(args: PositionArgs): void; destroy(): void } {
+        function updateInner(): Promise<void> {
+            return computePosition(reference, floating, {
+                placement: "bottom-start",
+            })
+            .then(({ x, y }) => {
+                Object.assign(floating.style, {
+                    left: `${x}px`,
+                    top: `${y}px`,
+                });
+            });
+        }
+
+        let cleanup: () => void;
+
+        function destroy(): void {
+            cleanup?.();
+        }
+
         function update({ floating }: PositionArgs): void {
+            destroy();
+
             if (!floating) {
                 return;
             }
 
-            float
-                .computePosition(ref, floating, {
-                    placement: "bottom-start",
-                })
-                .then(({ x, y }) => {
-                    Object.assign(floating.style, {
-                        left: `${x}px`,
-                        top: `${y}px`,
-                    });
-                });
+            cleanup = autoUpdate(reference, floating, updateInner);
         }
 
         update(args);
 
         return {
-            destroy() {},
             update,
+            destroy,
         };
     }
 </script>
