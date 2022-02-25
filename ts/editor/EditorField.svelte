@@ -8,17 +8,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import contextProperty from "../sveltelib/context-property";
     import type { EditingAreaAPI } from "./EditingArea.svelte";
 
-    export interface FieldData {
-        name: string;
-        description: string;
-        fontFamily: string;
-        fontSize: number;
-        direction: "ltr" | "rtl";
-    }
-
     export interface EditorFieldAPI {
         element: Promise<HTMLElement>;
-        direction: Readable<"ltr" | "rtl">;
+        field: Readable<Notetypes.Notetype.Field>;
         editingArea: EditingAreaAPI;
     }
 
@@ -29,12 +21,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { onDestroy, setContext } from "svelte";
-    import type { Writable } from "svelte/store";
+    import { onDestroy } from "svelte";
     import { writable } from "svelte/store";
 
-    import { directionKey } from "../lib/context-keys";
     import { promiseWithResolver } from "../lib/promise";
+    import type { Notetypes } from "../lib/proto";
+    import { setDirectionProperty } from "../sveltelib/context-property";
     import type { Destroyable } from "./destroyable";
     import EditingArea from "./EditingArea.svelte";
     import FieldState from "./FieldState.svelte";
@@ -42,29 +34,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LabelDescription from "./LabelDescription.svelte";
     import LabelName from "./LabelName.svelte";
 
-    export let content: Writable<string>;
-    export let field: FieldData;
+    export let content: string;
+
+    const field = writable<Notetypes.Notetype.Field>();
+
+    let fieldInput: Notetypes.Notetype.Field;
+    export { fieldInput as field };
+
+    $: $field = fieldInput;
+    $: config = fieldInput.config!;
 
     const directionStore = writable<"ltr" | "rtl">();
-    setContext(directionKey, directionStore);
+    setDirectionProperty(directionStore);
 
-    $: $directionStore = field.direction;
+    $: $directionStore = config.rtl ? "rtl" : "ltr";
 
-    const editingArea: Partial<EditingAreaAPI> = {};
     const [element, elementResolve] = promiseWithResolver<HTMLElement>();
 
     let apiPartial: Partial<EditorFieldAPI> & Destroyable;
     export { apiPartial as api };
 
+    const editingArea = {} as EditingAreaAPI;
+
     const api: EditorFieldAPI & Destroyable = Object.assign(apiPartial, {
         element,
-        direction: directionStore,
-        editingArea: editingArea as EditingAreaAPI,
+        field,
+        editingArea,
     });
 
     setContextProperty(api);
 
-    onDestroy(() => api?.destroy());
+    onDestroy(() => api.destroy());
 </script>
 
 <div
@@ -72,25 +72,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="editor-field"
     on:focusin
     on:focusout
-    on:click={() => editingArea.focus?.()}
+    on:click={() => editingArea.focus()}
 >
-    <LabelContainer>
+    <LabelContainer --editor-field-direction={$directionStore}>
         <span>
             <LabelName>
-                {field.name}
+                {fieldInput.name}
             </LabelName>
-            {#if field.description}
-                <LabelDescription description={field.description} />
+            {#if config.description}
+                <LabelDescription description={config.description} />
             {/if}
         </span>
         <FieldState><slot name="field-state" /></FieldState>
     </LabelContainer>
-    <EditingArea
-        {content}
-        fontFamily={field.fontFamily}
-        fontSize={field.fontSize}
-        api={editingArea}
-    >
+    <EditingArea {content} api={editingArea} on:contentupdate>
         <slot name="editing-inputs" />
     </EditingArea>
 </div>

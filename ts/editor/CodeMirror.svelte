@@ -15,11 +15,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { createEventDispatcher, getContext, onMount } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     import type { Writable } from "svelte/store";
 
-    import { directionKey } from "../lib/context-keys";
     import { promiseWithResolver } from "../lib/promise";
+    import { directionProperty } from "../sveltelib/context-property";
     import { pageTheme } from "../sveltelib/theme";
     import {
         darkTheme,
@@ -49,7 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         editor.setOption(key, value);
     }
 
-    const direction = getContext<Writable<"ltr" | "rtl">>(directionKey);
+    const direction = directionProperty.get();
 
     let apiPartial: Partial<CodeMirrorAPI>;
     export { apiPartial as api };

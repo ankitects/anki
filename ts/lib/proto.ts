@@ -22,9 +22,18 @@ import Scheduler = anki.scheduler;
 import Stats = anki.stats;
 import Tags = anki.tags;
 
-export { Cards, Collection, Decks, Generic, Notes };
+export { Cards, Collection, Decks, Generic };
 
 export const empty = Generic.Empty.create();
+
+let globalSignal: AbortSignal | undefined;
+
+export function abortable(): AbortController {
+    const handle = new AbortController();
+    globalSignal = handle.signal;
+
+    return handle;
+}
 
 async function serviceCallback(
     method: rpc.ServiceMethod<Message<any>, Message<any>>,
@@ -37,11 +46,15 @@ async function serviceCallback(
     const methodName = method.name[0].toLowerCase() + method.name.substring(1);
     const path = `/_anki/${methodName}`;
 
+    const signal = globalSignal;
+    globalSignal = undefined;
+
     try {
         const result = await fetch(path, {
             method: "POST",
             headers,
             body: requestData,
+            signal,
         });
 
         const blob = await result.blob();
@@ -50,8 +63,9 @@ async function serviceCallback(
 
         callback(null, uint8Array);
     } catch (error) {
-        console.log("error caught");
-        callback(error as Error, null);
+        if ((error as Error).name !== "AbortError") {
+            callback(error as Error, null);
+        }
     }
 }
 
@@ -69,6 +83,9 @@ export { ImportExport };
 export const importExport = ImportExport.ImportExportService.create(
     serviceCallback as RPCImpl,
 );
+
+export { Notes };
+export const notes = Notes.NotesService.create(serviceCallback as RPCImpl);
 
 export { Notetypes };
 export const notetypes = Notetypes.NotetypesService.create(serviceCallback as RPCImpl);

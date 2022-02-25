@@ -3,17 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { NoteEditorAPI } from "./NoteEditor.svelte";
-    import NoteEditor from "./NoteEditor.svelte";
+    import { onMount } from "svelte";
 
-    const api: Partial<NoteEditorAPI> = {};
-    let noteEditor: NoteEditor;
+    import NoteEditingEditor from "./NoteEditingEditor.svelte";
 
-    export let uiResolve: (api: NoteEditorAPI) => void;
+    export let uiResolve: () => void;
 
-    $: if (noteEditor) {
-        uiResolve(api as NoteEditorAPI);
-    }
+    onMount(uiResolve);
 </script>
 
-<NoteEditor bind:this={noteEditor} {api} />
+<NoteEditingEditor />

@@ -44,3 +44,10 @@ function contextProperty<T>(
 }
 
 export default contextProperty;
+
+// Global context properties
+import type { Readable } from "svelte/store";
+
+const directionKey = Symbol("direction");
+export const [directionProperty, setDirectionProperty] =
+    contextProperty<Readable<"ltr" | "rtl">>(directionKey);

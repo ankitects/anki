@@ -397,11 +397,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 self.currentField = None
                 # run any filters
                 if gui_hooks.editor_did_unfocus_field(False, self.note, ord):
-                    # something updated the note; update it after a subsequent focus
-                    # event has had time to fire
-                    self.mw.progress.timer(
-                        100, self.loadNoteKeepingFocus, False, parent=self.widget
-                    )
+                    self.update_note_fields_and_tags()
                 else:
                     self._check_and_update_duplicate_display_async()
             else:
@@ -486,20 +482,34 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         elif hide:
             self.widget.hide()
 
+    @deprecated()
     def loadNoteKeepingFocus(self) -> None:
-        self.loadNote(self.currentField)
+        self.update_note_fields_and_tags()
+
+    def update_note_fields_and_tags(self) -> None:
+        if not self.note:
+            return
+
+        update_fields_js = "".join(
+            [
+                f'require("anki/NoteEditor").instances[0].fields[{index}].editingArea.content.set({json.dumps(value)});\n'
+                for index, value in enumerate(self.note.values())
+            ]
+        )
+
+        update_tags_js = f'require("anki/NoteEditor").instances[0].tagEditor.tags.set({json.dumps(self.note.tags)});\n'
+
+        # this is important in case the focused field was updated
+        # because having focus prevents the update from showing to the user
+        refocus_js = 'require("svelte/store").get(require("anki/NoteEditor").instances[0].focusedInput)?.refocus();'
+
+        js = update_fields_js + update_tags_js + refocus_js
+
+        self.web.eval(js)
 
     def loadNote(self, focusTo: int | None = None) -> None:
         if not self.note:
             return
-
-        data = [
-            (fld, self.mw.col.media.escape_media_filenames(val))
-            for fld, val in self.note.items()
-        ]
-
-        flds = self.note.note_type()["flds"]
-        descriptions = [fld.get("description", "") for fld in flds]
 
         self.widget.show()
 
@@ -516,22 +526,23 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 self.web.setFocus()
             gui_hooks.editor_did_load_note(self)
 
+        if self.addMode:
+            sticky = [field["sticky"] for field in self.note.note_type()["flds"]]
+            js = "setNoteTypeId({})".format(
+                json.dumps(self.note.note_type()["id"]),
+            )
+        else:
+            js = "setNoteId({})".format(
+                json.dumps(self.note.id),
+            )
+
         text_color = self.mw.pm.profile.get("lastTextColor", "#00f")
         highlight_color = self.mw.pm.profile.get("lastHighlightColor", "#00f")
 
-        js = "setFields({}); setDescriptions({}); setFonts({}); focusField({}); setNoteId({}); setColorButtons({}); setTags({}); ".format(
-            json.dumps(data),
-            json.dumps(descriptions),
-            json.dumps(self.fonts()),
+        js += ".then(() => {{ focusField({}); resetPlainTextHistory(); setColorButtons({}); }}); ".format(
             json.dumps(focusTo),
-            json.dumps(self.note.id),
             json.dumps([text_color, highlight_color]),
-            json.dumps(self.note.tags),
         )
-
-        if self.addMode:
-            sticky = [field["sticky"] for field in self.note.note_type()["flds"]]
-            js += " setSticky(%s);" % json.dumps(sticky)
 
         js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(
@@ -1389,15 +1400,3 @@ gui_hooks.editor_will_use_font_for_field.append(fontMungeHack)
 gui_hooks.editor_will_munge_html.append(munge_html)
 gui_hooks.editor_will_munge_html.append(remove_null_bytes)
 gui_hooks.editor_will_munge_html.append(reverse_url_quoting)
-
-
-def set_cloze_button(editor: Editor) -> None:
-    action = "show" if editor.note.note_type()["type"] == MODEL_CLOZE else "hide"
-    editor.web.eval(
-        'require("anki/ui").loaded.then(() =>'
-        f'require("anki/NoteEditor").instances[0].toolbar.toolbar.{action}("cloze")'
-        "); "
-    )
-
-
-gui_hooks.editor_did_load_note.append(set_cloze_button)

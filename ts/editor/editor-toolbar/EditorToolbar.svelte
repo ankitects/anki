@@ -58,7 +58,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import BlockButtons from "./BlockButtons.svelte";
     import InlineButtons from "./InlineButtons.svelte";
     import NotetypeButtons from "./NotetypeButtons.svelte";
-    import RichTextClozeButtons from "./RichTextClozeButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
 
     export let size: number;
@@ -81,7 +80,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         blockButtons,
         templateButtons,
         removeFormats,
-    } as EditorToolbarAPI);
+    });
 
     setContextProperty(api);
 </script>
@@ -107,9 +106,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <TemplateButtons api={templateButtons} />
             </Item>
 
-            <Item id="cloze">
-                <RichTextClozeButtons />
-            </Item>
+            <slot name="extraButtonGroups" />
         </DynamicallySlottable>
     </ButtonToolbar>
 </StickyContainer>

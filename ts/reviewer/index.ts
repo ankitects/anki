@@ -15,6 +15,7 @@ globalThis.anki = globalThis.anki || {};
 globalThis.anki.mutateNextCardStates = mutateNextCardStates;
 
 import { bridgeCommand } from "../lib/bridgecommand";
+import { hooks } from "../lib/hooks";
 import { maybePreloadExternalCss } from "./css";
 import { allImagesLoaded, preloadAnswerImages } from "./images";
 
@@ -30,23 +31,6 @@ let typeans: HTMLInputElement | undefined;
 
 export function getTypedAnswer(): string | null {
     return typeans?.value ?? null;
-}
-
-function _runHook(
-    hooks: Array<Callback>,
-): Promise<PromiseSettledResult<void | Promise<void>>[]> {
-    const promises: (Promise<void> | void)[] = [];
-
-    for (const hook of hooks) {
-        try {
-            const result = hook();
-            promises.push(result);
-        } catch (error) {
-            console.log("Hook failed: ", error);
-        }
-    }
-
-    return Promise.allSettled(promises);
 }
 
 let _updatingQueue: Promise<void> = Promise.resolve();
@@ -122,6 +106,9 @@ export async function _updateQA(
     onupdate: Callback,
     onshown: Callback,
 ): Promise<void> {
+    const [updateHooks, runUpdateHooks] = hooks<void>();
+    const [shownHooks, runShownHooks] = hooks<void>();
+
     onUpdateHook.length = 0;
     onUpdateHook.push(onupdate);
 
@@ -141,7 +128,11 @@ export async function _updateQA(
         await setInnerHTML(qa, renderError("html")(error));
     }
 
-    await _runHook(onUpdateHook);
+    for (const cb of onUpdateHook) {
+        updateHooks.hook(cb);
+    }
+
+    await runUpdateHooks();
 
     // wait for mathjax to ready
     await MathJax.startup.promise
@@ -155,7 +146,11 @@ export async function _updateQA(
 
     qa.style.opacity = "1";
 
-    await _runHook(onShownHook);
+    for (const cb of onShownHook) {
+        shownHooks.hook(cb);
+    }
+
+    await runShownHooks();
 }
 
 export function _showQuestion(q: string, a: string, bodyclass: string): void {

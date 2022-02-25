@@ -2,20 +2,7 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script lang="ts">
-    import { getContext } from "svelte";
-    import type { Readable } from "svelte/store";
-
-    import { directionKey } from "../lib/context-keys";
-
-    const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
-</script>
-
-<div
-    class="label-container"
-    class:rtl={$direction === "rtl"}
-    on:mousedown|preventDefault
->
+<div class="label-container" on:mousedown|preventDefault>
     <slot />
 </div>
 
@@ -32,9 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-radius: 5px 5px 0 0;
 
         padding: 0px 6px;
-    }
 
-    .rtl {
-        direction: rtl;
+        direction: var(--editor-field-direction);
     }
 </style>

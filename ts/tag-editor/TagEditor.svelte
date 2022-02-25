@@ -2,9 +2,16 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
+<script context="module" lang="ts">
+    import type { Writable } from "svelte/store";
+
+    export interface TagEditorAPI {
+        tags: Writable<string[]>;
+    }
+</script>
+
 <script lang="ts">
     import { createEventDispatcher, tick } from "svelte";
-    import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
 
     import { execCommand } from "../domlib";
@@ -30,6 +37,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tagTypes = tags.map(
             (tag: string): TagType => attachId(replaceWithUnicodeSeparator(tag)),
         );
+        saveTags();
     }
 
     $: tagsToTagTypes($tags);
@@ -379,6 +387,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: assumedRows = Math.floor(height / badgeHeight);
     $: shortenTags = shortenTags || assumedRows > 2;
     $: anyTagsSelected = tagTypes.some((tag) => tag.selected);
+
+    let apiPartial: Partial<TagEditorAPI> = {};
+    export { apiPartial as api };
+
+    Object.assign(apiPartial, {
+        tags,
+    }) as TagEditorAPI;
 </script>
 
 <div class="tag-editor-area" on:focusout={deselectIfLeave} bind:offsetHeight={height}>

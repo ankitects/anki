@@ -3,13 +3,12 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { createEventDispatcher, getContext } from "svelte";
-    import type { Readable } from "svelte/store";
+    import { createEventDispatcher } from "svelte";
 
     import ButtonGroup from "../../components/ButtonGroup.svelte";
     import IconButton from "../../components/IconButton.svelte";
-    import { directionKey } from "../../lib/context-keys";
     import * as tr from "../../lib/ftl";
+    import { directionProperty } from "../../sveltelib/context-property";
     import { sizeActual, sizeClear, sizeMinimized } from "./icons";
 
     export let isSizeConstrained: boolean;
@@ -18,8 +17,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: icon = isSizeConstrained ? sizeMinimized : sizeActual;
 
-    const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
     const dispatch = createEventDispatcher();
+    const direction = directionProperty.get();
 </script>
 
 <ButtonGroup size={1.6}>

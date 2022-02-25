@@ -3,13 +3,27 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { getContext } from "svelte";
-    import { createEventDispatcher, onMount } from "svelte";
-    import type { Readable } from "svelte/store";
+    import { afterUpdate, createEventDispatcher, onMount } from "svelte";
 
-    import { directionKey } from "../lib/context-keys";
+    import { directionProperty } from "../sveltelib/context-property";
 
-    const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
+    let dimensions: HTMLDivElement;
+    let overflowFix = 0;
+
+    const direction = directionProperty.get();
+
+    function updateOverflow(dimensions: HTMLDivElement): void {
+        const boundingClientRect = dimensions.getBoundingClientRect();
+        const overflow =
+            $direction === "ltr"
+                ? boundingClientRect.x
+                : window.innerWidth - boundingClientRect.x - boundingClientRect.width;
+
+        overflowFix = Math.min(0, overflowFix + overflow, overflow);
+    }
+
+    afterUpdate(() => updateOverflow(dimensions));
+
     const dispatch = createEventDispatcher();
 
     onMount(() => dispatch("mount"));

@@ -3,11 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { getContext } from "svelte";
-    import type { Readable } from "svelte/store";
-
-    import { directionKey, fontFamilyKey, fontSizeKey } from "../../lib/context-keys";
     import { promiseWithResolver } from "../../lib/promise";
+    import { context as editorFieldContext } from "../EditorField.svelte";
     import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
     import CustomStyles from "./CustomStyles.svelte";
 
@@ -28,9 +25,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     export let color: string;
-    const fontFamily = getContext<Readable<string>>(fontFamilyKey);
-    const fontSize = getContext<Readable<number>>(fontSizeKey);
-    const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
+
+    const { field } = editorFieldContext.get();
+
+    let fontFamily: string;
+    let fontSize: number;
+    let rtl: boolean;
+    let direction: "ltr" | "rtl";
+
+    $: ({ fontName: fontFamily, fontSize, rtl } = $field.config!);
+    $: direction = rtl ? "rtl" : "ltr";
+
+    function quoteFontFamily(fontFamily: string): string {
+        // generic families (e.g. sans-serif) must not be quoted
+        if (!/^[-a-z]+$/.test(fontFamily)) {
+            fontFamily = `"${fontFamily}"`;
+        }
+        return fontFamily;
+    }
 
     async function setStyling(property: string, value: unknown): Promise<void> {
         const rule = await userBaseRule;
@@ -38,9 +50,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     $: setStyling("color", color);
-    $: setStyling("fontFamily", $fontFamily);
-    $: setStyling("fontSize", $fontSize + "px");
-    $: setStyling("direction", $direction);
+    $: setStyling("fontFamily", quoteFontFamily(fontFamily));
+    $: setStyling("fontSize", fontSize + "px");
+    $: setStyling("direction", direction);
 
     const styles = [
         {
