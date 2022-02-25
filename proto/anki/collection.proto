@@ -28,12 +28,8 @@ message OpenCollectionRequest {
 }
 
 message CloseCollectionRequest {
-  message BackupPaths {
-    string col_path = 1;
-    string out_dir = 2;
-  }
   bool downgrade_to_schema11 = 1;
-  BackupPaths backup_paths = 2;
+  string backup_folder = 2;
 }
 
 message CheckDatabaseResponse {

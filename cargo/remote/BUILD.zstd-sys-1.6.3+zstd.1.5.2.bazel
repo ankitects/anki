@@ -30,41 +30,46 @@ licenses([
 ])
 
 # Generated Targets
+# buildifier: disable=out-of-order-load
+# buildifier: disable=load-on-top
+load(
+    "@rules_rust//cargo:cargo_build_script.bzl",
+    "cargo_build_script",
+)
 
-rust_binary(
-    # Prefix bin name to disambiguate from (probable) collision with lib name
-    # N.B.: The exact form of this is subject to change.
-    name = "cargo_bin_gcc_shim",
+cargo_build_script(
+    name = "zstd_sys_build_script",
     srcs = glob(["**/*.rs"]),
+    build_script_env = {
+    },
     crate_features = [
-        "jobserver",
-        "parallel",
+        "legacy",
+        "std",
     ],
-    crate_root = "src/bin/gcc-shim.rs",
-    data = [],
+    crate_root = "build.rs",
+    data = glob(["**"]),
     edition = "2018",
+    links = "zstd",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=gcc-shim",
         "manual",
     ],
-    version = "1.0.73",
-    # buildifier: leave-alone
+    version = "1.6.3+zstd.1.5.2",
+    visibility = ["//visibility:private"],
     deps = [
-        ":cc",
-        "@raze__jobserver__0_1_24//:jobserver",
+        "@raze__cc__1_0_73//:cc",
     ],
 )
 
 rust_library(
-    name = "cc",
+    name = "zstd_sys",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "jobserver",
-        "parallel",
+        "legacy",
+        "std",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -74,20 +79,13 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=cc",
+        "crate-name=zstd-sys",
         "manual",
     ],
-    version = "1.0.73",
+    version = "1.6.3+zstd.1.5.2",
     # buildifier: leave-alone
     deps = [
-        "@raze__jobserver__0_1_24//:jobserver",
+        ":zstd_sys_build_script",
+        "@raze__libc__0_2_119//:libc",
     ],
 )
-
-# Unsupported target "cc_env" with type "test" omitted
-
-# Unsupported target "cflags" with type "test" omitted
-
-# Unsupported target "cxxflags" with type "test" omitted
-
-# Unsupported target "test" with type "test" omitted
