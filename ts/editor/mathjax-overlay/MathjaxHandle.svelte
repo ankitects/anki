@@ -132,13 +132,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<WithDropdown
-    drop="down"
-    autoOpen={true}
-    autoClose={false}
-    distance={4}
-    let:createDropdown
->
+<WithDropdown drop="down" autoOpen autoClose={false} distance={4} let:createDropdown>
     {#if activeImage && mathjaxElement}
         <MathjaxMenu
             element={mathjaxElement}

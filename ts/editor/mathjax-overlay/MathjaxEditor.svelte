@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type CodeMirrorLib from "codemirror";
     import { createEventDispatcher, onMount } from "svelte";
     import type { Writable } from "svelte/store";
 
@@ -14,14 +15,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import CodeMirror from "../CodeMirror.svelte";
 
     export let code: Writable<string>;
-
     export let acceptShortcut: string;
     export let newlineShortcut: string;
 
     const configuration = {
         ...Object.assign({}, baseOptions, {
             extraKeys: {
-                ...(baseOptions.extraKeys as CodeMirror.KeyMap),
+                ...(baseOptions.extraKeys as CodeMirrorLib.KeyMap),
                 [acceptShortcut]: noop,
                 [newlineShortcut]: noop,
             },
@@ -37,46 +37,61 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
-    let codeMirror: CodeMirrorAPI = {} as CodeMirrorAPI;
+    let codeMirror = {} as CodeMirrorAPI;
 
-    onMount(() => {
-        focusAndCaretAfter(codeMirror.editor);
+    onMount(() =>
+        codeMirror.editor.then((editor) => {
+            focusAndCaretAfter(editor);
 
-        if (selectAll) {
-            codeMirror.editor.execCommand("selectAll");
-        }
-
-        let direction: "start" | "end" | undefined = undefined;
-
-        codeMirror.editor.on("keydown", (_instance, event: KeyboardEvent) => {
-            if (event.key === "ArrowLeft") {
-                direction = "start";
-            } else if (event.key === "ArrowRight") {
-                direction = "end";
+            if (selectAll) {
+                editor.execCommand("selectAll");
             }
-        });
 
-        codeMirror.editor.on(
-            "beforeSelectionChange",
-            (instance, obj: CodeMirror.EditorSelectionChange) => {
-                const { anchor } = obj.ranges[0];
+            let direction: "start" | "end" | undefined = undefined;
 
-                if (anchor["hitSide"]) {
-                    if (instance.getValue().length === 0) {
-                        if (direction) {
-                            dispatch(`moveout${direction}`);
-                        }
-                    } else if (anchor.line === 0 && anchor.ch === 0) {
-                        dispatch("moveoutstart");
-                    } else {
-                        dispatch("moveoutend");
+            editor.on(
+                "keydown",
+                (_instance: CodeMirrorLib.Editor, event: KeyboardEvent): void => {
+                    if (event.key === "ArrowLeft") {
+                        direction = "start";
+                    } else if (event.key === "ArrowRight") {
+                        direction = "end";
                     }
-                }
+                },
+            );
 
-                direction = undefined;
-            },
-        );
-    });
+            editor.on(
+                "beforeSelectionChange",
+                (
+                    instance: CodeMirrorLib.Editor,
+                    obj: CodeMirrorLib.EditorSelectionChange,
+                ): void => {
+                    const { anchor } = obj.ranges[0];
+
+                    if (anchor["hitSide"]) {
+                        if (instance.getValue().length === 0) {
+                            if (direction) {
+                                dispatch(`moveout${direction}`);
+                            }
+                        } else if (anchor.line === 0 && anchor.ch === 0) {
+                            dispatch("moveoutstart");
+                        } else {
+                            dispatch("moveoutend");
+                        }
+                    }
+
+                    direction = undefined;
+                },
+            );
+        }),
+    );
+
+    /**
+     * Escape characters which are technically legal in Mathjax, but confuse HTML.
+     */
+    export function escapeSomeEntities(value: string): string {
+        return value.replace(/</g, "{\\lt}").replace(/>/g, "{\\gt}");
+    }
 </script>
 
 <div class="mathjax-editor">
@@ -84,7 +99,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {code}
         {configuration}
         bind:api={codeMirror}
-        on:change={({ detail }) => code.set(detail)}
+        on:change={({ detail }) => code.set(escapeSomeEntities(detail))}
         on:blur
     />
 </div>

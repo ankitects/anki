@@ -38,7 +38,8 @@ function lifecycleHooks<T>(): [LifecycleHooks<T>, T[], SetLifecycleHooksAction<T
                 }
             }
 
-            instances.push(api);
+            // onMount seems to be called in reverse order
+            instances.unshift(api);
 
             return () => {
                 for (const cleanup of cleanups) {
