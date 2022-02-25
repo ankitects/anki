@@ -39,6 +39,10 @@ def jest_test(deps, name = "jest", protobuf = False, env = "node"):
         )
 
     # then test them
+    optional_jsdom_deps = [
+        "@npm//jest-environment-jsdom",
+    ] if env == "jsdom" else []
+
     _jest_test(
         name = name,
         args = [
@@ -52,7 +56,7 @@ def jest_test(deps, name = "jest", protobuf = False, env = "node"):
         ],
         data = deps + bundled_srcs + [
             "//ts:jest.config.js",
-        ],
+        ] + optional_jsdom_deps,
         target_compatible_with = select({
             "@platforms//os:osx": [],
             "@platforms//os:linux": [],
