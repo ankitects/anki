@@ -26,14 +26,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let allow = noop;
     let unsubscribe = noop;
 
-    function minimalEnitityDecode(input: string): string {
-        return input
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/&/g, "&amp;")
-            .replace(/"/g, "&quot;");
-    }
-
     function showHandle(image: HTMLImageElement): void {
         allow = preventResubscription();
 
@@ -42,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         code.set(mathjaxElement.dataset.mathjax ?? "");
         unsubscribe = code.subscribe((value: string) => {
-            mathjaxElement!.dataset.mathjax = minimalEnitityDecode(value);
+            mathjaxElement!.dataset.mathjax = value;
         });
     }
 
@@ -140,13 +132,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 </script>
 
-<WithDropdown
-    drop="down"
-    autoOpen={true}
-    autoClose={false}
-    distance={4}
-    let:createDropdown
->
+<WithDropdown drop="down" autoOpen autoClose={false} distance={4} let:createDropdown>
     {#if activeImage && mathjaxElement}
         <MathjaxMenu
             element={mathjaxElement}

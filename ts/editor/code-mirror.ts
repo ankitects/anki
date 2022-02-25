@@ -12,11 +12,11 @@ import "codemirror/addon/fold/xml-fold";
 import "codemirror/addon/edit/matchtags";
 import "codemirror/addon/edit/closetag";
 import "codemirror/addon/display/placeholder";
-import storeSubscribe from "../sveltelib/store-subscribe";
 
 import CodeMirror from "codemirror";
-
 import type { Readable } from "svelte/store";
+
+import storeSubscribe from "../sveltelib/store-subscribe";
 
 export { CodeMirror };
 

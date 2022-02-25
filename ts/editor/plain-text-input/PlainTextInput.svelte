@@ -3,10 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import lifecycleHooks from "../../sveltelib/lifecycle-hooks";
     import { registerPackage } from "../../lib/runtime-require";
-    import type { EditingInputAPI } from "../EditingArea.svelte";
+    import lifecycleHooks from "../../sveltelib/lifecycle-hooks";
     import type { CodeMirrorAPI } from "../CodeMirror.svelte";
+    import type { EditingInputAPI } from "../EditingArea.svelte";
 
     export interface PlainTextInputAPI extends EditingInputAPI {
         name: "plain-text";

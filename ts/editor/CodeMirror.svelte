@@ -15,10 +15,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { onMount, createEventDispatcher, getContext } from "svelte";
+    import { createEventDispatcher, getContext, onMount } from "svelte";
     import type { Writable } from "svelte/store";
 
     import { directionKey } from "../lib/context-keys";
+    import { promiseWithResolver } from "../lib/promise";
     import { pageTheme } from "../sveltelib/theme";
     import {
         darkTheme,
@@ -26,7 +27,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         openCodeMirror,
         setupCodeMirror,
     } from "./code-mirror";
-    import { promiseWithResolver } from "../lib/promise";
 
     export let configuration: CodeMirrorLib.EditorConfiguration;
     export let code: Writable<string>;
@@ -43,8 +43,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function setOption<T extends keyof CodeMirrorLib.EditorConfiguration>(
         key: T,
         value: CodeMirrorLib.EditorConfiguration[T],
-    ): Promise<void> {
-        return editorPromise.then((editor) => editor.setOption(key, value));
+    ): void {
+        editorPromise.then((editor) => editor.setOption(key, value));
     }
 
     const direction = getContext<Writable<"ltr" | "rtl">>(directionKey);
@@ -66,6 +66,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         editorPromise.then((editor) => {
             setupCodeMirror(editor, code);
             editor.on("change", () => dispatch("change", editor.getValue()));
+            editor.on("focus", () => dispatch("focus"));
+            editor.on("blur", () => dispatch("blur"));
         }),
     );
 </script>

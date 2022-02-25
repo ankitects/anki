@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type CodeMirrorLib from "codemirror";
     import { createEventDispatcher, onMount } from "svelte";
     import type { Writable } from "svelte/store";
 
@@ -11,11 +12,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getPlatformString } from "../../lib/shortcuts";
     import { baseOptions, focusAndCaretAfter, latex } from "../code-mirror";
     import type { CodeMirrorAPI } from "../CodeMirror.svelte";
-    import type CodeMirrorLib from "codemirror";
     import CodeMirror from "../CodeMirror.svelte";
 
     export let code: Writable<string>;
-
     export let acceptShortcut: string;
     export let newlineShortcut: string;
 
@@ -86,6 +85,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             );
         }),
     );
+
+    /**
+     * Escape characters which are technically legal in Mathjax, but confuse HTML.
+     */
+    export function escapeSomeEntities(value: string): string {
+        return value.replace(/</g, "{\\lt}").replace(/>/g, "{\\gt}");
+    }
 </script>
 
 <div class="mathjax-editor">
@@ -93,7 +99,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {code}
         {configuration}
         bind:api={codeMirror}
-        on:change={({ detail }) => code.set(detail)}
+        on:change={({ detail }) => code.set(escapeSomeEntities(detail))}
         on:blur
     />
 </div>
