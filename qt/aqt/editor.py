@@ -719,15 +719,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             f'require("anki/TemplateButtons").mediaResolve({json.dumps(html)})'
         )
 
-    def add_media_string(self, path: str) -> str:
-        try:
-            html = self._addMedia(path)
-        except Exception as e:
-            showWarning(str(e))
-            return ""
-
-        return json.dumps(html)
-
     def _addMedia(self, path: str, canDelete: bool = False) -> str:
         """Add to media folder and return local img or sound tag."""
         # copy to media folder
