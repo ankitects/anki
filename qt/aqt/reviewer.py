@@ -130,7 +130,7 @@ class Reviewer:
         self.state: Literal["question", "answer", "transition", None] = None
         self._refresh_needed: RefreshNeeded | None = None
         self._v3: V3CardInfo | None = None
-        self._state_mutation_key = str(random.randint(0, 2 ** 64 - 1))
+        self._state_mutation_key = str(random.randint(0, 2**64 - 1))
         self.bottom = BottomBar(mw, mw.bottomWeb)
         self._card_info = ReviewerCardInfo(self.mw)
         self._previous_card_info = PreviousReviewerCardInfo(self.mw)

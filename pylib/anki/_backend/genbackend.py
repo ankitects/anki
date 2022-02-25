@@ -92,7 +92,7 @@ def fullname(fullname: str) -> str:
 def fix_snakecase(name):
     for fix in "a_v", "i_d":
         name = re.sub(
-            fr"(\w)({fix})(\w)",
+            rf"(\w)({fix})(\w)",
             lambda m: m.group(1) + m.group(2).replace("_", "") + m.group(3),
             name,
         )
