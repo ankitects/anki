@@ -37,8 +37,6 @@ rust_binary(
     name = "cargo_bin_gcc_shim",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "jobserver",
-        "parallel",
     ],
     crate_root = "src/bin/gcc-shim.rs",
     data = [],
@@ -55,7 +53,6 @@ rust_binary(
     # buildifier: leave-alone
     deps = [
         ":cc",
-        "@raze__jobserver__0_1_24//:jobserver",
     ],
 )
 
@@ -63,8 +60,6 @@ rust_library(
     name = "cc",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "jobserver",
-        "parallel",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -80,7 +75,6 @@ rust_library(
     version = "1.0.72",
     # buildifier: leave-alone
     deps = [
-        "@raze__jobserver__0_1_24//:jobserver",
     ],
 )
 

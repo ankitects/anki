@@ -116,7 +116,6 @@ rust_library(
         "//rslib/cargo:unic_ucd_category",
         "//rslib/cargo:utime",
         "//rslib/cargo:zip",
-        "//rslib/cargo:zstd",
         "//rslib/cargo:pct_str",
         "//rslib/i18n:anki_i18n",
     ] + select({

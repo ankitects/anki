@@ -560,12 +560,3 @@ alias(
         "manual",
     ],
 )
-
-alias(
-    name = "zstd",
-    actual = "@raze__zstd__0_10_0_zstd_1_5_2//:zstd",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)

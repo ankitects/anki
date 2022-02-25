@@ -1043,16 +1043,6 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__jobserver__0_1_24",
-        url = "https://crates.io/api/v1/crates/jobserver/0.1.24/download",
-        type = "tar.gz",
-        sha256 = "af25a77299a7f711a01975c35a6a424eb6862092cc2d6c72c4ed6cbc56dfc1fa",
-        strip_prefix = "jobserver-0.1.24",
-        build_file = Label("//cargo/remote:BUILD.jobserver-0.1.24.bazel"),
-    )
-
-    maybe(
-        http_archive,
         name = "raze__js_sys__0_3_55",
         url = "https://crates.io/api/v1/crates/js-sys/0.3.55/download",
         type = "tar.gz",
@@ -3119,36 +3109,6 @@ def raze_fetch_remote_crates():
         sha256 = "93ab48844d61251bb3835145c521d88aa4031d7139e8485990f60ca911fa0815",
         strip_prefix = "zip-0.5.13",
         build_file = Label("//cargo/remote:BUILD.zip-0.5.13.bazel"),
-    )
-
-    maybe(
-        http_archive,
-        name = "raze__zstd__0_10_0_zstd_1_5_2",
-        url = "https://crates.io/api/v1/crates/zstd/0.10.0+zstd.1.5.2/download",
-        type = "tar.gz",
-        sha256 = "3b1365becbe415f3f0fcd024e2f7b45bacfb5bdd055f0dc113571394114e7bdd",
-        strip_prefix = "zstd-0.10.0+zstd.1.5.2",
-        build_file = Label("//cargo/remote:BUILD.zstd-0.10.0+zstd.1.5.2.bazel"),
-    )
-
-    maybe(
-        http_archive,
-        name = "raze__zstd_safe__4_1_4_zstd_1_5_2",
-        url = "https://crates.io/api/v1/crates/zstd-safe/4.1.4+zstd.1.5.2/download",
-        type = "tar.gz",
-        sha256 = "2f7cd17c9af1a4d6c24beb1cc54b17e2ef7b593dc92f19e9d9acad8b182bbaee",
-        strip_prefix = "zstd-safe-4.1.4+zstd.1.5.2",
-        build_file = Label("//cargo/remote:BUILD.zstd-safe-4.1.4+zstd.1.5.2.bazel"),
-    )
-
-    maybe(
-        http_archive,
-        name = "raze__zstd_sys__1_6_3_zstd_1_5_2",
-        url = "https://crates.io/api/v1/crates/zstd-sys/1.6.3+zstd.1.5.2/download",
-        type = "tar.gz",
-        sha256 = "fc49afa5c8d634e75761feda8c592051e7eeb4683ba827211eb0d731d3402ea8",
-        strip_prefix = "zstd-sys-1.6.3+zstd.1.5.2",
-        build_file = Label("//cargo/remote:BUILD.zstd-sys-1.6.3+zstd.1.5.2.bazel"),
     )
     
     maybe(
