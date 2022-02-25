@@ -3,7 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import ColorPicker from "../../components/ColorPicker.svelte";
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import type {
@@ -18,6 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
     import { removeEmptyStyle, Surrounder } from "../surround";
+    import ColorPicker from "./ColorPicker.svelte";
     import type { RemoveFormat } from "./EditorToolbar.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { arrowIcon, textColorIcon } from "./icons";
@@ -146,19 +146,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     >
         {@html arrowIcon}
         <ColorPicker
-            on:change={(event) => {
+            keyCombination={pickCombination}
+            on:input={(event) => {
                 color = setColor(event);
                 bridgeCommand(`lastTextColor:${color}`);
-                setTextColor();
             }}
+            on:change={() => setTextColor()}
         />
     </IconButton>
-    <Shortcut
-        keyCombination={pickCombination}
-        on:action={(event) => {
-            color = setColor(event);
-            bridgeCommand(`lastTextColor:${color}`);
-            setTextColor();
-        }}
-    />
 </WithColorHelper>

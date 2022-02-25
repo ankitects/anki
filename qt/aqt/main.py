@@ -184,9 +184,7 @@ class AnkiQt(QMainWindow):
             fn()
             gui_hooks.main_window_did_init()
 
-        self.progress.timer(
-            10, on_window_init, False, requiresCollection=False, parent=self
-        )
+        self.progress.single_shot(10, on_window_init, False)
 
     def setupUI(self) -> None:
         self.col = None
@@ -220,12 +218,10 @@ class AnkiQt(QMainWindow):
     def setupProfileAfterWebviewsLoaded(self) -> None:
         for w in (self.web, self.bottomWeb):
             if not w._domDone:
-                self.progress.timer(
+                self.progress.single_shot(
                     10,
                     self.setupProfileAfterWebviewsLoaded,
                     False,
-                    requiresCollection=False,
-                    parent=self,
                 )
                 return
             else:
@@ -866,7 +862,7 @@ title="{}" {}>{}</button>""".format(
             self.col.db.rollback()
             self.close()
 
-        self.progress.timer(100, quit, False, parent=self)
+        self.progress.single_shot(100, quit)
 
     def setupProgress(self) -> None:
         self.progress = aqt.progress.ProgressManager(self)
@@ -1313,7 +1309,7 @@ title="{}" {}>{}</button>""".format(
         self.progress.timer(5 * 60 * 1000, self.on_autosync_timer, True, parent=self)
         # periodic garbage collection
         self.progress.timer(
-            15 * 60 * 1000, self.garbage_collect_now, False, parent=self
+            15 * 60 * 1000, self.garbage_collect_now, True, False, parent=self
         )
         # ensure Python interpreter runs at least once per second, so that
         # SIGINT/SIGTERM is processed without a long delay
@@ -1645,12 +1641,10 @@ title="{}" {}>{}</button>""".format(
 
         if self.state == "startup":
             # try again in a second
-            self.progress.timer(
+            self.progress.single_shot(
                 1000,
                 lambda: self.onAppMsg(buf),
                 False,
-                requiresCollection=False,
-                parent=self,
             )
             return
         elif self.state == "profileManager":
@@ -1716,9 +1710,7 @@ title="{}" {}>{}</button>""".format(
 
     def deferred_delete_and_garbage_collect(self, obj: QObject) -> None:
         obj.deleteLater()
-        self.progress.timer(
-            1000, self.garbage_collect_now, False, requiresCollection=False, parent=self
-        )
+        self.progress.single_shot(1000, self.garbage_collect_now, False)
 
     def disable_automatic_garbage_collection(self) -> None:
         gc.collect()

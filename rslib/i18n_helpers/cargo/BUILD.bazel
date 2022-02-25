@@ -14,7 +14,7 @@ licenses([
 # Aliased targets
 alias(
     name = "ammonia",
-    actual = "@raze__ammonia__3_1_2//:ammonia",
+    actual = "@raze__ammonia__3_1_4//:ammonia",
     tags = [
         "cargo-raze",
         "manual",
@@ -32,7 +32,7 @@ alias(
 
 alias(
     name = "blake3",
-    actual = "@raze__blake3__1_3_0//:blake3",
+    actual = "@raze__blake3__1_3_1//:blake3",
     tags = [
         "cargo-raze",
         "manual",
@@ -59,7 +59,7 @@ alias(
 
 alias(
     name = "coarsetime",
-    actual = "@raze__coarsetime__0_1_20//:coarsetime",
+    actual = "@raze__coarsetime__0_1_21//:coarsetime",
     tags = [
         "cargo-raze",
         "manual",
@@ -122,7 +122,7 @@ alias(
 
 alias(
     name = "futures",
-    actual = "@raze__futures__0_3_19//:futures",
+    actual = "@raze__futures__0_3_21//:futures",
     tags = [
         "cargo-raze",
         "manual",
@@ -320,7 +320,7 @@ alias(
 
 alias(
     name = "rand",
-    actual = "@raze__rand__0_8_4//:rand",
+    actual = "@raze__rand__0_8_5//:rand",
     tags = [
         "cargo-raze",
         "manual",
@@ -365,7 +365,7 @@ alias(
 
 alias(
     name = "serde",
-    actual = "@raze__serde__1_0_133//:serde",
+    actual = "@raze__serde__1_0_136//:serde",
     tags = [
         "cargo-raze",
         "manual",
@@ -383,7 +383,7 @@ alias(
 
 alias(
     name = "serde_derive",
-    actual = "@raze__serde_derive__1_0_133//:serde_derive",
+    actual = "@raze__serde_derive__1_0_136//:serde_derive",
     tags = [
         "cargo-raze",
         "manual",
@@ -392,7 +392,7 @@ alias(
 
 alias(
     name = "serde_json",
-    actual = "@raze__serde_json__1_0_74//:serde_json",
+    actual = "@raze__serde_json__1_0_79//:serde_json",
     tags = [
         "cargo-raze",
         "manual",
@@ -419,7 +419,7 @@ alias(
 
 alias(
     name = "sha1",
-    actual = "@raze__sha1__0_6_0//:sha1",
+    actual = "@raze__sha1__0_6_1//:sha1",
     tags = [
         "cargo-raze",
         "manual",
@@ -455,7 +455,7 @@ alias(
 
 alias(
     name = "slog_term",
-    actual = "@raze__slog_term__2_8_0//:slog_term",
+    actual = "@raze__slog_term__2_9_0//:slog_term",
     tags = [
         "cargo-raze",
         "manual",
@@ -482,7 +482,7 @@ alias(
 
 alias(
     name = "tokio",
-    actual = "@raze__tokio__1_15_0//:tokio",
+    actual = "@raze__tokio__1_16_1//:tokio",
     tags = [
         "cargo-raze",
         "manual",

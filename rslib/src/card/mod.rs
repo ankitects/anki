@@ -279,12 +279,15 @@ impl Collection {
 
         self.storage.set_search_table_to_card_ids(cards, false)?;
         let usn = self.usn()?;
-        self.transact(Op::SkipUndo, |col| {
+        self.transact(Op::SetFlag, |col| {
             let mut count = 0;
             for mut card in col.storage.all_searched_cards()? {
+                let original = card.clone();
                 if card.set_flag(flag) {
+                    // To avoid having to rebuild the study queues, we mark the card as requiring
+                    // a sync, but do not change its modification time.
                     card.usn = usn;
-                    col.storage.update_card(&card)?;
+                    col.update_card_undoable(&mut card, original)?;
                     count += 1;
                 }
             }

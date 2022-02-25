@@ -82,6 +82,15 @@ To run Anki in optimized mode, use:
 .\tools\runopt
 ```
 
+## Stale TS Files
+
+The build process may break when .ts files are removed or renamed on Windows. If you're
+tracking Anki's development and you run into a TS build error, try the following:
+
+```
+bazel run tools:cleanup_js
+```
+
 ## More
 
 For info on running tests, building wheels and so on, please see

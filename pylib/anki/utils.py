@@ -124,7 +124,7 @@ def base91(num: int) -> str:
 
 def guid64() -> str:
     "Return a base91-encoded 64bit random number."
-    return base91(random.randint(0, 2 ** 64 - 1))
+    return base91(random.randint(0, 2**64 - 1))
 
 
 # Fields

@@ -82,8 +82,15 @@ def register_repos():
     maybe(
         http_archive,
         name = "build_bazel_rules_nodejs",
-        sha256 = "3635797a96c7bfcd0d265dacd722a07335e64d6ded9834af8d3f1b7ba5a25bba",
-        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.3.0/rules_nodejs-4.3.0.tar.gz"],
+        sha256 = "2644a66772938db8d8c760334a252f1687455daa7e188073f2d46283f2f6fbb7",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.6.2/rules_nodejs-4.6.2.tar.gz"],
+    )
+
+    maybe(
+        http_archive,
+        name = "rules_nodejs",
+        sha256 = "f596117040134b9497a1049efe7a785924b4ff22557669780a0fa37e22b827bd",
+        urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/4.6.2/rules_nodejs-core-4.6.2.tar.gz"],
     )
 
     # sass
@@ -108,12 +115,12 @@ def register_repos():
     ################
 
     core_i18n_repo = "anki-core-i18n"
-    core_i18n_commit = "03689a9ec45d781cfeb99cb170618c297a8686d4"
-    core_i18n_zip_csum = "c4080b19abfd586d0ee3030b951eeff46fb4e353263528a765e53b922f410b47"
+    core_i18n_commit = "acbdb8457887cc8ecf66d0d2dc5b1e2135c91625"
+    core_i18n_zip_csum = "748df7395c4b6ec800520d7e5956a4bf93ca54eadf889b2b35b4aefde5b4ab71"
 
     qtftl_i18n_repo = "anki-desktop-ftl"
-    qtftl_i18n_commit = "eaf41f8b6b028c8470e3173d5d41f1c679400a07"
-    qtftl_i18n_zip_csum = "eb8336ef4009ce0e51150c7d3ebb7c723316ecdbd92826b9cd689ee6d4d96bf3"
+    qtftl_i18n_commit = "90801b845e93cb64471cab930145e93928403d29"
+    qtftl_i18n_zip_csum = "c604be1bddcb97f95a04a2943cdd351cce3594bce24e73509aa55a28fd855b9d"
 
     i18n_build_content = """
 filegroup(

@@ -124,7 +124,7 @@ rust_library(
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-apple-ios",
         ): [
-            "@raze__getrandom__0_2_4//:getrandom",
+            "@raze__getrandom__0_2_5//:getrandom",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

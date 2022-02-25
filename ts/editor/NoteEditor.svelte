@@ -149,7 +149,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         // TODO this is a hack, because it requires the NoteEditor to know implementation details of the PlainTextInput.
         // It should be refactored once we work on our own Undo stack
         for (const pi of plainTextInputs) {
-            pi.api.getEditor().clearHistory();
+            pi.api.codeMirror.editor.then((editor) => editor.clearHistory());
         }
         noteId = ntid;
     }
@@ -326,12 +326,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <svelte:fragment slot="editing-inputs">
                             <RichTextInput
                                 hidden={richTextsHidden[index]}
-                                on:focusin={() => {
-                                    $focusedInput = richTextInputs[index].api;
-                                }}
                                 on:focusout={() => {
-                                    $focusedInput = null;
                                     saveFieldNow();
+                                    $focusedInput = null;
                                 }}
                                 bind:this={richTextInputs[index]}
                             >
@@ -341,12 +338,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
                             <PlainTextInput
                                 hidden={plainTextsHidden[index]}
-                                on:focusin={() => {
-                                    $focusedInput = plainTextInputs[index].api;
-                                }}
                                 on:focusout={() => {
-                                    $focusedInput = null;
                                     saveFieldNow();
+                                    $focusedInput = null;
                                 }}
                                 bind:this={plainTextInputs[index]}
                             />
