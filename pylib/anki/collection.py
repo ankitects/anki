@@ -20,7 +20,6 @@ from anki._legacy import DeprecatedNamesMixin, deprecated
 HelpPage = links_pb2.HelpPageLinkRequest.HelpPage
 SearchNode = search_pb2.SearchNode
 Progress = collection_pb2.Progress
-BackupPaths = collection_pb2.CloseCollectionRequest.BackupPaths
 EmptyCardsReport = card_rendering_pb2.EmptyCardsReport
 GraphPreferences = stats_pb2.GraphPreferences
 CardStats = stats_pb2.CardStatsResponse
@@ -240,7 +239,7 @@ class Collection(DeprecatedNamesMixin):
         self,
         save: bool = True,
         downgrade: bool = False,
-        backup_paths: BackupPaths | None = None,
+        backup_folder: str = "",
     ) -> None:
         "Disconnect from DB."
         if self.db:
@@ -250,7 +249,7 @@ class Collection(DeprecatedNamesMixin):
                 self.db.rollback()
             self._clear_caches()
             self._backend.close_collection(
-                downgrade_to_schema11=downgrade, backup_paths=backup_paths
+                downgrade_to_schema11=downgrade, backup_folder=backup_folder
             )
             self.db = None
 

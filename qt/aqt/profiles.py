@@ -16,7 +16,7 @@ from send2trash import send2trash
 import anki.lang
 import aqt.forms
 import aqt.sound
-from anki.collection import BackupPaths, Collection
+from anki.collection import Collection
 from anki.db import DB
 from anki.lang import without_unicode_isolation
 from anki.sync import SyncAuth
@@ -70,7 +70,7 @@ metaConf = dict(
     ver=0,
     updates=True,
     created=int_time(),
-    id=random.randrange(0, 2**63),
+    id=random.randrange(0, 2 ** 63),
     lastMsg=-1,
     suppressUpdate=False,
     firstRun=True,
@@ -433,9 +433,6 @@ create table if not exists profiles
                 )
                 + "\n"
             )
-
-    def backup_paths(self) -> BackupPaths:
-        return BackupPaths(col_path=self.collectionPath(), out_dir=self.backupFolder())
 
     # Default language
     ######################################################################

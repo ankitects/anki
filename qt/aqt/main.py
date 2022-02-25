@@ -544,7 +544,7 @@ class AnkiQt(QMainWindow):
             # clean up open collection if possible
             try:
                 self.backend.close_collection(
-                    downgrade_to_schema11=False, backup_paths=None
+                    downgrade_to_schema11=False, backup_folder=""
                 )
             except Exception as e:
                 print("unable to close collection:", e)
@@ -609,11 +609,11 @@ class AnkiQt(QMainWindow):
             corrupt = True
 
         if corrupt or self.restoringBackup or dev_mode:
-            backup_paths = None
+            backup_folder = ""
         else:
-            backup_paths = self.pm.backup_paths()
+            backup_folder = self.pm.backupFolder()
         try:
-            self.col.close(downgrade=False, backup_paths=backup_paths)
+            self.col.close(downgrade=False, backup_folder=backup_folder)
         except Exception as e:
             print(e)
             corrupt = True
@@ -626,8 +626,8 @@ class AnkiQt(QMainWindow):
 
     def _close_for_full_download(self) -> None:
         "Backup and prepare collection to be overwritten."
-        backup_paths = None if dev_mode else self.pm.backup_paths()
-        self.col.close(downgrade=False, backup_paths=backup_paths)
+        backup_folder = "" if dev_mode else self.pm.backupFolder()
+        self.col.close(downgrade=False, backup_folder=backup_folder)
         self.col.reopen(after_full_sync=False)
         self.col.close_for_full_sync()
 

@@ -52,7 +52,8 @@ impl CollectionService for Backend {
             return Err(AnkiError::CollectionNotOpen);
         }
 
-        let col_inner = col.take().unwrap();
+        let mut col_inner = col.take().unwrap();
+        let col_path = std::mem::take(&mut col_inner.col_path);
         if input.downgrade_to_schema11 {
             let log = log::terminal();
             if let Err(e) = col_inner.close(input.downgrade_to_schema11) {
@@ -60,8 +61,8 @@ impl CollectionService for Backend {
             }
         }
 
-        if let Some(paths) = input.backup_paths {
-            backup::backup(paths.col_path, paths.out_dir)?;
+        if !input.backup_folder.is_empty() {
+            backup::backup(col_path, input.backup_folder)?;
         }
 
         Ok(().into())

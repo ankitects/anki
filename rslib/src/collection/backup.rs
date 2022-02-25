@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::{
+    ffi::OsStr,
     fs::{read_dir, remove_file, DirEntry, File},
     io::Write,
     path::{Path, PathBuf},
@@ -22,27 +23,31 @@ const NO_THINNING_SECS: u64 = 2 * 24 * 60 * 60;
 /// At most one backup every [THINNING_INTERVAL_SECS] seconds is kept.
 const THINNING_INTERVAL_SECS: i64 = 24 * 60 * 60;
 
-pub fn backup(col_path: String, out_dir: String) -> Result<()> {
+pub fn backup<P1, P2>(col_path: P1, backup_folder: P2) -> Result<()>
+where
+    P1: AsRef<Path>,
+    P2: AsRef<Path> + Send + 'static,
+{
     let col_file = File::open(col_path)?;
     let col_data = zstd::encode_all(col_file, 0)?;
 
-    thread::spawn(move || backup_inner(&col_data, &out_dir));
+    thread::spawn(move || backup_inner(&col_data, &backup_folder));
 
     Ok(())
 }
 
-fn backup_inner(col_data: &[u8], out_dir: &str) {
+fn backup_inner<P: AsRef<Path>>(col_data: &[u8], backup_folder: P) {
     let log = log::terminal();
-    if let Err(error) = write_backup(col_data, out_dir) {
+    if let Err(error) = write_backup(col_data, backup_folder.as_ref()) {
         error!(log, "failed to backup collection: {:?}", error);
     }
-    if let Err(error) = thin_backups(out_dir) {
+    if let Err(error) = thin_backups(backup_folder) {
         error!(log, "failed to thin backups: {:?}", error);
     }
 }
 
-fn write_backup(col_data: &[u8], out_dir: &str) -> Result<()> {
-    let out_file = File::create(out_path(out_dir))?;
+fn write_backup<S: AsRef<OsStr>>(col_data: &[u8], backup_folder: S) -> Result<()> {
+    let out_file = File::create(out_path(backup_folder))?;
     let mut zip = ZipWriter::new(out_file);
     let options = FileOptions::default().compression_method(CompressionMethod::Stored);
 
@@ -57,8 +62,8 @@ fn write_backup(col_data: &[u8], out_dir: &str) -> Result<()> {
     Ok(())
 }
 
-fn thin_backups(backup_dir: &str) -> Result<()> {
-    let backups = read_dir(backup_dir)?
+fn thin_backups<P: AsRef<Path>>(backup_folder: P) -> Result<()> {
+    let backups = read_dir(backup_folder)?
         .filter_map(|entry| entry.ok().and_then(Backup::from_entry))
         .sorted_unstable_by_key(|entry| entry.timestamp)
         .rev();
@@ -77,8 +82,8 @@ fn thin_backups(backup_dir: &str) -> Result<()> {
     Ok(())
 }
 
-fn out_path(out_dir: &str) -> PathBuf {
-    Path::new(out_dir).join(&format!("{}", Local::now().format(BACKUP_FORMAT_STRING)))
+fn out_path<S: AsRef<OsStr>>(backup_folder: S) -> PathBuf {
+    Path::new(&backup_folder).join(&format!("{}", Local::now().format(BACKUP_FORMAT_STRING)))
 }
 
 fn timestamp_from_file_name(file_name: &str) -> Option<i64> {
