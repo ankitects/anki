@@ -52,7 +52,7 @@ rust_library(
     version = "0.4.2",
     # buildifier: leave-alone
     deps = [
-        "@raze__futf__0_1_4//:futf",
+        "@raze__futf__0_1_5//:futf",
         "@raze__mac__0_1_1//:mac",
         "@raze__utf_8__0_7_6//:utf_8",
     ],
