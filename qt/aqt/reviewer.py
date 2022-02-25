@@ -22,6 +22,7 @@ from anki.collection import Config, OpChanges, OpChangesWithCount
 from anki.scheduler.v3 import CardAnswer, NextStates, QueuedCards
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.tags import MARKED_TAG
+from anki.types import assert_exhaustive
 from anki.utils import strip_html
 from aqt import AnkiQt, gui_hooks
 from aqt.browser.card_info import PreviousReviewerCardInfo, ReviewerCardInfo
@@ -49,6 +50,7 @@ from aqt.utils import askUserDialog, downArrow, qtMenuShortcutWorkaround, toolti
 class RefreshNeeded(Enum):
     NOTE_TEXT = auto()
     QUEUES = auto()
+    FLAG = auto()
 
 
 class ReviewerBottomBar:
@@ -171,6 +173,14 @@ class Reviewer:
             self._redraw_current_card()
             self.mw.fade_in_webview()
             self._refresh_needed = None
+        elif self._refresh_needed is RefreshNeeded.FLAG:
+            self.card.load()
+            self._update_flag_icon()
+            # for when modified in browser
+            self.mw.fade_in_webview()
+            self._refresh_needed = None
+        elif self._refresh_needed:
+            assert_exhaustive(self._refresh_needed)
 
     def op_executed(
         self, changes: OpChanges, handler: object | None, focused: bool
@@ -180,6 +190,8 @@ class Reviewer:
                 self._refresh_needed = RefreshNeeded.QUEUES
             elif changes.note_text:
                 self._refresh_needed = RefreshNeeded.NOTE_TEXT
+            elif changes.card:
+                self._refresh_needed = RefreshNeeded.FLAG
 
         if focused and self._refresh_needed:
             self.refresh_if_needed()
@@ -991,10 +1003,6 @@ time = %(time)d;
         self._card_info.toggle()
 
     def set_flag_on_current_card(self, desired_flag: int) -> None:
-        def redraw_flag(out: OpChangesWithCount) -> None:
-            self.card.load()
-            self._update_flag_icon()
-
         # need to toggle off?
         if self.card.user_flag() == desired_flag:
             flag = 0
@@ -1002,8 +1010,8 @@ time = %(time)d;
             flag = desired_flag
 
         set_card_flag(parent=self.mw, card_ids=[self.card.id], flag=flag).success(
-            redraw_flag
-        ).run_in_background(initiator=self)
+            lambda _: None
+        ).run_in_background()
 
     def set_flag_func(self, desired_flag: int) -> Callable:
         return lambda: self.set_flag_on_current_card(desired_flag)

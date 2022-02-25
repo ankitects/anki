@@ -29,6 +29,7 @@ pub enum Op {
     ScheduleAsNew,
     SetCardDeck,
     SetDueDate,
+    SetFlag,
     SortCards,
     Suspend,
     UnburyUnsuspend,
@@ -67,6 +68,7 @@ impl Op {
             Op::UpdatePreferences => tr.preferences_preferences(),
             Op::UpdateTag => tr.actions_update_tag(),
             Op::SetCardDeck => tr.browsing_change_deck(),
+            Op::SetFlag => tr.actions_set_flag(),
             Op::FindAndReplace => tr.browsing_find_and_replace(),
             Op::ClearUnusedTags => tr.browsing_clear_unused_tags(),
             Op::SortCards => tr.browsing_reschedule(),
@@ -154,7 +156,7 @@ impl OpChanges {
 
     pub fn requires_study_queue_rebuild(&self) -> bool {
         let c = &self.changes;
-        c.card
+        (c.card && self.op != Op::SetFlag)
             || c.deck
             || (c.config && matches!(self.op, Op::SetCurrentDeck | Op::UpdatePreferences))
             || c.deck_config
