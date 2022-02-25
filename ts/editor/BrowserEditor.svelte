@@ -3,25 +3,21 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { onMount } from "svelte";
+
     import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
-    import type { NoteEditorAPI } from "./NoteEditor.svelte";
-    import NoteEditor from "./NoteEditor.svelte";
+    import NoteEditingEditor from "./NoteEditingEditor.svelte";
     import PreviewButton from "./PreviewButton.svelte";
 
-    const api: Partial<NoteEditorAPI> = {};
-    let noteEditor: NoteEditor;
+    export let uiResolve: () => void;
 
-    export let uiResolve: (api: NoteEditorAPI) => void;
-
-    $: if (noteEditor) {
-        uiResolve(api as NoteEditorAPI);
-    }
+    onMount(uiResolve);
 </script>
 
-<NoteEditor bind:this={noteEditor} {api}>
+<NoteEditingEditor>
     <svelte:fragment slot="notetypeButtons">
         <ButtonGroupItem>
             <PreviewButton />
         </ButtonGroupItem>
     </svelte:fragment>
-</NoteEditor>
+</NoteEditingEditor>

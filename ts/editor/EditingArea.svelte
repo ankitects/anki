@@ -36,32 +36,31 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { setContext as svelteSetContext } from "svelte";
+    import { createEventDispatcher } from "svelte";
     import { writable } from "svelte/store";
 
-    import { fontFamilyKey, fontSizeKey } from "../lib/context-keys";
     import FocusTrap from "./FocusTrap.svelte";
 
-    export let fontFamily: string;
-    const fontFamilyStore = writable(fontFamily);
-    $: $fontFamilyStore = fontFamily;
-    svelteSetContext(fontFamilyKey, fontFamilyStore);
+    let input = "";
+    const content: Writable<string> = writable(input);
 
-    export let fontSize: number;
-    const fontSizeStore = writable(fontSize);
-    $: $fontSizeStore = fontSize;
-    svelteSetContext(fontSizeKey, fontSizeStore);
+    export { input as content };
 
-    export let content: Writable<string>;
+    $: $content = input ?? "";
+
+    const dispatch = createEventDispatcher();
+
+    $: dispatch("contentupdate", $content);
 
     let editingArea: HTMLElement;
     let focusTrap: FocusTrap;
 
-    const inputsStore = writable<EditingInputAPI[]>([]);
-    $: editingInputs = $inputsStore;
+    const editingInputs = writable<EditingInputAPI[]>([]);
 
     function getAvailableInput(): EditingInputAPI | undefined {
-        return editingInputs.find((input) => input.focusable);
+        return $editingInputs.find(
+            (input: EditingInputAPI): boolean => input.focusable,
+        );
     }
 
     function focusEditingInputIfAvailable(): boolean {
@@ -82,7 +81,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     $: {
-        $inputsStore;
+        $editingInputs;
         /**
          * Triggers when all editing inputs are hidden,
          * the editor field has focus, and then some
@@ -116,10 +115,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    // prevents editor field being entirely deselected when
-    // closing active field
+    /**
+     * Prevents editor field being entirely deselected when closing active field.
+     */
     function trapFocusOnBlurOut(event: FocusEvent): void {
-        if (!event.relatedTarget && editingInputs.every((input) => !input.focusable)) {
+        if (!event.relatedTarget && $editingInputs.every((input) => !input.focusable)) {
             focusTrap.focus();
             event.preventDefault();
         }
@@ -128,9 +128,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let apiPartial: Partial<EditingAreaAPI>;
     export { apiPartial as api };
 
-    const api = Object.assign(apiPartial, {
+    const api: EditingAreaAPI = Object.assign(apiPartial, {
         content,
-        editingInputs: inputsStore,
+        editingInputs,
         focus,
         refocus,
     });

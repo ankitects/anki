@@ -453,7 +453,9 @@ exposed_backend_list = [
     "i18n_resources",
     # NotesService
     "get_note",
+    "new_note",
     # NotetypesService
+    "get_notetype",
     "get_notetype_names",
     "get_change_notetype_info",
     # StatsService

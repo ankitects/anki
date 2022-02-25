@@ -3,49 +3,58 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onDestroy, onMount } from "svelte";
+    import { onMount } from "svelte";
 
-    import { bridgeCommand } from "../lib/bridgecommand";
-    import { registerShortcut } from "../lib/shortcuts";
-    import type { NoteEditorAPI } from "./NoteEditor.svelte";
+    import { noop } from "../lib/functional";
+    import { Notes, notes, Notetypes, notetypes } from "../lib/proto";
     import NoteEditor from "./NoteEditor.svelte";
     import StickyBadge from "./StickyBadge.svelte";
 
-    const api: Partial<NoteEditorAPI> = {};
-    let noteEditor: NoteEditor;
+    export let uiResolve: () => void;
 
-    export let uiResolve: (api: NoteEditorAPI) => void;
+    // TODO reimplement togglyStickyAll shortcut on Shift+F9
 
-    $: if (noteEditor) {
-        uiResolve(api as NoteEditorAPI);
+    let notetype: Notetypes.Notetype;
+    let note: Notes.Note;
+
+    const stickiedContents: string[] = [];
+
+    async function setNoteTypeId(ntid: number): Promise<void> {
+        const notetypeId = Notetypes.NotetypeId.create({ ntid });
+
+        const nextNotetype = await notetypes.getNotetype(notetypeId);
+        const nextNote = await notes.newNote(notetypeId);
+
+        for (let index = 0; index < nextNote.fields.length; index++) {
+            if (nextNotetype.fields[index].config!.sticky) {
+                nextNote.fields[index] = stickiedContents[index];
+            }
+        }
+
+        [notetype, note] = [nextNotetype, nextNote];
     }
 
-    let stickies: boolean[] = [];
-
-    function setSticky(stckies: boolean[]): void {
-        stickies = stckies;
-    }
-
-    function toggleStickyAll(): void {
-        bridgeCommand("toggleStickyAll", (values: boolean[]) => (stickies = values));
-    }
-
-    let deregisterSticky: () => void;
-    export function activateStickyShortcuts() {
-        deregisterSticky = registerShortcut(toggleStickyAll, "Shift+F9");
-    }
-
-    onMount(() => {
-        Object.assign(globalThis, {
-            setSticky,
-        });
+    Object.assign(globalThis, {
+        setNoteTypeId,
+        setNoteId: noop,
+        getNoteId: () => 0,
     });
 
-    onDestroy(() => deregisterSticky);
+    onMount(uiResolve);
+
+    function isStickyActive(index: number): boolean {
+        return notetype.fields[index].config!.sticky;
+    }
+
+    function contentUpdate({
+        detail: { index, content },
+    }: CustomEvent<{ index: number; content: string }>): void {
+        stickiedContents[index] = content;
+    }
 </script>
 
-<NoteEditor bind:this={noteEditor} {api}>
+<NoteEditor {notetype} {note} on:contentupdate={contentUpdate}>
     <svelte:fragment slot="field-state" let:index>
-        <StickyBadge active={stickies[index]} {index} />
+        <StickyBadge active={isStickyActive(index)} {index} />
     </svelte:fragment>
 </NoteEditor>

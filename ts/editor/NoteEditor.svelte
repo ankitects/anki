@@ -5,15 +5,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import type { Writable } from "svelte/store";
 
+    import type { HooksAPI } from "../lib/hooks";
+    import { Notes, Notetypes } from "../lib/proto";
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import type { EditorToolbarAPI } from "./editor-toolbar";
     import type { EditorFieldAPI } from "./EditorField.svelte";
+    import type { TagEditorAPI } from "./tag-editor";
+
+    interface OnLoadNoteInput {
+        note: Notes.Note;
+        notetype: Notetypes.Notetype;
+    }
 
     export interface NoteEditorAPI {
-        fields: EditorFieldAPI[];
         focusedField: Writable<EditorFieldAPI | null>;
         focusedInput: Writable<EditingInputAPI | null>;
         toolbar: EditorToolbarAPI;
+        fields: EditorFieldAPI[];
+        tagEditor: TagEditorAPI;
+        onLoadNote: HooksAPI<OnLoadNoteInput>;
     }
 
     import { registerPackage } from "../lib/runtime-require";
@@ -34,18 +44,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { onMount, tick } from "svelte";
-    import { get, writable } from "svelte/store";
+    import { createEventDispatcher, onMount } from "svelte";
+    import { writable } from "svelte/store";
 
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
     import { bridgeCommand } from "../lib/bridgecommand";
+    import { notetypes } from "../lib/proto";
+    import { noop } from "../lib/functional";
+    import { hooks } from "../lib/hooks";
+    import type { Callback } from "../lib/typing";
     import { ChangeTimer } from "./change-timer";
     import DecoratedElements from "./DecoratedElements.svelte";
     import { clearableArray } from "./destroyable";
     import DuplicateLink from "./DuplicateLink.svelte";
-    import { EditorToolbar } from "./editor-toolbar";
-    import type { FieldData } from "./EditorField.svelte";
+    import { ClozeButtons, EditorToolbar } from "./editor-toolbar";
     import EditorField from "./EditorField.svelte";
     import Fields from "./Fields.svelte";
     import FieldsEditor from "./FieldsEditor.svelte";
@@ -61,146 +74,121 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import RichTextBadge from "./RichTextBadge.svelte";
     import { TagEditor } from "./tag-editor";
 
-    function quoteFontFamily(fontFamily: string): string {
-        // generic families (e.g. sans-serif) must not be quoted
-        if (!/^[-a-z]+$/.test(fontFamily)) {
-            fontFamily = `"${fontFamily}"`;
+    export let notetype: Notetypes.Notetype;
+    export let note: Notes.Note;
+
+    async function updateNotetype(note: Notes.Note): Promise<void> {
+        if (!note) {
+            // TODO this should not be necessary
+            return;
         }
-        return fontFamily;
+
+        notetype = await notetypes.getNotetype(
+            Notetypes.NotetypeId.create({ ntid: note.notetypeId }),
+        );
     }
+
+    $: updateNotetype(note);
 
     const size = 1.6;
     const wrap = true;
 
-    const fieldStores: Writable<string>[] = [];
-    let fieldNames: string[] = [];
-    export function setFields(fs: [string, string][]): void {
-        // this is a bit of a mess -- when moving to Rust calls, we should make
-        // sure to have two backend endpoints for:
-        // * the note, which can be set through this view
-        // * the fieldname, font, etc., which cannot be set
+    let fieldsData: [Notetypes.Notetype.Field, string][] = [];
+    const tags = writable<string[]>([]);
 
-        const newFieldNames: string[] = [];
-
-        for (const [index, [fieldName]] of fs.entries()) {
-            newFieldNames[index] = fieldName;
-        }
-
-        for (let i = fieldStores.length; i < newFieldNames.length; i++) {
-            const newStore = writable("");
-            fieldStores[i] = newStore;
-            newStore.subscribe((value) => updateField(i, value));
-        }
-
-        for (
-            let i = fieldStores.length;
-            i > newFieldNames.length;
-            i = fieldStores.length
-        ) {
-            fieldStores.pop();
-        }
-
-        for (const [index, [, fieldContent]] of fs.entries()) {
-            fieldStores[index].set(fieldContent);
-        }
-
-        fieldNames = newFieldNames;
-    }
-
-    let fieldDescriptions: string[] = [];
-    export function setDescriptions(fs: string[]): void {
-        fieldDescriptions = fs;
-    }
-
-    let fonts: [string, number, boolean][] = [];
     let richTextsHidden: boolean[] = [];
     let plainTextsHidden: boolean[] = [];
+
+    function zip<T, U>(first: T[], second: U[]): [T, U][] {
+        return first.map((t: T, index: number) => [t, second[index]]);
+    }
+
+    const [onLoadNote, runLoadNote] = hooks<OnLoadNoteInput>();
+
+    function loadEditor(notetype: Notetypes.Notetype, note: Notes.Note): void {
+        // For now we won't await the hook
+        runLoadNote({ notetype, note });
+
+        fieldsData = zip(notetype.fields, note.fields);
+        $tags = note.tags;
+
+        richTextsHidden = note.fields.map(
+            (_, index) => richTextsHidden[index] ?? false,
+        );
+        plainTextsHidden = note.fields.map(
+            (_, index) => plainTextsHidden[index] ?? true,
+        );
+
+        $focusedInput?.refocus();
+    }
+
+    $: if (notetype && note) {
+        loadEditor(notetype, note);
+    }
+
     const fields = clearableArray<EditorFieldAPI>();
 
-    export function setFonts(fs: [string, number, boolean][]): void {
-        fonts = fs;
-
-        richTextsHidden = fonts.map((_, index) => richTextsHidden[index] ?? false);
-        plainTextsHidden = fonts.map((_, index) => plainTextsHidden[index] ?? true);
-    }
-
-    export function focusField(index: number | null): void {
-        tick().then(() => {
-            if (typeof index === "number") {
-                if (!(index in fields)) {
-                    return;
-                }
-
-                fields[index].editingArea?.refocus();
-            } else {
-                $focusedInput?.refocus();
+    async function focusField(index: number | null): Promise<void> {
+        if (typeof index === "number") {
+            if (!(index in fields)) {
+                return;
             }
-        });
-    }
 
-    const tags = writable<string[]>([]);
-    export function setTags(ts: string[]): void {
-        $tags = ts;
-    }
-
-    let noteId: number | null = null;
-    export function setNoteId(ntid: number): void {
-        // TODO this is a hack, because it requires the NoteEditor to know implementation details of the PlainTextInput.
-        // It should be refactored once we work on our own Undo stack
-        for (const pi of plainTextInputs) {
-            pi.api.codeMirror.editor.then((editor) => editor.clearHistory());
+            fields[index].editingArea?.refocus();
+        } else {
+            $focusedInput?.refocus();
         }
-        noteId = ntid;
-    }
-
-    function getNoteId(): number | null {
-        return noteId;
     }
 
     let cols: ("dupe" | "")[] = [];
-    export function setBackgrounds(cls: ("dupe" | "")[]): void {
+    function setBackgrounds(cls: ("dupe" | "")[]): void {
         cols = cls;
     }
 
     let hint: string = "";
-    export function setClozeHint(hnt: string): void {
+    function setClozeHint(hnt: string): void {
         hint = hnt;
     }
-
-    $: fieldsData = fieldNames.map((name, index) => ({
-        name,
-        description: fieldDescriptions[index],
-        fontFamily: quoteFontFamily(fonts[index][0]),
-        fontSize: fonts[index][1],
-        direction: fonts[index][2] ? "rtl" : "ltr",
-    })) as FieldData[];
 
     function saveTags({ detail }: CustomEvent): void {
         bridgeCommand(`saveTags:${JSON.stringify(detail.tags)}`);
     }
 
     const fieldSave = new ChangeTimer();
+    let fieldBlur: Callback = noop;
 
     function updateField(index: number, content: string): void {
-        fieldSave.schedule(
-            () => bridgeCommand(`key:${index}:${getNoteId()}:${content}`),
-            600,
-        );
+        fieldSave.schedule(() => {
+            // This correctly updates the stached content,
+            // so that fieldsData matches with the content store.
+            fieldsData[index][1] = content;
+            fieldsData = fieldsData;
+
+            bridgeCommand(`key:${index}:${globalThis.getNoteId()}:${content}`);
+            dispatch("contentupdate", { index, content });
+        }, 600);
+
+        fieldBlur = () =>
+            bridgeCommand(
+                `blur:${index}:${globalThis.getNoteId()}:${fieldsData[index][1]}`,
+            );
     }
 
-    export function saveFieldNow(): void {
+    const dispatch = createEventDispatcher();
+
+    function saveFieldNow(): void {
         /* this will always be a key save */
         fieldSave.fireImmediately();
     }
 
-    export function saveOnPageHide() {
+    function saveOnPageHide() {
         if (document.visibilityState === "hidden") {
             // will fire on session close and minimize
             saveFieldNow();
         }
     }
 
-    export function focusIfField(x: number, y: number): boolean {
+    function focusIfField(x: number, y: number): boolean {
         const elements = document.elementsFromPoint(x, y);
         const first = elements[0];
 
@@ -219,10 +207,30 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let plainTextInputs: PlainTextInput[] = [];
     $: plainTextInputs = plainTextInputs.filter(Boolean);
 
+    function resetPlainTextHistory(): void {
+        for (const pi of plainTextInputs) {
+            pi.api?.codeMirror.editor.then((editor) => editor.clearHistory());
+        }
+    }
+
     const toolbar: Partial<EditorToolbarAPI> = {};
+    const tagEditor: Partial<TagEditorAPI> = {};
+
+    let isCloze: boolean;
+    $: isCloze = notetype?.config!.kind === Notetypes.Notetype.Config.Kind.KIND_CLOZE;
 
     import { wrapInternal } from "../lib/wrap";
     import * as oldEditorAdapter from "./old-editor-adapter";
+
+    Object.assign(globalThis, {
+        focusField,
+        setBackgrounds,
+        setClozeHint,
+        saveNow: saveFieldNow,
+        resetPlainTextHistory,
+        focusIfField,
+        ...oldEditorAdapter,
+    });
 
     onMount(() => {
         function wrap(before: string, after: string): void {
@@ -236,18 +244,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         Object.assign(globalThis, {
-            setFields,
-            setDescriptions,
-            setFonts,
-            focusField,
-            setTags,
-            setBackgrounds,
-            setClozeHint,
-            saveNow: saveFieldNow,
-            focusIfField,
-            setNoteId,
             wrap,
-            ...oldEditorAdapter,
         });
 
         document.addEventListener("visibilitychange", saveOnPageHide);
@@ -266,6 +263,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         focusedInput,
         toolbar: toolbar as EditorToolbarAPI,
         fields,
+        tagEditor: tagEditor as TagEditorAPI,
+        onLoadNote,
     };
 
     setContextProperty(api);
@@ -284,6 +283,12 @@ the AddCards dialog) should be implemented in the user of this component.
     <FieldsEditor>
         <EditorToolbar {size} {wrap} api={toolbar}>
             <slot slot="notetypeButtons" name="notetypeButtons" />
+
+            <svelte:fragment slot="extraButtonGroups">
+                {#if isCloze}
+                    <ClozeButtons />
+                {/if}
+            </svelte:fragment>
         </EditorToolbar>
 
         {#if hint}
@@ -299,10 +304,10 @@ the AddCards dialog) should be implemented in the user of this component.
 
         <Fields>
             <DecoratedElements>
-                {#each fieldsData as field, index}
+                {#each fieldsData as [field, content], index}
                     <EditorField
                         {field}
-                        content={fieldStores[index]}
+                        {content}
                         api={fields[index]}
                         on:focusin={() => {
                             $focusedField = fields[index];
@@ -310,12 +315,10 @@ the AddCards dialog) should be implemented in the user of this component.
                         }}
                         on:focusout={() => {
                             $focusedField = null;
-                            bridgeCommand(
-                                `blur:${index}:${getNoteId()}:${get(
-                                    fieldStores[index],
-                                )}`,
-                            );
+                            fieldBlur();
                         }}
+                        on:contentupdate={({ detail: content }) =>
+                            updateField(index, content)}
                         --label-color={cols[index] === "dupe"
                             ? "var(--flag1-bg)"
                             : "transparent"}
@@ -361,7 +364,7 @@ the AddCards dialog) should be implemented in the user of this component.
         </Fields>
     </FieldsEditor>
 
-    <TagEditor {tags} on:tagsupdate={saveTags} />
+    <TagEditor {tags} api={tagEditor} on:tagsupdate={saveTags} />
 </div>
 
 <style lang="scss">

@@ -3,19 +3,17 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { getContext } from "svelte";
     import { createEventDispatcher } from "svelte";
-    import type { Readable } from "svelte/store";
 
     import ButtonGroup from "../../components/ButtonGroup.svelte";
     import IconButton from "../../components/IconButton.svelte";
-    import { directionKey } from "../../lib/context-keys";
     import * as tr from "../../lib/ftl";
+    import { directionProperty } from "../../sveltelib/context-property";
     import { floatLeftIcon, floatNoneIcon, floatRightIcon } from "./icons";
 
     export let image: HTMLImageElement;
 
-    const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
+    const direction = directionProperty.get();
     const [inlineStartIcon, inlineEndIcon] =
         $direction === "ltr"
             ? [floatLeftIcon, floatRightIcon]
