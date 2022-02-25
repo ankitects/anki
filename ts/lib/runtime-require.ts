@@ -16,6 +16,7 @@
  */
 type AnkiPackages =
     | "anki/NoteEditor"
+    | "anki/TemplateButtons"
     | "anki/packages"
     | "anki/bridgecommand"
     | "anki/shortcuts"

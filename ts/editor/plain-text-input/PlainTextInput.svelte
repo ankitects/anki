@@ -26,6 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import CodeMirror from "../CodeMirror.svelte";
     import { context as decoratedElementsContext } from "../DecoratedElements.svelte";
     import { context as editingAreaContext } from "../EditingArea.svelte";
+    import { context as noteEditorContext } from "../NoteEditor.svelte";
 
     export let hidden = false;
 
@@ -34,6 +35,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ...baseOptions,
         ...gutterOptions,
     };
+
+    const { focusedInput } = noteEditorContext.get();
 
     const { editingInputs, content } = editingAreaContext.get();
     const decoratedElements = decoratedElementsContext.get();
@@ -158,8 +161,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="plain-text-input"
     class:light-theme={!$pageTheme.isDark}
     class:hidden
-    on:focusin
-    on:focusout
+    on:focusin={() => ($focusedInput = api)}
 >
     <CodeMirror
         {configuration}
