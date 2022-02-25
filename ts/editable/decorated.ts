@@ -38,13 +38,37 @@ export interface DecoratedElementConstructor
     toUndecorated(stored: string): string;
 }
 
-export class CustomElementArray<
-    T extends CustomElementConstructor & WithTagName,
-> extends Array<T> {
-    push(...elements: T[]): number {
+export class CustomElementArray extends Array<DecoratedElementConstructor> {
+    push(...elements: DecoratedElementConstructor[]): number {
         for (const element of elements) {
             customElements.define(element.tagName, element);
         }
         return super.push(...elements);
+    }
+
+    /**
+     * Transforms any decorated elements in input HTML from undecorated to stored state.
+     */
+    toStored(html: string): string {
+        let result = html;
+
+        for (const element of this) {
+            result = element.toStored(result);
+        }
+
+        return result;
+    }
+
+    /**
+     * Transforms any decorated elements in input HTML from stored to undecorated state.
+     */
+    toUndecorated(html: string): string {
+        let result = html;
+
+        for (const element of this) {
+            result = element.toUndecorated(result);
+        }
+
+        return result;
     }
 }
