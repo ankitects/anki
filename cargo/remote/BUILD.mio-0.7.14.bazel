@@ -75,7 +75,7 @@ rust_library(
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-apple-ios",
         ): [
-            "@raze__libc__0_2_112//:libc",
+            "@raze__libc__0_2_119//:libc",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
@@ -84,7 +84,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
             "@raze__miow__0_3_7//:miow",
-            "@raze__ntapi__0_3_6//:ntapi",
+            "@raze__ntapi__0_3_7//:ntapi",
             "@raze__winapi__0_3_9//:winapi",
         ],
         "//conditions:default": [],
