@@ -8,13 +8,11 @@ function wrappedExceptForWhitespace(text: string, front: string, back: string): 
     return match[1] + front + match[2] + back + match[3];
 }
 
-function moveCursorPastPostfix(
-    selection: Selection,
-    range: Range,
-    postfix: string,
-): void {
-    range.setStart(range.startContainer, range.startOffset - postfix.length);
-    range.collapse(true);
+function moveCursorInside(selection: Selection, postfix: string): void {
+    const range = getRange(selection)!;
+
+    range.setEnd(range.endContainer, range.endOffset - postfix.length);
+    range.collapse(false);
 
     selection.removeAllRanges();
     selection.addRange(range);
@@ -33,6 +31,7 @@ export function wrapInternal(
         return;
     }
 
+    const wasCollapsed = range.collapsed;
     const content = range.cloneContents();
     const span = document.createElement("span");
     span.appendChild(content);
@@ -46,11 +45,11 @@ export function wrapInternal(
     }
 
     if (
-        !span.innerHTML &&
+        wasCollapsed &&
         /* ugly solution: treat <anki-mathjax> differently than other wraps */ !front.includes(
             "<anki-mathjax",
         )
     ) {
-        moveCursorPastPostfix(selection, range, back);
+        moveCursorInside(selection, back);
     }
 }
