@@ -338,6 +338,18 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
+"@floating-ui/core@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@floating-ui/core/-/core-0.5.0.tgz#d3d378412c525e663f41ced012e4e13049b31908"
+  integrity sha512-Ouka4Ck1mnPFZhgpfyFb+YBflGdk0o/SW8uSwByoRC6VqRzCHpW/7mJbFt/TWjl1lDcRbImJ2ZWOqwlIP71LDg==
+
+"@floating-ui/dom@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@floating-ui/dom/-/dom-0.3.0.tgz#0fb41e390a109a6382d0946d159d800798fb878b"
+  integrity sha512-5wU64oa5rLNqgOD8cLq2lU25eiOosHAb2Ryt6kADgt5aCyqr9RYDQ3VTtefL9qd6MbZ3fZxPkp1+tNtjKnmTXw==
+  dependencies:
+    "@floating-ui/core" "^0.5.0"
+
 "@fluent/bundle@^0.17.0":
   version "0.17.1"
   resolved "https://registry.yarnpkg.com/@fluent/bundle/-/bundle-0.17.1.tgz#239388f55f115dca593f268d48a5ab8936dc9556"

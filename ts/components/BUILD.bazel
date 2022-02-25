@@ -8,6 +8,7 @@ _ts_deps = [
     "//ts/sveltelib",
     "@npm//@popperjs/core",
     "@npm//@types/bootstrap",
+    "@npm//@floating-ui/dom",
     "@npm//bootstrap",
     "@npm//svelte",
 ]

@@ -30,6 +30,20 @@
         "path": "node_modules/@eslint/eslintrc",
         "licenseFile": "node_modules/@eslint/eslintrc/LICENSE"
     },
+    "@floating-ui/core@0.5.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/floating-ui/floating-ui",
+        "publisher": "atomiks",
+        "path": "node_modules/@floating-ui/core",
+        "licenseFile": "node_modules/@floating-ui/core/README.md"
+    },
+    "@floating-ui/dom@0.3.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/floating-ui/floating-ui",
+        "publisher": "atomiks",
+        "path": "node_modules/@floating-ui/dom",
+        "licenseFile": "node_modules/@floating-ui/dom/README.md"
+    },
     "@fluent/bundle@0.17.1": {
         "licenses": "Apache-2.0",
         "repository": "https://github.com/projectfluent/fluent.js",
