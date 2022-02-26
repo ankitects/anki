@@ -229,13 +229,16 @@ fn extract_version_3_data(archive: &mut ZipArchive<File>) -> Result<Vec<u8>> {
 }
 
 fn extract_legacy_data(archive: &mut ZipArchive<File>) -> Result<Vec<u8>> {
-    if let Ok(mut file) = archive.by_name("collection.anki21") {
-        return get_zip_file_contents(&mut file);
+    fn extract_by_name(archive: &mut ZipArchive<File>, name: &str) -> Option<Vec<u8>> {
+        archive
+            .by_name(name)
+            .ok()
+            .and_then(|mut file| get_zip_file_contents(&mut file).ok())
     }
-    if let Ok(mut file) = archive.by_name("collection.anki2") {
-        return get_zip_file_contents(&mut file);
-    }
-    Err(malformed_archive_err())
+
+    extract_by_name(archive, "collection.anki21")
+        .or_else(|| extract_by_name(archive, "collection.anki2"))
+        .ok_or_else(malformed_archive_err)
 }
 
 fn get_zip_file_contents(file: &mut ZipFile) -> Result<Vec<u8>> {
