@@ -10,6 +10,7 @@ import "anki/generic.proto";
 service CollectionService {
   rpc OpenCollection(OpenCollectionRequest) returns (generic.Empty);
   rpc CloseCollection(CloseCollectionRequest) returns (generic.Empty);
+  rpc RestoreBackup(RestoreBackupRequest) returns (generic.Empty);
   rpc CheckDatabase(generic.Empty) returns (CheckDatabaseResponse);
   rpc GetUndoStatus(generic.Empty) returns (UndoStatus);
   rpc Undo(generic.Empty) returns (OpChangesAfterUndo);
@@ -29,7 +30,14 @@ message OpenCollectionRequest {
 
 message CloseCollectionRequest {
   bool downgrade_to_schema11 = 1;
+  // Skip backup if empty
   string backup_folder = 2;
+}
+
+message RestoreBackupRequest {
+  string col_path = 1;
+  string backup_path = 2;
+  string media_folder = 3;
 }
 
 message CheckDatabaseResponse {

@@ -68,6 +68,16 @@ impl CollectionService for Backend {
         Ok(().into())
     }
 
+    fn restore_backup(&self, input: pb::RestoreBackupRequest) -> Result<pb::Empty> {
+        let col = self.col.lock().unwrap();
+        if col.is_some() {
+            Err(AnkiError::CollectionAlreadyOpen)
+        } else {
+            backup::restore_backup(&input.col_path, &input.backup_path, &input.media_folder)
+                .map(Into::into)
+        }
+    }
+
     fn check_database(&self, _input: pb::Empty) -> Result<pb::CheckDatabaseResponse> {
         let mut handler = self.new_progress_handler();
         let progress_fn = move |progress, throttle| {
