@@ -304,9 +304,8 @@ test("aux data", () => {
     // ensure changes serialize
     const out = state.dataForSaving(true);
     expect(out.configs!.length).toBe(2);
-    const json = out.configs!.map(
-        (c) =>
-            JSON.parse(new TextDecoder().decode((c.config!).other))
+    const json = out.configs!.map((c) =>
+        JSON.parse(new TextDecoder().decode(c.config!.other)),
     );
     expect(json).toStrictEqual([
         // other deck comes first
