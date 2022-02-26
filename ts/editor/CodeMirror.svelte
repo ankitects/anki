@@ -40,11 +40,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     /**
      * Convenience function for editor.setOption.
      */
-    function setOption<T extends keyof CodeMirrorLib.EditorConfiguration>(
+    async function setOption<T extends keyof CodeMirrorLib.EditorConfiguration>(
         key: T,
         value: CodeMirrorLib.EditorConfiguration[T],
-    ): void {
-        editorPromise.then((editor) => editor.setOption(key, value));
+    ): Promise<void> {
+        const editor = await editorPromise;
+        editor.setOption(key, value);
     }
 
     const direction = getContext<Writable<"ltr" | "rtl">>(directionKey);
@@ -62,14 +63,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
-    onMount(() =>
-        editorPromise.then((editor) => {
-            setupCodeMirror(editor, code);
-            editor.on("change", () => dispatch("change", editor.getValue()));
-            editor.on("focus", () => dispatch("focus"));
-            editor.on("blur", () => dispatch("blur"));
-        }),
-    );
+    onMount(async () => {
+        const editor = await editorPromise;
+        setupCodeMirror(editor, code);
+        editor.on("change", () => dispatch("change", editor.getValue()));
+        editor.on("focus", () => dispatch("focus"));
+        editor.on("blur", () => dispatch("blur"));
+    });
 </script>
 
 <div class="code-mirror">
