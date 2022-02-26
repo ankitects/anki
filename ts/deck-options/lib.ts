@@ -51,11 +51,11 @@ export class DeckOptionsState {
 
     constructor(targetDeckId: number, data: DeckConfig.DeckConfigsForUpdate) {
         this.targetDeckId = targetDeckId;
-        this.currentDeck =
-            data.currentDeck as DeckConfig.DeckConfigsForUpdate.CurrentDeck;
+        this.currentDeck = data.currentDeck!;
         this.defaults = data.defaults!.config!;
         this.configs = data.allConfig.map((config) => {
-            const configInner = config.config as DeckConfig.DeckConfig;
+            const configInner = config.config!;
+
             return {
                 config: configInner,
                 useCount: config.useCount!,
@@ -290,20 +290,21 @@ export class DeckOptionsState {
 
 function bytesToObject(bytes: Uint8Array): Record<string, unknown> {
     if (!bytes.length) {
-        return {} as Record<string, unknown>;
+        return {};
     }
 
     let obj: Record<string, unknown>;
+
     try {
-        obj = JSON.parse(new TextDecoder().decode(bytes)) as Record<string, unknown>;
+        obj = JSON.parse(new TextDecoder().decode(bytes));
     } catch (err) {
         console.log(`invalid json in deck config`);
-        return {} as Record<string, unknown>;
+        return {};
     }
 
     if (obj.constructor !== Object) {
         console.log(`invalid object in deck config`);
-        return {} as Record<string, unknown>;
+        return {};
     }
 
     return obj;
