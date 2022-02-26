@@ -19,6 +19,7 @@ use zstd;
 
 use crate::{
     collection::CollectionBuilder,
+    config::BackupLimits,
     error::{DbError, DbErrorKind},
     log,
     prelude::*,
@@ -29,10 +30,6 @@ use crate::{
 /// Versions 1 and 2 wrote different archives, so minimum expected value is 3.
 const BACKUP_VERSION: u8 = 3;
 const BACKUP_FORMAT_STRING: &str = "backup-%Y-%m-%d-%H.%M.%S.colpkg";
-/// Backups in the last [NO_THINNING_SECS] seconds are not thinned.
-const NO_THINNING_SECS: u64 = 2 * 24 * 60 * 60;
-/// At most one backup every [THINNING_INTERVAL_SECS] seconds is kept.
-const THINNING_INTERVAL_SECS: i64 = 24 * 60 * 60;
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
@@ -41,7 +38,7 @@ struct Meta {
     version: u8,
 }
 
-pub fn backup<P1, P2>(col_path: P1, backup_folder: P2) -> Result<()>
+pub fn backup<P1, P2>(col_path: P1, backup_folder: P2, limits: BackupLimits) -> Result<()>
 where
     P1: AsRef<Path>,
     P2: AsRef<Path> + Send + 'static,
@@ -49,7 +46,7 @@ where
     let col_file = File::open(col_path)?;
     let col_data = zstd::encode_all(col_file, 0)?;
 
-    thread::spawn(move || backup_inner(&col_data, &backup_folder));
+    thread::spawn(move || backup_inner(&col_data, &backup_folder, limits));
 
     Ok(())
 }
@@ -69,12 +66,12 @@ pub fn restore_backup(col_path: &str, backup_path: &str, media_folder: &str) -> 
         .and_then(|_| restore_media(&mut archive, media_folder))
 }
 
-fn backup_inner<P: AsRef<Path>>(col_data: &[u8], backup_folder: P) {
+fn backup_inner<P: AsRef<Path>>(col_data: &[u8], backup_folder: P, limits: BackupLimits) {
     let log = log::terminal();
     if let Err(error) = write_backup(col_data, backup_folder.as_ref()) {
         error!(log, "failed to backup collection: {:?}", error);
     }
-    if let Err(error) = thin_backups(backup_folder) {
+    if let Err(error) = thin_backups(backup_folder, limits) {
         error!(log, "failed to thin backups: {:?}", error);
     }
 }
@@ -99,22 +96,11 @@ fn write_backup<S: AsRef<OsStr>>(col_data: &[u8], backup_folder: S) -> Result<()
     Ok(())
 }
 
-fn thin_backups<P: AsRef<Path>>(backup_folder: P) -> Result<()> {
-    let backups = read_dir(backup_folder)?
-        .filter_map(|entry| entry.ok().and_then(Backup::from_entry))
-        .sorted_unstable_by_key(|entry| entry.timestamp)
-        .rev();
-    let mut last_kept_backup_time = TimestampSecs(i64::MAX);
+fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: BackupLimits) -> Result<()> {
+    let backups =
+        read_dir(backup_folder)?.filter_map(|entry| entry.ok().and_then(Backup::from_entry));
 
-    for backup in backups {
-        let keep_this_backup = backup.timestamp.elapsed_secs() < NO_THINNING_SECS
-            || last_kept_backup_time.elapsed_secs_since(backup.timestamp) > THINNING_INTERVAL_SECS;
-        if keep_this_backup {
-            last_kept_backup_time = backup.timestamp;
-        } else {
-            remove_file(backup.path)?;
-        }
-    }
+    BackupThinner::new(limits).thin(backups);
 
     Ok(())
 }
@@ -123,17 +109,35 @@ fn out_path<S: AsRef<OsStr>>(backup_folder: S) -> PathBuf {
     Path::new(&backup_folder).join(&format!("{}", Local::now().format(BACKUP_FORMAT_STRING)))
 }
 
-fn timestamp_from_file_name(file_name: &str) -> Option<i64> {
+fn datetime_from_file_name(file_name: &str) -> Option<DateTime<Local>> {
     NaiveDateTime::parse_from_str(file_name, BACKUP_FORMAT_STRING)
         .ok()
         .and_then(|datetime| Local.from_local_datetime(&datetime).latest())
-        .map(|datetime| datetime.timestamp())
 }
 
 #[derive(Debug)]
 struct Backup {
     path: PathBuf,
-    timestamp: TimestampSecs,
+    datetime: DateTime<Local>,
+}
+
+impl Backup {
+    /// Serial day number
+    fn day(&self) -> i32 {
+        self.datetime.num_days_from_ce()
+    }
+
+    /// Serial week number, starting on Monday
+    fn week(&self) -> i32 {
+        // Day 1 (01/01/01) was a Monday, meaning week rolled over on Sunday (when day % 7 == 0).
+        // We subtract 1 to shift the rollover to Monday.
+        (self.day() - 1) / 7
+    }
+
+    /// Serial month number
+    fn month(&self) -> u32 {
+        self.datetime.year() as u32 * 12 + self.datetime.month()
+    }
 }
 
 impl Backup {
@@ -141,11 +145,107 @@ impl Backup {
         entry
             .file_name()
             .to_str()
-            .and_then(timestamp_from_file_name)
-            .map(|secs| Self {
+            .and_then(datetime_from_file_name)
+            .map(|datetime| Self {
                 path: entry.path(),
-                timestamp: TimestampSecs(secs),
+                datetime,
             })
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+struct BackupThinner {
+    yesterday: i32,
+    last_kept_day: i32,
+    last_kept_week: i32,
+    last_kept_month: u32,
+    limits: BackupLimits,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum BackupStage {
+    Daily,
+    Weekly,
+    Monthly,
+}
+
+impl BackupThinner {
+    fn new(limits: BackupLimits) -> Self {
+        Self {
+            yesterday: Local::today().num_days_from_ce() - 1,
+            last_kept_day: i32::MAX,
+            last_kept_week: i32::MAX,
+            last_kept_month: u32::MAX,
+            limits,
+        }
+    }
+
+    fn thin(mut self, backups: impl Iterator<Item = Backup>) {
+        use BackupStage::*;
+        for backup in backups
+            .sorted_unstable_by_key(|b| b.datetime.timestamp())
+            .rev()
+        {
+            if self.is_recent(&backup) {
+                continue;
+            } else if self.remaining(Daily) {
+                self.keep_or_delete(Daily, &backup);
+            } else if self.remaining(Weekly) {
+                self.keep_or_delete(Weekly, &backup);
+            } else if self.remaining(Monthly) {
+                self.keep_or_delete(Monthly, &backup);
+            } else {
+                self.delete(&backup);
+            }
+        }
+    }
+
+    fn is_recent(self, backup: &Backup) -> bool {
+        backup.day() >= self.yesterday
+    }
+
+    fn remaining(self, stage: BackupStage) -> bool {
+        match stage {
+            BackupStage::Daily => self.limits.daily > 0,
+            BackupStage::Weekly => self.limits.weekly > 0,
+            BackupStage::Monthly => self.limits.monthly > 0,
+        }
+    }
+
+    fn keep_or_delete(&mut self, stage: BackupStage, backup: &Backup) {
+        let keep = match stage {
+            BackupStage::Daily => backup.day() < self.last_kept_day,
+            BackupStage::Weekly => backup.week() < self.last_kept_week,
+            BackupStage::Monthly => backup.month() < self.last_kept_month,
+        };
+        if keep {
+            self.keep(stage, backup);
+        } else {
+            self.delete(backup);
+        }
+    }
+
+    /// Adjusts limits as per the stage of the kept backup.
+    fn keep(&mut self, stage: BackupStage, backup: &Backup) {
+        match stage {
+            BackupStage::Daily => {
+                self.limits.daily -= 1;
+                self.last_kept_day = backup.day();
+            }
+            BackupStage::Weekly => {
+                self.limits.weekly -= 1;
+                self.last_kept_week = backup.week();
+            }
+            BackupStage::Monthly => {
+                self.limits.monthly -= 1;
+                self.last_kept_month = backup.month();
+            }
+        }
+    }
+
+    /// Tries to delete the [Backup], discarding any errors.
+    fn delete(&mut self, backup: &Backup) {
+        let _ = remove_file(&backup.path);
     }
 }
 

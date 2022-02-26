@@ -43,6 +43,7 @@ pub(crate) enum ConfigKey {
     FirstDayOfWeek,
     LocalOffset,
     Rollover,
+    BackupLimits,
 
     #[strum(to_string = "timeLim")]
     AnswerTimeLimitSecs,
@@ -262,6 +263,11 @@ impl Collection {
         self.set_config(ConfigKey::LastUnburiedDay, &day)
             .map(|_| ())
     }
+
+    pub(crate) fn get_backup_limits(&self) -> BackupLimits {
+        self.get_config_optional(ConfigKey::BackupLimits)
+            .unwrap_or_default()
+    }
 }
 
 // 2021 scheduler moves this into deck config
@@ -284,6 +290,27 @@ pub(crate) enum Weekday {
     Monday = 1,
     Friday = 5,
     Saturday = 6,
+}
+
+#[derive(Debug, Clone, Copy, serde_derive::Deserialize, serde_derive::Serialize)]
+pub struct BackupLimits {
+    #[serde(rename = "d")]
+    pub daily: u32,
+    #[serde(rename = "w")]
+    pub weekly: u32,
+    #[serde(rename = "m")]
+    pub monthly: u32,
+}
+
+impl Default for BackupLimits {
+    fn default() -> Self {
+        // 2d + 12d + 10w + 9m ≈ 1y
+        Self {
+            daily: 12,
+            weekly: 10,
+            monthly: 9,
+        }
+    }
 }
 
 #[cfg(test)]
