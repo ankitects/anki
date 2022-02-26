@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Generator, Sequence, Union
 
 import aqt
+import aqt.browser
 from anki.cards import CardId
 from anki.collection import BrowserColumns as Columns
 from anki.collection import BrowserRow

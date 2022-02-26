@@ -106,7 +106,7 @@ class Previewer(QDialog):
 
     def _on_finished(self, ok: int) -> None:
         saveGeom(self, "preview")
-        self.mw.progress.timer(100, self._on_close, False)
+        self.mw.progress.single_shot(100, self._on_close)
 
     def _on_replay_audio(self) -> None:
         if self._state == "question":
@@ -156,7 +156,7 @@ class Previewer(QDialog):
         delay = 300
         if elap_ms < delay:
             self._timer = self.mw.progress.timer(
-                delay - elap_ms, self._render_scheduled, False
+                delay - elap_ms, self._render_scheduled, False, parent=self
             )
         else:
             self._render_scheduled()

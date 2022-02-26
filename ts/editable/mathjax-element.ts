@@ -15,6 +15,14 @@ const mathjaxTagPattern =
 const mathjaxBlockDelimiterPattern = /\\\[(.*?)\\\]/gsu;
 const mathjaxInlineDelimiterPattern = /\\\((.*?)\\\)/gsu;
 
+/**
+ * If the user enters the Mathjax with delimiters, "<" and ">" will
+ * be first translated to entities.
+ */
+function translateEntitiesToMathjax(value: string) {
+    return value.replace(/&lt;/g, "{\\lt}").replace(/&gt;/g, "{\\gt}");
+}
+
 export const Mathjax: DecoratedElementConstructor = class Mathjax
     extends HTMLElement
     implements DecoratedElement
@@ -22,7 +30,7 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
     static tagName = "anki-mathjax";
 
     static toStored(undecorated: string): string {
-        return undecorated.replace(
+        const stored = undecorated.replace(
             mathjaxTagPattern,
             (_match: string, block: string | undefined, text: string) => {
                 return typeof block === "string" && block !== "false"
@@ -30,20 +38,20 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
                     : `\\(${text}\\)`;
             },
         );
+
+        return stored;
     }
 
     static toUndecorated(stored: string): string {
         return stored
-            .replace(
-                mathjaxBlockDelimiterPattern,
-                (_match: string, text: string) =>
-                    `<${Mathjax.tagName} block="true">${text}</${Mathjax.tagName}>`,
-            )
-            .replace(
-                mathjaxInlineDelimiterPattern,
-                (_match: string, text: string) =>
-                    `<${Mathjax.tagName}>${text}</${Mathjax.tagName}>`,
-            );
+            .replace(mathjaxBlockDelimiterPattern, (_match: string, text: string) => {
+                const escaped = translateEntitiesToMathjax(text);
+                return `<${Mathjax.tagName} block="true">${escaped}</${Mathjax.tagName}>`;
+            })
+            .replace(mathjaxInlineDelimiterPattern, (_match: string, text: string) => {
+                const escaped = translateEntitiesToMathjax(text);
+                return `<${Mathjax.tagName}>${escaped}</${Mathjax.tagName}>`;
+            });
     }
 
     block = false;
@@ -76,6 +84,9 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
                 break;
 
             case "data-mathjax":
+                if (!newValue) {
+                    return;
+                }
                 this.component?.$set({ mathjax: newValue });
                 break;
         }

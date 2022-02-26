@@ -85,6 +85,6 @@ rust_library(
         "@raze__crossbeam_channel__0_5_2//:crossbeam_channel",
         "@raze__slog__2_7_0//:slog",
         "@raze__take_mut__0_2_2//:take_mut",
-        "@raze__thread_local__1_1_3//:thread_local",
+        "@raze__thread_local__1_1_4//:thread_local",
     ],
 )

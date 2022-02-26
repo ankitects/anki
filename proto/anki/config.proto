@@ -40,6 +40,7 @@ message ConfigKey {
     PASTE_IMAGES_AS_PNG = 15;
     PASTE_STRIPS_FORMATTING = 16;
     NORMALIZE_NOTE_TEXT = 17;
+    IGNORE_ACCENTS_IN_SEARCH = 18;
   }
   enum String {
     SET_DUE_BROWSER = 0;
@@ -110,6 +111,7 @@ message Preferences {
     bool paste_images_as_png = 2;
     bool paste_strips_formatting = 3;
     string default_search_text = 4;
+    bool ignore_accents_in_search = 5;
   }
 
   Scheduling scheduling = 1;

@@ -31,9 +31,9 @@ impl Collection {
                     changes
                 } else {
                     self.clear_study_queues();
-                    // dummy value for transact_no_undo() case
+                    // dummy value that will be discarded
                     OpChanges {
-                        op: Op::SetFlag,
+                        op: Op::SkipUndo,
                         changes: StateChanges::default(),
                     }
                 };

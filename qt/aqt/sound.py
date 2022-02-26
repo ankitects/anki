@@ -19,6 +19,8 @@ from typing import Any, Callable, cast
 from markdown import markdown
 
 import aqt
+import aqt.mpv
+import aqt.qt
 from anki import hooks
 from anki.cards import Card
 from anki.sound import AV_REF_RE, AVTag, SoundOrVideoTag

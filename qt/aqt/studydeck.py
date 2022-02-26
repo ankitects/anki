@@ -1,9 +1,13 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Optional
+from __future__ import annotations
+
+from typing import Callable
 
 import aqt
+import aqt.forms
+import aqt.operations
 from anki.collection import OpChangesWithId
 from anki.decks import DeckId
 from aqt import gui_hooks
@@ -26,24 +30,25 @@ class StudyDeck(QDialog):
     def __init__(
         self,
         mw: aqt.AnkiQt,
-        names: Callable = None,
-        accept: str = None,
-        title: str = None,
+        names: Callable[[], list[str]] | None = None,
+        accept: str | None = None,
+        title: str | None = None,
         help: HelpPageArgument = HelpPage.KEYBOARD_SHORTCUTS,
-        current: Optional[str] = None,
+        current: str | None = None,
         cancel: bool = True,
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
         dyn: bool = False,
-        buttons: Optional[list[Union[str, QPushButton]]] = None,
+        buttons: list[str | QPushButton] | None = None,
         geomKey: str = "default",
-        callback: Union[Callable, None] = None,
+        callback: Callable[[StudyDeck], None] | None = None,
     ) -> None:
-        QDialog.__init__(self, parent or mw)
+        super().__init__(parent)
+        if not parent:
+            mw.garbage_collect_on_dialog_finish(self)
         self.mw = mw
         self.form = aqt.forms.studydeck.Ui_Dialog()
         self.form.setupUi(self)
         self.form.filter.installEventFilter(self)
-        self.cancel = cancel
         gui_hooks.state_did_reset.append(self.onReset)
         self.geomKey = f"studyDeck-{geomKey}"
         restoreGeom(self, self.geomKey)
@@ -77,14 +82,15 @@ class StudyDeck(QDialog):
         else:
             self.nameFunc = names
             self.origNames = names()
-        self.name: Optional[str] = None
-        self.ok = self.form.buttonBox.addButton(
+        self.name: str | None = None
+        self.form.buttonBox.addButton(
             accept or tr.decks_study(), QDialogButtonBox.ButtonRole.AcceptRole
         )
         self.setModal(True)
         qconnect(self.form.buttonBox.helpRequested, lambda: openHelp(help))
         qconnect(self.form.filter.textEdited, self.redraw)
         qconnect(self.form.list.itemDoubleClicked, self.accept)
+        qconnect(self.finished, self.on_finished)
         self.show()
         # redraw after show so position at center correct
         self.redraw("", current)
@@ -119,7 +125,7 @@ class StudyDeck(QDialog):
                 return True
         return False
 
-    def redraw(self, filt: str, focus: Optional[str] = None) -> None:
+    def redraw(self, filt: str, focus: str | None = None) -> None:
         self.filt = filt
         self.focus = focus
         self.names = [n for n in self.origNames if self._matches(n, filt)]
@@ -150,21 +156,17 @@ class StudyDeck(QDialog):
         self.redraw(self.filt, self.focus)
 
     def accept(self) -> None:
-        saveGeom(self, self.geomKey)
-        gui_hooks.state_did_reset.remove(self.onReset)
         row = self.form.list.currentRow()
         if row < 0:
             showInfo(tr.decks_please_select_something())
             return
         self.name = self.names[self.form.list.currentRow()]
+        self.accept_with_callback()
+
+    def accept_with_callback(self) -> None:
         if self.callback:
             self.callback(self)
-        QDialog.accept(self)
-
-    def reject(self) -> None:
-        saveGeom(self, self.geomKey)
-        gui_hooks.state_did_reset.remove(self.onReset)
-        QDialog.reject(self)
+        super().accept()
 
     def onAddDeck(self) -> None:
         row = self.form.list.currentRow()
@@ -176,11 +178,11 @@ class StudyDeck(QDialog):
         def success(out: OpChangesWithId) -> None:
             deck = self.mw.col.decks.get(DeckId(out.id))
             self.name = deck["name"]
-
-            # make sure we clean up reset hook when manually exiting
-            gui_hooks.state_did_reset.remove(self.onReset)
-
-            QDialog.accept(self)
+            self.accept_with_callback()
 
         if diag := add_deck_dialog(parent=self, default_text=default):
             diag.success(success).run_in_background()
+
+    def on_finished(self) -> None:
+        saveGeom(self, self.geomKey)
+        gui_hooks.state_did_reset.remove(self.onReset)

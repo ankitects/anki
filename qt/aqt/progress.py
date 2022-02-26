@@ -5,6 +5,7 @@ from __future__ import annotations
 import time
 
 import aqt.forms
+from anki._legacy import print_deprecation_warning
 from aqt.qt import *
 from aqt.utils import disable_help_button, tr
 
@@ -25,13 +26,19 @@ class ProgressManager:
 
     # Safer timers
     ##########################################################################
-    # A custom timer which avoids firing while a progress dialog is active
+    # Custom timers which avoid firing while a progress dialog is active
     # (likely due to some long-running DB operation)
 
     def timer(
-        self, ms: int, func: Callable, repeat: bool, requiresCollection: bool = True
+        self,
+        ms: int,
+        func: Callable,
+        repeat: bool,
+        requiresCollection: bool = True,
+        *,
+        parent: QObject = None,
     ) -> QTimer:
-        """Create and start a standard Anki timer.
+        """Create and start a standard Anki timer. For an alternative see `single_shot()`.
 
         If the timer fires while a progress window is shown:
         - if it is a repeating timer, it will wait the same delay again
@@ -40,10 +47,65 @@ class ProgressManager:
         If requiresCollection is True, the timer will not fire if the
         collection has been unloaded. Setting it to False will allow the
         timer to fire even when there is no collection, but will still
-        only fire when there is no current progress dialog."""
+        only fire when there is no current progress dialog.
 
+
+        Issues and alternative
+        ---
+        The created timer will only be destroyed when `parent` is destroyed.
+        This can cause memory leaks, because anything captured by `func` isn't freed either.
+        If there is no QObject that will get destroyed reasonably soon, and you have to
+        pass `mw`, you should call `deleteLater()` on the returned QTimer as soon as
+        it's served its purpose, or use `single_shot()`.
+
+        Also note that you may not be able to pass an adequate parent, if you want to
+        make a callback after a widget closes. If you passed that widget, the timer
+        would get destroyed before it could fire.
+        """
+
+        if parent is None:
+            print_deprecation_warning(
+                "to avoid memory leaks, pass an appropriate parent to progress.timer()"
+                " or use progress.single_shot()"
+            )
+            parent = self.mw
+
+        qtimer = QTimer(parent)
+        if not repeat:
+            qtimer.setSingleShot(True)
+        qconnect(qtimer.timeout, self._get_handler(func, repeat, requiresCollection))
+        qtimer.start(ms)
+        return qtimer
+
+    def single_shot(
+        self,
+        ms: int,
+        func: Callable[[], None],
+        requires_collection: bool = True,
+    ) -> None:
+        """Create and start a one-off Anki timer. For an alternative and more
+        documentation, see `timer()`.
+
+
+        Issues and alternative
+        ---
+        `single_shot()` cleans itself up, so a passed closure won't leak any memory.
+        However, if `func` references a QObject other than `mw`, which gets deleted before the
+        timer fires, an Exception is raised. To avoid this, either use `timer()` passing
+        that object as the parent, or check in `func` with `sip.isdeleted(object)` if
+        it still exists.
+
+        On the other hand, if a widget is supposed to make an external callback after it closes,
+        you likely want to use `single_shot()`, which will fire even if the calling
+        widget is already destroyed.
+        """
+        QTimer.singleShot(ms, self._get_handler(func, False, requires_collection))
+
+    def _get_handler(
+        self, func: Callable[[], None], repeat: bool, requires_collection: bool
+    ) -> Callable[[], None]:
         def handler() -> None:
-            if requiresCollection and not self.mw.col:
+            if requires_collection and not self.mw.col:
                 # no current collection; timer is no longer valid
                 print(f"Ignored progress func as collection unloaded: {repr(func)}")
                 return
@@ -57,14 +119,9 @@ class ProgressManager:
                     pass
                 else:
                     # retry in 100ms
-                    self.timer(100, func, False, requiresCollection)
+                    self.single_shot(100, func, requires_collection)
 
-        t = QTimer(self.mw)
-        if not repeat:
-            t.setSingleShot(True)
-        qconnect(t.timeout, handler)
-        t.start(ms)
-        return t
+        return handler
 
     # Creating progress dialogs
     ##########################################################################

@@ -22,6 +22,8 @@ import requests
 from bs4 import BeautifulSoup
 
 import aqt
+import aqt.forms
+import aqt.operations
 import aqt.sound
 from anki._legacy import deprecated
 from anki.cards import Card
@@ -121,6 +123,7 @@ class Editor:
         self.last_field_index: int | None = None
         # current card, for card layout
         self.card: Card | None = None
+        self._init_links()
         self.setupOuter()
         self.setupWeb()
         self.setupShortcuts()
@@ -392,7 +395,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 if gui_hooks.editor_did_unfocus_field(False, self.note, ord):
                     # something updated the note; update it after a subsequent focus
                     # event has had time to fire
-                    self.mw.progress.timer(100, self.loadNoteKeepingFocus, False)
+                    self.mw.progress.timer(
+                        100, self.loadNoteKeepingFocus, False, parent=self.widget
+                    )
                 else:
                     self._check_and_update_duplicate_display_async()
             else:
@@ -455,7 +460,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                 self._save_current_note()
 
         elif cmd in self._links:
-            self._links[cmd](self)
+            return self._links[cmd](self)
 
         else:
             print("uncaught cmd", cmd)
@@ -547,7 +552,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         "Save unsaved edits then call callback()."
         if not self.note:
             # calling code may not expect the callback to fire immediately
-            self.mw.progress.timer(10, callback, False)
+            self.mw.progress.single_shot(10, callback)
             return
         self.web.evalWithCallback("saveNow(%d)" % keepFocus, lambda res: callback())
 
@@ -698,16 +703,21 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             filter=filter,
             key="media",
         )
+
         self.parentWindow.activateWindow()
 
     def addMedia(self, path: str, canDelete: bool = False) -> None:
         """canDelete is a legacy arg and is ignored."""
+
         try:
             html = self._addMedia(path)
         except Exception as e:
             showWarning(str(e))
             return
-        self.web.eval(f"setFormat('inserthtml', {json.dumps(html)});")
+
+        self.web.eval(
+            f'require("anki/TemplateButtons").mediaResolve({json.dumps(html)})'
+        )
 
     def _addMedia(self, path: str, canDelete: bool = False) -> str:
         """Add to media folder and return local img or sound tag."""
@@ -1102,29 +1112,30 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     # Links from HTML
     ######################################################################
 
-    _links: dict[str, Callable] = dict(
-        fields=onFields,
-        cards=onCardLayout,
-        bold=toggleBold,
-        italic=toggleItalic,
-        underline=toggleUnderline,
-        super=toggleSuper,
-        sub=toggleSub,
-        clear=removeFormat,
-        colour=onForeground,
-        changeCol=onChangeCol,
-        cloze=onCloze,
-        attach=onAddMedia,
-        record=onRecSound,
-        more=onAdvanced,
-        dupes=showDupes,
-        paste=onPaste,
-        cutOrCopy=onCutOrCopy,
-        htmlEdit=onHtmlEdit,
-        mathjaxInline=insertMathjaxInline,
-        mathjaxBlock=insertMathjaxBlock,
-        mathjaxChemistry=insertMathjaxChemistry,
-    )
+    def _init_links(self) -> None:
+        self._links: dict[str, Callable] = dict(
+            fields=Editor.onFields,
+            cards=Editor.onCardLayout,
+            bold=Editor.toggleBold,
+            italic=Editor.toggleItalic,
+            underline=Editor.toggleUnderline,
+            super=Editor.toggleSuper,
+            sub=Editor.toggleSub,
+            clear=Editor.removeFormat,
+            colour=Editor.onForeground,
+            changeCol=Editor.onChangeCol,
+            cloze=Editor.onCloze,
+            attach=Editor.onAddMedia,
+            record=Editor.onRecSound,
+            more=Editor.onAdvanced,
+            dupes=Editor.showDupes,
+            paste=Editor.onPaste,
+            cutOrCopy=Editor.onCutOrCopy,
+            htmlEdit=Editor.onHtmlEdit,
+            mathjaxInline=Editor.insertMathjaxInline,
+            mathjaxBlock=Editor.insertMathjaxBlock,
+            mathjaxChemistry=Editor.insertMathjaxChemistry,
+        )
 
 
 # Pasting, drag & drop, and keyboard layouts

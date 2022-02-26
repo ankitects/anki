@@ -7,7 +7,10 @@ import json
 from typing import Callable, Sequence
 
 import aqt
+import aqt.browser
+import aqt.editor
 import aqt.forms
+import aqt.operations
 from anki._legacy import deprecated
 from anki.cards import Card, CardId
 from anki.collection import Collection, Config, OpChanges, SearchNode
@@ -133,9 +136,9 @@ class Browser(QMainWindow):
         self.on_undo_state_change(mw.undo_actions_info())
         # legacy alias
         self.model = MockModel(self)
+        self.setupSearch(card, search)
         gui_hooks.browser_will_show(self)
         self.show()
-        self.setupSearch(card, search)
 
     def on_operation_did_execute(
         self, changes: OpChanges, handler: object | None
@@ -175,6 +178,7 @@ class Browser(QMainWindow):
     def setupMenus(self) -> None:
         # actions
         f = self.form
+
         # edit
         qconnect(f.actionUndo.triggered, self.undo)
         qconnect(f.actionRedo.triggered, self.redo)
@@ -184,6 +188,22 @@ class Browser(QMainWindow):
             f.actionClose.setVisible(False)
         qconnect(f.actionCreateFilteredDeck.triggered, self.createFilteredDeck)
         f.actionCreateFilteredDeck.setShortcuts(["Ctrl+G", "Ctrl+Alt+G"])
+
+        # view
+        qconnect(f.actionFullScreen.triggered, self.mw.on_toggle_full_screen)
+        qconnect(
+            f.actionZoomIn.triggered,
+            lambda: self.editor.web.setZoomFactor(self.editor.web.zoomFactor() + 0.1),
+        )
+        qconnect(
+            f.actionZoomOut.triggered,
+            lambda: self.editor.web.setZoomFactor(self.editor.web.zoomFactor() - 0.1),
+        )
+        qconnect(
+            f.actionResetZoom.triggered,
+            lambda: self.editor.web.setZoomFactor(1),
+        )
+
         # notes
         qconnect(f.actionAdd.triggered, self.mw.onAddCard)
         qconnect(f.actionCopy.triggered, self.on_create_copy)
@@ -196,6 +216,7 @@ class Browser(QMainWindow):
         qconnect(f.actionFindReplace.triggered, self.onFindReplace)
         qconnect(f.actionManage_Note_Types.triggered, self.mw.onNoteTypes)
         qconnect(f.actionDelete.triggered, self.delete_selected_notes)
+
         # cards
         qconnect(f.actionChange_Deck.triggered, self.set_deck_of_selected_cards)
         qconnect(f.action_Info.triggered, self.showCardInfo)
@@ -213,6 +234,7 @@ class Browser(QMainWindow):
             )
         self._update_flag_labels()
         qconnect(f.actionExport.triggered, self._on_export_notes)
+
         # jumps
         qconnect(f.actionPreviousCard.triggered, self.onPreviousCard)
         qconnect(f.actionNextCard.triggered, self.onNextCard)
@@ -222,13 +244,16 @@ class Browser(QMainWindow):
         qconnect(f.actionNote.triggered, self.onNote)
         qconnect(f.actionSidebar.triggered, self.focusSidebar)
         qconnect(f.actionCardList.triggered, self.onCardList)
+
         # help
         qconnect(f.actionGuide.triggered, self.onHelp)
+
         # keyboard shortcut for shift+home/end
         self.pgUpCut = QShortcut(QKeySequence("Shift+Home"), self)
         qconnect(self.pgUpCut.activated, self.onFirstCard)
         self.pgDownCut = QShortcut(QKeySequence("Shift+End"), self)
         qconnect(self.pgDownCut.activated, self.onLastCard)
+
         # add-on hook
         gui_hooks.browser_menus_did_init(self)
         self.mw.maybeHideAccelerators(self)
@@ -535,7 +560,7 @@ class Browser(QMainWindow):
 
         # schedule sidebar to refresh after browser window has loaded, so the
         # UI is more responsive
-        self.mw.progress.timer(10, self.sidebar.refresh, False)
+        self.mw.progress.timer(10, self.sidebar.refresh, False, parent=self.sidebar)
 
     def showSidebar(self) -> None:
         self.sidebarDockWidget.setVisible(True)
@@ -872,7 +897,7 @@ class Browser(QMainWindow):
     def teardownHooks(self) -> None:
         gui_hooks.undo_state_did_change.remove(self.on_undo_state_change)
         gui_hooks.backend_will_block.remove(self.table.on_backend_will_block)
-        gui_hooks.backend_did_block.remove(self.table.on_backend_will_block)
+        gui_hooks.backend_did_block.remove(self.table.on_backend_did_block)
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         gui_hooks.focus_did_change.remove(self.on_focus_change)
         gui_hooks.flag_label_did_change.remove(self._update_flag_labels)

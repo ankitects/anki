@@ -18,6 +18,9 @@ impl CardStateUpdater {
         self.card.ctype = CardType::Relearn;
         self.card.lapses = next.review.lapses;
         self.card.ease_factor = (next.review.ease_factor * 1000.0).round() as u16;
+        if let Some(position) = current.new_position() {
+            self.card.original_position = Some(position)
+        }
 
         let interval = next
             .interval_kind()

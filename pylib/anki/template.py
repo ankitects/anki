@@ -32,12 +32,13 @@ from dataclasses import dataclass
 from typing import Any, Sequence, Union
 
 import anki
+import anki.cards
+import anki.collection
+import anki.notes
 from anki import card_rendering_pb2, hooks
-from anki.cards import Card
 from anki.decks import DeckManager
 from anki.errors import TemplateError
 from anki.models import NotetypeDict
-from anki.notes import Note
 from anki.sound import AVTag, SoundOrVideoTag, TTSTag
 from anki.utils import to_json_bytes
 
@@ -116,14 +117,16 @@ class TemplateRenderContext:
     using the _private fields directly."""
 
     @staticmethod
-    def from_existing_card(card: Card, browser: bool) -> TemplateRenderContext:
+    def from_existing_card(
+        card: anki.cards.Card, browser: bool
+    ) -> TemplateRenderContext:
         return TemplateRenderContext(card.col, card, card.note(), browser)
 
     @classmethod
     def from_card_layout(
         cls,
-        note: Note,
-        card: Card,
+        note: anki.notes.Note,
+        card: anki.cards.Card,
         notetype: NotetypeDict,
         template: dict,
         fill_empty: bool,
@@ -140,8 +143,8 @@ class TemplateRenderContext:
     def __init__(
         self,
         col: anki.collection.Collection,
-        card: Card,
-        note: Note,
+        card: anki.cards.Card,
+        note: anki.notes.Note,
         browser: bool = False,
         notetype: NotetypeDict = None,
         template: dict | None = None,
@@ -188,14 +191,14 @@ class TemplateRenderContext:
 
         return self._fields
 
-    def card(self) -> Card:
+    def card(self) -> anki.cards.Card:
         """Returns the card being rendered.
 
         Be careful not to call .question() or .answer() on the card, or you'll create an
         infinite loop."""
         return self._card
 
-    def note(self) -> Note:
+    def note(self) -> anki.notes.Note:
         return self._note
 
     def note_type(self) -> NotetypeDict:
@@ -281,7 +284,7 @@ class TemplateRenderOutput:
 
 
 # legacy
-def templates_for_card(card: Card, browser: bool) -> tuple[str, str]:
+def templates_for_card(card: anki.cards.Card, browser: bool) -> tuple[str, str]:
     template = card.template()
     if browser:
         question, answer = template.get("bqfmt"), template.get("bafmt")
@@ -317,7 +320,7 @@ def apply_custom_filters(
                     field_text, node.field_name, filter_name, ctx
                 )
                 # legacy hook - the second and fifth argument are no longer used.
-                field_text = anki.hooks.runFilter(
+                field_text = hooks.runFilter(
                     f"fmod_{filter_name}",
                     field_text,
                     "",

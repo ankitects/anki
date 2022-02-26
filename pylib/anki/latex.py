@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from typing import Any
 
 import anki
+import anki.collection
 from anki import card_rendering_pb2, hooks
 from anki.models import NotetypeDict
 from anki.template import TemplateRenderContext, TemplateRenderOutput

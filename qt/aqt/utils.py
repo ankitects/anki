@@ -537,7 +537,9 @@ def ensureWidgetInScreenBoundaries(widget: QWidget) -> None:
     handle = widget.window().windowHandle()
     if not handle:
         # window has not yet been shown, retry later
-        aqt.mw.progress.timer(50, lambda: ensureWidgetInScreenBoundaries(widget), False)
+        aqt.mw.progress.timer(
+            50, lambda: ensureWidgetInScreenBoundaries(widget), False, parent=widget
+        )
         return
 
     # ensure widget is smaller than screen bounds
@@ -745,7 +747,7 @@ def tooltip(
     lab.move(aw.mapToGlobal(QPoint(0 + x_offset, aw.height() - y_offset)))
     lab.show()
     _tooltipTimer = aqt.mw.progress.timer(
-        period, closeTooltip, False, requiresCollection=False
+        period, closeTooltip, False, requiresCollection=False, parent=aw
     )
     _tooltipLabel = lab
 
@@ -755,12 +757,15 @@ def closeTooltip() -> None:
     if _tooltipLabel:
         try:
             _tooltipLabel.deleteLater()
-        except:
+        except RuntimeError:
             # already deleted as parent window closed
             pass
         _tooltipLabel = None
     if _tooltipTimer:
-        _tooltipTimer.stop()
+        try:
+            _tooltipTimer.deleteLater()
+        except RuntimeError:
+            pass
         _tooltipTimer = None
 
 

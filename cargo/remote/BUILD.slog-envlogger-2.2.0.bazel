@@ -64,7 +64,7 @@ rust_library(
         "@raze__slog_async__2_7_0//:slog_async",
         "@raze__slog_scope__4_4_0//:slog_scope",
         "@raze__slog_stdlog__4_1_0//:slog_stdlog",
-        "@raze__slog_term__2_8_0//:slog_term",
+        "@raze__slog_term__2_9_0//:slog_term",
     ],
 )
 

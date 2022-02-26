@@ -8,55 +8,87 @@ import { bridgeCommand } from "../lib/bridgecommand";
 import { on, preventDefault } from "../lib/events";
 import { isApplePlatform } from "../lib/platform";
 import { registerShortcut } from "../lib/shortcuts";
+import type { Callback } from "../lib/typing";
+import { HandlerList } from "../sveltelib/handler-list";
 
+/**
+ * Workaround: If you try to invoke an IME after calling
+ * `placeCaretAfterContent` on a cE element, the IME will immediately
+ * end and the input character will be duplicated
+ */
 function safePlaceCaretAfterContent(editable: HTMLElement): void {
-    /**
-     * Workaround: If you try to invoke an IME after calling
-     * `placeCaretAfterContent` on a cE element, the IME will immediately
-     * end and the input character will be duplicated
-     */
     placeCaretAfterContent(editable);
     restoreSelection(editable, saveSelection(editable)!);
 }
 
-function onFocus(location: SelectionLocation | null): () => void {
-    return function (this: HTMLElement): void {
-        if (!location) {
-            safePlaceCaretAfterContent(this);
-            return;
-        }
-
-        try {
-            restoreSelection(this, location);
-        } catch {
-            safePlaceCaretAfterContent(this);
-        }
-    };
-}
-
-interface CustomFocusHandlingAPI {
-    setupFocusHandling(element: HTMLElement): { destroy(): void };
-    flushCaret(): void;
-}
-
-export function customFocusHandling(): CustomFocusHandlingAPI {
-    const focusHandlingEvents: (() => void)[] = [];
-
-    function flushEvents(): void {
-        let removeEvent: (() => void) | undefined;
-
-        while ((removeEvent = focusHandlingEvents.pop())) {
-            removeEvent();
-        }
+function restoreCaret(element: HTMLElement, location: SelectionLocation | null): void {
+    if (!location) {
+        return safePlaceCaretAfterContent(element);
     }
+
+    try {
+        restoreSelection(element, location);
+    } catch {
+        safePlaceCaretAfterContent(element);
+    }
+}
+
+type SetupFocusHandlerAction = (element: HTMLElement) => { destroy(): void };
+
+export interface FocusHandlerAPI {
+    /**
+     * Prevent the automatic caret restoration, that happens upon field focus
+     */
+    flushCaret(): void;
+    /**
+     * Executed upon focus event of editable.
+     */
+    focus: HandlerList<{ event: FocusEvent }>;
+}
+
+export function useFocusHandler(): [FocusHandlerAPI, SetupFocusHandlerAction] {
+    let latestLocation: SelectionLocation | null = null;
+    let offFocus: Callback | null;
+    let offPointerDown: Callback | null;
+    let flush = false;
+
+    function flushCaret(): void {
+        flush = true;
+    }
+
+    const focus = new HandlerList<{ event: FocusEvent }>();
 
     function prepareFocusHandling(
         editable: HTMLElement,
-        latestLocation: SelectionLocation | null = null,
+        location: SelectionLocation | null = null,
     ): void {
-        const off = on(editable, "focus", onFocus(latestLocation), { once: true });
+        latestLocation = location;
 
-        focusHandlingEvents.push(off, on(editable, "pointerdown", off, { once: true }));
+        offFocus?.();
+        offFocus = on(
+            editable,
+            "focus",
+            (event: FocusEvent): void => {
+                if (flush) {
+                    flush = false;
+                } else {
+                    restoreCaret(event.currentTarget as HTMLElement, latestLocation);
+                }
+
+                focus.dispatch({ event });
+            },
+            { once: true },
+        );
+        offPointerDown?.();
+        offPointerDown = on(
+            editable,
+            "pointerdown",
+            () => {
+                offFocus?.();
+                offFocus = null;
+            },
+            { once: true },
+        );
     }
 
     /**
@@ -66,29 +98,33 @@ export function customFocusHandling(): CustomFocusHandlingAPI {
         prepareFocusHandling(this, saveSelection(this));
     }
 
-    function setupFocusHandling(editable: HTMLElement): { destroy(): void } {
+    function setupFocusHandler(editable: HTMLElement): { destroy(): void } {
         prepareFocusHandling(editable);
         const off = on(editable, "blur", onBlur);
 
         return {
             destroy() {
-                flushEvents();
                 off();
+                offFocus?.();
+                offPointerDown?.();
             },
         };
     }
 
-    return {
-        setupFocusHandling,
-        flushCaret: flushEvents,
-    };
+    return [
+        {
+            flushCaret,
+            focus,
+        },
+        setupFocusHandler,
+    ];
 }
 
 if (isApplePlatform()) {
     registerShortcut(() => bridgeCommand("paste"), "Control+Shift+V");
 }
 
-export function preventBuiltinContentEditableShortcuts(editable: HTMLElement): void {
+export function preventBuiltinShortcuts(editable: HTMLElement): void {
     for (const keyCombination of ["Control+B", "Control+U", "Control+I"]) {
         registerShortcut(preventDefault, keyCombination, editable);
     }
@@ -102,5 +138,5 @@ export interface ContentEditableAPI {
      * the ContentEditable. Can be used when you want to set the caret
      * yourself.
      */
-    flushCaret(): void;
+    focusHandler: FocusHandlerAPI;
 }

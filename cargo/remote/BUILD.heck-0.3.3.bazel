@@ -50,6 +50,6 @@ rust_library(
     version = "0.3.3",
     # buildifier: leave-alone
     deps = [
-        "@raze__unicode_segmentation__1_8_0//:unicode_segmentation",
+        "@raze__unicode_segmentation__1_9_0//:unicode_segmentation",
     ],
 )

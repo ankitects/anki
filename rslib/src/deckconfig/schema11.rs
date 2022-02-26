@@ -54,6 +54,8 @@ pub struct DeckConfSchema11 {
     new_sort_order: i32,
     #[serde(default)]
     new_gather_priority: i32,
+    #[serde(default)]
+    bury_interday_learning: bool,
 
     #[serde(flatten)]
     other: HashMap<String, Value>,
@@ -243,6 +245,7 @@ impl Default for DeckConfSchema11 {
             review_order: 0,
             new_sort_order: 0,
             new_gather_priority: 0,
+            bury_interday_learning: false,
         }
     }
 }
@@ -310,6 +313,7 @@ impl From<DeckConfSchema11> for DeckConfig {
                 skip_question_when_replaying_answer: !c.replayq,
                 bury_new: c.new.bury,
                 bury_reviews: c.rev.bury,
+                bury_interday_learning: c.bury_interday_learning,
                 other: other_bytes,
             },
         }
@@ -397,6 +401,7 @@ impl From<DeckConfig> for DeckConfSchema11 {
             review_order: i.review_order,
             new_sort_order: i.new_card_sort_order,
             new_gather_priority: i.new_card_gather_priority,
+            bury_interday_learning: i.bury_interday_learning,
         }
     }
 }
@@ -416,6 +421,7 @@ fn clear_other_duplicates(top_other: &mut HashMap<String, Value>) {
         "reviewOrder",
         "newSortOrder",
         "newGatherPriority",
+        "buryInterdayLearning",
     ] {
         top_other.remove(*key);
     }

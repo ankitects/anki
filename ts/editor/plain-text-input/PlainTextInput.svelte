@@ -3,17 +3,27 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import type { CodeMirror as CodeMirrorType } from "../code-mirror";
+    import { registerPackage } from "../../lib/runtime-require";
+    import lifecycleHooks from "../../sveltelib/lifecycle-hooks";
+    import type { CodeMirrorAPI } from "../CodeMirror.svelte";
     import type { EditingInputAPI } from "../EditingArea.svelte";
 
     export interface PlainTextInputAPI extends EditingInputAPI {
         name: "plain-text";
         moveCaretToEnd(): void;
         toggle(): boolean;
-        getEditor(): CodeMirrorType.Editor;
+        codeMirror: CodeMirrorAPI;
     }
 
     export const parsingInstructions: string[] = [];
+
+    const [lifecycle, instances, setupLifecycleHooks] =
+        lifecycleHooks<PlainTextInputAPI>();
+
+    registerPackage("anki/PlainTextInput", {
+        lifecycle,
+        instances,
+    });
 </script>
 
 <script lang="ts">
@@ -22,10 +32,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { pageTheme } from "../../sveltelib/theme";
     import { baseOptions, gutterOptions, htmlanki } from "../code-mirror";
-    import type { CodeMirrorAPI } from "../CodeMirror.svelte";
     import CodeMirror from "../CodeMirror.svelte";
     import { context as decoratedElementsContext } from "../DecoratedElements.svelte";
     import { context as editingAreaContext } from "../EditingArea.svelte";
+    import { context as noteEditorContext } from "../NoteEditor.svelte";
+    import removeProhibitedTags from "./remove-prohibited";
 
     export let hidden = false;
 
@@ -35,66 +46,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ...gutterOptions,
     };
 
+    const { focusedInput } = noteEditorContext.get();
+
     const { editingInputs, content } = editingAreaContext.get();
     const decoratedElements = decoratedElementsContext.get();
     const code = writable($content);
 
-    function adjustInputHTML(html: string): string {
-        for (const component of decoratedElements) {
-            html = component.toUndecorated(html);
-        }
-
-        return html;
-    }
-
-    const parser = new DOMParser();
-
-    function removeTag(element: HTMLElement, tagName: string): void {
-        for (const elem of element.getElementsByTagName(tagName)) {
-            elem.remove();
-        }
-    }
-
-    function createDummyDoc(html: string): string {
-        return (
-            "<html><head></head><body>" +
-            parsingInstructions.join("") +
-            html +
-            "</body>"
-        );
-    }
-
-    function parseAsHTML(html: string): string {
-        const doc = parser.parseFromString(createDummyDoc(html), "text/html");
-        const body = doc.body;
-
-        removeTag(body, "script");
-        removeTag(body, "link");
-        removeTag(body, "style");
-
-        return doc.body.innerHTML;
-    }
-
-    function adjustOutputHTML(html: string): string {
-        for (const component of decoratedElements) {
-            html = component.toStored(html);
-        }
-
-        return html;
-    }
-
-    let codeMirror: CodeMirrorAPI;
-
     function focus(): void {
-        codeMirror?.editor.focus();
+        codeMirror.editor.then((editor) => editor.focus());
     }
 
     function moveCaretToEnd(): void {
-        codeMirror?.editor.setCursor(codeMirror.editor.lineCount(), 0);
+        codeMirror.editor.then((editor) => editor.setCursor(editor.lineCount(), 0));
     }
 
     function refocus(): void {
-        (codeMirror?.editor as any).display.input.blur();
+        codeMirror.editor.then((editor) => (editor as any).display.input.blur());
         focus();
         moveCaretToEnd();
     }
@@ -104,9 +71,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return hidden;
     }
 
-    function getEditor(): CodeMirrorType.Editor {
-        return codeMirror?.editor;
-    }
+    let codeMirror = {} as CodeMirrorAPI;
 
     export const api = {
         name: "plain-text",
@@ -115,7 +80,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         moveCaretToEnd,
         refocus,
         toggle,
-        getEditor,
+        codeMirror,
     } as PlainTextInputAPI;
 
     function pushUpdate(): void {
@@ -123,8 +88,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $editingInputs = $editingInputs;
     }
 
-    function refresh() {
-        codeMirror.editor.refresh();
+    function refresh(): void {
+        codeMirror.editor.then((editor) => editor.refresh());
     }
 
     $: {
@@ -133,18 +98,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         pushUpdate();
     }
 
+    function storedToUndecorated(html: string): string {
+        return decoratedElements.toUndecorated(html);
+    }
+
+    function undecoratedToStored(html: string): string {
+        return decoratedElements.toStored(html);
+    }
+
     onMount(() => {
         $editingInputs.push(api);
         $editingInputs = $editingInputs;
 
         const unsubscribeFromEditingArea = content.subscribe((value: string): void => {
-            const adjusted = adjustInputHTML(value);
-            code.set(adjusted);
+            code.set(storedToUndecorated(value));
         });
 
         const unsubscribeToEditingArea = code.subscribe((value: string): void => {
-            const parsed = parseAsHTML(value);
-            content.set(adjustOutputHTML(parsed));
+            content.set(removeProhibitedTags(undecoratedToStored(value)));
         });
 
         return () => {
@@ -152,20 +123,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             unsubscribeToEditingArea();
         };
     });
+
+    setupLifecycleHooks(api);
 </script>
 
 <div
     class="plain-text-input"
     class:light-theme={!$pageTheme.isDark}
     class:hidden
-    on:focusin
-    on:focusout
+    on:focusin={() => ($focusedInput = api)}
 >
     <CodeMirror
         {configuration}
         {code}
         bind:api={codeMirror}
-        on:change={({ detail: html }) => code.set(parseAsHTML(html))}
+        on:change={({ detail: html }) => code.set(removeProhibitedTags(html))}
     />
 </div>
 

@@ -8,6 +8,8 @@ from concurrent.futures import Future
 from typing import Any
 
 import aqt
+import aqt.forms
+import aqt.main
 from anki.cards import CardId
 from anki.collection import EmptyCardsReport
 from aqt import gui_hooks

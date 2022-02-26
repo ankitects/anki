@@ -117,7 +117,14 @@ impl SqlWriter<'_> {
         use normalize_to_nfc as norm;
         match node {
             // note fields related
-            SearchNode::UnqualifiedText(text) => self.write_unqualified(&self.norm_note(text)),
+            SearchNode::UnqualifiedText(text) => {
+                let text = &self.norm_note(text);
+                if self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch) {
+                    self.write_no_combining(text)
+                } else {
+                    self.write_unqualified(text)
+                }
+            }
             SearchNode::SingleField { field, text, is_re } => {
                 self.write_field(&norm(field), &self.norm_note(text), *is_re)?
             }
@@ -580,8 +587,20 @@ impl SqlWriter<'_> {
         self.args.push(format!(r"(?i){}", word));
     }
 
+    fn write_regex_nc(&mut self, word: &str) {
+        let word = &without_combining(word);
+        self.sql
+            .push_str("coalesce(without_combining(n.flds), n.flds) regexp ?");
+        self.args.push(format!(r"(?i){}", word));
+    }
+
     fn write_word_boundary(&mut self, word: &str) {
-        self.write_regex(&format!(r"\b{}\b", to_re(word)));
+        let re = format!(r"\b{}\b", to_re(word));
+        if self.col.get_config_bool(BoolKey::IgnoreAccentsInSearch) {
+            self.write_regex_nc(&re);
+        } else {
+            self.write_regex(&re);
+        }
     }
 }
 

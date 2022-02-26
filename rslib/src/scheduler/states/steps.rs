@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 const DEFAULT_SECS_IF_MISSING: u32 = 60;
+const DAY: u32 = 60 * 60 * 24;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(crate) struct LearningSteps<'a> {
@@ -52,7 +53,7 @@ impl<'a> LearningSteps<'a> {
                     let next = self
                         .secs_at_index(idx + 1)
                         .unwrap_or_else(|| current.saturating_mul(2));
-                    current.saturating_add(next) / 2
+                    maybe_round_in_days(current.saturating_add(next) / 2)
                 } else {
                     current
                 }
@@ -79,6 +80,17 @@ impl<'a> LearningSteps<'a> {
     }
 }
 
+/// If the given interval in seconds surpasses 1 day, rounds it to a whole number of days.
+/// Ensures that the user gets the same results earlier and later in the day.
+/// Returns seconds.
+fn maybe_round_in_days(secs: u32) -> u32 {
+    if secs > DAY {
+        ((secs as f32 / DAY as f32).round() as u32).saturating_mul(DAY)
+    } else {
+        secs
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -102,5 +114,11 @@ mod test {
         assert_delay_secs!([1.0, 10.0, 100.0], 3, 60, Some(330), Some(600));
         assert_delay_secs!([1.0, 10.0, 100.0], 2, 60, Some(600), Some(6000));
         assert_delay_secs!([1.0, 10.0, 100.0], 1, 60, Some(6000), None);
+    }
+
+    #[test]
+    fn rounding_days() {
+        assert_eq!(maybe_round_in_days(DAY - 1), DAY - 1);
+        assert_eq!(maybe_round_in_days((1.5 * DAY as f32) as u32), 2 * DAY);
     }
 }
