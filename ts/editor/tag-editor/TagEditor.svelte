@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import StickyContainer from "../../components/StickyContainer.svelte";
-    import { tags as tagsService } from "../../lib/proto";
+    import { Tags, tags as tagsService } from "../../lib/proto";
     import { execCommand } from "../helpers";
     import Tag from "./Tag.svelte";
     import TagEditMode from "./TagEditMode.svelte";
@@ -56,7 +56,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let autocompleteDisabled: boolean = false;
 
     async function fetchSuggestions(input: string): Promise<string[]> {
-        const { tags } = await tagsService.completeTag({ input, matchLimit: 500 });
+        const { tags } = await tagsService.completeTag(
+            Tags.CompleteTagRequest.create({ input, matchLimit: 500 }),
+        );
         return tags;
     }
 
