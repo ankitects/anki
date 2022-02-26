@@ -178,12 +178,9 @@ fn check_collection(col_path: &str) -> Result<()> {
         .db
         .pragma_query_value(None, "integrity_check", |row| row.get::<_, String>(0))
         .map_err(Into::into)
-        .and_then(|s| {
-            if s == "ok" {
-                Ok(())
-            } else {
-                Err(AnkiError::invalid_input(format!("corrupt: {}", s)))
-            }
+        .and_then(|s| match s.as_str() {
+            "ok" => Ok(()),
+            _ => Err(AnkiError::invalid_input(format!("corrupt: {}", s))),
         })
 }
 
@@ -192,10 +189,10 @@ fn restore_media(archive: &mut ZipArchive<File>, media_folder: &str) -> Result<(
     for (archive_file_name, file_name) in media_file_names {
         if let Ok(mut file) = archive.by_name(&archive_file_name) {
             let file_path = Path::new(&media_folder).join(normalize_to_nfc(&file_name).as_ref());
-            let files_equal = fs::metadata(&file_path)
+            let files_are_equal = fs::metadata(&file_path)
                 .map(|metadata| metadata.len() == file.size())
                 .unwrap_or_default();
-            if !files_equal {
+            if !files_are_equal {
                 let contents = get_zip_file_contents(&mut file)?;
                 fs::write(&file_path, &contents)?;
             }
