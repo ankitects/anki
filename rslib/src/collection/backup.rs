@@ -22,6 +22,7 @@ use crate::{
     error::{DbError, DbErrorKind},
     log,
     prelude::*,
+    text::normalize_to_nfc,
 };
 
 /// Bump if making changes that break restoring on older releases.
@@ -190,7 +191,7 @@ fn restore_media(archive: &mut ZipArchive<File>, media_folder: &str) -> Result<(
     let media_file_names = extract_media_file_names(archive)?;
     for (archive_file_name, file_name) in media_file_names {
         if let Ok(mut file) = archive.by_name(&archive_file_name) {
-            let file_path = Path::new(&media_folder).join(&file_name);
+            let file_path = Path::new(&media_folder).join(normalize_to_nfc(&file_name).as_ref());
             let files_equal = fs::metadata(&file_path)
                 .map(|metadata| metadata.len() == file.size())
                 .unwrap_or_default();
