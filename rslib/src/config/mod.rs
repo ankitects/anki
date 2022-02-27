@@ -268,6 +268,11 @@ impl Collection {
         self.get_config_optional(ConfigKey::BackupLimits)
             .unwrap_or_default()
     }
+
+    pub(crate) fn set_backup_limits(&mut self, limits: BackupLimits) -> Result<()> {
+        self.set_config(ConfigKey::BackupLimits, &limits)
+            .map(|_| ())
+    }
 }
 
 // 2021 scheduler moves this into deck config

@@ -3,11 +3,13 @@
 
 use crate::{
     backend_proto::{
-        preferences::{scheduling::NewReviewMix as NewRevMixPB, Editing, Reviewing, Scheduling},
+        preferences::{
+            scheduling::NewReviewMix as NewRevMixPB, Backups, Editing, Reviewing, Scheduling,
+        },
         Preferences,
     },
     collection::Collection,
-    config::{BoolKey, StringKey},
+    config::{BackupLimits, BoolKey, StringKey},
     error::Result,
     prelude::*,
     scheduler::timing::local_minutes_west_for_stamp,
@@ -19,6 +21,7 @@ impl Collection {
             scheduling: Some(self.get_scheduling_preferences()?),
             reviewing: Some(self.get_reviewing_preferences()?),
             editing: Some(self.get_editing_preferences()?),
+            backups: Some(self.get_backup_limits().into()),
         })
     }
 
@@ -37,6 +40,9 @@ impl Collection {
         }
         if let Some(editing) = prefs.editing {
             self.set_editing_preferences(editing)?;
+        }
+        if let Some(backups) = prefs.backups {
+            self.set_backup_limits(backups.into())?;
         }
         Ok(())
     }
@@ -147,5 +153,25 @@ impl Collection {
         self.set_config_string_inner(StringKey::DefaultSearchText, &s.default_search_text)?;
         self.set_config_bool_inner(BoolKey::IgnoreAccentsInSearch, s.ignore_accents_in_search)?;
         Ok(())
+    }
+}
+
+impl From<BackupLimits> for Backups {
+    fn from(limits: BackupLimits) -> Self {
+        Self {
+            daily: limits.daily,
+            weekly: limits.weekly,
+            monthly: limits.monthly,
+        }
+    }
+}
+
+impl From<Backups> for BackupLimits {
+    fn from(backups: Backups) -> Self {
+        Self {
+            daily: backups.daily,
+            weekly: backups.weekly,
+            monthly: backups.monthly,
+        }
     }
 }
