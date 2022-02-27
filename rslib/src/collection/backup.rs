@@ -187,7 +187,7 @@ impl BackupThinner {
             .rev()
         {
             if self.is_recent(&backup) {
-                continue;
+                self.keep(None, &backup);
             } else if self.remaining(Daily) {
                 self.keep_or_delete(Daily, &backup);
             } else if self.remaining(Weekly) {
@@ -219,27 +219,22 @@ impl BackupThinner {
             BackupStage::Monthly => backup.month() < self.last_kept_month,
         };
         if keep {
-            self.keep(stage, backup);
+            self.keep(Some(stage), backup);
         } else {
             self.delete(backup);
         }
     }
 
-    /// Adjusts limits as per the stage of the kept backup.
-    fn keep(&mut self, stage: BackupStage, backup: &Backup) {
+    /// Adjusts limits as per the stage of the kept backup, and last kept times.
+    fn keep(&mut self, stage: Option<BackupStage>, backup: &Backup) {
+        self.last_kept_day = backup.day();
+        self.last_kept_week = backup.week();
+        self.last_kept_month = backup.month();
         match stage {
-            BackupStage::Daily => {
-                self.limits.daily -= 1;
-                self.last_kept_day = backup.day();
-            }
-            BackupStage::Weekly => {
-                self.limits.weekly -= 1;
-                self.last_kept_week = backup.week();
-            }
-            BackupStage::Monthly => {
-                self.limits.monthly -= 1;
-                self.last_kept_month = backup.month();
-            }
+            None => (),
+            Some(BackupStage::Daily) => self.limits.daily -= 1,
+            Some(BackupStage::Weekly) => self.limits.weekly -= 1,
+            Some(BackupStage::Monthly) => self.limits.monthly -= 1,
         }
     }
 
