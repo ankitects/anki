@@ -5,8 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { Writable } from "svelte/store";
 
-    import { Stats } from "../lib/proto";
-    import { empty, stats } from "../lib/proto";
+    import { empty, Stats, stats } from "../lib/proto";
     import useAsync from "../sveltelib/async";
     import useAsyncReactive from "../sveltelib/asyncReactive";
     import type { PreferenceRaw } from "../sveltelib/preferences";
@@ -21,7 +20,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         error: graphError,
         value: graphValue,
     } = useAsyncReactive(
-        () => stats.graphs({ search: $search, days: $days }),
+        () =>
+            stats.graphs(Stats.GraphsRequest.create({ search: $search, days: $days })),
         [search, days],
     );
 
@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         getPreferences(
             () => stats.getGraphPreferences(empty),
             async (input: Stats.IGraphPreferences): Promise<void> => {
-                stats.setGraphPreferences(input);
+                stats.setGraphPreferences(Stats.GraphPreferences.create(input));
             },
             Stats.GraphPreferences.toObject.bind(Stats.GraphPreferences) as (
                 preferences: Stats.GraphPreferences,
