@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr2 from "../lib/ftl";
-    import { Stats, unwrapOptionalNumber } from "../lib/proto";
+    import { Stats } from "../lib/proto";
     import { DAY, timeSpan, Timestamp } from "../lib/time";
 
     export let stats: Stats.CardStatsResponse;
@@ -23,33 +23,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         statsRows.push({ label: tr2.cardStatsAdded(), value: dateString(stats.added) });
 
-        const firstReview = unwrapOptionalNumber(stats.firstReview);
-        if (firstReview !== undefined) {
+        if (stats.firstReview != null) {
             statsRows.push({
                 label: tr2.cardStatsFirstReview(),
-                value: dateString(firstReview),
+                value: dateString(stats.firstReview),
             });
         }
-        const latestReview = unwrapOptionalNumber(stats.latestReview);
-        if (latestReview !== undefined) {
+        if (stats.latestReview != null) {
             statsRows.push({
                 label: tr2.cardStatsLatestReview(),
-                value: dateString(latestReview),
+                value: dateString(stats.latestReview),
             });
         }
 
-        const dueDate = unwrapOptionalNumber(stats.dueDate);
-        if (dueDate !== undefined) {
+        if (stats.dueDate != null) {
             statsRows.push({
                 label: tr2.statisticsDueDate(),
-                value: dateString(dueDate),
+                value: dateString(stats.dueDate),
             });
         }
-        const duePosition = unwrapOptionalNumber(stats.duePosition);
-        if (duePosition !== undefined) {
+        if (stats.duePosition != null) {
             statsRows.push({
                 label: tr2.cardStatsNewCardPosition(),
-                value: duePosition,
+                value: stats.duePosition,
             });
         }
 

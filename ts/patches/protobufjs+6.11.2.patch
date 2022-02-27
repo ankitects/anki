@@ -1,3 +1,16 @@
+diff --git a/node_modules/protobufjs/src/field.js b/node_modules/protobufjs/src/field.js
+index 20c1cd2..3a1395f 100644
+--- a/node_modules/protobufjs/src/field.js
++++ b/node_modules/protobufjs/src/field.js
+@@ -270,6 +270,8 @@ Field.prototype.resolve = function resolve() {
+             this.typeDefault = null;
+         else // instanceof Enum
+             this.typeDefault = this.resolvedType.values[Object.keys(this.resolvedType.values)[0]]; // first defined
++    } else if (this.options && this.options.proto3_optional) {
++        this.typeDefault = null;
+     }
+ 
+     // use explicitly set default value if present
 diff --git a/node_modules/protobufjs/src/root.js b/node_modules/protobufjs/src/root.js
 index df6f11f..112f9e8 100644
 --- a/node_modules/protobufjs/src/root.js

@@ -73,14 +73,3 @@ export const stats = Stats.StatsService.create(serviceCallback as RPCImpl);
 
 export { Tags };
 export const tags = Tags.TagsService.create(serviceCallback as RPCImpl);
-
-export function unwrapOptionalNumber(
-    msg: Generic.IInt64 | Generic.IUInt32 | Generic.IInt32 | null | undefined,
-): number | undefined {
-    if (msg && msg !== null) {
-        if (msg.val !== null) {
-            return msg.val;
-        }
-    }
-    return undefined;
-}
