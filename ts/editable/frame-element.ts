@@ -13,7 +13,7 @@ import {
 import { on } from "../lib/events";
 import type { FrameHandle } from "./frame-handle";
 import {
-    checkWhetherMovingIntoHandle,
+    checkHandles,
     frameElementTagName,
     FrameEnd,
     FrameStart,
@@ -32,10 +32,8 @@ function restoreFrameHandles(mutations: MutationRecord[]): void {
                 continue;
             }
 
-            /**
-             * In some rare cases, nodes might be inserted into the frame itself.
-             * For example after using execCommand.
-             */
+            // In some rare cases, nodes might be inserted into the frame itself.
+            // For example after using execCommand.
             const placement = node.compareDocumentPosition(framed);
 
             if (placement & Node.DOCUMENT_POSITION_FOLLOWING) {
@@ -52,23 +50,23 @@ function restoreFrameHandles(mutations: MutationRecord[]): void {
         }
 
         for (const node of mutation.removedNodes) {
-            if (
-                /* avoid triggering when (un)mounting whole frame */
-                mutations.length === 1 &&
-                nodeIsElement(node) &&
-                isFrameHandle(node)
-            ) {
-                /* When deleting from _outer_ position in FrameHandle to _inner_ position */
-                frameElement.remove();
+            if (!isFrameHandle(node)) {
                 continue;
             }
 
             if (
-                nodeIsElement(node) &&
-                isFrameHandle(node) &&
-                frameElement.isConnected &&
-                !frameElement.block
+                /* avoid triggering when (un)mounting whole frame */
+                mutations.length === 1 &&
+                !node.partiallySelected
             ) {
+                // Similar to a "movein", this could be considered a
+                // "deletein" event and could get some special treatment, e.g.
+                // first highlight the entire frame-element.
+                frameElement.remove();
+                continue;
+            }
+
+            if (frameElement.isConnected && !frameElement.block) {
                 frameElement.refreshHandles();
                 continue;
             }
@@ -248,7 +246,7 @@ function checkIfInsertingLineBreakAdjacentToBlockFrame() {
 }
 
 function onSelectionChange() {
-    checkWhetherMovingIntoHandle();
+    checkHandles();
     checkIfInsertingLineBreakAdjacentToBlockFrame();
 }
 

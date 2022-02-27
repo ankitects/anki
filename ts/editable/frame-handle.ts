@@ -120,6 +120,14 @@ export abstract class FrameHandle extends HTMLElement {
         return ["data-frames"];
     }
 
+    /**
+     * When a deletion is trigger with a FrameHandle selected, it will be treated
+     * differently depending on whether it is selected:
+     * - If partially selected, it should be restored (unless the frame element
+     * is also selected).
+     * - Otherwise, it should be deleted along with the frame element.
+     */
+    partiallySelected = false;
     frames?: string;
 
     constructor() {
@@ -273,15 +281,23 @@ export class FrameEnd extends FrameHandle {
     }
 }
 
-export function checkWhetherMovingIntoHandle(): void {
+function checkWhetherMovingIntoHandle(selection: Selection, handle: FrameHandle): void {
+    if (selection.anchorNode === handle.firstChild && isSelectionCollapsed(selection)) {
+        handle.notifyMoveIn(selection.anchorOffset);
+    }
+}
+
+function checkWhetherSelectingHandle(selection: Selection, handle: FrameHandle): void {
+    handle.partiallySelected =
+        handle.firstChild && !isSelectionCollapsed(selection)
+            ? selection.containsNode(handle.firstChild)
+            : false;
+}
+
+export function checkHandles(): void {
     for (const handle of handles) {
         const selection = getSelection(handle)!;
-
-        if (
-            selection.anchorNode === handle.firstChild &&
-            isSelectionCollapsed(selection)
-        ) {
-            handle.notifyMoveIn(selection.anchorOffset);
-        }
+        checkWhetherMovingIntoHandle(selection, handle);
+        checkWhetherSelectingHandle(selection, handle);
     }
 }
