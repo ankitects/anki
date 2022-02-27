@@ -23,7 +23,7 @@ import Tags = anki.tags;
 
 export { Cards, Collection, Decks, Generic, Notes };
 
-export const empty = Generic.Empty.encode(Generic.Empty.create()).finish();
+export const empty = Generic.Empty.create();
 
 async function serviceCallback(
     method: rpc.ServiceMethod<Message<any>, Message<any>>,
