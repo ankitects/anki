@@ -79,6 +79,7 @@ def protobufjs_library(name, proto, **kwargs):
             "--wrap=default",
             #"--strict-long",  # Force usage of Long type with int64 fields
             "--force-number",
+            "--force-message",
             "--out=$@",
             "$(execpaths %s)" % proto_target,
         ],
@@ -96,6 +97,7 @@ def protobufjs_library(name, proto, **kwargs):
             "--wrap=default",
             #"--strict-long",  # Force usage of Long type with int64 fields
             "--force-number",
+            "--force-message",
             "--out=$@",
             "$(execpaths %s)" % proto_target,
         ],

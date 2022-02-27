@@ -5,7 +5,7 @@ import "./change-notetype-base.css";
 
 import { ModuleName, setupI18n } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
-import { empty, notetypes } from "../lib/proto";
+import { empty, Notetypes, notetypes } from "../lib/proto";
 import ChangeNotetypePage from "./ChangeNotetypePage.svelte";
 import { ChangeNotetypeState } from "./lib";
 
@@ -18,10 +18,12 @@ export async function setupChangeNotetypePage(
     oldNotetypeId: number,
     newNotetypeId: number,
 ): Promise<ChangeNotetypePage> {
-    const changeNotetypeInfo = notetypes.getChangeNotetypeInfo({
-        oldNotetypeId,
-        newNotetypeId,
-    });
+    const changeNotetypeInfo = notetypes.getChangeNotetypeInfo(
+        Notetypes.GetChangeNotetypeInfoRequest.create({
+            oldNotetypeId,
+            newNotetypeId,
+        }),
+    );
     const [names, info] = await Promise.all([notetypeNames, changeNotetypeInfo, i18n]);
 
     checkNightMode();

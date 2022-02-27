@@ -11,7 +11,7 @@ import "./deck-options-base.css";
 import { modalsKey, touchDeviceKey } from "../components/context-keys";
 import { ModuleName, setupI18n } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
-import { deckConfig } from "../lib/proto";
+import { deckConfig, Decks } from "../lib/proto";
 import DeckOptionsPage from "./DeckOptionsPage.svelte";
 import { DeckOptionsState } from "./lib";
 
@@ -26,7 +26,7 @@ const i18n = setupI18n({
 
 export async function setupDeckOptions(did: number): Promise<DeckOptionsPage> {
     const [info] = await Promise.all([
-        deckConfig.getDeckConfigsForUpdate({ did }),
+        deckConfig.getDeckConfigsForUpdate(Decks.DeckId.create({ did })),
         i18n,
     ]);
 
