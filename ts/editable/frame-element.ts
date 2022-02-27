@@ -13,7 +13,7 @@ import {
 import { on } from "../lib/events";
 import type { FrameHandle } from "./frame-handle";
 import {
-    checkWhetherMovingIntoHandle,
+    checkHandles,
     frameElementTagName,
     FrameEnd,
     FrameStart,
@@ -32,43 +32,39 @@ function restoreFrameHandles(mutations: MutationRecord[]): void {
                 continue;
             }
 
-            /**
-             * In some rare cases, nodes might be inserted into the frame itself.
-             * For example after using execCommand.
-             */
-            const placement = node.compareDocumentPosition(framed);
+            // In some rare cases, nodes might be inserted into the frame itself.
+            // For example after using execCommand.
+            const placement = framed.compareDocumentPosition(node);
 
-            if (placement & Node.DOCUMENT_POSITION_FOLLOWING) {
-                referenceNode = moveChildOutOfElement(frameElement, node, "afterend");
-                continue;
-            } else if (placement & Node.DOCUMENT_POSITION_PRECEDING) {
+            if (placement & Node.DOCUMENT_POSITION_PRECEDING) {
                 referenceNode = moveChildOutOfElement(
                     frameElement,
                     node,
                     "beforebegin",
                 );
-                continue;
+            } else if (placement & Node.DOCUMENT_POSITION_FOLLOWING) {
+                referenceNode = moveChildOutOfElement(frameElement, node, "afterend");
             }
         }
 
         for (const node of mutation.removedNodes) {
-            if (
-                /* avoid triggering when (un)mounting whole frame */
-                mutations.length === 1 &&
-                nodeIsElement(node) &&
-                isFrameHandle(node)
-            ) {
-                /* When deleting from _outer_ position in FrameHandle to _inner_ position */
-                frameElement.remove();
+            if (!isFrameHandle(node)) {
                 continue;
             }
 
             if (
-                nodeIsElement(node) &&
-                isFrameHandle(node) &&
-                frameElement.isConnected &&
-                !frameElement.block
+                /* avoid triggering when (un)mounting whole frame */
+                mutations.length === 1 &&
+                !node.partiallySelected
             ) {
+                // Similar to a "movein", this could be considered a
+                // "deletein" event and could get some special treatment, e.g.
+                // first highlight the entire frame-element.
+                frameElement.remove();
+                continue;
+            }
+
+            if (frameElement.isConnected && !frameElement.block) {
                 frameElement.refreshHandles();
                 continue;
             }
@@ -248,7 +244,7 @@ function checkIfInsertingLineBreakAdjacentToBlockFrame() {
 }
 
 function onSelectionChange() {
-    checkWhetherMovingIntoHandle();
+    checkHandles();
     checkIfInsertingLineBreakAdjacentToBlockFrame();
 }
 
@@ -259,7 +255,7 @@ document.addEventListener("selectionchange", onSelectionChange);
  * <anki-frame>
  *     <frame-handle-start> </frame-handle-start>
  *     <your-element ... />
- *     <frame-handle-end> </frame-handle-start>
+ *     <frame-handle-end> </frame-handle-end>
  * </anki-frame>
  */
 export function frameElement(element: HTMLElement, block: boolean): FrameElement {
