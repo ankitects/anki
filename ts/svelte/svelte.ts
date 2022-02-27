@@ -7,7 +7,7 @@ import * as worker from "@bazel/worker";
 import { svelte2tsx } from "svelte2tsx";
 import preprocess from "svelte-preprocess";
 import { basename } from "path";
-import ts from "typescript";
+import * as ts from "typescript";
 import * as svelte from "svelte/compiler";
 
 const parsedCommandLine: ts.ParsedCommandLine = {
@@ -133,21 +133,6 @@ function readFile(file: string): Promise<string> {
     return fs.promises.readFile(file, "utf-8");
 }
 
-// https://github.com/sveltejs/svelte-preprocess/issues/373
-function removeDuplicatedAwaitImport(code: string): string {
-    const regex = /import { __awaiter } from \"tslib\";/g;
-    let first = true;
-
-    return code.replace(regex, (substring: string): string => {
-        if (first) {
-            first = false;
-            return substring;
-        }
-
-        return "";
-    });
-}
-
 async function compileSingleSvelte(
     input: SvelteInput,
     binDir: string,
@@ -172,15 +157,12 @@ async function compileSingleSvelte(
         const processed = await svelte.preprocess(input.data, preprocessOptions, {
             filename: input.path,
         });
-        const processedString = removeDuplicatedAwaitImport(processed.toString!());
-
-        const result = svelte.compile(processedString, {
+        const result = svelte.compile(processed.toString!(), {
             format: "esm",
             css: false,
             generate: "dom",
             filename: input.mjsPath,
         });
-
         // warnings are an error
         if (result.warnings.length > 0) {
             console.log(`warnings during compile: ${result.warnings}`);
@@ -195,7 +177,7 @@ async function compileSingleSvelte(
             result.js.code;
         await writeFile(input.mjsPath, outputSource);
     } catch (err) {
-        console.log(`Compile failed: ${err}`);
+        console.log(`compile failed: ${err}`);
         return;
     }
 }
