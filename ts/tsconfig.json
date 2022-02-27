@@ -17,7 +17,7 @@
     "compilerOptions": {
         "declaration": true,
         "composite": true,
-        "target": "es6",
+        "target": "es2019",
         "module": "es2020",
         "lib": [
             "es2017",
