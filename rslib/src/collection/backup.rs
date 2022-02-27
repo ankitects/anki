@@ -51,7 +51,12 @@ where
     Ok(())
 }
 
-pub fn restore_backup(col_path: &str, backup_path: &str, media_folder: &str) -> Result<()> {
+pub fn restore_backup(
+    progress_fn: impl FnMut(usize) -> bool,
+    col_path: &str,
+    backup_path: &str,
+    media_folder: &str,
+) -> Result<()> {
     let backup_file = File::open(backup_path)?;
     let mut archive = ZipArchive::new(backup_file)?;
     let new_col_data = extract_collection_data(&mut archive)?;
@@ -63,7 +68,7 @@ pub fn restore_backup(col_path: &str, backup_path: &str, media_folder: &str) -> 
             fs::write(col_path, old_col_data)?;
             Err(err)
         })
-        .and_then(|_| restore_media(&mut archive, media_folder))
+        .and_then(|_| restore_media(progress_fn, &mut archive, media_folder))
 }
 
 fn backup_inner<P: AsRef<Path>>(col_data: &[u8], backup_folder: P, limits: BackupLimits) {
@@ -286,9 +291,20 @@ fn check_collection(col_path: &str) -> Result<()> {
         })
 }
 
-fn restore_media(archive: &mut ZipArchive<File>, media_folder: &str) -> Result<()> {
+fn restore_media(
+    mut progress_fn: impl FnMut(usize) -> bool,
+    archive: &mut ZipArchive<File>,
+    media_folder: &str,
+) -> Result<()> {
     let media_file_names = extract_media_file_names(archive)?;
+    let mut count = 0;
+
     for (archive_file_name, file_name) in media_file_names {
+        count += 1;
+        if count % 10 == 0 && !progress_fn(count) {
+            return Err(AnkiError::Interrupted);
+        }
+
         if let Ok(mut file) = archive.by_name(&archive_file_name) {
             let file_path = Path::new(&media_folder).join(normalize_to_nfc(&file_name).as_ref());
             let files_are_equal = fs::metadata(&file_path)

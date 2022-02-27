@@ -47,6 +47,7 @@ pub(super) type AbortHandleSlot = Arc<Mutex<Option<AbortHandle>>>;
 pub(super) enum Progress {
     MediaSync(MediaSyncProgress),
     MediaCheck(u32),
+    MediaProcessing(u32),
     FullSync(FullSyncProgress),
     NormalSync(NormalSyncProgress),
     DatabaseCheck(DatabaseCheckProgress),
@@ -58,6 +59,9 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Pr
             Progress::MediaSync(p) => pb::progress::Value::MediaSync(media_sync_progress(p, tr)),
             Progress::MediaCheck(n) => {
                 pb::progress::Value::MediaCheck(tr.media_check_checked(n).into())
+            }
+            Progress::MediaProcessing(n) => {
+                pb::progress::Value::MediaProcessing(tr.importing_processed_media_file(n).into())
             }
             Progress::FullSync(p) => pb::progress::Value::FullSync(pb::progress::FullSync {
                 transferred: p.transferred_bytes as u32,

@@ -75,8 +75,17 @@ impl CollectionService for Backend {
         if col.is_some() {
             Err(AnkiError::CollectionAlreadyOpen)
         } else {
-            backup::restore_backup(&input.col_path, &input.backup_path, &input.media_folder)
-                .map(Into::into)
+            let mut handler = self.new_progress_handler();
+            let progress_fn =
+                move |progress| handler.update(Progress::MediaProcessing(progress as u32), true);
+
+            backup::restore_backup(
+                progress_fn,
+                &input.col_path,
+                &input.backup_path,
+                &input.media_folder,
+            )
+            .map(Into::into)
         }
     }
 

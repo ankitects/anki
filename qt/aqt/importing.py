@@ -448,7 +448,25 @@ def replaceWithApkg(mw: aqt.AnkiQt, file: str, backup: bool) -> None:
 
 
 def _replaceWithApkg(mw: aqt.AnkiQt, filename: str, backup: bool) -> None:
-    mw.progress.start(immediate=True)
+    dialog = mw.progress.start(immediate=True)
+    timer = QTimer()
+    timer.setSingleShot(False)
+    timer.setInterval(100)
+
+    def on_progress() -> None:
+        progress = mw.backend.latest_progress()
+        if not progress.HasField("media_processing"):
+            return
+        label = progress.media_processing
+
+        try:
+            if dialog.wantCancel:
+                mw.backend.set_wants_abort()
+        except AttributeError:
+            # dialog may not be active
+            pass
+
+        mw.taskman.run_on_main(lambda: mw.progress.update(label=label))
 
     def do_import() -> None:
         col_path = mw.pm.collectionPath()
@@ -459,6 +477,7 @@ def _replaceWithApkg(mw: aqt.AnkiQt, filename: str, backup: bool) -> None:
 
     def on_done(future: Future) -> None:
         mw.progress.finish()
+        timer.deleteLater()
 
         try:
             future.result()
@@ -474,4 +493,6 @@ def _replaceWithApkg(mw: aqt.AnkiQt, filename: str, backup: bool) -> None:
 
         tooltip(tr.importing_importing_complete())
 
+    qconnect(timer.timeout, on_progress)
+    timer.start()
     mw.taskman.run_in_background(do_import, on_done)
