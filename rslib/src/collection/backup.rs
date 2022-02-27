@@ -14,6 +14,7 @@ use chrono::prelude::*;
 use itertools::Itertools;
 use log::error;
 use serde_derive::{Deserialize, Serialize};
+use tempfile::NamedTempFile;
 use zip::{read::ZipFile, write::FileOptions, CompressionMethod, ZipArchive, ZipWriter};
 use zstd;
 
@@ -57,18 +58,22 @@ pub fn restore_backup(
     backup_path: &str,
     media_folder: &str,
 ) -> Result<()> {
+    let col_path = PathBuf::from(col_path);
+    let col_dir = col_path
+        .parent()
+        .ok_or_else(|| AnkiError::invalid_input("bad collection path"))?;
+    let tempfile = NamedTempFile::new_in(col_dir)?;
+
     let backup_file = File::open(backup_path)?;
     let mut archive = ZipArchive::new(backup_file)?;
     let new_col_data = extract_collection_data(&mut archive)?;
-    let old_col_data = fs::read(col_path)?;
-    fs::write(col_path, new_col_data)?;
+    fs::write(&tempfile, new_col_data)?;
 
-    check_collection(col_path)
-        .or_else(|err| {
-            fs::write(col_path, old_col_data)?;
-            Err(err)
-        })
-        .and_then(|_| restore_media(progress_fn, &mut archive, media_folder))
+    check_collection(tempfile.path())?;
+    restore_media(progress_fn, &mut archive, media_folder)?;
+    tempfile.persist(&col_path).map_err(|err| err.error)?;
+
+    Ok(())
 }
 
 fn backup_inner<P: AsRef<Path>>(col_data: &[u8], backup_folder: P, limits: BackupLimits) {
@@ -279,7 +284,7 @@ fn too_new_err() -> AnkiError {
     })
 }
 
-fn check_collection(col_path: &str) -> Result<()> {
+fn check_collection(col_path: &Path) -> Result<()> {
     let col = CollectionBuilder::new(col_path).build()?;
     col.storage
         .db
