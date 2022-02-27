@@ -297,6 +297,11 @@ function checkWhetherSelectingHandle(selection: Selection, handle: FrameHandle):
 export function checkHandles(): void {
     for (const handle of handles) {
         const selection = getSelection(handle)!;
+
+        if (selection.rangeCount === 0) {
+            return;
+        }
+
         checkWhetherMovingIntoHandle(selection, handle);
         checkWhetherSelectingHandle(selection, handle);
     }

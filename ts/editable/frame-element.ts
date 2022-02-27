@@ -34,18 +34,16 @@ function restoreFrameHandles(mutations: MutationRecord[]): void {
 
             // In some rare cases, nodes might be inserted into the frame itself.
             // For example after using execCommand.
-            const placement = node.compareDocumentPosition(framed);
+            const placement = framed.compareDocumentPosition(node);
 
-            if (placement & Node.DOCUMENT_POSITION_FOLLOWING) {
-                referenceNode = moveChildOutOfElement(frameElement, node, "afterend");
-                continue;
-            } else if (placement & Node.DOCUMENT_POSITION_PRECEDING) {
+            if (placement & Node.DOCUMENT_POSITION_PRECEDING) {
                 referenceNode = moveChildOutOfElement(
                     frameElement,
                     node,
                     "beforebegin",
                 );
-                continue;
+            } else if (placement & Node.DOCUMENT_POSITION_FOLLOWING) {
+                referenceNode = moveChildOutOfElement(frameElement, node, "afterend");
             }
         }
 
@@ -257,7 +255,7 @@ document.addEventListener("selectionchange", onSelectionChange);
  * <anki-frame>
  *     <frame-handle-start> </frame-handle-start>
  *     <your-element ... />
- *     <frame-handle-end> </frame-handle-start>
+ *     <frame-handle-end> </frame-handle-end>
  * </anki-frame>
  */
 export function frameElement(element: HTMLElement, block: boolean): FrameElement {
