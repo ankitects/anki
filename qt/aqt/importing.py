@@ -1,11 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-import json
 import os
 import re
-import shutil
 import traceback
-import unicodedata
 import zipfile
 from concurrent.futures import Future
 from typing import Any, Optional
@@ -375,12 +372,6 @@ def importFile(mw: AnkiQt, file: str) -> None:
     else:
         # if it's an apkg/zip, first test it's a valid file
         if isinstance(importer, AnkiPackageImporter):
-            try:
-                z = zipfile.ZipFile(importer.file)
-                z.getinfo("collection.anki2")
-            except:
-                showWarning(invalidZipMsg())
-                return
             # we need to ask whether to import/replace; if it's
             # a colpkg file then the rest of the import process
             # will happen in setupApkgImport()
@@ -460,39 +451,11 @@ def _replaceWithApkg(mw: aqt.AnkiQt, filename: str, backup: bool) -> None:
     mw.progress.start(immediate=True)
 
     def do_import() -> None:
-        z = zipfile.ZipFile(filename)
-
-        # v2 scheduler?
-        colname = "collection.anki21"
-        try:
-            z.getinfo(colname)
-        except KeyError:
-            colname = "collection.anki2"
-
-        with z.open(colname) as source, open(mw.pm.collectionPath(), "wb") as target:
-            # ignore appears related to https://github.com/python/typeshed/issues/4349
-            # see if can turn off once issue fix is merged in
-            shutil.copyfileobj(source, target)
-
-        d = os.path.join(mw.pm.profileFolder(), "collection.media")
-        for n, (cStr, file) in enumerate(
-            json.loads(z.read("media").decode("utf8")).items()
-        ):
-            mw.taskman.run_on_main(
-                lambda n=n: mw.progress.update(  # type: ignore
-                    tr.importing_processed_media_file(count=n)
-                )
-            )
-            size = z.getinfo(cStr).file_size
-            dest = os.path.join(d, unicodedata.normalize("NFC", file))
-            # if we have a matching file size
-            if os.path.exists(dest) and size == os.stat(dest).st_size:
-                continue
-            data = z.read(cStr)
-            with open(dest, "wb") as file:
-                file.write(data)
-
-        z.close()
+        col_path = mw.pm.collectionPath()
+        media_folder = os.path.join(mw.pm.profileFolder(), "collection.media")
+        mw.backend.restore_backup(
+            col_path=col_path, backup_path=filename, media_folder=media_folder
+        )
 
     def on_done(future: Future) -> None:
         mw.progress.finish()
