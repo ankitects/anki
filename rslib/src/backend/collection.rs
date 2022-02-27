@@ -63,8 +63,8 @@ impl CollectionService for Backend {
             }
         }
 
-        if !input.backup_folder.is_empty() {
-            backup::backup(col_path, input.backup_folder, limits)?;
+        if let Some(backup_folder) = input.backup_folder {
+            backup::backup(col_path, backup_folder, limits)?;
         }
 
         Ok(().into())

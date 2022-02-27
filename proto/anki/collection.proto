@@ -30,8 +30,8 @@ message OpenCollectionRequest {
 
 message CloseCollectionRequest {
   bool downgrade_to_schema11 = 1;
-  // Skip backup if empty
-  string backup_folder = 2;
+  // Skip backup if unset
+  optional string backup_folder = 2;
 }
 
 message RestoreBackupRequest {
