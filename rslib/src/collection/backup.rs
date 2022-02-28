@@ -93,20 +93,23 @@ fn write_backup<S: AsRef<OsStr>>(mut col_data: &[u8], backup_folder: S) -> Resul
     })
     .unwrap();
 
-    let mut compressed_data = Vec::<u8>::new();
-    let mut encoder = Encoder::new(&mut compressed_data, 0)?;
-    encoder.multithread(num_cpus::get() as u32)?;
-    std::io::copy(&mut col_data, &mut encoder)?;
-    encoder.finish()?;
-
     zip.start_file("meta", options)?;
     zip.write_all(meta.as_bytes())?;
     zip.start_file("collection.anki21b", options)?;
-    zip.write_all(&compressed_data)?;
+    zstd_copy(&mut col_data, &mut zip)?;
     zip.start_file("media", options)?;
     zip.write_all(b"{}")?;
     zip.finish()?;
 
+    Ok(())
+}
+
+/// Copy contents of reader into writer, compressing as we copy.
+fn zstd_copy<R: Read, W: Write>(reader: &mut R, writer: &mut W) -> Result<()> {
+    let mut encoder = Encoder::new(writer, 0)?;
+    encoder.multithread(num_cpus::get() as u32)?;
+    std::io::copy(reader, &mut encoder)?;
+    encoder.finish()?;
     Ok(())
 }
 
