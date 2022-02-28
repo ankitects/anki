@@ -452,7 +452,7 @@ mod test {
 
         // weekly backups from the last day of the week (Sunday)
         for _ in 0..limits.weekly {
-            while let Some(backup) = backup_iter.next() {
+            for backup in backup_iter.by_ref() {
                 if backup.datetime.weekday() == Weekday::Sun {
                     break;
                 } else {
@@ -463,7 +463,7 @@ mod test {
 
         // monthly backups from the last day of the month
         for _ in 0..limits.monthly {
-            while let Some(backup) = backup_iter.next() {
+            for backup in backup_iter.by_ref() {
                 if backup.datetime.date().month() != backup.datetime.date().succ().month() {
                     break;
                 } else {
