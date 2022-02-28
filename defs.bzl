@@ -20,6 +20,7 @@ def setup_deps():
     rust_repositories(
         edition = "2021",
         include_rustc_srcs = False,
+        version = "1.58.1",
     )
 
     raze_fetch_remote_crates()

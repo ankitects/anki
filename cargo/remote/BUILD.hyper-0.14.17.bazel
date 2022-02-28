@@ -114,7 +114,7 @@ rust_library(
         "@raze__itoa__1_0_1//:itoa",
         "@raze__pin_project_lite__0_2_8//:pin_project_lite",
         "@raze__socket2__0_4_4//:socket2",
-        "@raze__tokio__1_16_1//:tokio",
+        "@raze__tokio__1_17_0//:tokio",
         "@raze__tower_service__0_3_1//:tower_service",
         "@raze__tracing__0_1_31//:tracing",
         "@raze__want__0_3_0//:want",

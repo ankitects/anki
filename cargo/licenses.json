@@ -982,7 +982,7 @@
   },
   {
     "name": "mio",
-    "version": "0.7.14",
+    "version": "0.8.0",
     "authors": "Carl Lerche <me@carllerche.com>|Thomas de Zeeuw <thomasdezeeuw@gmail.com>|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/mio",
     "license": "MIT",
@@ -1161,8 +1161,26 @@
     "description": "More compact and efficient implementations of the standard synchronization primitives."
   },
   {
+    "name": "parking_lot",
+    "version": "0.12.0",
+    "authors": "Amanieu d'Antras <amanieu@gmail.com>",
+    "repository": "https://github.com/Amanieu/parking_lot",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "More compact and efficient implementations of the standard synchronization primitives."
+  },
+  {
     "name": "parking_lot_core",
     "version": "0.8.5",
+    "authors": "Amanieu d'Antras <amanieu@gmail.com>",
+    "repository": "https://github.com/Amanieu/parking_lot",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "An advanced API for creating custom synchronization primitives."
+  },
+  {
+    "name": "parking_lot_core",
+    "version": "0.9.1",
     "authors": "Amanieu d'Antras <amanieu@gmail.com>",
     "repository": "https://github.com/Amanieu/parking_lot",
     "license": "Apache-2.0 OR MIT",
@@ -2062,7 +2080,7 @@
   },
   {
     "name": "tokio",
-    "version": "1.16.1",
+    "version": "1.17.0",
     "authors": "Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/tokio",
     "license": "MIT",
@@ -2545,6 +2563,60 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Import libraries for the x86_64-pc-windows-gnu target. Please don't use this crate directly, depend on winapi instead."
+  },
+  {
+    "name": "windows-sys",
+    "version": "0.32.0",
+    "authors": "Microsoft",
+    "repository": "https://github.com/microsoft/windows-rs",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Rust for Windows"
+  },
+  {
+    "name": "windows_aarch64_msvc",
+    "version": "0.32.0",
+    "authors": "Microsoft",
+    "repository": null,
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Code gen support for the windows crate"
+  },
+  {
+    "name": "windows_i686_gnu",
+    "version": "0.32.0",
+    "authors": "Microsoft",
+    "repository": null,
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Code gen support for the windows crate"
+  },
+  {
+    "name": "windows_i686_msvc",
+    "version": "0.32.0",
+    "authors": "Microsoft",
+    "repository": null,
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Code gen support for the windows crate"
+  },
+  {
+    "name": "windows_x86_64_gnu",
+    "version": "0.32.0",
+    "authors": "Microsoft",
+    "repository": null,
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Code gen support for the windows crate"
+  },
+  {
+    "name": "windows_x86_64_msvc",
+    "version": "0.32.0",
+    "authors": "Microsoft",
+    "repository": null,
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "Code gen support for the windows crate"
   },
   {
     "name": "winreg",

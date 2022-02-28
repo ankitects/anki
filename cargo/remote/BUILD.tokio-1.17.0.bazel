@@ -56,6 +56,7 @@ rust_library(
         "rt-multi-thread",
         "signal",
         "signal-hook-registry",
+        "socket2",
         "sync",
         "time",
         "tokio-macros",
@@ -75,16 +76,17 @@ rust_library(
         "crate-name=tokio",
         "manual",
     ],
-    version = "1.16.1",
+    version = "1.17.0",
     # buildifier: leave-alone
     deps = [
         "@raze__bytes__1_1_0//:bytes",
         "@raze__memchr__2_4_1//:memchr",
-        "@raze__mio__0_7_14//:mio",
+        "@raze__mio__0_8_0//:mio",
         "@raze__num_cpus__1_13_1//:num_cpus",
         "@raze__once_cell__1_9_0//:once_cell",
-        "@raze__parking_lot__0_11_2//:parking_lot",
+        "@raze__parking_lot__0_12_0//:parking_lot",
         "@raze__pin_project_lite__0_2_8//:pin_project_lite",
+        "@raze__socket2__0_4_4//:socket2",
     ] + selects.with_or({
         # cfg(unix)
         (
@@ -182,6 +184,8 @@ rust_library(
 
 # Unsupported target "io_write_int" with type "test" omitted
 
+# Unsupported target "join_handle_panic" with type "test" omitted
+
 # Unsupported target "macros_join" with type "test" omitted
 
 # Unsupported target "macros_pin" with type "test" omitted
@@ -271,6 +275,8 @@ rust_library(
 # Unsupported target "task_blocking" with type "test" omitted
 
 # Unsupported target "task_builder" with type "test" omitted
+
+# Unsupported target "task_join_set" with type "test" omitted
 
 # Unsupported target "task_local" with type "test" omitted
 
