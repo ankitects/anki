@@ -48,6 +48,7 @@ rust_library(
         "arrays",
         "default",
         "legacy",
+        "zstdmt",
     ],
     crate_root = "src/lib.rs",
     data = [],

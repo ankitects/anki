@@ -211,6 +211,15 @@ alias(
 )
 
 alias(
+    name = "num_cpus",
+    actual = "@raze__num_cpus__1_13_1//:num_cpus",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "num_enum",
     actual = "@raze__num_enum__0_5_6//:num_enum",
     tags = [

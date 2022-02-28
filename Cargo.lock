@@ -68,6 +68,7 @@ dependencies = [
  "lazy_static",
  "nom",
  "num-integer",
+ "num_cpus",
  "num_enum",
  "once_cell",
  "pct-str",

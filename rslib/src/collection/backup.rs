@@ -16,7 +16,7 @@ use log::error;
 use serde_derive::{Deserialize, Serialize};
 use tempfile::NamedTempFile;
 use zip::{read::ZipFile, write::FileOptions, CompressionMethod, ZipArchive, ZipWriter};
-use zstd;
+use zstd::{self, Encoder};
 
 use crate::{
     collection::CollectionBuilder,
@@ -84,7 +84,7 @@ fn backup_inner<P: AsRef<Path>>(col_data: &[u8], backup_folder: P, limits: Backu
     }
 }
 
-fn write_backup<S: AsRef<OsStr>>(col_data: &[u8], backup_folder: S) -> Result<()> {
+fn write_backup<S: AsRef<OsStr>>(mut col_data: &[u8], backup_folder: S) -> Result<()> {
     let out_file = File::create(out_path(backup_folder))?;
     let mut zip = ZipWriter::new(out_file);
     let options = FileOptions::default().compression_method(CompressionMethod::Stored);
@@ -93,7 +93,11 @@ fn write_backup<S: AsRef<OsStr>>(col_data: &[u8], backup_folder: S) -> Result<()
     })
     .unwrap();
 
-    let compressed_data = zstd::encode_all(col_data, 0)?;
+    let mut compressed_data = Vec::<u8>::new();
+    let mut encoder = Encoder::new(&mut compressed_data, 0)?;
+    encoder.multithread(num_cpus::get() as u32)?;
+    std::io::copy(&mut col_data, &mut encoder)?;
+    encoder.finish()?;
 
     zip.start_file("meta", options)?;
     zip.write_all(meta.as_bytes())?;

@@ -45,6 +45,7 @@ cargo_build_script(
     crate_features = [
         "legacy",
         "std",
+        "zstdmt",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -70,6 +71,7 @@ rust_library(
     crate_features = [
         "legacy",
         "std",
+        "zstdmt",
     ],
     crate_root = "src/lib.rs",
     data = [],
