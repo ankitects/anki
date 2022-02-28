@@ -11,6 +11,7 @@ import anki.importing as importing
 import aqt.deckchooser
 import aqt.forms
 import aqt.modelchooser
+from anki.errors import Interrupted
 from anki.importing.anki2 import V2ImportIntoV1
 from anki.importing.apkg import AnkiPackageImporter
 from aqt import AnkiQt, gui_hooks
@@ -432,22 +433,32 @@ def setupApkgImport(mw: AnkiQt, importer: AnkiPackageImporter) -> bool:
     if not full:
         # adding
         return True
-    if not mw.restoringBackup and not askUser(
+    if not askUser(
         tr.importing_this_will_delete_your_existing_collection(),
         msgfunc=QMessageBox.warning,
         defaultno=True,
     ):
         return False
 
-    replaceWithApkg(mw, importer.file, mw.restoringBackup)
+    full_apkg_import(mw, importer.file)
     return False
 
 
-def replaceWithApkg(mw: aqt.AnkiQt, file: str, backup: bool) -> None:
-    mw.unloadCollection(lambda: _replaceWithApkg(mw, file, backup))
+def full_apkg_import(mw: aqt.AnkiQt, file: str) -> None:
+    def on_done(success: bool) -> None:
+        mw.loadCollection()
+        if success:
+            tooltip(tr.importing_importing_complete())
+
+    mw.unloadCollection(lambda: replace_with_apkg(mw, file, on_done))
 
 
-def _replaceWithApkg(mw: aqt.AnkiQt, filename: str, backup: bool) -> None:
+def replace_with_apkg(
+    mw: aqt.AnkiQt, filename: str, callback: Callable[[bool], None]
+) -> None:
+    """Tries to replace the provided collection with the provided backup,
+    then calls the callback. True if success.
+    """
     dialog = mw.progress.start(immediate=True)
     timer = QTimer()
     timer.setSingleShot(False)
@@ -481,17 +492,12 @@ def _replaceWithApkg(mw: aqt.AnkiQt, filename: str, backup: bool) -> None:
 
         try:
             future.result()
-        except Exception as e:
-            print(e)
-            showWarning(tr.importing_the_provided_file_is_not_a())
-            return
-
-        if not mw.loadCollection():
-            return
-        if backup:
-            mw.col.mod_schema(check=False)
-
-        tooltip(tr.importing_importing_complete())
+        except Exception as error:
+            if not isinstance(error, Interrupted):
+                showWarning(str(error))
+            callback(False)
+        else:
+            callback(True)
 
     qconnect(timer.timeout, on_progress)
     timer.start()
