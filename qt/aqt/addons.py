@@ -19,6 +19,7 @@ from zipfile import ZipFile
 import jsonschema
 import markdown
 from jsonschema.exceptions import ValidationError
+from markdown.extensions import md_in_html
 from send2trash import send2trash
 
 import anki
@@ -628,7 +629,7 @@ class AddonManager:
             else:
                 return ""
 
-        return markdown.markdown(contents, extensions=["md_in_html"])
+        return markdown.markdown(contents, extensions=[md_in_html.makeExtension()])
 
     def addonFromModule(self, module: str) -> str:
         return module.split(".")[0]
