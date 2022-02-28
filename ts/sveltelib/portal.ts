@@ -4,14 +4,13 @@
  */
 function portal(
     element: HTMLElement,
-    targetElement: Element,
+    targetElement: Element = document.body,
 ): { update(target: Element): void; destroy(): void } {
     let target: Element = targetElement;
 
     async function update(newTarget: Element) {
         target = newTarget;
         target.append(element);
-        element.hidden = false;
     }
 
     function destroy() {

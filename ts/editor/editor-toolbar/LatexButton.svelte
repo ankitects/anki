@@ -65,8 +65,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: disabled = !editingInputIsRichText($focusedInput);
 </script>
 
-<Portal>
-    <OurDropdownMenu>
+<WithFloating let:show>
+    <IconButton
+        {disabled}
+        slot="reference"
+        on:click={() => show.update((value) => !value)}
+    >
+        {@html functionIcon}
+    </IconButton>
+
+    <OurDropdownMenu slot="floating">
         {#each dropdownItems as [callback, keyCombination, label]}
             <DropdownItem on:click={callback}>
                 {label}
@@ -77,13 +85,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Shortcut {keyCombination} on:action={callback} />
         {/each}
     </OurDropdownMenu>
-
-    <WithFloating slot="outside" let:ref floating={ref}>
-        <IconButton {disabled}>
-            {@html functionIcon}
-        </IconButton>
-    </WithFloating>
-</Portal>
+</WithFloating>
 
 <style lang="scss">
     .shortcut {

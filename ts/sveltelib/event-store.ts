@@ -14,7 +14,7 @@ type Init<T> = { new (type: string): T; prototype: T };
  * A store wrapping an event. Automatically adds/removes event handler upon
  * first/last subscriber.
  */
-export function eventStore<T extends EventTarget, K extends keyof EventTargetToMap<T>>(
+function eventStore<T extends EventTarget, K extends keyof EventTargetToMap<T>>(
     target: T,
     eventType: Exclude<K, symbol | number>,
     /**
@@ -23,17 +23,12 @@ export function eventStore<T extends EventTarget, K extends keyof EventTargetToM
      */
     constructor: Init<EventTargetToMap<T>[K]>,
 ): Readable<EventTargetToMap<T>[K]> {
-    let latestEvent = new constructor(eventType);
-
+    const initEvent = new constructor(eventType);
     return readable(
-        latestEvent,
-        (set: Subscriber<EventTargetToMap<T>[K]>): Callback => {
-            set(latestEvent);
-
-            return on(target, eventType, (event: EventTargetToMap<T>[K]): void => {
-                latestEvent = event;
-                set(event);
-            });
-        },
+        initEvent,
+        (set: Subscriber<EventTargetToMap<T>[K]>): Callback =>
+            on(target, eventType, set),
     );
 }
+
+export default eventStore;
