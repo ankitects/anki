@@ -9,6 +9,7 @@ errors-100-tags-max =
     is no need to select child tags if you have selected a parent tag.
 errors-multiple-notetypes-selected = Please select notes from only one notetype.
 errors-please-check-database = Please use the Check Database action, then try again.
+errors-failed-to-process-media = Some media files could not be processed.
 
 ## Card Rendering
 

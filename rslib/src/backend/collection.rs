@@ -70,7 +70,7 @@ impl CollectionService for Backend {
         Ok(().into())
     }
 
-    fn restore_backup(&self, input: pb::RestoreBackupRequest) -> Result<pb::Empty> {
+    fn restore_backup(&self, input: pb::RestoreBackupRequest) -> Result<pb::String> {
         let col = self.col.lock().unwrap();
         if col.is_some() {
             Err(AnkiError::CollectionAlreadyOpen)
@@ -84,6 +84,7 @@ impl CollectionService for Backend {
                 &input.col_path,
                 &input.backup_path,
                 &input.media_folder,
+                &self.tr,
             )
             .map(Into::into)
         }

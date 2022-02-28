@@ -55,7 +55,8 @@ pub fn restore_backup(
     col_path: &str,
     backup_path: &str,
     media_folder: &str,
-) -> Result<()> {
+    tr: &I18n,
+) -> Result<String> {
     let col_path = PathBuf::from(col_path);
     let col_dir = col_path
         .parent()
@@ -68,10 +69,15 @@ pub fn restore_backup(
     fs::write(&tempfile, new_col_data)?;
 
     check_collection(tempfile.path())?;
-    restore_media(progress_fn, &mut archive, media_folder)?;
+
+    let mut result = String::new();
+    if restore_media(progress_fn, &mut archive, media_folder).is_err() {
+        result.push_str(&tr.errors_failed_to_process_media());
+    }
+
     tempfile.persist(&col_path).map_err(|err| err.error)?;
 
-    Ok(())
+    Ok(result)
 }
 
 fn backup_inner<P: AsRef<Path>>(col_data: &[u8], backup_folder: P, limits: BackupLimits) {

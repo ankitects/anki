@@ -482,7 +482,7 @@ def replace_with_apkg(
     def do_import() -> None:
         col_path = mw.pm.collectionPath()
         media_folder = os.path.join(mw.pm.profileFolder(), "collection.media")
-        mw.backend.restore_backup(
+        return mw.backend.restore_backup(
             col_path=col_path, backup_path=filename, media_folder=media_folder
         )
 
@@ -491,12 +491,14 @@ def replace_with_apkg(
         timer.deleteLater()
 
         try:
-            future.result()
+            soft_error = future.result()
         except Exception as error:
             if not isinstance(error, Interrupted):
                 showWarning(str(error))
             callback(False)
         else:
+            if soft_error:
+                showWarning(soft_error)
             callback(True)
 
     qconnect(timer.timeout, on_progress)

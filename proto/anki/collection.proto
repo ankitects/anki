@@ -10,7 +10,7 @@ import "anki/generic.proto";
 service CollectionService {
   rpc OpenCollection(OpenCollectionRequest) returns (generic.Empty);
   rpc CloseCollection(CloseCollectionRequest) returns (generic.Empty);
-  rpc RestoreBackup(RestoreBackupRequest) returns (generic.Empty);
+  rpc RestoreBackup(RestoreBackupRequest) returns (generic.String);
   rpc CheckDatabase(generic.Empty) returns (CheckDatabaseResponse);
   rpc GetUndoStatus(generic.Empty) returns (UndoStatus);
   rpc Undo(generic.Empty) returns (OpChangesAfterUndo);
