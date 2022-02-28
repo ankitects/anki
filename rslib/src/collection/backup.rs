@@ -44,9 +44,7 @@ where
     P1: AsRef<Path>,
     P2: AsRef<Path> + Send + 'static,
 {
-    let col_file = File::open(col_path)?;
-    let col_data = zstd::encode_all(col_file, 0)?;
-
+    let col_data = std::fs::read(col_path)?;
     thread::spawn(move || backup_inner(&col_data, &backup_folder, limits));
 
     Ok(())
@@ -95,10 +93,12 @@ fn write_backup<S: AsRef<OsStr>>(col_data: &[u8], backup_folder: S) -> Result<()
     })
     .unwrap();
 
+    let compressed_data = zstd::encode_all(col_data, 0)?;
+
     zip.start_file("meta", options)?;
     zip.write_all(meta.as_bytes())?;
     zip.start_file("collection.anki21b", options)?;
-    zip.write_all(col_data)?;
+    zip.write_all(&compressed_data)?;
     zip.start_file("media", options)?;
     zip.write_all(b"{}")?;
     zip.finish()?;
