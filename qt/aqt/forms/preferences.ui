@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>496</height>
+    <height>509</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -491,7 +491,7 @@
         <number>12</number>
        </property>
        <item>
-        <widget class="QLabel" name="label">
+        <widget class="QLabel" name="backup_explanation">
          <property name="text">
           <string>preferences_backup_explanation</string>
          </property>
@@ -649,6 +649,7 @@
   <tabstop>interrupt_audio</tabstop>
   <tabstop>pastePNG</tabstop>
   <tabstop>paste_strips_formatting</tabstop>
+  <tabstop>ignore_accents_in_search</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
   <tabstop>uiScale</tabstop>
@@ -668,6 +669,9 @@
   <tabstop>syncDeauth</tabstop>
   <tabstop>media_log</tabstop>
   <tabstop>tabWidget</tabstop>
+  <tabstop>weekly_backups</tabstop>
+  <tabstop>daily_backups</tabstop>
+  <tabstop>monthly_backups</tabstop>
  </tabstops>
  <resources/>
  <connections>
