@@ -72,9 +72,16 @@ impl From<FromSqlError> for AnkiError {
 }
 
 impl DbError {
-    pub fn localized_description(&self, _tr: &I18n) -> String {
+    pub fn localized_description(&self, tr: &I18n) -> String {
         match self.kind {
-            DbErrorKind::Corrupt => self.info.clone(),
+            DbErrorKind::Corrupt => {
+                if self.info.is_empty() {
+                    tr.importing_the_provided_file_is_not_a().into()
+                } else {
+                    self.info.clone()
+                }
+            }
+            DbErrorKind::FileTooNew => tr.errors_backup_too_new().into(),
             // fixme: i18n
             DbErrorKind::Locked => "Anki already open, or media currently syncing.".into(),
             _ => format!("{:?}", self),

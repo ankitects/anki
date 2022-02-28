@@ -19,11 +19,7 @@ use zip::{read::ZipFile, write::FileOptions, CompressionMethod, ZipArchive, ZipW
 use zstd::{self, Encoder};
 
 use crate::{
-    collection::CollectionBuilder,
-    config::BackupLimits,
-    error::{DbError, DbErrorKind},
-    log,
-    prelude::*,
+    collection::CollectionBuilder, config::BackupLimits, error::DbErrorKind, log, prelude::*,
     text::normalize_to_nfc,
 };
 
@@ -70,10 +66,11 @@ pub fn restore_backup(
 
     check_collection(tempfile.path())?;
 
-    let mut result = String::new();
-    if restore_media(progress_fn, &mut archive, media_folder).is_err() {
-        result.push_str(&tr.errors_failed_to_process_media());
-    }
+    let result = match restore_media(progress_fn, &mut archive, media_folder) {
+        Ok(_) => String::new(),
+        Err(AnkiError::Interrupted) => return Err(AnkiError::Interrupted),
+        _ => tr.errors_failed_to_process_media().into(),
+    };
 
     tempfile.persist(&col_path).map_err(|err| err.error)?;
 
@@ -283,20 +280,6 @@ impl Meta {
     }
 }
 
-fn malformed_archive_err() -> AnkiError {
-    AnkiError::DbError(DbError {
-        info: "".to_string(),
-        kind: DbErrorKind::Corrupt,
-    })
-}
-
-fn too_new_err() -> AnkiError {
-    AnkiError::DbError(DbError {
-        info: "".to_string(),
-        kind: DbErrorKind::FileTooNew,
-    })
-}
-
 fn check_collection(col_path: &Path) -> Result<()> {
     let col = CollectionBuilder::new(col_path).build()?;
     col.storage
@@ -314,7 +297,7 @@ fn restore_media(
     archive: &mut ZipArchive<File>,
     media_folder: &str,
 ) -> Result<()> {
-    let media_file_names = extract_media_file_names(archive)?;
+    let media_file_names = extract_media_file_names(archive).ok_or(AnkiError::NotFound)?;
     let mut count = 0;
 
     for (archive_file_name, file_name) in media_file_names {
@@ -329,7 +312,7 @@ fn restore_media(
                 .map(|metadata| metadata.len() == file.size())
                 .unwrap_or_default();
             if !files_are_equal {
-                let contents = get_zip_file_contents(&mut file)?;
+                let contents = get_zip_file_contents(&mut file).ok_or(AnkiError::NotFound)?;
                 fs::write(&file_path, &contents)?;
             }
         }
@@ -337,50 +320,46 @@ fn restore_media(
     Ok(())
 }
 
-fn extract_media_file_names(archive: &mut ZipArchive<File>) -> Result<HashMap<String, String>> {
+fn extract_media_file_names(archive: &mut ZipArchive<File>) -> Option<HashMap<String, String>> {
     archive
         .by_name("media")
-        .map_err(|_| malformed_archive_err())
+        .ok()
         .and_then(|mut file| get_zip_file_contents(&mut file))
-        .and_then(|bytes| serde_json::from_slice(&bytes).map_err(|_| malformed_archive_err()))
+        .and_then(|bytes| serde_json::from_slice(&bytes).ok())
 }
 
 fn extract_collection_data(archive: &mut ZipArchive<File>) -> Result<Vec<u8>> {
     match Meta::from_archive(archive).map(|meta| meta.version) {
-        Some(3) => extract_version_3_data(archive),
-        Some(_) => Err(too_new_err()),
-        None => extract_legacy_data(archive),
+        Some(3) => extract_version_3_data(archive)
+            .ok_or_else(|| AnkiError::db_error("", DbErrorKind::Corrupt)),
+        Some(_) => Err(AnkiError::db_error("", DbErrorKind::FileTooNew)),
+        None => extract_legacy_data(archive)
+            .ok_or_else(|| AnkiError::db_error("", DbErrorKind::Corrupt)),
     }
 }
 
-fn extract_version_3_data(archive: &mut ZipArchive<File>) -> Result<Vec<u8>> {
+fn extract_version_3_data(archive: &mut ZipArchive<File>) -> Option<Vec<u8>> {
     archive
         .by_name("collection.anki21b")
         .ok()
         .and_then(|file| zstd::decode_all(file).ok())
-        .ok_or_else(malformed_archive_err)
 }
 
-fn extract_legacy_data(archive: &mut ZipArchive<File>) -> Result<Vec<u8>> {
+fn extract_legacy_data(archive: &mut ZipArchive<File>) -> Option<Vec<u8>> {
     fn extract_by_name(archive: &mut ZipArchive<File>, name: &str) -> Option<Vec<u8>> {
         archive
             .by_name(name)
             .ok()
-            .and_then(|mut file| get_zip_file_contents(&mut file).ok())
+            .and_then(|mut file| get_zip_file_contents(&mut file))
     }
 
     extract_by_name(archive, "collection.anki21")
         .or_else(|| extract_by_name(archive, "collection.anki2"))
-        .ok_or_else(malformed_archive_err)
 }
 
-fn get_zip_file_contents(file: &mut ZipFile) -> Result<Vec<u8>> {
+fn get_zip_file_contents(file: &mut ZipFile) -> Option<Vec<u8>> {
     let mut buf = Vec::new();
-    if file.read_to_end(&mut buf).is_ok() {
-        Ok(buf)
-    } else {
-        Err(malformed_archive_err())
-    }
+    file.read_to_end(&mut buf).ok().map(|_| buf)
 }
 
 #[cfg(test)]
