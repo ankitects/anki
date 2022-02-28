@@ -479,7 +479,7 @@ def replace_with_apkg(
 
         mw.taskman.run_on_main(lambda: mw.progress.update(label=label))
 
-    def do_import() -> None:
+    def do_import() -> str:
         col_path = mw.pm.collectionPath()
         media_folder = os.path.join(mw.pm.profileFolder(), "collection.media")
         return mw.backend.restore_backup(
