@@ -19,8 +19,8 @@ use zip::{read::ZipFile, write::FileOptions, CompressionMethod, ZipArchive, ZipW
 use zstd::{self, Encoder};
 
 use crate::{
-    collection::CollectionBuilder, config::BackupLimits, error::DbErrorKind, log, prelude::*,
-    text::normalize_to_nfc,
+    backend_proto::preferences::Backups, collection::CollectionBuilder, error::DbErrorKind, log,
+    prelude::*, text::normalize_to_nfc,
 };
 
 /// Bump if making changes that break restoring on older releases.
@@ -35,7 +35,7 @@ struct Meta {
     version: u8,
 }
 
-pub fn backup<P1, P2>(col_path: P1, backup_folder: P2, limits: BackupLimits) -> Result<()>
+pub fn backup<P1, P2>(col_path: P1, backup_folder: P2, limits: Backups) -> Result<()>
 where
     P1: AsRef<Path>,
     P2: AsRef<Path> + Send + 'static,
@@ -77,7 +77,7 @@ pub fn restore_backup(
     Ok(result)
 }
 
-fn backup_inner<P: AsRef<Path>>(col_data: &[u8], backup_folder: P, limits: BackupLimits) {
+fn backup_inner<P: AsRef<Path>>(col_data: &[u8], backup_folder: P, limits: Backups) {
     let log = log::terminal();
     if let Err(error) = write_backup(col_data, backup_folder.as_ref()) {
         error!(log, "failed to backup collection: {:?}", error);
@@ -116,7 +116,7 @@ fn zstd_copy<R: Read, W: Write>(reader: &mut R, writer: &mut W) -> Result<()> {
     Ok(())
 }
 
-fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: BackupLimits) -> Result<()> {
+fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: Backups) -> Result<()> {
     let backups =
         read_dir(backup_folder)?.filter_map(|entry| entry.ok().and_then(Backup::from_entry));
     let obsolete_backups = BackupThinner::new(Local::today(), limits).thin(backups);
@@ -181,7 +181,7 @@ struct BackupThinner {
     last_kept_day: i32,
     last_kept_week: i32,
     last_kept_month: u32,
-    limits: BackupLimits,
+    limits: Backups,
     obsolete: Vec<Backup>,
 }
 
@@ -193,7 +193,7 @@ enum BackupStage {
 }
 
 impl BackupThinner {
-    fn new(today: Date<Local>, limits: BackupLimits) -> Self {
+    fn new(today: Date<Local>, limits: Backups) -> Self {
         Self {
             yesterday: today.num_days_from_ce() - 1,
             last_kept_day: i32::MAX,
@@ -384,7 +384,7 @@ mod test {
         }
 
         let today = Local.ymd(2022, 2, 22);
-        let limits = BackupLimits {
+        let limits = Backups {
             daily: 3,
             weekly: 2,
             monthly: 1,

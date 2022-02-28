@@ -53,7 +53,7 @@ impl CollectionService for Backend {
         }
 
         let mut col_inner = col.take().unwrap();
-        let limits = col_inner.get_backup_limits();
+        let limits = col_inner.get_backups();
         let col_path = std::mem::take(&mut col_inner.col_path);
 
         if input.downgrade_to_schema11 {

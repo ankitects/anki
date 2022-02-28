@@ -14,7 +14,7 @@ use slog::warn;
 use strum::IntoStaticStr;
 
 pub use self::{bool::BoolKey, notetype::get_aux_notetype_config_key, string::StringKey};
-use crate::prelude::*;
+use crate::{backend_proto::preferences::Backups, prelude::*};
 
 /// Only used when updating/undoing.
 #[derive(Debug)]
@@ -43,7 +43,7 @@ pub(crate) enum ConfigKey {
     FirstDayOfWeek,
     LocalOffset,
     Rollover,
-    BackupLimits,
+    Backups,
 
     #[strum(to_string = "timeLim")]
     AnswerTimeLimitSecs,
@@ -264,14 +264,19 @@ impl Collection {
             .map(|_| ())
     }
 
-    pub(crate) fn get_backup_limits(&self) -> BackupLimits {
-        self.get_config_optional(ConfigKey::BackupLimits)
-            .unwrap_or_default()
+    pub(crate) fn get_backups(&self) -> Backups {
+        self.get_config_optional(ConfigKey::Backups).unwrap_or(
+            // 2d + 12d + 10w + 9m ≈ 1y
+            Backups {
+                daily: 12,
+                weekly: 10,
+                monthly: 9,
+            },
+        )
     }
 
-    pub(crate) fn set_backup_limits(&mut self, limits: BackupLimits) -> Result<()> {
-        self.set_config(ConfigKey::BackupLimits, &limits)
-            .map(|_| ())
+    pub(crate) fn set_backups(&mut self, limits: Backups) -> Result<()> {
+        self.set_config(ConfigKey::Backups, &limits).map(|_| ())
     }
 }
 
@@ -295,27 +300,6 @@ pub(crate) enum Weekday {
     Monday = 1,
     Friday = 5,
     Saturday = 6,
-}
-
-#[derive(Debug, Clone, Copy, serde_derive::Deserialize, serde_derive::Serialize)]
-pub struct BackupLimits {
-    #[serde(rename = "d")]
-    pub daily: u32,
-    #[serde(rename = "w")]
-    pub weekly: u32,
-    #[serde(rename = "m")]
-    pub monthly: u32,
-}
-
-impl Default for BackupLimits {
-    fn default() -> Self {
-        // 2d + 12d + 10w + 9m ≈ 1y
-        Self {
-            daily: 12,
-            weekly: 10,
-            monthly: 9,
-        }
-    }
 }
 
 #[cfg(test)]
