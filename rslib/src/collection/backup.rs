@@ -366,23 +366,34 @@ fn get_zip_file_contents(file: &mut ZipFile) -> Option<Vec<u8>> {
 mod test {
     use super::*;
 
-    #[test]
-    fn thinning() {
-        macro_rules! backup {
-            ($year:expr, $month:expr, $day:expr) => {
-                Backup {
-                    datetime: Local.ymd($year, $month, $day).and_hms(0, 0, 0),
-                    path: PathBuf::new(),
-                }
-            };
-            ($year:expr, $month:expr, $day:expr, $hour:expr, $min:expr, $sec:expr) => {
-                Backup {
-                    datetime: Local.ymd($year, $month, $day).and_hms($hour, $min, $sec),
-                    path: PathBuf::new(),
-                }
-            };
-        }
+    macro_rules! backup {
+        ($num_days_from_ce:expr) => {
+            Backup {
+                datetime: Local
+                    .from_local_datetime(
+                        &NaiveDate::from_num_days_from_ce($num_days_from_ce).and_hms(0, 0, 0),
+                    )
+                    .latest()
+                    .unwrap(),
+                path: PathBuf::new(),
+            }
+        };
+        ($year:expr, $month:expr, $day:expr) => {
+            Backup {
+                datetime: Local.ymd($year, $month, $day).and_hms(0, 0, 0),
+                path: PathBuf::new(),
+            }
+        };
+        ($year:expr, $month:expr, $day:expr, $hour:expr, $min:expr, $sec:expr) => {
+            Backup {
+                datetime: Local.ymd($year, $month, $day).and_hms($hour, $min, $sec),
+                path: PathBuf::new(),
+            }
+        };
+    }
 
+    #[test]
+    fn thinning_manual() {
         let today = Local.ymd(2022, 2, 22);
         let limits = Backups {
             daily: 3,
@@ -420,6 +431,53 @@ mod test {
         let obsolete_backups =
             BackupThinner::new(today, limits).thin(backups.into_iter().map(|b| b.0));
 
+        assert_eq!(obsolete_backups, expected);
+    }
+
+    #[test]
+    fn thinning_generic() {
+        let today = Local.ymd(2022, 1, 1);
+        let today_ce_days = today.num_days_from_ce();
+        let limits = Backups {
+            // config defaults
+            daily: 12,
+            weekly: 10,
+            monthly: 9,
+        };
+        let backups: Vec<_> = (1..366).map(|i| backup!(today_ce_days - i)).collect();
+        let mut expected = Vec::new();
+
+        // one day grace period, then daily backups
+        let mut backup_iter = backups.iter().skip(1 + limits.daily as usize);
+
+        // weekly backups from the last day of the week (Sunday)
+        for _ in 0..limits.weekly {
+            while let Some(backup) = backup_iter.next() {
+                if backup.datetime.weekday() == Weekday::Sun {
+                    break;
+                } else {
+                    expected.push(backup.clone())
+                }
+            }
+        }
+
+        // monthly backups from the last day of the month
+        for _ in 0..limits.monthly {
+            while let Some(backup) = backup_iter.next() {
+                if backup.datetime.date().month() != backup.datetime.date().succ().month() {
+                    break;
+                } else {
+                    expected.push(backup.clone())
+                }
+            }
+        }
+
+        // limits reached; collect rest
+        backup_iter
+            .cloned()
+            .for_each(|backup| expected.push(backup));
+
+        let obsolete_backups = BackupThinner::new(today, limits).thin(backups.into_iter());
         assert_eq!(obsolete_backups, expected);
     }
 }
