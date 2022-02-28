@@ -26,21 +26,16 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT"
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
 # Generated Targets
 
-# Unsupported target "chainproxy" with type "example" omitted
-
-# Unsupported target "socket" with type "example" omitted
-
-# Unsupported target "tor" with type "example" omitted
-
 rust_library(
-    name = "tokio_socks",
+    name = "parking_lot",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -50,23 +45,15 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=tokio-socks",
+        "crate-name=parking_lot",
         "manual",
     ],
-    version = "0.5.1",
+    version = "0.12.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__either__1_6_1//:either",
-        "@raze__futures_util__0_3_21//:futures_util",
-        "@raze__thiserror__1_0_30//:thiserror",
-        "@raze__tokio__1_17_0//:tokio",
+        "@raze__lock_api__0_4_6//:lock_api",
+        "@raze__parking_lot_core__0_9_1//:parking_lot_core",
     ],
 )
 
-# Unsupported target "common" with type "test" omitted
-
-# Unsupported target "long_username_password_auth" with type "test" omitted
-
-# Unsupported target "no_auth" with type "test" omitted
-
-# Unsupported target "username_auth" with type "test" omitted
+# Unsupported target "issue_203" with type "test" omitted

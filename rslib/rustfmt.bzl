@@ -4,7 +4,7 @@
 def _rustfmt_impl(ctx):
     toolchain = ctx.toolchains["@rules_rust//rust:toolchain"]
     script_name = ctx.label.name + "_script"
-    rustfmt = toolchain.rustfmt.path
+    rustfmt = toolchain.rustfmt.short_path
     if ctx.attr.is_windows:
         script_name += ".bat"
         rustfmt = "@" + rustfmt.replace("/", "\\")

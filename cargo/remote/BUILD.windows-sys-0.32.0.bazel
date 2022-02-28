@@ -26,29 +26,24 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
 
-# Unsupported target "tcp_server" with type "example" omitted
-
-# Unsupported target "udp_server" with type "example" omitted
-
 rust_library(
-    name = "mio",
+    name = "windows_sys",
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
     crate_features = [
+        "Win32",
+        "Win32_Foundation",
+        "Win32_System",
+        "Win32_System_LibraryLoader",
+        "Win32_System_SystemServices",
+        "Win32_System_WindowsProgramming",
         "default",
-        "net",
-        "os-ext",
-        "os-poll",
-        "os-util",
-        "tcp",
-        "udp",
-        "uds",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -58,34 +53,18 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=mio",
+        "crate-name=windows-sys",
         "manual",
     ],
-    version = "0.7.14",
+    version = "0.32.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__log__0_4_14//:log",
     ] + selects.with_or({
-        # cfg(unix)
-        (
-            "@rules_rust//rust/platform:x86_64-apple-darwin",
-            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:aarch64-apple-darwin",
-            "@rules_rust//rust/platform:aarch64-apple-ios",
-            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:x86_64-apple-ios",
-        ): [
-            "@raze__libc__0_2_119//:libc",
-        ],
-        "//conditions:default": [],
-    }) + selects.with_or({
-        # cfg(windows)
+        # x86_64-pc-windows-msvc
         (
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
-            "@raze__miow__0_3_7//:miow",
-            "@raze__ntapi__0_3_7//:ntapi",
-            "@raze__winapi__0_3_9//:winapi",
+            "@raze__windows_x86_64_msvc__0_32_0//:windows_x86_64_msvc",
         ],
         "//conditions:default": [],
     }),
