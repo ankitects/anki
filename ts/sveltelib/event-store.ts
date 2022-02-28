@@ -1,0 +1,39 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+import type { Readable, Subscriber } from "svelte/store";
+import { readable } from "svelte/store";
+
+import type { EventTargetToMap } from "../lib/events";
+import { on } from "../lib/events";
+import type { Callback } from "../lib/typing";
+
+type Init<T> = { new (type: string): T; prototype: T };
+
+/**
+ * A store wrapping an event. Automatically adds/removes event handler upon
+ * first/last subscriber.
+ */
+export function eventStore<T extends EventTarget, K extends keyof EventTargetToMap<T>>(
+    target: T,
+    eventType: Exclude<K, symbol | number>,
+    /**
+     * Store need an initial value. This should probably be a freshly
+     * constructed event, e.g. `new MouseEvent("click")`.
+     */
+    constructor: Init<EventTargetToMap<T>[K]>,
+): Readable<EventTargetToMap<T>[K]> {
+    let latestEvent = new constructor(eventType);
+
+    return readable(
+        latestEvent,
+        (set: Subscriber<EventTargetToMap<T>[K]>): Callback => {
+            set(latestEvent);
+
+            return on(target, eventType, (event: EventTargetToMap<T>[K]): void => {
+                latestEvent = event;
+                set(event);
+            });
+        },
+    );
+}
