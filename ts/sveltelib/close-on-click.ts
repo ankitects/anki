@@ -1,7 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { on } from "../lib/events";
+import { eventStore } from "./event-store";
+
+const store = eventStore(document, "click", MouseEvent);
 
 /**
  * Typically the right-sided mouse button.
@@ -25,11 +27,11 @@ function closeOnClick(popover: HTMLElement): { destroy(): void } {
         return true;
     }
 
-    function popupShouldClose(this: Document, event: MouseEvent): void {
+    function popupShouldClose(event: MouseEvent): void {
         popover.hidden = shouldClose(event);
     }
 
-    const destroy = on(document, "click", popupShouldClose);
+    const destroy = store.subscribe(popupShouldClose);
 
     return {
         destroy,
