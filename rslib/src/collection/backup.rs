@@ -329,34 +329,28 @@ fn extract_media_file_names(archive: &mut ZipArchive<File>) -> Option<HashMap<St
 
 fn collection_reader(archive: &mut ZipArchive<File>) -> Result<Box<dyn Read + '_>> {
     match Meta::from_archive(archive).map(|meta| meta.version) {
-        Some(3) => {
-            version_3_reader(archive).ok_or_else(|| AnkiError::db_error("", DbErrorKind::Corrupt))
-        }
+        Some(3) => version_3_reader(archive)
+            .map(|reader| Box::new(reader) as Box<dyn Read>)
+            .ok_or_else(|| AnkiError::db_error("", DbErrorKind::Corrupt)),
         Some(_) => Err(AnkiError::db_error("", DbErrorKind::FileTooNew)),
-        None => legacy_reader(archive).ok_or_else(|| AnkiError::db_error("", DbErrorKind::Corrupt)),
+        None => legacy_reader(archive)
+            .map(|reader| Box::new(reader) as Box<dyn Read>)
+            .ok_or_else(|| AnkiError::db_error("", DbErrorKind::Corrupt)),
     }
 }
 
-fn version_3_reader(archive: &mut ZipArchive<File>) -> Option<Box<dyn Read + '_>> {
-    if let Ok(file) = archive.by_name("collection.anki21b") {
-        if let Ok(decoder) = Decoder::new(file) {
-            return Some(Box::new(decoder));
-        }
-    }
-    None
+fn version_3_reader(archive: &mut ZipArchive<File>) -> Option<impl Read + '_> {
+    archive
+        .by_name("collection.anki21b")
+        .ok()
+        .and_then(|file| Decoder::new(file).ok())
 }
 
-fn legacy_reader<'a>(archive: &'a mut ZipArchive<File>) -> Option<Box<dyn Read + 'a>> {
+fn legacy_reader<'a>(archive: &'a mut ZipArchive<File>) -> Option<impl Read + '_> {
     if archive.file_names().contains(&"collection.anki21") {
-        if let Ok(file) = archive.by_name("collection.anki21") {
-            Some(Box::new(file))
-        } else {
-            None
-        }
-    } else if let Ok(file) = archive.by_name("collection.anki2") {
-        Some(Box::new(file))
+        archive.by_name("collection.anki21").ok()
     } else {
-        None
+        archive.by_name("collection.anki2").ok()
     }
 }
 
