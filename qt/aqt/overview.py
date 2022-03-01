@@ -222,8 +222,7 @@ class Overview:
     def _table(self) -> str | None:
         counts = list(self.mw.col.sched.counts())
         current_did = self.mw.col.decks.get_current_id()
-        deck_tree = self.mw.col.sched.deck_due_tree(current_did)
-        deck_node = self.mw.col.decks.find_deck_in_tree(deck_tree, current_did)
+        deck_node = self.mw.col.sched.deck_due_tree(current_did)
 
         but = self.mw.button
         buried_new = deck_node.new_count - counts[0]
