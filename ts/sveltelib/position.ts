@@ -4,14 +4,12 @@
 import type { Placement } from "@floating-ui/dom";
 import { autoUpdate, computePosition, shift, offset, arrow } from "@floating-ui/dom";
 
-const floatingElements: Map<EventTarget, () => void> = new Map();
-
 interface PositionArgs {
-    placement: Placement;
     /**
      * The floating element which is positioned relative to `reference`.
      */
-    floating: HTMLElement;
+    floating: HTMLElement | null;
+    placement: Placement;
     arrow: HTMLElement;
 }
 
@@ -24,7 +22,7 @@ function position(
     async function updateInner(): Promise<void> {
         const { x, y, middlewareData } = await computePosition(
             reference,
-            args.floating,
+            args.floating!,
             {
                 middleware: [
                     offset(5),
@@ -42,7 +40,7 @@ function position(
             top: `-5px`,
         });
 
-        Object.assign(args.floating.style, {
+        Object.assign(args.floating!.style, {
             left: `${x}px`,
             top: `${y}px`,
         });
@@ -58,7 +56,8 @@ function position(
             return;
         }
 
-        floatingElements.delete(args.floating);
+        args.floating.style.removeProperty("left");
+        args.floating.style.removeProperty("top");
     }
 
     function update(updateArgs: PositionArgs): void {
@@ -70,7 +69,6 @@ function position(
         }
 
         cleanup = autoUpdate(reference, args.floating, updateInner);
-        floatingElements.set(args.floating, destroy);
     }
 
     update(args);

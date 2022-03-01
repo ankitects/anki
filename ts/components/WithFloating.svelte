@@ -15,9 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import toggleable from "../sveltelib/toggleable";
 
     export let placement: Placement = "bottom";
-
     export let closeOnInsideClick = false;
-    export let keepOpenOnOutsideClick = false;
 
     /** This may be passed in for more fine-grained control */
     export let show = writable(false);
@@ -35,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 reference,
                 floating,
                 inside: closeOnInsideClick,
-                outside: !keepOpenOnOutsideClick,
+                outside: true,
             }),
             isClosingKeyup(documentKeyup, {
                 reference,
@@ -48,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     bind:this={reference}
     class="reference"
-    use:position={{ placement, floating, arrow }}
+    use:position={{ floating: $show ? floating : null, placement, arrow }}
 >
     <slot name="reference" {show} {toggle} {on} {off} />
 </div>
