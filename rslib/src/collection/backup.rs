@@ -15,7 +15,7 @@ use itertools::Itertools;
 use log::error;
 use serde_derive::{Deserialize, Serialize};
 use tempfile::NamedTempFile;
-use zip::{read::ZipFile, write::FileOptions, CompressionMethod, ZipArchive, ZipWriter};
+use zip::{write::FileOptions, CompressionMethod, ZipArchive, ZipWriter};
 use zstd::{self, Decoder, Encoder};
 
 use crate::{
@@ -305,14 +305,13 @@ fn restore_media(
             return Err(AnkiError::Interrupted);
         }
 
-        if let Ok(mut file) = archive.by_name(&archive_file_name) {
+        if let Ok(mut zip_file) = archive.by_name(&archive_file_name) {
             let file_path = Path::new(&media_folder).join(normalize_to_nfc(&file_name).as_ref());
             let files_are_equal = fs::metadata(&file_path)
-                .map(|metadata| metadata.len() == file.size())
+                .map(|metadata| metadata.len() == zip_file.size())
                 .unwrap_or_default();
             if !files_are_equal {
-                let contents = get_zip_file_contents(&mut file).ok_or(AnkiError::NotFound)?;
-                fs::write(&file_path, &contents)?;
+                io::copy(&mut zip_file, &mut File::open(file_path)?)?;
             }
         }
     }
@@ -323,7 +322,10 @@ fn extract_media_file_names(archive: &mut ZipArchive<File>) -> Option<HashMap<St
     archive
         .by_name("media")
         .ok()
-        .and_then(|mut file| get_zip_file_contents(&mut file))
+        .and_then(|mut file| {
+            let mut buf = Vec::new();
+            file.read_to_end(&mut buf).ok().map(|_| buf)
+        })
         .and_then(|bytes| serde_json::from_slice(&bytes).ok())
 }
 
@@ -346,17 +348,12 @@ fn version_3_reader(archive: &mut ZipArchive<File>) -> Option<impl Read + '_> {
         .and_then(|file| Decoder::new(file).ok())
 }
 
-fn legacy_reader<'a>(archive: &'a mut ZipArchive<File>) -> Option<impl Read + '_> {
+fn legacy_reader(archive: &mut ZipArchive<File>) -> Option<impl Read + '_> {
     if archive.file_names().contains(&"collection.anki21") {
         archive.by_name("collection.anki21").ok()
     } else {
         archive.by_name("collection.anki2").ok()
     }
-}
-
-fn get_zip_file_contents(file: &mut ZipFile) -> Option<Vec<u8>> {
-    let mut buf = Vec::new();
-    file.read_to_end(&mut buf).ok().map(|_| buf)
 }
 
 #[cfg(test)]
