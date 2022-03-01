@@ -7,7 +7,7 @@ use std::{
     fs::{self, read_dir, remove_file, DirEntry, File},
     io::{Read, Write},
     path::{Path, PathBuf},
-    thread,
+    thread::{self, JoinHandle},
 };
 
 use chrono::prelude::*;
@@ -35,15 +35,15 @@ struct Meta {
     version: u8,
 }
 
-pub fn backup<P1, P2>(col_path: P1, backup_folder: P2, limits: Backups) -> Result<()>
+pub fn backup<P1, P2>(col_path: P1, backup_folder: P2, limits: Backups) -> Result<JoinHandle<()>>
 where
     P1: AsRef<Path>,
     P2: AsRef<Path> + Send + 'static,
 {
     let col_data = std::fs::read(col_path)?;
-    thread::spawn(move || backup_inner(&col_data, &backup_folder, limits));
-
-    Ok(())
+    Ok(thread::spawn(move || {
+        backup_inner(&col_data, &backup_folder, limits)
+    }))
 }
 
 pub fn restore_backup(

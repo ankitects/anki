@@ -500,6 +500,8 @@ class AnkiQt(QMainWindow):
     def cleanupAndExit(self) -> None:
         self.errorHandler.unload()
         self.mediaServer.shutdown()
+        # Rust background jobs are not awaited implicitly
+        self.backend.join_backup_task()
         self.app.exit(0)
 
     # Sound/video

@@ -30,6 +30,7 @@ mod tags;
 use std::{
     result,
     sync::{Arc, Mutex},
+    thread::JoinHandle,
 };
 
 use once_cell::sync::OnceCell;
@@ -72,6 +73,7 @@ pub struct Backend {
     progress_state: Arc<Mutex<ProgressState>>,
     runtime: OnceCell<Runtime>,
     state: Arc<Mutex<BackendState>>,
+    backup_task: Arc<Mutex<Option<JoinHandle<()>>>>,
 }
 
 #[derive(Default)]
@@ -103,6 +105,7 @@ impl Backend {
             })),
             runtime: OnceCell::new(),
             state: Arc::new(Mutex::new(BackendState::default())),
+            backup_task: Arc::new(Mutex::new(None)),
         }
     }
 

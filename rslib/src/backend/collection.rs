@@ -64,7 +64,10 @@ impl CollectionService for Backend {
         }
 
         if let Some(backup_folder) = input.backup_folder {
-            backup::backup(col_path, backup_folder, limits)?;
+            let mut opt = self.backup_task.lock().unwrap();
+            if let Some(task) = opt.replace(backup::backup(col_path, backup_folder, limits)?) {
+                task.join().unwrap();
+            }
         }
 
         Ok(().into())
@@ -123,5 +126,12 @@ impl CollectionService for Backend {
         let starting_from = input.val as usize;
         self.with_col(|col| col.merge_undoable_ops(starting_from))
             .map(Into::into)
+    }
+
+    fn join_backup_task(&self, _input: pb::Empty) -> Result<pb::Empty> {
+        if let Some(task) = self.backup_task.lock().unwrap().take() {
+            task.join().unwrap();
+        }
+        Ok(().into())
     }
 }

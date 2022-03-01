@@ -19,6 +19,7 @@ service CollectionService {
   rpc MergeUndoEntries(generic.UInt32) returns (OpChanges);
   rpc LatestProgress(generic.Empty) returns (Progress);
   rpc SetWantsAbort(generic.Empty) returns (generic.Empty);
+  rpc JoinBackupTask(generic.Empty) returns (generic.Empty);
 }
 
 message OpenCollectionRequest {
