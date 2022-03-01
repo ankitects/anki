@@ -2,15 +2,14 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script lang="ts">
-</script>
+<!-- Alternative to DropdownMenu that avoid Bootstrap -->
 
-<div class="our-dropdown-menu" on:mousedown|preventDefault>
+<div class="dropdown" on:mousedown|preventDefault>
     <slot />
 </div>
 
 <style lang="scss">
-    .our-dropdown-menu {
+    .dropdown {
         border-radius: 5px;
         background-color: var(--frame-bg);
         min-width: 1rem;

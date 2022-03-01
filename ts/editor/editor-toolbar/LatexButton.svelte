@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import DropdownItem from "../../components/DropdownItem.svelte";
-    import OurDropdownMenu from "../../components/OurDropdownMenu.svelte";
+    import Dropdown from "../../components/Dropdown.svelte";
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
@@ -15,6 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
     import { functionIcon } from "./icons";
+    import { writable } from "svelte/store";
 
     const { focusedInput } = noteEditorContext.get();
     $: richTextAPI = $focusedInput as RichTextInputAPI;
@@ -60,18 +61,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ];
 
     $: disabled = !editingInputIsRichText($focusedInput);
+
+    const showDropdown = writable(false);
+
+    $: if (disabled) {
+        $showDropdown = false;
+    }
 </script>
 
-<WithFloating closeOnFloatingClick let:show>
-    <IconButton
-        {disabled}
-        slot="reference"
-        on:click={() => show.update((value) => !value)}
-    >
+<WithFloating show={showDropdown} closeOnInsideClick let:toggle>
+    <IconButton slot="reference" {disabled} on:click={toggle}>
         {@html functionIcon}
     </IconButton>
 
-    <OurDropdownMenu slot="floating">
+    <Dropdown slot="floating">
         {#each dropdownItems as [callback, keyCombination, label]}
             <DropdownItem on:click={callback}>
                 {label}
@@ -81,7 +84,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </DropdownItem>
             <Shortcut {keyCombination} on:action={callback} />
         {/each}
-    </OurDropdownMenu>
+    </Dropdown>
 </WithFloating>
 
 <style lang="scss">

@@ -24,7 +24,6 @@ function isClosingKeyup(
     { reference, floating }: ClosingKeyupArgs,
 ): Readable<symbol> {
     function shouldClose(event: KeyboardEvent) {
-        console.log("keyup", event, event.key);
         if (event.key === "Tab") {
             // Allow Tab navigation.
             return false;

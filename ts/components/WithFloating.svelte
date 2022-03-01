@@ -12,15 +12,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import isClosingClick from "../sveltelib/closing-click";
     import isClosingKeyup from "../sveltelib/closing-keyup";
     import subscribeTrigger from "../sveltelib/subscribe-trigger";
+    import toggleable from "../sveltelib/toggleable";
 
     export let placement: Placement = "bottom";
-    export let closeOnFloatingClick: boolean = false;
+
+    export let closeOnInsideClick = false;
+    export let keepOpenOnOutsideClick = false;
+
+    /** This may be passed in for more fine-grained control */
+    export let show = writable(false);
 
     let reference: HTMLElement;
     let floating: HTMLElement;
     let arrow: HTMLElement;
 
-    let show = writable(false);
+    const { toggle, on, off } = toggleable(show);
 
     onMount(() =>
         subscribeTrigger(
@@ -28,8 +34,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             isClosingClick(documentClick, {
                 reference,
                 floating,
-                inside: closeOnFloatingClick,
-                outside: true,
+                inside: closeOnInsideClick,
+                outside: !keepOpenOnOutsideClick,
             }),
             isClosingKeyup(documentKeyup, {
                 reference,
@@ -44,7 +50,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="reference"
     use:position={{ placement, floating, arrow }}
 >
-    <slot name="reference" {show} />
+    <slot name="reference" {show} {toggle} {on} {off} />
 </div>
 
 <div bind:this={floating} class="floating" hidden={!$show} use:portal>
