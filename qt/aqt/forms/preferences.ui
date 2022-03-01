@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>509</height>
+    <height>518</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -615,18 +615,15 @@
          </property>
         </spacer>
        </item>
-       <item>
-        <widget class="QLabel" name="label_21">
-         <property name="text">
-          <string>preferences_some_settings_will_take_effect_after</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_21">
+     <property name="text">
+      <string>preferences_some_settings_will_take_effect_after</string>
+     </property>
     </widget>
    </item>
    <item>
