@@ -14,7 +14,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import subscribeTrigger from "../sveltelib/subscribe-trigger";
     import toggleable from "../sveltelib/toggleable";
 
-    export let placement: Placement = "bottom";
+    /** TODO at the moment we only dropdowns which are placed actually below the reference */
+    let placement: Placement = "bottom";
+
     export let closeOnInsideClick = false;
 
     /** This may be passed in for more fine-grained control */
@@ -79,8 +81,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         width: 10px;
         height: 10px;
         transform: rotate(45deg);
+        z-index: 60;
 
-        z-index: -1;
-        @include elevation.elevation(8);
+        /* outer border */
+        border: 1px solid #060606;
+        /* lightmode border: 1px solid #b6b6b6; */
+
+        /* These are dependant on which edge the arrow is supposed to be */
+        border-right: none;
+        border-bottom: none;
+
+        /* inner border */
+        box-shadow: inset 1px 1px 0 0 #555656;
+        /* lightmode box-shadow: inset 1px 1px 0 0 #eee; */
     }
 </style>

@@ -17,5 +17,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding: 0.5rem 0;
         font-size: 1rem;
         color: var(--text-fg);
+
+        /* outer border */
+        border: 1px solid #060606;
+        /* inner border */
+        box-shadow: inset 0 0 0 1px #555656;
     }
 </style>

@@ -1,5 +1,6 @@
 // Heavily inspired by https://github.com/material-components/material-components-web/tree/master/packages/mdc-elevation
 @use "sass:map";
+@use "sass:list";
 
 /**
  * The maps correspond to dp levels:
@@ -70,10 +71,10 @@ $ambient-opacity: 0.12;
     @return (
         #{"#{$umbra-z-value} #{$umbra-color}"},
         #{"#{$penumbra-z-value} #{$penumbra-color}"},
-        #{$ambient-z-value} $ambient-color
+        #{$ambient-z-value} $ambient-color,
     );
 }
 
-@mixin elevation($level) {
-    box-shadow: box-shadow($level);
+@mixin elevation($level, $other: ()) {
+    box-shadow: list.join(box-shadow($level), $other);
 }
