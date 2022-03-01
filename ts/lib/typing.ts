@@ -6,3 +6,11 @@ export function assertUnreachable(x: never): never {
 }
 
 export type Callback = () => void;
+
+export function singleCallback(...callbacks: Callback[]): Callback {
+    return () => {
+        for (const cb of callbacks) {
+            cb();
+        }
+    };
+}

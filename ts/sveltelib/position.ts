@@ -27,9 +27,9 @@ function position(
             args.floating,
             {
                 middleware: [
-                    offset(10),
+                    offset(5),
                     shift({ padding: 5 }),
-                    arrow({ element: args.arrow, padding: 5 }),
+                    arrow({ element: args.arrow }),
                 ],
                 placement: args.placement,
             },
