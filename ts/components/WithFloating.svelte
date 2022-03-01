@@ -8,8 +8,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Placement } from "@floating-ui/dom";
     import position from "../sveltelib/position";
     import portal from "../sveltelib/portal";
-    import { documentClick } from "../sveltelib/event-store";
+    import { documentClick, documentKeyup } from "../sveltelib/event-store";
     import isClosingClick from "../sveltelib/closing-click";
+    import isClosingKeyup from "../sveltelib/closing-keyup";
     import subscribeTrigger from "../sveltelib/subscribe-trigger";
 
     export let placement: Placement = "bottom";
@@ -29,6 +30,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 floating,
                 inside: closeOnFloatingClick,
                 outside: true,
+            }),
+            isClosingKeyup(documentKeyup, {
+                reference,
+                floating,
             }),
         ),
     );

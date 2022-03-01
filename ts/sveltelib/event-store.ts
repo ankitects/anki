@@ -37,5 +37,6 @@ function eventStore<T extends EventTarget, K extends keyof EventTargetToMap<T>>(
 export default eventStore;
 
 const documentClick = eventStore(document, "click", MouseEvent);
+const documentKeyup = eventStore(document, "keyup", KeyboardEvent);
 
-export { documentClick };
+export { documentClick, documentKeyup };

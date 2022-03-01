@@ -14,10 +14,10 @@ import { Callback, singleCallback } from "../lib/typing";
  */
 function subscribeTrigger(
     active: Writable<boolean>,
-    ...stores: Readable<boolean>[]
+    ...stores: Readable<unknown>[]
 ): Callback {
-    function shouldUnset(value: boolean): void {
-        active.set(!value);
+    function shouldUnset(): void {
+        active.set(false);
     }
 
     let destroy: Callback | null;

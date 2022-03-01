@@ -31,7 +31,7 @@ interface ClosingClickArgs {
 function isClosingClick(
     store: Readable<MouseEvent>,
     { reference, floating, inside, outside }: ClosingClickArgs,
-): Readable<boolean> {
+): Readable<symbol> {
     function isTriggerClick(path: EventTarget[]): boolean {
         return (
             // Reference element was clicked, e.g. the button.
@@ -54,9 +54,11 @@ function isClosingClick(
         return false;
     }
 
-    return derived(store, (event: MouseEvent, set: (value: boolean) => void): void =>
-        set(shouldClose(event)),
-    );
+    return derived(store, (event: MouseEvent, set: (value: symbol) => void): void => {
+        if (shouldClose(event)) {
+            set(Symbol());
+        }
+    });
 }
 
 export default isClosingClick;
