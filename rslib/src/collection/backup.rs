@@ -5,7 +5,7 @@ use std::{
     collections::HashMap,
     ffi::OsStr,
     fs::{self, read_dir, remove_file, DirEntry, File},
-    io::{Read, Write},
+    io::{self, Read, Write},
     path::{Path, PathBuf},
     thread::{self, JoinHandle},
 };
@@ -16,7 +16,7 @@ use log::error;
 use serde_derive::{Deserialize, Serialize};
 use tempfile::NamedTempFile;
 use zip::{read::ZipFile, write::FileOptions, CompressionMethod, ZipArchive, ZipWriter};
-use zstd::{self, Encoder};
+use zstd::{self, Decoder, Encoder};
 
 use crate::{
     backend_proto::preferences::Backups, collection::CollectionBuilder, error::DbErrorKind, log,
@@ -57,12 +57,11 @@ pub fn restore_backup(
     let col_dir = col_path
         .parent()
         .ok_or_else(|| AnkiError::invalid_input("bad collection path"))?;
-    let tempfile = NamedTempFile::new_in(col_dir)?;
+    let mut tempfile = NamedTempFile::new_in(col_dir)?;
 
     let backup_file = File::open(backup_path)?;
     let mut archive = ZipArchive::new(backup_file)?;
-    let new_col_data = extract_collection_data(&mut archive)?;
-    fs::write(&tempfile, new_col_data)?;
+    io::copy(&mut collection_reader(&mut archive)?, &mut tempfile)?;
 
     check_collection(tempfile.path())?;
 
@@ -111,7 +110,7 @@ fn write_backup<S: AsRef<OsStr>>(mut col_data: &[u8], backup_folder: S) -> Resul
 fn zstd_copy<R: Read, W: Write>(reader: &mut R, writer: &mut W) -> Result<()> {
     let mut encoder = Encoder::new(writer, 0)?;
     encoder.multithread(num_cpus::get() as u32)?;
-    std::io::copy(reader, &mut encoder)?;
+    io::copy(reader, &mut encoder)?;
     encoder.finish()?;
     Ok(())
 }
@@ -328,33 +327,37 @@ fn extract_media_file_names(archive: &mut ZipArchive<File>) -> Option<HashMap<St
         .and_then(|bytes| serde_json::from_slice(&bytes).ok())
 }
 
-fn extract_collection_data(archive: &mut ZipArchive<File>) -> Result<Vec<u8>> {
+fn collection_reader(archive: &mut ZipArchive<File>) -> Result<Box<dyn Read + '_>> {
     match Meta::from_archive(archive).map(|meta| meta.version) {
-        Some(3) => extract_version_3_data(archive)
-            .ok_or_else(|| AnkiError::db_error("", DbErrorKind::Corrupt)),
+        Some(3) => {
+            version_3_reader(archive).ok_or_else(|| AnkiError::db_error("", DbErrorKind::Corrupt))
+        }
         Some(_) => Err(AnkiError::db_error("", DbErrorKind::FileTooNew)),
-        None => extract_legacy_data(archive)
-            .ok_or_else(|| AnkiError::db_error("", DbErrorKind::Corrupt)),
+        None => legacy_reader(archive).ok_or_else(|| AnkiError::db_error("", DbErrorKind::Corrupt)),
     }
 }
 
-fn extract_version_3_data(archive: &mut ZipArchive<File>) -> Option<Vec<u8>> {
-    archive
-        .by_name("collection.anki21b")
-        .ok()
-        .and_then(|file| zstd::decode_all(file).ok())
+fn version_3_reader(archive: &mut ZipArchive<File>) -> Option<Box<dyn Read + '_>> {
+    if let Ok(file) = archive.by_name("collection.anki21b") {
+        if let Ok(decoder) = Decoder::new(file) {
+            return Some(Box::new(decoder));
+        }
+    }
+    None
 }
 
-fn extract_legacy_data(archive: &mut ZipArchive<File>) -> Option<Vec<u8>> {
-    fn extract_by_name(archive: &mut ZipArchive<File>, name: &str) -> Option<Vec<u8>> {
-        archive
-            .by_name(name)
-            .ok()
-            .and_then(|mut file| get_zip_file_contents(&mut file))
+fn legacy_reader<'a>(archive: &'a mut ZipArchive<File>) -> Option<Box<dyn Read + 'a>> {
+    if archive.file_names().contains(&"collection.anki21") {
+        if let Ok(file) = archive.by_name("collection.anki21") {
+            Some(Box::new(file))
+        } else {
+            None
+        }
+    } else if let Ok(file) = archive.by_name("collection.anki2") {
+        Some(Box::new(file))
+    } else {
+        None
     }
-
-    extract_by_name(archive, "collection.anki21")
-        .or_else(|| extract_by_name(archive, "collection.anki2"))
 }
 
 fn get_zip_file_contents(file: &mut ZipFile) -> Option<Vec<u8>> {
