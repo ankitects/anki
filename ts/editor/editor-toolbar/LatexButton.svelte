@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import DropdownItem from "../../components/DropdownItem.svelte";
-    import Dropdown from "../../components/Dropdown.svelte";
+    import Popover from "../../components/Popover.svelte";
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
@@ -74,7 +74,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {@html functionIcon}
     </IconButton>
 
-    <Dropdown slot="floating">
+    <Popover slot="floating">
         {#each dropdownItems as [callback, keyCombination, label]}
             <DropdownItem on:click={callback}>
                 {label}
@@ -84,7 +84,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </DropdownItem>
             <Shortcut {keyCombination} on:action={callback} />
         {/each}
-    </Dropdown>
+    </Popover>
 </WithFloating>
 
 <style lang="scss">

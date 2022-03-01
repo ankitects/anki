@@ -13,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import isClosingKeyup from "../sveltelib/closing-keyup";
     import subscribeTrigger from "../sveltelib/subscribe-trigger";
     import toggleable from "../sveltelib/toggleable";
+    import { pageTheme } from "../sveltelib/theme";
 
     /** TODO at the moment we only dropdowns which are placed actually below the reference */
     let placement: Placement = "bottom";
@@ -56,7 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div bind:this={floating} class="floating" hidden={!$show} use:portal>
     <slot name="floating" />
 
-    <div bind:this={arrow} class="arrow" />
+    <div bind:this={arrow} class="arrow" class:dark={$pageTheme.isDark} />
 </div>
 
 <style lang="scss">
@@ -84,15 +85,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         z-index: 60;
 
         /* outer border */
-        border: 1px solid #060606;
-        /* lightmode border: 1px solid #b6b6b6; */
+        border: 1px solid #b6b6b6;
+
+        &.dark {
+            border-color: #060606;
+        }
 
         /* These are dependant on which edge the arrow is supposed to be */
         border-right: none;
         border-bottom: none;
 
         /* inner border */
-        box-shadow: inset 1px 1px 0 0 #555656;
+        box-shadow: inset 1px 1px 0 0 #eeeeee;
         /* lightmode box-shadow: inset 1px 1px 0 0 #eee; */
+
+        &.dark {
+            box-shadow: inset 0 0 0 1px #565656;
+        }
     }
 </style>
