@@ -2,16 +2,17 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { Placement } from "@floating-ui/dom";
-import { autoUpdate, computePosition } from "@floating-ui/dom";
+import { autoUpdate, computePosition, shift, offset, arrow } from "@floating-ui/dom";
 
 const floatingElements: Map<EventTarget, () => void> = new Map();
 
 interface PositionArgs {
+    placement: Placement;
     /**
      * The floating element which is positioned relative to `reference`.
      */
     floating: HTMLElement;
-    placement: Placement;
+    arrow: HTMLElement;
 }
 
 function position(
@@ -21,8 +22,24 @@ function position(
     let args = positionArgs;
 
     async function updateInner(): Promise<void> {
-        const { x, y } = await computePosition(reference, args.floating, {
-            placement: args.placement,
+        const { x, y, middlewareData } = await computePosition(
+            reference,
+            args.floating,
+            {
+                middleware: [
+                    offset(10),
+                    shift({ padding: 5 }),
+                    arrow({ element: args.arrow, padding: 5 }),
+                ],
+                placement: args.placement,
+            },
+        );
+
+        const arrowX = middlewareData.arrow?.x ?? "";
+
+        Object.assign(args.arrow.style, {
+            left: `${arrowX}px`,
+            top: `-5px`,
         });
 
         Object.assign(args.floating.style, {

@@ -11,9 +11,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .our-dropdown-menu {
-        border: 1px solid var(--medium-border);
         border-radius: 5px;
         background-color: var(--frame-bg);
         min-width: 1rem;
+
+        padding: 0.5rem 0;
+        font-size: 1rem;
+        color: var(--text-fg);
     }
 </style>

@@ -10,30 +10,59 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import closeOnClick from "../sveltelib/close-on-click";
 
     export let placement: Placement = "bottom";
+    export let closeOnFloatingClick: boolean = false;
 
     let reference: HTMLElement;
     let floating: HTMLElement;
+    let arrow: HTMLElement;
 
     let show = writable(false);
 </script>
 
-<div bind:this={reference} class="reference" use:position={{ floating, placement }}>
+<div
+    bind:this={reference}
+    class="reference"
+    use:position={{ placement, floating, arrow }}
+>
     <slot name="reference" {show} />
 </div>
 
 <div
     bind:this={floating}
     class="floating"
-    use:portal
-    use:closeOnClick={{ active: show, reference }}
     hidden={!$show}
+    use:portal
+    use:closeOnClick={{ active: show, reference, inside: closeOnFloatingClick }}
 >
     <slot name="floating" />
+
+    <div bind:this={arrow} class="arrow" />
 </div>
 
 <style lang="scss">
+    @use "sass/elevation" as elevation;
+
+    .reference {
+        /* TODO This should not be necessary */
+        line-height: normal;
+    }
+
     .floating {
         position: absolute;
+        border-radius: 5px;
+
         z-index: 90;
+        @include elevation.elevation(8);
+    }
+
+    .arrow {
+        position: absolute;
+        background-color: var(--frame-bg);
+        width: 10px;
+        height: 10px;
+        transform: rotate(45deg);
+
+        z-index: -1;
+        @include elevation.elevation(8);
     }
 </style>

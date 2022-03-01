@@ -5,12 +5,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import DropdownItem from "../../components/DropdownItem.svelte";
     import OurDropdownMenu from "../../components/OurDropdownMenu.svelte";
-    /* import { withButton } from "../../components/helpers"; */
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
-    /* import WithDropdown from "../../components/WithDropdown.svelte"; */
     import WithFloating from "../../components/WithFloating.svelte";
-    import Portal from "../../components/Portal.svelte";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
     import { wrapInternal } from "../../lib/wrap";
@@ -65,7 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: disabled = !editingInputIsRichText($focusedInput);
 </script>
 
-<WithFloating let:show>
+<WithFloating closeOnFloatingClick let:show>
     <IconButton
         {disabled}
         slot="reference"

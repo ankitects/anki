@@ -22,6 +22,8 @@ interface CloseOnClickProps {
      * should trigger itself.
      */
     reference: EventTarget;
+    inside: boolean;
+    outside: boolean;
 }
 
 /**
@@ -31,19 +33,30 @@ interface CloseOnClickProps {
  */
 function closeOnClick(
     element: HTMLElement,
-    { active, reference }: CloseOnClickProps,
+    { active, reference, inside = false, outside = true }: CloseOnClickProps,
 ): { destroy(): void; update(props: CloseOnClickProps): void } {
     let currentReference = reference;
 
+    function trigger(): void {
+        active.set(false);
+    }
+
+    function isTriggerClick(path: EventTarget[]): boolean {
+        return (
+            // Reference element was clicked, e.g. the button.
+            // The reference element needs to handle opening/closing itself.
+            !path.includes(currentReference) &&
+            ((inside && path.includes(element)) || (outside && !path.includes(element)))
+        );
+    }
+
     function shouldClose(event: MouseEvent): void {
         if (isSecondaryButton(event)) {
-            return active.set(false);
+            return trigger();
         }
 
-        const path = event.composedPath();
-
-        if (!path.includes(element) && !path.includes(currentReference)) {
-            return active.set(false);
+        if (isTriggerClick(event.composedPath())) {
+            return trigger();
         }
     }
 

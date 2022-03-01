@@ -13,6 +13,9 @@ type Init<T> = { new (type: string): T; prototype: T };
 /**
  * A store wrapping an event. Automatically adds/removes event handler upon
  * first/last subscriber.
+ *
+ * @remarks
+ * Should probably always be used in conjunction with `subscribeToUpdates`.
  */
 function eventStore<T extends EventTarget, K extends keyof EventTargetToMap<T>>(
     target: T,
