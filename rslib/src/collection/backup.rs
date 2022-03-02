@@ -61,8 +61,9 @@ pub fn restore_backup(
 
     let backup_file = File::open(backup_path)?;
     let mut archive = ZipArchive::new(backup_file)?;
-    io::copy(&mut collection_reader(&mut archive)?, &mut tempfile)?;
+    let meta = Meta::from_archive(&mut archive)?;
 
+    copy_collection(&mut archive, &mut tempfile, meta)?;
     check_collection(tempfile.path())?;
 
     let result = match restore_media(progress_fn, &mut archive, media_folder) {
@@ -273,11 +274,32 @@ impl BackupFilter {
 }
 
 impl Meta {
-    fn from_archive(archive: &mut ZipArchive<File>) -> Option<Self> {
-        archive
+    /// Extracts meta data from an archive and checks if its version is supported.
+    fn from_archive(archive: &mut ZipArchive<File>) -> Result<Self> {
+        let mut meta: Self = archive
             .by_name("meta")
             .ok()
             .and_then(|file| serde_json::from_reader(file).ok())
+            .unwrap_or_default();
+        if meta.version > BACKUP_VERSION {
+            return Err(AnkiError::db_error("", DbErrorKind::FileTooNew));
+        } else if meta.version == 0 {
+            meta.version = if archive.by_name("collection.anki21").is_ok() {
+                2
+            } else {
+                1
+            };
+        }
+
+        Ok(meta)
+    }
+
+    fn collection_name(&self) -> &'static str {
+        match self.version {
+            1 => "collection.anki2",
+            2 => "collection.anki21",
+            _ => "collection.anki21b",
+        }
     }
 }
 
@@ -331,32 +353,25 @@ fn extract_media_file_names(archive: &mut ZipArchive<File>) -> Option<HashMap<St
         .and_then(|bytes| serde_json::from_slice(&bytes).ok())
 }
 
-fn collection_reader(archive: &mut ZipArchive<File>) -> Result<Box<dyn Read + '_>> {
-    match Meta::from_archive(archive).map(|meta| meta.version) {
-        Some(3) => version_3_reader(archive)
-            .map(|reader| Box::new(reader) as Box<dyn Read>)
-            .ok_or_else(|| AnkiError::db_error("", DbErrorKind::Corrupt)),
-        Some(_) => Err(AnkiError::db_error("", DbErrorKind::FileTooNew)),
-        None => legacy_reader(archive)
-            .map(|reader| Box::new(reader) as Box<dyn Read>)
-            .ok_or_else(|| AnkiError::db_error("", DbErrorKind::Corrupt)),
-    }
-}
-
-fn version_3_reader(archive: &mut ZipArchive<File>) -> Option<impl Read + '_> {
+fn copy_collection(
+    archive: &mut ZipArchive<File>,
+    writer: &mut impl Write,
+    meta: Meta,
+) -> Result<()> {
     archive
-        .by_name("collection.anki21b")
+        .by_name(meta.collection_name())
         .ok()
-        .and_then(|file| Decoder::new(file).ok())
-}
-
-fn legacy_reader(archive: &mut ZipArchive<File>) -> Option<impl Read + '_> {
-    let have21 = archive.by_name("collection.anki21").is_ok();
-    if have21 {
-        archive.by_name("collection.anki21").ok()
-    } else {
-        archive.by_name("collection.anki2").ok()
-    }
+        .and_then(|mut file| {
+            if meta.version < 3 {
+                io::copy(&mut file, writer).ok()
+            } else {
+                Decoder::new(file)
+                    .ok()
+                    .and_then(|mut reader| io::copy(&mut reader, writer).ok())
+            }
+        })
+        .map(|_| ())
+        .ok_or_else(|| AnkiError::db_error("", DbErrorKind::Corrupt))
 }
 
 #[cfg(test)]
