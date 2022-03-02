@@ -1,12 +1,12 @@
-<!-- Alternative to DropdownMenu that avoids Bootstrap -->
-<script>
-    import { pageTheme } from "../sveltelib/theme";
-</script>
-
 <!--
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+Alternative to DropdownMenu that avoids Bootstrap
 -->
+<script>
+    import { pageTheme } from "../sveltelib/theme";
+</script>
 
 <div class="popover" class:dark={$pageTheme.isDark} on:mousedown|preventDefault>
     <slot />
