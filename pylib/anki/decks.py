@@ -174,7 +174,7 @@ class DeckManager(DeprecatedNamesMixin):
         return deck
 
     def deck_tree(self) -> DeckTreeNode:
-        return self.col._backend.deck_tree(top_deck_id=0, now=0)
+        return self.col._backend.deck_tree(now=0)
 
     @classmethod
     def find_deck_in_tree(
