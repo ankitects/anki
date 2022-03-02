@@ -79,10 +79,10 @@ pub fn restore_backup(
 fn backup_inner<P: AsRef<Path>>(col_data: &[u8], backup_folder: P, limits: Backups) {
     let log = log::terminal();
     if let Err(error) = write_backup(col_data, backup_folder.as_ref()) {
-        error!(log, "failed to backup collection: {:?}", error);
+        error!(log, "failed to backup collection: {error:?}");
     }
     if let Err(error) = thin_backups(backup_folder, limits) {
-        error!(log, "failed to thin backups: {:?}", error);
+        error!(log, "failed to thin backups: {error:?}");
     }
 }
 
@@ -119,8 +119,11 @@ fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: Backups) -> Result<()>
     let backups =
         read_dir(backup_folder)?.filter_map(|entry| entry.ok().and_then(Backup::from_entry));
     let obsolete_backups = BackupThinner::new(Local::today(), limits).thin(backups);
+    let log = log::terminal();
     for backup in obsolete_backups {
-        let _ = remove_file(backup.path);
+        if let Err(error) = remove_file(&backup.path) {
+            error!(log, "failed to remove {:?}: {error:?}", &backup.path);
+        };
     }
 
     Ok(())
