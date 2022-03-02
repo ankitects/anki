@@ -72,7 +72,10 @@ pub fn restore_backup(
         _ => tr.errors_failed_to_process_media().into(),
     };
 
-    tempfile.persist(&col_path).map_err(|err| err.error)?;
+    tempfile
+        .persist(&col_path)
+        .map_err(|err| err.error)?
+        .sync_all()?;
 
     Ok(result)
 }
