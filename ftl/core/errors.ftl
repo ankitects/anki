@@ -10,7 +10,7 @@ errors-100-tags-max =
 errors-multiple-notetypes-selected = Please select notes from only one notetype.
 errors-please-check-database = Please use the Check Database action, then try again.
 errors-failed-to-process-media = Some media files could not be processed.
-errors-backup-too-new = This backup requires a newer version of Anki to open.
+errors-collection-too-new = This collection requires a newer version of Anki to open.
 
 ## Card Rendering
 

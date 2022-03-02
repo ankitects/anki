@@ -19,7 +19,7 @@ use zip::{write::FileOptions, CompressionMethod, ZipArchive, ZipWriter};
 use zstd::{self, Decoder, Encoder};
 
 use crate::{
-    backend_proto::preferences::Backups, collection::CollectionBuilder, error::DbErrorKind, log,
+    backend_proto::preferences::Backups, collection::CollectionBuilder, error::ImportError, log,
     prelude::*, text::normalize_to_nfc,
 };
 
@@ -285,7 +285,7 @@ impl Meta {
             .and_then(|file| serde_json::from_reader(file).ok())
             .unwrap_or_default();
         if meta.version > BACKUP_VERSION {
-            return Err(AnkiError::db_error("", DbErrorKind::FileTooNew));
+            return Err(AnkiError::ImportError(ImportError::TooNew));
         } else if meta.version == 0 {
             meta.version = if archive.by_name("collection.anki21").is_ok() {
                 2
@@ -307,15 +307,17 @@ impl Meta {
 }
 
 fn check_collection(col_path: &Path) -> Result<()> {
-    let col = CollectionBuilder::new(col_path).build()?;
-    col.storage
-        .db
-        .pragma_query_value(None, "integrity_check", |row| row.get::<_, String>(0))
-        .map_err(Into::into)
-        .and_then(|s| match s.as_str() {
-            "ok" => Ok(()),
-            _ => Err(AnkiError::invalid_input(format!("corrupt: {}", s))),
+    CollectionBuilder::new(col_path)
+        .build()
+        .ok()
+        .and_then(|col| {
+            col.storage
+                .db
+                .pragma_query_value(None, "integrity_check", |row| row.get::<_, String>(0))
+                .ok()
         })
+        .and_then(|s| (s == "ok").then(|| ()))
+        .ok_or(AnkiError::ImportError(ImportError::Corrupt))
 }
 
 fn restore_media(
@@ -363,7 +365,7 @@ fn copy_collection(
 ) -> Result<()> {
     let mut file = archive
         .by_name(meta.collection_name())
-        .map_err(|_| AnkiError::db_error("", DbErrorKind::Corrupt))?;
+        .map_err(|_| AnkiError::ImportError(ImportError::Corrupt))?;
     if meta.version < 3 {
         io::copy(&mut file, writer)?;
     } else {

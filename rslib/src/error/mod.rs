@@ -42,6 +42,7 @@ pub enum AnkiError {
     MultipleNotetypesSelected,
     DatabaseCheckRequired,
     CustomStudyError(CustomStudyError),
+    ImportError(ImportError),
 }
 
 impl Display for AnkiError {
@@ -96,6 +97,7 @@ impl AnkiError {
             AnkiError::MultipleNotetypesSelected => tr.errors_multiple_notetypes_selected().into(),
             AnkiError::DatabaseCheckRequired => tr.errors_please_check_database().into(),
             AnkiError::CustomStudyError(err) => err.localized_description(tr),
+            AnkiError::ImportError(err) => err.localized_description(tr),
             AnkiError::IoError(_)
             | AnkiError::JsonError(_)
             | AnkiError::ProtoError(_)
@@ -175,4 +177,20 @@ pub enum TemplateSaveErrorDetails {
     NoSuchField,
     MissingCloze,
     ExtraneousCloze,
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum ImportError {
+    Corrupt,
+    TooNew,
+}
+
+impl ImportError {
+    fn localized_description(self, tr: &I18n) -> String {
+        match self {
+            Self::Corrupt => tr.importing_the_provided_file_is_not_a(),
+            Self::TooNew => tr.errors_collection_too_new(),
+        }
+        .into()
+    }
 }
