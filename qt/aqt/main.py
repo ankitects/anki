@@ -501,7 +501,7 @@ class AnkiQt(QMainWindow):
         self.errorHandler.unload()
         self.mediaServer.shutdown()
         # Rust background jobs are not awaited implicitly
-        self.backend.join_backup_task()
+        self.backend.await_backup_completion()
         self.app.exit(0)
 
     # Sound/video

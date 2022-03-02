@@ -128,7 +128,7 @@ impl CollectionService for Backend {
             .map(Into::into)
     }
 
-    fn join_backup_task(&self, _input: pb::Empty) -> Result<pb::Empty> {
+    fn await_backup_completion(&self, _input: pb::Empty) -> Result<pb::Empty> {
         if let Some(task) = self.backup_task.lock().unwrap().take() {
             task.join().unwrap();
         }
