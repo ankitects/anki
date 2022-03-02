@@ -85,8 +85,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         self._haveQueues = True
 
     def _reset_counts(self) -> None:
-        tree = self.deck_due_tree(self._current_deck_id)
-        node = self.col.decks.find_deck_in_tree(tree, self._current_deck_id)
+        node = self.deck_due_tree(self._current_deck_id)
         if not node:
             # current deck points to a missing deck
             self.newCount = 0

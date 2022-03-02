@@ -126,7 +126,6 @@ message AddOrUpdateDeckLegacyRequest {
 message DeckTreeRequest {
   // if non-zero, counts for the provided timestamp will be included
   int64 now = 1;
-  int64 top_deck_id = 2;
 }
 
 message DeckTreeNode {
