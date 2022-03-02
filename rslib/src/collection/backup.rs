@@ -118,7 +118,7 @@ fn zstd_copy<R: Read, W: Write>(reader: &mut R, writer: &mut W) -> Result<()> {
 fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: Backups) -> Result<()> {
     let backups =
         read_dir(backup_folder)?.filter_map(|entry| entry.ok().and_then(Backup::from_entry));
-    let obsolete_backups = BackupThinner::new(Local::today(), limits).thin(backups);
+    let obsolete_backups = BackupFilter::new(Local::today(), limits).obsolete_backups(backups);
     let log = log::terminal();
     for backup in obsolete_backups {
         if let Err(error) = remove_file(&backup.path) {
@@ -178,7 +178,7 @@ impl Backup {
 }
 
 #[derive(Debug)]
-struct BackupThinner {
+struct BackupFilter {
     yesterday: i32,
     last_kept_day: i32,
     last_kept_week: i32,
@@ -194,7 +194,7 @@ enum BackupStage {
     Monthly,
 }
 
-impl BackupThinner {
+impl BackupFilter {
     fn new(today: Date<Local>, limits: Backups) -> Self {
         Self {
             yesterday: today.num_days_from_ce() - 1,
@@ -206,8 +206,7 @@ impl BackupThinner {
         }
     }
 
-    /// Returns a [Vec] with the obsolete [Backup]s.
-    fn thin(mut self, backups: impl Iterator<Item = Backup>) -> Vec<Backup> {
+    fn obsolete_backups(mut self, backups: impl Iterator<Item = Backup>) -> Vec<Backup> {
         use BackupStage::*;
 
         for backup in backups
@@ -215,15 +214,15 @@ impl BackupThinner {
             .rev()
         {
             if self.is_recent(&backup) {
-                self.keep(None, backup);
+                self.mark_fresh(None, backup);
             } else if self.remaining(Daily) {
-                self.keep_or_delete(Daily, backup);
+                self.mark_fresh_or_obsolete(Daily, backup);
             } else if self.remaining(Weekly) {
-                self.keep_or_delete(Weekly, backup);
+                self.mark_fresh_or_obsolete(Weekly, backup);
             } else if self.remaining(Monthly) {
-                self.keep_or_delete(Monthly, backup);
+                self.mark_fresh_or_obsolete(Monthly, backup);
             } else {
-                self.delete(backup);
+                self.mark_obsolete(backup);
             }
         }
 
@@ -242,21 +241,21 @@ impl BackupThinner {
         }
     }
 
-    fn keep_or_delete(&mut self, stage: BackupStage, backup: Backup) {
+    fn mark_fresh_or_obsolete(&mut self, stage: BackupStage, backup: Backup) {
         let keep = match stage {
             BackupStage::Daily => backup.day() < self.last_kept_day,
             BackupStage::Weekly => backup.week() < self.last_kept_week,
             BackupStage::Monthly => backup.month() < self.last_kept_month,
         };
         if keep {
-            self.keep(Some(stage), backup);
+            self.mark_fresh(Some(stage), backup);
         } else {
-            self.delete(backup);
+            self.mark_obsolete(backup);
         }
     }
 
     /// Adjusts limits as per the stage of the kept backup, and last kept times.
-    fn keep(&mut self, stage: Option<BackupStage>, backup: Backup) {
+    fn mark_fresh(&mut self, stage: Option<BackupStage>, backup: Backup) {
         self.last_kept_day = backup.day();
         self.last_kept_week = backup.week();
         self.last_kept_month = backup.month();
@@ -268,7 +267,7 @@ impl BackupThinner {
         }
     }
 
-    fn delete(&mut self, backup: Backup) {
+    fn mark_obsolete(&mut self, backup: Backup) {
         self.obsolete.push(backup);
     }
 }
@@ -352,7 +351,8 @@ fn version_3_reader(archive: &mut ZipArchive<File>) -> Option<impl Read + '_> {
 }
 
 fn legacy_reader(archive: &mut ZipArchive<File>) -> Option<impl Read + '_> {
-    if archive.file_names().contains(&"collection.anki21") {
+    let have21 = archive.by_name("collection.anki21").is_ok();
+    if have21 {
         archive.by_name("collection.anki21").ok()
     } else {
         archive.by_name("collection.anki2").ok()
@@ -426,7 +426,7 @@ mod test {
             .filter_map(|b| b.1.then(|| b.0.clone()))
             .collect();
         let obsolete_backups =
-            BackupThinner::new(today, limits).thin(backups.into_iter().map(|b| b.0));
+            BackupFilter::new(today, limits).obsolete_backups(backups.into_iter().map(|b| b.0));
 
         assert_eq!(obsolete_backups, expected);
     }
@@ -474,7 +474,8 @@ mod test {
             .cloned()
             .for_each(|backup| expected.push(backup));
 
-        let obsolete_backups = BackupThinner::new(today, limits).thin(backups.into_iter());
+        let obsolete_backups =
+            BackupFilter::new(today, limits).obsolete_backups(backups.into_iter());
         assert_eq!(obsolete_backups, expected);
     }
 }
