@@ -1,6 +1,228 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+/*
+- cyan tones
+5ccfca-00d1b5-399185
+
+5ccfca (medium turquiose)
+00d1b5 (turquiose)
+399185 (celadon green)
+
+
+
+
+
+- green tones
+93e066-86ce5d-5ccc00-54c414-559238
+
+00aa00 (carmin)
+93e066 (inchworm)
+86ce5d (mantis)
+5ccc00 (lime green)
+54c414 (kelly green)
+559238 (may green)
+
+
+
+- blue / cyan tones
+ccccee (lavender blue)
+77ccff (light sky blue)
+506aa3 (blue yonder)
+7edbd7 (middle blue green)
+
+- truely blue
+9dbcff (baby blue)
+6f9dff (cornflower blue)
+578cff (corn flower blue)
+194380 (dark cornflower blue)
+316dca (celtic blue)
+0969da (celtic blue)
+0000aa
+7777cc (violet blue crayola)
+
+ccccee-77ccff-506aa3-9dbcff-6f9dff-578cff-316dca-0969da-0000aa
+
+
+
+
+
+
+
+
+- red tones
+ff9b9b (salmon pink)
+ff7b7b (light coral)
+e25252 (indian-red)
+aa5555 (middle red purple)
+aa0000 (rufous)
+
+ff9b9b-ff7b7b-e25252-aa5555-aa0000
+OK
+
+
+
+- orange tones
+ffb347 (yellow orange)
+f5aa41 (yellow orange)
+ff935b (atomic tangerine)
+c35617 (burnt orange)
+ac653a (brown sugar)
+
+ffb347-f5aa41-ff935b-c35617-ac653a
+
+
+idea:
+orange-1: ffc370
+orange-2: f5aa41
+orange-3: ff691f
+orange-4: db611a
+orange-5: ac653a
+
+
+
+- yellow tones
+777733 (spanish bistre)
+ffffb2 (lemon yellow crayola)
+dddd00 (titanium yellow)
+aaaa33 (citron yellow)
+
+
+yellow-1: ffffb2
+yellow-2: dddd00
+yellow-3: aaaa33
+yellow-4: 777733
+
+
+
+
+
+
+
+
+
+
+
+- purple tones
+f097e4 (plum web)     |
+ff82ee (violet web)   | -> make darker
+624b77 (cyber grape)
+9f63d3 (amethyst)        |
+9649dd (dark orchid)     |
+975d8f (antique fuchsia)
+
+one idea: f097e4-ff1fe1-8b5584-a770d7-9141dc-71568a
+
+
+
+
+- grey tones
+eeeeee
+555555
+060606
+b6b6b6
+ececec
+aaaaaa
+e7e7e7
+dddddd
+333333
+777777
+fcfcfc
+444444 (onyx)
+cccccc
+29292b (raisin black)
+2f2f31 (jet)
+272727 (raisin black)
+
+
+fcfcfc
+eeeeee-ececec-*e7e7e7*-dddddd-cccccc-
+*b6b6b6*-aaaaaa
+777777-555555-*444444*-333333-
+2f2f31-*29292b*-272727
+-060606
+
+
+grey-1: #fcfcfc
+grey-2: #e7e7e7
+grey-3: #b6b6b6
+grey-4: #444444
+grey-5: #29292b
+grey-6: #060606
+
+
+
+
+
+
+
+light | dark
+
+eeeeee 555555
+b6b6b6 060606
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+fcfcfc
+eeeeee-ececec-*e7e7e7*-dddddd-cccccc-
+*b6b6b6*-aaaaaa
+777777-555555-*444444*-333333-
+2f2f31-29292b-*272727*
+-060606
+
+
+$grey-1: #fcfcfc
+$grey-2: #e7e7e7
+$grey-3: #b6b6b6
+$grey-4: #444444
+$grey-5: #272727
+----- $grey-6: #1b1b1b ???
+$grey-6: #060606
+
+
+- orange tones
+ffb347 (yellow orange)
+f5aa41 (yellow orange)
+ff935b (atomic tangerine)
+c35617 (burnt orange)
+ac653a (brown sugar)
+
+ffb347-f5aa41-ff935b-c35617-ac653a
+
+
+idea:
+orange-1: ffc370
+orange-2: f5aa41
+orange-3: ff691f
+orange-4: db611a
+orange-5: ac653a
+
+
+yellow-1: ffffb2
+yellow-2: dddd00
+yellow-3: aaaa33
+yellow-4: 777733
+
+*/
+
+
 :root {
     --text-fg: black;
     --window-bg: #ececec;
