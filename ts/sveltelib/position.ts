@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { Placement } from "@floating-ui/dom";
-import { autoUpdate, computePosition, shift, offset, arrow } from "@floating-ui/dom";
+import { arrow, autoUpdate, computePosition, offset, shift } from "@floating-ui/dom";
 
 interface PositionArgs {
     /**

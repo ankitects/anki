@@ -3,20 +3,21 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type { Placement } from "@floating-ui/dom";
     import { onMount } from "svelte";
     import { writable } from "svelte/store";
-    import type { Placement } from "@floating-ui/dom";
-    import position from "../sveltelib/position";
-    import portal from "../sveltelib/portal";
-    import { documentClick, documentKeyup } from "../sveltelib/event-store";
+
     import isClosingClick from "../sveltelib/closing-click";
     import isClosingKeyup from "../sveltelib/closing-keyup";
+    import { documentClick, documentKeyup } from "../sveltelib/event-store";
+    import portal from "../sveltelib/portal";
+    import position from "../sveltelib/position";
     import subscribeTrigger from "../sveltelib/subscribe-trigger";
-    import toggleable from "../sveltelib/toggleable";
     import { pageTheme } from "../sveltelib/theme";
+    import toggleable from "../sveltelib/toggleable";
 
     /** TODO at the moment we only dropdowns which are placed actually below the reference */
-    let placement: Placement = "bottom";
+    const placement: Placement = "bottom";
 
     export let closeOnInsideClick = false;
 

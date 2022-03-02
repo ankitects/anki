@@ -1,9 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import subscribeToUpdates from "./subscribe-updates";
 import type { Readable, Writable } from "svelte/store";
+
 import { Callback, singleCallback } from "../lib/typing";
+import subscribeToUpdates from "./subscribe-updates";
 
 /**
  * The goal of this action is to turn itself inactive.

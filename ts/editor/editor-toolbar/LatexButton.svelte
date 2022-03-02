@@ -3,9 +3,11 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { writable } from "svelte/store";
+
     import DropdownItem from "../../components/DropdownItem.svelte";
-    import Popover from "../../components/Popover.svelte";
     import IconButton from "../../components/IconButton.svelte";
+    import Popover from "../../components/Popover.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
     import * as tr from "../../lib/ftl";
@@ -15,7 +17,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
     import { functionIcon } from "./icons";
-    import { writable } from "svelte/store";
 
     const { focusedInput } = noteEditorContext.get();
     $: richTextAPI = $focusedInput as RichTextInputAPI;

@@ -1,8 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { derived } from "svelte/store";
 import type { Readable } from "svelte/store";
+import { derived } from "svelte/store";
 
 interface ClosingKeyupArgs {
     /**
@@ -21,8 +21,11 @@ interface ClosingKeyupArgs {
  */
 function isClosingKeyup(
     store: Readable<KeyboardEvent>,
-    { reference, floating }: ClosingKeyupArgs,
+    _args: ClosingKeyupArgs,
 ): Readable<symbol> {
+    // TODO there needs to be special treatment, whether the keyup happens
+    // inside the floating element or outside, but I'll defer until we actually
+    // use this for a popover with an input field
     function shouldClose(event: KeyboardEvent) {
         if (event.key === "Tab") {
             // Allow Tab navigation.
@@ -43,30 +46,3 @@ function isClosingKeyup(
 }
 
 export default isClosingKeyup;
-
-// if (/input|select|option|textarea|form/i.test(event.target.tagName))) {
-
-//   const relatedTarget = {
-//     relatedTarget: context._element
-//   }
-
-//   if (event) {
-//     const composedPath = event.composedPath()
-//     const isMenuTarget = composedPath.includes(context._menu)
-//     if (
-//       composedPath.includes(context._element) ||
-//       (context._config.autoClose === 'inside' && !isMenuTarget) ||
-//       (context._config.autoClose === 'outside' && isMenuTarget)
-//     ) {
-//       continue
-//     }
-
-//     // Tab navigation through the dropdown menu or events from contained inputs shouldn't close the menu
-//     if (context._menu.contains(event.target) && ((event.type === 'keyup' && event.key === TAB_KEY) || /input|select|option|textarea|form/i.test(event.target.tagName))) {
-//       continue
-//     }
-
-//     if (event.type === 'click') {
-//       relatedTarget.clickEvent = event
-//     }
-//   }

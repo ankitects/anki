@@ -71,7 +71,7 @@ $ambient-opacity: 0.12;
     @return (
         #{"#{$umbra-z-value} #{$umbra-color}"},
         #{"#{$penumbra-z-value} #{$penumbra-color}"},
-        #{$ambient-z-value} $ambient-color,
+        #{$ambient-z-value} $ambient-color
     );
 }
 
