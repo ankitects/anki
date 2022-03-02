@@ -358,20 +358,16 @@ fn copy_collection(
     writer: &mut impl Write,
     meta: Meta,
 ) -> Result<()> {
-    archive
+    let mut file = archive
         .by_name(meta.collection_name())
-        .ok()
-        .and_then(|mut file| {
-            if meta.version < 3 {
-                io::copy(&mut file, writer).ok()
-            } else {
-                Decoder::new(file)
-                    .ok()
-                    .and_then(|mut reader| io::copy(&mut reader, writer).ok())
-            }
-        })
-        .map(|_| ())
-        .ok_or_else(|| AnkiError::db_error("", DbErrorKind::Corrupt))
+        .map_err(|_| AnkiError::db_error("", DbErrorKind::Corrupt))?;
+    if meta.version < 3 {
+        io::copy(&mut file, writer)?;
+    } else {
+        Decoder::new(file).and_then(|mut reader| io::copy(&mut reader, writer))?;
+    }
+
+    Ok(())
 }
 
 #[cfg(test)]
