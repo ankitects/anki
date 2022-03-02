@@ -56,6 +56,7 @@
         "postinstall": "patch-package --patch-dir ts/patches"
     },
     "dependencies": {
+        "@floating-ui/dom": "^0.3.0",
         "@fluent/bundle": "^0.17.0",
         "@mdi/svg": "^6.1.95",
         "@popperjs/core": "^2.9.2",
