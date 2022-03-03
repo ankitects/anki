@@ -156,7 +156,7 @@ impl SqlWriter<'_> {
             SearchNode::Notetype(notetype) => self.write_notetype(&norm(notetype)),
             SearchNode::Rated { days, ease } => self.write_rated(">", -i64::from(*days), ease)?,
 
-            SearchNode::Tag(tag) => self.write_tag(&norm(tag)),
+            SearchNode::Tag { tag, is_re } => self.write_tag(&norm(tag), *is_re),
             SearchNode::State(state) => self.write_state(state)?,
             SearchNode::Flag(flag) => {
                 write!(self.sql, "(c.flags & 7) == {}", flag).unwrap();
@@ -199,17 +199,19 @@ impl SqlWriter<'_> {
         .unwrap();
     }
 
-    fn write_tag(&mut self, text: &str) {
-        if text.contains(' ') {
-            write!(self.sql, "false").unwrap();
+    fn write_tag(&mut self, tag: &str, is_re: bool) {
+        if is_re {
+            self.args.push(format!("(?i){tag}"));
+            write!(self.sql, "regexp_tags(?{}, n.tags)", self.args.len()).unwrap();
         } else {
-            match text {
+            match tag {
                 "none" => {
                     write!(self.sql, "n.tags = ''").unwrap();
                 }
                 "*" => {
                     write!(self.sql, "true").unwrap();
                 }
+                s if s.contains(' ') => write!(self.sql, "false").unwrap(),
                 text => {
                     write!(self.sql, "n.tags regexp ?").unwrap();
                     let re = &to_custom_re(text, r"\S");
@@ -660,7 +662,7 @@ impl SearchNode {
 
             SearchNode::UnqualifiedText(_) => RequiredTable::Notes,
             SearchNode::SingleField { .. } => RequiredTable::Notes,
-            SearchNode::Tag(_) => RequiredTable::Notes,
+            SearchNode::Tag { .. } => RequiredTable::Notes,
             SearchNode::Duplicates { .. } => RequiredTable::Notes,
             SearchNode::Regex(_) => RequiredTable::Notes,
             SearchNode::NoCombining(_) => RequiredTable::Notes,
@@ -848,6 +850,13 @@ mod test {
         );
         assert_eq!(s(ctx, "tag:none"), ("(n.tags = '')".into(), vec![]));
         assert_eq!(s(ctx, "tag:*"), ("(true)".into(), vec![]));
+        assert_eq!(
+            s(ctx, "tag:re:.ne|tw."),
+            (
+                "(regexp_tags(?1, n.tags))".into(),
+                vec!["(?i).ne|tw.".into()]
+            )
+        );
 
         // state
         assert_eq!(
