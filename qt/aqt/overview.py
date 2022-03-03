@@ -225,9 +225,12 @@ class Overview:
         deck_node = self.mw.col.sched.deck_due_tree(current_did)
 
         but = self.mw.button
-        buried_new = deck_node.new_count - counts[0]
-        buried_learning = deck_node.learn_count - counts[1]
-        buried_review = deck_node.review_count - counts[2]
+        if self.mw.col.v3_scheduler():
+            buried_new = deck_node.new_count - counts[0]
+            buried_learning = deck_node.learn_count - counts[1]
+            buried_review = deck_node.review_count - counts[2]
+        else:
+            buried_new = buried_learning = buried_review = 0
         buried_label = tr.browsing_buried()
 
         def number_row(title: str, klass: str, count: int, buried_count: int) -> str:
