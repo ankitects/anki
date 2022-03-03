@@ -37,6 +37,8 @@ impl CollectionService for Backend {
             .set_tr(self.tr.clone());
         if !input.log_path.is_empty() {
             builder.set_log_file(&input.log_path)?;
+        } else {
+            builder.set_logger(self.log.clone());
         }
 
         *col = Some(builder.build()?);
@@ -65,7 +67,12 @@ impl CollectionService for Backend {
 
         if let Some(backup_folder) = input.backup_folder {
             let mut opt = self.backup_task.lock().unwrap();
-            if let Some(task) = opt.replace(backup::backup(col_path, backup_folder, limits)?) {
+            if let Some(task) = opt.replace(backup::backup(
+                col_path,
+                backup_folder,
+                limits,
+                self.log.clone(),
+            )?) {
                 task.join().unwrap();
             }
         }

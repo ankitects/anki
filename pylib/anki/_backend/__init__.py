@@ -63,6 +63,7 @@ class RustBackend(RustBackendGenerated):
         self,
         langs: list[str] | None = None,
         server: bool = False,
+        log_file: str | None = None,
     ) -> None:
         # pick up global defaults if not provided
         if langs is None:
@@ -72,7 +73,7 @@ class RustBackend(RustBackendGenerated):
             preferred_langs=langs,
             server=server,
         )
-        self._backend = rsbridge.open_backend(init_msg.SerializeToString())
+        self._backend = rsbridge.open_backend(init_msg.SerializeToString(), log_file)
 
     def db_query(
         self, sql: str, args: Sequence[ValueForDB], first_row_only: bool

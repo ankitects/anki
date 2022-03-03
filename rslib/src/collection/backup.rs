@@ -35,14 +35,19 @@ struct Meta {
     version: u8,
 }
 
-pub fn backup<P1, P2>(col_path: P1, backup_folder: P2, limits: Backups) -> Result<JoinHandle<()>>
+pub fn backup<P1, P2>(
+    col_path: P1,
+    backup_folder: P2,
+    limits: Backups,
+    log: Logger,
+) -> Result<JoinHandle<()>>
 where
     P1: AsRef<Path>,
     P2: AsRef<Path> + Send + 'static,
 {
     let col_data = std::fs::read(col_path)?;
     Ok(thread::spawn(move || {
-        backup_inner(&col_data, &backup_folder, limits)
+        backup_inner(&col_data, &backup_folder, limits, log)
     }))
 }
 
@@ -80,12 +85,11 @@ pub fn restore_backup(
     Ok(result)
 }
 
-fn backup_inner<P: AsRef<Path>>(col_data: &[u8], backup_folder: P, limits: Backups) {
-    let log = log::terminal();
+fn backup_inner<P: AsRef<Path>>(col_data: &[u8], backup_folder: P, limits: Backups, log: Logger) {
     if let Err(error) = write_backup(col_data, backup_folder.as_ref()) {
         error!(log, "failed to backup collection: {error:?}");
     }
-    if let Err(error) = thin_backups(backup_folder, limits) {
+    if let Err(error) = thin_backups(backup_folder, limits, &log) {
         error!(log, "failed to thin backups: {error:?}");
     }
 }
@@ -119,11 +123,10 @@ fn zstd_copy<R: Read, W: Write>(reader: &mut R, writer: &mut W) -> Result<()> {
     Ok(())
 }
 
-fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: Backups) -> Result<()> {
+fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: Backups, log: &Logger) -> Result<()> {
     let backups =
         read_dir(backup_folder)?.filter_map(|entry| entry.ok().and_then(Backup::from_entry));
     let obsolete_backups = BackupFilter::new(Local::today(), limits).obsolete_backups(backups);
-    let log = log::terminal();
     for backup in obsolete_backups {
         if let Err(error) = remove_file(&backup.path) {
             error!(log, "failed to remove {:?}: {error:?}", &backup.path);
