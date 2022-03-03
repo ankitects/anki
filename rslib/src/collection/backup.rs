@@ -77,10 +77,9 @@ pub fn restore_backup(
         _ => tr.errors_failed_to_process_media().into(),
     };
 
-    tempfile
-        .persist(&col_path)
-        .map_err(|err| err.error)?
-        .sync_all()?;
+    tempfile.as_file().sync_all()?;
+    tempfile.persist(&col_path).map_err(|err| err.error)?;
+    std::fs::File::open(col_dir)?.sync_all()?;
 
     Ok(result)
 }
