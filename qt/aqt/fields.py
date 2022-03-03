@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import os
 from typing import Optional
 
@@ -58,31 +60,29 @@ class FieldDialog(QDialog):
             self.refresh()
             self.webview.set_bridge_command(self._on_bridge_cmd, self)
             self.activateWindow()
+            return
 
-        else:
-            self.form = aqt.forms.fields.Ui_Dialog()
-            self.form.setupUi(self)
-            self.webview = None
+        self.form = aqt.forms.fields.Ui_Dialog()
+        self.form.setupUi(self)
+        self.webview = None
 
-            disable_help_button(self)
-            self.form.buttonBox.button(
-                QDialogButtonBox.StandardButton.Help
-            ).setAutoDefault(False)
-            self.form.buttonBox.button(
-                QDialogButtonBox.StandardButton.Cancel
-            ).setAutoDefault(False)
-            self.form.buttonBox.button(
-                QDialogButtonBox.StandardButton.Save
-            ).setAutoDefault(False)
-            self.currentIdx: Optional[int] = None
-            self.fillFields()
-            self.setupSignals()
-            self.form.fieldList.setDragDropMode(
-                QAbstractItemView.DragDropMode.InternalMove
-            )
-            self.form.fieldList.dropEvent = self.onDrop  # type: ignore[assignment]
-            self.form.fieldList.setCurrentRow(open_at)
-            self.exec()
+        disable_help_button(self)
+        self.form.buttonBox.button(QDialogButtonBox.StandardButton.Help).setAutoDefault(
+            False
+        )
+        self.form.buttonBox.button(
+            QDialogButtonBox.StandardButton.Cancel
+        ).setAutoDefault(False)
+        self.form.buttonBox.button(QDialogButtonBox.StandardButton.Save).setAutoDefault(
+            False
+        )
+        self.currentIdx: Optional[int] = None
+        self.fillFields()
+        self.setupSignals()
+        self.form.fieldList.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
+        self.form.fieldList.dropEvent = self.onDrop  # type: ignore[assignment]
+        self.form.fieldList.setCurrentRow(open_at)
+        self.exec()
 
     def refresh(self) -> None:
         self.webview.load_ts_page("fields")
