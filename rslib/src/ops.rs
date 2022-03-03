@@ -156,7 +156,7 @@ impl OpChanges {
 
     pub fn requires_study_queue_rebuild(&self) -> bool {
         let c = &self.changes;
-        c.card
+        (c.card && self.op != Op::SetFlag)
             || c.deck
             || (c.config && matches!(self.op, Op::SetCurrentDeck | Op::UpdatePreferences))
             || c.deck_config

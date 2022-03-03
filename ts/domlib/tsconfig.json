@@ -1,6 +1,13 @@
 {
     "extends": "../tsconfig.json",
-    "include": ["*", "location/*", "surround/*"],
+    "include": [
+        "*",
+        "location/*",
+        "surround/*",
+        "surround/apply/*",
+        "surround/build/*",
+        "surround/tree/*"
+    ],
     "references": [{ "path": "../lib" }],
     "compilerOptions": {
         "types": ["jest"]

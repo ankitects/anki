@@ -7,14 +7,12 @@
 Install the latest XCode from the App Store. Open it at least once
 so it installs the command line tools.
 
-**Homebrew & Homebrew Deps**:
-
-Install Homebrew from <https://brew.sh/>
-
-Then install Bazel:
+**Bazelisk**:
 
 ```
-$ brew install bazelisk
+$ curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.11.0/bazelisk-darwin -o bazel \
+    && chmod +x bazel \
+    && sudo mv bazel /usr/local/bin
 ```
 
 **Python**:
@@ -61,7 +59,7 @@ to compile, but will mean Anki will run considerably slower.
 To run Anki in optimized mode, use:
 
 ```
-./scripts/runopt
+./tools/runopt
 ```
 
 ## More

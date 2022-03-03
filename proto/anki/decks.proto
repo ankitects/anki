@@ -126,7 +126,6 @@ message AddOrUpdateDeckLegacyRequest {
 message DeckTreeRequest {
   // if non-zero, counts for the provided timestamp will be included
   int64 now = 1;
-  int64 top_deck_id = 2;
 }
 
 message DeckTreeNode {
@@ -147,6 +146,7 @@ message DeckTreeNode {
   uint32 review_uncapped = 12;
   uint32 total_in_deck = 13;
 
+  // with children, without any limits
   uint32 total_including_children = 14;
 
   bool filtered = 16;

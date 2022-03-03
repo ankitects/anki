@@ -23,7 +23,7 @@ where
     pub fn new(one: I, two: I2) -> Self {
         let one_len = one.len();
         let two_len = two.len();
-        let ratio = one_len as f32 / two_len as f32;
+        let ratio = (one_len + 1) as f32 / (two_len + 1) as f32;
         Intersperser {
             one,
             two,
@@ -72,8 +72,8 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         match (self.one_idx(), self.two_idx()) {
             (Some(idx1), Some(idx2)) => {
-                let relative_idx2 = idx2 as f32 * self.ratio;
-                if relative_idx2 < idx1 as f32 {
+                let relative_idx2 = (idx2 + 1) as f32 * self.ratio;
+                if relative_idx2 < (idx1 + 1) as f32 {
                     self.next_two()
                 } else {
                     self.next_one()
@@ -115,9 +115,19 @@ mod test {
         let b = &[11, 22];
         assert_eq!(&intersperse(a, b), &[1, 11, 2, 22, 3]);
 
-        // when both lists have the same relative position, we add from
-        // list 1 even if list 2 has more elements
+        // always add from longer iter first
         let b = &[11, 22, 33, 44, 55, 66];
-        assert_eq!(&intersperse(a, b), &[1, 11, 22, 2, 33, 44, 3, 55, 66]);
+        assert_eq!(&intersperse(a, b), &[11, 1, 22, 33, 2, 44, 55, 3, 66]);
+
+        // space is distributed as evenly as possible between elements of
+        // the same iter and start and end
+        let b = &[11, 22, 33, 44, 55, 66, 77, 88];
+        assert_eq!(
+            &intersperse(a, b),
+            &[11, 22, 1, 33, 44, 2, 55, 66, 3, 77, 88]
+        );
+
+        let b = &[];
+        assert_eq!(&intersperse(a, b), &[1, 2, 3]);
     }
 }

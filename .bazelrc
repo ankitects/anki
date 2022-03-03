@@ -8,7 +8,7 @@ build --enable_runfiles
 build:windows --build_python_zip=false
 
 # record version/build hash
-build --workspace_status_command='bash ./scripts/status.sh'
+build --workspace_status_command='bash ./tools/status.sh'
 
 # run clippy when compiling rust in test mode
 test --aspects=@rules_rust//rust:defs.bzl%rust_clippy_aspect --output_groups=+clippy_checks
@@ -31,7 +31,9 @@ build:windows --worker_quit_after_build
 
 # place convenience symlinks inside a single folder for easier exclusion in IDEs
 build --symlink_prefix=.bazel/
-build --experimental_no_product_name_out_symlink
+
+# if (auto-created) windows.bazelrc exists, import it
+try-import %workspace%/windows.bazelrc
 
 # allow extra user customizations in a separate file
 # (see .user.bazelrc for an example)

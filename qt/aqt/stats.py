@@ -6,6 +6,8 @@ import time
 from typing import Any
 
 import aqt
+import aqt.forms
+import aqt.main
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager

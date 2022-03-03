@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any, Callable, Sequence
 
 import aqt
+import aqt.browser
 import aqt.forms
 from anki.cards import Card, CardId
 from anki.collection import Collection, Config, OpChanges
@@ -39,6 +40,7 @@ class Table:
             else CardState(self.col)
         )
         self._model = DataModel(
+            self.browser,
             self.col,
             self._state,
             self._on_row_state_will_change,

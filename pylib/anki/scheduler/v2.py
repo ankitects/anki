@@ -11,6 +11,7 @@ from heapq import *
 from typing import Any, Callable, cast
 
 import anki  # pylint: disable=unused-import
+import anki.collection
 from anki import hooks, scheduler_pb2
 from anki.cards import Card, CardId
 from anki.consts import *
@@ -84,8 +85,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         self._haveQueues = True
 
     def _reset_counts(self) -> None:
-        tree = self.deck_due_tree(self._current_deck_id)
-        node = self.col.decks.find_deck_in_tree(tree, self._current_deck_id)
+        node = self.deck_due_tree(self._current_deck_id)
         if not node:
             # current deck points to a missing deck
             self.newCount = 0
@@ -182,7 +182,6 @@ class Scheduler(SchedulerBaseWithLegacy):
         # we need to check again for any cards that were
         # removed from the queue but not buried
         if recursing:
-            print("bug: fillNew()")
             return False
         self._reset_counts()
         self._resetNew()
@@ -433,7 +432,6 @@ limit ?"""
                 return True
 
         if recursing:
-            print("bug: fillRev2()")
             return False
         self._reset_counts()
         self._resetRev()
@@ -1161,6 +1159,6 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
 
 def saturated_i32(number: int) -> int:
     """Avoid problems on the backend by ensuring reasonably sized values."""
-    I32_MIN = -(2 ** 31)
-    I32_MAX = 2 ** 31 - 1
+    I32_MIN = -(2**31)
+    I32_MAX = 2**31 - 1
     return min(max(number, I32_MIN), I32_MAX)

@@ -198,13 +198,14 @@ impl SqliteStorage {
             .collect()
     }
 
+    /// Returns the descendants of the given [Deck] in preorder.
     pub(crate) fn child_decks(&self, parent: &Deck) -> Result<Vec<Deck>> {
         let prefix_start = format!("{}\x1f", parent.name);
         let prefix_end = format!("{}\x20", parent.name);
         self.db
             .prepare_cached(concat!(
                 include_str!("get_deck.sql"),
-                " where name >= ? and name < ?"
+                " where name >= ? and name < ? order by name"
             ))?
             .query_and_then([prefix_start, prefix_end], row_to_deck)?
             .collect()
@@ -264,10 +265,9 @@ impl SqliteStorage {
         sched: SchedulerVersion,
         day_cutoff: u32,
         learn_cutoff: u32,
-        top_deck: Option<&str>,
     ) -> Result<HashMap<DeckId, DueCounts>> {
         let sched_ver = sched as u8;
-        let mut params = named_params! {
+        let params = named_params! {
             ":new_queue": CardQueue::New as u8,
             ":review_queue": CardQueue::Review as u8,
             ":day_cutoff": day_cutoff,
@@ -278,30 +278,7 @@ impl SqliteStorage {
             ":preview_queue": CardQueue::PreviewRepeat as u8,
         }
         .to_vec();
-
-        let sql;
-        let prefix_start;
-        let prefix_end;
-        let top;
-        if let Some(top_inner) = top_deck {
-            // limited to deck node
-            top = top_inner;
-            prefix_start = format!("{}\x1f", top);
-            prefix_end = format!("{}\x20", top);
-            params.extend(named_params! {
-                ":top_deck": top,
-                ":prefix_start": prefix_start,
-                ":prefix_end": prefix_end,
-            });
-            sql = concat!(
-                include_str!("due_counts.sql"),
-                " where did in (select id from decks where name = :top_deck ",
-                "or (name >= :prefix_start and name < :prefix_end)) group by did "
-            );
-        } else {
-            // entire tree
-            sql = concat!(include_str!("due_counts.sql"), " group by did");
-        }
+        let sql = concat!(include_str!("due_counts.sql"), " group by did");
 
         self.db
             .prepare_cached(sql)?

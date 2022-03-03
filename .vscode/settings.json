@@ -8,6 +8,7 @@
     },
     "python.analysis.extraPaths": ["./pylib"],
     "python.formatting.provider": "black",
+    "python.linting.mypyEnabled": false,
     "rust-analyzer.cargo.runBuildScripts": true,
     "rust-analyzer.checkOnSave.allTargets": false,
     "rust-analyzer.files.excludeDirs": [".bazel", "node_modules"],

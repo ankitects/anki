@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let choices: string[];
     export let value: number = 0;
+    export let disabled: number[] = [];
 </script>
 
 <select
@@ -16,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="enum-selector form-select"
 >
     {#each choices as choice, idx}
-        <option value={idx}>{choice}</option>
+        <option value={idx} disabled={disabled.includes(idx)}>{choice}</option>
     {/each}
 </select>
 

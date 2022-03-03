@@ -42,3 +42,4 @@ preferences-theme-follow-system = Follow System
 preferences-theme-light = Light
 preferences-theme-dark = Dark
 preferences-v3-scheduler = V3 scheduler
+preferences-ignore-accents-in-search = Ignore accents in search (slower)

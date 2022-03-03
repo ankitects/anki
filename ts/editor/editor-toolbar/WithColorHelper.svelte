@@ -8,11 +8,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let color: string;
 
     function setColor({ currentTarget }: Event): string {
-        return (color = (currentTarget! as HTMLInputElement).value);
+        color = (currentTarget! as HTMLInputElement).value;
+        return color;
     }
 </script>
 
-<div style={`--color-helper-color: ${color}`}>
+<div style="--color-helper-color: {color}">
     <slot {colorHelperIcon} {setColor} />
 </div>
 

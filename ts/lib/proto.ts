@@ -23,7 +23,7 @@ import Tags = anki.tags;
 
 export { Cards, Collection, Decks, Generic, Notes };
 
-export const empty = Generic.Empty.encode(Generic.Empty.create()).finish();
+export const empty = Generic.Empty.create();
 
 async function serviceCallback(
     method: rpc.ServiceMethod<Message<any>, Message<any>>,
@@ -44,8 +44,8 @@ async function serviceCallback(
         });
 
         const blob = await result.blob();
-        const arrayBuffer = await blob.arrayBuffer();
-        const uint8Array = new Uint8Array(arrayBuffer);
+        const respBuf = await new Response(blob).arrayBuffer();
+        const uint8Array = new Uint8Array(respBuf);
 
         callback(null, uint8Array);
     } catch (error) {
@@ -73,14 +73,3 @@ export const stats = Stats.StatsService.create(serviceCallback as RPCImpl);
 
 export { Tags };
 export const tags = Tags.TagsService.create(serviceCallback as RPCImpl);
-
-export function unwrapOptionalNumber(
-    msg: Generic.IInt64 | Generic.IUInt32 | Generic.IInt32 | null | undefined,
-): number | undefined {
-    if (msg && msg !== null) {
-        if (msg.val !== null) {
-            return msg.val;
-        }
-    }
-    return undefined;
-}

@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import cast
 
 import aqt
+import aqt.browser
 from aqt.browser.sidebar.item import SidebarItem
 from aqt.qt import *
 from aqt.theme import theme_manager
@@ -14,7 +15,7 @@ class SidebarModel(QAbstractItemModel):
     def __init__(
         self, sidebar: aqt.browser.sidebar.SidebarTreeView, root: SidebarItem
     ) -> None:
-        super().__init__()
+        super().__init__(sidebar)
         self.sidebar = sidebar
         self.root = root
         self._cache_rows(root)

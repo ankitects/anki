@@ -8,6 +8,7 @@ typescript(
         "//ts/lib",
         "@npm//svelte",
         "@npm//tslib",
+        "@npm//@floating-ui/dom",
     ],
 )
 

@@ -16,9 +16,13 @@ from threading import Thread
 from typing import Any, Literal, Sequence, TextIO, TypeVar, cast
 
 import anki
+import anki.cards
+import anki.sound
 import aqt
+import aqt.forms
 import aqt.mediasrv
 import aqt.mpv
+import aqt.operations
 import aqt.progress
 import aqt.sound
 import aqt.stats
@@ -183,7 +187,7 @@ class AnkiQt(QMainWindow):
             fn()
             gui_hooks.main_window_did_init()
 
-        self.progress.timer(10, on_window_init, False, requiresCollection=False)
+        self.progress.single_shot(10, on_window_init, False)
 
     def setupUI(self) -> None:
         self.col = None
@@ -192,7 +196,6 @@ class AnkiQt(QMainWindow):
         self.setupKeys()
         self.setupThreads()
         self.setupMediaServer()
-        self.setupSound()
         self.setupSpellCheck()
         self.setupProgress()
         self.setupStyle()
@@ -206,7 +209,6 @@ class AnkiQt(QMainWindow):
         self.setup_timers()
         self.updateTitleBar()
         self.setup_focus()
-        self.setup_shortcuts()
         # screens
         self.setupDeckBrowser()
         self.setupOverview()
@@ -219,11 +221,10 @@ class AnkiQt(QMainWindow):
     def setupProfileAfterWebviewsLoaded(self) -> None:
         for w in (self.web, self.bottomWeb):
             if not w._domDone:
-                self.progress.timer(
+                self.progress.single_shot(
                     10,
                     self.setupProfileAfterWebviewsLoaded,
                     False,
-                    requiresCollection=False,
                 )
                 return
             else:
@@ -240,17 +241,6 @@ class AnkiQt(QMainWindow):
 
     def on_focus_changed(self, old: QWidget, new: QWidget) -> None:
         gui_hooks.focus_did_change(new, old)
-
-    def setup_shortcuts(self) -> None:
-        QShortcut(
-            QKeySequence("Ctrl+Meta+F" if is_mac else "F11"),
-            self,
-            self.on_toggle_fullscreen,
-        ).setContext(Qt.ShortcutContext.ApplicationShortcut)
-
-    def on_toggle_fullscreen(self) -> None:
-        window = self.app.activeWindow()
-        window.setWindowState(window.windowState() ^ Qt.WindowState.WindowFullScreen)
 
     # Profiles
     ##########################################################################
@@ -449,6 +439,7 @@ class AnkiQt(QMainWindow):
         if not self.loadCollection():
             return
 
+        self.setup_sound()
         self.flags = FlagManager(self)
         # show main window
         if self.pm.profile["mainWindowState"]:
@@ -486,6 +477,7 @@ class AnkiQt(QMainWindow):
         self.unloadCollection(callback)
 
     def _unloadProfile(self) -> None:
+        self.cleanup_sound()
         saveGeom(self, "mainWindow")
         saveState(self, "mainWindow")
         self.pm.save()
@@ -519,8 +511,11 @@ class AnkiQt(QMainWindow):
     # Sound/video
     ##########################################################################
 
-    def setupSound(self) -> None:
-        aqt.sound.setup_audio(self.taskman, self.pm.base)
+    def setup_sound(self) -> None:
+        aqt.sound.setup_audio(self.taskman, self.pm.base, self.col.media.dir())
+
+    def cleanup_sound(self) -> None:
+        aqt.sound.cleanup_audio()
 
     def _add_play_buttons(self, text: str) -> str:
         "Return card text with play buttons added, or stripped."
@@ -915,7 +910,7 @@ title="{}" {}>{}</button>""".format(
             self.col.db.rollback()
             self.close()
 
-        self.progress.timer(100, quit, False)
+        self.progress.single_shot(100, quit)
 
     def setupProgress(self) -> None:
         self.progress = aqt.progress.ProgressManager(self)
@@ -1066,6 +1061,7 @@ title="{}" {}>{}</button>""".format(
             theme_manager.apply_style_if_system_style_changed,
             True,
             False,
+            parent=self,
         )
 
     def set_theme(self, theme: Theme) -> None:
@@ -1269,27 +1265,59 @@ title="{}" {}>{}</button>""".format(
 
     def setupMenus(self) -> None:
         m = self.form
+
+        # File
         qconnect(
             m.actionSwitchProfile.triggered, self.unloadProfileAndShowProfileManager
         )
         qconnect(m.actionImport.triggered, self.onImport)
         qconnect(m.actionExport.triggered, self.onExport)
         qconnect(m.actionExit.triggered, self.close)
-        qconnect(m.actionPreferences.triggered, self.onPrefs)
-        qconnect(m.actionAbout.triggered, self.onAbout)
-        qconnect(m.actionUndo.triggered, self.undo)
-        qconnect(m.actionRedo.triggered, self.redo)
-        qconnect(m.actionFullDatabaseCheck.triggered, self.onCheckDB)
-        qconnect(m.actionCheckMediaDatabase.triggered, self.on_check_media_db)
+
+        # Help
         qconnect(m.actionDocumentation.triggered, self.onDocumentation)
         qconnect(m.actionDonate.triggered, self.onDonate)
+        qconnect(m.actionAbout.triggered, self.onAbout)
+
+        # Edit
+        qconnect(m.actionUndo.triggered, self.undo)
+        qconnect(m.actionRedo.triggered, self.redo)
+
+        # Tools
+        qconnect(m.actionFullDatabaseCheck.triggered, self.onCheckDB)
+        qconnect(m.actionCheckMediaDatabase.triggered, self.on_check_media_db)
         qconnect(m.actionStudyDeck.triggered, self.onStudyDeck)
         qconnect(m.actionCreateFiltered.triggered, self.onCram)
         qconnect(m.actionEmptyCards.triggered, self.onEmptyCards)
         qconnect(m.actionNoteTypes.triggered, self.onNoteTypes)
+        qconnect(m.actionPreferences.triggered, self.onPrefs)
+
+        # View
+        qconnect(
+            m.actionZoomIn.triggered,
+            lambda: self.web.setZoomFactor(self.web.zoomFactor() + 0.1),
+        )
+        qconnect(
+            m.actionZoomOut.triggered,
+            lambda: self.web.setZoomFactor(self.web.zoomFactor() - 0.1),
+        )
+        qconnect(m.actionResetZoom.triggered, lambda: self.web.setZoomFactor(1))
+        # app-wide shortcut
+        qconnect(m.actionFullScreen.triggered, self.on_toggle_full_screen)
+        m.actionFullScreen.setShortcut(
+            QKeySequence("F11") if is_lin else QKeySequence.StandardKey.FullScreen
+        )
+        m.actionFullScreen.setShortcutContext(Qt.ShortcutContext.ApplicationShortcut)
 
     def updateTitleBar(self) -> None:
         self.setWindowTitle("Anki")
+
+    # View
+    ##########################################################################
+
+    def on_toggle_full_screen(self) -> None:
+        window = self.app.activeWindow()
+        window.setWindowState(window.windowState() ^ Qt.WindowState.WindowFullScreen)
 
     # Auto update
     ##########################################################################
@@ -1324,14 +1352,16 @@ title="{}" {}>{}</button>""".format(
 
     def setup_timers(self) -> None:
         # refresh decks every 10 minutes
-        self.progress.timer(10 * 60 * 1000, self.onRefreshTimer, True)
+        self.progress.timer(10 * 60 * 1000, self.onRefreshTimer, True, parent=self)
         # check media sync every 5 minutes
-        self.progress.timer(5 * 60 * 1000, self.on_autosync_timer, True)
+        self.progress.timer(5 * 60 * 1000, self.on_autosync_timer, True, parent=self)
         # periodic garbage collection
-        self.progress.timer(15 * 60 * 1000, self.garbage_collect_now, False)
+        self.progress.timer(
+            15 * 60 * 1000, self.garbage_collect_now, True, False, parent=self
+        )
         # ensure Python interpreter runs at least once per second, so that
         # SIGINT/SIGTERM is processed without a long delay
-        self.progress.timer(1000, lambda: None, True, False)
+        self.progress.timer(1000, lambda: None, True, False, parent=self)
 
     def onRefreshTimer(self) -> None:
         if self.state == "deckBrowser":
@@ -1439,13 +1469,17 @@ title="{}" {}>{}</button>""".format(
     def onStudyDeck(self) -> None:
         from aqt.studydeck import StudyDeck
 
-        ret = StudyDeck(self, dyn=True, current=self.col.decks.current()["name"])
-        if ret.name:
-            # fixme: this is silly, it should be returning an ID
+        def callback(ret: StudyDeck) -> None:
+            if not ret.name:
+                return
             deck_id = self.col.decks.id(ret.name)
             set_current_deck(parent=self, deck_id=deck_id).success(
                 lambda out: self.moveToState("overview")
             ).run_in_background()
+
+        StudyDeck(
+            self, dyn=True, current=self.col.decks.current()["name"], callback=callback
+        )
 
     def onEmptyCards(self) -> None:
         show_empty_cards(self)
@@ -1655,8 +1689,10 @@ title="{}" {}>{}</button>""".format(
 
         if self.state == "startup":
             # try again in a second
-            self.progress.timer(
-                1000, lambda: self.onAppMsg(buf), False, requiresCollection=False
+            self.progress.single_shot(
+                1000,
+                lambda: self.onAppMsg(buf),
+                False,
             )
             return
         elif self.state == "profileManager":
@@ -1722,9 +1758,7 @@ title="{}" {}>{}</button>""".format(
 
     def deferred_delete_and_garbage_collect(self, obj: QObject) -> None:
         obj.deleteLater()
-        self.progress.timer(
-            1000, self.garbage_collect_now, False, requiresCollection=False
-        )
+        self.progress.single_shot(1000, self.garbage_collect_now, False)
 
     def disable_automatic_garbage_collection(self) -> None:
         gc.collect()

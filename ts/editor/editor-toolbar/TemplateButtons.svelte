@@ -14,8 +14,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Shortcut from "../../components/Shortcut.svelte";
     import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
+    import { promiseWithResolver } from "../../lib/promise";
+    import { registerPackage } from "../../lib/runtime-require";
     import { getPlatformString } from "../../lib/shortcuts";
     import { context } from "../NoteEditor.svelte";
+    import { setFormat } from "../old-editor-adapter";
     import { editingInputIsRichText } from "../rich-text-input";
     import ClozeButton from "./ClozeButton.svelte";
     import { micIcon, paperclipIcon } from "./icons";
@@ -23,13 +26,44 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const { focusedInput } = context.get();
 
-    const attachmentKeyCombination = "F7";
+    const attachmentCombination = "F3";
+
+    let mediaPromise: Promise<string>;
+    let resolve: (media: string) => void;
+
+    function mediaResolve(media: string): void {
+        resolve(media);
+    }
+
+    registerPackage("anki/TemplateButtons", { mediaResolve });
+
     function onAttachment(): void {
+        if (!editingInputIsRichText($focusedInput)) {
+            return;
+        }
+
+        [mediaPromise, resolve] = promiseWithResolver<string>();
+        $focusedInput.focusHandler.focus.on(
+            async () => setFormat("inserthtml", await mediaPromise),
+            { once: true },
+        );
+
         bridgeCommand("attach");
     }
 
-    const recordKeyCombination = "F8";
+    const recordCombination = "F5";
+
     function onRecord(): void {
+        if (!editingInputIsRichText($focusedInput)) {
+            return;
+        }
+
+        [mediaPromise, resolve] = promiseWithResolver<string>();
+        $focusedInput.focusHandler.focus.on(
+            async () => setFormat("inserthtml", await mediaPromise),
+            { once: true },
+        );
+
         bridgeCommand("record");
     }
 
@@ -49,7 +83,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <ButtonGroupItem>
             <IconButton
                 tooltip="{tr.editingAttachPicturesaudiovideo()} ({getPlatformString(
-                    attachmentKeyCombination,
+                    attachmentCombination,
                 )})"
                 iconSize={70}
                 {disabled}
@@ -57,16 +91,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             >
                 {@html paperclipIcon}
             </IconButton>
-            <Shortcut
-                keyCombination={attachmentKeyCombination}
-                on:action={onAttachment}
-            />
+            <Shortcut keyCombination={attachmentCombination} on:action={onAttachment} />
         </ButtonGroupItem>
 
         <ButtonGroupItem>
             <IconButton
                 tooltip="{tr.editingRecordAudio()} ({getPlatformString(
-                    recordKeyCombination,
+                    recordCombination,
                 )})"
                 iconSize={70}
                 {disabled}
@@ -74,7 +105,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             >
                 {@html micIcon}
             </IconButton>
-            <Shortcut keyCombination={recordKeyCombination} on:action={onRecord} />
+            <Shortcut keyCombination={recordCombination} on:action={onRecord} />
         </ButtonGroupItem>
 
         <ButtonGroupItem id="cloze">

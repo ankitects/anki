@@ -52,6 +52,6 @@ rust_library(
     version = "0.8.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__siphasher__0_3_7//:siphasher",
+        "@raze__siphasher__0_3_9//:siphasher",
     ],
 )

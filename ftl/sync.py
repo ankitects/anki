@@ -17,31 +17,31 @@ import requests
 
 root = os.environ["BUILD_WORKSPACE_DIRECTORY"]
 repos_bzl = os.path.join(root, "repos.bzl")
-working_folder = os.path.join(root, "..", "anki-i18n")
-
-if not os.path.exists(working_folder):
-    os.mkdir(working_folder)
+working_folder = os.path.join(root, "..")
 
 
 @dataclass
 class Module:
     name: str
+    folder_name: str
     repo: str
     # (source ftl folder, i18n templates folder)
     ftl: Optional[Tuple[str, str]] = None
 
     def folder(self) -> str:
-        return os.path.join(working_folder, self.name)
+        return os.path.join(working_folder, self.folder_name)
 
 
 modules = [
     Module(
         name="core",
+        folder_name="ftl-core",
         repo="git@github.com:ankitects/anki-core-i18n",
         ftl=(os.path.join(root, "ftl", "core"), "core/templates"),
     ),
     Module(
         name="qtftl",
+        folder_name="ftl-qt",
         repo="git@github.com:ankitects/anki-desktop-ftl",
         ftl=(os.path.join(root, "ftl", "qt"), "desktop/templates"),
     ),
@@ -54,7 +54,7 @@ def update_repo(module: Module):
 
 def clone_repo(module: Module):
     subprocess.run(
-        ["git", "clone", module.repo, module.name], cwd=working_folder, check=True
+        ["git", "clone", module.repo, module.folder_name], cwd=working_folder, check=True
     )
 
 
@@ -129,7 +129,7 @@ def commit_if_changed(folder: str, update_label: str):
         # no changes
         return
     subprocess.run(
-        ["git", "commit", "-a", "-m", "update " + update_label], cwd=folder, check=True
+        ["git", "commit", "-a", "-m", "Update " + update_label], cwd=folder, check=True
     )
 
 

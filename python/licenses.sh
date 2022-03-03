@@ -14,10 +14,10 @@ python -m venv venv
 ../bazel.bat --output_base=/c/bazel/anki/base build //pylib/anki:wheel //qt/aqt:wheel
 
 # install wheels, bound to constrained versions
-venv/scripts/pip install -c requirements.txt ../bazel-bin/pylib/anki/*.whl ../bazel-bin/qt/aqt/*.whl pip-licenses
+venv/tools/pip install -c requirements.txt ../bazel-bin/pylib/anki/*.whl ../bazel-bin/qt/aqt/*.whl pip-licenses
 
 # dump licenses - ptable is a pip-licenses dep
-venv/scripts/pip-licenses --format=json --ignore-packages anki aqt pip-license PTable > licenses.json
+venv/tools/pip-licenses --format=json --ignore-packages anki aqt pip-license PTable > licenses.json
 
 # clean up
 rm -rf venv

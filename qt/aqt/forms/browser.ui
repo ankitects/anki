@@ -219,8 +219,6 @@
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
     <addaction name="separator"/>
-    <addaction name="action_toggle_mode"/>
-    <addaction name="separator"/>
     <addaction name="actionSelectAll"/>
     <addaction name="actionSelectNotes"/>
     <addaction name="actionInvertSelection"/>
@@ -300,17 +298,25 @@
     <addaction name="separator"/>
     <addaction name="actionDelete"/>
    </widget>
+   <widget class="QMenu" name="menuqt_accel_view">
+    <property name="title">
+     <string>qt_accel_view</string>
+    </property>
+    <addaction name="action_toggle_mode"/>
+    <addaction name="separator"/>
+    <addaction name="actionFullScreen"/>
+    <addaction name="separator"/>
+    <addaction name="actionZoomIn"/>
+    <addaction name="actionZoomOut"/>
+    <addaction name="actionResetZoom"/>
+   </widget>
    <addaction name="menuEdit"/>
+   <addaction name="menuqt_accel_view"/>
    <addaction name="menu_Notes"/>
    <addaction name="menu_Cards"/>
    <addaction name="menuJump"/>
    <addaction name="menu_Help"/>
   </widget>
-  <action name="actionReschedule">
-   <property name="text">
-    <string notr="true">QT_ACCEL_RESCHEDULE</string>
-   </property>
-  </action>
   <action name="actionSelectAll">
    <property name="text">
     <string>qt_accel_select_all</string>
@@ -618,7 +624,7 @@
     <string>browsing_toggle_showing_cards_notes</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Alt+T</string>
+    <string notr="true">Ctrl+Alt+T</string>
    </property>
   </action>
   <action name="actionRedo">
@@ -668,6 +674,34 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+E</string>
+   </property>
+  </action>
+  <action name="actionFullScreen">
+   <property name="text">
+    <string>qt_accel_full_screen</string>
+   </property>
+  </action>
+  <action name="actionZoomIn">
+   <property name="text">
+    <string>qt_accel_zoom_editor_in</string>
+   </property>
+  </action>
+  <action name="actionZoomOut">
+   <property name="text">
+    <string>qt_accel_zoom_editor_out</string>
+   </property>
+  </action>
+  <action name="actionResetZoom">
+   <property name="text">
+    <string>qt_accel_reset_zoom</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+0</string>
+   </property>
+  </action>
+  <action name="actionbrowsing_toggle_showing_cards_notes">
+   <property name="text">
+    <string>browsing_toggle_showing_cards_notes</string>
    </property>
   </action>
  </widget>

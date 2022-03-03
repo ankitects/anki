@@ -1,0 +1,4 @@
+# this is not supported on stable Rust, and is ignored by the Bazel rules; it is only
+# useful for manual invocation with 'cargo +nightly fmt'
+imports_granularity = "Crate"
+group_imports = "StdExternalCrate"

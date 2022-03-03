@@ -6,7 +6,9 @@
 // would not work.
 
 import * as svelteRuntime from "svelte/internal";
+import * as svelteStore from "svelte/store";
 
 import { registerPackageRaw } from "../lib/runtime-require";
 
 registerPackageRaw("svelte/internal", svelteRuntime);
+registerPackageRaw("svelte/store", svelteStore);

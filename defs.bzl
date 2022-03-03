@@ -20,6 +20,7 @@ def setup_deps():
     rust_repositories(
         edition = "2021",
         include_rustc_srcs = False,
+        version = "1.58.1",
     )
 
     raze_fetch_remote_crates()
@@ -59,7 +60,7 @@ def setup_deps():
 
     node_repositories(
         package_json = ["@ankidesktop//:package.json"],
-        node_version = "16.10.0",
+        node_version = "16.13.2",
     )
 
     yarn_install(

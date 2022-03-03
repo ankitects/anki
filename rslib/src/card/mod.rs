@@ -77,7 +77,8 @@ pub struct Card {
     pub(crate) original_due: i32,
     pub(crate) original_deck_id: DeckId,
     pub(crate) flags: u8,
-    pub(crate) data: String,
+    /// The position in the new queue before leaving it.
+    pub(crate) original_position: Option<u32>,
 }
 
 impl Default for Card {
@@ -100,7 +101,7 @@ impl Default for Card {
             original_due: 0,
             original_deck_id: DeckId(0),
             flags: 0,
-            data: "".to_string(),
+            original_position: None,
         }
     }
 }
@@ -283,7 +284,10 @@ impl Collection {
             for mut card in col.storage.all_searched_cards()? {
                 let original = card.clone();
                 if card.set_flag(flag) {
-                    col.update_card_inner(&mut card, original, usn)?;
+                    // To avoid having to rebuild the study queues, we mark the card as requiring
+                    // a sync, but do not change its modification time.
+                    card.usn = usn;
+                    col.update_card_undoable(&mut card, original)?;
                     count += 1;
                 }
             }

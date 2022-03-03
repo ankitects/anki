@@ -1,0 +1,14 @@
+[package]
+edition = "2021"
+name = "makeinstall"
+version = "0.1.0"
+authors = ["Ankitects Pty Ltd and contributors"]
+license = "AGPL-3.0-or-later"
+
+[dependencies]
+anyhow = "1.0.53"
+glob = "0.3.0"
+slog = "2.7.0"
+slog-term = "2.8.0"
+tugger-windows-codesign = "0.6.0"
+walkdir = "2.3.2"

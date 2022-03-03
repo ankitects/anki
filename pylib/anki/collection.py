@@ -245,7 +245,6 @@ class Collection(DeprecatedNamesMixin):
             self._clear_caches()
             self._backend.close_collection(downgrade_to_schema11=downgrade)
             self.db = None
-            self.media.close()
 
     def close_for_full_sync(self) -> None:
         # save and cleanup, but backend will take care of collection close
@@ -253,7 +252,6 @@ class Collection(DeprecatedNamesMixin):
             self.save(trx=False)
             self._clear_caches()
             self.db = None
-            self.media.close()
 
     def rollback(self) -> None:
         self._clear_caches()
@@ -285,8 +283,6 @@ class Collection(DeprecatedNamesMixin):
                 media_db_path=media_db,
                 log_path=log_path,
             )
-        else:
-            self.media.connect()
         self.db = DBProxy(weakref.proxy(self._backend))
         self.db.begin()
 

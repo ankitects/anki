@@ -39,6 +39,7 @@ from operator import attrgetter
 from typing import Any, cast
 
 import anki
+import anki.template
 from anki import hooks
 from anki.sound import AVTag, TTSTag
 from anki.utils import checksum, is_win, tmpdir
@@ -473,9 +474,10 @@ if is_win:
         "31748": "zh_CHT",
     }
 
-    def lcid_hex_str_to_lang_code(hex: str) -> str:
-        dec_str = str(int(hex, 16))
-        return LCIDS.get(dec_str, "unknown")
+    def lcid_hex_str_to_lang_codes(hex_codes: str) -> list[str]:
+        return [
+            LCIDS.get(str(int(code, 16)), "unknown") for code in hex_codes.split(";")
+        ]
 
     class WindowsTTSPlayer(TTSProcessPlayer):
         default_rank = -1
@@ -487,13 +489,17 @@ if is_win:
         def get_available_voices(self) -> list[TTSVoice]:
             if self.speaker is None:
                 return []
-            return list(map(self._voice_to_object, self.speaker.GetVoices()))
+            return [
+                obj
+                for voice in self.speaker.GetVoices()
+                for obj in self._voice_to_objects(voice)
+            ]
 
-        def _voice_to_object(self, voice: Any) -> WindowsVoice:
-            lang = voice.GetAttribute("language")
-            lang = lcid_hex_str_to_lang_code(lang)
+        def _voice_to_objects(self, voice: Any) -> list[WindowsVoice]:
+            langs = voice.GetAttribute("language")
+            langs = lcid_hex_str_to_lang_codes(langs)
             name = self._tidy_name(voice.GetAttribute("name"))
-            return WindowsVoice(name=name, lang=lang, handle=voice)
+            return [WindowsVoice(name=name, lang=lang, handle=voice) for lang in langs]
 
         def _play(self, tag: AVTag) -> None:
             assert isinstance(tag, TTSTag)
@@ -512,7 +518,7 @@ if is_win:
                 while not self.speaker.WaitUntilDone(100):
                     if self._terminate_flag:
                         # stop playing
-                        self.speaker.Skip("Sentence", 2 ** 15)
+                        self.speaker.Skip("Sentence", 2**15)
                         return
             finally:
                 self._terminate_flag = False

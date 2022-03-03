@@ -25,19 +25,15 @@ impl Collection {
         let revlog = self.storage.get_revlog_entries_for_card(card.id)?;
 
         let (average_secs, total_secs) = average_and_total_secs_strings(&revlog);
-        let (due_date, due_position) = self.due_date_and_position_strings(&card)?;
+        let (due_date, due_position) = self.due_date_and_position(&card)?;
 
         Ok(pb::CardStatsResponse {
             card_id: card.id.into(),
             note_id: card.note_id.into(),
             deck: deck.human_name(),
             added: card.id.as_secs().0,
-            first_review: revlog.first().map(|entry| pb::generic::Int64 {
-                val: entry.id.as_secs().0,
-            }),
-            latest_review: revlog.last().map(|entry| pb::generic::Int64 {
-                val: entry.id.as_secs().0,
-            }),
+            first_review: revlog.first().map(|entry| entry.id.as_secs().0),
+            latest_review: revlog.last().map(|entry| entry.id.as_secs().0),
             due_date,
             due_position,
             interval: card.interval,
@@ -52,22 +48,17 @@ impl Collection {
         })
     }
 
-    fn due_date_and_position_strings(
-        &mut self,
-        card: &Card,
-    ) -> Result<(Option<pb::generic::Int64>, Option<pb::generic::Int32>)> {
+    fn due_date_and_position(&mut self, card: &Card) -> Result<(Option<i64>, Option<i32>)> {
         let due = if card.original_due != 0 {
             card.original_due
         } else {
             card.due
         };
         Ok(match card.queue {
-            CardQueue::New => (None, Some(pb::generic::Int32 { val: due })),
+            CardQueue::New => (None, Some(due)),
             CardQueue::Learn => (
-                Some(pb::generic::Int64 {
-                    val: TimestampSecs::now().0,
-                }),
-                None,
+                Some(TimestampSecs::now().0),
+                card.original_position.map(|u| u as i32),
             ),
             CardQueue::Review | CardQueue::DayLearn => (
                 {
@@ -78,10 +69,10 @@ impl Collection {
                         let days_remaining = due - (self.timing_today()?.days_elapsed as i32);
                         let mut due = TimestampSecs::now();
                         due.0 += (days_remaining as i64) * 86_400;
-                        Some(pb::generic::Int64 { val: due.0 })
+                        Some(due.0)
                     }
                 },
-                None,
+                card.original_position.map(|u| u as i32),
             ),
             _ => (None, None),
         })

@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import aqt
+import aqt.main
+import aqt.operations
 from anki.decks import DeckDict
 from aqt.operations import QueryOp
 from aqt.operations.deck import update_deck_dict

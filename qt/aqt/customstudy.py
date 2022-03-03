@@ -2,6 +2,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import aqt
+import aqt.forms
+import aqt.operations
 from anki.consts import *
 from anki.scheduler import CustomStudyRequest
 from aqt.operations.scheduling import custom_study
@@ -32,10 +34,9 @@ class CustomStudy(QDialog):
         self.created_custom_study = False
         f.setupUi(self)
         disable_help_button(self)
-        self.setWindowModality(Qt.WindowModality.WindowModal)
         self.setupSignals()
         f.radioNew.click()
-        self.exec()
+        self.open()
 
     def setupSignals(self) -> None:
         f = self.form

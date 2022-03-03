@@ -105,7 +105,14 @@ class NotetypeChooser(QHBoxLayout):
         def nameFunc() -> list[str]:
             return sorted(n.name for n in self.mw.col.models.all_names_and_ids())
 
-        ret = StudyDeck(
+        def callback(ret: StudyDeck) -> None:
+            if not ret.name:
+                return
+            notetype = self.mw.col.models.by_name(ret.name)
+            if (id := notetype["id"]) != self._selected_notetype_id:
+                self.selected_notetype_id = id
+
+        StudyDeck(
             self.mw,
             names=nameFunc,
             accept=tr.actions_choose(),
@@ -116,13 +123,8 @@ class NotetypeChooser(QHBoxLayout):
             buttons=[edit],
             cancel=True,
             geomKey="selectModel",
+            callback=callback,
         )
-        if not ret.name:
-            return
-
-        notetype = self.mw.col.models.by_name(ret.name)
-        if (id := notetype["id"]) != self._selected_notetype_id:
-            self.selected_notetype_id = id
 
     @property
     def selected_notetype_id(self) -> NotetypeId:

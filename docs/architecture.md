@@ -6,7 +6,11 @@ Very brief notes for now.
 
 At the highest level, Anki is logically separated into two parts.
 
-### Library
+A neat visualization
+of the file layout is available here:
+<https://octo-repo-visualization.vercel.app/?repo=ankitects%2Fanki>
+
+### Library (rslib & pylib)
 
 The Python library (pylib) exports "backend" methods - opening collections,
 fetching and answering cards, and so on. It is used by Anki’s GUI, and can also
@@ -19,7 +23,7 @@ These days, the majority of backend logic lives in a Rust library (rslib, locate
 
 pylib contains a private Python module called rsbridge (`pylib/rsbridge/`) that wraps the Rust code, making it accessible in Python.
 
-### GUI
+### GUI (aqt & ts)
 
 Anki's _GUI_ is a mix of Qt (via the PyQt Python bindings for Qt), and
 TypeScript/HTML/CSS. The Qt code lives in `qt/aqt/`, and is importable in Python

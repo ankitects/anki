@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import aqt
+import aqt.forms
+import aqt.operations
 from anki.collection import OpChangesWithId, SearchNode
 from anki.decks import DeckDict, DeckId, FilteredDeckConfig
 from anki.errors import SearchError
@@ -48,6 +50,7 @@ class FilteredDeckConfigDialog(QDialog):
 
         QDialog.__init__(self, mw)
         self.mw = mw
+        mw.garbage_collect_on_dialog_finish(self)
         self.col = self.mw.col
         self._desired_search_1 = search
         self._desired_search_2 = search_2

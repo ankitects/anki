@@ -3,7 +3,7 @@
 For info on contributing things other than code, such as translations, decks
 and add-ons, please see https://docs.ankiweb.net/contrib
 
-With most users now on 2.1, the past year has been focused on paying down some
+With most users now on 2.1, the past 2 years have been focused on paying down some
 of the technical debt that Anki's codebase has built up over the years, and making
 changes that will make future maintenance and refactoring easier. A lot of Anki's
 "business logic" has been migrated to Rust, which AnkiMobile and AnkiDroid
@@ -13,7 +13,7 @@ Considerable effort has also been put into improving the Python side of things,
 with type hints added to the majority of the codebase, automatic linting/formatting,
 and refactoring of parts of the code.
 
-The scheduling code and import/export code remains to be done, and this will likely
+The import/export code remains to be done, and this will likely
 take a number of months to work through. Until that is complete, new features
 will not be the top priority, unless they are easy wins as part of the refactoring
 process.

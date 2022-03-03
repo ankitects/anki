@@ -1,5 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 from __future__ import annotations
 
 import io
@@ -18,11 +19,14 @@ from zipfile import ZipFile
 import jsonschema
 import markdown
 from jsonschema.exceptions import ValidationError
+from markdown.extensions import md_in_html
 from send2trash import send2trash
 
 import anki
+import anki.utils
 import aqt
 import aqt.forms
+import aqt.main
 from anki.httpclient import HttpClient
 from anki.lang import without_unicode_isolation
 from aqt import gui_hooks
@@ -625,7 +629,7 @@ class AddonManager:
             else:
                 return ""
 
-        return markdown.markdown(contents, extensions=["md_in_html"])
+        return markdown.markdown(contents, extensions=[md_in_html.makeExtension()])
 
     def addonFromModule(self, module: str) -> str:
         return module.split(".")[0]
@@ -1147,7 +1151,7 @@ class DownloaderInstaller(QObject):
         self.mgr.mw.progress.finish()
         # qt gets confused if on_done() opens new windows while the progress
         # modal is still cleaning up
-        self.mgr.mw.progress.timer(50, lambda: self.on_done(self.log), False)
+        self.mgr.mw.progress.single_shot(50, lambda: self.on_done(self.log))
 
 
 def show_log_to_user(parent: QWidget, log: list[DownloadLogEntry]) -> None:
@@ -1396,11 +1400,10 @@ def check_for_updates(
     def update_info_received(future: Future) -> None:
         # if syncing/in profile screen, defer message delivery
         if not mgr.mw.col:
-            mgr.mw.progress.timer(
+            mgr.mw.progress.single_shot(
                 1000,
                 lambda: update_info_received(future),
                 False,
-                requiresCollection=False,
             )
             return
 

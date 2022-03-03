@@ -56,6 +56,7 @@ const modifierPressed =
 
 export const controlPressed = modifierPressed("Control");
 export const shiftPressed = modifierPressed("Shift");
+export const altPressed = modifierPressed("Alt");
 
 export function modifiersToPlatformString(modifiers: string[]): string {
     const displayModifiers = isApplePlatform()

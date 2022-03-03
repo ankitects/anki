@@ -63,7 +63,7 @@ impl Default for DeckConfig {
                 graduating_interval_easy: 4,
                 new_card_insert_order: NewCardInsertOrder::Due as i32,
                 new_card_gather_priority: NewCardGatherPriority::Deck as i32,
-                new_card_sort_order: NewCardSortOrder::TemplateThenLowestPosition as i32,
+                new_card_sort_order: NewCardSortOrder::Template as i32,
                 review_order: ReviewCardOrder::Day as i32,
                 new_mix: ReviewMix::MixWithReviews as i32,
                 interday_learning_mix: ReviewMix::MixWithReviews as i32,
@@ -75,6 +75,7 @@ impl Default for DeckConfig {
                 skip_question_when_replaying_answer: false,
                 bury_new: false,
                 bury_reviews: false,
+                bury_interday_learning: false,
                 other: vec![],
             },
         }

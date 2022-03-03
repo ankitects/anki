@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from typing import Any, Callable, Union
 
 import aqt
+import aqt.forms
+import aqt.main
 from anki.collection import Progress
 from anki.errors import Interrupted, NetworkError
 from anki.types import assert_exhaustive
@@ -57,7 +59,7 @@ class MediaSyncer:
         self._log_and_notify(tr.sync_media_starting())
         self._syncing = True
         self._progress_timer = self.mw.progress.timer(
-            1000, self._on_progress, True, True
+            1000, self._on_progress, True, True, parent=self.mw
         )
         gui_hooks.media_sync_did_start_or_stop(True)
 
@@ -76,7 +78,7 @@ class MediaSyncer:
     def _on_finished(self, future: Future) -> None:
         self._syncing = False
         if self._progress_timer:
-            self._progress_timer.stop()
+            self._progress_timer.deleteLater()
             self._progress_timer = None
         gui_hooks.media_sync_did_start_or_stop(False)
 
@@ -129,10 +131,10 @@ class MediaSyncer:
 
         def check_finished() -> None:
             if not self.is_syncing():
-                timer.stop()
+                timer.deleteLater()
                 on_finished()
 
-        timer = self.mw.progress.timer(150, check_finished, True, False)
+        timer = self.mw.progress.timer(150, check_finished, True, False, parent=self.mw)
 
     def seconds_since_last_sync(self) -> int:
         if self.is_syncing():

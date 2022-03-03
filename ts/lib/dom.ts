@@ -7,8 +7,20 @@ export function nodeIsElement(node: Node): node is Element {
     return node.nodeType === Node.ELEMENT_NODE;
 }
 
+/**
+ * In the web this is probably equivalent to `nodeIsElement`, but this is
+ * convenient to convince Typescript.
+ */
+export function nodeIsCommonElement(node: Node): node is HTMLElement | SVGElement {
+    return node instanceof HTMLElement || node instanceof SVGElement;
+}
+
 export function nodeIsText(node: Node): node is Text {
     return node.nodeType === Node.TEXT_NODE;
+}
+
+export function nodeIsComment(node: Node): node is Comment {
+    return node.nodeType === Node.COMMENT_NODE;
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/Block-level_elements

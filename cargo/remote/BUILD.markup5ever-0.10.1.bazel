@@ -84,7 +84,7 @@ rust_library(
         ":markup5ever_build_script",
         "@raze__log__0_4_14//:log",
         "@raze__phf__0_8_0//:phf",
-        "@raze__string_cache__0_8_2//:string_cache",
+        "@raze__string_cache__0_8_3//:string_cache",
         "@raze__tendril__0_4_2//:tendril",
     ],
 )

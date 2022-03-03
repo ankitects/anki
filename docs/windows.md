@@ -28,6 +28,11 @@ After installation completes, run msys2, and run the following command:
 $ pacman -S git
 ```
 
+If you have native Windows apps relying on Git, e.g. the PowerShell extension
+[posh-git](https://github.com/dahlbyk/posh-git), you may want to install
+[Git for Windows](https://gitforwindows.org/) and put it on the path instead,
+as msys Git may cause issues with them.
+
 **Bazel**:
 
 Use Start>Run to open PowerShell. Create a folder to store Bazel
@@ -74,7 +79,16 @@ to compile, but will mean Anki will run considerably slower.
 To run Anki in optimized mode, use:
 
 ```
-.\scripts\runopt
+.\tools\runopt
+```
+
+## Stale TS Files
+
+The build process may break when .ts files are removed or renamed on Windows. If you're
+tracking Anki's development and you run into a TS build error, try the following:
+
+```
+bazel run tools:cleanup_js
 ```
 
 ## More
@@ -82,7 +96,23 @@ To run Anki in optimized mode, use:
 For info on running tests, building wheels and so on, please see
 [Development](./development.md).
 
-Note that where the instructions on that page say "bazel", please use ".\bazel"
-instead. This runs bazel.bat inside the Anki source folder, instead of
-calling Bazel directly. This takes care of setting up the path and output folder
-correctly, which avoids issues with long path names.
+When you run a script like .\run, MSYS and bazel will automatically be added to
+the path, and Bazel will be configured to output build products into
+\bazel\anki. If you want to directly invoke bazel before having run any of the
+.bat files in this repo, please run tools\setup-env first.
+
+However, this will not work in PowerShell, as .bat files are executed in a subprocess.
+To invoke bazel scripts, you will have to adjust your session path manually.
+One option is to create a script that sets up your Anki development environment for you.
+Here is an example:
+
+```powershell
+# put bazel and msys on path
+$env:PATH = "c:\bazel;c:\msys64\usr\bin;$env:PATH"
+# change working directory to anki root
+Set-Location C:\code\anki
+# open VSC
+code .
+# open powershell 7
+pwsh
+```

@@ -9,6 +9,7 @@ from typing import Any
 import anki
 import anki.find
 import aqt
+import aqt.forms
 from anki.collection import SearchNode
 from anki.notes import NoteId
 from aqt.qt import *

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import anki
+import anki.collection
 from anki import decks_pb2, scheduler_pb2
 from anki._legacy import DeprecatedNamesMixin
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
@@ -48,10 +49,13 @@ class SchedulerBase(DeprecatedNamesMixin):
     # Deck list
     ##########################################################################
 
-    def deck_due_tree(self, top_deck_id: int = 0) -> DeckTreeNode:
+    def deck_due_tree(self, top_deck_id: DeckId | None = None) -> DeckTreeNode | None:
         """Returns a tree of decks with counts.
-        If top_deck_id provided, counts are limited to that node."""
-        return self.col._backend.deck_tree(top_deck_id=top_deck_id, now=int_time())
+        If top_deck_id provided, only the according subtree is returned."""
+        tree = self.col._backend.deck_tree(now=int_time())
+        if top_deck_id:
+            return self.col.decks.find_deck_in_tree(tree, top_deck_id)
+        return tree
 
     # Deck finished state & custom study
     ##########################################################################

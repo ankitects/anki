@@ -6,6 +6,8 @@ from concurrent.futures import Future
 from typing import Any, Match, Optional
 
 import aqt
+import aqt.forms
+import aqt.operations
 from anki.collection import OpChanges
 from anki.consts import *
 from anki.lang import without_unicode_isolation
@@ -402,7 +404,7 @@ class CardLayout(QDialog):
         a.setChecked(self.mobile_emulation_enabled)
         qconnect(a.toggled, self.on_mobile_class_action_toggled)
 
-        m.exec(self.pform.preview_settings.mapToGlobal(QPoint(0, 0)))
+        m.popup(self.pform.preview_settings.mapToGlobal(QPoint(0, 0)))
 
     def on_preview_toggled(self) -> None:
         self.have_autoplayed = False
@@ -497,7 +499,9 @@ class CardLayout(QDialog):
     def renderPreview(self) -> None:
         # schedule a preview when timing stops
         self.cancelPreviewTimer()
-        self._previewTimer = self.mw.progress.timer(200, self._renderPreview, False)
+        self._previewTimer = self.mw.progress.timer(
+            200, self._renderPreview, False, parent=self
+        )
 
     def cancelPreviewTimer(self) -> None:
         if self._previewTimer:
@@ -719,7 +723,7 @@ class CardLayout(QDialog):
         a = m.addAction(tr.card_templates_browser_appearance())
         qconnect(a.triggered, self.onBrowserDisplay)
 
-        m.exec(self.topAreaForm.templateOptions.mapToGlobal(QPoint(0, 0)))
+        m.popup(self.topAreaForm.templateOptions.mapToGlobal(QPoint(0, 0)))
 
     def onBrowserDisplay(self) -> None:
         d = QDialog()

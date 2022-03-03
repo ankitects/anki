@@ -9,7 +9,6 @@ mod review;
 mod revlog;
 
 use rand::{prelude::*, rngs::StdRng};
-
 use revlog::RevlogEntryPartial;
 
 use super::{
@@ -281,6 +280,7 @@ impl Collection {
                 card.note_id,
                 config.inner.bury_new,
                 config.inner.bury_reviews,
+                config.inner.bury_interday_learning,
             )?;
         }
 
@@ -579,7 +579,7 @@ mod test {
 
     macro_rules! assert_counts {
         ($col:ident, $new:expr, $learn:expr, $review:expr) => {{
-            let tree = $col.deck_tree(Some(TimestampSecs::now()), None).unwrap();
+            let tree = $col.deck_tree(Some(TimestampSecs::now())).unwrap();
             assert_eq!(tree.new_count, $new);
             assert_eq!(tree.learn_count, $learn);
             assert_eq!(tree.review_count, $review);

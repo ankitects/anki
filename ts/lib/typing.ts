@@ -4,3 +4,13 @@
 export function assertUnreachable(x: never): never {
     throw new Error(`unreachable: ${x}`);
 }
+
+export type Callback = () => void;
+
+export function singleCallback(...callbacks: Callback[]): Callback {
+    return () => {
+        for (const cb of callbacks) {
+            cb();
+        }
+    };
+}

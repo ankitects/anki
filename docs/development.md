@@ -56,13 +56,13 @@ Run the following command to create Python packages:
 On Mac/Linux:
 
 ```
-./scripts/build
+./tools/build
 ```
 
 On Windows:
 
 ```
-.\scripts\build.bat
+.\tools\build.bat
 ```
 
 The generated wheel paths will be printed as the build completes.
@@ -71,7 +71,7 @@ Follow the steps [on the beta site](https://betas.ankiweb.net/#via-pypipip), but
 `pip install --upgrade --pre aqt[qt6]` line with something like:
 
 ```
-pyenv/bin/pip install --upgrade bazel-dist/*.whl
+pyenv/bin/pip install --upgrade dist/*.whl
 ```
 
 (On Windows you'll need to list out the filenames manually instead of using a wildcard).
@@ -94,35 +94,13 @@ The build process will download about a gigabyte of dependencies, and produce
 about 6 gigabytes of temporary files. Once you've created the wheels, you can
 remove the other files to free up space if you wish.
 
--   `bazel clean --expunge` will remove the generated files, freeing up most
-    of the space. The files are usualy stored in a subdir of ~/.cache/bazel/
--   `rm -rf ~/.cache/bazel*` will remove the cached downloads as well, requiring
-    them to be redownloaded if you want to build again.
+-   `bazel clean --expunge` will remove the generated Bazel files, freeing up
+    most of the space. The files are usualy stored in a subdir of
+    `~/.cache/bazel` or `\bazel\anki`
+-   `rm -rf ~/.cache/bazel*` or `\bazel\anki` will remove cached downloads as
+    well, requiring them to be redownloaded if you want to build again.
 -   `rm -rf ~/.cache/{yarn,pip}` will remove the shared pip and yarn caches that
     other apps may be using as well.
-
-## Building with Docker
-
-Linux users can build using the instructions above, or they can optionally [build
-via Docker](../scripts/docker/README.md).
-
-On Linux, the generated Anki wheel will have a filename like:
-
-    anki-2.1.49-cp39-abi3-manylinux_2_31_aarch64.whl
-
-The 2_31 part means that the wheel requires glibc 2.31 or later. If you have
-built the wheel on a machine with an older glibc version, you will get an error
-if you try to install the wheel:
-
-    ERROR: No matching distribution found for anki
-
-To avoid the error, you can rename the .whl file to match your glibc version.
-
-If you still get the error, another possibility is that you are trying to
-install with an old version of Python - 3.9 or later is required.
-
-On ARM Linux, please see the instructions in the pre-built wheels section about
-a system PyQt, and the notes at the bottom of [Linux](./linux.md).
 
 ## Running tests
 
@@ -151,7 +129,7 @@ On Mac/Linux, after installing 'fswatch', you can run mypy on
 each file save automatically with:
 
 ```
-./scripts/mypy-watch
+./tools/mypy-watch
 ```
 
 ## Fixing formatting
@@ -232,6 +210,12 @@ If LOGTERM is set before starting Anki, warnings and error messages that are nor
 in the collection2.log file will also be printed on stdout.
 
 If ANKI_PROFILE_CODE is set, Python profiling data will be written on exit.
+
+# Binary Bundles
+
+Anki's official binary packages are created with `tools/bundle`. The script was created specifically
+for the official builds, and is provided as-is; we are unfortunately not able to provide assistance with
+any issues you may run into when using it.
 
 ## Mixing development and study
 

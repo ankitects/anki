@@ -203,33 +203,30 @@ fn sum_counts_and_apply_limits_v3(
         .copied()
         .unwrap_or_default();
 
-    // cap current node's own cards
-    let this_node_uncapped = NodeCountsV3 {
+    // initialize with this node's values
+    let mut this_node_uncapped = NodeCountsV3 {
         new: node.new_count,
         review: node.review_count,
         intraday_learning: node.intraday_learning,
         interday_learning: node.interday_learning_uncapped,
         total: node.total_in_deck,
     };
-    let mut individually_capped_total = this_node_uncapped.capped(&remaining);
-    // and add the capped values from child decks
+    let mut total_including_children = node.total_in_deck;
+
+    // add capped child counts / uncapped total
     for child in &mut node.children {
-        individually_capped_total += sum_counts_and_apply_limits_v3(child, limits);
+        this_node_uncapped += sum_counts_and_apply_limits_v3(child, limits);
+        total_including_children += child.total_including_children;
     }
-    node.total_including_children = individually_capped_total.total;
 
-    // We already have a sum of the current deck's capped cards+its child decks'
-    // capped cards, which we'll return to the parent. But because clicking on a
-    // given deck imposes that deck's limits on the total number of cards shown,
-    // the sum we'll display needs to be capped again by the limits of the current
-    // deck.
-    let total_constrained_by_current_deck = individually_capped_total.capped(&remaining);
-    node.new_count = total_constrained_by_current_deck.new;
-    node.review_count = total_constrained_by_current_deck.review;
-    node.learn_count = total_constrained_by_current_deck.intraday_learning
-        + total_constrained_by_current_deck.interday_learning;
+    let this_node_capped = this_node_uncapped.capped(&remaining);
 
-    individually_capped_total
+    node.new_count = this_node_capped.new;
+    node.review_count = this_node_capped.review;
+    node.learn_count = this_node_capped.intraday_learning + this_node_capped.interday_learning;
+    node.total_including_children = total_including_children;
+
+    this_node_capped
 }
 
 fn hide_default_deck(node: &mut DeckTreeNode) {
@@ -290,14 +287,7 @@ impl Collection {
     /// - Buried cards from previous days will be unburied if necessary. Because
     ///   this does not happen for future stamps, future due numbers may not be
     ///   accurate.
-    /// - If top_deck_id is provided, only the node starting at the provided
-    ///   deck ID will have the counts populated. Currently the entire tree is
-    ///   returned in this case, but this may change in the future.
-    pub fn deck_tree(
-        &mut self,
-        timestamp: Option<TimestampSecs>,
-        top_deck_id: Option<DeckId>,
-    ) -> Result<DeckTreeNode> {
+    pub fn deck_tree(&mut self, timestamp: Option<TimestampSecs>) -> Result<DeckTreeNode> {
         let names = self.storage.get_all_deck_names()?;
         let mut tree = deck_names_to_tree(names.into_iter());
 
@@ -314,14 +304,12 @@ impl Collection {
             let timing_today = self.timing_today()?;
             self.unbury_if_day_rolled_over(timing_today)?;
 
-            let limit = top_deck_id
-                .and_then(|did| decks_map.get(&did).map(|deck| deck.name.as_native_str()));
             let timing_at_stamp = self.timing_for_timestamp(timestamp)?;
             let days_elapsed = timing_at_stamp.days_elapsed;
             let learn_cutoff = (timestamp.0 as u32) + self.learn_ahead_secs();
             let sched_ver = self.scheduler_version();
             let v3 = self.get_config_bool(BoolKey::Sched2021);
-            let counts = self.due_counts(days_elapsed, learn_cutoff, limit)?;
+            let counts = self.due_counts(days_elapsed, learn_cutoff)?;
             let dconf = self.storage.get_deck_config_map()?;
             add_counts(&mut tree, &counts);
             let limits = remaining_limits_map(decks_map.values(), &dconf, days_elapsed, v3);
@@ -341,7 +329,7 @@ impl Collection {
 
     pub fn current_deck_tree(&mut self) -> Result<Option<DeckTreeNode>> {
         let target = self.get_current_deck_id();
-        let tree = self.deck_tree(Some(TimestampSecs::now()), Some(target))?;
+        let tree = self.deck_tree(Some(TimestampSecs::now()))?;
         Ok(get_subnode(tree, target))
     }
 
@@ -368,7 +356,7 @@ impl Collection {
 
 impl Collection {
     pub(crate) fn legacy_deck_tree(&mut self) -> Result<LegacyDueCounts> {
-        let tree = self.deck_tree(Some(TimestampSecs::now()), None)?;
+        let tree = self.deck_tree(Some(TimestampSecs::now()))?;
         Ok(LegacyDueCounts::from(tree))
     }
 
@@ -407,7 +395,7 @@ mod test {
         col.get_or_create_normal_deck("2::c::A")?;
         col.get_or_create_normal_deck("3")?;
 
-        let tree = col.deck_tree(None, None)?;
+        let tree = col.deck_tree(None)?;
 
         assert_eq!(tree.children.len(), 3);
 
@@ -430,7 +418,7 @@ mod test {
         col.storage.remove_deck(col.get_deck_id("2")?.unwrap())?;
         col.storage.remove_deck(col.get_deck_id("2::3")?.unwrap())?;
 
-        let tree = col.deck_tree(None, None)?;
+        let tree = col.deck_tree(None)?;
         assert_eq!(tree.children.len(), 1);
 
         Ok(())
@@ -449,7 +437,7 @@ mod test {
         note.set_field(0, "{{c1::}} {{c2::}} {{c3::}} {{c4::}}")?;
         col.add_note(&mut note, child_deck.id)?;
 
-        let tree = col.deck_tree(Some(TimestampSecs::now()), None)?;
+        let tree = col.deck_tree(Some(TimestampSecs::now()))?;
         assert_eq!(tree.children[0].new_count, 4);
         assert_eq!(tree.children[0].children[0].new_count, 4);
 
@@ -460,7 +448,7 @@ mod test {
         col.add_or_update_deck(&mut parent_deck)?;
 
         // with the default limit of 20, there should still be 4 due
-        let tree = col.deck_tree(Some(TimestampSecs::now()), None)?;
+        let tree = col.deck_tree(Some(TimestampSecs::now()))?;
         assert_eq!(tree.children[0].new_count, 4);
         assert_eq!(tree.children[0].children[0].new_count, 4);
 
@@ -469,9 +457,55 @@ mod test {
         conf.inner.new_per_day = 4;
         col.add_or_update_deck_config(&mut conf)?;
 
-        let tree = col.deck_tree(Some(TimestampSecs::now()), None)?;
+        let tree = col.deck_tree(Some(TimestampSecs::now()))?;
         assert_eq!(tree.children[0].new_count, 3);
         assert_eq!(tree.children[0].children[0].new_count, 3);
+
+        Ok(())
+    }
+
+    #[test]
+    fn nested_counts_v3() -> Result<()> {
+        fn create_deck_with_new_limit(col: &mut Collection, name: &str, new_limit: u32) -> Deck {
+            let mut deck = col.get_or_create_normal_deck(name).unwrap();
+            let mut conf = DeckConfig::default();
+            conf.inner.new_per_day = new_limit;
+            col.add_or_update_deck_config(&mut conf).unwrap();
+            deck.normal_mut().unwrap().config_id = conf.id.0;
+            col.add_or_update_deck(&mut deck).unwrap();
+            deck
+        }
+
+        let mut col = open_test_collection();
+        col.set_config_bool(BoolKey::Sched2021, true, false)?;
+
+        let parent_deck = create_deck_with_new_limit(&mut col, "Default", 8);
+        let child_deck = create_deck_with_new_limit(&mut col, "Default::child", 4);
+        let grandchild_1 = create_deck_with_new_limit(&mut col, "Default::child::grandchild_1", 2);
+        let grandchild_2 = create_deck_with_new_limit(&mut col, "Default::child::grandchild_2", 1);
+
+        // add 2 new cards to each deck
+        let nt = col.get_notetype_by_name("Cloze")?.unwrap();
+        let mut note = nt.new_note();
+        note.set_field(0, "{{c1::}} {{c2::}}")?;
+        col.add_note(&mut note, parent_deck.id)?;
+        note.id.0 = 0;
+        col.add_note(&mut note, child_deck.id)?;
+        note.id.0 = 0;
+        col.add_note(&mut note, grandchild_1.id)?;
+        note.id.0 = 0;
+        col.add_note(&mut note, grandchild_2.id)?;
+
+        let parent = &col.deck_tree(Some(TimestampSecs::now()))?.children[0];
+        // grandchildren: own cards, limited by own new limits
+        assert_eq!(parent.children[0].children[0].new_count, 2);
+        assert_eq!(parent.children[0].children[1].new_count, 1);
+        // child: cards from self and children, limited by own new limit
+        assert_eq!(parent.children[0].new_count, 4);
+        // parent: cards from self and all subdecks, all limits in the hierarchy are respected
+        assert_eq!(parent.new_count, 6);
+        assert_eq!(parent.total_including_children, 8);
+        assert_eq!(parent.total_in_deck, 2);
 
         Ok(())
     }

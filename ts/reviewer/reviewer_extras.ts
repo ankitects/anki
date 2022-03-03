@@ -10,4 +10,5 @@
 
 import { mutateNextCardStates } from "./answering";
 
-(window as any).anki.mutateNextCardStates = mutateNextCardStates;
+globalThis.anki = globalThis.anki || {};
+globalThis.anki.mutateNextCardStates = mutateNextCardStates;

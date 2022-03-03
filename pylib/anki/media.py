@@ -29,11 +29,6 @@ def media_paths_from_col_path(col_path: str) -> tuple[str, str]:
 CheckMediaResponse = media_pb2.CheckMediaResponse
 
 
-# fixme: look into whether we can drop chdir() below
-# - need to check aa89d06304fecd3597da4565330a3e55bdbb91fe
-# - and audio handling code
-
-
 class MediaManager(DeprecatedNamesMixin):
 
     sound_regexps = [r"(?i)(\[sound:(?P<fname>[^]]+)\])"]
@@ -51,45 +46,19 @@ class MediaManager(DeprecatedNamesMixin):
 
     def __init__(self, col: anki.collection.Collection, server: bool) -> None:
         self.col = col.weakref()
-        self._dir: str | None = None
         if server:
             return
         # media directory
         self._dir = media_paths_from_col_path(self.col.path)[0]
         if not os.path.exists(self._dir):
             os.makedirs(self._dir)
-        try:
-            self._oldcwd = os.getcwd()
-        except OSError:
-            # cwd doesn't exist
-            self._oldcwd = None
-        try:
-            os.chdir(self._dir)
-        except OSError as exc:
-            raise Exception("invalidTempFolder") from exc
 
     def __repr__(self) -> str:
         dict_ = dict(self.__dict__)
         del dict_["col"]
         return f"{super().__repr__()} {pprint.pformat(dict_, width=300)}"
 
-    def connect(self) -> None:
-        if self.col.server:
-            return
-        os.chdir(self._dir)
-
-    def close(self) -> None:
-        if self.col.server:
-            return
-        # change cwd back to old location
-        if self._oldcwd:
-            try:
-                os.chdir(self._oldcwd)
-            except:
-                # may have been deleted
-                pass
-
-    def dir(self) -> str | None:
+    def dir(self) -> str:
         return self._dir
 
     def force_resync(self) -> None:
