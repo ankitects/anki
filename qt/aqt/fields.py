@@ -48,19 +48,21 @@ class FieldDialog(QDialog):
         )
 
         if os.getenv("ANKI_EXPERIMENTAL_FIELDS_WEB"):
-            self.form = aqt.forms.fields_web.Ui_Dialog()
-            self.form.setupUi(self)
-            self.form.webview.set_title("fields")
+            form = aqt.forms.fields_web.Ui_Dialog()
+            form.setupUi(self)
+
+            self.webview = form.webview
+            self.webview.set_title("fields")
 
             self.show()
             self.refresh()
-            self.form.webview.set_bridge_command(self._on_bridge_cmd, self)
+            self.webview.set_bridge_command(self._on_bridge_cmd, self)
             self.activateWindow()
 
         else:
             self.form = aqt.forms.fields.Ui_Dialog()
             self.form.setupUi(self)
-            self.form.webview = None
+            self.webview = None
 
             disable_help_button(self)
             self.form.buttonBox.button(
@@ -83,7 +85,7 @@ class FieldDialog(QDialog):
             self.exec()
 
     def refresh(self) -> None:
-        self.form.webview.load_ts_page("fields")
+        self.webview.load_ts_page("fields")
 
     def _on_bridge_cmd(self, cmd: str) -> bool:
         return False
@@ -267,9 +269,9 @@ class FieldDialog(QDialog):
             self.change_tracker.mark_basic()
 
     def reject(self) -> None:
-        if self.form.webview:
-            self.form.webview.cleanup()
-            self.form.webview = None
+        if self.webview:
+            self.webview.cleanup()
+            self.webview = None
 
         if self.change_tracker.changed():
             if not askUser("Discard changes?"):
