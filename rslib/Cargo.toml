@@ -26,14 +26,13 @@ prost-build = "0.9.0"
 
 [dev-dependencies]
 env_logger = "0.9.0"
-tokio = { version = "=1.16.1", features = ["macros"] }
+tokio = { version = "1.17", features = ["macros"] }
 
 [dependencies]
 # pinned as any changes could invalidate sqlite indexes
 unicase = "=2.6.0"
 
-# pinned due to windows_sys build failure on Windows+Bazel
-tokio = { version = "=1.16.1", features = ["fs", "rt-multi-thread"] }
+tokio = { version = "1.17", features = ["fs", "rt-multi-thread"] }
 
 anki_i18n = { path="i18n" }
 

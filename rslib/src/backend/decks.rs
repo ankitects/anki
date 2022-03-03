@@ -42,18 +42,13 @@ impl DecksService for Backend {
     }
 
     fn deck_tree(&self, input: pb::DeckTreeRequest) -> Result<pb::DeckTreeNode> {
-        let lim = if input.top_deck_id > 0 {
-            Some(DeckId(input.top_deck_id))
-        } else {
-            None
-        };
         self.with_col(|col| {
             let now = if input.now == 0 {
                 None
             } else {
                 Some(TimestampSecs(input.now))
             };
-            col.deck_tree(now, lim)
+            col.deck_tree(now)
         })
     }
 

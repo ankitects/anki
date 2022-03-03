@@ -26,18 +26,25 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # MIT from expression "MIT"
 ])
 
 # Generated Targets
 
+# Unsupported target "tcp_server" with type "example" omitted
+
+# Unsupported target "udp_server" with type "example" omitted
+
 rust_library(
-    name = "socket2",
+    name = "mio",
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
     crate_features = [
-        "all",
+        "default",
+        "net",
+        "os-ext",
+        "os-poll",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -47,12 +54,13 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=socket2",
+        "crate-name=mio",
         "manual",
     ],
-    version = "0.4.4",
+    version = "0.8.0",
     # buildifier: leave-alone
     deps = [
+        "@raze__log__0_4_14//:log",
     ] + selects.with_or({
         # cfg(unix)
         (
@@ -71,6 +79,8 @@ rust_library(
         (
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
+            "@raze__miow__0_3_7//:miow",
+            "@raze__ntapi__0_3_7//:ntapi",
             "@raze__winapi__0_3_9//:winapi",
         ],
         "//conditions:default": [],
