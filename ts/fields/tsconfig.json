@@ -1,6 +1,6 @@
 {
     "extends": "../tsconfig.json",
-    "include": ["*"],
+    "include": ["*", "panes/*", "drawer/*"],
     "references": [
         { "path": "../lib" },
         { "path": "../sveltelib" },

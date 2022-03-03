@@ -6,11 +6,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let iconSize: number = 100;
     export let widthMultiplier: number = 1;
     export let flipX: boolean = false;
+
+    export let top = 0;
+    export let bottom = 0;
+    export let left = 0;
+    export let right = 0;
 </script>
 
 <span
+    class="icon-constrain"
     class:flip-x={flipX}
-    style="--width-multiplier: {widthMultiplier}; --icon-size: {iconSize}%;"
+    style:--width-multiplier={widthMultiplier}
+    style:--icon-size="{iconSize}%"
+    style:top="{top}px"
+    style:bottom="{bottom}px"
+    style:left="{left}px"
+    style:right="{right}px"
+    on:click
 >
     <slot />
 </span>

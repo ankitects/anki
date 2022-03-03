@@ -1,3 +1,4 @@
+load("@io_bazel_rules_sass//:defs.bzl", "sass_library")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
@@ -8,11 +9,20 @@ load("//ts:typescript.bzl", "typescript")
 
 generate_page(page = "fields")
 
+sass_library(
+    name = "panes_lib",
+    srcs = [
+        "panes/panes.scss",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 compile_sass(
     srcs = ["fields-base.scss"],
     group = "base_css",
     visibility = ["//visibility:public"],
     deps = [
+        ":panes_lib",
         "//sass:base_lib",
         "//sass:scrollbar_lib",
         "//sass/bootstrap",
@@ -47,6 +57,8 @@ esbuild(
         ":base_css",
         ":index",
         ":svelte",
+        "@npm//@mdi",
+        "@npm//bootstrap-icons",
     ],
 )
 
@@ -60,11 +72,13 @@ eslint_test()
 svelte_check(
     name = "svelte_check",
     srcs = glob([
-        "*.ts",
-        "*.svelte",
+        "**/*.ts",
+        "**/*.svelte",
     ]) + [
         "//sass:button_mixins_lib",
+        "//sass:elevation_lib",
         "//sass/bootstrap",
+        ":panes_lib",
         "@npm//@types/bootstrap",
         "@npm//@types/lodash-es",
         "@npm//@types/marked",

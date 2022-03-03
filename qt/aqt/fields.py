@@ -91,6 +91,12 @@ class FieldDialog(QDialog):
     def _on_bridge_cmd(self, cmd: str) -> bool:
         return False
 
+    def refresh(self) -> None:
+        self.webview.load_ts_page("fields")
+
+    def _on_bridge_cmd(self, cmd: str) -> bool:
+        return False
+
     ##########################################################################
 
     def fillFields(self) -> None:

@@ -104,16 +104,14 @@ async function emitTypings(svelte: SvelteTsxFile[], deps: InputFile[]): Promise<
         createdFiles[fileName] = contents;
     };
     const result = program.emit(undefined /* all files */, tsHost.writeFile);
-    // for (const diag of result.diagnostics) {
-    //     console.log(diag.messageText);
-    // }
+    for (const diag of result.diagnostics) {
+        console.log(`${diag.file}: ${diag.messageText}`);
+    }
 
     for (const file of svelte) {
         if (!(file.virtualDtsPath in createdFiles)) {
-            /**
-             * This can happen if you do a case-only rename
-             * e.g. NoteTypeButtons.svelte -> NotetypeButtons.svelte
-             */
+            // This can happen if you do a case-only rename
+            // e.g. NoteTypeButtons.svelte -> NotetypeButtons.svelte
             console.log(
                 "file not among created files: ",
                 file.virtualDtsPath,
