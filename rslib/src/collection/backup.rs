@@ -17,7 +17,7 @@ use log::error;
 use serde_derive::{Deserialize, Serialize};
 use tempfile::NamedTempFile;
 use zip::{write::FileOptions, CompressionMethod, ZipArchive, ZipWriter};
-use zstd::{self, Decoder, Encoder};
+use zstd::{self, stream::copy_decode, Encoder};
 
 use crate::{
     backend_proto::preferences::Backups, collection::CollectionBuilder, error::ImportError, log,
@@ -388,7 +388,7 @@ fn copy_collection(
     if meta.version < 3 {
         io::copy(&mut file, writer)?;
     } else {
-        Decoder::new(file).and_then(|mut reader| io::copy(&mut reader, writer))?;
+        copy_decode(file, writer)?;
     }
 
     Ok(())
