@@ -20,10 +20,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const acceptShortcut = "Enter";
     const newlineShortcut = "Shift+Enter";
 
-    function appendNewline(): void {
-        code.update((value) => `${value}\n`);
-    }
-
     export let updateSelection: () => Promise<void>;
     let dropdownApi: any;
 
@@ -53,7 +49,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             keyCombination={acceptShortcut}
             on:action={() => dispatch("moveoutend")}
         />
-        <Shortcut keyCombination={newlineShortcut} on:action={appendNewline} />
 
         <MathjaxButtons
             {element}
