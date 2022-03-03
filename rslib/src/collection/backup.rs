@@ -8,6 +8,7 @@ use std::{
     io::{self, Read, Write},
     path::{Path, PathBuf},
     thread::{self, JoinHandle},
+    time::SystemTime,
 };
 
 use chrono::prelude::*;
@@ -27,6 +28,7 @@ use crate::{
 /// Versions 1 and 2 wrote different archives, so minimum expected value is 3.
 const BACKUP_VERSION: u8 = 3;
 const BACKUP_FORMAT_STRING: &str = "backup-%Y-%m-%d-%H.%M.%S.colpkg";
+const MIN_SECS_SINCE_LAST_BACKUP: u64 = 30 * 60;
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
@@ -39,16 +41,31 @@ pub fn backup<P1, P2>(
     col_path: P1,
     backup_folder: P2,
     limits: Backups,
+    force: bool,
     log: Logger,
-) -> Result<JoinHandle<()>>
+) -> Result<Option<JoinHandle<()>>>
 where
     P1: AsRef<Path>,
     P2: AsRef<Path> + Send + 'static,
 {
-    let col_data = std::fs::read(col_path)?;
-    Ok(thread::spawn(move || {
-        backup_inner(&col_data, &backup_folder, limits, log)
-    }))
+    if !force && has_recent_backup(backup_folder.as_ref())? {
+        Ok(None)
+    } else {
+        let col_data = std::fs::read(col_path)?;
+        Ok(Some(thread::spawn(move || {
+            backup_inner(&col_data, &backup_folder, limits, log)
+        })))
+    }
+}
+
+fn has_recent_backup(backup_folder: &Path) -> Result<bool> {
+    let now = SystemTime::now();
+    Ok(read_dir(backup_folder)?
+        .filter_map(|res| res.ok())
+        .filter_map(|entry| entry.metadata().ok())
+        .filter_map(|meta| meta.created().ok())
+        .filter_map(|time| now.duration_since(time).ok())
+        .any(|duration| duration.as_secs() < MIN_SECS_SINCE_LAST_BACKUP))
 }
 
 pub fn restore_backup(

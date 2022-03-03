@@ -33,6 +33,8 @@ message CloseCollectionRequest {
   bool downgrade_to_schema11 = 1;
   // Skip backup if unset
   optional string backup_folder = 2;
+  // Backup regardless of when the last one has been created
+  bool force_backup = 3;
 }
 
 message RestoreBackupRequest {

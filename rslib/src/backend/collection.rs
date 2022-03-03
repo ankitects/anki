@@ -66,14 +66,17 @@ impl CollectionService for Backend {
         }
 
         if let Some(backup_folder) = input.backup_folder {
-            let mut opt = self.backup_task.lock().unwrap();
-            if let Some(task) = opt.replace(backup::backup(
+            if let Some(new_task) = backup::backup(
                 col_path,
                 backup_folder,
                 limits,
+                input.force_backup,
                 self.log.clone(),
-            )?) {
-                task.join().unwrap();
+            )? {
+                let mut backup_task = self.backup_task.lock().unwrap();
+                if let Some(old_task) = backup_task.replace(new_task) {
+                    old_task.join().unwrap();
+                }
             }
         }
 
