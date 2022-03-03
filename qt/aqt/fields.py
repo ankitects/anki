@@ -1,6 +1,9 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
+import os
 from typing import Optional
 
 import aqt
@@ -41,11 +44,28 @@ class FieldDialog(QDialog):
         self.model = nt
         self.mm._remove_from_cache(self.model["id"])
         self.change_tracker = ChangeTracker(self.mw)
-        self.form = aqt.forms.fields.Ui_Dialog()
-        self.form.setupUi(self)
+
         self.setWindowTitle(
             without_unicode_isolation(tr.fields_fields_for(val=self.model["name"]))
         )
+
+        if os.getenv("ANKI_EXPERIMENTAL_FIELDS_WEB"):
+            form = aqt.forms.fields_web.Ui_Dialog()
+            form.setupUi(self)
+
+            self.webview = form.webview
+            self.webview.set_title("fields")
+
+            self.show()
+            self.refresh()
+            self.webview.set_bridge_command(self._on_bridge_cmd, self)
+            self.activateWindow()
+            return
+
+        self.form = aqt.forms.fields.Ui_Dialog()
+        self.form.setupUi(self)
+        self.webview = None
+
         disable_help_button(self)
         self.form.buttonBox.button(QDialogButtonBox.StandardButton.Help).setAutoDefault(
             False
@@ -63,6 +83,12 @@ class FieldDialog(QDialog):
         self.form.fieldList.dropEvent = self.onDrop  # type: ignore[assignment]
         self.form.fieldList.setCurrentRow(open_at)
         self.exec()
+
+    def refresh(self) -> None:
+        self.webview.load_ts_page("fields")
+
+    def _on_bridge_cmd(self, cmd: str) -> bool:
+        return False
 
     ##########################################################################
 
@@ -243,6 +269,10 @@ class FieldDialog(QDialog):
             self.change_tracker.mark_basic()
 
     def reject(self) -> None:
+        if self.webview:
+            self.webview.cleanup()
+            self.webview = None
+
         if self.change_tracker.changed():
             if not askUser("Discard changes?"):
                 return
