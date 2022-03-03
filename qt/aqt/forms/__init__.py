@@ -20,6 +20,7 @@ from . import edithtml
 from . import emptycards
 from . import exporting
 from . import fields
+from . import fields_web
 from . import finddupes
 from . import findreplace
 from . import getaddons

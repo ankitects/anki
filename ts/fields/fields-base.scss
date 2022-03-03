@@ -1,0 +1,29 @@
+@use "sass/vars";
+@use "sass/bootstrap-dark";
+
+@import "sass/base";
+
+@import "sass/bootstrap/scss/alert";
+@import "sass/bootstrap/scss/buttons";
+@import "sass/bootstrap/scss/button-group";
+@import "sass/bootstrap/scss/close";
+@import "sass/bootstrap/scss/grid";
+@import "sass/bootstrap-forms";
+
+.night-mode {
+    @include bootstrap-dark.night-mode;
+}
+
+body {
+    width: min(100vw, 70em);
+    margin: 0 auto;
+}
+
+html {
+    overflow-x: hidden;
+}
+
+#main {
+    padding: 0.5em 0.5em 1em 0.5em;
+    height: 100vh;
+}
