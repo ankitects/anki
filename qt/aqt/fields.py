@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import os
 from typing import Optional
 
 import aqt
@@ -41,27 +42,47 @@ class FieldDialog(QDialog):
         self.model = nt
         self.mm._remove_from_cache(self.model["id"])
         self.change_tracker = ChangeTracker(self.mw)
-        self.form = aqt.forms.fields.Ui_Dialog()
-        self.form.setupUi(self)
+
         self.setWindowTitle(
             without_unicode_isolation(tr.fields_fields_for(val=self.model["name"]))
         )
-        disable_help_button(self)
-        self.form.buttonBox.button(QDialogButtonBox.StandardButton.Help).setAutoDefault(
-            False
-        )
-        self.form.buttonBox.button(
-            QDialogButtonBox.StandardButton.Cancel
-        ).setAutoDefault(False)
-        self.form.buttonBox.button(QDialogButtonBox.StandardButton.Save).setAutoDefault(
-            False
-        )
-        self.currentIdx: Optional[int] = None
-        self.fillFields()
-        self.setupSignals()
-        self.form.fieldList.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
-        self.form.fieldList.dropEvent = self.onDrop  # type: ignore[assignment]
-        self.form.fieldList.setCurrentRow(open_at)
+
+        if os.getenv("ANKI_EXPERIMENTAL_FIELDS_WEB"):
+            self.form = aqt.forms.fields_web.Ui_Dialog()
+            self.form.setupUi(self)
+
+            self.form.webview.set_title("fields")
+            self.form.webview.stdHtml("<head></head><body>Fields</body>", context=self)
+
+            def on_finished(code: Any) -> None:
+                self.form.webview.cleanup()
+                self.form.webview = None
+
+            qconnect(self.finished, on_finished)
+
+        else:
+            self.form = aqt.forms.fields.Ui_Dialog()
+            self.form.setupUi(self)
+
+            disable_help_button(self)
+            self.form.buttonBox.button(
+                QDialogButtonBox.StandardButton.Help
+            ).setAutoDefault(False)
+            self.form.buttonBox.button(
+                QDialogButtonBox.StandardButton.Cancel
+            ).setAutoDefault(False)
+            self.form.buttonBox.button(
+                QDialogButtonBox.StandardButton.Save
+            ).setAutoDefault(False)
+            self.currentIdx: Optional[int] = None
+            self.fillFields()
+            self.setupSignals()
+            self.form.fieldList.setDragDropMode(
+                QAbstractItemView.DragDropMode.InternalMove
+            )
+            self.form.fieldList.dropEvent = self.onDrop  # type: ignore[assignment]
+            self.form.fieldList.setCurrentRow(open_at)
+
         self.exec()
 
     ##########################################################################
