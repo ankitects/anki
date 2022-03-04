@@ -97,10 +97,9 @@ pub fn restore_backup(
     check_collection(tempfile.path())?;
     progress_fn(ImportProgress::Collection, false)?;
 
-    let result = match restore_media(progress_fn, &mut archive, media_folder) {
-        Ok(_) => String::new(),
-        Err(AnkiError::Interrupted) => return Err(AnkiError::Interrupted),
-        _ => tr.errors_failed_to_process_media().into(),
+    let mut result = String::new();
+    if restore_media(progress_fn, &mut archive, media_folder).is_err() {
+        result.push_str(&tr.errors_failed_to_process_media());
     };
 
     tempfile.as_file().sync_all()?;
