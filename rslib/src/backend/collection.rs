@@ -8,7 +8,10 @@ pub(super) use crate::backend_proto::collection_service::Service as CollectionSe
 use crate::{
     backend::progress::progress_to_proto,
     backend_proto as pb,
-    collection::{backup, CollectionBuilder},
+    collection::{
+        backup::{self, ImportProgress},
+        CollectionBuilder,
+    },
     log::{self},
     prelude::*,
 };
@@ -89,7 +92,8 @@ impl CollectionService for Backend {
             Err(AnkiError::CollectionAlreadyOpen)
         } else {
             let mut handler = self.new_progress_handler();
-            let progress_fn = move |progress, throttle| {
+            let progress_fn = move |progress| {
+                let throttle = matches!(progress, ImportProgress::Media(_));
                 if handler.update(Progress::Import(progress), throttle) {
                     Ok(())
                 } else {
