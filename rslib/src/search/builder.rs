@@ -134,7 +134,10 @@ impl SearchNode {
 
     /// Construct [SearchNode] from an unescaped tag name.
     pub fn from_tag_name(name: &str) -> Self {
-        Self::Tag(escape_anki_wildcards_for_search_node(name))
+        Self::Tag {
+            tag: escape_anki_wildcards_for_search_node(name),
+            is_re: false,
+        }
     }
 
     /// Construct [SearchNode] from an unescaped notetype name.

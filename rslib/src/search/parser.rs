@@ -64,7 +64,10 @@ pub enum SearchNode {
         days: u32,
         ease: RatingKind,
     },
-    Tag(String),
+    Tag {
+        tag: String,
+        is_re: bool,
+    },
     Duplicates {
         notetype_id: NotetypeId,
         text: String,
@@ -311,7 +314,7 @@ fn search_node_for_text_with_argument<'a>(
     Ok(match key.to_ascii_lowercase().as_str() {
         "deck" => SearchNode::Deck(unescape(val)?),
         "note" => SearchNode::Notetype(unescape(val)?),
-        "tag" => SearchNode::Tag(unescape(val)?),
+        "tag" => parse_tag(val)?,
         "card" => parse_template(val)?,
         "flag" => parse_flag(val)?,
         "resched" => parse_resched(val)?,
@@ -331,6 +334,20 @@ fn search_node_for_text_with_argument<'a>(
         "dupe" => parse_dupe(val)?,
         // anything else is a field search
         _ => parse_single_field(key, val)?,
+    })
+}
+
+fn parse_tag(s: &str) -> ParseResult<SearchNode> {
+    Ok(if let Some(re) = s.strip_prefix("re:") {
+        SearchNode::Tag {
+            tag: unescape_quotes(re),
+            is_re: true,
+        }
+    } else {
+        SearchNode::Tag {
+            tag: unescape(s)?,
+            is_re: false,
+        }
     })
 }
 
@@ -820,7 +837,20 @@ mod test {
         );
 
         assert_eq!(parse("note:basic")?, vec![Search(Notetype("basic".into()))]);
-        assert_eq!(parse("tag:hard")?, vec![Search(Tag("hard".into()))]);
+        assert_eq!(
+            parse("tag:hard")?,
+            vec![Search(Tag {
+                tag: "hard".into(),
+                is_re: false
+            })]
+        );
+        assert_eq!(
+            parse(r"tag:re:\\")?,
+            vec![Search(Tag {
+                tag: r"\\".into(),
+                is_re: true
+            })]
+        );
         assert_eq!(
             parse("nid:1237123712,2,3")?,
             vec![Search(NoteIds("1237123712,2,3".into()))]
