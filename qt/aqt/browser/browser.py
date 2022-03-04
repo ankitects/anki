@@ -49,6 +49,7 @@ from aqt.utils import (
     current_window,
     ensure_editor_saved,
     getTag,
+    maybe_disable_full_screen_action,
     no_arg_trigger,
     openHelp,
     qtMenuShortcutWorkaround,
@@ -191,6 +192,7 @@ class Browser(QMainWindow):
 
         # view
         qconnect(f.actionFullScreen.triggered, self.mw.on_toggle_full_screen)
+        maybe_disable_full_screen_action(f.actionFullScreen, f.menu_view)
         qconnect(
             f.actionZoomIn.triggered,
             lambda: self.editor.web.setZoomFactor(self.editor.web.zoomFactor() + 0.1),

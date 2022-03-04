@@ -71,6 +71,7 @@ from aqt.utils import (
     disable_help_button,
     getFile,
     getOnlyText,
+    maybe_disable_full_screen_action,
     openHelp,
     openLink,
     restoreGeom,
@@ -1308,6 +1309,7 @@ title="{}" {}>{}</button>""".format(
             QKeySequence("F11") if is_lin else QKeySequence.StandardKey.FullScreen
         )
         m.actionFullScreen.setShortcutContext(Qt.ShortcutContext.ApplicationShortcut)
+        maybe_disable_full_screen_action(m.actionFullScreen, m.menu_view)
 
     def updateTitleBar(self) -> None:
         self.setWindowTitle("Anki")

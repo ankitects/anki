@@ -92,7 +92,7 @@
     <addaction name="actionNoteTypes"/>
     <addaction name="actionPreferences"/>
    </widget>
-   <widget class="QMenu" name="menuqt_accel_view">
+   <widget class="QMenu" name="menu_view">
     <property name="title">
      <string>qt_accel_view</string>
     </property>
@@ -104,7 +104,7 @@
    </widget>
    <addaction name="menuCol"/>
    <addaction name="menuEdit"/>
-   <addaction name="menuqt_accel_view"/>
+   <addaction name="menu_view"/>
    <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>

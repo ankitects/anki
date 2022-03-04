@@ -53,6 +53,7 @@ actions-previous-card-info = Previous Card Info
 # By convention, the name of a menu action is suffixed with "..." if additional
 # input is required before it can be performed. E.g. "Export..." vs. "Delete".
 actions-with-ellipsis = { $action }...
+actions-unsupported-video-driver = Not supported for your video driver
 
 ## Flags
 

@@ -852,6 +852,17 @@ def qtMenuShortcutWorkaround(qmenu: QMenu) -> None:
 ######################################################################
 
 
+def maybe_disable_full_screen_action(action: QAction, menu: QMenu) -> None:
+    from aqt import mw
+    from aqt.profiles import VideoDriver
+
+    disable = is_win and (qtmajor > 5 or mw.pm.video_driver() == VideoDriver.OpenGL)
+    if disable:
+        action.setDisabled(True)
+        action.setToolTip(tr.actions_unsupported_video_driver())
+        menu.setToolTipsVisible(True)
+
+
 def add_ellipsis_to_action_label(*actions: QAction) -> None:
     """Pass actions to add '...' to their labels, indicating that more input is
     required before they can be performed.
