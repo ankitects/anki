@@ -466,9 +466,9 @@ def replace_with_apkg(
 
     def on_progress() -> None:
         progress = mw.backend.latest_progress()
-        if not progress.HasField("media_processing"):
+        if not progress.HasField("importing"):
             return
-        label = progress.media_processing
+        label = progress.importing
 
         try:
             if dialog.wantCancel:

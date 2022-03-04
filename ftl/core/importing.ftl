@@ -77,3 +77,4 @@ importing-processed-media-file =
         [one] Processed { $count } media file
        *[other] Processed { $count } media files
     }
+importing-processing-collection = Processing collection ...

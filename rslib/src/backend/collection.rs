@@ -89,8 +89,13 @@ impl CollectionService for Backend {
             Err(AnkiError::CollectionAlreadyOpen)
         } else {
             let mut handler = self.new_progress_handler();
-            let progress_fn =
-                move |progress| handler.update(Progress::MediaProcessing(progress as u32), true);
+            let progress_fn = move |progress, throttle| {
+                if handler.update(Progress::Import(progress), throttle) {
+                    Ok(())
+                } else {
+                    Err(AnkiError::Interrupted)
+                }
+            };
 
             backup::restore_backup(
                 progress_fn,

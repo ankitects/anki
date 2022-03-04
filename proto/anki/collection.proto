@@ -119,6 +119,6 @@ message Progress {
     FullSync full_sync = 4;
     NormalSync normal_sync = 5;
     DatabaseCheck database_check = 6;
-    string media_processing = 7;
+    string importing = 7;
   }
 }

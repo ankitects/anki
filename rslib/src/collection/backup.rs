@@ -37,6 +37,12 @@ struct Meta {
     version: u8,
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum ImportProgress {
+    Collection,
+    Media(usize),
+}
+
 pub fn backup<P1, P2>(
     col_path: P1,
     backup_folder: P2,
@@ -69,12 +75,13 @@ fn has_recent_backup(backup_folder: &Path) -> Result<bool> {
 }
 
 pub fn restore_backup(
-    progress_fn: impl FnMut(usize) -> bool,
+    mut progress_fn: impl FnMut(ImportProgress, bool) -> Result<()>,
     col_path: &str,
     backup_path: &str,
     media_folder: &str,
     tr: &I18n,
 ) -> Result<String> {
+    progress_fn(ImportProgress::Collection, false)?;
     let col_path = PathBuf::from(col_path);
     let col_dir = col_path
         .parent()
@@ -86,7 +93,9 @@ pub fn restore_backup(
     let meta = Meta::from_archive(&mut archive)?;
 
     copy_collection(&mut archive, &mut tempfile, meta)?;
+    progress_fn(ImportProgress::Collection, false)?;
     check_collection(tempfile.path())?;
+    progress_fn(ImportProgress::Collection, false)?;
 
     let result = match restore_media(progress_fn, &mut archive, media_folder) {
         Ok(_) => String::new(),
@@ -340,7 +349,7 @@ fn check_collection(col_path: &Path) -> Result<()> {
 }
 
 fn restore_media(
-    mut progress_fn: impl FnMut(usize) -> bool,
+    mut progress_fn: impl FnMut(ImportProgress, bool) -> Result<()>,
     archive: &mut ZipArchive<File>,
     media_folder: &str,
 ) -> Result<()> {
@@ -349,8 +358,8 @@ fn restore_media(
 
     for (archive_file_name, file_name) in media_file_names {
         count += 1;
-        if count % 10 == 0 && !progress_fn(count) {
-            return Err(AnkiError::Interrupted);
+        if count % 10 == 0 {
+            progress_fn(ImportProgress::Media(count), true)?;
         }
 
         if let Ok(mut zip_file) = archive.by_name(&archive_file_name) {
