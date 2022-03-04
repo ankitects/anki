@@ -52,6 +52,7 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     add_field_index_function(&db)?;
     add_regexp_function(&db)?;
     add_regexp_fields_function(&db)?;
+    add_regexp_tags_function(&db)?;
     add_without_combining_function(&db)?;
     add_fnvhash_function(&db)?;
 
@@ -153,6 +154,26 @@ fn add_regexp_fields_function(db: &Connection) -> rusqlite::Result<()> {
             Ok(fields.enumerate().any(|(idx, field)| {
                 (indices.is_empty() || indices.contains(&idx)) && re.is_match(field)
             }))
+        },
+    )
+}
+
+/// Adds sql function `regexp_tags(regex, tags) -> is_match`.
+fn add_regexp_tags_function(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function(
+        "regexp_tags",
+        2,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert_eq!(ctx.len(), 2, "called with unexpected number of arguments");
+
+            let re: Arc<Regex> = ctx
+                .get_or_create_aux(0, |vr| -> std::result::Result<_, BoxError> {
+                    Ok(Regex::new(vr.as_str()?)?)
+                })?;
+            let mut tags = ctx.get_raw(1).as_str()?.split(' ');
+
+            Ok(tags.any(|tag| re.is_match(tag)))
         },
     )
 }
