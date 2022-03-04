@@ -25,10 +25,10 @@ use crate::{
 };
 
 /// Bump if making changes that break restoring on older releases.
-/// Versions 1 and 2 wrote different archives, so minimum expected value is 3.
 const BACKUP_VERSION: u8 = 3;
 const BACKUP_FORMAT_STRING: &str = "backup-%Y-%m-%d-%H.%M.%S.colpkg";
-const MIN_SECS_SINCE_LAST_BACKUP: u64 = 30 * 60;
+/// Default seconds after a backup, in which further backups will be skipped.
+const MINIMUM_BACKUP_INTERVAL: u64 = 5 * 60;
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
@@ -47,14 +47,15 @@ pub fn backup<P1, P2>(
     col_path: P1,
     backup_folder: P2,
     limits: Backups,
-    force: bool,
+    minimum_backup_interval: Option<u64>,
     log: Logger,
 ) -> Result<Option<JoinHandle<()>>>
 where
     P1: AsRef<Path>,
     P2: AsRef<Path> + Send + 'static,
 {
-    if !force && has_recent_backup(backup_folder.as_ref())? {
+    let recent_secs = minimum_backup_interval.unwrap_or(MINIMUM_BACKUP_INTERVAL);
+    if recent_secs > 0 && has_recent_backup(backup_folder.as_ref(), recent_secs)? {
         Ok(None)
     } else {
         let col_data = std::fs::read(col_path)?;
@@ -64,14 +65,14 @@ where
     }
 }
 
-fn has_recent_backup(backup_folder: &Path) -> Result<bool> {
+fn has_recent_backup(backup_folder: &Path, recent_secs: u64) -> Result<bool> {
     let now = SystemTime::now();
     Ok(read_dir(backup_folder)?
         .filter_map(|res| res.ok())
         .filter_map(|entry| entry.metadata().ok())
         .filter_map(|meta| meta.created().ok())
         .filter_map(|time| now.duration_since(time).ok())
-        .any(|duration| duration.as_secs() < MIN_SECS_SINCE_LAST_BACKUP))
+        .any(|duration| duration.as_secs() < recent_secs))
 }
 
 pub fn restore_backup(

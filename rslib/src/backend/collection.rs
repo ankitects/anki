@@ -73,7 +73,7 @@ impl CollectionService for Backend {
                 col_path,
                 backup_folder,
                 limits,
-                input.force_backup,
+                input.minimum_backup_interval,
                 self.log.clone(),
             )? {
                 let mut backup_task = self.backup_task.lock().unwrap();
