@@ -105,7 +105,9 @@ pub fn restore_backup(
 
     tempfile.as_file().sync_all()?;
     tempfile.persist(&col_path).map_err(|err| err.error)?;
-    std::fs::File::open(col_dir)?.sync_all()?;
+    if !cfg!(windows) {
+        File::open(col_dir)?.sync_all()?;
+    }
 
     Ok(result)
 }

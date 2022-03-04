@@ -684,7 +684,9 @@ impl Collection {
         out_file
             .persist(&col_path)
             .map_err(|e| AnkiError::IoError(format!("download save failed: {}", e)))?;
-        std::fs::File::open(col_folder)?.sync_all()?;
+        if !cfg!(windows) {
+            std::fs::File::open(col_folder)?.sync_all()?;
+        }
 
         Ok(())
     }
