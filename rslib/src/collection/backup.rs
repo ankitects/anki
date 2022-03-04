@@ -43,17 +43,13 @@ pub enum ImportProgress {
     Media(usize),
 }
 
-pub fn backup<P1, P2>(
-    col_path: P1,
-    backup_folder: P2,
+pub fn backup(
+    col_path: impl AsRef<Path>,
+    backup_folder: impl AsRef<Path> + Send + 'static,
     limits: Backups,
     minimum_backup_interval: Option<u64>,
     log: Logger,
-) -> Result<Option<JoinHandle<()>>>
-where
-    P1: AsRef<Path>,
-    P2: AsRef<Path> + Send + 'static,
-{
+) -> Result<Option<JoinHandle<()>>> {
     let recent_secs = minimum_backup_interval.unwrap_or(MINIMUM_BACKUP_INTERVAL);
     if recent_secs > 0 && has_recent_backup(backup_folder.as_ref(), recent_secs)? {
         Ok(None)

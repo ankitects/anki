@@ -1,13 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::path::Path;
+
 use slog::error;
 
 use super::{progress::Progress, Backend};
 pub(super) use crate::backend_proto::collection_service::Service as CollectionService;
 use crate::{
     backend::progress::progress_to_proto,
-    backend_proto as pb,
+    backend_proto::{self as pb, preferences::Backups},
     collection::{
         backup::{self, ImportProgress},
         CollectionBuilder,
@@ -69,18 +71,12 @@ impl CollectionService for Backend {
         }
 
         if let Some(backup_folder) = input.backup_folder {
-            if let Some(new_task) = backup::backup(
+            self.start_backup(
                 col_path,
                 backup_folder,
                 limits,
                 input.minimum_backup_interval,
-                self.log.clone(),
-            )? {
-                let mut backup_task = self.backup_task.lock().unwrap();
-                if let Some(old_task) = backup_task.replace(new_task) {
-                    old_task.join().unwrap();
-                }
-            }
+            )?;
         }
 
         Ok(().into())
@@ -148,9 +144,34 @@ impl CollectionService for Backend {
     }
 
     fn await_backup_completion(&self, _input: pb::Empty) -> Result<pb::Empty> {
+        self.await_backup_completion();
+        Ok(().into())
+    }
+}
+
+impl Backend {
+    fn await_backup_completion(&self) {
         if let Some(task) = self.backup_task.lock().unwrap().take() {
             task.join().unwrap();
         }
-        Ok(().into())
+    }
+
+    fn start_backup(
+        &self,
+        col_path: impl AsRef<Path>,
+        backup_folder: impl AsRef<Path> + Send + 'static,
+        limits: Backups,
+        minimum_backup_interval: Option<u64>,
+    ) -> Result<()> {
+        self.await_backup_completion();
+        *self.backup_task.lock().unwrap() = backup::backup(
+            col_path,
+            backup_folder,
+            limits,
+            minimum_backup_interval,
+            self.log.clone(),
+        )?;
+
+        Ok(())
     }
 }
