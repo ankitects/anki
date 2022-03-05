@@ -630,7 +630,9 @@ class AnkiQt(QMainWindow):
     def _close_for_full_download(self) -> None:
         "Backup and prepare collection to be overwritten."
         backup_folder = None if dev_mode else self.pm.backupFolder()
-        self.col.close(downgrade=False, backup_folder=backup_folder)
+        self.col.close(
+            downgrade=False, backup_folder=backup_folder, minimum_backup_interval=0
+        )
         self.col.reopen(after_full_sync=False)
         self.col.close_for_full_sync()
 

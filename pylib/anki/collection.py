@@ -240,6 +240,7 @@ class Collection(DeprecatedNamesMixin):
         save: bool = True,
         downgrade: bool = False,
         backup_folder: str | None = None,
+        minimum_backup_interval: int | None = None,
     ) -> None:
         "Disconnect from DB."
         if self.db:
@@ -249,7 +250,9 @@ class Collection(DeprecatedNamesMixin):
                 self.db.rollback()
             self._clear_caches()
             request = collection_pb2.CloseCollectionRequest(
-                downgrade_to_schema11=downgrade, backup_folder=backup_folder
+                downgrade_to_schema11=downgrade,
+                backup_folder=backup_folder,
+                minimum_backup_interval=minimum_backup_interval,
             )
             self._backend.close_collection(request)
             self.db = None
