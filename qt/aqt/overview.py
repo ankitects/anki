@@ -231,7 +231,7 @@ class Overview:
             buried_review = deck_node.review_count - counts[2]
         else:
             buried_new = buried_learning = buried_review = 0
-        buried_label = tr.browsing_buried()
+        buried_label = tr.studying_counts_differ()
 
         def number_row(title: str, klass: str, count: int, buried_count: int) -> str:
             buried_count = f"{buried_count:+}" if buried_count else ""
