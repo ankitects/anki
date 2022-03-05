@@ -234,14 +234,14 @@ class Overview:
         buried_label = tr.studying_counts_differ()
 
         def number_row(title: str, klass: str, count: int, buried_count: int) -> str:
-            buried_count = f"{buried_count:+}" if buried_count else ""
+            buried = f"{buried_count:+}" if buried_count else ""
             return f"""
 <tr>
     <td>{title}:</td>
     <td>
         <b>
             <span class={klass}>{count}</span>
-            <span class=bury-count title="{buried_label}">{buried_count}</span>
+            <span class=bury-count title="{buried_label}">{buried}</span>
         </b>
     </td>
 </tr>
