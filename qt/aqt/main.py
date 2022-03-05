@@ -264,6 +264,7 @@ class AnkiQt(QMainWindow):
             self.pm.save()
 
         self.pendingImport: str | None = None
+        self.restoring_backup = False
         # profile not provided on command line?
         if not self.pm.name:
             # if there's a single profile, load it automatically
@@ -405,6 +406,7 @@ class AnkiQt(QMainWindow):
 
         import aqt.importing
 
+        self.restoring_backup = True
         showInfo(tr.qt_misc_automatic_syncing_and_backups_have_been())
         aqt.importing.replace_with_apkg(self, path, on_done)
 
@@ -478,6 +480,8 @@ class AnkiQt(QMainWindow):
         saveState(self, "mainWindow")
         self.pm.save()
         self.hide()
+
+        self.restoring_backup = False
 
         # at this point there should be no windows left
         self._checkForUnclosedWidgets()
@@ -593,7 +597,11 @@ class AnkiQt(QMainWindow):
         if not self.col:
             return
 
-        self.progress.start(label=tr.qt_misc_backing_up())
+        label = (
+            tr.qt_misc_closing() if self.restoring_backup else tr.qt_misc_backing_up()
+        )
+        self.progress.start(label=label)
+
         corrupt = False
 
         try:
@@ -603,7 +611,10 @@ class AnkiQt(QMainWindow):
         except:
             corrupt = True
 
-        backup_folder = None if corrupt or dev_mode else self.pm.backupFolder()
+        if corrupt or dev_mode or self.restoring_backup:
+            backup_folder = None
+        else:
+            backup_folder = self.pm.backupFolder()
         try:
             self.col.close(downgrade=False, backup_folder=backup_folder)
         except Exception as e:
@@ -974,6 +985,7 @@ title="{}" {}>{}</button>""".format(
             self.pm.auto_syncing_enabled()
             and bool(self.pm.sync_auth())
             and not self.safeMode
+            and not self.restoring_backup
         )
 
     # legacy
