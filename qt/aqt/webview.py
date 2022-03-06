@@ -321,9 +321,6 @@ class AnkiWebView(QWebEngineView):
         gui_hooks.webview_will_show_context_menu(self, m)
         m.popup(QCursor.pos())
 
-    def dropEvent(self, evt: QDropEvent) -> None:
-        pass
-
     def setHtml(self, html: str) -> None:  #  type: ignore
         # discard any previous pending actions
         self._pendingActions = []
