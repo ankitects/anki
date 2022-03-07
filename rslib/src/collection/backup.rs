@@ -366,7 +366,7 @@ fn restore_media(
                 .map(|metadata| metadata.len() == zip_file.size())
                 .unwrap_or_default();
             if !files_are_equal {
-                let mut file = match File::open(&file_path) {
+                let mut file = match File::create(&file_path) {
                     Ok(file) => file,
                     Err(err) => return Err(AnkiError::file_io_error(err, &file_path)),
                 };
