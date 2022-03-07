@@ -1547,6 +1547,7 @@ mod test {
         }
 
         // removing things like a notetype forces a full sync
+        std::thread::sleep(std::time::Duration::from_millis(1));
         col2.remove_notetype(ntid)?;
         let out = ctx.normal_sync(&mut col2).await;
         assert!(matches!(
