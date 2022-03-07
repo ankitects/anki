@@ -376,6 +376,10 @@ fn restore_media(
                     return Err(AnkiError::file_io_error(err, &file_path));
                 }
             }
+        } else {
+            return Err(AnkiError::invalid_input(&format!(
+                "{archive_file_name} missing from archive"
+            )));
         }
     }
     Ok(())
