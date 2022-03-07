@@ -6,7 +6,7 @@ mod filtered;
 mod network;
 mod search;
 
-use std::{fmt::Display, io};
+use std::{fmt::Display, io, path::Path};
 
 pub use db::{DbError, DbErrorKind};
 pub use filtered::{CustomStudyError, FilteredDeckError};
@@ -24,6 +24,7 @@ pub enum AnkiError {
     TemplateError(String),
     TemplateSaveError(TemplateSaveError),
     IoError(String),
+    FileIoError(FileIoError),
     DbError(DbError),
     NetworkError(NetworkError),
     SyncError(SyncError),
@@ -107,6 +108,9 @@ impl AnkiError {
             | AnkiError::NotFound
             | AnkiError::Existing
             | AnkiError::UndoEmpty => format!("{:?}", self),
+            AnkiError::FileIoError(err) => {
+                format!("{}: {}", err.path, err.error)
+            }
         }
     }
 }
@@ -192,5 +196,27 @@ impl ImportError {
             Self::TooNew => tr.errors_collection_too_new(),
         }
         .into()
+    }
+}
+
+#[derive(Debug, PartialEq, Clone)]
+
+pub struct FileIoError {
+    pub path: String,
+    pub error: String,
+}
+
+impl AnkiError {
+    pub(crate) fn file_io_error<P: AsRef<Path>>(err: std::io::Error, path: P) -> Self {
+        AnkiError::FileIoError(FileIoError::new(err, path.as_ref()))
+    }
+}
+
+impl FileIoError {
+    pub fn new(err: std::io::Error, path: &Path) -> FileIoError {
+        FileIoError {
+            path: path.to_string_lossy().to_string(),
+            error: err.to_string(),
+        }
     }
 }

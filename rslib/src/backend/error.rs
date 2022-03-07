@@ -35,6 +35,7 @@ impl AnkiError {
             AnkiError::DatabaseCheckRequired => Kind::InvalidInput,
             AnkiError::CustomStudyError(_) => Kind::CustomStudyError,
             AnkiError::ImportError(_) => Kind::ImportError,
+            AnkiError::FileIoError(_) => Kind::IoError,
         };
 
         pb::BackendError {

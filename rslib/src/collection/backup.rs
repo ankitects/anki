@@ -95,8 +95,8 @@ pub fn restore_backup(
     progress_fn(ImportProgress::Collection)?;
 
     let mut result = String::new();
-    if restore_media(progress_fn, &mut archive, media_folder).is_err() {
-        result.push_str(&tr.errors_failed_to_process_media());
+    if let Err(e) = restore_media(progress_fn, &mut archive, media_folder) {
+        result.push_str(&tr.importing_failed_to_import_media_file(e.localized_description(tr)));
     };
 
     tempfile.as_file().sync_all()?;
@@ -366,7 +366,13 @@ fn restore_media(
                 .map(|metadata| metadata.len() == zip_file.size())
                 .unwrap_or_default();
             if !files_are_equal {
-                io::copy(&mut zip_file, &mut File::open(file_path)?)?;
+                let mut file = match File::open(&file_path) {
+                    Ok(file) => file,
+                    Err(err) => return Err(AnkiError::file_io_error(err, &file_path)),
+                };
+                if let Err(err) = io::copy(&mut zip_file, &mut file) {
+                    return Err(AnkiError::file_io_error(err, &file_path));
+                }
             }
         }
     }

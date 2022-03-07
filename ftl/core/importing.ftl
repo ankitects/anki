@@ -78,3 +78,4 @@ importing-processed-media-file =
        *[other] Processed { $count } media files
     }
 importing-processing-collection = Processing collection ...
+importing-failed-to-import-media-file = Failed to import media file: { $debugInfo }
