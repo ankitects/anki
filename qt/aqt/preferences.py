@@ -97,6 +97,13 @@ class Preferences(QDialog):
         form.pastePNG.setChecked(editing.paste_images_as_png)
         form.default_search_text.setText(editing.default_search_text)
 
+        form.backup_explanation.setText(
+            anki.lang.with_collapsed_whitespace(tr.preferences_backup_explanation())
+        )
+        form.daily_backups.setValue(self.prefs.backups.daily)
+        form.weekly_backups.setValue(self.prefs.backups.weekly)
+        form.monthly_backups.setValue(self.prefs.backups.monthly)
+
     def update_collection(self, on_done: Callable[[], None]) -> None:
         form = self.form
 
@@ -123,6 +130,10 @@ class Preferences(QDialog):
             self.form.ignore_accents_in_search.isChecked()
         )
 
+        self.prefs.backups.daily = form.daily_backups.value()
+        self.prefs.backups.weekly = form.weekly_backups.value()
+        self.prefs.backups.monthly = form.monthly_backups.value()
+
         def after_prefs_update(changes: OpChanges) -> None:
             self.mw.apply_collection_options()
             if scheduling.scheduler_version > 1:
@@ -142,11 +153,9 @@ class Preferences(QDialog):
     def setup_profile(self) -> None:
         "Setup options stored in the user profile."
         self.setup_network()
-        self.setup_backup()
 
     def update_profile(self) -> None:
         self.update_network()
-        self.update_backup()
 
     # Profile: network
     ######################################################################
@@ -190,15 +199,6 @@ class Preferences(QDialog):
         )
         if self.form.fullSync.isChecked():
             self.mw.col.mod_schema(check=False)
-
-    # Profile: backup
-    ######################################################################
-
-    def setup_backup(self) -> None:
-        self.form.numBackups.setValue(self.prof["numBackups"])
-
-    def update_backup(self) -> None:
-        self.prof["numBackups"] = self.form.numBackups.value()
 
     # Global preferences
     ######################################################################
