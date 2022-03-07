@@ -96,7 +96,9 @@ pub fn restore_backup(
 
     let mut result = String::new();
     if let Err(e) = restore_media(progress_fn, &mut archive, media_folder) {
-        result.push_str(&tr.importing_failed_to_import_media_file(e.localized_description(tr)));
+        result = tr
+            .importing_failed_to_import_media_file(e.localized_description(tr))
+            .into_owned()
     };
 
     tempfile.as_file().sync_all()?;
