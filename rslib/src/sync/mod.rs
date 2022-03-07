@@ -680,9 +680,14 @@ impl Collection {
         db.execute_batch("update col set ls=mod")?;
         drop(db);
         // overwrite existing collection atomically
+        out_file.as_file().sync_all()?;
         out_file
             .persist(&col_path)
             .map_err(|e| AnkiError::IoError(format!("download save failed: {}", e)))?;
+        if !cfg!(windows) {
+            std::fs::File::open(col_folder)?.sync_all()?;
+        }
+
         Ok(())
     }
 

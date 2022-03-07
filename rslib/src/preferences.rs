@@ -19,6 +19,7 @@ impl Collection {
             scheduling: Some(self.get_scheduling_preferences()?),
             reviewing: Some(self.get_reviewing_preferences()?),
             editing: Some(self.get_editing_preferences()?),
+            backups: Some(self.get_backups()),
         })
     }
 
@@ -37,6 +38,9 @@ impl Collection {
         }
         if let Some(editing) = prefs.editing {
             self.set_editing_preferences(editing)?;
+        }
+        if let Some(backups) = prefs.backups {
+            self.set_backups(backups)?;
         }
         Ok(())
     }

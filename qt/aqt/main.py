@@ -7,12 +7,9 @@ import gc
 import os
 import re
 import signal
-import time
 import weakref
-import zipfile
 from argparse import Namespace
 from concurrent.futures import Future
-from threading import Thread
 from typing import Any, Literal, Sequence, TextIO, TypeVar, cast
 
 import anki
@@ -28,7 +25,7 @@ import aqt.sound
 import aqt.stats
 import aqt.toolbar
 import aqt.webview
-from anki import hooks
+from anki import collection_pb2, hooks
 from anki._backend import RustBackend as _RustBackend
 from anki.collection import Collection, Config, OpChanges, UndoStatus
 from anki.decks import DeckDict, DeckId
@@ -267,7 +264,7 @@ class AnkiQt(QMainWindow):
             self.pm.save()
 
         self.pendingImport: str | None = None
-        self.restoringBackup = False
+        self.restoring_backup = False
         # profile not provided on command line?
         if not self.pm.name:
             # if there's a single profile, load it automatically
@@ -328,11 +325,16 @@ class AnkiQt(QMainWindow):
         self.pm.load(name)
         return
 
-    def onOpenProfile(self) -> None:
+    def onOpenProfile(self, *, callback: Callable[[], None] | None = None) -> None:
+        def on_done() -> None:
+            self.profileDiag.closeWithoutQuitting()
+            if callback:
+                callback()
+
         self.profileDiag.hide()
         # code flow is confusing here - if load fails, profile dialog
         # will be shown again
-        self.loadProfile(self.profileDiag.closeWithoutQuitting)
+        self.loadProfile(on_done)
 
     def profileNameOk(self, name: str) -> bool:
         return not checkInvalidFilename(name) and name != "addons21"
@@ -398,19 +400,15 @@ class AnkiQt(QMainWindow):
         )
 
     def _openBackup(self, path: str) -> None:
-        try:
-            # move the existing collection to the trash, as it may not open
-            self.pm.trashCollection()
-        except:
-            showWarning(tr.qt_misc_unable_to_move_existing_file_to())
-            return
+        def on_done(success: bool) -> None:
+            if success:
+                self.onOpenProfile(callback=lambda: self.col.mod_schema(check=False))
 
-        self.pendingImport = path
-        self.restoringBackup = True
+        import aqt.importing
 
+        self.restoring_backup = True
         showInfo(tr.qt_misc_automatic_syncing_and_backups_have_been())
-
-        self.onOpenProfile()
+        aqt.importing.replace_with_apkg(self, path, on_done)
 
     def _on_downgrade(self) -> None:
         self.progress.start()
@@ -483,7 +481,7 @@ class AnkiQt(QMainWindow):
         self.pm.save()
         self.hide()
 
-        self.restoringBackup = False
+        self.restoring_backup = False
 
         # at this point there should be no windows left
         self._checkForUnclosedWidgets()
@@ -506,6 +504,8 @@ class AnkiQt(QMainWindow):
     def cleanupAndExit(self) -> None:
         self.errorHandler.unload()
         self.mediaServer.shutdown()
+        # Rust background jobs are not awaited implicitly
+        self.backend.await_backup_completion()
         self.app.exit(0)
 
     # Sound/video
@@ -546,7 +546,10 @@ class AnkiQt(QMainWindow):
                 )
             # clean up open collection if possible
             try:
-                self.backend.close_collection(False)
+                request = collection_pb2.CloseCollectionRequest(
+                    downgrade_to_schema11=False, backup_folder=None
+                )
+                self.backend.close_collection(request)
             except Exception as e:
                 print("unable to close collection:", e)
             self.col = None
@@ -593,35 +596,43 @@ class AnkiQt(QMainWindow):
     def _unloadCollection(self) -> None:
         if not self.col:
             return
-        if self.restoringBackup:
-            label = tr.qt_misc_closing()
-        else:
-            label = tr.qt_misc_backing_up()
+
+        label = (
+            tr.qt_misc_closing() if self.restoring_backup else tr.qt_misc_backing_up()
+        )
         self.progress.start(label=label)
+
         corrupt = False
+
         try:
             self.maybeOptimize()
             if not dev_mode:
                 corrupt = self.col.db.scalar("pragma quick_check") != "ok"
         except:
             corrupt = True
+
+        if corrupt or dev_mode or self.restoring_backup:
+            backup_folder = None
+        else:
+            backup_folder = self.pm.backupFolder()
         try:
-            self.col.close(downgrade=False)
+            self.col.close(downgrade=False, backup_folder=backup_folder)
         except Exception as e:
             print(e)
             corrupt = True
         finally:
             self.col = None
             self.progress.finish()
+
         if corrupt:
             showWarning(tr.qt_misc_your_collection_file_appears_to_be())
-        if not corrupt and not self.restoringBackup:
-            self.backup()
 
     def _close_for_full_download(self) -> None:
         "Backup and prepare collection to be overwritten."
-        self.col.close(downgrade=False)
-        self.backup()
+        backup_folder = None if dev_mode else self.pm.backupFolder()
+        self.col.close(
+            downgrade=False, backup_folder=backup_folder, minimum_backup_interval=0
+        )
         self.col.reopen(after_full_sync=False)
         self.col.close_for_full_sync()
 
@@ -631,62 +642,8 @@ class AnkiQt(QMainWindow):
             Config.Bool.INTERRUPT_AUDIO_WHEN_ANSWERING
         )
 
-    # Backup and auto-optimize
+    # Auto-optimize
     ##########################################################################
-
-    class BackupThread(Thread):
-        def __init__(self, path: str, data: bytes) -> None:
-            Thread.__init__(self)
-            self.path = path
-            self.data = data
-            # create the file in calling thread to ensure the same
-            # file is not created twice
-            with open(self.path, "wb") as file:
-                pass
-
-        def run(self) -> None:
-            z = zipfile.ZipFile(self.path, "w", zipfile.ZIP_STORED)
-            z.writestr("collection.anki2", self.data)
-            z.writestr("media", "{}")
-            z.close()
-
-    def backup(self) -> None:
-        "Read data into memory, and complete backup on a background thread."
-        if self.col and self.col.db:
-            raise Exception("collection must be closed")
-
-        nbacks = self.pm.profile["numBackups"]
-        if not nbacks or dev_mode:
-            return
-        dir = self.pm.backupFolder()
-        path = self.pm.collectionPath()
-
-        # do backup
-        fname = time.strftime(
-            "backup-%Y-%m-%d-%H.%M.%S.colpkg", time.localtime(time.time())
-        )
-        newpath = os.path.join(dir, fname)
-        with open(path, "rb") as f:
-            data = f.read()
-        self.BackupThread(newpath, data).start()
-
-        # find existing backups
-        backups = []
-        for file in os.listdir(dir):
-            # only look for new-style format
-            m = re.match(r"backup-\d{4}-\d{2}-.+.colpkg", file)
-            if not m:
-                continue
-            backups.append(file)
-        backups.sort()
-
-        # remove old ones
-        while len(backups) > nbacks:
-            fname = backups.pop(0)
-            path = os.path.join(dir, fname)
-            os.unlink(path)
-
-        self.taskman.run_on_main(gui_hooks.backup_did_complete)
 
     def maybeOptimize(self) -> None:
         # have two weeks passed?
@@ -1030,7 +987,7 @@ title="{}" {}>{}</button>""".format(
             self.pm.auto_syncing_enabled()
             and bool(self.pm.sync_auth())
             and not self.safeMode
-            and not self.restoringBackup
+            and not self.restoring_backup
         )
 
     # legacy
