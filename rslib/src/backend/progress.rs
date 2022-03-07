@@ -107,8 +107,8 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Pr
             }
             Progress::Import(progress) => pb::progress::Value::Importing(
                 match progress {
-                    ImportProgress::Collection => tr.importing_processing_collection(),
-                    ImportProgress::Media(n) => tr.importing_processed_media_file(n),
+                    ImportProgress::Collection => tr.importing_importing_collection(),
+                    ImportProgress::Media(n) => tr.importing_imported_media_file(n),
                 }
                 .into(),
             ),
