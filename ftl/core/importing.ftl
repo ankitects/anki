@@ -72,7 +72,7 @@ importing-note-updated =
         [one] { $count } note updated
        *[other] { $count } notes updated
     }
-importing-imported-media-file =
+importing-processed-media-file =
     { $count ->
         [one] Imported { $count } media file
        *[other] Imported { $count } media files
