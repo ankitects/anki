@@ -15,6 +15,7 @@ studying-cards-buried =
     }
 studying-cards-will-be-automatically-returned-to = Cards will be automatically returned to their original decks after you review them.
 studying-continue = Continue
+studying-counts-differ = Counts differ from the deck list, because burying is enabled. Some cards have been excluded, and others may have taken their place.
 studying-delete-note = Delete Note
 studying-deleting-this-deck-from-the-deck = Deleting this deck from the deck list will return all remaining cards to their original deck.
 studying-easy = Easy
