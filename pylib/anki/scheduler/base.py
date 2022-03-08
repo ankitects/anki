@@ -220,7 +220,9 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             " where id in %s" % sids
         )
         # and forget any non-new cards, changing their due numbers
-        request = ScheduleCardsAsNewRequest(card_ids=non_new, log=False)
+        request = ScheduleCardsAsNewRequest(
+            card_ids=non_new, log=False, restore_position=True
+        )
         self.col._backend.schedule_cards_as_new(request)
 
     # Repositioning new cards
