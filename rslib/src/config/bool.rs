@@ -27,6 +27,10 @@ pub enum BoolKey {
     PreviewBothSides,
     Sched2021,
     IgnoreAccentsInSearch,
+    RestorePositionBrowser,
+    RestorePositionReviewer,
+    ResetCountsBrowser,
+    ResetCountsReviewer,
 
     #[strum(to_string = "normalize_note_text")]
     NormalizeNoteText,

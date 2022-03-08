@@ -15,6 +15,7 @@ CongratsInfo = scheduler_pb2.CongratsInfoResponse
 UnburyDeck = scheduler_pb2.UnburyDeckRequest
 BuryOrSuspend = scheduler_pb2.BuryOrSuspendCardsRequest
 CustomStudyRequest = scheduler_pb2.CustomStudyRequest
+ScheduleCardsAsNewRequest = scheduler_pb2.ScheduleCardsAsNewRequest
 FilteredDeckForUpdate = decks_pb2.FilteredDeckForUpdate
 
 
@@ -163,9 +164,25 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # Resetting/rescheduling
     ##########################################################################
 
-    def schedule_cards_as_new(self, card_ids: Sequence[CardId]) -> OpChanges:
+    def schedule_cards_as_new(
+        self,
+        card_ids: Sequence[CardId],
+        *,
+        restore_position: bool = False,
+        reset_counts: bool = False,
+        restore_position_key: Config.Bool.V | None = None,
+        reset_counts_key: Config.Bool.V | None = None,
+    ) -> OpChanges:
         "Put cards at the end of the new queue."
-        return self.col._backend.schedule_cards_as_new(card_ids=card_ids, log=True)
+        request = ScheduleCardsAsNewRequest(
+            card_ids=card_ids,
+            log=True,
+            restore_position=restore_position,
+            reset_counts=reset_counts,
+            restore_position_key=restore_position_key,
+            reset_counts_key=reset_counts_key,
+        )
+        return self.col._backend.schedule_cards_as_new(request)
 
     def set_due_date(
         self,
@@ -203,7 +220,8 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             " where id in %s" % sids
         )
         # and forget any non-new cards, changing their due numbers
-        self.col._backend.schedule_cards_as_new(card_ids=non_new, log=False)
+        request = ScheduleCardsAsNewRequest(card_ids=non_new, log=False)
+        self.col._backend.schedule_cards_as_new(request)
 
     # Repositioning new cards
     ##########################################################################

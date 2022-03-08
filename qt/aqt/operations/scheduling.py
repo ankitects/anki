@@ -65,10 +65,41 @@ def set_due_date_dialog(
 
 
 def forget_cards(
-    *, parent: QWidget, card_ids: Sequence[CardId]
-) -> CollectionOp[OpChanges]:
+    *,
+    parent: QWidget,
+    card_ids: Sequence[CardId],
+    restore_position_key: Config.String.V | None = None,
+    reset_counts_key: Config.String.V | None = None,
+) -> CollectionOp[OpChanges] | None:
+    assert aqt.mw
+
+    dialog = QDialog(parent)
+    disable_help_button(dialog)
+    form = aqt.forms.forget.Ui_Dialog()
+    form.setupUi(dialog)
+
+    if restore_position_key:
+        form.restore_position.setChecked(
+            aqt.mw.col.get_config_bool(restore_position_key)
+        )
+    if reset_counts_key:
+        form.reset_counts.setChecked(aqt.mw.col.get_config_bool(reset_counts_key))
+
+    if not dialog.exec():
+        return None
+
+    restore_position = form.restore_position.isChecked()
+    reset_counts = form.reset_counts.isChecked()
+
     return CollectionOp(
-        parent, lambda col: col.sched.schedule_cards_as_new(card_ids)
+        parent,
+        lambda col: col.sched.schedule_cards_as_new(
+            card_ids,
+            restore_position=restore_position,
+            reset_counts=reset_counts,
+            reset_counts_key=reset_counts_key,
+            restore_position_key=restore_position_key,
+        ),
     ).success(
         lambda _: tooltip(
             tr.scheduling_forgot_cards(cards=len(card_ids)), parent=parent

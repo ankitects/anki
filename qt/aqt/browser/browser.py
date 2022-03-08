@@ -862,10 +862,13 @@ class Browser(QMainWindow):
     @skip_if_selection_is_empty
     @ensure_editor_saved
     def forget_cards(self) -> None:
-        forget_cards(
+        if op := forget_cards(
             parent=self,
             card_ids=self.selected_cards(),
-        ).run_in_background()
+            restore_position_key=Config.Bool.RESTORE_POSITION_BROWSER,
+            reset_counts_key=Config.Bool.RESET_COUNTS_BROWSER,
+        ):
+            op.run_in_background()
 
     # Edit: selection
     ######################################################################

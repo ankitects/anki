@@ -1067,10 +1067,13 @@ time = %(time)d;
         ).run_in_background()
 
     def forget_current_card(self) -> None:
-        forget_cards(
+        if op := forget_cards(
             parent=self.mw,
             card_ids=[self.card.id],
-        ).run_in_background()
+            restore_position_key=Config.Bool.RESTORE_POSITION_REVIEWER,
+            reset_counts_key=Config.Bool.RESET_COUNTS_REVIEWER,
+        ):
+            op.run_in_background()
 
     def on_create_copy(self) -> None:
         if self.card:

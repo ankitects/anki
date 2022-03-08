@@ -14,7 +14,7 @@ use crate::{
 };
 
 impl Card {
-    fn schedule_as_new(&mut self, position: u32) {
+    fn schedule_as_new(&mut self, position: u32, reset_counts: bool) {
         self.remove_from_filtered_deck_before_reschedule();
         self.due = position as i32;
         self.ctype = CardType::New;
@@ -22,6 +22,10 @@ impl Card {
         self.interval = 0;
         self.ease_factor = 0;
         self.original_position = None;
+        if reset_counts {
+            self.reps = 0;
+            self.lapses = 0;
+        }
     }
 
     /// If the card is new, change its position, and return true.
@@ -112,7 +116,15 @@ fn nids_in_preserved_order(cards: &[Card]) -> Vec<NoteId> {
 }
 
 impl Collection {
-    pub fn reschedule_cards_as_new(&mut self, cids: &[CardId], log: bool) -> Result<OpOutput<()>> {
+    pub fn reschedule_cards_as_new(
+        &mut self,
+        cids: &[CardId],
+        log: bool,
+        restore_position: bool,
+        reset_counts: bool,
+        restore_position_key: Option<BoolKey>,
+        reset_counts_key: Option<BoolKey>,
+    ) -> Result<OpOutput<()>> {
         let usn = self.usn()?;
         let mut position = self.get_next_card_position();
         self.transact(Op::ScheduleAsNew, |col| {
@@ -120,15 +132,28 @@ impl Collection {
             let cards = col.storage.all_searched_cards_in_search_order()?;
             for mut card in cards {
                 let original = card.clone();
-                card.schedule_as_new(position);
+                if restore_position && card.original_position.is_some() {
+                    card.schedule_as_new(card.original_position.unwrap(), reset_counts);
+                } else {
+                    card.schedule_as_new(position, reset_counts);
+                    position += 1;
+                }
                 if log {
                     col.log_manually_scheduled_review(&card, &original, usn)?;
                 }
                 col.update_card_inner(&mut card, original, usn)?;
-                position += 1;
             }
             col.set_next_card_position(position)?;
-            col.storage.clear_searched_cards_table()
+            col.storage.clear_searched_cards_table()?;
+
+            if let Some(key) = restore_position_key {
+                col.set_config_bool_inner(key, restore_position)?;
+            }
+            if let Some(key) = reset_counts_key {
+                col.set_config_bool_inner(key, reset_counts)?;
+            }
+
+            Ok(())
         })
     }
 
