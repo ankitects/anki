@@ -7,7 +7,7 @@ use rand::seq::SliceRandom;
 
 use crate::{
     card::{CardQueue, CardType},
-    config::SchedulerVersion,
+    config::{BoolKey, ConfigContext, SchedulerVersion},
     deckconfig::NewCardInsertOrder,
     prelude::*,
     search::{SearchNode, SortMode, StateKind},
@@ -122,8 +122,7 @@ impl Collection {
         log: bool,
         restore_position: bool,
         reset_counts: bool,
-        restore_position_key: Option<BoolKey>,
-        reset_counts_key: Option<BoolKey>,
+        context: Option<ConfigContext>,
     ) -> Result<OpOutput<()>> {
         let usn = self.usn()?;
         let mut position = self.get_next_card_position();
@@ -146,11 +145,16 @@ impl Collection {
             col.set_next_card_position(position)?;
             col.storage.clear_searched_cards_table()?;
 
-            if let Some(key) = restore_position_key {
-                col.set_config_bool_inner(key, restore_position)?;
-            }
-            if let Some(key) = reset_counts_key {
-                col.set_config_bool_inner(key, reset_counts)?;
+            match context {
+                Some(ConfigContext::Browser) => {
+                    col.set_config_bool_inner(BoolKey::RestorePositionBrowser, restore_position)?;
+                    col.set_config_bool_inner(BoolKey::ResetCountsBrowser, reset_counts)?;
+                }
+                Some(ConfigContext::Reviewer) => {
+                    col.set_config_bool_inner(BoolKey::RestorePositionReviewer, restore_position)?;
+                    col.set_config_bool_inner(BoolKey::ResetCountsReviewer, reset_counts)?;
+                }
+                None => (),
             }
 
             Ok(())

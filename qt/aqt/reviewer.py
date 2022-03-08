@@ -1070,8 +1070,7 @@ time = %(time)d;
         if op := forget_cards(
             parent=self.mw,
             card_ids=[self.card.id],
-            restore_position_key=Config.Bool.RESTORE_POSITION_REVIEWER,
-            reset_counts_key=Config.Bool.RESET_COUNTS_REVIEWER,
+            context=Config.Context.REVIEWER,
         ):
             op.run_in_background()
 

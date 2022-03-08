@@ -170,8 +170,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         *,
         restore_position: bool = False,
         reset_counts: bool = False,
-        restore_position_key: Config.Bool.V | None = None,
-        reset_counts_key: Config.Bool.V | None = None,
+        context: Config.Context.V | None = None,
     ) -> OpChanges:
         "Put cards at the end of the new queue."
         request = ScheduleCardsAsNewRequest(
@@ -179,8 +178,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             log=True,
             restore_position=restore_position,
             reset_counts=reset_counts,
-            restore_position_key=restore_position_key,
-            reset_counts_key=reset_counts_key,
+            context=context,
         )
         return self.col._backend.schedule_cards_as_new(request)
 

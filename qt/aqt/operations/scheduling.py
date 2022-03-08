@@ -68,8 +68,7 @@ def forget_cards(
     *,
     parent: QWidget,
     card_ids: Sequence[CardId],
-    restore_position_key: Config.String.V | None = None,
-    reset_counts_key: Config.String.V | None = None,
+    context: Config.Context.V | None = None,
 ) -> CollectionOp[OpChanges] | None:
     assert aqt.mw
 
@@ -78,12 +77,20 @@ def forget_cards(
     form = aqt.forms.forget.Ui_Dialog()
     form.setupUi(dialog)
 
-    if restore_position_key:
+    if context == Config.Context.BROWSER:
         form.restore_position.setChecked(
-            aqt.mw.col.get_config_bool(restore_position_key)
+            aqt.mw.col.get_config_bool(Config.Bool.RESTORE_POSITION_BROWSER)
         )
-    if reset_counts_key:
-        form.reset_counts.setChecked(aqt.mw.col.get_config_bool(reset_counts_key))
+        form.reset_counts.setChecked(
+            aqt.mw.col.get_config_bool(Config.Bool.RESET_COUNTS_BROWSER)
+        )
+    elif context == Config.Context.REVIEWER:
+        form.restore_position.setChecked(
+            aqt.mw.col.get_config_bool(Config.Bool.RESTORE_POSITION_REVIEWER)
+        )
+        form.reset_counts.setChecked(
+            aqt.mw.col.get_config_bool(Config.Bool.RESET_COUNTS_REVIEWER)
+        )
 
     if not dialog.exec():
         return None
@@ -97,8 +104,7 @@ def forget_cards(
             card_ids,
             restore_position=restore_position,
             reset_counts=reset_counts,
-            reset_counts_key=reset_counts_key,
-            restore_position_key=restore_position_key,
+            context=context,
         ),
     ).success(
         lambda _: tooltip(

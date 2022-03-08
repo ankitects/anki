@@ -176,8 +176,7 @@ message ScheduleCardsAsNewRequest {
   bool log = 2;
   bool restore_position = 3;
   bool reset_counts = 4;
-  optional config.ConfigKey.Bool restore_position_key = 5;
-  optional config.ConfigKey.Bool reset_counts_key = 6;
+  optional config.ConfigKey.Context context = 5;
 }
 
 message SetDueDateRequest {

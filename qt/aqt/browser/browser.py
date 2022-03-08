@@ -865,8 +865,7 @@ class Browser(QMainWindow):
         if op := forget_cards(
             parent=self,
             card_ids=self.selected_cards(),
-            restore_position_key=Config.Bool.RESTORE_POSITION_BROWSER,
-            reset_counts_key=Config.Bool.RESET_COUNTS_BROWSER,
+            context=Config.Context.BROWSER,
         ):
             op.run_in_background()
 
