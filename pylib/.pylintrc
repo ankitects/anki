@@ -21,6 +21,7 @@ ignored-classes=
   StripHtmlRequest,
   CustomStudyRequest,
   Cram,
+  ScheduleCardsAsNewRequest,
 
 [REPORTS]
 output-format=colorized

@@ -17,6 +17,7 @@ ignored-classes=
   ChangeNotetypeRequest,
   CustomStudyRequest,
   Cram,
+  ScheduleCardsAsNewRequest,
 
 [REPORTS]
 output-format=colorized

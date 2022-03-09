@@ -18,6 +18,7 @@ from anki.consts import *
 from anki.errors import NotFoundError
 from anki.lang import without_unicode_isolation
 from anki.notes import NoteId
+from anki.scheduler.base import ScheduleCardsAsNew
 from anki.tags import MARKED_TAG
 from anki.utils import is_mac
 from aqt import AnkiQt, gui_hooks
@@ -862,10 +863,12 @@ class Browser(QMainWindow):
     @skip_if_selection_is_empty
     @ensure_editor_saved
     def forget_cards(self) -> None:
-        forget_cards(
+        if op := forget_cards(
             parent=self,
             card_ids=self.selected_cards(),
-        ).run_in_background()
+            context=ScheduleCardsAsNew.Context.BROWSER,
+        ):
+            op.run_in_background()
 
     # Edit: selection
     ######################################################################
