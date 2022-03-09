@@ -13,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { documentClick, documentKeyup } from "../sveltelib/event-store";
     import portal from "../sveltelib/portal";
     import position from "../sveltelib/position";
+    import type { PositionArgs } from "../sveltelib/position";
     import subscribeTrigger from "../sveltelib/subscribe-trigger";
     import { pageTheme } from "../sveltelib/theme";
     import toggleable from "../sveltelib/toggleable";
@@ -28,6 +29,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let arrow: HTMLElement;
 
     const { toggle, on, off } = toggleable(show);
+
+    let args: PositionArgs;
+    $: args = {
+        floating: $show ? floating : null,
+        placement,
+        arrow
+    }
+
+    let update: (args: PositionArgs) => void;
+    $: update?.(args);
+
+    function asReference(element: HTMLElement) {
+        const pos = position(element, args);
+        reference = element;
+        update = pos.update;
+
+        return {
+            destroy() {
+                pos.destroy();
+            }
+        };
+    }
 
     onMount(() =>
         subscribeTrigger(
@@ -46,27 +69,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     );
 </script>
 
-<span
-    bind:this={reference}
-    class="reference"
-    use:position={{ floating: $show ? floating : null, placement, arrow }}
->
-    <slot name="reference" {show} {toggle} {on} {off} />
-</span>
+<slot name="reference" {show} {toggle} {on} {off} {asReference} />
 
 <div bind:this={floating} class="floating" hidden={!$show} use:portal>
     <slot name="floating" />
-
     <div bind:this={arrow} class="arrow" class:dark={$pageTheme.isDark} />
 </div>
 
 <style lang="scss">
     @use "sass/elevation" as elevation;
-
-    .reference {
-        /* TODO This should not be necessary */
-        line-height: normal;
-    }
 
     .floating {
         position: absolute;

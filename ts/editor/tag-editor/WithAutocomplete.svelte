@@ -126,7 +126,7 @@ import { writable } from "svelte/store";
 </script>
 
 <WithFloating {show} placement="top-start" let:toggle let:hide let:show>
-    <span class="autocomplete-reference" slot="reference">
+    <span class="autocomplete-reference" slot="reference" let:asReference use:asReference>
         <slot {createAutocomplete} {toggle} {hide} {show} />
     </span>
 

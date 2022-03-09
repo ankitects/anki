@@ -10,7 +10,7 @@ import {
     shift,
 } from "@floating-ui/dom";
 
-interface PositionArgs {
+export interface PositionArgs {
     /**
      * The floating element which is positioned relative to `reference`.
      */
