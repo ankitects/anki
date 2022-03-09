@@ -14,7 +14,6 @@ use slog::warn;
 use strum::IntoStaticStr;
 
 pub use self::{bool::BoolKey, notetype::get_aux_notetype_config_key, string::StringKey};
-pub use crate::backend_proto::config::config_key::Context as ConfigContext;
 use crate::{backend_proto::preferences::Backups, prelude::*};
 
 /// Only used when updating/undoing.

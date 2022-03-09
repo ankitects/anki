@@ -52,10 +52,6 @@ message ConfigKey {
     DEFAULT_SEARCH_TEXT = 2;
     CARD_STATE_CUSTOMIZER = 3;
   }
-  enum Context {
-    BROWSER = 0;
-    REVIEWER = 1;
-  }
 }
 
 message GetConfigBoolRequest {

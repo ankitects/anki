@@ -30,6 +30,8 @@ service SchedulerService {
   rpc RebuildFilteredDeck(decks.DeckId) returns (collection.OpChangesWithCount);
   rpc ScheduleCardsAsNew(ScheduleCardsAsNewRequest)
       returns (collection.OpChanges);
+  rpc ScheduleCardsAsNewDefaults(ScheduleCardsAsNewDefaultsRequest)
+      returns (ScheduleCardsAsNewDefaultsResponse);
   rpc SetDueDate(SetDueDateRequest) returns (collection.OpChanges);
   rpc SortCards(SortCardsRequest) returns (collection.OpChangesWithCount);
   rpc SortDeck(SortDeckRequest) returns (collection.OpChangesWithCount);
@@ -172,11 +174,24 @@ message BuryOrSuspendCardsRequest {
 }
 
 message ScheduleCardsAsNewRequest {
+  enum Context {
+    BROWSER = 0;
+    REVIEWER = 1;
+  }
   repeated int64 card_ids = 1;
   bool log = 2;
   bool restore_position = 3;
   bool reset_counts = 4;
-  optional config.ConfigKey.Context context = 5;
+  optional Context context = 5;
+}
+
+message ScheduleCardsAsNewDefaultsRequest {
+  ScheduleCardsAsNewRequest.Context context = 1;
+}
+
+message ScheduleCardsAsNewDefaultsResponse {
+  bool restore_position = 1;
+  bool reset_counts = 2;
 }
 
 message SetDueDateRequest {

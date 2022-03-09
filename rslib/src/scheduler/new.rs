@@ -5,9 +5,13 @@ use std::collections::{HashMap, HashSet};
 
 use rand::seq::SliceRandom;
 
+pub use crate::backend_proto::scheduler::{
+    schedule_cards_as_new_request::Context as ScheduleAsNewContext,
+    ScheduleCardsAsNewDefaultsResponse,
+};
 use crate::{
     card::{CardQueue, CardType},
-    config::{BoolKey, ConfigContext, SchedulerVersion},
+    config::{BoolKey, SchedulerVersion},
     deckconfig::NewCardInsertOrder,
     prelude::*,
     search::{SearchNode, SortMode, StateKind},
@@ -122,7 +126,7 @@ impl Collection {
         log: bool,
         restore_position: bool,
         reset_counts: bool,
-        context: Option<ConfigContext>,
+        context: Option<ScheduleAsNewContext>,
     ) -> Result<OpOutput<()>> {
         let usn = self.usn()?;
         let mut position = self.get_next_card_position();
@@ -146,11 +150,11 @@ impl Collection {
             col.storage.clear_searched_cards_table()?;
 
             match context {
-                Some(ConfigContext::Browser) => {
+                Some(ScheduleAsNewContext::Browser) => {
                     col.set_config_bool_inner(BoolKey::RestorePositionBrowser, restore_position)?;
                     col.set_config_bool_inner(BoolKey::ResetCountsBrowser, reset_counts)?;
                 }
-                Some(ConfigContext::Reviewer) => {
+                Some(ScheduleAsNewContext::Reviewer) => {
                     col.set_config_bool_inner(BoolKey::RestorePositionReviewer, restore_position)?;
                     col.set_config_bool_inner(BoolKey::ResetCountsReviewer, reset_counts)?;
                 }
@@ -159,6 +163,22 @@ impl Collection {
 
             Ok(())
         })
+    }
+
+    pub fn reschedule_cards_as_new_defaults(
+        &self,
+        context: ScheduleAsNewContext,
+    ) -> ScheduleCardsAsNewDefaultsResponse {
+        match context {
+            ScheduleAsNewContext::Browser => ScheduleCardsAsNewDefaultsResponse {
+                restore_position: self.get_config_bool(BoolKey::RestorePositionBrowser),
+                reset_counts: self.get_config_bool(BoolKey::ResetCountsBrowser),
+            },
+            ScheduleAsNewContext::Reviewer => ScheduleCardsAsNewDefaultsResponse {
+                restore_position: self.get_config_bool(BoolKey::RestorePositionReviewer),
+                reset_counts: self.get_config_bool(BoolKey::ResetCountsReviewer),
+            },
+        }
     }
 
     pub fn sort_cards(

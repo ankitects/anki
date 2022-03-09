@@ -19,6 +19,7 @@ import aqt.operations
 from anki import hooks
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount
+from anki.scheduler.base import ScheduleCardsAsNew
 from anki.scheduler.v3 import CardAnswer, NextStates, QueuedCards
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.tags import MARKED_TAG
@@ -1070,7 +1071,7 @@ time = %(time)d;
         if op := forget_cards(
             parent=self.mw,
             card_ids=[self.card.id],
-            context=Config.Context.REVIEWER,
+            context=ScheduleCardsAsNew.Context.REVIEWER,
         ):
             op.run_in_background()
 

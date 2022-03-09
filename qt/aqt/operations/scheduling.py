@@ -19,6 +19,7 @@ from anki.collection import (
 from anki.decks import DeckId
 from anki.notes import NoteId
 from anki.scheduler import CustomStudyRequest, FilteredDeckForUpdate, UnburyDeck
+from anki.scheduler.base import ScheduleCardsAsNew
 from anki.scheduler.v3 import CardAnswer
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from aqt.operations import CollectionOp
@@ -68,7 +69,7 @@ def forget_cards(
     *,
     parent: QWidget,
     card_ids: Sequence[CardId],
-    context: Config.Context.V | None = None,
+    context: ScheduleCardsAsNew.Context.V | None = None,
 ) -> CollectionOp[OpChanges] | None:
     assert aqt.mw
 
@@ -77,20 +78,10 @@ def forget_cards(
     form = aqt.forms.forget.Ui_Dialog()
     form.setupUi(dialog)
 
-    if context == Config.Context.BROWSER:
-        form.restore_position.setChecked(
-            aqt.mw.col.get_config_bool(Config.Bool.RESTORE_POSITION_BROWSER)
-        )
-        form.reset_counts.setChecked(
-            aqt.mw.col.get_config_bool(Config.Bool.RESET_COUNTS_BROWSER)
-        )
-    elif context == Config.Context.REVIEWER:
-        form.restore_position.setChecked(
-            aqt.mw.col.get_config_bool(Config.Bool.RESTORE_POSITION_REVIEWER)
-        )
-        form.reset_counts.setChecked(
-            aqt.mw.col.get_config_bool(Config.Bool.RESET_COUNTS_REVIEWER)
-        )
+    if context is not None:
+        defaults = aqt.mw.col.sched.schedule_cards_as_new_defaults(context)
+        form.restore_position.setChecked(defaults.restore_position)
+        form.reset_counts.setChecked(defaults.reset_counts)
 
     if not dialog.exec():
         return None

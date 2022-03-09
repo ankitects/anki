@@ -15,7 +15,8 @@ CongratsInfo = scheduler_pb2.CongratsInfoResponse
 UnburyDeck = scheduler_pb2.UnburyDeckRequest
 BuryOrSuspend = scheduler_pb2.BuryOrSuspendCardsRequest
 CustomStudyRequest = scheduler_pb2.CustomStudyRequest
-ScheduleCardsAsNewRequest = scheduler_pb2.ScheduleCardsAsNewRequest
+ScheduleCardsAsNew = scheduler_pb2.ScheduleCardsAsNewRequest
+ScheduleCardsAsNewDefaults = scheduler_pb2.ScheduleCardsAsNewDefaultsResponse
 FilteredDeckForUpdate = decks_pb2.FilteredDeckForUpdate
 
 
@@ -170,10 +171,10 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         *,
         restore_position: bool = False,
         reset_counts: bool = False,
-        context: Config.Context.V | None = None,
+        context: ScheduleCardsAsNew.Context.V | None = None,
     ) -> OpChanges:
-        "Put cards at the end of the new queue."
-        request = ScheduleCardsAsNewRequest(
+        "Place cards back into the new queue."
+        request = ScheduleCardsAsNew(
             card_ids=card_ids,
             log=True,
             restore_position=restore_position,
@@ -181,6 +182,11 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             context=context,
         )
         return self.col._backend.schedule_cards_as_new(request)
+
+    def schedule_cards_as_new_defaults(
+        self, context: ScheduleCardsAsNew.Context.V
+    ) -> ScheduleCardsAsNewDefaults:
+        return self.col._backend.schedule_cards_as_new_defaults(context)
 
     def set_due_date(
         self,
@@ -218,9 +224,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             " where id in %s" % sids
         )
         # and forget any non-new cards, changing their due numbers
-        request = ScheduleCardsAsNewRequest(
-            card_ids=non_new, log=False, restore_position=True
-        )
+        request = ScheduleCardsAsNew(card_ids=non_new, log=False, restore_position=True)
         self.col._backend.schedule_cards_as_new(request)
 
     # Repositioning new cards
