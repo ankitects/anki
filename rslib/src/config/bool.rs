@@ -59,6 +59,8 @@ impl Collection {
             | BoolKey::FutureDueShowBacklog
             | BoolKey::ShowRemainingDueCountsInStudy
             | BoolKey::CardCountsSeparateInactive
+            | BoolKey::RestorePositionBrowser
+            | BoolKey::RestorePositionReviewer
             | BoolKey::NormalizeNoteText => self.get_config_optional(key).unwrap_or(true),
 
             // other options default to false
