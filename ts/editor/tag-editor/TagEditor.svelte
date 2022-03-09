@@ -11,9 +11,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Tags, tags as tagsService } from "../../lib/proto";
     import { execCommand } from "../helpers";
     import Tag from "./Tag.svelte";
+    import { TagOptionsButton } from "./tag-options-button";
     import TagEditMode from "./TagEditMode.svelte";
     import TagInput from "./TagInput.svelte";
-    import TagOptionsBadge from "./TagOptionsBadge.svelte";
     import type { Tag as TagType } from "./tags";
     import {
         attachId,
@@ -389,6 +389,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     // typically correct for rows < 7
     $: assumedRows = Math.floor(height / badgeHeight);
     $: shortenTags = shortenTags || assumedRows > 2;
+    $: anyTagsSelected = tagTypes.some((tag) => tag.selected);
 </script>
 
 <StickyContainer
@@ -398,9 +399,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="d-flex"
 >
     {#if !wrap}
-        <TagOptionsBadge
-            showSelectionsOptions={tagTypes.some((tag) => tag.selected)}
+        <TagOptionsButton
             bind:badgeHeight
+            tagsSelected={anyTagsSelected}
             on:tagselectall={selectAllTags}
             on:tagcopy={copySelectedTags}
             on:tagdelete={deleteSelectedTags}
@@ -415,9 +416,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:focusout={deselectIfLeave}
     >
         {#if wrap}
-            <TagOptionsBadge
-                showSelectionsOptions={tagTypes.some((tag) => tag.selected)}
+            <TagOptionsButton
                 bind:badgeHeight
+                tagsSelected={anyTagsSelected}
                 on:tagselectall={selectAllTags}
                 on:tagcopy={copySelectedTags}
                 on:tagdelete={deleteSelectedTags}
