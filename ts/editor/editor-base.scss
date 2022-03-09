@@ -8,3 +8,7 @@ $btn-disabled-opacity: 0.4;
 @import "sass/bootstrap/scss/button-group";
 @import "sass/bootstrap/scss/dropdown";
 @import "sass/bootstrap-tooltip";
+
+html {
+    overflow: hidden;
+}
