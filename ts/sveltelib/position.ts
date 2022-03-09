@@ -2,7 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { Placement } from "@floating-ui/dom";
-import { arrow, autoUpdate, computePosition, offset, shift } from "@floating-ui/dom";
+import {
+    arrow,
+    autoUpdate,
+    computePosition,
+    offset,
+    shift,
+} from "@floating-ui/dom";
 
 interface PositionArgs {
     /**
@@ -45,11 +51,11 @@ function position(
             rotation = 135;
             arrowX = args.floating!.offsetWidth - 5;
             arrowY = middlewareData.arrow?.y;
-        } else if (args.placement.startsWith("top"))  {
+        } else if (args.placement.startsWith("top")) {
             rotation = 225;
             arrowX = middlewareData.arrow?.x;
             arrowY = args.floating!.offsetHeight - 5;
-        } else /* if (args.placement.startsWith("right")) */ {
+        } /* if (args.placement.startsWith("right")) */ else {
             rotation = 315;
             arrowX = -5;
             arrowY = middlewareData.arrow?.y;

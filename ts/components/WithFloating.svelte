@@ -8,7 +8,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
 
     import isClosingClick from "../sveltelib/closing-click";
-    import isClosingKeyup from "../sveltelib/closing-keyup";
+    // TODO make this configurable
+    /* import isClosingKeyup from "../sveltelib/closing-keyup"; */
     import { documentClick, documentKeyup } from "../sveltelib/event-store";
     import portal from "../sveltelib/portal";
     import position from "../sveltelib/position";
@@ -37,10 +38,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 inside: closeOnInsideClick,
                 outside: true,
             }),
-            isClosingKeyup(documentKeyup, {
+            /* isClosingKeyup(documentKeyup, {
                 reference,
                 floating,
-            }),
+            }), */
         ),
     );
 </script>
