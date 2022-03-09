@@ -5,12 +5,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
 
-    import Badge from "../../components/Badge.svelte";
+    import IconConstrain from "../../components/IconConstrain.svelte";
     import DropdownItem from "../../components/DropdownItem.svelte";
     import DropdownMenu from "../../components/DropdownMenu.svelte";
-    import { withSpan } from "../../components/helpers";
     import Shortcut from "../../components/Shortcut.svelte";
-    import WithDropdown from "../../components/WithDropdown.svelte";
+    import WithFloating from "../../components/WithFloating.svelte";
     import { getPlatformString } from "../../lib/shortcuts";
     import { dotsIcon } from "./icons";
 
@@ -24,43 +23,43 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const removeShortcut = "Backspace";
 </script>
 
-<WithDropdown let:createDropdown>
-    <div class="more-icon">
-        <Badge class="me-1" on:mount={withSpan(createDropdown)}>{@html dotsIcon}</Badge>
-
-        <DropdownMenu>
-            <DropdownItem
-                on:click={(event) => {
-                    dispatch("tagselectall");
-                    event.stopImmediatePropagation();
-                }}>{allLabel} ({getPlatformString(allShortcut)})</DropdownItem
-            >
-            <Shortcut
-                keyCombination={allShortcut}
-                on:action={(event) => {
-                    dispatch("tagselectall");
-                    event.stopImmediatePropagation();
-                }}
-            />
-
-            <DropdownItem on:click={() => dispatch("tagcopy")}
-                >{copyLabel} ({getPlatformString(copyShortcut)})</DropdownItem
-            >
-            <Shortcut
-                keyCombination={copyShortcut}
-                on:action={() => dispatch("tagcopy")}
-            />
-
-            <DropdownItem on:click={() => dispatch("tagdelete")}
-                >{removeLabel} ({getPlatformString(removeShortcut)})</DropdownItem
-            >
-            <Shortcut
-                keyCombination={removeShortcut}
-                on:action={() => dispatch("tagdelete")}
-            />
-        </DropdownMenu>
+<WithFloating>
+    <div slot="reference" class="more-icon" let:toggle on:click={toggle}>
+        <IconConstrain>{@html dotsIcon}</IconConstrain>
     </div>
-</WithDropdown>
+
+    <DropdownMenu slot="floating">
+        <DropdownItem
+            on:click={(event) => {
+                dispatch("tagselectall");
+                event.stopImmediatePropagation();
+            }}>{allLabel} ({getPlatformString(allShortcut)})</DropdownItem
+        >
+        <Shortcut
+            keyCombination={allShortcut}
+            on:action={(event) => {
+                dispatch("tagselectall");
+                event.stopImmediatePropagation();
+            }}
+        />
+
+        <DropdownItem on:click={() => dispatch("tagcopy")}
+            >{copyLabel} ({getPlatformString(copyShortcut)})</DropdownItem
+        >
+        <Shortcut
+            keyCombination={copyShortcut}
+            on:action={() => dispatch("tagcopy")}
+        />
+
+        <DropdownItem on:click={() => dispatch("tagdelete")}
+            >{removeLabel} ({getPlatformString(removeShortcut)})</DropdownItem
+        >
+        <Shortcut
+            keyCombination={removeShortcut}
+            on:action={() => dispatch("tagdelete")}
+        />
+    </DropdownMenu>
+</WithFloating>
 
 <style lang="scss">
     .more-icon {

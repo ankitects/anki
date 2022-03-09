@@ -17,8 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import toggleable from "../sveltelib/toggleable";
 
     /** TODO at the moment we only dropdowns which are placed actually below the reference */
-    const placement: Placement = "bottom";
-
+    export let placement: Placement = "bottom";
     export let closeOnInsideClick = false;
 
     /** This may be passed in for more fine-grained control */
@@ -47,13 +46,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     );
 </script>
 
-<div
+<span
     bind:this={reference}
     class="reference"
     use:position={{ floating: $show ? floating : null, placement, arrow }}
 >
     <slot name="reference" {show} {toggle} {on} {off} />
-</div>
+</span>
 
 <div bind:this={floating} class="floating" hidden={!$show} use:portal>
     <slot name="floating" />
