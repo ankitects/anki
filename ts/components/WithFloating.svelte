@@ -16,7 +16,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { pageTheme } from "../sveltelib/theme";
     import toggleable from "../sveltelib/toggleable";
 
-    /** TODO at the moment we only dropdowns which are placed actually below the reference */
     export let placement: Placement = "bottom";
     export let closeOnInsideClick = false;
 
@@ -81,7 +80,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         background-color: var(--frame-bg);
         width: 10px;
         height: 10px;
-        transform: rotate(45deg);
         z-index: 60;
 
         /* outer border */

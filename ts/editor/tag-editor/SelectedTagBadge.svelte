@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import IconConstrain from "../../components/IconConstrain.svelte";
     import DropdownItem from "../../components/DropdownItem.svelte";
-    import DropdownMenu from "../../components/DropdownMenu.svelte";
+    import Popover from "../../components/Popover.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
     import { getPlatformString } from "../../lib/shortcuts";
@@ -23,12 +23,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const removeShortcut = "Backspace";
 </script>
 
-<WithFloating>
+<WithFloating placement="top">
     <div slot="reference" class="more-icon" let:toggle on:click={toggle}>
         <IconConstrain>{@html dotsIcon}</IconConstrain>
     </div>
 
-    <DropdownMenu slot="floating">
+    <Popover slot="floating">
         <DropdownItem
             on:click={(event) => {
                 dispatch("tagselectall");
@@ -46,10 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <DropdownItem on:click={() => dispatch("tagcopy")}
             >{copyLabel} ({getPlatformString(copyShortcut)})</DropdownItem
         >
-        <Shortcut
-            keyCombination={copyShortcut}
-            on:action={() => dispatch("tagcopy")}
-        />
+        <Shortcut keyCombination={copyShortcut} on:action={() => dispatch("tagcopy")} />
 
         <DropdownItem on:click={() => dispatch("tagdelete")}
             >{removeLabel} ({getPlatformString(removeShortcut)})</DropdownItem
@@ -58,7 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             keyCombination={removeShortcut}
             on:action={() => dispatch("tagdelete")}
         />
-    </DropdownMenu>
+    </Popover>
 </WithFloating>
 
 <style lang="scss">
