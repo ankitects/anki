@@ -66,6 +66,7 @@ from aqt.utils import (
     checkInvalidFilename,
     current_window,
     disable_help_button,
+    disallow_full_screen,
     getFile,
     getOnlyText,
     openHelp,
@@ -1273,8 +1274,17 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def on_toggle_full_screen(self) -> None:
-        window = self.app.activeWindow()
-        window.setWindowState(window.windowState() ^ Qt.WindowState.WindowFullScreen)
+        if disallow_full_screen():
+            showWarning(
+                tr.actions_currently_unsupported(),
+                parent=self,
+                help=HelpPage.FULL_SCREEN_ISSUE,
+            )
+        else:
+            window = self.app.activeWindow()
+            window.setWindowState(
+                window.windowState() ^ Qt.WindowState.WindowFullScreen
+            )
 
     # Auto update
     ##########################################################################
