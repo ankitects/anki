@@ -392,7 +392,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bind:height
     class="d-flex"
 >
-    {#if !wrap}
+    <div class="tag-editor-area" on:focusout={deselectIfLeave}>
         <TagOptionsButton
             bind:badgeHeight
             tagsSelected={anyTagsSelected}
@@ -401,27 +401,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:tagdelete={deleteSelectedTags}
             on:tagappend={appendEmptyTag}
         />
-    {/if}
-
-    <ButtonToolbar
-        class="d-flex align-items-center w-100 px-1"
-        {size}
-        {wrap}
-        on:focusout={deselectIfLeave}
-    >
-        {#if wrap}
-            <TagOptionsButton
-                bind:badgeHeight
-                tagsSelected={anyTagsSelected}
-                on:tagselectall={selectAllTags}
-                on:tagcopy={copySelectedTags}
-                on:tagdelete={deleteSelectedTags}
-                on:tagappend={appendEmptyTag}
-            />
-        {/if}
 
         {#each tagTypes as tag, index (tag.id)}
-            <div class="position-relative" class:hide-tag={index === active}>
+            <div class="tag-relative" class:hide-tag={index === active}>
                 <TagEditMode
                     class="ms-0"
                     name={index === active ? activeName : tag.name}
@@ -492,10 +474,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {/each}
 
         <TagSpacer on:click={appendEmptyTag} />
-    </ButtonToolbar>
+    </div>
 </StickyContainer>
 
 <style lang="scss">
+    .tag-editor-area {
+        display: flex;
+        flex-flow: row wrap;
+        padding: 0 1px;
+    }
+
+    .tag-relative {
+        position: relative;
+    }
+
     .hide-tag :global(.tag) {
         opacity: 0;
     }
