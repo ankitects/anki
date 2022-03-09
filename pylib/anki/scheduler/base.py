@@ -15,6 +15,8 @@ CongratsInfo = scheduler_pb2.CongratsInfoResponse
 UnburyDeck = scheduler_pb2.UnburyDeckRequest
 BuryOrSuspend = scheduler_pb2.BuryOrSuspendCardsRequest
 CustomStudyRequest = scheduler_pb2.CustomStudyRequest
+ScheduleCardsAsNew = scheduler_pb2.ScheduleCardsAsNewRequest
+ScheduleCardsAsNewDefaults = scheduler_pb2.ScheduleCardsAsNewDefaultsResponse
 FilteredDeckForUpdate = decks_pb2.FilteredDeckForUpdate
 
 
@@ -163,9 +165,28 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # Resetting/rescheduling
     ##########################################################################
 
-    def schedule_cards_as_new(self, card_ids: Sequence[CardId]) -> OpChanges:
-        "Put cards at the end of the new queue."
-        return self.col._backend.schedule_cards_as_new(card_ids=card_ids, log=True)
+    def schedule_cards_as_new(
+        self,
+        card_ids: Sequence[CardId],
+        *,
+        restore_position: bool = False,
+        reset_counts: bool = False,
+        context: ScheduleCardsAsNew.Context.V | None = None,
+    ) -> OpChanges:
+        "Place cards back into the new queue."
+        request = ScheduleCardsAsNew(
+            card_ids=card_ids,
+            log=True,
+            restore_position=restore_position,
+            reset_counts=reset_counts,
+            context=context,
+        )
+        return self.col._backend.schedule_cards_as_new(request)
+
+    def schedule_cards_as_new_defaults(
+        self, context: ScheduleCardsAsNew.Context.V
+    ) -> ScheduleCardsAsNewDefaults:
+        return self.col._backend.schedule_cards_as_new_defaults(context)
 
     def set_due_date(
         self,
@@ -203,7 +224,8 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             " where id in %s" % sids
         )
         # and forget any non-new cards, changing their due numbers
-        self.col._backend.schedule_cards_as_new(card_ids=non_new, log=False)
+        request = ScheduleCardsAsNew(card_ids=non_new, log=False, restore_position=True)
+        self.col._backend.schedule_cards_as_new(request)
 
     # Repositioning new cards
     ##########################################################################

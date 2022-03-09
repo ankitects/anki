@@ -14,6 +14,7 @@ from . import customstudy
 from . import dconf
 from . import debug
 from . import filtered_deck
+from . import forget
 from . import editaddon
 from . import editcurrent
 from . import edithtml
