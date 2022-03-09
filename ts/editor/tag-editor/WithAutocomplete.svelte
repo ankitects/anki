@@ -4,8 +4,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { createEventDispatcher, tick } from "svelte";
-import { writable } from "svelte/store";
-    
+    import { writable } from "svelte/store";
+
     import Popover from "../../components/Popover.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
     import AutocompleteItem from "./AutocompleteItem.svelte";
@@ -23,10 +23,14 @@ import { writable } from "svelte/store";
     let selected: number | null = null;
     let active: boolean = false;
 
-    const dispatch = createEventDispatcher();
+    const dispatch = createEventDispatcher<{
+        update: void;
+        select: { selected: string };
+        choose: { chosen: string };
+    }>();
 
     /**
-     * select as currently highlighted item
+     * Select as currently highlighted item
      */
     function incrementSelected(): void {
         if (selected === null) {
@@ -50,8 +54,6 @@ import { writable } from "svelte/store";
 
     async function updateSelected(): Promise<void> {
         dispatch("select", { selected: suggestionsItems[selected ?? -1] });
-        await tick();
-        /* dropdown.update(); */
     }
 
     async function selectNext(): Promise<void> {
@@ -65,7 +67,7 @@ import { writable } from "svelte/store";
     }
 
     /**
-     * choose as accepted suggestion
+     * Choose as accepted suggestion
      */
     async function chooseSelected() {
         active = true;
@@ -76,9 +78,7 @@ import { writable } from "svelte/store";
     }
 
     async function update() {
-        /* dropdown.update(); */
         await tick();
-
         dispatch("update");
     }
 
@@ -117,16 +117,15 @@ import { writable } from "svelte/store";
             setSelected(index);
         }
     }
-
-    let scroll: () => void;
-
-    $: if (scroll) {
-        scroll();
-    }
 </script>
 
 <WithFloating {show} placement="top-start" let:toggle let:hide let:show>
-    <span class="autocomplete-reference" slot="reference" let:asReference use:asReference>
+    <span
+        class="autocomplete-reference"
+        slot="reference"
+        let:asReference
+        use:asReference
+    >
         <slot {createAutocomplete} {toggle} {hide} {show} />
     </span>
 
@@ -135,7 +134,6 @@ import { writable } from "svelte/store";
             {#each suggestionsItems as suggestion, index}
                 {#if index === selected}
                     <AutocompleteItem
-                        bind:scroll
                         selected
                         {active}
                         on:mousedown={() => setSelectedAndActive(index)}
@@ -173,8 +171,15 @@ import { writable } from "svelte/store";
     }
 
     .autocomplete-menu {
-        font-size: 11px;
+        display: flex;
+        flex-flow: column nowrap;
+
         max-height: 7rem;
+        max-width: 100vw;
+
+        font-size: 11px;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
         overflow-y: auto;
     }
 </style>

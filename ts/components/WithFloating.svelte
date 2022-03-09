@@ -34,8 +34,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: args = {
         floating: $show ? floating : null,
         placement,
-        arrow
-    }
+        arrow,
+    };
 
     let update: (args: PositionArgs) => void;
     $: update?.(args);
@@ -48,7 +48,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return {
             destroy() {
                 pos.destroy();
-            }
+            },
         };
     }
 

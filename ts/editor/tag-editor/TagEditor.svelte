@@ -6,7 +6,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher, tick } from "svelte";
     import type { Writable } from "svelte/store";
 
-    import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import StickyContainer from "../../components/StickyContainer.svelte";
     import { Tags, tags as tagsService } from "../../lib/proto";
     import { execCommand } from "../helpers";
@@ -23,8 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import TagSpacer from "./TagSpacer.svelte";
     import WithAutocomplete from "./WithAutocomplete.svelte";
 
-    export let size: number;
-    export let wrap: boolean;
     export let tags: Writable<string[]>;
 
     let tagTypes: TagType[];
@@ -430,7 +427,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         {suggestionsPromise}
                         on:update={updateSuggestions}
                         on:select={({ detail }) => onAutocomplete(detail.selected)}
-                        on:choose={({ detail }) => onAutocomplete(detail.chosen)}
+                        on:choose={({ detail }) => {
+                            onAutocomplete(detail.chosen);
+                            splitTag(index, detail.chosen.length, detail.chosen.length);
+                        }}
                         let:createAutocomplete
                         let:hide
                     >
@@ -482,10 +482,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         flex-flow: row wrap;
         padding: 0 1px;
+        overflow: hidden;
     }
 
     .tag-relative {
         position: relative;
+        padding: 0 1px;
     }
 
     .hide-tag :global(.tag) {
