@@ -52,19 +52,6 @@ class TagManager(DeprecatedNamesMixin):
     def clear_unused_tags(self) -> OpChangesWithCount:
         return self.col._backend.clear_unused_tags()
 
-    def by_deck(self, did: DeckId, children: bool = False) -> list[str]:
-        basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
-        if not children:
-            query = f"{basequery} AND c.did=?"
-            res = self.col.db.list(query, did)
-            return list(set(self.split(" ".join(res))))
-        dids = [did]
-        for name, id in self.col.decks.children(did):
-            dids.append(id)
-        query = f"{basequery} AND c.did IN {ids2str(dids)}"
-        res = self.col.db.list(query)
-        return list(set(self.split(" ".join(res))))
-
     def set_collapsed(self, tag: str, collapsed: bool) -> OpChanges:
         "Set browser expansion state for tag, registering the tag if missing."
         return self.col._backend.set_tag_collapsed(name=tag, collapsed=collapsed)
@@ -180,6 +167,20 @@ class TagManager(DeprecatedNamesMixin):
 
     def _legacy_bulk_rem(self, ids: list[NoteId], tags: str) -> None:
         self._legacy_bulk_add(ids, tags, False)
+
+    @deprecated(info="no longer used by Anki, and will be removed in the future")
+    def by_deck(self, did: DeckId, children: bool = False) -> list[str]:
+        basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
+        if not children:
+            query = f"{basequery} AND c.did=?"
+            res = self.col.db.list(query, did)
+            return list(set(self.split(" ".join(res))))
+        dids = [did]
+        for name, id in self.col.decks.children(did):
+            dids.append(id)
+        query = f"{basequery} AND c.did IN {ids2str(dids)}"
+        res = self.col.db.list(query)
+        return list(set(self.split(" ".join(res))))
 
 
 TagManager.register_deprecated_attributes(

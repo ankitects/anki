@@ -13,7 +13,9 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 use slog::warn;
 use strum::IntoStaticStr;
 
-pub use self::{bool::BoolKey, notetype::get_aux_notetype_config_key, string::StringKey};
+pub use self::{
+    bool::BoolKey, deck::DeckConfigKey, notetype::get_aux_notetype_config_key, string::StringKey,
+};
 use crate::{backend_proto::preferences::Backups, prelude::*};
 
 /// Only used when updating/undoing.
@@ -112,10 +114,10 @@ impl Collection {
     }
 
     // /// Get config item, returning default value if missing/invalid.
-    pub(crate) fn get_config_default<T, K>(&self, key: K) -> T
+    pub(crate) fn get_config_default<'a, T, K>(&self, key: K) -> T
     where
         T: DeserializeOwned + Default,
-        K: Into<&'static str>,
+        K: Into<&'a str>,
     {
         self.get_config_optional(key).unwrap_or_default()
     }

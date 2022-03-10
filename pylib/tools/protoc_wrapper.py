@@ -9,8 +9,10 @@ import os
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
 (protoc, mypy_protobuf, outdir, *protos) = sys.argv[1:]
+outpath = Path(outdir).parent
 
 if protos[0].startswith("external"):
     prefix = "external/ankidesktop/proto/"
@@ -22,8 +24,8 @@ subprocess.run(
     [
         protoc,
         f"--plugin=protoc-gen-mypy={mypy_protobuf}",
-        "--python_out=.",
-        "--mypy_out=.",
+        f"--python_out={outpath}",
+        f"--mypy_out={outpath}",
         f"-I{prefix}",
         f"-Iexternal/ankidesktop/{prefix}",
         *protos,
@@ -32,9 +34,3 @@ subprocess.run(
     stderr=subprocess.DEVNULL,
     check=True,
 )
-
-for proto in protos:
-    without_prefix_and_ext, _ = os.path.splitext(proto[len(prefix) :])
-    for ext in "_pb2.py", "_pb2.pyi":
-        path = without_prefix_and_ext + ext
-        shutil.move(path, os.path.join(outdir, os.path.basename(path)))

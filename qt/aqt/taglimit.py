@@ -3,117 +3,93 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
+from typing import Sequence
 
 import aqt
 import aqt.customstudy
 import aqt.forms
 from anki.lang import with_collapsed_whitespace
-from aqt.main import AnkiQt
+from anki.scheduler.base import CustomStudyDefaults
 from aqt.qt import *
 from aqt.utils import disable_help_button, restoreGeom, saveGeom, showWarning, tr
 
 
 class TagLimit(QDialog):
-    @staticmethod
-    def get_tags(
-        mw: AnkiQt, parent: aqt.customstudy.CustomStudy
-    ) -> Tuple[List[str], List[str]]:
-        """Get two lists of tags to include/exclude."""
-        return TagLimit(mw, parent).tags
-
-    def __init__(self, mw: AnkiQt, parent: aqt.customstudy.CustomStudy) -> None:
+    def __init__(
+        self,
+        parent: QWidget,
+        tags: Sequence[CustomStudyDefaults.Tag],
+        on_success: Callable[[list[str], list[str]], None],
+    ) -> None:
+        "Ask user to select tags. on_success() will be called with selected included and excluded tags."
         QDialog.__init__(self, parent, Qt.WindowType.Window)
-        self.tags: Tuple[List[str], List[str]] = ([], [])
-        self.tags_list: list[str] = []
-        self.mw = mw
-        self.parent_: Optional[aqt.customstudy.CustomStudy] = parent
-        self.deck = self.parent_.deck
-        self.dialog = aqt.forms.taglimit.Ui_Dialog()
-        self.dialog.setupUi(self)
+        self.tags = tags
+        self.form = aqt.forms.taglimit.Ui_Dialog()
+        self.form.setupUi(self)
+        self.on_success = on_success
         disable_help_button(self)
         s = QShortcut(
             QKeySequence("ctrl+d"),
-            self.dialog.activeList,
+            self.form.activeList,
             context=Qt.ShortcutContext.WidgetShortcut,
         )
-        qconnect(s.activated, self.dialog.activeList.clearSelection)
+        qconnect(s.activated, self.form.activeList.clearSelection)
         s = QShortcut(
             QKeySequence("ctrl+d"),
-            self.dialog.inactiveList,
+            self.form.inactiveList,
             context=Qt.ShortcutContext.WidgetShortcut,
         )
-        qconnect(s.activated, self.dialog.inactiveList.clearSelection)
-        self.rebuildTagList()
+        qconnect(s.activated, self.form.inactiveList.clearSelection)
+        self.build_tag_lists()
         restoreGeom(self, "tagLimit")
-        self.exec()
+        self.open()
 
-    def rebuildTagList(self) -> None:
-        usertags = self.mw.col.tags.by_deck(self.deck["id"], True)
-        yes = self.deck.get("activeTags", [])
-        no = self.deck.get("inactiveTags", [])
-        yesHash = {}
-        noHash = {}
-        for y in yes:
-            yesHash[y] = True
-        for n in no:
-            noHash[n] = True
-        groupedTags = []
-        usertags.sort()
-        groupedTags.append(usertags)
-        self.tags_list = []
-        for tags in groupedTags:
-            for t in tags:
-                self.tags_list.append(t)
-                item = QListWidgetItem(t.replace("_", " "))
-                self.dialog.activeList.addItem(item)
-                if t in yesHash:
-                    mode = QItemSelectionModel.SelectionFlag.Select
-                    self.dialog.activeCheck.setChecked(True)
-                else:
-                    mode = QItemSelectionModel.SelectionFlag.Deselect
-                idx = self.dialog.activeList.indexFromItem(item)
-                self.dialog.activeList.selectionModel().select(idx, mode)
-                # inactive
-                item = QListWidgetItem(t.replace("_", " "))
-                self.dialog.inactiveList.addItem(item)
-                if t in noHash:
-                    mode = QItemSelectionModel.SelectionFlag.Select
-                else:
-                    mode = QItemSelectionModel.SelectionFlag.Deselect
-                idx = self.dialog.inactiveList.indexFromItem(item)
-                self.dialog.inactiveList.selectionModel().select(idx, mode)
+    def build_tag_lists(self) -> None:
+        def add_tag(tag: str, select: bool, list: QListWidget) -> None:
+            item = QListWidgetItem(tag.replace("_", " "))
+            list.addItem(item)
+            if select:
+                idx = list.indexFromItem(item)
+                list.selectionModel().select(
+                    idx, QItemSelectionModel.SelectionFlag.Select
+                )
+
+        had_included_tag = False
+
+        for tag in self.tags:
+            if tag.include:
+                had_included_tag = True
+            add_tag(tag.name, tag.include, self.form.activeList)
+            add_tag(tag.name, tag.exclude, self.form.inactiveList)
+
+        if had_included_tag:
+            self.form.activeCheck.setChecked(True)
 
     def reject(self) -> None:
         QDialog.reject(self)
 
     def accept(self) -> None:
-        include_tags = exclude_tags = []
-        # gather yes/no tags
-        for c in range(self.dialog.activeList.count()):
+        include_tags = []
+        exclude_tags = []
+        want_active = self.form.activeCheck.isChecked()
+        for c, tag in enumerate(self.tags):
             # active
-            if self.dialog.activeCheck.isChecked():
-                item = self.dialog.activeList.item(c)
-                idx = self.dialog.activeList.indexFromItem(item)
-                if self.dialog.activeList.selectionModel().isSelected(idx):
-                    include_tags.append(self.tags_list[c])
+            if want_active:
+                item = self.form.activeList.item(c)
+                idx = self.form.activeList.indexFromItem(item)
+                if self.form.activeList.selectionModel().isSelected(idx):
+                    include_tags.append(tag.name)
             # inactive
-            item = self.dialog.inactiveList.item(c)
-            idx = self.dialog.inactiveList.indexFromItem(item)
-            if self.dialog.inactiveList.selectionModel().isSelected(idx):
-                exclude_tags.append(self.tags_list[c])
+            item = self.form.inactiveList.item(c)
+            idx = self.form.inactiveList.indexFromItem(item)
+            if self.form.inactiveList.selectionModel().isSelected(idx):
+                exclude_tags.append(tag.name)
 
         if (len(include_tags) + len(exclude_tags)) > 100:
             showWarning(with_collapsed_whitespace(tr.errors_100_tags_max()))
             return
 
-        self.hide()
-        self.tags = (include_tags, exclude_tags)
-
-        # save in the deck for future invocations
-        self.deck["activeTags"] = include_tags
-        self.deck["inactiveTags"] = exclude_tags
-        self.mw.col.decks.save(self.deck)
-
         saveGeom(self, "tagLimit")
         QDialog.accept(self)
+
+        self.on_success(include_tags, exclude_tags)
