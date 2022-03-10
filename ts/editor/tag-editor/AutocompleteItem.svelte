@@ -11,9 +11,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let buttonRef: HTMLButtonElement;
 
     $: if (selected && buttonRef) {
+        /* buttonRef.scrollIntoView({ behavior: "smooth", block: "start" }); */
         /* TODO will not work on Gecko */
-        /* (buttonRef as any)?.scrollIntoViewIfNeeded(false); */
-        buttonRef.scrollIntoView({ behavior: "smooth", block: "start" });
+        (buttonRef as any).scrollIntoViewIfNeeded({
+            behavior: "smooth",
+            block: "start",
+        });
     }
 </script>
 
