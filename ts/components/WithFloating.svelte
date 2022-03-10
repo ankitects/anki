@@ -107,16 +107,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             border-color: #060606;
         }
 
-        /* These are dependant on which edge the arrow is supposed to be */
+        /* Rotate the box to indicate the different directions */
         border-right: none;
         border-bottom: none;
 
         /* inner border */
         box-shadow: inset 1px 1px 0 0 #eeeeee;
-        /* lightmode box-shadow: inset 1px 1px 0 0 #eee; */
 
         &.dark {
-            box-shadow: inset 0 0 0 1px #565656;
+            box-shadow: inset 1px 1px 0 0 #565656;
         }
     }
 </style>
