@@ -12,7 +12,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let tooltip: string | undefined = undefined;
     export let selected = false;
-    export let focusable = false;
 
     const dispatch = createEventDispatcher();
 
@@ -35,7 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:flashing
     class:btn-day={!$pageTheme.isDark}
     class:btn-night={$pageTheme.isDark}
-    tabindex={focusable ? 0 : -1}
+    tabindex="-1"
     title={tooltip}
     on:mousemove
     on:click
