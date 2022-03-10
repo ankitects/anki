@@ -7,7 +7,7 @@ mod states;
 use super::Backend;
 pub(super) use crate::backend_proto::scheduler_service::Service as SchedulerService;
 use crate::{
-    backend_proto::{self as pb},
+    backend_proto as pb,
     prelude::*,
     scheduler::{
         new::NewCardDueOrder,
@@ -111,9 +111,24 @@ impl SchedulerService for Backend {
     fn schedule_cards_as_new(&self, input: pb::ScheduleCardsAsNewRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| {
             let cids = input.card_ids.into_newtype(CardId);
-            let log = input.log;
-            col.reschedule_cards_as_new(&cids, log).map(Into::into)
+            col.reschedule_cards_as_new(
+                &cids,
+                input.log,
+                input.restore_position,
+                input.reset_counts,
+                input
+                    .context
+                    .and_then(pb::schedule_cards_as_new_request::Context::from_i32),
+            )
+            .map(Into::into)
         })
+    }
+
+    fn schedule_cards_as_new_defaults(
+        &self,
+        input: pb::ScheduleCardsAsNewDefaultsRequest,
+    ) -> Result<pb::ScheduleCardsAsNewDefaultsResponse> {
+        self.with_col(|col| Ok(col.reschedule_cards_as_new_defaults(input.context())))
     }
 
     fn set_due_date(&self, input: pb::SetDueDateRequest) -> Result<pb::OpChanges> {

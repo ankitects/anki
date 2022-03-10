@@ -19,6 +19,7 @@ import aqt.operations
 from anki import hooks
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount
+from anki.scheduler.base import ScheduleCardsAsNew
 from anki.scheduler.v3 import CardAnswer, NextStates, QueuedCards
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.tags import MARKED_TAG
@@ -1067,10 +1068,12 @@ time = %(time)d;
         ).run_in_background()
 
     def forget_current_card(self) -> None:
-        forget_cards(
+        if op := forget_cards(
             parent=self.mw,
             card_ids=[self.card.id],
-        ).run_in_background()
+            context=ScheduleCardsAsNew.Context.REVIEWER,
+        ):
+            op.run_in_background()
 
     def on_create_copy(self) -> None:
         if self.card:

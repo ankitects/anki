@@ -32,6 +32,10 @@ impl From<BoolKeyProto> for BoolKey {
             BoolKeyProto::PasteStripsFormatting => BoolKey::PasteStripsFormatting,
             BoolKeyProto::NormalizeNoteText => BoolKey::NormalizeNoteText,
             BoolKeyProto::IgnoreAccentsInSearch => BoolKey::IgnoreAccentsInSearch,
+            BoolKeyProto::RestorePositionBrowser => BoolKey::RestorePositionBrowser,
+            BoolKeyProto::RestorePositionReviewer => BoolKey::RestorePositionReviewer,
+            BoolKeyProto::ResetCountsBrowser => BoolKey::ResetCountsBrowser,
+            BoolKeyProto::ResetCountsReviewer => BoolKey::ResetCountsReviewer,
         }
     }
 }
