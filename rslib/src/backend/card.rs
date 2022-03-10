@@ -86,7 +86,7 @@ impl TryFrom<pb::Card> for Card {
             original_due: c.original_due,
             original_deck_id: DeckId(c.original_deck_id),
             flags: c.flags as u8,
-            original_position: c.original_position.map(|pos| pos.val),
+            original_position: c.original_position,
         })
     }
 }
