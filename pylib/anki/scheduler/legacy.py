@@ -5,8 +5,13 @@
 
 from typing import Optional
 
+from anki._legacy import deprecated
 from anki.cards import Card, CardId
-from anki.consts import CARD_TYPE_RELEARNING, QUEUE_TYPE_DAY_LEARN_RELEARN
+from anki.consts import (
+    CARD_TYPE_RELEARNING,
+    QUEUE_TYPE_DAY_LEARN_RELEARN,
+    QUEUE_TYPE_REV,
+)
 from anki.decks import DeckConfigDict, DeckId
 from anki.notes import NoteId
 from anki.scheduler.base import SchedulerBase, UnburyDeck
@@ -110,6 +115,17 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
             "deckDueTree() is deprecated; use decks.deck_tree() for a tree without counts, or sched.deck_due_tree()"
         )
         return from_json_bytes(self.col._backend.deck_tree_legacy())[5]
+
+    @deprecated(info="no longer used by Anki; will be removed in the future")
+    def total_rev_for_current_deck(self) -> int:
+        assert self.col.db
+        return self.col.db.scalar(
+            f"""
+select count() from cards where id in (
+select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? limit 9999)"""
+            % self._deck_limit(),
+            self.today,
+        )
 
     # legacy in v3 but used by unit tests; redefined in v2/v1
 

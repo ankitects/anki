@@ -201,6 +201,13 @@ impl SchedulerService for Backend {
     fn custom_study(&self, input: pb::CustomStudyRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| col.custom_study(input)).map(Into::into)
     }
+
+    fn custom_study_defaults(
+        &self,
+        input: pb::CustomStudyDefaultsRequest,
+    ) -> Result<pb::CustomStudyDefaultsResponse> {
+        self.with_col(|col| col.custom_study_defaults(input.deck_id.into()))
+    }
 }
 
 impl From<crate::scheduler::timing::SchedTimingToday> for pb::SchedTimingTodayResponse {

@@ -15,6 +15,7 @@ CongratsInfo = scheduler_pb2.CongratsInfoResponse
 UnburyDeck = scheduler_pb2.UnburyDeckRequest
 BuryOrSuspend = scheduler_pb2.BuryOrSuspendCardsRequest
 CustomStudyRequest = scheduler_pb2.CustomStudyRequest
+CustomStudyDefaults = scheduler_pb2.CustomStudyDefaultsResponse
 ScheduleCardsAsNew = scheduler_pb2.ScheduleCardsAsNewRequest
 ScheduleCardsAsNewDefaults = scheduler_pb2.ScheduleCardsAsNewDefaultsResponse
 FilteredDeckForUpdate = decks_pb2.FilteredDeckForUpdate
@@ -24,7 +25,7 @@ from typing import Sequence
 
 from anki import config_pb2
 from anki.cards import CardId
-from anki.consts import CARD_TYPE_NEW, NEW_CARDS_RANDOM, QUEUE_TYPE_NEW, QUEUE_TYPE_REV
+from anki.consts import CARD_TYPE_NEW, NEW_CARDS_RANDOM, QUEUE_TYPE_NEW
 from anki.decks import DeckConfigDict, DeckId, DeckTreeNode
 from anki.notes import NoteId
 from anki.utils import ids2str, int_time
@@ -78,20 +79,12 @@ class SchedulerBase(DeprecatedNamesMixin):
     def custom_study(self, request: CustomStudyRequest) -> OpChanges:
         return self.col._backend.custom_study(request)
 
+    def custom_study_defaults(self, deck_id: DeckId) -> CustomStudyDefaults:
+        return self.col._backend.custom_study_defaults(deck_id=deck_id)
+
     def extend_limits(self, new: int, rev: int) -> None:
         did = self.col.decks.current()["id"]
         self.col._backend.extend_limits(deck_id=did, new_delta=new, review_delta=rev)
-
-    # fixme: used by custom study
-    def total_rev_for_current_deck(self) -> int:
-        assert self.col.db
-        return self.col.db.scalar(
-            f"""
-select count() from cards where id in (
-select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? limit 9999)"""
-            % self._deck_limit(),
-            self.today,
-        )
 
     # fixme: only used by total_rev_for_current_deck and old deck stats;
     # schedv2 defines separate version

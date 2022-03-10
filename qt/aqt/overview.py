@@ -304,4 +304,4 @@ class Overview:
     def onStudyMore(self) -> None:
         import aqt.customstudy
 
-        aqt.customstudy.CustomStudy(self.mw)
+        aqt.customstudy.CustomStudy.fetch_data_and_show(self.mw)

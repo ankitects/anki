@@ -195,6 +195,20 @@ impl super::SqliteStorage {
         self.clear_searched_notes_table()?;
         Ok(out)
     }
+    pub(crate) fn for_each_note_tag_in_searched_notes<F>(&self, mut func: F) -> Result<()>
+    where
+        F: FnMut(&str),
+    {
+        let mut stmt = self
+            .db
+            .prepare_cached("select tags from notes where id in (select nid from search_nids)")?;
+        let mut rows = stmt.query(params![])?;
+        while let Some(row) = rows.next()? {
+            func(row.get_ref(0)?.as_str()?);
+        }
+
+        Ok(())
+    }
 
     pub(crate) fn get_note_tags_by_predicate<F>(&mut self, want: F) -> Result<Vec<NoteTags>>
     where
@@ -219,7 +233,7 @@ impl super::SqliteStorage {
         Ok(())
     }
 
-    fn setup_searched_notes_table(&self) -> Result<()> {
+    pub(crate) fn setup_searched_notes_table(&self) -> Result<()> {
         self.db
             .execute_batch(include_str!("search_nids_setup.sql"))?;
         Ok(())

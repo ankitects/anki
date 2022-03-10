@@ -40,6 +40,8 @@ service SchedulerService {
   rpc StateIsLeech(SchedulingState) returns (generic.Bool);
   rpc UpgradeScheduler(generic.Empty) returns (generic.Empty);
   rpc CustomStudy(CustomStudyRequest) returns (collection.OpChanges);
+  rpc CustomStudyDefaults(CustomStudyDefaultsRequest)
+      returns (CustomStudyDefaultsResponse);
 }
 
 message SchedulingState {
@@ -257,17 +259,36 @@ message CustomStudyRequest {
     // cards must not match any of these
     repeated string tags_to_exclude = 4;
   }
+  int64 deck_id = 1;
   oneof value {
     // increase new limit by x
-    int32 new_limit_delta = 1;
+    int32 new_limit_delta = 2;
     // increase review limit by x
-    int32 review_limit_delta = 2;
+    int32 review_limit_delta = 3;
     // repeat cards forgotten in the last x days
-    uint32 forgot_days = 3;
+    uint32 forgot_days = 4;
     // review cards due in the next x days
-    uint32 review_ahead_days = 4;
+    uint32 review_ahead_days = 5;
     // preview new cards added in the last x days
-    uint32 preview_days = 5;
-    Cram cram = 6;
+    uint32 preview_days = 6;
+    Cram cram = 7;
   }
+}
+
+message CustomStudyDefaultsRequest {
+  int64 deck_id = 1;
+}
+
+message CustomStudyDefaultsResponse {
+  message Tag {
+    string name = 1;
+    bool include = 2;
+    bool exclude = 3;
+  }
+
+  repeated Tag tags = 1;
+  uint32 extend_new = 2;
+  uint32 extend_review = 3;
+  uint32 available_new = 4;
+  uint32 available_review = 5;
 }
