@@ -8,18 +8,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
 
     import isClosingClick from "../sveltelib/closing-click";
-    // TODO make this configurable
-    /* import isClosingKeyup from "../sveltelib/closing-keyup"; */
+    import isClosingKeyup from "../sveltelib/closing-keyup";
     import { documentClick, documentKeyup } from "../sveltelib/event-store";
     import portal from "../sveltelib/portal";
-    import position from "../sveltelib/position";
     import type { PositionArgs } from "../sveltelib/position";
+    import position from "../sveltelib/position";
     import subscribeTrigger from "../sveltelib/subscribe-trigger";
     import { pageTheme } from "../sveltelib/theme";
     import toggleable from "../sveltelib/toggleable";
 
     export let placement: Placement = "bottom";
     export let closeOnInsideClick = false;
+    export let keepOnKeyup = false;
 
     /** This may be passed in for more fine-grained control */
     export let show = writable(false);
@@ -52,21 +52,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         };
     }
 
-    onMount(() =>
-        subscribeTrigger(
-            show,
+    onMount(() => {
+        const triggers = [
             isClosingClick(documentClick, {
                 reference,
                 floating,
                 inside: closeOnInsideClick,
                 outside: true,
             }),
-            /* isClosingKeyup(documentKeyup, {
-                reference,
-                floating,
-            }), */
-        ),
-    );
+        ];
+
+        if (!keepOnKeyup) {
+            triggers.push(
+                isClosingKeyup(documentKeyup, {
+                    reference,
+                    floating,
+                }),
+            );
+        }
+
+        subscribeTrigger(show, ...triggers);
+    });
 </script>
 
 <slot name="reference" {show} {toggle} {on} {off} {asReference} />

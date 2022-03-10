@@ -70,10 +70,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<WithFloating show={showDropdown} closeOnInsideClick let:toggle>
-    <IconButton slot="reference" {disabled} on:click={toggle}>
-        {@html functionIcon}
-    </IconButton>
+<WithFloating show={showDropdown} closeOnInsideClick>
+    <span
+        class="latex-button"
+        slot="reference"
+        let:asReference
+        use:asReference
+        let:toggle
+    >
+        <IconButton slot="reference" {disabled} on:click={toggle}>
+            {@html functionIcon}
+        </IconButton>
+    </span>
 
     <Popover slot="floating">
         {#each dropdownItems as [callback, keyCombination, label]}
@@ -89,6 +97,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </WithFloating>
 
 <style lang="scss">
+    .latex-button {
+        line-height: 1;
+    }
+
     .shortcut {
         font: Verdana;
     }
