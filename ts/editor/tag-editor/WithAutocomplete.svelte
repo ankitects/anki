@@ -3,16 +3,15 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { createEventDispatcher, tick } from "svelte";
-    import { writable } from "svelte/store";
+    import { createEventDispatcher, tick, onDestroy } from "svelte";
+    import type { Writable } from "svelte/store";
 
     import Popover from "../../components/Popover.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
     import AutocompleteItem from "./AutocompleteItem.svelte";
 
     export let suggestionsPromise: Promise<string[]>;
-
-    const show = writable(false);
+    export let show: Writable<boolean>;
 
     let suggestionsItems: string[] = [];
     $: suggestionsPromise.then((items) => {
@@ -25,7 +24,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher<{
         update: void;
+        /* Selected should be displayed to the user, but it is not accepted */
         select: { selected: string };
+        /* Autocompletion action should finish with "chosen" */
         choose: { chosen: string };
     }>();
 
@@ -175,7 +176,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         flex-flow: column nowrap;
 
         max-height: 7rem;
-        max-width: 100vw;
 
         font-size: 11px;
         overflow-x: hidden;

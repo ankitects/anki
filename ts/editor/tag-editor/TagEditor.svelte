@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher, tick } from "svelte";
     import type { Writable } from "svelte/store";
+    import { writable } from "svelte/store";
 
     import StickyContainer from "../../components/StickyContainer.svelte";
     import { Tags, tags as tagsService } from "../../lib/proto";
@@ -33,6 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: tagsToTagTypes($tags);
 
+    const show = writable(false);
     const dispatch = createEventDispatcher();
     const noSuggestions = Promise.resolve([]);
     let suggestionsPromise: Promise<string[]> = noSuggestions;
@@ -140,19 +142,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         return true;
-    }
-
-    async function enterBehavior(
-        index: number,
-        start: number,
-        end: number,
-    ): Promise<void> {
-        if (autocomplete.hasSelected()) {
-            autocomplete.chooseSelected();
-            await tick();
-        }
-
-        splitTag(index, start, end);
     }
 
     async function splitTag(index: number, start: number, end: number): Promise<void> {
@@ -276,7 +265,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 break;
 
             case "Tab":
-                if (event.shiftKey) {
+                if (!$show) {
+                    console.log($show);
+                    break;
+                } else if (event.shiftKey) {
                     autocomplete.selectPrevious();
                 } else {
                     autocomplete.selectNext();
@@ -425,6 +417,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {#if index === active}
                     <WithAutocomplete
                         {suggestionsPromise}
+                        {show}
                         on:update={updateSuggestions}
                         on:select={({ detail }) => onAutocomplete(detail.selected)}
                         on:choose={({ detail }) => {
@@ -447,12 +440,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             on:keydown={onKeydown}
                             on:keyup={() => {
                                 if (activeName.length === 0) {
-                                    hide();
+                                    hide?.();
                                 }
                             }}
                             on:taginput={() => updateTagName(tag)}
                             on:tagsplit={({ detail }) =>
-                                enterBehavior(index, detail.start, detail.end)}
+                                splitTag(index, detail.start, detail.end)}
                             on:tagadd={() => insertTagKeepFocus(index)}
                             on:tagdelete={() => deleteTagAt(index)}
                             on:tagjoinprevious={() => joinWithPreviousTag(index)}
@@ -481,8 +474,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .tag-editor-area {
         display: flex;
         flex-flow: row wrap;
-        padding: 0 1px;
+        padding: 0 1px 1px;
         overflow: hidden;
+        margin-bottom: 3px;
     }
 
     .tag-relative {

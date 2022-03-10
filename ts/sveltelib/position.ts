@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { Placement } from "@floating-ui/dom";
-import { arrow, autoUpdate, computePosition, offset, shift } from "@floating-ui/dom";
+import { arrow, autoUpdate, computePosition, offset, shift, inline } from "@floating-ui/dom";
 
 export interface PositionArgs {
     /**
@@ -25,6 +25,7 @@ function position(
             args.floating!,
             {
                 middleware: [
+                    inline(),
                     offset(5),
                     shift({ padding: 5 }),
                     arrow({ element: args.arrow, padding: 5 }),
