@@ -266,7 +266,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             case "Tab":
                 if (!$show) {
-                    console.log($show);
                     break;
                 } else if (event.shiftKey) {
                     autocomplete.selectPrevious();
