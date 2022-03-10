@@ -852,6 +852,23 @@ def qtMenuShortcutWorkaround(qmenu: QMenu) -> None:
 ######################################################################
 
 
+def disallow_full_screen() -> bool:
+    """Test for OpenGl on Windows, which is known to cause issues with full screen mode.
+    On Qt6, the driver is not detectable, so check if it has been set explicitly.
+    """
+    from aqt import mw
+    from aqt.profiles import VideoDriver
+
+    return is_win and (
+        (qtmajor == 5 and mw.pm.video_driver() == VideoDriver.OpenGL)
+        or (
+            qtmajor == 6
+            and not os.environ.get("ANKI_SOFTWAREOPENGL")
+            and os.environ.get("QT_OPENGL") != "software"
+        )
+    )
+
+
 def add_ellipsis_to_action_label(*actions: QAction) -> None:
     """Pass actions to add '...' to their labels, indicating that more input is
     required before they can be performed.
