@@ -8,12 +8,14 @@ use crate::prelude::*;
 /// Auxillary deck state, stored in the config table.
 #[derive(Debug, Clone, Copy, IntoStaticStr)]
 #[strum(serialize_all = "camelCase")]
-enum DeckConfigKey {
+pub enum DeckConfigKey {
     LastNotetype,
+    CustomStudyIncludeTags,
+    CustomStudyExcludeTags,
 }
 
 impl DeckConfigKey {
-    fn for_deck(self, did: DeckId) -> String {
+    pub fn for_deck(self, did: DeckId) -> String {
         build_aux_deck_key(did, <&'static str>::from(self))
     }
 }

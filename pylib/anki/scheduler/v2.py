@@ -13,6 +13,7 @@ from typing import Any, Callable, cast
 import anki  # pylint: disable=unused-import
 import anki.collection
 from anki import hooks, scheduler_pb2
+from anki._legacy import deprecated
 from anki.cards import Card, CardId
 from anki.consts import *
 from anki.decks import DeckConfigDict, DeckDict, DeckId
@@ -254,6 +255,7 @@ select count() from
         limit = max(0, c["new"]["perDay"] - self.counts_for_deck_today(g["id"]).new)
         return hooks.scheduler_new_limit_for_single_deck(limit, g)
 
+    @deprecated(info="no longer used by Anki; will be removed in the future")
     def totalNewForCurrentDeck(self) -> int:
         return self.col.db.scalar(
             f"""

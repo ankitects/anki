@@ -5,6 +5,7 @@ mod bulkadd;
 mod complete;
 mod findreplace;
 mod matcher;
+mod notes;
 mod register;
 mod remove;
 mod rename;

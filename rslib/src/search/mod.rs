@@ -8,13 +8,12 @@ pub(crate) mod writer;
 
 use std::borrow::Cow;
 
-use rusqlite::{params_from_iter, types::FromSql};
-use sqlwriter::{RequiredTable, SqlWriter};
-
 pub use builder::{Negated, SearchBuilder};
 pub use parser::{
     parse as parse_search, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind,
 };
+use rusqlite::{params_from_iter, types::FromSql};
+use sqlwriter::{RequiredTable, SqlWriter};
 pub use writer::replace_search_node;
 
 use crate::{
@@ -209,6 +208,29 @@ impl Collection {
             self.storage.setup_searched_cards_table()?;
         }
         let sql = format!("insert into search_cids {}", sql);
+
+        self.storage
+            .db
+            .prepare(&sql)?
+            .execute(params_from_iter(args))
+            .map_err(Into::into)
+    }
+
+    /// Place the matched note ids into a temporary 'search_nids' table
+    /// instead of returning them. Use clear_searched_notes() to remove it.
+    /// Returns number of added notes.
+    pub(crate) fn search_notes_into_table<N>(&mut self, search: N) -> Result<usize>
+    where
+        N: TryIntoSearch,
+    {
+        let top_node = search.try_into_search()?;
+        let writer = SqlWriter::new(self, ReturnItemType::Notes);
+        let mode = SortMode::NoOrder;
+
+        let (sql, args) = writer.build_query(&top_node, mode.required_table())?;
+
+        self.storage.setup_searched_notes_table()?;
+        let sql = format!("insert into search_nids {}", sql);
 
         self.storage
             .db

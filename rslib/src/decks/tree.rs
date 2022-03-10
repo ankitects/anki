@@ -244,17 +244,28 @@ fn hide_default_deck(node: &mut DeckTreeNode) {
     }
 }
 
-fn get_subnode(top: DeckTreeNode, target: DeckId) -> Option<DeckTreeNode> {
-    if top.deck_id == target.0 {
-        return Some(top);
-    }
-    for child in top.children {
-        if let Some(node) = get_subnode(child, target) {
-            return Some(node);
+impl DeckTreeNode {
+    /// Locate provided deck in tree, and return it.
+    pub fn get_deck(self, deck_id: DeckId) -> Option<DeckTreeNode> {
+        if self.deck_id == deck_id.0 {
+            return Some(self);
         }
+        for child in self.children {
+            if let Some(node) = child.get_deck(deck_id) {
+                return Some(node);
+            }
+        }
+
+        None
     }
 
-    None
+    pub(crate) fn sum<T: AddAssign>(&self, map: fn(&DeckTreeNode) -> T) -> T {
+        let mut output = map(self);
+        for child in &self.children {
+            output += child.sum(map);
+        }
+        output
+    }
 }
 
 #[derive(Serialize_tuple)]
@@ -330,7 +341,7 @@ impl Collection {
     pub fn current_deck_tree(&mut self) -> Result<Option<DeckTreeNode>> {
         let target = self.get_current_deck_id();
         let tree = self.deck_tree(Some(TimestampSecs::now()))?;
-        Ok(get_subnode(tree, target))
+        Ok(tree.get_deck(target))
     }
 
     pub fn set_deck_collapsed(

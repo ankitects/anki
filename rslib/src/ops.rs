@@ -93,7 +93,7 @@ impl Op {
     }
 }
 
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, PartialEq, Default, Clone, Copy)]
 pub struct StateChanges {
     pub card: bool,
     pub note: bool,
@@ -105,12 +105,13 @@ pub struct StateChanges {
     pub mtime: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct OpChanges {
     pub op: Op,
     pub changes: StateChanges,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct OpOutput<T> {
     pub output: T,
     pub changes: OpChanges,
