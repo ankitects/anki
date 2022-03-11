@@ -11,15 +11,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import isClosingKeyup from "../sveltelib/closing-keyup";
     import { documentClick, documentKeyup } from "../sveltelib/event-store";
     import portal from "../sveltelib/portal";
+    import type { PositionArgs } from "../sveltelib/position";
     import position from "../sveltelib/position";
     import subscribeTrigger from "../sveltelib/subscribe-trigger";
     import { pageTheme } from "../sveltelib/theme";
     import toggleable from "../sveltelib/toggleable";
 
-    /** TODO at the moment we only dropdowns which are placed actually below the reference */
-    const placement: Placement = "bottom";
-
+    export let placement: Placement = "bottom";
     export let closeOnInsideClick = false;
+    export let keepOnKeyup = false;
 
     /** This may be passed in for more fine-grained control */
     export let show = writable(false);
@@ -30,44 +30,60 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const { toggle, on, off } = toggleable(show);
 
-    onMount(() =>
-        subscribeTrigger(
-            show,
+    let args: PositionArgs;
+    $: args = {
+        floating: $show ? floating : null,
+        placement,
+        arrow,
+    };
+
+    let update: (args: PositionArgs) => void;
+    $: update?.(args);
+
+    function asReference(element: HTMLElement) {
+        const pos = position(element, args);
+        reference = element;
+        update = pos.update;
+
+        return {
+            destroy() {
+                pos.destroy();
+            },
+        };
+    }
+
+    onMount(() => {
+        const triggers = [
             isClosingClick(documentClick, {
                 reference,
                 floating,
                 inside: closeOnInsideClick,
                 outside: true,
             }),
-            isClosingKeyup(documentKeyup, {
-                reference,
-                floating,
-            }),
-        ),
-    );
+        ];
+
+        if (!keepOnKeyup) {
+            triggers.push(
+                isClosingKeyup(documentKeyup, {
+                    reference,
+                    floating,
+                }),
+            );
+        }
+
+        subscribeTrigger(show, ...triggers);
+    });
 </script>
 
-<div
-    bind:this={reference}
-    class="reference"
-    use:position={{ floating: $show ? floating : null, placement, arrow }}
->
-    <slot name="reference" {show} {toggle} {on} {off} />
-</div>
+<slot name="reference" {show} {toggle} {on} {off} {asReference} />
 
 <div bind:this={floating} class="floating" hidden={!$show} use:portal>
     <slot name="floating" />
-
     <div bind:this={arrow} class="arrow" class:dark={$pageTheme.isDark} />
 </div>
 
 <style lang="scss">
     @use "sass/elevation" as elevation;
-
-    .reference {
-        /* TODO This should not be necessary */
-        line-height: normal;
-    }
 
     .floating {
         position: absolute;
@@ -82,7 +98,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         background-color: var(--frame-bg);
         width: 10px;
         height: 10px;
-        transform: rotate(45deg);
         z-index: 60;
 
         /* outer border */
@@ -92,16 +107,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             border-color: #060606;
         }
 
-        /* These are dependant on which edge the arrow is supposed to be */
+        /* Rotate the box to indicate the different directions */
         border-right: none;
         border-bottom: none;
 
         /* inner border */
         box-shadow: inset 1px 1px 0 0 #eeeeee;
-        /* lightmode box-shadow: inset 1px 1px 0 0 #eee; */
 
         &.dark {
-            box-shadow: inset 0 0 0 1px #565656;
+            box-shadow: inset 1px 1px 0 0 #565656;
         }
     }
 </style>

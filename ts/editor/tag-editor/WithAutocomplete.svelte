@@ -3,42 +3,35 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type Dropdown from "bootstrap/js/dist/dropdown";
     import { createEventDispatcher, tick } from "svelte";
+    import type { Writable } from "svelte/store";
 
-    import DropdownMenu from "../../components/DropdownMenu.svelte";
-    import WithDropdown from "../../components/WithDropdown.svelte";
+    import Popover from "../../components/Popover.svelte";
+    import WithFloating from "../../components/WithFloating.svelte";
     import AutocompleteItem from "./AutocompleteItem.svelte";
 
-    let className: string = "";
-    export { className as class };
-
-    export let drop: "down" | "up" = "down";
     export let suggestionsPromise: Promise<string[]>;
-
-    let dropdown: Dropdown;
-    let show = false;
+    export let show: Writable<boolean>;
 
     let suggestionsItems: string[] = [];
     $: suggestionsPromise.then((items) => {
-        show = items.length > 0;
-
-        if (show) {
-            dropdown.show();
-        } else {
-            dropdown.hide();
-        }
-
+        show.set(items.length > 0);
         suggestionsItems = items;
     });
 
     let selected: number | null = null;
     let active: boolean = false;
 
-    const dispatch = createEventDispatcher();
+    const dispatch = createEventDispatcher<{
+        update: void;
+        /* Selected should be displayed to the user, but it is not accepted */
+        select: { selected: string };
+        /* Autocompletion action should finish with "chosen" */
+        choose: { chosen: string };
+    }>();
 
     /**
-     * select as currently highlighted item
+     * Select as currently highlighted item
      */
     function incrementSelected(): void {
         if (selected === null) {
@@ -62,8 +55,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function updateSelected(): Promise<void> {
         dispatch("select", { selected: suggestionsItems[selected ?? -1] });
-        await tick();
-        dropdown.update();
     }
 
     async function selectNext(): Promise<void> {
@@ -77,20 +68,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     /**
-     * choose as accepted suggestion
+     * Choose as accepted suggestion
      */
     async function chooseSelected() {
         active = true;
         dispatch("choose", { chosen: suggestionsItems[selected ?? -1] });
 
         await tick();
-        show = false;
+        show.set(false);
     }
 
     async function update() {
-        dropdown.update();
         await tick();
-
         dispatch("update");
     }
 
@@ -98,25 +87,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return selected !== null;
     }
 
-    const createAutocomplete =
-        (createDropdown: (element: HTMLElement) => Dropdown) =>
-        (element: HTMLElement): any => {
-            dropdown = createDropdown(element);
-
-            const api = {
-                hide: dropdown.hide,
-                show: dropdown.show,
-                toggle: dropdown.toggle,
-                isVisible: (dropdown as any).isVisible,
-                selectPrevious,
-                selectNext,
-                chooseSelected,
-                update,
-                hasSelected,
-            };
-
-            return api;
+    function createAutocomplete() {
+        const api = {
+            selectPrevious,
+            selectNext,
+            chooseSelected,
+            update,
+            hasSelected,
         };
+
+        return api;
+    }
 
     function setSelected(index: number): void {
         selected = index;
@@ -137,44 +118,73 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             setSelected(index);
         }
     }
-
-    let scroll: () => void;
-
-    $: if (scroll) {
-        scroll();
-    }
 </script>
 
-<WithDropdown {drop} toggleOpen={false} let:createDropdown align="start">
-    <slot createAutocomplete={createAutocomplete(createDropdown)} />
+<WithFloating keepOnKeyup {show} placement="top-start" let:toggle let:hide let:show>
+    <span
+        class="autocomplete-reference"
+        slot="reference"
+        let:asReference
+        use:asReference
+    >
+        <slot {createAutocomplete} {toggle} {hide} {show} />
+    </span>
 
-    <DropdownMenu class={className} {show}>
-        {#each suggestionsItems as suggestion, index}
-            {#if index === selected}
-                <AutocompleteItem
-                    bind:scroll
-                    selected
-                    {active}
-                    on:mousedown={() => setSelectedAndActive(index)}
-                    on:mouseup={() => {
-                        selectIndex(index);
-                        chooseSelected();
-                    }}
-                    on:mouseenter={(event) => selectIfMousedown(event, index)}
-                    on:mouseleave={() => (active = false)}
-                    >{suggestion}</AutocompleteItem
-                >
-            {:else}
-                <AutocompleteItem
-                    on:mousedown={() => setSelectedAndActive(index)}
-                    on:mouseup={() => {
-                        selectIndex(index);
-                        chooseSelected();
-                    }}
-                    on:mouseenter={(event) => selectIfMousedown(event, index)}
-                    >{suggestion}</AutocompleteItem
-                >
-            {/if}
-        {/each}
-    </DropdownMenu>
-</WithDropdown>
+    <Popover slot="floating">
+        <div class="autocomplete-menu">
+            {#each suggestionsItems as suggestion, index}
+                {#if index === selected}
+                    <AutocompleteItem
+                        selected
+                        {active}
+                        on:mousedown={() => setSelectedAndActive(index)}
+                        on:mouseup={() => {
+                            selectIndex(index);
+                            chooseSelected();
+                        }}
+                        on:mouseenter={(event) => selectIfMousedown(event, index)}
+                        on:mouseleave={() => (active = false)}
+                        >{suggestion}</AutocompleteItem
+                    >
+                {:else}
+                    <AutocompleteItem
+                        on:mousedown={() => setSelectedAndActive(index)}
+                        on:mouseup={() => {
+                            selectIndex(index);
+                            chooseSelected();
+                        }}
+                        on:mouseenter={(event) => selectIfMousedown(event, index)}
+                        >{suggestion}</AutocompleteItem
+                    >
+                {/if}
+            {/each}
+        </div>
+    </Popover>
+</WithFloating>
+
+<style lang="scss">
+    .autocomplete-reference {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        /* Make sure that text in TagInput perfectly overlaps with Tag */
+        border-left: 1px solid transparent;
+        border-top: 2px solid transparent;
+    }
+
+    .autocomplete-menu {
+        display: flex;
+        flex-flow: column nowrap;
+
+        width: 80vw;
+        max-height: 7rem;
+
+        font-size: 11px;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+        overflow-y: auto;
+    }
+</style>
