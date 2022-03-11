@@ -26,23 +26,23 @@ const MULTITHREAD_MIN_BYTES: usize = 10 * 1024 * 1024;
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, Copy)]
 #[serde(default)]
-pub(crate) struct Meta {
+pub(super) struct Meta {
     #[serde(rename = "ver")]
     pub(crate) version: u8,
 }
 
 impl Meta {
-    fn new() -> Self {
+    pub(super) fn new() -> Self {
         Self {
             version: COLLECTION_VERSION,
         }
     }
 
-    fn new_v2() -> Self {
+    pub(super) fn new_v2() -> Self {
         Self { version: 2 }
     }
 
-    fn collection_name(&self) -> &'static str {
+    pub(super) fn collection_name(&self) -> &'static str {
         match self.version {
             1 => "collection.anki2",
             2 => "collection.anki21",
@@ -50,16 +50,16 @@ impl Meta {
         }
     }
 
-    fn zstd_compressed(&self) -> bool {
+    pub(super) fn zstd_compressed(&self) -> bool {
         self.version >= 3
     }
 }
 
 pub fn write_archive(
-    out_path: impl AsRef<Path>,
+    out_path: &Path,
     collection: &mut impl Read,
     collection_size: usize,
-    media_dir: Option<impl AsRef<Path>>,
+    media_dir: Option<&Path>,
     legacy: bool,
 ) -> Result<()> {
     let meta = if legacy { Meta::new_v2() } else { Meta::new() };
@@ -104,11 +104,7 @@ fn zstd_copy(reader: &mut impl Read, writer: &mut impl Write, size: usize) -> Re
     Ok(())
 }
 
-fn write_media(
-    meta: Meta,
-    zip: &mut ZipWriter<File>,
-    media_dir: Option<impl AsRef<Path>>,
-) -> Result<()> {
+fn write_media(meta: Meta, zip: &mut ZipWriter<File>, media_dir: Option<&Path>) -> Result<()> {
     let options = FileOptions::default();
     let mut media_names: HashMap<String, String> = HashMap::new();
     let mut file_writer = MediaFileWriter::new(meta);

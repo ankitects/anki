@@ -14,32 +14,25 @@ use std::{
 use chrono::prelude::*;
 use itertools::Itertools;
 use log::error;
-use serde_derive::{Deserialize, Serialize};
 use tempfile::NamedTempFile;
-use zip::{write::FileOptions, CompressionMethod, ZipArchive, ZipWriter};
-use zstd::{self, stream::copy_decode, Encoder};
+use zip::ZipArchive;
+use zstd::{self, stream::copy_decode};
 
 use crate::{
-    backend_proto::preferences::Backups, collection::CollectionBuilder, error::ImportError, log,
-    prelude::*, text::normalize_to_nfc,
+    backend_proto::preferences::Backups,
+    collection::{
+        exporting::{write_archive, Meta, COLLECTION_VERSION},
+        CollectionBuilder,
+    },
+    error::ImportError,
+    log,
+    prelude::*,
+    text::normalize_to_nfc,
 };
 
-/// Bump if making changes that break restoring on older releases.
-const BACKUP_VERSION: u8 = 3;
 const BACKUP_FORMAT_STRING: &str = "backup-%Y-%m-%d-%H.%M.%S.colpkg";
 /// Default seconds after a backup, in which further backups will be skipped.
 const MINIMUM_BACKUP_INTERVAL: u64 = 5 * 60;
-/// Enable multithreaded compression if over this size. For smaller files,
-/// multithreading makes things slower, and in initial tests, the crossover
-/// point was somewhere between 1MB and 10MB on a many-core system.
-const MULTITHREAD_MIN_BYTES: usize = 10 * 1024 * 1024;
-
-#[derive(Debug, Default, Serialize, Deserialize)]
-#[serde(default)]
-struct Meta {
-    #[serde(rename = "ver")]
-    version: u8,
-}
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ImportProgress {
@@ -124,35 +117,10 @@ fn backup_inner<P: AsRef<Path>>(col_data: &[u8], backup_folder: P, limits: Backu
 }
 
 fn write_backup<S: AsRef<OsStr>>(mut col_data: &[u8], backup_folder: S) -> Result<()> {
-    let out_file = File::create(out_path(backup_folder))?;
-    let mut zip = ZipWriter::new(out_file);
-    let options = FileOptions::default().compression_method(CompressionMethod::Stored);
-    let meta = serde_json::to_string(&Meta {
-        version: BACKUP_VERSION,
-    })
-    .unwrap();
-
-    zip.start_file("meta", options)?;
-    zip.write_all(meta.as_bytes())?;
-    zip.start_file("collection.anki21b", options)?;
-    let col_data_len = col_data.len();
-    zstd_copy(&mut col_data, &mut zip, col_data_len)?;
-    zip.start_file("media", options)?;
-    zip.write_all(b"{}")?;
-    zip.finish()?;
-
-    Ok(())
-}
-
-/// Copy contents of reader into writer, compressing as we copy.
-fn zstd_copy<R: Read, W: Write>(reader: &mut R, writer: &mut W, size: usize) -> Result<()> {
-    let mut encoder = Encoder::new(writer, 0)?;
-    if size > MULTITHREAD_MIN_BYTES {
-        encoder.multithread(num_cpus::get() as u32)?;
-    }
-    io::copy(reader, &mut encoder)?;
-    encoder.finish()?;
-    Ok(())
+    let out_path =
+        Path::new(&backup_folder).join(&format!("{}", Local::now().format(BACKUP_FORMAT_STRING)));
+    let collection_size = col_data.len();
+    write_archive(&out_path, &mut col_data, collection_size, None, false)
 }
 
 fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: Backups, log: &Logger) -> Result<()> {
@@ -166,10 +134,6 @@ fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: Backups, log: &Logger)
     }
 
     Ok(())
-}
-
-fn out_path<S: AsRef<OsStr>>(backup_folder: S) -> PathBuf {
-    Path::new(&backup_folder).join(&format!("{}", Local::now().format(BACKUP_FORMAT_STRING)))
 }
 
 fn datetime_from_file_name(file_name: &str) -> Option<DateTime<Local>> {
@@ -319,7 +283,7 @@ impl Meta {
             .ok()
             .and_then(|file| serde_json::from_reader(file).ok())
             .unwrap_or_default();
-        if meta.version > BACKUP_VERSION {
+        if meta.version > COLLECTION_VERSION {
             return Err(AnkiError::ImportError(ImportError::TooNew));
         } else if meta.version == 0 {
             meta.version = if archive.by_name("collection.anki21").is_ok() {
@@ -330,14 +294,6 @@ impl Meta {
         }
 
         Ok(meta)
-    }
-
-    fn collection_name(&self) -> &'static str {
-        match self.version {
-            1 => "collection.anki2",
-            2 => "collection.anki21",
-            _ => "collection.anki21b",
-        }
     }
 }
 
