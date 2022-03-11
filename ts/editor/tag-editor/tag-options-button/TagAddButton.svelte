@@ -5,35 +5,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
 
-    import Badge from "../../components/Badge.svelte";
-    import Shortcut from "../../components/Shortcut.svelte";
-    import { getPlatformString } from "../../lib/shortcuts";
+    import IconConstrain from "../../../components/IconConstrain.svelte";
+    import Shortcut from "../../../components/Shortcut.svelte";
+    import * as tr from "../../../lib/ftl";
+    import { getPlatformString } from "../../../lib/shortcuts";
     import { addTagIcon, tagIcon } from "./icons";
 
-    const dispatch = createEventDispatcher();
-    const tooltip = "Add tag";
-    const keyCombination = "Control+Shift+T";
+    const dispatch = createEventDispatcher<{ tagappend: CustomEvent<void> }>();
 
-    function appendTag(): void {
-        dispatch("tagappend");
-    }
+    const keyCombination = "Control+Shift+T";
 </script>
 
-<div class="add-icon">
-    <Badge
-        class="d-flex me-1"
-        tooltip="{tooltip} ({getPlatformString(keyCombination)})"
-        on:click={appendTag}
-    >
+<div
+    class="tag-add-button"
+    title="{tr.editingTagsAdd()} ({getPlatformString(keyCombination)})"
+    on:click={() => dispatch("tagappend")}
+>
+    <IconConstrain>
         {@html tagIcon}
         {@html addTagIcon}
-    </Badge>
-
-    <Shortcut {keyCombination} on:action={appendTag} />
+    </IconConstrain>
 </div>
 
+<Shortcut {keyCombination} on:action={() => dispatch("tagappend")} />
+
 <style lang="scss">
-    .add-icon {
+    .tag-add-button {
         line-height: 1;
 
         :global(svg:last-child) {
