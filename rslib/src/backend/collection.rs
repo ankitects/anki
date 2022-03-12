@@ -12,6 +12,7 @@ use crate::{
     backend_proto::{self as pb, preferences::Backups},
     collection::{
         backup::{self, ImportProgress},
+        exporting::export_collection_file,
         CollectionBuilder,
     },
     log::{self},
@@ -80,6 +81,23 @@ impl CollectionService for Backend {
         }
 
         Ok(().into())
+    }
+
+    fn export_collection(&self, input: pb::ExportCollectionRequest) -> Result<pb::Empty> {
+        self.abort_media_sync_and_wait();
+
+        let mut col = self.col.lock().unwrap();
+        if col.is_none() {
+            return Err(AnkiError::CollectionNotOpen);
+        }
+
+        let col_inner = col.take().unwrap();
+        let col_path = col_inner.col_path.clone();
+        let media_dir = input.include_media.then(|| col_inner.media_folder.clone());
+
+        col_inner.close(true)?;
+
+        export_collection_file(input.out_path, col_path, media_dir, input.legacy).map(Into::into)
     }
 
     fn restore_backup(&self, input: pb::RestoreBackupRequest) -> Result<pb::String> {
