@@ -21,7 +21,7 @@ use zstd::{self, stream::copy_decode};
 use crate::{
     backend_proto::preferences::Backups,
     collection::{
-        exporting::{write_archive, Meta, COLLECTION_VERSION},
+        exporting::{export_collection_data, Meta, COLLECTION_VERSION},
         CollectionBuilder,
     },
     error::ImportError,
@@ -116,11 +116,10 @@ fn backup_inner<P: AsRef<Path>>(col_data: &[u8], backup_folder: P, limits: Backu
     }
 }
 
-fn write_backup<S: AsRef<OsStr>>(mut col_data: &[u8], backup_folder: S) -> Result<()> {
+fn write_backup<S: AsRef<OsStr>>(col_data: &[u8], backup_folder: S) -> Result<()> {
     let out_path =
         Path::new(&backup_folder).join(&format!("{}", Local::now().format(BACKUP_FORMAT_STRING)));
-    let collection_size = col_data.len();
-    write_archive(&out_path, &mut col_data, collection_size, None, false)
+    export_collection_data(&out_path, col_data)
 }
 
 fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: Backups, log: &Logger) -> Result<()> {

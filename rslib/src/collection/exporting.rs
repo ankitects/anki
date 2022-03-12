@@ -5,7 +5,7 @@ use std::{
     collections::HashMap,
     fs::{read_dir, DirEntry, File},
     io::{self, Read, Write},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
 use serde_derive::{Deserialize, Serialize};
@@ -28,7 +28,7 @@ const MULTITHREAD_MIN_BYTES: usize = 10 * 1024 * 1024;
 #[serde(default)]
 pub(super) struct Meta {
     #[serde(rename = "ver")]
-    pub(crate) version: u8,
+    pub(super) version: u8,
 }
 
 impl Meta {
@@ -55,21 +55,40 @@ impl Meta {
     }
 }
 
-pub fn write_archive(
-    out_path: &Path,
-    collection: &mut impl Read,
-    collection_size: usize,
-    media_dir: Option<&Path>,
+pub fn export_collection_file(
+    out_path: impl AsRef<Path>,
+    col_path: impl AsRef<Path>,
+    media_dir: Option<PathBuf>,
     legacy: bool,
 ) -> Result<()> {
     let meta = if legacy { Meta::new_v2() } else { Meta::new() };
+    let mut col_file = File::open(col_path)?;
+    let col_size = col_file.metadata()?.len() as usize;
+    export_collection(meta, out_path, &mut col_file, col_size, media_dir)
+}
+
+pub(crate) fn export_collection_data(
+    out_path: impl AsRef<Path>,
+    mut col_data: &[u8],
+) -> Result<()> {
+    let col_size = col_data.len();
+    export_collection(Meta::new(), out_path, &mut col_data, col_size, None)
+}
+
+fn export_collection(
+    meta: Meta,
+    out_path: impl AsRef<Path>,
+    col: &mut impl Read,
+    col_size: usize,
+    media_dir: Option<PathBuf>,
+) -> Result<()> {
     let out_file = File::create(out_path)?;
     let mut zip = ZipWriter::new(out_file);
     let options = FileOptions::default().compression_method(CompressionMethod::Stored);
 
     zip.start_file("meta", options)?;
     zip.write_all(serde_json::to_string(&meta).unwrap().as_bytes())?;
-    write_collection(meta, &mut zip, collection, collection_size)?;
+    write_collection(meta, &mut zip, col, col_size)?;
     write_media(meta, &mut zip, media_dir)?;
     zip.finish()?;
 
@@ -79,16 +98,16 @@ pub fn write_archive(
 fn write_collection(
     meta: Meta,
     zip: &mut ZipWriter<File>,
-    collection: &mut impl Read,
+    col: &mut impl Read,
     size: usize,
 ) -> Result<()> {
     if meta.zstd_compressed() {
         let options = FileOptions::default().compression_method(CompressionMethod::Stored);
         zip.start_file(meta.collection_name(), options)?;
-        zstd_copy(collection, zip, size)?;
+        zstd_copy(col, zip, size)?;
     } else {
         zip.start_file(meta.collection_name(), FileOptions::default())?;
-        io::copy(collection, zip)?;
+        io::copy(col, zip)?;
     }
     Ok(())
 }
@@ -104,7 +123,7 @@ fn zstd_copy(reader: &mut impl Read, writer: &mut impl Write, size: usize) -> Re
     Ok(())
 }
 
-fn write_media(meta: Meta, zip: &mut ZipWriter<File>, media_dir: Option<&Path>) -> Result<()> {
+fn write_media(meta: Meta, zip: &mut ZipWriter<File>, media_dir: Option<PathBuf>) -> Result<()> {
     let options = FileOptions::default();
     let mut media_names: HashMap<String, String> = HashMap::new();
     let mut file_writer = MediaFileWriter::new(meta);
@@ -139,6 +158,8 @@ fn normalized_unicode_file_name(entry: &DirEntry) -> Result<String> {
         })
 }
 
+/// Writes media files while compressing according to the targeted version.
+/// If compressing, the encoder is reused to optimize for repeated calls.
 struct MediaFileWriter(Option<RawEncoder<'static>>);
 
 impl MediaFileWriter {
@@ -150,6 +171,7 @@ impl MediaFileWriter {
     }
 
     fn write(mut self, reader: &mut impl Read, writer: &mut impl Write) -> Result<Self> {
+        // take [self] by value to prevent it from being reused after an error
         if let Some(encoder) = self.0.take() {
             let mut encoder_writer = Writer::new(writer, encoder);
             io::copy(reader, &mut encoder_writer)?;
