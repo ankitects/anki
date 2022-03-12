@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::path::Path;
+use std::{path::Path, sync::MutexGuard};
 
 use slog::error;
 
@@ -31,10 +31,7 @@ impl CollectionService for Backend {
     }
 
     fn open_collection(&self, input: pb::OpenCollectionRequest) -> Result<pb::Empty> {
-        let mut col = self.col.lock().unwrap();
-        if col.is_some() {
-            return Err(AnkiError::CollectionAlreadyOpen);
-        }
+        let mut guard = self.lock_collection(false)?;
 
         let mut builder = CollectionBuilder::new(input.collection_path);
         builder
@@ -47,7 +44,7 @@ impl CollectionService for Backend {
             builder.set_logger(self.log.clone());
         }
 
-        *col = Some(builder.build()?);
+        *guard = Some(builder.build()?);
 
         Ok(().into())
     }
@@ -55,12 +52,9 @@ impl CollectionService for Backend {
     fn close_collection(&self, input: pb::CloseCollectionRequest) -> Result<pb::Empty> {
         self.abort_media_sync_and_wait();
 
-        let mut col = self.col.lock().unwrap();
-        if col.is_none() {
-            return Err(AnkiError::CollectionNotOpen);
-        }
+        let mut guard = self.lock_collection(true)?;
 
-        let mut col_inner = col.take().unwrap();
+        let mut col_inner = guard.take().unwrap();
         let limits = col_inner.get_backups();
         let col_path = std::mem::take(&mut col_inner.col_path);
 
@@ -86,12 +80,9 @@ impl CollectionService for Backend {
     fn export_collection(&self, input: pb::ExportCollectionRequest) -> Result<pb::Empty> {
         self.abort_media_sync_and_wait();
 
-        let mut col = self.col.lock().unwrap();
-        if col.is_none() {
-            return Err(AnkiError::CollectionNotOpen);
-        }
+        let mut guard = self.lock_collection(true)?;
 
-        let col_inner = col.take().unwrap();
+        let col_inner = guard.take().unwrap();
         let col_path = col_inner.col_path.clone();
         let media_dir = input.include_media.then(|| col_inner.media_folder.clone());
 
@@ -101,29 +92,16 @@ impl CollectionService for Backend {
     }
 
     fn restore_backup(&self, input: pb::RestoreBackupRequest) -> Result<pb::String> {
-        let col = self.col.lock().unwrap();
-        if col.is_some() {
-            Err(AnkiError::CollectionAlreadyOpen)
-        } else {
-            let mut handler = self.new_progress_handler();
-            let progress_fn = move |progress| {
-                let throttle = matches!(progress, ImportProgress::Media(_));
-                if handler.update(Progress::Import(progress), throttle) {
-                    Ok(())
-                } else {
-                    Err(AnkiError::Interrupted)
-                }
-            };
+        let _guard = self.lock_collection(false)?;
 
-            backup::restore_backup(
-                progress_fn,
-                &input.col_path,
-                &input.backup_path,
-                &input.media_folder,
-                &self.tr,
-            )
-            .map(Into::into)
-        }
+        backup::restore_backup(
+            self.import_progress_fn(),
+            &input.col_path,
+            &input.backup_path,
+            &input.media_folder,
+            &self.tr,
+        )
+        .map(Into::into)
     }
 
     fn check_database(&self, _input: pb::Empty) -> Result<pb::CheckDatabaseResponse> {
@@ -168,6 +146,17 @@ impl CollectionService for Backend {
 }
 
 impl Backend {
+    fn lock_collection(&self, expected_open: bool) -> Result<MutexGuard<Option<Collection>>> {
+        let col = self.col.lock().unwrap();
+        if expected_open && col.is_none() {
+            Err(AnkiError::CollectionNotOpen)
+        } else if !expected_open && col.is_some() {
+            Err(AnkiError::CollectionAlreadyOpen)
+        } else {
+            Ok(col)
+        }
+    }
+
     fn await_backup_completion(&self) {
         if let Some(task) = self.backup_task.lock().unwrap().take() {
             task.join().unwrap();
@@ -191,5 +180,17 @@ impl Backend {
         )?;
 
         Ok(())
+    }
+
+    fn import_progress_fn(&self) -> impl FnMut(ImportProgress) -> Result<()> {
+        let mut handler = self.new_progress_handler();
+        move |progress| {
+            let throttle = matches!(progress, ImportProgress::Media(_));
+            if handler.update(Progress::Import(progress), throttle) {
+                Ok(())
+            } else {
+                Err(AnkiError::Interrupted)
+            }
+        }
     }
 }
