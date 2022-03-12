@@ -93,15 +93,18 @@ fn export_collection(
 ) -> Result<()> {
     let out_file = File::create(out_path)?;
     let mut zip = ZipWriter::new(out_file);
-    let options = FileOptions::default().compression_method(CompressionMethod::Stored);
 
-    zip.start_file("meta", options)?;
+    zip.start_file("meta", file_options_stored())?;
     zip.write_all(serde_json::to_string(&meta).unwrap().as_bytes())?;
     write_collection(meta, &mut zip, col, col_size)?;
     write_media(meta, &mut zip, media_dir, progress_fn)?;
     zip.finish()?;
 
     Ok(())
+}
+
+fn file_options_stored() -> FileOptions {
+    FileOptions::default().compression_method(CompressionMethod::Stored)
 }
 
 fn write_collection(
@@ -111,8 +114,7 @@ fn write_collection(
     size: usize,
 ) -> Result<()> {
     if meta.zstd_compressed() {
-        let options = FileOptions::default().compression_method(CompressionMethod::Stored);
-        zip.start_file(meta.collection_name(), options)?;
+        zip.start_file(meta.collection_name(), file_options_stored())?;
         zstd_copy(col, zip, size)?;
     } else {
         zip.start_file(meta.collection_name(), FileOptions::default())?;
@@ -136,26 +138,39 @@ fn write_media(
     meta: Meta,
     zip: &mut ZipWriter<File>,
     media_dir: Option<PathBuf>,
-    mut progress_fn: impl FnMut(usize),
+    progress_fn: impl FnMut(usize),
 ) -> Result<()> {
-    let options = FileOptions::default().compression_method(CompressionMethod::Stored);
-    let mut media_names: HashMap<String, String> = HashMap::new();
-    let mut file_writer = MediaFileWriter::new(meta);
+    let mut media_names = HashMap::new();
 
     if let Some(media_dir) = media_dir {
-        for (i, res) in read_dir(media_dir)?.enumerate() {
-            progress_fn(i);
-            let entry = res?;
-            if entry.metadata()?.is_file() {
-                media_names.insert(i.to_string(), normalized_unicode_file_name(&entry)?);
-                zip.start_file(i.to_string(), options)?;
-                file_writer = file_writer.write(&mut File::open(entry.path())?, zip)?;
-            }
-        }
+        write_media_files(meta, zip, &media_dir, &mut media_names, progress_fn)?;
     }
 
-    zip.start_file("media", options)?;
+    zip.start_file("media", file_options_stored())?;
     zip.write_all(serde_json::to_string(&media_names).unwrap().as_bytes())?;
+
+    Ok(())
+}
+
+fn write_media_files(
+    meta: Meta,
+    zip: &mut ZipWriter<File>,
+    dir: &Path,
+    names: &mut HashMap<String, String>,
+    mut progress_fn: impl FnMut(usize),
+) -> Result<()> {
+    let mut writer = MediaFileWriter::new(meta);
+
+    for (i, res) in read_dir(dir)?.enumerate() {
+        let entry = res?;
+        progress_fn(i);
+
+        if entry.metadata()?.is_file() {
+            names.insert(i.to_string(), normalized_unicode_file_name(&entry)?);
+            zip.start_file(i.to_string(), file_options_stored())?;
+            writer = writer.write(&mut File::open(entry.path())?, zip)?;
+        }
+    }
 
     Ok(())
 }
