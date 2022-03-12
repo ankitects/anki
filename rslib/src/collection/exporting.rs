@@ -124,7 +124,7 @@ fn zstd_copy(reader: &mut impl Read, writer: &mut impl Write, size: usize) -> Re
 }
 
 fn write_media(meta: Meta, zip: &mut ZipWriter<File>, media_dir: Option<PathBuf>) -> Result<()> {
-    let options = FileOptions::default();
+    let options = FileOptions::default().compression_method(CompressionMethod::Stored);
     let mut media_names: HashMap<String, String> = HashMap::new();
     let mut file_writer = MediaFileWriter::new(meta);
 
