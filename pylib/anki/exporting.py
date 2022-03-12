@@ -444,6 +444,10 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
             return {}
         return self._exportMedia(z, os.listdir(mdir), mdir)
 
+    def exportInto(self, path: str) -> None:
+        "Export collection. Caller must re-open afterwards."
+        self.col.export_collection(path, self.includeMedia, True)
+
 
 # Export modules
 ##########################################################################
