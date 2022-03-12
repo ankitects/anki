@@ -9,6 +9,8 @@ import json
 import os
 import re
 import shutil
+import threading
+import time
 import unicodedata
 import zipfile
 from io import BufferedWriter
@@ -445,7 +447,22 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
         return self._exportMedia(z, os.listdir(mdir), mdir)
 
     def exportInto(self, path: str) -> None:
-        "Export collection. Caller must re-open afterwards."
+        """Export collection. Caller must re-open afterwards."""
+
+        def exporting_media() -> bool:
+            return any(
+                hook.__name__ == "exported_media"
+                for hook in hooks.media_files_did_export._hooks
+            )
+
+        def progress() -> None:
+            while exporting_media():
+                progress = self.col._backend.latest_progress()
+                if progress.HasField("exporting"):
+                    hooks.media_files_did_export(progress.exporting)
+                time.sleep(0.1)
+
+        threading.Thread(target=progress).start()
         self.col.export_collection(path, self.includeMedia, True)
 
 

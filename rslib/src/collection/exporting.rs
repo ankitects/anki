@@ -60,11 +60,19 @@ pub fn export_collection_file(
     col_path: impl AsRef<Path>,
     media_dir: Option<PathBuf>,
     legacy: bool,
+    progress_fn: impl FnMut(usize),
 ) -> Result<()> {
     let meta = if legacy { Meta::new_v2() } else { Meta::new() };
     let mut col_file = File::open(col_path)?;
     let col_size = col_file.metadata()?.len() as usize;
-    export_collection(meta, out_path, &mut col_file, col_size, media_dir)
+    export_collection(
+        meta,
+        out_path,
+        &mut col_file,
+        col_size,
+        media_dir,
+        progress_fn,
+    )
 }
 
 pub(crate) fn export_collection_data(
@@ -72,7 +80,7 @@ pub(crate) fn export_collection_data(
     mut col_data: &[u8],
 ) -> Result<()> {
     let col_size = col_data.len();
-    export_collection(Meta::new(), out_path, &mut col_data, col_size, None)
+    export_collection(Meta::new(), out_path, &mut col_data, col_size, None, |_| ())
 }
 
 fn export_collection(
@@ -81,6 +89,7 @@ fn export_collection(
     col: &mut impl Read,
     col_size: usize,
     media_dir: Option<PathBuf>,
+    progress_fn: impl FnMut(usize),
 ) -> Result<()> {
     let out_file = File::create(out_path)?;
     let mut zip = ZipWriter::new(out_file);
@@ -89,7 +98,7 @@ fn export_collection(
     zip.start_file("meta", options)?;
     zip.write_all(serde_json::to_string(&meta).unwrap().as_bytes())?;
     write_collection(meta, &mut zip, col, col_size)?;
-    write_media(meta, &mut zip, media_dir)?;
+    write_media(meta, &mut zip, media_dir, progress_fn)?;
     zip.finish()?;
 
     Ok(())
@@ -123,13 +132,19 @@ fn zstd_copy(reader: &mut impl Read, writer: &mut impl Write, size: usize) -> Re
     Ok(())
 }
 
-fn write_media(meta: Meta, zip: &mut ZipWriter<File>, media_dir: Option<PathBuf>) -> Result<()> {
+fn write_media(
+    meta: Meta,
+    zip: &mut ZipWriter<File>,
+    media_dir: Option<PathBuf>,
+    mut progress_fn: impl FnMut(usize),
+) -> Result<()> {
     let options = FileOptions::default().compression_method(CompressionMethod::Stored);
     let mut media_names: HashMap<String, String> = HashMap::new();
     let mut file_writer = MediaFileWriter::new(meta);
 
     if let Some(media_dir) = media_dir {
         for (i, res) in read_dir(media_dir)?.enumerate() {
+            progress_fn(i);
             let entry = res?;
             if entry.metadata()?.is_file() {
                 media_names.insert(i.to_string(), normalized_unicode_file_name(&entry)?);

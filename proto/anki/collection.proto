@@ -122,6 +122,7 @@ message Progress {
     NormalSync normal_sync = 5;
     DatabaseCheck database_check = 6;
     string importing = 7;
+    uint32 exporting = 8;
   }
 }
 

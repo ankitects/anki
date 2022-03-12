@@ -88,7 +88,14 @@ impl CollectionService for Backend {
 
         col_inner.close(true)?;
 
-        export_collection_file(input.out_path, col_path, media_dir, input.legacy).map(Into::into)
+        export_collection_file(
+            input.out_path,
+            col_path,
+            media_dir,
+            input.legacy,
+            self.export_progress_fn(),
+        )
+        .map(Into::into)
     }
 
     fn restore_backup(&self, input: pb::RestoreBackupRequest) -> Result<pb::String> {
@@ -191,6 +198,13 @@ impl Backend {
             } else {
                 Err(AnkiError::Interrupted)
             }
+        }
+    }
+
+    fn export_progress_fn(&self) -> impl FnMut(usize) {
+        let mut handler = self.new_progress_handler();
+        move |media_files| {
+            handler.update(Progress::Export(media_files), true);
         }
     }
 }
