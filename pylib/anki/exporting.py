@@ -429,23 +429,6 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
     def key(col: Collection) -> str:
         return col.tr.exporting_anki_collection_package()
 
-    def doExport(self, z, path):
-        "Export collection. Caller must re-open afterwards."
-        # close our deck & write it into the zip file
-        self.count = self.col.card_count()
-        v2 = self.col.sched_ver() != 1
-        mdir = self.col.media.dir()
-        self.col.close(downgrade=True)
-        if not v2:
-            z.write(self.col.path, "collection.anki2")
-        else:
-            self._addDummyCollection(z)
-            z.write(self.col.path, "collection.anki21")
-        # copy all media
-        if not self.includeMedia:
-            return {}
-        return self._exportMedia(z, os.listdir(mdir), mdir)
-
     def exportInto(self, path: str) -> None:
         """Export collection. Caller must re-open afterwards."""
 

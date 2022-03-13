@@ -4,21 +4,25 @@
 use std::{
     collections::HashMap,
     fs::{read_dir, DirEntry, File},
-    io::{self, Read, Write},
+    io::{self, Read, Seek, Write},
     path::{Path, PathBuf},
 };
 
 use serde_derive::{Deserialize, Serialize};
+use tempfile::NamedTempFile;
 use zip::{write::FileOptions, CompressionMethod, ZipWriter};
 use zstd::{
     stream::{raw::Encoder as RawEncoder, zio::Writer},
     Encoder,
 };
 
-use crate::{prelude::*, text::normalize_to_nfc};
+use crate::{collection::CollectionBuilder, prelude::*, text::normalize_to_nfc};
 
 /// Bump if making changes that break restoring on older releases.
 pub const COLLECTION_VERSION: u8 = 3;
+const COLLECTION_NAME: &str = "collection.anki21b";
+const COLLECTION_NAME_V1: &str = "collection.anki2";
+const COLLECTION_NAME_V2: &str = "collection.anki21";
 /// Enable multithreaded compression if over this size. For smaller files,
 /// multithreading makes things slower, and in initial tests, the crossover
 /// point was somewhere between 1MB and 10MB on a many-core system.
@@ -44,9 +48,9 @@ impl Meta {
 
     pub(super) fn collection_name(&self) -> &'static str {
         match self.version {
-            1 => "collection.anki2",
-            2 => "collection.anki21",
-            _ => "collection.anki21b",
+            1 => COLLECTION_NAME_V1,
+            2 => COLLECTION_NAME_V2,
+            _ => COLLECTION_NAME,
         }
     }
 
@@ -91,12 +95,17 @@ fn export_collection(
     media_dir: Option<PathBuf>,
     progress_fn: impl FnMut(usize),
 ) -> Result<()> {
-    let out_file = File::create(out_path)?;
+    let out_file = File::create(&out_path)?;
     let mut zip = ZipWriter::new(out_file);
+    let out_dir = out_path
+        .as_ref()
+        .parent()
+        .ok_or_else(|| AnkiError::invalid_input("bad out path"))?;
 
     zip.start_file("meta", file_options_stored())?;
     zip.write_all(serde_json::to_string(&meta).unwrap().as_bytes())?;
     write_collection(meta, &mut zip, col, col_size)?;
+    write_dummy_collections(meta, &mut zip, out_dir)?;
     write_media(meta, &mut zip, media_dir, progress_fn)?;
     zip.finish()?;
 
@@ -121,6 +130,39 @@ fn write_collection(
         io::copy(col, zip)?;
     }
     Ok(())
+}
+
+fn write_dummy_collections(meta: Meta, zip: &mut ZipWriter<File>, temp_dir: &Path) -> Result<()> {
+    let mut tempfile = create_dummy_collection_file(temp_dir)?;
+
+    for (version, name) in [(1, COLLECTION_NAME_V1), (2, COLLECTION_NAME_V2)] {
+        if meta.version > version {
+            tempfile.seek(io::SeekFrom::Start(0))?;
+            zip.start_file(name, file_options_stored())?;
+            io::copy(&mut tempfile, zip)?;
+        }
+    }
+
+    Ok(())
+}
+
+fn create_dummy_collection_file(temp_dir: &Path) -> Result<NamedTempFile> {
+    let tempfile = NamedTempFile::new_in(temp_dir)?;
+    let mut dummy_col = CollectionBuilder::new(tempfile.path()).build()?;
+    dummy_col.add_dummy_note()?;
+    dummy_col.close(true)?;
+
+    Ok(tempfile)
+}
+
+impl Collection {
+    fn add_dummy_note(&mut self) -> Result<()> {
+        let notetype = self.get_notetype_by_name("basic")?.unwrap();
+        let mut note = notetype.new_note();
+        note.set_field(0, "This file requires a newer version of Anki.")?;
+        self.add_note(&mut note, DeckId(1))?;
+        Ok(())
+    }
 }
 
 /// Copy contents of reader into writer, compressing as we copy.
