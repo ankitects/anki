@@ -10,16 +10,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SpinBoxRow from "./SpinBoxRow.svelte";
     import SwitchRow from "./SwitchRow.svelte";
     import TitledContainer from "./TitledContainer.svelte";
+    import Warning from "./Warning.svelte";
 
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
 
     const config = state.currentConfig;
     const defaults = state.defaults;
+
+    $: maximumAnswerSecondsAboveRecommended =
+        $config.capAnswerTimeToSecs > 600
+            ? tr.deckConfigMaximumAnswerSecsAboveRecommended()
+            : "";
 </script>
 
 <TitledContainer title={tr.deckConfigTimerTitle()}>
     <DynamicallySlottable slotHost={Item} {api}>
+        <Item>
+            <Warning warning={maximumAnswerSecondsAboveRecommended} />
+        </Item>
+
         <Item>
             <SpinBoxRow
                 bind:value={$config.capAnswerTimeToSecs}
