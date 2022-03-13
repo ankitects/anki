@@ -8,6 +8,7 @@ use futures::future::AbortHandle;
 use super::Backend;
 use crate::{
     backend_proto as pb,
+    collection::backup::ImportProgress,
     dbcheck::DatabaseCheckProgress,
     i18n::I18n,
     media::sync::MediaSyncProgress,
@@ -50,6 +51,7 @@ pub(super) enum Progress {
     FullSync(FullSyncProgress),
     NormalSync(NormalSyncProgress),
     DatabaseCheck(DatabaseCheckProgress),
+    Import(ImportProgress),
 }
 
 pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Progress {
@@ -103,6 +105,13 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Pr
                     stage_current,
                 })
             }
+            Progress::Import(progress) => pb::progress::Value::Importing(
+                match progress {
+                    ImportProgress::Collection => tr.importing_importing_collection(),
+                    ImportProgress::Media(n) => tr.importing_processed_media_file(n),
+                }
+                .into(),
+            ),
         }
     } else {
         pb::progress::Value::None(pb::Empty {})

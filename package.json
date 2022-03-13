@@ -39,7 +39,7 @@
         "minimist": "^1.2.5",
         "patch-package": "^6.4.7",
         "prettier": "2.4.1",
-        "prettier-plugin-svelte": "2.4.0",
+        "prettier-plugin-svelte": "2.6.0",
         "sass": "1.42.1",
         "semver": "^7.3.4",
         "svelte": "^3.25.0",

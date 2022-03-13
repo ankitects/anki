@@ -56,6 +56,7 @@ message BackendError {
     FILTERED_DECK_ERROR = 13;
     SEARCH_ERROR = 14;
     CUSTOM_STUDY_ERROR = 15;
+    IMPORT_ERROR = 16;
   }
 
   // localized error description suitable for displaying to the user

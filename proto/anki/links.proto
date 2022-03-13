@@ -30,6 +30,7 @@ message HelpPageLinkRequest {
     CUSTOMIZING_FIELDS = 14;
     DECK_OPTIONS = 15;
     EDITING_FEATURES = 16;
+    FULL_SCREEN_ISSUE = 17;
   }
   HelpPage page = 1;
 }

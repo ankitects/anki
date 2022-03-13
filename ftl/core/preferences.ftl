@@ -43,3 +43,9 @@ preferences-theme-light = Light
 preferences-theme-dark = Dark
 preferences-v3-scheduler = V3 scheduler
 preferences-ignore-accents-in-search = Ignore accents in search (slower)
+preferences-backup-explanation =
+    Anki periodically backs up your collection when it is closed. After backups are more than 2 days old,
+    Anki will start removing some of them to free up disk space.
+preferences-daily-backups = Daily backups to keep:
+preferences-weekly-backups = Weekly backups to keep:
+preferences-monthly-backups = Monthly backups to keep:

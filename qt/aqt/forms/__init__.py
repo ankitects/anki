@@ -14,12 +14,14 @@ from . import customstudy
 from . import dconf
 from . import debug
 from . import filtered_deck
+from . import forget
 from . import editaddon
 from . import editcurrent
 from . import edithtml
 from . import emptycards
 from . import exporting
 from . import fields
+from . import fields_web
 from . import finddupes
 from . import findreplace
 from . import getaddons

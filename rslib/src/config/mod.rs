@@ -13,8 +13,10 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 use slog::warn;
 use strum::IntoStaticStr;
 
-pub use self::{bool::BoolKey, notetype::get_aux_notetype_config_key, string::StringKey};
-use crate::prelude::*;
+pub use self::{
+    bool::BoolKey, deck::DeckConfigKey, notetype::get_aux_notetype_config_key, string::StringKey,
+};
+use crate::{backend_proto::preferences::Backups, prelude::*};
 
 /// Only used when updating/undoing.
 #[derive(Debug)]
@@ -43,6 +45,7 @@ pub(crate) enum ConfigKey {
     FirstDayOfWeek,
     LocalOffset,
     Rollover,
+    Backups,
 
     #[strum(to_string = "timeLim")]
     AnswerTimeLimitSecs,
@@ -111,10 +114,10 @@ impl Collection {
     }
 
     // /// Get config item, returning default value if missing/invalid.
-    pub(crate) fn get_config_default<T, K>(&self, key: K) -> T
+    pub(crate) fn get_config_default<'a, T, K>(&self, key: K) -> T
     where
         T: DeserializeOwned + Default,
-        K: Into<&'static str>,
+        K: Into<&'a str>,
     {
         self.get_config_optional(key).unwrap_or_default()
     }
@@ -261,6 +264,21 @@ impl Collection {
     pub(crate) fn set_last_unburied_day(&mut self, day: u32) -> Result<()> {
         self.set_config(ConfigKey::LastUnburiedDay, &day)
             .map(|_| ())
+    }
+
+    pub(crate) fn get_backups(&self) -> Backups {
+        self.get_config_optional(ConfigKey::Backups).unwrap_or(
+            // 2d + 12d + 10w + 9m ≈ 1y
+            Backups {
+                daily: 12,
+                weekly: 10,
+                monthly: 9,
+            },
+        )
+    }
+
+    pub(crate) fn set_backups(&mut self, limits: Backups) -> Result<()> {
+        self.set_config(ConfigKey::Backups, &limits).map(|_| ())
     }
 }
 

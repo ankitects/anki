@@ -106,6 +106,10 @@ pub fn write_backend_proto_rs() {
             "#[derive(strum::EnumIter)]",
         )
         .type_attribute("HelpPageLinkRequest.HelpPage", "#[derive(strum::EnumIter)]")
+        .type_attribute(
+            "Preferences.Backups",
+            "#[derive(Copy, serde_derive::Deserialize, serde_derive::Serialize)]",
+        )
         .compile_protos(paths.as_slice(), &[proto_dir])
         .unwrap();
 }

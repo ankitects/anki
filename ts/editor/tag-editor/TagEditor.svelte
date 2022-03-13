@@ -5,15 +5,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher, tick } from "svelte";
     import type { Writable } from "svelte/store";
+    import { writable } from "svelte/store";
 
-    import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import StickyContainer from "../../components/StickyContainer.svelte";
     import { Tags, tags as tagsService } from "../../lib/proto";
     import { execCommand } from "../helpers";
-    import Tag from "./Tag.svelte";
+    import { TagOptionsButton } from "./tag-options-button";
     import TagEditMode from "./TagEditMode.svelte";
     import TagInput from "./TagInput.svelte";
-    import TagOptionsBadge from "./TagOptionsBadge.svelte";
     import type { Tag as TagType } from "./tags";
     import {
         attachId,
@@ -21,10 +20,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         replaceWithColons,
         replaceWithUnicodeSeparator,
     } from "./tags";
+    import TagSpacer from "./TagSpacer.svelte";
     import WithAutocomplete from "./WithAutocomplete.svelte";
 
-    export let size: number;
-    export let wrap: boolean;
     export let tags: Writable<string[]>;
 
     let tagTypes: TagType[];
@@ -36,6 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: tagsToTagTypes($tags);
 
+    const show = writable(false);
     const dispatch = createEventDispatcher();
     const noSuggestions = Promise.resolve([]);
     let suggestionsPromise: Promise<string[]> = noSuggestions;
@@ -143,19 +142,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         return true;
-    }
-
-    async function enterBehavior(
-        index: number,
-        start: number,
-        end: number,
-    ): Promise<void> {
-        if (autocomplete.hasSelected()) {
-            autocomplete.chooseSelected();
-            await tick();
-        }
-
-        splitTag(index, start, end);
     }
 
     async function splitTag(index: number, start: number, end: number): Promise<void> {
@@ -279,7 +265,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 break;
 
             case "Tab":
-                if (event.shiftKey) {
+                if (!$show) {
+                    break;
+                } else if (event.shiftKey) {
                     autocomplete.selectPrevious();
                 } else {
                     autocomplete.selectNext();
@@ -291,12 +279,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 autocomplete.chooseSelected();
                 event.preventDefault();
                 break;
-        }
-    }
-
-    function onKeyup(): void {
-        if (activeName.length === 0) {
-            autocomplete.hide();
         }
     }
 
@@ -389,6 +371,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     // typically correct for rows < 7
     $: assumedRows = Math.floor(height / badgeHeight);
     $: shortenTags = shortenTags || assumedRows > 2;
+    $: anyTagsSelected = tagTypes.some((tag) => tag.selected);
 </script>
 
 <StickyContainer
@@ -397,36 +380,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     bind:height
     class="d-flex"
 >
-    {#if !wrap}
-        <TagOptionsBadge
-            showSelectionsOptions={tagTypes.some((tag) => tag.selected)}
+    <div class="tag-editor-area" on:focusout={deselectIfLeave}>
+        <TagOptionsButton
             bind:badgeHeight
+            tagsSelected={anyTagsSelected}
             on:tagselectall={selectAllTags}
             on:tagcopy={copySelectedTags}
             on:tagdelete={deleteSelectedTags}
             on:tagappend={appendEmptyTag}
         />
-    {/if}
-
-    <ButtonToolbar
-        class="d-flex align-items-center w-100 px-1"
-        {size}
-        {wrap}
-        on:focusout={deselectIfLeave}
-    >
-        {#if wrap}
-            <TagOptionsBadge
-                showSelectionsOptions={tagTypes.some((tag) => tag.selected)}
-                bind:badgeHeight
-                on:tagselectall={selectAllTags}
-                on:tagcopy={copySelectedTags}
-                on:tagdelete={deleteSelectedTags}
-                on:tagappend={appendEmptyTag}
-            />
-        {/if}
 
         {#each tagTypes as tag, index (tag.id)}
-            <div class="position-relative" class:hide-tag={index === active}>
+            <div class="tag-relative" class:hide-tag={index === active}>
                 <TagEditMode
                     class="ms-0"
                     name={index === active ? activeName : tag.name}
@@ -449,90 +414,76 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 />
 
                 {#if index === active}
-                    <div class="adjust-position">
-                        <WithAutocomplete
-                            drop="up"
-                            class="d-flex flex-column cap-items"
-                            {suggestionsPromise}
-                            on:update={updateSuggestions}
-                            on:select={({ detail }) => onAutocomplete(detail.selected)}
-                            on:choose={({ detail }) => onAutocomplete(detail.chosen)}
-                            let:createAutocomplete
-                        >
-                            <TagInput
-                                id={tag.id}
-                                class="position-absolute start-0 top-0 bottom-0 ps-2 py-0"
-                                disabled={autocompleteDisabled}
-                                bind:name={activeName}
-                                bind:input={activeInput}
-                                on:focus={() => {
-                                    activeName = tag.name;
-                                    autocomplete = createAutocomplete(activeInput);
-                                }}
-                                on:keydown={onKeydown}
-                                on:keyup={onKeyup}
-                                on:taginput={() => updateTagName(tag)}
-                                on:tagsplit={({ detail }) =>
-                                    enterBehavior(index, detail.start, detail.end)}
-                                on:tagadd={() => insertTagKeepFocus(index)}
-                                on:tagdelete={() => deleteTagAt(index)}
-                                on:tagjoinprevious={() => joinWithPreviousTag(index)}
-                                on:tagjoinnext={() => joinWithNextTag(index)}
-                                on:tagmoveprevious={() => moveToPreviousTag(index)}
-                                on:tagmovenext={() => moveToNextTag(index)}
-                                on:tagaccept={() => {
-                                    deleteTagIfNotUnique(tag, index);
-                                    if (tag) {
-                                        updateTagName(tag);
-                                    }
-                                    saveTags();
-                                    decideNextActive();
-                                }}
-                            />
-                        </WithAutocomplete>
-                    </div>
+                    <WithAutocomplete
+                        {suggestionsPromise}
+                        {show}
+                        on:update={updateSuggestions}
+                        on:select={({ detail }) => onAutocomplete(detail.selected)}
+                        on:choose={({ detail }) => {
+                            onAutocomplete(detail.chosen);
+                            splitTag(index, detail.chosen.length, detail.chosen.length);
+                        }}
+                        let:createAutocomplete
+                        let:hide
+                    >
+                        <TagInput
+                            id={tag.id}
+                            class="position-absolute start-0 top-0 bottom-0 ps-2 py-0"
+                            disabled={autocompleteDisabled}
+                            bind:name={activeName}
+                            bind:input={activeInput}
+                            on:focus={() => {
+                                activeName = tag.name;
+                                autocomplete = createAutocomplete();
+                            }}
+                            on:keydown={onKeydown}
+                            on:keyup={() => {
+                                if (activeName.length === 0) {
+                                    hide?.();
+                                }
+                            }}
+                            on:taginput={() => updateTagName(tag)}
+                            on:tagsplit={({ detail }) =>
+                                splitTag(index, detail.start, detail.end)}
+                            on:tagadd={() => insertTagKeepFocus(index)}
+                            on:tagdelete={() => deleteTagAt(index)}
+                            on:tagjoinprevious={() => joinWithPreviousTag(index)}
+                            on:tagjoinnext={() => joinWithNextTag(index)}
+                            on:tagmoveprevious={() => moveToPreviousTag(index)}
+                            on:tagmovenext={() => moveToNextTag(index)}
+                            on:tagaccept={() => {
+                                deleteTagIfNotUnique(tag, index);
+                                if (tag) {
+                                    updateTagName(tag);
+                                }
+                                saveTags();
+                                decideNextActive();
+                            }}
+                        />
+                    </WithAutocomplete>
                 {/if}
             </div>
         {/each}
 
-        <div
-            class="tag-spacer flex-grow-1 align-self-stretch"
-            on:click={appendEmptyTag}
-        />
-
-        <div class="position-relative hide-tag zero-width-tag">
-            <!-- makes sure footer does not resize when adding first tag -->
-            <Tag>SPACER</Tag>
-        </div>
-    </ButtonToolbar>
+        <TagSpacer on:click={appendEmptyTag} />
+    </div>
 </StickyContainer>
 
 <style lang="scss">
-    .tag-spacer {
-        cursor: text;
+    .tag-editor-area {
+        display: flex;
+        flex-flow: row wrap;
+        padding: 0 1px 1px;
+        overflow: hidden;
+        margin-bottom: 3px;
+    }
+
+    .tag-relative {
+        position: relative;
+        padding: 0 1px;
     }
 
     .hide-tag :global(.tag) {
         opacity: 0;
-    }
-
-    .zero-width-tag :global(.tag) {
-        width: 0;
-        pointer-events: none;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-    }
-
-    .adjust-position {
-        :global(.tag-input) {
-            /* recreates positioning of Tag component
-             * so that the text does not move when accepting */
-            border-left: 1px solid transparent;
-        }
-
-        :global(.cap-items) {
-            max-height: 7rem;
-            overflow-y: auto;
-        }
     }
 </style>

@@ -7,7 +7,8 @@
         "plain-text-input/*",
         "rich-text-input/*",
         "editor-toolbar/*",
-        "tag-editor/*"
+        "tag-editor/*",
+        "tag-editor/tag-options-button/*"
     ],
     "references": [
         { "path": "../components" },

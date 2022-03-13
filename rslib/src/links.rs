@@ -29,6 +29,7 @@ impl HelpPage {
             HelpPage::CustomizingFields => "editing.html#customizing-fields",
             HelpPage::DeckOptions => "deck-options.html",
             HelpPage::EditingFeatures => "editing.html#editing-features",
+            HelpPage::FullScreenIssue => "platform/windows/display-issues.html#full-screen",
         }
     }
 }

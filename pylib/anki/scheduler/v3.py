@@ -17,6 +17,7 @@ from __future__ import annotations
 from typing import Literal, Optional, Sequence
 
 from anki import scheduler_pb2
+from anki._legacy import deprecated
 from anki.cards import Card
 from anki.collection import OpChanges
 from anki.consts import *
@@ -239,8 +240,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         except DBError:
             return []
 
-    # used by custom study; will likely be rolled into a separate routine
-    # in the future
+    @deprecated(info="no longer used by Anki; will be removed in the future")
     def totalNewForCurrentDeck(self) -> int:
         return self.col.db.scalar(
             f"""

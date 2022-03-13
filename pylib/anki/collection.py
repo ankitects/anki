@@ -235,7 +235,13 @@ class Collection(DeprecatedNamesMixin):
         elif time.time() - self._last_checkpoint_at > 300:
             self.save()
 
-    def close(self, save: bool = True, downgrade: bool = False) -> None:
+    def close(
+        self,
+        save: bool = True,
+        downgrade: bool = False,
+        backup_folder: str | None = None,
+        minimum_backup_interval: int | None = None,
+    ) -> None:
         "Disconnect from DB."
         if self.db:
             if save:
@@ -243,7 +249,12 @@ class Collection(DeprecatedNamesMixin):
             else:
                 self.db.rollback()
             self._clear_caches()
-            self._backend.close_collection(downgrade_to_schema11=downgrade)
+            request = collection_pb2.CloseCollectionRequest(
+                downgrade_to_schema11=downgrade,
+                backup_folder=backup_folder,
+                minimum_backup_interval=minimum_backup_interval,
+            )
+            self._backend.close_collection(request)
             self.db = None
 
     def close_for_full_sync(self) -> None:

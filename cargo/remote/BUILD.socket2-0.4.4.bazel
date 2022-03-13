@@ -37,6 +37,7 @@ rust_library(
     aliases = {
     },
     crate_features = [
+        "all",
     ],
     crate_root = "src/lib.rs",
     data = [],

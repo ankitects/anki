@@ -33,11 +33,11 @@ def register_repos():
     maybe(
         http_archive,
         name = "rules_rust",
-        strip_prefix = "rules_rust-67adb4c03feeb30d9af0d56f65fa2c9071b5e9a4",
+        strip_prefix = "rules_rust-adf2790f3ff063d909acd70aacdd2832756113a5",
         urls = [
-            "https://github.com/bazelbuild/rules_rust/archive/67adb4c03feeb30d9af0d56f65fa2c9071b5e9a4.zip",
+            "https://github.com/bazelbuild/rules_rust/archive/adf2790f3ff063d909acd70aacdd2832756113a5.zip",
         ],
-        sha256 = "126c6e2de9996116932b976f17421f459a2d5443db0e881633c9d12e45d76fb0",
+        sha256 = "7277e9e58ec157c233fa571e27f684402c1c0711370ef8bf379af63bd31cbe8b",
     )
 
     # maybe(
@@ -115,12 +115,12 @@ def register_repos():
     ################
 
     core_i18n_repo = "anki-core-i18n"
-    core_i18n_commit = "acbdb8457887cc8ecf66d0d2dc5b1e2135c91625"
-    core_i18n_zip_csum = "748df7395c4b6ec800520d7e5956a4bf93ca54eadf889b2b35b4aefde5b4ab71"
+    core_i18n_commit = "9b308984437d23a8066b6de438110475f8859e41"
+    core_i18n_zip_csum = "8bb45ecc7180ddefcf1bc730ebc04fef3fe79934dc44bb552a9d452e34cfff7a"
 
     qtftl_i18n_repo = "anki-desktop-ftl"
-    qtftl_i18n_commit = "90801b845e93cb64471cab930145e93928403d29"
-    qtftl_i18n_zip_csum = "c604be1bddcb97f95a04a2943cdd351cce3594bce24e73509aa55a28fd855b9d"
+    qtftl_i18n_commit = "55c13357700ced4354b551163ae2e9c8d7c96bcc"
+    qtftl_i18n_zip_csum = "477f634b0b078300d86824b4b44e458abe50b04e6a133e9487a66faf2da9de09"
 
     i18n_build_content = """
 filegroup(
