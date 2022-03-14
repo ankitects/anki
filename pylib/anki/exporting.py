@@ -452,7 +452,10 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
 
 class AnkiCollectionPackage21bExporter(AnkiCollectionPackageExporter):
     LEGACY = False
-    key = "Anki 2.1.50+ Collection Package"
+
+    @staticmethod
+    def key(_col: Collection) -> str:
+        return "Anki 2.1.50+ Collection Package"
 
 
 # Export modules
