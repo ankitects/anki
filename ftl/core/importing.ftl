@@ -79,3 +79,4 @@ importing-processed-media-file =
     }
 importing-importing-collection = Importing collection...
 importing-failed-to-import-media-file = Failed to import media file: { $debugInfo }
+importing-colpkg-too-new = Please update to the latest Anki version, then import the .colpkg file again.

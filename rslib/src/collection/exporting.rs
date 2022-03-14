@@ -165,7 +165,7 @@ impl Collection {
     fn add_dummy_note(&mut self, tr: &I18n) -> Result<()> {
         let notetype = self.get_notetype_by_name("basic")?.unwrap();
         let mut note = notetype.new_note();
-        note.set_field(0, tr.errors_collection_too_new())?;
+        note.set_field(0, tr.importing_colpkg_too_new())?;
         self.add_note(&mut note, DeckId(1))?;
         Ok(())
     }
