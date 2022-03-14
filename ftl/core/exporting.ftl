@@ -5,6 +5,7 @@ exporting-anki-deck-package = Anki Deck Package
 exporting-cards-in-plain-text = Cards in Plain Text
 exporting-collection = collection
 exporting-collection-exported = Collection exported.
+exporting-colpkg-too-new = Please update to the latest Anki version, then import the .colpkg file again.
 exporting-couldnt-save-file = Couldn't save file: { $val }
 exporting-export = Export...
 exporting-export-format = <b>Export format</b>:
