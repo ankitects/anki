@@ -421,6 +421,7 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
     ext = ".colpkg"
     verbatim = True
     includeSched = None
+    LEGACY = True
 
     def __init__(self, col):
         AnkiPackageExporter.__init__(self, col)
@@ -446,7 +447,12 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
                 time.sleep(0.1)
 
         threading.Thread(target=progress).start()
-        self.col.export_collection(path, self.includeMedia, True)
+        self.col.export_collection(path, self.includeMedia, self.LEGACY)
+
+
+class AnkiCollectionPackage21bExporter(AnkiCollectionPackageExporter):
+    LEGACY = False
+    key = "Anki 2.1.50+ Collection Package"
 
 
 # Export modules
@@ -463,6 +469,7 @@ def exporters(col: Collection) -> list[tuple[str, Any]]:
 
     exps = [
         id(AnkiCollectionPackageExporter),
+        id(AnkiCollectionPackage21bExporter),
         id(AnkiPackageExporter),
         id(TextNoteExporter),
         id(TextCardExporter),
