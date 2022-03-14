@@ -21,7 +21,7 @@ use zstd::{self, stream::copy_decode};
 use crate::{
     backend_proto::preferences::Backups,
     collection::{
-        exporting::{export_collection_data, Meta, COLLECTION_VERSION},
+        exporting::{export_collection_data, Meta, PACKAGE_VERSION},
         CollectionBuilder,
     },
     error::ImportError,
@@ -289,7 +289,7 @@ impl Meta {
             .ok()
             .and_then(|file| serde_json::from_reader(file).ok())
             .unwrap_or_default();
-        if meta.version > COLLECTION_VERSION {
+        if meta.version > PACKAGE_VERSION {
             return Err(AnkiError::ImportError(ImportError::TooNew));
         } else if meta.version == 0 {
             meta.version = if archive.by_name("collection.anki21").is_ok() {

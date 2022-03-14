@@ -19,7 +19,7 @@ use zstd::{
 use crate::{collection::CollectionBuilder, prelude::*, text::normalize_to_nfc};
 
 /// Bump if making changes that break restoring on older releases.
-pub const COLLECTION_VERSION: u8 = 3;
+pub const PACKAGE_VERSION: u8 = 3;
 const COLLECTION_NAME: &str = "collection.anki21b";
 const COLLECTION_NAME_V1: &str = "collection.anki2";
 const COLLECTION_NAME_V2: &str = "collection.anki21";
@@ -38,7 +38,7 @@ pub(super) struct Meta {
 impl Meta {
     pub(super) fn new() -> Self {
         Self {
-            version: COLLECTION_VERSION,
+            version: PACKAGE_VERSION,
         }
     }
 
