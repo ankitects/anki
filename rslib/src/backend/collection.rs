@@ -93,6 +93,7 @@ impl CollectionService for Backend {
             col_path,
             media_dir,
             input.legacy,
+            &self.tr,
             self.export_progress_fn(),
         )
         .map(Into::into)
@@ -184,6 +185,7 @@ impl Backend {
             limits,
             minimum_backup_interval,
             self.log.clone(),
+            self.tr.clone(),
         )?;
 
         Ok(())

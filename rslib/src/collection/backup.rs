@@ -46,6 +46,7 @@ pub fn backup(
     limits: Backups,
     minimum_backup_interval: Option<u64>,
     log: Logger,
+    tr: I18n,
 ) -> Result<Option<JoinHandle<()>>> {
     let recent_secs = minimum_backup_interval.unwrap_or(MINIMUM_BACKUP_INTERVAL);
     if recent_secs > 0 && has_recent_backup(backup_folder.as_ref(), recent_secs)? {
@@ -53,7 +54,7 @@ pub fn backup(
     } else {
         let col_data = std::fs::read(col_path)?;
         Ok(Some(thread::spawn(move || {
-            backup_inner(&col_data, &backup_folder, limits, log)
+            backup_inner(&col_data, &backup_folder, limits, log, &tr)
         })))
     }
 }
@@ -107,8 +108,14 @@ pub fn restore_backup(
     Ok(result)
 }
 
-fn backup_inner<P: AsRef<Path>>(col_data: &[u8], backup_folder: P, limits: Backups, log: Logger) {
-    if let Err(error) = write_backup(col_data, backup_folder.as_ref()) {
+fn backup_inner<P: AsRef<Path>>(
+    col_data: &[u8],
+    backup_folder: P,
+    limits: Backups,
+    log: Logger,
+    tr: &I18n,
+) {
+    if let Err(error) = write_backup(col_data, backup_folder.as_ref(), tr) {
         error!(log, "failed to backup collection: {error:?}");
     }
     if let Err(error) = thin_backups(backup_folder, limits, &log) {
@@ -116,10 +123,10 @@ fn backup_inner<P: AsRef<Path>>(col_data: &[u8], backup_folder: P, limits: Backu
     }
 }
 
-fn write_backup<S: AsRef<OsStr>>(col_data: &[u8], backup_folder: S) -> Result<()> {
+fn write_backup<S: AsRef<OsStr>>(col_data: &[u8], backup_folder: S, tr: &I18n) -> Result<()> {
     let out_path =
         Path::new(&backup_folder).join(&format!("{}", Local::now().format(BACKUP_FORMAT_STRING)));
-    export_collection_data(&out_path, col_data)
+    export_collection_data(&out_path, col_data, tr)
 }
 
 fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: Backups, log: &Logger) -> Result<()> {

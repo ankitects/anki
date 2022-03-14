@@ -64,6 +64,7 @@ pub fn export_collection_file(
     col_path: impl AsRef<Path>,
     media_dir: Option<PathBuf>,
     legacy: bool,
+    tr: &I18n,
     progress_fn: impl FnMut(usize),
 ) -> Result<()> {
     let meta = if legacy { Meta::new_v2() } else { Meta::new() };
@@ -75,6 +76,7 @@ pub fn export_collection_file(
         &mut col_file,
         col_size,
         media_dir,
+        tr,
         progress_fn,
     )
 }
@@ -82,9 +84,18 @@ pub fn export_collection_file(
 pub(crate) fn export_collection_data(
     out_path: impl AsRef<Path>,
     mut col_data: &[u8],
+    tr: &I18n,
 ) -> Result<()> {
     let col_size = col_data.len();
-    export_collection(Meta::new(), out_path, &mut col_data, col_size, None, |_| ())
+    export_collection(
+        Meta::new(),
+        out_path,
+        &mut col_data,
+        col_size,
+        None,
+        tr,
+        |_| (),
+    )
 }
 
 fn export_collection(
@@ -93,6 +104,7 @@ fn export_collection(
     col: &mut impl Read,
     col_size: usize,
     media_dir: Option<PathBuf>,
+    tr: &I18n,
     progress_fn: impl FnMut(usize),
 ) -> Result<()> {
     let out_file = File::create(&out_path)?;
@@ -105,7 +117,7 @@ fn export_collection(
     zip.start_file("meta", file_options_stored())?;
     zip.write_all(serde_json::to_string(&meta).unwrap().as_bytes())?;
     write_collection(meta, &mut zip, col, col_size)?;
-    write_dummy_collections(meta, &mut zip, out_dir)?;
+    write_dummy_collections(meta, &mut zip, out_dir, tr)?;
     write_media(meta, &mut zip, media_dir, progress_fn)?;
     zip.finish()?;
 
@@ -132,8 +144,13 @@ fn write_collection(
     Ok(())
 }
 
-fn write_dummy_collections(meta: Meta, zip: &mut ZipWriter<File>, temp_dir: &Path) -> Result<()> {
-    let mut tempfile = create_dummy_collection_file(temp_dir)?;
+fn write_dummy_collections(
+    meta: Meta,
+    zip: &mut ZipWriter<File>,
+    temp_dir: &Path,
+    tr: &I18n,
+) -> Result<()> {
+    let mut tempfile = create_dummy_collection_file(temp_dir, tr)?;
 
     for (version, name) in [(1, COLLECTION_NAME_V1), (2, COLLECTION_NAME_V2)] {
         if meta.version > version {
@@ -146,20 +163,20 @@ fn write_dummy_collections(meta: Meta, zip: &mut ZipWriter<File>, temp_dir: &Pat
     Ok(())
 }
 
-fn create_dummy_collection_file(temp_dir: &Path) -> Result<NamedTempFile> {
+fn create_dummy_collection_file(temp_dir: &Path, tr: &I18n) -> Result<NamedTempFile> {
     let tempfile = NamedTempFile::new_in(temp_dir)?;
     let mut dummy_col = CollectionBuilder::new(tempfile.path()).build()?;
-    dummy_col.add_dummy_note()?;
+    dummy_col.add_dummy_note(tr)?;
     dummy_col.close(true)?;
 
     Ok(tempfile)
 }
 
 impl Collection {
-    fn add_dummy_note(&mut self) -> Result<()> {
+    fn add_dummy_note(&mut self, tr: &I18n) -> Result<()> {
         let notetype = self.get_notetype_by_name("basic")?.unwrap();
         let mut note = notetype.new_note();
-        note.set_field(0, "This file requires a newer version of Anki.")?;
+        note.set_field(0, tr.errors_collection_too_new())?;
         self.add_note(&mut note, DeckId(1))?;
         Ok(())
     }
