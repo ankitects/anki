@@ -109,15 +109,11 @@ fn export_collection(
 ) -> Result<()> {
     let out_file = File::create(&out_path)?;
     let mut zip = ZipWriter::new(out_file);
-    let out_dir = out_path
-        .as_ref()
-        .parent()
-        .ok_or_else(|| AnkiError::invalid_input("bad out path"))?;
 
     zip.start_file("meta", file_options_stored())?;
     zip.write_all(serde_json::to_string(&meta).unwrap().as_bytes())?;
     write_collection(meta, &mut zip, col, col_size)?;
-    write_dummy_collections(meta, &mut zip, out_dir, tr)?;
+    write_dummy_collections(meta, &mut zip, tr)?;
     write_media(meta, &mut zip, media_dir, progress_fn)?;
     zip.finish()?;
 
@@ -144,13 +140,8 @@ fn write_collection(
     Ok(())
 }
 
-fn write_dummy_collections(
-    meta: Meta,
-    zip: &mut ZipWriter<File>,
-    temp_dir: &Path,
-    tr: &I18n,
-) -> Result<()> {
-    let mut tempfile = create_dummy_collection_file(temp_dir, tr)?;
+fn write_dummy_collections(meta: Meta, zip: &mut ZipWriter<File>, tr: &I18n) -> Result<()> {
+    let mut tempfile = create_dummy_collection_file(tr)?;
 
     for (version, name) in [(1, COLLECTION_NAME_V1), (2, COLLECTION_NAME_V2)] {
         if meta.version > version {
@@ -163,8 +154,8 @@ fn write_dummy_collections(
     Ok(())
 }
 
-fn create_dummy_collection_file(temp_dir: &Path, tr: &I18n) -> Result<NamedTempFile> {
-    let tempfile = NamedTempFile::new_in(temp_dir)?;
+fn create_dummy_collection_file(tr: &I18n) -> Result<NamedTempFile> {
+    let tempfile = NamedTempFile::new()?;
     let mut dummy_col = CollectionBuilder::new(tempfile.path()).build()?;
     dummy_col.add_dummy_note(tr)?;
     dummy_col
