@@ -167,6 +167,10 @@ fn create_dummy_collection_file(temp_dir: &Path, tr: &I18n) -> Result<NamedTempF
     let tempfile = NamedTempFile::new_in(temp_dir)?;
     let mut dummy_col = CollectionBuilder::new(tempfile.path()).build()?;
     dummy_col.add_dummy_note(tr)?;
+    dummy_col
+        .storage
+        .db
+        .execute_batch("pragma page_size=512; pragma journal_mode=delete; vacuum;")?;
     dummy_col.close(true)?;
 
     Ok(tempfile)
