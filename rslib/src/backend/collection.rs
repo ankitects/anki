@@ -31,7 +31,7 @@ impl CollectionService for Backend {
     }
 
     fn open_collection(&self, input: pb::OpenCollectionRequest) -> Result<pb::Empty> {
-        let mut guard = self.lock_collection(false)?;
+        let mut guard = self.lock_closed_collection()?;
 
         let mut builder = CollectionBuilder::new(input.collection_path);
         builder
@@ -52,7 +52,7 @@ impl CollectionService for Backend {
     fn close_collection(&self, input: pb::CloseCollectionRequest) -> Result<pb::Empty> {
         self.abort_media_sync_and_wait();
 
-        let mut guard = self.lock_collection(true)?;
+        let mut guard = self.lock_open_collection()?;
 
         let mut col_inner = guard.take().unwrap();
         let limits = col_inner.get_backups();
@@ -80,7 +80,7 @@ impl CollectionService for Backend {
     fn export_collection(&self, input: pb::ExportCollectionRequest) -> Result<pb::Empty> {
         self.abort_media_sync_and_wait();
 
-        let mut guard = self.lock_collection(true)?;
+        let mut guard = self.lock_open_collection()?;
 
         let col_inner = guard.take().unwrap();
         let col_path = col_inner.col_path.clone();
@@ -100,7 +100,7 @@ impl CollectionService for Backend {
     }
 
     fn restore_backup(&self, input: pb::RestoreBackupRequest) -> Result<pb::String> {
-        let _guard = self.lock_collection(false)?;
+        let _guard = self.lock_closed_collection()?;
 
         backup::restore_backup(
             self.import_progress_fn(),
@@ -154,15 +154,20 @@ impl CollectionService for Backend {
 }
 
 impl Backend {
-    fn lock_collection(&self, expected_open: bool) -> Result<MutexGuard<Option<Collection>>> {
-        let col = self.col.lock().unwrap();
-        if expected_open && col.is_none() {
-            Err(AnkiError::CollectionNotOpen)
-        } else if !expected_open && col.is_some() {
-            Err(AnkiError::CollectionAlreadyOpen)
-        } else {
-            Ok(col)
-        }
+    fn lock_open_collection(&self) -> Result<MutexGuard<Option<Collection>>> {
+        let guard = self.col.lock().unwrap();
+        guard
+            .is_some()
+            .then(|| guard)
+            .ok_or(AnkiError::CollectionNotOpen)
+    }
+
+    fn lock_closed_collection(&self) -> Result<MutexGuard<Option<Collection>>> {
+        let guard = self.col.lock().unwrap();
+        guard
+            .is_none()
+            .then(|| guard)
+            .ok_or(AnkiError::CollectionAlreadyOpen)
     }
 
     fn await_backup_completion(&self) {
