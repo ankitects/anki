@@ -27,10 +27,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <TitledContainer title={tr.deckConfigTimerTitle()}>
     <DynamicallySlottable slotHost={Item} {api}>
         <Item>
-            <Warning warning={maximumAnswerSecondsAboveRecommended} />
-        </Item>
-
-        <Item>
             <SpinBoxRow
                 bind:value={$config.capAnswerTimeToSecs}
                 defaultValue={defaults.capAnswerTimeToSecs}
@@ -40,6 +36,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             >
                 {tr.deckConfigMaximumAnswerSecs()}
             </SpinBoxRow>
+        </Item>
+
+        <Item>
+            <Warning warning={maximumAnswerSecondsAboveRecommended} />
         </Item>
 
         <Item>
