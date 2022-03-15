@@ -49,12 +49,12 @@ rust_proc_macro(
         "crate-name=num_enum_derive",
         "manual",
     ],
-    version = "0.5.6",
+    version = "0.5.7",
     # buildifier: leave-alone
     deps = [
         "@raze__proc_macro2__1_0_36//:proc_macro2",
         "@raze__proc_macro_crate__1_1_3//:proc_macro_crate",
         "@raze__quote__1_0_15//:quote",
-        "@raze__syn__1_0_86//:syn",
+        "@raze__syn__1_0_88//:syn",
     ],
 )

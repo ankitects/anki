@@ -53,7 +53,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@raze__either__1_6_1//:either",
-        "@raze__libc__0_2_119//:libc",
+        "@raze__libc__0_2_120//:libc",
     ] + selects.with_or({
         # cfg(windows)
         (

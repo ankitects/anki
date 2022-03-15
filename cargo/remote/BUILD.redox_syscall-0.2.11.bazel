@@ -31,12 +31,19 @@ licenses([
 
 # Generated Targets
 
+alias(
+    name = "redox_syscall",
+    actual = ":syscall",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
 rust_library(
-    name = "tracing_core",
+    name = "syscall",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "lazy_static",
-        "std",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -46,18 +53,12 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=tracing-core",
+        "crate-name=syscall",
         "manual",
     ],
-    version = "0.1.22",
+    version = "0.2.11",
     # buildifier: leave-alone
     deps = [
-        "@raze__lazy_static__1_4_0//:lazy_static",
+        "@raze__bitflags__1_3_2//:bitflags",
     ],
 )
-
-# Unsupported target "dispatch" with type "test" omitted
-
-# Unsupported target "global_dispatch" with type "test" omitted
-
-# Unsupported target "macros" with type "test" omitted

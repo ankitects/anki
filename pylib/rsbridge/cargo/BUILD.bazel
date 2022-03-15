@@ -203,7 +203,7 @@ alias(
 
 alias(
     name = "nom",
-    actual = "@raze__nom__7_1_0//:nom",
+    actual = "@raze__nom__7_1_1//:nom",
     tags = [
         "cargo-raze",
         "manual",
@@ -221,7 +221,7 @@ alias(
 
 alias(
     name = "num_enum",
-    actual = "@raze__num_enum__0_5_6//:num_enum",
+    actual = "@raze__num_enum__0_5_7//:num_enum",
     tags = [
         "cargo-raze",
         "manual",
@@ -248,7 +248,7 @@ alias(
 
 alias(
     name = "once_cell",
-    actual = "@raze__once_cell__1_9_0//:once_cell",
+    actual = "@raze__once_cell__1_10_0//:once_cell",
     tags = [
         "cargo-raze",
         "manual",
@@ -338,7 +338,7 @@ alias(
 
 alias(
     name = "regex",
-    actual = "@raze__regex__1_5_4//:regex",
+    actual = "@raze__regex__1_5_5//:regex",
     tags = [
         "cargo-raze",
         "manual",

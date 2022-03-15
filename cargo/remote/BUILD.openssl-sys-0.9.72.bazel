@@ -94,7 +94,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":openssl_sys_build_script",
-        "@raze__libc__0_2_119//:libc",
+        "@raze__libc__0_2_120//:libc",
     ] + selects.with_or({
         # cfg(target_env = "msvc")
         (
