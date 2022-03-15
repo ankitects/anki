@@ -694,7 +694,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         filter = f"{tr.editing_media()} ({extension_filter})"
 
         def accept(file: str) -> None:
-            self.addMedia(file)
+            self.resolve_media(file)
 
         file = getFile(
             parent=self.widget,
@@ -715,8 +715,17 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             showWarning(str(e))
             return
 
+        self.web.eval(f"setFormat('inserthtml', {json.dumps(html)});")
+
+    def resolve_media(self, path: str) -> None:
+        try:
+            html = self._addMedia(path)
+        except Exception as e:
+            showWarning(str(e))
+            return
+
         self.web.eval(
-            f'require("anki/TemplateButtons").mediaResolve({json.dumps(html)})'
+            f'require("anki/TemplateButtons").resolveMedia({json.dumps(html)})'
         )
 
     def _addMedia(self, path: str, canDelete: bool = False) -> str:
@@ -734,7 +743,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             self.parentWindow,
             self.mw,
             True,
-            lambda file: self.addMedia(file, canDelete=True),
+            self.resolve_media,
         )
 
     # Media downloads
