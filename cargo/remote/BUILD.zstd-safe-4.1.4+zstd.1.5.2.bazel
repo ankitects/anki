@@ -89,7 +89,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":zstd_safe_build_script",
-        "@raze__libc__0_2_119//:libc",
+        "@raze__libc__0_2_120//:libc",
         "@raze__zstd_sys__1_6_3_zstd_1_5_2//:zstd_sys",
     ],
 )

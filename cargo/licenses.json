@@ -55,7 +55,7 @@
   },
   {
     "name": "anyhow",
-    "version": "1.0.55",
+    "version": "1.0.56",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/anyhow",
     "license": "Apache-2.0 OR MIT",
@@ -586,12 +586,12 @@
   },
   {
     "name": "h2",
-    "version": "0.3.11",
+    "version": "0.3.12",
     "authors": "Carl Lerche <me@carllerche.com>|Sean McArthur <sean@seanmonstar.com>",
     "repository": "https://github.com/hyperium/h2",
     "license": "MIT",
     "license_file": null,
-    "description": "An HTTP/2.0 client and server"
+    "description": "An HTTP/2 client and server"
   },
   {
     "name": "hashbrown",
@@ -802,7 +802,7 @@
   },
   {
     "name": "ipnet",
-    "version": "2.3.1",
+    "version": "2.4.0",
     "authors": "Kris Price <kris@krisprice.nz>",
     "repository": "https://github.com/krisprice/ipnet",
     "license": "Apache-2.0 OR MIT",
@@ -865,7 +865,7 @@
   },
   {
     "name": "libc",
-    "version": "0.2.119",
+    "version": "0.2.120",
     "authors": "The Rust Project Developers",
     "repository": "https://github.com/rust-lang/libc",
     "license": "Apache-2.0 OR MIT",
@@ -991,7 +991,7 @@
   },
   {
     "name": "mio",
-    "version": "0.8.0",
+    "version": "0.8.1",
     "authors": "Carl Lerche <me@carllerche.com>|Thomas de Zeeuw <thomasdezeeuw@gmail.com>|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/mio",
     "license": "MIT",
@@ -1045,7 +1045,7 @@
   },
   {
     "name": "nom",
-    "version": "7.1.0",
+    "version": "7.1.1",
     "authors": "contact@geoffroycouprie.com",
     "repository": "https://github.com/Geal/nom",
     "license": "MIT",
@@ -1099,7 +1099,7 @@
   },
   {
     "name": "num_enum",
-    "version": "0.5.6",
+    "version": "0.5.7",
     "authors": "Daniel Wagner-Hall <dawagner@gmail.com>|Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>|Vincent Esche <regexident@gmail.com>",
     "repository": "https://github.com/illicitonion/num_enum",
     "license": "Apache-2.0 OR BSD-3-Clause OR MIT",
@@ -1108,7 +1108,7 @@
   },
   {
     "name": "num_enum_derive",
-    "version": "0.5.6",
+    "version": "0.5.7",
     "authors": "Daniel Wagner-Hall <dawagner@gmail.com>|Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>|Vincent Esche <regexident@gmail.com>",
     "repository": "https://github.com/illicitonion/num_enum",
     "license": "Apache-2.0 OR BSD-3-Clause OR MIT",
@@ -1117,7 +1117,7 @@
   },
   {
     "name": "num_threads",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "authors": "Jacob Pratt <open-source@jhpratt.dev>",
     "repository": "https://github.com/jhpratt/num_threads",
     "license": "Apache-2.0 OR MIT",
@@ -1126,7 +1126,7 @@
   },
   {
     "name": "once_cell",
-    "version": "1.9.0",
+    "version": "1.10.0",
     "authors": "Aleksey Kladov <aleksey.kladov@gmail.com>",
     "repository": "https://github.com/matklad/once_cell",
     "license": "Apache-2.0 OR MIT",
@@ -1531,7 +1531,7 @@
   },
   {
     "name": "redox_syscall",
-    "version": "0.2.10",
+    "version": "0.2.11",
     "authors": "Jeremy Soller <jackpot51@gmail.com>",
     "repository": "https://gitlab.redox-os.org/redox-os/syscall",
     "license": "MIT",
@@ -1549,7 +1549,7 @@
   },
   {
     "name": "regex",
-    "version": "1.5.4",
+    "version": "1.5.5",
     "authors": "The Rust Project Developers",
     "repository": "https://github.com/rust-lang/regex",
     "license": "Apache-2.0 OR MIT",
@@ -1801,7 +1801,7 @@
   },
   {
     "name": "siphasher",
-    "version": "0.3.9",
+    "version": "0.3.10",
     "authors": "Frank Denis <github@pureftpd.org>",
     "repository": "https://github.com/jedisct1/rust-siphash",
     "license": "Apache-2.0 OR MIT",
@@ -1954,7 +1954,7 @@
   },
   {
     "name": "syn",
-    "version": "1.0.86",
+    "version": "1.0.88",
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "repository": "https://github.com/dtolnay/syn",
     "license": "Apache-2.0 OR MIT",
@@ -1999,7 +1999,7 @@
   },
   {
     "name": "termcolor",
-    "version": "1.1.2",
+    "version": "1.1.3",
     "authors": "Andrew Gallant <jamslam@gmail.com>",
     "repository": "https://github.com/BurntSushi/termcolor",
     "license": "MIT OR Unlicense",
@@ -2170,7 +2170,7 @@
   },
   {
     "name": "tracing",
-    "version": "0.1.31",
+    "version": "0.1.32",
     "authors": "Eliza Weisman <eliza@buoyant.io>|Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/tracing",
     "license": "MIT",
@@ -2179,7 +2179,7 @@
   },
   {
     "name": "tracing-core",
-    "version": "0.1.22",
+    "version": "0.1.23",
     "authors": "Tokio Contributors <team@tokio.rs>",
     "repository": "https://github.com/tokio-rs/tracing",
     "license": "MIT",

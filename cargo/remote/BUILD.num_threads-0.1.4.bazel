@@ -32,8 +32,10 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "ipnet",
+    name = "num_threads",
     srcs = glob(["**/*.rs"]),
+    aliases = {
+    },
     crate_features = [
     ],
     crate_root = "src/lib.rs",
@@ -44,11 +46,20 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=ipnet",
+        "crate-name=num_threads",
         "manual",
     ],
-    version = "2.3.1",
+    version = "0.1.4",
     # buildifier: leave-alone
     deps = [
-    ],
+    ] + selects.with_or({
+        # cfg(any(target_os = "macos", target_os = "freebsd"))
+        (
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
+            "@rules_rust//rust/platform:aarch64-apple-darwin",
+        ): [
+            "@raze__libc__0_2_120//:libc",
+        ],
+        "//conditions:default": [],
+    }),
 )

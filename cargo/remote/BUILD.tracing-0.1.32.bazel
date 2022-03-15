@@ -54,12 +54,12 @@ rust_library(
         "crate-name=tracing",
         "manual",
     ],
-    version = "0.1.31",
+    version = "0.1.32",
     # buildifier: leave-alone
     deps = [
         "@raze__cfg_if__1_0_0//:cfg_if",
         "@raze__pin_project_lite__0_2_8//:pin_project_lite",
-        "@raze__tracing_core__0_1_22//:tracing_core",
+        "@raze__tracing_core__0_1_23//:tracing_core",
     ],
 )
 

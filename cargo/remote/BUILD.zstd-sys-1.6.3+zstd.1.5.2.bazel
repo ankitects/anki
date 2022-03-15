@@ -88,6 +88,6 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":zstd_sys_build_script",
-        "@raze__libc__0_2_119//:libc",
+        "@raze__libc__0_2_120//:libc",
     ],
 )
