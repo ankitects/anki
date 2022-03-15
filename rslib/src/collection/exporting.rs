@@ -233,16 +233,18 @@ fn write_media_files(
     mut progress_fn: impl FnMut(usize),
 ) -> Result<()> {
     let mut writer = MediaFileWriter::new(meta);
-
-    for (i, res) in read_dir(dir)?.enumerate() {
-        let entry = res?;
-        progress_fn(i);
-
-        if entry.metadata()?.is_file() {
-            names.push(normalized_unicode_file_name(&entry)?);
-            zip.start_file(i.to_string(), file_options_stored())?;
-            writer = writer.write(&mut File::open(entry.path())?, zip)?;
+    let mut index = 0;
+    for entry in read_dir(dir)? {
+        let entry = entry?;
+        if !entry.metadata()?.is_file() {
+            continue;
         }
+        progress_fn(index);
+        names.push(normalized_unicode_file_name(&entry)?);
+        zip.start_file(index.to_string(), file_options_stored())?;
+        writer = writer.write(&mut File::open(entry.path())?, zip)?;
+        // can't enumerate(), as we skip folders
+        index += 1;
     }
 
     Ok(())
