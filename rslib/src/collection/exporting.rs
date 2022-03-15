@@ -194,9 +194,25 @@ fn write_media(
         write_media_files(meta, zip, &media_dir, &mut media_names, progress_fn)?;
     }
 
-    zip.start_file("media", file_options_stored())?;
-    zip.write_all(serde_json::to_string(&media_names).unwrap().as_bytes())?;
+    write_media_map(meta, &media_names, zip)?;
 
+    Ok(())
+}
+
+fn write_media_map(
+    meta: Meta,
+    media_names: &HashMap<String, String>,
+    zip: &mut ZipWriter<File>,
+) -> Result<()> {
+    zip.start_file("media", file_options_stored())?;
+    let bytes = serde_json::to_vec(media_names)?;
+    let size = bytes.len();
+    let mut cursor = std::io::Cursor::new(bytes);
+    if meta.zstd_compressed() {
+        zstd_copy(&mut cursor, zip, size)?;
+    } else {
+        io::copy(&mut cursor, zip)?;
+    }
     Ok(())
 }
 

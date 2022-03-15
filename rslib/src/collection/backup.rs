@@ -5,7 +5,7 @@ use std::{
     collections::HashMap,
     ffi::OsStr,
     fs::{self, read_dir, remove_file, DirEntry, File},
-    io::{self, Read, Write},
+    io::{self, Write},
     path::{Path, PathBuf},
     thread::{self, JoinHandle},
     time::SystemTime,
@@ -93,7 +93,7 @@ pub fn restore_backup(
     progress_fn(ImportProgress::Collection)?;
 
     let mut result = String::new();
-    if let Err(e) = restore_media(progress_fn, &mut archive, media_folder) {
+    if let Err(e) = restore_media(meta, progress_fn, &mut archive, media_folder) {
         result = tr
             .importing_failed_to_import_media_file(e.localized_description(tr))
             .into_owned()
@@ -318,11 +318,12 @@ fn check_collection(col_path: &Path) -> Result<()> {
 }
 
 fn restore_media(
+    meta: Meta,
     mut progress_fn: impl FnMut(ImportProgress) -> Result<()>,
     archive: &mut ZipArchive<File>,
     media_folder: &str,
 ) -> Result<()> {
-    let media_file_names = extract_media_file_names(archive).ok_or(AnkiError::NotFound)?;
+    let media_file_names = extract_media_file_names(meta, archive)?;
     let mut count = 0;
 
     for (archive_file_name, file_name) in media_file_names {
@@ -354,15 +355,18 @@ fn restore_media(
     Ok(())
 }
 
-fn extract_media_file_names(archive: &mut ZipArchive<File>) -> Option<HashMap<String, String>> {
-    archive
-        .by_name("media")
-        .ok()
-        .and_then(|mut file| {
-            let mut buf = Vec::new();
-            file.read_to_end(&mut buf).ok().map(|_| buf)
-        })
-        .and_then(|bytes| serde_json::from_slice(&bytes).ok())
+fn extract_media_file_names(
+    meta: Meta,
+    archive: &mut ZipArchive<File>,
+) -> Result<HashMap<String, String>> {
+    let mut file = archive.by_name("media")?;
+    let mut buf = Vec::new();
+    if meta.zstd_compressed() {
+        copy_decode(file, &mut buf)?;
+    } else {
+        io::copy(&mut file, &mut buf)?;
+    }
+    serde_json::from_slice(&buf).map_err(Into::into)
 }
 
 fn copy_collection(
