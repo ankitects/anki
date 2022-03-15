@@ -354,7 +354,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Fields>
     </FieldsEditor>
 
-    <TagEditor {size} {wrap} {tags} on:tagsupdate={saveTags} />
+    <TagEditor {tags} on:tagsupdate={saveTags} />
 </div>
 
 <style lang="scss">
