@@ -57,6 +57,10 @@ impl Meta {
     pub(super) fn zstd_compressed(&self) -> bool {
         self.version >= 3
     }
+
+    pub(super) fn media_list_is_hashmap(&self) -> bool {
+        self.version < 3
+    }
 }
 
 pub fn export_collection_file(
@@ -188,7 +192,7 @@ fn write_media(
     media_dir: Option<PathBuf>,
     progress_fn: impl FnMut(usize),
 ) -> Result<()> {
-    let mut media_names = HashMap::new();
+    let mut media_names = vec![];
 
     if let Some(media_dir) = media_dir {
         write_media_files(meta, zip, &media_dir, &mut media_names, progress_fn)?;
@@ -199,15 +203,20 @@ fn write_media(
     Ok(())
 }
 
-fn write_media_map(
-    meta: Meta,
-    media_names: &HashMap<String, String>,
-    zip: &mut ZipWriter<File>,
-) -> Result<()> {
+fn write_media_map(meta: Meta, media_names: &[String], zip: &mut ZipWriter<File>) -> Result<()> {
     zip.start_file("media", file_options_stored())?;
-    let bytes = serde_json::to_vec(media_names)?;
-    let size = bytes.len();
-    let mut cursor = std::io::Cursor::new(bytes);
+    let json_bytes = if meta.media_list_is_hashmap() {
+        let map: HashMap<String, &str> = media_names
+            .iter()
+            .enumerate()
+            .map(|(k, v)| (k.to_string(), v.as_str()))
+            .collect();
+        serde_json::to_vec(&map)?
+    } else {
+        serde_json::to_vec(media_names)?
+    };
+    let size = json_bytes.len();
+    let mut cursor = std::io::Cursor::new(json_bytes);
     if meta.zstd_compressed() {
         zstd_copy(&mut cursor, zip, size)?;
     } else {
@@ -220,7 +229,7 @@ fn write_media_files(
     meta: Meta,
     zip: &mut ZipWriter<File>,
     dir: &Path,
-    names: &mut HashMap<String, String>,
+    names: &mut Vec<String>,
     mut progress_fn: impl FnMut(usize),
 ) -> Result<()> {
     let mut writer = MediaFileWriter::new(meta);
@@ -230,7 +239,7 @@ fn write_media_files(
         progress_fn(i);
 
         if entry.metadata()?.is_file() {
-            names.insert(i.to_string(), normalized_unicode_file_name(&entry)?);
+            names.push(normalized_unicode_file_name(&entry)?);
             zip.start_file(i.to_string(), file_options_stored())?;
             writer = writer.write(&mut File::open(entry.path())?, zip)?;
         }

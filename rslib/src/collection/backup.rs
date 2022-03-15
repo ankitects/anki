@@ -326,14 +326,14 @@ fn restore_media(
     let media_file_names = extract_media_file_names(meta, archive)?;
     let mut count = 0;
 
-    for (archive_file_name, file_name) in media_file_names {
+    for (archive_file_name, file_name) in media_file_names.iter().enumerate() {
         count += 1;
         if count % 10 == 0 {
             progress_fn(ImportProgress::Media(count))?;
         }
 
-        if let Ok(mut zip_file) = archive.by_name(&archive_file_name) {
-            let file_path = Path::new(&media_folder).join(normalize_to_nfc(&file_name).as_ref());
+        if let Ok(mut zip_file) = archive.by_name(&archive_file_name.to_string()) {
+            let file_path = Path::new(&media_folder).join(normalize_to_nfc(file_name).as_ref());
             let files_are_equal = fs::metadata(&file_path)
                 .map(|metadata| metadata.len() == zip_file.size())
                 .unwrap_or_default();
@@ -355,10 +355,7 @@ fn restore_media(
     Ok(())
 }
 
-fn extract_media_file_names(
-    meta: Meta,
-    archive: &mut ZipArchive<File>,
-) -> Result<HashMap<String, String>> {
+fn extract_media_file_names(meta: Meta, archive: &mut ZipArchive<File>) -> Result<Vec<String>> {
     let mut file = archive.by_name("media")?;
     let mut buf = Vec::new();
     if meta.zstd_compressed() {
@@ -366,7 +363,12 @@ fn extract_media_file_names(
     } else {
         io::copy(&mut file, &mut buf)?;
     }
-    serde_json::from_slice(&buf).map_err(Into::into)
+    if meta.media_list_is_hashmap() {
+        let map: HashMap<&str, String> = serde_json::from_slice(&buf)?;
+        Ok(map.into_iter().map(|(_k, v)| v).collect())
+    } else {
+        serde_json::from_slice(&buf).map_err(Into::into)
+    }
 }
 
 fn copy_collection(
@@ -377,7 +379,7 @@ fn copy_collection(
     let mut file = archive
         .by_name(meta.collection_name())
         .map_err(|_| AnkiError::ImportError(ImportError::Corrupt))?;
-    if meta.version < 3 {
+    if !meta.zstd_compressed() {
         io::copy(&mut file, writer)?;
     } else {
         copy_decode(file, writer)?;
