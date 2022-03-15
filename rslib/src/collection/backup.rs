@@ -5,7 +5,7 @@ use std::{
     collections::HashMap,
     ffi::OsStr,
     fs::{self, read_dir, remove_file, DirEntry, File},
-    io::{self, Read, Write},
+    io::{self, Write},
     path::{Path, PathBuf},
     thread::{self, JoinHandle},
     time::SystemTime,
@@ -14,32 +14,25 @@ use std::{
 use chrono::prelude::*;
 use itertools::Itertools;
 use log::error;
-use serde_derive::{Deserialize, Serialize};
 use tempfile::NamedTempFile;
-use zip::{write::FileOptions, CompressionMethod, ZipArchive, ZipWriter};
-use zstd::{self, stream::copy_decode, Encoder};
+use zip::ZipArchive;
+use zstd::{self, stream::copy_decode};
 
 use crate::{
-    backend_proto::preferences::Backups, collection::CollectionBuilder, error::ImportError, log,
-    prelude::*, text::normalize_to_nfc,
+    backend_proto::preferences::Backups,
+    collection::{
+        exporting::{export_collection_data, Meta, PACKAGE_VERSION},
+        CollectionBuilder,
+    },
+    error::ImportError,
+    log,
+    prelude::*,
+    text::normalize_to_nfc,
 };
 
-/// Bump if making changes that break restoring on older releases.
-const BACKUP_VERSION: u8 = 3;
 const BACKUP_FORMAT_STRING: &str = "backup-%Y-%m-%d-%H.%M.%S.colpkg";
 /// Default seconds after a backup, in which further backups will be skipped.
 const MINIMUM_BACKUP_INTERVAL: u64 = 5 * 60;
-/// Enable multithreaded compression if over this size. For smaller files,
-/// multithreading makes things slower, and in initial tests, the crossover
-/// point was somewhere between 1MB and 10MB on a many-core system.
-const MULTITHREAD_MIN_BYTES: usize = 10 * 1024 * 1024;
-
-#[derive(Debug, Default, Serialize, Deserialize)]
-#[serde(default)]
-struct Meta {
-    #[serde(rename = "ver")]
-    version: u8,
-}
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ImportProgress {
@@ -53,6 +46,7 @@ pub fn backup(
     limits: Backups,
     minimum_backup_interval: Option<u64>,
     log: Logger,
+    tr: I18n,
 ) -> Result<Option<JoinHandle<()>>> {
     let recent_secs = minimum_backup_interval.unwrap_or(MINIMUM_BACKUP_INTERVAL);
     if recent_secs > 0 && has_recent_backup(backup_folder.as_ref(), recent_secs)? {
@@ -60,7 +54,7 @@ pub fn backup(
     } else {
         let col_data = std::fs::read(col_path)?;
         Ok(Some(thread::spawn(move || {
-            backup_inner(&col_data, &backup_folder, limits, log)
+            backup_inner(&col_data, &backup_folder, limits, log, &tr)
         })))
     }
 }
@@ -99,7 +93,7 @@ pub fn restore_backup(
     progress_fn(ImportProgress::Collection)?;
 
     let mut result = String::new();
-    if let Err(e) = restore_media(progress_fn, &mut archive, media_folder) {
+    if let Err(e) = restore_media(meta, progress_fn, &mut archive, media_folder) {
         result = tr
             .importing_failed_to_import_media_file(e.localized_description(tr))
             .into_owned()
@@ -114,8 +108,14 @@ pub fn restore_backup(
     Ok(result)
 }
 
-fn backup_inner<P: AsRef<Path>>(col_data: &[u8], backup_folder: P, limits: Backups, log: Logger) {
-    if let Err(error) = write_backup(col_data, backup_folder.as_ref()) {
+fn backup_inner<P: AsRef<Path>>(
+    col_data: &[u8],
+    backup_folder: P,
+    limits: Backups,
+    log: Logger,
+    tr: &I18n,
+) {
+    if let Err(error) = write_backup(col_data, backup_folder.as_ref(), tr) {
         error!(log, "failed to backup collection: {error:?}");
     }
     if let Err(error) = thin_backups(backup_folder, limits, &log) {
@@ -123,36 +123,10 @@ fn backup_inner<P: AsRef<Path>>(col_data: &[u8], backup_folder: P, limits: Backu
     }
 }
 
-fn write_backup<S: AsRef<OsStr>>(mut col_data: &[u8], backup_folder: S) -> Result<()> {
-    let out_file = File::create(out_path(backup_folder))?;
-    let mut zip = ZipWriter::new(out_file);
-    let options = FileOptions::default().compression_method(CompressionMethod::Stored);
-    let meta = serde_json::to_string(&Meta {
-        version: BACKUP_VERSION,
-    })
-    .unwrap();
-
-    zip.start_file("meta", options)?;
-    zip.write_all(meta.as_bytes())?;
-    zip.start_file("collection.anki21b", options)?;
-    let col_data_len = col_data.len();
-    zstd_copy(&mut col_data, &mut zip, col_data_len)?;
-    zip.start_file("media", options)?;
-    zip.write_all(b"{}")?;
-    zip.finish()?;
-
-    Ok(())
-}
-
-/// Copy contents of reader into writer, compressing as we copy.
-fn zstd_copy<R: Read, W: Write>(reader: &mut R, writer: &mut W, size: usize) -> Result<()> {
-    let mut encoder = Encoder::new(writer, 0)?;
-    if size > MULTITHREAD_MIN_BYTES {
-        encoder.multithread(num_cpus::get() as u32)?;
-    }
-    io::copy(reader, &mut encoder)?;
-    encoder.finish()?;
-    Ok(())
+fn write_backup<S: AsRef<OsStr>>(col_data: &[u8], backup_folder: S, tr: &I18n) -> Result<()> {
+    let out_path =
+        Path::new(&backup_folder).join(&format!("{}", Local::now().format(BACKUP_FORMAT_STRING)));
+    export_collection_data(&out_path, col_data, tr)
 }
 
 fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: Backups, log: &Logger) -> Result<()> {
@@ -166,10 +140,6 @@ fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: Backups, log: &Logger)
     }
 
     Ok(())
-}
-
-fn out_path<S: AsRef<OsStr>>(backup_folder: S) -> PathBuf {
-    Path::new(&backup_folder).join(&format!("{}", Local::now().format(BACKUP_FORMAT_STRING)))
 }
 
 fn datetime_from_file_name(file_name: &str) -> Option<DateTime<Local>> {
@@ -319,7 +289,7 @@ impl Meta {
             .ok()
             .and_then(|file| serde_json::from_reader(file).ok())
             .unwrap_or_default();
-        if meta.version > BACKUP_VERSION {
+        if meta.version > PACKAGE_VERSION {
             return Err(AnkiError::ImportError(ImportError::TooNew));
         } else if meta.version == 0 {
             meta.version = if archive.by_name("collection.anki21").is_ok() {
@@ -330,14 +300,6 @@ impl Meta {
         }
 
         Ok(meta)
-    }
-
-    fn collection_name(&self) -> &'static str {
-        match self.version {
-            1 => "collection.anki2",
-            2 => "collection.anki21",
-            _ => "collection.anki21b",
-        }
     }
 }
 
@@ -356,21 +318,22 @@ fn check_collection(col_path: &Path) -> Result<()> {
 }
 
 fn restore_media(
+    meta: Meta,
     mut progress_fn: impl FnMut(ImportProgress) -> Result<()>,
     archive: &mut ZipArchive<File>,
     media_folder: &str,
 ) -> Result<()> {
-    let media_file_names = extract_media_file_names(archive).ok_or(AnkiError::NotFound)?;
+    let media_file_names = extract_media_file_names(meta, archive)?;
     let mut count = 0;
 
-    for (archive_file_name, file_name) in media_file_names {
+    for (archive_file_name, file_name) in media_file_names.iter().enumerate() {
         count += 1;
         if count % 10 == 0 {
             progress_fn(ImportProgress::Media(count))?;
         }
 
-        if let Ok(mut zip_file) = archive.by_name(&archive_file_name) {
-            let file_path = Path::new(&media_folder).join(normalize_to_nfc(&file_name).as_ref());
+        if let Ok(mut zip_file) = archive.by_name(&archive_file_name.to_string()) {
+            let file_path = Path::new(&media_folder).join(normalize_to_nfc(file_name).as_ref());
             let files_are_equal = fs::metadata(&file_path)
                 .map(|metadata| metadata.len() == zip_file.size())
                 .unwrap_or_default();
@@ -392,15 +355,20 @@ fn restore_media(
     Ok(())
 }
 
-fn extract_media_file_names(archive: &mut ZipArchive<File>) -> Option<HashMap<String, String>> {
-    archive
-        .by_name("media")
-        .ok()
-        .and_then(|mut file| {
-            let mut buf = Vec::new();
-            file.read_to_end(&mut buf).ok().map(|_| buf)
-        })
-        .and_then(|bytes| serde_json::from_slice(&bytes).ok())
+fn extract_media_file_names(meta: Meta, archive: &mut ZipArchive<File>) -> Result<Vec<String>> {
+    let mut file = archive.by_name("media")?;
+    let mut buf = Vec::new();
+    if meta.zstd_compressed() {
+        copy_decode(file, &mut buf)?;
+    } else {
+        io::copy(&mut file, &mut buf)?;
+    }
+    if meta.media_list_is_hashmap() {
+        let map: HashMap<&str, String> = serde_json::from_slice(&buf)?;
+        Ok(map.into_iter().map(|(_k, v)| v).collect())
+    } else {
+        serde_json::from_slice(&buf).map_err(Into::into)
+    }
 }
 
 fn copy_collection(
@@ -411,7 +379,7 @@ fn copy_collection(
     let mut file = archive
         .by_name(meta.collection_name())
         .map_err(|_| AnkiError::ImportError(ImportError::Corrupt))?;
-    if meta.version < 3 {
+    if !meta.zstd_compressed() {
         io::copy(&mut file, writer)?;
     } else {
         copy_decode(file, writer)?;
