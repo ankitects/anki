@@ -709,6 +709,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def addMedia(self, path: str, canDelete: bool = False) -> None:
         """canDelete is a legacy arg and is ignored."""
 
+        # This is still used by add-ons
+
         try:
             html = self._addMedia(path)
         except Exception as e:
