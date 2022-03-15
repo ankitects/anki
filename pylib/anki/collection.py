@@ -264,6 +264,14 @@ class Collection(DeprecatedNamesMixin):
             self._clear_caches()
             self.db = None
 
+    def export_collection(
+        self, out_path: str, include_media: bool, legacy: bool
+    ) -> None:
+        self.close_for_full_sync()
+        self._backend.export_collection(
+            out_path=out_path, include_media=include_media, legacy=legacy
+        )
+
     def rollback(self) -> None:
         self._clear_caches()
         self.db.rollback()

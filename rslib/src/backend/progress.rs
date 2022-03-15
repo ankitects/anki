@@ -52,6 +52,7 @@ pub(super) enum Progress {
     NormalSync(NormalSyncProgress),
     DatabaseCheck(DatabaseCheckProgress),
     Import(ImportProgress),
+    Export(usize),
 }
 
 pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Progress {
@@ -112,6 +113,7 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Pr
                 }
                 .into(),
             ),
+            Progress::Export(progress) => pb::progress::Value::Exporting(progress as u32),
         }
     } else {
         pb::progress::Value::None(pb::Empty {})

@@ -9,6 +9,8 @@ import json
 import os
 import re
 import shutil
+import threading
+import time
 import unicodedata
 import zipfile
 from io import BufferedWriter
@@ -419,6 +421,7 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
     ext = ".colpkg"
     verbatim = True
     includeSched = None
+    LEGACY = True
 
     def __init__(self, col):
         AnkiPackageExporter.__init__(self, col)
@@ -427,22 +430,32 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
     def key(col: Collection) -> str:
         return col.tr.exporting_anki_collection_package()
 
-    def doExport(self, z, path):
-        "Export collection. Caller must re-open afterwards."
-        # close our deck & write it into the zip file
-        self.count = self.col.card_count()
-        v2 = self.col.sched_ver() != 1
-        mdir = self.col.media.dir()
-        self.col.close(downgrade=True)
-        if not v2:
-            z.write(self.col.path, "collection.anki2")
-        else:
-            self._addDummyCollection(z)
-            z.write(self.col.path, "collection.anki21")
-        # copy all media
-        if not self.includeMedia:
-            return {}
-        return self._exportMedia(z, os.listdir(mdir), mdir)
+    def exportInto(self, path: str) -> None:
+        """Export collection. Caller must re-open afterwards."""
+
+        def exporting_media() -> bool:
+            return any(
+                hook.__name__ == "exported_media"
+                for hook in hooks.media_files_did_export._hooks
+            )
+
+        def progress() -> None:
+            while exporting_media():
+                progress = self.col._backend.latest_progress()
+                if progress.HasField("exporting"):
+                    hooks.media_files_did_export(progress.exporting)
+                time.sleep(0.1)
+
+        threading.Thread(target=progress).start()
+        self.col.export_collection(path, self.includeMedia, self.LEGACY)
+
+
+class AnkiCollectionPackage21bExporter(AnkiCollectionPackageExporter):
+    LEGACY = False
+
+    @staticmethod
+    def key(_col: Collection) -> str:
+        return "Anki 2.1.50+ Collection Package"
 
 
 # Export modules
@@ -459,6 +472,7 @@ def exporters(col: Collection) -> list[tuple[str, Any]]:
 
     exps = [
         id(AnkiCollectionPackageExporter),
+        id(AnkiCollectionPackage21bExporter),
         id(AnkiPackageExporter),
         id(TextNoteExporter),
         id(TextCardExporter),
