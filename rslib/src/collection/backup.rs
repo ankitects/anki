@@ -5,7 +5,7 @@ use std::{
     collections::HashMap,
     ffi::OsStr,
     fs::{self, read_dir, remove_file, DirEntry, File},
-    io::{self, Write},
+    io::{self, Read, Write},
     path::{Path, PathBuf},
     thread::{self, JoinHandle},
     time::SystemTime,
@@ -14,16 +14,17 @@ use std::{
 use chrono::prelude::*;
 use itertools::Itertools;
 use log::error;
+use prost::Message;
 use tempfile::NamedTempFile;
 use zip::ZipArchive;
 use zstd::{self, stream::copy_decode};
 
 use crate::{
-    backend_proto::preferences::Backups,
-    collection::{
-        exporting::{export_collection_data, Meta, PACKAGE_VERSION},
-        CollectionBuilder,
+    backend_proto::{
+        media_entries::MediaEntry, package_metadata::Version, preferences::Backups, MediaEntries,
+        PackageMetadata as Meta,
     },
+    collection::{exporting::export_collection_data, CollectionBuilder},
     error::ImportError,
     log,
     prelude::*,
@@ -86,17 +87,14 @@ pub fn restore_backup(
     let backup_file = File::open(backup_path)?;
     let mut archive = ZipArchive::new(backup_file)?;
     let meta = Meta::from_archive(&mut archive)?;
-    if meta.version >= 3 {
-        return Err(AnkiError::invalid_input("not supported"));
-    }
 
-    copy_collection(&mut archive, &mut tempfile, meta)?;
+    copy_collection(&mut archive, &mut tempfile, &meta)?;
     progress_fn(ImportProgress::Collection)?;
     check_collection(tempfile.path())?;
     progress_fn(ImportProgress::Collection)?;
 
     let mut result = String::new();
-    if let Err(e) = restore_media(meta, progress_fn, &mut archive, media_folder) {
+    if let Err(e) = restore_media(&meta, progress_fn, &mut archive, media_folder) {
         result = tr
             .importing_failed_to_import_media_file(e.localized_description(tr))
             .into_owned()
@@ -287,21 +285,26 @@ impl BackupFilter {
 impl Meta {
     /// Extracts meta data from an archive and checks if its version is supported.
     fn from_archive(archive: &mut ZipArchive<File>) -> Result<Self> {
-        let mut meta: Self = archive
-            .by_name("meta")
-            .ok()
-            .and_then(|file| serde_json::from_reader(file).ok())
-            .unwrap_or_default();
-        if meta.version > PACKAGE_VERSION {
-            return Err(AnkiError::ImportError(ImportError::TooNew));
-        } else if meta.version == 0 {
-            meta.version = if archive.by_name("collection.anki21").is_ok() {
-                2
-            } else {
-                1
-            };
-        }
-
+        let meta_bytes = archive.by_name("meta").ok().and_then(|mut meta_file| {
+            let mut buf = vec![];
+            meta_file.read_to_end(&mut buf).ok()?;
+            Some(buf)
+        });
+        let meta = if let Some(bytes) = meta_bytes {
+            let meta: Meta = Message::decode(&*bytes)?;
+            if meta.version() == Version::Unknown {
+                return Err(AnkiError::ImportError(ImportError::TooNew));
+            }
+            meta
+        } else {
+            Meta {
+                version: if archive.by_name("collection.anki21").is_ok() {
+                    Version::Legacy2
+                } else {
+                    Version::Legacy1
+                } as i32,
+            }
+        };
         Ok(meta)
     }
 }
@@ -321,33 +324,42 @@ fn check_collection(col_path: &Path) -> Result<()> {
 }
 
 fn restore_media(
-    meta: Meta,
+    meta: &Meta,
     mut progress_fn: impl FnMut(ImportProgress) -> Result<()>,
     archive: &mut ZipArchive<File>,
     media_folder: &str,
 ) -> Result<()> {
-    let media_file_names = extract_media_file_names(meta, archive)?;
+    let media_entries = extract_media_file_names(meta, archive)?;
     let mut count = 0;
 
-    for (archive_file_name, file_name) in media_file_names.iter().enumerate() {
+    for (archive_file_name, entry) in media_entries.iter().enumerate() {
         count += 1;
         if count % 10 == 0 {
             progress_fn(ImportProgress::Media(count))?;
         }
 
         if let Ok(mut zip_file) = archive.by_name(&archive_file_name.to_string()) {
-            let file_path = Path::new(&media_folder).join(normalize_to_nfc(file_name).as_ref());
+            let file_path = Path::new(&media_folder).join(normalize_to_nfc(&entry.name).as_ref());
+            let size_in_colpkg = if meta.media_list_is_hashmap() {
+                zip_file.size()
+            } else {
+                entry.size as u64
+            };
             let files_are_equal = fs::metadata(&file_path)
-                .map(|metadata| metadata.len() == zip_file.size())
+                .map(|metadata| metadata.len() == size_in_colpkg)
                 .unwrap_or_default();
             if !files_are_equal {
+                // FIXME: write to temp file and atomic rename
                 let mut file = match File::create(&file_path) {
                     Ok(file) => file,
                     Err(err) => return Err(AnkiError::file_io_error(err, &file_path)),
                 };
-                if let Err(err) = io::copy(&mut zip_file, &mut file) {
-                    return Err(AnkiError::file_io_error(err, &file_path));
+                if meta.zstd_compressed() {
+                    copy_decode(&mut zip_file, &mut file)
+                } else {
+                    io::copy(&mut zip_file, &mut file).map(|_| ())
                 }
+                .map_err(|err| AnkiError::file_io_error(err, &file_path))?;
             }
         } else {
             return Err(AnkiError::invalid_input(&format!(
@@ -358,7 +370,10 @@ fn restore_media(
     Ok(())
 }
 
-fn extract_media_file_names(meta: Meta, archive: &mut ZipArchive<File>) -> Result<Vec<String>> {
+fn extract_media_file_names(
+    meta: &Meta,
+    archive: &mut ZipArchive<File>,
+) -> Result<Vec<MediaEntry>> {
     let mut file = archive.by_name("media")?;
     let mut buf = Vec::new();
     if meta.zstd_compressed() {
@@ -383,17 +398,22 @@ fn extract_media_file_names(meta: Meta, archive: &mut ZipArchive<File>) -> Resul
         }
         Ok(entries
             .into_iter()
-            .map(|(_str_idx, filename)| filename)
+            .map(|(_str_idx, name)| MediaEntry {
+                name,
+                size: 0,
+                sha1: vec![],
+            })
             .collect())
     } else {
-        serde_json::from_slice(&buf).map_err(Into::into)
+        let entries: MediaEntries = Message::decode(&*buf)?;
+        Ok(entries.entries)
     }
 }
 
 fn copy_collection(
     archive: &mut ZipArchive<File>,
     writer: &mut impl Write,
-    meta: Meta,
+    meta: &Meta,
 ) -> Result<()> {
     let mut file = archive
         .by_name(meta.collection_name())
