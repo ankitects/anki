@@ -289,3 +289,77 @@ impl MediaFileWriter {
         Ok(self)
     }
 }
+
+#[cfg(test)]
+mod test {
+    use tempfile::tempdir;
+
+    use super::*;
+    use crate::{collection::backup::restore_backup, media::MediaManager};
+
+    fn collection_in(dir: &Path, name: &str) -> Result<Collection> {
+        let media_folder = dir.join(format!("{name}.media"));
+        std::fs::create_dir(&media_folder)?;
+        CollectionBuilder::new(dir.join(format!("{name}.anki2")))
+            .set_media_paths(media_folder, dir.join(format!("{name}.mdb")))
+            .build()
+    }
+
+    #[test]
+    fn roundtrip() -> Result<()> {
+        let _dir = tempdir()?;
+        let dir = _dir.path();
+
+        let col = collection_in(dir, "source")?;
+        let tr = col.tr.clone();
+        let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+        let mut ctx = mgr.dbctx();
+        mgr.add_file(&mut ctx, "1", b"1")?;
+        mgr.add_file(&mut ctx, "2", b"2")?;
+        mgr.add_file(&mut ctx, "3", b"3")?;
+
+        let col_path = col.col_path.clone();
+        let media_dir = col.media_folder.clone();
+        // fixme: downgrade on v3 export is superfluous at current schema version
+        col.close(true)?;
+
+        for (legacy, name) in [
+            (true, "legacy"),
+            //  (false, "v3")
+        ] {
+            // export to a file
+            let colpkg_name = dir.join(format!("{name}.colpkg"));
+            export_collection_file(
+                &colpkg_name,
+                &col_path,
+                Some(media_dir.clone()),
+                legacy,
+                &tr,
+                |_| (),
+            )?;
+            // import into a new collection
+            let anki2_name = dir
+                .join(format!("{name}.anki2"))
+                .to_string_lossy()
+                .into_owned();
+            let import_media_dir = dir.join(format!("{name}.media"));
+            std::fs::create_dir(&import_media_dir)?;
+            assert_eq!(
+                &restore_backup(
+                    |_| Ok(()),
+                    &anki2_name,
+                    &colpkg_name.to_string_lossy(),
+                    import_media_dir.to_str().unwrap(),
+                    &tr,
+                )?,
+                ""
+            );
+            // confirm media imported correctly
+            assert_eq!(std::fs::read(import_media_dir.join("1"))?, b"1");
+            assert_eq!(std::fs::read(import_media_dir.join("2"))?, b"2");
+            assert_eq!(std::fs::read(import_media_dir.join("3"))?, b"3");
+        }
+
+        Ok(())
+    }
+}

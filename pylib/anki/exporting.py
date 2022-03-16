@@ -472,7 +472,7 @@ def exporters(col: Collection) -> list[tuple[str, Any]]:
 
     exps = [
         id(AnkiCollectionPackageExporter),
-        id(AnkiCollectionPackage21bExporter),
+        # id(AnkiCollectionPackage21bExporter),
         id(AnkiPackageExporter),
         id(TextNoteExporter),
         id(TextCardExporter),

@@ -86,6 +86,9 @@ pub fn restore_backup(
     let backup_file = File::open(backup_path)?;
     let mut archive = ZipArchive::new(backup_file)?;
     let meta = Meta::from_archive(&mut archive)?;
+    if meta.version >= 3 {
+        return Err(AnkiError::invalid_input("not supported"));
+    }
 
     copy_collection(&mut archive, &mut tempfile, meta)?;
     progress_fn(ImportProgress::Collection)?;
@@ -365,7 +368,23 @@ fn extract_media_file_names(meta: Meta, archive: &mut ZipArchive<File>) -> Resul
     }
     if meta.media_list_is_hashmap() {
         let map: HashMap<&str, String> = serde_json::from_slice(&buf)?;
-        Ok(map.into_iter().map(|(_k, v)| v).collect())
+        let mut entries: Vec<(usize, String)> = map
+            .into_iter()
+            .map(|(k, v)| (k.parse().unwrap_or_default(), v))
+            .collect();
+        entries.sort_unstable();
+        // any gaps in the file numbers would lead to media being imported under the wrong name
+        if entries
+            .iter()
+            .enumerate()
+            .any(|(idx1, (idx2, _))| idx1 != *idx2)
+        {
+            return Err(AnkiError::ImportError(ImportError::Corrupt));
+        }
+        Ok(entries
+            .into_iter()
+            .map(|(_str_idx, filename)| filename)
+            .collect())
     } else {
         serde_json::from_slice(&buf).map_err(Into::into)
     }
