@@ -359,10 +359,7 @@ mod test {
         // fixme: downgrade on v3 export is superfluous at current schema version
         col.close(true)?;
 
-        for (legacy, name) in [
-            (true, "legacy"),
-            //  (false, "v3")
-        ] {
+        for (legacy, name) in [(true, "legacy"), (false, "v3")] {
             // export to a file
             let colpkg_name = dir.join(format!("{name}.colpkg"));
             export_collection_file(
