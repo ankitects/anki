@@ -75,8 +75,8 @@ rust_library(
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-apple-ios",
         ): [
-            "@raze__libc__0_2_119//:libc",
-            "@raze__num_threads__0_1_3//:num_threads",
+            "@raze__libc__0_2_120//:libc",
+            "@raze__num_threads__0_1_4//:num_threads",
         ],
         "//conditions:default": [],
     }),

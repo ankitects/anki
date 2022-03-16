@@ -90,7 +90,7 @@ rust_library(
         "@raze__petgraph__0_6_0//:petgraph",
         "@raze__prost__0_9_0//:prost",
         "@raze__prost_types__0_9_0//:prost_types",
-        "@raze__regex__1_5_4//:regex",
+        "@raze__regex__1_5_5//:regex",
         "@raze__tempfile__3_3_0//:tempfile",
     ],
 )

@@ -20,6 +20,7 @@ service CollectionService {
   rpc LatestProgress(generic.Empty) returns (Progress);
   rpc SetWantsAbort(generic.Empty) returns (generic.Empty);
   rpc AwaitBackupCompletion(generic.Empty) returns (generic.Empty);
+  rpc ExportCollection(ExportCollectionRequest) returns (generic.Empty);
 }
 
 message OpenCollectionRequest {
@@ -121,5 +122,12 @@ message Progress {
     NormalSync normal_sync = 5;
     DatabaseCheck database_check = 6;
     string importing = 7;
+    uint32 exporting = 8;
   }
+}
+
+message ExportCollectionRequest {
+  string out_path = 1;
+  bool include_media = 2;
+  bool legacy = 3;
 }

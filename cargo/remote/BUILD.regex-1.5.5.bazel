@@ -76,7 +76,7 @@ rust_library(
         "crate-name=regex",
         "manual",
     ],
-    version = "1.5.4",
+    version = "1.5.5",
     # buildifier: leave-alone
     deps = [
         "@raze__aho_corasick__0_7_18//:aho_corasick",

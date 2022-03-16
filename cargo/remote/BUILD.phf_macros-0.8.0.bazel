@@ -59,7 +59,7 @@ rust_proc_macro(
         "@raze__phf_shared__0_8_0//:phf_shared",
         "@raze__proc_macro2__1_0_36//:proc_macro2",
         "@raze__quote__1_0_15//:quote",
-        "@raze__syn__1_0_86//:syn",
+        "@raze__syn__1_0_88//:syn",
     ],
 )
 
