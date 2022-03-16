@@ -31,13 +31,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let mediaPromise: Promise<string>;
     let resolve: (media: string) => void;
 
-    function mediaResolve(media: string): void {
-        resolve(media);
+    function resolveMedia(media: string): void {
+        resolve?.(media);
     }
 
-    registerPackage("anki/TemplateButtons", { mediaResolve });
-
-    function onAttachment(): void {
+    function attachMediaOnFocus(): void {
         if (!editingInputIsRichText($focusedInput)) {
             return;
         }
@@ -51,9 +49,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bridgeCommand("attach");
     }
 
+    registerPackage("anki/TemplateButtons", {
+        resolveMedia,
+    });
+
     const recordCombination = "F5";
 
-    function onRecord(): void {
+    function attachRecordingOnFocus(): void {
         if (!editingInputIsRichText($focusedInput)) {
             return;
         }
@@ -87,11 +89,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 )})"
                 iconSize={70}
                 {disabled}
-                on:click={onAttachment}
+                on:click={attachMediaOnFocus}
             >
                 {@html paperclipIcon}
             </IconButton>
-            <Shortcut keyCombination={attachmentCombination} on:action={onAttachment} />
+            <Shortcut
+                keyCombination={attachmentCombination}
+                on:action={attachMediaOnFocus}
+            />
         </ButtonGroupItem>
 
         <ButtonGroupItem>
@@ -101,11 +106,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 )})"
                 iconSize={70}
                 {disabled}
-                on:click={onRecord}
+                on:click={attachRecordingOnFocus}
             >
                 {@html micIcon}
             </IconButton>
-            <Shortcut keyCombination={recordCombination} on:action={onRecord} />
+            <Shortcut
+                keyCombination={recordCombination}
+                on:action={attachRecordingOnFocus}
+            />
         </ButtonGroupItem>
 
         <ButtonGroupItem id="cloze">
