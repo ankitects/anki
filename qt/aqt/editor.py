@@ -688,6 +688,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     ######################################################################
 
     def onAddMedia(self) -> None:
+        """Show a file selection screen, then add the selected media.
+        This expects initial setup to have been done by TemplateButtons.svelte."""
         extension_filter = " ".join(
             f"*.{extension}" for extension in sorted(itertools.chain(pics, audio))
         )
@@ -707,9 +709,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.parentWindow.activateWindow()
 
     def addMedia(self, path: str, canDelete: bool = False) -> None:
-        """canDelete is a legacy arg and is ignored."""
-
-        # This is still used by add-ons
+        """Legacy routine used by add-ons to add a media file and update the current field.
+        canDelete is ignored."""
 
         try:
             html = self._addMedia(path)
@@ -720,6 +721,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.web.eval(f"setFormat('inserthtml', {json.dumps(html)});")
 
     def resolve_media(self, path: str) -> None:
+        """Finish inserting media into a field.
+        This expects initial setup to have been done by TemplateButtons.svelte."""
         try:
             html = self._addMedia(path)
         except Exception as e:
