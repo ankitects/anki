@@ -58,11 +58,15 @@ impl Meta {
     }
 
     pub(super) fn zstd_compressed(&self) -> bool {
-        self.version >= 3
+        !self.is_legacy()
     }
 
     pub(super) fn media_list_is_hashmap(&self) -> bool {
-        self.version < 3
+        self.is_legacy()
+    }
+
+    fn is_legacy(&self) -> bool {
+        matches!(self.version(), Version::Legacy1 | Version::Legacy2)
     }
 }
 
