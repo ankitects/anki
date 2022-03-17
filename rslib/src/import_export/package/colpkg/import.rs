@@ -22,6 +22,7 @@ use crate::{
         package::{MediaEntries, MediaEntry, Meta},
         ImportProgress,
     },
+    io::atomic_rename,
     media::files::normalize_filename,
     prelude::*,
 };
@@ -85,11 +86,7 @@ pub fn import_colpkg(
         });
 
     // Proceed with replacing collection, regardless of media import result
-    tempfile.as_file().sync_all()?;
-    tempfile.persist(&col_path).map_err(|err| err.error)?;
-    if !cfg!(windows) {
-        File::open(col_dir)?.sync_all()?;
-    }
+    atomic_rename(tempfile, &col_path)?;
 
     media_import_result
 }
