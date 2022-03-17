@@ -11,7 +11,7 @@ use std::{
 
 use prost::Message;
 use tempfile::NamedTempFile;
-use zip::ZipArchive;
+use zip::{read::ZipFile, ZipArchive};
 use zstd::{self, stream::copy_decode};
 
 use super::super::Version;
@@ -23,7 +23,7 @@ use crate::{
         ImportProgress,
     },
     io::atomic_rename,
-    media::files::normalize_filename,
+    media::files::{normalize_filename, sha1_of_file},
     prelude::*,
 };
 
@@ -112,38 +112,58 @@ fn restore_media(
             progress_fn(ImportProgress::Media(count))?;
         }
 
-        if let Ok(mut zip_file) = archive.by_name(&archive_file_name.to_string()) {
-            check_filename_safe(&entry.name)?;
-            let normalized = maybe_normalizing(&entry.name, meta.strict_media_checks())?;
-            let file_path = media_folder.join(normalized.as_ref());
-            let size_in_colpkg = if meta.media_list_is_hashmap() {
-                zip_file.size()
-            } else {
-                entry.size as u64
-            };
-            let files_are_equal = fs::metadata(&file_path)
-                .map(|metadata| metadata.len() == size_in_colpkg)
-                .unwrap_or_default();
-            if !files_are_equal {
-                // FIXME: write to temp file and atomic rename
-                let mut file = match File::create(&file_path) {
-                    Ok(file) => file,
-                    Err(err) => return Err(AnkiError::file_io_error(err, &file_path)),
-                };
-                if meta.zstd_compressed() {
-                    copy_decode(&mut zip_file, &mut file)
-                } else {
-                    io::copy(&mut zip_file, &mut file).map(|_| ())
-                }
-                .map_err(|err| AnkiError::file_io_error(err, &file_path))?;
-            }
+        if let Ok(zip_file) = archive.by_name(&archive_file_name.to_string()) {
+            restore_media_file(meta, media_folder, entry, zip_file)?;
         } else {
             return Err(AnkiError::invalid_input(&format!(
                 "{archive_file_name} missing from archive"
             )));
         }
     }
+
     Ok(())
+}
+
+fn restore_media_file(
+    meta: &Meta,
+    media_folder: &Path,
+    entry: &MediaEntry,
+    mut zip_file: ZipFile,
+) -> Result<()> {
+    let file_path = entry.safe_normalized_file_path(meta, media_folder)?;
+    let already_exists = entry.is_equal_to(meta, &zip_file, &file_path);
+    if !already_exists {
+        // FIXME: write to temp file and atomic rename
+        let mut file = match File::create(&file_path) {
+            Ok(file) => file,
+            Err(err) => return Err(AnkiError::file_io_error(err, &file_path)),
+        };
+        if meta.zstd_compressed() {
+            copy_decode(&mut zip_file, &mut file)
+        } else {
+            io::copy(&mut zip_file, &mut file).map(|_| ())
+        }
+        .map_err(|err| AnkiError::file_io_error(err, &file_path))?;
+    };
+
+    Ok(())
+}
+
+impl MediaEntry {
+    fn safe_normalized_file_path(&self, meta: &Meta, media_folder: &Path) -> Result<PathBuf> {
+        check_filename_safe(&self.name)?;
+        let normalized = maybe_normalizing(&self.name, meta.strict_media_checks())?;
+        Ok(media_folder.join(normalized.as_ref()))
+    }
+
+    fn is_equal_to(&self, meta: &Meta, self_zipped: &ZipFile, other_path: &Path) -> bool {
+        if meta.media_list_is_hashmap() {
+            fs::metadata(other_path).map(|metadata| metadata.len() == self_zipped.size())
+        } else {
+            sha1_of_file(other_path).map(|other_sha1| other_sha1.as_slice() == self.sha1)
+        }
+        .unwrap_or_default()
+    }
 }
 
 /// - If strict is true, return an error if not normalized.
