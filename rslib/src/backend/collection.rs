@@ -10,11 +10,7 @@ pub(super) use crate::backend_proto::collection_service::Service as CollectionSe
 use crate::{
     backend::progress::progress_to_proto,
     backend_proto::{self as pb, preferences::Backups},
-    collection::{
-        backup::{self, ImportProgress},
-        exporting::export_collection_file,
-        CollectionBuilder,
-    },
+    collection::{backup, CollectionBuilder},
     log::{self},
     prelude::*,
 };
@@ -76,42 +72,6 @@ impl CollectionService for Backend {
 
         Ok(().into())
     }
-
-    fn export_collection(&self, input: pb::ExportCollectionRequest) -> Result<pb::Empty> {
-        self.abort_media_sync_and_wait();
-
-        let mut guard = self.lock_open_collection()?;
-
-        let col_inner = guard.take().unwrap();
-        let col_path = col_inner.col_path.clone();
-        let media_dir = input.include_media.then(|| col_inner.media_folder.clone());
-
-        col_inner.close(true)?;
-
-        export_collection_file(
-            input.out_path,
-            col_path,
-            media_dir,
-            input.legacy,
-            &self.tr,
-            self.export_progress_fn(),
-        )
-        .map(Into::into)
-    }
-
-    fn restore_backup(&self, input: pb::RestoreBackupRequest) -> Result<pb::String> {
-        let _guard = self.lock_closed_collection()?;
-
-        backup::restore_backup(
-            self.import_progress_fn(),
-            &input.col_path,
-            &input.backup_path,
-            &input.media_folder,
-            &self.tr,
-        )
-        .map(Into::into)
-    }
-
     fn check_database(&self, _input: pb::Empty) -> Result<pb::CheckDatabaseResponse> {
         let mut handler = self.new_progress_handler();
         let progress_fn = move |progress, throttle| {
@@ -154,7 +114,7 @@ impl CollectionService for Backend {
 }
 
 impl Backend {
-    fn lock_open_collection(&self) -> Result<MutexGuard<Option<Collection>>> {
+    pub(super) fn lock_open_collection(&self) -> Result<MutexGuard<Option<Collection>>> {
         let guard = self.col.lock().unwrap();
         guard
             .is_some()
@@ -162,7 +122,7 @@ impl Backend {
             .ok_or(AnkiError::CollectionNotOpen)
     }
 
-    fn lock_closed_collection(&self) -> Result<MutexGuard<Option<Collection>>> {
+    pub(super) fn lock_closed_collection(&self) -> Result<MutexGuard<Option<Collection>>> {
         let guard = self.col.lock().unwrap();
         guard
             .is_none()
@@ -194,24 +154,5 @@ impl Backend {
         )?;
 
         Ok(())
-    }
-
-    fn import_progress_fn(&self) -> impl FnMut(ImportProgress) -> Result<()> {
-        let mut handler = self.new_progress_handler();
-        move |progress| {
-            let throttle = matches!(progress, ImportProgress::Media(_));
-            if handler.update(Progress::Import(progress), throttle) {
-                Ok(())
-            } else {
-                Err(AnkiError::Interrupted)
-            }
-        }
-    }
-
-    fn export_progress_fn(&self) -> impl FnMut(usize) {
-        let mut handler = self.new_progress_handler();
-        move |media_files| {
-            handler.update(Progress::Export(media_files), true);
-        }
     }
 }

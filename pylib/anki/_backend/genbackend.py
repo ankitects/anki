@@ -25,6 +25,7 @@ import anki.stats_pb2
 import anki.card_rendering_pb2
 import anki.tags_pb2
 import anki.media_pb2
+import anki.import_export_pb2
 
 import stringcase
 
@@ -184,6 +185,7 @@ service_modules = dict(
     TAGS=anki.tags_pb2,
     MEDIA=anki.media_pb2,
     LINKS=anki.links_pb2,
+    IMPORT_EXPORT=anki.import_export_pb2,
 )
 
 for service in anki.backend_pb2.ServiceIndex.DESCRIPTOR.values:
@@ -236,6 +238,7 @@ import anki.stats_pb2
 import anki.card_rendering_pb2
 import anki.tags_pb2
 import anki.media_pb2
+import anki.import_export_pb2
 
 class RustBackendGenerated:
     def _run_command(self, service: int, method: int, input: Any) -> bytes:

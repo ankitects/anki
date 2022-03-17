@@ -8,7 +8,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use serde_derive::{Deserialize, Serialize};
+use prost::Message;
 use tempfile::NamedTempFile;
 use zip::{write::FileOptions, CompressionMethod, ZipWriter};
 use zstd::{
@@ -16,54 +16,49 @@ use zstd::{
     Encoder,
 };
 
-use crate::{collection::CollectionBuilder, prelude::*, text::normalize_to_nfc};
+use super::super::{MediaEntries, MediaEntry, Meta, Version};
+use crate::{
+    collection::CollectionBuilder, media::files::sha1_of_data, prelude::*, text::normalize_to_nfc,
+};
 
-/// Bump if making changes that break restoring on older releases.
-pub const PACKAGE_VERSION: u8 = 3;
-const COLLECTION_NAME: &str = "collection.anki21b";
-const COLLECTION_NAME_V1: &str = "collection.anki2";
-const COLLECTION_NAME_V2: &str = "collection.anki21";
 /// Enable multithreaded compression if over this size. For smaller files,
 /// multithreading makes things slower, and in initial tests, the crossover
 /// point was somewhere between 1MB and 10MB on a many-core system.
 const MULTITHREAD_MIN_BYTES: usize = 10 * 1024 * 1024;
 
-#[derive(Debug, Default, Serialize, Deserialize, Clone, Copy)]
-#[serde(default)]
-pub(super) struct Meta {
-    #[serde(rename = "ver")]
-    pub(super) version: u8,
-}
-
-impl Meta {
-    pub(super) fn new() -> Self {
-        Self {
-            version: PACKAGE_VERSION,
-        }
-    }
-
-    pub(super) fn new_v2() -> Self {
-        Self { version: 2 }
-    }
-
-    pub(super) fn collection_name(&self) -> &'static str {
-        match self.version {
-            1 => COLLECTION_NAME_V1,
-            2 => COLLECTION_NAME_V2,
-            _ => COLLECTION_NAME,
-        }
-    }
-
-    pub(super) fn zstd_compressed(&self) -> bool {
-        self.version >= 3
-    }
-
-    pub(super) fn media_list_is_hashmap(&self) -> bool {
-        self.version < 3
+impl Collection {
+    pub fn export_colpkg(
+        self,
+        out_path: impl AsRef<Path>,
+        include_media: bool,
+        legacy: bool,
+        progress_fn: impl FnMut(usize),
+    ) -> Result<()> {
+        let colpkg_name = out_path.as_ref();
+        let src_path = self.col_path.clone();
+        let src_media_folder = if include_media {
+            Some(self.media_folder.clone())
+        } else {
+            None
+        };
+        let tr = self.tr.clone();
+        // FIXME: downgrade on v3 export is superfluous at current schema version. We don't
+        // want things to break when the schema is bumped in the future, so perhaps the
+        // exporting code should be downgrading to 18 instead of 11 (which will probably require
+        // changing the boolean to an enum).
+        self.close(true)?;
+        export_collection_file(
+            &colpkg_name,
+            &src_path,
+            src_media_folder,
+            legacy,
+            &tr,
+            progress_fn,
+        )
     }
 }
 
-pub fn export_collection_file(
+fn export_collection_file(
     out_path: impl AsRef<Path>,
     col_path: impl AsRef<Path>,
     media_dir: Option<PathBuf>,
@@ -71,7 +66,11 @@ pub fn export_collection_file(
     tr: &I18n,
     progress_fn: impl FnMut(usize),
 ) -> Result<()> {
-    let meta = if legacy { Meta::new_v2() } else { Meta::new() };
+    let meta = if legacy {
+        Meta::new_legacy()
+    } else {
+        Meta::new()
+    };
     let mut col_file = File::open(col_path)?;
     let col_size = col_file.metadata()?.len() as usize;
     export_collection(
@@ -85,7 +84,8 @@ pub fn export_collection_file(
     )
 }
 
-pub(crate) fn export_collection_data(
+/// Write copied collection data without any media.
+pub(crate) fn export_colpkg_from_data(
     out_path: impl AsRef<Path>,
     mut col_data: &[u8],
     tr: &I18n,
@@ -115,10 +115,12 @@ fn export_collection(
     let mut zip = ZipWriter::new(out_file);
 
     zip.start_file("meta", file_options_stored())?;
-    zip.write_all(serde_json::to_string(&meta).unwrap().as_bytes())?;
-    write_collection(meta, &mut zip, col, col_size)?;
+    let mut meta_bytes = vec![];
+    meta.encode(&mut meta_bytes)?;
+    zip.write_all(&meta_bytes)?;
+    write_collection(&meta, &mut zip, col, col_size)?;
     write_dummy_collection(&mut zip, tr)?;
-    write_media(meta, &mut zip, media_dir, progress_fn)?;
+    write_media(&meta, &mut zip, media_dir, progress_fn)?;
     zip.finish()?;
 
     Ok(())
@@ -129,16 +131,16 @@ fn file_options_stored() -> FileOptions {
 }
 
 fn write_collection(
-    meta: Meta,
+    meta: &Meta,
     zip: &mut ZipWriter<File>,
     col: &mut impl Read,
     size: usize,
 ) -> Result<()> {
     if meta.zstd_compressed() {
-        zip.start_file(meta.collection_name(), file_options_stored())?;
+        zip.start_file(meta.collection_filename(), file_options_stored())?;
         zstd_copy(col, zip, size)?;
     } else {
-        zip.start_file(meta.collection_name(), FileOptions::default())?;
+        zip.start_file(meta.collection_filename(), FileOptions::default())?;
         io::copy(col, zip)?;
     }
     Ok(())
@@ -146,7 +148,10 @@ fn write_collection(
 
 fn write_dummy_collection(zip: &mut ZipWriter<File>, tr: &I18n) -> Result<()> {
     let mut tempfile = create_dummy_collection_file(tr)?;
-    zip.start_file(COLLECTION_NAME_V1, file_options_stored())?;
+    zip.start_file(
+        Version::Legacy1.collection_filename(),
+        file_options_stored(),
+    )?;
     io::copy(&mut tempfile, zip)?;
 
     Ok(())
@@ -187,36 +192,45 @@ fn zstd_copy(reader: &mut impl Read, writer: &mut impl Write, size: usize) -> Re
 }
 
 fn write_media(
-    meta: Meta,
+    meta: &Meta,
     zip: &mut ZipWriter<File>,
     media_dir: Option<PathBuf>,
     progress_fn: impl FnMut(usize),
 ) -> Result<()> {
-    let mut media_names = vec![];
+    let mut media_entries = vec![];
 
     if let Some(media_dir) = media_dir {
-        write_media_files(meta, zip, &media_dir, &mut media_names, progress_fn)?;
+        write_media_files(meta, zip, &media_dir, &mut media_entries, progress_fn)?;
     }
 
-    write_media_map(meta, &media_names, zip)?;
+    write_media_map(meta, media_entries, zip)?;
 
     Ok(())
 }
 
-fn write_media_map(meta: Meta, media_names: &[String], zip: &mut ZipWriter<File>) -> Result<()> {
+fn write_media_map(
+    meta: &Meta,
+    media_entries: Vec<MediaEntry>,
+    zip: &mut ZipWriter<File>,
+) -> Result<()> {
     zip.start_file("media", file_options_stored())?;
-    let json_bytes = if meta.media_list_is_hashmap() {
-        let map: HashMap<String, &str> = media_names
+    let encoded_bytes = if meta.media_list_is_hashmap() {
+        let map: HashMap<String, &str> = media_entries
             .iter()
             .enumerate()
-            .map(|(k, v)| (k.to_string(), v.as_str()))
+            .map(|(k, entry)| (k.to_string(), entry.name.as_str()))
             .collect();
         serde_json::to_vec(&map)?
     } else {
-        serde_json::to_vec(media_names)?
+        let mut buf = vec![];
+        MediaEntries {
+            entries: media_entries,
+        }
+        .encode(&mut buf)?;
+        buf
     };
-    let size = json_bytes.len();
-    let mut cursor = std::io::Cursor::new(json_bytes);
+    let size = encoded_bytes.len();
+    let mut cursor = std::io::Cursor::new(encoded_bytes);
     if meta.zstd_compressed() {
         zstd_copy(&mut cursor, zip, size)?;
     } else {
@@ -226,10 +240,10 @@ fn write_media_map(meta: Meta, media_names: &[String], zip: &mut ZipWriter<File>
 }
 
 fn write_media_files(
-    meta: Meta,
+    meta: &Meta,
     zip: &mut ZipWriter<File>,
     dir: &Path,
-    names: &mut Vec<String>,
+    media_entries: &mut Vec<MediaEntry>,
     mut progress_fn: impl FnMut(usize),
 ) -> Result<()> {
     let mut writer = MediaFileWriter::new(meta);
@@ -240,14 +254,28 @@ fn write_media_files(
             continue;
         }
         progress_fn(index);
-        names.push(normalized_unicode_file_name(&entry)?);
+
         zip.start_file(index.to_string(), file_options_stored())?;
-        writer = writer.write(&mut File::open(entry.path())?, zip)?;
+
+        let name = normalized_unicode_file_name(&entry)?;
+        // FIXME: we should chunk this
+        let data = std::fs::read(entry.path())?;
+        let media_entry = make_media_entry(&data, name);
+        writer = writer.write(&mut std::io::Cursor::new(data), zip)?;
+        media_entries.push(media_entry);
         // can't enumerate(), as we skip folders
         index += 1;
     }
 
     Ok(())
+}
+
+fn make_media_entry(data: &[u8], name: String) -> MediaEntry {
+    MediaEntry {
+        name,
+        size: data.len() as u32,
+        sha1: sha1_of_data(data).to_vec(),
+    }
 }
 
 fn normalized_unicode_file_name(entry: &DirEntry) -> Result<String> {
@@ -268,7 +296,7 @@ fn normalized_unicode_file_name(entry: &DirEntry) -> Result<String> {
 struct MediaFileWriter(Option<RawEncoder<'static>>);
 
 impl MediaFileWriter {
-    fn new(meta: Meta) -> Self {
+    fn new(meta: &Meta) -> Self {
         Self(
             meta.zstd_compressed()
                 .then(|| RawEncoder::with_dictionary(0, &[]).unwrap()),
