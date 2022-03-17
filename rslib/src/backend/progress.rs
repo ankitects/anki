@@ -8,9 +8,9 @@ use futures::future::AbortHandle;
 use super::Backend;
 use crate::{
     backend_proto as pb,
-    collection::backup::ImportProgress,
     dbcheck::DatabaseCheckProgress,
     i18n::I18n,
+    import_export::ImportProgress,
     media::sync::MediaSyncProgress,
     sync::{FullSyncProgress, NormalSyncProgress, SyncStage},
 };

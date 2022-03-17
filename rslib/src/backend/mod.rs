@@ -15,6 +15,7 @@ mod decks;
 mod error;
 mod generic;
 mod i18n;
+mod import_export;
 mod links;
 mod media;
 mod notes;
@@ -47,6 +48,7 @@ use self::{
     deckconfig::DeckConfigService,
     decks::DecksService,
     i18n::I18nService,
+    import_export::ImportExportService,
     links::LinksService,
     media::MediaService,
     notes::NotesService,
@@ -145,6 +147,9 @@ impl Backend {
                 pb::ServiceIndex::Links => LinksService::run_method(self, method, input),
                 pb::ServiceIndex::Collection => CollectionService::run_method(self, method, input),
                 pb::ServiceIndex::Cards => CardsService::run_method(self, method, input),
+                pb::ServiceIndex::ImportExport => {
+                    ImportExportService::run_method(self, method, input)
+                }
             })
             .map_err(|err| {
                 let backend_err = err.into_protobuf(&self.tr);

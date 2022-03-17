@@ -10,7 +10,6 @@ import "anki/generic.proto";
 service CollectionService {
   rpc OpenCollection(OpenCollectionRequest) returns (generic.Empty);
   rpc CloseCollection(CloseCollectionRequest) returns (generic.Empty);
-  rpc RestoreBackup(RestoreBackupRequest) returns (generic.String);
   rpc CheckDatabase(generic.Empty) returns (CheckDatabaseResponse);
   rpc GetUndoStatus(generic.Empty) returns (UndoStatus);
   rpc Undo(generic.Empty) returns (OpChangesAfterUndo);
@@ -20,7 +19,6 @@ service CollectionService {
   rpc LatestProgress(generic.Empty) returns (Progress);
   rpc SetWantsAbort(generic.Empty) returns (generic.Empty);
   rpc AwaitBackupCompletion(generic.Empty) returns (generic.Empty);
-  rpc ExportCollection(ExportCollectionRequest) returns (generic.Empty);
 }
 
 message OpenCollectionRequest {
@@ -37,12 +35,6 @@ message CloseCollectionRequest {
   // Skip backup if one has been created in the last x seconds.
   // If unset a default value is used.
   optional uint64 minimum_backup_interval = 3;
-}
-
-message RestoreBackupRequest {
-  string col_path = 1;
-  string backup_path = 2;
-  string media_folder = 3;
 }
 
 message CheckDatabaseResponse {
@@ -124,10 +116,4 @@ message Progress {
     string importing = 7;
     uint32 exporting = 8;
   }
-}
-
-message ExportCollectionRequest {
-  string out_path = 1;
-  bool include_media = 2;
-  bool legacy = 3;
 }

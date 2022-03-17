@@ -268,7 +268,7 @@ class Collection(DeprecatedNamesMixin):
         self, out_path: str, include_media: bool, legacy: bool
     ) -> None:
         self.close_for_full_sync()
-        self._backend.export_collection(
+        self._backend.export_collection_package(
             out_path=out_path, include_media=include_media, legacy=legacy
         )
 
