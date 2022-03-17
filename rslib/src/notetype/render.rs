@@ -95,10 +95,9 @@ impl Collection {
     ) -> Result<RenderCardOutput> {
         let mut field_map = note.fields_map(&nt.fields);
 
-        let card_num;
         self.add_special_fields(&mut field_map, note, card, nt, template)?;
         // due to lifetime restrictions we need to add card number here
-        card_num = format!("c{}", card.template_idx + 1);
+        let card_num = format!("c{}", card.template_idx + 1);
         field_map.entry(&card_num).or_insert_with(|| "1".into());
 
         let (qfmt, afmt) = if browser {
