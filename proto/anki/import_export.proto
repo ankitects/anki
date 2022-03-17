@@ -33,8 +33,8 @@ message PackageMetadata {
     VERSION_LEGACY_1 = 1;
     // When `meta` missing, and collection.anki21 file present.
     VERSION_LEGACY_2 = 2;
-    /// Implies MediaEntry media map, and zstd compression.
-    /// collection.21b file
+    // Implies MediaEntry media map, and zstd compression.
+    // collection.21b file
     VERSION_LATEST = 3;
   }
 

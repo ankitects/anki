@@ -80,6 +80,10 @@ class AbortSchemaModification(Exception):
     pass
 
 
+class ImportMediaError(LocalizedError):
+    pass
+
+
 # legacy
 DeckRenameError = FilteredDeckError
 AnkiError = AbortSchemaModification
