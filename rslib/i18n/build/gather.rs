@@ -10,9 +10,11 @@
 //! repo. If it is pointed at a different location, the Qt translations will be excluded
 //! and the provided translations embedded instead.
 
-use std::path::Path;
-use std::{collections::HashMap, env};
-use std::{fs, path::PathBuf};
+use std::{
+    collections::HashMap,
+    env, fs,
+    path::{Path, PathBuf},
+};
 
 pub type TranslationsByFile = HashMap<String, String>;
 pub type TranslationsByLang = HashMap<String, TranslationsByFile>;
@@ -51,7 +53,7 @@ fn add_folder(map: &mut TranslationsByLang, folder: &Path, lang: &str) {
         if !fname.ends_with(".ftl") {
             continue;
         }
-        let module = fname.trim_end_matches(".ftl").replace("-", "_");
+        let module = fname.trim_end_matches(".ftl").replace('-', "_");
         let text = fs::read_to_string(&entry.path()).unwrap();
         assert!(
             text.ends_with('\n'),

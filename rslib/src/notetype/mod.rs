@@ -12,7 +12,6 @@ mod stock;
 mod templates;
 pub(crate) mod undo;
 
-use regex::Regex;
 use std::{
     collections::{HashMap, HashSet},
     iter::FromIterator,
@@ -23,6 +22,7 @@ pub(crate) use cardgen::{AlreadyGeneratedCardInfo, CardGenContext};
 pub use fields::NoteField;
 use lazy_static::lazy_static;
 pub use notetypechange::{ChangeNotetypeInput, NotetypeChangeInfo};
+use regex::Regex;
 pub(crate) use render::RenderCardOutput;
 pub use schema11::{CardTemplateSchema11, NoteFieldSchema11, NotetypeSchema11};
 pub use stock::all_stock_notetypes;
