@@ -381,9 +381,28 @@ impl<'a, W: Write> MaybeEncodedWriter<'a, W> {
     }
 }
 
-            io::copy(reader, writer)?;
-        }
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::media::files::sha1_of_data;
 
-        Ok(self)
+    #[test]
+    fn media_file_writing() {
+        let bytes = b"foo";
+        let bytes_hash = sha1_of_data(b"foo");
+
+        for meta in [Meta::new_legacy(), Meta::new()] {
+            let mut writer = MediaCopier::new(&meta);
+            let mut buf = Vec::new();
+
+            let (size, hash) = writer.copy(&mut bytes.as_slice(), &mut buf).unwrap();
+            if meta.zstd_compressed() {
+                buf = zstd::decode_all(buf.as_slice()).unwrap();
+            }
+
+            assert_eq!(buf, bytes);
+            assert_eq!(size, bytes.len());
+            assert_eq!(hash, bytes_hash);
+        }
     }
 }
