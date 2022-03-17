@@ -39,6 +39,10 @@ impl Meta {
         self.is_legacy()
     }
 
+    pub(super) fn strict_media_checks(&self) -> bool {
+        !self.is_legacy()
+    }
+
     fn is_legacy(&self) -> bool {
         matches!(self.version(), Version::Legacy1 | Version::Legacy2)
     }

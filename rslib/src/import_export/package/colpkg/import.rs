@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::{
+    borrow::Cow,
     collections::HashMap,
     fs::{self, File},
     io::{self, Read, Write},
@@ -21,8 +22,8 @@ use crate::{
         package::{MediaEntries, MediaEntry, Meta},
         ImportProgress,
     },
+    media::files::normalize_filename,
     prelude::*,
-    text::normalize_to_nfc,
 };
 
 impl Meta {
@@ -119,8 +120,8 @@ fn restore_media(
 
         if let Ok(mut zip_file) = archive.by_name(&archive_file_name.to_string()) {
             check_filename_safe(&entry.name)?;
-            let nfc_name = normalize_to_nfc(&entry.name);
-            let file_path = media_folder.join(nfc_name.as_ref());
+            let normalized = maybe_normalizing(&entry.name, meta.strict_media_checks())?;
+            let file_path = media_folder.join(normalized.as_ref());
             let size_in_colpkg = if meta.media_list_is_hashmap() {
                 zip_file.size()
             } else {
@@ -149,6 +150,18 @@ fn restore_media(
         }
     }
     Ok(())
+}
+
+/// - If strict is true, return an error if not normalized.
+/// - If false, return the normalized version.
+fn maybe_normalizing(name: &str, strict: bool) -> Result<Cow<str>> {
+    let normalized = normalize_filename(name);
+    if strict && matches!(normalized, Cow::Owned(_)) {
+        // exporting code should have checked this
+        Err(AnkiError::ImportError(ImportError::Corrupt))
+    } else {
+        Ok(normalized)
+    }
 }
 
 /// Return an error if name contains any path separators.
@@ -237,5 +250,11 @@ mod test {
             assert!(check_filename_safe("c:\\foo").is_err());
             assert!(check_filename_safe("\\foo").is_err());
         }
+    }
+
+    #[test]
+    fn normalization() {
+        assert_eq!(&maybe_normalizing("con", false).unwrap(), "con_");
+        assert!(&maybe_normalizing("con", true).is_err());
     }
 }

@@ -42,6 +42,7 @@ pub enum AnkiError {
     UndoEmpty,
     MultipleNotetypesSelected,
     DatabaseCheckRequired,
+    MediaCheckRequired,
     CustomStudyError(CustomStudyError),
     ImportError(ImportError),
 }
@@ -97,6 +98,7 @@ impl AnkiError {
             AnkiError::InvalidRegex(err) => format!("<pre>{}</pre>", err),
             AnkiError::MultipleNotetypesSelected => tr.errors_multiple_notetypes_selected().into(),
             AnkiError::DatabaseCheckRequired => tr.errors_please_check_database().into(),
+            AnkiError::MediaCheckRequired => tr.errors_please_check_media().into(),
             AnkiError::CustomStudyError(err) => err.localized_description(tr),
             AnkiError::ImportError(err) => err.localized_description(tr),
             AnkiError::IoError(_)
