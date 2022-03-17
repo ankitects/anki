@@ -16,58 +16,15 @@ use zstd::{
     Encoder,
 };
 
+use super::super::{MediaEntries, MediaEntry, Meta, Version};
 use crate::{
-    backend_proto::{
-        media_entries::MediaEntry, package_metadata::Version, MediaEntries, PackageMetadata as Meta,
-    },
-    collection::CollectionBuilder,
-    media::files::sha1_of_data,
-    prelude::*,
-    text::normalize_to_nfc,
+    collection::CollectionBuilder, media::files::sha1_of_data, prelude::*, text::normalize_to_nfc,
 };
 
-const COLLECTION_NAME: &str = "collection.anki21b";
-const COLLECTION_NAME_V1: &str = "collection.anki2";
-const COLLECTION_NAME_V2: &str = "collection.anki21";
 /// Enable multithreaded compression if over this size. For smaller files,
 /// multithreading makes things slower, and in initial tests, the crossover
 /// point was somewhere between 1MB and 10MB on a many-core system.
 const MULTITHREAD_MIN_BYTES: usize = 10 * 1024 * 1024;
-
-impl Meta {
-    pub(super) fn new() -> Self {
-        Self {
-            version: Version::Latest as i32,
-        }
-    }
-
-    pub(super) fn new_legacy() -> Self {
-        Self {
-            version: Version::Legacy2 as i32,
-        }
-    }
-
-    pub(super) fn collection_name(&self) -> &'static str {
-        match self.version() {
-            Version::Unknown => unreachable!(),
-            Version::Legacy1 => COLLECTION_NAME_V1,
-            Version::Legacy2 => COLLECTION_NAME_V2,
-            Version::Latest => COLLECTION_NAME,
-        }
-    }
-
-    pub(super) fn zstd_compressed(&self) -> bool {
-        !self.is_legacy()
-    }
-
-    pub(super) fn media_list_is_hashmap(&self) -> bool {
-        self.is_legacy()
-    }
-
-    fn is_legacy(&self) -> bool {
-        matches!(self.version(), Version::Legacy1 | Version::Legacy2)
-    }
-}
 
 impl Collection {
     pub fn export_colpkg(
@@ -127,7 +84,8 @@ fn export_collection_file(
     )
 }
 
-pub(crate) fn export_collection_data(
+/// Write copied collection data without any media.
+pub(crate) fn export_colpkg_from_data(
     out_path: impl AsRef<Path>,
     mut col_data: &[u8],
     tr: &I18n,
@@ -179,10 +137,10 @@ fn write_collection(
     size: usize,
 ) -> Result<()> {
     if meta.zstd_compressed() {
-        zip.start_file(meta.collection_name(), file_options_stored())?;
+        zip.start_file(meta.collection_filename(), file_options_stored())?;
         zstd_copy(col, zip, size)?;
     } else {
-        zip.start_file(meta.collection_name(), FileOptions::default())?;
+        zip.start_file(meta.collection_filename(), FileOptions::default())?;
         io::copy(col, zip)?;
     }
     Ok(())
@@ -190,7 +148,10 @@ fn write_collection(
 
 fn write_dummy_collection(zip: &mut ZipWriter<File>, tr: &I18n) -> Result<()> {
     let mut tempfile = create_dummy_collection_file(tr)?;
-    zip.start_file(COLLECTION_NAME_V1, file_options_stored())?;
+    zip.start_file(
+        Version::Legacy1.collection_filename(),
+        file_options_stored(),
+    )?;
     io::copy(&mut tempfile, zip)?;
 
     Ok(())
@@ -362,7 +323,7 @@ mod test {
     use tempfile::tempdir;
 
     use super::*;
-    use crate::{collection::backup::restore_backup, media::MediaManager};
+    use crate::{import_export::package::import_colpkg, media::MediaManager};
 
     fn collection_with_media(dir: &Path, name: &str) -> Result<Collection> {
         let name = format!("{name}_src");
@@ -398,12 +359,12 @@ mod test {
             let import_media_dir = dir.join(format!("{name}.media"));
             std::fs::create_dir(&import_media_dir)?;
             assert_eq!(
-                &restore_backup(
-                    |_| Ok(()),
-                    &anki2_name,
+                &import_colpkg(
                     &colpkg_name.to_string_lossy(),
+                    &anki2_name,
                     import_media_dir.to_str().unwrap(),
                     &tr,
+                    |_| Ok(()),
                 )?,
                 ""
             );

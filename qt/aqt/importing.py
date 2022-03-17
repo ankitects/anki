@@ -482,7 +482,7 @@ def replace_with_apkg(
     def do_import() -> str:
         col_path = mw.pm.collectionPath()
         media_folder = os.path.join(mw.pm.profileFolder(), "collection.media")
-        return mw.backend.restore_backup(
+        return mw.backend.import_collection_package(
             col_path=col_path, backup_path=filename, media_folder=media_folder
         )
 

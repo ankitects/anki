@@ -22,6 +22,7 @@ protobuf!(deckconfig);
 protobuf!(decks);
 protobuf!(generic);
 protobuf!(i18n);
+protobuf!(import_export);
 protobuf!(links);
 protobuf!(media);
 protobuf!(notes);
