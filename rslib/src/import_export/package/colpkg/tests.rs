@@ -40,6 +40,7 @@ fn roundtrip() -> Result<()> {
     for (legacy, name) in [(true, "legacy"), (false, "v3")] {
         // export to a file
         let col = collection_with_media(dir, name)?;
+        let tr = col.tr.clone();
         let colpkg_name = dir.join(format!("{name}.colpkg"));
         col.export_colpkg(&colpkg_name, true, legacy, |_| ())?;
         // import into a new collection
@@ -52,6 +53,7 @@ fn roundtrip() -> Result<()> {
             &colpkg_name.to_string_lossy(),
             &anki2_name,
             import_media_dir.to_str().unwrap(),
+            &tr,
             |_| Ok(()),
         )?;
         // confirm collection imported

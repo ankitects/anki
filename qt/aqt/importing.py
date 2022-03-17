@@ -11,7 +11,7 @@ import anki.importing as importing
 import aqt.deckchooser
 import aqt.forms
 import aqt.modelchooser
-from anki.errors import Interrupted
+from anki.errors import ImportMediaError, Interrupted
 from anki.importing.anki2 import V2ImportIntoV1
 from anki.importing.apkg import AnkiPackageImporter
 from aqt import AnkiQt, gui_hooks
@@ -457,7 +457,8 @@ def replace_with_apkg(
     mw: aqt.AnkiQt, filename: str, callback: Callable[[bool], None]
 ) -> None:
     """Tries to replace the provided collection with the provided backup,
-    then calls the callback. True if success.
+    then calls the callback. True if collection file was imported (even
+    if media failed).
     """
     dialog = mw.progress.start(immediate=True)
     timer = QTimer()
@@ -495,7 +496,8 @@ def replace_with_apkg(
         except Exception as error:
             if not isinstance(error, Interrupted):
                 showWarning(str(error))
-            callback(False)
+            collection_file_imported = isinstance(error, ImportMediaError)
+            callback(collection_file_imported)
         else:
             callback(True)
 
