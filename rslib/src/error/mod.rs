@@ -183,17 +183,19 @@ pub enum TemplateSaveErrorDetails {
     ExtraneousCloze,
 }
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum ImportError {
     Corrupt,
     TooNew,
+    MediaImportFailed(String),
 }
 
 impl ImportError {
-    fn localized_description(self, tr: &I18n) -> String {
+    fn localized_description(&self, tr: &I18n) -> String {
         match self {
-            Self::Corrupt => tr.importing_the_provided_file_is_not_a(),
-            Self::TooNew => tr.errors_collection_too_new(),
+            ImportError::Corrupt => tr.importing_the_provided_file_is_not_a(),
+            ImportError::TooNew => tr.errors_collection_too_new(),
+            ImportError::MediaImportFailed(err) => tr.importing_failed_to_import_media_file(err),
         }
         .into()
     }

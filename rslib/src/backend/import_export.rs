@@ -32,14 +32,13 @@ impl ImportExportService for Backend {
     fn import_collection_package(
         &self,
         input: pb::ImportCollectionPackageRequest,
-    ) -> Result<pb::String> {
+    ) -> Result<pb::Empty> {
         let _guard = self.lock_closed_collection()?;
 
         import_colpkg(
             &input.backup_path,
             &input.col_path,
             &input.media_folder,
-            &self.tr,
             self.import_progress_fn(),
         )
         .map(Into::into)

@@ -9,7 +9,7 @@ import "anki/generic.proto";
 
 service ImportExportService {
   rpc ImportCollectionPackage(ImportCollectionPackageRequest)
-      returns (generic.String);
+      returns (generic.Empty);
   rpc ExportCollectionPackage(ExportCollectionPackageRequest)
       returns (generic.Empty);
 }

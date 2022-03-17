@@ -479,10 +479,10 @@ def replace_with_apkg(
 
         mw.taskman.run_on_main(lambda: mw.progress.update(label=label))
 
-    def do_import() -> str:
+    def do_import() -> None:
         col_path = mw.pm.collectionPath()
         media_folder = os.path.join(mw.pm.profileFolder(), "collection.media")
-        return mw.backend.import_collection_package(
+        mw.backend.import_collection_package(
             col_path=col_path, backup_path=filename, media_folder=media_folder
         )
 
@@ -491,14 +491,12 @@ def replace_with_apkg(
         timer.deleteLater()
 
         try:
-            soft_error = future.result()
+            future.result()
         except Exception as error:
             if not isinstance(error, Interrupted):
                 showWarning(str(error))
             callback(False)
         else:
-            if soft_error:
-                showWarning(soft_error)
             callback(True)
 
     qconnect(timer.timeout, on_progress)

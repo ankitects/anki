@@ -348,7 +348,6 @@ mod test {
         for (legacy, name) in [(true, "legacy"), (false, "v3")] {
             // export to a file
             let col = collection_with_media(dir, name)?;
-            let tr = col.tr.clone();
             let colpkg_name = dir.join(format!("{name}.colpkg"));
             col.export_colpkg(&colpkg_name, true, legacy, |_| ())?;
             // import into a new collection
@@ -358,16 +357,13 @@ mod test {
                 .into_owned();
             let import_media_dir = dir.join(format!("{name}.media"));
             std::fs::create_dir(&import_media_dir)?;
-            assert_eq!(
-                &import_colpkg(
-                    &colpkg_name.to_string_lossy(),
-                    &anki2_name,
-                    import_media_dir.to_str().unwrap(),
-                    &tr,
-                    |_| Ok(()),
-                )?,
-                ""
-            );
+            import_colpkg(
+                &colpkg_name.to_string_lossy(),
+                &anki2_name,
+                import_media_dir.to_str().unwrap(),
+                |_| Ok(()),
+            )?;
+
             // confirm media imported correctly
             assert_eq!(std::fs::read(import_media_dir.join("1"))?, b"1");
             assert_eq!(std::fs::read(import_media_dir.join("2"))?, b"2");

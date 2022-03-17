@@ -56,9 +56,8 @@ pub fn import_colpkg(
     colpkg_path: &str,
     target_col_path: &str,
     target_media_folder: &str,
-    tr: &I18n,
     mut progress_fn: impl FnMut(ImportProgress) -> Result<()>,
-) -> Result<String> {
+) -> Result<()> {
     progress_fn(ImportProgress::Collection)?;
     let col_path = PathBuf::from(target_col_path);
     let col_dir = col_path
@@ -75,20 +74,16 @@ pub fn import_colpkg(
     check_collection(tempfile.path())?;
     progress_fn(ImportProgress::Collection)?;
 
-    let mut result = String::new();
-    if let Err(e) = restore_media(&meta, progress_fn, &mut archive, target_media_folder) {
-        result = tr
-            .importing_failed_to_import_media_file(e.localized_description(tr))
-            .into_owned()
-    };
+    let media_import_result = restore_media(&meta, progress_fn, &mut archive, target_media_folder);
 
+    // Proceed with replacing collection, regardless of media import result
     tempfile.as_file().sync_all()?;
     tempfile.persist(&col_path).map_err(|err| err.error)?;
     if !cfg!(windows) {
         File::open(col_dir)?.sync_all()?;
     }
 
-    Ok(result)
+    media_import_result
 }
 
 fn check_collection(col_path: &Path) -> Result<()> {
