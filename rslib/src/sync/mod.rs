@@ -21,6 +21,7 @@ use crate::{
     deckconfig::DeckConfSchema11,
     decks::DeckSchema11,
     error::{SyncError, SyncErrorKind},
+    io::atomic_rename,
     notes::Note,
     notetype::{Notetype, NotetypeSchema11},
     prelude::*,
@@ -679,14 +680,7 @@ impl Collection {
         let db = open_and_check_sqlite_file(out_file.path())?;
         db.execute_batch("update col set ls=mod")?;
         drop(db);
-        // overwrite existing collection atomically
-        out_file.as_file().sync_all()?;
-        out_file
-            .persist(&col_path)
-            .map_err(|e| AnkiError::IoError(format!("download save failed: {}", e)))?;
-        if !cfg!(windows) {
-            std::fs::File::open(col_folder)?.sync_all()?;
-        }
+        atomic_rename(out_file, &col_path)?;
 
         Ok(())
     }

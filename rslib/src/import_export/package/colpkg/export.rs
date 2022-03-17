@@ -20,6 +20,7 @@ use zstd::{
 use super::super::{MediaEntries, MediaEntry, Meta, Version};
 use crate::{
     collection::CollectionBuilder,
+    io::atomic_rename,
     media::files::{filename_if_normalized, sha1_of_data},
     prelude::*,
 };
@@ -38,6 +39,7 @@ impl Collection {
         progress_fn: impl FnMut(usize),
     ) -> Result<()> {
         let colpkg_name = out_path.as_ref();
+        let temp_colpkg = NamedTempFile::new_in(colpkg_name.parent().ok_or(AnkiError::NotFound)?)?;
         let src_path = self.col_path.clone();
         let src_media_folder = if include_media {
             Some(self.media_folder.clone())
@@ -50,14 +52,16 @@ impl Collection {
         // exporting code should be downgrading to 18 instead of 11 (which will probably require
         // changing the boolean to an enum).
         self.close(true)?;
+
         export_collection_file(
-            &colpkg_name,
+            temp_colpkg.path(),
             &src_path,
             src_media_folder,
             legacy,
             &tr,
             progress_fn,
-        )
+        )?;
+        atomic_rename(temp_colpkg, colpkg_name)
     }
 }
 

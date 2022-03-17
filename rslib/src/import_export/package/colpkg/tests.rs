@@ -88,6 +88,8 @@ fn normalization_check_on_export() -> Result<()> {
             .unwrap_err(),
         AnkiError::MediaCheckRequired
     );
+    // file should have been cleaned up
+    assert!(!colpkg_name.exists());
 
     Ok(())
 }
