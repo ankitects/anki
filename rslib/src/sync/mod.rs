@@ -29,7 +29,7 @@ use crate::{
     serde::{default_on_invalid, deserialize_int_from_number},
     storage::{
         card::data::{card_data_string, original_position_from_card_data},
-        open_and_check_sqlite_file,
+        open_and_check_sqlite_file, SchemaVersion,
     },
     tags::{join_tags, split_tags, Tag},
 };
@@ -654,7 +654,7 @@ impl Collection {
     pub(crate) async fn full_upload_inner(mut self, server: Box<dyn SyncServer>) -> Result<()> {
         self.before_upload()?;
         let col_path = self.col_path.clone();
-        self.close(true)?;
+        self.close(SchemaVersion::V11)?;
         server.full_upload(&col_path, false).await
     }
 
@@ -674,7 +674,7 @@ impl Collection {
         let col_folder = col_path
             .parent()
             .ok_or_else(|| AnkiError::invalid_input("couldn't get col_folder"))?;
-        self.close(false)?;
+        self.close(SchemaVersion::Latest)?;
         let out_file = server.full_download(Some(col_folder)).await?;
         // check file ok
         let db = open_and_check_sqlite_file(out_file.path())?;

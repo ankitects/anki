@@ -16,7 +16,7 @@ use crate::{
     log::{default_logger, Logger},
     notetype::{Notetype, NotetypeId},
     scheduler::{queue::CardQueues, SchedulerInfo},
-    storage::SqliteStorage,
+    storage::{SchemaVersion, SqliteStorage},
     types::Usn,
     undo::UndoManager,
 };
@@ -141,8 +141,8 @@ impl Collection {
         builder
     }
 
-    pub(crate) fn close(self, downgrade: bool) -> Result<()> {
-        self.storage.close(downgrade)
+    pub(crate) fn close(self, ver: SchemaVersion) -> Result<()> {
+        self.storage.close(ver)
     }
 
     pub(crate) fn usn(&self) -> Result<Usn> {

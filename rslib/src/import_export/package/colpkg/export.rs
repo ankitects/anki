@@ -24,6 +24,7 @@ use crate::{
     io::{atomic_rename, read_dir_files, tempfile_in_parent_of},
     media::files::filename_if_normalized,
     prelude::*,
+    storage::SchemaVersion,
 };
 
 /// Enable multithreaded compression if over this size. For smaller files,
@@ -48,11 +49,11 @@ impl Collection {
             None
         };
         let tr = self.tr.clone();
-        // FIXME: downgrade on v3 export is superfluous at current schema version. We don't
-        // want things to break when the schema is bumped in the future, so perhaps the
-        // exporting code should be downgrading to 18 instead of 11 (which will probably require
-        // changing the boolean to an enum).
-        self.close(true)?;
+        self.close(if legacy {
+            SchemaVersion::V11
+        } else {
+            SchemaVersion::V18
+        })?;
 
         export_collection_file(
             temp_colpkg.path(),
@@ -173,7 +174,7 @@ fn create_dummy_collection_file(tr: &I18n) -> Result<NamedTempFile> {
         .storage
         .db
         .execute_batch("pragma page_size=512; pragma journal_mode=delete; vacuum;")?;
-    dummy_col.close(true)?;
+    dummy_col.close(SchemaVersion::V11)?;
 
     Ok(tempfile)
 }
@@ -332,8 +333,8 @@ impl MediaCopier {
             let count = match reader.read(&mut buf) {
                 Ok(0) => break,
                 Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
-                result => result,
-            }?;
+                result => result?,
+            };
             size += count;
             hasher.update(&buf[..count]);
             wrapped_writer.write(&buf[..count])?;

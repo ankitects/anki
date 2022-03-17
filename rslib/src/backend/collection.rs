@@ -13,6 +13,7 @@ use crate::{
     collection::{backup, CollectionBuilder},
     log::{self},
     prelude::*,
+    storage::SchemaVersion,
 };
 
 impl CollectionService for Backend {
@@ -56,7 +57,7 @@ impl CollectionService for Backend {
 
         if input.downgrade_to_schema11 {
             let log = log::terminal();
-            if let Err(e) = col_inner.close(input.downgrade_to_schema11) {
+            if let Err(e) = col_inner.close(SchemaVersion::V11) {
                 error!(log, " failed: {:?}", e);
             }
         }
@@ -72,6 +73,7 @@ impl CollectionService for Backend {
 
         Ok(().into())
     }
+
     fn check_database(&self, _input: pb::Empty) -> Result<pb::CheckDatabaseResponse> {
         let mut handler = self.new_progress_handler();
         let progress_fn = move |progress, throttle| {
