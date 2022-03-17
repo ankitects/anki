@@ -68,3 +68,24 @@ fn roundtrip() -> Result<()> {
 
     Ok(())
 }
+
+/// Files with an invalid encoding should prevent export, except
+/// on Apple platforms where the encoding is transparently changed.
+#[test]
+#[cfg(not(target_vendor = "apple"))]
+fn normalization_check_on_export() -> Result<()> {
+    let _dir = tempdir()?;
+    let dir = _dir.path();
+
+    let col = collection_with_media(dir, "normalize")?;
+    let colpkg_name = dir.join("normalize.colpkg");
+    // manually write a file in the wrong encoding.
+    std::fs::write(col.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
+    assert_eq!(
+        col.export_colpkg(&colpkg_name, true, false, |_| ())
+            .unwrap_err(),
+        AnkiError::MediaCheckRequired
+    );
+
+    Ok(())
+}

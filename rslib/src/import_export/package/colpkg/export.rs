@@ -18,7 +18,9 @@ use zstd::{
 
 use super::super::{MediaEntries, MediaEntry, Meta, Version};
 use crate::{
-    collection::CollectionBuilder, media::files::sha1_of_data, prelude::*, text::normalize_to_nfc,
+    collection::CollectionBuilder,
+    media::files::{filename_if_normalized, sha1_of_data},
+    prelude::*,
 };
 
 /// Enable multithreaded compression if over this size. For smaller files,
@@ -279,16 +281,18 @@ fn make_media_entry(data: &[u8], name: String) -> MediaEntry {
 }
 
 fn normalized_unicode_file_name(entry: &DirEntry) -> Result<String> {
-    entry
-        .file_name()
-        .to_str()
-        .map(|name| normalize_to_nfc(name).into())
-        .ok_or_else(|| {
-            AnkiError::IoError(format!(
-                "non-unicode file name: {}",
-                entry.file_name().to_string_lossy()
-            ))
-        })
+    let filename = entry.file_name();
+    let filename = filename.to_str().ok_or_else(|| {
+        AnkiError::IoError(format!(
+            "non-unicode file name: {}",
+            entry.file_name().to_string_lossy()
+        ))
+    })?;
+    if let Some(filename) = filename_if_normalized(filename) {
+        Ok(filename.into_owned())
+    } else {
+        Err(AnkiError::MediaCheckRequired)
+    }
 }
 
 /// Writes media files while compressing according to the targeted version.
