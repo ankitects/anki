@@ -3,3 +3,4 @@
 
 pub(super) mod export;
 pub(super) mod import;
+mod tests;
