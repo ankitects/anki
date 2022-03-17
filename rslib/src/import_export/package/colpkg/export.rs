@@ -4,7 +4,7 @@
 use std::{
     borrow::Cow,
     collections::HashMap,
-    fs::{read_dir, DirEntry, File},
+    fs::{DirEntry, File},
     io::{self, Read, Write},
     path::{Path, PathBuf},
 };
@@ -20,7 +20,9 @@ use zstd::{
 
 use super::super::{MediaEntries, MediaEntry, Meta, Version};
 use crate::{
-    collection::CollectionBuilder, io::atomic_rename, media::files::filename_if_normalized,
+    collection::CollectionBuilder,
+    io::{atomic_rename, read_dir_files},
+    media::files::filename_if_normalized,
     prelude::*,
 };
 
@@ -253,23 +255,17 @@ fn write_media_files(
     mut progress_fn: impl FnMut(usize),
 ) -> Result<()> {
     let mut copier = MediaCopier::new(meta);
-    let mut index = 0;
-    for entry in read_dir(dir)? {
-        let entry = entry?;
-        if !entry.metadata()?.is_file() {
-            continue;
-        }
+    for (index, entry) in read_dir_files(dir)?.enumerate() {
         progress_fn(index);
 
         zip.start_file(index.to_string(), file_options_stored())?;
 
+        let entry = entry?;
         let name = normalized_unicode_file_name(&entry)?;
         let mut file = File::open(entry.path())?;
+
         let (size, sha1) = copier.copy(&mut file, zip)?;
         media_entries.push(MediaEntry::new(name, size, sha1));
-
-        // can't enumerate(), as we skip folders
-        index += 1;
     }
 
     Ok(())

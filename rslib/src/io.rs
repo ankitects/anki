@@ -20,3 +20,27 @@ pub(crate) fn atomic_rename(file: NamedTempFile, target: &Path) -> Result<()> {
     }
     Ok(())
 }
+
+/// Like [std::fs::read_dir], but only yielding files. [Err]s are not filtered.
+pub(crate) fn read_dir_files(path: impl AsRef<Path>) -> std::io::Result<ReadDirFiles> {
+    std::fs::read_dir(path).map(ReadDirFiles)
+}
+
+pub(crate) struct ReadDirFiles(std::fs::ReadDir);
+
+impl Iterator for ReadDirFiles {
+    type Item = std::io::Result<std::fs::DirEntry>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let next = self.0.next();
+        if let Some(Ok(entry)) = next.as_ref() {
+            match entry.metadata().map(|metadata| metadata.is_file()) {
+                Ok(true) => next,
+                Ok(false) => self.next(),
+                Err(error) => Some(Err(error)),
+            }
+        } else {
+            next
+        }
+    }
+}
