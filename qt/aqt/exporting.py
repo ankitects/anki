@@ -171,8 +171,12 @@ class ExportDialog(QDialog):
             def on_done(future: Future) -> None:
                 self.mw.progress.finish()
                 hooks.media_files_did_export.remove(exported_media)
-                # raises if exporter failed
-                future.result()
+                try:
+                    # raises if exporter failed
+                    future.result()
+                except Exception as e:
+                    traceback.print_exc(file=sys.stdout)
+                    showWarning(str(e))
                 self.on_export_finished()
 
             self.mw.progress.start()
