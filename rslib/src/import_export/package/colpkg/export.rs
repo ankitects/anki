@@ -10,18 +10,17 @@ use std::{
 };
 
 use prost::Message;
+use sha1::Sha1;
 use tempfile::NamedTempFile;
 use zip::{write::FileOptions, CompressionMethod, ZipWriter};
 use zstd::{
-    stream::{raw::Encoder as RawEncoder, zio::Writer},
+    stream::{raw::Encoder as RawEncoder, zio},
     Encoder,
 };
 
 use super::super::{MediaEntries, MediaEntry, Meta, Version};
 use crate::{
-    collection::CollectionBuilder,
-    io::atomic_rename,
-    media::files::{filename_if_normalized, sha1_of_data},
+    collection::CollectionBuilder, io::atomic_rename, media::files::filename_if_normalized,
     prelude::*,
 };
 
@@ -253,7 +252,7 @@ fn write_media_files(
     media_entries: &mut Vec<MediaEntry>,
     mut progress_fn: impl FnMut(usize),
 ) -> Result<()> {
-    let mut writer = MediaFileWriter::new(meta);
+    let mut copier = MediaCopier::new(meta);
     let mut index = 0;
     for entry in read_dir(dir)? {
         let entry = entry?;
@@ -265,11 +264,10 @@ fn write_media_files(
         zip.start_file(index.to_string(), file_options_stored())?;
 
         let name = normalized_unicode_file_name(&entry)?;
-        // FIXME: we should chunk this
-        let data = std::fs::read(entry.path())?;
-        let media_entry = make_media_entry(&data, name);
-        writer = writer.write(&mut std::io::Cursor::new(data), zip)?;
-        media_entries.push(media_entry);
+        let mut file = File::open(entry.path())?;
+        let (size, sha1) = copier.copy(&mut file, zip)?;
+        media_entries.push(MediaEntry::new(name, size, sha1));
+
         // can't enumerate(), as we skip folders
         index += 1;
     }
@@ -277,11 +275,13 @@ fn write_media_files(
     Ok(())
 }
 
-fn make_media_entry(data: &[u8], name: String) -> MediaEntry {
-    MediaEntry {
-        name,
-        size: data.len() as u32,
-        sha1: sha1_of_data(data).to_vec(),
+impl MediaEntry {
+    fn new(name: impl Into<String>, size: impl TryInto<u32>, sha1: impl Into<Vec<u8>>) -> Self {
+        MediaEntry {
+            name: name.into(),
+            size: size.try_into().unwrap_or_default(),
+            sha1: sha1.into(),
+        }
     }
 }
 
@@ -298,26 +298,89 @@ fn normalized_unicode_file_name(entry: &DirEntry) -> Result<String> {
         .ok_or(AnkiError::MediaCheckRequired)
 }
 
-/// Writes media files while compressing according to the targeted version.
+/// Copies and hashes while encoding according to the targeted version.
 /// If compressing, the encoder is reused to optimize for repeated calls.
-struct MediaFileWriter(Option<RawEncoder<'static>>);
+struct MediaCopier {
+    encoding: bool,
+    encoder: Option<RawEncoder<'static>>,
+}
 
-impl MediaFileWriter {
+impl MediaCopier {
     fn new(meta: &Meta) -> Self {
-        Self(
-            meta.zstd_compressed()
-                .then(|| RawEncoder::with_dictionary(0, &[]).unwrap()),
-        )
+        Self {
+            encoding: meta.zstd_compressed(),
+            encoder: None,
+        }
     }
 
-    fn write(mut self, reader: &mut impl Read, writer: &mut impl Write) -> Result<Self> {
-        // take [self] by value to prevent it from being reused after an error
-        if let Some(encoder) = self.0.take() {
-            let mut encoder_writer = Writer::new(writer, encoder);
-            io::copy(reader, &mut encoder_writer)?;
-            encoder_writer.finish()?;
-            self.0 = Some(encoder_writer.into_inner().1);
+    fn encoder(&mut self) -> Option<RawEncoder<'static>> {
+        self.encoding.then(|| {
+            self.encoder
+                .take()
+                .unwrap_or_else(|| RawEncoder::with_dictionary(0, &[]).unwrap())
+        })
+    }
+
+    /// Returns size and sha1 hash of the copied data.
+    fn copy(
+        &mut self,
+        reader: &mut impl Read,
+        writer: &mut impl Write,
+    ) -> Result<(usize, [u8; 20])> {
+        let mut size = 0;
+        let mut hasher = Sha1::new();
+        let mut buf = [0; 1024];
+        let mut wrapped_writer = MaybeEncodedWriter::new(writer, self.encoder());
+
+        loop {
+            let count = reader.read(&mut buf)?;
+            if count == 0 {
+                break;
+            }
+            size += count;
+            hasher.update(&buf[..count]);
+            wrapped_writer.write(&buf[..count])?;
+        }
+
+        self.encoder = wrapped_writer.finish()?;
+
+        Ok((size, hasher.digest().bytes()))
+    }
+}
+
+enum MaybeEncodedWriter<'a, W: Write> {
+    Stored(&'a mut W),
+    Encoded(zio::Writer<&'a mut W, RawEncoder<'static>>),
+}
+
+impl<'a, W: Write> MaybeEncodedWriter<'a, W> {
+    fn new(writer: &'a mut W, encoder: Option<RawEncoder<'static>>) -> Self {
+        if let Some(encoder) = encoder {
+            Self::Encoded(zio::Writer::new(writer, encoder))
         } else {
+            Self::Stored(writer)
+        }
+    }
+
+    fn write(&mut self, buf: &[u8]) -> Result<()> {
+        match self {
+            Self::Stored(writer) => writer.write_all(buf)?,
+            Self::Encoded(writer) => writer.write_all(buf)?,
+        };
+        Ok(())
+    }
+
+    fn finish(self) -> Result<Option<RawEncoder<'static>>> {
+        Ok(match self {
+            Self::Stored(_) => None,
+            Self::Encoded(mut writer) => {
+                writer.finish()?;
+                Some(writer.into_inner().1)
+            }
+        })
+    }
+}
+
             io::copy(reader, writer)?;
         }
 
