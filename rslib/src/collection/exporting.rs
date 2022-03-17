@@ -26,7 +26,6 @@ use crate::{
     text::normalize_to_nfc,
 };
 
-/// Bump if making changes that break restoring on older releases.
 const COLLECTION_NAME: &str = "collection.anki21b";
 const COLLECTION_NAME_V1: &str = "collection.anki2";
 const COLLECTION_NAME_V2: &str = "collection.anki21";

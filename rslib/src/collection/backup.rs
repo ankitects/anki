@@ -329,7 +329,7 @@ fn restore_media(
     archive: &mut ZipArchive<File>,
     media_folder: &str,
 ) -> Result<()> {
-    let media_entries = extract_media_file_names(meta, archive)?;
+    let media_entries = extract_media_entries(meta, archive)?;
     let mut count = 0;
 
     for (archive_file_name, entry) in media_entries.iter().enumerate() {
@@ -370,10 +370,7 @@ fn restore_media(
     Ok(())
 }
 
-fn extract_media_file_names(
-    meta: &Meta,
-    archive: &mut ZipArchive<File>,
-) -> Result<Vec<MediaEntry>> {
+fn extract_media_entries(meta: &Meta, archive: &mut ZipArchive<File>) -> Result<Vec<MediaEntry>> {
     let mut file = archive.by_name("media")?;
     let mut buf = Vec::new();
     if meta.zstd_compressed() {
