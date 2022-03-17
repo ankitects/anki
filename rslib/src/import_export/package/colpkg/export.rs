@@ -356,7 +356,6 @@ mod test {
                 .to_string_lossy()
                 .into_owned();
             let import_media_dir = dir.join(format!("{name}.media"));
-            std::fs::create_dir(&import_media_dir)?;
             import_colpkg(
                 &colpkg_name.to_string_lossy(),
                 &anki2_name,

@@ -107,6 +107,7 @@ fn restore_media(
     media_folder: &str,
 ) -> Result<()> {
     let media_entries = extract_media_entries(meta, archive)?;
+    std::fs::create_dir_all(media_folder)?;
     let mut count = 0;
 
     for (archive_file_name, entry) in media_entries.iter().enumerate() {
