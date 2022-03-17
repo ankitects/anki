@@ -5,7 +5,7 @@ use std::{
     collections::HashMap,
     fs::{self, File},
     io::{self, Read, Write},
-    path::{Path, PathBuf},
+    path::{Component, Path, PathBuf},
 };
 
 use prost::Message;
@@ -74,7 +74,8 @@ pub fn import_colpkg(
     check_collection(tempfile.path())?;
     progress_fn(ImportProgress::Collection)?;
 
-    let media_import_result = restore_media(&meta, progress_fn, &mut archive, target_media_folder);
+    let media_folder = Path::new(target_media_folder);
+    let media_import_result = restore_media(&meta, progress_fn, &mut archive, media_folder);
 
     // Proceed with replacing collection, regardless of media import result
     tempfile.as_file().sync_all()?;
@@ -104,7 +105,7 @@ fn restore_media(
     meta: &Meta,
     mut progress_fn: impl FnMut(ImportProgress) -> Result<()>,
     archive: &mut ZipArchive<File>,
-    media_folder: &str,
+    media_folder: &Path,
 ) -> Result<()> {
     let media_entries = extract_media_entries(meta, archive)?;
     std::fs::create_dir_all(media_folder)?;
@@ -117,7 +118,9 @@ fn restore_media(
         }
 
         if let Ok(mut zip_file) = archive.by_name(&archive_file_name.to_string()) {
-            let file_path = Path::new(&media_folder).join(normalize_to_nfc(&entry.name).as_ref());
+            check_filename_safe(&entry.name)?;
+            let nfc_name = normalize_to_nfc(&entry.name);
+            let file_path = media_folder.join(nfc_name.as_ref());
             let size_in_colpkg = if meta.media_list_is_hashmap() {
                 zip_file.size()
             } else {
@@ -146,6 +149,20 @@ fn restore_media(
         }
     }
     Ok(())
+}
+
+/// Return an error if name contains any path separators.
+fn check_filename_safe(name: &str) -> Result<()> {
+    let mut components = Path::new(name).components();
+    let first_element_normal = components
+        .next()
+        .map(|component| matches!(component, Component::Normal(_)))
+        .unwrap_or_default();
+    if !first_element_normal || components.next().is_some() {
+        Err(AnkiError::ImportError(ImportError::Corrupt))
+    } else {
+        Ok(())
+    }
 }
 
 fn extract_media_entries(meta: &Meta, archive: &mut ZipArchive<File>) -> Result<Vec<MediaEntry>> {
@@ -200,4 +217,25 @@ fn copy_collection(
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn path_traversal() {
+        assert!(check_filename_safe("foo").is_ok(),);
+
+        assert!(check_filename_safe("..").is_err());
+        assert!(check_filename_safe("foo/bar").is_err());
+        assert!(check_filename_safe("/foo").is_err());
+        assert!(check_filename_safe("../foo").is_err());
+
+        if cfg!(windows) {
+            assert!(check_filename_safe("foo\\bar").is_err());
+            assert!(check_filename_safe("c:\\foo").is_err());
+            assert!(check_filename_safe("\\foo").is_err());
+        }
+    }
 }
