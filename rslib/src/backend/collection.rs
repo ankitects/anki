@@ -12,7 +12,6 @@ use crate::{
     backend_proto::{self as pb, preferences::Backups},
     collection::{
         backup::{self, ImportProgress},
-        exporting::export_collection_file,
         CollectionBuilder,
     },
     log::{self},
@@ -83,20 +82,14 @@ impl CollectionService for Backend {
         let mut guard = self.lock_open_collection()?;
 
         let col_inner = guard.take().unwrap();
-        let col_path = col_inner.col_path.clone();
-        let media_dir = input.include_media.then(|| col_inner.media_folder.clone());
-
-        col_inner.close(true)?;
-
-        export_collection_file(
-            input.out_path,
-            col_path,
-            media_dir,
-            input.legacy,
-            &self.tr,
-            self.export_progress_fn(),
-        )
-        .map(Into::into)
+        col_inner
+            .export_colpkg(
+                input.out_path,
+                input.include_media,
+                input.legacy,
+                self.export_progress_fn(),
+            )
+            .map(Into::into)
     }
 
     fn restore_backup(&self, input: pb::RestoreBackupRequest) -> Result<pb::String> {

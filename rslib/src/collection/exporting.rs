@@ -69,7 +69,39 @@ impl Meta {
     }
 }
 
-pub fn export_collection_file(
+impl Collection {
+    pub fn export_colpkg(
+        self,
+        out_path: impl AsRef<Path>,
+        include_media: bool,
+        legacy: bool,
+        progress_fn: impl FnMut(usize),
+    ) -> Result<()> {
+        let colpkg_name = out_path.as_ref();
+        let src_path = self.col_path.clone();
+        let src_media_folder = if include_media {
+            Some(self.media_folder.clone())
+        } else {
+            None
+        };
+        let tr = self.tr.clone();
+        // FIXME: downgrade on v3 export is superfluous at current schema version. We don't
+        // want things to break when the schema is bumped in the future, so perhaps the
+        // exporting code should be downgrading to 18 instead of 11 (which will probably require
+        // changing the boolean to an enum).
+        self.close(true)?;
+        export_collection_file(
+            &colpkg_name,
+            &src_path,
+            src_media_folder,
+            legacy,
+            &tr,
+            progress_fn,
+        )
+    }
+}
+
+fn export_collection_file(
     out_path: impl AsRef<Path>,
     col_path: impl AsRef<Path>,
     media_dir: Option<PathBuf>,
@@ -332,12 +364,19 @@ mod test {
     use super::*;
     use crate::{collection::backup::restore_backup, media::MediaManager};
 
-    fn collection_in(dir: &Path, name: &str) -> Result<Collection> {
+    fn collection_with_media(dir: &Path, name: &str) -> Result<Collection> {
+        let name = format!("{name}_src");
         let media_folder = dir.join(format!("{name}.media"));
         std::fs::create_dir(&media_folder)?;
-        CollectionBuilder::new(dir.join(format!("{name}.anki2")))
+        let col = CollectionBuilder::new(dir.join(format!("{name}.anki2")))
             .set_media_paths(media_folder, dir.join(format!("{name}.mdb")))
-            .build()
+            .build()?;
+        let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+        let mut ctx = mgr.dbctx();
+        mgr.add_file(&mut ctx, "1", b"1")?;
+        mgr.add_file(&mut ctx, "2", b"2")?;
+        mgr.add_file(&mut ctx, "3", b"3")?;
+        Ok(col)
     }
 
     #[test]
@@ -345,30 +384,12 @@ mod test {
         let _dir = tempdir()?;
         let dir = _dir.path();
 
-        let col = collection_in(dir, "source")?;
-        let tr = col.tr.clone();
-        let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-        let mut ctx = mgr.dbctx();
-        mgr.add_file(&mut ctx, "1", b"1")?;
-        mgr.add_file(&mut ctx, "2", b"2")?;
-        mgr.add_file(&mut ctx, "3", b"3")?;
-
-        let col_path = col.col_path.clone();
-        let media_dir = col.media_folder.clone();
-        // fixme: downgrade on v3 export is superfluous at current schema version
-        col.close(true)?;
-
         for (legacy, name) in [(true, "legacy"), (false, "v3")] {
             // export to a file
+            let col = collection_with_media(dir, name)?;
+            let tr = col.tr.clone();
             let colpkg_name = dir.join(format!("{name}.colpkg"));
-            export_collection_file(
-                &colpkg_name,
-                &col_path,
-                Some(media_dir.clone()),
-                legacy,
-                &tr,
-                |_| (),
-            )?;
+            col.export_colpkg(&colpkg_name, true, legacy, |_| ())?;
             // import into a new collection
             let anki2_name = dir
                 .join(format!("{name}.anki2"))
