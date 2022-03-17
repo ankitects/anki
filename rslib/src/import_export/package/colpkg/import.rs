@@ -58,7 +58,6 @@ pub fn import_colpkg(
     colpkg_path: &str,
     target_col_path: &str,
     target_media_folder: &str,
-    tr: &I18n,
     mut progress_fn: impl FnMut(ImportProgress) -> Result<()>,
 ) -> Result<()> {
     progress_fn(ImportProgress::Collection)?;
@@ -78,17 +77,9 @@ pub fn import_colpkg(
     progress_fn(ImportProgress::Collection)?;
 
     let media_folder = Path::new(target_media_folder);
-    let media_import_result = restore_media(&meta, progress_fn, &mut archive, media_folder)
-        .map_err(|err| {
-            AnkiError::ImportError(ImportError::MediaImportFailed(
-                err.localized_description(tr),
-            ))
-        });
+    restore_media(&meta, progress_fn, &mut archive, media_folder)?;
 
-    // Proceed with replacing collection, regardless of media import result
-    atomic_rename(tempfile, &col_path)?;
-
-    media_import_result
+    atomic_rename(tempfile, &col_path)
 }
 
 fn check_collection(col_path: &Path) -> Result<()> {
