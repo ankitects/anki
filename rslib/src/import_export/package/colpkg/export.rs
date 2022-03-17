@@ -21,7 +21,7 @@ use zstd::{
 use super::super::{MediaEntries, MediaEntry, Meta, Version};
 use crate::{
     collection::CollectionBuilder,
-    io::{atomic_rename, read_dir_files},
+    io::{atomic_rename, read_dir_files, tempfile_in_parent_of},
     media::files::filename_if_normalized,
     prelude::*,
 };
@@ -40,7 +40,7 @@ impl Collection {
         progress_fn: impl FnMut(usize),
     ) -> Result<()> {
         let colpkg_name = out_path.as_ref();
-        let temp_colpkg = NamedTempFile::new_in(colpkg_name.parent().ok_or(AnkiError::NotFound)?)?;
+        let temp_colpkg = tempfile_in_parent_of(colpkg_name)?;
         let src_path = self.col_path.clone();
         let src_media_folder = if include_media {
             Some(self.media_folder.clone())

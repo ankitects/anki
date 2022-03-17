@@ -7,6 +7,13 @@ use tempfile::NamedTempFile;
 
 use crate::prelude::*;
 
+pub(crate) fn tempfile_in_parent_of(file: &Path) -> Result<NamedTempFile> {
+    let dir = file
+        .parent()
+        .ok_or_else(|| AnkiError::invalid_input("not a file path"))?;
+    NamedTempFile::new_in(dir).map_err(|err| AnkiError::file_io_error(err, dir))
+}
+
 pub(crate) fn atomic_rename(file: NamedTempFile, target: &Path) -> Result<()> {
     file.as_file().sync_all()?;
     file.persist(&target)

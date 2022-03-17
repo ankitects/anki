@@ -10,7 +10,6 @@ use std::{
 };
 
 use prost::Message;
-use tempfile::NamedTempFile;
 use zip::{read::ZipFile, ZipArchive};
 use zstd::{self, stream::copy_decode};
 
@@ -22,7 +21,7 @@ use crate::{
         package::{MediaEntries, MediaEntry, Meta},
         ImportProgress,
     },
-    io::atomic_rename,
+    io::{atomic_rename, tempfile_in_parent_of},
     media::files::{normalize_filename, sha1_of_file},
     prelude::*,
 };
@@ -62,10 +61,7 @@ pub fn import_colpkg(
 ) -> Result<()> {
     progress_fn(ImportProgress::Collection)?;
     let col_path = PathBuf::from(target_col_path);
-    let col_dir = col_path
-        .parent()
-        .ok_or_else(|| AnkiError::invalid_input("bad collection path"))?;
-    let mut tempfile = NamedTempFile::new_in(col_dir)?;
+    let mut tempfile = tempfile_in_parent_of(&col_path)?;
 
     let backup_file = File::open(colpkg_path)?;
     let mut archive = ZipArchive::new(backup_file)?;
@@ -104,16 +100,14 @@ fn restore_media(
 ) -> Result<()> {
     let media_entries = extract_media_entries(meta, archive)?;
     std::fs::create_dir_all(media_folder)?;
-    let mut count = 0;
 
     for (archive_file_name, entry) in media_entries.iter().enumerate() {
-        count += 1;
-        if count % 10 == 0 {
-            progress_fn(ImportProgress::Media(count))?;
+        if archive_file_name % 10 == 0 {
+            progress_fn(ImportProgress::Media(archive_file_name))?;
         }
 
-        if let Ok(zip_file) = archive.by_name(&archive_file_name.to_string()) {
-            restore_media_file(meta, media_folder, entry, zip_file)?;
+        if let Ok(mut zip_file) = archive.by_name(&archive_file_name.to_string()) {
+            maybe_restore_media_file(meta, media_folder, entry, &mut zip_file)?;
         } else {
             return Err(AnkiError::invalid_input(&format!(
                 "{archive_file_name} missing from archive"
@@ -124,29 +118,32 @@ fn restore_media(
     Ok(())
 }
 
-fn restore_media_file(
+fn maybe_restore_media_file(
     meta: &Meta,
     media_folder: &Path,
     entry: &MediaEntry,
-    mut zip_file: ZipFile,
+    zip_file: &mut ZipFile,
 ) -> Result<()> {
     let file_path = entry.safe_normalized_file_path(meta, media_folder)?;
-    let already_exists = entry.is_equal_to(meta, &zip_file, &file_path);
+    let already_exists = entry.is_equal_to(meta, zip_file, &file_path);
     if !already_exists {
-        // FIXME: write to temp file and atomic rename
-        let mut file = match File::create(&file_path) {
-            Ok(file) => file,
-            Err(err) => return Err(AnkiError::file_io_error(err, &file_path)),
-        };
-        if meta.zstd_compressed() {
-            copy_decode(&mut zip_file, &mut file)
-        } else {
-            io::copy(&mut zip_file, &mut file).map(|_| ())
-        }
-        .map_err(|err| AnkiError::file_io_error(err, &file_path))?;
+        restore_media_file(meta, zip_file, &file_path)?;
     };
 
     Ok(())
+}
+
+fn restore_media_file(meta: &Meta, zip_file: &mut ZipFile, path: &Path) -> Result<()> {
+    let mut tempfile = tempfile_in_parent_of(path)?;
+
+    if meta.zstd_compressed() {
+        copy_decode(zip_file, &mut tempfile)
+    } else {
+        io::copy(zip_file, &mut tempfile).map(|_| ())
+    }
+    .map_err(|err| AnkiError::file_io_error(err, path))?;
+
+    atomic_rename(tempfile, path)
 }
 
 impl MediaEntry {
