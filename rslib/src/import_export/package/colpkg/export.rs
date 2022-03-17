@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::{
+    borrow::Cow,
     collections::HashMap,
     fs::{read_dir, DirEntry, File},
     io::{self, Read, Write},
@@ -288,11 +289,9 @@ fn normalized_unicode_file_name(entry: &DirEntry) -> Result<String> {
             entry.file_name().to_string_lossy()
         ))
     })?;
-    if let Some(filename) = filename_if_normalized(filename) {
-        Ok(filename.into_owned())
-    } else {
-        Err(AnkiError::MediaCheckRequired)
-    }
+    filename_if_normalized(filename)
+        .map(Cow::into_owned)
+        .ok_or(AnkiError::MediaCheckRequired)
 }
 
 /// Writes media files while compressing according to the targeted version.
