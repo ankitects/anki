@@ -325,14 +325,15 @@ impl MediaCopier {
     ) -> Result<(usize, [u8; 20])> {
         let mut size = 0;
         let mut hasher = Sha1::new();
-        let mut buf = [0; 1024];
+        let mut buf = [0; 64 * 1024];
         let mut wrapped_writer = MaybeEncodedWriter::new(writer, self.encoder());
 
         loop {
-            let count = reader.read(&mut buf)?;
-            if count == 0 {
-                break;
-            }
+            let count = match reader.read(&mut buf) {
+                Ok(0) => break,
+                Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
+                result => result,
+            }?;
             size += count;
             hasher.update(&buf[..count]);
             wrapped_writer.write(&buf[..count])?;
