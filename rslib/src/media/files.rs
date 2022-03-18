@@ -281,7 +281,7 @@ fn existing_file_sha1(path: &Path) -> io::Result<Option<[u8; 20]>> {
 }
 
 /// Return the SHA1 of a file, failing if it doesn't exist.
-pub(super) fn sha1_of_file(path: &Path) -> io::Result<[u8; 20]> {
+pub(crate) fn sha1_of_file(path: &Path) -> io::Result<[u8; 20]> {
     let mut file = fs::File::open(path)?;
     let mut hasher = Sha1::new();
     let mut buf = [0; 64 * 1024];

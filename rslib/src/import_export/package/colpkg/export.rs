@@ -4,25 +4,27 @@
 use std::{
     borrow::Cow,
     collections::HashMap,
-    fs::{read_dir, DirEntry, File},
+    fs::{DirEntry, File},
     io::{self, Read, Write},
     path::{Path, PathBuf},
 };
 
 use prost::Message;
+use sha1::Sha1;
 use tempfile::NamedTempFile;
 use zip::{write::FileOptions, CompressionMethod, ZipWriter};
 use zstd::{
-    stream::{raw::Encoder as RawEncoder, zio::Writer},
+    stream::{raw::Encoder as RawEncoder, zio},
     Encoder,
 };
 
 use super::super::{MediaEntries, MediaEntry, Meta, Version};
 use crate::{
     collection::CollectionBuilder,
-    io::atomic_rename,
-    media::files::{filename_if_normalized, sha1_of_data},
+    io::{atomic_rename, read_dir_files, tempfile_in_parent_of},
+    media::files::filename_if_normalized,
     prelude::*,
+    storage::SchemaVersion,
 };
 
 /// Enable multithreaded compression if over this size. For smaller files,
@@ -39,7 +41,7 @@ impl Collection {
         progress_fn: impl FnMut(usize),
     ) -> Result<()> {
         let colpkg_name = out_path.as_ref();
-        let temp_colpkg = NamedTempFile::new_in(colpkg_name.parent().ok_or(AnkiError::NotFound)?)?;
+        let temp_colpkg = tempfile_in_parent_of(colpkg_name)?;
         let src_path = self.col_path.clone();
         let src_media_folder = if include_media {
             Some(self.media_folder.clone())
@@ -47,11 +49,11 @@ impl Collection {
             None
         };
         let tr = self.tr.clone();
-        // FIXME: downgrade on v3 export is superfluous at current schema version. We don't
-        // want things to break when the schema is bumped in the future, so perhaps the
-        // exporting code should be downgrading to 18 instead of 11 (which will probably require
-        // changing the boolean to an enum).
-        self.close(true)?;
+        self.close(Some(if legacy {
+            SchemaVersion::V11
+        } else {
+            SchemaVersion::V18
+        }))?;
 
         export_collection_file(
             temp_colpkg.path(),
@@ -172,7 +174,7 @@ fn create_dummy_collection_file(tr: &I18n) -> Result<NamedTempFile> {
         .storage
         .db
         .execute_batch("pragma page_size=512; pragma journal_mode=delete; vacuum;")?;
-    dummy_col.close(true)?;
+    dummy_col.close(Some(SchemaVersion::V11))?;
 
     Ok(tempfile)
 }
@@ -253,35 +255,30 @@ fn write_media_files(
     media_entries: &mut Vec<MediaEntry>,
     mut progress_fn: impl FnMut(usize),
 ) -> Result<()> {
-    let mut writer = MediaFileWriter::new(meta);
-    let mut index = 0;
-    for entry in read_dir(dir)? {
-        let entry = entry?;
-        if !entry.metadata()?.is_file() {
-            continue;
-        }
+    let mut copier = MediaCopier::new(meta);
+    for (index, entry) in read_dir_files(dir)?.enumerate() {
         progress_fn(index);
 
         zip.start_file(index.to_string(), file_options_stored())?;
 
+        let entry = entry?;
         let name = normalized_unicode_file_name(&entry)?;
-        // FIXME: we should chunk this
-        let data = std::fs::read(entry.path())?;
-        let media_entry = make_media_entry(&data, name);
-        writer = writer.write(&mut std::io::Cursor::new(data), zip)?;
-        media_entries.push(media_entry);
-        // can't enumerate(), as we skip folders
-        index += 1;
+        let mut file = File::open(entry.path())?;
+
+        let (size, sha1) = copier.copy(&mut file, zip)?;
+        media_entries.push(MediaEntry::new(name, size, sha1));
     }
 
     Ok(())
 }
 
-fn make_media_entry(data: &[u8], name: String) -> MediaEntry {
-    MediaEntry {
-        name,
-        size: data.len() as u32,
-        sha1: sha1_of_data(data).to_vec(),
+impl MediaEntry {
+    fn new(name: impl Into<String>, size: impl TryInto<u32>, sha1: impl Into<Vec<u8>>) -> Self {
+        MediaEntry {
+            name: name.into(),
+            size: size.try_into().unwrap_or_default(),
+            sha1: sha1.into(),
+        }
     }
 }
 
@@ -298,29 +295,112 @@ fn normalized_unicode_file_name(entry: &DirEntry) -> Result<String> {
         .ok_or(AnkiError::MediaCheckRequired)
 }
 
-/// Writes media files while compressing according to the targeted version.
+/// Copies and hashes while encoding according to the targeted version.
 /// If compressing, the encoder is reused to optimize for repeated calls.
-struct MediaFileWriter(Option<RawEncoder<'static>>);
+struct MediaCopier {
+    encoding: bool,
+    encoder: Option<RawEncoder<'static>>,
+}
 
-impl MediaFileWriter {
+impl MediaCopier {
     fn new(meta: &Meta) -> Self {
-        Self(
-            meta.zstd_compressed()
-                .then(|| RawEncoder::with_dictionary(0, &[]).unwrap()),
-        )
+        Self {
+            encoding: meta.zstd_compressed(),
+            encoder: None,
+        }
     }
 
-    fn write(mut self, reader: &mut impl Read, writer: &mut impl Write) -> Result<Self> {
-        // take [self] by value to prevent it from being reused after an error
-        if let Some(encoder) = self.0.take() {
-            let mut encoder_writer = Writer::new(writer, encoder);
-            io::copy(reader, &mut encoder_writer)?;
-            encoder_writer.finish()?;
-            self.0 = Some(encoder_writer.into_inner().1);
-        } else {
-            io::copy(reader, writer)?;
+    fn encoder(&mut self) -> Option<RawEncoder<'static>> {
+        self.encoding.then(|| {
+            self.encoder
+                .take()
+                .unwrap_or_else(|| RawEncoder::with_dictionary(0, &[]).unwrap())
+        })
+    }
+
+    /// Returns size and sha1 hash of the copied data.
+    fn copy(
+        &mut self,
+        reader: &mut impl Read,
+        writer: &mut impl Write,
+    ) -> Result<(usize, [u8; 20])> {
+        let mut size = 0;
+        let mut hasher = Sha1::new();
+        let mut buf = [0; 64 * 1024];
+        let mut wrapped_writer = MaybeEncodedWriter::new(writer, self.encoder());
+
+        loop {
+            let count = match reader.read(&mut buf) {
+                Ok(0) => break,
+                Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
+                result => result?,
+            };
+            size += count;
+            hasher.update(&buf[..count]);
+            wrapped_writer.write(&buf[..count])?;
         }
 
-        Ok(self)
+        self.encoder = wrapped_writer.finish()?;
+
+        Ok((size, hasher.digest().bytes()))
+    }
+}
+
+enum MaybeEncodedWriter<'a, W: Write> {
+    Stored(&'a mut W),
+    Encoded(zio::Writer<&'a mut W, RawEncoder<'static>>),
+}
+
+impl<'a, W: Write> MaybeEncodedWriter<'a, W> {
+    fn new(writer: &'a mut W, encoder: Option<RawEncoder<'static>>) -> Self {
+        if let Some(encoder) = encoder {
+            Self::Encoded(zio::Writer::new(writer, encoder))
+        } else {
+            Self::Stored(writer)
+        }
+    }
+
+    fn write(&mut self, buf: &[u8]) -> Result<()> {
+        match self {
+            Self::Stored(writer) => writer.write_all(buf)?,
+            Self::Encoded(writer) => writer.write_all(buf)?,
+        };
+        Ok(())
+    }
+
+    fn finish(self) -> Result<Option<RawEncoder<'static>>> {
+        Ok(match self {
+            Self::Stored(_) => None,
+            Self::Encoded(mut writer) => {
+                writer.finish()?;
+                Some(writer.into_inner().1)
+            }
+        })
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::media::files::sha1_of_data;
+
+    #[test]
+    fn media_file_writing() {
+        let bytes = b"foo";
+        let bytes_hash = sha1_of_data(b"foo");
+
+        for meta in [Meta::new_legacy(), Meta::new()] {
+            let mut writer = MediaCopier::new(&meta);
+            let mut buf = Vec::new();
+
+            let (size, hash) = writer.copy(&mut bytes.as_slice(), &mut buf).unwrap();
+            if meta.zstd_compressed() {
+                buf = zstd::decode_all(buf.as_slice()).unwrap();
+            }
+
+            assert_eq!(buf, bytes);
+            assert_eq!(size, bytes.len());
+            assert_eq!(hash, bytes_hash);
+        }
     }
 }

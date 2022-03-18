@@ -24,7 +24,6 @@ from ..errors import (
     DBError,
     ExistsError,
     FilteredDeckError,
-    ImportMediaError,
     Interrupted,
     InvalidInput,
     LocalizedError,
@@ -219,9 +218,6 @@ def backend_exception_to_pylib(err: backend_pb2.BackendError) -> Exception:
 
     elif val == kind.CUSTOM_STUDY_ERROR:
         return CustomStudyError(err.localized)
-
-    elif val == kind.IMPORT_MEDIA_ERROR:
-        return ImportMediaError(err.localized)
 
     else:
         # sadly we can't do exhaustiveness checking on protobuf enums

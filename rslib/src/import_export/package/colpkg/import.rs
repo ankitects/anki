@@ -10,8 +10,7 @@ use std::{
 };
 
 use prost::Message;
-use tempfile::NamedTempFile;
-use zip::ZipArchive;
+use zip::{read::ZipFile, ZipArchive};
 use zstd::{self, stream::copy_decode};
 
 use super::super::Version;
@@ -22,7 +21,7 @@ use crate::{
         package::{MediaEntries, MediaEntry, Meta},
         ImportProgress,
     },
-    io::atomic_rename,
+    io::{atomic_rename, tempfile_in_parent_of},
     media::files::normalize_filename,
     prelude::*,
 };
@@ -58,15 +57,11 @@ pub fn import_colpkg(
     colpkg_path: &str,
     target_col_path: &str,
     target_media_folder: &str,
-    tr: &I18n,
     mut progress_fn: impl FnMut(ImportProgress) -> Result<()>,
 ) -> Result<()> {
     progress_fn(ImportProgress::Collection)?;
     let col_path = PathBuf::from(target_col_path);
-    let col_dir = col_path
-        .parent()
-        .ok_or_else(|| AnkiError::invalid_input("bad collection path"))?;
-    let mut tempfile = NamedTempFile::new_in(col_dir)?;
+    let mut tempfile = tempfile_in_parent_of(&col_path)?;
 
     let backup_file = File::open(colpkg_path)?;
     let mut archive = ZipArchive::new(backup_file)?;
@@ -78,17 +73,9 @@ pub fn import_colpkg(
     progress_fn(ImportProgress::Collection)?;
 
     let media_folder = Path::new(target_media_folder);
-    let media_import_result = restore_media(&meta, progress_fn, &mut archive, media_folder)
-        .map_err(|err| {
-            AnkiError::ImportError(ImportError::MediaImportFailed(
-                err.localized_description(tr),
-            ))
-        });
+    restore_media(&meta, progress_fn, &mut archive, media_folder)?;
 
-    // Proceed with replacing collection, regardless of media import result
-    atomic_rename(tempfile, &col_path)?;
-
-    media_import_result
+    atomic_rename(tempfile, &col_path)
 }
 
 fn check_collection(col_path: &Path) -> Result<()> {
@@ -113,46 +100,70 @@ fn restore_media(
 ) -> Result<()> {
     let media_entries = extract_media_entries(meta, archive)?;
     std::fs::create_dir_all(media_folder)?;
-    let mut count = 0;
 
     for (archive_file_name, entry) in media_entries.iter().enumerate() {
-        count += 1;
-        if count % 10 == 0 {
-            progress_fn(ImportProgress::Media(count))?;
+        if archive_file_name % 10 == 0 {
+            progress_fn(ImportProgress::Media(archive_file_name))?;
         }
 
         if let Ok(mut zip_file) = archive.by_name(&archive_file_name.to_string()) {
-            check_filename_safe(&entry.name)?;
-            let normalized = maybe_normalizing(&entry.name, meta.strict_media_checks())?;
-            let file_path = media_folder.join(normalized.as_ref());
-            let size_in_colpkg = if meta.media_list_is_hashmap() {
-                zip_file.size()
-            } else {
-                entry.size as u64
-            };
-            let files_are_equal = fs::metadata(&file_path)
-                .map(|metadata| metadata.len() == size_in_colpkg)
-                .unwrap_or_default();
-            if !files_are_equal {
-                // FIXME: write to temp file and atomic rename
-                let mut file = match File::create(&file_path) {
-                    Ok(file) => file,
-                    Err(err) => return Err(AnkiError::file_io_error(err, &file_path)),
-                };
-                if meta.zstd_compressed() {
-                    copy_decode(&mut zip_file, &mut file)
-                } else {
-                    io::copy(&mut zip_file, &mut file).map(|_| ())
-                }
-                .map_err(|err| AnkiError::file_io_error(err, &file_path))?;
-            }
+            maybe_restore_media_file(meta, media_folder, entry, &mut zip_file)?;
         } else {
             return Err(AnkiError::invalid_input(&format!(
                 "{archive_file_name} missing from archive"
             )));
         }
     }
+
     Ok(())
+}
+
+fn maybe_restore_media_file(
+    meta: &Meta,
+    media_folder: &Path,
+    entry: &MediaEntry,
+    zip_file: &mut ZipFile,
+) -> Result<()> {
+    let file_path = entry.safe_normalized_file_path(meta, media_folder)?;
+    let already_exists = entry.is_equal_to(meta, zip_file, &file_path);
+    if !already_exists {
+        restore_media_file(meta, zip_file, &file_path)?;
+    };
+
+    Ok(())
+}
+
+fn restore_media_file(meta: &Meta, zip_file: &mut ZipFile, path: &Path) -> Result<()> {
+    let mut tempfile = tempfile_in_parent_of(path)?;
+
+    if meta.zstd_compressed() {
+        copy_decode(zip_file, &mut tempfile)
+    } else {
+        io::copy(zip_file, &mut tempfile).map(|_| ())
+    }
+    .map_err(|err| AnkiError::file_io_error(err, path))?;
+
+    atomic_rename(tempfile, path)
+}
+
+impl MediaEntry {
+    fn safe_normalized_file_path(&self, meta: &Meta, media_folder: &Path) -> Result<PathBuf> {
+        check_filename_safe(&self.name)?;
+        let normalized = maybe_normalizing(&self.name, meta.strict_media_checks())?;
+        Ok(media_folder.join(normalized.as_ref()))
+    }
+
+    fn is_equal_to(&self, meta: &Meta, self_zipped: &ZipFile, other_path: &Path) -> bool {
+        // TODO: checks hashs (https://github.com/ankitects/anki/pull/1723#discussion_r829653147)
+        let self_size = if meta.media_list_is_hashmap() {
+            self_zipped.size()
+        } else {
+            self.size as u64
+        };
+        fs::metadata(other_path)
+            .map(|metadata| metadata.len() as u64 == self_size)
+            .unwrap_or_default()
+    }
 }
 
 /// - If strict is true, return an error if not normalized.
