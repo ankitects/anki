@@ -22,7 +22,6 @@ pub(crate) use sqlite::SqliteStorage;
 pub(crate) use sync::open_and_check_sqlite_file;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-#[repr(u8)]
 pub(crate) enum SchemaVersion {
     V11,
     V18,
