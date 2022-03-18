@@ -4,7 +4,7 @@
 use crate::{
     backend_proto as pb,
     backend_proto::backend_error::Kind,
-    error::{AnkiError, ImportError, SyncErrorKind},
+    error::{AnkiError, SyncErrorKind},
     prelude::*,
 };
 
@@ -34,7 +34,6 @@ impl AnkiError {
             AnkiError::MultipleNotetypesSelected => Kind::InvalidInput,
             AnkiError::DatabaseCheckRequired => Kind::InvalidInput,
             AnkiError::CustomStudyError(_) => Kind::CustomStudyError,
-            AnkiError::ImportError(ImportError::MediaImportFailed(_)) => Kind::ImportMediaError,
             AnkiError::ImportError(_) => Kind::ImportError,
             AnkiError::FileIoError(_) => Kind::IoError,
             AnkiError::MediaCheckRequired => Kind::InvalidInput,

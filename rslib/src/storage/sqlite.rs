@@ -8,7 +8,10 @@ use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection};
 use unicase::UniCase;
 
-use super::upgrades::{SCHEMA_MAX_VERSION, SCHEMA_MIN_VERSION, SCHEMA_STARTING_VERSION};
+use super::{
+    upgrades::{SCHEMA_MAX_VERSION, SCHEMA_MIN_VERSION, SCHEMA_STARTING_VERSION},
+    SchemaVersion,
+};
 use crate::{
     config::schema11::schema11_config_as_string,
     error::{AnkiError, DbErrorKind, Result},
@@ -261,10 +264,12 @@ impl SqliteStorage {
         Ok(storage)
     }
 
-    pub(crate) fn close(self, downgrade: bool) -> Result<()> {
-        if downgrade {
-            self.downgrade_to_schema_11()?;
-            self.db.pragma_update(None, "journal_mode", &"delete")?;
+    pub(crate) fn close(self, desired_version: Option<SchemaVersion>) -> Result<()> {
+        if let Some(version) = desired_version {
+            self.downgrade_to(version)?;
+            if version.has_journal_mode_delete() {
+                self.db.pragma_update(None, "journal_mode", &"delete")?;
+            }
         }
         Ok(())
     }
