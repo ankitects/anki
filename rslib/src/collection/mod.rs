@@ -141,8 +141,8 @@ impl Collection {
         builder
     }
 
-    pub(crate) fn close(self, ver: SchemaVersion) -> Result<()> {
-        self.storage.close(ver)
+    pub(crate) fn close(self, desired_version: Option<SchemaVersion>) -> Result<()> {
+        self.storage.close(desired_version)
     }
 
     pub(crate) fn usn(&self) -> Result<Usn> {

@@ -24,19 +24,11 @@ pub(crate) use sync::open_and_check_sqlite_file;
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[repr(u8)]
 pub(crate) enum SchemaVersion {
-    Latest = 0,
-    V11 = 11,
-    V18 = 18,
+    V11,
+    V18,
 }
 
 impl SchemaVersion {
-    pub(crate) fn is_latest(self) -> bool {
-        match self {
-            Self::Latest => true,
-            ver => ver as u8 == upgrades::SCHEMA_MAX_VERSION,
-        }
-    }
-
     pub(super) fn has_journal_mode_delete(self) -> bool {
         self == Self::V11
     }

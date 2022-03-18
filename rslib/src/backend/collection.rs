@@ -57,7 +57,7 @@ impl CollectionService for Backend {
 
         if input.downgrade_to_schema11 {
             let log = log::terminal();
-            if let Err(e) = col_inner.close(SchemaVersion::V11) {
+            if let Err(e) = col_inner.close(Some(SchemaVersion::V11)) {
                 error!(log, " failed: {:?}", e);
             }
         }

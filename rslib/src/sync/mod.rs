@@ -654,7 +654,7 @@ impl Collection {
     pub(crate) async fn full_upload_inner(mut self, server: Box<dyn SyncServer>) -> Result<()> {
         self.before_upload()?;
         let col_path = self.col_path.clone();
-        self.close(SchemaVersion::V11)?;
+        self.close(Some(SchemaVersion::V11))?;
         server.full_upload(&col_path, false).await
     }
 
@@ -674,7 +674,7 @@ impl Collection {
         let col_folder = col_path
             .parent()
             .ok_or_else(|| AnkiError::invalid_input("couldn't get col_folder"))?;
-        self.close(SchemaVersion::Latest)?;
+        self.close(None)?;
         let out_file = server.full_download(Some(col_folder)).await?;
         // check file ok
         let db = open_and_check_sqlite_file(out_file.path())?;

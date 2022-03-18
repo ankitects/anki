@@ -49,11 +49,11 @@ impl Collection {
             None
         };
         let tr = self.tr.clone();
-        self.close(if legacy {
+        self.close(Some(if legacy {
             SchemaVersion::V11
         } else {
             SchemaVersion::V18
-        })?;
+        }))?;
 
         export_collection_file(
             temp_colpkg.path(),
@@ -174,7 +174,7 @@ fn create_dummy_collection_file(tr: &I18n) -> Result<NamedTempFile> {
         .storage
         .db
         .execute_batch("pragma page_size=512; pragma journal_mode=delete; vacuum;")?;
-    dummy_col.close(SchemaVersion::V11)?;
+    dummy_col.close(Some(SchemaVersion::V11))?;
 
     Ok(tempfile)
 }

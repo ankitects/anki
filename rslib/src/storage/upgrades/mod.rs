@@ -50,10 +50,8 @@ impl SqliteStorage {
 
     pub(super) fn downgrade_to(&self, ver: SchemaVersion) -> Result<()> {
         match ver {
-            v if v.is_latest() => Ok(()),
             SchemaVersion::V11 => self.downgrade_to_schema_11(),
-            SchemaVersion::V18 => unreachable!(),
-            SchemaVersion::Latest => unreachable!(),
+            SchemaVersion::V18 => Ok(()),
         }
     }
 
@@ -81,9 +79,10 @@ mod test {
     use super::*;
 
     #[test]
+    #[allow(clippy::assertions_on_constants)]
     fn assert_18_is_latest_schema_version() {
         assert!(
-            SchemaVersion::V18.is_latest(),
+            18 == SCHEMA_MAX_VERSION,
             "must implement SqliteStorage::downgrade_to(SchemaVersion::V18)"
         );
     }

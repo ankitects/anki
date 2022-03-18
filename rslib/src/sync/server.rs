@@ -207,7 +207,7 @@ impl SyncServer for LocalServer {
             })?;
 
         let target_col_path = self.col.col_path.clone();
-        self.col.close(SchemaVersion::Latest)?;
+        self.col.close(None)?;
         fs::rename(col_path, &target_col_path).map_err(Into::into)
     }
 
@@ -221,7 +221,7 @@ impl SyncServer for LocalServer {
         self.col
             .transact_no_undo(|col| col.storage.increment_usn())?;
         let col_path = self.col.col_path.clone();
-        self.col.close(SchemaVersion::V11)?;
+        self.col.close(Some(SchemaVersion::V11))?;
 
         // copy file and return path
         let temp_file = NamedTempFile::new()?;

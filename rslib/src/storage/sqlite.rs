@@ -264,10 +264,12 @@ impl SqliteStorage {
         Ok(storage)
     }
 
-    pub(crate) fn close(self, version: SchemaVersion) -> Result<()> {
-        self.downgrade_to(version)?;
-        if version.has_journal_mode_delete() {
-            self.db.pragma_update(None, "journal_mode", &"delete")?;
+    pub(crate) fn close(self, desired_version: Option<SchemaVersion>) -> Result<()> {
+        if let Some(version) = desired_version {
+            self.downgrade_to(version)?;
+            if version.has_journal_mode_delete() {
+                self.db.pragma_update(None, "journal_mode", &"delete")?;
+            }
         }
         Ok(())
     }
