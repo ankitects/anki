@@ -22,7 +22,7 @@ use crate::{
         ImportProgress,
     },
     io::{atomic_rename, tempfile_in_parent_of},
-    media::files::{normalize_filename, sha1_of_file},
+    media::files::normalize_filename,
     prelude::*,
 };
 
@@ -154,12 +154,15 @@ impl MediaEntry {
     }
 
     fn is_equal_to(&self, meta: &Meta, self_zipped: &ZipFile, other_path: &Path) -> bool {
-        if meta.media_list_is_hashmap() {
-            fs::metadata(other_path).map(|metadata| metadata.len() == self_zipped.size())
+        // TODO: checks hashs (https://github.com/ankitects/anki/pull/1723#discussion_r829653147)
+        let self_size = if meta.media_list_is_hashmap() {
+            self_zipped.size()
         } else {
-            sha1_of_file(other_path).map(|other_sha1| other_sha1.as_slice() == self.sha1)
-        }
-        .unwrap_or_default()
+            self.size as u64
+        };
+        fs::metadata(other_path)
+            .map(|metadata| metadata.len() as u64 == self_size)
+            .unwrap_or_default()
     }
 }
 
