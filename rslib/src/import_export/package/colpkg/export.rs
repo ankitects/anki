@@ -63,7 +63,7 @@ impl Collection {
             &tr,
             progress_fn,
         )?;
-        atomic_rename(temp_colpkg, colpkg_name)
+        atomic_rename(temp_colpkg, colpkg_name, true)
     }
 }
 

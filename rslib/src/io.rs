@@ -14,11 +14,20 @@ pub(crate) fn tempfile_in_parent_of(file: &Path) -> Result<NamedTempFile> {
     NamedTempFile::new_in(dir).map_err(|err| AnkiError::file_io_error(err, dir))
 }
 
-pub(crate) fn atomic_rename(file: NamedTempFile, target: &Path) -> Result<()> {
-    file.as_file().sync_all()?;
+/// Atomically replace the target path with the provided temp file.
+///
+/// If `fsync` is true, file data is synced to disk prior to renaming, and the
+/// folder is synced on UNIX platforms after renaming. This minimizes the
+/// chances of corruption if there is a crash or power loss directly after the
+/// op, but it can be considerably slower.
+pub(crate) fn atomic_rename(file: NamedTempFile, target: &Path, fsync: bool) -> Result<()> {
+    if fsync {
+        file.as_file().sync_all()?;
+    }
     file.persist(&target)
         .map_err(|err| AnkiError::IoError(format!("write {target:?} failed: {err}")))?;
-    if !cfg!(windows) {
+    #[cfg(not(windows))]
+    if fsync {
         if let Some(parent) = target.parent() {
             std::fs::File::open(parent)
                 .and_then(|file| file.sync_all())
