@@ -75,7 +75,7 @@ pub fn import_colpkg(
     let media_folder = Path::new(target_media_folder);
     restore_media(&meta, progress_fn, &mut archive, media_folder)?;
 
-    atomic_rename(tempfile, &col_path)
+    atomic_rename(tempfile, &col_path, true)
 }
 
 fn check_collection(col_path: &Path) -> Result<()> {
@@ -143,7 +143,7 @@ fn restore_media_file(meta: &Meta, zip_file: &mut ZipFile, path: &Path) -> Resul
     }
     .map_err(|err| AnkiError::file_io_error(err, path))?;
 
-    atomic_rename(tempfile, path)
+    atomic_rename(tempfile, path, false)
 }
 
 impl MediaEntry {

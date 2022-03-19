@@ -680,7 +680,7 @@ impl Collection {
         let db = open_and_check_sqlite_file(out_file.path())?;
         db.execute_batch("update col set ls=mod")?;
         drop(db);
-        atomic_rename(out_file, &col_path)?;
+        atomic_rename(out_file, &col_path, true)?;
 
         Ok(())
     }
