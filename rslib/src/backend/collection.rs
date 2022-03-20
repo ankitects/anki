@@ -112,7 +112,7 @@ impl CollectionService for Backend {
     }
 
     fn await_backup_completion(&self, _input: pb::Empty) -> Result<pb::Empty> {
-        self.await_backup_completion();
+        self.await_backup_completion()?;
         Ok(().into())
     }
 }
@@ -134,10 +134,11 @@ impl Backend {
             .ok_or(AnkiError::CollectionAlreadyOpen)
     }
 
-    fn await_backup_completion(&self) {
+    fn await_backup_completion(&self) -> Result<()> {
         if let Some(task) = self.backup_task.lock().unwrap().take() {
-            task.join().unwrap();
+            task.join().unwrap()?;
         }
+        Ok(())
     }
 
     fn start_backup(
@@ -147,8 +148,11 @@ impl Backend {
         limits: BackupLimits,
         minimum_backup_interval: Option<u64>,
     ) -> Result<()> {
-        self.await_backup_completion();
-        *self.backup_task.lock().unwrap() = backup::backup(
+        let mut task_lock = self.backup_task.lock().unwrap();
+        if let Some(task) = task_lock.take() {
+            task.join().unwrap()?;
+        }
+        *task_lock = backup::backup(
             col_path,
             backup_folder,
             limits,
