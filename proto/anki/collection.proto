@@ -122,8 +122,7 @@ message Progress {
 
 message CreateBackupRequest {
   string backup_folder = 1;
-  bool wait_for_completion = 2;
-  // Skip backup if one has been created in the last x seconds.
-  // If unset a default value is used.
-  optional uint64 minimum_backup_interval = 3;
+  // Create a backup even if the configured interval hasn't elapsed yet.
+  bool force = 2;
+  bool wait_for_completion = 3;
 }

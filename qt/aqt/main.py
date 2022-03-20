@@ -615,6 +615,7 @@ class AnkiQt(QMainWindow):
                 # default 5 minute throttle
                 self.col.create_backup(
                     backup_folder=self.pm.backupFolder(),
+                    force=False,
                     wait_for_completion=False,
                 )
             self.col.close(downgrade=False)
@@ -644,8 +645,8 @@ class AnkiQt(QMainWindow):
         Waits until the backup completes. Caller should run this on a background thread."""
         assert self.col.create_backup(
             backup_folder=self.pm.backupFolder(),
+            force=True,
             wait_for_completion=True,
-            minimum_backup_interval=0,
         )
 
     def on_create_backup_now(self) -> None:
@@ -1380,9 +1381,8 @@ title="{}" {}>{}</button>""".format(
         def backup(col: Collection) -> bool:
             return col.create_backup(
                 backup_folder=self.pm.backupFolder(),
+                force=False,
                 wait_for_completion=False,
-                # 30 minutes
-                minimum_backup_interval=30 * 60,
             )
 
         def after_backup_started(created: bool) -> None:

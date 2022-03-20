@@ -121,6 +121,7 @@ message Preferences {
     uint32 daily = 1;
     uint32 weekly = 2;
     uint32 monthly = 3;
+    uint32 minimum_interval_mins = 4;
   }
 
   Scheduling scheduling = 1;

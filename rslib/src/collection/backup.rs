@@ -19,22 +19,19 @@ use crate::{
 };
 
 const BACKUP_FORMAT_STRING: &str = "backup-%Y-%m-%d-%H.%M.%S.colpkg";
-/// Default seconds after a backup, in which further backups will be skipped.
-const MINIMUM_BACKUP_INTERVAL: u64 = 5 * 60;
 
-pub fn backup(
+pub fn maybe_backup(
     col: &mut Collection,
     backup_folder: impl AsRef<Path> + Send + 'static,
-    minimum_backup_interval: Option<u64>,
+    force: bool,
 ) -> Result<Option<JoinHandle<Result<()>>>> {
     if !col.changed_since_last_backup()? {
         return Ok(None);
     }
-    let recent_secs = minimum_backup_interval.unwrap_or(MINIMUM_BACKUP_INTERVAL);
-    if recent_secs > 0 && has_recent_backup(backup_folder.as_ref(), recent_secs)? {
+    let limits = col.get_backup_limits();
+    if should_skip_backup(force, limits.minimum_interval_mins, backup_folder.as_ref())? {
         Ok(None)
     } else {
-        let limits = col.get_backup_limits();
         let log = col.log.clone();
         let tr = col.tr.clone();
         col.storage.checkpoint()?;
@@ -46,7 +43,22 @@ pub fn backup(
     }
 }
 
-fn has_recent_backup(backup_folder: &Path, recent_secs: u64) -> Result<bool> {
+fn should_skip_backup(
+    force: bool,
+    minimum_interval_mins: u32,
+    backup_folder: &Path,
+) -> Result<bool> {
+    if force {
+        Ok(false)
+    } else if minimum_interval_mins == 0 {
+        Ok(true)
+    } else {
+        has_recent_backup(backup_folder, minimum_interval_mins)
+    }
+}
+
+fn has_recent_backup(backup_folder: &Path, recent_mins: u32) -> Result<bool> {
+    let recent_secs = (recent_mins * 60) as u64;
     let now = SystemTime::now();
     Ok(read_dir(backup_folder)?
         .filter_map(|res| res.ok())
@@ -266,6 +278,7 @@ mod test {
             daily: 3,
             weekly: 2,
             monthly: 1,
+            ..Default::default()
         };
 
         // true => should be removed
@@ -310,6 +323,7 @@ mod test {
             daily: 12,
             weekly: 10,
             monthly: 9,
+            ..Default::default()
         };
         let backups: Vec<_> = (1..366).map(|i| backup!(today_ce_days - i)).collect();
         let mut expected = Vec::new();

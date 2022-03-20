@@ -273,6 +273,7 @@ impl Collection {
                 daily: 12,
                 weekly: 10,
                 monthly: 9,
+                minimum_interval_mins: 30,
             },
         )
     }

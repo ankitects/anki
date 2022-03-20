@@ -108,19 +108,18 @@ impl CollectionService for Backend {
             task.join().unwrap()?;
         }
         // start the new backup
-        let created = if let Some(task) =
-            backup::backup(col, input.backup_folder, input.minimum_backup_interval)?
-        {
-            if input.wait_for_completion {
-                drop(col_lock);
-                task.join().unwrap()?;
+        let created =
+            if let Some(task) = backup::maybe_backup(col, input.backup_folder, input.force)? {
+                if input.wait_for_completion {
+                    drop(col_lock);
+                    task.join().unwrap()?;
+                } else {
+                    *task_lock = Some(task);
+                }
+                true
             } else {
-                *task_lock = Some(task);
-            }
-            true
-        } else {
-            false
-        };
+                false
+            };
         Ok(created.into())
     }
 

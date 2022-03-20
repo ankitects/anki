@@ -325,28 +325,24 @@ class Collection(DeprecatedNamesMixin):
         self,
         *,
         backup_folder: str,
+        force: bool,
         wait_for_completion: bool,
-        minimum_backup_interval: int | None = None,
     ) -> bool:
         """Create a backup if enough time has elapsed, and rotate old backups.
-        True if backup created.
+        If `force` is true, the user's configured backup interval is ignored.
+        Returns true if backup created.
 
         Commits any outstanding changes, which clears any active legacy checkpoint.
 
         Throws on failure of current backup, or the previous backup if it was not
         awaited.
-
-        minimum_backup_interval is the number of seconds between backups. If not provided,
-        the standard delay is used.
         """
         # ensure any pending transaction from legacy code/add-ons has been committed
         self.save(trx=False)
         created = self._backend.create_backup(
-            collection_pb2.CreateBackupRequest(
-                backup_folder=backup_folder,
-                wait_for_completion=wait_for_completion,
-                minimum_backup_interval=minimum_backup_interval,
-            )
+            backup_folder=backup_folder,
+            force=force,
+            wait_for_completion=wait_for_completion,
         )
         self.db.begin()
         return created
