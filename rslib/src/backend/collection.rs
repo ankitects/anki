@@ -46,31 +46,18 @@ impl CollectionService for Backend {
     }
 
     fn close_collection(&self, input: pb::CloseCollectionRequest) -> Result<pb::Empty> {
-        self.abort_media_sync_and_wait();
-
-        let mut guard = self.lock_open_collection()?;
-
-        let mut col_inner = guard.take().unwrap();
-        let limits = col_inner.get_backup_limits();
-        let col_path = std::mem::take(&mut col_inner.col_path);
-
         let desired_version = if input.downgrade_to_schema11 {
             Some(SchemaVersion::V11)
         } else {
             None
         };
 
+        self.abort_media_sync_and_wait();
+        let mut guard = self.lock_open_collection()?;
+        let col_inner = guard.take().unwrap();
+
         if let Err(e) = col_inner.close(desired_version) {
             error!(self.log, " failed: {:?}", e);
-        }
-
-        if let Some(backup_folder) = input.backup_folder {
-            self.start_backup(
-                col_path,
-                backup_folder,
-                limits,
-                input.minimum_backup_interval,
-            )?;
         }
 
         Ok(().into())
@@ -109,6 +96,28 @@ impl CollectionService for Backend {
         let starting_from = input.val as usize;
         self.with_col(|col| col.merge_undoable_ops(starting_from))
             .map(Into::into)
+    }
+
+    fn create_backup(&self, input: pb::CreateBackupRequest) -> Result<pb::Empty> {
+        self.lock_open_collection()?
+            .as_ref()
+            .map(|col| {
+                let limits = col.get_backup_limits();
+                col.storage.checkpoint()?;
+                self.start_backup(
+                    &col.col_path,
+                    input.backup_folder,
+                    limits,
+                    input.minimum_backup_interval,
+                )
+            })
+            .unwrap()
+            .and_then(|_| {
+                if input.wait_for_completion {
+                    self.await_backup_completion()?
+                }
+                Ok(().into())
+            })
     }
 
     fn await_backup_completion(&self, _input: pb::Empty) -> Result<pb::Empty> {

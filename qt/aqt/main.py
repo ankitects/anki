@@ -25,7 +25,7 @@ import aqt.sound
 import aqt.stats
 import aqt.toolbar
 import aqt.webview
-from anki import collection_pb2, hooks
+from anki import hooks
 from anki._backend import RustBackend as _RustBackend
 from anki.collection import Collection, Config, OpChanges, UndoStatus
 from anki.decks import DeckDict, DeckId
@@ -547,10 +547,7 @@ class AnkiQt(QMainWindow):
                 )
             # clean up open collection if possible
             try:
-                request = collection_pb2.CloseCollectionRequest(
-                    downgrade_to_schema11=False, backup_folder=None
-                )
-                self.backend.close_collection(request)
+                self.backend.close_collection(downgrade_to_schema11=False)
             except Exception as e:
                 print("unable to close collection:", e)
             self.col = None
@@ -612,12 +609,10 @@ class AnkiQt(QMainWindow):
         except:
             corrupt = True
 
-        if corrupt or dev_mode or self.restoring_backup:
-            backup_folder = None
-        else:
-            backup_folder = self.pm.backupFolder()
         try:
-            self.col.close(downgrade=False, backup_folder=backup_folder)
+            if not corrupt and not dev_mode and not self.restoring_backup:
+                self.maybe_create_backup_in_background()
+            self.col.close(downgrade=False)
         except Exception as e:
             print(e)
             corrupt = True
@@ -630,17 +625,29 @@ class AnkiQt(QMainWindow):
 
     def _close_for_full_download(self) -> None:
         "Backup and prepare collection to be overwritten."
-        backup_folder = None if dev_mode else self.pm.backupFolder()
-        self.col.close(
-            downgrade=False, backup_folder=backup_folder, minimum_backup_interval=0
-        )
-        self.col.reopen(after_full_sync=False)
+        self.create_backup_now()
         self.col.close_for_full_sync()
 
     def apply_collection_options(self) -> None:
         "Setup audio after collection loaded."
         aqt.sound.av_player.interrupt_current_audio = self.col.get_config_bool(
             Config.Bool.INTERRUPT_AUDIO_WHEN_ANSWERING
+        )
+
+    def maybe_create_backup_in_background(self) -> None:
+        """Create a backup if enough time has elapsed since the previous one."""
+        self.col.create_backup(
+            backup_folder=self.pm.backupFolder(),
+            wait_for_completion=False,
+        )
+
+    def create_backup_now(self) -> None:
+        """Create a backup immediately, regardless of when the last one was created.
+        Waits until the backup completes."""
+        self.col.create_backup(
+            backup_folder=self.pm.backupFolder(),
+            wait_for_completion=True,
+            minimum_backup_interval=0,
         )
 
     # Auto-optimize

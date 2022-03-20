@@ -274,6 +274,29 @@ impl SqliteStorage {
         Ok(())
     }
 
+    /// Flush data from WAL file into DB, so the DB is safe to copy. Caller must not call this
+    /// while there is an active transaction.
+    pub(crate) fn checkpoint(&self) -> Result<()> {
+        if !self.db.is_autocommit() {
+            return Err(AnkiError::db_error(
+                "active transaction",
+                DbErrorKind::Other,
+            ));
+        }
+        self.db
+            .query_row_and_then("pragma wal_checkpoint(truncate)", [], |row| {
+                let error_code: i64 = row.get(0)?;
+                if error_code != 0 {
+                    Err(AnkiError::db_error(
+                        "unable to checkpoint",
+                        DbErrorKind::Other,
+                    ))
+                } else {
+                    Ok(())
+                }
+            })
+    }
+
     // Standard transaction start/stop
     //////////////////////////////////////
 

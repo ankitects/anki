@@ -239,8 +239,6 @@ class Collection(DeprecatedNamesMixin):
         self,
         save: bool = True,
         downgrade: bool = False,
-        backup_folder: str | None = None,
-        minimum_backup_interval: int | None = None,
     ) -> None:
         "Disconnect from DB."
         if self.db:
@@ -249,12 +247,9 @@ class Collection(DeprecatedNamesMixin):
             else:
                 self.db.rollback()
             self._clear_caches()
-            request = collection_pb2.CloseCollectionRequest(
+            self._backend.close_collection(
                 downgrade_to_schema11=downgrade,
-                backup_folder=backup_folder,
-                minimum_backup_interval=minimum_backup_interval,
             )
-            self._backend.close_collection(request)
             self.db = None
 
     def close_for_full_sync(self) -> None:
@@ -325,6 +320,32 @@ class Collection(DeprecatedNamesMixin):
             return self.db.scalar("select usn from col")
         else:
             return -1
+
+    def create_backup(
+        self,
+        *,
+        backup_folder: str,
+        wait_for_completion: bool,
+        minimum_backup_interval: int | None = None,
+    ) -> None:
+        """Create a backup if enough time has elapsed, and rotate old backups.
+
+        Throws on failure of current backup, or the previous backup if it was not
+        awaited.
+
+        minimum_backup_interval is the number of seconds between backups. If not provided,
+        the standard delay is used.
+        """
+        # ensure any pending transaction from legacy code/add-ons has been committed
+        self.save(trx=False)
+        self._backend.create_backup(
+            collection_pb2.CreateBackupRequest(
+                backup_folder=backup_folder,
+                wait_for_completion=wait_for_completion,
+                minimum_backup_interval=minimum_backup_interval,
+            )
+        )
+        self.db.begin()
 
     # Object helpers
     ##########################################################################
