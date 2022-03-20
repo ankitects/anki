@@ -314,13 +314,13 @@ impl Collection {
         usn: Usn,
     ) -> Result<(), AnkiError> {
         if !map.remapped.is_empty() {
-            let mut ords = SearchBuilder::any(
+            let ords = SearchBuilder::any(
                 map.remapped
                     .keys()
                     .map(|o| TemplateKind::Ordinal(*o as u16)),
             );
             self.search_cards_into_table(
-                SearchBuilder::from(nids).and_join(&mut ords),
+                SearchBuilder::from(nids).and_join(&mut ords.group()),
                 SortMode::NoOrder,
             )?;
             for mut card in self.storage.all_searched_cards()? {
