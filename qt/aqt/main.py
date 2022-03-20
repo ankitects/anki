@@ -50,6 +50,7 @@ from aqt.flags import FlagManager
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
+from aqt.operations import QueryOp
 from aqt.operations.collection import redo, undo
 from aqt.operations.deck import set_current_deck
 from aqt.profiles import ProfileManager as ProfileManagerType
@@ -650,6 +651,13 @@ class AnkiQt(QMainWindow):
             minimum_backup_interval=0,
         )
 
+    def on_create_backup_now(self) -> None:
+        QueryOp(
+            parent=self,
+            op=lambda _: self.create_backup_now(),
+            success=lambda _: tooltip(tr.profiles_backup_created(), parent=self),
+        ).with_progress().run_in_background()
+
     # Auto-optimize
     ##########################################################################
 
@@ -1237,6 +1245,7 @@ title="{}" {}>{}</button>""".format(
         )
         qconnect(m.actionImport.triggered, self.onImport)
         qconnect(m.actionExport.triggered, self.onExport)
+        qconnect(m.action_create_backup.triggered, self.on_create_backup_now)
         qconnect(m.actionExit.triggered, self.close)
 
         # Help

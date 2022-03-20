@@ -13,3 +13,4 @@ profiles-could-not-create-data-folder = Anki could not create its data folder. P
 profiles-prefs-corrupt-title = Preferences Corrupt
 profiles-prefs-file-is-corrupt = Anki's prefs21.db file was corrupt and has been recreated. If you were using multiple profiles, please add them back using the same names to recover your cards.
 profiles-profile-does-not-exist = Requested profile does not exist.
+profiles-backup-created = Backup created.
