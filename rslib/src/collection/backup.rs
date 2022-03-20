@@ -27,6 +27,9 @@ pub fn backup(
     backup_folder: impl AsRef<Path> + Send + 'static,
     minimum_backup_interval: Option<u64>,
 ) -> Result<Option<JoinHandle<Result<()>>>> {
+    if !col.changed_since_last_backup()? {
+        return Ok(None);
+    }
     let recent_secs = minimum_backup_interval.unwrap_or(MINIMUM_BACKUP_INTERVAL);
     if recent_secs > 0 && has_recent_backup(backup_folder.as_ref(), recent_secs)? {
         Ok(None)
@@ -36,6 +39,7 @@ pub fn backup(
         let tr = col.tr.clone();
         col.storage.checkpoint()?;
         let col_data = std::fs::read(&col.col_path)?;
+        col.update_last_backup_timestamp()?;
         Ok(Some(thread::spawn(move || {
             backup_inner(&col_data, &backup_folder, limits, log, &tr)
         })))
