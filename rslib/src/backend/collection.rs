@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{path::Path, sync::MutexGuard};
+use std::sync::MutexGuard;
 
 use slog::error;
 
@@ -9,7 +9,7 @@ use super::{progress::Progress, Backend};
 pub(super) use crate::backend_proto::collection_service::Service as CollectionService;
 use crate::{
     backend::progress::progress_to_proto,
-    backend_proto::{self as pb, preferences::BackupLimits},
+    backend_proto::{self as pb},
     collection::{backup, CollectionBuilder},
     prelude::*,
     storage::SchemaVersion,
@@ -99,25 +99,25 @@ impl CollectionService for Backend {
     }
 
     fn create_backup(&self, input: pb::CreateBackupRequest) -> Result<pb::Empty> {
-        self.lock_open_collection()?
-            .as_ref()
-            .map(|col| {
-                let limits = col.get_backup_limits();
-                col.storage.checkpoint()?;
-                self.start_backup(
-                    &col.col_path,
-                    input.backup_folder,
-                    limits,
-                    input.minimum_backup_interval,
-                )
-            })
-            .unwrap()
-            .and_then(|_| {
-                if input.wait_for_completion {
-                    self.await_backup_completion()?
-                }
-                Ok(().into())
-            })
+        // lock collection
+        let mut col_lock = self.lock_open_collection()?;
+        let col = col_lock.as_mut().unwrap();
+        // await any previous backup first
+        let mut task_lock = self.backup_task.lock().unwrap();
+        if let Some(task) = task_lock.take() {
+            task.join().unwrap()?;
+        }
+        // start the new backup
+        if let Some(task) = backup::backup(col, input.backup_folder, input.minimum_backup_interval)?
+        {
+            if input.wait_for_completion {
+                drop(col_lock);
+                task.join().unwrap()?;
+            } else {
+                *task_lock = Some(task);
+            }
+        }
+        Ok(().into())
     }
 
     fn await_backup_completion(&self, _input: pb::Empty) -> Result<pb::Empty> {
@@ -147,29 +147,6 @@ impl Backend {
         if let Some(task) = self.backup_task.lock().unwrap().take() {
             task.join().unwrap()?;
         }
-        Ok(())
-    }
-
-    fn start_backup(
-        &self,
-        col_path: impl AsRef<Path>,
-        backup_folder: impl AsRef<Path> + Send + 'static,
-        limits: BackupLimits,
-        minimum_backup_interval: Option<u64>,
-    ) -> Result<()> {
-        let mut task_lock = self.backup_task.lock().unwrap();
-        if let Some(task) = task_lock.take() {
-            task.join().unwrap()?;
-        }
-        *task_lock = backup::backup(
-            col_path,
-            backup_folder,
-            limits,
-            minimum_backup_interval,
-            self.log.clone(),
-            self.tr.clone(),
-        )?;
-
         Ok(())
     }
 }

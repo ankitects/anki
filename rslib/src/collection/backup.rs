@@ -23,18 +23,19 @@ const BACKUP_FORMAT_STRING: &str = "backup-%Y-%m-%d-%H.%M.%S.colpkg";
 const MINIMUM_BACKUP_INTERVAL: u64 = 5 * 60;
 
 pub fn backup(
-    col_path: impl AsRef<Path>,
+    col: &mut Collection,
     backup_folder: impl AsRef<Path> + Send + 'static,
-    limits: BackupLimits,
     minimum_backup_interval: Option<u64>,
-    log: Logger,
-    tr: I18n,
 ) -> Result<Option<JoinHandle<Result<()>>>> {
     let recent_secs = minimum_backup_interval.unwrap_or(MINIMUM_BACKUP_INTERVAL);
     if recent_secs > 0 && has_recent_backup(backup_folder.as_ref(), recent_secs)? {
         Ok(None)
     } else {
-        let col_data = std::fs::read(col_path)?;
+        let limits = col.get_backup_limits();
+        let log = col.log.clone();
+        let tr = col.tr.clone();
+        col.storage.checkpoint()?;
+        let col_data = std::fs::read(&col.col_path)?;
         Ok(Some(thread::spawn(move || {
             backup_inner(&col_data, &backup_folder, limits, log, &tr)
         })))
