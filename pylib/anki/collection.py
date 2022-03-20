@@ -327,8 +327,11 @@ class Collection(DeprecatedNamesMixin):
         backup_folder: str,
         wait_for_completion: bool,
         minimum_backup_interval: int | None = None,
-    ) -> None:
+    ) -> bool:
         """Create a backup if enough time has elapsed, and rotate old backups.
+        True if backup created.
+
+        Commits any outstanding changes, which clears any active legacy checkpoint.
 
         Throws on failure of current backup, or the previous backup if it was not
         awaited.
@@ -338,7 +341,7 @@ class Collection(DeprecatedNamesMixin):
         """
         # ensure any pending transaction from legacy code/add-ons has been committed
         self.save(trx=False)
-        self._backend.create_backup(
+        created = self._backend.create_backup(
             collection_pb2.CreateBackupRequest(
                 backup_folder=backup_folder,
                 wait_for_completion=wait_for_completion,
@@ -346,6 +349,17 @@ class Collection(DeprecatedNamesMixin):
             )
         )
         self.db.begin()
+        return created
+
+    def await_backup_completion(self) -> None:
+        "Throws if backup creation failed."
+        self._backend.await_backup_completion()
+
+    def legacy_checkpoint_pending(self) -> bool:
+        return (
+            self._have_outstanding_checkpoint()
+            and time.time() - self._last_checkpoint_at < 300
+        )
 
     # Object helpers
     ##########################################################################

@@ -612,7 +612,11 @@ class AnkiQt(QMainWindow):
 
         try:
             if not corrupt and not dev_mode and not self.restoring_backup:
-                self.maybe_create_backup_in_background()
+                # default 5 minute throttle
+                self.col.create_backup(
+                    backup_folder=self.pm.backupFolder(),
+                    wait_for_completion=False,
+                )
             self.col.close(downgrade=False)
         except Exception as e:
             print(e)
@@ -635,27 +639,26 @@ class AnkiQt(QMainWindow):
             Config.Bool.INTERRUPT_AUDIO_WHEN_ANSWERING
         )
 
-    def maybe_create_backup_in_background(self) -> None:
-        """Create a backup if enough time has elapsed since the previous one."""
-        self.col.create_backup(
-            backup_folder=self.pm.backupFolder(),
-            wait_for_completion=False,
-        )
-
     def create_backup_now(self) -> None:
         """Create a backup immediately, regardless of when the last one was created.
-        Waits until the backup completes."""
-        self.col.create_backup(
+        Waits until the backup completes. Caller should run this on a background thread."""
+        assert self.col.create_backup(
             backup_folder=self.pm.backupFolder(),
             wait_for_completion=True,
             minimum_backup_interval=0,
         )
 
     def on_create_backup_now(self) -> None:
+        def on_backup_created(val: None) -> None:
+            # legacy checkpoint may have been cleared
+            self.update_undo_actions()
+
+            tooltip(tr.profiles_backup_created(), parent=self)
+
         QueryOp(
             parent=self,
             op=lambda _: self.create_backup_now(),
-            success=lambda _: tooltip(tr.profiles_backup_created(), parent=self),
+            success=on_backup_created,
         ).with_progress().run_in_background()
 
     # Auto-optimize
@@ -1345,6 +1348,13 @@ title="{}" {}>{}</button>""".format(
         # ensure Python interpreter runs at least once per second, so that
         # SIGINT/SIGTERM is processed without a long delay
         self.progress.timer(1000, lambda: None, True, False, parent=self)
+        # periodic backups are checked every 5 minutes
+        self.progress.timer(
+            5 * 60 * 1000,
+            self.on_periodic_backup_timer,
+            True,
+            parent=self,
+        )
 
     def onRefreshTimer(self) -> None:
         if self.state == "deckBrowser":
@@ -1359,6 +1369,43 @@ title="{}" {}>{}</button>""".format(
             return
         if elap > minutes * 60:
             self.maybe_auto_sync_media()
+
+    def on_periodic_backup_timer(self) -> None:
+        """Create a backup if enough time has elapsed and collection changed."""
+        # if there's a legacy undo op, try again later
+        if self.col.legacy_checkpoint_pending():
+            return
+
+        # The initial copy will display a progress window if it takes too long
+        def backup(col: Collection) -> bool:
+            return col.create_backup(
+                backup_folder=self.pm.backupFolder(),
+                wait_for_completion=False,
+                # 30 minutes
+                minimum_backup_interval=30 * 60,
+            )
+
+        def after_backup_started(created: bool) -> None:
+            # Legacy checkpoint may have expired.
+            self.update_undo_actions()
+
+            if not created:
+                return
+
+            # We await backup completion to confirm it was successful, but this step
+            # does not block collection access, so we don't need to show the progress
+            # window anymore.
+            QueryOp(
+                parent=self,
+                op=lambda col: col.await_backup_completion(),
+                success=lambda _: None,
+            ).run_in_background()
+
+        QueryOp(
+            parent=self,
+            op=backup,
+            success=after_backup_started,
+        ).with_progress(tr.profiles_creating_backup()).run_in_background()
 
     # Permanent hooks
     ##########################################################################

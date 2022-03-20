@@ -98,7 +98,7 @@ impl CollectionService for Backend {
             .map(Into::into)
     }
 
-    fn create_backup(&self, input: pb::CreateBackupRequest) -> Result<pb::Empty> {
+    fn create_backup(&self, input: pb::CreateBackupRequest) -> Result<pb::Bool> {
         // lock collection
         let mut col_lock = self.lock_open_collection()?;
         let col = col_lock.as_mut().unwrap();
@@ -108,7 +108,8 @@ impl CollectionService for Backend {
             task.join().unwrap()?;
         }
         // start the new backup
-        if let Some(task) = backup::backup(col, input.backup_folder, input.minimum_backup_interval)?
+        let created = if let Some(task) =
+            backup::backup(col, input.backup_folder, input.minimum_backup_interval)?
         {
             if input.wait_for_completion {
                 drop(col_lock);
@@ -116,8 +117,11 @@ impl CollectionService for Backend {
             } else {
                 *task_lock = Some(task);
             }
-        }
-        Ok(().into())
+            true
+        } else {
+            false
+        };
+        Ok(created.into())
     }
 
     fn await_backup_completion(&self, _input: pb::Empty) -> Result<pb::Empty> {

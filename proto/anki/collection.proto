@@ -21,10 +21,10 @@ service CollectionService {
   // Create a no-media backup. Caller must ensure there is no active
   // transaction. Unlike a collection export, does not require reopening the DB,
   // as there is no downgrade step.
-  rpc CreateBackup(CreateBackupRequest) returns (generic.Empty);
+  // Returns false if it's not time to make a backup yet.
+  rpc CreateBackup(CreateBackupRequest) returns (generic.Bool);
   // If a backup is running, wait for it to complete. Will return an error
-  // if the backup encountered an error. Intended to be used before program
-  // shutdown.
+  // if the backup encountered an error.
   rpc AwaitBackupCompletion(generic.Empty) returns (generic.Empty);
 }
 
