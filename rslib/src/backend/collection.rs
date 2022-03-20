@@ -11,7 +11,6 @@ use crate::{
     backend::progress::progress_to_proto,
     backend_proto::{self as pb, preferences::Backups},
     collection::{backup, CollectionBuilder},
-    log::{self},
     prelude::*,
     storage::SchemaVersion,
 };
@@ -55,11 +54,14 @@ impl CollectionService for Backend {
         let limits = col_inner.get_backups();
         let col_path = std::mem::take(&mut col_inner.col_path);
 
-        if input.downgrade_to_schema11 {
-            let log = log::terminal();
-            if let Err(e) = col_inner.close(Some(SchemaVersion::V11)) {
-                error!(log, " failed: {:?}", e);
-            }
+        let desired_version = if input.downgrade_to_schema11 {
+            Some(SchemaVersion::V11)
+        } else {
+            None
+        };
+
+        if let Err(e) = col_inner.close(desired_version) {
+            error!(self.log, " failed: {:?}", e);
         }
 
         if let Some(backup_folder) = input.backup_folder {
