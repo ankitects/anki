@@ -14,7 +14,7 @@ use itertools::Itertools;
 use log::error;
 
 use crate::{
-    backend_proto::preferences::Backups, import_export::package::export_colpkg_from_data, log,
+    backend_proto::preferences::BackupLimits, import_export::package::export_colpkg_from_data, log,
     prelude::*,
 };
 
@@ -25,7 +25,7 @@ const MINIMUM_BACKUP_INTERVAL: u64 = 5 * 60;
 pub fn backup(
     col_path: impl AsRef<Path>,
     backup_folder: impl AsRef<Path> + Send + 'static,
-    limits: Backups,
+    limits: BackupLimits,
     minimum_backup_interval: Option<u64>,
     log: Logger,
     tr: I18n,
@@ -54,7 +54,7 @@ fn has_recent_backup(backup_folder: &Path, recent_secs: u64) -> Result<bool> {
 fn backup_inner<P: AsRef<Path>>(
     col_data: &[u8],
     backup_folder: P,
-    limits: Backups,
+    limits: BackupLimits,
     log: Logger,
     tr: &I18n,
 ) {
@@ -72,7 +72,11 @@ fn write_backup<S: AsRef<OsStr>>(col_data: &[u8], backup_folder: S, tr: &I18n) -
     export_colpkg_from_data(&out_path, col_data, tr)
 }
 
-fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: Backups, log: &Logger) -> Result<()> {
+fn thin_backups<P: AsRef<Path>>(
+    backup_folder: P,
+    limits: BackupLimits,
+    log: &Logger,
+) -> Result<()> {
     let backups =
         read_dir(backup_folder)?.filter_map(|entry| entry.ok().and_then(Backup::from_entry));
     let obsolete_backups = BackupFilter::new(Local::today(), limits).obsolete_backups(backups);
@@ -135,7 +139,7 @@ struct BackupFilter {
     last_kept_day: i32,
     last_kept_week: i32,
     last_kept_month: u32,
-    limits: Backups,
+    limits: BackupLimits,
     obsolete: Vec<Backup>,
 }
 
@@ -147,7 +151,7 @@ enum BackupStage {
 }
 
 impl BackupFilter {
-    fn new(today: Date<Local>, limits: Backups) -> Self {
+    fn new(today: Date<Local>, limits: BackupLimits) -> Self {
         Self {
             yesterday: today.num_days_from_ce() - 1,
             last_kept_day: i32::MAX,
@@ -257,7 +261,7 @@ mod test {
     #[test]
     fn thinning_manual() {
         let today = Local.ymd(2022, 2, 22);
-        let limits = Backups {
+        let limits = BackupLimits {
             daily: 3,
             weekly: 2,
             monthly: 1,
@@ -300,7 +304,7 @@ mod test {
     fn thinning_generic() {
         let today = Local.ymd(2022, 1, 1);
         let today_ce_days = today.num_days_from_ce();
-        let limits = Backups {
+        let limits = BackupLimits {
             // config defaults
             daily: 12,
             weekly: 10,

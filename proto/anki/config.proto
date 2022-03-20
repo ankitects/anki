@@ -117,7 +117,7 @@ message Preferences {
     string default_search_text = 4;
     bool ignore_accents_in_search = 5;
   }
-  message Backups {
+  message BackupLimits {
     uint32 daily = 1;
     uint32 weekly = 2;
     uint32 monthly = 3;
@@ -126,5 +126,5 @@ message Preferences {
   Scheduling scheduling = 1;
   Reviewing reviewing = 2;
   Editing editing = 3;
-  Backups backups = 4;
+  BackupLimits backups = 4;
 }

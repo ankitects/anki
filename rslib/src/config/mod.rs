@@ -16,7 +16,7 @@ use strum::IntoStaticStr;
 pub use self::{
     bool::BoolKey, deck::DeckConfigKey, notetype::get_aux_notetype_config_key, string::StringKey,
 };
-use crate::{backend_proto::preferences::Backups, prelude::*};
+use crate::{backend_proto::preferences::BackupLimits, prelude::*};
 
 /// Only used when updating/undoing.
 #[derive(Debug)]
@@ -266,10 +266,10 @@ impl Collection {
             .map(|_| ())
     }
 
-    pub(crate) fn get_backups(&self) -> Backups {
+    pub(crate) fn get_backup_limits(&self) -> BackupLimits {
         self.get_config_optional(ConfigKey::Backups).unwrap_or(
             // 2d + 12d + 10w + 9m ≈ 1y
-            Backups {
+            BackupLimits {
                 daily: 12,
                 weekly: 10,
                 monthly: 9,
@@ -277,7 +277,7 @@ impl Collection {
         )
     }
 
-    pub(crate) fn set_backups(&mut self, limits: Backups) -> Result<()> {
+    pub(crate) fn set_backup_limits(&mut self, limits: BackupLimits) -> Result<()> {
         self.set_config(ConfigKey::Backups, &limits).map(|_| ())
     }
 }

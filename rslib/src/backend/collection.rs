@@ -9,7 +9,7 @@ use super::{progress::Progress, Backend};
 pub(super) use crate::backend_proto::collection_service::Service as CollectionService;
 use crate::{
     backend::progress::progress_to_proto,
-    backend_proto::{self as pb, preferences::Backups},
+    backend_proto::{self as pb, preferences::BackupLimits},
     collection::{backup, CollectionBuilder},
     prelude::*,
     storage::SchemaVersion,
@@ -51,7 +51,7 @@ impl CollectionService for Backend {
         let mut guard = self.lock_open_collection()?;
 
         let mut col_inner = guard.take().unwrap();
-        let limits = col_inner.get_backups();
+        let limits = col_inner.get_backup_limits();
         let col_path = std::mem::take(&mut col_inner.col_path);
 
         let desired_version = if input.downgrade_to_schema11 {
@@ -144,7 +144,7 @@ impl Backend {
         &self,
         col_path: impl AsRef<Path>,
         backup_folder: impl AsRef<Path> + Send + 'static,
-        limits: Backups,
+        limits: BackupLimits,
         minimum_backup_interval: Option<u64>,
     ) -> Result<()> {
         self.await_backup_completion();
