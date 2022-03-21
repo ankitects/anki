@@ -15,6 +15,7 @@ from anki.errors import Interrupted
 from anki.importing.anki2 import V2ImportIntoV1
 from anki.importing.apkg import AnkiPackageImporter
 from aqt import AnkiQt, gui_hooks
+from aqt.operations import QueryOp
 from aqt.qt import *
 from aqt.utils import (
     HelpPage,
@@ -444,13 +445,18 @@ def setupApkgImport(mw: AnkiQt, importer: AnkiPackageImporter) -> bool:
     return False
 
 
-def full_apkg_import(mw: aqt.AnkiQt, file: str) -> None:
+def full_apkg_import(mw: AnkiQt, file: str) -> None:
     def on_done(success: bool) -> None:
         mw.loadCollection()
         if success:
             tooltip(tr.importing_importing_complete())
 
-    mw.unloadCollection(lambda: replace_with_apkg(mw, file, on_done))
+    def after_backup(created: bool) -> None:
+        mw.unloadCollection(lambda: replace_with_apkg(mw, file, on_done))
+
+    QueryOp(
+        parent=mw, op=lambda _: mw.create_backup_now(), success=after_backup
+    ).with_progress().run_in_background()
 
 
 def replace_with_apkg(
