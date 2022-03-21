@@ -1363,7 +1363,7 @@ title="{}" {}>{}</button>""".format(
         """Create a backup immediately, regardless of when the last one was created.
         Waits until the backup completes. Intended to be used as part of a longer-running
         CollectionOp/QueryOp."""
-        assert self.col.create_backup(
+        self.col.create_backup(
             backup_folder=self.pm.backupFolder(),
             force=True,
             wait_for_completion=True,
@@ -1395,7 +1395,8 @@ title="{}" {}>{}</button>""".format(
             # Legacy checkpoint may have expired.
             self.update_undo_actions()
 
-            if not created:
+            if user_initiated and not created:
+                tooltip(tr.profiles_backup_unchanged(), parent=self)
                 return
 
             # We await backup completion to confirm it was successful, but this step

@@ -329,8 +329,10 @@ class Collection(DeprecatedNamesMixin):
         wait_for_completion: bool,
     ) -> bool:
         """Create a backup if enough time has elapsed, and rotate old backups.
+
         If `force` is true, the user's configured backup interval is ignored.
-        Returns true if backup created.
+        Returns true if backup created. This may be false in the force=True case,
+        if no changes have been made to the collection.
 
         Commits any outstanding changes, which clears any active legacy checkpoint.
 
