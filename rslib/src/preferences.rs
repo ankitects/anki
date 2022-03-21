@@ -19,7 +19,7 @@ impl Collection {
             scheduling: Some(self.get_scheduling_preferences()?),
             reviewing: Some(self.get_reviewing_preferences()?),
             editing: Some(self.get_editing_preferences()?),
-            backups: Some(self.get_backups()),
+            backups: Some(self.get_backup_limits()),
         })
     }
 
@@ -40,7 +40,7 @@ impl Collection {
             self.set_editing_preferences(editing)?;
         }
         if let Some(backups) = prefs.backups {
-            self.set_backups(backups)?;
+            self.set_backup_limits(backups)?;
         }
         Ok(())
     }

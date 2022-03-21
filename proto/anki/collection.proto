@@ -18,6 +18,13 @@ service CollectionService {
   rpc MergeUndoEntries(generic.UInt32) returns (OpChanges);
   rpc LatestProgress(generic.Empty) returns (Progress);
   rpc SetWantsAbort(generic.Empty) returns (generic.Empty);
+  // Create a no-media backup. Caller must ensure there is no active
+  // transaction. Unlike a collection export, does not require reopening the DB,
+  // as there is no downgrade step.
+  // Returns false if it's not time to make a backup yet.
+  rpc CreateBackup(CreateBackupRequest) returns (generic.Bool);
+  // If a backup is running, wait for it to complete. Will return an error
+  // if the backup encountered an error.
   rpc AwaitBackupCompletion(generic.Empty) returns (generic.Empty);
 }
 
@@ -30,11 +37,6 @@ message OpenCollectionRequest {
 
 message CloseCollectionRequest {
   bool downgrade_to_schema11 = 1;
-  // Skip backup if unset
-  optional string backup_folder = 2;
-  // Skip backup if one has been created in the last x seconds.
-  // If unset a default value is used.
-  optional uint64 minimum_backup_interval = 3;
 }
 
 message CheckDatabaseResponse {
@@ -116,4 +118,11 @@ message Progress {
     string importing = 7;
     uint32 exporting = 8;
   }
+}
+
+message CreateBackupRequest {
+  string backup_folder = 1;
+  // Create a backup even if the configured interval hasn't elapsed yet.
+  bool force = 2;
+  bool wait_for_completion = 3;
 }

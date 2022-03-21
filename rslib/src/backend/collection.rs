@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{path::Path, sync::MutexGuard};
+use std::sync::MutexGuard;
 
 use slog::error;
 
@@ -9,9 +9,8 @@ use super::{progress::Progress, Backend};
 pub(super) use crate::backend_proto::collection_service::Service as CollectionService;
 use crate::{
     backend::progress::progress_to_proto,
-    backend_proto::{self as pb, preferences::Backups},
-    collection::{backup, CollectionBuilder},
-    log::{self},
+    backend_proto::{self as pb},
+    collection::CollectionBuilder,
     prelude::*,
     storage::SchemaVersion,
 };
@@ -47,28 +46,18 @@ impl CollectionService for Backend {
     }
 
     fn close_collection(&self, input: pb::CloseCollectionRequest) -> Result<pb::Empty> {
+        let desired_version = if input.downgrade_to_schema11 {
+            Some(SchemaVersion::V11)
+        } else {
+            None
+        };
+
         self.abort_media_sync_and_wait();
-
         let mut guard = self.lock_open_collection()?;
+        let col_inner = guard.take().unwrap();
 
-        let mut col_inner = guard.take().unwrap();
-        let limits = col_inner.get_backups();
-        let col_path = std::mem::take(&mut col_inner.col_path);
-
-        if input.downgrade_to_schema11 {
-            let log = log::terminal();
-            if let Err(e) = col_inner.close(Some(SchemaVersion::V11)) {
-                error!(log, " failed: {:?}", e);
-            }
-        }
-
-        if let Some(backup_folder) = input.backup_folder {
-            self.start_backup(
-                col_path,
-                backup_folder,
-                limits,
-                input.minimum_backup_interval,
-            )?;
+        if let Err(e) = col_inner.close(desired_version) {
+            error!(self.log, " failed: {:?}", e);
         }
 
         Ok(().into())
@@ -109,8 +98,32 @@ impl CollectionService for Backend {
             .map(Into::into)
     }
 
+    fn create_backup(&self, input: pb::CreateBackupRequest) -> Result<pb::Bool> {
+        // lock collection
+        let mut col_lock = self.lock_open_collection()?;
+        let col = col_lock.as_mut().unwrap();
+        // await any previous backup first
+        let mut task_lock = self.backup_task.lock().unwrap();
+        if let Some(task) = task_lock.take() {
+            task.join().unwrap()?;
+        }
+        // start the new backup
+        let created = if let Some(task) = col.maybe_backup(input.backup_folder, input.force)? {
+            if input.wait_for_completion {
+                drop(col_lock);
+                task.join().unwrap()?;
+            } else {
+                *task_lock = Some(task);
+            }
+            true
+        } else {
+            false
+        };
+        Ok(created.into())
+    }
+
     fn await_backup_completion(&self, _input: pb::Empty) -> Result<pb::Empty> {
-        self.await_backup_completion();
+        self.await_backup_completion()?;
         Ok(().into())
     }
 }
@@ -132,29 +145,10 @@ impl Backend {
             .ok_or(AnkiError::CollectionAlreadyOpen)
     }
 
-    fn await_backup_completion(&self) {
+    fn await_backup_completion(&self) -> Result<()> {
         if let Some(task) = self.backup_task.lock().unwrap().take() {
-            task.join().unwrap();
+            task.join().unwrap()?;
         }
-    }
-
-    fn start_backup(
-        &self,
-        col_path: impl AsRef<Path>,
-        backup_folder: impl AsRef<Path> + Send + 'static,
-        limits: Backups,
-        minimum_backup_interval: Option<u64>,
-    ) -> Result<()> {
-        self.await_backup_completion();
-        *self.backup_task.lock().unwrap() = backup::backup(
-            col_path,
-            backup_folder,
-            limits,
-            minimum_backup_interval,
-            self.log.clone(),
-            self.tr.clone(),
-        )?;
-
         Ok(())
     }
 }

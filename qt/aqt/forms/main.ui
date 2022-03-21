@@ -26,7 +26,7 @@
    <string notr="true">Anki</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="icons.qrc">
     <normaloff>:/icons/anki.png</normaloff>:/icons/anki.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -46,7 +46,7 @@
      <x>0</x>
      <y>0</y>
      <width>667</width>
-     <height>22</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
@@ -73,6 +73,8 @@
     <addaction name="separator"/>
     <addaction name="actionImport"/>
     <addaction name="actionExport"/>
+    <addaction name="separator"/>
+    <addaction name="action_create_backup"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -268,6 +270,11 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+0</string>
+   </property>
+  </action>
+  <action name="action_create_backup">
+   <property name="text">
+    <string>qt_accel_create_backup</string>
    </property>
   </action>
  </widget>

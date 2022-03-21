@@ -25,7 +25,7 @@ import aqt.sound
 import aqt.stats
 import aqt.toolbar
 import aqt.webview
-from anki import collection_pb2, hooks
+from anki import hooks
 from anki._backend import RustBackend as _RustBackend
 from anki.collection import Collection, Config, OpChanges, UndoStatus
 from anki.decks import DeckDict, DeckId
@@ -50,6 +50,7 @@ from aqt.flags import FlagManager
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
+from aqt.operations import QueryOp
 from aqt.operations.collection import redo, undo
 from aqt.operations.deck import set_current_deck
 from aqt.profiles import ProfileManager as ProfileManagerType
@@ -547,10 +548,7 @@ class AnkiQt(QMainWindow):
                 )
             # clean up open collection if possible
             try:
-                request = collection_pb2.CloseCollectionRequest(
-                    downgrade_to_schema11=False, backup_folder=None
-                )
-                self.backend.close_collection(request)
+                self.backend.close_collection(downgrade_to_schema11=False)
             except Exception as e:
                 print("unable to close collection:", e)
             self.col = None
@@ -612,12 +610,15 @@ class AnkiQt(QMainWindow):
         except:
             corrupt = True
 
-        if corrupt or dev_mode or self.restoring_backup:
-            backup_folder = None
-        else:
-            backup_folder = self.pm.backupFolder()
         try:
-            self.col.close(downgrade=False, backup_folder=backup_folder)
+            if not corrupt and not dev_mode and not self.restoring_backup:
+                # default 5 minute throttle
+                self.col.create_backup(
+                    backup_folder=self.pm.backupFolder(),
+                    force=False,
+                    wait_for_completion=False,
+                )
+            self.col.close(downgrade=False)
         except Exception as e:
             print(e)
             corrupt = True
@@ -630,11 +631,7 @@ class AnkiQt(QMainWindow):
 
     def _close_for_full_download(self) -> None:
         "Backup and prepare collection to be overwritten."
-        backup_folder = None if dev_mode else self.pm.backupFolder()
-        self.col.close(
-            downgrade=False, backup_folder=backup_folder, minimum_backup_interval=0
-        )
-        self.col.reopen(after_full_sync=False)
+        self.create_backup_now()
         self.col.close_for_full_sync()
 
     def apply_collection_options(self) -> None:
@@ -1230,6 +1227,7 @@ title="{}" {}>{}</button>""".format(
         )
         qconnect(m.actionImport.triggered, self.onImport)
         qconnect(m.actionExport.triggered, self.onExport)
+        qconnect(m.action_create_backup.triggered, self.on_create_backup_now)
         qconnect(m.actionExit.triggered, self.close)
 
         # Help
@@ -1329,6 +1327,13 @@ title="{}" {}>{}</button>""".format(
         # ensure Python interpreter runs at least once per second, so that
         # SIGINT/SIGTERM is processed without a long delay
         self.progress.timer(1000, lambda: None, True, False, parent=self)
+        # periodic backups are checked every 5 minutes
+        self.progress.timer(
+            5 * 60 * 1000,
+            self.on_periodic_backup_timer,
+            True,
+            parent=self,
+        )
 
     def onRefreshTimer(self) -> None:
         if self.state == "deckBrowser":
@@ -1343,6 +1348,69 @@ title="{}" {}>{}</button>""".format(
             return
         if elap > minutes * 60:
             self.maybe_auto_sync_media()
+
+    # Backups
+    ##########################################################################
+
+    def on_periodic_backup_timer(self) -> None:
+        """Create a backup if enough time has elapsed and collection changed."""
+        self._create_backup_with_progress(user_initiated=False)
+
+    def on_create_backup_now(self) -> None:
+        self._create_backup_with_progress(user_initiated=True)
+
+    def create_backup_now(self) -> None:
+        """Create a backup immediately, regardless of when the last one was created.
+        Waits until the backup completes. Intended to be used as part of a longer-running
+        CollectionOp/QueryOp."""
+        self.col.create_backup(
+            backup_folder=self.pm.backupFolder(),
+            force=True,
+            wait_for_completion=True,
+        )
+
+    def _create_backup_with_progress(self, user_initiated: bool) -> None:
+        # if there's a legacy undo op, try again later
+        if not user_initiated and self.col.legacy_checkpoint_pending():
+            return
+
+        # The initial copy will display a progress window if it takes too long
+        def backup(col: Collection) -> bool:
+            return col.create_backup(
+                backup_folder=self.pm.backupFolder(),
+                force=user_initiated,
+                wait_for_completion=False,
+            )
+
+        def on_success(val: None) -> None:
+            if user_initiated:
+                tooltip(tr.profiles_backup_created(), parent=self)
+
+        def on_failure(exc: Exception) -> None:
+            showWarning(
+                tr.profiles_backup_creation_failed(reason=str(exc)), parent=self
+            )
+
+        def after_backup_started(created: bool) -> None:
+            # Legacy checkpoint may have expired.
+            self.update_undo_actions()
+
+            if user_initiated and not created:
+                tooltip(tr.profiles_backup_unchanged(), parent=self)
+                return
+
+            # We await backup completion to confirm it was successful, but this step
+            # does not block collection access, so we don't need to show the progress
+            # window anymore.
+            QueryOp(
+                parent=self,
+                op=lambda col: col.await_backup_completion(),
+                success=on_success,
+            ).failure(on_failure).run_in_background()
+
+        QueryOp(parent=self, op=backup, success=after_backup_started).failure(
+            on_failure
+        ).with_progress(tr.profiles_creating_backup()).run_in_background()
 
     # Permanent hooks
     ##########################################################################

@@ -78,7 +78,7 @@ pub struct Backend {
     runtime: OnceCell<Runtime>,
     log: Logger,
     state: Arc<Mutex<BackendState>>,
-    backup_task: Arc<Mutex<Option<JoinHandle<()>>>>,
+    backup_task: Arc<Mutex<Option<JoinHandle<Result<()>>>>>,
 }
 
 #[derive(Default)]
