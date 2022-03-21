@@ -280,7 +280,7 @@ class AnkiQt(QMainWindow):
 
     def showProfileManager(self) -> None:
         self.pm.profile = None
-        self.state = "profileManager"
+        self.moveToState("profileManager")
         d = self.profileDiag = self.ProfileManager()
         f = self.profileForm = aqt.forms.profiles.Ui_MainWindow()
         f.setupUi(d)
@@ -666,7 +666,7 @@ class AnkiQt(QMainWindow):
         self.clearStateShortcuts()
         self.state = state
         gui_hooks.state_will_change(state, oldState)
-        getattr(self, f"_{state}State")(oldState, *args)
+        getattr(self, f"_{state}State", lambda *_: None)(oldState, *args)
         if state != "resetRequired":
             self.bottomWeb.show()
         gui_hooks.state_did_change(state, oldState)
