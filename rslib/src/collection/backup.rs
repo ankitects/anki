@@ -54,8 +54,6 @@ fn should_skip_backup(
 ) -> Result<bool> {
     if force {
         Ok(false)
-    } else if minimum_interval_mins == 0 {
-        Ok(true)
     } else {
         has_recent_backup(backup_folder, minimum_interval_mins)
     }
