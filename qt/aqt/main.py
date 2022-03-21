@@ -640,28 +640,6 @@ class AnkiQt(QMainWindow):
             Config.Bool.INTERRUPT_AUDIO_WHEN_ANSWERING
         )
 
-    def create_backup_now(self) -> None:
-        """Create a backup immediately, regardless of when the last one was created.
-        Waits until the backup completes. Caller should run this on a background thread."""
-        assert self.col.create_backup(
-            backup_folder=self.pm.backupFolder(),
-            force=True,
-            wait_for_completion=True,
-        )
-
-    def on_create_backup_now(self) -> None:
-        def on_backup_created(val: None) -> None:
-            # legacy checkpoint may have been cleared
-            self.update_undo_actions()
-
-            tooltip(tr.profiles_backup_created(), parent=self)
-
-        QueryOp(
-            parent=self,
-            op=lambda _: self.create_backup_now(),
-            success=on_backup_created,
-        ).with_progress().run_in_background()
-
     # Auto-optimize
     ##########################################################################
 
@@ -1371,18 +1349,46 @@ title="{}" {}>{}</button>""".format(
         if elap > minutes * 60:
             self.maybe_auto_sync_media()
 
+    # Backups
+    ##########################################################################
+
     def on_periodic_backup_timer(self) -> None:
         """Create a backup if enough time has elapsed and collection changed."""
+        self._create_backup_with_progress(user_initiated=False)
+
+    def on_create_backup_now(self) -> None:
+        self._create_backup_with_progress(user_initiated=True)
+
+    def create_backup_now(self) -> None:
+        """Create a backup immediately, regardless of when the last one was created.
+        Waits until the backup completes. Intended to be used as part of a longer-running
+        CollectionOp/QueryOp."""
+        assert self.col.create_backup(
+            backup_folder=self.pm.backupFolder(),
+            force=True,
+            wait_for_completion=True,
+        )
+
+    def _create_backup_with_progress(self, user_initiated: bool) -> None:
         # if there's a legacy undo op, try again later
-        if self.col.legacy_checkpoint_pending():
+        if not user_initiated and self.col.legacy_checkpoint_pending():
             return
 
         # The initial copy will display a progress window if it takes too long
         def backup(col: Collection) -> bool:
             return col.create_backup(
                 backup_folder=self.pm.backupFolder(),
-                force=False,
+                force=user_initiated,
                 wait_for_completion=False,
+            )
+
+        def on_success(val: None) -> None:
+            if user_initiated:
+                tooltip(tr.profiles_backup_created(), parent=self)
+
+        def on_failure(exc: Exception) -> None:
+            showWarning(
+                tr.profiles_backup_creation_failed(reason=str(exc)), parent=self
             )
 
         def after_backup_started(created: bool) -> None:
@@ -1398,13 +1404,11 @@ title="{}" {}>{}</button>""".format(
             QueryOp(
                 parent=self,
                 op=lambda col: col.await_backup_completion(),
-                success=lambda _: None,
-            ).run_in_background()
+                success=on_success,
+            ).failure(on_failure).run_in_background()
 
-        QueryOp(
-            parent=self,
-            op=backup,
-            success=after_backup_started,
+        QueryOp(parent=self, op=backup, success=after_backup_started).failure(
+            on_failure
         ).with_progress(tr.profiles_creating_backup()).run_in_background()
 
     # Permanent hooks

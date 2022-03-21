@@ -15,3 +15,4 @@ profiles-prefs-file-is-corrupt = Anki's prefs21.db file was corrupt and has been
 profiles-profile-does-not-exist = Requested profile does not exist.
 profiles-creating-backup = Creating Backup...
 profiles-backup-created = Backup created.
+profiles-backup-creation-failed = Backup creation failed: { $reason }
