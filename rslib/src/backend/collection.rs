@@ -10,7 +10,7 @@ pub(super) use crate::backend_proto::collection_service::Service as CollectionSe
 use crate::{
     backend::progress::progress_to_proto,
     backend_proto::{self as pb},
-    collection::{backup, CollectionBuilder},
+    collection::CollectionBuilder,
     prelude::*,
     storage::SchemaVersion,
 };
@@ -108,18 +108,17 @@ impl CollectionService for Backend {
             task.join().unwrap()?;
         }
         // start the new backup
-        let created =
-            if let Some(task) = backup::maybe_backup(col, input.backup_folder, input.force)? {
-                if input.wait_for_completion {
-                    drop(col_lock);
-                    task.join().unwrap()?;
-                } else {
-                    *task_lock = Some(task);
-                }
-                true
+        let created = if let Some(task) = col.maybe_backup(input.backup_folder, input.force)? {
+            if input.wait_for_completion {
+                drop(col_lock);
+                task.join().unwrap()?;
             } else {
-                false
-            };
+                *task_lock = Some(task);
+            }
+            true
+        } else {
+            false
+        };
         Ok(created.into())
     }
 

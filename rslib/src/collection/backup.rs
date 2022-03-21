@@ -20,26 +20,30 @@ use crate::{
 
 const BACKUP_FORMAT_STRING: &str = "backup-%Y-%m-%d-%H.%M.%S.colpkg";
 
-pub fn maybe_backup(
-    col: &mut Collection,
-    backup_folder: impl AsRef<Path> + Send + 'static,
-    force: bool,
-) -> Result<Option<JoinHandle<Result<()>>>> {
-    if !col.changed_since_last_backup()? {
-        return Ok(None);
-    }
-    let limits = col.get_backup_limits();
-    if should_skip_backup(force, limits.minimum_interval_mins, backup_folder.as_ref())? {
-        Ok(None)
-    } else {
-        let log = col.log.clone();
-        let tr = col.tr.clone();
-        col.storage.checkpoint()?;
-        let col_data = std::fs::read(&col.col_path)?;
-        col.update_last_backup_timestamp()?;
-        Ok(Some(thread::spawn(move || {
-            backup_inner(&col_data, &backup_folder, limits, log, &tr)
-        })))
+impl Collection {
+    /// Create a backup if enough time has elapsed, or if forced.
+    /// Returns a handle that can be awaited if a backup was created.
+    pub fn maybe_backup(
+        &mut self,
+        backup_folder: impl AsRef<Path> + Send + 'static,
+        force: bool,
+    ) -> Result<Option<JoinHandle<Result<()>>>> {
+        if !self.changed_since_last_backup()? {
+            return Ok(None);
+        }
+        let limits = self.get_backup_limits();
+        if should_skip_backup(force, limits.minimum_interval_mins, backup_folder.as_ref())? {
+            Ok(None)
+        } else {
+            let log = self.log.clone();
+            let tr = self.tr.clone();
+            self.storage.checkpoint()?;
+            let col_data = std::fs::read(&self.col_path)?;
+            self.update_last_backup_timestamp()?;
+            Ok(Some(thread::spawn(move || {
+                backup_inner(&col_data, &backup_folder, limits, log, &tr)
+            })))
+        }
     }
 }
 
