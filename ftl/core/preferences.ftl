@@ -49,4 +49,4 @@ preferences-backup-explanation =
 preferences-daily-backups = Daily backups to keep:
 preferences-weekly-backups = Weekly backups to keep:
 preferences-monthly-backups = Monthly backups to keep:
-preferences-minutes-between-backups = Minutes between backups:
+preferences-minutes-between-backups = Minutes between automatic backups:
