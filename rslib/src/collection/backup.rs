@@ -14,34 +14,53 @@ use itertools::Itertools;
 use log::error;
 
 use crate::{
-    backend_proto::preferences::Backups, import_export::package::export_colpkg_from_data, log,
+    backend_proto::preferences::BackupLimits, import_export::package::export_colpkg_from_data, log,
     prelude::*,
 };
 
 const BACKUP_FORMAT_STRING: &str = "backup-%Y-%m-%d-%H.%M.%S.colpkg";
-/// Default seconds after a backup, in which further backups will be skipped.
-const MINIMUM_BACKUP_INTERVAL: u64 = 5 * 60;
 
-pub fn backup(
-    col_path: impl AsRef<Path>,
-    backup_folder: impl AsRef<Path> + Send + 'static,
-    limits: Backups,
-    minimum_backup_interval: Option<u64>,
-    log: Logger,
-    tr: I18n,
-) -> Result<Option<JoinHandle<()>>> {
-    let recent_secs = minimum_backup_interval.unwrap_or(MINIMUM_BACKUP_INTERVAL);
-    if recent_secs > 0 && has_recent_backup(backup_folder.as_ref(), recent_secs)? {
-        Ok(None)
-    } else {
-        let col_data = std::fs::read(col_path)?;
-        Ok(Some(thread::spawn(move || {
-            backup_inner(&col_data, &backup_folder, limits, log, &tr)
-        })))
+impl Collection {
+    /// Create a backup if enough time has elapsed, or if forced.
+    /// Returns a handle that can be awaited if a backup was created.
+    pub fn maybe_backup(
+        &mut self,
+        backup_folder: impl AsRef<Path> + Send + 'static,
+        force: bool,
+    ) -> Result<Option<JoinHandle<Result<()>>>> {
+        if !self.changed_since_last_backup()? {
+            return Ok(None);
+        }
+        let limits = self.get_backup_limits();
+        if should_skip_backup(force, limits.minimum_interval_mins, backup_folder.as_ref())? {
+            Ok(None)
+        } else {
+            let log = self.log.clone();
+            let tr = self.tr.clone();
+            self.storage.checkpoint()?;
+            let col_data = std::fs::read(&self.col_path)?;
+            self.update_last_backup_timestamp()?;
+            Ok(Some(thread::spawn(move || {
+                backup_inner(&col_data, &backup_folder, limits, log, &tr)
+            })))
+        }
     }
 }
 
-fn has_recent_backup(backup_folder: &Path, recent_secs: u64) -> Result<bool> {
+fn should_skip_backup(
+    force: bool,
+    minimum_interval_mins: u32,
+    backup_folder: &Path,
+) -> Result<bool> {
+    if force {
+        Ok(false)
+    } else {
+        has_recent_backup(backup_folder, minimum_interval_mins)
+    }
+}
+
+fn has_recent_backup(backup_folder: &Path, recent_mins: u32) -> Result<bool> {
+    let recent_secs = (recent_mins * 60) as u64;
     let now = SystemTime::now();
     Ok(read_dir(backup_folder)?
         .filter_map(|res| res.ok())
@@ -54,16 +73,12 @@ fn has_recent_backup(backup_folder: &Path, recent_secs: u64) -> Result<bool> {
 fn backup_inner<P: AsRef<Path>>(
     col_data: &[u8],
     backup_folder: P,
-    limits: Backups,
+    limits: BackupLimits,
     log: Logger,
     tr: &I18n,
-) {
-    if let Err(error) = write_backup(col_data, backup_folder.as_ref(), tr) {
-        error!(log, "failed to backup collection: {error:?}");
-    }
-    if let Err(error) = thin_backups(backup_folder, limits, &log) {
-        error!(log, "failed to thin backups: {error:?}");
-    }
+) -> Result<()> {
+    write_backup(col_data, backup_folder.as_ref(), tr)?;
+    thin_backups(backup_folder, limits, &log)
 }
 
 fn write_backup<S: AsRef<OsStr>>(col_data: &[u8], backup_folder: S, tr: &I18n) -> Result<()> {
@@ -72,7 +87,11 @@ fn write_backup<S: AsRef<OsStr>>(col_data: &[u8], backup_folder: S, tr: &I18n) -
     export_colpkg_from_data(&out_path, col_data, tr)
 }
 
-fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: Backups, log: &Logger) -> Result<()> {
+fn thin_backups<P: AsRef<Path>>(
+    backup_folder: P,
+    limits: BackupLimits,
+    log: &Logger,
+) -> Result<()> {
     let backups =
         read_dir(backup_folder)?.filter_map(|entry| entry.ok().and_then(Backup::from_entry));
     let obsolete_backups = BackupFilter::new(Local::today(), limits).obsolete_backups(backups);
@@ -135,7 +154,7 @@ struct BackupFilter {
     last_kept_day: i32,
     last_kept_week: i32,
     last_kept_month: u32,
-    limits: Backups,
+    limits: BackupLimits,
     obsolete: Vec<Backup>,
 }
 
@@ -147,7 +166,7 @@ enum BackupStage {
 }
 
 impl BackupFilter {
-    fn new(today: Date<Local>, limits: Backups) -> Self {
+    fn new(today: Date<Local>, limits: BackupLimits) -> Self {
         Self {
             yesterday: today.num_days_from_ce() - 1,
             last_kept_day: i32::MAX,
@@ -257,10 +276,11 @@ mod test {
     #[test]
     fn thinning_manual() {
         let today = Local.ymd(2022, 2, 22);
-        let limits = Backups {
+        let limits = BackupLimits {
             daily: 3,
             weekly: 2,
             monthly: 1,
+            ..Default::default()
         };
 
         // true => should be removed
@@ -300,11 +320,12 @@ mod test {
     fn thinning_generic() {
         let today = Local.ymd(2022, 1, 1);
         let today_ce_days = today.num_days_from_ce();
-        let limits = Backups {
+        let limits = BackupLimits {
             // config defaults
             daily: 12,
             weekly: 10,
             monthly: 9,
+            ..Default::default()
         };
         let backups: Vec<_> = (1..366).map(|i| backup!(today_ce_days - i)).collect();
         let mut expected = Vec::new();

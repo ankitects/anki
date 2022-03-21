@@ -103,6 +103,7 @@ class Preferences(QDialog):
         form.daily_backups.setValue(self.prefs.backups.daily)
         form.weekly_backups.setValue(self.prefs.backups.weekly)
         form.monthly_backups.setValue(self.prefs.backups.monthly)
+        form.minutes_between_backups.setValue(self.prefs.backups.minimum_interval_mins)
 
     def update_collection(self, on_done: Callable[[], None]) -> None:
         form = self.form
@@ -133,6 +134,7 @@ class Preferences(QDialog):
         self.prefs.backups.daily = form.daily_backups.value()
         self.prefs.backups.weekly = form.weekly_backups.value()
         self.prefs.backups.monthly = form.monthly_backups.value()
+        self.prefs.backups.minimum_interval_mins = form.minutes_between_backups.value()
 
         def after_prefs_update(changes: OpChanges) -> None:
             self.mw.apply_collection_options()
