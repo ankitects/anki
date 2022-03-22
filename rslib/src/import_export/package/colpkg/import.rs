@@ -69,7 +69,7 @@ pub fn import_colpkg(
 
     copy_collection(&mut archive, &mut tempfile, &meta)?;
     progress_fn(ImportProgress::Collection)?;
-    check_collection(tempfile.path())?;
+    check_collection_and_mod_schema(tempfile.path())?;
     progress_fn(ImportProgress::Collection)?;
 
     let media_folder = Path::new(target_media_folder);
@@ -78,11 +78,12 @@ pub fn import_colpkg(
     atomic_rename(tempfile, &col_path, true)
 }
 
-fn check_collection(col_path: &Path) -> Result<()> {
+fn check_collection_and_mod_schema(col_path: &Path) -> Result<()> {
     CollectionBuilder::new(col_path)
         .build()
         .ok()
-        .and_then(|col| {
+        .and_then(|mut col| {
+            col.set_schema_modified().ok()?;
             col.storage
                 .db
                 .pragma_query_value(None, "integrity_check", |row| row.get::<_, String>(0))
