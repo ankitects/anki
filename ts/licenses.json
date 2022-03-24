@@ -30,14 +30,14 @@
         "path": "node_modules/@eslint/eslintrc",
         "licenseFile": "node_modules/@eslint/eslintrc/LICENSE"
     },
-    "@floating-ui/core@0.5.0": {
+    "@floating-ui/core@0.5.1": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
         "path": "node_modules/@floating-ui/core",
         "licenseFile": "node_modules/@floating-ui/core/README.md"
     },
-    "@floating-ui/dom@0.3.0": {
+    "@floating-ui/dom@0.3.1": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
@@ -66,14 +66,14 @@
         "path": "node_modules/@humanwhocodes/object-schema",
         "licenseFile": "node_modules/@humanwhocodes/object-schema/LICENSE"
     },
-    "@mdi/svg@6.5.95": {
+    "@mdi/svg@6.6.95": {
         "licenses": "Apache-2.0",
         "repository": "https://github.com/Templarian/MaterialDesign-SVG",
         "publisher": "Austin Andrews",
         "path": "node_modules/@mdi/svg",
         "licenseFile": "node_modules/@mdi/svg/LICENSE"
     },
-    "@popperjs/core@2.11.2": {
+    "@popperjs/core@2.11.4": {
         "licenses": "MIT",
         "repository": "https://github.com/popperjs/popper-core",
         "publisher": "Federico Zivolo",
@@ -175,7 +175,7 @@
         "path": "node_modules/@types/lodash-es",
         "licenseFile": "node_modules/@types/lodash-es/LICENSE"
     },
-    "@types/lodash@4.14.178": {
+    "@types/lodash@4.14.180": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/@types/lodash",
@@ -187,13 +187,13 @@
         "path": "node_modules/@types/long",
         "licenseFile": "node_modules/@types/long/LICENSE"
     },
-    "@types/marked@4.0.2": {
+    "@types/marked@4.0.3": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/@types/marked",
         "licenseFile": "node_modules/@types/marked/LICENSE"
     },
-    "@types/node@17.0.21": {
+    "@types/node@17.0.23": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/protobufjs/node_modules/@types/node",
@@ -224,7 +224,7 @@
         "path": "node_modules/ajv",
         "licenseFile": "node_modules/ajv/LICENSE"
     },
-    "ajv@8.10.0": {
+    "ajv@8.11.0": {
         "licenses": "MIT",
         "repository": "https://github.com/ajv-validator/ajv",
         "publisher": "Evgeny Poberezkin",
@@ -410,7 +410,7 @@
         "path": "node_modules/commander",
         "licenseFile": "node_modules/commander/LICENSE"
     },
-    "commander@9.0.0": {
+    "commander@9.1.0": {
         "licenses": "MIT",
         "repository": "https://github.com/tj/commander.js",
         "publisher": "TJ Holowaychuk",
@@ -706,7 +706,7 @@
         "path": "node_modules/eslint-import-resolver-node/node_modules/debug",
         "licenseFile": "node_modules/eslint-import-resolver-node/node_modules/debug/LICENSE"
     },
-    "debug@4.3.3": {
+    "debug@4.3.4": {
         "licenses": "MIT",
         "repository": "https://github.com/debug-js/debug",
         "publisher": "Josh Junon",
@@ -1046,7 +1046,7 @@
         "path": "node_modules/glob",
         "licenseFile": "node_modules/glob/LICENSE"
     },
-    "globals@13.12.1": {
+    "globals@13.13.0": {
         "licenses": "MIT",
         "repository": "https://github.com/sindresorhus/globals",
         "publisher": "Sindre Sorhus",
@@ -1081,7 +1081,7 @@
         "path": "node_modules/has-flag",
         "licenseFile": "node_modules/has-flag/license"
     },
-    "has-symbols@1.0.2": {
+    "has-symbols@1.0.3": {
         "licenses": "MIT",
         "repository": "https://github.com/inspect-js/has-symbols",
         "publisher": "Jordan Harband",
@@ -1465,7 +1465,7 @@
         "path": "node_modules/minimatch",
         "licenseFile": "node_modules/minimatch/LICENSE"
     },
-    "minimist@1.2.5": {
+    "minimist@1.2.6": {
         "licenses": "MIT",
         "repository": "https://github.com/substack/minimist",
         "publisher": "James Halliday",
@@ -1883,7 +1883,7 @@
         "path": "node_modules/text-table",
         "licenseFile": "node_modules/text-table/LICENSE"
     },
-    "tsconfig-paths@3.12.0": {
+    "tsconfig-paths@3.14.1": {
         "licenses": "MIT",
         "repository": "https://github.com/dividab/tsconfig-paths",
         "publisher": "Jonas Kello",
