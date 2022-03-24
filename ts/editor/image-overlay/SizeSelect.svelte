@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <IconButton
         {active}
         flipX={$direction === "rtl"}
-        tooltip={tr.editingActualSize()}
+        tooltip="{tr.editingActualSize()} ({tr.editingDoubleClickImage()})"
         on:click
         --border-left-radius="5px"
         --border-right-radius="5px">{@html icon}</IconButton

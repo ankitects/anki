@@ -13,6 +13,7 @@ editing-couldnt-record-audio-have-you-installed = Couldn't record audio. Have yo
 editing-customize-card-templates = Customize Card Templates
 editing-customize-fields = Customize Fields
 editing-cut = Cut
+editing-double-click-image = double-click image
 editing-edit-current = Edit Current
 editing-edit-html = Edit HTML
 editing-fields = Fields
