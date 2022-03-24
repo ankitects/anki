@@ -210,6 +210,7 @@ class Reviewer:
 
     def _redraw_current_card(self) -> None:
         self.card.load()
+        self.web.eval("ankimedia._reset();")
         if self.state == "answer":
             self._showAnswer()
         else:
