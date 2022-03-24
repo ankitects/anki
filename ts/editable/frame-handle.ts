@@ -299,7 +299,7 @@ export function checkHandles(): void {
         const selection = getSelection(handle)!;
 
         if (selection.rangeCount === 0) {
-            return;
+            continue;
         }
 
         checkWhetherMovingIntoHandle(selection, handle);
