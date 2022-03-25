@@ -177,7 +177,9 @@ class ExportDialog(QDialog):
                 except Exception as e:
                     traceback.print_exc(file=sys.stdout)
                     showWarning(str(e))
-                self.on_export_finished()
+                    self.on_export_failed()
+                else:
+                    self.on_export_finished()
 
             self.mw.progress.start()
             hooks.media_files_did_export.append(exported_media)
@@ -194,4 +196,9 @@ class ExportDialog(QDialog):
             else:
                 msg = tr.exporting_card_exported(count=self.exporter.count)
         tooltip(msg, period=3000)
+        QDialog.reject(self)
+
+    def on_export_failed(self) -> None:
+        if self.isVerbatim:
+            self.mw.reopen()
         QDialog.reject(self)
