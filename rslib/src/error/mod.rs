@@ -22,7 +22,7 @@ pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 pub enum AnkiError {
     InvalidInput(String),
     TemplateError(String),
-    TemplateSaveError(TemplateSaveError),
+    CardTypeError(CardTypeError),
     IoError(String),
     FileIoError(FileIoError),
     DbError(DbError),
@@ -71,20 +71,17 @@ impl AnkiError {
                 // already localized
                 info.into()
             }
-            AnkiError::TemplateSaveError(err) => {
+            AnkiError::CardTypeError(err) => {
                 let header =
                     tr.card_templates_invalid_template_number(err.ordinal + 1, &err.notetype);
                 let details = match err.details {
-                    TemplateSaveErrorDetails::TemplateError
-                    | TemplateSaveErrorDetails::NoSuchField => tr.card_templates_see_preview(),
-                    TemplateSaveErrorDetails::NoFrontField => tr.card_templates_no_front_field(),
-                    TemplateSaveErrorDetails::Duplicate(i) => {
-                        tr.card_templates_identical_front(i + 1)
+                    CardTypeErrorDetails::TemplateError | CardTypeErrorDetails::NoSuchField => {
+                        tr.card_templates_see_preview()
                     }
-                    TemplateSaveErrorDetails::MissingCloze => tr.card_templates_missing_cloze(),
-                    TemplateSaveErrorDetails::ExtraneousCloze => {
-                        tr.card_templates_extraneous_cloze()
-                    }
+                    CardTypeErrorDetails::NoFrontField => tr.card_templates_no_front_field(),
+                    CardTypeErrorDetails::Duplicate(i) => tr.card_templates_identical_front(i + 1),
+                    CardTypeErrorDetails::MissingCloze => tr.card_templates_missing_cloze(),
+                    CardTypeErrorDetails::ExtraneousCloze => tr.card_templates_extraneous_cloze(),
                 };
                 format!("{}<br>{}", header, details)
             }
@@ -174,14 +171,14 @@ impl From<regex::Error> for AnkiError {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct TemplateSaveError {
+pub struct CardTypeError {
     pub notetype: String,
     pub ordinal: usize,
-    pub details: TemplateSaveErrorDetails,
+    pub details: CardTypeErrorDetails,
 }
 
 #[derive(Debug, PartialEq)]
-pub enum TemplateSaveErrorDetails {
+pub enum CardTypeErrorDetails {
     TemplateError,
     Duplicate(usize),
     NoFrontField,

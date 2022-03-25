@@ -28,7 +28,7 @@ impl AnkiError {
             AnkiError::Existing => Kind::Exists,
             AnkiError::FilteredDeckError(_) => Kind::FilteredDeckError,
             AnkiError::SearchError(_) => Kind::SearchError,
-            AnkiError::TemplateSaveError(_) => Kind::TemplateParse,
+            AnkiError::CardTypeError(_) => Kind::TemplateParse,
             AnkiError::ParseNumError => Kind::InvalidInput,
             AnkiError::InvalidRegex(_) => Kind::InvalidInput,
             AnkiError::UndoEmpty => Kind::UndoEmpty,
