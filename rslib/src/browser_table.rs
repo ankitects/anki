@@ -246,7 +246,7 @@ impl Collection {
         } else {
             self.storage.get_note_without_fields(id)?
         }
-        .ok_or(AnkiError::NotFound)
+        .ok_or(AnkiError::Deleted)
     }
 }
 
@@ -299,7 +299,7 @@ impl RowContext {
             cards = vec![col
                 .storage
                 .get_card(CardId(id))?
-                .ok_or(AnkiError::NotFound)?];
+                .ok_or(AnkiError::Deleted)?];
             note = col.get_note_maybe_with_fields(cards[0].note_id, with_card_render)?;
         }
         let notetype = col
