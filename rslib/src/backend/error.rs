@@ -11,6 +11,7 @@ use crate::{
 impl AnkiError {
     pub(super) fn into_protobuf(self, tr: &I18n) -> pb::BackendError {
         let localized = self.localized_description(tr);
+        let help_page = self.help_page().map(|page| page as i32);
         let kind = match self {
             AnkiError::InvalidInput(_) => Kind::InvalidInput,
             AnkiError::TemplateError(_) => Kind::TemplateParse,
@@ -28,7 +29,7 @@ impl AnkiError {
             AnkiError::Existing => Kind::Exists,
             AnkiError::FilteredDeckError(_) => Kind::FilteredDeckError,
             AnkiError::SearchError(_) => Kind::SearchError,
-            AnkiError::CardTypeError(_) => Kind::TemplateParse,
+            AnkiError::CardTypeError(_) => Kind::CardTypeError,
             AnkiError::ParseNumError => Kind::InvalidInput,
             AnkiError::InvalidRegex(_) => Kind::InvalidInput,
             AnkiError::UndoEmpty => Kind::UndoEmpty,
@@ -43,6 +44,7 @@ impl AnkiError {
         pb::BackendError {
             kind: kind as i32,
             localized,
+            help_page,
         }
     }
 }

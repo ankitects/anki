@@ -28,7 +28,7 @@ from aqt.qt import *
 from aqt.theme import theme_manager
 
 if TYPE_CHECKING:
-    TextFormat = Union[Literal["plain", "rich"]]
+    TextFormat = Literal["plain", "rich"]
 
 
 def aqt_data_folder() -> str:

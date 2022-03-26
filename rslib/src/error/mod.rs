@@ -14,7 +14,7 @@ pub use network::{NetworkError, NetworkErrorKind, SyncError, SyncErrorKind};
 pub use search::{ParseError, SearchErrorKind};
 use tempfile::PathPersistError;
 
-use crate::i18n::I18n;
+use crate::{i18n::I18n, links::HelpPage};
 
 pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 
@@ -115,6 +115,21 @@ impl AnkiError {
             AnkiError::FileIoError(err) => {
                 format!("{}: {}", err.path, err.error)
             }
+        }
+    }
+
+    pub fn help_page(&self) -> Option<HelpPage> {
+        match self {
+            Self::CardTypeError(CardTypeError { details, .. }) => Some(match details {
+                CardTypeErrorDetails::TemplateError | CardTypeErrorDetails::NoSuchField => {
+                    HelpPage::CardTypeTemplateError
+                }
+                CardTypeErrorDetails::Duplicate(_) => HelpPage::CardTypeDuplicate,
+                CardTypeErrorDetails::NoFrontField => HelpPage::CardTypeNoFrontField,
+                CardTypeErrorDetails::MissingCloze => HelpPage::CardTypeMissingCloze,
+                CardTypeErrorDetails::ExtraneousCloze => HelpPage::CardTypeExtraneousCloze,
+            }),
+            _ => None,
         }
     }
 }
