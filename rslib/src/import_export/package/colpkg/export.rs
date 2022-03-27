@@ -4,7 +4,8 @@
 use std::{
     borrow::Cow,
     collections::HashMap,
-    fs::{DirEntry, File},
+    ffi::OsStr,
+    fs::File,
     io::{self, Read, Write},
     path::{Path, PathBuf},
 };
@@ -67,6 +68,24 @@ impl Collection {
     }
 }
 
+pub(crate) struct MediaIter(Box<dyn Iterator<Item = io::Result<PathBuf>>>);
+
+impl MediaIter {
+    pub(crate) fn from_folder(path: &Path) -> Result<Self> {
+        Ok(Self(Box::new(
+            read_dir_files(path)?.map(|res| res.map(|entry| entry.path())),
+        )))
+    }
+
+    pub(crate) fn from_file_list(list: impl IntoIterator<Item = PathBuf> + 'static) -> Self {
+        Self(Box::new(list.into_iter().map(Ok)))
+    }
+
+    pub(crate) fn empty() -> Self {
+        Self(Box::new(std::iter::empty()))
+    }
+}
+
 fn export_collection_file(
     out_path: impl AsRef<Path>,
     col_path: impl AsRef<Path>,
@@ -82,12 +101,18 @@ fn export_collection_file(
     };
     let mut col_file = File::open(col_path)?;
     let col_size = col_file.metadata()?.len() as usize;
+    let media = if let Some(path) = media_dir {
+        MediaIter::from_folder(&path)?
+    } else {
+        MediaIter::empty()
+    };
+
     export_collection(
         meta,
         out_path,
         &mut col_file,
         col_size,
-        media_dir,
+        media,
         tr,
         progress_fn,
     )
@@ -105,18 +130,18 @@ pub(crate) fn export_colpkg_from_data(
         out_path,
         &mut col_data,
         col_size,
-        None,
+        MediaIter::empty(),
         tr,
         |_| (),
     )
 }
 
-fn export_collection(
+pub(crate) fn export_collection(
     meta: Meta,
     out_path: impl AsRef<Path>,
     col: &mut impl Read,
     col_size: usize,
-    media_dir: Option<PathBuf>,
+    media: MediaIter,
     tr: &I18n,
     progress_fn: impl FnMut(usize),
 ) -> Result<()> {
@@ -129,7 +154,7 @@ fn export_collection(
     zip.write_all(&meta_bytes)?;
     write_collection(&meta, &mut zip, col, col_size)?;
     write_dummy_collection(&mut zip, tr)?;
-    write_media(&meta, &mut zip, media_dir, progress_fn)?;
+    write_media(&meta, &mut zip, media, progress_fn)?;
     zip.finish()?;
 
     Ok(())
@@ -203,17 +228,12 @@ fn zstd_copy(reader: &mut impl Read, writer: &mut impl Write, size: usize) -> Re
 fn write_media(
     meta: &Meta,
     zip: &mut ZipWriter<File>,
-    media_dir: Option<PathBuf>,
+    media: MediaIter,
     progress_fn: impl FnMut(usize),
 ) -> Result<()> {
     let mut media_entries = vec![];
-
-    if let Some(media_dir) = media_dir {
-        write_media_files(meta, zip, &media_dir, &mut media_entries, progress_fn)?;
-    }
-
+    write_media_files(meta, zip, media, &mut media_entries, progress_fn)?;
     write_media_map(meta, media_entries, zip)?;
-
     Ok(())
 }
 
@@ -251,19 +271,22 @@ fn write_media_map(
 fn write_media_files(
     meta: &Meta,
     zip: &mut ZipWriter<File>,
-    dir: &Path,
+    media: MediaIter,
     media_entries: &mut Vec<MediaEntry>,
     mut progress_fn: impl FnMut(usize),
 ) -> Result<()> {
     let mut copier = MediaCopier::new(meta);
-    for (index, entry) in read_dir_files(dir)?.enumerate() {
+    for (index, res) in media.0.enumerate() {
+        let path = res?;
         progress_fn(index);
 
         zip.start_file(index.to_string(), file_options_stored())?;
 
-        let entry = entry?;
-        let name = normalized_unicode_file_name(&entry)?;
-        let mut file = File::open(entry.path())?;
+        let mut file = File::open(&path)?;
+        let file_name = path
+            .file_name()
+            .ok_or_else(|| AnkiError::invalid_input("not a file path"))?;
+        let name = normalized_unicode_file_name(file_name)?;
 
         let (size, sha1) = copier.copy(&mut file, zip)?;
         media_entries.push(MediaEntry::new(name, size, sha1));
@@ -282,12 +305,11 @@ impl MediaEntry {
     }
 }
 
-fn normalized_unicode_file_name(entry: &DirEntry) -> Result<String> {
-    let filename = entry.file_name();
+fn normalized_unicode_file_name(filename: &OsStr) -> Result<String> {
     let filename = filename.to_str().ok_or_else(|| {
         AnkiError::IoError(format!(
             "non-unicode file name: {}",
-            entry.file_name().to_string_lossy()
+            filename.to_string_lossy()
         ))
     })?;
     filename_if_normalized(filename)

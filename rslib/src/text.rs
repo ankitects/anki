@@ -115,6 +115,36 @@ lazy_static! {
         |
         \[\[type:[^]]+\]\]
     ").unwrap();
+
+    /// Files included in CSS with a leading underscore.
+    static ref UNDERSCORED_CSS_IMPORTS: Regex = Regex::new(
+        r#"(?xi)
+            (?:@import\s+           # import statement with a bare
+                "(_[^"]*.css)"      # double quoted
+                |                   # or
+                '(_[^']*.css)'      # single quoted css filename
+            )
+            |                       # or
+            (?:url\(\s*             # a url function with a
+                "(_[^"]+)"          # double quoted
+                |                   # or
+                '(_[^']+)'          # single quoted
+                |                   # or
+                (_.+)               # unquoted filename
+            \s*\))
+    "#).unwrap();
+
+    /// Strings, src and data attributes with a leading underscore.
+    static ref UNDERSCORED_REFERENCES: Regex = Regex::new(
+        r#"(?x)
+                "(_[^"]+)"        # double quoted
+            |                     # or
+                '(_[^']+)'        # single quoted string
+            |                     # or
+                \b(?:src|data)    # a 'src' or 'data' attribute
+                =                 # followed by
+                (_[^ >]+)         # an unquoted value
+    "#).unwrap();
 }
 
 pub fn html_to_text_line(html: &str) -> Cow<str> {
@@ -214,6 +244,34 @@ pub(crate) fn extract_media_refs(text: &str) -> Vec<MediaRef> {
     }
 
     out
+}
+
+pub(crate) fn extract_underscored_css_imports(text: &str) -> Vec<&str> {
+    UNDERSCORED_CSS_IMPORTS
+        .captures_iter(text)
+        .map(|caps| {
+            caps.get(1)
+                .or_else(|| caps.get(2))
+                .or_else(|| caps.get(3))
+                .or_else(|| caps.get(4))
+                .or_else(|| caps.get(5))
+                .unwrap()
+                .as_str()
+        })
+        .collect()
+}
+
+pub(crate) fn extract_underscored_references(text: &str) -> Vec<&str> {
+    UNDERSCORED_REFERENCES
+        .captures_iter(text)
+        .map(|caps| {
+            caps.get(1)
+                .or_else(|| caps.get(2))
+                .or_else(|| caps.get(3))
+                .unwrap()
+                .as_str()
+        })
+        .collect()
 }
 
 pub fn strip_html_preserving_media_filenames(html: &str) -> Cow<str> {
@@ -377,6 +435,10 @@ pub(crate) fn glob_matcher(search: &str) -> impl Fn(&str) -> bool + '_ {
 
 lazy_static! {
     pub(crate) static ref REMOTE_FILENAME: Regex = Regex::new("(?i)^https?://").unwrap();
+}
+
+pub(crate) fn is_remote_filename(name: &str) -> bool {
+    REMOTE_FILENAME.is_match(name)
 }
 
 /// IRI-encode unescaped local paths in HTML fragment.
