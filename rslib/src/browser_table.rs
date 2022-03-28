@@ -246,7 +246,7 @@ impl Collection {
         } else {
             self.storage.get_note_without_fields(id)?
         }
-        .ok_or(AnkiError::Deleted)
+        .ok_or(AnkiError::NotFound)
     }
 }
 
@@ -290,7 +290,15 @@ impl RowContext {
         let cards;
         let note;
         if notes_mode {
-            note = col.get_note_maybe_with_fields(NoteId(id), with_card_render)?;
+            note = col
+                .get_note_maybe_with_fields(NoteId(id), with_card_render)
+                .map_err(|e| {
+                    if e == AnkiError::NotFound {
+                        AnkiError::Deleted
+                    } else {
+                        e
+                    }
+                })?;
             cards = col.storage.all_cards_of_note(note.id)?;
             if cards.is_empty() {
                 return Err(AnkiError::DatabaseCheckRequired);
