@@ -14,8 +14,8 @@ import aqt.main
 from anki import hooks
 from anki.cards import CardId
 from anki.decks import DeckId
-from anki.errors import CardTypeError
 from anki.exporting import Exporter, exporters
+from aqt.errors import show_exception
 from aqt.qt import *
 from aqt.utils import (
     checkInvalidFilename,
@@ -175,11 +175,8 @@ class ExportDialog(QDialog):
                 try:
                     # raises if exporter failed
                     future.result()
-                except CardTypeError as e:
-                    showWarning(str(e), help=e.help_page)
-                except Exception as e:
-                    traceback.print_exc(file=sys.stdout)
-                    showWarning(str(e))
+                except Exception as exc:
+                    show_exception(parent=self.mw, exception=exc)
                     self.on_export_failed()
                 else:
                     self.on_export_finished()

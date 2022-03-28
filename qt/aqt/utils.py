@@ -73,7 +73,7 @@ def openLink(link: str | QUrl) -> None:
 def showWarning(
     text: str,
     parent: QWidget | None = None,
-    help: HelpPageArgument = "",
+    help: HelpPageArgument | None = None,
     title: str = "Anki",
     textFormat: TextFormat | None = None,
 ) -> int:
@@ -95,7 +95,7 @@ def showCritical(
 def showInfo(
     text: str,
     parent: QWidget | None = None,
-    help: HelpPageArgument = "",
+    help: HelpPageArgument | None = None,
     type: str = "info",
     title: str = "Anki",
     textFormat: TextFormat | None = None,
@@ -133,7 +133,7 @@ def showInfo(
     else:
         b = mb.addButton(QMessageBox.StandardButton.Ok)
         b.setDefault(True)
-    if help:
+    if help is not None:
         b = mb.addButton(QMessageBox.StandardButton.Help)
         qconnect(b.clicked, lambda: openHelp(help))
         b.setAutoDefault(False)
