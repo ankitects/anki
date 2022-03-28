@@ -4,6 +4,10 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import anki.collection
 
 
 class LocalizedError(Exception):
@@ -15,6 +19,14 @@ class LocalizedError(Exception):
 
     def __str__(self) -> str:
         return self._localized
+
+
+class DocumentedError(LocalizedError):
+    """A localized error described in the manual."""
+
+    def __init__(self, localized: str, help_page: anki.collection.HelpPage.V) -> None:
+        self.help_page = help_page
+        super().__init__(localized)
 
 
 class Interrupted(Exception):
@@ -45,6 +57,10 @@ class CustomStudyError(LocalizedError):
 
 
 class DBError(LocalizedError):
+    pass
+
+
+class CardTypeError(DocumentedError):
     pass
 
 
