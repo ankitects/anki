@@ -35,6 +35,10 @@ pub enum AnkiError {
     CollectionNotOpen,
     CollectionAlreadyOpen,
     NotFound,
+    /// Indicates an absent card or note, but (unlike [AnkiError::NotFound]) in
+    /// a non-critical context like the browser table, where deleted ids are
+    /// deliberately not removed.
+    Deleted,
     Existing,
     FilteredDeckError(FilteredDeckError),
     SearchError(SearchErrorKind),
@@ -101,6 +105,7 @@ impl AnkiError {
             AnkiError::MediaCheckRequired => tr.errors_please_check_media().into(),
             AnkiError::CustomStudyError(err) => err.localized_description(tr),
             AnkiError::ImportError(err) => err.localized_description(tr),
+            AnkiError::Deleted => tr.browsing_row_deleted().into(),
             AnkiError::IoError(_)
             | AnkiError::JsonError(_)
             | AnkiError::ProtoError(_)

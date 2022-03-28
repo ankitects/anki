@@ -56,6 +56,10 @@ class NotFoundError(Exception):
     pass
 
 
+class DeletedError(LocalizedError):
+    pass
+
+
 class ExistsError(Exception):
     pass
 

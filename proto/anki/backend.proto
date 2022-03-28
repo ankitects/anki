@@ -58,6 +58,7 @@ message BackendError {
     SEARCH_ERROR = 14;
     CUSTOM_STUDY_ERROR = 15;
     IMPORT_ERROR = 16;
+    DELETED = 17;
   }
 
   // localized error description suitable for displaying to the user

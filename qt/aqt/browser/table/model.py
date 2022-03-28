@@ -11,7 +11,7 @@ from anki.cards import Card, CardId
 from anki.collection import BrowserColumns as Columns
 from anki.collection import Collection
 from anki.consts import *
-from anki.errors import NotFoundError
+from anki.errors import LocalizedError, NotFoundError
 from anki.notes import Note, NoteId
 from aqt import gui_hooks
 from aqt.browser.table import Cell, CellRow, Column, ItemId, SearchContext
@@ -87,24 +87,26 @@ class DataModel(QAbstractTableModel):
         # row state has changed if existence of cached and fetched counterparts differ
         # if the row was previously uncached, it is assumed to have existed
         state_change = (
-            new_row.is_deleted
+            new_row.is_disabled
             if old_row is None
-            else old_row.is_deleted != new_row.is_deleted
+            else old_row.is_disabled != new_row.is_disabled
         )
         if state_change:
-            self._on_row_state_will_change(index, not new_row.is_deleted)
+            self._on_row_state_will_change(index, not new_row.is_disabled)
         self._rows[item] = new_row
         if state_change:
-            self._on_row_state_changed(index, not new_row.is_deleted)
+            self._on_row_state_changed(index, not new_row.is_disabled)
         return self._rows[item]
 
     def _fetch_row_from_backend(self, item: ItemId) -> CellRow:
         try:
             row = CellRow(*self.col.browser_row_for_id(item))
-        except NotFoundError:
-            return CellRow.deleted(self.len_columns())
+        except LocalizedError as e:
+            return CellRow.disabled(self.len_columns(), str(e))
         except Exception as e:
-            return CellRow.generic(self.len_columns(), str(e))
+            return CellRow.disabled(
+                self.len_columns(), tr.errors_please_check_database()
+            )
         except BaseException as e:
             # fatal error like a panic in the backend - dump it to the
             # console so it gets picked up by the error handler
@@ -214,10 +216,11 @@ class DataModel(QAbstractTableModel):
         """Try to return the indicated, possibly deleted card."""
         if not index.isValid():
             return None
-        try:
-            return self._state.get_card(self.get_item(index))
-        except NotFoundError:
+        # The browser code will be calling .note() on the returned card.
+        # This implicitly ensures both the card and its note exist.
+        if self.get_row(index).is_disabled:
             return None
+        return self._state.get_card(self.get_item(index))
 
     def get_note(self, index: QModelIndex) -> Note | None:
         """Try to return the indicated, possibly deleted note."""
@@ -341,7 +344,7 @@ class DataModel(QAbstractTableModel):
     def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         # shortcut for large selections (Ctrl+A) to avoid fetching large numbers of rows at once
         if row := self.get_cached_row(index):
-            if row.is_deleted:
+            if row.is_disabled:
                 return Qt.ItemFlag(Qt.ItemFlag.NoItemFlags)
         return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
 
