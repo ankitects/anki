@@ -126,7 +126,7 @@ if (isApplePlatform()) {
 
 export function preventBuiltinShortcuts(editable: HTMLElement): void {
     for (const keyCombination of ["Control+B", "Control+U", "Control+I"]) {
-        registerShortcut(preventDefault, keyCombination, editable);
+        registerShortcut(preventDefault, keyCombination, { target: editable });
     }
 }
 
