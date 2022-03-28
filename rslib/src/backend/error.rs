@@ -24,6 +24,7 @@ impl AnkiError {
             AnkiError::JsonError(_) => Kind::JsonError,
             AnkiError::ProtoError(_) => Kind::ProtoError,
             AnkiError::NotFound => Kind::NotFoundError,
+            AnkiError::Deleted => Kind::Deleted,
             AnkiError::Existing => Kind::Exists,
             AnkiError::FilteredDeckError(_) => Kind::FilteredDeckError,
             AnkiError::SearchError(_) => Kind::SearchError,
