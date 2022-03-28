@@ -142,11 +142,28 @@ function innerShortcut(
     }
 }
 
+export interface RegisterShortcutRestParams {
+    target: EventTarget;
+    /// There might be no good reason to use `keyup` other
+    /// than to circumvent Qt bugs
+    event: "keydown" | "keyup";
+}
+
+const defaultRegisterShortcutRestParams = {
+    target: document,
+    event: "keydown" as const,
+};
+
 export function registerShortcut(
     callback: (event: KeyboardEvent) => void,
     keyCombinationString: string,
-    target: EventTarget | Document = document,
+    restParams: Partial<RegisterShortcutRestParams> = defaultRegisterShortcutRestParams,
 ): () => void {
+    const {
+        target = defaultRegisterShortcutRestParams.target,
+        event = defaultRegisterShortcutRestParams.event,
+    } = restParams;
+
     const [check, ...restChecks] =
         splitKeyCombinationString(keyCombinationString).map(keyCombinationToCheck);
 
@@ -156,7 +173,7 @@ export function registerShortcut(
         }
     }
 
-    return on(target, "keydown", handler);
+    return on(target, event, handler);
 }
 
 registerPackage("anki/shortcuts", {
