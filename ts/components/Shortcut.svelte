@@ -9,13 +9,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { registerShortcut } from "../lib/shortcuts";
 
     export let keyCombination: string;
+    export let event: "keydown" | "keyup" | undefined = undefined;
 
     const dispatch = createEventDispatcher();
 
     onMount(() =>
-        registerShortcut((event: KeyboardEvent) => {
-            preventDefault(event);
-            dispatch("action", { originalEvent: event });
-        }, keyCombination),
+        registerShortcut(
+            (event: KeyboardEvent) => {
+                preventDefault(event);
+                dispatch("action", { originalEvent: event });
+            },
+            keyCombination,
+            { event },
+        ),
     );
 </script>
