@@ -97,7 +97,7 @@ impl SearchBuilder {
     /// No implicit grouping is done.
     pub fn or_join(mut self, other: &mut Self) -> Self {
         if !(self.is_empty() || other.is_empty()) {
-            self.0.push(Node::And);
+            self.0.push(Node::Or);
         }
         self.0.append(&mut other.0);
         self
