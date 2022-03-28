@@ -4,10 +4,14 @@ from __future__ import annotations
 
 import os
 import re
+import shutil
 import subprocess
 import sys
 from functools import wraps
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Sequence, no_type_check
+
+from send2trash import send2trash
 
 import aqt
 from anki._legacy import DeprecatedNamesMixinForModule
@@ -701,6 +705,21 @@ def current_window() -> QWidget | None:
         return widget.window()
     else:
         return None
+
+
+def send_to_trash(path: Path) -> None:
+    "Place file/folder in recyling bin, or delete permanently on failure."
+    if not path.exists():
+        return
+    try:
+        send2trash(path)
+    except Exception as exc:
+        # Linux users may not have a trash folder set up
+        print("trash failure:", path, exc)
+        if path.is_dir:
+            shutil.rmtree(path)
+        else:
+            path.unlink()
 
 
 # Tooltips

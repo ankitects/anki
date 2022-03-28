@@ -9,9 +9,8 @@ import random
 import shutil
 import traceback
 from enum import Enum
+from pathlib import Path
 from typing import Any
-
-from send2trash import send2trash
 
 import anki.lang
 import aqt.forms
@@ -24,7 +23,7 @@ from anki.utils import int_time, is_mac, is_win, point_version
 from aqt import appHelpSite
 from aqt.qt import *
 from aqt.theme import Theme
-from aqt.utils import disable_help_button, showWarning, tr
+from aqt.utils import disable_help_button, send_to_trash, showWarning, tr
 
 # Profile handling
 ##########################################################################
@@ -233,16 +232,14 @@ class ProfileManager:
         self.db.commit()
 
     def remove(self, name: str) -> None:
-        p = self.profileFolder()
-        if os.path.exists(p):
-            send2trash(p)
+        path = self.profileFolder(create=False)
+        send_to_trash(Path(path))
         self.db.execute("delete from profiles where name = ?", name)
         self.db.commit()
 
     def trashCollection(self) -> None:
-        p = self.collectionPath()
-        if os.path.exists(p):
-            send2trash(p)
+        path = self.collectionPath()
+        send_to_trash(Path(path))
 
     def rename(self, name: str) -> None:
         oldName = self.name
