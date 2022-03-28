@@ -42,7 +42,7 @@ pub use crate::backend_proto::{
 };
 use crate::{
     define_newtype,
-    error::{TemplateSaveError, TemplateSaveErrorDetails},
+    error::{CardTypeError, CardTypeErrorDetails},
     prelude::*,
     search::{Node, SearchNode},
     storage::comma_separated_ids,
@@ -341,10 +341,10 @@ impl Notetype {
         for (index, card) in self.templates.iter().enumerate() {
             if let Some(old_index) = map.insert(&card.config.q_format, index) {
                 if !CARD_TAG.is_match(&card.config.q_format) {
-                    return Err(AnkiError::TemplateSaveError(TemplateSaveError {
+                    return Err(AnkiError::CardTypeError(CardTypeError {
                         notetype: self.name.clone(),
                         ordinal: index,
-                        details: TemplateSaveErrorDetails::Duplicate(old_index),
+                        details: CardTypeErrorDetails::Duplicate(old_index),
                     }));
                 }
             }
@@ -364,18 +364,18 @@ impl Notetype {
                 if let (Some(q), Some(a)) = sides {
                     let q_fields = q.fields();
                     if q_fields.is_empty() {
-                        Some((index, TemplateSaveErrorDetails::NoFrontField))
+                        Some((index, CardTypeErrorDetails::NoFrontField))
                     } else if self.unknown_field_name(q_fields.union(&a.fields())) {
-                        Some((index, TemplateSaveErrorDetails::NoSuchField))
+                        Some((index, CardTypeErrorDetails::NoSuchField))
                     } else {
                         None
                     }
                 } else {
-                    Some((index, TemplateSaveErrorDetails::TemplateError))
+                    Some((index, CardTypeErrorDetails::TemplateError))
                 }
             })
         {
-            Err(AnkiError::TemplateSaveError(TemplateSaveError {
+            Err(AnkiError::CardTypeError(CardTypeError {
                 notetype: self.name.clone(),
                 ordinal: invalid_index,
                 details,
@@ -405,10 +405,10 @@ impl Notetype {
         parsed_templates: &[(Option<ParsedTemplate>, Option<ParsedTemplate>)],
     ) -> Result<()> {
         if self.is_cloze() && missing_cloze_filter(parsed_templates) {
-            return Err(AnkiError::TemplateSaveError(TemplateSaveError {
+            return Err(AnkiError::CardTypeError(CardTypeError {
                 notetype: self.name.clone(),
                 ordinal: 0,
-                details: TemplateSaveErrorDetails::MissingCloze,
+                details: CardTypeErrorDetails::MissingCloze,
             }));
         }
         Ok(())
