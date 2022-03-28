@@ -197,10 +197,7 @@ impl Collection {
     fn extract_latex_paths(&self, names: &mut HashSet<PathBuf>, flds: &str, notetype: &Notetype) {
         for latex in extract_latex(flds, notetype.config.latex_svg).1 {
             if is_local_base_name(&latex.fname) {
-                let path = self.media_folder.join(&latex.fname);
-                if path.exists() {
-                    names.insert(path);
-                }
+                names.insert(self.media_folder.join(&latex.fname));
             }
         }
     }
@@ -238,11 +235,7 @@ impl CardTemplate {
         for template_side in [&self.config.q_format, &self.config.a_format] {
             for name in extract_underscored_references(template_side) {
                 if is_local_base_name(name) {
-                    let path = media_folder.join(name);
-                    // shotgun approach, so check if paths actually exist
-                    if path.exists() {
-                        names.insert(path);
-                    }
+                    names.insert(media_folder.join(name));
                 }
             }
         }

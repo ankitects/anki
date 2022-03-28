@@ -77,8 +77,11 @@ impl MediaIter {
         )))
     }
 
+    /// Skips missing paths.
     pub(crate) fn from_file_list(list: impl IntoIterator<Item = PathBuf> + 'static) -> Self {
-        Self(Box::new(list.into_iter().map(Ok)))
+        Self(Box::new(
+            list.into_iter().filter(|path| path.exists()).map(Ok),
+        ))
     }
 
     pub(crate) fn empty() -> Self {
