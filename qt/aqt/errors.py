@@ -25,8 +25,7 @@ def show_exception(*, parent: QWidget, exception: Exception) -> None:
     if isinstance(exception, InterruptedError):
         # nothing to do
         return
-    if isinstance(exception, DocumentedError):
-        help_page = exception.help_page
+    help_page = exception.help_page if isinstance(exception, DocumentedError) else None
     if not isinstance(exception, LocalizedError):
         # if the error is not originating from the backend, dump
         # a traceback to the console to aid in debugging
