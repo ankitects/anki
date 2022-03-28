@@ -98,7 +98,12 @@ class ErrorHandler(QObject):
             )
             error = f"{supportText() + self._addonText(error)}\n{error}"
         elif self.mw.addonManager.dirty:
-            txt = markdown(tr.errors_addons_active_popup())
+            # Older translations include a link to the old discussions site; rewrite it to a newer one
+            message = tr.errors_addons_active_popup().replace(
+                "https://help.ankiweb.net/discussions/add-ons/",
+                "https://forums.ankiweb.net/c/add-ons/11",
+            )
+            txt = markdown(message)
             error = f"{supportText() + self._addonText(error)}\n{error}"
         else:
             txt = markdown(tr.errors_standard_popup())
