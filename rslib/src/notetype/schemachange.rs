@@ -145,7 +145,7 @@ impl Collection {
         if !changes.removed.is_empty() {
             let ords = SearchBuilder::any(changes.removed.into_iter().map(TemplateKind::Ordinal));
             self.search_cards_into_table(
-                SearchBuilder::from(nt.id).and_join(&mut ords.group()),
+                SearchBuilder::from(nt.id).and(ords.group()),
                 SortMode::NoOrder,
             )?;
             for card in self.storage.all_searched_cards()? {
@@ -158,7 +158,7 @@ impl Collection {
         if !changes.moved.is_empty() {
             let ords = SearchBuilder::any(changes.moved.keys().cloned().map(TemplateKind::Ordinal));
             self.search_cards_into_table(
-                SearchBuilder::from(nt.id).and_join(&mut ords.group()),
+                SearchBuilder::from(nt.id).and(ords.group()),
                 SortMode::NoOrder,
             )?;
             for mut card in self.storage.all_searched_cards()? {
