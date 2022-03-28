@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
-    import { ellipseIcon } from "./icons";
+    import { incrementClozeIcon } from "./icons";
 
     const { focusedInput, fields } = noteEditorContext.get();
 
@@ -65,7 +65,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {disabled}
     on:click={onCloze}
 >
-    {@html ellipseIcon}
+    {@html incrementClozeIcon}
 </IconButton>
 
 <Shortcut

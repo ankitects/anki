@@ -16,6 +16,6 @@
         { "path": "../lib" },
         { "path": "../sveltelib" },
         { "path": "../editable" },
-        { "path": "../html-filter" }
+        { "path": "../html-filter" },
     ]
 }

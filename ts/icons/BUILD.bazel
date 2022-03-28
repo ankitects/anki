@@ -1,0 +1,7 @@
+filegroup(
+    name = "icons",
+    srcs = glob([
+        "*.svg",
+    ]),
+    visibility = ["//visibility:public"],
+)

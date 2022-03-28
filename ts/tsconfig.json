@@ -12,7 +12,8 @@
         { "path": "reviewer" },
         { "path": "lib" },
         { "path": "domlib" },
-        { "path": "sveltelib" }
+        { "path": "sveltelib" },
+        { "path": "icons" }
     ],
     "compilerOptions": {
         "declaration": true,
