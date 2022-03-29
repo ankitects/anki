@@ -3,7 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { localizedNumber } from "../lib/i18n";
     import { pageTheme } from "../sveltelib/theme";
 
     export let value: number;
@@ -11,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let max = 9999;
 
     let stringValue: string;
-    $: stringValue = localizedNumber(value, 2);
+    $: stringValue = value.toFixed(2);
 
     function update(this: HTMLInputElement): void {
         value = Math.min(max, Math.max(min, parseFloat(this.value)));

@@ -14,7 +14,7 @@ pub use network::{NetworkError, NetworkErrorKind, SyncError, SyncErrorKind};
 pub use search::{ParseError, SearchErrorKind};
 use tempfile::PathPersistError;
 
-use crate::i18n::I18n;
+use crate::{i18n::I18n, links::HelpPage};
 
 pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 
@@ -22,7 +22,7 @@ pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 pub enum AnkiError {
     InvalidInput(String),
     TemplateError(String),
-    TemplateSaveError(TemplateSaveError),
+    CardTypeError(CardTypeError),
     IoError(String),
     FileIoError(FileIoError),
     DbError(DbError),
@@ -35,6 +35,10 @@ pub enum AnkiError {
     CollectionNotOpen,
     CollectionAlreadyOpen,
     NotFound,
+    /// Indicates an absent card or note, but (unlike [AnkiError::NotFound]) in
+    /// a non-critical context like the browser table, where deleted ids are
+    /// deliberately not removed.
+    Deleted,
     Existing,
     FilteredDeckError(FilteredDeckError),
     SearchError(SearchErrorKind),
@@ -67,20 +71,17 @@ impl AnkiError {
                 // already localized
                 info.into()
             }
-            AnkiError::TemplateSaveError(err) => {
+            AnkiError::CardTypeError(err) => {
                 let header =
                     tr.card_templates_invalid_template_number(err.ordinal + 1, &err.notetype);
                 let details = match err.details {
-                    TemplateSaveErrorDetails::TemplateError
-                    | TemplateSaveErrorDetails::NoSuchField => tr.card_templates_see_preview(),
-                    TemplateSaveErrorDetails::NoFrontField => tr.card_templates_no_front_field(),
-                    TemplateSaveErrorDetails::Duplicate(i) => {
-                        tr.card_templates_identical_front(i + 1)
+                    CardTypeErrorDetails::TemplateError | CardTypeErrorDetails::NoSuchField => {
+                        tr.card_templates_see_preview()
                     }
-                    TemplateSaveErrorDetails::MissingCloze => tr.card_templates_missing_cloze(),
-                    TemplateSaveErrorDetails::ExtraneousCloze => {
-                        tr.card_templates_extraneous_cloze()
-                    }
+                    CardTypeErrorDetails::NoFrontField => tr.card_templates_no_front_field(),
+                    CardTypeErrorDetails::Duplicate(i) => tr.card_templates_identical_front(i + 1),
+                    CardTypeErrorDetails::MissingCloze => tr.card_templates_missing_cloze(),
+                    CardTypeErrorDetails::ExtraneousCloze => tr.card_templates_extraneous_cloze(),
                 };
                 format!("{}<br>{}", header, details)
             }
@@ -101,6 +102,7 @@ impl AnkiError {
             AnkiError::MediaCheckRequired => tr.errors_please_check_media().into(),
             AnkiError::CustomStudyError(err) => err.localized_description(tr),
             AnkiError::ImportError(err) => err.localized_description(tr),
+            AnkiError::Deleted => tr.browsing_row_deleted().into(),
             AnkiError::IoError(_)
             | AnkiError::JsonError(_)
             | AnkiError::ProtoError(_)
@@ -113,6 +115,21 @@ impl AnkiError {
             AnkiError::FileIoError(err) => {
                 format!("{}: {}", err.path, err.error)
             }
+        }
+    }
+
+    pub fn help_page(&self) -> Option<HelpPage> {
+        match self {
+            Self::CardTypeError(CardTypeError { details, .. }) => Some(match details {
+                CardTypeErrorDetails::TemplateError | CardTypeErrorDetails::NoSuchField => {
+                    HelpPage::CardTypeTemplateError
+                }
+                CardTypeErrorDetails::Duplicate(_) => HelpPage::CardTypeDuplicate,
+                CardTypeErrorDetails::NoFrontField => HelpPage::CardTypeNoFrontField,
+                CardTypeErrorDetails::MissingCloze => HelpPage::CardTypeMissingCloze,
+                CardTypeErrorDetails::ExtraneousCloze => HelpPage::CardTypeExtraneousCloze,
+            }),
+            _ => None,
         }
     }
 }
@@ -169,14 +186,14 @@ impl From<regex::Error> for AnkiError {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct TemplateSaveError {
+pub struct CardTypeError {
     pub notetype: String,
     pub ordinal: usize,
-    pub details: TemplateSaveErrorDetails,
+    pub details: CardTypeErrorDetails,
 }
 
 #[derive(Debug, PartialEq)]
-pub enum TemplateSaveErrorDetails {
+pub enum CardTypeErrorDetails {
     TemplateError,
     Duplicate(usize),
     NoFrontField,

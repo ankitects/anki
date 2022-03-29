@@ -63,4 +63,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {@html ellipseIcon}
 </IconButton>
 
-<Shortcut {keyCombination} on:action={(event) => onCloze(event.detail.originalEvent)} />
+<Shortcut
+    {keyCombination}
+    event="keyup"
+    on:action={(event) => onCloze(event.detail.originalEvent)}
+/>

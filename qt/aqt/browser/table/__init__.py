@@ -37,7 +37,7 @@ class Cell:
 
 
 class CellRow:
-    is_deleted: bool = False
+    is_disabled: bool = False
 
     def __init__(
         self,
@@ -69,9 +69,9 @@ class CellRow:
         return CellRow.generic(length, "...")
 
     @staticmethod
-    def deleted(length: int) -> CellRow:
-        row = CellRow.generic(length, tr.browsing_row_deleted())
-        row.is_deleted = True
+    def disabled(length: int, cell_text: str) -> CellRow:
+        row = CellRow.generic(length, cell_text)
+        row.is_disabled = True
         return row
 
 

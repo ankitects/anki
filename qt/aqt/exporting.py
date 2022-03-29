@@ -15,6 +15,7 @@ from anki import hooks
 from anki.cards import CardId
 from anki.decks import DeckId
 from anki.exporting import Exporter, exporters
+from aqt.errors import show_exception
 from aqt.qt import *
 from aqt.utils import (
     checkInvalidFilename,
@@ -174,10 +175,11 @@ class ExportDialog(QDialog):
                 try:
                     # raises if exporter failed
                     future.result()
-                except Exception as e:
-                    traceback.print_exc(file=sys.stdout)
-                    showWarning(str(e))
-                self.on_export_finished()
+                except Exception as exc:
+                    show_exception(parent=self.mw, exception=exc)
+                    self.on_export_failed()
+                else:
+                    self.on_export_finished()
 
             self.mw.progress.start()
             hooks.media_files_did_export.append(exported_media)
@@ -194,4 +196,9 @@ class ExportDialog(QDialog):
             else:
                 msg = tr.exporting_card_exported(count=self.exporter.count)
         tooltip(msg, period=3000)
+        QDialog.reject(self)
+
+    def on_export_failed(self) -> None:
+        if self.isVerbatim:
+            self.mw.reopen()
         QDialog.reject(self)

@@ -12,6 +12,7 @@ from collections import defaultdict
 from concurrent.futures import Future
 from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
 from typing import IO, Any, Callable, Iterable, Union
 from urllib.parse import parse_qs, urlparse
 from zipfile import ZipFile
@@ -20,7 +21,6 @@ import jsonschema
 import markdown
 from jsonschema.exceptions import ValidationError
 from markdown.extensions import md_in_html
-from send2trash import send2trash
 
 import anki
 import anki.utils
@@ -42,6 +42,7 @@ from aqt.utils import (
     restoreSplitter,
     saveGeom,
     saveSplitter,
+    send_to_trash,
     showInfo,
     showWarning,
     tooltip,
@@ -452,7 +453,7 @@ class AddonManager:
     # true on success
     def deleteAddon(self, module: str) -> bool:
         try:
-            send2trash(self.addonsFolder(module))
+            send_to_trash(Path(self.addonsFolder(module)))
             return True
         except OSError as e:
             showWarning(
