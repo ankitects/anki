@@ -237,10 +237,7 @@ fn cram_config(deck_name: String, cram: &Cram) -> Result<FilteredDeck> {
     };
 
     let search = nodes
-        .and_join(&mut tags_to_nodes(
-            &cram.tags_to_include,
-            &cram.tags_to_exclude,
-        ))
+        .and(tags_to_nodes(&cram.tags_to_include, &cram.tags_to_exclude))
         .and(SearchNode::from_deck_name(&deck_name))
         .write();
 
@@ -258,13 +255,13 @@ fn tags_to_nodes(tags_to_include: &[String], tags_to_exclude: &[String]) -> Sear
             .iter()
             .map(|tag| SearchNode::from_tag_name(tag)),
     );
-    let mut exclude_nodes = SearchBuilder::all(
+    let exclude_nodes = SearchBuilder::all(
         tags_to_exclude
             .iter()
             .map(|tag| SearchNode::from_tag_name(tag).negated()),
     );
 
-    include_nodes.group().and_join(&mut exclude_nodes)
+    include_nodes.group().and(exclude_nodes)
 }
 
 #[cfg(test)]
