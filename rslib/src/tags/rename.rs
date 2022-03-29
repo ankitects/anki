@@ -39,7 +39,7 @@ impl Collection {
             .unwrap_or(new_prefix);
 
         // gather tags that need replacing
-        let mut re = TagMatcher::new(old_prefix)?;
+        let mut re = TagMatcher::new(old_prefix);
         let matched_notes = self
             .storage
             .get_note_tags_by_predicate(|tags| re.is_match(tags))?;

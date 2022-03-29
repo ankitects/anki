@@ -36,7 +36,7 @@ impl Collection {
         new_parent: Option<String>,
     ) -> Result<usize> {
         let usn = self.usn()?;
-        let mut matcher = TagMatcher::new(&join_tags(tags_to_reparent))?;
+        let mut matcher = TagMatcher::new(&join_tags(tags_to_reparent));
         let old_to_new_names = old_to_new_names(tags_to_reparent, new_parent);
 
         let matched_notes = self

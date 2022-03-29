@@ -6,7 +6,6 @@ use std::{borrow::Cow, collections::HashSet};
 use regex::{Captures, Regex};
 
 use super::{join_tags, split_tags};
-use crate::prelude::*;
 pub(crate) struct TagMatcher {
     regex: Regex,
     new_tags: HashSet<String>,
@@ -17,7 +16,7 @@ pub(crate) struct TagMatcher {
 ///
 /// Tracks seen tags during replacement, so the tag list can be updated as well.
 impl TagMatcher {
-    pub fn new(space_separated_tags: &str) -> Result<Self> {
+    pub fn new(space_separated_tags: &str) -> Self {
         // convert "fo*o bar" into "fo\*o|bar"
         let tags: Vec<_> = split_tags(space_separated_tags)
             .map(regex::escape)
@@ -40,12 +39,13 @@ impl TagMatcher {
             )
         "#,
             tags
-        ))?;
+        ))
+        .unwrap();
 
-        Ok(Self {
+        Self {
             regex,
             new_tags: HashSet::new(),
-        })
+        }
     }
 
     pub fn is_match(&self, space_separated_tags: &str) -> bool {
@@ -129,13 +129,13 @@ mod test {
     use super::*;
 
     #[test]
-    fn regex() -> Result<()> {
-        let re = TagMatcher::new("one two")?;
+    fn regex() {
+        let re = TagMatcher::new("one two");
         assert!(!re.is_match(" foo "));
         assert!(re.is_match(" foo one "));
         assert!(re.is_match(" two foo "));
 
-        let mut re = TagMatcher::new("foo")?;
+        let mut re = TagMatcher::new("foo");
         assert!(re.is_match("foo"));
         assert!(re.is_match(" foo "));
         assert!(re.is_match(" bar foo baz "));
@@ -155,7 +155,5 @@ mod test {
             &as_xxx(" x foo::bar foo::bar::baz x "),
             " x xxx::bar xxx::bar::baz x "
         );
-
-        Ok(())
     }
 }
