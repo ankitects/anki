@@ -127,6 +127,14 @@ impl Default for SearchBuilder {
 }
 
 impl SearchNode {
+    pub fn from_deck_id(did: DeckId, with_children: bool) -> Self {
+        if with_children {
+            Self::DeckIdWithChildren(did)
+        } else {
+            Self::DeckIdWithoutChildren(did)
+        }
+    }
+
     /// Construct [SearchNode] from an unescaped deck name.
     pub fn from_deck_name(name: &str) -> Self {
         Self::Deck(escape_anki_wildcards_for_search_node(name))

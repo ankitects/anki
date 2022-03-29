@@ -120,6 +120,13 @@ impl SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn get_revlog_entries_for_card_ids(&self, cids: String) -> Result<Vec<RevlogEntry>> {
+        self.db
+            .prepare_cached(&format!("{} where cid in {cids}", include_str!("get.sql"),))?
+            .query_and_then([], row_to_revlog_entry)?
+            .collect()
+    }
+
     /// This includes entries from deleted cards.
     pub(crate) fn get_all_revlog_entries(
         &self,
