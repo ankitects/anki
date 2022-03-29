@@ -6,7 +6,6 @@ const parser = new DOMParser();
 function createDummyDoc(html: string): string {
     return (
         "<html><head></head><body>" +
-        // parsingInstructions.join("") +
         html +
         "</body>"
     );

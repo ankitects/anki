@@ -38,8 +38,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import removeProhibitedTags from "./remove-prohibited";
 
-    export let hidden = false;
-
     const configuration = {
         mode: htmlanki,
         ...baseOptions,
@@ -52,28 +50,34 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const decoratedElements = decoratedElementsContext.get();
     const code = writable($content);
 
-    function focus(): void {
-        codeMirror.editor.then((editor) => editor.focus());
+    let codeMirror = {} as CodeMirrorAPI;
+
+    async function focus(): Promise<void> {
+        const editor = await codeMirror.editor;
+        editor.focus();
     }
 
-    function moveCaretToEnd(): void {
-        codeMirror.editor.then((editor) => editor.setCursor(editor.lineCount(), 0));
+    async function moveCaretToEnd(): Promise<void> {
+        const editor = await codeMirror.editor;
+        editor.setCursor(editor.lineCount(), 0);
     }
 
-    function refocus(): void {
-        codeMirror.editor.then((editor) => (editor as any).display.input.blur());
+    async function refocus(): Promise<void> {
+        const editor = await codeMirror.editor as any;
+        editor.display.input.blur();
+
         focus();
         moveCaretToEnd();
     }
+
+    export let hidden = false;
 
     function toggle(): boolean {
         hidden = !hidden;
         return hidden;
     }
 
-    let codeMirror = {} as CodeMirrorAPI;
-
-    export const api = {
+    export const api: PlainTextInputAPI = {
         name: "plain-text",
         focus,
         focusable: !hidden,
@@ -81,21 +85,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         refocus,
         toggle,
         codeMirror,
-    } as PlainTextInputAPI;
+    };
 
-    function pushUpdate(): void {
-        api.focusable = !hidden;
+    /**
+     * Communicate to editing area that input is not focusable
+     */
+    function pushUpdate(isFocusable: boolean): void {
+        api.focusable = isFocusable;
         $editingInputs = $editingInputs;
     }
 
-    function refresh(): void {
-        codeMirror.editor.then((editor) => editor.refresh());
+    async function refresh(): Promise<void> {
+        const editor = await codeMirror.editor;
+        editor.refresh();
     }
 
     $: {
-        hidden;
+        pushUpdate(!hidden);
         tick().then(refresh);
-        pushUpdate();
     }
 
     function storedToUndecorated(html: string): string {
