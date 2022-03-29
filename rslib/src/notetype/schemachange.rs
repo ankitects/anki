@@ -143,10 +143,9 @@ impl Collection {
 
         // remove any cards where the template was deleted
         if !changes.removed.is_empty() {
-            let mut ords =
-                SearchBuilder::any(changes.removed.into_iter().map(TemplateKind::Ordinal));
+            let ords = SearchBuilder::any(changes.removed.into_iter().map(TemplateKind::Ordinal));
             self.search_cards_into_table(
-                SearchBuilder::from(nt.id).and_join(&mut ords),
+                SearchBuilder::from(nt.id).and(ords.group()),
                 SortMode::NoOrder,
             )?;
             for card in self.storage.all_searched_cards()? {
@@ -157,10 +156,9 @@ impl Collection {
 
         // update ordinals for cards with a repositioned template
         if !changes.moved.is_empty() {
-            let mut ords =
-                SearchBuilder::any(changes.moved.keys().cloned().map(TemplateKind::Ordinal));
+            let ords = SearchBuilder::any(changes.moved.keys().cloned().map(TemplateKind::Ordinal));
             self.search_cards_into_table(
-                SearchBuilder::from(nt.id).and_join(&mut ords),
+                SearchBuilder::from(nt.id).and(ords.group()),
                 SortMode::NoOrder,
             )?;
             for mut card in self.storage.all_searched_cards()? {
