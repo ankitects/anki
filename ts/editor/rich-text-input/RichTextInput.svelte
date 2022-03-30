@@ -100,13 +100,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function writeFromEditingArea(html: string): void {
+    function storedToFragment(html: string): DocumentFragment {
         /* We need .createContextualFragment so that customElements are initialized */
         const fragment = document
             .createRange()
             .createContextualFragment(adjustInputHTML(html));
+
         adjustInputFragment(fragment);
-        nodes.setUnprocessed(fragment);
+        return fragment;
     }
 
     function adjustOutputFragment(fragment: DocumentFragment): void {
@@ -128,12 +129,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return html;
     }
 
-    function writeToEditingArea(fragment: DocumentFragment): void {
+    function fragmentToStored(fragment: DocumentFragment): string {
         const clone = document.importNode(fragment, true);
         adjustOutputFragment(clone);
 
-        const output = adjustOutputHTML(fragmentToString(clone));
-        content.set(output);
+        return adjustOutputHTML(fragmentToString(clone));
     }
 
     const [shadowPromise, shadowResolve] = promiseWithResolver<ShadowRoot>();
@@ -207,7 +207,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         stylesDidLoad.then(
             () =>
                 new ContentEditable({
-                    target: element.shadowRoot,
+                    target: element.shadowRoot!,
                     props: {
                         nodes,
                         resolve,
@@ -234,8 +234,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $editingInputs.push(api);
         $editingInputs = $editingInputs;
 
-        const unsubscribeFromEditingArea = content.subscribe(writeFromEditingArea);
-        const unsubscribeToEditingArea = nodes.subscribe(writeToEditingArea);
+        const unsubscribeFromEditingArea = content.subscribe((html: string): void =>
+            nodes.setUnprocessed(storedToFragment(html)),
+        );
+        const unsubscribeToEditingArea = nodes.subscribe((fragment: DocumentFragment): void =>
+            content.set(fragmentToStored(fragment)),
+        );
 
         return () => {
             unsubscribeFromEditingArea();

@@ -4,11 +4,7 @@
 const parser = new DOMParser();
 
 function createDummyDoc(html: string): string {
-    return (
-        "<html><head></head><body>" +
-        html +
-        "</body>"
-    );
+    return "<html><head></head><body>" + html + "</body>";
 }
 
 function removeTag(element: HTMLElement, tagName: string): void {

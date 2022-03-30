@@ -63,7 +63,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function refocus(): Promise<void> {
-        const editor = await codeMirror.editor as any;
+        const editor = (await codeMirror.editor) as any;
         editor.display.input.blur();
 
         focus();
