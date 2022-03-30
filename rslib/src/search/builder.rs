@@ -203,5 +203,13 @@ mod test {
                 .write(),
             "(is:due OR is:new) (flag:1 OR flag:2 OR flag:3)"
         );
+        assert_eq!(
+            StateKind::Due
+                .or(StateKind::New)
+                .or(StateKind::Learning)
+                .or(StateKind::Review)
+                .write(),
+            "((is:due OR is:new) OR is:learn) OR is:review"
+        );
     }
 }
