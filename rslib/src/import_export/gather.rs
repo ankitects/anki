@@ -11,15 +11,13 @@ use itertools::Itertools;
 use crate::{
     card::{CardQueue, CardType},
     decks::NormalDeck,
+    io::filename_is_safe,
     latex::extract_latex,
     prelude::*,
     revlog::RevlogEntry,
     search::{Negated, SearchNode, SortMode},
     storage::ids_to_string,
-    text::{
-        extract_media_refs, extract_underscored_css_imports, extract_underscored_references,
-        is_remote_filename,
-    },
+    text::{extract_media_refs, extract_underscored_css_imports, extract_underscored_references},
 };
 
 #[derive(Debug, Default)]
@@ -49,20 +47,7 @@ fn optional_deck_search(deck_id: Option<DeckId>) -> SearchNode {
     }
 }
 
-fn is_local_base_name(name: &str) -> bool {
-    !is_remote_filename(name) && Path::new(name).parent().is_none()
-}
-
 impl ExportData {
-    /*
-       pub(super) fn new(, media_folder: Option<PathBuf>) -> Self {
-           Self {
-               with_scheduling,
-               media_folder,
-               ..Default::default()
-           }
-       }
-    */
     pub(super) fn gather_data(
         &mut self,
         col: &mut Collection,
@@ -87,7 +72,7 @@ impl ExportData {
 
     pub(super) fn gather_media_paths(&mut self, media_folder: &Path) {
         let mut inserter = |name: &str| {
-            if is_local_base_name(name) {
+            if filename_is_safe(name) {
                 self.media_paths.insert(media_folder.join(name));
             }
         };

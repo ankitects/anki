@@ -6,7 +6,7 @@ use std::{
     collections::HashMap,
     fs::{self, File},
     io::{self, Read, Write},
-    path::{Component, Path, PathBuf},
+    path::{Path, PathBuf},
 };
 
 use prost::Message;
@@ -21,7 +21,7 @@ use crate::{
         package::{MediaEntries, MediaEntry, Meta},
         ImportProgress,
     },
-    io::{atomic_rename, tempfile_in_parent_of},
+    io::{atomic_rename, filename_is_safe, tempfile_in_parent_of},
     media::files::normalize_filename,
     prelude::*,
 };
@@ -149,7 +149,9 @@ fn restore_media_file(meta: &Meta, zip_file: &mut ZipFile, path: &Path) -> Resul
 
 impl MediaEntry {
     fn safe_normalized_file_path(&self, meta: &Meta, media_folder: &Path) -> Result<PathBuf> {
-        check_filename_safe(&self.name)?;
+        if !filename_is_safe(&self.name) {
+            return Err(AnkiError::ImportError(ImportError::Corrupt));
+        }
         let normalized = maybe_normalizing(&self.name, meta.strict_media_checks())?;
         Ok(media_folder.join(normalized.as_ref()))
     }
@@ -176,20 +178,6 @@ fn maybe_normalizing(name: &str, strict: bool) -> Result<Cow<str>> {
         Err(AnkiError::ImportError(ImportError::Corrupt))
     } else {
         Ok(normalized)
-    }
-}
-
-/// Return an error if name contains any path separators.
-fn check_filename_safe(name: &str) -> Result<()> {
-    let mut components = Path::new(name).components();
-    let first_element_normal = components
-        .next()
-        .map(|component| matches!(component, Component::Normal(_)))
-        .unwrap_or_default();
-    if !first_element_normal || components.next().is_some() {
-        Err(AnkiError::ImportError(ImportError::Corrupt))
-    } else {
-        Ok(())
     }
 }
 
@@ -250,22 +238,6 @@ fn copy_collection(
 #[cfg(test)]
 mod test {
     use super::*;
-
-    #[test]
-    fn path_traversal() {
-        assert!(check_filename_safe("foo").is_ok(),);
-
-        assert!(check_filename_safe("..").is_err());
-        assert!(check_filename_safe("foo/bar").is_err());
-        assert!(check_filename_safe("/foo").is_err());
-        assert!(check_filename_safe("../foo").is_err());
-
-        if cfg!(windows) {
-            assert!(check_filename_safe("foo\\bar").is_err());
-            assert!(check_filename_safe("c:\\foo").is_err());
-            assert!(check_filename_safe("\\foo").is_err());
-        }
-    }
 
     #[test]
     fn normalization() {

@@ -437,10 +437,6 @@ lazy_static! {
     pub(crate) static ref REMOTE_FILENAME: Regex = Regex::new("(?i)^https?://").unwrap();
 }
 
-pub(crate) fn is_remote_filename(name: &str) -> bool {
-    REMOTE_FILENAME.is_match(name)
-}
-
 /// IRI-encode unescaped local paths in HTML fragment.
 pub(crate) fn encode_iri_paths(unescaped_html: &str) -> Cow<str> {
     transform_html_paths(unescaped_html, |fname| {
