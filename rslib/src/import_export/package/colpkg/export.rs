@@ -71,16 +71,24 @@ impl Collection {
 pub struct MediaIter(Box<dyn Iterator<Item = io::Result<PathBuf>>>);
 
 impl MediaIter {
+    /// Iterator over all files in the given path, without traversing subfolders.
     pub fn from_folder(path: &Path) -> Result<Self> {
         Ok(Self(Box::new(
             read_dir_files(path)?.map(|res| res.map(|entry| entry.path())),
         )))
     }
 
-    /// Skips missing paths.
-    pub fn from_file_list(list: impl IntoIterator<Item = PathBuf> + 'static) -> Self {
+    /// Iterator over all given files in the given folder.
+    /// Missing files are silently ignored.
+    pub fn from_file_list(
+        list: impl IntoIterator<Item = PathBuf> + 'static,
+        folder: PathBuf,
+    ) -> Self {
         Self(Box::new(
-            list.into_iter().filter(|path| path.exists()).map(Ok),
+            list.into_iter()
+                .map(move |file| folder.join(file))
+                .filter(|path| path.exists())
+                .map(Ok),
         ))
     }
 

@@ -3,7 +3,7 @@
 
 use std::{
     collections::{HashMap, HashSet},
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 
 use itertools::Itertools;
@@ -70,10 +70,10 @@ impl ExportData {
         Ok(())
     }
 
-    pub(super) fn gather_media_paths(&mut self, media_folder: &Path) {
+    pub(super) fn gather_media_paths(&mut self) {
         let mut inserter = |name: &str| {
             if filename_is_safe(name) {
-                self.media_paths.insert(media_folder.join(name));
+                self.media_paths.insert(PathBuf::from(name));
             }
         };
         let svg_getter = svg_getter(&self.notetypes);

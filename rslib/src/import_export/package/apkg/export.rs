@@ -47,7 +47,7 @@ impl Collection {
         let media = if let Some(media_fn) = media_fn {
             media_fn(media)
         } else {
-            MediaIter::from_file_list(media)
+            MediaIter::from_file_list(media, self.media_folder.clone())
         };
         let col_size = temp_col.as_file().metadata()?.len() as usize;
 
@@ -73,7 +73,7 @@ impl Collection {
         let mut data = ExportData::default();
         data.gather_data(self, deck_id, with_scheduling)?;
         if with_media {
-            data.gather_media_paths(&self.media_folder);
+            data.gather_media_paths();
         }
 
         let mut temp_col = Collection::new_minimal(path)?;
