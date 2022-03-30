@@ -9,6 +9,7 @@ editing-cards = Cards
 editing-center = Center
 editing-change-color = Change color
 editing-cloze-deletion = Cloze deletion
+editing-cloze-deletion-repeat = Repeat cloze deletion
 editing-couldnt-record-audio-have-you-installed = Couldn't record audio. Have you installed 'lame'?
 editing-customize-card-templates = Customize Card Templates
 editing-customize-fields = Customize Fields
