@@ -193,4 +193,15 @@ mod test {
             Node::Not(Box::new(Node::Search(SearchNode::State(StateKind::Due))))
         )
     }
+
+    #[test]
+    fn joining() {
+        assert_eq!(
+            StateKind::Due
+                .or(StateKind::New)
+                .and(SearchBuilder::any((1..4).map(SearchNode::Flag)))
+                .write(),
+            "(is:due OR is:new) (flag:1 OR flag:2 OR flag:3)"
+        );
+    }
 }
