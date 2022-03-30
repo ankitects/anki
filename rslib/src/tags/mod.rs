@@ -4,7 +4,7 @@
 mod bulkadd;
 mod complete;
 mod findreplace;
-pub(crate) mod matcher;
+mod matcher;
 mod notes;
 mod register;
 mod remove;

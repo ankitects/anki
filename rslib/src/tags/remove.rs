@@ -32,7 +32,7 @@ impl Collection {
         let usn = self.usn()?;
 
         // gather tags that need removing
-        let mut re = TagMatcher::new(tags);
+        let mut re = TagMatcher::new(tags)?;
         let matched_notes = self
             .storage
             .get_note_tags_by_predicate(|tags| re.is_match(tags))?;
@@ -57,7 +57,7 @@ impl Collection {
     fn remove_tags_from_notes_inner(&mut self, nids: &[NoteId], tags: &str) -> Result<usize> {
         let usn = self.usn()?;
 
-        let mut re = TagMatcher::new(tags);
+        let mut re = TagMatcher::new(tags)?;
         let mut match_count = 0;
         let notes = self.storage.get_note_tags_by_id_list(nids)?;
 
