@@ -17,6 +17,12 @@ pub trait JoinSearches {
     fn and(self, other: impl Into<SearchBuilder>) -> SearchBuilder;
     /// Concatenates two sets of [Node]s, inserting [Node::Or], and grouping, if appropriate.
     fn or(self, other: impl Into<SearchBuilder>) -> SearchBuilder;
+    /// Concatenates two sets of [Node]s, inserting [Node::And] if appropriate,
+    /// but without grouping either set.
+    fn and_flat(self, other: impl Into<SearchBuilder>) -> SearchBuilder;
+    /// Concatenates two sets of [Node]s, inserting [Node::Or] if appropriate,
+    /// but without grouping either set.
+    fn or_flat(self, other: impl Into<SearchBuilder>) -> SearchBuilder;
 }
 
 impl<T: Into<Node>> Negated for T {
@@ -32,11 +38,19 @@ impl<T: Into<Node>> Negated for T {
 
 impl<T: Into<SearchBuilder>> JoinSearches for T {
     fn and(self, other: impl Into<SearchBuilder>) -> SearchBuilder {
-        self.into().join_other(other.into(), Node::And)
+        self.into().join_other(other.into(), Node::And, true)
     }
 
     fn or(self, other: impl Into<SearchBuilder>) -> SearchBuilder {
-        self.into().join_other(other.into(), Node::Or)
+        self.into().join_other(other.into(), Node::Or, true)
+    }
+
+    fn and_flat(self, other: impl Into<SearchBuilder>) -> SearchBuilder {
+        self.into().join_other(other.into(), Node::And, false)
+    }
+
+    fn or_flat(self, other: impl Into<SearchBuilder>) -> SearchBuilder {
+        self.into().join_other(other.into(), Node::Or, false)
     }
 }
 
@@ -76,14 +90,15 @@ impl SearchBuilder {
         self.0.len()
     }
 
-    fn join_other(mut self, other: Self, joiner: Node) -> Self {
-        if let Some(other_group) = other.group().0.pop() {
-            if !self.is_empty() {
-                self = self.group();
-                self.0.push(joiner);
-            }
-            self.0.push(other_group);
+    fn join_other(mut self, mut other: Self, joiner: Node, group: bool) -> Self {
+        if group {
+            self = self.group();
+            other = other.group();
         }
+        if !(self.is_empty() || other.is_empty()) {
+            self.0.push(joiner);
+        }
+        self.0.append(&mut other.0);
         self
     }
 
@@ -206,10 +221,25 @@ mod test {
         assert_eq!(
             StateKind::Due
                 .or(StateKind::New)
+                .and_flat(SearchBuilder::any((1..4).map(SearchNode::Flag)))
+                .write(),
+            "is:due OR is:new flag:1 OR flag:2 OR flag:3"
+        );
+        assert_eq!(
+            StateKind::Due
+                .or(StateKind::New)
                 .or(StateKind::Learning)
                 .or(StateKind::Review)
                 .write(),
             "((is:due OR is:new) OR is:learn) OR is:review"
+        );
+        assert_eq!(
+            StateKind::Due
+                .or_flat(StateKind::New)
+                .or_flat(StateKind::Learning)
+                .or_flat(StateKind::Review)
+                .write(),
+            "is:due OR is:new OR is:learn OR is:review"
         );
     }
 }

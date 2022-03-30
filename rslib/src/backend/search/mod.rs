@@ -48,8 +48,8 @@ impl SearchService for Backend {
 
         Ok(
             match pb::search_node::group::Joiner::from_i32(input.joiner).unwrap_or_default() {
-                pb::search_node::group::Joiner::And => existing_node.and(additional_node),
-                pb::search_node::group::Joiner::Or => existing_node.or(additional_node),
+                pb::search_node::group::Joiner::And => existing_node.and_flat(additional_node),
+                pb::search_node::group::Joiner::Or => existing_node.or_flat(additional_node),
             }
             .write()
             .into(),
