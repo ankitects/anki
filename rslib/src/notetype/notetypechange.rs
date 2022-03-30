@@ -294,10 +294,7 @@ impl Collection {
         if !map.removed.is_empty() {
             let ords =
                 SearchBuilder::any(map.removed.iter().map(|o| TemplateKind::Ordinal(*o as u16)));
-            self.search_cards_into_table(
-                SearchBuilder::from(nids).and(ords.group()),
-                SortMode::NoOrder,
-            )?;
+            self.search_cards_into_table(SearchBuilder::from(nids).and(ords), SortMode::NoOrder)?;
             for card in self.storage.all_searched_cards()? {
                 self.remove_card_and_add_grave_undoable(card, usn)?;
             }
@@ -319,10 +316,7 @@ impl Collection {
                     .keys()
                     .map(|o| TemplateKind::Ordinal(*o as u16)),
             );
-            self.search_cards_into_table(
-                SearchBuilder::from(nids).and(ords.group()),
-                SortMode::NoOrder,
-            )?;
+            self.search_cards_into_table(SearchBuilder::from(nids).and(ords), SortMode::NoOrder)?;
             for mut card in self.storage.all_searched_cards()? {
                 let original = card.clone();
                 card.template_idx =

@@ -59,23 +59,24 @@ impl SearchBuilder {
         self.0.len()
     }
 
-    /// Concatenates the two sets of [Node]s, inserting [Node::And] if appropriate.
-    /// No implicit grouping is done.
+    /// Concatenates two sets of [Node]s, inserting [Node::And], and grouping, if appropriate.
     pub fn and(self, other: impl Into<SearchBuilder>) -> Self {
         self.join_other(other.into(), Node::And)
     }
 
-    /// Concatenates the two sets of [Node]s, inserting [Node::Or] if appropriate.
-    /// No implicit grouping is done.
+    /// Concatenates two sets of [Node]s, inserting [Node::Or], and grouping, if appropriate.
     pub fn or(self, other: impl Into<SearchBuilder>) -> Self {
         self.join_other(other.into(), Node::Or)
     }
 
-    fn join_other(mut self, mut other: Self, joiner: Node) -> Self {
-        if !(self.is_empty() || other.is_empty()) {
-            self.0.push(joiner);
+    fn join_other(mut self, other: Self, joiner: Node) -> Self {
+        if let Some(other_group) = other.group().0.pop() {
+            if !self.is_empty() {
+                self = self.group();
+                self.0.push(joiner);
+            }
+            self.0.push(other_group);
         }
-        self.0.append(&mut other.0);
         self
     }
 

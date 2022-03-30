@@ -261,7 +261,7 @@ fn tags_to_nodes(tags_to_include: &[String], tags_to_exclude: &[String]) -> Sear
             .map(|tag| SearchNode::from_tag_name(tag).negated()),
     );
 
-    include_nodes.group().and(exclude_nodes)
+    include_nodes.and(exclude_nodes)
 }
 
 #[cfg(test)]
