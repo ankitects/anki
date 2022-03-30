@@ -30,6 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount, tick } from "svelte";
     import { writable } from "svelte/store";
 
+    import { singleCallback } from "../../lib/typing";
     import { pageTheme } from "../../sveltelib/theme";
     import { baseOptions, gutterOptions, htmlanki } from "../code-mirror";
     import CodeMirror from "../CodeMirror.svelte";
@@ -104,22 +105,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tick().then(refresh);
     }
 
+    function onChange({ detail: html }: CustomEvent<string>): void {
+        code.set(removeProhibitedTags(html));
+    }
+
     onMount(() => {
         $editingInputs.push(api);
         $editingInputs = $editingInputs;
 
-        const unsubscribeFromEditingArea = content.subscribe((value: string): void => {
-            code.set(storedToUndecorated(value));
-        });
-
-        const unsubscribeToEditingArea = code.subscribe((value: string): void => {
-            content.set(removeProhibitedTags(undecoratedToStored(value)));
-        });
-
-        return () => {
-            unsubscribeFromEditingArea();
-            unsubscribeToEditingArea();
-        };
+        return singleCallback(
+            content.subscribe((html: string): void =>
+                /* We call `removeProhibitedTags` here, because content might
+                 * have been changed outside the editor, and we need to parse
+                 * it to get the "neutral" value. Otherwise, there might be
+                 * conflicts with other editing inputs */
+                code.set(removeProhibitedTags(storedToUndecorated(html))),
+            ),
+            code.subscribe((html: string): void =>
+                content.set(undecoratedToStored(html)),
+            ),
+        );
     });
 
     setupLifecycleHooks(api);
@@ -131,12 +136,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:hidden
     on:focusin={() => ($focusedInput = api)}
 >
-    <CodeMirror
-        {configuration}
-        {code}
-        bind:api={codeMirror}
-        on:change={({ detail: html }) => code.set(html)}
-    />
+    <CodeMirror {configuration} {code} bind:api={codeMirror} on:change={onChange} />
 </div>
 
 <style lang="scss">

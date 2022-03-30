@@ -6,6 +6,7 @@ import {
     nodeContainsInlineContent,
     nodeIsElement,
 } from "../../lib/dom";
+import { createDummyDoc } from "../../lib/parsing";
 import { decoratedElements } from "../DecoratedElements.svelte";
 
 function adjustInputHTML(html: string): string {
@@ -26,7 +27,7 @@ export function storedToFragment(html: string): DocumentFragment {
     /* We need .createContextualFragment so that customElements are initialized */
     const fragment = document
         .createRange()
-        .createContextualFragment(adjustInputHTML(html));
+        .createContextualFragment(createDummyDoc(adjustInputHTML(html)));
 
     adjustInputFragment(fragment);
     return fragment;

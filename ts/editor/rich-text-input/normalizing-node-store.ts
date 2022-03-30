@@ -2,9 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { DecoratedElement } from "../../editable/decorated";
-import { decoratedElements } from "../DecoratedElements.svelte";
 import type { NodeStore } from "../../sveltelib/node-store";
 import { nodeStore } from "../../sveltelib/node-store";
+import { decoratedElements } from "../DecoratedElements.svelte";
 
 function normalizeFragment(fragment: DocumentFragment): void {
     fragment.normalize();

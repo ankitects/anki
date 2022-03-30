@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    /* import type { FocusHandlerAPI } from "../../editable/content-editable"; */
     import type { ContentEditableAPI } from "../../editable/ContentEditable.svelte";
+    import { singleCallback } from "../../lib/typing";
     import useContextProperty from "../../sveltelib/context-property";
     import useDOMMirror from "../../sveltelib/dom-mirror";
     import type { InputHandlerAPI } from "../../sveltelib/input-handler";
@@ -48,13 +48,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { placeCaretAfterContent } from "../../domlib/place-caret";
     import ContentEditable from "../../editable/ContentEditable.svelte";
-    import useRichTextResolve from "./rich-text-resolve";
-    import getNormalizingNodeStore from "./normalizing-node-store";
-    import { fragmentToStored, storedToFragment } from "./transform";
     import { context as editingAreaContext } from "../EditingArea.svelte";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
+    import getNormalizingNodeStore from "./normalizing-node-store";
+    import useRichTextResolve from "./rich-text-resolve";
     import RichTextStyles from "./RichTextStyles.svelte";
     import SetContext from "./SetContext.svelte";
+    import { fragmentToStored, storedToFragment } from "./transform";
 
     export let hidden: boolean;
 
@@ -136,18 +136,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $editingInputs.push(api);
         $editingInputs = $editingInputs;
 
-        const unsubscribeFromEditingArea = content.subscribe((html: string): void =>
-            nodes.setUnprocessed(storedToFragment(html)),
-        );
-        const unsubscribeToEditingArea = nodes.subscribe(
-            (fragment: DocumentFragment): void =>
+        return singleCallback(
+            content.subscribe((html: string): void =>
+                nodes.setUnprocessed(storedToFragment(html)),
+            ),
+            nodes.subscribe((fragment: DocumentFragment): void =>
                 content.set(fragmentToStored(fragment)),
+            ),
         );
-
-        return () => {
-            unsubscribeFromEditingArea();
-            unsubscribeToEditingArea();
-        };
     });
 </script>
 
