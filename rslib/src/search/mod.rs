@@ -8,7 +8,7 @@ pub(crate) mod writer;
 
 use std::borrow::Cow;
 
-pub use builder::{Negated, SearchBuilder};
+pub use builder::{JoinSearches, Negated, SearchBuilder};
 pub use parser::{
     parse as parse_search, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind,
 };

@@ -13,7 +13,7 @@ use crate::{
     decks::{FilteredDeck, FilteredSearchOrder, FilteredSearchTerm},
     error::{CustomStudyError, FilteredDeckError},
     prelude::*,
-    search::{Negated, PropertyKind, RatingKind, SearchNode, StateKind},
+    search::{JoinSearches, Negated, PropertyKind, RatingKind, SearchNode, StateKind},
 };
 
 impl Collection {
@@ -184,27 +184,27 @@ fn custom_study_config(
 }
 
 fn forgot_config(deck_name: String, days: u32) -> FilteredDeck {
-    let search = SearchBuilder::from(SearchNode::Rated {
+    let search = SearchNode::Rated {
         days,
         ease: RatingKind::AnswerButton(1),
-    })
+    }
     .and(SearchNode::from_deck_name(&deck_name))
     .write();
     custom_study_config(false, search, FilteredSearchOrder::Random, None)
 }
 
 fn ahead_config(deck_name: String, days: u32) -> FilteredDeck {
-    let search = SearchBuilder::from(SearchNode::Property {
+    let search = SearchNode::Property {
         operator: "<=".to_string(),
         kind: PropertyKind::Due(days as i32),
-    })
+    }
     .and(SearchNode::from_deck_name(&deck_name))
     .write();
     custom_study_config(true, search, FilteredSearchOrder::Due, None)
 }
 
 fn preview_config(deck_name: String, days: u32) -> FilteredDeck {
-    let search = SearchBuilder::from(StateKind::New)
+    let search = StateKind::New
         .and(SearchNode::AddedInDays(days))
         .and(SearchNode::from_deck_name(&deck_name))
         .write();

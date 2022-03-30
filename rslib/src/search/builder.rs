@@ -12,6 +12,13 @@ pub trait Negated {
     fn negated(self) -> Node;
 }
 
+pub trait JoinSearches {
+    /// Concatenates two sets of [Node]s, inserting [Node::And], and grouping, if appropriate.
+    fn and(self, other: impl Into<SearchBuilder>) -> SearchBuilder;
+    /// Concatenates two sets of [Node]s, inserting [Node::Or], and grouping, if appropriate.
+    fn or(self, other: impl Into<SearchBuilder>) -> SearchBuilder;
+}
+
 impl<T: Into<Node>> Negated for T {
     fn negated(self) -> Node {
         let node: Node = self.into();
@@ -20,6 +27,16 @@ impl<T: Into<Node>> Negated for T {
         } else {
             Node::Not(Box::new(node))
         }
+    }
+}
+
+impl<T: Into<SearchBuilder>> JoinSearches for T {
+    fn and(self, other: impl Into<SearchBuilder>) -> SearchBuilder {
+        self.into().join_other(other.into(), Node::And)
+    }
+
+    fn or(self, other: impl Into<SearchBuilder>) -> SearchBuilder {
+        self.into().join_other(other.into(), Node::Or)
     }
 }
 
@@ -57,16 +74,6 @@ impl SearchBuilder {
 
     pub fn len(&self) -> usize {
         self.0.len()
-    }
-
-    /// Concatenates two sets of [Node]s, inserting [Node::And], and grouping, if appropriate.
-    pub fn and(self, other: impl Into<SearchBuilder>) -> Self {
-        self.join_other(other.into(), Node::And)
-    }
-
-    /// Concatenates two sets of [Node]s, inserting [Node::Or], and grouping, if appropriate.
-    pub fn or(self, other: impl Into<SearchBuilder>) -> Self {
-        self.join_other(other.into(), Node::Or)
     }
 
     fn join_other(mut self, other: Self, joiner: Node) -> Self {

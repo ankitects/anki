@@ -14,7 +14,7 @@ use crate::{
     config::{BoolKey, SchedulerVersion},
     deckconfig::NewCardInsertOrder,
     prelude::*,
-    search::{SearchNode, SortMode, StateKind},
+    search::{JoinSearches, SearchNode, SortMode, StateKind},
 };
 
 impl Card {
@@ -246,7 +246,7 @@ impl Collection {
         usn: Usn,
     ) -> Result<usize> {
         let cids = self.search_cards(
-            SearchBuilder::from(SearchNode::DeckIdWithoutChildren(deck)).and(StateKind::New),
+            SearchNode::DeckIdWithoutChildren(deck).and(StateKind::New),
             SortMode::NoOrder,
         )?;
         self.sort_cards_inner(&cids, 1, 1, order.into(), false, usn)
