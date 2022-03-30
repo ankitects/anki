@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { get } from "svelte/store";
 
     import IconButton from "../../components/IconButton.svelte";
+    import ButtonGroup from "../../components/ButtonGroup.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import * as tr from "../../lib/ftl";
     import { isApplePlatform } from "../../lib/platform";
@@ -14,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import type { RichTextInputAPI } from "../rich-text-input";
     import { editingInputIsRichText } from "../rich-text-input";
-    import { incrementClozeIcon } from "./icons";
+    import { clozeIcon, incrementClozeIcon } from "./icons";
 
     const { focusedInput, fields } = noteEditorContext.get();
 
@@ -49,27 +50,52 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: richTextAPI = $focusedInput as RichTextInputAPI;
 
-    async function onCloze(event: KeyboardEvent | MouseEvent): Promise<void> {
-        const highestCloze = getCurrentHighestCloze(!event.getModifierState("Alt"));
+    async function onIncrementCloze(): Promise<void> {
         const richText = await richTextAPI.element;
+
+        const highestCloze = getCurrentHighestCloze(true);
+        wrapInternal(richText, `{{c${highestCloze}::`, "}}", false);
+    }
+
+    async function onSameCloze(): Promise<void> {
+        const richText = await richTextAPI.element;
+
+        const highestCloze = getCurrentHighestCloze(false);
         wrapInternal(richText, `{{c${highestCloze}::`, "}}", false);
     }
 
     $: disabled = !editingInputIsRichText($focusedInput);
 
-    const keyCombination = "Control+Alt?+Shift+C";
+    const incrementKeyCombination = "Control+Shift+C";
+    const sameKeyCombination = "Control+Alt+Shift+C";
 </script>
 
-<IconButton
-    tooltip="{tr.editingClozeDeletion()} {getPlatformString(keyCombination)}"
-    {disabled}
-    on:click={onCloze}
->
-    {@html incrementClozeIcon}
-</IconButton>
+<ButtonGroup>
+    <IconButton
+        tooltip="{tr.editingClozeDeletion()} {getPlatformString(
+            incrementKeyCombination,
+        )}"
+        {disabled}
+        on:click={onIncrementCloze}
+        --border-left-radius="5px"
+    >
+        {@html incrementClozeIcon}
+    </IconButton>
 
-<Shortcut
-    {keyCombination}
-    {event}
-    on:action={(event) => onCloze(event.detail.originalEvent)}
-/>
+    <Shortcut
+        keyCombination={incrementKeyCombination}
+        {event}
+        on:action={onIncrementCloze}
+    />
+
+    <IconButton
+        tooltip="{tr.editingClozeDeletion()} {getPlatformString(sameKeyCombination)}"
+        {disabled}
+        on:click={onSameCloze}
+        --border-right-radius="5px"
+    >
+        {@html clozeIcon}
+    </IconButton>
+
+    <Shortcut keyCombination={sameKeyCombination} on:action={onSameCloze} />
+</ButtonGroup>

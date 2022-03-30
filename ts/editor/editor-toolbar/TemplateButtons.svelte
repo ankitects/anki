@@ -20,7 +20,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context } from "../NoteEditor.svelte";
     import { setFormat } from "../old-editor-adapter";
     import { editingInputIsRichText } from "../rich-text-input";
-    import ClozeButton from "./ClozeButton.svelte";
     import { micIcon, paperclipIcon } from "./icons";
     import LatexButton from "./LatexButton.svelte";
 
@@ -114,10 +113,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 keyCombination={recordCombination}
                 on:action={attachRecordingOnFocus}
             />
-        </ButtonGroupItem>
-
-        <ButtonGroupItem id="cloze">
-            <ClozeButton />
         </ButtonGroupItem>
 
         <ButtonGroupItem>

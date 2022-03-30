@@ -59,6 +59,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import InlineButtons from "./InlineButtons.svelte";
     import NotetypeButtons from "./NotetypeButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
+    import ClozeButtons from "./ClozeButtons.svelte";
 
     export let size: number;
     export let wrap: boolean;
@@ -104,6 +105,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             <Item id="template">
                 <TemplateButtons api={templateButtons} />
+            </Item>
+
+            <Item id="cloze">
+                <ClozeButtons />
             </Item>
         </DynamicallySlottable>
     </ButtonToolbar>
