@@ -18,9 +18,29 @@ use crate::{
 };
 
 impl Card {
-    fn schedule_as_new(&mut self, position: u32, reset_counts: bool) {
+    fn last_position(&self) -> Option<u32> {
+        if self.ctype == CardType::New {
+            Some(if self.original_deck_id.0 != 0 {
+                self.original_due
+            } else {
+                self.due
+            } as u32)
+        } else {
+            self.original_position
+        }
+    }
+
+    /// True if the provided position has been used.
+    /// (Always true, if restore_position is false.)
+    pub(crate) fn schedule_as_new(
+        &mut self,
+        position: u32,
+        reset_counts: bool,
+        restore_position: bool,
+    ) -> bool {
+        let last_position = restore_position.then(|| self.last_position()).flatten();
         self.remove_from_filtered_deck_before_reschedule();
-        self.due = position as i32;
+        self.due = last_position.unwrap_or(position) as i32;
         self.ctype = CardType::New;
         self.queue = CardQueue::New;
         self.interval = 0;
@@ -30,6 +50,8 @@ impl Card {
             self.reps = 0;
             self.lapses = 0;
         }
+
+        last_position.is_none()
     }
 
     /// If the card is new, change its position, and return true.
@@ -135,10 +157,7 @@ impl Collection {
             let cards = col.storage.all_searched_cards_in_search_order()?;
             for mut card in cards {
                 let original = card.clone();
-                if restore_position && card.original_position.is_some() {
-                    card.schedule_as_new(card.original_position.unwrap(), reset_counts);
-                } else {
-                    card.schedule_as_new(position, reset_counts);
+                if card.schedule_as_new(position, reset_counts, restore_position) {
                     position += 1;
                 }
                 if log {
@@ -300,6 +319,43 @@ mod test {
             }
         }
         unreachable!("not random");
+    }
+
+    #[test]
+    fn last_position() {
+        // new card
+        let mut card = Card::new(NoteId(0), 0, DeckId(1), 42);
+        assert_eq!(card.last_position(), Some(42));
+        // in filtered deck
+        card.original_deck_id.0 = 1;
+        card.deck_id.0 = 2;
+        card.original_due = 42;
+        card.due = 123456789;
+        card.queue = CardQueue::Review;
+        assert_eq!(card.last_position(), Some(42));
+
+        // graduated card
+        let mut card = Card::new(NoteId(0), 0, DeckId(1), 42);
+        card.queue = CardQueue::Review;
+        card.ctype = CardType::Review;
+        card.due = 123456789;
+        // only recent clients remember the original position
+        assert_eq!(card.last_position(), None);
+        card.original_position = Some(42);
+        assert_eq!(card.last_position(), Some(42));
+    }
+
+    #[test]
+    fn scheduling_as_new() {
+        let mut card = Card::new(NoteId(0), 0, DeckId(1), 42);
+        card.reps = 4;
+        card.lapses = 2;
+        // keep counts and position
+        card.schedule_as_new(1, false, true);
+        assert_eq!((card.due, card.reps, card.lapses), (42, 4, 2));
+        // complete reset
+        card.schedule_as_new(1, true, false);
+        assert_eq!((card.due, card.reps, card.lapses), (1, 0, 0));
     }
 }
 
