@@ -5,8 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { get } from "svelte/store";
 
-    import IconButton from "../../components/IconButton.svelte";
     import ButtonGroup from "../../components/ButtonGroup.svelte";
+    import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import * as tr from "../../lib/ftl";
     import { isApplePlatform } from "../../lib/platform";
