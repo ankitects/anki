@@ -68,23 +68,23 @@ impl Collection {
     }
 }
 
-pub(crate) struct MediaIter(Box<dyn Iterator<Item = io::Result<PathBuf>>>);
+pub struct MediaIter(Box<dyn Iterator<Item = io::Result<PathBuf>>>);
 
 impl MediaIter {
-    pub(crate) fn from_folder(path: &Path) -> Result<Self> {
+    pub fn from_folder(path: &Path) -> Result<Self> {
         Ok(Self(Box::new(
             read_dir_files(path)?.map(|res| res.map(|entry| entry.path())),
         )))
     }
 
     /// Skips missing paths.
-    pub(crate) fn from_file_list(list: impl IntoIterator<Item = PathBuf> + 'static) -> Self {
+    pub fn from_file_list(list: impl IntoIterator<Item = PathBuf> + 'static) -> Self {
         Self(Box::new(
             list.into_iter().filter(|path| path.exists()).map(Ok),
         ))
     }
 
-    pub(crate) fn empty() -> Self {
+    pub fn empty() -> Self {
         Self(Box::new(std::iter::empty()))
     }
 }

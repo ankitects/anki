@@ -1,7 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashSet,
+    path::{Path, PathBuf},
+};
 
 use tempfile::NamedTempFile;
 
@@ -26,6 +29,7 @@ impl Collection {
         deck_id: Option<DeckId>,
         with_scheduling: bool,
         with_media: bool,
+        media_fn: Option<impl FnOnce(HashSet<PathBuf>) -> MediaIter>,
         progress_fn: impl FnMut(usize),
     ) -> Result<()> {
         let temp_apkg = tempfile_in_parent_of(out_path.as_ref())?;
@@ -40,6 +44,11 @@ impl Collection {
             with_scheduling,
             with_media,
         )?;
+        let media = if let Some(media_fn) = media_fn {
+            media_fn(media)
+        } else {
+            MediaIter::from_file_list(media)
+        };
         let col_size = temp_col.as_file().metadata()?.len() as usize;
 
         export_collection(
@@ -60,7 +69,7 @@ impl Collection {
         deck_id: Option<DeckId>,
         with_scheduling: bool,
         with_media: bool,
-    ) -> Result<MediaIter> {
+    ) -> Result<HashSet<PathBuf>> {
         let mut data = ExportData::default();
         data.gather_data(self, deck_id, with_scheduling)?;
         if with_media {
@@ -71,7 +80,7 @@ impl Collection {
         temp_col.insert_data(&data)?;
         temp_col.close(Some(SchemaVersion::V11))?;
 
-        Ok(MediaIter::from_file_list(data.media_paths))
+        Ok(data.media_paths)
     }
 
     fn new_minimal(path: impl Into<PathBuf>) -> Result<Self> {
