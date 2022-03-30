@@ -18,13 +18,15 @@ use crate::{
 };
 
 impl Card {
-    fn last_position(&self) -> Option<u32> {
+    pub(crate) fn original_or_current_due(&self) -> i32 {
+        self.is_filtered()
+            .then(|| self.original_due)
+            .unwrap_or(self.due)
+    }
+
+    pub(crate) fn last_position(&self) -> Option<u32> {
         if self.ctype == CardType::New {
-            Some(if self.original_deck_id.0 != 0 {
-                self.original_due
-            } else {
-                self.due
-            } as u32)
+            Some(self.original_or_current_due() as u32)
         } else {
             self.original_position
         }
