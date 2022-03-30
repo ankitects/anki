@@ -33,10 +33,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { pageTheme } from "../../sveltelib/theme";
     import { baseOptions, gutterOptions, htmlanki } from "../code-mirror";
     import CodeMirror from "../CodeMirror.svelte";
-    import { context as decoratedElementsContext } from "../DecoratedElements.svelte";
     import { context as editingAreaContext } from "../EditingArea.svelte";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import removeProhibitedTags from "./remove-prohibited";
+    import { storedToUndecorated, undecoratedToStored } from "./transform";
 
     const configuration = {
         mode: htmlanki,
@@ -47,7 +47,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const { focusedInput } = noteEditorContext.get();
 
     const { editingInputs, content } = editingAreaContext.get();
-    const decoratedElements = decoratedElementsContext.get();
     const code = writable($content);
 
     let codeMirror = {} as CodeMirrorAPI;
@@ -105,14 +104,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tick().then(refresh);
     }
 
-    function storedToUndecorated(html: string): string {
-        return decoratedElements.toUndecorated(html);
-    }
-
-    function undecoratedToStored(html: string): string {
-        return decoratedElements.toStored(html);
-    }
-
     onMount(() => {
         $editingInputs.push(api);
         $editingInputs = $editingInputs;
@@ -144,7 +135,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {configuration}
         {code}
         bind:api={codeMirror}
-        on:change={({ detail: html }) => code.set(removeProhibitedTags(html))}
+        on:change={({ detail: html }) => code.set(html)}
     />
 </div>
 

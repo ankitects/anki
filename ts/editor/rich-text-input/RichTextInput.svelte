@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import type { FocusHandlerAPI } from "../../editable/content-editable";
+    /* import type { FocusHandlerAPI } from "../../editable/content-editable"; */
     import type { ContentEditableAPI } from "../../editable/ContentEditable.svelte";
     import useContextProperty from "../../sveltelib/context-property";
     import useDOMMirror from "../../sveltelib/dom-mirror";
@@ -13,15 +13,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { EditingInputAPI } from "../EditingArea.svelte";
     import type CustomStyles from "./CustomStyles.svelte";
 
-    export interface RichTextInputAPI extends EditingInputAPI, ContentEditableAPI {
+    export interface RichTextInputAPI extends EditingInputAPI {
         name: "rich-text";
-        shadowRoot: Promise<ShadowRoot>;
         element: Promise<HTMLElement>;
         moveCaretToEnd(): void;
         toggle(): boolean;
         preventResubscription(): () => void;
         inputHandler: InputHandlerAPI;
-        focusHandler: FocusHandlerAPI;
+        editable: ContentEditableAPI;
     }
 
     export function editingInputIsRichText(
@@ -49,17 +48,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { placeCaretAfterContent } from "../../domlib/place-caret";
     import ContentEditable from "../../editable/ContentEditable.svelte";
-    import type { DecoratedElement } from "../../editable/decorated";
-    import { bridgeCommand } from "../../lib/bridgecommand";
-    import {
-        fragmentToString,
-        nodeContainsInlineContent,
-        nodeIsElement,
-    } from "../../lib/dom";
-    import { on } from "../../lib/events";
-    import { promiseWithResolver } from "../../lib/promise";
-    import { nodeStore } from "../../sveltelib/node-store";
-    import { context as decoratedElementsContext } from "../DecoratedElements.svelte";
+    import useRichTextResolve from "./rich-text-resolve";
+    import getNormalizingNodeStore from "./normalizing-node-store";
+    import { fragmentToStored, storedToFragment } from "./transform";
     import { context as editingAreaContext } from "../EditingArea.svelte";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import RichTextStyles from "./RichTextStyles.svelte";
@@ -68,167 +59,78 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let hidden: boolean;
 
     const { focusedInput } = noteEditorContext.get();
-
     const { content, editingInputs } = editingAreaContext.get();
-    const decoratedElements = decoratedElementsContext.get();
 
-    function normalizeFragment(fragment: DocumentFragment): void {
-        fragment.normalize();
-
-        for (const decorated of decoratedElements) {
-            for (const element of fragment.querySelectorAll(
-                decorated.tagName,
-            ) as NodeListOf<DecoratedElement>) {
-                element.undecorate();
-            }
-        }
-    }
-
-    const nodes = nodeStore<DocumentFragment>(undefined, normalizeFragment);
-
-    function adjustInputHTML(html: string): string {
-        for (const component of decoratedElements) {
-            html = component.toUndecorated(html);
-        }
-
-        return html;
-    }
-
-    function adjustInputFragment(fragment: DocumentFragment): void {
-        if (nodeContainsInlineContent(fragment)) {
-            fragment.appendChild(document.createElement("br"));
-        }
-    }
-
-    function storedToFragment(html: string): DocumentFragment {
-        /* We need .createContextualFragment so that customElements are initialized */
-        const fragment = document
-            .createRange()
-            .createContextualFragment(adjustInputHTML(html));
-
-        adjustInputFragment(fragment);
-        return fragment;
-    }
-
-    function adjustOutputFragment(fragment: DocumentFragment): void {
-        if (
-            fragment.hasChildNodes() &&
-            nodeIsElement(fragment.lastChild!) &&
-            nodeContainsInlineContent(fragment) &&
-            fragment.lastChild!.tagName === "BR"
-        ) {
-            fragment.lastChild!.remove();
-        }
-    }
-
-    function adjustOutputHTML(html: string): string {
-        for (const component of decoratedElements) {
-            html = component.toStored(html);
-        }
-
-        return html;
-    }
-
-    function fragmentToStored(fragment: DocumentFragment): string {
-        const clone = document.importNode(fragment, true);
-        adjustOutputFragment(clone);
-
-        return adjustOutputHTML(fragmentToString(clone));
-    }
-
-    const [shadowPromise, shadowResolve] = promiseWithResolver<ShadowRoot>();
-
-    function attachShadow(element: Element): void {
-        shadowResolve(element.attachShadow({ mode: "open" }));
-    }
-
-    const [richTextPromise, richTextResolve] = promiseWithResolver<HTMLElement>();
-
-    function resolve(richTextInput: HTMLElement): { destroy: () => void } {
-        function onPaste(event: Event): void {
-            event.preventDefault();
-            bridgeCommand("paste");
-        }
-
-        function onCutOrCopy(): void {
-            bridgeCommand("cutOrCopy");
-        }
-
-        const removePaste = on(richTextInput, "paste", onPaste);
-        const removeCopy = on(richTextInput, "copy", onCutOrCopy);
-        const removeCut = on(richTextInput, "cut", onCutOrCopy);
-        richTextResolve(richTextInput);
-
-        return {
-            destroy() {
-                removePaste();
-                removeCopy();
-                removeCut();
-            },
-        };
-    }
-
+    const nodes = getNormalizingNodeStore();
+    const [richTextPromise, resolve] = useRichTextResolve();
     const { mirror, preventResubscription } = useDOMMirror();
     const [inputHandler, setupInputHandler] = useInputHandler();
 
-    function moveCaretToEnd() {
-        richTextPromise.then(placeCaretAfterContent);
+    export function attachShadow(element: Element): void {
+        element.attachShadow({ mode: "open" });
     }
 
-    export const api = {
+    async function moveCaretToEnd(): Promise<void> {
+        const richText = await richTextPromise;
+        placeCaretAfterContent(richText);
+    }
+
+    async function focus(): Promise<void> {
+        const richText = await richTextPromise;
+        richText.focus();
+    }
+
+    async function refocus(): Promise<void> {
+        const richText = await richTextPromise;
+        richText.blur();
+        richText.focus();
+        moveCaretToEnd();
+    }
+
+    function toggle(): boolean {
+        hidden = !hidden;
+        return hidden;
+    }
+
+    export const api: RichTextInputAPI = {
         name: "rich-text",
-        shadowRoot: shadowPromise,
         element: richTextPromise,
-        focus() {
-            richTextPromise.then((richText) => {
-                richText.focus();
-            });
-        },
-        refocus() {
-            richTextPromise.then((richText) => {
-                richText.blur();
-                richText.focus();
-                moveCaretToEnd();
-            });
-        },
+        focus,
+        refocus,
         focusable: !hidden,
-        toggle(): boolean {
-            hidden = !hidden;
-            return hidden;
-        },
+        toggle,
         moveCaretToEnd,
         preventResubscription,
         inputHandler,
-    } as RichTextInputAPI;
+        editable: {} as ContentEditableAPI,
+    };
 
     const allContexts = getAllContexts();
 
     function attachContentEditable(element: Element, { stylesDidLoad }): void {
-        stylesDidLoad.then(
-            () =>
-                new ContentEditable({
-                    target: element.shadowRoot!,
-                    props: {
-                        nodes,
-                        resolve,
-                        mirrors: [mirror],
-                        inputHandlers: [setupInputHandler, setupGlobalInputHandler],
-                        api,
-                    },
-                    context: allContexts,
-                }),
-        );
+        (async () => {
+            await stylesDidLoad;
+
+            new ContentEditable({
+                target: element.shadowRoot!,
+                props: {
+                    nodes,
+                    resolve,
+                    mirrors: [mirror],
+                    inputHandlers: [setupInputHandler, setupGlobalInputHandler],
+                    api: api.editable,
+                },
+                context: allContexts,
+            });
+        })();
     }
 
-    function pushUpdate(): void {
-        api.focusable = !hidden;
+    function pushUpdate(isFocusable: boolean): void {
+        api.focusable = isFocusable;
         $editingInputs = $editingInputs;
     }
 
-    $: {
-        hidden;
-        pushUpdate();
-    }
+    $: pushUpdate(!hidden);
 
     onMount(() => {
         $editingInputs.push(api);
@@ -237,8 +139,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const unsubscribeFromEditingArea = content.subscribe((html: string): void =>
             nodes.setUnprocessed(storedToFragment(html)),
         );
-        const unsubscribeToEditingArea = nodes.subscribe((fragment: DocumentFragment): void =>
-            content.set(fragmentToStored(fragment)),
+        const unsubscribeToEditingArea = nodes.subscribe(
+            (fragment: DocumentFragment): void =>
+                content.set(fragmentToStored(fragment)),
         );
 
         return () => {
