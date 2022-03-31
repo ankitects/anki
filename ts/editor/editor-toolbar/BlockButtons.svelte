@@ -12,7 +12,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "../../components/ButtonGroupItem.svelte";
     import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import IconButton from "../../components/IconButton.svelte";
-    import Item from "../../components/Item.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithDropdown from "../../components/WithDropdown.svelte";
     import { getListItem } from "../../lib/dom";
@@ -92,73 +91,69 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 </IconButton>
 
                 <ButtonDropdown>
-                    <Item id="justify">
-                        <ButtonGroup>
-                            <CommandIconButton
-                                key="justifyLeft"
-                                tooltip={tr.editingAlignLeft()}
-                                --border-left-radius="5px"
-                                --border-right-radius="0px"
-                                >{@html justifyLeftIcon}</CommandIconButton
-                            >
+                    <ButtonGroup>
+                        <CommandIconButton
+                            key="justifyLeft"
+                            tooltip={tr.editingAlignLeft()}
+                            --border-left-radius="5px"
+                            --border-right-radius="0px"
+                            >{@html justifyLeftIcon}</CommandIconButton
+                        >
 
-                            <CommandIconButton
-                                key="justifyCenter"
-                                tooltip={tr.editingCenter()}
-                                >{@html justifyCenterIcon}</CommandIconButton
-                            >
+                        <CommandIconButton
+                            key="justifyCenter"
+                            tooltip={tr.editingCenter()}
+                            >{@html justifyCenterIcon}</CommandIconButton
+                        >
 
-                            <CommandIconButton
-                                key="justifyRight"
-                                tooltip={tr.editingAlignRight()}
-                                >{@html justifyRightIcon}</CommandIconButton
-                            >
+                        <CommandIconButton
+                            key="justifyRight"
+                            tooltip={tr.editingAlignRight()}
+                            >{@html justifyRightIcon}</CommandIconButton
+                        >
 
-                            <CommandIconButton
-                                key="justifyFull"
-                                tooltip={tr.editingJustify()}
-                                --border-right-radius="5px"
-                                >{@html justifyFullIcon}</CommandIconButton
-                            >
-                        </ButtonGroup>
-                    </Item>
+                        <CommandIconButton
+                            key="justifyFull"
+                            tooltip={tr.editingJustify()}
+                            --border-right-radius="5px"
+                            >{@html justifyFullIcon}</CommandIconButton
+                        >
+                    </ButtonGroup>
 
-                    <Item id="indentation">
-                        <ButtonGroup>
-                            <IconButton
-                                tooltip="{tr.editingOutdent()} ({getPlatformString(
-                                    outdentKeyCombination,
-                                )})"
-                                {disabled}
-                                on:click={outdentListItem}
-                                --border-left-radius="5px"
-                                --border-right-radius="0px"
-                            >
-                                {@html outdentIcon}
-                            </IconButton>
+                    <ButtonGroup>
+                        <IconButton
+                            tooltip="{tr.editingOutdent()} ({getPlatformString(
+                                outdentKeyCombination,
+                            )})"
+                            {disabled}
+                            on:click={outdentListItem}
+                            --border-left-radius="5px"
+                            --border-right-radius="0px"
+                        >
+                            {@html outdentIcon}
+                        </IconButton>
 
-                            <Shortcut
-                                keyCombination={outdentKeyCombination}
-                                on:action={outdentListItem}
-                            />
+                        <Shortcut
+                            keyCombination={outdentKeyCombination}
+                            on:action={outdentListItem}
+                        />
 
-                            <IconButton
-                                tooltip="{tr.editingIndent()} ({getPlatformString(
-                                    indentKeyCombination,
-                                )})"
-                                {disabled}
-                                on:click={indentListItem}
-                                --border-right-radius="5px"
-                            >
-                                {@html indentIcon}
-                            </IconButton>
+                        <IconButton
+                            tooltip="{tr.editingIndent()} ({getPlatformString(
+                                indentKeyCombination,
+                            )})"
+                            {disabled}
+                            on:click={indentListItem}
+                            --border-right-radius="5px"
+                        >
+                            {@html indentIcon}
+                        </IconButton>
 
-                            <Shortcut
-                                keyCombination={indentKeyCombination}
-                                on:action={indentListItem}
-                            />
-                        </ButtonGroup>
-                    </Item>
+                        <Shortcut
+                            keyCombination={indentKeyCombination}
+                            on:action={indentListItem}
+                        />
+                    </ButtonGroup>
                 </ButtonDropdown>
             </WithDropdown>
         </ButtonGroupItem>
