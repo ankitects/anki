@@ -99,5 +99,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {@html clozeIcon}
     </IconButton>
 
-    <Shortcut keyCombination={sameKeyCombination} on:action={onSameCloze} />
+    <Shortcut keyCombination={sameKeyCombination} {event} on:action={onSameCloze} />
 </ButtonGroup>
