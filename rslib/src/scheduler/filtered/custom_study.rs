@@ -205,8 +205,8 @@ fn ahead_config(deck_name: String, days: u32) -> FilteredDeck {
 
 fn preview_config(deck_name: String, days: u32) -> FilteredDeck {
     let search = StateKind::New
-        .and(SearchNode::AddedInDays(days))
-        .and(SearchNode::from_deck_name(&deck_name))
+        .and_flat(SearchNode::AddedInDays(days))
+        .and_flat(SearchNode::from_deck_name(&deck_name))
         .write();
     custom_study_config(
         false,
@@ -237,8 +237,8 @@ fn cram_config(deck_name: String, cram: &Cram) -> Result<FilteredDeck> {
     };
 
     let search = nodes
-        .and(tags_to_nodes(&cram.tags_to_include, &cram.tags_to_exclude))
         .and(SearchNode::from_deck_name(&deck_name))
+        .and_flat(tags_to_nodes(&cram.tags_to_include, &cram.tags_to_exclude))
         .write();
 
     Ok(custom_study_config(
@@ -353,6 +353,25 @@ mod test {
                 ("2::two", true, false),
                 ("3", false, true)
             ]
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn sql_grouping() -> Result<()> {
+        let mut deck = preview_config("d".into(), 1);
+        assert_eq!(&deck.search_terms[0].search, "is:new added:1 deck:d");
+
+        let cram = Cram {
+            tags_to_include: vec!["1".into(), "2".into()],
+            tags_to_exclude: vec!["3".into(), "4".into()],
+            ..Default::default()
+        };
+        deck = cram_config("d".into(), &cram)?;
+        assert_eq!(
+            &deck.search_terms[0].search,
+            "is:due deck:d (tag:1 OR tag:2) (-tag:3 -tag:4)"
         );
 
         Ok(())
