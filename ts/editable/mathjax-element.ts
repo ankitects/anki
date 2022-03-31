@@ -121,7 +121,15 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
         });
 
         if (this.hasAttribute("focusonmount")) {
-            this.component.moveCaretAfter();
+            let position: [number, number] | undefined = undefined;
+
+            if (this.getAttribute("focusonmount")!.length > 0) {
+                position = this.getAttribute("focusonmount")!
+                    .split(",")
+                    .map(Number) as [number, number];
+            }
+
+            this.component.moveCaretAfter(position);
         }
 
         this.setAttribute("contentEditable", "false");
