@@ -9,7 +9,6 @@ use std::{
 use itertools::Itertools;
 
 use crate::{
-    card::{CardQueue, CardType},
     decks::NormalDeck,
     io::filename_is_safe,
     latex::extract_latex,
@@ -100,22 +99,14 @@ impl ExportData {
     fn reset_cards(&mut self, col: &Collection) {
         let mut position = col.get_next_card_position();
         for card in self.cards.iter_mut() {
-            if card.ctype != CardType::New || card.queue != CardQueue::New {
-                card.due = card.original_position.unwrap_or_else(|| {
-                    position += 1;
-                    position - 1
-                }) as i32;
+            // schedule_as_new() removes cards from filtered decks, but we want to
+            // leave cards in their current deck, and export filtered as regular decks
+            let deck_id = card.deck_id;
+            if card.schedule_as_new(position, true, true) {
+                position += 1;
             }
-            card.interval = 0;
-            card.ease_factor = 0;
-            card.reps = 0;
-            card.lapses = 0;
-            card.original_deck_id = DeckId(0);
-            card.original_due = 0;
-            card.original_position = None;
-            card.queue = CardQueue::New;
-            card.ctype = CardType::New;
             card.flags = 0;
+            card.deck_id = deck_id;
         }
     }
 }
