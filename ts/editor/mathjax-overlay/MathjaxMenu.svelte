@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type CodeMirrorLib from "codemirror";
     import { createEventDispatcher } from "svelte";
     import type { Writable } from "svelte/store";
 
@@ -15,7 +16,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let element: Element;
     export let code: Writable<string>;
+
     export let selectAll: boolean;
+    export let position: CodeMirrorLib.Position | undefined;
 
     const acceptShortcut = "Enter";
     const newlineShortcut = "Shift+Enter";
@@ -40,6 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {newlineShortcut}
             {code}
             {selectAll}
+            {position}
             on:blur={() => dispatch("reset")}
             on:moveoutstart
             on:moveoutend
