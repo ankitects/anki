@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type CodeMirrorLib from "codemirror";
     import { onDestroy, onMount, tick } from "svelte";
     import { writable } from "svelte/store";
 
@@ -26,9 +27,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let allow = noop;
     let unsubscribe = noop;
 
-    function showHandle(image: HTMLImageElement): void {
-        allow = preventResubscription();
+    let selectAll = false;
+    let position: CodeMirrorLib.Position | undefined = undefined;
 
+    function showHandle(image: HTMLImageElement, pos?: CodeMirrorLib.Position): void {
+        allow = preventResubscription();
+        position = pos;
+
+        /* Setting the activeImage and mathjaxElement to a non-nullish value is
+         * what triggers the Mathjax editor to show */
         activeImage = image;
         mathjaxElement = activeImage.closest(Mathjax.tagName)!;
 
@@ -37,8 +44,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             mathjaxElement!.dataset.mathjax = value;
         });
     }
-
-    let selectAll = false;
 
     function placeHandle(after: boolean): void {
         focusHandler.flushCaret();
@@ -52,6 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function resetHandle(): Promise<void> {
         selectAll = false;
+        position = undefined;
 
         if (activeImage && mathjaxElement) {
             unsubscribe();
@@ -72,9 +78,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function showAutofocusHandle({
         detail,
-    }: CustomEvent<HTMLImageElement>): Promise<void> {
+    }: CustomEvent<{
+        image: HTMLImageElement;
+        position?: [number, number];
+    }>): Promise<void> {
+        let position: CodeMirrorLib.Position | undefined = undefined;
+
         await resetHandle();
-        showHandle(detail);
+
+        if (detail.position) {
+            const [line, ch] = detail.position;
+            position = { line, ch };
+        }
+
+        showHandle(detail.image, position);
     }
 
     async function showSelectAll({
@@ -138,6 +155,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             element={mathjaxElement}
             {code}
             {selectAll}
+            {position}
             bind:updateSelection
             on:reset={resetHandle}
             on:moveoutstart={() => {
