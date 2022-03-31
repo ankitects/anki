@@ -40,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         [mediaPromise, resolve] = promiseWithResolver<string>();
-        $focusedInput.focusHandler.focus.on(
+        $focusedInput.editable.focusHandler.focus.on(
             async () => setFormat("inserthtml", await mediaPromise),
             { once: true },
         );
@@ -60,7 +60,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         [mediaPromise, resolve] = promiseWithResolver<string>();
-        $focusedInput.focusHandler.focus.on(
+        $focusedInput.editable.focusHandler.focus.on(
             async () => setFormat("inserthtml", await mediaPromise),
             { once: true },
         );
