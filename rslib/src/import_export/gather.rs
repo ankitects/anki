@@ -73,11 +73,11 @@ impl ExchangeData {
     }
 
     fn remove_system_tags(&mut self) {
-        // TODO: case folding? child tags?
+        const SYSTEM_TAGS: [&str; 2] = ["marked", "leech"];
         for note in self.notes.iter_mut() {
             note.tags = std::mem::take(&mut note.tags)
                 .into_iter()
-                .filter(|tag| !matches!(tag.as_str(), "marked" | "leech"))
+                .filter(|tag| !SYSTEM_TAGS.iter().any(|s| tag.eq_ignore_ascii_case(s)))
                 .collect();
         }
     }
