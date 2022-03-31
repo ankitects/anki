@@ -1,11 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::gather::ExportData;
+use super::gather::ExchangeData;
 use crate::{prelude::*, revlog::RevlogEntry};
 
 impl Collection {
-    pub(super) fn insert_data(&mut self, data: &ExportData) -> Result<()> {
+    pub(super) fn insert_data(&mut self, data: &ExchangeData) -> Result<()> {
         self.insert_decks(&data.decks)?;
         self.insert_notes(&data.notes)?;
         self.insert_cards(&data.cards)?;

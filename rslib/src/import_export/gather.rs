@@ -18,7 +18,7 @@ use crate::{
 };
 
 #[derive(Debug, Default)]
-pub(super) struct ExportData {
+pub(super) struct ExchangeData {
     pub(super) decks: Vec<Deck>,
     pub(super) notes: Vec<Note>,
     pub(super) cards: Vec<Card>,
@@ -28,7 +28,7 @@ pub(super) struct ExportData {
     pub(super) media_paths: HashSet<PathBuf>,
 }
 
-impl ExportData {
+impl ExchangeData {
     pub(super) fn gather_data(
         &mut self,
         col: &mut Collection,

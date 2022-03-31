@@ -11,7 +11,7 @@ use tempfile::NamedTempFile;
 use crate::{
     collection::CollectionBuilder,
     import_export::{
-        gather::ExportData,
+        gather::ExchangeData,
         package::{
             colpkg::export::{export_collection, MediaIter},
             Meta,
@@ -70,7 +70,7 @@ impl Collection {
         with_scheduling: bool,
         with_media: bool,
     ) -> Result<HashSet<PathBuf>> {
-        let mut data = ExportData::default();
+        let mut data = ExchangeData::default();
         data.gather_data(self, search, with_scheduling)?;
         if with_media {
             data.gather_media_paths();
