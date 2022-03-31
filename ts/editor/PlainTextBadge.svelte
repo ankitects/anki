@@ -22,8 +22,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         off = !off;
     }
 
-    function shortcut(element: HTMLElement): void {
-        registerShortcut(toggle, keyCombination, element);
+    function shortcut(target: HTMLElement): () => void {
+        return registerShortcut(toggle, keyCombination, { target });
     }
 
     onMount(() => editorField.element.then(shortcut));

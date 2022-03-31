@@ -295,7 +295,7 @@ impl Collection {
             let ords =
                 SearchBuilder::any(map.removed.iter().map(|o| TemplateKind::Ordinal(*o as u16)));
             self.search_cards_into_table(
-                SearchBuilder::from(nids).and_join(&mut ords.group()),
+                SearchBuilder::from(nids).and(ords.group()),
                 SortMode::NoOrder,
             )?;
             for card in self.storage.all_searched_cards()? {
@@ -320,7 +320,7 @@ impl Collection {
                     .map(|o| TemplateKind::Ordinal(*o as u16)),
             );
             self.search_cards_into_table(
-                SearchBuilder::from(nids).and_join(&mut ords.group()),
+                SearchBuilder::from(nids).and(ords.group()),
                 SortMode::NoOrder,
             )?;
             for mut card in self.storage.all_searched_cards()? {

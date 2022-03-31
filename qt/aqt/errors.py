@@ -1,17 +1,40 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+from __future__ import annotations
+
 import html
 import re
 import sys
 import traceback
-from typing import Optional, TextIO, cast
+from typing import TYPE_CHECKING, Optional, TextIO, cast
 
 from markdown import markdown
 
-from aqt import mw
-from aqt.main import AnkiQt
+import aqt
+from anki.errors import DocumentedError, LocalizedError
 from aqt.qt import *
 from aqt.utils import showText, showWarning, supportText, tr
+
+if TYPE_CHECKING:
+    from aqt.main import AnkiQt
+
+
+def show_exception(*, parent: QWidget, exception: Exception) -> None:
+    "Present a caught exception to the user using a pop-up."
+    if isinstance(exception, InterruptedError):
+        # nothing to do
+        return
+    help_page = exception.help_page if isinstance(exception, DocumentedError) else None
+    if not isinstance(exception, LocalizedError):
+        # if the error is not originating from the backend, dump
+        # a traceback to the console to aid in debugging
+        traceback.print_exception(
+            None, exception, exception.__traceback__, file=sys.stdout
+        )
+
+    showWarning(str(exception), parent=parent, help=help_page)
+
 
 if not os.environ.get("DEBUG"):
 
@@ -121,7 +144,7 @@ class ErrorHandler(QObject):
             return ""
         # reverse to list most likely suspect first, dict to deduplicate:
         addons = [
-            mw.addonManager.addonName(i) for i in dict.fromkeys(reversed(matches))
+            aqt.mw.addonManager.addonName(i) for i in dict.fromkeys(reversed(matches))
         ]
         # highlight importance of first add-on:
         addons[0] = f"<b>{addons[0]}</b>"

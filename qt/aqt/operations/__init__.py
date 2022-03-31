@@ -15,6 +15,7 @@ from anki.collection import (
     OpChangesWithCount,
     OpChangesWithId,
 )
+from aqt.errors import show_exception
 from aqt.qt import QWidget
 from aqt.utils import showWarning
 
@@ -101,7 +102,7 @@ class CollectionOp(Generic[ResultWithChanges]):
                     if self._failure:
                         self._failure(exception)
                     else:
-                        showWarning(str(exception), self._parent)
+                        show_exception(parent=self._parent, exception=exception)
                     return
                 else:
                     # BaseException like SystemExit; rethrow it

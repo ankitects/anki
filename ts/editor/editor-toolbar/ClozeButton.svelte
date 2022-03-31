@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import * as tr from "../../lib/ftl";
+    import { isApplePlatform } from "../../lib/platform";
     import { getPlatformString } from "../../lib/shortcuts";
     import { wrapInternal } from "../../lib/wrap";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
@@ -16,6 +17,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { ellipseIcon } from "./icons";
 
     const { focusedInput, fields } = noteEditorContext.get();
+
+    // Workaround for Cmd+Option+Shift+C not working on macOS. The keyup approach works
+    // on Linux as well, but fails on Windows.
+    const event = isApplePlatform() ? "keyup" : "keydown";
 
     const clozePattern = /\{\{c(\d+)::/gu;
     function getCurrentHighestCloze(increment: boolean): number {
@@ -63,4 +68,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {@html ellipseIcon}
 </IconButton>
 
-<Shortcut {keyCombination} on:action={(event) => onCloze(event.detail.originalEvent)} />
+<Shortcut
+    {keyCombination}
+    {event}
+    on:action={(event) => onCloze(event.detail.originalEvent)}
+/>
