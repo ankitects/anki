@@ -102,16 +102,22 @@ fn restore_media(
     let media_entries = extract_media_entries(meta, archive)?;
     std::fs::create_dir_all(media_folder)?;
 
-    for (archive_file_name, entry) in media_entries.iter().enumerate() {
-        if archive_file_name % 10 == 0 {
-            progress_fn(ImportProgress::Media(archive_file_name))?;
+    for (entry_idx, entry) in media_entries.iter().enumerate() {
+        if entry_idx % 10 == 0 {
+            progress_fn(ImportProgress::Media(entry_idx))?;
         }
 
-        if let Ok(mut zip_file) = archive.by_name(&archive_file_name.to_string()) {
+        let zip_filename = entry
+            .legacy_zip_filename
+            .map(|n| n as usize)
+            .unwrap_or(entry_idx)
+            .to_string();
+
+        if let Ok(mut zip_file) = archive.by_name(&zip_filename) {
             maybe_restore_media_file(meta, media_folder, entry, &mut zip_file)?;
         } else {
             return Err(AnkiError::invalid_input(&format!(
-                "{archive_file_name} missing from archive"
+                "{zip_filename} missing from archive"
             )));
         }
     }
@@ -191,27 +197,17 @@ fn extract_media_entries(meta: &Meta, archive: &mut ZipArchive<File>) -> Result<
     }
     if meta.media_list_is_hashmap() {
         let map: HashMap<&str, String> = serde_json::from_slice(&buf)?;
-        let mut entries: Vec<(usize, String)> = map
-            .into_iter()
-            .map(|(k, v)| (k.parse().unwrap_or_default(), v))
-            .collect();
-        entries.sort_unstable();
-        // any gaps in the file numbers would lead to media being imported under the wrong name
-        if entries
-            .iter()
-            .enumerate()
-            .any(|(idx1, (idx2, _))| idx1 != *idx2)
-        {
-            return Err(AnkiError::ImportError(ImportError::Corrupt));
-        }
-        Ok(entries
-            .into_iter()
-            .map(|(_str_idx, name)| MediaEntry {
-                name,
-                size: 0,
-                sha1: vec![],
+        map.into_iter()
+            .map(|(idx_str, name)| {
+                let idx: u32 = idx_str.parse()?;
+                Ok(MediaEntry {
+                    name,
+                    size: 0,
+                    sha1: vec![],
+                    legacy_zip_filename: Some(idx),
+                })
             })
-            .collect())
+            .collect()
     } else {
         let entries: MediaEntries = Message::decode(&*buf)?;
         Ok(entries.entries)

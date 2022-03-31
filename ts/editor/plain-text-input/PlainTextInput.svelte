@@ -30,15 +30,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount, tick } from "svelte";
     import { writable } from "svelte/store";
 
+    import { singleCallback } from "../../lib/typing";
     import { pageTheme } from "../../sveltelib/theme";
     import { baseOptions, gutterOptions, htmlanki } from "../code-mirror";
     import CodeMirror from "../CodeMirror.svelte";
-    import { context as decoratedElementsContext } from "../DecoratedElements.svelte";
     import { context as editingAreaContext } from "../EditingArea.svelte";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import removeProhibitedTags from "./remove-prohibited";
-
-    export let hidden = false;
+    import { storedToUndecorated, undecoratedToStored } from "./transform";
 
     const configuration = {
         mode: htmlanki,
@@ -49,31 +48,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const { focusedInput } = noteEditorContext.get();
 
     const { editingInputs, content } = editingAreaContext.get();
-    const decoratedElements = decoratedElementsContext.get();
     const code = writable($content);
 
-    function focus(): void {
-        codeMirror.editor.then((editor) => editor.focus());
+    let codeMirror = {} as CodeMirrorAPI;
+
+    async function focus(): Promise<void> {
+        const editor = await codeMirror.editor;
+        editor.focus();
     }
 
-    function moveCaretToEnd(): void {
-        codeMirror.editor.then((editor) => editor.setCursor(editor.lineCount(), 0));
+    async function moveCaretToEnd(): Promise<void> {
+        const editor = await codeMirror.editor;
+        editor.setCursor(editor.lineCount(), 0);
     }
 
-    function refocus(): void {
-        codeMirror.editor.then((editor) => (editor as any).display.input.blur());
+    async function refocus(): Promise<void> {
+        const editor = (await codeMirror.editor) as any;
+        editor.display.input.blur();
+
         focus();
         moveCaretToEnd();
     }
+
+    export let hidden = false;
 
     function toggle(): boolean {
         hidden = !hidden;
         return hidden;
     }
 
-    let codeMirror = {} as CodeMirrorAPI;
-
-    export const api = {
+    export const api: PlainTextInputAPI = {
         name: "plain-text",
         focus,
         focusable: !hidden,
@@ -81,47 +85,46 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         refocus,
         toggle,
         codeMirror,
-    } as PlainTextInputAPI;
+    };
 
-    function pushUpdate(): void {
-        api.focusable = !hidden;
+    /**
+     * Communicate to editing area that input is not focusable
+     */
+    function pushUpdate(isFocusable: boolean): void {
+        api.focusable = isFocusable;
         $editingInputs = $editingInputs;
     }
 
-    function refresh(): void {
-        codeMirror.editor.then((editor) => editor.refresh());
+    async function refresh(): Promise<void> {
+        const editor = await codeMirror.editor;
+        editor.refresh();
     }
 
     $: {
-        hidden;
+        pushUpdate(!hidden);
         tick().then(refresh);
-        pushUpdate();
     }
 
-    function storedToUndecorated(html: string): string {
-        return decoratedElements.toUndecorated(html);
-    }
-
-    function undecoratedToStored(html: string): string {
-        return decoratedElements.toStored(html);
+    function onChange({ detail: html }: CustomEvent<string>): void {
+        code.set(removeProhibitedTags(html));
     }
 
     onMount(() => {
         $editingInputs.push(api);
         $editingInputs = $editingInputs;
 
-        const unsubscribeFromEditingArea = content.subscribe((value: string): void => {
-            code.set(storedToUndecorated(value));
-        });
-
-        const unsubscribeToEditingArea = code.subscribe((value: string): void => {
-            content.set(removeProhibitedTags(undecoratedToStored(value)));
-        });
-
-        return () => {
-            unsubscribeFromEditingArea();
-            unsubscribeToEditingArea();
-        };
+        return singleCallback(
+            content.subscribe((html: string): void =>
+                /* We call `removeProhibitedTags` here, because content might
+                 * have been changed outside the editor, and we need to parse
+                 * it to get the "neutral" value. Otherwise, there might be
+                 * conflicts with other editing inputs */
+                code.set(removeProhibitedTags(storedToUndecorated(html))),
+            ),
+            code.subscribe((html: string): void =>
+                content.set(undecoratedToStored(html)),
+            ),
+        );
     });
 
     setupLifecycleHooks(api);
@@ -133,12 +136,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:hidden
     on:focusin={() => ($focusedInput = api)}
 >
-    <CodeMirror
-        {configuration}
-        {code}
-        bind:api={codeMirror}
-        on:change={({ detail: html }) => code.set(removeProhibitedTags(html))}
-    />
+    <CodeMirror {configuration} {code} bind:api={codeMirror} on:change={onChange} />
 </div>
 
 <style lang="scss">

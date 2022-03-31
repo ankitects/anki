@@ -46,6 +46,11 @@ message MediaEntries {
     string name = 1;
     uint32 size = 2;
     bytes sha1 = 3;
+
+    /// Legacy media maps may include gaps in the media list, so the original
+    /// file index is recorded when importing from a HashMap. This field is not
+    /// set when exporting.
+    optional uint32 legacy_zip_filename = 255;
   }
 
   repeated MediaEntry entries = 1;
