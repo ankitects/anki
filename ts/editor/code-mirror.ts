@@ -52,9 +52,12 @@ export const gutterOptions: CodeMirror.EditorConfiguration = {
     foldGutter: true,
 };
 
-export function focusAndCaretAfter(editor: CodeMirror.Editor): void {
+export function focusAndSetCaret(
+    editor: CodeMirror.Editor,
+    position: CodeMirror.Position = { line: editor.lineCount(), ch: 0 },
+): void {
     editor.focus();
-    editor.setCursor(editor.lineCount(), 0);
+    editor.setCursor(position);
 }
 
 interface OpenCodeMirrorOptions {

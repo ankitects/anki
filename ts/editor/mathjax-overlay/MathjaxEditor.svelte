@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../../lib/ftl";
     import { noop } from "../../lib/functional";
     import { getPlatformString } from "../../lib/shortcuts";
-    import { baseOptions, focusAndCaretAfter, latex } from "../code-mirror";
+    import { baseOptions, focusAndSetCaret, latex } from "../code-mirror";
     import type { CodeMirrorAPI } from "../CodeMirror.svelte";
     import CodeMirror from "../CodeMirror.svelte";
 
@@ -33,58 +33,60 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         mode: latex,
     };
 
+    /* These are not reactive, but only operate on initialization */
+    export let position: CodeMirrorLib.Position | undefined = undefined;
     export let selectAll: boolean;
 
     const dispatch = createEventDispatcher();
 
     let codeMirror = {} as CodeMirrorAPI;
 
-    onMount(() =>
-        codeMirror.editor.then((editor) => {
-            focusAndCaretAfter(editor);
+    onMount(async () => {
+        const editor = await codeMirror.editor;
 
-            if (selectAll) {
-                editor.execCommand("selectAll");
-            }
+        focusAndSetCaret(editor, position);
 
-            let direction: "start" | "end" | undefined = undefined;
+        if (selectAll) {
+            editor.execCommand("selectAll");
+        }
 
-            editor.on(
-                "keydown",
-                (_instance: CodeMirrorLib.Editor, event: KeyboardEvent): void => {
-                    if (event.key === "ArrowLeft") {
-                        direction = "start";
-                    } else if (event.key === "ArrowRight") {
-                        direction = "end";
-                    }
-                },
-            );
+        let direction: "start" | "end" | undefined = undefined;
 
-            editor.on(
-                "beforeSelectionChange",
-                (
-                    instance: CodeMirrorLib.Editor,
-                    obj: CodeMirrorLib.EditorSelectionChange,
-                ): void => {
-                    const { anchor } = obj.ranges[0];
+        editor.on(
+            "keydown",
+            (_instance: CodeMirrorLib.Editor, event: KeyboardEvent): void => {
+                if (event.key === "ArrowLeft") {
+                    direction = "start";
+                } else if (event.key === "ArrowRight") {
+                    direction = "end";
+                }
+            },
+        );
 
-                    if (anchor["hitSide"]) {
-                        if (instance.getValue().length === 0) {
-                            if (direction) {
-                                dispatch(`moveout${direction}`);
-                            }
-                        } else if (anchor.line === 0 && anchor.ch === 0) {
-                            dispatch("moveoutstart");
-                        } else {
-                            dispatch("moveoutend");
+        editor.on(
+            "beforeSelectionChange",
+            (
+                instance: CodeMirrorLib.Editor,
+                obj: CodeMirrorLib.EditorSelectionChange,
+            ): void => {
+                const { anchor } = obj.ranges[0];
+
+                if (anchor["hitSide"]) {
+                    if (instance.getValue().length === 0) {
+                        if (direction) {
+                            dispatch(`moveout${direction}`);
                         }
+                    } else if (anchor.line === 0 && anchor.ch === 0) {
+                        dispatch("moveoutstart");
+                    } else {
+                        dispatch("moveoutend");
                     }
+                }
 
-                    direction = undefined;
-                },
-            );
-        }),
-    );
+                direction = undefined;
+            },
+        );
+    });
 
     /**
      * Escape characters which are technically legal in Mathjax, but confuse HTML.
