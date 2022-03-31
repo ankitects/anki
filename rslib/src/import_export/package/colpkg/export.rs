@@ -278,6 +278,7 @@ impl MediaEntry {
             name: name.into(),
             size: size.try_into().unwrap_or_default(),
             sha1: sha1.into(),
+            legacy_zip_filename: None,
         }
     }
 }
