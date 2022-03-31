@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import sys
 import traceback
-from typing import Any, Sequence, Union
+from typing import Any, Sequence
 from weakref import ref
 
 from markdown import markdown
@@ -20,6 +20,7 @@ from anki.utils import from_json_bytes, to_json_bytes
 
 from ..errors import (
     BackendIOError,
+    CardTypeError,
     CustomStudyError,
     DBError,
     ExistsError,
@@ -63,6 +64,7 @@ class RustBackend(RustBackendGenerated):
         self,
         langs: list[str] | None = None,
         server: bool = False,
+        log_file: str | None = None,
     ) -> None:
         # pick up global defaults if not provided
         if langs is None:
@@ -72,7 +74,7 @@ class RustBackend(RustBackendGenerated):
             preferred_langs=langs,
             server=server,
         )
-        self._backend = rsbridge.open_backend(init_msg.SerializeToString())
+        self._backend = rsbridge.open_backend(init_msg.SerializeToString(), log_file)
 
     def db_query(
         self, sql: str, args: Sequence[ValueForDB], first_row_only: bool
@@ -187,6 +189,9 @@ def backend_exception_to_pylib(err: backend_pb2.BackendError) -> Exception:
 
     elif val == kind.DB_ERROR:
         return DBError(err.localized)
+
+    elif val == kind.CARD_TYPE_ERROR:
+        return CardTypeError(err.localized, err.help_page)
 
     elif val == kind.TEMPLATE_PARSE:
         return TemplateError(err.localized)

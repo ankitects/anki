@@ -38,6 +38,7 @@ class FieldDialog(QDialog):
         open_at: int = 0,
     ) -> None:
         QDialog.__init__(self, parent or mw)
+        mw.garbage_collect_on_dialog_finish(self)
         self.mw = mw
         self.col = self.mw.col
         self.mm = self.mw.col.models

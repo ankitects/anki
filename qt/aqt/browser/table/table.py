@@ -225,7 +225,7 @@ class Table:
         bottom = max(r.row() for r in self._selected()) + 1
         for row in range(bottom, self.len()):
             index = self._model.index(row, 0)
-            if self._model.get_row(index).is_deleted:
+            if self._model.get_row(index).is_disabled:
                 continue
             if self._model.get_note_id(index) in nids:
                 continue
@@ -235,7 +235,7 @@ class Table:
         top = min(r.row() for r in self._selected()) - 1
         for row in range(top, -1, -1):
             index = self._model.index(row, 0)
-            if self._model.get_row(index).is_deleted:
+            if self._model.get_row(index).is_disabled:
                 continue
             if self._model.get_note_id(index) in nids:
                 continue

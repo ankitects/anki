@@ -688,13 +688,15 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     ######################################################################
 
     def onAddMedia(self) -> None:
+        """Show a file selection screen, then add the selected media.
+        This expects initial setup to have been done by TemplateButtons.svelte."""
         extension_filter = " ".join(
             f"*.{extension}" for extension in sorted(itertools.chain(pics, audio))
         )
         filter = f"{tr.editing_media()} ({extension_filter})"
 
         def accept(file: str) -> None:
-            self.addMedia(file)
+            self.resolve_media(file)
 
         file = getFile(
             parent=self.widget,
@@ -707,7 +709,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         self.parentWindow.activateWindow()
 
     def addMedia(self, path: str, canDelete: bool = False) -> None:
-        """canDelete is a legacy arg and is ignored."""
+        """Legacy routine used by add-ons to add a media file and update the current field.
+        canDelete is ignored."""
 
         try:
             html = self._addMedia(path)
@@ -715,8 +718,19 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             showWarning(str(e))
             return
 
+        self.web.eval(f"setFormat('inserthtml', {json.dumps(html)});")
+
+    def resolve_media(self, path: str) -> None:
+        """Finish inserting media into a field.
+        This expects initial setup to have been done by TemplateButtons.svelte."""
+        try:
+            html = self._addMedia(path)
+        except Exception as e:
+            showWarning(str(e))
+            return
+
         self.web.eval(
-            f'require("anki/TemplateButtons").mediaResolve({json.dumps(html)})'
+            f'require("anki/TemplateButtons").resolveMedia({json.dumps(html)})'
         )
 
     def _addMedia(self, path: str, canDelete: bool = False) -> str:
@@ -734,7 +748,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             self.parentWindow,
             self.mw,
             True,
-            lambda file: self.addMedia(file, canDelete=True),
+            self.resolve_media,
         )
 
     # Media downloads
@@ -1373,7 +1387,7 @@ def set_cloze_button(editor: Editor) -> None:
     action = "show" if editor.note.note_type()["type"] == MODEL_CLOZE else "hide"
     editor.web.eval(
         'require("anki/ui").loaded.then(() =>'
-        f'require("anki/NoteEditor").instances[0].toolbar.templateButtons.{action}("cloze")'
+        f'require("anki/NoteEditor").instances[0].toolbar.toolbar.{action}("cloze")'
         "); "
     )
 

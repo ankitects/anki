@@ -59,19 +59,23 @@ impl SearchBuilder {
         self.0.len()
     }
 
-    pub fn and<N: Into<Node>>(mut self, node: N) -> Self {
-        if !self.is_empty() {
-            self.0.push(Node::And)
-        }
-        self.0.push(node.into());
-        self
+    /// Concatenates the two sets of [Node]s, inserting [Node::And] if appropriate.
+    /// No implicit grouping is done.
+    pub fn and(self, other: impl Into<SearchBuilder>) -> Self {
+        self.join_other(other.into(), Node::And)
     }
 
-    pub fn or<N: Into<Node>>(mut self, node: N) -> Self {
-        if !self.is_empty() {
-            self.0.push(Node::Or)
+    /// Concatenates the two sets of [Node]s, inserting [Node::Or] if appropriate.
+    /// No implicit grouping is done.
+    pub fn or(self, other: impl Into<SearchBuilder>) -> Self {
+        self.join_other(other.into(), Node::Or)
+    }
+
+    fn join_other(mut self, mut other: Self, joiner: Node) -> Self {
+        if !(self.is_empty() || other.is_empty()) {
+            self.0.push(joiner);
         }
-        self.0.push(node.into());
+        self.0.append(&mut other.0);
         self
     }
 
@@ -80,26 +84,6 @@ impl SearchBuilder {
         if self.len() > 1 {
             self.0 = vec![Node::Group(mem::take(&mut self.0))];
         }
-        self
-    }
-
-    /// Concatenate [Node]s of `other`, inserting [Node::And] if appropriate.
-    /// No implicit grouping is done.
-    pub fn and_join(mut self, other: &mut Self) -> Self {
-        if !(self.is_empty() || other.is_empty()) {
-            self.0.push(Node::And);
-        }
-        self.0.append(&mut other.0);
-        self
-    }
-
-    /// Concatenate [Node]s of `other`, inserting [Node::Or] if appropriate.
-    /// No implicit grouping is done.
-    pub fn or_join(mut self, other: &mut Self) -> Self {
-        if !(self.is_empty() || other.is_empty()) {
-            self.0.push(Node::And);
-        }
-        self.0.append(&mut other.0);
         self
     }
 
@@ -134,7 +118,10 @@ impl SearchNode {
 
     /// Construct [SearchNode] from an unescaped tag name.
     pub fn from_tag_name(name: &str) -> Self {
-        Self::Tag(escape_anki_wildcards_for_search_node(name))
+        Self::Tag {
+            tag: escape_anki_wildcards_for_search_node(name),
+            is_re: false,
+        }
     }
 
     /// Construct [SearchNode] from an unescaped notetype name.

@@ -45,16 +45,16 @@ export function gatherData(data: Stats.GraphsResponse): GraphData {
             );
         })
         .map((c: Cards.Card) => {
-            let dueDay: number;
+            // - testing just odue fails on day 1
+            // - testing just odid fails on lapsed cards that
+            //   have due calculated at regraduation time
+            const due = c.originalDeckId && c.originalDue ? c.originalDue : c.due;
 
+            let dueDay: number;
             if (isLearning(c)) {
-                const offset = c.due - data.nextDayAtSecs;
+                const offset = due - data.nextDayAtSecs;
                 dueDay = Math.floor(offset / 86_400) + 1;
             } else {
-                // - testing just odue fails on day 1
-                // - testing just odid fails on lapsed cards that
-                //   have due calculated at regraduation time
-                const due = c.originalDeckId && c.originalDue ? c.originalDue : c.due;
                 dueDay = due - data.daysElapsed;
             }
 

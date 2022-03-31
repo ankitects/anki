@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>480</height>
+    <height>518</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -491,9 +491,9 @@
         <number>12</number>
        </property>
        <item>
-        <widget class="QLabel" name="label_9">
+        <widget class="QLabel" name="backup_explanation">
          <property name="text">
-          <string>preferences_backupsanki_will_create_a_backup_of</string>
+          <string>preferences_backup_explanation</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -501,39 +501,107 @@
         </widget>
        </item>
        <item>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_10">
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="4" column="1">
+          <widget class="QSpinBox" name="monthly_backups">
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="daily_backups">
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <spacer name="horizontalSpacer_7">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_3">
            <property name="text">
-            <string>preferences_keep</string>
+            <string>preferences_daily_backups</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>preferences_monthly_backups</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="weekly_backups">
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>preferences_weekly_backups</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <spacer name="horizontalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>preferences_minutes_between_backups</string>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QSpinBox" name="numBackups">
-           <property name="minimumSize">
-            <size>
-             <width>60</width>
-             <height>0</height>
-            </size>
+          <widget class="QSpinBox" name="minutes_between_backups">
+           <property name="minimum">
+            <number>5</number>
            </property>
-           <property name="maximumSize">
-            <size>
-             <width>60</width>
-             <height>16777215</height>
-            </size>
+           <property name="maximum">
+            <number>9999</number>
            </property>
           </widget>
          </item>
          <item row="0" column="2">
-          <widget class="QLabel" name="label_11">
-           <property name="text">
-            <string>preferences_backups2</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="3">
-          <spacer name="horizontalSpacer">
+          <spacer name="horizontalSpacer_8">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -577,18 +645,15 @@
          </property>
         </spacer>
        </item>
-       <item>
-        <widget class="QLabel" name="label_21">
-         <property name="text">
-          <string>preferences_some_settings_will_take_effect_after</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_21">
+     <property name="text">
+      <string>preferences_some_settings_will_take_effect_after</string>
+     </property>
     </widget>
    </item>
    <item>
@@ -611,6 +676,7 @@
   <tabstop>interrupt_audio</tabstop>
   <tabstop>pastePNG</tabstop>
   <tabstop>paste_strips_formatting</tabstop>
+  <tabstop>ignore_accents_in_search</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
   <tabstop>uiScale</tabstop>
@@ -630,7 +696,10 @@
   <tabstop>syncDeauth</tabstop>
   <tabstop>media_log</tabstop>
   <tabstop>tabWidget</tabstop>
-  <tabstop>numBackups</tabstop>
+  <tabstop>minutes_between_backups</tabstop>
+  <tabstop>daily_backups</tabstop>
+  <tabstop>weekly_backups</tabstop>
+  <tabstop>monthly_backups</tabstop>
  </tabstops>
  <resources/>
  <connections>

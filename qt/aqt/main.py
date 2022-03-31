@@ -7,12 +7,9 @@ import gc
 import os
 import re
 import signal
-import time
 import weakref
-import zipfile
 from argparse import Namespace
 from concurrent.futures import Future
-from threading import Thread
 from typing import Any, Literal, Sequence, TextIO, TypeVar, cast
 
 import anki
@@ -53,6 +50,7 @@ from aqt.flags import FlagManager
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
+from aqt.operations import QueryOp
 from aqt.operations.collection import redo, undo
 from aqt.operations.deck import set_current_deck
 from aqt.profiles import ProfileManager as ProfileManagerType
@@ -69,6 +67,7 @@ from aqt.utils import (
     checkInvalidFilename,
     current_window,
     disable_help_button,
+    disallow_full_screen,
     getFile,
     getOnlyText,
     openHelp,
@@ -267,7 +266,7 @@ class AnkiQt(QMainWindow):
             self.pm.save()
 
         self.pendingImport: str | None = None
-        self.restoringBackup = False
+        self.restoring_backup = False
         # profile not provided on command line?
         if not self.pm.name:
             # if there's a single profile, load it automatically
@@ -281,7 +280,7 @@ class AnkiQt(QMainWindow):
 
     def showProfileManager(self) -> None:
         self.pm.profile = None
-        self.state = "profileManager"
+        self.moveToState("profileManager")
         d = self.profileDiag = self.ProfileManager()
         f = self.profileForm = aqt.forms.profiles.Ui_MainWindow()
         f.setupUi(d)
@@ -328,11 +327,16 @@ class AnkiQt(QMainWindow):
         self.pm.load(name)
         return
 
-    def onOpenProfile(self) -> None:
+    def onOpenProfile(self, *, callback: Callable[[], None] | None = None) -> None:
+        def on_done() -> None:
+            self.profileDiag.closeWithoutQuitting()
+            if callback:
+                callback()
+
         self.profileDiag.hide()
         # code flow is confusing here - if load fails, profile dialog
         # will be shown again
-        self.loadProfile(self.profileDiag.closeWithoutQuitting)
+        self.loadProfile(on_done)
 
     def profileNameOk(self, name: str) -> bool:
         return not checkInvalidFilename(name) and name != "addons21"
@@ -398,19 +402,15 @@ class AnkiQt(QMainWindow):
         )
 
     def _openBackup(self, path: str) -> None:
-        try:
-            # move the existing collection to the trash, as it may not open
-            self.pm.trashCollection()
-        except:
-            showWarning(tr.qt_misc_unable_to_move_existing_file_to())
-            return
+        def on_done(success: bool) -> None:
+            if success:
+                self.onOpenProfile(callback=lambda: self.col.mod_schema(check=False))
 
-        self.pendingImport = path
-        self.restoringBackup = True
+        import aqt.importing
 
+        self.restoring_backup = True
         showInfo(tr.qt_misc_automatic_syncing_and_backups_have_been())
-
-        self.onOpenProfile()
+        aqt.importing.replace_with_apkg(self, path, on_done)
 
     def _on_downgrade(self) -> None:
         self.progress.start()
@@ -483,7 +483,7 @@ class AnkiQt(QMainWindow):
         self.pm.save()
         self.hide()
 
-        self.restoringBackup = False
+        self.restoring_backup = False
 
         # at this point there should be no windows left
         self._checkForUnclosedWidgets()
@@ -506,6 +506,8 @@ class AnkiQt(QMainWindow):
     def cleanupAndExit(self) -> None:
         self.errorHandler.unload()
         self.mediaServer.shutdown()
+        # Rust background jobs are not awaited implicitly
+        self.backend.await_backup_completion()
         self.app.exit(0)
 
     # Sound/video
@@ -546,7 +548,7 @@ class AnkiQt(QMainWindow):
                 )
             # clean up open collection if possible
             try:
-                self.backend.close_collection(False)
+                self.backend.close_collection(downgrade_to_schema11=False)
             except Exception as e:
                 print("unable to close collection:", e)
             self.col = None
@@ -593,19 +595,29 @@ class AnkiQt(QMainWindow):
     def _unloadCollection(self) -> None:
         if not self.col:
             return
-        if self.restoringBackup:
-            label = tr.qt_misc_closing()
-        else:
-            label = tr.qt_misc_backing_up()
+
+        label = (
+            tr.qt_misc_closing() if self.restoring_backup else tr.qt_misc_backing_up()
+        )
         self.progress.start(label=label)
+
         corrupt = False
+
         try:
             self.maybeOptimize()
             if not dev_mode:
                 corrupt = self.col.db.scalar("pragma quick_check") != "ok"
         except:
             corrupt = True
+
         try:
+            if not corrupt and not dev_mode and not self.restoring_backup:
+                # default 5 minute throttle
+                self.col.create_backup(
+                    backup_folder=self.pm.backupFolder(),
+                    force=False,
+                    wait_for_completion=False,
+                )
             self.col.close(downgrade=False)
         except Exception as e:
             print(e)
@@ -613,16 +625,13 @@ class AnkiQt(QMainWindow):
         finally:
             self.col = None
             self.progress.finish()
+
         if corrupt:
             showWarning(tr.qt_misc_your_collection_file_appears_to_be())
-        if not corrupt and not self.restoringBackup:
-            self.backup()
 
     def _close_for_full_download(self) -> None:
         "Backup and prepare collection to be overwritten."
-        self.col.close(downgrade=False)
-        self.backup()
-        self.col.reopen(after_full_sync=False)
+        self.create_backup_now()
         self.col.close_for_full_sync()
 
     def apply_collection_options(self) -> None:
@@ -631,62 +640,8 @@ class AnkiQt(QMainWindow):
             Config.Bool.INTERRUPT_AUDIO_WHEN_ANSWERING
         )
 
-    # Backup and auto-optimize
+    # Auto-optimize
     ##########################################################################
-
-    class BackupThread(Thread):
-        def __init__(self, path: str, data: bytes) -> None:
-            Thread.__init__(self)
-            self.path = path
-            self.data = data
-            # create the file in calling thread to ensure the same
-            # file is not created twice
-            with open(self.path, "wb") as file:
-                pass
-
-        def run(self) -> None:
-            z = zipfile.ZipFile(self.path, "w", zipfile.ZIP_STORED)
-            z.writestr("collection.anki2", self.data)
-            z.writestr("media", "{}")
-            z.close()
-
-    def backup(self) -> None:
-        "Read data into memory, and complete backup on a background thread."
-        if self.col and self.col.db:
-            raise Exception("collection must be closed")
-
-        nbacks = self.pm.profile["numBackups"]
-        if not nbacks or dev_mode:
-            return
-        dir = self.pm.backupFolder()
-        path = self.pm.collectionPath()
-
-        # do backup
-        fname = time.strftime(
-            "backup-%Y-%m-%d-%H.%M.%S.colpkg", time.localtime(time.time())
-        )
-        newpath = os.path.join(dir, fname)
-        with open(path, "rb") as f:
-            data = f.read()
-        self.BackupThread(newpath, data).start()
-
-        # find existing backups
-        backups = []
-        for file in os.listdir(dir):
-            # only look for new-style format
-            m = re.match(r"backup-\d{4}-\d{2}-.+.colpkg", file)
-            if not m:
-                continue
-            backups.append(file)
-        backups.sort()
-
-        # remove old ones
-        while len(backups) > nbacks:
-            fname = backups.pop(0)
-            path = os.path.join(dir, fname)
-            os.unlink(path)
-
-        self.taskman.run_on_main(gui_hooks.backup_did_complete)
 
     def maybeOptimize(self) -> None:
         # have two weeks passed?
@@ -711,7 +666,7 @@ class AnkiQt(QMainWindow):
         self.clearStateShortcuts()
         self.state = state
         gui_hooks.state_will_change(state, oldState)
-        getattr(self, f"_{state}State")(oldState, *args)
+        getattr(self, f"_{state}State", lambda *_: None)(oldState, *args)
         if state != "resetRequired":
             self.bottomWeb.show()
         gui_hooks.state_did_change(state, oldState)
@@ -1030,7 +985,7 @@ title="{}" {}>{}</button>""".format(
             self.pm.auto_syncing_enabled()
             and bool(self.pm.sync_auth())
             and not self.safeMode
-            and not self.restoringBackup
+            and not self.restoring_backup
         )
 
     # legacy
@@ -1272,6 +1227,7 @@ title="{}" {}>{}</button>""".format(
         )
         qconnect(m.actionImport.triggered, self.onImport)
         qconnect(m.actionExport.triggered, self.onExport)
+        qconnect(m.action_create_backup.triggered, self.on_create_backup_now)
         qconnect(m.actionExit.triggered, self.close)
 
         # Help
@@ -1316,8 +1272,17 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def on_toggle_full_screen(self) -> None:
-        window = self.app.activeWindow()
-        window.setWindowState(window.windowState() ^ Qt.WindowState.WindowFullScreen)
+        if disallow_full_screen():
+            showWarning(
+                tr.actions_currently_unsupported(),
+                parent=self,
+                help=HelpPage.FULL_SCREEN_ISSUE,
+            )
+        else:
+            window = self.app.activeWindow()
+            window.setWindowState(
+                window.windowState() ^ Qt.WindowState.WindowFullScreen
+            )
 
     # Auto update
     ##########################################################################
@@ -1362,6 +1327,13 @@ title="{}" {}>{}</button>""".format(
         # ensure Python interpreter runs at least once per second, so that
         # SIGINT/SIGTERM is processed without a long delay
         self.progress.timer(1000, lambda: None, True, False, parent=self)
+        # periodic backups are checked every 5 minutes
+        self.progress.timer(
+            5 * 60 * 1000,
+            self.on_periodic_backup_timer,
+            True,
+            parent=self,
+        )
 
     def onRefreshTimer(self) -> None:
         if self.state == "deckBrowser":
@@ -1376,6 +1348,69 @@ title="{}" {}>{}</button>""".format(
             return
         if elap > minutes * 60:
             self.maybe_auto_sync_media()
+
+    # Backups
+    ##########################################################################
+
+    def on_periodic_backup_timer(self) -> None:
+        """Create a backup if enough time has elapsed and collection changed."""
+        self._create_backup_with_progress(user_initiated=False)
+
+    def on_create_backup_now(self) -> None:
+        self._create_backup_with_progress(user_initiated=True)
+
+    def create_backup_now(self) -> None:
+        """Create a backup immediately, regardless of when the last one was created.
+        Waits until the backup completes. Intended to be used as part of a longer-running
+        CollectionOp/QueryOp."""
+        self.col.create_backup(
+            backup_folder=self.pm.backupFolder(),
+            force=True,
+            wait_for_completion=True,
+        )
+
+    def _create_backup_with_progress(self, user_initiated: bool) -> None:
+        # if there's a legacy undo op, try again later
+        if not user_initiated and self.col.legacy_checkpoint_pending():
+            return
+
+        # The initial copy will display a progress window if it takes too long
+        def backup(col: Collection) -> bool:
+            return col.create_backup(
+                backup_folder=self.pm.backupFolder(),
+                force=user_initiated,
+                wait_for_completion=False,
+            )
+
+        def on_success(val: None) -> None:
+            if user_initiated:
+                tooltip(tr.profiles_backup_created(), parent=self)
+
+        def on_failure(exc: Exception) -> None:
+            showWarning(
+                tr.profiles_backup_creation_failed(reason=str(exc)), parent=self
+            )
+
+        def after_backup_started(created: bool) -> None:
+            # Legacy checkpoint may have expired.
+            self.update_undo_actions()
+
+            if user_initiated and not created:
+                tooltip(tr.profiles_backup_unchanged(), parent=self)
+                return
+
+            # We await backup completion to confirm it was successful, but this step
+            # does not block collection access, so we don't need to show the progress
+            # window anymore.
+            QueryOp(
+                parent=self,
+                op=lambda col: col.await_backup_completion(),
+                success=on_success,
+            ).failure(on_failure).run_in_background()
+
+        QueryOp(parent=self, op=backup, success=after_backup_started).failure(
+            on_failure
+        ).with_progress(tr.profiles_creating_backup()).run_in_background()
 
     # Permanent hooks
     ##########################################################################

@@ -235,7 +235,11 @@ class Collection(DeprecatedNamesMixin):
         elif time.time() - self._last_checkpoint_at > 300:
             self.save()
 
-    def close(self, save: bool = True, downgrade: bool = False) -> None:
+    def close(
+        self,
+        save: bool = True,
+        downgrade: bool = False,
+    ) -> None:
         "Disconnect from DB."
         if self.db:
             if save:
@@ -243,7 +247,9 @@ class Collection(DeprecatedNamesMixin):
             else:
                 self.db.rollback()
             self._clear_caches()
-            self._backend.close_collection(downgrade_to_schema11=downgrade)
+            self._backend.close_collection(
+                downgrade_to_schema11=downgrade,
+            )
             self.db = None
 
     def close_for_full_sync(self) -> None:
@@ -252,6 +258,14 @@ class Collection(DeprecatedNamesMixin):
             self.save(trx=False)
             self._clear_caches()
             self.db = None
+
+    def export_collection(
+        self, out_path: str, include_media: bool, legacy: bool
+    ) -> None:
+        self.close_for_full_sync()
+        self._backend.export_collection_package(
+            out_path=out_path, include_media=include_media, legacy=legacy
+        )
 
     def rollback(self) -> None:
         self._clear_caches()
@@ -306,6 +320,44 @@ class Collection(DeprecatedNamesMixin):
             return self.db.scalar("select usn from col")
         else:
             return -1
+
+    def create_backup(
+        self,
+        *,
+        backup_folder: str,
+        force: bool,
+        wait_for_completion: bool,
+    ) -> bool:
+        """Create a backup if enough time has elapsed, and rotate old backups.
+
+        If `force` is true, the user's configured backup interval is ignored.
+        Returns true if backup created. This may be false in the force=True case,
+        if no changes have been made to the collection.
+
+        Commits any outstanding changes, which clears any active legacy checkpoint.
+
+        Throws on failure of current backup, or the previous backup if it was not
+        awaited.
+        """
+        # ensure any pending transaction from legacy code/add-ons has been committed
+        self.save(trx=False)
+        created = self._backend.create_backup(
+            backup_folder=backup_folder,
+            force=force,
+            wait_for_completion=wait_for_completion,
+        )
+        self.db.begin()
+        return created
+
+    def await_backup_completion(self) -> None:
+        "Throws if backup creation failed."
+        self._backend.await_backup_completion()
+
+    def legacy_checkpoint_pending(self) -> bool:
+        return (
+            self._have_outstanding_checkpoint()
+            and time.time() - self._last_checkpoint_at < 300
+        )
 
     # Object helpers
     ##########################################################################

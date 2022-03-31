@@ -6,7 +6,7 @@ mod filtered;
 mod network;
 mod search;
 
-use std::{fmt::Display, io};
+use std::{fmt::Display, io, path::Path};
 
 pub use db::{DbError, DbErrorKind};
 pub use filtered::{CustomStudyError, FilteredDeckError};
@@ -14,7 +14,7 @@ pub use network::{NetworkError, NetworkErrorKind, SyncError, SyncErrorKind};
 pub use search::{ParseError, SearchErrorKind};
 use tempfile::PathPersistError;
 
-use crate::i18n::I18n;
+use crate::{i18n::I18n, links::HelpPage};
 
 pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 
@@ -22,8 +22,9 @@ pub type Result<T, E = AnkiError> = std::result::Result<T, E>;
 pub enum AnkiError {
     InvalidInput(String),
     TemplateError(String),
-    TemplateSaveError(TemplateSaveError),
+    CardTypeError(CardTypeError),
     IoError(String),
+    FileIoError(FileIoError),
     DbError(DbError),
     NetworkError(NetworkError),
     SyncError(SyncError),
@@ -34,6 +35,10 @@ pub enum AnkiError {
     CollectionNotOpen,
     CollectionAlreadyOpen,
     NotFound,
+    /// Indicates an absent card or note, but (unlike [AnkiError::NotFound]) in
+    /// a non-critical context like the browser table, where deleted ids are
+    /// deliberately not removed.
+    Deleted,
     Existing,
     FilteredDeckError(FilteredDeckError),
     SearchError(SearchErrorKind),
@@ -41,7 +46,9 @@ pub enum AnkiError {
     UndoEmpty,
     MultipleNotetypesSelected,
     DatabaseCheckRequired,
+    MediaCheckRequired,
     CustomStudyError(CustomStudyError),
+    ImportError(ImportError),
 }
 
 impl Display for AnkiError {
@@ -64,20 +71,17 @@ impl AnkiError {
                 // already localized
                 info.into()
             }
-            AnkiError::TemplateSaveError(err) => {
+            AnkiError::CardTypeError(err) => {
                 let header =
                     tr.card_templates_invalid_template_number(err.ordinal + 1, &err.notetype);
                 let details = match err.details {
-                    TemplateSaveErrorDetails::TemplateError
-                    | TemplateSaveErrorDetails::NoSuchField => tr.card_templates_see_preview(),
-                    TemplateSaveErrorDetails::NoFrontField => tr.card_templates_no_front_field(),
-                    TemplateSaveErrorDetails::Duplicate(i) => {
-                        tr.card_templates_identical_front(i + 1)
+                    CardTypeErrorDetails::TemplateError | CardTypeErrorDetails::NoSuchField => {
+                        tr.card_templates_see_preview()
                     }
-                    TemplateSaveErrorDetails::MissingCloze => tr.card_templates_missing_cloze(),
-                    TemplateSaveErrorDetails::ExtraneousCloze => {
-                        tr.card_templates_extraneous_cloze()
-                    }
+                    CardTypeErrorDetails::NoFrontField => tr.card_templates_no_front_field(),
+                    CardTypeErrorDetails::Duplicate(i) => tr.card_templates_identical_front(i + 1),
+                    CardTypeErrorDetails::MissingCloze => tr.card_templates_missing_cloze(),
+                    CardTypeErrorDetails::ExtraneousCloze => tr.card_templates_extraneous_cloze(),
                 };
                 format!("{}<br>{}", header, details)
             }
@@ -95,7 +99,10 @@ impl AnkiError {
             AnkiError::InvalidRegex(err) => format!("<pre>{}</pre>", err),
             AnkiError::MultipleNotetypesSelected => tr.errors_multiple_notetypes_selected().into(),
             AnkiError::DatabaseCheckRequired => tr.errors_please_check_database().into(),
+            AnkiError::MediaCheckRequired => tr.errors_please_check_media().into(),
             AnkiError::CustomStudyError(err) => err.localized_description(tr),
+            AnkiError::ImportError(err) => err.localized_description(tr),
+            AnkiError::Deleted => tr.browsing_row_deleted().into(),
             AnkiError::IoError(_)
             | AnkiError::JsonError(_)
             | AnkiError::ProtoError(_)
@@ -105,6 +112,24 @@ impl AnkiError {
             | AnkiError::NotFound
             | AnkiError::Existing
             | AnkiError::UndoEmpty => format!("{:?}", self),
+            AnkiError::FileIoError(err) => {
+                format!("{}: {}", err.path, err.error)
+            }
+        }
+    }
+
+    pub fn help_page(&self) -> Option<HelpPage> {
+        match self {
+            Self::CardTypeError(CardTypeError { details, .. }) => Some(match details {
+                CardTypeErrorDetails::TemplateError | CardTypeErrorDetails::NoSuchField => {
+                    HelpPage::CardTypeTemplateError
+                }
+                CardTypeErrorDetails::Duplicate(_) => HelpPage::CardTypeDuplicate,
+                CardTypeErrorDetails::NoFrontField => HelpPage::CardTypeNoFrontField,
+                CardTypeErrorDetails::MissingCloze => HelpPage::CardTypeMissingCloze,
+                CardTypeErrorDetails::ExtraneousCloze => HelpPage::CardTypeExtraneousCloze,
+            }),
+            _ => None,
         }
     }
 }
@@ -161,18 +186,58 @@ impl From<regex::Error> for AnkiError {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct TemplateSaveError {
+pub struct CardTypeError {
     pub notetype: String,
     pub ordinal: usize,
-    pub details: TemplateSaveErrorDetails,
+    pub details: CardTypeErrorDetails,
 }
 
 #[derive(Debug, PartialEq)]
-pub enum TemplateSaveErrorDetails {
+pub enum CardTypeErrorDetails {
     TemplateError,
     Duplicate(usize),
     NoFrontField,
     NoSuchField,
     MissingCloze,
     ExtraneousCloze,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum ImportError {
+    Corrupt,
+    TooNew,
+    MediaImportFailed(String),
+}
+
+impl ImportError {
+    fn localized_description(&self, tr: &I18n) -> String {
+        match self {
+            ImportError::Corrupt => tr.importing_the_provided_file_is_not_a(),
+            ImportError::TooNew => tr.errors_collection_too_new(),
+            ImportError::MediaImportFailed(err) => tr.importing_failed_to_import_media_file(err),
+        }
+        .into()
+    }
+}
+
+#[derive(Debug, PartialEq, Clone)]
+
+pub struct FileIoError {
+    pub path: String,
+    pub error: String,
+}
+
+impl AnkiError {
+    pub(crate) fn file_io_error<P: AsRef<Path>>(err: std::io::Error, path: P) -> Self {
+        AnkiError::FileIoError(FileIoError::new(err, path.as_ref()))
+    }
+}
+
+impl FileIoError {
+    pub fn new(err: std::io::Error, path: &Path) -> FileIoError {
+        FileIoError {
+            path: path.to_string_lossy().to_string(),
+            error: err.to_string(),
+        }
+    }
 }

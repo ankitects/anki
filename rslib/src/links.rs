@@ -29,6 +29,18 @@ impl HelpPage {
             HelpPage::CustomizingFields => "editing.html#customizing-fields",
             HelpPage::DeckOptions => "deck-options.html",
             HelpPage::EditingFeatures => "editing.html#editing-features",
+            HelpPage::FullScreenIssue => "platform/windows/display-issues.html#full-screen",
+            HelpPage::CardTypeTemplateError => "templates/errors.html#template-syntax-error",
+            HelpPage::CardTypeDuplicate => "templates/errors.html#identical-front-sides",
+            HelpPage::CardTypeNoFrontField => {
+                "templates/errors.html#no-field-replacement-on-front-side"
+            }
+            HelpPage::CardTypeMissingCloze => {
+                "templates/errors.html#no-cloze-filter-on-cloze-notetype"
+            }
+            HelpPage::CardTypeExtraneousCloze => {
+                "templates/errors.html#cloze-filter-outside-cloze-notetype"
+            }
         }
     }
 }

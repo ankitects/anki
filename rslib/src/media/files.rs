@@ -133,7 +133,7 @@ pub(crate) fn normalize_nfc_filename(mut fname: Cow<str>) -> Cow<str> {
 /// but can be accessed as NFC. On these devices, if the filename
 /// is otherwise valid, the filename is returned as NFC.
 #[allow(clippy::collapsible_else_if)]
-pub(super) fn filename_if_normalized(fname: &str) -> Option<Cow<str>> {
+pub(crate) fn filename_if_normalized(fname: &str) -> Option<Cow<str>> {
     if cfg!(target_vendor = "apple") {
         if !is_nfc(fname) {
             let as_nfc = fname.chars().nfc().collect::<String>();
@@ -281,7 +281,7 @@ fn existing_file_sha1(path: &Path) -> io::Result<Option<[u8; 20]>> {
 }
 
 /// Return the SHA1 of a file, failing if it doesn't exist.
-pub(super) fn sha1_of_file(path: &Path) -> io::Result<[u8; 20]> {
+pub(crate) fn sha1_of_file(path: &Path) -> io::Result<[u8; 20]> {
     let mut file = fs::File::open(path)?;
     let mut hasher = Sha1::new();
     let mut buf = [0; 64 * 1024];

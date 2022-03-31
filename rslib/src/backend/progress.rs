@@ -10,6 +10,7 @@ use crate::{
     backend_proto as pb,
     dbcheck::DatabaseCheckProgress,
     i18n::I18n,
+    import_export::ImportProgress,
     media::sync::MediaSyncProgress,
     sync::{FullSyncProgress, NormalSyncProgress, SyncStage},
 };
@@ -50,6 +51,8 @@ pub(super) enum Progress {
     FullSync(FullSyncProgress),
     NormalSync(NormalSyncProgress),
     DatabaseCheck(DatabaseCheckProgress),
+    Import(ImportProgress),
+    Export(usize),
 }
 
 pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Progress {
@@ -103,6 +106,14 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Pr
                     stage_current,
                 })
             }
+            Progress::Import(progress) => pb::progress::Value::Importing(
+                match progress {
+                    ImportProgress::Collection => tr.importing_importing_collection(),
+                    ImportProgress::Media(n) => tr.importing_processed_media_file(n),
+                }
+                .into(),
+            ),
+            Progress::Export(progress) => pb::progress::Value::Exporting(progress as u32),
         }
     } else {
         pb::progress::Value::None(pb::Empty {})

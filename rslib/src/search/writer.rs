@@ -57,7 +57,7 @@ fn write_node(node: &Node) -> String {
 fn write_search_node(node: &SearchNode) -> String {
     use SearchNode::*;
     match node {
-        UnqualifiedText(s) => maybe_quote(&s.replace(":", "\\:")),
+        UnqualifiedText(s) => maybe_quote(&s.replace(':', "\\:")),
         SingleField { field, text, is_re } => write_single_field(field, text, *is_re),
         AddedInDays(u) => format!("added:{}", u),
         EditedInDays(u) => format!("edited:{}", u),
@@ -70,7 +70,7 @@ fn write_search_node(node: &SearchNode) -> String {
         NotetypeId(NotetypeIdType(i)) => format!("mid:{}", i),
         Notetype(s) => maybe_quote(&format!("note:{}", s)),
         Rated { days, ease } => write_rated(days, ease),
-        Tag(s) => maybe_quote(&format!("tag:{}", s)),
+        Tag { tag, is_re } => write_single_field("tag", tag, *is_re),
         Duplicates { notetype_id, text } => write_dupe(notetype_id, text),
         State(k) => write_state(k),
         Flag(u) => format!("flag:{}", u),
@@ -87,9 +87,9 @@ fn write_search_node(node: &SearchNode) -> String {
 /// Escape double quotes and wrap in double quotes if necessary.
 fn maybe_quote(txt: &str) -> String {
     if needs_quotation(txt) {
-        format!("\"{}\"", txt.replace("\"", "\\\""))
+        format!("\"{}\"", txt.replace('\"', "\\\""))
     } else {
-        txt.replace("\"", "\\\"")
+        txt.replace('\"', "\\\"")
     }
 }
 
@@ -102,14 +102,15 @@ fn needs_quotation(txt: &str) -> bool {
     RE.is_match(txt)
 }
 
+/// Also used by tag search, which has the same syntax.
 fn write_single_field(field: &str, text: &str, is_re: bool) -> String {
     let re = if is_re { "re:" } else { "" };
     let text = if !is_re && text.starts_with("re:") {
-        text.replacen(":", "\\:", 1)
+        text.replacen(':', "\\:", 1)
     } else {
         text.to_string()
     };
-    maybe_quote(&format!("{}:{}{}", field.replace(":", "\\:"), re, &text))
+    maybe_quote(&format!("{}:{}{}", field.replace(':', "\\:"), re, &text))
 }
 
 fn write_template(template: &TemplateKind) -> String {
@@ -130,7 +131,7 @@ fn write_rated(days: &u32, ease: &RatingKind) -> String {
 
 /// Escape double quotes and backslashes: \"
 fn write_dupe(notetype_id: &NotetypeId, text: &str) -> String {
-    let esc = text.replace(r"\", r"\\");
+    let esc = text.replace('\\', r"\\");
     maybe_quote(&format!("dupe:{},{}", notetype_id, esc))
 }
 

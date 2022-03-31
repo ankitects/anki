@@ -290,7 +290,15 @@ impl RowContext {
         let cards;
         let note;
         if notes_mode {
-            note = col.get_note_maybe_with_fields(NoteId(id), with_card_render)?;
+            note = col
+                .get_note_maybe_with_fields(NoteId(id), with_card_render)
+                .map_err(|e| {
+                    if e == AnkiError::NotFound {
+                        AnkiError::Deleted
+                    } else {
+                        e
+                    }
+                })?;
             cards = col.storage.all_cards_of_note(note.id)?;
             if cards.is_empty() {
                 return Err(AnkiError::DatabaseCheckRequired);
@@ -299,7 +307,7 @@ impl RowContext {
             cards = vec![col
                 .storage
                 .get_card(CardId(id))?
-                .ok_or(AnkiError::NotFound)?];
+                .ok_or(AnkiError::Deleted)?];
             note = col.get_note_maybe_with_fields(cards[0].note_id, with_card_render)?;
         }
         let notetype = col

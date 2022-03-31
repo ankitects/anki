@@ -17,6 +17,7 @@ Alternative to DropdownMenu that avoids Bootstrap
         border-radius: 5px;
         background-color: var(--frame-bg);
         min-width: 1rem;
+        max-width: 95vw;
 
         padding: 0.5rem 0;
         font-size: 1rem;

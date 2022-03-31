@@ -56,7 +56,7 @@ class MediaChecker:
 
     def _set_progress_enabled(self, enabled: bool) -> None:
         if self._progress_timer:
-            self._progress_timer.stop()
+            self._progress_timer.deleteLater()
             self._progress_timer = None
         if enabled:
             self._progress_timer = timer = QTimer()

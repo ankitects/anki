@@ -41,6 +41,10 @@ message ConfigKey {
     PASTE_STRIPS_FORMATTING = 16;
     NORMALIZE_NOTE_TEXT = 17;
     IGNORE_ACCENTS_IN_SEARCH = 18;
+    RESTORE_POSITION_BROWSER = 19;
+    RESTORE_POSITION_REVIEWER = 20;
+    RESET_COUNTS_BROWSER = 21;
+    RESET_COUNTS_REVIEWER = 22;
   }
   enum String {
     SET_DUE_BROWSER = 0;
@@ -113,8 +117,15 @@ message Preferences {
     string default_search_text = 4;
     bool ignore_accents_in_search = 5;
   }
+  message BackupLimits {
+    uint32 daily = 1;
+    uint32 weekly = 2;
+    uint32 monthly = 3;
+    uint32 minimum_interval_mins = 4;
+  }
 
   Scheduling scheduling = 1;
   Reviewing reviewing = 2;
   Editing editing = 3;
+  BackupLimits backups = 4;
 }

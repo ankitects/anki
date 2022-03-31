@@ -28,7 +28,7 @@ open /tmp/Anki-rw.dmg
 sleep 2
 open ${script_folder}/set-dmg-settings.app
 sleep 2
-hdiutil detach "/Volumes/Anki"
+hdiutil detach "/Volumes/Anki" || (sleep 3; hdiutil detach /Volumes/Anki)
 sleep 1
 if [ -d "/Volumes/Anki" ]
 then

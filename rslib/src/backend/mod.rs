@@ -15,6 +15,7 @@ mod decks;
 mod error;
 mod generic;
 mod i18n;
+mod import_export;
 mod links;
 mod media;
 mod notes;
@@ -30,11 +31,13 @@ mod tags;
 use std::{
     result,
     sync::{Arc, Mutex},
+    thread::JoinHandle,
 };
 
 use once_cell::sync::OnceCell;
 use progress::AbortHandleSlot;
 use prost::Message;
+use slog::Logger;
 use tokio::runtime::{self, Runtime};
 
 use self::{
@@ -45,6 +48,7 @@ use self::{
     deckconfig::DeckConfigService,
     decks::DecksService,
     i18n::I18nService,
+    import_export::ImportExportService,
     links::LinksService,
     media::MediaService,
     notes::NotesService,
@@ -62,6 +66,7 @@ use crate::{
     collection::Collection,
     error::{AnkiError, Result},
     i18n::I18n,
+    log,
 };
 
 pub struct Backend {
@@ -71,7 +76,9 @@ pub struct Backend {
     sync_abort: AbortHandleSlot,
     progress_state: Arc<Mutex<ProgressState>>,
     runtime: OnceCell<Runtime>,
+    log: Logger,
     state: Arc<Mutex<BackendState>>,
+    backup_task: Arc<Mutex<Option<JoinHandle<Result<()>>>>>,
 }
 
 #[derive(Default)]
@@ -79,19 +86,20 @@ struct BackendState {
     sync: SyncState,
 }
 
-pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
+pub fn init_backend(init_msg: &[u8], log: Option<Logger>) -> std::result::Result<Backend, String> {
     let input: pb::BackendInit = match pb::BackendInit::decode(init_msg) {
         Ok(req) => req,
         Err(_) => return Err("couldn't decode init request".into()),
     };
 
     let tr = I18n::new(&input.preferred_langs);
+    let log = log.unwrap_or_else(log::terminal);
 
-    Ok(Backend::new(tr, input.server))
+    Ok(Backend::new(tr, input.server, log))
 }
 
 impl Backend {
-    pub fn new(tr: I18n, server: bool) -> Backend {
+    pub fn new(tr: I18n, server: bool, log: Logger) -> Backend {
         Backend {
             col: Arc::new(Mutex::new(None)),
             tr,
@@ -102,7 +110,9 @@ impl Backend {
                 last_progress: None,
             })),
             runtime: OnceCell::new(),
+            log,
             state: Arc::new(Mutex::new(BackendState::default())),
+            backup_task: Arc::new(Mutex::new(None)),
         }
     }
 
@@ -137,6 +147,9 @@ impl Backend {
                 pb::ServiceIndex::Links => LinksService::run_method(self, method, input),
                 pb::ServiceIndex::Collection => CollectionService::run_method(self, method, input),
                 pb::ServiceIndex::Cards => CardsService::run_method(self, method, input),
+                pb::ServiceIndex::ImportExport => {
+                    ImportExportService::run_method(self, method, input)
+                }
             })
             .map_err(|err| {
                 let backend_err = err.into_protobuf(&self.tr);

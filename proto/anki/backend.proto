@@ -5,6 +5,8 @@ syntax = "proto3";
 
 package anki.backend;
 
+import "anki/links.proto";
+
 /// while the protobuf descriptors expose the order services are defined in,
 /// that information is not available in prost, so we define an enum to make
 /// sure all clients agree on the service index
@@ -25,6 +27,7 @@ enum ServiceIndex {
   SERVICE_INDEX_COLLECTION = 13;
   SERVICE_INDEX_CARDS = 14;
   SERVICE_INDEX_LINKS = 15;
+  SERVICE_INDEX_IMPORT_EXPORT = 16;
 }
 
 message BackendInit {
@@ -56,10 +59,15 @@ message BackendError {
     FILTERED_DECK_ERROR = 13;
     SEARCH_ERROR = 14;
     CUSTOM_STUDY_ERROR = 15;
+    IMPORT_ERROR = 16;
+    DELETED = 17;
+    CARD_TYPE_ERROR = 18;
   }
 
   // localized error description suitable for displaying to the user
   string localized = 1;
   // the error subtype
   Kind kind = 2;
+  // optional page in the manual
+  optional links.HelpPageLinkRequest.HelpPage help_page = 3;
 }

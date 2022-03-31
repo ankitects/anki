@@ -4,10 +4,14 @@ from __future__ import annotations
 
 import os
 import re
+import shutil
 import subprocess
 import sys
 from functools import wraps
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Sequence, no_type_check
+
+from send2trash import send2trash
 
 import aqt
 from anki._legacy import DeprecatedNamesMixinForModule
@@ -24,7 +28,7 @@ from aqt.qt import *
 from aqt.theme import theme_manager
 
 if TYPE_CHECKING:
-    TextFormat = Union[Literal["plain", "rich"]]
+    TextFormat = Literal["plain", "rich"]
 
 
 def aqt_data_folder() -> str:
@@ -69,7 +73,7 @@ def openLink(link: str | QUrl) -> None:
 def showWarning(
     text: str,
     parent: QWidget | None = None,
-    help: HelpPageArgument = "",
+    help: HelpPageArgument | None = None,
     title: str = "Anki",
     textFormat: TextFormat | None = None,
 ) -> int:
@@ -91,7 +95,7 @@ def showCritical(
 def showInfo(
     text: str,
     parent: QWidget | None = None,
-    help: HelpPageArgument = "",
+    help: HelpPageArgument | None = None,
     type: str = "info",
     title: str = "Anki",
     textFormat: TextFormat | None = None,
@@ -129,7 +133,7 @@ def showInfo(
     else:
         b = mb.addButton(QMessageBox.StandardButton.Ok)
         b.setDefault(True)
-    if help:
+    if help is not None:
         b = mb.addButton(QMessageBox.StandardButton.Help)
         qconnect(b.clicked, lambda: openHelp(help))
         b.setAutoDefault(False)
@@ -703,6 +707,21 @@ def current_window() -> QWidget | None:
         return None
 
 
+def send_to_trash(path: Path) -> None:
+    "Place file/folder in recyling bin, or delete permanently on failure."
+    if not path.exists():
+        return
+    try:
+        send2trash(path)
+    except Exception as exc:
+        # Linux users may not have a trash folder set up
+        print("trash failure:", path, exc)
+        if path.is_dir:
+            shutil.rmtree(path)
+        else:
+            path.unlink()
+
+
 # Tooltips
 ######################################################################
 
@@ -850,6 +869,23 @@ def qtMenuShortcutWorkaround(qmenu: QMenu) -> None:
 
 
 ######################################################################
+
+
+def disallow_full_screen() -> bool:
+    """Test for OpenGl on Windows, which is known to cause issues with full screen mode.
+    On Qt6, the driver is not detectable, so check if it has been set explicitly.
+    """
+    from aqt import mw
+    from aqt.profiles import VideoDriver
+
+    return is_win and (
+        (qtmajor == 5 and mw.pm.video_driver() == VideoDriver.OpenGL)
+        or (
+            qtmajor == 6
+            and not os.environ.get("ANKI_SOFTWAREOPENGL")
+            and os.environ.get("QT_OPENGL") != "software"
+        )
+    )
 
 
 def add_ellipsis_to_action_label(*actions: QAction) -> None:

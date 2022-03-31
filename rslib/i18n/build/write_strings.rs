@@ -3,8 +3,9 @@
 
 //! Write strings to a strings.rs file that will be compiled into the binary.
 
-use inflections::Inflect;
 use std::{fmt::Write, fs, path::PathBuf};
+
+use inflections::Inflect;
 
 use crate::{
     extract::{Module, Translation, VariableKind},
@@ -42,7 +43,7 @@ impl I18n {
         for translation in &module.translations {
             let func = translation.key.to_snake_case();
             let key = &translation.key;
-            let doc = translation.text.replace("\n", " ");
+            let doc = translation.text.replace('\n', " ");
             let in_args;
             let out_args;
             let var_build;
@@ -213,7 +214,7 @@ pub(crate) const {lang_name}: phf::Map<&str, &str> = phf::phf_map! {{",
 }
 
 fn lang_constant_name(lang: &str) -> String {
-    lang.to_ascii_uppercase().replace("-", "_")
+    lang.to_ascii_uppercase().replace('-', "_")
 }
 
 fn module_constant_name(module: &str) -> String {

@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+pub mod backup;
 pub(crate) mod timestamps;
 mod transact;
 pub(crate) mod undo;
@@ -15,7 +16,8 @@ use crate::{
     log::{default_logger, Logger},
     notetype::{Notetype, NotetypeId},
     scheduler::{queue::CardQueues, SchedulerInfo},
-    storage::SqliteStorage,
+    storage::{SchemaVersion, SqliteStorage},
+    timestamp::TimestampMillis,
     types::Usn,
     undo::UndoManager,
 };
@@ -115,6 +117,9 @@ pub struct CollectionState {
     /// True if legacy Python code has executed SQL that has modified the
     /// database, requiring modification time to be bumped.
     pub(crate) modified_by_dbproxy: bool,
+    /// The modification time at the last backup, so we don't create multiple
+    /// identical backups.
+    pub(crate) last_backup_modified: Option<TimestampMillis>,
 }
 
 pub struct Collection {
@@ -140,8 +145,8 @@ impl Collection {
         builder
     }
 
-    pub(crate) fn close(self, downgrade: bool) -> Result<()> {
-        self.storage.close(downgrade)
+    pub(crate) fn close(self, desired_version: Option<SchemaVersion>) -> Result<()> {
+        self.storage.close(desired_version)
     }
 
     pub(crate) fn usn(&self) -> Result<Usn> {

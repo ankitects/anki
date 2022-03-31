@@ -115,7 +115,7 @@ rust_library(
             "@raze__hyper__0_14_17//:hyper",
             "@raze__hyper_rustls__0_22_1//:hyper_rustls",
             "@raze__hyper_tls__0_5_0//:hyper_tls",
-            "@raze__ipnet__2_3_1//:ipnet",
+            "@raze__ipnet__2_4_0//:ipnet",
             "@raze__lazy_static__1_4_0//:lazy_static",
             "@raze__log__0_4_14//:log",
             "@raze__mime__0_3_16//:mime",

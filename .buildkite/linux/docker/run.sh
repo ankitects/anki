@@ -1,5 +1,6 @@
 #!/bin/bash
-# use './run.sh serve' to daemonize
+# - use 'BUILD=1 ./run.sh' to build image & run.
+# - use './run.sh serve' to daemonize.
 
 set -e
 
@@ -15,7 +16,9 @@ else
     arch=amd64
 fi
 
-DOCKER_BUILDKIT=1 docker build -f Dockerfile.${arch} --tag linci .
+if [ -n "$BUILD" ]; then
+    DOCKER_BUILDKIT=1 docker build -f Dockerfile.${arch} --tag linci .
+fi
 
 if docker container inspect linci > /dev/null 2>&1; then
     docker stop linci || true

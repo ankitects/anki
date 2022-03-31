@@ -2,9 +2,16 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { Placement } from "@floating-ui/dom";
-import { arrow, autoUpdate, computePosition, offset, shift } from "@floating-ui/dom";
+import {
+    arrow,
+    autoUpdate,
+    computePosition,
+    inline,
+    offset,
+    shift,
+} from "@floating-ui/dom";
 
-interface PositionArgs {
+export interface PositionArgs {
     /**
      * The floating element which is positioned relative to `reference`.
      */
@@ -25,19 +32,41 @@ function position(
             args.floating!,
             {
                 middleware: [
+                    inline(),
                     offset(5),
                     shift({ padding: 5 }),
-                    arrow({ element: args.arrow }),
+                    arrow({ element: args.arrow, padding: 5 }),
                 ],
                 placement: args.placement,
             },
         );
 
-        const arrowX = middlewareData.arrow?.x ?? "";
+        let rotation: number;
+        let arrowX: number | undefined;
+        let arrowY: number | undefined;
+
+        if (args.placement.startsWith("bottom")) {
+            rotation = 45;
+            arrowX = middlewareData.arrow?.x;
+            arrowY = -5;
+        } else if (args.placement.startsWith("left")) {
+            rotation = 135;
+            arrowX = args.floating!.offsetWidth - 5;
+            arrowY = middlewareData.arrow?.y;
+        } else if (args.placement.startsWith("top")) {
+            rotation = 225;
+            arrowX = middlewareData.arrow?.x;
+            arrowY = args.floating!.offsetHeight - 5;
+        } /* if (args.placement.startsWith("right")) */ else {
+            rotation = 315;
+            arrowX = -5;
+            arrowY = middlewareData.arrow?.y;
+        }
 
         Object.assign(args.arrow.style, {
-            left: `${arrowX}px`,
-            top: `-5px`,
+            left: arrowX ? `${arrowX}px` : "",
+            top: arrowY ? `${arrowY}px` : "",
+            transform: `rotate(${rotation}deg)`,
         });
 
         Object.assign(args.floating!.style, {

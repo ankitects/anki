@@ -21,6 +21,18 @@ use std::fmt::Write;
 pub(crate) use sqlite::SqliteStorage;
 pub(crate) use sync::open_and_check_sqlite_file;
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub(crate) enum SchemaVersion {
+    V11,
+    V18,
+}
+
+impl SchemaVersion {
+    pub(super) fn has_journal_mode_delete(self) -> bool {
+        self == Self::V11
+    }
+}
+
 /// Write a list of IDs as '(x,y,...)' into the provided string.
 pub(crate) fn ids_to_string<T>(buf: &mut String, ids: &[T])
 where

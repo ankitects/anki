@@ -317,7 +317,7 @@ def get_windows_dark_mode() -> bool:
     if not is_win:
         return False
 
-    from winreg import (  # pylint: disable=import-error
+    from winreg import (  # type: ignore[attr-defined] # pylint: disable=import-error
         HKEY_CURRENT_USER,
         OpenKey,
         QueryValueEx,

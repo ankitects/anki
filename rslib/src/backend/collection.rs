@@ -1,16 +1,18 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::sync::MutexGuard;
+
 use slog::error;
 
 use super::{progress::Progress, Backend};
 pub(super) use crate::backend_proto::collection_service::Service as CollectionService;
 use crate::{
     backend::progress::progress_to_proto,
-    backend_proto as pb,
+    backend_proto::{self as pb},
     collection::CollectionBuilder,
-    log::{self},
     prelude::*,
+    storage::SchemaVersion,
 };
 
 impl CollectionService for Backend {
@@ -25,10 +27,7 @@ impl CollectionService for Backend {
     }
 
     fn open_collection(&self, input: pb::OpenCollectionRequest) -> Result<pb::Empty> {
-        let mut col = self.col.lock().unwrap();
-        if col.is_some() {
-            return Err(AnkiError::CollectionAlreadyOpen);
-        }
+        let mut guard = self.lock_closed_collection()?;
 
         let mut builder = CollectionBuilder::new(input.collection_path);
         builder
@@ -37,27 +36,28 @@ impl CollectionService for Backend {
             .set_tr(self.tr.clone());
         if !input.log_path.is_empty() {
             builder.set_log_file(&input.log_path)?;
+        } else {
+            builder.set_logger(self.log.clone());
         }
 
-        *col = Some(builder.build()?);
+        *guard = Some(builder.build()?);
 
         Ok(().into())
     }
 
     fn close_collection(&self, input: pb::CloseCollectionRequest) -> Result<pb::Empty> {
+        let desired_version = if input.downgrade_to_schema11 {
+            Some(SchemaVersion::V11)
+        } else {
+            None
+        };
+
         self.abort_media_sync_and_wait();
+        let mut guard = self.lock_open_collection()?;
+        let col_inner = guard.take().unwrap();
 
-        let mut col = self.col.lock().unwrap();
-        if col.is_none() {
-            return Err(AnkiError::CollectionNotOpen);
-        }
-
-        let col_inner = col.take().unwrap();
-        if input.downgrade_to_schema11 {
-            let log = log::terminal();
-            if let Err(e) = col_inner.close(input.downgrade_to_schema11) {
-                error!(log, " failed: {:?}", e);
-            }
+        if let Err(e) = col_inner.close(desired_version) {
+            error!(self.log, " failed: {:?}", e);
         }
 
         Ok(().into())
@@ -96,5 +96,59 @@ impl CollectionService for Backend {
         let starting_from = input.val as usize;
         self.with_col(|col| col.merge_undoable_ops(starting_from))
             .map(Into::into)
+    }
+
+    fn create_backup(&self, input: pb::CreateBackupRequest) -> Result<pb::Bool> {
+        // lock collection
+        let mut col_lock = self.lock_open_collection()?;
+        let col = col_lock.as_mut().unwrap();
+        // await any previous backup first
+        let mut task_lock = self.backup_task.lock().unwrap();
+        if let Some(task) = task_lock.take() {
+            task.join().unwrap()?;
+        }
+        // start the new backup
+        let created = if let Some(task) = col.maybe_backup(input.backup_folder, input.force)? {
+            if input.wait_for_completion {
+                drop(col_lock);
+                task.join().unwrap()?;
+            } else {
+                *task_lock = Some(task);
+            }
+            true
+        } else {
+            false
+        };
+        Ok(created.into())
+    }
+
+    fn await_backup_completion(&self, _input: pb::Empty) -> Result<pb::Empty> {
+        self.await_backup_completion()?;
+        Ok(().into())
+    }
+}
+
+impl Backend {
+    pub(super) fn lock_open_collection(&self) -> Result<MutexGuard<Option<Collection>>> {
+        let guard = self.col.lock().unwrap();
+        guard
+            .is_some()
+            .then(|| guard)
+            .ok_or(AnkiError::CollectionNotOpen)
+    }
+
+    pub(super) fn lock_closed_collection(&self) -> Result<MutexGuard<Option<Collection>>> {
+        let guard = self.col.lock().unwrap();
+        guard
+            .is_none()
+            .then(|| guard)
+            .ok_or(AnkiError::CollectionAlreadyOpen)
+    }
+
+    fn await_backup_completion(&self) -> Result<()> {
+        if let Some(task) = self.backup_task.lock().unwrap().take() {
+            task.join().unwrap()?;
+        }
+        Ok(())
     }
 }

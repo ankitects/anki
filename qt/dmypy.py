@@ -29,16 +29,16 @@ if subprocess.run(
         "run",
         "--",
         "--config-file",
-        "qt/mypy.ini",
-        ".bazel/bin/qt/dmypy.runfiles/ankidesktop/pylib/anki",
-        ".bazel/bin/qt/dmypy.runfiles/ankidesktop/qt/aqt",
+        workspace / "qt/mypy.ini",
+        "pylib/anki",
+        "qt/aqt",
         "--python-executable",
-        os.path.abspath("python/stubs/extendsitepkgs"),
+        "python/stubs/extendsitepkgs",
     ],
     env={
-        "MYPYPATH": ".bazel/bin/qt/dmypy.runfiles/pyqt6",
+        "MYPYPATH": "../pyqt6",
         "EXTRA_SITE_PACKAGES": os.path.abspath(os.getenv("EXTRA_SITE_PACKAGES")),
     },
-    cwd=workspace,
+    cwd=workspace / ".bazel/bin/qt/dmypy.runfiles/ankidesktop",
 ).returncode:
     sys.exit(1)
