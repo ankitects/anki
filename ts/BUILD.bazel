@@ -35,3 +35,11 @@ alias(
     name = "node",
     actual = "@nodejs//:node",
 )
+
+filegroup(
+    name = "ts",
+    srcs = [
+        "//ts/icons",
+    ],
+    visibility = ["//ts:__subpackages__"],
+)

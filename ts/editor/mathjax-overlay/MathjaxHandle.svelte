@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import MathjaxMenu from "./MathjaxMenu.svelte";
 
     const { container, api } = context.get();
-    const { focusHandler, preventResubscription } = api;
+    const { editable, preventResubscription } = api;
 
     const code = writable("");
 
@@ -46,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function placeHandle(after: boolean): void {
-        focusHandler.flushCaret();
+        editable.focusHandler.flushCaret();
 
         if (after) {
             (mathjaxElement as any).placeCaretAfter();
