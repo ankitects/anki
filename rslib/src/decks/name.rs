@@ -82,6 +82,10 @@ impl NativeDeckName {
             .chain(self.components().skip(old_parent.components().count()))
             .join("\x1f")
     }
+
+    pub(crate) fn immediate_parent_name(&self) -> Option<&str> {
+        immediate_parent_name(self.as_native_str())
+    }
 }
 
 impl std::fmt::Display for NativeDeckName {

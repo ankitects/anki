@@ -26,7 +26,7 @@ impl Collection {
     pub fn export_apkg(
         &mut self,
         out_path: impl AsRef<Path>,
-        deck_id: Option<DeckId>,
+        search: impl TryIntoSearch,
         with_scheduling: bool,
         with_media: bool,
         media_fn: Option<impl FnOnce(HashSet<PathBuf>) -> MediaIter>,
@@ -40,7 +40,7 @@ impl Collection {
             .ok_or_else(|| AnkiError::IoError("tempfile with non-unicode name".into()))?;
         let media = self.export_collection_extracting_media(
             temp_col_path,
-            deck_id,
+            search,
             with_scheduling,
             with_media,
         )?;
@@ -66,12 +66,12 @@ impl Collection {
     fn export_collection_extracting_media(
         &mut self,
         path: &str,
-        deck_id: Option<DeckId>,
+        search: impl TryIntoSearch,
         with_scheduling: bool,
         with_media: bool,
     ) -> Result<HashSet<PathBuf>> {
         let mut data = ExportData::default();
-        data.gather_data(self, deck_id, with_scheduling)?;
+        data.gather_data(self, search, with_scheduling)?;
         if with_media {
             data.gather_media_paths();
         }

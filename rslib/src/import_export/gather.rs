@@ -15,8 +15,6 @@ use crate::{
     latex::extract_latex,
     prelude::*,
     revlog::RevlogEntry,
-    search::{Negated, SearchNode, SortMode},
-    storage::ids_to_string,
     text::{extract_media_refs, extract_underscored_css_imports, extract_underscored_references},
 };
 
@@ -31,43 +29,27 @@ pub(super) struct ExportData {
     pub(super) media_paths: HashSet<PathBuf>,
 }
 
-fn sibling_search(notes: &[Note], cards: &[Card]) -> SearchBuilder {
-    let mut nids = String::new();
-    ids_to_string(&mut nids, notes.iter().map(|note| note.id));
-    let mut cids = String::new();
-    ids_to_string(&mut cids, cards.iter().map(|card| card.id));
-    SearchBuilder::from(SearchNode::NoteIds(nids)).and(SearchNode::CardIds(cids).negated())
-}
-
-fn optional_deck_search(deck_id: Option<DeckId>) -> SearchNode {
-    if let Some(did) = deck_id {
-        SearchNode::from_deck_id(did, true)
-    } else {
-        SearchNode::WholeCollection
-    }
-}
-
 impl ExportData {
     pub(super) fn gather_data(
         &mut self,
         col: &mut Collection,
-        deck_id: Option<DeckId>,
+        search: impl TryIntoSearch,
         with_scheduling: bool,
     ) -> Result<()> {
-        self.decks = col.gather_decks(deck_id)?;
-        let search = optional_deck_search(deck_id);
-        self.notes = col.gather_notes(search.clone())?;
-        self.cards = col.gather_cards(search, &self.notes, deck_id)?;
-        self.notetypes = col.gather_notetypes(&self.notes)?;
+        self.notes = col.gather_notes(search)?;
+        self.cards = col.gather_cards()?;
+        self.decks = col.gather_decks()?;
+        self.notetypes = col.gather_notetypes()?;
 
         if with_scheduling {
-            self.revlog = col.gather_revlog(&self.cards)?;
+            self.revlog = col.gather_revlog()?;
             self.decks_configs = col.gather_deck_configs(&self.decks)?;
         } else {
             self.remove_scheduling_information(col);
         };
 
-        Ok(())
+        col.storage.clear_searched_notes_table()?;
+        col.storage.clear_searched_cards_table()
     }
 
     pub(super) fn gather_media_paths(&mut self) {
@@ -176,81 +158,50 @@ fn svg_getter(notetypes: &[Notetype]) -> impl Fn(NotetypeId) -> bool {
 }
 
 impl Collection {
-    fn gather_decks(&mut self, deck_id: Option<DeckId>) -> Result<Vec<Deck>> {
-        if let Some(did) = deck_id {
-            let deck = self.get_deck(did)?.ok_or(AnkiError::NotFound)?;
-            self.storage
-                .deck_id_with_children(&deck)?
-                .iter()
-                .filter(|did| **did != DeckId(1))
-                .map(|did| self.storage.get_deck(*did)?.ok_or(AnkiError::NotFound))
-                .collect()
-        } else {
-            Ok(self
-                .storage
-                .get_all_decks()?
-                .into_iter()
-                .filter(|deck| deck.id != DeckId(1))
-                .collect())
+    fn gather_notes(&mut self, search: impl TryIntoSearch) -> Result<Vec<Note>> {
+        self.search_notes_into_table(search)?;
+        self.storage.all_searched_notes()
+    }
+
+    fn gather_cards(&mut self) -> Result<Vec<Card>> {
+        self.storage.search_notes_cards_into_table()?;
+        self.storage.all_searched_cards()
+    }
+
+    fn gather_decks(&mut self) -> Result<Vec<Deck>> {
+        let decks = self.storage.get_decks_for_search_cards()?;
+        let parents = self.get_parent_decks(&decks)?;
+        Ok(decks
+            .into_iter()
+            .filter(|deck| deck.id != DeckId(1))
+            .chain(parents)
+            .collect())
+    }
+
+    fn get_parent_decks(&mut self, decks: &[Deck]) -> Result<Vec<Deck>> {
+        let mut parent_names: HashSet<&str> =
+            decks.iter().map(|deck| deck.name.as_native_str()).collect();
+        let mut parents = Vec::new();
+        for deck in decks {
+            while let Some(parent_name) = deck.name.immediate_parent_name() {
+                if parent_names.insert(parent_name) {
+                    parents.push(
+                        self.storage
+                            .get_deck_by_name(parent_name)?
+                            .ok_or(AnkiError::DatabaseCheckRequired)?,
+                    )
+                }
+            }
         }
+        Ok(parents)
     }
 
-    fn gather_notes(&mut self, search: SearchNode) -> Result<Vec<Note>> {
-        self.search_notes(search, SortMode::NoOrder)?
-            .iter()
-            .map(|nid| self.storage.get_note(*nid)?.ok_or(AnkiError::NotFound))
-            .collect()
+    fn gather_notetypes(&mut self) -> Result<Vec<Notetype>> {
+        self.storage.get_notetypes_for_search_notes()
     }
 
-    fn gather_cards(
-        &mut self,
-        search: SearchNode,
-        notes: &[Note],
-        deck_id: Option<DeckId>,
-    ) -> Result<Vec<Card>> {
-        let mut cards: Vec<_> = self
-            .search_cards(search, SortMode::NoOrder)?
-            .iter()
-            .map(|cid| self.storage.get_card(*cid)?.ok_or(AnkiError::NotFound))
-            .collect::<Result<_>>()?;
-
-        if let Some(did) = deck_id {
-            let mut siblings = self.gather_siblings(notes, &cards, did)?;
-            cards.append(&mut siblings);
-        }
-
-        Ok(cards)
-    }
-
-    fn gather_siblings(
-        &mut self,
-        notes: &[Note],
-        cards: &[Card],
-        deck_id: DeckId,
-    ) -> Result<Vec<Card>> {
-        self.search_cards(sibling_search(notes, cards), SortMode::NoOrder)?
-            .iter()
-            .map(|cid| {
-                let mut card = self.storage.get_card(*cid)?.ok_or(AnkiError::NotFound)?;
-                card.deck_id = deck_id;
-                Ok(card)
-            })
-            .collect()
-    }
-
-    fn gather_notetypes(&mut self, notes: &[Note]) -> Result<Vec<Notetype>> {
-        notes
-            .iter()
-            .map(|note| note.notetype_id)
-            .unique()
-            .map(|ntid| self.storage.get_notetype(ntid)?.ok_or(AnkiError::NotFound))
-            .collect()
-    }
-
-    fn gather_revlog(&mut self, cards: &[Card]) -> Result<Vec<RevlogEntry>> {
-        let mut cids = String::new();
-        ids_to_string(&mut cids, cards.iter().map(|card| card.id));
-        self.storage.get_revlog_entries_for_card_ids(cids)
+    fn gather_revlog(&mut self) -> Result<Vec<RevlogEntry>> {
+        self.storage.get_revlog_entries_for_searched_cards()
     }
 
     fn gather_deck_configs(&mut self, decks: &[Deck]) -> Result<Vec<DeckConfig>> {

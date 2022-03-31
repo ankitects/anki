@@ -455,6 +455,20 @@ impl super::SqliteStorage {
         Ok(nids)
     }
 
+    /// Place the ids of cards with notes in 'search_nids' into 'search_cids'.
+    /// Returns number of added cards.
+    pub(crate) fn search_notes_cards_into_table(&self) -> Result<usize> {
+        self.setup_searched_cards_table()?;
+        self.db
+            .prepare(concat!(
+                "INSERT INTO search_cids",
+                " (SELECT id FROM cards WHERE nid IN",
+                " (SELECT nid FROM search_nids))",
+            ))?
+            .execute([])
+            .map_err(Into::into)
+    }
+
     pub(crate) fn all_searched_cards(&self) -> Result<Vec<Card>> {
         self.db
             .prepare_cached(concat!(

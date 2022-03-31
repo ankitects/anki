@@ -210,6 +210,16 @@ impl super::SqliteStorage {
         Ok(())
     }
 
+    pub(crate) fn all_searched_notes(&self) -> Result<Vec<Note>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get.sql"),
+                " WHERE id IN (SELECT nid FROM search_nids)"
+            ))?
+            .query_and_then([], |r| row_to_note(r).map_err(Into::into))?
+            .collect()
+    }
+
     pub(crate) fn get_note_tags_by_predicate<F>(&mut self, want: F) -> Result<Vec<NoteTags>>
     where
         F: Fn(&str) -> bool,
