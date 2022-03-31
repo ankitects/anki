@@ -155,7 +155,7 @@ impl Collection {
     }
 
     fn gather_cards(&mut self) -> Result<Vec<Card>> {
-        self.storage.search_notes_cards_into_table()?;
+        self.storage.search_cards_of_notes_into_table()?;
         self.storage.all_searched_cards()
     }
 

@@ -457,7 +457,7 @@ impl super::SqliteStorage {
 
     /// Place the ids of cards with notes in 'search_nids' into 'search_cids'.
     /// Returns number of added cards.
-    pub(crate) fn search_notes_cards_into_table(&self) -> Result<usize> {
+    pub(crate) fn search_cards_of_notes_into_table(&self) -> Result<usize> {
         self.setup_searched_cards_table()?;
         self.db
             .prepare(concat!(
