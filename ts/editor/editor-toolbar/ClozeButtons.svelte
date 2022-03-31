@@ -72,9 +72,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ButtonGroup>
     <IconButton
-        tooltip="{tr.editingClozeDeletion()} {getPlatformString(
+        tooltip="{tr.editingClozeDeletion()} ({getPlatformString(
             incrementKeyCombination,
-        )}"
+        )})"
         {disabled}
         on:click={onIncrementCloze}
         --border-left-radius="5px"
@@ -89,9 +89,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     />
 
     <IconButton
-        tooltip="{tr.editingClozeDeletionRepeat()} {getPlatformString(
+        tooltip="{tr.editingClozeDeletionRepeat()} ({getPlatformString(
             sameKeyCombination,
-        )}"
+        )})"
         {disabled}
         on:click={onSameCloze}
         --border-right-radius="5px"
