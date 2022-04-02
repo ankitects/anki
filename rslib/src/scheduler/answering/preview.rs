@@ -85,7 +85,7 @@ mod test {
         ));
 
         // use Again on the preview
-        col.answer_card(&CardAnswer {
+        col.answer_card(&mut CardAnswer {
             card_id: c.id,
             current_state: next.current,
             new_state: next.again,
@@ -99,7 +99,7 @@ mod test {
 
         // hard
         let next = col.get_next_card_states(c.id)?;
-        col.answer_card(&CardAnswer {
+        col.answer_card(&mut CardAnswer {
             card_id: c.id,
             current_state: next.current,
             new_state: next.hard,
@@ -112,7 +112,7 @@ mod test {
 
         // good
         let next = col.get_next_card_states(c.id)?;
-        col.answer_card(&CardAnswer {
+        col.answer_card(&mut CardAnswer {
             card_id: c.id,
             current_state: next.current,
             new_state: next.good,
@@ -125,7 +125,7 @@ mod test {
 
         // and then it should return to its old state once easy selected
         let next = col.get_next_card_states(c.id)?;
-        col.answer_card(&CardAnswer {
+        col.answer_card(&mut CardAnswer {
             card_id: c.id,
             current_state: next.current,
             new_state: next.easy,
