@@ -84,6 +84,7 @@ fn check_collection_and_mod_schema(col_path: &Path) -> Result<()> {
         .ok()
         .and_then(|mut col| {
             col.set_schema_modified().ok()?;
+            col.set_modified().ok()?;
             col.storage
                 .db
                 .pragma_query_value(None, "integrity_check", |row| row.get::<_, String>(0))
