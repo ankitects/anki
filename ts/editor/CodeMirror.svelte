@@ -30,6 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let configuration: CodeMirrorLib.EditorConfiguration;
     export let code: Writable<string>;
+    export let hidden = false;
 
     const defaultConfiguration = {
         rtlMoveVisually: true,
@@ -79,6 +80,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         use:openCodeMirror={{
             configuration: { ...configuration, ...defaultConfiguration },
             resolve,
+            hidden,
         }}
     />
 </div>
