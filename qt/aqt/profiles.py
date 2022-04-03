@@ -44,22 +44,26 @@ class VideoDriver(Enum):
             return VideoDriver.Software
 
     def constrained_to_platform(self) -> VideoDriver:
-        if self == VideoDriver.ANGLE and not is_win:
+        if self == VideoDriver.ANGLE and not VideoDriver.supports_angle():
             return VideoDriver.Software
         return self
 
     def next(self) -> VideoDriver:
         if self == VideoDriver.Software:
             return VideoDriver.OpenGL
-        elif self == VideoDriver.OpenGL and is_win:
+        elif self == VideoDriver.OpenGL and VideoDriver.supports_angle():
             return VideoDriver.ANGLE
         else:
             return VideoDriver.Software
 
     @staticmethod
+    def supports_angle() -> bool:
+        return is_win and qtmajor < 6
+
+    @staticmethod
     def all_for_platform() -> list[VideoDriver]:
         all = [VideoDriver.OpenGL]
-        if is_win:
+        if VideoDriver.supports_angle():
             all.append(VideoDriver.ANGLE)
         all.append(VideoDriver.Software)
         return all
