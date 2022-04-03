@@ -122,7 +122,7 @@ deck-config-new-gather-priority-random-notes = Random notes
 deck-config-new-gather-priority-random-cards = Random cards
 deck-config-new-card-sort-order = New card sort order
 deck-config-new-card-sort-order-tooltip-2 =
-    `Card type`: Displays cards in order of card type ordinals. If you have sibling burying
+    `Card type`: Displays cards in order of card type number. If you have sibling burying
     disabled, this will ensure all front→back cards are seen before any back→front cards.
     This is useful to have all cards of the same note shown in the same session, but not
     too close to one another.
@@ -131,7 +131,7 @@ deck-config-new-card-sort-order-tooltip-2 =
     this will typically result in all cards of a note being seen one after the other.
     
     `Card type, then random`: Like `Card type`, but shuffles the cards of each card
-    type ordinal. If you use `Ascending position` to gather the oldest cards, you could use
+    type number. If you use `Ascending position` to gather the oldest cards, you could use
     this setting to see those cards in a random order, but still ensure cards of the same
     note do not end up too close to one another.
     
