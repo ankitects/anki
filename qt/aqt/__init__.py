@@ -361,9 +361,6 @@ def parseArgs(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
 
 
 def setupGL(pm: aqt.profiles.ProfileManager) -> None:
-    if is_mac:
-        return
-
     driver = pm.video_driver()
 
     # work around pyqt loading wrong GL library
@@ -413,19 +410,23 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
 
     qInstallMessageHandler(msgHandler)
 
-    # ignore set graphics driver on Qt6 for now
-    if qtmajor > 5:
-        return
-
     if driver == VideoDriver.OpenGL:
+        # Leaving QT_OPENGL unset appears to sometimes produce different results
+        # to explicitly setting it to 'auto'; the former seems to be more compatible.
         pass
     else:
         if is_win:
+            # on Windows, this appears to be sufficient on Qt5/Qt6.
+            # On Qt6, ANGLE is excluded by the enum.
             os.environ["QT_OPENGL"] = driver.value
         elif is_mac:
             QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL)
         elif is_lin:
+            # Qt5 only
             os.environ["QT_XCB_FORCE_SOFTWARE_OPENGL"] = "1"
+            # Required on Qt6
+            if "QTWEBENGINE_CHROMIUM_FLAGS" not in os.environ:
+                os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-gpu"
 
 
 PROFILE_CODE = os.environ.get("ANKI_PROFILE_CODE")
