@@ -59,6 +59,7 @@
         "@floating-ui/dom": "^0.3.0",
         "@fluent/bundle": "^0.17.0",
         "@mdi/svg": "^6.1.95",
+        "@microsoft/api-extractor": "^7.20.0",
         "@popperjs/core": "^2.9.2",
         "@types/lodash-es": "^4.17.4",
         "@types/marked": "^4.0.1",
