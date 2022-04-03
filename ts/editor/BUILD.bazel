@@ -49,12 +49,14 @@ _esbuild_deps = [
     "@npm//bootstrap-icons",
     "//ts/icons",
     "@npm//protobufjs",
+    "//ts/runtime",
 ]
 
 esbuild(
     name = "browser_editor",
     args = {
         "loader": {".svg": "text"},
+        "external": ["anki"],
     },
     entry_point = "index_browser.ts",
     output_css = "browser_editor.css",
@@ -66,6 +68,7 @@ esbuild(
     name = "reviewer_editor",
     args = {
         "loader": {".svg": "text"},
+        "external": ["anki"],
     },
     entry_point = "index_reviewer.ts",
     output_css = "reviewer_editor.css",
@@ -77,6 +80,7 @@ esbuild(
     name = "note_creator",
     args = {
         "loader": {".svg": "text"},
+        "external": ["anki"],
     },
     entry_point = "index_creator.ts",
     output_css = "note_creator.css",

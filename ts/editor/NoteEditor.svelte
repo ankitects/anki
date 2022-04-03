@@ -17,8 +17,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     import { registerPackage } from "../lib/runtime-require";
-    import contextProperty from "../sveltelib/context-property";
-    import lifecycleHooks from "../sveltelib/lifecycle-hooks";
+    import contextProperty, { ContextProperty } from "../sveltelib/context-property";
+    import lifecycleHooks, { LifecycleHooks } from "../sveltelib/lifecycle-hooks";
 
     const key = Symbol("noteEditor");
     const [context, setContextProperty] = contextProperty<NoteEditorAPI>(key);
@@ -26,11 +26,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export { context };
 
-    registerPackage("anki/NoteEditor", {
+    /** anki/NoteEditor */
+    export interface NoteEditorPackage {
+        context: ContextProperty<NoteEditorAPI>;
+        lifecycle: LifecycleHooks<NoteEditorAPI>;
+        instances: NoteEditorAPI[];
+    }
+    export const noteEditorPackage: NoteEditorPackage = {
         context,
         lifecycle,
         instances,
-    });
+    };
+    registerPackage("anki/NoteEditor", noteEditorPackage as any);
 </script>
 
 <script lang="ts">

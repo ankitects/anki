@@ -24,6 +24,7 @@ type AnkiPackages =
     | "anki/theme"
     | "anki/location"
     | "anki/surround"
+    | "anki/runtime"
     | "anki/ui";
 type PackageDeprecation<T extends Record<string, unknown>> = {
     [key in keyof T]?: string;
