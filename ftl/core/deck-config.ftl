@@ -123,14 +123,17 @@ deck-config-new-gather-priority-random-cards = Random cards
 deck-config-new-card-sort-order = New card sort order
 deck-config-new-card-sort-order-tooltip-2 =
     `Card template`: Displays cards in card template order. If you have sibling burying
-    disabled, this will ensure all front->back cards are seen before any back->front cards.
+    disabled, this will ensure all front→back cards are seen before any back→front cards.
+    This is useful to have all cards of the same note shown in the same session, but not
+    too close to one another.
     
     `Order gathered`: Shows cards exactly as they were gathered. If sibling burying is disabled,
     this will typically result in all cards of a note being seen one after the other.
     
     `Card template, then random`: Like `Card template`, but shuffles the cards of each
-    template. When combined with an ascending position gather order, this can be used to show
-    the oldest cards in a random order for example.
+    template. If you use `Ascending position` to gather the oldest cards, you could use
+    this setting to see those cards in a random order, but still ensure cards of the same
+    note do not end up too close to one another.
     
     `Random note, then card template`: Picks notes at random, then shows all of their siblings
     in order.
