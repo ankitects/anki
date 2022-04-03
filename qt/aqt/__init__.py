@@ -488,7 +488,8 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         and not os.getenv("ANKI_WAYLAND")
     ):
         # users need to opt in to wayland support, given the issues it has
-        print("Wayland support is disabled by default due to bugs.")
+        print("Wayland support is disabled by default due to bugs:")
+        print("https://github.com/ankitects/anki/issues/1767")
         print("You can force it on with an env var: ANKI_WAYLAND=1")
         os.environ["QT_QPA_PLATFORM"] = "xcb"
 
