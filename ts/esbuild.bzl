@@ -17,5 +17,7 @@ def esbuild(name, **kwargs):
             "//:release": True,
             "//conditions:default": False,
         }),
+        # support Qt 5.14
+        target = "chrome77",
         **kwargs
     )
