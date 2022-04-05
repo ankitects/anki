@@ -159,6 +159,7 @@ class Editor:
             context=self,
             default_css=False,
         )
+        self.web._fix_editor_background_color_and_show()
 
         lefttopbtns: list[str] = []
         gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
