@@ -2,3 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod export;
+mod import;
+
+pub(crate) use import::NoteMeta;

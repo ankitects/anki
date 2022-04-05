@@ -1,12 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use rusqlite::{params, Row};
 
 use crate::{
     error::Result,
+    import_export::package::NoteMeta,
     notes::{Note, NoteId, NoteTags},
     notetype::NotetypeId,
     tags::{join_tags, split_tags},
@@ -39,6 +40,13 @@ impl super::SqliteStorage {
             .query_and_then(params![nid], row_to_note)?
             .next()
             .transpose()
+    }
+
+    pub fn get_all_note_ids(&self) -> Result<HashSet<NoteId>> {
+        self.db
+            .prepare("SELECT id FROM notes")?
+            .query_and_then([], |row| Ok(row.get(0)?))?
+            .collect()
     }
 
     /// If fields have been modified, caller must call note.prepare_for_update() prior to calling this.
@@ -269,6 +277,13 @@ impl super::SqliteStorage {
 
         Ok(())
     }
+
+    pub(crate) fn note_guid_map(&mut self) -> Result<HashMap<String, NoteMeta>> {
+        self.db
+            .prepare("SELECT guid, id, mod, mid FROM notes")?
+            .query_and_then([], row_to_note_meta)?
+            .collect()
+    }
 }
 
 fn row_to_note(row: &Row) -> Result<Note> {
@@ -294,4 +309,11 @@ fn row_to_note_tags(row: &Row) -> Result<NoteTags> {
         usn: row.get(2)?,
         tags: row.get(3)?,
     })
+}
+
+fn row_to_note_meta(row: &Row) -> Result<(String, NoteMeta)> {
+    Ok((
+        row.get(0)?,
+        NoteMeta::new(row.get(1)?, row.get(2)?, row.get(3)?),
+    ))
 }

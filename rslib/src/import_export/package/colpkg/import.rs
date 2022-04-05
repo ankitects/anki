@@ -187,7 +187,10 @@ fn maybe_normalizing(name: &str, strict: bool) -> Result<Cow<str>> {
     }
 }
 
-fn extract_media_entries(meta: &Meta, archive: &mut ZipArchive<File>) -> Result<Vec<MediaEntry>> {
+pub(crate) fn extract_media_entries(
+    meta: &Meta,
+    archive: &mut ZipArchive<File>,
+) -> Result<Vec<MediaEntry>> {
     let mut file = archive.by_name("media")?;
     let mut buf = Vec::new();
     if meta.zstd_compressed() {

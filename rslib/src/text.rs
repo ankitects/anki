@@ -246,6 +246,35 @@ pub(crate) fn extract_media_refs(text: &str) -> Vec<MediaRef> {
     out
 }
 
+/// Calls `replacer` for every media reference in `text`, and optionally
+/// replaces it with something else. [None] if no reference was found.
+pub(crate) fn replace_media_refs(
+    text: &str,
+    mut replacer: impl FnMut(&str) -> Option<String>,
+) -> Option<String> {
+    let mut rep = |caps: &Captures| {
+        let whole_match = caps.get(0).unwrap().as_str();
+        let old_name = caps.iter().skip(1).find_map(|g| g).unwrap().as_str();
+        if let Some(new_name) = replacer(old_name) {
+            whole_match.replace(old_name, &new_name)
+        } else {
+            whole_match.to_owned()
+        }
+    };
+
+    let mut out = Cow::from(text);
+    if let Cow::Owned(s) = HTML_MEDIA_TAGS.replace_all(&out, &mut rep) {
+        out = s.into();
+    }
+    if let Cow::Owned(s) = AV_TAGS.replace_all(&out, &mut rep) {
+        out = s.into();
+    }
+    match out {
+        Cow::Owned(s) => Some(s),
+        Cow::Borrowed(_) => None,
+    }
+}
+
 pub(crate) fn extract_underscored_css_imports(text: &str) -> Vec<&str> {
     UNDERSCORED_CSS_IMPORTS
         .captures_iter(text)

@@ -123,6 +123,13 @@ impl SqliteStorage {
             .collect()
     }
 
+    pub fn get_all_notetype_ids(&self) -> Result<HashSet<NotetypeId>> {
+        self.db
+            .prepare("SELECT id FROM notetypes")?
+            .query_and_then([], |row| Ok(row.get(0)?))?
+            .collect()
+    }
+
     /// Returns list of (id, name, use_count)
     pub fn get_notetype_use_counts(&self) -> Result<Vec<(NotetypeId, String, u32)>> {
         self.db
