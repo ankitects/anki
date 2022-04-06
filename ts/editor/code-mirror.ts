@@ -63,37 +63,24 @@ export function focusAndSetCaret(
 interface OpenCodeMirrorOptions {
     configuration: CodeMirror.EditorConfiguration;
     resolve(editor: CodeMirror.EditorFromTextArea): void;
-    hidden: boolean;
 }
 
 export function openCodeMirror(
     textarea: HTMLTextAreaElement,
-    options: Partial<OpenCodeMirrorOptions>,
+    { configuration, resolve }: Partial<OpenCodeMirrorOptions>,
 ): { update: (options: Partial<OpenCodeMirrorOptions>) => void; destroy: () => void } {
-    let editor: CodeMirror.EditorFromTextArea;
+    const editor = CodeMirror.fromTextArea(textarea, configuration);
+    resolve?.(editor);
 
-    function update({
-        configuration,
-        resolve,
-        hidden,
-    }: Partial<OpenCodeMirrorOptions>): void {
-        if (editor) {
+    return {
+        update({ configuration }: Partial<OpenCodeMirrorOptions>): void {
             for (const key in configuration) {
                 editor.setOption(
                     key as keyof CodeMirror.EditorConfiguration,
                     configuration[key],
                 );
             }
-        } else if (!hidden) {
-            editor = CodeMirror.fromTextArea(textarea, configuration);
-            resolve?.(editor);
-        }
-    }
-
-    update(options);
-
-    return {
-        update,
+        },
         destroy(): void {
             editor.toTextArea();
         },

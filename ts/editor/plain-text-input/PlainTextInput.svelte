@@ -136,13 +136,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class:hidden
     on:focusin={() => ($focusedInput = api)}
 >
-    <CodeMirror
-        {configuration}
-        {code}
-        {hidden}
-        bind:api={codeMirror}
-        on:change={onChange}
-    />
+    <CodeMirror {configuration} {code} bind:api={codeMirror} on:change={onChange} />
 </div>
 
 <style lang="scss">
