@@ -34,7 +34,7 @@ import locale
 import os
 import tempfile
 import traceback
-from typing import Any, Callable, Optional, cast
+from typing import TYPE_CHECKING, Any, Callable, Optional, cast
 
 import anki.lang
 from anki._backend import RustBackend
@@ -45,6 +45,9 @@ from anki.utils import checksum, is_lin, is_mac
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import TR, tr
+
+if TYPE_CHECKING:
+    import aqt.profiles
 
 # compat aliases
 anki.version = _version  # type: ignore
@@ -394,7 +397,12 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
             context += f"{ctx.function}"
         if context:
             context = f"'{context}'"
-        if "Failed to create OpenGL context" in msg:
+        if (
+            "Failed to create OpenGL context" in msg
+            # Based on the message Qt6 shows to the user; have not tested whether
+            # we can actually capture this or not.
+            or "Failed to initialize graphics backend" in msg
+        ):
             QMessageBox.critical(
                 None,
                 tr.qt_misc_error(),

@@ -38,7 +38,7 @@ class VideoDriver(Enum):
 
     @staticmethod
     def default_for_platform() -> VideoDriver:
-        if is_mac:
+        if is_mac or qtmajor > 5:
             return VideoDriver.OpenGL
         else:
             return VideoDriver.Software
@@ -479,7 +479,11 @@ create table if not exists profiles
     ######################################################################
 
     def _gldriver_path(self) -> str:
-        return os.path.join(self.base, "gldriver")
+        if qtmajor < 6:
+            fname = "gldriver"
+        else:
+            fname = "gldriver6"
+        return os.path.join(self.base, fname)
 
     def video_driver(self) -> VideoDriver:
         path = self._gldriver_path()
