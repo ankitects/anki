@@ -3,6 +3,7 @@
 
 mod apkg;
 mod colpkg;
+mod media;
 mod meta;
 
 pub(crate) use apkg::NoteMeta;

@@ -306,17 +306,6 @@ fn write_media_files(
     Ok(())
 }
 
-impl MediaEntry {
-    fn new(name: impl Into<String>, size: impl TryInto<u32>, sha1: impl Into<Vec<u8>>) -> Self {
-        MediaEntry {
-            name: name.into(),
-            size: size.try_into().unwrap_or_default(),
-            sha1: sha1.into(),
-            legacy_zip_filename: None,
-        }
-    }
-}
-
 fn normalized_unicode_file_name(filename: &OsStr) -> Result<String> {
     let filename = filename.to_str().ok_or_else(|| {
         AnkiError::IoError(format!(

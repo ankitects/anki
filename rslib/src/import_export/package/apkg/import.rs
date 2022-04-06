@@ -18,7 +18,7 @@ use crate::{
     collection::CollectionBuilder,
     import_export::{
         gather::ExchangeData,
-        package::{colpkg::import::extract_media_entries, Meta},
+        package::{media::extract_media_entries, Meta},
     },
     io::{atomic_rename, tempfile_in_parent_of},
     prelude::*,

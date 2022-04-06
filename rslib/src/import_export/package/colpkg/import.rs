@@ -2,56 +2,24 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::{
-    borrow::Cow,
-    collections::HashMap,
-    fs::{self, File},
-    io::{self, Read, Write},
+    fs::File,
+    io::{self, Write},
     path::{Path, PathBuf},
 };
 
-use prost::Message;
 use zip::{read::ZipFile, ZipArchive};
 use zstd::{self, stream::copy_decode};
 
-use super::super::Version;
 use crate::{
     collection::CollectionBuilder,
     error::ImportError,
     import_export::{
-        package::{MediaEntries, MediaEntry, Meta},
+        package::{media::extract_media_entries, MediaEntry, Meta},
         ImportProgress,
     },
-    io::{atomic_rename, filename_is_safe, tempfile_in_parent_of},
-    media::files::normalize_filename,
+    io::{atomic_rename, tempfile_in_parent_of},
     prelude::*,
 };
-
-impl Meta {
-    /// Extracts meta data from an archive and checks if its version is supported.
-    pub(super) fn from_archive(archive: &mut ZipArchive<File>) -> Result<Self> {
-        let meta_bytes = archive.by_name("meta").ok().and_then(|mut meta_file| {
-            let mut buf = vec![];
-            meta_file.read_to_end(&mut buf).ok()?;
-            Some(buf)
-        });
-        let meta = if let Some(bytes) = meta_bytes {
-            let meta: Meta = Message::decode(&*bytes)?;
-            if meta.version() == Version::Unknown {
-                return Err(AnkiError::ImportError(ImportError::TooNew));
-            }
-            meta
-        } else {
-            Meta {
-                version: if archive.by_name("collection.anki21").is_ok() {
-                    Version::Legacy2
-                } else {
-                    Version::Legacy1
-                } as i32,
-            }
-        };
-        Ok(meta)
-    }
-}
 
 pub fn import_colpkg(
     colpkg_path: &str,
@@ -131,7 +99,7 @@ fn maybe_restore_media_file(
     entry: &MediaEntry,
     zip_file: &mut ZipFile,
 ) -> Result<()> {
-    let file_path = entry.safe_normalized_file_path(meta, media_folder)?;
+    let file_path = entry.file_path(media_folder);
     let already_exists = entry.is_equal_to(meta, zip_file, &file_path);
     if !already_exists {
         restore_media_file(meta, zip_file, &file_path)?;
@@ -153,70 +121,6 @@ fn restore_media_file(meta: &Meta, zip_file: &mut ZipFile, path: &Path) -> Resul
     atomic_rename(tempfile, path, false)
 }
 
-impl MediaEntry {
-    fn safe_normalized_file_path(&self, meta: &Meta, media_folder: &Path) -> Result<PathBuf> {
-        if !filename_is_safe(&self.name) {
-            return Err(AnkiError::ImportError(ImportError::Corrupt));
-        }
-        let normalized = maybe_normalizing(&self.name, meta.strict_media_checks())?;
-        Ok(media_folder.join(normalized.as_ref()))
-    }
-
-    fn is_equal_to(&self, meta: &Meta, self_zipped: &ZipFile, other_path: &Path) -> bool {
-        // TODO: checks hashs (https://github.com/ankitects/anki/pull/1723#discussion_r829653147)
-        let self_size = if meta.media_list_is_hashmap() {
-            self_zipped.size()
-        } else {
-            self.size as u64
-        };
-        fs::metadata(other_path)
-            .map(|metadata| metadata.len() as u64 == self_size)
-            .unwrap_or_default()
-    }
-}
-
-/// - If strict is true, return an error if not normalized.
-/// - If false, return the normalized version.
-fn maybe_normalizing(name: &str, strict: bool) -> Result<Cow<str>> {
-    let normalized = normalize_filename(name);
-    if strict && matches!(normalized, Cow::Owned(_)) {
-        // exporting code should have checked this
-        Err(AnkiError::ImportError(ImportError::Corrupt))
-    } else {
-        Ok(normalized)
-    }
-}
-
-pub(crate) fn extract_media_entries(
-    meta: &Meta,
-    archive: &mut ZipArchive<File>,
-) -> Result<Vec<MediaEntry>> {
-    let mut file = archive.by_name("media")?;
-    let mut buf = Vec::new();
-    if meta.zstd_compressed() {
-        copy_decode(file, &mut buf)?;
-    } else {
-        io::copy(&mut file, &mut buf)?;
-    }
-    if meta.media_list_is_hashmap() {
-        let map: HashMap<&str, String> = serde_json::from_slice(&buf)?;
-        map.into_iter()
-            .map(|(idx_str, name)| {
-                let idx: u32 = idx_str.parse()?;
-                Ok(MediaEntry {
-                    name,
-                    size: 0,
-                    sha1: vec![],
-                    legacy_zip_filename: Some(idx),
-                })
-            })
-            .collect()
-    } else {
-        let entries: MediaEntries = Message::decode(&*buf)?;
-        Ok(entries.entries)
-    }
-}
-
 fn copy_collection(
     archive: &mut ZipArchive<File>,
     writer: &mut impl Write,
@@ -232,15 +136,4 @@ fn copy_collection(
     }
 
     Ok(())
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn normalization() {
-        assert_eq!(&maybe_normalizing("con", false).unwrap(), "con_");
-        assert!(&maybe_normalizing("con", true).is_err());
-    }
 }
