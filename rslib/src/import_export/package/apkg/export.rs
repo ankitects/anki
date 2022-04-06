@@ -78,6 +78,7 @@ impl Collection {
 
         let mut temp_col = Collection::new_minimal(path)?;
         temp_col.insert_data(&data)?;
+        temp_col.set_creation_stamp(self.storage.creation_stamp()?)?;
         temp_col.close(Some(SchemaVersion::V11))?;
 
         Ok(data.media_paths)
