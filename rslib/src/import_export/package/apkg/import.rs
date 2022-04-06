@@ -81,7 +81,7 @@ impl Collection {
 fn build_media_map(archive: &mut ZipArchive<File>) -> Result<HashMap<String, String>> {
     Ok(extract_media_entries(&Meta::new_legacy(), archive)?
         .into_iter()
-        .map(|entry| (entry.name, entry.legacy_zip_filename.unwrap().to_string()))
+        .map(|entry| (entry.name, entry.index.to_string()))
         .collect())
 }
 

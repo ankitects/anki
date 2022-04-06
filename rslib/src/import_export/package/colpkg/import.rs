@@ -14,7 +14,10 @@ use crate::{
     collection::CollectionBuilder,
     error::ImportError,
     import_export::{
-        package::{media::extract_media_entries, MediaEntry, Meta},
+        package::{
+            media::{extract_media_entries, SafeMediaEntry},
+            Meta,
+        },
         ImportProgress,
     },
     io::{atomic_rename, tempfile_in_parent_of},
@@ -70,24 +73,11 @@ fn restore_media(
     let media_entries = extract_media_entries(meta, archive)?;
     std::fs::create_dir_all(media_folder)?;
 
-    for (entry_idx, entry) in media_entries.iter().enumerate() {
-        if entry_idx % 10 == 0 {
-            progress_fn(ImportProgress::Media(entry_idx))?;
+    for entry in &media_entries {
+        if entry.index % 10 == 0 {
+            progress_fn(ImportProgress::Media(entry.index))?;
         }
-
-        let zip_filename = entry
-            .legacy_zip_filename
-            .map(|n| n as usize)
-            .unwrap_or(entry_idx)
-            .to_string();
-
-        if let Ok(mut zip_file) = archive.by_name(&zip_filename) {
-            maybe_restore_media_file(meta, media_folder, entry, &mut zip_file)?;
-        } else {
-            return Err(AnkiError::invalid_input(&format!(
-                "{zip_filename} missing from archive"
-            )));
-        }
+        maybe_restore_media_file(meta, media_folder, archive, entry)?;
     }
 
     Ok(())
@@ -96,13 +86,14 @@ fn restore_media(
 fn maybe_restore_media_file(
     meta: &Meta,
     media_folder: &Path,
-    entry: &MediaEntry,
-    zip_file: &mut ZipFile,
+    archive: &mut ZipArchive<File>,
+    entry: &SafeMediaEntry,
 ) -> Result<()> {
     let file_path = entry.file_path(media_folder);
-    let already_exists = entry.is_equal_to(meta, zip_file, &file_path);
+    let mut zip_file = entry.fetch_file(archive)?;
+    let already_exists = entry.is_equal_to(meta, &zip_file, &file_path);
     if !already_exists {
-        restore_media_file(meta, zip_file, &file_path)?;
+        restore_media_file(meta, &mut zip_file, &file_path)?;
     };
 
     Ok(())

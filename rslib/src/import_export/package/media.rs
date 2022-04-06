@@ -18,6 +18,15 @@ use crate::{
     error::ImportError, io::filename_is_safe, media::files::normalize_filename, prelude::*,
 };
 
+/// Like [MediaEntry], but with a safe filename and set zip filename.
+pub(super) struct SafeMediaEntry {
+    pub(super) name: String,
+    pub(super) size: u32,
+    #[allow(dead_code)]
+    pub(super) sha1: [u8; 20],
+    pub(super) index: usize,
+}
+
 impl MediaEntry {
     pub(super) fn new(
         name: impl Into<String>,
@@ -31,9 +40,26 @@ impl MediaEntry {
             legacy_zip_filename: None,
         }
     }
+}
+
+impl SafeMediaEntry {
+    pub(super) fn from_entry(enumerated: (usize, MediaEntry)) -> Result<Self> {
+        let (index, entry) = enumerated;
+        if let Ok(sha1) = entry.sha1.try_into() {
+            if !matches!(safe_normalized_file_name(&entry.name)?, Cow::Owned(_)) {
+                return Ok(Self {
+                    name: entry.name,
+                    size: entry.size,
+                    sha1,
+                    index,
+                });
+            }
+        }
+        Err(AnkiError::ImportError(ImportError::Corrupt))
+    }
 
     pub(super) fn from_legacy(legacy_entry: (&str, String)) -> Result<Self> {
-        let idx: u32 = legacy_entry.0.parse()?;
+        let zip_filename: usize = legacy_entry.0.parse()?;
         let name = match safe_normalized_file_name(&legacy_entry.1)? {
             Cow::Owned(new_name) => new_name,
             Cow::Borrowed(_) => legacy_entry.1,
@@ -41,13 +67,19 @@ impl MediaEntry {
         Ok(Self {
             name,
             size: 0,
-            sha1: vec![],
-            legacy_zip_filename: Some(idx),
+            sha1: [0; 20],
+            index: zip_filename,
         })
     }
 
     pub(super) fn file_path(&self, media_folder: &Path) -> PathBuf {
         media_folder.join(&self.name)
+    }
+
+    pub(super) fn fetch_file<'a>(&self, archive: &'a mut ZipArchive<File>) -> Result<ZipFile<'a>> {
+        archive
+            .by_name(&self.index.to_string())
+            .map_err(|_| AnkiError::invalid_input(&format!("{} missing from archive", self.index)))
     }
 
     pub(super) fn is_equal_to(
@@ -71,13 +103,13 @@ impl MediaEntry {
 pub(super) fn extract_media_entries(
     meta: &Meta,
     archive: &mut ZipArchive<File>,
-) -> Result<Vec<MediaEntry>> {
+) -> Result<Vec<SafeMediaEntry>> {
     let media_list_data = get_media_list_data(archive, meta)?;
     if meta.media_list_is_hashmap() {
         let map: HashMap<&str, String> = serde_json::from_slice(&media_list_data)?;
-        map.into_iter().map(MediaEntry::from_legacy).collect()
+        map.into_iter().map(SafeMediaEntry::from_legacy).collect()
     } else {
-        MediaEntries::decode_checked(&media_list_data).map(|m| m.entries)
+        MediaEntries::decode_safe_entries(&media_list_data)
     }
 }
 
@@ -101,14 +133,14 @@ fn get_media_list_data(archive: &mut ZipArchive<File>, meta: &Meta) -> Result<Ve
 }
 
 impl MediaEntries {
-    fn decode_checked(buf: &[u8]) -> Result<Self> {
+    fn decode_safe_entries(buf: &[u8]) -> Result<Vec<SafeMediaEntry>> {
         let entries: Self = Message::decode(buf)?;
-        for entry in &entries.entries {
-            if matches!(safe_normalized_file_name(&entry.name)?, Cow::Owned(_)) {
-                return Err(AnkiError::ImportError(ImportError::Corrupt));
-            }
-        }
-        Ok(entries)
+        entries
+            .entries
+            .into_iter()
+            .enumerate()
+            .map(SafeMediaEntry::from_entry)
+            .collect()
     }
 }
 
@@ -119,7 +151,7 @@ mod test {
     #[test]
     fn normalization() {
         // legacy entries get normalized on deserialisation
-        let entry = MediaEntry::from_legacy(("1", "con".to_owned())).unwrap();
+        let entry = SafeMediaEntry::from_legacy(("1", "con".to_owned())).unwrap();
         assert_eq!(entry.name, "con_");
 
         // new-style entries should have been normalized on export
@@ -129,6 +161,6 @@ mod test {
         }
         .encode(&mut entries)
         .unwrap();
-        assert!(MediaEntries::decode_checked(&entries).is_err());
+        assert!(MediaEntries::decode_safe_entries(&entries).is_err());
     }
 }
