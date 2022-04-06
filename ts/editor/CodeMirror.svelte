@@ -51,9 +51,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const direction = getContext<Writable<"ltr" | "rtl">>(directionKey);
 
-    $: setOption("direction", $direction);
-    $: setOption("theme", $pageTheme.isDark ? darkTheme : lightTheme);
-
     let apiPartial: Partial<CodeMirrorAPI>;
     export { apiPartial as api };
 
@@ -78,7 +75,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tabindex="-1"
         hidden
         use:openCodeMirror={{
-            configuration: { ...configuration, ...defaultConfiguration },
+            configuration: {
+                ...configuration,
+                ...defaultConfiguration,
+                direction: $direction,
+                theme: $pageTheme.isDark ? darkTheme : lightTheme,
+            },
             resolve,
             hidden,
         }}

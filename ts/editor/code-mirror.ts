@@ -70,7 +70,7 @@ export function openCodeMirror(
     textarea: HTMLTextAreaElement,
     options: Partial<OpenCodeMirrorOptions>,
 ): { update: (options: Partial<OpenCodeMirrorOptions>) => void; destroy: () => void } {
-    let editor: CodeMirror.EditorFromTextArea;
+    let editor: CodeMirror.EditorFromTextArea | null = null;
 
     function update({
         configuration,
@@ -95,7 +95,8 @@ export function openCodeMirror(
     return {
         update,
         destroy(): void {
-            editor.toTextArea();
+            editor?.toTextArea();
+            editor = null;
         },
     };
 }
