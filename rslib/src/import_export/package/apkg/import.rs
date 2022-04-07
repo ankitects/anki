@@ -8,7 +8,6 @@ use std::{
     io::{self},
     mem,
     path::Path,
-    sync::Arc,
 };
 
 use sha1::Sha1;
@@ -37,7 +36,6 @@ struct Context {
     guid_map: HashMap<String, NoteMeta>,
     remapped_notetypes: HashMap<NotetypeId, NotetypeId>,
     existing_notes: HashSet<NoteId>,
-    existing_notetypes: HashSet<NotetypeId>,
     data: ExchangeData,
     usn: Usn,
     /// Map of source media files, that do not already exist in the target.
@@ -142,7 +140,6 @@ impl Context {
             data,
             guid_map: target_col.storage.note_guid_map()?,
             existing_notes: target_col.storage.get_all_note_ids()?,
-            existing_notetypes: target_col.storage.get_all_notetype_ids()?,
             usn: target_col.usn()?,
             conflicting_notes: HashSet::new(),
             remapped_notetypes: HashMap::new(),
@@ -169,55 +166,64 @@ impl Context {
     }
 
     fn prepare_notetypes(&mut self, target_col: &mut Collection) -> Result<()> {
-        for notetype in mem::take(&mut self.data.notetypes) {
-            if let Some(existing) = target_col.get_notetype(notetype.id)? {
-                self.merge_or_remap_notetype(notetype, existing)?;
+        for mut notetype in std::mem::take(&mut self.data.notetypes) {
+            if let Some(existing) = target_col.storage.get_notetype(notetype.id)? {
+                self.merge_or_remap_notetype(&mut notetype, existing, target_col)?;
             } else {
-                self.add_notetype(notetype);
+                self.add_notetype(&mut notetype, target_col)?;
             }
         }
         Ok(())
     }
 
-    fn add_notetype(&mut self, mut notetype: Notetype) {
-        self.existing_notetypes.insert(notetype.id);
-        notetype.usn = self.usn;
-        self.data.notetypes.push(notetype);
-    }
-
     fn merge_or_remap_notetype(
         &mut self,
-        incoming: Notetype,
-        existing: Arc<Notetype>,
+        incoming: &mut Notetype,
+        existing: Notetype,
+        target_col: &mut Collection,
     ) -> Result<()> {
         if incoming.schema_hash() == existing.schema_hash() {
-            self.add_notetype_if_newer(incoming, existing);
+            if incoming.mtime_secs > existing.mtime_secs {
+                self.update_notetype(incoming, existing, target_col)?;
+            }
         } else {
-            self.add_notetype_with_new_id(incoming)?;
+            self.add_notetype_with_remapped_id(incoming, target_col)?;
         }
         Ok(())
     }
 
-    fn add_notetype_with_new_id(&mut self, mut notetype: Notetype) -> Result<()> {
-        let new_id = self.next_available_notetype_id();
-        self.remapped_notetypes.insert(notetype.id, new_id);
-        notetype.id = new_id;
-        self.add_notetype(notetype);
+    fn add_notetype(&mut self, notetype: &mut Notetype, target_col: &mut Collection) -> Result<()> {
+        notetype.usn = self.usn;
+        // TODO: make undoable
+        target_col.add_or_update_notetype_with_existing_id_inner(notetype, None, self.usn, true)
+    }
+
+    fn update_notetype(
+        &mut self,
+        notetype: &mut Notetype,
+        original: Notetype,
+        target_col: &mut Collection,
+    ) -> Result<()> {
+        notetype.usn = self.usn;
+        // TODO: make undoable
+        target_col.add_or_update_notetype_with_existing_id_inner(
+            notetype,
+            Some(original),
+            self.usn,
+            true,
+        )
+    }
+
+    fn add_notetype_with_remapped_id(
+        &mut self,
+        notetype: &mut Notetype,
+        target_col: &mut Collection,
+    ) -> Result<()> {
+        let old_id = std::mem::take(&mut notetype.id);
+        notetype.usn = self.usn;
+        target_col.add_notetype_inner(notetype, self.usn, true)?;
+        self.remapped_notetypes.insert(old_id, notetype.id);
         Ok(())
-    }
-
-    fn next_available_notetype_id(&self) -> NotetypeId {
-        let mut next_id = NotetypeId(TimestampMillis::now().0);
-        while self.existing_notetypes.contains(&next_id) {
-            next_id.0 += 1;
-        }
-        next_id
-    }
-
-    fn add_notetype_if_newer(&mut self, incoming: Notetype, existing: Arc<Notetype>) {
-        if incoming.mtime_secs > existing.mtime_secs {
-            self.add_notetype(incoming);
-        }
     }
 
     fn prepare_notes(&mut self) -> Result<()> {
