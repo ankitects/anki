@@ -255,7 +255,12 @@ pub(crate) fn replace_media_refs(
     let mut rep = |caps: &Captures| {
         let whole_match = caps.get(0).unwrap().as_str();
         let old_name = caps.iter().skip(1).find_map(|g| g).unwrap().as_str();
-        if let Some(new_name) = replacer(old_name) {
+        let old_name_decoded = decode_entities(old_name);
+
+        if let Some(mut new_name) = replacer(&old_name_decoded) {
+            if matches!(old_name_decoded, Cow::Owned(_)) {
+                new_name = htmlescape::encode_minimal(&new_name);
+            }
             whole_match.replace(old_name, &new_name)
         } else {
             whole_match.to_owned()
