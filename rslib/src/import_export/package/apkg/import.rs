@@ -7,7 +7,6 @@ use std::{
     fs::File,
     io::{self},
     mem,
-    path::Path,
 };
 
 use sha1::Sha1;
@@ -31,7 +30,8 @@ use crate::{
     text::replace_media_refs,
 };
 
-struct Context {
+struct Context<'a> {
+    target_col: &'a mut Collection,
     archive: ZipArchive<File>,
     guid_map: HashMap<String, NoteMeta>,
     remapped_notetypes: HashMap<NotetypeId, NotetypeId>,
@@ -94,12 +94,12 @@ impl Collection {
         let archive = ZipArchive::new(file)?;
 
         let mut ctx = Context::new(archive, self, search, with_scheduling)?;
-        ctx.prepare_media(self)?;
-        ctx.prepare_notetypes(self)?;
+        ctx.prepare_media()?;
+        ctx.prepare_notetypes()?;
         ctx.prepare_notes()?;
 
-        self.insert_data(&ctx.data)?;
-        ctx.copy_media(&self.media_folder)?;
+        ctx.target_col.insert_data(&ctx.data)?;
+        ctx.copy_media()?;
         Ok(())
     }
 
@@ -127,28 +127,32 @@ impl ExchangeData {
     }
 }
 
-impl Context {
+impl<'a> Context<'a> {
     fn new(
         mut archive: ZipArchive<File>,
-        target_col: &mut Collection,
+        target_col: &'a mut Collection,
         search: impl TryIntoSearch,
         with_scheduling: bool,
     ) -> Result<Self> {
         let data = ExchangeData::gather_from_archive(&mut archive, search, with_scheduling)?;
+        let guid_map = target_col.storage.note_guid_map()?;
+        let existing_notes = target_col.storage.get_all_note_ids()?;
+        let usn = target_col.usn()?;
         Ok(Self {
+            target_col,
             archive,
             data,
-            guid_map: target_col.storage.note_guid_map()?,
-            existing_notes: target_col.storage.get_all_note_ids()?,
-            usn: target_col.usn()?,
+            guid_map,
+            existing_notes,
+            usn,
             conflicting_notes: HashSet::new(),
             remapped_notetypes: HashMap::new(),
             used_media_entries: HashMap::new(),
         })
     }
 
-    fn prepare_media(&mut self, target_col: &mut Collection) -> Result<()> {
-        let existing_sha1s = target_col.all_existing_sha1s()?;
+    fn prepare_media(&mut self) -> Result<()> {
+        let existing_sha1s = self.target_col.all_existing_sha1s()?;
         for mut entry in extract_media_entries(&Meta::new_legacy(), &mut self.archive)? {
             if let Some(other_sha1) = existing_sha1s.get(&entry.name) {
                 entry.with_hash_from_archive(&mut self.archive)?;
@@ -165,12 +169,12 @@ impl Context {
         Ok(())
     }
 
-    fn prepare_notetypes(&mut self, target_col: &mut Collection) -> Result<()> {
+    fn prepare_notetypes(&mut self) -> Result<()> {
         for mut notetype in std::mem::take(&mut self.data.notetypes) {
-            if let Some(existing) = target_col.storage.get_notetype(notetype.id)? {
-                self.merge_or_remap_notetype(&mut notetype, existing, target_col)?;
+            if let Some(existing) = self.target_col.storage.get_notetype(notetype.id)? {
+                self.merge_or_remap_notetype(&mut notetype, existing)?;
             } else {
-                self.add_notetype(&mut notetype, target_col)?;
+                self.add_notetype(&mut notetype)?;
             }
         }
         Ok(())
@@ -180,48 +184,36 @@ impl Context {
         &mut self,
         incoming: &mut Notetype,
         existing: Notetype,
-        target_col: &mut Collection,
     ) -> Result<()> {
         if incoming.schema_hash() == existing.schema_hash() {
             if incoming.mtime_secs > existing.mtime_secs {
-                self.update_notetype(incoming, existing, target_col)?;
+                self.update_notetype(incoming, existing)?;
             }
         } else {
-            self.add_notetype_with_remapped_id(incoming, target_col)?;
+            self.add_notetype_with_remapped_id(incoming)?;
         }
         Ok(())
     }
 
-    fn add_notetype(&mut self, notetype: &mut Notetype, target_col: &mut Collection) -> Result<()> {
+    fn add_notetype(&mut self, notetype: &mut Notetype) -> Result<()> {
         notetype.usn = self.usn;
         // TODO: make undoable
-        target_col.add_or_update_notetype_with_existing_id_inner(notetype, None, self.usn, true)
+        self.target_col
+            .add_or_update_notetype_with_existing_id_inner(notetype, None, self.usn, true)
     }
 
-    fn update_notetype(
-        &mut self,
-        notetype: &mut Notetype,
-        original: Notetype,
-        target_col: &mut Collection,
-    ) -> Result<()> {
+    fn update_notetype(&mut self, notetype: &mut Notetype, original: Notetype) -> Result<()> {
         notetype.usn = self.usn;
         // TODO: make undoable
-        target_col.add_or_update_notetype_with_existing_id_inner(
-            notetype,
-            Some(original),
-            self.usn,
-            true,
-        )
+        self.target_col
+            .add_or_update_notetype_with_existing_id_inner(notetype, Some(original), self.usn, true)
     }
 
-    fn add_notetype_with_remapped_id(
-        &mut self,
-        notetype: &mut Notetype,
-        target_col: &mut Collection,
-    ) -> Result<()> {
+    fn add_notetype_with_remapped_id(&mut self, notetype: &mut Notetype) -> Result<()> {
         let old_id = std::mem::take(&mut notetype.id);
         notetype.usn = self.usn;
-        target_col.add_notetype_inner(notetype, self.usn, true)?;
+        self.target_col
+            .add_notetype_inner(notetype, self.usn, true)?;
         self.remapped_notetypes.insert(old_id, notetype.id);
         Ok(())
     }
@@ -309,10 +301,10 @@ impl Context {
         }
     }
 
-    fn copy_media(&mut self, media_folder: &Path) -> Result<()> {
+    fn copy_media(&mut self) -> Result<()> {
         for (used, entry) in self.used_media_entries.values() {
             if *used {
-                entry.copy_from_archive(&mut self.archive, media_folder)?;
+                entry.copy_from_archive(&mut self.archive, &self.target_col.media_folder)?;
             }
         }
         Ok(())
