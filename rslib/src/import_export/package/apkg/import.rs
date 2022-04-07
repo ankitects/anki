@@ -44,7 +44,9 @@ struct Context<'a> {
     /// original, normalized file name → (refererenced on import material,
     /// entry with possibly remapped file name)
     used_media_entries: HashMap<String, (bool, SafeMediaEntry)>,
-    conflicting_notes: HashSet<String>,
+    /// Source notes that cannot be imported, because notes with the same guid
+    /// exist in the target, but their notetypes don't match.
+    conflicting_notes: HashSet<NoteId>,
     normalize_notes: bool,
 }
 
@@ -220,14 +222,14 @@ impl<'a> Context<'a> {
         for mut note in mem::take(&mut self.data.notes) {
             if let Some(notetype_id) = self.remapped_notetypes.get(&note.notetype_id) {
                 if self.guid_map.contains_key(&note.guid) {
-                    self.conflicting_notes.insert(note.guid);
+                    self.conflicting_notes.insert(note.id);
                     // TODO: Log ignore
                 } else {
                     note.notetype_id = *notetype_id;
                     self.add_note(&mut note)?;
                 }
             } else if let Some(&meta) = self.guid_map.get(&note.guid) {
-                self.maybe_update_note(note, meta)?;
+                self.maybe_update_note(&mut note, meta)?;
             } else {
                 self.add_note(&mut note)?;
             }
@@ -261,13 +263,14 @@ impl<'a> Context<'a> {
             .ok_or(AnkiError::NotFound)
     }
 
-    fn maybe_update_note(&mut self, mut note: Note, meta: NoteMeta) -> Result<()> {
+    fn maybe_update_note(&mut self, note: &mut Note, meta: NoteMeta) -> Result<()> {
         if meta.mtime < note.mtime {
             if meta.notetype_id == note.notetype_id {
+                self.remapped_notes.insert(note.id, meta.id);
                 note.id = meta.id;
-                self.update_note(&mut note)?;
+                self.update_note(note)?;
             } else {
-                self.conflicting_notes.insert(note.guid);
+                self.conflicting_notes.insert(note.id);
                 // TODO: Log ignore
             }
         } else {
