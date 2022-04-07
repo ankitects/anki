@@ -7,6 +7,7 @@ use std::{
     fs::File,
     io::{self},
     mem,
+    sync::Arc,
 };
 
 use sha1::Sha1;
@@ -35,7 +36,7 @@ struct Context<'a> {
     archive: ZipArchive<File>,
     guid_map: HashMap<String, NoteMeta>,
     remapped_notetypes: HashMap<NotetypeId, NotetypeId>,
-    existing_notes: HashSet<NoteId>,
+    remapped_notes: HashMap<NoteId, NoteId>,
     data: ExchangeData,
     usn: Usn,
     /// Map of source media files, that do not already exist in the target.
@@ -44,6 +45,7 @@ struct Context<'a> {
     /// entry with possibly remapped file name)
     used_media_entries: HashMap<String, (bool, SafeMediaEntry)>,
     conflicting_notes: HashSet<String>,
+    normalize_notes: bool,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -60,10 +62,6 @@ impl NoteMeta {
             mtime,
             notetype_id,
         }
-    }
-
-    fn from_note(note: &Note) -> Self {
-        Self::new(note.id, note.mtime, note.notetype_id)
     }
 }
 
@@ -95,8 +93,8 @@ impl Collection {
 
         let mut ctx = Context::new(archive, self, search, with_scheduling)?;
         ctx.prepare_media()?;
-        ctx.prepare_notetypes()?;
-        ctx.prepare_notes()?;
+        ctx.import_notetypes()?;
+        ctx.import_notes()?;
 
         ctx.target_col.insert_data(&ctx.data)?;
         ctx.copy_media()?;
@@ -136,18 +134,19 @@ impl<'a> Context<'a> {
     ) -> Result<Self> {
         let data = ExchangeData::gather_from_archive(&mut archive, search, with_scheduling)?;
         let guid_map = target_col.storage.note_guid_map()?;
-        let existing_notes = target_col.storage.get_all_note_ids()?;
         let usn = target_col.usn()?;
+        let normalize_notes = target_col.get_config_bool(BoolKey::NormalizeNoteText);
         Ok(Self {
             target_col,
             archive,
             data,
             guid_map,
-            existing_notes,
             usn,
             conflicting_notes: HashSet::new(),
             remapped_notetypes: HashMap::new(),
+            remapped_notes: HashMap::new(),
             used_media_entries: HashMap::new(),
+            normalize_notes,
         })
     }
 
@@ -169,7 +168,7 @@ impl<'a> Context<'a> {
         Ok(())
     }
 
-    fn prepare_notetypes(&mut self) -> Result<()> {
+    fn import_notetypes(&mut self) -> Result<()> {
         for mut notetype in std::mem::take(&mut self.data.notetypes) {
             if let Some(existing) = self.target_col.storage.get_notetype(notetype.id)? {
                 self.merge_or_remap_notetype(&mut notetype, existing)?;
@@ -204,7 +203,6 @@ impl<'a> Context<'a> {
 
     fn update_notetype(&mut self, notetype: &mut Notetype, original: Notetype) -> Result<()> {
         notetype.usn = self.usn;
-        // TODO: make undoable
         self.target_col
             .add_or_update_notetype_with_existing_id_inner(notetype, Some(original), self.usn, true)
     }
@@ -218,46 +216,56 @@ impl<'a> Context<'a> {
         Ok(())
     }
 
-    fn prepare_notes(&mut self) -> Result<()> {
+    fn import_notes(&mut self) -> Result<()> {
         for mut note in mem::take(&mut self.data.notes) {
             if let Some(notetype_id) = self.remapped_notetypes.get(&note.notetype_id) {
                 if self.guid_map.contains_key(&note.guid) {
-                    todo!("ignore");
+                    self.conflicting_notes.insert(note.guid);
+                    // TODO: Log ignore
                 } else {
                     note.notetype_id = *notetype_id;
-                    self.prepare_new_note(note)?;
+                    self.add_note(&mut note)?;
                 }
             } else if let Some(&meta) = self.guid_map.get(&note.guid) {
-                self.prepare_existing_note(note, meta)?;
+                self.maybe_update_note(note, meta)?;
             } else {
-                self.prepare_new_note(note)?;
+                self.add_note(&mut note)?;
             }
         }
         Ok(())
     }
 
-    fn add_prepared_note(&mut self, mut note: Note) -> Result<()> {
-        self.munge_media(&mut note)?;
+    fn add_note(&mut self, mut note: &mut Note) -> Result<()> {
+        // TODO: Log add
+        self.munge_media(note)?;
+        self.target_col.canonify_note_tags(note, self.usn)?;
+        let notetype = self.get_expected_notetype(note.notetype_id)?;
+        note.prepare_for_update(&notetype, self.normalize_notes)?;
         note.usn = self.usn;
-        self.data.notes.push(note);
+        let old_id = std::mem::take(&mut note.id);
+        self.target_col.add_note_only_undoable(note)?;
+        self.remapped_notes.insert(old_id, note.id);
         Ok(())
     }
 
-    fn prepare_new_note(&mut self, mut note: Note) -> Result<()> {
-        self.to_next_available_note_id(&mut note.id);
-        self.existing_notes.insert(note.id);
-        self.guid_map
-            .insert(note.guid.clone(), NoteMeta::from_note(&note));
-        self.add_prepared_note(note)
-        // TODO: Log add
+    fn get_expected_notetype(&mut self, ntid: NotetypeId) -> Result<Arc<Notetype>> {
+        self.target_col
+            .get_notetype(ntid)?
+            .ok_or(AnkiError::NotFound)
     }
 
-    fn prepare_existing_note(&mut self, mut note: Note, meta: NoteMeta) -> Result<()> {
+    fn get_expected_note(&mut self, nid: NoteId) -> Result<Note> {
+        self.target_col
+            .storage
+            .get_note(nid)?
+            .ok_or(AnkiError::NotFound)
+    }
+
+    fn maybe_update_note(&mut self, mut note: Note, meta: NoteMeta) -> Result<()> {
         if meta.mtime < note.mtime {
             if meta.notetype_id == note.notetype_id {
                 note.id = meta.id;
-                self.add_prepared_note(note)?;
-                // TODO: Log update
+                self.update_note(&mut note)?;
             } else {
                 self.conflicting_notes.insert(note.guid);
                 // TODO: Log ignore
@@ -266,6 +274,22 @@ impl<'a> Context<'a> {
             // TODO: Log duplicate
         }
         Ok(())
+    }
+
+    fn update_note(&mut self, note: &mut Note) -> Result<()> {
+        // TODO: Log update
+        self.munge_media(note)?;
+        let original = self.get_expected_note(note.id)?;
+        let notetype = self.get_expected_notetype(note.notetype_id)?;
+        self.target_col.update_note_inner_without_cards(
+            note,
+            &original,
+            &notetype,
+            self.usn,
+            true,
+            self.normalize_notes,
+            true,
+        )
     }
 
     fn munge_media(&mut self, note: &mut Note) -> Result<()> {
@@ -293,12 +317,6 @@ impl<'a> Context<'a> {
             }
             None
         })
-    }
-
-    fn to_next_available_note_id(&self, note_id: &mut NoteId) {
-        while self.existing_notes.contains(note_id) {
-            note_id.0 += 999;
-        }
     }
 
     fn copy_media(&mut self) -> Result<()> {

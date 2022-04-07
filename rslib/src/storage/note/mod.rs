@@ -42,13 +42,6 @@ impl super::SqliteStorage {
             .transpose()
     }
 
-    pub fn get_all_note_ids(&self) -> Result<HashSet<NoteId>> {
-        self.db
-            .prepare("SELECT id FROM notes")?
-            .query_and_then([], |row| Ok(row.get(0)?))?
-            .collect()
-    }
-
     /// If fields have been modified, caller must call note.prepare_for_update() prior to calling this.
     pub(crate) fn update_note(&self, note: &Note) -> Result<()> {
         assert!(note.id.0 != 0);

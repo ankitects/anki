@@ -320,7 +320,7 @@ fn invalid_char_for_field(c: char) -> bool {
 }
 
 impl Collection {
-    fn canonify_note_tags(&mut self, note: &mut Note, usn: Usn) -> Result<()> {
+    pub(crate) fn canonify_note_tags(&mut self, note: &mut Note, usn: Usn) -> Result<()> {
         if !note.tags.is_empty() {
             let tags = std::mem::take(&mut note.tags);
             note.tags = self.canonify_tags(tags, usn)?.0;

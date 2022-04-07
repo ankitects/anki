@@ -83,7 +83,7 @@ impl Collection {
     }
 
     /// Add a note, not adding any cards.
-    pub(super) fn add_note_only_undoable(&mut self, note: &mut Note) -> Result<(), AnkiError> {
+    pub(crate) fn add_note_only_undoable(&mut self, note: &mut Note) -> Result<(), AnkiError> {
         self.storage.add_note(note)?;
         self.save_undo(UndoableNoteChange::Added(Box::new(note.clone())));
 
