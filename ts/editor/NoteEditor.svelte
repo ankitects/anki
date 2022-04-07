@@ -2,6 +2,14 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
+<!--
+@component
+Serves as a pre-slotted convenience component which combines all the common
+components and functionality for general note editing.
+
+Functionality exclusive to specifc note-editing views (e.g. in the browser or
+the AddCards dialog) should be implemented in the user of this component.
+-->
 <script context="module" lang="ts">
     import type { Writable } from "svelte/store";
 
