@@ -5,7 +5,7 @@ use std::{collections::HashMap, path::Path};
 
 use rusqlite::{params, Connection, OptionalExtension, Row, Statement};
 
-use crate::error::Result;
+use crate::prelude::*;
 
 fn trace(s: &str) {
     println!("sql: {}", s)
@@ -222,6 +222,14 @@ delete from media where fname=?"
         Ok(map?)
     }
 
+    /// Error if any checksums are missing or broken.
+    pub(super) fn all_checksums(&mut self) -> Result<HashMap<String, [u8; 20]>> {
+        self.db
+            .prepare("SELECT fname, csum FROM media")?
+            .query_and_then([], row_to_name_and_checksum)?
+            .collect()
+    }
+
     pub(super) fn force_resync(&mut self) -> Result<()> {
         self.db
             .execute_batch("delete from media; update meta set lastUsn = 0, dirMod = 0")
@@ -248,6 +256,15 @@ fn row_to_entry(row: &Row) -> rusqlite::Result<MediaEntry> {
         mtime: row.get(2)?,
         sync_required: row.get(3)?,
     })
+}
+
+fn row_to_name_and_checksum(row: &Row) -> Result<(String, [u8; 20])> {
+    let file_name = row.get(0)?;
+    let sha1_str: String = row.get(1)?;
+    let mut sha1 = [0; 20];
+    hex::decode_to_slice(sha1_str, &mut sha1)
+        .map_err(|_| AnkiError::invalid_input(format!("bad media checksum: {file_name}")))?;
+    Ok((file_name, sha1))
 }
 
 #[cfg(test)]

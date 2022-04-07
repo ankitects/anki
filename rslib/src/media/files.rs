@@ -194,7 +194,7 @@ where
 }
 
 /// Convert foo.jpg into foo-abcde12345679.jpg
-fn add_hash_suffix_to_file_stem(fname: &str, hash: &[u8; 20]) -> String {
+pub(crate) fn add_hash_suffix_to_file_stem(fname: &str, hash: &[u8; 20]) -> String {
     // when appending a hash to make unique, it will be 40 bytes plus the hyphen.
     let max_len = MAX_FILENAME_LENGTH - 40 - 1;
 
@@ -283,10 +283,15 @@ fn existing_file_sha1(path: &Path) -> io::Result<Option<[u8; 20]>> {
 /// Return the SHA1 of a file, failing if it doesn't exist.
 pub(crate) fn sha1_of_file(path: &Path) -> io::Result<[u8; 20]> {
     let mut file = fs::File::open(path)?;
+    sha1_of_reader(&mut file)
+}
+
+/// Return the SHA1 of a stream.
+pub(crate) fn sha1_of_reader(reader: &mut impl Read) -> io::Result<[u8; 20]> {
     let mut hasher = Sha1::new();
     let mut buf = [0; 64 * 1024];
     loop {
-        match file.read(&mut buf) {
+        match reader.read(&mut buf) {
             Ok(0) => break,
             Ok(n) => hasher.update(&buf[0..n]),
             Err(e) => {

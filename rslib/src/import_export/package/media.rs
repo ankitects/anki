@@ -10,19 +10,22 @@ use std::{
 };
 
 use prost::Message;
+use tempfile::NamedTempFile;
 use zip::{read::ZipFile, ZipArchive};
 use zstd::stream::copy_decode;
 
 use super::{MediaEntries, MediaEntry, Meta};
 use crate::{
-    error::ImportError, io::filename_is_safe, media::files::normalize_filename, prelude::*,
+    error::ImportError,
+    io::{atomic_rename, filename_is_safe},
+    media::files::normalize_filename,
+    prelude::*,
 };
 
 /// Like [MediaEntry], but with a safe filename and set zip filename.
 pub(super) struct SafeMediaEntry {
     pub(super) name: String,
     pub(super) size: u32,
-    #[allow(dead_code)]
     pub(super) sha1: [u8; 20],
     pub(super) index: usize,
 }
@@ -98,6 +101,17 @@ impl SafeMediaEntry {
             .map(|metadata| metadata.len() as u64 == self_size)
             .unwrap_or_default()
     }
+
+    pub(super) fn copy_from_archive(
+        &self,
+        archive: &mut ZipArchive<File>,
+        target_folder: &Path,
+    ) -> Result<()> {
+        let mut file = self.fetch_file(archive)?;
+        let mut tempfile = NamedTempFile::new_in(target_folder)?;
+        io::copy(&mut file, &mut tempfile)?;
+        atomic_rename(tempfile, &self.file_path(target_folder), false)
+    }
 }
 
 pub(super) fn extract_media_entries(
@@ -113,7 +127,7 @@ pub(super) fn extract_media_entries(
     }
 }
 
-fn safe_normalized_file_name(name: &str) -> Result<Cow<str>> {
+pub(super) fn safe_normalized_file_name(name: &str) -> Result<Cow<str>> {
     if !filename_is_safe(name) {
         Err(AnkiError::ImportError(ImportError::Corrupt))
     } else {

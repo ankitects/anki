@@ -2,11 +2,12 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::{
+    borrow::Cow,
     collections::{HashMap, HashSet},
-    fs::{self, File},
-    io::{self, Write},
+    fs::File,
+    io::{self},
     mem,
-    path::{Path, PathBuf},
+    path::Path,
     sync::Arc,
 };
 
@@ -18,14 +19,19 @@ use crate::{
     collection::CollectionBuilder,
     import_export::{
         gather::ExchangeData,
-        package::{media::extract_media_entries, Meta},
+        package::{
+            media::{extract_media_entries, safe_normalized_file_name, SafeMediaEntry},
+            Meta,
+        },
     },
-    io::{atomic_rename, tempfile_in_parent_of},
+    media::{
+        files::{add_hash_suffix_to_file_stem, sha1_of_reader},
+        MediaManager,
+    },
     prelude::*,
     text::replace_media_refs,
 };
 
-#[derive(Debug)]
 struct Context {
     archive: ZipArchive<File>,
     guid_map: HashMap<String, NoteMeta>,
@@ -34,8 +40,11 @@ struct Context {
     existing_notetypes: HashSet<NotetypeId>,
     data: ExchangeData,
     usn: Usn,
-    media_map: HashMap<String, String>,
-    target_media_folder: PathBuf,
+    /// Map of source media files, that do not already exist in the target.
+    ///
+    /// original, normalized file name → (refererenced on import material,
+    /// entry with possibly remapped file name)
+    used_media_entries: HashMap<String, (bool, SafeMediaEntry)>,
     conflicting_notes: HashSet<String>,
 }
 
@@ -60,6 +69,22 @@ impl NoteMeta {
     }
 }
 
+impl SafeMediaEntry {
+    fn with_hash_from_archive(&mut self, archive: &mut ZipArchive<File>) -> Result<()> {
+        if self.sha1 == [0; 20] {
+            let mut reader = self.fetch_file(archive)?;
+            self.sha1 = sha1_of_reader(&mut reader)?;
+        }
+        Ok(())
+    }
+
+    /// Requires sha1 to be set. Returns old file name.
+    fn uniquify_name(&mut self) -> String {
+        let new_name = add_hash_suffix_to_file_stem(&self.name, &self.sha1);
+        mem::replace(&mut self.name, new_name)
+    }
+}
+
 impl Collection {
     pub fn import_apkg(
         &mut self,
@@ -71,18 +96,19 @@ impl Collection {
         let archive = ZipArchive::new(file)?;
 
         let mut ctx = Context::new(archive, self, search, with_scheduling)?;
+        ctx.prepare_media(self)?;
         ctx.prepare_notetypes(self)?;
         ctx.prepare_notes()?;
 
-        self.insert_data(&ctx.data)
+        self.insert_data(&ctx.data)?;
+        ctx.copy_media(&self.media_folder)?;
+        Ok(())
     }
-}
 
-fn build_media_map(archive: &mut ZipArchive<File>) -> Result<HashMap<String, String>> {
-    Ok(extract_media_entries(&Meta::new_legacy(), archive)?
-        .into_iter()
-        .map(|entry| (entry.name, entry.index.to_string()))
-        .collect())
+    fn all_existing_sha1s(&mut self) -> Result<HashMap<String, [u8; 20]>> {
+        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
+        mgr.all_checksums(|_| true, &self.log)
+    }
 }
 
 impl ExchangeData {
@@ -111,19 +137,35 @@ impl Context {
         with_scheduling: bool,
     ) -> Result<Self> {
         let data = ExchangeData::gather_from_archive(&mut archive, search, with_scheduling)?;
-        let media_map = build_media_map(&mut archive)?;
         Ok(Self {
             archive,
             data,
             guid_map: target_col.storage.note_guid_map()?,
             existing_notes: target_col.storage.get_all_note_ids()?,
             existing_notetypes: target_col.storage.get_all_notetype_ids()?,
-            media_map,
-            target_media_folder: target_col.media_folder.clone(),
             usn: target_col.usn()?,
             conflicting_notes: HashSet::new(),
             remapped_notetypes: HashMap::new(),
+            used_media_entries: HashMap::new(),
         })
+    }
+
+    fn prepare_media(&mut self, target_col: &mut Collection) -> Result<()> {
+        let existing_sha1s = target_col.all_existing_sha1s()?;
+        for mut entry in extract_media_entries(&Meta::new_legacy(), &mut self.archive)? {
+            if let Some(other_sha1) = existing_sha1s.get(&entry.name) {
+                entry.with_hash_from_archive(&mut self.archive)?;
+                if entry.sha1 != *other_sha1 {
+                    let original_name = entry.uniquify_name();
+                    self.used_media_entries
+                        .insert(original_name, (false, entry));
+                }
+            } else {
+                self.used_media_entries
+                    .insert(entry.name.clone(), (false, entry));
+            }
+        }
+        Ok(())
     }
 
     fn prepare_notetypes(&mut self, target_col: &mut Collection) -> Result<()> {
@@ -229,60 +271,28 @@ impl Context {
     }
 
     fn munge_media(&mut self, note: &mut Note) -> Result<()> {
-        let notetype_id = note.notetype_id;
         for field in note.fields_mut() {
-            if let Some(new_field) = self.replace_media_refs_fallible(field, notetype_id)? {
+            if let Some(new_field) = self.replace_media_refs(field) {
                 *field = new_field;
             };
         }
         Ok(())
     }
 
-    fn replace_media_refs_fallible(
-        &mut self,
-        field: &mut String,
-        notetype_id: NotetypeId,
-    ) -> Result<Option<String>> {
-        let mut res = Ok(());
-        let out = replace_media_refs(field, |name| {
-            if res.is_err() {
-                None
-            } else {
-                self.merge_media_maybe_renaming(name, notetype_id)
-                    .unwrap_or_else(|err| {
-                        res = Err(err);
-                        None
-                    })
-            }
-        });
-        res.map(|_| out)
-    }
-
-    fn merge_media_maybe_renaming(
-        &mut self,
-        name: &str,
-        notetype: NotetypeId,
-    ) -> Result<Option<String>> {
-        Ok(if let Some(zip_name) = self.media_map.get(name) {
-            let alternate_name = alternate_media_name(name, notetype);
-            let alternate_path = self.target_media_folder.join(&alternate_name);
-            if alternate_path.exists() {
-                Some(alternate_name)
-            } else {
-                let mut data = Vec::new();
-                io::copy(&mut self.archive.by_name(zip_name)?, &mut data)?;
-                let target_path = self.target_media_folder.join(name);
-                if !target_path.exists() {
-                    write_data_atomically(&data, &target_path)?;
-                    None
-                } else if data == fs::read(target_path)? {
-                    None
-                } else {
-                    write_data_atomically(&data, &alternate_path)?;
-                    Some(alternate_name)
+    fn replace_media_refs(&mut self, field: &mut String) -> Option<String> {
+        replace_media_refs(field, |name| {
+            if let Ok(normalized) = safe_normalized_file_name(name) {
+                if let Some((used, entry)) = self.used_media_entries.get_mut(normalized.as_ref()) {
+                    *used = true;
+                    if entry.name != name {
+                        // name is not normalized, and/or remapped
+                        return Some(entry.name.clone());
+                    }
+                } else if let Cow::Owned(s) = normalized {
+                    // no entry; might be a reference to an existing file, so ensure normalization
+                    return Some(s);
                 }
             }
-        } else {
             None
         })
     }
@@ -292,20 +302,15 @@ impl Context {
             note_id.0 += 999;
         }
     }
-}
 
-fn write_data_atomically(data: &[u8], path: &Path) -> Result<()> {
-    let mut tempfile = tempfile_in_parent_of(path)?;
-    tempfile.write_all(data)?;
-    atomic_rename(tempfile, path, false)
-}
-
-fn alternate_media_name(name: &str, notetype_id: NotetypeId) -> String {
-    let (stem, dot, extension) = name
-        .rsplit_once('.')
-        .map(|(stem, ext)| (stem, ".", ext))
-        .unwrap_or((name, "", ""));
-    format!("{stem}_{notetype_id}{dot}{extension}")
+    fn copy_media(&mut self, media_folder: &Path) -> Result<()> {
+        for (used, entry) in self.used_media_entries.values() {
+            if *used {
+                entry.copy_from_archive(&mut self.archive, media_folder)?;
+            }
+        }
+        Ok(())
+    }
 }
 
 impl Notetype {
