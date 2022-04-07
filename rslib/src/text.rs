@@ -31,6 +31,31 @@ impl Trimming for Cow<'_, str> {
     }
 }
 
+pub(crate) trait CowMapping<'a, B: ?Sized + 'a + ToOwned> {
+    /// Returns [self]
+    /// - unchanged, if the given function returns [Cow::Borrowed]
+    /// - with the new value, if the given function returns [Cow::Owned]
+    fn map_cow(self, f: impl FnOnce(&B) -> Cow<B>) -> Self;
+    fn get_owned(self) -> Option<B::Owned>;
+}
+
+impl<'a, B: ?Sized + 'a + ToOwned> CowMapping<'a, B> for Cow<'a, B> {
+    fn map_cow(self, f: impl FnOnce(&B) -> Cow<B>) -> Self {
+        if let Cow::Owned(o) = f(&self) {
+            Cow::Owned(o)
+        } else {
+            self
+        }
+    }
+
+    fn get_owned(self) -> Option<B::Owned> {
+        match self {
+            Cow::Borrowed(_) => None,
+            Cow::Owned(s) => Some(s),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub enum AvTag {
     SoundOrVideo(String),
@@ -148,31 +173,15 @@ lazy_static! {
 }
 
 pub fn html_to_text_line(html: &str) -> Cow<str> {
-    let mut out: Cow<str> = html.into();
-    if let Cow::Owned(o) = PERSISTENT_HTML_SPACERS.replace_all(&out, " ") {
-        out = o.into();
-    }
-    if let Cow::Owned(o) = UNPRINTABLE_TAGS.replace_all(&out, "") {
-        out = o.into();
-    }
-    if let Cow::Owned(o) = strip_html_preserving_media_filenames(&out) {
-        out = o.into();
-    }
-    out.trim()
+    PERSISTENT_HTML_SPACERS
+        .replace_all(html, " ")
+        .map_cow(|s| UNPRINTABLE_TAGS.replace_all(s, ""))
+        .map_cow(strip_html_preserving_media_filenames)
+        .trim()
 }
 
 pub fn strip_html(html: &str) -> Cow<str> {
-    let mut out: Cow<str> = html.into();
-
-    if let Cow::Owned(o) = strip_html_preserving_entities(html) {
-        out = o.into();
-    }
-
-    if let Cow::Owned(o) = decode_entities(out.as_ref()) {
-        out = o.into();
-    }
-
-    out
+    strip_html_preserving_entities(html).map_cow(decode_entities)
 }
 
 pub fn strip_html_preserving_entities(html: &str) -> Cow<str> {
@@ -192,17 +201,9 @@ pub fn decode_entities(html: &str) -> Cow<str> {
 }
 
 pub fn strip_html_for_tts(html: &str) -> Cow<str> {
-    let mut out: Cow<str> = html.into();
-
-    if let Cow::Owned(o) = HTML_LINEBREAK_TAGS.replace_all(html, " ") {
-        out = o.into();
-    }
-
-    if let Cow::Owned(o) = strip_html(out.as_ref()) {
-        out = o.into();
-    }
-
-    out
+    HTML_LINEBREAK_TAGS
+        .replace_all(html, " ")
+        .map_cow(strip_html)
 }
 
 #[derive(Debug)]
@@ -267,17 +268,10 @@ pub(crate) fn replace_media_refs(
         }
     };
 
-    let mut out = Cow::from(text);
-    if let Cow::Owned(s) = HTML_MEDIA_TAGS.replace_all(&out, &mut rep) {
-        out = s.into();
-    }
-    if let Cow::Owned(s) = AV_TAGS.replace_all(&out, &mut rep) {
-        out = s.into();
-    }
-    match out {
-        Cow::Owned(s) => Some(s),
-        Cow::Borrowed(_) => None,
-    }
+    HTML_MEDIA_TAGS
+        .replace_all(text, &mut rep)
+        .map_cow(|s| AV_TAGS.replace_all(s, &mut rep))
+        .get_owned()
 }
 
 pub(crate) fn extract_underscored_css_imports(text: &str) -> Vec<&str> {
