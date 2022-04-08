@@ -388,7 +388,10 @@ class AddonManager:
         return manifest
 
     def install(
-        self, file: IO | str, manifest: dict[str, Any] = None
+        self,
+        file: IO | str,
+        manifest: dict[str, Any] = None,
+        force_enable: bool = False,
     ) -> InstallOk | InstallError:
         """Install add-on from path or file-like object. Metadata is read
         from the manifest file, with keys overriden by supplying a 'manifest'
@@ -418,6 +421,10 @@ class AddonManager:
             k: v for k, v in manifest.items() if k in schema and schema[k]["meta"]
         }
         meta.update(manifest_meta)
+
+        if force_enable:
+            meta["disabled"] = False
+
         self.writeAddonMeta(package, meta)
 
         meta2 = self.addon_meta(package)
@@ -466,7 +473,7 @@ class AddonManager:
     ######################################################################
 
     def processPackages(
-        self, paths: list[str], parent: QWidget = None
+        self, paths: list[str], parent: QWidget = None, force_enable: bool = False
     ) -> tuple[list[str], list[str]]:
 
         log = []
@@ -476,7 +483,7 @@ class AddonManager:
         try:
             for path in paths:
                 base = os.path.basename(path)
-                result = self.install(path)
+                result = self.install(path, force_enable=force_enable)
 
                 if isinstance(result, InstallError):
                     errs.extend(
@@ -924,7 +931,7 @@ class AddonsDialog(QDialog):
             if not paths:
                 return False
 
-        installAddonPackages(self.mgr, paths, parent=self)
+        installAddonPackages(self.mgr, paths, parent=self, force_enable=True)
 
         self.redrawAddons()
         return None
@@ -1619,6 +1626,7 @@ def installAddonPackages(
     warn: bool = False,
     strictly_modal: bool = False,
     advise_restart: bool = False,
+    force_enable: bool = False,
 ) -> bool:
 
     if warn:
@@ -1639,7 +1647,9 @@ def installAddonPackages(
         ):
             return False
 
-    log, errs = addonsManager.processPackages(paths, parent=parent)
+    log, errs = addonsManager.processPackages(
+        paths, parent=parent, force_enable=force_enable
+    )
 
     if log:
         log_html = "<br>".join(log)
