@@ -469,8 +469,8 @@ impl super::SqliteStorage {
         self.db
             .prepare(concat!(
                 "INSERT INTO search_cids",
-                " (SELECT id FROM cards WHERE nid IN",
-                " (SELECT nid FROM search_nids))",
+                " SELECT id FROM cards WHERE nid IN",
+                " (SELECT nid FROM search_nids)",
             ))?
             .execute([])
             .map_err(Into::into)
