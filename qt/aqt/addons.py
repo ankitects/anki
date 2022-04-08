@@ -915,7 +915,9 @@ class AddonsDialog(QDialog):
     def onGetAddons(self) -> None:
         obj = GetAddons(self)
         if obj.ids:
-            download_addons(self, self.mgr, obj.ids, self.after_downloading)
+            download_addons(
+                self, self.mgr, obj.ids, self.after_downloading, force_enable=True
+            )
 
     def after_downloading(self, log: list[DownloadLogEntry]) -> None:
         self.redrawAddons()
@@ -1088,7 +1090,7 @@ def download_encountered_problem(log: list[DownloadLogEntry]) -> bool:
 
 
 def download_and_install_addon(
-    mgr: AddonManager, client: HttpClient, id: int
+    mgr: AddonManager, client: HttpClient, id: int, force_enable: bool = False
 ) -> DownloadLogEntry:
     "Download and install a single add-on."
     result = download_addon(client, id)
@@ -1109,7 +1111,9 @@ def download_and_install_addon(
         branch_index=result.branch_index,
     )
 
-    result2 = mgr.install(io.BytesIO(result.data), manifest=manifest)
+    result2 = mgr.install(
+        io.BytesIO(result.data), manifest=manifest, force_enable=force_enable
+    )
 
     return (id, result2)
 
@@ -1129,7 +1133,10 @@ class DownloaderInstaller(QObject):
         self.client.progress_hook = bg_thread_progress
 
     def download(
-        self, ids: list[int], on_done: Callable[[list[DownloadLogEntry]], None]
+        self,
+        ids: list[int],
+        on_done: Callable[[list[DownloadLogEntry]], None],
+        force_enable: bool = False,
     ) -> None:
         self.ids = ids
         self.log: list[DownloadLogEntry] = []
@@ -1142,7 +1149,9 @@ class DownloaderInstaller(QObject):
         parent = self.parent()
         assert isinstance(parent, QWidget)
         self.mgr.mw.progress.start(immediate=True, parent=parent)
-        self.mgr.mw.taskman.run_in_background(self._download_all, self._download_done)
+        self.mgr.mw.taskman.run_in_background(
+            lambda: self._download_all(force_enable), self._download_done
+        )
 
     def _progress_callback(self, up: int, down: int) -> None:
         self.dl_bytes += down
@@ -1154,9 +1163,13 @@ class DownloaderInstaller(QObject):
             )
         )
 
-    def _download_all(self) -> None:
+    def _download_all(self, force_enable: bool = False) -> None:
         for id in self.ids:
-            self.log.append(download_and_install_addon(self.mgr, self.client, id))
+            self.log.append(
+                download_and_install_addon(
+                    self.mgr, self.client, id, force_enable=force_enable
+                )
+            )
 
     def _download_done(self, future: Future) -> None:
         self.mgr.mw.progress.finish()
@@ -1186,6 +1199,7 @@ def download_addons(
     ids: list[int],
     on_done: Callable[[list[DownloadLogEntry]], None],
     client: HttpClient | None = None,
+    force_enable: bool = False,
 ) -> None:
     if client is None:
         client = HttpClient()
