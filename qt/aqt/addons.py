@@ -360,6 +360,10 @@ class AddonManager:
         return all_conflicts
 
     def _disableConflicting(self, module: str, conflicts: list[str] = None) -> set[str]:
+        if not self.isEnabled(module):
+            # disabled add-ons should not trigger conflict handling
+            return set()
+
         conflicts = conflicts or self.addonConflicts(module)
 
         installed = self.allAddons()
