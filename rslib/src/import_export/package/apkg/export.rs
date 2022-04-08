@@ -29,7 +29,7 @@ impl Collection {
         search: impl TryIntoSearch,
         with_scheduling: bool,
         with_media: bool,
-        media_fn: Option<impl FnOnce(HashSet<PathBuf>) -> MediaIter>,
+        media_fn: Option<Box<dyn FnOnce(HashSet<PathBuf>) -> MediaIter>>,
         progress_fn: impl FnMut(usize),
     ) -> Result<()> {
         let temp_apkg = tempfile_in_parent_of(out_path.as_ref())?;
