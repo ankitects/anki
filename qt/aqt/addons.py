@@ -390,7 +390,7 @@ class AddonManager:
     def install(
         self,
         file: IO | str,
-        manifest: dict[str, Any] = None,
+        manifest: dict[str, Any] | None = None,
         force_enable: bool = False,
     ) -> InstallOk | InstallError:
         """Install add-on from path or file-like object. Metadata is read
@@ -473,7 +473,10 @@ class AddonManager:
     ######################################################################
 
     def processPackages(
-        self, paths: list[str], parent: QWidget = None, force_enable: bool = False
+        self,
+        paths: list[str],
+        parent: QWidget | None = None,
+        force_enable: bool = False,
     ) -> tuple[list[str], list[str]]:
 
         log = []
