@@ -6,6 +6,7 @@ use std::{
     collections::{HashMap, HashSet},
     fs::File,
     io, mem,
+    path::Path,
     sync::Arc,
 };
 
@@ -28,6 +29,7 @@ use crate::{
         MediaManager,
     },
     prelude::*,
+    search::SearchNode,
     text::replace_media_refs,
 };
 
@@ -87,16 +89,10 @@ impl SafeMediaEntry {
 }
 
 impl Collection {
-    pub fn import_apkg(
-        &mut self,
-        path: &str,
-        search: impl TryIntoSearch,
-        with_scheduling: bool,
-    ) -> Result<()> {
+    pub fn import_apkg(&mut self, path: impl AsRef<Path>) -> Result<()> {
         let file = File::open(path)?;
         let archive = ZipArchive::new(file)?;
-
-        let mut ctx = Context::new(archive, self, search, with_scheduling)?;
+        let mut ctx = Context::new(archive, self)?;
         ctx.import()?;
         Ok(())
     }
@@ -126,13 +122,9 @@ impl ExchangeData {
 }
 
 impl<'a> Context<'a> {
-    fn new(
-        mut archive: ZipArchive<File>,
-        target_col: &'a mut Collection,
-        search: impl TryIntoSearch,
-        with_scheduling: bool,
-    ) -> Result<Self> {
-        let data = ExchangeData::gather_from_archive(&mut archive, search, with_scheduling)?;
+    fn new(mut archive: ZipArchive<File>, target_col: &'a mut Collection) -> Result<Self> {
+        let data =
+            ExchangeData::gather_from_archive(&mut archive, SearchNode::WholeCollection, true)?;
         let guid_map = target_col.storage.note_guid_map()?;
         let usn = target_col.usn()?;
         let normalize_notes = target_col.get_config_bool(BoolKey::NormalizeNoteText);
