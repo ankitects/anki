@@ -3,5 +3,6 @@
 
 mod export;
 mod import;
+mod tests;
 
 pub(crate) use import::NoteMeta;
