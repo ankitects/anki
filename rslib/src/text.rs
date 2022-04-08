@@ -549,4 +549,44 @@ mod test {
         assert!(!is_glob(r"\\\_"));
         assert!(glob_matcher(r"foo\*bar*")("foo*bar123"));
     }
+
+    #[test]
+    fn extracting() {
+        assert_eq!(
+            extract_underscored_css_imports(concat!(
+                "@IMPORT '_foo.css'\n",
+                "@import \"_bar.css\"\n",
+                "@import '_baz.css'\n",
+                "@import 'nope.css'\n",
+                "url(_foo.css)\n",
+                "URL(\"_bar.css\")\n",
+                "@import url('_baz.css')\n",
+                "url('nope.css')\n",
+            )),
+            vec!["_foo.css", "_bar.css", "_baz.css", "_foo.css", "_bar.css", "_baz.css",]
+        );
+        assert_eq!(
+            extract_underscored_references(concat!(
+                "<img src=\"_foo.jpg\">",
+                "<object data=\"_bar\">",
+                "\"_baz.js\"",
+                "\"nope.js\"",
+                "<img src=_foo.jpg>",
+                "<object data=_bar>",
+                "'_baz.js'",
+            )),
+            vec!["_foo.jpg", "_bar", "_baz.js", "_foo.jpg", "_bar", "_baz.js",]
+        );
+    }
+
+    #[test]
+    fn replacing() {
+        assert_eq!(
+            &replace_media_refs("<img src=foo.jpg>[sound:bar.mp3]<img src=baz.jpg>", |s| {
+                (s != "baz.jpg").then(|| "spam".to_string())
+            })
+            .unwrap(),
+            "<img src=spam>[sound:spam]<img src=baz.jpg>",
+        );
+    }
 }
