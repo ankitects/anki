@@ -11,7 +11,7 @@ impl Collection {
         self.insert_cards(&data.cards)?;
         self.insert_notetypes(&data.notetypes)?;
         self.insert_revlog(&data.revlog)?;
-        self.insert_deck_configs(&data.decks_configs)?;
+        self.insert_deck_configs(&data.deck_configs)?;
         Ok(())
     }
 

@@ -24,7 +24,7 @@ pub(super) struct ExchangeData {
     pub(super) cards: Vec<Card>,
     pub(super) notetypes: Vec<Notetype>,
     pub(super) revlog: Vec<RevlogEntry>,
-    pub(super) decks_configs: Vec<DeckConfig>,
+    pub(super) deck_configs: Vec<DeckConfig>,
     pub(super) media_paths: HashSet<PathBuf>,
 }
 
@@ -42,7 +42,7 @@ impl ExchangeData {
 
         if with_scheduling {
             self.revlog = col.gather_revlog()?;
-            self.decks_configs = col.gather_deck_configs(&self.decks)?;
+            self.deck_configs = col.gather_deck_configs(&self.decks)?;
         } else {
             self.remove_scheduling_information(col);
         };
