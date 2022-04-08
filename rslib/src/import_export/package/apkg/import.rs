@@ -5,8 +5,7 @@ use std::{
     borrow::Cow,
     collections::{HashMap, HashSet},
     fs::File,
-    io::{self},
-    mem,
+    io, mem,
     sync::Arc,
 };
 
@@ -40,6 +39,7 @@ struct Context<'a> {
     remapped_notes: HashMap<NoteId, NoteId>,
     remapped_decks: HashMap<DeckId, DeckId>,
     remapped_deck_configs: HashMap<DeckConfigId, DeckConfigId>,
+    remapped_cards: HashMap<CardId, CardId>,
     data: ExchangeData,
     usn: Usn,
     /// Map of source media files, that do not already exist in the target.
@@ -97,12 +97,7 @@ impl Collection {
         let archive = ZipArchive::new(file)?;
 
         let mut ctx = Context::new(archive, self, search, with_scheduling)?;
-        ctx.prepare_media()?;
-        ctx.import_notetypes()?;
-        ctx.import_notes()?;
-        ctx.import_deck_configs()?;
-        ctx.import_decks()?;
-        ctx.copy_media()?;
+        ctx.import()?;
         Ok(())
     }
 
@@ -152,9 +147,21 @@ impl<'a> Context<'a> {
             remapped_notes: HashMap::new(),
             remapped_decks: HashMap::new(),
             remapped_deck_configs: HashMap::new(),
+            remapped_cards: HashMap::new(),
             used_media_entries: HashMap::new(),
             normalize_notes,
         })
+    }
+
+    fn import(&mut self) -> Result<()> {
+        self.prepare_media()?;
+        self.import_notetypes()?;
+        self.import_notes()?;
+        self.import_deck_configs()?;
+        self.import_decks()?;
+        self.import_cards()?;
+        self.import_revlog()?;
+        self.copy_media()
     }
 
     fn prepare_media(&mut self) -> Result<()> {
@@ -390,6 +397,50 @@ impl<'a> Context<'a> {
         self.target_col
             .storage
             .get_deck_by_name(deck.name.as_native_str())
+    }
+
+    fn import_cards(&mut self) -> Result<()> {
+        let existing = self.target_col.storage.all_cards_as_nid_and_ord()?;
+        for mut card in mem::take(&mut self.data.cards) {
+            if self.conflicting_notes.contains(&card.note_id) {
+                continue;
+            }
+            self.remap_note_id(&mut card);
+            if existing.contains(&(card.note_id, card.template_idx)) {
+                // TODO: maybe update
+                continue;
+            }
+            self.remap_deck_id(&mut card);
+            // TODO: adjust collection-relative due times
+            // TODO: remove cards from filtered decks
+            let old_id = mem::take(&mut card.id);
+            self.target_col.add_card(&mut card)?;
+            self.remapped_cards.insert(old_id, card.id);
+        }
+        Ok(())
+    }
+
+    fn remap_note_id(&self, card: &mut Card) {
+        if let Some(nid) = self.remapped_notes.get(&card.note_id) {
+            card.note_id = *nid;
+        }
+    }
+
+    fn remap_deck_id(&self, card: &mut Card) {
+        if let Some(did) = self.remapped_decks.get(&card.deck_id) {
+            card.deck_id = *did;
+        }
+    }
+
+    fn import_revlog(&mut self) -> Result<()> {
+        for mut entry in mem::take(&mut self.data.revlog) {
+            if let Some(cid) = self.remapped_cards.get(&entry.cid) {
+                entry.cid = *cid;
+                entry.usn = self.usn;
+                self.target_col.add_revlog_entry_undoable(entry)?;
+            }
+        }
+        Ok(())
     }
 
     fn copy_media(&mut self) -> Result<()> {
