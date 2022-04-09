@@ -434,7 +434,7 @@ impl<'a> Context<'a> {
         for mut entry in mem::take(&mut self.data.revlog) {
             if self.added_cards.contains(&entry.cid) {
                 entry.usn = self.usn;
-                self.target_col.add_revlog_entry_undoable(entry)?;
+                self.target_col.add_revlog_entry_if_unique_undoable(entry)?;
             }
         }
         Ok(())
