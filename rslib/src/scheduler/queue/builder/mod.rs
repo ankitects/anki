@@ -265,6 +265,7 @@ mod test {
     use super::*;
     use crate::{
         backend_proto::deck_config::config::{NewCardGatherPriority, NewCardSortOrder},
+        card::{CardQueue, CardType},
         collection::open_test_collection,
     };
 
@@ -296,10 +297,29 @@ mod test {
                 })
                 .collect()
         }
+
+        fn set_deck_review_order(&mut self, deck: &mut Deck, order: ReviewCardOrder) {
+            let mut conf = DeckConfig::default();
+            conf.inner.review_order = order as i32;
+            self.add_or_update_deck_config(&mut conf).unwrap();
+            deck.normal_mut().unwrap().config_id = conf.id.0;
+            self.add_or_update_deck(deck).unwrap();
+        }
+
+        fn queue_as_due_and_ivl(&mut self, deck_id: DeckId) -> Vec<(i32, u32)> {
+            self.build_queues(deck_id)
+                .unwrap()
+                .iter()
+                .map(|entry| {
+                    let card = self.storage.get_card(entry.card_id()).unwrap().unwrap();
+                    (card.due, card.interval)
+                })
+                .collect()
+        }
     }
 
     #[test]
-    fn queue_building() -> Result<()> {
+    fn new_queue_building() -> Result<()> {
         let mut col = open_test_collection();
         col.set_config_bool(BoolKey::Sched2021, true, false)?;
 
@@ -363,6 +383,54 @@ mod test {
             (parent.id, 1),
         ];
         assert_eq!(col.queue_as_deck_and_template(parent.id), cards);
+
+        Ok(())
+    }
+
+    #[test]
+    fn review_queue_building() -> Result<()> {
+        let mut col = open_test_collection();
+        col.set_config_bool(BoolKey::Sched2021, true, false)?;
+
+        let mut deck = col.get_or_create_normal_deck("Default").unwrap();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut cards = vec![];
+
+        // relative overdueness
+        let expected_queue = vec![
+            (-150, 1),
+            (-100, 1),
+            (-50, 1),
+            (-150, 5),
+            (-100, 5),
+            (-50, 5),
+            (-150, 20),
+            (-150, 20),
+            (-100, 20),
+            (-50, 20),
+            (-150, 100),
+            (-100, 100),
+            (-50, 100),
+            (0, 1),
+            (0, 5),
+            (0, 20),
+            (0, 100),
+        ];
+        for t in expected_queue.iter() {
+            let mut note = nt.new_note();
+            note.set_field(0, "foo")?;
+            note.id.0 = 0;
+            col.add_note(&mut note, deck.id)?;
+            let mut card = col.storage.get_card_by_ordinal(note.id, 0)?.unwrap();
+            card.interval = t.1;
+            card.due = t.0;
+            card.ctype = CardType::Review;
+            card.queue = CardQueue::Review;
+            cards.push(card);
+        }
+        col.update_cards_maybe_undoable(cards, false)?;
+        col.set_deck_review_order(&mut deck, ReviewCardOrder::RelativeOverdueness);
+        assert_eq!(col.queue_as_due_and_ivl(deck.id), expected_queue);
 
         Ok(())
     }
