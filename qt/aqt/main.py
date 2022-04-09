@@ -1207,6 +1207,7 @@ title="{}" {}>{}</button>""".format(
             advise_restart=not startup,
             strictly_modal=startup,
             parent=None if startup else self,
+            force_enable=True,
         )
 
     # Cramming
