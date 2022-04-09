@@ -59,8 +59,10 @@ try:
     sys.stdout.reconfigure(encoding="utf-8")  # type: ignore
     sys.stderr.reconfigure(encoding="utf-8")  # type: ignore
 except AttributeError:
-    # on Windows without console, NullWriter doesn't support this
-    pass
+    if is_win:
+        # On Windows without console; add a mock writer. The stderr
+        # writer will be overwritten when ErrorHandler is initialized.
+        sys.stderr = sys.stdout = open(os.devnull, "w", encoding="utf8")
 
 appVersion = _version
 appWebsite = "https://apps.ankiweb.net/"
