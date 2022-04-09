@@ -1208,7 +1208,7 @@ def download_addons(
     if client is None:
         client = HttpClient()
     downloader = DownloaderInstaller(parent, mgr, client)
-    downloader.download(ids, on_done=on_done)
+    downloader.download(ids, on_done=on_done, force_enable=force_enable)
 
 
 # Update checking
