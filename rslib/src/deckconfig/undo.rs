@@ -44,6 +44,13 @@ impl Collection {
         Ok(())
     }
 
+    pub(crate) fn add_deck_config_if_unique_undoable(&mut self, config: &DeckConfig) -> Result<()> {
+        if self.storage.add_deck_conf_if_unique(config)? {
+            self.save_undo(UndoableDeckConfigChange::Added(Box::new(config.clone())));
+        }
+        Ok(())
+    }
+
     pub(super) fn update_deck_config_undoable(
         &mut self,
         config: &DeckConfig,

@@ -41,7 +41,6 @@ struct Context<'a> {
     remapped_notes: HashMap<NoteId, NoteId>,
     existing_notes: HashSet<NoteId>,
     remapped_decks: HashMap<DeckId, DeckId>,
-    remapped_deck_configs: HashMap<DeckConfigId, DeckConfigId>,
     data: ExchangeData,
     usn: Usn,
     /// Map of source media files, that do not already exist in the target.
@@ -143,7 +142,6 @@ impl<'a> Context<'a> {
             remapped_notes: HashMap::new(),
             existing_notes,
             remapped_decks: HashMap::new(),
-            remapped_deck_configs: HashMap::new(),
             added_cards: HashSet::new(),
             used_media_entries: HashMap::new(),
             normalize_notes,
@@ -345,12 +343,10 @@ impl<'a> Context<'a> {
     }
 
     fn import_deck_configs(&mut self) -> Result<()> {
-        // TODO: keep ids if possible?
         for mut config in mem::take(&mut self.data.deck_configs) {
-            let old_id = mem::take(&mut config.id);
+            config.usn = self.usn;
             self.target_col
-                .add_deck_config_inner(&mut config, Some(self.usn))?;
-            self.remapped_deck_configs.insert(old_id, config.id);
+                .add_deck_config_if_unique_undoable(&config)?;
         }
         Ok(())
     }
@@ -361,7 +357,6 @@ impl<'a> Context<'a> {
 
         for mut deck in mem::take(&mut self.data.decks) {
             deck.maybe_reparent(&renamed_parents);
-            self.remap_deck_config_id(&mut deck)?;
             if let Some(original) = self.get_deck_by_name(&deck)? {
                 if original.is_filtered() {
                     deck.uniquify_name(&mut renamed_parents);
@@ -374,16 +369,6 @@ impl<'a> Context<'a> {
             }
         }
 
-        Ok(())
-    }
-
-    fn remap_deck_config_id(&mut self, deck: &mut Deck) -> Result<()> {
-        if let Some(config_id) = self
-            .remapped_deck_configs
-            .get(&DeckConfigId(deck.normal()?.config_id))
-        {
-            deck.normal_mut()?.config_id = config_id.0;
-        }
         Ok(())
     }
 
