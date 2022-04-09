@@ -15,7 +15,9 @@ use tempfile::NamedTempFile;
 use zip::ZipArchive;
 
 use crate::{
+    card::{CardQueue, CardType},
     collection::CollectionBuilder,
+    config::SchedulerVersion,
     decks::NormalDeck,
     import_export::{
         gather::ExchangeData,
@@ -396,21 +398,26 @@ impl<'a> Context<'a> {
 
     fn import_cards(&mut self) -> Result<()> {
         let existing = self.target_col.storage.all_cards_as_nid_and_ord()?;
+        let collection_delta = self.collection_delta()?;
+        let version = self.target_col.scheduler_info()?.version;
         for mut card in mem::take(&mut self.data.cards) {
-            if self.conflicting_notes.contains(&card.note_id) {
-                continue;
-            }
-            self.remap_note_id(&mut card);
-            if existing.contains(&(card.note_id, card.template_idx)) {
+            if !self.conflicting_notes.contains(&card.note_id) {
+                self.remap_note_id(&mut card);
+                if !existing.contains(&(card.note_id, card.template_idx)) {
+                    self.remap_deck_id(&mut card);
+                    card.shift_collection_relative_dates(collection_delta);
+                    card.maybe_remove_from_filtered_deck(version);
+                    self.add_card(&mut card)?;
+                }
                 // TODO: maybe update
-                continue;
             }
-            self.remap_deck_id(&mut card);
-            // TODO: adjust collection-relative due times
-            // TODO: remove cards from filtered decks
-            self.add_card(&mut card)?;
         }
         Ok(())
+    }
+
+    /// The number of days the source collection is ahead of the target collection.
+    fn collection_delta(&mut self) -> Result<i32> {
+        Ok(self.data.days_elapsed as i32 - self.target_col.timing_today()?.days_elapsed as i32)
     }
 
     fn add_card(&mut self, card: &mut Card) -> Result<()> {
@@ -495,5 +502,35 @@ impl Notetype {
             hasher.update(template.name.as_bytes());
         }
         hasher.digest().bytes()
+    }
+}
+
+impl Card {
+    /// `delta` is the number days the card's source collection is ahead of the
+    /// target collection.
+    fn shift_collection_relative_dates(&mut self, delta: i32) {
+        if self.due_in_days_since_collection_creation() {
+            self.due -= delta;
+        }
+        if self.original_due_in_days_since_collection_creation() && self.original_due != 0 {
+            self.original_due -= delta;
+        }
+    }
+
+    fn due_in_days_since_collection_creation(&self) -> bool {
+        matches!(self.queue, CardQueue::Review | CardQueue::DayLearn)
+            || self.ctype == CardType::Review
+    }
+
+    fn original_due_in_days_since_collection_creation(&self) -> bool {
+        self.ctype == CardType::Review
+    }
+
+    fn maybe_remove_from_filtered_deck(&mut self, version: SchedulerVersion) {
+        if self.is_filtered() {
+            // instead of moving between decks, the deck is converted to a regular one
+            self.original_deck_id = self.deck_id;
+            self.remove_from_filtered_deck_restoring_queue(version);
+        }
     }
 }

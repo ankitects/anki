@@ -26,6 +26,7 @@ pub(super) struct ExchangeData {
     pub(super) revlog: Vec<RevlogEntry>,
     pub(super) deck_configs: Vec<DeckConfig>,
     pub(super) media_paths: HashSet<PathBuf>,
+    pub(super) days_elapsed: u32,
 }
 
 impl ExchangeData {
@@ -35,6 +36,7 @@ impl ExchangeData {
         search: impl TryIntoSearch,
         with_scheduling: bool,
     ) -> Result<()> {
+        self.days_elapsed = col.timing_today()?.days_elapsed;
         self.notes = col.gather_notes(search)?;
         self.cards = col.gather_cards()?;
         self.decks = col.gather_decks()?;
