@@ -139,12 +139,8 @@ deck-config-new-card-sort-order-tooltip-2 =
     in order.
     
     `Random`: Fully shuffles the gathered cards.
-deck-config-sort-order-card-template-then-lowest-position = Card type, then ascending position
-deck-config-sort-order-card-template-then-highest-position = Card type, then descending position
 deck-config-sort-order-card-template-then-random = Card type, then random
 deck-config-sort-order-random-note-then-template = Random note, then card type
-deck-config-sort-order-lowest-position = Ascending position
-deck-config-sort-order-highest-position = Descending position
 deck-config-sort-order-random = Random
 deck-config-sort-order-template-then-gather = Card type
 deck-config-sort-order-gather = Order gathered
@@ -276,15 +272,3 @@ deck-config-which-deck = Which deck would you like?
 
 ## NO NEED TO TRANSLATE. These strings have been replaced with new versions, and will be removed in the future.
 
-deck-config-new-card-sort-order-tooltip =
-    How cards are sorted after they have been gathered. By default, Anki sorts
-    by card template first, to avoid multiple cards of the same note from being
-    shown in succession.
-deck-config-new-gather-priority-tooltip =
-    `Deck`: gathers cards from each subdeck in order, and stops when the
-    limit of the selected deck has been exceeded. This is faster, and allows you
-    to prioritize subdecks that are closer to the top.
-    
-    `Position`: gathers cards from all decks before they are sorted. This
-    ensures cards appear in strict position (due #) order, even if the parent limit is
-    not high enough to see cards from all decks.
