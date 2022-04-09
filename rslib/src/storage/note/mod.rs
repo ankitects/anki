@@ -42,6 +42,13 @@ impl super::SqliteStorage {
             .transpose()
     }
 
+    pub fn get_all_note_ids(&self) -> Result<HashSet<NoteId>> {
+        self.db
+            .prepare("SELECT id FROM notes")?
+            .query_and_then([], |row| Ok(row.get(0)?))?
+            .collect()
+    }
+
     /// If fields have been modified, caller must call note.prepare_for_update() prior to calling this.
     pub(crate) fn update_note(&self, note: &Note) -> Result<()> {
         assert!(note.id.0 != 0);
@@ -76,6 +83,24 @@ impl super::SqliteStorage {
         ])?;
         note.id.0 = self.db.last_insert_rowid();
         Ok(())
+    }
+
+    pub(crate) fn add_note_if_unique(&self, note: &Note) -> Result<bool> {
+        self.db
+            .prepare_cached(include_str!("add_if_unique.sql"))?
+            .execute(params![
+                note.id,
+                note.guid,
+                note.notetype_id,
+                note.mtime,
+                note.usn,
+                join_tags(&note.tags),
+                join_fields(note.fields()),
+                note.sort_field.as_ref().unwrap(),
+                note.checksum.unwrap(),
+            ])
+            .map(|added| added == 1)
+            .map_err(Into::into)
     }
 
     /// Add or update the provided note, preserving ID. Used by the syncing code.

@@ -39,6 +39,7 @@ struct Context<'a> {
     guid_map: HashMap<String, NoteMeta>,
     remapped_notetypes: HashMap<NotetypeId, NotetypeId>,
     remapped_notes: HashMap<NoteId, NoteId>,
+    existing_notes: HashSet<NoteId>,
     remapped_decks: HashMap<DeckId, DeckId>,
     remapped_deck_configs: HashMap<DeckConfigId, DeckConfigId>,
     data: ExchangeData,
@@ -128,6 +129,7 @@ impl<'a> Context<'a> {
         let guid_map = target_col.storage.note_guid_map()?;
         let usn = target_col.usn()?;
         let normalize_notes = target_col.get_config_bool(BoolKey::NormalizeNoteText);
+        let existing_notes = target_col.storage.get_all_note_ids()?;
         Ok(Self {
             target_col,
             archive,
@@ -137,6 +139,7 @@ impl<'a> Context<'a> {
             conflicting_notes: HashSet::new(),
             remapped_notetypes: HashMap::new(),
             remapped_notes: HashMap::new(),
+            existing_notes,
             remapped_decks: HashMap::new(),
             remapped_deck_configs: HashMap::new(),
             added_cards: HashSet::new(),
@@ -248,10 +251,21 @@ impl<'a> Context<'a> {
         let notetype = self.get_expected_notetype(note.notetype_id)?;
         note.prepare_for_update(&notetype, self.normalize_notes)?;
         note.usn = self.usn;
-        let old_id = std::mem::take(&mut note.id);
-        self.target_col.add_note_only_undoable(note)?;
-        self.remapped_notes.insert(old_id, note.id);
+        self.uniquify_note_id(note);
+
+        self.target_col.add_note_only_with_id_undoable(note)?;
+        self.existing_notes.insert(note.id);
         Ok(())
+    }
+
+    fn uniquify_note_id(&mut self, note: &mut Note) {
+        let original = note.id;
+        while self.existing_notes.contains(&note.id) {
+            note.id.0 += 999;
+        }
+        if original != note.id {
+            self.remapped_notes.insert(original, note.id);
+        }
     }
 
     fn get_expected_notetype(&mut self, ntid: NotetypeId) -> Result<Arc<Notetype>> {
