@@ -90,12 +90,14 @@ impl SafeMediaEntry {
 }
 
 impl Collection {
-    pub fn import_apkg(&mut self, path: impl AsRef<Path>) -> Result<()> {
+    pub fn import_apkg(&mut self, path: impl AsRef<Path>) -> Result<OpOutput<()>> {
         let file = File::open(path)?;
         let archive = ZipArchive::new(file)?;
-        let mut ctx = Context::new(archive, self)?;
-        ctx.import()?;
-        Ok(())
+
+        self.transact(Op::Import, |col| {
+            let mut ctx = Context::new(archive, col)?;
+            ctx.import()
+        })
     }
 
     fn all_existing_sha1s(&mut self) -> Result<HashMap<String, [u8; 20]>> {
