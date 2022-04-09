@@ -34,7 +34,7 @@ import locale
 import os
 import tempfile
 import traceback
-from typing import Any, Callable, Optional, cast
+from typing import TYPE_CHECKING, Any, Callable, Optional, cast
 
 import anki.lang
 from anki._backend import RustBackend
@@ -46,6 +46,9 @@ from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import TR, tr
 
+if TYPE_CHECKING:
+    import aqt.profiles
+
 # compat aliases
 anki.version = _version  # type: ignore
 anki.Collection = Collection  # type: ignore
@@ -56,8 +59,10 @@ try:
     sys.stdout.reconfigure(encoding="utf-8")  # type: ignore
     sys.stderr.reconfigure(encoding="utf-8")  # type: ignore
 except AttributeError:
-    # on Windows without console, NullWriter doesn't support this
-    pass
+    if is_win:
+        # On Windows without console; add a mock writer. The stderr
+        # writer will be overwritten when ErrorHandler is initialized.
+        sys.stderr = sys.stdout = open(os.devnull, "w", encoding="utf8")
 
 appVersion = _version
 appWebsite = "https://apps.ankiweb.net/"
@@ -361,9 +366,6 @@ def parseArgs(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
 
 
 def setupGL(pm: aqt.profiles.ProfileManager) -> None:
-    if is_mac:
-        return
-
     driver = pm.video_driver()
 
     # work around pyqt loading wrong GL library
@@ -397,7 +399,12 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
             context += f"{ctx.function}"
         if context:
             context = f"'{context}'"
-        if "Failed to create OpenGL context" in msg:
+        if (
+            "Failed to create OpenGL context" in msg
+            # Based on the message Qt6 shows to the user; have not tested whether
+            # we can actually capture this or not.
+            or "Failed to initialize graphics backend" in msg
+        ):
             QMessageBox.critical(
                 None,
                 tr.qt_misc_error(),
@@ -413,19 +420,23 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
 
     qInstallMessageHandler(msgHandler)
 
-    # ignore set graphics driver on Qt6 for now
-    if qtmajor > 5:
-        return
-
     if driver == VideoDriver.OpenGL:
+        # Leaving QT_OPENGL unset appears to sometimes produce different results
+        # to explicitly setting it to 'auto'; the former seems to be more compatible.
         pass
     else:
         if is_win:
+            # on Windows, this appears to be sufficient on Qt5/Qt6.
+            # On Qt6, ANGLE is excluded by the enum.
             os.environ["QT_OPENGL"] = driver.value
         elif is_mac:
             QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL)
         elif is_lin:
+            # Qt5 only
             os.environ["QT_XCB_FORCE_SOFTWARE_OPENGL"] = "1"
+            # Required on Qt6
+            if "QTWEBENGINE_CHROMIUM_FLAGS" not in os.environ:
+                os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-gpu"
 
 
 PROFILE_CODE = os.environ.get("ANKI_PROFILE_CODE")
@@ -488,7 +499,8 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         and not os.getenv("ANKI_WAYLAND")
     ):
         # users need to opt in to wayland support, given the issues it has
-        print("Wayland support is disabled by default due to bugs.")
+        print("Wayland support is disabled by default due to bugs:")
+        print("https://github.com/ankitects/anki/issues/1767")
         print("You can force it on with an env var: ANKI_WAYLAND=1")
         os.environ["QT_QPA_PLATFORM"] = "xcb"
 

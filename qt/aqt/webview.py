@@ -719,3 +719,30 @@ html {{ {font} }}
 }})();
 """
         )
+
+    def _fix_editor_background_color_and_show(self) -> None:
+        # The editor does not use our standard CSS, which takes care of matching the background
+        # colour of the webview to the window we're showing it in. This causes a difference in
+        # shades on Windows/Linux in day mode, that we need to work around. This is a temporary
+        # fix before the 2.1.50 release; with more time there may be a better way to do this.
+
+        if theme_manager.night_mode:
+            # The styling changes are not required for night mode, and hiding+showing the
+            # webview causes a flash of black.
+            return
+
+        self.hide()
+
+        window_bg_day = self.get_window_bg_color(False).name()
+        css = f":root {{ --window-bg: {window_bg_day} }}"
+        self.evalWithCallback(
+            f"""
+(function(){{
+    const style = document.createElement('style');
+    style.innerHTML = `{css}`;
+    document.head.appendChild(style);
+}})();
+""",
+            # avoids FOUC
+            lambda _: self.show(),
+        )

@@ -493,7 +493,7 @@ limit ?"""
             card.did,
             new_delta=new_delta,
             review_delta=review_delta,
-            milliseconds_delta=+card.time_taken(),
+            milliseconds_delta=card.time_taken(),
         )
 
         # once a card has been answered once, the original due date

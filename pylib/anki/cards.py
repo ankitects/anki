@@ -190,10 +190,13 @@ class Card(DeprecatedNamesMixin):
             "autoplay"
         ]
 
-    def time_taken(self) -> int:
-        "Time taken to answer card, in integer MS."
+    def time_taken(self, capped: bool = True) -> int:
+        """Time taken since card timer started, in integer MS.
+        If `capped` is true, returned time is limited to deck preset setting."""
         total = int((time.time() - self.timer_started) * 1000)
-        return min(total, self.time_limit())
+        if capped:
+            total = min(total, self.time_limit())
+        return total
 
     def description(self) -> str:
         dict_copy = dict(self.__dict__)

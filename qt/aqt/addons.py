@@ -360,6 +360,10 @@ class AddonManager:
         return all_conflicts
 
     def _disableConflicting(self, module: str, conflicts: list[str] = None) -> set[str]:
+        if not self.isEnabled(module):
+            # disabled add-ons should not trigger conflict handling
+            return set()
+
         conflicts = conflicts or self.addonConflicts(module)
 
         installed = self.allAddons()
@@ -388,7 +392,10 @@ class AddonManager:
         return manifest
 
     def install(
-        self, file: IO | str, manifest: dict[str, Any] = None
+        self,
+        file: IO | str,
+        manifest: dict[str, Any] | None = None,
+        force_enable: bool = False,
     ) -> InstallOk | InstallError:
         """Install add-on from path or file-like object. Metadata is read
         from the manifest file, with keys overriden by supplying a 'manifest'
@@ -418,6 +425,10 @@ class AddonManager:
             k: v for k, v in manifest.items() if k in schema and schema[k]["meta"]
         }
         meta.update(manifest_meta)
+
+        if force_enable:
+            meta["disabled"] = False
+
         self.writeAddonMeta(package, meta)
 
         meta2 = self.addon_meta(package)
@@ -466,7 +477,10 @@ class AddonManager:
     ######################################################################
 
     def processPackages(
-        self, paths: list[str], parent: QWidget = None
+        self,
+        paths: list[str],
+        parent: QWidget | None = None,
+        force_enable: bool = False,
     ) -> tuple[list[str], list[str]]:
 
         log = []
@@ -476,7 +490,7 @@ class AddonManager:
         try:
             for path in paths:
                 base = os.path.basename(path)
-                result = self.install(path)
+                result = self.install(path, force_enable=force_enable)
 
                 if isinstance(result, InstallError):
                     errs.extend(
@@ -905,7 +919,9 @@ class AddonsDialog(QDialog):
     def onGetAddons(self) -> None:
         obj = GetAddons(self)
         if obj.ids:
-            download_addons(self, self.mgr, obj.ids, self.after_downloading)
+            download_addons(
+                self, self.mgr, obj.ids, self.after_downloading, force_enable=True
+            )
 
     def after_downloading(self, log: list[DownloadLogEntry]) -> None:
         self.redrawAddons()
@@ -924,7 +940,7 @@ class AddonsDialog(QDialog):
             if not paths:
                 return False
 
-        installAddonPackages(self.mgr, paths, parent=self)
+        installAddonPackages(self.mgr, paths, parent=self, force_enable=True)
 
         self.redrawAddons()
         return None
@@ -1078,7 +1094,7 @@ def download_encountered_problem(log: list[DownloadLogEntry]) -> bool:
 
 
 def download_and_install_addon(
-    mgr: AddonManager, client: HttpClient, id: int
+    mgr: AddonManager, client: HttpClient, id: int, force_enable: bool = False
 ) -> DownloadLogEntry:
     "Download and install a single add-on."
     result = download_addon(client, id)
@@ -1099,7 +1115,9 @@ def download_and_install_addon(
         branch_index=result.branch_index,
     )
 
-    result2 = mgr.install(io.BytesIO(result.data), manifest=manifest)
+    result2 = mgr.install(
+        io.BytesIO(result.data), manifest=manifest, force_enable=force_enable
+    )
 
     return (id, result2)
 
@@ -1119,7 +1137,10 @@ class DownloaderInstaller(QObject):
         self.client.progress_hook = bg_thread_progress
 
     def download(
-        self, ids: list[int], on_done: Callable[[list[DownloadLogEntry]], None]
+        self,
+        ids: list[int],
+        on_done: Callable[[list[DownloadLogEntry]], None],
+        force_enable: bool = False,
     ) -> None:
         self.ids = ids
         self.log: list[DownloadLogEntry] = []
@@ -1132,7 +1153,9 @@ class DownloaderInstaller(QObject):
         parent = self.parent()
         assert isinstance(parent, QWidget)
         self.mgr.mw.progress.start(immediate=True, parent=parent)
-        self.mgr.mw.taskman.run_in_background(self._download_all, self._download_done)
+        self.mgr.mw.taskman.run_in_background(
+            lambda: self._download_all(force_enable), self._download_done
+        )
 
     def _progress_callback(self, up: int, down: int) -> None:
         self.dl_bytes += down
@@ -1144,9 +1167,13 @@ class DownloaderInstaller(QObject):
             )
         )
 
-    def _download_all(self) -> None:
+    def _download_all(self, force_enable: bool = False) -> None:
         for id in self.ids:
-            self.log.append(download_and_install_addon(self.mgr, self.client, id))
+            self.log.append(
+                download_and_install_addon(
+                    self.mgr, self.client, id, force_enable=force_enable
+                )
+            )
 
     def _download_done(self, future: Future) -> None:
         self.mgr.mw.progress.finish()
@@ -1176,11 +1203,12 @@ def download_addons(
     ids: list[int],
     on_done: Callable[[list[DownloadLogEntry]], None],
     client: HttpClient | None = None,
+    force_enable: bool = False,
 ) -> None:
     if client is None:
         client = HttpClient()
     downloader = DownloaderInstaller(parent, mgr, client)
-    downloader.download(ids, on_done=on_done)
+    downloader.download(ids, on_done=on_done, force_enable=force_enable)
 
 
 # Update checking
@@ -1619,6 +1647,7 @@ def installAddonPackages(
     warn: bool = False,
     strictly_modal: bool = False,
     advise_restart: bool = False,
+    force_enable: bool = False,
 ) -> bool:
 
     if warn:
@@ -1639,7 +1668,9 @@ def installAddonPackages(
         ):
             return False
 
-    log, errs = addonsManager.processPackages(paths, parent=parent)
+    log, errs = addonsManager.processPackages(
+        paths, parent=parent, force_enable=force_enable
+    )
 
     if log:
         log_html = "<br>".join(log)
