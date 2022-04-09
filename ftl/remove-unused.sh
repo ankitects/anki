@@ -1,5 +1,14 @@
 #!/bin/bash
-
+#
+# To use, run:
+#
+# - ./update-ankimobile-usage.sh
+# - ./remove-unused.sh
+#
+# If you need to maintain compatibility with an older stable branch, you
+# can use ./update-desktop-usage.sh in the older release, then copy the
+# generated file into usage/ with a different name.
+#   
 # Caveats:
 #   - Messages are considered in use if they are referenced in other messages,
 #     even if those messages themselves are not in use and going to be deleted.
