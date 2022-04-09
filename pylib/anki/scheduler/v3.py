@@ -81,7 +81,7 @@ class Scheduler(SchedulerBaseWithLegacy):
             new_state=new_state,
             rating=rating,
             answered_at_millis=int_time(1000),
-            milliseconds_taken=card.time_taken(),
+            milliseconds_taken=card.time_taken(capped=False),
         )
 
     def answer_card(self, input: CardAnswer) -> OpChanges:

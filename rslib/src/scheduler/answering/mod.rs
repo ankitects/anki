@@ -43,6 +43,12 @@ pub struct CardAnswer {
     pub milliseconds_taken: u32,
 }
 
+impl CardAnswer {
+    fn cap_answer_secs(&mut self, max_secs: u32) {
+        self.milliseconds_taken = self.milliseconds_taken.min(max_secs * 1000);
+    }
+}
+
 /// Holds the information required to determine a given card's
 /// current state, and to apply a state change to it.
 struct CardStateUpdater {
@@ -238,11 +244,12 @@ impl Collection {
     }
 
     /// Answer card, writing its new state to the database.
-    pub fn answer_card(&mut self, answer: &CardAnswer) -> Result<OpOutput<()>> {
+    /// Provided [CardAnswer] has its answer time capped to deck preset.
+    pub fn answer_card(&mut self, answer: &mut CardAnswer) -> Result<OpOutput<()>> {
         self.transact(Op::AnswerCard, |col| col.answer_card_inner(answer))
     }
 
-    fn answer_card_inner(&mut self, answer: &CardAnswer) -> Result<()> {
+    fn answer_card_inner(&mut self, answer: &mut CardAnswer) -> Result<()> {
         let card = self
             .storage
             .get_card(answer.card_id)?
@@ -251,6 +258,7 @@ impl Collection {
         let usn = self.usn()?;
 
         let mut updater = self.card_state_updater(card)?;
+        answer.cap_answer_secs(updater.config.inner.cap_answer_time_to_secs);
         let current_state = updater.current_card_state();
         if current_state != answer.current_state {
             return Err(AnkiError::invalid_input(format!(
@@ -404,7 +412,7 @@ pub mod test_helpers {
         {
             let queued = self.get_next_card()?.unwrap();
             let new_state = get_state(&queued.next_states);
-            self.answer_card(&CardAnswer {
+            self.answer_card(&mut CardAnswer {
                 card_id: queued.card.id,
                 current_state: queued.next_states.current,
                 new_state,

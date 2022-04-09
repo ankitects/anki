@@ -1,5 +1,4 @@
 qt-accel-about = &About
-qt-accel-browse-and-install = &Browse and Install...
 qt-accel-cards = &Cards
 qt-accel-check-database = &Check Database
 qt-accel-check-media = Check &Media
@@ -21,7 +20,6 @@ qt-accel-invert-selection = &Invert Selection
 qt-accel-next-card = &Next Card
 qt-accel-note = N&ote
 qt-accel-notes = &Notes
-qt-accel-open-addons-folder = &Open Add-ons Folder
 qt-accel-preferences = &Preferences
 qt-accel-previous-card = &Previous Card
 qt-accel-select-all = Select &All

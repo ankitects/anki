@@ -159,6 +159,7 @@ class Editor:
             context=self,
             default_css=False,
         )
+        self.web._fix_editor_background_color_and_show()
 
         lefttopbtns: list[str] = []
         gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
@@ -1387,7 +1388,7 @@ def set_cloze_button(editor: Editor) -> None:
     action = "show" if editor.note.note_type()["type"] == MODEL_CLOZE else "hide"
     editor.web.eval(
         'require("anki/ui").loaded.then(() =>'
-        f'require("anki/NoteEditor").instances[0].toolbar.templateButtons.{action}("cloze")'
+        f'require("anki/NoteEditor").instances[0].toolbar.toolbar.{action}("cloze")'
         "); "
     )
 

@@ -41,11 +41,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let image: HTMLImageElement;
 
-    export function moveCaretAfter(): void {
+    export function moveCaretAfter(position?: [number, number]): void {
         // This should trigger a focusing of the Mathjax Handle
         image.dispatchEvent(
             new CustomEvent("movecaretafter", {
-                detail: image,
+                detail: { image, position },
                 bubbles: true,
                 composed: true,
             }),

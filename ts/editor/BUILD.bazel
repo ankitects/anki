@@ -47,6 +47,7 @@ _esbuild_deps = [
     "//sass:button_mixins_lib",
     "@npm//@mdi",
     "@npm//bootstrap-icons",
+    "//ts/icons",
     "@npm//protobufjs",
 ]
 

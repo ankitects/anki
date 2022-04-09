@@ -4,18 +4,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import { CustomElementArray } from "../editable/decorated";
-    import contextProperty from "../sveltelib/context-property";
 
     const decoratedElements = new CustomElementArray();
 
-    const key = Symbol("decoratedElements");
-    const [context, setContextProperty] = contextProperty<CustomElementArray>(key);
-
-    export { context };
-</script>
-
-<script lang="ts">
-    setContextProperty(decoratedElements);
+    export { decoratedElements };
 </script>
 
 <slot />
