@@ -204,10 +204,12 @@ impl<'a> Context<'a> {
     }
 
     fn add_notetype(&mut self, notetype: &mut Notetype) -> Result<()> {
-        notetype.usn = self.usn;
-        // TODO: make undoable
+        notetype.prepare_for_update(None, true)?;
         self.target_col
-            .add_or_update_notetype_with_existing_id_inner(notetype, None, self.usn, true)
+            .ensure_notetype_name_unique(notetype, self.usn)?;
+        notetype.usn = self.usn;
+        self.target_col
+            .add_notetype_with_unique_id_undoable(notetype)
     }
 
     fn update_notetype(&mut self, notetype: &mut Notetype, original: Notetype) -> Result<()> {
