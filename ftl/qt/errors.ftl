@@ -43,4 +43,3 @@ errors-windows-tts-runtime-error = The TTS service failed. Please ensure Windows
 
 ## OBSOLETE; you do not need to translate this
 
--errors-addon-support-site = [add-on support site](https://help.ankiweb.net/discussions/add-ons/)

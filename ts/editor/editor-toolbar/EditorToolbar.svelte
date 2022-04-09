@@ -56,6 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Item from "../../components/Item.svelte";
     import StickyContainer from "../../components/StickyContainer.svelte";
     import BlockButtons from "./BlockButtons.svelte";
+    import ClozeButtons from "./ClozeButtons.svelte";
     import InlineButtons from "./InlineButtons.svelte";
     import NotetypeButtons from "./NotetypeButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
@@ -104,6 +105,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             <Item id="template">
                 <TemplateButtons api={templateButtons} />
+            </Item>
+
+            <Item id="cloze">
+                <ClozeButtons />
             </Item>
         </DynamicallySlottable>
     </ButtonToolbar>

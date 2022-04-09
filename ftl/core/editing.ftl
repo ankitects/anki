@@ -8,7 +8,8 @@ editing-bold-text = Bold text
 editing-cards = Cards
 editing-center = Center
 editing-change-color = Change color
-editing-cloze-deletion = Cloze deletion
+editing-cloze-deletion = Cloze deletion (new card)
+editing-cloze-deletion-repeat = Cloze deletion (same card)
 editing-couldnt-record-audio-have-you-installed = Couldn't record audio. Have you installed 'lame'?
 editing-customize-card-templates = Customize Card Templates
 editing-customize-fields = Customize Fields
@@ -59,5 +60,3 @@ editing-warning-cloze-deletions-will-not-work = Warning, cloze deletions will no
 ## You don't need to translate these strings, as they will be replaced with different ones soon.
 
 editing-html-editor = HTML Editor
-editing-set-text-color = Set text color
-editing-set-text-highlight-color = Set text highlight color
