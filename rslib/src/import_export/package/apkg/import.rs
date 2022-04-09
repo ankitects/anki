@@ -41,7 +41,6 @@ struct Context<'a> {
     remapped_notes: HashMap<NoteId, NoteId>,
     remapped_decks: HashMap<DeckId, DeckId>,
     remapped_deck_configs: HashMap<DeckConfigId, DeckConfigId>,
-    remapped_cards: HashMap<CardId, CardId>,
     data: ExchangeData,
     usn: Usn,
     /// Map of source media files, that do not already exist in the target.
@@ -52,6 +51,7 @@ struct Context<'a> {
     /// Source notes that cannot be imported, because notes with the same guid
     /// exist in the target, but their notetypes don't match.
     conflicting_notes: HashSet<NoteId>,
+    added_cards: HashSet<CardId>,
     normalize_notes: bool,
 }
 
@@ -139,7 +139,7 @@ impl<'a> Context<'a> {
             remapped_notes: HashMap::new(),
             remapped_decks: HashMap::new(),
             remapped_deck_configs: HashMap::new(),
-            remapped_cards: HashMap::new(),
+            added_cards: HashSet::new(),
             used_media_entries: HashMap::new(),
             normalize_notes,
         })
@@ -405,9 +405,15 @@ impl<'a> Context<'a> {
             self.remap_deck_id(&mut card);
             // TODO: adjust collection-relative due times
             // TODO: remove cards from filtered decks
-            let old_id = mem::take(&mut card.id);
-            self.target_col.add_card(&mut card)?;
-            self.remapped_cards.insert(old_id, card.id);
+            self.add_card(&mut card)?;
+        }
+        Ok(())
+    }
+
+    fn add_card(&mut self, card: &mut Card) -> Result<()> {
+        card.usn = self.usn;
+        if self.target_col.add_card_if_unique_undoable(card)? {
+            self.added_cards.insert(card.id);
         }
         Ok(())
     }
@@ -426,8 +432,7 @@ impl<'a> Context<'a> {
 
     fn import_revlog(&mut self) -> Result<()> {
         for mut entry in mem::take(&mut self.data.revlog) {
-            if let Some(cid) = self.remapped_cards.get(&entry.cid) {
-                entry.cid = *cid;
+            if self.added_cards.contains(&entry.cid) {
                 entry.usn = self.usn;
                 self.target_col.add_revlog_entry_undoable(entry)?;
             }

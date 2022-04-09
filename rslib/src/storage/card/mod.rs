@@ -145,6 +145,34 @@ impl super::SqliteStorage {
         Ok(())
     }
 
+    /// Add card if id is unique. True if card was added.
+    pub(crate) fn add_card_if_unique(&self, card: &Card) -> Result<bool> {
+        self.db
+            .prepare_cached(include_str!("add_card_if_unique.sql"))?
+            .execute(params![
+                card.id,
+                card.note_id,
+                card.deck_id,
+                card.template_idx,
+                card.mtime,
+                card.usn,
+                card.ctype as u8,
+                card.queue as i8,
+                card.due,
+                card.interval,
+                card.ease_factor,
+                card.reps,
+                card.lapses,
+                card.remaining_steps,
+                card.original_due,
+                card.original_deck_id,
+                card.flags,
+                CardData::from_card(card),
+            ])
+            .map(|n_rows| n_rows == 1)
+            .map_err(Into::into)
+    }
+
     /// Add or update card, using the provided ID. Used for syncing & undoing.
     pub(crate) fn add_or_update_card(&self, card: &Card) -> Result<()> {
         let mut stmt = self.db.prepare_cached(include_str!("add_or_update.sql"))?;
