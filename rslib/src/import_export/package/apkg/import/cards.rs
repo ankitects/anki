@@ -11,14 +11,14 @@ use crate::{
     card::{CardQueue, CardType},
     config::SchedulerVersion,
     prelude::*,
+    revlog::RevlogEntry,
 };
 
 struct CardContext<'a> {
     target_col: &'a mut Collection,
     usn: Usn,
 
-    conflicting_notes: &'a HashSet<NoteId>,
-    remapped_notes: &'a HashMap<NoteId, NoteId>,
+    imported_notes: &'a HashMap<NoteId, NoteId>,
     remapped_decks: &'a HashMap<DeckId, DeckId>,
 
     /// The number of days the source collection is ahead of the target collection
@@ -37,9 +37,8 @@ impl<'c> CardContext<'c> {
         usn: Usn,
         days_elapsed: u32,
         target_col: &'a mut Collection,
-        remapped_notes: &'a HashMap<NoteId, NoteId>,
+        imported_notes: &'a HashMap<NoteId, NoteId>,
         remapped_decks: &'a HashMap<DeckId, DeckId>,
-        conflicting_notes: &'a HashSet<NoteId>,
     ) -> Result<Self> {
         let targets = target_col.storage.all_cards_as_nid_and_ord()?;
         let collection_delta = target_col.collection_delta(days_elapsed)?;
@@ -48,8 +47,7 @@ impl<'c> CardContext<'c> {
         Ok(Self {
             target_col,
             usn,
-            conflicting_notes,
-            remapped_notes,
+            imported_notes,
             remapped_decks,
             targets,
             collection_delta,
@@ -68,32 +66,52 @@ impl Collection {
 }
 
 impl<'a> Context<'a> {
-    pub(super) fn import_cards(&mut self) -> Result<HashMap<CardId, CardId>> {
+    pub(super) fn import_cards_and_revlog(&mut self) -> Result<()> {
         let mut ctx = CardContext::new(
             self.usn,
             self.data.days_elapsed,
             self.target_col,
-            &self.remapped_notes,
+            &self.imported_notes,
             &self.remapped_decks,
-            &self.conflicting_notes,
         )?;
         ctx.import_cards(mem::take(&mut self.data.cards))?;
-        Ok(ctx.imported_cards)
+        ctx.import_revlog(mem::take(&mut self.data.revlog))
     }
 }
 
 impl CardContext<'_> {
-    pub(super) fn import_cards(&mut self, mut cards: Vec<Card>) -> Result<()> {
+    fn import_cards(&mut self, mut cards: Vec<Card>) -> Result<()> {
         for card in &mut cards {
-            if !self.conflicting_notes.contains(&card.note_id) {
-                self.remap_note_id(card);
-                if !self.targets.contains(&(card.note_id, card.template_idx)) {
-                    self.add_card(card)?;
-                }
-                // TODO: maybe update
+            if self.map_to_imported_note(card) && !self.target_already_exists(card) {
+                self.add_card(card)?;
+            }
+            // TODO: could update existing card
+        }
+        Ok(())
+    }
+
+    fn import_revlog(&mut self, revlog: Vec<RevlogEntry>) -> Result<()> {
+        for mut entry in revlog {
+            if let Some(cid) = self.imported_cards.get(&entry.cid) {
+                entry.cid = *cid;
+                entry.usn = self.usn;
+                self.target_col.add_revlog_entry_if_unique_undoable(entry)?;
             }
         }
         Ok(())
+    }
+
+    fn map_to_imported_note(&self, card: &mut Card) -> bool {
+        if let Some(nid) = self.imported_notes.get(&card.note_id) {
+            card.note_id = *nid;
+            true
+        } else {
+            false
+        }
+    }
+
+    fn target_already_exists(&self, card: &Card) -> bool {
+        self.targets.contains(&(card.note_id, card.template_idx))
     }
 
     fn add_card(&mut self, card: &mut Card) -> Result<()> {
@@ -108,12 +126,6 @@ impl CardContext<'_> {
         self.imported_cards.insert(old_id, card.id);
 
         Ok(())
-    }
-
-    fn remap_note_id(&self, card: &mut Card) {
-        if let Some(nid) = self.remapped_notes.get(&card.note_id) {
-            card.note_id = *nid;
-        }
     }
 
     fn uniquify_card_id(&mut self, card: &mut Card) -> CardId {

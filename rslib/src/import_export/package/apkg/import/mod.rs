@@ -40,7 +40,7 @@ struct Context<'a> {
     archive: ZipArchive<File>,
     guid_map: HashMap<String, NoteMeta>,
     remapped_notetypes: HashMap<NotetypeId, NotetypeId>,
-    remapped_notes: HashMap<NoteId, NoteId>,
+    imported_notes: HashMap<NoteId, NoteId>,
     existing_notes: HashSet<NoteId>,
     remapped_decks: HashMap<DeckId, DeckId>,
     data: ExchangeData,
@@ -50,10 +50,6 @@ struct Context<'a> {
     /// original, normalized file name → (refererenced on import material,
     /// entry with possibly remapped file name)
     used_media_entries: HashMap<String, (bool, SafeMediaEntry)>,
-    /// Source notes that cannot be imported, because notes with the same guid
-    /// exist in the target, but their notetypes don't match.
-    conflicting_notes: HashSet<NoteId>,
-    remapped_cards: HashMap<CardId, CardId>,
     normalize_notes: bool,
 }
 
@@ -139,12 +135,10 @@ impl<'a> Context<'a> {
             data,
             guid_map,
             usn,
-            conflicting_notes: HashSet::new(),
             remapped_notetypes: HashMap::new(),
-            remapped_notes: HashMap::new(),
+            imported_notes: HashMap::new(),
             existing_notes,
             remapped_decks: HashMap::new(),
-            remapped_cards: HashMap::new(),
             used_media_entries: HashMap::new(),
             normalize_notes,
         })
@@ -156,8 +150,7 @@ impl<'a> Context<'a> {
         self.import_notes()?;
         self.import_deck_configs()?;
         self.import_decks()?;
-        self.import_cards()?;
-        self.import_revlog()?;
+        self.import_cards_and_revlog()?;
         self.copy_media()
     }
 
@@ -233,7 +226,6 @@ impl<'a> Context<'a> {
         for mut note in mem::take(&mut self.data.notes) {
             if let Some(notetype_id) = self.remapped_notetypes.get(&note.notetype_id) {
                 if self.guid_map.contains_key(&note.guid) {
-                    self.conflicting_notes.insert(note.id);
                     // TODO: Log ignore
                 } else {
                     note.notetype_id = *notetype_id;
@@ -255,21 +247,21 @@ impl<'a> Context<'a> {
         let notetype = self.get_expected_notetype(note.notetype_id)?;
         note.prepare_for_update(&notetype, self.normalize_notes)?;
         note.usn = self.usn;
-        self.uniquify_note_id(note);
+        let old_id = self.uniquify_note_id(note);
 
         self.target_col.add_note_only_with_id_undoable(note)?;
         self.existing_notes.insert(note.id);
+        self.imported_notes.insert(old_id, note.id);
+
         Ok(())
     }
 
-    fn uniquify_note_id(&mut self, note: &mut Note) {
+    fn uniquify_note_id(&mut self, note: &mut Note) -> NoteId {
         let original = note.id;
         while self.existing_notes.contains(&note.id) {
             note.id.0 += 999;
         }
-        if original != note.id {
-            self.remapped_notes.insert(original, note.id);
-        }
+        original
     }
 
     fn get_expected_notetype(&mut self, ntid: NotetypeId) -> Result<Arc<Notetype>> {
@@ -288,15 +280,15 @@ impl<'a> Context<'a> {
     fn maybe_update_note(&mut self, note: &mut Note, meta: NoteMeta) -> Result<()> {
         if meta.mtime < note.mtime {
             if meta.notetype_id == note.notetype_id {
-                self.remapped_notes.insert(note.id, meta.id);
+                self.imported_notes.insert(note.id, meta.id);
                 note.id = meta.id;
                 self.update_note(note)?;
             } else {
-                self.conflicting_notes.insert(note.id);
                 // TODO: Log ignore
             }
         } else {
             // TODO: Log duplicate
+            self.imported_notes.insert(note.id, meta.id);
         }
         Ok(())
     }
@@ -394,17 +386,6 @@ impl<'a> Context<'a> {
         self.target_col
             .storage
             .get_deck_by_name(deck.name.as_native_str())
-    }
-
-    fn import_revlog(&mut self) -> Result<()> {
-        for mut entry in mem::take(&mut self.data.revlog) {
-            if let Some(cid) = self.remapped_cards.get(&entry.cid) {
-                entry.cid = *cid;
-                entry.usn = self.usn;
-                self.target_col.add_revlog_entry_if_unique_undoable(entry)?;
-            }
-        }
-        Ok(())
     }
 
     fn copy_media(&mut self) -> Result<()> {
