@@ -428,6 +428,13 @@ impl super::SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn get_all_card_ids(&self) -> Result<HashSet<CardId>> {
+        self.db
+            .prepare("SELECT id FROM cards")?
+            .query_and_then([], |row| Ok(row.get(0)?))?
+            .collect()
+    }
+
     pub(crate) fn all_cards_as_nid_and_ord(&self) -> Result<HashSet<(NoteId, u16)>> {
         self.db
             .prepare("SELECT nid, ord FROM cards")?

@@ -53,7 +53,8 @@ struct Context<'a> {
     /// Source notes that cannot be imported, because notes with the same guid
     /// exist in the target, but their notetypes don't match.
     conflicting_notes: HashSet<NoteId>,
-    added_cards: HashSet<CardId>,
+    remapped_cards: HashMap<CardId, CardId>,
+    existing_cards: HashSet<CardId>,
     normalize_notes: bool,
 }
 
@@ -133,6 +134,7 @@ impl<'a> Context<'a> {
         let usn = target_col.usn()?;
         let normalize_notes = target_col.get_config_bool(BoolKey::NormalizeNoteText);
         let existing_notes = target_col.storage.get_all_note_ids()?;
+        let existing_cards = target_col.storage.get_all_card_ids()?;
         Ok(Self {
             target_col,
             archive,
@@ -144,7 +146,8 @@ impl<'a> Context<'a> {
             remapped_notes: HashMap::new(),
             existing_notes,
             remapped_decks: HashMap::new(),
-            added_cards: HashSet::new(),
+            remapped_cards: HashMap::new(),
+            existing_cards,
             used_media_entries: HashMap::new(),
             normalize_notes,
         })
@@ -422,9 +425,9 @@ impl<'a> Context<'a> {
 
     fn add_card(&mut self, card: &mut Card) -> Result<()> {
         card.usn = self.usn;
-        if self.target_col.add_card_if_unique_undoable(card)? {
-            self.added_cards.insert(card.id);
-        }
+        self.uniquify_card_id(card);
+        self.target_col.add_card_if_unique_undoable(card)?;
+        self.existing_cards.insert(card.id);
         Ok(())
     }
 
@@ -432,6 +435,14 @@ impl<'a> Context<'a> {
         if let Some(nid) = self.remapped_notes.get(&card.note_id) {
             card.note_id = *nid;
         }
+    }
+
+    fn uniquify_card_id(&mut self, card: &mut Card) {
+        let original = card.id;
+        while self.existing_cards.contains(&card.id) {
+            card.id.0 += 999;
+        }
+        self.remapped_cards.insert(original, card.id);
     }
 
     fn remap_deck_id(&self, card: &mut Card) {
@@ -442,7 +453,8 @@ impl<'a> Context<'a> {
 
     fn import_revlog(&mut self) -> Result<()> {
         for mut entry in mem::take(&mut self.data.revlog) {
-            if self.added_cards.contains(&entry.cid) {
+            if let Some(cid) = self.remapped_cards.get(&entry.cid) {
+                entry.cid = *cid;
                 entry.usn = self.usn;
                 self.target_col.add_revlog_entry_if_unique_undoable(entry)?;
             }
