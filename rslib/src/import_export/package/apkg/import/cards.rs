@@ -38,7 +38,7 @@ impl<'c> CardContext<'c> {
         days_elapsed: u32,
         target_col: &'a mut Collection,
         imported_notes: &'a HashMap<NoteId, NoteId>,
-        remapped_decks: &'a HashMap<DeckId, DeckId>,
+        imported_decks: &'a HashMap<DeckId, DeckId>,
     ) -> Result<Self> {
         let targets = target_col.storage.all_cards_as_nid_and_ord()?;
         let collection_delta = target_col.collection_delta(days_elapsed)?;
@@ -48,7 +48,7 @@ impl<'c> CardContext<'c> {
             target_col,
             usn,
             imported_notes,
-            remapped_decks,
+            remapped_decks: imported_decks,
             targets,
             collection_delta,
             scheduler_version,
@@ -66,13 +66,16 @@ impl Collection {
 }
 
 impl<'a> Context<'a> {
-    pub(super) fn import_cards_and_revlog(&mut self) -> Result<()> {
+    pub(super) fn import_cards_and_revlog(
+        &mut self,
+        imported_decks: &HashMap<DeckId, DeckId>,
+    ) -> Result<()> {
         let mut ctx = CardContext::new(
             self.usn,
             self.data.days_elapsed,
             self.target_col,
             &self.imported_notes,
-            &self.remapped_decks,
+            imported_decks,
         )?;
         ctx.import_cards(mem::take(&mut self.data.cards))?;
         ctx.import_revlog(mem::take(&mut self.data.revlog))

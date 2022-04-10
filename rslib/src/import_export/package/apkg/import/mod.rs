@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod cards;
+mod decks;
 
 use std::{
     borrow::Cow,
@@ -18,7 +19,6 @@ use zip::ZipArchive;
 
 use crate::{
     collection::CollectionBuilder,
-    decks::NormalDeck,
     import_export::{
         gather::ExchangeData,
         package::{
@@ -42,7 +42,6 @@ struct Context<'a> {
     remapped_notetypes: HashMap<NotetypeId, NotetypeId>,
     imported_notes: HashMap<NoteId, NoteId>,
     existing_notes: HashSet<NoteId>,
-    remapped_decks: HashMap<DeckId, DeckId>,
     data: ExchangeData,
     usn: Usn,
     /// Map of source media files, that do not already exist in the target.
@@ -138,7 +137,6 @@ impl<'a> Context<'a> {
             remapped_notetypes: HashMap::new(),
             imported_notes: HashMap::new(),
             existing_notes,
-            remapped_decks: HashMap::new(),
             used_media_entries: HashMap::new(),
             normalize_notes,
         })
@@ -148,9 +146,8 @@ impl<'a> Context<'a> {
         self.prepare_media()?;
         self.import_notetypes()?;
         self.import_notes()?;
-        self.import_deck_configs()?;
-        self.import_decks()?;
-        self.import_cards_and_revlog()?;
+        let imported_decks = self.import_decks_and_configs()?;
+        self.import_cards_and_revlog(&imported_decks)?;
         self.copy_media()
     }
 
@@ -336,58 +333,6 @@ impl<'a> Context<'a> {
         })
     }
 
-    fn import_deck_configs(&mut self) -> Result<()> {
-        for mut config in mem::take(&mut self.data.deck_configs) {
-            config.usn = self.usn;
-            self.target_col
-                .add_deck_config_if_unique_undoable(&config)?;
-        }
-        Ok(())
-    }
-
-    fn import_decks(&mut self) -> Result<()> {
-        // TODO: ensure alphabetical order, so parents are seen first
-        let mut renamed_parents = Vec::new();
-
-        for mut deck in mem::take(&mut self.data.decks) {
-            deck.maybe_reparent(&renamed_parents);
-            if let Some(original) = self.get_deck_by_name(&deck)? {
-                if original.is_filtered() {
-                    deck.uniquify_name(&mut renamed_parents);
-                    self.add_deck(&mut deck)?;
-                } else {
-                    self.update_deck(&deck, original)?;
-                }
-            } else {
-                self.add_deck(&mut deck)?;
-            }
-        }
-
-        Ok(())
-    }
-
-    fn add_deck(&mut self, deck: &mut Deck) -> Result<()> {
-        let old_id = mem::take(&mut deck.id);
-        self.target_col.add_deck_inner(deck, self.usn)?;
-        self.remapped_decks.insert(old_id, deck.id);
-        Ok(())
-    }
-
-    /// Caller must ensure decks are normal.
-    fn update_deck(&mut self, deck: &Deck, original: Deck) -> Result<()> {
-        let mut new_deck = original.clone();
-        new_deck.normal_mut()?.update_with_other(deck.normal()?);
-        self.remapped_decks.insert(deck.id, new_deck.id);
-        self.target_col
-            .update_deck_inner(&mut new_deck, original, self.usn)
-    }
-
-    fn get_deck_by_name(&mut self, deck: &Deck) -> Result<Option<Deck>> {
-        self.target_col
-            .storage
-            .get_deck_by_name(deck.name.as_native_str())
-    }
-
     fn copy_media(&mut self) -> Result<()> {
         for (used, entry) in self.used_media_entries.values() {
             if *used {
@@ -396,38 +341,6 @@ impl<'a> Context<'a> {
         }
         Ok(())
     }
-}
-
-impl Deck {
-    fn maybe_reparent(&mut self, renamed_parents: &[(String, String)]) {
-        if let Some(new_name) = reparented_name(self.name.as_native_str(), renamed_parents) {
-            self.name = NativeDeckName::from_native_str(new_name);
-        }
-    }
-
-    fn uniquify_name(&mut self, renamed_parents: &mut Vec<(String, String)>) {
-        let name = self.name.as_native_str();
-        let new_name = format!("{name} {}", TimestampSecs::now());
-        renamed_parents.push((format!("{name}\x1f"), format!("{new_name}\x1f")));
-        self.name = NativeDeckName::from_native_str(new_name);
-    }
-}
-
-impl NormalDeck {
-    fn update_with_other(&mut self, other: &Self) {
-        self.markdown_description = other.markdown_description;
-        self.description = other.description.clone();
-        if other.config_id != 1 {
-            self.config_id = other.config_id;
-        }
-    }
-}
-
-fn reparented_name(name: &str, renamed_parents: &[(String, String)]) -> Option<String> {
-    renamed_parents.iter().find_map(|(old_parent, new_parent)| {
-        name.starts_with(old_parent)
-            .then(|| name.replacen(old_parent, new_parent, 1))
-    })
 }
 
 impl Notetype {
