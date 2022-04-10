@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod cards;
+
 use std::{
     borrow::Cow,
     collections::{HashMap, HashSet},
@@ -15,9 +17,7 @@ use tempfile::NamedTempFile;
 use zip::ZipArchive;
 
 use crate::{
-    card::{CardQueue, CardType},
     collection::CollectionBuilder,
-    config::SchedulerVersion,
     decks::NormalDeck,
     import_export::{
         gather::ExchangeData,
@@ -54,7 +54,6 @@ struct Context<'a> {
     /// exist in the target, but their notetypes don't match.
     conflicting_notes: HashSet<NoteId>,
     remapped_cards: HashMap<CardId, CardId>,
-    existing_cards: HashSet<CardId>,
     normalize_notes: bool,
 }
 
@@ -134,7 +133,6 @@ impl<'a> Context<'a> {
         let usn = target_col.usn()?;
         let normalize_notes = target_col.get_config_bool(BoolKey::NormalizeNoteText);
         let existing_notes = target_col.storage.get_all_note_ids()?;
-        let existing_cards = target_col.storage.get_all_card_ids()?;
         Ok(Self {
             target_col,
             archive,
@@ -147,7 +145,6 @@ impl<'a> Context<'a> {
             existing_notes,
             remapped_decks: HashMap::new(),
             remapped_cards: HashMap::new(),
-            existing_cards,
             used_media_entries: HashMap::new(),
             normalize_notes,
         })
@@ -399,58 +396,6 @@ impl<'a> Context<'a> {
             .get_deck_by_name(deck.name.as_native_str())
     }
 
-    fn import_cards(&mut self) -> Result<()> {
-        let existing = self.target_col.storage.all_cards_as_nid_and_ord()?;
-        let collection_delta = self.collection_delta()?;
-        let version = self.target_col.scheduler_info()?.version;
-        for mut card in mem::take(&mut self.data.cards) {
-            if !self.conflicting_notes.contains(&card.note_id) {
-                self.remap_note_id(&mut card);
-                if !existing.contains(&(card.note_id, card.template_idx)) {
-                    self.remap_deck_id(&mut card);
-                    card.shift_collection_relative_dates(collection_delta);
-                    card.maybe_remove_from_filtered_deck(version);
-                    self.add_card(&mut card)?;
-                }
-                // TODO: maybe update
-            }
-        }
-        Ok(())
-    }
-
-    /// The number of days the source collection is ahead of the target collection.
-    fn collection_delta(&mut self) -> Result<i32> {
-        Ok(self.data.days_elapsed as i32 - self.target_col.timing_today()?.days_elapsed as i32)
-    }
-
-    fn add_card(&mut self, card: &mut Card) -> Result<()> {
-        card.usn = self.usn;
-        self.uniquify_card_id(card);
-        self.target_col.add_card_if_unique_undoable(card)?;
-        self.existing_cards.insert(card.id);
-        Ok(())
-    }
-
-    fn remap_note_id(&self, card: &mut Card) {
-        if let Some(nid) = self.remapped_notes.get(&card.note_id) {
-            card.note_id = *nid;
-        }
-    }
-
-    fn uniquify_card_id(&mut self, card: &mut Card) {
-        let original = card.id;
-        while self.existing_cards.contains(&card.id) {
-            card.id.0 += 999;
-        }
-        self.remapped_cards.insert(original, card.id);
-    }
-
-    fn remap_deck_id(&self, card: &mut Card) {
-        if let Some(did) = self.remapped_decks.get(&card.deck_id) {
-            card.deck_id = *did;
-        }
-    }
-
     fn import_revlog(&mut self) -> Result<()> {
         for mut entry in mem::take(&mut self.data.revlog) {
             if let Some(cid) = self.remapped_cards.get(&entry.cid) {
@@ -514,35 +459,5 @@ impl Notetype {
             hasher.update(template.name.as_bytes());
         }
         hasher.digest().bytes()
-    }
-}
-
-impl Card {
-    /// `delta` is the number days the card's source collection is ahead of the
-    /// target collection.
-    fn shift_collection_relative_dates(&mut self, delta: i32) {
-        if self.due_in_days_since_collection_creation() {
-            self.due -= delta;
-        }
-        if self.original_due_in_days_since_collection_creation() && self.original_due != 0 {
-            self.original_due -= delta;
-        }
-    }
-
-    fn due_in_days_since_collection_creation(&self) -> bool {
-        matches!(self.queue, CardQueue::Review | CardQueue::DayLearn)
-            || self.ctype == CardType::Review
-    }
-
-    fn original_due_in_days_since_collection_creation(&self) -> bool {
-        self.ctype == CardType::Review
-    }
-
-    fn maybe_remove_from_filtered_deck(&mut self, version: SchedulerVersion) {
-        if self.is_filtered() {
-            // instead of moving between decks, the deck is converted to a regular one
-            self.original_deck_id = self.deck_id;
-            self.remove_from_filtered_deck_restoring_queue(version);
-        }
     }
 }

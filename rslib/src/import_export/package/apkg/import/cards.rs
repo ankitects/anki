@@ -1,0 +1,162 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+use std::{
+    collections::{HashMap, HashSet},
+    mem,
+};
+
+use super::Context;
+use crate::{
+    card::{CardQueue, CardType},
+    config::SchedulerVersion,
+    prelude::*,
+};
+
+struct CardContext<'a> {
+    target_col: &'a mut Collection,
+    usn: Usn,
+
+    conflicting_notes: &'a HashSet<NoteId>,
+    remapped_notes: &'a HashMap<NoteId, NoteId>,
+    remapped_decks: &'a HashMap<DeckId, DeckId>,
+
+    /// The number of days the source collection is ahead of the target collection
+    collection_delta: i32,
+    scheduler_version: SchedulerVersion,
+    /// Cards in the target collection as (nid, ord)
+    targets: HashSet<(NoteId, u16)>,
+    /// All card ids existing in the target collection
+    target_ids: HashSet<CardId>,
+
+    imported_cards: HashMap<CardId, CardId>,
+}
+
+impl<'c> CardContext<'c> {
+    fn new<'a: 'c>(
+        usn: Usn,
+        days_elapsed: u32,
+        target_col: &'a mut Collection,
+        remapped_notes: &'a HashMap<NoteId, NoteId>,
+        remapped_decks: &'a HashMap<DeckId, DeckId>,
+        conflicting_notes: &'a HashSet<NoteId>,
+    ) -> Result<Self> {
+        let targets = target_col.storage.all_cards_as_nid_and_ord()?;
+        let collection_delta = target_col.collection_delta(days_elapsed)?;
+        let scheduler_version = target_col.scheduler_info()?.version;
+        let target_ids = target_col.storage.get_all_card_ids()?;
+        Ok(Self {
+            target_col,
+            usn,
+            conflicting_notes,
+            remapped_notes,
+            remapped_decks,
+            targets,
+            collection_delta,
+            scheduler_version,
+            target_ids,
+            imported_cards: HashMap::new(),
+        })
+    }
+}
+
+impl Collection {
+    /// How much `days_elapsed` is ahead of this collection.
+    fn collection_delta(&mut self, days_elapsed: u32) -> Result<i32> {
+        Ok(days_elapsed as i32 - self.timing_today()?.days_elapsed as i32)
+    }
+}
+
+impl<'a> Context<'a> {
+    pub(super) fn import_cards(&mut self) -> Result<HashMap<CardId, CardId>> {
+        let mut ctx = CardContext::new(
+            self.usn,
+            self.data.days_elapsed,
+            self.target_col,
+            &self.remapped_notes,
+            &self.remapped_decks,
+            &self.conflicting_notes,
+        )?;
+        ctx.import_cards(mem::take(&mut self.data.cards))?;
+        Ok(ctx.imported_cards)
+    }
+}
+
+impl CardContext<'_> {
+    pub(super) fn import_cards(&mut self, mut cards: Vec<Card>) -> Result<()> {
+        for card in &mut cards {
+            if !self.conflicting_notes.contains(&card.note_id) {
+                self.remap_note_id(card);
+                if !self.targets.contains(&(card.note_id, card.template_idx)) {
+                    self.add_card(card)?;
+                }
+                // TODO: maybe update
+            }
+        }
+        Ok(())
+    }
+
+    fn add_card(&mut self, card: &mut Card) -> Result<()> {
+        card.usn = self.usn;
+        self.remap_deck_id(card);
+        card.shift_collection_relative_dates(self.collection_delta);
+        card.maybe_remove_from_filtered_deck(self.scheduler_version);
+        let old_id = self.uniquify_card_id(card);
+
+        self.target_col.add_card_if_unique_undoable(card)?;
+        self.target_ids.insert(card.id);
+        self.imported_cards.insert(old_id, card.id);
+
+        Ok(())
+    }
+
+    fn remap_note_id(&self, card: &mut Card) {
+        if let Some(nid) = self.remapped_notes.get(&card.note_id) {
+            card.note_id = *nid;
+        }
+    }
+
+    fn uniquify_card_id(&mut self, card: &mut Card) -> CardId {
+        let original = card.id;
+        while self.target_ids.contains(&card.id) {
+            card.id.0 += 999;
+        }
+        original
+    }
+
+    fn remap_deck_id(&self, card: &mut Card) {
+        if let Some(did) = self.remapped_decks.get(&card.deck_id) {
+            card.deck_id = *did;
+        }
+    }
+}
+
+impl Card {
+    /// `delta` is the number days the card's source collection is ahead of the
+    /// target collection.
+    fn shift_collection_relative_dates(&mut self, delta: i32) {
+        if self.due_in_days_since_collection_creation() {
+            self.due -= delta;
+        }
+        if self.original_due_in_days_since_collection_creation() && self.original_due != 0 {
+            self.original_due -= delta;
+        }
+    }
+
+    fn due_in_days_since_collection_creation(&self) -> bool {
+        matches!(self.queue, CardQueue::Review | CardQueue::DayLearn)
+            || self.ctype == CardType::Review
+    }
+
+    fn original_due_in_days_since_collection_creation(&self) -> bool {
+        self.ctype == CardType::Review
+    }
+
+    fn maybe_remove_from_filtered_deck(&mut self, version: SchedulerVersion) {
+        if self.is_filtered() {
+            // instead of moving between decks, the deck is converted to a regular one
+            self.original_deck_id = self.deck_id;
+            self.remove_from_filtered_deck_restoring_queue(version);
+        }
+    }
+}
