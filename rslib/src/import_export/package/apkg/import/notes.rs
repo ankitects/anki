@@ -10,7 +10,7 @@ use std::{
 
 use sha1::Sha1;
 
-use super::{Context, MediaUseMap};
+use super::{media::MediaUseMap, Context};
 use crate::{
     import_export::package::media::safe_normalized_file_name, prelude::*, text::replace_media_refs,
 };
