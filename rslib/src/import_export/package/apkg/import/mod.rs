@@ -9,6 +9,7 @@ mod notes;
 use std::{fs::File, io, path::Path};
 
 pub(crate) use notes::NoteMeta;
+use rusqlite::OptionalExtension;
 use tempfile::NamedTempFile;
 use zip::ZipArchive;
 
@@ -69,11 +70,32 @@ impl ExchangeData {
         let mut zip_file = archive.by_name(Meta::new_legacy().collection_filename())?;
         let mut tempfile = NamedTempFile::new()?;
         io::copy(&mut zip_file, &mut tempfile)?;
+
         let mut col = CollectionBuilder::new(tempfile.path()).build()?;
+        col.maybe_upgrade_scheduler()?;
 
         let mut data = ExchangeData::default();
         data.gather_data(&mut col, search, with_scheduling)?;
 
         Ok(data)
+    }
+}
+
+impl Collection {
+    fn maybe_upgrade_scheduler(&mut self) -> Result<()> {
+        if self.scheduling_included()? {
+            self.upgrade_to_v2_scheduler()?;
+        }
+        Ok(())
+    }
+
+    fn scheduling_included(&mut self) -> Result<bool> {
+        const SQL: &str = "SELECT 1 FROM cards WHERE queue != 0";
+        Ok(self
+            .storage
+            .db
+            .query_row(SQL, [], |_| Ok(()))
+            .optional()?
+            .is_some())
     }
 }
