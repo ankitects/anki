@@ -3,17 +3,11 @@
 
 mod cards;
 mod decks;
+mod notes;
 
-use std::{
-    borrow::Cow,
-    collections::{HashMap, HashSet},
-    fs::File,
-    io, mem,
-    path::Path,
-    sync::Arc,
-};
+use std::{collections::HashMap, fs::File, io, mem, path::Path};
 
-use sha1::Sha1;
+pub(crate) use notes::NoteMeta;
 use tempfile::NamedTempFile;
 use zip::ZipArchive;
 
@@ -22,7 +16,7 @@ use crate::{
     import_export::{
         gather::ExchangeData,
         package::{
-            media::{extract_media_entries, safe_normalized_file_name, SafeMediaEntry},
+            media::{extract_media_entries, SafeMediaEntry},
             Meta,
         },
     },
@@ -32,40 +26,36 @@ use crate::{
     },
     prelude::*,
     search::SearchNode,
-    text::replace_media_refs,
 };
+
+/// Map of source media files, that do not already exist in the target.
+///
+/// original, normalized filename → (refererenced on import material,
+/// entry with possibly remapped filename)
+#[derive(Default)]
+struct MediaUseMap(HashMap<String, (bool, SafeMediaEntry)>);
 
 struct Context<'a> {
     target_col: &'a mut Collection,
     archive: ZipArchive<File>,
-    guid_map: HashMap<String, NoteMeta>,
-    remapped_notetypes: HashMap<NotetypeId, NotetypeId>,
-    imported_notes: HashMap<NoteId, NoteId>,
-    existing_notes: HashSet<NoteId>,
     data: ExchangeData,
     usn: Usn,
-    /// Map of source media files, that do not already exist in the target.
-    ///
-    /// original, normalized file name → (refererenced on import material,
-    /// entry with possibly remapped file name)
-    used_media_entries: HashMap<String, (bool, SafeMediaEntry)>,
-    normalize_notes: bool,
 }
 
-#[derive(Debug, Clone, Copy)]
-pub(crate) struct NoteMeta {
-    id: NoteId,
-    mtime: TimestampSecs,
-    notetype_id: NotetypeId,
-}
+impl MediaUseMap {
+    fn add(&mut self, filename: impl Into<String>, entry: SafeMediaEntry) {
+        self.0.insert(filename.into(), (false, entry));
+    }
 
-impl NoteMeta {
-    pub(crate) fn new(id: NoteId, mtime: TimestampSecs, notetype_id: NotetypeId) -> Self {
-        Self {
-            id,
-            mtime,
-            notetype_id,
-        }
+    fn use_entry(&mut self, filename: &str) -> Option<&SafeMediaEntry> {
+        self.0.get_mut(filename).map(|(used, entry)| {
+            *used = true;
+            &*entry
+        })
+    }
+
+    fn used_entries(&self) -> impl Iterator<Item = &SafeMediaEntry> {
+        self.0.values().filter_map(|t| t.0.then(|| &t.1))
     }
 }
 
@@ -124,234 +114,44 @@ impl<'a> Context<'a> {
     fn new(mut archive: ZipArchive<File>, target_col: &'a mut Collection) -> Result<Self> {
         let data =
             ExchangeData::gather_from_archive(&mut archive, SearchNode::WholeCollection, true)?;
-        let guid_map = target_col.storage.note_guid_map()?;
         let usn = target_col.usn()?;
-        let normalize_notes = target_col.get_config_bool(BoolKey::NormalizeNoteText);
-        let existing_notes = target_col.storage.get_all_note_ids()?;
         Ok(Self {
             target_col,
             archive,
             data,
-            guid_map,
             usn,
-            remapped_notetypes: HashMap::new(),
-            imported_notes: HashMap::new(),
-            existing_notes,
-            used_media_entries: HashMap::new(),
-            normalize_notes,
         })
     }
 
     fn import(&mut self) -> Result<()> {
-        self.prepare_media()?;
-        self.import_notetypes()?;
-        self.import_notes()?;
+        let mut media_map = self.prepare_media()?;
+        let imported_notes = self.import_notes_and_notetypes(&mut media_map)?;
         let imported_decks = self.import_decks_and_configs()?;
-        self.import_cards_and_revlog(&imported_decks)?;
-        self.copy_media()
+        self.import_cards_and_revlog(&imported_notes, &imported_decks)?;
+        self.copy_media(&mut media_map)
     }
 
-    fn prepare_media(&mut self) -> Result<()> {
+    fn prepare_media(&mut self) -> Result<MediaUseMap> {
+        let mut media_map = MediaUseMap::default();
         let existing_sha1s = self.target_col.all_existing_sha1s()?;
         for mut entry in extract_media_entries(&Meta::new_legacy(), &mut self.archive)? {
             if let Some(other_sha1) = existing_sha1s.get(&entry.name) {
                 entry.with_hash_from_archive(&mut self.archive)?;
                 if entry.sha1 != *other_sha1 {
                     let original_name = entry.uniquify_name();
-                    self.used_media_entries
-                        .insert(original_name, (false, entry));
+                    media_map.add(original_name, entry);
                 }
             } else {
-                self.used_media_entries
-                    .insert(entry.name.clone(), (false, entry));
+                media_map.add(entry.name.clone(), entry);
             }
         }
-        Ok(())
+        Ok(media_map)
     }
 
-    fn import_notetypes(&mut self) -> Result<()> {
-        for mut notetype in std::mem::take(&mut self.data.notetypes) {
-            if let Some(existing) = self.target_col.storage.get_notetype(notetype.id)? {
-                self.merge_or_remap_notetype(&mut notetype, existing)?;
-            } else {
-                self.add_notetype(&mut notetype)?;
-            }
+    fn copy_media(&mut self, media_map: &mut MediaUseMap) -> Result<()> {
+        for entry in media_map.used_entries() {
+            entry.copy_from_archive(&mut self.archive, &self.target_col.media_folder)?;
         }
         Ok(())
-    }
-
-    fn merge_or_remap_notetype(
-        &mut self,
-        incoming: &mut Notetype,
-        existing: Notetype,
-    ) -> Result<()> {
-        if incoming.schema_hash() == existing.schema_hash() {
-            if incoming.mtime_secs > existing.mtime_secs {
-                self.update_notetype(incoming, existing)?;
-            }
-        } else {
-            self.add_notetype_with_remapped_id(incoming)?;
-        }
-        Ok(())
-    }
-
-    fn add_notetype(&mut self, notetype: &mut Notetype) -> Result<()> {
-        notetype.prepare_for_update(None, true)?;
-        self.target_col
-            .ensure_notetype_name_unique(notetype, self.usn)?;
-        notetype.usn = self.usn;
-        self.target_col
-            .add_notetype_with_unique_id_undoable(notetype)
-    }
-
-    fn update_notetype(&mut self, notetype: &mut Notetype, original: Notetype) -> Result<()> {
-        notetype.usn = self.usn;
-        self.target_col
-            .add_or_update_notetype_with_existing_id_inner(notetype, Some(original), self.usn, true)
-    }
-
-    fn add_notetype_with_remapped_id(&mut self, notetype: &mut Notetype) -> Result<()> {
-        let old_id = std::mem::take(&mut notetype.id);
-        notetype.usn = self.usn;
-        self.target_col
-            .add_notetype_inner(notetype, self.usn, true)?;
-        self.remapped_notetypes.insert(old_id, notetype.id);
-        Ok(())
-    }
-
-    fn import_notes(&mut self) -> Result<()> {
-        for mut note in mem::take(&mut self.data.notes) {
-            if let Some(notetype_id) = self.remapped_notetypes.get(&note.notetype_id) {
-                if self.guid_map.contains_key(&note.guid) {
-                    // TODO: Log ignore
-                } else {
-                    note.notetype_id = *notetype_id;
-                    self.add_note(&mut note)?;
-                }
-            } else if let Some(&meta) = self.guid_map.get(&note.guid) {
-                self.maybe_update_note(&mut note, meta)?;
-            } else {
-                self.add_note(&mut note)?;
-            }
-        }
-        Ok(())
-    }
-
-    fn add_note(&mut self, mut note: &mut Note) -> Result<()> {
-        // TODO: Log add
-        self.munge_media(note)?;
-        self.target_col.canonify_note_tags(note, self.usn)?;
-        let notetype = self.get_expected_notetype(note.notetype_id)?;
-        note.prepare_for_update(&notetype, self.normalize_notes)?;
-        note.usn = self.usn;
-        let old_id = self.uniquify_note_id(note);
-
-        self.target_col.add_note_only_with_id_undoable(note)?;
-        self.existing_notes.insert(note.id);
-        self.imported_notes.insert(old_id, note.id);
-
-        Ok(())
-    }
-
-    fn uniquify_note_id(&mut self, note: &mut Note) -> NoteId {
-        let original = note.id;
-        while self.existing_notes.contains(&note.id) {
-            note.id.0 += 999;
-        }
-        original
-    }
-
-    fn get_expected_notetype(&mut self, ntid: NotetypeId) -> Result<Arc<Notetype>> {
-        self.target_col
-            .get_notetype(ntid)?
-            .ok_or(AnkiError::NotFound)
-    }
-
-    fn get_expected_note(&mut self, nid: NoteId) -> Result<Note> {
-        self.target_col
-            .storage
-            .get_note(nid)?
-            .ok_or(AnkiError::NotFound)
-    }
-
-    fn maybe_update_note(&mut self, note: &mut Note, meta: NoteMeta) -> Result<()> {
-        if meta.mtime < note.mtime {
-            if meta.notetype_id == note.notetype_id {
-                self.imported_notes.insert(note.id, meta.id);
-                note.id = meta.id;
-                self.update_note(note)?;
-            } else {
-                // TODO: Log ignore
-            }
-        } else {
-            // TODO: Log duplicate
-            self.imported_notes.insert(note.id, meta.id);
-        }
-        Ok(())
-    }
-
-    fn update_note(&mut self, note: &mut Note) -> Result<()> {
-        // TODO: Log update
-        self.munge_media(note)?;
-        let original = self.get_expected_note(note.id)?;
-        let notetype = self.get_expected_notetype(note.notetype_id)?;
-        self.target_col.update_note_inner_without_cards(
-            note,
-            &original,
-            &notetype,
-            self.usn,
-            true,
-            self.normalize_notes,
-            true,
-        )
-    }
-
-    fn munge_media(&mut self, note: &mut Note) -> Result<()> {
-        for field in note.fields_mut() {
-            if let Some(new_field) = self.replace_media_refs(field) {
-                *field = new_field;
-            };
-        }
-        Ok(())
-    }
-
-    fn replace_media_refs(&mut self, field: &mut String) -> Option<String> {
-        replace_media_refs(field, |name| {
-            if let Ok(normalized) = safe_normalized_file_name(name) {
-                if let Some((used, entry)) = self.used_media_entries.get_mut(normalized.as_ref()) {
-                    *used = true;
-                    if entry.name != name {
-                        // name is not normalized, and/or remapped
-                        return Some(entry.name.clone());
-                    }
-                } else if let Cow::Owned(s) = normalized {
-                    // no entry; might be a reference to an existing file, so ensure normalization
-                    return Some(s);
-                }
-            }
-            None
-        })
-    }
-
-    fn copy_media(&mut self) -> Result<()> {
-        for (used, entry) in self.used_media_entries.values() {
-            if *used {
-                entry.copy_from_archive(&mut self.archive, &self.target_col.media_folder)?;
-            }
-        }
-        Ok(())
-    }
-}
-
-impl Notetype {
-    fn schema_hash(&self) -> [u8; 20] {
-        let mut hasher = Sha1::new();
-        for field in &self.fields {
-            hasher.update(field.name.as_bytes());
-        }
-        for template in &self.templates {
-            hasher.update(template.name.as_bytes());
-        }
-        hasher.digest().bytes()
     }
 }

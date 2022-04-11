@@ -68,13 +68,14 @@ impl Collection {
 impl<'a> Context<'a> {
     pub(super) fn import_cards_and_revlog(
         &mut self,
+        imported_notes: &HashMap<NoteId, NoteId>,
         imported_decks: &HashMap<DeckId, DeckId>,
     ) -> Result<()> {
         let mut ctx = CardContext::new(
             self.usn,
             self.data.days_elapsed,
             self.target_col,
-            &self.imported_notes,
+            imported_notes,
             imported_decks,
         )?;
         ctx.import_cards(mem::take(&mut self.data.cards))?;
