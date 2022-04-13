@@ -421,18 +421,22 @@ button:focus {{ outline: 5px auto {color_hl}; }}"""
         elif is_mac:
             family = "Helvetica"
             font = f'font-size:15px;font-family:"{family}";'
-            button_style = """
-button { -webkit-appearance: none; background: #fff; border: 1px solid #ccc;
+            color = ""
+            if not theme_manager.night_mode:
+                color = "background: #fff; border: 1px solid #ccc;"
+            button_style = (
+                """
+button { -webkit-appearance: none; %s
 border-radius:5px; font-family: Helvetica }"""
+                % color
+            )
         else:
             family = self.font().family()
             color_hl_txt = palette.color(QPalette.ColorRole.HighlightedText).name()
-            color_btn = palette.color(QPalette.ColorRole.Button).name()
             font = f'font-size:14px;font-family:"{family}", sans-serif;'
             button_style = """
 /* Buttons */
 button{{ 
-        background-color: {color_btn};
         font-family:"{family}", sans-serif; }}
 button:focus{{ border-color: {color_hl} }}
 button:active, button:active:hover {{ background-color: {color_hl}; color: {color_hl_txt};}}
@@ -443,7 +447,6 @@ div[contenteditable="true"]:focus {{
     border-color: {color_hl};
 }}""".format(
                 family=family,
-                color_btn=color_btn,
                 color_hl=color_hl,
                 color_hl_txt=color_hl_txt,
             )
