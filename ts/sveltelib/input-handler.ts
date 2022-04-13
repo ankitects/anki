@@ -63,7 +63,8 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
 
     function onKeydown(event: KeyboardEvent): void {
         /* using arrow keys should cancel */
-    if (event.key in ["ArrowUp", "ArrowLeft", "ArrowDown", "ArrowRight"]){
+	
+    if (["ArrowUp", "ArrowLeft", "ArrowDown", "ArrowRight"].includes(event.key)){
             clearInsertText();
         }
     }
