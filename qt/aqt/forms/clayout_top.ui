@@ -49,6 +49,9 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="minimumContentsLength">
+        <number>50</number>
+       </property>
        <property name="maxVisibleItems">
         <number>30</number>
        </property>

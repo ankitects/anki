@@ -35,7 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function onMathjaxChemistry(): void {
-        surround("<anki-mathjax focusonmount>\\ce{", "}</anki-mathjax>");
+        surround('<anki-mathjax focusonmount="0,4">\\ce{', "}</anki-mathjax>");
     }
 
     function onLatex(): void {

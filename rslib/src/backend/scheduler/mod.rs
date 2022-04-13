@@ -182,7 +182,7 @@ impl SchedulerService for Backend {
     }
 
     fn answer_card(&self, input: pb::CardAnswer) -> Result<pb::OpChanges> {
-        self.with_col(|col| col.answer_card(&input.into()))
+        self.with_col(|col| col.answer_card(&mut input.into()))
             .map(Into::into)
     }
 

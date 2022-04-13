@@ -113,6 +113,9 @@ impl SqlWriter<'_> {
         }
     }
 
+    // NOTE: when adding any new nodes in the future, make sure that they are either a single
+    // search term, or they wrap multiple terms in parentheses, as can be seen in the sql() unit
+    // test at the bottom of the file.
     fn write_search_node_to_sql(&mut self, node: &SearchNode) -> Result<()> {
         use normalize_to_nfc as norm;
         match node {

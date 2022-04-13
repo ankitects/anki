@@ -1,5 +1,5 @@
 @echo off
-anki
+anki %*
 pause
 
      

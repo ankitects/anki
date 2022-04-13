@@ -10,7 +10,7 @@ use crate::{
     card::CardQueue,
     config::SchedulerVersion,
     prelude::*,
-    search::{SearchNode, SortMode, StateKind},
+    search::{JoinSearches, SearchNode, SortMode, StateKind},
 };
 
 impl Card {
@@ -79,7 +79,7 @@ impl Collection {
         };
         self.transact(Op::UnburyUnsuspend, |col| {
             col.search_cards_into_table(
-                SearchBuilder::from(SearchNode::DeckIdWithChildren(deck_id)).and(state),
+                SearchNode::DeckIdWithChildren(deck_id).and(state),
                 SortMode::NoOrder,
             )?;
             col.unsuspend_or_unbury_searched_cards()

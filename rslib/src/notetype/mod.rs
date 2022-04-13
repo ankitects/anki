@@ -44,7 +44,7 @@ use crate::{
     define_newtype,
     error::{CardTypeError, CardTypeErrorDetails},
     prelude::*,
-    search::{Node, SearchNode},
+    search::{JoinSearches, Node, SearchNode},
     storage::comma_separated_ids,
     template::{FieldRequirements, ParsedTemplate},
     text::ensure_string_in_nfc,
@@ -222,7 +222,7 @@ impl Collection {
             .ok_or(AnkiError::NotFound)?;
 
         if self
-            .search_notes_unordered(SearchBuilder::from(note1.notetype_id).and(nids_node))?
+            .search_notes_unordered(note1.notetype_id.and(nids_node))?
             .len()
             != note_ids.len()
         {

@@ -52,34 +52,51 @@ export const gutterOptions: CodeMirror.EditorConfiguration = {
     foldGutter: true,
 };
 
-export function focusAndCaretAfter(editor: CodeMirror.Editor): void {
+export function focusAndSetCaret(
+    editor: CodeMirror.Editor,
+    position: CodeMirror.Position = { line: editor.lineCount(), ch: 0 },
+): void {
     editor.focus();
-    editor.setCursor(editor.lineCount(), 0);
+    editor.setCursor(position);
 }
 
 interface OpenCodeMirrorOptions {
     configuration: CodeMirror.EditorConfiguration;
     resolve(editor: CodeMirror.EditorFromTextArea): void;
+    hidden: boolean;
 }
 
 export function openCodeMirror(
     textarea: HTMLTextAreaElement,
-    { configuration, resolve }: Partial<OpenCodeMirrorOptions>,
+    options: Partial<OpenCodeMirrorOptions>,
 ): { update: (options: Partial<OpenCodeMirrorOptions>) => void; destroy: () => void } {
-    const editor = CodeMirror.fromTextArea(textarea, configuration);
-    resolve?.(editor);
+    let editor: CodeMirror.EditorFromTextArea | null = null;
 
-    return {
-        update({ configuration }: Partial<OpenCodeMirrorOptions>): void {
+    function update({
+        configuration,
+        resolve,
+        hidden,
+    }: Partial<OpenCodeMirrorOptions>): void {
+        if (editor) {
             for (const key in configuration) {
                 editor.setOption(
                     key as keyof CodeMirror.EditorConfiguration,
                     configuration[key],
                 );
             }
-        },
+        } else if (!hidden) {
+            editor = CodeMirror.fromTextArea(textarea, configuration);
+            resolve?.(editor);
+        }
+    }
+
+    update(options);
+
+    return {
+        update,
         destroy(): void {
-            editor.toTextArea();
+            editor?.toTextArea();
+            editor = null;
         },
     };
 }
