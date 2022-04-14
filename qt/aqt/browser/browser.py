@@ -353,6 +353,7 @@ class Browser(QMainWindow):
 
         self._lastSearchTxt = search
         prompt = search if prompt == None else prompt
+        self.form.searchEdit.setCurrentIndex(-1)
         self.form.searchEdit.lineEdit().setText(prompt)
         self.search()
 
