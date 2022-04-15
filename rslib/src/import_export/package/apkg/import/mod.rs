@@ -67,10 +67,7 @@ impl ExchangeData {
         search: impl TryIntoSearch,
         with_scheduling: bool,
     ) -> Result<Self> {
-        let mut zip_file = archive.by_name(Meta::new_legacy().collection_filename())?;
-        let mut tempfile = NamedTempFile::new()?;
-        io::copy(&mut zip_file, &mut tempfile)?;
-
+        let tempfile = collection_to_tempfile(archive)?;
         let mut col = CollectionBuilder::new(tempfile.path()).build()?;
         col.maybe_upgrade_scheduler()?;
 
@@ -79,6 +76,13 @@ impl ExchangeData {
 
         Ok(data)
     }
+}
+
+fn collection_to_tempfile(archive: &mut ZipArchive<File>) -> Result<NamedTempFile> {
+    let mut zip_file = archive.by_name(Meta::new_legacy().collection_filename())?;
+    let mut tempfile = NamedTempFile::new()?;
+    io::copy(&mut zip_file, &mut tempfile)?;
+    Ok(tempfile)
 }
 
 impl Collection {

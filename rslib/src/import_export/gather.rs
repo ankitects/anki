@@ -9,7 +9,7 @@ use std::{
 use itertools::Itertools;
 
 use crate::{
-    decks::NormalDeck,
+    decks::{immediate_parent_name, NormalDeck},
     io::filename_is_safe,
     latex::extract_latex,
     prelude::*,
@@ -172,21 +172,34 @@ impl Collection {
     }
 
     fn get_parent_decks(&mut self, decks: &[Deck]) -> Result<Vec<Deck>> {
-        let mut parent_names: HashSet<&str> =
-            decks.iter().map(|deck| deck.name.as_native_str()).collect();
+        let mut parent_names: HashSet<String> = decks
+            .iter()
+            .map(|deck| deck.name.as_native_str().to_owned())
+            .collect();
         let mut parents = Vec::new();
         for deck in decks {
-            while let Some(parent_name) = deck.name.immediate_parent_name() {
-                if parent_names.insert(parent_name) {
-                    parents.push(
-                        self.storage
-                            .get_deck_by_name(parent_name)?
-                            .ok_or(AnkiError::DatabaseCheckRequired)?,
-                    )
-                }
-            }
+            self.add_parent_decks(deck.name.as_native_str(), &mut parent_names, &mut parents)?;
         }
         Ok(parents)
+    }
+
+    fn add_parent_decks(
+        &mut self,
+        name: &str,
+        parent_names: &mut HashSet<String>,
+        parents: &mut Vec<Deck>,
+    ) -> Result<()> {
+        if let Some(parent_name) = immediate_parent_name(name) {
+            if parent_names.insert(parent_name.to_owned()) {
+                parents.push(
+                    self.storage
+                        .get_deck_by_name(parent_name)?
+                        .ok_or(AnkiError::DatabaseCheckRequired)?,
+                );
+                self.add_parent_decks(parent_name, parent_names, parents)?;
+            }
+        }
+        Ok(())
     }
 
     fn gather_notetypes(&mut self) -> Result<Vec<Notetype>> {
