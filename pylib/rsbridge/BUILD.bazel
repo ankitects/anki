@@ -8,6 +8,7 @@ cargo_build_script(
     srcs = ["build.rs"],
     build_script_env = {
         "PYO3_PYTHON": "$(location @python)",
+        "MACOSX_DEPLOYMENT_TARGET": "10.13",
     },
     data = [
         "@python",
