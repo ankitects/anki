@@ -1343,7 +1343,7 @@ class EditorWebView(AnkiWebView):
             return
         html = mime.html()
         mime.setHtml(f"<!--anki-->{html}")
-        clip.setMimeData(mime)
+        aqt.mw.progress.timer(10, lambda: clip.setMimeData(mime), False, parent=self)
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)

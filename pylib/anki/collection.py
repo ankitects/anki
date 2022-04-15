@@ -853,6 +853,12 @@ class Collection(DeprecatedNamesMixin):
         return CollectionStats(self)
 
     def card_stats_data(self, card_id: CardId) -> stats_pb2.CardStatsResponse:
+        """Returns the data required to show card stats.
+
+        If you wish to display the stats in a HTML table like Anki does,
+        you can use the .js file directly - see this add-on for an example:
+        https://ankiweb.net/shared/info/2179254157
+        """
         return self._backend.card_stats(card_id)
 
     def studied_today(self) -> str:

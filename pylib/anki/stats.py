@@ -39,7 +39,7 @@ def _legacy_card_stats(
     if ({1 if _legacy_nightmode else 0}) {{
         document.documentElement.className = "night-mode";
     }}
-    const {varName} = anki.cardInfo(document.getElementById('{random_id}'));
+    const {varName} = anki.setupCardInfo(document.getElementById('{random_id}'));
     {varName}.then((c) => c.$set({{ cardId: {card_id}, includeRevlog: {str(include_revlog).lower()} }}));
 </script>
     """
