@@ -1,23 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    collections::{HashMap, HashSet},
-    mem,
-};
+use std::{collections::HashMap, mem};
 
 use super::Context;
-use crate::{
-    decks::{immediate_parent_name, NormalDeck},
-    prelude::*,
-};
+use crate::{decks::NormalDeck, prelude::*};
 
 struct DeckContext<'d> {
     target_col: &'d mut Collection,
     usn: Usn,
-    seen_parents: HashSet<String>,
     renamed_parents: Vec<(String, String)>,
     imported_decks: HashMap<DeckId, DeckId>,
+    unique_suffix: String,
 }
 
 impl<'d> DeckContext<'d> {
@@ -25,9 +19,9 @@ impl<'d> DeckContext<'d> {
         Self {
             target_col,
             usn,
-            seen_parents: HashSet::new(),
             renamed_parents: Vec::new(),
             imported_decks: HashMap::new(),
+            unique_suffix: TimestampSecs::now().to_string(),
         }
     }
 }
@@ -54,27 +48,30 @@ impl DeckContext<'_> {
         // ensure parents are seen before children
         decks.sort_unstable_by(|d1, d2| d1.name.as_native_str().cmp(d2.name.as_native_str()));
         for deck in &mut decks {
-            // TODO: handle inconsistent capitalisation
-            self.ensure_parents_exist(deck.name.as_native_str())?;
-            self.maybe_reparent(deck);
             self.import_deck(deck)?;
         }
         Ok(())
     }
 
-    fn ensure_parents_exist(&mut self, name: &str) -> Result<()> {
-        if let Some(parent) = immediate_parent_name(name) {
-            if !self.seen_parents.contains(parent) {
-                self.ensure_parents_exist(parent)?;
-                self.seen_parents.insert(parent.to_string());
-                if let Some(new_parent) = self.reparented_name(parent) {
-                    self.ensure_deck_exists(&new_parent)?;
-                } else {
-                    self.ensure_deck_exists(parent)?;
-                };
+    fn import_deck(&mut self, deck: &mut Deck) -> Result<()> {
+        self.maybe_reparent(deck);
+        if let Some(original) = self.get_deck_by_name(deck)? {
+            if original.is_filtered() {
+                self.uniquify_name(deck);
+                self.add_deck(deck)
+            } else {
+                self.update_deck(deck, original)
             }
+        } else {
+            self.ensure_valid_first_existing_parent(deck)?;
+            self.add_deck(deck)
         }
-        Ok(())
+    }
+
+    fn maybe_reparent(&self, deck: &mut Deck) {
+        if let Some(new_name) = self.reparented_name(deck.name.as_native_str()) {
+            deck.name = NativeDeckName::from_native_str(new_name);
+        }
     }
 
     fn reparented_name(&self, name: &str) -> Option<String> {
@@ -86,56 +83,17 @@ impl DeckContext<'_> {
             })
     }
 
-    fn ensure_deck_exists(&mut self, name: &str) -> Result<()> {
-        if let Some(deck) = self.target_col.storage.get_deck_by_name(name)? {
-            if deck.is_filtered() {
-                self.add_default_deck(name, true)?;
-            }
-        } else {
-            self.add_default_deck(name, false)?;
-        };
-        Ok(())
-    }
-
-    fn add_default_deck(&mut self, name: &str, uniquify: bool) -> Result<()> {
-        let mut deck = Deck::new_normal();
-        deck.name = NativeDeckName::from_native_str(name);
-        if uniquify {
-            self.uniquify_name(&mut deck);
-        }
-        self.target_col.add_deck_inner(&mut deck, self.usn)
-    }
-
-    fn uniquify_name(&mut self, deck: &mut Deck) {
-        let old_parent = format!("{}\x1f", deck.name.as_native_str());
-        deck.uniquify_name();
-        let new_parent = format!("{}\x1f", deck.name.as_native_str());
-        self.renamed_parents.push((old_parent, new_parent));
-    }
-
-    fn maybe_reparent(&self, deck: &mut Deck) {
-        if let Some(new_name) = self.reparented_name(deck.name.as_native_str()) {
-            deck.name = NativeDeckName::from_native_str(new_name);
-        }
-    }
-
-    fn import_deck(&mut self, deck: &mut Deck) -> Result<()> {
-        if let Some(original) = self.get_deck_by_name(deck)? {
-            if original.is_filtered() {
-                self.uniquify_name(deck);
-                self.add_deck(deck)
-            } else {
-                self.update_deck(deck, original)
-            }
-        } else {
-            self.add_deck(deck)
-        }
-    }
-
     fn get_deck_by_name(&mut self, deck: &Deck) -> Result<Option<Deck>> {
         self.target_col
             .storage
             .get_deck_by_name(deck.name.as_native_str())
+    }
+
+    fn uniquify_name(&mut self, deck: &mut Deck) {
+        let old_parent = format!("{}\x1f", deck.name.as_native_str());
+        deck.uniquify_name(&self.unique_suffix);
+        let new_parent = format!("{}\x1f", deck.name.as_native_str());
+        self.renamed_parents.push((old_parent, new_parent));
     }
 
     fn add_deck(&mut self, deck: &mut Deck) -> Result<()> {
@@ -153,11 +111,31 @@ impl DeckContext<'_> {
         self.target_col
             .update_deck_inner(&mut new_deck, original, self.usn)
     }
+
+    fn ensure_valid_first_existing_parent(&mut self, deck: &mut Deck) -> Result<()> {
+        if let Some(ancestor) = self
+            .target_col
+            .first_existing_parent(deck.name.as_native_str(), 0)?
+        {
+            if ancestor.is_filtered() {
+                self.add_unique_default_deck(ancestor.name.as_native_str())?;
+                self.maybe_reparent(deck);
+            }
+        }
+        Ok(())
+    }
+
+    fn add_unique_default_deck(&mut self, name: &str) -> Result<()> {
+        let mut deck = Deck::new_normal();
+        deck.name = NativeDeckName::from_native_str(name);
+        self.uniquify_name(&mut deck);
+        self.target_col.add_deck_inner(&mut deck, self.usn)
+    }
 }
 
 impl Deck {
-    fn uniquify_name(&mut self) {
-        let new_name = format!("{} {}", self.name.as_native_str(), TimestampSecs::now());
+    fn uniquify_name(&mut self, suffix: &str) {
+        let new_name = format!("{} {}", self.name.as_native_str(), suffix);
         self.name = NativeDeckName::from_native_str(new_name);
     }
 }
@@ -169,5 +147,50 @@ impl NormalDeck {
         if other.config_id != 1 {
             self.config_id = other.config_id;
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use std::collections::HashSet;
+
+    use super::*;
+    use crate::{collection::open_test_collection, tests::new_deck_with_machine_name};
+
+    #[test]
+    fn parents() {
+        let mut col = open_test_collection();
+
+        col.add_deck_with_machine_name("filtered", true);
+        col.add_deck_with_machine_name("PARENT", false);
+
+        let mut ctx = DeckContext::new(&mut col, Usn(1));
+        ctx.unique_suffix = "★".to_string();
+
+        let imports = vec![
+            new_deck_with_machine_name("unknown parent\x1fchild", false),
+            new_deck_with_machine_name("filtered\x1fchild", false),
+            new_deck_with_machine_name("parent\x1fchild", false),
+            new_deck_with_machine_name("new parent\x1fchild", false),
+            new_deck_with_machine_name("NEW PARENT", false),
+        ];
+        ctx.import_decks(imports).unwrap();
+        let existing_decks: HashSet<_> = ctx
+            .target_col
+            .get_all_deck_names(true)
+            .unwrap()
+            .into_iter()
+            .map(|(_, name)| name)
+            .collect();
+
+        // missing parents get created
+        assert!(existing_decks.contains("unknown parent"));
+        // ... and uniquified if their existing counterparts are filtered
+        assert!(existing_decks.contains("filtered ★"));
+        assert!(existing_decks.contains("filtered ★::child"));
+        // the case of existing parents is matched
+        assert!(existing_decks.contains("PARENT::child"));
+        // the case of imported parents is matched, regardless of pass order
+        assert!(existing_decks.contains("NEW PARENT::child"));
     }
 }
