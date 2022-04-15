@@ -19,11 +19,15 @@ use crate::{
 };
 
 /// Map of source media files, that do not already exist in the target.
-///
-/// original, normalized filename → (refererenced on import material,
-/// entry with possibly remapped filename)
 #[derive(Default)]
-pub(super) struct MediaUseMap(HashMap<String, (bool, SafeMediaEntry)>);
+pub(super) struct MediaUseMap {
+    /// original, normalized filename → (refererenced on import material,
+    /// entry with possibly remapped filename)
+    checked: HashMap<String, (bool, SafeMediaEntry)>,
+    /// Static files (latex, underscored). Usage is not tracked, and if the name
+    /// already exists in the target, it is skipped regardless of content equality.
+    unchecked: Vec<SafeMediaEntry>,
+}
 
 impl<'a> Context<'a> {
     pub(super) fn prepare_media(&mut self) -> Result<MediaUseMap> {
@@ -52,33 +56,40 @@ fn prepare_media(
 ) -> Result<MediaUseMap> {
     let mut media_map = MediaUseMap::default();
     for mut entry in extract_media_entries(&Meta::new_legacy(), archive)? {
-        if let Some(other_sha1) = existing_sha1s.get(&entry.name) {
+        if entry.is_static() {
+            if !existing_sha1s.contains_key(&entry.name) {
+                media_map.unchecked.push(entry);
+            }
+        } else if let Some(other_sha1) = existing_sha1s.get(&entry.name) {
             entry.with_hash_from_archive(archive)?;
             if entry.sha1 != *other_sha1 {
                 let original_name = entry.uniquify_name();
-                media_map.add(original_name, entry);
+                media_map.add_checked(original_name, entry);
             }
         } else {
-            media_map.add(entry.name.clone(), entry);
+            media_map.add_checked(entry.name.clone(), entry);
         }
     }
     Ok(media_map)
 }
 
 impl MediaUseMap {
-    pub(super) fn add(&mut self, filename: impl Into<String>, entry: SafeMediaEntry) {
-        self.0.insert(filename.into(), (false, entry));
+    pub(super) fn add_checked(&mut self, filename: impl Into<String>, entry: SafeMediaEntry) {
+        self.checked.insert(filename.into(), (false, entry));
     }
 
     pub(super) fn use_entry(&mut self, filename: &str) -> Option<&SafeMediaEntry> {
-        self.0.get_mut(filename).map(|(used, entry)| {
+        self.checked.get_mut(filename).map(|(used, entry)| {
             *used = true;
             &*entry
         })
     }
 
     pub(super) fn used_entries(&self) -> impl Iterator<Item = &SafeMediaEntry> {
-        self.0.values().filter_map(|t| t.0.then(|| &t.1))
+        self.checked
+            .values()
+            .filter_map(|(used, entry)| used.then(|| entry))
+            .chain(self.unchecked.iter())
     }
 }
 
@@ -95,5 +106,9 @@ impl SafeMediaEntry {
     fn uniquify_name(&mut self) -> String {
         let new_name = add_hash_suffix_to_file_stem(&self.name, &self.sha1);
         mem::replace(&mut self.name, new_name)
+    }
+
+    fn is_static(&self) -> bool {
+        self.name.starts_with('_') || self.name.starts_with("latex-")
     }
 }
