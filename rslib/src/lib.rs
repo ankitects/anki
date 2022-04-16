@@ -40,6 +40,7 @@ mod sync;
 pub mod tags;
 pub mod template;
 pub mod template_filters;
+pub(crate) mod tests;
 pub mod text;
 pub mod timestamp;
 pub mod types;
