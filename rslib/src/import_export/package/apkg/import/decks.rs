@@ -26,7 +26,7 @@ impl<'d> DeckContext<'d> {
     }
 }
 
-impl Context<'_> {
+impl<F> Context<'_, F> {
     pub(super) fn import_decks_and_configs(&mut self) -> Result<HashMap<DeckId, DeckId>> {
         let mut ctx = DeckContext::new(self.target_col, self.usn);
         ctx.import_deck_configs(mem::take(&mut self.data.deck_configs))?;

@@ -15,32 +15,41 @@ use zip::ZipArchive;
 
 use crate::{
     collection::CollectionBuilder,
-    import_export::{gather::ExchangeData, package::Meta},
+    import_export::{gather::ExchangeData, package::Meta, ImportProgress},
     prelude::*,
     search::SearchNode,
 };
 
-struct Context<'a> {
+struct Context<'a, F> {
     target_col: &'a mut Collection,
     archive: ZipArchive<File>,
     data: ExchangeData,
     usn: Usn,
+    progress_fn: F,
 }
 
 impl Collection {
-    pub fn import_apkg(&mut self, path: impl AsRef<Path>) -> Result<OpOutput<()>> {
+    pub fn import_apkg(
+        &mut self,
+        path: impl AsRef<Path>,
+        progress_fn: impl FnMut(ImportProgress) -> Result<()>,
+    ) -> Result<OpOutput<()>> {
         let file = File::open(path)?;
         let archive = ZipArchive::new(file)?;
 
         self.transact(Op::Import, |col| {
-            let mut ctx = Context::new(archive, col)?;
+            let mut ctx = Context::new(archive, col, progress_fn)?;
             ctx.import()
         })
     }
 }
 
-impl<'a> Context<'a> {
-    fn new(mut archive: ZipArchive<File>, target_col: &'a mut Collection) -> Result<Self> {
+impl<'a, F: FnMut(ImportProgress) -> Result<()>> Context<'a, F> {
+    fn new(
+        mut archive: ZipArchive<File>,
+        target_col: &'a mut Collection,
+        progress_fn: F,
+    ) -> Result<Self> {
         let data =
             ExchangeData::gather_from_archive(&mut archive, SearchNode::WholeCollection, true)?;
         let usn = target_col.usn()?;
@@ -49,6 +58,7 @@ impl<'a> Context<'a> {
             archive,
             data,
             usn,
+            progress_fn,
         })
     }
 

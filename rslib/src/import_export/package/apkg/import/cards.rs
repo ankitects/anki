@@ -65,7 +65,7 @@ impl Collection {
     }
 }
 
-impl<'a> Context<'a> {
+impl<F> Context<'_, F> {
     pub(super) fn import_cards_and_revlog(
         &mut self,
         imported_notes: &HashMap<NoteId, NoteId>,

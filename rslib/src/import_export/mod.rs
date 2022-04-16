@@ -9,4 +9,5 @@ pub mod package;
 pub enum ImportProgress {
     Collection,
     Media(usize),
+    MediaCheck(usize),
 }

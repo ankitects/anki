@@ -43,7 +43,7 @@ impl NoteMeta {
     }
 }
 
-impl Context<'_> {
+impl<F> Context<'_, F> {
     pub(super) fn import_notes_and_notetypes(
         &mut self,
         media_map: &mut MediaUseMap,

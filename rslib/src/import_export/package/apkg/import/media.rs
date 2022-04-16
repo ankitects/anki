@@ -7,9 +7,12 @@ use zip::ZipArchive;
 
 use super::Context;
 use crate::{
-    import_export::package::{
-        media::{extract_media_entries, SafeMediaEntry},
-        Meta,
+    import_export::{
+        package::{
+            media::{extract_media_entries, SafeMediaEntry},
+            Meta,
+        },
+        ImportProgress,
     },
     media::{
         files::{add_hash_suffix_to_file_stem, sha1_of_reader},
@@ -29,14 +32,20 @@ pub(super) struct MediaUseMap {
     unchecked: Vec<SafeMediaEntry>,
 }
 
-impl<'a> Context<'a> {
+impl<F: FnMut(ImportProgress) -> Result<()>> Context<'_, F> {
     pub(super) fn prepare_media(&mut self) -> Result<MediaUseMap> {
-        let existing_sha1s = self.target_col.all_existing_sha1s()?;
+        let progress_fn = |u| (&mut self.progress_fn)(ImportProgress::MediaCheck(u)).is_ok();
+        let existing_sha1s = self.target_col.all_existing_sha1s(progress_fn)?;
         prepare_media(&mut self.archive, &existing_sha1s)
     }
 
     pub(super) fn copy_media(&mut self, media_map: &mut MediaUseMap) -> Result<()> {
+        let mut counter = 0;
         for entry in media_map.used_entries() {
+            counter += 1;
+            if counter % 10 == 0 {
+                (self.progress_fn)(ImportProgress::Media(counter))?;
+            }
             entry.copy_from_archive(&mut self.archive, &self.target_col.media_folder)?;
         }
         Ok(())
@@ -44,9 +53,12 @@ impl<'a> Context<'a> {
 }
 
 impl Collection {
-    fn all_existing_sha1s(&mut self) -> Result<HashMap<String, [u8; 20]>> {
+    fn all_existing_sha1s(
+        &mut self,
+        progress_fn: impl FnMut(usize) -> bool,
+    ) -> Result<HashMap<String, [u8; 20]>> {
         let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        mgr.all_checksums(|_| true, &self.log)
+        mgr.all_checksums(progress_fn, &self.log)
     }
 }
 
