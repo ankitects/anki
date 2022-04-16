@@ -39,7 +39,7 @@ fn roundtrip() {
             |_| (),
         )
         .unwrap();
-    target_col.import_apkg(&apkg_path, |_| Ok(())).unwrap();
+    target_col.import_apkg(&apkg_path, &mut |_| Ok(())).unwrap();
 
     target_col.assert_decks();
     target_col.assert_notetype(&notetype);

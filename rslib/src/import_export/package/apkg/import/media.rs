@@ -32,7 +32,7 @@ pub(super) struct MediaUseMap {
     unchecked: Vec<SafeMediaEntry>,
 }
 
-impl<F: FnMut(ImportProgress) -> Result<()>> Context<'_, F> {
+impl Context<'_> {
     pub(super) fn prepare_media(&mut self) -> Result<MediaUseMap> {
         let progress_fn = |u| (&mut self.progress_fn)(ImportProgress::MediaCheck(u)).is_ok();
         let existing_sha1s = self.target_col.all_existing_sha1s(progress_fn)?;
