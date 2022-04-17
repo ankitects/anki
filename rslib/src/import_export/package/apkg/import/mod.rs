@@ -20,19 +20,21 @@ use crate::{
     search::SearchNode,
 };
 
+type ProgressFn = dyn FnMut(ImportProgress) -> Result<()>;
+
 struct Context<'a> {
     target_col: &'a mut Collection,
     archive: ZipArchive<File>,
     data: ExchangeData,
     usn: Usn,
-    progress_fn: &'a mut dyn Fn(ImportProgress) -> Result<()>,
+    progress_fn: &'a mut ProgressFn,
 }
 
 impl Collection {
     pub fn import_apkg(
         &mut self,
         path: impl AsRef<Path>,
-        progress_fn: &mut dyn Fn(ImportProgress) -> Result<()>,
+        progress_fn: &mut ProgressFn,
     ) -> Result<OpOutput<()>> {
         let file = File::open(path)?;
         let archive = ZipArchive::new(file)?;
@@ -48,7 +50,7 @@ impl<'a> Context<'a> {
     fn new(
         mut archive: ZipArchive<File>,
         target_col: &'a mut Collection,
-        progress_fn: &'a mut dyn Fn(ImportProgress) -> Result<()>,
+        progress_fn: &'a mut ProgressFn,
     ) -> Result<Self> {
         let data =
             ExchangeData::gather_from_archive(&mut archive, SearchNode::WholeCollection, true)?;
