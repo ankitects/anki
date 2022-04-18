@@ -174,6 +174,11 @@ class DeckStats(QDialog):
         path = self._imagePath()
         if not path:
             return
+        # when scrolled down in dark mode, the top of the back has
+        # a white background, which obviously makes it hard to read
+        # the white text, and so a simple fix for now is to simply
+        # scroll to the top instead
+        self.form.web.page().runJavaScript("window.scrollTo(0, 0);")
         self.form.web.page().printToPdf(path)
         tooltip(tr.statistics_saved())
 
