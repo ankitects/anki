@@ -3,7 +3,7 @@
 
 import { getRange, getSelection } from "../lib/cross-browser";
 import { on } from "../lib/events";
-import { keyboardEventIsPrintableKey } from "../lib/keys";
+import { checkIfModifierKey, keyboardEventIsPrintableKey } from "../lib/keys";
 import { HandlerList } from "./handler-list";
 
 const nbsp = "\xa0";
@@ -63,8 +63,7 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
     }
 
     function onKeydown(event: KeyboardEvent): void {
-        /* using arrow keys should cancel */
-        if (!keyboardEventIsPrintableKey(event)) {
+        if (!checkIfModifierKey(event) && !keyboardEventIsPrintableKey(event)) {
             clearInsertText();
         }
     }
