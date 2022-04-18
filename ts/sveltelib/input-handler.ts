@@ -3,7 +3,6 @@
 
 import { getRange, getSelection } from "../lib/cross-browser";
 import { on } from "../lib/events";
-import { checkIfModifierKey, keyboardEventIsPrintableKey } from "../lib/keys";
 import { HandlerList } from "./handler-list";
 
 const nbsp = "\xa0";
@@ -62,12 +61,6 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
         insertText.clear();
     }
 
-    function onKeydown(event: KeyboardEvent): void {
-        if (!checkIfModifierKey(event) && !keyboardEventIsPrintableKey(event)) {
-            clearInsertText();
-        }
-    }
-
     function onInput(this: HTMLElement, event: InputEvent): void {
         // prevent unwanted <div> from being left behind when clearing field contents
         if (
@@ -86,7 +79,7 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
 
         const blurOff = on(element, "blur", clearInsertText);
         const pointerDownOff = on(element, "pointerdown", clearInsertText);
-        const keyDownOff = on(element, "keydown", onKeydown);
+        const selectionChangeOff = on(document, "selectionchange", clearInsertText);
 
         return {
             destroy() {
@@ -94,7 +87,7 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
                 inputOff();
                 blurOff();
                 pointerDownOff();
-                keyDownOff();
+                selectionChangeOff();
             },
         };
     }
