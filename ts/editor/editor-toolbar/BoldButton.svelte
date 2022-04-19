@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { boldIcon } from "./icons";
 
-    const surroundElement = document.createElement("strong");
+    const surroundElement = document.createElement("b");
 
     function matcher(element: HTMLElement | SVGElement, match: MatchType): void {
         if (element.tagName === "B" || element.tagName === "STRONG") {
