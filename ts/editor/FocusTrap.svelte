@@ -18,6 +18,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
+<!--
+@component
+Allows "focusing" an EditingArea, even though it has no open editing inputs.
+-->
 <input bind:this={input} class="focus-trap" readonly tabindex="-1" on:focus />
 
 <style lang="scss">
