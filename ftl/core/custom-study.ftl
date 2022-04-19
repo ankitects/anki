@@ -29,5 +29,3 @@ custom-study-available-review-cards = Available review cards: { $count }
 
 ## DEPRECATED - you do not need to translate these.
 
-custom-study-new-cards-in-deck-over-today = New cards in deck over today limit: { $val }
-custom-study-reviews-due-in-deck-over-today = Reviews due in deck over today limit: { $val }

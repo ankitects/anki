@@ -42,6 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tr.deckConfigSortOrderDescendingIntervals(),
         tr.deckConfigSortOrderAscendingEase(),
         tr.deckConfigSortOrderDescendingEase(),
+        tr.deckConfigSortOrderRelativeOverdueness(),
     ];
 
     const GatherOrder = DeckConfig.DeckConfig.Config.NewCardGatherPriority;

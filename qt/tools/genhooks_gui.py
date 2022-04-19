@@ -689,6 +689,16 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     ),
     Hook(name="profile_will_close", legacy_hook="unloadProfile"),
     Hook(
+        name="collection_will_temporarily_close",
+        args=["col: anki.collection.Collection"],
+        doc="""Called before one-way syncs and colpkg imports/exports.""",
+    ),
+    Hook(
+        name="collection_did_temporarily_close",
+        args=["col: anki.collection.Collection"],
+        doc="""Called after one-way syncs and colpkg imports/exports.""",
+    ),
+    Hook(
         name="collection_did_load",
         args=["col: anki.collection.Collection"],
         legacy_hook="colLoading",

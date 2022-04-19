@@ -1,19 +1,15 @@
 preferences-automatically-sync-on-profile-openclose = Automatically sync on profile open/close
 preferences-backups = Backups
-preferences-backups2 = backups
-preferences-backupsanki-will-create-a-backup-of = <html><head/><body><p><span style=" font-weight:600;">Backups</span><br/>Anki will create a backup of your collection each time it is closed.</p></body></html>
 preferences-basic = Basic
 preferences-change-deck-depending-on-note-type = Change deck depending on note type
 preferences-changes-will-take-effect-when-you = Changes will take effect when you restart Anki.
 preferences-hours-past-midnight = hours past midnight
 preferences-interface-language = Interface language:
 preferences-interrupt-current-audio-when-answering = Interrupt current audio when answering
-preferences-keep = Keep
 preferences-learn-ahead-limit = Learn ahead limit
 preferences-mins = mins
 preferences-network = Network
 preferences-next-day-starts-at = Next day starts at
-preferences-night-mode = Night mode
 preferences-note-media-is-not-backed-up = Note: Media is not backed up. Please create a periodic backup of your Anki folder to be safe.
 preferences-on-next-sync-force-changes-in = On next sync, force changes in one direction
 preferences-paste-clipboard-images-as-png = Paste clipboard images as PNG

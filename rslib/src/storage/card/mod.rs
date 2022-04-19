@@ -4,7 +4,7 @@
 pub(crate) mod data;
 pub(crate) mod filtered;
 
-use std::{collections::HashSet, convert::TryFrom, result};
+use std::{collections::HashSet, convert::TryFrom, fmt, result};
 
 use rusqlite::{
     named_params, params,
@@ -216,7 +216,7 @@ impl super::SqliteStorage {
     where
         F: FnMut(DueCard) -> bool,
     {
-        let order_clause = review_order_sql(order);
+        let order_clause = review_order_sql(order, day_cutoff);
         let mut stmt = self.db.prepare_cached(&format!(
             "{} order by {}",
             include_str!("due_cards.sql"),
@@ -612,11 +612,13 @@ enum ReviewOrderSubclause {
     IntervalsDescending,
     EaseAscending,
     EaseDescending,
+    RelativeOverdueness { today: u32 },
 }
 
-impl ReviewOrderSubclause {
-    fn to_str(self) -> &'static str {
-        match self {
+impl fmt::Display for ReviewOrderSubclause {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let temp_string;
+        let clause = match self {
             ReviewOrderSubclause::Day => "due",
             ReviewOrderSubclause::Deck => "(select rowid from active_decks ad where ad.id = did)",
             ReviewOrderSubclause::Random => "fnvhash(id, mod)",
@@ -624,11 +626,16 @@ impl ReviewOrderSubclause {
             ReviewOrderSubclause::IntervalsDescending => "ivl desc",
             ReviewOrderSubclause::EaseAscending => "factor asc",
             ReviewOrderSubclause::EaseDescending => "factor desc",
-        }
+            ReviewOrderSubclause::RelativeOverdueness { today } => {
+                temp_string = format!("ivl / cast({today}-due+0.001 as real)", today = today);
+                &temp_string
+            }
+        };
+        write!(f, "{}", clause)
     }
 }
 
-fn review_order_sql(order: ReviewCardOrder) -> String {
+fn review_order_sql(order: ReviewCardOrder, today: u32) -> String {
     let mut subclauses = match order {
         ReviewCardOrder::Day => vec![ReviewOrderSubclause::Day],
         ReviewCardOrder::DayThenDeck => vec![ReviewOrderSubclause::Day, ReviewOrderSubclause::Deck],
@@ -637,12 +644,15 @@ fn review_order_sql(order: ReviewCardOrder) -> String {
         ReviewCardOrder::IntervalsDescending => vec![ReviewOrderSubclause::IntervalsDescending],
         ReviewCardOrder::EaseAscending => vec![ReviewOrderSubclause::EaseAscending],
         ReviewCardOrder::EaseDescending => vec![ReviewOrderSubclause::EaseDescending],
+        ReviewCardOrder::RelativeOverdueness => {
+            vec![ReviewOrderSubclause::RelativeOverdueness { today }]
+        }
     };
     subclauses.push(ReviewOrderSubclause::Random);
 
     let v: Vec<_> = subclauses
-        .into_iter()
-        .map(ReviewOrderSubclause::to_str)
+        .iter()
+        .map(ReviewOrderSubclause::to_string)
         .collect();
     v.join(", ")
 }

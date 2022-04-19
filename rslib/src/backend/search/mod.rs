@@ -13,7 +13,7 @@ use crate::{
     backend_proto::sort_order::Value as SortOrderProto,
     browser_table::Column,
     prelude::*,
-    search::{replace_search_node, Node, SortMode},
+    search::{replace_search_node, JoinSearches, Node, SortMode},
 };
 
 impl SearchService for Backend {
@@ -45,12 +45,11 @@ impl SearchService for Backend {
     fn join_search_nodes(&self, input: pb::JoinSearchNodesRequest) -> Result<pb::String> {
         let existing_node: Node = input.existing_node.unwrap_or_default().try_into()?;
         let additional_node: Node = input.additional_node.unwrap_or_default().try_into()?;
-        let search = SearchBuilder::from_root(existing_node);
 
         Ok(
             match pb::search_node::group::Joiner::from_i32(input.joiner).unwrap_or_default() {
-                pb::search_node::group::Joiner::And => search.and(additional_node),
-                pb::search_node::group::Joiner::Or => search.or(additional_node),
+                pb::search_node::group::Joiner::And => existing_node.and_flat(additional_node),
+                pb::search_node::group::Joiner::Or => existing_node.or_flat(additional_node),
             }
             .write()
             .into(),
