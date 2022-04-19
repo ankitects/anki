@@ -575,8 +575,9 @@ class AnkiQt(QMainWindow):
         self.col = Collection(cpath, backend=self.backend)
         self.setEnabled(True)
 
-    def reopen(self) -> None:
-        self.col.reopen()
+    def reopen(self, after_full_sync: bool = False) -> None:
+        self.col.reopen(after_full_sync=after_full_sync)
+        gui_hooks.collection_did_temporarily_close(self.col)
 
     def unloadCollection(self, onsuccess: Callable) -> None:
         def after_media_sync() -> None:
@@ -628,11 +629,6 @@ class AnkiQt(QMainWindow):
 
         if corrupt:
             showWarning(tr.qt_misc_your_collection_file_appears_to_be())
-
-    def _close_for_full_download(self) -> None:
-        "Backup and prepare collection to be overwritten."
-        self.create_backup_now()
-        self.col.close_for_full_sync()
 
     def apply_collection_options(self) -> None:
         "Setup audio after collection loaded."
