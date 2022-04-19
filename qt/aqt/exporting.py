@@ -15,6 +15,7 @@ from anki import hooks
 from anki.cards import CardId
 from anki.decks import DeckId
 from anki.exporting import Exporter, exporters
+from aqt import gui_hooks
 from aqt.errors import show_exception
 from aqt.qt import *
 from aqt.utils import (
@@ -181,6 +182,8 @@ class ExportDialog(QDialog):
                 else:
                     self.on_export_finished()
 
+            if self.isVerbatim:
+                gui_hooks.collection_will_temporarily_close(self.mw.col)
             self.mw.progress.start()
             hooks.media_files_did_export.append(exported_media)
 
