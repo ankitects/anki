@@ -897,6 +897,7 @@ class Browser(QMainWindow):
         gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
         gui_hooks.focus_did_change.append(self.on_focus_change)
         gui_hooks.flag_label_did_change.append(self._update_flag_labels)
+        gui_hooks.collection_will_temporarily_close.append(self._on_temporary_close)
 
     def teardownHooks(self) -> None:
         gui_hooks.undo_state_did_change.remove(self.on_undo_state_change)
@@ -905,6 +906,11 @@ class Browser(QMainWindow):
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         gui_hooks.focus_did_change.remove(self.on_focus_change)
         gui_hooks.flag_label_did_change.remove(self._update_flag_labels)
+        gui_hooks.collection_will_temporarily_close.remove(self._on_temporary_close)
+
+    def _on_temporary_close(self, col: Collection) -> None:
+        # we could reload browser columns in the future; for now we just close
+        self.close()
 
     # Undo
     ######################################################################
