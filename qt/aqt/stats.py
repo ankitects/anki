@@ -83,8 +83,15 @@ class NewDeckStats(QDialog):
         path = self._imagePath()
         if not path:
             return
-        self.form.web.page().printToPdf(path)
-        tooltip(tr.statistics_saved())
+        # When scrolled down in dark mode, the top of the page in the
+        # final PDF will have a white background, making the text and graphs
+        # unreadable. A simple fix for now is to scroll to the top of the
+        # page first.
+        def after_scroll(arg: Any) -> None:
+            self.form.web.page().printToPdf(path)
+            tooltip(tr.statistics_saved())
+
+        self.form.web.evalWithCallback("window.scrollTo(0, 0);", after_scroll)
 
     # legacy add-ons
     def changePeriod(self, n: Any) -> None:
@@ -174,11 +181,6 @@ class DeckStats(QDialog):
         path = self._imagePath()
         if not path:
             return
-        # when scrolled down in dark mode, the top of the page in the
-        # final PDF will have a white background, which obviously makes
-        # it hard to read the white text beneath, and so a simple fix
-        # for now is to simply scroll to the top first instead
-        self.form.web.page().runJavaScript("window.scrollTo(0, 0);")
         self.form.web.page().printToPdf(path)
         tooltip(tr.statistics_saved())
 
