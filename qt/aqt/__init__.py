@@ -495,7 +495,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
 
     if (
         getattr(sys, "frozen", False)
-        and os.getenv("QT_QPA_PLATFORM") == "wayland"
+        or (os.getenv("QT_QPA_PLATFORM") == "wayland" or os.getenv("WAYLAND_DISPLAY"))
         and not os.getenv("ANKI_WAYLAND")
     ):
         # users need to opt in to wayland support, given the issues it has
