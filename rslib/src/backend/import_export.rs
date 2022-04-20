@@ -5,7 +5,10 @@ use super::{progress::Progress, Backend};
 pub(super) use crate::backend_proto::importexport_service::Service as ImportExportService;
 use crate::{
     backend_proto::{self as pb, export_anki_package_request::Selector},
-    import_export::{package::import_colpkg, ImportProgress},
+    import_export::{
+        package::{import_colpkg, NoteLog},
+        ImportProgress,
+    },
     prelude::*,
     search::SearchNode,
 };
@@ -45,7 +48,10 @@ impl ImportExportService for Backend {
         .map(Into::into)
     }
 
-    fn import_anki_package(&self, input: pb::ImportAnkiPackageRequest) -> Result<pb::OpChanges> {
+    fn import_anki_package(
+        &self,
+        input: pb::ImportAnkiPackageRequest,
+    ) -> Result<pb::ImportAnkiPackageResponse> {
         self.with_col(|col| col.import_apkg(&input.package_path, &mut self.import_progress_fn()))
             .map(Into::into)
     }
@@ -95,6 +101,15 @@ impl Backend {
         let mut handler = self.new_progress_handler();
         move |media_files| {
             handler.update(Progress::Export(media_files), true);
+        }
+    }
+}
+
+impl From<OpOutput<NoteLog>> for pb::ImportAnkiPackageResponse {
+    fn from(output: OpOutput<NoteLog>) -> Self {
+        Self {
+            changes: Some(output.changes.into()),
+            log: Some(output.output),
         }
     }
 }

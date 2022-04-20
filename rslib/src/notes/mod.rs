@@ -55,6 +55,10 @@ impl Note {
         &self.fields
     }
 
+    pub fn take_fields(self) -> Vec<String> {
+        self.fields
+    }
+
     pub fn set_field(&mut self, idx: usize, text: impl Into<String>) -> Result<()> {
         if idx >= self.fields.len() {
             return Err(AnkiError::invalid_input(

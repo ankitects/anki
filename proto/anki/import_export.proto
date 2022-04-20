@@ -16,7 +16,7 @@ service ImportExportService {
   rpc ExportCollectionPackage(ExportCollectionPackageRequest)
       returns (generic.Empty);
   rpc ImportAnkiPackage(ImportAnkiPackageRequest)
-      returns (collection.OpChanges);
+      returns (ImportAnkiPackageResponse);
   rpc ExportAnkiPackage(ExportAnkiPackageRequest) returns (generic.Empty);
 }
 
@@ -34,6 +34,17 @@ message ExportCollectionPackageRequest {
 
 message ImportAnkiPackageRequest {
   string package_path = 1;
+}
+
+message ImportAnkiPackageResponse {
+  message Log {
+    repeated generic.StringList new = 1;
+    repeated generic.StringList updated = 2;
+    repeated generic.StringList duplicate = 3;
+    repeated generic.StringList conflicting = 4;
+  }
+  collection.OpChanges changes = 1;
+  Log log = 2;
 }
 
 message ExportAnkiPackageRequest {

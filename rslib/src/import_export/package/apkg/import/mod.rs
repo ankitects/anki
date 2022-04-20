@@ -15,7 +15,11 @@ use zip::ZipArchive;
 
 use crate::{
     collection::CollectionBuilder,
-    import_export::{gather::ExchangeData, package::Meta, ImportProgress},
+    import_export::{
+        gather::ExchangeData,
+        package::{Meta, NoteLog},
+        ImportProgress,
+    },
     prelude::*,
     search::SearchNode,
 };
@@ -35,7 +39,7 @@ impl Collection {
         &mut self,
         path: impl AsRef<Path>,
         progress_fn: &mut ProgressFn,
-    ) -> Result<OpOutput<()>> {
+    ) -> Result<OpOutput<NoteLog>> {
         let file = File::open(path)?;
         let archive = ZipArchive::new(file)?;
 
@@ -64,12 +68,13 @@ impl<'a> Context<'a> {
         })
     }
 
-    fn import(&mut self) -> Result<()> {
+    fn import(&mut self) -> Result<NoteLog> {
         let mut media_map = self.prepare_media()?;
-        let imported_notes = self.import_notes_and_notetypes(&mut media_map)?;
+        let note_imports = self.import_notes_and_notetypes(&mut media_map)?;
         let imported_decks = self.import_decks_and_configs()?;
-        self.import_cards_and_revlog(&imported_notes, &imported_decks)?;
-        self.copy_media(&mut media_map)
+        self.import_cards_and_revlog(&note_imports.id_map, &imported_decks)?;
+        self.copy_media(&mut media_map)?;
+        Ok(note_imports.log)
     }
 }
 

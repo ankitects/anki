@@ -12,7 +12,9 @@ use sha1::Sha1;
 
 use super::{media::MediaUseMap, Context};
 use crate::{
-    import_export::package::media::safe_normalized_file_name, prelude::*, text::replace_media_refs,
+    import_export::package::{media::safe_normalized_file_name, NoteLog},
+    prelude::*,
+    text::replace_media_refs,
 };
 
 struct NoteContext<'a> {
@@ -23,7 +25,36 @@ struct NoteContext<'a> {
     target_guids: HashMap<String, NoteMeta>,
     target_ids: HashSet<NoteId>,
     media_map: &'a mut MediaUseMap,
-    imported_notes: HashMap<NoteId, NoteId>,
+    imports: NoteImports,
+}
+
+#[derive(Debug, Default)]
+pub(super) struct NoteImports {
+    pub(super) id_map: HashMap<NoteId, NoteId>,
+    /// All notes from the source collection as [Vec]s of their fields, and grouped
+    /// by import result kind.
+    pub(super) log: NoteLog,
+}
+
+impl NoteImports {
+    fn log_new(&mut self, note: Note, source_id: NoteId) {
+        self.id_map.insert(source_id, note.id);
+        self.log.new.push(note.take_fields().into());
+    }
+
+    fn log_updated(&mut self, note: Note, source_id: NoteId) {
+        self.id_map.insert(source_id, note.id);
+        self.log.updated.push(note.take_fields().into());
+    }
+
+    fn log_duplicate(&mut self, note: Note, target_id: NoteId) {
+        self.id_map.insert(note.id, target_id);
+        self.log.duplicate.push(note.take_fields().into());
+    }
+
+    fn log_conflicting(&mut self, note: Note) {
+        self.log.conflicting.push(note.take_fields().into());
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -47,11 +78,11 @@ impl Context<'_> {
     pub(super) fn import_notes_and_notetypes(
         &mut self,
         media_map: &mut MediaUseMap,
-    ) -> Result<HashMap<NoteId, NoteId>> {
+    ) -> Result<NoteImports> {
         let mut ctx = NoteContext::new(self.usn, self.target_col, media_map)?;
         ctx.import_notetypes(mem::take(&mut self.data.notetypes))?;
         ctx.import_notes(mem::take(&mut self.data.notes))?;
-        Ok(ctx.imported_notes)
+        Ok(ctx.imports)
     }
 }
 
@@ -71,7 +102,7 @@ impl<'n> NoteContext<'n> {
             remapped_notetypes: HashMap::new(),
             target_guids,
             target_ids,
-            imported_notes: HashMap::new(),
+            imports: NoteImports::default(),
             media_map,
         })
     }
@@ -126,8 +157,8 @@ impl<'n> NoteContext<'n> {
         Ok(())
     }
 
-    fn import_notes(&mut self, mut notes: Vec<Note>) -> Result<()> {
-        for note in &mut notes {
+    fn import_notes(&mut self, notes: Vec<Note>) -> Result<()> {
+        for mut note in notes {
             if let Some(notetype_id) = self.remapped_notetypes.get(&note.notetype_id) {
                 if self.target_guids.contains_key(&note.guid) {
                     // TODO: Log ignore
@@ -144,18 +175,17 @@ impl<'n> NoteContext<'n> {
         Ok(())
     }
 
-    fn add_note(&mut self, mut note: &mut Note) -> Result<()> {
-        // TODO: Log add
-        self.munge_media(note)?;
-        self.target_col.canonify_note_tags(note, self.usn)?;
+    fn add_note(&mut self, mut note: Note) -> Result<()> {
+        self.munge_media(&mut note)?;
+        self.target_col.canonify_note_tags(&mut note, self.usn)?;
         let notetype = self.get_expected_notetype(note.notetype_id)?;
         note.prepare_for_update(&notetype, self.normalize_notes)?;
         note.usn = self.usn;
-        let old_id = self.uniquify_note_id(note);
+        let old_id = self.uniquify_note_id(&mut note);
 
-        self.target_col.add_note_only_with_id_undoable(note)?;
+        self.target_col.add_note_only_with_id_undoable(&mut note)?;
         self.target_ids.insert(note.id);
-        self.imported_notes.insert(old_id, note.id);
+        self.imports.log_new(note, old_id);
 
         Ok(())
     }
@@ -181,36 +211,36 @@ impl<'n> NoteContext<'n> {
             .ok_or(AnkiError::NotFound)
     }
 
-    fn maybe_update_note(&mut self, note: &mut Note, meta: NoteMeta) -> Result<()> {
+    fn maybe_update_note(&mut self, note: Note, meta: NoteMeta) -> Result<()> {
         if meta.mtime < note.mtime {
             if meta.notetype_id == note.notetype_id {
-                self.imported_notes.insert(note.id, meta.id);
-                note.id = meta.id;
-                self.update_note(note)?;
+                self.update_note(note, meta.id)?;
             } else {
-                // TODO: Log ignore
+                self.imports.log_conflicting(note);
             }
         } else {
-            // TODO: Log duplicate
-            self.imported_notes.insert(note.id, meta.id);
+            self.imports.log_duplicate(note, meta.id);
         }
         Ok(())
     }
 
-    fn update_note(&mut self, note: &mut Note) -> Result<()> {
-        // TODO: Log update
-        self.munge_media(note)?;
+    fn update_note(&mut self, mut note: Note, target_id: NoteId) -> Result<()> {
+        let source_id = note.id;
+        note.id = target_id;
+        self.munge_media(&mut note)?;
         let original = self.get_expected_note(note.id)?;
         let notetype = self.get_expected_notetype(note.notetype_id)?;
         self.target_col.update_note_inner_without_cards(
-            note,
+            &mut note,
             &original,
             &notetype,
             self.usn,
             true,
             self.normalize_notes,
             true,
-        )
+        )?;
+        self.imports.log_updated(note, source_id);
+        Ok(())
     }
 
     fn munge_media(&mut self, note: &mut Note) -> Result<()> {
@@ -309,6 +339,17 @@ mod test {
         ctx.remapped_notetypes.insert(NotetypeId(123), basic_ntid);
         ctx.import_notes(notes).unwrap();
 
+        assert_log(
+            &ctx.imports.log.new,
+            &[&["<img src='bar.jpg'>", ""], &["", ""], &["", ""]],
+        );
+        assert_log(&ctx.imports.log.duplicate, &[&["outdated", ""]]);
+        assert_log(
+            &ctx.imports.log.updated,
+            &[&["updated", ""], &["updated", ""]],
+        );
+        assert_log(&ctx.imports.log.conflicting, &[&["updated", ""]]);
+
         // media is remapped
         assert_eq!(
             col.get_note_field(note_with_media.id, 0),
@@ -329,6 +370,12 @@ mod test {
         );
         // note with remapped notetype is not updated
         assert_eq!(col.get_note_field(updated_note_with_remapped_nt.id, 0), "");
+    }
+
+    fn assert_log(log: &[crate::backend_proto::StringList], expected: &[&[&str]]) {
+        for (idx, fields) in log.iter().enumerate() {
+            assert_eq!(fields.vals, expected[idx]);
+        }
     }
 
     impl Collection {
