@@ -5,6 +5,9 @@ syntax = "proto3";
 
 package anki.import_export;
 
+import "anki/collection.proto";
+import "anki/decks.proto";
+import "anki/notes.proto";
 import "anki/generic.proto";
 
 service ImportExportService {
@@ -12,6 +15,9 @@ service ImportExportService {
       returns (generic.Empty);
   rpc ExportCollectionPackage(ExportCollectionPackageRequest)
       returns (generic.Empty);
+  rpc ImportAnkiPackage(ImportAnkiPackageRequest)
+      returns (collection.OpChanges);
+  rpc ExportAnkiPackage(ExportAnkiPackageRequest) returns (generic.Empty);
 }
 
 message ImportCollectionPackageRequest {
@@ -24,6 +30,21 @@ message ExportCollectionPackageRequest {
   string out_path = 1;
   bool include_media = 2;
   bool legacy = 3;
+}
+
+message ImportAnkiPackageRequest {
+  string package_path = 1;
+}
+
+message ExportAnkiPackageRequest {
+  string out_path = 1;
+  bool with_scheduling = 2;
+  bool with_media = 3;
+  oneof selector {
+    generic.Empty whole_collection = 4;
+    decks.DeckId deck_id = 5;
+    notes.NoteIds note_ids = 6;
+  }
 }
 
 message PackageMetadata {

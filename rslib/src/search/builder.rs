@@ -134,11 +134,11 @@ impl Default for SearchBuilder {
 }
 
 impl SearchNode {
-    pub fn from_deck_id(did: DeckId, with_children: bool) -> Self {
+    pub fn from_deck_id(did: impl Into<DeckId>, with_children: bool) -> Self {
         if with_children {
-            Self::DeckIdWithChildren(did)
+            Self::DeckIdWithChildren(did.into())
         } else {
-            Self::DeckIdWithoutChildren(did)
+            Self::DeckIdWithoutChildren(did.into())
         }
     }
 
@@ -165,6 +165,14 @@ impl SearchNode {
         Self::CardTemplate(TemplateKind::Name(escape_anki_wildcards_for_search_node(
             name,
         )))
+    }
+
+    pub fn from_note_ids<I: IntoIterator<Item = N>, N: Into<NoteId>>(ids: I) -> Self {
+        Self::NoteIds(ids.into_iter().map(Into::into).join(","))
+    }
+
+    pub fn from_card_ids<I: IntoIterator<Item = C>, C: Into<CardId>>(ids: I) -> Self {
+        Self::CardIds(ids.into_iter().map(Into::into).join(","))
     }
 }
 

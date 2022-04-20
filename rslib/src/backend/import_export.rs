@@ -4,9 +4,10 @@
 use super::{progress::Progress, Backend};
 pub(super) use crate::backend_proto::importexport_service::Service as ImportExportService;
 use crate::{
-    backend_proto::{self as pb},
+    backend_proto::{self as pb, export_anki_package_request::Selector},
     import_export::{package::import_colpkg, ImportProgress},
     prelude::*,
+    search::SearchNode,
 };
 
 impl ImportExportService for Backend {
@@ -42,6 +43,38 @@ impl ImportExportService for Backend {
             self.import_progress_fn(),
         )
         .map(Into::into)
+    }
+
+    fn import_anki_package(&self, input: pb::ImportAnkiPackageRequest) -> Result<pb::OpChanges> {
+        self.with_col(|col| col.import_apkg(&input.package_path, &mut self.import_progress_fn()))
+            .map(Into::into)
+    }
+
+    fn export_anki_package(&self, input: pb::ExportAnkiPackageRequest) -> Result<pb::Empty> {
+        let selector = input
+            .selector
+            .ok_or_else(|| AnkiError::invalid_input("missing oneof"))?;
+        self.with_col(|col| {
+            col.export_apkg(
+                &input.out_path,
+                SearchNode::from_selector(selector),
+                input.with_scheduling,
+                input.with_media,
+                None,
+                self.export_progress_fn(),
+            )
+        })
+        .map(Into::into)
+    }
+}
+
+impl SearchNode {
+    fn from_selector(selector: Selector) -> Self {
+        match selector {
+            Selector::WholeCollection(_) => Self::WholeCollection,
+            Selector::DeckId(did) => Self::from_deck_id(did, true),
+            Selector::NoteIds(nids) => Self::from_note_ids(nids.note_ids),
+        }
     }
 }
 
