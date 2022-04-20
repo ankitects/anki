@@ -115,12 +115,12 @@ def register_repos():
     ################
 
     core_i18n_repo = "anki-core-i18n"
-    core_i18n_commit = "d6f01a26657ae78371813c8f54e415dc62032a90"
-    core_i18n_zip_csum = "cd74a8f40a6080a144b6f80ad88bd37309ea4f17d4dd3995d154482eafc86f98"
+    core_i18n_commit = "3fbbbd277adf6a307aad1f1389105740fb14bb52"
+    core_i18n_zip_csum = "18db75ca57b5068c0c9cb926f19b451185cf04a086004a96fcf8f6e734f51b29"
 
     qtftl_i18n_repo = "anki-desktop-ftl"
-    qtftl_i18n_commit = "76751e5dcb8bce78cd54b052f1b444531934ca45"
-    qtftl_i18n_zip_csum = "ad37c33d3d03a05b1094d6692300401a304da9ba48fb2dcf7ad01242ecc97997"
+    qtftl_i18n_commit = "a6811a12eaf86ff02d5ce168ac65022f3e442993"
+    qtftl_i18n_zip_csum = "03b62eb593e4929e502e6ee6d7fd81492d6fe9164aec50573e30028edbc9bf2e"
 
     i18n_build_content = """
 filegroup(
@@ -226,22 +226,22 @@ exports_files(["l10n.toml"])
 
     maybe(
         http_archive,
-        name = "pyqt6.2_mac_bundle_amd64",
+        name = "pyqt6.3_mac_bundle_amd64",
         build_file_content = " ",
         urls = [
-            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/pyqt6.2-mac-amd64.tar.gz",
+            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-04-20/pyqt6.3-mac-amd64.tar.gz",
         ],
-        sha256 = "c7bf899eee33fcb3b5848f5d3e5fc390012efc05c2308e4349b7bbd5939c85f0",
+        sha256 = "949d403c26036cd13a4a0c86c9416f32ac6d2aa58c6946be93ab949ee6cf9b11",
     )
 
     maybe(
         http_archive,
-        name = "pyqt6.2_mac_bundle_arm64",
+        name = "pyqt6.3_mac_bundle_arm64",
         build_file_content = " ",
         urls = [
-            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-02-09/pyqt6.2-mac-arm64.tar.gz",
+            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-04-20/pyqt6.3-mac-arm64.tar.gz",
         ],
-        sha256 = "7a4b7d5bd65c83fd16cf7e56929183ef0d1d7bb67f9deea8f2482d7378e0ea02",
+        sha256 = "c7df555623cdbd8f6981c15b4bfc58665b8e92d91fb43a7082bcfa1852ede10d",
     )
 
     maybe(

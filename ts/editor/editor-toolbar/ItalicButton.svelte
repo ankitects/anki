@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { italicIcon } from "./icons";
 
-    const surroundElement = document.createElement("em");
+    const surroundElement = document.createElement("i");
 
     function matcher(element: HTMLElement | SVGElement, match: MatchType): void {
         if (element.tagName === "I" || element.tagName === "EM") {

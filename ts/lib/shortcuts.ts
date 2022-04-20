@@ -4,7 +4,7 @@
 import { on } from "./events";
 import type { Modifier } from "./keys";
 import {
-    checkIfInputKey,
+    checkIfModifierKey,
     checkModifiers,
     keyToPlatformString,
     modifiersToPlatformString,
@@ -135,7 +135,7 @@ function innerShortcut(
     function handler(event: KeyboardEvent): void {
         if (nextCheck(event)) {
             innerShortcut(target, event, callback, ...restChecks);
-        } else if (checkIfInputKey(event)) {
+        } else if (!checkIfModifierKey(event)) {
             // Any non-modifier key will cancel the shortcut sequence
             remove();
         }
