@@ -96,7 +96,8 @@ impl ExchangeData {
 }
 
 fn collection_to_tempfile(archive: &mut ZipArchive<File>) -> Result<NamedTempFile> {
-    let mut zip_file = archive.by_name(Meta::new_legacy().collection_filename())?;
+    let meta = Meta::from_archive(archive)?;
+    let mut zip_file = archive.by_name(meta.collection_filename())?;
     let mut tempfile = NamedTempFile::new()?;
     io::copy(&mut zip_file, &mut tempfile)?;
     Ok(tempfile)
