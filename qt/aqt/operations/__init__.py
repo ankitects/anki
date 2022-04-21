@@ -217,6 +217,10 @@ class QueryOp(Generic[T]):
 
         def wrapped_done(future: Future) -> None:
             assert mw
+
+            if self._progress:
+                mw.progress.finish()
+
             mw._decrease_background_ops()
             # did something go wrong?
             if exception := future.exception():
@@ -230,11 +234,6 @@ class QueryOp(Generic[T]):
                     # BaseException like SystemExit; rethrow it
                     future.result()
 
-            result = future.result()
-            try:
-                self._success(result)
-            finally:
-                if self._progress:
-                    mw.progress.finish()
+            self._success(future.result())
 
         mw.taskman.run_in_background(wrapped_op, wrapped_done)
