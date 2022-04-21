@@ -758,7 +758,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def urlToLink(self, url: str) -> str | None:
         fname = self.urlToFile(url)
         if not fname:
-            return None
+            return '<a href="{}">{}</a>'.format(
+                url, html.escape(urllib.parse.unquote(url))
+            )
         return self.fnameToLink(fname)
 
     def fnameToLink(self, fname: str) -> str:
@@ -1261,7 +1263,7 @@ class EditorWebView(AnkiWebView):
             url = qurl.toString()
             # chrome likes to give us the URL twice with a \n
             url = url.splitlines()[0]
-            buf += self.editor.urlToLink(url) or ""
+            buf += self.editor.urlToLink(url)
 
         return buf
 
@@ -1279,16 +1281,9 @@ class EditorWebView(AnkiWebView):
                 if extended and token.startswith("data:image/"):
                     processed.append(self.editor.inlinedImageToLink(token))
                 elif extended and self.editor.isURL(token):
-                    # if the user is pasting an image or sound link, convert it to local
+                    # if the user is pasting an image or sound link, convert it to local, otherwise paste as a hyperlink
                     link = self.editor.urlToLink(token)
-                    if link:
-                        processed.append(link)
-                    else:
-                        # not media; add it as a normal link
-                        link = '<a href="{}">{}</a>'.format(
-                            token, html.escape(urllib.parse.unquote(token))
-                        )
-                        processed.append(link)
+                    processed.append(link)
                 else:
                     token = html.escape(token).replace("\t", " " * 4)
                     # if there's more than one consecutive space,
@@ -1331,6 +1326,10 @@ class EditorWebView(AnkiWebView):
     def flagAnkiText(self) -> None:
         # be ready to adjust when clipboard event fires
         self._markInternal = True
+        # workaround broken QClipboard.dataChanged() on recent Qt6 versions
+        # https://github.com/ankitects/anki/issues/1793
+        if is_win and qtmajor == 6:
+            self.editor.mw.progress.single_shot(300, self._flagAnkiText, True)
 
     def _flagAnkiText(self) -> None:
         # add a comment in the clipboard html so we can tell text is copied
@@ -1342,6 +1341,10 @@ class EditorWebView(AnkiWebView):
         if not mime.hasHtml():
             return
         html = mime.html()
+        if is_win and qtmajor == 6:
+            # workaround Qt including CF_HTML header in clipboard
+            # FIXME: remove after we switch to Qt 6.2.5/6.3.1+.
+            html = re.sub(r"^Version:0.9(.|\r|\n)+?SourceURL:.*?\r\n", "", html)
         mime.setHtml(f"<!--anki-->{html}")
         aqt.mw.progress.timer(10, lambda: clip.setMimeData(mime), False, parent=self)
 
