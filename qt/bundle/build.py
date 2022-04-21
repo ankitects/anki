@@ -389,7 +389,7 @@ if is_win:
     build_windows_installers()
 
 if is_mac:
-    print("outputs are in .bazel/out/build/{std,alt}")
+    print("outputs are in .bazel/out/build/app")
     print("dmg can be created with mac/finalize.py dmg")
 else:
     print("outputs are in .bazel/out/dist/")

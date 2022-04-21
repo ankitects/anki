@@ -352,7 +352,9 @@ def _instrument_type(
     class QtClassProxy(
         type, metaclass=QtClassProxyType
     ):  # pylint: disable=invalid-metaclass
-        pass
+        @staticmethod
+        def _without_compat_wrapper():
+            return type
 
     setattr(module, type_name, QtClassProxy)
 

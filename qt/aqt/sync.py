@@ -14,6 +14,7 @@ from anki.errors import Interrupted, SyncError, SyncErrorKind
 from anki.lang import without_unicode_isolation
 from anki.sync import SyncOutput, SyncStatus
 from anki.utils import plat_desc
+from aqt import gui_hooks
 from aqt.qt import (
     QDialog,
     QDialogButtonBox,
@@ -181,13 +182,17 @@ def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     qconnect(timer.timeout, on_timer)
     timer.start(150)
 
+    # hook needs to be called early, on the main thread
+    gui_hooks.collection_will_temporarily_close(mw.col)
+
     def download() -> None:
-        mw._close_for_full_download()
+        mw.create_backup_now()
+        mw.col.close_for_full_sync()
         mw.col.full_download(mw.pm.sync_auth())
 
     def on_future_done(fut: Future) -> None:
         timer.stop()
-        mw.col.reopen(after_full_sync=True)
+        mw.reopen(after_full_sync=True)
         mw.reset()
         try:
             fut.result()
@@ -204,6 +209,7 @@ def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
 
 
 def full_upload(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
+    gui_hooks.collection_will_temporarily_close(mw.col)
     mw.col.close_for_full_sync()
 
     def on_timer() -> None:
@@ -215,7 +221,7 @@ def full_upload(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
 
     def on_future_done(fut: Future) -> None:
         timer.stop()
-        mw.col.reopen(after_full_sync=True)
+        mw.reopen(after_full_sync=True)
         mw.reset()
         try:
             fut.result()

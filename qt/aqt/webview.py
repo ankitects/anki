@@ -499,7 +499,7 @@ html {{ {font} }}
 
         from aqt import mw
 
-        head = mw.baseHTML() + csstxt + jstxt + web_content.head
+        head = mw.baseHTML() + csstxt + web_content.head
         body_class = theme_manager.body_class()
 
         if theme_manager.night_mode:
@@ -520,7 +520,9 @@ html {{ {font} }}
 {head}
 </head>
 
-<body class="{body_class}">{web_content.body}</body>
+<body class="{body_class}">
+{jstxt}
+{web_content.body}</body>
 </html>"""
         # print(html)
         self.setHtml(html)

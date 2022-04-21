@@ -1326,6 +1326,10 @@ class EditorWebView(AnkiWebView):
     def flagAnkiText(self) -> None:
         # be ready to adjust when clipboard event fires
         self._markInternal = True
+        # workaround broken QClipboard.dataChanged() on recent Qt6 versions
+        # https://github.com/ankitects/anki/issues/1793
+        if is_win and qtmajor == 6:
+            self.editor.mw.progress.single_shot(300, self._flagAnkiText, True)
 
     def _flagAnkiText(self) -> None:
         # add a comment in the clipboard html so we can tell text is copied
@@ -1337,6 +1341,10 @@ class EditorWebView(AnkiWebView):
         if not mime.hasHtml():
             return
         html = mime.html()
+        if is_win and qtmajor == 6:
+            # workaround Qt including CF_HTML header in clipboard
+            # FIXME: remove after we switch to Qt 6.2.5/6.3.1+.
+            html = re.sub(r"^Version:0.9(.|\r|\n)+?SourceURL:.*?\r\n", "", html)
         mime.setHtml(f"<!--anki-->{html}")
         aqt.mw.progress.timer(10, lambda: clip.setMimeData(mime), False, parent=self)
 
