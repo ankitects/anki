@@ -330,6 +330,7 @@ class AnkiWebView(QWebEngineView):
         self._domDone = True
         self._queueAction("setHtml", html)
         self.set_open_links_externally(True)
+        self.setZoomFactor(1)
         self.show()
 
     def _setHtml(self, html: str) -> None:
@@ -681,6 +682,7 @@ html {{ {font} }}
         else:
             extra = ""
         self.hide_while_preserving_layout()
+        self.setZoomFactor(1)
         self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
         self.inject_dynamic_style_and_show()
 
