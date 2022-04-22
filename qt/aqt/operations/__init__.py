@@ -17,7 +17,7 @@ from anki.collection import (
     OpChangesWithId,
 )
 from aqt.errors import show_exception
-from aqt.qt import QWidget, QTimer, qconnect
+from aqt.qt import QTimer, QWidget, qconnect
 from aqt.utils import showWarning
 
 
@@ -114,10 +114,7 @@ class CollectionOp(Generic[ResultWithChanges]):
                 if self._success:
                     self._success(result)
             finally:
-                mw.update_undo_actions()
-                mw.autosave()
-                # fire change hooks
-                self._fire_change_hooks_after_op_performed(result, initiator)
+                self._finish_op(mw, result, initiator)
 
         self._run(mw, wrapped_op, wrapped_done)
 
@@ -128,6 +125,14 @@ class CollectionOp(Generic[ResultWithChanges]):
         on_done: Callable[[Future], None],
     ) -> None:
         mw.taskman.with_progress(op, on_done)
+
+    def _finish_op(
+        self, mw: aqt.main.AnkiQt, result: ResultWithChanges, initiator: object | None
+    ) -> None:
+        mw.update_undo_actions()
+        mw.autosave()
+        # fire change hooks
+        self._fire_change_hooks_after_op_performed(result, initiator)
 
     def _fire_change_hooks_after_op_performed(
         self,
@@ -257,14 +262,15 @@ class CollectionOpWithBackendProgress(CollectionOp):
         self,
         parent: QWidget,
         op: Callable[[Collection], ResultWithChanges],
-        *,
+        *args: Any,
         key: Literal["importing"],
+        **kwargs: Any,
     ):
         self._key = key
         self.timer = QTimer()
         self.timer.setSingleShot(False)
         self.timer.setInterval(100)
-        super().__init__(parent, op)
+        super().__init__(parent, op, *args, **kwargs)
 
     def _run(
         self,
@@ -283,12 +289,8 @@ class CollectionOpWithBackendProgress(CollectionOp):
                 return
             label = getattr(progress, self._key)
 
-            try:
-                if dialog.wantCancel:
-                    mw.backend.set_wants_abort()
-            except AttributeError:
-                # dialog may not be active
-                pass
+            if dialog and dialog.wantCancel:
+                mw.backend.set_wants_abort()
 
             mw.taskman.run_on_main(lambda: mw.progress.update(label=label))
 
@@ -301,3 +303,51 @@ class CollectionOpWithBackendProgress(CollectionOp):
         qconnect(self.timer.timeout, on_progress)
         self.timer.start()
         mw.taskman.run_in_background(task=op, on_done=wrapped_on_done)
+
+
+class ClosedCollectionOp(CollectionOp):
+    """For CollectionOps that need to be run on a closed collection.
+
+    If a collection is open, backs it up and unloads it, before running the op.
+    Reloads it, if that has not been done by a callback, yet.
+    """
+
+    def __init__(
+        self,
+        parent: QWidget,
+        op: Callable[[], ResultWithChanges],
+        *args: Any,
+        **kwargs: Any,
+    ):
+        super().__init__(parent, lambda _: op(), *args, **kwargs)
+
+    def _run(
+        self,
+        mw: aqt.main.AnkiQt,
+        op: Callable[[], ResultWithChanges],
+        on_done: Callable[[Future], None],
+    ) -> None:
+        if mw.col:
+            QueryOp(
+                parent=mw,
+                op=lambda _: mw.create_backup_now(),
+                success=lambda _: mw.unloadCollection(
+                    lambda: super(ClosedCollectionOp, self)._run(mw, op, on_done)
+                ),
+            ).with_progress().run_in_background()
+        else:
+            super()._run(mw, op, on_done)
+
+    def _finish_op(
+        self,
+        _mw: aqt.main.AnkiQt,
+        _result: ResultWithChanges,
+        _initiator: object | None,
+    ) -> None:
+        pass
+
+
+class ClosedCollectionOpWithBackendProgress(
+    ClosedCollectionOp, CollectionOpWithBackendProgress
+):
+    """See ClosedCollectionOp and CollectionOpWithBackendProgress."""

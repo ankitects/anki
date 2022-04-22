@@ -50,7 +50,7 @@ from aqt.flags import FlagManager
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
-from aqt.operations import QueryOp
+from aqt.operations import ClosedCollectionOpWithBackendProgress, QueryOp
 from aqt.operations.collection import redo, undo
 from aqt.operations.deck import set_current_deck
 from aqt.profiles import ProfileManager as ProfileManagerType
@@ -402,15 +402,20 @@ class AnkiQt(QMainWindow):
         )
 
     def _openBackup(self, path: str) -> None:
-        def on_done(success: bool) -> None:
-            if success:
-                self.onOpenProfile(callback=lambda: self.col.mod_schema(check=False))
-
         import aqt.importing
 
         self.restoring_backup = True
         showInfo(tr.qt_misc_automatic_syncing_and_backups_have_been())
-        aqt.importing.replace_with_apkg(self, path, on_done)
+
+        ClosedCollectionOpWithBackendProgress(
+            parent=self,
+            op=lambda: aqt.importing.full_apkg_import(self, path),
+            key="importing",
+        ).success(
+            lambda _: self.onOpenProfile(
+                callback=lambda: self.col.mod_schema(check=False)
+            )
+        ).run_in_background()
 
     def _on_downgrade(self) -> None:
         self.progress.start()

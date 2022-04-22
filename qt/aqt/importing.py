@@ -15,7 +15,7 @@ from anki.errors import Interrupted
 from anki.importing.anki2 import V2ImportIntoV1
 from anki.importing.apkg import AnkiPackageImporter
 from aqt.main import AnkiQt, gui_hooks
-from aqt.operations import QueryOp
+from aqt.operations import ClosedCollectionOpWithBackendProgress
 from aqt.qt import *
 from aqt.utils import (
     HelpPage,
@@ -434,78 +434,36 @@ def setupApkgImport(mw: AnkiQt, importer: AnkiPackageImporter) -> bool:
     if not full:
         # adding
         return True
-    if not askUser(
+    if askUser(
         tr.importing_this_will_delete_your_existing_collection(),
         msgfunc=QMessageBox.warning,
         defaultno=True,
     ):
-        return False
+        run_full_apkg_import(mw, importer.file)
 
-    full_apkg_import(mw, importer.file)
     return False
 
 
-def full_apkg_import(mw: AnkiQt, file: str) -> None:
-    def on_done(success: bool) -> None:
+def run_full_apkg_import(mw: AnkiQt, file: str) -> None:
+    def on_success(_future: Future) -> None:
         mw.loadCollection()
-        if success:
-            tooltip(tr.importing_importing_complete())
+        tooltip(tr.importing_importing_complete())
 
-    def after_backup(created: bool) -> None:
-        mw.unloadCollection(lambda: replace_with_apkg(mw, file, on_done))
+    def on_failure(err: Exception) -> None:
+        mw.loadCollection()
+        if not isinstance(err, Interrupted):
+            showWarning(str(err))
 
-    QueryOp(
-        parent=mw, op=lambda _: mw.create_backup_now(), success=after_backup
-    ).with_progress().run_in_background()
+    ClosedCollectionOpWithBackendProgress(
+        parent=mw,
+        op=lambda: full_apkg_import(mw, file),
+        key="importing",
+    ).success(on_success).failure(on_failure).run_in_background()
 
 
-def replace_with_apkg(
-    mw: AnkiQt, filename: str, callback: Callable[[bool], None]
-) -> None:
-    """Tries to replace the provided collection with the provided backup,
-    then calls the callback. True if success.
-    """
-    if not (dialog := mw.progress.start(immediate=True)):
-        print("No progress dialog during import; aborting will not work")
-    timer = QTimer()
-    timer.setSingleShot(False)
-    timer.setInterval(100)
-
-    def on_progress() -> None:
-        progress = mw.backend.latest_progress()
-        if not progress.HasField("importing"):
-            return
-        label = progress.importing
-
-        try:
-            if dialog.wantCancel:
-                mw.backend.set_wants_abort()
-        except AttributeError:
-            # dialog may not be active
-            pass
-
-        mw.taskman.run_on_main(lambda: mw.progress.update(label=label))
-
-    def do_import() -> None:
-        col_path = mw.pm.collectionPath()
-        media_folder = os.path.join(mw.pm.profileFolder(), "collection.media")
-        mw.backend.import_collection_package(
-            col_path=col_path, backup_path=filename, media_folder=media_folder
-        )
-
-    def on_done(future: Future) -> None:
-        mw.progress.finish()
-        timer.deleteLater()
-
-        try:
-            future.result()
-        except Exception as error:
-            if not isinstance(error, Interrupted):
-                showWarning(str(error))
-            callback(False)
-        else:
-            callback(True)
-
-    qconnect(timer.timeout, on_progress)
-    timer.start()
-    mw.taskman.run_in_background(do_import, on_done)
+def full_apkg_import(mw: AnkiQt, file: str) -> None:
+    col_path = mw.pm.collectionPath()
+    media_folder = os.path.join(mw.pm.profileFolder(), "collection.media")
+    mw.backend.import_collection_package(
+        col_path=col_path, backup_path=file, media_folder=media_folder
+    )
