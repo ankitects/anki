@@ -32,20 +32,41 @@ pub(super) struct MediaUseMap {
     unchecked: Vec<SafeMediaEntry>,
 }
 
+struct ProgressHandler<F: FnMut(usize) -> Result<()>> {
+    progress_fn: F,
+    counter: usize,
+}
+
+impl<F: FnMut(usize) -> Result<()>> ProgressHandler<F> {
+    fn new(progress_fn: F) -> Self {
+        Self {
+            progress_fn,
+            counter: 0,
+        }
+    }
+
+    fn increment(&mut self) -> Result<()> {
+        self.counter += 1;
+        if self.counter % 17 == 0 {
+            (self.progress_fn)(self.counter)
+        } else {
+            Ok(())
+        }
+    }
+}
+
 impl Context<'_> {
     pub(super) fn prepare_media(&mut self) -> Result<MediaUseMap> {
         let progress_fn = |u| (&mut self.progress_fn)(ImportProgress::MediaCheck(u)).is_ok();
         let existing_sha1s = self.target_col.all_existing_sha1s(progress_fn)?;
-        prepare_media(&mut self.archive, &existing_sha1s)
+        prepare_media(&mut self.archive, &existing_sha1s, &mut self.progress_fn)
     }
 
     pub(super) fn copy_media(&mut self, media_map: &mut MediaUseMap) -> Result<()> {
-        let mut counter = 0;
+        let mut progress =
+            ProgressHandler::new(|u| (&mut self.progress_fn)(ImportProgress::Media(u)));
         for entry in media_map.used_entries() {
-            counter += 1;
-            if counter % 10 == 0 {
-                (self.progress_fn)(ImportProgress::Media(counter))?;
-            }
+            progress.increment()?;
             entry.copy_from_archive(&mut self.archive, &self.target_col.media_folder)?;
         }
         Ok(())
@@ -65,9 +86,14 @@ impl Collection {
 fn prepare_media(
     archive: &mut ZipArchive<File>,
     existing_sha1s: &HashMap<String, [u8; 20]>,
+    progress_fn: &mut impl FnMut(ImportProgress) -> Result<()>,
 ) -> Result<MediaUseMap> {
     let mut media_map = MediaUseMap::default();
+    let mut progress = ProgressHandler::new(|u| progress_fn(ImportProgress::MediaCheck(u)));
+
     for mut entry in extract_media_entries(&Meta::new_legacy(), archive)? {
+        progress.increment()?;
+
         if entry.is_static() {
             if !existing_sha1s.contains_key(&entry.name) {
                 media_map.unchecked.push(entry);

@@ -40,6 +40,7 @@ impl Collection {
         path: impl AsRef<Path>,
         progress_fn: &mut ProgressFn,
     ) -> Result<OpOutput<NoteLog>> {
+        progress_fn(ImportProgress::Collection)?;
         let file = File::open(path)?;
         let archive = ZipArchive::new(file)?;
 
