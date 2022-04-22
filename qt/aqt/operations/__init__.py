@@ -11,6 +11,7 @@ import aqt.gui_hooks
 import aqt.main
 from anki.collection import (
     Collection,
+    ImportLogWithChanges,
     OpChanges,
     OpChangesAfterUndo,
     OpChangesWithCount,
@@ -35,6 +36,7 @@ ResultWithChanges = TypeVar(
         OpChangesWithCount,
         OpChangesWithId,
         OpChangesAfterUndo,
+        ImportLogWithChanges,
         HasChangesProperty,
     ],
 )

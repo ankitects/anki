@@ -47,10 +47,11 @@ from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_
 from aqt.dbcheck import check_db
 from aqt.emptycards import show_empty_cards
 from aqt.flags import FlagManager
+from aqt.import_export import import_collection_package_op, import_file
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
-from aqt.operations import ClosedCollectionOpWithBackendProgress, QueryOp
+from aqt.operations import QueryOp
 from aqt.operations.collection import redo, undo
 from aqt.operations.deck import set_current_deck
 from aqt.profiles import ProfileManager as ProfileManagerType
@@ -402,16 +403,10 @@ class AnkiQt(QMainWindow):
         )
 
     def _openBackup(self, path: str) -> None:
-        import aqt.importing
-
         self.restoring_backup = True
         showInfo(tr.qt_misc_automatic_syncing_and_backups_have_been())
 
-        ClosedCollectionOpWithBackendProgress(
-            parent=self,
-            op=lambda: aqt.importing.full_apkg_import(self, path),
-            key="importing",
-        ).success(
+        import_collection_package_op(self, path).success(
             lambda _: self.onOpenProfile(
                 callback=lambda: self.col.mod_schema(check=False)
             )
@@ -1188,7 +1183,10 @@ title="{}" {}>{}</button>""".format(
     def onImport(self) -> None:
         import aqt.importing
 
-        aqt.importing.onImport(self)
+        if os.getenv("ANKI_BACKEND_IMPORT_EXPORT"):
+            import_file(self)
+        else:
+            aqt.importing.onImport(self)
 
     def onExport(self, did: DeckId | None = None) -> None:
         import aqt.exporting

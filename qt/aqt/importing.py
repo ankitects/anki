@@ -11,11 +11,10 @@ import anki.importing as importing
 import aqt.deckchooser
 import aqt.forms
 import aqt.modelchooser
-from anki.errors import Interrupted
 from anki.importing.anki2 import V2ImportIntoV1
 from anki.importing.apkg import AnkiPackageImporter
+from aqt.import_export import import_collection_package
 from aqt.main import AnkiQt, gui_hooks
-from aqt.operations import ClosedCollectionOpWithBackendProgress
 from aqt.qt import *
 from aqt.utils import (
     HelpPage,
@@ -439,31 +438,6 @@ def setupApkgImport(mw: AnkiQt, importer: AnkiPackageImporter) -> bool:
         msgfunc=QMessageBox.warning,
         defaultno=True,
     ):
-        run_full_apkg_import(mw, importer.file)
+        import_collection_package(mw, importer.file)
 
     return False
-
-
-def run_full_apkg_import(mw: AnkiQt, file: str) -> None:
-    def on_success(_future: Future) -> None:
-        mw.loadCollection()
-        tooltip(tr.importing_importing_complete())
-
-    def on_failure(err: Exception) -> None:
-        mw.loadCollection()
-        if not isinstance(err, Interrupted):
-            showWarning(str(err))
-
-    ClosedCollectionOpWithBackendProgress(
-        parent=mw,
-        op=lambda: full_apkg_import(mw, file),
-        key="importing",
-    ).success(on_success).failure(on_failure).run_in_background()
-
-
-def full_apkg_import(mw: AnkiQt, file: str) -> None:
-    col_path = mw.pm.collectionPath()
-    media_folder = os.path.join(mw.pm.profileFolder(), "collection.media")
-    mw.backend.import_collection_package(
-        col_path=col_path, backup_path=file, media_folder=media_folder
-    )
