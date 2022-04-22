@@ -23,6 +23,10 @@ img {
     max-height: 95vh;
 }
 
+li {
+    text-align: start;
+}
+
 #_flag {
     position: fixed;
     right: 10px;
@@ -46,11 +50,6 @@ img {
     width: 100%;
     // https://anki.tenderapp.com/discussions/beta-testing/1854-using-margin-auto-causes-horizontal-scrollbar-on-typesomething
     box-sizing: border-box;
-}
-
-.night-mode #typeans {
-    background-color: var(--frame-bg);
-    color: var(--text-fg);
 }
 
 .typeGood {
