@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Optional, TextIO, cast
 from markdown import markdown
 
 import aqt
-from anki.errors import DocumentedError, LocalizedError
+from anki.errors import DocumentedError, Interrupted, LocalizedError
 from aqt.qt import *
 from aqt.utils import showText, showWarning, supportText, tr
 
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 def show_exception(*, parent: QWidget, exception: Exception) -> None:
     "Present a caught exception to the user using a pop-up."
-    if isinstance(exception, InterruptedError):
+    if isinstance(exception, Interrupted):
         # nothing to do
         return
     help_page = exception.help_page if isinstance(exception, DocumentedError) else None
