@@ -14,7 +14,7 @@ import aqt.modelchooser
 from anki.errors import Interrupted
 from anki.importing.anki2 import V2ImportIntoV1
 from anki.importing.apkg import AnkiPackageImporter
-from aqt import AnkiQt, gui_hooks
+from aqt.main import AnkiQt, gui_hooks
 from aqt.operations import QueryOp
 from aqt.qt import *
 from aqt.utils import (
@@ -460,12 +460,13 @@ def full_apkg_import(mw: AnkiQt, file: str) -> None:
 
 
 def replace_with_apkg(
-    mw: aqt.AnkiQt, filename: str, callback: Callable[[bool], None]
+    mw: AnkiQt, filename: str, callback: Callable[[bool], None]
 ) -> None:
     """Tries to replace the provided collection with the provided backup,
     then calls the callback. True if success.
     """
-    dialog = mw.progress.start(immediate=True)
+    if not (dialog := mw.progress.start(immediate=True)):
+        print("No progress dialog during import; aborting will not work")
     timer = QTimer()
     timer.setSingleShot(False)
     timer.setInterval(100)
