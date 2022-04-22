@@ -12,9 +12,9 @@ use sha1::Sha1;
 
 use super::{media::MediaUseMap, Context};
 use crate::{
-    import_export::package::{media::safe_normalized_file_name, NoteLog},
+    import_export::package::{media::safe_normalized_file_name, LogNote, NoteLog},
     prelude::*,
-    text::replace_media_refs,
+    text::{replace_media_refs, strip_html_preserving_media_filenames, CowMapping},
 };
 
 struct NoteContext<'a> {
@@ -39,21 +39,40 @@ pub(super) struct NoteImports {
 impl NoteImports {
     fn log_new(&mut self, note: Note, source_id: NoteId) {
         self.id_map.insert(source_id, note.id);
-        self.log.new.push(note.take_fields().into());
+        self.log.new.push(note.into_log_note());
     }
 
     fn log_updated(&mut self, note: Note, source_id: NoteId) {
         self.id_map.insert(source_id, note.id);
-        self.log.updated.push(note.take_fields().into());
+        self.log.updated.push(note.into_log_note());
     }
 
-    fn log_duplicate(&mut self, note: Note, target_id: NoteId) {
+    fn log_duplicate(&mut self, mut note: Note, target_id: NoteId) {
         self.id_map.insert(note.id, target_id);
-        self.log.duplicate.push(note.take_fields().into());
+        // id is for looking up note in *target* collection
+        note.id = target_id;
+        self.log.duplicate.push(note.into_log_note());
     }
 
     fn log_conflicting(&mut self, note: Note) {
-        self.log.conflicting.push(note.take_fields().into());
+        self.log.conflicting.push(note.into_log_note());
+    }
+}
+
+impl Note {
+    fn into_log_note(self) -> LogNote {
+        LogNote {
+            id: Some(self.id.into()),
+            fields: self
+                .take_fields()
+                .into_iter()
+                .map(|field| {
+                    strip_html_preserving_media_filenames(&field)
+                        .get_owned()
+                        .unwrap_or(field)
+                })
+                .collect(),
+        }
     }
 }
 
@@ -341,7 +360,7 @@ mod test {
 
         assert_log(
             &ctx.imports.log.new,
-            &[&["<img src='bar.jpg'>", ""], &["", ""], &["", ""]],
+            &[&[" bar.jpg ", ""], &["", ""], &["", ""]],
         );
         assert_log(&ctx.imports.log.duplicate, &[&["outdated", ""]]);
         assert_log(
@@ -372,9 +391,9 @@ mod test {
         assert_eq!(col.get_note_field(updated_note_with_remapped_nt.id, 0), "");
     }
 
-    fn assert_log(log: &[crate::backend_proto::StringList], expected: &[&[&str]]) {
-        for (idx, fields) in log.iter().enumerate() {
-            assert_eq!(fields.vals, expected[idx]);
+    fn assert_log(log: &[LogNote], expected: &[&[&str]]) {
+        for (idx, note) in log.iter().enumerate() {
+            assert_eq!(note.fields, expected[idx]);
         }
     }
 

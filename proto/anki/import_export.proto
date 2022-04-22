@@ -37,11 +37,15 @@ message ImportAnkiPackageRequest {
 }
 
 message ImportAnkiPackageResponse {
+  message Note {
+    notes.NoteId id = 1;
+    repeated string fields = 2;
+  }
   message Log {
-    repeated generic.StringList new = 1;
-    repeated generic.StringList updated = 2;
-    repeated generic.StringList duplicate = 3;
-    repeated generic.StringList conflicting = 4;
+    repeated Note new = 1;
+    repeated Note updated = 2;
+    repeated Note duplicate = 3;
+    repeated Note conflicting = 4;
   }
   collection.OpChanges changes = 1;
   Log log = 2;
