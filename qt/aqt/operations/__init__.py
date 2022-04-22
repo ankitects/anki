@@ -4,10 +4,11 @@
 from __future__ import annotations
 
 from concurrent.futures._base import Future
-from typing import Any, Callable, Generic, Protocol, TypeVar, Union
+from typing import Any, Callable, Generic, Literal, Protocol, TypeVar, Union
 
 import aqt
 import aqt.gui_hooks
+import aqt.main
 from anki.collection import (
     Collection,
     OpChanges,
@@ -16,7 +17,7 @@ from anki.collection import (
     OpChangesWithId,
 )
 from aqt.errors import show_exception
-from aqt.qt import QWidget
+from aqt.qt import QWidget, QTimer, qconnect
 from aqt.utils import showWarning
 
 
@@ -118,7 +119,15 @@ class CollectionOp(Generic[ResultWithChanges]):
                 # fire change hooks
                 self._fire_change_hooks_after_op_performed(result, initiator)
 
-        mw.taskman.with_progress(wrapped_op, wrapped_done)
+        self._run(mw, wrapped_op, wrapped_done)
+
+    def _run(
+        self,
+        mw: aqt.main.AnkiQt,
+        op: Callable[[], ResultWithChanges],
+        on_done: Callable[[Future], None],
+    ) -> None:
+        mw.taskman.with_progress(op, on_done)
 
     def _fire_change_hooks_after_op_performed(
         self,
@@ -237,3 +246,58 @@ class QueryOp(Generic[T]):
             self._success(future.result())
 
         mw.taskman.run_in_background(wrapped_op, wrapped_done)
+
+
+class CollectionOpWithBackendProgress(CollectionOp):
+    """Periodically queries the backend for progress updates, and enables abortion.
+
+    Requires a key for a string value on the `Progress` proto message."""
+
+    def __init__(
+        self,
+        parent: QWidget,
+        op: Callable[[Collection], ResultWithChanges],
+        *,
+        key: Literal["importing"],
+    ):
+        self._key = key
+        self.timer = QTimer()
+        self.timer.setSingleShot(False)
+        self.timer.setInterval(100)
+        super().__init__(parent, op)
+
+    def _run(
+        self,
+        mw: aqt.main.AnkiQt,
+        op: Callable[[], ResultWithChanges],
+        on_done: Callable[[Future], None],
+    ) -> None:
+        if not (dialog := mw.progress.start(immediate=True)):
+            print("Progress dialog already running; aborting will not work")
+
+        def on_progress() -> None:
+            assert mw
+
+            progress = mw.backend.latest_progress()
+            if not progress.HasField(self._key):
+                return
+            label = getattr(progress, self._key)
+
+            try:
+                if dialog.wantCancel:
+                    mw.backend.set_wants_abort()
+            except AttributeError:
+                # dialog may not be active
+                pass
+
+            mw.taskman.run_on_main(lambda: mw.progress.update(label=label))
+
+        def wrapped_on_done(future: Future) -> None:
+            self.timer.deleteLater()
+            assert mw
+            mw.progress.finish()
+            on_done(future)
+
+        qconnect(self.timer.timeout, on_progress)
+        self.timer.start()
+        mw.taskman.run_in_background(task=op, on_done=wrapped_on_done)
