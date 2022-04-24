@@ -20,7 +20,7 @@ const mathjaxInlineDelimiterPattern = /\\\((.*?)\\\)/gsu;
  * be first translated to entities.
  */
 function translateEntitiesToMathjax(value: string) {
-    return value.replace(/&lt;/g, "{\\lt}").replace(/&gt;/g, "{\\gt}");
+    return value; // value.replace(/&lt;/g, "{\\lt}").replace(/&gt;/g, "{\\gt}");
 }
 
 export const Mathjax: DecoratedElementConstructor = class Mathjax
@@ -107,7 +107,7 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
             return;
         }
 
-        this.dataset.mathjax = this.innerText;
+        this.dataset.mathjax = this.innerHTML;
         this.innerHTML = "";
         this.style.whiteSpace = "normal";
 

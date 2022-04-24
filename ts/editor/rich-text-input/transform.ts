@@ -23,11 +23,11 @@ function adjustInputFragment(fragment: DocumentFragment): void {
     }
 }
 
-export function storedToFragment(html: string): DocumentFragment {
+export function storedToFragment(storedHTML: string): DocumentFragment {
     /* We need .createContextualFragment so that customElements are initialized */
     const fragment = document
         .createRange()
-        .createContextualFragment(createDummyDoc(adjustInputHTML(html)));
+        .createContextualFragment(createDummyDoc(adjustInputHTML(storedHTML)));
 
     adjustInputFragment(fragment);
     return fragment;
@@ -56,5 +56,6 @@ export function fragmentToStored(fragment: DocumentFragment): string {
     const clone = document.importNode(fragment, true);
     adjustOutputFragment(clone);
 
-    return adjustOutputHTML(fragmentToString(clone));
+    const storedHTML = adjustOutputHTML(fragmentToString(clone));
+    return storedHTML;
 }

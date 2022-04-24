@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
 
     import WithDropdown from "../../components/WithDropdown.svelte";
+    import { escapeSomeEntities, unescapeSomeEntities } from "../../editable/mathjax";
     import { Mathjax } from "../../editable/mathjax-element";
     import { on } from "../../lib/events";
     import { noop } from "../../lib/functional";
@@ -20,8 +21,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const { container, api } = context.get();
     const { editable, preventResubscription } = api;
 
-    const code = writable("");
-
     let activeImage: HTMLImageElement | null = null;
     let mathjaxElement: HTMLElement | null = null;
     let allow = noop;
@@ -29,6 +28,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let selectAll = false;
     let position: CodeMirrorLib.Position | undefined = undefined;
+
+    /**
+     * Will contain the Mathjax text with unescaped entities.
+     * This is the text displayed in the actual editor window.
+     */
+    const code = writable("");
 
     function showHandle(image: HTMLImageElement, pos?: CodeMirrorLib.Position): void {
         allow = preventResubscription();
@@ -39,9 +44,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         activeImage = image;
         mathjaxElement = activeImage.closest(Mathjax.tagName)!;
 
-        code.set(mathjaxElement.dataset.mathjax ?? "");
+        code.set(unescapeSomeEntities(mathjaxElement.dataset.mathjax ?? ""));
         unsubscribe = code.subscribe((value: string) => {
-            mathjaxElement!.dataset.mathjax = value;
+            mathjaxElement!.dataset.mathjax = escapeSomeEntities(value);
         });
     }
 
