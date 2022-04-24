@@ -61,21 +61,8 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
         insertText.clear();
     }
 
-    function onInput(this: HTMLElement, event: InputEvent): void {
-        // prevent unwanted <div> from being left behind when clearing field contents
-        if (
-            !event.data &&
-            this.children.length === 1 &&
-            this.children.item(0) instanceof HTMLDivElement &&
-            /^\n?$/.test(this.innerText)
-        ) {
-            this.innerHTML = "";
-        }
-    }
-
     function setupHandler(element: HTMLElement): { destroy(): void } {
         const beforeInputOff = on(element, "beforeinput", onBeforeInput);
-        const inputOff = on(element, "input" as "beforeinput", onInput);
 
         const blurOff = on(element, "blur", clearInsertText);
         const pointerDownOff = on(element, "pointerdown", clearInsertText);
@@ -84,7 +71,6 @@ function useInputHandler(): [InputHandlerAPI, SetupInputHandlerAction] {
         return {
             destroy() {
                 beforeInputOff();
-                inputOff();
                 blurOff();
                 pointerDownOff();
                 selectionChangeOff();
