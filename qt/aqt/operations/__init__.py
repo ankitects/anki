@@ -244,7 +244,7 @@ class QueryOp(Generic[T]):
                     if self._failure:
                         self._failure(exception)
                     else:
-                        showWarning(str(exception), self._parent)
+                        show_exception(parent=self._parent, exception=exception)
                     return
                 else:
                     # BaseException like SystemExit; rethrow it
