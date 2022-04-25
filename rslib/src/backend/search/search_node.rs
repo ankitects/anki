@@ -9,7 +9,7 @@ use crate::{
     search::{
         parse_search, Negated, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind,
     },
-    text::escape_anki_wildcards_for_search_node,
+    text::{escape_anki_wildcards, escape_anki_wildcards_for_search_node},
 };
 
 impl TryFrom<pb::SearchNode> for Node {
@@ -98,6 +98,11 @@ impl TryFrom<pb::SearchNode> for Node {
                         Node::Group(nodes)
                     }
                 }
+                Filter::Field(field) => Node::Search(SearchNode::SingleField {
+                    field: escape_anki_wildcards_for_search_node(&field.field_name),
+                    text: escape_anki_wildcards(&field.text),
+                    is_re: field.is_re,
+                }),
             }
         } else {
             Node::Search(SearchNode::WholeCollection)
