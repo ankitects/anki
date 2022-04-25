@@ -97,10 +97,14 @@ impl Backend {
         }
     }
 
-    fn export_progress_fn(&self) -> impl FnMut(usize) {
+    fn export_progress_fn(&self) -> impl FnMut(usize) -> Result<()> {
         let mut handler = self.new_progress_handler();
         move |media_files| {
-            handler.update(Progress::Export(media_files), true);
+            if handler.update(Progress::Export(media_files), true) {
+                Ok(())
+            } else {
+                Err(AnkiError::Interrupted)
+            }
         }
     }
 }

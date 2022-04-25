@@ -39,7 +39,7 @@ impl Collection {
         out_path: impl AsRef<Path>,
         include_media: bool,
         legacy: bool,
-        progress_fn: impl FnMut(usize),
+        progress_fn: impl FnMut(usize) -> Result<()>,
     ) -> Result<()> {
         let colpkg_name = out_path.as_ref();
         let temp_colpkg = tempfile_in_parent_of(colpkg_name)?;
@@ -103,7 +103,7 @@ fn export_collection_file(
     media_dir: Option<PathBuf>,
     legacy: bool,
     tr: &I18n,
-    progress_fn: impl FnMut(usize),
+    progress_fn: impl FnMut(usize) -> Result<()>,
 ) -> Result<()> {
     let meta = if legacy {
         Meta::new_legacy()
@@ -143,7 +143,7 @@ pub(crate) fn export_colpkg_from_data(
         col_size,
         MediaIter::empty(),
         tr,
-        |_| (),
+        |_| Ok(()),
     )
 }
 
@@ -154,7 +154,7 @@ pub(crate) fn export_collection(
     col_size: usize,
     media: MediaIter,
     tr: &I18n,
-    progress_fn: impl FnMut(usize),
+    progress_fn: impl FnMut(usize) -> Result<()>,
 ) -> Result<()> {
     let out_file = File::create(&out_path)?;
     let mut zip = ZipWriter::new(out_file);
@@ -240,7 +240,7 @@ fn write_media(
     meta: &Meta,
     zip: &mut ZipWriter<File>,
     media: MediaIter,
-    progress_fn: impl FnMut(usize),
+    progress_fn: impl FnMut(usize) -> Result<()>,
 ) -> Result<()> {
     let mut media_entries = vec![];
     write_media_files(meta, zip, media, &mut media_entries, progress_fn)?;
@@ -284,12 +284,12 @@ fn write_media_files(
     zip: &mut ZipWriter<File>,
     media: MediaIter,
     media_entries: &mut Vec<MediaEntry>,
-    mut progress_fn: impl FnMut(usize),
+    mut progress_fn: impl FnMut(usize) -> Result<()>,
 ) -> Result<()> {
     let mut copier = MediaCopier::new(meta);
     for (index, res) in media.0.enumerate() {
         let path = res?;
-        progress_fn(index);
+        progress_fn(index)?;
 
         zip.start_file(index.to_string(), file_options_stored())?;
 

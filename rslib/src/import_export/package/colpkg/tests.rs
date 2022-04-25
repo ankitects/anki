@@ -41,7 +41,7 @@ fn roundtrip() -> Result<()> {
         // export to a file
         let col = collection_with_media(dir, name)?;
         let colpkg_name = dir.join(format!("{name}.colpkg"));
-        col.export_colpkg(&colpkg_name, true, legacy, |_| ())?;
+        col.export_colpkg(&colpkg_name, true, legacy, |_| Ok(()))?;
         // import into a new collection
         let anki2_name = dir
             .join(format!("{name}.anki2"))
@@ -82,7 +82,7 @@ fn normalization_check_on_export() -> Result<()> {
     // manually write a file in the wrong encoding.
     std::fs::write(col.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
     assert_eq!(
-        col.export_colpkg(&colpkg_name, true, false, |_| ())
+        col.export_colpkg(&colpkg_name, true, false, |_| Ok(()))
             .unwrap_err(),
         AnkiError::MediaCheckRequired
     );

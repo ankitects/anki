@@ -36,7 +36,7 @@ fn roundtrip() {
             true,
             true,
             None,
-            |_| (),
+            |_| Ok(()),
         )
         .unwrap();
     target_col.import_apkg(&apkg_path, &mut |_| Ok(())).unwrap();
