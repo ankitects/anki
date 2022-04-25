@@ -21,7 +21,7 @@ from anki.collection import (
 )
 from aqt.errors import show_exception
 from aqt.qt import QTimer, QWidget, qconnect
-from aqt.utils import showWarning, tr
+from aqt.utils import tr
 
 
 class HasChangesProperty(Protocol):
