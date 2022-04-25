@@ -17,7 +17,7 @@ service ImportExportService {
       returns (generic.Empty);
   rpc ImportAnkiPackage(ImportAnkiPackageRequest)
       returns (ImportAnkiPackageResponse);
-  rpc ExportAnkiPackage(ExportAnkiPackageRequest) returns (generic.Empty);
+  rpc ExportAnkiPackage(ExportAnkiPackageRequest) returns (generic.UInt32);
 }
 
 message ImportCollectionPackageRequest {
@@ -57,7 +57,7 @@ message ExportAnkiPackageRequest {
   bool with_media = 3;
   oneof selector {
     generic.Empty whole_collection = 4;
-    decks.DeckId deck_id = 5;
+    int64 deck_id = 5;
     notes.NoteIds note_ids = 6;
   }
 }

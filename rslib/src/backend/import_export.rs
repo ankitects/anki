@@ -56,7 +56,7 @@ impl ImportExportService for Backend {
             .map(Into::into)
     }
 
-    fn export_anki_package(&self, input: pb::ExportAnkiPackageRequest) -> Result<pb::Empty> {
+    fn export_anki_package(&self, input: pb::ExportAnkiPackageRequest) -> Result<pb::UInt32> {
         let selector = input
             .selector
             .ok_or_else(|| AnkiError::invalid_input("missing oneof"))?;

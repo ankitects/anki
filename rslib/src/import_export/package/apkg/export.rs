@@ -23,6 +23,7 @@ use crate::{
 };
 
 impl Collection {
+    /// Returns number of exported notes.
     pub fn export_apkg(
         &mut self,
         out_path: impl AsRef<Path>,
@@ -31,24 +32,24 @@ impl Collection {
         with_media: bool,
         media_fn: Option<Box<dyn FnOnce(HashSet<PathBuf>) -> MediaIter>>,
         progress_fn: impl FnMut(usize) -> Result<()>,
-        progress_fn: impl FnMut(usize),
-    ) -> Result<()> {
+    ) -> Result<usize> {
         let temp_apkg = tempfile_in_parent_of(out_path.as_ref())?;
         let mut temp_col = NamedTempFile::new()?;
         let temp_col_path = temp_col
             .path()
             .to_str()
             .ok_or_else(|| AnkiError::IoError("tempfile with non-unicode name".into()))?;
-        let media = self.export_collection_extracting_media(
+        let data = self.export_collection_extracting_media(
             temp_col_path,
             search,
             with_scheduling,
             with_media,
         )?;
+
         let media = if let Some(media_fn) = media_fn {
-            media_fn(media)
+            media_fn(data.media_paths)
         } else {
-            MediaIter::from_file_list(media, self.media_folder.clone())
+            MediaIter::from_file_list(data.media_paths, self.media_folder.clone())
         };
         let col_size = temp_col.as_file().metadata()?.len() as usize;
 
@@ -61,7 +62,8 @@ impl Collection {
             &self.tr,
             progress_fn,
         )?;
-        atomic_rename(temp_apkg, out_path.as_ref(), true)
+        atomic_rename(temp_apkg, out_path.as_ref(), true)?;
+        Ok(data.notes.len())
     }
 
     fn export_collection_extracting_media(
@@ -70,7 +72,7 @@ impl Collection {
         search: impl TryIntoSearch,
         with_scheduling: bool,
         with_media: bool,
-    ) -> Result<HashSet<PathBuf>> {
+    ) -> Result<ExchangeData> {
         let mut data = ExchangeData::default();
         data.gather_data(self, search, with_scheduling)?;
         if with_media {
@@ -82,7 +84,7 @@ impl Collection {
         temp_col.set_creation_stamp(self.storage.creation_stamp()?)?;
         temp_col.close(Some(SchemaVersion::V11))?;
 
-        Ok(data.media_paths)
+        Ok(data)
     }
 
     fn new_minimal(path: impl Into<PathBuf>) -> Result<Self> {
