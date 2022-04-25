@@ -110,6 +110,9 @@ export function nodeContainsInlineContent(node: Node): boolean {
     return true;
 }
 
+/**
+ * Consumes the input fragment.
+ */
 export function fragmentToString(fragment: DocumentFragment): string {
     const fragmentDiv = document.createElement("div");
     fragmentDiv.appendChild(fragment);
