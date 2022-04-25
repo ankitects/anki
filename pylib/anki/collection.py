@@ -12,6 +12,7 @@ from anki import (
     generic_pb2,
     import_export_pb2,
     links_pb2,
+    notes_pb2,
     search_pb2,
     stats_pb2,
 )
@@ -34,6 +35,9 @@ BrowserRow = search_pb2.BrowserRow
 BrowserColumns = search_pb2.BrowserColumns
 StripHtmlMode = card_rendering_pb2.StripHtmlRequest
 ImportLogWithChanges = import_export_pb2.ImportAnkiPackageResponse
+ExportAnkiPackageRequest = import_export_pb2.ExportAnkiPackageRequest
+Empty = generic_pb2.Empty
+NoteIds = notes_pb2.NoteIds
 
 import copy
 import os
@@ -356,7 +360,7 @@ class Collection(DeprecatedNamesMixin):
         "Throws if backup creation failed."
         self._backend.await_backup_completion()
 
-    def export_collection(
+    def export_collection_package(
         self, out_path: str, include_media: bool, legacy: bool
     ) -> None:
         self.close_for_full_sync()
@@ -366,6 +370,28 @@ class Collection(DeprecatedNamesMixin):
 
     def import_anki_package(self, path: str) -> ImportLogWithChanges:
         return self._backend.import_anki_package(package_path=path)
+
+    def export_anki_package(
+        self,
+        *,
+        out_path: str,
+        selector: DeckId | list[NoteId] | None,
+        with_scheduling: bool,
+        with_media: bool,
+    ) -> int:
+        if selector is None:
+            selector_kwarg: dict[str, Any] = {"whole_collection": Empty()}
+        elif isinstance(selector, list):
+            selector_kwarg = {"note_ids": NoteIds(note_ids=selector)}
+        else:
+            selector_kwarg = {"deck_id": selector}
+        request = ExportAnkiPackageRequest(
+            out_path=out_path,
+            with_scheduling=with_scheduling,
+            with_media=with_media,
+            **selector_kwarg,
+        )
+        return self._backend.export_anki_package(request)
 
     # Object helpers
     ##########################################################################

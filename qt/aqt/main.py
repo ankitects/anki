@@ -47,7 +47,8 @@ from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_
 from aqt.dbcheck import check_db
 from aqt.emptycards import show_empty_cards
 from aqt.flags import FlagManager
-from aqt.import_export import import_collection_package_op, import_file
+from aqt.import_export.exporting import ExportDialog
+from aqt.import_export.importing import import_collection_package_op, import_file
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
@@ -1191,7 +1192,10 @@ title="{}" {}>{}</button>""".format(
     def onExport(self, did: DeckId | None = None) -> None:
         import aqt.exporting
 
-        aqt.exporting.ExportDialog(self, did=did)
+        if os.getenv("ANKI_BACKEND_IMPORT_EXPORT"):
+            ExportDialog(self, did=did)
+        else:
+            aqt.exporting.ExportDialog(self, did=did)
 
     # Installing add-ons from CLI / mimetype handler
     ##########################################################################

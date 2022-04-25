@@ -13,7 +13,7 @@ import aqt.forms
 import aqt.modelchooser
 from anki.importing.anki2 import V2ImportIntoV1
 from anki.importing.apkg import AnkiPackageImporter
-from aqt.import_export import import_collection_package
+from aqt.import_export.importing import import_collection_package
 from aqt.main import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import (
