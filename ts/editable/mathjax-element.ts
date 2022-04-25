@@ -15,14 +15,6 @@ const mathjaxTagPattern =
 const mathjaxBlockDelimiterPattern = /\\\[(.*?)\\\]/gsu;
 const mathjaxInlineDelimiterPattern = /\\\((.*?)\\\)/gsu;
 
-/**
- * If the user enters the Mathjax with delimiters, "<" and ">" will
- * be first translated to entities.
- */
-function translateEntitiesToMathjax(value: string) {
-    return value; // value.replace(/&lt;/g, "{\\lt}").replace(/&gt;/g, "{\\gt}");
-}
-
 export const Mathjax: DecoratedElementConstructor = class Mathjax
     extends HTMLElement
     implements DecoratedElement
@@ -45,12 +37,10 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
     static toUndecorated(stored: string): string {
         return stored
             .replace(mathjaxBlockDelimiterPattern, (_match: string, text: string) => {
-                const escaped = translateEntitiesToMathjax(text);
-                return `<${Mathjax.tagName} block="true">${escaped}</${Mathjax.tagName}>`;
+                return `<${Mathjax.tagName} block="true">${text}</${Mathjax.tagName}>`;
             })
             .replace(mathjaxInlineDelimiterPattern, (_match: string, text: string) => {
-                const escaped = translateEntitiesToMathjax(text);
-                return `<${Mathjax.tagName}>${escaped}</${Mathjax.tagName}>`;
+                return `<${Mathjax.tagName}>${text}</${Mathjax.tagName}>`;
             });
     }
 
