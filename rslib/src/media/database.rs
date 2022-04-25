@@ -222,10 +222,10 @@ delete from media where fname=?"
         Ok(map?)
     }
 
-    /// Error if any checksums are missing or broken.
+    /// Returns all filenames and checksums, where the checksum is not null.
     pub(super) fn all_checksums(&mut self) -> Result<HashMap<String, [u8; 20]>> {
         self.db
-            .prepare("SELECT fname, csum FROM media")?
+            .prepare("SELECT fname, csum FROM media WHERE csum IS NOT NULL")?
             .query_and_then([], row_to_name_and_checksum)?
             .collect()
     }
