@@ -20,6 +20,9 @@ test --aspects=@rules_rust//rust:defs.bzl%rust_clippy_aspect --output_groups=+cl
 # print output when test fails
 test --test_output=errors
 
+# stop after one test failure
+test --notest_keep_going
+
 # don't add empty __init__.py files
 build --incompatible_default_to_explicit_init_py
 
