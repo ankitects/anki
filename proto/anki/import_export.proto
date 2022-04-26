@@ -6,7 +6,6 @@ syntax = "proto3";
 package anki.import_export;
 
 import "anki/collection.proto";
-import "anki/decks.proto";
 import "anki/notes.proto";
 import "anki/generic.proto";
 
