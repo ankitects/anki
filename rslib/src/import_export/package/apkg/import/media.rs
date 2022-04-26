@@ -59,7 +59,12 @@ impl Context<'_> {
     pub(super) fn prepare_media(&mut self) -> Result<MediaUseMap> {
         let progress_fn = |u| (&mut self.progress_fn)(ImportProgress::MediaCheck(u)).is_ok();
         let existing_sha1s = self.target_col.all_existing_sha1s(progress_fn)?;
-        prepare_media(&mut self.archive, &existing_sha1s, &mut self.progress_fn)
+        prepare_media(
+            &self.meta,
+            &mut self.archive,
+            &existing_sha1s,
+            &mut self.progress_fn,
+        )
     }
 
     pub(super) fn copy_media(&mut self, media_map: &mut MediaUseMap) -> Result<()> {
@@ -84,6 +89,7 @@ impl Collection {
 }
 
 fn prepare_media(
+    meta: &Meta,
     archive: &mut ZipArchive<File>,
     existing_sha1s: &HashMap<String, [u8; 20]>,
     progress_fn: &mut impl FnMut(ImportProgress) -> Result<()>,
@@ -91,7 +97,7 @@ fn prepare_media(
     let mut media_map = MediaUseMap::default();
     let mut progress = ProgressHandler::new(|u| progress_fn(ImportProgress::MediaCheck(u)));
 
-    for mut entry in extract_media_entries(&Meta::new_legacy(), archive)? {
+    for mut entry in extract_media_entries(meta, archive)? {
         progress.increment()?;
 
         if entry.is_static() {

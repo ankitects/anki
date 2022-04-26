@@ -12,6 +12,7 @@ pub(crate) use notes::NoteMeta;
 use rusqlite::OptionalExtension;
 use tempfile::NamedTempFile;
 use zip::ZipArchive;
+use zstd::stream::copy_decode;
 
 use crate::{
     collection::CollectionBuilder,
@@ -29,6 +30,7 @@ type ProgressFn = dyn FnMut(ImportProgress) -> Result<()>;
 struct Context<'a> {
     target_col: &'a mut Collection,
     archive: ZipArchive<File>,
+    meta: Meta,
     data: ExchangeData,
     usn: Usn,
     progress_fn: &'a mut ProgressFn,
@@ -57,12 +59,18 @@ impl<'a> Context<'a> {
         target_col: &'a mut Collection,
         progress_fn: &'a mut ProgressFn,
     ) -> Result<Self> {
-        let data =
-            ExchangeData::gather_from_archive(&mut archive, SearchNode::WholeCollection, true)?;
+        let meta = Meta::from_archive(&mut archive)?;
+        let data = ExchangeData::gather_from_archive(
+            &mut archive,
+            &meta,
+            SearchNode::WholeCollection,
+            true,
+        )?;
         let usn = target_col.usn()?;
         Ok(Self {
             target_col,
             archive,
+            meta,
             data,
             usn,
             progress_fn,
@@ -82,10 +90,11 @@ impl<'a> Context<'a> {
 impl ExchangeData {
     fn gather_from_archive(
         archive: &mut ZipArchive<File>,
+        meta: &Meta,
         search: impl TryIntoSearch,
         with_scheduling: bool,
     ) -> Result<Self> {
-        let tempfile = collection_to_tempfile(archive)?;
+        let tempfile = collection_to_tempfile(meta, archive)?;
         let mut col = CollectionBuilder::new(tempfile.path()).build()?;
         col.maybe_upgrade_scheduler()?;
 
@@ -96,11 +105,16 @@ impl ExchangeData {
     }
 }
 
-fn collection_to_tempfile(archive: &mut ZipArchive<File>) -> Result<NamedTempFile> {
-    let meta = Meta::from_archive(archive)?;
+fn collection_to_tempfile(meta: &Meta, archive: &mut ZipArchive<File>) -> Result<NamedTempFile> {
     let mut zip_file = archive.by_name(meta.collection_filename())?;
     let mut tempfile = NamedTempFile::new()?;
-    io::copy(&mut zip_file, &mut tempfile)?;
+    if meta.zstd_compressed() {
+        copy_decode(zip_file, &mut tempfile)
+    } else {
+        io::copy(&mut zip_file, &mut tempfile).map(|_| ())
+    }
+    .map_err(|err| AnkiError::file_io_error(err, tempfile.path()))?;
+
     Ok(tempfile)
 }
 
