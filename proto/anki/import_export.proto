@@ -55,10 +55,11 @@ message ExportAnkiPackageRequest {
   string out_path = 1;
   bool with_scheduling = 2;
   bool with_media = 3;
+  bool legacy = 4;
   oneof selector {
-    generic.Empty whole_collection = 4;
-    int64 deck_id = 5;
-    notes.NoteIds note_ids = 6;
+    generic.Empty whole_collection = 5;
+    int64 deck_id = 6;
+    notes.NoteIds note_ids = 7;
   }
 }
 

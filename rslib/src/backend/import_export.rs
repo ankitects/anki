@@ -66,6 +66,7 @@ impl ImportExportService for Backend {
                 SearchNode::from_selector(selector),
                 input.with_scheduling,
                 input.with_media,
+                input.legacy,
                 None,
                 self.export_progress_fn(),
             )

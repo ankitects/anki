@@ -389,6 +389,7 @@ class Collection(DeprecatedNamesMixin):
             out_path=out_path,
             with_scheduling=with_scheduling,
             with_media=with_media,
+            legacy=True,
             **selector_kwarg,
         )
         return self._backend.export_anki_package(request)

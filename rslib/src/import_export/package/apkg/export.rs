@@ -24,12 +24,14 @@ use crate::{
 
 impl Collection {
     /// Returns number of exported notes.
+    #[allow(clippy::too_many_arguments)]
     pub fn export_apkg(
         &mut self,
         out_path: impl AsRef<Path>,
         search: impl TryIntoSearch,
         with_scheduling: bool,
         with_media: bool,
+        legacy: bool,
         media_fn: Option<Box<dyn FnOnce(HashSet<PathBuf>) -> MediaIter>>,
         progress_fn: impl FnMut(usize) -> Result<()>,
     ) -> Result<usize> {
@@ -54,7 +56,11 @@ impl Collection {
         let col_size = temp_col.as_file().metadata()?.len() as usize;
 
         export_collection(
-            Meta::new_legacy(),
+            if legacy {
+                Meta::new_legacy()
+            } else {
+                Meta::new()
+            },
             temp_apkg.path(),
             &mut temp_col,
             col_size,

@@ -35,6 +35,7 @@ fn roundtrip() {
             SearchNode::from_deck_name("parent::sample"),
             true,
             true,
+            true,
             None,
             |_| Ok(()),
         )
