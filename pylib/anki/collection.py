@@ -379,19 +379,18 @@ class Collection(DeprecatedNamesMixin):
         with_scheduling: bool,
         with_media: bool,
     ) -> int:
-        if selector is None:
-            selector_kwarg: dict[str, Any] = {"whole_collection": Empty()}
-        elif isinstance(selector, list):
-            selector_kwarg = {"note_ids": NoteIds(note_ids=selector)}
-        else:
-            selector_kwarg = {"deck_id": selector}
         request = ExportAnkiPackageRequest(
             out_path=out_path,
             with_scheduling=with_scheduling,
             with_media=with_media,
             legacy=True,
-            **selector_kwarg,
         )
+        if selector is None:
+            request.whole_collection.SetInParent()
+        elif isinstance(selector, list):
+            request.note_ids.note_ids.extend(selector)
+        else:
+            request.deck_id = selector
         return self._backend.export_anki_package(request)
 
     # Object helpers
