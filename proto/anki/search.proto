@@ -94,6 +94,7 @@ message SearchNode {
     string note = 18;
     uint32 introduced_in_days = 19;
     Field field = 20;
+    string text = 21;
   }
 }
 
