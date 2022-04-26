@@ -12,7 +12,6 @@ from anki import (
     generic_pb2,
     import_export_pb2,
     links_pb2,
-    notes_pb2,
     search_pb2,
     stats_pb2,
 )
@@ -35,9 +34,6 @@ BrowserRow = search_pb2.BrowserRow
 BrowserColumns = search_pb2.BrowserColumns
 StripHtmlMode = card_rendering_pb2.StripHtmlRequest
 ImportLogWithChanges = import_export_pb2.ImportAnkiPackageResponse
-ExportAnkiPackageRequest = import_export_pb2.ExportAnkiPackageRequest
-Empty = generic_pb2.Empty
-NoteIds = notes_pb2.NoteIds
 
 import copy
 import os
@@ -379,7 +375,7 @@ class Collection(DeprecatedNamesMixin):
         with_scheduling: bool,
         with_media: bool,
     ) -> int:
-        request = ExportAnkiPackageRequest(
+        request = import_export_pb2.ExportAnkiPackageRequest(
             out_path=out_path,
             with_scheduling=with_scheduling,
             with_media=with_media,
