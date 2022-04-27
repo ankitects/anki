@@ -86,7 +86,7 @@ impl Context<'_> {
 impl CardContext<'_> {
     fn import_cards(&mut self, mut cards: Vec<Card>) -> Result<()> {
         for card in &mut cards {
-            if self.map_to_imported_note(card) && !self.target_already_exists(card) {
+            if self.map_to_imported_note(card) && !self.card_ordinal_already_exists(card) {
                 self.add_card(card)?;
             }
             // TODO: could update existing card
@@ -114,7 +114,7 @@ impl CardContext<'_> {
         }
     }
 
-    fn target_already_exists(&self, card: &Card) -> bool {
+    fn card_ordinal_already_exists(&self, card: &Card) -> bool {
         self.existing_cards
             .contains(&(card.note_id, card.template_idx))
     }
