@@ -79,6 +79,7 @@ impl<'a> Context<'a> {
 
     fn import(&mut self) -> Result<NoteLog> {
         let mut media_map = self.prepare_media()?;
+        (self.progress_fn)(ImportProgress::Collection)?;
         let note_imports = self.import_notes_and_notetypes(&mut media_map)?;
         let imported_decks = self.import_decks_and_configs()?;
         self.import_cards_and_revlog(&note_imports.id_map, &imported_decks)?;
