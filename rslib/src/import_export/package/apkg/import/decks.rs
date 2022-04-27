@@ -46,7 +46,7 @@ impl DeckContext<'_> {
 
     fn import_decks(&mut self, mut decks: Vec<Deck>) -> Result<()> {
         // ensure parents are seen before children
-        decks.sort_unstable_by(|d1, d2| d1.name.as_native_str().cmp(d2.name.as_native_str()));
+        decks.sort_unstable_by_key(|deck| deck.level());
         for deck in &mut decks {
             self.import_deck(deck)?;
         }
@@ -144,6 +144,10 @@ impl Deck {
         let new_name = format!("{} {}", self.name.as_native_str(), suffix);
         self.name = NativeDeckName::from_native_str(new_name);
     }
+
+    fn level(&self) -> usize {
+        self.name.components().count()
+    }
 }
 
 impl NormalDeck {
@@ -177,8 +181,8 @@ mod test {
             new_deck_with_machine_name("unknown parent\x1fchild", false),
             new_deck_with_machine_name("filtered\x1fchild", false),
             new_deck_with_machine_name("parent\x1fchild", false),
-            new_deck_with_machine_name("new parent\x1fchild", false),
-            new_deck_with_machine_name("NEW PARENT", false),
+            new_deck_with_machine_name("NEW PARENT\x1fchild", false),
+            new_deck_with_machine_name("new parent", false),
         ];
         ctx.import_decks(imports).unwrap();
         let existing_decks: HashSet<_> = ctx
@@ -197,6 +201,6 @@ mod test {
         // the case of existing parents is matched
         assert!(existing_decks.contains("PARENT::child"));
         // the case of imported parents is matched, regardless of pass order
-        assert!(existing_decks.contains("NEW PARENT::child"));
+        assert!(existing_decks.contains("new parent::child"));
     }
 }
