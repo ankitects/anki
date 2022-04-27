@@ -187,7 +187,7 @@ impl<'n> NoteContext<'n> {
             }
             if let Some(notetype_id) = self.remapped_notetypes.get(&note.notetype_id) {
                 if self.target_guids.contains_key(&note.guid) {
-                    // TODO: Log ignore
+                    self.imports.log_conflicting(note);
                 } else {
                     note.notetype_id = *notetype_id;
                     self.add_note(note)?;
