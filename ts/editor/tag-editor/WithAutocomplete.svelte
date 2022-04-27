@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Popover from "../../components/Popover.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
+    import { isApplePlatform } from "../../lib/platform";
     import AutocompleteItem from "./AutocompleteItem.svelte";
 
     export let suggestionsPromise: Promise<string[]>;
@@ -16,6 +17,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let suggestionsItems: string[] = [];
     $: suggestionsPromise.then((items) => {
         show.set(items.length > 0);
+        if (isApplePlatform() && navigator.userAgent.match(/Chrome\/77/)) {
+            items = items.slice(0, 10);
+        }
         suggestionsItems = items;
     });
 
