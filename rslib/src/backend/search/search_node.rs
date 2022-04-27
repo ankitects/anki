@@ -103,7 +103,7 @@ impl TryFrom<pb::SearchNode> for Node {
                     text: escape_anki_wildcards(&field.text),
                     is_re: field.is_re,
                 }),
-                Filter::Text(text) => {
+                Filter::LiteralText(text) => {
                     let text = escape_anki_wildcards(&text);
                     Node::Search(SearchNode::UnqualifiedText(text))
                 }

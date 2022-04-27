@@ -73,6 +73,7 @@ message SearchNode {
     string text = 2;
     bool is_re = 3;
   }
+
   oneof filter {
     Group group = 1;
     SearchNode negated = 2;
@@ -94,7 +95,7 @@ message SearchNode {
     string note = 18;
     uint32 introduced_in_days = 19;
     Field field = 20;
-    string text = 21;
+    string literal_text = 21;
   }
 }
 
