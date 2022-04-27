@@ -55,7 +55,7 @@ impl Note {
         &self.fields
     }
 
-    pub fn take_fields(self) -> Vec<String> {
+    pub fn into_fields(self) -> Vec<String> {
         self.fields
     }
 

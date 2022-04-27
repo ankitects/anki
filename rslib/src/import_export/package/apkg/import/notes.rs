@@ -67,7 +67,7 @@ impl Note {
         LogNote {
             id: Some(self.id.into()),
             fields: self
-                .take_fields()
+                .into_fields()
                 .into_iter()
                 .map(|field| {
                     strip_html_preserving_media_filenames(&field)
