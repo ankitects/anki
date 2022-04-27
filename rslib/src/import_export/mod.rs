@@ -10,4 +10,5 @@ pub enum ImportProgress {
     Collection,
     Media(usize),
     MediaCheck(usize),
+    Notes(usize),
 }

@@ -89,7 +89,10 @@ impl Backend {
     fn import_progress_fn(&self) -> impl FnMut(ImportProgress) -> Result<()> {
         let mut handler = self.new_progress_handler();
         move |progress| {
-            let throttle = matches!(progress, ImportProgress::Media(_));
+            let throttle = matches!(
+                progress,
+                ImportProgress::Media(_) | ImportProgress::Notes(_)
+            );
             if handler.update(Progress::Import(progress), throttle) {
                 Ok(())
             } else {

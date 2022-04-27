@@ -10,9 +10,12 @@ use std::{
 
 use sha1::Sha1;
 
-use super::{media::MediaUseMap, Context};
+use super::{media::MediaUseMap, Context, ProgressFn};
 use crate::{
-    import_export::package::{media::safe_normalized_file_name, LogNote, NoteLog},
+    import_export::{
+        package::{media::safe_normalized_file_name, LogNote, NoteLog},
+        ImportProgress,
+    },
     prelude::*,
     text::{replace_media_refs, strip_html_preserving_media_filenames, CowMapping},
 };
@@ -100,7 +103,7 @@ impl Context<'_> {
     ) -> Result<NoteImports> {
         let mut ctx = NoteContext::new(self.usn, self.target_col, media_map)?;
         ctx.import_notetypes(mem::take(&mut self.data.notetypes))?;
-        ctx.import_notes(mem::take(&mut self.data.notes))?;
+        ctx.import_notes(mem::take(&mut self.data.notes), self.progress_fn)?;
         Ok(ctx.imports)
     }
 }
@@ -176,8 +179,12 @@ impl<'n> NoteContext<'n> {
         Ok(())
     }
 
-    fn import_notes(&mut self, notes: Vec<Note>) -> Result<()> {
-        for mut note in notes {
+    fn import_notes(&mut self, notes: Vec<Note>, progress_fn: &mut ProgressFn) -> Result<()> {
+        for (idx, mut note) in notes.into_iter().enumerate() {
+            // FIXME: use ProgressHandler.increment()?
+            if idx % 17 == 0 {
+                progress_fn(ImportProgress::Notes(idx))?;
+            }
             if let Some(notetype_id) = self.remapped_notetypes.get(&note.notetype_id) {
                 if self.target_guids.contains_key(&note.guid) {
                     // TODO: Log ignore
@@ -356,7 +363,7 @@ mod test {
         ];
         let mut ctx = NoteContext::new(Usn(1), &mut col, &mut media_map).unwrap();
         ctx.remapped_notetypes.insert(NotetypeId(123), basic_ntid);
-        ctx.import_notes(notes).unwrap();
+        ctx.import_notes(notes, &mut |_progress| Ok(())).unwrap();
 
         assert_log(
             &ctx.imports.log.new,
