@@ -41,12 +41,8 @@ impl Collection {
             .path()
             .to_str()
             .ok_or_else(|| AnkiError::IoError("tempfile with non-unicode name".into()))?;
-        let data = self.export_collection_extracting_media(
-            temp_col_path,
-            search,
-            with_scheduling,
-            with_media,
-        )?;
+        let data =
+            self.export_into_collection_file(temp_col_path, search, with_scheduling, with_media)?;
 
         let media = if let Some(media_fn) = media_fn {
             media_fn(data.media_paths)
@@ -72,7 +68,7 @@ impl Collection {
         Ok(data.notes.len())
     }
 
-    fn export_collection_extracting_media(
+    fn export_into_collection_file(
         &mut self,
         path: &str,
         search: impl TryIntoSearch,
