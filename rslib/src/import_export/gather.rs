@@ -9,7 +9,7 @@ use std::{
 use itertools::Itertools;
 
 use crate::{
-    decks::{immediate_parent_name, NormalDeck},
+    decks::immediate_parent_name,
     io::filename_is_safe,
     latex::extract_latex,
     prelude::*,
@@ -89,11 +89,7 @@ impl ExchangeData {
             if let Ok(normal_mut) = deck.normal_mut() {
                 normal_mut.config_id = 1;
             } else {
-                // TODO: scheduling case
-                deck.kind = DeckKind::Normal(NormalDeck {
-                    config_id: 1,
-                    ..Default::default()
-                })
+                // filtered decks are reset at import time for legacy reasons
             }
         }
     }
@@ -102,7 +98,8 @@ impl ExchangeData {
         let mut position = col.get_next_card_position();
         for card in self.cards.iter_mut() {
             // schedule_as_new() removes cards from filtered decks, but we want to
-            // leave cards in their current deck, and export filtered as regular decks
+            // leave cards in their current deck, which gets converted to a regular
+            // deck on import
             let deck_id = card.deck_id;
             if card.schedule_as_new(position, true, true) {
                 position += 1;

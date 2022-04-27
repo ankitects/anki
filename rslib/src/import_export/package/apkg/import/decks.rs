@@ -64,6 +64,12 @@ impl DeckContext<'_> {
             }
         } else {
             self.ensure_valid_first_existing_parent(deck)?;
+            if deck.is_filtered() {
+                deck.kind = DeckKind::Normal(NormalDeck {
+                    config_id: 1,
+                    ..Default::default()
+                });
+            }
             self.add_deck(deck)
         }
     }
