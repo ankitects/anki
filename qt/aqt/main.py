@@ -408,9 +408,7 @@ class AnkiQt(QMainWindow):
         showInfo(tr.qt_misc_automatic_syncing_and_backups_have_been())
 
         import_collection_package_op(self, path).success(
-            lambda _: self.onOpenProfile(
-                callback=lambda: self.col.mod_schema(check=False)
-            )
+            lambda _: self.onOpenProfile()
         ).run_in_background()
 
     def _on_downgrade(self) -> None:
