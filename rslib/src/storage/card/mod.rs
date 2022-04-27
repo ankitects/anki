@@ -502,11 +502,7 @@ impl super::SqliteStorage {
     pub(crate) fn search_cards_of_notes_into_table(&self) -> Result<usize> {
         self.setup_searched_cards_table()?;
         self.db
-            .prepare(concat!(
-                "INSERT INTO search_cids",
-                " SELECT id FROM cards WHERE nid IN",
-                " (SELECT nid FROM search_nids)",
-            ))?
+            .prepare(include_str!("search_cards_of_notes_into_table.sql"))?
             .execute([])
             .map_err(Into::into)
     }
