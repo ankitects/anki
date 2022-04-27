@@ -3,8 +3,6 @@
 
 #![cfg(test)]
 
-use std::mem;
-
 use tempfile::{tempdir, TempDir};
 
 use crate::{collection::CollectionBuilder, media::MediaManager, prelude::*};
@@ -43,12 +41,8 @@ impl Collection {
         note
     }
 
-    pub(crate) fn get_note_unwrapped(&self, nid: NoteId) -> Note {
-        self.storage.get_note(nid).unwrap().unwrap()
-    }
-
-    pub(crate) fn get_note_field(&self, nid: NoteId, field: usize) -> String {
-        mem::take(&mut self.get_note_unwrapped(nid).fields_mut()[field])
+    pub(crate) fn get_all_notes(&mut self) -> Vec<Note> {
+        self.storage.get_all_notes()
     }
 
     pub(crate) fn add_deck_with_machine_name(&mut self, name: &str, filtered: bool) -> Deck {

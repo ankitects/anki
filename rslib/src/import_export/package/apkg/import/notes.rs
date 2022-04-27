@@ -316,94 +316,38 @@ mod test {
     use super::*;
     use crate::{collection::open_test_collection, import_export::package::media::SafeMediaEntry};
 
-    #[test]
-    fn notes() {
-        let mut col = open_test_collection();
-        let mut media_map = MediaUseMap::default();
-        let basic_ntid = col.get_notetype_by_name("basic").unwrap().unwrap().id;
-
-        // a note with a remapped media reference
-        let mut note_with_media = col.new_note("basic");
-        note_with_media.fields_mut()[0] = "<img src='foo.jpg'>".to_string();
-        let entry = SafeMediaEntry::from_legacy(("0", "bar.jpg".to_string())).unwrap();
-        media_map.add_checked("foo.jpg", entry);
-        // a note with an id existing in the target, but a unique guid
-        let mut note_with_existing_id = col.add_new_note("basic");
-        note_with_existing_id.guid = "other".to_string();
-        // a note of which a later version exists in the target
-        let mut outdated_note = col.add_new_note("basic");
-        outdated_note.mtime.0 -= 1;
-        outdated_note.fields_mut()[0] = "outdated".to_string();
-        // an updated version of a target note, but with a different id
-        let mut updated_note = col.add_new_note("basic");
-        let updated_note_id = updated_note.id;
-        updated_note.id.0 = 42;
-        updated_note.mtime.0 += 1;
-        updated_note.fields_mut()[0] = "updated".to_string();
-        // an updated version of a target note, but with a different notetype
-        let mut updated_note_with_new_nt = col.add_new_note("basic");
-        updated_note_with_new_nt.notetype_id.0 = 42;
-        updated_note_with_new_nt.mtime.0 += 1;
-        updated_note_with_new_nt.fields_mut()[0] = "updated".to_string();
-        // a new note with a remapped notetype
-        let mut note_with_remapped_nt = col.new_note("basic");
-        note_with_remapped_nt.notetype_id.0 = 123;
-        // a note existing in the target with a remapped notetype
-        let mut updated_note_with_remapped_nt = col.add_new_note("basic");
-        updated_note_with_remapped_nt.notetype_id.0 = 123;
-        updated_note_with_remapped_nt.mtime.0 += 1;
-        updated_note_with_remapped_nt.fields_mut()[0] = "updated".to_string();
-
-        let notes = vec![
-            note_with_media.clone(),
-            note_with_existing_id.clone(),
-            outdated_note.clone(),
-            updated_note.clone(),
-            updated_note_with_new_nt.clone(),
-            note_with_remapped_nt.clone(),
-            updated_note_with_remapped_nt.clone(),
-        ];
-        let mut ctx = NoteContext::new(Usn(1), &mut col, &mut media_map).unwrap();
-        ctx.remapped_notetypes.insert(NotetypeId(123), basic_ntid);
-        ctx.import_notes(notes, &mut |_progress| Ok(())).unwrap();
-
-        assert_log(
-            &ctx.imports.log.new,
-            &[&[" bar.jpg ", ""], &["", ""], &["", ""]],
-        );
-        assert_log(&ctx.imports.log.duplicate, &[&["outdated", ""]]);
-        assert_log(
-            &ctx.imports.log.updated,
-            &[&["updated", ""], &["updated", ""]],
-        );
-        assert_log(&ctx.imports.log.conflicting, &[&["updated", ""]]);
-
-        // media is remapped
-        assert_eq!(
-            col.get_note_field(note_with_media.id, 0),
-            "<img src='bar.jpg'>"
-        );
-        // conflicting note id is remapped
-        assert_ne!(col.note_id_for_guid("other"), note_with_existing_id.id);
-        // note doesn't overwrite more recent version in target
-        assert_eq!(col.get_note_field(outdated_note.id, 0), "");
-        // note with same guid is updated, regardless of id
-        assert_eq!(col.get_note_field(updated_note_id, 0), "updated");
-        // note is not updated if notetype is different
-        assert_eq!(col.get_note_field(updated_note_with_new_nt.id, 0), "");
-        // notetype id is remapped
-        assert_eq!(
-            col.get_note_unwrapped(note_with_remapped_nt.id).notetype_id,
-            basic_ntid
-        );
-        // note with remapped notetype is not updated
-        assert_eq!(col.get_note_field(updated_note_with_remapped_nt.id, 0), "");
+    /// Import [Note] into [Collection], optionally taking a [MediaUseMap],
+    /// or a [Notetype] remapping.
+    macro_rules! import_note {
+        ($col:expr, $note:expr, $old_notetype:expr => $new_notetype:expr) => {{
+            let mut media_map = MediaUseMap::default();
+            let mut ctx = NoteContext::new(Usn(1), &mut $col, &mut media_map).unwrap();
+            ctx.remapped_notetypes.insert($old_notetype, $new_notetype);
+            ctx.import_notes(vec![$note], &mut |_progress| Ok(()))
+                .unwrap();
+            ctx.imports.log
+        }};
+        ($col:expr, $note:expr, $media_map:expr) => {{
+            let mut ctx = NoteContext::new(Usn(1), &mut $col, &mut $media_map).unwrap();
+            ctx.import_notes(vec![$note], &mut |_progress| Ok(()))
+                .unwrap();
+            ctx.imports.log
+        }};
+        ($col:expr, $note:expr) => {{
+            let mut media_map = MediaUseMap::default();
+            import_note!($col, $note, media_map)
+        }};
     }
 
-    fn assert_log(log: &[LogNote], expected: &[&[&str]]) {
-        for (idx, note) in log.iter().enumerate() {
-            assert_eq!(note.fields, expected[idx]);
-        }
+    /// Assert that exactly one [Note] is logged, and that with the given state and fields.
+    macro_rules! assert_note_logged {
+        ($log:expr, $state:ident, $fields:expr) => {
+            assert_eq!($log.$state.pop().unwrap().fields, $fields);
+            assert!($log.new.is_empty());
+            assert!($log.updated.is_empty());
+            assert!($log.duplicate.is_empty());
+            assert!($log.conflicting.is_empty());
+        };
     }
 
     impl Collection {
@@ -413,5 +357,96 @@ mod test {
                 .query_row("SELECT id FROM notes WHERE guid = ?", [guid], |r| r.get(0))
                 .unwrap()
         }
+    }
+
+    #[test]
+    fn should_add_note_with_new_id_if_guid_is_unique_and_id_is_not() {
+        let mut col = open_test_collection();
+        let mut note = col.add_new_note("basic");
+        note.guid = "other".to_string();
+        let original_id = note.id;
+
+        let mut log = import_note!(col, note);
+        assert_ne!(col.note_id_for_guid("other"), original_id);
+        assert_note_logged!(log, new, &["", ""]);
+    }
+
+    #[test]
+    fn should_skip_note_if_guid_already_exists_with_newer_mtime() {
+        let mut col = open_test_collection();
+        let mut note = col.add_new_note("basic");
+        note.mtime.0 -= 1;
+        note.fields_mut()[0] = "outdated".to_string();
+
+        let mut log = import_note!(col, note);
+        assert_eq!(col.get_all_notes()[0].fields()[0], "");
+        assert_note_logged!(log, duplicate, &["outdated", ""]);
+    }
+
+    #[test]
+    fn should_update_note_if_guid_already_exists_with_different_id() {
+        let mut col = open_test_collection();
+        let mut note = col.add_new_note("basic");
+        note.id.0 = 42;
+        note.mtime.0 += 1;
+        note.fields_mut()[0] = "updated".to_string();
+
+        let mut log = import_note!(col, note);
+        assert_eq!(col.get_all_notes()[0].fields()[0], "updated");
+        assert_note_logged!(log, updated, &["updated", ""]);
+    }
+
+    #[test]
+    fn should_ignore_note_if_guid_already_exists_with_different_notetype() {
+        let mut col = open_test_collection();
+        let mut note = col.add_new_note("basic");
+        note.notetype_id.0 = 42;
+        note.mtime.0 += 1;
+        note.fields_mut()[0] = "updated".to_string();
+
+        let mut log = import_note!(col, note);
+        assert_eq!(col.get_all_notes()[0].fields()[0], "");
+        assert_note_logged!(log, conflicting, &["updated", ""]);
+    }
+
+    #[test]
+    fn should_add_note_with_remapped_notetype_if_in_notetype_map() {
+        let mut col = open_test_collection();
+        let basic_ntid = col.get_notetype_by_name("basic").unwrap().unwrap().id;
+        let mut note = col.new_note("basic");
+        note.notetype_id.0 = 123;
+
+        let mut log = import_note!(col, note, NotetypeId(123) => basic_ntid);
+        assert_eq!(col.get_all_notes()[0].notetype_id, basic_ntid);
+        assert_note_logged!(log, new, &["", ""]);
+    }
+
+    #[test]
+    fn should_ignore_note_if_guid_already_exists_and_notetype_is_remapped() {
+        let mut col = open_test_collection();
+        let basic_ntid = col.get_notetype_by_name("basic").unwrap().unwrap().id;
+        let mut note = col.add_new_note("basic");
+        note.notetype_id.0 = 123;
+        note.mtime.0 += 1;
+        note.fields_mut()[0] = "updated".to_string();
+
+        let mut log = import_note!(col, note, NotetypeId(123) => basic_ntid);
+        assert_eq!(col.get_all_notes()[0].fields()[0], "");
+        assert_note_logged!(log, conflicting, &["updated", ""]);
+    }
+
+    #[test]
+    fn should_add_note_with_remapped_media_reference_in_field_if_in_media_map() {
+        let mut col = open_test_collection();
+        let mut note = col.new_note("basic");
+        note.fields_mut()[0] = "<img src='foo.jpg'>".to_string();
+
+        let mut media_map = MediaUseMap::default();
+        let entry = SafeMediaEntry::from_legacy(("0", "bar.jpg".to_string())).unwrap();
+        media_map.add_checked("foo.jpg", entry);
+
+        let mut log = import_note!(col, note, media_map);
+        assert_eq!(col.get_all_notes()[0].fields()[0], "<img src='bar.jpg'>");
+        assert_note_logged!(log, new, &[" bar.jpg ", ""]);
     }
 }

@@ -302,6 +302,17 @@ impl super::SqliteStorage {
             .query_and_then([], row_to_note_meta)?
             .collect()
     }
+
+    #[cfg(test)]
+    pub(crate) fn get_all_notes(&mut self) -> Vec<Note> {
+        self.db
+            .prepare("SELECT * FROM notes")
+            .unwrap()
+            .query_and_then([], row_to_note)
+            .unwrap()
+            .collect::<Result<_>>()
+            .unwrap()
+    }
 }
 
 fn row_to_note(row: &Row) -> Result<Note> {
