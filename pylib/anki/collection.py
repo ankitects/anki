@@ -92,6 +92,33 @@ class LegacyCheckpoint:
 LegacyUndoResult = Union[None, LegacyCheckpoint, LegacyReviewUndo]
 
 
+class ExportLimit:
+    """Limit to what will be exported. Either specific notes, or a deck, or the
+    whole collection (if neither is set). Only the last set value is preserved.
+    """
+
+    _note_ids: Sequence[NoteId] | None
+    _deck_id: DeckId | None
+
+    @property
+    def note_ids(self) -> Sequence[NoteId] | None:
+        return self._note_ids
+
+    @note_ids.setter
+    def note_ids(self, note_ids: Sequence[NoteId] | None) -> None:
+        self._note_ids = note_ids
+        self._deck_id = None
+
+    @property
+    def deck_id(self) -> DeckId | None:
+        return self._deck_id
+
+    @deck_id.setter
+    def deck_id(self, deck_id: DeckId | None) -> None:
+        self._deck_id = deck_id
+        self._note_ids = None
+
+
 class Collection(DeprecatedNamesMixin):
     sched: V1Scheduler | V2Scheduler | V3Scheduler
 
@@ -371,7 +398,7 @@ class Collection(DeprecatedNamesMixin):
         self,
         *,
         out_path: str,
-        selector: DeckId | list[NoteId] | None,
+        limit: ExportLimit,
         with_scheduling: bool,
         with_media: bool,
     ) -> int:
@@ -381,12 +408,12 @@ class Collection(DeprecatedNamesMixin):
             with_media=with_media,
             legacy=True,
         )
-        if selector is None:
-            request.whole_collection.SetInParent()
-        elif isinstance(selector, list):
-            request.note_ids.note_ids.extend(selector)
+        if limit.deck_id is not None:
+            request.deck_id = limit.deck_id
+        elif limit.note_ids is not None:
+            request.note_ids.note_ids.extend(limit.note_ids)
         else:
-            request.deck_id = selector
+            request.whole_collection.SetInParent()
         return self._backend.export_anki_package(request)
 
     # Object helpers

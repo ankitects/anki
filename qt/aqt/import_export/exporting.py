@@ -13,6 +13,7 @@ from typing import Sequence, Type
 
 import aqt.forms
 import aqt.main
+from anki.collection import ExportLimit
 from anki.decks import DeckId, DeckNameId
 from anki.notes import NoteId
 from aqt import gui_hooks
@@ -106,14 +107,16 @@ class ExportDialog(QDialog):
         return path
 
     def options(self, out_path: str) -> Options:
+        limit = ExportLimit()
+        limit.deck_id = self.current_deck_id()
+        limit.note_ids = self.nids
         return Options(
             out_path=out_path,
             include_scheduling=self.frm.includeSched.isChecked(),
             include_media=self.frm.includeMedia.isChecked(),
             include_tags=self.frm.includeTags.isChecked(),
             include_html=self.frm.includeHTML.isChecked(),
-            deck_id=self.current_deck_id(),
-            note_ids=self.nids,
+            limit=limit,
         )
 
     def current_deck_id(self) -> DeckId | None:
@@ -142,8 +145,7 @@ class Options:
     include_media: bool
     include_tags: bool
     include_html: bool
-    deck_id: DeckId | None
-    note_ids: Sequence[NoteId] | None
+    limit: ExportLimit
 
 
 class Exporter(ABC):
@@ -210,7 +212,7 @@ class ApkgExporter(Exporter):
             parent=mw,
             op=lambda col: col.export_anki_package(
                 out_path=options.out_path,
-                selector=options.note_ids or options.deck_id or None,
+                limit=options.limit,
                 with_scheduling=options.include_scheduling,
                 with_media=options.include_media,
             ),
