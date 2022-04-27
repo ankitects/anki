@@ -70,9 +70,11 @@ impl Note {
                 .into_fields()
                 .into_iter()
                 .map(|field| {
-                    strip_html_preserving_media_filenames(&field)
+                    let mut reduced = strip_html_preserving_media_filenames(&field)
                         .get_owned()
-                        .unwrap_or(field)
+                        .unwrap_or(field);
+                    reduced.truncate(80);
+                    reduced
                 })
                 .collect(),
         }
