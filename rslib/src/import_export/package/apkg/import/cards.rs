@@ -14,6 +14,8 @@ use crate::{
     revlog::RevlogEntry,
 };
 
+type CardAsNidAndOrd = (NoteId, u16);
+
 struct CardContext<'a> {
     target_col: &'a mut Collection,
     usn: Usn,
@@ -24,10 +26,8 @@ struct CardContext<'a> {
     /// The number of days the source collection is ahead of the target collection
     collection_delta: i32,
     scheduler_version: SchedulerVersion,
-    /// Cards in the target collection as (nid, ord)
-    targets: HashSet<(NoteId, u16)>,
-    /// All card ids existing in the target collection
-    target_ids: HashSet<CardId>,
+    existing_cards: HashSet<CardAsNidAndOrd>,
+    existing_card_ids: HashSet<CardId>,
 
     imported_cards: HashMap<CardId, CardId>,
 }
@@ -40,19 +40,19 @@ impl<'c> CardContext<'c> {
         imported_notes: &'a HashMap<NoteId, NoteId>,
         imported_decks: &'a HashMap<DeckId, DeckId>,
     ) -> Result<Self> {
-        let targets = target_col.storage.all_cards_as_nid_and_ord()?;
+        let existing_cards = target_col.storage.all_cards_as_nid_and_ord()?;
         let collection_delta = target_col.collection_delta(days_elapsed)?;
         let scheduler_version = target_col.scheduler_info()?.version;
-        let target_ids = target_col.storage.get_all_card_ids()?;
+        let existing_card_ids = target_col.storage.get_all_card_ids()?;
         Ok(Self {
             target_col,
             usn,
             imported_notes,
             remapped_decks: imported_decks,
-            targets,
+            existing_cards,
             collection_delta,
             scheduler_version,
-            target_ids,
+            existing_card_ids,
             imported_cards: HashMap::new(),
         })
     }
@@ -115,7 +115,8 @@ impl CardContext<'_> {
     }
 
     fn target_already_exists(&self, card: &Card) -> bool {
-        self.targets.contains(&(card.note_id, card.template_idx))
+        self.existing_cards
+            .contains(&(card.note_id, card.template_idx))
     }
 
     fn add_card(&mut self, card: &mut Card) -> Result<()> {
@@ -126,7 +127,7 @@ impl CardContext<'_> {
         let old_id = self.uniquify_card_id(card);
 
         self.target_col.add_card_if_unique_undoable(card)?;
-        self.target_ids.insert(card.id);
+        self.existing_card_ids.insert(card.id);
         self.imported_cards.insert(old_id, card.id);
 
         Ok(())
@@ -134,7 +135,7 @@ impl CardContext<'_> {
 
     fn uniquify_card_id(&mut self, card: &mut Card) -> CardId {
         let original = card.id;
-        while self.target_ids.contains(&card.id) {
+        while self.existing_card_ids.contains(&card.id) {
             card.id.0 += 999;
         }
         original
