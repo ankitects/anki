@@ -27,6 +27,7 @@ pub(super) struct ExchangeData {
     pub(super) deck_configs: Vec<DeckConfig>,
     pub(super) media_paths: HashSet<PathBuf>,
     pub(super) days_elapsed: u32,
+    pub(super) creation_utc_offset: Option<i32>,
 }
 
 impl ExchangeData {
@@ -37,6 +38,7 @@ impl ExchangeData {
         with_scheduling: bool,
     ) -> Result<()> {
         self.days_elapsed = col.timing_today()?.days_elapsed;
+        self.creation_utc_offset = col.get_creation_utc_offset();
         self.notes = col.gather_notes(search)?;
         self.cards = col.gather_cards()?;
         self.decks = col.gather_decks()?;
