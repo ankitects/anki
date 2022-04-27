@@ -179,7 +179,7 @@ class ColpkgExporter(Exporter):
     def export(mw: aqt.main.AnkiQt, options: Options) -> None:
         def on_success(_future: Future) -> None:
             mw.reopen()
-            tooltip(tr.exporting_collection_exported())
+            tooltip(tr.exporting_collection_exported(), parent=mw)
 
         def on_failure(exception: Exception) -> None:
             mw.reopen()
@@ -216,6 +216,8 @@ class ApkgExporter(Exporter):
                 with_scheduling=options.include_scheduling,
                 with_media=options.include_media,
             ),
-            success=lambda fut: tooltip(tr.exporting_note_exported(count=fut)),
+            success=lambda fut: tooltip(
+                tr.exporting_note_exported(count=fut), parent=mw
+            ),
             key="exporting",
         ).run_in_background()
