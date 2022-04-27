@@ -239,7 +239,7 @@ delete from media where fname=?"
 
 fn row_to_entry(row: &Row) -> rusqlite::Result<MediaEntry> {
     // map the string checksum into bytes
-    let sha1_str: Option<String> = row.get(1)?;
+    let sha1_str = row.get_ref(1)?.as_str_or_null()?;
     let sha1_array = if let Some(s) = sha1_str {
         let mut arr = [0; 20];
         match hex::decode_to_slice(s, arr.as_mut()) {
