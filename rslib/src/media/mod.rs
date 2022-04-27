@@ -26,6 +26,8 @@ pub mod database;
 pub mod files;
 pub mod sync;
 
+pub type Sha1Hash = [u8; 20];
+
 pub struct MediaManager {
     db: Connection,
     media_folder: PathBuf,
@@ -160,7 +162,7 @@ impl MediaManager {
         &self,
         progress: impl FnMut(usize) -> bool,
         log: &Logger,
-    ) -> Result<HashMap<String, [u8; 20]>> {
+    ) -> Result<HashMap<String, Sha1Hash>> {
         let mut dbctx = self.dbctx();
         ChangeTracker::new(&self.media_folder, progress, log).register_changes(&mut dbctx)?;
         dbctx.all_checksums()

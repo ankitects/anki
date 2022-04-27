@@ -346,7 +346,7 @@ impl MediaCopier {
         &mut self,
         reader: &mut impl Read,
         writer: &mut impl Write,
-    ) -> Result<(usize, [u8; 20])> {
+    ) -> Result<(usize, Sha1Hash)> {
         let mut size = 0;
         let mut hasher = Sha1::new();
         let mut buf = [0; 64 * 1024];

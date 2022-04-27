@@ -82,7 +82,7 @@ impl Collection {
     fn all_existing_sha1s(
         &mut self,
         progress_fn: impl FnMut(usize) -> bool,
-    ) -> Result<HashMap<String, [u8; 20]>> {
+    ) -> Result<HashMap<String, Sha1Hash>> {
         let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
         mgr.all_checksums(progress_fn, &self.log)
     }
@@ -91,7 +91,7 @@ impl Collection {
 fn prepare_media(
     meta: &Meta,
     archive: &mut ZipArchive<File>,
-    existing_sha1s: &HashMap<String, [u8; 20]>,
+    existing_sha1s: &HashMap<String, Sha1Hash>,
     progress_fn: &mut impl FnMut(ImportProgress) -> Result<()>,
 ) -> Result<MediaUseMap> {
     let mut media_map = MediaUseMap::default();

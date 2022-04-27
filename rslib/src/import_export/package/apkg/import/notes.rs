@@ -297,7 +297,7 @@ impl<'n> NoteContext<'n> {
 }
 
 impl Notetype {
-    fn schema_hash(&self) -> [u8; 20] {
+    fn schema_hash(&self) -> Sha1Hash {
         let mut hasher = Sha1::new();
         for field in &self.fields {
             hasher.update(field.name.as_bytes());

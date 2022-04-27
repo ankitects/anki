@@ -26,7 +26,7 @@ use crate::{
 pub(super) struct SafeMediaEntry {
     pub(super) name: String,
     pub(super) size: u32,
-    pub(super) sha1: [u8; 20],
+    pub(super) sha1: Sha1Hash,
     pub(super) index: usize,
 }
 

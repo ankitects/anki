@@ -47,7 +47,7 @@ fn initial_db_setup(db: &mut Connection) -> Result<()> {
 pub struct MediaEntry {
     pub fname: String,
     /// If None, file has been deleted
-    pub sha1: Option<[u8; 20]>,
+    pub sha1: Option<Sha1Hash>,
     // Modification time; 0 if deleted
     pub mtime: i64,
     /// True if changed since last sync
@@ -223,7 +223,7 @@ delete from media where fname=?"
     }
 
     /// Returns all filenames and checksums, where the checksum is not null.
-    pub(super) fn all_checksums(&mut self) -> Result<HashMap<String, [u8; 20]>> {
+    pub(super) fn all_checksums(&mut self) -> Result<HashMap<String, Sha1Hash>> {
         self.db
             .prepare("SELECT fname, csum FROM media WHERE csum IS NOT NULL")?
             .query_and_then([], row_to_name_and_checksum)?
@@ -258,7 +258,7 @@ fn row_to_entry(row: &Row) -> rusqlite::Result<MediaEntry> {
     })
 }
 
-fn row_to_name_and_checksum(row: &Row) -> Result<(String, [u8; 20])> {
+fn row_to_name_and_checksum(row: &Row) -> Result<(String, Sha1Hash)> {
     let file_name = row.get(0)?;
     let sha1_str: String = row.get(1)?;
     let mut sha1 = [0; 20];
