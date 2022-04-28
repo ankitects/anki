@@ -92,31 +92,17 @@ class LegacyCheckpoint:
 LegacyUndoResult = Union[None, LegacyCheckpoint, LegacyReviewUndo]
 
 
-class ExportLimit:
-    """Limit to what will be exported. Either specific notes, or a deck, or the
-    whole collection (if neither is set). Only the last set value is preserved.
-    """
+@dataclass
+class DeckIdLimit:
+    deck_id: DeckId
 
-    _note_ids: Sequence[NoteId] | None
-    _deck_id: DeckId | None
 
-    @property
-    def note_ids(self) -> Sequence[NoteId] | None:
-        return self._note_ids
+@dataclass
+class NoteIdsLimit:
+    note_ids: Sequence[NoteId]
 
-    @note_ids.setter
-    def note_ids(self, note_ids: Sequence[NoteId] | None) -> None:
-        self._note_ids = note_ids
-        self._deck_id = None
 
-    @property
-    def deck_id(self) -> DeckId | None:
-        return self._deck_id
-
-    @deck_id.setter
-    def deck_id(self, deck_id: DeckId | None) -> None:
-        self._deck_id = deck_id
-        self._note_ids = None
+ExportLimit = Union[DeckIdLimit, NoteIdsLimit, None]
 
 
 class Collection(DeprecatedNamesMixin):
@@ -408,9 +394,9 @@ class Collection(DeprecatedNamesMixin):
             with_media=with_media,
             legacy=True,
         )
-        if limit.deck_id is not None:
+        if isinstance(limit, DeckIdLimit):
             request.deck_id = limit.deck_id
-        elif limit.note_ids is not None:
+        elif isinstance(limit, NoteIdsLimit):
             request.note_ids.note_ids.extend(limit.note_ids)
         else:
             request.whole_collection.SetInParent()

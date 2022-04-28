@@ -13,7 +13,7 @@ from typing import Sequence, Type
 
 import aqt.forms
 import aqt.main
-from anki.collection import ExportLimit
+from anki.collection import DeckIdLimit, ExportLimit, NoteIdsLimit
 from anki.decks import DeckId, DeckNameId
 from anki.notes import NoteId
 from aqt import gui_hooks
@@ -107,9 +107,12 @@ class ExportDialog(QDialog):
         return path
 
     def options(self, out_path: str) -> Options:
-        limit = ExportLimit()
-        limit.deck_id = self.current_deck_id()
-        limit.note_ids = self.nids
+        limit: ExportLimit = None
+        if self.nids:
+            limit = NoteIdsLimit(self.nids)
+        elif current_deck_id := self.current_deck_id():
+            limit = DeckIdLimit(current_deck_id)
+
         return Options(
             out_path=out_path,
             include_scheduling=self.frm.includeSched.isChecked(),
