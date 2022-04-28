@@ -18,7 +18,7 @@ use crate::{
             media::{extract_media_entries, SafeMediaEntry},
             Meta,
         },
-        ImportProgress,
+        ImportProgress, IncrementalProgress,
     },
     io::{atomic_rename, tempfile_in_parent_of},
     prelude::*,
@@ -73,11 +73,10 @@ fn restore_media(
 ) -> Result<()> {
     let media_entries = extract_media_entries(meta, archive)?;
     std::fs::create_dir_all(media_folder)?;
+    let mut progress = IncrementalProgress::new(|u| progress_fn(ImportProgress::Media(u)));
 
     for entry in &media_entries {
-        if entry.index % 10 == 0 {
-            progress_fn(ImportProgress::Media(entry.index))?;
-        }
+        progress.increment()?;
         maybe_restore_media_file(meta, media_folder, archive, entry)?;
     }
 

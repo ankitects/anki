@@ -14,7 +14,7 @@ use super::{media::MediaUseMap, Context, ProgressFn};
 use crate::{
     import_export::{
         package::{media::safe_normalized_file_name, LogNote, NoteLog},
-        ImportProgress,
+        ImportProgress, IncrementalProgress,
     },
     prelude::*,
     text::{
@@ -185,11 +185,10 @@ impl<'n> NoteContext<'n> {
     }
 
     fn import_notes(&mut self, notes: Vec<Note>, progress_fn: &mut ProgressFn) -> Result<()> {
-        for (idx, mut note) in notes.into_iter().enumerate() {
-            // FIXME: use ProgressHandler.increment()?
-            if idx % 17 == 0 {
-                progress_fn(ImportProgress::Notes(idx))?;
-            }
+        let mut progress = IncrementalProgress::new(|u| progress_fn(ImportProgress::Notes(u)));
+
+        for mut note in notes.into_iter() {
+            progress.increment()?;
             if let Some(notetype_id) = self.remapped_notetypes.get(&note.notetype_id) {
                 if self.target_guids.contains_key(&note.guid) {
                     self.imports.log_conflicting(note);
