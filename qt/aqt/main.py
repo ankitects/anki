@@ -407,8 +407,8 @@ class AnkiQt(QMainWindow):
         self.restoring_backup = True
         showInfo(tr.qt_misc_automatic_syncing_and_backups_have_been())
 
-        import_collection_package_op(self, path).success(
-            lambda _: self.onOpenProfile()
+        import_collection_package_op(
+            self, path, success=self.onOpenProfile
         ).run_in_background()
 
     def _on_downgrade(self) -> None:

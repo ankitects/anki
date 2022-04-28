@@ -6,6 +6,7 @@ import time
 
 import aqt.forms
 from anki._legacy import print_deprecation_warning
+from anki.collection import Progress
 from aqt.qt import *
 from aqt.utils import disable_help_button, tr
 
@@ -23,6 +24,7 @@ class ProgressManager:
         self._busy_cursor_timer: QTimer | None = None
         self._win: ProgressDialog | None = None
         self._levels = 0
+        self._backend_timer: QTimer | None = None
 
     # Safer timers
     ##########################################################################
@@ -166,6 +168,32 @@ class ProgressManager:
         qconnect(self._show_timer.timeout, self._on_show_timer)
         return self._win
 
+    def start_with_backend_updates(
+        self,
+        label_from_progress: Callable[[Progress], str | None],
+        start_label: str | None = None,
+        parent: QWidget | None = None,
+    ) -> None:
+        self._backend_timer = QTimer()
+        self._backend_timer.setSingleShot(False)
+        self._backend_timer.setInterval(100)
+
+        if not (dialog := self.start(immediate=True, label=start_label, parent=parent)):
+            print("Progress dialog already running; aborting will not work")
+
+        def on_progress() -> None:
+            assert self.mw
+
+            progress = self.mw.backend.latest_progress()
+            if not (label := label_from_progress(progress)):
+                return
+            if dialog and dialog.wantCancel:
+                self.mw.backend.set_wants_abort()
+            self.update(label=label)
+
+        qconnect(self._backend_timer.timeout, on_progress)
+        self._backend_timer.start()
+
     def update(
         self,
         label: str | None = None,
@@ -204,6 +232,9 @@ class ProgressManager:
             if self._show_timer:
                 self._show_timer.stop()
                 self._show_timer = None
+        if self._backend_timer:
+            self._backend_timer.deleteLater()
+            self._backend_timer = None
 
     def clear(self) -> None:
         "Restore the interface after an error."

@@ -3,14 +3,12 @@
 
 from __future__ import annotations
 
-from concurrent.futures import Future
+from typing import Sequence
 
 import aqt.main
+from anki.collection import Collection, ImportLogWithChanges, Progress
 from anki.errors import Interrupted
-from aqt.operations import (
-    ClosedCollectionOpWithBackendProgress,
-    CollectionOpWithBackendProgress,
-)
+from aqt.operations import CollectionOp, QueryOp
 from aqt.qt import *
 from aqt.utils import askUser, getFile, showInfo, showText, showWarning, tooltip, tr
 
@@ -62,7 +60,7 @@ def maybe_import_collection_package(mw: aqt.main.AnkiQt, path: str) -> None:
 
 
 def import_collection_package(mw: aqt.main.AnkiQt, file: str) -> None:
-    def on_success(_future: Future) -> None:
+    def on_success() -> None:
         mw.loadCollection()
         tooltip(tr.importing_importing_complete())
 
@@ -71,38 +69,43 @@ def import_collection_package(mw: aqt.main.AnkiQt, file: str) -> None:
         if not isinstance(err, Interrupted):
             showWarning(str(err))
 
-    import_collection_package_op(mw, file).success(on_success).failure(
-        on_failure
-    ).run_in_background()
+    QueryOp(
+        parent=mw,
+        op=lambda _: mw.create_backup_now(),
+        success=lambda _: mw.unloadCollection(
+            lambda: import_collection_package_op(mw, file, on_success)
+            .failure(on_failure)
+            .run_in_background()
+        ),
+    ).with_progress().run_in_background()
 
 
 def import_collection_package_op(
-    mw: aqt.main.AnkiQt, path: str
-) -> ClosedCollectionOpWithBackendProgress:
-    def op() -> None:
+    mw: aqt.main.AnkiQt, path: str, success: Callable[[], None]
+) -> QueryOp[None]:
+    def op(_: Collection) -> None:
         col_path = mw.pm.collectionPath()
         media_folder = os.path.join(mw.pm.profileFolder(), "collection.media")
         mw.backend.import_collection_package(
             col_path=col_path, backup_path=path, media_folder=media_folder
         )
 
-    return ClosedCollectionOpWithBackendProgress(
-        parent=mw,
-        op=op,
-        key="importing",
+    return QueryOp(parent=mw, op=op, success=lambda _: success()).with_backend_progress(
+        import_progress_label
     )
 
 
 def import_anki_package(mw: aqt.main.AnkiQt, path: str) -> None:
-    CollectionOpWithBackendProgress(
+    CollectionOp(
         parent=mw,
         op=lambda col: col.import_anki_package(path),
-        key="importing",
-    ).success(show_import_log).run_in_background()
+    ).with_backend_progress(import_progress_label).success(
+        show_import_log
+    ).run_in_background()
 
 
-def show_import_log(future: Future) -> None:
-    log = future.log  # type: ignore
+def show_import_log(log_with_changes: ImportLogWithChanges) -> None:
+    log = log_with_changes.log  # type: ignore
     total = len(log.conflicting) + len(log.updated) + len(log.new) + len(log.duplicate)
 
     text = f"""{tr.importing_notes_found_in_file(val=total)}
@@ -120,5 +123,9 @@ def show_import_log(future: Future) -> None:
     showText(text, plain_text_edit=True)
 
 
-def log_rows(rows: list, action: str) -> str:
+def log_rows(rows: Sequence, action: str) -> str:
     return "\n".join(f"[{action}] {', '.join(note.fields)}" for note in rows)
+
+
+def import_progress_label(progress: Progress) -> str | None:
+    return progress.importing if progress.HasField("importing") else None

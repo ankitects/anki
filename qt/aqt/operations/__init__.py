@@ -3,9 +3,8 @@
 
 from __future__ import annotations
 
-from abc import ABC
 from concurrent.futures._base import Future
-from typing import Any, Callable, Generic, Literal, Protocol, TypeVar, Union
+from typing import Any, Callable, Generic, Protocol, TypeVar, Union
 
 import aqt
 import aqt.gui_hooks
@@ -20,8 +19,7 @@ from anki.collection import (
     Progress,
 )
 from aqt.errors import show_exception
-from aqt.qt import QTimer, QWidget, qconnect
-from aqt.utils import tr
+from aqt.qt import QWidget
 
 
 class HasChangesProperty(Protocol):
@@ -70,6 +68,7 @@ class CollectionOp(Generic[ResultWithChanges]):
 
     _success: Callable[[ResultWithChanges], Any] | None = None
     _failure: Callable[[Exception], Any] | None = None
+    _label_from_progress: Callable[[Progress], str | None] | None = None
 
     def __init__(self, parent: QWidget, op: Callable[[Collection], ResultWithChanges]):
         self._parent = parent
@@ -85,6 +84,12 @@ class CollectionOp(Generic[ResultWithChanges]):
         self, failure: Callable[[Exception], Any] | None
     ) -> CollectionOp[ResultWithChanges]:
         self._failure = failure
+        return self
+
+    def with_backend_progress(
+        self, label_from_progress: Callable[[Progress], str | None] | None
+    ) -> CollectionOp[ResultWithChanges]:
+        self._label_from_progress = label_from_progress
         return self
 
     def run_in_background(self, *, initiator: object | None = None) -> None:
@@ -128,7 +133,12 @@ class CollectionOp(Generic[ResultWithChanges]):
         op: Callable[[], ResultWithChanges],
         on_done: Callable[[Future], None],
     ) -> None:
-        mw.taskman.with_progress(op, on_done)
+        if self._label_from_progress:
+            mw.taskman.with_backend_progress(
+                op, self._label_from_progress, on_done=on_done, parent=self._parent
+            )
+        else:
+            mw.taskman.with_progress(op, on_done, parent=self._parent)
 
     def _finish_op(
         self, mw: aqt.main.AnkiQt, result: ResultWithChanges, initiator: object | None
@@ -185,6 +195,7 @@ class QueryOp(Generic[T]):
 
     _failure: Callable[[Exception], Any] | None = None
     _progress: bool | str = False
+    _label_from_progress: Callable[[Progress], str | None] | None = None
 
     def __init__(
         self,
@@ -209,6 +220,12 @@ class QueryOp(Generic[T]):
         self._progress = label or True
         return self
 
+    def with_backend_progress(
+        self, label_from_progress: Callable[[Progress], str | None] | None
+    ) -> QueryOp[T]:
+        self._label_from_progress = label_from_progress
+        return self
+
     def run_in_background(self) -> None:
         from aqt import mw
 
@@ -218,25 +235,10 @@ class QueryOp(Generic[T]):
 
         def wrapped_op() -> T:
             assert mw
-            if self._progress:
-                label: str | None
-                if isinstance(self._progress, str):
-                    label = self._progress
-                else:
-                    label = None
-
-                def start_progress() -> None:
-                    assert mw
-                    mw.progress.start(label=label)
-
-                mw.taskman.run_on_main(start_progress)
             return self._op(mw.col)
 
         def wrapped_done(future: Future) -> None:
             assert mw
-
-            if self._progress:
-                mw.progress.finish()
 
             mw._decrease_background_ops()
             # did something go wrong?
@@ -261,120 +263,16 @@ class QueryOp(Generic[T]):
         op: Callable[[], T],
         on_done: Callable[[Future], None],
     ) -> None:
-        mw.taskman.run_in_background(op, on_done)
-
-
-class OpWithBackendProgress(ABC):
-    """Periodically queries the backend for progress updates, and enables abortion.
-
-    Requires a key for a value on the `Progress` proto message."""
-
-    def __init__(
-        self,
-        *args: Any,
-        key: Literal["importing", "exporting"],
-        **kwargs: Any,
-    ):
-        self._key = key
-        self._timer = QTimer()
-        self._timer.setSingleShot(False)
-        self._timer.setInterval(100)
-        super().__init__(*args, **kwargs)
-
-    def _run(
-        self,
-        mw: aqt.main.AnkiQt,
-        op: Callable,
-        on_done: Callable[[Future], None],
-    ) -> None:
-        if not (dialog := mw.progress.start(immediate=True, parent=mw)):
-            print("Progress dialog already running; aborting will not work")
-
-        def on_progress() -> None:
-            assert mw
-
-            progress = mw.backend.latest_progress()
-            if not (label := label_from_progress(progress, self._key)):
-                return
-            if dialog and dialog.wantCancel:
-                mw.backend.set_wants_abort()
-            mw.taskman.run_on_main(lambda: mw.progress.update(label=label))
-
-        def wrapped_on_done(future: Future) -> None:
-            self._timer.deleteLater()
-            assert mw
-            mw.progress.finish()
-            on_done(future)
-
-        qconnect(self._timer.timeout, on_progress)
-        self._timer.start()
-        mw.taskman.run_in_background(task=op, on_done=wrapped_on_done)
-
-
-def label_from_progress(
-    progress: Progress,
-    key: Literal["importing", "exporting"],
-) -> str | None:
-    if not progress.HasField(key):
-        return None
-    if key == "importing":
-        return progress.importing
-    if key == "exporting":
-        return tr.exporting_exported_media_file(count=progress.exporting)
-
-
-class CollectionOpWithBackendProgress(OpWithBackendProgress, CollectionOp):
-    pass
-
-
-class QueryOpWithBackendProgress(OpWithBackendProgress, QueryOp):
-    def with_progress(self, *_args: Any) -> Any:
-        raise NotImplementedError
-
-
-class ClosedCollectionOp(CollectionOp):
-    """For CollectionOps that need to be run on a closed collection.
-
-    If a collection is open, backs it up and unloads it, before running the op.
-    Reloads it, if that has not been done by a callback, yet.
-    """
-
-    def __init__(
-        self,
-        parent: QWidget,
-        op: Callable[[], ResultWithChanges],
-        *args: Any,
-        **kwargs: Any,
-    ):
-        super().__init__(parent, lambda _: op(), *args, **kwargs)
-
-    def _run(
-        self,
-        mw: aqt.main.AnkiQt,
-        op: Callable[[], ResultWithChanges],
-        on_done: Callable[[Future], None],
-    ) -> None:
-        if mw.col:
-            QueryOp(
-                parent=mw,
-                op=lambda _: mw.create_backup_now(),
-                success=lambda _: mw.unloadCollection(
-                    lambda: super(ClosedCollectionOp, self)._run(mw, op, on_done)
-                ),
-            ).with_progress().run_in_background()
+        label = self._progress if isinstance(self._progress, str) else None
+        if self._label_from_progress:
+            mw.taskman.with_backend_progress(
+                op,
+                self._label_from_progress,
+                on_done=on_done,
+                start_label=label,
+                parent=self._parent,
+            )
+        elif self._progress:
+            mw.taskman.with_progress(op, on_done, label=label, parent=self._parent)
         else:
-            super()._run(mw, op, on_done)
-
-    def _finish_op(
-        self,
-        _mw: aqt.main.AnkiQt,
-        _result: ResultWithChanges,
-        _initiator: object | None,
-    ) -> None:
-        pass
-
-
-class ClosedCollectionOpWithBackendProgress(
-    ClosedCollectionOp, CollectionOpWithBackendProgress
-):
-    """See ClosedCollectionOp and CollectionOpWithBackendProgress."""
+            mw.taskman.run_in_background(op, on_done)

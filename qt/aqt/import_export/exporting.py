@@ -7,18 +7,17 @@ import os
 import re
 import time
 from abc import ABC, abstractmethod
-from concurrent.futures import Future
 from dataclasses import dataclass
 from typing import Sequence, Type
 
 import aqt.forms
 import aqt.main
-from anki.collection import DeckIdLimit, ExportLimit, NoteIdsLimit
+from anki.collection import DeckIdLimit, ExportLimit, NoteIdsLimit, Progress
 from anki.decks import DeckId, DeckNameId
 from anki.notes import NoteId
 from aqt import gui_hooks
 from aqt.errors import show_exception
-from aqt.operations import QueryOpWithBackendProgress
+from aqt.operations import QueryOp
 from aqt.qt import *
 from aqt.utils import (
     checkInvalidFilename,
@@ -180,7 +179,7 @@ class ColpkgExporter(Exporter):
 
     @staticmethod
     def export(mw: aqt.main.AnkiQt, options: Options) -> None:
-        def on_success(_future: Future) -> None:
+        def on_success(_: None) -> None:
             mw.reopen()
             tooltip(tr.exporting_collection_exported(), parent=mw)
 
@@ -189,14 +188,15 @@ class ColpkgExporter(Exporter):
             show_exception(parent=mw, exception=exception)
 
         gui_hooks.collection_will_temporarily_close(mw.col)
-        QueryOpWithBackendProgress(
+        QueryOp(
             parent=mw,
             op=lambda col: col.export_collection_package(
                 options.out_path, include_media=options.include_media, legacy=False
             ),
             success=on_success,
-            key="exporting",
-        ).failure(on_failure).run_in_background()
+        ).with_backend_progress(export_progress_label).failure(
+            on_failure
+        ).run_in_background()
 
 
 class ApkgExporter(Exporter):
@@ -211,7 +211,7 @@ class ApkgExporter(Exporter):
 
     @staticmethod
     def export(mw: aqt.main.AnkiQt, options: Options) -> None:
-        QueryOpWithBackendProgress(
+        QueryOp(
             parent=mw,
             op=lambda col: col.export_anki_package(
                 out_path=options.out_path,
@@ -219,8 +219,13 @@ class ApkgExporter(Exporter):
                 with_scheduling=options.include_scheduling,
                 with_media=options.include_media,
             ),
-            success=lambda fut: tooltip(
-                tr.exporting_note_exported(count=fut), parent=mw
+            success=lambda count: tooltip(
+                tr.exporting_note_exported(count=count), parent=mw
             ),
-            key="exporting",
-        ).run_in_background()
+        ).with_backend_progress(export_progress_label).run_in_background()
+
+
+def export_progress_label(progress: Progress) -> str | None:
+    if not progress.HasField("exporting"):
+        return None
+    return tr.exporting_exported_media_file(count=progress.exporting)
