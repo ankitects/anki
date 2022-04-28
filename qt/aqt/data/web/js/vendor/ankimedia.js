@@ -91,6 +91,19 @@ class AnkiMediaQueue {
         this.delay = 0.3;
         this.playing_front.length = 0;
         this.playing_back.length = 0;
+
+        // // Pause all medias before resetting the state of the next card
+        // try {
+        //     for (let [filename, media] of this.medias) {
+        //         console.log(`filename ${filename}, media ${media}, 'pause' in media ${media && 'pause' in media}.`)
+        //         if( media && 'pause' in media ) {
+        //             media.pause();
+        //         }
+        //     }
+        // }
+        // finally {
+        // }
+
         this.replay_back_queue.length = 0;
         this.replay_front_queue.length = 0;
         this.other_medias.length = 0;

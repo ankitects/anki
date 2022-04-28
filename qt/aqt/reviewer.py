@@ -236,8 +236,8 @@ class Reviewer:
             self.mw.moveToState("overview")
             return
 
-        if self._reps is None:
-            self._initWeb()
+        # if self._reps is None:
+        self._initWeb()
 
         self._showQuestion()
 
@@ -345,6 +345,8 @@ class Reviewer:
         return self.typeAnsFilter(self.mw.prepare_card_text_for_display(buf))
 
     def _showQuestion(self) -> None:
+        self.web.eval("ankimedia._reset();")
+
         self._reps += 1
         self.state = "question"
         self.typedAnswer: str = None
@@ -370,7 +372,6 @@ class Reviewer:
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
         a = self.mw.col.media.escape_media_filenames(c.answer())
 
-        self.web.eval("ankimedia._reset();")
         if not c.autoplay():
             self.web.eval("ankimedia.autoplay = false;")
 
