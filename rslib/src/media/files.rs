@@ -241,18 +241,18 @@ fn split_and_truncate_filename(fname: &str, max_bytes: usize) -> (&str, &str) {
     };
 
     // cap extension to 10 bytes so stem_len can't be negative
-    ext = truncate_to_char_boundary(ext, 10);
+    ext = truncated_to_char_boundary(ext, 10);
 
     // cap stem, allowing for the . and a trailing _
     let stem_len = max_bytes - ext.len() - 2;
-    stem = truncate_to_char_boundary(stem, stem_len);
+    stem = truncated_to_char_boundary(stem, stem_len);
 
     (stem, ext)
 }
 
-/// Trim a string on a valid UTF8 boundary.
+/// Return a substring on a valid UTF8 boundary.
 /// Based on a funtion in the Rust stdlib.
-fn truncate_to_char_boundary(s: &str, mut max: usize) -> &str {
+fn truncated_to_char_boundary(s: &str, mut max: usize) -> &str {
     if max >= s.len() {
         s
     } else {

@@ -17,7 +17,10 @@ use crate::{
         ImportProgress,
     },
     prelude::*,
-    text::{replace_media_refs, strip_html_preserving_media_filenames, CowMapping},
+    text::{
+        replace_media_refs, strip_html_preserving_media_filenames, truncate_to_char_boundary,
+        CowMapping,
+    },
 };
 
 struct NoteContext<'a> {
@@ -73,7 +76,7 @@ impl Note {
                     let mut reduced = strip_html_preserving_media_filenames(&field)
                         .get_owned()
                         .unwrap_or(field);
-                    reduced.truncate(80);
+                    truncate_to_char_boundary(&mut reduced, 80);
                     reduced
                 })
                 .collect(),

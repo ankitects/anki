@@ -206,6 +206,17 @@ pub fn strip_html_for_tts(html: &str) -> Cow<str> {
         .map_cow(strip_html)
 }
 
+/// Truncate a String on a valid UTF8 boundary.
+pub(crate) fn truncate_to_char_boundary(s: &mut String, mut max: usize) {
+    if max >= s.len() {
+        return;
+    }
+    while !s.is_char_boundary(max) {
+        max -= 1;
+    }
+    s.truncate(max);
+}
+
 #[derive(Debug)]
 pub(crate) struct MediaRef<'a> {
     pub full_ref: &'a str,
@@ -588,5 +599,15 @@ mod test {
             .unwrap(),
             "<img src=spam>[sound:spam]<img src=baz.jpg>",
         );
+    }
+
+    #[test]
+    fn truncate() {
+        let mut s = "日本語".to_string();
+        truncate_to_char_boundary(&mut s, 6);
+        assert_eq!(&s, "日本");
+        let mut s = "日本語".to_string();
+        truncate_to_char_boundary(&mut s, 1);
+        assert_eq!(&s, "");
     }
 }
