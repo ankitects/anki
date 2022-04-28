@@ -87,8 +87,12 @@ def import_collection_package_op(
     def op(_: Collection) -> None:
         col_path = mw.pm.collectionPath()
         media_folder = os.path.join(mw.pm.profileFolder(), "collection.media")
+        media_db = os.path.join(mw.pm.profileFolder(), "collection.media.db2")
         mw.backend.import_collection_package(
-            col_path=col_path, backup_path=path, media_folder=media_folder
+            col_path=col_path,
+            backup_path=path,
+            media_folder=media_folder,
+            media_db=media_db,
         )
 
     return QueryOp(parent=mw, op=op, success=lambda _: success()).with_backend_progress(

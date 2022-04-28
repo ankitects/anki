@@ -8,8 +8,8 @@ use std::path::Path;
 use tempfile::tempdir;
 
 use crate::{
-    collection::CollectionBuilder, import_export::package::import_colpkg, media::MediaManager,
-    prelude::*,
+    collection::CollectionBuilder, import_export::package::import_colpkg, log::terminal,
+    media::MediaManager, prelude::*,
 };
 
 fn collection_with_media(dir: &Path, name: &str) -> Result<Collection> {
@@ -42,18 +42,25 @@ fn roundtrip() -> Result<()> {
         let col = collection_with_media(dir, name)?;
         let colpkg_name = dir.join(format!("{name}.colpkg"));
         col.export_colpkg(&colpkg_name, true, legacy, |_| Ok(()))?;
+
         // import into a new collection
         let anki2_name = dir
             .join(format!("{name}.anki2"))
             .to_string_lossy()
             .into_owned();
         let import_media_dir = dir.join(format!("{name}.media"));
+        std::fs::create_dir_all(&import_media_dir)?;
+        let import_media_db = dir.join(format!("{name}.mdb"));
+        MediaManager::new(&import_media_dir, &import_media_db)?;
         import_colpkg(
             &colpkg_name.to_string_lossy(),
             &anki2_name,
-            import_media_dir.to_str().unwrap(),
+            &import_media_dir,
+            &import_media_db,
             |_| Ok(()),
+            &terminal(),
         )?;
+
         // confirm collection imported
         let col = CollectionBuilder::new(&anki2_name).build()?;
         assert_eq!(

@@ -167,4 +167,21 @@ impl MediaManager {
         ChangeTracker::new(&self.media_folder, progress, log).register_changes(&mut dbctx)?;
         dbctx.all_checksums()
     }
+
+    pub fn checksum_getter(&self) -> impl FnMut(&str) -> Result<Option<Sha1Hash>> + '_ {
+        let mut dbctx = self.dbctx();
+        move |fname: &str| {
+            dbctx
+                .get_entry(fname)
+                .map(|opt| opt.and_then(|entry| entry.sha1))
+        }
+    }
+
+    pub fn register_changes(
+        &self,
+        progress: &mut impl FnMut(usize) -> bool,
+        log: &Logger,
+    ) -> Result<()> {
+        ChangeTracker::new(&self.media_folder, progress, log).register_changes(&mut self.dbctx())
+    }
 }

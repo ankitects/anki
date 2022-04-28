@@ -23,6 +23,7 @@ message ImportCollectionPackageRequest {
   string col_path = 1;
   string backup_path = 2;
   string media_folder = 3;
+  string media_db = 4;
 }
 
 message ExportCollectionPackageRequest {

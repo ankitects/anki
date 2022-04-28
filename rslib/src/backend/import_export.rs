@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::path::Path;
+
 use super::{progress::Progress, Backend};
 pub(super) use crate::backend_proto::importexport_service::Service as ImportExportService;
 use crate::{
@@ -42,8 +44,10 @@ impl ImportExportService for Backend {
         import_colpkg(
             &input.backup_path,
             &input.col_path,
-            &input.media_folder,
+            Path::new(&input.media_folder),
+            Path::new(&input.media_db),
             self.import_progress_fn(),
+            &self.log,
         )
         .map(Into::into)
     }

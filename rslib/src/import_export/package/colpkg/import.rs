@@ -21,14 +21,17 @@ use crate::{
         ImportProgress, IncrementalProgress,
     },
     io::{atomic_rename, tempfile_in_parent_of},
+    media::MediaManager,
     prelude::*,
 };
 
 pub fn import_colpkg(
     colpkg_path: &str,
     target_col_path: &str,
-    target_media_folder: &str,
+    target_media_folder: &Path,
+    media_db: &Path,
     mut progress_fn: impl FnMut(ImportProgress) -> Result<()>,
+    log: &Logger,
 ) -> Result<()> {
     progress_fn(ImportProgress::Collection)?;
     let col_path = PathBuf::from(target_col_path);
@@ -43,8 +46,14 @@ pub fn import_colpkg(
     check_collection_and_mod_schema(tempfile.path())?;
     progress_fn(ImportProgress::Collection)?;
 
-    let media_folder = Path::new(target_media_folder);
-    restore_media(&meta, progress_fn, &mut archive, media_folder)?;
+    restore_media(
+        &meta,
+        progress_fn,
+        &mut archive,
+        target_media_folder,
+        media_db,
+        log,
+    )?;
 
     atomic_rename(tempfile, &col_path, true)
 }
@@ -70,14 +79,26 @@ fn restore_media(
     mut progress_fn: impl FnMut(ImportProgress) -> Result<()>,
     archive: &mut ZipArchive<File>,
     media_folder: &Path,
+    media_db: &Path,
+    log: &Logger,
 ) -> Result<()> {
     let media_entries = extract_media_entries(meta, archive)?;
+    if media_entries.is_empty() {
+        return Ok(());
+    }
+
     std::fs::create_dir_all(media_folder)?;
+
+    let media_manager = MediaManager::new(media_folder, media_db)?;
+    let mut db_progress_fn = |u| progress_fn(ImportProgress::MediaCheck(u)).is_ok();
+    media_manager.register_changes(&mut db_progress_fn, log)?;
+
+    let mut get_checksum = media_manager.checksum_getter();
     let mut progress = IncrementalProgress::new(|u| progress_fn(ImportProgress::Media(u)));
 
     for entry in &media_entries {
         progress.increment()?;
-        maybe_restore_media_file(meta, media_folder, archive, entry)?;
+        maybe_restore_media_file(meta, media_folder, archive, entry, &mut get_checksum)?;
     }
 
     Ok(())
@@ -88,10 +109,11 @@ fn maybe_restore_media_file(
     media_folder: &Path,
     archive: &mut ZipArchive<File>,
     entry: &SafeMediaEntry,
+    get_checksum: &mut impl FnMut(&str) -> Result<Option<Sha1Hash>>,
 ) -> Result<()> {
     let file_path = entry.file_path(media_folder);
     let mut zip_file = entry.fetch_file(archive)?;
-    let already_exists = entry.is_equal_to(meta, &zip_file, &file_path);
+    let already_exists = entry.is_equal_to(meta, &zip_file, &file_path, get_checksum)?;
     if !already_exists {
         restore_media_file(meta, &mut zip_file, &file_path)?;
     };
