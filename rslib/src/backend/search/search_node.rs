@@ -99,7 +99,7 @@ impl TryFrom<pb::SearchNode> for Node {
                     }
                 }
                 Filter::Field(field) => Node::Search(SearchNode::SingleField {
-                    field: escape_anki_wildcards_for_search_node(&field.field_name),
+                    field: escape_anki_wildcards(&field.field_name),
                     text: escape_anki_wildcards(&field.text),
                     is_re: field.is_re,
                 }),
