@@ -45,7 +45,7 @@ class ExportDialog(QDialog):
         self.nids = nids
         disable_help_button(self)
         self.setup(did)
-        self.exec()
+        self.open()
 
     def setup(self, did: DeckId | None) -> None:
         self.exporters: list[Type[Exporter]] = [ApkgExporter, ColpkgExporter]
