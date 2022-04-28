@@ -3,7 +3,8 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+from itertools import chain
+from typing import Any
 
 import aqt.main
 from anki.collection import Collection, ImportLogWithChanges, Progress
@@ -105,26 +106,36 @@ def import_anki_package(mw: aqt.main.AnkiQt, path: str) -> None:
 
 
 def show_import_log(log_with_changes: ImportLogWithChanges) -> None:
-    log = log_with_changes.log  # type: ignore
+    showText(stringify_log(log_with_changes.log), plain_text_edit=True)
+
+
+def stringify_log(log: Any) -> str:
     total = len(log.conflicting) + len(log.updated) + len(log.new) + len(log.duplicate)
-
-    text = f"""{tr.importing_notes_found_in_file(val=total)}
-{tr.importing_notes_that_could_not_be_imported(val=len(log.conflicting))}
-{tr.importing_notes_updated_as_file_had_newer(val=len(log.updated))}
-{tr.importing_notes_added_from_file(val=len(log.new))}
-{tr.importing_notes_skipped_as_theyre_already_in(val=len(log.duplicate))}
-
-{log_rows(log.conflicting, tr.importing_skipped())}
-{log_rows(log.updated, tr.importing_updated())}
-{log_rows(log.new, tr.adding_added())}
-{log_rows(log.duplicate, tr.importing_identical())}
-    """
-
-    showText(text, plain_text_edit=True)
-
-
-def log_rows(rows: Sequence, action: str) -> str:
-    return "\n".join(f"[{action}] {', '.join(note.fields)}" for note in rows)
+    return "\n".join(
+        chain(
+            (tr.importing_notes_found_in_file(val=total), ""),
+            (
+                template_string(val=len(row))
+                for (row, template_string) in (
+                    (log.conflicting, tr.importing_notes_that_could_not_be_imported),
+                    (log.updated, tr.importing_notes_updated_as_file_had_newer),
+                    (log.new, tr.importing_notes_added_from_file),
+                    (log.duplicate, tr.importing_notes_skipped_as_theyre_already_in),
+                )
+                if row
+            ),
+            ("",),
+            *(
+                (f"[{action}] {', '.join(note.fields)}" for note in rows)
+                for (rows, action) in (
+                    (log.conflicting, tr.importing_skipped()),
+                    (log.updated, tr.importing_updated()),
+                    (log.new, tr.adding_added()),
+                    (log.duplicate, tr.importing_identical()),
+                )
+            ),
+        )
+    )
 
 
 def import_progress_label(progress: Progress) -> str | None:
