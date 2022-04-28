@@ -68,6 +68,7 @@ class ExportDialog(QDialog):
             name = self.mw.col.decks.get(did)["name"]
             index = self.frm.deck.findText(name)
             self.frm.deck.setCurrentIndex(index)
+            self.frm.includeSched.setChecked(False)
 
     def exporter_changed(self, idx: int) -> None:
         self.exporter = self.exporters[idx]
