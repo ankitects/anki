@@ -10,6 +10,7 @@ import aqt.main
 from anki.collection import Collection, ImportLogWithChanges, Progress
 from anki.errors import Interrupted
 from aqt.operations import CollectionOp, QueryOp
+from aqt.progress import ProgressUpdate
 from aqt.qt import *
 from aqt.utils import askUser, getFile, showInfo, showText, showWarning, tooltip, tr
 
@@ -96,7 +97,7 @@ def import_collection_package_op(
         )
 
     return QueryOp(parent=mw, op=op, success=lambda _: success()).with_backend_progress(
-        import_progress_label
+        import_progress_update
     )
 
 
@@ -104,7 +105,7 @@ def import_anki_package(mw: aqt.main.AnkiQt, path: str) -> None:
     CollectionOp(
         parent=mw,
         op=lambda col: col.import_anki_package(path),
-    ).with_backend_progress(import_progress_label).success(
+    ).with_backend_progress(import_progress_update).success(
         show_import_log
     ).run_in_background()
 
@@ -142,5 +143,7 @@ def stringify_log(log: Any) -> str:
     )
 
 
-def import_progress_label(progress: Progress) -> str | None:
-    return progress.importing if progress.HasField("importing") else None
+def import_progress_update(progress: Progress) -> ProgressUpdate | None:
+    if progress.HasField("importing"):
+        return ProgressUpdate(label=progress.importing)
+    return None

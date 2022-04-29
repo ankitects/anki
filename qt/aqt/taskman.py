@@ -16,6 +16,7 @@ from typing import Any, Callable
 
 import aqt
 from anki.collection import Progress
+from aqt.progress import ProgressUpdate
 from aqt.qt import *
 
 Closure = Callable[[], None]
@@ -93,13 +94,13 @@ class TaskManager(QObject):
     def with_backend_progress(
         self,
         task: Callable,
-        label_from_progress: Callable[[Progress], str | None],
+        progress_update: Callable[[Progress], ProgressUpdate | None],
         on_done: Callable[[Future], None] | None = None,
         parent: QWidget | None = None,
         start_label: str | None = None,
     ) -> None:
         self.mw.progress.start_with_backend_updates(
-            label_from_progress,
+            progress_update,
             parent=parent,
             start_label=start_label,
         )

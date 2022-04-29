@@ -18,6 +18,7 @@ from anki.notes import NoteId
 from aqt import gui_hooks
 from aqt.errors import show_exception
 from aqt.operations import QueryOp
+from aqt.progress import ProgressUpdate
 from aqt.qt import *
 from aqt.utils import (
     checkInvalidFilename,
@@ -195,7 +196,7 @@ class ColpkgExporter(Exporter):
                 options.out_path, include_media=options.include_media, legacy=False
             ),
             success=on_success,
-        ).with_backend_progress(export_progress_label).failure(
+        ).with_backend_progress(export_progress_update).failure(
             on_failure
         ).run_in_background()
 
@@ -223,10 +224,12 @@ class ApkgExporter(Exporter):
             success=lambda count: tooltip(
                 tr.exporting_note_exported(count=count), parent=mw
             ),
-        ).with_backend_progress(export_progress_label).run_in_background()
+        ).with_backend_progress(export_progress_update).run_in_background()
 
 
-def export_progress_label(progress: Progress) -> str | None:
+def export_progress_update(progress: Progress) -> ProgressUpdate | None:
     if not progress.HasField("exporting"):
         return None
-    return tr.exporting_exported_media_file(count=progress.exporting)
+    return ProgressUpdate(
+        label=tr.exporting_exported_media_file(count=progress.exporting)
+    )

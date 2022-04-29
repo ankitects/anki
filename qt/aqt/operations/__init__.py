@@ -19,6 +19,7 @@ from anki.collection import (
     Progress,
 )
 from aqt.errors import show_exception
+from aqt.progress import ProgressUpdate
 from aqt.qt import QWidget
 
 
@@ -68,7 +69,7 @@ class CollectionOp(Generic[ResultWithChanges]):
 
     _success: Callable[[ResultWithChanges], Any] | None = None
     _failure: Callable[[Exception], Any] | None = None
-    _label_from_progress: Callable[[Progress], str | None] | None = None
+    _progress_update: Callable[[Progress], ProgressUpdate | None] | None = None
 
     def __init__(self, parent: QWidget, op: Callable[[Collection], ResultWithChanges]):
         self._parent = parent
@@ -87,9 +88,9 @@ class CollectionOp(Generic[ResultWithChanges]):
         return self
 
     def with_backend_progress(
-        self, label_from_progress: Callable[[Progress], str | None] | None
+        self, progress_update: Callable[[Progress], ProgressUpdate | None] | None
     ) -> CollectionOp[ResultWithChanges]:
-        self._label_from_progress = label_from_progress
+        self._progress_update = progress_update
         return self
 
     def run_in_background(self, *, initiator: object | None = None) -> None:
@@ -133,9 +134,9 @@ class CollectionOp(Generic[ResultWithChanges]):
         op: Callable[[], ResultWithChanges],
         on_done: Callable[[Future], None],
     ) -> None:
-        if self._label_from_progress:
+        if self._progress_update:
             mw.taskman.with_backend_progress(
-                op, self._label_from_progress, on_done=on_done, parent=self._parent
+                op, self._progress_update, on_done=on_done, parent=self._parent
             )
         else:
             mw.taskman.with_progress(op, on_done, parent=self._parent)
@@ -195,7 +196,7 @@ class QueryOp(Generic[T]):
 
     _failure: Callable[[Exception], Any] | None = None
     _progress: bool | str = False
-    _label_from_progress: Callable[[Progress], str | None] | None = None
+    _progress_update: Callable[[Progress], ProgressUpdate | None] | None = None
 
     def __init__(
         self,
@@ -221,9 +222,9 @@ class QueryOp(Generic[T]):
         return self
 
     def with_backend_progress(
-        self, label_from_progress: Callable[[Progress], str | None] | None
+        self, progress_update: Callable[[Progress], ProgressUpdate | None] | None
     ) -> QueryOp[T]:
-        self._label_from_progress = label_from_progress
+        self._progress_update = progress_update
         return self
 
     def run_in_background(self) -> None:
@@ -264,10 +265,10 @@ class QueryOp(Generic[T]):
         on_done: Callable[[Future], None],
     ) -> None:
         label = self._progress if isinstance(self._progress, str) else None
-        if self._label_from_progress:
+        if self._progress_update:
             mw.taskman.with_backend_progress(
                 op,
-                self._label_from_progress,
+                self._progress_update,
                 on_done=on_done,
                 start_label=label,
                 parent=self._parent,
