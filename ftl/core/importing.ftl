@@ -78,6 +78,7 @@ importing-processed-media-file =
        *[other] Imported { $count } media files
     }
 importing-importing-collection = Importing collection...
+importing-importing-file = Importing file...
 importing-failed-to-import-media-file = Failed to import media file: { $debugInfo }
 importing-processed-notes =
     { $count ->

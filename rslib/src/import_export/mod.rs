@@ -9,7 +9,7 @@ use crate::prelude::*;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ImportProgress {
-    Collection,
+    File,
     Media(usize),
     MediaCheck(usize),
     Notes(usize),

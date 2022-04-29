@@ -33,7 +33,7 @@ pub fn import_colpkg(
     mut progress_fn: impl FnMut(ImportProgress) -> Result<()>,
     log: &Logger,
 ) -> Result<()> {
-    progress_fn(ImportProgress::Collection)?;
+    progress_fn(ImportProgress::File)?;
     let col_path = PathBuf::from(target_col_path);
     let mut tempfile = tempfile_in_parent_of(&col_path)?;
 
@@ -42,9 +42,9 @@ pub fn import_colpkg(
     let meta = Meta::from_archive(&mut archive)?;
 
     copy_collection(&mut archive, &mut tempfile, &meta)?;
-    progress_fn(ImportProgress::Collection)?;
+    progress_fn(ImportProgress::File)?;
     check_collection_and_mod_schema(tempfile.path())?;
-    progress_fn(ImportProgress::Collection)?;
+    progress_fn(ImportProgress::File)?;
 
     restore_media(
         &meta,
