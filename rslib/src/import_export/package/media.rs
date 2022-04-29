@@ -25,7 +25,6 @@ use crate::{
 /// Like [MediaEntry], but with a safe filename and set zip filename.
 pub(super) struct SafeMediaEntry {
     pub(super) name: String,
-    #[allow(dead_code)]
     pub(super) size: u32,
     pub(super) sha1: Sha1Hash,
     pub(super) index: usize,
@@ -86,19 +85,15 @@ impl SafeMediaEntry {
             .map_err(|_| AnkiError::invalid_input(&format!("{} missing from archive", self.index)))
     }
 
-    pub(super) fn is_equal_to(
+    pub(super) fn has_checksum_equal_to(
         &self,
-        meta: &Meta,
-        self_zipped: &ZipFile,
-        other_path: &Path,
         get_checksum: &mut impl FnMut(&str) -> Result<Option<Sha1Hash>>,
     ) -> Result<bool> {
-        if meta.media_list_is_hashmap() {
-            Ok(fs::metadata(other_path)
-                .map_or(false, |metadata| metadata.len() == self_zipped.size()))
-        } else {
-            get_checksum(&self.name).map(|opt| opt.map_or(false, |sha1| sha1 == self.sha1))
-        }
+        get_checksum(&self.name).map(|opt| opt.map_or(false, |sha1| sha1 == self.sha1))
+    }
+
+    pub(super) fn has_size_equal_to(&self, other_path: &Path) -> bool {
+        fs::metadata(other_path).map_or(false, |metadata| metadata.len() == self.size as u64)
     }
 
     pub(super) fn copy_from_archive(

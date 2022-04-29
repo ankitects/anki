@@ -48,7 +48,7 @@ pub fn import_colpkg(
 
     restore_media(
         &meta,
-        progress_fn,
+        &mut progress_fn,
         &mut archive,
         target_media_folder,
         media_db,
@@ -88,17 +88,13 @@ fn restore_media(
     }
 
     std::fs::create_dir_all(media_folder)?;
-
     let media_manager = MediaManager::new(media_folder, media_db)?;
-    let mut db_progress_fn = |u| progress_fn(ImportProgress::MediaCheck(u)).is_ok();
-    media_manager.register_changes(&mut db_progress_fn, log)?;
+    let mut media_comparer = MediaComparer::new(meta, &mut progress_fn, &media_manager, log)?;
 
-    let mut get_checksum = media_manager.checksum_getter();
     let mut progress = IncrementalProgress::new(|u| progress_fn(ImportProgress::Media(u)));
-
-    for entry in &media_entries {
+    for mut entry in media_entries {
         progress.increment()?;
-        maybe_restore_media_file(meta, media_folder, archive, entry, &mut get_checksum)?;
+        maybe_restore_media_file(meta, media_folder, archive, &mut entry, &mut media_comparer)?;
     }
 
     Ok(())
@@ -108,12 +104,16 @@ fn maybe_restore_media_file(
     meta: &Meta,
     media_folder: &Path,
     archive: &mut ZipArchive<File>,
-    entry: &SafeMediaEntry,
-    get_checksum: &mut impl FnMut(&str) -> Result<Option<Sha1Hash>>,
+    entry: &mut SafeMediaEntry,
+    media_comparer: &mut MediaComparer,
 ) -> Result<()> {
     let file_path = entry.file_path(media_folder);
     let mut zip_file = entry.fetch_file(archive)?;
-    let already_exists = entry.is_equal_to(meta, &zip_file, &file_path, get_checksum)?;
+    if meta.media_list_is_hashmap() {
+        entry.size = zip_file.size() as u32;
+    }
+
+    let already_exists = media_comparer.entry_is_equal_to(entry, &file_path)?;
     if !already_exists {
         restore_media_file(meta, &mut zip_file, &file_path)?;
     };
@@ -149,4 +149,32 @@ fn copy_collection(
     }
 
     Ok(())
+}
+
+#[allow(clippy::type_complexity)]
+struct MediaComparer<'a>(Option<Box<dyn FnMut(&str) -> Result<Option<Sha1Hash>> + 'a>>);
+
+impl<'a> MediaComparer<'a> {
+    fn new(
+        meta: &Meta,
+        mut progress_fn: impl FnMut(ImportProgress) -> Result<()>,
+        media_manager: &'a MediaManager,
+        log: &Logger,
+    ) -> Result<Self> {
+        Ok(Self(if meta.media_list_is_hashmap() {
+            None
+        } else {
+            let mut db_progress_fn = |u| progress_fn(ImportProgress::MediaCheck(u)).is_ok();
+            media_manager.register_changes(&mut db_progress_fn, log)?;
+            Some(Box::new(media_manager.checksum_getter()))
+        }))
+    }
+
+    fn entry_is_equal_to(&mut self, entry: &SafeMediaEntry, other_path: &Path) -> Result<bool> {
+        if let Some(ref mut get_checksum) = self.0 {
+            Ok(entry.has_checksum_equal_to(get_checksum)?)
+        } else {
+            Ok(entry.has_size_equal_to(other_path))
+        }
+    }
 }

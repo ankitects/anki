@@ -187,7 +187,7 @@ impl<'n> NoteContext<'n> {
     fn import_notes(&mut self, notes: Vec<Note>, progress_fn: &mut ProgressFn) -> Result<()> {
         let mut progress = IncrementalProgress::new(|u| progress_fn(ImportProgress::Notes(u)));
 
-        for mut note in notes.into_iter() {
+        for mut note in notes {
             progress.increment()?;
             if let Some(notetype_id) = self.remapped_notetypes.get(&note.notetype_id) {
                 if self.target_guids.contains_key(&note.guid) {
