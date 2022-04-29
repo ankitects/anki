@@ -1182,7 +1182,7 @@ title="{}" {}>{}</button>""".format(
     def onImport(self) -> None:
         import aqt.importing
 
-        if os.getenv("ANKI_BACKEND_IMPORT_EXPORT"):
+        if KeyboardModifiersPressed().shift:
             import_file(self)
         else:
             aqt.importing.onImport(self)
@@ -1190,7 +1190,7 @@ title="{}" {}>{}</button>""".format(
     def onExport(self, did: DeckId | None = None) -> None:
         import aqt.exporting
 
-        if os.getenv("ANKI_BACKEND_IMPORT_EXPORT"):
+        if KeyboardModifiersPressed().shift:
             ExportDialog(self, did=did)
         else:
             aqt.exporting.ExportDialog(self, did=did)
