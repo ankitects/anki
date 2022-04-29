@@ -10,11 +10,11 @@ use std::{
 
 use sha1::Sha1;
 
-use super::{media::MediaUseMap, Context, ProgressFn};
+use super::{media::MediaUseMap, Context};
 use crate::{
     import_export::{
         package::{media::safe_normalized_file_name, LogNote, NoteLog},
-        ImportProgress, IncrementalProgress,
+        ImportProgress, IncrementableProgress,
     },
     prelude::*,
     text::{
@@ -108,7 +108,7 @@ impl Context<'_> {
     ) -> Result<NoteImports> {
         let mut ctx = NoteContext::new(self.usn, self.target_col, media_map)?;
         ctx.import_notetypes(mem::take(&mut self.data.notetypes))?;
-        ctx.import_notes(mem::take(&mut self.data.notes), self.progress_fn)?;
+        ctx.import_notes(mem::take(&mut self.data.notes), &mut self.progress)?;
         Ok(ctx.imports)
     }
 }
@@ -184,8 +184,12 @@ impl<'n> NoteContext<'n> {
         Ok(())
     }
 
-    fn import_notes(&mut self, notes: Vec<Note>, progress_fn: &mut ProgressFn) -> Result<()> {
-        let mut progress = IncrementalProgress::new(|u| progress_fn(ImportProgress::Notes(u)));
+    fn import_notes(
+        &mut self,
+        notes: Vec<Note>,
+        progress: &mut IncrementableProgress<ImportProgress>,
+    ) -> Result<()> {
+        progress.set_count_map(ImportProgress::Notes);
 
         for mut note in notes {
             progress.increment()?;
@@ -325,14 +329,14 @@ mod test {
             let mut media_map = MediaUseMap::default();
             let mut ctx = NoteContext::new(Usn(1), &mut $col, &mut media_map).unwrap();
             ctx.remapped_notetypes.insert($old_notetype, $new_notetype);
-            ctx.import_notes(vec![$note], &mut |_progress| Ok(()))
-                .unwrap();
+            let mut progress = IncrementableProgress::new(|_, _| true);
+            ctx.import_notes(vec![$note], &mut progress).unwrap();
             ctx.imports.log
         }};
         ($col:expr, $note:expr, $media_map:expr) => {{
             let mut ctx = NoteContext::new(Usn(1), &mut $col, &mut $media_map).unwrap();
-            ctx.import_notes(vec![$note], &mut |_progress| Ok(()))
-                .unwrap();
+            let mut progress = IncrementableProgress::new(|_, _| true);
+            ctx.import_notes(vec![$note], &mut progress).unwrap();
             ctx.imports.log
         }};
         ($col:expr, $note:expr) => {{

@@ -19,13 +19,11 @@ use crate::{
     import_export::{
         gather::ExchangeData,
         package::{Meta, NoteLog},
-        ImportProgress,
+        ImportProgress, IncrementableProgress,
     },
     prelude::*,
     search::SearchNode,
 };
-
-type ProgressFn = dyn FnMut(ImportProgress) -> Result<()>;
 
 struct Context<'a> {
     target_col: &'a mut Collection,
@@ -33,16 +31,15 @@ struct Context<'a> {
     meta: Meta,
     data: ExchangeData,
     usn: Usn,
-    progress_fn: &'a mut ProgressFn,
+    progress: IncrementableProgress<ImportProgress>,
 }
 
 impl Collection {
     pub fn import_apkg(
         &mut self,
         path: impl AsRef<Path>,
-        progress_fn: &mut ProgressFn,
+        progress_fn: impl 'static + FnMut(ImportProgress, bool) -> bool,
     ) -> Result<OpOutput<NoteLog>> {
-        progress_fn(ImportProgress::File)?;
         let file = File::open(path)?;
         let archive = ZipArchive::new(file)?;
 
@@ -57,8 +54,9 @@ impl<'a> Context<'a> {
     fn new(
         mut archive: ZipArchive<File>,
         target_col: &'a mut Collection,
-        progress_fn: &'a mut ProgressFn,
+        progress_fn: impl 'static + FnMut(ImportProgress, bool) -> bool,
     ) -> Result<Self> {
+        let progress = IncrementableProgress::new(progress_fn);
         let meta = Meta::from_archive(&mut archive)?;
         let data = ExchangeData::gather_from_archive(
             &mut archive,
@@ -73,13 +71,13 @@ impl<'a> Context<'a> {
             meta,
             data,
             usn,
-            progress_fn,
+            progress,
         })
     }
 
     fn import(&mut self) -> Result<NoteLog> {
         let mut media_map = self.prepare_media()?;
-        (self.progress_fn)(ImportProgress::File)?;
+        self.progress.call(ImportProgress::File)?;
         let note_imports = self.import_notes_and_notetypes(&mut media_map)?;
         let imported_decks = self.import_decks_and_configs()?;
         self.import_cards_and_revlog(&note_imports.id_map, &imported_decks)?;

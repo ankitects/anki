@@ -22,6 +22,7 @@ use zstd::{
 use super::super::{MediaEntries, MediaEntry, Meta, Version};
 use crate::{
     collection::CollectionBuilder,
+    import_export::IncrementableProgress,
     io::{atomic_rename, read_dir_files, tempfile_in_parent_of},
     media::files::filename_if_normalized,
     prelude::*,
@@ -39,8 +40,9 @@ impl Collection {
         out_path: impl AsRef<Path>,
         include_media: bool,
         legacy: bool,
-        progress_fn: impl FnMut(usize) -> Result<()>,
+        progress_fn: impl 'static + FnMut(usize, bool) -> bool,
     ) -> Result<()> {
+        let mut progress = IncrementableProgress::new(progress_fn);
         let colpkg_name = out_path.as_ref();
         let temp_colpkg = tempfile_in_parent_of(colpkg_name)?;
         let src_path = self.col_path.clone();
@@ -62,7 +64,7 @@ impl Collection {
             src_media_folder,
             legacy,
             &tr,
-            progress_fn,
+            &mut progress,
         )?;
         atomic_rename(temp_colpkg, colpkg_name, true)
     }
@@ -103,7 +105,7 @@ fn export_collection_file(
     media_dir: Option<PathBuf>,
     legacy: bool,
     tr: &I18n,
-    progress_fn: impl FnMut(usize) -> Result<()>,
+    progress: &mut IncrementableProgress<usize>,
 ) -> Result<()> {
     let meta = if legacy {
         Meta::new_legacy()
@@ -118,15 +120,7 @@ fn export_collection_file(
         MediaIter::empty()
     };
 
-    export_collection(
-        meta,
-        out_path,
-        &mut col_file,
-        col_size,
-        media,
-        tr,
-        progress_fn,
-    )
+    export_collection(meta, out_path, &mut col_file, col_size, media, tr, progress)
 }
 
 /// Write copied collection data without any media.
@@ -143,7 +137,7 @@ pub(crate) fn export_colpkg_from_data(
         col_size,
         MediaIter::empty(),
         tr,
-        |_| Ok(()),
+        &mut IncrementableProgress::new(|_, _| true),
     )
 }
 
@@ -154,7 +148,7 @@ pub(crate) fn export_collection(
     col_size: usize,
     media: MediaIter,
     tr: &I18n,
-    progress_fn: impl FnMut(usize) -> Result<()>,
+    progress: &mut IncrementableProgress<usize>,
 ) -> Result<()> {
     let out_file = File::create(&out_path)?;
     let mut zip = ZipWriter::new(out_file);
@@ -165,7 +159,7 @@ pub(crate) fn export_collection(
     zip.write_all(&meta_bytes)?;
     write_collection(&meta, &mut zip, col, col_size)?;
     write_dummy_collection(&mut zip, tr)?;
-    write_media(&meta, &mut zip, media, progress_fn)?;
+    write_media(&meta, &mut zip, media, progress)?;
     zip.finish()?;
 
     Ok(())
@@ -240,10 +234,10 @@ fn write_media(
     meta: &Meta,
     zip: &mut ZipWriter<File>,
     media: MediaIter,
-    progress_fn: impl FnMut(usize) -> Result<()>,
+    progress: &mut IncrementableProgress<usize>,
 ) -> Result<()> {
     let mut media_entries = vec![];
-    write_media_files(meta, zip, media, &mut media_entries, progress_fn)?;
+    write_media_files(meta, zip, media, &mut media_entries, progress)?;
     write_media_map(meta, media_entries, zip)?;
     Ok(())
 }
@@ -284,12 +278,12 @@ fn write_media_files(
     zip: &mut ZipWriter<File>,
     media: MediaIter,
     media_entries: &mut Vec<MediaEntry>,
-    mut progress_fn: impl FnMut(usize) -> Result<()>,
+    progress: &mut IncrementableProgress<usize>,
 ) -> Result<()> {
     let mut copier = MediaCopier::new(meta);
     for (index, res) in media.0.enumerate() {
+        progress.increment_flat()?;
         let path = res?;
-        progress_fn(index)?;
 
         zip.start_file(index.to_string(), file_options_stored())?;
 

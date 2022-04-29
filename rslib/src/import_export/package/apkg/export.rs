@@ -16,6 +16,7 @@ use crate::{
             colpkg::export::{export_collection, MediaIter},
             Meta,
         },
+        IncrementableProgress,
     },
     io::{atomic_rename, tempfile_in_parent_of},
     prelude::*,
@@ -32,8 +33,9 @@ impl Collection {
         with_media: bool,
         legacy: bool,
         media_fn: Option<Box<dyn FnOnce(HashSet<PathBuf>) -> MediaIter>>,
-        progress_fn: impl FnMut(usize) -> Result<()>,
+        progress_fn: impl 'static + FnMut(usize, bool) -> bool,
     ) -> Result<usize> {
+        let mut progress = IncrementableProgress::new(progress_fn);
         let temp_apkg = tempfile_in_parent_of(out_path.as_ref())?;
         let mut temp_col = NamedTempFile::new()?;
         let temp_col_path = temp_col
@@ -67,7 +69,7 @@ impl Collection {
             col_size,
             media,
             &self.tr,
-            progress_fn,
+            &mut progress,
         )?;
         atomic_rename(temp_apkg, out_path.as_ref(), true)?;
         Ok(data.notes.len())

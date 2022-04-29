@@ -12,7 +12,7 @@ use crate::{
             media::{extract_media_entries, SafeMediaEntry},
             Meta,
         },
-        ImportProgress, IncrementalProgress,
+        ImportProgress, IncrementableProgress,
     },
     media::{
         files::{add_hash_suffix_to_file_stem, sha1_of_reader},
@@ -34,21 +34,22 @@ pub(super) struct MediaUseMap {
 
 impl Context<'_> {
     pub(super) fn prepare_media(&mut self) -> Result<MediaUseMap> {
-        let progress_fn = |u| (&mut self.progress_fn)(ImportProgress::MediaCheck(u)).is_ok();
-        let existing_sha1s = self.target_col.all_existing_sha1s(progress_fn)?;
+        self.progress.set_count_map(ImportProgress::MediaCheck);
+        let existing_sha1s = self
+            .target_col
+            .all_existing_sha1s(self.progress.get_inner()?)?;
         prepare_media(
             &self.meta,
             &mut self.archive,
             &existing_sha1s,
-            &mut self.progress_fn,
+            &mut self.progress,
         )
     }
 
     pub(super) fn copy_media(&mut self, media_map: &mut MediaUseMap) -> Result<()> {
-        let mut progress =
-            IncrementalProgress::new(|u| (&mut self.progress_fn)(ImportProgress::Media(u)));
+        self.progress.set_count_map(ImportProgress::Media);
         for entry in media_map.used_entries() {
-            progress.increment()?;
+            self.progress.increment()?;
             entry.copy_from_archive(&mut self.archive, &self.target_col.media_folder)?;
         }
         Ok(())
@@ -69,10 +70,10 @@ fn prepare_media(
     meta: &Meta,
     archive: &mut ZipArchive<File>,
     existing_sha1s: &HashMap<String, Sha1Hash>,
-    progress_fn: &mut impl FnMut(ImportProgress) -> Result<()>,
+    progress: &mut IncrementableProgress<ImportProgress>,
 ) -> Result<MediaUseMap> {
     let mut media_map = MediaUseMap::default();
-    let mut progress = IncrementalProgress::new(|u| progress_fn(ImportProgress::MediaCheck(u)));
+    progress.set_count_map(ImportProgress::MediaCheck);
 
     for mut entry in extract_media_entries(meta, archive)? {
         progress.increment()?;

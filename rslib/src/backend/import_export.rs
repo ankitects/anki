@@ -56,7 +56,7 @@ impl ImportExportService for Backend {
         &self,
         input: pb::ImportAnkiPackageRequest,
     ) -> Result<pb::ImportAnkiPackageResponse> {
-        self.with_col(|col| col.import_apkg(&input.package_path, &mut self.import_progress_fn()))
+        self.with_col(|col| col.import_apkg(&input.package_path, self.import_progress_fn()))
             .map(Into::into)
     }
 
@@ -90,30 +90,14 @@ impl SearchNode {
 }
 
 impl Backend {
-    fn import_progress_fn(&self) -> impl FnMut(ImportProgress) -> Result<()> {
+    fn import_progress_fn(&self) -> impl FnMut(ImportProgress, bool) -> bool {
         let mut handler = self.new_progress_handler();
-        move |progress| {
-            let throttle = matches!(
-                progress,
-                ImportProgress::Media(_) | ImportProgress::Notes(_)
-            );
-            if handler.update(Progress::Import(progress), throttle) {
-                Ok(())
-            } else {
-                Err(AnkiError::Interrupted)
-            }
-        }
+        move |progress, throttle| handler.update(Progress::Import(progress), throttle)
     }
 
-    fn export_progress_fn(&self) -> impl FnMut(usize) -> Result<()> {
+    fn export_progress_fn(&self) -> impl FnMut(usize, bool) -> bool {
         let mut handler = self.new_progress_handler();
-        move |media_files| {
-            if handler.update(Progress::Export(media_files), true) {
-                Ok(())
-            } else {
-                Err(AnkiError::Interrupted)
-            }
-        }
+        move |progress, throttle| handler.update(Progress::Export(progress), throttle)
     }
 }
 

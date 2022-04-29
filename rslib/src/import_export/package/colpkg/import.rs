@@ -18,7 +18,7 @@ use crate::{
             media::{extract_media_entries, SafeMediaEntry},
             Meta,
         },
-        ImportProgress, IncrementalProgress,
+        ImportProgress, IncrementableProgress,
     },
     io::{atomic_rename, tempfile_in_parent_of},
     media::MediaManager,
@@ -30,10 +30,11 @@ pub fn import_colpkg(
     target_col_path: &str,
     target_media_folder: &Path,
     media_db: &Path,
-    mut progress_fn: impl FnMut(ImportProgress) -> Result<()>,
+    progress_fn: impl 'static + FnMut(ImportProgress, bool) -> bool,
     log: &Logger,
 ) -> Result<()> {
-    progress_fn(ImportProgress::File)?;
+    let mut progress = IncrementableProgress::new(progress_fn);
+    progress.call(ImportProgress::File)?;
     let col_path = PathBuf::from(target_col_path);
     let mut tempfile = tempfile_in_parent_of(&col_path)?;
 
@@ -42,13 +43,13 @@ pub fn import_colpkg(
     let meta = Meta::from_archive(&mut archive)?;
 
     copy_collection(&mut archive, &mut tempfile, &meta)?;
-    progress_fn(ImportProgress::File)?;
+    progress.call(ImportProgress::File)?;
     check_collection_and_mod_schema(tempfile.path())?;
-    progress_fn(ImportProgress::File)?;
+    progress.call(ImportProgress::File)?;
 
     restore_media(
         &meta,
-        &mut progress_fn,
+        &mut progress,
         &mut archive,
         target_media_folder,
         media_db,
@@ -76,7 +77,7 @@ fn check_collection_and_mod_schema(col_path: &Path) -> Result<()> {
 
 fn restore_media(
     meta: &Meta,
-    mut progress_fn: impl FnMut(ImportProgress) -> Result<()>,
+    progress: &mut IncrementableProgress<ImportProgress>,
     archive: &mut ZipArchive<File>,
     media_folder: &Path,
     media_db: &Path,
@@ -89,9 +90,9 @@ fn restore_media(
 
     std::fs::create_dir_all(media_folder)?;
     let media_manager = MediaManager::new(media_folder, media_db)?;
-    let mut media_comparer = MediaComparer::new(meta, &mut progress_fn, &media_manager, log)?;
+    let mut media_comparer = MediaComparer::new(meta, progress, &media_manager, log)?;
 
-    let mut progress = IncrementalProgress::new(|u| progress_fn(ImportProgress::Media(u)));
+    progress.set_count_map(ImportProgress::Media);
     for mut entry in media_entries {
         progress.increment()?;
         maybe_restore_media_file(meta, media_folder, archive, &mut entry, &mut media_comparer)?;
@@ -157,15 +158,14 @@ struct MediaComparer<'a>(Option<Box<dyn FnMut(&str) -> Result<Option<Sha1Hash>> 
 impl<'a> MediaComparer<'a> {
     fn new(
         meta: &Meta,
-        mut progress_fn: impl FnMut(ImportProgress) -> Result<()>,
+        progress: &mut IncrementableProgress<ImportProgress>,
         media_manager: &'a MediaManager,
         log: &Logger,
     ) -> Result<Self> {
         Ok(Self(if meta.media_list_is_hashmap() {
             None
         } else {
-            let mut db_progress_fn = |u| progress_fn(ImportProgress::MediaCheck(u)).is_ok();
-            media_manager.register_changes(&mut db_progress_fn, log)?;
+            media_manager.register_changes(&mut progress.get_inner()?, log)?;
             Some(Box::new(media_manager.checksum_getter()))
         }))
     }

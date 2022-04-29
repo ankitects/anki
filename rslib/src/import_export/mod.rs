@@ -15,23 +15,84 @@ pub enum ImportProgress {
     Notes(usize),
 }
 
-pub(crate) struct IncrementalProgress<F: FnMut(usize) -> Result<()>> {
-    progress_fn: F,
-    counter: usize,
+/// Wrapper around a progress function, usually passed by the [crate::backend::Backend],
+/// to make repeated calls more ergonomic.
+pub(crate) struct IncrementableProgress<P> {
+    progress_fn: Box<dyn FnMut(P, bool) -> bool>,
+    count_map: Option<Box<dyn FnMut(usize) -> P>>,
+    count: usize,
 }
 
-impl<F: FnMut(usize) -> Result<()>> IncrementalProgress<F> {
-    pub(crate) fn new(progress_fn: F) -> Self {
+const UPDATE_INTERVAL: usize = 17;
+
+impl<P> IncrementableProgress<P> {
+    /// `progress_fn: (progress, throttle) -> should_continue`
+    pub(crate) fn new(progress_fn: impl 'static + FnMut(P, bool) -> bool) -> Self {
         Self {
-            progress_fn,
-            counter: 0,
+            progress_fn: Box::new(progress_fn),
+            count_map: None,
+            count: 0,
         }
     }
 
+    /// Resets the count, and defines how it should be mapped to a progress value
+    /// in the future.
+    pub(crate) fn set_count_map(&mut self, count_map: impl 'static + FnMut(usize) -> P) {
+        self.count_map = Some(Box::new(count_map));
+        self.count = 0;
+    }
+
+    /// Increment the progress counter, periodically triggering an update.
+    /// Returns [AnkiError::Interrupted] if the operation should be cancelled.
+    /// Must have called `set_count_map()` before calling this.
     pub(crate) fn increment(&mut self) -> Result<()> {
-        self.counter += 1;
-        if self.counter % 17 == 0 {
-            (self.progress_fn)(self.counter)
+        self.count += 1;
+        if self.count % UPDATE_INTERVAL != 0 {
+            return Ok(());
+        }
+        let progress = self.mapped_progress()?;
+        self.update(progress, true)
+    }
+
+    /// Manually trigger an update.
+    /// Returns [AnkiError::Interrupted] if the operation should be cancelled.
+    pub(crate) fn call(&mut self, progress: P) -> Result<()> {
+        self.update(progress, false)
+    }
+
+    fn mapped_progress(&mut self) -> Result<P> {
+        if let Some(count_map) = self.count_map.as_mut() {
+            Ok(count_map(self.count))
+        } else {
+            Err(AnkiError::invalid_input("count_map not set"))
+        }
+    }
+
+    fn update(&mut self, progress: P, throttle: bool) -> Result<()> {
+        if (self.progress_fn)(progress, throttle) {
+            Ok(())
+        } else {
+            Err(AnkiError::Interrupted)
+        }
+    }
+
+    /// Stopgap for returning a progress fn compliant with the media code.
+    pub(crate) fn get_inner(&mut self) -> Result<impl FnMut(usize) -> bool + '_> {
+        let count_map = self
+            .count_map
+            .as_mut()
+            .ok_or_else(|| AnkiError::invalid_input("count_map not set"))?;
+        let progress_fn = &mut self.progress_fn;
+        Ok(move |count| progress_fn(count_map(count), true))
+    }
+}
+
+impl IncrementableProgress<usize> {
+    /// Allows incrementing without a map, if the progress is of type [usize].
+    pub(crate) fn increment_flat(&mut self) -> Result<()> {
+        self.count += 1;
+        if self.count % 17 == 0 {
+            self.update(self.count, true)
         } else {
             Ok(())
         }
