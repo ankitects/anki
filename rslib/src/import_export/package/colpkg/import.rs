@@ -152,8 +152,9 @@ fn copy_collection(
     Ok(())
 }
 
-#[allow(clippy::type_complexity)]
-struct MediaComparer<'a>(Option<Box<dyn FnMut(&str) -> Result<Option<Sha1Hash>> + 'a>>);
+type GetChecksumFn<'a> = dyn FnMut(&str) -> Result<Option<Sha1Hash>> + 'a;
+
+struct MediaComparer<'a>(Option<Box<GetChecksumFn<'a>>>);
 
 impl<'a> MediaComparer<'a> {
     fn new(
