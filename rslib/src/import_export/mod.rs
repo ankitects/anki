@@ -77,13 +77,11 @@ impl<P> IncrementableProgress<P> {
     }
 
     /// Stopgap for returning a progress fn compliant with the media code.
-    pub(crate) fn get_inner(&mut self) -> Result<impl FnMut(usize) -> bool + '_> {
-        let count_map = self
-            .count_map
-            .as_mut()
-            .ok_or_else(|| AnkiError::invalid_input("count_map not set"))?;
-        let progress_fn = &mut self.progress_fn;
-        Ok(move |count| progress_fn(count_map(count), true))
+    pub(crate) fn media_db_fn(
+        &mut self,
+        count_map: impl 'static + Fn(usize) -> P,
+    ) -> Result<impl FnMut(usize) -> bool + '_> {
+        Ok(move |count| (self.progress_fn)(count_map(count), true))
     }
 }
 

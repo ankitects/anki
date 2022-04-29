@@ -166,7 +166,8 @@ impl<'a> MediaComparer<'a> {
         Ok(Self(if meta.media_list_is_hashmap() {
             None
         } else {
-            media_manager.register_changes(&mut progress.get_inner()?, log)?;
+            let mut db_progress_fn = progress.media_db_fn(ImportProgress::MediaCheck)?;
+            media_manager.register_changes(&mut db_progress_fn, log)?;
             Some(Box::new(media_manager.checksum_getter()))
         }))
     }

@@ -34,10 +34,8 @@ pub(super) struct MediaUseMap {
 
 impl Context<'_> {
     pub(super) fn prepare_media(&mut self) -> Result<MediaUseMap> {
-        self.progress.set_count_map(ImportProgress::MediaCheck);
-        let existing_sha1s = self
-            .target_col
-            .all_existing_sha1s(self.progress.get_inner()?)?;
+        let db_progress_fn = self.progress.media_db_fn(ImportProgress::MediaCheck)?;
+        let existing_sha1s = self.target_col.all_existing_sha1s(db_progress_fn)?;
         prepare_media(
             &self.meta,
             &mut self.archive,
