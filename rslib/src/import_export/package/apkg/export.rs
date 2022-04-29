@@ -19,7 +19,6 @@ use crate::{
     },
     io::{atomic_rename, tempfile_in_parent_of},
     prelude::*,
-    storage::SchemaVersion,
 };
 
 impl Collection {
@@ -41,8 +40,18 @@ impl Collection {
             .path()
             .to_str()
             .ok_or_else(|| AnkiError::IoError("tempfile with non-unicode name".into()))?;
-        let data =
-            self.export_into_collection_file(temp_col_path, search, with_scheduling, with_media)?;
+        let meta = if legacy {
+            Meta::new_legacy()
+        } else {
+            Meta::new()
+        };
+        let data = self.export_into_collection_file(
+            &meta,
+            temp_col_path,
+            search,
+            with_scheduling,
+            with_media,
+        )?;
 
         let media = if let Some(media_fn) = media_fn {
             media_fn(data.media_paths)
@@ -52,11 +61,7 @@ impl Collection {
         let col_size = temp_col.as_file().metadata()?.len() as usize;
 
         export_collection(
-            if legacy {
-                Meta::new_legacy()
-            } else {
-                Meta::new()
-            },
+            meta,
             temp_apkg.path(),
             &mut temp_col,
             col_size,
@@ -70,6 +75,7 @@ impl Collection {
 
     fn export_into_collection_file(
         &mut self,
+        meta: &Meta,
         path: &str,
         search: impl TryIntoSearch,
         with_scheduling: bool,
@@ -85,7 +91,7 @@ impl Collection {
         temp_col.insert_data(&data)?;
         temp_col.set_creation_stamp(self.storage.creation_stamp()?)?;
         temp_col.set_creation_utc_offset(data.creation_utc_offset)?;
-        temp_col.close(Some(SchemaVersion::V11))?;
+        temp_col.close(Some(meta.schema_version()))?;
 
         Ok(data)
     }

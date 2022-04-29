@@ -7,7 +7,7 @@ use prost::Message;
 use zip::ZipArchive;
 
 pub(super) use crate::backend_proto::{package_metadata::Version, PackageMetadata as Meta};
-use crate::{error::ImportError, prelude::*};
+use crate::{error::ImportError, prelude::*, storage::SchemaVersion};
 
 impl Version {
     pub(super) fn collection_filename(&self) -> &'static str {
@@ -16,6 +16,16 @@ impl Version {
             Version::Legacy1 => "collection.anki2",
             Version::Legacy2 => "collection.anki21",
             Version::Latest => "collection.anki21b",
+        }
+    }
+
+    /// Latest schema version that is supported by all clients supporting
+    /// this package version.
+    pub(super) fn schema_version(&self) -> SchemaVersion {
+        match self {
+            Version::Unknown => unreachable!(),
+            Version::Legacy1 | Version::Legacy2 => SchemaVersion::V11,
+            Version::Latest => SchemaVersion::V18,
         }
     }
 }
@@ -60,6 +70,12 @@ impl Meta {
 
     pub(super) fn collection_filename(&self) -> &'static str {
         self.version().collection_filename()
+    }
+
+    /// Latest schema version that is supported by all clients supporting
+    /// this package version.
+    pub(super) fn schema_version(&self) -> SchemaVersion {
+        self.version().schema_version()
     }
 
     pub(super) fn zstd_compressed(&self) -> bool {
