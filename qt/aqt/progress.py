@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import time
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 
 import aqt.forms
 from anki._legacy import print_deprecation_warning
@@ -190,7 +190,7 @@ class ProgressManager:
                 return
             if dialog and dialog.wantCancel:
                 self.mw.backend.set_wants_abort()
-            self.update(**asdict(update))
+            self.update(label=update.label, value=update.value, max=update.max)
 
         qconnect(self._backend_timer.timeout, on_progress)
         self._backend_timer.start()
@@ -333,6 +333,4 @@ class ProgressDialog(QDialog):
 class ProgressUpdate:
     label: str | None = None
     value: int | None = None
-    process: bool = True
-    maybeShow: bool = True
     max: int | None = None
