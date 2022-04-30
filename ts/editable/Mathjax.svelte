@@ -23,13 +23,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { randomUUID } from "../lib/uuid";
     import { pageTheme } from "../sveltelib/theme";
-    import { convertMathjax } from "./mathjax";
+    import { convertMathjax, unescapeSomeEntities } from "./mathjax";
 
     export let mathjax: string;
     export let block: boolean;
     export let fontSize: number;
 
-    $: [converted, title] = convertMathjax(mathjax, $pageTheme.isDark, fontSize);
+    $: [converted, title] = convertMathjax(
+        unescapeSomeEntities(mathjax),
+        $pageTheme.isDark,
+        fontSize,
+    );
     $: empty = title === "MathJax";
     $: encoded = encodeURIComponent(converted);
 

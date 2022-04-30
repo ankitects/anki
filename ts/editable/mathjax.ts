@@ -65,3 +65,14 @@ export function convertMathjax(
 
     return [svg.outerHTML, title];
 }
+
+/**
+ * Escape characters which are technically legal in Mathjax, but confuse HTML.
+ */
+export function escapeSomeEntities(value: string): string {
+    return value.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+export function unescapeSomeEntities(value: string): string {
+    return value.replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+}

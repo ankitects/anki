@@ -87,13 +87,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             },
         );
     });
-
-    /**
-     * Escape characters which are technically legal in Mathjax, but confuse HTML.
-     */
-    export function escapeSomeEntities(value: string): string {
-        return value.replace(/</g, "{\\lt}").replace(/>/g, "{\\gt}");
-    }
 </script>
 
 <div class="mathjax-editor">
@@ -101,7 +94,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {code}
         {configuration}
         bind:api={codeMirror}
-        on:change={({ detail }) => code.set(escapeSomeEntities(detail))}
+        on:change={({ detail: mathjaxText }) => code.set(mathjaxText)}
         on:blur
     />
 </div>
