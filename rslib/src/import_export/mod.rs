@@ -5,6 +5,8 @@ mod gather;
 mod insert;
 pub mod package;
 
+use std::marker::PhantomData;
+
 use crate::prelude::*;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -17,59 +19,30 @@ pub enum ImportProgress {
 
 /// Wrapper around a progress function, usually passed by the [crate::backend::Backend],
 /// to make repeated calls more ergonomic.
-pub(crate) struct IncrementableProgress<P> {
-    progress_fn: Box<dyn FnMut(P, bool) -> bool>,
-    count_map: Option<Box<dyn FnMut(usize) -> P>>,
-    count: usize,
-    update_interval: usize,
-}
+pub(crate) struct IncrementableProgress<P>(Box<dyn FnMut(P, bool) -> bool>);
 
 impl<P> IncrementableProgress<P> {
     /// `progress_fn: (progress, throttle) -> should_continue`
     pub(crate) fn new(progress_fn: impl 'static + FnMut(P, bool) -> bool) -> Self {
-        Self {
-            progress_fn: Box::new(progress_fn),
-            count_map: None,
-            count: 0,
-            update_interval: 17,
-        }
+        Self(Box::new(progress_fn))
     }
 
-    /// Resets the count, and defines how it should be mapped to a progress value
-    /// in the future.
-    pub(crate) fn set_count_map(&mut self, count_map: impl 'static + FnMut(usize) -> P) {
-        self.count_map = Some(Box::new(count_map));
-        self.count = 0;
+    /// Returns an [Incrementor] with an `increment()` function for use in loops.
+    pub(crate) fn incrementor<'inc, 'progress: 'inc, 'map: 'inc>(
+        &'progress mut self,
+        mut count_map: impl 'map + FnMut(usize) -> P,
+    ) -> Incrementor<'inc, impl FnMut(usize) -> Result<()> + 'inc> {
+        Incrementor::new(move |u| self.update(count_map(u), true))
     }
 
-    /// Increment the progress counter, periodically triggering an update.
-    /// Returns [AnkiError::Interrupted] if the operation should be cancelled.
-    /// Must have called `set_count_map()` before calling this.
-    pub(crate) fn increment(&mut self) -> Result<()> {
-        self.count += 1;
-        if self.count % self.update_interval != 0 {
-            return Ok(());
-        }
-        let progress = self.mapped_progress()?;
-        self.update(progress, true)
-    }
-
-    /// Manually trigger an update.
+    /// Manually triggers an update.
     /// Returns [AnkiError::Interrupted] if the operation should be cancelled.
     pub(crate) fn call(&mut self, progress: P) -> Result<()> {
         self.update(progress, false)
     }
 
-    fn mapped_progress(&mut self) -> Result<P> {
-        if let Some(count_map) = self.count_map.as_mut() {
-            Ok(count_map(self.count))
-        } else {
-            Err(AnkiError::invalid_input("count_map not set"))
-        }
-    }
-
     fn update(&mut self, progress: P, throttle: bool) -> Result<()> {
-        if (self.progress_fn)(progress, throttle) {
+        if (self.0)(progress, throttle) {
             Ok(())
         } else {
             Err(AnkiError::Interrupted)
@@ -81,18 +54,34 @@ impl<P> IncrementableProgress<P> {
         &mut self,
         count_map: impl 'static + Fn(usize) -> P,
     ) -> Result<impl FnMut(usize) -> bool + '_> {
-        Ok(move |count| (self.progress_fn)(count_map(count), true))
+        Ok(move |count| (self.0)(count_map(count), true))
     }
 }
 
-impl IncrementableProgress<usize> {
-    /// Allows incrementing without a map, if the progress is of type [usize].
-    pub(crate) fn increment_flat(&mut self) -> Result<()> {
-        self.count += 1;
-        if self.count % 17 == 0 {
-            self.update(self.count, true)
-        } else {
-            Ok(())
+pub(crate) struct Incrementor<'f, F: 'f + FnMut(usize) -> Result<()>> {
+    update_fn: F,
+    count: usize,
+    update_interval: usize,
+    _phantom: PhantomData<&'f ()>,
+}
+
+impl<'f, F: 'f + FnMut(usize) -> Result<()>> Incrementor<'f, F> {
+    fn new(update_fn: F) -> Self {
+        Self {
+            update_fn,
+            count: 0,
+            update_interval: 17,
+            _phantom: PhantomData,
         }
+    }
+
+    /// Increments the progress counter, periodically triggering an update.
+    /// Returns [AnkiError::Interrupted] if the operation should be cancelled.
+    pub(crate) fn increment(&mut self) -> Result<()> {
+        self.count += 1;
+        if self.count % self.update_interval != 0 {
+            return Ok(());
+        }
+        (self.update_fn)(self.count)
     }
 }

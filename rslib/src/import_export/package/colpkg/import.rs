@@ -92,9 +92,9 @@ fn restore_media(
     let media_manager = MediaManager::new(media_folder, media_db)?;
     let mut media_comparer = MediaComparer::new(meta, progress, &media_manager, log)?;
 
-    progress.set_count_map(ImportProgress::Media);
+    let mut incrementor = progress.incrementor(ImportProgress::Media);
     for mut entry in media_entries {
-        progress.increment()?;
+        incrementor.increment()?;
         maybe_restore_media_file(meta, media_folder, archive, &mut entry, &mut media_comparer)?;
     }
 

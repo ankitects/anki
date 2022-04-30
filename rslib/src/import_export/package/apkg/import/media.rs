@@ -45,9 +45,9 @@ impl Context<'_> {
     }
 
     pub(super) fn copy_media(&mut self, media_map: &mut MediaUseMap) -> Result<()> {
-        self.progress.set_count_map(ImportProgress::Media);
+        let mut incrementor = self.progress.incrementor(ImportProgress::Media);
         for entry in media_map.used_entries() {
-            self.progress.increment()?;
+            incrementor.increment()?;
             entry.copy_from_archive(&mut self.archive, &self.target_col.media_folder)?;
         }
         Ok(())
@@ -71,10 +71,10 @@ fn prepare_media(
     progress: &mut IncrementableProgress<ImportProgress>,
 ) -> Result<MediaUseMap> {
     let mut media_map = MediaUseMap::default();
-    progress.set_count_map(ImportProgress::MediaCheck);
+    let mut incrementor = progress.incrementor(ImportProgress::MediaCheck);
 
     for mut entry in extract_media_entries(meta, archive)? {
-        progress.increment()?;
+        incrementor.increment()?;
 
         if entry.is_static() {
             if !existing_sha1s.contains_key(&entry.name) {

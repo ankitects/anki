@@ -189,10 +189,10 @@ impl<'n> NoteContext<'n> {
         notes: Vec<Note>,
         progress: &mut IncrementableProgress<ImportProgress>,
     ) -> Result<()> {
-        progress.set_count_map(ImportProgress::Notes);
+        let mut incrementor = progress.incrementor(ImportProgress::Notes);
 
         for mut note in notes {
-            progress.increment()?;
+            incrementor.increment()?;
             if let Some(notetype_id) = self.remapped_notetypes.get(&note.notetype_id) {
                 if self.target_guids.contains_key(&note.guid) {
                     self.imports.log_conflicting(note);

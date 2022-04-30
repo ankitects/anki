@@ -281,8 +281,9 @@ fn write_media_files(
     progress: &mut IncrementableProgress<usize>,
 ) -> Result<()> {
     let mut copier = MediaCopier::new(meta);
+    let mut incrementor = progress.incrementor(|u| u);
     for (index, res) in media.0.enumerate() {
-        progress.increment_flat()?;
+        incrementor.increment()?;
         let path = res?;
 
         zip.start_file(index.to_string(), file_options_stored())?;
