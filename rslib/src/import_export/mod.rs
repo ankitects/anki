@@ -21,9 +21,8 @@ pub(crate) struct IncrementableProgress<P> {
     progress_fn: Box<dyn FnMut(P, bool) -> bool>,
     count_map: Option<Box<dyn FnMut(usize) -> P>>,
     count: usize,
+    update_interval: usize,
 }
-
-const UPDATE_INTERVAL: usize = 17;
 
 impl<P> IncrementableProgress<P> {
     /// `progress_fn: (progress, throttle) -> should_continue`
@@ -32,6 +31,7 @@ impl<P> IncrementableProgress<P> {
             progress_fn: Box::new(progress_fn),
             count_map: None,
             count: 0,
+            update_interval: 17,
         }
     }
 
@@ -47,7 +47,7 @@ impl<P> IncrementableProgress<P> {
     /// Must have called `set_count_map()` before calling this.
     pub(crate) fn increment(&mut self) -> Result<()> {
         self.count += 1;
-        if self.count % UPDATE_INTERVAL != 0 {
+        if self.count % self.update_interval != 0 {
             return Ok(());
         }
         let progress = self.mapped_progress()?;
