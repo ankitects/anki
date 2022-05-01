@@ -143,7 +143,9 @@ def stringify_log(log: Any) -> str:
     )
 
 
-def import_progress_update(progress: Progress) -> ProgressUpdate | None:
-    if progress.HasField("importing"):
-        return ProgressUpdate(label=progress.importing)
-    return None
+def import_progress_update(progress: Progress, update: ProgressUpdate) -> None:
+    if not progress.HasField("importing"):
+        return
+    update.label = progress.importing
+    if update.user_wants_abort:
+        update.abort = True

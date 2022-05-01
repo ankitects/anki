@@ -227,9 +227,9 @@ class ApkgExporter(Exporter):
         ).with_backend_progress(export_progress_update).run_in_background()
 
 
-def export_progress_update(progress: Progress) -> ProgressUpdate | None:
+def export_progress_update(progress: Progress, update: ProgressUpdate) -> None:
     if not progress.HasField("exporting"):
         return None
-    return ProgressUpdate(
-        label=tr.exporting_exported_media_file(count=progress.exporting)
-    )
+    update.label = tr.exporting_exported_media_file(count=progress.exporting)
+    if update.user_wants_abort:
+        update.abort = True

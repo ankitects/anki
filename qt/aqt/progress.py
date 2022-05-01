@@ -171,7 +171,7 @@ class ProgressManager:
 
     def start_with_backend_updates(
         self,
-        progress_update: Callable[[Progress], ProgressUpdate | None],
+        progress_update: Callable[[Progress, ProgressUpdate], None],
         start_label: str | None = None,
         parent: QWidget | None = None,
     ) -> None:
@@ -185,12 +185,14 @@ class ProgressManager:
         def on_progress() -> None:
             assert self.mw
 
+            user_wants_abort = dialog and dialog.wantCancel or False
+            update = ProgressUpdate(user_wants_abort=user_wants_abort)
             progress = self.mw.backend.latest_progress()
-            if not (update := progress_update(progress)):
-                return
-            if dialog and dialog.wantCancel:
+            progress_update(progress, update)
+            if update.abort:
                 self.mw.backend.set_wants_abort()
-            self.update(label=update.label, value=update.value, max=update.max)
+            if update.has_update():
+                self.update(label=update.label, value=update.value, max=update.max)
 
         qconnect(self._backend_timer.timeout, on_progress)
         self._backend_timer.start()
@@ -334,3 +336,8 @@ class ProgressUpdate:
     label: str | None = None
     value: int | None = None
     max: int | None = None
+    user_wants_abort: bool = False
+    abort: bool = False
+
+    def has_update(self) -> bool:
+        return self.label is not None or self.value is not None or self.max is not None

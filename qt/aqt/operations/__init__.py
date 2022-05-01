@@ -69,7 +69,7 @@ class CollectionOp(Generic[ResultWithChanges]):
 
     _success: Callable[[ResultWithChanges], Any] | None = None
     _failure: Callable[[Exception], Any] | None = None
-    _progress_update: Callable[[Progress], ProgressUpdate | None] | None = None
+    _progress_update: Callable[[Progress, ProgressUpdate], None] | None = None
 
     def __init__(self, parent: QWidget, op: Callable[[Collection], ResultWithChanges]):
         self._parent = parent
@@ -88,7 +88,7 @@ class CollectionOp(Generic[ResultWithChanges]):
         return self
 
     def with_backend_progress(
-        self, progress_update: Callable[[Progress], ProgressUpdate | None] | None
+        self, progress_update: Callable[[Progress, ProgressUpdate], None] | None
     ) -> CollectionOp[ResultWithChanges]:
         self._progress_update = progress_update
         return self
@@ -196,7 +196,7 @@ class QueryOp(Generic[T]):
 
     _failure: Callable[[Exception], Any] | None = None
     _progress: bool | str = False
-    _progress_update: Callable[[Progress], ProgressUpdate | None] | None = None
+    _progress_update: Callable[[Progress, ProgressUpdate], None] | None = None
 
     def __init__(
         self,
@@ -222,7 +222,7 @@ class QueryOp(Generic[T]):
         return self
 
     def with_backend_progress(
-        self, progress_update: Callable[[Progress], ProgressUpdate | None] | None
+        self, progress_update: Callable[[Progress, ProgressUpdate], None] | None
     ) -> QueryOp[T]:
         self._progress_update = progress_update
         return self

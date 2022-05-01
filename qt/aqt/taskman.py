@@ -94,7 +94,7 @@ class TaskManager(QObject):
     def with_backend_progress(
         self,
         task: Callable,
-        progress_update: Callable[[Progress], ProgressUpdate | None],
+        progress_update: Callable[[Progress, ProgressUpdate], None],
         on_done: Callable[[Future], None] | None = None,
         parent: QWidget | None = None,
         start_label: str | None = None,
