@@ -11,7 +11,7 @@ import anki.importing as importing
 import aqt.deckchooser
 import aqt.forms
 import aqt.modelchooser
-from anki.importing.anki2 import V2ImportIntoV1
+from anki.importing.anki2 import MediaMapInvalid, V2ImportIntoV1
 from anki.importing.apkg import AnkiPackageImporter
 from aqt.import_export.importing import import_collection_package
 from aqt.main import AnkiQt, gui_hooks
@@ -388,6 +388,10 @@ def importFile(mw: AnkiQt, file: str) -> None:
                 future.result()
             except zipfile.BadZipfile:
                 showWarning(invalidZipMsg())
+            except MediaMapInvalid:
+                showWarning(
+                    "Unable to read file. It probably requires a newer version of Anki to import."
+                )
             except V2ImportIntoV1:
                 showWarning(
                     """\

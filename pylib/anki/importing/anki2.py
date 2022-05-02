@@ -25,6 +25,10 @@ class V2ImportIntoV1(Exception):
     pass
 
 
+class MediaMapInvalid(Exception):
+    pass
+
+
 class Anki2Importer(Importer):
 
     needMapper = False
