@@ -118,7 +118,7 @@ def stringify_log(log: Any) -> str:
     total = len(log.conflicting) + len(log.updated) + len(log.new) + len(log.duplicate)
     return "\n".join(
         chain(
-            (tr.importing_notes_found_in_file(val=total), ""),
+            (tr.importing_notes_found_in_file(val=total),),
             (
                 template_string(val=len(row))
                 for (row, template_string) in (
