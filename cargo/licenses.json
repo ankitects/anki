@@ -162,6 +162,15 @@
     "description": "Buffer type for block processing of data"
   },
   {
+    "name": "bstr",
+    "version": "0.2.17",
+    "authors": "Andrew Gallant <jamslam@gmail.com>",
+    "repository": "https://github.com/BurntSushi/bstr",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "description": "A string type that is not required to be valid UTF-8."
+  },
+  {
     "name": "bumpalo",
     "version": "3.9.1",
     "authors": "Nick Fitzgerald <fitzgen@gmail.com>",
@@ -286,6 +295,24 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "Common cryptographic traits"
+  },
+  {
+    "name": "csv",
+    "version": "1.1.6",
+    "authors": "Andrew Gallant <jamslam@gmail.com>",
+    "repository": "https://github.com/BurntSushi/rust-csv",
+    "license": "MIT OR Unlicense",
+    "license_file": null,
+    "description": "Fast CSV parsing with support for serde."
+  },
+  {
+    "name": "csv-core",
+    "version": "0.1.10",
+    "authors": "Andrew Gallant <jamslam@gmail.com>",
+    "repository": "https://github.com/BurntSushi/rust-csv",
+    "license": "MIT OR Unlicense",
+    "license_file": null,
+    "description": "Bare bones CSV parsing with no_std support."
   },
   {
     "name": "digest",
@@ -1555,6 +1582,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "description": "An implementation of regular expressions for Rust. This implementation uses finite automata and guarantees linear time matching on all inputs."
+  },
+  {
+    "name": "regex-automata",
+    "version": "0.1.10",
+    "authors": "Andrew Gallant <jamslam@gmail.com>",
+    "repository": "https://github.com/BurntSushi/regex-automata",
+    "license": "MIT OR Unlicense",
+    "license_file": null,
+    "description": "Automata construction and matching using regular expressions."
   },
   {
     "name": "regex-syntax",

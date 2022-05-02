@@ -100,3 +100,4 @@ unic-ucd-category = "0.9.0"
 id_tree = "1.8.0"
 zstd = { version="0.10.0", features=["zstdmt"] }
 num_cpus = "1.13.1"
+csv = "1.1.6"
