@@ -32,7 +32,7 @@ impl Collection {
         with_scheduling: bool,
         with_media: bool,
         legacy: bool,
-        media_fn: Option<Box<dyn FnOnce(HashSet<PathBuf>) -> MediaIter>>,
+        media_fn: Option<Box<dyn FnOnce(HashSet<String>) -> MediaIter>>,
         progress_fn: impl 'static + FnMut(usize, bool) -> bool,
     ) -> Result<usize> {
         let mut progress = IncrementableProgress::new(progress_fn);
@@ -56,9 +56,9 @@ impl Collection {
         )?;
 
         let media = if let Some(media_fn) = media_fn {
-            media_fn(data.media_paths)
+            media_fn(data.media_filenames)
         } else {
-            MediaIter::from_file_list(data.media_paths, self.media_folder.clone())
+            MediaIter::from_file_list(data.media_filenames, self.media_folder.clone())
         };
         let col_size = temp_col.as_file().metadata()?.len() as usize;
 
@@ -86,7 +86,7 @@ impl Collection {
         let mut data = ExchangeData::default();
         data.gather_data(self, search, with_scheduling)?;
         if with_media {
-            data.gather_media_paths();
+            data.gather_media_names();
         }
 
         let mut temp_col = Collection::new_minimal(path)?;

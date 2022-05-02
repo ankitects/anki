@@ -1,10 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    collections::{HashMap, HashSet},
-    path::PathBuf,
-};
+use std::collections::{HashMap, HashSet};
 
 use itertools::Itertools;
 
@@ -25,7 +22,7 @@ pub(super) struct ExchangeData {
     pub(super) notetypes: Vec<Notetype>,
     pub(super) revlog: Vec<RevlogEntry>,
     pub(super) deck_configs: Vec<DeckConfig>,
-    pub(super) media_paths: HashSet<PathBuf>,
+    pub(super) media_filenames: HashSet<String>,
     pub(super) days_elapsed: u32,
     pub(super) creation_utc_offset: Option<i32>,
 }
@@ -55,18 +52,18 @@ impl ExchangeData {
         col.storage.clear_searched_cards_table()
     }
 
-    pub(super) fn gather_media_paths(&mut self) {
-        let mut inserter = |name: &str| {
-            if filename_is_safe(name) {
-                self.media_paths.insert(PathBuf::from(name));
+    pub(super) fn gather_media_names(&mut self) {
+        let mut inserter = |name: String| {
+            if filename_is_safe(&name) {
+                self.media_filenames.insert(name);
             }
         };
         let svg_getter = svg_getter(&self.notetypes);
         for note in self.notes.iter() {
-            gather_media_paths_from_note(note, &mut inserter, &svg_getter);
+            gather_media_names_from_note(note, &mut inserter, &svg_getter);
         }
         for notetype in self.notetypes.iter() {
-            gather_media_paths_from_notetype(notetype, &mut inserter);
+            gather_media_names_from_notetype(notetype, &mut inserter);
         }
     }
 
@@ -112,30 +109,30 @@ impl ExchangeData {
     }
 }
 
-fn gather_media_paths_from_note(
+fn gather_media_names_from_note(
     note: &Note,
-    inserter: &mut impl FnMut(&str),
+    inserter: &mut impl FnMut(String),
     svg_getter: &impl Fn(NotetypeId) -> bool,
 ) {
     for field in note.fields() {
         for media_ref in extract_media_refs(field) {
-            inserter(&media_ref.fname_decoded);
+            inserter(media_ref.fname_decoded.to_string());
         }
 
         for latex in extract_latex(field, svg_getter(note.notetype_id)).1 {
-            inserter(&latex.fname);
+            inserter(latex.fname);
         }
     }
 }
 
-fn gather_media_paths_from_notetype(notetype: &Notetype, inserter: &mut impl FnMut(&str)) {
+fn gather_media_names_from_notetype(notetype: &Notetype, inserter: &mut impl FnMut(String)) {
     for name in extract_underscored_css_imports(&notetype.config.css) {
-        inserter(name);
+        inserter(name.to_string());
     }
     for template in &notetype.templates {
         for template_side in [&template.config.q_format, &template.config.a_format] {
             for name in extract_underscored_references(template_side) {
-                inserter(name);
+                inserter(name.to_string());
             }
         }
     }

@@ -83,7 +83,7 @@ impl MediaIter {
     /// Iterator over all given files in the given folder.
     /// Missing files are silently ignored.
     pub fn from_file_list(
-        list: impl IntoIterator<Item = PathBuf> + 'static,
+        list: impl IntoIterator<Item = String> + 'static,
         folder: PathBuf,
     ) -> Self {
         Self(Box::new(
