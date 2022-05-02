@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>295</width>
+    <width>563</width>
     <height>223</height>
    </rect>
   </property>
@@ -30,7 +30,14 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QComboBox" name="format"/>
+      <widget class="QComboBox" name="format">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_2">
@@ -40,7 +47,11 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QComboBox" name="deck"/>
+      <widget class="QComboBox" name="deck">
+       <property name="minimumContentsLength">
+        <number>50</number>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
