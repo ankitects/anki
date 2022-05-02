@@ -200,6 +200,14 @@ pub fn decode_entities(html: &str) -> Cow<str> {
     }
 }
 
+pub(crate) fn newlines_to_spaces(text: &str) -> Cow<str> {
+    if text.contains('\n') {
+        text.replace('\n', " ").into()
+    } else {
+        text.into()
+    }
+}
+
 pub fn strip_html_for_tts(html: &str) -> Cow<str> {
     HTML_LINEBREAK_TAGS
         .replace_all(html, " ")

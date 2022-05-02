@@ -18,8 +18,8 @@ use crate::{
     },
     prelude::*,
     text::{
-        replace_media_refs, strip_html_preserving_media_filenames, truncate_to_char_boundary,
-        CowMapping,
+        newlines_to_spaces, replace_media_refs, strip_html_preserving_media_filenames,
+        truncate_to_char_boundary, CowMapping,
     },
 };
 
@@ -74,6 +74,7 @@ impl Note {
                 .into_iter()
                 .map(|field| {
                     let mut reduced = strip_html_preserving_media_filenames(&field)
+                        .map_cow(newlines_to_spaces)
                         .get_owned()
                         .unwrap_or(field);
                     truncate_to_char_boundary(&mut reduced, 80);
