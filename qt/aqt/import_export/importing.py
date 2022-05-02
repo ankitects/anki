@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 from itertools import chain
-from typing import Any
 
 import aqt.main
 from anki.collection import Collection, ImportLogWithChanges, Progress
@@ -114,7 +113,7 @@ def show_import_log(log_with_changes: ImportLogWithChanges) -> None:
     showText(stringify_log(log_with_changes.log), plain_text_edit=True)
 
 
-def stringify_log(log: Any) -> str:
+def stringify_log(log: ImportLogWithChanges.Log) -> str:
     total = len(log.conflicting) + len(log.updated) + len(log.new) + len(log.duplicate)
     return "\n".join(
         chain(
@@ -131,7 +130,7 @@ def stringify_log(log: Any) -> str:
             ),
             ("",),
             *(
-                (f"[{action}] {', '.join(note.fields)}" for note in rows)
+                [f"[{action}] {', '.join(note.fields)}" for note in rows]
                 for (rows, action) in (
                     (log.conflicting, tr.importing_skipped()),
                     (log.updated, tr.importing_updated()),
