@@ -1182,7 +1182,7 @@ title="{}" {}>{}</button>""".format(
     def onImport(self) -> None:
         import aqt.importing
 
-        if KeyboardModifiersPressed().shift:
+        if self.pm.new_import_export():
             import_file(self)
         else:
             aqt.importing.onImport(self)
@@ -1190,7 +1190,7 @@ title="{}" {}>{}</button>""".format(
     def onExport(self, did: DeckId | None = None) -> None:
         import aqt.exporting
 
-        if KeyboardModifiersPressed().shift:
+        if self.pm.new_import_export():
             ExportDialog(self, did=did)
         else:
             aqt.exporting.ExportDialog(self, did=did)
