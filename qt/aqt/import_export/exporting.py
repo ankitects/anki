@@ -50,7 +50,9 @@ class ExportDialog(QDialog):
 
     def setup(self, did: DeckId | None) -> None:
         self.exporters: list[Type[Exporter]] = [ApkgExporter, ColpkgExporter]
-        self.frm.format.insertItems(0, [e.name() for e in self.exporters])
+        self.frm.format.insertItems(
+            0, [f"{e.name()} (.{e.extension})" for e in self.exporters]
+        )
         qconnect(self.frm.format.activated, self.exporter_changed)
         self.exporter_changed(0)
         # deck list
