@@ -148,7 +148,7 @@ impl Collection {
         Ok(())
     }
 
-    fn first_existing_parent(
+    pub(crate) fn first_existing_parent(
         &self,
         machine_name: &str,
         recursion_level: usize,

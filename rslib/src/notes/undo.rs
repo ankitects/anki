@@ -83,11 +83,21 @@ impl Collection {
     }
 
     /// Add a note, not adding any cards.
-    pub(super) fn add_note_only_undoable(&mut self, note: &mut Note) -> Result<(), AnkiError> {
+    pub(crate) fn add_note_only_undoable(&mut self, note: &mut Note) -> Result<(), AnkiError> {
         self.storage.add_note(note)?;
         self.save_undo(UndoableNoteChange::Added(Box::new(note.clone())));
 
         Ok(())
+    }
+
+    /// Add a note, not adding any cards. Caller guarantees id is unique.
+    pub(crate) fn add_note_only_with_id_undoable(&mut self, note: &mut Note) -> Result<()> {
+        if self.storage.add_note_if_unique(note)? {
+            self.save_undo(UndoableNoteChange::Added(Box::new(note.clone())));
+            Ok(())
+        } else {
+            Err(AnkiError::invalid_input("note id existed"))
+        }
     }
 
     pub(crate) fn update_note_tags_undoable(

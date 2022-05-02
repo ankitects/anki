@@ -2,64 +2,39 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::{
-    borrow::Cow,
-    collections::HashMap,
-    fs::{self, File},
-    io::{self, Read, Write},
-    path::{Component, Path, PathBuf},
+    fs::File,
+    io::{self, Write},
+    path::{Path, PathBuf},
 };
 
-use prost::Message;
 use zip::{read::ZipFile, ZipArchive};
 use zstd::{self, stream::copy_decode};
 
-use super::super::Version;
 use crate::{
     collection::CollectionBuilder,
     error::ImportError,
     import_export::{
-        package::{MediaEntries, MediaEntry, Meta},
-        ImportProgress,
+        package::{
+            media::{extract_media_entries, SafeMediaEntry},
+            Meta,
+        },
+        ImportProgress, IncrementableProgress,
     },
     io::{atomic_rename, tempfile_in_parent_of},
-    media::files::normalize_filename,
+    media::MediaManager,
     prelude::*,
 };
-
-impl Meta {
-    /// Extracts meta data from an archive and checks if its version is supported.
-    pub(super) fn from_archive(archive: &mut ZipArchive<File>) -> Result<Self> {
-        let meta_bytes = archive.by_name("meta").ok().and_then(|mut meta_file| {
-            let mut buf = vec![];
-            meta_file.read_to_end(&mut buf).ok()?;
-            Some(buf)
-        });
-        let meta = if let Some(bytes) = meta_bytes {
-            let meta: Meta = Message::decode(&*bytes)?;
-            if meta.version() == Version::Unknown {
-                return Err(AnkiError::ImportError(ImportError::TooNew));
-            }
-            meta
-        } else {
-            Meta {
-                version: if archive.by_name("collection.anki21").is_ok() {
-                    Version::Legacy2
-                } else {
-                    Version::Legacy1
-                } as i32,
-            }
-        };
-        Ok(meta)
-    }
-}
 
 pub fn import_colpkg(
     colpkg_path: &str,
     target_col_path: &str,
-    target_media_folder: &str,
-    mut progress_fn: impl FnMut(ImportProgress) -> Result<()>,
+    target_media_folder: &Path,
+    media_db: &Path,
+    progress_fn: impl 'static + FnMut(ImportProgress, bool) -> bool,
+    log: &Logger,
 ) -> Result<()> {
-    progress_fn(ImportProgress::Collection)?;
+    let mut progress = IncrementableProgress::new(progress_fn);
+    progress.call(ImportProgress::File)?;
     let col_path = PathBuf::from(target_col_path);
     let mut tempfile = tempfile_in_parent_of(&col_path)?;
 
@@ -68,12 +43,18 @@ pub fn import_colpkg(
     let meta = Meta::from_archive(&mut archive)?;
 
     copy_collection(&mut archive, &mut tempfile, &meta)?;
-    progress_fn(ImportProgress::Collection)?;
+    progress.call(ImportProgress::File)?;
     check_collection_and_mod_schema(tempfile.path())?;
-    progress_fn(ImportProgress::Collection)?;
+    progress.call(ImportProgress::File)?;
 
-    let media_folder = Path::new(target_media_folder);
-    restore_media(&meta, progress_fn, &mut archive, media_folder)?;
+    restore_media(
+        &meta,
+        &mut progress,
+        &mut archive,
+        target_media_folder,
+        media_db,
+        log,
+    )?;
 
     atomic_rename(tempfile, &col_path, true)
 }
@@ -96,31 +77,25 @@ fn check_collection_and_mod_schema(col_path: &Path) -> Result<()> {
 
 fn restore_media(
     meta: &Meta,
-    mut progress_fn: impl FnMut(ImportProgress) -> Result<()>,
+    progress: &mut IncrementableProgress<ImportProgress>,
     archive: &mut ZipArchive<File>,
     media_folder: &Path,
+    media_db: &Path,
+    log: &Logger,
 ) -> Result<()> {
     let media_entries = extract_media_entries(meta, archive)?;
+    if media_entries.is_empty() {
+        return Ok(());
+    }
+
     std::fs::create_dir_all(media_folder)?;
+    let media_manager = MediaManager::new(media_folder, media_db)?;
+    let mut media_comparer = MediaComparer::new(meta, progress, &media_manager, log)?;
 
-    for (entry_idx, entry) in media_entries.iter().enumerate() {
-        if entry_idx % 10 == 0 {
-            progress_fn(ImportProgress::Media(entry_idx))?;
-        }
-
-        let zip_filename = entry
-            .legacy_zip_filename
-            .map(|n| n as usize)
-            .unwrap_or(entry_idx)
-            .to_string();
-
-        if let Ok(mut zip_file) = archive.by_name(&zip_filename) {
-            maybe_restore_media_file(meta, media_folder, entry, &mut zip_file)?;
-        } else {
-            return Err(AnkiError::invalid_input(&format!(
-                "{zip_filename} missing from archive"
-            )));
-        }
+    let mut incrementor = progress.incrementor(ImportProgress::Media);
+    for mut entry in media_entries {
+        incrementor.increment()?;
+        maybe_restore_media_file(meta, media_folder, archive, &mut entry, &mut media_comparer)?;
     }
 
     Ok(())
@@ -129,13 +104,19 @@ fn restore_media(
 fn maybe_restore_media_file(
     meta: &Meta,
     media_folder: &Path,
-    entry: &MediaEntry,
-    zip_file: &mut ZipFile,
+    archive: &mut ZipArchive<File>,
+    entry: &mut SafeMediaEntry,
+    media_comparer: &mut MediaComparer,
 ) -> Result<()> {
-    let file_path = entry.safe_normalized_file_path(meta, media_folder)?;
-    let already_exists = entry.is_equal_to(meta, zip_file, &file_path);
+    let file_path = entry.file_path(media_folder);
+    let mut zip_file = entry.fetch_file(archive)?;
+    if meta.media_list_is_hashmap() {
+        entry.size = zip_file.size() as u32;
+    }
+
+    let already_exists = media_comparer.entry_is_equal_to(entry, &file_path)?;
     if !already_exists {
-        restore_media_file(meta, zip_file, &file_path)?;
+        restore_media_file(meta, &mut zip_file, &file_path)?;
     };
 
     Ok(())
@@ -152,79 +133,6 @@ fn restore_media_file(meta: &Meta, zip_file: &mut ZipFile, path: &Path) -> Resul
     .map_err(|err| AnkiError::file_io_error(err, path))?;
 
     atomic_rename(tempfile, path, false)
-}
-
-impl MediaEntry {
-    fn safe_normalized_file_path(&self, meta: &Meta, media_folder: &Path) -> Result<PathBuf> {
-        check_filename_safe(&self.name)?;
-        let normalized = maybe_normalizing(&self.name, meta.strict_media_checks())?;
-        Ok(media_folder.join(normalized.as_ref()))
-    }
-
-    fn is_equal_to(&self, meta: &Meta, self_zipped: &ZipFile, other_path: &Path) -> bool {
-        // TODO: checks hashs (https://github.com/ankitects/anki/pull/1723#discussion_r829653147)
-        let self_size = if meta.media_list_is_hashmap() {
-            self_zipped.size()
-        } else {
-            self.size as u64
-        };
-        fs::metadata(other_path)
-            .map(|metadata| metadata.len() as u64 == self_size)
-            .unwrap_or_default()
-    }
-}
-
-/// - If strict is true, return an error if not normalized.
-/// - If false, return the normalized version.
-fn maybe_normalizing(name: &str, strict: bool) -> Result<Cow<str>> {
-    let normalized = normalize_filename(name);
-    if strict && matches!(normalized, Cow::Owned(_)) {
-        // exporting code should have checked this
-        Err(AnkiError::ImportError(ImportError::Corrupt))
-    } else {
-        Ok(normalized)
-    }
-}
-
-/// Return an error if name contains any path separators.
-fn check_filename_safe(name: &str) -> Result<()> {
-    let mut components = Path::new(name).components();
-    let first_element_normal = components
-        .next()
-        .map(|component| matches!(component, Component::Normal(_)))
-        .unwrap_or_default();
-    if !first_element_normal || components.next().is_some() {
-        Err(AnkiError::ImportError(ImportError::Corrupt))
-    } else {
-        Ok(())
-    }
-}
-
-fn extract_media_entries(meta: &Meta, archive: &mut ZipArchive<File>) -> Result<Vec<MediaEntry>> {
-    let mut file = archive.by_name("media")?;
-    let mut buf = Vec::new();
-    if meta.zstd_compressed() {
-        copy_decode(file, &mut buf)?;
-    } else {
-        io::copy(&mut file, &mut buf)?;
-    }
-    if meta.media_list_is_hashmap() {
-        let map: HashMap<&str, String> = serde_json::from_slice(&buf)?;
-        map.into_iter()
-            .map(|(idx_str, name)| {
-                let idx: u32 = idx_str.parse()?;
-                Ok(MediaEntry {
-                    name,
-                    size: 0,
-                    sha1: vec![],
-                    legacy_zip_filename: Some(idx),
-                })
-            })
-            .collect()
-    } else {
-        let entries: MediaEntries = Message::decode(&*buf)?;
-        Ok(entries.entries)
-    }
 }
 
 fn copy_collection(
@@ -244,29 +152,31 @@ fn copy_collection(
     Ok(())
 }
 
-#[cfg(test)]
-mod test {
-    use super::*;
+type GetChecksumFn<'a> = dyn FnMut(&str) -> Result<Option<Sha1Hash>> + 'a;
 
-    #[test]
-    fn path_traversal() {
-        assert!(check_filename_safe("foo").is_ok(),);
+struct MediaComparer<'a>(Option<Box<GetChecksumFn<'a>>>);
 
-        assert!(check_filename_safe("..").is_err());
-        assert!(check_filename_safe("foo/bar").is_err());
-        assert!(check_filename_safe("/foo").is_err());
-        assert!(check_filename_safe("../foo").is_err());
-
-        if cfg!(windows) {
-            assert!(check_filename_safe("foo\\bar").is_err());
-            assert!(check_filename_safe("c:\\foo").is_err());
-            assert!(check_filename_safe("\\foo").is_err());
-        }
+impl<'a> MediaComparer<'a> {
+    fn new(
+        meta: &Meta,
+        progress: &mut IncrementableProgress<ImportProgress>,
+        media_manager: &'a MediaManager,
+        log: &Logger,
+    ) -> Result<Self> {
+        Ok(Self(if meta.media_list_is_hashmap() {
+            None
+        } else {
+            let mut db_progress_fn = progress.media_db_fn(ImportProgress::MediaCheck)?;
+            media_manager.register_changes(&mut db_progress_fn, log)?;
+            Some(Box::new(media_manager.checksum_getter()))
+        }))
     }
 
-    #[test]
-    fn normalization() {
-        assert_eq!(&maybe_normalizing("con", false).unwrap(), "con_");
-        assert!(&maybe_normalizing("con", true).is_err());
+    fn entry_is_equal_to(&mut self, entry: &SafeMediaEntry, other_path: &Path) -> Result<bool> {
+        if let Some(ref mut get_checksum) = self.0 {
+            Ok(entry.has_checksum_equal_to(get_checksum)?)
+        } else {
+            Ok(entry.has_size_equal_to(other_path))
+        }
     }
 }

@@ -34,9 +34,10 @@ impl SchemaVersion {
 }
 
 /// Write a list of IDs as '(x,y,...)' into the provided string.
-pub(crate) fn ids_to_string<T>(buf: &mut String, ids: &[T])
+pub(crate) fn ids_to_string<D, I>(buf: &mut String, ids: I)
 where
-    T: std::fmt::Display,
+    D: std::fmt::Display,
+    I: IntoIterator<Item = D>,
 {
     buf.push('(');
     write_comma_separated_ids(buf, ids);
@@ -44,15 +45,18 @@ where
 }
 
 /// Write a list of Ids as 'x,y,...' into the provided string.
-pub(crate) fn write_comma_separated_ids<T>(buf: &mut String, ids: &[T])
+pub(crate) fn write_comma_separated_ids<D, I>(buf: &mut String, ids: I)
 where
-    T: std::fmt::Display,
+    D: std::fmt::Display,
+    I: IntoIterator<Item = D>,
 {
-    if !ids.is_empty() {
-        for id in ids.iter().skip(1) {
-            write!(buf, "{},", id).unwrap();
-        }
-        write!(buf, "{}", ids[0]).unwrap();
+    let mut trailing_sep = false;
+    for id in ids {
+        write!(buf, "{},", id).unwrap();
+        trailing_sep = true;
+    }
+    if trailing_sep {
+        buf.pop();
     }
 }
 
@@ -73,17 +77,17 @@ mod test {
     #[test]
     fn ids_string() {
         let mut s = String::new();
-        ids_to_string::<u8>(&mut s, &[]);
+        ids_to_string(&mut s, &[0; 0]);
         assert_eq!(s, "()");
         s.clear();
         ids_to_string(&mut s, &[7]);
         assert_eq!(s, "(7)");
         s.clear();
         ids_to_string(&mut s, &[7, 6]);
-        assert_eq!(s, "(6,7)");
+        assert_eq!(s, "(7,6)");
         s.clear();
         ids_to_string(&mut s, &[7, 6, 5]);
-        assert_eq!(s, "(6,5,7)");
+        assert_eq!(s, "(7,6,5)");
         s.clear();
     }
 }

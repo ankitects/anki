@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::path::Path;
+use std::path::{Component, Path};
 
 use tempfile::NamedTempFile;
 
@@ -42,6 +42,17 @@ pub(crate) fn read_dir_files(path: impl AsRef<Path>) -> std::io::Result<ReadDirF
     std::fs::read_dir(path).map(ReadDirFiles)
 }
 
+/// True if name does not contain any path separators.
+pub(crate) fn filename_is_safe(name: &str) -> bool {
+    let mut components = Path::new(name).components();
+    let first_element_normal = components
+        .next()
+        .map(|component| matches!(component, Component::Normal(_)))
+        .unwrap_or_default();
+
+    first_element_normal && components.next().is_none()
+}
+
 pub(crate) struct ReadDirFiles(std::fs::ReadDir);
 
 impl Iterator for ReadDirFiles {
@@ -57,6 +68,27 @@ impl Iterator for ReadDirFiles {
             }
         } else {
             next
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn path_traversal() {
+        assert!(filename_is_safe("foo"));
+
+        assert!(!filename_is_safe(".."));
+        assert!(!filename_is_safe("foo/bar"));
+        assert!(!filename_is_safe("/foo"));
+        assert!(!filename_is_safe("../foo"));
+
+        if cfg!(windows) {
+            assert!(!filename_is_safe("foo\\bar"));
+            assert!(!filename_is_safe("c:\\foo"));
+            assert!(!filename_is_safe("\\foo"));
         }
     }
 }

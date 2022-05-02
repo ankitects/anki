@@ -47,6 +47,8 @@ from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_
 from aqt.dbcheck import check_db
 from aqt.emptycards import show_empty_cards
 from aqt.flags import FlagManager
+from aqt.import_export.exporting import ExportDialog
+from aqt.import_export.importing import import_collection_package_op, import_file
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
@@ -402,15 +404,12 @@ class AnkiQt(QMainWindow):
         )
 
     def _openBackup(self, path: str) -> None:
-        def on_done(success: bool) -> None:
-            if success:
-                self.onOpenProfile(callback=lambda: self.col.mod_schema(check=False))
-
-        import aqt.importing
-
         self.restoring_backup = True
         showInfo(tr.qt_misc_automatic_syncing_and_backups_have_been())
-        aqt.importing.replace_with_apkg(self, path, on_done)
+
+        import_collection_package_op(
+            self, path, success=self.onOpenProfile
+        ).run_in_background()
 
     def _on_downgrade(self) -> None:
         self.progress.start()
@@ -1183,12 +1182,18 @@ title="{}" {}>{}</button>""".format(
     def onImport(self) -> None:
         import aqt.importing
 
-        aqt.importing.onImport(self)
+        if self.pm.new_import_export():
+            import_file(self)
+        else:
+            aqt.importing.onImport(self)
 
     def onExport(self, did: DeckId | None = None) -> None:
         import aqt.exporting
 
-        aqt.exporting.ExportDialog(self, did=did)
+        if self.pm.new_import_export():
+            ExportDialog(self, did=did)
+        else:
+            aqt.exporting.ExportDialog(self, did=did)
 
     # Installing add-ons from CLI / mimetype handler
     ##########################################################################

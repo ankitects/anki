@@ -15,10 +15,7 @@ use sha1::Sha1;
 use unic_ucd_category::GeneralCategory;
 use unicode_normalization::{is_nfc, UnicodeNormalization};
 
-use crate::{
-    error::{AnkiError, Result},
-    log::{debug, Logger},
-};
+use crate::prelude::*;
 
 /// The maximum length we allow a filename to be. When combined
 /// with the rest of the path, the full path needs to be under ~240 chars
@@ -164,7 +161,7 @@ pub fn add_data_to_folder_uniquely<'a, P>(
     folder: P,
     desired_name: &'a str,
     data: &[u8],
-    sha1: [u8; 20],
+    sha1: Sha1Hash,
 ) -> io::Result<Cow<'a, str>>
 where
     P: AsRef<Path>,
@@ -194,7 +191,7 @@ where
 }
 
 /// Convert foo.jpg into foo-abcde12345679.jpg
-fn add_hash_suffix_to_file_stem(fname: &str, hash: &[u8; 20]) -> String {
+pub(crate) fn add_hash_suffix_to_file_stem(fname: &str, hash: &Sha1Hash) -> String {
     // when appending a hash to make unique, it will be 40 bytes plus the hyphen.
     let max_len = MAX_FILENAME_LENGTH - 40 - 1;
 
@@ -244,18 +241,18 @@ fn split_and_truncate_filename(fname: &str, max_bytes: usize) -> (&str, &str) {
     };
 
     // cap extension to 10 bytes so stem_len can't be negative
-    ext = truncate_to_char_boundary(ext, 10);
+    ext = truncated_to_char_boundary(ext, 10);
 
     // cap stem, allowing for the . and a trailing _
     let stem_len = max_bytes - ext.len() - 2;
-    stem = truncate_to_char_boundary(stem, stem_len);
+    stem = truncated_to_char_boundary(stem, stem_len);
 
     (stem, ext)
 }
 
-/// Trim a string on a valid UTF8 boundary.
+/// Return a substring on a valid UTF8 boundary.
 /// Based on a funtion in the Rust stdlib.
-fn truncate_to_char_boundary(s: &str, mut max: usize) -> &str {
+fn truncated_to_char_boundary(s: &str, mut max: usize) -> &str {
     if max >= s.len() {
         s
     } else {
@@ -267,7 +264,7 @@ fn truncate_to_char_boundary(s: &str, mut max: usize) -> &str {
 }
 
 /// Return the SHA1 of a file if it exists, or None.
-fn existing_file_sha1(path: &Path) -> io::Result<Option<[u8; 20]>> {
+fn existing_file_sha1(path: &Path) -> io::Result<Option<Sha1Hash>> {
     match sha1_of_file(path) {
         Ok(o) => Ok(Some(o)),
         Err(e) => {
@@ -281,12 +278,17 @@ fn existing_file_sha1(path: &Path) -> io::Result<Option<[u8; 20]>> {
 }
 
 /// Return the SHA1 of a file, failing if it doesn't exist.
-pub(crate) fn sha1_of_file(path: &Path) -> io::Result<[u8; 20]> {
+pub(crate) fn sha1_of_file(path: &Path) -> io::Result<Sha1Hash> {
     let mut file = fs::File::open(path)?;
+    sha1_of_reader(&mut file)
+}
+
+/// Return the SHA1 of a stream.
+pub(crate) fn sha1_of_reader(reader: &mut impl Read) -> io::Result<Sha1Hash> {
     let mut hasher = Sha1::new();
     let mut buf = [0; 64 * 1024];
     loop {
-        match file.read(&mut buf) {
+        match reader.read(&mut buf) {
             Ok(0) => break,
             Ok(n) => hasher.update(&buf[0..n]),
             Err(e) => {
@@ -302,7 +304,7 @@ pub(crate) fn sha1_of_file(path: &Path) -> io::Result<[u8; 20]> {
 }
 
 /// Return the SHA1 of provided data.
-pub(crate) fn sha1_of_data(data: &[u8]) -> [u8; 20] {
+pub(crate) fn sha1_of_data(data: &[u8]) -> Sha1Hash {
     let mut hasher = Sha1::new();
     hasher.update(data);
     hasher.digest().bytes()
@@ -371,7 +373,7 @@ pub(super) fn trash_folder(media_folder: &Path) -> Result<PathBuf> {
 
 pub(super) struct AddedFile {
     pub fname: String,
-    pub sha1: [u8; 20],
+    pub sha1: Sha1Hash,
     pub mtime: i64,
     pub renamed_from: Option<String>,
 }

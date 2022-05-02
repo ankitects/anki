@@ -35,6 +35,14 @@ impl Collection {
         Ok(())
     }
 
+    pub(crate) fn add_card_if_unique_undoable(&mut self, card: &Card) -> Result<bool> {
+        let added = self.storage.add_card_if_unique(card)?;
+        if added {
+            self.save_undo(UndoableCardChange::Added(Box::new(card.clone())));
+        }
+        Ok(added)
+    }
+
     pub(super) fn update_card_undoable(&mut self, card: &mut Card, original: Card) -> Result<()> {
         if card.id.0 == 0 {
             return Err(AnkiError::invalid_input("card id not set"));
