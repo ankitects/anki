@@ -48,13 +48,23 @@ impl DeckContext<'_> {
         // ensure parents are seen before children
         decks.sort_unstable_by_key(|deck| deck.level());
         for deck in &mut decks {
+            self.prepare_deck(deck);
             self.import_deck(deck)?;
         }
         Ok(())
     }
 
-    fn import_deck(&mut self, deck: &mut Deck) -> Result<()> {
+    fn prepare_deck(&mut self, deck: &mut Deck) {
         self.maybe_reparent(deck);
+        if deck.is_filtered() {
+            deck.kind = DeckKind::Normal(NormalDeck {
+                config_id: 1,
+                ..Default::default()
+            });
+        }
+    }
+
+    fn import_deck(&mut self, deck: &mut Deck) -> Result<()> {
         if let Some(original) = self.get_deck_by_name(deck)? {
             if original.is_filtered() {
                 self.uniquify_name(deck);
@@ -64,12 +74,6 @@ impl DeckContext<'_> {
             }
         } else {
             self.ensure_valid_first_existing_parent(deck)?;
-            if deck.is_filtered() {
-                deck.kind = DeckKind::Normal(NormalDeck {
-                    config_id: 1,
-                    ..Default::default()
-                });
-            }
             self.add_deck(deck)
         }
     }
@@ -109,17 +113,13 @@ impl DeckContext<'_> {
         Ok(())
     }
 
-    /// If provided `deck` is filtered, existing deck will not be updated, as it will
-    /// have been converted to a regular deck on a previous import.
+    /// Caller must ensure decks are normal.
     fn update_deck(&mut self, deck: &Deck, original: Deck) -> Result<()> {
         let mut new_deck = original.clone();
+        new_deck.normal_mut()?.update_with_other(deck.normal()?);
         self.imported_decks.insert(deck.id, new_deck.id);
-        if let Ok(normal_deck) = deck.normal() {
-            new_deck.normal_mut()?.update_with_other(normal_deck);
-            self.target_col
-                .update_deck_inner(&mut new_deck, original, self.usn)?;
-        }
-        Ok(())
+        self.target_col
+            .update_deck_inner(&mut new_deck, original, self.usn)
     }
 
     fn ensure_valid_first_existing_parent(&mut self, deck: &mut Deck) -> Result<()> {
@@ -156,8 +156,10 @@ impl Deck {
 
 impl NormalDeck {
     fn update_with_other(&mut self, other: &Self) {
-        self.markdown_description = other.markdown_description;
-        self.description = other.description.clone();
+        if !other.description.is_empty() {
+            self.markdown_description = other.markdown_description;
+            self.description = other.description.clone();
+        }
         if other.config_id != 1 {
             self.config_id = other.config_id;
         }
