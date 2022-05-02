@@ -49,11 +49,7 @@ class ExportDialog(QDialog):
         self.open()
 
     def setup(self, did: DeckId | None) -> None:
-        self.exporters: list[Type[Exporter]] = [
-            ApkgExporter,
-            OldSchemaColpkgExporter,
-            ColpkgExporter,
-        ]
+        self.exporters: list[Type[Exporter]] = [ApkgExporter, ColpkgExporter]
         self.frm.format.insertItems(
             0, [f"{e.name()} (.{e.extension})" for e in self.exporters]
         )
@@ -186,14 +182,13 @@ class Exporter(ABC):
 class ColpkgExporter(Exporter):
     extension = "colpkg"
     show_include_media = True
-    _legacy = False
 
     @staticmethod
     def name() -> str:
-        return "Anki 2.1.50+ Collection Package"
+        return tr.exporting_anki_collection_package()
 
-    @classmethod
-    def export(kls, mw: aqt.main.AnkiQt, options: Options) -> None:
+    @staticmethod
+    def export(mw: aqt.main.AnkiQt, options: Options) -> None:
         def on_success(_: None) -> None:
             mw.reopen()
             tooltip(tr.exporting_collection_exported(), parent=mw)
@@ -206,22 +201,12 @@ class ColpkgExporter(Exporter):
         QueryOp(
             parent=mw,
             op=lambda col: col.export_collection_package(
-                options.out_path,
-                include_media=options.include_media,
-                legacy=kls._legacy,
+                options.out_path, include_media=options.include_media, legacy=False
             ),
             success=on_success,
         ).with_backend_progress(export_progress_update).failure(
             on_failure
         ).run_in_background()
-
-
-class OldSchemaColpkgExporter(ColpkgExporter):
-    _legacy = True
-
-    @staticmethod
-    def name() -> str:
-        return tr.exporting_anki_collection_package()
 
 
 class ApkgExporter(Exporter):
