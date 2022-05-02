@@ -109,13 +109,17 @@ impl DeckContext<'_> {
         Ok(())
     }
 
-    /// Caller must ensure decks are normal.
+    /// If provided `deck` is filtered, existing deck will not be updated, as it will
+    /// have been converted to a regular deck on a previous import.
     fn update_deck(&mut self, deck: &Deck, original: Deck) -> Result<()> {
         let mut new_deck = original.clone();
-        new_deck.normal_mut()?.update_with_other(deck.normal()?);
         self.imported_decks.insert(deck.id, new_deck.id);
-        self.target_col
-            .update_deck_inner(&mut new_deck, original, self.usn)
+        if let Ok(normal_deck) = deck.normal() {
+            new_deck.normal_mut()?.update_with_other(normal_deck);
+            self.target_col
+                .update_deck_inner(&mut new_deck, original, self.usn)?;
+        }
+        Ok(())
     }
 
     fn ensure_valid_first_existing_parent(&mut self, deck: &mut Deck) -> Result<()> {
