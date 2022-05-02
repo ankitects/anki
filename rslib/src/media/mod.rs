@@ -3,19 +3,21 @@
 
 use std::{
     borrow::Cow,
+    collections::HashMap,
     path::{Path, PathBuf},
 };
 
 use rusqlite::Connection;
 use slog::Logger;
 
+use self::changetracker::ChangeTracker;
 use crate::{
-    error::Result,
     media::{
         database::{open_or_create, MediaDatabaseContext, MediaEntry},
         files::{add_data_to_folder_uniquely, mtime_as_i64, remove_files, sha1_of_data},
         sync::{MediaSyncProgress, MediaSyncer},
     },
+    prelude::*,
 };
 
 pub mod changetracker;
@@ -23,6 +25,8 @@ pub mod check;
 pub mod database;
 pub mod files;
 pub mod sync;
+
+pub type Sha1Hash = [u8; 20];
 
 pub struct MediaManager {
     db: Connection,
@@ -152,5 +156,32 @@ impl MediaManager {
 
     pub fn dbctx(&self) -> MediaDatabaseContext {
         MediaDatabaseContext::new(&self.db)
+    }
+
+    pub fn all_checksums(
+        &self,
+        progress: impl FnMut(usize) -> bool,
+        log: &Logger,
+    ) -> Result<HashMap<String, Sha1Hash>> {
+        let mut dbctx = self.dbctx();
+        ChangeTracker::new(&self.media_folder, progress, log).register_changes(&mut dbctx)?;
+        dbctx.all_checksums()
+    }
+
+    pub fn checksum_getter(&self) -> impl FnMut(&str) -> Result<Option<Sha1Hash>> + '_ {
+        let mut dbctx = self.dbctx();
+        move |fname: &str| {
+            dbctx
+                .get_entry(fname)
+                .map(|opt| opt.and_then(|entry| entry.sha1))
+        }
+    }
+
+    pub fn register_changes(
+        &self,
+        progress: &mut impl FnMut(usize) -> bool,
+        log: &Logger,
+    ) -> Result<()> {
+        ChangeTracker::new(&self.media_folder, progress, log).register_changes(&mut self.dbctx())
     }
 }

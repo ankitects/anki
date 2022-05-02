@@ -538,6 +538,12 @@ create table if not exists profiles
     def dark_mode_widgets(self) -> bool:
         return self.meta.get("dark_mode_widgets", False)
 
+    def new_import_export(self) -> bool:
+        return self.meta.get("new_import_export", False)
+
+    def set_new_import_export(self, enabled: bool) -> None:
+        self.meta["new_import_export"] = enabled
+
     # Profile-specific
     ######################################################################
 

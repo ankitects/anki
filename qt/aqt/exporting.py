@@ -40,6 +40,7 @@ class ExportDialog(QDialog):
         self.col = mw.col.weakref()
         self.frm = aqt.forms.exporting.Ui_ExportDialog()
         self.frm.setupUi(self)
+        self.frm.legacy_support.setVisible(False)
         self.exporter: Exporter | None = None
         self.cids = cids
         disable_help_button(self)

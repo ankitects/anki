@@ -42,6 +42,17 @@ impl Collection {
         Ok(())
     }
 
+    /// Caller must ensure [NotetypeId] is unique.
+    pub(crate) fn add_notetype_with_unique_id_undoable(
+        &mut self,
+        notetype: &Notetype,
+    ) -> Result<()> {
+        self.storage
+            .add_or_update_notetype_with_existing_id(notetype)?;
+        self.save_undo(UndoableNotetypeChange::Added(Box::new(notetype.clone())));
+        Ok(())
+    }
+
     pub(super) fn update_notetype_undoable(
         &mut self,
         notetype: &Notetype,

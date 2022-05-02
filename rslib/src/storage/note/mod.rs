@@ -1,12 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use rusqlite::{params, Row};
 
 use crate::{
     error::Result,
+    import_export::package::NoteMeta,
     notes::{Note, NoteId, NoteTags},
     notetype::NotetypeId,
     tags::{join_tags, split_tags},
@@ -39,6 +40,13 @@ impl super::SqliteStorage {
             .query_and_then(params![nid], row_to_note)?
             .next()
             .transpose()
+    }
+
+    pub fn get_all_note_ids(&self) -> Result<HashSet<NoteId>> {
+        self.db
+            .prepare("SELECT id FROM notes")?
+            .query_and_then([], |row| Ok(row.get(0)?))?
+            .collect()
     }
 
     /// If fields have been modified, caller must call note.prepare_for_update() prior to calling this.
@@ -75,6 +83,24 @@ impl super::SqliteStorage {
         ])?;
         note.id.0 = self.db.last_insert_rowid();
         Ok(())
+    }
+
+    pub(crate) fn add_note_if_unique(&self, note: &Note) -> Result<bool> {
+        self.db
+            .prepare_cached(include_str!("add_if_unique.sql"))?
+            .execute(params![
+                note.id,
+                note.guid,
+                note.notetype_id,
+                note.mtime,
+                note.usn,
+                join_tags(&note.tags),
+                join_fields(note.fields()),
+                note.sort_field.as_ref().unwrap(),
+                note.checksum.unwrap(),
+            ])
+            .map(|added| added == 1)
+            .map_err(Into::into)
     }
 
     /// Add or update the provided note, preserving ID. Used by the syncing code.
@@ -210,6 +236,16 @@ impl super::SqliteStorage {
         Ok(())
     }
 
+    pub(crate) fn all_searched_notes(&self) -> Result<Vec<Note>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get.sql"),
+                " WHERE id IN (SELECT nid FROM search_nids)"
+            ))?
+            .query_and_then([], |r| row_to_note(r).map_err(Into::into))?
+            .collect()
+    }
+
     pub(crate) fn get_note_tags_by_predicate<F>(&mut self, want: F) -> Result<Vec<NoteTags>>
     where
         F: Fn(&str) -> bool,
@@ -259,6 +295,24 @@ impl super::SqliteStorage {
 
         Ok(())
     }
+
+    pub(crate) fn note_guid_map(&mut self) -> Result<HashMap<String, NoteMeta>> {
+        self.db
+            .prepare("SELECT guid, id, mod, mid FROM notes")?
+            .query_and_then([], row_to_note_meta)?
+            .collect()
+    }
+
+    #[cfg(test)]
+    pub(crate) fn get_all_notes(&mut self) -> Vec<Note> {
+        self.db
+            .prepare("SELECT * FROM notes")
+            .unwrap()
+            .query_and_then([], row_to_note)
+            .unwrap()
+            .collect::<Result<_>>()
+            .unwrap()
+    }
 }
 
 fn row_to_note(row: &Row) -> Result<Note> {
@@ -284,4 +338,11 @@ fn row_to_note_tags(row: &Row) -> Result<NoteTags> {
         usn: row.get(2)?,
         tags: row.get(3)?,
     })
+}
+
+fn row_to_note_meta(row: &Row) -> Result<(String, NoteMeta)> {
+    Ok((
+        row.get(0)?,
+        NoteMeta::new(row.get(1)?, row.get(2)?, row.get(3)?),
+    ))
 }

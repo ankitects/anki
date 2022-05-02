@@ -99,6 +99,23 @@ impl SqliteStorage {
             .map_err(Into::into)
     }
 
+    pub(crate) fn get_notetypes_for_search_notes(&self) -> Result<Vec<Notetype>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get_notetype.sql"),
+                " WHERE id IN (SELECT DISTINCT mid FROM notes WHERE id IN",
+                " (SELECT nid FROM search_nids))",
+            ))?
+            .query_and_then([], |r| {
+                row_to_notetype_core(r).and_then(|mut nt| {
+                    nt.fields = self.get_notetype_fields(nt.id)?;
+                    nt.templates = self.get_notetype_templates(nt.id)?;
+                    Ok(nt)
+                })
+            })?
+            .collect()
+    }
+
     pub fn get_all_notetype_names(&self) -> Result<Vec<(NotetypeId, String)>> {
         self.db
             .prepare_cached(include_str!("get_notetype_names.sql"))?

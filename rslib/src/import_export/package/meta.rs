@@ -1,7 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::{fs::File, io::Read};
+
+use prost::Message;
+use zip::ZipArchive;
+
 pub(super) use crate::backend_proto::{package_metadata::Version, PackageMetadata as Meta};
+use crate::{error::ImportError, prelude::*, storage::SchemaVersion};
 
 impl Version {
     pub(super) fn collection_filename(&self) -> &'static str {
@@ -10,6 +16,16 @@ impl Version {
             Version::Legacy1 => "collection.anki2",
             Version::Legacy2 => "collection.anki21",
             Version::Latest => "collection.anki21b",
+        }
+    }
+
+    /// Latest schema version that is supported by all clients supporting
+    /// this package version.
+    pub(super) fn schema_version(&self) -> SchemaVersion {
+        match self {
+            Version::Unknown => unreachable!(),
+            Version::Legacy1 | Version::Legacy2 => SchemaVersion::V11,
+            Version::Latest => SchemaVersion::V18,
         }
     }
 }
@@ -27,8 +43,39 @@ impl Meta {
         }
     }
 
+    /// Extracts meta data from an archive and checks if its version is supported.
+    pub(super) fn from_archive(archive: &mut ZipArchive<File>) -> Result<Self> {
+        let meta_bytes = archive.by_name("meta").ok().and_then(|mut meta_file| {
+            let mut buf = vec![];
+            meta_file.read_to_end(&mut buf).ok()?;
+            Some(buf)
+        });
+        let meta = if let Some(bytes) = meta_bytes {
+            let meta: Meta = Message::decode(&*bytes)?;
+            if meta.version() == Version::Unknown {
+                return Err(AnkiError::ImportError(ImportError::TooNew));
+            }
+            meta
+        } else {
+            Meta {
+                version: if archive.by_name("collection.anki21").is_ok() {
+                    Version::Legacy2
+                } else {
+                    Version::Legacy1
+                } as i32,
+            }
+        };
+        Ok(meta)
+    }
+
     pub(super) fn collection_filename(&self) -> &'static str {
         self.version().collection_filename()
+    }
+
+    /// Latest schema version that is supported by all clients supporting
+    /// this package version.
+    pub(super) fn schema_version(&self) -> SchemaVersion {
+        self.version().schema_version()
     }
 
     pub(super) fn zstd_compressed(&self) -> bool {
@@ -37,10 +84,6 @@ impl Meta {
 
     pub(super) fn media_list_is_hashmap(&self) -> bool {
         self.is_legacy()
-    }
-
-    pub(super) fn strict_media_checks(&self) -> bool {
-        !self.is_legacy()
     }
 
     fn is_legacy(&self) -> bool {

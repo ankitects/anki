@@ -23,7 +23,8 @@ from anki.tags import MARKED_TAG
 from anki.utils import is_mac
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
-from aqt.exporting import ExportDialog
+from aqt.exporting import ExportDialog as LegacyExportDialog
+from aqt.import_export.exporting import ExportDialog
 from aqt.operations.card import set_card_deck, set_card_flag
 from aqt.operations.collection import redo, undo
 from aqt.operations.note import remove_notes
@@ -792,8 +793,12 @@ class Browser(QMainWindow):
     @no_arg_trigger
     @skip_if_selection_is_empty
     def _on_export_notes(self) -> None:
-        cids = self.selectedNotesAsCards()
-        ExportDialog(self.mw, cids=list(cids))
+        if self.mw.pm.new_import_export():
+            nids = self.selected_notes()
+            ExportDialog(self.mw, nids=nids)
+        else:
+            cids = self.selectedNotesAsCards()
+            LegacyExportDialog(self.mw, cids=list(cids))
 
     # Flags & Marking
     ######################################################################

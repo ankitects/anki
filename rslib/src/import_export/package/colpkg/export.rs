@@ -4,7 +4,8 @@
 use std::{
     borrow::Cow,
     collections::HashMap,
-    fs::{DirEntry, File},
+    ffi::OsStr,
+    fs::File,
     io::{self, Read, Write},
     path::{Path, PathBuf},
 };
@@ -21,6 +22,7 @@ use zstd::{
 use super::super::{MediaEntries, MediaEntry, Meta, Version};
 use crate::{
     collection::CollectionBuilder,
+    import_export::IncrementableProgress,
     io::{atomic_rename, read_dir_files, tempfile_in_parent_of},
     media::files::filename_if_normalized,
     prelude::*,
@@ -38,8 +40,9 @@ impl Collection {
         out_path: impl AsRef<Path>,
         include_media: bool,
         legacy: bool,
-        progress_fn: impl FnMut(usize),
+        progress_fn: impl 'static + FnMut(usize, bool) -> bool,
     ) -> Result<()> {
+        let mut progress = IncrementableProgress::new(progress_fn);
         let colpkg_name = out_path.as_ref();
         let temp_colpkg = tempfile_in_parent_of(colpkg_name)?;
         let src_path = self.col_path.clone();
@@ -61,9 +64,38 @@ impl Collection {
             src_media_folder,
             legacy,
             &tr,
-            progress_fn,
+            &mut progress,
         )?;
         atomic_rename(temp_colpkg, colpkg_name, true)
+    }
+}
+
+pub struct MediaIter(Box<dyn Iterator<Item = io::Result<PathBuf>>>);
+
+impl MediaIter {
+    /// Iterator over all files in the given path, without traversing subfolders.
+    pub fn from_folder(path: &Path) -> Result<Self> {
+        Ok(Self(Box::new(
+            read_dir_files(path)?.map(|res| res.map(|entry| entry.path())),
+        )))
+    }
+
+    /// Iterator over all given files in the given folder.
+    /// Missing files are silently ignored.
+    pub fn from_file_list(
+        list: impl IntoIterator<Item = String> + 'static,
+        folder: PathBuf,
+    ) -> Self {
+        Self(Box::new(
+            list.into_iter()
+                .map(move |file| folder.join(file))
+                .filter(|path| path.exists())
+                .map(Ok),
+        ))
+    }
+
+    pub fn empty() -> Self {
+        Self(Box::new(std::iter::empty()))
     }
 }
 
@@ -73,7 +105,7 @@ fn export_collection_file(
     media_dir: Option<PathBuf>,
     legacy: bool,
     tr: &I18n,
-    progress_fn: impl FnMut(usize),
+    progress: &mut IncrementableProgress<usize>,
 ) -> Result<()> {
     let meta = if legacy {
         Meta::new_legacy()
@@ -82,15 +114,13 @@ fn export_collection_file(
     };
     let mut col_file = File::open(col_path)?;
     let col_size = col_file.metadata()?.len() as usize;
-    export_collection(
-        meta,
-        out_path,
-        &mut col_file,
-        col_size,
-        media_dir,
-        tr,
-        progress_fn,
-    )
+    let media = if let Some(path) = media_dir {
+        MediaIter::from_folder(&path)?
+    } else {
+        MediaIter::empty()
+    };
+
+    export_collection(meta, out_path, &mut col_file, col_size, media, tr, progress)
 }
 
 /// Write copied collection data without any media.
@@ -105,20 +135,20 @@ pub(crate) fn export_colpkg_from_data(
         out_path,
         &mut col_data,
         col_size,
-        None,
+        MediaIter::empty(),
         tr,
-        |_| (),
+        &mut IncrementableProgress::new(|_, _| true),
     )
 }
 
-fn export_collection(
+pub(crate) fn export_collection(
     meta: Meta,
     out_path: impl AsRef<Path>,
     col: &mut impl Read,
     col_size: usize,
-    media_dir: Option<PathBuf>,
+    media: MediaIter,
     tr: &I18n,
-    progress_fn: impl FnMut(usize),
+    progress: &mut IncrementableProgress<usize>,
 ) -> Result<()> {
     let out_file = File::create(&out_path)?;
     let mut zip = ZipWriter::new(out_file);
@@ -129,7 +159,7 @@ fn export_collection(
     zip.write_all(&meta_bytes)?;
     write_collection(&meta, &mut zip, col, col_size)?;
     write_dummy_collection(&mut zip, tr)?;
-    write_media(&meta, &mut zip, media_dir, progress_fn)?;
+    write_media(&meta, &mut zip, media, progress)?;
     zip.finish()?;
 
     Ok(())
@@ -203,17 +233,12 @@ fn zstd_copy(reader: &mut impl Read, writer: &mut impl Write, size: usize) -> Re
 fn write_media(
     meta: &Meta,
     zip: &mut ZipWriter<File>,
-    media_dir: Option<PathBuf>,
-    progress_fn: impl FnMut(usize),
+    media: MediaIter,
+    progress: &mut IncrementableProgress<usize>,
 ) -> Result<()> {
     let mut media_entries = vec![];
-
-    if let Some(media_dir) = media_dir {
-        write_media_files(meta, zip, &media_dir, &mut media_entries, progress_fn)?;
-    }
-
+    write_media_files(meta, zip, media, &mut media_entries, progress)?;
     write_media_map(meta, media_entries, zip)?;
-
     Ok(())
 }
 
@@ -251,19 +276,23 @@ fn write_media_map(
 fn write_media_files(
     meta: &Meta,
     zip: &mut ZipWriter<File>,
-    dir: &Path,
+    media: MediaIter,
     media_entries: &mut Vec<MediaEntry>,
-    mut progress_fn: impl FnMut(usize),
+    progress: &mut IncrementableProgress<usize>,
 ) -> Result<()> {
     let mut copier = MediaCopier::new(meta);
-    for (index, entry) in read_dir_files(dir)?.enumerate() {
-        progress_fn(index);
+    let mut incrementor = progress.incrementor(|u| u);
+    for (index, res) in media.0.enumerate() {
+        incrementor.increment()?;
+        let path = res?;
 
         zip.start_file(index.to_string(), file_options_stored())?;
 
-        let entry = entry?;
-        let name = normalized_unicode_file_name(&entry)?;
-        let mut file = File::open(entry.path())?;
+        let mut file = File::open(&path)?;
+        let file_name = path
+            .file_name()
+            .ok_or_else(|| AnkiError::invalid_input("not a file path"))?;
+        let name = normalized_unicode_file_name(file_name)?;
 
         let (size, sha1) = copier.copy(&mut file, zip)?;
         media_entries.push(MediaEntry::new(name, size, sha1));
@@ -272,23 +301,11 @@ fn write_media_files(
     Ok(())
 }
 
-impl MediaEntry {
-    fn new(name: impl Into<String>, size: impl TryInto<u32>, sha1: impl Into<Vec<u8>>) -> Self {
-        MediaEntry {
-            name: name.into(),
-            size: size.try_into().unwrap_or_default(),
-            sha1: sha1.into(),
-            legacy_zip_filename: None,
-        }
-    }
-}
-
-fn normalized_unicode_file_name(entry: &DirEntry) -> Result<String> {
-    let filename = entry.file_name();
+fn normalized_unicode_file_name(filename: &OsStr) -> Result<String> {
     let filename = filename.to_str().ok_or_else(|| {
         AnkiError::IoError(format!(
             "non-unicode file name: {}",
-            entry.file_name().to_string_lossy()
+            filename.to_string_lossy()
         ))
     })?;
     filename_if_normalized(filename)
@@ -324,7 +341,7 @@ impl MediaCopier {
         &mut self,
         reader: &mut impl Read,
         writer: &mut impl Write,
-    ) -> Result<(usize, [u8; 20])> {
+    ) -> Result<(usize, Sha1Hash)> {
         let mut size = 0;
         let mut hasher = Sha1::new();
         let mut buf = [0; 64 * 1024];

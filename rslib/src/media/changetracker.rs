@@ -4,7 +4,6 @@
 use std::{collections::HashMap, path::Path, time};
 
 use crate::{
-    error::{AnkiError, Result},
     log::{debug, Logger},
     media::{
         database::{MediaDatabaseContext, MediaEntry},
@@ -13,11 +12,12 @@ use crate::{
             NONSYNCABLE_FILENAME,
         },
     },
+    prelude::*,
 };
 
 struct FilesystemEntry {
     fname: String,
-    sha1: Option<[u8; 20]>,
+    sha1: Option<Sha1Hash>,
     mtime: i64,
     is_new: bool,
 }

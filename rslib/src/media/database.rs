@@ -5,7 +5,7 @@ use std::{collections::HashMap, path::Path};
 
 use rusqlite::{params, Connection, OptionalExtension, Row, Statement};
 
-use crate::error::Result;
+use crate::prelude::*;
 
 fn trace(s: &str) {
     println!("sql: {}", s)
@@ -47,7 +47,7 @@ fn initial_db_setup(db: &mut Connection) -> Result<()> {
 pub struct MediaEntry {
     pub fname: String,
     /// If None, file has been deleted
-    pub sha1: Option<[u8; 20]>,
+    pub sha1: Option<Sha1Hash>,
     // Modification time; 0 if deleted
     pub mtime: i64,
     /// True if changed since last sync
@@ -222,6 +222,14 @@ delete from media where fname=?"
         Ok(map?)
     }
 
+    /// Returns all filenames and checksums, where the checksum is not null.
+    pub(super) fn all_checksums(&mut self) -> Result<HashMap<String, Sha1Hash>> {
+        self.db
+            .prepare("SELECT fname, csum FROM media WHERE csum IS NOT NULL")?
+            .query_and_then([], row_to_name_and_checksum)?
+            .collect()
+    }
+
     pub(super) fn force_resync(&mut self) -> Result<()> {
         self.db
             .execute_batch("delete from media; update meta set lastUsn = 0, dirMod = 0")
@@ -231,7 +239,7 @@ delete from media where fname=?"
 
 fn row_to_entry(row: &Row) -> rusqlite::Result<MediaEntry> {
     // map the string checksum into bytes
-    let sha1_str: Option<String> = row.get(1)?;
+    let sha1_str = row.get_ref(1)?.as_str_or_null()?;
     let sha1_array = if let Some(s) = sha1_str {
         let mut arr = [0; 20];
         match hex::decode_to_slice(s, arr.as_mut()) {
@@ -248,6 +256,15 @@ fn row_to_entry(row: &Row) -> rusqlite::Result<MediaEntry> {
         mtime: row.get(2)?,
         sync_required: row.get(3)?,
     })
+}
+
+fn row_to_name_and_checksum(row: &Row) -> Result<(String, Sha1Hash)> {
+    let file_name = row.get(0)?;
+    let sha1_str: String = row.get(1)?;
+    let mut sha1 = [0; 20];
+    hex::decode_to_slice(sha1_str, &mut sha1)
+        .map_err(|_| AnkiError::invalid_input(format!("bad media checksum: {file_name}")))?;
+    Ok((file_name, sha1))
 }
 
 #[cfg(test)]
