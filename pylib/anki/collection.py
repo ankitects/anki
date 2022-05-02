@@ -387,12 +387,13 @@ class Collection(DeprecatedNamesMixin):
         limit: ExportLimit,
         with_scheduling: bool,
         with_media: bool,
+        legacy_support: bool,
     ) -> int:
         request = import_export_pb2.ExportAnkiPackageRequest(
             out_path=out_path,
             with_scheduling=with_scheduling,
             with_media=with_media,
-            legacy=True,
+            legacy=legacy_support,
         )
         if isinstance(limit, DeckIdLimit):
             request.deck_id = limit.deck_id

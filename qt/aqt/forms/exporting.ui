@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>563</width>
-    <height>223</height>
+    <height>245</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -91,6 +91,16 @@
       <widget class="QCheckBox" name="includeHTML">
        <property name="text">
         <string>exporting_include_html_and_media_references</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="legacy_support">
+       <property name="text">
+        <string>exporting_support_older_anki_versions</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

@@ -85,6 +85,7 @@ class ExportDialog(QDialog):
         self.frm.includeMedia.setVisible(self.exporter.show_include_media)
         self.frm.includeTags.setVisible(self.exporter.show_include_tags)
         self.frm.includeHTML.setVisible(self.exporter.show_include_html)
+        self.frm.legacy_support.setVisible(self.exporter.show_legacy_support)
         self.frm.deck.setVisible(self.exporter.show_deck_list)
 
     def accept(self) -> None:
@@ -128,6 +129,7 @@ class ExportDialog(QDialog):
             include_media=self.frm.includeMedia.isChecked(),
             include_tags=self.frm.includeTags.isChecked(),
             include_html=self.frm.includeHTML.isChecked(),
+            legacy_support=self.frm.legacy_support.isChecked(),
             limit=limit,
         )
 
@@ -157,6 +159,7 @@ class Options:
     include_media: bool
     include_tags: bool
     include_html: bool
+    legacy_support: bool
     limit: ExportLimit
 
 
@@ -167,6 +170,7 @@ class Exporter(ABC):
     show_include_media = False
     show_include_tags = False
     show_include_html = False
+    show_legacy_support = False
 
     @staticmethod
     @abstractmethod
@@ -182,6 +186,7 @@ class Exporter(ABC):
 class ColpkgExporter(Exporter):
     extension = "colpkg"
     show_include_media = True
+    show_legacy_support = True
 
     @staticmethod
     def name() -> str:
@@ -201,7 +206,9 @@ class ColpkgExporter(Exporter):
         QueryOp(
             parent=mw,
             op=lambda col: col.export_collection_package(
-                options.out_path, include_media=options.include_media, legacy=False
+                options.out_path,
+                include_media=options.include_media,
+                legacy=options.legacy_support,
             ),
             success=on_success,
         ).with_backend_progress(export_progress_update).failure(
@@ -214,6 +221,7 @@ class ApkgExporter(Exporter):
     show_deck_list = True
     show_include_scheduling = True
     show_include_media = True
+    show_legacy_support = True
 
     @staticmethod
     def name() -> str:
@@ -228,6 +236,7 @@ class ApkgExporter(Exporter):
                 limit=options.limit,
                 with_scheduling=options.include_scheduling,
                 with_media=options.include_media,
+                legacy_support=options.legacy_support,
             ),
             success=lambda count: tooltip(
                 tr.exporting_note_exported(count=count), parent=mw
