@@ -9,7 +9,7 @@ import unicodedata
 import zipfile
 from typing import Any, Optional
 
-from anki.importing.anki2 import Anki2Importer
+from anki.importing.anki2 import Anki2Importer, MediaMapInvalid
 from anki.utils import tmpfile
 
 
@@ -36,7 +36,11 @@ class AnkiPackageImporter(Anki2Importer):
         # number to use during the import
         self.nameToNum = {}
         dir = self.col.media.dir()
-        for k, v in list(json.loads(z.read("media").decode("utf8")).items()):
+        try:
+            media_dict = json.loads(z.read("media").decode("utf8"))
+        except Exception as exc:
+            raise MediaMapInvalid() from exc
+        for k, v in list(media_dict.items()):
             path = os.path.abspath(os.path.join(dir, v))
             if os.path.commonprefix([path, dir]) != dir:
                 raise Exception("Invalid file")

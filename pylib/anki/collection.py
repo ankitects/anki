@@ -10,6 +10,7 @@ from anki import (
     collection_pb2,
     config_pb2,
     generic_pb2,
+    import_export_pb2,
     links_pb2,
     search_pb2,
     stats_pb2,
@@ -32,6 +33,7 @@ OpChangesAfterUndo = collection_pb2.OpChangesAfterUndo
 BrowserRow = search_pb2.BrowserRow
 BrowserColumns = search_pb2.BrowserColumns
 StripHtmlMode = card_rendering_pb2.StripHtmlRequest
+ImportLogWithChanges = import_export_pb2.ImportAnkiPackageResponse
 
 import copy
 import os
@@ -88,6 +90,19 @@ class LegacyCheckpoint:
 
 
 LegacyUndoResult = Union[None, LegacyCheckpoint, LegacyReviewUndo]
+
+
+@dataclass
+class DeckIdLimit:
+    deck_id: DeckId
+
+
+@dataclass
+class NoteIdsLimit:
+    note_ids: Sequence[NoteId]
+
+
+ExportLimit = Union[DeckIdLimit, NoteIdsLimit, None]
 
 
 class Collection(DeprecatedNamesMixin):
@@ -259,14 +274,6 @@ class Collection(DeprecatedNamesMixin):
             self._clear_caches()
             self.db = None
 
-    def export_collection(
-        self, out_path: str, include_media: bool, legacy: bool
-    ) -> None:
-        self.close_for_full_sync()
-        self._backend.export_collection_package(
-            out_path=out_path, include_media=include_media, legacy=legacy
-        )
-
     def rollback(self) -> None:
         self._clear_caches()
         self.db.rollback()
@@ -321,6 +328,15 @@ class Collection(DeprecatedNamesMixin):
         else:
             return -1
 
+    def legacy_checkpoint_pending(self) -> bool:
+        return (
+            self._have_outstanding_checkpoint()
+            and time.time() - self._last_checkpoint_at < 300
+        )
+
+    # Import/export
+    ##########################################################################
+
     def create_backup(
         self,
         *,
@@ -353,11 +369,39 @@ class Collection(DeprecatedNamesMixin):
         "Throws if backup creation failed."
         self._backend.await_backup_completion()
 
-    def legacy_checkpoint_pending(self) -> bool:
-        return (
-            self._have_outstanding_checkpoint()
-            and time.time() - self._last_checkpoint_at < 300
+    def export_collection_package(
+        self, out_path: str, include_media: bool, legacy: bool
+    ) -> None:
+        self.close_for_full_sync()
+        self._backend.export_collection_package(
+            out_path=out_path, include_media=include_media, legacy=legacy
         )
+
+    def import_anki_package(self, path: str) -> ImportLogWithChanges:
+        return self._backend.import_anki_package(package_path=path)
+
+    def export_anki_package(
+        self,
+        *,
+        out_path: str,
+        limit: ExportLimit,
+        with_scheduling: bool,
+        with_media: bool,
+        legacy_support: bool,
+    ) -> int:
+        request = import_export_pb2.ExportAnkiPackageRequest(
+            out_path=out_path,
+            with_scheduling=with_scheduling,
+            with_media=with_media,
+            legacy=legacy_support,
+        )
+        if isinstance(limit, DeckIdLimit):
+            request.deck_id = limit.deck_id
+        elif isinstance(limit, NoteIdsLimit):
+            request.note_ids.note_ids.extend(limit.note_ids)
+        else:
+            request.whole_collection.SetInParent()
+        return self._backend.export_anki_package(request)
 
     # Object helpers
     ##########################################################################

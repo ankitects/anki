@@ -67,6 +67,22 @@ impl SqliteStorage {
         Ok(())
     }
 
+    pub(crate) fn add_deck_conf_if_unique(&self, conf: &DeckConfig) -> Result<bool> {
+        let mut conf_bytes = vec![];
+        conf.inner.encode(&mut conf_bytes)?;
+        self.db
+            .prepare_cached(include_str!("add_if_unique.sql"))?
+            .execute(params![
+                conf.id,
+                conf.name,
+                conf.mtime_secs,
+                conf.usn,
+                conf_bytes,
+            ])
+            .map(|added| added == 1)
+            .map_err(Into::into)
+    }
+
     pub(crate) fn update_deck_conf(&self, conf: &DeckConfig) -> Result<()> {
         let mut conf_bytes = vec![];
         conf.inner.encode(&mut conf_bytes)?;

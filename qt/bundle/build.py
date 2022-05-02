@@ -343,13 +343,13 @@ def build_tarball(src_path: Path, variant: str) -> None:
     subprocess.run(
         [
             "tar",
-            "--zstd",
+            "-I",
+            "zstd -c --long -T0 -18",
             "-cf",
             dist_folder / (dest_path.name + ".tar.zst"),
             dest_path.name,
         ],
         check=True,
-        env=dict(ZSTD_CLEVEL="9"),
         cwd=dest_path.parent,
     )
 

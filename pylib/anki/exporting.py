@@ -446,7 +446,7 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
                 time.sleep(0.1)
 
         threading.Thread(target=progress).start()
-        self.col.export_collection(path, self.includeMedia, self.LEGACY)
+        self.col.export_collection_package(path, self.includeMedia, self.LEGACY)
 
 
 class AnkiCollectionPackage21bExporter(AnkiCollectionPackageExporter):

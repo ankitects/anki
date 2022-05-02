@@ -8,16 +8,19 @@ from typing import Any, Callable, Generic, Protocol, TypeVar, Union
 
 import aqt
 import aqt.gui_hooks
+import aqt.main
 from anki.collection import (
     Collection,
+    ImportLogWithChanges,
     OpChanges,
     OpChangesAfterUndo,
     OpChangesWithCount,
     OpChangesWithId,
+    Progress,
 )
 from aqt.errors import show_exception
+from aqt.progress import ProgressUpdate
 from aqt.qt import QWidget
-from aqt.utils import showWarning
 
 
 class HasChangesProperty(Protocol):
@@ -34,6 +37,7 @@ ResultWithChanges = TypeVar(
         OpChangesWithCount,
         OpChangesWithId,
         OpChangesAfterUndo,
+        ImportLogWithChanges,
         HasChangesProperty,
     ],
 )
@@ -65,6 +69,7 @@ class CollectionOp(Generic[ResultWithChanges]):
 
     _success: Callable[[ResultWithChanges], Any] | None = None
     _failure: Callable[[Exception], Any] | None = None
+    _progress_update: Callable[[Progress, ProgressUpdate], None] | None = None
 
     def __init__(self, parent: QWidget, op: Callable[[Collection], ResultWithChanges]):
         self._parent = parent
@@ -80,6 +85,12 @@ class CollectionOp(Generic[ResultWithChanges]):
         self, failure: Callable[[Exception], Any] | None
     ) -> CollectionOp[ResultWithChanges]:
         self._failure = failure
+        return self
+
+    def with_backend_progress(
+        self, progress_update: Callable[[Progress, ProgressUpdate], None] | None
+    ) -> CollectionOp[ResultWithChanges]:
+        self._progress_update = progress_update
         return self
 
     def run_in_background(self, *, initiator: object | None = None) -> None:
@@ -113,12 +124,29 @@ class CollectionOp(Generic[ResultWithChanges]):
                 if self._success:
                     self._success(result)
             finally:
-                mw.update_undo_actions()
-                mw.autosave()
-                # fire change hooks
-                self._fire_change_hooks_after_op_performed(result, initiator)
+                self._finish_op(mw, result, initiator)
 
-        mw.taskman.with_progress(wrapped_op, wrapped_done)
+        self._run(mw, wrapped_op, wrapped_done)
+
+    def _run(
+        self,
+        mw: aqt.main.AnkiQt,
+        op: Callable[[], ResultWithChanges],
+        on_done: Callable[[Future], None],
+    ) -> None:
+        if self._progress_update:
+            mw.taskman.with_backend_progress(
+                op, self._progress_update, on_done=on_done, parent=self._parent
+            )
+        else:
+            mw.taskman.with_progress(op, on_done, parent=self._parent)
+
+    def _finish_op(
+        self, mw: aqt.main.AnkiQt, result: ResultWithChanges, initiator: object | None
+    ) -> None:
+        mw.update_undo_actions()
+        mw.autosave()
+        self._fire_change_hooks_after_op_performed(result, initiator)
 
     def _fire_change_hooks_after_op_performed(
         self,
@@ -168,6 +196,7 @@ class QueryOp(Generic[T]):
 
     _failure: Callable[[Exception], Any] | None = None
     _progress: bool | str = False
+    _progress_update: Callable[[Progress, ProgressUpdate], None] | None = None
 
     def __init__(
         self,
@@ -192,6 +221,12 @@ class QueryOp(Generic[T]):
         self._progress = label or True
         return self
 
+    def with_backend_progress(
+        self, progress_update: Callable[[Progress, ProgressUpdate], None] | None
+    ) -> QueryOp[T]:
+        self._progress_update = progress_update
+        return self
+
     def run_in_background(self) -> None:
         from aqt import mw
 
@@ -201,22 +236,11 @@ class QueryOp(Generic[T]):
 
         def wrapped_op() -> T:
             assert mw
-            if self._progress:
-                label: str | None
-                if isinstance(self._progress, str):
-                    label = self._progress
-                else:
-                    label = None
-
-                def start_progress() -> None:
-                    assert mw
-                    mw.progress.start(label=label)
-
-                mw.taskman.run_on_main(start_progress)
             return self._op(mw.col)
 
         def wrapped_done(future: Future) -> None:
             assert mw
+
             mw._decrease_background_ops()
             # did something go wrong?
             if exception := future.exception():
@@ -224,17 +248,32 @@ class QueryOp(Generic[T]):
                     if self._failure:
                         self._failure(exception)
                     else:
-                        showWarning(str(exception), self._parent)
+                        show_exception(parent=self._parent, exception=exception)
                     return
                 else:
                     # BaseException like SystemExit; rethrow it
                     future.result()
 
-            result = future.result()
-            try:
-                self._success(result)
-            finally:
-                if self._progress:
-                    mw.progress.finish()
+            self._success(future.result())
 
-        mw.taskman.run_in_background(wrapped_op, wrapped_done)
+        self._run(mw, wrapped_op, wrapped_done)
+
+    def _run(
+        self,
+        mw: aqt.main.AnkiQt,
+        op: Callable[[], T],
+        on_done: Callable[[Future], None],
+    ) -> None:
+        label = self._progress if isinstance(self._progress, str) else None
+        if self._progress_update:
+            mw.taskman.with_backend_progress(
+                op,
+                self._progress_update,
+                on_done=on_done,
+                start_label=label,
+                parent=self._parent,
+            )
+        elif self._progress:
+            mw.taskman.with_progress(op, on_done, label=label, parent=self._parent)
+        else:
+            mw.taskman.run_in_background(op, on_done)

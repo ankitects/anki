@@ -145,6 +145,34 @@ impl super::SqliteStorage {
         Ok(())
     }
 
+    /// Add card if id is unique. True if card was added.
+    pub(crate) fn add_card_if_unique(&self, card: &Card) -> Result<bool> {
+        self.db
+            .prepare_cached(include_str!("add_card_if_unique.sql"))?
+            .execute(params![
+                card.id,
+                card.note_id,
+                card.deck_id,
+                card.template_idx,
+                card.mtime,
+                card.usn,
+                card.ctype as u8,
+                card.queue as i8,
+                card.due,
+                card.interval,
+                card.ease_factor,
+                card.reps,
+                card.lapses,
+                card.remaining_steps,
+                card.original_due,
+                card.original_deck_id,
+                card.flags,
+                CardData::from_card(card),
+            ])
+            .map(|n_rows| n_rows == 1)
+            .map_err(Into::into)
+    }
+
     /// Add or update card, using the provided ID. Used for syncing & undoing.
     pub(crate) fn add_or_update_card(&self, card: &Card) -> Result<()> {
         let mut stmt = self.db.prepare_cached(include_str!("add_or_update.sql"))?;
@@ -400,6 +428,20 @@ impl super::SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn get_all_card_ids(&self) -> Result<HashSet<CardId>> {
+        self.db
+            .prepare("SELECT id FROM cards")?
+            .query_and_then([], |row| Ok(row.get(0)?))?
+            .collect()
+    }
+
+    pub(crate) fn all_cards_as_nid_and_ord(&self) -> Result<HashSet<(NoteId, u16)>> {
+        self.db
+            .prepare("SELECT nid, ord FROM cards")?
+            .query_and_then([], |r| Ok((NoteId(r.get(0)?), r.get(1)?)))?
+            .collect()
+    }
+
     pub(crate) fn card_ids_of_notes(&self, nids: &[NoteId]) -> Result<Vec<CardId>> {
         let mut stmt = self
             .db
@@ -453,6 +495,16 @@ impl super::SqliteStorage {
             }
         }
         Ok(nids)
+    }
+
+    /// Place the ids of cards with notes in 'search_nids' into 'search_cids'.
+    /// Returns number of added cards.
+    pub(crate) fn search_cards_of_notes_into_table(&self) -> Result<usize> {
+        self.setup_searched_cards_table()?;
+        self.db
+            .prepare(include_str!("search_cards_of_notes_into_table.sql"))?
+            .execute([])
+            .map_err(Into::into)
     }
 
     pub(crate) fn all_searched_cards(&self) -> Result<Vec<Card>> {

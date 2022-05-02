@@ -74,6 +74,15 @@ impl SqliteStorage {
             .transpose()
     }
 
+    pub(crate) fn get_deck_by_name(&self, machine_name: &str) -> Result<Option<Deck>> {
+        self.db
+            .prepare_cached(concat!(include_str!("get_deck.sql"), " WHERE name = ?"))?
+            .query_and_then([machine_name], row_to_deck)?
+            .next()
+            .transpose()
+            .map_err(Into::into)
+    }
+
     pub(crate) fn get_all_decks(&self) -> Result<Vec<Deck>> {
         self.db
             .prepare(include_str!("get_deck.sql"))?
@@ -109,6 +118,17 @@ impl SqliteStorage {
             .next()
             .transpose()
             .map_err(Into::into)
+    }
+
+    pub(crate) fn get_decks_for_search_cards(&self) -> Result<Vec<Deck>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get_deck.sql"),
+                " WHERE id IN (SELECT DISTINCT did FROM cards WHERE id IN",
+                " (SELECT cid FROM search_cids))",
+            ))?
+            .query_and_then([], row_to_deck)?
+            .collect()
     }
 
     // caller should ensure name unique

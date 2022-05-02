@@ -69,6 +69,12 @@ impl From<pb::NoteId> for NoteId {
     }
 }
 
+impl From<NoteId> for pb::NoteId {
+    fn from(nid: NoteId) -> Self {
+        pb::NoteId { nid: nid.0 }
+    }
+}
+
 impl From<pb::NotetypeId> for NotetypeId {
     fn from(ntid: pb::NotetypeId) -> Self {
         NotetypeId(ntid.ntid)

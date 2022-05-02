@@ -28,9 +28,17 @@ impl Collection {
 
     /// Add the provided revlog entry, modifying the ID if it is not unique.
     pub(crate) fn add_revlog_entry_undoable(&mut self, mut entry: RevlogEntry) -> Result<RevlogId> {
-        entry.id = self.storage.add_revlog_entry(&entry, true)?;
+        entry.id = self.storage.add_revlog_entry(&entry, true)?.unwrap();
         let id = entry.id;
         self.save_undo(UndoableRevlogChange::Added(Box::new(entry)));
         Ok(id)
+    }
+
+    /// Add the provided revlog entry, if its ID is unique.
+    pub(crate) fn add_revlog_entry_if_unique_undoable(&mut self, entry: RevlogEntry) -> Result<()> {
+        if self.storage.add_revlog_entry(&entry, false)?.is_some() {
+            self.save_undo(UndoableRevlogChange::Added(Box::new(entry)));
+        }
+        Ok(())
     }
 }

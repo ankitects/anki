@@ -648,7 +648,7 @@ impl Collection {
 
     /// - Caller must set notetype as modified if appropriate.
     /// - This only supports undo when an existing notetype is passed in.
-    fn add_or_update_notetype_with_existing_id_inner(
+    pub(crate) fn add_or_update_notetype_with_existing_id_inner(
         &mut self,
         notetype: &mut Notetype,
         original: Option<Notetype>,

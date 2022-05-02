@@ -15,6 +15,8 @@ from threading import Lock
 from typing import Any, Callable
 
 import aqt
+from anki.collection import Progress
+from aqt.progress import ProgressUpdate
 from aqt.qt import *
 
 Closure = Callable[[], None]
@@ -81,6 +83,27 @@ class TaskManager(QObject):
     ) -> None:
         "Use QueryOp()/CollectionOp() in new code."
         self.mw.progress.start(parent=parent, label=label, immediate=immediate)
+
+        def wrapped_done(fut: Future) -> None:
+            self.mw.progress.finish()
+            if on_done:
+                on_done(fut)
+
+        self.run_in_background(task, wrapped_done)
+
+    def with_backend_progress(
+        self,
+        task: Callable,
+        progress_update: Callable[[Progress, ProgressUpdate], None],
+        on_done: Callable[[Future], None] | None = None,
+        parent: QWidget | None = None,
+        start_label: str | None = None,
+    ) -> None:
+        self.mw.progress.start_with_backend_updates(
+            progress_update,
+            parent=parent,
+            start_label=start_label,
+        )
 
         def wrapped_done(fut: Future) -> None:
             self.mw.progress.finish()

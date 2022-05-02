@@ -38,7 +38,7 @@ impl Collection {
             self.storage.get_all_revlog_entries(revlog_start)?
         } else {
             self.storage
-                .get_revlog_entries_for_searched_cards(revlog_start)?
+                .get_pb_revlog_entries_for_searched_cards(revlog_start)?
         };
 
         self.storage.clear_searched_cards_table()?;

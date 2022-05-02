@@ -5,6 +5,8 @@ syntax = "proto3";
 
 package anki.import_export;
 
+import "anki/collection.proto";
+import "anki/notes.proto";
 import "anki/generic.proto";
 
 service ImportExportService {
@@ -12,18 +14,53 @@ service ImportExportService {
       returns (generic.Empty);
   rpc ExportCollectionPackage(ExportCollectionPackageRequest)
       returns (generic.Empty);
+  rpc ImportAnkiPackage(ImportAnkiPackageRequest)
+      returns (ImportAnkiPackageResponse);
+  rpc ExportAnkiPackage(ExportAnkiPackageRequest) returns (generic.UInt32);
 }
 
 message ImportCollectionPackageRequest {
   string col_path = 1;
   string backup_path = 2;
   string media_folder = 3;
+  string media_db = 4;
 }
 
 message ExportCollectionPackageRequest {
   string out_path = 1;
   bool include_media = 2;
   bool legacy = 3;
+}
+
+message ImportAnkiPackageRequest {
+  string package_path = 1;
+}
+
+message ImportAnkiPackageResponse {
+  message Note {
+    notes.NoteId id = 1;
+    repeated string fields = 2;
+  }
+  message Log {
+    repeated Note new = 1;
+    repeated Note updated = 2;
+    repeated Note duplicate = 3;
+    repeated Note conflicting = 4;
+  }
+  collection.OpChanges changes = 1;
+  Log log = 2;
+}
+
+message ExportAnkiPackageRequest {
+  string out_path = 1;
+  bool with_scheduling = 2;
+  bool with_media = 3;
+  bool legacy = 4;
+  oneof selector {
+    generic.Empty whole_collection = 5;
+    int64 deck_id = 6;
+    notes.NoteIds note_ids = 7;
+  }
 }
 
 message PackageMetadata {

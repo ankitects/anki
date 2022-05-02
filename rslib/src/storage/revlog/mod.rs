@@ -61,16 +61,19 @@ impl SqliteStorage {
         Ok(())
     }
 
-    /// Returns the used id, which may differ if `ensure_unique` is true.
+    /// Adds the entry, if its id is unique. If it is not, and `uniquify` is true,
+    /// adds it with a new id. Returns the added id.
+    /// (I.e., the option is safe to unwrap, if `uniquify` is true.)
     pub(crate) fn add_revlog_entry(
         &self,
         entry: &RevlogEntry,
-        ensure_unique: bool,
-    ) -> Result<RevlogId> {
-        self.db
+        uniquify: bool,
+    ) -> Result<Option<RevlogId>> {
+        let added = self
+            .db
             .prepare_cached(include_str!("add.sql"))?
             .execute(params![
-                ensure_unique,
+                uniquify,
                 entry.id,
                 entry.cid,
                 entry.usn,
@@ -81,7 +84,7 @@ impl SqliteStorage {
                 entry.taken_millis,
                 entry.review_kind as u8
             ])?;
-        Ok(RevlogId(self.db.last_insert_rowid()))
+        Ok((added > 0).then(|| RevlogId(self.db.last_insert_rowid())))
     }
 
     pub(crate) fn get_revlog_entry(&self, id: RevlogId) -> Result<Option<RevlogEntry>> {
@@ -107,7 +110,7 @@ impl SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn get_revlog_entries_for_searched_cards(
+    pub(crate) fn get_pb_revlog_entries_for_searched_cards(
         &self,
         after: TimestampSecs,
     ) -> Result<Vec<pb::RevlogEntry>> {
@@ -117,6 +120,16 @@ impl SqliteStorage {
                 " where cid in (select cid from search_cids) and id >= ?"
             ))?
             .query_and_then([after.0 * 1000], |r| row_to_revlog_entry(r).map(Into::into))?
+            .collect()
+    }
+
+    pub(crate) fn get_revlog_entries_for_searched_cards(&self) -> Result<Vec<RevlogEntry>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get.sql"),
+                " where cid in (select cid from search_cids)"
+            ))?
+            .query_and_then([], row_to_revlog_entry)?
             .collect()
     }
 
