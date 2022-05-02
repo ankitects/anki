@@ -58,7 +58,13 @@ class ExportDialog(QDialog):
             0, [f"{e.name()} (.{e.extension})" for e in self.exporters]
         )
         qconnect(self.frm.format.activated, self.exporter_changed)
-        self.exporter_changed(0)
+        if self.nids is None and not did:
+            # file>export defaults to colpkg
+            default_exporter_idx = 1
+        else:
+            default_exporter_idx = 0
+        self.frm.format.setCurrentIndex(default_exporter_idx)
+        self.exporter_changed(default_exporter_idx)
         # deck list
         if self.nids is None:
             self.all_decks = self.col.decks.all_names_and_ids()
