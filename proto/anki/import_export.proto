@@ -17,6 +17,7 @@ service ImportExportService {
   rpc ImportAnkiPackage(ImportAnkiPackageRequest)
       returns (ImportAnkiPackageResponse);
   rpc ExportAnkiPackage(ExportAnkiPackageRequest) returns (generic.UInt32);
+  rpc ImportCsv(ImportCsvRequest) returns (generic.Empty);
 }
 
 message ImportCollectionPackageRequest {
@@ -91,4 +92,23 @@ message MediaEntries {
   }
 
   repeated MediaEntry entries = 1;
+}
+
+message ImportCsvRequest {
+  message Column {
+    enum Other {
+      IGNORE = 0;
+      TAGS = 1;
+    }
+    oneof variant {
+      uint32 field = 1;
+      Other other = 2;
+    }
+  }
+  string path = 1;
+  int64 deck_id = 2;
+  int64 notetype_id = 3;
+  repeated Column columns = 4;
+  string delimiter = 5;
+  bool allow_html = 6;
 }

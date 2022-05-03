@@ -185,6 +185,12 @@ impl From<regex::Error> for AnkiError {
     }
 }
 
+impl From<csv::Error> for AnkiError {
+    fn from(err: csv::Error) -> Self {
+        AnkiError::InvalidInput(err.to_string())
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub struct CardTypeError {
     pub notetype: String,

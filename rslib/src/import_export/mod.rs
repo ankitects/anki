@@ -4,6 +4,7 @@
 mod gather;
 mod insert;
 pub mod package;
+pub mod text;
 
 use std::marker::PhantomData;
 

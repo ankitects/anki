@@ -76,6 +76,7 @@ rust_library(
         "//rslib/cargo:bytes",
         "//rslib/cargo:chrono",
         "//rslib/cargo:coarsetime",
+        "//rslib/cargo:csv",
         "//rslib/cargo:flate2",
         "//rslib/cargo:fluent",
         "//rslib/cargo:fnv",

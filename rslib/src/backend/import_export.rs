@@ -6,9 +6,17 @@ use std::path::Path;
 use super::{progress::Progress, Backend};
 pub(super) use crate::backend_proto::importexport_service::Service as ImportExportService;
 use crate::{
-    backend_proto::{self as pb, export_anki_package_request::Selector},
+    backend_proto::{
+        self as pb,
+        export_anki_package_request::Selector,
+        import_csv_request::{
+            column::{Other as OtherColumn, Variant as ColumnVariant},
+            Column as ProtoColumn,
+        },
+    },
     import_export::{
         package::{import_colpkg, NoteLog},
+        text::csv::Column,
         ExportProgress, ImportProgress,
     },
     prelude::*,
@@ -77,6 +85,21 @@ impl ImportExportService for Backend {
         })
         .map(Into::into)
     }
+
+    fn import_csv(&self, input: pb::ImportCsvRequest) -> Result<pb::Empty> {
+        let out = self.with_col(|col| {
+            col.import_csv(
+                &input.path,
+                input.deck_id.into(),
+                input.notetype_id.into(),
+                input.columns.into_iter().map(Into::into).collect(),
+                byte_from_string(&input.delimiter)?,
+                input.allow_html,
+            )
+        })?;
+        println!("{:?}", out);
+        Ok(pb::Empty {})
+    }
 }
 
 impl SearchNode {
@@ -108,4 +131,22 @@ impl From<OpOutput<NoteLog>> for pb::ImportAnkiPackageResponse {
             log: Some(output.output),
         }
     }
+}
+
+impl From<ProtoColumn> for Column {
+    fn from(column: ProtoColumn) -> Self {
+        match column.variant.unwrap_or(ColumnVariant::Other(0)) {
+            ColumnVariant::Field(idx) => Column::Field(idx as usize),
+            ColumnVariant::Other(i) => match OtherColumn::from_i32(i).unwrap_or_default() {
+                OtherColumn::Tags => Column::Tags,
+                OtherColumn::Ignore => Column::Ignore,
+            },
+        }
+    }
+}
+
+fn byte_from_string(s: &str) -> Result<u8> {
+    s.bytes()
+        .next()
+        .ok_or_else(|| AnkiError::invalid_input("empty string"))
 }
