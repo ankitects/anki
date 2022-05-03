@@ -14,10 +14,7 @@ from aqt.qt import *
 from aqt.utils import askUser, getFile, showInfo, showText, showWarning, tooltip, tr
 
 
-def import_file(mw: aqt.main.AnkiQt) -> None:
-    if not (path := get_file_path(mw)):
-        return
-
+def import_file(mw: aqt.main.AnkiQt, path: str) -> None:
     filename = os.path.basename(path).lower()
     if filename.endswith(".anki"):
         showInfo(tr.importing_anki_files_are_from_a_very())
@@ -29,6 +26,11 @@ def import_file(mw: aqt.main.AnkiQt) -> None:
         import_anki_package(mw, path)
     else:
         raise NotImplementedError
+
+
+def prompt_for_file_then_import(mw: aqt.main.AnkiQt) -> None:
+    if path := get_file_path(mw):
+        import_file(mw, path)
 
 
 def get_file_path(mw: aqt.main.AnkiQt) -> str | None:
