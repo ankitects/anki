@@ -10,6 +10,7 @@ impl Collection {
     {
         let have_op = op.is_some();
         let skip_undo_queue = op == Some(Op::SkipUndo);
+        let autocommit = self.storage.db.is_autocommit();
 
         self.storage.begin_rust_trx()?;
         self.begin_undoable_operation(op);
@@ -43,7 +44,11 @@ impl Collection {
             // roll back on error
             .or_else(|err| {
                 self.discard_undo_and_study_queues();
-                self.storage.rollback_rust_trx()?;
+                if autocommit {
+                    self.storage.rollback_trx()?;
+                } else {
+                    self.storage.rollback_rust_trx()?;
+                }
                 Err(err)
             })
     }
