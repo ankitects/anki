@@ -112,6 +112,8 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Pr
                     ImportProgress::Media(n) => tr.importing_processed_media_file(n),
                     ImportProgress::MediaCheck(n) => tr.media_check_checked(n),
                     ImportProgress::Notes(n) => tr.importing_processed_notes(n),
+                    ImportProgress::Extracting => tr.importing_extracting(),
+                    ImportProgress::Gathering => tr.importing_gathering(),
                 }
                 .into(),
             ),

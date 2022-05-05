@@ -56,12 +56,14 @@ impl<'a> Context<'a> {
         target_col: &'a mut Collection,
         progress_fn: impl 'static + FnMut(ImportProgress, bool) -> bool,
     ) -> Result<Self> {
-        let progress = IncrementableProgress::new(progress_fn);
+        let mut progress = IncrementableProgress::new(progress_fn);
+        progress.call(ImportProgress::Extracting)?;
         let meta = Meta::from_archive(&mut archive)?;
         let data = ExchangeData::gather_from_archive(
             &mut archive,
             &meta,
             SearchNode::WholeCollection,
+            &mut progress,
             true,
         )?;
         let usn = target_col.usn()?;
@@ -77,7 +79,6 @@ impl<'a> Context<'a> {
 
     fn import(&mut self) -> Result<NoteLog> {
         let mut media_map = self.prepare_media()?;
-        self.progress.call(ImportProgress::File)?;
         let note_imports = self.import_notes_and_notetypes(&mut media_map)?;
         let imported_decks = self.import_decks_and_configs()?;
         self.import_cards_and_revlog(&note_imports.id_map, &imported_decks)?;
@@ -91,12 +92,14 @@ impl ExchangeData {
         archive: &mut ZipArchive<File>,
         meta: &Meta,
         search: impl TryIntoSearch,
+        progress: &mut IncrementableProgress<ImportProgress>,
         with_scheduling: bool,
     ) -> Result<Self> {
         let tempfile = collection_to_tempfile(meta, archive)?;
         let mut col = CollectionBuilder::new(tempfile.path()).build()?;
         col.maybe_upgrade_scheduler()?;
 
+        progress.call(ImportProgress::Gathering)?;
         let mut data = ExchangeData::default();
         data.gather_data(&mut col, search, with_scheduling)?;
 
