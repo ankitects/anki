@@ -8,10 +8,7 @@ use zip::ZipArchive;
 use super::Context;
 use crate::{
     import_export::{
-        package::{
-            media::{extract_media_entries, SafeMediaEntry},
-            Meta,
-        },
+        package::media::{extract_media_entries, SafeMediaEntry},
         ImportProgress, IncrementableProgress,
     },
     media::{
@@ -34,10 +31,16 @@ pub(super) struct MediaUseMap {
 
 impl Context<'_> {
     pub(super) fn prepare_media(&mut self) -> Result<MediaUseMap> {
+        let media_entries = extract_media_entries(&self.meta, &mut self.archive)?;
+        if media_entries.is_empty() {
+            return Ok(MediaUseMap::default());
+        }
+
         let db_progress_fn = self.progress.media_db_fn(ImportProgress::MediaCheck)?;
         let existing_sha1s = self.target_col.all_existing_sha1s(db_progress_fn)?;
+
         prepare_media(
-            &self.meta,
+            media_entries,
             &mut self.archive,
             &existing_sha1s,
             &mut self.progress,
@@ -65,7 +68,7 @@ impl Collection {
 }
 
 fn prepare_media(
-    meta: &Meta,
+    media_entries: Vec<SafeMediaEntry>,
     archive: &mut ZipArchive<File>,
     existing_sha1s: &HashMap<String, Sha1Hash>,
     progress: &mut IncrementableProgress<ImportProgress>,
@@ -73,7 +76,7 @@ fn prepare_media(
     let mut media_map = MediaUseMap::default();
     let mut incrementor = progress.incrementor(ImportProgress::MediaCheck);
 
-    for mut entry in extract_media_entries(meta, archive)? {
+    for mut entry in media_entries {
         incrementor.increment()?;
 
         if entry.is_static() {
