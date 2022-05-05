@@ -12,6 +12,8 @@ use crate::prelude::*;
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ImportProgress {
     File,
+    Extracting,
+    Gathering,
     Media(usize),
     MediaCheck(usize),
     Notes(usize),
