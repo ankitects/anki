@@ -25,7 +25,11 @@ def import_file(mw: aqt.main.AnkiQt, path: str) -> None:
     elif filename.endswith(".apkg"):
         import_anki_package(mw, path)
     else:
-        raise NotImplementedError
+        showWarning(
+            tr.importing_unable_to_import_filename(filename=filename),
+            parent=mw,
+            textFormat="plain",
+        )
 
 
 def prompt_for_file_then_import(mw: aqt.main.AnkiQt) -> None:
