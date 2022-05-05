@@ -187,12 +187,10 @@ impl Collection {
     ) -> Result<()> {
         if let Some(parent_name) = immediate_parent_name(name) {
             if parent_names.insert(parent_name.to_owned()) {
-                parents.push(
-                    self.storage
-                        .get_deck_by_name(parent_name)?
-                        .ok_or(AnkiError::DatabaseCheckRequired)?,
-                );
-                self.add_parent_decks(parent_name, parent_names, parents)?;
+                if let Some(parent) = self.storage.get_deck_by_name(parent_name)? {
+                    parents.push(parent);
+                    self.add_parent_decks(parent_name, parent_names, parents)?;
+                }
             }
         }
         Ok(())
