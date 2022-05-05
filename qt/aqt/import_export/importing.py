@@ -22,7 +22,7 @@ def import_file(mw: aqt.main.AnkiQt, path: str) -> None:
         showInfo(tr.importing_anki2_files_are_not_directly_importable())
     elif is_collection_package(filename):
         maybe_import_collection_package(mw, path)
-    elif filename.endswith(".apkg"):
+    elif filename.endswith(".apkg") or filename.endswith(".zip"):
         import_anki_package(mw, path)
     else:
         showWarning(
