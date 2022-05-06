@@ -16,7 +16,7 @@ use crate::{
             colpkg::export::{export_collection, MediaIter},
             Meta,
         },
-        IncrementableProgress,
+        ExportProgress, IncrementableProgress,
     },
     io::{atomic_rename, tempfile_in_parent_of},
     prelude::*,
@@ -33,9 +33,10 @@ impl Collection {
         with_media: bool,
         legacy: bool,
         media_fn: Option<Box<dyn FnOnce(HashSet<String>) -> MediaIter>>,
-        progress_fn: impl 'static + FnMut(usize, bool) -> bool,
+        progress_fn: impl 'static + FnMut(ExportProgress, bool) -> bool,
     ) -> Result<usize> {
         let mut progress = IncrementableProgress::new(progress_fn);
+        progress.call(ExportProgress::File)?;
         let temp_apkg = tempfile_in_parent_of(out_path.as_ref())?;
         let mut temp_col = NamedTempFile::new()?;
         let temp_col_path = temp_col
@@ -51,10 +52,12 @@ impl Collection {
             &meta,
             temp_col_path,
             search,
+            &mut progress,
             with_scheduling,
             with_media,
         )?;
 
+        progress.call(ExportProgress::File)?;
         let media = if let Some(media_fn) = media_fn {
             media_fn(data.media_filenames)
         } else {
@@ -80,16 +83,19 @@ impl Collection {
         meta: &Meta,
         path: &str,
         search: impl TryIntoSearch,
+        progress: &mut IncrementableProgress<ExportProgress>,
         with_scheduling: bool,
         with_media: bool,
     ) -> Result<ExchangeData> {
         let mut data = ExchangeData::default();
+        progress.call(ExportProgress::Gathering)?;
         data.gather_data(self, search, with_scheduling)?;
         if with_media {
-            data.gather_media_names();
+            data.gather_media_names(progress)?;
         }
 
         let mut temp_col = Collection::new_minimal(path)?;
+        progress.call(ExportProgress::File)?;
         temp_col.insert_data(&data)?;
         temp_col.set_creation_stamp(self.storage.creation_stamp()?)?;
         temp_col.set_creation_utc_offset(data.creation_utc_offset)?;

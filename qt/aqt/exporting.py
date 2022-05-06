@@ -160,12 +160,20 @@ class ExportDialog(QDialog):
             else:
                 os.unlink(file)
 
-            # progress handler
-            def exported_media(cnt: int) -> None:
+            # progress handler: old apkg exporter
+            def exported_media_count(cnt: int) -> None:
                 self.mw.taskman.run_on_main(
                     lambda: self.mw.progress.update(
                         label=tr.exporting_exported_media_file(count=cnt)
                     )
+                )
+
+            # progress handler: adaptor for new colpkg importer into old exporting screen.
+            # don't rename this; there's a hack in pylib/exporting.py that assumes this
+            # name
+            def exported_media(progress: str) -> None:
+                self.mw.taskman.run_on_main(
+                    lambda: self.mw.progress.update(label=progress)
                 )
 
             def do_export() -> None:
@@ -173,7 +181,8 @@ class ExportDialog(QDialog):
 
             def on_done(future: Future) -> None:
                 self.mw.progress.finish()
-                hooks.media_files_did_export.remove(exported_media)
+                hooks.media_files_did_export.remove(exported_media_count)
+                hooks.legacy_export_progress.remove(exported_media)
                 try:
                     # raises if exporter failed
                     future.result()
@@ -186,7 +195,8 @@ class ExportDialog(QDialog):
             if self.isVerbatim:
                 gui_hooks.collection_will_temporarily_close(self.mw.col)
             self.mw.progress.start()
-            hooks.media_files_did_export.append(exported_media)
+            hooks.media_files_did_export.append(exported_media_count)
+            hooks.legacy_export_progress.append(exported_media)
 
             self.mw.taskman.run_in_background(do_export, on_done)
 

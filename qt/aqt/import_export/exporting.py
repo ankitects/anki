@@ -246,7 +246,7 @@ class ApkgExporter(Exporter):
 
 def export_progress_update(progress: Progress, update: ProgressUpdate) -> None:
     if not progress.HasField("exporting"):
-        return None
-    update.label = tr.exporting_exported_media_file(count=progress.exporting)
+        return
+    update.label = progress.exporting
     if update.user_wants_abort:
         update.abort = True

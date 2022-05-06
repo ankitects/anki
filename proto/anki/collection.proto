@@ -108,6 +108,7 @@ message Progress {
     uint32 stage_total = 2;
     uint32 stage_current = 3;
   }
+
   oneof value {
     generic.Empty none = 1;
     MediaSync media_sync = 2;
@@ -116,7 +117,7 @@ message Progress {
     NormalSync normal_sync = 5;
     DatabaseCheck database_check = 6;
     string importing = 7;
-    uint32 exporting = 8;
+    string exporting = 8;
   }
 }
 

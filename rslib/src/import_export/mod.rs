@@ -19,6 +19,14 @@ pub enum ImportProgress {
     Notes(usize),
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ExportProgress {
+    File,
+    Gathering,
+    Notes(usize),
+    Media(usize),
+}
+
 /// Wrapper around a progress function, usually passed by the [crate::backend::Backend],
 /// to make repeated calls more ergonomic.
 pub(crate) struct IncrementableProgress<P>(Box<dyn FnMut(P, bool) -> bool>);
