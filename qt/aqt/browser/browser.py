@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Callable, Sequence
 
 import aqt
@@ -735,8 +736,12 @@ class Browser(QMainWindow):
         "Shows prompt if tags not provided."
         if not (tags := tags or self._prompt_for_tags(tr.browsing_enter_tags_to_add())):
             return
+
+        space_separated_tags = re.sub(r"[ \n\t\v]+", " ", tags)
         add_tags_to_notes(
-            parent=self, note_ids=self.selected_notes(), space_separated_tags=tags
+            parent=self,
+            note_ids=self.selected_notes(),
+            space_separated_tags=space_separated_tags,
         ).run_in_background(initiator=self)
 
     @no_arg_trigger
