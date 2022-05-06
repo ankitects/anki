@@ -9,7 +9,7 @@ use crate::{
     backend_proto::{self as pb, export_anki_package_request::Selector},
     import_export::{
         package::{import_colpkg, NoteLog},
-        ImportProgress,
+        ExportProgress, ImportProgress,
     },
     prelude::*,
     search::SearchNode,
@@ -95,7 +95,7 @@ impl Backend {
         move |progress, throttle| handler.update(Progress::Import(progress), throttle)
     }
 
-    fn export_progress_fn(&self) -> impl FnMut(usize, bool) -> bool {
+    fn export_progress_fn(&self) -> impl FnMut(ExportProgress, bool) -> bool {
         let mut handler = self.new_progress_handler();
         move |progress, throttle| handler.update(Progress::Export(progress), throttle)
     }

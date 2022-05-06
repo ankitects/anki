@@ -31,7 +31,16 @@ hooks = [
         args=["col: anki.collection.Collection", "ids: Sequence[anki.notes.NoteId]"],
         legacy_hook="remNotes",
     ),
-    Hook(name="media_files_did_export", args=["count: int"]),
+    Hook(
+        name="media_files_did_export",
+        args=["count: int"],
+        doc="Only used by legacy .apkg exporter. Will be deprecated in the future.",
+    ),
+    Hook(
+        name="legacy_export_progress",
+        args=["progress: str"],
+        doc="Temporary hook used in transition to new import/export code.",
+    ),
     Hook(
         name="exporters_list_created",
         args=["exporters: list[tuple[str, Any]]"],
