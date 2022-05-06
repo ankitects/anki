@@ -90,7 +90,7 @@ impl Collection {
             .and_then(|v| FixedOffset::west_opt(v * 60))
             .unwrap_or_else(|| FixedOffset::west(0));
 
-        let local_tz = TimestampSecs::now().local_utc_offset();
+        let local_tz = TimestampSecs::now().local_utc_offset()?;
 
         Ok(if self.server {
             config_tz
