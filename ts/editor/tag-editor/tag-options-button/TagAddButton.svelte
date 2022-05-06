@@ -13,13 +13,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher<{ tagappend: CustomEvent<void> }>();
 
+    function appendTag() {
+        dispatch("tagappend");
+    }
+
     const keyCombination = "Control+Shift+T";
 </script>
 
 <div
     class="tag-add-button"
     title="{tr.editingTagsAdd()} ({getPlatformString(keyCombination)})"
-    on:click={() => dispatch("tagappend")}
+    tabindex={0}
+    on:click={appendTag}
+    on:focus={appendTag}
 >
     <IconConstrain>
         {@html tagIcon}
