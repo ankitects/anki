@@ -9,15 +9,10 @@ use crate::{
     backend_proto::{
         self as pb,
         export_anki_package_request::Selector,
-        import_csv_request::{
-            column::{Other as OtherColumn, Variant as ColumnVariant},
-            Column as ProtoColumn,
-        },
+        import_csv_request::{csv_column, CsvColumn},
     },
     import_export::{
-        package::{import_colpkg, NoteLog},
-        text::csv::Column,
-        ExportProgress, ImportProgress,
+        package::import_colpkg, text::csv::Column, ExportProgress, ImportProgress, NoteLog,
     },
     prelude::*,
     search::SearchNode,
@@ -63,7 +58,7 @@ impl ImportExportService for Backend {
     fn import_anki_package(
         &self,
         input: pb::ImportAnkiPackageRequest,
-    ) -> Result<pb::ImportAnkiPackageResponse> {
+    ) -> Result<pb::ImportResponse> {
         self.with_col(|col| col.import_apkg(&input.package_path, self.import_progress_fn()))
             .map(Into::into)
     }
@@ -86,19 +81,23 @@ impl ImportExportService for Backend {
         .map(Into::into)
     }
 
-    fn import_csv(&self, input: pb::ImportCsvRequest) -> Result<pb::Empty> {
-        let out = self.with_col(|col| {
+    fn import_csv(&self, input: pb::ImportCsvRequest) -> Result<pb::ImportResponse> {
+        self.with_col(|col| {
             col.import_csv(
                 &input.path,
                 input.deck_id.into(),
                 input.notetype_id.into(),
                 input.columns.into_iter().map(Into::into).collect(),
                 byte_from_string(&input.delimiter)?,
-                input.allow_html,
+                //input.allow_html,
             )
-        })?;
-        println!("{:?}", out);
-        Ok(pb::Empty {})
+        })
+        .map(Into::into)
+    }
+
+    fn import_json(&self, input: pb::String) -> Result<pb::ImportResponse> {
+        self.with_col(|col| col.import_json(&input.val))
+            .map(Into::into)
     }
 }
 
@@ -124,7 +123,7 @@ impl Backend {
     }
 }
 
-impl From<OpOutput<NoteLog>> for pb::ImportAnkiPackageResponse {
+impl From<OpOutput<NoteLog>> for pb::ImportResponse {
     fn from(output: OpOutput<NoteLog>) -> Self {
         Self {
             changes: Some(output.changes.into()),
@@ -133,14 +132,16 @@ impl From<OpOutput<NoteLog>> for pb::ImportAnkiPackageResponse {
     }
 }
 
-impl From<ProtoColumn> for Column {
-    fn from(column: ProtoColumn) -> Self {
-        match column.variant.unwrap_or(ColumnVariant::Other(0)) {
-            ColumnVariant::Field(idx) => Column::Field(idx as usize),
-            ColumnVariant::Other(i) => match OtherColumn::from_i32(i).unwrap_or_default() {
-                OtherColumn::Tags => Column::Tags,
-                OtherColumn::Ignore => Column::Ignore,
-            },
+impl From<CsvColumn> for Column {
+    fn from(column: CsvColumn) -> Self {
+        match column.variant.unwrap_or(csv_column::Variant::Other(0)) {
+            csv_column::Variant::Field(idx) => Column::Field(idx as usize),
+            csv_column::Variant::Other(i) => {
+                match csv_column::Other::from_i32(i).unwrap_or_default() {
+                    csv_column::Other::Tags => Column::Tags,
+                    csv_column::Other::Ignore => Column::Ignore,
+                }
+            }
         }
     }
 }

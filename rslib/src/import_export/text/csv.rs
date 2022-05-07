@@ -1,6 +1,5 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-#![allow(dead_code, unused_imports, unused_variables)]
 
 use std::{
     fs::File,
@@ -8,7 +7,10 @@ use std::{
 };
 
 use crate::{
-    import_export::text::{ForeignData, ForeignNote},
+    import_export::{
+        text::{ForeignData, ForeignNote},
+        NoteLog,
+    },
     prelude::*,
 };
 
@@ -27,18 +29,21 @@ impl Collection {
         notetype_id: NotetypeId,
         columns: Vec<Column>,
         delimiter: u8,
-        allow_html: bool,
-    ) -> Result<ForeignData> {
+        //allow_html: bool,
+    ) -> Result<OpOutput<NoteLog>> {
         let notetype = self.get_notetype(notetype_id)?.ok_or(AnkiError::NotFound)?;
         let fields_len = notetype.fields.len();
         let file = File::open(path)?;
         let notes = deserialize_csv(file, &columns, fields_len, delimiter)?;
 
-        Ok(ForeignData {
-            default_deck: deck_id,
-            default_notetype: notetype_id,
+        ForeignData {
+            // TODO: refactor to allow passing ids directly
+            default_deck: deck_id.to_string(),
+            default_notetype: notetype_id.to_string(),
             notes,
-        })
+            ..Default::default()
+        }
+        .import(self)
     }
 }
 

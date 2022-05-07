@@ -14,10 +14,10 @@ service ImportExportService {
       returns (generic.Empty);
   rpc ExportCollectionPackage(ExportCollectionPackageRequest)
       returns (generic.Empty);
-  rpc ImportAnkiPackage(ImportAnkiPackageRequest)
-      returns (ImportAnkiPackageResponse);
+  rpc ImportAnkiPackage(ImportAnkiPackageRequest) returns (ImportResponse);
   rpc ExportAnkiPackage(ExportAnkiPackageRequest) returns (generic.UInt32);
-  rpc ImportCsv(ImportCsvRequest) returns (generic.Empty);
+  rpc ImportCsv(ImportCsvRequest) returns (ImportResponse);
+  rpc ImportJson(generic.String) returns (ImportResponse);
 }
 
 message ImportCollectionPackageRequest {
@@ -37,7 +37,7 @@ message ImportAnkiPackageRequest {
   string package_path = 1;
 }
 
-message ImportAnkiPackageResponse {
+message ImportResponse {
   message Note {
     notes.NoteId id = 1;
     repeated string fields = 2;
@@ -95,7 +95,7 @@ message MediaEntries {
 }
 
 message ImportCsvRequest {
-  message Column {
+  message CsvColumn {
     enum Other {
       IGNORE = 0;
       TAGS = 1;
@@ -108,7 +108,7 @@ message ImportCsvRequest {
   string path = 1;
   int64 deck_id = 2;
   int64 notetype_id = 3;
-  repeated Column columns = 4;
+  repeated CsvColumn columns = 4;
   string delimiter = 5;
   bool allow_html = 6;
 }
