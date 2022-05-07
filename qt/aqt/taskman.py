@@ -100,9 +100,7 @@ class TaskManager(QObject):
         start_label: str | None = None,
     ) -> None:
         self.mw.progress.start_with_backend_updates(
-            progress_update,
-            parent=parent,
-            start_label=start_label,
+            progress_update, parent=parent, start_label=start_label
         )
 
         def wrapped_done(fut: Future) -> None:

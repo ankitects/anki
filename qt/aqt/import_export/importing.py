@@ -108,8 +108,7 @@ def import_collection_package_op(
 
 def import_anki_package(mw: aqt.main.AnkiQt, path: str) -> None:
     CollectionOp(
-        parent=mw,
-        op=lambda col: col.import_anki_package(path),
+        parent=mw, op=lambda col: col.import_anki_package(path)
     ).with_backend_progress(import_progress_update).success(
         show_import_log
     ).run_in_background()

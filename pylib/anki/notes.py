@@ -113,11 +113,7 @@ class Note(DeprecatedNamesMixin):
         template["ord"] = card.ord
 
         output = anki.template.TemplateRenderContext.from_card_layout(
-            self,
-            card,
-            notetype=model,
-            template=template,
-            fill_empty=fill_empty,
+            self, card, notetype=model, template=template, fill_empty=fill_empty
         ).render()
         card.set_render_output(output)
         card._note = self

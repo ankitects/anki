@@ -202,10 +202,7 @@ class Browser(QMainWindow):
             f.actionZoomOut.triggered,
             lambda: self.editor.web.setZoomFactor(self.editor.web.zoomFactor() - 0.1),
         )
-        qconnect(
-            f.actionResetZoom.triggered,
-            lambda: self.editor.web.setZoomFactor(1),
-        )
+        qconnect(f.actionResetZoom.triggered, lambda: self.editor.web.setZoomFactor(1))
 
         # notes
         qconnect(f.actionAdd.triggered, self.mw.onAddCard)
@@ -317,9 +314,7 @@ class Browser(QMainWindow):
     ######################################################################
 
     def setupSearch(
-        self,
-        card: Card | None = None,
-        search: tuple[str | SearchNode] | None = None,
+        self, card: Card | None = None, search: tuple[str | SearchNode] | None = None
     ) -> None:
         qconnect(self.form.searchEdit.lineEdit().returnPressed, self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
@@ -544,10 +539,7 @@ class Browser(QMainWindow):
         self.sidebar = SidebarTreeView(self)
         self.sidebarTree = self.sidebar  # legacy alias
         dw.setWidget(self.sidebar)
-        qconnect(
-            self.form.actionSidebarFilter.triggered,
-            self.focusSidebarSearchBar,
-        )
+        qconnect(self.form.actionSidebarFilter.triggered, self.focusSidebarSearchBar)
         grid = QGridLayout()
         grid.addWidget(self.sidebar.searchBar, 0, 0)
         grid.addWidget(self.sidebar.toolbar, 0, 1)
@@ -729,10 +721,7 @@ class Browser(QMainWindow):
     @no_arg_trigger
     @skip_if_selection_is_empty
     @ensure_editor_saved
-    def add_tags_to_selected_notes(
-        self,
-        tags: str | None = None,
-    ) -> None:
+    def add_tags_to_selected_notes(self, tags: str | None = None) -> None:
         "Shows prompt if tags not provided."
         if not (tags := tags or self._prompt_for_tags(tr.browsing_enter_tags_to_add())):
             return

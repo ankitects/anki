@@ -94,8 +94,7 @@ class DeprecatedNamesMixin:
 
     @classmethod
     def register_deprecated_attributes(
-        cls,
-        **kwargs: tuple[DeprecatedAliasTarget, DeprecatedAliasTarget | None],
+        cls, **kwargs: tuple[DeprecatedAliasTarget, DeprecatedAliasTarget | None]
     ) -> None:
         """Manually add deprecated attributes without exact substitutes.
 
@@ -153,8 +152,7 @@ class DeprecatedNamesMixinForModule:
         self._deprecated_aliases = {k: _target_to_string(v) for k, v in kwargs.items()}
 
     def register_deprecated_attributes(
-        self,
-        **kwargs: tuple[DeprecatedAliasTarget, DeprecatedAliasTarget | None],
+        self, **kwargs: tuple[DeprecatedAliasTarget, DeprecatedAliasTarget | None]
     ) -> None:
         self._deprecated_attributes = {
             k: (_target_to_string(v[0]), _target_to_string(v[1]))

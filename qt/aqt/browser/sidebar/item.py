@@ -97,10 +97,7 @@ class SidebarItem:
     ) -> SidebarItem:
         "Add child sidebar item, and return it."
         item = SidebarItem(
-            name=name,
-            icon=icon,
-            search_node=search_node,
-            item_type=type,
+            name=name, icon=icon, search_node=search_node, item_type=type
         )
         self.add_child(item)
         return item

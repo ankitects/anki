@@ -28,10 +28,7 @@ from aqt.utils import disable_help_button, getText, tooltip, tr
 
 
 def set_due_date_dialog(
-    *,
-    parent: QWidget,
-    card_ids: Sequence[CardId],
-    config_key: Config.String.V | None,
+    *, parent: QWidget, card_ids: Sequence[CardId], config_key: Config.String.V | None
 ) -> CollectionOp[OpChanges] | None:
     assert aqt.mw
     if not card_ids:
@@ -59,8 +56,7 @@ def set_due_date_dialog(
             parent, lambda col: col.sched.set_due_date(card_ids, days, config_key)
         ).success(
             lambda _: tooltip(
-                tr.scheduling_set_due_date_done(cards=len(card_ids)),
-                parent=parent,
+                tr.scheduling_set_due_date_done(cards=len(card_ids)), parent=parent
             )
         )
 
@@ -175,17 +171,13 @@ def reposition_new_cards(
 
 
 def suspend_cards(
-    *,
-    parent: QWidget,
-    card_ids: Sequence[CardId],
+    *, parent: QWidget, card_ids: Sequence[CardId]
 ) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(parent, lambda col: col.sched.suspend_cards(card_ids))
 
 
 def suspend_note(
-    *,
-    parent: QWidget,
-    note_ids: Sequence[NoteId],
+    *, parent: QWidget, note_ids: Sequence[NoteId]
 ) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(parent, lambda col: col.sched.suspend_notes(note_ids))
 
@@ -197,17 +189,13 @@ def unsuspend_cards(
 
 
 def bury_cards(
-    *,
-    parent: QWidget,
-    card_ids: Sequence[CardId],
+    *, parent: QWidget, card_ids: Sequence[CardId]
 ) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(parent, lambda col: col.sched.bury_cards(card_ids))
 
 
 def bury_notes(
-    *,
-    parent: QWidget,
-    note_ids: Sequence[NoteId],
+    *, parent: QWidget, note_ids: Sequence[NoteId]
 ) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(parent, lambda col: col.sched.bury_notes(note_ids))
 
@@ -229,29 +217,20 @@ def empty_filtered_deck(*, parent: QWidget, deck_id: DeckId) -> CollectionOp[OpC
 
 
 def add_or_update_filtered_deck(
-    *,
-    parent: QWidget,
-    deck: FilteredDeckForUpdate,
+    *, parent: QWidget, deck: FilteredDeckForUpdate
 ) -> CollectionOp[OpChangesWithId]:
     return CollectionOp(parent, lambda col: col.sched.add_or_update_filtered_deck(deck))
 
 
 def unbury_deck(
-    *,
-    parent: QWidget,
-    deck_id: DeckId,
-    mode: UnburyDeck.Mode.V = UnburyDeck.ALL,
+    *, parent: QWidget, deck_id: DeckId, mode: UnburyDeck.Mode.V = UnburyDeck.ALL
 ) -> CollectionOp[OpChanges]:
     return CollectionOp(
         parent, lambda col: col.sched.unbury_deck(deck_id=deck_id, mode=mode)
     )
 
 
-def answer_card(
-    *,
-    parent: QWidget,
-    answer: CardAnswer,
-) -> CollectionOp[OpChanges]:
+def answer_card(*, parent: QWidget, answer: CardAnswer) -> CollectionOp[OpChanges]:
     def answer_v3(col: Collection) -> OpChanges:
         assert isinstance(col.sched, V3Scheduler)
         return col.sched.answer_card(answer)
@@ -260,8 +239,6 @@ def answer_card(
 
 
 def custom_study(
-    *,
-    parent: QWidget,
-    request: CustomStudyRequest,
+    *, parent: QWidget, request: CustomStudyRequest
 ) -> CollectionOp[OpChanges]:
     return CollectionOp(parent, lambda col: col.sched.custom_study(request))

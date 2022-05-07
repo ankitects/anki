@@ -258,8 +258,7 @@ class SidebarTreeView(QTreeView):
                         self.setExpanded(idx, True)
                     if item.is_highlighted() and scroll_to_first_match:
                         self.selectionModel().setCurrentIndex(
-                            idx,
-                            QItemSelectionModel.SelectionFlag.SelectCurrent,
+                            idx, QItemSelectionModel.SelectionFlag.SelectCurrent
                         )
                         self.scrollTo(
                             idx, QAbstractItemView.ScrollHint.PositionAtCenter
@@ -269,9 +268,7 @@ class SidebarTreeView(QTreeView):
         expand_node(parent or QModelIndex())
 
     def update_search(
-        self,
-        *terms: Union[str, SearchNode],
-        joiner: SearchJoiner = "AND",
+        self, *terms: Union[str, SearchNode], joiner: SearchJoiner = "AND"
     ) -> None:
         """Modify the current search string based on modifier keys, then refresh."""
         mods = KeyboardModifiersPressed()
@@ -791,9 +788,7 @@ class SidebarTreeView(QTreeView):
                     deck_id=DeckId(node.deck_id),
                     collapsed=not expanded,
                     scope=DeckCollapseScope.BROWSER,
-                ).run_in_background(
-                    initiator=self,
-                )
+                ).run_in_background(initiator=self)
 
             for node in nodes:
                 item = SidebarItem(
@@ -978,8 +973,7 @@ class SidebarTreeView(QTreeView):
             tr.actions_all_selected(), lambda: self.update_search(*nodes)
         )
         sub_menu.addAction(
-            tr.actions_any_selected(),
-            lambda: self.update_search(*nodes, joiner="OR"),
+            tr.actions_any_selected(), lambda: self.update_search(*nodes, joiner="OR")
         )
 
     def _maybe_add_tree_actions(self, menu: QMenu) -> None:
@@ -1039,16 +1033,12 @@ class SidebarTreeView(QTreeView):
                     showInfo(tr.browsing_tag_rename_warning_empty(), parent=self)
 
             rename_tag(
-                parent=self,
-                current_name=item.full_name,
-                new_name=new_name,
+                parent=self, current_name=item.full_name, new_name=new_name
             ).success(success).run_in_background()
 
         elif item.item_type is SidebarItemType.DECK:
             rename_deck(
-                parent=self,
-                deck_id=DeckId(item.id),
-                new_name=new_name,
+                parent=self, deck_id=DeckId(item.id), new_name=new_name
             ).run_in_background()
 
     def _on_find_and_replace(self, item: SidebarItem) -> None:
@@ -1056,10 +1046,7 @@ class SidebarTreeView(QTreeView):
         if item.item_type is SidebarItemType.NOTETYPE_FIELD:
             field = item.name
         FindAndReplaceDialog(
-            self,
-            mw=self.mw,
-            note_ids=self.browser.selected_notes(),
-            field=field,
+            self, mw=self.mw, note_ids=self.browser.selected_notes(), field=field
         )
 
     # Flags
@@ -1080,9 +1067,7 @@ class SidebarTreeView(QTreeView):
         item.name = new_name
 
         rename_deck(
-            parent=self,
-            deck_id=DeckId(item.id),
-            new_name=item.name_prefix + new_name,
+            parent=self, deck_id=DeckId(item.id), new_name=item.name_prefix + new_name
         ).run_in_background()
 
     def delete_decks(self, _item: SidebarItem) -> None:
@@ -1120,9 +1105,7 @@ class SidebarTreeView(QTreeView):
                 showInfo(tr.browsing_tag_rename_warning_empty(), parent=self)
 
         rename_tag(
-            parent=self.browser,
-            current_name=old_full_name,
-            new_name=new_full_name,
+            parent=self.browser, current_name=old_full_name, new_name=new_full_name
         ).success(success).run_in_background()
 
     def add_tags_to_selected_notes(self) -> None:

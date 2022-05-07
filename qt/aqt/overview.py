@@ -274,9 +274,7 @@ class Overview:
     ######################################################################
 
     def _renderBottom(self) -> None:
-        links = [
-            ["O", "opts", tr.actions_options()],
-        ]
+        links = [["O", "opts", tr.actions_options()]]
         if self.mw.col.decks.current()["dyn"]:
             links.append(["R", "refresh", tr.actions_rebuild()])
             links.append(["E", "empty", tr.studying_empty()])

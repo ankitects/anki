@@ -33,9 +33,7 @@ TYPE_ALL = 3
 class CustomStudy(QDialog):
     @staticmethod
     def fetch_data_and_show(mw: aqt.AnkiQt) -> None:
-        def fetch_data(
-            col: Collection,
-        ) -> Tuple[DeckId, CustomStudyDefaults]:
+        def fetch_data(col: Collection) -> Tuple[DeckId, CustomStudyDefaults]:
             deck_id = mw.col.decks.get_current_id()
             defaults = col.sched.custom_study_defaults(deck_id)
             return (deck_id, defaults)
@@ -49,10 +47,7 @@ class CustomStudy(QDialog):
         ).with_progress().run_in_background()
 
     def __init__(
-        self,
-        mw: aqt.AnkiQt,
-        deck_id: DeckId,
-        defaults: CustomStudyDefaults,
+        self, mw: aqt.AnkiQt, deck_id: DeckId, defaults: CustomStudyDefaults
     ) -> None:
         "Don't call this directly; use CustomStudy.fetch_data_and_show()."
         QDialog.__init__(self, mw)

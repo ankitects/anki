@@ -231,9 +231,7 @@ class AnkiQt(QMainWindow):
         for w in (self.web, self.bottomWeb):
             if not w._domDone:
                 self.progress.single_shot(
-                    10,
-                    self.setupProfileAfterWebviewsLoaded,
-                    False,
+                    10, self.setupProfileAfterWebviewsLoaded, False
                 )
                 return
             else:
@@ -774,10 +772,7 @@ class AnkiQt(QMainWindow):
     # legacy
 
     def requireReset(
-        self,
-        modal: bool = False,
-        reason: Any = None,
-        context: Any = None,
+        self, modal: bool = False, reason: Any = None, context: Any = None
     ) -> None:
         traceback.print_stack(file=sys.stdout)
         print("requireReset() is obsolete; please use CollectionOp()")
@@ -812,12 +807,7 @@ class AnkiQt(QMainWindow):
         return """
 <button id="{}" class="{}" onclick="pycmd('{}');return false;"
 title="{}" {}>{}</button>""".format(
-            id,
-            class_,
-            link,
-            key,
-            extra,
-            name,
+            id, class_, link, key, extra, name
         )
 
     # Main window setup
@@ -1346,10 +1336,7 @@ title="{}" {}>{}</button>""".format(
         self.progress.timer(1000, lambda: None, True, False, parent=self)
         # periodic backups are checked every 5 minutes
         self.progress.timer(
-            5 * 60 * 1000,
-            self.on_periodic_backup_timer,
-            True,
-            parent=self,
+            5 * 60 * 1000, self.on_periodic_backup_timer, True, parent=self
         )
 
     def onRefreshTimer(self) -> None:
@@ -1381,9 +1368,7 @@ title="{}" {}>{}</button>""".format(
         Waits until the backup completes. Intended to be used as part of a longer-running
         CollectionOp/QueryOp."""
         self.col.create_backup(
-            backup_folder=self.pm.backupFolder(),
-            force=True,
-            wait_for_completion=True,
+            backup_folder=self.pm.backupFolder(), force=True, wait_for_completion=True
         )
 
     def _create_backup_with_progress(self, user_initiated: bool) -> None:
@@ -1741,11 +1726,7 @@ title="{}" {}>{}</button>""".format(
 
         if self.state == "startup":
             # try again in a second
-            self.progress.single_shot(
-                1000,
-                lambda: self.onAppMsg(buf),
-                False,
-            )
+            self.progress.single_shot(1000, lambda: self.onAppMsg(buf), False)
             return
         elif self.state == "profileManager":
             # can't raise window while in profile manager
@@ -1761,10 +1742,7 @@ title="{}" {}>{}</button>""".format(
         if not self.interactiveState() or self.progress.busy():
             # we can't raise the main window while in profile dialog, syncing, etc
             if buf != "raise":
-                showInfo(
-                    tr.qt_misc_please_ensure_a_profile_is_open(),
-                    parent=None,
-                )
+                showInfo(tr.qt_misc_please_ensure_a_profile_is_open(), parent=None)
             return None
         # raise window
         if is_win:

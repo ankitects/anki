@@ -118,14 +118,7 @@ def wait_for_success(uuid, wait=True):
 
 def staple(app_path):
     try:
-        subprocess.check_call(
-            [
-                "xcrun",
-                "stapler",
-                "staple",
-                app_path,
-            ]
-        )
+        subprocess.check_call(["xcrun", "stapler", "staple", app_path])
     except subprocess.CalledProcessError as e:
         print("error stapling:")
         print(e.output)

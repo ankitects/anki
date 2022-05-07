@@ -108,12 +108,7 @@ class TagEdit(QLineEdit):
 
 
 class TagCompleter(QCompleter):
-    def __init__(
-        self,
-        model: QStringListModel,
-        parent: QWidget,
-        edit: TagEdit,
-    ) -> None:
+    def __init__(self, model: QStringListModel, parent: QWidget, edit: TagEdit) -> None:
         QCompleter.__init__(self, model, parent)
         self.tags: list[str] = []
         self.edit = edit

@@ -194,8 +194,7 @@ class Table:
             SearchContext(search=last_search, browser=self.browser)
         )
         self.col.set_config_bool(
-            Config.Bool.BROWSER_TABLE_SHOW_NOTES_MODE,
-            self.is_notes_mode(),
+            Config.Bool.BROWSER_TABLE_SHOW_NOTES_MODE, self.is_notes_mode()
         )
         self._restore_header()
         self._restore_selection(self._toggled_selection)
@@ -249,8 +248,7 @@ class Table:
 
     def clear_current(self) -> None:
         self._view.selectionModel().setCurrentIndex(
-            QModelIndex(),
-            QItemSelectionModel.SelectionFlag.NoUpdate,
+            QModelIndex(), QItemSelectionModel.SelectionFlag.NoUpdate
         )
 
     # Private methods
@@ -271,8 +269,7 @@ class Table:
             row, self._view.horizontalHeader().logicalIndex(column)
         )
         self._view.selectionModel().setCurrentIndex(
-            index,
-            QItemSelectionModel.SelectionFlag.NoUpdate,
+            index, QItemSelectionModel.SelectionFlag.NoUpdate
         )
 
     def _reset_selection(self) -> None:
@@ -620,8 +617,7 @@ class Table:
             return
         if index is None:
             index = self._view.moveCursor(
-                direction,
-                self.browser.mw.app.keyboardModifiers(),
+                direction, self.browser.mw.app.keyboardModifiers()
             )
         self._view.selectionModel().setCurrentIndex(
             index,

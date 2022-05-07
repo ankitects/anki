@@ -22,10 +22,7 @@ def set_card_deck(
 
 
 def set_card_flag(
-    *,
-    parent: QWidget,
-    card_ids: Sequence[CardId],
-    flag: int,
+    *, parent: QWidget, card_ids: Sequence[CardId], flag: int
 ) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(
         parent, lambda col: col.set_user_flag_for_cards(flag, card_ids)

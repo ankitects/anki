@@ -164,7 +164,7 @@ class Anki2Importer(Importer):
         if dupesIdentical:
             self.log.append(
                 self.dst.tr.importing_notes_skipped_as_theyre_already_in(
-                    val=len(dupesIdentical),
+                    val=len(dupesIdentical)
                 )
             )
 

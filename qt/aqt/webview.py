@@ -223,9 +223,7 @@ class WebContent:
 
 class AnkiWebView(QWebEngineView):
     def __init__(
-        self,
-        parent: Optional[QWidget] = None,
-        title: str = "default",
+        self, parent: Optional[QWidget] = None, title: str = "default"
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
         self.set_title(title)
@@ -447,9 +445,7 @@ div[contenteditable="true"]:focus {{
     outline: 0 none;
     border-color: {color_hl};
 }}""".format(
-                family=family,
-                color_hl=color_hl,
-                color_hl_txt=color_hl_txt,
+                family=family, color_hl=color_hl, color_hl_txt=color_hl_txt
             )
 
         zoom = self.app_zoom_factor()

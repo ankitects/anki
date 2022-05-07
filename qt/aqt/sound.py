@@ -81,17 +81,7 @@ class Player(ABC):
         "Do any cleanup required at program termination. Optional."
 
 
-AUDIO_EXTENSIONS = {
-    "3gp",
-    "flac",
-    "m4a",
-    "mp3",
-    "oga",
-    "ogg",
-    "opus",
-    "spx",
-    "wav",
-}
+AUDIO_EXTENSIONS = {"3gp", "flac", "m4a", "mp3", "oga", "ogg", "opus", "spx", "wav"}
 
 
 def is_audio_file(fname: str) -> bool:
@@ -382,9 +372,7 @@ class SimpleMplayerPlayer(SimpleProcessPlayer, SoundOrVideoPlayer):
 class MpvManager(MPV, SoundOrVideoPlayer):
 
     if not is_lin:
-        default_argv = MPVBase.default_argv + [
-            "--input-media-keys=no",
-        ]
+        default_argv = MPVBase.default_argv + ["--input-media-keys=no"]
 
     def __init__(self, base_path: str, media_folder: str) -> None:
         self.media_folder = media_folder
@@ -654,10 +642,7 @@ class RecordDialog(QDialog):
     _recorder: Recorder
 
     def __init__(
-        self,
-        parent: QWidget,
-        mw: aqt.AnkiQt,
-        on_success: Callable[[str], None],
+        self, parent: QWidget, mw: aqt.AnkiQt, on_success: Callable[[str], None]
     ):
         QDialog.__init__(self, parent)
         self._parent = parent
@@ -702,9 +687,7 @@ class RecordDialog(QDialog):
     def _start_recording(self) -> None:
         if qtmajor > 5:
             if macos_helper and platform.machine() == "arm64":
-                self._recorder = NativeMacRecorder(
-                    namedtmp("rec.wav"),
-                )
+                self._recorder = NativeMacRecorder(namedtmp("rec.wav"))
             else:
                 self._recorder = QtAudioInputRecorder(
                     namedtmp("rec.wav"), self.mw, self._parent

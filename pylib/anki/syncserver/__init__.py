@@ -178,10 +178,7 @@ def serve() -> None:
     port = int(os.getenv("PORT", "8080"))
 
     server = create_server(
-        app,
-        host=host,
-        port=port,
-        clear_untrusted_proxy_headers=True,
+        app, host=host, port=port, clear_untrusted_proxy_headers=True
     )
 
     effective_port = server.effective_port  # type: ignore

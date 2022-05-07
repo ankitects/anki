@@ -247,8 +247,7 @@ class AddonManager:
             except:
                 showWarning(
                     tr.addons_failed_to_load(
-                        name=addon.human_name(),
-                        traceback=traceback.format_exc(),
+                        name=addon.human_name(), traceback=traceback.format_exc()
                     )
                 )
 
@@ -312,8 +311,7 @@ class AddonManager:
                 addons = ", ".join(self.addonName(f) for f in conflicting)
                 showInfo(
                     tr.addons_the_following_addons_are_incompatible_with(
-                        name=addon.human_name(),
-                        found=addons,
+                        name=addon.human_name(), found=addons
                     ),
                     textFormat="plain",
                 )
@@ -818,9 +816,7 @@ class AddonsDialog(QDialog):
     def should_grey(self, addon: AddonMeta) -> bool:
         return not addon.enabled or not addon.compatible()
 
-    def redrawAddons(
-        self,
-    ) -> None:
+    def redrawAddons(self) -> None:
         addonList = self.form.addonList
         mgr = self.mgr
 
@@ -1219,10 +1215,7 @@ class ChooseAddonsToUpdateList(QListWidget):
     ADDON_ID_ROLE = 101
 
     def __init__(
-        self,
-        parent: QWidget,
-        mgr: AddonManager,
-        updated_addons: list[UpdateInfo],
+        self, parent: QWidget, mgr: AddonManager, updated_addons: list[UpdateInfo]
     ) -> None:
         QListWidget.__init__(self, parent)
         self.mgr = mgr
@@ -1430,9 +1423,7 @@ def check_for_updates(
         # if syncing/in profile screen, defer message delivery
         if not mgr.mw.col:
             mgr.mw.progress.single_shot(
-                1000,
-                lambda: update_info_received(future),
-                False,
+                1000, lambda: update_info_received(future), False
             )
             return
 
@@ -1543,7 +1534,7 @@ class ConfigEditor(QDialog):
         self.setWindowTitle(
             without_unicode_isolation(
                 tr.addons_config_window_title(
-                    name=self.mgr.addon_meta(addon).human_name(),
+                    name=self.mgr.addon_meta(addon).human_name()
                 )
             )
         )
@@ -1569,11 +1560,7 @@ class ConfigEditor(QDialog):
 
     def updateText(self, conf: dict[str, Any]) -> None:
         text = json.dumps(
-            conf,
-            ensure_ascii=False,
-            sort_keys=True,
-            indent=4,
-            separators=(",", ": "),
+            conf, ensure_ascii=False, sort_keys=True, indent=4, separators=(",", ": ")
         )
         text = gui_hooks.addon_config_editor_will_display_json(text)
         self.form.editor.setPlainText(text)
@@ -1611,9 +1598,7 @@ class ConfigEditor(QDialog):
                 )
             else:
                 msg = tr.addons_config_validation_error(
-                    problem=e.message,
-                    path=path,
-                    schema=str(schema),
+                    problem=e.message, path=path, schema=str(schema)
                 )
             showInfo(msg)
             return

@@ -115,10 +115,7 @@ class DeckManager(DeprecatedNamesMixin):
         return self.col._backend.add_deck_legacy(to_json_bytes(deck))
 
     def id(
-        self,
-        name: str,
-        create: bool = True,
-        type: DeckConfigId = DeckConfigId(0),
+        self, name: str, create: bool = True, type: DeckConfigId = DeckConfigId(0)
     ) -> DeckId | None:
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
         id = self.id_for_name(name)
@@ -529,11 +526,7 @@ class DeckManager(DeprecatedNamesMixin):
         pass
 
     @deprecated(replaced_by=remove)
-    def rem(
-        self,
-        did: DeckId,
-        **legacy_args: bool,
-    ) -> None:
+    def rem(self, did: DeckId, **legacy_args: bool) -> None:
         "Remove the deck. If cardsToo, delete any cards inside."
         if isinstance(did, str):
             did = int(did)

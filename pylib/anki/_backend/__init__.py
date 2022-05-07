@@ -70,10 +70,7 @@ class RustBackend(RustBackendGenerated):
         if langs is None:
             langs = [anki.lang.current_lang]
 
-        init_msg = backend_pb2.BackendInit(
-            preferred_langs=langs,
-            server=server,
-        )
+        init_msg = backend_pb2.BackendInit(preferred_langs=langs, server=server)
         self._backend = rsbridge.open_backend(init_msg.SerializeToString(), log_file)
 
     def db_query(
@@ -116,19 +113,13 @@ class RustBackend(RustBackendGenerated):
         }
 
         input = i18n_pb2.TranslateStringRequest(
-            module_index=module_index,
-            message_index=message_index,
-            args=args,
+            module_index=module_index, message_index=message_index, args=args
         )
 
         output_bytes = self.translate_string_raw(input.SerializeToString())
         return anki.generic_pb2.String.FromString(output_bytes).val
 
-    def format_time_span(
-        self,
-        seconds: Any,
-        context: Any = 2,
-    ) -> str:
+    def format_time_span(self, seconds: Any, context: Any = 2) -> str:
         traceback.print_stack(file=sys.stdout)
         print(
             "please use col.format_timespan() instead of col.backend.format_time_span()"

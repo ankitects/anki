@@ -108,15 +108,7 @@ def build_pyoxidizer():
     ):
         # avoid recompiling if pyoxidizer folder has not changed
         return
-    subprocess.run(
-        [
-            "cargo",
-            "build",
-            "--release",
-        ],
-        cwd=pyoxidizer_folder,
-        check=True,
-    )
+    subprocess.run(["cargo", "build", "--release"], cwd=pyoxidizer_folder, check=True)
     os.utime(pyoxidizer_binary, (pyoxidizer_folder_mtime, pyoxidizer_folder_mtime))
 
 
@@ -247,10 +239,7 @@ def merge_into_dist(output_folder: Path, pyqt_src_path: Path | None):
         else:
             src = extra_qt6_linux_plugins
             dest = output_folder / "lib" / "PyQt6" / "Qt6" / "plugins"
-        subprocess.run(
-            ["rsync", "-a", str(src) + "/", str(dest) + "/"],
-            check=True,
-        )
+        subprocess.run(["rsync", "-a", str(src) + "/", str(dest) + "/"], check=True)
 
     # Executable and other resources
     resources = [
@@ -323,8 +312,7 @@ def build_app_bundle(src_path: Path, variant: str) -> None:
     variant_path = src_path.parent / "app" / variant
     if os.getenv("NOTARIZE_USER"):
         subprocess.run(
-            ["python", "mac/notarize.py", "upload", variant_path],
-            check=True,
+            ["python", "mac/notarize.py", "upload", variant_path], check=True
         )
     # note down the dmg name for later
     open(variant_path / "dmg_name", "w").write(

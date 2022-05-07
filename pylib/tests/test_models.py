@@ -271,10 +271,7 @@ def test_chained_mods():
     note[
         "Text"
     ] = "This {{{{c1::{}::{}}}}} demonstrates {{{{c1::{}::{}}}}} clozes.".format(
-        q1,
-        a1,
-        q2,
-        a2,
+        q1, a1, q2, a2
     )
     assert col.addNote(note) == 1
     assert (

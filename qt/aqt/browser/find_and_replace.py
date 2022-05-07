@@ -67,10 +67,9 @@ class FindAndReplaceDialog(QDialog):
 
     def _show(self, field_names: Sequence[str]) -> None:
         # add "all fields" and "tags" to the top of the list
-        self.field_names = [
-            tr.browsing_all_fields(),
-            tr.editing_tags(),
-        ] + list(field_names)
+        self.field_names = [tr.browsing_all_fields(), tr.editing_tags()] + list(
+            field_names
+        )
 
         disable_help_button(self)
         self.form = aqt.forms.findreplace.Ui_Dialog()

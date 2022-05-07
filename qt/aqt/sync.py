@@ -79,8 +79,7 @@ def on_normal_sync_timer(mw: aqt.main.AnkiQt) -> None:
     sync_progress = progress.normal_sync
 
     mw.progress.update(
-        label=f"{sync_progress.added}\n{sync_progress.removed}",
-        process=False,
+        label=f"{sync_progress.added}\n{sync_progress.removed}", process=False
     )
     mw.progress.set_title(sync_progress.stage)
 
@@ -202,9 +201,7 @@ def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         return on_done()
 
     mw.taskman.with_progress(
-        download,
-        on_future_done,
-        label=tr.sync_downloading_from_ankiweb(),
+        download, on_future_done, label=tr.sync_downloading_from_ankiweb()
     )
 
 
@@ -272,8 +269,7 @@ def sync_login(
         on_success()
 
     mw.taskman.with_progress(
-        lambda: mw.col.sync_login(username=username, password=password),
-        on_future_done,
+        lambda: mw.col.sync_login(username=username, password=password), on_future_done
     )
 
 

@@ -40,6 +40,7 @@ if __name__ == "__main__":
             "tests",
             "tools",
             "bundle",
+            "--skip-magic-trailing-comma",
         ]
         + args,
         check=False,

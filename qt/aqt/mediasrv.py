@@ -150,8 +150,7 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
         isdir = os.path.isdir(os.path.join(directory, path))
     except ValueError:
         return flask.make_response(
-            f"Path for '{directory} - {path}' is too long!",
-            HTTPStatus.BAD_REQUEST,
+            f"Path for '{directory} - {path}' is too long!", HTTPStatus.BAD_REQUEST
         )
 
     directory = os.path.realpath(directory)
@@ -161,8 +160,7 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
     # protect against directory transversal: https://security.openstack.org/guidelines/dg_using-file-paths.html
     if not fullpath.startswith(directory):
         return flask.make_response(
-            f"Path for '{directory} - {path}' is a security leak!",
-            HTTPStatus.FORBIDDEN,
+            f"Path for '{directory} - {path}' is a security leak!", HTTPStatus.FORBIDDEN
         )
 
     if isdir:
@@ -188,25 +186,19 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
             )
         else:
             print(f"Not found: {path}")
-            return flask.make_response(
-                f"Invalid path: {path}",
-                HTTPStatus.NOT_FOUND,
-            )
+            return flask.make_response(f"Invalid path: {path}", HTTPStatus.NOT_FOUND)
 
     except Exception as error:
         if dev_mode:
             print(
                 "Caught HTTP server exception,\n%s"
-                % "".join(traceback.format_exception(*sys.exc_info())),
+                % "".join(traceback.format_exception(*sys.exc_info()))
             )
 
         # swallow it - user likely surfed away from
         # review screen before an image had finished
         # downloading
-        return flask.make_response(
-            str(error),
-            HTTPStatus.INTERNAL_SERVER_ERROR,
-        )
+        return flask.make_response(str(error), HTTPStatus.INTERNAL_SERVER_ERROR)
 
 
 def _builtin_data(path: str) -> bytes:
@@ -234,24 +226,18 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
         data = _builtin_data(data_path)
         return Response(data, mimetype=mimetype)
     except FileNotFoundError:
-        return flask.make_response(
-            f"Invalid path: {path}",
-            HTTPStatus.NOT_FOUND,
-        )
+        return flask.make_response(f"Invalid path: {path}", HTTPStatus.NOT_FOUND)
     except Exception as error:
         if dev_mode:
             print(
                 "Caught HTTP server exception,\n%s"
-                % "".join(traceback.format_exception(*sys.exc_info())),
+                % "".join(traceback.format_exception(*sys.exc_info()))
             )
 
         # swallow it - user likely surfed away from
         # review screen before an image had finished
         # downloading
-        return flask.make_response(
-            str(error),
-            HTTPStatus.INTERNAL_SERVER_ERROR,
-        )
+        return flask.make_response(str(error), HTTPStatus.INTERNAL_SERVER_ERROR)
 
 
 @app.route("/<path:pathin>", methods=["GET", "POST"])
@@ -262,10 +248,7 @@ def handle_request(pathin: str) -> Response:
 
     if isinstance(request, NotFound):
         print(request.message)
-        return flask.make_response(
-            f"Invalid path: {pathin}",
-            HTTPStatus.NOT_FOUND,
-        )
+        return flask.make_response(f"Invalid path: {pathin}", HTTPStatus.NOT_FOUND)
     elif callable(request):
         return _handle_dynamic_request(request)
     elif isinstance(request, BundledFileRequest):
@@ -274,8 +257,7 @@ def handle_request(pathin: str) -> Response:
         return _handle_local_file_request(request)
     else:
         return flask.make_response(
-            f"unexpected request: {pathin}",
-            HTTPStatus.FORBIDDEN,
+            f"unexpected request: {pathin}", HTTPStatus.FORBIDDEN
         )
 
 

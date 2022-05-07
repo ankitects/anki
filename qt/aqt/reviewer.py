@@ -306,11 +306,7 @@ class Reviewer:
         self.web.stdHtml(
             self.revHtml(),
             css=["css/reviewer.css"],
-            js=[
-                "js/mathjax.js",
-                "js/vendor/mathjax/tex-chtml.js",
-                "js/reviewer.js",
-            ],
+            js=["js/mathjax.js", "js/vendor/mathjax/tex-chtml.js", "js/reviewer.js"],
             context=self,
         )
         # show answer / ease buttons
@@ -613,9 +609,7 @@ class Reviewer:
             # escapes too much
             s = """
 <span style="font-family: '{}'; font-size: {}px">{}</span>""".format(
-                self.typeFont,
-                self.typeSize,
-                res,
+                self.typeFont, self.typeSize, res
             )
             if hadHR:
                 # a hack to ensure the q/a separator falls before the answer
@@ -1029,9 +1023,7 @@ time = %(time)d;
             ).success(redraw_mark).run_in_background(initiator=self)
         else:
             add_tags_to_notes(
-                parent=self.mw,
-                note_ids=[note.id],
-                space_separated_tags=MARKED_TAG,
+                parent=self.mw, note_ids=[note.id], space_separated_tags=MARKED_TAG
             ).success(redraw_mark).run_in_background(initiator=self)
 
     def on_set_due(self) -> None:
@@ -1046,24 +1038,22 @@ time = %(time)d;
             op.run_in_background()
 
     def suspend_current_note(self) -> None:
-        suspend_note(
-            parent=self.mw,
-            note_ids=[self.card.nid],
-        ).success(lambda _: tooltip(tr.studying_note_suspended())).run_in_background()
+        suspend_note(parent=self.mw, note_ids=[self.card.nid]).success(
+            lambda _: tooltip(tr.studying_note_suspended())
+        ).run_in_background()
 
     def suspend_current_card(self) -> None:
-        suspend_cards(
-            parent=self.mw,
-            card_ids=[self.card.id],
-        ).success(lambda _: tooltip(tr.studying_card_suspended())).run_in_background()
+        suspend_cards(parent=self.mw, card_ids=[self.card.id]).success(
+            lambda _: tooltip(tr.studying_card_suspended())
+        ).run_in_background()
 
     def bury_current_note(self) -> None:
-        bury_notes(parent=self.mw, note_ids=[self.card.nid],).success(
+        bury_notes(parent=self.mw, note_ids=[self.card.nid]).success(
             lambda res: tooltip(tr.studying_cards_buried(count=res.count))
         ).run_in_background()
 
     def bury_current_card(self) -> None:
-        bury_cards(parent=self.mw, card_ids=[self.card.id],).success(
+        bury_cards(parent=self.mw, card_ids=[self.card.id]).success(
             lambda res: tooltip(tr.studying_cards_buried(count=res.count))
         ).run_in_background()
 

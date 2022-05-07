@@ -123,9 +123,7 @@ class SchedulerBase(DeprecatedNamesMixin):
         return self.col._backend.restore_buried_and_suspended_cards(ids)
 
     def unbury_deck(
-        self,
-        deck_id: DeckId,
-        mode: UnburyDeck.Mode.V = UnburyDeck.ALL,
+        self, deck_id: DeckId, mode: UnburyDeck.Mode.V = UnburyDeck.ALL
     ) -> OpChanges:
         return self.col._backend.unbury_deck(deck_id=deck_id, mode=mode)
 

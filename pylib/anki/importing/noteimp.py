@@ -194,7 +194,7 @@ class NoteImporter(Importer):
                                 # duplicates are in the collection already
                                 updateLog.append(
                                     self.col.tr.importing_added_duplicate_with_first_field(
-                                        val=fld0,
+                                        val=fld0
                                     )
                                 )
                                 dupes.append(fld0)

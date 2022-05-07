@@ -10,25 +10,19 @@ from aqt.operations import CollectionOp
 
 
 def add_notetype_legacy(
-    *,
-    parent: QWidget,
-    notetype: NotetypeDict,
+    *, parent: QWidget, notetype: NotetypeDict
 ) -> CollectionOp[OpChangesWithId]:
     return CollectionOp(parent, lambda col: col.models.add_dict(notetype))
 
 
 def update_notetype_legacy(
-    *,
-    parent: QWidget,
-    notetype: NotetypeDict,
+    *, parent: QWidget, notetype: NotetypeDict
 ) -> CollectionOp[OpChanges]:
     return CollectionOp(parent, lambda col: col.models.update_dict(notetype))
 
 
 def remove_notetype(
-    *,
-    parent: QWidget,
-    notetype_id: NotetypeId,
+    *, parent: QWidget, notetype_id: NotetypeId
 ) -> CollectionOp[OpChanges]:
     return CollectionOp(parent, lambda col: col.models.remove(notetype_id))
 

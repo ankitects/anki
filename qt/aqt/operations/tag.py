@@ -13,10 +13,7 @@ from aqt.utils import showInfo, tooltip, tr
 
 
 def add_tags_to_notes(
-    *,
-    parent: QWidget,
-    note_ids: Sequence[NoteId],
-    space_separated_tags: str,
+    *, parent: QWidget, note_ids: Sequence[NoteId], space_separated_tags: str
 ) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(
         parent, lambda col: col.tags.bulk_add(note_ids, space_separated_tags)
@@ -26,10 +23,7 @@ def add_tags_to_notes(
 
 
 def remove_tags_from_notes(
-    *,
-    parent: QWidget,
-    note_ids: Sequence[NoteId],
-    space_separated_tags: str,
+    *, parent: QWidget, note_ids: Sequence[NoteId], space_separated_tags: str
 ) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(
         parent, lambda col: col.tags.bulk_remove(note_ids, space_separated_tags)
@@ -47,10 +41,7 @@ def clear_unused_tags(*, parent: QWidget) -> CollectionOp[OpChangesWithCount]:
 
 
 def rename_tag(
-    *,
-    parent: QWidget,
-    current_name: str,
-    new_name: str,
+    *, parent: QWidget, current_name: str, new_name: str
 ) -> CollectionOp[OpChangesWithCount]:
     def success(out: OpChangesWithCount) -> None:
         if out.count:
@@ -59,8 +50,7 @@ def rename_tag(
             showInfo(tr.browsing_tag_rename_warning_empty(), parent=parent)
 
     return CollectionOp(
-        parent,
-        lambda col: col.tags.rename(old=current_name, new=new_name),
+        parent, lambda col: col.tags.rename(old=current_name, new=new_name)
     ).success(success)
 
 
@@ -114,5 +104,5 @@ def find_and_replace_tag(
         lambda out: tooltip(
             tr.findreplace_notes_updated(changed=out.count, total=len(note_ids)),
             parent=parent,
-        ),
+        )
     )

@@ -175,19 +175,13 @@ class CardLayout(QDialog):
         self.tform.back_button.setToolTip(shortcut("Ctrl+2"))
         self.tform.style_button.setToolTip(shortcut("Ctrl+3"))
         QShortcut(  # type: ignore
-            QKeySequence("Ctrl+1"),
-            self,
-            activated=self.tform.front_button.click,
+            QKeySequence("Ctrl+1"), self, activated=self.tform.front_button.click
         )
         QShortcut(  # type: ignore
-            QKeySequence("Ctrl+2"),
-            self,
-            activated=self.tform.back_button.click,
+            QKeySequence("Ctrl+2"), self, activated=self.tform.back_button.click
         )
         QShortcut(  # type: ignore
-            QKeySequence("Ctrl+3"),
-            self,
-            activated=self.tform.style_button.click,
+            QKeySequence("Ctrl+3"), self, activated=self.tform.style_button.click
         )
         QShortcut(  # type: ignore
             QKeySequence("F3"),
@@ -348,11 +342,7 @@ class CardLayout(QDialog):
         self.preview_web.stdHtml(
             self.mw.reviewer.revHtml(),
             css=["css/reviewer.css"],
-            js=[
-                "js/mathjax.js",
-                "js/vendor/mathjax/tex-chtml.js",
-                "js/reviewer.js",
-            ],
+            js=["js/mathjax.js", "js/vendor/mathjax/tex-chtml.js", "js/reviewer.js"],
             context=self,
         )
         self.preview_web.set_bridge_command(self._on_bridge_cmd, self)
@@ -635,8 +625,7 @@ class CardLayout(QDialog):
         template = self.current_template()
         current_pos = self.templates.index(template) + 1
         pos_txt = getOnlyText(
-            tr.card_templates_enter_new_card_position_1(val=n),
-            default=str(current_pos),
+            tr.card_templates_enter_new_card_position_1(val=n), default=str(current_pos)
         )
         if not pos_txt:
             return
@@ -800,20 +789,14 @@ class CardLayout(QDialog):
         row = form.fields.currentIndex().row()
         if row >= 0:
             self._addField(
-                fields[row],
-                form.font.currentFont().family(),
-                form.size.value(),
+                fields[row], form.font.currentFont().family(), form.size.value()
             )
 
     def _addField(self, field: str, font: str, size: int) -> None:
         text = self.tform.edit_area.toPlainText()
         text += (
             "\n<div style='font-family: \"%s\"; font-size: %spx;'>{{%s}}</div>\n"
-            % (
-                font,
-                size,
-                field,
-            )
+            % (font, size, field)
         )
         self.tform.edit_area.setPlainText(text)
         self.change_tracker.mark_basic()

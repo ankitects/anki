@@ -81,10 +81,7 @@ class ProgressManager:
         return qtimer
 
     def single_shot(
-        self,
-        ms: int,
-        func: Callable[[], None],
-        requires_collection: bool = True,
+        self, ms: int, func: Callable[[], None], requires_collection: bool = True
     ) -> None:
         """Create and start a one-off Anki timer. For an alternative and more
         documentation, see `timer()`.

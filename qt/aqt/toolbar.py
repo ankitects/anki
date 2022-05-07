@@ -29,9 +29,7 @@ class Toolbar:
     def __init__(self, mw: aqt.AnkiQt, web: AnkiWebView) -> None:
         self.mw = mw
         self.web = web
-        self.link_handlers: dict[str, Callable] = {
-            "study": self._studyLinkHandler,
-        }
+        self.link_handlers: dict[str, Callable] = {"study": self._studyLinkHandler}
         self.web.setFixedHeight(30)
         self.web.requiresCol = False
 

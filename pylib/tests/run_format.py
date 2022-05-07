@@ -40,6 +40,7 @@ if __name__ == "__main__":
             "tests",
             "tools",
             "--exclude=_pb2|buildinfo|_gen|_backend/generated|fluent",
+            "--skip-magic-trailing-comma",
         ]
         + args,
         check=False,

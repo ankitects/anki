@@ -250,11 +250,7 @@ class Collection(DeprecatedNamesMixin):
         elif time.time() - self._last_checkpoint_at > 300:
             self.save()
 
-    def close(
-        self,
-        save: bool = True,
-        downgrade: bool = False,
-    ) -> None:
+    def close(self, save: bool = True, downgrade: bool = False) -> None:
         "Disconnect from DB."
         if self.db:
             if save:
@@ -262,9 +258,7 @@ class Collection(DeprecatedNamesMixin):
             else:
                 self.db.rollback()
             self._clear_caches()
-            self._backend.close_collection(
-                downgrade_to_schema11=downgrade,
-            )
+            self._backend.close_collection(downgrade_to_schema11=downgrade)
             self.db = None
 
     def close_for_full_sync(self) -> None:
@@ -338,11 +332,7 @@ class Collection(DeprecatedNamesMixin):
     ##########################################################################
 
     def create_backup(
-        self,
-        *,
-        backup_folder: str,
-        force: bool,
-        wait_for_completion: bool,
+        self, *, backup_folder: str, force: bool, wait_for_completion: bool
     ) -> bool:
         """Create a backup if enough time has elapsed, and rotate old backups.
 
@@ -492,7 +482,7 @@ class Collection(DeprecatedNamesMixin):
             home_deck = DeckId(0)
 
         return self._backend.defaults_for_adding(
-            home_deck_of_current_review_card=home_deck,
+            home_deck_of_current_review_card=home_deck
         )
 
     def default_deck_for_notetype(self, notetype_id: NotetypeId) -> DeckId | None:
@@ -501,14 +491,7 @@ class Collection(DeprecatedNamesMixin):
         if self.get_config_bool(Config.Bool.ADDING_DEFAULTS_TO_CURRENT_DECK):
             return None
 
-        return (
-            DeckId(
-                self._backend.default_deck_for_notetype(
-                    ntid=notetype_id,
-                )
-            )
-            or None
-        )
+        return DeckId(self._backend.default_deck_for_notetype(ntid=notetype_id)) or None
 
     def note_count(self) -> int:
         return self.db.scalar("select count() from notes")
@@ -684,9 +667,7 @@ class Collection(DeprecatedNamesMixin):
     ##########################################################################
 
     def build_search_string(
-        self,
-        *nodes: str | SearchNode,
-        joiner: SearchJoiner = "AND",
+        self, *nodes: str | SearchNode, joiner: SearchJoiner = "AND"
     ) -> str:
         """Join one or more searches, and return a normalized search string.
 
@@ -700,9 +681,7 @@ class Collection(DeprecatedNamesMixin):
         return self._backend.build_search_string(term)
 
     def group_searches(
-        self,
-        *nodes: str | SearchNode,
-        joiner: SearchJoiner = "AND",
+        self, *nodes: str | SearchNode, joiner: SearchJoiner = "AND"
     ) -> SearchNode:
         """Join provided search nodes and strings into a single SearchNode.
         If a single SearchNode is provided, it is returned as-is.

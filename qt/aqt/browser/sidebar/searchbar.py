@@ -36,9 +36,7 @@ class SidebarSearchBar(QLineEdit):
             f"border-bottom: 1px solid {border}",
         ]
         if _want_right_border():
-            styles.append(
-                f"border-right: 1px solid {border}",
-            )
+            styles.append(f"border-right: 1px solid {border}")
 
         self.setStyleSheet("QLineEdit { %s }" % ";".join(styles))
 

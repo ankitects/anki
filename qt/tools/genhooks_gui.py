@@ -297,9 +297,7 @@ hooks = [
     ############################
     Hook(
         name="deck_options_did_load",
-        args=[
-            "deck_options: aqt.deckoptions.DeckOptionsDialog",
-        ],
+        args=["deck_options: aqt.deckoptions.DeckOptionsDialog"],
         doc="""Can be used to inject extra options into the config screen.
         
         See the example add-ons at:
@@ -516,10 +514,7 @@ hooks = [
     ),
     Hook(
         name="focus_did_change",
-        args=[
-            "new: QWidget | None",
-            "old: QWidget | None",
-        ],
+        args=["new: QWidget | None", "old: QWidget | None"],
         doc="""Called each time the focus changes. Can be used to defer updates from
         `operation_did_execute` until a window is brought to the front.""",
     ),
@@ -539,10 +534,7 @@ hooks = [
         there are no outstanding ops.
         """,
     ),
-    Hook(
-        name="theme_did_change",
-        doc="Called after night mode is toggled.",
-    ),
+    Hook(name="theme_did_change", doc="Called after night mode is toggled."),
     # Webview
     ###################
     Hook(
@@ -582,10 +574,7 @@ hooks = [
     ),
     Hook(
         name="webview_will_set_content",
-        args=[
-            "web_content: aqt.webview.WebContent",
-            "context: object | None",
-        ],
+        args=["web_content: aqt.webview.WebContent", "context: object | None"],
         doc="""Used to modify web content before it is rendered.
 
         Web_content contains the HTML, JS, and CSS the web view will be
@@ -731,8 +720,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         doc="""Executed when the top toolbar is redrawn""",
     ),
     Hook(
-        name="media_sync_did_progress",
-        args=["entry: aqt.mediasync.LogEntryWithTime"],
+        name="media_sync_did_progress", args=["entry: aqt.mediasync.LogEntryWithTime"]
     ),
     Hook(name="media_sync_did_start_or_stop", args=["running: bool"]),
     Hook(
@@ -767,10 +755,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         args=["addcards: aqt.addcards.AddCards", "menu: QMenu"],
         legacy_hook="AddCards.onHistory",
     ),
-    Hook(
-        name="add_cards_did_init",
-        args=["addcards: aqt.addcards.AddCards"],
-    ),
+    Hook(name="add_cards_did_init", args=["addcards: aqt.addcards.AddCards"]),
     Hook(
         name="add_cards_did_add_note",
         args=["note: anki.notes.Note"],
@@ -868,10 +853,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         name="editor_web_view_did_init",
         args=["editor_web_view: aqt.editor.EditorWebView"],
     ),
-    Hook(
-        name="editor_did_init",
-        args=["editor: aqt.editor.Editor"],
-    ),
+    Hook(name="editor_did_init", args=["editor: aqt.editor.Editor"]),
     Hook(
         name="editor_will_load_note",
         args=["js: str", "note: anki.notes.Note", "editor: aqt.editor.Editor"],
@@ -963,10 +945,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     ),
     # Model
     ###################
-    Hook(
-        name="models_advanced_will_show",
-        args=["advanced: QDialog"],
-    ),
+    Hook(name="models_advanced_will_show", args=["advanced: QDialog"]),
     Hook(
         name="models_did_init_buttons",
         args=[

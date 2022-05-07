@@ -147,8 +147,7 @@ class DeckBrowser:
 
     def __renderPage(self, offset: int) -> None:
         content = DeckBrowserContent(
-            tree=self._renderDeckTree(self._dueTree),
-            stats=self._renderStats(),
+            tree=self._renderDeckTree(self._dueTree), stats=self._renderStats()
         )
         gui_hooks.deck_browser_will_render_content(self, content)
         self.web.stdHtml(
@@ -171,7 +170,7 @@ class DeckBrowser:
 
     def _renderStats(self) -> str:
         return '<div id="studiedToday"><span>{}</span></div>'.format(
-            self.mw.col.studied_today(),
+            self.mw.col.studied_today()
         )
 
     def _renderDeckTree(self, top: DeckTreeNode) -> str:

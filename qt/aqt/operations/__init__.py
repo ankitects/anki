@@ -149,9 +149,7 @@ class CollectionOp(Generic[ResultWithChanges]):
         self._fire_change_hooks_after_op_performed(result, initiator)
 
     def _fire_change_hooks_after_op_performed(
-        self,
-        result: ResultWithChanges,
-        handler: object | None,
+        self, result: ResultWithChanges, handler: object | None
     ) -> None:
         from aqt import mw
 
@@ -213,10 +211,7 @@ class QueryOp(Generic[T]):
         self._failure = failure
         return self
 
-    def with_progress(
-        self,
-        label: str | None = None,
-    ) -> QueryOp[T]:
+    def with_progress(self, label: str | None = None) -> QueryOp[T]:
         "If label not provided, will default to 'Processing...'"
         self._progress = label or True
         return self

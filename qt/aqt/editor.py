@@ -237,9 +237,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                     on_hotkey = on_activated
 
                 QShortcut(  # type: ignore
-                    QKeySequence(keys),
-                    self.widget,
-                    activated=on_hotkey,
+                    QKeySequence(keys), self.widget, activated=on_hotkey
                 )
 
         btn = self._addButton(
@@ -353,11 +351,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         else:
             ord = 0
         CardLayout(
-            self.mw,
-            self.note,
-            ord=ord,
-            parent=self.parentWindow,
-            fill_empty=False,
+            self.mw, self.note, ord=ord, parent=self.parentWindow, fill_empty=False
         )
         if is_win:
             self.parentWindow.activateWindow()
@@ -570,9 +564,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             self._update_duplicate_display(result)
 
         QueryOp(
-            parent=self.parentWindow,
-            op=lambda _: note.fields_check(),
-            success=on_done,
+            parent=self.parentWindow, op=lambda _: note.fields_check(), success=on_done
         ).run_in_background()
 
     checkValid = _check_and_update_duplicate_display_async
@@ -745,12 +737,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         return self.mw.col.media._legacy_write_data(fname, data)
 
     def onRecSound(self) -> None:
-        aqt.sound.record_audio(
-            self.parentWindow,
-            self.mw,
-            True,
-            self.resolve_media,
-        )
+        aqt.sound.record_audio(self.parentWindow, self.mw, True, self.resolve_media)
 
     # Media downloads
     ######################################################################
@@ -845,7 +832,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                     with client.get(url) as response:
                         if response.status_code != 200:
                             error_msg = tr.qt_misc_unexpected_response_code(
-                                val=response.status_code,
+                                val=response.status_code
                             )
                             return None
                         filecontents = response.content
@@ -1084,11 +1071,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         for text, handler, shortcut in (
             (tr.editing_mathjax_inline(), self.insertMathjaxInline, "Ctrl+M, M"),
             (tr.editing_mathjax_block(), self.insertMathjaxBlock, "Ctrl+M, E"),
-            (
-                tr.editing_mathjax_chemistry(),
-                self.insertMathjaxChemistry,
-                "Ctrl+M, C",
-            ),
+            (tr.editing_mathjax_chemistry(), self.insertMathjaxChemistry, "Ctrl+M, C"),
             (tr.editing_latex(), self.insertLatex, "Ctrl+T, T"),
             (tr.editing_latex_equation(), self.insertLatexEqn, "Ctrl+T, E"),
             (tr.editing_latex_math_env(), self.insertLatexMathEnv, "Ctrl+T, M"),

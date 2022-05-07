@@ -409,8 +409,7 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
                 None,
                 tr.qt_misc_error(),
                 tr.qt_misc_error_loading_graphics_driver(
-                    mode=driver.value,
-                    context=context,
+                    mode=driver.value, context=context
                 ),
             )
             pm.set_video_driver(driver.next())
@@ -551,9 +550,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
 
     if not pm:
         QMessageBox.critical(
-            None,
-            tr.qt_misc_error(),
-            tr.profiles_could_not_create_data_folder(),
+            None, tr.qt_misc_error(), tr.profiles_could_not_create_data_folder()
         )
         return None
 
@@ -590,11 +587,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
     try:
         tempfile.gettempdir()
     except:
-        QMessageBox.critical(
-            None,
-            tr.qt_misc_error(),
-            tr.qt_misc_no_temp_folder(),
-        )
+        QMessageBox.critical(None, tr.qt_misc_error(), tr.qt_misc_no_temp_folder())
         return None
 
     # make image resources available
@@ -607,9 +600,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
 
     if pmLoadResult.loadError:
         QMessageBox.warning(
-            None,
-            tr.profiles_prefs_corrupt_title(),
-            tr.profiles_prefs_file_is_corrupt(),
+            None, tr.profiles_prefs_corrupt_title(), tr.profiles_prefs_file_is_corrupt()
         )
 
     if opts.profile:
@@ -625,9 +616,7 @@ def _run(argv: Optional[list[str]] = None, exec: bool = True) -> Optional[AnkiAp
         if gfxDriverIsBroken():
             pm.set_video_driver(driver.next())
             QMessageBox.critical(
-                None,
-                tr.qt_misc_error(),
-                tr.qt_misc_incompatible_video_driver(),
+                None, tr.qt_misc_error(), tr.qt_misc_incompatible_video_driver()
             )
             sys.exit(1)
 

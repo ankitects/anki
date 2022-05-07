@@ -13,9 +13,7 @@ from aqt.utils import getOnlyText, tooltip, tr
 
 
 def remove_decks(
-    *,
-    parent: QWidget,
-    deck_ids: Sequence[DeckId],
+    *, parent: QWidget, deck_ids: Sequence[DeckId]
 ) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(parent, lambda col: col.decks.remove(deck_ids)).success(
         lambda out: tooltip(tr.browsing_cards_deleted(count=out.count), parent=parent)
@@ -35,21 +33,13 @@ def reparent_decks(
 
 
 def rename_deck(
-    *,
-    parent: QWidget,
-    deck_id: DeckId,
-    new_name: str,
+    *, parent: QWidget, deck_id: DeckId, new_name: str
 ) -> CollectionOp[OpChanges]:
-    return CollectionOp(
-        parent,
-        lambda col: col.decks.rename(deck_id, new_name),
-    )
+    return CollectionOp(parent, lambda col: col.decks.rename(deck_id, new_name))
 
 
 def add_deck_dialog(
-    *,
-    parent: QWidget,
-    default_text: str = "",
+    *, parent: QWidget, default_text: str = ""
 ) -> CollectionOp[OpChangesWithId] | None:
     if name := getOnlyText(
         tr.decks_new_deck_name(), default=default_text, parent=parent
@@ -64,11 +54,7 @@ def add_deck(*, parent: QWidget, name: str) -> CollectionOp[OpChangesWithId]:
 
 
 def set_deck_collapsed(
-    *,
-    parent: QWidget,
-    deck_id: DeckId,
-    collapsed: bool,
-    scope: DeckCollapseScope.V,
+    *, parent: QWidget, deck_id: DeckId, collapsed: bool, scope: DeckCollapseScope.V
 ) -> CollectionOp[OpChanges]:
     return CollectionOp(
         parent,

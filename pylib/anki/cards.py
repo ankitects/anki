@@ -226,8 +226,5 @@ class Card(DeprecatedNamesMixin):
 
 
 Card.register_deprecated_aliases(
-    flushSched=Card.flush,
-    q=Card.question,
-    a=Card.answer,
-    model=Card.note_type,
+    flushSched=Card.flush, q=Card.question, a=Card.answer, model=Card.note_type
 )

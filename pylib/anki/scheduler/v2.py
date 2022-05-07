@@ -693,12 +693,7 @@ limit ?"""
         tod = self._leftToday(conf["delays"], tot)
         return tot + tod * 1000
 
-    def _leftToday(
-        self,
-        delays: list[int],
-        left: int,
-        now: int | None = None,
-    ) -> int:
+    def _leftToday(self, delays: list[int], left: int, now: int | None = None) -> int:
         "The number of steps that can be completed by the day cutoff."
         if not now:
             now = int_time()

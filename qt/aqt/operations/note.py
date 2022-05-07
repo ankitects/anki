@@ -14,10 +14,7 @@ from aqt.utils import tooltip, tr
 
 
 def add_note(
-    *,
-    parent: QWidget,
-    note: Note,
-    target_deck_id: DeckId,
+    *, parent: QWidget, note: Note, target_deck_id: DeckId
 ) -> CollectionOp[OpChanges]:
     return CollectionOp(parent, lambda col: col.add_note(note, target_deck_id))
 
@@ -27,12 +24,10 @@ def update_note(*, parent: QWidget, note: Note) -> CollectionOp[OpChanges]:
 
 
 def remove_notes(
-    *,
-    parent: QWidget,
-    note_ids: Sequence[NoteId],
+    *, parent: QWidget, note_ids: Sequence[NoteId]
 ) -> CollectionOp[OpChangesWithCount]:
     return CollectionOp(parent, lambda col: col.remove_notes(note_ids)).success(
-        lambda out: tooltip(tr.browsing_cards_deleted(count=out.count)),
+        lambda out: tooltip(tr.browsing_cards_deleted(count=out.count))
     )
 
 
