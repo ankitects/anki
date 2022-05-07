@@ -23,6 +23,7 @@ ignored-classes=
   Cram,
   ScheduleCardsAsNewRequest,
   ExportAnkiPackageRequest,
+  CsvColumn,
 
 [REPORTS]
 output-format=colorized

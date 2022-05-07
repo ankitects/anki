@@ -33,7 +33,8 @@ OpChangesAfterUndo = collection_pb2.OpChangesAfterUndo
 BrowserRow = search_pb2.BrowserRow
 BrowserColumns = search_pb2.BrowserColumns
 StripHtmlMode = card_rendering_pb2.StripHtmlRequest
-ImportLogWithChanges = import_export_pb2.ImportAnkiPackageResponse
+ImportLogWithChanges = import_export_pb2.ImportResponse
+CsvColumn = import_export_pb2.ImportCsvRequest.CsvColumn
 
 import copy
 import os
@@ -402,6 +403,27 @@ class Collection(DeprecatedNamesMixin):
         else:
             request.whole_collection.SetInParent()
         return self._backend.export_anki_package(request)
+
+    def import_csv(
+        self,
+        path: str,
+        deck_id: DeckId,
+        notetype_id: NotetypeId,
+        columns: list[CsvColumn],
+        delimiter: str,
+        allow_html: bool,
+    ) -> ImportLogWithChanges:
+        return self._backend.import_csv(
+            path=path,
+            deck_id=deck_id,
+            notetype_id=notetype_id,
+            delimiter=delimiter,
+            columns=columns,
+            allow_html=allow_html,
+        )
+
+    def import_json(self, json: str) -> ImportLogWithChanges:
+        return self._backend.import_json(json)
 
     # Object helpers
     ##########################################################################

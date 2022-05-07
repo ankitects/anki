@@ -8,6 +8,7 @@ from itertools import chain
 import aqt.main
 from anki.collection import Collection, ImportLogWithChanges, Progress
 from anki.errors import Interrupted
+from anki.foreign_data import mnemosyne
 from aqt.operations import CollectionOp, QueryOp
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
@@ -24,12 +25,12 @@ def import_file(mw: aqt.main.AnkiQt, path: str) -> None:
         maybe_import_collection_package(mw, path)
     elif filename.endswith(".apkg") or filename.endswith(".zip"):
         import_anki_package(mw, path)
+    elif filename.endswith(".db"):
+        import_mnemosyne(mw, path)
     else:
-        showWarning(
-            tr.importing_unable_to_import_filename(filename=filename),
-            parent=mw,
-            textFormat="plain",
-        )
+        import aqt.import_export.import_dialog
+
+        aqt.import_export.import_dialog.ImportDialog(mw, path)
 
 
 def prompt_for_file_then_import(mw: aqt.main.AnkiQt) -> None:
@@ -39,14 +40,20 @@ def prompt_for_file_then_import(mw: aqt.main.AnkiQt) -> None:
 
 def get_file_path(mw: aqt.main.AnkiQt) -> str | None:
     if file := getFile(
-        mw,
-        tr.actions_import(),
-        None,
-        key="import",
-        filter=tr.importing_packaged_anki_deckcollection_apkg_colpkg_zip(),
+        mw, tr.actions_import(), None, key="import", filter=file_filter()
     ):
         return str(file)
     return None
+
+
+def file_filter() -> str:
+    return ";;".join(
+        (
+            tr.importing_packaged_anki_deckcollection_apkg_colpkg_zip(),
+            tr.importing_text_separated_by_tabs_or_semicolons(),
+            tr.importing_mnemosyne_20_deck_db(),
+        )
+    )
 
 
 def is_collection_package(filename: str) -> bool:
@@ -113,6 +120,20 @@ def import_anki_package(mw: aqt.main.AnkiQt, path: str) -> None:
     ).with_backend_progress(import_progress_update).success(
         show_import_log
     ).run_in_background()
+
+
+def import_mnemosyne(mw: aqt.main.AnkiQt, path: str) -> None:
+    QueryOp(
+        parent=mw,
+        op=lambda _: mnemosyne.serialize(path),
+        success=lambda json: import_json(mw, json),
+    ).with_progress().run_in_background()
+
+
+def import_json(mw: aqt.main.AnkiQt, json: str) -> None:
+    CollectionOp(parent=mw, op=lambda col: col.import_json(json)).with_backend_progress(
+        import_progress_update
+    ).success(show_import_log).run_in_background()
 
 
 def show_import_log(log_with_changes: ImportLogWithChanges) -> None:
