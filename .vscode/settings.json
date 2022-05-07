@@ -11,6 +11,7 @@
     },
     "python.analysis.extraPaths": ["./pylib"],
     "python.formatting.provider": "black",
+    "python.formatting.blackArgs": ["--skip-magic-trailing-comma"],
     "python.linting.mypyEnabled": false,
     "python.analysis.diagnosticSeverityOverrides": {
         "reportMissingModuleSource": "none"
