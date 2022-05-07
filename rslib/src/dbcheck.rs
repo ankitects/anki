@@ -206,7 +206,8 @@ impl Collection {
         let nids_by_notetype = self.storage.all_note_ids_by_notetype()?;
         let norm = self.get_config_bool(BoolKey::NormalizeNoteText);
         let usn = self.usn()?;
-        let stamp = TimestampMillis::now();
+        let stamp_millis = TimestampMillis::now();
+        let stamp_secs = TimestampSecs::now();
 
         let expanded_tags = self.storage.expanded_tags()?;
         self.storage.clear_all_tags()?;
@@ -221,7 +222,7 @@ impl Collection {
                 None => {
                     let first_note = self.storage.get_note(group.peek().unwrap().1)?.unwrap();
                     out.notetypes_recovered += 1;
-                    self.recover_notetype(stamp, first_note.fields().len(), ntid)?
+                    self.recover_notetype(stamp_millis, first_note.fields().len(), ntid)?
                 }
                 Some(nt) => nt,
             };
@@ -250,6 +251,10 @@ impl Collection {
                     note.fix_field_count(&nt);
                     note.tags.push("db-check".into());
                     out.field_count_mismatch += 1;
+                }
+
+                if note.mtime > stamp_secs {
+                    note.mtime = stamp_secs;
                 }
 
                 // note type ID may have changed if we created a recovery notetype
