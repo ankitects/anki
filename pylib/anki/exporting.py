@@ -435,14 +435,14 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
         def exporting_media() -> bool:
             return any(
                 hook.__name__ == "exported_media"
-                for hook in hooks.media_files_did_export._hooks
+                for hook in hooks.legacy_export_progress._hooks
             )
 
         def progress() -> None:
             while exporting_media():
                 progress = self.col._backend.latest_progress()
                 if progress.HasField("exporting"):
-                    hooks.media_files_did_export(progress.exporting)
+                    hooks.legacy_export_progress(progress.exporting)
                 time.sleep(0.1)
 
         threading.Thread(target=progress).start()

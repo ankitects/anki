@@ -14,10 +14,7 @@ from aqt.qt import *
 from aqt.utils import askUser, getFile, showInfo, showText, showWarning, tooltip, tr
 
 
-def import_file(mw: aqt.main.AnkiQt) -> None:
-    if not (path := get_file_path(mw)):
-        return
-
+def import_file(mw: aqt.main.AnkiQt, path: str) -> None:
     filename = os.path.basename(path).lower()
     if filename.endswith(".anki"):
         showInfo(tr.importing_anki_files_are_from_a_very())
@@ -25,10 +22,19 @@ def import_file(mw: aqt.main.AnkiQt) -> None:
         showInfo(tr.importing_anki2_files_are_not_directly_importable())
     elif is_collection_package(filename):
         maybe_import_collection_package(mw, path)
-    elif filename.endswith(".apkg"):
+    elif filename.endswith(".apkg") or filename.endswith(".zip"):
         import_anki_package(mw, path)
     else:
-        raise NotImplementedError
+        showWarning(
+            tr.importing_unable_to_import_filename(filename=filename),
+            parent=mw,
+            textFormat="plain",
+        )
+
+
+def prompt_for_file_then_import(mw: aqt.main.AnkiQt) -> None:
+    if path := get_file_path(mw):
+        import_file(mw, path)
 
 
 def get_file_path(mw: aqt.main.AnkiQt) -> str | None:

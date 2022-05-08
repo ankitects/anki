@@ -5,6 +5,7 @@ use std::collections::{HashMap, HashSet};
 
 use itertools::Itertools;
 
+use super::{ExportProgress, IncrementableProgress};
 use crate::{
     decks::immediate_parent_name,
     io::filename_is_safe,
@@ -52,19 +53,25 @@ impl ExchangeData {
         col.storage.clear_searched_cards_table()
     }
 
-    pub(super) fn gather_media_names(&mut self) {
+    pub(super) fn gather_media_names(
+        &mut self,
+        progress: &mut IncrementableProgress<ExportProgress>,
+    ) -> Result<()> {
         let mut inserter = |name: String| {
             if filename_is_safe(&name) {
                 self.media_filenames.insert(name);
             }
         };
+        let mut progress = progress.incrementor(ExportProgress::Notes);
         let svg_getter = svg_getter(&self.notetypes);
         for note in self.notes.iter() {
+            progress.increment()?;
             gather_media_names_from_note(note, &mut inserter, &svg_getter);
         }
         for notetype in self.notetypes.iter() {
             gather_media_names_from_notetype(notetype, &mut inserter);
         }
+        Ok(())
     }
 
     fn remove_scheduling_information(&mut self, col: &Collection) {
@@ -187,12 +194,10 @@ impl Collection {
     ) -> Result<()> {
         if let Some(parent_name) = immediate_parent_name(name) {
             if parent_names.insert(parent_name.to_owned()) {
-                parents.push(
-                    self.storage
-                        .get_deck_by_name(parent_name)?
-                        .ok_or(AnkiError::DatabaseCheckRequired)?,
-                );
-                self.add_parent_decks(parent_name, parent_names, parents)?;
+                if let Some(parent) = self.storage.get_deck_by_name(parent_name)? {
+                    parents.push(parent);
+                    self.add_parent_decks(parent_name, parent_names, parents)?;
+                }
             }
         }
         Ok(())

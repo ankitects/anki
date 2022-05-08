@@ -48,7 +48,11 @@ from aqt.dbcheck import check_db
 from aqt.emptycards import show_empty_cards
 from aqt.flags import FlagManager
 from aqt.import_export.exporting import ExportDialog
-from aqt.import_export.importing import import_collection_package_op, import_file
+from aqt.import_export.importing import (
+    import_collection_package_op,
+    import_file,
+    prompt_for_file_then_import,
+)
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
@@ -129,7 +133,11 @@ class MainWebView(AnkiWebView):
         paths = [url.toLocalFile() for url in mime.urls()]
         deck_paths = filter(lambda p: not p.endswith(".colpkg"), paths)
         for path in deck_paths:
-            aqt.importing.importFile(self.mw, path)
+            if self.mw.pm.new_import_export():
+                import_file(self.mw, path)
+            else:
+                aqt.importing.importFile(self.mw, path)
+
             # importing continues after the above call returns, so it is not
             # currently safe for us to import more than one file at once
             return
@@ -1170,20 +1178,27 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def handleImport(self, path: str) -> None:
+        "Importing triggered via file double-click, or dragging file onto Anki icon."
         import aqt.importing
 
         if not os.path.exists(path):
+            # there were instances in the distant past where the received filename was not
+            # valid (encoding issues?), so this was added to direct users to try
+            # file>import instead.
             showInfo(tr.qt_misc_please_use_fileimport_to_import_this())
             return None
 
-        aqt.importing.importFile(self, path)
-        return None
+        if self.pm.new_import_export():
+            import_file(self, path)
+        else:
+            aqt.importing.importFile(self, path)
 
     def onImport(self) -> None:
+        "Importing triggered via File>Import."
         import aqt.importing
 
         if self.pm.new_import_export():
-            import_file(self)
+            prompt_for_file_then_import(self)
         else:
             aqt.importing.onImport(self)
 

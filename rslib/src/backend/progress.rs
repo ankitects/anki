@@ -10,7 +10,7 @@ use crate::{
     backend_proto as pb,
     dbcheck::DatabaseCheckProgress,
     i18n::I18n,
-    import_export::ImportProgress,
+    import_export::{ExportProgress, ImportProgress},
     media::sync::MediaSyncProgress,
     sync::{FullSyncProgress, NormalSyncProgress, SyncStage},
 };
@@ -52,7 +52,7 @@ pub(super) enum Progress {
     NormalSync(NormalSyncProgress),
     DatabaseCheck(DatabaseCheckProgress),
     Import(ImportProgress),
-    Export(usize),
+    Export(ExportProgress),
 }
 
 pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Progress {
@@ -112,10 +112,20 @@ pub(super) fn progress_to_proto(progress: Option<Progress>, tr: &I18n) -> pb::Pr
                     ImportProgress::Media(n) => tr.importing_processed_media_file(n),
                     ImportProgress::MediaCheck(n) => tr.media_check_checked(n),
                     ImportProgress::Notes(n) => tr.importing_processed_notes(n),
+                    ImportProgress::Extracting => tr.importing_extracting(),
+                    ImportProgress::Gathering => tr.importing_gathering(),
                 }
                 .into(),
             ),
-            Progress::Export(progress) => pb::progress::Value::Exporting(progress as u32),
+            Progress::Export(progress) => pb::progress::Value::Exporting(
+                match progress {
+                    ExportProgress::File => tr.exporting_exporting_file(),
+                    ExportProgress::Media(n) => tr.exporting_processed_media_files(n),
+                    ExportProgress::Notes(n) => tr.importing_processed_notes(n),
+                    ExportProgress::Gathering => tr.importing_gathering(),
+                }
+                .into(),
+            ),
         }
     } else {
         pb::progress::Value::None(pb::Empty {})

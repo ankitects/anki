@@ -32,3 +32,9 @@ exporting-note-exported =
         [one] { $count } note exported.
        *[other] { $count } notes exported.
     }
+exporting-exporting-file = Exporting file...
+exporting-processed-media-files =
+    { $count ->
+        [one] Processed { $count } media file...
+       *[other] Processed { $count } media files...
+    }

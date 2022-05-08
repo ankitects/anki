@@ -70,9 +70,9 @@ export function convertMathjax(
  * Escape characters which are technically legal in Mathjax, but confuse HTML.
  */
 export function escapeSomeEntities(value: string): string {
-    return value.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return value.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
 }
 
 export function unescapeSomeEntities(value: string): string {
-    return value.replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+    return value.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
 }

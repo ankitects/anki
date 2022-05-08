@@ -22,7 +22,7 @@ use zstd::{
 use super::super::{MediaEntries, MediaEntry, Meta, Version};
 use crate::{
     collection::CollectionBuilder,
-    import_export::IncrementableProgress,
+    import_export::{ExportProgress, IncrementableProgress},
     io::{atomic_rename, read_dir_files, tempfile_in_parent_of},
     media::files::filename_if_normalized,
     prelude::*,
@@ -40,9 +40,10 @@ impl Collection {
         out_path: impl AsRef<Path>,
         include_media: bool,
         legacy: bool,
-        progress_fn: impl 'static + FnMut(usize, bool) -> bool,
+        progress_fn: impl 'static + FnMut(ExportProgress, bool) -> bool,
     ) -> Result<()> {
         let mut progress = IncrementableProgress::new(progress_fn);
+        progress.call(ExportProgress::File)?;
         let colpkg_name = out_path.as_ref();
         let temp_colpkg = tempfile_in_parent_of(colpkg_name)?;
         let src_path = self.col_path.clone();
@@ -105,7 +106,7 @@ fn export_collection_file(
     media_dir: Option<PathBuf>,
     legacy: bool,
     tr: &I18n,
-    progress: &mut IncrementableProgress<usize>,
+    progress: &mut IncrementableProgress<ExportProgress>,
 ) -> Result<()> {
     let meta = if legacy {
         Meta::new_legacy()
@@ -148,8 +149,9 @@ pub(crate) fn export_collection(
     col_size: usize,
     media: MediaIter,
     tr: &I18n,
-    progress: &mut IncrementableProgress<usize>,
+    progress: &mut IncrementableProgress<ExportProgress>,
 ) -> Result<()> {
+    progress.call(ExportProgress::File)?;
     let out_file = File::create(&out_path)?;
     let mut zip = ZipWriter::new(out_file);
 
@@ -234,7 +236,7 @@ fn write_media(
     meta: &Meta,
     zip: &mut ZipWriter<File>,
     media: MediaIter,
-    progress: &mut IncrementableProgress<usize>,
+    progress: &mut IncrementableProgress<ExportProgress>,
 ) -> Result<()> {
     let mut media_entries = vec![];
     write_media_files(meta, zip, media, &mut media_entries, progress)?;
@@ -278,10 +280,10 @@ fn write_media_files(
     zip: &mut ZipWriter<File>,
     media: MediaIter,
     media_entries: &mut Vec<MediaEntry>,
-    progress: &mut IncrementableProgress<usize>,
+    progress: &mut IncrementableProgress<ExportProgress>,
 ) -> Result<()> {
     let mut copier = MediaCopier::new(meta);
-    let mut incrementor = progress.incrementor(|u| u);
+    let mut incrementor = progress.incrementor(ExportProgress::Media);
     for (index, res) in media.0.enumerate() {
         incrementor.increment()?;
         let path = res?;

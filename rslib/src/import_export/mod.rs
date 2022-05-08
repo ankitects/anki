@@ -12,9 +12,19 @@ use crate::prelude::*;
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ImportProgress {
     File,
+    Extracting,
+    Gathering,
     Media(usize),
     MediaCheck(usize),
     Notes(usize),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ExportProgress {
+    File,
+    Gathering,
+    Notes(usize),
+    Media(usize),
 }
 
 /// Wrapper around a progress function, usually passed by the [crate::backend::Backend],
