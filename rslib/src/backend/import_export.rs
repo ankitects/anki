@@ -81,6 +81,11 @@ impl ImportExportService for Backend {
         .map(Into::into)
     }
 
+    fn get_csv_metadata(&self, input: pb::CsvMetadataRequest) -> Result<pb::CsvMetadata> {
+        let delimiter = input.delimiter.map(try_into_byte).transpose()?;
+        self.with_col(|col| col.get_csv_metadata(&input.path, delimiter))
+    }
+
     fn import_csv(&self, input: pb::ImportCsvRequest) -> Result<pb::ImportResponse> {
         self.with_col(|col| {
             col.import_csv(
@@ -88,7 +93,7 @@ impl ImportExportService for Backend {
                 input.deck_id.into(),
                 input.notetype_id.into(),
                 input.columns.into_iter().map(Into::into).collect(),
-                byte_from_string(&input.delimiter)?,
+                try_into_byte(input.delimiter)?,
                 //input.allow_html,
             )
         })
@@ -146,8 +151,7 @@ impl From<CsvColumn> for Column {
     }
 }
 
-fn byte_from_string(s: &str) -> Result<u8> {
-    s.bytes()
-        .next()
-        .ok_or_else(|| AnkiError::invalid_input("empty string"))
+fn try_into_byte(u: impl TryInto<u8>) -> Result<u8> {
+    u.try_into()
+        .map_err(|_| AnkiError::invalid_input("expected single byte"))
 }

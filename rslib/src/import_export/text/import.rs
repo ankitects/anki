@@ -38,7 +38,7 @@ impl<'a> Context<'a> {
         let mut notetypes = HashMap::new();
         notetypes.insert(
             String::new(),
-            col.get_notetype_for_string(&data.default_notetype)?,
+            col.notetype_for_string(&data.default_notetype)?,
         );
         let mut deck_ids = HashMap::new();
         deck_ids.insert(String::new(), col.deck_id_for_string(&data.default_deck)?);
@@ -64,7 +64,7 @@ impl<'a> Context<'a> {
         Ok(if let Some(nt) = self.notetypes.get(&note.notetype) {
             nt.clone()
         } else {
-            let nt = self.col.get_notetype_for_string(&note.notetype)?;
+            let nt = self.col.notetype_for_string(&note.notetype)?;
             self.notetypes.insert(note.notetype.clone(), nt.clone());
             nt
         })
@@ -134,7 +134,7 @@ impl<'a> Context<'a> {
 }
 
 impl Collection {
-    fn deck_id_for_string(&mut self, deck: &str) -> Result<Option<DeckId>> {
+    pub(super) fn deck_id_for_string(&mut self, deck: &str) -> Result<Option<DeckId>> {
         if let Ok(did) = deck.parse::<DeckId>() {
             if self.get_deck(did)?.is_some() {
                 return Ok(Some(did));
@@ -143,7 +143,7 @@ impl Collection {
         self.get_deck_id(deck)
     }
 
-    fn get_notetype_for_string(&mut self, notetype: &str) -> Result<Option<Arc<Notetype>>> {
+    pub(super) fn notetype_for_string(&mut self, notetype: &str) -> Result<Option<Arc<Notetype>>> {
         if let Some(nt) = self.get_notetype_for_id_string(notetype)? {
             Ok(Some(nt))
         } else {

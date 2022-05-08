@@ -8,6 +8,7 @@ importing-appeared-twice-in-file = Appeared twice in file: { $val }
 importing-by-default-anki-will-detect-the = By default, Anki will detect the character between fields, such as a tab, comma, and so on. If Anki is detecting the character incorrectly, you can enter it here. Use \t to represent tab.
 importing-change = Change
 importing-colon = Colon
+importing-column = Column { $val }
 importing-comma = Comma
 importing-empty-first-field = Empty first field: { $val }
 importing-field-mapping = Field mapping

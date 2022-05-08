@@ -1,0 +1,12 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+mod import;
+mod metadata;
+
+#[derive(Debug, Clone, Copy)]
+pub enum Column {
+    Field(usize),
+    Ignore,
+    Tags,
+}

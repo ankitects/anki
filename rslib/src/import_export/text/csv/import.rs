@@ -8,18 +8,11 @@ use std::{
 
 use crate::{
     import_export::{
-        text::{ForeignData, ForeignNote},
+        text::{csv::Column, ForeignData, ForeignNote},
         NoteLog,
     },
     prelude::*,
 };
-
-#[derive(Debug, Clone, Copy)]
-pub enum Column {
-    Field(usize),
-    Ignore,
-    Tags,
-}
 
 impl Collection {
     pub fn import_csv(
@@ -66,6 +59,8 @@ fn deserialize_csv(
 /// Returns a reader with the first line stripped if it starts with "tags:",
 /// which is allowed for historic reasons.
 fn reader_without_tags_line(reader: impl Read + Seek) -> Result<impl Read> {
+    // FIXME: shouldn't pass a buffered reader to csv
+    // https://docs.rs/csv/latest/csv/struct.ReaderBuilder.html#method.from_reader
     let mut buf_reader = BufReader::new(reader);
     let mut first_line = String::new();
     buf_reader.read_line(&mut first_line)?;

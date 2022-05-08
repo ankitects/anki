@@ -154,7 +154,7 @@ class ImportDialog(QDialog):
             d = repr(d)
         txt = tr.importing_fields_separated_by(val=d)
         self.frm.autoDetect.setText(txt)
-        self.delim = d
+        self.delim = ord(d)
 
     def accept(self) -> None:
         # self.mw.pm.profile["importMode"] = self.importer.importMode

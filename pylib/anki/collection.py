@@ -410,7 +410,7 @@ class Collection(DeprecatedNamesMixin):
         deck_id: DeckId,
         notetype_id: NotetypeId,
         columns: list[CsvColumn],
-        delimiter: str,
+        delimiter: int,
         allow_html: bool,
     ) -> ImportLogWithChanges:
         return self._backend.import_csv(
