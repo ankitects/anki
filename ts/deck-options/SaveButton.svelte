@@ -66,7 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tooltip={getPlatformString(saveKeyCombination)}
         --border-left-radius="5px">{tr.deckConfigSaveButton()}</LabelButton
     >
-    <Shortcut keyCombination={saveKeyCombination} on:click={() => save(false)} />
+    <Shortcut keyCombination={saveKeyCombination} on:action={() => save(false)} />
 
     <WithDropdown let:createDropdown --border-right-radius="5px">
         <LabelButton
