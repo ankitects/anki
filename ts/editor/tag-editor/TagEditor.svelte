@@ -90,7 +90,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const activeTag = tagTypes[active!];
 
         activeName = selected ?? activeTag.name;
-        activeInput.setSelectionRange(Infinity, Infinity);
+        const inputEnd = activeInput.value.length;
+        activeInput.setSelectionRange(inputEnd, inputEnd);
     }
 
     async function updateTagName(tag: TagType): Promise<void> {
