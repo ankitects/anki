@@ -167,6 +167,12 @@ class TemplateRenderContext:
         # hooks, you can insert it into this dictionary
         self.extra_state: dict[str, Any] = {}
 
+        self._question_side: bool = True
+
+    @property
+    def question_side(self) -> bool:
+        return self._question_side
+
     def col(self) -> anki.collection.Collection:
         return self._col
 
@@ -226,9 +232,11 @@ class TemplateRenderContext:
                 answer_av_tags=[],
             )
 
+        self._question_side = True
         qtext = apply_custom_filters(partial.qnodes, self, front_side=None)
         qout = self.col()._backend.extract_av_tags(text=qtext, question_side=True)
 
+        self._question_side = False
         atext = apply_custom_filters(partial.anodes, self, front_side=qout.text)
         aout = self.col()._backend.extract_av_tags(text=atext, question_side=False)
 
