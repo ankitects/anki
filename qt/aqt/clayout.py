@@ -548,10 +548,16 @@ class CardLayout(QDialog):
                     audio = c.question_av_tags()
                 else:
                     audio = c.answer_av_tags()
-                av_player.play_tags(audio)
             else:
+                audio = []
                 self.preview_web.setPlaybackRequiresGesture(True)
-                av_player.clear_queue_and_maybe_interrupt()
+            side = "question" if self.pform.preview_front.isChecked() else "answer"
+            gui_hooks.av_player_will_play_tags(
+                audio,
+                side,
+                self,
+            )
+            av_player.play_tags(audio)
 
         self.updateCardNames()
 
