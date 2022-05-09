@@ -19,6 +19,7 @@ ignored-classes=
   Cram,
   ScheduleCardsAsNewRequest,
   CsvColumn,
+  CsvMetadata,
 
 [REPORTS]
 output-format=colorized

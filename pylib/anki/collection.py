@@ -35,6 +35,7 @@ BrowserColumns = search_pb2.BrowserColumns
 StripHtmlMode = card_rendering_pb2.StripHtmlRequest
 ImportLogWithChanges = import_export_pb2.ImportResponse
 CsvColumn = import_export_pb2.ImportCsvRequest.CsvColumn
+CsvMetadata = import_export_pb2.CsvMetadata
 
 import copy
 import os
@@ -403,6 +404,10 @@ class Collection(DeprecatedNamesMixin):
         else:
             request.whole_collection.SetInParent()
         return self._backend.export_anki_package(request)
+
+    def get_csv_metadata(self, path: str, delimiter: int | None) -> CsvMetadata:
+        request = import_export_pb2.CsvMetadataRequest(path=path, delimiter=delimiter)
+        return self._backend.get_csv_metadata(request)
 
     def import_csv(
         self,

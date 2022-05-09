@@ -5,13 +5,15 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Optional, Sequence
 
 import aqt.forms
 import aqt.main
-from anki.collection import CsvColumn
+from anki.collection import CsvColumn, CsvMetadata
+from anki.decks import DeckId
+from anki.models import NotetypeDict, NotetypeId
 from aqt.import_export.importing import import_progress_update, show_import_log
-from aqt.operations import CollectionOp
+from aqt.operations import CollectionOp, QueryOp
 from aqt.qt import *
 from aqt.utils import HelpPage, disable_help_button, getText, openHelp, showWarning, tr
 
@@ -65,12 +67,19 @@ class ChangeMap(QDialog):
 
 
 class ImportDialog(QDialog):
-    _DEFAULT_FILE_DELIMITER = "\t"
-
     def __init__(self, mw: aqt.main.AnkiQt, path: str) -> None:
         QDialog.__init__(self, mw, Qt.WindowType.Window)
         self.mw = mw
         self.path = path
+        self.options = CsvMetadata()
+        QueryOp(
+            parent=self,
+            op=lambda col: col.get_csv_metadata(path, None),
+            success=self._run,
+        ).run_in_background()
+        self._setup_ui()
+
+    def _setup_ui(self) -> None:
         self.frm = aqt.forms.importing.Ui_ImportDialog()
         self.frm.setupUi(self)
         qconnect(
@@ -79,35 +88,61 @@ class ImportDialog(QDialog):
         )
         disable_help_button(self)
         self.setupMappingFrame()
-        self.setupOptions()
-        self.modelChanged()
         qconnect(self.frm.autoDetect.clicked, self.onDelimiter)
-        self.updateDelimiterButtonText(self._DEFAULT_FILE_DELIMITER)
-        self.frm.allowHTML.setChecked(self.mw.pm.profile.get("allowHTML", True))
         qconnect(self.frm.importMode.currentIndexChanged, self.importModeChanged)
-        self.frm.importMode.setCurrentIndex(self.mw.pm.profile.get("importMode", 1))
-        self.frm.tagModified.setText(self.mw.pm.profile.get("tagModified", ""))
-        self.frm.tagModified.setCol(self.mw.col)
         # import button
         b = QPushButton(tr.actions_import())
         self.frm.buttonBox.addButton(b, QDialogButtonBox.ButtonRole.AcceptRole)
-        self.exec()
 
-    def setupOptions(self) -> None:
+    def _run(self, options: CsvMetadata) -> None:
+        self._setup_options(options)
+        self._setup_choosers()
+        self.column_map = ColumnMap(self.columns, self.model)
+        self._render_mapping()
+        self._set_delimiter_button_text()
+        self.frm.allowHTML.setChecked(self.html)
+        self.frm.importMode.setCurrentIndex(self.mw.pm.profile.get("importMode", 1))
+        self.frm.tagModified.setText(self.tags)
+        self.frm.tagModified.setCol(self.mw.col)
+        self.show()
+
+    def _setup_options(self, options: CsvMetadata) -> None:
+        self.delimiter = options.delimiter
+        self.tags = self.options.tags or self.mw.pm.profile.get("tagModified", "")
+        self.columns = options.columns
+        self.deck_id = DeckId(
+            self.options.deck_id or self.mw.col.get_config("curDeck", default=1)
+        )
+        if options.notetype_id:
+            self.notetype_id = NotetypeId(self.options.notetype_id)
+            self.model = self.mw.col.models.get(self.notetype_id)
+        else:
+            self.model = self.mw.col.models.current()
+            self.notetype_id = self.model["id"]
+        if self.options.html is None:
+            self.html = self.mw.pm.profile.get("allowHTML", True)
+        else:
+            self.html = self.options.html
+
+    def _setup_choosers(self) -> None:
         import aqt.deckchooser
-        import aqt.modelchooser
+        import aqt.notetypechooser
 
-        self.model = self.mw.col.models.current()
-        self.modelChooser = aqt.modelchooser.ModelChooser(
-            self.mw, self.frm.modelArea, label=False
+        def change_notetype(ntid: NotetypeId) -> None:
+            self.model = self.mw.col.models.get(ntid)
+            self.notetype_id = ntid
+            self.column_map = ColumnMap(self.columns, self.model)
+            self._render_mapping()
+
+        self.modelChooser = aqt.notetypechooser.NotetypeChooser(
+            mw=self.mw,
+            widget=self.frm.modelArea,
+            starting_notetype_id=self.notetype_id,
+            on_notetype_changed=change_notetype,
         )
         self.deck = aqt.deckchooser.DeckChooser(self.mw, self.frm.deckArea, label=False)
 
-    def modelChanged(self, unused: Any = None) -> None:
-        self.showMapping()
-
     def onDelimiter(self) -> None:
-
         # Open a modal dialog to enter an delimiter
         # Todo/Idea Constrain the maximum width, so it doesnt take up that much screen space
         delim, ok = getText(
@@ -116,30 +151,37 @@ class ImportDialog(QDialog):
             help=HelpPage.IMPORTING,
         )
 
-        # If the modal dialog has been confirmed, update the delimiter
-        if ok:
-            # Check if the entered value is valid and if not fallback to default
-            # at the moment every single character entry as well as '\t' is valid
+        if not ok:
+            return
+        # Check if the entered value is valid and if not fallback to default
+        # at the moment every single character entry as well as '\t' is valid
+        delim = delim if len(delim) > 0 else "\t"
+        delim = delim.replace("\\t", "\t")  # un-escape it
+        delimiter = ord(delim)
+        if delimiter > 255:
+            showWarning(
+                tr.importing_multicharacter_separators_are_not_supported_please()
+            )
+            return
 
-            delim = delim if len(delim) > 0 else self._DEFAULT_FILE_DELIMITER
-            delim = delim.replace("\\t", "\t")  # un-escape it
-            if len(delim) > 1:
-                showWarning(
-                    tr.importing_multicharacter_separators_are_not_supported_please()
-                )
-                return
-            self.hideMapping()
+        # self.hideMapping()
+        # self.showMapping(hook=_update)
+        self.delimiter = delimiter
+        self._set_delimiter_button_text()
 
-            def updateDelim() -> None:
-                self.updateDelimiterButtonText(delim)
+        def _update_columns(options: CsvMetadata) -> None:
+            self.columns = options.columns
+            self.column_map = ColumnMap(self.columns, self.model)
+            self._render_mapping()
 
-            self.showMapping(hook=updateDelim)
+        QueryOp(
+            parent=self,
+            op=lambda col: col.get_csv_metadata(self.path, delimiter),
+            success=_update_columns,
+        ).run_in_background()
 
-        else:
-            # If the operation has been canceled, do not do anything
-            pass
-
-    def updateDelimiterButtonText(self, d: str) -> None:
+    def _set_delimiter_button_text(self) -> None:
+        d = chr(self.delimiter)
         if d == "\t":
             d = tr.importing_tab()
         elif d == ",":
@@ -154,7 +196,6 @@ class ImportDialog(QDialog):
             d = repr(d)
         txt = tr.importing_fields_separated_by(val=d)
         self.frm.autoDetect.setText(txt)
-        self.delim = ord(d)
 
     def accept(self) -> None:
         # self.mw.pm.profile["importMode"] = self.importer.importMode
@@ -171,8 +212,8 @@ class ImportDialog(QDialog):
                 path=self.path,
                 deck_id=self.deck.selected_deck_id,
                 notetype_id=self.model["id"],
-                delimiter=self.delim,
-                columns=self.columns(),
+                delimiter=self.delimiter,
+                columns=self.column_map.csv_columns(),
                 allow_html=self.frm.allowHTML.isChecked(),
             ),
         ).with_backend_progress(import_progress_update).success(
@@ -191,14 +232,7 @@ class ImportDialog(QDialog):
     def hideMapping(self) -> None:
         self.frm.mappingGroup.hide()
 
-    def showMapping(
-        self, keepMapping: bool = False, hook: Optional[Callable] = None
-    ) -> None:
-        if hook:
-            hook()
-        if not keepMapping:
-            self.mapping = [f["name"] for f in self.model["flds"]] + ["_tags"] + [None]
-        self.frm.mappingGroup.show()
+    def _render_mapping(self) -> None:
         # set up the mapping grid
         if self.mapwidget:
             self.mapbox.removeWidget(self.mapwidget)
@@ -209,30 +243,17 @@ class ImportDialog(QDialog):
         self.mapwidget.setLayout(self.grid)
         self.grid.setContentsMargins(3, 3, 3, 3)
         self.grid.setSpacing(6)
-        for (num, value) in enumerate(self.mapping):
-            text = tr.importing_field_of_file_is(val=num + 1)
-            self.grid.addWidget(QLabel(text), num, 0)
-            if value == "_tags":
-                text = tr.importing_mapped_to_tags()
-            elif value:
-                text = tr.importing_mapped_to(val=value)
-            else:
-                text = tr.importing_ignored()
-            self.grid.addWidget(QLabel(text), num, 1)
+        for (num, column) in enumerate(self.column_map.columns):
+            self.grid.addWidget(QLabel(column), num, 0)
+            self.grid.addWidget(QLabel(self.column_map.map_label(num)), num, 1)
             button = QPushButton(tr.importing_change())
             self.grid.addWidget(button, num, 2)
             qconnect(button.clicked, lambda _, s=self, n=num: s.changeMappingNum(n))
 
     def changeMappingNum(self, n: int) -> None:
-        f = ChangeMap(self.mw, self.model, self.mapping[n]).getField()
-        try:
-            # make sure we don't have it twice
-            index = self.mapping.index(f)
-            self.mapping[index] = None
-        except ValueError:
-            pass
-        self.mapping[n] = f
-        self.showMapping(keepMapping=True)
+        f = ChangeMap(self.mw, self.model, self.column_map.map[n]).getField()
+        self.column_map.update(n, f)
+        self._render_mapping()
 
     def reject(self) -> None:
         self.modelChooser.cleanup()
@@ -248,18 +269,43 @@ class ImportDialog(QDialog):
         else:
             self.frm.tagModified.setEnabled(False)
 
-    def columns(self) -> list[CsvColumn]:
-        return [self.column_for_value(value) for value in self.mapping]
 
-    def column_for_value(self, value: str) -> CsvColumn:
-        if value == "_tags":
-            return CsvColumn(other=CsvColumn.TAGS)
-        elif value is None:
+class ColumnMap:
+    columns: list[str]
+    fields: list[str]
+    map: list[str]
+
+    def __init__(self, columns: Sequence[str], notetype: NotetypeDict) -> None:
+        self.columns = list(columns)
+        self.fields = [f["name"] for f in notetype["flds"]] + ["_tags"]
+        self.map = [""] * len(self.columns)
+        for i in range(min(len(self.fields), len(self.columns))):
+            self.map[i] = self.fields[i]
+
+    def map_label(self, num: int) -> str:
+        name = self.map[num]
+        if not name:
+            return tr.importing_ignored()
+        if name == "_tags":
+            tr.importing_mapped_to_tags()
+        return tr.importing_mapped_to(val=name)
+
+    def update(self, column: int, new_field: str | None) -> None:
+        if new_field:
+            try:
+                idx = self.map.index(new_field)
+            except ValueError:
+                pass
+            else:
+                self.map[idx] = ""
+        self.map[column] = new_field or ""
+
+    def csv_columns(self) -> list[CsvColumn]:
+        return [self._column_for_name(name) for name in self.map]
+
+    def _column_for_name(self, name: str) -> CsvColumn:
+        if not name:
             return CsvColumn(other=CsvColumn.IGNORE)
-        else:
-            return CsvColumn(field=[f["name"] for f in self.model["flds"]].index(value))
-
-
-def showUnicodeWarning() -> None:
-    """Shorthand to show a standard warning."""
-    showWarning(tr.importing_selected_file_was_not_in_utf8())
+        if name == "_tags":
+            return CsvColumn(other=CsvColumn.TAGS)
+        return CsvColumn(field=self.fields.index(name))
