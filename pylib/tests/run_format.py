@@ -39,7 +39,7 @@ if __name__ == "__main__":
             "anki",
             "tests",
             "tools",
-            "--exclude=_pb2|buildinfo|_gen",
+            "--exclude=_pb2|buildinfo|_gen|_backend/generated|fluent",
         ]
         + args,
         check=False,
