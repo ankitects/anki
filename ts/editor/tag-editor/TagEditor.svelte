@@ -473,6 +473,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .tag-editor-area {
         display: flex;
         flex-flow: row wrap;
+        align-items: flex-end;
         padding: 0 1px 1px;
         overflow: hidden;
         margin-bottom: 3px;
