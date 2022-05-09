@@ -122,7 +122,9 @@ impl LimitTreeMap {
             .unwrap();
 
         let mut map = HashMap::new();
-        map.insert(root_deck.id, root_id.clone());
+        if root_limits.limits.review > 0 {
+            map.insert(root_deck.id, root_id.clone());
+        }
 
         let mut limits = Self { tree, map };
         let mut remaining_decks = child_decks.into_iter().peekable();
