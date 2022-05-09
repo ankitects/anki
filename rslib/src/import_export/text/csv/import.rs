@@ -3,7 +3,7 @@
 
 use std::{
     fs::File,
-    io::{BufRead, BufReader, Read, Seek},
+    io::{BufRead, BufReader, Read, Seek, SeekFrom},
 };
 
 use crate::{
@@ -41,33 +41,37 @@ impl Collection {
 }
 
 fn deserialize_csv(
-    reader: impl Read + Seek,
+    mut reader: impl Read + Seek,
     columns: &[Column],
     fields_len: usize,
     delimiter: u8,
 ) -> Result<Vec<ForeignNote>> {
-    let mut reader = csv::ReaderBuilder::new()
+    remove_tags_line_from_reader(&mut reader)?;
+    let mut csv_reader = csv::ReaderBuilder::new()
         .has_headers(false)
         .flexible(true)
         .comment(Some(b'#'))
         .delimiter(delimiter)
         .trim(csv::Trim::All)
-        .from_reader(reader_without_tags_line(reader)?);
-    deserialize_csv_reader(&mut reader, columns, fields_len)
+        .from_reader(reader);
+    deserialize_csv_reader(&mut csv_reader, columns, fields_len)
 }
 
-/// Returns a reader with the first line stripped if it starts with "tags:",
-/// which is allowed for historic reasons.
-fn reader_without_tags_line(reader: impl Read + Seek) -> Result<impl Read> {
-    // FIXME: shouldn't pass a buffered reader to csv
-    // https://docs.rs/csv/latest/csv/struct.ReaderBuilder.html#method.from_reader
+/// If the reader's first line starts with "tags:", which is allowed for historic
+/// reasons, seek to the second line.
+fn remove_tags_line_from_reader(reader: &mut (impl Read + Seek)) -> Result<()> {
     let mut buf_reader = BufReader::new(reader);
     let mut first_line = String::new();
     buf_reader.read_line(&mut first_line)?;
-    if !first_line.starts_with("tags:") {
-        buf_reader.rewind()?;
-    }
-    Ok(buf_reader)
+    let offset = if first_line.starts_with("tags:") {
+        first_line.as_bytes().len()
+    } else {
+        0
+    };
+    buf_reader
+        .into_inner()
+        .seek(SeekFrom::Start(offset as u64))?;
+    Ok(())
 }
 
 fn deserialize_csv_reader(
