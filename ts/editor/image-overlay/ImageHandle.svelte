@@ -16,11 +16,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import SizeSelect from "./SizeSelect.svelte";
     import WithImageConstrained from "./WithImageConstrained.svelte";
 
-    const { container, styles } = context.get();
+    export let maxWidth: number;
+    export let maxHeight: number;
 
-    const sheetPromise = styles
-        .addStyleTag("imageOverlay")
-        .then((styleObject) => styleObject.element.sheet!);
+    const { container } = context.get();
 
     let activeImage: HTMLImageElement | null = null;
 
@@ -182,62 +181,53 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let:createDropdown
     let:dropdownObject
 >
-    {#await sheetPromise then sheet}
-        <WithImageConstrained
-            {sheet}
-            {container}
-            {activeImage}
-            maxWidth={250}
-            maxHeight={125}
-            on:update={() => {
-                updateSizesWithDimensions();
-                dropdownObject.update();
-            }}
-            let:toggleActualSize
-            let:active
-        >
-            {#if activeImage}
-                <HandleSelection
-                    bind:updateSelection
-                    {container}
-                    image={activeImage}
-                    on:mount={(event) => createDropdown(event.detail.selection)}
-                >
-                    <HandleBackground on:dblclick={toggleActualSize} />
+    <WithImageConstrained
+        {maxWidth}
+        {maxHeight}
+        on:update={() => {
+            updateSizesWithDimensions();
+            dropdownObject.update();
+        }}
+        let:toggleActualSize
+        let:active
+    >
+        {#if activeImage}
+            <HandleSelection
+                bind:updateSelection
+                {container}
+                image={activeImage}
+                on:mount={(event) => createDropdown(event.detail.selection)}
+            >
+                <HandleBackground on:dblclick={() => toggleActualSize(activeImage)} />
 
-                    <HandleLabel on:mount={updateDimensions}>
-                        <span>{actualWidth}&times;{actualHeight}</span>
-                        {#if customDimensions}
-                            <span>(Original: {naturalWidth}&times;{naturalHeight})</span
-                            >
-                        {/if}
-                    </HandleLabel>
+                <HandleLabel on:mount={updateDimensions}>
+                    <span>{actualWidth}&times;{actualHeight}</span>
+                    {#if customDimensions}
+                        <span>(Original: {naturalWidth}&times;{naturalHeight})</span>
+                    {/if}
+                </HandleLabel>
 
-                    <HandleControl
-                        {active}
-                        activeSize={8}
-                        offsetX={5}
-                        offsetY={5}
-                        on:pointerclick={(event) => {
-                            if (active) {
-                                setPointerCapture(event);
-                            }
-                        }}
-                        on:pointermove={(event) => {
-                            resize(event);
-                            updateSizesWithDimensions();
-                            dropdownObject.update();
-                        }}
-                    />
-                </HandleSelection>
-                <ButtonDropdown on:click={updateSizesWithDimensions}>
-                    <FloatButtons
-                        image={activeImage}
-                        on:update={dropdownObject.update}
-                    />
-                    <SizeSelect {active} on:click={toggleActualSize} />
-                </ButtonDropdown>
-            {/if}
-        </WithImageConstrained>
-    {/await}
+                <HandleControl
+                    {active}
+                    activeSize={8}
+                    offsetX={5}
+                    offsetY={5}
+                    on:pointerclick={(event) => {
+                        if (active) {
+                            setPointerCapture(event);
+                        }
+                    }}
+                    on:pointermove={(event) => {
+                        resize(event);
+                        updateSizesWithDimensions();
+                        dropdownObject.update();
+                    }}
+                />
+            </HandleSelection>
+            <ButtonDropdown on:click={updateSizesWithDimensions}>
+                <FloatButtons image={activeImage} on:update={dropdownObject.update} />
+                <SizeSelect {active} on:click={toggleActualSize} />
+            </ButtonDropdown>
+        {/if}
+    </WithImageConstrained>
 </WithDropdown>
