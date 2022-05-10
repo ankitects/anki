@@ -346,7 +346,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function selectAllTags() {
-        tagTypes.forEach((tag) => (tag.selected = true));
+        for (const tag of tagTypes) {
+            tag.selected = true;
+        }
+
         tagTypes = tagTypes;
     }
 
@@ -451,7 +454,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 splitTag(index, detail.start, detail.end)}
                             on:tagadd={() => insertTagKeepFocus(index)}
                             on:tagdelete={() => deleteTagAt(index)}
-                            on:tagselectall={selectAllTags}
+                            on:tagselectall={async () => {
+                                if (tagTypes.length <= 1) {
+                                    // Noop if no other tags exist
+                                    return;
+                                }
+
+                                activeInput.blur();
+                                // Ensure blur events are processed first
+                                await tick();
+
+                                selectAllTags();
+                            }}
                             on:tagjoinprevious={() => joinWithPreviousTag(index)}
                             on:tagjoinnext={() => joinWithNextTag(index)}
                             on:tagmoveprevious={() => moveToPreviousTag(index)}
