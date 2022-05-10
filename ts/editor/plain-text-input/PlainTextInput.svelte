@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { registerPackage } from "../../lib/runtime-require";
     import lifecycleHooks from "../../sveltelib/lifecycle-hooks";
     import type { CodeMirrorAPI } from "../CodeMirror.svelte";
-    import type { EditingInputAPI } from "../EditingArea.svelte";
+    import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
 
     export interface PlainTextInputAPI extends EditingInputAPI {
         name: "plain-text";
@@ -76,6 +76,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return hidden;
     }
 
+    async function getInputAPI(target: EventTarget): Promise<FocusableInputAPI | null> {
+        const editor = (await codeMirror.editor) as any;
+
+        if (target === editor.display.input.textarea) {
+            return api;
+        }
+
+        return null;
+    }
+
     export const api: PlainTextInputAPI = {
         name: "plain-text",
         focus,
@@ -83,6 +93,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         moveCaretToEnd,
         refocus,
         toggle,
+        getInputAPI,
         codeMirror,
     };
 
