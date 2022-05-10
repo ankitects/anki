@@ -39,6 +39,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import removeProhibitedTags from "./remove-prohibited";
     import { storedToUndecorated, undecoratedToStored } from "./transform";
 
+    export let hidden: boolean;
+
     const configuration = {
         mode: htmlanki,
         ...baseOptions,
@@ -46,7 +48,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
 
     const { focusedInput } = noteEditorContext.get();
-
     const { editingInputs, content } = editingAreaContext.get();
     const code = writable($content);
 
@@ -69,8 +70,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         focus();
         moveCaretToEnd();
     }
-
-    export let hidden = false;
 
     function toggle(): boolean {
         hidden = !hidden;
