@@ -9,9 +9,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { MatchType } from "../../domlib/surround";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
+    import { removeStyleProperties } from "../../lib/styling";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
-    import { removeEmptyStyle, Surrounder } from "../surround";
+    import { Surrounder } from "../surround";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { italicIcon } from "./icons";
 
@@ -24,9 +25,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         if (["italic", "oblique"].includes(element.style.fontStyle)) {
             return match.clear((): void => {
-                element.style.removeProperty("font-style");
-
-                if (removeEmptyStyle(element) && element.className.length === 0) {
+                if (
+                    removeStyleProperties(element, "font-style") &&
+                    element.className.length === 0
+                ) {
                     return match.remove();
                 }
             });

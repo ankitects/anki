@@ -9,9 +9,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { MatchType } from "../../domlib/surround";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
+    import { removeStyleProperties } from "../../lib/styling";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
-    import { removeEmptyStyle, Surrounder } from "../surround";
+    import { Surrounder } from "../surround";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { boldIcon } from "./icons";
 
@@ -25,9 +26,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const fontWeight = element.style.fontWeight;
         if (fontWeight === "bold" || Number(fontWeight) >= 400) {
             return match.clear((): void => {
-                element.style.removeProperty("font-weight");
-
-                if (removeEmptyStyle(element) && element.className.length === 0) {
+                if (
+                    removeStyleProperties(element, "font-weight") &&
+                    element.className.length === 0
+                ) {
                     match.remove();
                 }
             });

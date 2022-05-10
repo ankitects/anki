@@ -243,19 +243,6 @@ export class Surrounder {
     }
 }
 
-/**
- * @returns True, if element has no style attribute (anymore).
- */
-export function removeEmptyStyle(element: HTMLElement | SVGElement): boolean {
-    if (element.style.cssText.length === 0) {
-        element.removeAttribute("style");
-        // Calling `.hasAttribute` right after `.removeAttribute` might return true.
-        return true;
-    }
-
-    return false;
-}
-
 registerPackage("anki/surround", {
     Surrounder,
 });

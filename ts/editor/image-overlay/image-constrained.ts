@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { removeStyleProperties } from "../../lib/styling";
+
 function setConstrainedWidth(
     image: HTMLImageElement,
     maxWidth: number,
@@ -43,5 +45,5 @@ export function setConstrainedSize(
 
 export function setActualSize(image: HTMLImageElement): void {
     delete image.dataset.editorSizeConstrained;
-    image.style.removeProperty("--editor-width");
+    removeStyleProperties(image, "--editor-width");
 }
