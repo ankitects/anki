@@ -220,6 +220,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         activeAfterBlur = index - 1;
         active = null;
+        activeInput.blur();
     }
 
     async function moveToNextTag(index: number): Promise<void> {
@@ -233,6 +234,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         activeAfterBlur = index + 1;
         active = null;
+        activeInput.blur();
 
         await tick();
         activeInput.setSelectionRange(0, 0);
