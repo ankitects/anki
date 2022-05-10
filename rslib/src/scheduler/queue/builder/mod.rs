@@ -287,6 +287,13 @@ mod test {
             self.add_or_update_deck(deck).unwrap();
         }
 
+        fn set_deck_review_limit(&mut self, deck: DeckId, limit: u32) {
+            let dcid = self.get_deck(deck).unwrap().unwrap().config_id().unwrap();
+            let mut conf = self.get_deck_config(dcid, false).unwrap().unwrap();
+            conf.inner.reviews_per_day = limit;
+            self.add_or_update_deck_config(&mut conf).unwrap();
+        }
+
         fn queue_as_deck_and_template(&mut self, deck_id: DeckId) -> Vec<(DeckId, u16)> {
             self.build_queues(deck_id)
                 .unwrap()
@@ -316,6 +323,18 @@ mod test {
                 })
                 .collect()
         }
+    }
+
+    #[test]
+    fn should_build_empty_queue_if_limit_is_reached() {
+        let mut col = open_test_collection();
+        col.set_config_bool(BoolKey::Sched2021, true, false)
+            .unwrap();
+        let note_id = col.add_new_note("Basic").id;
+        let cids = col.storage.card_ids_of_notes(&[note_id]).unwrap();
+        col.set_due_date(&cids, "0", None).unwrap();
+        col.set_deck_review_limit(DeckId(1), 0);
+        assert_eq!(col.queue_as_deck_and_template(DeckId(1)), vec![]);
     }
 
     #[test]
