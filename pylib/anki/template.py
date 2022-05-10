@@ -158,6 +158,7 @@ class TemplateRenderContext:
         self._fill_empty = fill_empty
         self._fields: dict | None = None
         self._latex_svg = False
+        self._question_side: bool = True
         if not notetype:
             self._note_type = note.note_type()
         else:
@@ -166,8 +167,6 @@ class TemplateRenderContext:
         # if you need to store extra state to share amongst rendering
         # hooks, you can insert it into this dictionary
         self.extra_state: dict[str, Any] = {}
-
-        self._question_side: bool = True
 
     @property
     def question_side(self) -> bool:
