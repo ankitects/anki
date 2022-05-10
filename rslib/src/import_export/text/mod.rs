@@ -30,7 +30,7 @@ pub struct ForeignNote {
 #[serde(default)]
 pub struct ForeignCard {
     pub due: i32,
-    pub ivl: u32,
+    pub interval: u32,
     pub factor: f32,
     pub reps: u32,
     pub lapses: u32,

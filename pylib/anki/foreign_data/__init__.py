@@ -73,7 +73,7 @@ class ForeignNotetype:
 @dataclass
 class ForeignCard:
     due: int = 0
-    ivl: int = 1
+    interval: int = 1
     factor: float = STARTING_FACTOR_FRACTION
     reps: int = 0
     lapses: int = 0

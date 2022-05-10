@@ -146,7 +146,7 @@ class MnemoCard:
             factor=self.easiness,
             reps=self.reps,
             lapses=self.lapses,
-            ivl=self.anki_interval(),
+            interval=self.anki_interval(),
             due=self.next_rep,
         )
 
