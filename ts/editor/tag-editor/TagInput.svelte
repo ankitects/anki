@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher, onMount, tick } from "svelte";
 
+    import { registerShortcut } from "../../lib/shortcuts";
     import {
         delimChar,
         normalizeTagname,
@@ -230,7 +231,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         name = last;
     }
 
-    onMount(() => input.focus());
+    async function onSelectAll(event: KeyboardEvent) {
+        if (name.length === 0) {
+            input.blur();
+            await tick(); // ensure blur events are processed before tagselectall
+            dispatch("tagselectall");
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    }
+
+    onMount(() => {
+        registerShortcut(onSelectAll, "Control+A", { target: input });
+        input.focus();
+    });
 </script>
 
 <input
