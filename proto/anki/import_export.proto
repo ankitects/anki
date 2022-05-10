@@ -111,7 +111,7 @@ message ImportCsvRequest {
   int64 notetype_id = 3;
   repeated CsvColumn columns = 4;
   uint32 delimiter = 5;
-  bool allow_html = 6;
+  bool is_html = 6;
 }
 
 message CsvMetadataRequest {
@@ -125,5 +125,5 @@ message CsvMetadata {
   repeated string columns = 3;
   int64 deck_id = 4;
   int64 notetype_id = 5;
-  optional bool html = 6;
+  optional bool is_html = 6;
 }

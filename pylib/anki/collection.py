@@ -416,7 +416,7 @@ class Collection(DeprecatedNamesMixin):
         notetype_id: NotetypeId,
         columns: list[CsvColumn],
         delimiter: int,
-        allow_html: bool,
+        is_html: bool,
     ) -> ImportLogWithChanges:
         return self._backend.import_csv(
             path=path,
@@ -424,7 +424,7 @@ class Collection(DeprecatedNamesMixin):
             notetype_id=notetype_id,
             delimiter=delimiter,
             columns=columns,
-            allow_html=allow_html,
+            is_html=is_html,
         )
 
     def import_json(self, json: str) -> ImportLogWithChanges:

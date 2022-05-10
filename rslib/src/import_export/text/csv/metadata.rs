@@ -90,7 +90,7 @@ impl Collection {
                     metadata.notetype_id = nt.id.0;
                 }
             }
-            "html" => metadata.html = value.to_lowercase().parse::<bool>().ok(),
+            "is_html" => metadata.is_html = value.to_lowercase().parse::<bool>().ok(),
 
             _ => (),
         }
@@ -245,9 +245,9 @@ mod test {
     #[test]
     fn should_detect_valid_html_toggle() {
         let mut col = open_test_collection();
-        assert_eq!(metadata!(col, "#html:true\n").html, Some(true));
-        assert_eq!(metadata!(col, "#html:FALSE\n").html, Some(false));
-        assert_eq!(metadata!(col, "#html:maybe\n").html, None);
+        assert_eq!(metadata!(col, "#is_html:true\n").is_html, Some(true));
+        assert_eq!(metadata!(col, "#is_html:FALSE\n").is_html, Some(false));
+        assert_eq!(metadata!(col, "#is_html:maybe\n").is_html, None);
     }
 
     #[test]

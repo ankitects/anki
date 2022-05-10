@@ -94,7 +94,7 @@ impl ImportExportService for Backend {
                 input.notetype_id.into(),
                 input.columns.into_iter().map(Into::into).collect(),
                 try_into_byte(input.delimiter)?,
-                //input.allow_html,
+                input.is_html,
             )
         })
         .map(Into::into)

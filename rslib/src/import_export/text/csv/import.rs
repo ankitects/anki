@@ -22,12 +22,12 @@ impl Collection {
         notetype_id: NotetypeId,
         columns: Vec<Column>,
         delimiter: u8,
-        //allow_html: bool,
+        is_html: bool,
     ) -> Result<OpOutput<NoteLog>> {
         let notetype = self.get_notetype(notetype_id)?.ok_or(AnkiError::NotFound)?;
         let fields_len = notetype.fields.len();
         let file = File::open(path)?;
-        let notes = deserialize_csv(file, &columns, fields_len, delimiter)?;
+        let notes = deserialize_csv(file, &columns, fields_len, delimiter, is_html)?;
 
         ForeignData {
             // TODO: refactor to allow passing ids directly
@@ -45,6 +45,7 @@ fn deserialize_csv(
     columns: &[Column],
     fields_len: usize,
     delimiter: u8,
+    is_html: bool,
 ) -> Result<Vec<ForeignNote>> {
     remove_tags_line_from_reader(&mut reader)?;
     let mut csv_reader = csv::ReaderBuilder::new()
@@ -54,7 +55,7 @@ fn deserialize_csv(
         .delimiter(delimiter)
         .trim(csv::Trim::All)
         .from_reader(reader);
-    deserialize_csv_reader(&mut csv_reader, columns, fields_len)
+    deserialize_csv_reader(&mut csv_reader, columns, fields_len, is_html)
 }
 
 /// If the reader's first line starts with "tags:", which is allowed for historic
@@ -78,35 +79,45 @@ fn deserialize_csv_reader(
     reader: &mut csv::Reader<impl Read>,
     columns: &[Column],
     fields_len: usize,
+    is_html: bool,
 ) -> Result<Vec<ForeignNote>> {
     reader
         .records()
         .into_iter()
         .map(|res| {
-            res.map(|record| ForeignNote::from_record(record, columns, fields_len))
+            res.map(|record| ForeignNote::from_record(record, columns, fields_len, is_html))
                 .map_err(Into::into)
         })
         .collect()
 }
 
 impl ForeignNote {
-    fn from_record(record: csv::StringRecord, columns: &[Column], fields_len: usize) -> Self {
+    fn from_record(
+        record: csv::StringRecord,
+        columns: &[Column],
+        fields_len: usize,
+        is_html: bool,
+    ) -> Self {
         let mut note = Self {
             fields: vec!["".to_string(); fields_len],
             ..Default::default()
         };
         for (&column, value) in columns.iter().zip(record.iter()) {
-            note.add_column_value(column, value);
+            note.add_column_value(column, value, is_html);
         }
         note
     }
 
-    fn add_column_value(&mut self, column: Column, value: &str) {
+    fn add_column_value(&mut self, column: Column, value: &str, is_html: bool) {
         match column {
             Column::Ignore => (),
             Column::Field(idx) => {
                 if let Some(field) = self.fields.get_mut(idx) {
-                    field.push_str(value)
+                    *field = if is_html {
+                        value.to_string()
+                    } else {
+                        htmlescape::encode_minimal(value)
+                    };
                 }
             }
             Column::Tags => self.tags.extend(value.split(' ').map(ToString::to_string)),
@@ -128,15 +139,11 @@ mod test {
                 &$options.columns,
                 $options.fields_len,
                 $options.delimiter,
+                $options.is_html,
             )
             .unwrap();
-            assert_eq!(notes.len(), $expected.len());
-            for (note, fields) in notes.iter().zip($expected.iter()) {
-                assert_eq!(note.fields.len(), fields.len());
-                for (note_field, field) in note.fields.iter().zip(fields.iter()) {
-                    assert_eq!(note_field, field);
-                }
-            }
+            let fields: Vec<_> = notes.into_iter().map(|note| note.fields).collect();
+            assert_eq!(fields, $expected);
         };
     }
 
@@ -144,6 +151,7 @@ mod test {
         columns: Vec<Column>,
         fields_len: usize,
         delimiter: u8,
+        is_html: bool,
     }
 
     impl CsvOptions {
@@ -152,6 +160,7 @@ mod test {
                 columns: vec![Column::Field(0), Column::Field(1)],
                 fields_len: 2,
                 delimiter: b',',
+                is_html: false,
             }
         }
 
@@ -172,6 +181,12 @@ mod test {
 
         fn delimiter(mut self, delimiter: u8) -> Self {
             self.delimiter = delimiter;
+            self
+        }
+
+        #[allow(clippy::wrong_self_convention)]
+        fn is_html(mut self, is_html: bool) -> Self {
+            self.is_html = is_html;
             self
         }
     }
@@ -209,5 +224,12 @@ mod test {
     fn should_ignore_lines_starting_with_number_sign() {
         let options = CsvOptions::new();
         assert_imported_fields!(options, "#foo\nfront,back\n#bar\n", &[&["front", "back"]]);
+    }
+
+    #[test]
+    fn should_escape_html_entities_if_csv_is_html() {
+        assert_imported_fields!(CsvOptions::new(), "<hr>\n", &[&["&lt;hr&gt;", ""]]);
+        let with_html = CsvOptions::new().is_html(true);
+        assert_imported_fields!(with_html, "<hr>\n", &[&["<hr>", ""]]);
     }
 }

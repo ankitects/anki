@@ -100,7 +100,7 @@ class ImportDialog(QDialog):
         self.column_map = ColumnMap(self.columns, self.model)
         self._render_mapping()
         self._set_delimiter_button_text()
-        self.frm.allowHTML.setChecked(self.html)
+        self.frm.allowHTML.setChecked(self.is_html)
         self.frm.importMode.setCurrentIndex(self.mw.pm.profile.get("importMode", 1))
         self.frm.tagModified.setText(self.tags)
         self.frm.tagModified.setCol(self.mw.col)
@@ -119,10 +119,10 @@ class ImportDialog(QDialog):
         else:
             self.model = self.mw.col.models.current()
             self.notetype_id = self.model["id"]
-        if self.options.html is None:
-            self.html = self.mw.pm.profile.get("allowHTML", True)
+        if self.options.is_html is None:
+            self.is_html = self.mw.pm.profile.get("allowHTML", True)
         else:
-            self.html = self.options.html
+            self.is_html = self.options.is_html
 
     def _setup_choosers(self) -> None:
         import aqt.deckchooser
@@ -214,7 +214,7 @@ class ImportDialog(QDialog):
                 notetype_id=self.model["id"],
                 delimiter=self.delimiter,
                 columns=self.column_map.csv_columns(),
-                allow_html=self.frm.allowHTML.isChecked(),
+                is_html=self.frm.allowHTML.isChecked(),
             ),
         ).with_backend_progress(import_progress_update).success(
             show_import_log
