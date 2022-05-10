@@ -107,10 +107,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &.nw {
             top: calc(0px - var(--offsetY));
             left: calc(0px - var(--offsetX));
-
-            &.active {
-                cursor: nw-resize;
-            }
         }
 
         &.ne {
