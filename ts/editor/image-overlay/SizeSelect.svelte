@@ -12,16 +12,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../../lib/ftl";
     import { sizeActual, sizeMinimized } from "./icons";
 
-    export let active: boolean;
+    export let isSizeConstrained: boolean;
 
-    $: icon = active ? sizeActual : sizeMinimized;
+    $: icon = isSizeConstrained ? sizeMinimized : sizeActual;
 
     const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
 </script>
 
 <ButtonGroup size={1.6}>
     <IconButton
-        {active}
         flipX={$direction === "rtl"}
         tooltip="{tr.editingActualSize()} ({tr.editingDoubleClickImage()})"
         on:click
