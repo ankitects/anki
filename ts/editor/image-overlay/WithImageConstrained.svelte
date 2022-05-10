@@ -14,39 +14,39 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
-    function setConstrainedSize(image: HTMLImageElement): void {
-        delete image.dataset.editorFullsize;
-        return;
-        const aspectRatio = image.naturalWidth / image.naturalHeight;
+    function setConstrainedWidth(image: HTMLImageElement): void {
+        const naturalWidth = image.naturalWidth;
+        const naturalHeight = image.naturalHeight;
+        const aspectRatio = naturalWidth / naturalHeight;
+
+        let constrainedWidth: number;
 
         if (restrictionAspectRatio - aspectRatio > 1) {
-            // restricted by height
-            console.log("restrictedByHeight");
-            /* rule.style.setProperty("width", "auto", "important"); */
-
-            const width = Number(image.getAttribute("width")) || image.width;
-            const height = Number(image.getAttribute("height")) || width / aspectRatio;
-            /* rule.style.setProperty( */
-            /*     "height", */
-            /*     height < maxHeight ? `${height}px` : "auto", */
-            /*     "important", */
-            /* ); */
+            // Constrained by height
+            constrainedWidth = (maxHeight / naturalHeight) * naturalWidth;
         } else {
-            // square or restricted by width
-            console.log("restrictedByWidth");
-            const width = Number(image.getAttribute("width")) || image.width;
-            /* rule.style.setProperty( */
-            /*     "width", */
-            /*     width < maxWidth ? `${width}px` : "auto", */
-            /*     "important", */
-            /* ); */
-
-            /* rule.style.setProperty("height", "auto", "important"); */
+            // Square or constrained by width
+            constrainedWidth = maxWidth;
         }
+
+        const width = Number(image.getAttribute("width")) || image.width;
+
+        if (constrainedWidth >= width) {
+            // Image was resized to be smaller than the constrained size would be
+            constrainedWidth = width;
+        }
+
+        image.style.setProperty("--editor-width", `${Math.round(constrainedWidth)}px`);
+    }
+
+    function setConstrainedSize(image: HTMLImageElement): void {
+        image.dataset.editorSizeConstrained = "true";
+        setConstrainedWidth(image);
     }
 
     function setActualSize(image: HTMLImageElement): void {
-        image.dataset.editorFullsize = "true";
+        delete image.dataset.editorSizeConstrained;
+        image.style.removeProperty("--editor-width");
     }
 
     function toggleActualSize(image: HTMLImageElement) {
