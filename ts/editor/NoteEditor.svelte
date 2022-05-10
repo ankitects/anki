@@ -50,9 +50,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
     import { bridgeCommand } from "../lib/bridgecommand";
-    import { notetypes } from "../lib/proto";
     import { noop } from "../lib/functional";
     import { hooks } from "../lib/hooks";
+    import { notetypes } from "../lib/proto";
     import type { Callback } from "../lib/typing";
     import { ChangeTimer } from "./change-timer";
     import DecoratedElements from "./DecoratedElements.svelte";
