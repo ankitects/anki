@@ -48,6 +48,9 @@ compile_data_attr = "glob([\"**/*.rsv\"])"
 [package.metadata.raze.crates.unic-ucd-category.'*']
 compile_data_attr = "glob([\"**/*.rsv\"])"
 
+[package.metadata.raze.crates.bstr.'*']
+compile_data_attr = "glob([\"**/*.dfa\"])"
+
 [package.metadata.raze.crates.pyo3-build-config.'*']
 buildrs_additional_environment_variables = { "PYO3_NO_PYTHON" = "1" }
 
