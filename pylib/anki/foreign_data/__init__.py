@@ -10,7 +10,7 @@ import json
 from dataclasses import asdict, dataclass, field
 from typing import Union
 
-from anki.consts import STARTING_FACTOR
+from anki.consts import STARTING_FACTOR_FRACTION
 from anki.decks import DeckId
 from anki.models import NotetypeId
 
@@ -74,7 +74,7 @@ class ForeignNotetype:
 class ForeignCard:
     due: int = 0
     ivl: int = 1
-    factor: int = STARTING_FACTOR
+    factor: float = STARTING_FACTOR_FRACTION
     reps: int = 0
     lapses: int = 0
 

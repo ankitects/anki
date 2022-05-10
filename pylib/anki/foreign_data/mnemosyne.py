@@ -143,15 +143,12 @@ class MnemoCard:
 
     def foreign_card(self) -> ForeignCard:
         return ForeignCard(
-            factor=self.anki_ease(),
+            factor=self.easiness,
             reps=self.reps,
             lapses=self.lapses,
             ivl=self.anki_interval(),
             due=self.next_rep,
         )
-
-    def anki_ease(self) -> int:
-        return int(self.easiness * 1000)
 
     def anki_interval(self) -> int:
         return max(1, (self.next_rep - self.last_rep) // 86400)

@@ -31,7 +31,7 @@ pub struct ForeignNote {
 pub struct ForeignCard {
     pub due: i32,
     pub ivl: u32,
-    pub factor: u16,
+    pub factor: f32,
     pub reps: u32,
     pub lapses: u32,
 }
