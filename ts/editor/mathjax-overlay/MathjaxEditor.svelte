@@ -99,6 +99,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     />
 </div>
 
+<slot editor={codeMirror} />
+
 <style lang="scss">
     .mathjax-editor {
         :global(.CodeMirror) {
