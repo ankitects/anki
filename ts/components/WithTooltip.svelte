@@ -43,9 +43,11 @@
     let previousTooltip: string = tooltip;
     $: if (tooltip !== previousTooltip) {
         previousTooltip = tooltip;
-        const element: HTMLElement = tooltipObject["_element"];
-        tooltipObject.dispose();
-        createTooltip(element);
+        if (tooltipObject !== undefined) {
+            const element: HTMLElement = tooltipObject["_element"];
+            tooltipObject.dispose();
+            createTooltip(element);
+        }
     }
 </script>
 
