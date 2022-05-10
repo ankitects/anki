@@ -101,6 +101,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let getDragWidth: (event: PointerEvent) => number;
     let getDragHeight: (event: PointerEvent) => number;
 
+    let widthDraggable: boolean;
+    let heightDraggable: boolean;
+
     function setPointerCapture({ detail }: CustomEvent): void {
         const pointerId = detail.originalEvent.pointerId;
 
@@ -110,17 +113,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const imageRect = activeImage!.getBoundingClientRect();
 
-        const imageLeft = imageRect!.left;
-        const imageRight = imageRect!.right;
-        const [multX, imageX] = detail.west ? [-1, imageRight] : [1, -imageLeft];
-
-        getDragWidth = ({ clientX }) => multX * clientX + imageX;
-
-        const imageTop = imageRect!.top;
-        const imageBottom = imageRect!.bottom;
-        const [multY, imageY] = detail.north ? [-1, imageBottom] : [1, -imageTop];
-
-        getDragHeight = ({ clientY }) => multY * clientY + imageY;
+        getDragWidth = ({ clientX }) => clientX - imageRect!.left;
+        getDragHeight = ({ clientY }) => clientY - imageRect!.top;
+        widthDraggable = !detail.west;
+        heightDraggable = !detail.north;
 
         const target = detail.originalEvent.target as Element;
         target.setPointerCapture(pointerId);
@@ -144,11 +140,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         let width: number;
 
-        if (widthIncrease > heightIncrease) {
+        if (widthDraggable && (!heightDraggable || widthIncrease > heightIncrease)) {
             width = Math.max(Math.trunc(dragWidth), minResizeWidth);
-        } else {
+        } else if (heightDraggable) {
             const height = Math.max(Math.trunc(dragHeight), minResizeHeight);
             width = Math.trunc(naturalWidth! * (height / naturalHeight!));
+        } else {
+            // north-west
+            return;
         }
 
         /**
