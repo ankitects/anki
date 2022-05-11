@@ -13,13 +13,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HandleSelection from "../HandleSelection.svelte";
     import { context } from "../rich-text-input";
     import FloatButtons from "./FloatButtons.svelte";
-    import { setActualSize, setConstrainedSize } from "./image-constrained";
     import SizeSelect from "./SizeSelect.svelte";
 
     export let maxWidth: number;
     export let maxHeight: number;
 
     const { container } = context.get();
+
+    $: {
+        container.style.setProperty("--editor-shrink-max-width", `${maxWidth}px`);
+        container.style.setProperty("--editor-shrink-max-height", `${maxHeight}px`);
+    }
 
     let activeImage: HTMLImageElement | null = null;
 
@@ -34,7 +38,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     $: isSizeConstrained = activeImage
-        ? isDatasetAttributeFlagSet(activeImage, "editorSizeConstrained")
+        ? isDatasetAttributeFlagSet(activeImage, "editorShrink")
         : false;
 
     async function resetHandle(): Promise<void> {
@@ -180,9 +184,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function toggleActualSize(): void {
         if (isSizeConstrained) {
-            setActualSize(activeImage!);
+            delete activeImage!.dataset.editorShrink;
         } else {
-            setConstrainedSize(activeImage!, maxWidth, maxHeight);
+            activeImage!.dataset.editorShrink = "true";
         }
 
         isSizeConstrained = !isSizeConstrained;
