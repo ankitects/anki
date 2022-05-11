@@ -125,8 +125,7 @@ class Previewer(QDialog):
             self.mw.reviewer.revHtml(),
             css=["css/reviewer.css"],
             js=[
-                "js/mathjax.js",
-                "js/vendor/mathjax/tex-chtml.js",
+                "js/vendor/mathjax/tex-chtml-full.js",
                 "js/reviewer.js",
             ],
             context=self,

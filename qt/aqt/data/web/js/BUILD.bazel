@@ -45,7 +45,6 @@ filegroup(
     name = "js",
     srcs = [
         "aqt",
-        "mathjax.js",
         "reviewer",
         "editor",
         "//qt/aqt/data/web/js/vendor",

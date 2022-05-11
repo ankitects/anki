@@ -22,7 +22,6 @@ _ts_deps = [
     "//ts/domlib",
     "//ts/sveltelib",
     "@npm//mathjax",
-    "@npm//mathjax-full",
     "@npm//svelte",
 ]
 
