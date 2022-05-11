@@ -56,7 +56,6 @@ fn deserialize_csv(
         .flexible(true)
         .comment(Some(b'#'))
         .delimiter(delimiter.byte())
-        .trim(csv::Trim::All)
         .from_reader(reader);
     deserialize_csv_reader(&mut csv_reader, columns, fields_len, is_html)
 }
