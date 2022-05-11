@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import ButtonDropdown from "../../components/ButtonDropdown.svelte";
     import WithDropdown from "../../components/WithDropdown.svelte";
+    import * as tr from "../../lib/ftl";
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";
     import HandleLabel from "../HandleLabel.svelte";
@@ -199,6 +200,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         container.removeEventListener("key", resetHandle);
         container.removeEventListener("paste", resetHandle);
     });
+
+    $: shrinkingDisabled =
+        Number(actualWidth) <= maxWidth && Number(actualHeight) <= maxHeight;
 </script>
 
 <WithDropdown
@@ -218,6 +222,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         >
             <HandleBackground
                 on:dblclick={() => {
+                    if (shrinkingDisabled) {
+                        return;
+                    }
                     toggleActualSize();
                     updateSizesWithDimensions();
                     dropdownObject.update();
@@ -225,9 +232,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             />
 
             <HandleLabel on:mount={updateDimensions}>
-                <span>{actualWidth}&times;{actualHeight}</span>
-                {#if customDimensions}
-                    <span>(Original: {naturalWidth}&times;{naturalHeight})</span>
+                {#if isSizeConstrained}
+                    <span>{tr.editingDoubleClickToExpand()}</span>
+                {:else}
+                    <span>{actualWidth}&times;{actualHeight}</span>
+                    {#if customDimensions}
+                        <span>(Original: {naturalWidth}&times;{naturalHeight})</span>
+                    {/if}
                 {/if}
             </HandleLabel>
 
@@ -251,6 +262,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <ButtonDropdown on:click={updateSizesWithDimensions}>
             <FloatButtons image={activeImage} on:update={dropdownObject.update} />
             <SizeSelect
+                disabled={shrinkingDisabled}
                 {isSizeConstrained}
                 on:click={() => {
                     toggleActualSize();

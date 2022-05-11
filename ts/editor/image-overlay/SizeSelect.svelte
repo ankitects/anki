@@ -13,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { sizeActual, sizeMinimized } from "./icons";
 
     export let isSizeConstrained: boolean;
+    export let disabled: boolean;
 
     $: icon = isSizeConstrained ? sizeMinimized : sizeActual;
 
@@ -21,6 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ButtonGroup size={1.6}>
     <IconButton
+        {disabled}
         flipX={$direction === "rtl"}
         tooltip="{tr.editingActualSize()} ({tr.editingDoubleClickImage()})"
         on:click

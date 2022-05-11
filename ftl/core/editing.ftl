@@ -15,6 +15,7 @@ editing-customize-card-templates = Customize Card Templates
 editing-customize-fields = Customize Fields
 editing-cut = Cut
 editing-double-click-image = double-click image
+editing-double-click-to-expand = (double-click to expand)
 editing-edit-current = Edit Current
 editing-edit-html = Edit HTML
 editing-fields = Fields
