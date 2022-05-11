@@ -99,7 +99,8 @@ impl<'a> Context<'a> {
         notetype: &Notetype,
         deck_id: DeckId,
     ) -> Result<LogNote> {
-        let (mut note, mut cards) = foreign.into_native(notetype, deck_id);
+        let today = self.col.timing_today()?.days_elapsed;
+        let (mut note, mut cards) = foreign.into_native(notetype, deck_id, today);
         self.import_note(&mut note, notetype)?;
         self.import_cards(&mut cards, note.id)?;
         self.generate_missing_cards(notetype, deck_id, &note)?;
@@ -161,7 +162,8 @@ impl Collection {
 }
 
 impl ForeignNote {
-    fn into_native(self, notetype: &Notetype, deck_id: DeckId) -> (Note, Vec<Card>) {
+    fn into_native(self, notetype: &Notetype, deck_id: DeckId, today: u32) -> (Note, Vec<Card>) {
+        // TODO: Handle new and learning cards
         let mut note = Note::new(notetype);
         note.tags = self.tags;
         note.fields_mut()
@@ -172,20 +174,26 @@ impl ForeignNote {
             .cards
             .into_iter()
             .enumerate()
-            .map(|(idx, c)| c.into_native(NoteId(0), idx as u16, deck_id))
+            .map(|(idx, c)| c.into_native(NoteId(0), idx as u16, deck_id, today))
             .collect();
         (note, cards)
     }
 }
 
 impl ForeignCard {
-    fn into_native(self, note_id: NoteId, template_idx: u16, deck_id: DeckId) -> Card {
-        let mut card = Card::new(note_id, template_idx, deck_id, self.due);
+    fn into_native(self, note_id: NoteId, template_idx: u16, deck_id: DeckId, today: u32) -> Card {
+        let mut card = Card::new(note_id, template_idx, deck_id, self.native_due(today));
         card.interval = self.interval;
         card.ease_factor = (self.factor * 1000.).round() as u16;
         card.reps = self.reps;
         card.lapses = self.lapses;
         card
+    }
+
+    fn native_due(self, today: u32) -> i32 {
+        let remaining_secs = self.interval as i64 - TimestampSecs::now().0;
+        let remaining_days = remaining_secs / (60 * 60 * 24);
+        0.max(remaining_days as i32 + today as i32)
     }
 }
 
