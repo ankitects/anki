@@ -1,6 +1,7 @@
 importing-failed-debug-info = Import failed. Debugging info:
 importing-aborted = Aborted: { $val }
 importing-added-duplicate-with-first-field = Added duplicate with first field: { $val }
+importing-all-supported-formats = All supported formats { $val }
 importing-allow-html-in-fields = Allow HTML in fields
 importing-anki-files-are-from-a-very = .anki files are from a very old version of Anki. You can import them with add-on 175027074 or with Anki 2.0, available on the Anki website.
 importing-anki2-files-are-not-directly-importable = .anki2 files are not directly importable - please import the .apkg or .zip file you have received instead.

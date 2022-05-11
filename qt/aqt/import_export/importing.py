@@ -3,34 +3,128 @@
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from itertools import chain
+from typing import Type
 
 import aqt.main
 from anki.collection import Collection, ImportLogWithChanges, Progress
 from anki.errors import Interrupted
 from anki.foreign_data import mnemosyne
+from anki.lang import without_unicode_isolation
 from aqt.operations import CollectionOp, QueryOp
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
-from aqt.utils import askUser, getFile, showInfo, showText, showWarning, tooltip, tr
+from aqt.utils import askUser, getFile, showText, showWarning, tooltip, tr
+
+
+class Importer(ABC):
+    accepted_file_endings: list[str]
+
+    @classmethod
+    def can_import(cls, lowercase_filename: str) -> bool:
+        return any(
+            lowercase_filename.endswith(ending) for ending in cls.accepted_file_endings
+        )
+
+    @classmethod
+    @abstractmethod
+    def do_import(cls, mw: aqt.main.AnkiQt, path: str) -> None:
+        ...
+
+
+class ColpkgImporter(Importer):
+    accepted_file_endings = [".apkg", ".colpkg"]
+
+    @staticmethod
+    def can_import(filename: str) -> bool:
+        return (
+            filename == "collection.apkg"
+            or (filename.startswith("backup-") and filename.endswith(".apkg"))
+            or filename.endswith(".colpkg")
+        )
+
+    @staticmethod
+    def do_import(mw: aqt.main.AnkiQt, path: str) -> None:
+        if askUser(
+            tr.importing_this_will_delete_your_existing_collection(),
+            msgfunc=QMessageBox.warning,
+            defaultno=True,
+        ):
+            ColpkgImporter._import(mw, path)
+
+    @staticmethod
+    def _import(mw: aqt.main.AnkiQt, file: str) -> None:
+        def on_success() -> None:
+            mw.loadCollection()
+            tooltip(tr.importing_importing_complete())
+
+        def on_failure(err: Exception) -> None:
+            mw.loadCollection()
+            if not isinstance(err, Interrupted):
+                showWarning(str(err))
+
+        QueryOp(
+            parent=mw,
+            op=lambda _: mw.create_backup_now(),
+            success=lambda _: mw.unloadCollection(
+                lambda: import_collection_package_op(mw, file, on_success)
+                .failure(on_failure)
+                .run_in_background()
+            ),
+        ).with_progress().run_in_background()
+
+
+class ApkgImporter(Importer):
+    accepted_file_endings = [".apkg", ".zip"]
+
+    @staticmethod
+    def do_import(mw: aqt.main.AnkiQt, path: str) -> None:
+        CollectionOp(
+            parent=mw,
+            op=lambda col: col.import_anki_package(path),
+        ).with_backend_progress(import_progress_update).success(
+            show_import_log
+        ).run_in_background()
+
+
+class MnemosyneImporter(Importer):
+    accepted_file_endings = [".db"]
+
+    @staticmethod
+    def do_import(mw: aqt.main.AnkiQt, path: str) -> None:
+        QueryOp(
+            parent=mw,
+            op=lambda _: mnemosyne.serialize(path),
+            success=lambda json: import_json(mw, json),
+        ).with_progress().run_in_background()
+
+
+class CsvImporter(Importer):
+    accepted_file_endings = [".csv", ".tsv", ".txt"]
+
+    @staticmethod
+    def do_import(mw: aqt.main.AnkiQt, path: str) -> None:
+        import aqt.import_export.import_dialog
+
+        aqt.import_export.import_dialog.ImportDialog(mw, path)
+
+
+IMPORTERS: list[Type[Importer]] = [
+    ColpkgImporter,
+    ApkgImporter,
+    MnemosyneImporter,
+    CsvImporter,
+]
 
 
 def import_file(mw: aqt.main.AnkiQt, path: str) -> None:
     filename = os.path.basename(path).lower()
-    if filename.endswith(".anki"):
-        showInfo(tr.importing_anki_files_are_from_a_very())
-    elif filename.endswith(".anki2"):
-        showInfo(tr.importing_anki2_files_are_not_directly_importable())
-    elif is_collection_package(filename):
-        maybe_import_collection_package(mw, path)
-    elif filename.endswith(".apkg") or filename.endswith(".zip"):
-        import_anki_package(mw, path)
-    elif filename.endswith(".db"):
-        import_mnemosyne(mw, path)
-    else:
-        import aqt.import_export.import_dialog
-
-        aqt.import_export.import_dialog.ImportDialog(mw, path)
+    for importer in IMPORTERS:
+        if importer.can_import(filename):
+            importer.do_import(mw, path)
+            return
+    showWarning("Unsupported file type.")
 
 
 def prompt_for_file_then_import(mw: aqt.main.AnkiQt) -> None:
@@ -39,59 +133,20 @@ def prompt_for_file_then_import(mw: aqt.main.AnkiQt) -> None:
 
 
 def get_file_path(mw: aqt.main.AnkiQt) -> str | None:
-    if file := getFile(
-        mw, tr.actions_import(), None, key="import", filter=file_filter()
-    ):
+    filter = without_unicode_isolation(
+        tr.importing_all_supported_formats(
+            val="({})".format(
+                " ".join(f"*{ending}" for ending in all_accepted_file_endings())
+            )
+        )
+    )
+    if file := getFile(mw, tr.actions_import(), None, key="import", filter=filter):
         return str(file)
     return None
 
 
-def file_filter() -> str:
-    return ";;".join(
-        (
-            tr.importing_packaged_anki_deckcollection_apkg_colpkg_zip(),
-            tr.importing_text_separated_by_tabs_or_semicolons(),
-            tr.importing_mnemosyne_20_deck_db(),
-        )
-    )
-
-
-def is_collection_package(filename: str) -> bool:
-    return (
-        filename == "collection.apkg"
-        or (filename.startswith("backup-") and filename.endswith(".apkg"))
-        or filename.endswith(".colpkg")
-    )
-
-
-def maybe_import_collection_package(mw: aqt.main.AnkiQt, path: str) -> None:
-    if askUser(
-        tr.importing_this_will_delete_your_existing_collection(),
-        msgfunc=QMessageBox.warning,
-        defaultno=True,
-    ):
-        import_collection_package(mw, path)
-
-
-def import_collection_package(mw: aqt.main.AnkiQt, file: str) -> None:
-    def on_success() -> None:
-        mw.loadCollection()
-        tooltip(tr.importing_importing_complete())
-
-    def on_failure(err: Exception) -> None:
-        mw.loadCollection()
-        if not isinstance(err, Interrupted):
-            showWarning(str(err))
-
-    QueryOp(
-        parent=mw,
-        op=lambda _: mw.create_backup_now(),
-        success=lambda _: mw.unloadCollection(
-            lambda: import_collection_package_op(mw, file, on_success)
-            .failure(on_failure)
-            .run_in_background()
-        ),
-    ).with_progress().run_in_background()
+def all_accepted_file_endings() -> set[str]:
+    return set(chain(*(importer.accepted_file_endings for importer in IMPORTERS)))
 
 
 def import_collection_package_op(
@@ -111,23 +166,6 @@ def import_collection_package_op(
     return QueryOp(parent=mw, op=op, success=lambda _: success()).with_backend_progress(
         import_progress_update
     )
-
-
-def import_anki_package(mw: aqt.main.AnkiQt, path: str) -> None:
-    CollectionOp(
-        parent=mw,
-        op=lambda col: col.import_anki_package(path),
-    ).with_backend_progress(import_progress_update).success(
-        show_import_log
-    ).run_in_background()
-
-
-def import_mnemosyne(mw: aqt.main.AnkiQt, path: str) -> None:
-    QueryOp(
-        parent=mw,
-        op=lambda _: mnemosyne.serialize(path),
-        success=lambda json: import_json(mw, json),
-    ).with_progress().run_in_background()
 
 
 def import_json(mw: aqt.main.AnkiQt, json: str) -> None:
