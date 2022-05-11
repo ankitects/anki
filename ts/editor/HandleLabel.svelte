@@ -9,19 +9,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { directionKey } from "../lib/context-keys";
 
-    let dimensions: HTMLDivElement;
-
     const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
     const dispatch = createEventDispatcher();
 
     onMount(() => dispatch("mount"));
 </script>
 
-<div
-    bind:this={dimensions}
-    class="image-handle-dimensions"
-    class:is-rtl={$direction === "rtl"}
->
+<div class="image-handle-dimensions" class:is-rtl={$direction === "rtl"}>
     <slot />
 </div>
 
