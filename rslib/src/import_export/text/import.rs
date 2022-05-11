@@ -24,7 +24,11 @@ impl ForeignData {
 
 struct Context<'a> {
     col: &'a mut Collection,
+    /// Notetypes by their name or id as string. The empty string yields the
+    /// default notetype (which may be [None]).
     notetypes: HashMap<String, Option<Arc<Notetype>>>,
+    /// Deck ids by their decks' name or id as string. The empty string yields
+    /// the default deck (which may be [None]).
     deck_ids: HashMap<String, Option<DeckId>>,
     usn: Usn,
     normalize_notes: bool,
