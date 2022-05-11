@@ -96,7 +96,7 @@ class MnemosyneImporter(Importer):
         QueryOp(
             parent=mw,
             op=lambda _: mnemosyne.serialize(path),
-            success=lambda json: import_json(mw, json),
+            success=lambda json: import_json_string(mw, json),
         ).with_progress().run_in_background()
 
 
@@ -108,6 +108,19 @@ class CsvImporter(Importer):
         import aqt.import_export.import_dialog
 
         aqt.import_export.import_dialog.ImportDialog(mw, path)
+
+
+class JsonImporter(Importer):
+    accepted_file_endings = [".json", ".anki-json"]
+
+    @staticmethod
+    def do_import(mw: aqt.main.AnkiQt, path: str) -> None:
+        CollectionOp(
+            parent=mw,
+            op=lambda col: col.import_json_file(path),
+        ).with_backend_progress(import_progress_update).success(
+            show_import_log
+        ).run_in_background()
 
 
 IMPORTERS: list[Type[Importer]] = [
@@ -168,10 +181,12 @@ def import_collection_package_op(
     )
 
 
-def import_json(mw: aqt.main.AnkiQt, json: str) -> None:
-    CollectionOp(parent=mw, op=lambda col: col.import_json(json)).with_backend_progress(
-        import_progress_update
-    ).success(show_import_log).run_in_background()
+def import_json_string(mw: aqt.main.AnkiQt, json: str) -> None:
+    CollectionOp(
+        parent=mw, op=lambda col: col.import_json_string(json)
+    ).with_backend_progress(import_progress_update).success(
+        show_import_log
+    ).run_in_background()
 
 
 def show_import_log(log_with_changes: ImportLogWithChanges) -> None:

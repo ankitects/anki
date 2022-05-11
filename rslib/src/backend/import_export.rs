@@ -101,8 +101,13 @@ impl ImportExportService for Backend {
         .map(Into::into)
     }
 
-    fn import_json(&self, input: pb::String) -> Result<pb::ImportResponse> {
-        self.with_col(|col| col.import_json(&input.val))
+    fn import_json_file(&self, input: pb::String) -> Result<pb::ImportResponse> {
+        self.with_col(|col| col.import_json_file(&input.val))
+            .map(Into::into)
+    }
+
+    fn import_json_string(&self, input: pb::String) -> Result<pb::ImportResponse> {
+        self.with_col(|col| col.import_json_string(&input.val))
             .map(Into::into)
     }
 }

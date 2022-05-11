@@ -18,7 +18,8 @@ service ImportExportService {
   rpc ExportAnkiPackage(ExportAnkiPackageRequest) returns (generic.UInt32);
   rpc GetCsvMetadata(CsvMetadataRequest) returns (CsvMetadata);
   rpc ImportCsv(ImportCsvRequest) returns (ImportResponse);
-  rpc ImportJson(generic.String) returns (ImportResponse);
+  rpc ImportJsonFile(generic.String) returns (ImportResponse);
+  rpc ImportJsonString(generic.String) returns (ImportResponse);
 }
 
 message ImportCollectionPackageRequest {

@@ -428,8 +428,11 @@ class Collection(DeprecatedNamesMixin):
             is_html=is_html,
         )
 
-    def import_json(self, json: str) -> ImportLogWithChanges:
-        return self._backend.import_json(json)
+    def import_json_file(self, path: str) -> ImportLogWithChanges:
+        return self._backend.import_json_file(path)
+
+    def import_json_string(self, json: str) -> ImportLogWithChanges:
+        return self._backend.import_json_string(json)
 
     # Object helpers
     ##########################################################################
