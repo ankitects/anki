@@ -193,6 +193,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         isSizeConstrained = !isSizeConstrained;
     }
 
+    function clearActualSize(): void {
+        activeImage!.removeAttribute("width");
+    }
+
     onDestroy(() => {
         resizeObserver.disconnect();
         container.removeEventListener("click", maybeShowHandle);
@@ -264,8 +268,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <SizeSelect
                 disabled={shrinkingDisabled}
                 {isSizeConstrained}
-                on:click={() => {
+                on:imagetoggle={() => {
                     toggleActualSize();
+                    updateSizesWithDimensions();
+                    dropdownObject.update();
+                }}
+                on:imageclear={() => {
+                    clearActualSize();
                     updateSizesWithDimensions();
                     dropdownObject.update();
                 }}
