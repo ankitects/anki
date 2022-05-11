@@ -6,6 +6,7 @@ pub(super) use crate::backend_proto::cardrendering_service::Service as CardRende
 use crate::{
     backend_proto as pb,
     card_rendering::{extract_av_tags, strip_av_tags},
+    cloze::render_cloze_for_mathjax,
     latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
     markdown::render_markdown,
     notetype::{CardTemplateSchema11, RenderCardOutput},
@@ -146,6 +147,10 @@ impl CardRenderingService for Backend {
         }
         .to_string()
         .into())
+    }
+
+    fn render_cloze_for_mathjax(&self, input: pb::String) -> Result<pb::String> {
+        Ok(render_cloze_for_mathjax(&input.val).into())
     }
 }
 

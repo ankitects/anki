@@ -122,6 +122,12 @@ pub fn reveal_cloze_text_only(text: &str, cloze_ord: u16, question: bool) -> Cow
         .into()
 }
 
+fn reveal_all_clozes(text: &str) -> Cow<str> {
+    CLOZE.replace_all(text, |caps: &Captures| {
+        return caps.get(cloze_caps::TEXT).unwrap().as_str().to_owned();
+    })
+}
+
 /// If text contains any LaTeX tags, render the front and back
 /// of each cloze deletion so that LaTeX can be generated. If
 /// no LaTeX is found, returns an empty string.
@@ -168,6 +174,11 @@ fn strip_html_inside_mathjax(text: &str) -> Cow<str> {
             caps.get(mathjax_caps::CLOSING_TAG).unwrap().as_str()
         )
     })
+}
+
+/// Used for rendering MathJax previews.
+pub(crate) fn render_cloze_for_mathjax(text: &str) -> String {
+    strip_html_inside_mathjax(reveal_all_clozes(text).as_ref()).into_owned()
 }
 
 pub(crate) fn cloze_filter<'a>(text: &'a str, context: &RenderContext) -> Cow<'a, str> {

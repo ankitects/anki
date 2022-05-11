@@ -463,6 +463,8 @@ exposed_backend_list = [
     "set_graph_preferences",
     # TagsService
     "complete_tag",
+    # CardRenderingService
+    "render_cloze_for_mathjax",
 ]
 
 

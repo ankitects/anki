@@ -5,6 +5,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import { cardRendering, Generic } from "../lib/proto";
 import { mathIcon } from "./icons";
 
 const parser = new DOMParser();
@@ -29,11 +30,11 @@ function getEmptyIcon(style: HTMLStyleElement): [string, string] {
     return [svg.outerHTML, "MathJax"];
 }
 
-export function convertMathjax(
+export async function convertMathjax(
     input: string,
     nightMode: boolean,
     fontSize: number,
-): [string, string] {
+): Promise<[string, string]> {
     const style = getStyle(getCSS(nightMode, fontSize));
 
     if (input.trim().length === 0) {
@@ -42,7 +43,10 @@ export function convertMathjax(
 
     let output: Element;
     try {
-        output = globalThis.MathJax.tex2svg(input);
+        const strippedInput = await cardRendering.renderClozeForMathjax(
+            Generic.String.create({ val: input }),
+        );
+        output = globalThis.MathJax.tex2svg(strippedInput.val);
     } catch (e) {
         return ["Mathjax Error", String(e)];
     }

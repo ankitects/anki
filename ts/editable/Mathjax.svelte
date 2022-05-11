@@ -3,7 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
+    import { onDestroy } from "svelte";
     import type { Writable } from "svelte/store";
+    import { writable } from "svelte/store";
+
+    import { randomUUID } from "../lib/uuid";
+    import { pageTheme } from "../sveltelib/theme";
+    import { convertMathjax, unescapeSomeEntities } from "./mathjax";
 
     const imageToHeightMap = new Map<string, Writable<number>>();
     const observer = new ResizeObserver((entries: ResizeObserverEntry[]) => {
@@ -18,22 +24,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { onDestroy } from "svelte";
-    import { writable } from "svelte/store";
-
-    import { randomUUID } from "../lib/uuid";
-    import { pageTheme } from "../sveltelib/theme";
-    import { convertMathjax, unescapeSomeEntities } from "./mathjax";
-
     export let mathjax: string;
     export let block: boolean;
     export let fontSize: number;
 
-    $: [converted, title] = convertMathjax(
-        unescapeSomeEntities(mathjax),
-        $pageTheme.isDark,
-        fontSize,
-    );
+    let converted: string;
+    let title: string;
+    function convert(
+        unescapedMathjax: string,
+        isDark: boolean,
+        fontSize: number,
+    ): void {
+        convertMathjax(unescapedMathjax, isDark, fontSize).then((out) => {
+            [converted, title] = out;
+        });
+    }
+    $: convert(unescapeSomeEntities(mathjax), $pageTheme.isDark, fontSize);
     $: empty = title === "MathJax";
     $: encoded = encodeURIComponent(converted);
 

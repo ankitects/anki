@@ -24,6 +24,7 @@ service CardRenderingService {
   rpc EncodeIriPaths(generic.String) returns (generic.String);
   rpc DecodeIriPaths(generic.String) returns (generic.String);
   rpc StripHtml(StripHtmlRequest) returns (generic.String);
+  rpc RenderClozeForMathjax(generic.String) returns (generic.String);
 }
 
 message ExtractAVTagsRequest {

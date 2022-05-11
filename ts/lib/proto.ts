@@ -10,6 +10,7 @@ import type { Message, rpc, RPCImpl, RPCImplCallback } from "protobufjs";
 import { anki } from "./backend_proto";
 
 import Cards = anki.cards;
+import CardRendering = anki.card_rendering;
 import Collection = anki.collection;
 import DeckConfig = anki.deckconfig;
 import Decks = anki.decks;
@@ -22,6 +23,13 @@ import Stats = anki.stats;
 import Tags = anki.tags;
 
 export { Cards, Collection, Decks, Generic, Notes };
+export { DeckConfig };
+export { I18n };
+export { CardRendering };
+export { Notetypes };
+export { Scheduler };
+export { Stats };
+export { Tags };
 
 export const empty = Generic.Empty.create();
 
@@ -54,22 +62,20 @@ async function serviceCallback(
     }
 }
 
-export { DeckConfig };
 export const deckConfig = DeckConfig.DeckConfigService.create(
     serviceCallback as RPCImpl,
 );
 
-export { I18n };
 export const i18n = I18n.I18nService.create(serviceCallback as RPCImpl);
 
-export { Notetypes };
+export const cardRendering = CardRendering.CardRenderingService.create(
+    serviceCallback as RPCImpl,
+);
+
 export const notetypes = Notetypes.NotetypesService.create(serviceCallback as RPCImpl);
 
-export { Scheduler };
 export const scheduler = Scheduler.SchedulerService.create(serviceCallback as RPCImpl);
 
-export { Stats };
 export const stats = Stats.StatsService.create(serviceCallback as RPCImpl);
 
-export { Tags };
 export const tags = Tags.TagsService.create(serviceCallback as RPCImpl);
