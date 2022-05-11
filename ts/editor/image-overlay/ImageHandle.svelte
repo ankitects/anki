@@ -205,8 +205,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         container.removeEventListener("paste", resetHandle);
     });
 
+    let shrinkingDisabled: boolean;
     $: shrinkingDisabled =
         Number(actualWidth) <= maxWidth && Number(actualHeight) <= maxHeight;
+
+    let restoringDisabled: boolean;
+    $: restoringDisabled = !activeImage?.hasAttribute("width") ?? true;
+
+    const widthObserver = new MutationObserver(
+        () => (restoringDisabled = !activeImage!.hasAttribute("width")),
+    );
+
+    $: activeImage
+        ? widthObserver.observe(activeImage, {
+              attributes: true,
+              attributeFilter: ["width"],
+          })
+        : widthObserver.disconnect();
 </script>
 
 <WithDropdown
@@ -266,7 +281,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <ButtonDropdown on:click={updateSizesWithDimensions}>
             <FloatButtons image={activeImage} on:update={dropdownObject.update} />
             <SizeSelect
-                disabled={shrinkingDisabled}
+                {shrinkingDisabled}
+                {restoringDisabled}
                 {isSizeConstrained}
                 on:imagetoggle={() => {
                     toggleActualSize();

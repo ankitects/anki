@@ -13,7 +13,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { sizeActual, sizeClear, sizeMinimized } from "./icons";
 
     export let isSizeConstrained: boolean;
-    export let disabled: boolean;
+    export let shrinkingDisabled: boolean;
+    export let restoringDisabled: boolean;
 
     $: icon = isSizeConstrained ? sizeMinimized : sizeActual;
 
@@ -23,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ButtonGroup size={1.6}>
     <IconButton
-        {disabled}
+        disabled={shrinkingDisabled}
         flipX={$direction === "rtl"}
         tooltip="{tr.editingActualSize()} ({tr.editingDoubleClickImage()})"
         on:click={() => dispatch("imagetoggle")}
@@ -31,7 +32,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     >
 
     <IconButton
-        tooltip="{tr.editingRestoreOriginalSize()}"
+        disabled={restoringDisabled}
+        tooltip={tr.editingRestoreOriginalSize()}
         on:click={() => dispatch("imageclear")}
         --border-right-radius="5px">{@html sizeClear}</IconButton
     >
