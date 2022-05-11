@@ -77,15 +77,15 @@ class ForeignCard:
     Usually a review card, as the default card generation routine will take care
     of missing new cards.
 
-    due       --  UNIX timestamp
-    interval  --  days
-    factor    --  decimal fraction (2.5 corresponds to default ease)
+    due          --  UNIX timestamp
+    interval     --  days
+    ease_factor  --  decimal fraction (2.5 corresponds to default ease)
     """
 
     # TODO: support new and learning cards?
     due: int = 0
     interval: int = 1
-    factor: float = STARTING_FACTOR_FRACTION
+    ease_factor: float = STARTING_FACTOR_FRACTION
     reps: int = 0
     lapses: int = 0
 

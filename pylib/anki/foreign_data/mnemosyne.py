@@ -143,7 +143,7 @@ class MnemoCard:
 
     def foreign_card(self) -> ForeignCard:
         return ForeignCard(
-            factor=self.easiness,
+            ease_factor=self.easiness,
             reps=self.reps,
             lapses=self.lapses,
             interval=self.anki_interval(),

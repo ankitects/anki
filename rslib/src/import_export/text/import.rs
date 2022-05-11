@@ -193,7 +193,7 @@ impl ForeignCard {
     fn into_native(self, note_id: NoteId, template_idx: u16, deck_id: DeckId, today: u32) -> Card {
         let mut card = Card::new(note_id, template_idx, deck_id, self.native_due(today));
         card.interval = self.interval;
-        card.ease_factor = (self.factor * 1000.).round() as u16;
+        card.ease_factor = (self.ease_factor * 1000.).round() as u16;
         card.reps = self.reps;
         card.lapses = self.lapses;
         card
