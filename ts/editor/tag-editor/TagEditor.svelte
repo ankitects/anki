@@ -112,6 +112,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function appendEmptyTag(): void {
         // used by tag badge and tag spacer
+        deselect();
         const lastTag = tagTypes[tagTypes.length - 1];
 
         if (!lastTag || lastTag.name.length > 0) {
@@ -219,6 +220,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         activeAfterBlur = index - 1;
         active = null;
+        activeInput.blur();
     }
 
     async function moveToNextTag(index: number): Promise<void> {
@@ -232,6 +234,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         activeAfterBlur = index + 1;
         active = null;
+        activeInput.blur();
 
         await tick();
         activeInput.setSelectionRange(0, 0);
@@ -448,6 +451,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 splitTag(index, detail.start, detail.end)}
                             on:tagadd={() => insertTagKeepFocus(index)}
                             on:tagdelete={() => deleteTagAt(index)}
+                            on:tagselectall={selectAllTags}
                             on:tagjoinprevious={() => joinWithPreviousTag(index)}
                             on:tagjoinnext={() => joinWithNextTag(index)}
                             on:tagmoveprevious={() => moveToPreviousTag(index)}

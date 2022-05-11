@@ -141,6 +141,13 @@ that's causing the problem, and then run
 bazel run //ts:format
 ```
 
+If you get complaints from eslint about unordered imports, run the following
+line first, then run ts:format:
+
+```
+bazel run eslint -- --fix
+```
+
 For other packages, change to the folder and run
 
 ```
