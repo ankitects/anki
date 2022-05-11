@@ -110,17 +110,28 @@ message ImportCsvRequest {
   int64 deck_id = 2;
   int64 notetype_id = 3;
   repeated CsvColumn columns = 4;
-  uint32 delimiter = 5;
+  CsvMetadata.Delimiter delimiter = 5;
   bool is_html = 6;
 }
 
 message CsvMetadataRequest {
   string path = 1;
-  optional uint32 delimiter = 2;
+  optional CsvMetadata.Delimiter delimiter = 2;
 }
 
 message CsvMetadata {
-  uint32 delimiter = 1;
+  // Order roughly in ascending expected frequency in note text, because the
+  // delimiter detection algorithm is stupidly picking the first one it
+  // encounters.
+  enum Delimiter {
+    TAB = 0;
+    PIPE = 1;
+    SEMICOLON = 2;
+    COLON = 3;
+    COMMA = 4;
+    SPACE = 5;
+  }
+  Delimiter delimiter = 1;
   string tags = 2;
   repeated string columns = 3;
   int64 deck_id = 4;

@@ -9,13 +9,22 @@ from typing import Optional, Sequence
 
 import aqt.forms
 import aqt.main
-from anki.collection import CsvColumn, CsvMetadata
+from anki.collection import CsvColumn, CsvMetadata, Delimiter
 from anki.decks import DeckId
 from anki.models import NotetypeDict, NotetypeId
 from aqt.import_export.importing import import_progress_update, show_import_log
 from aqt.operations import CollectionOp, QueryOp
 from aqt.qt import *
 from aqt.utils import HelpPage, disable_help_button, getText, openHelp, showWarning, tr
+
+DELIMITERS = (
+    ("\\t", tr.importing_tab(), Delimiter.TAB),
+    (",", tr.importing_comma(), Delimiter.COMMA),
+    (" ", tr.studying_space(), Delimiter.SPACE),
+    (";", tr.importing_semicolon(), Delimiter.SEMICOLON),
+    (":", tr.importing_colon(), Delimiter.COLON),
+    ("|", tr.importing_colon(), Delimiter.PIPE),
+)
 
 
 class ChangeMap(QDialog):
@@ -99,7 +108,7 @@ class ImportDialog(QDialog):
         self._setup_choosers()
         self.column_map = ColumnMap(self.columns, self.model)
         self._render_mapping()
-        self._set_delimiter_button_text()
+        self._set_delimiter()
         self.frm.allowHTML.setChecked(self.is_html)
         self.frm.importMode.setCurrentIndex(self.mw.pm.profile.get("importMode", 1))
         self.frm.tagModified.setText(self.tags)
@@ -142,6 +151,13 @@ class ImportDialog(QDialog):
         )
         self.deck = aqt.deckchooser.DeckChooser(self.mw, self.frm.deckArea, label=False)
 
+    def _set_delimiter(self) -> None:
+        for delimiter in DELIMITERS:
+            if delimiter[2] == self.delimiter:
+                txt = tr.importing_fields_separated_by(val=delimiter[1])
+                self.frm.autoDetect.setText(txt)
+                return
+
     def onDelimiter(self) -> None:
         # Open a modal dialog to enter an delimiter
         # Todo/Idea Constrain the maximum width, so it doesnt take up that much screen space
@@ -154,20 +170,20 @@ class ImportDialog(QDialog):
         if not ok:
             return
         # Check if the entered value is valid and if not fallback to default
-        # at the moment every single character entry as well as '\t' is valid
-        delim = delim if len(delim) > 0 else "\t"
-        delim = delim.replace("\\t", "\t")  # un-escape it
-        delimiter = ord(delim)
-        if delimiter > 255:
+
+        txt = ""
+        for delimiter in DELIMITERS:
+            if delimiter[0] == delim:
+                txt = tr.importing_fields_separated_by(val=delimiter[1])
+                self.delimiter = delimiter[2]
+                break
+        if not txt:
             showWarning(
                 tr.importing_multicharacter_separators_are_not_supported_please()
             )
             return
 
-        # self.hideMapping()
-        # self.showMapping(hook=_update)
-        self.delimiter = delimiter
-        self._set_delimiter_button_text()
+        self.frm.autoDetect.setText(txt)
 
         def _update_columns(options: CsvMetadata) -> None:
             self.columns = options.columns
@@ -176,26 +192,9 @@ class ImportDialog(QDialog):
 
         QueryOp(
             parent=self,
-            op=lambda col: col.get_csv_metadata(self.path, delimiter),
+            op=lambda col: col.get_csv_metadata(self.path, self.delimiter),
             success=_update_columns,
         ).run_in_background()
-
-    def _set_delimiter_button_text(self) -> None:
-        d = chr(self.delimiter)
-        if d == "\t":
-            d = tr.importing_tab()
-        elif d == ",":
-            d = tr.importing_comma()
-        elif d == " ":
-            d = tr.studying_space()
-        elif d == ";":
-            d = tr.importing_semicolon()
-        elif d == ":":
-            d = tr.importing_colon()
-        else:
-            d = repr(d)
-        txt = tr.importing_fields_separated_by(val=d)
-        self.frm.autoDetect.setText(txt)
 
     def accept(self) -> None:
         # self.mw.pm.profile["importMode"] = self.importer.importMode

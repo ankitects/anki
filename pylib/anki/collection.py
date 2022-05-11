@@ -36,6 +36,7 @@ StripHtmlMode = card_rendering_pb2.StripHtmlRequest
 ImportLogWithChanges = import_export_pb2.ImportResponse
 CsvColumn = import_export_pb2.ImportCsvRequest.CsvColumn
 CsvMetadata = import_export_pb2.CsvMetadata
+Delimiter = import_export_pb2.CsvMetadata.Delimiter
 
 import copy
 import os
@@ -405,7 +406,7 @@ class Collection(DeprecatedNamesMixin):
             request.whole_collection.SetInParent()
         return self._backend.export_anki_package(request)
 
-    def get_csv_metadata(self, path: str, delimiter: int | None) -> CsvMetadata:
+    def get_csv_metadata(self, path: str, delimiter: Delimiter.V | None) -> CsvMetadata:
         request = import_export_pb2.CsvMetadataRequest(path=path, delimiter=delimiter)
         return self._backend.get_csv_metadata(request)
 
@@ -415,7 +416,7 @@ class Collection(DeprecatedNamesMixin):
         deck_id: DeckId,
         notetype_id: NotetypeId,
         columns: list[CsvColumn],
-        delimiter: int,
+        delimiter: Delimiter.V,
         is_html: bool,
     ) -> ImportLogWithChanges:
         return self._backend.import_csv(

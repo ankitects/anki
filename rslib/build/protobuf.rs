@@ -106,6 +106,7 @@ pub fn write_backend_proto_rs() {
             "#[derive(strum::EnumIter)]",
         )
         .type_attribute("HelpPageLinkRequest.HelpPage", "#[derive(strum::EnumIter)]")
+        .type_attribute("CsvMetadata.Delimiter", "#[derive(strum::EnumIter)]")
         .type_attribute(
             "Preferences.BackupLimits",
             "#[derive(Copy, serde_derive::Deserialize, serde_derive::Serialize)]",

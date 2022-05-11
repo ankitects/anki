@@ -8,7 +8,10 @@ use std::{
 
 use crate::{
     import_export::{
-        text::{csv::Column, ForeignData, ForeignNote},
+        text::{
+            csv::{metadata::Delimiter, Column},
+            ForeignData, ForeignNote,
+        },
         NoteLog,
     },
     prelude::*,
@@ -21,7 +24,7 @@ impl Collection {
         deck_id: DeckId,
         notetype_id: NotetypeId,
         columns: Vec<Column>,
-        delimiter: u8,
+        delimiter: Delimiter,
         is_html: bool,
     ) -> Result<OpOutput<NoteLog>> {
         let notetype = self.get_notetype(notetype_id)?.ok_or(AnkiError::NotFound)?;
@@ -44,7 +47,7 @@ fn deserialize_csv(
     mut reader: impl Read + Seek,
     columns: &[Column],
     fields_len: usize,
-    delimiter: u8,
+    delimiter: Delimiter,
     is_html: bool,
 ) -> Result<Vec<ForeignNote>> {
     remove_tags_line_from_reader(&mut reader)?;
@@ -52,7 +55,7 @@ fn deserialize_csv(
         .has_headers(false)
         .flexible(true)
         .comment(Some(b'#'))
-        .delimiter(delimiter)
+        .delimiter(delimiter.byte())
         .trim(csv::Trim::All)
         .from_reader(reader);
     deserialize_csv_reader(&mut csv_reader, columns, fields_len, is_html)
@@ -150,7 +153,7 @@ mod test {
     struct CsvOptions {
         columns: Vec<Column>,
         fields_len: usize,
-        delimiter: u8,
+        delimiter: Delimiter,
         is_html: bool,
     }
 
@@ -159,7 +162,7 @@ mod test {
             Self {
                 columns: vec![Column::Field(0), Column::Field(1)],
                 fields_len: 2,
-                delimiter: b',',
+                delimiter: Delimiter::Comma,
                 is_html: false,
             }
         }
@@ -179,7 +182,7 @@ mod test {
             self
         }
 
-        fn delimiter(mut self, delimiter: u8) -> Self {
+        fn delimiter(mut self, delimiter: Delimiter) -> Self {
             self.delimiter = delimiter;
             self
         }
@@ -203,7 +206,7 @@ mod test {
 
     #[test]
     fn should_respect_custom_delimiter() {
-        let options = CsvOptions::new().delimiter(b'|');
+        let options = CsvOptions::new().delimiter(Delimiter::Pipe);
         assert_imported_fields!(options, "fr,ont|ba,ck\n", &[&["fr,ont", "ba,ck"]]);
     }
 

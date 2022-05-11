@@ -6,10 +6,17 @@ use std::{
     io::{BufRead, BufReader},
 };
 
+use strum::IntoEnumIterator;
+
+pub use crate::backend_proto::csv_metadata::Delimiter;
 use crate::{backend_proto::CsvMetadata, error::ImportError, prelude::*};
 
 impl Collection {
-    pub fn get_csv_metadata(&mut self, path: &str, delimiter: Option<u8>) -> Result<CsvMetadata> {
+    pub fn get_csv_metadata(
+        &mut self,
+        path: &str,
+        delimiter: Option<Delimiter>,
+    ) -> Result<CsvMetadata> {
         let reader = BufReader::new(File::open(path)?);
         self.get_reader_metadata(reader, delimiter)
     }
@@ -17,9 +24,13 @@ impl Collection {
     fn get_reader_metadata(
         &mut self,
         reader: impl BufRead,
-        delimiter: Option<u8>,
+        delimiter: Option<Delimiter>,
     ) -> Result<CsvMetadata> {
-        let mut metadata = CsvMetadata::default();
+        let mut metadata = CsvMetadata {
+            // mark as unset
+            delimiter: -1,
+            ..Default::default()
+        };
         let line = self.parse_meta_lines(reader, &mut metadata)?;
         set_delimiter(delimiter, &mut metadata, &line);
         set_columns(&mut metadata, &line, &self.tr)?;
@@ -71,7 +82,7 @@ impl Collection {
         match key.trim().to_ascii_lowercase().as_str() {
             "delimiter" => {
                 if let Some(delimiter) = delimter_from_value(value) {
-                    metadata.delimiter = delimiter as u32;
+                    metadata.delimiter = delimiter as i32;
                 }
             }
             "tags" => metadata.tags = value.trim().to_owned(),
@@ -97,8 +108,8 @@ impl Collection {
     }
 
     fn parse_columns(&mut self, line: &str, metadata: &mut CsvMetadata) -> Result<Vec<String>> {
-        let delimiter = if metadata.delimiter != 0 {
-            metadata.delimiter as u8
+        let delimiter = if metadata.delimiter != -1 {
+            metadata.delimiter()
         } else {
             delimiter_from_line(line)
         };
@@ -122,7 +133,7 @@ impl Collection {
 
 fn set_columns(metadata: &mut CsvMetadata, line: &str, tr: &I18n) -> Result<()> {
     if metadata.columns.is_empty() {
-        let columns = map_single_record(line, metadata.delimiter as u8, |r| r.len())?;
+        let columns = map_single_record(line, metadata.delimiter(), |r| r.len())?;
         metadata.columns = (0..columns)
             .map(|i| tr.importing_column(i + 1).to_string())
             .collect();
@@ -130,47 +141,41 @@ fn set_columns(metadata: &mut CsvMetadata, line: &str, tr: &I18n) -> Result<()> 
     Ok(())
 }
 
-fn set_delimiter(delimiter: Option<u8>, metadata: &mut CsvMetadata, line: &str) {
+fn set_delimiter(delimiter: Option<Delimiter>, metadata: &mut CsvMetadata, line: &str) {
     if let Some(delim) = delimiter {
-        metadata.delimiter = delim as u32;
-    } else if metadata.delimiter == 0 {
-        // XXX: should '#delimiter:[NUL]' be supported?
-        metadata.delimiter = delimiter_from_line(line) as u32;
+        metadata.set_delimiter(delim);
+    } else if metadata.delimiter == -1 {
+        metadata.set_delimiter(delimiter_from_line(line));
     }
 }
 
-fn delimter_from_value(value: &str) -> Option<u8> {
-    // FIXME: bytes like '\n', '#' and '"' will likely cause issues
-    Some(if value.as_bytes().len() == 1 {
-        value.as_bytes()[0]
-    } else {
-        match value.trim().to_ascii_lowercase().as_str() {
-            "tab" | "\\t" => b'\t',
-            "semicolon" => b';',
-            "comma" => b',',
-            "space" => b' ',
-            _ => return None,
+fn delimter_from_value(value: &str) -> Option<Delimiter> {
+    let normed = value.to_ascii_lowercase();
+    for delimiter in Delimiter::iter() {
+        if normed.trim() == delimiter.name() || normed.as_bytes() == [delimiter.byte()] {
+            return Some(delimiter);
         }
-    })
+    }
+    None
 }
 
-fn delimiter_from_line(line: &str) -> u8 {
+fn delimiter_from_line(line: &str) -> Delimiter {
     // TODO: use smarter heuristic
-    for byte in [b'\t', b';', b','] {
-        if line.contains(byte as char) {
-            return byte;
+    for delimiter in Delimiter::iter() {
+        if line.contains(delimiter.byte() as char) {
+            return delimiter;
         }
     }
-    b' '
+    Delimiter::Space
 }
 
 fn map_single_record<T>(
     line: &str,
-    delimiter: u8,
+    delimiter: Delimiter,
     op: impl FnOnce(&csv::StringRecord) -> T,
 ) -> Result<T> {
     csv::ReaderBuilder::new()
-        .delimiter(delimiter)
+        .delimiter(delimiter.byte())
         .from_reader(line.as_bytes())
         .headers()
         .map_err(|_| AnkiError::ImportError(ImportError::Corrupt))
@@ -180,6 +185,30 @@ fn map_single_record<T>(
 fn strip_line_ending(line: &str) -> &str {
     line.strip_suffix("\r\n")
         .unwrap_or_else(|| line.strip_suffix('\n').unwrap_or(line))
+}
+
+impl Delimiter {
+    pub fn byte(self) -> u8 {
+        match self {
+            Delimiter::Comma => b',',
+            Delimiter::Semicolon => b';',
+            Delimiter::Tab => b'\t',
+            Delimiter::Space => b' ',
+            Delimiter::Pipe => b'|',
+            Delimiter::Colon => b':',
+        }
+    }
+
+    fn name(self) -> &'static str {
+        match self {
+            Delimiter::Comma => "comma",
+            Delimiter::Semicolon => "semicolon",
+            Delimiter::Tab => "tab",
+            Delimiter::Space => "space",
+            Delimiter::Pipe => "pipe",
+            Delimiter::Colon => "colon",
+        }
+    }
 }
 
 #[cfg(test)]
@@ -218,27 +247,29 @@ mod test {
     #[test]
     fn should_detect_valid_delimiters() {
         let mut col = open_test_collection();
-        assert_eq!(metadata!(col, "#delimiter: \n").delimiter, ' ' as u32);
-        assert_eq!(metadata!(col, "#delimiter:space\n").delimiter, ' ' as u32);
-        assert_eq!(metadata!(col, "#delimiter:\t\n").delimiter, '\t' as u32);
-        assert_eq!(metadata!(col, "#delimiter:Tab\n").delimiter, '\t' as u32);
-        assert_eq!(metadata!(col, "#delimiter:;\n").delimiter, ';' as u32);
         assert_eq!(
-            metadata!(col, "#delimiter:SEMICOLON\n").delimiter,
-            ';' as u32
+            metadata!(col, "#delimiter:comma\n").delimiter(),
+            Delimiter::Comma
         );
-        assert_eq!(metadata!(col, "#delimiter:,\n").delimiter, ',' as u32);
-        assert_eq!(metadata!(col, "#delimiter:comma\n").delimiter, ',' as u32);
-        assert_eq!(metadata!(col, "#delimiter:|\n").delimiter, '|' as u32);
+        assert_eq!(
+            metadata!(col, "#delimiter:\t\n").delimiter(),
+            Delimiter::Tab
+        );
         // fallback
-        assert_eq!(metadata!(col, "#delimiter:foo\n").delimiter, ' ' as u32);
-        assert_eq!(metadata!(col, "#delimiter:♥\n").delimiter, ' ' as u32);
+        assert_eq!(
+            metadata!(col, "#delimiter:foo\n").delimiter(),
+            Delimiter::Space
+        );
+        assert_eq!(
+            metadata!(col, "#delimiter:♥\n").delimiter(),
+            Delimiter::Space
+        );
         // pick up from first line
-        assert_eq!(metadata!(col, "foo\tbar\n").delimiter, '\t' as u32);
+        assert_eq!(metadata!(col, "foo\tbar\n").delimiter(), Delimiter::Tab);
         // override with provided
         assert_eq!(
-            metadata!(col, "#delimiter: \nfoo\tbar\n", Some(b'|')).delimiter,
-            '|' as u32
+            metadata!(col, "#delimiter: \nfoo\tbar\n", Some(Delimiter::Pipe)).delimiter(),
+            Delimiter::Pipe
         );
     }
 
@@ -281,7 +312,7 @@ mod test {
         );
         // override
         assert_eq!(
-            metadata!(col, "#delimiter:;\nfoo;bar\n", Some(b'|')).columns,
+            metadata!(col, "#delimiter:;\nfoo;bar\n", Some(Delimiter::Pipe)).columns,
             ["Column 1"]
         );
 
