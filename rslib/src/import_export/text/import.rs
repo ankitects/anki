@@ -32,6 +32,7 @@ struct Context<'a> {
     deck_ids: HashMap<String, Option<DeckId>>,
     usn: Usn,
     normalize_notes: bool,
+    card_gen_ctxs: HashMap<(NotetypeId, DeckId), CardGenContext<Arc<Notetype>>>,
     //progress: IncrementableProgress<ImportProgress>,
 }
 
@@ -52,6 +53,7 @@ impl<'a> Context<'a> {
             normalize_notes,
             notetypes,
             deck_ids,
+            card_gen_ctxs: HashMap::new(),
         })
     }
 
@@ -89,7 +91,7 @@ impl<'a> Context<'a> {
         for foreign in notes {
             if let Some(notetype) = self.notetype_for_note(&foreign)? {
                 if let Some(deck_id) = self.deck_id_for_note(&foreign)? {
-                    let log_note = self.import_foreign_note(foreign, &notetype, deck_id)?;
+                    let log_note = self.import_foreign_note(foreign, notetype, deck_id)?;
                     log.new.push(log_note);
                 }
             }
@@ -100,12 +102,12 @@ impl<'a> Context<'a> {
     fn import_foreign_note(
         &mut self,
         foreign: ForeignNote,
-        notetype: &Notetype,
+        notetype: Arc<Notetype>,
         deck_id: DeckId,
     ) -> Result<LogNote> {
         let today = self.col.timing_today()?.days_elapsed;
-        let (mut note, mut cards) = foreign.into_native(notetype, deck_id, today);
-        self.import_note(&mut note, notetype)?;
+        let (mut note, mut cards) = foreign.into_native(&notetype, deck_id, today);
+        self.import_note(&mut note, &notetype)?;
         self.import_cards(&mut cards, note.id)?;
         self.generate_missing_cards(notetype, deck_id, &note)?;
         Ok(note.into_log_note())
@@ -128,13 +130,16 @@ impl<'a> Context<'a> {
 
     fn generate_missing_cards(
         &mut self,
-        notetype: &Notetype,
+        notetype: Arc<Notetype>,
         deck_id: DeckId,
         note: &Note,
     ) -> Result<()> {
-        let card_gen_context = CardGenContext::new(notetype, Some(deck_id), self.usn);
+        let card_gen_context = self
+            .card_gen_ctxs
+            .entry((notetype.id, deck_id))
+            .or_insert_with(|| CardGenContext::new(notetype, Some(deck_id), self.usn));
         self.col
-            .generate_cards_for_existing_note(&card_gen_context, note)
+            .generate_cards_for_existing_note(card_gen_context, note)
     }
 }
 
