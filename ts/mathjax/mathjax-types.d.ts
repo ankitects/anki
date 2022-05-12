@@ -11,6 +11,5 @@ declare global {
     interface Window {
         // Mathjax does not provide a full type
         MathJax: { [name: string]: any };
-        MathJaxReady: Promise<void>;
     }
 }
