@@ -3,21 +3,7 @@
 
 /// <reference types="./mathjax-types" />
 
-const paths = {
-    mathjax: "/_anki/js/vendor/mathjax",
-};
-
-const packages = [
-    "action",
-    "ams",
-    "autoload",
-    "configmacros",
-    "mathtools",
-    "mhchem",
-    "newcommand",
-    "noundefined",
-    "require",
-];
+const packages = ["noerrors", "mathtools", "mhchem"];
 
 function packagesForLoading(packages: string[]): string[] {
     return packages.map((value: string): string => `[tex]/${value}`);
@@ -29,11 +15,15 @@ window.MathJax = {
         processEscapes: false,
         processEnvironments: false,
         processRefs: false,
-        packages: ["base", ...packages],
+        packages: {
+            "[+]": packages,
+        },
     },
     loader: {
         load: packagesForLoading(packages),
-        paths,
+        paths: {
+            mathjax: "/_anki/js/vendor/mathjax",
+        },
     },
     startup: {
         typeset: false,

@@ -66,7 +66,6 @@ def copy_mathjax(name = "mathjax", visibility = ["//visibility:public"]):
         pkg = pkg_from_name(name),
         include = [
             "es5/tex-chtml.js",
-            "es5/tex-svg.js",
             "es5/input/tex/extensions",
             "es5/output/chtml/fonts/woff-v2",
             "es5/a11y",
