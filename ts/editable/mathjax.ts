@@ -6,6 +6,7 @@
  */
 
 import "mathjax/es5/tex-svg";
+
 import { mathIcon } from "./icons";
 
 const parser = new DOMParser();
