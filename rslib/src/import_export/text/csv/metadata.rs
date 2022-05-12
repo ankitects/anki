@@ -81,7 +81,7 @@ impl Collection {
     fn parse_meta_value(&mut self, key: &str, value: &str, metadata: &mut CsvMetadata) {
         match key.trim().to_ascii_lowercase().as_str() {
             "delimiter" => {
-                if let Some(delimiter) = delimter_from_value(value) {
+                if let Some(delimiter) = delimiter_from_value(value) {
                     metadata.delimiter = delimiter as i32;
                 }
             }
@@ -149,7 +149,7 @@ fn set_delimiter(delimiter: Option<Delimiter>, metadata: &mut CsvMetadata, line:
     }
 }
 
-fn delimter_from_value(value: &str) -> Option<Delimiter> {
+fn delimiter_from_value(value: &str) -> Option<Delimiter> {
     let normed = value.to_ascii_lowercase();
     for delimiter in Delimiter::iter() {
         if normed.trim() == delimiter.name() || normed.as_bytes() == [delimiter.byte()] {
