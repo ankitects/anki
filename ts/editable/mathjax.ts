@@ -5,6 +5,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import "mathjax/es5/tex-svg";
 import { mathIcon } from "./icons";
 
 const parser = new DOMParser();
