@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 from typing import Optional
 
@@ -60,6 +61,7 @@ class FieldDialog(QDialog):
             self.show()
             self.refresh()
             self.webview.set_bridge_command(self._on_bridge_cmd, self)
+            self.webview.eval(f"anki.initializeFields({json.dumps(nt['id'])})")
             self.activateWindow()
             return
 

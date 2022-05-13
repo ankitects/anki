@@ -48,6 +48,7 @@ typescript(
 esbuild(
     name = "fields",
     args = {
+        "globalName": "anki",
         "loader": {".svg": "text"},
     },
     entry_point = "index.ts",

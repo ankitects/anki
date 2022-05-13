@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import InsertionPoint from "./InsertionPoint.svelte";
     import { Panes } from "./panes";
 
-    const ntid = 1641830698585;
+    export let notetypeId = 0;
 
     let fields: Notetypes.Notetype.Field[] = [];
 
@@ -29,9 +29,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         Notetypes.Notetype.Field[] | Notetypes.Notetype.Field
     >;
 
-    async function init(): Promise<void> {
+    async function init(notetypeId: number): Promise<void> {
+        if (!notetypeId) {
+            return;
+        }
+
         const notetype = await notetypes.getNotetype(
-            Notetypes.NotetypeId.create({ ntid }),
+            Notetypes.NotetypeId.create({ ntid: notetypeId }),
         );
         fields.push(...notetype.fields);
 
@@ -58,7 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fields = fields;
     }
 
-    init();
+    $: init(notetypeId);
 
     function splitVertical(data: Notetypes.Notetype.Field): void {
         const id = randomUUID();
@@ -136,7 +140,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {#if drawerRoot}
         <Drawer root={drawerRoot} let:data>
             <svelte:fragment slot="before">
-                {@debug data}
                 {#if !Array.isArray(data) && data.ord.val === 0}
                     <InsertionPoint
                         slot="before"

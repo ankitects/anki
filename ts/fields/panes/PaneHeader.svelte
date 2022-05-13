@@ -10,7 +10,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconConstrain from "../../components/IconConstrain.svelte";
     import Popover from "../../components/Popover.svelte";
     import WithFloating from "../../components/WithFloating.svelte";
-    import { saveFillIcon as saveIcon, discardIcon, closeIcon, hsplitIcon, moreIcon, vsplitIcon } from "./icons";
+    import {
+        closeIcon,
+        discardIcon,
+        hsplitIcon,
+        moreIcon,
+        saveFillIcon as saveIcon,
+        vsplitIcon,
+    } from "./icons";
 
     export let closeable = true;
 
@@ -122,14 +129,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     @keyframes rainbow {
-        0% { fill: #ff2400; }
-        14% { fill: #e81d1d; }
-        28% { fill: #e8b71d; }
-        42% { fill: #e3e81d; }
-        56% { fill: #1de840; }
-        60% { fill: #1ddde8; }
-        74% { fill: #2b1de8; }
-        88% { fill: #dd00f3; }
-        100% { fill: #ff2400; }
+        0% {
+            fill: #ff2400;
+        }
+        14% {
+            fill: #e81d1d;
+        }
+        28% {
+            fill: #e8b71d;
+        }
+        42% {
+            fill: #e3e81d;
+        }
+        56% {
+            fill: #1de840;
+        }
+        60% {
+            fill: #1ddde8;
+        }
+        74% {
+            fill: #2b1de8;
+        }
+        88% {
+            fill: #dd00f3;
+        }
+        100% {
+            fill: #ff2400;
+        }
     }
 </style>

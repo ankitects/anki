@@ -11,7 +11,7 @@ const i18n = setupI18n({
     modules: [ModuleName.ACTIONS, ModuleName.CHANGE_NOTETYPE, ModuleName.KEYBOARD],
 });
 
-export async function setupFieldsPage(): Promise<FieldsPage> {
+async function setupFieldsPage(): Promise<FieldsPage> {
     checkNightMode();
 
     await i18n;
@@ -20,4 +20,9 @@ export async function setupFieldsPage(): Promise<FieldsPage> {
     });
 }
 
-setupFieldsPage();
+const pagePromise = setupFieldsPage();
+
+export async function initializeFields(notetypeId: number): Promise<void> {
+    const page = await pagePromise;
+    page.$set({ notetypeId });
+}
