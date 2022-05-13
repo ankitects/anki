@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
 
     import Badge from "../components/Badge.svelte";
     import * as tr from "../lib/ftl";
@@ -13,13 +13,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const editorField = editorFieldContext.get();
     const keyCombination = "Control+Shift+X";
+    const dispatch = createEventDispatcher();
 
     export let off = false;
 
     $: icon = off ? htmlOff : htmlOn;
 
     function toggle() {
-        off = !off;
+        dispatch("toggle");
     }
 
     function shortcut(target: HTMLElement): () => void {

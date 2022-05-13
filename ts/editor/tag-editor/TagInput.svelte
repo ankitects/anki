@@ -231,13 +231,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         name = last;
     }
 
-    async function onSelectAll(event: KeyboardEvent) {
+    function onSelectAll(event: KeyboardEvent) {
         if (name.length === 0) {
-            input.blur();
-            await tick(); // ensure blur events are processed before tagselectall
-            dispatch("tagselectall");
             event.preventDefault();
             event.stopPropagation();
+            dispatch("tagselectall");
         }
     }
 
