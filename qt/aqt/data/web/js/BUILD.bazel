@@ -41,13 +41,21 @@ copy_files_into_group(
     package = "//ts/reviewer",
 )
 
+copy_files_into_group(
+    name = "mathjax",
+    srcs = [
+        "mathjax.js",
+    ],
+    package = "//ts/mathjax",
+)
+
 filegroup(
     name = "js",
     srcs = [
         "aqt",
-        "mathjax.js",
         "reviewer",
         "editor",
+        "mathjax",
         "//qt/aqt/data/web/js/vendor",
     ],
     visibility = ["//qt:__subpackages__"],
@@ -68,6 +76,5 @@ eslint_test(
 )
 
 exports_files([
-    "mathjax.js",
     "tsconfig.json",
 ])
