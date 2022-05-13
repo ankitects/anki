@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import contextProperty from "../sveltelib/context-property";
 
-    export interface EditingInputAPI {
+    export interface FocusableInputAPI {
         readonly name: string;
         focusable: boolean;
         /**
@@ -20,6 +20,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
          * into a neutral position, and/or clear selections.
          */
         refocus(): void;
+    }
+
+    export interface EditingInputAPI extends FocusableInputAPI {
+        /**
+         * Check whether blurred target belongs to an editing input.
+         * The editing area can then restore focus to this input.
+         *
+         * @returns An editing input api that is associated with the event target.
+         */
+        getInputAPI(target: EventTarget): Promise<FocusableInputAPI | null>;
     }
 
     export interface EditingAreaAPI {
@@ -36,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { setContext as svelteSetContext } from "svelte";
+    import { setContext as svelteSetContext, tick } from "svelte";
     import { writable } from "svelte/store";
 
     import { fontFamilyKey, fontSizeKey } from "../lib/context-keys";
@@ -116,12 +126,39 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    // prevents editor field being entirely deselected when
-    // closing active field
-    function trapFocusOnBlurOut(event: FocusEvent): void {
-        if (!event.relatedTarget && editingInputs.every((input) => !input.focusable)) {
+    // Prevents editor field being entirely deselected when
+    // closing active field.
+    async function trapFocusOnBlurOut(event: FocusEvent): Promise<void> {
+        if (event.relatedTarget) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const oldInputElement = event.target;
+
+        await tick();
+
+        let focusableInput: FocusableInputAPI | null = null;
+
+        const focusableInputs = editingInputs.filter(
+            (input: EditingInputAPI): boolean => input.focusable,
+        );
+
+        if (oldInputElement) {
+            for (const input of focusableInputs) {
+                focusableInput = await input.getInputAPI(oldInputElement);
+
+                if (focusableInput) {
+                    break;
+                }
+            }
+        }
+
+        if (focusableInput || (focusableInput = focusableInputs[0])) {
+            focusableInput.focus();
+        } else {
             focusTrap.focus();
-            event.preventDefault();
         }
     }
 
