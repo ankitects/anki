@@ -6,11 +6,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher, tick } from "svelte";
     import { writable } from "svelte/store";
 
-    import HorizontalResizer from "./HorizontalResizer.svelte";
+    import HorizontalResizer from "../HorizontalResizer.svelte";
+    import { resizable } from "../resizable";
     import Pane from "./Pane.svelte";
     import PaneContent from "./PaneContent.svelte";
     import PaneHeader from "./PaneHeader.svelte";
-    import { resizable } from "./resizable";
     import type { PaneInput } from "./utils";
     import { filterInPlace } from "./utils";
     import VerticalSplit from "./VerticalSplit.svelte";
@@ -87,6 +87,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {#if Array.isArray(data)}
             <VerticalSplit
                 bind:this={paneComponents[index]}
+                root={false}
                 panes={data}
                 let:id={innerId}
                 let:data={innerData}

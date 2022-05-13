@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { on } from "../../lib/events";
-    import { Callback, singleCallback } from "../../lib/typing";
+    import { on } from "../lib/events";
+    import { Callback, singleCallback } from "../lib/typing";
     import type { WidthResizable } from "./resizable";
 
     export let components: WidthResizable[];
@@ -65,7 +65,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     @use "sass/elevation" as elevation;
-    @use "./panes" as panes;
+    @use "./panes/panes" as panes;
 
     .vertical-resizer {
         min-width: var(--min-width);

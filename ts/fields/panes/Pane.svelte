@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { writable } from "svelte/store";
 
-    import { resizable } from "./resizable";
+    import { resizable } from "../resizable";
 
     export let baseSize = 600;
 

@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: bars = Array.from(Array(barCount).keys());
 </script>
 
-<div class="panes-loading">
+<div class="bars-loading">
     {#each bars as bar}
         <div class="bar" style:animation-delay="{bar * 0.1}s" />
     {/each}
