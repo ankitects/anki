@@ -3,3 +3,4 @@
 
 export type { EditorToolbarAPI } from "./EditorToolbar.svelte";
 export { default as EditorToolbar, editorToolbar } from "./EditorToolbar.svelte";
+export { default as ClozeButtons } from "./EditorToolbar.svelte";
