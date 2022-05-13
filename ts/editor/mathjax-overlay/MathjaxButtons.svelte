@@ -10,6 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../../components/IconButton.svelte";
     import { hasBlockAttribute } from "../../lib/dom";
     import * as tr from "../../lib/ftl";
+    import ClozeButtons from "../ClozeButtons.svelte";
     import { blockIcon, deleteIcon, inlineIcon } from "./icons";
 
     export let element: Element;
@@ -47,6 +48,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             --border-right-radius="5px">{@html blockIcon}</IconButton
         >
     </ButtonGroup>
+
+    <ClozeButtons on:surround />
 
     <ButtonGroup>
         <IconButton
