@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { registerPackage } from "../../lib/runtime-require";
     import lifecycleHooks from "../../sveltelib/lifecycle-hooks";
     import type { CodeMirrorAPI } from "../CodeMirror.svelte";
-    import type { EditingInputAPI } from "../EditingArea.svelte";
+    import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
 
     export interface PlainTextInputAPI extends EditingInputAPI {
         name: "plain-text";
@@ -39,6 +39,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import removeProhibitedTags from "./remove-prohibited";
     import { storedToUndecorated, undecoratedToStored } from "./transform";
 
+    export let hidden: boolean;
+
     const configuration = {
         mode: htmlanki,
         ...baseOptions,
@@ -46,7 +48,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
 
     const { focusedInput } = noteEditorContext.get();
-
     const { editingInputs, content } = editingAreaContext.get();
     const code = writable($content);
 
@@ -70,11 +71,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         moveCaretToEnd();
     }
 
-    export let hidden = false;
-
     function toggle(): boolean {
         hidden = !hidden;
         return hidden;
+    }
+
+    async function getInputAPI(target: EventTarget): Promise<FocusableInputAPI | null> {
+        const editor = (await codeMirror.editor) as any;
+
+        if (target === editor.display.input.textarea) {
+            return api;
+        }
+
+        return null;
     }
 
     export const api: PlainTextInputAPI = {
@@ -84,6 +93,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         moveCaretToEnd,
         refocus,
         toggle,
+        getInputAPI,
         codeMirror,
     };
 
