@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { InputHandlerAPI } from "../../sveltelib/input-handler";
     import useInputHandler from "../../sveltelib/input-handler";
     import { pageTheme } from "../../sveltelib/theme";
-    import type { EditingInputAPI } from "../EditingArea.svelte";
+    import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
     import type CustomStyles from "./CustomStyles.svelte";
 
     export interface RichTextInputAPI extends EditingInputAPI {
@@ -92,6 +92,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return hidden;
     }
 
+    const className = "rich-text-editable";
+    let richTextDiv: HTMLElement;
+
+    async function getInputAPI(target: EventTarget): Promise<FocusableInputAPI | null> {
+        if (target === richTextDiv) {
+            return api;
+        }
+
+        return null;
+    }
+
     export const api: RichTextInputAPI = {
         name: "rich-text",
         element: richTextPromise,
@@ -99,6 +110,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         refocus,
         focusable: !hidden,
         toggle,
+        getInputAPI,
         moveCaretToEnd,
         preventResubscription,
         inputHandler,
@@ -155,7 +167,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         let:stylesDidLoad
     >
         <div
-            class="rich-text-editable"
+            bind:this={richTextDiv}
+            class={className}
             class:hidden
             class:night-mode={$pageTheme.isDark}
             use:attachShadow
