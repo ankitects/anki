@@ -76,7 +76,6 @@
         "lodash-es": "^4.17.21",
         "marked": "^4.0.0",
         "mathjax": "^3.1.2",
-        "mathjax-full": "^3.2.0",
         "protobufjs": "^6.10.2"
     },
     "resolutions": {
