@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { WidthResizable } from "./resizable";
 
     export let components: WidthResizable[];
-    export let index: number;
+    export let index = 0;
     export let clientWidth: number;
 
     let destroy: Callback;

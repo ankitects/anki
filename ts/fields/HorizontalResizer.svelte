@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { HeightResizable } from "./resizable";
 
     export let components: HeightResizable[];
-    export let index: number;
+    export let index = 0;
     export let clientHeight: number;
 
     let destroy: Callback;

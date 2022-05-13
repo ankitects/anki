@@ -17,6 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { fieldIcon } from "./icons";
     import InsertionPoint from "./InsertionPoint.svelte";
     import { Panes } from "./panes";
+    import VerticalResizer from "./VerticalResizer.svelte";
 
     export let notetypeId = 0;
 
@@ -134,11 +135,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         splitVertical(panes.findData(paneId)!);
         panes = panes;
     }
+
+    let clientWidth: number;
+    let drawerComponent: Drawer;
+    let panesComponent: Panes;
 </script>
 
-<div class="fields-page">
+<div bind:clientWidth class="fields-page">
     {#if drawerRoot}
-        <Drawer root={drawerRoot} let:data>
+        <Drawer bind:this={drawerComponent} root={drawerRoot} let:data>
             <svelte:fragment slot="before">
                 {#if !Array.isArray(data) && data.ord.val === 0}
                     <InsertionPoint
@@ -181,7 +186,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Drawer>
     {/if}
 
+    <VerticalResizer components={[drawerComponent, panesComponent]} {clientWidth} />
+
     <Panes
+        bind:this={panesComponent}
         {panes}
         on:panefocus={({ detail: paneId }) => latestPane.set(paneId)}
         on:panehsplit={paneHSplit}

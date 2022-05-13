@@ -3,15 +3,36 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { writable } from "svelte/store";
+
+    import { resizable } from "../resizable";
     import type { DrawerItemType } from "./drawer";
     import DrawerEntry from "./DrawerEntry.svelte";
 
     type T = any;
 
     export let root: DrawerItemType<T>;
+    export let baseSize = 600;
+
+    const resizes = writable(false);
+    const paneSize = writable(baseSize);
+
+    const [
+        { resizesDimension: resizesWidth, resizedDimension: resizedWidth },
+        action,
+        resizer,
+    ] = resizable(baseSize, resizes, paneSize);
+    export { resizer as width };
 </script>
 
-<aside class="drawer-container">
+<aside
+    class="drawer-container"
+    class:resize={$resizes}
+    class:resize-width={$resizesWidth}
+    style:--pane-size={$paneSize}
+    style:--resized-width="{$resizedWidth}px"
+    use:action={(element) => element.offsetWidth}
+>
     <DrawerEntry item={root} let:path let:data>
         <slot {path} {data} name="before" slot="before" />
         <slot {path} {data} />
@@ -21,6 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     @use "sass/elevation" as elevation;
+    @use "../panes/panes" as panes;
 
     .drawer-container {
         position: relative;
@@ -31,6 +53,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         touch-action: pan-y;
 
         background-color: salmon;
+
+        @include panes.resizable(column, true, false);
 
         @include elevation.elevation(4);
         z-index: 40;
