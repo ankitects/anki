@@ -339,7 +339,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                 }}
                                 bind:this={richTextInputs[index]}
                             >
-                                <ImageHandle />
+                                <ImageHandle maxWidth={250} maxHeight={125} />
                                 <MathjaxHandle />
                             </RichTextInput>
 
