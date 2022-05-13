@@ -11,9 +11,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "../../domlib/surround";
     import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
+    import { removeStyleProperties } from "../../lib/styling";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
-    import { removeEmptyStyle, Surrounder } from "../surround";
+    import { Surrounder } from "../surround";
     import ColorPicker from "./ColorPicker.svelte";
     import type { RemoveFormat } from "./EditorToolbar.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
@@ -45,9 +46,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         match.setCache(value);
         match.clear((): void => {
-            element.style.removeProperty("background-color");
-
-            if (removeEmptyStyle(element) && element.className.length === 0) {
+            if (
+                removeStyleProperties(element, "background-color") &&
+                element.className.length === 0
+            ) {
                 match.remove();
             }
         });
