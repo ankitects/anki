@@ -6,14 +6,8 @@ use std::path::Path;
 use super::{progress::Progress, Backend};
 pub(super) use crate::backend_proto::importexport_service::Service as ImportExportService;
 use crate::{
-    backend_proto::{
-        self as pb,
-        export_anki_package_request::Selector,
-        import_csv_request::{csv_column, CsvColumn},
-    },
-    import_export::{
-        package::import_colpkg, text::csv::Column, ExportProgress, ImportProgress, NoteLog,
-    },
+    backend_proto::{self as pb, export_anki_package_request::Selector},
+    import_export::{package::import_colpkg, ExportProgress, ImportProgress, NoteLog},
     prelude::*,
     search::SearchNode,
 };
@@ -93,9 +87,12 @@ impl ImportExportService for Backend {
                 &input.path,
                 input.deck_id.into(),
                 input.notetype_id.into(),
-                input.columns.into_iter().map(Into::into).collect(),
                 delimiter,
                 input.is_html,
+                input
+                    .columns
+                    .ok_or_else(|| AnkiError::invalid_input("missing value"))?,
+                input.column_names,
             )
         })
         .map(Into::into)
@@ -139,20 +136,6 @@ impl From<OpOutput<NoteLog>> for pb::ImportResponse {
         Self {
             changes: Some(output.changes.into()),
             log: Some(output.output),
-        }
-    }
-}
-
-impl From<CsvColumn> for Column {
-    fn from(column: CsvColumn) -> Self {
-        match column.variant.unwrap_or(csv_column::Variant::Other(0)) {
-            csv_column::Variant::Field(idx) => Column::Field(idx as usize),
-            csv_column::Variant::Other(i) => {
-                match csv_column::Other::from_i32(i).unwrap_or_default() {
-                    csv_column::Other::Tags => Column::Tags,
-                    csv_column::Other::Ignore => Column::Ignore,
-                }
-            }
         }
     }
 }

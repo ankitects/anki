@@ -9,7 +9,10 @@ use std::{
 use strum::IntoEnumIterator;
 
 pub use crate::backend_proto::csv_metadata::Delimiter;
-use crate::{backend_proto::CsvMetadata, error::ImportError, prelude::*};
+use crate::{
+    backend_proto::CsvMetadata, error::ImportError, import_export::text::import::NotetypeForString,
+    prelude::*,
+};
 
 impl Collection {
     pub fn get_csv_metadata(

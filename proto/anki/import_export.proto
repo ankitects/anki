@@ -97,22 +97,20 @@ message MediaEntries {
 }
 
 message ImportCsvRequest {
-  message CsvColumn {
-    enum Other {
-      IGNORE = 0;
-      TAGS = 1;
-    }
-    oneof variant {
-      uint32 field = 1;
-      Other other = 2;
-    }
+  // Source column indices for note data. Negative values mean n/a.
+  message Columns {
+    repeated int32 fields = 1;
+    int32 tags = 2;
+    int32 deck = 3;
+    int32 notetype = 4;
   }
   string path = 1;
   int64 deck_id = 2;
   int64 notetype_id = 3;
-  repeated CsvColumn columns = 4;
-  CsvMetadata.Delimiter delimiter = 5;
-  bool is_html = 6;
+  CsvMetadata.Delimiter delimiter = 4;
+  bool is_html = 5;
+  Columns columns = 6;
+  repeated string column_names = 7;
 }
 
 message CsvMetadataRequest {

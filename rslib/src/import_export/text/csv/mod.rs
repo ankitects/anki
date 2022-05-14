@@ -3,10 +3,3 @@
 
 mod import;
 mod metadata;
-
-#[derive(Debug, Clone, Copy)]
-pub enum Column {
-    Field(usize),
-    Ignore,
-    Tags,
-}
