@@ -21,7 +21,10 @@ impl Collection {
         delimiter: Option<Delimiter>,
     ) -> Result<CsvMetadata> {
         let reader = BufReader::new(File::open(path)?);
-        self.get_reader_metadata(reader, delimiter)
+        let mut metadata = self.get_reader_metadata(reader, delimiter)?;
+        self.maybe_set_current_notetype_id(&mut metadata)?;
+        self.maybe_set_deck_id_for_notetype_id(&mut metadata)?;
+        Ok(metadata)
     }
 
     fn get_reader_metadata(
@@ -35,8 +38,8 @@ impl Collection {
             ..Default::default()
         };
         let line = self.parse_meta_lines(reader, &mut metadata)?;
-        set_delimiter(delimiter, &mut metadata, &line);
-        set_columns(&mut metadata, &line, &self.tr)?;
+        maybe_set_fallback_delimiter(delimiter, &mut metadata, &line);
+        maybe_set_fallback_columns(&mut metadata, &line, &self.tr)?;
         Ok(metadata)
     }
 
@@ -132,9 +135,40 @@ impl Collection {
             s => s.to_string(),
         }
     }
+
+    fn maybe_set_deck_id_for_notetype_id(&mut self, metadata: &mut CsvMetadata) -> Result<()> {
+        self.maybe_set_current_notetype_id(metadata)?;
+        if metadata.deck_id == 0 {
+            metadata.deck_id = self
+                .default_deck_for_notetype(NotetypeId(metadata.notetype_id))?
+                .unwrap_or(DeckId(1))
+                .0;
+        }
+        Ok(())
+    }
+
+    fn maybe_set_current_notetype_id(
+        &mut self,
+        metadata: &mut CsvMetadata,
+    ) -> Result<(), AnkiError> {
+        if metadata.notetype_id == 0 {
+            if let Some(notetype_id) = self.get_current_notetype_id() {
+                metadata.notetype_id = notetype_id.0;
+            } else {
+                metadata.notetype_id = self
+                    .storage
+                    .get_all_notetype_names()?
+                    .first()
+                    .ok_or(AnkiError::NotFound)?
+                    .0
+                     .0;
+            }
+        }
+        Ok(())
+    }
 }
 
-fn set_columns(metadata: &mut CsvMetadata, line: &str, tr: &I18n) -> Result<()> {
+fn maybe_set_fallback_columns(metadata: &mut CsvMetadata, line: &str, tr: &I18n) -> Result<()> {
     if metadata.columns.is_empty() {
         let columns = map_single_record(line, metadata.delimiter(), |r| r.len())?;
         metadata.columns = (0..columns)
@@ -144,7 +178,11 @@ fn set_columns(metadata: &mut CsvMetadata, line: &str, tr: &I18n) -> Result<()> 
     Ok(())
 }
 
-fn set_delimiter(delimiter: Option<Delimiter>, metadata: &mut CsvMetadata, line: &str) {
+fn maybe_set_fallback_delimiter(
+    delimiter: Option<Delimiter>,
+    metadata: &mut CsvMetadata,
+    line: &str,
+) {
     if let Some(delim) = delimiter {
         metadata.set_delimiter(delim);
     } else if metadata.delimiter == -1 {
