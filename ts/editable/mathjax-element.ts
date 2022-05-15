@@ -17,7 +17,7 @@ function trimBreaks(text: string): string {
     return text
         .replace(/<br[ ]*\/?>/gsu, "\n")
         .replace(/^\n*/, "")
-        .replace(/\n$/, "");
+        .replace(/\n*$/, "");
 }
 
 export const Mathjax: DecoratedElementConstructor = class Mathjax
