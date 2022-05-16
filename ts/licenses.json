@@ -1817,7 +1817,7 @@
         "path": "node_modules/supports-preserve-symlinks-flag",
         "licenseFile": "node_modules/supports-preserve-symlinks-flag/LICENSE"
     },
-    "svelte@3.46.4": {
+    "svelte@3.48.0": {
         "licenses": "MIT",
         "repository": "https://github.com/sveltejs/svelte",
         "publisher": "Rich Harris",
