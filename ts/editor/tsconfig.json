@@ -2,11 +2,12 @@
     "extends": "../tsconfig.json",
     "include": [
         "*",
+        "editor-toolbar/*",
         "image-overlay/*",
         "mathjax-overlay/*",
+        "notetype-toolbar/*",
         "plain-text-input/*",
         "rich-text-input/*",
-        "editor-toolbar/*",
         "tag-editor/*",
         "tag-editor/tag-options-button/*"
     ],

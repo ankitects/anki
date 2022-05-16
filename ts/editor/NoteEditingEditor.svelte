@@ -5,6 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { abortable, Notes, notes, Notetypes, notetypes } from "../lib/proto";
     import NoteEditor from "./NoteEditor.svelte";
+    import { NotetypeToolbar } from "./notetype-toolbar";
 
     let notetype: Notetypes.Notetype;
     let note: Notes.Note;
@@ -34,6 +35,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     Object.assign(globalThis, { setNoteId, getNoteId });
 </script>
+
+<NotetypeToolbar />
 
 <NoteEditor {notetype} {note}>
     <slot name="notetypeButtons" slot="notetypeButtons" />

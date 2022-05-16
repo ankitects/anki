@@ -57,7 +57,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import StickyContainer from "../../components/StickyContainer.svelte";
     import BlockButtons from "./BlockButtons.svelte";
     import InlineButtons from "./InlineButtons.svelte";
-    import NotetypeButtons from "./NotetypeButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
 
     export let size: number;
@@ -88,12 +87,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <StickyContainer --gutter-block="0.1rem" --sticky-borders="0 0 1px">
     <ButtonToolbar {size} {wrap}>
         <DynamicallySlottable slotHost={Item} api={toolbar}>
-            <Item id="notetype">
-                <NotetypeButtons api={notetypeButtons}>
-                    <slot name="notetypeButtons" />
-                </NotetypeButtons>
-            </Item>
-
             <Item id="inlineFormatting">
                 <InlineButtons api={inlineButtons} />
             </Item>
