@@ -8,10 +8,11 @@ from itertools import chain
 from typing import Type
 
 import aqt.main
-from anki.collection import Collection, ImportLogWithChanges, Progress
+from anki.collection import Collection, ImportCsvRequest, ImportLogWithChanges, Progress
 from anki.errors import Interrupted
 from anki.foreign_data import mnemosyne
 from anki.lang import without_unicode_isolation
+from aqt.import_export.import_csv_dialog import ImportCsvDialog
 from aqt.operations import CollectionOp, QueryOp
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
@@ -105,9 +106,15 @@ class CsvImporter(Importer):
 
     @staticmethod
     def do_import(mw: aqt.main.AnkiQt, path: str) -> None:
-        import aqt.import_export.import_dialog
+        def on_accepted(request: ImportCsvRequest) -> None:
+            CollectionOp(
+                parent=mw,
+                op=lambda col: col.import_csv(request),
+            ).with_backend_progress(import_progress_update).success(
+                show_import_log
+            ).run_in_background()
 
-        aqt.import_export.import_dialog.ImportDialog(mw, path)
+        ImportCsvDialog(mw, path, on_accepted)
 
 
 class JsonImporter(Importer):

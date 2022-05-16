@@ -31,6 +31,7 @@ from anki.scheduler.v3 import NextStates
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
+from aqt.import_export.import_csv_dialog import ImportCsvDialog
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.qt import *
 
@@ -438,6 +439,18 @@ def change_notetype() -> bytes:
     return b""
 
 
+def import_csv() -> bytes:
+    data = request.data
+
+    def handle_on_main() -> None:
+        window = aqt.mw.app.activeWindow()
+        if isinstance(window, ImportCsvDialog):
+            window.do_import(data)
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+    return b""
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -445,13 +458,19 @@ post_handler_list = [
     next_card_states,
     set_next_card_states,
     change_notetype,
+    import_csv,
 ]
 
 
 exposed_backend_list = [
+    # DeckService
+    "get_deck_names",
     # I18nService
     "i18n_resources",
+    # ImportExportService
+    "get_csv_metadata",
     # NotesService
+    "get_field_names",
     "get_note",
     # NotetypesService
     "get_notetype_names",

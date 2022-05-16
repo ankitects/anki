@@ -34,7 +34,7 @@ BrowserRow = search_pb2.BrowserRow
 BrowserColumns = search_pb2.BrowserColumns
 StripHtmlMode = card_rendering_pb2.StripHtmlRequest
 ImportLogWithChanges = import_export_pb2.ImportResponse
-CsvColumn = import_export_pb2.ImportCsvRequest.CsvColumn
+ImportCsvRequest = import_export_pb2.ImportCsvRequest
 CsvMetadata = import_export_pb2.CsvMetadata
 Delimiter = import_export_pb2.CsvMetadata.Delimiter
 
@@ -410,23 +410,9 @@ class Collection(DeprecatedNamesMixin):
         request = import_export_pb2.CsvMetadataRequest(path=path, delimiter=delimiter)
         return self._backend.get_csv_metadata(request)
 
-    def import_csv(
-        self,
-        path: str,
-        deck_id: DeckId,
-        notetype_id: NotetypeId,
-        columns: list[CsvColumn],
-        delimiter: Delimiter.V,
-        is_html: bool,
-    ) -> ImportLogWithChanges:
-        return self._backend.import_csv(
-            path=path,
-            deck_id=deck_id,
-            notetype_id=notetype_id,
-            delimiter=delimiter,
-            columns=columns,
-            is_html=is_html,
-        )
+    def import_csv(self, request: ImportCsvRequest) -> ImportLogWithChanges:
+        log = self._backend.import_csv_raw(request.SerializeToString())
+        return ImportLogWithChanges.FromString(log)
 
     def import_json_file(self, path: str) -> ImportLogWithChanges:
         return self._backend.import_json_file(path)

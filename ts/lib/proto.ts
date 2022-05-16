@@ -15,6 +15,7 @@ import DeckConfig = anki.deckconfig;
 import Decks = anki.decks;
 import Generic = anki.generic;
 import I18n = anki.i18n;
+import ImportExport = anki.import_export;
 import Notes = anki.notes;
 import Notetypes = anki.notetypes;
 import Scheduler = anki.scheduler;
@@ -54,6 +55,8 @@ async function serviceCallback(
     }
 }
 
+export const decks = Decks.DecksService.create(serviceCallback as RPCImpl);
+
 export { DeckConfig };
 export const deckConfig = DeckConfig.DeckConfigService.create(
     serviceCallback as RPCImpl,
@@ -61,6 +64,11 @@ export const deckConfig = DeckConfig.DeckConfigService.create(
 
 export { I18n };
 export const i18n = I18n.I18nService.create(serviceCallback as RPCImpl);
+
+export { ImportExport };
+export const importExport = ImportExport.ImportExportService.create(
+    serviceCallback as RPCImpl,
+);
 
 export { Notetypes };
 export const notetypes = Notetypes.NotetypesService.create(serviceCallback as RPCImpl);

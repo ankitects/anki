@@ -130,9 +130,11 @@ impl Collection {
 
     fn column_label(&self, idx: usize, column: &str) -> String {
         match column.trim() {
-            "" => self.tr.importing_column(idx + 1).to_string(),
-            "tags" => self.tr.editing_tags().to_string(),
-            s => s.to_string(),
+            "" => self.tr.importing_column(idx + 1).into(),
+            "tags" => self.tr.editing_tags().into(),
+            "notetype" => self.tr.notetypes_notetype().into(),
+            "deck" => self.tr.decks_deck().into(),
+            s => s.into(),
         }
     }
 
