@@ -4,10 +4,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { writable } from "svelte/store";
-    
-    import TagEditMode from "../tag-editor/TagEditMode.svelte";
+
+    import Tag from "../tag-editor/Tag.svelte";
     import TagInput from "../tag-editor/TagInput.svelte";
-    import Tag from "../tag-editor/TagInput.svelte";
     import WithAutocomplete from "../tag-editor/WithAutocomplete.svelte";
 
     const active = false;
@@ -20,16 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="notetype-selector">
-    <TagEditMode
-        class="ms-0"
-        name={notetypeName}
-        tooltip="foo"
-        {active}
-        on:tagedit
-        on:tagselect
-        on:tagrange
-        on:tagdelete
-    />
+    <Tag>{notetypeName}</Tag>
 
     {#if active}
         <WithAutocomplete
