@@ -52,7 +52,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "../lib/bridgecommand";
     import { noop } from "../lib/functional";
     import { hooks } from "../lib/hooks";
-    import { notetypes } from "../lib/proto";
     import type { Callback } from "../lib/typing";
     import { ChangeTimer } from "./change-timer";
     import DecoratedElements from "./DecoratedElements.svelte";
@@ -76,19 +75,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let notetype: Notetypes.Notetype;
     export let note: Notes.Note;
-
-    async function updateNotetype(note: Notes.Note): Promise<void> {
-        if (!note) {
-            // TODO this should not be necessary
-            return;
-        }
-
-        notetype = await notetypes.getNotetype(
-            Notetypes.NotetypeId.create({ ntid: note.notetypeId }),
-        );
-    }
-
-    $: updateNotetype(note);
 
     const size = 1.6;
     const wrap = true;
