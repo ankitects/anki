@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import ButtonDropdown from "../../components/ButtonDropdown.svelte";
     import WithDropdown from "../../components/WithDropdown.svelte";
+    import * as tr from "../../lib/ftl";
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";
     import HandleLabel from "../HandleLabel.svelte";
@@ -14,15 +15,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context } from "../rich-text-input";
     import FloatButtons from "./FloatButtons.svelte";
     import SizeSelect from "./SizeSelect.svelte";
-    import WithImageConstrained from "./WithImageConstrained.svelte";
 
-    const { container, styles } = context.get();
+    export let maxWidth: number;
+    export let maxHeight: number;
 
-    const sheetPromise = styles
-        .addStyleTag("imageOverlay")
-        .then((styleObject) => styleObject.element.sheet!);
+    const { container } = context.get();
+
+    $: {
+        container.style.setProperty("--editor-shrink-max-width", `${maxWidth}px`);
+        container.style.setProperty("--editor-shrink-max-height", `${maxHeight}px`);
+    }
 
     let activeImage: HTMLImageElement | null = null;
+
+    /**
+     * For element dataset attributes which work like the contenteditable attribute
+     */
+    function isDatasetAttributeFlagSet(
+        element: HTMLElement | SVGElement,
+        attribute: string,
+    ): boolean {
+        return attribute in element.dataset && element.dataset[attribute] !== "false";
+    }
+
+    $: isSizeConstrained = activeImage
+        ? isDatasetAttributeFlagSet(activeImage, "editorShrink")
+        : false;
 
     async function resetHandle(): Promise<void> {
         activeImage = null;
@@ -166,6 +184,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         activeImage!.width = width;
     }
 
+    function toggleActualSize(): void {
+        if (isSizeConstrained) {
+            delete activeImage!.dataset.editorShrink;
+        } else {
+            activeImage!.dataset.editorShrink = "true";
+        }
+
+        isSizeConstrained = !isSizeConstrained;
+    }
+
+    function clearActualSize(): void {
+        activeImage!.removeAttribute("width");
+    }
+
     onDestroy(() => {
         resizeObserver.disconnect();
         container.removeEventListener("click", maybeShowHandle);
@@ -173,6 +205,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         container.removeEventListener("key", resetHandle);
         container.removeEventListener("paste", resetHandle);
     });
+
+    let shrinkingDisabled: boolean;
+    $: shrinkingDisabled =
+        Number(actualWidth) <= maxWidth && Number(actualHeight) <= maxHeight;
+
+    let restoringDisabled: boolean;
+    $: restoringDisabled = !activeImage?.hasAttribute("width") ?? true;
+
+    const widthObserver = new MutationObserver(
+        () => (restoringDisabled = !activeImage!.hasAttribute("width")),
+    );
+
+    $: activeImage
+        ? widthObserver.observe(activeImage, {
+              attributes: true,
+              attributeFilter: ["width"],
+          })
+        : widthObserver.disconnect();
 </script>
 
 <WithDropdown
@@ -183,62 +233,69 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let:createDropdown
     let:dropdownObject
 >
-    {#await sheetPromise then sheet}
-        <WithImageConstrained
-            {sheet}
+    {#if activeImage}
+        <HandleSelection
+            bind:updateSelection
             {container}
-            {activeImage}
-            maxWidth={250}
-            maxHeight={125}
-            on:update={() => {
-                updateSizesWithDimensions();
-                dropdownObject.update();
-            }}
-            let:toggleActualSize
-            let:active
+            image={activeImage}
+            on:mount={(event) => createDropdown(event.detail.selection)}
         >
-            {#if activeImage}
-                <HandleSelection
-                    bind:updateSelection
-                    {container}
-                    image={activeImage}
-                    on:mount={(event) => createDropdown(event.detail.selection)}
-                >
-                    <HandleBackground on:dblclick={toggleActualSize} />
+            <HandleBackground
+                on:dblclick={() => {
+                    if (shrinkingDisabled) {
+                        return;
+                    }
+                    toggleActualSize();
+                    updateSizesWithDimensions();
+                    dropdownObject.update();
+                }}
+            />
 
-                    <HandleLabel on:mount={updateDimensions}>
-                        <span>{actualWidth}&times;{actualHeight}</span>
-                        {#if customDimensions}
-                            <span>(Original: {naturalWidth}&times;{naturalHeight})</span
-                            >
-                        {/if}
-                    </HandleLabel>
+            <HandleLabel on:mount={updateDimensions}>
+                {#if isSizeConstrained}
+                    <span>{tr.editingDoubleClickToExpand()}</span>
+                {:else}
+                    <span>{actualWidth}&times;{actualHeight}</span>
+                    {#if customDimensions}
+                        <span>(Original: {naturalWidth}&times;{naturalHeight})</span>
+                    {/if}
+                {/if}
+            </HandleLabel>
 
-                    <HandleControl
-                        {active}
-                        activeSize={8}
-                        offsetX={5}
-                        offsetY={5}
-                        on:pointerclick={(event) => {
-                            if (active) {
-                                setPointerCapture(event);
-                            }
-                        }}
-                        on:pointermove={(event) => {
-                            resize(event);
-                            updateSizesWithDimensions();
-                            dropdownObject.update();
-                        }}
-                    />
-                </HandleSelection>
-                <ButtonDropdown on:click={updateSizesWithDimensions}>
-                    <FloatButtons
-                        image={activeImage}
-                        on:update={dropdownObject.update}
-                    />
-                    <SizeSelect {active} on:click={toggleActualSize} />
-                </ButtonDropdown>
-            {/if}
-        </WithImageConstrained>
-    {/await}
+            <HandleControl
+                active={!isSizeConstrained}
+                activeSize={8}
+                offsetX={5}
+                offsetY={5}
+                on:pointerclick={(event) => {
+                    if (!isSizeConstrained) {
+                        setPointerCapture(event);
+                    }
+                }}
+                on:pointermove={(event) => {
+                    resize(event);
+                    updateSizesWithDimensions();
+                    dropdownObject.update();
+                }}
+            />
+        </HandleSelection>
+        <ButtonDropdown on:click={updateSizesWithDimensions}>
+            <FloatButtons image={activeImage} on:update={dropdownObject.update} />
+            <SizeSelect
+                {shrinkingDisabled}
+                {restoringDisabled}
+                {isSizeConstrained}
+                on:imagetoggle={() => {
+                    toggleActualSize();
+                    updateSizesWithDimensions();
+                    dropdownObject.update();
+                }}
+                on:imageclear={() => {
+                    clearActualSize();
+                    updateSizesWithDimensions();
+                    dropdownObject.update();
+                }}
+            />
+        </ButtonDropdown>
+    {/if}
 </WithDropdown>

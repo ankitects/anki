@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import "mathjax/es5/tex-svg-full";
-
 import { placeCaretAfter, placeCaretBefore } from "../domlib/place-caret";
 import { on } from "../lib/events";
 import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
@@ -15,6 +13,13 @@ const mathjaxTagPattern =
 const mathjaxBlockDelimiterPattern = /\\\[(.*?)\\\]/gsu;
 const mathjaxInlineDelimiterPattern = /\\\((.*?)\\\)/gsu;
 
+function trimBreaks(text: string): string {
+    return text
+        .replace(/<br[ ]*\/?>/gsu, "\n")
+        .replace(/^\n*/, "")
+        .replace(/\n*$/, "");
+}
+
 export const Mathjax: DecoratedElementConstructor = class Mathjax
     extends HTMLElement
     implements DecoratedElement
@@ -25,9 +30,10 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
         const stored = undecorated.replace(
             mathjaxTagPattern,
             (_match: string, block: string | undefined, text: string) => {
+                const trimmed = trimBreaks(text);
                 return typeof block === "string" && block !== "false"
-                    ? `\\[${text}\\]`
-                    : `\\(${text}\\)`;
+                    ? `\\[${trimmed}\\]`
+                    : `\\(${trimmed}\\)`;
             },
         );
 
@@ -37,10 +43,12 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax
     static toUndecorated(stored: string): string {
         return stored
             .replace(mathjaxBlockDelimiterPattern, (_match: string, text: string) => {
-                return `<${Mathjax.tagName} block="true">${text}</${Mathjax.tagName}>`;
+                const trimmed = trimBreaks(text);
+                return `<${Mathjax.tagName} block="true">${trimmed}</${Mathjax.tagName}>`;
             })
             .replace(mathjaxInlineDelimiterPattern, (_match: string, text: string) => {
-                return `<${Mathjax.tagName}>${text}</${Mathjax.tagName}>`;
+                const trimmed = trimBreaks(text);
+                return `<${Mathjax.tagName}>${trimmed}</${Mathjax.tagName}>`;
             });
     }
 

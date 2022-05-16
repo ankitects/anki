@@ -1,7 +1,9 @@
 {
     "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.organizeImports": true
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,

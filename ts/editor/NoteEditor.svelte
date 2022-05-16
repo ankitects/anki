@@ -324,8 +324,26 @@ the AddCards dialog) should be implemented in the user of this component.
                             {#if cols[index] === "dupe"}
                                 <DuplicateLink />
                             {/if}
-                            <RichTextBadge bind:off={richTextsHidden[index]} />
-                            <PlainTextBadge bind:off={plainTextsHidden[index]} />
+                            <RichTextBadge
+                                bind:off={richTextsHidden[index]}
+                                on:toggle={() => {
+                                    richTextsHidden[index] = !richTextsHidden[index];
+
+                                    if (!richTextsHidden[index]) {
+                                        richTextInputs[index].api.refocus();
+                                    }
+                                }}
+                            />
+                            <PlainTextBadge
+                                bind:off={plainTextsHidden[index]}
+                                on:toggle={() => {
+                                    plainTextsHidden[index] = !plainTextsHidden[index];
+
+                                    if (!plainTextsHidden[index]) {
+                                        plainTextInputs[index].api.refocus();
+                                    }
+                                }}
+                            />
 
                             <slot name="field-state" {field} {index} />
                         </svelte:fragment>
@@ -339,7 +357,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                 }}
                                 bind:this={richTextInputs[index]}
                             >
-                                <ImageHandle />
+                                <ImageHandle maxWidth={250} maxHeight={125} />
                                 <MathjaxHandle />
                             </RichTextInput>
 

@@ -410,14 +410,6 @@
         "path": "node_modules/commander",
         "licenseFile": "node_modules/commander/LICENSE"
     },
-    "commander@9.1.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/tj/commander.js",
-        "publisher": "TJ Holowaychuk",
-        "email": "tj@vision-media.ca",
-        "path": "node_modules/speech-rule-engine/node_modules/commander",
-        "licenseFile": "node_modules/speech-rule-engine/node_modules/commander/LICENSE"
-    },
     "concat-map@0.0.1": {
         "licenses": "MIT",
         "repository": "https://github.com/substack/node-concat-map",
@@ -874,14 +866,6 @@
         "email": "nicholas+npm@nczconsulting.com",
         "path": "node_modules/eslint",
         "licenseFile": "node_modules/eslint/LICENSE"
-    },
-    "esm@3.2.25": {
-        "licenses": "MIT",
-        "repository": "https://github.com/standard-things/esm",
-        "publisher": "John-David Dalton",
-        "email": "john.david.dalton@gmail.com",
-        "path": "node_modules/esm",
-        "licenseFile": "node_modules/esm/LICENSE"
     },
     "espree@7.3.1": {
         "licenses": "BSD-2-Clause",
@@ -1437,24 +1421,11 @@
         "path": "node_modules/marked",
         "licenseFile": "node_modules/marked/LICENSE.md"
     },
-    "mathjax-full@3.2.0": {
-        "licenses": "Apache-2.0",
-        "repository": "https://github.com/mathjax/Mathjax-src",
-        "path": "node_modules/mathjax-full",
-        "licenseFile": "node_modules/mathjax-full/LICENSE"
-    },
     "mathjax@3.2.0": {
         "licenses": "Apache-2.0",
         "repository": "https://github.com/mathjax/MathJax",
         "path": "node_modules/mathjax",
         "licenseFile": "node_modules/mathjax/LICENSE"
-    },
-    "mhchemparser@4.1.1": {
-        "licenses": "Apache-2.0",
-        "repository": "https://github.com/mhchem/mhchemParser",
-        "publisher": "Martin Hensel",
-        "path": "node_modules/mhchemparser",
-        "licenseFile": "node_modules/mhchemparser/LICENSE.txt"
     },
     "minimatch@3.1.2": {
         "licenses": "ISC",
@@ -1473,12 +1444,6 @@
         "url": "http://substack.net",
         "path": "node_modules/minimist",
         "licenseFile": "node_modules/minimist/LICENSE"
-    },
-    "mj-context-menu@0.6.1": {
-        "licenses": "Apache-2.0",
-        "repository": "https://github.com/zorkow/context-menu",
-        "path": "node_modules/mj-context-menu",
-        "licenseFile": "node_modules/mj-context-menu/README.md"
     },
     "ms@2.0.0": {
         "licenses": "MIT",
@@ -1765,12 +1730,6 @@
         "path": "node_modules/slice-ansi",
         "licenseFile": "node_modules/slice-ansi/license"
     },
-    "speech-rule-engine@3.3.3": {
-        "licenses": "Apache-2.0",
-        "repository": "https://github.com/zorkow/speech-rule-engine",
-        "path": "node_modules/speech-rule-engine",
-        "licenseFile": "node_modules/speech-rule-engine/LICENSE"
-    },
     "sprintf-js@1.0.3": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/alexei/sprintf.js",
@@ -1858,7 +1817,7 @@
         "path": "node_modules/supports-preserve-symlinks-flag",
         "licenseFile": "node_modules/supports-preserve-symlinks-flag/LICENSE"
     },
-    "svelte@3.46.4": {
+    "svelte@3.48.0": {
         "licenses": "MIT",
         "repository": "https://github.com/sveltejs/svelte",
         "publisher": "Rich Harris",
@@ -1948,13 +1907,6 @@
         "path": "node_modules/which",
         "licenseFile": "node_modules/which/LICENSE"
     },
-    "wicked-good-xpath@1.3.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/google/wicked-good-xpath",
-        "publisher": "Google Inc.",
-        "path": "node_modules/wicked-good-xpath",
-        "licenseFile": "node_modules/wicked-good-xpath/LICENSE"
-    },
     "word-wrap@1.2.3": {
         "licenses": "MIT",
         "repository": "https://github.com/jonschlinkert/word-wrap",
@@ -1971,15 +1923,6 @@
         "url": "http://blog.izs.me/",
         "path": "node_modules/wrappy",
         "licenseFile": "node_modules/wrappy/LICENSE"
-    },
-    "xmldom-sre@0.1.31": {
-        "licenses": "MIT*",
-        "repository": "https://github.com/zorkow/xmldom",
-        "publisher": "jindw",
-        "email": "jindw@xidea.org",
-        "url": "http://www.xidea.org",
-        "path": "node_modules/xmldom-sre",
-        "licenseFile": "node_modules/xmldom-sre/LICENSE"
     },
     "yallist@4.0.0": {
         "licenses": "ISC",

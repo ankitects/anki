@@ -54,7 +54,7 @@ function filterSpan(element: Element): void {
 
 const tagsAllowedBasic: TagsAllowed = {
     BR: allowNone,
-    IMG: allow(["SRC"]),
+    IMG: allow(["SRC", "ALT"]),
     DIV: allowNone,
     P: allowNone,
     SUB: allowNone,

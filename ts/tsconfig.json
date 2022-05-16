@@ -11,6 +11,7 @@
         { "path": "html-filter" },
         { "path": "reviewer" },
         { "path": "lib" },
+        { "path": "mathjax" },
         { "path": "domlib" },
         { "path": "sveltelib" },
         { "path": "icons" }

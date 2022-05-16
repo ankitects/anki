@@ -5,3 +5,4 @@ import "./editable-base.css";
 /* only imported for the CSS */
 import "./ContentEditable.svelte";
 import "./Mathjax.svelte";
+import "./ResizableImage.svelte";
