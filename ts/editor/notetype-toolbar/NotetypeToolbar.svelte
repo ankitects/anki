@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="notetype-toolbar">
     <ButtonToolbar {size} {wrap}>
-        <NotetypeSelector name={notetype.name} />
+        <NotetypeSelector currentNotetypeName={notetype.name} />
         <FieldsButton />
         <CardtypeButton />
         <DeckSelector />

@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { tick } from "svelte";
+    import { createEventDispatcher,tick } from "svelte";
     import { writable } from "svelte/store";
 
     import { Generic, notetypes } from "../../lib/proto";
@@ -12,14 +12,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import GhostButton from "./GhostButton.svelte";
     import { notetypeIcon } from "./icons";
 
-    export let name: string;
+    export let currentNotetypeName: string;
+
+    let name: string;
+    $: name = currentNotetypeName;
 
     let active = false;
 
     const noSuggestions = Promise.resolve([]);
     let suggestionsPromise: Promise<string[]> = noSuggestions;
-
-    $: suggestionsPromise.then(console.log);
 
     const show = writable(false);
 
@@ -64,16 +65,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    let lastInputName = name;
+
     function onAutocomplete(selected: string): void {
-        name = selected;
+        name = selected ?? lastInputName;
 
         const inputEnd = activeInput.value.length;
         activeInput.setSelectionRange(inputEnd, inputEnd);
     }
 
     async function updateNotetypeName(): Promise<void> {
+        lastInputName = name;
         await tick();
         autocomplete.update();
+    }
+
+    const dispatch = createEventDispatcher();
+
+    function onRevert(): void {
+        name = currentNotetypeName;
+    }
+
+    async function onAccept(): Promise<void> {
+        const notetypeNames = await notetypes.getNotetypeNames(Generic.Empty.create());
+        const names = notetypeNames.entries.map(({ name }) => name);
+
+        if (names.includes(name)) {
+            dispatch("notetypechange");
+        } else {
+            onRevert();
+        }
     }
 
     let autocomplete: any;
@@ -109,19 +130,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             bind:input={activeInput}
                             --base-font-size="14px"
                             on:focus={() => (autocomplete = createAutocomplete())}
-                            on:blur={() => (active = false)}
+                            on:tagaccept={onAccept}
+                            on:tagdelete={onRevert}
                             on:keydown={onKeydown}
-                            on:keyup
                             on:taginput={updateNotetypeName}
-                            on:tagsplit
-                            on:tagadd
-                            on:tagdelete
-                            on:tagselectall
-                            on:tagjoinprevious
-                            on:tagjoinnext
-                            on:tagmoveprevious
-                            on:tagmovenext
-                            on:tagaccept
+                            on:tagmoveprevious={onAccept}
+                            on:tagmovenext={onAccept}
                         />
                     </WithAutocomplete>
                 {/if}

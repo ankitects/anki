@@ -258,7 +258,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     size="1"
     on:focus
     on:blur|preventDefault={onBlur}
-    on:blur
     on:keydown={onKeydown}
     on:keydown
     on:keyup
