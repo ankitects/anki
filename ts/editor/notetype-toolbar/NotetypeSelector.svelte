@@ -22,13 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <Tag>{notetypeName}</Tag>
 
     {#if active}
-        <WithAutocomplete
-            {suggestionsPromise}
-            {show}
-            on:update
-            on:select
-            on:choose
-        >
+        <WithAutocomplete {suggestionsPromise} {show} on:update on:select on:choose>
             <TagInput
                 class="position-absolute start-0 top-0 bottom-0 ps-2 py-0"
                 disabled={false}

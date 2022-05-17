@@ -5,7 +5,7 @@ editing-align-right = Align right
 editing-an-error-occurred-while-opening = An error occurred while opening { $val }
 editing-attach-picturesaudiovideo = Attach pictures/audio/video
 editing-bold-text = Bold text
-editing-cards = Cards
+editing-cardtype = Cardtype
 editing-center = Center
 editing-change-color = Change color
 editing-cloze-deletion = Cloze deletion (new card)
@@ -60,3 +60,4 @@ editing-warning-cloze-deletions-will-not-work = Warning, cloze deletions will no
 ## You don't need to translate these strings, as they will be replaced with different ones soon.
 
 editing-html-editor = HTML Editor
+editing-cards = Cards
