@@ -13,8 +13,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const active = false;
     let notetypeName = "TheDeck";
 
-    const suggestionsPromise = Promise.reject();
     const show = writable(false);
+
+    const noSuggestions = Promise.resolve(['a', 'b']);
+    const suggestionsPromise: Promise<string[]> = noSuggestions;
 
     let activeInput: HTMLInputElement;
 </script>
