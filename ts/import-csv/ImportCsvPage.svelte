@@ -13,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DelimiterSelector from "./DelimiterSelector.svelte";
     import FieldMapper from "./FieldMapper.svelte";
     import Header from "./Header.svelte";
+    import HtmlSwitch from "./HtmlSwitch.svelte";
     import ImportButton from "./ImportButton.svelte";
     import { getCsvMetadata } from "./lib";
     import MetaMapper from "./MetaMapper.svelte";
@@ -68,9 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <NotetypeSelector {notetypeNameIds} bind:notetypeId />
                 <DeckSelector {deckNameIds} bind:deckId />
                 <DelimiterSelector bind:delimiter />
-                <Switch id={undefined} bind:value={isHtml}>
-                    {tr.importingAllowHtmlInFields()}
-                </Switch>
+                <HtmlSwitch bind:isHtml />
             </Container>
         </Col>
         <Col --col-size={1} breakpoint="md">
