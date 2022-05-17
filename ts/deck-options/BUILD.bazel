@@ -16,8 +16,8 @@ compile_sass(
     deps = [
         "//sass:base_lib",
         "//sass:breakpoints_lib",
-        "//sass:scrollbar_lib",
         "//sass:night_mode_lib",
+        "//sass:scrollbar_lib",
         "//sass/bootstrap",
     ],
 )
@@ -37,6 +37,8 @@ _ts_deps = [
 ]
 
 compile_svelte(
+    # FIXME: remove public when import-csv stops depending on this
+    visibility = ["//visibility:public"],
     deps = _ts_deps + [
         "//sass:base_lib",
         "//sass:breakpoints_lib",
