@@ -4,11 +4,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
+    import type { Notetypes } from "../../lib/proto";
     import CardtypeButton from "./CardtypeButton.svelte";
     import DeckSelector from "./DeckSelector.svelte";
     import FieldsButton from "./FieldsButton.svelte";
     import NotetypeSelector from "./NotetypeSelector.svelte";
-    import type { Notetypes } from "../../lib/proto";
 
     export let notetype: Notetypes.Notetype;
 
