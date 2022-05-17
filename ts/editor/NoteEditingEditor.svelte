@@ -36,7 +36,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     Object.assign(globalThis, { setNoteId, getNoteId });
 </script>
 
-<NotetypeToolbar />
+{#if notetype}
+    <NotetypeToolbar {notetype} />
+{/if}
 
 <NoteEditor {notetype} {note}>
     <slot name="notetypeButtons" slot="notetypeButtons" />

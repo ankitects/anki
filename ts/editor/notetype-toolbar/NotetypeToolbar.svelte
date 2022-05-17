@@ -8,6 +8,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DeckSelector from "./DeckSelector.svelte";
     import FieldsButton from "./FieldsButton.svelte";
     import NotetypeSelector from "./NotetypeSelector.svelte";
+    import type { Notetypes } from "../../lib/proto";
+
+    export let notetype: Notetypes.Notetype;
 
     export let size: number = 1.6;
     export let wrap: boolean = false;
@@ -15,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="notetype-toolbar">
     <ButtonToolbar {size} {wrap}>
-        <NotetypeSelector />
+        <NotetypeSelector name={notetype.name} />
         <FieldsButton />
         <CardtypeButton />
         <DeckSelector />
