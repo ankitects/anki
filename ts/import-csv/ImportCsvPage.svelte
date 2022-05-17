@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Col from "../components/Col.svelte";
     import Container from "../components/Container.svelte";
     import Row from "../components/Row.svelte";
-    import Switch from "../deck-options/Switch.svelte";
+    import Spacer from "../components/Spacer.svelte";
     import * as tr from "../lib/ftl";
     import { Decks, ImportExport, importExport, Notetypes } from "../lib/proto";
     import DeckSelector from "./DeckSelector.svelte";
@@ -61,11 +61,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<div style="--gutter-inline: 0.25rem;">
-    <Row class="gx-0" --cols={2}>
+<Container --gutter-inline="0.75rem" --gutter-block="0.25rem">
+    <Row --cols={2}>
         <Col --col-size={1} breakpoint="md">
             <Container>
                 <Header heading={tr.importingImportOptions()} />
+                <Spacer --height="1.5rem" />
                 <NotetypeSelector {notetypeNameIds} bind:notetypeId />
                 <DeckSelector {deckNameIds} bind:deckId />
                 <DelimiterSelector bind:delimiter />
@@ -75,7 +76,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <Col --col-size={1} breakpoint="md">
             <Container>
                 <Header heading={tr.importingFieldMapping()} />
+                <Spacer --height="1.5rem" />
                 <FieldMapper {columnNames} {notetypeId} bind:fieldColumnIndices />
+                <Spacer --height="1.5rem" />
                 <MetaMapper
                     {columnNames}
                     bind:tagsColumn
@@ -86,4 +89,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Col>
     </Row>
     <Row><ImportButton {onImport} /></Row>
-</div>
+</Container>
