@@ -3,56 +3,173 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { createEventDispatcher,tick } from "svelte";
     import { writable } from "svelte/store";
 
-    import TagEditMode from "../tag-editor/TagEditMode.svelte";
+    import { Decks,decks } from "../../lib/proto";
     import TagInput from "../tag-editor/TagInput.svelte";
-    import Tag from "../tag-editor/TagInput.svelte";
     import WithAutocomplete from "../tag-editor/WithAutocomplete.svelte";
+    import GhostButton from "./GhostButton.svelte";
+    import { deckIcon } from "./icons";
 
-    const active = false;
-    let notetypeName = "TheDeck";
+    export let currentDeckName: string;
+
+    let name: string;
+    $: name = currentDeckName;
+
+    let active = false;
+
+    const noSuggestions = Promise.resolve([]);
+    let suggestionsPromise: Promise<string[]> = noSuggestions;
 
     const show = writable(false);
 
-    const noSuggestions = Promise.resolve(["a", "b"]);
-    const suggestionsPromise: Promise<string[]> = noSuggestions;
-
     let activeInput: HTMLInputElement;
+
+    const deckNamesRequestProps = { skipEmptyDefault: false, includeFiltered: false };
+
+    function updateSuggestions(): void {
+        const suggestions = decks.getDeckNames(Decks.GetDeckNamesRequest.create(deckNamesRequestProps));
+        suggestionsPromise = suggestions.then(({ entries }) =>
+            entries
+                .map(({ name: suggestion }) => suggestion)
+                .filter((suggestion) => suggestion.includes(name)),
+        );
+    }
+
+    function onKeydown(event: KeyboardEvent): void {
+        switch (event.code) {
+            case "ArrowUp":
+                autocomplete.selectPrevious();
+                event.preventDefault();
+                break;
+
+            case "ArrowDown":
+                autocomplete.selectNext();
+                event.preventDefault();
+                break;
+
+            case "Tab":
+                if (!$show) {
+                    break;
+                } else if (event.shiftKey) {
+                    autocomplete.selectPrevious();
+                } else {
+                    autocomplete.selectNext();
+                }
+                event.preventDefault();
+                break;
+
+            case "Enter":
+                autocomplete.chooseSelected();
+                event.preventDefault();
+                break;
+        }
+    }
+
+    let lastInputName = name;
+
+    function onAutocomplete(selected: string): void {
+        name = selected ?? lastInputName;
+
+        const inputEnd = activeInput.value.length;
+        activeInput.setSelectionRange(inputEnd, inputEnd);
+    }
+
+    async function updateDeckNames(): Promise<void> {
+        lastInputName = name;
+        await tick();
+        autocomplete.update();
+    }
+
+    const dispatch = createEventDispatcher();
+
+    function onRevert(): void {
+        name = currentDeckName;
+        active = false;
+    }
+
+    async function onAccept(): Promise<void> {
+        const deckNames = await decks.getDeckNames(Decks.GetDeckNamesRequest.create(deckNamesRequestProps));
+
+        const names = deckNames.entries.map(({ name }) => name);
+
+        if (names.includes(name)) {
+            dispatch("deckchange");
+            active = false;
+        } else {
+            onRevert();
+        }
+    }
+
+    async function toggle(): Promise<void> {
+        if (active) {
+            onAccept();
+        } else {
+            active = true;
+
+            await tick();
+            activeInput.setSelectionRange(0, activeInput.value.length);
+
+            const deckNames = await decks.getDeckNames(Decks.GetDeckNamesRequest.create(deckNamesRequestProps));
+            const names = deckNames.entries.map(({ name }) => name);
+            suggestionsPromise = Promise.resolve(names);
+        }
+    }
+
+    let autocomplete: any;
 </script>
 
-<div class="notetype-selector">
-    <TagEditMode
-        class="ms-0"
-        name={notetypeName}
-        tooltip="foo"
-        {active}
-        on:tagedit
-        on:tagselect
-        on:tagrange
-        on:tagdelete
-    />
+<div
+    class="deck-selector"
+    on:click={toggle}
+    on:mousedown|preventDefault
+>
+    <GhostButton>
+        <svelte:fragment slot="icon">{@html deckIcon}</svelte:fragment>
+        <svelte:fragment slot="label">
+            <span class="deck-selector-relative" class:hide-label={active}>
+                <span class="deck-selector-label">{name}</span>
 
-    {#if active}
-        <WithAutocomplete {suggestionsPromise} {show} on:update on:select on:choose>
-            <TagInput
-                disabled={false}
-                bind:name={notetypeName}
-                bind:input={activeInput}
-                on:focus
-                on:keydown
-                on:keyup
-                on:taginput
-                on:tagsplit
-                on:tagadd
-                on:tagdelete
-                on:tagselectall
-                on:tagjoinprevious
-                on:tagjoinnext
-                on:tagmoveprevious
-                on:tagmovenext
-                on:tagaccept
-            />
-        </WithAutocomplete>
-    {/if}
+                {#if active}
+                    <WithAutocomplete
+                        {suggestionsPromise}
+                        {show}
+                        placement="bottom-start"
+                        on:update={updateSuggestions}
+                        on:select={({ detail }) => onAutocomplete(detail.selected)}
+                        on:choose={({ detail }) => {
+                            onAutocomplete(detail.chosen);
+                            activeInput.blur();
+                        }}
+                        let:createAutocomplete
+                    >
+                        <TagInput
+                            disabled={false}
+                            bind:name
+                            bind:input={activeInput}
+                            --base-font-size="14px"
+                            on:focus={() => (autocomplete = createAutocomplete())}
+                            on:tagaccept={onAccept}
+                            on:tagdelete={onRevert}
+                            on:keydown={onKeydown}
+                            on:taginput={updateDeckNames}
+                            on:tagmoveprevious={onAccept}
+                            on:tagmovenext={onAccept}
+                        />
+                    </WithAutocomplete>
+                {/if}
+            </span>
+        </svelte:fragment>
+    </GhostButton>
 </div>
+
+<style lang="scss">
+    .deck-selector-relative {
+        position: relative;
+    }
+
+    .hide-label .deck-selector-label {
+        opacity: 0;
+    }
+</style>

@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <NotetypeSelector currentNotetypeName={notetype.name} />
         <FieldsButton />
         <CardtypeButton />
-        <DeckSelector />
+        <DeckSelector currentDeckName={"Default"} />
     </ButtonToolbar>
 </div>
 

@@ -21,7 +21,7 @@ import Scheduler = anki.scheduler;
 import Stats = anki.stats;
 import Tags = anki.tags;
 
-export { Cards, Collection, Decks, Generic };
+export { Cards, Collection, Generic };
 
 export const empty = Generic.Empty.create();
 
@@ -67,6 +67,9 @@ async function serviceCallback(
         }
     }
 }
+
+export { Decks };
+export const decks = Decks.DecksService.create(serviceCallback as RPCImpl);
 
 export { DeckConfig };
 export const deckConfig = DeckConfig.DeckConfigService.create(
