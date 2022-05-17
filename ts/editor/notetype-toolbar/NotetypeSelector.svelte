@@ -99,11 +99,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    function toggle() {
+    async function toggle(): Promise<void> {
         if (active) {
             onAccept();
         } else {
             active = true;
+
+            await tick();
+            activeInput.setSelectionRange(0, activeInput.value.length);
+
+            const notetypeNames = await notetypes.getNotetypeNames(Generic.Empty.create());
+            const names = notetypeNames.entries.map(({ name }) => name);
+            suggestionsPromise = Promise.resolve(names);
         }
     }
 
