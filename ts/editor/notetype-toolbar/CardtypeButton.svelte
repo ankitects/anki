@@ -13,7 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const keyCombination = "Control+L";
 
     function evokeCardtypeMenu() {
-        bridgeCommand("cards")
+        bridgeCommand("cards");
     }
 </script>
 
@@ -34,6 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .cardtype-button {
         cursor: pointer;
+        white-space: nowrap;
 
         opacity: 0.6;
 

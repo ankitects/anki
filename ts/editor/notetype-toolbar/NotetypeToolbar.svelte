@@ -13,9 +13,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let wrap: boolean = false;
 </script>
 
-<ButtonToolbar {size} {wrap}>
-    <NotetypeSelector />
-    <FieldsButton />
-    <CardtypeButton />
-    <DeckSelector />
-</ButtonToolbar>
+<div class="notetype-toolbar">
+    <ButtonToolbar {size} {wrap}>
+        <NotetypeSelector />
+        <FieldsButton />
+        <CardtypeButton />
+        <DeckSelector />
+    </ButtonToolbar>
+</div>
+
+<style lang="scss">
+    .notetype-toolbar {
+        margin-bottom: 2px;
+    }
+</style>

@@ -24,6 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .fields-button {
         cursor: pointer;
+        white-space: nowrap;
 
         opacity: 0.6;
 
