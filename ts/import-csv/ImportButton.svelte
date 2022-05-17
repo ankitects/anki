@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const keyCombination = "Control+Enter";
 </script>
 
-<ButtonGroup>
+<ButtonGroup size={2}>
     <LabelButton
         theme="primary"
         tooltip={getPlatformString(keyCombination)}

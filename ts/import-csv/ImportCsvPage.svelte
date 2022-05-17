@@ -62,6 +62,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <Container --gutter-inline="0.75rem" --gutter-block="0.25rem">
+    <Row --cols={5}
+        ><Col --col-size={4}>{path}</Col><Col><ImportButton {onImport} /></Col></Row
+    >
     <Row --cols={2}>
         <Col --col-size={1} breakpoint="md">
             <Container>
@@ -88,5 +91,4 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </Container>
         </Col>
     </Row>
-    <Row><ImportButton {onImport} /></Row>
 </Container>
