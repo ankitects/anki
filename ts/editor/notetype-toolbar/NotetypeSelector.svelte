@@ -84,6 +84,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onRevert(): void {
         name = currentNotetypeName;
+        active = false;
     }
 
     async function onAccept(): Promise<void> {
@@ -92,8 +93,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         if (names.includes(name)) {
             dispatch("notetypechange");
+            active = false;
         } else {
             onRevert();
+        }
+    }
+
+    function toggle() {
+        if (active) {
+            onAccept();
+        } else {
+            active = true;
         }
     }
 
@@ -102,7 +112,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div
     class="notetype-selector"
-    on:click={() => (active = !active)}
+    on:click={toggle}
     on:mousedown|preventDefault
 >
     <GhostButton>
