@@ -4,9 +4,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
+    import CardtypeButton from "./CardtypeButton.svelte";
     import DeckSelector from "./DeckSelector.svelte";
     import FieldsButton from "./FieldsButton.svelte";
-    import CardtypeButton from "./CardtypeButton.svelte";
     import NotetypeSelector from "./NotetypeSelector.svelte";
 
     export let size: number = 1.6;

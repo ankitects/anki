@@ -34,6 +34,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         margin-left: 4px;
         margin-right: 4px;
 
+        span {
+            font-size: 14px;
+            padding-right: 4px;
+        }
+
         :global(svg) {
             padding-bottom: 2px;
         }
