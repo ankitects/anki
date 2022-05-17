@@ -455,6 +455,7 @@ exposed_backend_list = [
     "get_note",
     "new_note",
     # NotetypesService
+    "change_notetype",
     "get_notetype",
     "get_notetype_names",
     "get_change_notetype_info",

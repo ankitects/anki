@@ -3,8 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { tick } from "svelte";
     import { writable } from "svelte/store";
 
+    import { Generic, notetypes } from "../../lib/proto";
     import TagInput from "../tag-editor/TagInput.svelte";
     import WithAutocomplete from "../tag-editor/WithAutocomplete.svelte";
     import GhostButton from "./GhostButton.svelte";
@@ -14,18 +16,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let active = false;
 
-    const noSuggestions = Promise.resolve(['a', 'b']);
-    const suggestionsPromise: Promise<string[]> = noSuggestions;
+    const noSuggestions = Promise.resolve([]);
+    let suggestionsPromise: Promise<string[]> = noSuggestions;
+
+    $: suggestionsPromise.then(console.log);
 
     const show = writable(false);
 
     let activeInput: HTMLInputElement;
 
-    function updateSuggestions() {
+    function updateSuggestions(): void {
+        const suggestions = notetypes.getNotetypeNames(Generic.Empty.create());
+        suggestionsPromise = suggestions.then(({ entries }) =>
+            entries
+                .map(({ name: suggestion }) => suggestion)
+                .filter((suggestion) => suggestion.includes(name)),
+        );
     }
+
+    async function updateNotetypeName(): Promise<void> {
+        await tick();
+        autocomplete.update();
+    }
+
+    let autocomplete: any;
 </script>
 
-<div class="notetype-selector" on:click={() => (active = !active)} on:mousedown|preventDefault>
+<div
+    class="notetype-selector"
+    on:click={() => (active = !active)}
+    on:mousedown|preventDefault
+>
     <GhostButton>
         <svelte:fragment slot="icon">{@html notetypeIcon}</svelte:fragment>
         <svelte:fragment slot="label">
@@ -36,20 +57,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <WithAutocomplete
                         {suggestionsPromise}
                         {show}
-                        on:update={console.log}
+                        placement="bottom-start"
+                        on:update={updateSuggestions}
                         on:select
                         on:choose
+                        let:createAutocomplete
                     >
                         <TagInput
-                            class="position-absolute start-0 top-0 bottom-0 end-0"
                             disabled={false}
                             bind:name
                             bind:input={activeInput}
                             --base-font-size="14px"
-                            on:focus
+                            on:focus={() => (autocomplete = createAutocomplete())}
                             on:keydown
                             on:keyup
-                            on:taginput
+                            on:taginput={updateNotetypeName}
                             on:tagsplit
                             on:tagadd
                             on:tagdelete

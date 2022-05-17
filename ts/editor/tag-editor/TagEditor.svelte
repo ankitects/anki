@@ -436,6 +436,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <WithAutocomplete
                         {suggestionsPromise}
                         {show}
+                        placement="top-start"
                         on:update={updateSuggestions}
                         on:select={({ detail }) => onAutocomplete(detail.selected)}
                         on:choose={({ detail }) => {
@@ -447,7 +448,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     >
                         <TagInput
                             id={tag.id}
-                            class="position-absolute start-0 top-0 bottom-0 ps-2 py-0"
                             disabled={autocompleteDisabled}
                             bind:name={activeName}
                             bind:input={activeInput}

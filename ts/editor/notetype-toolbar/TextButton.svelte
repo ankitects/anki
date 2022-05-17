@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="text-button">
     <IconConstrain iconSize={90}>
-        <slot name="icon"/>
+        <slot name="icon" />
     </IconConstrain>
     <span class="text-button-label"><slot name="label" /></span>
 </div>

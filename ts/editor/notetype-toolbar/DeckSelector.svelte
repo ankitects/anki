@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const show = writable(false);
 
-    const noSuggestions = Promise.resolve(['a', 'b']);
+    const noSuggestions = Promise.resolve(["a", "b"]);
     const suggestionsPromise: Promise<string[]> = noSuggestions;
 
     let activeInput: HTMLInputElement;
@@ -36,7 +36,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {#if active}
         <WithAutocomplete {suggestionsPromise} {show} on:update on:select on:choose>
             <TagInput
-                class="position-absolute start-0 top-0 bottom-0 ps-2 py-0"
                 disabled={false}
                 bind:name={notetypeName}
                 bind:input={activeInput}

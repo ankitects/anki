@@ -3,6 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import type { Placement } from "@floating-ui/dom";
     import { createEventDispatcher, tick } from "svelte";
     import type { Writable } from "svelte/store";
 
@@ -13,6 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let suggestionsPromise: Promise<string[]>;
     export let show: Writable<boolean>;
+    export let placement: Placement;
 
     let suggestionsItems: string[] = [];
     $: suggestionsPromise.then((items) => {
@@ -124,7 +126,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<WithFloating keepOnKeyup {show} placement="top-start" let:toggle let:hide let:show>
+<WithFloating keepOnKeyup {show} {placement} let:toggle let:hide let:show>
     <span
         class="autocomplete-reference"
         slot="reference"
