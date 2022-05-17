@@ -34,6 +34,43 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         );
     }
 
+    function onKeydown(event: KeyboardEvent): void {
+        switch (event.code) {
+            case "ArrowUp":
+                autocomplete.selectPrevious();
+                event.preventDefault();
+                break;
+
+            case "ArrowDown":
+                autocomplete.selectNext();
+                event.preventDefault();
+                break;
+
+            case "Tab":
+                if (!$show) {
+                    break;
+                } else if (event.shiftKey) {
+                    autocomplete.selectPrevious();
+                } else {
+                    autocomplete.selectNext();
+                }
+                event.preventDefault();
+                break;
+
+            case "Enter":
+                autocomplete.chooseSelected();
+                event.preventDefault();
+                break;
+        }
+    }
+
+    function onAutocomplete(selected: string): void {
+        name = selected;
+
+        const inputEnd = activeInput.value.length;
+        activeInput.setSelectionRange(inputEnd, inputEnd);
+    }
+
     async function updateNotetypeName(): Promise<void> {
         await tick();
         autocomplete.update();
@@ -59,8 +96,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         {show}
                         placement="bottom-start"
                         on:update={updateSuggestions}
-                        on:select
-                        on:choose
+                        on:select={({ detail }) => onAutocomplete(detail.selected)}
+                        on:choose={({ detail }) => {
+                            onAutocomplete(detail.chosen);
+                            activeInput.blur();
+                        }}
                         let:createAutocomplete
                     >
                         <TagInput
@@ -69,7 +109,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             bind:input={activeInput}
                             --base-font-size="14px"
                             on:focus={() => (autocomplete = createAutocomplete())}
-                            on:keydown
+                            on:blur={() => (active = false)}
+                            on:keydown={onKeydown}
                             on:keyup
                             on:taginput={updateNotetypeName}
                             on:tagsplit
