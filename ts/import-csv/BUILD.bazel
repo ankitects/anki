@@ -81,9 +81,9 @@ svelte_check(
     ],
 )
 
-jest_test(
-    protobuf = True,
-    deps = [
-        ":index",
-    ],
-)
+# jest_test(
+#     protobuf = True,
+#     deps = [
+#         ":index",
+#     ],
+# )
