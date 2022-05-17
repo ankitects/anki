@@ -28,6 +28,7 @@ const i18n = setupI18n({
         ModuleName.DECKS,
         ModuleName.EDITING,
         ModuleName.IMPORTING,
+        ModuleName.KEYBOARD,
         ModuleName.NOTETYPES,
         ModuleName.STUDYING,
     ],
