@@ -24,8 +24,6 @@ _ts_deps = [
     "//ts/components",
     "//ts/lib",
     "//ts/sveltelib",
-    # because of Switch.svelte; we should probably move this into ts/components
-    "//ts/deck-options:svelte",
     "@npm//@fluent",
     "@npm//@types/jest",
     "@npm//lodash-es",
