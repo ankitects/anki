@@ -28,5 +28,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .notetype-toolbar {
         margin-bottom: 2px;
+
+        /* Cancel out margins of buttons within */
+        margin-left: -4px;
     }
 </style>
