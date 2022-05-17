@@ -173,10 +173,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         left: 0;
         right: 0;
         bottom: 0;
-
-        /* Make sure that text in TagInput perfectly overlaps with Tag */
-        border-left: 1px solid transparent;
-        border-top: 2px solid transparent;
     }
 
     .autocomplete-menu {

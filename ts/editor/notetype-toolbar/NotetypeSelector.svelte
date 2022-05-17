@@ -41,10 +41,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         on:choose
                     >
                         <TagInput
-                            class="position-absolute start-0 top-0 bottom-0 ps-2 py-0"
+                            class="position-absolute start-0 top-0 bottom-0 end-0"
                             disabled={false}
                             bind:name
                             bind:input={activeInput}
+                            --base-font-size="14px"
                             on:focus
                             on:keydown
                             on:keyup

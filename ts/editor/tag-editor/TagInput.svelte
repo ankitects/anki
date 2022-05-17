@@ -278,11 +278,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         outline: none;
         border: none;
         margin: 0;
-    }
-
-    .tag-input {
-        /* recreates positioning of Tag component
-         * so that the text does not move when accepting */
-        border-left: 1px solid transparent;
+        padding: 0;
     }
 </style>
