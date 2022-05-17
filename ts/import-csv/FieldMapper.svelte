@@ -16,17 +16,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: options = [tr.changeNotetypeNothing()].concat(columnNames);
 
     let fieldNames: string[] = [];
-    $: {
+    let otherFieldIndices: number[] = [];
+
+    function onNotetypeChange(notetypeId: number, columnNames: string[]): void {
         getNotetypeFields(notetypeId).then((newFieldNames) => {
             fieldNames = newFieldNames;
+            otherFieldIndices = Array(Math.max(0, fieldNames.length - 1))
+                .fill(0)
+                .map((_, i) => (i + 1 < columnNames.length ? i + 2 : 0));
         });
     }
 
-    let firstFieldIndex: number = 0;
-    $: otherFieldIndices = Array(Math.max(0, fieldNames.length - 1))
-        .fill(0)
-        .map((_, i) => (i + 1 < columnNames.length ? i + 2 : 0));
+    $: onNotetypeChange(notetypeId, columnNames);
 
+    let firstFieldIndex: number = 0;
     $: fieldColumnIndices = [firstFieldIndex, ...otherFieldIndices.map((i) => i - 1)];
 </script>
 
