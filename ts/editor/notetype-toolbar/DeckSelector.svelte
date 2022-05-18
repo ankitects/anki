@@ -3,10 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { createEventDispatcher,tick } from "svelte";
+    import { createEventDispatcher, tick } from "svelte";
     import { writable } from "svelte/store";
 
-    import { Decks,decks } from "../../lib/proto";
+    import { Decks, decks } from "../../lib/proto";
     import TagInput from "../tag-editor/TagInput.svelte";
     import WithAutocomplete from "../tag-editor/WithAutocomplete.svelte";
     import GhostButton from "./GhostButton.svelte";
@@ -29,7 +29,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const deckNamesRequestProps = { skipEmptyDefault: false, includeFiltered: false };
 
     function updateSuggestions(): void {
-        const suggestions = decks.getDeckNames(Decks.GetDeckNamesRequest.create(deckNamesRequestProps));
+        const suggestions = decks.getDeckNames(
+            Decks.GetDeckNamesRequest.create(deckNamesRequestProps),
+        );
         suggestionsPromise = suggestions.then(({ entries }) =>
             entries
                 .map(({ name: suggestion }) => suggestion)
@@ -90,7 +92,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function onAccept(): Promise<void> {
-        const deckNames = await decks.getDeckNames(Decks.GetDeckNamesRequest.create(deckNamesRequestProps));
+        const deckNames = await decks.getDeckNames(
+            Decks.GetDeckNamesRequest.create(deckNamesRequestProps),
+        );
 
         const names = deckNames.entries.map(({ name }) => name);
 
@@ -111,7 +115,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             await tick();
             activeInput.setSelectionRange(0, activeInput.value.length);
 
-            const deckNames = await decks.getDeckNames(Decks.GetDeckNamesRequest.create(deckNamesRequestProps));
+            const deckNames = await decks.getDeckNames(
+                Decks.GetDeckNamesRequest.create(deckNamesRequestProps),
+            );
             const names = deckNames.entries.map(({ name }) => name);
             suggestionsPromise = Promise.resolve(names);
         }
@@ -120,11 +126,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let autocomplete: any;
 </script>
 
-<div
-    class="deck-selector"
-    on:click={toggle}
-    on:mousedown|preventDefault
->
+<div class="deck-selector" on:click={toggle} on:mousedown|preventDefault>
     <GhostButton>
         <svelte:fragment slot="icon">{@html deckIcon}</svelte:fragment>
         <svelte:fragment slot="label">

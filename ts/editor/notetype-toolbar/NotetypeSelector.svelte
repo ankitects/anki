@@ -3,10 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { createEventDispatcher,tick } from "svelte";
+    import { createEventDispatcher, tick } from "svelte";
     import { writable } from "svelte/store";
 
-    import { Generic, notetypes } from "../../lib/proto";
+    import { Generic, Notetypes, notetypes } from "../../lib/proto";
     import TagInput from "../tag-editor/TagInput.svelte";
     import WithAutocomplete from "../tag-editor/WithAutocomplete.svelte";
     import GhostButton from "./GhostButton.svelte";
@@ -89,10 +89,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function onAccept(): Promise<void> {
         const notetypeNames = await notetypes.getNotetypeNames(Generic.Empty.create());
-        const names = notetypeNames.entries.map(({ name }) => name);
+        const foundNotetype = notetypeNames.entries.find(
+            (notetype: Notetypes.NotetypeNameId): boolean => notetype.name === name,
+        );
 
-        if (names.includes(name)) {
-            dispatch("notetypechange");
+        if (foundNotetype) {
+            dispatch("notetypechange", foundNotetype.id);
             active = false;
         } else {
             onRevert();
@@ -108,7 +110,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             await tick();
             activeInput.setSelectionRange(0, activeInput.value.length);
 
-            const notetypeNames = await notetypes.getNotetypeNames(Generic.Empty.create());
+            const notetypeNames = await notetypes.getNotetypeNames(
+                Generic.Empty.create(),
+            );
             const names = notetypeNames.entries.map(({ name }) => name);
             suggestionsPromise = Promise.resolve(names);
         }
@@ -117,11 +121,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let autocomplete: any;
 </script>
 
-<div
-    class="notetype-selector"
-    on:click={toggle}
-    on:mousedown|preventDefault
->
+<div class="notetype-selector" on:click={toggle} on:mousedown|preventDefault>
     <GhostButton>
         <svelte:fragment slot="icon">{@html notetypeIcon}</svelte:fragment>
         <svelte:fragment slot="label">

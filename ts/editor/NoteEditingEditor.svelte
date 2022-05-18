@@ -33,11 +33,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return noteId;
     }
 
+    function changeNotetype({ detail: notetypeId }) {
+        console.log(notetypeId);
+    }
+
     Object.assign(globalThis, { setNoteId, getNoteId });
 </script>
 
 {#if notetype}
-    <NotetypeToolbar {notetype} />
+    <NotetypeToolbar {notetype} on:notetypechange={changeNotetype} />
 {/if}
 
 <NoteEditor {notetype} {note}>
