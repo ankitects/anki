@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DeckSelector from "./DeckSelector.svelte";
     import FieldsButton from "./FieldsButton.svelte";
     import NotetypeSelector from "./NotetypeSelector.svelte";
+    import CardInfo from "./CardInfo.svelte";
 
     export let notetype: Notetypes.Notetype;
 
@@ -26,6 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         {#if card}
             <DeckSelector currentDeckId={card.deckId} on:deckchange />
+            <CardInfo {card} template={notetype.templates[card.templateIdx]} />
         {/if}
     </ButtonToolbar>
 </div>
