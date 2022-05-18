@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import type { Cards, Notetypes } from "../../lib/proto";
-    import CardtypeButton from "./CardtypeButton.svelte";
+    import TemplatesButton from "./TemplatesButton.svelte";
     import DeckSelector from "./DeckSelector.svelte";
     import FieldsButton from "./FieldsButton.svelte";
     import NotetypeSelector from "./NotetypeSelector.svelte";
@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonToolbar {size} {wrap}>
         <NotetypeSelector currentNotetypeName={notetype.name} on:notetypechange />
         <FieldsButton />
-        <CardtypeButton />
+        <TemplatesButton />
 
         {#if card}
             <DeckSelector currentDeckId={card.deckId} on:deckchange />

@@ -7,26 +7,26 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
-    import { cardtypeIcon } from "./icons";
+    import { templateIcon } from "./icons";
     import TextButton from "./TextButton.svelte";
 
     const keyCombination = "Control+L";
 
-    function evokeCardtypeMenu() {
+    function evokeTemplatesMenu() {
         bridgeCommand("cards");
     }
 </script>
 
 <div
-    class="cardtype-button"
+    class="templates-button"
     title="{tr.editingCustomizeCardTemplates()} ({getPlatformString(keyCombination)})"
     on:mousedown|preventDefault
-    on:click={evokeCardtypeMenu}
+    on:click={evokeTemplatesMenu}
 >
     <TextButton>
-        <span slot="label">{tr.editingCardtype()}</span>
-        <svelte:fragment slot="icon">{@html cardtypeIcon}</svelte:fragment>
+        <span slot="label">{tr.editingTemplates()}</span>
+        <svelte:fragment slot="icon">{@html templateIcon}</svelte:fragment>
     </TextButton>
 </div>
 
-<Shortcut {keyCombination} on:action={evokeCardtypeMenu} />
+<Shortcut {keyCombination} on:action={evokeTemplatesMenu} />

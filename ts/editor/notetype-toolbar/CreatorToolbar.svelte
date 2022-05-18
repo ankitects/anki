@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import type { Notetypes } from "../../lib/proto";
     import AddNoteButton from "./AddNoteButton.svelte";
-    import CardtypeButton from "./CardtypeButton.svelte";
+    import TemplatesButton from "./TemplatesButton.svelte";
     import DeckSelector from "./DeckSelector.svelte";
     import FieldsButton from "./FieldsButton.svelte";
     import HistoryButton from "./HistoryButton.svelte";
@@ -22,7 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonToolbar {size} {wrap}>
         <NotetypeSelector currentNotetypeName={notetype.name} on:notetypechange />
         <FieldsButton />
-        <CardtypeButton />
+        <TemplatesButton />
         <DeckSelector currentDeckId={1} on:deckchange />
 
         <div class="creator-toolbar-spacer" />
