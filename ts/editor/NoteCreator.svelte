@@ -8,8 +8,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { noop } from "../lib/functional";
     import { Notes, notes, Notetypes, notetypes } from "../lib/proto";
     import NoteEditor from "./NoteEditor.svelte";
-    import StickyBadge from "./StickyBadge.svelte";
     import { CreatorToolbar } from "./notetype-toolbar";
+    import StickyBadge from "./StickyBadge.svelte";
 
     export let uiResolve: () => void;
 

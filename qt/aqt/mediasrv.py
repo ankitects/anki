@@ -457,6 +457,9 @@ exposed_backend_list = [
     # I18nService
     "i18n_resources",
     # NotesService
+    "add_note",
+    "defaults_for_adding",
+    "default_deck_for_notetype",
     "get_note",
     "new_note",
     # NotetypesService

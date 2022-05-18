@@ -5,12 +5,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import type { Notetypes } from "../../lib/proto";
+    import AddNoteButton from "./AddNoteButton.svelte";
     import CardtypeButton from "./CardtypeButton.svelte";
     import DeckSelector from "./DeckSelector.svelte";
     import FieldsButton from "./FieldsButton.svelte";
-    import NotetypeSelector from "./NotetypeSelector.svelte";
     import HistoryButton from "./HistoryButton.svelte";
-    import AddNoteButton from "./AddNoteButton.svelte";
+    import NotetypeSelector from "./NotetypeSelector.svelte";
 
     export let notetype: Notetypes.Notetype;
 
@@ -23,11 +23,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <NotetypeSelector currentNotetypeName={notetype.name} on:notetypechange />
         <FieldsButton />
         <CardtypeButton />
-
         <DeckSelector currentDeckId={1} on:deckchange />
 
+        <div class="creator-toolbar-spacer" />
+
         <HistoryButton />
-        <AddNoteButton />
+        <AddNoteButton on:noteadd />
     </ButtonToolbar>
 </div>
 
@@ -37,5 +38,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         /* Cancel out margins of buttons within */
         margin-left: -4px;
+    }
+
+    .creator-toolbar-spacer {
+        flex-grow: 1;
     }
 </style>

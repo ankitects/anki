@@ -15,7 +15,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let currentDeckId: number;
 
     let currentDeckName: string = "";
-    $: (async () => (currentDeckName = (await decks.getDeck(Decks.DeckId.create({ did: currentDeckId }))).name))()
+    $: (async () =>
+        (currentDeckName = (
+            await decks.getDeck(Decks.DeckId.create({ did: currentDeckId }))
+        ).name))();
 
     let name: string;
     $: name = currentDeckName;

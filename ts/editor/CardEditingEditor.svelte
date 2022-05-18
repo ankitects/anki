@@ -3,7 +3,15 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { abortable, Notes, notes, Notetypes, notetypes, Cards, cards } from "../lib/proto";
+    import {
+        abortable,
+        Cards,
+        cards,
+        Notes,
+        notes,
+        Notetypes,
+        notetypes,
+    } from "../lib/proto";
     import NoteEditor from "./NoteEditor.svelte";
     import { NotetypeToolbar } from "./notetype-toolbar";
 
