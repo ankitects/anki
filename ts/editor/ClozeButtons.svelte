@@ -3,19 +3,18 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { createEventDispatcher } from "svelte";
     import { get } from "svelte/store";
 
-    import ButtonGroup from "../../components/ButtonGroup.svelte";
-    import IconButton from "../../components/IconButton.svelte";
-    import Shortcut from "../../components/Shortcut.svelte";
-    import * as tr from "../../lib/ftl";
-    import { isApplePlatform } from "../../lib/platform";
-    import { getPlatformString } from "../../lib/shortcuts";
-    import { wrapInternal } from "../../lib/wrap";
-    import { context as noteEditorContext } from "../NoteEditor.svelte";
-    import type { RichTextInputAPI } from "../rich-text-input";
-    import { editingInputIsRichText } from "../rich-text-input";
+    import ButtonGroup from "../components/ButtonGroup.svelte";
+    import IconButton from "../components/IconButton.svelte";
+    import Shortcut from "../components/Shortcut.svelte";
+    import * as tr from "../lib/ftl";
+    import { isApplePlatform } from "../lib/platform";
+    import { getPlatformString } from "../lib/shortcuts";
     import { clozeIcon, incrementClozeIcon } from "./icons";
+    import { context as noteEditorContext } from "./NoteEditor.svelte";
+    import { editingInputIsRichText } from "./rich-text-input";
 
     const { focusedInput, fields } = noteEditorContext.get();
 
@@ -48,20 +47,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return Math.max(1, highest);
     }
 
-    $: richTextAPI = $focusedInput as RichTextInputAPI;
+    const dispatch = createEventDispatcher();
 
     async function onIncrementCloze(): Promise<void> {
-        const richText = await richTextAPI.element;
-
         const highestCloze = getCurrentHighestCloze(true);
-        wrapInternal(richText, `{{c${highestCloze}::`, "}}", false);
+
+        dispatch("surround", {
+            prefix: `{{c${highestCloze}::`,
+            suffix: "}}",
+        });
     }
 
     async function onSameCloze(): Promise<void> {
-        const richText = await richTextAPI.element;
-
         const highestCloze = getCurrentHighestCloze(false);
-        wrapInternal(richText, `{{c${highestCloze}::`, "}}", false);
+
+        dispatch("surround", {
+            prefix: `{{c${highestCloze}::`,
+            suffix: "}}",
+        });
     }
 
     $: disabled = !editingInputIsRichText($focusedInput);

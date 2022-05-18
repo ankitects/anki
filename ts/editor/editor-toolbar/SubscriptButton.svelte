@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { MatchType } from "../../domlib/surround";
-    import { removeEmptyStyle } from "../surround";
+    import { removeStyleProperties } from "../../lib/styling";
 
     const surroundElement = document.createElement("sub");
 
@@ -15,9 +15,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         if (element.style.verticalAlign === "sub") {
             return match.clear((): void => {
-                element.style.removeProperty("vertical-align");
-
-                if (removeEmptyStyle(element) && element.className.length === 0) {
+                if (
+                    removeStyleProperties(element, "vertical-align") &&
+                    element.className.length === 0
+                ) {
                     return match.remove();
                 }
             });

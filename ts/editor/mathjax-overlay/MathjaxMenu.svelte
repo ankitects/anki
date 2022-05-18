@@ -47,21 +47,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:blur={() => dispatch("reset")}
             on:moveoutstart
             on:moveoutend
-        />
+            let:editor={mathjaxEditor}
+        >
+            <Shortcut
+                keyCombination={acceptShortcut}
+                on:action={() => dispatch("moveoutend")}
+            />
 
-        <Shortcut
-            keyCombination={acceptShortcut}
-            on:action={() => dispatch("moveoutend")}
-        />
+            <MathjaxButtons
+                {element}
+                on:delete={() => {
+                    placeCaretAfter(element);
+                    element.remove();
+                    dispatch("reset");
+                }}
+                on:surround={async ({ detail }) => {
+                    const editor = await mathjaxEditor.editor;
+                    const { prefix, suffix } = detail;
 
-        <MathjaxButtons
-            {element}
-            on:delete={() => {
-                placeCaretAfter(element);
-                element.remove();
-                dispatch("reset");
-            }}
-        />
+                    editor.replaceSelection(prefix + editor.getSelection() + suffix);
+                }}
+            />
+        </MathjaxEditor>
     </DropdownMenu>
 </div>
 

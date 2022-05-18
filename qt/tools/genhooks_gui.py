@@ -164,6 +164,12 @@ hooks = [
         option is unchecked; This is so as to allow playing custom
         sounds regardless of that option.""",
     ),
+    Hook(
+        name="reviewer_will_replay_recording",
+        args=["path: str"],
+        return_type="str",
+        doc="""Used to inspect and modify a recording recorded by "Record Own Voice" before replaying.""",
+    ),
     # Debug
     ###################
     Hook(
@@ -925,6 +931,29 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         args=["player: aqt.sound.Player", "tag: anki.sound.AVTag"],
     ),
     Hook(name="av_player_did_end_playing", args=["player: aqt.sound.Player"]),
+    Hook(
+        name="av_player_will_play_tags",
+        args=[
+            "tags: list[anki.sound.AVTag]",
+            "side: str",
+            "context: Any",
+        ],
+        doc="""Called before playing a card side's sounds.
+
+        `tags` can be used to inspect and manipulate the sounds
+        that will be played (if any).
+
+        `side` can either be "question" or "answer".
+
+        `context` is the screen where the sounds will be played (e.g., Reviewer, Previewer, and CardLayout).
+
+        This won't be called when the user manually plays sounds
+        using `Replay Audio`.
+
+        Note that this hook is called even when the `Automatically play audio`
+        option is unchecked; This is so as to allow playing custom
+        sounds regardless of that option.""",
+    ),
     # Addon
     ###################
     Hook(

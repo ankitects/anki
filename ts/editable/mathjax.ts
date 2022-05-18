@@ -5,6 +5,8 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
+import "mathjax/es5/tex-svg";
+
 import { mathIcon } from "./icons";
 
 const parser = new DOMParser();
@@ -70,7 +72,7 @@ export function convertMathjax(
  * Escape characters which are technically legal in Mathjax, but confuse HTML.
  */
 export function escapeSomeEntities(value: string): string {
-    return value.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&/g, "&amp;");
+    return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 export function unescapeSomeEntities(value: string): string {

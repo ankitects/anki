@@ -39,7 +39,7 @@ export function gatherData(data: Stats.GraphsResponse): GraphData {
     };
     let haveBacklog = false;
     const due = (data.cards as Cards.Card[])
-        .filter((c: Cards.Card) => c.queue >= 0)
+        .filter((c: Cards.Card) => c.queue > 0)
         .map((c: Cards.Card) => {
             // - testing just odue fails on day 1
             // - testing just odid fails on lapsed cards that

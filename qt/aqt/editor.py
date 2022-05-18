@@ -155,7 +155,10 @@ class Editor:
         self.web.stdHtml(
             "",
             css=[f"css/{file}.css"],
-            js=[f"js/{file}.js"],
+            js=[
+                "js/mathjax.js",
+                f"js/{file}.js",
+            ],
             context=self,
             default_css=False,
         )

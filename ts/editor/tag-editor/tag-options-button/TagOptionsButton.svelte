@@ -24,6 +24,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .tag-options-button {
-        padding: 3px;
+        padding: 6px 3px 0;
     }
 </style>

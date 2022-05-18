@@ -90,7 +90,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const activeTag = tagTypes[active!];
 
         activeName = selected ?? activeTag.name;
-        activeInput.setSelectionRange(Infinity, Infinity);
+        const inputEnd = activeInput.value.length;
+        activeInput.setSelectionRange(inputEnd, inputEnd);
     }
 
     async function updateTagName(tag: TagType): Promise<void> {
@@ -111,6 +112,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function appendEmptyTag(): void {
         // used by tag badge and tag spacer
+        deselect();
         const lastTag = tagTypes[tagTypes.length - 1];
 
         if (!lastTag || lastTag.name.length > 0) {
@@ -218,6 +220,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         activeAfterBlur = index - 1;
         active = null;
+        activeInput.blur();
     }
 
     async function moveToNextTag(index: number): Promise<void> {
@@ -231,6 +234,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         activeAfterBlur = index + 1;
         active = null;
+        activeInput.blur();
 
         await tick();
         activeInput.setSelectionRange(0, 0);
@@ -342,7 +346,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function selectAllTags() {
-        tagTypes.forEach((tag) => (tag.selected = true));
+        for (const tag of tagTypes) {
+            tag.selected = true;
+        }
+
         tagTypes = tagTypes;
     }
 
@@ -447,6 +454,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 splitTag(index, detail.start, detail.end)}
                             on:tagadd={() => insertTagKeepFocus(index)}
                             on:tagdelete={() => deleteTagAt(index)}
+                            on:tagselectall={async () => {
+                                if (tagTypes.length <= 1) {
+                                    // Noop if no other tags exist
+                                    return;
+                                }
+
+                                activeInput.blur();
+                                // Ensure blur events are processed first
+                                await tick();
+
+                                selectAllTags();
+                            }}
                             on:tagjoinprevious={() => joinWithPreviousTag(index)}
                             on:tagjoinnext={() => joinWithNextTag(index)}
                             on:tagmoveprevious={() => moveToPreviousTag(index)}
@@ -473,6 +492,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .tag-editor-area {
         display: flex;
         flex-flow: row wrap;
+        align-items: flex-end;
         padding: 0 1px 1px;
         overflow: hidden;
         margin-bottom: 3px;

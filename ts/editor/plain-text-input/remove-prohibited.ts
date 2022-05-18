@@ -11,7 +11,7 @@ function removeTag(element: HTMLElement, tagName: string): void {
     }
 }
 
-const prohibitedTags = ["script", "link", "style"];
+const prohibitedTags = ["script", "link"];
 
 /**
  * The use cases for using those tags in the field html are slim to none.

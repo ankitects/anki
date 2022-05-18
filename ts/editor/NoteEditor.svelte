@@ -40,7 +40,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
     import { bridgeCommand } from "../lib/bridgecommand";
-    import { isApplePlatform } from "../lib/platform";
     import { ChangeTimer } from "./change-timer";
     import DecoratedElements from "./DecoratedElements.svelte";
     import { clearableArray } from "./destroyable";
@@ -70,7 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return fontFamily;
     }
 
-    const size = isApplePlatform() ? 1.6 : 1.8;
+    const size = 1.6;
     const wrap = true;
 
     const fieldStores: Writable<string>[] = [];
@@ -325,8 +324,26 @@ the AddCards dialog) should be implemented in the user of this component.
                             {#if cols[index] === "dupe"}
                                 <DuplicateLink />
                             {/if}
-                            <RichTextBadge bind:off={richTextsHidden[index]} />
-                            <PlainTextBadge bind:off={plainTextsHidden[index]} />
+                            <RichTextBadge
+                                bind:off={richTextsHidden[index]}
+                                on:toggle={() => {
+                                    richTextsHidden[index] = !richTextsHidden[index];
+
+                                    if (!richTextsHidden[index]) {
+                                        richTextInputs[index].api.refocus();
+                                    }
+                                }}
+                            />
+                            <PlainTextBadge
+                                bind:off={plainTextsHidden[index]}
+                                on:toggle={() => {
+                                    plainTextsHidden[index] = !plainTextsHidden[index];
+
+                                    if (!plainTextsHidden[index]) {
+                                        plainTextInputs[index].api.refocus();
+                                    }
+                                }}
+                            />
 
                             <slot name="field-state" {field} {index} />
                         </svelte:fragment>
@@ -340,7 +357,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                 }}
                                 bind:this={richTextInputs[index]}
                             >
-                                <ImageHandle />
+                                <ImageHandle maxWidth={250} maxHeight={125} />
                                 <MathjaxHandle />
                             </RichTextInput>
 

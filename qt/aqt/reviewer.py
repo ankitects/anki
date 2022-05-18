@@ -340,13 +340,12 @@ class Reviewer:
             self.web.setPlaybackRequiresGesture(False)
             sounds = c.question_av_tags()
             gui_hooks.reviewer_will_play_question_sounds(c, sounds)
-            av_player.play_tags(sounds)
         else:
             self.web.setPlaybackRequiresGesture(True)
-            av_player.clear_queue_and_maybe_interrupt()
             sounds = []
             gui_hooks.reviewer_will_play_question_sounds(c, sounds)
-            av_player.play_tags(sounds)
+        gui_hooks.av_player_will_play_tags(sounds, self.state, self)
+        av_player.play_tags(sounds)
         # render & update bottom
         q = self._mungeQA(q)
         q = gui_hooks.card_will_show(q, c, "reviewQuestion")
@@ -392,12 +391,11 @@ class Reviewer:
         if c.autoplay():
             sounds = c.answer_av_tags()
             gui_hooks.reviewer_will_play_answer_sounds(c, sounds)
-            av_player.play_tags(sounds)
         else:
-            av_player.clear_queue_and_maybe_interrupt()
             sounds = []
             gui_hooks.reviewer_will_play_answer_sounds(c, sounds)
-            av_player.play_tags(sounds)
+        gui_hooks.av_player_will_play_tags(sounds, self.state, self)
+        av_player.play_tags(sounds)
         a = self._mungeQA(a)
         a = gui_hooks.card_will_show(a, c, "reviewAnswer")
         # render and update bottom
@@ -1097,6 +1095,9 @@ time = %(time)d;
         record_audio(self.mw, self.mw, False, after_record)
 
     def onReplayRecorded(self) -> None:
+        self._recordedAudio = gui_hooks.reviewer_will_replay_recording(
+            self._recordedAudio
+        )
         if not self._recordedAudio:
             tooltip(tr.studying_you_havent_recorded_your_voice_yet())
             return
