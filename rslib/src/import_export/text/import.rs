@@ -367,4 +367,23 @@ mod test {
         data.import(&mut col).unwrap();
         assert_eq!(col.storage.get_all_notes()[0].fields()[1], "new");
     }
+
+    #[test]
+    fn should_recognize_normalized_duplicate_only_if_normalization_is_enabled() {
+        let mut col = open_test_collection();
+        col.add_new_note_with_fields("Basic", &["神", "old"]);
+        let mut data = ForeignData::with_defaults();
+        data.dupe_resolution = DupeResolution::Update;
+        data.add_note(&["神", "new"]);
+
+        data.clone().import(&mut col).unwrap();
+        assert_eq!(col.storage.get_all_notes()[0].fields(), &["神", "new"]);
+
+        col.set_config_bool(BoolKey::NormalizeNoteText, false, false)
+            .unwrap();
+        data.import(&mut col).unwrap();
+        let notes = col.storage.get_all_notes();
+        assert_eq!(notes[0].fields(), &["神", "new"]);
+        assert_eq!(notes[1].fields(), &["神", "new"]);
+    }
 }
