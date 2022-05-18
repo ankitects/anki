@@ -9,7 +9,7 @@ use crate::{
         text::{
             DupeResolution, ForeignCard, ForeignData, ForeignNote, ForeignNotetype, ForeignTemplate,
         },
-        LogNote, NoteLog,
+        NoteLog,
     },
     notetype::{CardGenContext, CardTemplate, NoteField, NotetypeConfig},
     prelude::*,
@@ -38,6 +38,24 @@ struct Context<'a> {
     normalize_notes: bool,
     card_gen_ctxs: HashMap<(NotetypeId, DeckId), CardGenContext<Arc<Notetype>>>,
     //progress: IncrementableProgress<ImportProgress>,
+}
+
+#[derive(Debug, Clone, Copy)]
+enum ImportResult {
+    Added,
+    Ignored,
+    Updated,
+}
+
+impl NoteLog {
+    fn log_result(&mut self, note: Note, result: ImportResult) {
+        match result {
+            ImportResult::Added => &mut self.new,
+            ImportResult::Ignored => &mut self.duplicate,
+            ImportResult::Updated => &mut self.updated,
+        }
+        .push(note.into_log_note());
+    }
 }
 
 impl<'a> Context<'a> {
@@ -99,9 +117,13 @@ impl<'a> Context<'a> {
         for foreign in notes {
             if let Some(notetype) = self.notetype_for_note(&foreign)? {
                 if let Some(deck_id) = self.deck_id_for_note(&foreign)? {
-                    let log_note =
-                        self.import_foreign_note(foreign, notetype, deck_id, dupe_resolution)?;
-                    log.new.push(log_note);
+                    self.import_foreign_note(
+                        foreign,
+                        notetype,
+                        deck_id,
+                        dupe_resolution,
+                        &mut log,
+                    )?;
                 }
             }
         }
@@ -114,13 +136,17 @@ impl<'a> Context<'a> {
         notetype: Arc<Notetype>,
         deck_id: DeckId,
         dupe_resolution: DupeResolution,
-    ) -> Result<LogNote> {
+        log: &mut NoteLog,
+    ) -> Result<()> {
         let today = self.col.timing_today()?.days_elapsed;
         let (mut note, mut cards) = foreign.into_native(&notetype, deck_id, today);
-        self.import_note(&mut note, &notetype, dupe_resolution)?;
-        self.import_cards(&mut cards, note.id)?;
-        self.generate_missing_cards(notetype, deck_id, &note)?;
-        Ok(note.into_log_note())
+        let result = self.import_note(&mut note, &notetype, dupe_resolution)?;
+        if matches!(result, ImportResult::Added | ImportResult::Updated) {
+            self.import_cards(&mut cards, note.id)?;
+            self.generate_missing_cards(notetype, deck_id, &note)?;
+        }
+        log.log_result(note, result);
+        Ok(())
     }
 
     /// Returns the imported notes.
@@ -129,13 +155,13 @@ impl<'a> Context<'a> {
         note: &mut Note,
         notetype: &Notetype,
         dupe_resolution: DupeResolution,
-    ) -> Result<()> {
+    ) -> Result<ImportResult> {
         note.prepare_for_update(notetype, self.normalize_notes)?;
 
         match dupe_resolution {
             DupeResolution::Add => self.add_prepared_note(note),
             DupeResolution::Ignore => match self.note_duplicate(note)? {
-                Some(_) => Ok(()),
+                Some(_) => Ok(ImportResult::Ignored),
                 None => self.add_prepared_note(note),
             },
             DupeResolution::Update => match self.note_duplicate(note)? {
@@ -161,13 +187,18 @@ impl<'a> Context<'a> {
             .next())
     }
 
-    fn add_prepared_note(&mut self, note: &mut Note) -> Result<()> {
+    fn add_prepared_note(&mut self, note: &mut Note) -> Result<ImportResult> {
         self.col.canonify_note_tags(note, self.usn)?;
         note.usn = self.usn;
-        self.col.add_note_only_undoable(note)
+        self.col.add_note_only_undoable(note)?;
+        Ok(ImportResult::Added)
     }
 
-    fn update_with_prepared_note(&mut self, note: &mut Note, dupe_id: NoteId) -> Result<()> {
+    fn update_with_prepared_note(
+        &mut self,
+        note: &mut Note,
+        dupe_id: NoteId,
+    ) -> Result<ImportResult> {
         let dupe = self
             .col
             .storage
@@ -177,7 +208,7 @@ impl<'a> Context<'a> {
         note.set_modified(self.usn);
         note.id = dupe.id;
         self.col.update_note_undoable(note, &dupe)?;
-        Ok(())
+        Ok(ImportResult::Updated)
     }
 
     fn import_cards(&mut self, cards: &mut [Card], note_id: NoteId) -> Result<()> {
