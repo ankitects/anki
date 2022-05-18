@@ -7,16 +7,19 @@ mod json;
 
 use serde_derive::{Deserialize, Serialize};
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+use crate::backend_proto::import_csv_request::DupeResolution;
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ForeignData {
+    dupe_resolution: DupeResolution,
     default_deck: String,
     default_notetype: String,
     notes: Vec<ForeignNote>,
     notetypes: Vec<ForeignNotetype>,
 }
 
-#[derive(Debug, PartialEq, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ForeignNote {
     fields: Vec<String>,
@@ -36,7 +39,7 @@ pub struct ForeignCard {
     pub lapses: u32,
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ForeignNotetype {
     name: String,
     fields: Vec<String>,
@@ -45,7 +48,7 @@ pub struct ForeignNotetype {
     is_cloze: bool,
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ForeignTemplate {
     name: String,
     qfmt: String,

@@ -313,6 +313,15 @@ impl super::SqliteStorage {
             .collect::<Result<_>>()
             .unwrap()
     }
+
+    #[cfg(test)]
+    pub(crate) fn notes_table_len(&mut self) -> usize {
+        self.db
+            .prepare("SELECT COUNT(*) FROM notes")
+            .unwrap()
+            .query_row([], |row| row.get(0))
+            .unwrap()
+    }
 }
 
 fn row_to_note(row: &Row) -> Result<Note> {

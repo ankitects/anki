@@ -104,6 +104,12 @@ message ImportCsvRequest {
     int32 deck = 3;
     int32 notetype = 4;
   }
+  enum DupeResolution {
+    ADD = 0;
+    IGNORE = 1;
+    UPDATE = 2;
+    // UPDATE_IF_NEWER = 3;
+  }
   string path = 1;
   int64 deck_id = 2;
   int64 notetype_id = 3;
@@ -111,6 +117,7 @@ message ImportCsvRequest {
   bool is_html = 5;
   Columns columns = 6;
   repeated string column_names = 7;
+  DupeResolution dupe_resolution = 8;
 }
 
 message CsvMetadataRequest {

@@ -4,12 +4,16 @@
 use std::{collections::HashMap, sync::Arc};
 
 use crate::{
+    card::{CardQueue, CardType},
     import_export::{
-        text::{ForeignCard, ForeignData, ForeignNote, ForeignNotetype, ForeignTemplate},
+        text::{
+            DupeResolution, ForeignCard, ForeignData, ForeignNote, ForeignNotetype, ForeignTemplate,
+        },
         LogNote, NoteLog,
     },
     notetype::{CardGenContext, CardTemplate, NoteField, NotetypeConfig},
     prelude::*,
+    text::strip_html_preserving_media_filenames,
 };
 
 impl ForeignData {
@@ -17,7 +21,7 @@ impl ForeignData {
         col.transact(Op::Import, |col| {
             let mut ctx = Context::new(&self, col)?;
             ctx.import_foreign_notetypes(self.notetypes)?;
-            ctx.import_foreign_notes(self.notes)
+            ctx.import_foreign_notes(self.notes, self.dupe_resolution)
         })
     }
 }
@@ -86,12 +90,17 @@ impl<'a> Context<'a> {
         })
     }
 
-    fn import_foreign_notes(&mut self, notes: Vec<ForeignNote>) -> Result<NoteLog> {
+    fn import_foreign_notes(
+        &mut self,
+        notes: Vec<ForeignNote>,
+        dupe_resolution: DupeResolution,
+    ) -> Result<NoteLog> {
         let mut log = NoteLog::default();
         for foreign in notes {
             if let Some(notetype) = self.notetype_for_note(&foreign)? {
                 if let Some(deck_id) = self.deck_id_for_note(&foreign)? {
-                    let log_note = self.import_foreign_note(foreign, notetype, deck_id)?;
+                    let log_note =
+                        self.import_foreign_note(foreign, notetype, deck_id, dupe_resolution)?;
                     log.new.push(log_note);
                 }
             }
@@ -104,20 +113,71 @@ impl<'a> Context<'a> {
         foreign: ForeignNote,
         notetype: Arc<Notetype>,
         deck_id: DeckId,
+        dupe_resolution: DupeResolution,
     ) -> Result<LogNote> {
         let today = self.col.timing_today()?.days_elapsed;
         let (mut note, mut cards) = foreign.into_native(&notetype, deck_id, today);
-        self.import_note(&mut note, &notetype)?;
+        self.import_note(&mut note, &notetype, dupe_resolution)?;
         self.import_cards(&mut cards, note.id)?;
         self.generate_missing_cards(notetype, deck_id, &note)?;
         Ok(note.into_log_note())
     }
 
-    fn import_note(&mut self, note: &mut Note, notetype: &Notetype) -> Result<()> {
-        self.col.canonify_note_tags(note, self.usn)?;
+    /// Returns the imported notes.
+    fn import_note(
+        &mut self,
+        note: &mut Note,
+        notetype: &Notetype,
+        dupe_resolution: DupeResolution,
+    ) -> Result<()> {
         note.prepare_for_update(notetype, self.normalize_notes)?;
+
+        match dupe_resolution {
+            DupeResolution::Add => self.add_prepared_note(note),
+            DupeResolution::Ignore => match self.note_duplicate(note)? {
+                Some(_) => Ok(()),
+                None => self.add_prepared_note(note),
+            },
+            DupeResolution::Update => match self.note_duplicate(note)? {
+                Some(dupe_id) => self.update_with_prepared_note(note, dupe_id),
+                None => self.add_prepared_note(note),
+            },
+        }
+    }
+
+    /// Caller must have called [Note::prepare_for_update()].
+    fn note_duplicate(&mut self, note: &Note) -> Result<Option<NoteId>> {
+        let first_stripped = strip_html_preserving_media_filenames(&note.fields()[0]);
+        Ok(self
+            .col
+            .storage
+            .note_fields_by_checksum(note.notetype_id, note.checksum.expect("set by caller"))?
+            .into_iter()
+            .filter(|(_, field)| strip_html_preserving_media_filenames(field) == first_stripped)
+            .map(|(nid, _)| nid)
+            // FIXME: There may be multiple duplicates and the old Python code updated them all in this
+            // case. However, this is probably not generally useful and worth the additional complexity.
+            // The note should probably be skipped, or an error could be raised.
+            .next())
+    }
+
+    fn add_prepared_note(&mut self, note: &mut Note) -> Result<()> {
+        self.col.canonify_note_tags(note, self.usn)?;
         note.usn = self.usn;
         self.col.add_note_only_undoable(note)
+    }
+
+    fn update_with_prepared_note(&mut self, note: &mut Note, dupe_id: NoteId) -> Result<()> {
+        let dupe = self
+            .col
+            .storage
+            .get_note(dupe_id)?
+            .ok_or(AnkiError::NotFound)?;
+        self.col.canonify_note_tags(note, self.usn)?;
+        note.set_modified(self.usn);
+        note.id = dupe.id;
+        self.col.update_note_undoable(note, &dupe)?;
+        Ok(())
     }
 
     fn import_cards(&mut self, cards: &mut [Card], note_id: NoteId) -> Result<()> {
@@ -239,5 +299,72 @@ impl ForeignNotetype {
 impl ForeignTemplate {
     fn into_native(self) -> CardTemplate {
         CardTemplate::new(self.name, self.qfmt, self.afmt)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::collection::open_test_collection;
+
+    impl ForeignData {
+        fn with_defaults() -> Self {
+            Self {
+                default_notetype: "Basic".to_string(),
+                default_deck: "1".to_string(),
+                ..Default::default()
+            }
+        }
+
+        fn add_note(&mut self, fields: &[&str]) {
+            self.notes.push(ForeignNote {
+                fields: fields.iter().map(ToString::to_string).collect(),
+                ..Default::default()
+            });
+        }
+    }
+
+    #[test]
+    fn should_always_add_note_if_dupe_mode_is_add() {
+        let mut col = open_test_collection();
+        let mut data = ForeignData::with_defaults();
+        data.add_note(&["same", "old"]);
+        data.dupe_resolution = DupeResolution::Add;
+
+        data.clone().import(&mut col).unwrap();
+        data.import(&mut col).unwrap();
+        assert_eq!(col.storage.notes_table_len(), 2);
+    }
+
+    #[test]
+    fn should_add_or_ignore_note_if_dupe_mode_is_ignore() {
+        let mut col = open_test_collection();
+        let mut data = ForeignData::with_defaults();
+        data.add_note(&["same", "old"]);
+        data.dupe_resolution = DupeResolution::Ignore;
+
+        data.clone().import(&mut col).unwrap();
+        assert_eq!(col.storage.notes_table_len(), 1);
+
+        data.notes[0].fields[1] = "new".to_string();
+        data.import(&mut col).unwrap();
+        let notes = col.storage.get_all_notes();
+        assert_eq!(notes.len(), 1);
+        assert_eq!(notes[0].fields()[1], "old");
+    }
+
+    #[test]
+    fn should_update_or_add_note_if_dupe_mode_is_update() {
+        let mut col = open_test_collection();
+        let mut data = ForeignData::with_defaults();
+        data.add_note(&["same", "old"]);
+        data.dupe_resolution = DupeResolution::Update;
+
+        data.clone().import(&mut col).unwrap();
+        assert_eq!(col.storage.notes_table_len(), 1);
+
+        data.notes[0].fields[1] = "new".to_string();
+        data.import(&mut col).unwrap();
+        assert_eq!(col.storage.get_all_notes()[0].fields()[1], "new");
     }
 }
