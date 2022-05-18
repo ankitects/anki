@@ -528,7 +528,12 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             js = "setNoteTypeId({})".format(
                 json.dumps(self.note.note_type()["id"]),
             )
+        elif self.card:
+            js = "setCardId({})".format(
+                json.dumps(self.card.id),
+            )
         else:
+            # TODO should never happen?
             js = "setNoteId({})".format(
                 json.dumps(self.note.id),
             )

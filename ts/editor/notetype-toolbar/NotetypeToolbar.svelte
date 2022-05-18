@@ -25,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <CardtypeButton />
 
         {#if card}
-            <DeckSelector currentDeckName={"Default"} on:deckchange />
+            <DeckSelector currentDeck={card.deckId} on:deckchange />
         {/if}
     </ButtonToolbar>
 </div>

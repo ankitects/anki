@@ -449,7 +449,10 @@ post_handler_list = [
 
 
 exposed_backend_list = [
+    # CardsService
+    "get_card",
     # DecksService
+    "get_deck",
     "get_deck_names",
     # I18nService
     "i18n_resources",

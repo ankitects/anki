@@ -12,7 +12,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import GhostButton from "./GhostButton.svelte";
     import { deckIcon } from "./icons";
 
-    export let currentDeckName: string;
+    export let currentDeckId: number;
+
+    let currentDeckName: string = "";
+    $: (async () => (currentDeckName = (await decks.getDeck(Decks.DeckId.create({ did: currentDeckId }))).name))()
 
     let name: string;
     $: name = currentDeckName;

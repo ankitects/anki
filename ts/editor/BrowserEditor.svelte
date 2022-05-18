@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount } from "svelte";
 
     import ButtonGroupItem from "../components/ButtonGroupItem.svelte";
-    import NoteEditingEditor from "./NoteEditingEditor.svelte";
+    import CardEditingEditor from "./CardEditingEditor.svelte";
     import PreviewButton from "./PreviewButton.svelte";
 
     export let uiResolve: () => void;
@@ -14,10 +14,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(uiResolve);
 </script>
 
-<NoteEditingEditor>
+<CardEditingEditor>
     <svelte:fragment slot="notetypeButtons">
         <ButtonGroupItem>
             <PreviewButton />
         </ButtonGroupItem>
     </svelte:fragment>
-</NoteEditingEditor>
+</CardEditingEditor>
