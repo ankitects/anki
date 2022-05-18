@@ -10,7 +10,7 @@ use std::{
 use crate::{
     backend_proto::import_export::import_csv_request::Columns as ProtoColumns,
     import_export::{
-        text::{csv::metadata::Delimiter, import::NotetypeForString, ForeignData, ForeignNote},
+        text::{csv::metadata::Delimiter, ForeignData, ForeignNote},
         NoteLog,
     },
     prelude::*,
@@ -46,7 +46,7 @@ impl Collection {
 /// Column indices for the fields of a notetype.
 type FieldSourceColumns = Vec<Option<usize>>;
 
-struct ColumnContext<'a, C: NotetypeForString> {
+struct ColumnContext<'a> {
     tags_column: Option<usize>,
     deck_column: Option<usize>,
     notetype_column: Option<usize>,
@@ -58,15 +58,15 @@ struct ColumnContext<'a, C: NotetypeForString> {
     column_names: HashMap<String, usize>,
     /// How fields are converted to strings. Used for escaping HTML if appropriate.
     stringify: fn(&str) -> String,
-    col: &'a mut C,
+    col: &'a mut Collection,
 }
 
-impl<'a, C: NotetypeForString> ColumnContext<'a, C> {
+impl<'a> ColumnContext<'a> {
     fn new(
         columns: ProtoColumns,
         column_names: Vec<String>,
         is_html: bool,
-        col: &'a mut C,
+        col: &'a mut Collection,
     ) -> Self {
         Self {
             tags_column: columns.tags.try_into().ok(),
@@ -228,10 +228,10 @@ fn remove_tags_line_from_reader(reader: &mut (impl Read + Seek)) -> Result<()> {
 
 #[cfg(test)]
 mod test {
-    use std::{io::Cursor, sync::Arc};
+    use std::io::Cursor;
 
     use super::*;
-    use crate::notetype::all_stock_notetypes;
+    use crate::collection::open_test_collection;
 
     macro_rules! import {
         ($options:expr, $csv:expr) => {{
@@ -250,30 +250,12 @@ mod test {
         };
     }
 
-    struct MockNotetypeForString(HashMap<String, Arc<Notetype>>);
-
-    impl NotetypeForString for MockNotetypeForString {
-        fn notetype_for_string(&mut self, name_or_id: &str) -> Result<Option<Arc<Notetype>>> {
-            Ok(self.0.get(name_or_id).cloned())
-        }
-    }
-
-    impl MockNotetypeForString {
-        fn new() -> Self {
-            Self(HashMap::from_iter(
-                all_stock_notetypes(&I18n::template_only())
-                    .into_iter()
-                    .map(|nt| (nt.name.clone(), Arc::new(nt))),
-            ))
-        }
-    }
-
     struct CsvOptions {
         delimiter: Delimiter,
         is_html: bool,
         columns: ProtoColumns,
         column_names: Vec<String>,
-        mock_col: MockNotetypeForString,
+        col: Collection,
     }
 
     impl CsvOptions {
@@ -288,16 +270,16 @@ mod test {
                     fields: vec![0, 1],
                 },
                 column_names: vec![],
-                mock_col: MockNotetypeForString::new(),
+                col: open_test_collection(),
             }
         }
 
-        fn ctx(&mut self) -> ColumnContext<MockNotetypeForString> {
+        fn ctx(&mut self) -> ColumnContext<'_> {
             ColumnContext::new(
                 self.columns.clone(),
                 std::mem::take(&mut self.column_names),
                 self.is_html,
-                &mut self.mock_col,
+                &mut self.col,
             )
         }
     }

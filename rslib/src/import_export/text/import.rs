@@ -143,20 +143,6 @@ impl<'a> Context<'a> {
     }
 }
 
-pub(super) trait NotetypeForString {
-    fn notetype_for_string(&mut self, name_or_id: &str) -> Result<Option<Arc<Notetype>>>;
-}
-
-impl NotetypeForString for Collection {
-    fn notetype_for_string(&mut self, name_or_id: &str) -> Result<Option<Arc<Notetype>>> {
-        if let Some(nt) = self.get_notetype_for_id_string(name_or_id)? {
-            Ok(Some(nt))
-        } else {
-            self.get_notetype_by_name(name_or_id)
-        }
-    }
-}
-
 impl Collection {
     pub(super) fn deck_id_for_string(&mut self, deck: &str) -> Result<Option<DeckId>> {
         if let Ok(did) = deck.parse::<DeckId>() {
@@ -165,6 +151,17 @@ impl Collection {
             }
         }
         self.get_deck_id(deck)
+    }
+
+    pub(super) fn notetype_for_string(
+        &mut self,
+        name_or_id: &str,
+    ) -> Result<Option<Arc<Notetype>>> {
+        if let Some(nt) = self.get_notetype_for_id_string(name_or_id)? {
+            Ok(Some(nt))
+        } else {
+            self.get_notetype_by_name(name_or_id)
+        }
     }
 
     fn get_notetype_for_id_string(&mut self, notetype: &str) -> Result<Option<Arc<Notetype>>> {
