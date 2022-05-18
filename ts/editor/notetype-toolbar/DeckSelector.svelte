@@ -96,10 +96,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             Decks.GetDeckNamesRequest.create(deckNamesRequestProps),
         );
 
-        const names = deckNames.entries.map(({ name }) => name);
+        const foundDeck = deckNames.entries.find(
+            (deck: Decks.DeckNameId): boolean => deck.name === name,
+        );
 
-        if (names.includes(name)) {
-            dispatch("deckchange");
+        if (foundDeck) {
+            dispatch("deckchange", foundDeck.id);
             active = false;
         } else {
             onRevert();

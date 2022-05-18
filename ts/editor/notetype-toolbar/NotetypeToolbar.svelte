@@ -4,13 +4,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
-    import type { Notetypes } from "../../lib/proto";
+    import type { Cards, Notetypes } from "../../lib/proto";
     import CardtypeButton from "./CardtypeButton.svelte";
     import DeckSelector from "./DeckSelector.svelte";
     import FieldsButton from "./FieldsButton.svelte";
     import NotetypeSelector from "./NotetypeSelector.svelte";
 
     export let notetype: Notetypes.Notetype;
+
+    export let card: Cards.Card | undefined = undefined;
 
     export let size: number = 1.6;
     export let wrap: boolean = false;
@@ -21,7 +23,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <NotetypeSelector currentNotetypeName={notetype.name} on:notetypechange />
         <FieldsButton />
         <CardtypeButton />
-        <DeckSelector currentDeckName={"Default"} />
+
+        {#if card}
+            <DeckSelector currentDeckName={"Default"} on:deckchange />
+        {/if}
     </ButtonToolbar>
 </div>
 
