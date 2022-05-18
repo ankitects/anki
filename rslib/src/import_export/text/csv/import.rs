@@ -10,7 +10,7 @@ use std::{
 use crate::{
     backend_proto::import_export::import_csv_request::Columns as ProtoColumns,
     import_export::{
-        text::{csv::metadata::Delimiter, ForeignData, ForeignNote},
+        text::{csv::metadata::Delimiter, DupeResolution, ForeignData, ForeignNote},
         NoteLog,
     },
     prelude::*,
@@ -27,12 +27,14 @@ impl Collection {
         is_html: bool,
         columns: ProtoColumns,
         column_names: Vec<String>,
+        dupe_resolution: DupeResolution,
     ) -> Result<OpOutput<NoteLog>> {
         let file = File::open(path)?;
         let mut ctx = ColumnContext::new(columns, column_names, is_html, self);
         let notes = ctx.deserialize_csv(file, delimiter)?;
 
         ForeignData {
+            dupe_resolution,
             // TODO: refactor to allow passing ids directly
             default_deck: deck_id.to_string(),
             default_notetype: notetype_id.to_string(),

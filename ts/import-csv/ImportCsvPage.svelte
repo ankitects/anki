@@ -11,6 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Decks, ImportExport, importExport, Notetypes } from "../lib/proto";
     import DeckSelector from "./DeckSelector.svelte";
     import DelimiterSelector from "./DelimiterSelector.svelte";
+    import DupeResolutionSelector from "./DupeResolutionSelector.svelte";
     import FieldMapper from "./FieldMapper.svelte";
     import Header from "./Header.svelte";
     import HtmlSwitch from "./HtmlSwitch.svelte";
@@ -30,6 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let deckId: number;
     export let isHtml: boolean;
 
+    let dupeResolution: ImportExport.ImportCsvRequest.DupeResolution;
     let fieldColumnIndices: number[];
     let tagsColumn: number;
     let deckColumn: number;
@@ -56,6 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     notetype: notetypeColumn,
                 }),
                 columnNames,
+                dupeResolution,
             }),
         );
     }
@@ -72,6 +75,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <Spacer --height="1.5rem" />
                 <NotetypeSelector {notetypeNameIds} bind:notetypeId />
                 <DeckSelector {deckNameIds} bind:deckId />
+                <DupeResolutionSelector bind:dupeResolution />
                 <DelimiterSelector bind:delimiter />
                 <HtmlSwitch bind:isHtml />
             </Container>
