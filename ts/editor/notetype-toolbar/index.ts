@@ -2,3 +2,4 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 export { default as NotetypeToolbar } from "./NotetypeToolbar.svelte";
+export { default as CreatorToolbar } from "./CreatorToolbar.svelte";

@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Notes, notes, Notetypes, notetypes } from "../lib/proto";
     import NoteEditor from "./NoteEditor.svelte";
     import StickyBadge from "./StickyBadge.svelte";
-    import { NotetypeToolbar } from "./notetype-toolbar";
+    import { CreatorToolbar } from "./notetype-toolbar";
 
     export let uiResolve: () => void;
 
@@ -59,7 +59,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 {#if notetype}
-    <NotetypeToolbar {notetype} on:notetypechange={changeNotetype} />
+    <CreatorToolbar {notetype} on:notetypechange={changeNotetype} />
 {/if}
 
 <NoteEditor {notetype} {note} on:contentupdate={contentUpdate}>
