@@ -472,6 +472,13 @@ hooks = [
         Every column in the dictionary will be toggleable by the user.
         """,
     ),
+    # Previewer
+    ###################
+    Hook(
+        name="previewer_did_init",
+        args=["previewer: aqt.browser.previewer.Previewer"],
+        doc="""Called after the previewer is initialized.""",
+    ),
     # Main window states
     ###################
     # these refer to things like deckbrowser, overview and reviewer state,
