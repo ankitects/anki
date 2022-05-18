@@ -34,7 +34,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function changeNotetype({ detail: notetypeId }) {
-        console.log(notetypeId);
+        /* TODO will need to display ChangeNotetype as modal ? */
+        /* notetypes.changeNotetype(Notetypes.ChangeNotetypeRequest.create({ })); */
     }
 
     Object.assign(globalThis, { setNoteId, getNoteId });
