@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Notes, notes, Notetypes, notetypes } from "../lib/proto";
     import NoteEditor from "./NoteEditor.svelte";
     import StickyBadge from "./StickyBadge.svelte";
+    import { NotetypeToolbar } from "./notetype-toolbar";
 
     export let uiResolve: () => void;
 
@@ -42,6 +43,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     onMount(uiResolve);
 
+    function changeNotetype() {
+        console.log(note);
+    }
+
     function isStickyActive(index: number): boolean {
         return notetype.fields[index].config!.sticky;
     }
@@ -52,6 +57,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         stickiedContents[index] = content;
     }
 </script>
+
+{#if notetype}
+    <NotetypeToolbar {notetype} on:notetypechange={changeNotetype} />
+{/if}
 
 <NoteEditor {notetype} {note} on:contentupdate={contentUpdate}>
     <svelte:fragment slot="field-state" let:index>
