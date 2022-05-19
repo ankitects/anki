@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         cursor: pointer;
         white-space: nowrap;
 
-        opacity: 0.6;
+        opacity: 0.9;
 
         &:hover {
             opacity: 1;
