@@ -14,6 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let notetype: Notetypes.Notetype;
     export let deckId: number;
+    export let addedNoteIds: number[];
 
     export let size: number = 1.6;
     export let wrap: boolean = false;
@@ -28,7 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <div class="creator-toolbar-spacer" />
 
-        <HistoryButton />
+        <HistoryButton {addedNoteIds} />
         <AddNoteButton on:noteadd />
     </ButtonToolbar>
 </div>

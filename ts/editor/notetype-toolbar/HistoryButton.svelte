@@ -9,6 +9,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { historyIcon } from "./icons";
     import TextButton from "./TextButton.svelte";
 
+    export let addedNoteIds: number[];
+
     const keyCombination = "Control+Shift+H";
 </script>
 

@@ -80,6 +80,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <CreatorToolbar
         {notetype}
         {deckId}
+        {addedNoteIds}
         on:notetypechange={({ detail: notetypeId }) => changeNotetype(notetypeId)}
         on:deckchange={({ detail: deckId }) => changeDeck(deckId)}
         on:noteadd={addNote}
