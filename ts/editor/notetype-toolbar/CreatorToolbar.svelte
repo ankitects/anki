@@ -6,13 +6,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import type { Notetypes } from "../../lib/proto";
     import AddNoteButton from "./AddNoteButton.svelte";
-    import TemplatesButton from "./TemplatesButton.svelte";
     import DeckSelector from "./DeckSelector.svelte";
     import FieldsButton from "./FieldsButton.svelte";
     import HistoryButton from "./HistoryButton.svelte";
     import NotetypeSelector from "./NotetypeSelector.svelte";
+    import TemplatesButton from "./TemplatesButton.svelte";
 
     export let notetype: Notetypes.Notetype;
+    export let deckId: number;
 
     export let size: number = 1.6;
     export let wrap: boolean = false;
@@ -23,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <NotetypeSelector currentNotetypeName={notetype.name} on:notetypechange />
         <FieldsButton />
         <TemplatesButton />
-        <DeckSelector currentDeckId={1} on:deckchange />
+        <DeckSelector currentDeckId={deckId} on:deckchange />
 
         <div class="creator-toolbar-spacer" />
 

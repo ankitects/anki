@@ -43,8 +43,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     onMount(uiResolve);
 
-    function changeNotetype() {
-        console.log(note);
+    function changeNotetype(notetypeId: number): void {
+        note.fields;
+    }
+
+    let deckId: number = 1;
+
+    function changeDeck(did: number): void {
+        deckId = did;
+    }
+
+    let addedNoteIds: number[] = [];
+
+    async function addNote(): Promise<void> {
+        const result = await notes.addNote(
+            Notes.AddNoteRequest.create({ note, deckId }),
+        );
+
+        addedNoteIds.push(result.noteId);
+        addedNoteIds = addedNoteIds;
     }
 
     function isStickyActive(index: number): boolean {
@@ -55,11 +72,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         detail: { index, content },
     }: CustomEvent<{ index: number; content: string }>): void {
         stickiedContents[index] = content;
+        note.fields[index] = content;
     }
 </script>
 
 {#if notetype}
-    <CreatorToolbar {notetype} on:notetypechange={changeNotetype} />
+    <CreatorToolbar
+        {notetype}
+        {deckId}
+        on:notetypechange={({ detail: notetypeId }) => changeNotetype(notetypeId)}
+        on:deckchange={({ detail: deckId }) => changeDeck(deckId)}
+        on:noteadd={addNote}
+    />
 {/if}
 
 <NoteEditor {notetype} {note} on:contentupdate={contentUpdate}>
