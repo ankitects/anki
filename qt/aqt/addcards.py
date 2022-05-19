@@ -33,21 +33,16 @@ from aqt.utils import (
 )
 
 
-class AddCards(QMainWindow):
+class AddCards(QDialog):
     def __init__(self, mw: AnkiQt) -> None:
         super().__init__(None, Qt.WindowType.Window)
         self._close_event_has_cleaned_up = False
         self.mw = mw
         self.col = mw.col
-        form = aqt.forms.addcards.Ui_Dialog()
-        form.setupUi(self)
-        self.form = form
         self.setWindowTitle(tr.actions_add())
-        self.setMinimumHeight(300)
+        self.setMinimumHeight(400)
         self.setMinimumWidth(400)
-        self.setup_choosers()
         self.setupEditor()
-        self.setupButtons()
         self._load_new_note()
         self.history: list[NoteId] = []
         self._last_added_note: Optional[Note] = None
@@ -60,9 +55,6 @@ class AddCards(QMainWindow):
         """Set tags, field contents and notetype according to `note`. Deck is set
         to `deck_id` or the deck last used with the notetype.
         """
-        self.notetype_chooser.selected_notetype_id = note.mid
-        if deck_id or (deck_id := self.col.default_deck_for_notetype(note.mid)):
-            self.deck_chooser.selected_deck_id = deck_id
 
         new_note = self._new_note()
         new_note.fields = note.fields
@@ -73,7 +65,7 @@ class AddCards(QMainWindow):
     def setupEditor(self) -> None:
         self.editor = aqt.editor.Editor(
             self.mw,
-            self.form.fieldsArea,
+            self,
             self,
             editor_mode=aqt.editor.EditorMode.ADD_CARDS,
         )
@@ -215,10 +207,14 @@ class AddCards(QMainWindow):
                 )
             )
 
+    # is only used for the very first note
+    # other notes are managed through JS
     def _new_note(self) -> Note:
-        return self.col.new_note(
-            self.col.models.get(self.notetype_chooser.selected_notetype_id)
+        defaults = self.col.defaults_for_adding(
+            current_review_card=self.mw.reviewer.card
         )
+
+        return self.col.new_note(NotetypeId(defaults.notetype_id))
 
     def addHistory(self, note: Note) -> None:
         self.history.insert(0, note.id)
@@ -314,8 +310,6 @@ class AddCards(QMainWindow):
     def _close(self) -> None:
         av_player.stop_and_clear_queue()
         self.editor.cleanup()
-        self.notetype_chooser.cleanup()
-        self.deck_chooser.cleanup()
         gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         self.mw.maybeReset()
         saveGeom(self, "add")

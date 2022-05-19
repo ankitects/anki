@@ -15,18 +15,13 @@ class EditCurrent(QDialog):
         QDialog.__init__(self, None, Qt.WindowType.Window)
         mw.garbage_collect_on_dialog_finish(self)
         self.mw = mw
-        self.form = aqt.forms.editcurrent.Ui_Dialog()
-        self.form.setupUi(self)
         self.setWindowTitle(tr.editing_edit_current())
         disable_help_button(self)
         self.setMinimumHeight(400)
-        self.setMinimumWidth(250)
-        self.form.buttonBox.button(QDialogButtonBox.StandardButton.Close).setShortcut(
-            QKeySequence("Ctrl+Return")
-        )
+        self.setMinimumWidth(400)
         self.editor = aqt.editor.Editor(
             self.mw,
-            self.form.fieldsArea,
+            self,
             self,
             editor_mode=aqt.editor.EditorMode.EDIT_CURRENT,
         )
