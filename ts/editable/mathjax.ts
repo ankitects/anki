@@ -36,6 +36,7 @@ export function convertMathjax(
     nightMode: boolean,
     fontSize: number,
 ): [string, string] {
+    input = revealClozeAnswers(input);
     const style = getStyle(getCSS(nightMode, fontSize));
 
     if (input.trim().length === 0) {
@@ -77,4 +78,10 @@ export function escapeSomeEntities(value: string): string {
 
 export function unescapeSomeEntities(value: string): string {
     return value.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+}
+
+function revealClozeAnswers(input: string): string {
+    // one-line version of regex in cloze.rs
+    const regex = /\{\{c(\d+)::(.*?)(?:::(.*?))?\}\}/gis;
+    return input.replace(regex, "[$2]");
 }
