@@ -105,7 +105,12 @@ class NoteIdsLimit:
     note_ids: Sequence[NoteId]
 
 
-ExportLimit = Union[DeckIdLimit, NoteIdsLimit, None]
+@dataclass
+class CardIdsLimit:
+    card_ids: Sequence[CardId]
+
+
+ExportLimit = Union[DeckIdLimit, NoteIdsLimit, CardIdsLimit, None]
 
 
 class Collection(DeprecatedNamesMixin):
@@ -392,19 +397,13 @@ class Collection(DeprecatedNamesMixin):
         with_media: bool,
         legacy_support: bool,
     ) -> int:
-        request = import_export_pb2.ExportAnkiPackageRequest(
+        return self._backend.export_anki_package(
             out_path=out_path,
             with_scheduling=with_scheduling,
             with_media=with_media,
             legacy=legacy_support,
+            limit=pb_export_limit(limit),
         )
-        if isinstance(limit, DeckIdLimit):
-            request.deck_id = limit.deck_id
-        elif isinstance(limit, NoteIdsLimit):
-            request.note_ids.note_ids.extend(limit.note_ids)
-        else:
-            request.whole_collection.SetInParent()
-        return self._backend.export_anki_package(request)
 
     def get_csv_metadata(self, path: str, delimiter: Delimiter.V | None) -> CsvMetadata:
         request = import_export_pb2.CsvMetadataRequest(path=path, delimiter=delimiter)
@@ -413,6 +412,34 @@ class Collection(DeprecatedNamesMixin):
     def import_csv(self, request: ImportCsvRequest) -> ImportLogWithChanges:
         log = self._backend.import_csv_raw(request.SerializeToString())
         return ImportLogWithChanges.FromString(log)
+
+    def export_note_csv(
+        self,
+        *,
+        out_path: str,
+        limit: ExportLimit,
+        with_html: bool,
+        with_tags: bool,
+    ) -> int:
+        return self._backend.export_note_csv(
+            out_path=out_path,
+            with_html=with_html,
+            with_tags=with_tags,
+            limit=pb_export_limit(limit),
+        )
+
+    def export_card_csv(
+        self,
+        *,
+        out_path: str,
+        limit: ExportLimit,
+        with_html: bool,
+    ) -> int:
+        return self._backend.export_card_csv(
+            out_path=out_path,
+            with_html=with_html,
+            limit=pb_export_limit(limit),
+        )
 
     def import_json_file(self, path: str) -> ImportLogWithChanges:
         return self._backend.import_json_file(path)
@@ -1294,3 +1321,16 @@ class _ReviewsUndo:
 
 
 _UndoInfo = Union[_ReviewsUndo, LegacyCheckpoint, None]
+
+
+def pb_export_limit(limit: ExportLimit) -> import_export_pb2.ExportLimit:
+    message = import_export_pb2.ExportLimit()
+    if isinstance(limit, DeckIdLimit):
+        message.deck_id = limit.deck_id
+    elif isinstance(limit, NoteIdsLimit):
+        message.note_ids.note_ids.extend(limit.note_ids)
+    elif isinstance(limit, CardIdsLimit):
+        message.card_ids.cids.extend(limit.card_ids)
+    else:
+        message.whole_collection.SetInParent()
+    return message

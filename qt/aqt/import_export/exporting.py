@@ -49,7 +49,12 @@ class ExportDialog(QDialog):
         self.open()
 
     def setup(self, did: DeckId | None) -> None:
-        self.exporters: list[Type[Exporter]] = [ApkgExporter, ColpkgExporter]
+        self.exporters: list[Type[Exporter]] = [
+            ApkgExporter,
+            ColpkgExporter,
+            NoteCsvExporter,
+            CardCsvExporter,
+        ]
         self.frm.format.insertItems(
             0, [f"{e.name()} (.{e.extension})" for e in self.exporters]
         )
@@ -240,6 +245,56 @@ class ApkgExporter(Exporter):
             ),
             success=lambda count: tooltip(
                 tr.exporting_note_exported(count=count), parent=mw
+            ),
+        ).with_backend_progress(export_progress_update).run_in_background()
+
+
+class NoteCsvExporter(Exporter):
+    extension = "txt"
+    show_deck_list = True
+    show_include_html = True
+    show_include_tags = True
+
+    @staticmethod
+    def name() -> str:
+        return tr.exporting_notes_in_plain_text()
+
+    @staticmethod
+    def export(mw: aqt.main.AnkiQt, options: Options) -> None:
+        QueryOp(
+            parent=mw,
+            op=lambda col: col.export_note_csv(
+                out_path=options.out_path,
+                limit=options.limit,
+                with_html=options.include_html,
+                with_tags=options.include_tags,
+            ),
+            success=lambda count: tooltip(
+                tr.exporting_note_exported(count=count), parent=mw
+            ),
+        ).with_backend_progress(export_progress_update).run_in_background()
+
+
+class CardCsvExporter(Exporter):
+    extension = "txt"
+    show_deck_list = True
+    show_include_html = True
+
+    @staticmethod
+    def name() -> str:
+        return tr.exporting_cards_in_plain_text()
+
+    @staticmethod
+    def export(mw: aqt.main.AnkiQt, options: Options) -> None:
+        QueryOp(
+            parent=mw,
+            op=lambda col: col.export_card_csv(
+                out_path=options.out_path,
+                limit=options.limit,
+                with_html=options.include_html,
+            ),
+            success=lambda count: tooltip(
+                tr.exporting_card_exported(count=count), parent=mw
             ),
         ).with_backend_progress(export_progress_update).run_in_background()
 

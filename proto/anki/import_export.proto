@@ -5,6 +5,7 @@ syntax = "proto3";
 
 package anki.import_export;
 
+import "anki/cards.proto";
 import "anki/collection.proto";
 import "anki/notes.proto";
 import "anki/generic.proto";
@@ -18,6 +19,8 @@ service ImportExportService {
   rpc ExportAnkiPackage(ExportAnkiPackageRequest) returns (generic.UInt32);
   rpc GetCsvMetadata(CsvMetadataRequest) returns (CsvMetadata);
   rpc ImportCsv(ImportCsvRequest) returns (ImportResponse);
+  rpc ExportNoteCsv(ExportNoteCsvRequest) returns (generic.UInt32);
+  rpc ExportCardCsv(ExportCardCsvRequest) returns (generic.UInt32);
   rpc ImportJsonFile(generic.String) returns (ImportResponse);
   rpc ImportJsonString(generic.String) returns (ImportResponse);
 }
@@ -59,11 +62,7 @@ message ExportAnkiPackageRequest {
   bool with_scheduling = 2;
   bool with_media = 3;
   bool legacy = 4;
-  oneof selector {
-    generic.Empty whole_collection = 5;
-    int64 deck_id = 6;
-    notes.NoteIds note_ids = 7;
-  }
+  ExportLimit limit = 5;
 }
 
 message PackageMetadata {
@@ -143,4 +142,26 @@ message CsvMetadata {
   int64 deck_id = 4;
   int64 notetype_id = 5;
   optional bool is_html = 6;
+}
+
+message ExportCardCsvRequest {
+  string out_path = 1;
+  bool with_html = 2;
+  ExportLimit limit = 3;
+}
+
+message ExportNoteCsvRequest {
+  string out_path = 1;
+  bool with_html = 2;
+  bool with_tags = 3;
+  ExportLimit limit = 4;
+}
+
+message ExportLimit {
+  oneof limit {
+    generic.Empty whole_collection = 1;
+    int64 deck_id = 2;
+    notes.NoteIds note_ids = 3;
+    cards.CardIds card_ids = 4;
+  }
 }

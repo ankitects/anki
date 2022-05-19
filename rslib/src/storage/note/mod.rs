@@ -296,6 +296,24 @@ impl super::SqliteStorage {
         Ok(())
     }
 
+    /// Cards will arrive in card id order, not search order.
+    pub(crate) fn for_each_note_in_search(
+        &self,
+        mut func: impl FnMut(Note) -> Result<()>,
+    ) -> Result<()> {
+        let mut stmt = self.db.prepare_cached(concat!(
+            include_str!("get.sql"),
+            " WHERE id IN (SELECT nid FROM search_nids)"
+        ))?;
+        let mut rows = stmt.query([])?;
+        while let Some(row) = rows.next()? {
+            let note = row_to_note(row)?;
+            func(note)?
+        }
+
+        Ok(())
+    }
+
     pub(crate) fn note_guid_map(&mut self) -> Result<HashMap<String, NoteMeta>> {
         self.db
             .prepare("SELECT guid, id, mod, mid FROM notes")?
