@@ -58,6 +58,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <NotetypeToolbar {notetype} {card} on:notetypechange={changeNotetype} />
 {/if}
 
-<NoteEditor {notetype} {note}>
+<NoteEditor
+    fields={notetype?.fields ?? []}
+    contents={note?.fields ?? []}
+    tags={note?.tags ?? []}
+>
     <slot name="notetypeButtons" slot="notetypeButtons" />
 </NoteEditor>

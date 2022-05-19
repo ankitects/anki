@@ -6,15 +6,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
 
     import type { HooksAPI } from "../lib/hooks";
-    import { Notes, Notetypes } from "../lib/proto";
+    import type { Notetypes } from "../lib/proto";
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import type { EditorToolbarAPI } from "./editor-toolbar";
     import type { EditorFieldAPI } from "./EditorField.svelte";
     import type { TagEditorAPI } from "./tag-editor";
 
     interface OnLoadNoteInput {
-        note: Notes.Note;
-        notetype: Notetypes.Notetype;
+        fields: Notetypes.Notetype.Field[];
+        contents: string[];
     }
 
     export interface NoteEditorAPI {
@@ -73,14 +73,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import RichTextBadge from "./RichTextBadge.svelte";
     import { TagEditor } from "./tag-editor";
 
-    export let notetype: Notetypes.Notetype;
-    export let note: Notes.Note;
+    export let fields: Notetypes.Notetype.Field[];
+    export let contents: string[];
+    export let tags: string[];
 
     const size = 1.6;
     const wrap = true;
 
     let fieldsData: [Notetypes.Notetype.Field, string][] = [];
-    const tags = writable<string[]>([]);
+    const tagsStore = writable<string[]>([]);
 
     let richTextsHidden: boolean[] = [];
     let plainTextsHidden: boolean[] = [];
@@ -91,36 +92,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const [onLoadNote, runLoadNote] = hooks<OnLoadNoteInput>();
 
-    function loadEditor(notetype: Notetypes.Notetype, note: Notes.Note): void {
+    function loadEditor(
+        fields: Notetypes.Notetype.Field[],
+        contents: string[],
+        tags: string[],
+    ): void {
         // For now we won't await the hook
-        runLoadNote({ notetype, note });
+        runLoadNote({ fields, contents });
 
-        fieldsData = zip(notetype.fields, note.fields);
-        $tags = note.tags;
+        fieldsData = zip(fields, contents);
+        $tagsStore = tags;
 
-        richTextsHidden = note.fields.map(
-            (_, index) => richTextsHidden[index] ?? false,
-        );
-        plainTextsHidden = note.fields.map(
-            (_, index) => plainTextsHidden[index] ?? true,
-        );
+        richTextsHidden = contents.map((_, index) => richTextsHidden[index] ?? false);
+        plainTextsHidden = contents.map((_, index) => plainTextsHidden[index] ?? true);
 
         $focusedInput?.refocus();
     }
 
-    $: if (notetype && note) {
-        loadEditor(notetype, note);
+    $: if (fields && contents && tags) {
+        loadEditor(fields, contents, tags);
     }
 
-    const fields = clearableArray<EditorFieldAPI>();
+    const fieldsArray = clearableArray<EditorFieldAPI>();
 
     async function focusField(index: number | null): Promise<void> {
         if (typeof index === "number") {
-            if (!(index in fields)) {
+            if (!(index in fieldsArray)) {
                 return;
             }
 
-            fields[index].editingArea?.refocus();
+            fieldsArray[index].editingArea?.refocus();
         } else {
             $focusedInput?.refocus();
         }
@@ -203,7 +204,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const tagEditor: Partial<TagEditorAPI> = {};
 
     let isCloze: boolean;
-    $: isCloze = notetype?.config!.kind === Notetypes.Notetype.Config.Kind.KIND_CLOZE;
+    $: isCloze = true; //notetype?.config!.kind === Notetypes.Notetype.Config.Kind.KIND_CLOZE;
 
     import { wrapInternal } from "../lib/wrap";
     import * as oldEditorAdapter from "./old-editor-adapter";
@@ -248,7 +249,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         focusedField,
         focusedInput,
         toolbar: toolbar as EditorToolbarAPI,
-        fields,
+        fields: fieldsArray,
         tagEditor: tagEditor as TagEditorAPI,
         onLoadNote,
     };
@@ -294,9 +295,9 @@ the AddCards dialog) should be implemented in the user of this component.
                     <EditorField
                         {field}
                         {content}
-                        api={fields[index]}
+                        api={fieldsArray[index]}
                         on:focusin={() => {
-                            $focusedField = fields[index];
+                            $focusedField = fieldsArray[index];
                             bridgeCommand(`focus:${index}`);
                         }}
                         on:focusout={() => {
@@ -350,7 +351,7 @@ the AddCards dialog) should be implemented in the user of this component.
         </Fields>
     </FieldsEditor>
 
-    <TagEditor {tags} api={tagEditor} on:tagsupdate={saveTags} />
+    <TagEditor tags={tagsStore} api={tagEditor} on:tagsupdate={saveTags} />
 </div>
 
 <style lang="scss">
