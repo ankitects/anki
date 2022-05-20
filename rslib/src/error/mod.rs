@@ -213,6 +213,7 @@ pub enum ImportError {
     Corrupt,
     TooNew,
     MediaImportFailed(String),
+    NoFieldColumn,
 }
 
 impl ImportError {
@@ -221,6 +222,7 @@ impl ImportError {
             ImportError::Corrupt => tr.importing_the_provided_file_is_not_a(),
             ImportError::TooNew => tr.errors_collection_too_new(),
             ImportError::MediaImportFailed(err) => tr.importing_failed_to_import_media_file(err),
+            ImportError::NoFieldColumn => tr.importing_file_must_contain_field_column(),
         }
         .into()
     }

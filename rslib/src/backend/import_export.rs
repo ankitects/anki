@@ -79,18 +79,10 @@ impl ImportExportService for Backend {
 
     fn import_csv(&self, input: pb::ImportCsvRequest) -> Result<pb::ImportResponse> {
         self.with_col(|col| {
-            let delimiter = input.delimiter();
             let dupe_resolution = input.dupe_resolution();
             col.import_csv(
                 &input.path,
-                input.deck_id.into(),
-                input.notetype_id.into(),
-                delimiter,
-                input.is_html,
-                input
-                    .columns
-                    .ok_or_else(|| AnkiError::invalid_input("missing value"))?,
-                input.column_names,
+                input.metadata.unwrap_or_default(),
                 dupe_resolution,
             )
         })

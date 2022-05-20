@@ -17,6 +17,7 @@ importing-field-delimiter = Field delimiter
 importing-field-mapping = Field mapping
 importing-field-of-file-is = Field <b>{ $val }</b> of file is:
 importing-fields-separated-by = Fields separated by: { $val }
+importing-file-must-contain-field-column = File must contain at least one column that can be mapped to a note field.
 importing-file-version-unknown-trying-import-anyway = File version unknown, trying import anyway.
 importing-first-field-matched = First field matched: { $val }
 importing-identical = Identical

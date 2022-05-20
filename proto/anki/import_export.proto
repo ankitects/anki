@@ -96,13 +96,6 @@ message MediaEntries {
 }
 
 message ImportCsvRequest {
-  // Source column indices for note data. Negative values mean n/a.
-  message Columns {
-    repeated int32 fields = 1;
-    int32 tags = 2;
-    int32 deck = 3;
-    int32 notetype = 4;
-  }
   enum DupeResolution {
     ADD = 0;
     IGNORE = 1;
@@ -110,13 +103,8 @@ message ImportCsvRequest {
     // UPDATE_IF_NEWER = 3;
   }
   string path = 1;
-  int64 deck_id = 2;
-  int64 notetype_id = 3;
-  CsvMetadata.Delimiter delimiter = 4;
-  bool is_html = 5;
-  Columns columns = 6;
-  repeated string column_names = 7;
-  DupeResolution dupe_resolution = 8;
+  CsvMetadata metadata = 2;
+  DupeResolution dupe_resolution = 3;
 }
 
 message CsvMetadataRequest {
@@ -136,12 +124,28 @@ message CsvMetadata {
     COMMA = 4;
     SPACE = 5;
   }
+  message MappedNotetype {
+    int64 id = 1;
+    // Source column indices for note fields. Negative values mean n/a.
+    repeated int32 field_columns = 2;
+  }
   Delimiter delimiter = 1;
-  string tags = 2;
-  repeated string columns = 3;
-  int64 deck_id = 4;
-  int64 notetype_id = 5;
-  optional bool is_html = 6;
+  optional bool is_html = 2;
+  string tags = 3;
+  // Column names as defined by the file or empty strings otherwise. Also used
+  // to determine the number of columns.
+  repeated string column_labels = 4;
+  oneof deck {
+    int64 deck_id = 5;
+    uint32 deck_column = 6;
+  }
+  oneof notetype {
+    // One notetype for all rows with given column mapping.
+    MappedNotetype global_notetype = 7;
+    // Row-specific notetypes with automatic mapping by index.
+    uint32 notetype_column = 8;
+  }
+  int32 tags_column = 9;
 }
 
 message ExportCardCsvRequest {
