@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 from typing import Tuple
 
 import aqt
@@ -75,6 +77,12 @@ class CustomStudy(QDialog):
         qconnect(f.radioPreview.clicked, lambda: self.onRadioChange(RADIO_PREVIEW))
         qconnect(f.radioCram.clicked, lambda: self.onRadioChange(RADIO_CRAM))
 
+    def count_with_children(self, parent: int, children: int) -> str:
+        if children:
+            return f"{parent} {tr.custom_study_available_child_count(children)}"
+        else:
+            return str(parent)
+
     def onRadioChange(self, idx: int) -> None:
         form = self.form
         min_spinner_value = 1
@@ -86,15 +94,21 @@ class CustomStudy(QDialog):
         ok = tr.custom_study_ok()
 
         if idx == RADIO_NEW:
-            title_text = tr.custom_study_available_new_cards(
-                count=self.defaults.available_new
+            title_text = tr.custom_study_available_new_cards_2(
+                count_string=self.count_with_children(
+                    self.defaults.available_new,
+                    self.defaults.available_new_in_children,
+                ),
             )
             text_before_spinner = tr.custom_study_increase_todays_new_card_limit_by()
             current_spinner_value = self.defaults.extend_new
             min_spinner_value = -DYN_MAX_SIZE
         elif idx == RADIO_REV:
-            title_text = tr.custom_study_available_review_cards(
-                count=self.defaults.available_review
+            title_text = tr.custom_study_available_review_cards_2(
+                count_string=self.count_with_children(
+                    self.defaults.available_review,
+                    self.defaults.available_review_in_children,
+                ),
             )
             text_before_spinner = tr.custom_study_increase_todays_review_limit_by()
             current_spinner_value = self.defaults.extend_review
