@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Generic, Notetypes, notetypes } from "../../lib/proto";
     import TagInput from "../tag-editor/TagInput.svelte";
     import WithAutocomplete from "../tag-editor/WithAutocomplete.svelte";
-    import GhostButton from "./GhostButton.svelte";
+    import TextButton from "./TextButton.svelte";
     import { notetypeIcon } from "./icons";
 
     export let currentNotetypeName: string;
@@ -122,7 +122,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="notetype-selector" on:click={toggle} on:mousedown|preventDefault>
-    <GhostButton>
+    <TextButton ghost>
         <svelte:fragment slot="icon">{@html notetypeIcon}</svelte:fragment>
         <svelte:fragment slot="label">
             <span class="notetype-selector-relative" class:hide-label={active}>
@@ -158,7 +158,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {/if}
             </span>
         </svelte:fragment>
-    </GhostButton>
+    </TextButton>
 </div>
 
 <style lang="scss">

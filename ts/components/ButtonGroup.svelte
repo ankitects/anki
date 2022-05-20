@@ -21,13 +21,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: style = buttonSize + buttonWrap;
 </script>
 
-<div {id} class="button-group btn-group {className}" {style} dir="ltr" role="group">
+<!--
+@component
+Can be used with IconButton or LabelButton
+-->
+<div {id} class="button-group {className}" {style} dir="ltr" role="group">
     <slot />
 </div>
 
 <style lang="scss">
     .button-group {
-        display: flex;
+        display: inline-flex;
         flex-flow: row var(--buttons-wrap);
+
+        position: relative;
+        vertical-align: middle;
+
     }
 </style>

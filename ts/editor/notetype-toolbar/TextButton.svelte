@@ -4,9 +4,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import IconConstrain from "../../components/IconConstrain.svelte";
+
+    export let ghost = false;
 </script>
 
-<div class="text-button">
+<div class="text-button" class:text-button-ghost={ghost}>
     <IconConstrain iconSize={90}>
         <slot name="icon" />
     </IconConstrain>
@@ -19,21 +21,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         white-space: nowrap;
 
         opacity: 0.9;
+        margin-left: 4px;
+        margin-right: 4px;
 
         &:hover {
             opacity: 1;
         }
 
-        margin-left: 4px;
-        margin-right: 4px;
-
         :global(svg) {
             padding-bottom: 2px;
         }
+
+        border: 1px solid transparent;
+        border-radius: 5px;
     }
 
     .text-button-label {
         font-size: 14px;
-        padding-right: 4px;
+        font-weight: 500;
+        padding-right: 5px;
+    }
+
+    .text-button-ghost {
+        border-color: white;
     }
 </style>

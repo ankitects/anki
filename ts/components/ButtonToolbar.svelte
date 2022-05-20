@@ -25,7 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div
     {id}
-    class="button-toolbar btn-toolbar {className}"
+    class="button-toolbar {className}"
     class:nightMode={$pageTheme.isDark}
     {style}
     role="toolbar"
@@ -36,13 +36,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .button-toolbar {
+        display: flex;
         flex-wrap: var(--buttons-wrap);
-        padding-left: 0.15rem;
+
+        justify-content: flex-start;
 
         :global(.button-group) {
             /* TODO replace with gap once available */
-            margin-right: 0.15rem;
-            margin-bottom: 0.15rem;
+            margin-right: 4px;
+            margin-bottom: 2px;
         }
     }
 </style>
