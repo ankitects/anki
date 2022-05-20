@@ -50,7 +50,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="ts">
     import { writable } from "svelte/store";
-
+import { slide } from "svelte/transition";
+    
     import ButtonToolbar from "../../components/ButtonToolbar.svelte";
     import DynamicallySlottable from "../../components/DynamicallySlottable.svelte";
     import Item from "../../components/Item.svelte";
@@ -61,6 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let size: number;
     export let wrap: boolean;
+    export let disabled = false;
 
     const toolbar = {} as DefaultSlotInterface;
     const notetypeButtons = {} as DefaultSlotInterface;
@@ -84,27 +86,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setContextProperty(api);
 </script>
 
-<StickyContainer --gutter-block="0.1rem" --sticky-borders="0 0 1px">
-    <div class="editor-toolbar">
-        <ButtonToolbar {size} {wrap}>
-            <DynamicallySlottable slotHost={Item} api={toolbar}>
-                <Item id="inlineFormatting">
-                    <InlineButtons api={inlineButtons} />
-                </Item>
+{#if !disabled}
+    <StickyContainer --gutter-block="0.1rem" --sticky-borders="0 0 1px">
+        <div class="editor-toolbar" transition:slide>
+            <ButtonToolbar {size} {wrap}>
+                <DynamicallySlottable slotHost={Item} api={toolbar}>
+                    <Item id="inlineFormatting">
+                        <InlineButtons api={inlineButtons} />
+                    </Item>
 
-                <Item id="blockFormatting">
-                    <BlockButtons api={blockButtons} />
-                </Item>
+                    <Item id="blockFormatting">
+                        <BlockButtons api={blockButtons} />
+                    </Item>
 
-                <Item id="template">
-                    <TemplateButtons api={templateButtons} />
-                </Item>
+                    <Item id="template">
+                        <TemplateButtons api={templateButtons} />
+                    </Item>
 
-                <slot name="extraButtonGroups" />
-            </DynamicallySlottable>
-        </ButtonToolbar>
-    </div>
-</StickyContainer>
+                    <slot name="extraButtonGroups" />
+                </DynamicallySlottable>
+            </ButtonToolbar>
+        </div>
+    </StickyContainer>
+{/if}
 
 <style lang="scss">
     .editor-toolbar {

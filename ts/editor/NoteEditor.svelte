@@ -49,7 +49,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
-    import StickyContainer from "../components/StickyContainer.svelte";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { noop } from "../lib/functional";
     import { hooks } from "../lib/hooks";
@@ -60,7 +59,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DuplicateLink from "./DuplicateLink.svelte";
     import { ClozeButtons, EditorToolbar } from "./editor-toolbar";
     import EditorField from "./EditorField.svelte";
-    import Fields from "./Fields.svelte";
     import FieldsEditor from "./FieldsEditor.svelte";
     import FrameElement from "./FrameElement.svelte";
     import { alertIcon } from "./icons";
@@ -257,6 +255,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     setContextProperty(api);
     setupLifecycleHooks(api);
+
+    let fieldsElement: HTMLDivElement;
+
+    function checkIfFocusLeavesFields(event: FocusEvent): void {
+        if (!fieldsElement.contains(event.relatedTarget as Node)) {
+            $focusedField = null;
+        }
+
+        fieldBlur();
+    }
 </script>
 
 <!--
@@ -269,7 +277,7 @@ the AddCards dialog) should be implemented in the user of this component.
 -->
 <div class="note-editor">
     <FieldsEditor>
-        <EditorToolbar {size} {wrap} api={toolbar}>
+        <EditorToolbar {size} {wrap} disabled={Boolean(!$focusedField)} api={toolbar}>
             <slot slot="notetypeButtons" name="notetypeButtons" />
 
             <svelte:fragment slot="extraButtonGroups">
@@ -290,7 +298,7 @@ the AddCards dialog) should be implemented in the user of this component.
             </Absolute>
         {/if}
 
-        <Fields>
+        <div class="note-editor-fields" bind:this={fieldsElement}>
             <DecoratedElements>
                 {#each fieldsData as [field, content], index}
                     <EditorField
@@ -301,10 +309,7 @@ the AddCards dialog) should be implemented in the user of this component.
                             $focusedField = fieldsArray[index];
                             bridgeCommand(`focus:${index}`);
                         }}
-                        on:focusout={() => {
-                            $focusedField = null;
-                            fieldBlur();
-                        }}
+                        on:focusout={checkIfFocusLeavesFields}
                         on:contentupdate={({ detail: content }) =>
                             updateField(index, content)}
                         --label-color={cols[index] === "dupe"
@@ -349,7 +354,7 @@ the AddCards dialog) should be implemented in the user of this component.
                 <MathjaxElement />
                 <FrameElement />
             </DecoratedElements>
-        </Fields>
+        </div>
     </FieldsEditor>
 
     <TagEditor tags={tagsStore} api={tagEditor} on:tagsupdate={saveTags} />
@@ -358,5 +363,19 @@ the AddCards dialog) should be implemented in the user of this component.
 <style lang="scss">
     .note-editor {
         height: 100%;
+    }
+
+    .note-editor-fields {
+        display: grid;
+        grid-auto-rows: min-content;
+        grid-gap: 4px;
+
+        /* moves the scrollbar inside the editor */
+        overflow-x: hidden;
+
+        > :global(:last-child) {
+            /* bottom padding is eaten by overflow-x */
+            margin-bottom: 5px;
+        }
     }
 </style>

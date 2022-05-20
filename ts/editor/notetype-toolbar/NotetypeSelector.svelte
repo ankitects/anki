@@ -9,8 +9,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Generic, Notetypes, notetypes } from "../../lib/proto";
     import TagInput from "../tag-editor/TagInput.svelte";
     import WithAutocomplete from "../tag-editor/WithAutocomplete.svelte";
-    import TextButton from "./TextButton.svelte";
     import { notetypeIcon } from "./icons";
+    import TextButton from "./TextButton.svelte";
 
     export let currentNotetypeName: string;
 
