@@ -291,4 +291,7 @@ message CustomStudyDefaultsResponse {
   uint32 extend_review = 3;
   uint32 available_new = 4;
   uint32 available_review = 5;
+  // in v3, counts for children are provided separately
+  uint32 available_new_in_children = 6;
+  uint32 available_review_in_children = 7;
 }

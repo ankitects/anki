@@ -24,8 +24,11 @@ custom-study-select = Select
 custom-study-select-tags-to-exclude = Select tags to exclude:
 custom-study-selective-study = Selective Study
 custom-study-study-by-card-state-or-tag = Study by card state or tag
-custom-study-available-new-cards = Available new cards: { $count }
-custom-study-available-review-cards = Available review cards: { $count }
+custom-study-available-new-cards-2 = Available new cards: { $countString }
+custom-study-available-review-cards-2 = Available review cards: { $countString }
+custom-study-available-child-count = ({ $count } in subdecks)
 
 ## DEPRECATED - you do not need to translate these.
 
+custom-study-available-new-cards = Available new cards: { $count }
+custom-study-available-review-cards = Available review cards: { $count }
