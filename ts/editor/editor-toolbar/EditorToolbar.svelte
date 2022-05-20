@@ -85,21 +85,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <StickyContainer --gutter-block="0.1rem" --sticky-borders="0 0 1px">
-    <ButtonToolbar {size} {wrap}>
-        <DynamicallySlottable slotHost={Item} api={toolbar}>
-            <Item id="inlineFormatting">
-                <InlineButtons api={inlineButtons} />
-            </Item>
+    <div class="editor-toolbar">
+        <ButtonToolbar {size} {wrap}>
+            <DynamicallySlottable slotHost={Item} api={toolbar}>
+                <Item id="inlineFormatting">
+                    <InlineButtons api={inlineButtons} />
+                </Item>
 
-            <Item id="blockFormatting">
-                <BlockButtons api={blockButtons} />
-            </Item>
+                <Item id="blockFormatting">
+                    <BlockButtons api={blockButtons} />
+                </Item>
 
-            <Item id="template">
-                <TemplateButtons api={templateButtons} />
-            </Item>
+                <Item id="template">
+                    <TemplateButtons api={templateButtons} />
+                </Item>
 
-            <slot name="extraButtonGroups" />
-        </DynamicallySlottable>
-    </ButtonToolbar>
+                <slot name="extraButtonGroups" />
+            </DynamicallySlottable>
+        </ButtonToolbar>
+    </div>
 </StickyContainer>
+
+<style lang="scss">
+    .editor-toolbar {
+        margin: 5px;
+    }
+</style>

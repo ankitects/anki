@@ -54,14 +54,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     Object.assign(globalThis, { setCardId, getNoteId });
 </script>
 
-{#if notetype && card}
-    <NotetypeToolbar {notetype} {card} on:notetypechange={changeNotetype} />
-{/if}
+<div class="card-editing-editor">
+    {#if notetype && card}
+        <NotetypeToolbar {notetype} {card} on:notetypechange={changeNotetype} />
+    {/if}
 
-<NoteEditor
-    fields={notetype?.fields ?? []}
-    contents={note?.fields ?? []}
-    tags={note?.tags ?? []}
->
-    <slot name="notetypeButtons" slot="notetypeButtons" />
-</NoteEditor>
+    <NoteEditor
+        fields={notetype?.fields ?? []}
+        contents={note?.fields ?? []}
+        tags={note?.tags ?? []}
+    >
+        <slot name="notetypeButtons" slot="notetypeButtons" />
+    </NoteEditor>
+</div>
+
+<style lang="scss">
+    .card-editing-editor {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+</style>

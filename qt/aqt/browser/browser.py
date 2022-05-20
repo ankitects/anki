@@ -443,6 +443,9 @@ class Browser(QMainWindow):
         def add_preview_button(editor: Editor) -> None:
             editor._links["preview"] = lambda _editor: self.onTogglePreview()
 
+        self.form.fieldsArea.setMinimumHeight(400)
+        self.form.fieldsArea.setMinimumWidth(400)
+
         gui_hooks.editor_did_init.append(add_preview_button)
         self.editor = aqt.editor.Editor(
             self.mw,

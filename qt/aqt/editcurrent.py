@@ -15,13 +15,18 @@ class EditCurrent(QDialog):
         QDialog.__init__(self, None, Qt.WindowType.Window)
         mw.garbage_collect_on_dialog_finish(self)
         self.mw = mw
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+        self.widget = QWidget()
+        self.layout.addWidget(self.widget)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.setWindowTitle(tr.editing_edit_current())
         disable_help_button(self)
         self.setMinimumHeight(400)
-        self.setMinimumWidth(400)
+        self.setMinimumWidth(250)
         self.editor = aqt.editor.Editor(
             self.mw,
-            self,
+            self.widget,
             self,
             editor_mode=aqt.editor.EditorMode.EDIT_CURRENT,
         )

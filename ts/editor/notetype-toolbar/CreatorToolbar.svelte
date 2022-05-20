@@ -17,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let addedNoteIds: number[];
 
     export let size: number = 1.6;
-    export let wrap: boolean = false;
+    export let wrap: boolean = true;
 </script>
 
 <div class="creator-toolbar">
@@ -36,10 +36,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .creator-toolbar {
-        margin-bottom: 4px;
-
-        /* Cancel out margins of buttons within */
-        margin-left: -4px;
+        margin: 5px;
     }
 
     .creator-toolbar-spacer {

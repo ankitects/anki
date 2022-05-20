@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let card: Cards.Card | undefined = undefined;
 
     export let size: number = 1.6;
-    export let wrap: boolean = false;
+    export let wrap: boolean = true;
 </script>
 
 <div class="notetype-toolbar">
@@ -34,9 +34,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .notetype-toolbar {
-        margin-bottom: 4px;
-
-        /* Cancel out margins of buttons within */
-        margin-left: -4px;
+        margin: 5px;
     }
 </style>

@@ -76,24 +76,34 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-{#if notetype}
-    <CreatorToolbar
-        {notetype}
-        {deckId}
-        {addedNoteIds}
-        on:notetypechange={({ detail: notetypeId }) => changeNotetype(notetypeId)}
-        on:deckchange={({ detail: deckId }) => changeDeck(deckId)}
-        on:noteadd={addNote}
-    />
-{/if}
+<div class="note-creator">
+    {#if notetype}
+        <CreatorToolbar
+            {notetype}
+            {deckId}
+            {addedNoteIds}
+            on:notetypechange={({ detail: notetypeId }) => changeNotetype(notetypeId)}
+            on:deckchange={({ detail: deckId }) => changeDeck(deckId)}
+            on:noteadd={addNote}
+        />
+    {/if}
 
-<NoteEditor
-    fields={notetype?.fields ?? []}
-    contents={note?.fields ?? []}
-    tags={note?.tags ?? []}
-    on:contentupdate={contentUpdate}
->
-    <svelte:fragment slot="field-state" let:index>
-        <StickyBadge active={isStickyActive(index)} {index} />
-    </svelte:fragment>
-</NoteEditor>
+    <NoteEditor
+        fields={notetype?.fields ?? []}
+        contents={note?.fields ?? []}
+        tags={note?.tags ?? []}
+        on:contentupdate={contentUpdate}
+    >
+        <svelte:fragment slot="field-state" let:index>
+            <StickyBadge active={isStickyActive(index)} {index} />
+        </svelte:fragment>
+    </NoteEditor>
+</div>
+
+<style lang="scss">
+    .note-creator {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+</style>

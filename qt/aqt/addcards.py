@@ -42,6 +42,11 @@ class AddCards(QDialog):
         self.setWindowTitle(tr.actions_add())
         self.setMinimumHeight(400)
         self.setMinimumWidth(400)
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+        self.widget = QWidget()
+        self.layout.addWidget(self.widget)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.setupEditor()
         self._load_new_note()
         self.history: list[NoteId] = []
@@ -65,7 +70,7 @@ class AddCards(QDialog):
     def setupEditor(self) -> None:
         self.editor = aqt.editor.Editor(
             self.mw,
-            self,
+            self.widget,
             self,
             editor_mode=aqt.editor.EditorMode.ADD_CARDS,
         )
@@ -316,7 +321,8 @@ class AddCards(QDialog):
         aqt.dialogs.markClosed("AddCards")
         self._close_event_has_cleaned_up = True
         self.mw.deferred_delete_and_garbage_collect(self)
-        self.close()
+        QDialog.reject(self)
+        # self.close()
 
     def ifCanClose(self, onOk: Callable) -> None:
         def afterSave() -> None:

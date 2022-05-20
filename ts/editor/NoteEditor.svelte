@@ -49,6 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
+    import StickyContainer from "../components/StickyContainer.svelte";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { noop } from "../lib/functional";
     import { hooks } from "../lib/hooks";
@@ -357,7 +358,5 @@ the AddCards dialog) should be implemented in the user of this component.
 <style lang="scss">
     .note-editor {
         height: 100%;
-        display: flex;
-        flex-direction: column;
     }
 </style>
