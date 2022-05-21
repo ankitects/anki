@@ -8,10 +8,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let label: string;
     export let options: string[];
-    export let index: number = 0;
-
-    const labelIndex = options.indexOf(label);
-    index = labelIndex > 0 ? labelIndex : index;
+    export let value: number;
+    export let baseValue: number = 0;
 </script>
 
 <Row --cols={2}>
@@ -20,9 +18,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </Col>
     <Col --col-size={1}>
         <!-- svelte-ignore a11y-no-onchange -->
-        <select class="form-select" bind:value={index}>
+        <select class="form-select" bind:value>
             {#each options as name, idx}
-                <option value={idx}>{name}</option>
+                <option value={idx + baseValue}>{name}</option>
             {/each}
         </select>
     </Col>

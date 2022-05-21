@@ -49,14 +49,17 @@ export async function setupImportCsvPage(path: string): Promise<ImportCsvPage> {
         target: document.body,
         props: {
             path: path,
-            notetypeNameIds: notetypes.entries,
             deckNameIds: decks.entries,
+            notetypeNameIds: notetypes.entries,
             delimiter: metadata.delimiter,
-            columnNames: metadata.columns,
-            tags: metadata.tags,
-            notetypeId: metadata.notetypeId,
-            deckId: metadata.deckId,
             isHtml: metadata.isHtml!,
+            tags: metadata.tags,
+            columnLabels: metadata.columnLabels,
+            tagsColumn: metadata.tagsColumn,
+            globalNotetype: metadata.globalNotetype ? metadata.globalNotetype : null,
+            notetypeColumn: metadata.notetypeColumn ? metadata.notetypeColumn : null,
+            deckId: metadata.deckId ? metadata.deckId : null,
+            deckColumn: metadata.deckColumn ? metadata.deckColumn : null,
         },
     });
 }

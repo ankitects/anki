@@ -16,30 +16,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Header from "./Header.svelte";
     import HtmlSwitch from "./HtmlSwitch.svelte";
     import ImportButton from "./ImportButton.svelte";
-    import { getCsvMetadata } from "./lib";
+    import { buildColumnOptions, getCsvMetadata } from "./lib";
     import MetaMapper from "./MetaMapper.svelte";
     import NotetypeSelector from "./NotetypeSelector.svelte";
 
     export let path: string;
     export let notetypeNameIds: Notetypes.NotetypeNameId[];
     export let deckNameIds: Decks.DeckNameId[];
+
     export let delimiter: ImportExport.CsvMetadata.Delimiter;
+    export let isHtml: boolean;
     // TODO
     export const tags: string = "";
-    export let columnNames: string[];
-    export let notetypeId: number;
-    export let deckId: number;
-    export let isHtml: boolean;
+    export let columnLabels: string[];
+    export let tagsColumn: number;
+
+    // Protobuf oneofs. Exactly one of these pairs is expected to be set.
+    export let notetypeColumn: number | null;
+    export let globalNotetype: ImportExport.CsvMetadata.MappedNotetype | null;
+    export let deckId: number | null;
+    export let deckColumn: number | null;
 
     let dupeResolution: ImportExport.ImportCsvRequest.DupeResolution;
-    let fieldColumnIndices: number[];
-    let tagsColumn: number;
-    let deckColumn: number;
-    let notetypeColumn: number;
+    $: columnOptions = buildColumnOptions(columnLabels, notetypeColumn, deckColumn);
 
     $: {
         getCsvMetadata(path, delimiter).then((meta) => {
-            columnNames = meta.columns;
+            columnLabels = meta.columnLabels;
         });
     }
 
@@ -47,18 +50,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         await importExport.importCsv(
             ImportExport.ImportCsvRequest.create({
                 path,
-                deckId,
-                notetypeId,
-                delimiter,
-                isHtml,
-                columns: ImportExport.ImportCsvRequest.Columns.create({
-                    fields: fieldColumnIndices,
-                    tags: tagsColumn,
-                    deck: deckColumn,
-                    notetype: notetypeColumn,
-                }),
-                columnNames,
                 dupeResolution,
+                metadata: ImportExport.CsvMetadata.create({
+                    delimiter,
+                    isHtml,
+                    tags,
+                    columnLabels: columnLabels,
+                    tagsColumn,
+                    notetypeColumn,
+                    globalNotetype,
+                    deckColumn,
+                    deckId,
+                }),
             }),
         );
     }
@@ -73,8 +76,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Container>
                 <Header heading={tr.importingImportOptions()} />
                 <Spacer --height="1.5rem" />
-                <NotetypeSelector {notetypeNameIds} bind:notetypeId />
-                <DeckSelector {deckNameIds} bind:deckId />
+                {#if globalNotetype}
+                    <NotetypeSelector
+                        {notetypeNameIds}
+                        bind:notetypeId={globalNotetype.id}
+                    />
+                {/if}
+                {#if deckId}
+                    <DeckSelector {deckNameIds} bind:deckId />
+                {/if}
                 <DupeResolutionSelector bind:dupeResolution />
                 <DelimiterSelector bind:delimiter />
                 <HtmlSwitch bind:isHtml />
@@ -83,15 +93,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <Col --col-size={1} breakpoint="md">
             <Container>
                 <Header heading={tr.importingFieldMapping()} />
+                {#if globalNotetype}
+                    <Spacer --height="1.5rem" />
+                    <FieldMapper
+                        notetypeId={globalNotetype.id}
+                        {columnOptions}
+                        bind:fieldColumns={globalNotetype.fieldColumns}
+                    />
+                {/if}
                 <Spacer --height="1.5rem" />
-                <FieldMapper {columnNames} {notetypeId} bind:fieldColumnIndices />
-                <Spacer --height="1.5rem" />
-                <MetaMapper
-                    {columnNames}
-                    bind:tagsColumn
-                    bind:notetypeColumn
-                    bind:deckColumn
-                />
+                <MetaMapper {columnOptions} bind:tagsColumn />
             </Container>
         </Col>
     </Row>
