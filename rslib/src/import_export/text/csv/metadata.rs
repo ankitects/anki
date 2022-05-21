@@ -86,9 +86,15 @@ impl Collection {
             "delimiter" => {
                 if let Some(delimiter) = delimiter_from_value(value) {
                     metadata.delimiter = delimiter as i32;
+                    metadata.force_delimiter = true;
                 }
             }
-            "html" => metadata.is_html = value.to_lowercase().parse::<bool>().ok(),
+            "html" => {
+                if let Ok(is_html) = value.to_lowercase().parse() {
+                    metadata.is_html = is_html;
+                    metadata.force_is_html = true;
+                }
+            }
             "tags" => metadata.tags = value.trim().to_owned(),
             "columns" => {
                 if let Ok(columns) = self.parse_columns(value, metadata) {
@@ -120,7 +126,7 @@ impl Collection {
     }
 
     fn parse_columns(&mut self, line: &str, metadata: &mut CsvMetadata) -> Result<Vec<String>> {
-        let delimiter = if metadata.delimiter != -1 {
+        let delimiter = if metadata.force_delimiter {
             metadata.delimiter()
         } else {
             delimiter_from_line(line)
@@ -253,7 +259,7 @@ fn maybe_set_fallback_delimiter(
 ) {
     if let Some(delim) = delimiter {
         metadata.set_delimiter(delim);
-    } else if metadata.delimiter_is_unset() {
+    } else if !metadata.force_delimiter {
         metadata.set_delimiter(delimiter_from_line(line));
     }
 }
@@ -332,15 +338,10 @@ impl CsvNotetype {
 impl CsvMetadata {
     fn new() -> Self {
         Self {
-            delimiter: -1,
             // FIXME: use optional, so we can use default()?
             tags_column: -1,
             ..Self::default()
         }
-    }
-
-    fn delimiter_is_unset(&self) -> bool {
-        self.delimiter == -1
     }
 
     fn notetype_id(&self) -> Option<NotetypeId> {
@@ -455,11 +456,18 @@ mod test {
     }
 
     #[test]
-    fn should_detect_valid_html_toggle() {
+    fn should_enforce_valid_html_flag() {
         let mut col = open_test_collection();
-        assert_eq!(metadata!(col, "#html:true\n").is_html, Some(true));
-        assert_eq!(metadata!(col, "#html:FALSE\n").is_html, Some(false));
-        assert_eq!(metadata!(col, "#html:maybe\n").is_html, None);
+
+        let meta = metadata!(col, "#html:true\n");
+        assert!(meta.is_html);
+        assert!(meta.force_is_html);
+
+        let meta = metadata!(col, "#html:FALSE\n");
+        assert!(!meta.is_html);
+        assert!(meta.force_is_html);
+
+        assert!(!metadata!(col, "#html:maybe\n").force_is_html);
     }
 
     #[test]

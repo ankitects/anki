@@ -126,7 +126,7 @@ impl ColumnContext {
             deck_column: metadata.deck()?.column(),
             notetype_column: metadata.notetype()?.column(),
             field_source_columns: metadata.field_source_columns()?,
-            stringify: stringify_fn(metadata.is_html.unwrap_or_default()),
+            stringify: stringify_fn(metadata.is_html),
         })
     }
 
@@ -260,7 +260,9 @@ mod test {
         fn defaults_for_testing() -> Self {
             Self {
                 delimiter: Delimiter::Comma as i32,
-                is_html: None,
+                force_delimiter: false,
+                is_html: false,
+                force_is_html: false,
                 tags_column: -1,
                 tags: "".to_string(),
                 column_labels: vec!["".to_string(); 2],
@@ -314,7 +316,7 @@ mod test {
     fn should_escape_html_entities_if_csv_is_html() {
         let mut metadata = CsvMetadata::defaults_for_testing();
         assert_imported_fields!(metadata, "<hr>\n", &[&["&lt;hr&gt;", ""]]);
-        metadata.is_html = Some(true);
+        metadata.is_html = true;
         assert_imported_fields!(metadata, "<hr>\n", &[&["<hr>", ""]]);
     }
 

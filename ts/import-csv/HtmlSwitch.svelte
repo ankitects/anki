@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../lib/ftl";
 
     export let isHtml: boolean;
+    export let disabled: boolean;
 </script>
 
 <Row --cols={2}>
@@ -16,6 +17,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {tr.importingAllowHtmlInFields()}
     </Col>
     <Col --col-size={1} --col-justify="flex-end">
-        <Switch id={undefined} bind:value={isHtml} />
+        <Switch id={undefined} bind:value={isHtml} {disabled} />
     </Col>
 </Row>

@@ -9,6 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { ImportExport } from "../lib/proto";
 
     export let delimiter: ImportExport.CsvMetadata.Delimiter;
+    export let disabled: boolean;
 
     const delimiters = allDelimiters();
 
@@ -39,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </Col>
     <Col --col-size={1}>
         <!-- svelte-ignore a11y-no-onchange -->
-        <select class="form-select" bind:value={index}>
+        <select class="form-select" bind:value={index} {disabled}>
             {#each delimiters as { label }, idx}
                 <option value={idx}>{label}</option>
             {/each}
