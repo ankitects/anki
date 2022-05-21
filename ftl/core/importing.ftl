@@ -94,3 +94,7 @@ importing-processed-notes =
        *[other] Processed { $count } notes...
     }
 importing-unable-to-import-filename = Unable to import { $filename }: file type not supported
+importing-existing-notes = Existing notes
+importing-duplicate = Duplicate
+importing-preserve = Preserve
+importing-update = Update

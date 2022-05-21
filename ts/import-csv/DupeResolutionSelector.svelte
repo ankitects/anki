@@ -27,15 +27,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return [
             {
                 value: DupeResolution.ADD,
-                label: tr.importingImportEvenIfExistingNoteHas(),
+                label: tr.importingDuplicate(),
             },
             {
                 value: DupeResolution.IGNORE,
-                label: tr.importingIgnoreLinesWhereFirstFieldMatches(),
+                label: tr.importingPreserve(),
             },
             {
                 value: DupeResolution.UPDATE,
-                label: tr.importingUpdateExistingNotesWhenFirstField(),
+                label: tr.importingUpdate(),
             },
         ];
     }
@@ -43,7 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <Row --cols={2}>
     <Col --col-size={1}>
-        {tr.importingDuplicateResolution()}
+        {tr.importingExistingNotes()}
     </Col>
     <Col --col-size={1}>
         <!-- svelte-ignore a11y-no-onchange -->
