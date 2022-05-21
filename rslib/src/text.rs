@@ -172,6 +172,10 @@ lazy_static! {
     "#).unwrap();
 }
 
+pub fn is_html(text: &str) -> bool {
+    HTML.is_match(text)
+}
+
 pub fn html_to_text_line(html: &str) -> Cow<str> {
     PERSISTENT_HTML_SPACERS
         .replace_all(html, " ")

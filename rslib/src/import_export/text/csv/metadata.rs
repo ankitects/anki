@@ -13,7 +13,7 @@ pub use crate::backend_proto::import_export::{
     csv_metadata::{Deck as CsvDeck, Delimiter, MappedNotetype, Notetype as CsvNotetype},
     CsvMetadata,
 };
-use crate::{error::ImportError, notetype::NoteField, prelude::*};
+use crate::{error::ImportError, notetype::NoteField, prelude::*, text::is_html};
 
 impl Collection {
     pub fn get_csv_metadata(
@@ -34,6 +34,7 @@ impl Collection {
         let line = self.parse_meta_lines(reader, &mut metadata)?;
         maybe_set_fallback_delimiter(delimiter, &mut metadata, &line);
         maybe_set_fallback_columns(&mut metadata, &line)?;
+        maybe_set_fallback_is_html(&mut metadata, &line)?;
         self.maybe_set_fallback_notetype(&mut metadata)?;
         self.maybe_init_notetype_map(&mut metadata)?;
         self.maybe_set_fallback_deck(&mut metadata)?;
@@ -248,6 +249,16 @@ fn maybe_set_fallback_columns(metadata: &mut CsvMetadata, line: &str) -> Result<
     if metadata.column_labels.is_empty() {
         let columns = map_single_record(line, metadata.delimiter(), |r| r.len())?;
         metadata.column_labels = vec![String::new(); columns];
+    }
+    Ok(())
+}
+
+fn maybe_set_fallback_is_html(metadata: &mut CsvMetadata, line: &str) -> Result<()> {
+    // TODO: should probably check more than one line; can reuse preview lines
+    // when it's implemented
+    if !metadata.force_is_html {
+        metadata.is_html =
+            map_single_record(line, metadata.delimiter(), |r| r.iter().any(is_html))?;
     }
     Ok(())
 }
@@ -468,6 +479,20 @@ mod test {
         assert!(meta.force_is_html);
 
         assert!(!metadata!(col, "#html:maybe\n").force_is_html);
+    }
+
+    #[test]
+    fn should_set_missing_html_flag_by_first_line() {
+        let mut col = open_test_collection();
+
+        let meta = metadata!(col, "<br/>\n");
+        assert!(meta.is_html);
+        assert!(!meta.force_is_html);
+
+        // HTML check is field-, not row-based
+        assert!(!metadata!(col, "<br,/>\n").is_html);
+
+        assert!(!metadata!(col, "#html:false\n<br>\n").is_html);
     }
 
     #[test]
