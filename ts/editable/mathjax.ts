@@ -5,7 +5,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import "mathjax/es5/tex-svg";
+import "mathjax/es5/tex-svg-full";
 
 import { mathIcon } from "./icons";
 
