@@ -9,26 +9,42 @@ import {
     notetypes as notetypeService,
 } from "../lib/proto";
 
-export function buildColumnOptions(
+export interface ColumnOption {
+    label: string;
+    value: number;
+    disabled: boolean;
+}
+
+export function getColumnOptions(
     columnLabels: string[],
     notetypeColumn: number | null,
     deckColumn: number | null,
-): string[] {
-    return [tr.changeNotetypeNothing()].concat(
-        columnLabels
-            .map((label, index) => {
-                if (index === notetypeColumn) {
-                    return tr.notetypesNotetype();
-                } else if (index === deckColumn) {
-                    return tr.decksDeck();
-                } else if (label === "") {
-                    return index + 1;
-                } else {
-                    return `"${label}"`;
-                }
-            })
-            .map((label) => tr.importingColumn({ val: label })),
+): ColumnOption[] {
+    return [{ label: tr.changeNotetypeNothing(), value: -1, disabled: false }].concat(
+        columnLabels.map((label, index) => {
+            if (index === notetypeColumn) {
+                return columnOption(tr.notetypesNotetype(), true, index);
+            } else if (index === deckColumn) {
+                return columnOption(tr.decksDeck(), true, index);
+            } else if (label === "") {
+                return columnOption(index + 1, false, index);
+            } else {
+                return columnOption(`"${label}"`, false, index);
+            }
+        }),
     );
+}
+
+function columnOption(
+    label: string | number,
+    disabled: boolean,
+    index: number,
+): ColumnOption {
+    return {
+        label: tr.importingColumn({ val: label }),
+        value: index,
+        disabled,
+    };
 }
 
 export async function getNotetypeFields(notetypeId: number): Promise<string[]> {

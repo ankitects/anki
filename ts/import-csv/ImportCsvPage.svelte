@@ -16,8 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Header from "./Header.svelte";
     import HtmlSwitch from "./HtmlSwitch.svelte";
     import ImportButton from "./ImportButton.svelte";
-    import { buildColumnOptions, getCsvMetadata } from "./lib";
-    import MetaMapper from "./MetaMapper.svelte";
+    import { getColumnOptions, getCsvMetadata } from "./lib";
     import NotetypeSelector from "./NotetypeSelector.svelte";
 
     export let path: string;
@@ -32,7 +31,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export const tags: string = "";
     export let columnLabels: string[];
     export let tagsColumn: number;
-
     // Protobuf oneofs. Exactly one of these pairs is expected to be set.
     export let notetypeColumn: number | null;
     export let globalNotetype: ImportExport.CsvMetadata.MappedNotetype | null;
@@ -40,8 +38,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let deckColumn: number | null;
 
     let dupeResolution: ImportExport.ImportCsvRequest.DupeResolution;
-    $: columnOptions = buildColumnOptions(columnLabels, notetypeColumn, deckColumn);
-
+    $: columnOptions = getColumnOptions(columnLabels, notetypeColumn, deckColumn);
     $: {
         getCsvMetadata(path, delimiter).then((meta) => {
             columnLabels = meta.columnLabels;
@@ -59,7 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     isHtml,
                     forceIsHtml,
                     tags,
-                    columnLabels: columnLabels,
+                    columnLabels,
                     tagsColumn,
                     notetypeColumn,
                     globalNotetype,
@@ -97,16 +94,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <Col --col-size={1} breakpoint="md">
             <Container>
                 <Header heading={tr.importingFieldMapping()} />
-                {#if globalNotetype}
-                    <Spacer --height="1.5rem" />
-                    <FieldMapper
-                        notetypeId={globalNotetype.id}
-                        {columnOptions}
-                        bind:fieldColumns={globalNotetype.fieldColumns}
-                    />
-                {/if}
                 <Spacer --height="1.5rem" />
-                <MetaMapper {columnOptions} bind:tagsColumn />
+                <FieldMapper {columnOptions} bind:globalNotetype bind:tagsColumn />
             </Container>
         </Col>
     </Row>
