@@ -17,7 +17,6 @@
     "python.analysis.diagnosticSeverityOverrides": {
         "reportMissingModuleSource": "none"
     },
-    "rust-analyzer.cargo.runBuildScripts": true,
     "rust-analyzer.checkOnSave.allTargets": false,
     "rust-analyzer.files.excludeDirs": [".bazel", "node_modules"],
     "rust-analyzer.procMacro.enable": true,
@@ -27,5 +26,6 @@
     "search.exclude": {
         "**/node_modules": true,
         ".bazel/**": true
-    }
+    },
+    "rust-analyzer.cargo.buildScripts.enable": true
 }
