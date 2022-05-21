@@ -10,9 +10,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let notetypeNameIds: Notetypes.NotetypeNameId[];
     export let notetypeId: number;
-
-    let index = notetypeNameIds.findIndex((entry) => entry.id === notetypeId);
-    $: notetypeId = notetypeNameIds[index].id;
 </script>
 
 <Row --cols={2}>
@@ -21,9 +18,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </Col>
     <Col --col-size={1}>
         <!-- svelte-ignore a11y-no-onchange -->
-        <select class="form-select" bind:value={index}>
-            {#each notetypeNameIds as { name }, idx}
-                <option value={idx}>{name}</option>
+        <select class="form-select" bind:value={notetypeId}>
+            {#each notetypeNameIds as { id, name }}
+                <option value={id}>{name}</option>
             {/each}
         </select>
     </Col>

@@ -8,37 +8,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../lib/ftl";
     import { ImportExport } from "../lib/proto";
 
-    const DupeResolution = ImportExport.ImportCsvRequest.DupeResolution;
+    export let dupeResolution: ImportExport.ImportCsvRequest.DupeResolution;
 
-    export let dupeResolution: ImportExport.ImportCsvRequest.DupeResolution =
-        DupeResolution.IGNORE;
-
-    const dupeResolutions = allResolutions();
-
-    let index = dupeResolutions.findIndex((entry) => entry.value === dupeResolution);
-    $: dupeResolution = dupeResolutions[index].value;
-
-    interface IResolution {
-        value: ImportExport.ImportCsvRequest.DupeResolution;
-        label: string;
-    }
-
-    function allResolutions(): IResolution[] {
-        return [
-            {
-                value: DupeResolution.ADD,
-                label: tr.importingDuplicate(),
-            },
-            {
-                value: DupeResolution.IGNORE,
-                label: tr.importingPreserve(),
-            },
-            {
-                value: DupeResolution.UPDATE,
-                label: tr.importingUpdate(),
-            },
-        ];
-    }
+    const dupeResolutions = [
+        {
+            value: ImportExport.ImportCsvRequest.DupeResolution.ADD,
+            label: tr.importingDuplicate(),
+        },
+        {
+            value: ImportExport.ImportCsvRequest.DupeResolution.IGNORE,
+            label: tr.importingPreserve(),
+        },
+        {
+            value: ImportExport.ImportCsvRequest.DupeResolution.UPDATE,
+            label: tr.importingUpdate(),
+        },
+    ];
 </script>
 
 <Row --cols={2}>
@@ -47,9 +32,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </Col>
     <Col --col-size={1}>
         <!-- svelte-ignore a11y-no-onchange -->
-        <select class="form-select" bind:value={index}>
-            {#each dupeResolutions as { label }, idx}
-                <option value={idx}>{label}</option>
+        <select class="form-select" bind:value={dupeResolution}>
+            {#each dupeResolutions as { label, value }}
+                <option {value}>{label}</option>
             {/each}
         </select>
     </Col>

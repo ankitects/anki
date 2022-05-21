@@ -11,27 +11,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let delimiter: ImportExport.CsvMetadata.Delimiter;
     export let disabled: boolean;
 
-    const delimiters = allDelimiters();
-
-    let index = delimiters.findIndex((entry) => entry.value === delimiter);
-    $: delimiter = delimiters[index].value;
-
-    interface IDelimiter {
-        value: ImportExport.CsvMetadata.Delimiter;
-        label: string;
-    }
-
-    function allDelimiters(): IDelimiter[] {
-        const Delimiter = ImportExport.CsvMetadata.Delimiter;
-        return [
-            { value: Delimiter.TAB, label: tr.importingTab() },
-            { value: Delimiter.PIPE, label: tr.importingPipe() },
-            { value: Delimiter.SEMICOLON, label: tr.importingSemicolon() },
-            { value: Delimiter.COLON, label: tr.importingColon() },
-            { value: Delimiter.COMMA, label: tr.importingComma() },
-            { value: Delimiter.SPACE, label: tr.studyingSpace() },
-        ];
-    }
+    const Delimiter = ImportExport.CsvMetadata.Delimiter;
+    const delimiters = [
+        { value: Delimiter.TAB, label: tr.importingTab() },
+        { value: Delimiter.PIPE, label: tr.importingPipe() },
+        { value: Delimiter.SEMICOLON, label: tr.importingSemicolon() },
+        { value: Delimiter.COLON, label: tr.importingColon() },
+        { value: Delimiter.COMMA, label: tr.importingComma() },
+        { value: Delimiter.SPACE, label: tr.studyingSpace() },
+    ];
 </script>
 
 <Row --cols={2}>
@@ -40,9 +28,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </Col>
     <Col --col-size={1}>
         <!-- svelte-ignore a11y-no-onchange -->
-        <select class="form-select" bind:value={index} {disabled}>
-            {#each delimiters as { label }, idx}
-                <option value={idx}>{label}</option>
+        <select class="form-select" bind:value={delimiter} {disabled}>
+            {#each delimiters as { value, label }}
+                <option {value}>{label}</option>
             {/each}
         </select>
     </Col>
