@@ -1,12 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::borrow::Cow;
+use std::{borrow::Cow, fs::File, io::Write};
 
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use regex::Regex;
 
+use super::metadata::Delimiter;
 use crate::{
     notetype::RenderCardOutput,
     prelude::*,
@@ -15,6 +16,8 @@ use crate::{
     text::{strip_html, CowMapping},
 };
 
+const DELIMITER: Delimiter = Delimiter::Tab;
+
 impl Collection {
     pub fn export_card_csv(
         &mut self,
@@ -22,12 +25,17 @@ impl Collection {
         search: impl TryIntoSearch,
         with_html: bool,
     ) -> Result<usize> {
-        let mut writer = csv::WriterBuilder::new().delimiter(b'\t').from_path(path)?;
+        let mut file = File::create(path)?;
+        write_header(&mut file)?;
+        let mut writer = csv::WriterBuilder::new()
+            .delimiter(DELIMITER.byte())
+            .from_writer(file);
         let mut cards = self.search_cards(search, SortMode::NoOrder)?;
         cards.sort_unstable();
         for &card in &cards {
             writer.write_record(self.card_record(card, with_html)?)?;
         }
+        writer.flush()?;
 
         Ok(cards.len())
     }
@@ -39,10 +47,12 @@ impl Collection {
         with_html: bool,
         with_tags: bool,
     ) -> Result<usize> {
+        let mut file = File::create(path)?;
+        write_header(&mut file)?;
         let mut writer = csv::WriterBuilder::new()
-            .delimiter(b'\t')
+            .delimiter(DELIMITER.byte())
             .flexible(true)
-            .from_path(path)?;
+            .from_writer(file);
         self.search_notes_into_table(search)?;
         let mut count = 0;
         self.storage.for_each_note_in_search(|note| {
@@ -50,6 +60,7 @@ impl Collection {
             writer.write_record(note_record(&note, with_html, with_tags))?;
             Ok(())
         })?;
+        writer.flush()?;
         self.storage.clear_searched_notes_table()?;
 
         Ok(count)
@@ -62,6 +73,11 @@ impl Collection {
             rendered_nodes_to_record_field(&anodes, with_html, true),
         ])
     }
+}
+
+fn write_header(writer: &mut impl Write) -> Result<()> {
+    write!(writer, "#delimiter:{}\n#html:true\n", DELIMITER.name())?;
+    Ok(())
 }
 
 fn rendered_nodes_to_record_field(

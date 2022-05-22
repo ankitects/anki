@@ -325,7 +325,7 @@ impl Delimiter {
         }
     }
 
-    fn name(self) -> &'static str {
+    pub fn name(self) -> &'static str {
         match self {
             Delimiter::Comma => "comma",
             Delimiter::Semicolon => "semicolon",
