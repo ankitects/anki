@@ -216,11 +216,14 @@ class DataModel(QAbstractTableModel):
         """Try to return the indicated, possibly deleted card."""
         if not index.isValid():
             return None
-        # The browser code will be calling .note() on the returned card.
-        # This implicitly ensures both the card and its note exist.
-        if self.get_row(index).is_disabled:
+        # The browser code will be calling .note() on the returned card, but
+        # the note might have been be deleted while the card still exists.
+        try:
+            card = self._state.get_card(self.get_item(index))
+            card.note()
+        except NotFoundError:
             return None
-        return self._state.get_card(self.get_item(index))
+        return card
 
     def get_note(self, index: QModelIndex) -> Note | None:
         """Try to return the indicated, possibly deleted note."""

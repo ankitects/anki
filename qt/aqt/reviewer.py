@@ -1095,6 +1095,9 @@ time = %(time)d;
         record_audio(self.mw, self.mw, False, after_record)
 
     def onReplayRecorded(self) -> None:
+        self._recordedAudio = gui_hooks.reviewer_will_replay_recording(
+            self._recordedAudio
+        )
         if not self._recordedAudio:
             tooltip(tr.studying_you_havent_recorded_your_voice_yet())
             return

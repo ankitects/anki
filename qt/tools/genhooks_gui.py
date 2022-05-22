@@ -164,6 +164,12 @@ hooks = [
         option is unchecked; This is so as to allow playing custom
         sounds regardless of that option.""",
     ),
+    Hook(
+        name="reviewer_will_replay_recording",
+        args=["path: str"],
+        return_type="str",
+        doc="""Used to inspect and modify a recording recorded by "Record Own Voice" before replaying.""",
+    ),
     # Debug
     ###################
     Hook(
@@ -465,6 +471,13 @@ hooks = [
 
         Every column in the dictionary will be toggleable by the user.
         """,
+    ),
+    # Previewer
+    ###################
+    Hook(
+        name="previewer_did_init",
+        args=["previewer: aqt.browser.previewer.Previewer"],
+        doc="""Called after the previewer is initialized.""",
     ),
     # Main window states
     ###################
