@@ -72,7 +72,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function moveCaretToEnd(): Promise<void> {
         const richText = await richTextPromise;
-        placeCaretAfterContent(richText);
+        if (richText.innerHTML === "") {
+            placeCaretAfterContent(richText);
+        }
     }
 
     async function focus(): Promise<void> {
