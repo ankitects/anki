@@ -4,11 +4,18 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from itertools import chain
-from typing import Type
+from typing import Any, Tuple, Type
 
 import aqt.main
-from anki.collection import Collection, ImportCsvRequest, ImportLogWithChanges, Progress
+from anki.collection import (
+    Collection,
+    DupeResolution,
+    ImportCsvRequest,
+    ImportLogWithChanges,
+    Progress,
+)
 from anki.errors import Interrupted
 from anki.foreign_data import mnemosyne
 from anki.lang import without_unicode_isolation
@@ -201,29 +208,19 @@ def show_import_log(log_with_changes: ImportLogWithChanges) -> None:
 
 
 def stringify_log(log: ImportLogWithChanges.Log) -> str:
-    total = len(log.conflicting) + len(log.updated) + len(log.new) + len(log.duplicate)
+    queues = log_queues(log)
+    total = sum(len(queue.notes) for queue in queues)
     return "\n".join(
         chain(
             (tr.importing_notes_found_in_file(val=total),),
-            (
-                template_string(val=len(row))
-                for (row, template_string) in (
-                    (log.conflicting, tr.importing_notes_that_could_not_be_imported),
-                    (log.updated, tr.importing_notes_updated_as_file_had_newer),
-                    (log.new, tr.importing_notes_added_from_file),
-                    (log.duplicate, tr.importing_notes_skipped_as_theyre_already_in),
-                )
-                if row
-            ),
+            (queue.summary_template(val=len(queue.notes)) for queue in queues if queue),
             ("",),
             *(
-                [f"[{action}] {', '.join(note.fields)}" for note in rows]
-                for (rows, action) in (
-                    (log.conflicting, tr.importing_skipped()),
-                    (log.updated, tr.importing_updated()),
-                    (log.new, tr.adding_added()),
-                    (log.duplicate, tr.importing_identical()),
-                )
+                [
+                    f"[{queue.action_string}] {', '.join(note.fields)}"
+                    for note in queue.notes
+                ]
+                for queue in queues
             ),
         )
     )
@@ -235,3 +232,46 @@ def import_progress_update(progress: Progress, update: ProgressUpdate) -> None:
     update.label = progress.importing
     if update.user_wants_abort:
         update.abort = True
+
+
+@dataclass
+class LogQueue:
+    notes: Any
+    # Callable[[Union[str, int, float]], str] (if mypy understood kwargs)
+    summary_template: Any
+    action_string: str
+
+
+def first_field_queue(log: ImportLogWithChanges.Log) -> LogQueue:
+    if log.dupe_resolution == DupeResolution.ADD:
+        summary_template = tr.importing_added_duplicate_with_first_field
+        action_string = tr.adding_added()
+    elif log.dupe_resolution == DupeResolution.IGNORE:
+        summary_template = tr.importing_first_field_matched
+        action_string = tr.importing_skipped()
+    else:
+        summary_template = tr.importing_first_field_matched
+        action_string = tr.importing_updated()
+    return LogQueue(log.first_field_match, summary_template, action_string)
+
+
+def log_queues(log: ImportLogWithChanges.Log) -> Tuple[LogQueue, ...]:
+    return (
+        LogQueue(
+            log.conflicting,
+            tr.importing_notes_that_could_not_be_imported,
+            tr.importing_skipped(),
+        ),
+        LogQueue(
+            log.updated,
+            tr.importing_notes_updated_as_file_had_newer,
+            tr.importing_updated(),
+        ),
+        LogQueue(log.new, tr.importing_notes_added_from_file, tr.adding_added()),
+        LogQueue(
+            log.duplicate,
+            tr.importing_notes_skipped_as_theyre_already_in,
+            tr.importing_identical(),
+        ),
+        first_field_queue(log),
+    )

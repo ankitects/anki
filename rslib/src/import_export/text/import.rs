@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{collections::HashMap, sync::Arc};
+use std::{borrow::Cow, collections::HashMap, sync::Arc};
 
 use crate::{
     card::{CardQueue, CardType},
@@ -36,23 +36,17 @@ struct Context<'a> {
     deck_ids: HashMap<String, Option<DeckId>>,
     usn: Usn,
     normalize_notes: bool,
+    today: u32,
     card_gen_ctxs: HashMap<(NotetypeId, DeckId), CardGenContext<Arc<Notetype>>>,
+    existing_notes: HashMap<(NotetypeId, u32), Vec<NoteId>>,
     //progress: IncrementableProgress<ImportProgress>,
 }
 
-#[derive(Debug, Clone, Copy)]
-enum ImportResult {
-    Added,
-    Ignored,
-    Updated,
-}
-
 impl NoteLog {
-    fn log_result(&mut self, note: Note, result: ImportResult) {
-        match result {
-            ImportResult::Added => &mut self.new,
-            ImportResult::Ignored => &mut self.duplicate,
-            ImportResult::Updated => &mut self.updated,
+    fn log_note(&mut self, note: Note, unique: bool) {
+        match unique {
+            true => &mut self.new,
+            false => &mut self.first_field_match,
         }
         .push(note.into_log_note());
     }
@@ -62,6 +56,7 @@ impl<'a> Context<'a> {
     fn new(data: &ForeignData, col: &'a mut Collection) -> Result<Self> {
         let usn = col.usn()?;
         let normalize_notes = col.get_config_bool(BoolKey::NormalizeNoteText);
+        let today = col.timing_today()?.days_elapsed;
         let mut notetypes = HashMap::new();
         notetypes.insert(
             String::new(),
@@ -69,13 +64,16 @@ impl<'a> Context<'a> {
         );
         let mut deck_ids = HashMap::new();
         deck_ids.insert(String::new(), col.deck_id_for_string(&data.default_deck)?);
+        let existing_notes = col.storage.all_notes_by_type_and_checksum()?;
         Ok(Self {
             col,
             usn,
             normalize_notes,
+            today,
             notetypes,
             deck_ids,
             card_gen_ctxs: HashMap::new(),
+            existing_notes,
         })
     }
 
@@ -138,77 +136,45 @@ impl<'a> Context<'a> {
         dupe_resolution: DupeResolution,
         log: &mut NoteLog,
     ) -> Result<()> {
-        let today = self.col.timing_today()?.days_elapsed;
-        let (mut note, mut cards) = foreign.into_native(&notetype, deck_id, today);
-        let result = self.import_note(&mut note, &notetype, dupe_resolution)?;
-        if matches!(result, ImportResult::Added | ImportResult::Updated) {
+        let (mut note, mut cards) = foreign.into_native(&notetype, deck_id, self.today);
+        let unique = self.import_note(&mut note, &notetype, dupe_resolution)?;
+        if !note_was_ignored(unique, dupe_resolution) {
             self.import_cards(&mut cards, note.id)?;
             self.generate_missing_cards(notetype, deck_id, &note)?;
         }
-        log.log_result(note, result);
+        // FIXME: There may be multiple duplicates that got updated, but this logs only the last one.
+        // If more than were logged, the total of all logged notes would no longer match the number
+        // of notes in the imported file.
+        log.log_note(note, unique);
         Ok(())
     }
 
-    /// Returns the imported notes.
+    /// True if note was unique.
     fn import_note(
         &mut self,
         note: &mut Note,
         notetype: &Notetype,
         dupe_resolution: DupeResolution,
-    ) -> Result<ImportResult> {
+    ) -> Result<bool> {
         note.prepare_for_update(notetype, self.normalize_notes)?;
-
+        let dupes = self.find_duplicates(notetype, note)?;
         match dupe_resolution {
-            DupeResolution::Add => self.add_prepared_note(note),
-            DupeResolution::Ignore => match self.note_duplicate(note)? {
-                Some(_) => Ok(ImportResult::Ignored),
-                None => self.add_prepared_note(note),
-            },
-            DupeResolution::Update => match self.note_duplicate(note)? {
-                Some(dupe_id) => self.update_with_prepared_note(note, dupe_id),
-                None => self.add_prepared_note(note),
-            },
+            _ if dupes.is_empty() => self.col.add_prepared_note(note, self.usn)?,
+            DupeResolution::Add => self.col.add_prepared_note(note, self.usn)?,
+            DupeResolution::Ignore => (),
+            DupeResolution::Update => self.col.update_with_prepared_note(note, &dupes, self.usn)?,
         }
+        Ok(dupes.is_empty())
     }
 
-    /// Caller must have called [Note::prepare_for_update()].
-    fn note_duplicate(&mut self, note: &Note) -> Result<Option<NoteId>> {
-        let first_stripped = strip_html_preserving_media_filenames(&note.fields()[0]);
-        Ok(self
-            .col
-            .storage
-            .note_fields_by_checksum(note.notetype_id, note.checksum.expect("set by caller"))?
-            .into_iter()
-            .filter(|(_, field)| strip_html_preserving_media_filenames(field) == first_stripped)
-            .map(|(nid, _)| nid)
-            // FIXME: There may be multiple duplicates and the old Python code updated them all in this
-            // case. However, this is probably not generally useful and worth the additional complexity.
-            // The note should probably be skipped, or an error could be raised.
-            .next())
-    }
-
-    fn add_prepared_note(&mut self, note: &mut Note) -> Result<ImportResult> {
-        self.col.canonify_note_tags(note, self.usn)?;
-        note.usn = self.usn;
-        self.col.add_note_only_undoable(note)?;
-        Ok(ImportResult::Added)
-    }
-
-    fn update_with_prepared_note(
-        &mut self,
-        note: &mut Note,
-        dupe_id: NoteId,
-    ) -> Result<ImportResult> {
-        let dupe = self
-            .col
-            .storage
-            .get_note(dupe_id)?
-            .ok_or(AnkiError::NotFound)?;
-        self.col.canonify_note_tags(note, self.usn)?;
-        note.set_modified(self.usn);
-        note.id = dupe.id;
-        self.col.update_note_undoable(note, &dupe)?;
-        Ok(ImportResult::Updated)
+    fn find_duplicates(&mut self, notetype: &Notetype, note: &mut Note) -> Result<Vec<Note>> {
+        let checksum = note
+            .checksum
+            .ok_or_else(|| AnkiError::invalid_input("note unprepared"))?;
+        self.existing_notes
+            .get(&(notetype.id, checksum))
+            .map(|dupe_ids| self.col.get_full_duplicates(note, dupe_ids))
+            .unwrap_or_else(|| Ok(vec![]))
     }
 
     fn import_cards(&mut self, cards: &mut [Card], note_id: NoteId) -> Result<()> {
@@ -231,6 +197,16 @@ impl<'a> Context<'a> {
             .or_insert_with(|| CardGenContext::new(notetype, Some(deck_id), self.usn));
         self.col
             .generate_cards_for_existing_note(card_gen_context, note)
+    }
+}
+
+fn note_was_ignored(unique: bool, dupe_resolution: DupeResolution) -> bool {
+    !unique && matches!(dupe_resolution, DupeResolution::Ignore)
+}
+
+impl Note {
+    fn first_field_stripped(&self) -> Cow<str> {
+        strip_html_preserving_media_filenames(&self.fields()[0])
     }
 }
 
@@ -261,6 +237,39 @@ impl Collection {
             .ok()
             .map(|ntid| self.get_notetype(ntid))
             .unwrap_or(Ok(None))
+    }
+
+    fn add_prepared_note(&mut self, note: &mut Note, usn: Usn) -> Result<()> {
+        self.canonify_note_tags(note, usn)?;
+        note.usn = usn;
+        self.add_note_only_undoable(note)
+    }
+
+    fn update_with_prepared_note(
+        &mut self,
+        note: &mut Note,
+        dupes: &[Note],
+        usn: Usn,
+    ) -> Result<()> {
+        self.canonify_note_tags(note, usn)?;
+        note.set_modified(usn);
+        for dupe in dupes {
+            note.id = dupe.id;
+            self.update_note_undoable(note, dupe)?;
+        }
+        Ok(())
+    }
+
+    fn get_full_duplicates(&mut self, note: &Note, dupe_ids: &[NoteId]) -> Result<Vec<Note>> {
+        let first_field = note.first_field_stripped();
+        dupe_ids
+            .iter()
+            .filter_map(|&dupe_id| self.storage.get_note(dupe_id).transpose())
+            .filter(|res| match res {
+                Ok(dupe) => dupe.first_field_stripped() == first_field,
+                Err(_) => true,
+            })
+            .collect()
     }
 }
 

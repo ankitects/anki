@@ -25,6 +25,7 @@ ignored-classes=
   ExportLimit,
   CsvColumn,
   CsvMetadata,
+  ImportCsvRequest,
 
 [REPORTS]
 output-format=colorized

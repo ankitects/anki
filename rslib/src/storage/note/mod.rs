@@ -173,6 +173,23 @@ impl super::SqliteStorage {
             .collect()
     }
 
+    /// Returns [(nid, field 0)] of notes with the same checksum.
+    /// The caller should strip the fields and compare to see if they actually
+    /// match.
+    pub(crate) fn all_notes_by_type_and_checksum(
+        &self,
+    ) -> Result<HashMap<(NotetypeId, u32), Vec<NoteId>>> {
+        let mut map = HashMap::new();
+        let mut stmt = self.db.prepare("SELECT mid, csum, id FROM notes")?;
+        let mut rows = stmt.query([])?;
+        while let Some(row) = rows.next()? {
+            map.entry((row.get(0)?, row.get(1)?))
+                .or_insert_with(Vec::new)
+                .push(row.get(2)?);
+        }
+        Ok(map)
+    }
+
     /// Return total number of notes. Slow.
     pub(crate) fn total_notes(&self) -> Result<u32> {
         self.db
