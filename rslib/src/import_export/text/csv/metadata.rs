@@ -20,22 +20,24 @@ impl Collection {
         &mut self,
         path: &str,
         delimiter: Option<Delimiter>,
+        notetype_id: Option<NotetypeId>,
     ) -> Result<CsvMetadata> {
         let reader = BufReader::new(File::open(path)?);
-        self.get_reader_metadata(reader, delimiter)
+        self.get_reader_metadata(reader, delimiter, notetype_id)
     }
 
     fn get_reader_metadata(
         &mut self,
         reader: impl BufRead,
         delimiter: Option<Delimiter>,
+        notetype_id: Option<NotetypeId>,
     ) -> Result<CsvMetadata> {
         let mut metadata = CsvMetadata::new();
         let line = self.parse_meta_lines(reader, &mut metadata)?;
         maybe_set_fallback_delimiter(delimiter, &mut metadata, &line);
         maybe_set_fallback_columns(&mut metadata, &line)?;
         maybe_set_fallback_is_html(&mut metadata, &line)?;
-        self.maybe_set_fallback_notetype(&mut metadata)?;
+        self.maybe_set_fallback_notetype(&mut metadata, notetype_id)?;
         self.maybe_init_notetype_map(&mut metadata)?;
         self.maybe_set_fallback_deck(&mut metadata)?;
         Ok(metadata)
@@ -137,8 +139,14 @@ impl Collection {
         })
     }
 
-    fn maybe_set_fallback_notetype(&mut self, metadata: &mut CsvMetadata) -> Result<()> {
-        if metadata.notetype.is_none() {
+    fn maybe_set_fallback_notetype(
+        &mut self,
+        metadata: &mut CsvMetadata,
+        notetype_id: Option<NotetypeId>,
+    ) -> Result<()> {
+        if let Some(ntid) = notetype_id {
+            metadata.notetype = Some(CsvNotetype::new_global(ntid));
+        } else if metadata.notetype.is_none() {
             metadata.notetype = Some(CsvNotetype::new_global(self.fallback_notetype_id()?));
         }
         Ok(())
@@ -388,7 +396,7 @@ mod test {
             metadata!($col, $csv, None)
         };
         ($col:expr,$csv:expr, $delim:expr) => {
-            $col.get_reader_metadata(BufReader::new($csv.as_bytes()), $delim)
+            $col.get_reader_metadata(BufReader::new($csv.as_bytes()), $delim, None)
                 .unwrap()
         };
     }

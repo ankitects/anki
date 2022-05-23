@@ -52,6 +52,8 @@ message ImportResponse {
     repeated Note updated = 2;
     repeated Note duplicate = 3;
     repeated Note conflicting = 4;
+    repeated Note first_field_duplicate = 5;
+    ImportCsvRequest.DupeResolution dupe_resolution = 9;
   }
   collection.OpChanges changes = 1;
   Log log = 2;
@@ -110,6 +112,7 @@ message ImportCsvRequest {
 message CsvMetadataRequest {
   string path = 1;
   optional CsvMetadata.Delimiter delimiter = 2;
+  optional int64 notetype_id = 3;
 }
 
 message CsvMetadata {

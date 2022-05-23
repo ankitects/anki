@@ -38,10 +38,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let deckColumn: number | null;
 
     let dupeResolution: ImportExport.ImportCsvRequest.DupeResolution;
+    let lastNotetypeId = globalNotetype?.id;
+
     $: columnOptions = getColumnOptions(columnLabels, notetypeColumn, deckColumn);
-    $: {
-        getCsvMetadata(path, delimiter).then((meta) => {
-            columnLabels = meta.columnLabels;
+    $: getCsvMetadata(path, delimiter).then((meta) => {
+        columnLabels = meta.columnLabels;
+    });
+    $: if (globalNotetype?.id !== lastNotetypeId) {
+        lastNotetypeId = globalNotetype?.id;
+        getCsvMetadata(path, delimiter, globalNotetype?.id).then((meta) => {
+            globalNotetype = meta.globalNotetype ?? null;
         });
     }
 

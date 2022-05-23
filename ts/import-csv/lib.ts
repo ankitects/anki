@@ -56,11 +56,13 @@ export async function getNotetypeFields(notetypeId: number): Promise<string[]> {
 export async function getCsvMetadata(
     path: string,
     delimiter?: ImportExport.CsvMetadata.Delimiter,
+    notetypeId?: number,
 ): Promise<ImportExport.CsvMetadata> {
     return importExport.getCsvMetadata(
         ImportExport.CsvMetadataRequest.create({
             path,
             delimiter,
+            notetypeId,
         }),
     );
 }

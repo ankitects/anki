@@ -74,7 +74,9 @@ impl ImportExportService for Backend {
 
     fn get_csv_metadata(&self, input: pb::CsvMetadataRequest) -> Result<pb::CsvMetadata> {
         let delimiter = input.delimiter.is_some().then(|| input.delimiter());
-        self.with_col(|col| col.get_csv_metadata(&input.path, delimiter))
+        self.with_col(|col| {
+            col.get_csv_metadata(&input.path, delimiter, input.notetype_id.map(Into::into))
+        })
     }
 
     fn import_csv(&self, input: pb::ImportCsvRequest) -> Result<pb::ImportResponse> {
