@@ -72,6 +72,7 @@ struct TtsDirective<'a> {
     voices: Vec<&'a str>,
     speed: f32,
     blank: Option<&'a str>,
+    skip_parenthesis: bool,
     options: HashMap<&'a str, &'a str>,
 }
 
@@ -113,7 +114,11 @@ mod test {
     fn av_extracting() {
         let tr = I18n::template_only();
         let (txt, tags) = extract_av_tags(
-            "foo [sound:bar.mp3] baz [anki:tts lang=en_US][...][/anki:tts]",
+            concat!(
+                "foo [sound:bar.mp3] baz ",
+                "[anki:tts lang=en_US skip_parenthesis=true cloze_blank=bar]",
+                "(foo)[...][/anki:tts]"
+            ),
             true,
             &tr,
         );
@@ -127,7 +132,7 @@ mod test {
                     },
                     pb::AvTag {
                         value: Some(pb::av_tag::Value::Tts(pb::TtsTag {
-                            field_text: tr.card_templates_blank().to_string(),
+                            field_text: String::from("bar"),
                             lang: "en_US".to_string(),
                             voices: vec![],
                             speed: 1.0,

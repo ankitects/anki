@@ -1,13 +1,16 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::fmt::Write as _;
+use std::{borrow::Cow, fmt::Write as _};
+
+use lazy_static::lazy_static;
+use regex::Regex;
 
 use super::{CardNodes, Directive, Node, OtherDirective, TtsDirective};
 use crate::{
     backend_proto as pb,
     prelude::*,
-    text::{decode_entities, strip_html_for_tts},
+    text::{decode_entities, strip_html_for_tts, CowMapping},
 };
 
 impl<'a> CardNodes<'a> {
@@ -73,6 +76,9 @@ trait Write {
         if let Some(blank) = directive.blank {
             self.write_directive_option(buf, "cloze_blank", blank);
         }
+        if directive.skip_parenthesis {
+            self.write_directive_option(buf, "skip_parenthesis", "true");
+        }
         for (key, val) in &directive.options {
             self.write_directive_option(buf, key, val);
         }
@@ -137,11 +143,22 @@ impl<'a> AvExtractor<'a> {
     }
 
     fn transform_tts_content(&self, directive: &TtsDirective) -> String {
-        strip_html_for_tts(directive.content).replace(
+        let mut out = strip_html_for_tts(directive.content);
+        if directive.skip_parenthesis {
+            out = out.map_cow(strip_parenthesis);
+        }
+        out.replace(
             "[...]",
             directive.blank.unwrap_or(&self.tr.card_templates_blank()),
         )
     }
+}
+
+fn strip_parenthesis(text: &str) -> Cow<str> {
+    lazy_static! {
+        static ref PARENTHESIS: Regex = Regex::new(r"\(.*?\)").unwrap();
+    }
+    PARENTHESIS.replace_all(text, "")
 }
 
 impl Write for AvExtractor<'_> {

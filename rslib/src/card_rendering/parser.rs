@@ -36,6 +36,7 @@ impl<'a> Directive<'a> {
                 let mut voices = vec![];
                 let mut speed = 1.0;
                 let mut blank = None;
+                let mut skip_parenthesis = false;
                 let mut other_options = HashMap::new();
 
                 for option in options {
@@ -44,6 +45,9 @@ impl<'a> Directive<'a> {
                         "voices" => voices = option.1.split(',').collect(),
                         "speed" => speed = option.1.parse().unwrap_or(1.0),
                         "cloze_blank" => blank = Some(option.1),
+                        "skip_parenthesis" => {
+                            skip_parenthesis = option.1.parse().unwrap_or_default()
+                        }
                         _ => {
                             other_options.insert(option.0, option.1);
                         }
@@ -56,6 +60,7 @@ impl<'a> Directive<'a> {
                     voices,
                     speed,
                     blank,
+                    skip_parenthesis,
                     options: other_options,
                 })
             }
@@ -235,13 +240,16 @@ mod test {
 
         // tts tags
         assert_parsed_nodes!(
-            "[anki:tts lang=jp_JP voices=Alice,Bob speed=0.5 cloze_blank= bar=baz][/anki:tts]",
+            concat!(
+            "[anki:tts lang=jp_JP voices=Alice,Bob speed=0.5 cloze_blank= skip_parenthesis=true ",
+            "bar=baz][/anki:tts]"),
             Directive(super::Directive::Tts(TtsDirective {
                 content: "",
                 lang: "jp_JP",
                 voices: vec!["Alice", "Bob"],
                 speed: 0.5,
                 blank: Some(""),
+                skip_parenthesis: true,
                 options: [("bar", "baz")].into_iter().collect(),
             }))
         );
@@ -253,6 +261,7 @@ mod test {
                 voices: vec![],
                 speed: 1.0,
                 blank: None,
+                skip_parenthesis: false,
                 options: HashMap::new(),
             }))
         );
