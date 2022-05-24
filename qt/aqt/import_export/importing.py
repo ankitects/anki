@@ -274,4 +274,14 @@ def log_queues(log: ImportLogWithChanges.Log) -> Tuple[LogQueue, ...]:
             tr.importing_identical(),
         ),
         first_field_queue(log),
+        LogQueue(
+            log.missing_notetype,
+            lambda val: f"Notes skipped, as their notetype was missing: {val}",
+            tr.importing_skipped(),
+        ),
+        LogQueue(
+            log.missing_deck,
+            lambda val: f"Notes skipped, as their deck was missing: {val}",
+            tr.importing_skipped(),
+        ),
     )

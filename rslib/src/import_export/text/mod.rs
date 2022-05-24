@@ -7,6 +7,7 @@ mod json;
 
 use serde_derive::{Deserialize, Serialize};
 
+use super::LogNote;
 use crate::backend_proto::import_csv_request::DupeResolution;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -53,4 +54,13 @@ pub struct ForeignTemplate {
     name: String,
     qfmt: String,
     afmt: String,
+}
+
+impl ForeignNote {
+    pub(crate) fn into_log_note(self) -> LogNote {
+        LogNote {
+            id: None,
+            fields: self.fields,
+        }
+    }
 }

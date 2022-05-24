@@ -53,6 +53,8 @@ message ImportResponse {
     repeated Note duplicate = 3;
     repeated Note conflicting = 4;
     repeated Note first_field_match = 5;
+    repeated Note missing_notetype = 6;
+    repeated Note missing_deck = 7;
     ImportCsvRequest.DupeResolution dupe_resolution = 9;
   }
   collection.OpChanges changes = 1;

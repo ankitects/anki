@@ -122,7 +122,11 @@ impl<'a> Context<'a> {
                         dupe_resolution,
                         &mut log,
                     )?;
+                } else {
+                    log.missing_deck.push(foreign.into_log_note());
                 }
+            } else {
+                log.missing_notetype.push(foreign.into_log_note());
             }
         }
         Ok(log)
