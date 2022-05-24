@@ -21,7 +21,7 @@ impl ForeignData {
         col.transact(Op::Import, |col| {
             let mut ctx = Context::new(&self, col)?;
             ctx.import_foreign_notetypes(self.notetypes)?;
-            ctx.import_foreign_notes(self.notes, self.dupe_resolution)
+            ctx.import_foreign_notes(self.notes, &self.global_tags)
         })
     }
 }
@@ -37,6 +37,7 @@ struct Context<'a> {
     usn: Usn,
     normalize_notes: bool,
     today: u32,
+    dupe_resolution: DupeResolution,
     card_gen_ctxs: HashMap<(NotetypeId, DeckId), CardGenContext<Arc<Notetype>>>,
     existing_notes: HashMap<(NotetypeId, u32), Vec<NoteId>>,
     //progress: IncrementableProgress<ImportProgress>,
@@ -70,6 +71,7 @@ impl<'a> Context<'a> {
             usn,
             normalize_notes,
             today,
+            dupe_resolution: data.dupe_resolution,
             notetypes,
             deck_ids,
             card_gen_ctxs: HashMap::new(),
@@ -109,19 +111,13 @@ impl<'a> Context<'a> {
     fn import_foreign_notes(
         &mut self,
         notes: Vec<ForeignNote>,
-        dupe_resolution: DupeResolution,
+        global_tags: &[String],
     ) -> Result<NoteLog> {
         let mut log = NoteLog::default();
         for foreign in notes {
             if let Some(notetype) = self.notetype_for_note(&foreign)? {
                 if let Some(deck_id) = self.deck_id_for_note(&foreign)? {
-                    self.import_foreign_note(
-                        foreign,
-                        notetype,
-                        deck_id,
-                        dupe_resolution,
-                        &mut log,
-                    )?;
+                    self.import_foreign_note(foreign, notetype, deck_id, global_tags, &mut log)?;
                 } else {
                     log.missing_deck.push(foreign.into_log_note());
                 }
@@ -137,12 +133,13 @@ impl<'a> Context<'a> {
         foreign: ForeignNote,
         notetype: Arc<Notetype>,
         deck_id: DeckId,
-        dupe_resolution: DupeResolution,
+        global_tags: &[String],
         log: &mut NoteLog,
     ) -> Result<()> {
-        let (mut note, mut cards) = foreign.into_native(&notetype, deck_id, self.today);
-        let unique = self.import_note(&mut note, &notetype, dupe_resolution)?;
-        if !note_was_ignored(unique, dupe_resolution) {
+        let (mut note, mut cards) =
+            foreign.into_native(&notetype, deck_id, self.today, global_tags);
+        let unique = self.import_note(&mut note, &notetype)?;
+        if !note_was_ignored(unique, self.dupe_resolution) {
             self.import_cards(&mut cards, note.id)?;
             self.generate_missing_cards(notetype, deck_id, &note)?;
         }
@@ -154,15 +151,10 @@ impl<'a> Context<'a> {
     }
 
     /// True if note was unique.
-    fn import_note(
-        &mut self,
-        note: &mut Note,
-        notetype: &Notetype,
-        dupe_resolution: DupeResolution,
-    ) -> Result<bool> {
+    fn import_note(&mut self, note: &mut Note, notetype: &Notetype) -> Result<bool> {
         note.prepare_for_update(notetype, self.normalize_notes)?;
         let dupes = self.find_duplicates(notetype, note)?;
-        match dupe_resolution {
+        match self.dupe_resolution {
             _ if dupes.is_empty() => self.col.add_prepared_note(note, self.usn)?,
             DupeResolution::Add => self.col.add_prepared_note(note, self.usn)?,
             DupeResolution::Ignore => (),
@@ -278,10 +270,17 @@ impl Collection {
 }
 
 impl ForeignNote {
-    fn into_native(self, notetype: &Notetype, deck_id: DeckId, today: u32) -> (Note, Vec<Card>) {
+    fn into_native(
+        self,
+        notetype: &Notetype,
+        deck_id: DeckId,
+        today: u32,
+        extra_tags: &[String],
+    ) -> (Note, Vec<Card>) {
         // TODO: Handle new and learning cards
         let mut note = Note::new(notetype);
         note.tags = self.tags;
+        note.tags.extend(extra_tags.iter().cloned());
         note.fields_mut()
             .iter_mut()
             .zip(self.fields.into_iter())
@@ -429,5 +428,17 @@ mod test {
         let notes = col.storage.get_all_notes();
         assert_eq!(notes[0].fields(), &["神", "new"]);
         assert_eq!(notes[1].fields(), &["神", "new"]);
+    }
+
+    #[test]
+    fn should_add_global_tags() {
+        let mut col = open_test_collection();
+        let mut data = ForeignData::with_defaults();
+        data.add_note(&["foo"]);
+        data.notes[0].tags = vec![String::from("bar")];
+        data.global_tags = vec![String::from("baz")];
+
+        data.import(&mut col).unwrap();
+        assert_eq!(col.storage.get_all_notes()[0].tags, ["bar", "baz"]);
     }
 }

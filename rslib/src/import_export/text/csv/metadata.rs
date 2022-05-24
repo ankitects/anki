@@ -65,7 +65,7 @@ impl Collection {
     /// True if the line is a meta line, i.e. a comment, or starting with 'tags:'.
     fn parse_first_line(&mut self, line: &str, metadata: &mut CsvMetadata) -> bool {
         if let Some(tags) = line.strip_prefix("tags:") {
-            metadata.tags = tags.trim().to_owned();
+            metadata.global_tags = collect_tags(tags);
             true
         } else {
             self.parse_line(line, metadata)
@@ -98,7 +98,7 @@ impl Collection {
                     metadata.force_is_html = true;
                 }
             }
-            "tags" => metadata.tags = value.trim().to_owned(),
+            "tags" => metadata.global_tags = collect_tags(value),
             "columns" => {
                 if let Ok(columns) = self.parse_columns(value, metadata) {
                     metadata.column_labels = columns;
@@ -200,6 +200,13 @@ impl Collection {
                 .0
         })
     }
+}
+
+pub(super) fn collect_tags(txt: &str) -> Vec<String> {
+    txt.split_whitespace()
+        .filter(|s| !s.is_empty())
+        .map(ToString::to_string)
+        .collect()
 }
 
 fn map_field_columns_by_index(
@@ -506,13 +513,19 @@ mod test {
     #[test]
     fn should_detect_old_and_new_style_tags() {
         let mut col = open_test_collection();
-        assert_eq!(&metadata!(col, "tags:foo bar\n").tags, "foo bar");
-        assert_eq!(&metadata!(col, "#tags:foo bar\n").tags, "foo bar");
+        assert_eq!(metadata!(col, "tags:foo bar\n").global_tags, ["foo", "bar"]);
+        assert_eq!(
+            metadata!(col, "#tags:foo bar\n").global_tags,
+            ["foo", "bar"]
+        );
         // only in head
-        assert_eq!(&metadata!(col, "#\n#tags:foo bar\n").tags, "foo bar");
-        assert_eq!(&metadata!(col, "\n#tags:foo bar\n").tags, "");
+        assert_eq!(
+            metadata!(col, "#\n#tags:foo bar\n").global_tags,
+            ["foo", "bar"]
+        );
+        assert_eq!(metadata!(col, "\n#tags:foo bar\n").global_tags, [""; 0]);
         // only on very first line
-        assert_eq!(&metadata!(col, "#\ntags:foo bar\n").tags, "");
+        assert_eq!(metadata!(col, "#\ntags:foo bar\n").global_tags, [""; 0]);
     }
 
     #[test]

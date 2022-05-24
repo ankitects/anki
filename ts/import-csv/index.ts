@@ -64,7 +64,7 @@ export async function setupImportCsvPage(path: string): Promise<ImportCsvPage> {
             forceDelimiter: metadata.forceDelimiter,
             isHtml: metadata.isHtml,
             forceIsHtml: metadata.forceIsHtml,
-            tags: metadata.tags,
+            globalTags: metadata.globalTags,
             columnLabels: metadata.columnLabels,
             tagsColumn: metadata.tagsColumn,
             globalNotetype: globalNotetype ?? null,

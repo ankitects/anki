@@ -24,6 +24,7 @@ _ts_deps = [
     "//ts/components",
     "//ts/lib",
     "//ts/sveltelib",
+    "//ts/editor:svelte",
     "@npm//@fluent",
     "@npm//@types/jest",
     "@npm//lodash-es",

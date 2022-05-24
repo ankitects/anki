@@ -136,7 +136,7 @@ message CsvMetadata {
   }
   Delimiter delimiter = 1;
   bool is_html = 2;
-  string tags = 3;
+  repeated string global_tags = 3;
   // Column names as defined by the file or empty strings otherwise. Also used
   // to determine the number of columns.
   repeated string column_labels = 4;

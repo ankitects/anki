@@ -18,6 +18,7 @@ pub struct ForeignData {
     default_notetype: String,
     notes: Vec<ForeignNote>,
     notetypes: Vec<ForeignNotetype>,
+    global_tags: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]

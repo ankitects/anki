@@ -18,6 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getColumnOptions, getCsvMetadata } from "./lib";
     import NotetypeSelector from "./NotetypeSelector.svelte";
     import StickyFooter from "./StickyFooter.svelte";
+    import Tags from "./Tags.svelte";
 
     export let path: string;
     export let notetypeNameIds: Notetypes.NotetypeNameId[];
@@ -27,8 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let forceDelimiter: boolean;
     export let forceIsHtml: boolean;
     export let isHtml: boolean;
-    // TODO
-    export const tags: string = "";
+    export let globalTags: string[];
     export let columnLabels: string[];
     export let tagsColumn: number;
     // Protobuf oneofs. Exactly one of these pairs is expected to be set.
@@ -61,7 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     forceDelimiter,
                     isHtml,
                     forceIsHtml,
-                    tags,
+                    globalTags,
                     columnLabels,
                     tagsColumn,
                     notetypeColumn,
@@ -92,6 +92,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <DupeResolutionSelector bind:dupeResolution />
                 <DelimiterSelector bind:delimiter disabled={forceDelimiter} />
                 <HtmlSwitch bind:isHtml disabled={forceIsHtml} />
+                <Tags bind:globalTags />
             </Container>
         </Col>
         <Col --col-size={1} breakpoint="md">
