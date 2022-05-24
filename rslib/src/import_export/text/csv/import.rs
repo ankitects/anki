@@ -37,6 +37,7 @@ impl Collection {
             default_notetype,
             notes,
             global_tags: metadata.global_tags,
+            updated_tags: metadata.updated_tags,
             ..Default::default()
         }
         .import(self)
@@ -266,6 +267,7 @@ mod test {
                 force_is_html: false,
                 tags_column: -1,
                 global_tags: Vec::new(),
+                updated_tags: Vec::new(),
                 column_labels: vec!["".to_string(); 2],
                 deck: Some(CsvDeck::DeckId(1)),
                 notetype: Some(CsvNotetype::GlobalNotetype(MappedNotetype {

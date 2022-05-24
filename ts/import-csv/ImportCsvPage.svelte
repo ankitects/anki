@@ -29,6 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let forceIsHtml: boolean;
     export let isHtml: boolean;
     export let globalTags: string[];
+    export let updatedTags: string[];
     export let columnLabels: string[];
     export let tagsColumn: number;
     // Protobuf oneofs. Exactly one of these pairs is expected to be set.
@@ -62,6 +63,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     isHtml,
                     forceIsHtml,
                     globalTags,
+                    updatedTags,
                     columnLabels,
                     tagsColumn,
                     notetypeColumn,
@@ -92,7 +94,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <DupeResolutionSelector bind:dupeResolution />
                 <DelimiterSelector bind:delimiter disabled={forceDelimiter} />
                 <HtmlSwitch bind:isHtml disabled={forceIsHtml} />
-                <Tags bind:globalTags />
+                <Tags bind:globalTags bind:updatedTags />
             </Container>
         </Col>
         <Col --col-size={1} breakpoint="md">

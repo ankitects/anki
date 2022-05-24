@@ -11,8 +11,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../lib/ftl";
 
     export let globalTags: string[];
+    export let updatedTags: string[];
 
     const globalTagsWritable = writable<string[]>(globalTags);
+    const updatedTagsWritable = writable<string[]>(updatedTags);
 </script>
 
 <Row --cols={2}>
@@ -21,6 +23,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <TagEditor
             tags={globalTagsWritable}
             on:tagsupdate={({ detail }) => (globalTags = detail.tags)}
+        /></Col
+    >
+</Row>
+<Row --cols={2}>
+    <Col>{tr.importingUpdatedTags()}</Col>
+    <Col>
+        <TagEditor
+            tags={updatedTagsWritable}
+            on:tagsupdate={({ detail }) => (updatedTags = detail.tags)}
         /></Col
     >
 </Row>

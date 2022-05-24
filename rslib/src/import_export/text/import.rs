@@ -21,7 +21,7 @@ impl ForeignData {
         col.transact(Op::Import, |col| {
             let mut ctx = Context::new(&self, col)?;
             ctx.import_foreign_notetypes(self.notetypes)?;
-            ctx.import_foreign_notes(self.notes, &self.global_tags)
+            ctx.import_foreign_notes(self.notes, &self.global_tags, &self.updated_tags)
         })
     }
 }
@@ -121,12 +121,20 @@ impl<'a> Context<'a> {
         &mut self,
         notes: Vec<ForeignNote>,
         global_tags: &[String],
+        updated_tags: &[String],
     ) -> Result<NoteLog> {
         let mut log = NoteLog::new(self.dupe_resolution);
         for foreign in notes {
             if let Some(notetype) = self.notetype_for_note(&foreign)? {
                 if let Some(deck_id) = self.deck_id_for_note(&foreign)? {
-                    self.import_foreign_note(foreign, notetype, deck_id, global_tags, &mut log)?;
+                    self.import_foreign_note(
+                        foreign,
+                        notetype,
+                        deck_id,
+                        global_tags,
+                        updated_tags,
+                        &mut log,
+                    )?;
                 } else {
                     log.missing_deck.push(foreign.into_log_note());
                 }
@@ -143,11 +151,12 @@ impl<'a> Context<'a> {
         notetype: Arc<Notetype>,
         deck_id: DeckId,
         global_tags: &[String],
+        updated_tags: &[String],
         log: &mut NoteLog,
     ) -> Result<()> {
         let (mut note, mut cards) =
             foreign.into_native(&notetype, deck_id, self.today, global_tags);
-        let unique = self.import_note(&mut note, &notetype)?;
+        let unique = self.import_note(&mut note, &notetype, updated_tags)?;
         if !note_was_ignored(unique, self.dupe_resolution) {
             self.import_cards(&mut cards, note.id)?;
             self.generate_missing_cards(notetype, deck_id, &note)?;
@@ -160,14 +169,22 @@ impl<'a> Context<'a> {
     }
 
     /// True if note was unique.
-    fn import_note(&mut self, note: &mut Note, notetype: &Notetype) -> Result<bool> {
+    fn import_note(
+        &mut self,
+        note: &mut Note,
+        notetype: &Notetype,
+        updated_tags: &[String],
+    ) -> Result<bool> {
         note.prepare_for_update(notetype, self.normalize_notes)?;
         let dupes = self.find_duplicates(notetype, note)?;
         match self.dupe_resolution {
             _ if dupes.is_empty() => self.col.add_prepared_note(note, self.usn)?,
             DupeResolution::Add => self.col.add_prepared_note(note, self.usn)?,
             DupeResolution::Ignore => (),
-            DupeResolution::Update => self.col.update_with_prepared_note(note, &dupes, self.usn)?,
+            DupeResolution::Update => {
+                self.col
+                    .update_with_prepared_note(note, &dupes, self.usn, updated_tags)?
+            }
         }
         Ok(dupes.is_empty())
     }
@@ -255,7 +272,9 @@ impl Collection {
         note: &mut Note,
         dupes: &[Note],
         usn: Usn,
+        updated_tags: &[String],
     ) -> Result<()> {
+        note.tags.extend(updated_tags.iter().cloned());
         self.canonify_note_tags(note, usn)?;
         note.set_modified(usn);
         for dupe in dupes {

@@ -137,22 +137,23 @@ message CsvMetadata {
   Delimiter delimiter = 1;
   bool is_html = 2;
   repeated string global_tags = 3;
+  repeated string updated_tags = 4;
   // Column names as defined by the file or empty strings otherwise. Also used
   // to determine the number of columns.
-  repeated string column_labels = 4;
+  repeated string column_labels = 5;
   oneof deck {
-    int64 deck_id = 5;
-    uint32 deck_column = 6;
+    int64 deck_id = 6;
+    uint32 deck_column = 7;
   }
   oneof notetype {
     // One notetype for all rows with given column mapping.
-    MappedNotetype global_notetype = 7;
+    MappedNotetype global_notetype = 8;
     // Row-specific notetypes with automatic mapping by index.
-    uint32 notetype_column = 8;
+    uint32 notetype_column = 9;
   }
-  int32 tags_column = 9;
-  bool force_delimiter = 10;
-  bool force_is_html = 11;
+  int32 tags_column = 10;
+  bool force_delimiter = 11;
+  bool force_is_html = 12;
 }
 
 message ExportCardCsvRequest {
