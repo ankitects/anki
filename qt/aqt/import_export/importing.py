@@ -213,7 +213,11 @@ def stringify_log(log: ImportLogWithChanges.Log) -> str:
     return "\n".join(
         chain(
             (tr.importing_notes_found_in_file(val=total),),
-            (queue.summary_template(val=len(queue.notes)) for queue in queues if queue),
+            (
+                queue.summary_template(val=len(queue.notes))
+                for queue in queues
+                if queue.notes
+            ),
             ("",),
             *(
                 [
