@@ -26,6 +26,15 @@ impl ForeignData {
     }
 }
 
+impl NoteLog {
+    fn new(dupe_resolution: DupeResolution) -> Self {
+        Self {
+            dupe_resolution: dupe_resolution as i32,
+            ..Default::default()
+        }
+    }
+}
+
 struct Context<'a> {
     col: &'a mut Collection,
     /// Notetypes by their name or id as string. The empty string yields the
@@ -113,7 +122,7 @@ impl<'a> Context<'a> {
         notes: Vec<ForeignNote>,
         global_tags: &[String],
     ) -> Result<NoteLog> {
-        let mut log = NoteLog::default();
+        let mut log = NoteLog::new(self.dupe_resolution);
         for foreign in notes {
             if let Some(notetype) = self.notetype_for_note(&foreign)? {
                 if let Some(deck_id) = self.deck_id_for_note(&foreign)? {
