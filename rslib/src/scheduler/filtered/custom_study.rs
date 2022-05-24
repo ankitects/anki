@@ -34,8 +34,29 @@ impl Collection {
             .deck_tree(Some(TimestampSecs::now()))?
             .get_deck(deck_id)
             .ok_or(AnkiError::NotFound)?;
-        let available_new = subtree.sum(|node| node.new_uncapped);
-        let available_review = subtree.sum(|node| node.review_uncapped);
+        let v3 = self.get_config_bool(BoolKey::Sched2021);
+        let available_new_including_children = subtree.sum(|node| node.new_uncapped);
+        let available_review_including_children = subtree.sum(|node| node.review_uncapped);
+        let (
+            available_new,
+            available_new_in_children,
+            available_review,
+            available_review_in_children,
+        ) = if v3 {
+            (
+                subtree.new_uncapped,
+                available_new_including_children - subtree.new_uncapped,
+                subtree.review_uncapped,
+                available_review_including_children - subtree.review_uncapped,
+            )
+        } else {
+            (
+                available_new_including_children,
+                0,
+                available_review_including_children,
+                0,
+            )
+        };
         // tags
         let include_tags: HashSet<String> = self.get_config_default(
             DeckConfigKey::CustomStudyIncludeTags
@@ -67,6 +88,8 @@ impl Collection {
             extend_review,
             available_new,
             available_review,
+            available_new_in_children,
+            available_review_in_children,
         })
     }
 }

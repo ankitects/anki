@@ -52,6 +52,7 @@ class Previewer(QDialog):
         self.mw = mw
         disable_help_button(self)
         setWindowIcon(self)
+        gui_hooks.previewer_did_init(self)
 
     def card(self) -> Card | None:
         raise NotImplementedError
