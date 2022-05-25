@@ -627,8 +627,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def cleanup(self) -> None:
         self.set_note(None)
         # prevent any remaining evalWithCallback() events from firing after C++ object deleted
-        self.web.cleanup()
-        self.web = None
+        if self.web:
+            self.web.cleanup()
+            self.web = None
 
     # legacy
 
