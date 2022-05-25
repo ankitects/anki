@@ -25,6 +25,7 @@ _ts_deps = [
     "//ts/lib",
     "//ts/sveltelib",
     "//ts/editor:svelte",
+    "//ts/editor",
     "@npm//@fluent",
     "@npm//@types/jest",
     "@npm//lodash-es",
@@ -54,6 +55,7 @@ esbuild(
         ":base_css",
         ":index",
         ":svelte",
+        "@npm//@mdi",
         "@npm//bootstrap-icons",
     ],
 )
