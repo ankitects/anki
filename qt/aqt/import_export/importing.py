@@ -288,4 +288,9 @@ def log_queues(log: ImportLogWithChanges.Log) -> Tuple[LogQueue, ...]:
             lambda val: f"Notes skipped, as their deck was missing: {val}",
             tr.importing_skipped(),
         ),
+        LogQueue(
+            log.empty_first_field,
+            tr.importing_empty_first_field,
+            tr.importing_skipped(),
+        ),
     )

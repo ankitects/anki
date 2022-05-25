@@ -125,6 +125,10 @@ impl<'a> Context<'a> {
     ) -> Result<NoteLog> {
         let mut log = NoteLog::new(self.dupe_resolution);
         for foreign in notes {
+            if foreign.first_field_is_empty() {
+                log.empty_first_field.push(foreign.into_log_note());
+                continue;
+            }
             if let Some(notetype) = self.notetype_for_note(&foreign)? {
                 if let Some(deck_id) = self.deck_id_for_note(&foreign)? {
                     self.import_foreign_note(
@@ -320,6 +324,10 @@ impl ForeignNote {
             .map(|(idx, c)| c.into_native(NoteId(0), idx as u16, deck_id, today))
             .collect();
         (note, cards)
+    }
+
+    fn first_field_is_empty(&self) -> bool {
+        self.fields.get(0).map(String::is_empty).unwrap_or(true)
     }
 }
 
