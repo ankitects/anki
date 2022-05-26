@@ -247,6 +247,8 @@ def _packagedCmd(cmd: list[str]) -> tuple[Any, dict[str, str]]:
 
     if is_win:
         packaged_path = Path(sys.prefix) / "audio" / (cmd[0] + ".exe")
+    elif is_mac:
+        packaged_path = Path(sys.prefix) / ".." / "Resources" / cmd[0]
     else:
         packaged_path = Path(sys.prefix) / cmd[0]
     if packaged_path.exists():
