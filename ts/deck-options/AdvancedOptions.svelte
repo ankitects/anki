@@ -51,7 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 bind:value={$config.easyMultiplier}
                 defaultValue={defaults.easyMultiplier}
                 min={1}
-                max={3}
+                max={5}
                 markdownTooltip={tr.deckConfigEasyBonusTooltip()}
             >
                 {tr.schedulingEasyBonus()}
