@@ -72,6 +72,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function moveCaretToEnd(): Promise<void> {
         const richText = await richTextPromise;
+        if (richText.textContent?.length === 0) {
+            // Calling this method when richText is empty will cause the first keystroke of
+            // ibus-based input methods with candidates to go double. For example, if you
+            // type "a" it becomes "aa". This problem exists in many linux distributions.
+            // When richText is empty, there is no need to place the caret, just return.
+            return;
+        }
+
         placeCaretAfterContent(richText);
     }
 
