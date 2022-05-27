@@ -50,6 +50,8 @@ pub enum AnkiError {
     CustomStudyError(CustomStudyError),
     ImportError(ImportError),
 }
+//fix: doesn't satisfy `AnkiError: StdError` when using crate thiserror
+impl std::error::Error for AnkiError {}
 
 impl Display for AnkiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
