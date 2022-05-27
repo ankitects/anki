@@ -874,8 +874,12 @@ class AddonsDialog(QDialog):
         return self.addons[idxs[0]]
 
     def onToggleEnabled(self) -> None:
-        for module in self.selectedAddons():
+        selected = self.selectedAddons()
+        gui_hooks.addons_dialog_will_toggle_enable_addons(self, selected)
+        for module in selected:
             self.mgr.toggleEnabled(module)
+        if not selected:
+            return
         self._require_restart = True
         self.redrawAddons()
 
