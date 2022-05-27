@@ -120,7 +120,7 @@ fn note_record(note: &Note, with_html: bool, with_tags: bool) -> Vec<String> {
 
 fn field_to_record_field(field: &str, with_html: bool) -> String {
     let mut text = strip_redundant_sections(field);
-    if with_html {
+    if !with_html {
         text = text.map_cow(strip_html);
     }
     text.into()
