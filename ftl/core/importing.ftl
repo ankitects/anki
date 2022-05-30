@@ -11,7 +11,6 @@ importing-change = Change
 importing-colon = Colon
 importing-column = Column { $val }
 importing-comma = Comma
-importing-duplicate-resolution = Duplicate resolution
 importing-empty-first-field = Empty first field: { $val }
 importing-field-delimiter = Field delimiter
 importing-field-mapping = Field mapping
