@@ -133,39 +133,38 @@ impl Collection {
         previous_template_count: usize,
     ) -> Result<()> {
         let ords: Vec<_> = nt.templates.iter().map(|f| f.ord).collect();
-        if !ords_changed(&ords, previous_template_count) {
-            // nothing to do
-            return Ok(());
-        }
-
-        self.set_schema_modified()?;
         let usn = self.usn()?;
-        let changes = TemplateOrdChanges::new(ords, previous_template_count as u32);
+        if ords_changed(&ords, previous_template_count) {
+            self.set_schema_modified()?;
+            let changes = TemplateOrdChanges::new(ords, previous_template_count as u32);
 
-        // remove any cards where the template was deleted
-        if !changes.removed.is_empty() {
-            let ords = SearchBuilder::any(changes.removed.into_iter().map(TemplateKind::Ordinal));
-            self.search_cards_into_table(nt.id.and(ords), SortMode::NoOrder)?;
-            for card in self.storage.all_searched_cards()? {
-                self.remove_card_and_add_grave_undoable(card, usn)?;
+            // remove any cards where the template was deleted
+            if !changes.removed.is_empty() {
+                let ords =
+                    SearchBuilder::any(changes.removed.into_iter().map(TemplateKind::Ordinal));
+                self.search_cards_into_table(nt.id.and(ords), SortMode::NoOrder)?;
+                for card in self.storage.all_searched_cards()? {
+                    self.remove_card_and_add_grave_undoable(card, usn)?;
+                }
+                self.storage.clear_searched_cards_table()?;
             }
-            self.storage.clear_searched_cards_table()?;
-        }
 
-        // update ordinals for cards with a repositioned template
-        if !changes.moved.is_empty() {
-            let ords = SearchBuilder::any(changes.moved.keys().cloned().map(TemplateKind::Ordinal));
-            self.search_cards_into_table(nt.id.and(ords), SortMode::NoOrder)?;
-            for mut card in self.storage.all_searched_cards()? {
-                let original = card.clone();
-                card.template_idx = *changes.moved.get(&card.template_idx).unwrap();
-                self.update_card_inner(&mut card, original, usn)?;
+            // update ordinals for cards with a repositioned template
+            if !changes.moved.is_empty() {
+                let ords =
+                    SearchBuilder::any(changes.moved.keys().cloned().map(TemplateKind::Ordinal));
+                self.search_cards_into_table(nt.id.and(ords), SortMode::NoOrder)?;
+                for mut card in self.storage.all_searched_cards()? {
+                    let original = card.clone();
+                    card.template_idx = *changes.moved.get(&card.template_idx).unwrap();
+                    self.update_card_inner(&mut card, original, usn)?;
+                }
+                self.storage.clear_searched_cards_table()?;
             }
-            self.storage.clear_searched_cards_table()?;
         }
 
         let last_deck = self.get_last_deck_added_to_for_notetype(nt.id);
-        let ctx = CardGenContext::new(nt, last_deck, self.usn()?);
+        let ctx = CardGenContext::new(nt, last_deck, usn);
         self.generate_cards_for_notetype(&ctx)?;
 
         Ok(())

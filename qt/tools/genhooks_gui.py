@@ -762,6 +762,13 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         Note that the media sync did not necessarily finish at this point.""",
     ),
     Hook(name="media_check_will_start", args=[]),
+    Hook(
+        name="media_check_did_finish",
+        args=["output: anki.media.CheckMediaResponse"],
+        doc="""Called after Media Check finishes.
+
+        `output` provides access to the unused/missing file lists and the text output that will be shown in the Check Media screen.""",
+    ),
     # Dialog Manager
     ###################
     Hook(
