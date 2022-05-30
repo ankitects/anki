@@ -108,7 +108,7 @@ class ExportDialog(QDialog):
                 title=tr.actions_export(),
                 dir_description="export",
                 key=self.exporter.name(),
-                ext=self.exporter.extension,
+                ext="." + self.exporter.extension,
                 fname=filename,
             )
             if not path:
