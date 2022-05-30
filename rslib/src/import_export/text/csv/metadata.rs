@@ -86,7 +86,7 @@ impl Collection {
 
     fn parse_meta_value(&mut self, key: &str, value: &str, metadata: &mut CsvMetadata) {
         match key.trim().to_ascii_lowercase().as_str() {
-            "delimiter" => {
+            "separator" => {
                 if let Some(delimiter) = delimiter_from_value(value) {
                     metadata.delimiter = delimiter as i32;
                     metadata.force_delimiter = true;
@@ -456,27 +456,27 @@ mod test {
     fn should_detect_valid_delimiters() {
         let mut col = open_test_collection();
         assert_eq!(
-            metadata!(col, "#delimiter:comma\n").delimiter(),
+            metadata!(col, "#separator:comma\n").delimiter(),
             Delimiter::Comma
         );
         assert_eq!(
-            metadata!(col, "#delimiter:\t\n").delimiter(),
+            metadata!(col, "#separator:\t\n").delimiter(),
             Delimiter::Tab
         );
         // fallback
         assert_eq!(
-            metadata!(col, "#delimiter:foo\n").delimiter(),
+            metadata!(col, "#separator:foo\n").delimiter(),
             Delimiter::Space
         );
         assert_eq!(
-            metadata!(col, "#delimiter:♥\n").delimiter(),
+            metadata!(col, "#separator:♥\n").delimiter(),
             Delimiter::Space
         );
         // pick up from first line
         assert_eq!(metadata!(col, "foo\tbar\n").delimiter(), Delimiter::Tab);
         // override with provided
         assert_eq!(
-            metadata!(col, "#delimiter: \nfoo\tbar\n", Some(Delimiter::Pipe)).delimiter(),
+            metadata!(col, "#separator: \nfoo\tbar\n", Some(Delimiter::Pipe)).delimiter(),
             Delimiter::Pipe
         );
     }
@@ -535,20 +535,20 @@ mod test {
         assert_eq!(metadata!(col, "foo;bar\n").column_labels.len(), 2);
         // detect encoded
         assert_eq!(
-            metadata!(col, "#delimiter:,\nfoo;bar\n")
+            metadata!(col, "#separator:,\nfoo;bar\n")
                 .column_labels
                 .len(),
             1
         );
         assert_eq!(
-            metadata!(col, "#delimiter:|\nfoo|bar\n")
+            metadata!(col, "#separator:|\nfoo|bar\n")
                 .column_labels
                 .len(),
             2
         );
         // override
         assert_eq!(
-            metadata!(col, "#delimiter:;\nfoo;bar\n", Some(Delimiter::Pipe))
+            metadata!(col, "#separator:;\nfoo;bar\n", Some(Delimiter::Pipe))
                 .column_labels
                 .len(),
             1
@@ -560,7 +560,7 @@ mod test {
             ["one", "two"]
         );
         assert_eq!(
-            metadata!(col, "#delimiter:|\n#columns:one|two\n").column_labels,
+            metadata!(col, "#separator:|\n#columns:one|two\n").column_labels,
             ["one", "two"]
         );
     }

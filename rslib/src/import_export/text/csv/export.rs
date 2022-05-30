@@ -76,7 +76,7 @@ impl Collection {
 }
 
 fn write_header(writer: &mut impl Write) -> Result<()> {
-    write!(writer, "#delimiter:{}\n#html:true\n", DELIMITER.name())?;
+    write!(writer, "#separator:{}\n#html:true\n", DELIMITER.name())?;
     Ok(())
 }
 
