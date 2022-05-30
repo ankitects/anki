@@ -13,7 +13,7 @@ use crate::{
     prelude::*,
     search::SortMode,
     template::RenderedNode,
-    text::{strip_html, CowMapping},
+    text::{html_to_text_line, CowMapping},
 };
 
 const DELIMITER: Delimiter = Delimiter::Tab;
@@ -91,7 +91,7 @@ fn rendered_nodes_to_record_field(
         text = text.map_cow(strip_answer_side_question);
     }
     if !with_html {
-        text = text.map_cow(strip_html);
+        text = text.map_cow(|t| html_to_text_line(t, false));
     }
     text.into()
 }
@@ -121,7 +121,7 @@ fn note_record(note: &Note, with_html: bool, with_tags: bool) -> Vec<String> {
 fn field_to_record_field(field: &str, with_html: bool) -> String {
     let mut text = strip_redundant_sections(field);
     if !with_html {
-        text = text.map_cow(strip_html);
+        text = text.map_cow(|t| html_to_text_line(t, false));
     }
     text.into()
 }
