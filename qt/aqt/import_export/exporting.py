@@ -77,6 +77,7 @@ class ExportDialog(QDialog):
         # save button
         b = QPushButton(tr.exporting_export())
         self.frm.buttonBox.addButton(b, QDialogButtonBox.ButtonRole.AcceptRole)
+        self.frm.includeHTML.setChecked(True)
         # set default option if accessed through deck button
         if did:
             name = self.mw.col.decks.get(did)["name"]
