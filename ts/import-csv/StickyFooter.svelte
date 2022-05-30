@@ -14,13 +14,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let path: string;
     export let onImport: () => void;
 
-    function doImport(): void {
-        if (document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
-        }
-        onImport();
-    }
-
     const keyCombination = "Control+Enter";
 </script>
 
@@ -32,11 +25,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <LabelButton
                     theme="primary"
                     tooltip={getPlatformString(keyCombination)}
-                    on:click={doImport}
+                    on:click={onImport}
                     --border-left-radius="5px"
                     --border-right-radius="5px">{tr.actionsImport()}</LabelButton
                 >
-                <Shortcut {keyCombination} on:action={doImport} />
+                <Shortcut {keyCombination} on:action={onImport} />
             </ButtonGroup></Col
         ></Row
     >
