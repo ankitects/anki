@@ -12,16 +12,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dupeResolutions = [
         {
+            value: ImportExport.ImportCsvRequest.DupeResolution.UPDATE,
+            label: tr.importingUpdate(),
+        },
+        {
             value: ImportExport.ImportCsvRequest.DupeResolution.ADD,
             label: tr.importingDuplicate(),
         },
         {
             value: ImportExport.ImportCsvRequest.DupeResolution.IGNORE,
             label: tr.importingPreserve(),
-        },
-        {
-            value: ImportExport.ImportCsvRequest.DupeResolution.UPDATE,
-            label: tr.importingUpdate(),
         },
     ];
 </script>

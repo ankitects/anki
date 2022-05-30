@@ -102,9 +102,9 @@ message MediaEntries {
 
 message ImportCsvRequest {
   enum DupeResolution {
-    ADD = 0;
-    IGNORE = 1;
-    UPDATE = 2;
+    UPDATE = 0;
+    ADD = 1;
+    IGNORE = 2;
     // UPDATE_IF_NEWER = 3;
   }
   string path = 1;
