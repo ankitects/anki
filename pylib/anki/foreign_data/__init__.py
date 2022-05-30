@@ -103,6 +103,7 @@ class ForeignNote:
 class ForeignData:
     notes: list[ForeignNote] = field(default_factory=list)
     notetypes: list[ForeignNotetype] = field(default_factory=list)
+    default_deck: Union[str, DeckId] = ""
 
     def serialize(self) -> str:
         return json.dumps(self, cls=ForeignDataEncoder, separators=(",", ":"))

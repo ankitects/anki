@@ -20,6 +20,7 @@ from dataclasses import dataclass, field
 from typing import Tuple, Type
 
 from anki.db import DB
+from anki.decks import DeckId
 from anki.foreign_data import (
     ForeignCard,
     ForeignCardType,
@@ -29,18 +30,18 @@ from anki.foreign_data import (
 )
 
 
-def serialize(db_path: str) -> str:
+def serialize(db_path: str, deck_id: DeckId) -> str:
     db = open_mnemosyne_db(db_path)
-    return gather_data(db).serialize()
+    return gather_data(db, deck_id).serialize()
 
 
-def gather_data(db: DB) -> ForeignData:
+def gather_data(db: DB, deck_id: DeckId) -> ForeignData:
     facts = gather_facts(db)
     gather_cards_into_facts(db, facts)
     used_fact_views: dict[Type[MnemoFactView], bool] = {}
     notes = [fact.foreign_note(used_fact_views) for fact in facts.values()]
     notetypes = [fact_view.foreign_notetype() for fact_view in used_fact_views]
-    return ForeignData(notes, notetypes)
+    return ForeignData(notes, notetypes, deck_id)
 
 
 def open_mnemosyne_db(db_path: str) -> DB:

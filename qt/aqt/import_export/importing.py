@@ -103,7 +103,7 @@ class MnemosyneImporter(Importer):
     def do_import(mw: aqt.main.AnkiQt, path: str) -> None:
         QueryOp(
             parent=mw,
-            op=lambda _: mnemosyne.serialize(path),
+            op=lambda col: mnemosyne.serialize(path, col.decks.current()["id"]),
             success=lambda json: import_json_string(mw, json),
         ).with_progress().run_in_background()
 

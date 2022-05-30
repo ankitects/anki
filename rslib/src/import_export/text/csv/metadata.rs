@@ -13,7 +13,10 @@ pub use crate::backend_proto::import_export::{
     csv_metadata::{Deck as CsvDeck, Delimiter, MappedNotetype, Notetype as CsvNotetype},
     CsvMetadata,
 };
-use crate::{error::ImportError, notetype::NoteField, prelude::*, text::is_html};
+use crate::{
+    error::ImportError, import_export::text::NameOrId, notetype::NoteField, prelude::*,
+    text::is_html,
+};
 
 impl Collection {
     pub fn get_csv_metadata(
@@ -105,12 +108,12 @@ impl Collection {
                 }
             }
             "notetype" => {
-                if let Ok(Some(nt)) = self.notetype_for_string(value) {
+                if let Ok(Some(nt)) = self.notetype_by_name_or_id(&NameOrId::parse(value)) {
                     metadata.notetype = Some(CsvNotetype::new_global(nt.id));
                 }
             }
             "deck" => {
-                if let Ok(Some(did)) = self.deck_id_for_string(value) {
+                if let Ok(Some(did)) = self.deck_id_by_name_or_id(&NameOrId::parse(value)) {
                     metadata.deck = Some(CsvDeck::DeckId(did.0));
                 }
             }
@@ -390,6 +393,16 @@ impl CsvMetadata {
             columns.insert(tags_column);
         }
         columns
+    }
+}
+
+impl NameOrId {
+    pub fn parse(s: &str) -> Self {
+        if let Ok(id) = s.parse() {
+            Self::Id(id)
+        } else {
+            Self::Name(s.to_string())
+        }
     }
 }
 

@@ -14,8 +14,8 @@ use crate::backend_proto::import_csv_request::DupeResolution;
 #[serde(default)]
 pub struct ForeignData {
     dupe_resolution: DupeResolution,
-    default_deck: String,
-    default_notetype: String,
+    default_deck: NameOrId,
+    default_notetype: NameOrId,
     notes: Vec<ForeignNote>,
     notetypes: Vec<ForeignNotetype>,
     global_tags: Vec<String>,
@@ -27,8 +27,8 @@ pub struct ForeignData {
 pub struct ForeignNote {
     fields: Vec<String>,
     tags: Vec<String>,
-    notetype: String,
-    deck: String,
+    notetype: NameOrId,
+    deck: NameOrId,
     cards: Vec<ForeignCard>,
 }
 
@@ -56,6 +56,25 @@ pub struct ForeignTemplate {
     name: String,
     qfmt: String,
     afmt: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum NameOrId {
+    Id(i64),
+    Name(String),
+}
+
+impl Default for NameOrId {
+    fn default() -> Self {
+        NameOrId::Name(String::new())
+    }
+}
+
+impl From<String> for NameOrId {
+    fn from(s: String) -> Self {
+        Self::Name(s)
+    }
 }
 
 impl ForeignNote {

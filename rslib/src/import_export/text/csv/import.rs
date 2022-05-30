@@ -10,7 +10,7 @@ use crate::{
     import_export::{
         text::{
             csv::metadata::{CsvDeck, CsvMetadata, CsvNotetype, Delimiter},
-            DupeResolution, ForeignData, ForeignNote,
+            DupeResolution, ForeignData, ForeignNote, NameOrId,
         },
         NoteLog,
     },
@@ -25,14 +25,13 @@ impl Collection {
         dupe_resolution: DupeResolution,
     ) -> Result<OpOutput<NoteLog>> {
         let file = File::open(path)?;
-        let default_deck = metadata.deck()?.default_string();
-        let default_notetype = metadata.notetype()?.default_string();
+        let default_deck = metadata.deck()?.name_or_id();
+        let default_notetype = metadata.notetype()?.name_or_id();
         let mut ctx = ColumnContext::new(&metadata)?;
         let notes = ctx.deserialize_csv(file, metadata.delimiter())?;
 
         ForeignData {
             dupe_resolution,
-            // TODO: refactor to allow passing ids directly
             default_deck,
             default_notetype,
             notes,
@@ -76,10 +75,10 @@ impl CsvMetadata {
 }
 
 impl CsvDeck {
-    fn default_string(&self) -> String {
+    fn name_or_id(&self) -> NameOrId {
         match self {
-            Self::DeckId(did) => did.to_string(),
-            Self::DeckColumn(_) => String::new(),
+            Self::DeckId(did) => NameOrId::Id(*did),
+            Self::DeckColumn(_) => NameOrId::default(),
         }
     }
 
@@ -92,10 +91,10 @@ impl CsvDeck {
 }
 
 impl CsvNotetype {
-    fn default_string(&self) -> String {
+    fn name_or_id(&self) -> NameOrId {
         match self {
-            Self::GlobalNotetype(nt) => nt.id.to_string(),
-            Self::NotetypeColumn(_) => String::new(),
+            Self::GlobalNotetype(nt) => NameOrId::Id(nt.id),
+            Self::NotetypeColumn(_) => NameOrId::default(),
         }
     }
 
@@ -162,8 +161,8 @@ impl ColumnContext {
     }
 
     fn foreign_note_from_record(&mut self, record: &csv::StringRecord) -> ForeignNote {
-        let notetype = self.gather_notetype(record);
-        let deck = self.gather_deck(record);
+        let notetype = self.gather_notetype(record).into();
+        let deck = self.gather_deck(record).into();
         let tags = self.gather_tags(record);
         let fields = self.gather_note_fields(record);
         ForeignNote {
@@ -336,7 +335,7 @@ mod test {
         let mut metadata = CsvMetadata::defaults_for_testing();
         metadata.deck.replace(CsvDeck::DeckColumn(0));
         let notes = import!(metadata, "front,back\n");
-        assert_eq!(notes[0].deck, "front");
+        assert_eq!(notes[0].deck, NameOrId::Name(String::from("front")));
     }
 
     #[test]
@@ -346,8 +345,8 @@ mod test {
         metadata.column_labels.push("".to_string());
         let notes = import!(metadata, "Basic,front,back\nCloze,foo,bar\n");
         assert_eq!(notes[0].fields, &["front", "back"]);
-        assert_eq!(notes[0].notetype, "Basic");
+        assert_eq!(notes[0].notetype, NameOrId::Name(String::from("Basic")));
         assert_eq!(notes[1].fields, &["foo", "bar"]);
-        assert_eq!(notes[1].notetype, "Cloze");
+        assert_eq!(notes[1].notetype, NameOrId::Name(String::from("Cloze")));
     }
 }

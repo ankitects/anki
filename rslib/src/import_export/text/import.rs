@@ -3,6 +3,7 @@
 
 use std::{borrow::Cow, collections::HashMap, sync::Arc};
 
+use super::NameOrId;
 use crate::{
     card::{CardQueue, CardType},
     import_export::{
@@ -37,12 +38,10 @@ impl NoteLog {
 
 struct Context<'a> {
     col: &'a mut Collection,
-    /// Notetypes by their name or id as string. The empty string yields the
-    /// default notetype (which may be [None]).
-    notetypes: HashMap<String, Option<Arc<Notetype>>>,
-    /// Deck ids by their decks' name or id as string. The empty string yields
-    /// the default deck (which may be [None]).
-    deck_ids: HashMap<String, Option<DeckId>>,
+    /// Contains the optional default notetype with the default key.
+    notetypes: HashMap<NameOrId, Option<Arc<Notetype>>>,
+    /// Contains the optional default deck id with the default key.
+    deck_ids: HashMap<NameOrId, Option<DeckId>>,
     usn: Usn,
     normalize_notes: bool,
     today: u32,
@@ -69,11 +68,14 @@ impl<'a> Context<'a> {
         let today = col.timing_today()?.days_elapsed;
         let mut notetypes = HashMap::new();
         notetypes.insert(
-            String::new(),
-            col.notetype_for_string(&data.default_notetype)?,
+            NameOrId::default(),
+            col.notetype_by_name_or_id(&data.default_notetype)?,
         );
         let mut deck_ids = HashMap::new();
-        deck_ids.insert(String::new(), col.deck_id_for_string(&data.default_deck)?);
+        deck_ids.insert(
+            NameOrId::default(),
+            col.deck_id_by_name_or_id(&data.default_deck)?,
+        );
         let existing_notes = col.storage.all_notes_by_type_and_checksum()?;
         Ok(Self {
             col,
@@ -97,11 +99,12 @@ impl<'a> Context<'a> {
         }
         Ok(())
     }
+
     fn notetype_for_note(&mut self, note: &ForeignNote) -> Result<Option<Arc<Notetype>>> {
         Ok(if let Some(nt) = self.notetypes.get(&note.notetype) {
             nt.clone()
         } else {
-            let nt = self.col.notetype_for_string(&note.notetype)?;
+            let nt = self.col.notetype_by_name_or_id(&note.notetype)?;
             self.notetypes.insert(note.notetype.clone(), nt.clone());
             nt
         })
@@ -111,7 +114,7 @@ impl<'a> Context<'a> {
         Ok(if let Some(did) = self.deck_ids.get(&note.deck) {
             *did
         } else {
-            let did = self.col.deck_id_for_string(&note.deck)?;
+            let did = self.col.deck_id_by_name_or_id(&note.deck)?;
             self.deck_ids.insert(note.deck.clone(), did);
             did
         })
@@ -237,32 +240,21 @@ impl Note {
 }
 
 impl Collection {
-    pub(super) fn deck_id_for_string(&mut self, deck: &str) -> Result<Option<DeckId>> {
-        if let Ok(did) = deck.parse::<DeckId>() {
-            if self.get_deck(did)?.is_some() {
-                return Ok(Some(did));
-            }
+    pub(super) fn deck_id_by_name_or_id(&mut self, deck: &NameOrId) -> Result<Option<DeckId>> {
+        match deck {
+            NameOrId::Id(id) => Ok(self.get_deck(DeckId(*id))?.map(|_| DeckId(*id))),
+            NameOrId::Name(name) => self.get_deck_id(name),
         }
-        self.get_deck_id(deck)
     }
 
-    pub(super) fn notetype_for_string(
+    pub(super) fn notetype_by_name_or_id(
         &mut self,
-        name_or_id: &str,
+        notetype: &NameOrId,
     ) -> Result<Option<Arc<Notetype>>> {
-        if let Some(nt) = self.get_notetype_for_id_string(name_or_id)? {
-            Ok(Some(nt))
-        } else {
-            self.get_notetype_by_name(name_or_id)
+        match notetype {
+            NameOrId::Id(id) => self.get_notetype(NotetypeId(*id)),
+            NameOrId::Name(name) => self.get_notetype_by_name(name),
         }
-    }
-
-    fn get_notetype_for_id_string(&mut self, notetype: &str) -> Result<Option<Arc<Notetype>>> {
-        notetype
-            .parse::<NotetypeId>()
-            .ok()
-            .map(|ntid| self.get_notetype(ntid))
-            .unwrap_or(Ok(None))
     }
 
     fn add_prepared_note(&mut self, note: &mut Note, usn: Usn) -> Result<()> {
@@ -389,8 +381,8 @@ mod test {
     impl ForeignData {
         fn with_defaults() -> Self {
             Self {
-                default_notetype: "Basic".to_string(),
-                default_deck: "1".to_string(),
+                default_notetype: NameOrId::Name("Basic".to_string()),
+                default_deck: NameOrId::Id(1),
                 ..Default::default()
             }
         }
