@@ -125,7 +125,7 @@ class CsvImporter(Importer):
 
 
 class JsonImporter(Importer):
-    accepted_file_endings = [".json", ".anki-json"]
+    accepted_file_endings = [".anki-json"]
 
     @staticmethod
     def do_import(mw: aqt.main.AnkiQt, path: str) -> None:
