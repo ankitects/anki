@@ -379,7 +379,6 @@ impl SqliteStorage {
         self.db
             .prepare_cached("SELECT name FROM fields WHERE ntid = ? ORDER BY ord")?
             .query_and_then([notetype_id], |row| Ok(row.get(0)?))?
-            //.map_err(Into::into)
             .collect()
     }
 }
