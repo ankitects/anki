@@ -97,5 +97,5 @@ importing-existing-notes = Existing notes
 importing-duplicate = Duplicate
 importing-preserve = Preserve
 importing-update = Update
-importing-global-tags = Tags for all notes
-importing-updated-tags = Tags for updated notes
+importing-tag-all-notes = Tag all notes
+importing-tag-updated-notes = Tag updated notes

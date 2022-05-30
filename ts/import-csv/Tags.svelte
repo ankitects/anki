@@ -18,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <Row --cols={2}>
-    <Col>{tr.importingGlobalTags()}</Col>
+    <Col>{tr.importingTagAllNotes()}</Col>
     <Col>
         <TagEditor
             tags={globalTagsWritable}
@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     >
 </Row>
 <Row --cols={2}>
-    <Col>{tr.importingUpdatedTags()}</Col>
+    <Col>{tr.importingTagUpdatedNotes()}</Col>
     <Col>
         <TagEditor
             tags={updatedTagsWritable}
