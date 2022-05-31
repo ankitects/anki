@@ -39,6 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
+    import StickyContainer from "../components/StickyContainer.svelte";
     import { bridgeCommand } from "../lib/bridgecommand";
     import { ChangeTimer } from "./change-timer";
     import DecoratedElements from "./DecoratedElements.svelte";
@@ -379,7 +380,9 @@ the AddCards dialog) should be implemented in the user of this component.
         </Fields>
     </FieldsEditor>
 
-    <TagEditor {tags} on:tagsupdate={saveTags} />
+    <StickyContainer --gutter-block="0.1rem" --sticky-borders="1px 0 0" class="d-flex">
+        <TagEditor {tags} on:tagsupdate={saveTags} />
+    </StickyContainer>
 </div>
 
 <style lang="scss">
