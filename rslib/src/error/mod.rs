@@ -51,6 +51,8 @@ pub enum AnkiError {
     ImportError(ImportError),
 }
 
+impl std::error::Error for AnkiError {}
+
 impl Display for AnkiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)
