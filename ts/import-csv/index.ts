@@ -43,15 +43,6 @@ export async function setupImportCsvPage(path: string): Promise<ImportCsvPage> {
         i18n,
     ]);
 
-    const [deckId, deckColumn] =
-        metadata.deck === "deckId"
-            ? [metadata.deckId, null]
-            : [null, metadata.deckColumn];
-    const [globalNotetype, notetypeColumn] =
-        metadata.notetype === "globalNotetype"
-            ? [metadata.globalNotetype, null]
-            : [null, metadata.notetypeColumn];
-
     checkNightMode();
 
     return new ImportCsvPage({
@@ -68,10 +59,12 @@ export async function setupImportCsvPage(path: string): Promise<ImportCsvPage> {
             updatedTags: metadata.updatedTags,
             columnLabels: metadata.columnLabels,
             tagsColumn: metadata.tagsColumn,
-            globalNotetype: globalNotetype ?? null,
-            notetypeColumn: notetypeColumn ?? null,
-            deckId: deckId ?? null,
-            deckColumn: deckColumn ?? null,
+            globalNotetype: metadata.globalNotetype ?? null,
+            // Unset oneof numbers default to 0, which also means n/a here,
+            // but it's vital to differentiate between unset and 0 when reserializing.
+            notetypeColumn: metadata.notetypeColumn ? metadata.notetypeColumn : null,
+            deckId: metadata.deckId ? metadata.deckId : null,
+            deckColumn: metadata.deckColumn ? metadata.deckColumn : null,
         },
     });
 }

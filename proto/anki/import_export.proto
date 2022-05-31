@@ -118,6 +118,8 @@ message CsvMetadataRequest {
   optional int64 notetype_id = 3;
 }
 
+// Column indices are 1-based to make working with them in TS easier, where
+// unset numerical fields default to 0.
 message CsvMetadata {
   // Order roughly in ascending expected frequency in note text, because the
   // delimiter detection algorithm is stupidly picking the first one it
@@ -132,8 +134,8 @@ message CsvMetadata {
   }
   message MappedNotetype {
     int64 id = 1;
-    // Source column indices for note fields. Negative values mean n/a.
-    repeated int32 field_columns = 2;
+    // Source column indices for note fields. One-based. 0 means n/a.
+    repeated uint32 field_columns = 2;
   }
   Delimiter delimiter = 1;
   bool is_html = 2;
@@ -144,15 +146,18 @@ message CsvMetadata {
   repeated string column_labels = 5;
   oneof deck {
     int64 deck_id = 6;
+    // One-based. 0 means n/a.
     uint32 deck_column = 7;
   }
   oneof notetype {
     // One notetype for all rows with given column mapping.
     MappedNotetype global_notetype = 8;
     // Row-specific notetypes with automatic mapping by index.
+    // One-based. 0 means n/a.
     uint32 notetype_column = 9;
   }
-  int32 tags_column = 10;
+  // One-based. 0 means n/a.
+  uint32 tags_column = 10;
   bool force_delimiter = 11;
   bool force_is_html = 12;
 }

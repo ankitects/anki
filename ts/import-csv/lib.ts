@@ -20,14 +20,15 @@ export function getColumnOptions(
     notetypeColumn: number | null,
     deckColumn: number | null,
 ): ColumnOption[] {
-    return [{ label: tr.changeNotetypeNothing(), value: -1, disabled: false }].concat(
+    return [{ label: tr.changeNotetypeNothing(), value: 0, disabled: false }].concat(
         columnLabels.map((label, index) => {
+            index += 1;
             if (index === notetypeColumn) {
                 return columnOption(tr.notetypesNotetype(), true, index);
             } else if (index === deckColumn) {
                 return columnOption(tr.decksDeck(), true, index);
             } else if (label === "") {
-                return columnOption(index + 1, false, index);
+                return columnOption(index, false, index);
             } else {
                 return columnOption(`"${label}"`, false, index);
             }

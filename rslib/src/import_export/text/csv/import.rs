@@ -61,11 +61,11 @@ impl CsvMetadata {
             CsvNotetype::GlobalNotetype(global) => global
                 .field_columns
                 .iter()
-                .map(|&i| i.try_into().ok())
+                .map(|&i| (i > 0).then(|| i as usize))
                 .collect(),
             CsvNotetype::NotetypeColumn(_) => {
                 let meta_columns = self.meta_columns();
-                (0..self.column_labels.len())
+                (1..self.column_labels.len() + 1)
                     .filter(|idx| !meta_columns.contains(idx))
                     .map(Some)
                     .collect()
@@ -109,6 +109,7 @@ impl CsvNotetype {
 /// Column indices for the fields of a notetype.
 type FieldSourceColumns = Vec<Option<usize>>;
 
+// Column indices are 1-based.
 struct ColumnContext {
     tags_column: Option<usize>,
     deck_column: Option<usize>,
@@ -123,7 +124,7 @@ struct ColumnContext {
 impl ColumnContext {
     fn new(metadata: &CsvMetadata) -> Result<Self> {
         Ok(Self {
-            tags_column: metadata.tags_column.try_into().ok(),
+            tags_column: (metadata.tags_column > 0).then(|| metadata.tags_column as usize),
             deck_column: metadata.deck()?.column(),
             notetype_column: metadata.notetype()?.column(),
             field_source_columns: metadata.field_source_columns()?,
@@ -176,21 +177,21 @@ impl ColumnContext {
 
     fn gather_notetype(&self, record: &csv::StringRecord) -> String {
         self.notetype_column
-            .and_then(|i| record.get(i))
+            .and_then(|i| record.get(i - 1))
             .unwrap_or_default()
             .to_string()
     }
 
     fn gather_deck(&self, record: &csv::StringRecord) -> String {
         self.deck_column
-            .and_then(|i| record.get(i))
+            .and_then(|i| record.get(i - 1))
             .unwrap_or_default()
             .to_string()
     }
 
     fn gather_tags(&self, record: &csv::StringRecord) -> Vec<String> {
         self.tags_column
-            .and_then(|i| record.get(i))
+            .and_then(|i| record.get(i - 1))
             .unwrap_or_default()
             .split_whitespace()
             .filter(|s| !s.is_empty())
@@ -202,7 +203,7 @@ impl ColumnContext {
         let stringify = self.stringify;
         self.field_source_columns
             .iter()
-            .map(|opt| opt.and_then(|idx| record.get(idx)).unwrap_or_default())
+            .map(|opt| opt.and_then(|idx| record.get(idx - 1)).unwrap_or_default())
             .map(stringify)
             .collect()
     }
@@ -264,14 +265,14 @@ mod test {
                 force_delimiter: false,
                 is_html: false,
                 force_is_html: false,
-                tags_column: -1,
+                tags_column: 0,
                 global_tags: Vec::new(),
                 updated_tags: Vec::new(),
                 column_labels: vec!["".to_string(); 2],
                 deck: Some(CsvDeck::DeckId(1)),
                 notetype: Some(CsvNotetype::GlobalNotetype(MappedNotetype {
                     id: 1,
-                    field_columns: vec![0, 1],
+                    field_columns: vec![1, 2],
                 })),
             }
         }
@@ -303,7 +304,7 @@ mod test {
             .notetype
             .replace(CsvNotetype::GlobalNotetype(MappedNotetype {
                 id: 1,
-                field_columns: vec![2, 0],
+                field_columns: vec![3, 1],
             }));
         assert_imported_fields!(metadata, "front,foo,back\n", &[&["back", "front"]]);
     }
@@ -325,7 +326,7 @@ mod test {
     #[test]
     fn should_parse_tag_column() {
         let mut metadata = CsvMetadata::defaults_for_testing();
-        metadata.tags_column = 2;
+        metadata.tags_column = 3;
         let notes = import!(metadata, "front,back,foo bar\n");
         assert_eq!(notes[0].tags, &["foo", "bar"]);
     }
@@ -333,7 +334,7 @@ mod test {
     #[test]
     fn should_parse_deck_column() {
         let mut metadata = CsvMetadata::defaults_for_testing();
-        metadata.deck.replace(CsvDeck::DeckColumn(0));
+        metadata.deck.replace(CsvDeck::DeckColumn(1));
         let notes = import!(metadata, "front,back\n");
         assert_eq!(notes[0].deck, NameOrId::Name(String::from("front")));
     }
@@ -341,7 +342,7 @@ mod test {
     #[test]
     fn should_parse_notetype_column() {
         let mut metadata = CsvMetadata::defaults_for_testing();
-        metadata.notetype.replace(CsvNotetype::NotetypeColumn(0));
+        metadata.notetype.replace(CsvNotetype::NotetypeColumn(1));
         metadata.column_labels.push("".to_string());
         let notes = import!(metadata, "Basic,front,back\nCloze,foo,bar\n");
         assert_eq!(notes[0].fields, &["front", "back"]);

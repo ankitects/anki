@@ -35,7 +35,7 @@ impl Collection {
         delimiter: Option<Delimiter>,
         notetype_id: Option<NotetypeId>,
     ) -> Result<CsvMetadata> {
-        let mut metadata = CsvMetadata::new();
+        let mut metadata = CsvMetadata::default();
         let line = self.parse_meta_lines(reader, &mut metadata)?;
         maybe_set_fallback_delimiter(delimiter, &mut metadata, &line);
         maybe_set_fallback_columns(&mut metadata, &line)?;
@@ -174,8 +174,8 @@ impl Collection {
             let notetype = self
                 .get_notetype(NotetypeId(global.id))?
                 .ok_or(AnkiError::NotFound)?;
-            global.field_columns = vec![-1; notetype.fields.len()];
-            global.field_columns[0] = 0;
+            global.field_columns = vec![0; notetype.fields.len()];
+            global.field_columns[0] = 1;
             let column_len = metadata.column_labels.len();
             if metadata.column_labels.iter().all(String::is_empty) {
                 map_field_columns_by_index(&mut global.field_columns, column_len, &meta_columns);
@@ -213,15 +213,15 @@ pub(super) fn collect_tags(txt: &str) -> Vec<String> {
 }
 
 fn map_field_columns_by_index(
-    field_columns: &mut [i32],
+    field_columns: &mut [u32],
     column_len: usize,
     meta_columns: &HashSet<usize>,
 ) {
     let mut field_columns = field_columns.iter_mut();
-    for index in 0..column_len {
+    for index in 1..column_len + 1 {
         if !meta_columns.contains(&index) {
             if let Some(field_column) = field_columns.next() {
-                *field_column = index as i32;
+                *field_column = index as u32;
             } else {
                 break;
             }
@@ -230,7 +230,7 @@ fn map_field_columns_by_index(
 }
 
 fn map_field_columns_by_name(
-    field_columns: &mut [i32],
+    field_columns: &mut [u32],
     column_labels: &[String],
     meta_columns: &HashSet<usize>,
     note_fields: &[NoteField],
@@ -239,26 +239,26 @@ fn map_field_columns_by_name(
         column_labels
             .iter()
             .enumerate()
-            .filter(|(idx, _)| !meta_columns.contains(idx))
-            .map(|(idx, s)| (s.as_str(), idx)),
+            .map(|(idx, s)| (s.as_str(), idx + 1))
+            .filter(|(_, idx)| !meta_columns.contains(idx)),
     );
     for (column, field) in field_columns.iter_mut().zip(note_fields) {
         if let Some(index) = columns.get(field.name.as_str()) {
-            *column = *index as i32;
+            *column = *index as u32;
         }
     }
 }
 
 fn ensure_first_field_is_mapped(
-    field_columns: &mut [i32],
+    field_columns: &mut [u32],
     column_len: usize,
     meta_columns: &HashSet<usize>,
 ) -> Result<()> {
-    if field_columns[0] == -1 {
-        field_columns[0] = (0..column_len)
+    if field_columns[0] == 0 {
+        field_columns[0] = (1..column_len + 1)
             .find(|i| !meta_columns.contains(i))
             .ok_or(AnkiError::ImportError(ImportError::NoFieldColumn))?
-            as i32;
+            as u32;
     }
     Ok(())
 }
@@ -365,14 +365,6 @@ impl CsvNotetype {
 }
 
 impl CsvMetadata {
-    fn new() -> Self {
-        Self {
-            // FIXME: use optional, so we can use default()?
-            tags_column: -1,
-            ..Self::default()
-        }
-    }
-
     fn notetype_id(&self) -> Option<NotetypeId> {
         if let Some(CsvNotetype::GlobalNotetype(ref global)) = self.notetype {
             Some(NotetypeId(global.id))
@@ -389,8 +381,8 @@ impl CsvMetadata {
         if let Some(CsvNotetype::NotetypeColumn(notetype_column)) = self.notetype {
             columns.insert(notetype_column as usize);
         }
-        if let Ok(tags_column) = self.tags_column.try_into() {
-            columns.insert(tags_column);
+        if self.tags_column > 0 {
+            columns.insert(self.tags_column as usize);
         }
         columns
     }
@@ -579,7 +571,7 @@ mod test {
     }
 
     impl CsvMetadata {
-        fn unwrap_notetype_map(&self) -> &[i32] {
+        fn unwrap_notetype_map(&self) -> &[u32] {
             match &self.notetype {
                 Some(CsvNotetype::GlobalNotetype(nt)) => &nt.field_columns,
                 _ => panic!("no notetype map"),
@@ -590,14 +582,14 @@ mod test {
     #[test]
     fn should_map_default_notetype_fields_by_index_if_no_column_names() {
         let mut col = open_test_collection();
-        let meta = metadata!(col, "#deck column:0\nfoo,bar,baz\n");
-        assert_eq!(meta.unwrap_notetype_map(), &[1, 2]);
+        let meta = metadata!(col, "#deck column:1\nfoo,bar,baz\n");
+        assert_eq!(meta.unwrap_notetype_map(), &[2, 3]);
     }
 
     #[test]
     fn should_map_default_notetype_fields_by_given_column_names() {
         let mut col = open_test_collection();
         let meta = metadata!(col, "#columns:Back,Front\nfoo,bar,baz\n");
-        assert_eq!(meta.unwrap_notetype_map(), &[1, 0]);
+        assert_eq!(meta.unwrap_notetype_map(), &[2, 1]);
     }
 }
