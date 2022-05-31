@@ -209,10 +209,9 @@ def show_import_log(log_with_changes: ImportLogWithChanges) -> None:
 
 def stringify_log(log: ImportLogWithChanges.Log) -> str:
     queues = log_queues(log)
-    total = sum(len(queue.notes) for queue in queues)
     return "\n".join(
         chain(
-            (tr.importing_notes_found_in_file(val=total),),
+            (tr.importing_notes_found_in_file(val=log.found_notes),),
             (
                 queue.summary_template(val=len(queue.notes))
                 for queue in queues
