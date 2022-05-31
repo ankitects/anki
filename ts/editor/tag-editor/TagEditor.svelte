@@ -23,6 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithAutocomplete from "./WithAutocomplete.svelte";
 
     export let tags: Writable<string[]>;
+    export let keyCombination: string = "Control+Shift+T";
 
     let tagTypes: TagType[];
     function tagsToTagTypes(tags: string[]): void {
@@ -388,6 +389,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         on:tagcopy={copySelectedTags}
         on:tagdelete={deleteSelectedTags}
         on:tagappend={appendEmptyTag}
+        {keyCombination}
     />
 
     {#each tagTypes as tag, index (tag.id)}

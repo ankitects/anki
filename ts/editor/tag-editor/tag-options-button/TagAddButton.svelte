@@ -11,13 +11,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getPlatformString } from "../../../lib/shortcuts";
     import { addTagIcon, tagIcon } from "./icons";
 
+    export let keyCombination: string;
+
     const dispatch = createEventDispatcher<{ tagappend: CustomEvent<void> }>();
 
     function appendTag() {
         dispatch("tagappend");
     }
-
-    const keyCombination = "Control+Shift+T";
 </script>
 
 <div
