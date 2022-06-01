@@ -80,7 +80,7 @@ impl Collection {
                 .get_notetype(note.notetype_id)?
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
             let last_deck = col.get_last_deck_added_to_for_notetype(note.notetype_id);
-            let ctx = CardGenContext::new(&nt, last_deck, col.usn()?);
+            let ctx = CardGenContext::new(nt.as_ref(), last_deck, col.usn()?);
             let norm = col.get_config_bool(BoolKey::NormalizeNoteText);
             col.add_note_inner(&ctx, note, did, norm)
         })
@@ -334,7 +334,7 @@ impl Collection {
 
     pub(crate) fn add_note_inner(
         &mut self,
-        ctx: &CardGenContext,
+        ctx: &CardGenContext<&Notetype>,
         note: &mut Note,
         did: DeckId,
         normalize_text: bool,
@@ -397,7 +397,7 @@ impl Collection {
             .get_notetype(note.notetype_id)?
             .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
         let last_deck = self.get_last_deck_added_to_for_notetype(note.notetype_id);
-        let ctx = CardGenContext::new(&nt, last_deck, self.usn()?);
+        let ctx = CardGenContext::new(nt.as_ref(), last_deck, self.usn()?);
         let norm = self.get_config_bool(BoolKey::NormalizeNoteText);
         self.update_note_inner_generating_cards(&ctx, note, &existing_note, true, norm, true)?;
         Ok(())
@@ -405,7 +405,7 @@ impl Collection {
 
     pub(crate) fn update_note_inner_generating_cards(
         &mut self,
-        ctx: &CardGenContext,
+        ctx: &CardGenContext<&Notetype>,
         note: &mut Note,
         original: &Note,
         mark_note_modified: bool,
@@ -508,7 +508,7 @@ impl Collection {
                 if out.generate_cards {
                     let ctx = genctx.get_or_insert_with(|| {
                         CardGenContext::new(
-                            &nt,
+                            nt.as_ref(),
                             self.get_last_deck_added_to_for_notetype(nt.id),
                             usn,
                         )

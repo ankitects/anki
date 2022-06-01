@@ -39,7 +39,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Absolute from "../components/Absolute.svelte";
     import Badge from "../components/Badge.svelte";
+    import StickyContainer from "../components/StickyContainer.svelte";
     import { bridgeCommand } from "../lib/bridgecommand";
+    import { TagEditor } from "../tag-editor";
     import { ChangeTimer } from "./change-timer";
     import DecoratedElements from "./DecoratedElements.svelte";
     import { clearableArray } from "./destroyable";
@@ -59,7 +61,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import PlainTextBadge from "./PlainTextBadge.svelte";
     import { editingInputIsRichText, RichTextInput } from "./rich-text-input";
     import RichTextBadge from "./RichTextBadge.svelte";
-    import { TagEditor } from "./tag-editor";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
@@ -380,7 +381,9 @@ the AddCards dialog) should be implemented in the user of this component.
         </Fields>
     </FieldsEditor>
 
-    <TagEditor {tags} on:tagsupdate={saveTags} />
+    <StickyContainer --gutter-block="0.1rem" --sticky-borders="1px 0 0" class="d-flex">
+        <TagEditor {tags} on:tagsupdate={saveTags} />
+    </StickyContainer>
 </div>
 
 <style lang="scss">

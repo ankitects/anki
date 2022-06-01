@@ -173,6 +173,23 @@ impl super::SqliteStorage {
             .collect()
     }
 
+    /// Returns [(nid, field 0)] of notes with the same checksum.
+    /// The caller should strip the fields and compare to see if they actually
+    /// match.
+    pub(crate) fn all_notes_by_type_and_checksum(
+        &self,
+    ) -> Result<HashMap<(NotetypeId, u32), Vec<NoteId>>> {
+        let mut map = HashMap::new();
+        let mut stmt = self.db.prepare("SELECT mid, csum, id FROM notes")?;
+        let mut rows = stmt.query([])?;
+        while let Some(row) = rows.next()? {
+            map.entry((row.get(0)?, row.get(1)?))
+                .or_insert_with(Vec::new)
+                .push(row.get(2)?);
+        }
+        Ok(map)
+    }
+
     /// Return total number of notes. Slow.
     pub(crate) fn total_notes(&self) -> Result<u32> {
         self.db
@@ -296,6 +313,24 @@ impl super::SqliteStorage {
         Ok(())
     }
 
+    /// Cards will arrive in card id order, not search order.
+    pub(crate) fn for_each_note_in_search(
+        &self,
+        mut func: impl FnMut(Note) -> Result<()>,
+    ) -> Result<()> {
+        let mut stmt = self.db.prepare_cached(concat!(
+            include_str!("get.sql"),
+            " WHERE id IN (SELECT nid FROM search_nids)"
+        ))?;
+        let mut rows = stmt.query([])?;
+        while let Some(row) = rows.next()? {
+            let note = row_to_note(row)?;
+            func(note)?
+        }
+
+        Ok(())
+    }
+
     pub(crate) fn note_guid_map(&mut self) -> Result<HashMap<String, NoteMeta>> {
         self.db
             .prepare("SELECT guid, id, mod, mid FROM notes")?
@@ -312,6 +347,11 @@ impl super::SqliteStorage {
             .unwrap()
             .collect::<Result<_>>()
             .unwrap()
+    }
+
+    #[cfg(test)]
+    pub(crate) fn notes_table_len(&mut self) -> usize {
+        self.db_scalar("SELECT COUNT(*) FROM notes").unwrap()
     }
 }
 

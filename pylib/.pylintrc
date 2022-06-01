@@ -22,7 +22,10 @@ ignored-classes=
   CustomStudyRequest,
   Cram,
   ScheduleCardsAsNewRequest,
-  ExportAnkiPackageRequest,
+  ExportLimit,
+  CsvColumn,
+  CsvMetadata,
+  ImportCsvRequest,
 
 [REPORTS]
 output-format=colorized

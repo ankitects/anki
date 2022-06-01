@@ -7,9 +7,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
 
-    import StickyContainer from "../../components/StickyContainer.svelte";
-    import { Tags, tags as tagsService } from "../../lib/proto";
-    import { execCommand } from "../helpers";
+    import { execCommand } from "../domlib";
+    import { Tags, tags as tagsService } from "../lib/proto";
     import { TagOptionsButton } from "./tag-options-button";
     import TagEditMode from "./TagEditMode.svelte";
     import TagInput from "./TagInput.svelte";
@@ -24,6 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithAutocomplete from "./WithAutocomplete.svelte";
 
     export let tags: Writable<string[]>;
+    export let keyCombination: string = "Control+Shift+T";
 
     let tagTypes: TagType[];
     function tagsToTagTypes(tags: string[]): void {
@@ -381,112 +381,106 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: anyTagsSelected = tagTypes.some((tag) => tag.selected);
 </script>
 
-<StickyContainer
-    --gutter-block="0.1rem"
-    --sticky-borders="1px 0 0"
-    bind:height
-    class="d-flex"
->
-    <div class="tag-editor-area" on:focusout={deselectIfLeave}>
-        <TagOptionsButton
-            bind:badgeHeight
-            tagsSelected={anyTagsSelected}
-            on:tagselectall={selectAllTags}
-            on:tagcopy={copySelectedTags}
-            on:tagdelete={deleteSelectedTags}
-            on:tagappend={appendEmptyTag}
-        />
+<div class="tag-editor-area" on:focusout={deselectIfLeave} bind:offsetHeight={height}>
+    <TagOptionsButton
+        bind:badgeHeight
+        tagsSelected={anyTagsSelected}
+        on:tagselectall={selectAllTags}
+        on:tagcopy={copySelectedTags}
+        on:tagdelete={deleteSelectedTags}
+        on:tagappend={appendEmptyTag}
+        {keyCombination}
+    />
 
-        {#each tagTypes as tag, index (tag.id)}
-            <div class="tag-relative" class:hide-tag={index === active}>
-                <TagEditMode
-                    class="ms-0"
-                    name={index === active ? activeName : tag.name}
-                    tooltip={tag.name}
-                    active={index === active}
-                    shorten={shortenTags}
-                    bind:flash={tag.flash}
-                    bind:selected={tag.selected}
-                    on:tagedit={() => {
-                        active = index;
-                        deselect();
-                    }}
-                    on:tagselect={() => select(index)}
-                    on:tagrange={() => selectRange(index)}
-                    on:tagdelete={() => {
-                        deselect();
-                        deleteTagAt(index);
-                        saveTags();
-                    }}
-                />
+    {#each tagTypes as tag, index (tag.id)}
+        <div class="tag-relative" class:hide-tag={index === active}>
+            <TagEditMode
+                class="ms-0"
+                name={index === active ? activeName : tag.name}
+                tooltip={tag.name}
+                active={index === active}
+                shorten={shortenTags}
+                bind:flash={tag.flash}
+                bind:selected={tag.selected}
+                on:tagedit={() => {
+                    active = index;
+                    deselect();
+                }}
+                on:tagselect={() => select(index)}
+                on:tagrange={() => selectRange(index)}
+                on:tagdelete={() => {
+                    deselect();
+                    deleteTagAt(index);
+                    saveTags();
+                }}
+            />
 
-                {#if index === active}
-                    <WithAutocomplete
-                        {suggestionsPromise}
-                        {show}
-                        on:update={updateSuggestions}
-                        on:select={({ detail }) => onAutocomplete(detail.selected)}
-                        on:choose={({ detail }) => {
-                            onAutocomplete(detail.chosen);
-                            splitTag(index, detail.chosen.length, detail.chosen.length);
+            {#if index === active}
+                <WithAutocomplete
+                    {suggestionsPromise}
+                    {show}
+                    on:update={updateSuggestions}
+                    on:select={({ detail }) => onAutocomplete(detail.selected)}
+                    on:choose={({ detail }) => {
+                        onAutocomplete(detail.chosen);
+                        splitTag(index, detail.chosen.length, detail.chosen.length);
+                    }}
+                    let:createAutocomplete
+                    let:hide
+                >
+                    <TagInput
+                        id={tag.id}
+                        class="position-absolute start-0 top-0 bottom-0 ps-2 py-0"
+                        disabled={autocompleteDisabled}
+                        bind:name={activeName}
+                        bind:input={activeInput}
+                        on:focus={() => {
+                            activeName = tag.name;
+                            autocomplete = createAutocomplete();
                         }}
-                        let:createAutocomplete
-                        let:hide
-                    >
-                        <TagInput
-                            id={tag.id}
-                            class="position-absolute start-0 top-0 bottom-0 ps-2 py-0"
-                            disabled={autocompleteDisabled}
-                            bind:name={activeName}
-                            bind:input={activeInput}
-                            on:focus={() => {
-                                activeName = tag.name;
-                                autocomplete = createAutocomplete();
-                            }}
-                            on:keydown={onKeydown}
-                            on:keyup={() => {
-                                if (activeName.length === 0) {
-                                    hide?.();
-                                }
-                            }}
-                            on:taginput={() => updateTagName(tag)}
-                            on:tagsplit={({ detail }) =>
-                                splitTag(index, detail.start, detail.end)}
-                            on:tagadd={() => insertTagKeepFocus(index)}
-                            on:tagdelete={() => deleteTagAt(index)}
-                            on:tagselectall={async () => {
-                                if (tagTypes.length <= 1) {
-                                    // Noop if no other tags exist
-                                    return;
-                                }
+                        on:keydown={onKeydown}
+                        on:keyup={() => {
+                            if (activeName.length === 0) {
+                                hide?.();
+                            }
+                        }}
+                        on:taginput={() => updateTagName(tag)}
+                        on:tagsplit={({ detail }) =>
+                            splitTag(index, detail.start, detail.end)}
+                        on:tagadd={() => insertTagKeepFocus(index)}
+                        on:tagdelete={() => deleteTagAt(index)}
+                        on:tagselectall={async () => {
+                            if (tagTypes.length <= 1) {
+                                // Noop if no other tags exist
+                                return;
+                            }
 
-                                activeInput.blur();
-                                // Ensure blur events are processed first
-                                await tick();
+                            activeInput.blur();
+                            // Ensure blur events are processed first
+                            await tick();
 
-                                selectAllTags();
-                            }}
-                            on:tagjoinprevious={() => joinWithPreviousTag(index)}
-                            on:tagjoinnext={() => joinWithNextTag(index)}
-                            on:tagmoveprevious={() => moveToPreviousTag(index)}
-                            on:tagmovenext={() => moveToNextTag(index)}
-                            on:tagaccept={() => {
-                                deleteTagIfNotUnique(tag, index);
-                                if (tag) {
-                                    updateTagName(tag);
-                                }
-                                saveTags();
-                                decideNextActive();
-                            }}
-                        />
-                    </WithAutocomplete>
-                {/if}
-            </div>
-        {/each}
+                            selectAllTags();
+                        }}
+                        on:tagjoinprevious={() => joinWithPreviousTag(index)}
+                        on:tagjoinnext={() => joinWithNextTag(index)}
+                        on:tagmoveprevious={() => moveToPreviousTag(index)}
+                        on:tagmovenext={() => moveToNextTag(index)}
+                        on:tagaccept={() => {
+                            deleteTagIfNotUnique(tag, index);
+                            if (tag) {
+                                updateTagName(tag);
+                            }
+                            saveTags();
+                            decideNextActive();
+                        }}
+                    />
+                </WithAutocomplete>
+            {/if}
+        </div>
+    {/each}
 
-        <TagSpacer on:click={appendEmptyTag} />
-    </div>
-</StickyContainer>
+    <TagSpacer on:click={appendEmptyTag} />
+</div>
 
 <style lang="scss">
     .tag-editor-area {

@@ -172,11 +172,19 @@ lazy_static! {
     "#).unwrap();
 }
 
-pub fn html_to_text_line(html: &str) -> Cow<str> {
+pub fn is_html(text: &str) -> bool {
+    HTML.is_match(text)
+}
+
+pub fn html_to_text_line(html: &str, preserve_media_filenames: bool) -> Cow<str> {
     PERSISTENT_HTML_SPACERS
         .replace_all(html, " ")
         .map_cow(|s| UNPRINTABLE_TAGS.replace_all(s, ""))
-        .map_cow(strip_html_preserving_media_filenames)
+        .map_cow(if preserve_media_filenames {
+            strip_html_preserving_media_filenames
+        } else {
+            strip_html
+        })
         .trim()
 }
 

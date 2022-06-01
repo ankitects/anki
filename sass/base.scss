@@ -70,3 +70,7 @@ samp {
         background-position: left 0.75rem center;
     }
 }
+
+.night-mode .form-select:disabled {
+    background-color: var(--disabled);
+}

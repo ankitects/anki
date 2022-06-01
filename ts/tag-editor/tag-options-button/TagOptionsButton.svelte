@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let badgeHeight: number;
     export let tagsSelected: boolean;
+    export let keyCombination: string;
 </script>
 
 <div
@@ -18,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {#if tagsSelected}
         <TagsSelectedButton on:tagselectall on:tagcopy on:tagdelete />
     {:else}
-        <TagAddButton on:tagappend />
+        <TagAddButton on:tagappend {keyCombination} />
     {/if}
 </div>
 

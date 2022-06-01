@@ -255,7 +255,7 @@ impl Collection {
             .get_notetype(new_notetype_id)?
             .ok_or(AnkiError::NotFound)?;
         let last_deck = self.get_last_deck_added_to_for_notetype(notetype.id);
-        let ctx = CardGenContext::new(&notetype, last_deck, usn);
+        let ctx = CardGenContext::new(notetype.as_ref(), last_deck, usn);
 
         for nid in note_ids {
             let mut note = self.storage.get_note(*nid)?.ok_or(AnkiError::NotFound)?;
