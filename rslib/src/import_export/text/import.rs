@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, collections::HashMap, sync::Arc};
+use std::{borrow::Cow, collections::HashMap, mem, sync::Arc};
 
 use super::NameOrId;
 use crate::{
@@ -216,16 +216,34 @@ impl<'a> Context<'a> {
         updated_tags: &[String],
         log: &mut NoteLog,
     ) -> Result<()> {
-        ctx.note.tags.extend(updated_tags.iter().cloned());
-        self.col.canonify_note_tags(&mut ctx.note, self.usn)?;
-        ctx.note.set_modified(self.usn);
-        for dupe in ctx.dupes {
-            ctx.note.id = dupe.id;
-            self.col.update_note_undoable(&ctx.note, &dupe)?;
-            self.add_cards(&mut ctx.cards, &ctx.note, ctx.deck_id, ctx.notetype.clone())?;
-            log.first_field_match.push(dupe.into_log_note());
+        self.prepare_note_for_update(&mut ctx.note, updated_tags)?;
+        for dupe in mem::take(&mut ctx.dupes) {
+            self.maybe_update_dupe(dupe, &mut ctx, log)?;
         }
         Ok(())
+    }
+
+    fn prepare_note_for_update(&mut self, note: &mut Note, updated_tags: &[String]) -> Result<()> {
+        note.tags.extend(updated_tags.iter().cloned());
+        self.col.canonify_note_tags(note, self.usn)?;
+        note.set_modified(self.usn);
+        Ok(())
+    }
+
+    fn maybe_update_dupe(
+        &mut self,
+        dupe: Note,
+        ctx: &mut NoteContext,
+        log: &mut NoteLog,
+    ) -> Result<()> {
+        ctx.note.id = dupe.id;
+        if dupe.equal_fields_and_tags(&ctx.note) {
+            log.duplicate.push(dupe.into_log_note());
+        } else {
+            self.col.update_note_undoable(&ctx.note, &dupe)?;
+            log.first_field_match.push(dupe.into_log_note());
+        }
+        self.add_cards(&mut ctx.cards, &ctx.note, ctx.deck_id, ctx.notetype.clone())
     }
 
     fn import_cards(&mut self, cards: &mut [Card], note_id: NoteId) -> Result<()> {
@@ -365,6 +383,12 @@ impl ForeignNotetype {
 impl ForeignTemplate {
     fn into_native(self) -> CardTemplate {
         CardTemplate::new(self.name, self.qfmt, self.afmt)
+    }
+}
+
+impl Note {
+    fn equal_fields_and_tags(&self, other: &Self) -> bool {
+        self.fields() == other.fields() && self.tags == other.tags
     }
 }
 
