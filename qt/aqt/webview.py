@@ -702,6 +702,7 @@ html {{ {font} }}
 
         gui_hooks.theme_did_change.remove(self.on_theme_did_change)
         mw.mediaServer.clear_page_html(id(self))
+        self._page.deleteLater()
 
     def on_theme_did_change(self) -> None:
         # avoid flashes if page reloaded

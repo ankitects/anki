@@ -287,6 +287,11 @@ class ProgressManager:
         return self._levels
 
     def _on_show_timer(self) -> None:
+        if self.mw.app.focusWindow() is None:
+            # if no window is focused (eg app is minimized), defer display
+            self._show_timer.start(10)
+            return
+
         self._show_timer = None
         self._showWin()
 
