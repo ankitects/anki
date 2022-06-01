@@ -32,6 +32,7 @@ pub enum ExportProgress {
     File,
     Gathering,
     Notes(usize),
+    Cards(usize),
     Media(usize),
 }
 
@@ -101,6 +102,10 @@ impl<'f, F: 'f + FnMut(usize) -> Result<()>> Incrementor<'f, F> {
             return Ok(());
         }
         (self.update_fn)(self.count)
+    }
+
+    pub(crate) fn count(&self) -> usize {
+        self.count
     }
 }
 

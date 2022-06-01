@@ -98,6 +98,7 @@ impl ImportExportService for Backend {
                 SearchNode::from(input.limit.unwrap_or_default()),
                 input.with_html,
                 input.with_tags,
+                self.export_progress_fn(),
             )
         })
         .map(Into::into)
@@ -109,6 +110,7 @@ impl ImportExportService for Backend {
                 &input.out_path,
                 SearchNode::from(input.limit.unwrap_or_default()),
                 input.with_html,
+                self.export_progress_fn(),
             )
         })
         .map(Into::into)

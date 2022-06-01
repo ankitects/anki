@@ -9,6 +9,7 @@ use regex::Regex;
 
 use super::metadata::Delimiter;
 use crate::{
+    import_export::{ExportProgress, IncrementableProgress},
     notetype::RenderCardOutput,
     prelude::*,
     search::SortMode,
@@ -24,15 +25,17 @@ impl Collection {
         path: &str,
         search: impl TryIntoSearch,
         with_html: bool,
+        progress_fn: impl 'static + FnMut(ExportProgress, bool) -> bool,
     ) -> Result<usize> {
-        let mut file = File::create(path)?;
-        write_header(&mut file)?;
-        let mut writer = csv::WriterBuilder::new()
-            .delimiter(DELIMITER.byte())
-            .from_writer(file);
+        let mut progress = IncrementableProgress::new(progress_fn);
+        progress.call(ExportProgress::File)?;
+        let mut incrementor = progress.incrementor(ExportProgress::Cards);
+
+        let mut writer = file_writer_with_header(path)?;
         let mut cards = self.search_cards(search, SortMode::NoOrder)?;
         cards.sort_unstable();
         for &card in &cards {
+            incrementor.increment()?;
             writer.write_record(self.card_record(card, with_html)?)?;
         }
         writer.flush()?;
@@ -46,24 +49,23 @@ impl Collection {
         search: impl TryIntoSearch,
         with_html: bool,
         with_tags: bool,
+        progress_fn: impl 'static + FnMut(ExportProgress, bool) -> bool,
     ) -> Result<usize> {
-        let mut file = File::create(path)?;
-        write_header(&mut file)?;
-        let mut writer = csv::WriterBuilder::new()
-            .delimiter(DELIMITER.byte())
-            .flexible(true)
-            .from_writer(file);
+        let mut progress = IncrementableProgress::new(progress_fn);
+        progress.call(ExportProgress::File)?;
+        let mut incrementor = progress.incrementor(ExportProgress::Notes);
+
+        let mut writer = file_writer_with_header(path)?;
         self.search_notes_into_table(search)?;
-        let mut count = 0;
         self.storage.for_each_note_in_search(|note| {
-            count += 1;
+            incrementor.increment()?;
             writer.write_record(note_record(&note, with_html, with_tags))?;
             Ok(())
         })?;
         writer.flush()?;
         self.storage.clear_searched_notes_table()?;
 
-        Ok(count)
+        Ok(incrementor.count())
     }
 
     fn card_record(&mut self, card: CardId, with_html: bool) -> Result<[String; 2]> {
@@ -73,6 +75,15 @@ impl Collection {
             rendered_nodes_to_record_field(&anodes, with_html, true),
         ])
     }
+}
+
+fn file_writer_with_header(path: &str) -> Result<csv::Writer<File>> {
+    let mut file = File::create(path)?;
+    write_header(&mut file)?;
+    Ok(csv::WriterBuilder::new()
+        .delimiter(DELIMITER.byte())
+        .flexible(true)
+        .from_writer(file))
 }
 
 fn write_header(writer: &mut impl Write) -> Result<()> {
