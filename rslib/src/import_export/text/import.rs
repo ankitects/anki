@@ -10,7 +10,7 @@ use crate::{
         text::{
             DupeResolution, ForeignCard, ForeignData, ForeignNote, ForeignNotetype, ForeignTemplate,
         },
-        LogNote, NoteLog,
+        ImportProgress, IncrementableProgress, LogNote, NoteLog,
     },
     notetype::{CardGenContext, CardTemplate, NoteField, NotetypeConfig},
     prelude::*,
@@ -18,11 +18,22 @@ use crate::{
 };
 
 impl ForeignData {
-    pub fn import(self, col: &mut Collection) -> Result<OpOutput<NoteLog>> {
+    pub fn import(
+        self,
+        col: &mut Collection,
+        progress_fn: impl 'static + FnMut(ImportProgress, bool) -> bool,
+    ) -> Result<OpOutput<NoteLog>> {
+        let mut progress = IncrementableProgress::new(progress_fn);
+        progress.call(ImportProgress::File)?;
         col.transact(Op::Import, |col| {
             let mut ctx = Context::new(&self, col)?;
             ctx.import_foreign_notetypes(self.notetypes)?;
-            ctx.import_foreign_notes(self.notes, &self.global_tags, &self.updated_tags)
+            ctx.import_foreign_notes(
+                self.notes,
+                &self.global_tags,
+                &self.updated_tags,
+                &mut progress,
+            )
         })
     }
 }
@@ -49,7 +60,6 @@ struct Context<'a> {
     dupe_resolution: DupeResolution,
     card_gen_ctxs: HashMap<(NotetypeId, DeckId), CardGenContext<Arc<Notetype>>>,
     existing_notes: HashMap<(NotetypeId, u32), Vec<NoteId>>,
-    //progress: IncrementableProgress<ImportProgress>,
 }
 
 struct NoteContext {
@@ -124,9 +134,12 @@ impl<'a> Context<'a> {
         notes: Vec<ForeignNote>,
         global_tags: &[String],
         updated_tags: &[String],
+        progress: &mut IncrementableProgress<ImportProgress>,
     ) -> Result<NoteLog> {
+        let mut incrementor = progress.incrementor(ImportProgress::Notes);
         let mut log = NoteLog::new(self.dupe_resolution, notes.len() as u32);
         for foreign in notes {
+            incrementor.increment()?;
             if foreign.first_field_is_empty() {
                 log.empty_first_field.push(foreign.into_log_note());
                 continue;
@@ -421,8 +434,8 @@ mod test {
         data.add_note(&["same", "old"]);
         data.dupe_resolution = DupeResolution::Add;
 
-        data.clone().import(&mut col).unwrap();
-        data.import(&mut col).unwrap();
+        data.clone().import(&mut col, |_, _| true).unwrap();
+        data.import(&mut col, |_, _| true).unwrap();
         assert_eq!(col.storage.notes_table_len(), 2);
     }
 
@@ -433,11 +446,11 @@ mod test {
         data.add_note(&["same", "old"]);
         data.dupe_resolution = DupeResolution::Ignore;
 
-        data.clone().import(&mut col).unwrap();
+        data.clone().import(&mut col, |_, _| true).unwrap();
         assert_eq!(col.storage.notes_table_len(), 1);
 
         data.notes[0].fields[1] = "new".to_string();
-        data.import(&mut col).unwrap();
+        data.import(&mut col, |_, _| true).unwrap();
         let notes = col.storage.get_all_notes();
         assert_eq!(notes.len(), 1);
         assert_eq!(notes[0].fields()[1], "old");
@@ -450,11 +463,11 @@ mod test {
         data.add_note(&["same", "old"]);
         data.dupe_resolution = DupeResolution::Update;
 
-        data.clone().import(&mut col).unwrap();
+        data.clone().import(&mut col, |_, _| true).unwrap();
         assert_eq!(col.storage.notes_table_len(), 1);
 
         data.notes[0].fields[1] = "new".to_string();
-        data.import(&mut col).unwrap();
+        data.import(&mut col, |_, _| true).unwrap();
         assert_eq!(col.storage.get_all_notes()[0].fields()[1], "new");
     }
 
@@ -466,12 +479,12 @@ mod test {
         data.dupe_resolution = DupeResolution::Update;
         data.add_note(&["神", "new"]);
 
-        data.clone().import(&mut col).unwrap();
+        data.clone().import(&mut col, |_, _| true).unwrap();
         assert_eq!(col.storage.get_all_notes()[0].fields(), &["神", "new"]);
 
         col.set_config_bool(BoolKey::NormalizeNoteText, false, false)
             .unwrap();
-        data.import(&mut col).unwrap();
+        data.import(&mut col, |_, _| true).unwrap();
         let notes = col.storage.get_all_notes();
         assert_eq!(notes[0].fields(), &["神", "new"]);
         assert_eq!(notes[1].fields(), &["神", "new"]);
@@ -485,7 +498,7 @@ mod test {
         data.notes[0].tags = vec![String::from("bar")];
         data.global_tags = vec![String::from("baz")];
 
-        data.import(&mut col).unwrap();
+        data.import(&mut col, |_, _| true).unwrap();
         assert_eq!(col.storage.get_all_notes()[0].tags, ["bar", "baz"]);
     }
 }

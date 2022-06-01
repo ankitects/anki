@@ -86,6 +86,7 @@ impl ImportExportService for Backend {
                 &input.path,
                 input.metadata.unwrap_or_default(),
                 dupe_resolution,
+                self.import_progress_fn(),
             )
         })
         .map(Into::into)
@@ -117,12 +118,12 @@ impl ImportExportService for Backend {
     }
 
     fn import_json_file(&self, input: pb::String) -> Result<pb::ImportResponse> {
-        self.with_col(|col| col.import_json_file(&input.val))
+        self.with_col(|col| col.import_json_file(&input.val, self.import_progress_fn()))
             .map(Into::into)
     }
 
     fn import_json_string(&self, input: pb::String) -> Result<pb::ImportResponse> {
-        self.with_col(|col| col.import_json_string(&input.val))
+        self.with_col(|col| col.import_json_string(&input.val, self.import_progress_fn()))
             .map(Into::into)
     }
 }

@@ -12,7 +12,7 @@ use crate::{
             csv::metadata::{CsvDeck, CsvMetadata, CsvNotetype, Delimiter},
             DupeResolution, ForeignData, ForeignNote, NameOrId,
         },
-        NoteLog,
+        ImportProgress, NoteLog,
     },
     prelude::*,
 };
@@ -23,6 +23,7 @@ impl Collection {
         path: &str,
         metadata: CsvMetadata,
         dupe_resolution: DupeResolution,
+        progress_fn: impl 'static + FnMut(ImportProgress, bool) -> bool,
     ) -> Result<OpOutput<NoteLog>> {
         let file = File::open(path)?;
         let default_deck = metadata.deck()?.name_or_id();
@@ -39,7 +40,7 @@ impl Collection {
             updated_tags: metadata.updated_tags,
             ..Default::default()
         }
-        .import(self)
+        .import(self, progress_fn)
     }
 }
 
