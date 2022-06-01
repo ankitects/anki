@@ -14,10 +14,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import IconButton from "../../components/IconButton.svelte";
     import Shortcut from "../../components/Shortcut.svelte";
     import WithDropdown from "../../components/WithDropdown.svelte";
+    import { execCommand } from "../../domlib";
     import { getListItem } from "../../lib/dom";
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
-    import { execCommand } from "../helpers";
     import { context } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";
     import CommandIconButton from "./CommandIconButton.svelte";

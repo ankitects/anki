@@ -26,6 +26,7 @@ _ts_deps = [
     "//ts/lib",
     "//ts/domlib",
     "//ts/sveltelib",
+    "//ts/tag-editor",
     "@npm//@fluent",
     "@npm//@types/codemirror",
     "@npm//codemirror",
@@ -33,8 +34,8 @@ _ts_deps = [
 ]
 
 compile_svelte(
-    deps = _ts_deps,
     visibility = ["//visibility:public"],
+    deps = _ts_deps,
 )
 
 typescript(
@@ -103,6 +104,7 @@ svelte_check(
         "//sass:button_mixins_lib",
         "//sass/bootstrap",
         "//ts/components",
+        "//ts/tag-editor",
         "//ts/editable:editable_ts",
         "@npm//@types/bootstrap",
         "@npm//@types/codemirror",

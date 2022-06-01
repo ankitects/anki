@@ -5,9 +5,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
 
-    import WithTooltip from "../../components/WithTooltip.svelte";
-    import { controlPressed, shiftPressed } from "../../lib/keys";
-    import { pageTheme } from "../../sveltelib/theme";
+    import WithTooltip from "../components/WithTooltip.svelte";
+    import { controlPressed, shiftPressed } from "../lib/keys";
+    import { pageTheme } from "../sveltelib/theme";
     import Tag from "./Tag.svelte";
     import { delimChar } from "./tags";
 

@@ -5,13 +5,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
 
-    import DropdownItem from "../../../components/DropdownItem.svelte";
-    import IconConstrain from "../../../components/IconConstrain.svelte";
-    import Popover from "../../../components/Popover.svelte";
-    import Shortcut from "../../../components/Shortcut.svelte";
-    import WithFloating from "../../../components/WithFloating.svelte";
-    import * as tr from "../../../lib/ftl";
-    import { getPlatformString } from "../../../lib/shortcuts";
+    import DropdownItem from "../../components/DropdownItem.svelte";
+    import IconConstrain from "../../components/IconConstrain.svelte";
+    import Popover from "../../components/Popover.svelte";
+    import Shortcut from "../../components/Shortcut.svelte";
+    import WithFloating from "../../components/WithFloating.svelte";
+    import * as tr from "../../lib/ftl";
+    import { getPlatformString } from "../../lib/shortcuts";
     import { dotsIcon } from "./icons";
 
     const dispatch = createEventDispatcher();

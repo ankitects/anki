@@ -7,8 +7,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
 
-    import { Tags, tags as tagsService } from "../../lib/proto";
-    import { execCommand } from "../helpers";
+    import { execCommand } from "../domlib";
+    import { Tags, tags as tagsService } from "../lib/proto";
     import { TagOptionsButton } from "./tag-options-button";
     import TagEditMode from "./TagEditMode.svelte";
     import TagInput from "./TagInput.svelte";

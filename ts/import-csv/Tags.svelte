@@ -7,8 +7,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import Col from "../components/Col.svelte";
     import Row from "../components/Row.svelte";
-    import TagEditor from "../editor/tag-editor/TagEditor.svelte";
     import * as tr from "../lib/ftl";
+    import TagEditor from "../tag-editor/TagEditor.svelte";
 
     export let globalTags: string[];
     export let updatedTags: string[];
