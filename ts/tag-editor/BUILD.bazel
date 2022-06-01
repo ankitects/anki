@@ -1,14 +1,10 @@
 load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
-load("//ts:esbuild.bzl", "esbuild")
-load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:typescript.bzl", "typescript")
 
 _ts_deps = [
     "//ts/components",
-    # "//ts/editable:editable_ts",
-    # "//ts/html-filter",
     "//ts/lib",
     "//ts/domlib",
     "//ts/sveltelib",
@@ -42,11 +38,6 @@ svelte_check(
         "**/*.svelte",
     ]) + _ts_deps + [
         "//sass:button_mixins_lib",
-        # "//sass/bootstrap",
-        # "//ts/components",
-        # "//ts/editable:editable_ts",
         "@npm//@types/bootstrap",
-        # "@npm//@types/codemirror",
-        # "@npm//codemirror",
     ],
 )

@@ -5,7 +5,6 @@ load("//ts:esbuild.bzl", "esbuild")
 load("//ts:generate_page.bzl", "generate_page")
 load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:typescript.bzl", "typescript")
-load("//ts:jest.bzl", "jest_test")
 
 generate_page(page = "import-csv")
 
@@ -24,8 +23,6 @@ _ts_deps = [
     "//ts/components",
     "//ts/lib",
     "//ts/sveltelib",
-    "//ts/editor:svelte",
-    "//ts/editor",
     "@npm//@fluent",
     "@npm//@types/jest",
     "@npm//lodash-es",
@@ -55,6 +52,7 @@ esbuild(
         ":base_css",
         ":index",
         ":svelte",
+        "//ts/tag-editor",
         "@npm//@mdi",
         "@npm//bootstrap-icons",
     ],
@@ -81,10 +79,3 @@ svelte_check(
         "//ts/components",
     ],
 )
-
-# jest_test(
-#     protobuf = True,
-#     deps = [
-#         ":index",
-#     ],
-# )
