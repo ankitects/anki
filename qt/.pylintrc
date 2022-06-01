@@ -18,6 +18,8 @@ ignored-classes=
   CustomStudyRequest,
   Cram,
   ScheduleCardsAsNewRequest,
+  CsvColumn,
+  CsvMetadata,
 
 [REPORTS]
 output-format=colorized

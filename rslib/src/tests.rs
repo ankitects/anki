@@ -41,6 +41,13 @@ impl Collection {
         note
     }
 
+    pub(crate) fn add_new_note_with_fields(&mut self, notetype: &str, fields: &[&str]) -> Note {
+        let mut note = self.new_note(notetype);
+        *note.fields_mut() = fields.iter().map(ToString::to_string).collect();
+        self.add_note(&mut note, DeckId(1)).unwrap();
+        note
+    }
+
     pub(crate) fn get_all_notes(&mut self) -> Vec<Note> {
         self.storage.get_all_notes()
     }

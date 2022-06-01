@@ -374,4 +374,11 @@ impl SqliteStorage {
         self.db.execute("update col set models = ?", [json])?;
         Ok(())
     }
+
+    pub(crate) fn get_field_names(&self, notetype_id: NotetypeId) -> Result<Vec<String>> {
+        self.db
+            .prepare_cached("SELECT name FROM fields WHERE ntid = ? ORDER BY ord")?
+            .query_and_then([notetype_id], |row| Ok(row.get(0)?))?
+            .collect()
+    }
 }

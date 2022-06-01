@@ -17,9 +17,7 @@ use zstd::stream::copy_decode;
 use crate::{
     collection::CollectionBuilder,
     import_export::{
-        gather::ExchangeData,
-        package::{Meta, NoteLog},
-        ImportProgress, IncrementableProgress,
+        gather::ExchangeData, package::Meta, ImportProgress, IncrementableProgress, NoteLog,
     },
     prelude::*,
     search::SearchNode,

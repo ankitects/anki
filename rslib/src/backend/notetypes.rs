@@ -168,8 +168,14 @@ impl NotetypesService for Backend {
                 .map(Into::into)
         })
     }
+
     fn change_notetype(&self, input: pb::ChangeNotetypeRequest) -> Result<pb::OpChanges> {
         self.with_col(|col| col.change_notetype_of_notes(input.into()).map(Into::into))
+    }
+
+    fn get_field_names(&self, input: pb::NotetypeId) -> Result<pb::StringList> {
+        self.with_col(|col| col.storage.get_field_names(input.into()))
+            .map(Into::into)
     }
 }
 

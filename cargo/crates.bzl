@@ -173,6 +173,16 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "raze__bstr__0_2_17",
+        url = "https://crates.io/api/v1/crates/bstr/0.2.17/download",
+        type = "tar.gz",
+        sha256 = "ba3569f383e8f1598449f1a423e72e99569137b47740b1da11ef19af3d5c3223",
+        strip_prefix = "bstr-0.2.17",
+        build_file = Label("//cargo/remote:BUILD.bstr-0.2.17.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "raze__bumpalo__3_9_1",
         url = "https://crates.io/api/v1/crates/bumpalo/3.9.1/download",
         type = "tar.gz",
@@ -359,6 +369,26 @@ def raze_fetch_remote_crates():
         sha256 = "dfae75de57f2b2e85e8768c3ea840fd159c8f33e2b6522c7835b7abac81be16e",
         strip_prefix = "cssparser-macros-0.6.0",
         build_file = Label("//cargo/remote:BUILD.cssparser-macros-0.6.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__csv__1_1_6",
+        url = "https://crates.io/api/v1/crates/csv/1.1.6/download",
+        type = "tar.gz",
+        sha256 = "22813a6dc45b335f9bade10bf7271dc477e81113e89eb251a0bc2a8a81c536e1",
+        strip_prefix = "csv-1.1.6",
+        build_file = Label("//cargo/remote:BUILD.csv-1.1.6.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__csv_core__0_1_10",
+        url = "https://crates.io/api/v1/crates/csv-core/0.1.10/download",
+        type = "tar.gz",
+        sha256 = "2b2466559f260f48ad25fe6317b3c8dac77b5bdb5763ac7d9d6103530663bc90",
+        strip_prefix = "csv-core-0.1.10",
+        build_file = Label("//cargo/remote:BUILD.csv-core-0.1.10.bazel"),
     )
 
     maybe(
@@ -1929,6 +1959,16 @@ def raze_fetch_remote_crates():
         sha256 = "1a11647b6b25ff05a515cb92c365cec08801e83423a235b51e231e1808747286",
         strip_prefix = "regex-1.5.5",
         build_file = Label("//cargo/remote:BUILD.regex-1.5.5.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__regex_automata__0_1_10",
+        url = "https://crates.io/api/v1/crates/regex-automata/0.1.10/download",
+        type = "tar.gz",
+        sha256 = "6c230d73fb8d8c1b9c0b3135c5142a8acee3a0558fb8db5cf1cb65f8d7862132",
+        strip_prefix = "regex-automata-0.1.10",
+        build_file = Label("//cargo/remote:BUILD.regex-automata-0.1.10.bazel"),
     )
 
     maybe(

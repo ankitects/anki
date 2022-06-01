@@ -67,6 +67,15 @@ alias(
 )
 
 alias(
+    name = "csv",
+    actual = "@raze__csv__1_1_6//:csv",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "env_logger",
     actual = "@raze__env_logger__0_9_0//:env_logger",
     tags = [

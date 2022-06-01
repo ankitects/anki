@@ -54,6 +54,7 @@ dependencies = [
  "chrono",
  "coarsetime",
  "criterion",
+ "csv",
  "env_logger",
  "flate2",
  "fluent",
