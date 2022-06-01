@@ -40,6 +40,7 @@ importing-notes-that-could-not-be-imported = Notes that could not be imported as
 importing-notes-updated-as-file-had-newer = Notes updated, as file had newer version: { $val }
 importing-packaged-anki-deckcollection-apkg-colpkg-zip = Packaged Anki Deck/Collection (*.apkg *.colpkg *.zip)
 importing-pauker-18-lesson-paugz = Pauker 1.8 Lesson (*.pau.gz)
+# the '|' character
 importing-pipe = Pipe
 importing-rows-had-num1d-fields-expected-num2d = '{ $row }' had { $found } fields, expected { $expected }
 importing-selected-file-was-not-in-utf8 = Selected file was not in UTF-8 format. Please see the importing section of the manual.
@@ -99,8 +100,11 @@ importing-processed-cards =
     }
 importing-unable-to-import-filename = Unable to import { $filename }: file type not supported
 importing-existing-notes = Existing notes
+# "Existing notes: Duplicate" (verb)
 importing-duplicate = Duplicate
+# "Existing notes: Preserve" (verb)
 importing-preserve = Preserve
+# "Existing notes: Update" (verb)
 importing-update = Update
 importing-tag-all-notes = Tag all notes
 importing-tag-updated-notes = Tag updated notes
