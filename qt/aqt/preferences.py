@@ -219,6 +219,7 @@ class Preferences(QDialog):
         self.form.theme.addItems(themes)
         self.form.theme.setCurrentIndex(self.mw.pm.theme().value)
         qconnect(self.form.theme.currentIndexChanged, self.on_theme_changed)
+        self.form.new_import_export.setChecked(self.mw.pm.new_import_export())
 
         self.setup_language()
         self.setup_video_driver()
@@ -234,6 +235,8 @@ class Preferences(QDialog):
         if newScale != self.mw.pm.uiScale():
             self.mw.pm.setUiScale(newScale)
             restart_required = True
+
+        self.mw.pm.set_new_import_export(self.form.new_import_export.isChecked())
 
         if restart_required:
             showInfo(tr.preferences_changes_will_take_effect_when_you())
