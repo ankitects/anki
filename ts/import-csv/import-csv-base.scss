@@ -17,15 +17,16 @@
 body {
     width: min(100vw, 70em);
     margin: 0 auto;
+    height: 100%;
 }
 
 html {
     overflow-x: hidden;
+    height: 100%;
 }
 
 #main {
     padding: 0.5em 0.5em 1em 0.5em;
-    height: 100vh;
 }
 
 // override the default down arrow colour in <select> elements

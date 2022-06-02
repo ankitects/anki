@@ -76,7 +76,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<Container --gutter-inline="0.75rem" --gutter-block="0.25rem">
+<Container class="csv-page">
     <Row --cols={2}>
         <Col --col-size={1} breakpoint="md">
             <Container>
@@ -107,3 +107,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </Row>
     <StickyFooter {path} {onImport} />
 </Container>
+
+<style lang="scss">
+    :global(.csv-page) {
+        --gutter-inline: 0.25rem;
+
+        :global(.row) {
+            // rows have negative margins by default
+            --bs-gutter-x: 0;
+            // ensure equal spacing between tall rows like
+            // dropdowns, and short rows like checkboxes
+            min-height: 3em;
+        }
+    }
+</style>
