@@ -315,6 +315,8 @@ class Collection(DeprecatedNamesMixin):
             )
         self.db = DBProxy(weakref.proxy(self._backend))
         self.db.begin()
+        if after_full_sync:
+            self._load_scheduler()
 
     def set_schema_modified(self) -> None:
         self.db.execute("update col set scm=?", int_time(1000))
