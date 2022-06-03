@@ -1,3 +1,15 @@
+diff --git a/node_modules/protobufjs/cli/util.js b/node_modules/protobufjs/cli/util.js
+index ffce1ed..c87a4b4 100644
+--- a/node_modules/protobufjs/cli/util.js
++++ b/node_modules/protobufjs/cli/util.js
+@@ -133,6 +133,7 @@ function modInstall(install) {
+ }
+ 
+ exports.setup = function() {
++    return;
+     var pkg = require(path.join(__dirname, "..", "package.json"));
+     var version = pkg.dependencies["semver"] || pkg.devDependencies["semver"];
+     if (!modExists("semver", version)) {
 diff --git a/node_modules/protobufjs/src/field.js b/node_modules/protobufjs/src/field.js
 index 20c1cd2..3a1395f 100644
 --- a/node_modules/protobufjs/src/field.js
