@@ -4,7 +4,7 @@
 use std::{
     collections::{HashMap, HashSet},
     fs::File,
-    io::{BufRead, BufReader},
+    io::{BufRead, BufReader, Read, Seek, SeekFrom},
 };
 
 use strum::IntoEnumIterator;
@@ -31,38 +31,51 @@ impl Collection {
 
     fn get_reader_metadata(
         &mut self,
-        reader: impl BufRead,
+        mut reader: impl BufRead + Seek,
         delimiter: Option<Delimiter>,
         notetype_id: Option<NotetypeId>,
     ) -> Result<CsvMetadata> {
         let mut metadata = CsvMetadata::default();
-        let line = self.parse_meta_lines(reader, &mut metadata)?;
-        maybe_set_fallback_delimiter(delimiter, &mut metadata, &line);
-        maybe_set_fallback_columns(&mut metadata, &line)?;
-        maybe_set_fallback_is_html(&mut metadata, &line)?;
+        let meta_len = self.parse_meta_lines(&mut reader, &mut metadata)? as u64;
+
+        reader.seek(SeekFrom::Start(meta_len))?;
+        maybe_set_fallback_delimiter(delimiter, &mut metadata, &mut reader)?;
+
+        reader.seek(SeekFrom::Start(meta_len))?;
+        let mut csv_reader = csv::ReaderBuilder::new()
+            .delimiter(metadata.delimiter().byte())
+            .from_reader(reader);
+        let record = csv_reader.headers()?;
+
+        maybe_set_fallback_columns(&mut metadata, record)?;
+        maybe_set_fallback_is_html(&mut metadata, record)?;
         self.maybe_set_fallback_notetype(&mut metadata, notetype_id)?;
         self.maybe_init_notetype_map(&mut metadata)?;
         self.maybe_set_fallback_deck(&mut metadata)?;
+
         Ok(metadata)
     }
 
-    /// Parses the meta head of the file, and returns the first content line.
+    /// Parses the meta head of the file and returns the total of meta bytes.
     fn parse_meta_lines(
         &mut self,
         mut reader: impl BufRead,
         metadata: &mut CsvMetadata,
-    ) -> Result<String> {
+    ) -> Result<usize> {
+        let mut meta_len = 0;
         let mut line = String::new();
-        reader.read_line(&mut line)?;
+        let mut line_len = reader.read_line(&mut line)?;
         if self.parse_first_line(&line, metadata) {
+            meta_len += line_len;
             line.clear();
-            reader.read_line(&mut line)?;
+            line_len = reader.read_line(&mut line)?;
             while self.parse_line(&line, metadata) {
+                meta_len += line_len;
                 line.clear();
-                reader.read_line(&mut line)?;
+                line_len = reader.read_line(&mut line)?;
             }
         }
-        Ok(line)
+        Ok(meta_len)
     }
 
     /// True if the line is a meta line, i.e. a comment, or starting with 'tags:'.
@@ -103,7 +116,7 @@ impl Collection {
             }
             "tags" => metadata.global_tags = collect_tags(value),
             "columns" => {
-                if let Ok(columns) = self.parse_columns(value, metadata) {
+                if let Ok(columns) = parse_columns(value, metadata.delimiter()) {
                     metadata.column_labels = columns;
                 }
             }
@@ -129,17 +142,6 @@ impl Collection {
             }
             _ => (),
         }
-    }
-
-    fn parse_columns(&mut self, line: &str, metadata: &mut CsvMetadata) -> Result<Vec<String>> {
-        let delimiter = if metadata.force_delimiter {
-            metadata.delimiter()
-        } else {
-            delimiter_from_line(line)
-        };
-        map_single_record(line, delimiter, |record| {
-            record.iter().map(ToString::to_string).collect()
-        })
     }
 
     fn maybe_set_fallback_notetype(
@@ -205,6 +207,12 @@ impl Collection {
     }
 }
 
+fn parse_columns(line: &str, delimiter: Delimiter) -> Result<Vec<String>> {
+    map_single_record(line, delimiter, |record| {
+        record.iter().map(ToString::to_string).collect()
+    })
+}
+
 pub(super) fn collect_tags(txt: &str) -> Vec<String> {
     txt.split_whitespace()
         .filter(|s| !s.is_empty())
@@ -263,20 +271,24 @@ fn ensure_first_field_is_mapped(
     Ok(())
 }
 
-fn maybe_set_fallback_columns(metadata: &mut CsvMetadata, line: &str) -> Result<()> {
+fn maybe_set_fallback_columns(
+    metadata: &mut CsvMetadata,
+    record: &csv::StringRecord,
+) -> Result<()> {
     if metadata.column_labels.is_empty() {
-        let columns = map_single_record(line, metadata.delimiter(), |r| r.len())?;
-        metadata.column_labels = vec![String::new(); columns];
+        metadata.column_labels = vec![String::new(); record.len()];
     }
     Ok(())
 }
 
-fn maybe_set_fallback_is_html(metadata: &mut CsvMetadata, line: &str) -> Result<()> {
+fn maybe_set_fallback_is_html(
+    metadata: &mut CsvMetadata,
+    record: &csv::StringRecord,
+) -> Result<()> {
     // TODO: should probably check more than one line; can reuse preview lines
     // when it's implemented
     if !metadata.force_is_html {
-        metadata.is_html =
-            map_single_record(line, metadata.delimiter(), |r| r.iter().any(is_html))?;
+        metadata.is_html = record.iter().any(is_html);
     }
     Ok(())
 }
@@ -284,13 +296,14 @@ fn maybe_set_fallback_is_html(metadata: &mut CsvMetadata, line: &str) -> Result<
 fn maybe_set_fallback_delimiter(
     delimiter: Option<Delimiter>,
     metadata: &mut CsvMetadata,
-    line: &str,
-) {
+    reader: impl Read,
+) -> Result<()> {
     if let Some(delim) = delimiter {
         metadata.set_delimiter(delim);
     } else if !metadata.force_delimiter {
-        metadata.set_delimiter(delimiter_from_line(line));
+        metadata.set_delimiter(delimiter_from_reader(reader)?);
     }
+    Ok(())
 }
 
 fn delimiter_from_value(value: &str) -> Option<Delimiter> {
@@ -303,14 +316,16 @@ fn delimiter_from_value(value: &str) -> Option<Delimiter> {
     None
 }
 
-fn delimiter_from_line(line: &str) -> Delimiter {
+fn delimiter_from_reader(mut reader: impl Read) -> Result<Delimiter> {
+    let mut buf = [0; 8 * 1024];
+    let _ = reader.read(&mut buf)?;
     // TODO: use smarter heuristic
     for delimiter in Delimiter::iter() {
-        if line.contains(delimiter.byte() as char) {
-            return delimiter;
+        if buf.contains(&delimiter.byte()) {
+            return Ok(delimiter);
         }
     }
-    Delimiter::Space
+    Ok(Delimiter::Space)
 }
 
 fn map_single_record<T>(
@@ -400,6 +415,8 @@ impl NameOrId {
 
 #[cfg(test)]
 mod test {
+    use std::io::Cursor;
+
     use super::*;
     use crate::collection::open_test_collection;
 
@@ -408,7 +425,7 @@ mod test {
             metadata!($col, $csv, None)
         };
         ($col:expr,$csv:expr, $delim:expr) => {
-            $col.get_reader_metadata(BufReader::new($csv.as_bytes()), $delim, None)
+            $col.get_reader_metadata(BufReader::new(Cursor::new($csv.as_bytes())), $delim, None)
                 .unwrap()
         };
     }
@@ -561,12 +578,23 @@ mod test {
 
         // custom names
         assert_eq!(
-            metadata!(col, "#columns:one,two\n").column_labels,
+            metadata!(col, "#columns:one\ttwo\n").column_labels,
             ["one", "two"]
         );
         assert_eq!(
             metadata!(col, "#separator:|\n#columns:one|two\n").column_labels,
             ["one", "two"]
+        );
+    }
+
+    #[test]
+    fn should_detect_column_number_despite_escaped_line_breaks() {
+        let mut col = open_test_collection();
+        assert_eq!(
+            metadata!(col, "\"foo|\nbar\"\tfoo\tbar\n")
+                .column_labels
+                .len(),
+            3
         );
     }
 
@@ -589,7 +617,7 @@ mod test {
     #[test]
     fn should_map_default_notetype_fields_by_given_column_names() {
         let mut col = open_test_collection();
-        let meta = metadata!(col, "#columns:Back,Front\nfoo,bar,baz\n");
+        let meta = metadata!(col, "#columns:Back\tFront\nfoo,bar,baz\n");
         assert_eq!(meta.unwrap_notetype_map(), &[2, 1]);
     }
 }
