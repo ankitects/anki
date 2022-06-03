@@ -108,3 +108,4 @@ importing-preserve = Preserve
 importing-update = Update
 importing-tag-all-notes = Tag all notes
 importing-tag-updated-notes = Tag updated notes
+importing-file = File

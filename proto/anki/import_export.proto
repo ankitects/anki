@@ -163,6 +163,7 @@ message CsvMetadata {
   uint32 tags_column = 10;
   bool force_delimiter = 11;
   bool force_is_html = 12;
+  repeated generic.StringList preview = 13;
 }
 
 message ExportCardCsvRequest {

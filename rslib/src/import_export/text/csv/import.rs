@@ -135,16 +135,10 @@ impl ColumnContext {
 
     fn deserialize_csv(
         &mut self,
-        mut reader: impl Read + Seek,
+        reader: impl Read + Seek,
         delimiter: Delimiter,
     ) -> Result<Vec<ForeignNote>> {
-        remove_tags_line_from_reader(&mut reader)?;
-        let mut csv_reader = csv::ReaderBuilder::new()
-            .has_headers(false)
-            .flexible(true)
-            .comment(Some(b'#'))
-            .delimiter(delimiter.byte())
-            .from_reader(reader);
+        let mut csv_reader = build_csv_reader(reader, delimiter)?;
         self.deserialize_csv_reader(&mut csv_reader)
     }
 
@@ -208,6 +202,19 @@ impl ColumnContext {
             .map(stringify)
             .collect()
     }
+}
+
+pub(super) fn build_csv_reader(
+    mut reader: impl Read + Seek,
+    delimiter: Delimiter,
+) -> Result<csv::Reader<impl Read + Seek>> {
+    remove_tags_line_from_reader(&mut reader)?;
+    Ok(csv::ReaderBuilder::new()
+        .has_headers(false)
+        .flexible(true)
+        .comment(Some(b'#'))
+        .delimiter(delimiter.byte())
+        .from_reader(reader))
 }
 
 fn stringify_fn(is_html: bool) -> fn(&str) -> String {
@@ -275,6 +282,7 @@ mod test {
                     id: 1,
                     field_columns: vec![1, 2],
                 })),
+                preview: Vec::new(),
             }
         }
     }

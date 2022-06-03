@@ -172,8 +172,8 @@ lazy_static! {
     "#).unwrap();
 }
 
-pub fn is_html(text: &str) -> bool {
-    HTML.is_match(text)
+pub fn is_html(text: impl AsRef<str>) -> bool {
+    HTML.is_match(text.as_ref())
 }
 
 pub fn html_to_text_line(html: &str, preserve_media_filenames: bool) -> Cow<str> {

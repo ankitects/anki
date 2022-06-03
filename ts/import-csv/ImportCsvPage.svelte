@@ -8,7 +8,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Row from "../components/Row.svelte";
     import Spacer from "../components/Spacer.svelte";
     import * as tr from "../lib/ftl";
-    import { Decks, ImportExport, importExport, Notetypes } from "../lib/proto";
+    import {
+        Decks,
+        Generic,
+        ImportExport,
+        importExport,
+        Notetypes,
+    } from "../lib/proto";
     import DeckSelector from "./DeckSelector.svelte";
     import DelimiterSelector from "./DelimiterSelector.svelte";
     import DupeResolutionSelector from "./DupeResolutionSelector.svelte";
@@ -17,6 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HtmlSwitch from "./HtmlSwitch.svelte";
     import { getColumnOptions, getCsvMetadata } from "./lib";
     import NotetypeSelector from "./NotetypeSelector.svelte";
+    import Preview from "./Preview.svelte";
     import StickyFooter from "./StickyFooter.svelte";
     import Tags from "./Tags.svelte";
 
@@ -32,6 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let updatedTags: string[];
     export let columnLabels: string[];
     export let tagsColumn: number;
+    export let preview: Generic.StringList[];
     // Protobuf oneofs. Exactly one of these pairs is expected to be set.
     export let notetypeColumn: number | null;
     export let globalNotetype: ImportExport.CsvMetadata.MappedNotetype | null;
@@ -44,6 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: columnOptions = getColumnOptions(columnLabels, notetypeColumn, deckColumn);
     $: getCsvMetadata(path, delimiter).then((meta) => {
         columnLabels = meta.columnLabels;
+        preview = meta.preview;
     });
     $: if (globalNotetype?.id !== lastNotetypeId) {
         lastNotetypeId = globalNotetype?.id;
@@ -80,6 +89,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <Row --cols={2}>
         <Col --col-size={1} breakpoint="md">
             <Container>
+                <Header heading={tr.importingFile()} />
+                <Spacer --height="1.5rem" />
+                <DelimiterSelector bind:delimiter disabled={forceDelimiter} />
+                <HtmlSwitch bind:isHtml disabled={forceIsHtml} />
+                <Preview {columnOptions} {preview} />
+            </Container>
+        </Col>
+        <Col --col-size={1} breakpoint="md">
+            <Container>
                 <Header heading={tr.importingImportOptions()} />
                 <Spacer --height="1.5rem" />
                 {#if globalNotetype}
@@ -92,8 +110,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <DeckSelector {deckNameIds} bind:deckId />
                 {/if}
                 <DupeResolutionSelector bind:dupeResolution />
-                <DelimiterSelector bind:delimiter disabled={forceDelimiter} />
-                <HtmlSwitch bind:isHtml disabled={forceIsHtml} />
                 <Tags bind:globalTags bind:updatedTags />
             </Container>
         </Col>

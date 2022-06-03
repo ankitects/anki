@@ -7,16 +7,23 @@ use std::{
     io::{BufRead, BufReader, Read, Seek, SeekFrom},
 };
 
+use itertools::Itertools;
 use strum::IntoEnumIterator;
 
+use super::import::build_csv_reader;
 pub use crate::backend_proto::import_export::{
     csv_metadata::{Deck as CsvDeck, Delimiter, MappedNotetype, Notetype as CsvNotetype},
     CsvMetadata,
 };
 use crate::{
-    error::ImportError, import_export::text::NameOrId, notetype::NoteField, prelude::*,
-    text::is_html,
+    backend_proto::StringList, error::ImportError, import_export::text::NameOrId,
+    notetype::NoteField, prelude::*, text::is_html,
 };
+
+/// The maximum number of preview rows.
+const PREVIEW_LENGTH: usize = 5;
+/// The maximum number of characters per preview field.
+const PREVIEW_FIELD_LENGTH: usize = 80;
 
 impl Collection {
     pub fn get_csv_metadata(
@@ -25,30 +32,22 @@ impl Collection {
         delimiter: Option<Delimiter>,
         notetype_id: Option<NotetypeId>,
     ) -> Result<CsvMetadata> {
-        let reader = BufReader::new(File::open(path)?);
-        self.get_reader_metadata(reader, delimiter, notetype_id)
+        let mut reader = File::open(path)?;
+        self.get_reader_metadata(&mut reader, delimiter, notetype_id)
     }
 
     fn get_reader_metadata(
         &mut self,
-        mut reader: impl BufRead + Seek,
+        mut reader: impl Read + Seek,
         delimiter: Option<Delimiter>,
         notetype_id: Option<NotetypeId>,
     ) -> Result<CsvMetadata> {
         let mut metadata = CsvMetadata::default();
         let meta_len = self.parse_meta_lines(&mut reader, &mut metadata)? as u64;
-
-        reader.seek(SeekFrom::Start(meta_len))?;
-        maybe_set_fallback_delimiter(delimiter, &mut metadata, &mut reader)?;
-
-        reader.seek(SeekFrom::Start(meta_len))?;
-        let mut csv_reader = csv::ReaderBuilder::new()
-            .delimiter(metadata.delimiter().byte())
-            .from_reader(reader);
-        let record = csv_reader.headers()?;
-
-        maybe_set_fallback_columns(&mut metadata, record)?;
-        maybe_set_fallback_is_html(&mut metadata, record)?;
+        maybe_set_fallback_delimiter(delimiter, &mut metadata, &mut reader, meta_len)?;
+        set_preview(&mut metadata, reader)?;
+        maybe_set_fallback_columns(&mut metadata)?;
+        maybe_set_fallback_is_html(&mut metadata)?;
         self.maybe_set_fallback_notetype(&mut metadata, notetype_id)?;
         self.maybe_init_notetype_map(&mut metadata)?;
         self.maybe_set_fallback_deck(&mut metadata)?;
@@ -57,12 +56,9 @@ impl Collection {
     }
 
     /// Parses the meta head of the file and returns the total of meta bytes.
-    fn parse_meta_lines(
-        &mut self,
-        mut reader: impl BufRead,
-        metadata: &mut CsvMetadata,
-    ) -> Result<usize> {
+    fn parse_meta_lines(&mut self, reader: impl Read, metadata: &mut CsvMetadata) -> Result<usize> {
         let mut meta_len = 0;
+        let mut reader = BufReader::new(reader);
         let mut line = String::new();
         let mut line_len = reader.read_line(&mut line)?;
         if self.parse_first_line(&line, metadata) {
@@ -213,6 +209,32 @@ fn parse_columns(line: &str, delimiter: Delimiter) -> Result<Vec<String>> {
     })
 }
 
+fn set_preview(metadata: &mut CsvMetadata, mut reader: impl Read + Seek) -> Result<()> {
+    reader.rewind()?;
+    let mut csv_reader = build_csv_reader(reader, metadata.delimiter())?;
+    let mut records = csv_reader.records().into_iter().take(PREVIEW_LENGTH);
+
+    let first = records.next().transpose()?.unwrap_or_default();
+    metadata.preview.push(build_preview_row(1, &first));
+
+    let min_len = metadata.preview[0].vals.len();
+    for record in records {
+        metadata.preview.push(build_preview_row(min_len, &record?));
+    }
+
+    Ok(())
+}
+
+fn build_preview_row(min_len: usize, record: &csv::StringRecord) -> StringList {
+    StringList {
+        vals: record
+            .iter()
+            .pad_using(min_len, |_| "")
+            .map(|field| field.chars().take(PREVIEW_FIELD_LENGTH).collect())
+            .collect(),
+    }
+}
+
 pub(super) fn collect_tags(txt: &str) -> Vec<String> {
     txt.split_whitespace()
         .filter(|s| !s.is_empty())
@@ -271,24 +293,17 @@ fn ensure_first_field_is_mapped(
     Ok(())
 }
 
-fn maybe_set_fallback_columns(
-    metadata: &mut CsvMetadata,
-    record: &csv::StringRecord,
-) -> Result<()> {
+fn maybe_set_fallback_columns(metadata: &mut CsvMetadata) -> Result<()> {
     if metadata.column_labels.is_empty() {
-        metadata.column_labels = vec![String::new(); record.len()];
+        metadata.column_labels = vec![String::new(); metadata.iter_preview_fields(1).count()];
     }
     Ok(())
 }
 
-fn maybe_set_fallback_is_html(
-    metadata: &mut CsvMetadata,
-    record: &csv::StringRecord,
-) -> Result<()> {
-    // TODO: should probably check more than one line; can reuse preview lines
-    // when it's implemented
+fn maybe_set_fallback_is_html(metadata: &mut CsvMetadata) -> Result<()> {
     if !metadata.force_is_html {
-        metadata.is_html = record.iter().any(is_html);
+        let is_html = metadata.iter_preview_fields(PREVIEW_LENGTH).any(is_html);
+        metadata.is_html = is_html;
     }
     Ok(())
 }
@@ -296,11 +311,13 @@ fn maybe_set_fallback_is_html(
 fn maybe_set_fallback_delimiter(
     delimiter: Option<Delimiter>,
     metadata: &mut CsvMetadata,
-    reader: impl Read,
+    mut reader: impl Read + Seek,
+    meta_len: u64,
 ) -> Result<()> {
     if let Some(delim) = delimiter {
         metadata.set_delimiter(delim);
     } else if !metadata.force_delimiter {
+        reader.seek(SeekFrom::Start(meta_len))?;
         metadata.set_delimiter(delimiter_from_reader(reader)?);
     }
     Ok(())
@@ -401,6 +418,14 @@ impl CsvMetadata {
         }
         columns
     }
+
+    fn iter_preview_fields(&self, rows: usize) -> impl Iterator<Item = &String> {
+        self.preview
+            .iter()
+            .take(rows)
+            .map(|row| row.vals.iter())
+            .flatten()
+    }
 }
 
 impl NameOrId {
@@ -409,6 +434,14 @@ impl NameOrId {
             Self::Id(id)
         } else {
             Self::Name(s.to_string())
+        }
+    }
+}
+
+impl From<csv::StringRecord> for StringList {
+    fn from(record: csv::StringRecord) -> Self {
+        Self {
+            vals: record.iter().map(ToString::to_string).collect(),
         }
     }
 }
@@ -425,7 +458,7 @@ mod test {
             metadata!($col, $csv, None)
         };
         ($col:expr,$csv:expr, $delim:expr) => {
-            $col.get_reader_metadata(BufReader::new(Cursor::new($csv.as_bytes())), $delim, None)
+            $col.get_reader_metadata(Cursor::new($csv.as_bytes()), $delim, None)
                 .unwrap()
         };
     }
@@ -619,5 +652,13 @@ mod test {
         let mut col = open_test_collection();
         let meta = metadata!(col, "#columns:Back\tFront\nfoo,bar,baz\n");
         assert_eq!(meta.unwrap_notetype_map(), &[2, 1]);
+    }
+
+    #[test]
+    fn should_gather_first_lines_into_preview() {
+        let mut col = open_test_collection();
+        let meta = metadata!(col, "#separator: \nfoo bar\nbaz\n");
+        assert_eq!(meta.preview[0].vals, ["foo", "bar"]);
+        assert_eq!(meta.preview[1].vals, ["baz", ""]);
     }
 }
