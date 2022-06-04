@@ -142,12 +142,12 @@ fn rendered_nodes_to_str(nodes: &[RenderedNode]) -> String {
         .join("")
 }
 
-fn field_to_record_field(field: &str, with_html: bool) -> String {
+fn field_to_record_field(field: &str, with_html: bool) -> Cow<str> {
     let mut text = strip_redundant_sections(field);
     if !with_html {
         text = text.map_cow(|t| html_to_text_line(t, false));
     }
-    text.into()
+    text
 }
 
 fn strip_redundant_sections(text: &str) -> Cow<str> {
@@ -220,37 +220,46 @@ impl NoteContext {
             .then(|| 1 + self.deck_column().unwrap_or_default() + self.field_columns)
     }
 
-    fn record<'i, 's: 'i, 'n: 'i>(&'s self, note: &'n Note) -> impl Iterator<Item = String> + 'i {
+    fn record<'c, 's: 'c, 'n: 'c>(&'s self, note: &'n Note) -> impl Iterator<Item = Cow<'c, [u8]>> {
         self.notetype_name(note)
             .into_iter()
             .chain(self.deck_name(note).into_iter())
-            .chain(self.note_fields(note).into_iter())
-            .chain(self.with_tags.then(|| note.tags.join(" ")).into_iter())
+            .chain(self.note_fields(note))
+            .chain(self.tags(note).into_iter())
     }
 
-    fn notetype_name(&self, note: &Note) -> Option<String> {
+    fn notetype_name(&self, note: &Note) -> Option<Cow<[u8]>> {
         self.with_notetype.then(|| {
             self.notetypes
                 .get(&note.notetype_id)
-                .map_or(String::new(), |nt| nt.name.clone())
+                .map_or(Cow::from(vec![]), |nt| Cow::from(nt.name.as_bytes()))
         })
     }
 
-    fn deck_name(&self, note: &Note) -> Option<String> {
+    fn deck_name(&self, note: &Note) -> Option<Cow<[u8]>> {
         self.with_deck.then(|| {
             self.deck_ids
                 .get(&note.id)
                 .and_then(|did| self.deck_names.get(did))
-                .map_or(String::new(), |name| name.clone())
+                .map_or(Cow::from(vec![]), |name| Cow::from(name.as_bytes()))
         })
     }
 
-    fn note_fields<'n>(&self, note: &'n Note) -> impl Iterator<Item = String> + 'n {
+    fn tags(&self, note: &Note) -> Option<Cow<[u8]>> {
+        self.with_tags
+            .then(|| Cow::from(note.tags.join(" ").into_bytes()))
+    }
+
+    fn note_fields<'n>(&self, note: &'n Note) -> impl Iterator<Item = Cow<'n, [u8]>> {
         let with_html = self.with_html;
         note.fields()
             .iter()
             .map(move |f| field_to_record_field(f, with_html))
-            .pad_using(self.field_columns, |_| String::new())
+            .pad_using(self.field_columns, |_| Cow::from(""))
+            .map(|cow| match cow {
+                Cow::Borrowed(s) => Cow::from(s.as_bytes()),
+                Cow::Owned(s) => Cow::from(s.into_bytes()),
+            })
     }
 }
 
