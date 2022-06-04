@@ -49,7 +49,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let dupeResolution: ImportExport.ImportCsvRequest.DupeResolution;
     let lastNotetypeId = globalNotetype?.id;
 
-    $: columnOptions = getColumnOptions(columnLabels, notetypeColumn, deckColumn);
+    $: columnOptions = getColumnOptions(
+        columnLabels,
+        notetypeColumn,
+        deckColumn,
+        tagsColumn,
+    );
     $: getCsvMetadata(path, delimiter).then((meta) => {
         columnLabels = meta.columnLabels;
         preview = meta.preview;

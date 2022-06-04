@@ -19,6 +19,7 @@ export function getColumnOptions(
     columnLabels: string[],
     notetypeColumn: number | null,
     deckColumn: number | null,
+    tagsColumn: number,
 ): ColumnOption[] {
     return [{ label: tr.changeNotetypeNothing(), value: 0, disabled: false }].concat(
         columnLabels.map((label, index) => {
@@ -27,6 +28,8 @@ export function getColumnOptions(
                 return columnOption(tr.notetypesNotetype(), true, index);
             } else if (index === deckColumn) {
                 return columnOption(tr.decksDeck(), true, index);
+            } else if (index === tagsColumn) {
+                return columnOption(tr.editingTags(), false, index);
             } else if (label === "") {
                 return columnOption(index, false, index);
             } else {

@@ -136,6 +136,11 @@ impl Collection {
                     metadata.deck = Some(CsvDeck::DeckColumn(n));
                 }
             }
+            "tags column" => {
+                if let Ok(n) = value.trim().parse() {
+                    metadata.tags_column = n;
+                }
+            }
             _ => (),
         }
     }
