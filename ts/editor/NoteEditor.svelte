@@ -7,10 +7,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import type { HooksAPI } from "../lib/hooks";
     import { Notes, Notetypes } from "../lib/proto";
+    import type { TagEditorAPI } from "../tag-editor";
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import type { EditorToolbarAPI } from "./editor-toolbar";
     import type { EditorFieldAPI } from "./EditorField.svelte";
-    import type { TagEditorAPI } from "./tag-editor";
 
     interface OnLoadNoteInput {
         note: Notes.Note;
