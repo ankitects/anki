@@ -131,6 +131,14 @@ impl SqliteStorage {
             .collect()
     }
 
+    /// Returns the deck id of the first card of every searched note.
+    pub(crate) fn all_decks_of_search_notes(&self) -> Result<HashMap<NoteId, DeckId>> {
+        self.db
+            .prepare_cached(include_str!("all_decks_of_search_notes.sql"))?
+            .query_and_then([], |r| Ok((r.get(0)?, r.get(1)?)))?
+            .collect()
+    }
+
     // caller should ensure name unique
     pub(crate) fn add_deck(&self, deck: &mut Deck) -> Result<()> {
         assert!(deck.id.0 == 0);

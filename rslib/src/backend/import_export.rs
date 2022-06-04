@@ -93,16 +93,8 @@ impl ImportExportService for Backend {
     }
 
     fn export_note_csv(&self, input: pb::ExportNoteCsvRequest) -> Result<pb::UInt32> {
-        self.with_col(|col| {
-            col.export_note_csv(
-                &input.out_path,
-                SearchNode::from(input.limit.unwrap_or_default()),
-                input.with_html,
-                input.with_tags,
-                self.export_progress_fn(),
-            )
-        })
-        .map(Into::into)
+        self.with_col(|col| col.export_note_csv(input, self.export_progress_fn()))
+            .map(Into::into)
     }
 
     fn export_card_csv(&self, input: pb::ExportCardCsvRequest) -> Result<pb::UInt32> {

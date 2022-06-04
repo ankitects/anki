@@ -176,7 +176,9 @@ message ExportNoteCsvRequest {
   string out_path = 1;
   bool with_html = 2;
   bool with_tags = 3;
-  ExportLimit limit = 4;
+  bool with_deck = 4;
+  bool with_notetype = 5;
+  ExportLimit limit = 6;
 }
 
 message ExportLimit {

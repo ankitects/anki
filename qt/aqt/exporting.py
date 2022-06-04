@@ -98,6 +98,9 @@ class ExportDialog(QDialog):
             self.frm.includeHTML.setVisible(False)
         # show deck list?
         self.frm.deck.setVisible(not self.isVerbatim)
+        # used by the new export screen
+        self.frm.includeDeck.setVisible(False)
+        self.frm.includeNotetype.setVisible(False)
 
     def accept(self) -> None:
         self.exporter.includeSched = self.frm.includeSched.isChecked()
