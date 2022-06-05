@@ -1,7 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, collections::HashMap, mem, sync::Arc};
+use std::{
+    borrow::Cow,
+    collections::{HashMap, HashSet},
+    mem,
+    sync::Arc,
+};
 
 use super::NameOrId;
 use crate::{
@@ -53,7 +58,7 @@ struct Context<'a> {
     /// Contains the optional default notetype with the default key.
     notetypes: HashMap<NameOrId, Option<Arc<Notetype>>>,
     /// Contains the optional default deck id with the default key.
-    deck_ids: HashMap<NameOrId, Option<DeckId>>,
+    deck_ids: DeckIdsByNameOrId,
     usn: Usn,
     normalize_notes: bool,
     today: u32,
@@ -62,12 +67,45 @@ struct Context<'a> {
     existing_notes: HashMap<(NotetypeId, u32), Vec<NoteId>>,
 }
 
+struct DeckIdsByNameOrId {
+    ids: HashSet<DeckId>,
+    names: HashMap<String, DeckId>,
+    default: Option<DeckId>,
+}
+
 struct NoteContext {
     note: Note,
     dupes: Vec<Note>,
     cards: Vec<Card>,
     notetype: Arc<Notetype>,
     deck_id: DeckId,
+}
+
+impl DeckIdsByNameOrId {
+    fn new(col: &mut Collection, default: &NameOrId) -> Result<Self> {
+        let names: HashMap<String, DeckId> = col
+            .get_all_normal_deck_names()?
+            .into_iter()
+            .map(|(id, name)| (name, id))
+            .collect();
+        let ids = names.values().copied().collect();
+        let mut new = Self {
+            ids,
+            names,
+            default: None,
+        };
+        new.default = new.get(default);
+
+        Ok(new)
+    }
+
+    fn get(&self, name_or_id: &NameOrId) -> Option<DeckId> {
+        match name_or_id {
+            _ if *name_or_id == NameOrId::default() => self.default,
+            NameOrId::Id(id) => self.ids.get(&DeckId(*id)).copied(),
+            NameOrId::Name(name) => self.names.get(name).copied(),
+        }
+    }
 }
 
 impl<'a> Context<'a> {
@@ -80,11 +118,7 @@ impl<'a> Context<'a> {
             NameOrId::default(),
             col.notetype_by_name_or_id(&data.default_notetype)?,
         );
-        let mut deck_ids = HashMap::new();
-        deck_ids.insert(
-            NameOrId::default(),
-            col.deck_id_by_name_or_id(&data.default_deck)?,
-        );
+        let deck_ids = DeckIdsByNameOrId::new(col, &data.default_deck)?;
         let existing_notes = col.storage.all_notes_by_type_and_checksum()?;
         Ok(Self {
             col,
@@ -119,16 +153,6 @@ impl<'a> Context<'a> {
         })
     }
 
-    fn deck_id_for_note(&mut self, note: &ForeignNote) -> Result<Option<DeckId>> {
-        Ok(if let Some(did) = self.deck_ids.get(&note.deck) {
-            *did
-        } else {
-            let did = self.col.deck_id_by_name_or_id(&note.deck)?;
-            self.deck_ids.insert(note.deck.clone(), did);
-            did
-        })
-    }
-
     fn import_foreign_notes(
         &mut self,
         notes: Vec<ForeignNote>,
@@ -145,7 +169,7 @@ impl<'a> Context<'a> {
                 continue;
             }
             if let Some(notetype) = self.notetype_for_note(&foreign)? {
-                if let Some(deck_id) = self.deck_id_for_note(&foreign)? {
+                if let Some(deck_id) = self.deck_ids.get(&foreign.deck) {
                     let ctx = self.build_note_context(foreign, notetype, deck_id, global_tags)?;
                     self.import_note(ctx, updated_tags, &mut log)?;
                 } else {
