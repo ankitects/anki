@@ -58,7 +58,7 @@ rust_library(
         "crate-name=regex-syntax",
         "manual",
     ],
-    version = "0.6.25",
+    version = "0.6.26",
     # buildifier: leave-alone
     deps = [
     ],

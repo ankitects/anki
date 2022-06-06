@@ -347,7 +347,7 @@ alias(
 
 alias(
     name = "regex",
-    actual = "@raze__regex__1_5_5//:regex",
+    actual = "@raze__regex__1_5_6//:regex",
     tags = [
         "cargo-raze",
         "manual",
