@@ -360,10 +360,10 @@ def get_linux_dark_mode() -> bool:
         return False
     try:
         process = subprocess.run(
-                "dbus-send --session --print-reply=literal --reply-timeout=1000 " \
-                "--dest=org.freedesktop.portal.Desktop /org/freedesktop/portal/desktop " \
-                "org.freedesktop.portal.Settings.Read string:'org.freedesktop.appearance' " \
-                "string:'color-scheme'",
+            "dbus-send --session --print-reply=literal --reply-timeout=1000 "
+            "--dest=org.freedesktop.portal.Desktop /org/freedesktop/portal/desktop "
+            "org.freedesktop.portal.Settings.Read string:'org.freedesktop.appearance' "
+            "string:'color-scheme'",
             shell=True,
             check=True,
             capture_output=True,
@@ -384,7 +384,7 @@ def get_linux_dark_mode() -> bool:
         return False
 
     # https://github.com/flatpak/xdg-desktop-portal/blob/main/data/org.freedesktop.impl.portal.Settings.xml#L40
-    PREFER_DARK = '1'
+    PREFER_DARK = "1"
 
     return response[-1] == PREFER_DARK
 
