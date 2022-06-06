@@ -274,6 +274,7 @@ impl<'a> Context<'a> {
         log: &mut NoteLog,
     ) -> Result<()> {
         ctx.note.id = dupe.id;
+        ctx.note.guid = dupe.guid.clone();
         if dupe.equal_fields_and_tags(&ctx.note) {
             log.duplicate.push(dupe.into_log_note());
         } else {
