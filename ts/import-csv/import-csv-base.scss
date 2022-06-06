@@ -17,16 +17,13 @@
 body {
     width: min(100vw, 70em);
     margin: 0 auto;
+    padding: 1em;
     // pad out the underside of the footer
     padding-bottom: 5em;
 }
 
 html {
     overflow-x: hidden;
-}
-
-#main {
-    padding: 0.5em 0.5em 1em 0.5em;
 }
 
 // override the default down arrow colour in <select> elements
