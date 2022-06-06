@@ -1576,7 +1576,7 @@
   },
   {
     "name": "regex",
-    "version": "1.5.5",
+    "version": "1.5.6",
     "authors": "The Rust Project Developers",
     "repository": "https://github.com/rust-lang/regex",
     "license": "Apache-2.0 OR MIT",
@@ -1594,7 +1594,7 @@
   },
   {
     "name": "regex-syntax",
-    "version": "0.6.25",
+    "version": "0.6.26",
     "authors": "The Rust Project Developers",
     "repository": "https://github.com/rust-lang/regex",
     "license": "Apache-2.0 OR MIT",
