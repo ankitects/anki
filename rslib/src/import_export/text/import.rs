@@ -74,11 +74,27 @@ struct DeckIdsByNameOrId {
 }
 
 struct NoteContext {
+    /// Prepared and with canonified tags.
     note: Note,
-    dupes: Vec<Note>,
+    dupes: Vec<Duplicate>,
     cards: Vec<Card>,
     notetype: Arc<Notetype>,
     deck_id: DeckId,
+}
+
+struct Duplicate {
+    note: Note,
+    identical: bool,
+}
+
+impl Duplicate {
+    fn new(dupe: Note, original: &Note) -> Self {
+        let identical = dupe.equal_fields_and_tags(original);
+        Self {
+            note: dupe,
+            identical,
+        }
+    }
 }
 
 impl DeckIdsByNameOrId {
@@ -191,6 +207,7 @@ impl<'a> Context<'a> {
     ) -> Result<NoteContext> {
         let (mut note, cards) = foreign.into_native(&notetype, deck_id, self.today, global_tags);
         note.prepare_for_update(&notetype, self.normalize_notes)?;
+        self.col.canonify_note_tags(&mut note, self.usn)?;
         let dupes = self.find_duplicates(&notetype, &note)?;
 
         Ok(NoteContext {
@@ -202,14 +219,19 @@ impl<'a> Context<'a> {
         })
     }
 
-    fn find_duplicates(&mut self, notetype: &Notetype, note: &Note) -> Result<Vec<Note>> {
+    fn find_duplicates(&mut self, notetype: &Notetype, note: &Note) -> Result<Vec<Duplicate>> {
         let checksum = note
             .checksum
             .ok_or_else(|| AnkiError::invalid_input("note unprepared"))?;
-        self.existing_notes
+        let dupes = self
+            .existing_notes
             .get(&(notetype.id, checksum))
             .map(|dupe_ids| self.col.get_full_duplicates(note, dupe_ids))
-            .unwrap_or_else(|| Ok(vec![]))
+            .unwrap_or_else(|| Ok(vec![]))?;
+        Ok(dupes
+            .into_iter()
+            .map(|dupe| Duplicate::new(dupe, note))
+            .collect())
     }
 
     fn import_note(
@@ -228,7 +250,6 @@ impl<'a> Context<'a> {
     }
 
     fn add_note(&mut self, mut ctx: NoteContext, log_queue: &mut Vec<LogNote>) -> Result<()> {
-        self.col.canonify_note_tags(&mut ctx.note, self.usn)?;
         ctx.note.usn = self.usn;
         self.col.add_note_only_undoable(&mut ctx.note)?;
         self.add_cards(&mut ctx.cards, &ctx.note, ctx.deck_id, ctx.notetype)?;
@@ -261,25 +282,27 @@ impl<'a> Context<'a> {
     }
 
     fn prepare_note_for_update(&mut self, note: &mut Note, updated_tags: &[String]) -> Result<()> {
-        note.tags.extend(updated_tags.iter().cloned());
-        self.col.canonify_note_tags(note, self.usn)?;
+        if !updated_tags.is_empty() {
+            note.tags.extend(updated_tags.iter().cloned());
+            self.col.canonify_note_tags(note, self.usn)?;
+        }
         note.set_modified(self.usn);
         Ok(())
     }
 
     fn maybe_update_dupe(
         &mut self,
-        dupe: Note,
+        dupe: Duplicate,
         ctx: &mut NoteContext,
         log: &mut NoteLog,
     ) -> Result<()> {
-        ctx.note.id = dupe.id;
-        ctx.note.guid = dupe.guid.clone();
-        if dupe.equal_fields_and_tags(&ctx.note) {
-            log.duplicate.push(dupe.into_log_note());
+        ctx.note.id = dupe.note.id;
+        ctx.note.guid = dupe.note.guid.clone();
+        if dupe.identical {
+            log.duplicate.push(dupe.note.into_log_note());
         } else {
-            self.col.update_note_undoable(&ctx.note, &dupe)?;
-            log.first_field_match.push(dupe.into_log_note());
+            self.col.update_note_undoable(&ctx.note, &dupe.note)?;
+            log.first_field_match.push(dupe.note.into_log_note());
         }
         self.add_cards(&mut ctx.cards, &ctx.note, ctx.deck_id, ctx.notetype.clone())
     }
