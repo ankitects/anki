@@ -356,7 +356,8 @@ def get_macos_dark_mode() -> bool:
 def get_linux_dark_mode() -> bool:
     """True if Linux system is in dark mode.
     Only works if D-Bus is installed and system uses org.freedesktop.appearance
-    color-scheme to indicate dark mode preference."""
+    color-scheme to indicate dark mode preference OR if GNOME theme has
+    '-dark' in the name."""
     if not is_lin:
         return False
 
