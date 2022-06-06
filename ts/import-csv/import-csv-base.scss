@@ -17,6 +17,8 @@
 body {
     width: min(100vw, 70em);
     margin: 0 auto;
+    // pad out the underside of the footer
+    padding-bottom: 5em;
 }
 
 html {
