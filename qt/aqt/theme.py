@@ -354,27 +354,39 @@ def get_macos_dark_mode() -> bool:
 
 def get_linux_dark_mode() -> bool:
     """True if Linux system is in dark mode.
-    This only works if the GTK theme name contains '-dark'"""
+    Only works if D-Bus is installed and system uses org.freedesktop.appearance
+    color-scheme to indicate dark mode preference."""
     if not is_lin:
         return False
     try:
         process = subprocess.run(
-            ["gsettings", "get", "org.gnome.desktop.interface", "gtk-theme"],
+                "dbus-send --session --print-reply=literal --reply-timeout=1000 " \
+                "--dest=org.freedesktop.portal.Desktop /org/freedesktop/portal/desktop " \
+                "org.freedesktop.portal.Settings.Read string:'org.freedesktop.appearance' " \
+                "string:'color-scheme'",
+            shell=True,
             check=True,
             capture_output=True,
             encoding="utf8",
         )
     except FileNotFoundError as e:
-        # swallow exceptions, as gsettings may not be installed
+        # swallow exceptions, as dbus-send may not be installed
         print(e)
         return False
 
     except subprocess.CalledProcessError as e:
-        # gsettings is installed, but cannot return a value
+        # dbus-send is installed, but cannot return a value
         print(e)
         return False
 
-    return "-dark" in process.stdout.lower()
+    response = process.stdout.split()
+    if len(response) != 4:
+        return False
+
+    # https://github.com/flatpak/xdg-desktop-portal/blob/main/data/org.freedesktop.impl.portal.Settings.xml#L40
+    PREFER_DARK = '1'
+
+    return response[-1] == PREFER_DARK
 
 
 theme_manager = ThemeManager()
