@@ -7,6 +7,7 @@ import enum
 import platform
 import subprocess
 from dataclasses import dataclass
+from typing import Callable, List, Tuple
 
 import aqt
 from anki.utils import is_lin, is_mac, is_win
@@ -358,35 +359,53 @@ def get_linux_dark_mode() -> bool:
     color-scheme to indicate dark mode preference."""
     if not is_lin:
         return False
-    try:
-        process = subprocess.run(
+
+    def parse_stdout_dbus_send(stdout: string) -> bool:
+        dbus_response = stdout.split()
+        if len(dbus_response) != 4:
+            return False
+
+        # https://github.com/flatpak/xdg-desktop-portal/blob/main/data/org.freedesktop.impl.portal.Settings.xml#L40
+        PREFER_DARK = "1"
+
+        return dbus_response[-1] == PREFER_DARK
+
+    dark_mode_detection_strategies: List[Tuple[str, Callable[[str], bool]]] = [
+        (
             "dbus-send --session --print-reply=literal --reply-timeout=1000 "
             "--dest=org.freedesktop.portal.Desktop /org/freedesktop/portal/desktop "
             "org.freedesktop.portal.Settings.Read string:'org.freedesktop.appearance' "
             "string:'color-scheme'",
-            shell=True,
-            check=True,
-            capture_output=True,
-            encoding="utf8",
-        )
-    except FileNotFoundError as e:
-        # swallow exceptions, as dbus-send may not be installed
-        print(e)
-        return False
+            parse_stdout_dbus_send,
+        ),
+        (
+            "gsettings get org.gnome.desktop.interface gtk-theme",
+            lambda stdout: "-dark" in stdout.lower(),
+        ),
+    ]
 
-    except subprocess.CalledProcessError as e:
-        # dbus-send is installed, but cannot return a value
-        print(e)
-        return False
+    for cmd, parse_stdout in dark_mode_detection_strategies:
+        try:
+            process = subprocess.run(
+                cmd,
+                shell=True,
+                check=True,
+                capture_output=True,
+                encoding="utf8",
+            )
+        except FileNotFoundError as e:
+            # detection strategy failed, missing program
+            print(e)
+            continue
 
-    response = process.stdout.split()
-    if len(response) != 4:
-        return False
+        except subprocess.CalledProcessError as e:
+            # detection strategy failed, command returned error
+            print(e)
+            continue
 
-    # https://github.com/flatpak/xdg-desktop-portal/blob/main/data/org.freedesktop.impl.portal.Settings.xml#L40
-    PREFER_DARK = "1"
+        return parse_stdout(process.stdout)
 
-    return response[-1] == PREFER_DARK
+    return False  # all dark mode detection strategies failed
 
 
 theme_manager = ThemeManager()
