@@ -360,7 +360,7 @@ def get_linux_dark_mode() -> bool:
     if not is_lin:
         return False
 
-    def parse_stdout_dbus_send(stdout: string) -> bool:
+    def parse_stdout_dbus_send(stdout: str) -> bool:
         dbus_response = stdout.split()
         if len(dbus_response) != 4:
             return False
