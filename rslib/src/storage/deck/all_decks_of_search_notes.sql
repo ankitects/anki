@@ -1,8 +1,9 @@
 SELECT nid,
   did
 FROM cards
-WHERE ord = 0
-  AND nid IN (
+WHERE nid IN (
     SELECT nid
     FROM search_nids
   )
+GROUP BY nid
+HAVING ord = MIN(ord)

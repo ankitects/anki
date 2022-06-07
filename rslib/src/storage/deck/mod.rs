@@ -131,7 +131,7 @@ impl SqliteStorage {
             .collect()
     }
 
-    /// Returns the deck id of the first card of every searched note.
+    /// Returns the deck id of the first existing card of every searched note.
     pub(crate) fn all_decks_of_search_notes(&self) -> Result<HashMap<NoteId, DeckId>> {
         self.db
             .prepare_cached(include_str!("all_decks_of_search_notes.sql"))?
