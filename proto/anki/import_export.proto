@@ -164,6 +164,7 @@ message CsvMetadata {
   bool force_delimiter = 11;
   bool force_is_html = 12;
   repeated generic.StringList preview = 13;
+  uint32 guid_column = 14;
 }
 
 message ExportCardCsvRequest {
@@ -178,7 +179,8 @@ message ExportNoteCsvRequest {
   bool with_tags = 3;
   bool with_deck = 4;
   bool with_notetype = 5;
-  ExportLimit limit = 6;
+  bool with_guid = 6;
+  ExportLimit limit = 7;
 }
 
 message ExportLimit {

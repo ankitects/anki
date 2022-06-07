@@ -25,6 +25,7 @@ pub struct ForeignData {
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ForeignNote {
+    guid: String,
     fields: Vec<String>,
     tags: Vec<String>,
     notetype: NameOrId,

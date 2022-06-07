@@ -101,6 +101,7 @@ class ExportDialog(QDialog):
         # used by the new export screen
         self.frm.includeDeck.setVisible(False)
         self.frm.includeNotetype.setVisible(False)
+        self.frm.includeGuid.setVisible(False)
 
     def accept(self) -> None:
         self.exporter.includeSched = self.frm.includeSched.isChecked()

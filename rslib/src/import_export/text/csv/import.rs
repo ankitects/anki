@@ -113,6 +113,7 @@ type FieldSourceColumns = Vec<Option<usize>>;
 // Column indices are 1-based.
 struct ColumnContext {
     tags_column: Option<usize>,
+    guid_column: Option<usize>,
     deck_column: Option<usize>,
     notetype_column: Option<usize>,
     /// Source column indices for the fields of a notetype, identified by its
@@ -126,6 +127,7 @@ impl ColumnContext {
     fn new(metadata: &CsvMetadata) -> Result<Self> {
         Ok(Self {
             tags_column: (metadata.tags_column > 0).then(|| metadata.tags_column as usize),
+            guid_column: (metadata.guid_column > 0).then(|| metadata.guid_column as usize),
             deck_column: metadata.deck()?.column(),
             notetype_column: metadata.notetype()?.column(),
             field_source_columns: metadata.field_source_columns()?,
@@ -156,32 +158,15 @@ impl ColumnContext {
             .collect()
     }
 
-    fn foreign_note_from_record(&mut self, record: &csv::StringRecord) -> ForeignNote {
-        let notetype = self.gather_notetype(record).into();
-        let deck = self.gather_deck(record).into();
-        let tags = self.gather_tags(record);
-        let fields = self.gather_note_fields(record);
+    fn foreign_note_from_record(&self, record: &csv::StringRecord) -> ForeignNote {
         ForeignNote {
-            notetype,
-            fields,
-            tags,
-            deck,
+            notetype: str_from_record_column(self.notetype_column, record).into(),
+            fields: self.gather_note_fields(record),
+            tags: self.gather_tags(record),
+            deck: str_from_record_column(self.deck_column, record).into(),
+            guid: str_from_record_column(self.guid_column, record),
             ..Default::default()
         }
-    }
-
-    fn gather_notetype(&self, record: &csv::StringRecord) -> String {
-        self.notetype_column
-            .and_then(|i| record.get(i - 1))
-            .unwrap_or_default()
-            .to_string()
-    }
-
-    fn gather_deck(&self, record: &csv::StringRecord) -> String {
-        self.deck_column
-            .and_then(|i| record.get(i - 1))
-            .unwrap_or_default()
-            .to_string()
     }
 
     fn gather_tags(&self, record: &csv::StringRecord) -> Vec<String> {
@@ -194,7 +179,7 @@ impl ColumnContext {
             .collect()
     }
 
-    fn gather_note_fields(&mut self, record: &csv::StringRecord) -> Vec<String> {
+    fn gather_note_fields(&self, record: &csv::StringRecord) -> Vec<String> {
         let stringify = self.stringify;
         self.field_source_columns
             .iter()
@@ -202,6 +187,13 @@ impl ColumnContext {
             .map(stringify)
             .collect()
     }
+}
+
+fn str_from_record_column(column: Option<usize>, record: &csv::StringRecord) -> String {
+    column
+        .and_then(|i| record.get(i - 1))
+        .unwrap_or_default()
+        .to_string()
 }
 
 pub(super) fn build_csv_reader(
@@ -274,6 +266,7 @@ mod test {
                 is_html: false,
                 force_is_html: false,
                 tags_column: 0,
+                guid_column: 0,
                 global_tags: Vec::new(),
                 updated_tags: Vec::new(),
                 column_labels: vec!["".to_string(); 2],

@@ -425,6 +425,7 @@ class Collection(DeprecatedNamesMixin):
         with_tags: bool,
         with_deck: bool,
         with_notetype: bool,
+        with_guid: bool,
     ) -> int:
         return self._backend.export_note_csv(
             out_path=out_path,
@@ -432,6 +433,7 @@ class Collection(DeprecatedNamesMixin):
             with_tags=with_tags,
             with_deck=with_deck,
             with_notetype=with_notetype,
+            with_guid=with_guid,
             limit=pb_export_limit(limit),
         )
 

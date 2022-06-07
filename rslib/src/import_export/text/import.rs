@@ -57,14 +57,14 @@ struct Context<'a> {
     col: &'a mut Collection,
     /// Contains the optional default notetype with the default key.
     notetypes: HashMap<NameOrId, Option<Arc<Notetype>>>,
-    /// Contains the optional default deck id with the default key.
     deck_ids: DeckIdsByNameOrId,
     usn: Usn,
     normalize_notes: bool,
     today: u32,
     dupe_resolution: DupeResolution,
     card_gen_ctxs: HashMap<(NotetypeId, DeckId), CardGenContext<Arc<Notetype>>>,
-    existing_notes: HashMap<(NotetypeId, u32), Vec<NoteId>>,
+    existing_checksums: HashMap<(NotetypeId, u32), Vec<NoteId>>,
+    existing_guids: HashMap<String, NoteId>,
 }
 
 struct DeckIdsByNameOrId {
@@ -85,14 +85,16 @@ struct NoteContext {
 struct Duplicate {
     note: Note,
     identical: bool,
+    first_field_match: bool,
 }
 
 impl Duplicate {
-    fn new(dupe: Note, original: &Note) -> Self {
+    fn new(dupe: Note, original: &Note, first_field_match: bool) -> Self {
         let identical = dupe.equal_fields_and_tags(original);
         Self {
             note: dupe,
             identical,
+            first_field_match,
         }
     }
 }
@@ -135,7 +137,9 @@ impl<'a> Context<'a> {
             col.notetype_by_name_or_id(&data.default_notetype)?,
         );
         let deck_ids = DeckIdsByNameOrId::new(col, &data.default_deck)?;
-        let existing_notes = col.storage.all_notes_by_type_and_checksum()?;
+        let existing_checksums = col.storage.all_notes_by_type_and_checksum()?;
+        let existing_guids = col.storage.all_notes_by_guid()?;
+
         Ok(Self {
             col,
             usn,
@@ -145,7 +149,8 @@ impl<'a> Context<'a> {
             notetypes,
             deck_ids,
             card_gen_ctxs: HashMap::new(),
-            existing_notes,
+            existing_checksums,
+            existing_guids,
         })
     }
 
@@ -219,18 +224,33 @@ impl<'a> Context<'a> {
         })
     }
 
-    fn find_duplicates(&mut self, notetype: &Notetype, note: &Note) -> Result<Vec<Duplicate>> {
+    fn find_duplicates(&self, notetype: &Notetype, note: &Note) -> Result<Vec<Duplicate>> {
         let checksum = note
             .checksum
             .ok_or_else(|| AnkiError::invalid_input("note unprepared"))?;
-        let dupes = self
-            .existing_notes
-            .get(&(notetype.id, checksum))
-            .map(|dupe_ids| self.col.get_full_duplicates(note, dupe_ids))
-            .unwrap_or_else(|| Ok(vec![]))?;
-        Ok(dupes
+        if let Some(nid) = self.existing_guids.get(&note.guid) {
+            self.get_guid_dupe(*nid, note).map(|dupe| vec![dupe])
+        } else if let Some(nids) = self.existing_checksums.get(&(notetype.id, checksum)) {
+            self.get_first_field_dupes(note, nids)
+        } else {
+            Ok(Vec::new())
+        }
+    }
+
+    fn get_guid_dupe(&self, nid: NoteId, original: &Note) -> Result<Duplicate> {
+        self.col
+            .storage
+            .get_note(nid)?
+            .ok_or(AnkiError::NotFound)
+            .map(|dupe| Duplicate::new(dupe, original, false))
+    }
+
+    fn get_first_field_dupes(&self, note: &Note, nids: &[NoteId]) -> Result<Vec<Duplicate>> {
+        Ok(self
+            .col
+            .get_full_duplicates(note, nids)?
             .into_iter()
-            .map(|dupe| Duplicate::new(dupe, note))
+            .map(|dupe| Duplicate::new(dupe, note, true))
             .collect())
     }
 
@@ -296,15 +316,33 @@ impl<'a> Context<'a> {
         ctx: &mut NoteContext,
         log: &mut NoteLog,
     ) -> Result<()> {
-        ctx.note.id = dupe.note.id;
-        ctx.note.guid = dupe.note.guid.clone();
+        if dupe.note.notetype_id != ctx.notetype.id {
+            log.conflicting.push(dupe.note.into_log_note());
+            return Ok(());
+        }
         if dupe.identical {
             log.duplicate.push(dupe.note.into_log_note());
         } else {
-            self.col.update_note_undoable(&ctx.note, &dupe.note)?;
-            log.first_field_match.push(dupe.note.into_log_note());
+            self.update_dupe(dupe, ctx, log)?;
         }
         self.add_cards(&mut ctx.cards, &ctx.note, ctx.deck_id, ctx.notetype.clone())
+    }
+
+    fn update_dupe(
+        &mut self,
+        dupe: Duplicate,
+        ctx: &mut NoteContext,
+        log: &mut NoteLog,
+    ) -> Result<()> {
+        ctx.note.id = dupe.note.id;
+        ctx.note.guid = dupe.note.guid.clone();
+        self.col.update_note_undoable(&ctx.note, &dupe.note)?;
+        if dupe.first_field_match {
+            log.first_field_match.push(dupe.note.into_log_note());
+        } else {
+            log.updated.push(dupe.note.into_log_note());
+        }
+        Ok(())
     }
 
     fn import_cards(&mut self, cards: &mut [Card], note_id: NoteId) -> Result<()> {
@@ -354,7 +392,7 @@ impl Collection {
         }
     }
 
-    fn get_full_duplicates(&mut self, note: &Note, dupe_ids: &[NoteId]) -> Result<Vec<Note>> {
+    fn get_full_duplicates(&self, note: &Note, dupe_ids: &[NoteId]) -> Result<Vec<Note>> {
         let first_field = note.first_field_stripped();
         dupe_ids
             .iter()
@@ -377,6 +415,9 @@ impl ForeignNote {
     ) -> (Note, Vec<Card>) {
         // TODO: Handle new and learning cards
         let mut note = Note::new(notetype);
+        if !self.guid.is_empty() {
+            note.guid = self.guid;
+        }
         note.tags = self.tags;
         note.tags.extend(extra_tags.iter().cloned());
         note.fields_mut()
@@ -540,6 +581,18 @@ mod test {
 
     #[test]
     fn should_add_global_tags() {
+        let mut col = open_test_collection();
+        let mut data = ForeignData::with_defaults();
+        data.add_note(&["foo"]);
+        data.notes[0].tags = vec![String::from("bar")];
+        data.global_tags = vec![String::from("baz")];
+
+        data.import(&mut col, |_, _| true).unwrap();
+        assert_eq!(col.storage.get_all_notes()[0].tags, ["bar", "baz"]);
+    }
+
+    #[test]
+    fn should_match_note_with_same_guid() {
         let mut col = open_test_collection();
         let mut data = ForeignData::with_defaults();
         data.add_note(&["foo"]);

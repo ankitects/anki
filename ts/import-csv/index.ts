@@ -59,6 +59,7 @@ export async function setupImportCsvPage(path: string): Promise<ImportCsvPage> {
             updatedTags: metadata.updatedTags,
             columnLabels: metadata.columnLabels,
             tagsColumn: metadata.tagsColumn,
+            guidColumn: metadata.guidColumn,
             globalNotetype: metadata.globalNotetype ?? null,
             preview: metadata.preview,
             // Unset oneof numbers default to 0, which also means n/a here,

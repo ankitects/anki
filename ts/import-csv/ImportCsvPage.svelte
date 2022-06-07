@@ -39,6 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let updatedTags: string[];
     export let columnLabels: string[];
     export let tagsColumn: number;
+    export let guidColumn: number;
     export let preview: Generic.StringList[];
     // Protobuf oneofs. Exactly one of these pairs is expected to be set.
     export let notetypeColumn: number | null;
@@ -54,6 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         notetypeColumn,
         deckColumn,
         tagsColumn,
+        guidColumn,
     );
     $: getCsvMetadata(path, delimiter).then((meta) => {
         columnLabels = meta.columnLabels;
@@ -80,6 +82,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     updatedTags,
                     columnLabels,
                     tagsColumn,
+                    guidColumn,
                     notetypeColumn,
                     globalNotetype,
                     deckColumn,

@@ -107,6 +107,7 @@ fn write_note_file_header(writer: &mut impl Write, ctx: &NoteContext) -> Result<
 
 fn write_column_header(ctx: &NoteContext, writer: &mut impl Write) -> Result<()> {
     for (name, column) in [
+        ("guid", ctx.guid_column()),
         ("notetype", ctx.notetype_column()),
         ("deck", ctx.deck_column()),
         ("tags", ctx.tags_column()),
@@ -178,6 +179,7 @@ struct NoteContext {
     with_tags: bool,
     with_deck: bool,
     with_notetype: bool,
+    with_guid: bool,
     notetypes: HashMap<NotetypeId, Arc<Notetype>>,
     deck_ids: HashMap<NoteId, DeckId>,
     deck_names: HashMap<DeckId, String>,
@@ -201,6 +203,7 @@ impl NoteContext {
             with_tags: request.with_tags,
             with_deck: request.with_deck,
             with_notetype: request.with_notetype,
+            with_guid: request.with_guid,
             notetypes,
             field_columns,
             deck_ids,
@@ -208,8 +211,13 @@ impl NoteContext {
         })
     }
 
+    fn guid_column(&self) -> Option<usize> {
+        self.with_guid.then(|| 1)
+    }
+
     fn notetype_column(&self) -> Option<usize> {
-        self.with_notetype.then(|| 1)
+        self.with_notetype
+            .then(|| 1 + self.guid_column().unwrap_or_default())
     }
 
     fn deck_column(&self) -> Option<usize> {
@@ -223,8 +231,10 @@ impl NoteContext {
     }
 
     fn record<'c, 's: 'c, 'n: 'c>(&'s self, note: &'n Note) -> impl Iterator<Item = Cow<'c, [u8]>> {
-        self.notetype_name(note)
+        self.with_guid
+            .then(|| Cow::from(note.guid.as_bytes()))
             .into_iter()
+            .chain(self.notetype_name(note).into_iter())
             .chain(self.deck_name(note).into_iter())
             .chain(self.note_fields(note))
             .chain(self.tags(note).into_iter())

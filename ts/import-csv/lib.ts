@@ -20,6 +20,7 @@ export function getColumnOptions(
     notetypeColumn: number | null,
     deckColumn: number | null,
     tagsColumn: number,
+    guidColumn: number,
 ): ColumnOption[] {
     return [{ label: tr.changeNotetypeNothing(), value: 0, disabled: false }].concat(
         columnLabels.map((label, index) => {
@@ -28,6 +29,8 @@ export function getColumnOptions(
                 return columnOption(tr.notetypesNotetype(), true, index);
             } else if (index === deckColumn) {
                 return columnOption(tr.decksDeck(), true, index);
+            } else if (index === guidColumn) {
+                return columnOption("GUID", true, index);
             } else if (index === tagsColumn) {
                 return columnOption(tr.editingTags(), false, index);
             } else if (label === "") {

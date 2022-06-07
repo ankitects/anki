@@ -141,6 +141,11 @@ impl Collection {
                     metadata.tags_column = n;
                 }
             }
+            "guid column" => {
+                if let Ok(n) = value.trim().parse() {
+                    metadata.guid_column = n;
+                }
+            }
             _ => (),
         }
     }
@@ -420,6 +425,9 @@ impl CsvMetadata {
         }
         if self.tags_column > 0 {
             columns.insert(self.tags_column as usize);
+        }
+        if self.guid_column > 0 {
+            columns.insert(self.guid_column as usize);
         }
         columns
     }

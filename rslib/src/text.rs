@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{borrow::Cow, ptr};
+use std::borrow::Cow;
 
 use lazy_static::lazy_static;
 use pct_str::{IriReserved, PctStr, PctString};
@@ -330,16 +330,9 @@ pub(crate) fn extract_underscored_references(text: &str) -> Vec<&str> {
 }
 
 pub fn strip_html_preserving_media_filenames(html: &str) -> Cow<str> {
-    let without_fnames = HTML_MEDIA_TAGS.replace_all(html, r" ${1}${2}${3} ");
-    let without_html = strip_html(&without_fnames);
-    // no changes?
-    if let Cow::Borrowed(b) = without_html {
-        if ptr::eq(b, html) {
-            return Cow::Borrowed(html);
-        }
-    }
-    // make borrow checker happy
-    without_html.into_owned().into()
+    HTML_MEDIA_TAGS
+        .replace_all(html, r" ${1}${2}${3} ")
+        .map_cow(strip_html)
 }
 
 #[allow(dead_code)]
