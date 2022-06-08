@@ -174,7 +174,15 @@ impl Collection {
                 metadata
                     .notetype_id()
                     .and_then(|ntid| self.default_deck_for_notetype(ntid).transpose())
-                    .unwrap_or_else(|| self.get_current_deck().map(|d| d.id))?
+                    .unwrap_or_else(|| {
+                        self.get_current_deck().map(|deck| {
+                            if deck.is_filtered() {
+                                DeckId(1)
+                            } else {
+                                deck.id
+                            }
+                        })
+                    })?
                     .0,
             ));
         }
