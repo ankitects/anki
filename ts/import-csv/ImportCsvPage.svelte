@@ -57,7 +57,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         tagsColumn,
         guidColumn,
     );
-    $: getCsvMetadata(path, delimiter).then((meta) => {
+    $: getCsvMetadata(path, delimiter, undefined, isHtml).then((meta) => {
         columnLabels = meta.columnLabels;
         preview = meta.preview;
     });

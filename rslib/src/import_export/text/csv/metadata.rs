@@ -35,9 +35,10 @@ impl Collection {
         path: &str,
         delimiter: Option<Delimiter>,
         notetype_id: Option<NotetypeId>,
+        is_html: Option<bool>,
     ) -> Result<CsvMetadata> {
         let mut reader = File::open(path)?;
-        self.get_reader_metadata(&mut reader, delimiter, notetype_id)
+        self.get_reader_metadata(&mut reader, delimiter, notetype_id, is_html)
     }
 
     fn get_reader_metadata(
@@ -45,12 +46,13 @@ impl Collection {
         mut reader: impl Read + Seek,
         delimiter: Option<Delimiter>,
         notetype_id: Option<NotetypeId>,
+        is_html: Option<bool>,
     ) -> Result<CsvMetadata> {
         let mut metadata = CsvMetadata::default();
         let meta_len = self.parse_meta_lines(&mut reader, &mut metadata)? as u64;
         maybe_set_fallback_delimiter(delimiter, &mut metadata, &mut reader, meta_len)?;
         let records = collect_preview_records(&mut metadata, reader)?;
-        maybe_set_fallback_is_html(&mut metadata, &records)?;
+        maybe_set_fallback_is_html(&mut metadata, &records, is_html)?;
         set_preview(&mut metadata, &records)?;
         maybe_set_fallback_columns(&mut metadata)?;
         self.maybe_set_fallback_notetype(&mut metadata, notetype_id)?;
@@ -350,8 +352,11 @@ fn maybe_set_fallback_columns(metadata: &mut CsvMetadata) -> Result<()> {
 fn maybe_set_fallback_is_html(
     metadata: &mut CsvMetadata,
     records: &[csv::StringRecord],
+    is_html_option: Option<bool>,
 ) -> Result<()> {
-    if !metadata.force_is_html {
+    if let Some(is_html) = is_html_option {
+        metadata.is_html = is_html;
+    } else if !metadata.force_is_html {
         metadata.is_html = records.iter().flat_map(|record| record.iter()).any(is_html);
     }
     Ok(())
@@ -502,7 +507,7 @@ mod test {
             metadata!($col, $csv, None)
         };
         ($col:expr,$csv:expr, $delim:expr) => {
-            $col.get_reader_metadata(Cursor::new($csv.as_bytes()), $delim, None)
+            $col.get_reader_metadata(Cursor::new($csv.as_bytes()), $delim, None, None)
                 .unwrap()
         };
     }
