@@ -16,8 +16,12 @@ pub use crate::backend_proto::import_export::{
     CsvMetadata,
 };
 use crate::{
-    backend_proto::StringList, error::ImportError, import_export::text::NameOrId,
-    notetype::NoteField, prelude::*, text::is_html,
+    backend_proto::StringList,
+    error::ImportError,
+    import_export::text::NameOrId,
+    notetype::NoteField,
+    prelude::*,
+    text::{html_to_text_line, is_html},
 };
 
 /// The maximum number of preview rows.
@@ -45,9 +49,10 @@ impl Collection {
         let mut metadata = CsvMetadata::default();
         let meta_len = self.parse_meta_lines(&mut reader, &mut metadata)? as u64;
         maybe_set_fallback_delimiter(delimiter, &mut metadata, &mut reader, meta_len)?;
-        set_preview(&mut metadata, reader)?;
+        let records = collect_preview_records(&mut metadata, reader)?;
+        maybe_set_fallback_is_html(&mut metadata, &records)?;
+        set_preview(&mut metadata, &records)?;
         maybe_set_fallback_columns(&mut metadata)?;
-        maybe_set_fallback_is_html(&mut metadata)?;
         self.maybe_set_fallback_notetype(&mut metadata, notetype_id)?;
         self.maybe_init_notetype_map(&mut metadata)?;
         self.maybe_set_fallback_deck(&mut metadata)?;
@@ -219,28 +224,51 @@ fn parse_columns(line: &str, delimiter: Delimiter) -> Result<Vec<String>> {
     })
 }
 
-fn set_preview(metadata: &mut CsvMetadata, mut reader: impl Read + Seek) -> Result<()> {
+fn collect_preview_records(
+    metadata: &mut CsvMetadata,
+    mut reader: impl Read + Seek,
+) -> Result<Vec<csv::StringRecord>> {
     reader.rewind()?;
     let mut csv_reader = build_csv_reader(reader, metadata.delimiter())?;
-    let mut records = csv_reader.records().into_iter().take(PREVIEW_LENGTH);
+    csv_reader
+        .records()
+        .into_iter()
+        .take(PREVIEW_LENGTH)
+        .collect::<csv::Result<_>>()
+        .map_err(Into::into)
+}
 
-    let first = records.next().transpose()?.unwrap_or_default();
-    metadata.preview.push(build_preview_row(1, &first));
-
-    let min_len = metadata.preview[0].vals.len();
-    for record in records {
-        metadata.preview.push(build_preview_row(min_len, &record?));
-    }
-
+fn set_preview(metadata: &mut CsvMetadata, records: &[csv::StringRecord]) -> Result<()> {
+    let mut min_len = 1;
+    metadata.preview = records
+        .iter()
+        .enumerate()
+        .map(|(idx, record)| {
+            let row = build_preview_row(min_len, record, metadata.is_html);
+            if idx == 0 {
+                min_len = row.vals.len();
+            }
+            row
+        })
+        .collect();
     Ok(())
 }
 
-fn build_preview_row(min_len: usize, record: &csv::StringRecord) -> StringList {
+fn build_preview_row(min_len: usize, record: &csv::StringRecord, strip_html: bool) -> StringList {
     StringList {
         vals: record
             .iter()
             .pad_using(min_len, |_| "")
-            .map(|field| field.chars().take(PREVIEW_FIELD_LENGTH).collect())
+            .map(|field| {
+                if strip_html {
+                    html_to_text_line(field, true)
+                        .chars()
+                        .take(PREVIEW_FIELD_LENGTH)
+                        .collect()
+                } else {
+                    field.chars().take(PREVIEW_FIELD_LENGTH).collect()
+                }
+            })
             .collect(),
     }
 }
@@ -305,15 +333,18 @@ fn ensure_first_field_is_mapped(
 
 fn maybe_set_fallback_columns(metadata: &mut CsvMetadata) -> Result<()> {
     if metadata.column_labels.is_empty() {
-        metadata.column_labels = vec![String::new(); metadata.iter_preview_fields(1).count()];
+        metadata.column_labels =
+            vec![String::new(); metadata.preview.get(0).map_or(0, |row| row.vals.len())];
     }
     Ok(())
 }
 
-fn maybe_set_fallback_is_html(metadata: &mut CsvMetadata) -> Result<()> {
+fn maybe_set_fallback_is_html(
+    metadata: &mut CsvMetadata,
+    records: &[csv::StringRecord],
+) -> Result<()> {
     if !metadata.force_is_html {
-        let is_html = metadata.iter_preview_fields(PREVIEW_LENGTH).any(is_html);
-        metadata.is_html = is_html;
+        metadata.is_html = records.iter().flat_map(|record| record.iter()).any(is_html);
     }
     Ok(())
 }
@@ -430,14 +461,6 @@ impl CsvMetadata {
             columns.insert(self.guid_column as usize);
         }
         columns
-    }
-
-    fn iter_preview_fields(&self, rows: usize) -> impl Iterator<Item = &String> {
-        self.preview
-            .iter()
-            .take(rows)
-            .map(|row| row.vals.iter())
-            .flatten()
     }
 }
 
@@ -670,8 +693,9 @@ mod test {
     #[test]
     fn should_gather_first_lines_into_preview() {
         let mut col = open_test_collection();
-        let meta = metadata!(col, "#separator: \nfoo bar\nbaz\n");
+        let meta = metadata!(col, "#separator: \nfoo bar\nbaz<br>\n");
         assert_eq!(meta.preview[0].vals, ["foo", "bar"]);
+        // html is stripped
         assert_eq!(meta.preview[1].vals, ["baz", ""]);
     }
 }
