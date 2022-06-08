@@ -32,7 +32,7 @@ impl Collection {
         progress.call(ExportProgress::File)?;
         let mut incrementor = progress.incrementor(ExportProgress::Cards);
 
-        let mut writer = file_writer_with_header(path)?;
+        let mut writer = file_writer_with_header(path, with_html)?;
         let mut cards = self.search_cards(search, SortMode::NoOrder)?;
         cards.sort_unstable();
         for &card in &cards {
@@ -76,18 +76,18 @@ impl Collection {
     }
 }
 
-fn file_writer_with_header(path: &str) -> Result<csv::Writer<File>> {
+fn file_writer_with_header(path: &str, with_html: bool) -> Result<csv::Writer<File>> {
     let mut file = File::create(path)?;
-    write_file_header(&mut file)?;
+    write_file_header(&mut file, with_html)?;
     Ok(csv::WriterBuilder::new()
         .delimiter(DELIMITER.byte())
         .comment(Some(b'#'))
         .from_writer(file))
 }
 
-fn write_file_header(writer: &mut impl Write) -> Result<()> {
+fn write_file_header(writer: &mut impl Write, with_html: bool) -> Result<()> {
     writeln!(writer, "#separator:{}", DELIMITER.name())?;
-    writeln!(writer, "#html:true")?;
+    writeln!(writer, "#html:{with_html}")?;
     Ok(())
 }
 
@@ -101,7 +101,7 @@ fn note_file_writer_with_header(path: &str, ctx: &NoteContext) -> Result<csv::Wr
 }
 
 fn write_note_file_header(writer: &mut impl Write, ctx: &NoteContext) -> Result<()> {
-    write_file_header(writer)?;
+    write_file_header(writer, ctx.with_html)?;
     write_column_header(ctx, writer)
 }
 
