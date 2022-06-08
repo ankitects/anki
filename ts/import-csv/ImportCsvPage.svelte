@@ -52,6 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     $: columnOptions = getColumnOptions(
         columnLabels,
+        preview[0].vals,
         notetypeColumn,
         deckColumn,
         tagsColumn,

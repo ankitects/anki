@@ -11,12 +11,14 @@ import {
 
 export interface ColumnOption {
     label: string;
+    shortLabel?: string;
     value: number;
     disabled: boolean;
 }
 
 export function getColumnOptions(
     columnLabels: string[],
+    firstRow: string[],
     notetypeColumn: number | null,
     deckColumn: number | null,
     tagsColumn: number,
@@ -34,21 +36,23 @@ export function getColumnOptions(
             } else if (index === tagsColumn) {
                 return columnOption(tr.editingTags(), false, index);
             } else if (label === "") {
-                return columnOption(index, false, index);
+                return columnOption(firstRow[index - 1], false, index, true);
             } else {
-                return columnOption(`"${label}"`, false, index);
+                return columnOption(label, false, index);
             }
         }),
     );
 }
 
 function columnOption(
-    label: string | number,
+    label: string,
     disabled: boolean,
     index: number,
+    shortLabel?: boolean,
 ): ColumnOption {
     return {
-        label: tr.importingColumn({ val: label }),
+        label: label ? `${index}: ${label}` : index.toString(),
+        shortLabel: shortLabel ? index.toString() : undefined,
         value: index,
         disabled,
     };

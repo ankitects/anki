@@ -12,9 +12,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="outer">
     <table class="preview">
-        {#each columnOptions.slice(1) as { label }}
+        {#each columnOptions.slice(1) as { label, shortLabel }}
             <th>
-                {label}
+                {shortLabel || label}
             </th>
         {/each}
         {#each preview as row}
