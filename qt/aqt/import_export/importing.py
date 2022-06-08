@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from itertools import chain
@@ -145,12 +146,33 @@ IMPORTERS: list[Type[Importer]] = [
 ]
 
 
+def legacy_file_endings(col: Collection) -> list[str]:
+    from anki.importing import AnkiPackageImporter
+    from anki.importing import MnemosyneImporter as LegacyMnemosyneImporter
+    from anki.importing import TextImporter, importers
+
+    return [
+        ext
+        for (text, importer) in importers(col)
+        if importer not in (TextImporter, AnkiPackageImporter, LegacyMnemosyneImporter)
+        for ext in re.findall(r"[( ]?\*(\..+?)[) ]", text)
+    ]
+
+
 def import_file(mw: aqt.main.AnkiQt, path: str) -> None:
     filename = os.path.basename(path).lower()
+
+    if any(filename.endswith(ext) for ext in legacy_file_endings(mw.col)):
+        import aqt.importing
+
+        aqt.importing.importFile(mw, path)
+        return
+
     for importer in IMPORTERS:
         if importer.can_import(filename):
             importer.do_import(mw, path)
             return
+
     showWarning("Unsupported file type.")
 
 
@@ -163,7 +185,7 @@ def get_file_path(mw: aqt.main.AnkiQt) -> str | None:
     filter = without_unicode_isolation(
         tr.importing_all_supported_formats(
             val="({})".format(
-                " ".join(f"*{ending}" for ending in all_accepted_file_endings())
+                " ".join(f"*{ending}" for ending in all_accepted_file_endings(mw))
             )
         )
     )
@@ -172,8 +194,13 @@ def get_file_path(mw: aqt.main.AnkiQt) -> str | None:
     return None
 
 
-def all_accepted_file_endings() -> set[str]:
-    return set(chain(*(importer.accepted_file_endings for importer in IMPORTERS)))
+def all_accepted_file_endings(mw: aqt.main.AnkiQt) -> set[str]:
+    return set(
+        chain(
+            *(importer.accepted_file_endings for importer in IMPORTERS),
+            legacy_file_endings(mw.col),
+        )
+    )
 
 
 def import_collection_package_op(
