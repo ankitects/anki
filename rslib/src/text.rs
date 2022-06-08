@@ -134,12 +134,8 @@ lazy_static! {
 
     static ref PERSISTENT_HTML_SPACERS: Regex = Regex::new(r#"(?i)<br\s*/?>|<div>|\n"#).unwrap();
 
-    static ref UNPRINTABLE_TAGS: Regex = Regex::new(
-        r"(?xs)
-        \[sound:[^]]+\]
-        |
-        \[\[type:[^]]+\]\]
-    ").unwrap();
+    static ref TYPE_TAG: Regex = Regex::new(r"\[\[type:[^]]+\]\]").unwrap();
+    static ref SOUND_TAG: Regex = Regex::new(r"\[sound:([^]]+)\]").unwrap();
 
     /// Files included in CSS with a leading underscore.
     static ref UNDERSCORED_CSS_IMPORTS: Regex = Regex::new(
@@ -177,14 +173,16 @@ pub fn is_html(text: impl AsRef<str>) -> bool {
 }
 
 pub fn html_to_text_line(html: &str, preserve_media_filenames: bool) -> Cow<str> {
+    let (html_stripper, sound_rep): (fn(&str) -> Cow<str>, _) = if preserve_media_filenames {
+        (strip_html_preserving_media_filenames, "$1")
+    } else {
+        (strip_html, "")
+    };
     PERSISTENT_HTML_SPACERS
         .replace_all(html, " ")
-        .map_cow(|s| UNPRINTABLE_TAGS.replace_all(s, ""))
-        .map_cow(if preserve_media_filenames {
-            strip_html_preserving_media_filenames
-        } else {
-            strip_html
-        })
+        .map_cow(|s| TYPE_TAG.replace_all(s, ""))
+        .map_cow(|s| SOUND_TAG.replace_all(s, sound_rep))
+        .map_cow(html_stripper)
         .trim()
 }
 
