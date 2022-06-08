@@ -78,6 +78,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QCheckBox" name="includeHTML">
+       <property name="text">
+        <string>exporting_include_html_and_media_references</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QCheckBox" name="includeTags">
        <property name="text">
         <string>exporting_include_tags</string>
@@ -110,14 +117,7 @@
      <item>
       <widget class="QCheckBox" name="includeGuid">
        <property name="text">
-        <string notr="true">Include GUID</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="includeHTML">
-       <property name="text">
-        <string>exporting_include_html_and_media_references</string>
+        <string>exporting_include_guid</string>
        </property>
       </widget>
      </item>
