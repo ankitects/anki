@@ -54,7 +54,7 @@ dependencies = [
  "chrono",
  "coarsetime",
  "criterion",
- "csv",
+ "csv 1.1.6 (git+https://github.com/ankitects/rust-csv.git?rev=1c9d3aab6f79a7d815c69f925a46a4590c115f90)",
  "env_logger",
  "flate2",
  "fluent",
@@ -392,7 +392,7 @@ dependencies = [
  "cast",
  "clap",
  "criterion-plot",
- "csv",
+ "csv 1.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "itertools",
  "lazy_static",
  "num-traits",
@@ -506,8 +506,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "22813a6dc45b335f9bade10bf7271dc477e81113e89eb251a0bc2a8a81c536e1"
 dependencies = [
  "bstr",
- "csv-core",
+ "csv-core 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "itoa 0.4.8",
+ "ryu",
+ "serde",
+]
+
+[[package]]
+name = "csv"
+version = "1.1.6"
+source = "git+https://github.com/ankitects/rust-csv.git?rev=1c9d3aab6f79a7d815c69f925a46a4590c115f90#1c9d3aab6f79a7d815c69f925a46a4590c115f90"
+dependencies = [
+ "bstr",
+ "csv-core 0.1.10 (git+https://github.com/ankitects/rust-csv.git?rev=1c9d3aab6f79a7d815c69f925a46a4590c115f90)",
+ "itoa 1.0.1",
  "ryu",
  "serde",
 ]
@@ -517,6 +529,14 @@ name = "csv-core"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b2466559f260f48ad25fe6317b3c8dac77b5bdb5763ac7d9d6103530663bc90"
+dependencies = [
+ "memchr",
+]
+
+[[package]]
+name = "csv-core"
+version = "0.1.10"
+source = "git+https://github.com/ankitects/rust-csv.git?rev=1c9d3aab6f79a7d815c69f925a46a4590c115f90#1c9d3aab6f79a7d815c69f925a46a4590c115f90"
 dependencies = [
  "memchr",
 ]

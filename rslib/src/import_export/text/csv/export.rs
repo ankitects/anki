@@ -81,7 +81,7 @@ fn file_writer_with_header(path: &str) -> Result<csv::Writer<File>> {
     write_file_header(&mut file)?;
     Ok(csv::WriterBuilder::new()
         .delimiter(DELIMITER.byte())
-        .quote_style(csv::QuoteStyle::Always)
+        .comment(Some(b'#'))
         .from_writer(file))
 }
 
@@ -96,7 +96,7 @@ fn note_file_writer_with_header(path: &str, ctx: &NoteContext) -> Result<csv::Wr
     write_note_file_header(&mut file, ctx)?;
     Ok(csv::WriterBuilder::new()
         .delimiter(DELIMITER.byte())
-        .quote_style(csv::QuoteStyle::Always)
+        .comment(Some(b'#'))
         .from_writer(file))
 }
 
