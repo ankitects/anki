@@ -75,7 +75,12 @@ impl ImportExportService for Backend {
     fn get_csv_metadata(&self, input: pb::CsvMetadataRequest) -> Result<pb::CsvMetadata> {
         let delimiter = input.delimiter.is_some().then(|| input.delimiter());
         self.with_col(|col| {
-            col.get_csv_metadata(&input.path, delimiter, input.notetype_id.map(Into::into))
+            col.get_csv_metadata(
+                &input.path,
+                delimiter,
+                input.notetype_id.map(Into::into),
+                input.is_html,
+            )
         })
     }
 
@@ -93,16 +98,8 @@ impl ImportExportService for Backend {
     }
 
     fn export_note_csv(&self, input: pb::ExportNoteCsvRequest) -> Result<pb::UInt32> {
-        self.with_col(|col| {
-            col.export_note_csv(
-                &input.out_path,
-                SearchNode::from(input.limit.unwrap_or_default()),
-                input.with_html,
-                input.with_tags,
-                self.export_progress_fn(),
-            )
-        })
-        .map(Into::into)
+        self.with_col(|col| col.export_note_csv(input, self.export_progress_fn()))
+            .map(Into::into)
     }
 
     fn export_card_csv(&self, input: pb::ExportCardCsvRequest) -> Result<pb::UInt32> {

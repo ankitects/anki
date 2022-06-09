@@ -21,7 +21,10 @@ COMMITS_SHALLOW_SINCE = {
     "1ee0892217e9a76bba4bb369ec5fab8854935a3c": "1619517354 +1000",
     # pct-str
     "4adccd8d4a222ab2672350a102f06ae832a0572d": "1605376517 +0100",
+    # linkcheck
     "2f20798ce521cc594d510d4e417e76d5eac04d4b": "1626729019 +0200",
+    # rust-csv
+    "1c9d3aab6f79a7d815c69f925a46a4590c115f90": "1654675287 +1000",
 }
 
 import glob

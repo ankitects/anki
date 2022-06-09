@@ -4,19 +4,30 @@
 use std::{
     collections::{HashMap, HashSet},
     fs::File,
-    io::{BufRead, BufReader},
+    io::{BufRead, BufReader, Read, Seek, SeekFrom},
 };
 
+use itertools::Itertools;
 use strum::IntoEnumIterator;
 
+use super::import::build_csv_reader;
 pub use crate::backend_proto::import_export::{
     csv_metadata::{Deck as CsvDeck, Delimiter, MappedNotetype, Notetype as CsvNotetype},
     CsvMetadata,
 };
 use crate::{
-    error::ImportError, import_export::text::NameOrId, notetype::NoteField, prelude::*,
-    text::is_html,
+    backend_proto::StringList,
+    error::ImportError,
+    import_export::text::NameOrId,
+    notetype::NoteField,
+    prelude::*,
+    text::{html_to_text_line, is_html},
 };
+
+/// The maximum number of preview rows.
+const PREVIEW_LENGTH: usize = 5;
+/// The maximum number of characters per preview field.
+const PREVIEW_FIELD_LENGTH: usize = 80;
 
 impl Collection {
     pub fn get_csv_metadata(
@@ -24,45 +35,50 @@ impl Collection {
         path: &str,
         delimiter: Option<Delimiter>,
         notetype_id: Option<NotetypeId>,
+        is_html: Option<bool>,
     ) -> Result<CsvMetadata> {
-        let reader = BufReader::new(File::open(path)?);
-        self.get_reader_metadata(reader, delimiter, notetype_id)
+        let mut reader = File::open(path)?;
+        self.get_reader_metadata(&mut reader, delimiter, notetype_id, is_html)
     }
 
     fn get_reader_metadata(
         &mut self,
-        reader: impl BufRead,
+        mut reader: impl Read + Seek,
         delimiter: Option<Delimiter>,
         notetype_id: Option<NotetypeId>,
+        is_html: Option<bool>,
     ) -> Result<CsvMetadata> {
         let mut metadata = CsvMetadata::default();
-        let line = self.parse_meta_lines(reader, &mut metadata)?;
-        maybe_set_fallback_delimiter(delimiter, &mut metadata, &line);
-        maybe_set_fallback_columns(&mut metadata, &line)?;
-        maybe_set_fallback_is_html(&mut metadata, &line)?;
+        let meta_len = self.parse_meta_lines(&mut reader, &mut metadata)? as u64;
+        maybe_set_fallback_delimiter(delimiter, &mut metadata, &mut reader, meta_len)?;
+        let records = collect_preview_records(&mut metadata, reader)?;
+        maybe_set_fallback_is_html(&mut metadata, &records, is_html)?;
+        set_preview(&mut metadata, &records)?;
+        maybe_set_fallback_columns(&mut metadata)?;
         self.maybe_set_fallback_notetype(&mut metadata, notetype_id)?;
         self.maybe_init_notetype_map(&mut metadata)?;
         self.maybe_set_fallback_deck(&mut metadata)?;
+
         Ok(metadata)
     }
 
-    /// Parses the meta head of the file, and returns the first content line.
-    fn parse_meta_lines(
-        &mut self,
-        mut reader: impl BufRead,
-        metadata: &mut CsvMetadata,
-    ) -> Result<String> {
+    /// Parses the meta head of the file and returns the total of meta bytes.
+    fn parse_meta_lines(&mut self, reader: impl Read, metadata: &mut CsvMetadata) -> Result<usize> {
+        let mut meta_len = 0;
+        let mut reader = BufReader::new(reader);
         let mut line = String::new();
-        reader.read_line(&mut line)?;
+        let mut line_len = reader.read_line(&mut line)?;
         if self.parse_first_line(&line, metadata) {
+            meta_len += line_len;
             line.clear();
-            reader.read_line(&mut line)?;
+            line_len = reader.read_line(&mut line)?;
             while self.parse_line(&line, metadata) {
+                meta_len += line_len;
                 line.clear();
-                reader.read_line(&mut line)?;
+                line_len = reader.read_line(&mut line)?;
             }
         }
-        Ok(line)
+        Ok(meta_len)
     }
 
     /// True if the line is a meta line, i.e. a comment, or starting with 'tags:'.
@@ -103,7 +119,7 @@ impl Collection {
             }
             "tags" => metadata.global_tags = collect_tags(value),
             "columns" => {
-                if let Ok(columns) = self.parse_columns(value, metadata) {
+                if let Ok(columns) = parse_columns(value, metadata.delimiter()) {
                     metadata.column_labels = columns;
                 }
             }
@@ -127,19 +143,18 @@ impl Collection {
                     metadata.deck = Some(CsvDeck::DeckColumn(n));
                 }
             }
+            "tags column" => {
+                if let Ok(n) = value.trim().parse() {
+                    metadata.tags_column = n;
+                }
+            }
+            "guid column" => {
+                if let Ok(n) = value.trim().parse() {
+                    metadata.guid_column = n;
+                }
+            }
             _ => (),
         }
-    }
-
-    fn parse_columns(&mut self, line: &str, metadata: &mut CsvMetadata) -> Result<Vec<String>> {
-        let delimiter = if metadata.force_delimiter {
-            metadata.delimiter()
-        } else {
-            delimiter_from_line(line)
-        };
-        map_single_record(line, delimiter, |record| {
-            record.iter().map(ToString::to_string).collect()
-        })
     }
 
     fn maybe_set_fallback_notetype(
@@ -161,7 +176,15 @@ impl Collection {
                 metadata
                     .notetype_id()
                     .and_then(|ntid| self.default_deck_for_notetype(ntid).transpose())
-                    .unwrap_or_else(|| self.get_current_deck().map(|d| d.id))?
+                    .unwrap_or_else(|| {
+                        self.get_current_deck().map(|deck| {
+                            if deck.is_filtered() {
+                                DeckId(1)
+                            } else {
+                                deck.id
+                            }
+                        })
+                    })?
                     .0,
             ));
         }
@@ -202,6 +225,61 @@ impl Collection {
                 .ok_or(AnkiError::NotFound)?
                 .0
         })
+    }
+}
+
+fn parse_columns(line: &str, delimiter: Delimiter) -> Result<Vec<String>> {
+    map_single_record(line, delimiter, |record| {
+        record.iter().map(ToString::to_string).collect()
+    })
+}
+
+fn collect_preview_records(
+    metadata: &mut CsvMetadata,
+    mut reader: impl Read + Seek,
+) -> Result<Vec<csv::StringRecord>> {
+    reader.rewind()?;
+    let mut csv_reader = build_csv_reader(reader, metadata.delimiter())?;
+    csv_reader
+        .records()
+        .into_iter()
+        .take(PREVIEW_LENGTH)
+        .collect::<csv::Result<_>>()
+        .map_err(Into::into)
+}
+
+fn set_preview(metadata: &mut CsvMetadata, records: &[csv::StringRecord]) -> Result<()> {
+    let mut min_len = 1;
+    metadata.preview = records
+        .iter()
+        .enumerate()
+        .map(|(idx, record)| {
+            let row = build_preview_row(min_len, record, metadata.is_html);
+            if idx == 0 {
+                min_len = row.vals.len();
+            }
+            row
+        })
+        .collect();
+    Ok(())
+}
+
+fn build_preview_row(min_len: usize, record: &csv::StringRecord, strip_html: bool) -> StringList {
+    StringList {
+        vals: record
+            .iter()
+            .pad_using(min_len, |_| "")
+            .map(|field| {
+                if strip_html {
+                    html_to_text_line(field, true)
+                        .chars()
+                        .take(PREVIEW_FIELD_LENGTH)
+                        .collect()
+                } else {
+                    field.chars().take(PREVIEW_FIELD_LENGTH).collect()
+                }
+            })
+            .collect(),
     }
 }
 
@@ -263,20 +341,23 @@ fn ensure_first_field_is_mapped(
     Ok(())
 }
 
-fn maybe_set_fallback_columns(metadata: &mut CsvMetadata, line: &str) -> Result<()> {
+fn maybe_set_fallback_columns(metadata: &mut CsvMetadata) -> Result<()> {
     if metadata.column_labels.is_empty() {
-        let columns = map_single_record(line, metadata.delimiter(), |r| r.len())?;
-        metadata.column_labels = vec![String::new(); columns];
+        metadata.column_labels =
+            vec![String::new(); metadata.preview.get(0).map_or(0, |row| row.vals.len())];
     }
     Ok(())
 }
 
-fn maybe_set_fallback_is_html(metadata: &mut CsvMetadata, line: &str) -> Result<()> {
-    // TODO: should probably check more than one line; can reuse preview lines
-    // when it's implemented
-    if !metadata.force_is_html {
-        metadata.is_html =
-            map_single_record(line, metadata.delimiter(), |r| r.iter().any(is_html))?;
+fn maybe_set_fallback_is_html(
+    metadata: &mut CsvMetadata,
+    records: &[csv::StringRecord],
+    is_html_option: Option<bool>,
+) -> Result<()> {
+    if let Some(is_html) = is_html_option {
+        metadata.is_html = is_html;
+    } else if !metadata.force_is_html {
+        metadata.is_html = records.iter().flat_map(|record| record.iter()).any(is_html);
     }
     Ok(())
 }
@@ -284,13 +365,16 @@ fn maybe_set_fallback_is_html(metadata: &mut CsvMetadata, line: &str) -> Result<
 fn maybe_set_fallback_delimiter(
     delimiter: Option<Delimiter>,
     metadata: &mut CsvMetadata,
-    line: &str,
-) {
+    mut reader: impl Read + Seek,
+    meta_len: u64,
+) -> Result<()> {
     if let Some(delim) = delimiter {
         metadata.set_delimiter(delim);
     } else if !metadata.force_delimiter {
-        metadata.set_delimiter(delimiter_from_line(line));
+        reader.seek(SeekFrom::Start(meta_len))?;
+        metadata.set_delimiter(delimiter_from_reader(reader)?);
     }
+    Ok(())
 }
 
 fn delimiter_from_value(value: &str) -> Option<Delimiter> {
@@ -303,14 +387,16 @@ fn delimiter_from_value(value: &str) -> Option<Delimiter> {
     None
 }
 
-fn delimiter_from_line(line: &str) -> Delimiter {
+fn delimiter_from_reader(mut reader: impl Read) -> Result<Delimiter> {
+    let mut buf = [0; 8 * 1024];
+    let _ = reader.read(&mut buf)?;
     // TODO: use smarter heuristic
     for delimiter in Delimiter::iter() {
-        if line.contains(delimiter.byte() as char) {
-            return delimiter;
+        if buf.contains(&delimiter.byte()) {
+            return Ok(delimiter);
         }
     }
-    Delimiter::Space
+    Ok(Delimiter::Space)
 }
 
 fn map_single_record<T>(
@@ -384,6 +470,9 @@ impl CsvMetadata {
         if self.tags_column > 0 {
             columns.insert(self.tags_column as usize);
         }
+        if self.guid_column > 0 {
+            columns.insert(self.guid_column as usize);
+        }
         columns
     }
 }
@@ -398,8 +487,18 @@ impl NameOrId {
     }
 }
 
+impl From<csv::StringRecord> for StringList {
+    fn from(record: csv::StringRecord) -> Self {
+        Self {
+            vals: record.iter().map(ToString::to_string).collect(),
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
+    use std::io::Cursor;
+
     use super::*;
     use crate::collection::open_test_collection;
 
@@ -408,7 +507,7 @@ mod test {
             metadata!($col, $csv, None)
         };
         ($col:expr,$csv:expr, $delim:expr) => {
-            $col.get_reader_metadata(BufReader::new($csv.as_bytes()), $delim, None)
+            $col.get_reader_metadata(Cursor::new($csv.as_bytes()), $delim, None, None)
                 .unwrap()
         };
     }
@@ -561,12 +660,23 @@ mod test {
 
         // custom names
         assert_eq!(
-            metadata!(col, "#columns:one,two\n").column_labels,
+            metadata!(col, "#columns:one\ttwo\n").column_labels,
             ["one", "two"]
         );
         assert_eq!(
             metadata!(col, "#separator:|\n#columns:one|two\n").column_labels,
             ["one", "two"]
+        );
+    }
+
+    #[test]
+    fn should_detect_column_number_despite_escaped_line_breaks() {
+        let mut col = open_test_collection();
+        assert_eq!(
+            metadata!(col, "\"foo|\nbar\"\tfoo\tbar\n")
+                .column_labels
+                .len(),
+            3
         );
     }
 
@@ -589,7 +699,16 @@ mod test {
     #[test]
     fn should_map_default_notetype_fields_by_given_column_names() {
         let mut col = open_test_collection();
-        let meta = metadata!(col, "#columns:Back,Front\nfoo,bar,baz\n");
+        let meta = metadata!(col, "#columns:Back\tFront\nfoo,bar,baz\n");
         assert_eq!(meta.unwrap_notetype_map(), &[2, 1]);
+    }
+
+    #[test]
+    fn should_gather_first_lines_into_preview() {
+        let mut col = open_test_collection();
+        let meta = metadata!(col, "#separator: \nfoo bar\nbaz<br>\n");
+        assert_eq!(meta.preview[0].vals, ["foo", "bar"]);
+        // html is stripped
+        assert_eq!(meta.preview[1].vals, ["baz", ""]);
     }
 }

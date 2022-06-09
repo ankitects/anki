@@ -372,23 +372,23 @@ def raze_fetch_remote_crates():
     )
 
     maybe(
-        http_archive,
+        new_git_repository,
         name = "raze__csv__1_1_6",
-        url = "https://crates.io/api/v1/crates/csv/1.1.6/download",
-        type = "tar.gz",
-        sha256 = "22813a6dc45b335f9bade10bf7271dc477e81113e89eb251a0bc2a8a81c536e1",
-        strip_prefix = "csv-1.1.6",
+        remote = "https://github.com/ankitects/rust-csv.git",
+        shallow_since = "1654675287 +1000",
+        commit = "1c9d3aab6f79a7d815c69f925a46a4590c115f90",
         build_file = Label("//cargo/remote:BUILD.csv-1.1.6.bazel"),
+        init_submodules = True,
     )
 
     maybe(
-        http_archive,
+        new_git_repository,
         name = "raze__csv_core__0_1_10",
-        url = "https://crates.io/api/v1/crates/csv-core/0.1.10/download",
-        type = "tar.gz",
-        sha256 = "2b2466559f260f48ad25fe6317b3c8dac77b5bdb5763ac7d9d6103530663bc90",
-        strip_prefix = "csv-core-0.1.10",
+        remote = "https://github.com/ankitects/rust-csv.git",
+        shallow_since = "1654675287 +1000",
+        commit = "1c9d3aab6f79a7d815c69f925a46a4590c115f90",
         build_file = Label("//cargo/remote:BUILD.csv-core-0.1.10.bazel"),
+        init_submodules = True,
     )
 
     maybe(

@@ -218,6 +218,21 @@ impl Collection {
             .collect()
     }
 
+    pub fn get_all_notetypes_of_search_notes(
+        &mut self,
+    ) -> Result<HashMap<NotetypeId, Arc<Notetype>>> {
+        self.storage
+            .all_notetypes_of_search_notes()?
+            .into_iter()
+            .map(|ntid| {
+                self.get_notetype(ntid)
+                    .transpose()
+                    .unwrap()
+                    .map(|nt| (ntid, nt))
+            })
+            .collect()
+    }
+
     pub fn remove_notetype(&mut self, ntid: NotetypeId) -> Result<OpOutput<()>> {
         self.transact(Op::RemoveNotetype, |col| col.remove_notetype_inner(ntid))
     }

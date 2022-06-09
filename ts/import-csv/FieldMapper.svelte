@@ -26,6 +26,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             />
         {/each}
     {/await}
+    <Spacer --height="1.5rem" />
 {/if}
-<Spacer --height="1.5rem" />
 <MapperRow label={tr.editingTags()} {columnOptions} bind:value={tagsColumn} />

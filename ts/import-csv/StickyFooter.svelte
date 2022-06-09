@@ -37,11 +37,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .sticky-footer {
-        position: sticky;
+        position: fixed;
         bottom: 0;
+        left: 0;
+        right: 0;
         z-index: 10;
 
-        margin: 0.75rem;
+        margin: 0;
         padding: 0.25rem;
 
         background: var(--window-bg);

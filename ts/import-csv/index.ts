@@ -59,7 +59,9 @@ export async function setupImportCsvPage(path: string): Promise<ImportCsvPage> {
             updatedTags: metadata.updatedTags,
             columnLabels: metadata.columnLabels,
             tagsColumn: metadata.tagsColumn,
+            guidColumn: metadata.guidColumn,
             globalNotetype: metadata.globalNotetype ?? null,
+            preview: metadata.preview,
             // Unset oneof numbers default to 0, which also means n/a here,
             // but it's vital to differentiate between unset and 0 when reserializing.
             notetypeColumn: metadata.notetypeColumn ? metadata.notetypeColumn : null,
