@@ -222,6 +222,8 @@ class WebContent:
 
 
 class AnkiWebView(QWebEngineView):
+    allow_drops = False
+
     def __init__(
         self,
         parent: Optional[QWidget] = None,
@@ -245,7 +247,6 @@ class AnkiWebView(QWebEngineView):
         self._disable_zoom = False
 
         self.resetHandlers()
-        self.allow_drops = False
         self._filterSet = False
         QShortcut(  # type: ignore
             QKeySequence("Esc"),
