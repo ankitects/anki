@@ -313,7 +313,9 @@ class Reviewer:
             ],
             context=self,
         )
+        # block default drag & drop behavior while allowing drop events to be received by JS handlers
         self.web.allow_drops = True
+        self.web.eval("_blockDefaultDragDropBehavior();")
         # show answer / ease buttons
         self.bottom.web.show()
         self.bottom.web.stdHtml(
