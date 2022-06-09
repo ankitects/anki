@@ -132,6 +132,7 @@ class Previewer(QDialog):
             ],
             context=self,
         )
+        self._web.allow_drops = True
         self._web.set_bridge_command(self._on_bridge_cmd, self)
 
     def _on_bridge_cmd(self, cmd: str) -> Any:

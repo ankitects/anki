@@ -313,6 +313,7 @@ class Reviewer:
             ],
             context=self,
         )
+        self.web.allow_drops = True
         # show answer / ease buttons
         self.bottom.web.show()
         self.bottom.web.stdHtml(
