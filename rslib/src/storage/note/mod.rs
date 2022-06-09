@@ -338,6 +338,13 @@ impl super::SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn all_notes_by_guid(&mut self) -> Result<HashMap<String, NoteId>> {
+        self.db
+            .prepare("SELECT guid, id FROM notes")?
+            .query_and_then([], |r| Ok((r.get(0)?, r.get(1)?)))?
+            .collect()
+    }
+
     #[cfg(test)]
     pub(crate) fn get_all_notes(&mut self) -> Vec<Note> {
         self.db

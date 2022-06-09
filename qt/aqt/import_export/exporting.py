@@ -91,6 +91,9 @@ class ExportDialog(QDialog):
         self.frm.includeMedia.setVisible(self.exporter.show_include_media)
         self.frm.includeTags.setVisible(self.exporter.show_include_tags)
         self.frm.includeHTML.setVisible(self.exporter.show_include_html)
+        self.frm.includeDeck.setVisible(self.exporter.show_include_deck)
+        self.frm.includeNotetype.setVisible(self.exporter.show_include_notetype)
+        self.frm.includeGuid.setVisible(self.exporter.show_include_guid)
         self.frm.legacy_support.setVisible(self.exporter.show_legacy_support)
         self.frm.deck.setVisible(self.exporter.show_deck_list)
 
@@ -135,6 +138,9 @@ class ExportDialog(QDialog):
             include_media=self.frm.includeMedia.isChecked(),
             include_tags=self.frm.includeTags.isChecked(),
             include_html=self.frm.includeHTML.isChecked(),
+            include_deck=self.frm.includeDeck.isChecked(),
+            include_notetype=self.frm.includeNotetype.isChecked(),
+            include_guid=self.frm.includeGuid.isChecked(),
             legacy_support=self.frm.legacy_support.isChecked(),
             limit=limit,
         )
@@ -165,6 +171,9 @@ class Options:
     include_media: bool
     include_tags: bool
     include_html: bool
+    include_deck: bool
+    include_notetype: bool
+    include_guid: bool
     legacy_support: bool
     limit: ExportLimit
 
@@ -177,6 +186,9 @@ class Exporter(ABC):
     show_include_tags = False
     show_include_html = False
     show_legacy_support = False
+    show_include_deck = False
+    show_include_notetype = False
+    show_include_guid = False
 
     @staticmethod
     @abstractmethod
@@ -255,6 +267,9 @@ class NoteCsvExporter(Exporter):
     show_deck_list = True
     show_include_html = True
     show_include_tags = True
+    show_include_deck = True
+    show_include_notetype = True
+    show_include_guid = True
 
     @staticmethod
     def name() -> str:
@@ -269,6 +284,9 @@ class NoteCsvExporter(Exporter):
                 limit=options.limit,
                 with_html=options.include_html,
                 with_tags=options.include_tags,
+                with_deck=options.include_deck,
+                with_notetype=options.include_notetype,
+                with_guid=options.include_guid,
             ),
             success=lambda count: tooltip(
                 tr.exporting_note_exported(count=count), parent=mw

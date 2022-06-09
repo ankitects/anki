@@ -116,6 +116,15 @@ impl SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn all_notetypes_of_search_notes(&self) -> Result<Vec<NotetypeId>> {
+        self.db
+            .prepare_cached(
+                "SELECT DISTINCT mid FROM notes WHERE id IN (SELECT nid FROM search_nids)",
+            )?
+            .query_and_then([], |r| Ok(r.get(0)?))?
+            .collect()
+    }
+
     pub fn get_all_notetype_names(&self) -> Result<Vec<(NotetypeId, String)>> {
         self.db
             .prepare_cached(include_str!("get_notetype_names.sql"))?

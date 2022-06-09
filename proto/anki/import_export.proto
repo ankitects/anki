@@ -119,6 +119,7 @@ message CsvMetadataRequest {
   string path = 1;
   optional CsvMetadata.Delimiter delimiter = 2;
   optional int64 notetype_id = 3;
+  optional bool is_html = 4;
 }
 
 // Column indices are 1-based to make working with them in TS easier, where
@@ -163,6 +164,8 @@ message CsvMetadata {
   uint32 tags_column = 10;
   bool force_delimiter = 11;
   bool force_is_html = 12;
+  repeated generic.StringList preview = 13;
+  uint32 guid_column = 14;
 }
 
 message ExportCardCsvRequest {
@@ -175,7 +178,10 @@ message ExportNoteCsvRequest {
   string out_path = 1;
   bool with_html = 2;
   bool with_tags = 3;
-  ExportLimit limit = 4;
+  bool with_deck = 4;
+  bool with_notetype = 5;
+  bool with_guid = 6;
+  ExportLimit limit = 7;
 }
 
 message ExportLimit {
