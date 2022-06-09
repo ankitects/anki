@@ -953,6 +953,7 @@ title="{}" {}>{}</button>""".format(
 
     def _refresh_after_sync(self) -> None:
         self.toolbar.redraw()
+        self.flags.require_refresh()
 
     def _sync_collection_and_media(self, after_sync: Callable[[], None]) -> None:
         "Caller should ensure auth available."
