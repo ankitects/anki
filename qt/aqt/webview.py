@@ -222,6 +222,8 @@ class WebContent:
 
 
 class AnkiWebView(QWebEngineView):
+    allow_drops = False
+
     def __init__(
         self,
         parent: Optional[QWidget] = None,
@@ -322,7 +324,8 @@ class AnkiWebView(QWebEngineView):
         m.popup(QCursor.pos())
 
     def dropEvent(self, evt: QDropEvent) -> None:
-        pass
+        if self.allow_drops:
+            super().dropEvent(evt)
 
     def setHtml(self, html: str) -> None:  #  type: ignore
         # discard any previous pending actions
@@ -331,6 +334,7 @@ class AnkiWebView(QWebEngineView):
         self._queueAction("setHtml", html)
         self.set_open_links_externally(True)
         self.setZoomFactor(1)
+        self.allow_drops = False
         self.show()
 
     def _setHtml(self, html: str) -> None:
@@ -357,6 +361,7 @@ class AnkiWebView(QWebEngineView):
     def load_url(self, url: QUrl) -> None:
         # allow queuing actions when loading url directly
         self._domDone = False
+        self.allow_drops = False
         super().load(url)
 
     def app_zoom_factor(self) -> float:
