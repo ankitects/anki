@@ -355,6 +355,8 @@ class CardLayout(QDialog):
             ],
             context=self,
         )
+        self.preview_web.allow_drops = True
+        self.preview_web.eval("_blockDefaultDragDropBehavior();")
         self.preview_web.set_bridge_command(self._on_bridge_cmd, self)
 
         if self._isCloze():
