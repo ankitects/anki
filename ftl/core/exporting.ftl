@@ -40,4 +40,4 @@ exporting-processed-media-files =
     }
 exporting-include-deck = Include deck name
 exporting-include-notetype = Include notetype name
-exporting-include-guid = Include unique note identifier
+exporting-include-guid = Include unique identifier
