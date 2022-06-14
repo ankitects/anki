@@ -7,7 +7,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import type { Writable } from "svelte/store";
+    import { getContext } from "svelte";
+    import type { Readable, Writable } from "svelte/store";
 
     import { updateAllState } from "../components/WithState.svelte";
     import actionList from "../sveltelib/action-list";
@@ -15,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { SetupInputHandlerAction } from "../sveltelib/input-handler";
     import type { ContentEditableAPI } from "./content-editable";
     import { preventBuiltinShortcuts, useFocusHandler } from "./content-editable";
+    import { descriptionKey } from "../lib/context-keys";
 
     export let resolve: (editable: HTMLElement) => void;
 
@@ -33,6 +35,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const [focusHandler, setupFocusHandling] = useFocusHandler();
 
     Object.assign(api, { focusHandler });
+
+    const description = getContext<Readable<string>>(descriptionKey);
+    $: descriptionCSSValue = `"${$description}"`;
 </script>
 
 <anki-editable
@@ -46,6 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:blur
     on:click={updateAllState}
     on:keyup={updateAllState}
+    style="--description: {descriptionCSSValue}"
 />
 
 <style lang="scss">
@@ -59,6 +65,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         &:focus {
             outline: none;
+        }
+        &:empty::after {
+            content: var(--description);
+            opacity: 0.4;
+            cursor: text;
         }
     }
 

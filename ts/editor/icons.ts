@@ -12,4 +12,3 @@ export { default as richTextOn } from "@mdi/svg/svg/eye-outline.svg";
 export { default as stickyOff } from "@mdi/svg/svg/pin-off-outline.svg";
 export { default as stickyOn } from "@mdi/svg/svg/pin-outline.svg";
 export { default as htmlOff } from "@mdi/svg/svg/xml.svg";
-export { default as descriptionIcon } from "bootstrap-icons/icons/info-circle.svg";

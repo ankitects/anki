@@ -49,7 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { setContext as svelteSetContext, tick } from "svelte";
     import { writable } from "svelte/store";
 
-    import { fontFamilyKey, fontSizeKey } from "../lib/context-keys";
+    import { fontFamilyKey, fontSizeKey, descriptionKey } from "../lib/context-keys";
     import FocusTrap from "./FocusTrap.svelte";
 
     export let fontFamily: string;
@@ -61,6 +61,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const fontSizeStore = writable(fontSize);
     $: $fontSizeStore = fontSize;
     svelteSetContext(fontSizeKey, fontSizeStore);
+
+    export let description: string;
+    const descriptionStore = writable(description);
+    $: $descriptionStore = description;
+    svelteSetContext(descriptionKey, descriptionStore);
 
     export let content: Writable<string>;
 
