@@ -27,6 +27,7 @@ service NotetypesService {
   rpc GetChangeNotetypeInfo(GetChangeNotetypeInfoRequest)
       returns (ChangeNotetypeInfo);
   rpc ChangeNotetype(ChangeNotetypeRequest) returns (collection.OpChanges);
+  rpc GetFieldNames(NotetypeId) returns (generic.StringList);
 }
 
 message NotetypeId {

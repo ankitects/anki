@@ -193,7 +193,7 @@
         "path": "node_modules/@types/marked",
         "licenseFile": "node_modules/@types/marked/LICENSE"
     },
-    "@types/node@17.0.23": {
+    "@types/node@17.0.38": {
         "licenses": "MIT",
         "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
         "path": "node_modules/protobufjs/node_modules/@types/node",
@@ -1608,7 +1608,7 @@
         "path": "node_modules/progress",
         "licenseFile": "node_modules/progress/LICENSE"
     },
-    "protobufjs@6.11.2": {
+    "protobufjs@6.11.3": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/protobufjs/protobuf.js",
         "publisher": "Daniel Wirtz",

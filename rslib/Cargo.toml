@@ -100,3 +100,4 @@ unic-ucd-category = "0.9.0"
 id_tree = "1.8.0"
 zstd = { version="0.10.0", features=["zstdmt"] }
 num_cpus = "1.13.1"
+csv = { git="https://github.com/ankitects/rust-csv.git", rev="1c9d3aab6f79a7d815c69f925a46a4590c115f90" }

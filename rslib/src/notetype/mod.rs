@@ -53,6 +53,7 @@ use crate::{
 define_newtype!(NotetypeId, i64);
 
 pub(crate) const DEFAULT_CSS: &str = include_str!("styling.css");
+pub(crate) const DEFAULT_CLOZE_CSS: &str = include_str!("cloze_styling.css");
 pub(crate) const DEFAULT_LATEX_HEADER: &str = include_str!("header.tex");
 pub(crate) const DEFAULT_LATEX_FOOTER: &str = r"\end{document}";
 lazy_static! {
@@ -88,13 +89,26 @@ impl Default for Notetype {
             usn: Usn(0),
             fields: vec![],
             templates: vec![],
-            config: NotetypeConfig {
-                css: DEFAULT_CSS.into(),
-                latex_pre: DEFAULT_LATEX_HEADER.into(),
-                latex_post: DEFAULT_LATEX_FOOTER.into(),
-                ..Default::default()
-            },
+            config: NotetypeConfig::new(),
         }
+    }
+}
+
+impl NotetypeConfig {
+    pub(crate) fn new() -> Self {
+        NotetypeConfig {
+            css: DEFAULT_CSS.into(),
+            latex_pre: DEFAULT_LATEX_HEADER.into(),
+            latex_post: DEFAULT_LATEX_FOOTER.into(),
+            ..Default::default()
+        }
+    }
+
+    pub(crate) fn new_cloze() -> Self {
+        let mut config = Self::new();
+        config.css += DEFAULT_CLOZE_CSS;
+        config.kind = NotetypeKind::Cloze as i32;
+        config
     }
 }
 
@@ -196,6 +210,21 @@ impl Collection {
             .get_all_notetype_names()?
             .into_iter()
             .map(|(ntid, _)| {
+                self.get_notetype(ntid)
+                    .transpose()
+                    .unwrap()
+                    .map(|nt| (ntid, nt))
+            })
+            .collect()
+    }
+
+    pub fn get_all_notetypes_of_search_notes(
+        &mut self,
+    ) -> Result<HashMap<NotetypeId, Arc<Notetype>>> {
+        self.storage
+            .all_notetypes_of_search_notes()?
+            .into_iter()
+            .map(|ntid| {
                 self.get_notetype(ntid)
                     .transpose()
                     .unwrap()

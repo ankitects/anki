@@ -49,7 +49,12 @@ class ExportDialog(QDialog):
         self.open()
 
     def setup(self, did: DeckId | None) -> None:
-        self.exporters: list[Type[Exporter]] = [ApkgExporter, ColpkgExporter]
+        self.exporters: list[Type[Exporter]] = [
+            ApkgExporter,
+            ColpkgExporter,
+            NoteCsvExporter,
+            CardCsvExporter,
+        ]
         self.frm.format.insertItems(
             0, [f"{e.name()} (.{e.extension})" for e in self.exporters]
         )
@@ -72,6 +77,7 @@ class ExportDialog(QDialog):
         # save button
         b = QPushButton(tr.exporting_export())
         self.frm.buttonBox.addButton(b, QDialogButtonBox.ButtonRole.AcceptRole)
+        self.frm.includeHTML.setChecked(True)
         # set default option if accessed through deck button
         if did:
             name = self.mw.col.decks.get(did)["name"]
@@ -85,6 +91,9 @@ class ExportDialog(QDialog):
         self.frm.includeMedia.setVisible(self.exporter.show_include_media)
         self.frm.includeTags.setVisible(self.exporter.show_include_tags)
         self.frm.includeHTML.setVisible(self.exporter.show_include_html)
+        self.frm.includeDeck.setVisible(self.exporter.show_include_deck)
+        self.frm.includeNotetype.setVisible(self.exporter.show_include_notetype)
+        self.frm.includeGuid.setVisible(self.exporter.show_include_guid)
         self.frm.legacy_support.setVisible(self.exporter.show_legacy_support)
         self.frm.deck.setVisible(self.exporter.show_deck_list)
 
@@ -102,7 +111,7 @@ class ExportDialog(QDialog):
                 title=tr.actions_export(),
                 dir_description="export",
                 key=self.exporter.name(),
-                ext=self.exporter.extension,
+                ext="." + self.exporter.extension,
                 fname=filename,
             )
             if not path:
@@ -129,6 +138,9 @@ class ExportDialog(QDialog):
             include_media=self.frm.includeMedia.isChecked(),
             include_tags=self.frm.includeTags.isChecked(),
             include_html=self.frm.includeHTML.isChecked(),
+            include_deck=self.frm.includeDeck.isChecked(),
+            include_notetype=self.frm.includeNotetype.isChecked(),
+            include_guid=self.frm.includeGuid.isChecked(),
             legacy_support=self.frm.legacy_support.isChecked(),
             limit=limit,
         )
@@ -159,6 +171,9 @@ class Options:
     include_media: bool
     include_tags: bool
     include_html: bool
+    include_deck: bool
+    include_notetype: bool
+    include_guid: bool
     legacy_support: bool
     limit: ExportLimit
 
@@ -171,6 +186,9 @@ class Exporter(ABC):
     show_include_tags = False
     show_include_html = False
     show_legacy_support = False
+    show_include_deck = False
+    show_include_notetype = False
+    show_include_guid = False
 
     @staticmethod
     @abstractmethod
@@ -240,6 +258,62 @@ class ApkgExporter(Exporter):
             ),
             success=lambda count: tooltip(
                 tr.exporting_note_exported(count=count), parent=mw
+            ),
+        ).with_backend_progress(export_progress_update).run_in_background()
+
+
+class NoteCsvExporter(Exporter):
+    extension = "txt"
+    show_deck_list = True
+    show_include_html = True
+    show_include_tags = True
+    show_include_deck = True
+    show_include_notetype = True
+    show_include_guid = True
+
+    @staticmethod
+    def name() -> str:
+        return tr.exporting_notes_in_plain_text()
+
+    @staticmethod
+    def export(mw: aqt.main.AnkiQt, options: Options) -> None:
+        QueryOp(
+            parent=mw,
+            op=lambda col: col.export_note_csv(
+                out_path=options.out_path,
+                limit=options.limit,
+                with_html=options.include_html,
+                with_tags=options.include_tags,
+                with_deck=options.include_deck,
+                with_notetype=options.include_notetype,
+                with_guid=options.include_guid,
+            ),
+            success=lambda count: tooltip(
+                tr.exporting_note_exported(count=count), parent=mw
+            ),
+        ).with_backend_progress(export_progress_update).run_in_background()
+
+
+class CardCsvExporter(Exporter):
+    extension = "txt"
+    show_deck_list = True
+    show_include_html = True
+
+    @staticmethod
+    def name() -> str:
+        return tr.exporting_cards_in_plain_text()
+
+    @staticmethod
+    def export(mw: aqt.main.AnkiQt, options: Options) -> None:
+        QueryOp(
+            parent=mw,
+            op=lambda col: col.export_card_csv(
+                out_path=options.out_path,
+                limit=options.limit,
+                with_html=options.include_html,
+            ),
+            success=lambda count: tooltip(
+                tr.exporting_card_exported(count=count), parent=mw
             ),
         ).with_backend_progress(export_progress_update).run_in_background()
 

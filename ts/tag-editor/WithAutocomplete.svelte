@@ -6,9 +6,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher, tick } from "svelte";
     import type { Writable } from "svelte/store";
 
-    import Popover from "../../components/Popover.svelte";
-    import WithFloating from "../../components/WithFloating.svelte";
-    import { isApplePlatform } from "../../lib/platform";
+    import Popover from "../components/Popover.svelte";
+    import WithFloating from "../components/WithFloating.svelte";
+    import { isApplePlatform } from "../lib/platform";
     import AutocompleteItem from "./AutocompleteItem.svelte";
 
     export let suggestionsPromise: Promise<string[]>;

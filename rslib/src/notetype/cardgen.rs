@@ -1,7 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    ops::Deref,
+};
 
 use itertools::Itertools;
 use rand::{rngs::StdRng, Rng, SeedableRng};
@@ -38,9 +41,9 @@ pub(crate) struct SingleCardGenContext {
 
 /// Info required to determine which cards should be generated when note added/updated,
 /// and where they should be placed.
-pub(crate) struct CardGenContext<'a> {
+pub(crate) struct CardGenContext<N: Deref<Target = Notetype>> {
     pub usn: Usn,
-    pub notetype: &'a Notetype,
+    pub notetype: N,
     /// The last deck that was added to with this note type
     pub last_deck: Option<DeckId>,
     cards: Vec<SingleCardGenContext>,
@@ -53,20 +56,21 @@ pub(crate) struct CardGenCache {
     deck_configs: HashMap<DeckId, DeckConfig>,
 }
 
-impl CardGenContext<'_> {
-    pub(crate) fn new(nt: &Notetype, last_deck: Option<DeckId>, usn: Usn) -> CardGenContext<'_> {
+impl<N: Deref<Target = Notetype>> CardGenContext<N> {
+    pub(crate) fn new(nt: N, last_deck: Option<DeckId>, usn: Usn) -> CardGenContext<N> {
+        let cards = nt
+            .templates
+            .iter()
+            .map(|tmpl| SingleCardGenContext {
+                template: tmpl.parsed_question(),
+                target_deck_id: tmpl.target_deck_id(),
+            })
+            .collect();
         CardGenContext {
             usn,
             last_deck,
             notetype: nt,
-            cards: nt
-                .templates
-                .iter()
-                .map(|tmpl| SingleCardGenContext {
-                    template: tmpl.parsed_question(),
-                    target_deck_id: tmpl.target_deck_id(),
-                })
-                .collect(),
+            cards,
         }
     }
 
@@ -209,7 +213,7 @@ pub(crate) fn extract_data_from_existing_cards(
 impl Collection {
     pub(crate) fn generate_cards_for_new_note(
         &mut self,
-        ctx: &CardGenContext,
+        ctx: &CardGenContext<impl Deref<Target = Notetype>>,
         note: &Note,
         target_deck_id: DeckId,
     ) -> Result<()> {
@@ -224,7 +228,7 @@ impl Collection {
 
     pub(crate) fn generate_cards_for_existing_note(
         &mut self,
-        ctx: &CardGenContext,
+        ctx: &CardGenContext<impl Deref<Target = Notetype>>,
         note: &Note,
     ) -> Result<()> {
         let existing = self.storage.existing_cards_for_note(note.id)?;
@@ -233,7 +237,7 @@ impl Collection {
 
     fn generate_cards_for_note(
         &mut self,
-        ctx: &CardGenContext,
+        ctx: &CardGenContext<impl Deref<Target = Notetype>>,
         note: &Note,
         existing: &[AlreadyGeneratedCardInfo],
         target_deck_id: Option<DeckId>,
@@ -246,7 +250,10 @@ impl Collection {
         self.add_generated_cards(note.id, &cards, target_deck_id, cache)
     }
 
-    pub(crate) fn generate_cards_for_notetype(&mut self, ctx: &CardGenContext) -> Result<()> {
+    pub(crate) fn generate_cards_for_notetype(
+        &mut self,
+        ctx: &CardGenContext<impl Deref<Target = Notetype>>,
+    ) -> Result<()> {
         let existing_cards = self.storage.existing_cards_for_notetype(ctx.notetype.id)?;
         let by_note = group_generated_cards_by_note(existing_cards);
         let mut cache = CardGenCache::default();

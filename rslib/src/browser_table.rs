@@ -388,7 +388,7 @@ impl RowContext {
 
     fn note_field_str(&self) -> String {
         let index = self.notetype.config.sort_field_idx as usize;
-        html_to_text_line(&self.note.fields()[index]).into()
+        html_to_text_line(&self.note.fields()[index], true).into()
     }
 
     fn get_is_rtl(&self, column: Column) -> bool {
@@ -426,6 +426,7 @@ impl RowContext {
             } else {
                 &answer
             },
+            true,
         )
         .to_string()
     }
@@ -545,7 +546,7 @@ impl RowContext {
     }
 
     fn question_str(&self) -> String {
-        html_to_text_line(&self.render_context.as_ref().unwrap().question).to_string()
+        html_to_text_line(&self.render_context.as_ref().unwrap().question, true).to_string()
     }
 
     fn get_row_font_name(&self) -> Result<String> {

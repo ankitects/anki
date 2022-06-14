@@ -227,3 +227,13 @@ export function _typeAnsPress(): void {
 export function _emulateMobile(enabled: boolean): void {
     document.documentElement.classList.toggle("mobile", enabled);
 }
+
+// Block Qt's default drag & drop behavior by default
+export function _blockDefaultDragDropBehavior(): void {
+    function handler(evt: DragEvent) {
+        evt.preventDefault();
+    }
+    document.ondragenter = handler;
+    document.ondragover = handler;
+    document.ondrop = handler;
+}
