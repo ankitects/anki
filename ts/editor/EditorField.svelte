@@ -90,7 +90,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {content}
         fontFamily={field.fontFamily}
         fontSize={field.fontSize}
-        description={field.description}
         api={editingArea}
     >
         <slot name="editing-inputs" />
