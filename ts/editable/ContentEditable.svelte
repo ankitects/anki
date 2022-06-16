@@ -38,10 +38,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const description = getContext<Readable<string>>(descriptionKey);
     $: descriptionCSSValue = `"${$description}"`;
+
+    let innerHTML = "";
+    $: empty = ["", "<br>"].includes(innerHTML);
 </script>
 
 <anki-editable
+    class:empty
     contenteditable="true"
+    bind:innerHTML
     use:resolve
     use:setupFocusHandling
     use:preventBuiltinShortcuts
@@ -66,7 +71,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &:focus {
             outline: none;
         }
-        &:empty::after {
+        &.empty::after {
             content: var(--description);
             opacity: 0.4;
             cursor: text;
