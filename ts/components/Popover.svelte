@@ -14,7 +14,7 @@ Alternative to DropdownMenu that avoids Bootstrap
 
 <style lang="scss">
     .popover {
-        border-radius: 5px;
+        border-radius: var(--border-radius-default);
         background-color: var(--frame-bg);
         min-width: 1rem;
         max-width: 95vw;

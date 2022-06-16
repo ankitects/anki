@@ -35,7 +35,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         color: white;
         background-color: rgba(0 0 0 / 0.3);
         border-color: black;
-        border-radius: 5px;
+        border-radius: var(--border-radius-default);
         padding: 0 5px;
 
         pointer-events: none;

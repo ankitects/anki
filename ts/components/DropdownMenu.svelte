@@ -31,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .dropdown-menu {
-        border-radius: 5px;
+        border-radius: var(--border-radius-default);
         background-color: var(--frame-bg);
         border-color: var(--medium-border);
         min-width: 1rem;

@@ -24,6 +24,15 @@ py_binary(
     visibility = [":__subpackages__"],
 )
 
+py_binary(
+    name = "extract_sass_props",
+    srcs = [
+        "tools/extract_sass_props.py",
+    ],
+    imports = ["."],
+    visibility = [":__subpackages__"],
+)
+
 py_test(
     name = "pytest",
     srcs = glob(["tests/*.py"]) + ["bazelfixes.py"],

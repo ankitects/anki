@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         user-select: none;
 
         border: 1px solid var(--medium-border);
-        border-radius: 5px;
+        border-radius: var(--border-radius-default);
         padding: 0.9rem 1.2rem;
     }
 </style>

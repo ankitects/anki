@@ -112,7 +112,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .editor-field {
         --border-color: var(--border);
 
-        border-radius: 5px;
+        border-radius: var(--border-radius-default);
         border: 1px solid var(--border-color);
 
         &:focus-within {

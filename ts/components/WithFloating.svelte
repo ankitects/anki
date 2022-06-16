@@ -87,7 +87,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .floating {
         position: absolute;
-        border-radius: 5px;
+        border-radius: var(--border-radius-default);
 
         z-index: 90;
         @include elevation.elevation(8);

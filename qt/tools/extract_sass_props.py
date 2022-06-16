@@ -9,7 +9,7 @@ import sys
 input_scss = sys.argv[1]
 output_py = sys.argv[2]
 
-colors = {}
+props = {}
 
 for line in open(input_scss):
     line = line.strip()
@@ -22,7 +22,7 @@ for line in open(input_scss):
             and not ":root" in line
             and "Copyright" not in line
             and "License" not in line
-            and "color-scheme" not in line
+            and "prop-scheme" not in line
         ):
             print("failed to match", line)
         continue
@@ -30,7 +30,7 @@ for line in open(input_scss):
     var = m.group(1)
     val = m.group(2)
 
-    colors.setdefault(var, []).append(val)
+    props.setdefault(var, []).append(val)
 
 with open(output_py, "w") as buf:
     buf.write(
@@ -39,7 +39,7 @@ with open(output_py, "w") as buf:
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 """
     )
-    buf.write("# this file is auto-generated from _colors.scss\n")
-    for color, (day, night) in colors.items():
-        color = color.replace("-", "_").upper()
-        buf.write(f'{color} = ("{day}", "{night}")\n')
+    buf.write("# this file is auto-generated from _props.scss\n")
+    for prop, (day, night) in props.items():
+        prop = prop.replace("-", "_").upper()
+        buf.write(f'{prop} = ("{day}", "{night}")\n')

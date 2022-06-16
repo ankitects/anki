@@ -4,7 +4,8 @@ sass_library(
     name = "base_lib",
     srcs = [
         "_fusion-vars.scss",
-        "_vars.scss",
+        "_colors.scss",
+        "_props.scss",
         "base.scss",
         "bootstrap-dark.scss",
     ],
@@ -36,7 +37,8 @@ sass_library(
 sass_library(
     name = "core_lib",
     srcs = [
-        "_vars.scss",
+        "_colors.scss",
+        "_props.scss",
         "core.scss",
     ],
     visibility = ["//visibility:public"],
@@ -84,6 +86,9 @@ sass_library(
 )
 
 exports_files(
-    ["_vars.scss"],
+    [
+        "_colors.scss",
+        "_props.scss",
+    ],
     visibility = ["//visibility:public"],
 )

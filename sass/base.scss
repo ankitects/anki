@@ -1,4 +1,5 @@
-@use "vars";
+@use "colors";
+@use "props";
 @use "scrollbar";
 
 $body-color: var(--text-fg);

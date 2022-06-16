@@ -46,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         position: absolute;
         white-space: nowrap;
         padding: 15px;
-        border-radius: 5px;
+        border-radius: var(--border-radius-default);
         font-size: 15px;
         opacity: 0;
         pointer-events: none;

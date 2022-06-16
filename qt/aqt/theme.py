@@ -11,7 +11,7 @@ from typing import Callable, List, Tuple
 
 import aqt
 from anki.utils import is_lin, is_mac, is_win
-from aqt import QApplication, colors, gui_hooks
+from aqt import QApplication, colors, gui_hooks, props
 from aqt.qt import (
     QColor,
     QGuiApplication,
@@ -215,7 +215,7 @@ QToolTip {
             if not self.macos_dark_mode():
                 buf += """
 QScrollBar {{ background-color: {}; }}
-QScrollBar::handle {{ background-color: {}; border-radius: 5px; }} 
+QScrollBar::handle {{ background-color: {}; border-radius: {}; }} 
 
 QScrollBar:horizontal {{ height: 12px; }}
 QScrollBar::handle:horizontal {{ min-width: 50px; }} 
@@ -239,6 +239,7 @@ QTabWidget {{ background-color: {}; }}
                     # fushion-button-hover-bg
                     "#656565",
                     self.color(colors.WINDOW_BG),
+                    props.BORDER_RADIUS_DEFAULT,
                 )
 
         # allow addons to modify the styling

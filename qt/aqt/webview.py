@@ -11,7 +11,7 @@ import anki
 import anki.lang
 from anki.lang import is_rtl
 from anki.utils import is_lin, is_mac, is_win
-from aqt import colors, gui_hooks
+from aqt import colors, gui_hooks, props
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import askUser, is_gesture_or_zoom_event, openLink, showInfo, tr
@@ -432,9 +432,12 @@ button:focus {{ outline: 5px auto {color_hl}; }}"""
                 color = "background: #fff; border: 1px solid #ccc;"
             button_style = (
                 """
-button { -webkit-appearance: none; %s
-border-radius:5px; font-family: Helvetica }"""
-                % color
+button {{ -webkit-appearance: none; {}
+border-radius: {}; font-family: Helvetica }}
+                """.format(
+                    color,
+                    props.BORDER_RADIUS_DEFAULT,
+                )
             )
         else:
             family = self.font().family()

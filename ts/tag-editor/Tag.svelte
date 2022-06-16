@@ -64,7 +64,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         --border-color: var(--medium-border);
 
         border: 1px solid var(--border-color) !important;
-        border-radius: 5px;
+        border-radius: var(--border-radius-default);
 
         &:focus,
         &:active {
