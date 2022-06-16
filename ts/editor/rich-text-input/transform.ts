@@ -17,12 +17,19 @@ function adjustInputHTML(html: string): string {
     return html;
 }
 
+function adjustInputFragment(fragment: DocumentFragment): void {
+    if (nodeContainsInlineContent(fragment)) {
+        fragment.appendChild(document.createElement("br"));
+    }
+}
+
 export function storedToFragment(storedHTML: string): DocumentFragment {
     /* We need .createContextualFragment so that customElements are initialized */
     const fragment = document
         .createRange()
         .createContextualFragment(createDummyDoc(adjustInputHTML(storedHTML)));
 
+    adjustInputFragment(fragment);
     return fragment;
 }
 
