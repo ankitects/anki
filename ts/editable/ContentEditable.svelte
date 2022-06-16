@@ -62,6 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     anki-editable {
         display: block;
+        position: relative;
         padding: 6px;
         overflow: auto;
         overflow-wrap: anywhere;
@@ -71,10 +72,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &:focus {
             outline: none;
         }
-        &.empty::after {
+        &.empty::before {
             content: var(--description);
             opacity: 0.4;
             cursor: text;
+            /* stay on single line */
+            position: absolute;
+            max-width: 95%;
+            overflow-x: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
     }
 
