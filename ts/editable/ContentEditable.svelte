@@ -7,9 +7,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import type { Writable } from "svelte/store";
+    import { getContext } from "svelte";
+    import type { Readable, Writable } from "svelte/store";
 
     import { updateAllState } from "../components/WithState.svelte";
+    import { descriptionKey } from "../lib/context-keys";
     import actionList from "../sveltelib/action-list";
     import type { MirrorAction } from "../sveltelib/dom-mirror";
     import type { SetupInputHandlerAction } from "../sveltelib/input-handler";
@@ -33,10 +35,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const [focusHandler, setupFocusHandling] = useFocusHandler();
 
     Object.assign(api, { focusHandler });
+
+    const description = getContext<Readable<string>>(descriptionKey);
+    $: descriptionCSSValue = `"${$description}"`;
+
+    let innerHTML = "";
+    $: empty = ["", "<br>"].includes(innerHTML);
 </script>
 
 <anki-editable
+    class:empty
     contenteditable="true"
+    bind:innerHTML
     use:resolve
     use:setupFocusHandling
     use:preventBuiltinShortcuts
@@ -46,11 +56,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:blur
     on:click={updateAllState}
     on:keyup={updateAllState}
+    style="--description: {descriptionCSSValue}"
 />
 
 <style lang="scss">
     anki-editable {
         display: block;
+        position: relative;
         padding: 6px;
         overflow: auto;
         overflow-wrap: anywhere;
@@ -59,6 +71,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         &:focus {
             outline: none;
+        }
+        &.empty::before {
+            content: var(--description);
+            opacity: 0.4;
+            cursor: text;
+            /* stay on single line */
+            position: absolute;
+            max-width: 95%;
+            overflow-x: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
     }
 
