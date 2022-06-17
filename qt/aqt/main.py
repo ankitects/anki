@@ -1790,7 +1790,8 @@ title="{}" {}>{}</button>""".format(
         return None
 
     def _isAddon(self, buf: str) -> bool:
-        return buf.endswith(self.addonManager.ext)
+        # only accept primary extension here to avoid conflicts with deck packages
+        return buf.endswith(self.addonManager.exts[0])
 
     def interactiveState(self) -> bool:
         "True if not in profile manager, syncing, etc."
