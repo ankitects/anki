@@ -229,9 +229,9 @@ exports_files(["l10n.toml"])
         name = "pyqt6.3_mac_bundle_amd64",
         build_file_content = " ",
         urls = [
-            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-04-20/pyqt6.3-mac-amd64.tar.gz",
+            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-06-18/pyqt6.3-mac-amd64.tar.gz",
         ],
-        sha256 = "949d403c26036cd13a4a0c86c9416f32ac6d2aa58c6946be93ab949ee6cf9b11",
+        sha256 = "cfbf9a763567bb7425a1eab1e6708e997c75f512bcb338bec6adffe86536e334",
     )
 
     maybe(
@@ -239,9 +239,9 @@ exports_files(["l10n.toml"])
         name = "pyqt6.3_mac_bundle_arm64",
         build_file_content = " ",
         urls = [
-            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-04-20/pyqt6.3-mac-arm64.tar.gz",
+            "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2022-06-18/pyqt6.3-mac-arm64.tar.gz",
         ],
-        sha256 = "c7df555623cdbd8f6981c15b4bfc58665b8e92d91fb43a7082bcfa1852ede10d",
+        sha256 = "a4a39ccb845e99f7bca6b1c65a7ec3645d0f614c2ea88c6a657152d15c0e200a",
     )
 
     maybe(
