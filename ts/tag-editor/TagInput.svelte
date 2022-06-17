@@ -157,10 +157,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 onEnter(event);
                 break;
 
-            case "Space":
-                onDelimiter(event);
-                break;
-
             case "Backspace":
                 if (isCollapsed()) {
                     onBackspace(event);
@@ -192,7 +188,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 break;
         }
 
-        if (event.key === ":") {
+        if (event.key === " ") {
+            onDelimiter(event, false);
+        } else if (event.key === ":") {
             onDelimiter(event, true);
         }
     }

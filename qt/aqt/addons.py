@@ -177,7 +177,7 @@ def package_name_valid(name: str) -> bool:
 # fixme: this class should not have any GUI code in it
 class AddonManager:
 
-    ext: str = ".ankiaddon"
+    exts: list[str] = [".ankiaddon", ".zip"]
     _manifest_schema: dict = {
         "type": "object",
         "properties": {
@@ -774,8 +774,8 @@ class AddonsDialog(QDialog):
         if not mime.hasUrls():
             return None
         urls = mime.urls()
-        ext = self.mgr.ext
-        if all(url.toLocalFile().endswith(ext) for url in urls):
+        exts = self.mgr.exts
+        if all(any(url.toLocalFile().endswith(ext) for ext in exts) for url in urls):
             event.acceptProposedAction()
 
     def dropEvent(self, event: QDropEvent) -> None:
@@ -932,9 +932,11 @@ class AddonsDialog(QDialog):
 
     def onInstallFiles(self, paths: list[str] | None = None) -> bool | None:
         if not paths:
-            key = f"{tr.addons_packaged_anki_addon()} (*{self.mgr.ext})"
+            filter = f"{tr.addons_packaged_anki_addon()} " + "({})".format(
+                " ".join(f"*{ext}" for ext in self.mgr.exts)
+            )
             paths_ = getFile(
-                self, tr.addons_install_addons(), None, key, key="addons", multi=True
+                self, tr.addons_install_addons(), None, filter, key="addons", multi=True
             )
             paths = paths_  # type: ignore
             if not paths:
