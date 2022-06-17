@@ -10,10 +10,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export interface FieldData {
         name: string;
-        description: string;
         fontFamily: string;
         fontSize: number;
         direction: "ltr" | "rtl";
+        description: string;
     }
 
     export interface EditorFieldAPI {
@@ -33,13 +33,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
 
-    import { directionKey } from "../lib/context-keys";
+    import { descriptionKey, directionKey } from "../lib/context-keys";
     import { promiseWithResolver } from "../lib/promise";
     import type { Destroyable } from "./destroyable";
     import EditingArea from "./EditingArea.svelte";
     import FieldState from "./FieldState.svelte";
     import LabelContainer from "./LabelContainer.svelte";
-    import LabelDescription from "./LabelDescription.svelte";
     import LabelName from "./LabelName.svelte";
 
     export let content: Writable<string>;
@@ -49,6 +48,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setContext(directionKey, directionStore);
 
     $: $directionStore = field.direction;
+
+    const descriptionStore = writable<string>();
+    setContext(descriptionKey, descriptionStore);
+
+    $: $descriptionStore = field.description;
 
     const editingArea: Partial<EditingAreaAPI> = {};
     const [element, elementResolve] = promiseWithResolver<HTMLElement>();
@@ -79,9 +83,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <LabelName>
                 {field.name}
             </LabelName>
-            {#if field.description}
-                <LabelDescription description={field.description} />
-            {/if}
         </span>
         <FieldState><slot name="field-state" /></FieldState>
     </LabelContainer>
