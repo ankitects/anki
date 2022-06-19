@@ -39,14 +39,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const description = getContext<Readable<string>>(descriptionKey);
     $: descriptionCSSValue = `"${$description}"`;
 
-    let innerHTML = "";
-    $: empty = ["", "<br>"].includes(innerHTML);
+    export let content: Writable<string>;
 </script>
 
 <anki-editable
-    class:empty
+    class:empty={!$content}
     contenteditable="true"
-    bind:innerHTML
     use:resolve
     use:setupFocusHandling
     use:preventBuiltinShortcuts
