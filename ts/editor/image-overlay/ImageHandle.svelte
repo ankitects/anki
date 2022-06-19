@@ -23,11 +23,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const { container, api } = context.get();
 
-    $: {
-        container.style.setProperty("--editor-shrink-max-width", `${maxWidth}px`);
-        container.style.setProperty("--editor-shrink-max-height", `${maxHeight}px`);
-    }
-
     let activeImage: HTMLImageElement | null = null;
 
     /**
