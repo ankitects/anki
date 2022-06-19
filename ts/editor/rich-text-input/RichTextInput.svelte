@@ -15,11 +15,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export interface RichTextInputAPI extends EditingInputAPI {
         name: "rich-text";
+        /** This is the contentEditable anki-editable element */
         element: Promise<HTMLElement>;
         moveCaretToEnd(): void;
         toggle(): boolean;
         preventResubscription(): () => void;
         inputHandler: InputHandlerAPI;
+        /** The API exposed by the editable component */
         editable: ContentEditableAPI;
     }
 
