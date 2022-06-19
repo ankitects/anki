@@ -132,7 +132,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const resizeObserver = new ResizeObserver(onImageResize);
 
     let clearResize = noop;
-    function handleImageResizing(activeImage: HTMLImageElement | null) {
+    async function handleImageResizing(activeImage: HTMLImageElement | null) {
+        const container = await api.element;
+
         if (activeImage) {
             resizeObserver.observe(container);
             clearResize = on(activeImage, "resize", onImageResize);
@@ -168,16 +170,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 resetHandle();
             }}
         >
-            <HandleSelection
-                image={activeImage}
-                {container}
-                bind:updateSelection
-                on:mount={(event) =>
-                    (dropdownApi = createDropdown(event.detail.selection))}
-            >
-                <HandleBackground tooltip={errorMessage} />
-                <HandleControl offsetX={1} offsetY={1} />
-            </HandleSelection>
+            {#await api.element then container}
+                <HandleSelection
+                    image={activeImage}
+                    {container}
+                    bind:updateSelection
+                    on:mount={(event) =>
+                        (dropdownApi = createDropdown(event.detail.selection))}
+                >
+                    <HandleBackground tooltip={errorMessage} />
+                    <HandleControl offsetX={1} offsetY={1} />
+                </HandleSelection>
+            {/await}
         </MathjaxMenu>
     {/if}
 </WithDropdown>

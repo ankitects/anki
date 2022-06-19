@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let maxWidth: number;
     export let maxHeight: number;
 
-    const { container } = context.get();
+    const { container, api } = context.get();
 
     $: {
         container.style.setProperty("--editor-shrink-max-width", `${maxWidth}px`);
@@ -60,11 +60,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             }
         }
     }
-
-    container.addEventListener("click", maybeShowHandle);
-    container.addEventListener("blur", resetHandle);
-    container.addEventListener("key", resetHandle);
-    container.addEventListener("paste", resetHandle);
 
     $: naturalWidth = activeImage?.naturalWidth;
     $: naturalHeight = activeImage?.naturalHeight;
@@ -201,7 +196,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     onMount(async () => {
-        const container = await element;
+        const container = await api.element;
 
         container.style.setProperty("--editor-shrink-max-width", `${maxWidth}px`);
         container.style.setProperty("--editor-shrink-max-height", `${maxHeight}px`);
