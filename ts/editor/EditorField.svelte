@@ -5,7 +5,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import type { Readable } from "svelte/store";
 
-    import contextProperty from "../sveltelib/context-property";
     import type { EditingAreaAPI } from "./EditingArea.svelte";
 
     export interface FieldData {
@@ -22,10 +21,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         editingArea: EditingAreaAPI;
     }
 
+    import { registerPackage } from "../lib/runtime-require";
+    import contextProperty from "../sveltelib/context-property";
+    import lifecycleHooks from "../sveltelib/lifecycle-hooks";
+
     const key = Symbol("editorField");
     const [context, setContextProperty] = contextProperty<EditorFieldAPI>(key);
+    const [lifecycle, instances, setupLifecycleHooks] =
+        lifecycleHooks<EditorFieldAPI>();
 
     export { context };
+
+    registerPackage("anki/EditorField", {
+        context,
+        lifecycle,
+        instances,
+    });
 </script>
 
 <script lang="ts">
@@ -67,6 +78,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     setContextProperty(api);
+    setupLifecycleHooks(api);
 
     onDestroy(() => api?.destroy());
 </script>
