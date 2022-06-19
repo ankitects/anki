@@ -183,10 +183,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         />
 
         <div class="rich-text-widgets">
-            {#await Promise.all( [richTextPromise, stylesPromise], ) then [container, styles]}
+            {#await Promise.all( [richTextPromise, stylesPromise], ) then _}
                 <SetContext
                     setter={setContextProperty}
-                    value={{ container, styles, api }}
+                    value={api}
                 >
                     <slot />
                 </SetContext>

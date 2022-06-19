@@ -19,8 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context } from "../rich-text-input";
     import MathjaxMenu from "./MathjaxMenu.svelte";
 
-    const { api } = context.get();
-    const { editable, element, preventResubscription } = api;
+    const { editable, element, preventResubscription } = context.get();
 
     let activeImage: HTMLImageElement | null = null;
     let mathjaxElement: HTMLElement | null = null;

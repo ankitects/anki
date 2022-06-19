@@ -21,8 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let maxWidth: number;
     export let maxHeight: number;
 
-    const { api } = context.get();
-    const { element } = api;
+    const { element } = context.get();
 
     let activeImage: HTMLImageElement | null = null;
 
