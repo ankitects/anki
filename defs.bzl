@@ -43,7 +43,7 @@ def setup_deps():
     install_pyqt(
         name = "pyqt6",
         python_runtime = "@python//:python",
-        requirements = "//python/pyqt:6_2/requirements.txt",
+        requirements = "//python/pyqt:6/requirements.txt",
     )
 
     install_pyqt(
