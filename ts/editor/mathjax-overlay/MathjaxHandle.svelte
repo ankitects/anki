@@ -110,7 +110,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     onMount(async () => {
-        const container = await element;
+        const container = await api.element;
 
         return singleCallback(
             on(container, "click", maybeShowHandle),
