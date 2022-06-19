@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import useInputHandler from "../../sveltelib/input-handler";
     import { pageTheme } from "../../sveltelib/theme";
     import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
-    import type CustomStyles from "./CustomStyles.svelte";
+    /* import type CustomStyles from "./CustomStyles.svelte"; */
 
     export interface RichTextInputAPI extends EditingInputAPI {
         name: "rich-text";
@@ -31,15 +31,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return editingInput?.name === "rich-text";
     }
 
-    export interface RichTextInputContextAPI {
-        styles: CustomStyles;
-        container: HTMLElement;
-        api: RichTextInputAPI;
-    }
-
     const key = Symbol("richText");
     const [context, setContextProperty] =
-        useContextProperty<RichTextInputContextAPI>(key);
+        useContextProperty<RichTextInputAPI>(key);
     const [globalInputHandler, setupGlobalInputHandler] = useInputHandler();
 
     export { context, globalInputHandler as inputHandler };

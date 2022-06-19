@@ -20,7 +20,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import MathjaxMenu from "./MathjaxMenu.svelte";
 
     const { api } = context.get();
-    const { editable, preventResubscription } = api;
+    const { editable, element, preventResubscription } = api;
 
     let activeImage: HTMLImageElement | null = null;
     let mathjaxElement: HTMLElement | null = null;
@@ -110,7 +110,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     onMount(async () => {
-        const container = await api.element;
+        const container = await element;
 
         return singleCallback(
             on(container, "click", maybeShowHandle),
@@ -133,7 +133,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let clearResize = noop;
     async function handleImageResizing(activeImage: HTMLImageElement | null) {
-        const container = await api.element;
+        const container = await element;
 
         if (activeImage) {
             resizeObserver.observe(container);
@@ -170,7 +170,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 resetHandle();
             }}
         >
-            {#await api.element then container}
+            {#await element then container}
                 <HandleSelection
                     image={activeImage}
                     {container}

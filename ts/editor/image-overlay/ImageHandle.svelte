@@ -22,6 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let maxHeight: number;
 
     const { api } = context.get();
+    const { element } = api;
 
     let activeImage: HTMLImageElement | null = null;
 
@@ -102,7 +103,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: observes = Boolean(activeImage);
 
     async function toggleResizeObserver(observes: boolean) {
-        const container = await api.element;
+        const container = await element;
 
         if (observes) {
             resizeObserver.observe(container);
@@ -200,7 +201,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     onMount(async () => {
-        const container = await api.element;
+        const container = await element;
 
         container.style.setProperty("--editor-shrink-max-width", `${maxWidth}px`);
         container.style.setProperty("--editor-shrink-max-height", `${maxHeight}px`);
@@ -241,7 +242,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let:dropdownObject
 >
     {#if activeImage}
-        {#await api.element then container}
+        {#await element then container}
             <HandleSelection
                 bind:updateSelection
                 {container}
