@@ -11,12 +11,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
     import CustomStyles from "./CustomStyles.svelte";
 
-    const [promise, customStylesResolve] = promiseWithResolver<CustomStyles>();
+    export let callback: (styles: CustomStyles) => void;
+
     const [userBaseStyle, userBaseResolve] = promiseWithResolver<StyleObject>();
     const [userBaseRule, userBaseRuleResolve] = promiseWithResolver<CSSStyleRule>();
 
     const stylesDidLoad: Promise<unknown> = Promise.all([
-        promise,
         userBaseStyle,
         userBaseRule,
     ]);
@@ -50,15 +50,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } as StyleLinkType,
     ];
 
-    function attachToShadow(element: Element) {
+    async function attachToShadow(element: Element) {
         const customStyles = new CustomStyles({
             target: element.shadowRoot as any,
             props: { styles },
         });
 
-        customStyles.addStyleTag("userBase").then(userBaseResolve);
-        customStylesResolve(customStyles);
+        userBaseResolve(await customStyles.addStyleTag("userBase"));
+        callback(customStyles);
     }
 </script>
 
-<slot {attachToShadow} {promise} {stylesDidLoad} />
+<slot {attachToShadow} {stylesDidLoad} />

@@ -11,7 +11,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import useInputHandler from "../../sveltelib/input-handler";
     import { pageTheme } from "../../sveltelib/theme";
     import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
-    /* import type CustomStyles from "./CustomStyles.svelte"; */
+    import type CustomStyles from "./CustomStyles.svelte";
+    import { promiseWithResolver } from "../../lib/promise";
 
     export interface RichTextInputAPI extends EditingInputAPI {
         name: "rich-text";
@@ -23,6 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         inputHandler: InputHandlerAPI;
         /** The API exposed by the editable component */
         editable: ContentEditableAPI;
+        customStyles: Promise<CustomStyles>;
     }
 
     export function editingInputIsRichText(
@@ -61,6 +63,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const [richTextPromise, resolve] = useRichTextResolve();
     const { mirror, preventResubscription } = useDOMMirror();
     const [inputHandler, setupInputHandler] = useInputHandler();
+    const [customStyles, stylesResolve] = promiseWithResolver<CustomStyles>();
 
     export function attachShadow(element: Element): void {
         element.attachShadow({ mode: "open" });
@@ -119,6 +122,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         preventResubscription,
         inputHandler,
         editable: {} as ContentEditableAPI,
+        customStyles,
     };
 
     const allContexts = getAllContexts();
@@ -166,8 +170,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div class="rich-text-input" on:focusin={() => ($focusedInput = api)}>
     <RichTextStyles
         color={$pageTheme.isDark ? "white" : "black"}
+        callback={stylesResolve}
         let:attachToShadow={attachStyles}
-        let:promise={stylesPromise}
         let:stylesDidLoad
     >
         <div
@@ -183,7 +187,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         />
 
         <div class="rich-text-widgets">
-            {#await Promise.all( [richTextPromise, stylesPromise], ) then _}
+            {#await Promise.all( [richTextPromise, stylesDidLoad], ) then _}
                 <SetContext
                     setter={setContextProperty}
                     value={api}
