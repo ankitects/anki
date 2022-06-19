@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Mathjax } from "../../editable/mathjax-element";
     import { on } from "../../lib/events";
     import { noop } from "../../lib/functional";
+    import { singleCallback } from "../../lib/typing";
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";
     import HandleSelection from "../HandleSelection.svelte";
@@ -76,6 +77,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function maybeShowHandle({ target }: Event): Promise<void> {
         await resetHandle();
+
         if (target instanceof HTMLImageElement && target.dataset.anki === "mathjax") {
             showHandle(target);
         }
@@ -107,20 +109,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         showHandle(detail);
     }
 
-    onMount(() => {
-        const removeClick = on(container, "click", maybeShowHandle);
-        const removeCaretAfter = on(
-            container,
-            "movecaretafter" as any,
-            showAutofocusHandle,
-        );
-        const removeSelectAll = on(container, "selectall" as any, showSelectAll);
+    onMount(async () => {
+        const container = await element;
 
-        return () => {
-            removeClick();
-            removeCaretAfter();
-            removeSelectAll();
-        };
+        return singleCallback(
+            on(container, "click", maybeShowHandle),
+            on(container, "movecaretafter" as any, showAutofocusHandle),
+            on(container, "selectall" as any, showSelectAll),
+        );
     });
 
     let updateSelection: () => Promise<void>;

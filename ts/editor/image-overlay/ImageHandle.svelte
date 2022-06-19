@@ -3,11 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { onDestroy, tick } from "svelte";
+    import { onMount, tick } from "svelte";
 
     import ButtonDropdown from "../../components/ButtonDropdown.svelte";
     import WithDropdown from "../../components/WithDropdown.svelte";
+    import { on } from "../../lib/events";
     import * as tr from "../../lib/ftl";
+    import { singleCallback } from "../../lib/typing";
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";
     import HandleLabel from "../HandleLabel.svelte";
@@ -198,12 +200,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         activeImage!.removeAttribute("width");
     }
 
-    onDestroy(() => {
-        resizeObserver.disconnect();
-        container.removeEventListener("click", maybeShowHandle);
-        container.removeEventListener("blur", resetHandle);
-        container.removeEventListener("key", resetHandle);
-        container.removeEventListener("paste", resetHandle);
+    onMount(async () => {
+        const container = await element;
+
+        container.style.setProperty("--editor-shrink-max-width", `${maxWidth}px`);
+        container.style.setProperty("--editor-shrink-max-height", `${maxHeight}px`);
+
+        return singleCallback(
+            on(container, "click", maybeShowHandle),
+            on(container, "blur", resetHandle),
+            on(container, "key", resetHandle),
+            on(container, "paste", resetHandle),
+        );
     });
 
     let shrinkingDisabled: boolean;
