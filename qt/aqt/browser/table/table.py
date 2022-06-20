@@ -322,7 +322,7 @@ class Table:
 
     def _save_header(self) -> None:
         saveHeader(
-            self._view.horizontalHeader(), self._state.GEOMETRY_KEY_PREFIX + "631"
+            self._view.horizontalHeader(), self._state.GEOMETRY_KEY_PREFIX + "31"
         )
 
     def _restore_header(self) -> None:
@@ -330,7 +330,7 @@ class Table:
         # Qt 6.3.1 won't allow headers to be clicked when restoring state from a previous
         # version, so we need to bump the key.
         restoreHeader(
-            self._view.horizontalHeader(), self._state.GEOMETRY_KEY_PREFIX + "631"
+            self._view.horizontalHeader(), self._state.GEOMETRY_KEY_PREFIX + "31"
         )
         self._set_column_sizes()
         self._set_sort_indicator()
