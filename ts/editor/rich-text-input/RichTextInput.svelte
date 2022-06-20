@@ -4,23 +4,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { ContentEditableAPI } from "../../editable/ContentEditable.svelte";
-    import { singleCallback } from "../../lib/typing";
-    import useContextProperty from "../../sveltelib/context-property";
-    import useDOMMirror from "../../sveltelib/dom-mirror";
     import type { InputHandlerAPI } from "../../sveltelib/input-handler";
-    import useInputHandler from "../../sveltelib/input-handler";
-    import { pageTheme } from "../../sveltelib/theme";
     import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
     import type CustomStyles from "./CustomStyles.svelte";
 
     export interface RichTextInputAPI extends EditingInputAPI {
         name: "rich-text";
+        /** This is the contentEditable anki-editable element */
         element: Promise<HTMLElement>;
         moveCaretToEnd(): void;
         toggle(): boolean;
         preventResubscription(): () => void;
         inputHandler: InputHandlerAPI;
+        /** The API exposed by the editable component */
         editable: ContentEditableAPI;
+        customStyles: Promise<CustomStyles>;
     }
 
     export function editingInputIsRichText(
@@ -29,16 +27,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return editingInput?.name === "rich-text";
     }
 
-    export interface RichTextInputContextAPI {
-        styles: CustomStyles;
-        container: HTMLElement;
-        api: RichTextInputAPI;
-    }
+    import { registerPackage } from "../../lib/runtime-require";
+    import contextProperty from "../../sveltelib/context-property";
+    import lifecycleHooks from "../../sveltelib/lifecycle-hooks";
 
     const key = Symbol("richText");
-    const [context, setContextProperty] =
-        useContextProperty<RichTextInputContextAPI>(key);
+    const [context, setContextProperty] = contextProperty<RichTextInputAPI>(key);
     const [globalInputHandler, setupGlobalInputHandler] = useInputHandler();
+    const [lifecycle, instances, setupLifecycleHooks] =
+        lifecycleHooks<RichTextInputAPI>();
+
+    registerPackage("anki/RichTextInput", {
+        context,
+        lifecycle,
+        instances,
+    });
 
     export { context, globalInputHandler as inputHandler };
 </script>
@@ -48,12 +51,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { placeCaretAfterContent } from "../../domlib/place-caret";
     import ContentEditable from "../../editable/ContentEditable.svelte";
+    import { promiseWithResolver } from "../../lib/promise";
+    import { singleCallback } from "../../lib/typing";
+    import useDOMMirror from "../../sveltelib/dom-mirror";
+    import useInputHandler from "../../sveltelib/input-handler";
+    import { pageTheme } from "../../sveltelib/theme";
     import { context as editingAreaContext } from "../EditingArea.svelte";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import getNormalizingNodeStore from "./normalizing-node-store";
     import useRichTextResolve from "./rich-text-resolve";
     import RichTextStyles from "./RichTextStyles.svelte";
-    import SetContext from "./SetContext.svelte";
     import { fragmentToStored, storedToFragment } from "./transform";
 
     export let hidden: boolean;
@@ -65,6 +72,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const [richTextPromise, resolve] = useRichTextResolve();
     const { mirror, preventResubscription } = useDOMMirror();
     const [inputHandler, setupInputHandler] = useInputHandler();
+    const [customStyles, stylesResolve] = promiseWithResolver<CustomStyles>();
 
     export function attachShadow(element: Element): void {
         element.attachShadow({ mode: "open" });
@@ -123,6 +131,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         preventResubscription,
         inputHandler,
         editable: {} as ContentEditableAPI,
+        customStyles,
     };
 
     const allContexts = getAllContexts();
@@ -165,13 +174,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ),
         );
     });
+
+    setContextProperty(api);
+    setupLifecycleHooks(api);
 </script>
 
 <div class="rich-text-input" on:focusin={() => ($focusedInput = api)}>
     <RichTextStyles
         color={$pageTheme.isDark ? "white" : "black"}
+        callback={stylesResolve}
         let:attachToShadow={attachStyles}
-        let:promise={stylesPromise}
         let:stylesDidLoad
     >
         <div
@@ -186,16 +198,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:focusout
         />
 
-        <div class="rich-text-widgets">
-            {#await Promise.all( [richTextPromise, stylesPromise], ) then [container, styles]}
-                <SetContext
-                    setter={setContextProperty}
-                    value={{ container, styles, api }}
-                >
-                    <slot />
-                </SetContext>
-            {/await}
-        </div>
+        {#await Promise.all([richTextPromise, stylesDidLoad]) then _}
+            <div class="rich-text-widgets">
+                <slot />
+            </div>
+        {/await}
     </RichTextStyles>
 </div>
 
