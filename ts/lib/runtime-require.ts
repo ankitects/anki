@@ -16,6 +16,7 @@
  */
 type AnkiPackages =
     | "anki/NoteEditor"
+    | "anki/EditorField"
     | "anki/PlainTextInput"
     | "anki/TemplateButtons"
     | "anki/packages"
