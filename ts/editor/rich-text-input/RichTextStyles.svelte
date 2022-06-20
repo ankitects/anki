@@ -16,10 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const [userBaseStyle, userBaseResolve] = promiseWithResolver<StyleObject>();
     const [userBaseRule, userBaseRuleResolve] = promiseWithResolver<CSSStyleRule>();
 
-    const stylesDidLoad: Promise<unknown> = Promise.all([
-        userBaseStyle,
-        userBaseRule,
-    ]);
+    const stylesDidLoad: Promise<unknown> = Promise.all([userBaseStyle, userBaseRule]);
 
     userBaseStyle.then((baseStyle: StyleObject) => {
         const sheet = baseStyle.element.sheet as CSSStyleSheet;
