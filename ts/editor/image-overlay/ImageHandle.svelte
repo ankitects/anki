@@ -208,7 +208,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return singleCallback(
             on(container, "click", maybeShowHandle),
             on(container, "blur", resetHandle),
-            on(container, "key", resetHandle),
+            on(container, "key" as any, resetHandle),
             on(container, "paste", resetHandle),
         );
     });
@@ -265,7 +265,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {:else}
                         <span>{actualWidth}&times;{actualHeight}</span>
                         {#if customDimensions}
-                            <span>(Original: {naturalWidth}&times;{naturalHeight})</span>
+                            <span>(Original: {naturalWidth}&times;{naturalHeight})</span
+                            >
                         {/if}
                     {/if}
                 </HandleLabel>

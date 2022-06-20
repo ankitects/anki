@@ -47,14 +47,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         } as StyleLinkType,
     ];
 
-    async function attachToShadow(element: Element) {
+    function attachToShadow(element: Element) {
         const customStyles = new CustomStyles({
             target: element.shadowRoot as any,
             props: { styles },
         });
 
-        userBaseResolve(await customStyles.addStyleTag("userBase"));
-        callback(customStyles);
+        customStyles.addStyleTag("userBase").then((styleTag) => {
+            userBaseResolve(styleTag);
+            callback(customStyles);
+        });
     }
 </script>
 
