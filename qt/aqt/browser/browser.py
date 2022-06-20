@@ -262,6 +262,7 @@ class Browser(QMainWindow):
         self.mw.maybeHideAccelerators(self)
 
         add_ellipsis_to_action_label(f.actionCopy)
+        add_ellipsis_to_action_label(f.action_forget)
 
     def closeEvent(self, evt: QCloseEvent) -> None:
         if self._closeEventHasCleanedUp:
