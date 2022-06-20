@@ -12,14 +12,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { Mathjax } from "../../editable/mathjax-element";
     import { on } from "../../lib/events";
     import { noop } from "../../lib/functional";
+    import { singleCallback } from "../../lib/typing";
     import HandleBackground from "../HandleBackground.svelte";
     import HandleControl from "../HandleControl.svelte";
     import HandleSelection from "../HandleSelection.svelte";
     import { context } from "../rich-text-input";
     import MathjaxMenu from "./MathjaxMenu.svelte";
 
-    const { container, api } = context.get();
-    const { editable, preventResubscription } = api;
+    const { editable, element, preventResubscription } = context.get();
 
     let activeImage: HTMLImageElement | null = null;
     let mathjaxElement: HTMLElement | null = null;
@@ -76,6 +76,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function maybeShowHandle({ target }: Event): Promise<void> {
         await resetHandle();
+
         if (target instanceof HTMLImageElement && target.dataset.anki === "mathjax") {
             showHandle(target);
         }
@@ -107,20 +108,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         showHandle(detail);
     }
 
-    onMount(() => {
-        const removeClick = on(container, "click", maybeShowHandle);
-        const removeCaretAfter = on(
-            container,
-            "movecaretafter" as any,
-            showAutofocusHandle,
-        );
-        const removeSelectAll = on(container, "selectall" as any, showSelectAll);
+    onMount(async () => {
+        const container = await element;
 
-        return () => {
-            removeClick();
-            removeCaretAfter();
-            removeSelectAll();
-        };
+        return singleCallback(
+            on(container, "click", maybeShowHandle),
+            on(container, "movecaretafter" as any, showAutofocusHandle),
+            on(container, "selectall" as any, showSelectAll),
+        );
     });
 
     let updateSelection: () => Promise<void>;
@@ -136,7 +131,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const resizeObserver = new ResizeObserver(onImageResize);
 
     let clearResize = noop;
-    function handleImageResizing(activeImage: HTMLImageElement | null) {
+    async function handleImageResizing(activeImage: HTMLImageElement | null) {
+        const container = await element;
+
         if (activeImage) {
             resizeObserver.observe(container);
             clearResize = on(activeImage, "resize", onImageResize);
@@ -172,16 +169,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 resetHandle();
             }}
         >
-            <HandleSelection
-                image={activeImage}
-                {container}
-                bind:updateSelection
-                on:mount={(event) =>
-                    (dropdownApi = createDropdown(event.detail.selection))}
-            >
-                <HandleBackground tooltip={errorMessage} />
-                <HandleControl offsetX={1} offsetY={1} />
-            </HandleSelection>
+            {#await element then container}
+                <HandleSelection
+                    image={activeImage}
+                    {container}
+                    bind:updateSelection
+                    on:mount={(event) =>
+                        (dropdownApi = createDropdown(event.detail.selection))}
+                >
+                    <HandleBackground tooltip={errorMessage} />
+                    <HandleControl offsetX={1} offsetY={1} />
+                </HandleSelection>
+            {/await}
         </MathjaxMenu>
     {/if}
 </WithDropdown>
