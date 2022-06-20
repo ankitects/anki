@@ -933,7 +933,11 @@ time = %(time)d;
                 ],
             ],
             [tr.studying_bury_card(), "-", self.bury_current_card],
-            [tr.actions_forget_card(), "Ctrl+Alt+N", self.forget_current_card],
+            [
+                tr.actions_with_ellipsis(action=tr.actions_forget_card()),
+                "Ctrl+Alt+N",
+                self.forget_current_card,
+            ],
             [
                 tr.actions_with_ellipsis(action=tr.actions_set_due_date()),
                 "Ctrl+Shift+D",
