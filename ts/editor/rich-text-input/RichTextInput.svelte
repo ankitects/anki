@@ -172,19 +172,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $editingInputs = $editingInputs;
     }
 
-    let hasFocus = false;
-
     function setFocus(): void {
         $focusedInput = api;
-        hasFocus = true;
-    }
 
-    function removeFocus(): void {
         // We do not unset focusedInput here.
         // If we did, UI components for the input would react the store
         // being unset, even though most likely it will be set to some other
         // field right away.
-        hasFocus = false;
     }
 
     $: pushUpdate(!hidden);
@@ -207,8 +201,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setupLifecycleHooks(api);
 </script>
 
-<div class="rich-text-input" on:focusin={setFocus} on:focusout={removeFocus}>
-    {#if $content.length === 0 && !hasFocus}
+<div class="rich-text-input" on:focusin={setFocus}>
+    {#if $content.length === 0}
         <div
             class="rich-text-placeholder"
             style:font-family={$fontFamily}
