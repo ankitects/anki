@@ -52,17 +52,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { placeCaretAfterContent } from "../../domlib/place-caret";
     import ContentEditable from "../../editable/ContentEditable.svelte";
-    import { promiseWithResolver } from "../../lib/promise";
-    import { singleCallback } from "../../lib/typing";
-    import useDOMMirror from "../../sveltelib/dom-mirror";
-    import useInputHandler from "../../sveltelib/input-handler";
-    import { pageTheme } from "../../sveltelib/theme";
     import {
         descriptionKey,
         directionKey,
         fontFamilyKey,
         fontSizeKey,
     } from "../../lib/context-keys";
+    import { promiseWithResolver } from "../../lib/promise";
+    import { singleCallback } from "../../lib/typing";
+    import useDOMMirror from "../../sveltelib/dom-mirror";
+    import useInputHandler from "../../sveltelib/input-handler";
+    import { pageTheme } from "../../sveltelib/theme";
     import { context as editingAreaContext } from "../EditingArea.svelte";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import getNormalizingNodeStore from "./normalizing-node-store";
