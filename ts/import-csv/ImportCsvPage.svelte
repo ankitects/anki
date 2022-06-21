@@ -49,6 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let dupeResolution: ImportExport.ImportCsvRequest.DupeResolution;
     let lastNotetypeId = globalNotetype?.id;
+    let lastDelimeter = delimiter;
 
     $: columnOptions = getColumnOptions(
         columnLabels,
@@ -62,8 +63,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         columnLabels = meta.columnLabels;
         preview = meta.preview;
     });
-    $: if (globalNotetype?.id !== lastNotetypeId) {
+    $: if (globalNotetype?.id !== lastNotetypeId || delimiter !== lastDelimeter) {
         lastNotetypeId = globalNotetype?.id;
+        lastDelimeter = delimiter;
         getCsvMetadata(path, delimiter, globalNotetype?.id).then((meta) => {
             globalNotetype = meta.globalNotetype ?? null;
         });
