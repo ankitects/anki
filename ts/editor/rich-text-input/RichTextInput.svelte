@@ -201,7 +201,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setupLifecycleHooks(api);
 </script>
 
-<div class="rich-text-input" on:focusin={setFocus}>
+<div class="rich-text-input" on:focusin={setFocus} {hidden}>
     {#if $content.length === 0}
         <div
             class="rich-text-placeholder"
@@ -225,7 +225,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div
             bind:this={richTextDiv}
             class={className}
-            class:hidden
             class:night-mode={$pageTheme.isDark}
             use:attachShadow
             use:attachStyles
@@ -252,12 +251,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         position: absolute;
         color: var(--slightly-grey-text);
 
-        /* Adopts same size as the editable element */
+        /* Adopts same size as the content editable element */
         width: 100%;
         height: 100%;
-    }
-
-    .hidden {
-        display: none;
     }
 </style>
