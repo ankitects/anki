@@ -262,6 +262,7 @@ class Browser(QMainWindow):
         self.mw.maybeHideAccelerators(self)
 
         add_ellipsis_to_action_label(f.actionCopy)
+        add_ellipsis_to_action_label(f.action_forget)
 
     def closeEvent(self, evt: QCloseEvent) -> None:
         if self._closeEventHasCleanedUp:
@@ -683,6 +684,7 @@ class Browser(QMainWindow):
         if focus != self.form.tableView:
             return
 
+        self.editor.set_note(None)
         nids = self.table.to_row_of_unselected_note()
         remove_notes(parent=self, note_ids=nids).run_in_background()
 
