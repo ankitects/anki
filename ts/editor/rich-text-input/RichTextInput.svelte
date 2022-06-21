@@ -248,7 +248,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .rich-text-placeholder {
         position: absolute;
-        color: var(--slightly-grey-text);
+        color: var(--disabled);
 
         /* Adopts same size as the content editable element */
         width: 100%;
