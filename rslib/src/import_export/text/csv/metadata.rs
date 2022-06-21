@@ -57,6 +57,7 @@ impl Collection {
         maybe_set_fallback_columns(&mut metadata)?;
         self.maybe_set_fallback_notetype(&mut metadata, notetype_id)?;
         self.maybe_init_notetype_map(&mut metadata)?;
+        maybe_set_tags_column(&mut metadata);
         self.maybe_set_fallback_deck(&mut metadata)?;
 
         Ok(metadata)
@@ -375,6 +376,17 @@ fn maybe_set_fallback_delimiter(
         metadata.set_delimiter(delimiter_from_reader(reader)?);
     }
     Ok(())
+}
+
+fn maybe_set_tags_column(metadata: &mut CsvMetadata) {
+    if metadata.tags_column == 0 {
+        if let Some(CsvNotetype::GlobalNotetype(ref global)) = metadata.notetype {
+            let max_field = global.field_columns.iter().max().copied().unwrap_or(0);
+            if max_field < metadata.column_labels.len() as u32 {
+                metadata.tags_column = max_field + 1;
+            }
+        }
+    }
 }
 
 fn delimiter_from_value(value: &str) -> Option<Delimiter> {

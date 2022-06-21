@@ -67,6 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         lastDelimeter = delimiter;
         getCsvMetadata(path, delimiter, globalNotetype?.id).then((meta) => {
             globalNotetype = meta.globalNotetype ?? null;
+            tagsColumn = meta.tagsColumn;
         });
     }
 
