@@ -160,7 +160,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     mirrors: [mirror],
                     inputHandlers: [setupInputHandler, setupGlobalInputHandler],
                     api: api.editable,
-                    content: $content,
                 },
                 context: allContexts,
             });
