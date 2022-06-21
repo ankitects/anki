@@ -329,7 +329,7 @@ class DataModel(QAbstractTableModel):
             align: Qt.AlignmentFlag | int = Qt.AlignmentFlag.AlignVCenter
             if self.column_at(index).alignment == Columns.ALIGNMENT_CENTER:
                 align |= Qt.AlignmentFlag.AlignHCenter
-            return align
+            return getattr(align, "value", align)
         elif role == Qt.ItemDataRole.DisplayRole:
             return self.get_cell(index).text
         elif role == Qt.ItemDataRole.ToolTipRole and self._want_tooltips:
