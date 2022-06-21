@@ -47,7 +47,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { getAllContexts, onMount } from "svelte";
+    import { getAllContexts, getContext, onMount } from "svelte";
+    import type { Readable } from "svelte/store";
 
     import { placeCaretAfterContent } from "../../domlib/place-caret";
     import ContentEditable from "../../editable/ContentEditable.svelte";
@@ -56,6 +57,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import useDOMMirror from "../../sveltelib/dom-mirror";
     import useInputHandler from "../../sveltelib/input-handler";
     import { pageTheme } from "../../sveltelib/theme";
+    import {
+        descriptionKey,
+        directionKey,
+        fontFamilyKey,
+        fontSizeKey,
+    } from "../../lib/context-keys";
     import { context as editingAreaContext } from "../EditingArea.svelte";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import getNormalizingNodeStore from "./normalizing-node-store";
@@ -67,6 +74,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const { focusedInput } = noteEditorContext.get();
     const { content, editingInputs } = editingAreaContext.get();
+
+    const description = getContext<Readable<string>>(descriptionKey);
+    const fontFamily = getContext<Readable<string>>(fontFamilyKey);
+    const fontSize = getContext<Readable<number>>(fontSizeKey);
+    const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
 
     const nodes = getNormalizingNodeStore();
     const [richTextPromise, resolve] = useRichTextResolve();
@@ -160,6 +172,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         $editingInputs = $editingInputs;
     }
 
+    let hasFocus = false;
+
+    function setFocus(): void {
+        $focusedInput = api;
+        hasFocus = true;
+    }
+
+    function removeFocus(): void {
+        // We do not unset focusedInput here.
+        // If we did, UI components for the input would react the store
+        // being unset, even though most likely it will be set to some other
+        // field right away.
+        hasFocus = false;
+    }
+
     $: pushUpdate(!hidden);
 
     onMount(() => {
@@ -180,9 +207,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setupLifecycleHooks(api);
 </script>
 
-<div class="rich-text-input" on:focusin={() => ($focusedInput = api)}>
+<div class="rich-text-input" on:focusin={setFocus} on:focusout={removeFocus}>
+    {#if $content.length === 0 && !hasFocus}
+        <div
+            class="rich-text-placeholder"
+            style:font-family={$fontFamily}
+            style:font-size={$fontSize + "px"}
+            style:direction={$direction}
+        >
+            {@html $description}
+        </div>
+    {/if}
+
     <RichTextStyles
         color={$pageTheme.isDark ? "white" : "black"}
+        fontFamily={$fontFamily}
+        fontSize={$fontSize}
+        direction={$direction}
         callback={stylesResolve}
         let:attachToShadow={attachStyles}
         let:stylesDidLoad
@@ -208,6 +249,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    .rich-text-input {
+        position: relative;
+        margin: 6px;
+    }
+
+    .rich-text-placeholder {
+        position: absolute;
+        color: var(--slightly-grey-text);
+
+        /* Adopts same size as the editable element */
+        width: 100%;
+        height: 100%;
+    }
+
     .hidden {
         display: none;
     }
