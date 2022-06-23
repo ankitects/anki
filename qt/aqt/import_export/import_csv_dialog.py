@@ -59,5 +59,6 @@ class ImportCsvDialog(QDialog):
     def do_import(self, data: bytes) -> None:
         request = ImportCsvRequest()
         request.ParseFromString(data)
+        self.mw.pm.profile["importMode"] = request.dupe_resolution
         self._on_accepted(request)
         super().reject()

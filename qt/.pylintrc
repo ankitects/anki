@@ -20,6 +20,7 @@ ignored-classes=
   ScheduleCardsAsNewRequest,
   CsvColumn,
   CsvMetadata,
+  ImportCsvRequest,
 
 [REPORTS]
 output-format=colorized
