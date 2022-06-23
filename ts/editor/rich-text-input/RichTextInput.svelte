@@ -6,10 +6,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { ContentEditableAPI } from "../../editable/ContentEditable.svelte";
     import type { InputHandlerAPI } from "../../sveltelib/input-handler";
     import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
-    import { Surrounder } from "../surround";
+    import type { SurroundedAPI } from "../surround";
     import type CustomStyles from "./CustomStyles.svelte";
 
-    export interface RichTextInputAPI extends EditingInputAPI {
+    export interface RichTextInputAPI extends EditingInputAPI, SurroundedAPI {
         name: "rich-text";
         /** This is the contentEditable anki-editable element */
         element: Promise<HTMLElement>;
@@ -20,8 +20,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /** The API exposed by the editable component */
         editable: ContentEditableAPI;
         customStyles: Promise<CustomStyles>;
-        /** Used to format the current selection of the user */
-        surrounder: Surrounder;
     }
 
     function editingInputIsRichText(
@@ -33,6 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { registerPackage } from "../../lib/runtime-require";
     import contextProperty from "../../sveltelib/context-property";
     import lifecycleHooks from "../../sveltelib/lifecycle-hooks";
+    import { Surrounder } from "../surround";
 
     const key = Symbol("richText");
     const [context, setContextProperty] = contextProperty<RichTextInputAPI>(key);

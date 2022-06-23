@@ -58,7 +58,7 @@ function removeFormats(
     return surroundRange;
 }
 
-interface SurroundedAPI {
+export interface SurroundedAPI {
     element: Promise<HTMLElement>;
     inputHandler: InputHandlerAPI;
 }
