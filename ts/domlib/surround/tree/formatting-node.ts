@@ -169,14 +169,15 @@ export class FormattingNode<T = never> extends TreeNode {
      * When surrounding "inside" with a bold format in the following case:
      * `<span class="myclass"><em>inside</em></span>`
      * The formatting node would sit above the span (it ascends above both
-     * the span and the em tag), and both tags are extensions to this node.
+     * the em and the span tag), and its extensions are the span tag and the
+     * em tag (in this order).
      *
      * @example
      * When a format only wants to add a class, it would typically look for an
      * extension first. When applying class="myclass" to "inside" in the
      * following case:
      * `<em><span style="color: rgb(255, 0, 0)"><b>inside</b></span></em>`
-     * It would typically become:
+     * It should typically become:
      * `<em><span class="myclass" style="color: rgb(255, 0, 0)"><b>inside</b></span></em>`
      */
     extensions: (HTMLElement | SVGElement)[] = [];
