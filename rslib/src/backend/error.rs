@@ -39,6 +39,7 @@ impl AnkiError {
             AnkiError::ImportError(_) => Kind::ImportError,
             AnkiError::FileIoError(_) => Kind::IoError,
             AnkiError::MediaCheckRequired => Kind::InvalidInput,
+            AnkiError::InvalidId => Kind::InvalidInput,
         };
 
         pb::BackendError {
