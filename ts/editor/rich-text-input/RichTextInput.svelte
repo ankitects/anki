@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { ContentEditableAPI } from "../../editable/ContentEditable.svelte";
     import type { InputHandlerAPI } from "../../sveltelib/input-handler";
     import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
+    import { Surrounder } from "../surround";
     import type CustomStyles from "./CustomStyles.svelte";
 
     export interface RichTextInputAPI extends EditingInputAPI {
@@ -19,9 +20,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /** The API exposed by the editable component */
         editable: ContentEditableAPI;
         customStyles: Promise<CustomStyles>;
+        /** Used to format the current selection of the user */
+        surrounder: Surrounder;
     }
 
-    export function editingInputIsRichText(
+    function editingInputIsRichText(
         editingInput: EditingInputAPI | null,
     ): editingInput is RichTextInputAPI {
         return editingInput?.name === "rich-text";
@@ -36,14 +39,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const [globalInputHandler, setupGlobalInputHandler] = useInputHandler();
     const [lifecycle, instances, setupLifecycleHooks] =
         lifecycleHooks<RichTextInputAPI>();
+    const surrounder = Surrounder.make();
 
     registerPackage("anki/RichTextInput", {
         context,
+        surrounder,
         lifecycle,
         instances,
     });
 
-    export { context, globalInputHandler as inputHandler };
+    export {
+        context,
+        editingInputIsRichText,
+        globalInputHandler as inputHandler,
+        surrounder,
+    };
 </script>
 
 <script lang="ts">
@@ -173,11 +183,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function setFocus(): void {
         $focusedInput = api;
+        surrounder.enable(api);
 
         // We do not unset focusedInput here.
         // If we did, UI components for the input would react the store
         // being unset, even though most likely it will be set to some other
         // field right away.
+    }
+
+    function removeFocus(): void {
+        surrounder.disable();
     }
 
     $: pushUpdate(!hidden);
@@ -200,7 +215,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setupLifecycleHooks(api);
 </script>
 
-<div class="rich-text-input" on:focusin={setFocus} {hidden}>
+<div class="rich-text-input" {hidden} on:focusin={setFocus} on:focusout={removeFocus}>
     {#if $content.length === 0}
         <div
             class="rich-text-placeholder"

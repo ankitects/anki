@@ -12,9 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "../../lib/bridgecommand";
     import * as tr from "../../lib/ftl";
     import { removeStyleProperties } from "../../lib/styling";
-    import { context as noteEditorContext } from "../NoteEditor.svelte";
-    import { editingInputIsRichText } from "../rich-text-input";
-    import { Surrounder } from "../surround";
+    import { surrounder } from "../rich-text-input";
     import ColorPicker from "./ColorPicker.svelte";
     import type { RemoveFormat } from "./EditorToolbar.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
@@ -95,17 +93,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const { removeFormats } = editorToolbarContext.get();
     removeFormats.update((formats) => [...formats, namedFormat]);
 
-    const { focusedInput } = noteEditorContext.get();
-    const surrounder = Surrounder.make();
     let disabled: boolean;
-
-    $: if (editingInputIsRichText($focusedInput)) {
-        disabled = false;
-        surrounder.richText = $focusedInput;
-    } else {
-        disabled = true;
-        surrounder.disable();
-    }
+    surrounder.active.subscribe((value) => (disabled = !value));
 
     function setTextColor(): void {
         surrounder.overwriteSurround(format);

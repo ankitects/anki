@@ -15,25 +15,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../../lib/ftl";
     import { altPressed } from "../../lib/keys";
     import { getPlatformString } from "../../lib/shortcuts";
-    import { context as noteEditorContext } from "../NoteEditor.svelte";
-    import { editingInputIsRichText } from "../rich-text-input";
-    import { Surrounder } from "../surround";
+    import { surrounder } from "../rich-text-input";
     import type { RemoveFormat } from "./EditorToolbar.svelte";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { eraserIcon } from "./icons";
     import { arrowIcon } from "./icons";
 
-    const { focusedInput } = noteEditorContext.get();
-    const surrounder = Surrounder.make();
     let disabled: boolean;
-
-    $: if (editingInputIsRichText($focusedInput)) {
-        surrounder.richText = $focusedInput;
-        disabled = false;
-    } else {
-        surrounder.disable();
-        disabled = true;
-    }
+    surrounder.active.subscribe((value) => (disabled = !value));
 
     const { removeFormats } = editorToolbarContext.get();
 

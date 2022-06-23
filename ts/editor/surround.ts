@@ -1,7 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { get } from "svelte/store";
+import type { Writable } from "svelte/store";
+import { get, writable } from "svelte/store";
 
 import type { Matcher } from "../domlib/find-above";
 import { findClosest } from "../domlib/find-above";
@@ -10,7 +11,7 @@ import { boolMatcher, reformat, surround, unsurround } from "../domlib/surround"
 import { getRange, getSelection } from "../lib/cross-browser";
 import { registerPackage } from "../lib/runtime-require";
 import type { TriggerItem } from "../sveltelib/handler-list";
-import type { RichTextInputAPI } from "./rich-text-input";
+import type { InputHandlerAPI } from "../sveltelib/input-handler";
 
 function isSurroundedInner(
     range: AbstractRange,
@@ -57,17 +58,25 @@ function removeFormats(
     return surroundRange;
 }
 
+interface SurroundedAPI {
+    element: Promise<HTMLElement>;
+    inputHandler: InputHandlerAPI;
+}
+
 export class Surrounder {
     static make(): Surrounder {
         return new Surrounder();
     }
 
-    private api: RichTextInputAPI | null = null;
+    private api: SurroundedAPI | null = null;
     private trigger: TriggerItem<{ event: InputEvent; text: Text }> | null = null;
 
-    set richText(api: RichTextInputAPI) {
+    active: Writable<boolean> = writable(false);
+
+    enable(api: SurroundedAPI): void {
         this.api = api;
         this.trigger = api.inputHandler.insertText.trigger({ once: true });
+        this.active.set(true);
     }
 
     /**
@@ -78,6 +87,7 @@ export class Surrounder {
         this.api = null;
         this.trigger?.off();
         this.trigger = null;
+        this.active.set(false);
     }
 
     private async _assert_base(): Promise<HTMLElement> {

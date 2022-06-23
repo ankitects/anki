@@ -10,9 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../../lib/ftl";
     import { getPlatformString } from "../../lib/shortcuts";
     import { removeStyleProperties } from "../../lib/styling";
-    import { context as noteEditorContext } from "../NoteEditor.svelte";
-    import { editingInputIsRichText } from "../rich-text-input";
-    import { Surrounder } from "../surround";
+    import { surrounder } from "../rich-text-input";
     import { context as editorToolbarContext } from "./EditorToolbar.svelte";
     import { italicIcon } from "./icons";
 
@@ -50,17 +48,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const { removeFormats } = editorToolbarContext.get();
     removeFormats.update((formats) => [...formats, namedFormat]);
 
-    const { focusedInput } = noteEditorContext.get();
-    const surrounder = Surrounder.make();
     let disabled: boolean;
-
-    $: if (editingInputIsRichText($focusedInput)) {
-        surrounder.richText = $focusedInput;
-        disabled = false;
-    } else {
-        surrounder.disable();
-        disabled = true;
-    }
+    surrounder.active.subscribe((value) => (disabled = !value));
 
     function updateStateFromActiveInput(): Promise<boolean> {
         return disabled ? Promise.resolve(false) : surrounder!.isSurrounded(format);
