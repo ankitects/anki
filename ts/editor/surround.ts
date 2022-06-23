@@ -81,7 +81,7 @@ export class Surrounder {
 
     /**
      * After calling disable, using any of the surrounding methods will throw an
-     * exception. Make sure to set the rich text before trying to use them again.
+     * exception. Make sure to set the input before trying to use them again.
      */
     disable(): void {
         this.api = null;
@@ -92,10 +92,10 @@ export class Surrounder {
 
     private async _assert_base(): Promise<HTMLElement> {
         if (!this.api) {
-            throw new Error("No rich text set");
+            throw new Error("Surrounder: No input set");
         }
 
-        return await this.api.element;
+        return this.api.element;
     }
 
     private _toggleTrigger<T>(
@@ -156,7 +156,7 @@ export class Surrounder {
     }
 
     /**
-     * Use the surround command on the current range of the RichTextInput.
+     * Use the surround command on the current range of the input.
      * If the range is already surrounded, it will unsurround instead.
      */
     async surround<T>(
@@ -182,7 +182,7 @@ export class Surrounder {
     }
 
     /**
-     * Use the surround command on the current range of the RichTextInput.
+     * Use the surround command on the current range of the input.
      * If the range is already surrounded, it will overwrite the format.
      * This might be better suited if the surrounding is parameterized (like
      * text color).
