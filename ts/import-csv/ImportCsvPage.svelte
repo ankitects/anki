@@ -30,6 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let path: string;
     export let notetypeNameIds: Notetypes.NotetypeNameId[];
     export let deckNameIds: Decks.DeckNameId[];
+    export let dupeResolution: ImportExport.ImportCsvRequest.DupeResolution;
 
     export let delimiter: ImportExport.CsvMetadata.Delimiter;
     export let forceDelimiter: boolean;
@@ -47,7 +48,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let deckId: number | null;
     export let deckColumn: number | null;
 
-    let dupeResolution: ImportExport.ImportCsvRequest.DupeResolution;
     let lastNotetypeId = globalNotetype?.id;
     let lastDelimeter = delimiter;
 

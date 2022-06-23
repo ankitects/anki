@@ -76,3 +76,13 @@ export async function getCsvMetadata(
         }),
     );
 }
+
+export function dupeResolutionFromNum(
+    num: number,
+): ImportExport.ImportCsvRequest.DupeResolution {
+    const DupeResolution = ImportExport.ImportCsvRequest.DupeResolution;
+    return (
+        DupeResolution[DupeResolution[num] as keyof typeof DupeResolution] ??
+        DupeResolution.UPDATE
+    );
+}

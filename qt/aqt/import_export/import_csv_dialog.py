@@ -46,7 +46,8 @@ class ImportCsvDialog(QDialog):
         layout.addWidget(self.web)
         self.setLayout(layout)
 
-        self.web.eval(f"anki.setupImportCsvPage('{path}');")
+        dupe_resolution = self.mw.pm.profile.get("importMode", 0)
+        self.web.eval(f"anki.setupImportCsvPage('{path}', {dupe_resolution});")
         self.setWindowTitle(tr.decks_import_file())
 
     def reject(self) -> None:
