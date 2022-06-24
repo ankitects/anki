@@ -41,6 +41,7 @@ impl ExchangeData {
         self.cards = col.gather_cards()?;
         self.decks = col.gather_decks()?;
         self.notetypes = col.gather_notetypes()?;
+        self.check_ids()?;
 
         if with_scheduling {
             self.revlog = col.gather_revlog()?;
@@ -113,6 +114,18 @@ impl ExchangeData {
             card.flags = 0;
             card.deck_id = deck_id;
         }
+    }
+
+    fn check_ids(&self) -> Result<()> {
+        let now = TimestampMillis::now().0;
+        self.cards
+            .iter()
+            .map(|card| card.id.0)
+            .chain(self.notes.iter().map(|note| note.id.0))
+            .chain(self.revlog.iter().map(|entry| entry.id.0))
+            .any(|timestamp| timestamp > now)
+            .then(|| Err(AnkiError::InvalidId))
+            .unwrap_or(Ok(()))
     }
 }
 
@@ -223,5 +236,38 @@ impl Collection {
                     .ok_or(AnkiError::NotFound)
             })
             .collect()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::{collection::open_test_collection, search::SearchNode};
+
+    #[test]
+    fn should_gather_valid_notes() {
+        let mut data = ExchangeData::default();
+        let mut col = open_test_collection();
+
+        let note = col.add_new_note("Basic");
+        data.gather_data(&mut col, SearchNode::WholeCollection, true)
+            .unwrap();
+
+        assert_eq!(data.notes, [note]);
+    }
+
+    #[test]
+    fn should_err_if_note_has_invalid_id() {
+        let mut data = ExchangeData::default();
+        let mut col = open_test_collection();
+        let now_micros = TimestampMillis::now().0 * 1000;
+
+        let mut note = col.add_new_note("Basic");
+        note.id = NoteId(now_micros);
+        col.add_note_only_with_id_undoable(&mut note).unwrap();
+
+        assert!(data
+            .gather_data(&mut col, SearchNode::WholeCollection, true)
+            .is_err());
     }
 }
