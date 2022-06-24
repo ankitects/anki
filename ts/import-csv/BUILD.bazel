@@ -55,6 +55,7 @@ esbuild(
         "//ts/tag-editor",
         "@npm//@mdi",
         "@npm//bootstrap-icons",
+        "@npm//protobufjs",
     ],
 )
 
