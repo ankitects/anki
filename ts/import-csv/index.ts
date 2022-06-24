@@ -12,7 +12,7 @@ import {
     notetypes as notetypeService,
 } from "../lib/proto";
 import ImportCsvPage from "./ImportCsvPage.svelte";
-import { dupeResolutionFromNum, getCsvMetadata } from "./lib";
+import { getCsvMetadata } from "./lib";
 
 const gettingNotetypes = notetypeService.getNotetypeNames(empty);
 const gettingDecks = decksService.getDeckNames(
@@ -34,10 +34,7 @@ const i18n = setupI18n({
     ],
 });
 
-export async function setupImportCsvPage(
-    path: string,
-    dupeResolution: number,
-): Promise<ImportCsvPage> {
+export async function setupImportCsvPage(path: string): Promise<ImportCsvPage> {
     const gettingMetadata = getCsvMetadata(path);
     const [notetypes, decks, metadata] = await Promise.all([
         gettingNotetypes,
@@ -54,7 +51,7 @@ export async function setupImportCsvPage(
             path: path,
             deckNameIds: decks.entries,
             notetypeNameIds: notetypes.entries,
-            dupeResolution: dupeResolutionFromNum(dupeResolution),
+            dupeResolution: metadata.dupeResolution,
             delimiter: metadata.delimiter,
             forceDelimiter: metadata.forceDelimiter,
             isHtml: metadata.isHtml,

@@ -4,6 +4,7 @@
 mod bool;
 mod deck;
 mod notetype;
+mod number;
 pub(crate) mod schema11;
 mod string;
 pub(crate) mod undo;
@@ -14,7 +15,8 @@ use slog::warn;
 use strum::IntoStaticStr;
 
 pub use self::{
-    bool::BoolKey, deck::DeckConfigKey, notetype::get_aux_notetype_config_key, string::StringKey,
+    bool::BoolKey, deck::DeckConfigKey, notetype::get_aux_notetype_config_key,
+    number::I32ConfigKey, string::StringKey,
 };
 use crate::{backend_proto::preferences::BackupLimits, prelude::*};
 
