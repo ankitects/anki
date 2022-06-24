@@ -11,6 +11,7 @@ use std::{
 use super::NameOrId;
 use crate::{
     card::{CardQueue, CardType},
+    config::I32ConfigKey,
     import_export::{
         text::{
             DupeResolution, ForeignCard, ForeignData, ForeignNote, ForeignNotetype, ForeignTemplate,
@@ -31,6 +32,10 @@ impl ForeignData {
         let mut progress = IncrementableProgress::new(progress_fn);
         progress.call(ImportProgress::File)?;
         col.transact(Op::Import, |col| {
+            col.set_config_i32_inner(
+                I32ConfigKey::CsvDuplicateResolution,
+                self.dupe_resolution as i32,
+            )?;
             let mut ctx = Context::new(&self, col)?;
             ctx.import_foreign_notetypes(self.notetypes)?;
             ctx.import_foreign_notes(

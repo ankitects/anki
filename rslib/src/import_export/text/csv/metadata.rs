@@ -13,10 +13,12 @@ use strum::IntoEnumIterator;
 use super::import::build_csv_reader;
 pub use crate::backend_proto::import_export::{
     csv_metadata::{Deck as CsvDeck, Delimiter, MappedNotetype, Notetype as CsvNotetype},
+    import_csv_request::DupeResolution,
     CsvMetadata,
 };
 use crate::{
     backend_proto::StringList,
+    config::I32ConfigKey,
     error::ImportError,
     import_export::text::NameOrId,
     notetype::NoteField,
@@ -48,7 +50,14 @@ impl Collection {
         notetype_id: Option<NotetypeId>,
         is_html: Option<bool>,
     ) -> Result<CsvMetadata> {
-        let mut metadata = CsvMetadata::default();
+        let dupe_resolution =
+            DupeResolution::from_i32(self.get_config_i32(I32ConfigKey::CsvDuplicateResolution))
+                .map(|r| r as i32)
+                .unwrap_or_default();
+        let mut metadata = CsvMetadata {
+            dupe_resolution,
+            ..Default::default()
+        };
         let meta_len = self.parse_meta_lines(&mut reader, &mut metadata)? as u64;
         maybe_set_fallback_delimiter(delimiter, &mut metadata, &mut reader, meta_len)?;
         let records = collect_preview_records(&mut metadata, reader)?;
