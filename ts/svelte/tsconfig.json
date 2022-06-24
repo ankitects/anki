@@ -8,6 +8,7 @@
         // ensure node can run the resulting code
         "noEmitHelpers": false,
         "importHelpers": false,
+        "preserveValueImports": false,
         "module": "commonjs"
     }
 }

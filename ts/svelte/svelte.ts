@@ -84,6 +84,8 @@ const languageServiceHost: ts.LanguageServiceHost = {
     },
     getCurrentDirectory: ts.sys.getCurrentDirectory,
     getDefaultLibFileName: ts.getDefaultLibFilePath,
+    readFile: ts.sys.readFile,
+    fileExists: ts.sys.fileExists,
 };
 
 const languageService = ts.createLanguageService(languageServiceHost);
