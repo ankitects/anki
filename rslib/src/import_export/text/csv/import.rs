@@ -276,6 +276,7 @@ mod test {
                     field_columns: vec![1, 2],
                 })),
                 preview: Vec::new(),
+                dupe_resolution: 0,
             }
         }
     }

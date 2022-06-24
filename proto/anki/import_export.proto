@@ -106,8 +106,8 @@ message MediaEntries {
 message ImportCsvRequest {
   enum DupeResolution {
     UPDATE = 0;
-    ADD = 1;
-    IGNORE = 2;
+    IGNORE = 1;
+    ADD = 2;
     // UPDATE_IF_NEWER = 3;
   }
   string path = 1;
@@ -166,6 +166,7 @@ message CsvMetadata {
   bool force_is_html = 12;
   repeated generic.StringList preview = 13;
   uint32 guid_column = 14;
+  ImportCsvRequest.DupeResolution dupe_resolution = 15;
 }
 
 message ExportCardCsvRequest {
