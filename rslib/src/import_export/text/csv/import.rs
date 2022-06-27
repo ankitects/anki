@@ -10,7 +10,7 @@ use crate::{
     import_export::{
         text::{
             csv::metadata::{CsvDeck, CsvMetadata, CsvNotetype, Delimiter},
-            DupeResolution, ForeignData, ForeignNote, NameOrId,
+            ForeignData, ForeignNote, NameOrId,
         },
         ImportProgress, NoteLog,
     },
@@ -22,7 +22,6 @@ impl Collection {
         &mut self,
         path: &str,
         metadata: CsvMetadata,
-        dupe_resolution: DupeResolution,
         progress_fn: impl 'static + FnMut(ImportProgress, bool) -> bool,
     ) -> Result<OpOutput<NoteLog>> {
         let file = File::open(path)?;
@@ -32,7 +31,7 @@ impl Collection {
         let notes = ctx.deserialize_csv(file, metadata.delimiter())?;
 
         ForeignData {
-            dupe_resolution,
+            dupe_resolution: metadata.dupe_resolution(),
             default_deck,
             default_notetype,
             notes,

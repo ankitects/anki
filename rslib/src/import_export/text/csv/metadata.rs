@@ -12,8 +12,9 @@ use strum::IntoEnumIterator;
 
 use super::import::build_csv_reader;
 pub use crate::pb::import_export::{
-    csv_metadata::{Deck as CsvDeck, Delimiter, MappedNotetype, Notetype as CsvNotetype},
-    import_csv_request::DupeResolution,
+    csv_metadata::{
+        Deck as CsvDeck, Delimiter, DupeResolution, MappedNotetype, Notetype as CsvNotetype,
+    },
     CsvMetadata,
 };
 use crate::{
