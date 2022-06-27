@@ -8,7 +8,7 @@ mod json;
 use serde_derive::{Deserialize, Serialize};
 
 use super::LogNote;
-use crate::backend_proto::import_csv_request::DupeResolution;
+use crate::pb::import_csv_request::DupeResolution;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(default)]

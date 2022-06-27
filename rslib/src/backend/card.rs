@@ -2,10 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::Backend;
-pub(super) use crate::backend_proto::cards_service::Service as CardsService;
+pub(super) use crate::pb::cards_service::Service as CardsService;
 use crate::{
-    backend_proto as pb,
     card::{CardQueue, CardType},
+    pb,
     prelude::*,
 };
 

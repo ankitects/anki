@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    backend_proto as pb,
     config::{BoolKey, Weekday},
+    pb,
     prelude::*,
     revlog::RevlogEntry,
     search::SortMode,

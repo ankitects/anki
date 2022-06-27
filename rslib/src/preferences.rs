@@ -2,13 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    backend_proto::{
-        preferences::{scheduling::NewReviewMix as NewRevMixPB, Editing, Reviewing, Scheduling},
-        Preferences,
-    },
     collection::Collection,
     config::{BoolKey, StringKey},
     error::Result,
+    pb::{
+        preferences::{scheduling::NewReviewMix as NewRevMixPB, Editing, Reviewing, Scheduling},
+        Preferences,
+    },
     prelude::*,
     scheduler::timing::local_minutes_west_for_stamp,
 };

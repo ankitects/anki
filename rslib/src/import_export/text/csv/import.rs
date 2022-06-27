@@ -239,7 +239,7 @@ mod test {
     use std::io::Cursor;
 
     use super::*;
-    use crate::backend_proto::import_export::csv_metadata::MappedNotetype;
+    use crate::pb::import_export::csv_metadata::MappedNotetype;
 
     macro_rules! import {
         ($metadata:expr, $csv:expr) => {{

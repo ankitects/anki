@@ -4,7 +4,7 @@
 use itertools::Itertools;
 
 use crate::{
-    backend_proto as pb,
+    pb,
     prelude::*,
     search::{
         parse_search, Negated, Node, PropertyKind, RatingKind, SearchNode, StateKind, TemplateKind,

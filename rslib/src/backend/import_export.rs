@@ -4,10 +4,10 @@
 use std::path::Path;
 
 use super::{progress::Progress, Backend};
-pub(super) use crate::backend_proto::importexport_service::Service as ImportExportService;
+pub(super) use crate::pb::importexport_service::Service as ImportExportService;
 use crate::{
-    backend_proto::{self as pb, export_limit, ExportLimit},
     import_export::{package::import_colpkg, ExportProgress, ImportProgress, NoteLog},
+    pb::{self as pb, export_limit, ExportLimit},
     prelude::*,
     search::SearchNode,
 };

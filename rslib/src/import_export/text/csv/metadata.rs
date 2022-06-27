@@ -11,17 +11,17 @@ use itertools::Itertools;
 use strum::IntoEnumIterator;
 
 use super::import::build_csv_reader;
-pub use crate::backend_proto::import_export::{
+pub use crate::pb::import_export::{
     csv_metadata::{Deck as CsvDeck, Delimiter, MappedNotetype, Notetype as CsvNotetype},
     import_csv_request::DupeResolution,
     CsvMetadata,
 };
 use crate::{
-    backend_proto::StringList,
     config::I32ConfigKey,
     error::ImportError,
     import_export::text::NameOrId,
     notetype::NoteField,
+    pb::StringList,
     prelude::*,
     text::{html_to_text_line, is_html},
 };

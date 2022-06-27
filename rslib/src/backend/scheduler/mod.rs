@@ -5,9 +5,9 @@ mod answering;
 mod states;
 
 use super::Backend;
-pub(super) use crate::backend_proto::scheduler_service::Service as SchedulerService;
+pub(super) use crate::pb::scheduler_service::Service as SchedulerService;
 use crate::{
-    backend_proto as pb,
+    pb,
     prelude::*,
     scheduler::{
         new::NewCardDueOrder,

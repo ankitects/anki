@@ -9,9 +9,9 @@ use regex::Regex;
 
 use super::metadata::Delimiter;
 use crate::{
-    backend_proto::ExportNoteCsvRequest,
     import_export::{ExportProgress, IncrementableProgress},
     notetype::RenderCardOutput,
+    pb::ExportNoteCsvRequest,
     prelude::*,
     search::{SearchNode, SortMode},
     template::RenderedNode,

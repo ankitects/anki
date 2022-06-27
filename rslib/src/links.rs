@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-pub use crate::backend_proto::links::help_page_link_request::HelpPage;
+pub use crate::pb::links::help_page_link_request::HelpPage;
 
 static HELP_SITE: &str = "https://docs.ankiweb.net/";
 

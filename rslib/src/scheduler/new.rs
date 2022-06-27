@@ -5,7 +5,7 @@ use std::collections::{HashMap, HashSet};
 
 use rand::seq::SliceRandom;
 
-pub use crate::backend_proto::scheduler::{
+pub use crate::pb::scheduler::{
     schedule_cards_as_new_request::Context as ScheduleAsNewContext,
     ScheduleCardsAsNewDefaultsResponse,
 };

@@ -3,9 +3,9 @@
 
 use super::{CardTemplateConfig, CardTemplateProto};
 use crate::{
-    backend_proto::UInt32,
     decks::DeckId,
     error::{AnkiError, Result},
+    pb::UInt32,
     template::ParsedTemplate,
     timestamp::TimestampSecs,
     types::Usn,

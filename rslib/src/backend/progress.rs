@@ -7,11 +7,11 @@ use futures::future::AbortHandle;
 
 use super::Backend;
 use crate::{
-    backend_proto as pb,
     dbcheck::DatabaseCheckProgress,
     i18n::I18n,
     import_export::{ExportProgress, ImportProgress},
     media::sync::MediaSyncProgress,
+    pb,
     sync::{FullSyncProgress, NormalSyncProgress, SyncStage},
 };
 

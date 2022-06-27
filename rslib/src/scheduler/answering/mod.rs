@@ -19,10 +19,10 @@ use super::{
     timing::SchedTimingToday,
 };
 use crate::{
-    backend_proto,
     card::CardQueue,
     deckconfig::{DeckConfig, LeechAction},
     decks::Deck,
+    pb,
     prelude::*,
 };
 
@@ -329,7 +329,7 @@ impl Collection {
         self.update_deck_stats(
             updater.timing.days_elapsed,
             usn,
-            backend_proto::UpdateStatsRequest {
+            pb::UpdateStatsRequest {
                 deck_id: updater.deck.id.0,
                 new_delta,
                 review_delta,
