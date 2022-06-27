@@ -3,6 +3,8 @@
 
 syntax = "proto3";
 
+option java_multiple_files = true;
+
 package anki.card_rendering;
 
 import "anki/generic.proto";
