@@ -5,7 +5,7 @@ use std::fmt::Write as _;
 
 use super::{CardNodes, Directive, Node, OtherDirective, TtsDirective};
 use crate::{
-    backend_proto as pb,
+    pb,
     prelude::*,
     text::{decode_entities, strip_html_for_tts},
 };

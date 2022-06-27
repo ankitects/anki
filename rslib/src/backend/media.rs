@@ -2,10 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{progress::Progress, Backend};
-pub(super) use crate::backend_proto::media_service::Service as MediaService;
+pub(super) use crate::pb::media_service::Service as MediaService;
 use crate::{
-    backend_proto as pb,
     media::{check::MediaChecker, MediaManager},
+    pb,
     prelude::*,
 };
 

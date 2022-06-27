@@ -6,9 +6,9 @@ use std::collections::HashMap;
 use fluent::{FluentArgs, FluentValue};
 
 use super::Backend;
-pub(super) use crate::backend_proto::i18n_service::Service as I18nService;
+pub(super) use crate::pb::i18n_service::Service as I18nService;
 use crate::{
-    backend_proto as pb,
+    pb,
     prelude::*,
     scheduler::timespan::{answer_button_time, time_span},
 };

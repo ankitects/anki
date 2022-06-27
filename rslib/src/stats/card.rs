@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    backend_proto as pb,
     card::{CardQueue, CardType},
+    pb,
     prelude::*,
     revlog::RevlogEntry,
 };

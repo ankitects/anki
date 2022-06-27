@@ -21,7 +21,7 @@ pub(crate) use name::immediate_parent_name;
 pub use name::NativeDeckName;
 pub use schema11::DeckSchema11;
 
-pub use crate::backend_proto::{
+pub use crate::pb::{
     deck::{
         filtered::{search_term::Order as FilteredSearchOrder, SearchTerm as FilteredSearchTerm},
         kind_container::Kind as DeckKind,

@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{backend_proto as pb, prelude::*};
+use crate::{pb, prelude::*};
 
 #[derive(Debug)]
 pub(crate) struct CongratsInfo {
@@ -51,7 +51,7 @@ mod test {
         let info = col.congrats_info().unwrap();
         assert_eq!(
             info,
-            crate::backend_proto::CongratsInfoResponse {
+            crate::pb::CongratsInfoResponse {
                 learn_remaining: 0,
                 review_remaining: false,
                 new_remaining: false,

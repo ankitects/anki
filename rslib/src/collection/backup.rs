@@ -14,8 +14,7 @@ use itertools::Itertools;
 use log::error;
 
 use crate::{
-    backend_proto::preferences::BackupLimits, import_export::package::export_colpkg_from_data, log,
-    prelude::*,
+    import_export::package::export_colpkg_from_data, log, pb::preferences::BackupLimits, prelude::*,
 };
 
 const BACKUP_FORMAT_STRING: &str = "backup-%Y-%m-%d-%H.%M.%S.colpkg";

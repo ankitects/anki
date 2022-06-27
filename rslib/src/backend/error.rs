@@ -2,9 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    backend_proto as pb,
-    backend_proto::backend_error::Kind,
     error::{AnkiError, SyncErrorKind},
+    pb,
+    pb::backend_error::Kind,
     prelude::*,
 };
 

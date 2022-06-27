@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{backend_proto as pb, scheduler::states::ReviewState};
+use crate::{pb, scheduler::states::ReviewState};
 
 impl From<pb::scheduling_state::Review> for ReviewState {
     fn from(state: pb::scheduling_state::Review) -> Self {

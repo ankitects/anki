@@ -264,9 +264,9 @@ impl Collection {
 mod test {
     use super::*;
     use crate::{
-        backend_proto::deck_config::config::{NewCardGatherPriority, NewCardSortOrder},
         card::{CardQueue, CardType},
         collection::open_test_collection,
+        pb::deck_config::config::{NewCardGatherPriority, NewCardSortOrder},
     };
 
     impl Collection {

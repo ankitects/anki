@@ -3,7 +3,7 @@
 
 use std::collections::HashMap;
 
-use crate::{backend_proto as pb, prelude::*};
+use crate::{pb, prelude::*};
 
 mod parser;
 mod writer;

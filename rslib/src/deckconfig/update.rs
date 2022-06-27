@@ -9,9 +9,9 @@ use std::{
 };
 
 use crate::{
-    backend_proto as pb,
-    backend_proto::deck_configs_for_update::{ConfigWithExtra, CurrentDeck},
     config::StringKey,
+    pb,
+    pb::deck_configs_for_update::{ConfigWithExtra, CurrentDeck},
     prelude::*,
 };
 
