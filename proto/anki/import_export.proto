@@ -58,7 +58,7 @@ message ImportResponse {
     repeated Note missing_notetype = 6;
     repeated Note missing_deck = 7;
     repeated Note empty_first_field = 8;
-    ImportCsvRequest.DupeResolution dupe_resolution = 9;
+    CsvMetadata.DupeResolution dupe_resolution = 9;
     // Usually the sum of all queues, but may be lower if multiple duplicates
     // have been updated with the same note.
     uint32 found_notes = 10;
@@ -106,15 +106,8 @@ message MediaEntries {
 }
 
 message ImportCsvRequest {
-  enum DupeResolution {
-    UPDATE = 0;
-    IGNORE = 1;
-    ADD = 2;
-    // UPDATE_IF_NEWER = 3;
-  }
   string path = 1;
   CsvMetadata metadata = 2;
-  DupeResolution dupe_resolution = 3;
 }
 
 message CsvMetadataRequest {
@@ -127,6 +120,12 @@ message CsvMetadataRequest {
 // Column indices are 1-based to make working with them in TS easier, where
 // unset numerical fields default to 0.
 message CsvMetadata {
+  enum DupeResolution {
+    UPDATE = 0;
+    IGNORE = 1;
+    ADD = 2;
+    // UPDATE_IF_NEWER = 3;
+  }
   // Order roughly in ascending expected frequency in note text, because the
   // delimiter detection algorithm is stupidly picking the first one it
   // encounters.
@@ -168,7 +167,7 @@ message CsvMetadata {
   bool force_is_html = 12;
   repeated generic.StringList preview = 13;
   uint32 guid_column = 14;
-  ImportCsvRequest.DupeResolution dupe_resolution = 15;
+  DupeResolution dupe_resolution = 15;
 }
 
 message ExportCardCsvRequest {

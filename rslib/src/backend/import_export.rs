@@ -86,11 +86,9 @@ impl ImportExportService for Backend {
 
     fn import_csv(&self, input: pb::ImportCsvRequest) -> Result<pb::ImportResponse> {
         self.with_col(|col| {
-            let dupe_resolution = input.dupe_resolution();
             col.import_csv(
                 &input.path,
                 input.metadata.unwrap_or_default(),
-                dupe_resolution,
                 self.import_progress_fn(),
             )
         })

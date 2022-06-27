@@ -30,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let path: string;
     export let notetypeNameIds: Notetypes.NotetypeNameId[];
     export let deckNameIds: Decks.DeckNameId[];
-    export let dupeResolution: ImportExport.ImportCsvRequest.DupeResolution;
+    export let dupeResolution: ImportExport.CsvMetadata.DupeResolution;
 
     export let delimiter: ImportExport.CsvMetadata.Delimiter;
     export let forceDelimiter: boolean;
@@ -75,8 +75,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         await importExport.importCsv(
             ImportExport.ImportCsvRequest.create({
                 path,
-                dupeResolution,
                 metadata: ImportExport.CsvMetadata.create({
+                    dupeResolution,
                     delimiter,
                     forceDelimiter,
                     isHtml,

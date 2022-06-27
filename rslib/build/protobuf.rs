@@ -112,7 +112,7 @@ pub fn write_backend_proto_rs() {
             "#[derive(Copy, serde_derive::Deserialize, serde_derive::Serialize)]",
         )
         .type_attribute(
-            "ImportCsvRequest.DupeResolution",
+            "CsvMetadata.DupeResolution",
             "#[derive(serde_derive::Deserialize, serde_derive::Serialize)]",
         )
         .compile_protos(paths.as_slice(), &[proto_dir])
