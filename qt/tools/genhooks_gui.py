@@ -430,11 +430,14 @@ hooks = [
          You can modify context.search to change the text that is sent to the
          searching backend.
          
-         If you set context.card_ids to a list of ids, the regular search will
+         If you set context.ids to a list of ids, the regular search will
          not be performed, and the provided ids will be used instead.
          
-         Your add-on should check if context.card_ids is not None, and return
+         Your add-on should check if context.ids is not None, and return
          without making changes if it has been set.
+
+         In versions of Anki lower than 2.1.45 the field to check is
+         context.card_ids rather than context.ids
          """,
     ),
     Hook(
