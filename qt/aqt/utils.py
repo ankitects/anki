@@ -430,7 +430,7 @@ def getFile(
     title: str,
     # single file returned unless multi=True
     cb: Callable[[str | Sequence[str]], None] | None,
-    filter: str = "*.*",
+    filter: str = "*",
     dir: str | None = None,
     key: str | None = None,
     multi: bool = False,  # controls whether a single or multiple files is returned
