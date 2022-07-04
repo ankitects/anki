@@ -286,6 +286,12 @@ class Overview:
         if self.mw.col.sched.have_buried():
             links.append(["U", "unbury", tr.studying_unbury()])
         links.append(["", "description", tr.scheduling_description()])
+        link_handler = gui_hooks.overview_will_render_bottom(
+            self._linkHandler,
+            links,
+        )
+        if not callable(link_handler):
+            link_handler = self._linkHandler
         buf = ""
         for b in links:
             if b[0]:
@@ -295,7 +301,9 @@ class Overview:
                 b
             )
         self.bottom.draw(
-            buf=buf, link_handler=self._linkHandler, web_context=OverviewBottomBar(self)
+            buf=buf,
+            link_handler=link_handler,
+            web_context=OverviewBottomBar(self),
         )
 
     # Studying more
