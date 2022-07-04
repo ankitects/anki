@@ -67,8 +67,8 @@ hooks = [
     ),
     Hook(
         name="overview_will_render_bottom",
-        args=["links: list[list[str, str, str]]", "link_handler: Callable[str]"],
-        return_type="Callable[str]",
+        args=["links: list[list[str]]", "link_handler: Callable[str]"],
+        return_type="Callable[[str], bool]",
         doc="""Allows adding buttons to the Overview bottom bar.
 
         Append a list of strings to 'links' argument to add new buttons.
