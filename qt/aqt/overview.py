@@ -287,8 +287,8 @@ class Overview:
             links.append(["U", "unbury", tr.studying_unbury()])
         links.append(["", "description", tr.scheduling_description()])
         link_handler = gui_hooks.overview_will_render_bottom(
-            links,
             self._linkHandler,
+            links,
         )
         if not callable(link_handler):
             link_handler = self._linkHandler
