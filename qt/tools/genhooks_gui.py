@@ -68,7 +68,7 @@ hooks = [
     Hook(
         name="overview_will_render_bottom",
         args=[
-            "links: Union[Callable[[str], bool], List[Any]]",
+            "links: list | Callable[[str], bool]",
             "link_handler: Callable[[str], bool]",
         ],
         return_type="Callable[[str], bool] | list",
