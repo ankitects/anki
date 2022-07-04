@@ -67,10 +67,7 @@ hooks = [
     ),
     Hook(
         name="overview_will_render_bottom",
-        args=[
-            "links: list[list[str, str, str], ...]",
-            "link_handler: Callable[str]"
-        ],
+        args=["links: list[list[str, str, str], ...]", "link_handler: Callable[str]"],
         return_type="Callable[str]",
         doc="""Allows adding buttons to the Overview bottom bar.
 
@@ -91,7 +88,7 @@ hooks = [
                 print('Hello World!')
             return link_handler(url=url)
         return custom_link_handler
-        """
+        """,
     ),
     Hook(
         name="reviewer_did_show_question",
