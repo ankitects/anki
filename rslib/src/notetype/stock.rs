@@ -3,11 +3,11 @@
 
 use super::NotetypeConfig;
 use crate::{
-    backend_proto::stock_notetype::Kind,
     config::{ConfigEntry, ConfigKey},
     error::Result,
     i18n::I18n,
     notetype::Notetype,
+    pb::stock_notetype::Kind,
     storage::SqliteStorage,
     timestamp::TimestampSecs,
 };

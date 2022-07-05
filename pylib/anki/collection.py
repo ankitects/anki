@@ -35,8 +35,8 @@ BrowserColumns = search_pb2.BrowserColumns
 StripHtmlMode = card_rendering_pb2.StripHtmlRequest
 ImportLogWithChanges = import_export_pb2.ImportResponse
 ImportCsvRequest = import_export_pb2.ImportCsvRequest
-DupeResolution = ImportCsvRequest.DupeResolution
 CsvMetadata = import_export_pb2.CsvMetadata
+DupeResolution = CsvMetadata.DupeResolution
 Delimiter = import_export_pb2.CsvMetadata.Delimiter
 
 import copy

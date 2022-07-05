@@ -66,6 +66,34 @@ hooks = [
         """,
     ),
     Hook(
+        name="overview_will_render_bottom",
+        args=[
+            "link_handler: Callable[[str], bool]",
+            "links: list[list[str]]",
+        ],
+        return_type="Callable[[str], bool]",
+        doc="""Allows adding buttons to the Overview bottom bar.
+
+        Append a list of strings to 'links' argument to add new buttons.
+        - The first value is the shortcut to appear in the tooltip.
+        - The second value is the url to be triggered.
+        - The third value is the text of the new button.
+
+        Extend the callable 'link_handler' to handle new urls. This callable
+        accepts one argument: the triggered url.
+        Make a check of the triggered url, call any functions related to
+        that trigger, and return the new link_handler.
+
+        Example:
+        links.append(['H', 'hello', 'Click me!'])
+        def custom_link_handler(url):
+            if url == 'hello':
+                print('Hello World!')
+            return link_handler(url=url)
+        return custom_link_handler
+        """,
+    ),
+    Hook(
         name="reviewer_did_show_question",
         args=["card: Card"],
         legacy_hook="showQuestion",
@@ -430,11 +458,14 @@ hooks = [
          You can modify context.search to change the text that is sent to the
          searching backend.
          
-         If you set context.card_ids to a list of ids, the regular search will
+         If you set context.ids to a list of ids, the regular search will
          not be performed, and the provided ids will be used instead.
          
-         Your add-on should check if context.card_ids is not None, and return
+         Your add-on should check if context.ids is not None, and return
          without making changes if it has been set.
+
+         In versions of Anki lower than 2.1.45 the field to check is
+         context.card_ids rather than context.ids
          """,
     ),
     Hook(

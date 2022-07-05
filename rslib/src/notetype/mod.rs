@@ -29,7 +29,7 @@ pub use stock::all_stock_notetypes;
 pub use templates::CardTemplate;
 use unicase::UniCase;
 
-pub use crate::backend_proto::{
+pub use crate::pb::{
     notetype::{
         config::{
             card_requirement::Kind as CardRequirementKind, CardRequirement, Kind as NotetypeKind,

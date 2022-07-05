@@ -9,10 +9,10 @@ use futures::future::{AbortHandle, AbortRegistration, Abortable};
 use slog::warn;
 
 use super::{progress::AbortHandleSlot, Backend};
-pub(super) use crate::backend_proto::sync_service::Service as SyncService;
+pub(super) use crate::pb::sync_service::Service as SyncService;
 use crate::{
-    backend_proto as pb,
     media::MediaManager,
+    pb,
     prelude::*,
     sync::{
         get_remote_sync_meta, http::SyncRequest, sync_abort, sync_login, FullSyncProgress,

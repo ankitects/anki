@@ -14,8 +14,7 @@ use itertools::Itertools;
 use log::error;
 
 use crate::{
-    backend_proto::preferences::BackupLimits, import_export::package::export_colpkg_from_data, log,
-    prelude::*,
+    import_export::package::export_colpkg_from_data, log, pb::preferences::BackupLimits, prelude::*,
 };
 
 const BACKUP_FORMAT_STRING: &str = "backup-%Y-%m-%d-%H.%M.%S.colpkg";
@@ -65,7 +64,17 @@ fn has_recent_backup(backup_folder: &Path, recent_mins: u32) -> Result<bool> {
     Ok(read_dir(backup_folder)?
         .filter_map(|res| res.ok())
         .filter_map(|entry| entry.metadata().ok())
-        .filter_map(|meta| meta.created().ok())
+        .filter_map(|meta| {
+            // created time unsupported on Android
+            #[cfg(target_os = "android")]
+            {
+                meta.modified().ok()
+            }
+            #[cfg(not(target_os = "android"))]
+            {
+                meta.created().ok()
+            }
+        })
         .filter_map(|time| now.duration_since(time).ok())
         .any(|duration| duration.as_secs() < recent_secs))
 }

@@ -4,10 +4,10 @@
 use std::collections::HashSet;
 
 use super::Backend;
-pub(super) use crate::backend_proto::notes_service::Service as NotesService;
+pub(super) use crate::pb::notes_service::Service as NotesService;
 use crate::{
-    backend_proto::{self as pb},
     cloze::add_cloze_numbers_in_string,
+    pb::{self as pb},
     prelude::*,
 };
 

@@ -1532,7 +1532,11 @@ title="{}" {}>{}</button>""".format(
             ).run_in_background()
 
         StudyDeck(
-            self, dyn=True, current=self.col.decks.current()["name"], callback=callback
+            self,
+            parent=self,
+            dyn=True,
+            current=self.col.decks.current()["name"],
+            callback=callback,
         )
 
     def onEmptyCards(self) -> None:

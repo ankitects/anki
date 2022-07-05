@@ -7,10 +7,10 @@ use itertools::Itertools;
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
 
 use crate::{
-    backend_proto as pb,
     card::{CardQueue, CardType},
     card_rendering::prettify_av_tags,
     notetype::{CardTemplate, NotetypeKind},
+    pb,
     prelude::*,
     scheduler::{timespan::time_span, timing::SchedTimingToday},
     template::RenderedNode,

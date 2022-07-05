@@ -6,11 +6,11 @@ use std::sync::MutexGuard;
 use slog::error;
 
 use super::{progress::Progress, Backend};
-pub(super) use crate::backend_proto::collection_service::Service as CollectionService;
+pub(super) use crate::pb::collection_service::Service as CollectionService;
 use crate::{
     backend::progress::progress_to_proto,
-    backend_proto::{self as pb},
     collection::CollectionBuilder,
+    pb::{self as pb},
     prelude::*,
     storage::SchemaVersion,
 };

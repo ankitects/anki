@@ -11,8 +11,8 @@ use rusqlite::{
 
 use super::SqliteStorage;
 use crate::{
-    backend_proto as pb,
     error::Result,
+    pb,
     prelude::*,
     revlog::{RevlogEntry, RevlogReviewKind},
 };

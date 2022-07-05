@@ -253,5 +253,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         /* Adopts same size as the content editable element */
         width: 100%;
         height: 100%;
+        /* Keep text on single line and hide overflow */
+        white-space: nowrap;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
     }
 </style>

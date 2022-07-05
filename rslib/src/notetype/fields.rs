@@ -3,8 +3,8 @@
 
 use super::{NoteFieldConfig, NoteFieldProto};
 use crate::{
-    backend_proto::UInt32,
     error::{AnkiError, Result},
+    pb::UInt32,
 };
 
 #[derive(Debug, PartialEq, Clone)]
