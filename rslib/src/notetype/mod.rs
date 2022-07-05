@@ -695,7 +695,7 @@ impl Collection {
                 original.config.sort_field_idx,
                 normalize,
             )?;
-            self.update_cards_for_changed_templates(notetype, original.templates.len())?;
+            self.update_cards_for_changed_templates(notetype, &original.templates)?;
             self.update_notetype_undoable(notetype, original)?;
         } else {
             // adding with existing id for old undo code, bypass undo
