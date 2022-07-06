@@ -172,7 +172,7 @@ fn flag_name(n: u8) -> &'static str {
 
 fn fill_empty_fields(note: &mut Note, qfmt: &str, nt: &Notetype, tr: &I18n) {
     if let Ok(tmpl) = ParsedTemplate::from_text(qfmt) {
-        let cloze_fields = tmpl.cloze_fields();
+        let cloze_fields = tmpl.all_referenced_cloze_field_names();
 
         for (val, field) in note.fields_mut().iter_mut().zip(nt.fields.iter()) {
             if field_is_empty(val) {

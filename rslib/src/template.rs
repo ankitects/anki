@@ -790,42 +790,41 @@ fn nodes_to_string(buf: &mut String, nodes: &[ParsedNode]) {
 //----------------------------------------
 
 impl ParsedTemplate {
-    /// A set of all field names. Field names may not be valid.
-    pub(crate) fn fields(&self) -> HashSet<&str> {
+    /// Field names may not be valid.
+    pub(crate) fn all_referenced_field_names(&self) -> HashSet<&str> {
         let mut set = HashSet::new();
-        find_fields_with_filter(&self.0, &mut set, None);
+        find_field_references(&self.0, &mut set, false, true);
         set
     }
 
-    /// A set of field names with a cloze filter attached.
     /// Field names may not be valid.
-    pub(crate) fn cloze_fields(&self) -> HashSet<&str> {
+    pub(crate) fn all_referenced_cloze_field_names(&self) -> HashSet<&str> {
         let mut set = HashSet::new();
-        find_fields_with_filter(&self.0, &mut set, Some("cloze"));
+        find_field_references(&self.0, &mut set, true, false);
         set
     }
 }
 
-/// Insert all fields in 'nodes' with 'filter' into 'fields'. If 'filter' is None,
-/// all fields are collected.
-fn find_fields_with_filter<'a>(
+fn find_field_references<'a>(
     nodes: &'a [ParsedNode],
     fields: &mut HashSet<&'a str>,
-    filter: Option<&str>,
+    cloze_only: bool,
+    with_conditionals: bool,
 ) {
     for node in nodes {
         match node {
             ParsedNode::Text(_) => {}
             ParsedNode::Replacement { key, filters } => {
-                if filter.is_none() || filters.iter().any(|f| f == filter.unwrap()) {
+                if !cloze_only || filters.iter().any(|f| f == "cloze") {
                     fields.insert(key);
                 }
             }
-            ParsedNode::Conditional { children, .. } => {
-                find_fields_with_filter(children, fields, filter);
-            }
-            ParsedNode::NegatedConditional { children, .. } => {
-                find_fields_with_filter(children, fields, filter);
+            ParsedNode::Conditional { key, children }
+            | ParsedNode::NegatedConditional { key, children } => {
+                if with_conditionals {
+                    fields.insert(key);
+                }
+                find_field_references(children, fields, cloze_only, with_conditionals);
             }
         }
     }
