@@ -212,6 +212,10 @@ impl Collection {
     ) -> Result<OpOutput<usize>> {
         let usn = self.usn()?;
         self.transact(Op::SortCards, |col| {
+            col.set_config_bool_inner(
+                BoolKey::RandomOrderReposition,
+                order == NewCardDueOrder::Random,
+            )?;
             col.set_config_bool_inner(BoolKey::ShiftPositionOfExistingCards, shift)?;
             col.sort_cards_inner(cids, starting_from, step, order, shift, usn)
         })
@@ -247,6 +251,7 @@ impl Collection {
 
     pub fn reposition_defaults(&self) -> RepositionDefaultsResponse {
         RepositionDefaultsResponse {
+            random: self.get_config_bool(BoolKey::RandomOrderReposition),
             shift: self.get_config_bool(BoolKey::ShiftPositionOfExistingCards),
         }
     }

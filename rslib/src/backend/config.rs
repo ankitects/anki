@@ -36,6 +36,7 @@ impl From<BoolKeyProto> for BoolKey {
             BoolKeyProto::RestorePositionReviewer => BoolKey::RestorePositionReviewer,
             BoolKeyProto::ResetCountsBrowser => BoolKey::ResetCountsBrowser,
             BoolKeyProto::ResetCountsReviewer => BoolKey::ResetCountsReviewer,
+            BoolKeyProto::RandomOrderReposition => BoolKey::RandomOrderReposition,
             BoolKeyProto::ShiftPositionOfExistingCards => BoolKey::ShiftPositionOfExistingCards,
         }
     }

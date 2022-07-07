@@ -239,7 +239,7 @@ class SchedulerBase(DeprecatedNamesMixin):
             shift_existing=shift_existing,
         )
 
-    def reposition_defaults(self) -> True:
+    def reposition_defaults(self) -> RepositionDefaults:
         return self.col._backend.reposition_defaults()
 
     def randomize_cards(self, did: DeckId) -> None:

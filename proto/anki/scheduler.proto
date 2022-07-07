@@ -300,5 +300,6 @@ message CustomStudyDefaultsResponse {
 }
 
 message RepositionDefaultsResponse {
-  bool shift = 1;
+  bool random = 1;
+  bool shift = 2;
 }
