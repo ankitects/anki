@@ -31,6 +31,7 @@ pub enum BoolKey {
     RestorePositionReviewer,
     ResetCountsBrowser,
     ResetCountsReviewer,
+    ShiftPositionOfExistingCards,
 
     #[strum(to_string = "normalize_note_text")]
     NormalizeNoteText,

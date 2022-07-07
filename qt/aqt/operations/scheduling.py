@@ -105,7 +105,9 @@ def forget_cards(
 
 
 def reposition_new_cards_dialog(
-    *, parent: QWidget, card_ids: Sequence[CardId]
+    *,
+    parent: QWidget,
+    card_ids: Sequence[CardId],
 ) -> CollectionOp[OpChangesWithCount] | None:
     from aqt import mw
 
@@ -120,24 +122,28 @@ def reposition_new_cards_dialog(
     min_position = max(min_position or 0, 0)
     max_position = max_position or 0
 
-    d = QDialog(parent)
-    disable_help_button(d)
-    d.setWindowModality(Qt.WindowModality.WindowModal)
-    frm = aqt.forms.reposition.Ui_Dialog()
-    frm.setupUi(d)
+    dialog = QDialog(parent)
+    disable_help_button(dialog)
+    dialog.setWindowModality(Qt.WindowModality.WindowModal)
+    form = aqt.forms.reposition.Ui_Dialog()
+    form.setupUi(dialog)
 
     txt = tr.browsing_queue_top(val=min_position)
     txt += "\n" + tr.browsing_queue_bottom(val=max_position)
-    frm.label.setText(txt)
+    form.label.setText(txt)
 
-    frm.start.selectAll()
-    if not d.exec():
+    form.start.selectAll()
+
+    defaults = aqt.mw.col.sched.reposition_defaults()
+    form.shift.setChecked(defaults)
+
+    if not dialog.exec():
         return None
 
-    start = frm.start.value()
-    step = frm.step.value()
-    randomize = frm.randomize.isChecked()
-    shift = frm.shift.isChecked()
+    start = form.start.value()
+    step = form.step.value()
+    randomize = form.randomize.isChecked()
+    shift = form.shift.isChecked()
 
     return reposition_new_cards(
         parent=parent,

@@ -157,6 +157,10 @@ impl SchedulerService for Backend {
         })
     }
 
+    fn reposition_defaults(&self, _input: pb::Empty) -> Result<pb::RepositionDefaultsResponse> {
+        self.with_col(|col| Ok(col.reposition_defaults()))
+    }
+
     fn sort_deck(&self, input: pb::SortDeckRequest) -> Result<pb::OpChangesWithCount> {
         self.with_col(|col| {
             col.sort_deck_legacy(input.deck_id.into(), input.randomize)
