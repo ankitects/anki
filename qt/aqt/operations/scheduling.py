@@ -134,7 +134,7 @@ def reposition_new_cards_dialog(
 
     form.start.selectAll()
 
-    defaults = aqt.mw.col.sched.reposition_defaults()
+    defaults = mw.col.sched.reposition_defaults()
     form.randomize.setChecked(defaults.random)
     form.shift.setChecked(defaults.shift)
 
