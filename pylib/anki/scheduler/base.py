@@ -19,7 +19,7 @@ CustomStudyDefaults = scheduler_pb2.CustomStudyDefaultsResponse
 ScheduleCardsAsNew = scheduler_pb2.ScheduleCardsAsNewRequest
 ScheduleCardsAsNewDefaults = scheduler_pb2.ScheduleCardsAsNewDefaultsResponse
 FilteredDeckForUpdate = decks_pb2.FilteredDeckForUpdate
-
+RepositionDefaults = scheduler_pb2.RepositionDefaultsResponse
 
 from typing import Sequence
 
@@ -238,6 +238,9 @@ class SchedulerBase(DeprecatedNamesMixin):
             randomize=randomize,
             shift_existing=shift_existing,
         )
+
+    def reposition_defaults(self) -> RepositionDefaults:
+        return self.col._backend.reposition_defaults()
 
     def randomize_cards(self, did: DeckId) -> None:
         self.col._backend.sort_deck(deck_id=did, randomize=True)

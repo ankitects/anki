@@ -44,6 +44,7 @@ service SchedulerService {
   rpc CustomStudy(CustomStudyRequest) returns (collection.OpChanges);
   rpc CustomStudyDefaults(CustomStudyDefaultsRequest)
       returns (CustomStudyDefaultsResponse);
+  rpc RepositionDefaults(generic.Empty) returns (RepositionDefaultsResponse);
 }
 
 message SchedulingState {
@@ -296,4 +297,9 @@ message CustomStudyDefaultsResponse {
   // in v3, counts for children are provided separately
   uint32 available_new_in_children = 6;
   uint32 available_review_in_children = 7;
+}
+
+message RepositionDefaultsResponse {
+  bool random = 1;
+  bool shift = 2;
 }

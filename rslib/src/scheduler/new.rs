@@ -6,7 +6,7 @@ use std::collections::{HashMap, HashSet};
 use rand::seq::SliceRandom;
 
 pub use crate::pb::scheduler::{
-    schedule_cards_as_new_request::Context as ScheduleAsNewContext,
+    schedule_cards_as_new_request::Context as ScheduleAsNewContext, RepositionDefaultsResponse,
     ScheduleCardsAsNewDefaultsResponse,
 };
 use crate::{
@@ -212,6 +212,11 @@ impl Collection {
     ) -> Result<OpOutput<usize>> {
         let usn = self.usn()?;
         self.transact(Op::SortCards, |col| {
+            col.set_config_bool_inner(
+                BoolKey::RandomOrderReposition,
+                order == NewCardDueOrder::Random,
+            )?;
+            col.set_config_bool_inner(BoolKey::ShiftPositionOfExistingCards, shift)?;
             col.sort_cards_inner(cids, starting_from, step, order, shift, usn)
         })
     }
@@ -242,6 +247,13 @@ impl Collection {
         }
         self.storage.clear_searched_cards_table()?;
         Ok(count)
+    }
+
+    pub fn reposition_defaults(&self) -> RepositionDefaultsResponse {
+        RepositionDefaultsResponse {
+            random: self.get_config_bool(BoolKey::RandomOrderReposition),
+            shift: self.get_config_bool(BoolKey::ShiftPositionOfExistingCards),
+        }
     }
 
     /// This is handled by update_deck_configs() now; this function has been kept around
