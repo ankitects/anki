@@ -116,6 +116,10 @@ pub struct NormalDeckSchema11 {
     extend_new: i32,
     #[serde(default, deserialize_with = "default_on_invalid")]
     extend_rev: i32,
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    review_limit: Option<u32>,
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    new_limit: Option<u32>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
@@ -226,6 +230,8 @@ impl Default for NormalDeckSchema11 {
             conf: 1,
             extend_new: 0,
             extend_rev: 0,
+            review_limit: None,
+            new_limit: None,
         }
     }
 }
@@ -298,8 +304,8 @@ impl From<NormalDeckSchema11> for NormalDeck {
             extend_review: deck.extend_rev.max(0) as u32,
             markdown_description: deck.common.markdown_description,
             description: deck.common.desc,
-            review_limit: None,
-            new_limit: None,
+            review_limit: deck.review_limit,
+            new_limit: deck.new_limit,
         }
     }
 }
@@ -334,6 +340,8 @@ impl From<Deck> for DeckSchema11 {
                 conf: norm.config_id,
                 extend_new: norm.extend_new as i32,
                 extend_rev: norm.extend_review as i32,
+                review_limit: norm.review_limit,
+                new_limit: norm.new_limit,
                 common: deck.into(),
             }),
             DeckKind::Filtered(ref filt) => DeckSchema11::Filtered(FilteredDeckSchema11 {
