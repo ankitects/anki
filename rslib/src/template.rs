@@ -254,11 +254,17 @@ fn parse_inner<'a, I: Iterator<Item = TemplateResult<Token<'a>>>>(
     }
 }
 
-fn template_error_to_anki_error(err: TemplateError, q_side: bool, tr: &I18n) -> AnkiError {
-    let header = if q_side {
-        tr.card_template_rendering_front_side_problem()
-    } else {
-        tr.card_template_rendering_back_side_problem()
+fn template_error_to_anki_error(
+    err: TemplateError,
+    q_side: bool,
+    browser: bool,
+    tr: &I18n,
+) -> AnkiError {
+    let header = match (q_side, browser) {
+        (true, false) => tr.card_template_rendering_front_side_problem(),
+        (false, false) => tr.card_template_rendering_back_side_problem(),
+        (true, true) => tr.card_template_rendering_browser_front_side_problem(),
+        (false, true) => tr.card_template_rendering_browser_back_side_problem(),
     };
     let details = htmlescape::encode_minimal(&localized_template_error(tr, err));
     let more_info = tr.card_template_rendering_more_info();
@@ -569,6 +575,7 @@ pub fn render_card(
     field_map: &HashMap<&str, Cow<str>>,
     card_ord: u16,
     is_cloze: bool,
+    browser: bool,
     tr: &I18n,
 ) -> Result<(Vec<RenderedNode>, Vec<RenderedNode>)> {
     // prepare context
@@ -582,7 +589,7 @@ pub fn render_card(
     // question side
     let (mut qnodes, qtmpl) = ParsedTemplate::from_text(qfmt)
         .and_then(|tmpl| Ok((tmpl.render(&context, tr)?, tmpl)))
-        .map_err(|e| template_error_to_anki_error(e, true, tr))?;
+        .map_err(|e| template_error_to_anki_error(e, true, browser, tr))?;
 
     // check if the front side was empty
     let empty_message = if is_cloze && cloze_is_empty(field_map, card_ord) {
@@ -611,7 +618,7 @@ pub fn render_card(
     context.question_side = false;
     let anodes = ParsedTemplate::from_text(afmt)
         .and_then(|tmpl| tmpl.render(&context, tr))
-        .map_err(|e| template_error_to_anki_error(e, false, tr))?;
+        .map_err(|e| template_error_to_anki_error(e, false, browser, tr))?;
 
     Ok((qnodes, anodes))
 }
@@ -1167,7 +1174,7 @@ mod test {
         let tr = I18n::template_only();
         use crate::template::RenderedNode as FN;
 
-        let qnodes = super::render_card("test{{E}}", "", &map, 1, false, &tr)
+        let qnodes = super::render_card("test{{E}}", "", &map, 1, false, false, &tr)
             .unwrap()
             .0;
         assert_eq!(

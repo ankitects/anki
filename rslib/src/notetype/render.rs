@@ -118,6 +118,7 @@ impl Collection {
             &field_map,
             card.template_idx,
             nt.is_cloze(),
+            browser,
             &self.tr,
         )?;
         Ok(RenderCardOutput {
