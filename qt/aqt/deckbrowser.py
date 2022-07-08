@@ -10,8 +10,9 @@ from typing import Any
 import aqt
 import aqt.operations
 from anki.collection import OpChanges
-from anki.decks import DeckCollapseScope, DeckId, DeckTreeNode
+from anki.decks import DeckCollapseScope, DeckDict, DeckId, DeckTreeNode
 from aqt import AnkiQt, gui_hooks
+from aqt.deck_limits import DeckLimitsDialog
 from aqt.deckoptions import display_options_for_deck_id
 from aqt.operations import QueryOp
 from aqt.operations.deck import (
@@ -264,11 +265,15 @@ class DeckBrowser:
     ##########################################################################
 
     def _showOptions(self, did: str) -> None:
+        deck = self.mw.col.decks.get(did)
         m = QMenu(self.mw)
         a = m.addAction(tr.actions_rename())
         qconnect(a.triggered, lambda b, did=did: self._rename(DeckId(int(did))))
         a = m.addAction(tr.actions_options())
         qconnect(a.triggered, lambda b, did=did: self._options(DeckId(int(did))))
+        if not deck["dyn"]:
+            a = m.addAction(tr.deck_config_daily_limits())
+            qconnect(a.triggered, lambda _: self._limits(deck))
         a = m.addAction(tr.actions_export())
         qconnect(a.triggered, lambda b, did=did: self._export(DeckId(int(did))))
         a = m.addAction(tr.actions_delete())
@@ -295,6 +300,9 @@ class DeckBrowser:
 
     def _options(self, did: DeckId) -> None:
         display_options_for_deck_id(did)
+
+    def _limits(self, deck: DeckDict) -> None:
+        DeckLimitsDialog(self.mw, deck)
 
     def _collapse(self, did: DeckId) -> None:
         node = self.mw.col.decks.find_deck_in_tree(self._dueTree, did)
