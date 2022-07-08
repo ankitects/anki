@@ -298,6 +298,8 @@ impl From<NormalDeckSchema11> for NormalDeck {
             extend_review: deck.extend_rev.max(0) as u32,
             markdown_description: deck.common.markdown_description,
             description: deck.common.desc,
+            review_limit: None,
+            new_limit: None,
         }
     }
 }

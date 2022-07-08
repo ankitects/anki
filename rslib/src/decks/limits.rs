@@ -5,7 +5,7 @@ use std::{collections::HashMap, iter::Peekable};
 
 use id_tree::{InsertBehavior, Node, NodeId, Tree};
 
-use super::Deck;
+use super::{Deck, NormalDeck};
 use crate::{
     deckconfig::{DeckConfig, DeckConfigId},
     prelude::*,
@@ -19,19 +19,33 @@ pub(crate) struct RemainingLimits {
 
 impl RemainingLimits {
     pub(crate) fn new(deck: &Deck, config: Option<&DeckConfig>, today: u32, v3: bool) -> Self {
-        config
-            .map(|config| {
-                let (new_today, mut rev_today) = deck.new_rev_counts(today);
-                if v3 {
-                    // any reviewed new cards contribute to the review limit
-                    rev_today += new_today;
-                }
-                RemainingLimits {
-                    review: ((config.inner.reviews_per_day as i32) - rev_today).max(0) as u32,
-                    new: ((config.inner.new_per_day as i32) - new_today).max(0) as u32,
-                }
-            })
-            .unwrap_or_default()
+        if let Ok(normal) = deck.normal() {
+            if let Some(config) = config {
+                return Self::new_for_normal_deck(deck, today, v3, normal, config);
+            }
+        }
+        Self::default()
+    }
+
+    fn new_for_normal_deck(
+        deck: &Deck,
+        today: u32,
+        v3: bool,
+        normal: &NormalDeck,
+        config: &DeckConfig,
+    ) -> RemainingLimits {
+        let review_limit = normal.review_limit.unwrap_or(config.inner.reviews_per_day);
+        let new_limit = normal.new_limit.unwrap_or(config.inner.new_per_day);
+        let (new_today, mut rev_today) = deck.new_rev_counts(today);
+        if v3 {
+            // any reviewed new cards contribute to the review limit
+            rev_today += new_today;
+        }
+
+        Self {
+            review: (review_limit as i32 - rev_today).max(0) as u32,
+            new: (new_limit as i32 - new_today).max(0) as u32,
+        }
     }
 
     pub(crate) fn cap_to(&mut self, limits: RemainingLimits) {

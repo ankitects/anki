@@ -69,8 +69,10 @@ message Deck {
     uint32 extend_review = 3;
     string description = 4;
     bool markdown_description = 5;
+    optional uint32 review_limit = 6;
+    optional uint32 new_limit = 7;
 
-    reserved 6 to 11;
+    reserved 8 to 11;
   }
   message Filtered {
     message SearchTerm {
