@@ -77,7 +77,7 @@ impl ExchangeData {
 
     fn remove_scheduling_information(&mut self, col: &Collection) {
         self.remove_system_tags();
-        self.reset_deck_config_ids();
+        self.reset_deck_config_ids_and_limits();
         self.reset_cards(col);
     }
 
@@ -91,10 +91,12 @@ impl ExchangeData {
         }
     }
 
-    fn reset_deck_config_ids(&mut self) {
+    fn reset_deck_config_ids_and_limits(&mut self) {
         for deck in self.decks.iter_mut() {
             if let Ok(normal_mut) = deck.normal_mut() {
                 normal_mut.config_id = 1;
+                normal_mut.review_limit = None;
+                normal_mut.new_limit = None;
             } else {
                 // filtered decks are reset at import time for legacy reasons
             }
