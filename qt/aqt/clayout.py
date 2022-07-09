@@ -571,7 +571,7 @@ class CardLayout(QDialog):
         hadHR = origLen != len(txt)
 
         def answerRepl(match: Match) -> str:
-            res = self.mw.reviewer.correct("exomple", "an example")
+            res = self.mw.reviewer.correct("example", "sample")
             if hadHR:
                 res = f"<hr id=answer>{res}"
             return res
@@ -579,7 +579,7 @@ class CardLayout(QDialog):
         repl: Union[str, Callable]
 
         if type == "q":
-            repl = "<input id='typeans' type=text value='exomple' readonly='readonly'>"
+            repl = "<input id='typeans' type=text value='example' readonly='readonly'>"
             repl = f"<center>{repl}</center>"
         else:
             repl = answerRepl
