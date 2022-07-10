@@ -13,6 +13,7 @@ use crate::{
     pb,
     pb::deck_configs_for_update::{ConfigWithExtra, CurrentDeck},
     prelude::*,
+    search::{JoinSearches, SearchNode, SortMode, StateKind},
 };
 
 #[derive(Debug, Clone)]
@@ -147,14 +148,15 @@ impl Collection {
         // loop through all normal decks
         let usn = self.usn()?;
         let selected_config = input.configs.last().unwrap();
+        let mut decks_by_steps_len_delta: HashMap<i32, Vec<DeckId>> = HashMap::new();
         for deck in self.storage.get_all_decks()? {
             if let Ok(normal) = deck.normal() {
                 let deck_id = deck.id;
 
                 // previous order
                 let previous_config_id = DeckConfigId(normal.config_id);
-                let previous_order = configs_before_update
-                    .get(&previous_config_id)
+                let previous_config = configs_before_update.get(&previous_config_id);
+                let previous_order = previous_config
                     .map(|c| c.inner.new_card_insert_order())
                     .unwrap_or_default();
 
@@ -171,19 +173,73 @@ impl Collection {
                 };
 
                 // if new order differs, deck needs re-sorting
-                let current_order = configs_after_update
-                    .get(&current_config_id)
+                let current_config = configs_after_update.get(&current_config_id);
+                let current_order = current_config
                     .map(|c| c.inner.new_card_insert_order())
                     .unwrap_or_default();
                 if previous_order != current_order {
                     self.sort_deck(deck_id, current_order, usn)?;
                 }
+
+                record_steps_len_delta(
+                    previous_config,
+                    current_config,
+                    &mut decks_by_steps_len_delta,
+                    deck_id,
+                );
             }
         }
 
+        self.adjust_remaining_learning_steps(&decks_by_steps_len_delta)?;
         self.set_config_string_inner(StringKey::CardStateCustomizer, &input.card_state_customizer)?;
 
         Ok(())
+    }
+
+    fn adjust_remaining_learning_steps(
+        &mut self,
+        decks_by_steps_len_delta: &HashMap<i32, Vec<DeckId>>,
+    ) -> Result<()> {
+        let usn = self.usn()?;
+        for (&delta, decks) in decks_by_steps_len_delta {
+            for mut card in self.all_learning_cards_in_decks(decks)? {
+                let original = card.clone();
+                // strip "remaining today"
+                let remaining = (card.remaining_steps % 1000) as i32;
+                // card should stay on the same learning step if possible,
+                // the last one otherwise
+                card.remaining_steps = (remaining + delta).max(1) as u32;
+                self.update_card_inner(&mut card, original, usn)?;
+            }
+        }
+        Ok(())
+    }
+
+    fn all_learning_cards_in_decks(&mut self, decks: &[DeckId]) -> Result<Vec<Card>> {
+        let search = SearchBuilder::any(
+            decks
+                .iter()
+                .map(|&did| SearchNode::DeckIdWithoutChildren(did)),
+        )
+        .and(StateKind::Learning);
+        self.all_cards_for_search(search, SortMode::NoOrder)
+    }
+}
+
+fn record_steps_len_delta(
+    previous_config: Option<&DeckConfig>,
+    current_config: Option<&DeckConfig>,
+    decks_by_steps_len_delta: &mut HashMap<i32, Vec<DeckId>>,
+    deck_id: DeckId,
+) {
+    if let (Some(old), Some(new)) = (previous_config, current_config) {
+        let steps_delta = new.inner.learn_steps.len() as i32 - old.inner.learn_steps.len() as i32;
+        if steps_delta != 0 {
+            decks_by_steps_len_delta
+                .entry(steps_delta)
+                .or_default()
+                .push(deck_id);
+        }
     }
 }
 

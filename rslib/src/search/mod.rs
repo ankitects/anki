@@ -18,7 +18,7 @@ pub use writer::replace_search_node;
 
 use crate::{
     browser_table::Column,
-    card::{CardId, CardType},
+    card::{Card, CardId, CardType},
     collection::Collection,
     error::Result,
     notes::NoteId,
@@ -214,6 +214,16 @@ impl Collection {
             .prepare(&sql)?
             .execute(params_from_iter(args))
             .map_err(Into::into)
+    }
+
+    pub(crate) fn all_cards_for_search<N>(&mut self, search: N, mode: SortMode) -> Result<Vec<Card>>
+    where
+        N: TryIntoSearch,
+    {
+        self.search_cards_into_table(search, mode)?;
+        let cards = self.storage.all_searched_cards();
+        self.storage.clear_searched_cards_table()?;
+        cards
     }
 
     /// Place the matched note ids into a temporary 'search_nids' table
