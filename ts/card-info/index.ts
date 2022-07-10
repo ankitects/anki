@@ -21,7 +21,7 @@ export async function setupCardInfo(target: HTMLElement): Promise<CardInfo> {
 if (window.location.hash.startsWith("#test")) {
     // use #testXXXX where XXXX is card ID to test
     const cardId = parseInt(window.location.hash.substr("#test".length), 10);
-    setupCardInfo(document.body).then((cardInfo: CardInfo): void =>
-        cardInfo.$set({ cardId }),
+    setupCardInfo(document.body).then(
+        (cardInfo: CardInfo): Promise<void> => cardInfo.updateStats(cardId),
     );
 }
