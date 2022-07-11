@@ -216,11 +216,11 @@ impl Collection {
             .map_err(Into::into)
     }
 
-    pub(crate) fn all_cards_for_search<N>(&mut self, search: N, mode: SortMode) -> Result<Vec<Card>>
+    pub(crate) fn all_cards_for_search<N>(&mut self, search: N) -> Result<Vec<Card>>
     where
         N: TryIntoSearch,
     {
-        self.search_cards_into_table(search, mode)?;
+        self.search_cards_into_table(search, SortMode::NoOrder)?;
         let cards = self.storage.all_searched_cards();
         self.storage.clear_searched_cards_table()?;
         cards

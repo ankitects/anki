@@ -13,7 +13,7 @@ use crate::{
     pb,
     pb::deck_configs_for_update::{ConfigWithExtra, CurrentDeck},
     prelude::*,
-    search::{JoinSearches, SearchNode, SortMode, StateKind},
+    search::JoinSearches,
 };
 
 #[derive(Debug, Clone)]
@@ -148,7 +148,7 @@ impl Collection {
         // loop through all normal decks
         let usn = self.usn()?;
         let selected_config = input.configs.last().unwrap();
-        let mut decks_by_steps_len_delta: HashMap<i32, Vec<DeckId>> = HashMap::new();
+        let mut steps_adjuster = RemainingStepsAdjuster::default();
         for deck in self.storage.get_all_decks()? {
             if let Ok(normal) = deck.normal() {
                 let deck_id = deck.id;
@@ -181,65 +181,76 @@ impl Collection {
                     self.sort_deck(deck_id, current_order, usn)?;
                 }
 
-                record_steps_len_delta(
-                    previous_config,
-                    current_config,
-                    &mut decks_by_steps_len_delta,
-                    deck_id,
-                );
+                steps_adjuster.record_deck(previous_config, current_config, deck_id);
             }
         }
 
-        self.adjust_remaining_learning_steps(&decks_by_steps_len_delta)?;
+        steps_adjuster.adjust_remaining_steps(self)?;
         self.set_config_string_inner(StringKey::CardStateCustomizer, &input.card_state_customizer)?;
 
         Ok(())
     }
+}
 
-    fn adjust_remaining_learning_steps(
+#[derive(Debug, Default)]
+struct RemainingStepsAdjuster {
+    learn_deltas: HashMap<i32, Vec<DeckId>>,
+    relearn_deltas: HashMap<i32, Vec<DeckId>>,
+}
+
+impl RemainingStepsAdjuster {
+    /// Calculate the changes in numbers of steps and record them to adjust cards
+    /// accordingly later.
+    fn record_deck(
         &mut self,
-        decks_by_steps_len_delta: &HashMap<i32, Vec<DeckId>>,
-    ) -> Result<()> {
-        let usn = self.usn()?;
-        for (&delta, decks) in decks_by_steps_len_delta {
-            for mut card in self.all_learning_cards_in_decks(decks)? {
-                let original = card.clone();
-                // strip "remaining today"
-                let remaining = (card.remaining_steps % 1000) as i32;
-                // card should stay on the same learning step if possible,
-                // the last one otherwise
-                card.remaining_steps = (remaining + delta).max(1) as u32;
-                self.update_card_inner(&mut card, original, usn)?;
+        previous_config: Option<&DeckConfig>,
+        current_config: Option<&DeckConfig>,
+        deck_id: DeckId,
+    ) {
+        if let (Some(old), Some(new)) = (previous_config, current_config) {
+            add_deck_steps_delta(
+                &mut self.learn_deltas,
+                &new.inner.learn_steps,
+                &old.inner.learn_steps,
+                deck_id,
+            );
+            add_deck_steps_delta(
+                &mut self.relearn_deltas,
+                &new.inner.relearn_steps,
+                &old.inner.relearn_steps,
+                deck_id,
+            );
+        }
+    }
+
+    /// Adjust the remaining steps of cards based on the recorded data.
+    fn adjust_remaining_steps(&self, col: &mut Collection) -> Result<()> {
+        let usn = col.usn()?;
+        for (search, deltas) in [
+            (SearchBuilder::learning_cards(), &self.learn_deltas),
+            (SearchBuilder::relearning_cards(), &self.relearn_deltas),
+        ] {
+            for (&delta, decks) in deltas {
+                for mut card in
+                    col.all_cards_for_search(search.clone().and(SearchBuilder::from_decks(decks)))?
+                {
+                    col.adjust_remaining_steps(&mut card, delta, usn)?;
+                }
             }
         }
         Ok(())
     }
-
-    fn all_learning_cards_in_decks(&mut self, decks: &[DeckId]) -> Result<Vec<Card>> {
-        let search = SearchBuilder::any(
-            decks
-                .iter()
-                .map(|&did| SearchNode::DeckIdWithoutChildren(did)),
-        )
-        .and(StateKind::Learning);
-        self.all_cards_for_search(search, SortMode::NoOrder)
-    }
 }
 
-fn record_steps_len_delta(
-    previous_config: Option<&DeckConfig>,
-    current_config: Option<&DeckConfig>,
-    decks_by_steps_len_delta: &mut HashMap<i32, Vec<DeckId>>,
+fn add_deck_steps_delta(
+    deltas: &mut HashMap<i32, Vec<DeckId>>,
+    new_steps: &[f32],
+    old_steps: &[f32],
     deck_id: DeckId,
 ) {
-    if let (Some(old), Some(new)) = (previous_config, current_config) {
-        let steps_delta = new.inner.learn_steps.len() as i32 - old.inner.learn_steps.len() as i32;
-        if steps_delta != 0 {
-            decks_by_steps_len_delta
-                .entry(steps_delta)
-                .or_default()
-                .push(deck_id);
-        }
+    let delta = new_steps.len() as i32 - old_steps.len() as i32;
+    if delta != 0 {
+        deltas.entry(delta).or_default().push(deck_id);
     }
 }
 

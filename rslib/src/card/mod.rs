@@ -306,4 +306,23 @@ impl Collection {
 
         Ok(DeckConfig::default())
     }
+
+    pub(crate) fn adjust_remaining_steps(
+        &mut self,
+        card: &mut Card,
+        delta: i32,
+        usn: Usn,
+    ) -> Result<()> {
+        // strip "remaining today"
+        let remaining = (card.remaining_steps % 1000) as i32;
+        // card should stay on the same learning step if possible, the last one otherwise
+        let new_remaining = (remaining + delta).max(1);
+        if remaining != new_remaining {
+            let original = card.clone();
+            card.remaining_steps = new_remaining as u32;
+            self.update_card_inner(card, original, usn)
+        } else {
+            Ok(())
+        }
+    }
 }
