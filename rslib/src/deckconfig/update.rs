@@ -198,6 +198,8 @@ struct RemainingStepsAdjuster {
     relearn_deltas: HashMap<i32, Vec<DeckId>>,
 }
 
+/// Records changes in the numbers of learning steps of decks and adjusts the
+/// remaining steps of their cards accordingly.
 impl RemainingStepsAdjuster {
     /// Calculate the changes in numbers of steps and record them to adjust cards
     /// accordingly later.

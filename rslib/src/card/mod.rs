@@ -3,7 +3,7 @@
 
 pub(crate) mod undo;
 
-use std::collections::HashSet;
+use std::collections::{hash_map::Entry, HashMap, HashSet};
 
 use num_enum::TryFromPrimitive;
 use serde_repr::{Deserialize_repr, Serialize_repr};
@@ -145,9 +145,7 @@ impl Card {
     pub fn is_intraday_learning(&self) -> bool {
         matches!(self.queue, CardQueue::Learn | CardQueue::PreviewRepeat)
     }
-}
 
-impl Card {
     pub fn new(note_id: NoteId, template_idx: u16, deck_id: DeckId, due: i32) -> Self {
         Card {
             note_id,
@@ -156,6 +154,14 @@ impl Card {
             due,
             ..Default::default()
         }
+    }
+
+    /// Remaining steps after adding delta, disregarding "remaining today".
+    /// [None] if same as before.
+    fn new_remaining_steps(&self, delta: i32) -> Option<u32> {
+        let remaining = (self.remaining_steps % 1000) as i32;
+        let new_remaining = (remaining + delta).max(1);
+        (remaining != new_remaining).then(|| new_remaining as u32)
     }
 }
 
@@ -250,9 +256,11 @@ impl Collection {
 
     pub fn set_deck(&mut self, cards: &[CardId], deck_id: DeckId) -> Result<OpOutput<usize>> {
         let deck = self.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
-        if deck.is_filtered() {
-            return Err(FilteredDeckError::CanNotMoveCardsInto.into());
-        }
+        let config_id = deck.config_id().ok_or(AnkiError::FilteredDeckError(
+            FilteredDeckError::CanNotMoveCardsInto,
+        ))?;
+        let config = self.get_deck_config(config_id, true)?.unwrap();
+        let mut steps_adjuster = RemainingStepsAdjuster::new(&config);
         self.storage.set_search_table_to_card_ids(cards, false)?;
         let sched = self.scheduler_version();
         let usn = self.usn()?;
@@ -265,6 +273,7 @@ impl Collection {
                 count += 1;
                 let original = card.clone();
                 card.set_deck(deck_id, sched);
+                steps_adjuster.adjust_remaining_steps(col, &mut card)?;
                 col.update_card_inner(&mut card, original, usn)?;
             }
             Ok(count)
@@ -313,16 +322,61 @@ impl Collection {
         delta: i32,
         usn: Usn,
     ) -> Result<()> {
-        // strip "remaining today"
-        let remaining = (card.remaining_steps % 1000) as i32;
-        // card should stay on the same learning step if possible, the last one otherwise
-        let new_remaining = (remaining + delta).max(1);
-        if remaining != new_remaining {
+        if let Some(new_remaining) = card.new_remaining_steps(delta) {
             let original = card.clone();
-            card.remaining_steps = new_remaining as u32;
+            card.remaining_steps = new_remaining;
             self.update_card_inner(card, original, usn)
         } else {
             Ok(())
         }
+    }
+}
+
+/// Adjusts the remaining steps of cards after their deck config has changed.
+struct RemainingStepsAdjuster {
+    learn_steps: i32,
+    relearn_steps: i32,
+    configs: HashMap<DeckId, DeckConfig>,
+}
+
+impl RemainingStepsAdjuster {
+    fn new(new_config: &DeckConfig) -> Self {
+        RemainingStepsAdjuster {
+            learn_steps: new_config.inner.learn_steps.len() as i32,
+            relearn_steps: new_config.inner.relearn_steps.len() as i32,
+            configs: HashMap::new(),
+        }
+    }
+
+    fn adjust_remaining_steps(&mut self, col: &mut Collection, card: &mut Card) -> Result<()> {
+        let delta = match card.ctype {
+            CardType::Learn => self.learn_delta(col, card)?,
+            CardType::Relearn => self.relearn_delta(col, card)?,
+            _ => return Ok(()),
+        };
+        if let Some(remaining) = card.new_remaining_steps(delta) {
+            card.remaining_steps = remaining;
+        }
+        Ok(())
+    }
+
+    fn learn_delta(&mut self, col: &mut Collection, card: &Card) -> Result<i32> {
+        Ok(self.learn_steps - (self.config_for_card(col, card)?.inner.learn_steps.len()) as i32)
+    }
+
+    fn relearn_delta(&mut self, col: &mut Collection, card: &Card) -> Result<i32> {
+        Ok(
+            self.relearn_steps
+                - (self.config_for_card(col, card)?.inner.relearn_steps.len()) as i32,
+        )
+    }
+
+    fn config_for_card(&mut self, col: &mut Collection, card: &Card) -> Result<&mut DeckConfig> {
+        Ok(
+            match self.configs.entry(card.original_or_current_deck_id()) {
+                Entry::Occupied(e) => e.into_mut(),
+                Entry::Vacant(e) => e.insert(col.deck_config_for_card(card)?),
+            },
+        )
     }
 }
