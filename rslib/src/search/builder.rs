@@ -121,12 +121,12 @@ impl SearchBuilder {
 
     /// Construct [SearchBuilder] matching learning, but not relearning cards.
     pub fn learning_cards() -> Self {
-        StateKind::Learning.and(StateKind::Review)
+        StateKind::Learning.and(StateKind::Review.negated())
     }
 
     /// Construct [SearchBuilder] matching relearning cards.
     pub fn relearning_cards() -> Self {
-        StateKind::Learning.and(StateKind::Review.negated())
+        StateKind::Learning.and(StateKind::Review)
     }
 }
 
