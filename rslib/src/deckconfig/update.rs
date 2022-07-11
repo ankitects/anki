@@ -353,4 +353,71 @@ mod test {
 
         Ok(())
     }
+
+    #[test]
+    fn should_adjust_remaining_learning_steps_if_learning_steps_changed() {
+        let mut col = open_test_collection();
+        let mut config = col.storage.all_deck_config().unwrap().pop().unwrap();
+        // learning card with 1 of 2 steps remaining
+        col.add_new_note("basic");
+        col.answer_good();
+
+        config.inner.learn_steps.push(60.);
+        col.update_default_deck_config(config.clone());
+        // 1 step added → 2 of 3 remaining
+        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 2);
+
+        config.inner.learn_steps.truncate(1);
+        col.update_default_deck_config(config.clone());
+        // 2 steps removed → 1 of 1 remaining, because at least 1 must remain
+        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 1);
+
+        config.inner.relearn_steps.push(10.);
+        col.update_default_deck_config(config.clone());
+        // 1 *relearning* step added → no effect on learning card
+        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 1);
+    }
+
+    #[test]
+    fn should_adjust_remaining_relearning_steps_if_relearning_steps_changed() {
+        let mut col = open_test_collection();
+        let mut config = col.storage.all_deck_config().unwrap().pop().unwrap();
+        // relearning card with 1 of 1 step remaining
+        col.add_new_note("basic");
+        col.answer_easy();
+        col.storage
+            .db
+            .execute_batch("UPDATE cards SET due = 0")
+            .unwrap();
+        col.clear_study_queues();
+        col.answer_again();
+
+        config.inner.relearn_steps.push(60.);
+        col.update_default_deck_config(config.clone());
+        // 1 step added → 2 of 2 remaining
+        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 2);
+
+        config.inner.relearn_steps.truncate(1);
+        col.update_default_deck_config(config.clone());
+        // 1 step removed → 1 of 1 remaining
+        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 1);
+
+        config.inner.learn_steps.push(10.);
+        col.update_default_deck_config(config.clone());
+        // 1 *learning* step added → no effect on relearning card
+        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 1);
+    }
+
+    impl Collection {
+        fn update_default_deck_config(&mut self, config: DeckConfig) {
+            self.update_deck_configs(UpdateDeckConfigsRequest {
+                target_deck_id: DeckId(1),
+                configs: vec![config],
+                removed_config_ids: vec![],
+                apply_to_children: false,
+                card_state_customizer: "".to_string(),
+            })
+            .unwrap();
+        }
+    }
 }
