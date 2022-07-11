@@ -380,3 +380,58 @@ impl RemainingStepsAdjuster {
         )
     }
 }
+
+#[cfg(test)]
+mod test {
+    use crate::{collection::open_test_collection, prelude::*};
+
+    #[test]
+    fn should_adjust_remaining_learning_steps_if_new_deck_has_different_amount() {
+        let mut col = open_test_collection();
+        let mut config = DeckConfig::default();
+        config.inner.learn_steps.push(60.);
+        col.add_or_update_deck_config(&mut config).unwrap();
+        let mut deck = col.add_deck_with_machine_name("target", false);
+        deck.normal_mut().unwrap().config_id = config.id.0;
+        col.add_or_update_deck(&mut deck).unwrap();
+        // learning card with 1 of 2 steps remaining
+        col.add_new_note("basic");
+        let state = col.answer_good();
+
+        col.set_deck(&[state.card_id], deck.id).unwrap();
+        // 1 step more → 2 of 3 remaining
+        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 2);
+
+        col.set_deck(&[state.card_id], DeckId(1)).unwrap();
+        // 1 step less → 1 of 1 remaining
+        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 1);
+    }
+
+    #[test]
+    fn should_adjust_remaining_relearning_steps_if_relearning_steps_changed() {
+        let mut col = open_test_collection();
+        let mut config = DeckConfig::default();
+        config.inner.relearn_steps.push(60.);
+        col.add_or_update_deck_config(&mut config).unwrap();
+        let mut deck = col.add_deck_with_machine_name("target", false);
+        deck.normal_mut().unwrap().config_id = config.id.0;
+        col.add_or_update_deck(&mut deck).unwrap();
+        // relearning card with 1 of 1 step remaining
+        col.add_new_note("basic");
+        col.answer_easy();
+        col.storage
+            .db
+            .execute_batch("UPDATE cards SET due = 0")
+            .unwrap();
+        col.clear_study_queues();
+        let state = col.answer_again();
+
+        col.set_deck(&[state.card_id], deck.id).unwrap();
+        // 1 step more → 2 of 2 remaining
+        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 2);
+
+        col.set_deck(&[state.card_id], DeckId(1)).unwrap();
+        // 1 step less → 1 of 1 remaining
+        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 1);
+    }
+}
