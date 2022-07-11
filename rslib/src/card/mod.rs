@@ -272,8 +272,8 @@ impl Collection {
                 }
                 count += 1;
                 let original = card.clone();
-                card.set_deck(deck_id, sched);
                 steps_adjuster.adjust_remaining_steps(col, &mut card)?;
+                card.set_deck(deck_id, sched);
                 col.update_card_inner(&mut card, original, usn)?;
             }
             Ok(count)
