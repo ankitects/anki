@@ -408,7 +408,7 @@ mod test {
     }
 
     #[test]
-    fn should_adjust_remaining_relearning_steps_if_relearning_steps_changed() {
+    fn should_adjust_remaining_relearning_steps_if_new_deck_has_different_amount() {
         let mut col = open_test_collection();
         let mut config = DeckConfig::default();
         config.inner.relearn_steps.push(60.);
