@@ -1,1 +1,0 @@
-../../../.bazel/bin/qt/aqt/forms/deck_limits_qt6.py
