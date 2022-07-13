@@ -655,7 +655,7 @@ impl super::SqliteStorage {
     }
 
     #[cfg(test)]
-    pub(crate) fn get_all_cards(&mut self) -> Vec<Card> {
+    pub(crate) fn get_all_cards(&self) -> Vec<Card> {
         self.db
             .prepare("SELECT * FROM cards")
             .unwrap()

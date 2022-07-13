@@ -156,12 +156,25 @@ impl Card {
         }
     }
 
-    /// Remaining steps after adding delta, disregarding "remaining today".
-    /// [None] if same as before.
-    fn new_remaining_steps(&self, delta: i32) -> Option<u32> {
-        let remaining = (self.remaining_steps % 1000) as i32;
-        let new_remaining = (remaining + delta).max(1);
-        (remaining != new_remaining).then(|| new_remaining as u32)
+    /// Remaining steps after configured steps have changed, disregarding "remaining today".
+    /// [None] if same as before. A step counts as remaining if the card has not passed a step
+    /// with the same or a greater delay, but output will be at least 1.
+    fn new_remaining_steps(&self, new_steps: &[f32], old_steps: &[f32]) -> Option<u32> {
+        let remaining = self.remaining_steps();
+        let new_remaining = old_steps
+            .len()
+            .checked_sub(remaining as usize + 1)
+            .and_then(|last_index| {
+                new_steps
+                    .iter()
+                    .rev()
+                    .position(|&step| step <= old_steps[last_index])
+            })
+            // no last delay or last delay is less than all new steps → all steps remain
+            .unwrap_or(new_steps.len())
+            // (re)learning card must have at least 1 step remaining
+            .max(1) as u32;
+        (remaining != new_remaining).then(|| new_remaining)
     }
 }
 
@@ -316,13 +329,16 @@ impl Collection {
         Ok(DeckConfig::default())
     }
 
+    /// Adjust the remaining steps of the card according to the steps change.
+    /// Steps must be learning or relearning steps according to the card's type.
     pub(crate) fn adjust_remaining_steps(
         &mut self,
         card: &mut Card,
-        delta: i32,
+        old_steps: &[f32],
+        new_steps: &[f32],
         usn: Usn,
     ) -> Result<()> {
-        if let Some(new_remaining) = card.new_remaining_steps(delta) {
+        if let Some(new_remaining) = card.new_remaining_steps(new_steps, old_steps) {
             let original = card.clone();
             card.remaining_steps = new_remaining;
             self.update_card_inner(card, original, usn)
@@ -333,42 +349,36 @@ impl Collection {
 }
 
 /// Adjusts the remaining steps of cards after their deck config has changed.
-struct RemainingStepsAdjuster {
-    learn_steps: i32,
-    relearn_steps: i32,
+struct RemainingStepsAdjuster<'a> {
+    learn_steps: &'a [f32],
+    relearn_steps: &'a [f32],
     configs: HashMap<DeckId, DeckConfig>,
 }
 
-impl RemainingStepsAdjuster {
-    fn new(new_config: &DeckConfig) -> Self {
+impl<'a> RemainingStepsAdjuster<'a> {
+    fn new(new_config: &'a DeckConfig) -> Self {
         RemainingStepsAdjuster {
-            learn_steps: new_config.inner.learn_steps.len() as i32,
-            relearn_steps: new_config.inner.relearn_steps.len() as i32,
+            learn_steps: &new_config.inner.learn_steps,
+            relearn_steps: &new_config.inner.relearn_steps,
             configs: HashMap::new(),
         }
     }
 
     fn adjust_remaining_steps(&mut self, col: &mut Collection, card: &mut Card) -> Result<()> {
-        let delta = match card.ctype {
-            CardType::Learn => self.learn_delta(col, card)?,
-            CardType::Relearn => self.relearn_delta(col, card)?,
-            _ => return Ok(()),
-        };
-        if let Some(remaining) = card.new_remaining_steps(delta) {
+        if let Some(remaining) = match card.ctype {
+            CardType::Learn => card.new_remaining_steps(
+                self.learn_steps,
+                &self.config_for_card(col, card)?.inner.learn_steps,
+            ),
+            CardType::Relearn => card.new_remaining_steps(
+                self.relearn_steps,
+                &self.config_for_card(col, card)?.inner.relearn_steps,
+            ),
+            _ => None,
+        } {
             card.remaining_steps = remaining;
         }
         Ok(())
-    }
-
-    fn learn_delta(&mut self, col: &mut Collection, card: &Card) -> Result<i32> {
-        Ok(self.learn_steps - (self.config_for_card(col, card)?.inner.learn_steps.len()) as i32)
-    }
-
-    fn relearn_delta(&mut self, col: &mut Collection, card: &Card) -> Result<i32> {
-        Ok(
-            self.relearn_steps
-                - (self.config_for_card(col, card)?.inner.relearn_steps.len()) as i32,
-        )
     }
 
     fn config_for_card(&mut self, col: &mut Collection, card: &Card) -> Result<&mut DeckConfig> {
@@ -383,55 +393,30 @@ impl RemainingStepsAdjuster {
 
 #[cfg(test)]
 mod test {
-    use crate::{collection::open_test_collection, prelude::*};
+    use crate::tests::{
+        open_test_collection_with_learning_card, open_test_collection_with_relearning_card,
+        DeckAdder,
+    };
 
     #[test]
-    fn should_adjust_remaining_learning_steps_if_new_deck_has_different_amount() {
-        let mut col = open_test_collection();
-        let mut config = DeckConfig::default();
-        config.inner.learn_steps.push(60.);
-        col.add_or_update_deck_config(&mut config).unwrap();
-        let mut deck = col.add_deck_with_machine_name("target", false);
-        deck.normal_mut().unwrap().config_id = config.id.0;
-        col.add_or_update_deck(&mut deck).unwrap();
-        // learning card with 1 of 2 steps remaining
-        col.add_new_note("basic");
-        let state = col.answer_good();
-
-        col.set_deck(&[state.card_id], deck.id).unwrap();
-        // 1 step more → 2 of 3 remaining
-        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 2);
-
-        col.set_deck(&[state.card_id], DeckId(1)).unwrap();
-        // 1 step less → 1 of 1 remaining
-        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 1);
+    fn should_increase_remaining_learning_steps_if_new_deck_has_more_unpassed_ones() {
+        let mut col = open_test_collection_with_learning_card();
+        let deck = DeckAdder::new("target")
+            .with_config(|config| config.inner.learn_steps.push(100.))
+            .add(&mut col);
+        let card_id = col.get_first_card().id;
+        col.set_deck(&[card_id], deck.id).unwrap();
+        assert_eq!(col.get_first_card().remaining_steps, 3);
     }
 
     #[test]
-    fn should_adjust_remaining_relearning_steps_if_new_deck_has_different_amount() {
-        let mut col = open_test_collection();
-        let mut config = DeckConfig::default();
-        config.inner.relearn_steps.push(60.);
-        col.add_or_update_deck_config(&mut config).unwrap();
-        let mut deck = col.add_deck_with_machine_name("target", false);
-        deck.normal_mut().unwrap().config_id = config.id.0;
-        col.add_or_update_deck(&mut deck).unwrap();
-        // relearning card with 1 of 1 step remaining
-        col.add_new_note("basic");
-        col.answer_easy();
-        col.storage
-            .db
-            .execute_batch("UPDATE cards SET due = 0")
-            .unwrap();
-        col.clear_study_queues();
-        let state = col.answer_again();
-
-        col.set_deck(&[state.card_id], deck.id).unwrap();
-        // 1 step more → 2 of 2 remaining
-        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 2);
-
-        col.set_deck(&[state.card_id], DeckId(1)).unwrap();
-        // 1 step less → 1 of 1 remaining
-        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 1);
+    fn should_increase_remaining_relearning_steps_if_new_deck_has_more_unpassed_ones() {
+        let mut col = open_test_collection_with_relearning_card();
+        let deck = DeckAdder::new("target")
+            .with_config(|config| config.inner.relearn_steps.push(100.))
+            .add(&mut col);
+        let card_id = col.get_first_card().id;
+        col.set_deck(&[card_id], deck.id).unwrap();
+        assert_eq!(col.get_first_card().remaining_steps, 2);
     }
 }

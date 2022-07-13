@@ -13,7 +13,7 @@ use crate::{
     pb,
     pb::deck_configs_for_update::{ConfigWithExtra, CurrentDeck},
     prelude::*,
-    search::JoinSearches,
+    search::{JoinSearches, SearchNode},
 };
 
 #[derive(Debug, Clone)]
@@ -148,7 +148,6 @@ impl Collection {
         // loop through all normal decks
         let usn = self.usn()?;
         let selected_config = input.configs.last().unwrap();
-        let mut steps_adjuster = RemainingStepsAdjuster::default();
         for deck in self.storage.get_all_decks()? {
             if let Ok(normal) = deck.normal() {
                 let deck_id = deck.id;
@@ -181,62 +180,42 @@ impl Collection {
                     self.sort_deck(deck_id, current_order, usn)?;
                 }
 
-                steps_adjuster.record_deck(previous_config, current_config, deck_id);
+                self.adjust_remaining_steps_in_deck(deck_id, previous_config, current_config, usn)?;
             }
         }
 
-        steps_adjuster.adjust_remaining_steps(self)?;
         self.set_config_string_inner(StringKey::CardStateCustomizer, &input.card_state_customizer)?;
 
         Ok(())
     }
-}
 
-#[derive(Debug, Default)]
-struct RemainingStepsAdjuster {
-    learn_deltas: HashMap<i32, Vec<DeckId>>,
-    relearn_deltas: HashMap<i32, Vec<DeckId>>,
-}
-
-/// Records changes in the numbers of learning steps of decks and adjusts the
-/// remaining steps of their cards accordingly.
-impl RemainingStepsAdjuster {
-    /// Calculate the changes in numbers of steps and record them to adjust cards
-    /// accordingly later.
-    fn record_deck(
+    /// Adjust the remaining steps of cards in the given deck according to the config change.
+    fn adjust_remaining_steps_in_deck(
         &mut self,
+        deck: DeckId,
         previous_config: Option<&DeckConfig>,
         current_config: Option<&DeckConfig>,
-        deck_id: DeckId,
-    ) {
+        usn: Usn,
+    ) -> Result<()> {
         if let (Some(old), Some(new)) = (previous_config, current_config) {
-            add_deck_steps_delta(
-                &mut self.learn_deltas,
-                &new.inner.learn_steps,
-                &old.inner.learn_steps,
-                deck_id,
-            );
-            add_deck_steps_delta(
-                &mut self.relearn_deltas,
-                &new.inner.relearn_steps,
-                &old.inner.relearn_steps,
-                deck_id,
-            );
-        }
-    }
-
-    /// Adjust the remaining steps of cards based on the recorded data.
-    fn adjust_remaining_steps(&self, col: &mut Collection) -> Result<()> {
-        let usn = col.usn()?;
-        for (search, deltas) in [
-            (SearchBuilder::learning_cards(), &self.learn_deltas),
-            (SearchBuilder::relearning_cards(), &self.relearn_deltas),
-        ] {
-            for (&delta, decks) in deltas {
-                for mut card in
-                    col.all_cards_for_search(search.clone().and(SearchBuilder::from_decks(decks)))?
-                {
-                    col.adjust_remaining_steps(&mut card, delta, usn)?;
+            for (search, old_steps, new_steps) in [
+                (
+                    SearchBuilder::learning_cards(),
+                    &old.inner.learn_steps,
+                    &new.inner.learn_steps,
+                ),
+                (
+                    SearchBuilder::relearning_cards(),
+                    &old.inner.relearn_steps,
+                    &new.inner.relearn_steps,
+                ),
+            ] {
+                if old_steps == new_steps {
+                    continue;
+                }
+                let search = search.clone().and(SearchNode::from_deck_id(deck, false));
+                for mut card in self.all_cards_for_search(search)? {
+                    self.adjust_remaining_steps(&mut card, old_steps, new_steps, usn)?;
                 }
             }
         }
@@ -244,22 +223,16 @@ impl RemainingStepsAdjuster {
     }
 }
 
-fn add_deck_steps_delta(
-    deltas: &mut HashMap<i32, Vec<DeckId>>,
-    new_steps: &[f32],
-    old_steps: &[f32],
-    deck_id: DeckId,
-) {
-    let delta = new_steps.len() as i32 - old_steps.len() as i32;
-    if delta != 0 {
-        deltas.entry(delta).or_default().push(deck_id);
-    }
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, deckconfig::NewCardInsertOrder};
+    use crate::{
+        collection::open_test_collection,
+        deckconfig::NewCardInsertOrder,
+        tests::{
+            open_test_collection_with_learning_card, open_test_collection_with_relearning_card,
+        },
+    };
 
     #[test]
     fn updating() -> Result<()> {
@@ -355,69 +328,64 @@ mod test {
     }
 
     #[test]
-    fn should_adjust_remaining_learning_steps_if_learning_steps_changed() {
-        let mut col = open_test_collection();
-        let mut config = col.storage.all_deck_config().unwrap().pop().unwrap();
-        // learning card with 1 of 2 steps remaining
-        col.add_new_note("basic");
-        col.answer_good();
-
-        config.inner.learn_steps.push(60.);
-        col.update_default_deck_config(config.clone());
-        // 1 step added → 2 of 3 remaining
-        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 2);
-
-        config.inner.learn_steps.truncate(1);
-        col.update_default_deck_config(config.clone());
-        // 2 steps removed → 1 of 1 remaining, because at least 1 must remain
-        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 1);
-
-        config.inner.relearn_steps.push(10.);
-        col.update_default_deck_config(config.clone());
-        // 1 *relearning* step added → no effect on learning card
-        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 1);
+    fn should_increase_remaining_learning_steps_if_unpassed_learning_step_added() {
+        let mut col = open_test_collection_with_learning_card();
+        col.set_default_learn_steps(vec![1., 10., 100.]);
+        assert_eq!(col.get_first_card().remaining_steps, 3);
     }
 
     #[test]
-    fn should_adjust_remaining_relearning_steps_if_relearning_steps_changed() {
-        let mut col = open_test_collection();
-        let mut config = col.storage.all_deck_config().unwrap().pop().unwrap();
-        // relearning card with 1 of 1 step remaining
-        col.add_new_note("basic");
-        col.answer_easy();
-        col.storage
-            .db
-            .execute_batch("UPDATE cards SET due = 0")
-            .unwrap();
-        col.clear_study_queues();
-        col.answer_again();
-
-        config.inner.relearn_steps.push(60.);
-        col.update_default_deck_config(config.clone());
-        // 1 step added → 2 of 2 remaining
-        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 2);
-
-        config.inner.relearn_steps.truncate(1);
-        col.update_default_deck_config(config.clone());
-        // 1 step removed → 1 of 1 remaining
-        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 1);
-
-        config.inner.learn_steps.push(10.);
-        col.update_default_deck_config(config.clone());
-        // 1 *learning* step added → no effect on relearning card
-        assert_eq!(col.storage.get_all_cards()[0].remaining_steps, 1);
+    fn should_keep_remaining_learning_steps_if_unpassed_relearning_step_added() {
+        let mut col = open_test_collection_with_learning_card();
+        col.set_default_relearn_steps(vec![1., 10., 100.]);
+        assert_eq!(col.get_first_card().remaining_steps, 2);
     }
 
-    impl Collection {
-        fn update_default_deck_config(&mut self, config: DeckConfig) {
-            self.update_deck_configs(UpdateDeckConfigsRequest {
-                target_deck_id: DeckId(1),
-                configs: vec![config],
-                removed_config_ids: vec![],
-                apply_to_children: false,
-                card_state_customizer: "".to_string(),
-            })
-            .unwrap();
-        }
+    #[test]
+    fn should_keep_remaining_learning_steps_if_passed_learning_step_added() {
+        let mut col = open_test_collection_with_learning_card();
+        col.answer_good();
+        col.set_default_learn_steps(vec![1., 1., 10.]);
+        assert_eq!(col.get_first_card().remaining_steps, 1);
+    }
+
+    #[test]
+    fn should_keep_at_least_one_remaining_learning_step() {
+        let mut col = open_test_collection_with_learning_card();
+        col.answer_good();
+        col.set_default_learn_steps(vec![1.]);
+        assert_eq!(col.get_first_card().remaining_steps, 1);
+    }
+
+    #[test]
+    fn should_increase_remaining_relearning_steps_if_unpassed_relearning_step_added() {
+        let mut col = open_test_collection_with_relearning_card();
+        col.set_default_relearn_steps(vec![1., 10., 100.]);
+        assert_eq!(col.get_first_card().remaining_steps, 3);
+    }
+
+    #[test]
+    fn should_keep_remaining_relearning_steps_if_unpassed_learning_step_added() {
+        let mut col = open_test_collection_with_relearning_card();
+        col.set_default_learn_steps(vec![1., 10., 100.]);
+        assert_eq!(col.get_first_card().remaining_steps, 1);
+    }
+
+    #[test]
+    fn should_keep_remaining_relearning_steps_if_passed_relearning_step_added() {
+        let mut col = open_test_collection_with_relearning_card();
+        col.set_default_relearn_steps(vec![10., 100.]);
+        col.answer_good();
+        col.set_default_relearn_steps(vec![1., 10., 100.]);
+        assert_eq!(col.get_first_card().remaining_steps, 1);
+    }
+
+    #[test]
+    fn should_keep_at_least_one_remaining_relearning_step() {
+        let mut col = open_test_collection_with_relearning_card();
+        col.set_default_relearn_steps(vec![10., 100.]);
+        col.answer_good();
+        col.set_default_relearn_steps(vec![1.]);
+        assert_eq!(col.get_first_card().remaining_steps, 1);
     }
 }

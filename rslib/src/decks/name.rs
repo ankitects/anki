@@ -6,7 +6,7 @@ use itertools::Itertools;
 
 use crate::{prelude::*, text::normalize_to_nfc};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct NativeDeckName(String);
 
 impl NativeDeckName {
