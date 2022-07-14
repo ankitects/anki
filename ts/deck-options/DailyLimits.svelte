@@ -70,5 +70,49 @@
         <Item>
             <Warning warning={reviewsTooLow} />
         </Item>
+
+        <Item>
+            <SpinBoxRow
+                value={-1}
+                defaultValue={-1}
+                markdownTooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
+                min={-1}
+            >
+                {tr.deckConfigDeckNewLimit()}
+            </SpinBoxRow>
+        </Item>
+
+        <Item>
+            <SpinBoxRow
+                value={-1}
+                defaultValue={-1}
+                markdownTooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
+                min={-1}
+            >
+                {tr.deckConfigDeckReviewLimit()}
+            </SpinBoxRow>
+        </Item>
+
+        <Item>
+            <SpinBoxRow
+                value={-1}
+                defaultValue={-1}
+                markdownTooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
+                min={-1}
+            >
+                {tr.deckConfigTodayNewLimit()}
+            </SpinBoxRow>
+        </Item>
+
+        <Item>
+            <SpinBoxRow
+                value={-1}
+                defaultValue={-1}
+                markdownTooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
+                min={-1}
+            >
+                {tr.deckConfigTodayReviewLimit()}
+            </SpinBoxRow>
+        </Item>
     </DynamicallySlottable>
 </TitledContainer>
