@@ -35,10 +35,6 @@ deck-config-limit-new-bound-by-reviews =
 deck-config-limit-interday-bound-by-reviews =
     The review limit also affects interday learning cards. When applying the limit,
     interday learning cards are fetched first, then reviews, and finally new cards.
-deck-config-deck-review-limit = Deck-specific reviews / day
-deck-config-deck-new-limit = Deck-specific new / day
-deck-config-today-review-limit = Deck-specific reviews / day for today
-deck-config-today-new-limit = Deck-specific new / day for today
 
 ## New Cards section
 
