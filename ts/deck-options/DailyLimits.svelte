@@ -8,6 +8,7 @@
     import * as tr from "../lib/ftl";
     import type { DeckOptionsState } from "./lib";
     import SpinBoxRow from "./SpinBoxRow.svelte";
+    import Tabs from "./Tabs.svelte";
     import TitledContainer from "./TitledContainer.svelte";
     import Warning from "./Warning.svelte";
 
@@ -39,10 +40,15 @@
                   expected: Math.min(9999, $config.newPerDay * 10),
               })
             : "";
+
+    const tabs = ["Shared Preset", "Deck only", "Today only"];
+    const activeReviewTab = 0;
+    const activeNewTab = 0;
 </script>
 
 <TitledContainer title={tr.deckConfigDailyLimits()}>
     <DynamicallySlottable slotHost={Item} {api}>
+        <Tabs {tabs} activeTab={activeReviewTab} />
         <Item>
             <SpinBoxRow
                 bind:value={$config.newPerDay}
@@ -57,6 +63,7 @@
             <Warning warning={newCardsGreaterThanParent} />
         </Item>
 
+        <Tabs {tabs} activeTab={activeNewTab} />
         <Item>
             <SpinBoxRow
                 bind:value={$config.reviewsPerDay}
