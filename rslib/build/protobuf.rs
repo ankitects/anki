@@ -105,6 +105,7 @@ pub fn write_backend_proto_rs() {
             "Deck.Filtered.SearchTerm.Order",
             "#[derive(strum::EnumIter)]",
         )
+        .type_attribute("Deck.Normal.DayLimit", "#[derive(Copy)]")
         .type_attribute("HelpPageLinkRequest.HelpPage", "#[derive(strum::EnumIter)]")
         .type_attribute("CsvMetadata.Delimiter", "#[derive(strum::EnumIter)]")
         .type_attribute(

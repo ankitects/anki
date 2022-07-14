@@ -8,8 +8,31 @@ use id_tree::{InsertBehavior, Node, NodeId, Tree};
 use super::{Deck, NormalDeck};
 use crate::{
     deckconfig::{DeckConfig, DeckConfigId},
+    pb::decks::deck::normal::DayLimit,
     prelude::*,
 };
+
+impl NormalDeck {
+    /// The deck's review limit for today or its general one, if any is configured.
+    pub fn day_review_limit(&self, today: u32) -> Option<u32> {
+        self.review_limit_today
+            .and_then(|day_limit| day_limit.limit(today))
+            .or(self.review_limit)
+    }
+
+    /// The deck's new limit for today or its general one, if any is configured.
+    pub fn day_new_limit(&self, today: u32) -> Option<u32> {
+        self.new_limit_today
+            .and_then(|day_limit| day_limit.limit(today))
+            .or(self.new_limit)
+    }
+}
+
+impl DayLimit {
+    pub fn limit(&self, today: u32) -> Option<u32> {
+        (self.today == today).then(|| self.limit)
+    }
+}
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(crate) struct RemainingLimits {
@@ -34,8 +57,12 @@ impl RemainingLimits {
         normal: &NormalDeck,
         config: &DeckConfig,
     ) -> RemainingLimits {
-        let review_limit = normal.review_limit.unwrap_or(config.inner.reviews_per_day);
-        let new_limit = normal.new_limit.unwrap_or(config.inner.new_per_day);
+        let review_limit = normal
+            .day_review_limit(today)
+            .unwrap_or(config.inner.reviews_per_day);
+        let new_limit = normal
+            .day_new_limit(today)
+            .unwrap_or(config.inner.new_per_day);
         let (new_today, mut rev_today) = deck.new_rev_counts(today);
         if v3 {
             // any reviewed new cards contribute to the review limit

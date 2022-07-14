@@ -306,6 +306,8 @@ impl From<NormalDeckSchema11> for NormalDeck {
             description: deck.common.desc,
             review_limit: deck.review_limit,
             new_limit: deck.new_limit,
+            review_limit_today: None,
+            new_limit_today: None,
         }
     }
 }
