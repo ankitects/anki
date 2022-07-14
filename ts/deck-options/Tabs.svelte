@@ -16,16 +16,25 @@
         </li>
     {/each}
 </ul>
+<div class="content">
+    <slot />
+</div>
 
 <style lang="scss">
+    div.content {
+        border: 1px solid var(--border);
+        border-radius: 0.25rem;
+        margin-top: 0;
+        padding: 0.5rem;
+        z-index: -1;
+    }
+
     ul {
         display: flex;
         flex-wrap: wrap;
-        padding-left: 0;
         margin-top: 1rem;
         margin-bottom: 0.5rem;
         list-style: none;
-        border-bottom: 1px solid var(--border);
     }
 
     span {
@@ -35,7 +44,7 @@
         display: block;
         padding: 0.25rem 1rem;
         cursor: pointer;
-        margin: 0 8px -1px 0;
+        margin: 0 8px -7px 0;
         color: var(--disabled);
     }
 
