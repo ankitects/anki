@@ -48,33 +48,31 @@
 
 <TitledContainer title={tr.deckConfigDailyLimits()}>
     <DynamicallySlottable slotHost={Item} {api}>
-        <Tabs {tabs} activeTab={activeReviewTab}>
-            <Item>
-                <SpinBoxRow
-                    bind:value={$config.newPerDay}
-                    defaultValue={defaults.newPerDay}
-                    markdownTooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
-                >
-                    {tr.schedulingNewCardsday()}
-                </SpinBoxRow>
-            </Item></Tabs
-        >
+        <Tabs {tabs} activeTab={activeReviewTab} />
+        <Item>
+            <SpinBoxRow
+                bind:value={$config.newPerDay}
+                defaultValue={defaults.newPerDay}
+                markdownTooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
+            >
+                {tr.schedulingNewCardsday()}
+            </SpinBoxRow>
+        </Item>
 
         <Item>
             <Warning warning={newCardsGreaterThanParent} />
         </Item>
 
-        <Tabs {tabs} activeTab={activeNewTab}>
-            <Item>
-                <SpinBoxRow
-                    bind:value={$config.reviewsPerDay}
-                    defaultValue={defaults.reviewsPerDay}
-                    markdownTooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
-                >
-                    {tr.schedulingMaximumReviewsday()}
-                </SpinBoxRow>
-            </Item></Tabs
-        >
+        <Tabs {tabs} activeTab={activeNewTab} />
+        <Item>
+            <SpinBoxRow
+                bind:value={$config.reviewsPerDay}
+                defaultValue={defaults.reviewsPerDay}
+                markdownTooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
+            >
+                {tr.schedulingMaximumReviewsday()}
+            </SpinBoxRow>
+        </Item>
 
         <Item>
             <Warning warning={reviewsTooLow} />
