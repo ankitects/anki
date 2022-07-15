@@ -15,16 +15,24 @@ use crate::{
 impl NormalDeck {
     /// The deck's review limit for today or its general one, if any is configured.
     pub fn day_review_limit(&self, today: u32) -> Option<u32> {
-        self.review_limit_today
-            .and_then(|day_limit| day_limit.limit(today))
-            .or(self.review_limit)
+        self.review_limit_today(today).or(self.review_limit)
     }
 
     /// The deck's new limit for today or its general one, if any is configured.
     pub fn day_new_limit(&self, today: u32) -> Option<u32> {
+        self.new_limit_today(today).or(self.new_limit)
+    }
+
+    /// The deck's review limit for today.
+    pub fn review_limit_today(&self, today: u32) -> Option<u32> {
+        self.review_limit_today
+            .and_then(|day_limit| day_limit.limit(today))
+    }
+
+    /// The deck's new limit for today.
+    pub fn new_limit_today(&self, today: u32) -> Option<u32> {
         self.new_limit_today
             .and_then(|day_limit| day_limit.limit(today))
-            .or(self.new_limit)
     }
 }
 

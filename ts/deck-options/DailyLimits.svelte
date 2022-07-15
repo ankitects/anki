@@ -7,8 +7,9 @@
     import Item from "../components/Item.svelte";
     import * as tr from "../lib/ftl";
     import type { DeckOptionsState } from "./lib";
+    import { ValueTab } from "./lib";
     import SpinBoxRow from "./SpinBoxRow.svelte";
-    import Tabs from "./Tabs.svelte";
+    import TabbedValue from "./TabbedValue.svelte";
     import TitledContainer from "./TitledContainer.svelte";
     import Warning from "./Warning.svelte";
 
@@ -16,6 +17,7 @@
     export let api: Record<string, never>;
 
     const config = state.currentConfig;
+    const limits = state.deckLimits;
     const defaults = state.defaults;
     const parentLimits = state.parentLimits;
 
@@ -29,29 +31,66 @@
         : "";
 
     $: newCardsGreaterThanParent =
-        !state.v3Scheduler && $config.newPerDay > $parentLimits.newCards
+        !state.v3Scheduler && newValue > $parentLimits.newCards
             ? tr.deckConfigDailyLimitWillBeCapped({ cards: $parentLimits.newCards })
             : "";
 
     $: reviewsTooLow =
-        Math.min(9999, $config.newPerDay * 10) > $config.reviewsPerDay
+        Math.min(9999, newValue * 10) > reviewsValue
             ? tr.deckConfigReviewsTooLow({
-                  cards: $config.newPerDay,
-                  expected: Math.min(9999, $config.newPerDay * 10),
+                  cards: newValue,
+                  expected: Math.min(9999, newValue * 10),
               })
             : "";
 
-    const tabs = ["Shared Preset", "Deck only", "Today only"];
-    const activeReviewTab = 0;
-    const activeNewTab = 0;
+    const newTabs: ValueTab[] = [
+        new ValueTab(
+            tr.deckConfigSharedPreset(),
+            $config.newPerDay,
+            (value) => ($config.newPerDay = value!),
+            $config.newPerDay,
+        ),
+        new ValueTab(
+            tr.deckConfigDeckOnly(),
+            $limits.new ?? null,
+            (value) => ($limits.new = value),
+        ),
+        new ValueTab(
+            tr.deckConfigTodayOnly(),
+            $limits.newToday ?? null,
+            (value) => ($limits.newToday = value),
+        ),
+    ];
+
+    const reviewTabs: ValueTab[] = [
+        new ValueTab(
+            tr.deckConfigSharedPreset(),
+            $config.reviewsPerDay,
+            (value) => ($config.reviewsPerDay = value!),
+            $config.reviewsPerDay,
+        ),
+        new ValueTab(
+            tr.deckConfigDeckOnly(),
+            $limits.review ?? null,
+            (value) => ($limits.review = value),
+        ),
+        new ValueTab(
+            tr.deckConfigTodayOnly(),
+            $limits.reviewToday ?? null,
+            (value) => ($limits.reviewToday = value),
+        ),
+    ];
+
+    let reviewsValue: number;
+    let newValue: number;
 </script>
 
 <TitledContainer title={tr.deckConfigDailyLimits()}>
     <DynamicallySlottable slotHost={Item} {api}>
-        <Tabs {tabs} activeTab={activeReviewTab} />
+        <TabbedValue tabs={newTabs} bind:value={newValue} />
         <Item>
             <SpinBoxRow
-                bind:value={$config.newPerDay}
+                bind:value={newValue}
                 defaultValue={defaults.newPerDay}
                 markdownTooltip={tr.deckConfigNewLimitTooltip() + v3Extra}
             >
@@ -63,10 +102,10 @@
             <Warning warning={newCardsGreaterThanParent} />
         </Item>
 
-        <Tabs {tabs} activeTab={activeNewTab} />
+        <TabbedValue tabs={reviewTabs} bind:value={reviewsValue} />
         <Item>
             <SpinBoxRow
-                bind:value={$config.reviewsPerDay}
+                bind:value={reviewsValue}
                 defaultValue={defaults.reviewsPerDay}
                 markdownTooltip={tr.deckConfigReviewLimitTooltip() + v3Extra}
             >
