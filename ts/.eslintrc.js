@@ -36,7 +36,7 @@ module.exports = {
     },
     overrides: [
         {
-            files: "**/*.ts",
+            files: "*.ts",
             extends: [
                 "plugin:@typescript-eslint/eslint-recommended",
                 "plugin:@typescript-eslint/recommended",
@@ -46,7 +46,7 @@ module.exports = {
             },
         },
         {
-            files: "**/*.svelte",
+            files: "*.svelte",
             parser: "svelte-eslint-parser",
             parserOptions: {
                 parser: "@typescript-eslint/parser",
