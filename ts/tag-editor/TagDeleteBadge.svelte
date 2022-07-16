@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Badge from "../components/Badge.svelte";
     import { deleteIcon } from "./icons";
 
-    let className: string = "";
+    let className = "";
     export { className as class };
 </script>
 

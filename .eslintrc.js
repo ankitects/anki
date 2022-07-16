@@ -34,7 +34,10 @@ module.exports = {
         "simple-import-sort/exports": "warn",
         "prefer-const": "warn",
         "no-nested-ternary": "warn",
-        "prettier/prettier": "warn",
+        "prettier/prettier": [
+            "warn",
+            { trailingComma: "all", printWidth: 88, tabWidth: 4, semi: true },
+        ],
         "@typescript-eslint/no-non-null-assertion": "off",
     },
     overrides: [
@@ -51,6 +54,9 @@ module.exports = {
                 "svelte/no-at-html-tags": "off",
                 /* We would also ideally get rid of this: */
                 "@typescript-eslint/no-explicit-any": "off",
+                /* Does not recognize that `store` and `$store` belongs to the same var: */
+                "@typescript-eslint/no-unused-vars": "off",
+                "no-undef": "off",
             },
         },
     ],

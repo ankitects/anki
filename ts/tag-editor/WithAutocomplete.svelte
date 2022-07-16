@@ -24,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     });
 
     let selected: number | null = null;
-    let active: boolean = false;
+    let active = false;
 
     const dispatch = createEventDispatcher<{
         update: void;
@@ -124,13 +124,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 </script>
 
-<WithFloating keepOnKeyup {show} placement="top-start" let:toggle let:hide let:show>
-    <span
-        class="autocomplete-reference"
-        slot="reference"
-        let:asReference
-        use:asReference
-    >
+<WithFloating
+    keepOnKeyup
+    {show}
+    placement="top-start"
+    let:asReference
+    let:toggle
+    let:hide
+    let:show
+>
+    <span class="autocomplete-reference" slot="reference" use:asReference>
         <slot {createAutocomplete} {toggle} {hide} {show} />
     </span>
 

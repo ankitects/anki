@@ -6,8 +6,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { tick } from "svelte";
 
     export let html = "";
-    export let x: number = 0;
-    export let y: number = 0;
+    export let x = 0;
+    export let y = 0;
     export let show = true;
 
     let container = null as unknown as HTMLDivElement;

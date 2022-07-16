@@ -27,7 +27,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {tr.importingFieldSeparator()}
     </Col>
     <Col --col-size={1}>
-        <!-- svelte-ignore a11y-no-onchange -->
         <select class="form-select" bind:value={delimiter} {disabled}>
             {#each delimiters as { value, label }}
                 <option {value}>{label}</option>

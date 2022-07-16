@@ -21,7 +21,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <Row --cols={2}>
     <Col --col-size={1}>
-        <!-- svelte-ignore a11y-no-onchange -->
         <select
             value={$info.getOldIndex(ctx, newIndex)}
             class="form-select"

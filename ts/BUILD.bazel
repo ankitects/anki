@@ -1,9 +1,4 @@
-load("//ts:prettier.bzl", "prettier", "prettier_test")
 load("@build_bazel_rules_nodejs//:index.bzl", "copy_to_bin")
-
-prettier()
-
-prettier_test()
 
 # Exported files
 #################

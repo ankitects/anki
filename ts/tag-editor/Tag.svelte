@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { pageTheme } from "../sveltelib/theme";
 
-    let className: string = "";
+    let className = "";
     export { className as class };
 
     export let tooltip: string | undefined = undefined;
@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const dispatch = createEventDispatcher();
 
-    let flashing: boolean = false;
+    let flashing = false;
 
     export function flash(): void {
         flashing = true;

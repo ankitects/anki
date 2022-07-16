@@ -19,8 +19,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ? tr.changeNotetypeWillDiscardContent()
             : tr.changeNotetypeWillDiscardCards();
 
-    const maxItems: number = 3;
-    let collapsed: boolean = true;
+    const maxItems = 3;
+    let collapsed = true;
     $: collapseMsg = collapsed
         ? tr.changeNotetypeExpand()
         : tr.changeNotetypeCollapse();

@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let revlogRange: RevlogRange;
     export let graphRange: GraphRange;
-    export let followRevlog: boolean = false;
+    export let followRevlog = false;
 
     function onFollowRevlog(revlogRange: RevlogRange) {
         if (revlogRange === RevlogRange.All) {

@@ -1,5 +1,4 @@
 load("@rules_python//python:defs.bzl", "py_binary")
-load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:protobuf.bzl", "protobufjs_library")
 load("//ts:typescript.bzl", "typescript")
@@ -58,8 +57,6 @@ typescript(
 
 # Tests
 ################
-
-prettier_test()
 
 eslint_test()
 

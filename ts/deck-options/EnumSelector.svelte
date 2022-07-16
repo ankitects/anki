@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { pageTheme } from "../sveltelib/theme";
 
     export let choices: string[];
-    export let value: number = 0;
+    export let value = 0;
     export let disabled: number[] = [];
 </script>
 

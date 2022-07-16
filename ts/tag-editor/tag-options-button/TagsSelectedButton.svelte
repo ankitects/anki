@@ -21,13 +21,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const removeShortcut = "Backspace";
 </script>
 
-<WithFloating placement="top">
+<WithFloating placement="top" let:asReference let:toggle>
     <div
         class="tags-selected-button"
         slot="reference"
-        let:asReference
         use:asReference
-        let:toggle
         on:click={toggle}
     >
         <IconConstrain>{@html dotsIcon}</IconConstrain>

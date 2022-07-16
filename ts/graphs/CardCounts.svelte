@@ -61,11 +61,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <table>
                 {#each tableData as d, _idx}
                     <tr>
-                        <!-- prettier-ignore -->
                         <td>
                             <span style="color: {d.colour};">■&nbsp;</span>
                             {#if browserLinksSupported}
-                                <span class="search-link" on:click={() => dispatch('search', { query: d.query })}>{d.label}</span>
+                                <span
+                                    class="search-link"
+                                    on:click={() =>
+                                        dispatch("search", { query: d.query })}
+                                    >{d.label}</span
+                                >
                             {:else}
                                 <span>{d.label}</span>
                             {/if}

@@ -17,7 +17,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {tr.decksDeck()}
     </Col>
     <Col --col-size={1}>
-        <!-- svelte-ignore a11y-no-onchange -->
         <select class="form-select" bind:value={deckId}>
             {#each deckNameIds as { id, name }}
                 <option value={id}>{name}</option>

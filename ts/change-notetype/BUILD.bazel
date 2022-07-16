@@ -1,4 +1,3 @@
-load("//ts:prettier.bzl", "prettier_test")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:esbuild.bzl", "esbuild")
@@ -59,8 +58,6 @@ esbuild(
 
 # Tests
 ################
-
-prettier_test()
 
 eslint_test()
 

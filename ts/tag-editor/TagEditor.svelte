@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import WithAutocomplete from "./WithAutocomplete.svelte";
 
     export let tags: Writable<string[]>;
-    export let keyCombination: string = "Control+Shift+T";
+    export let keyCombination = "Control+Shift+T";
 
     let tagTypes: TagType[];
     function tagsToTagTypes(tags: string[]): void {
@@ -52,7 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let activeInput: HTMLInputElement;
 
     let autocomplete: any;
-    let autocompleteDisabled: boolean = false;
+    let autocompleteDisabled = false;
 
     async function fetchSuggestions(input: string): Promise<string[]> {
         const { tags } = await tagsService.completeTag(

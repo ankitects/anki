@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "./tags";
 
     export let id: string | undefined = undefined;
-    let className: string = "";
+    let className = "";
     export { className as class };
 
     export let name: string;
@@ -114,7 +114,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         event.preventDefault();
     }
 
-    async function onDelimiter(event: Event, single: boolean = false): Promise<void> {
+    async function onDelimiter(event: Event, single = false): Promise<void> {
         const positionStart = input.selectionStart!;
         const positionEnd = input.selectionEnd!;
 
