@@ -1,8 +1,19 @@
 module.exports = {
-    extends: ["eslint:recommended", "plugin:compat/recommended"],
+    extends: [
+        "eslint:recommended",
+        "plugin:compat/recommended",
+        "plugin:svelte/base",
+        "plugin:svelte/recommended",
+        "plugin:svelte/prettier",
+        "plugin:prettier/recommended",
+    ],
     parser: "@typescript-eslint/parser",
+    parserOptions: {
+        // project: "./tsconfig.json",
+        extraFileExtensions: [".svelte"],
+    },
     plugins: [
-        "svelte3",
+        "svelte",
         "prettier",
         "import",
         "simple-import-sort",
@@ -36,10 +47,15 @@ module.exports = {
         },
         {
             files: "**/*.svelte",
-            processor: "svelte3/svelte3",
+            parser: "svelte-eslint-parser",
+            parserOptions: {
+                parser: "@typescript-eslint/parser",
+            },
             rules: {
                 "no-redeclare": "off",
                 "no-global-assign": "off",
+                "no-self-assign": "off",
+                "svelte/no-at-html-tags": "off",
             },
         },
     ],

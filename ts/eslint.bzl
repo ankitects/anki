@@ -18,9 +18,11 @@ def eslint_test(name = "eslint", srcs = None, exclude = []):
             "@ankidesktop//:package.json",
             "@npm//@typescript-eslint/parser",
             "@npm//@typescript-eslint/eslint-plugin",
-            "@npm//eslint-plugin-svelte3",
+            "@npm//eslint-plugin-svelte",
             "@npm//eslint-plugin-import",
             "@npm//eslint-plugin-simple-import-sort",
             "@npm//eslint-plugin-compat",
+            "@npm//eslint-plugin-prettier",
+            "@npm//eslint-config-prettier",
         ] + srcs,
     )

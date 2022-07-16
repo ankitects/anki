@@ -208,12 +208,6 @@
     "acorn@7.4.1": {
         "licenses": "MIT",
         "repository": "https://github.com/acornjs/acorn",
-        "path": "node_modules/@eslint/eslintrc/node_modules/acorn",
-        "licenseFile": "node_modules/@eslint/eslintrc/node_modules/acorn/LICENSE"
-    },
-    "acorn@8.7.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/acornjs/acorn",
         "path": "node_modules/acorn",
         "licenseFile": "node_modules/acorn/LICENSE"
     },
@@ -823,13 +817,6 @@
         "path": "node_modules/eslint-plugin-simple-import-sort",
         "licenseFile": "node_modules/eslint-plugin-simple-import-sort/LICENSE"
     },
-    "eslint-plugin-svelte3@3.4.1": {
-        "licenses": "MIT",
-        "repository": "https://github.com/sveltejs/eslint-plugin-svelte3",
-        "publisher": "Conduitry",
-        "path": "node_modules/eslint-plugin-svelte3",
-        "licenseFile": "node_modules/eslint-plugin-svelte3/LICENSE"
-    },
     "eslint-scope@5.1.1": {
         "licenses": "BSD-2-Clause",
         "repository": "https://github.com/eslint/eslint-scope",
@@ -840,16 +827,16 @@
         "licenses": "MIT",
         "repository": "https://github.com/mysticatea/eslint-utils",
         "publisher": "Toru Nagashima",
-        "path": "node_modules/eslint-utils",
-        "licenseFile": "node_modules/eslint-utils/LICENSE"
+        "path": "node_modules/eslint/node_modules/eslint-utils",
+        "licenseFile": "node_modules/eslint/node_modules/eslint-utils/LICENSE"
     },
     "eslint-visitor-keys@1.3.0": {
         "licenses": "Apache-2.0",
         "repository": "https://github.com/eslint/eslint-visitor-keys",
         "publisher": "Toru Nagashima",
         "url": "https://github.com/mysticatea",
-        "path": "node_modules/eslint-utils/node_modules/eslint-visitor-keys",
-        "licenseFile": "node_modules/eslint-utils/node_modules/eslint-visitor-keys/LICENSE"
+        "path": "node_modules/@eslint/eslintrc/node_modules/eslint-visitor-keys",
+        "licenseFile": "node_modules/@eslint/eslintrc/node_modules/eslint-visitor-keys/LICENSE"
     },
     "eslint-visitor-keys@2.1.0": {
         "licenses": "Apache-2.0",
@@ -1816,13 +1803,6 @@
         "email": "ljharb@gmail.com",
         "path": "node_modules/supports-preserve-symlinks-flag",
         "licenseFile": "node_modules/supports-preserve-symlinks-flag/LICENSE"
-    },
-    "svelte@3.48.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/sveltejs/svelte",
-        "publisher": "Rich Harris",
-        "path": "node_modules/svelte",
-        "licenseFile": "node_modules/svelte/LICENSE.md"
     },
     "table@6.8.0": {
         "licenses": "BSD-3-Clause",
