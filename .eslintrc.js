@@ -12,7 +12,6 @@ module.exports = {
     ],
     parser: "@typescript-eslint/parser",
     parserOptions: {
-        project: ["ts/editor/tsconfig.json"],
         extraFileExtensions: [".svelte"],
     },
     plugins: [
