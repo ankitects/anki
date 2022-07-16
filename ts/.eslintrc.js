@@ -3,6 +3,7 @@ module.exports = {
     parser: "@typescript-eslint/parser",
     plugins: [
         "svelte3",
+        "prettier",
         "import",
         "simple-import-sort",
         "@typescript-eslint",
@@ -20,6 +21,7 @@ module.exports = {
         "simple-import-sort/exports": "warn",
         "prefer-const": "warn",
         "no-nested-ternary": "warn",
+        "prettier/prettier": "warn",
     },
     overrides: [
         {
