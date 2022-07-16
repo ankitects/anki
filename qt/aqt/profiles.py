@@ -10,7 +10,7 @@ import shutil
 import traceback
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 import anki.lang
 import aqt.forms
@@ -220,6 +220,7 @@ class ProfileManager:
             print("resetting corrupt profile")
             self.profile = profileConf.copy()
             self.save()
+        self.set_last_loaded_profile_name(name)
         return True
 
     def save(self) -> None:
@@ -543,6 +544,19 @@ create table if not exists profiles
 
     def set_new_import_export(self, enabled: bool) -> None:
         self.meta["new_import_export"] = enabled
+
+    def load_last_loaded_profile(self) -> bool:
+        return self.meta.get("load_last_loaded_profile", False)
+    
+    def set_load_last_loaded_profile(self, val: bool) -> None:
+        self.meta["load_last_loaded_profile"] = val
+
+    def last_loaded_profile_name(self) -> Optional[str]:
+        return self.meta.get("last_loaded_profile_name")
+
+    def set_last_loaded_profile_name(self, name: str) -> None:
+        self.meta["last_loaded_profile_name"] = name
+        
 
     # Profile-specific
     ######################################################################

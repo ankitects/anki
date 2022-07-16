@@ -284,6 +284,9 @@ class AnkiQt(QMainWindow):
             profs = self.pm.profiles()
             if len(profs) == 1:
                 self.pm.load(profs[0])
+            elif self.pm.load_last_loaded_profile() and (name := self.pm.last_loaded_profile_name()):
+                    self.pm.load(name)
+                
         if not self.pm.name:
             self.showProfileManager()
         else:
