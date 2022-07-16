@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <TagEditor
             tags={globalTagsWritable}
             on:tagsupdate={({ detail }) => (globalTags = detail.tags)}
-            keyCombination={"Control+T"}
+            keyCombination="Control+T"
         /></Col
     >
 </Row>

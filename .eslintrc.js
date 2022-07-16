@@ -48,6 +48,13 @@ module.exports = {
                 parser: "@typescript-eslint/parser",
             },
             rules: {
+                "svelte/no-useless-mustaches": "warn",
+                "svelte/require-optimized-style-attribute": "warn",
+                "svelte/html-quotes": "warn",
+                "svelte/prefer-class-directive": "warn",
+                "svelte/prefer-style-directive": "warn",
+                "svelte/shorthand-attribute": "warn",
+                "svelte/shorthand-directive": "warn",
                 "no-redeclare": "off",
                 "no-global-assign": "off",
                 "no-self-assign": "off",
