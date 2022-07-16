@@ -9,11 +9,9 @@ prettier_test()
 #################
 
 exports_files([
-    ".eslintrc.js",
     "licenses.json",
     "sql_format.ts",
     "jest.config.js",
-    "package.json",
     "protobuf-no-long.js",
     "page.html",
 ])

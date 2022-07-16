@@ -36,4 +36,6 @@ exports_files([
     "defs.bzl",
     "package.json",
     ".prettierrc",
+    ".prettierignore",
+    ".eslintrc.js",
 ])

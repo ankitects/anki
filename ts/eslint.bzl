@@ -10,11 +10,9 @@ def eslint_test(name = "eslint", srcs = None, exclude = []):
         name = name,
         args = [
             "--max-warnings=0",
-            "-c",
-            "$(location @ankidesktop//ts:.eslintrc.js)",
         ] + [native.package_name() + "/" + f for f in srcs],
         data = [
-            "@ankidesktop//ts:.eslintrc.js",
+            "@ankidesktop//:.eslintrc.js",
             "@ankidesktop//:package.json",
             "@npm//@typescript-eslint/parser",
             "@npm//@typescript-eslint/eslint-plugin",
