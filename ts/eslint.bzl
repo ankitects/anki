@@ -22,5 +22,6 @@ def eslint_test(name = "eslint", srcs = None, exclude = []):
             "@npm//eslint-plugin-compat",
             "@npm//eslint-plugin-prettier",
             "@npm//eslint-config-prettier",
+            "@npm//prettier-plugin-svelte",
         ] + srcs,
     )
