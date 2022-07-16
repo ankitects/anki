@@ -17,8 +17,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let api = {};
 
-    let textColor: string = "black";
-    let highlightColor: string = "black";
+    let textColor = "black";
+    let highlightColor = "black";
     export function setColorButtons([textClr, highlightClr]: [string, string]): void {
         textColor = textClr;
         highlightColor = highlightClr;

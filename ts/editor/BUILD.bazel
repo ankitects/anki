@@ -21,11 +21,11 @@ compile_sass(
 
 _ts_deps = [
     "//ts/components",
+    "//ts/domlib",
+    "//ts/lib",
+    "//ts/sveltelib",
     "//ts/editable:editable_ts",
     "//ts/html-filter",
-    "//ts/lib",
-    "//ts/domlib",
-    "//ts/sveltelib",
     "//ts/tag-editor",
     "@npm//@fluent",
     "@npm//@types/codemirror",
@@ -93,7 +93,7 @@ esbuild(
 
 prettier_test()
 
-eslint_test()
+eslint_test(deps = _ts_deps)
 
 svelte_check(
     name = "svelte_check",

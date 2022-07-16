@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { directionKey, fontFamilyKey, fontSizeKey } from "../../lib/context-keys";
     import { promiseWithResolver } from "../../lib/promise";
-    import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
+    import type { StyleObject } from "./CustomStyles.svelte";
     import CustomStyles from "./CustomStyles.svelte";
 
     export let callback: (styles: CustomStyles) => void;
@@ -42,9 +42,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const styles = [
         {
             id: "rootStyle",
-            type: "link" as "link",
+            type: "link" as const,
             href: "./_anki/css/editable.css",
-        } as StyleLinkType,
+        },
     ];
 
     function attachToShadow(element: Element) {

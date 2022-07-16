@@ -6,11 +6,13 @@ module.exports = {
         "plugin:svelte/base",
         "plugin:svelte/recommended",
         "plugin:svelte/prettier",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
         "plugin:prettier/recommended",
     ],
     parser: "@typescript-eslint/parser",
     parserOptions: {
-        // project: "./tsconfig.json",
+        project: ["ts/editor/tsconfig.json"],
         extraFileExtensions: [".svelte"],
     },
     plugins: [
@@ -34,18 +36,9 @@ module.exports = {
         "prefer-const": "warn",
         "no-nested-ternary": "warn",
         "prettier/prettier": "warn",
+        "@typescript-eslint/no-non-null-assertion": "off",
     },
     overrides: [
-        {
-            files: "*.ts",
-            extends: [
-                "plugin:@typescript-eslint/eslint-recommended",
-                "plugin:@typescript-eslint/recommended",
-            ],
-            rules: {
-                "@typescript-eslint/no-non-null-assertion": "off",
-            },
-        },
         {
             files: "*.svelte",
             parser: "svelte-eslint-parser",
@@ -57,6 +50,8 @@ module.exports = {
                 "no-global-assign": "off",
                 "no-self-assign": "off",
                 "svelte/no-at-html-tags": "off",
+                /* We would also ideally get rid of this: */
+                "@typescript-eslint/no-explicit-any": "off",
             },
         },
     ],
@@ -65,8 +60,5 @@ module.exports = {
     globals: {
         globalThis: false,
         NodeListOf: false,
-    },
-    settings: {
-        "svelte3/typescript": () => require("typescript"),
     },
 };

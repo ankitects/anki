@@ -95,10 +95,12 @@ export class Surrounder {
         format: SurroundFormat<T>,
         exclusive: SurroundFormat<T>[] = [],
     ): void {
-        if (get(this.trigger!.active)) {
-            this.trigger!.off();
+        if (!this.trigger) {
+            return;
+        } else if (get(this.trigger.active)) {
+            this.trigger.off();
         } else {
-            this.trigger!.on(async ({ text }) => {
+            this.trigger.on(({ text }) => {
                 const range = new Range();
                 range.selectNode(text);
 
@@ -116,7 +118,7 @@ export class Surrounder {
         format: SurroundFormat<T>,
         exclusive: SurroundFormat<T>[] = [],
     ): void {
-        this.trigger!.on(async ({ text }) => {
+        this.trigger.on(async ({ text }) => {
             const range = new Range();
             range.selectNode(text);
 
@@ -134,7 +136,7 @@ export class Surrounder {
         remove: SurroundFormat<T>[],
         reformat: SurroundFormat<T>[] = [],
     ): void {
-        this.trigger!.on(async ({ text }) => {
+        this.trigger.on(async ({ text }) => {
             const range = new Range();
             range.selectNode(text);
 
@@ -215,7 +217,7 @@ export class Surrounder {
         }
 
         const isSurrounded = isSurroundedInner(range, base, boolMatcher(format));
-        return get(this.trigger!.active) ? !isSurrounded : isSurrounded;
+        return get(this.trigger.active) ? !isSurrounded : isSurrounded;
     }
 
     /**

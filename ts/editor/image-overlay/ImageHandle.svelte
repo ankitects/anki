@@ -60,7 +60,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: naturalHeight = activeImage?.naturalHeight;
     $: aspectRatio = naturalWidth && naturalHeight ? naturalWidth / naturalHeight : NaN;
 
-    let customDimensions: boolean = false;
+    let customDimensions = false;
     let actualWidth = "";
     let actualHeight = "";
 

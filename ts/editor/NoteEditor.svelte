@@ -163,7 +163,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         cols = cls;
     }
 
-    let hint: string = "";
+    let hint = "";
     export function setClozeHint(hnt: string): void {
         hint = hnt;
     }
@@ -194,7 +194,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fieldSave.fireImmediately();
     }
 
-    export function saveOnPageHide() {
+    export function saveOnPageHide(): void {
         if (document.visibilityState === "hidden") {
             // will fire on session close and minimize
             saveFieldNow();

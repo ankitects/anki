@@ -1,8 +1,9 @@
 load("@npm//eslint:index.bzl", _eslint_test = "eslint_test")
 
-def eslint_test(name = "eslint", srcs = None, exclude = []):
+def eslint_test(name = "eslint", srcs = None, deps = [], exclude = []):
     if not srcs:
-        srcs = native.glob([
+        srcs = srcs or native.glob([
+            "**/tsconfig.json",
             "**/*.ts",
             "**/*.svelte",
         ], exclude = exclude)
@@ -10,10 +11,15 @@ def eslint_test(name = "eslint", srcs = None, exclude = []):
         name = name,
         args = [
             "--max-warnings=0",
-        ] + [native.package_name() + "/" + f for f in srcs],
+        ] + [
+            native.package_name() + "/" + file
+            for file in srcs
+            if file.endswith(".ts") or file.endswith(".svelte")
+        ],
         data = [
             "@ankidesktop//:.eslintrc.js",
             "@ankidesktop//:package.json",
+            "@ankidesktop//ts:tsconfig.json",
             "@npm//@typescript-eslint/parser",
             "@npm//@typescript-eslint/eslint-plugin",
             "@npm//eslint-plugin-svelte",
@@ -23,5 +29,5 @@ def eslint_test(name = "eslint", srcs = None, exclude = []):
             "@npm//eslint-plugin-prettier",
             "@npm//eslint-config-prettier",
             "@npm//prettier-plugin-svelte",
-        ] + srcs,
+        ] + srcs + deps,
     )

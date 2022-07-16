@@ -9,11 +9,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { SurroundFormat } from "../../domlib/surround";
     import type { DefaultSlotInterface } from "../../sveltelib/dynamic-slotting";
 
-    export function updateActiveButtons(event: Event) {
+    export function updateActiveButtons(event: Event): void {
         updateAllState(event);
     }
 
-    export function clearActiveButtons() {
+    export function clearActiveButtons(): void {
         resetAllState(false);
     }
 

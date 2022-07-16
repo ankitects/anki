@@ -26,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let updateSelection: () => Promise<void>;
     let dropdownApi: any;
 
-    export async function update() {
+    export async function update(): void {
         await updateSelection?.();
         dropdownApi.update();
     }

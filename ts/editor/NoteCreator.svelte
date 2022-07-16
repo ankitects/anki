@@ -31,7 +31,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     let deregisterSticky: () => void;
-    export function activateStickyShortcuts() {
+    export function activateStickyShortcuts(): void {
         deregisterSticky = registerShortcut(toggleStickyAll, "Shift+F9");
     }
 
