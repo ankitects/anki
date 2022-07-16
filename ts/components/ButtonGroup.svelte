@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     export let id: string | undefined = undefined;
-    let className: string = "";
+    let className = "";
     export { className as class };
 
     export let size: number | undefined = undefined;

@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     type T = boolean;
 
-    export let key: Symbol | string;
+    export let key: symbol | string;
 
     const store = getContext<Readable<T>>(key);
 </script>

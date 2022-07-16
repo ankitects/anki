@@ -63,7 +63,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             : false;
     }
 
-    const noop = () => {};
+    const noop = () => {
+        /* noop */
+    };
     function createDropdown(toggle: HTMLElement): Dropdown {
         /* avoid focusing element toggle on menu activation */
         toggle.focus = noop;
@@ -87,7 +89,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             show: dropdown.show.bind(dropdown),
             // TODO this is quite confusing, but having a noop function fixes Bootstrap
             // in the deck-options when not including Bootstrap via <script />
-            toggle: () => {},
+            toggle: noop,
             /* toggle: dropdown.toggle.bind(dropdown), */
             hide: dropdown.hide.bind(dropdown),
             update: dropdown.update.bind(dropdown),

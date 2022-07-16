@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts" context="module">
     import { writable } from "svelte/store";
 
-    type KeyType = Symbol | string;
+    type KeyType = symbol | string;
     type UpdaterMap = Map<KeyType, (event: Event) => Promise<boolean>>;
     type StateMap = Map<KeyType, Promise<boolean>>;
 
@@ -49,7 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let key: KeyType;
     export let update: (event: Event) => Promise<boolean>;
 
-    let state: boolean = false;
+    let state = false;
 
     updaterMap.set(key, update);
 

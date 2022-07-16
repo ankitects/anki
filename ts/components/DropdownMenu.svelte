@@ -8,7 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { dropdownKey } from "./context-keys";
 
     export let id: string | undefined = undefined;
-    let className: string = "";
+    let className = "";
     export { className as class };
 
     export let labelledby: string | undefined = undefined;

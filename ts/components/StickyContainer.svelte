@@ -7,10 +7,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Breakpoint } from "./types";
 
     export let id: string | undefined = undefined;
-    let className: string = "";
+    let className = "";
     export { className as class };
 
-    export let height: number = 0;
+    export let height = 0;
     export let breakpoint: Breakpoint | "fluid" = "fluid";
 </script>
 

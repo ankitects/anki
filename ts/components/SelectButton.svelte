@@ -22,7 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => dispatch("mount", { button: buttonRef }));
 </script>
 
-<!-- svelte-ignore a11y-no-onchange -->
 <select
     tabindex="-1"
     bind:this={buttonRef}

@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Breakpoint } from "./types";
 
     export let id: string | undefined = undefined;
-    let className: string = "";
+    let className = "";
     export { className as class };
 
     /* width: 100% if viewport < breakpoint otherwise with gutters */

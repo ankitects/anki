@@ -12,7 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export { className as class };
 
     export let tooltip: string | undefined = undefined;
-    export let tabbable: boolean = false;
+    export let tabbable = false;
 
     let buttonRef: HTMLButtonElement;
 
