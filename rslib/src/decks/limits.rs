@@ -13,7 +13,7 @@ use crate::{
 };
 
 impl NormalDeck {
-    /// The deck's review limit for today or its general one, if any is configured.
+    /// The deck's review limit for today, or its regular one, if any is configured.
     pub fn day_review_limit(&self, today: u32) -> Option<u32> {
         self.review_limit_today(today).or(self.review_limit)
     }
