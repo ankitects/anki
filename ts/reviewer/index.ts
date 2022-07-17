@@ -167,7 +167,7 @@ export function _showQuestion(q: string, a: string, bodyclass: string): void {
                 // return to top of window
                 window.scrollTo(0, 0);
 
-                document.body.className = bodyclass;
+                document.body.className = `${bodyclass} front`;
             },
             function () {
                 // focus typing area if visible
@@ -194,7 +194,7 @@ export function _showAnswer(a: string, bodyclass: string): void {
             function () {
                 if (bodyclass) {
                     //  when previewing
-                    document.body.className = bodyclass;
+                    document.body.className = `${bodyclass} back`;
                 }
 
                 // avoid scrolling to the answer until images load
