@@ -282,11 +282,10 @@ class AnkiQt(QMainWindow):
         if not self.pm.name:
             # if there's a single profile, load it automatically
             profs = self.pm.profiles()
+            name = self.pm.last_loaded_profile_name()
             if len(profs) == 1:
                 self.pm.load(profs[0])
-            elif self.pm.load_last_loaded_profile() and (
-                name := self.pm.last_loaded_profile_name()
-            ):
+            elif name in profs:
                 self.pm.load(name)
 
         if not self.pm.name:

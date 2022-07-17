@@ -104,13 +104,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="load_last_loaded_profile">
-         <property name="text">
-          <string notr="true">Load last loaded profile by default</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QComboBox" name="useCurrent">
          <item>
           <property name="text">
@@ -692,7 +685,6 @@
   <tabstop>paste_strips_formatting</tabstop>
   <tabstop>ignore_accents_in_search</tabstop>
   <tabstop>new_import_export</tabstop>
-  <tabstop>load_last_loaded_profile</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>default_search_text</tabstop>
   <tabstop>uiScale</tabstop>
