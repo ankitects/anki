@@ -9,6 +9,7 @@ use serde_tuple::Serialize_tuple;
 
 use super::{DeckCommon, FilteredDeck, FilteredSearchTerm, NormalDeck};
 use crate::{
+    pb::decks::deck::normal::DayLimit,
     prelude::*,
     serde::{default_on_invalid, deserialize_bool_from_anything, deserialize_number_from_string},
 };
@@ -120,6 +121,10 @@ pub struct NormalDeckSchema11 {
     review_limit: Option<u32>,
     #[serde(default, deserialize_with = "default_on_invalid")]
     new_limit: Option<u32>,
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    review_limit_today: Option<DayLimit>,
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    new_limit_today: Option<DayLimit>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
@@ -232,6 +237,8 @@ impl Default for NormalDeckSchema11 {
             extend_rev: 0,
             review_limit: None,
             new_limit: None,
+            review_limit_today: None,
+            new_limit_today: None,
         }
     }
 }
@@ -306,8 +313,8 @@ impl From<NormalDeckSchema11> for NormalDeck {
             description: deck.common.desc,
             review_limit: deck.review_limit,
             new_limit: deck.new_limit,
-            review_limit_today: None,
-            new_limit_today: None,
+            review_limit_today: deck.review_limit_today,
+            new_limit_today: deck.new_limit_today,
         }
     }
 }
@@ -344,6 +351,8 @@ impl From<Deck> for DeckSchema11 {
                 extend_rev: norm.extend_review as i32,
                 review_limit: norm.review_limit,
                 new_limit: norm.new_limit,
+                review_limit_today: norm.review_limit_today,
+                new_limit_today: norm.new_limit_today,
                 common: deck.into(),
             }),
             DeckKind::Filtered(ref filt) => DeckSchema11::Filtered(FilteredDeckSchema11 {
@@ -398,7 +407,12 @@ impl From<Deck> for DeckCommonSchema11 {
 
 /// See [crate::deckconfig::schema11::clear_other_duplicates()].
 fn clear_other_duplicates(other: &mut HashMap<String, Value>) {
-    for key in ["reviewLimit", "newLimit"] {
+    for key in [
+        "reviewLimit",
+        "newLimit",
+        "reviewLimitToday",
+        "newLimitToday",
+    ] {
         other.remove(key);
     }
 }
