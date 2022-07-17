@@ -57,26 +57,30 @@ pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str>
             .parse()
             .unwrap_or(0);
 
+        let text = caps.get(cloze_caps::TEXT).unwrap().as_str().to_owned();
         if captured_ord != cloze_ord {
             // other cloze deletions are unchanged
-            return caps.get(cloze_caps::TEXT).unwrap().as_str().to_owned();
+            return text;
         } else {
             cloze_ord_was_in_text = true;
         }
 
+        let text_attr;
         let replacement;
         if question {
+            text_attr = format!(r#" data-text="{}""#, text);
             // hint provided?
             if let Some(hint) = caps.get(cloze_caps::HINT) {
                 replacement = format!("[{}]", hint.as_str());
             } else {
-                replacement = "[...]".to_string()
+                replacement = "[...]".to_string();
             }
         } else {
-            replacement = caps.get(cloze_caps::TEXT).unwrap().as_str().to_owned();
+            text_attr = "".to_string();
+            replacement = text;
         }
 
-        format!("<span class=cloze>{}</span>", replacement)
+        format!(r#"<span class="cloze"{}>{}</span>"#, text_attr, replacement)
     });
 
     if !cloze_ord_was_in_text {
