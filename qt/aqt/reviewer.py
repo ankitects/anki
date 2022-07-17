@@ -1051,23 +1051,27 @@ time = %(time)d;
             op.run_in_background()
 
     def suspend_current_note(self) -> None:
+        gui_hooks.reviewer_will_suspend_note(self.card.nid)
         suspend_note(
             parent=self.mw,
             note_ids=[self.card.nid],
         ).success(lambda _: tooltip(tr.studying_note_suspended())).run_in_background()
 
     def suspend_current_card(self) -> None:
+        gui_hooks.reviewer_will_suspend_card(self.card.id)
         suspend_cards(
             parent=self.mw,
             card_ids=[self.card.id],
         ).success(lambda _: tooltip(tr.studying_card_suspended())).run_in_background()
 
     def bury_current_note(self) -> None:
+        gui_hooks.reviewer_will_bury_note(self.card.nid)
         bury_notes(parent=self.mw, note_ids=[self.card.nid],).success(
             lambda res: tooltip(tr.studying_cards_buried(count=res.count))
         ).run_in_background()
 
     def bury_current_card(self) -> None:
+        gui_hooks.reviewer_will_bury_card(self.card.id)
         bury_cards(parent=self.mw, card_ids=[self.card.id],).success(
             lambda res: tooltip(tr.studying_cards_buried(count=res.count))
         ).run_in_background()
