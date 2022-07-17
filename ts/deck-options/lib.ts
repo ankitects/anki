@@ -322,24 +322,28 @@ export class ValueTab {
     value: number | null;
     private setter: (value: number | null) => void;
     private disabledValue: number | null;
+    private startValue: number | null;
 
     constructor(
         title: string,
         value: number | null,
         setter: (value: number | null) => void,
-        disabledValue: number | null = null,
+        disabledValue: number | null,
+        startValue: number | null,
     ) {
         this.title = title;
         this.value = value;
-        this.disabledValue = disabledValue;
         this.setter = setter;
+        this.disabledValue = disabledValue;
+        this.startValue = startValue;
     }
 
     disable(): void {
         this.setter(this.disabledValue);
     }
 
-    enable(): void {
+    enable(fallbackValue: number): void {
+        this.value = this.value ?? this.startValue ?? fallbackValue;
         this.setter(this.value);
     }
 

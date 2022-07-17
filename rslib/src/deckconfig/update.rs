@@ -202,16 +202,34 @@ impl NormalDeck {
         Limits {
             review: self.review_limit,
             new: self.new_limit,
-            review_today: self.review_limit_today(today),
-            new_today: self.new_limit_today(today),
+            review_today: self.review_limit_today.map(|limit| limit.limit),
+            new_today: self.new_limit_today.map(|limit| limit.limit),
+            review_today_active: self
+                .review_limit_today
+                .map(|limit| limit.today == today)
+                .unwrap_or_default(),
+            new_today_active: self
+                .new_limit_today
+                .map(|limit| limit.today == today)
+                .unwrap_or_default(),
         }
     }
 
     fn update_limits(&mut self, limits: &Limits, today: u32) {
         self.review_limit = limits.review;
         self.new_limit = limits.new;
-        self.review_limit_today = limits.review_today.map(|limit| DayLimit { limit, today });
-        self.new_limit_today = limits.new_today.map(|limit| DayLimit { limit, today });
+        update_day_limit(&mut self.review_limit_today, limits.review_today, today);
+        update_day_limit(&mut self.new_limit_today, limits.new_today, today);
+    }
+}
+
+fn update_day_limit(day_limit: &mut Option<DayLimit>, new_limit: Option<u32>, today: u32) {
+    if let Some(limit) = new_limit {
+        day_limit.replace(DayLimit { limit, today });
+    } else if let Some(limit) = day_limit {
+        // instead of setting to None, only make sure today is in the past,
+        // thus preserving last used value
+        limit.today = limit.today.min(today - 1);
     }
 }
 

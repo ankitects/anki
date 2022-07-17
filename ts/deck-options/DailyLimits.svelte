@@ -49,16 +49,21 @@
             $config.newPerDay,
             (value) => ($config.newPerDay = value!),
             $config.newPerDay,
+            null,
         ),
         new ValueTab(
             tr.deckConfigDeckOnly(),
             $limits.new ?? null,
             (value) => ($limits.new = value),
+            null,
+            null,
         ),
         new ValueTab(
             tr.deckConfigTodayOnly(),
-            $limits.newToday ?? null,
+            $limits.newTodayActive ? $limits.newToday ?? null : null,
             (value) => ($limits.newToday = value),
+            null,
+            $limits.newToday ?? null,
         ),
     ];
 
@@ -68,16 +73,21 @@
             $config.reviewsPerDay,
             (value) => ($config.reviewsPerDay = value!),
             $config.reviewsPerDay,
+            null,
         ),
         new ValueTab(
             tr.deckConfigDeckOnly(),
             $limits.review ?? null,
             (value) => ($limits.review = value),
+            null,
+            null,
         ),
         new ValueTab(
             tr.deckConfigTodayOnly(),
-            $limits.reviewToday ?? null,
+            $limits.reviewTodayActive ? $limits.reviewToday ?? null : null,
             (value) => ($limits.reviewToday = value),
+            null,
+            $limits.reviewToday ?? null,
         ),
     ];
 

@@ -29,12 +29,8 @@
     function onTabChanged(newTab: number) {
         for (const [idx, tab] of tabs.entries()) {
             if (newTab === idx) {
-                if (tab.value === null) {
-                    tab.value = value;
-                } else {
-                    value = tab.value;
-                }
-                tab.enable();
+                tab.enable(value);
+                value = tab.value!;
             } else {
                 tab.disable();
             }
