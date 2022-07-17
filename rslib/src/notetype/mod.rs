@@ -391,10 +391,12 @@ impl Notetype {
         if let Some((invalid_index, details)) =
             templates.iter().enumerate().find_map(|(index, sides)| {
                 if let (Some(q), Some(a)) = sides {
-                    let q_fields = q.fields();
+                    let q_fields = q.all_referenced_field_names();
                     if q_fields.is_empty() {
                         Some((index, CardTypeErrorDetails::NoFrontField))
-                    } else if self.unknown_field_name(q_fields.union(&a.fields())) {
+                    } else if self
+                        .unknown_field_name(q_fields.union(&a.all_referenced_field_names()))
+                    {
                         Some((index, CardTypeErrorDetails::NoSuchField))
                     } else {
                         None
@@ -601,7 +603,7 @@ impl Notetype {
             HashSet::new()
         } else if let Some((Some(front), _)) = self.parsed_templates().get(0) {
             front
-                .cloze_fields()
+                .all_referenced_cloze_field_names()
                 .iter()
                 .filter_map(|name| self.get_field_ord(name))
                 .collect()
@@ -624,7 +626,7 @@ fn missing_cloze_filter(
 fn has_cloze(template: &Option<ParsedTemplate>) -> bool {
     template
         .as_ref()
-        .map_or(false, |t| !t.cloze_fields().is_empty())
+        .map_or(false, |t| !t.all_referenced_cloze_field_names().is_empty())
 }
 
 impl From<Notetype> for NotetypeProto {
@@ -695,7 +697,7 @@ impl Collection {
                 original.config.sort_field_idx,
                 normalize,
             )?;
-            self.update_cards_for_changed_templates(notetype, original.templates.len())?;
+            self.update_cards_for_changed_templates(notetype, &original.templates)?;
             self.update_notetype_undoable(notetype, original)?;
         } else {
             // adding with existing id for old undo code, bypass undo

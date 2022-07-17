@@ -5,7 +5,9 @@
 //! with our other runtime dependencies.
 
 use std::{
+    os::unix::prelude::PermissionsExt,
     path::{Path, PathBuf},
+    process::Command,
     str::FromStr,
 };
 
@@ -137,15 +139,33 @@ fn make_app(
         copy_in_audio(&output_folder, variant, bazel_external)?;
         copy_in_qt(&output_folder, variant, bazel_external)?;
         codesign_app(&output_folder)?;
+        fixup_perms(&output_folder)?;
     }
 
+    Ok(())
+}
+
+/// The bundle builder writes some files without world read/execute perms,
+/// which prevents them from being opened by a non-admin user.
+fn fixup_perms(dir: &Path) -> Result<()> {
+    let status = Command::new("find")
+        .arg(dir)
+        .args(["-not", "-perm", "-a=r", "-exec", "chmod", "a+r", "{}", ";"])
+        .status()?;
+    if !status.success() {
+        bail!("error setting perms");
+    }
+    std::fs::set_permissions(
+        dir.join("Contents/MacOS/anki"),
+        PermissionsExt::from_mode(0o755),
+    )?;
     Ok(())
 }
 
 /// Copy everything at the provided path into the Contents/ folder of our app.
 /// Excludes standard Bazel repo files.
 fn extend_app_contents(source: &Path, bundle_dir: &Path) -> Result<()> {
-    let status = std::process::Command::new("rsync")
+    let status = Command::new("rsync")
         .arg("-a")
         .args(["--exclude", "BUILD.bazel", "--exclude", "WORKSPACE"])
         .arg(format!("{}/", source.to_string_lossy()))
@@ -169,7 +189,7 @@ fn copy_in_qt(bundle_dir: &Path, variant: Variant, bazel_external: &Path) -> Res
 
 fn codesign_file(path: &Path, extra_args: &[&str]) -> Result<()> {
     if option_env!("ANKI_CODESIGN").is_some() {
-        let status = std::process::Command::new("codesign")
+        let status = Command::new("codesign")
             .args(CODESIGN_ARGS)
             .args(extra_args)
             .arg(path.to_str().unwrap())
@@ -200,7 +220,7 @@ fn codesign_app(bundle_dir: &PathBuf) -> Result<()> {
 }
 
 fn fix_rpath(exe_path: PathBuf) -> Result<()> {
-    let status = std::process::Command::new("install_name_tool")
+    let status = Command::new("install_name_tool")
         .arg("-add_rpath")
         .arg("@executable_path/../Frameworks")
         .arg(exe_path.to_str().unwrap())

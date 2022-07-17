@@ -254,11 +254,17 @@ fn parse_inner<'a, I: Iterator<Item = TemplateResult<Token<'a>>>>(
     }
 }
 
-fn template_error_to_anki_error(err: TemplateError, q_side: bool, tr: &I18n) -> AnkiError {
-    let header = if q_side {
-        tr.card_template_rendering_front_side_problem()
-    } else {
-        tr.card_template_rendering_back_side_problem()
+fn template_error_to_anki_error(
+    err: TemplateError,
+    q_side: bool,
+    browser: bool,
+    tr: &I18n,
+) -> AnkiError {
+    let header = match (q_side, browser) {
+        (true, false) => tr.card_template_rendering_front_side_problem(),
+        (false, false) => tr.card_template_rendering_back_side_problem(),
+        (true, true) => tr.card_template_rendering_browser_front_side_problem(),
+        (false, true) => tr.card_template_rendering_browser_back_side_problem(),
     };
     let details = htmlescape::encode_minimal(&localized_template_error(tr, err));
     let more_info = tr.card_template_rendering_more_info();
@@ -569,6 +575,7 @@ pub fn render_card(
     field_map: &HashMap<&str, Cow<str>>,
     card_ord: u16,
     is_cloze: bool,
+    browser: bool,
     tr: &I18n,
 ) -> Result<(Vec<RenderedNode>, Vec<RenderedNode>)> {
     // prepare context
@@ -582,7 +589,7 @@ pub fn render_card(
     // question side
     let (mut qnodes, qtmpl) = ParsedTemplate::from_text(qfmt)
         .and_then(|tmpl| Ok((tmpl.render(&context, tr)?, tmpl)))
-        .map_err(|e| template_error_to_anki_error(e, true, tr))?;
+        .map_err(|e| template_error_to_anki_error(e, true, browser, tr))?;
 
     // check if the front side was empty
     let empty_message = if is_cloze && cloze_is_empty(field_map, card_ord) {
@@ -611,7 +618,7 @@ pub fn render_card(
     context.question_side = false;
     let anodes = ParsedTemplate::from_text(afmt)
         .and_then(|tmpl| tmpl.render(&context, tr))
-        .map_err(|e| template_error_to_anki_error(e, false, tr))?;
+        .map_err(|e| template_error_to_anki_error(e, false, browser, tr))?;
 
     Ok((qnodes, anodes))
 }
@@ -790,42 +797,41 @@ fn nodes_to_string(buf: &mut String, nodes: &[ParsedNode]) {
 //----------------------------------------
 
 impl ParsedTemplate {
-    /// A set of all field names. Field names may not be valid.
-    pub(crate) fn fields(&self) -> HashSet<&str> {
+    /// Field names may not be valid.
+    pub(crate) fn all_referenced_field_names(&self) -> HashSet<&str> {
         let mut set = HashSet::new();
-        find_fields_with_filter(&self.0, &mut set, None);
+        find_field_references(&self.0, &mut set, false, true);
         set
     }
 
-    /// A set of field names with a cloze filter attached.
     /// Field names may not be valid.
-    pub(crate) fn cloze_fields(&self) -> HashSet<&str> {
+    pub(crate) fn all_referenced_cloze_field_names(&self) -> HashSet<&str> {
         let mut set = HashSet::new();
-        find_fields_with_filter(&self.0, &mut set, Some("cloze"));
+        find_field_references(&self.0, &mut set, true, false);
         set
     }
 }
 
-/// Insert all fields in 'nodes' with 'filter' into 'fields'. If 'filter' is None,
-/// all fields are collected.
-fn find_fields_with_filter<'a>(
+fn find_field_references<'a>(
     nodes: &'a [ParsedNode],
     fields: &mut HashSet<&'a str>,
-    filter: Option<&str>,
+    cloze_only: bool,
+    with_conditionals: bool,
 ) {
     for node in nodes {
         match node {
             ParsedNode::Text(_) => {}
             ParsedNode::Replacement { key, filters } => {
-                if filter.is_none() || filters.iter().any(|f| f == filter.unwrap()) {
+                if !cloze_only || filters.iter().any(|f| f == "cloze") {
                     fields.insert(key);
                 }
             }
-            ParsedNode::Conditional { children, .. } => {
-                find_fields_with_filter(children, fields, filter);
-            }
-            ParsedNode::NegatedConditional { children, .. } => {
-                find_fields_with_filter(children, fields, filter);
+            ParsedNode::Conditional { key, children }
+            | ParsedNode::NegatedConditional { key, children } => {
+                if with_conditionals {
+                    fields.insert(key);
+                }
+                find_field_references(children, fields, cloze_only, with_conditionals);
             }
         }
     }
@@ -1168,7 +1174,7 @@ mod test {
         let tr = I18n::template_only();
         use crate::template::RenderedNode as FN;
 
-        let qnodes = super::render_card("test{{E}}", "", &map, 1, false, &tr)
+        let qnodes = super::render_card("test{{E}}", "", &map, 1, false, false, &tr)
             .unwrap()
             .0;
         assert_eq!(
