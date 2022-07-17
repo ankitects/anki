@@ -248,7 +248,8 @@ def test_cloze_mathjax():
     assert f'class="cloze" data-cloze="{html.escape(q1)}"' in note.cards()[0].question()
     assert f'class="cloze" data-cloze="{html.escape(q2)}"' in note.cards()[1].question()
     assert (
-        f'class="cloze" data-cloze="{html.escape(q3)}"' not in note.cards()[2].question()
+        f'class="cloze" data-cloze="{html.escape(q3)}"'
+        not in note.cards()[2].question()
     )
     assert f'class="cloze" data-cloze="{html.escape(q4)}"' in note.cards()[3].question()
     assert f'class="cloze" data-cloze="{html.escape(q5)}"' in note.cards()[4].question()
