@@ -398,7 +398,7 @@ impl From<Deck> for DeckCommonSchema11 {
 
 /// See [crate::deckconfig::schema11::clear_other_duplicates()].
 fn clear_other_duplicates(other: &mut HashMap<String, Value>) {
-    for key in ["review_limit", "new_limit"] {
+    for key in ["reviewLimit", "newLimit"] {
         other.remove(key);
     }
 }
