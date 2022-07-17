@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 # coding: utf-8
+import html
 import time
 
 from anki.consts import MODEL_CLOZE
@@ -231,7 +232,9 @@ def test_cloze_mathjax():
     assert 'class="cloze" data-text="not ok"' in note.cards()[1].question()
     assert 'class="cloze" data-text="2"' not in note.cards()[2].question()
     assert 'class="cloze" data-text="blah"' in note.cards()[3].question()
-    assert 'class="cloze" data-text="text with \(x^2\) jax"' in note.cards()[4].question()
+    assert (
+        'class="cloze" data-text="text with \(x^2\) jax"' in note.cards()[4].question()
+    )
 
     note = col.new_note(m)
     note["Text"] = r"\(a\) {{c1::b}} \[ {{c1::c}} \]"
@@ -240,7 +243,9 @@ def test_cloze_mathjax():
     assert (
         note.cards()[0]
         .question()
-        .endswith(r"\(a\) <span class=\"cloze\" data-text=\"b\">[...]</span> \[ [...] \]")
+        .endswith(
+            r"\(a\) <span class=\"cloze\" data-text=\"b\">[...]</span> \[ [...] \]"
+        )
     )
 
 
@@ -284,7 +289,8 @@ def test_chained_mods():
     )
     assert col.addNote(note) == 1
     assert (
-        'This <span class="cloze">[sentence]</span> demonstrates <span class="cloze">[chained]</span> clozes.'
+        f'This <span class="cloze" data-text="{html.escape(q1)}">[sentence]</span>'
+        f'demonstrates <span class="cloze" data-text="{html.escape(q2)}">[chained]</span> clozes.'
         in note.cards()[0].question()
     )
     assert (
