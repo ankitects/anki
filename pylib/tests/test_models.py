@@ -176,29 +176,35 @@ def test_cloze():
     note = col.new_note(m)
     note["Text"] = "hello {{c1::world}}"
     assert col.addNote(note) == 1
-    assert "hello <span class=cloze>[...]</span>" in note.cards()[0].question()
-    assert "hello <span class=cloze>world</span>" in note.cards()[0].answer()
+    assert (
+        'hello <span class="cloze" data-text="world">[...]</span>'
+        in note.cards()[0].question()
+    )
+    assert 'hello <span class="cloze">world</span>' in note.cards()[0].answer()
     # and with a comment
     note = col.new_note(m)
     note["Text"] = "hello {{c1::world::typical}}"
     assert col.addNote(note) == 1
-    assert "<span class=cloze>[typical]</span>" in note.cards()[0].question()
-    assert "<span class=cloze>world</span>" in note.cards()[0].answer()
+    assert (
+        '<span class="cloze" data-text="world">[typical]</span>'
+        in note.cards()[0].question()
+    )
+    assert '<span class="cloze">world</span>' in note.cards()[0].answer()
     # and with 2 clozes
     note = col.new_note(m)
     note["Text"] = "hello {{c1::world}} {{c2::bar}}"
     assert col.addNote(note) == 2
     (c1, c2) = note.cards()
-    assert "<span class=cloze>[...]</span> bar" in c1.question()
-    assert "<span class=cloze>world</span> bar" in c1.answer()
-    assert "world <span class=cloze>[...]</span>" in c2.question()
-    assert "world <span class=cloze>bar</span>" in c2.answer()
+    assert '<span class="cloze" data-text="world">[...]</span> bar' in c1.question()
+    assert '<span class="cloze">world</span> bar' in c1.answer()
+    assert 'world <span class="cloze" data-text="bar">[...]</span>' in c2.question()
+    assert 'world <span class="cloze">bar</span>' in c2.answer()
     # if there are multiple answers for a single cloze, they are given in a
     # list
     note = col.new_note(m)
     note["Text"] = "a {{c1::b}} {{c1::c}}"
     assert col.addNote(note) == 1
-    assert "<span class=cloze>b</span> <span class=cloze>c</span>" in (
+    assert '<span class="cloze">b</span> <span class="cloze">c</span>' in (
         note.cards()[0].answer()
     )
     # if we add another cloze, a card should be generated
@@ -221,11 +227,11 @@ def test_cloze_mathjax():
     ] = r"{{c1::ok}} \(2^2\) {{c2::not ok}} \(2^{{c3::2}}\) \(x^3\) {{c4::blah}} {{c5::text with \(x^2\) jax}}"
     assert col.addNote(note)
     assert len(note.cards()) == 5
-    assert "class=cloze" in note.cards()[0].question()
-    assert "class=cloze" in note.cards()[1].question()
-    assert "class=cloze" not in note.cards()[2].question()
-    assert "class=cloze" in note.cards()[3].question()
-    assert "class=cloze" in note.cards()[4].question()
+    assert 'class="cloze" data-text="ok"' in note.cards()[0].question()
+    assert 'class="cloze" data-text="not ok"' in note.cards()[1].question()
+    assert 'class="cloze" data-text="2"' not in note.cards()[2].question()
+    assert 'class="cloze" data-text="blah"' in note.cards()[3].question()
+    assert 'class="cloze" data-text="text with \(x^2\) jax"' in note.cards()[4].question()
 
     note = col.new_note(m)
     note["Text"] = r"\(a\) {{c1::b}} \[ {{c1::c}} \]"
@@ -234,7 +240,7 @@ def test_cloze_mathjax():
     assert (
         note.cards()[0]
         .question()
-        .endswith(r"\(a\) <span class=cloze>[...]</span> \[ [...] \]")
+        .endswith(r"\(a\) <span class=\"cloze\" data-text=\"b\">[...]</span> \[ [...] \]")
     )
 
 
@@ -278,11 +284,11 @@ def test_chained_mods():
     )
     assert col.addNote(note) == 1
     assert (
-        "This <span class=cloze>[sentence]</span> demonstrates <span class=cloze>[chained]</span> clozes."
+        'This <span class="cloze">[sentence]</span> demonstrates <span class="cloze">[chained]</span> clozes.'
         in note.cards()[0].question()
     )
     assert (
-        "This <span class=cloze>phrase</span> demonstrates <span class=cloze>en chaine</span> clozes."
+        'This <span class="cloze">phrase</span> demonstrates <span class="cloze">en chaine</span> clozes.'
         in note.cards()[0].answer()
     )
 
