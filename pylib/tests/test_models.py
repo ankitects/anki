@@ -178,7 +178,7 @@ def test_cloze():
     note["Text"] = "hello {{c1::world}}"
     assert col.addNote(note) == 1
     assert (
-        'hello <span class="cloze" data-text="world">[...]</span>'
+        f'hello <span class="cloze" data-text="{html.escape("world")}">[...]</span>'
         in note.cards()[0].question()
     )
     assert 'hello <span class="cloze">world</span>' in note.cards()[0].answer()
@@ -187,7 +187,7 @@ def test_cloze():
     note["Text"] = "hello {{c1::world::typical}}"
     assert col.addNote(note) == 1
     assert (
-        '<span class="cloze" data-text="world">[typical]</span>'
+        f'<span class="cloze" data-text="{html.escape("world")}">[typical]</span>'
         in note.cards()[0].question()
     )
     assert '<span class="cloze">world</span>' in note.cards()[0].answer()
@@ -196,9 +196,15 @@ def test_cloze():
     note["Text"] = "hello {{c1::world}} {{c2::bar}}"
     assert col.addNote(note) == 2
     (c1, c2) = note.cards()
-    assert '<span class="cloze" data-text="world">[...]</span> bar' in c1.question()
+    assert (
+        f'<span class="cloze" data-text="{html.escape("world")}">[...]</span> bar'
+        in c1.question()
+    )
     assert '<span class="cloze">world</span> bar' in c1.answer()
-    assert 'world <span class="cloze" data-text="bar">[...]</span>' in c2.question()
+    assert (
+        f'world <span class="cloze" data-text="{html.escape("bar")}">[...]</span>'
+        in c2.question()
+    )
     assert 'world <span class="cloze">bar</span>' in c2.answer()
     # if there are multiple answers for a single cloze, they are given in a
     # list
@@ -223,18 +229,29 @@ def test_cloze_mathjax():
     col = getEmptyCol()
     m = col.models.by_name("Cloze")
     note = col.new_note(m)
+    q1 = "ok"
+    q2 = "not ok"
+    q3 = "2"
+    q4 = "blah"
+    q5 = "text with \(x^2\) jax"
     note[
         "Text"
-    ] = r"{{c1::ok}} \(2^2\) {{c2::not ok}} \(2^{{c3::2}}\) \(x^3\) {{c4::blah}} {{c5::text with \(x^2\) jax}}"
+    ] = "{{{{c1::{}}}}} \(2^2\) {{{{c2::{}}}}} \(2^{{{{c3::{}}}}}\) \(x^3\) {{{{c4::{}}}}} {{{{c5::{}}}}}".format(
+        q1,
+        q2,
+        q3,
+        q4,
+        q5,
+    )
     assert col.addNote(note)
     assert len(note.cards()) == 5
-    assert 'class="cloze" data-text="ok"' in note.cards()[0].question()
-    assert 'class="cloze" data-text="not ok"' in note.cards()[1].question()
-    assert 'class="cloze" data-text="2"' not in note.cards()[2].question()
-    assert 'class="cloze" data-text="blah"' in note.cards()[3].question()
+    assert f'class="cloze" data-text="{html.escape(q1)}"' in note.cards()[0].question()
+    assert f'class="cloze" data-text="{html.escape(q2)}"' in note.cards()[1].question()
     assert (
-        'class="cloze" data-text="text with \(x^2\) jax"' in note.cards()[4].question()
+        f'class="cloze" data-text="{html.escape(q3)}"' not in note.cards()[2].question()
     )
+    assert f'class="cloze" data-text="{html.escape(q4)}"' in note.cards()[3].question()
+    assert f'class="cloze" data-text="{html.escape(q5)}"' in note.cards()[4].question()
 
     note = col.new_note(m)
     note["Text"] = r"\(a\) {{c1::b}} \[ {{c1::c}} \]"
@@ -243,9 +260,7 @@ def test_cloze_mathjax():
     assert (
         note.cards()[0]
         .question()
-        .endswith(
-            r"\(a\) <span class=\"cloze\" data-text=\"b\">[...]</span> \[ [...] \]"
-        )
+        .endswith(r'\(a\) <span class="cloze" data-text="b">[...]</span> \[ [...] \]')
     )
 
 
@@ -289,12 +304,12 @@ def test_chained_mods():
     )
     assert col.addNote(note) == 1
     assert (
-        f'This <span class="cloze" data-text="{html.escape(q1)}">[sentence]</span>'
-        f'demonstrates <span class="cloze" data-text="{html.escape(q2)}">[chained]</span> clozes.'
+        f'This <span class="cloze" data-text="{html.escape("phrase")}">[sentence]</span>'
+        f' demonstrates <span class="cloze" data-text="{html.escape("en chaine")}">[chained]</span> clozes.'
         in note.cards()[0].question()
     )
     assert (
-        'This <span class="cloze">phrase</span> demonstrates <span class="cloze">en chaine</span> clozes.'
+        f'This <span class="cloze">phrase</span> demonstrates <span class="cloze">en chaine</span> clozes.'
         in note.cards()[0].answer()
     )
 
