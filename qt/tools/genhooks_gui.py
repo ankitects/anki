@@ -816,6 +816,8 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
 
         `output` provides access to the unused/missing file lists and the text output that will be shown in the Check Media screen.""",
     ),
+    # Importing/exporting data
+    ###################
     Hook(
         name="exporter_will_export",
         args=[
@@ -843,6 +845,16 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
             "export_format: aqt.import_export.exporting.ExportFormat",
         ],
         doc="""Called after collection and deck exports.""",
+    ),
+    Hook(
+        name="legacy_exporter_will_export",
+        args=["file_extension: str"],
+        doc="""Called before collection and deck exports performed by legacy exporters.""",
+    ),
+    Hook(
+        name="legacy_exporter_did_export",
+        args=["file_extension: str"],
+        doc="""Called after collection and deck exports performed by legacy exporters.""",
     ),
     # Dialog Manager
     ###################
