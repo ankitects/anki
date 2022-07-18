@@ -800,7 +800,7 @@ class Browser(QMainWindow):
     @no_arg_trigger
     @skip_if_selection_is_empty
     def _on_export_notes(self) -> None:
-        if self.mw.pm.new_import_export():
+        if not self.mw.pm.legacy_import_export():
             nids = self.selected_notes()
             ExportDialog(self.mw, nids=nids)
         else:

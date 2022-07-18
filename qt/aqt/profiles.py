@@ -539,11 +539,11 @@ create table if not exists profiles
     def dark_mode_widgets(self) -> bool:
         return self.meta.get("dark_mode_widgets", False)
 
-    def new_import_export(self) -> bool:
-        return self.meta.get("new_import_export", False)
+    def legacy_import_export(self) -> bool:
+        return self.meta.get("legacy_import", False)
 
-    def set_new_import_export(self, enabled: bool) -> None:
-        self.meta["new_import_export"] = enabled
+    def set_legacy_import_export(self, enabled: bool) -> None:
+        self.meta["legacy_import"] = not enabled
 
     def last_loaded_profile_name(self) -> str | None:
         return self.meta.get("last_loaded_profile_name")

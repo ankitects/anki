@@ -134,7 +134,7 @@ class MainWebView(AnkiWebView):
         paths = [url.toLocalFile() for url in mime.urls()]
         deck_paths = filter(lambda p: not p.endswith(".colpkg"), paths)
         for path in deck_paths:
-            if self.mw.pm.new_import_export():
+            if not self.mw.pm.legacy_import_export():
                 import_file(self.mw, path)
             else:
                 aqt.importing.importFile(self.mw, path)
@@ -1194,7 +1194,7 @@ title="{}" {}>{}</button>""".format(
             showInfo(tr.qt_misc_please_use_fileimport_to_import_this())
             return None
 
-        if self.pm.new_import_export():
+        if not self.pm.legacy_import_export():
             import_file(self, path)
         else:
             aqt.importing.importFile(self, path)
@@ -1203,7 +1203,7 @@ title="{}" {}>{}</button>""".format(
         "Importing triggered via File>Import."
         import aqt.importing
 
-        if self.pm.new_import_export():
+        if not self.pm.legacy_import_export():
             prompt_for_file_then_import(self)
         else:
             aqt.importing.onImport(self)
@@ -1211,7 +1211,7 @@ title="{}" {}>{}</button>""".format(
     def onExport(self, did: DeckId | None = None) -> None:
         import aqt.exporting
 
-        if self.pm.new_import_export():
+        if not self.pm.legacy_import_export():
             ExportDialog(self, did=did)
         else:
             aqt.exporting.ExportDialog(self, did=did)
