@@ -220,11 +220,11 @@ class ColpkgExporter(Exporter):
 
     @staticmethod
     def export(mw: aqt.main.AnkiQt, options: Options) -> None:
-        gui_hooks.exporter_will_export(ExportFormat.COLPKG, options)
+        options = gui_hooks.exporter_will_export(options, ExportFormat.COLPKG)
 
         def on_success(_: None) -> None:
             mw.reopen()
-            gui_hooks.exporter_did_export(ExportFormat.COLPKG, options)
+            gui_hooks.exporter_did_export(options, ExportFormat.COLPKG)
             tooltip(tr.exporting_collection_exported(), parent=mw)
 
         def on_failure(exception: Exception) -> None:
@@ -258,10 +258,10 @@ class ApkgExporter(Exporter):
 
     @staticmethod
     def export(mw: aqt.main.AnkiQt, options: Options) -> None:
-        gui_hooks.exporter_will_export(ExportFormat.APKG, options)
+        options = gui_hooks.exporter_will_export(options, ExportFormat.APKG)
 
         def on_success(count: int) -> None:
-            gui_hooks.exporter_did_export(ExportFormat.APKG, options)
+            gui_hooks.exporter_did_export(options, ExportFormat.APKG)
             tooltip(tr.exporting_note_exported(count=count), parent=mw)
 
         QueryOp(
@@ -292,10 +292,10 @@ class NoteCsvExporter(Exporter):
 
     @staticmethod
     def export(mw: aqt.main.AnkiQt, options: Options) -> None:
-        gui_hooks.exporter_will_export(ExportFormat.CSV_NOTES, options)
+        options = gui_hooks.exporter_will_export(options, ExportFormat.CSV_NOTES)
 
         def on_success(count: int) -> None:
-            gui_hooks.exporter_did_export(ExportFormat.CSV_NOTES, options)
+            gui_hooks.exporter_did_export(options, ExportFormat.CSV_NOTES)
             tooltip(tr.exporting_note_exported(count=count), parent=mw)
 
         QueryOp(
@@ -324,10 +324,10 @@ class CardCsvExporter(Exporter):
 
     @staticmethod
     def export(mw: aqt.main.AnkiQt, options: Options) -> None:
-        gui_hooks.exporter_will_export(ExportFormat.CSV_CARDS, options)
+        options = gui_hooks.exporter_will_export(options, ExportFormat.CSV_CARDS)
 
         def on_success(count: int) -> None:
-            gui_hooks.exporter_did_export(ExportFormat.CSV_CARDS, options)
+            gui_hooks.exporter_did_export(options, ExportFormat.CSV_CARDS)
             tooltip(tr.exporting_card_exported(count=count), parent=mw)
 
         QueryOp(
