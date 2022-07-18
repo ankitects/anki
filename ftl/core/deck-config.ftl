@@ -39,8 +39,8 @@ deck-config-limit-interday-bound-by-reviews =
 ## Daily limit tabs: please try to keep these as short as the English version,
 ## as longer text will not fit on small screens.
 
-deck-config-shared-preset = Shared preset
-deck-config-deck-only = Deck only
+deck-config-shared-preset = Preset
+deck-config-deck-only = This deck
 deck-config-today-only = Today only
 
 ## New Cards section
