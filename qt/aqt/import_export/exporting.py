@@ -8,6 +8,7 @@ import re
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from enum import Enum
 from typing import Sequence, Type
 
 import aqt.forms
@@ -178,6 +179,13 @@ class Options:
     limit: ExportLimit
 
 
+class ExportFormat(Enum):
+    COLPKG = "colpkg"
+    APKG = "apkg"
+    CSV_NOTES = "txt"
+    CSV_CARDS = "txt"
+
+
 class Exporter(ABC):
     extension: str
     show_deck_list = False
@@ -202,7 +210,7 @@ class Exporter(ABC):
 
 
 class ColpkgExporter(Exporter):
-    extension = "colpkg"
+    extension = ExportFormat.COLPKG.value
     show_include_media = True
     show_legacy_support = True
 
@@ -235,7 +243,7 @@ class ColpkgExporter(Exporter):
 
 
 class ApkgExporter(Exporter):
-    extension = "apkg"
+    extension = ExportFormat.APKG.value
     show_deck_list = True
     show_include_scheduling = True
     show_include_media = True
@@ -263,7 +271,7 @@ class ApkgExporter(Exporter):
 
 
 class NoteCsvExporter(Exporter):
-    extension = "txt"
+    extension = ExportFormat.CSV_NOTES.value
     show_deck_list = True
     show_include_html = True
     show_include_tags = True
@@ -295,7 +303,7 @@ class NoteCsvExporter(Exporter):
 
 
 class CardCsvExporter(Exporter):
-    extension = "txt"
+    extension = ExportFormat.CSV_CARDS.value
     show_deck_list = True
     show_include_html = True
 
