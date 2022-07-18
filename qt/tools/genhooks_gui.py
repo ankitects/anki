@@ -198,6 +198,22 @@ hooks = [
         return_type="str",
         doc="""Used to inspect and modify a recording recorded by "Record Own Voice" before replaying.""",
     ),
+    Hook(
+        name="reviewer_will_suspend_note",
+        args=["nid: int"],
+    ),
+    Hook(
+        name="reviewer_will_suspend_card",
+        args=["id: int"],
+    ),
+    Hook(
+        name="reviewer_will_bury_note",
+        args=["nid: int"],
+    ),
+    Hook(
+        name="reviewer_will_bury_card",
+        args=["id: int"],
+    ),
     # Debug
     ###################
     Hook(
