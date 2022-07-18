@@ -323,6 +323,7 @@ export class ValueTab {
     private setter: (value: number | null) => void;
     private disabledValue: number | null;
     private startValue: number | null;
+    private initialValue: number | null;
 
     constructor(
         title: string,
@@ -332,10 +333,14 @@ export class ValueTab {
         startValue: number | null,
     ) {
         this.title = title;
-        this.value = value;
+        this.value = this.initialValue = value;
         this.setter = setter;
         this.disabledValue = disabledValue;
         this.startValue = startValue;
+    }
+
+    reset(): void {
+        this.setter(this.initialValue);
     }
 
     disable(): void {

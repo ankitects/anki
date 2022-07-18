@@ -29,7 +29,11 @@
         for (const [idx, tab] of tabs.entries()) {
             if (newTab === idx) {
                 tab.enable(value);
+            } else if (newTab > idx) {
+                /* antecedent tabs are obscured, so we can preserve their original values */
+                tab.reset();
             } else {
+                /* but subsequent tabs would obscure, so they must be nulled */
                 tab.disable();
             }
         }
