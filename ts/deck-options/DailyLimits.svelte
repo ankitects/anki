@@ -16,6 +16,23 @@
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
 
+    export function onPresetChange() {
+        newTabs[0] = new ValueTab(
+            tr.deckConfigSharedPreset(),
+            $config.newPerDay,
+            (value) => ($config.newPerDay = value!),
+            $config.newPerDay,
+            null,
+        );
+        reviewTabs[0] = new ValueTab(
+            tr.deckConfigSharedPreset(),
+            $config.reviewsPerDay,
+            (value) => ($config.reviewsPerDay = value!),
+            $config.reviewsPerDay,
+            null,
+        );
+    }
+
     const config = state.currentConfig;
     const limits = state.deckLimits;
     const defaults = state.defaults;

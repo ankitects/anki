@@ -6,17 +6,16 @@
     /* This component accepts an array of tabs and a value. Whenever a tab is
     activated, its last used value is applied to its provided setter and the
     component's value. Whenever it's deactivated, its setter is called with its
-    disabledValue (null by default). */
+    disabledValue. */
     import type { ValueTab } from "./lib";
 
     export let tabs: ValueTab[];
     export let value: number;
 
     let activeTab = lastSetTab();
-    value = tabs[activeTab].value ?? 0;
-
     $: onTabChanged(activeTab);
-    $: onValueChanged(value);
+    $: value = tabs[activeTab].value ?? 0;
+    $: tabs[activeTab].setValue(value);
 
     function lastSetTab(): number {
         const revIdx = tabs
@@ -30,15 +29,10 @@
         for (const [idx, tab] of tabs.entries()) {
             if (newTab === idx) {
                 tab.enable(value);
-                value = tab.value!;
             } else {
                 tab.disable();
             }
         }
-    }
-
-    function onValueChanged(value: number) {
-        tabs[activeTab].setValue(value);
     }
 
     const handleClick = (tabValue: number) => () => (activeTab = tabValue);
