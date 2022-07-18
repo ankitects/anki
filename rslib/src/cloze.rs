@@ -68,7 +68,7 @@ pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str>
         let text_attr;
         let replacement;
         if question {
-            text_attr = format!(r#" data-cloze="{}""#, htmlescape::encode_minimal(&text));
+            text_attr = format!(r#" data-cloze="{}""#, htmlescape::encode_attribute(&text));
             // hint provided?
             if let Some(hint) = caps.get(cloze_caps::HINT) {
                 replacement = format!("[{}]", hint.as_str());
