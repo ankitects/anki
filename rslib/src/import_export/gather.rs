@@ -96,7 +96,9 @@ impl ExchangeData {
             if let Ok(normal_mut) = deck.normal_mut() {
                 normal_mut.config_id = 1;
                 normal_mut.review_limit = None;
+                normal_mut.review_limit_today = None;
                 normal_mut.new_limit = None;
+                normal_mut.new_limit_today = None;
             } else {
                 // filtered decks are reset at import time for legacy reasons
             }
