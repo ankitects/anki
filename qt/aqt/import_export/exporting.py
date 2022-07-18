@@ -57,7 +57,7 @@ class ExportDialog(QDialog):
             CardCsvExporter,
         ]
         self.frm.format.insertItems(
-            0, [f"{e.name()} (.{e.extension})" for e in self.exporters]
+            0, [f"{e.name()} (.{e.format.value})" for e in self.exporters]
         )
         qconnect(self.frm.format.activated, self.exporter_changed)
         if self.nids is None and not did:
@@ -112,7 +112,7 @@ class ExportDialog(QDialog):
                 title=tr.actions_export(),
                 dir_description="export",
                 key=self.exporter.name(),
-                ext="." + self.exporter.extension,
+                ext="." + self.exporter.format.value,
                 fname=filename,
             )
             if not path:
@@ -162,7 +162,7 @@ class ExportDialog(QDialog):
         else:
             time_str = time.strftime("%Y-%m-%d@%H-%M-%S", time.localtime(time.time()))
             stem = f"{tr.exporting_collection()}-{time_str}"
-        return f"{stem}.{self.exporter.extension}"
+        return f"{stem}.{self.exporter.format.value}"
 
 
 @dataclass
@@ -187,7 +187,7 @@ class ExportFormat(Enum):
 
 
 class Exporter(ABC):
-    extension: str
+    format: ExportFormat
     show_deck_list = False
     show_include_scheduling = False
     show_include_media = False
@@ -198,9 +198,9 @@ class Exporter(ABC):
     show_include_notetype = False
     show_include_guid = False
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def export(mw: aqt.main.AnkiQt, options: Options) -> None:
+    def export(cls, mw: aqt.main.AnkiQt, options: Options) -> None:
         pass
 
     @staticmethod
@@ -210,7 +210,7 @@ class Exporter(ABC):
 
 
 class ColpkgExporter(Exporter):
-    extension = ExportFormat.COLPKG.value
+    format = ExportFormat.COLPKG
     show_include_media = True
     show_legacy_support = True
 
@@ -218,13 +218,13 @@ class ColpkgExporter(Exporter):
     def name() -> str:
         return tr.exporting_anki_collection_package()
 
-    @staticmethod
-    def export(mw: aqt.main.AnkiQt, options: Options) -> None:
-        options = gui_hooks.exporter_will_export(options, ExportFormat.COLPKG)
+    @classmethod
+    def export(cls, mw: aqt.main.AnkiQt, options: Options) -> None:
+        options = gui_hooks.exporter_will_export(options, cls.format)
 
         def on_success(_: None) -> None:
             mw.reopen()
-            gui_hooks.exporter_did_export(options, ExportFormat.COLPKG)
+            gui_hooks.exporter_did_export(options, cls.format)
             tooltip(tr.exporting_collection_exported(), parent=mw)
 
         def on_failure(exception: Exception) -> None:
@@ -246,7 +246,7 @@ class ColpkgExporter(Exporter):
 
 
 class ApkgExporter(Exporter):
-    extension = ExportFormat.APKG.value
+    format = ExportFormat.APKG
     show_deck_list = True
     show_include_scheduling = True
     show_include_media = True
@@ -256,12 +256,12 @@ class ApkgExporter(Exporter):
     def name() -> str:
         return tr.exporting_anki_deck_package()
 
-    @staticmethod
-    def export(mw: aqt.main.AnkiQt, options: Options) -> None:
-        options = gui_hooks.exporter_will_export(options, ExportFormat.APKG)
+    @classmethod
+    def export(cls, mw: aqt.main.AnkiQt, options: Options) -> None:
+        options = gui_hooks.exporter_will_export(options, cls.format)
 
         def on_success(count: int) -> None:
-            gui_hooks.exporter_did_export(options, ExportFormat.APKG)
+            gui_hooks.exporter_did_export(options, cls.format)
             tooltip(tr.exporting_note_exported(count=count), parent=mw)
 
         QueryOp(
@@ -278,7 +278,7 @@ class ApkgExporter(Exporter):
 
 
 class NoteCsvExporter(Exporter):
-    extension = ExportFormat.CSV_NOTES.value
+    format = ExportFormat.CSV_NOTES
     show_deck_list = True
     show_include_html = True
     show_include_tags = True
@@ -290,12 +290,12 @@ class NoteCsvExporter(Exporter):
     def name() -> str:
         return tr.exporting_notes_in_plain_text()
 
-    @staticmethod
-    def export(mw: aqt.main.AnkiQt, options: Options) -> None:
-        options = gui_hooks.exporter_will_export(options, ExportFormat.CSV_NOTES)
+    @classmethod
+    def export(cls, mw: aqt.main.AnkiQt, options: Options) -> None:
+        options = gui_hooks.exporter_will_export(options, cls.format)
 
         def on_success(count: int) -> None:
-            gui_hooks.exporter_did_export(options, ExportFormat.CSV_NOTES)
+            gui_hooks.exporter_did_export(options, cls.format)
             tooltip(tr.exporting_note_exported(count=count), parent=mw)
 
         QueryOp(
@@ -314,7 +314,7 @@ class NoteCsvExporter(Exporter):
 
 
 class CardCsvExporter(Exporter):
-    extension = ExportFormat.CSV_CARDS.value
+    format = ExportFormat.CSV_CARDS
     show_deck_list = True
     show_include_html = True
 
@@ -322,12 +322,12 @@ class CardCsvExporter(Exporter):
     def name() -> str:
         return tr.exporting_cards_in_plain_text()
 
-    @staticmethod
-    def export(mw: aqt.main.AnkiQt, options: Options) -> None:
-        options = gui_hooks.exporter_will_export(options, ExportFormat.CSV_CARDS)
+    @classmethod
+    def export(cls, mw: aqt.main.AnkiQt, options: Options) -> None:
+        options = gui_hooks.exporter_will_export(options, cls.format)
 
         def on_success(count: int) -> None:
-            gui_hooks.exporter_did_export(options, ExportFormat.CSV_CARDS)
+            gui_hooks.exporter_did_export(options, cls.format)
             tooltip(tr.exporting_card_exported(count=count), parent=mw)
 
         QueryOp(
