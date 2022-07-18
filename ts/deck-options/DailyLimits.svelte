@@ -44,7 +44,9 @@
           "\n\n" +
           tr.deckConfigLimitInterdayBoundByReviews() +
           "\n\n" +
-          tr.deckConfigLimitDeckV3()
+          tr.deckConfigLimitDeckV3() +
+          "\n\n" +
+          tr.deckConfigTabDescription()
         : "";
 
     $: newCardsGreaterThanParent =
