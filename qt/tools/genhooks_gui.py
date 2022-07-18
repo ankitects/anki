@@ -819,27 +819,27 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     Hook(
         name="exporter_will_export",
         args=[
-            "options: aqt.import_export.exporting.Options",
+            "export_options: aqt.import_export.exporting.ExportOptions",
             "export_format: aqt.import_export.exporting.ExportFormat",
         ],
-        return_type="aqt.import_export.exporting.Options",
+        return_type="aqt.import_export.exporting.ExportOptions",
         doc="""Called before collection and deck exports.
         
         Allows add-ons to be notified of impending deck exports and potentially
         modify the export options. To perform the export unaltered, please return
-        `options` as is, e.g.:
+        `export_options` as is, e.g.:
         
-            def on_exporter_will_export(options: Options, export_format: ExportFormat):
+            def on_exporter_will_export(export_options: ExportOptions, export_format: ExportFormat):
                 if export_format != ExportFormat.APKG:
-                    return options
-                options.limit = ...
-                return options
+                    return export_options
+                export_options.limit = ...
+                return export_options
         """,
     ),
     Hook(
         name="exporter_did_export",
         args=[
-            "options: aqt.import_export.exporting.Options",
+            "export_options: aqt.import_export.exporting.ExportOptions",
             "export_format: aqt.import_export.exporting.ExportFormat",
         ],
         doc="""Called after collection and deck exports.""",

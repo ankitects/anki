@@ -126,14 +126,14 @@ class ExportDialog(QDialog):
             break
         return path
 
-    def options(self, out_path: str) -> Options:
+    def options(self, out_path: str) -> ExportOptions:
         limit: ExportLimit = None
         if self.nids:
             limit = NoteIdsLimit(self.nids)
         elif current_deck_id := self.current_deck_id():
             limit = DeckIdLimit(current_deck_id)
 
-        return Options(
+        return ExportOptions(
             out_path=out_path,
             include_scheduling=self.frm.includeSched.isChecked(),
             include_media=self.frm.includeMedia.isChecked(),
@@ -166,7 +166,7 @@ class ExportDialog(QDialog):
 
 
 @dataclass
-class Options:
+class ExportOptions:
     out_path: str
     include_scheduling: bool
     include_media: bool
@@ -200,7 +200,7 @@ class Exporter(ABC):
 
     @classmethod
     @abstractmethod
-    def export(cls, mw: aqt.main.AnkiQt, options: Options) -> None:
+    def export(cls, mw: aqt.main.AnkiQt, options: ExportOptions) -> None:
         pass
 
     @staticmethod
@@ -219,7 +219,7 @@ class ColpkgExporter(Exporter):
         return tr.exporting_anki_collection_package()
 
     @classmethod
-    def export(cls, mw: aqt.main.AnkiQt, options: Options) -> None:
+    def export(cls, mw: aqt.main.AnkiQt, options: ExportOptions) -> None:
         options = gui_hooks.exporter_will_export(options, cls.format)
 
         def on_success(_: None) -> None:
@@ -257,7 +257,7 @@ class ApkgExporter(Exporter):
         return tr.exporting_anki_deck_package()
 
     @classmethod
-    def export(cls, mw: aqt.main.AnkiQt, options: Options) -> None:
+    def export(cls, mw: aqt.main.AnkiQt, options: ExportOptions) -> None:
         options = gui_hooks.exporter_will_export(options, cls.format)
 
         def on_success(count: int) -> None:
@@ -291,7 +291,7 @@ class NoteCsvExporter(Exporter):
         return tr.exporting_notes_in_plain_text()
 
     @classmethod
-    def export(cls, mw: aqt.main.AnkiQt, options: Options) -> None:
+    def export(cls, mw: aqt.main.AnkiQt, options: ExportOptions) -> None:
         options = gui_hooks.exporter_will_export(options, cls.format)
 
         def on_success(count: int) -> None:
@@ -323,7 +323,7 @@ class CardCsvExporter(Exporter):
         return tr.exporting_cards_in_plain_text()
 
     @classmethod
-    def export(cls, mw: aqt.main.AnkiQt, options: Options) -> None:
+    def export(cls, mw: aqt.main.AnkiQt, options: ExportOptions) -> None:
         options = gui_hooks.exporter_will_export(options, cls.format)
 
         def on_success(count: int) -> None:
