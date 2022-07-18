@@ -220,8 +220,11 @@ class ColpkgExporter(Exporter):
 
     @staticmethod
     def export(mw: aqt.main.AnkiQt, options: Options) -> None:
+        gui_hooks.exporter_will_export(ExportFormat.COLPKG, options)
+
         def on_success(_: None) -> None:
             mw.reopen()
+            gui_hooks.exporter_did_export(ExportFormat.COLPKG, options)
             tooltip(tr.exporting_collection_exported(), parent=mw)
 
         def on_failure(exception: Exception) -> None:
@@ -255,6 +258,12 @@ class ApkgExporter(Exporter):
 
     @staticmethod
     def export(mw: aqt.main.AnkiQt, options: Options) -> None:
+        gui_hooks.exporter_will_export(ExportFormat.APKG, options)
+
+        def on_success(count: int) -> None:
+            gui_hooks.exporter_did_export(ExportFormat.APKG, options)
+            tooltip(tr.exporting_note_exported(count=count), parent=mw)
+
         QueryOp(
             parent=mw,
             op=lambda col: col.export_anki_package(
@@ -264,9 +273,7 @@ class ApkgExporter(Exporter):
                 with_media=options.include_media,
                 legacy_support=options.legacy_support,
             ),
-            success=lambda count: tooltip(
-                tr.exporting_note_exported(count=count), parent=mw
-            ),
+            success=on_success,
         ).with_backend_progress(export_progress_update).run_in_background()
 
 
@@ -285,6 +292,12 @@ class NoteCsvExporter(Exporter):
 
     @staticmethod
     def export(mw: aqt.main.AnkiQt, options: Options) -> None:
+        gui_hooks.exporter_will_export(ExportFormat.CSV_NOTES, options)
+
+        def on_success(count: int) -> None:
+            gui_hooks.exporter_did_export(ExportFormat.CSV_NOTES, options)
+            tooltip(tr.exporting_note_exported(count=count), parent=mw)
+
         QueryOp(
             parent=mw,
             op=lambda col: col.export_note_csv(
@@ -296,9 +309,7 @@ class NoteCsvExporter(Exporter):
                 with_notetype=options.include_notetype,
                 with_guid=options.include_guid,
             ),
-            success=lambda count: tooltip(
-                tr.exporting_note_exported(count=count), parent=mw
-            ),
+            success=on_success,
         ).with_backend_progress(export_progress_update).run_in_background()
 
 
@@ -313,6 +324,12 @@ class CardCsvExporter(Exporter):
 
     @staticmethod
     def export(mw: aqt.main.AnkiQt, options: Options) -> None:
+        gui_hooks.exporter_will_export(ExportFormat.CSV_CARDS, options)
+
+        def on_success(count: int) -> None:
+            gui_hooks.exporter_did_export(ExportFormat.CSV_CARDS, options)
+            tooltip(tr.exporting_card_exported(count=count), parent=mw)
+
         QueryOp(
             parent=mw,
             op=lambda col: col.export_card_csv(
@@ -320,9 +337,7 @@ class CardCsvExporter(Exporter):
                 limit=options.limit,
                 with_html=options.include_html,
             ),
-            success=lambda count: tooltip(
-                tr.exporting_card_exported(count=count), parent=mw
-            ),
+            success=on_success,
         ).with_backend_progress(export_progress_update).run_in_background()
 
 
