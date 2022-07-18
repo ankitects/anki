@@ -220,6 +220,7 @@ class ProfileManager:
             print("resetting corrupt profile")
             self.profile = profileConf.copy()
             self.save()
+        self.set_last_loaded_profile_name(name)
         return True
 
     def save(self) -> None:
@@ -543,6 +544,12 @@ create table if not exists profiles
 
     def set_new_import_export(self, enabled: bool) -> None:
         self.meta["new_import_export"] = enabled
+
+    def last_loaded_profile_name(self) -> str | None:
+        return self.meta.get("last_loaded_profile_name")
+
+    def set_last_loaded_profile_name(self, name: str) -> None:
+        self.meta["last_loaded_profile_name"] = name
 
     # Profile-specific
     ######################################################################
