@@ -19,7 +19,7 @@ prefix = """\
 
 from __future__ import annotations
 
-from typing import Any, Callable, Sequence, Literal
+from typing import Any, Callable, Sequence, Literal, Type
 
 import anki
 import aqt
@@ -822,7 +822,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         name="exporter_will_export",
         args=[
             "export_options: aqt.import_export.exporting.ExportOptions",
-            "export_format: aqt.import_export.exporting.ExportFormat",
+            "exporter: Type[aqt.import_export.exporting.Exporter]",
         ],
         return_type="aqt.import_export.exporting.ExportOptions",
         doc="""Called before collection and deck exports.
@@ -831,8 +831,8 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         modify the export options. To perform the export unaltered, please return
         `export_options` as is, e.g.:
         
-            def on_exporter_will_export(export_options: ExportOptions, export_format: ExportFormat):
-                if export_format != ExportFormat.APKG:
+            def on_exporter_will_export(export_options: ExportOptions, exporter: Type[Exporter]):
+                if not exporter == ApkgExporter:
                     return export_options
                 export_options.limit = ...
                 return export_options
@@ -842,18 +842,18 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         name="exporter_did_export",
         args=[
             "export_options: aqt.import_export.exporting.ExportOptions",
-            "export_format: aqt.import_export.exporting.ExportFormat",
+            "exporter: Type[aqt.import_export.exporting.Exporter]",
         ],
         doc="""Called after collection and deck exports.""",
     ),
     Hook(
         name="legacy_exporter_will_export",
-        args=["file_extension: str"],
+        args=["legacy_exporter: anki.exporting.Exporter"],
         doc="""Called before collection and deck exports performed by legacy exporters.""",
     ),
     Hook(
         name="legacy_exporter_did_export",
-        args=["file_extension: str"],
+        args=["legacy_exporter: anki.exporting.Exporter"],
         doc="""Called after collection and deck exports performed by legacy exporters.""",
     ),
     # Dialog Manager

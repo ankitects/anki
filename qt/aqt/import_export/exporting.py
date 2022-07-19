@@ -8,7 +8,6 @@ import re
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from enum import Enum
 from typing import Sequence, Type
 
 import aqt.forms
@@ -57,7 +56,7 @@ class ExportDialog(QDialog):
             CardCsvExporter,
         ]
         self.frm.format.insertItems(
-            0, [f"{e.name()} (.{e.format.value})" for e in self.exporters]
+            0, [f"{e.name()} (.{e.extension})" for e in self.exporters]
         )
         qconnect(self.frm.format.activated, self.exporter_changed)
         if self.nids is None and not did:
@@ -112,7 +111,7 @@ class ExportDialog(QDialog):
                 title=tr.actions_export(),
                 dir_description="export",
                 key=self.exporter.name(),
-                ext="." + self.exporter.format.value,
+                ext="." + self.exporter.extension,
                 fname=filename,
             )
             if not path:
@@ -162,7 +161,7 @@ class ExportDialog(QDialog):
         else:
             time_str = time.strftime("%Y-%m-%d@%H-%M-%S", time.localtime(time.time()))
             stem = f"{tr.exporting_collection()}-{time_str}"
-        return f"{stem}.{self.exporter.format.value}"
+        return f"{stem}.{self.exporter.extension}"
 
 
 @dataclass
@@ -179,15 +178,8 @@ class ExportOptions:
     limit: ExportLimit
 
 
-class ExportFormat(Enum):
-    COLPKG = "colpkg"
-    APKG = "apkg"
-    CSV_NOTES = "txt"
-    CSV_CARDS = "txt"
-
-
 class Exporter(ABC):
-    format: ExportFormat
+    extension: str
     show_deck_list = False
     show_include_scheduling = False
     show_include_media = False
@@ -210,7 +202,7 @@ class Exporter(ABC):
 
 
 class ColpkgExporter(Exporter):
-    format = ExportFormat.COLPKG
+    extension = "colpkg"
     show_include_media = True
     show_legacy_support = True
 
@@ -220,11 +212,11 @@ class ColpkgExporter(Exporter):
 
     @classmethod
     def export(cls, mw: aqt.main.AnkiQt, options: ExportOptions) -> None:
-        options = gui_hooks.exporter_will_export(options, cls.format)
+        options = gui_hooks.exporter_will_export(options, cls)
 
         def on_success(_: None) -> None:
             mw.reopen()
-            gui_hooks.exporter_did_export(options, cls.format)
+            gui_hooks.exporter_did_export(options, cls)
             tooltip(tr.exporting_collection_exported(), parent=mw)
 
         def on_failure(exception: Exception) -> None:
@@ -246,7 +238,7 @@ class ColpkgExporter(Exporter):
 
 
 class ApkgExporter(Exporter):
-    format = ExportFormat.APKG
+    extension = "apkg"
     show_deck_list = True
     show_include_scheduling = True
     show_include_media = True
@@ -258,10 +250,10 @@ class ApkgExporter(Exporter):
 
     @classmethod
     def export(cls, mw: aqt.main.AnkiQt, options: ExportOptions) -> None:
-        options = gui_hooks.exporter_will_export(options, cls.format)
+        options = gui_hooks.exporter_will_export(options, cls)
 
         def on_success(count: int) -> None:
-            gui_hooks.exporter_did_export(options, cls.format)
+            gui_hooks.exporter_did_export(options, cls)
             tooltip(tr.exporting_note_exported(count=count), parent=mw)
 
         QueryOp(
@@ -278,7 +270,7 @@ class ApkgExporter(Exporter):
 
 
 class NoteCsvExporter(Exporter):
-    format = ExportFormat.CSV_NOTES
+    extension = "txt"
     show_deck_list = True
     show_include_html = True
     show_include_tags = True
@@ -292,10 +284,10 @@ class NoteCsvExporter(Exporter):
 
     @classmethod
     def export(cls, mw: aqt.main.AnkiQt, options: ExportOptions) -> None:
-        options = gui_hooks.exporter_will_export(options, cls.format)
+        options = gui_hooks.exporter_will_export(options, cls)
 
         def on_success(count: int) -> None:
-            gui_hooks.exporter_did_export(options, cls.format)
+            gui_hooks.exporter_did_export(options, cls)
             tooltip(tr.exporting_note_exported(count=count), parent=mw)
 
         QueryOp(
@@ -314,7 +306,7 @@ class NoteCsvExporter(Exporter):
 
 
 class CardCsvExporter(Exporter):
-    format = ExportFormat.CSV_CARDS
+    extension = "txt"
     show_deck_list = True
     show_include_html = True
 
@@ -324,10 +316,10 @@ class CardCsvExporter(Exporter):
 
     @classmethod
     def export(cls, mw: aqt.main.AnkiQt, options: ExportOptions) -> None:
-        options = gui_hooks.exporter_will_export(options, cls.format)
+        options = gui_hooks.exporter_will_export(options, cls)
 
         def on_success(count: int) -> None:
-            gui_hooks.exporter_did_export(options, cls.format)
+            gui_hooks.exporter_did_export(options, cls)
             tooltip(tr.exporting_card_exported(count=count), parent=mw)
 
         QueryOp(
