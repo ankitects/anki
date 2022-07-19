@@ -149,8 +149,8 @@ class ProfileManager:
     # Profile load/save
     ######################################################################
 
-    def profiles(self) -> list:
-        def names() -> list:
+    def profiles(self) -> list[str]:
+        def names() -> list[str]:
             return self.db.list("select name from profiles where name != '_global'")
 
         n = names()
