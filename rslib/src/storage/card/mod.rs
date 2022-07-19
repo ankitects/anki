@@ -456,14 +456,14 @@ impl super::SqliteStorage {
     }
 
     /// Place matching card ids into the search table.
-    pub(crate) fn search_siblings_for_bury(
+    pub(crate) fn all_siblings_for_bury(
         &self,
         cid: CardId,
         nid: NoteId,
         include_new: bool,
         include_reviews: bool,
         include_day_learn: bool,
-    ) -> Result<()> {
+    ) -> Result<Vec<Card>> {
         self.setup_searched_cards_table()?;
         let params = named_params! {
             ":card_id": cid,
@@ -478,7 +478,9 @@ impl super::SqliteStorage {
         self.db
             .prepare_cached(include_str!("siblings_for_bury.sql"))?
             .execute(params)?;
-        Ok(())
+        let cards = self.all_searched_cards();
+        self.clear_searched_cards_table()?;
+        cards
     }
 
     pub(crate) fn note_ids_of_cards(&self, cids: &[CardId]) -> Result<HashSet<NoteId>> {
