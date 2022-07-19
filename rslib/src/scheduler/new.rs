@@ -167,7 +167,6 @@ impl Collection {
                 col.update_card_inner(&mut card, original, usn)?;
             }
             col.set_next_card_position(position)?;
-            col.storage.clear_searched_cards_table()?;
 
             match context {
                 Some(ScheduleAsNewContext::Browser) => {
@@ -243,7 +242,6 @@ impl Collection {
                 self.update_card_inner(&mut card, original, usn)?;
             }
         }
-        self.storage.clear_searched_cards_table()?;
         Ok(count)
     }
 

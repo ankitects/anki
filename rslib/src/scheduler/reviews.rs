@@ -138,7 +138,6 @@ impl Collection {
                 col.log_manually_scheduled_review(&card, &original, usn)?;
                 col.update_card_inner(&mut card, original, usn)?;
             }
-            col.storage.clear_searched_cards_table()?;
             if let Some(key) = context {
                 col.set_config_string_inner(key, days)?;
             }
