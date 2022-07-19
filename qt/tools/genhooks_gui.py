@@ -19,7 +19,7 @@ prefix = """\
 
 from __future__ import annotations
 
-from typing import Any, Callable, Sequence, Literal, Type
+from typing import Any, Callable, Sequence, Literal
 
 import anki
 import aqt
@@ -822,7 +822,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         name="exporter_will_export",
         args=[
             "export_options: aqt.import_export.exporting.ExportOptions",
-            "exporter: Type[aqt.import_export.exporting.Exporter]",
+            "exporter: aqt.import_export.exporting.Exporter",
         ],
         return_type="aqt.import_export.exporting.ExportOptions",
         doc="""Called before collection and deck exports.
@@ -831,8 +831,8 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         modify the export options. To perform the export unaltered, please return
         `export_options` as is, e.g.:
         
-            def on_exporter_will_export(export_options: ExportOptions, exporter: Type[Exporter]):
-                if not exporter == ApkgExporter:
+            def on_exporter_will_export(export_options: ExportOptions, exporter: Exporter):
+                if not isinstance(exporter, ApkgExporter):
                     return export_options
                 export_options.limit = ...
                 return export_options
@@ -842,7 +842,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         name="exporter_did_export",
         args=[
             "export_options: aqt.import_export.exporting.ExportOptions",
-            "exporter: Type[aqt.import_export.exporting.Exporter]",
+            "exporter: aqt.import_export.exporting.Exporter",
         ],
         doc="""Called after collection and deck exports.""",
     ),
