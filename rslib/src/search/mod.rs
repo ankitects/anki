@@ -248,19 +248,18 @@ impl Collection {
     }
 
     pub(crate) fn all_cards_for_ids(
-        &mut self,
+        &self,
         cards: &[CardId],
         preserve_order: bool,
     ) -> Result<Vec<Card>> {
-        self.storage
-            .set_search_table_to_card_ids(cards, preserve_order)?;
-        let cards = if preserve_order {
-            self.storage.all_searched_cards_in_search_order()
-        } else {
-            self.storage.all_searched_cards()
-        };
-        self.storage.clear_searched_cards_table()?;
-        cards
+        self.storage.with_searched_cards_table(preserve_order, || {
+            self.storage.set_search_table_to_card_ids(cards)?;
+            if preserve_order {
+                self.storage.all_searched_cards_in_search_order()
+            } else {
+                self.storage.all_searched_cards()
+            }
+        })
     }
 
     pub(crate) fn for_each_card_in_search(

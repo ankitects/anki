@@ -464,7 +464,6 @@ impl super::SqliteStorage {
         include_reviews: bool,
         include_day_learn: bool,
     ) -> Result<Vec<Card>> {
-        self.setup_searched_cards_table()?;
         let params = named_params! {
             ":card_id": cid,
             ":note_id": nid,
@@ -475,12 +474,27 @@ impl super::SqliteStorage {
             ":review_queue": CardQueue::Review as i8,
             ":daylearn_queue": CardQueue::DayLearn as i8,
         };
-        self.db
-            .prepare_cached(include_str!("siblings_for_bury.sql"))?
-            .execute(params)?;
-        let cards = self.all_searched_cards();
+        self.with_searched_cards_table(false, || {
+            self.db
+                .prepare_cached(include_str!("siblings_for_bury.sql"))?
+                .execute(params)?;
+            self.all_searched_cards()
+        })
+    }
+
+    pub(crate) fn with_searched_cards_table<T>(
+        &self,
+        preserve_order: bool,
+        func: impl FnOnce() -> Result<T>,
+    ) -> Result<T> {
+        if preserve_order {
+            self.setup_searched_cards_table_to_preserve_order()?;
+        } else {
+            self.setup_searched_cards_table()?;
+        }
+        let result = func();
         self.clear_searched_cards_table()?;
-        cards
+        result
     }
 
     pub(crate) fn note_ids_of_cards(&self, cids: &[CardId]) -> Result<HashSet<NoteId>> {
@@ -605,24 +619,13 @@ impl super::SqliteStorage {
 
     /// Injects the provided card IDs into the search_cids table, for
     /// when ids have arrived outside of a search.
-    /// Clear with clear_searched_cards_table().
-    pub(crate) fn set_search_table_to_card_ids(
-        &mut self,
-        cards: &[CardId],
-        preserve_order: bool,
-    ) -> Result<()> {
-        if preserve_order {
-            self.setup_searched_cards_table_to_preserve_order()?;
-        } else {
-            self.setup_searched_cards_table()?;
-        }
+    pub(crate) fn set_search_table_to_card_ids(&self, cards: &[CardId]) -> Result<()> {
         let mut stmt = self
             .db
             .prepare_cached("insert into search_cids values (?)")?;
         for cid in cards {
             stmt.execute([cid])?;
         }
-
         Ok(())
     }
 
