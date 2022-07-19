@@ -9,6 +9,7 @@ use crate::{
     collection::{open_test_collection, CollectionBuilder},
     deckconfig::UpdateDeckConfigsRequest,
     media::MediaManager,
+    pb::deck_configs_for_update::current_deck::Limits,
     prelude::*,
 };
 
@@ -110,6 +111,7 @@ impl Collection {
             removed_config_ids: vec![],
             apply_to_children: false,
             card_state_customizer: "".to_string(),
+            limits: Limits::default(),
         })
         .unwrap();
     }
