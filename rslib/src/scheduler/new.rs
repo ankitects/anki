@@ -155,8 +155,7 @@ impl Collection {
         let usn = self.usn()?;
         let mut position = self.get_next_card_position();
         self.transact(Op::ScheduleAsNew, |col| {
-            col.storage.set_search_table_to_card_ids(cids, true)?;
-            let cards = col.storage.all_searched_cards_in_search_order()?;
+            let cards = col.all_cards_for_ids(cids, true)?;
             for mut card in cards {
                 let original = card.clone();
                 if card.schedule_as_new(position, reset_counts, restore_position) {
@@ -234,8 +233,7 @@ impl Collection {
         if shift {
             self.shift_existing_cards(starting_from, step * cids.len() as u32, usn, v2)?;
         }
-        self.storage.set_search_table_to_card_ids(cids, true)?;
-        let cards = self.storage.all_searched_cards_in_search_order()?;
+        let cards = self.all_cards_for_ids(cids, true)?;
         let sorter = NewCardSorter::new(&cards, starting_from, step, order);
         let mut count = 0;
         for mut card in cards {

@@ -10,7 +10,7 @@ use crate::{
         unbury_deck_request::Mode as UnburyDeckMode,
     },
     prelude::*,
-    search::{JoinSearches, SearchNode, SortMode, StateKind},
+    search::{JoinSearches, SearchNode, StateKind},
 };
 
 impl Card {
@@ -49,10 +49,10 @@ impl Collection {
         self.set_last_unburied_day(today)
     }
 
-    /// Unsuspend/unbury cards in search table. Marks the cards as modified.
-    fn unsuspend_or_unbury_searched_cards(&mut self) -> Result<()> {
+    /// Unsuspend/unbury cards. Marks the cards as modified.
+    fn unsuspend_or_unbury_searched_cards(&mut self, cards: Vec<Card>) -> Result<()> {
         let usn = self.usn()?;
-        for original in self.storage.all_searched_cards()? {
+        for original in cards {
             let mut card = original.clone();
             if card.restore_queue_after_bury_or_suspend() {
                 self.update_card_inner(&mut card, original, usn)?;
@@ -63,8 +63,8 @@ impl Collection {
 
     pub fn unbury_or_unsuspend_cards(&mut self, cids: &[CardId]) -> Result<OpOutput<()>> {
         self.transact(Op::UnburyUnsuspend, |col| {
-            col.storage.set_search_table_to_card_ids(cids, false)?;
-            col.unsuspend_or_unbury_searched_cards()
+            let cards = col.all_cards_for_ids(cids, false)?;
+            col.unsuspend_or_unbury_searched_cards(cards)
         })
     }
 
@@ -75,11 +75,9 @@ impl Collection {
             UnburyDeckMode::SchedOnly => StateKind::SchedBuried,
         };
         self.transact(Op::UnburyUnsuspend, |col| {
-            let guard = col.search_cards_into_table(
-                SearchNode::DeckIdWithChildren(deck_id).and(state),
-                SortMode::NoOrder,
-            )?;
-            guard.col.unsuspend_or_unbury_searched_cards()
+            let cards =
+                col.all_cards_for_search(SearchNode::DeckIdWithChildren(deck_id).and(state))?;
+            col.unsuspend_or_unbury_searched_cards(cards)
         })
     }
 
