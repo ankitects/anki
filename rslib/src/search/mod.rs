@@ -238,6 +238,13 @@ impl Collection {
         guard.col.storage.all_searched_cards()
     }
 
+    pub(crate) fn all_cards_for_search_in_order(
+        &mut self,
+        search: impl TryIntoSearch,
+        mode: SortMode,
+    ) -> Result<Vec<Card>> {
+        let guard = self.search_cards_into_table(search, mode)?;
+        guard.col.storage.all_searched_cards_in_search_order()
     }
 
     pub(crate) fn for_each_card_in_search(
