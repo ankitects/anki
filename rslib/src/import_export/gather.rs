@@ -12,6 +12,7 @@ use crate::{
     latex::extract_latex,
     prelude::*,
     revlog::RevlogEntry,
+    search::CardTableGuard,
     text::{extract_media_refs, extract_underscored_css_imports, extract_underscored_references},
 };
 
@@ -38,20 +39,20 @@ impl ExchangeData {
         self.days_elapsed = col.timing_today()?.days_elapsed;
         self.creation_utc_offset = col.get_creation_utc_offset();
         self.notes = col.gather_notes(search)?;
-        self.cards = col.gather_cards()?;
-        self.decks = col.gather_decks()?;
-        self.notetypes = col.gather_notetypes()?;
+        let (cards, guard) = col.gather_cards()?;
+        self.cards = cards;
+        self.decks = guard.col.gather_decks()?;
+        self.notetypes = guard.col.gather_notetypes()?;
         self.check_ids()?;
 
         if with_scheduling {
-            self.revlog = col.gather_revlog()?;
-            self.deck_configs = col.gather_deck_configs(&self.decks)?;
+            self.revlog = guard.col.gather_revlog()?;
+            self.deck_configs = guard.col.gather_deck_configs(&self.decks)?;
         } else {
-            self.remove_scheduling_information(col);
+            self.remove_scheduling_information(guard.col);
         };
 
-        col.storage.clear_searched_notes_table()?;
-        col.storage.clear_searched_cards_table()
+        guard.col.storage.clear_searched_notes_table()
     }
 
     pub(super) fn gather_media_names(
@@ -176,9 +177,13 @@ impl Collection {
         self.storage.all_searched_notes()
     }
 
-    fn gather_cards(&mut self) -> Result<Vec<Card>> {
-        self.storage.search_cards_of_notes_into_table()?;
-        self.storage.all_searched_cards()
+    fn gather_cards(&mut self) -> Result<(Vec<Card>, CardTableGuard)> {
+        let guard = self.search_cards_of_notes_into_table()?;
+        guard
+            .col
+            .storage
+            .all_searched_cards()
+            .map(|cards| (cards, guard))
     }
 
     fn gather_decks(&mut self) -> Result<Vec<Deck>> {

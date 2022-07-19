@@ -122,6 +122,19 @@ where
     }
 }
 
+pub struct CardTableGuard<'a> {
+    pub col: &'a mut Collection,
+    pub cards: usize,
+}
+
+impl Drop for CardTableGuard<'_> {
+    fn drop(&mut self) {
+        if let Err(err) = self.col.storage.clear_searched_cards_table() {
+            println!("{err:?}");
+        }
+    }
+}
+
 impl Collection {
     pub fn search_cards<N>(&mut self, search: N, mode: SortMode) -> Result<Vec<CardId>>
     where
@@ -188,12 +201,14 @@ impl Collection {
     }
 
     /// Place the matched card ids into a temporary 'search_cids' table
-    /// instead of returning them. Use clear_searched_cards() to remove it.
-    /// Returns number of added cards.
-    pub(crate) fn search_cards_into_table<N>(&mut self, search: N, mode: SortMode) -> Result<usize>
-    where
-        N: TryIntoSearch,
-    {
+    /// instead of returning them. Returns a guard with a collection reference
+    /// and the number of added cards. When the guard is dropped, the temporary
+    /// table is cleaned up.
+    pub(crate) fn search_cards_into_table(
+        &mut self,
+        search: impl TryIntoSearch,
+        mode: SortMode,
+    ) -> Result<CardTableGuard> {
         let top_node = search.try_into_search()?;
         let writer = SqlWriter::new(self, ReturnItemType::Cards);
         let want_order = mode != SortMode::NoOrder;
@@ -209,11 +224,13 @@ impl Collection {
         }
         let sql = format!("insert into search_cids {}", sql);
 
-        self.storage
+        let cards = self
+            .storage
             .db
             .prepare(&sql)?
-            .execute(params_from_iter(args))
-            .map_err(Into::into)
+            .execute(params_from_iter(args))?;
+
+        Ok(CardTableGuard { cards, col: self })
     }
 
     pub(crate) fn all_cards_for_search<N>(&mut self, search: N) -> Result<Vec<Card>>
@@ -247,6 +264,13 @@ impl Collection {
             .prepare(&sql)?
             .execute(params_from_iter(args))
             .map_err(Into::into)
+    }
+
+    /// Place the ids of cards with notes in 'search_nids' into 'search_cids'.
+    /// Returns number of added cards.
+    pub(crate) fn search_cards_of_notes_into_table(&mut self) -> Result<CardTableGuard> {
+        let cards = self.storage.search_cards_of_notes_into_table()?;
+        Ok(CardTableGuard { cards, col: self })
     }
 }
 

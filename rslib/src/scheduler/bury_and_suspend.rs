@@ -51,8 +51,7 @@ impl Collection {
         self.set_last_unburied_day(today)
     }
 
-    /// Unsuspend/unbury cards in search table, and clear it.
-    /// Marks the cards as modified.
+    /// Unsuspend/unbury cards in search table. Marks the cards as modified.
     fn unsuspend_or_unbury_searched_cards(&mut self) -> Result<()> {
         let usn = self.usn()?;
         for original in self.storage.all_searched_cards()? {
@@ -61,7 +60,7 @@ impl Collection {
                 self.update_card_inner(&mut card, original, usn)?;
             }
         }
-        self.storage.clear_searched_cards_table()
+        Ok(())
     }
 
     pub fn unbury_or_unsuspend_cards(&mut self, cids: &[CardId]) -> Result<OpOutput<()>> {
@@ -78,11 +77,11 @@ impl Collection {
             UnburyDeckMode::SchedOnly => StateKind::SchedBuried,
         };
         self.transact(Op::UnburyUnsuspend, |col| {
-            col.search_cards_into_table(
+            let guard = col.search_cards_into_table(
                 SearchNode::DeckIdWithChildren(deck_id).and(state),
                 SortMode::NoOrder,
             )?;
-            col.unsuspend_or_unbury_searched_cards()
+            guard.col.unsuspend_or_unbury_searched_cards()
         })
     }
 
