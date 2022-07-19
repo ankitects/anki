@@ -502,9 +502,7 @@ impl<'a> RenderContext<'a> {
     fn evaluate_conditional(&self, key: &str, negated: bool) -> TemplateResult<bool> {
         if self.nonempty_fields.contains(key) {
             Ok(true ^ negated)
-        } else if self.fields.contains_key(key)
-            || (key.starts_with('c') && key[1..].parse::<u32>().is_ok())
-        {
+        } else if self.fields.contains_key(key) || is_cloze_conditional(key) {
             Ok(false ^ negated)
         } else {
             let prefix = if negated { "^" } else { "#" };
@@ -828,13 +826,18 @@ fn find_field_references<'a>(
             }
             ParsedNode::Conditional { key, children }
             | ParsedNode::NegatedConditional { key, children } => {
-                if with_conditionals {
+                if with_conditionals && !is_cloze_conditional(key) {
                     fields.insert(key);
                 }
                 find_field_references(children, fields, cloze_only, with_conditionals);
             }
         }
     }
+}
+
+fn is_cloze_conditional(key: &str) -> bool {
+    key.strip_prefix('c')
+        .map_or(false, |s| s.parse::<u32>().is_ok())
 }
 
 // Tests
