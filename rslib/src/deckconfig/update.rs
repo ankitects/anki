@@ -10,8 +10,12 @@ use std::{
 
 use crate::{
     config::StringKey,
+    decks::NormalDeck,
     pb,
-    pb::deck_configs_for_update::{ConfigWithExtra, CurrentDeck},
+    pb::{
+        deck::normal::DayLimit,
+        deck_configs_for_update::{current_deck::Limits, ConfigWithExtra, CurrentDeck},
+    },
     prelude::*,
     search::{JoinSearches, SearchNode},
 };
@@ -24,6 +28,7 @@ pub struct UpdateDeckConfigsRequest {
     pub removed_config_ids: Vec<DeckConfigId>,
     pub apply_to_children: bool,
     pub card_state_customizer: String,
+    pub limits: Limits,
 }
 
 impl Collection {
@@ -84,15 +89,18 @@ impl Collection {
 
     fn get_current_deck_for_update(&mut self, deck: DeckId) -> Result<CurrentDeck> {
         let deck = self.get_deck(deck)?.ok_or(AnkiError::NotFound)?;
+        let normal = deck.normal()?;
+        let today = self.timing_today()?.days_elapsed;
 
         Ok(CurrentDeck {
             name: deck.human_name(),
-            config_id: deck.normal()?.config_id,
+            config_id: normal.config_id,
             parent_config_ids: self
                 .parent_config_ids(&deck)?
                 .into_iter()
                 .map(Into::into)
                 .collect(),
+            limits: Some(normal.to_limits(today)),
         })
     }
 
@@ -147,6 +155,7 @@ impl Collection {
 
         // loop through all normal decks
         let usn = self.usn()?;
+        let today = self.timing_today()?.days_elapsed;
         let selected_config = input.configs.last().unwrap();
         for deck in self.storage.get_all_decks()? {
             if let Ok(normal) = deck.normal() {
@@ -165,6 +174,7 @@ impl Collection {
                 {
                     let mut updated = deck.clone();
                     updated.normal_mut()?.config_id = selected_config.id.0;
+                    updated.normal_mut()?.update_limits(&input.limits, today);
                     self.update_deck_inner(&mut updated, deck, usn)?;
                     selected_config.id
                 } else {
@@ -220,6 +230,42 @@ impl Collection {
             }
         }
         Ok(())
+    }
+}
+
+impl NormalDeck {
+    fn to_limits(&self, today: u32) -> Limits {
+        Limits {
+            review: self.review_limit,
+            new: self.new_limit,
+            review_today: self.review_limit_today.map(|limit| limit.limit),
+            new_today: self.new_limit_today.map(|limit| limit.limit),
+            review_today_active: self
+                .review_limit_today
+                .map(|limit| limit.today == today)
+                .unwrap_or_default(),
+            new_today_active: self
+                .new_limit_today
+                .map(|limit| limit.today == today)
+                .unwrap_or_default(),
+        }
+    }
+
+    fn update_limits(&mut self, limits: &Limits, today: u32) {
+        self.review_limit = limits.review;
+        self.new_limit = limits.new;
+        update_day_limit(&mut self.review_limit_today, limits.review_today, today);
+        update_day_limit(&mut self.new_limit_today, limits.new_today, today);
+    }
+}
+
+fn update_day_limit(day_limit: &mut Option<DayLimit>, new_limit: Option<u32>, today: u32) {
+    if let Some(limit) = new_limit {
+        day_limit.replace(DayLimit { limit, today });
+    } else if let Some(limit) = day_limit {
+        // instead of setting to None, only make sure today is in the past,
+        // thus preserving last used value
+        limit.today = limit.today.min(today - 1);
     }
 }
 
@@ -279,6 +325,7 @@ mod test {
             removed_config_ids: vec![],
             apply_to_children: false,
             card_state_customizer: "".to_string(),
+            limits: Limits::default(),
         };
         assert!(!col.update_deck_configs(input.clone())?.changes.had_change());
 

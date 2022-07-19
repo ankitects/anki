@@ -270,6 +270,8 @@ class AnkiExporter(Exporter):
                 # scheduling not included, so reset deck settings to default
                 d = dict(d)
                 d["conf"] = 1
+                d["reviewLimit"] = d["newLimit"] = None
+                d["reviewLimitToday"] = d["newLimitToday"] = None
             self.dst.decks.update(d)
         # copy used deck confs
         for dc in self.src.decks.all_config():
