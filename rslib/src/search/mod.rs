@@ -233,14 +233,23 @@ impl Collection {
         Ok(CardTableGuard { cards, col: self })
     }
 
-    pub(crate) fn all_cards_for_search<N>(&mut self, search: N) -> Result<Vec<Card>>
-    where
-        N: TryIntoSearch,
-    {
-        self.search_cards_into_table(search, SortMode::NoOrder)?;
-        let cards = self.storage.all_searched_cards();
-        self.storage.clear_searched_cards_table()?;
-        cards
+    pub(crate) fn all_cards_for_search(&mut self, search: impl TryIntoSearch) -> Result<Vec<Card>> {
+        let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
+        guard.col.storage.all_searched_cards()
+    }
+
+    }
+
+    pub(crate) fn for_each_card_in_search(
+        &mut self,
+        search: impl TryIntoSearch,
+        mut func: impl FnMut(&Collection, Card) -> Result<()>,
+    ) -> Result<()> {
+        let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
+        guard
+            .col
+            .storage
+            .for_each_card_in_search(|card| func(guard.col, card))
     }
 
     /// Place the matched note ids into a temporary 'search_nids' table

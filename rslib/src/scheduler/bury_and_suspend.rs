@@ -42,12 +42,10 @@ impl Collection {
     /// Unbury cards from the previous day.
     /// Done automatically, and does not mark the cards as modified.
     pub(crate) fn unbury_on_day_rollover(&mut self, today: u32) -> Result<()> {
-        self.search_cards_into_table("is:buried", SortMode::NoOrder)?;
-        self.storage.for_each_card_in_search(|mut card| {
+        self.for_each_card_in_search(StateKind::Buried, |col, mut card| {
             card.restore_queue_after_bury_or_suspend();
-            self.storage.update_card(&card)
+            col.storage.update_card(&card)
         })?;
-        self.storage.clear_searched_cards_table()?;
         self.set_last_unburied_day(today)
     }
 
