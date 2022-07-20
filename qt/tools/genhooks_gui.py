@@ -19,7 +19,7 @@ prefix = """\
 
 from __future__ import annotations
 
-from typing import Any, Callable, Sequence, Literal
+from typing import Any, Callable, Sequence, Literal, Type
 
 import anki
 import aqt
@@ -815,6 +815,17 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         doc="""Called after Media Check finishes.
 
         `output` provides access to the unused/missing file lists and the text output that will be shown in the Check Media screen.""",
+    ),
+    # Importing/exporting data
+    ###################
+    Hook(
+        name="exporters_list_created",
+        args=["exporters: list[Type[aqt.import_export.exporting.Exporter]]"],
+        doc="""Called after the list of exporter classes is created.
+
+        Allows you to register custom exporters and/or replace existing ones by
+        modifying the exporter list.
+        """,
     ),
     # Dialog Manager
     ###################

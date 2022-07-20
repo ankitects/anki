@@ -55,6 +55,7 @@ class ExportDialog(QDialog):
             NoteCsvExporter,
             CardCsvExporter,
         ]
+        gui_hooks.exporters_list_created(self.exporters)
         self.frm.format.insertItems(
             0, [f"{e.name()} (.{e.extension})" for e in self.exporters]
         )
