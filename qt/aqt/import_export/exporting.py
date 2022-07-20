@@ -49,14 +49,14 @@ class ExportDialog(QDialog):
         self.open()
 
     def setup(self, did: DeckId | None) -> None:
-        self.exporter_classes: list[Type[Exporter]] = [
+        self.exporters: list[Type[Exporter]] = [
             ApkgExporter,
             ColpkgExporter,
             NoteCsvExporter,
             CardCsvExporter,
         ]
         self.frm.format.insertItems(
-            0, [f"{e.name()} (.{e.extension})" for e in self.exporter_classes]
+            0, [f"{e.name()} (.{e.extension})" for e in self.exporters]
         )
         qconnect(self.frm.format.activated, self.exporter_changed)
         if self.nids is None and not did:
@@ -86,7 +86,7 @@ class ExportDialog(QDialog):
             self.frm.includeSched.setChecked(False)
 
     def exporter_changed(self, idx: int) -> None:
-        self.exporter = self.exporter_classes[idx]()
+        self.exporter = self.exporters[idx]()
         self.frm.includeSched.setVisible(self.exporter.show_include_scheduling)
         self.frm.includeMedia.setVisible(self.exporter.show_include_media)
         self.frm.includeTags.setVisible(self.exporter.show_include_tags)
