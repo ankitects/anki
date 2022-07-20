@@ -127,6 +127,23 @@ impl MediaManager {
         })
     }
 
+    /// Set entry for a newly added file. Caller must ensure transaction.
+    pub(crate) fn add_entry(
+        &self,
+        ctx: &mut MediaDatabaseContext,
+        fname: impl Into<String>,
+        sha1: [u8; 20],
+    ) -> Result<()> {
+        let fname = fname.into();
+        let mtime = mtime_as_i64(self.media_folder.join(&fname))?;
+        ctx.set_entry(&MediaEntry {
+            fname,
+            mtime,
+            sha1: Some(sha1),
+            sync_required: true,
+        })
+    }
+
     /// Sync media.
     pub async fn sync_media<'a, F>(
         &'a self,

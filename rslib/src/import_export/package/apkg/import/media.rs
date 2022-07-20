@@ -11,10 +11,7 @@ use crate::{
         package::media::{extract_media_entries, SafeMediaEntry},
         ImportProgress, IncrementableProgress,
     },
-    media::{
-        files::{add_hash_suffix_to_file_stem, sha1_of_reader},
-        MediaManager,
-    },
+    media::files::{add_hash_suffix_to_file_stem, sha1_of_reader},
     prelude::*,
 };
 
@@ -37,7 +34,9 @@ impl Context<'_> {
         }
 
         let db_progress_fn = self.progress.media_db_fn(ImportProgress::MediaCheck)?;
-        let existing_sha1s = self.target_col.all_existing_sha1s(db_progress_fn)?;
+        let existing_sha1s = self
+            .media_manager
+            .all_checksums(db_progress_fn, &self.target_col.log)?;
 
         prepare_media(
             media_entries,
@@ -49,21 +48,16 @@ impl Context<'_> {
 
     pub(super) fn copy_media(&mut self, media_map: &mut MediaUseMap) -> Result<()> {
         let mut incrementor = self.progress.incrementor(ImportProgress::Media);
-        for entry in media_map.used_entries() {
-            incrementor.increment()?;
-            entry.copy_from_archive(&mut self.archive, &self.target_col.media_folder)?;
-        }
-        Ok(())
-    }
-}
-
-impl Collection {
-    fn all_existing_sha1s(
-        &mut self,
-        progress_fn: impl FnMut(usize) -> bool,
-    ) -> Result<HashMap<String, Sha1Hash>> {
-        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        mgr.all_checksums(progress_fn, &self.log)
+        let mut dbctx = self.media_manager.dbctx();
+        self.media_manager.transact(&mut dbctx, |dbctx| {
+            for entry in media_map.used_entries() {
+                incrementor.increment()?;
+                entry.copy_from_archive(&mut self.archive, &self.target_col.media_folder)?;
+                self.media_manager
+                    .add_entry(dbctx, &entry.name, entry.sha1)?;
+            }
+            Ok(())
+        })
     }
 }
 
