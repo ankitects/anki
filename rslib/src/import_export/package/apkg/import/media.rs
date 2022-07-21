@@ -8,7 +8,10 @@ use zip::ZipArchive;
 use super::Context;
 use crate::{
     import_export::{
-        package::media::{extract_media_entries, SafeMediaEntry},
+        package::{
+            colpkg::export::MediaCopier,
+            media::{extract_media_entries, SafeMediaEntry},
+        },
         ImportProgress, IncrementableProgress,
     },
     media::files::{add_hash_suffix_to_file_stem, sha1_of_reader},
@@ -49,12 +52,14 @@ impl Context<'_> {
     pub(super) fn copy_media(&mut self, media_map: &mut MediaUseMap) -> Result<()> {
         let mut incrementor = self.progress.incrementor(ImportProgress::Media);
         let mut dbctx = self.media_manager.dbctx();
+        let mut copier = MediaCopier::new(false);
         self.media_manager.transact(&mut dbctx, |dbctx| {
             for entry in media_map.used_entries() {
                 incrementor.increment()?;
                 entry.copy_with_hash_from_archive(
                     &mut self.archive,
                     &self.target_col.media_folder,
+                    &mut copier,
                 )?;
                 self.media_manager
                     .add_entry(dbctx, &entry.name, entry.sha1)?;

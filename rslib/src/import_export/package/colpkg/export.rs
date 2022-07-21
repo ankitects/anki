@@ -320,6 +320,7 @@ fn normalized_unicode_file_name(filename: &OsStr) -> Result<String> {
 pub(crate) struct MediaCopier {
     encoding: bool,
     encoder: Option<RawEncoder<'static>>,
+    buf: [u8; 64 * 1024],
 }
 
 impl MediaCopier {
@@ -327,6 +328,7 @@ impl MediaCopier {
         Self {
             encoding,
             encoder: None,
+            buf: [0; 64 * 1024],
         }
     }
 
@@ -346,18 +348,18 @@ impl MediaCopier {
     ) -> Result<(usize, Sha1Hash)> {
         let mut size = 0;
         let mut hasher = Sha1::new();
-        let mut buf = [0; 64 * 1024];
+        self.buf = [0; 64 * 1024];
         let mut wrapped_writer = MaybeEncodedWriter::new(writer, self.encoder());
 
         loop {
-            let count = match reader.read(&mut buf) {
+            let count = match reader.read(&mut self.buf) {
                 Ok(0) => break,
                 Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
                 result => result?,
             };
             size += count;
-            hasher.update(&buf[..count]);
-            wrapped_writer.write(&buf[..count])?;
+            hasher.update(&self.buf[..count]);
+            wrapped_writer.write(&self.buf[..count])?;
         }
 
         self.encoder = wrapped_writer.finish()?;

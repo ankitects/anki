@@ -101,11 +101,12 @@ impl SafeMediaEntry {
         &mut self,
         archive: &mut ZipArchive<File>,
         target_folder: &Path,
+        copier: &mut MediaCopier,
     ) -> Result<()> {
         let mut file = self.fetch_file(archive)?;
         let mut tempfile = NamedTempFile::new_in(target_folder)?;
         if self.sha1 == [0; 20] {
-            let (_, sha1) = MediaCopier::new(false).copy(&mut file, &mut tempfile)?;
+            let (_, sha1) = copier.copy(&mut file, &mut tempfile)?;
             self.sha1 = sha1;
         } else {
             io::copy(&mut file, &mut tempfile)?;
