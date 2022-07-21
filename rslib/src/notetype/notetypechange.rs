@@ -345,7 +345,6 @@ impl Collection {
             {
                 self.remove_card_and_add_grave_undoable(card, usn)?;
             }
-            self.storage.clear_searched_notes_table()?;
         }
 
         Ok(())

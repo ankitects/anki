@@ -408,14 +408,15 @@ impl super::SqliteStorage {
         note_ids: &[NoteId],
         ordinal: usize,
     ) -> Result<Vec<Card>> {
-        self.set_search_table_to_note_ids(note_ids)?;
-        self.db
-            .prepare_cached(concat!(
-                include_str!("get_card.sql"),
-                " where nid in (select nid from search_nids) and ord > ?"
-            ))?
-            .query_and_then([ordinal as i64], |r| row_to_card(r).map_err(Into::into))?
-            .collect()
+        self.with_ids_in_searched_notes_table(note_ids, || {
+            self.db
+                .prepare_cached(concat!(
+                    include_str!("get_card.sql"),
+                    " where nid in (select nid from search_nids) and ord > ?"
+                ))?
+                .query_and_then([ordinal as i64], |r| row_to_card(r).map_err(Into::into))?
+                .collect()
+        })
     }
 
     pub(crate) fn all_card_ids_of_note_in_template_order(
