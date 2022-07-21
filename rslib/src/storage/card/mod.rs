@@ -455,7 +455,6 @@ impl super::SqliteStorage {
         Ok(cids)
     }
 
-    /// Place matching card ids into the search table.
     pub(crate) fn all_siblings_for_bury(
         &self,
         cid: CardId,
