@@ -12,7 +12,7 @@ use crate::{
     latex::extract_latex,
     prelude::*,
     revlog::RevlogEntry,
-    search::CardTableGuard,
+    search::{CardTableGuard, NoteTableGuard},
     text::{extract_media_refs, extract_underscored_css_imports, extract_underscored_references},
 };
 
@@ -38,8 +38,9 @@ impl ExchangeData {
     ) -> Result<()> {
         self.days_elapsed = col.timing_today()?.days_elapsed;
         self.creation_utc_offset = col.get_creation_utc_offset();
-        self.notes = col.gather_notes(search)?;
-        let (cards, guard) = col.gather_cards()?;
+        let (notes, guard) = col.gather_notes(search)?;
+        self.notes = notes;
+        let (cards, guard) = guard.col.gather_cards()?;
         self.cards = cards;
         self.decks = guard.col.gather_decks()?;
         self.notetypes = guard.col.gather_notetypes()?;
@@ -52,7 +53,7 @@ impl ExchangeData {
             self.remove_scheduling_information(guard.col);
         };
 
-        guard.col.storage.clear_searched_notes_table()
+        Ok(())
     }
 
     pub(super) fn gather_media_names(
@@ -172,9 +173,13 @@ fn svg_getter(notetypes: &[Notetype]) -> impl Fn(NotetypeId) -> bool {
 }
 
 impl Collection {
-    fn gather_notes(&mut self, search: impl TryIntoSearch) -> Result<Vec<Note>> {
-        self.search_notes_into_table(search)?;
-        self.storage.all_searched_notes()
+    fn gather_notes(&mut self, search: impl TryIntoSearch) -> Result<(Vec<Note>, NoteTableGuard)> {
+        let guard = self.search_notes_into_table(search)?;
+        guard
+            .col
+            .storage
+            .all_searched_notes()
+            .map(|notes| (notes, guard))
     }
 
     fn gather_cards(&mut self) -> Result<(Vec<Card>, CardTableGuard)> {

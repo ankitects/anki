@@ -135,6 +135,19 @@ impl Drop for CardTableGuard<'_> {
     }
 }
 
+pub struct NoteTableGuard<'a> {
+    pub col: &'a mut Collection,
+    pub notes: usize,
+}
+
+impl Drop for NoteTableGuard<'_> {
+    fn drop(&mut self) {
+        if let Err(err) = self.col.storage.clear_searched_notes_table() {
+            println!("{err:?}");
+        }
+    }
+}
+
 impl Collection {
     pub fn search_cards<N>(&mut self, search: N, mode: SortMode) -> Result<Vec<CardId>>
     where
@@ -274,13 +287,14 @@ impl Collection {
             .for_each_card_in_search(|card| func(guard.col, card))
     }
 
-    /// Place the matched note ids into a temporary 'search_nids' table
-    /// instead of returning them. Use clear_searched_notes() to remove it.
-    /// Returns number of added notes.
-    pub(crate) fn search_notes_into_table<N>(&mut self, search: N) -> Result<usize>
-    where
-        N: TryIntoSearch,
-    {
+    /// Place the matched card ids into a temporary 'search_nids' table
+    /// instead of returning them. Returns a guard with a collection reference
+    /// and the number of added notes. When the guard is dropped, the temporary
+    /// table is cleaned up.
+    pub(crate) fn search_notes_into_table(
+        &mut self,
+        search: impl TryIntoSearch,
+    ) -> Result<NoteTableGuard> {
         let top_node = search.try_into_search()?;
         let writer = SqlWriter::new(self, ReturnItemType::Notes);
         let mode = SortMode::NoOrder;
@@ -290,11 +304,13 @@ impl Collection {
         self.storage.setup_searched_notes_table()?;
         let sql = format!("insert into search_nids {}", sql);
 
-        self.storage
+        let notes = self
+            .storage
             .db
             .prepare(&sql)?
-            .execute(params_from_iter(args))
-            .map_err(Into::into)
+            .execute(params_from_iter(args))?;
+
+        Ok(NoteTableGuard { notes, col: self })
     }
 
     /// Place the ids of cards with notes in 'search_nids' into 'search_cids'.
