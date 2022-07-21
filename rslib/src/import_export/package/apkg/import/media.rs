@@ -52,7 +52,10 @@ impl Context<'_> {
         self.media_manager.transact(&mut dbctx, |dbctx| {
             for entry in media_map.used_entries() {
                 incrementor.increment()?;
-                entry.copy_from_archive(&mut self.archive, &self.target_col.media_folder)?;
+                entry.copy_with_hash_from_archive(
+                    &mut self.archive,
+                    &self.target_col.media_folder,
+                )?;
                 self.media_manager
                     .add_entry(dbctx, &entry.name, entry.sha1)?;
             }
@@ -102,11 +105,11 @@ impl MediaUseMap {
         })
     }
 
-    pub(super) fn used_entries(&self) -> impl Iterator<Item = &SafeMediaEntry> {
+    pub(super) fn used_entries(&mut self) -> impl Iterator<Item = &mut SafeMediaEntry> {
         self.checked
-            .values()
+            .values_mut()
             .filter_map(|(used, entry)| used.then(|| entry))
-            .chain(self.unchecked.iter())
+            .chain(self.unchecked.iter_mut())
     }
 }
 

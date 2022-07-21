@@ -190,3 +190,16 @@ impl MediaManager {
         ChangeTracker::new(&self.media_folder, progress, log).register_changes(&mut self.dbctx())
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    impl MediaManager {
+        /// All checksums without registering changes first.
+        pub(crate) fn all_checksums_as_is(&self) -> HashMap<String, [u8; 20]> {
+            let mut dbctx = self.dbctx();
+            dbctx.all_checksums().unwrap()
+        }
+    }
+}

@@ -282,7 +282,7 @@ fn write_media_files(
     media_entries: &mut Vec<MediaEntry>,
     progress: &mut IncrementableProgress<ExportProgress>,
 ) -> Result<()> {
-    let mut copier = MediaCopier::new(meta);
+    let mut copier = MediaCopier::new(meta.zstd_compressed());
     let mut incrementor = progress.incrementor(ExportProgress::Media);
     for (index, res) in media.0.enumerate() {
         incrementor.increment()?;
@@ -315,17 +315,17 @@ fn normalized_unicode_file_name(filename: &OsStr) -> Result<String> {
         .ok_or(AnkiError::MediaCheckRequired)
 }
 
-/// Copies and hashes while encoding according to the targeted version.
+/// Copies and hashes while optionally encoding.
 /// If compressing, the encoder is reused to optimize for repeated calls.
-struct MediaCopier {
+pub(crate) struct MediaCopier {
     encoding: bool,
     encoder: Option<RawEncoder<'static>>,
 }
 
 impl MediaCopier {
-    fn new(meta: &Meta) -> Self {
+    pub(crate) fn new(encoding: bool) -> Self {
         Self {
-            encoding: meta.zstd_compressed(),
+            encoding,
             encoder: None,
         }
     }
@@ -339,7 +339,7 @@ impl MediaCopier {
     }
 
     /// Returns size and sha1 hash of the copied data.
-    fn copy(
+    pub(crate) fn copy(
         &mut self,
         reader: &mut impl Read,
         writer: &mut impl Write,
@@ -410,7 +410,7 @@ mod test {
         let bytes_hash = sha1_of_data(b"foo");
 
         for meta in [Meta::new_legacy(), Meta::new()] {
-            let mut writer = MediaCopier::new(&meta);
+            let mut writer = MediaCopier::new(meta.zstd_compressed());
             let mut buf = Vec::new();
 
             let (size, hash) = writer.copy(&mut bytes.as_slice(), &mut buf).unwrap();

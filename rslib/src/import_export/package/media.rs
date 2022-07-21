@@ -14,7 +14,7 @@ use tempfile::NamedTempFile;
 use zip::{read::ZipFile, ZipArchive};
 use zstd::stream::copy_decode;
 
-use super::{MediaEntries, MediaEntry, Meta};
+use super::{colpkg::export::MediaCopier, MediaEntries, MediaEntry, Meta};
 use crate::{
     error::ImportError,
     io::{atomic_rename, filename_is_safe},
@@ -96,14 +96,20 @@ impl SafeMediaEntry {
         fs::metadata(other_path).map_or(false, |metadata| metadata.len() == self.size as u64)
     }
 
-    pub(super) fn copy_from_archive(
-        &self,
+    /// Copy the archived file to the target folder, setting its hash if necessary.
+    pub(super) fn copy_with_hash_from_archive(
+        &mut self,
         archive: &mut ZipArchive<File>,
         target_folder: &Path,
     ) -> Result<()> {
         let mut file = self.fetch_file(archive)?;
         let mut tempfile = NamedTempFile::new_in(target_folder)?;
-        io::copy(&mut file, &mut tempfile)?;
+        if self.sha1 == [0; 20] {
+            let (_, sha1) = MediaCopier::new(false).copy(&mut file, &mut tempfile)?;
+            self.sha1 = sha1;
+        } else {
+            io::copy(&mut file, &mut tempfile)?;
+        }
         atomic_rename(tempfile, &self.file_path(target_folder), false)
     }
 }
