@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type Modal from "bootstrap/js/dist/modal";
-    import { getContext } from "svelte";
+    import { createEventDispatcher, getContext } from "svelte";
 
     import ButtonGroup from "../components/ButtonGroup.svelte";
     import ButtonToolbar from "../components/ButtonToolbar.svelte";
@@ -20,6 +20,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let state: DeckOptionsState;
     const configList = state.configList;
+    const dispatch = createEventDispatcher();
+    const dispatchPresetChange = () => dispatch("presetchange");
 
     function configLabel(entry: ConfigListEntry): string {
         const count = tr.deckConfigUsedByDecks({ decks: entry.useCount });
@@ -28,12 +30,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function blur(event: Event): void {
         state.setCurrentIndex(parseInt((event.target! as HTMLSelectElement).value));
+        dispatchPresetChange();
     }
 
     function onAddConfig(text: string): void {
         const trimmed = text.trim();
         if (trimmed.length) {
             state.addConfig(trimmed);
+            dispatchPresetChange();
         }
     }
 
@@ -41,6 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const trimmed = text.trim();
         if (trimmed.length) {
             state.cloneConfig(trimmed);
+            dispatchPresetChange();
         }
     }
 
@@ -107,6 +112,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             on:add={promptToAdd}
             on:clone={promptToClone}
             on:rename={promptToRename}
+            on:remove={dispatchPresetChange}
         />
     </ButtonToolbar>
 </StickyContainer>

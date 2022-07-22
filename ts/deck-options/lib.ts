@@ -35,6 +35,7 @@ export class DeckOptionsState {
     readonly parentLimits: Readable<ParentLimits>;
     readonly cardStateCustomizer: Writable<string>;
     readonly currentDeck: DeckConfig.DeckConfigsForUpdate.CurrentDeck;
+    readonly deckLimits: Writable<DeckConfig.DeckConfigsForUpdate.CurrentDeck.Limits>;
     readonly defaults: DeckConfig.DeckConfig.Config;
     readonly addonComponents: Writable<DynamicSvelteComponent[]>;
     readonly v3Scheduler: boolean;
@@ -68,6 +69,7 @@ export class DeckOptionsState {
         this.v3Scheduler = data.v3Scheduler;
         this.haveAddons = data.haveAddons;
         this.cardStateCustomizer = writable(data.cardStateCustomizer);
+        this.deckLimits = writable(data.currentDeck?.limits ?? createLimits());
 
         // decrement the use count of the starting item, as we'll apply +1 to currently
         // selected one at display time
@@ -190,6 +192,7 @@ export class DeckOptionsState {
             configs,
             applyToChildren,
             cardStateCustomizer: get(this.cardStateCustomizer),
+            limits: get(this.deckLimits),
         };
     }
 
@@ -308,4 +311,49 @@ function bytesToObject(bytes: Uint8Array): Record<string, unknown> {
     }
 
     return obj;
+}
+
+export function createLimits(): DeckConfig.DeckConfigsForUpdate.CurrentDeck.Limits {
+    return DeckConfig.DeckConfigsForUpdate.CurrentDeck.Limits.create({});
+}
+
+export class ValueTab {
+    readonly title: string;
+    value: number | null;
+    private setter: (value: number | null) => void;
+    private disabledValue: number | null;
+    private startValue: number | null;
+    private initialValue: number | null;
+
+    constructor(
+        title: string,
+        value: number | null,
+        setter: (value: number | null) => void,
+        disabledValue: number | null,
+        startValue: number | null,
+    ) {
+        this.title = title;
+        this.value = this.initialValue = value;
+        this.setter = setter;
+        this.disabledValue = disabledValue;
+        this.startValue = startValue;
+    }
+
+    reset(): void {
+        this.setter(this.initialValue);
+    }
+
+    disable(): void {
+        this.setter(this.disabledValue);
+    }
+
+    enable(fallbackValue: number): void {
+        this.value = this.value ?? this.startValue ?? fallbackValue;
+        this.setter(this.value);
+    }
+
+    setValue(value: number): void {
+        this.value = value;
+        this.setter(value);
+    }
 }

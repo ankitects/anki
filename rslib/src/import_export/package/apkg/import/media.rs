@@ -8,13 +8,13 @@ use zip::ZipArchive;
 use super::Context;
 use crate::{
     import_export::{
-        package::media::{extract_media_entries, SafeMediaEntry},
+        package::{
+            colpkg::export::MediaCopier,
+            media::{extract_media_entries, SafeMediaEntry},
+        },
         ImportProgress, IncrementableProgress,
     },
-    media::{
-        files::{add_hash_suffix_to_file_stem, sha1_of_reader},
-        MediaManager,
-    },
+    media::files::{add_hash_suffix_to_file_stem, sha1_of_reader},
     prelude::*,
 };
 
@@ -37,7 +37,9 @@ impl Context<'_> {
         }
 
         let db_progress_fn = self.progress.media_db_fn(ImportProgress::MediaCheck)?;
-        let existing_sha1s = self.target_col.all_existing_sha1s(db_progress_fn)?;
+        let existing_sha1s = self
+            .media_manager
+            .all_checksums(db_progress_fn, &self.target_col.log)?;
 
         prepare_media(
             media_entries,
@@ -49,21 +51,21 @@ impl Context<'_> {
 
     pub(super) fn copy_media(&mut self, media_map: &mut MediaUseMap) -> Result<()> {
         let mut incrementor = self.progress.incrementor(ImportProgress::Media);
-        for entry in media_map.used_entries() {
-            incrementor.increment()?;
-            entry.copy_from_archive(&mut self.archive, &self.target_col.media_folder)?;
-        }
-        Ok(())
-    }
-}
-
-impl Collection {
-    fn all_existing_sha1s(
-        &mut self,
-        progress_fn: impl FnMut(usize) -> bool,
-    ) -> Result<HashMap<String, Sha1Hash>> {
-        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        mgr.all_checksums(progress_fn, &self.log)
+        let mut dbctx = self.media_manager.dbctx();
+        let mut copier = MediaCopier::new(false);
+        self.media_manager.transact(&mut dbctx, |dbctx| {
+            for entry in media_map.used_entries() {
+                incrementor.increment()?;
+                entry.copy_and_ensure_sha1_set(
+                    &mut self.archive,
+                    &self.target_col.media_folder,
+                    &mut copier,
+                )?;
+                self.media_manager
+                    .add_entry(dbctx, &entry.name, entry.sha1.unwrap())?;
+            }
+            Ok(())
+        })
     }
 }
 
@@ -84,8 +86,8 @@ fn prepare_media(
                 media_map.unchecked.push(entry);
             }
         } else if let Some(other_sha1) = existing_sha1s.get(&entry.name) {
-            entry.with_hash_from_archive(archive)?;
-            if entry.sha1 != *other_sha1 {
+            entry.ensure_sha1_set(archive)?;
+            if entry.sha1.unwrap() != *other_sha1 {
                 let original_name = entry.uniquify_name();
                 media_map.add_checked(original_name, entry);
             }
@@ -108,26 +110,26 @@ impl MediaUseMap {
         })
     }
 
-    pub(super) fn used_entries(&self) -> impl Iterator<Item = &SafeMediaEntry> {
+    pub(super) fn used_entries(&mut self) -> impl Iterator<Item = &mut SafeMediaEntry> {
         self.checked
-            .values()
+            .values_mut()
             .filter_map(|(used, entry)| used.then(|| entry))
-            .chain(self.unchecked.iter())
+            .chain(self.unchecked.iter_mut())
     }
 }
 
 impl SafeMediaEntry {
-    fn with_hash_from_archive(&mut self, archive: &mut ZipArchive<File>) -> Result<()> {
-        if self.sha1 == [0; 20] {
+    fn ensure_sha1_set(&mut self, archive: &mut ZipArchive<File>) -> Result<()> {
+        if self.sha1.is_none() {
             let mut reader = self.fetch_file(archive)?;
-            self.sha1 = sha1_of_reader(&mut reader)?;
+            self.sha1 = Some(sha1_of_reader(&mut reader)?);
         }
         Ok(())
     }
 
     /// Requires sha1 to be set. Returns old file name.
     fn uniquify_name(&mut self) -> String {
-        let new_name = add_hash_suffix_to_file_stem(&self.name, &self.sha1);
+        let new_name = add_hash_suffix_to_file_stem(&self.name, &self.sha1.expect("sha1 not set"));
         mem::replace(&mut self.name, new_name)
     }
 

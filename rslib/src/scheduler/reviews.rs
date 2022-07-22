@@ -112,8 +112,7 @@ impl Collection {
         let distribution = Uniform::from(spec.min..=spec.max);
         let mut decks_initial_ease: HashMap<DeckId, f32> = HashMap::new();
         self.transact(Op::SetDueDate, |col| {
-            col.storage.set_search_table_to_card_ids(cids, false)?;
-            for mut card in col.storage.all_searched_cards()? {
+            for mut card in col.all_cards_for_ids(cids, false)? {
                 let deck_id = card.original_deck_id.or(card.deck_id);
                 let ease_factor = match decks_initial_ease.get(&deck_id) {
                     Some(ease) => *ease,
@@ -139,7 +138,6 @@ impl Collection {
                 col.log_manually_scheduled_review(&card, &original, usn)?;
                 col.update_card_inner(&mut card, original, usn)?;
             }
-            col.storage.clear_searched_cards_table()?;
             if let Some(key) = context {
                 col.set_config_string_inner(key, days)?;
             }

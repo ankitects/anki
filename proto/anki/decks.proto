@@ -64,13 +64,21 @@ message Deck {
     bytes other = 255;
   }
   message Normal {
+    message DayLimit {
+      uint32 limit = 1;
+      uint32 today = 2;
+    }
     int64 config_id = 1;
     uint32 extend_new = 2;
     uint32 extend_review = 3;
     string description = 4;
     bool markdown_description = 5;
+    optional uint32 review_limit = 6;
+    optional uint32 new_limit = 7;
+    DayLimit review_limit_today = 8;
+    DayLimit new_limit_today = 9;
 
-    reserved 6 to 11;
+    reserved 12 to 15;
   }
   message Filtered {
     message SearchTerm {

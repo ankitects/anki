@@ -43,6 +43,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             if (confirm(withCollapsedWhitespace(msg))) {
                 try {
                     state.removeCurrentConfig();
+                    dispatch("remove");
                 } catch (err) {
                     alert(err);
                 }

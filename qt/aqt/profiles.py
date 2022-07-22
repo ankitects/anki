@@ -149,8 +149,8 @@ class ProfileManager:
     # Profile load/save
     ######################################################################
 
-    def profiles(self) -> list:
-        def names() -> list:
+    def profiles(self) -> list[str]:
+        def names() -> list[str]:
             return self.db.list("select name from profiles where name != '_global'")
 
         n = names()
@@ -543,7 +543,7 @@ create table if not exists profiles
         return self.meta.get("legacy_import", False)
 
     def set_legacy_import_export(self, enabled: bool) -> None:
-        self.meta["legacy_import"] = not enabled
+        self.meta["legacy_import"] = enabled
 
     def last_loaded_profile_name(self) -> str | None:
         return self.meta.get("last_loaded_profile_name")

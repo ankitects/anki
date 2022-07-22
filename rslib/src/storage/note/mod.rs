@@ -222,22 +222,18 @@ impl super::SqliteStorage {
             .transpose()
     }
 
-    pub(crate) fn get_note_tags_by_id_list(
-        &mut self,
-        note_ids: &[NoteId],
-    ) -> Result<Vec<NoteTags>> {
-        self.set_search_table_to_note_ids(note_ids)?;
-        let out = self
-            .db
-            .prepare_cached(&format!(
-                "{} where id in (select nid from search_nids)",
-                include_str!("get_tags.sql")
-            ))?
-            .query_and_then([], row_to_note_tags)?
-            .collect::<Result<Vec<_>>>()?;
-        self.clear_searched_notes_table()?;
-        Ok(out)
+    pub(crate) fn get_note_tags_by_id_list(&self, note_ids: &[NoteId]) -> Result<Vec<NoteTags>> {
+        self.with_ids_in_searched_notes_table(note_ids, || {
+            self.db
+                .prepare_cached(&format!(
+                    "{} where id in (select nid from search_nids)",
+                    include_str!("get_tags.sql")
+                ))?
+                .query_and_then([], row_to_note_tags)?
+                .collect()
+        })
     }
+
     pub(crate) fn for_each_note_tag_in_searched_notes<F>(&self, mut func: F) -> Result<()>
     where
         F: FnMut(&str),
@@ -297,20 +293,23 @@ impl super::SqliteStorage {
         Ok(())
     }
 
-    /// Injects the provided card IDs into the search_nids table, for
-    /// when ids have arrived outside of a search.
-    /// Clear with clear_searched_notes_table().
+    /// Executes the closure with the note ids placed in the search_nids table.
     /// WARNING: the column name is nid, not id.
-    pub(crate) fn set_search_table_to_note_ids(&mut self, notes: &[NoteId]) -> Result<()> {
+    pub(crate) fn with_ids_in_searched_notes_table<T>(
+        &self,
+        note_ids: &[NoteId],
+        func: impl FnOnce() -> Result<T>,
+    ) -> Result<T> {
         self.setup_searched_notes_table()?;
         let mut stmt = self
             .db
             .prepare_cached("insert into search_nids values (?)")?;
-        for nid in notes {
+        for nid in note_ids {
             stmt.execute([nid])?;
         }
-
-        Ok(())
+        let result = func();
+        self.clear_searched_notes_table()?;
+        result
     }
 
     /// Cards will arrive in card id order, not search order.

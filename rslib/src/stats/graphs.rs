@@ -15,9 +15,9 @@ impl Collection {
         search: &str,
         days: u32,
     ) -> Result<pb::GraphsResponse> {
-        self.search_cards_into_table(search, SortMode::NoOrder)?;
+        let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
         let all = search.trim().is_empty();
-        self.graph_data(all, days)
+        guard.col.graph_data(all, days)
     }
 
     fn graph_data(&mut self, all: bool, days: u32) -> Result<pb::GraphsResponse> {
@@ -40,8 +40,6 @@ impl Collection {
             self.storage
                 .get_pb_revlog_entries_for_searched_cards(revlog_start)?
         };
-
-        self.storage.clear_searched_cards_table()?;
 
         Ok(pb::GraphsResponse {
             cards: cards.into_iter().map(Into::into).collect(),
