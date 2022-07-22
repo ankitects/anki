@@ -1213,6 +1213,9 @@ class Collection(DeprecatedNamesMixin):
         "Not intended for public consumption at this time."
         return self._backend.render_markdown(markdown=text, sanitize=sanitize)
 
+    def compare_answer(self, expected: str, provided: str) -> str:
+        return self._backend.compare_answer(expected=expected, provided=provided)
+
     # Timeboxing
     ##########################################################################
     # fixme: there doesn't seem to be a good reason why this code is in main.py

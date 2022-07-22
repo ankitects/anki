@@ -571,7 +571,7 @@ class CardLayout(QDialog):
         hadHR = origLen != len(txt)
 
         def answerRepl(match: Match) -> str:
-            res = self.mw.reviewer.correct("example", "sample")
+            res = self.mw.col.compare_answer("example", "sample")
             if hadHR:
                 res = f"<hr id=answer>{res}"
             return res

@@ -342,6 +342,15 @@
     "description": "system-level helper functions for the dirs and directories crates"
   },
   {
+    "name": "dissimilar",
+    "version": "1.0.4",
+    "authors": "David Tolnay <dtolnay@gmail.com>",
+    "repository": "https://github.com/dtolnay/dissimilar",
+    "license": "Apache-2.0",
+    "license_file": null,
+    "description": "Diff library with semantic cleanup, based on Google's diff-match-patch"
+  },
+  {
     "name": "either",
     "version": "1.6.1",
     "authors": "bluss",
