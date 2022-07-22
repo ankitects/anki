@@ -602,7 +602,7 @@ class Reviewer:
             # can't pass a string in directly, and can't use re.escape as it
             # escapes too much
             s = """
-<span style="font-family: '{}'; font-size: {}px">{}</span>""".format(
+<div style="font-family: '{}'; font-size: {}px">{}</div>""".format(
                 self.typeFont,
                 self.typeSize,
                 output,

@@ -90,7 +90,7 @@ impl DiffContext {
         let provided = render_tokens(&output.provided);
         let expected = render_tokens(&output.expected);
         format!(
-            "<div style='white-space: pre-wrap;'>{}</div>",
+            "<code id=typeans>{}</code>",
             if no_mistakes(&output.expected) {
                 provided
             } else {
