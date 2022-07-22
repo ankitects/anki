@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-// FIXME: space to nbsp in output, or pre-wrap
-
 use std::borrow::Cow;
 
 use dissimilar::Chunk;
