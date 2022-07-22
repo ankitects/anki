@@ -816,6 +816,46 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
 
         `output` provides access to the unused/missing file lists and the text output that will be shown in the Check Media screen.""",
     ),
+    # Importing/exporting data
+    ###################
+    Hook(
+        name="exporter_will_export",
+        args=[
+            "export_options: aqt.import_export.exporting.ExportOptions",
+            "exporter: aqt.import_export.exporting.Exporter",
+        ],
+        return_type="aqt.import_export.exporting.ExportOptions",
+        doc="""Called before collection and deck exports.
+        
+        Allows add-ons to be notified of impending deck exports and potentially
+        modify the export options. To perform the export unaltered, please return
+        `export_options` as is, e.g.:
+        
+            def on_exporter_will_export(export_options: ExportOptions, exporter: Exporter):
+                if not isinstance(exporter, ApkgExporter):
+                    return export_options
+                export_options.limit = ...
+                return export_options
+        """,
+    ),
+    Hook(
+        name="exporter_did_export",
+        args=[
+            "export_options: aqt.import_export.exporting.ExportOptions",
+            "exporter: aqt.import_export.exporting.Exporter",
+        ],
+        doc="""Called after collection and deck exports.""",
+    ),
+    Hook(
+        name="legacy_exporter_will_export",
+        args=["legacy_exporter: anki.exporting.Exporter"],
+        doc="""Called before collection and deck exports performed by legacy exporters.""",
+    ),
+    Hook(
+        name="legacy_exporter_did_export",
+        args=["legacy_exporter: anki.exporting.Exporter"],
+        doc="""Called after collection and deck exports performed by legacy exporters.""",
+    ),
     # Dialog Manager
     ###################
     Hook(
