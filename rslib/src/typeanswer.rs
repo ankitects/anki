@@ -66,7 +66,7 @@ impl DiffContext {
                     });
                 }
                 Chunk::Insert(text) => {
-                    // If the proceeding text was correct, indicate text was missing
+                    // If the preceding text was correct, indicate text was missing
                     if provided
                         .last()
                         .map(|v| v.kind == DiffTokenKind::Good)
