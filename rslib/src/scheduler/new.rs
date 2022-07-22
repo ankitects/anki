@@ -282,13 +282,11 @@ impl Collection {
     }
 
     fn shift_existing_cards(&mut self, start: u32, by: u32, usn: Usn, v2: bool) -> Result<()> {
-        self.storage.search_cards_at_or_above_position(start)?;
-        for mut card in self.storage.all_searched_cards()? {
+        for mut card in self.storage.all_cards_at_or_above_position(start)? {
             let original = card.clone();
             card.set_new_position(card.due as u32 + by, v2);
             self.update_card_inner(&mut card, original, usn)?;
         }
-        self.storage.clear_searched_cards_table()?;
         Ok(())
     }
 }

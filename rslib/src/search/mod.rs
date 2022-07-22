@@ -316,6 +316,7 @@ impl Collection {
     /// Place the ids of cards with notes in 'search_nids' into 'search_cids'.
     /// Returns number of added cards.
     pub(crate) fn search_cards_of_notes_into_table(&mut self) -> Result<CardTableGuard> {
+        self.storage.setup_searched_cards_table()?;
         let cards = self.storage.search_cards_of_notes_into_table()?;
         Ok(CardTableGuard { cards, col: self })
     }

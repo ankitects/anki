@@ -516,7 +516,6 @@ impl super::SqliteStorage {
     /// Place the ids of cards with notes in 'search_nids' into 'search_cids'.
     /// Returns number of added cards.
     pub(crate) fn search_cards_of_notes_into_table(&self) -> Result<usize> {
-        self.setup_searched_cards_table()?;
         self.db
             .prepare(include_str!("search_cards_of_notes_into_table.sql"))?
             .execute([])
@@ -592,12 +591,13 @@ impl super::SqliteStorage {
             .unwrap()
     }
 
-    pub(crate) fn search_cards_at_or_above_position(&self, start: u32) -> Result<()> {
-        self.setup_searched_cards_table()?;
-        self.db
-            .prepare(include_str!("at_or_above_position.sql"))?
-            .execute([start, CardType::New as u32])?;
-        Ok(())
+    pub(crate) fn all_cards_at_or_above_position(&self, start: u32) -> Result<Vec<Card>> {
+        self.with_searched_cards_table(false, || {
+            self.db
+                .prepare(include_str!("at_or_above_position.sql"))?
+                .execute([start, CardType::New as u32])?;
+            self.all_searched_cards()
+        })
     }
 
     pub(crate) fn setup_searched_cards_table(&self) -> Result<()> {
