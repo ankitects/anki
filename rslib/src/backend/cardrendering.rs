@@ -15,6 +15,7 @@ use crate::{
         decode_iri_paths, encode_iri_paths, sanitize_html_no_images, strip_html,
         strip_html_preserving_media_filenames,
     },
+    typeanswer::compare_answer,
 };
 
 impl CardRenderingService for Backend {
@@ -146,6 +147,10 @@ impl CardRenderingService for Backend {
         }
         .to_string()
         .into())
+    }
+
+    fn compare_answer(&self, input: pb::CompareAnswerRequest) -> Result<pb::String> {
+        Ok(compare_answer(&input.expected, &input.provided).into())
     }
 }
 
