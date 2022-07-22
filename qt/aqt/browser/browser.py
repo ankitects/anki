@@ -124,13 +124,14 @@ class Browser(QMainWindow):
         self.form = aqt.forms.browser.Ui_Dialog()
         self.form.setupUi(self)
         restoreGeom(self, "editor", 0)
-        restoreState(self, "editor")
         restoreSplitter(self.form.splitter, "editor3")
         self.form.splitter.setChildrenCollapsible(False)
         # set if exactly 1 row is selected; used by the previewer
         self.card: Card | None = None
         self.current_card: Card | None = None
         self.setupSidebar()
+        # make sure to call restoreState() after QDockWidget is attached to QMainWindow
+        restoreState(self, "editor")
         self.setup_table()
         self.setupMenus()
         self.setupHooks()
