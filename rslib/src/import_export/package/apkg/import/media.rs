@@ -56,13 +56,13 @@ impl Context<'_> {
         self.media_manager.transact(&mut dbctx, |dbctx| {
             for entry in media_map.used_entries() {
                 incrementor.increment()?;
-                entry.copy_with_hash_from_archive(
+                entry.copy_and_ensure_sha1_set(
                     &mut self.archive,
                     &self.target_col.media_folder,
                     &mut copier,
                 )?;
                 self.media_manager
-                    .add_entry(dbctx, &entry.name, entry.sha1)?;
+                    .add_entry(dbctx, &entry.name, entry.sha1.unwrap())?;
             }
             Ok(())
         })
@@ -86,8 +86,8 @@ fn prepare_media(
                 media_map.unchecked.push(entry);
             }
         } else if let Some(other_sha1) = existing_sha1s.get(&entry.name) {
-            entry.with_hash_from_archive(archive)?;
-            if entry.sha1 != *other_sha1 {
+            entry.ensure_sha1_set(archive)?;
+            if entry.sha1.unwrap() != *other_sha1 {
                 let original_name = entry.uniquify_name();
                 media_map.add_checked(original_name, entry);
             }
@@ -119,17 +119,17 @@ impl MediaUseMap {
 }
 
 impl SafeMediaEntry {
-    fn with_hash_from_archive(&mut self, archive: &mut ZipArchive<File>) -> Result<()> {
-        if self.sha1 == [0; 20] {
+    fn ensure_sha1_set(&mut self, archive: &mut ZipArchive<File>) -> Result<()> {
+        if self.sha1.is_none() {
             let mut reader = self.fetch_file(archive)?;
-            self.sha1 = sha1_of_reader(&mut reader)?;
+            self.sha1 = Some(sha1_of_reader(&mut reader)?);
         }
         Ok(())
     }
 
     /// Requires sha1 to be set. Returns old file name.
     fn uniquify_name(&mut self) -> String {
-        let new_name = add_hash_suffix_to_file_stem(&self.name, &self.sha1);
+        let new_name = add_hash_suffix_to_file_stem(&self.name, &self.sha1.expect("sha1 not set"));
         mem::replace(&mut self.name, new_name)
     }
 

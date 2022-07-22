@@ -26,7 +26,7 @@ use crate::{
 pub(super) struct SafeMediaEntry {
     pub(super) name: String,
     pub(super) size: u32,
-    pub(super) sha1: Sha1Hash,
+    pub(super) sha1: Option<Sha1Hash>,
     pub(super) index: usize,
 }
 
@@ -53,7 +53,7 @@ impl SafeMediaEntry {
                 return Ok(Self {
                     name: entry.name,
                     size: entry.size,
-                    sha1,
+                    sha1: Some(sha1),
                     index,
                 });
             }
@@ -70,7 +70,7 @@ impl SafeMediaEntry {
         Ok(Self {
             name,
             size: 0,
-            sha1: [0; 20],
+            sha1: None,
             index: zip_filename,
         })
     }
@@ -89,7 +89,8 @@ impl SafeMediaEntry {
         &self,
         get_checksum: &mut impl FnMut(&str) -> Result<Option<Sha1Hash>>,
     ) -> Result<bool> {
-        get_checksum(&self.name).map(|opt| opt.map_or(false, |sha1| sha1 == self.sha1))
+        get_checksum(&self.name)
+            .map(|opt| opt.map_or(false, |sha1| sha1 == self.sha1.expect("sha1 not set")))
     }
 
     pub(super) fn has_size_equal_to(&self, other_path: &Path) -> bool {
@@ -97,7 +98,7 @@ impl SafeMediaEntry {
     }
 
     /// Copy the archived file to the target folder, setting its hash if necessary.
-    pub(super) fn copy_with_hash_from_archive(
+    pub(super) fn copy_and_ensure_sha1_set(
         &mut self,
         archive: &mut ZipArchive<File>,
         target_folder: &Path,
@@ -105,9 +106,9 @@ impl SafeMediaEntry {
     ) -> Result<()> {
         let mut file = self.fetch_file(archive)?;
         let mut tempfile = NamedTempFile::new_in(target_folder)?;
-        if self.sha1 == [0; 20] {
+        if self.sha1.is_none() {
             let (_, sha1) = copier.copy(&mut file, &mut tempfile)?;
-            self.sha1 = sha1;
+            self.sha1 = Some(sha1);
         } else {
             io::copy(&mut file, &mut tempfile)?;
         }
