@@ -8,7 +8,7 @@ use std::collections::HashMap;
 use super::{CardGenContext, CardTemplate, Notetype};
 use crate::{
     prelude::*,
-    search::{JoinSearches, SortMode, TemplateKind},
+    search::{JoinSearches, TemplateKind},
 };
 
 /// True if any ordinals added, removed or reordered.
@@ -148,22 +148,18 @@ impl Collection {
         if !changes.removed.is_empty() {
             let ords =
                 SearchBuilder::any(changes.removed.iter().cloned().map(TemplateKind::Ordinal));
-            self.search_cards_into_table(nt.id.and(ords), SortMode::NoOrder)?;
-            for card in self.storage.all_searched_cards()? {
+            for card in self.all_cards_for_search(nt.id.and(ords))? {
                 self.remove_card_and_add_grave_undoable(card, usn)?;
             }
-            self.storage.clear_searched_cards_table()?;
         }
         // update ordinals for cards with a repositioned template
         if !changes.moved.is_empty() {
             let ords = SearchBuilder::any(changes.moved.keys().cloned().map(TemplateKind::Ordinal));
-            self.search_cards_into_table(nt.id.and(ords), SortMode::NoOrder)?;
-            for mut card in self.storage.all_searched_cards()? {
+            for mut card in self.all_cards_for_search(nt.id.and(ords))? {
                 let original = card.clone();
                 card.template_idx = *changes.moved.get(&card.template_idx).unwrap();
                 self.update_card_inner(&mut card, original, usn)?;
             }
-            self.storage.clear_searched_cards_table()?;
         }
 
         if should_generate_cards(&changes, nt, old_templates) {

@@ -135,8 +135,7 @@ impl Collection {
         );
         let order = order_and_limit_for_search(term, ctx.today);
 
-        self.search_cards_into_table(&search, SortMode::Custom(order))?;
-        for mut card in self.storage.all_searched_cards_in_search_order()? {
+        for mut card in self.all_cards_for_search_in_order(&search, SortMode::Custom(order))? {
             let original = card.clone();
             card.move_into_filtered_deck(ctx, position);
             self.update_card_inner(&mut card, original, ctx.usn)?;

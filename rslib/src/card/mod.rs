@@ -274,12 +274,11 @@ impl Collection {
         ))?;
         let config = self.get_deck_config(config_id, true)?.unwrap();
         let mut steps_adjuster = RemainingStepsAdjuster::new(&config);
-        self.storage.set_search_table_to_card_ids(cards, false)?;
         let sched = self.scheduler_version();
         let usn = self.usn()?;
         self.transact(Op::SetCardDeck, |col| {
             let mut count = 0;
-            for mut card in col.storage.all_searched_cards()? {
+            for mut card in col.all_cards_for_ids(cards, false)? {
                 if card.deck_id == deck_id {
                     continue;
                 }
@@ -299,11 +298,10 @@ impl Collection {
         }
         let flag = flag as u8;
 
-        self.storage.set_search_table_to_card_ids(cards, false)?;
         let usn = self.usn()?;
         self.transact(Op::SetFlag, |col| {
             let mut count = 0;
-            for mut card in col.storage.all_searched_cards()? {
+            for mut card in col.all_cards_for_ids(cards, false)? {
                 let original = card.clone();
                 if card.set_flag(flag) {
                     // To avoid having to rebuild the study queues, we mark the card as requiring
