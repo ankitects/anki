@@ -42,21 +42,21 @@ class ExportDialog(QDialog):
         self.col = mw.col.weakref()
         self.frm = aqt.forms.exporting.Ui_ExportDialog()
         self.frm.setupUi(self)
-        self.exporter: Type[Exporter] = None
+        self.exporter: Exporter
         self.nids = nids
         disable_help_button(self)
         self.setup(did)
         self.open()
 
     def setup(self, did: DeckId | None) -> None:
-        self.exporters: list[Type[Exporter]] = [
+        self.exporter_classes: list[Type[Exporter]] = [
             ApkgExporter,
             ColpkgExporter,
             NoteCsvExporter,
             CardCsvExporter,
         ]
         self.frm.format.insertItems(
-            0, [f"{e.name()} (.{e.extension})" for e in self.exporters]
+            0, [f"{e.name()} (.{e.extension})" for e in self.exporter_classes]
         )
         qconnect(self.frm.format.activated, self.exporter_changed)
         if self.nids is None and not did:
@@ -86,7 +86,7 @@ class ExportDialog(QDialog):
             self.frm.includeSched.setChecked(False)
 
     def exporter_changed(self, idx: int) -> None:
-        self.exporter = self.exporters[idx]
+        self.exporter = self.exporter_classes[idx]()
         self.frm.includeSched.setVisible(self.exporter.show_include_scheduling)
         self.frm.includeMedia.setVisible(self.exporter.show_include_media)
         self.frm.includeTags.setVisible(self.exporter.show_include_tags)
@@ -125,14 +125,14 @@ class ExportDialog(QDialog):
             break
         return path
 
-    def options(self, out_path: str) -> Options:
+    def options(self, out_path: str) -> ExportOptions:
         limit: ExportLimit = None
         if self.nids:
             limit = NoteIdsLimit(self.nids)
         elif current_deck_id := self.current_deck_id():
             limit = DeckIdLimit(current_deck_id)
 
-        return Options(
+        return ExportOptions(
             out_path=out_path,
             include_scheduling=self.frm.includeSched.isChecked(),
             include_media=self.frm.includeMedia.isChecked(),
@@ -165,7 +165,7 @@ class ExportDialog(QDialog):
 
 
 @dataclass
-class Options:
+class ExportOptions:
     out_path: str
     include_scheduling: bool
     include_media: bool
@@ -190,9 +190,8 @@ class Exporter(ABC):
     show_include_notetype = False
     show_include_guid = False
 
-    @staticmethod
     @abstractmethod
-    def export(mw: aqt.main.AnkiQt, options: Options) -> None:
+    def export(self, mw: aqt.main.AnkiQt, options: ExportOptions) -> None:
         pass
 
     @staticmethod
@@ -210,10 +209,12 @@ class ColpkgExporter(Exporter):
     def name() -> str:
         return tr.exporting_anki_collection_package()
 
-    @staticmethod
-    def export(mw: aqt.main.AnkiQt, options: Options) -> None:
+    def export(self, mw: aqt.main.AnkiQt, options: ExportOptions) -> None:
+        options = gui_hooks.exporter_will_export(options, self)
+
         def on_success(_: None) -> None:
             mw.reopen()
+            gui_hooks.exporter_did_export(options, self)
             tooltip(tr.exporting_collection_exported(), parent=mw)
 
         def on_failure(exception: Exception) -> None:
@@ -245,8 +246,13 @@ class ApkgExporter(Exporter):
     def name() -> str:
         return tr.exporting_anki_deck_package()
 
-    @staticmethod
-    def export(mw: aqt.main.AnkiQt, options: Options) -> None:
+    def export(self, mw: aqt.main.AnkiQt, options: ExportOptions) -> None:
+        options = gui_hooks.exporter_will_export(options, self)
+
+        def on_success(count: int) -> None:
+            gui_hooks.exporter_did_export(options, self)
+            tooltip(tr.exporting_note_exported(count=count), parent=mw)
+
         QueryOp(
             parent=mw,
             op=lambda col: col.export_anki_package(
@@ -256,9 +262,7 @@ class ApkgExporter(Exporter):
                 with_media=options.include_media,
                 legacy_support=options.legacy_support,
             ),
-            success=lambda count: tooltip(
-                tr.exporting_note_exported(count=count), parent=mw
-            ),
+            success=on_success,
         ).with_backend_progress(export_progress_update).run_in_background()
 
 
@@ -275,8 +279,13 @@ class NoteCsvExporter(Exporter):
     def name() -> str:
         return tr.exporting_notes_in_plain_text()
 
-    @staticmethod
-    def export(mw: aqt.main.AnkiQt, options: Options) -> None:
+    def export(self, mw: aqt.main.AnkiQt, options: ExportOptions) -> None:
+        options = gui_hooks.exporter_will_export(options, self)
+
+        def on_success(count: int) -> None:
+            gui_hooks.exporter_did_export(options, self)
+            tooltip(tr.exporting_note_exported(count=count), parent=mw)
+
         QueryOp(
             parent=mw,
             op=lambda col: col.export_note_csv(
@@ -288,9 +297,7 @@ class NoteCsvExporter(Exporter):
                 with_notetype=options.include_notetype,
                 with_guid=options.include_guid,
             ),
-            success=lambda count: tooltip(
-                tr.exporting_note_exported(count=count), parent=mw
-            ),
+            success=on_success,
         ).with_backend_progress(export_progress_update).run_in_background()
 
 
@@ -303,8 +310,13 @@ class CardCsvExporter(Exporter):
     def name() -> str:
         return tr.exporting_cards_in_plain_text()
 
-    @staticmethod
-    def export(mw: aqt.main.AnkiQt, options: Options) -> None:
+    def export(self, mw: aqt.main.AnkiQt, options: ExportOptions) -> None:
+        options = gui_hooks.exporter_will_export(options, self)
+
+        def on_success(count: int) -> None:
+            gui_hooks.exporter_did_export(options, self)
+            tooltip(tr.exporting_card_exported(count=count), parent=mw)
+
         QueryOp(
             parent=mw,
             op=lambda col: col.export_card_csv(
@@ -312,9 +324,7 @@ class CardCsvExporter(Exporter):
                 limit=options.limit,
                 with_html=options.include_html,
             ),
-            success=lambda count: tooltip(
-                tr.exporting_card_exported(count=count), parent=mw
-            ),
+            success=on_success,
         ).with_backend_progress(export_progress_update).run_in_background()
 
 
