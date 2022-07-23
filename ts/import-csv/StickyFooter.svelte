@@ -15,12 +15,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let onImport: () => void;
 
     const keyCombination = "Control+Enter";
+
+    function basename(path: String): String {
+        return path.split(/[\\/]/).pop()!;
+    }
 </script>
 
 <div style:flex-grow="1" />
 <div class="sticky-footer">
     <Row --cols={5}
-        ><Col --col-size={4}>{path}</Col><Col --col-justify="end">
+        ><Col --col-size={4}>{basename(path)}</Col><Col --col-justify="end">
             <ButtonGroup size={2}>
                 <LabelButton
                     theme="primary"
