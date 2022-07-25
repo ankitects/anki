@@ -90,7 +90,7 @@ esbuild(
 # Tests
 ################
 
-eslint_test(deps = _ts_deps)
+eslint_test()
 
 svelte_check(
     name = "svelte_check",
