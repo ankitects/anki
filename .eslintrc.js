@@ -34,10 +34,7 @@ module.exports = {
         "simple-import-sort/exports": "warn",
         "prefer-const": "warn",
         "no-nested-ternary": "warn",
-        "prettier/prettier": [
-            "warn",
-            { trailingComma: "all", printWidth: 88, tabWidth: 4, semi: true },
-        ],
+        "prettier/prettier": "warn",
         "@typescript-eslint/no-non-null-assertion": "off",
     },
     overrides: [

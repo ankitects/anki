@@ -23,7 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <NotetypeSelector {state} />
 </div>
 
-<div id="scrollArea" style="--offset: {offset}px; --gutter-inline: 0.25rem;">
+<div id="scrollArea" style:--offset="{offset}px" style:--gutter-inline="0.25rem">
     <Row class="gx-0" --cols={2}>
         <Col --col-size={1} breakpoint="md">
             <Container>

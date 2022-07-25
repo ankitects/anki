@@ -35,7 +35,7 @@ pkg_tar(
 exports_files([
     "defs.bzl",
     "package.json",
-    ".prettierrc",
     ".prettierignore",
+    ".prettierrc.js",
     ".eslintrc.js",
 ])
