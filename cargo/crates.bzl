@@ -433,6 +433,16 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "raze__dissimilar__1_0_4",
+        url = "https://crates.io/api/v1/crates/dissimilar/1.0.4/download",
+        type = "tar.gz",
+        sha256 = "8c97b9233581d84b8e1e689cdd3a47b6f69770084fc246e86a7f78b0d9c1d4a5",
+        strip_prefix = "dissimilar-1.0.4",
+        build_file = Label("//cargo/remote:BUILD.dissimilar-1.0.4.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "raze__dtoa__0_4_8",
         url = "https://crates.io/api/v1/crates/dtoa/0.4.8/download",
         type = "tar.gz",

@@ -155,8 +155,7 @@ impl Collection {
         let usn = self.usn()?;
         let mut position = self.get_next_card_position();
         self.transact(Op::ScheduleAsNew, |col| {
-            col.storage.set_search_table_to_card_ids(cids, true)?;
-            let cards = col.storage.all_searched_cards_in_search_order()?;
+            let cards = col.all_cards_for_ids(cids, true)?;
             for mut card in cards {
                 let original = card.clone();
                 if card.schedule_as_new(position, reset_counts, restore_position) {
@@ -168,7 +167,6 @@ impl Collection {
                 col.update_card_inner(&mut card, original, usn)?;
             }
             col.set_next_card_position(position)?;
-            col.storage.clear_searched_cards_table()?;
 
             match context {
                 Some(ScheduleAsNewContext::Browser) => {
@@ -234,8 +232,7 @@ impl Collection {
         if shift {
             self.shift_existing_cards(starting_from, step * cids.len() as u32, usn, v2)?;
         }
-        self.storage.set_search_table_to_card_ids(cids, true)?;
-        let cards = self.storage.all_searched_cards_in_search_order()?;
+        let cards = self.all_cards_for_ids(cids, true)?;
         let sorter = NewCardSorter::new(&cards, starting_from, step, order);
         let mut count = 0;
         for mut card in cards {
@@ -245,7 +242,6 @@ impl Collection {
                 self.update_card_inner(&mut card, original, usn)?;
             }
         }
-        self.storage.clear_searched_cards_table()?;
         Ok(count)
     }
 
@@ -286,13 +282,11 @@ impl Collection {
     }
 
     fn shift_existing_cards(&mut self, start: u32, by: u32, usn: Usn, v2: bool) -> Result<()> {
-        self.storage.search_cards_at_or_above_position(start)?;
-        for mut card in self.storage.all_searched_cards()? {
+        for mut card in self.storage.all_cards_at_or_above_position(start)? {
             let original = card.clone();
             card.set_new_position(card.due as u32 + by, v2);
             self.update_card_inner(&mut card, original, usn)?;
         }
-        self.storage.clear_searched_cards_table()?;
         Ok(())
     }
 }

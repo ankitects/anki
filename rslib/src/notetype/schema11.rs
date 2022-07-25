@@ -159,8 +159,8 @@ impl From<Notetype> for NotetypeSchema11 {
     }
 }
 
+/// See [crate::deckconfig::schema11::clear_other_duplicates()].
 fn clear_other_field_duplicates(other: &mut HashMap<String, Value>) {
-    // see `clear_other_duplicates()` in `deckconfig/schema11.rs`
     for key in &["description"] {
         other.remove(*key);
     }
