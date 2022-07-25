@@ -19,12 +19,14 @@ use crate::{
     import_export::{
         gather::ExchangeData, package::Meta, ImportProgress, IncrementableProgress, NoteLog,
     },
+    media::MediaManager,
     prelude::*,
     search::SearchNode,
 };
 
 struct Context<'a> {
     target_col: &'a mut Collection,
+    media_manager: MediaManager,
     archive: ZipArchive<File>,
     meta: Meta,
     data: ExchangeData,
@@ -56,6 +58,7 @@ impl<'a> Context<'a> {
     ) -> Result<Self> {
         let mut progress = IncrementableProgress::new(progress_fn);
         progress.call(ImportProgress::Extracting)?;
+        let media_manager = MediaManager::new(&target_col.media_folder, &target_col.media_db)?;
         let meta = Meta::from_archive(&mut archive)?;
         let data = ExchangeData::gather_from_archive(
             &mut archive,
@@ -67,6 +70,7 @@ impl<'a> Context<'a> {
         let usn = target_col.usn()?;
         Ok(Self {
             target_col,
+            media_manager,
             archive,
             meta,
             data,

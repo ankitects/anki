@@ -113,6 +113,21 @@ impl SearchBuilder {
     pub fn write(&self) -> String {
         write_nodes(&self.0)
     }
+
+    /// Construct [SearchBuilder] matching any given deck, excluding children.
+    pub fn from_decks(decks: &[DeckId]) -> Self {
+        Self::any(decks.iter().copied().map(SearchNode::DeckIdWithoutChildren))
+    }
+
+    /// Construct [SearchBuilder] matching learning, but not relearning cards.
+    pub fn learning_cards() -> Self {
+        StateKind::Learning.and(StateKind::Review.negated())
+    }
+
+    /// Construct [SearchBuilder] matching relearning cards.
+    pub fn relearning_cards() -> Self {
+        StateKind::Learning.and(StateKind::Review)
+    }
 }
 
 impl<T: Into<Node>> From<T> for SearchBuilder {

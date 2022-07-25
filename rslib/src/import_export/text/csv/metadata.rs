@@ -11,15 +11,18 @@ use itertools::Itertools;
 use strum::IntoEnumIterator;
 
 use super::import::build_csv_reader;
-pub use crate::backend_proto::import_export::{
-    csv_metadata::{Deck as CsvDeck, Delimiter, MappedNotetype, Notetype as CsvNotetype},
+pub use crate::pb::import_export::{
+    csv_metadata::{
+        Deck as CsvDeck, Delimiter, DupeResolution, MappedNotetype, Notetype as CsvNotetype,
+    },
     CsvMetadata,
 };
 use crate::{
-    backend_proto::StringList,
+    config::I32ConfigKey,
     error::ImportError,
     import_export::text::NameOrId,
     notetype::NoteField,
+    pb::StringList,
     prelude::*,
     text::{html_to_text_line, is_html},
 };
@@ -48,7 +51,14 @@ impl Collection {
         notetype_id: Option<NotetypeId>,
         is_html: Option<bool>,
     ) -> Result<CsvMetadata> {
-        let mut metadata = CsvMetadata::default();
+        let dupe_resolution =
+            DupeResolution::from_i32(self.get_config_i32(I32ConfigKey::CsvDuplicateResolution))
+                .map(|r| r as i32)
+                .unwrap_or_default();
+        let mut metadata = CsvMetadata {
+            dupe_resolution,
+            ..Default::default()
+        };
         let meta_len = self.parse_meta_lines(&mut reader, &mut metadata)? as u64;
         maybe_set_fallback_delimiter(delimiter, &mut metadata, &mut reader, meta_len)?;
         let records = collect_preview_records(&mut metadata, reader)?;
@@ -57,6 +67,7 @@ impl Collection {
         maybe_set_fallback_columns(&mut metadata)?;
         self.maybe_set_fallback_notetype(&mut metadata, notetype_id)?;
         self.maybe_init_notetype_map(&mut metadata)?;
+        maybe_set_tags_column(&mut metadata);
         self.maybe_set_fallback_deck(&mut metadata)?;
 
         Ok(metadata)
@@ -375,6 +386,17 @@ fn maybe_set_fallback_delimiter(
         metadata.set_delimiter(delimiter_from_reader(reader)?);
     }
     Ok(())
+}
+
+fn maybe_set_tags_column(metadata: &mut CsvMetadata) {
+    if metadata.tags_column == 0 {
+        if let Some(CsvNotetype::GlobalNotetype(ref global)) = metadata.notetype {
+            let max_field = global.field_columns.iter().max().copied().unwrap_or(0);
+            if max_field < metadata.column_labels.len() as u32 {
+                metadata.tags_column = max_field + 1;
+            }
+        }
+    }
 }
 
 fn delimiter_from_value(value: &str) -> Option<Delimiter> {

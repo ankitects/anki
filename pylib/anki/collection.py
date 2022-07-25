@@ -35,8 +35,8 @@ BrowserColumns = search_pb2.BrowserColumns
 StripHtmlMode = card_rendering_pb2.StripHtmlRequest
 ImportLogWithChanges = import_export_pb2.ImportResponse
 ImportCsvRequest = import_export_pb2.ImportCsvRequest
-DupeResolution = ImportCsvRequest.DupeResolution
 CsvMetadata = import_export_pb2.CsvMetadata
+DupeResolution = CsvMetadata.DupeResolution
 Delimiter = import_export_pb2.CsvMetadata.Delimiter
 
 import copy
@@ -1212,6 +1212,9 @@ class Collection(DeprecatedNamesMixin):
     def render_markdown(self, text: str, sanitize: bool = True) -> str:
         "Not intended for public consumption at this time."
         return self._backend.render_markdown(markdown=text, sanitize=sanitize)
+
+    def compare_answer(self, expected: str, provided: str) -> str:
+        return self._backend.compare_answer(expected=expected, provided=provided)
 
     # Timeboxing
     ##########################################################################

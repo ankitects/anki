@@ -4,10 +4,10 @@
 use std::convert::TryFrom;
 
 use super::Backend;
-pub(super) use crate::backend_proto::decks_service::Service as DecksService;
+pub(super) use crate::pb::decks_service::Service as DecksService;
 use crate::{
-    backend_proto::{self as pb},
     decks::{DeckSchema11, FilteredSearchOrder},
+    pb::{self as pb},
     prelude::*,
     scheduler::filtered::FilteredDeckForUpdate,
 };

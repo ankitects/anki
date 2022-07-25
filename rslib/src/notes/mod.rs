@@ -12,14 +12,14 @@ use itertools::Itertools;
 use num_integer::Integer;
 
 use crate::{
-    backend_proto as pb,
-    backend_proto::note_fields_check_response::State as NoteFieldsState,
     cloze::contains_cloze,
     decks::DeckId,
     define_newtype,
     error::{AnkiError, Result},
     notetype::{CardGenContext, NoteField, Notetype, NotetypeId},
     ops::StateChanges,
+    pb,
+    pb::note_fields_check_response::State as NoteFieldsState,
     prelude::*,
     template::field_is_empty,
     text::{ensure_string_in_nfc, normalize_to_nfc, strip_html_preserving_media_filenames},

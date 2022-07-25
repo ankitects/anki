@@ -12,6 +12,7 @@ use crate::{
     latex::extract_latex,
     prelude::*,
     revlog::RevlogEntry,
+    search::{CardTableGuard, NoteTableGuard},
     text::{extract_media_refs, extract_underscored_css_imports, extract_underscored_references},
 };
 
@@ -37,20 +38,22 @@ impl ExchangeData {
     ) -> Result<()> {
         self.days_elapsed = col.timing_today()?.days_elapsed;
         self.creation_utc_offset = col.get_creation_utc_offset();
-        self.notes = col.gather_notes(search)?;
-        self.cards = col.gather_cards()?;
-        self.decks = col.gather_decks()?;
-        self.notetypes = col.gather_notetypes()?;
+        let (notes, guard) = col.gather_notes(search)?;
+        self.notes = notes;
+        let (cards, guard) = guard.col.gather_cards()?;
+        self.cards = cards;
+        self.decks = guard.col.gather_decks()?;
+        self.notetypes = guard.col.gather_notetypes()?;
+        self.check_ids()?;
 
         if with_scheduling {
-            self.revlog = col.gather_revlog()?;
-            self.deck_configs = col.gather_deck_configs(&self.decks)?;
+            self.revlog = guard.col.gather_revlog()?;
+            self.deck_configs = guard.col.gather_deck_configs(&self.decks)?;
         } else {
-            self.remove_scheduling_information(col);
+            self.remove_scheduling_information(guard.col);
         };
 
-        col.storage.clear_searched_notes_table()?;
-        col.storage.clear_searched_cards_table()
+        Ok(())
     }
 
     pub(super) fn gather_media_names(
@@ -76,7 +79,7 @@ impl ExchangeData {
 
     fn remove_scheduling_information(&mut self, col: &Collection) {
         self.remove_system_tags();
-        self.reset_deck_config_ids();
+        self.reset_deck_config_ids_and_limits();
         self.reset_cards(col);
     }
 
@@ -90,10 +93,14 @@ impl ExchangeData {
         }
     }
 
-    fn reset_deck_config_ids(&mut self) {
+    fn reset_deck_config_ids_and_limits(&mut self) {
         for deck in self.decks.iter_mut() {
             if let Ok(normal_mut) = deck.normal_mut() {
                 normal_mut.config_id = 1;
+                normal_mut.review_limit = None;
+                normal_mut.review_limit_today = None;
+                normal_mut.new_limit = None;
+                normal_mut.new_limit_today = None;
             } else {
                 // filtered decks are reset at import time for legacy reasons
             }
@@ -113,6 +120,18 @@ impl ExchangeData {
             card.flags = 0;
             card.deck_id = deck_id;
         }
+    }
+
+    fn check_ids(&self) -> Result<()> {
+        let now = TimestampMillis::now().0;
+        self.cards
+            .iter()
+            .map(|card| card.id.0)
+            .chain(self.notes.iter().map(|note| note.id.0))
+            .chain(self.revlog.iter().map(|entry| entry.id.0))
+            .any(|timestamp| timestamp > now)
+            .then(|| Err(AnkiError::InvalidId))
+            .unwrap_or(Ok(()))
     }
 }
 
@@ -154,14 +173,22 @@ fn svg_getter(notetypes: &[Notetype]) -> impl Fn(NotetypeId) -> bool {
 }
 
 impl Collection {
-    fn gather_notes(&mut self, search: impl TryIntoSearch) -> Result<Vec<Note>> {
-        self.search_notes_into_table(search)?;
-        self.storage.all_searched_notes()
+    fn gather_notes(&mut self, search: impl TryIntoSearch) -> Result<(Vec<Note>, NoteTableGuard)> {
+        let guard = self.search_notes_into_table(search)?;
+        guard
+            .col
+            .storage
+            .all_searched_notes()
+            .map(|notes| (notes, guard))
     }
 
-    fn gather_cards(&mut self) -> Result<Vec<Card>> {
-        self.storage.search_cards_of_notes_into_table()?;
-        self.storage.all_searched_cards()
+    fn gather_cards(&mut self) -> Result<(Vec<Card>, CardTableGuard)> {
+        let guard = self.search_cards_of_notes_into_table()?;
+        guard
+            .col
+            .storage
+            .all_searched_cards()
+            .map(|cards| (cards, guard))
     }
 
     fn gather_decks(&mut self) -> Result<Vec<Deck>> {
@@ -223,5 +250,38 @@ impl Collection {
                     .ok_or(AnkiError::NotFound)
             })
             .collect()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::{collection::open_test_collection, search::SearchNode};
+
+    #[test]
+    fn should_gather_valid_notes() {
+        let mut data = ExchangeData::default();
+        let mut col = open_test_collection();
+
+        let note = col.add_new_note("Basic");
+        data.gather_data(&mut col, SearchNode::WholeCollection, true)
+            .unwrap();
+
+        assert_eq!(data.notes, [note]);
+    }
+
+    #[test]
+    fn should_err_if_note_has_invalid_id() {
+        let mut data = ExchangeData::default();
+        let mut col = open_test_collection();
+        let now_micros = TimestampMillis::now().0 * 1000;
+
+        let mut note = col.add_new_note("Basic");
+        note.id = NoteId(now_micros);
+        col.add_note_only_with_id_undoable(&mut note).unwrap();
+
+        assert!(data
+            .gather_data(&mut col, SearchNode::WholeCollection, true)
+            .is_err());
     }
 }

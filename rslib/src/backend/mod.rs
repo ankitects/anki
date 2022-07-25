@@ -62,11 +62,10 @@ use self::{
 };
 use crate::{
     backend::dbproxy::db_command_bytes,
-    backend_proto as pb,
     collection::Collection,
     error::{AnkiError, Result},
     i18n::I18n,
-    log,
+    log, pb,
 };
 
 pub struct Backend {

@@ -9,10 +9,15 @@ use std::{
 };
 
 use crate::{
-    backend_proto as pb,
-    backend_proto::deck_configs_for_update::{ConfigWithExtra, CurrentDeck},
     config::StringKey,
+    decks::NormalDeck,
+    pb,
+    pb::{
+        deck::normal::DayLimit,
+        deck_configs_for_update::{current_deck::Limits, ConfigWithExtra, CurrentDeck},
+    },
     prelude::*,
+    search::{JoinSearches, SearchNode},
 };
 
 #[derive(Debug, Clone)]
@@ -23,6 +28,7 @@ pub struct UpdateDeckConfigsRequest {
     pub removed_config_ids: Vec<DeckConfigId>,
     pub apply_to_children: bool,
     pub card_state_customizer: String,
+    pub limits: Limits,
 }
 
 impl Collection {
@@ -83,15 +89,18 @@ impl Collection {
 
     fn get_current_deck_for_update(&mut self, deck: DeckId) -> Result<CurrentDeck> {
         let deck = self.get_deck(deck)?.ok_or(AnkiError::NotFound)?;
+        let normal = deck.normal()?;
+        let today = self.timing_today()?.days_elapsed;
 
         Ok(CurrentDeck {
             name: deck.human_name(),
-            config_id: deck.normal()?.config_id,
+            config_id: normal.config_id,
             parent_config_ids: self
                 .parent_config_ids(&deck)?
                 .into_iter()
                 .map(Into::into)
                 .collect(),
+            limits: Some(normal.to_limits(today)),
         })
     }
 
@@ -146,6 +155,7 @@ impl Collection {
 
         // loop through all normal decks
         let usn = self.usn()?;
+        let today = self.timing_today()?.days_elapsed;
         let selected_config = input.configs.last().unwrap();
         for deck in self.storage.get_all_decks()? {
             if let Ok(normal) = deck.normal() {
@@ -153,8 +163,8 @@ impl Collection {
 
                 // previous order
                 let previous_config_id = DeckConfigId(normal.config_id);
-                let previous_order = configs_before_update
-                    .get(&previous_config_id)
+                let previous_config = configs_before_update.get(&previous_config_id);
+                let previous_order = previous_config
                     .map(|c| c.inner.new_card_insert_order())
                     .unwrap_or_default();
 
@@ -164,6 +174,7 @@ impl Collection {
                 {
                     let mut updated = deck.clone();
                     updated.normal_mut()?.config_id = selected_config.id.0;
+                    updated.normal_mut()?.update_limits(&input.limits, today);
                     self.update_deck_inner(&mut updated, deck, usn)?;
                     selected_config.id
                 } else {
@@ -171,13 +182,15 @@ impl Collection {
                 };
 
                 // if new order differs, deck needs re-sorting
-                let current_order = configs_after_update
-                    .get(&current_config_id)
+                let current_config = configs_after_update.get(&current_config_id);
+                let current_order = current_config
                     .map(|c| c.inner.new_card_insert_order())
                     .unwrap_or_default();
                 if previous_order != current_order {
                     self.sort_deck(deck_id, current_order, usn)?;
                 }
+
+                self.adjust_remaining_steps_in_deck(deck_id, previous_config, current_config, usn)?;
             }
         }
 
@@ -185,12 +198,87 @@ impl Collection {
 
         Ok(())
     }
+
+    /// Adjust the remaining steps of cards in the given deck according to the config change.
+    fn adjust_remaining_steps_in_deck(
+        &mut self,
+        deck: DeckId,
+        previous_config: Option<&DeckConfig>,
+        current_config: Option<&DeckConfig>,
+        usn: Usn,
+    ) -> Result<()> {
+        if let (Some(old), Some(new)) = (previous_config, current_config) {
+            for (search, old_steps, new_steps) in [
+                (
+                    SearchBuilder::learning_cards(),
+                    &old.inner.learn_steps,
+                    &new.inner.learn_steps,
+                ),
+                (
+                    SearchBuilder::relearning_cards(),
+                    &old.inner.relearn_steps,
+                    &new.inner.relearn_steps,
+                ),
+            ] {
+                if old_steps == new_steps {
+                    continue;
+                }
+                let search = search.clone().and(SearchNode::from_deck_id(deck, false));
+                for mut card in self.all_cards_for_search(search)? {
+                    self.adjust_remaining_steps(&mut card, old_steps, new_steps, usn)?;
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+impl NormalDeck {
+    fn to_limits(&self, today: u32) -> Limits {
+        Limits {
+            review: self.review_limit,
+            new: self.new_limit,
+            review_today: self.review_limit_today.map(|limit| limit.limit),
+            new_today: self.new_limit_today.map(|limit| limit.limit),
+            review_today_active: self
+                .review_limit_today
+                .map(|limit| limit.today == today)
+                .unwrap_or_default(),
+            new_today_active: self
+                .new_limit_today
+                .map(|limit| limit.today == today)
+                .unwrap_or_default(),
+        }
+    }
+
+    fn update_limits(&mut self, limits: &Limits, today: u32) {
+        self.review_limit = limits.review;
+        self.new_limit = limits.new;
+        update_day_limit(&mut self.review_limit_today, limits.review_today, today);
+        update_day_limit(&mut self.new_limit_today, limits.new_today, today);
+    }
+}
+
+fn update_day_limit(day_limit: &mut Option<DayLimit>, new_limit: Option<u32>, today: u32) {
+    if let Some(limit) = new_limit {
+        day_limit.replace(DayLimit { limit, today });
+    } else if let Some(limit) = day_limit {
+        // instead of setting to None, only make sure today is in the past,
+        // thus preserving last used value
+        limit.today = limit.today.min(today - 1);
+    }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{collection::open_test_collection, deckconfig::NewCardInsertOrder};
+    use crate::{
+        collection::open_test_collection,
+        deckconfig::NewCardInsertOrder,
+        tests::{
+            open_test_collection_with_learning_card, open_test_collection_with_relearning_card,
+        },
+    };
 
     #[test]
     fn updating() -> Result<()> {
@@ -237,6 +325,7 @@ mod test {
             removed_config_ids: vec![],
             apply_to_children: false,
             card_state_customizer: "".to_string(),
+            limits: Limits::default(),
         };
         assert!(!col.update_deck_configs(input.clone())?.changes.had_change());
 
@@ -283,5 +372,67 @@ mod test {
         assert!(full_sync_required(&mut col));
 
         Ok(())
+    }
+
+    #[test]
+    fn should_increase_remaining_learning_steps_if_unpassed_learning_step_added() {
+        let mut col = open_test_collection_with_learning_card();
+        col.set_default_learn_steps(vec![1., 10., 100.]);
+        assert_eq!(col.get_first_card().remaining_steps, 3);
+    }
+
+    #[test]
+    fn should_keep_remaining_learning_steps_if_unpassed_relearning_step_added() {
+        let mut col = open_test_collection_with_learning_card();
+        col.set_default_relearn_steps(vec![1., 10., 100.]);
+        assert_eq!(col.get_first_card().remaining_steps, 2);
+    }
+
+    #[test]
+    fn should_keep_remaining_learning_steps_if_passed_learning_step_added() {
+        let mut col = open_test_collection_with_learning_card();
+        col.answer_good();
+        col.set_default_learn_steps(vec![1., 1., 10.]);
+        assert_eq!(col.get_first_card().remaining_steps, 1);
+    }
+
+    #[test]
+    fn should_keep_at_least_one_remaining_learning_step() {
+        let mut col = open_test_collection_with_learning_card();
+        col.answer_good();
+        col.set_default_learn_steps(vec![1.]);
+        assert_eq!(col.get_first_card().remaining_steps, 1);
+    }
+
+    #[test]
+    fn should_increase_remaining_relearning_steps_if_unpassed_relearning_step_added() {
+        let mut col = open_test_collection_with_relearning_card();
+        col.set_default_relearn_steps(vec![1., 10., 100.]);
+        assert_eq!(col.get_first_card().remaining_steps, 3);
+    }
+
+    #[test]
+    fn should_keep_remaining_relearning_steps_if_unpassed_learning_step_added() {
+        let mut col = open_test_collection_with_relearning_card();
+        col.set_default_learn_steps(vec![1., 10., 100.]);
+        assert_eq!(col.get_first_card().remaining_steps, 1);
+    }
+
+    #[test]
+    fn should_keep_remaining_relearning_steps_if_passed_relearning_step_added() {
+        let mut col = open_test_collection_with_relearning_card();
+        col.set_default_relearn_steps(vec![10., 100.]);
+        col.answer_good();
+        col.set_default_relearn_steps(vec![1., 10., 100.]);
+        assert_eq!(col.get_first_card().remaining_steps, 1);
+    }
+
+    #[test]
+    fn should_keep_at_least_one_remaining_relearning_step() {
+        let mut col = open_test_collection_with_relearning_card();
+        col.set_default_relearn_steps(vec![10., 100.]);
+        col.answer_good();
+        col.set_default_relearn_steps(vec![1.]);
+        assert_eq!(col.get_first_card().remaining_steps, 1);
     }
 }

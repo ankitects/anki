@@ -11,6 +11,7 @@ errors-multiple-notetypes-selected = Please select notes from only one notetype.
 errors-please-check-database = Please use the Check Database action, then try again.
 errors-please-check-media = Please use the Check Media action, then try again.
 errors-collection-too-new = This collection requires a newer version of Anki to open.
+errors-invalid-ids = This deck contains timestamps in the future. Please contact the deck author and ask them to fix the issue.
 
 ## Card Rendering
 

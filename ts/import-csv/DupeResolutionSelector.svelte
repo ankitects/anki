@@ -8,19 +8,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../lib/ftl";
     import { ImportExport } from "../lib/proto";
 
-    export let dupeResolution: ImportExport.ImportCsvRequest.DupeResolution;
+    export let dupeResolution: ImportExport.CsvMetadata.DupeResolution;
 
     const dupeResolutions = [
         {
-            value: ImportExport.ImportCsvRequest.DupeResolution.UPDATE,
+            value: ImportExport.CsvMetadata.DupeResolution.UPDATE,
             label: tr.importingUpdate(),
         },
         {
-            value: ImportExport.ImportCsvRequest.DupeResolution.ADD,
+            value: ImportExport.CsvMetadata.DupeResolution.ADD,
             label: tr.importingDuplicate(),
         },
         {
-            value: ImportExport.ImportCsvRequest.DupeResolution.IGNORE,
+            value: ImportExport.CsvMetadata.DupeResolution.IGNORE,
             label: tr.importingPreserve(),
         },
     ];

@@ -6,7 +6,7 @@ use std::{collections::HashSet, iter::Peekable};
 use unicase::UniCase;
 
 use super::{immediate_parent_name_unicase, Tag};
-use crate::{backend_proto::TagTreeNode, prelude::*};
+use crate::{pb::TagTreeNode, prelude::*};
 
 impl Collection {
     pub fn tag_tree(&mut self) -> Result<TagTreeNode> {

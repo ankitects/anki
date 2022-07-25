@@ -49,6 +49,7 @@ pub enum AnkiError {
     MediaCheckRequired,
     CustomStudyError(CustomStudyError),
     ImportError(ImportError),
+    InvalidId,
 }
 
 impl std::error::Error for AnkiError {}
@@ -105,6 +106,7 @@ impl AnkiError {
             AnkiError::CustomStudyError(err) => err.localized_description(tr),
             AnkiError::ImportError(err) => err.localized_description(tr),
             AnkiError::Deleted => tr.browsing_row_deleted().into(),
+            AnkiError::InvalidId => tr.errors_invalid_ids().into(),
             AnkiError::IoError(_)
             | AnkiError::JsonError(_)
             | AnkiError::ProtoError(_)

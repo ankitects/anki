@@ -3,6 +3,8 @@
 
 syntax = "proto3";
 
+option java_multiple_files = true;
+
 package anki.card_rendering;
 
 import "anki/generic.proto";
@@ -24,6 +26,7 @@ service CardRenderingService {
   rpc EncodeIriPaths(generic.String) returns (generic.String);
   rpc DecodeIriPaths(generic.String) returns (generic.String);
   rpc StripHtml(StripHtmlRequest) returns (generic.String);
+  rpc CompareAnswer(CompareAnswerRequest) returns (generic.String);
 }
 
 message ExtractAVTagsRequest {
@@ -129,4 +132,9 @@ message StripHtmlRequest {
 
   string text = 1;
   Mode mode = 2;
+}
+
+message CompareAnswerRequest {
+  string expected = 1;
+  string provided = 2;
 }

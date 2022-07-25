@@ -8,7 +8,7 @@ mod update;
 pub use schema11::{DeckConfSchema11, NewCardOrderSchema11};
 pub use update::UpdateDeckConfigsRequest;
 
-pub use crate::backend_proto::deck_config::{
+pub use crate::pb::deck_config::{
     config::{
         LeechAction, NewCardGatherPriority, NewCardInsertOrder, NewCardSortOrder, ReviewCardOrder,
         ReviewMix,

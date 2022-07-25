@@ -282,7 +282,7 @@ fn write_media_files(
     media_entries: &mut Vec<MediaEntry>,
     progress: &mut IncrementableProgress<ExportProgress>,
 ) -> Result<()> {
-    let mut copier = MediaCopier::new(meta);
+    let mut copier = MediaCopier::new(meta.zstd_compressed());
     let mut incrementor = progress.incrementor(ExportProgress::Media);
     for (index, res) in media.0.enumerate() {
         incrementor.increment()?;
@@ -315,18 +315,20 @@ fn normalized_unicode_file_name(filename: &OsStr) -> Result<String> {
         .ok_or(AnkiError::MediaCheckRequired)
 }
 
-/// Copies and hashes while encoding according to the targeted version.
+/// Copies and hashes while optionally encoding.
 /// If compressing, the encoder is reused to optimize for repeated calls.
-struct MediaCopier {
+pub(crate) struct MediaCopier {
     encoding: bool,
     encoder: Option<RawEncoder<'static>>,
+    buf: [u8; 64 * 1024],
 }
 
 impl MediaCopier {
-    fn new(meta: &Meta) -> Self {
+    pub(crate) fn new(encoding: bool) -> Self {
         Self {
-            encoding: meta.zstd_compressed(),
+            encoding,
             encoder: None,
+            buf: [0; 64 * 1024],
         }
     }
 
@@ -339,25 +341,25 @@ impl MediaCopier {
     }
 
     /// Returns size and sha1 hash of the copied data.
-    fn copy(
+    pub(crate) fn copy(
         &mut self,
         reader: &mut impl Read,
         writer: &mut impl Write,
     ) -> Result<(usize, Sha1Hash)> {
         let mut size = 0;
         let mut hasher = Sha1::new();
-        let mut buf = [0; 64 * 1024];
+        self.buf = [0; 64 * 1024];
         let mut wrapped_writer = MaybeEncodedWriter::new(writer, self.encoder());
 
         loop {
-            let count = match reader.read(&mut buf) {
+            let count = match reader.read(&mut self.buf) {
                 Ok(0) => break,
                 Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
                 result => result?,
             };
             size += count;
-            hasher.update(&buf[..count]);
-            wrapped_writer.write(&buf[..count])?;
+            hasher.update(&self.buf[..count]);
+            wrapped_writer.write(&self.buf[..count])?;
         }
 
         self.encoder = wrapped_writer.finish()?;
@@ -410,7 +412,7 @@ mod test {
         let bytes_hash = sha1_of_data(b"foo");
 
         for meta in [Meta::new_legacy(), Meta::new()] {
-            let mut writer = MediaCopier::new(&meta);
+            let mut writer = MediaCopier::new(meta.zstd_compressed());
             let mut buf = Vec::new();
 
             let (size, hash) = writer.copy(&mut bytes.as_slice(), &mut buf).unwrap();

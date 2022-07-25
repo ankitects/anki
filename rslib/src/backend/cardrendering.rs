@@ -2,19 +2,20 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::Backend;
-pub(super) use crate::backend_proto::cardrendering_service::Service as CardRenderingService;
+pub(super) use crate::pb::cardrendering_service::Service as CardRenderingService;
 use crate::{
-    backend_proto as pb,
     card_rendering::{extract_av_tags, strip_av_tags},
     latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
     markdown::render_markdown,
     notetype::{CardTemplateSchema11, RenderCardOutput},
+    pb,
     prelude::*,
     template::RenderedNode,
     text::{
         decode_iri_paths, encode_iri_paths, sanitize_html_no_images, strip_html,
         strip_html_preserving_media_filenames,
     },
+    typeanswer::compare_answer,
 };
 
 impl CardRenderingService for Backend {
@@ -146,6 +147,10 @@ impl CardRenderingService for Backend {
         }
         .to_string()
         .into())
+    }
+
+    fn compare_answer(&self, input: pb::CompareAnswerRequest) -> Result<pb::String> {
+        Ok(compare_answer(&input.expected, &input.provided).into())
     }
 }
 

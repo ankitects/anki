@@ -3,7 +3,7 @@
 
 use std::str::FromStr;
 
-use crate::{backend_proto as pb, browser_table, i18n::I18n};
+use crate::{browser_table, i18n::I18n, pb};
 
 impl browser_table::Column {
     pub fn to_pb_column(self, i18n: &I18n) -> pb::browser_columns::Column {

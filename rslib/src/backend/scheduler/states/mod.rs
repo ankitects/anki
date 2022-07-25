@@ -11,7 +11,7 @@ mod rescheduling;
 mod review;
 
 use crate::{
-    backend_proto as pb,
+    pb,
     scheduler::states::{CardState, NewState, NextCardStates, NormalState},
 };
 

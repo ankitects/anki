@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{backend_proto as pb, prelude::*};
+use crate::{pb, prelude::*};
 
 impl From<Vec<u8>> for pb::Json {
     fn from(json: Vec<u8>) -> Self {
