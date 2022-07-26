@@ -26,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
 
         const cardStats = await statsService.cardStats(
-            Cards.CardId.create({ cid: requestedCardId })
+            Cards.CardId.create({ cid: requestedCardId }),
         );
 
         /* Skip if another update has been triggered in the meantime. */
@@ -34,8 +34,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             stats = cardStats;
 
             if (includeRevlog) {
-                revlog =
-                    stats.revlog as Stats.CardStatsResponse.StatsRevlogEntry[];
+                revlog = stats.revlog as Stats.CardStatsResponse.StatsRevlogEntry[];
             }
         }
     }

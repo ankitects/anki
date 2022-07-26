@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import type { EditorToolbarAPI } from "./editor-toolbar";
-    import type { EditorFieldAPI } from "./EditorField.svelte";
+    import type { EditorFieldAPI, FieldData } from "./EditorField.svelte";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
@@ -47,7 +47,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { clearableArray } from "./destroyable";
     import DuplicateLink from "./DuplicateLink.svelte";
     import { EditorToolbar } from "./editor-toolbar";
-    import type { FieldData } from "./EditorField.svelte";
     import EditorField from "./EditorField.svelte";
     import Fields from "./Fields.svelte";
     import FieldsEditor from "./FieldsEditor.svelte";

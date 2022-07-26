@@ -16,24 +16,26 @@ module.exports = {
     },
     plugins: [
         "svelte",
-        "import",
         "simple-import-sort",
+        "import",
         "@typescript-eslint",
         "@typescript-eslint/eslint-plugin",
     ],
     rules: {
+        "prefer-const": "warn",
+        "no-nested-ternary": "warn",
+        "simple-import-sort/imports": "warn",
+        "simple-import-sort/exports": "warn",
+        "import/first": "warn",
+        "import/newline-after-import": "warn",
+        "import/no-useless-path-segments": "warn",
+        "import/no-duplicates": "warn",
+        "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/ban-ts-comment": "warn",
         "@typescript-eslint/no-unused-vars": [
             "warn",
             { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
         ],
-        "import/newline-after-import": "warn",
-        "import/no-useless-path-segments": "warn",
-        "simple-import-sort/imports": "warn",
-        "simple-import-sort/exports": "warn",
-        "prefer-const": "warn",
-        "no-nested-ternary": "warn",
-        "@typescript-eslint/no-non-null-assertion": "off",
     },
     overrides: [
         {
@@ -53,12 +55,12 @@ module.exports = {
                 "no-redeclare": "off",
                 "no-global-assign": "off",
                 "no-self-assign": "off",
+                "no-undef": "off",
                 "svelte/no-at-html-tags": "off",
                 /* We would also ideally get rid of this: */
                 "@typescript-eslint/no-explicit-any": "off",
                 /* Does not recognize that `store` and `$store` belongs to the same var: */
                 "@typescript-eslint/no-unused-vars": "off",
-                "no-undef": "off",
             },
         },
     ],

@@ -3,8 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { getContext } from "svelte";
-    import { createEventDispatcher, onMount } from "svelte";
+    import { getContext, createEventDispatcher, onMount } from "svelte";
     import type { Readable } from "svelte/store";
 
     import { directionKey } from "../lib/context-keys";

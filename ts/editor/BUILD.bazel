@@ -1,6 +1,7 @@
 load("//ts/svelte:svelte.bzl", "compile_svelte", "svelte_check")
 load("//ts:eslint.bzl", "eslint_test")
 load("//ts:esbuild.bzl", "esbuild")
+load("//ts:prettier.bzl", "prettier_test")
 load("//ts:compile_sass.bzl", "compile_sass")
 load("//ts:typescript.bzl", "typescript")
 
@@ -92,8 +93,9 @@ esbuild(
 
 eslint_test()
 
+prettier_test
+
 svelte_check(
-    name = "svelte_check",
     srcs = glob([
         "**/*.ts",
         "**/*.svelte",

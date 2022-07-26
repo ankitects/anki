@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
-    import type { Readable } from "svelte/store";
+    import type { Readable, Writable } from "svelte/store";
 
     import type { EditingAreaAPI } from "./EditingArea.svelte";
 
@@ -41,7 +41,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <script lang="ts">
     import { onDestroy, setContext } from "svelte";
-    import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
 
     import { descriptionKey, directionKey } from "../lib/context-keys";

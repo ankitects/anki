@@ -4,6 +4,7 @@ import { globalExport } from "../lib/globals";
 import { setupI18n } from "../lib/i18n";
 import { uiResolve } from "../lib/ui";
 import { editorModules } from "./base";
+import * as base from "./base";
 import ReviewerEditor from "./ReviewerEditor.svelte";
 
 async function setupReviewerEditor(): Promise<void> {
@@ -16,7 +17,5 @@ async function setupReviewerEditor(): Promise<void> {
 }
 
 setupReviewerEditor();
-
-import * as base from "./base";
 
 globalExport(base);

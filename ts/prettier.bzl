@@ -29,7 +29,7 @@ def prettier_test(name = "format_check", srcs = None, exclude = [], **kwargs):
 def prettier(name = "format", **kwargs):
     native.sh_binary(
         name = name,
-        srcs = ["format.sh"],
+        srcs = ["//ts:format.sh"],
         args = ["$(location @nodejs//:node_bin)"],
         data = ["@nodejs//:node_bin"],
     )

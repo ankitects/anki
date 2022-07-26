@@ -7,16 +7,15 @@
 
 import "css-browser-selector/css_browser_selector.min";
 
-export { default as $, default as jQuery } from "jquery/dist/jquery";
-
+import { bridgeCommand } from "../lib/bridgecommand";
 import { mutateNextCardStates } from "./answering";
+import { maybePreloadExternalCss } from "./css";
+import { allImagesLoaded, preloadAnswerImages } from "./images";
+
+export { default as $, default as jQuery } from "jquery/dist/jquery";
 
 globalThis.anki = globalThis.anki || {};
 globalThis.anki.mutateNextCardStates = mutateNextCardStates;
-
-import { bridgeCommand } from "../lib/bridgecommand";
-import { maybePreloadExternalCss } from "./css";
-import { allImagesLoaded, preloadAnswerImages } from "./images";
 
 declare const MathJax: any;
 

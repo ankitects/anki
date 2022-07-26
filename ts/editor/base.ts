@@ -9,6 +9,14 @@ import "./editor-base.css";
 import "../lib/runtime-require";
 import "../sveltelib/export-runtime";
 
+import * as contextKeys from "../components/context-keys";
+import IconButton from "../components/IconButton.svelte";
+import LabelButton from "../components/LabelButton.svelte";
+import WithContext from "../components/WithContext.svelte";
+import WithState from "../components/WithState.svelte";
+import { ModuleName } from "../lib/i18n";
+import * as editorContextKeys from "./NoteEditor.svelte";
+
 declare global {
     interface Selection {
         modify(s: string, t: string, u: string): void;
@@ -18,21 +26,12 @@ declare global {
     }
 }
 
-import { ModuleName } from "../lib/i18n";
-
 export const editorModules = [
     ModuleName.EDITING,
     ModuleName.KEYBOARD,
     ModuleName.ACTIONS,
     ModuleName.BROWSING,
 ];
-
-import * as contextKeys from "../components/context-keys";
-import IconButton from "../components/IconButton.svelte";
-import LabelButton from "../components/LabelButton.svelte";
-import WithContext from "../components/WithContext.svelte";
-import WithState from "../components/WithState.svelte";
-import * as editorContextKeys from "./NoteEditor.svelte";
 
 export const components = {
     IconButton,

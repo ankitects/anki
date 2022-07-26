@@ -13,7 +13,12 @@ import { ModuleName, setupI18n } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
 import { deckConfig, Decks } from "../lib/proto";
 import DeckOptionsPage from "./DeckOptionsPage.svelte";
+import EnumSelectorRow from "./EnumSelectorRow.svelte";
 import { DeckOptionsState } from "./lib";
+import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
+import SpinBoxRow from "./SpinBoxRow.svelte";
+import SwitchRow from "./SwitchRow.svelte";
+import TitledContainer from "./TitledContainer.svelte";
 
 const i18n = setupI18n({
     modules: [
@@ -43,12 +48,6 @@ export async function setupDeckOptions(did: number): Promise<DeckOptionsPage> {
         context,
     });
 }
-
-import EnumSelectorRow from "./EnumSelectorRow.svelte";
-import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
-import SpinBoxRow from "./SpinBoxRow.svelte";
-import SwitchRow from "./SwitchRow.svelte";
-import TitledContainer from "./TitledContainer.svelte";
 
 export const components = {
     TitledContainer,

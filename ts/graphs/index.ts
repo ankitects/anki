@@ -7,7 +7,19 @@ import type { SvelteComponentDev } from "svelte/internal";
 
 import { ModuleName, setupI18n } from "../lib/i18n";
 import { checkNightMode } from "../lib/nightmode";
+import AddedGraph from "./AddedGraph.svelte";
+import ButtonsGraph from "./ButtonsGraph.svelte";
+import CalendarGraph from "./CalendarGraph.svelte";
+import CardCounts from "./CardCounts.svelte";
+import EaseGraph from "./EaseGraph.svelte";
+import FutureDue from "./FutureDue.svelte";
+import { RevlogRange } from "./graph-helpers";
 import GraphsPage from "./GraphsPage.svelte";
+import HourGraph from "./HourGraph.svelte";
+import IntervalsGraph from "./IntervalsGraph.svelte";
+import RangeBox from "./RangeBox.svelte";
+import ReviewsGraph from "./ReviewsGraph.svelte";
+import TodayStats from "./TodayStats.svelte";
 
 const i18n = setupI18n({ modules: [ModuleName.STATISTICS, ModuleName.SCHEDULING] });
 
@@ -32,19 +44,6 @@ export async function setupGraphs(
         },
     });
 }
-
-import AddedGraph from "./AddedGraph.svelte";
-import ButtonsGraph from "./ButtonsGraph.svelte";
-import CalendarGraph from "./CalendarGraph.svelte";
-import CardCounts from "./CardCounts.svelte";
-import EaseGraph from "./EaseGraph.svelte";
-import FutureDue from "./FutureDue.svelte";
-import { RevlogRange } from "./graph-helpers";
-import HourGraph from "./HourGraph.svelte";
-import IntervalsGraph from "./IntervalsGraph.svelte";
-import RangeBox from "./RangeBox.svelte";
-import ReviewsGraph from "./ReviewsGraph.svelte";
-import TodayStats from "./TodayStats.svelte";
 
 setupGraphs(
     [
