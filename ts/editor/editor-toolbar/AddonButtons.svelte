@@ -7,23 +7,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let buttons: string[];
 
-    const radius = "5px";
-    function getBorderRadius(index: number, length: number): string {
-        if (index === 0 && length === 1) {
-            return `--border-left-radius: ${radius}; --border-right-radius: ${radius}; `;
-        } else if (index === 0) {
-            return `--border-left-radius: ${radius}; --border-right-radius: 0; `;
-        } else if (index === length - 1) {
-            return `--border-left-radius: 0; --border-right-radius: ${radius}; `;
-        } else {
-            return "--border-left-radius: 0; --border-right-radius: 0; ";
+    const radius = 5;
+
+    function getLeftRadius(index: number): number {
+        if (index === 0) {
+            return radius;
         }
+        return 0;
+    }
+
+    function getRightRadius(index: number, length: number): number {
+        if (length === 1 || index === length - 1) {
+            return radius;
+        }
+        return 0;
     }
 </script>
 
 <ButtonGroup>
     {#each buttons as button, index}
-        <div style={getBorderRadius(index, buttons.length)}>
+        <div
+            style:--border-left-radius="{getLeftRadius(index)}px"
+            style:--border-right-radius="{getRightRadius(index, buttons.length)}px"
+        >
             {@html button}
         </div>
     {/each}

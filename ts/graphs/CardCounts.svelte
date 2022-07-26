@@ -52,7 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <svg
                 bind:this={svg}
                 viewBox={`0 0 ${bounds.width} ${bounds.height}`}
-                style="opacity: {graphData.totalCards ? 1 : 0}"
+                style:opacity={graphData.totalCards ? 1 : 0}
             >
                 <g class="counts" />
             </svg>
@@ -62,7 +62,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {#each tableData as d, _idx}
                     <tr>
                         <td>
-                            <span style="color: {d.colour};">■&nbsp;</span>
+                            <span style:color={d.colour}>■&nbsp;</span>
                             {#if browserLinksSupported}
                                 <span
                                     class="search-link"
@@ -80,7 +80,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 {/each}
 
                 <tr>
-                    <td><span style="visibility: hidden;">■</span> {total}</td>
+                    <td><span style:visibility="hidden">■</span> {total}</td>
                     <td class="right">{graphData.totalCards}</td>
                     <td />
                 </tr>

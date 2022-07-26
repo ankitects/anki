@@ -7,21 +7,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let className = "";
     export { className as class };
 
-    export let size: number | undefined = undefined;
-    export let wrap: boolean | undefined = undefined;
+    export let size = -1;
+    export let wrap = false;
 
-    $: buttonSize = size ? `--buttons-size: ${size}rem; ` : "";
     let buttonWrap: string;
-    $: if (wrap === undefined) {
-        buttonWrap = "";
-    } else {
-        buttonWrap = wrap ? `--buttons-wrap: wrap; ` : `--buttons-wrap: nowrap; `;
-    }
-
-    $: style = buttonSize + buttonWrap;
+    $: buttonWrap = wrap ? `wrap` : `nowrap`;
 </script>
 
-<div {id} class="button-group btn-group {className}" {style} dir="ltr" role="group">
+<div
+    {id}
+    class="button-group btn-group {className}"
+    style:--button-size="{size}rem"
+    style:--button-wrap="{buttonWrap}rem"
+    dir="ltr"
+    role="group"
+>
     <slot />
 </div>
 
