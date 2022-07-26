@@ -16,7 +16,7 @@
     export let state: DeckOptionsState;
     export let api: Record<string, never>;
 
-    export function onPresetChange() {
+    export function onPresetChange(): void {
         newTabs[0] = new ValueTab(
             tr.deckConfigSharedPreset(),
             $config.newPerDay,

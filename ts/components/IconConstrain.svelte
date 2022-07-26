@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <span
     class:flip-x={flipX}
-    style="--width-multiplier: {widthMultiplier}; --icon-size: {iconSize}%;"
+    style:--width-multiplier={widthMultiplier} style:--icon-size="{iconSize}%"
 >
     <slot />
 </span>

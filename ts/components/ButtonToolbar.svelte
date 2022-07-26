@@ -23,6 +23,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: style = buttonSize + buttonWrap;
 </script>
 
+<!-- eslint svelte/require-optimized-style-attribute: "off" -->
 <div
     {id}
     class="button-toolbar btn-toolbar {className}"

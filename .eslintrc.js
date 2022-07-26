@@ -8,7 +8,7 @@ module.exports = {
         "plugin:svelte/prettier",
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/eslint-recommended",
-        "plugin:prettier/recommended",
+        "prettier",
     ],
     parser: "@typescript-eslint/parser",
     parserOptions: {
@@ -16,7 +16,6 @@ module.exports = {
     },
     plugins: [
         "svelte",
-        "prettier",
         "import",
         "simple-import-sort",
         "@typescript-eslint",
@@ -34,7 +33,6 @@ module.exports = {
         "simple-import-sort/exports": "warn",
         "prefer-const": "warn",
         "no-nested-ternary": "warn",
-        "prettier/prettier": "warn",
         "@typescript-eslint/no-non-null-assertion": "off",
     },
     overrides: [

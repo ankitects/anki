@@ -44,7 +44,7 @@
 
 <ul>
     {#each tabs as tab, idx}
-        <li class={activeTab === idx ? "active" : ""}>
+        <li class:active={activeTab === idx}>
             <span on:click={handleClick(idx)}>{tab.title}</span>
         </li>
     {/each}

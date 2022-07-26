@@ -16,7 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const keyCombination = "Control+Enter";
 
-    function basename(path: String): String {
+    function basename(path: string): string {
         return path.split(/[\\/]/).pop()!;
     }
 </script>

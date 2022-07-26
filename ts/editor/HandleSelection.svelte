@@ -56,7 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     use:initSelection
     on:click={(event) =>
         /* prevent triggering Bootstrap dropdown */ event.stopImmediatePropagation()}
-    style="--left: {left}px; --top: {top}px; --width: {width}px; --height: {height}px; --offsetX: {offsetX}px; --offsetY: {offsetY}px;"
+    style:--left="{left}px" style:--top="{top}px" style:--height="{height}px" style:--offsetY="{offsetY}px" style:--offsetX="{offsetX}px" style:--width="{width}px"
 >
     <slot />
 </div>

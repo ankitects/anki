@@ -44,7 +44,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         <Item>
             <!-- AnkiMobile hides this -->
-            <div class="show-timer-switch" style="display: contents;">
+            <div class="show-timer-switch" style:display="contents">
                 <SwitchRow
                     bind:value={$config.showTimer}
                     defaultValue={defaults.showTimer}

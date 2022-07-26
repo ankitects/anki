@@ -26,8 +26,6 @@ def eslint_test(name = "eslint", srcs = None, deps = [], exclude = []):
             "@npm//eslint-plugin-import",
             "@npm//eslint-plugin-simple-import-sort",
             "@npm//eslint-plugin-compat",
-            "@npm//eslint-plugin-prettier",
             "@npm//eslint-config-prettier",
-            "@npm//prettier-plugin-svelte",
         ] + srcs + deps,
     )

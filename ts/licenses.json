@@ -1804,13 +1804,6 @@
         "path": "node_modules/supports-preserve-symlinks-flag",
         "licenseFile": "node_modules/supports-preserve-symlinks-flag/LICENSE"
     },
-    "svelte@3.49.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/sveltejs/svelte",
-        "publisher": "Rich Harris",
-        "path": "node_modules/svelte",
-        "licenseFile": "node_modules/svelte/LICENSE.md"
-    },
     "table@6.8.0": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/gajus/table",
@@ -1921,3 +1914,4 @@
         "licenseFile": "node_modules/yallist/LICENSE"
     }
 }
+

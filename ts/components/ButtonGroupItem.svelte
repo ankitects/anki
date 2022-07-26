@@ -67,28 +67,29 @@
     export let id: string | undefined = undefined;
     export let hostProps: ButtonSlotHostProps | undefined = undefined;
 
-    let style: string;
+    let leftRadius = 0;
+    let rightRadius = 0;
 
     if (!context.available()) {
         console.log("ButtonGroupItem: should always have a slotHostContext");
     }
 
     const { detach, position } = hostProps ?? context.get().getProps();
-    const radius = "5px";
+    const radius = 5;
 
     function updateButtonStyle(position: ButtonPosition) {
         switch (position) {
             case ButtonPosition.Standalone:
-                style = `--border-left-radius: ${radius}; --border-right-radius: ${radius}; `;
+                leftRadius = radius;
+                rightRadius = radius;
                 break;
             case ButtonPosition.InlineStart:
-                style = `--border-left-radius: ${radius}; --border-right-radius: 0; `;
+                leftRadius = radius;
                 break;
             case ButtonPosition.Center:
-                style = "--border-left-radius: 0; --border-right-radius: 0; ";
                 break;
             case ButtonPosition.InlineEnd:
-                style = `--border-left-radius: 0; --border-right-radius: ${radius}; `;
+                rightRadius = radius;
                 break;
         }
     }
@@ -96,8 +97,12 @@
     $: updateButtonStyle($position);
 </script>
 
-<!-- div is necessary to preserve item position -->
-<div class="button-group-item" {id} {style}>
+<div
+    class="button-group-item"
+    {id}
+    style:--border-left-radius="{leftRadius}px"
+    style:--border-right-radius="{rightRadius}px"
+>
     {#if !$detach}
         <slot />
     {/if}

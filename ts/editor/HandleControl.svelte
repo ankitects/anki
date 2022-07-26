@@ -24,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div
     class="d-contents"
-    style="--offsetX: {offsetX}px; --offsetY: {offsetY}px; --activeSize: {activeSize}px;"
+    style:--offsetX="{offsetX}px" style:--offsetY="{offsetY}px" style:--activeSize="{activeSize}px"
 >
     <div
         class:nightMode={$pageTheme.isDark}
