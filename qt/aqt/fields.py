@@ -243,6 +243,7 @@ class FieldDialog(QDialog):
         f.fontSize.setValue(fld["size"])
         f.sortField.setChecked(self.model["sortf"] == fld["ord"])
         f.rtl.setChecked(fld["rtl"])
+        f.plainInputByDefault.setChecked(fld["input"] == "plain")
         f.fieldDescription.setText(fld.get("description", ""))
 
     def saveField(self) -> None:
@@ -263,6 +264,10 @@ class FieldDialog(QDialog):
         rtl = f.rtl.isChecked()
         if fld["rtl"] != rtl:
             fld["rtl"] = rtl
+            self.change_tracker.mark_basic()
+        input = "plain" if f.plainInputByDefault.isChecked() else "rich"
+        if fld["input"] != input:
+            fld["input"] = input
             self.change_tracker.mark_basic()
         desc = f.fieldDescription.text()
         if fld.get("description", "") != desc:

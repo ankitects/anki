@@ -164,6 +164,9 @@ fn clear_other_field_duplicates(other: &mut HashMap<String, Value>) {
     for key in &["description"] {
         other.remove(*key);
     }
+    for key in &["input"] {
+        other.remove(*key);
+    }
 }
 
 impl From<CardRequirementSchema11> for CardRequirement {
@@ -211,6 +214,9 @@ pub struct NoteFieldSchema11 {
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) description: String,
 
+    #[serde(default, deserialize_with = "default_on_invalid")]
+    pub(crate) input: String,
+
     #[serde(flatten)]
     pub(crate) other: HashMap<String, Value>,
 }
@@ -222,6 +228,7 @@ impl Default for NoteFieldSchema11 {
             ord: None,
             sticky: false,
             rtl: false,
+            input: "rich".to_string(),
             font: "Arial".to_string(),
             size: 20,
             description: String::new(),
@@ -238,6 +245,7 @@ impl From<NoteFieldSchema11> for NoteField {
             config: NoteFieldConfig {
                 sticky: f.sticky,
                 rtl: f.rtl,
+                input: f.input,
                 font_name: f.font,
                 font_size: f.size as u32,
                 description: f.description,
@@ -259,6 +267,7 @@ impl From<NoteField> for NoteFieldSchema11 {
             ord: p.ord.map(|o| o as u16),
             sticky: conf.sticky,
             rtl: conf.rtl,
+            input: conf.input,
             font: conf.font_name,
             size: conf.font_size as u16,
             description: conf.description,
