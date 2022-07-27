@@ -44,13 +44,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     span {
-        opacity: 0.4;
+        opacity: var(--opacity-idle);
 
         &.highlighted {
-            opacity: 1;
+            opacity: var(--opacity-active);
         }
         &:hover {
-            opacity: 0.8;
+            opacity: var(--opacity-hover);
         }
     }
 </style>

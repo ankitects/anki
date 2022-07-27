@@ -3,9 +3,14 @@
 
 :root {
     --border-radius-default: 5px;
+
     --scrollbar-handle-width: 12px;
     --scrollbar-handle-length: 50px;
     --scrollbar-radius: 6px;
+
+    --opacity-idle: 0.4;
+    --opacity-active: 0.8;
+    --opacity-hover: 1;
 }
 
 :root[class*="night-mode"] {
