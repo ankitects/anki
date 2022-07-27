@@ -430,14 +430,12 @@ button:focus {{ outline: 5px auto {color_hl}; }}"""
             color = ""
             if not theme_manager.night_mode:
                 color = "background: #fff; border: 1px solid #ccc;"
-            button_style = (
-                """
+            button_style = """
 button {{ -webkit-appearance: none; {}
 border-radius: {}; font-family: Helvetica }}
                 """.format(
-                    color,
-                    props.BORDER_RADIUS_DEFAULT,
-                )
+                color,
+                props.BORDER_RADIUS_DEFAULT,
             )
         else:
             family = self.font().family()
