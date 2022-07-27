@@ -33,6 +33,10 @@
         &:hover {
             background: var(--control-hover);
         }
+
+        &:active {
+            background: var(--control-active);
+        }
     }
 
     ::-webkit-scrollbar-corner {

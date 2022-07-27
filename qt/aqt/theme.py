@@ -214,7 +214,10 @@ QScrollBar::handle {{
 }} 
 QScrollBar::handle:hover {{
   background-color: {self.value(colors.CONTROL_HOVER)};
-}} 
+}}
+QScrollBar::handle:pressed {{
+  background-color: {self.value(colors.CONTROL_ACTIVE)};
+}}
 QScrollBar:horizontal {{
   height: {self.value(props.SCROLLBAR_HANDLE_WIDTH)};
 }}
