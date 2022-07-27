@@ -145,13 +145,13 @@ class ThemeManager:
         "Returns body classes used when showing a card."
         return f"card card{card_ord+1} {self.body_class(night_mode)}"
 
-    def color(self, colors: tuple[str, str]) -> str:
-        """Given day/night colors, return the correct one for the current theme."""
+    def value(self, values: tuple[str, str]) -> str:
+        """Given day/night values, return the correct one for the current theme."""
         idx = 1 if self.night_mode else 0
-        return colors[idx]
+        return values[idx]
 
     def qcolor(self, colors: tuple[str, str]) -> QColor:
-        return QColor(self.color(colors))
+        return QColor(self.value(colors))
 
     def _determine_night_mode(self) -> bool:
         theme = aqt.mw.pm.theme()
@@ -193,55 +193,48 @@ class ThemeManager:
             # also set for border to apply
             buf += f"""
 QMenuBar {{
-  border-bottom: 1px solid {self.color(colors.BORDER)};
-  background: {self.color(colors.WINDOW_BG) if self.night_mode else "white"};
+  border-bottom: 1px solid {self.value(colors.BORDER)};
+  background: {self.value(colors.WINDOW_BG) if self.night_mode else "white"};
 }}
 """
-            # qt bug? setting the above changes the browser sidebar
-            # to white as well, so set it back
-            buf += f"""
-QTreeWidget {{
-  background: {self.color(colors.WINDOW_BG)};
-}}
-            """
 
-        if self.night_mode:
-            buf += """
+        buf += """
 QToolTip {
   border: 0;
 }
-            """
+        """
 
-            if not self.macos_dark_mode():
-                buf += """
-QScrollBar {{ background-color: {}; }}
-QScrollBar::handle {{ background-color: {}; border-radius: {}; }} 
-
-QScrollBar:horizontal {{ height: 12px; }}
-QScrollBar::handle:horizontal {{ min-width: 50px; }} 
-
-QScrollBar:vertical {{ width: 12px; }}
-QScrollBar::handle:vertical {{ min-height: 50px; }} 
-    
-QScrollBar::add-line {{
-      border: none;
-      background: none;
+        buf += f"""
+QScrollBar {{
+  background-color: {self.value(colors.FRAME_BG)};
 }}
-
+QScrollBar::handle {{
+  background-color: {self.value(colors.CONTROL_IDLE)};
+  border-radius: {self.value(props.BORDER_RADIUS_DEFAULT)};
+}} 
+QScrollBar::handle:hover {{
+  background-color: {self.value(colors.CONTROL_HOVER)};
+}} 
+QScrollBar:horizontal {{
+  height: {self.value(props.SCROLLBAR_HANDLE_WIDTH)};
+}}
+QScrollBar:vertical {{
+  width: {self.value(props.SCROLLBAR_HANDLE_WIDTH)};
+}}
+QScrollBar::handle:vertical {{
+  min-height: {self.value(props.SCROLLBAR_HANDLE_LENGTH)};
+}} 
+QScrollBar::groove,
+QScrollBar::add-line,
 QScrollBar::sub-line {{
-      border: none;
-      background: none;
+  border: none;
+  background: none;
 }}
 
-QTabWidget {{ background-color: {}; }}
-""".format(
-                    self.color(colors.WINDOW_BG),
-                    # fushion-button-hover-bg
-                    "#656565",
-                    self.color(colors.WINDOW_BG),
-                    props.BORDER_RADIUS_DEFAULT,
-                )
-
+QTabWidget {{
+  background-color: {self.value(colors.WINDOW_BG)};
+}}
+        """
         # allow addons to modify the styling
         buf = gui_hooks.style_did_init(buf)
 
@@ -306,11 +299,11 @@ QTabWidget {{ background-color: {}; }}
     def _update_stat_colors(self) -> None:
         import anki.stats as s
 
-        s.colLearn = self.color(colors.NEW_COUNT)
-        s.colRelearn = self.color(colors.LEARN_COUNT)
-        s.colCram = self.color(colors.SUSPENDED_BG)
-        s.colSusp = self.color(colors.SUSPENDED_BG)
-        s.colMature = self.color(colors.REVIEW_COUNT)
+        s.colLearn = self.value(colors.NEW_COUNT)
+        s.colRelearn = self.value(colors.LEARN_COUNT)
+        s.colCram = self.value(colors.SUSPENDED_BG)
+        s.colSusp = self.value(colors.SUSPENDED_BG)
+        s.colMature = self.value(colors.REVIEW_COUNT)
         s._legacy_nightmode = self._night_mode_preference
 
 

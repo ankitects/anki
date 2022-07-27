@@ -5,33 +5,42 @@
 @use "props";
 @use "fusion-vars";
 
-@mixin night-mode {
+@mixin custom {
     ::-webkit-scrollbar {
         background-color: var(--window-bg);
 
         &:horizontal {
-            height: 12px;
+            height: var(--scrollbar-handle-width);
         }
 
         &:vertical {
-            width: 12px;
+            width: var(--scrollbar-handle-width);
         }
     }
 
     ::-webkit-scrollbar-thumb {
-        background: fusion-vars.$button-hover-bg;
-        border-radius: 8px;
+        background: var(--control-idle);
+        border-radius: var(--scrollbar-radius);
 
         &:horizontal {
-            min-width: 50px;
+            min-width: var(--scrollbar-handle-length);
         }
 
         &:vertical {
-            min-height: 50px;
+            min-height: var(--scrollbar-handle-length);
+        }
+
+        &:hover {
+            background: var(--control-hover);
         }
     }
 
     ::-webkit-scrollbar-corner {
         background-color: var(--window-bg);
+    }
+
+    ::-webkit-scrollbar-track {
+        border-radius: var(--scrollbar-radius);
+        background-color: transparent;
     }
 }

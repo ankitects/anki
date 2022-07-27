@@ -9,6 +9,8 @@
     --medium-border: #b6b6b6;
     --faint-border: #e7e7e7;
     --link: #00a;
+    --control-idle: #dbdbdb;
+    --control-hover: #cacaca;
     --review-count: #0a0;
     --new-count: #00a;
     --learn-count: #c35617;
@@ -41,13 +43,15 @@
 }
 
 :root[class*="night-mode"] {
-    --text-fg: #f8f8ff;
+    --text-fg: white;
     --window-bg: #2f2f31;
     --frame-bg: #3a3a3a;
     --border: #777;
     --medium-border: #444;
     --faint-border: #29292b;
     --link: #77ccff;
+    --control-idle: #5c5c5c;
+    --control-hover: #656565;
     --review-count: #5ccc00;
     --new-count: #77ccff;
     --learn-count: #ff935b;

@@ -3,6 +3,9 @@
 
 :root {
     --border-radius-default: 5px;
+    --scrollbar-handle-width: 12px;
+    --scrollbar-handle-length: 50px;
+    --scrollbar-radius: 6px;
 }
 
 :root[class*="night-mode"] {

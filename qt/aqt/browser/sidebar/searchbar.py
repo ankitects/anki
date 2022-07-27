@@ -29,7 +29,7 @@ class SidebarSearchBar(QLineEdit):
         aqt.gui_hooks.theme_did_change.append(self.setup_style)
 
     def setup_style(self) -> None:
-        border = theme_manager.color(colors.MEDIUM_BORDER)
+        border = theme_manager.value(colors.MEDIUM_BORDER)
         styles = [
             "padding: 1px",
             "padding-left: 3px",

@@ -12,6 +12,8 @@
 }
 
 body {
+    @include scrollbar.custom;
+
     color: var(--text-fg);
     background: var(--window-bg);
     margin: 1em;
@@ -31,8 +33,4 @@ body {
 
 h1 {
     margin-bottom: 0.2em;
-}
-
-.night-mode {
-    @include scrollbar.night-mode;
 }

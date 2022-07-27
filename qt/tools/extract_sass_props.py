@@ -40,6 +40,10 @@ with open(output_py, "w") as buf:
 """
     )
     buf.write("# this file is auto-generated from _props.scss\n")
-    for prop, (day, night) in props.items():
+    for prop, val in props.items():
+        day = val[0]
+        night = val[1] if len(val) > 1 else day
+
         prop = prop.replace("-", "_").upper()
+
         buf.write(f'{prop} = ("{day}", "{night}")\n')
