@@ -205,8 +205,6 @@ pub struct NoteFieldSchema11 {
     pub(crate) sticky: bool,
     #[serde(deserialize_with = "deserialize_bool_from_anything")]
     pub(crate) rtl: bool,
-    #[serde(deserialize_with = "deserialize_bool_from_anything")]
-    pub(crate) collapsed: bool,
     pub(crate) font: String,
     pub(crate) size: u16,
 
@@ -215,6 +213,9 @@ pub struct NoteFieldSchema11 {
     // NOTE: if adding new ones, make sure to update clear_other_field_duplicates()
     #[serde(default, deserialize_with = "default_on_invalid")]
     pub(crate) description: String,
+
+    #[serde(deserialize_with = "deserialize_bool_from_anything")]
+    pub(crate) collapsed: bool,
 
     #[serde(flatten)]
     pub(crate) other: HashMap<String, Value>,
@@ -227,10 +228,10 @@ impl Default for NoteFieldSchema11 {
             ord: None,
             sticky: false,
             rtl: false,
-            collapsed: false,
             font: "Arial".to_string(),
             size: 20,
             description: String::new(),
+            collapsed: false,
             other: Default::default(),
         }
     }
@@ -244,10 +245,10 @@ impl From<NoteFieldSchema11> for NoteField {
             config: NoteFieldConfig {
                 sticky: f.sticky,
                 rtl: f.rtl,
-                collapsed: f.collapsed,
                 font_name: f.font,
                 font_size: f.size as u32,
                 description: f.description,
+                collapsed: f.collapsed,
                 other: other_to_bytes(&f.other),
             },
         }
@@ -266,10 +267,10 @@ impl From<NoteField> for NoteFieldSchema11 {
             ord: p.ord.map(|o| o as u16),
             sticky: conf.sticky,
             rtl: conf.rtl,
-            collapsed: conf.collapsed,
             font: conf.font_name,
             size: conf.font_size as u16,
             description: conf.description,
+            collapsed: conf.collapsed,
             other,
         }
     }

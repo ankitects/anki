@@ -42,10 +42,10 @@ impl NoteField {
             config: NoteFieldConfig {
                 sticky: false,
                 rtl: false,
-                collapsed: false,
                 font_name: "Arial".into(),
                 font_size: 20,
                 description: "".into(),
+                collapsed: false,
                 other: vec![],
             },
         }
