@@ -12,6 +12,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fontFamily: string;
         fontSize: number;
         direction: "ltr" | "rtl";
+        collapsed: boolean;
         description: string;
     }
 

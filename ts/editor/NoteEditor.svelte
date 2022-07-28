@@ -108,6 +108,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fieldNames = newFieldNames;
     }
 
+    let collapsed: boolean[] = [];
+    export function setCollapsed(fs: boolean[]): void {
+        collapsed = fs;
+    }
+
     let fieldDescriptions: string[] = [];
     export function setDescriptions(fs: string[]): void {
         fieldDescriptions = fs;
@@ -121,8 +126,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export function setFonts(fs: [string, number, boolean][]): void {
         fonts = fs;
 
-        richTextsHidden = fonts.map((_, index) => richTextsHidden[index] ?? false);
-        plainTextsHidden = fonts.map((_, index) => plainTextsHidden[index] ?? true);
+        richTextsHidden = fonts.map((_, index) =>
+            collapsed[index] ? true : richTextsHidden[index] ?? false,
+        );
+        plainTextsHidden = fonts.map((_, index) =>
+            collapsed[index] ? true : plainTextsHidden[index] ?? true,
+        );
     }
 
     export function focusField(index: number | null): void {
@@ -174,6 +183,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fontFamily: quoteFontFamily(fonts[index][0]),
         fontSize: fonts[index][1],
         direction: fonts[index][2] ? "rtl" : "ltr",
+        collapsed: collapsed[index],
     })) as FieldData[];
 
     function saveTags({ detail }: CustomEvent): void {
@@ -238,6 +248,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         Object.assign(globalThis, {
             setFields,
+            setCollapsed,
             setDescriptions,
             setFonts,
             focusField,
