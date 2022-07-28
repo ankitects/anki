@@ -158,7 +158,7 @@
         <bool>true</bool>
        </property>
        <property name="text">
-        <string>fields_collapsed_by_default</string>
+        <string>fields_collapse_by_default</string>
        </property>
       </widget>
      </item>
