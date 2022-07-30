@@ -496,9 +496,18 @@ if is_win:
             ]
 
         def _voice_to_objects(self, voice: Any) -> list[WindowsVoice]:
-            langs = voice.GetAttribute("language")
+            try:
+                langs = voice.GetAttribute("language")
+            except:
+                # no associated language; ignore
+                return []
             langs = lcid_hex_str_to_lang_codes(langs)
-            name = self._tidy_name(voice.GetAttribute("name"))
+            try:
+                name = voice.GetAttribute("name")
+            except:
+                # some voices may not have a name
+                name = "unknown"
+            name = self._tidy_name(name)
             return [WindowsVoice(name=name, lang=lang, handle=voice) for lang in langs]
 
         def _play(self, tag: AVTag) -> None:
