@@ -7,11 +7,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import { getContext } from "svelte";
-    import type { Readable, Writable } from "svelte/store";
+    import type { Writable } from "svelte/store";
 
     import { updateAllState } from "../components/WithState.svelte";
-    import { descriptionKey } from "../lib/context-keys";
     import actionList from "../sveltelib/action-list";
     import type { MirrorAction } from "../sveltelib/dom-mirror";
     import type { SetupInputHandlerAction } from "../sveltelib/input-handler";
@@ -36,9 +34,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     Object.assign(api, { focusHandler });
 
-    const description = getContext<Readable<string>>(descriptionKey);
-    $: descriptionCSSValue = `"${$description}"`;
-
     export let content: string;
 </script>
 
@@ -54,7 +49,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:blur
     on:click={updateAllState}
     on:keyup={updateAllState}
-    style="--description: {descriptionCSSValue}"
 />
 
 <style lang="scss">
@@ -69,17 +63,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         &:focus {
             outline: none;
-        }
-        &.empty::before {
-            content: var(--description);
-            opacity: 0.4;
-            cursor: text;
-            /* stay on single line */
-            position: absolute;
-            max-width: 95%;
-            overflow-x: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
         }
     }
 
