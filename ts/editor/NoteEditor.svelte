@@ -49,6 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { EditorToolbar } from "./editor-toolbar";
     import type { FieldData } from "./EditorField.svelte";
     import EditorField from "./EditorField.svelte";
+    import FieldDescription from "./FieldDescription.svelte";
     import Fields from "./Fields.svelte";
     import FieldsEditor from "./FieldsEditor.svelte";
     import FrameElement from "./FrameElement.svelte";
@@ -361,6 +362,9 @@ the AddCards dialog) should be implemented in the user of this component.
                             >
                                 <ImageHandle maxWidth={250} maxHeight={125} />
                                 <MathjaxHandle />
+                                <FieldDescription>
+                                    {fieldDescriptions[index]}
+                                </FieldDescription>
                             </RichTextInput>
 
                             <PlainTextInput
