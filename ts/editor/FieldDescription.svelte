@@ -2,7 +2,22 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<div class="field-description">
+<script lang="ts">
+    import { getContext } from "svelte";
+    import type { Readable } from "svelte/store";
+
+    import { directionKey, fontFamilyKey, fontSizeKey } from "../lib/context-keys";
+
+    const fontFamily = getContext<Readable<string>>(fontFamilyKey);
+    const fontSize = getContext<Readable<number>>(fontSizeKey);
+    const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
+</script>
+<div
+    class="field-description"
+    style:font-family={$fontFamily}
+    style:font-size="{$fontSize}px"
+    style:direction={$direction}
+>
     <slot />
 </div>
 
