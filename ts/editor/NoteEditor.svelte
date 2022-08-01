@@ -303,9 +303,11 @@ the AddCards dialog) should be implemented in the user of this component.
         <Fields>
             <DecoratedElements>
                 {#each fieldsData as field, index}
+                    {@const content = fieldStores[index]}
+
                     <EditorField
                         {field}
-                        content={fieldStores[index]}
+                        {content}
                         api={fields[index]}
                         on:focusin={() => {
                             $focusedField = fields[index];
@@ -314,9 +316,7 @@ the AddCards dialog) should be implemented in the user of this component.
                         on:focusout={() => {
                             $focusedField = null;
                             bridgeCommand(
-                                `blur:${index}:${getNoteId()}:${get(
-                                    fieldStores[index],
-                                )}`,
+                                `blur:${index}:${getNoteId()}:${get(content)}`,
                             );
                         }}
                         --label-color={cols[index] === "dupe"
@@ -363,7 +363,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                 <ImageHandle maxWidth={250} maxHeight={125} />
                                 <MathjaxHandle />
                                 <FieldDescription>
-                                    {fieldDescriptions[index]}
+                                    {field.description}
                                 </FieldDescription>
                             </RichTextInput>
 

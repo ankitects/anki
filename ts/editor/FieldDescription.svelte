@@ -7,19 +7,27 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Readable } from "svelte/store";
 
     import { directionKey, fontFamilyKey, fontSizeKey } from "../lib/context-keys";
+    import { context } from "./EditingArea.svelte";
+
+    const { content } = context.get();
 
     const fontFamily = getContext<Readable<string>>(fontFamilyKey);
     const fontSize = getContext<Readable<number>>(fontSizeKey);
     const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
+
+    $: empty = $content.length === 0;
 </script>
-<div
-    class="field-description"
-    style:font-family={$fontFamily}
-    style:font-size="{$fontSize}px"
-    style:direction={$direction}
->
-    <slot />
-</div>
+
+{#if empty}
+    <div
+        class="field-description"
+        style:font-family={$fontFamily}
+        style:font-size="{$fontSize}px"
+        style:direction={$direction}
+    >
+        <slot />
+    </div>
+{/if}
 
 <style>
     .field-description {
