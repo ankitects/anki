@@ -66,7 +66,7 @@
         "path": "node_modules/@humanwhocodes/object-schema",
         "licenseFile": "node_modules/@humanwhocodes/object-schema/LICENSE"
     },
-    "@mdi/svg@6.6.95": {
+    "@mdi/svg@7.0.96": {
         "licenses": "Apache-2.0",
         "repository": "https://github.com/Templarian/MaterialDesign-SVG",
         "publisher": "Austin Andrews",
