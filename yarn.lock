@@ -597,10 +597,10 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@mdi/svg@^6.1.95":
-  version "6.6.95"
-  resolved "https://registry.yarnpkg.com/@mdi/svg/-/svg-6.6.95.tgz#334ef718a06889e6a02b6802020f4f35f0ad5adb"
-  integrity sha512-krWKPBPmDle424VI3cJzTEyZgL/DryScgYjmPoaMhv6cb50M7sjqPNBkE5H5fpru2fc+II2ICEWvlIM0sVW00w==
+"@mdi/svg@^7.0.96":
+  version "7.0.96"
+  resolved "https://registry.yarnpkg.com/@mdi/svg/-/svg-7.0.96.tgz#c7275a318da8594337243368c6b4dca6a90154f6"
+  integrity sha512-5DC+w7Kl2C82j4aTWCUf6wtHzgY60WBf1gT1qrpkLaMNcH6Vj9FpYPAXdSmtdkmSMvVMs8i1Rtv9cXWcHFQYpw==
 
 "@mdn/browser-compat-data@^3.3.14":
   version "3.3.14"
