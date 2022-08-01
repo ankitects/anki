@@ -44,7 +44,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
 
-    import { descriptionKey, directionKey } from "../lib/context-keys";
+    import { directionKey } from "../lib/context-keys";
     import { promiseWithResolver } from "../lib/promise";
     import type { Destroyable } from "./destroyable";
     import EditingArea from "./EditingArea.svelte";
@@ -59,11 +59,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setContext(directionKey, directionStore);
 
     $: $directionStore = field.direction;
-
-    const descriptionStore = writable<string>();
-    setContext(descriptionKey, descriptionStore);
-
-    $: $descriptionStore = field.description;
 
     const editingArea: Partial<EditingAreaAPI> = {};
     const [element, elementResolve] = promiseWithResolver<HTMLElement>();
