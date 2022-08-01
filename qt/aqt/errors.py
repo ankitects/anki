@@ -50,6 +50,7 @@ if not os.environ.get("DEBUG"):
 class ErrorHandler(QObject):
     "Catch stderr and write into buffer."
     ivl = 100
+    fatal_error_encountered = False
 
     errorTimer = pyqtSignal()
 
@@ -91,6 +92,9 @@ class ErrorHandler(QObject):
         return tr.qt_misc_unable_to_access_anki_media_folder()
 
     def onTimeout(self) -> None:
+        if self.fatal_error_encountered:
+            # suppress follow-up errors caused by the poisoned lock
+            return
         error = html.escape(self.pool)
         self.pool = ""
         self.mw.progress.clear()
@@ -113,9 +117,8 @@ class ErrorHandler(QObject):
             showWarning(markdown(tr.errors_accessing_db()))
             return
 
-        must_close = False
         if "PanicException" in error:
-            must_close = True
+            self.fatal_error_encountered = True
             txt = markdown(
                 "**A fatal error occurred, and Anki must close. Please report this message on the forums.**"
             )
@@ -135,7 +138,7 @@ class ErrorHandler(QObject):
         # show dialog
         txt = f"{txt}<div style='white-space: pre-wrap'>{error}</div>"
         showText(txt, type="html", copyBtn=True)
-        if must_close:
+        if self.fatal_error_encountered:
             sys.exit(1)
 
     def _addonText(self, error: str) -> str:
