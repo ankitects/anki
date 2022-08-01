@@ -208,6 +208,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </div>
 
 <style lang="scss">
+    .rich-text-input {
+        position: relative;
+    }
+
     .hidden {
         display: none;
     }
