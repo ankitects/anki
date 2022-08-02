@@ -980,7 +980,8 @@ title="{}" {}>{}</button>""".format(
 
         def after_sync_and_call_addon_update() -> None:
             after_sync()
-            self.maybe_check_for_addon_updates()
+            if not self.safeMode:
+                self.maybe_check_for_addon_updates()
 
         if self.can_auto_sync():
             self._sync_collection_and_media(after_sync_and_call_addon_update)
