@@ -893,7 +893,6 @@ title="{}" {}>{}</button>""".format(
 
         if not self.safeMode:
             self.addonManager.loadAddons()
-            self.maybe_check_for_addon_updates()
 
     def maybe_check_for_addon_updates(self) -> None:
         last_check = self.pm.last_addon_update_check()
@@ -978,10 +977,15 @@ title="{}" {}>{}</button>""".format(
 
     def maybe_auto_sync_on_open_close(self, after_sync: Callable[[], None]) -> None:
         "If disabled, after_sync() is called immediately."
-        if self.can_auto_sync():
-            self._sync_collection_and_media(after_sync)
-        else:
+
+        def after_sync_and_call_addon_update() -> None:
             after_sync()
+            self.maybe_check_for_addon_updates()
+
+        if self.can_auto_sync():
+            self._sync_collection_and_media(after_sync_and_call_addon_update)
+        else:
+            after_sync_and_call_addon_update()
 
     def maybe_auto_sync_media(self) -> None:
         if self.can_auto_sync():
