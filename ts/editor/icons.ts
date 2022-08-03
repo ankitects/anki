@@ -12,3 +12,6 @@ export { default as richTextOn } from "@mdi/svg/svg/eye-outline.svg";
 export { default as stickyOff } from "@mdi/svg/svg/pin-off-outline.svg";
 export { default as stickyOn } from "@mdi/svg/svg/pin-outline.svg";
 export { default as htmlOff } from "@mdi/svg/svg/xml.svg";
+export { default as chevronUp } from "@mdi/svg/svg/chevron-up.svg";
+export { default as chevronRight } from "@mdi/svg/svg/chevron-right.svg";
+export { default as chevronDown } from "@mdi/svg/svg/chevron-down.svg";
