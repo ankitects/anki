@@ -13,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const dispatch = createEventDispatcher();
 
     export let off = false;
+    export let collapsed = false;
 
     function toggle() {
         dispatch("toggle");
@@ -26,15 +27,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let width = 0;
 </script>
 
-<div class="clickable" style="--width: {width}px" on:click|stopPropagation={toggle}>
-    <span
-        class:off
-        class:on={!off}
-        class="plain-text-badge"
-        class:highlighted={!off}
-        bind:clientWidth={width}
-    />
-</div>
+{#if !collapsed}
+    <div class="clickable" style="--width: {width}px" on:click|stopPropagation={toggle}>
+        <span
+            class:off
+            class:on={!off}
+            class="plain-text-badge"
+            class:highlighted={!off}
+            bind:clientWidth={width}
+        />
+    </div>
+{/if}
 
 <style lang="scss">
     .clickable {

@@ -362,6 +362,8 @@ the AddCards dialog) should be implemented in the user of this component.
                             </RichTextInput>
 
                             <PlainTextBadge
+                                collapsed={richTextsHidden[index] &&
+                                    plainTextsHidden[index]}
                                 bind:off={plainTextsHidden[index]}
                                 on:toggle={() => {
                                     plainTextsHidden[index] = !plainTextsHidden[index];
