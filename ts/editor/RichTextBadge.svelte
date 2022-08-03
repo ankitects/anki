@@ -24,7 +24,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <Badge
         tooltip={tr.editingToggleVisualEditor()}
         iconSize={80}
-        --icon-align="text-top">{@html icon}</Badge
+        --icon-align="text-bottom">{@html icon}</Badge
     >
 </span>
 

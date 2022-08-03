@@ -48,9 +48,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { promiseWithResolver } from "../lib/promise";
     import type { Destroyable } from "./destroyable";
     import EditingArea from "./EditingArea.svelte";
-    import FieldState from "./FieldState.svelte";
-    import LabelContainer from "./LabelContainer.svelte";
-    import LabelName from "./LabelName.svelte";
 
     export let content: Writable<string>;
     export let field: FieldData;
@@ -90,14 +87,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     on:focusout
     on:click={() => editingArea.focus?.()}
 >
-    <LabelContainer>
-        <span>
-            <LabelName>
-                {field.name}
-            </LabelName>
-        </span>
-        <FieldState><slot name="field-state" /></FieldState>
-    </LabelContainer>
+    <slot name="field-label" />
+
     <EditingArea
         {content}
         fontFamily={field.fontFamily}
@@ -110,16 +101,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .editor-field {
+        position: relative;
         --border-color: var(--border);
-
-        border-radius: 5px;
-        border: 1px solid var(--border-color);
-
-        &:focus-within {
-            --border-color: var(--focus-border);
-
-            outline: none;
-            box-shadow: 0 0 0 3px var(--focus-shadow);
-        }
     }
 </style>

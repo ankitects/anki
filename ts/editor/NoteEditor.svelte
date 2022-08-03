@@ -9,6 +9,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { EditorToolbarAPI } from "./editor-toolbar";
     import type { EditorFieldAPI } from "./EditorField.svelte";
 
+    import LabelContainer from "./LabelContainer.svelte";
+    import LabelName from "./LabelName.svelte";
+    import FieldState from "./FieldState.svelte";
+
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
         focusedField: Writable<EditorFieldAPI | null>;
@@ -322,34 +326,30 @@ the AddCards dialog) should be implemented in the user of this component.
                             ? "var(--flag1-bg)"
                             : "transparent"}
                     >
-                        <svelte:fragment slot="field-state">
-                            {#if cols[index] === "dupe"}
-                                <DuplicateLink />
-                            {/if}
-                            <RichTextBadge
+                        <svelte:fragment slot="field-label">
+                            <LabelContainer
                                 bind:off={richTextsHidden[index]}
                                 on:toggle={() => {
                                     richTextsHidden[index] = !richTextsHidden[index];
-
+                                    plainTextsHidden[index] = true;
                                     if (!richTextsHidden[index]) {
                                         richTextInputs[index].api.refocus();
                                     }
                                 }}
-                            />
-                            <PlainTextBadge
-                                bind:off={plainTextsHidden[index]}
-                                on:toggle={() => {
-                                    plainTextsHidden[index] = !plainTextsHidden[index];
-
-                                    if (!plainTextsHidden[index]) {
-                                        plainTextInputs[index].api.refocus();
-                                    }
-                                }}
-                            />
-
-                            <slot name="field-state" {field} {index} />
+                            >
+                                <svelte:fragment slot="field-name">
+                                    <LabelName>
+                                        {field.name}
+                                    </LabelName>
+                                </svelte:fragment>
+                                <FieldState>
+                                    {#if cols[index] === "dupe"}
+                                        <DuplicateLink />
+                                    {/if}
+                                    <slot name="field-state" {field} {index} />
+                                </FieldState>
+                            </LabelContainer>
                         </svelte:fragment>
-
                         <svelte:fragment slot="editing-inputs">
                             <RichTextInput
                                 hidden={richTextsHidden[index]}
@@ -361,6 +361,20 @@ the AddCards dialog) should be implemented in the user of this component.
                             >
                                 <ImageHandle maxWidth={250} maxHeight={125} />
                                 <MathjaxHandle />
+
+                                <svelte:fragment slot="plain-text-badge">
+                                    <PlainTextBadge
+                                        bind:off={plainTextsHidden[index]}
+                                        on:toggle={() => {
+                                            plainTextsHidden[index] =
+                                                !plainTextsHidden[index];
+
+                                            if (!plainTextsHidden[index]) {
+                                                plainTextInputs[index].api.refocus();
+                                            }
+                                        }}
+                                    />
+                                </svelte:fragment>
                             </RichTextInput>
 
                             <PlainTextInput

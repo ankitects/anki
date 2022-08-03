@@ -238,6 +238,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </div>
         {/await}
     </RichTextStyles>
+    <slot name="plain-text-badge" />
 </div>
 
 <style lang="scss">
