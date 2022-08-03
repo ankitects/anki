@@ -8,10 +8,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import type { EditorToolbarAPI } from "./editor-toolbar";
     import type { EditorFieldAPI } from "./EditorField.svelte";
-
+    import FieldState from "./FieldState.svelte";
     import LabelContainer from "./LabelContainer.svelte";
     import LabelName from "./LabelName.svelte";
-    import FieldState from "./FieldState.svelte";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];

@@ -6,11 +6,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher, getContext } from "svelte";
     import type { Readable } from "svelte/store";
 
-    import { directionKey } from "../lib/context-keys";
-
-    import * as tr from "../lib/ftl";
     import Badge from "../components/Badge.svelte";
-    import { chevronRight, chevronDown } from "./icons";
+    import { directionKey } from "../lib/context-keys";
+    import * as tr from "../lib/ftl";
+    import { chevronDown,chevronRight } from "./icons";
 
     export let off: boolean;
 
