@@ -50,42 +50,43 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             content: "";
             position: absolute;
             left: 0;
-            top: -7px;
+            top: -8px;
             width: 100%;
-            height: 14px;
+            height: 16px;
         }
     }
     .plain-text-badge {
-        position: absolute;
-        opacity: 0;
-        width: 8px;
-        height: 8px;
-        transform: rotate(-45deg);
         left: calc(50% - var(--width) / 2);
 
-        transition: bottom 0.2s ease-out;
+        position: absolute;
+        opacity: 0;
+        bottom: -4px;
+        width: 4px;
+        height: 4px;
+
+        transform: rotate(-45deg);
+
+        transition: width 0.2s ease-in-out, height 0.2s ease-in-out,
+            opacity 0.2s ease-in, background-color 0s 0.2s;
         &.on {
-            bottom: -10px;
             background: var(--code-bg);
             border-right: 1px solid var(--border);
             border-top: 1px solid var(--border);
         }
         &.off {
-            bottom: 0px;
             background: var(--frame-bg);
             border-left: 1px solid var(--border);
             border-bottom: 1px solid var(--border);
         }
     }
     :global(.editor-field) {
-        &:hover,
-        &:focus-within {
+        &:hover {
             & .plain-text-badge {
                 opacity: 1;
-                transition: opacity 0.2s ease-in, bottom 0.2s ease-out;
                 &.on,
                 &.off {
-                    bottom: -5px;
+                    width: 8px;
+                    height: 8px;
                 }
             }
         }
