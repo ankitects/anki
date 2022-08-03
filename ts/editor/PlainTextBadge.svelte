@@ -62,13 +62,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         transition: bottom 0.2s ease-out;
         &.on {
-            bottom: 11px;
+            bottom: -10px;
             background: var(--code-bg);
             border-right: 1px solid var(--border);
             border-top: 1px solid var(--border);
         }
         &.off {
-            bottom: -1px;
+            bottom: 0px;
             background: var(--frame-bg);
             border-left: 1px solid var(--border);
             border-bottom: 1px solid var(--border);

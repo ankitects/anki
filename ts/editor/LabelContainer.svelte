@@ -9,7 +9,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Badge from "../components/Badge.svelte";
     import { directionKey } from "../lib/context-keys";
     import * as tr from "../lib/ftl";
-    import { chevronDown,chevronRight } from "./icons";
+    import { chevronDown, chevronRight } from "./icons";
 
     export let off: boolean;
 
