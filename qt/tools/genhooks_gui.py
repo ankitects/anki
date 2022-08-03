@@ -905,6 +905,26 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         input.""",
     ),
     Hook(
+        name="add_cards_might_add_note",
+        args=["optional_problems: list[str]", "note: anki.notes.Note"],
+        doc="""
+            Allows you to provide an optional reason to reject a note. A
+            yes / no dialog will open displaying the problem, to which the
+            user can decide if they would like to add the note anyway.
+
+            optional_problems is a list containing the optional reasons for which
+            you might reject a note. If your add-on wants to add a reason,
+            it should append the reason to the list.
+
+            An example add-on that asks the user for confirmation before adding a
+            card without tags:
+
+            def might_reject_empty_tag(optional_problems, note):
+                if not any(note.tags):
+                    optional_problems.append("Add cards without tags?")
+        """,
+    ),
+    Hook(
         name="addcards_will_add_history_entry",
         args=["line: str", "note: anki.notes.Note"],
         return_type="str",
