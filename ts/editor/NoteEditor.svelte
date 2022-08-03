@@ -359,21 +359,18 @@ the AddCards dialog) should be implemented in the user of this component.
                             >
                                 <ImageHandle maxWidth={250} maxHeight={125} />
                                 <MathjaxHandle />
-
-                                <svelte:fragment slot="plain-text-badge">
-                                    <PlainTextBadge
-                                        bind:off={plainTextsHidden[index]}
-                                        on:toggle={() => {
-                                            plainTextsHidden[index] =
-                                                !plainTextsHidden[index];
-
-                                            if (!plainTextsHidden[index]) {
-                                                plainTextInputs[index].api.refocus();
-                                            }
-                                        }}
-                                    />
-                                </svelte:fragment>
                             </RichTextInput>
+
+                            <PlainTextBadge
+                                bind:off={plainTextsHidden[index]}
+                                on:toggle={() => {
+                                    plainTextsHidden[index] = !plainTextsHidden[index];
+
+                                    if (!plainTextsHidden[index]) {
+                                        plainTextInputs[index].api.refocus();
+                                    }
+                                }}
+                            />
 
                             <PlainTextInput
                                 hidden={plainTextsHidden[index]}
