@@ -4,6 +4,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { createEventDispatcher, onMount } from "svelte";
+    import { tweened } from "svelte/motion";
+    import { cubicOut } from "svelte/easing";
 
     import { registerShortcut } from "../lib/shortcuts";
     import { context as editorFieldContext } from "./EditorField.svelte";
@@ -13,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const dispatch = createEventDispatcher();
 
     export let off = false;
-    export let collapsed = false;
+    let hover = false;
 
     function toggle() {
         dispatch("toggle");
@@ -24,20 +26,28 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     onMount(() => editorField.element.then(shortcut));
-    let width = 0;
+
+    const point = tweened(0, {
+        duration: 200,
+        easing: cubicOut,
+    });
+    $: point.set(hover ? (off ? 18 : 2) : 10);
+    $: base = off ? 9 : 11;
 </script>
 
-{#if !collapsed}
-    <div class="clickable" style="--width: {width}px" on:click|stopPropagation={toggle}>
-        <span
-            class:off
-            class:on={!off}
-            class="plain-text-badge"
-            class:highlighted={!off}
-            bind:clientWidth={width}
-        />
-    </div>
-{/if}
+<div
+    class="clickable"
+    class:hover
+    on:click|stopPropagation={toggle}
+    on:mouseenter={() => (hover = true)}
+    on:mouseleave={() => (hover = false)}
+>
+    <span class="plain-text-toggle" class:off class:on={!off}>
+        <svg width="100%" viewBox="0 0 20 20">
+            <polygon points="0,{base} 20,{base} 10,{$point}" />
+        </svg>
+    </span>
+</div>
 
 <style lang="scss">
     .clickable {
@@ -54,45 +64,39 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             width: 100%;
             height: 16px;
         }
+
+        &.hover .plain-text-toggle {
+            opacity: 1;
+        }
     }
-    .plain-text-badge {
-        left: calc(50% - var(--width) / 2);
+    .plain-text-toggle {
+        opacity: 0;
+        left: calc(50% - 10px);
 
         position: absolute;
-        opacity: 0;
-        bottom: -4px;
-        width: 4px;
-        height: 4px;
+        bottom: -11px;
+        width: 16px;
+        transition: opacity 0.2s ease-in;
 
-        transform: rotate(-45deg);
+        & svg {
+            stroke: var(--border);
 
-        transition: width 0.2s ease-in-out, height 0.2s ease-in-out,
-            opacity 0.2s ease-in, background-color 0s 0.2s;
+            stroke-width: 1px;
+            & polygon {
+                stroke-dasharray: 0 20 28.284;
+            }
+        }
         &.on {
-            background: var(--code-bg);
-            border-right: 1px solid var(--border);
-            border-top: 1px solid var(--border);
+            fill: var(--code-bg);
         }
         &.off {
-            background: var(--frame-bg);
-            border-left: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
+            fill: var(--frame-bg);
         }
     }
     :global(.editor-field) {
-        &:hover {
-            & .plain-text-badge {
-                opacity: 1;
-                &.on,
-                &.off {
-                    width: 8px;
-                    height: 8px;
-                }
-            }
-        }
-        &:focus-within .plain-text-badge.off {
-            border-width: 2px;
-            border-color: var(--focus-border);
+        &:focus-within .plain-text-toggle.off svg {
+            stroke-width: 2px;
+            stroke: var(--focus-border);
         }
     }
 </style>
