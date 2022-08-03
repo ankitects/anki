@@ -64,7 +64,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { PlainTextInput } from "./plain-text-input";
     import PlainTextBadge from "./PlainTextBadge.svelte";
     import { editingInputIsRichText, RichTextInput } from "./rich-text-input";
-    import RichTextBadge from "./RichTextBadge.svelte";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted
