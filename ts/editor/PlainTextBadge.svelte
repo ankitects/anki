@@ -26,52 +26,52 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let width = 0;
 </script>
 
-<div
-    class="clickable"
-    style="--width: {width}px"
-    on:click|stopPropagation={toggle}
-    bind:clientWidth={width}
->
-    <span class:off class:on={!off} class="plain-text-badge" class:highlighted={!off} />
+<div class="clickable" style="--width: {width}px" on:click|stopPropagation={toggle}>
+    <span
+        class:off
+        class:on={!off}
+        class="plain-text-badge"
+        class:highlighted={!off}
+        bind:clientWidth={width}
+    />
 </div>
 
 <style lang="scss">
     .clickable {
-        right: calc(50% - var(--width) / 2);
-        position: absolute;
-        text-align: center;
-        bottom: -16px;
+        position: relative;
+        width: 100%;
         z-index: 3;
-        width: 32px;
-        height: 16px;
         cursor: pointer;
+        // make whole division line clickable
+        &::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: -7px;
+            width: 100%;
+            height: 14px;
+        }
     }
     .plain-text-badge {
-        left: 12px;
         position: absolute;
         opacity: 0;
         width: 8px;
         height: 8px;
         transform: rotate(-45deg);
+        left: calc(50% - var(--width) / 2);
 
         transition: bottom 0.2s ease-out;
         &.on {
-            bottom: 0px;
+            bottom: 11px;
             background: var(--code-bg);
             border-right: 1px solid var(--border);
             border-top: 1px solid var(--border);
         }
         &.off {
-            bottom: 10px;
+            bottom: -1px;
             background: var(--frame-bg);
             border-left: 1px solid var(--border);
             border-bottom: 1px solid var(--border);
-        }
-
-        &::before,
-        &::after {
-            width: 10px;
-            height: 10px;
         }
     }
     :global(.editor-field) {
@@ -82,7 +82,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 transition: opacity 0.2s ease-in, bottom 0.2s ease-out;
                 &.on,
                 &.off {
-                    bottom: 5px;
+                    bottom: -5px;
                 }
             }
         }
