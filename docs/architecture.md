@@ -8,6 +8,7 @@ At the highest level, Anki is logically separated into two parts.
 
 A neat visualization of the file layout is available here:
 <https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=ankitects%2Fanki>
+(or go to <https://githubnext.com/projects/repo-visualization#explore-for-yourself> and enter `ankitects/anki`).
 
 ### Library (rslib & pylib)
 
