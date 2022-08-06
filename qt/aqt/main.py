@@ -902,7 +902,7 @@ title="{}" {}>{}</button>""".format(
         def wrap_on_updates_installed(log: list[DownloadLogEntry]) -> None:
             if on_done:
                 on_done(log)
-            self.on_updates_installed()
+            self.on_updates_installed(log)
 
         if elap > 86_400 or self.pm.last_run_version() != point_version():
             check_and_prompt_for_updates(
