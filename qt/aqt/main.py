@@ -894,15 +894,15 @@ title="{}" {}>{}</button>""".format(
             self.addonManager.loadAddons()
 
     def maybe_check_for_addon_updates(
-        self, on_done: Callable[[list[DownloadLogEntry]], None] | None = None
+        self, on_done: Callable[[], None] | None = None
     ) -> None:
         last_check = self.pm.last_addon_update_check()
         elap = int_time() - last_check
 
         def wrap_on_updates_installed(log: list[DownloadLogEntry]) -> None:
-            if on_done:
-                on_done(log)
             self.on_updates_installed(log)
+            if on_done:
+                on_done()
 
         if elap > 86_400 or self.pm.last_run_version() != point_version():
             check_and_prompt_for_updates(
@@ -912,6 +912,8 @@ title="{}" {}>{}</button>""".format(
                 requested_by_user=False,
             )
             self.pm.set_last_addon_update_check(int_time())
+        elif on_done:
+            on_done()
 
     def on_updates_installed(self, log: list[DownloadLogEntry]) -> None:
         if log:
@@ -984,13 +986,10 @@ title="{}" {}>{}</button>""".format(
     def maybe_auto_sync_on_open_close(self, after_sync: Callable[[], None]) -> None:
         "If disabled, after_sync() is called immediately."
 
-        def wrap_log_argument(log: list[DownloadLogEntry]) -> None:
-            self.setupAutoUpdate()
-
         def after_sync_and_call_addon_update() -> None:
             after_sync()
             if not self.safeMode:
-                self.maybe_check_for_addon_updates(wrap_log_argument)
+                self.maybe_check_for_addon_updates(self.setupAutoUpdate)
 
         if self.can_auto_sync():
             self._sync_collection_and_media(after_sync_and_call_addon_update)
