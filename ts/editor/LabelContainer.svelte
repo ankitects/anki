@@ -56,7 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         background-color: var(--label-color, transparent);
 
-        padding: 2px 0;
+        padding: 1px 0;
     }
     .clickable {
         cursor: pointer;
