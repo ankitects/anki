@@ -328,11 +328,11 @@ the AddCards dialog) should be implemented in the user of this component.
                             <LabelContainer
                                 bind:off={richTextsHidden[index]}
                                 on:toggle={() => {
-                                    richTextsHidden[index] = !richTextsHidden[index];
-                                    plainTextsHidden[index] = true;
                                     if (!richTextsHidden[index]) {
+                                        plainTextsHidden[index] = true;
                                         richTextInputs[index].api.refocus();
                                     }
+                                    richTextsHidden[index] = !richTextsHidden[index];
                                 }}
                             >
                                 <svelte:fragment slot="field-name">
@@ -362,8 +362,7 @@ the AddCards dialog) should be implemented in the user of this component.
                             </RichTextInput>
 
                             <PlainTextBadge
-                                collapsed={richTextsHidden[index] &&
-                                    plainTextsHidden[index]}
+                                collapsed={richTextsHidden[index]}
                                 bind:off={plainTextsHidden[index]}
                                 on:toggle={() => {
                                     plainTextsHidden[index] = !plainTextsHidden[index];

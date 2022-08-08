@@ -4,10 +4,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { createEventDispatcher, onMount } from "svelte";
-    import { tweened } from "svelte/motion";
-    import { cubicOut } from "svelte/easing";
 
-    import { registerShortcut } from "../lib/shortcuts";
+    import * as tr from "../lib/ftl";
+    import { getPlatformString, registerShortcut } from "../lib/shortcuts";
     import { context as editorFieldContext } from "./EditorField.svelte";
 
     const editorField = editorFieldContext.get();
@@ -15,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const dispatch = createEventDispatcher();
 
     export let off = false;
-    let hover = false;
+    export let collapsed = false;
 
     function toggle() {
         dispatch("toggle");
@@ -26,30 +25,75 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     onMount(() => editorField.element.then(shortcut));
-
-    const point = tweened(0, {
-        duration: 200,
-        easing: cubicOut,
-    });
-    $: point.set(hover ? (off ? 18 : 2) : 10);
-    $: base = off ? 9 : 11;
 </script>
 
-<div
-    class="clickable"
-    class:hover
-    on:click|stopPropagation={toggle}
-    on:mouseenter={() => (hover = true)}
-    on:mouseleave={() => (hover = false)}
->
-    <span class="plain-text-toggle" class:off class:on={!off}>
-        <svg width="100%" viewBox="0 0 20 20">
-            <polygon points="0,{base} 20,{base} 10,{$point}" />
-        </svg>
-    </span>
-</div>
+{#if !collapsed}
+    <div class="clickable" on:click|stopPropagation={toggle}>
+        <span
+            class="plain-text-toggle"
+            class:off
+            class:on={!off}
+            class:collapsed
+            title="{tr.editingToggleHtmlEditor()} ({getPlatformString(keyCombination)})"
+        >
+            HTML
+        </span>
+    </div>
+{/if}
 
 <style lang="scss">
+    .plain-text-toggle {
+        opacity: 0;
+        top: -6px;
+        right: 8px;
+        position: absolute;
+        padding: 0 2px;
+        font-size: xx-small;
+        font-weight: bold;
+        color: var(--border);
+
+        transition: opacity 0.2s ease-in, color 0.2s ease-in;
+
+        &::before {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            right: 50%;
+
+            transition: left 0.2s ease-in, right 0.2s ease-in;
+        }
+    }
+
+    .plain-text-toggle.on::before {
+        background: linear-gradient(to bottom, var(--frame-bg) 50%, var(--code-bg) 0%);
+    }
+    .plain-text-toggle.off::before {
+        background: linear-gradient(
+            to bottom,
+            var(--frame-bg) 50%,
+            var(--window-bg) 0%
+        );
+    }
+    :global(.editor-field) {
+        &:focus-within,
+        &:hover {
+            .plain-text-toggle {
+                opacity: 1;
+
+                &::before {
+                    right: 0px;
+                    left: -1px;
+                }
+            }
+        }
+        .plain-text-toggle.on {
+            color: var(--text-fg);
+        }
+    }
+
     .clickable {
         position: relative;
         width: 100%;
@@ -60,43 +104,24 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             content: "";
             position: absolute;
             left: 0;
-            top: -8px;
+            top: -7px;
             width: 100%;
             height: 16px;
         }
 
-        &.hover .plain-text-toggle {
-            opacity: 1;
-        }
-    }
-    .plain-text-toggle {
-        opacity: 0;
-        left: calc(50% - 10px);
-
-        position: absolute;
-        bottom: -11px;
-        width: 16px;
-        transition: opacity 0.2s ease-in;
-
-        & svg {
-            stroke: var(--border);
-
-            stroke-width: 1px;
-            & polygon {
-                stroke-dasharray: 0 20 28.284;
+        &:hover {
+            .plain-text-toggle {
+                color: var(--text-fg);
+                opacity: 1;
             }
-        }
-        &.on {
-            fill: var(--code-bg);
-        }
-        &.off {
-            fill: var(--frame-bg);
-        }
-    }
-    :global(.editor-field) {
-        &:focus-within .plain-text-toggle.off svg {
-            stroke-width: 2px;
-            stroke: var(--focus-border);
+            .plain-text-toggle.on {
+                color: var(--border);
+
+                &::before {
+                    left: 50%;
+                    right: 50%;
+                }
+            }
         }
     }
 </style>
