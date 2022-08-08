@@ -161,14 +161,8 @@ impl Collection {
     }
 }
 
-fn flag_name(n: u8) -> &'static str {
-    match n {
-        1 => "flag1",
-        2 => "flag2",
-        3 => "flag3",
-        4 => "flag4",
-        _ => "",
-    }
+fn flag_name(n: u8) -> String {
+    format!("flag{n}")
 }
 
 fn fill_empty_fields(note: &mut Note, qfmt: &str, nt: &Notetype, tr: &I18n) {
