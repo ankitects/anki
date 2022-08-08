@@ -67,8 +67,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    .plain-text-toggle.on::before {
-        background: linear-gradient(to bottom, var(--frame-bg) 50%, var(--code-bg) 0%);
+    .plain-text-toggle.on {
+        opacity: 1;
+        color: var(--text-fg);
+        &::before {
+            right: 0px;
+            left: -1px;
+
+            background: linear-gradient(
+                to bottom,
+                var(--frame-bg) 50%,
+                var(--code-bg) 0%
+            );
+        }
     }
     .plain-text-toggle.off::before {
         background: linear-gradient(
@@ -88,9 +99,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     left: -1px;
                 }
             }
-        }
-        .plain-text-toggle.on {
-            color: var(--text-fg);
         }
     }
 
