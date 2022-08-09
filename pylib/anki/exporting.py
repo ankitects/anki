@@ -313,7 +313,7 @@ class AnkiExporter(Exporter):
         # such as update the deck description
         pass
 
-    def removeSystemTags(self, tags: str) -> Any:
+    def removeSystemTags(self, tags: str) -> str:
         return self.src.tags.rem_from_str("marked leech", tags)
 
     def _modelHasMedia(self, model, fname) -> bool:
@@ -464,7 +464,7 @@ class AnkiCollectionPackage21bExporter(AnkiCollectionPackageExporter):
 
 
 def exporters(col: Collection) -> list[tuple[str, Any]]:
-    def id(obj):
+    def id(obj) -> tuple[str, Exporter]:
         if callable(obj.key):
             key_str = obj.key(col)
         else:

@@ -905,12 +905,7 @@ def supportText() -> str:
 
     from aqt import mw
 
-    if is_win:
-        platname = f"Windows {platform.win32_ver()[0]}"
-    elif is_mac:
-        platname = f"Mac {platform.mac_ver()[0]}"
-    else:
-        platname = "Linux"
+    platname = platform.platform()
 
     def schedVer() -> str:
         try:
