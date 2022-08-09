@@ -214,7 +214,6 @@ class AnkiQt(QMainWindow):
         self.setupMenus()
         self.setupErrorHandler()
         self.setupSignals()
-        self.setupAutoUpdate()
         self.setupHooks()
         self.setup_timers()
         self.updateTitleBar()
@@ -893,20 +892,28 @@ title="{}" {}>{}</button>""".format(
 
         if not self.safeMode:
             self.addonManager.loadAddons()
-            self.maybe_check_for_addon_updates()
 
-    def maybe_check_for_addon_updates(self) -> None:
+    def maybe_check_for_addon_updates(
+        self, on_done: Callable[[], None] | None = None
+    ) -> None:
         last_check = self.pm.last_addon_update_check()
         elap = int_time() - last_check
+
+        def wrap_on_updates_installed(log: list[DownloadLogEntry]) -> None:
+            self.on_updates_installed(log)
+            if on_done:
+                on_done()
 
         if elap > 86_400 or self.pm.last_run_version() != point_version():
             check_and_prompt_for_updates(
                 self,
                 self.addonManager,
-                self.on_updates_installed,
+                wrap_on_updates_installed,
                 requested_by_user=False,
             )
             self.pm.set_last_addon_update_check(int_time())
+        elif on_done:
+            on_done()
 
     def on_updates_installed(self, log: list[DownloadLogEntry]) -> None:
         if log:
@@ -978,10 +985,16 @@ title="{}" {}>{}</button>""".format(
 
     def maybe_auto_sync_on_open_close(self, after_sync: Callable[[], None]) -> None:
         "If disabled, after_sync() is called immediately."
-        if self.can_auto_sync():
-            self._sync_collection_and_media(after_sync)
-        else:
+
+        def after_sync_and_call_addon_update() -> None:
             after_sync()
+            if not self.safeMode:
+                self.maybe_check_for_addon_updates(self.setupAutoUpdate)
+
+        if self.can_auto_sync():
+            self._sync_collection_and_media(after_sync_and_call_addon_update)
+        else:
+            after_sync_and_call_addon_update()
 
     def maybe_auto_sync_media(self) -> None:
         if self.can_auto_sync():
