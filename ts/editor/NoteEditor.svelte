@@ -118,6 +118,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let fonts: [string, number, boolean][] = [];
     let richTextsHidden: boolean[] = [];
     let plainTextsHidden: boolean[] = [];
+    let fieldsCollapsed: boolean[] = [];
     const fields = clearableArray<EditorFieldAPI>();
 
     export function setFonts(fs: [string, number, boolean][]): void {
@@ -125,6 +126,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         richTextsHidden = fonts.map((_, index) => richTextsHidden[index] ?? false);
         plainTextsHidden = fonts.map((_, index) => plainTextsHidden[index] ?? true);
+        fieldsCollapsed = fonts.map((_, index) => fieldsCollapsed[index] ?? false);
     }
 
     export function focusField(index: number | null): void {
@@ -320,19 +322,16 @@ the AddCards dialog) should be implemented in the user of this component.
                                 )}`,
                             );
                         }}
+                        collapsed={fieldsCollapsed[index]}
                         --label-color={cols[index] === "dupe"
                             ? "var(--flag1-bg)"
                             : "transparent"}
                     >
                         <svelte:fragment slot="field-label">
                             <LabelContainer
-                                bind:off={richTextsHidden[index]}
+                                bind:collapsed={fieldsCollapsed[index]}
                                 on:toggle={() => {
-                                    if (!richTextsHidden[index]) {
-                                        plainTextsHidden[index] = true;
-                                        richTextInputs[index].api.refocus();
-                                    }
-                                    richTextsHidden[index] = !richTextsHidden[index];
+                                    fieldsCollapsed[index] = !fieldsCollapsed[index];
                                 }}
                             >
                                 <svelte:fragment slot="field-name">

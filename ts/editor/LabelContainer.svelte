@@ -11,7 +11,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "../lib/ftl";
     import { chevronDown, chevronRight } from "./icons";
 
-    export let off: boolean;
+    export let collapsed: boolean;
 
     const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
 
@@ -21,12 +21,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         dispatch("toggle");
     }
 
-    $: icon = off ? chevronRight : chevronDown;
+    $: icon = collapsed ? chevronRight : chevronDown;
     $: tooltip = collapsed ? tr.editingExpandField() : tr.editingCollapseField();
 </script>
 
 <div
-    class:collapsed={off}
     class="label-container"
     class:rtl={$direction === "rtl"}
     on:mousedown|preventDefault
