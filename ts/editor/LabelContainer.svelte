@@ -43,6 +43,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .label-container {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        background: var(--window-bg);
+
+        &::before {
+            content: "";
+            z-index: -1;
+            position: absolute;
+            top: -5px;
+            bottom: 0;
+            left: -2px;
+            right: -2px;
+            background: var(--window-bg);
+        }
         & .chevron {
             opacity: 0.4;
             transition: opacity 0.2s ease-in-out;
