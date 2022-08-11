@@ -44,7 +44,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     span {
         cursor: pointer;
         opacity: 0;
-        transition: opacity 0.2s ease-in;
         &.highlighted {
             opacity: 1;
         }
@@ -53,6 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         &:focus-within,
         &:hover {
             & span {
+                transition: none;
                 opacity: 0.4;
                 &:hover {
                     opacity: 0.8;
