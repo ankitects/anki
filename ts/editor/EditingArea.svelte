@@ -203,17 +203,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         &:focus-within {
             outline: none;
-            border-color: var(--focus-border);
             &::after {
                 content: "";
                 position: absolute;
-                top: 0;
-                right: 0;
-                bottom: 0;
-                left: 0;
+                top: -1px;
+                right: -1px;
+                bottom: -1px;
+                left: -1px;
                 pointer-events: none;
                 border-radius: 5px;
-                box-shadow: inset 0 0 0 1px var(--focus-border);
+                box-shadow: inset 0 0 0 2px var(--focus-border);
             }
         }
     }
