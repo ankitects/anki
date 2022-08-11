@@ -348,10 +348,6 @@ the AddCards dialog) should be implemented in the user of this component.
                                         on:toggle={() => {
                                             plainTextsHidden[index] =
                                                 !plainTextsHidden[index];
-
-                                            if (!plainTextsHidden[index]) {
-                                                plainTextInputs[index].api.refocus();
-                                            }
                                         }}
                                     />
                                     <slot name="field-state" {field} {index} />

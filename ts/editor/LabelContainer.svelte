@@ -29,15 +29,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="label-container"
     class:rtl={$direction === "rtl"}
     on:mousedown|preventDefault
+    on:click|stopPropagation={toggle}
 >
-    <span class="clickable" on:click|stopPropagation={toggle}>
-        <span class="chevron">
-            <Badge {tooltip} iconSize={80} --icon-align="text-bottom"
-                >{@html icon}</Badge
-            >
-        </span>
-        <slot name="field-name" />
+    <span class="chevron">
+        <Badge {tooltip} iconSize={80} --icon-align="text-bottom">{@html icon}</Badge>
     </span>
+    <slot name="field-name" />
+
     <slot />
 </div>
 
@@ -47,6 +45,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         top: 0;
         z-index: 3;
         background: var(--window-bg);
+        cursor: pointer;
 
         &::before {
             content: "";
@@ -58,9 +57,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             right: -2px;
             background: var(--window-bg);
         }
-        & .chevron {
+        .chevron {
             opacity: 0.4;
             transition: opacity 0.2s ease-in-out;
+        }
+        &:hover .chevron {
+            opacity: 1;
         }
 
         display: flex;
@@ -69,12 +71,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         background-color: var(--label-color, transparent);
 
         padding-bottom: 1px;
-    }
-    .clickable {
-        cursor: pointer;
-        &:hover .chevron {
-            opacity: 1;
-        }
     }
 
     .rtl {
