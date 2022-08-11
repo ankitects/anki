@@ -13,10 +13,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let columnOptions: ColumnOption[];
     export let tagsColumn: number;
     export let globalNotetype: ImportExport.CsvMetadata.MappedNotetype | null;
+
+    let lastNotetypeId: number | undefined = -1;
+    let fieldNamesPromise: Promise<string[]>;
+
+    $: if (globalNotetype?.id !== lastNotetypeId) {
+        lastNotetypeId = globalNotetype?.id;
+        fieldNamesPromise =
+            globalNotetype === null
+                ? Promise.resolve([])
+                : getNotetypeFields(globalNotetype.id);
+    }
 </script>
 
 {#if globalNotetype}
-    {#await getNotetypeFields(globalNotetype.id) then fieldNames}
+    {#await fieldNamesPromise then fieldNames}
         {#each fieldNames as label, idx}
             <!-- first index is treated specially, because it must be assigned some column -->
             <MapperRow
