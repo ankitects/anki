@@ -38,6 +38,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import removeProhibitedTags from "./remove-prohibited";
     import { storedToUndecorated, undecoratedToStored } from "./transform";
+    import { slide } from "svelte/transition";
 
     export let hidden: boolean;
 
@@ -140,20 +141,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setupLifecycleHooks(api);
 </script>
 
-<div
-    class="plain-text-input"
-    class:light-theme={!$pageTheme.isDark}
-    class:hidden
-    on:focusin={() => ($focusedInput = api)}
->
-    <CodeMirror
-        {configuration}
-        {code}
-        {hidden}
-        bind:api={codeMirror}
-        on:change={onChange}
-    />
-</div>
+{#if !hidden}
+    <div
+        class="plain-text-input"
+        class:light-theme={!$pageTheme.isDark}
+        on:focusin={() => ($focusedInput = api)}
+        out:slide={{ duration: 200 }}
+    >
+        <CodeMirror
+            {configuration}
+            {code}
+            {hidden}
+            bind:api={codeMirror}
+            on:change={onChange}
+        />
+    </div>
+{/if}
 
 <style lang="scss">
     .plain-text-input {
@@ -165,10 +168,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         :global(.CodeMirror-lines) {
             padding: 8px 0;
-        }
-
-        &.hidden {
-            display: none;
         }
     }
 

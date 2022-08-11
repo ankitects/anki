@@ -51,6 +51,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { fontFamilyKey, fontSizeKey } from "../lib/context-keys";
     import FocusTrap from "./FocusTrap.svelte";
+    import { slide } from "svelte/transition";
 
     export let fontFamily: string;
     const fontFamilyStore = writable(fontFamily);
@@ -177,7 +178,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <FocusTrap bind:this={focusTrap} on:focus={focusEditingInputInsteadIfAvailable} />
 
-<div bind:this={editingArea} class="editing-area" on:focusout={trapFocusOnBlurOut}>
+<div
+    bind:this={editingArea}
+    class="editing-area"
+    on:focusout={trapFocusOnBlurOut}
+    out:slide={{ duration: 200 }}
+>
     <slot />
 </div>
 
