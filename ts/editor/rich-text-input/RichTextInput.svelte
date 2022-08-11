@@ -201,48 +201,46 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setupLifecycleHooks(api);
 </script>
 
-{#if !hidden}
-    <div class="rich-text-input" on:focusin={setFocus} out:slide={{ duration: 200 }}>
-        {#if $content.length === 0}
-            <div
-                class="rich-text-placeholder"
-                style:font-family={$fontFamily}
-                style:font-size={$fontSize + "px"}
-                style:direction={$direction}
-            >
-                {$description}
-            </div>
-        {/if}
-
-        <RichTextStyles
-            color={$pageTheme.isDark ? "white" : "black"}
-            fontFamily={$fontFamily}
-            fontSize={$fontSize}
-            direction={$direction}
-            callback={stylesResolve}
-            let:attachToShadow={attachStyles}
-            let:stylesDidLoad
+<div class="rich-text-input" on:focusin={setFocus} {hidden}>
+    {#if $content.length === 0}
+        <div
+            class="rich-text-placeholder"
+            style:font-family={$fontFamily}
+            style:font-size={$fontSize + "px"}
+            style:direction={$direction}
         >
-            <div
-                bind:this={richTextDiv}
-                class={className}
-                class:night-mode={$pageTheme.isDark}
-                use:attachShadow
-                use:attachStyles
-                use:attachContentEditable={{ stylesDidLoad }}
-                on:focusin
-                on:focusout
-            />
+            {$description}
+        </div>
+    {/if}
 
-            {#await Promise.all([richTextPromise, stylesDidLoad]) then _}
-                <div class="rich-text-widgets">
-                    <slot />
-                </div>
-            {/await}
-        </RichTextStyles>
-        <slot name="plain-text-badge" />
-    </div>
-{/if}
+    <RichTextStyles
+        color={$pageTheme.isDark ? "white" : "black"}
+        fontFamily={$fontFamily}
+        fontSize={$fontSize}
+        direction={$direction}
+        callback={stylesResolve}
+        let:attachToShadow={attachStyles}
+        let:stylesDidLoad
+    >
+        <div
+            bind:this={richTextDiv}
+            class={className}
+            class:night-mode={$pageTheme.isDark}
+            use:attachShadow
+            use:attachStyles
+            use:attachContentEditable={{ stylesDidLoad }}
+            on:focusin
+            on:focusout
+        />
+
+        {#await Promise.all([richTextPromise, stylesDidLoad]) then _}
+            <div class="rich-text-widgets">
+                <slot />
+            </div>
+        {/await}
+    </RichTextStyles>
+    <slot name="plain-text-badge" />
+</div>
 
 <style lang="scss">
     .rich-text-input {

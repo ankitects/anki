@@ -178,12 +178,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <FocusTrap bind:this={focusTrap} on:focus={focusEditingInputInsteadIfAvailable} />
 
-<div
-    bind:this={editingArea}
-    class="editing-area"
-    on:focusout={trapFocusOnBlurOut}
-    out:slide={{ duration: 200 }}
->
+<div bind:this={editingArea} class="editing-area" on:focusout={trapFocusOnBlurOut}>
     <slot />
 </div>
 

@@ -141,22 +141,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     setupLifecycleHooks(api);
 </script>
 
-{#if !hidden}
-    <div
-        class="plain-text-input"
-        class:light-theme={!$pageTheme.isDark}
-        on:focusin={() => ($focusedInput = api)}
-        out:slide={{ duration: 200 }}
-    >
-        <CodeMirror
-            {configuration}
-            {code}
-            {hidden}
-            bind:api={codeMirror}
-            on:change={onChange}
-        />
-    </div>
-{/if}
+<div
+    class="plain-text-input"
+    class:light-theme={!$pageTheme.isDark}
+    class:hidden
+    on:focusin={() => ($focusedInput = api)}
+>
+    <CodeMirror
+        {configuration}
+        {code}
+        {hidden}
+        bind:api={codeMirror}
+        on:change={onChange}
+    />
+</div>
 
 <style lang="scss">
     .plain-text-input {
@@ -168,6 +166,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         :global(.CodeMirror-lines) {
             padding: 8px 0;
+        }
+
+        &.hidden {
+            display: none;
         }
     }
 
