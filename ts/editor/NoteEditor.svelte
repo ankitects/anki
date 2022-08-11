@@ -343,6 +343,17 @@ the AddCards dialog) should be implemented in the user of this component.
                                     {#if cols[index] === "dupe"}
                                         <DuplicateLink />
                                     {/if}
+                                    <PlainTextBadge
+                                        bind:off={plainTextsHidden[index]}
+                                        on:toggle={() => {
+                                            plainTextsHidden[index] =
+                                                !plainTextsHidden[index];
+
+                                            if (!plainTextsHidden[index]) {
+                                                plainTextInputs[index].api.refocus();
+                                            }
+                                        }}
+                                    />
                                     <slot name="field-state" {field} {index} />
                                 </FieldState>
                             </LabelContainer>
@@ -359,19 +370,6 @@ the AddCards dialog) should be implemented in the user of this component.
                                 <ImageHandle maxWidth={250} maxHeight={125} />
                                 <MathjaxHandle />
                             </RichTextInput>
-
-                            <PlainTextBadge
-                                collapsed={richTextsHidden[index]}
-                                bind:off={plainTextsHidden[index]}
-                                on:toggle={() => {
-                                    plainTextsHidden[index] = !plainTextsHidden[index];
-
-                                    if (!plainTextsHidden[index]) {
-                                        plainTextInputs[index].api.refocus();
-                                    }
-                                }}
-                            />
-
                             <PlainTextInput
                                 hidden={plainTextsHidden[index]}
                                 on:focusout={() => {

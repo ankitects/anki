@@ -5,16 +5,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { createEventDispatcher, onMount } from "svelte";
 
+    import Badge from "../components/Badge.svelte";
     import * as tr from "../lib/ftl";
     import { getPlatformString, registerShortcut } from "../lib/shortcuts";
     import { context as editorFieldContext } from "./EditorField.svelte";
+    import { plainTextIcon, richTextIcon } from "./icons";
 
     const editorField = editorFieldContext.get();
     const keyCombination = "Control+Shift+X";
     const dispatch = createEventDispatcher();
 
     export let off = false;
-    export let collapsed = false;
+    export let defaultInput: "plain" | "rich" = "rich";
+
+    $: icon = defaultInput == "rich" ? plainTextIcon : richTextIcon;
 
     function toggle() {
         dispatch("toggle");
@@ -27,107 +31,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     onMount(() => editorField.element.then(shortcut));
 </script>
 
-{#if !collapsed}
-    <div class="clickable" on:click|stopPropagation={toggle}>
-        <span
-            class="plain-text-toggle"
-            class:off
-            class:on={!off}
-            class:collapsed
-            title="{tr.editingToggleHtmlEditor()} ({getPlatformString(keyCombination)})"
-        >
-            HTML
-        </span>
-    </div>
-{/if}
+<span
+    class="plain-text-badge"
+    class:highlighted={!off}
+    on:click|stopPropagation={toggle}
+>
+    <Badge
+        tooltip="{tr.editingToggleHtmlEditor()} ({getPlatformString(keyCombination)})"
+        iconSize={75}>{@html icon}</Badge
+    >
+</span>
 
 <style lang="scss">
-    .plain-text-toggle {
+    span {
+        cursor: pointer;
         opacity: 0;
-        top: -6px;
-        right: 8px;
-        position: absolute;
-        padding: 0 2px;
-        font-size: xx-small;
-        font-weight: bold;
-        color: var(--border);
-
-        transition: opacity 0.2s ease-in, color 0.2s ease-in;
-
-        &::before {
-            content: "";
-            position: absolute;
-            z-index: -1;
-            top: 0;
-            bottom: 0;
-            left: 50%;
-            right: 50%;
-
-            transition: left 0.2s ease-in, right 0.2s ease-in;
+        &.highlighted {
+            opacity: 1;
         }
-    }
-
-    .plain-text-toggle.on {
-        opacity: 1;
-        color: var(--text-fg);
-        &::before {
-            right: 0px;
-            left: -1px;
-
-            background: linear-gradient(
-                to bottom,
-                var(--frame-bg) 50%,
-                var(--code-bg) 0%
-            );
-        }
-    }
-    .plain-text-toggle.off::before {
-        background: linear-gradient(
-            to bottom,
-            var(--frame-bg) 50%,
-            var(--window-bg) 0%
-        );
     }
     :global(.editor-field) {
         &:focus-within,
         &:hover {
-            .plain-text-toggle {
-                opacity: 1;
-
-                &::before {
-                    right: 0px;
-                    left: -1px;
+            & span {
+                transition: none;
+                opacity: 0.4;
+                &:hover {
+                    opacity: 0.8;
                 }
-            }
-        }
-    }
-
-    .clickable {
-        position: relative;
-        width: 100%;
-        z-index: 3;
-        cursor: pointer;
-        // make whole division line clickable
-        &::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: -7px;
-            width: 100%;
-            height: 16px;
-        }
-
-        &:hover {
-            .plain-text-toggle {
-                color: var(--text-fg);
-                opacity: 1;
-            }
-            .plain-text-toggle.on {
-                color: var(--border);
-
-                &::before {
-                    left: 50%;
-                    right: 50%;
+                &.highlighted {
+                    opacity: 1;
                 }
             }
         }
