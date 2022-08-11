@@ -22,6 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     $: icon = off ? chevronRight : chevronDown;
+    $: tooltip = collapsed ? tr.editingExpandField() : tr.editingCollapseField();
 </script>
 
 <div
@@ -32,12 +33,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 >
     <span class="clickable" on:click|stopPropagation={toggle}>
         <span class="chevron">
-            <Badge
-                tooltip={tr.editingToggleVisualEditor()}
-                iconSize={80}
-                --icon-align="text-bottom"
-                >{@html icon}
-            </Badge>
+            <Badge {tooltip} iconSize={80} --icon-align="text-bottom"
+                >{@html icon}</Badge
+            >
         </span>
         <slot name="field-name" />
     </span>
