@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .fields {
         display: grid;
         grid-auto-rows: min-content;
-        grid-gap: 4px;
+        grid-gap: 6px;
 
         padding: 5px 3px 0;
         /* set height to 100% for rich text widgets */
