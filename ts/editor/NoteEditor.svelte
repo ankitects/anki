@@ -61,7 +61,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import MathjaxElement from "./MathjaxElement.svelte";
     import Notification from "./Notification.svelte";
     import { PlainTextInput } from "./plain-text-input";
-    import PlainTextBadge from "./PlainTextBadge.svelte";
+    import SecondaryInputBadge from "./SecondaryInputBadge.svelte";
     import { editingInputIsRichText, RichTextInput } from "./rich-text-input";
 
     function quoteFontFamily(fontFamily: string): string {
@@ -343,7 +343,7 @@ the AddCards dialog) should be implemented in the user of this component.
                                     {#if cols[index] === "dupe"}
                                         <DuplicateLink />
                                     {/if}
-                                    <PlainTextBadge
+                                    <SecondaryInputBadge
                                         bind:off={plainTextsHidden[index]}
                                         on:toggle={() => {
                                             plainTextsHidden[index] =
