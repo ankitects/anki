@@ -29,6 +29,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { onMount, tick } from "svelte";
     import { writable } from "svelte/store";
+    import { slide } from "svelte/transition";
 
     import { singleCallback } from "../../lib/typing";
     import { pageTheme } from "../../sveltelib/theme";
@@ -38,7 +39,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import removeProhibitedTags from "./remove-prohibited";
     import { storedToUndecorated, undecoratedToStored } from "./transform";
-    import { slide } from "svelte/transition";
 
     export let hidden: boolean;
 

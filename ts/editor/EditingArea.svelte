@@ -48,10 +48,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { setContext as svelteSetContext, tick } from "svelte";
     import { writable } from "svelte/store";
+    import { slide } from "svelte/transition";
 
     import { fontFamilyKey, fontSizeKey } from "../lib/context-keys";
     import FocusTrap from "./FocusTrap.svelte";
-    import { slide } from "svelte/transition";
 
     export let fontFamily: string;
     const fontFamilyStore = writable(fontFamily);

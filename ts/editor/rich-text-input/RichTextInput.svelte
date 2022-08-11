@@ -49,6 +49,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { getAllContexts, getContext, onMount } from "svelte";
     import type { Readable } from "svelte/store";
+    import { slide } from "svelte/transition";
 
     import { placeCaretAfterContent } from "../../domlib/place-caret";
     import ContentEditable from "../../editable/ContentEditable.svelte";
@@ -69,7 +70,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import useRichTextResolve from "./rich-text-resolve";
     import RichTextStyles from "./RichTextStyles.svelte";
     import { fragmentToStored, storedToFragment } from "./transform";
-    import { slide } from "svelte/transition";
 
     export let hidden: boolean;
 

@@ -61,8 +61,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import MathjaxElement from "./MathjaxElement.svelte";
     import Notification from "./Notification.svelte";
     import { PlainTextInput } from "./plain-text-input";
-    import SecondaryInputBadge from "./SecondaryInputBadge.svelte";
     import { editingInputIsRichText, RichTextInput } from "./rich-text-input";
+    import SecondaryInputBadge from "./SecondaryInputBadge.svelte";
 
     function quoteFontFamily(fontFamily: string): string {
         // generic families (e.g. sans-serif) must not be quoted

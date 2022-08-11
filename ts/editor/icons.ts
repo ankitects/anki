@@ -9,6 +9,6 @@ export { default as chevronDown } from "@mdi/svg/svg/chevron-down.svg";
 export { default as chevronRight } from "@mdi/svg/svg/chevron-right.svg";
 export { default as chevronUp } from "@mdi/svg/svg/chevron-up.svg";
 export { default as plainTextIcon } from "@mdi/svg/svg/code-tags.svg";
-export { default as richTextIcon } from "@mdi/svg/svg/format-font.svg";
 export { default as clozeIcon } from "@mdi/svg/svg/contain.svg";
+export { default as richTextIcon } from "@mdi/svg/svg/format-font.svg";
 export { default as stickyIcon } from "@mdi/svg/svg/pin-outline.svg";
