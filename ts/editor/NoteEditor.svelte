@@ -330,10 +330,11 @@ the AddCards dialog) should be implemented in the user of this component.
                         <svelte:fragment slot="field-label">
                             <LabelContainer
                                 bind:collapsed={fieldsCollapsed[index]}
-                                on:toggle={() => {
+                                on:toggle={async () => {
                                     fieldsCollapsed[index] = !fieldsCollapsed[index];
 
                                     if (!fieldsCollapsed[index]) {
+                                        await tick();
                                         richTextInputs[index].api.refocus();
                                     }
                                 }}
@@ -349,11 +350,12 @@ the AddCards dialog) should be implemented in the user of this component.
                                     {/if}
                                     <SecondaryInputBadge
                                         bind:off={plainTextsHidden[index]}
-                                        on:toggle={() => {
+                                        on:toggle={async () => {
                                             plainTextsHidden[index] =
                                                 !plainTextsHidden[index];
 
                                             if (!plainTextsHidden[index]) {
+                                                await tick();
                                                 plainTextInputs[index].api.refocus();
                                             }
                                         }}

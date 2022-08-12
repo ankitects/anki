@@ -100,7 +100,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fontFamily={field.fontFamily}
         fontSize={field.fontSize}
         api={editingArea}
-        hidden={collapsed}
+        {collapsed}
     >
         <slot name="editing-inputs" />
     </EditingArea>
