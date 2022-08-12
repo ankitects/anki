@@ -25,7 +25,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const transition = async (collapse: boolean) => {
         const inner = await element;
-
         isCollapsed = true;
 
         if (collapse) {
@@ -41,8 +40,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             );
         } else {
             inner.removeAttribute("hidden");
-            // force repaint to enable transition
-            const repaint = inner.offsetHeight;
             isCollapsed = false;
         }
     };
