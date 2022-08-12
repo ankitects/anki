@@ -257,7 +257,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .rich-text-input {
         position: relative;
-        margin: 6px;
     }
 
     .rich-text-placeholder {
@@ -271,5 +270,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         white-space: nowrap;
         overflow-x: hidden;
         text-overflow: ellipsis;
+    }
+
+    .hidden {
+        display: none;
     }
 </style>
