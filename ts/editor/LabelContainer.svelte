@@ -3,17 +3,13 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { createEventDispatcher, getContext } from "svelte";
-    import type { Readable } from "svelte/store";
+    import { createEventDispatcher } from "svelte";
 
     import Badge from "../components/Badge.svelte";
-    import { directionKey } from "../lib/context-keys";
     import * as tr from "../lib/ftl";
     import { chevronDown } from "./icons";
 
     export let collapsed: boolean;
-
-    const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
 
     const dispatch = createEventDispatcher();
 
@@ -26,7 +22,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div
     class="label-container"
-    class:rtl={$direction === "rtl"}
     on:mousedown|preventDefault
     on:click|stopPropagation={toggle}
 >
@@ -65,9 +60,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 transform: rotate(-90deg);
             }
         }
-        &.rtl .chevron.collapsed {
-            transform: rotate(90deg);
-        }
         &:hover .chevron {
             opacity: 1;
         }
@@ -80,7 +72,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         padding-bottom: 1px;
     }
 
-    .rtl {
-        direction: rtl;
+    :global([dir="rtl"]) {
+        .chevron.collapsed {
+            transform: rotate(90deg);
+        }
     }
 </style>
