@@ -34,7 +34,14 @@ class SidebarSearchBar(QLineEdit):
             f"border-radius: 5px",
         ]
 
-        self.setStyleSheet("QLineEdit { %s }" % ";".join(styles))
+        self.setStyleSheet(
+            "QLineEdit { %s }" % ";".join(styles)
+            + f"""
+QLineEdit:focus {{
+    border: 1px solid {theme_manager.color(colors.FOCUS_BORDER)};
+}}
+            """
+        )
 
     def onTextChanged(self, text: str) -> None:
         if not self.timer.isActive():
