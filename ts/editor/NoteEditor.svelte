@@ -332,6 +332,10 @@ the AddCards dialog) should be implemented in the user of this component.
                                 bind:collapsed={fieldsCollapsed[index]}
                                 on:toggle={() => {
                                     fieldsCollapsed[index] = !fieldsCollapsed[index];
+
+                                    if (!fieldsCollapsed[index]) {
+                                        richTextInputs[index].api.refocus();
+                                    }
                                 }}
                             >
                                 <svelte:fragment slot="field-name">
@@ -348,6 +352,10 @@ the AddCards dialog) should be implemented in the user of this component.
                                         on:toggle={() => {
                                             plainTextsHidden[index] =
                                                 !plainTextsHidden[index];
+
+                                            if (!plainTextsHidden[index]) {
+                                                plainTextInputs[index].api.refocus();
+                                            }
                                         }}
                                     />
                                     <slot name="field-state" {field} {index} />
